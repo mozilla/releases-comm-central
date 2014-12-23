@@ -9,17 +9,14 @@ var SidebarUtils = {
       return;
 
     var tbo = aTree.treeBoxObject;
-    var row = { }, col = { }, obj = { };
-    tbo.getCellAt(aEvent.clientX, aEvent.clientY, row, col, obj);
+    var cell = tbo.getCellAt(aEvent.clientX, aEvent.clientY);
 
-    if (row.value == -1 || obj.value == "twisty")
+    if (cell.row == -1 || cell.childElt == "twisty")
       return;
 
     var mouseInGutter = false;
     if (aGutterSelect) {
-      var x = { }, y = { }, w = { }, h = { };
-      tbo.getCoordsForCellItem(row.value, col.value, "image",
-                               x, y, w, h);
+      var rect = tbo.getCoordsForCellItem(cell.row, cell.col, "image");
       // getCoordsForCellItem returns the x coordinate in logical coordinates
       // (i.e., starting from the left and right sides in LTR and RTL modes,
       // respectively.)  Therefore, we make sure to exclude the blank area
@@ -27,25 +24,25 @@ var SidebarUtils = {
       // LTR and RTL modes, respectively) from the click target area.
       var isRTL = window.getComputedStyle(aTree, null).direction == "rtl";
       if (isRTL)
-        mouseInGutter = aEvent.clientX > x.value;
+        mouseInGutter = aEvent.clientX > rect.x;
       else
-        mouseInGutter = aEvent.clientX < x.value;
+        mouseInGutter = aEvent.clientX < rect.x;
     }
 
     var openWhere = whereToOpenLink(aEvent, false, true);
 
-    var isContainer = tbo.view.isContainer(row.value);
+    var isContainer = tbo.view.isContainer(cell.row);
     var openInTabs = isContainer &&
                      (openWhere == "tab" || openWhere == "tabshifted") &&
-                     PlacesUtils.hasChildURIs(tbo.view.nodeForTreeIndex(row.value));
+                     PlacesUtils.hasChildURIs(tbo.view.nodeForTreeIndex(cell.row));
 
     if (aEvent.button == 0 && isContainer && !openInTabs) {
-      tbo.view.toggleOpenState(row.value);
+      tbo.view.toggleOpenState(cell.row);
       return;
     }
     else if (!mouseInGutter && openInTabs &&
             aEvent.originalTarget.localName == "treechildren") {
-      tbo.view.selection.select(row.value);
+      tbo.view.selection.select(cell.row);
       PlacesUIUtils.openContainerNodeInTabs(aTree.selectedNode, aEvent);
     }
     else if (!mouseInGutter && !isContainer &&
@@ -53,7 +50,7 @@ var SidebarUtils = {
       // Clear all other selection since we're loading a link now. We must
       // do this *before* attempting to load the link since openURL uses
       // selection as an indication of which link to load.
-      tbo.view.selection.select(row.value);
+      tbo.view.selection.select(cell.row);
       PlacesUIUtils.openNodeWithEvent(aTree.selectedNode, aEvent);
     }
   },
@@ -73,14 +70,13 @@ var SidebarUtils = {
 
     var tree = aEvent.target.parentNode;
     var tbo = tree.treeBoxObject;
-    var row = { }, col = { }, obj = { };
-    tbo.getCellAt(aEvent.clientX, aEvent.clientY, row, col, obj);
+    var cell = tbo.getCellAt(aEvent.clientX, aEvent.clientY);
 
-    // row.value is -1 when the mouse is hovering an empty area within the tree.
+    // cell.row is -1 when the mouse is hovering an empty area within the tree.
     // To avoid showing a URL from a previously hovered node for a currently
     // hovered non-url node, we must clear the moused-over URL in these cases.
-    if (row.value != -1) {
-      var node = tree.view.nodeForTreeIndex(row.value);
+    if (cell.row != -1) {
+      var node = tree.view.nodeForTreeIndex(cell.row);
       if (PlacesUtils.nodeIsURI(node))
         this.setMouseoverURL(node.uri);
       else

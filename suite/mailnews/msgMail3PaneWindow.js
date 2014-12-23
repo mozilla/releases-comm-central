@@ -1217,9 +1217,8 @@ function FolderPaneOnClick(event)
     return;
 
   var folderTree = GetFolderTree();
-  var row = {}, col = {}, elt = {};
-  folderTree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col, elt);
-  if (row.value == -1)
+  var cell = folderTree.treeBoxObject.getCellAt(event.clientX, event.clientY);
+  if (cell.row == -1)
   {
     if (event.originalTarget.localName == "treecol")
     {
@@ -1228,10 +1227,10 @@ function FolderPaneOnClick(event)
     }
   }
   else if ((event.detail == 2) &&
-           (elt.value != "twisty") &&
-           (folderTree.view.getLevel(row.value) != 0))
+           (cell.childElt != "twisty") &&
+           (folderTree.view.getLevel(cell.row) != 0))
   {
-    FolderPaneDoubleClick(row.value, event);
+    FolderPaneDoubleClick(cell.row, event);
   }
 }
 

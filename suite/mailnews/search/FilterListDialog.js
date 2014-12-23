@@ -576,17 +576,16 @@ function onFilterDoubleClick(event)
     if (event.button != 0)
       return;
 
-    var row = {}, col = {}, childElt = {};
     var filterTree = document.getElementById("filterTree");
-    filterTree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col, childElt);
-    if (row.value == -1 || row.value > filterTree.view.rowCount-1 || event.originalTarget.localName != "treechildren") {
+    var cell = filterTree.treeBoxObject.getCellAt(event.clientX, event.clientY);
+    if (cell.row == -1 || cell.row > filterTree.view.rowCount - 1 || event.originalTarget.localName != "treechildren") {
       // double clicking on a non valid row should not open the edit filter dialog
       return;
     }
 
     // if the cell is in a "cycler" column (the enabled column)
     // don't open the edit filter dialog with the selected filter
-    if (!col.value.cycler)
+    if (!cell.col.cycler)
       onEditFilter();
 }
 

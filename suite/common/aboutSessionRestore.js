@@ -131,16 +131,15 @@ function onListClick(aEvent) {
   if (aEvent.button == 2)
     return;
 
-  var row = {}, col = {};
-  treeView.treeBox.getCellAt(aEvent.clientX, aEvent.clientY, row, col, {});
-  if (col.value) {
+  var cell = treeView.treeBox.getCellAt(aEvent.clientX, aEvent.clientY);
+  if (cell.col) {
     // restore this specific tab in the same window for middle-clicking
     // or Ctrl+clicking on a tab's title
-    if ((aEvent.button == 1 || aEvent.ctrlKey) && col.value.id == "title" &&
-        !treeView.isContainer(row.value))
-      restoreSingleTab(row.value, aEvent.shiftKey);
-    else if (col.value.id == "restore")
-      toggleRowChecked(row.value);
+    if ((aEvent.button == 1 || aEvent.ctrlKey) && cell.col.id == "title" &&
+        !treeView.isContainer(cell.row))
+      restoreSingleTab(cell.row, aEvent.shiftKey);
+    else if (cell.col.id == "restore")
+      toggleRowChecked(cell.row);
   }
 }
 

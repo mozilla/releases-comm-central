@@ -342,11 +342,10 @@ function HandleToolTipEvent(aEvent)
 {
   var treeTip = document.getElementById("treetip");
   var tree = document.getElementById("profiles");
-  var row = {};
 
-  tree.treeBoxObject.getCellAt(aEvent.clientX, aEvent.clientY, row, {}, {});
-  if (row.value < 0)
+  var cell = tree.treeBoxObject.getCellAt(aEvent.clientX, aEvent.clientY);
+  if (cell.row < 0)
     aEvent.preventDefault();
   else
-    treeTip.label = tree.view.getItemAtIndex(row.value).tooltip;
+    treeTip.label = tree.view.getItemAtIndex(cell.row).tooltip;
 }

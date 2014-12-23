@@ -293,25 +293,24 @@ function SearchOnClick(event)
   // we only care about button 0 (left click) events
   if (event.button != 0 || event.originalTarget.localName != "treechildren") return;
 
-  var row = {}, col = {}, childElt = {};
-  gSearchTreeBoxObject.getCellAt(event.clientX, event.clientY, row, col, childElt);
-  if (row.value == -1 || row.value > gSearchView.rowCount-1)
+  var cell = gSearchTreeBoxObject.getCellAt(event.clientX, event.clientY);
+  if (cell.row == -1 || cell.row > gSearchView.rowCount - 1)
     return;
 
-  if (col.value.id == "subscribedColumn2") {
+  if (cell.col.id == "subscribedColumn2") {
     if (event.detail != 2) {
       // single clicked on the check box
       // (in the "subscribedColumn2" column) reverse state
       // if double click, do nothing
-      ReverseStateFromRow(row.value);
+      ReverseStateFromRow(cell.row);
     }
   } else if (event.detail == 2) {
     // double clicked on a row, reverse state
-    ReverseStateFromRow(row.value);
+    ReverseStateFromRow(cell.row);
   }
 
   // invalidate the row
-  InvalidateSearchTreeRow(row.value);
+  InvalidateSearchTreeRow(cell.row);
 }
 
 function ReverseStateFromRow(aRow)
@@ -390,24 +389,23 @@ function SubscribeOnClick(event)
   if (event.button != 0 || event.originalTarget.localName != "treechildren")
    return;
 
-  var row = {}, col = {}, obj = {};
-  gSubscribeTree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col, obj);
-  if (row.value == -1 || row.value > (gSubscribeTree.view.rowCount - 1))
+  var cell = gSubscribeTree.treeBoxObject.getCellAt(event.clientX, event.clientY);
+  if (cell.row == -1 || cell.row > (gSubscribeTree.view.rowCount - 1))
     return;
 
   if (event.detail == 2) {
     // only toggle subscribed state when double clicking something
     // that isn't a container
-    if (!gSubscribeTree.view.isContainer(row.value)) {
-      ReverseStateFromNode(row.value);
+    if (!gSubscribeTree.view.isContainer(cell.row)) {
+      ReverseStateFromNode(cell.row);
       return;
     }
   }
   else if (event.detail == 1)
   {
-    if (obj.value == "twisty") {
-        if (gSubscribeTree.view.isContainerOpen(row.value)) {
-          var uri = gSubscribeTree.builderView.getResourceAtIndex(row.value).Value;
+    if (cell.childElt == "twisty") {
+        if (gSubscribeTree.view.isContainerOpen(cell.row)) {
+          var uri = gSubscribeTree.builderView.getResourceAtIndex(cell.row).Value;
 
           gStatusFeedback._startMeteors();
           gStatusFeedback.showStatusString(gSubscribeBundle.getString("pleaseWaitString"));
@@ -417,8 +415,8 @@ function SubscribeOnClick(event)
     }
     else {
       // if the user single clicks on the subscribe check box, we handle it here
-      if (col.value.id == "subscribedColumn")
-        ReverseStateFromNode(row.value);
+      if (cell.col.id == "subscribedColumn")
+        ReverseStateFromNode(cell.row);
     }
   }
 }

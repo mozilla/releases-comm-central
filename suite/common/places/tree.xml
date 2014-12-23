@@ -704,11 +704,9 @@
         if (event.target.localName != "treechildren")
           return;
 
-        let row = { }, col = { }, child = { };
-        this.treeBoxObject.getCellAt(event.clientX, event.clientY,
-                                     row, col, child);
-        let node = row.value != -1 ?
-                   this.view.nodeForTreeIndex(row.value) :
+        let cell = this.treeBoxObject.getCellAt(event.clientX, event.clientY);
+        let node = cell.row != -1 ?
+                   this.view.nodeForTreeIndex(cell.row) :
                    this.result.root;
         // cache the dropTarget for the view
         PlacesControllerDragHelper.currentDropTarget = node;
@@ -718,11 +716,11 @@
         let tbo = this.treeBoxObject;
         let rowHeight = tbo.rowHeight;
         let eventY = event.clientY - tbo.treeBody.boxObject.y -
-                     rowHeight * (row.value - tbo.getFirstVisibleRow());
+                     rowHeight * (cell.row - tbo.getFirstVisibleRow());
 
         let orientation = Components.interfaces.nsITreeView.DROP_BEFORE;
 
-        if (row.value == -1) {
+        if (cell.row == -1) {
           // If the row is not valid we try to insert inside the resultNode.
           orientation = Components.interfaces.nsITreeView.DROP_ON;
         }
@@ -739,7 +737,7 @@
           orientation = Components.interfaces.nsITreeView.DROP_ON;
         }
 
-        if (!this.view.canDrop(row.value, orientation, event.dataTransfer))
+        if (!this.view.canDrop(cell.row, orientation, event.dataTransfer))
           return;
 
         event.preventDefault();

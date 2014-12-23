@@ -61,12 +61,10 @@
 function mouseDblClickOnCell(aTree, aRow, aColumn, aWin)
 {
   // get cell coordinates
-  var x = {}, y = {}, width = {}, height = {};
   if (typeof aTree.columns != "undefined")
     aColumn = aTree.columns[aColumn];
-  aTree.treeBoxObject.getCoordsForCellItem(aRow, aColumn, "text", x, y, width,
-                                           height);
-  synthesizeMouse(aTree.body, x.value, y.value, { clickCount: 2 }, aWin);
+  var rect = aTree.treeBoxObject.getCoordsForCellItem(aRow, aColumn, "text");
+  synthesizeMouse(aTree.body, rect.x, rect.y, { clickCount: 2 }, aWin);
 }
 
 function dlObs(aWin)

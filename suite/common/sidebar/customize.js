@@ -175,12 +175,11 @@ function ClickOnOtherPanels(event)
   
   var rowIndex = -1;
   if (event.type == "click" && event.button == 0) {
-    var row = {}, col = {}, obj = {};
     var b = tree.treeBoxObject;
-    b.getCellAt(event.clientX, event.clientY, row, col, obj);
+    var cell = b.getCellAt(event.clientX, event.clientY);
 
-    if (obj.value == "twisty" || event.detail == 2) {
-      rowIndex = row.value;
+    if (cell.childElt == "twisty" || event.detail == 2) {
+      rowIndex = cell.row;
     }
   }
 

@@ -41,16 +41,15 @@ function ThreadPaneOnClick(event)
   }
   else if (t.localName == "treechildren")
   {
-    let row = {}, col = {}, childElt = {};
     let tree = GetThreadTree();
     // figure out what cell the click was in
-    tree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col, childElt);
-    if (row.value == -1)
+    var cell = tree.treeBoxObject.getCellAt(event.clientX, event.clientY);
+    if (cell.row == -1)
       return;
 
     // If the cell is in a "cycler" column or if the user double clicked on the
     // twisty, don't open the message in a new window.
-    if (event.detail == 2 && !col.value.cycler && (childElt.value != "twisty"))
+    if (event.detail == 2 && !cell.col.cycler && (cell.childElt != "twisty"))
     {
       ThreadPaneDoubleClick();
       // Double clicking should not toggle the open/close state of the thread.
@@ -58,13 +57,13 @@ function ThreadPaneOnClick(event)
       // default handler in tree.xml.
       event.stopPropagation();
     }
-    else if (col.value.id == "junkStatusCol")
+    else if (cell.col.id == "junkStatusCol")
     {
       MsgJunkMailInfo(true);
     }
-    else if (col.value.id == "threadCol" && !event.shiftKey && (event.ctrlKey || event.metaKey))
+    else if (cell.col.id == "threadCol" && !event.shiftKey && (event.ctrlKey || event.metaKey))
     {
-      gDBView.ExpandAndSelectThreadByIndex(row.value, true);
+      gDBView.ExpandAndSelectThreadByIndex(cell.row, true);
       event.stopPropagation();
     }
   }

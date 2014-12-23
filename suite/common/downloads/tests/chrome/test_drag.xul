@@ -106,12 +106,10 @@ const DownloadData = [
 function mouseDragStartOnCell(aTree, aRow, aColumn, aWin, aFile)
 {
   // get cell coordinates
-  var x = {}, y = {}, width = {}, height = {};
   if (typeof aTree.columns != "undefined")
     aColumn = aTree.columns[aColumn];
-  aTree.treeBoxObject.getCoordsForCellItem(aRow, aColumn, "text", x, y, width,
-                                           height);
-  return synthesizeDragStart(aTree.body, aFile, aWin, x.value, y.value);
+  var rect = aTree.treeBoxObject.getCoordsForCellItem(aRow, aColumn, "text");
+  return synthesizeDragStart(aTree.body, aFile, aWin, rect.x, rect.y);
 }
 
 function compareFunc(actualData, expectedData)
