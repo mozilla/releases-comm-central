@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @media not print {
-  img.decoded {
+  img.transparent {
     /* checkerboard background image */
     background-image: url("chrome://global/skin/media/checkerboard.png");
     box-shadow: -5px 5px 5px 0px rgba(50, 50, 50, 0.75);
