@@ -1689,7 +1689,7 @@ function InitPageMenu(menuPopup, event) {
   if (event.target != menuPopup)
     return;
 
-  PageMenu.maybeBuildAndAttachMenu(menuPopup.triggerNode, menuPopup);
+  PageMenuParent.buildAndAddToPopup(menuPopup.triggerNode, menuPopup);
 
   if (menuPopup.children.length == 0)
     event.preventDefault();

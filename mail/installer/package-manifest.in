@@ -617,6 +617,8 @@
 @RESPATH@/components/dom_webspeechsynth.xpt
 @RESPATH@/components/dom_xbl.xpt
 @RESPATH@/components/dom_xul.xpt
+@RESPATH@/components/htmlMenuBuilder.js
+@RESPATH@/components/htmlMenuBuilder.manifest
 @RESPATH@/components/NetworkGeolocationProvider.js
 @RESPATH@/components/NetworkGeolocationProvider.manifest
 

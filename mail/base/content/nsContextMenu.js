@@ -8,10 +8,10 @@ Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/MailUtils.js");
 
-XPCOMUtils.defineLazyGetter(this, "PageMenu", function() {
+XPCOMUtils.defineLazyGetter(this, "PageMenuParent", function() {
   let tmp = {};
   Cu.import("resource://gre/modules/PageMenu.jsm", tmp);
-  return new tmp.PageMenu();
+  return new tmp.PageMenuParent();
 });
 
 var gSpellChecker = new InlineSpellChecker();
@@ -75,8 +75,8 @@ nsContextMenu.prototype = {
 
     this.hasPageMenu = false;
     if (!aIsShift) {
-      this.hasPageMenu = PageMenu.maybeBuildAndAttachMenu(this.target,
-                                                          aPopup);
+      this.hasPageMenu = PageMenuParent.buildAndAddToPopup(this.target,
+                                                           aPopup);
     }
 
     this.initItems();
