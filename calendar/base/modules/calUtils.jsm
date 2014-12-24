@@ -537,7 +537,7 @@ let cal = {
      * @return          The Javascript date equivalent.
      */
     dateTimeToJsDate: function(cdt) {
-        if (cdt.timezone == cal.floating()) {
+        if (cdt.timezone.isFloating) {
             return new Date(cdt.year, cdt.month, cdt.day,
                             cdt.hour, cdt.minute, cdt.second);
         } else {
