@@ -90,13 +90,22 @@ calDateTime.prototype = {
     }),
 
     compare: unwrap(ICAL.Time, function(val) {
-        if (this.innerObject.isDate != val.isDate) {
+        let a = this.innerObject;
+        let b = val;
+
+        // If either this or aOther is floating, both objects are treated
+        // as floating for the comparison.
+        if (a.zone == ICAL.Timezone.localTimezone || b.zone == ICAL.Timezone.localTimezone) {
+            a = a.convertToZone(ICAL.Timezone.localTimezone);
+            b = b.convertToZone(ICAL.Timezone.localTimezone);
+        }
+
+        if (a.isDate || b.isDate) {
             // Lightning expects 20120101 and 20120101T010101 to be equal
-            tz = (this.innerObject.isDate ? val.zone : this.innerObject.zone);
-            return this.innerObject.compareDateOnlyTz(val, tz);
+            return a.compareDateOnlyTz(b, a.zone);
         } else {
             // If both are dates or date-times, then just do the normal compare
-            return this.innerObject.compare(val);
+            return a.compare(b);
         }
     }),
 
