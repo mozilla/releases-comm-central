@@ -510,7 +510,7 @@ GenericProtocolHandler.prototype = {
   },
 
   newChannel: function newChannel(aUri) {
-    return this.newChannel2(inputURI, null);
+    return this.newChannel2(aUri, null);
   },
 
   newChannel2: function newChannel(aUri, aLoadinfo) {
