@@ -91,6 +91,8 @@ calendar.jar:
     content/calendar/preferences/editCategory.js           (content/preferences/editCategory.js)
     content/calendar/preferences/general.js                (content/preferences/general.js)
 *   content/calendar/preferences/general.xul               (content/preferences/general.xul)
+    content/calendar/preferences/timezones.js              (content/preferences/timezones.js)
+    content/calendar/preferences/timezones.xul             (content/preferences/timezones.xul)
     content/calendar/preferences/views.js                  (content/preferences/views.js)
     content/calendar/preferences/views.xul                 (content/preferences/views.xul)
     content/calendar/widgets/minimonth.xml                 (content/widgets/minimonth.xml)

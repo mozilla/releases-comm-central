@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay SYSTEM "chrome://calendar/locale/preferences/timezones.dtd">
+
+<overlay id="TimezonesPaneOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <vbox id="calPreferencesBoxTimezones">
+        <script type="application/javascript"
+                src="chrome://calendar/content/preferences/timezones.js"/>
+        <script type="application/javascript"
+                src="chrome://calendar/content/calendar-ui-utils.js"/>
+        <script type="application/javascript"
+                src="chrome://calendar/content/calUtils.js"/>
+
+        <preferences>
+            <preference id="calendar-timezone-local"
+                        name="calendar.timezone.local"
+                        type="string"/>
+        </preferences>
+
+        <groupbox>
+            <caption label="&pref.calendar.timezones.list.caption;"/>
+
+            <menulist id="calendar-timezone-menulist"
+                      preference="calendar-timezone-local">
+                <menupopup id="calendar-timezone-menupopup"/>
+            </menulist>
+        </groupbox>
+
+    </vbox>
+</overlay>

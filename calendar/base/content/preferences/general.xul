@@ -19,11 +19,7 @@
         <script type="application/javascript"
                 src="chrome://calendar/content/preferences/general.js"/>
         <script type="application/javascript"
-                src="chrome://calendar/content/preferences/timezones.js"/>
-        <script type="application/javascript"
                 src="chrome://calendar/content/calendar-ui-utils.js"/>
-        <script type="application/javascript"
-                src="chrome://calendar/content/calUtils.js"/>
 
         <!-- Get the localized text for use in the .js -->
         <script type="application/javascript">
@@ -38,9 +34,6 @@
             <preference id="calendar.event.defaultlength"
                         name="calendar.event.defaultlength"
                         type="int"/>
-            <preference id="calendar-timezone-local"
-                        name="calendar.timezone.local"
-                        type="string"/>
             <preference id="calendar.task.defaultstart"
                         name="calendar.task.defaultstart"
                         type="string"/>
@@ -84,19 +77,17 @@
             </hbox>
         </groupbox>
 
+#ifndef XP_MACOSX
         <groupbox>
-            <caption label="&pref.timezones.caption;"/>
+            <caption label="&pref.accessibility.label;"/>
             <hbox align="center">
-                <label value="&pref.timezones.label;"
-                       accesskey="&pref.timezones.accesskey;"
-                       control="calendar-timezone-menulist"/>
-                <menulist id="calendar-timezone-menulist"
-                          flex="1"
-                          preference="calendar-timezone-local">
-                    <menupopup id="calendar-timezone-menupopup"/>
-                </menulist>
+                <checkbox id="systemColors" pack="end"
+                          label="&pref.systemcolors.label;"
+                          accesskey="&pref.systemcolors.accesskey;"
+                          preference="calendar.view.useSystemColors"/>
             </hbox>
         </groupbox>
+#endif
 
         <groupbox id="defaults-itemtype-groupbox">
             <caption id="defaults-itemtype-caption" label="&pref.defaults.label;"/>
@@ -250,17 +241,5 @@
                 </grid>
             </deck>
         </groupbox>
-
-#ifndef XP_MACOSX
-        <groupbox>
-            <caption label="&pref.accessibility.label;"/>
-            <hbox align="center">
-                <checkbox id="systemColors" pack="end"
-                          label="&pref.systemcolors.label;"
-                          accesskey="&pref.systemcolors.accesskey;"
-                          preference="calendar.view.useSystemColors"/>
-            </hbox>
-        </groupbox>
-#endif
     </vbox>
 </overlay>

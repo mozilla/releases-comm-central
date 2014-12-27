@@ -16,18 +16,18 @@
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
     <prefwindow id="MailPreferences">
-        <prefpane id="paneLightning"
+        <prefpane id="paneLightning" 
                   label="&lightning.preferencesLabel;"
-                  onpaneload="gCalendarGeneralPane.init(); gAlarmsPane.init();
+                  onpaneload="gCalendarGeneralPane.init(); gAlarmsPane.init(); 
                               gCategoriesPane.init(); gViewsPane.init();
-                              gLightningPane.init();">
+                              gTimezonesPane.init(); gLightningPane.init();">
             <preferences>
                 <preference id="calendar.preferences.lightning.selectedTabIndex"
                             name="calendar.preferences.lightning.selectedTabIndex"
                             type="int"/>
             </preferences>
-            <tabbox id="calPreferencesTabbox"
-                    flex="1"
+            <tabbox id="calPreferencesTabbox" 
+                    flex="1" 
                     onselect="gLightningPane.tabSelectionChanged();">
                 <tabs>
                     <tab id="calPreferencesTabGeneral"
@@ -38,6 +38,8 @@
                          label="&paneCategories.title;"/>
                     <tab id="calPreferencesTabViews"
                          label="&paneViews.title;"/>
+                    <tab id="calPreferencesTabTimezones"
+                         label="&paneTimezones.title;"/>
                 </tabs>
                 <tabpanels flex="1">
                     <tabpanel orient="vertical">
@@ -51,6 +53,9 @@
                     </tabpanel>
                     <tabpanel orient="vertical">
                         <vbox id="calPreferencesBoxViews"/>
+                    </tabpanel>
+                    <tabpanel orient="vertical">
+                        <vbox id="calPreferencesBoxTimezones"/>
                     </tabpanel>
                 </tabpanels>
             </tabbox>

@@ -7,6 +7,7 @@
 <?xml-stylesheet href="chrome://lightning/skin/lightning.css"?>
 
 <?xul-overlay href="chrome://calendar/content/preferences/general.xul"?>
+<?xul-overlay href="chrome://calendar/content/preferences/timezones.xul"?>
 <?xul-overlay href="chrome://calendar/content/preferences/alarms.xul"?>
 <?xul-overlay href="chrome://calendar/content/preferences/categories.xul"?>
 <?xul-overlay href="chrome://calendar/content/preferences/views.xul"?>
@@ -43,8 +44,9 @@
     <prefwindow id="prefDialog">
         <prefpane id="paneLightning"
                   label="&lightning.preferencesLabel;"
-                  onpaneload="gCalendarGeneralPane.init();">
+                  onpaneload="gCalendarGeneralPane.init(); gTimezonesPane.init();">
             <vbox id="calPreferencesBoxGeneral"/>
+            <vbox id="calPreferencesBoxTimezones"/>
         </prefpane>
         <prefpane id="paneLightningAlarms"
                   label="&paneAlarms.title;"
