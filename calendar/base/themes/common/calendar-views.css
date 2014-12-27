@@ -990,6 +990,7 @@ calendar-event-box[gripBars="both"]:not([readonly="true"]):hover .calendar-event
 
 .calendar-context-heading-label {
     font-weight: bold;
+    color: menutext;
 }
 
 calendar-event-box,
