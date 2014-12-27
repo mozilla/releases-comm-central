@@ -16,6 +16,7 @@ function run_test() {
     test_event_next_year();
     test_task_due();
     test_overrides();
+    test_event_start_dollar_sign();
 }
 
 function test_event_start_end() {
@@ -193,4 +194,20 @@ function test_overrides() {
     do_check_eq(endGuess.day, undefined);
     do_check_eq(endGuess.hour, undefined);
     do_check_eq(endGuess.minute, undefined);
+}
+
+function test_event_start_dollar_sign() {
+    let date = new Date(2012, 9, 1, 9, 0);
+    let title = "Wednesday sale";
+    let content = "Sale starts at 3 pm and prices start at 2$.";
+
+    let collected = extractor.extract(title, content, date, undefined);
+    let guessed = extractor.guessStart();
+    let endGuess = extractor.guessEnd(guessed);
+
+    do_check_eq(guessed.year, 2012);
+    do_check_eq(guessed.month, 10);
+    do_check_eq(guessed.day, 3);
+    do_check_eq(guessed.hour, 15);
+    do_check_eq(guessed.minute, 0);
 }
