@@ -419,4 +419,15 @@ updateWritePrefs: function ()
                                         "chrome://pippki/content/device_manager.xul",
                                         "", null);
   }
+  },
+
+  /**
+   * When the user toggles the layers.acceleration.disabled pref,
+   * sync its new value to the gfx.direct2d.disabled pref too.
+   */
+  updateHardwareAcceleration: function(aVal)
+  {
+#ifdef XP_WIN
+    Services.prefs.setBoolPref("gfx.direct2d.disabled", !aVal);
+#endif
 };

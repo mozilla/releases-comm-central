@@ -46,6 +46,12 @@
                   name="mailnews.database.global.indexer.enabled"
                   type="bool"/>
 
+      <preference id="layers.acceleration.disabled"
+                  name="layers.acceleration.disabled"
+                  type="bool"
+                  inverted="true"
+                  onchange="gAdvancedPane.updateHardwareAcceleration(this.value);"/>
+
       <preference id="toolkit.telemetry.enabled"
                   name="toolkit.telemetry.enabled"
                   onchange="gAdvancedPane.telemetryEnabledChanged(event);"
@@ -214,6 +220,12 @@ type="int"/>
                           preference="mailnews.database.global.indexer.enabled"
                           label="&enableGlodaSearch.label;"
                           accesskey="&enableGlodaSearch.accesskey;"/>
+              </hbox>
+              <hbox>
+                <checkbox id="allowHWAccel"
+                          label="&allowHWAccel.label;"
+                          accesskey="&allowHWAccel.accesskey;"
+                          preference="layers.acceleration.disabled"/>
               </hbox>
               <hbox>
                 <checkbox id="submitTelemetry"
