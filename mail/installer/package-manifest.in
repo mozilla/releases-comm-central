@@ -241,7 +241,7 @@
 #endif
 @RESPATH@/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/install.rdf
 @RESPATH@/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/icon.png
-@RESPATH@/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/preview.png
+@RESPATH@/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/icon64.png
 @RESPATH@/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/chrome.manifest
 
 ; Gloda
