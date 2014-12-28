@@ -923,9 +923,11 @@ function LOG(aArg) {
  */
 function WARN(aMessage) {
     dump("Warning: " + aMessage + '\n');
-    var scriptError = Components.classes["@mozilla.org/scripterror;1"]
+    let frame = Components.stack.caller;
+    let filename = frame.filename ? frame.filename.split(" -> ").pop() : null;
+    let scriptError = Components.classes["@mozilla.org/scripterror;1"]
                                 .createInstance(Components.interfaces.nsIScriptError);
-    scriptError.init(aMessage, null, null, 0, 0,
+    scriptError.init(aMessage, filename, null, frame.lineNumber, frame.columnNumber,
                      Components.interfaces.nsIScriptError.warningFlag,
                      "component javascript");
     Services.console.logMessage(scriptError);
@@ -938,9 +940,11 @@ function WARN(aMessage) {
  */
 function ERROR(aMessage) {
     dump("Error: " + aMessage + '\n');
-    var scriptError = Components.classes["@mozilla.org/scripterror;1"]
+    let frame = Components.stack.caller;
+    let filename = frame.filename ? frame.filename.split(" -> ").pop() : null;
+    let scriptError = Components.classes["@mozilla.org/scripterror;1"]
                                 .createInstance(Components.interfaces.nsIScriptError);
-    scriptError.init(aMessage, null, null, 0, 0,
+    scriptError.init(aMessage, filename, null, frame.lineNumber, frame.columnNumber,
                      Components.interfaces.nsIScriptError.errorFlag,
                      "component javascript");
     Services.console.logMessage(scriptError);
