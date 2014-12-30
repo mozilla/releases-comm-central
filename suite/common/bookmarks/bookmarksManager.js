@@ -421,7 +421,7 @@ var PlacesOrganizer = {
    */
   restoreBookmarksFromFile: function PO_restoreBookmarksFromFile(aFile) {
     // check file extension
-    if (!aFile.leafName.match(/\.json$/)) {
+    if (!/\.json(?:lz4)?$/.test(aFile.leafName)) {
       this._showErrorAlert(PlacesUIUtils.getString("bookmarksRestoreFormatError"));
       return;
     }
