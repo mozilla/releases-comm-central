@@ -154,3 +154,4 @@
 <!ENTITY PhotoURL.placeholder           "Paste or type the web address of a photo">
 <!ENTITY UpdatePhoto.label              "Update">
 <!ENTITY UpdatePhoto.accesskey          "u">
+<!ENTITY PhotoDropTarget.label          "Drag new photo here">
