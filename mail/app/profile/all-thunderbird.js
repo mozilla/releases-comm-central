@@ -406,10 +406,12 @@ pref("browser.download.manager.showAlertInterval", 2000);
 pref("browser.download.manager.retention", 1);
 pref("browser.download.manager.showWhenStarting", true);
 pref("browser.download.manager.closeWhenDone", true);
-pref("browser.download.manager.openDelay", 100);
 pref("browser.download.manager.focusWhenStarting", false);
 pref("browser.download.manager.flashCount", 0);
 pref("browser.download.manager.addToRecentDocs", true);
+#ifndef XP_MACOSX
+pref("browser.helperApps.deleteTempFileOnExit", true);
+#endif
 
 pref("spellchecker.dictionary", "");
 // Dictionary download preference
