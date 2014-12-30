@@ -79,6 +79,12 @@
               </menupopup>
             </menulist>
           </row>
+          <row>
+            <checkbox id="runOutgoing"
+                      label="&contextOutgoing.label;"
+                      accesskey="&contextOutgoing.accesskey;"
+                      command="cmd_updateFilterType"/>
+          </row>
         </rows>
       </grid>
     </groupbox>

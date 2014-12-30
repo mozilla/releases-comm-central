@@ -1,0 +1,17 @@
+/* -*- Mode: IDL; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+// Listener used to notify when an operation has completed.
+[scriptable, uuid(bdaef6ff-0909-435b-8fcd-76525dd2364c)]
+interface nsIMsgOperationListener : nsISupports {
+  /**
+   * Called when the operation stops (possibly with errors)
+   *
+   * @param aStatus Success or failure of the operation
+   */
+  void onStopOperation(in nsresult aStatus);
+};

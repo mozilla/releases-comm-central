@@ -7,7 +7,7 @@
 #include "nsIPrompt.idl"
 
 
-[scriptable, uuid(2247c280-7f7f-11d5-9daa-994d49414e7c)]
+[scriptable, uuid(2ec81175-bc65-44b9-ba87-462bc3f938db)]
 interface nsIMsgProcessReport : nsISupports {
 
   attribute boolean proceeded;
@@ -25,7 +25,8 @@ interface nsIMsgSendReport : nsISupports {
   const long process_NNTP = 1;
   const long process_SMTP = 2;
   const long process_Copy = 3;
-  const long process_FCC = 4;
+  const long process_Filter = 4;
+  const long process_FCC = 5;
   
   attribute long deliveryMode;      /* see nsMsgDeliverMode in nsIMsgSend.idl for valid value */
   attribute long currentProcess;

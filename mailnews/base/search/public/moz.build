@@ -10,6 +10,7 @@ XPIDL_SOURCES += [
     'nsIMsgFilterList.idl',
     'nsIMsgFilterPlugin.idl',
     'nsIMsgFilterService.idl',
+    'nsIMsgOperationListener.idl',
     'nsIMsgSearchAdapter.idl',
     'nsIMsgSearchCustomTerm.idl',
     'nsIMsgSearchNotify.idl',

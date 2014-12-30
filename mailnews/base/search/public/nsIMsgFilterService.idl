@@ -14,6 +14,7 @@ interface nsIFile;
 interface nsIMsgFolder;
 interface nsIMsgSearchCustomTerm;
 interface nsIArray;
+interface nsIMsgOperationListener;
 
 [scriptable, uuid(f2cd5e30-ac60-46c0-ad29-54321efd4128)]
 interface nsIMsgFilterService : nsISupports {
@@ -28,7 +29,8 @@ interface nsIMsgFilterService : nsISupports {
     nsIMsgFilterList getTempFilterList(in nsIMsgFolder aFolder);
     void applyFiltersToFolders(in nsIMsgFilterList aFilterList,
                                in nsIArray aFolders,
-                               in nsIMsgWindow aMsgWindow);
+                               in nsIMsgWindow aMsgWindow,
+                               [optional] in nsIMsgOperationListener aCallback);
 
     /*
      * Apply filters to a specific list of messages in a folder.
@@ -36,11 +38,13 @@ interface nsIMsgFilterService : nsISupports {
      * @param  aMsgHdrList  The list of message headers (nsIMsgDBHdr objects)
      * @param  aFolder      The folder the messages belong to
      * @param  aMsgWindow   A UI window for attaching progress/dialogs
+     * @param  aCallback    A listener that gets notified of any filtering error
      */
     void applyFilters(in nsMsgFilterTypeType aFilterType,
                       in nsIArray aMsgHdrList,
                       in nsIMsgFolder aFolder,
-                      in nsIMsgWindow aMsgWindow);
+                      in nsIMsgWindow aMsgWindow,
+                      [optional] in nsIMsgOperationListener aCallback);
 
     /**
      * add a custom filter action

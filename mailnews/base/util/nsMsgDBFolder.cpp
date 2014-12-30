@@ -2349,7 +2349,7 @@ nsMsgDBFolder::OnMessageClassified(const char *aMsgURI,
         // want to propagate that value.)
         rv = filterService->ApplyFilters(nsMsgFilterType::PostPlugin,
                                          mPostBayesMessagesToFilter,
-                                         this, nullptr /* nsIMsgWindow */);
+                                         this, nullptr, nullptr);
       mPostBayesMessagesToFilter->Clear();
     }
 

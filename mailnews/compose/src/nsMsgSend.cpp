@@ -76,6 +76,8 @@
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeEncoder.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "nsIMutableArray.h"
+#include "nsIMsgFilterService.h"
 
 using namespace mozilla::mailnews;
 
@@ -278,6 +280,7 @@ nsMsgComposeAndSend::nsMsgComposeAndSend() :
   mOriginalHTMLBody = nullptr;
 
   mNeedToPerformSecondFCC = false;
+  mPerformingSecondFCC = false;
 
   mPreloadedAttachmentCount = 0;
   mRemoteAttachmentCount = 0;
@@ -3999,6 +4002,88 @@ nsMsgComposeAndSend::NotifyListenerOnStopCopy(nsresult aStatus)
     // the user a second time as they already know about the failure.
     Fail(NS_OK, nullptr, &aStatus);
   }
+
+  if (NS_SUCCEEDED(aStatus) &&
+      !mPerformingSecondFCC && m_messageKey != nsMsgKey_None &&
+      (m_deliver_mode == nsMsgDeliverNow || m_deliver_mode == nsMsgSendUnsent))
+  {
+    nsresult rv = FilterSentMessage();
+    if (NS_FAILED(rv))
+      OnStopOperation(rv);
+    return rv;
+  }
+
+  return MaybePerformSecondFCC(aStatus);
+}
+
+nsresult
+nsMsgComposeAndSend::FilterSentMessage()
+{
+  if (mSendReport)
+    mSendReport->SetCurrentProcess(nsIMsgSendReport::process_Filter);
+
+  nsCOMPtr<nsIMsgFolder> folder;
+  nsresult rv = GetExistingFolder(m_folderName, getter_AddRefs(folder));
+  if (NS_FAILED(rv))
+    return rv;
+
+  nsCOMPtr<nsIMsgDBHdr> msgHdr;
+  rv = folder->GetMessageHeader(m_messageKey, getter_AddRefs(msgHdr));
+  if (NS_FAILED(rv))
+    return rv;
+
+  nsCOMPtr<nsIMutableArray> msgArray(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
+  if (NS_FAILED(rv))
+    return rv;
+
+  nsCOMPtr<nsIMsgFilterService> filterSvc = do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv);
+  if (NS_FAILED(rv))
+    return rv;
+
+  rv = msgArray->AppendElement(msgHdr, false);
+  if (NS_FAILED(rv))
+    return rv;
+
+  nsCOMPtr<nsIMsgWindow> msgWindow;
+  if (mSendProgress)
+    mSendProgress->GetMsgWindow(getter_AddRefs(msgWindow));
+
+  return filterSvc->ApplyFilters(nsMsgFilterType::PostOutgoing, msgArray, folder, msgWindow, this);
+}
+
+NS_IMETHODIMP
+nsMsgComposeAndSend::OnStopOperation(nsresult aStatus)
+{
+  // Set a status message...
+  nsString msg;
+  if (NS_SUCCEEDED(aStatus))
+    mComposeBundle->GetStringFromName(MOZ_UTF16("filterMessageComplete"), getter_Copies(msg));
+  else
+    mComposeBundle->GetStringFromName(MOZ_UTF16("filterMessageFailed"), getter_Copies(msg));
+
+  SetStatusMessage(msg);
+
+  if (NS_FAILED(aStatus))
+  {
+    nsresult rv = mComposeBundle->GetStringFromName(MOZ_UTF16("errorFilteringMsg"), getter_Copies(msg));
+    if (NS_SUCCEEDED(rv))
+    {
+      nsCOMPtr<nsIPrompt> prompt;
+      GetDefaultPrompt(getter_AddRefs(prompt));
+      nsMsgDisplayMessageByString(prompt, msg.get(), nullptr);
+    }
+
+    // We failed, however, give Fail a success code so that it doesn't prompt
+    // the user a second time as they already know about the failure.
+    Fail(NS_OK, nullptr, &aStatus);
+  }
+
+  return MaybePerformSecondFCC(aStatus);
+}
+
+nsresult
+nsMsgComposeAndSend::MaybePerformSecondFCC(nsresult aStatus)
+{
   // Ok, now to support a second copy operation, we need to figure
   // out which copy request just finished. If the user has requested
   // a second copy operation, then we need to fire that off, but if they
@@ -4011,6 +4096,7 @@ nsMsgComposeAndSend::NotifyListenerOnStopCopy(nsresult aStatus)
       mSendReport->SetCurrentProcess(nsIMsgSendReport::process_FCC);
 
     mNeedToPerformSecondFCC = false;
+    mPerformingSecondFCC = true;
 
     const char *fcc2 = mCompFields->GetFcc2();
     if (fcc2 && *fcc2)

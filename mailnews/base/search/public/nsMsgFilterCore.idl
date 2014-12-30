@@ -20,6 +20,7 @@ interface nsMsgFilterType {
   const long Incoming         = Inbox | News;
   const long Manual           = 0x10;
   const long PostPlugin       = 0x20; // After bayes filtering
+  const long PostOutgoing     = 0x40; // After sending
   const long All              = Incoming | Manual;
 };
 

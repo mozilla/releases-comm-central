@@ -1204,6 +1204,7 @@ mime_parse_stream_complete (nsMIMESession *stream)
     }
     else
     {
+      from = MimeHeaders_get(mdd->headers, HEADER_FROM,     false, false);
       repl = MimeHeaders_get(mdd->headers, HEADER_REPLY_TO, false, false);
       to   = MimeHeaders_get(mdd->headers, HEADER_TO,       false, true);
       cc   = MimeHeaders_get(mdd->headers, HEADER_CC,       false, true);

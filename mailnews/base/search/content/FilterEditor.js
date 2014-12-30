@@ -61,7 +61,7 @@ function filterEditorOnLoad()
       // deferred, (you must define them on the deferredTo server instead).
       let server = gFilterList.folder.server;
       if (server.rootFolder != server.rootMsgFolder)
-        gFilterTypeSelector.disableAfterPlugins();
+        gFilterTypeSelector.disableDeferredAccount();
     }
 
     if ("filterPosition" in args)
@@ -250,6 +250,8 @@ function initializeFilterTypeSelector()
     menuitemBeforePlugins: document.getElementById("runBeforePlugins"),
     menuitemAfterPlugins: document.getElementById("runAfterPlugins"),
 
+    checkBoxOutgoing: document.getElementById("runOutgoing"),
+
     /**
      * Returns the currently set filter type (checkboxes) in terms
      * of a Components.interfaces.nsMsgFilterType value.
@@ -274,6 +276,9 @@ function initializeFilterTypeSelector()
         }
       }
 
+      if (this.checkBoxOutgoing.checked)
+        type |= nsMsgFilterType.PostOutgoing;
+
       return type;
     },
 
@@ -297,6 +302,8 @@ function initializeFilterTypeSelector()
       this.menulistIncoming.selectedItem = aType & nsMsgFilterType.PostPlugin ?
         this.menuitemAfterPlugins : this.menuitemBeforePlugins;
 
+      this.checkBoxOutgoing.checked = aType & nsMsgFilterType.PostOutgoing;
+
       this.updateClassificationMenu();
     },
 
@@ -311,11 +318,12 @@ function initializeFilterTypeSelector()
     },
 
     /**
-     * Disable the "After classification" option for this filter.
+     * Disable the options unsuitable for deferred accounts.
      */
-    disableAfterPlugins: function()
+    disableDeferredAccount: function()
     {
       this.menuitemAfterPlugins.disabled = true;
+      this.checkboxOutgoing.disabled = true;
     }
   };
 }
