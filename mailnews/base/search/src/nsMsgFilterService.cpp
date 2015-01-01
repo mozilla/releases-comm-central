@@ -45,10 +45,33 @@
 #include "nsIMsgFilter.h"
 #include "nsIMsgOperationListener.h"
 
-#define BREAK_IF_FAILURE(_rv, _text) if (NS_FAILED(_rv)) {NS_WARNING(_text); break;}
-#define CONTINUE_IF_FAILURE(_rv, _text) if (NS_FAILED(_rv)) {NS_WARNING(_text); continue;}
-#define BREAK_IF_FALSE(_assertTrue, _text) if (!(_assertTrue)) {NS_WARNING(_text); break;}
-#define CONTINUE_IF_FALSE(_assertTrue, _text) if (!(_assertTrue)) {NS_WARNING(_text); continue;}
+#define BREAK_IF_FAILURE(_rv, _text) if (NS_FAILED(_rv)) { \
+  NS_WARNING(_text); \
+  mFinalResult = _rv; \
+  break; \
+}
+
+#define CONTINUE_IF_FAILURE(_rv, _text) if (NS_FAILED(_rv)) { \
+  NS_WARNING(_text); \
+  mFinalResult = _rv; \
+  if (m_msgWindow && !ContinueExecutionPrompt()) \
+    return OnEndExecution(); \
+  continue; \
+}
+
+#define BREAK_IF_FALSE(_assertTrue, _text) if (!(_assertTrue)) { \
+  NS_WARNING(_text); \
+  mFinalResult = NS_ERROR_FAILURE; \
+  break; \
+}
+
+#define CONTINUE_IF_FALSE(_assertTrue, _text) if (!(_assertTrue)) { \
+  NS_WARNING(_text); \
+  mFinalResult = NS_ERROR_FAILURE; \
+  if (m_msgWindow && !ContinueExecutionPrompt()) \
+    return OnEndExecution(); \
+  continue; \
+}
 
 NS_IMPL_ISUPPORTS(nsMsgFilterService, nsIMsgFilterService)
 
@@ -274,7 +297,7 @@ protected:
    * apply filter actions to current search hits
    */
   nsresult  ApplyFilter();
-  nsresult  OnEndExecution(nsresult executionStatus); // do what we have to do to cleanup.
+  nsresult  OnEndExecution(); // do what we have to do to cleanup.
   bool      ContinueExecutionPrompt();
   nsresult  DisplayConfirmationPrompt(nsIMsgWindow *msgWindow, const char16_t *confirmString, bool *confirmed);
   nsCOMPtr<nsIMsgWindow>      m_msgWindow;
@@ -293,6 +316,7 @@ protected:
   nsCOMPtr<nsIMsgSearchSession> m_searchSession;
   nsCOMPtr<nsIMsgOperationListener> m_callback;
   uint32_t                    m_nextAction; // next filter action to perform
+  nsresult                    mFinalResult; // report of overall success or failure
 };
 
 NS_IMPL_ISUPPORTS(nsMsgFilterAfterTheFact, nsIUrlListener, nsIMsgSearchNotify, nsIMsgCopyServiceListener)
@@ -313,6 +337,7 @@ nsMsgFilterAfterTheFact::nsMsgFilterAfterTheFact(nsIMsgWindow *aMsgWindow,
 
   m_searchHitHdrs = do_CreateInstance(NS_ARRAY_CONTRACTID);
   m_callback = aCallback;
+  mFinalResult = NS_OK;
 }
 
 nsMsgFilterAfterTheFact::~nsMsgFilterAfterTheFact()
@@ -320,7 +345,7 @@ nsMsgFilterAfterTheFact::~nsMsgFilterAfterTheFact()
 }
 
 // do what we have to do to cleanup.
-nsresult nsMsgFilterAfterTheFact::OnEndExecution(nsresult executionStatus)
+nsresult nsMsgFilterAfterTheFact::OnEndExecution()
 {
   if (m_searchSession)
     m_searchSession->UnregisterListener(this);
@@ -329,10 +354,10 @@ nsresult nsMsgFilterAfterTheFact::OnEndExecution(nsresult executionStatus)
     (void)m_filters->FlushLogIfNecessary();
 
   if (m_callback)
-    (void)m_callback->OnStopOperation(executionStatus);
+    (void)m_callback->OnStopOperation(mFinalResult);
 
   Release(); // release ourselves.
-  return executionStatus;
+  return mFinalResult;
 }
 
 nsresult nsMsgFilterAfterTheFact::RunNextFilter()
@@ -393,7 +418,7 @@ nsresult nsMsgFilterAfterTheFact::AdvanceToNextFolder()
     m_curFolder = nullptr;
     if (m_curFolderIndex >= m_numFolders)
       // final end of nsMsgFilterAfterTheFact object
-      return OnEndExecution(NS_OK);
+      return OnEndExecution();
 
     // reset the filter index to apply all filters to this new folder
     m_curFilterIndex = 0;
@@ -430,10 +455,11 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnStopRunningUrl(nsIURI *aUrl, nsresult a
   if (NS_SUCCEEDED(aExitCode))
     return RunNextFilter();
 
+  mFinalResult = aExitCode;
    // If m_msgWindow then we are in a context where the user can deal with
    //  errors. Put up a prompt, and exit if user wants.
   if (m_msgWindow && !ContinueExecutionPrompt())
-    return OnEndExecution(aExitCode);
+    return OnEndExecution();
 
   // folder parse failed, so stop processing this folder.
   return AdvanceToNextFolder();
@@ -463,8 +489,11 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnSearchDone(nsresult status)
   if (NS_SUCCEEDED(status))
     return m_searchHits.IsEmpty() ? RunNextFilter() : ApplyFilter();
 
+  mFinalResult = status;
   if (m_msgWindow && !ContinueExecutionPrompt())
-    return OnEndExecution(status);
+    return OnEndExecution();
+
+  // The search failed, so move on to the next filter.
   return RunNextFilter();
 }
 
@@ -595,6 +624,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
             // have any clients that apply filters to multiple folders,
             // so this might be the edge case of an edge case.
             m_nextAction = numActions;
+            mFinalResult = NS_ERROR_FAILURE;
             break;
           }
           nsCOMPtr<nsIMsgCopyService> copyService = do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
@@ -1095,10 +1125,15 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::GetMessageId(nsACString& messageId)
 /* void OnStopCopy (in nsresult aStatus); */
 NS_IMETHODIMP nsMsgFilterAfterTheFact::OnStopCopy(nsresult aStatus)
 {
-  if (NS_FAILED(aStatus) && m_msgWindow && !ContinueExecutionPrompt())
-    return OnEndExecution(aStatus);
+  if (NS_SUCCEEDED(aStatus))
+    return ApplyFilter();
 
-  return NS_SUCCEEDED(aStatus) ? ApplyFilter() : RunNextFilter();
+  mFinalResult = aStatus;
+  if (m_msgWindow && !ContinueExecutionPrompt())
+    return OnEndExecution();
+
+  // Copy failed, so run the next filter
+  return RunNextFilter();
 }
 
 bool nsMsgFilterAfterTheFact::ContinueExecutionPrompt()
