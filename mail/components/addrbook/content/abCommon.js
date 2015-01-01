@@ -495,7 +495,7 @@ function goEditListDialog(abCard, listURI)
                     "chrome,modal,resizable=no,centerscreen",
                     params);
   if (params.refresh) {
-    ChangeDirectoryByURI(listUri); // force refresh
+    ChangeDirectoryByURI(listURI); // force refresh
   }
 }
 
