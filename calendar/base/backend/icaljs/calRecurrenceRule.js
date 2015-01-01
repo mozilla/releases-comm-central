@@ -138,12 +138,46 @@ calRecurrenceRule.prototype = {
     set weekStart(val) this.innerObject.wkst = val + 1,
 
     getComponent: function(aType, aCount) {
-        return this.innerObject.getComponent(aType, aCount)
-                   .map(ICAL.Recur.icalDayToNumericDay);
+        let values = this.innerObject.getComponent(aType);
+        if (aType == "BYDAY") {
+            // BYDAY values are alphanumeric: SU, MO, TU, etc..
+            for (let i = 0; i < values.length; i++) {
+                let match = /^([+-])?(5[0-3]|[1-4][0-9]|[1-9])?(SU|MO|TU|WE|TH|FR|SA)$/.exec(values[i]);
+                if (!match) {
+                    cal.ERROR("Malformed BYDAY rule\n" + cal.STACK(10));
+                    return [];
+                }
+                values[i] = ICAL.Recur.icalDayToNumericDay(match[3]);
+                if (match[2]) {
+                    // match[2] is the week number for this value.
+                    values[i] += 8 * match[2];
+                }
+                if (match[1] == '-') {
+                    // Week numbers are counted back from the end of the period.
+                    values[i] *= -1;
+                }
+            }
+        }
+
+        if (aCount) aCount.value = values.length;
+        return values;
     },
 
     setComponent: function(aType, aCount, aValues) {
-        let values = aValues.map(ICAL.Recur.numericDayToIcalDay);
+        let values = aValues;
+        if (aType == "BYDAY") {
+            // BYDAY values are alphanumeric: SU, MO, TU, etc..
+            for (let i = 0; i < values.length; i++) {
+                let absValue = Math.abs(values[i]);
+                if (absValue > 7) {
+                    let ordinal = Math.trunc(values[i] / 8);
+                    let day = ICAL.Recur.numericDayToIcalDay(absValue % 8);
+                    values[i] = ordinal + day;
+                } else {
+                    values[i] = ICAL.Recur.numericDayToIcalDay(values[i]);
+                }
+            }
+        }
         this.innerObject.setComponent(aType, values);
     }
 };

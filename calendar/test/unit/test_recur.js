@@ -14,6 +14,7 @@ function run_test() {
     test_limit();
     test_startdate_change();
     test_idchange();
+    test_rrule_icalstring();
 }
 
 function test_rules() {
@@ -650,4 +651,104 @@ function test_immutable() {
 
     let ritem = cal.createRecurrenceDate();
     rinfo.appenRecurrenceItem(ritem);
+}
+
+function test_rrule_icalstring() {
+    var recRule = createRecurrenceRule();
+    recRule.type = "DAILY";
+    recRule.interval = 4;
+    equal(recRule.icalString, "RRULE:FREQ=DAILY;INTERVAL=4\r\n");
+
+    var recRule = createRecurrenceRule();
+    recRule.type = "DAILY";
+    recRule.setComponent("BYDAY", 5, [2, 3, 4, 5, 6]);
+    equal(recRule.icalString, "RRULE:FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR\r\n");
+    deepEqual(recRule.getComponent("BYDAY", {}), [2, 3, 4, 5, 6]);
+
+    var recRule = createRecurrenceRule();
+    recRule.type = "WEEKLY";
+    recRule.interval = 3;
+    recRule.setComponent("BYDAY", 3, [2, 4, 6]);
+    equal(recRule.icalString, "RRULE:FREQ=WEEKLY;INTERVAL=3;BYDAY=MO,WE,FR\r\n");
+    deepEqual(recRule.getComponent("BYDAY", {}), [2, 4, 6]);
+
+    var recRule = createRecurrenceRule();
+    recRule.type = "MONTHLY";
+    recRule.setComponent("BYDAY", 7, [2,3,4,5,6,7,1]);
+    equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR,SA,SU\r\n");
+    deepEqual(recRule.getComponent("BYDAY", {}), [2,3,4,5,6,7,1]);
+
+    var recRule = createRecurrenceRule();
+    recRule.type = "MONTHLY";
+    recRule.setComponent("BYDAY", 1, [10]);
+    equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYDAY=1MO\r\n");
+    deepEqual(recRule.getComponent("BYDAY", {}), [10]);
+
+    var recRule = createRecurrenceRule();
+    recRule.type = "MONTHLY";
+    recRule.setComponent("BYDAY", 1, [20]);
+    equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYDAY=2WE\r\n");
+    deepEqual(recRule.getComponent("BYDAY", {}), [20]);
+
+    var recRule = createRecurrenceRule();
+    recRule.type = "MONTHLY";
+    recRule.setComponent("BYDAY", 1, [-22]);
+    equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYDAY=-2FR\r\n");
+    deepEqual(recRule.getComponent("BYDAY", {}), [-22]);
+
+    var recRule = createRecurrenceRule();
+    recRule.type = "MONTHLY";
+    recRule.setComponent("BYMONTHDAY", 1, [5]);
+    equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYMONTHDAY=5\r\n");
+    deepEqual(recRule.getComponent("BYMONTHDAY", {}), [5]);
+
+    var recRule = createRecurrenceRule();
+    recRule.type = "MONTHLY";
+    recRule.setComponent("BYMONTHDAY", 3, [1, 9, 17]);
+    equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYMONTHDAY=1,9,17\r\n");
+    deepEqual(recRule.getComponent("BYMONTHDAY", {}), [1, 9, 17]);
+
+    var recRule = createRecurrenceRule();
+    recRule.type = "YEARLY";
+    recRule.setComponent("BYMONTH", 1, [1]);
+    recRule.setComponent("BYMONTHDAY", 1, [3]);
+    notEqual(-1, [
+        "RRULE:FREQ=YEARLY;BYMONTHDAY=3;BYMONTH=1\r\n",
+        "RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=3\r\n"
+    ].indexOf(recRule.icalString));
+    deepEqual(recRule.getComponent("BYMONTH", {}), [1]);
+    deepEqual(recRule.getComponent("BYMONTHDAY", {}), [3]);
+
+    var recRule = createRecurrenceRule();
+    recRule.type = "YEARLY";
+    recRule.setComponent("BYMONTH", 1, [4]);
+    recRule.setComponent("BYDAY", 1, [3]);
+    notEqual(-1, [
+        "RRULE:FREQ=YEARLY;BYDAY=TU;BYMONTH=4\r\n",
+        "RRULE:FREQ=YEARLY;BYMONTH=4;BYDAY=TU\r\n"
+    ].indexOf(recRule.icalString));
+    deepEqual(recRule.getComponent("BYMONTH", {}), [4]);
+    deepEqual(recRule.getComponent("BYDAY", {}), [3]);
+
+    var recRule = createRecurrenceRule();
+    recRule.type = "YEARLY";
+    recRule.setComponent("BYMONTH", 1, [4]);
+    recRule.setComponent("BYDAY", 1, [10]);
+    notEqual(-1, [
+        "RRULE:FREQ=YEARLY;BYDAY=1MO;BYMONTH=4\r\n",
+        "RRULE:FREQ=YEARLY;BYMONTH=4;BYDAY=1MO\r\n"
+    ].indexOf(recRule.icalString));
+    deepEqual(recRule.getComponent("BYMONTH", {}), [4]);
+    deepEqual(recRule.getComponent("BYDAY", {}), [10]);
+
+    var recRule = createRecurrenceRule();
+    recRule.type = "YEARLY";
+    recRule.setComponent("BYMONTH", 1, [4]);
+    recRule.setComponent("BYDAY", 1, [-22]);
+    notEqual(-1, [
+        "RRULE:FREQ=YEARLY;BYDAY=-2FR;BYMONTH=4\r\n",
+        "RRULE:FREQ=YEARLY;BYMONTH=4;BYDAY=-2FR\r\n"
+    ].indexOf(recRule.icalString));
+    deepEqual(recRule.getComponent("BYMONTH", {}), [4]);
+    deepEqual(recRule.getComponent("BYDAY", {}), [-22]);
 }
