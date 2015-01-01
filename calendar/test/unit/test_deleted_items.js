@@ -6,6 +6,8 @@ Components.utils.import("resource://gre/modules/Promise.jsm");
 
 function run_test() {
     do_get_profile();
+    // Initialize the floating timezone without actually starting the service.
+    cal.getTimezoneService().floating;
     let delmgr = Components.classes["@mozilla.org/calendar/deleted-items-manager;1"]
                            .getService(Components.interfaces.calIDeletedItems);
     delmgr.observe(null, "profile-after-change", null);

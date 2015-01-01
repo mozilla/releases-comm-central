@@ -7,6 +7,16 @@ function makeEvent(str) {
 }
 
 function run_test() {
+    do_test_pending();
+    cal.getTimezoneService().QueryInterface(Components.interfaces.calIStartupService).startup({
+        onResult: function() {
+            really_run_test();
+            do_test_finished();
+        }
+    });
+}
+
+function really_run_test() {
     test_interface();
     test_rrule_interface();
     test_rules();

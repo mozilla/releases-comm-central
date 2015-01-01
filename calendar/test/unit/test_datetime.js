@@ -3,6 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
+    do_test_pending();
+    cal.getTimezoneService().QueryInterface(Components.interfaces.calIStartupService).startup({
+        onResult: function() {
+            really_run_test();
+            do_test_finished();
+        }
+    });
+}
+
+function really_run_test() {
     function getMozTimezone(tzid) {
         return cal.getTimezoneService().getTimezone(tzid);
     }
@@ -75,8 +85,8 @@ function run_test() {
     do_check_eq(b.timezone.longitude, "-0740023");
 
     // check aliases
-    do_check_eq(getMozTimezone("/mozilla.org/xyz/Pacific/Yap").tzid, "Pacific/Truk");
-    do_check_eq(getMozTimezone("Pacific/Yap").tzid, "Pacific/Truk");    
+    do_check_eq(getMozTimezone("/mozilla.org/xyz/Asia/Calcutta").tzid, "Asia/Kolkata");
+    do_check_eq(getMozTimezone("Asia/Calcutta").tzid, "Asia/Kolkata");
 
     // A newly created date should be in UTC, as should its clone
     let utc = cal.createDateTime();

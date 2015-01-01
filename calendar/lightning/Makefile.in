@@ -103,9 +103,8 @@ DEFINES += -DTHUNDERBIRD_VERSION=$(THUNDERBIRD_VERSION) \
 GRE_BUILDID = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(LIBXUL_DIST)/bin/application.ini App BuildID)
 DEFINES += -DGRE_BUILDID=$(GRE_BUILDID)
 
-# xxx todo: unless our packaging story is revised (bug 406579) we package up timezones.sqlite
 libs::
-	$(NSINSTALL) -m 0644 $(srcdir)/../timezones/timezones.sqlite $(FINAL_TARGET)
+	$(NSINSTALL) -m 0644 $(srcdir)/../timezones/zones.json $(FINAL_TARGET)/timezones
 
 include $(topsrcdir)/config/rules.mk
 include $(srcdir)/lightning-packager.mk

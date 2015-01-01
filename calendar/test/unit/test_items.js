@@ -3,6 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
+    do_test_pending();
+    cal.getTimezoneService().QueryInterface(Components.interfaces.calIStartupService).startup({
+        onResult: function() {
+            really_run_test();
+            do_test_finished();
+        }
+    });
+}
+
+function really_run_test() {
     test_aclmanager();
     test_calendar();
     test_immutable();
@@ -11,7 +21,6 @@ function run_test() {
     test_lastack();
     test_categories();
     test_alarm();
-
 }
 
 function test_aclmanager() {

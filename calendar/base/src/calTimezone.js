@@ -43,7 +43,12 @@ calICALJSTimezone.prototype = {
     get displayName() {
         let bundle = ICAL.Timezone.cal_tz_bundle;
         let stringName = "pref.timezone." + this.tzid.replace(/\//g, ".");
-        let displayName = bundle.GetStringFromName(stringName);
+        let displayName = this.tzid;
+        try {
+            displayName = bundle.GetStringFromName(stringName);
+        } catch (e) {
+            // Just use the TZID if the string is mising.
+        }
         this.__defineGetter__("displayName", function() {
             return displayName;
         });
@@ -81,7 +86,7 @@ calLibicalTimezone.prototype = {
     get icalComponent() {
         var comp = this.mComponent;
         if (comp && (typeof(comp) == "string")) {
-            this.mComponent = cal.getIcsService().parseICS("BEGIN:VCALENDAR\r\n" + comp + "END:VCALENDAR\r\n", null)
+            this.mComponent = cal.getIcsService().parseICS("BEGIN:VCALENDAR\r\n" + comp + "\r\nEND:VCALENDAR\r\n", null)
                                                  .getFirstSubcomponent("VTIMEZONE");
         }
         return this.mComponent;

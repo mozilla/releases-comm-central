@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
+    // Initialize the floating timezone without actually starting the service.
+    cal.getTimezoneService().floating;
+
     test_initial_creation();
 
     test_display_alarm();

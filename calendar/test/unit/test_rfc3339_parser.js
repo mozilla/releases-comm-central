@@ -5,6 +5,16 @@
 Components.utils.import("resource://calendar/modules/calProviderUtils.jsm");
 
 function run_test() {
+    do_test_pending();
+    cal.getTimezoneService().QueryInterface(Components.interfaces.calIStartupService).startup({
+        onResult: function() {
+            really_run_test();
+            do_test_finished();
+        }
+    });
+}
+
+function really_run_test() {
     // Check if the RFC 3339 date and timezone are properly parsed to the
     // expected result and if the result is properly mapped back into the RFC
     // 3339 date.

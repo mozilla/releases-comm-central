@@ -10,6 +10,8 @@ Components.utils.import("resource://gre/modules/Services.jsm");
  */
 function run_test() {
     do_get_profile();
+    // Initialize the floating timezone without actually starting the service.
+    cal.getTimezoneService().floating;
     add_test(test_registration);
     add_test(test_calobserver);
     add_test(test_calprefs);

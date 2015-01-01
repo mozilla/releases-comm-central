@@ -2,25 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#
-# HOWTO update the timezones.sqlite:
-#
-# 1. Download latest vzic and Olson database
-#    vzic:     <http://code.google.com/p/tzurl/>
-#    Olson DB: <ftp://elsie.nci.nih.gov/pub/>
-#
-#    Modify vzic Makefile to your OLSON_DIR and set *empty* TZID_PREFIX, then
-#    then make vzic and execute to produce zoneinfo.
-#
-# 2. Bump calendar/timezones/config/version.txt
-#
-# 3. Then, make update=<vzic-dir>/zoneinfo/zones.tab
-#
-#    a)  This will read both the current (old) timezones.sqlite from
-#        mozilla/calendar/timezones/timezones.sqlite and produce a new timezones.sqlite
-#    b)  This will read the current timezones.properties and dump out which identifiers
-#        are obsolete and which ones are to be added.
-
 DEPTH = @DEPTH@
 topsrcdir = @top_srcdir@
 srcdir = @srcdir@
@@ -51,17 +32,8 @@ DEFINES += -DAB_CD=$(AB_CD) \
            -DTIMEZONES_VERSION=$(TIMEZONES_VERSION) \
            $(NULL)
 
-TIMEZONES_SQLITE =  $(srcdir)/timezones.sqlite
-
-ifneq ($(strip $(update)),)
 libs::
-	echo 'SELECT * FROM tz_data ORDER BY tzid;' | sqlite3 $(TIMEZONES_SQLITE) > $(srcdir)/timezones_before_update.dump
-	$(DIST)/bin/run-mozilla.sh $(LIBXUL_DIST)/bin/xpcshell -r $(LIBXUL_DIST)/bin/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/components/libical.manifest -r $(LIBXUL_DIST)/bin/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome.manifest -s -w $(srcdir)/update.js $(update) $(srcdir)/$(DEPTH) $(TIMEZONES_VERSION)
-	echo 'SELECT * FROM tz_data ORDER BY tzid;' | sqlite3 $(TIMEZONES_SQLITE) > $(srcdir)/timezones.dump
-endif
-
-libs::
-	$(NSINSTALL) -m 0644 $(TIMEZONES_SQLITE) $(FINAL_TARGET)
+	$(NSINSTALL) -m 0644 zones.json $(FINAL_TARGET)/timezones
 
 libs-%:
 	$(MAKE) -C locales libs AB_CD=$* XPI_NAME=calendar-timezones USE_EXTENSION_MANIFEST=1
