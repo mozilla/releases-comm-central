@@ -324,6 +324,11 @@ treechildren::-moz-tree-image(junkStatusCol) {
   #folderTree treechildren::-moz-tree-cell-text(dropOn) {
     color: -moz-FieldText;
   }
+
+  treechildren::-moz-tree-line(selected, focus),
+  tree[seltype="cell"] > treechildren::-moz-tree-line(active, selected, focus) {
+    border-color: -moz-DialogText;
+  }
 }
 
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
