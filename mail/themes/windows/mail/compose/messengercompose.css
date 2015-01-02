@@ -622,7 +622,7 @@ treechildren::-moz-tree-image(subscribed-news) {
 }
 
 .aw-menulist {
-  -moz-binding: url("chrome://global/content/bindings/menulist.xml#menulist");
+  -moz-binding: url("chrome://messenger/content/messengercompose/menulistCompactBindings.xml#menulist-compact");
   -moz-appearance: none;
   -moz-box-align: center;
   -moz-box-pack: center;
@@ -630,7 +630,7 @@ treechildren::-moz-tree-image(subscribed-news) {
   margin: 0 1px 2px;
   -moz-margin-start: 7px;
   list-style-image: none;
-  background-color: rgba(128, 128, 128, .3);
+  background-color: rgba(128, 128, 128, .1);
   border: 1px solid ThreeDShadow;
   color: ButtonText;
   list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
@@ -638,7 +638,7 @@ treechildren::-moz-tree-image(subscribed-news) {
 }
 
 .aw-menulist:hover {
-  background-color: rgba(128, 128, 128, .45);
+  background-color: -moz-field;
 }
 
 .aw-menulist [disabled="true"] {
