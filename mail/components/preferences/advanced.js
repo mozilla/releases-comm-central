@@ -418,7 +418,6 @@ updateWritePrefs: function ()
     document.documentElement.openWindow("mozilla:devicemanager",
                                         "chrome://pippki/content/device_manager.xul",
                                         "", null);
-  }
   },
 
   /**
@@ -430,4 +429,5 @@ updateWritePrefs: function ()
 #ifdef XP_WIN
     Services.prefs.setBoolPref("gfx.direct2d.disabled", !aVal);
 #endif
+  }
 };
