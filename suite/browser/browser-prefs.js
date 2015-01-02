@@ -126,6 +126,14 @@ pref("browser.search.update.interval", 21600);
 // enable search suggestions by default
 pref("browser.search.suggest.enabled", true);
 
+// geoip end-point and timeout
+// SeaMonkey note: we are using a dummy key "no-mozilla-api-key" as this
+// Mozilla service currently doesn't use an API key.
+pref("browser.search.geoip.url", "https://location.services.mozilla.com/v1/country?key=no-mozilla-api-key");
+// NOTE: this timeout figure is also the "high" value for the telemetry probe
+// SEARCH_SERVICE_COUNTRY_FETCH_MS - if you change this also change that probe.
+pref("browser.search.geoip.timeout", 2000);
+
 // Smart Browsing prefs
 pref("keyword.enabled", true);
 // Override the default keyword.URL. Empty value means
