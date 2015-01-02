@@ -15,10 +15,10 @@
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "PageMenu", function() {
+XPCOMUtils.defineLazyGetter(this, "PageMenuParent", function() {
   let tmp = {};
   Components.utils.import("resource://gre/modules/PageMenu.jsm", tmp);
-  return new tmp.PageMenu();
+  return new tmp.PageMenuParent();
 });
 
 function nsContextMenu(aXulMenu, aBrowser, aIsShift) {
@@ -39,8 +39,7 @@ nsContextMenu.prototype = {
     this.hasPageMenu = false;
     if (!aIsShift && this.browser.docShell.allowJavascript &&
         Services.prefs.getBoolPref("javascript.enabled"))
-      this.hasPageMenu = PageMenu.maybeBuildAndAttachMenu(this.target,
-                                                          aXulMenu);
+      this.hasPageMenu = PageMenuParent.buildAndAddToPopup(this.target, aXulMenu);
 
     this.isTextSelected = this.isTextSelection();
     this.isContentSelected = this.isContentSelection();
