@@ -117,7 +117,7 @@ cal.InterfaceRequestor_getInterface = function calInterfaceRequestor_getInterfac
         // Support Auth Prompt Interfaces
         if (aIID.equals(Components.interfaces.nsIAuthPrompt2)) {
             if (!this.calAuthPrompt) {
-                this.calAuthPrompt = new cal.auth.Prompt(this);
+                this.calAuthPrompt = new cal.auth.Prompt();
             }
             return this.calAuthPrompt;
         } else if (aIID.equals(Components.interfaces.nsIAuthPromptProvider) ||
@@ -128,8 +128,6 @@ cal.InterfaceRequestor_getInterface = function calInterfaceRequestor_getInterfac
                 this.badCertHandler = new cal.BadCertHandler(this);
             }
             return this.badCertHandler;
-        } else if (aIID.equals(Components.interfaces.nsIWebNavigation)) {
-            return new cal.LoadContext();
         } else {
             Components.returnCode = e;
         }
@@ -182,25 +180,6 @@ cal.BadCertHandler.prototype = {
                                Components.interfaces.nsITimer.TYPE_ONE_SHOT);
         return true;
     }
-};
-
-/**
- * Implements an nsILoadContext that allows auth prompts to avoid using private
- * browsing without a parent DOM window
- */
-cal.LoadContext = function calLoadContext() {
-};
-cal.LoadContext.prototype = {
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsISupports,
-                                           Components.interfaces.nsILoadContext]),
-    associatedWindow: null,
-    topWindow: null,
-    topFrameElement: null,
-    isAppOfType: function() false,
-    isContent: false,
-    usePrivateBrowsing: false,
-    isInBrowserElement: false,
-    appId: null
 };
 
 /**

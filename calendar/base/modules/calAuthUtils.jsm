@@ -15,8 +15,8 @@ cal.auth = {
     /**
      * Auth prompt implementation - Uses password manager if at all possible.
      */
-    Prompt: function calPrompt(aProvider) {
-        this.mProvider = aProvider;
+    Prompt: function calPrompt() {
+        this.mWindow = cal.getCalendarWindow();
         this.mReturnedLogins = {};
     },
 
@@ -253,7 +253,7 @@ cal.auth.Prompt.prototype = {
         } else {
             let prompter2 = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
                                       .getService(Components.interfaces.nsIPromptFactory)
-                                      .getPrompt(this.mProvider, Components.interfaces.nsIAuthPrompt2);
+                                      .getPrompt(this.mWindow, Components.interfaces.nsIAuthPrompt2);
             return prompter2.promptAuth(aChannel, aLevel, aAuthInfo);
         }
     },
@@ -314,9 +314,20 @@ cal.auth.Prompt.prototype = {
         let hostKey = aChannel.URI.prePath + ":" + aAuthInfo.realm;
         gAuthCache.planForAuthInfo(hostKey);
 
-        let asyncprompter = Components.classes["@mozilla.org/messenger/msgAsyncPrompter;1"]
-                                      .getService(Components.interfaces.nsIMsgAsyncPrompter);
-        asyncprompter.queueAsyncAuthPrompt(hostKey, false, promptlistener);
+        function queuePrompt() {
+            let asyncprompter = Components.classes["@mozilla.org/messenger/msgAsyncPrompter;1"]
+                                          .getService(Components.interfaces.nsIMsgAsyncPrompter);
+            asyncprompter.queueAsyncAuthPrompt(hostKey, false, promptlistener);
+        }
+
+        self.mWindow = cal.getCalendarWindow();
+
+        // the prompt will fail if we are too early
+        if (self.mWindow.document.readyState != "complete") {
+            self.mWindow.addEventListener("load", queuePrompt, true);
+        } else {
+            queuePrompt();
+        }
     }
 };
 
