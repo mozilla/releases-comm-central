@@ -501,7 +501,7 @@ PlacesTreeView.prototype = {
     this._rows.splice(row, 0, aNode);
     this._tree.rowCountChanged(row, 1);
 
-    if (PlacesUtils.nodeIsContainer(aNode) && asContainer(aNode).containerOpen)
+    if (PlacesUtils.nodeIsContainer(aNode) && PlacesUtils.asContainer(aNode).containerOpen)
       this.invalidateContainer(aNode);
   },
 
@@ -900,7 +900,7 @@ PlacesTreeView.prototype = {
         if ((PlacesUtils.nodeIsQuery(parent) ||
              PlacesUtils.nodeIsFolder(parent)) &&
             !node.hasChildren)
-          return asQuery(parent).queryOptions.expandQueries;
+          return PlacesUtils.asQuery(parent).queryOptions.expandQueries;
       }
       return true;
     }
@@ -1040,7 +1040,7 @@ PlacesTreeView.prototype = {
     }
 
     // 474287 Places enforces title sorting for groups, which we don't want.
-    if (!node.containerOption && asQuery(node).queryOptions.resultType ==
+    if (!node.containerOption && PlacesUtils.asQuery(node).queryOptions.resultType ==
         Components.interfaces.nsINavHistoryQueryOptions.RESULTS_AS_URI)
       node.queryOptions.sortingMode = this._result.sortingMode;
     node.containerOpen = !node.containerOpen;

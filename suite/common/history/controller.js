@@ -168,7 +168,7 @@ PlacesController.prototype = {
       else {
         nodeData["query"] = true;
         if (node.parent) {
-          if (asQuery(node.parent).queryOptions.resultType ==
+          if (PlacesUtils.asQuery(node.parent).queryOptions.resultType ==
               Components.interfaces.nsINavHistoryQueryOptions.RESULTS_AS_SITE_QUERY)
             nodeData["host"] = true;
           else
@@ -516,7 +516,7 @@ PlacesController.prototype = {
           copiedFolders.push(node);
 
         function generateChunk(type, overrideURI) {
-          let suffix = i < (nodes.length - 1) ? NEWLINE : "";
+          let suffix = i < (nodes.length - 1) ? PlacesUtils.endl : "";
           let uri = overrideURI;
 
           mozURLString += (PlacesUtils.wrapNode(node, PlacesUtils.TYPE_X_MOZ_URL,
@@ -551,7 +551,8 @@ PlacesController.prototype = {
         addData(PlacesUtils.TYPE_HTML, htmlString);
 
       if (placeString || unicodeString || htmlString || mozURLString) {
-        PlacesUIUtils.clipboard.setData(xferable, null, Components.interfaces.nsIClipboard.kGlobalClipboard);
+        Services.clipboard.setData(xferable, null,
+                                   Services.clipboard.kGlobalClipboard);
       }
     }
     catch(e) {
