@@ -116,7 +116,7 @@
                     object="?prereq"/>
                 </bindings>
                 <action>
-                  <menuitem uri="?panel" type="checkbox"
+                  <menuitem uri="?panel" type="checkbox" class="menuitem-sidebar"
                     label="?title" exclude="?exclude" prereq="?prereq"/>
                 </action>
               </rule>

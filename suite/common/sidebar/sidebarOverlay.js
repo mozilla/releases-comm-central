@@ -1216,6 +1216,10 @@ function SidebarBuildPickerPopup() {
 }
 
 function SidebarTogglePanel(panel_menuitem) {
+  if (!panel_menuitem.classList.contains("menuitem-sidebar") &&
+      !panel_menuitem.classList.contains("texttab-sidebar"))
+    return;
+
   // Create a "container" wrapper around the current panels to
   // manipulate the RDF:Seq more easily.
 
