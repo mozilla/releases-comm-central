@@ -253,7 +253,7 @@ function OnLoadMsgHeaderPane()
   // Only offer openInTab and openInNewWindow if this window supports tabs...
   // (i.e. is not a standalone message window), since those actions are likely
   // to be significantly less common in that case.
-  if (document.getElementById("otherActionsButton")) {
+  if (document.getElementById("otherActionsOpenIn")) {
     let opensAreHidden = document.getElementById("tabmail") ? false : true;
     document.getElementById("otherActionsOpenIn").hidden = opensAreHidden;
   }
