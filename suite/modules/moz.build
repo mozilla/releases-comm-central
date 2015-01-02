@@ -6,6 +6,7 @@
 TEST_DIRS += ['test']
 
 EXTRA_JS_MODULES += [
+    'PlacesUIUtils.jsm',
     'Sanitizer.jsm',
     'WindowsPreviewPerTab.jsm',
 ]

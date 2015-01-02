@@ -21,8 +21,6 @@
   <script type="application/javascript"
           src="chrome://communicator/content/history/history.js"/>
   <script type="application/javascript"
-          src="chrome://communicator/content/history/utils.js"/>
-  <script type="application/javascript"
           src="chrome://communicator/content/history/controller.js"/>
   <script type="application/javascript"
           src="chrome://communicator/content/history/treeView.js"/>
@@ -71,7 +69,7 @@
               selectiontype="single"
               selection="link"
               oncommand="historyAddBookmarks();"/>
-    <menuitem id="addBookmarkContextItem"
+    <menuitem id="addMultipleBookmarksContextItem"
               label="&bookmarkLinksCmd.label;"
               accesskey="&bookmarkLinksCmd.accesskey;"
               selectiontype="multiple"

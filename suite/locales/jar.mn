@@ -147,7 +147,6 @@
   locale/@AB_CD@/communicator/help/images/threadbutton.png                  (%chrome/common/help/images/threadbutton.png)
   locale/@AB_CD@/communicator/help/images/web-links.png                     (%chrome/common/help/images/web-links.png)
   locale/@AB_CD@/communicator/history/history.dtd                           (%chrome/common/history/history.dtd)
-  locale/@AB_CD@/communicator/history/places.properties                     (%chrome/common/history/places.properties)
   locale/@AB_CD@/communicator/migration/migration.dtd                       (%chrome/common/migration/migration.dtd)
   locale/@AB_CD@/communicator/migration/migration.properties                (%chrome/common/migration/migration.properties)
   locale/@AB_CD@/communicator/permissions/cookieViewer.properties           (%chrome/common/permissions/cookieViewer.properties)
