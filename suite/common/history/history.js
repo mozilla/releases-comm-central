@@ -12,9 +12,6 @@ var gDeleteByDomain;
 var gHistoryStatus;
 var gHistoryGrouping = "day";
 
-Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
-Components.utils.import("resource:///modules/PlacesUIUtils.jsm");
-
 function HistoryCommonInit()
 {
   gHistoryTree = document.getElementById("historyTree");
@@ -142,6 +139,10 @@ function GroupBy(aMenuItem)
 
 function historyAddBookmarks()
 {
+  // HACK: as we're importing the actual PlacesUIUtils but that name is taken
+  // by a cut-down history-specific version, store that latter one temporarily
+  var HistoryUtils = PlacesUIUtils;
+  Components.utils.import("resource:///modules/PlacesUIUtils.jsm");
   var count = gHistoryTree.view.selection.count;
   if (count == 1)
     PlacesUIUtils.showMinimalAddBookmarkUI(PlacesUtils._uri(gHistoryTree.selectedNode.uri),
@@ -155,6 +156,8 @@ function historyAddBookmarks()
     }
     PlacesUIUtils.showMinimalAddMultiBookmarkUI(tabList);
   }
+  // restore the PlacesUIUtils the history UI actually wants
+  PlacesUIUtils = HistoryUtils;
 }
 
 function searchHistory(aInput)

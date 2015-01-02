@@ -188,7 +188,7 @@ var PlacesUIUtils = {
           );
         });
       }
-      return new PlacesAggregatedTransaction("addTags", transactions);
+      return new PlacesAggregatedTransactions("addTags", transactions);
     }
 
     if (aData.livemark && aData.annos) // Copying a livemark.
@@ -718,7 +718,7 @@ var PlacesUIUtils = {
    * @param aURINode
    *        a URI node
    * @param aWindow
-   *        a window on which a potential error alert is shown on.
+   *        a window on which a potential an error alert is shown on.
    * @return true if it's safe to open the node in the browser, false otherwise.
    *
    */
@@ -901,12 +901,13 @@ var PlacesUIUtils = {
   /** aItemsToOpen needs to be an array of objects of the form:
     * {uri: string, isBookmark: boolean}
     */
-  _openTabset: function (aItemsToOpen, aEvent, aWhere) {
+  _openTabset: function PUIU__openTabset(aItemsToOpen, aEvent) {
     if (!aItemsToOpen.length)
       return;
 
     var urls = [];
-    for (let item of aItemsToOpen) {
+    for (var i = 0; i < aItemsToOpen.length; i++) {
+      var item = aItemsToOpen[i];
       if (item.isBookmark)
         this.markPageAsFollowedBookmark(item.uri);
       else
@@ -917,8 +918,7 @@ var PlacesUIUtils = {
 
     var browserWindow = this._getTopBrowserWin();
     if (browserWindow) {
-      let where = aWhere || browserWindow.whereToOpenLink(aEvent, false, true);
-      browserWindow.openUILinkArrayIn(urls, where);
+      browserWindow.openUILinkArrayIn(urls, browserWindow.whereToOpenLink(aEvent, false, true));
     }
     else {
       let win = this._getCurrentActiveWin();
@@ -936,17 +936,13 @@ var PlacesUIUtils = {
   },
 
   openURINodesInTabs: function PUIU_openURINodesInTabs(aNodes, aEvent) {
-    this.openSelectionIn(aNodes, null, aEvent);
-  },
-
-  openSelectionIn: function (aNodes, aWhere, aEvent) {
     var urlsToOpen = [];
-    for (let node of aNodes) {
+    for (var i=0; i < aNodes.length; i++) {
       // skip over separators and folders
-      if (PlacesUtils.nodeIsURI(node))
-        urlsToOpen.push({uri: node.uri, isBookmark: PlacesUtils.nodeIsBookmark(node)});
+      if (PlacesUtils.nodeIsURI(aNodes[i]))
+        urlsToOpen.push({uri: aNodes[i].uri, isBookmark: PlacesUtils.nodeIsBookmark(aNodes[i])});
     }
-    this._openTabset(urlsToOpen, aEvent, aWhere);
+    this._openTabset(urlsToOpen, aEvent);
   },
 
   /**
@@ -960,7 +956,7 @@ var PlacesUIUtils = {
    *          user's preferred destination window or tab.
    */
   openNodeWithEvent: function PUIU_openNodeWithEvent(aNode, aEvent) {
-    this.openNodeIn(aNode, this._getCurrentActiveWin().whereToOpenLink(aEvent, false, true));
+    this.openNodeIn(aNode, this._getCurrentActiveWin().whereToOpenLink(aEvent));
   },
 
   /**
@@ -969,12 +965,8 @@ var PlacesUIUtils = {
    * see also openUILinkIn
    */
   openNodeIn: function PUIU_openNodeIn(aNode, aWhere) {
-    if (!aNode || !aWhere)
-      return;
-    var win = this._getCurrentActiveWin();
-    if (PlacesUtils.nodeIsContainer(aNode) && aWhere != "current") {
-        this.openContainerNodeInTabs(aNode, aWhere);
-    } else if (PlacesUtils.nodeIsURI(aNode) && this.checkURLSecurity(aNode, win)) {
+    if (aNode && PlacesUtils.nodeIsURI(aNode) &&
+        this.checkURLSecurity(aNode, this._getCurrentActiveWin())) {
       var isBookmark = PlacesUtils.nodeIsBookmark(aNode);
 
       if (isBookmark)
@@ -982,7 +974,7 @@ var PlacesUIUtils = {
       else
         this.markPageAsTyped(aNode.uri);
 
-      win.openUILinkIn(aNode.uri, aWhere);
+      this._getCurrentActiveWin().openUILinkIn(aNode.uri, aWhere);
     }
   },
 
@@ -1475,4 +1467,5 @@ XPCOMUtils.defineLazyGetter(PlacesUIUtils, "_copyableAnnotations", function() {
           this.LOAD_IN_SIDEBAR_ANNO,
           PlacesUtils.POST_DATA_ANNO,
           PlacesUtils.READ_ONLY_ANNO]
-});
+}); 
+

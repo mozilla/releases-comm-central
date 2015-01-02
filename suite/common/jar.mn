@@ -151,6 +151,7 @@ comm.jar:
    content/communicator/history/placesOverlay.xul                   (history/placesOverlay.xul)
    content/communicator/history/tree.xml                            (history/tree.xml)
    content/communicator/history/treeView.js                         (history/treeView.js)
+*  content/communicator/history/utils.js                            (history/utils.js)
    content/communicator/permissions/cookieViewer.js                 (permissions/cookieViewer.js)
    content/communicator/permissions/cookieViewer.xul                (permissions/cookieViewer.xul)
    content/communicator/permissions/permissionsManager.js           (permissions/permissionsManager.js)
