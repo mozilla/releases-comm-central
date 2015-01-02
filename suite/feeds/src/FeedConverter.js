@@ -515,7 +515,9 @@ GenericProtocolHandler.prototype = {
 
   newChannel2: function newChannel(aUri, aLoadinfo) {
     var uri = aUri.QueryInterface(Components.interfaces.nsINestedURI).innerURI;
-    var channel = Services.io.newChannelFromURI(uri);
+    var channel = aLoadinfo ?
+                  Services.io.newChannelFromURIWithLoadInfo(uri, aLoadinfo) :
+                  Services.io.newChannelFromURI(uri);
     if (channel instanceof Components.interfaces.nsIHttpChannel)
       // Set this so we know this is supposed to be a feed
       channel.setRequestHeader("X-Moz-Is-Feed", "1", false);

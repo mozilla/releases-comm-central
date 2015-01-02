@@ -46,10 +46,12 @@ GopherProtocol.prototype = {
   },
 
   newChannel2: function GP_newChannel2(inputURI, loadinfo) {
+    var ios = Components.classes["@mozilla.org/network/io-service;1"]
+                        .getService(Components.interfaces.nsIIOService);
+    var newURI = ios.newURI("chrome://communicator/content/gopherAddon.xhtml", null, null);
     // Create a chrome channel, and de-chrome it, to our information page.
-    var chan = Components.classes["@mozilla.org/network/io-service;1"]
-                         .getService(Components.interfaces.nsIIOService)
-                         .newChannel("chrome://communicator/content/gopherAddon.xhtml", null, null);
+    var chan = loadinfo ? ios.newChannelFromURIWithLoadInfo(newURI, loadinfo) :
+                          ios.newChannelFromURI(newURI);
     chan.originalURI = inputURI;
     chan.owner = Components.classes["@mozilla.org/scriptsecuritymanager;1"]
                            .getService(Components.interfaces.nsIScriptSecurityManager)
