@@ -661,6 +661,10 @@ function getSearchTokens(aSearchString)
  */
 function generateQueryURI(aModelQuery, aSearchWords)
 {
+  // If there are no search tokens, we simply return an empty string.
+  if (!aSearchWords || aSearchWords.length == 0)
+    return "";
+
   let queryURI = "";
   aSearchWords.forEach(searchWord =>
     queryURI += aModelQuery.replace(/@V/g, encodeABTermValue(searchWord)));
