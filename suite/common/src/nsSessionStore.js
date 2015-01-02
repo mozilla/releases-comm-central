@@ -1422,7 +1422,8 @@ SessionStoreService.prototype = {
     if (!browser || !browser.currentURI)
       // can happen when calling this function right after .addTab()
       return tabData;
-    else if (browser.__SS_data) {
+    else if (browser.__SS_data &&
+             browser.__SS_restoreState == TAB_STATE_NEEDS_RESTORE) {
       // use the data to be restored when the tab hasn't been completely loaded
       tabData = browser.__SS_data;
       if (aTab.pinned)
@@ -1736,7 +1737,8 @@ SessionStoreService.prototype = {
     for (var i = 0; i < browsers.length; i++) {
       try {
         var tabData = this._windows[aWindow.__SSi].tabs[i];
-        if (browsers[i].__SS_data)
+        if (browsers[i].__SS_data &&
+            browsers[i].__SS_restoreState == TAB_STATE_NEEDS_RESTORE)
           continue; // ignore incompletely initialized tabs
         this._updateTextAndScrollDataForTab(aWindow, browsers[i], tabData);
       }
