@@ -27,13 +27,9 @@ function run_test() {
 }
 
 function check_webcal_uri(uri) {
-    const SEC_NORMAL = Ci.nsILoadInfo.SEC_NORMAL;
-    const TYPE_OTHER = Ci.nsIContentPolicy.TYPE_OTHER;
-    let principal = Services.scriptSecurityManager.getSystemPrincipal();
-    let chan = Services.io.newChannel2(uri, null, null, null, principal,
-                                       null, SEC_NORMAL, TYPE_OTHER);
-    NetUtil.asyncFetch2(chan, function(data, status, request) {
+    let chan = Services.io.newChannel(uri, null, null);
+    NetUtil.asyncFetch(chan, function(data, status, request) {
         do_check_true(Components.isSuccessCode(status));
         run_next_test();
-    }, null, null, principal, null, SEC_NORMAL, TYPE_OTHER);
+    });
 }
