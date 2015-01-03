@@ -14,8 +14,7 @@
             title="&connectionsDialog.title;"
             dlgbuttons="accept,cancel"
             onbeforeaccept="return gConnectionsDialog.beforeAccept();"
-            onload="gConnectionsDialog.checkForSystemProxy();"
-            style="width: &window.width; !important;">
+            onload="gConnectionsDialog.checkForSystemProxy();">
 
   <prefpane id="ConnectionsDialogPane">
     <preferences id="ConnectionPreferences">

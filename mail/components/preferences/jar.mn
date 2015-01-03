@@ -53,3 +53,4 @@ messenger.jar:
     content/messenger/preferences/permissions.js
 *   content/messenger/preferences/permissions.xul
     content/messenger/preferences/permissionsutils.js
+    content/messenger/preferences/subdialogs.js

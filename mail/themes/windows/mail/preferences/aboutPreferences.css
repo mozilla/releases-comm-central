@@ -20,3 +20,11 @@ textbox + button,
 filefield + button {
   -moz-margin-start: -4px;
 }
+
+/**
+ * Dialog
+ */
+
+#dialogTitle {
+  font-size: 1.05em;
+}

@@ -49,3 +49,16 @@ textbox + button {
 filefield + button {
   -moz-margin-start: -8px;
 }
+
+/**
+ * Dialog
+ */
+
+#dialogTitle {
+  font-size: 1.1em;
+}
+
+/* Add to Cookies dialog a bottom padding */
+#CookiesDialog > hbox > .actionButtons {
+  padding-bottom: 10px;
+}

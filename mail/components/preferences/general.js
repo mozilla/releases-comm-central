@@ -7,6 +7,8 @@ var gGeneralPane = {
   mPane: null,
   mStartPageUrl: "",
 
+  _loadInContent: Services.prefs.getBoolPref("mail.preferences.inContent"),
+
   init: function ()
   {
     this.mPane = document.getElementById("paneGeneral");
@@ -16,6 +18,10 @@ var gGeneralPane = {
     this.updatePlaySound();
 
     this.updateCustomizeAlert();
+
+    if (this._loadInContent) {
+      gSubDialog.init();
+    }
   },
 
   /**
@@ -51,16 +57,26 @@ var gGeneralPane = {
 
   customizeMailAlert: function()
   {
-    document.documentElement
-            .openSubDialog("chrome://messenger/content/preferences/notifications.xul",
-                            "", null);
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://messenger/content/preferences/notifications.xul",
+                      "resizable=no");
+    } else {
+      document.documentElement
+              .openSubDialog("chrome://messenger/content/preferences/notifications.xul",
+                              "", null);
+    }
   },
 
   configureDockOptions: function()
   {
-    document.documentElement
-            .openSubDialog("chrome://messenger/content/preferences/dockoptions.xul",
-                            "", null);
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://messenger/content/preferences/dockoptions.xul",
+                      "resizable=no");
+    } else {
+      document.documentElement
+              .openSubDialog("chrome://messenger/content/preferences/dockoptions.xul",
+                              "", null);
+    }
   },
 
   convertURLToLocalFile: function(aFileURL)

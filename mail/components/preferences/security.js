@@ -7,6 +7,8 @@ var gSecurityPane = {
   mPane: null,
   mInitialized: false,
 
+  _loadInContent: Services.prefs.getBoolPref("mail.preferences.inContent"),
+
   init: function ()
   {
     this.mPane = document.getElementById("paneSecurity");
@@ -25,6 +27,11 @@ var gSecurityPane = {
       if (preference.value)
         document.getElementById("securityPrefs").selectedIndex = preference.value;
     }
+
+    if (this._loadInContent) {
+      gSubDialog.init();
+    }
+
     this.mInitialized = true;
   },
 
@@ -47,9 +54,13 @@ var gSecurityPane = {
 
   openJunkLog: function()
   {
-    document.documentElement.openWindow("mailnews:junklog",
-                                        "chrome://messenger/content/junkLog.xul",
-                                        "", null);
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://messenger/content/junkLog.xul");
+    } else {
+      document.documentElement.openWindow("mailnews:junklog",
+                                          "chrome://messenger/content/junkLog.xul",
+                                          "", null);
+    }
   },
 
   resetTrainingData: function()
@@ -157,8 +168,14 @@ var gSecurityPane = {
                             bundle.getString("pw_change2empty_in_fips_mode"));
     }
     else {
-      document.documentElement.openSubDialog("chrome://mozapps/content/preferences/removemp.xul",
-                                             "", null);
+      if (this._loadInContent) {
+        gSubDialog.open("chrome://mozapps/content/preferences/removemp.xul",
+                        null, null, this._initMasterPasswordUI.bind(this));
+      } else {
+        document.documentElement
+                .openSubDialog("chrome://mozapps/content/preferences/removemp.xul",
+                               "", null);
+      }
     }
     this._initMasterPasswordUI();
   },
@@ -168,9 +185,15 @@ var gSecurityPane = {
    */
   changeMasterPassword: function ()
   {
-    document.documentElement.openSubDialog("chrome://mozapps/content/preferences/changemp.xul",
-                                           "", null);
-    this._initMasterPasswordUI();
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://mozapps/content/preferences/changemp.xul",
+                      null, null, this._initMasterPasswordUI.bind(this));
+    } else {
+      document.documentElement
+              .openSubDialog("chrome://mozapps/content/preferences/changemp.xul",
+                             "", null);
+      this._initMasterPasswordUI();
+    }
   },
 
   /**
@@ -179,9 +202,14 @@ var gSecurityPane = {
    */
   showPasswords: function ()
   {
-    document.documentElement.openWindow("Toolkit:PasswordManager",
-                                        "chrome://passwordmgr/content/passwordManager.xul",
-                                        "", null);
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://passwordmgr/content/passwordManager.xul");
+    } else {
+      document.documentElement
+              .openWindow("Toolkit:PasswordManager",
+                          "chrome://passwordmgr/content/passwordManager.xul",
+                          "", null);
+    }
   },
 
   updateDownloadedPhishingListState: function()

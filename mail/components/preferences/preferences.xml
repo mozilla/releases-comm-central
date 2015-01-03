@@ -35,6 +35,31 @@
             <xul:deck anonid="paneDeck" flex="1">
               <children includes="prefpane"/>
             </xul:deck>
+            <xul:vbox id="dialogOverlay"
+                      align="center"
+                      pack="center">
+              <xul:vbox id="dialogContainer">
+                <xul:groupbox id="dialogBox"
+                              orient="vertical"
+                              pack="end"
+                              role="dialog"
+                              aria-labelledby="dialogTitle">
+                  <xul:caption class="titlebar"
+                               flex="1"
+                               align="center">
+                    <xul:label id="dialogTitle"
+                               class="title" flex="1">
+                    </xul:label>
+                    <xul:button id="dialogClose"
+                                class="close-icon"/>
+                  </xul:caption>
+                  <xul:browser id="dialogFrame"
+                               name="dialogFrame"
+                               autoscroll="false"
+                               disablehistory="true"/>
+                </xul:groupbox>
+              </xul:vbox>
+            </xul:vbox>
           </xul:hbox>
         </xul:hbox>
       </xul:hbox>

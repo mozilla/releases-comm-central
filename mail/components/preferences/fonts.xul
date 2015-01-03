@@ -20,16 +20,7 @@
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
             title="&fontsAndEncodingsDialog.title;"
             dlgbuttons="accept,cancel"
-            ondialogaccept="gFontsDialog.ondialogaccept();"
-#ifdef XP_UNIX
-#ifdef XP_MACOSX
-            style="width: &window.macWidth; !important;">
-#else
-            style="width: &window.unixWidth; !important;">
-#endif
-#else
-            style="width: &window.width; !important;">
-#endif
+            ondialogaccept="gFontsDialog.ondialogaccept();">
 
   <prefpane id="FontsDialogPane">
 

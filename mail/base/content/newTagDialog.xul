@@ -21,7 +21,7 @@
   <script type="application/javascript" src="chrome://messenger/content/newTagDialog.js"/>
   <label value="&name.label;" accesskey="&name.accesskey;" control="name"/>
   <hbox>
-    <textbox id="name" oninput="doEnabling();"/>
+    <textbox id="name" oninput="doEnabling();" flex="1"/>
     <colorpicker class="small-margin" type="button" id="tagColorPicker" palettename="standard"/>
   </hbox>
   <separator/>

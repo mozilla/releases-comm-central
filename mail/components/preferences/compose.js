@@ -8,6 +8,8 @@ var gComposePane = {
   mSpellChecker: null,
   mDictCount : 0,
 
+  _loadInContent: Services.prefs.getBoolPref("mail.preferences.inContent"),
+
   init: function ()
   {
     this.enableAutocomplete();
@@ -29,6 +31,10 @@ var gComposePane = {
         document.getElementById("composePrefs").selectedIndex = preference.value;
     }
 
+    if (this._loadInContent) {
+      gSubDialog.init();
+    }
+
     this.mInitialized = true;
   },
 
@@ -43,17 +49,25 @@ var gComposePane = {
 
   sendOptionsDialog: function()
   {
-    document.documentElement.openSubDialog("chrome://messenger/content/preferences/sendoptions.xul","", null);
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://messenger/content/preferences/sendoptions.xul");
+    } else {
+      document.documentElement
+              .openSubDialog("chrome://messenger/content/preferences/sendoptions.xul",
+                             "", null);
+    }
   },
 
   attachmentReminderOptionsDialog: function()
   {
-    document.documentElement.openSubDialog("chrome://messenger/content/preferences/attachmentReminder.xul", "", null);
-  },
-
-  htmlComposeDialog: function()
-  {
-    document.documentElement.openSubDialog("chrome://messenger/content/preferences/htmlcompose.xul","", null);
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://messenger/content/preferences/attachmentReminder.xul",
+                      "resizable=no");
+    } else {
+      document.documentElement
+              .openSubDialog("chrome://messenger/content/preferences/attachmentReminder.xul",
+                             "", null);
+    }
   },
 
   updateAutosave: function()
@@ -92,8 +106,12 @@ var gComposePane = {
 
   editDirectories: function()
   {
-    window.openDialog("chrome://messenger/content/addressbook/pref-editdirectories.xul",
-                      "editDirectories", "chrome,modal=yes,resizable=no", null);
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://messenger/content/addressbook/pref-editdirectories.xul");
+    } else {
+      window.openDialog("chrome://messenger/content/addressbook/pref-editdirectories.xul",
+                        "editDirectories", "chrome,modal=yes,resizable=no", null);
+    }
   },
 
   initLanguageMenu: function ()

@@ -7,6 +7,8 @@ var gDisplayPane = {
   mInitialized: false,
   mTagListBox:  null,
 
+  _loadInContent: Services.prefs.getBoolPref("mail.preferences.inContent"),
+
   init: function ()
   {
     if (!(("arguments" in window) && window.arguments[1])) {
@@ -20,6 +22,10 @@ var gDisplayPane = {
     if (menulist.selectedIndex == -1) {
       menulist.insertItemAt(0, "", "", "");
       menulist.selectedIndex = 0;
+    }
+
+    if (this._loadInContent) {
+      gSubDialog.init();
     }
 
     this.mInitialized = true;
@@ -168,8 +174,13 @@ var gDisplayPane = {
    */
   configureFonts: function ()
   {
-    document.documentElement.openSubDialog("chrome://messenger/content/preferences/fonts.xul",
-                                           "", null);
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://messenger/content/preferences/fonts.xul");
+    } else {
+      document.documentElement
+              .openSubDialog("chrome://messenger/content/preferences/fonts.xul",
+                             "", null);
+    }
   },
 
   /**
@@ -178,8 +189,14 @@ var gDisplayPane = {
    */
   configureColors: function ()
   {
-    document.documentElement.openSubDialog("chrome://messenger/content/preferences/colors.xul",
-                                           "", null);
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://messenger/content/preferences/colors.xul",
+                      "resizable=no");
+    } else {
+      document.documentElement
+              .openSubDialog("chrome://messenger/content/preferences/colors.xul",
+                             "", null);
+    }
   },
 
 
@@ -224,22 +241,32 @@ var gDisplayPane = {
     {
       var tagElToEdit = this.mTagListBox.getItemAtIndex(index);
       var args = {result: "", keyToEdit: tagElToEdit.getAttribute("value"), okCallback: editTagCallback};
-      var dialog = window.openDialog(
-                  "chrome://messenger/content/newTagDialog.xul",
-                  "",
-                  "chrome,titlebar,modal",
-                  args);
+      if (this._loadInContent) {
+        let dialog = gSubDialog.open("chrome://messenger/content/newTagDialog.xul",
+                                     "resizable=no", args);
+      } else {
+        let dialog = window.openDialog(
+                    "chrome://messenger/content/newTagDialog.xul",
+                    "",
+                    "chrome,titlebar,modal",
+                    args);
+      }
     }
   },
 
   addTag: function()
   {
     var args = {result: "", okCallback: addTagCallback};
-    var dialog = window.openDialog(
-                 "chrome://messenger/content/newTagDialog.xul",
-                 "",
-                 "chrome,titlebar,modal",
-                 args);
+    if (this._loadInContent) {
+      let dialog = gSubDialog.open("chrome://messenger/content/newTagDialog.xul",
+                                   "resizable=no", args);
+    } else {
+      let dialog = window.openDialog(
+                   "chrome://messenger/content/newTagDialog.xul",
+                   "",
+                   "chrome,titlebar,modal",
+                   args);
+    }
   },
 
   onSelect: function()

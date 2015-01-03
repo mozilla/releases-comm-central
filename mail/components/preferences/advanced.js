@@ -8,6 +8,8 @@ var gAdvancedPane = {
   mInitialized: false,
   mShellServiceWorking: false,
 
+  _loadInContent: Services.prefs.getBoolPref("mail.preferences.inContent"),
+
   init: function ()
   {
     this.mPane = document.getElementById("paneAdvanced");
@@ -22,7 +24,7 @@ var gAdvancedPane = {
         document.getElementById("advancedPrefs").selectedIndex = preference.value;
     }
 #ifdef MOZ_UPDATER
-	this.updateReadPrefs();
+    this.updateReadPrefs();
 #endif
 
     // Search integration -- check whether we should hide or disable integration
@@ -67,6 +69,10 @@ var gAdvancedPane = {
     }
 #endif
 
+    if (this._loadInContent) {
+      gSubDialog.init();
+    }
+
     this.mInitialized = true;
   },
 
@@ -93,17 +99,26 @@ var gAdvancedPane = {
       return;
 
     // otherwise, bring up the default client dialog
-    window.openDialog("chrome://messenger/content/systemIntegrationDialog.xul",
-                      "SystemIntegration",
-                      "modal,centerscreen,chrome,resizable=no", "calledFromPrefs");
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://messenger/content/systemIntegrationDialog.xul",
+                      "resizable=no", "calledFromPrefs");
+    } else {
+      window.openDialog("chrome://messenger/content/systemIntegrationDialog.xul",
+                        "SystemIntegration",
+                        "modal,centerscreen,chrome,resizable=no", "calledFromPrefs");
+    }
   },
 #endif
 
   showConfigEdit: function()
   {
-    document.documentElement.openWindow("Preferences:ConfigManager",
-                                        "chrome://global/content/config.xul",
-                                        "", null);
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://global/content/config.xul");
+    } else {
+      document.documentElement.openWindow("Preferences:ConfigManager",
+                                          "chrome://global/content/config.xul",
+                                          "", null);
+    }
   },
 
   /**
@@ -353,8 +368,14 @@ updateWritePrefs: function ()
    */
   showReturnReceipts: function()
   {
-    document.documentElement.openSubDialog("chrome://messenger/content/preferences/receipts.xul",
-                                           "", null);
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://messenger/content/preferences/receipts.xul",
+                      "resizable=no");
+    } else {
+      document.documentElement
+              .openSubDialog("chrome://messenger/content/preferences/receipts.xul",
+                             "", null);
+    }
   },
 
   /**
@@ -362,9 +383,14 @@ updateWritePrefs: function ()
    */
   showConnections: function ()
   {
-    document.documentElement
-            .openSubDialog("chrome://messenger/content/preferences/connection.xul",
-                           "", null);
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://messenger/content/preferences/connection.xul",
+                      "resizable=no");
+    } else {
+      document.documentElement
+              .openSubDialog("chrome://messenger/content/preferences/connection.xul",
+                             "", null);
+    }
   },
 
   /**
@@ -372,9 +398,14 @@ updateWritePrefs: function ()
    */
   showOffline: function()
   {
-    document.documentElement
-            .openSubDialog("chrome://messenger/content/preferences/offline.xul",
-                           "", null);
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://messenger/content/preferences/offline.xul",
+                      "resizable=no");
+    } else {
+      document.documentElement
+              .openSubDialog("chrome://messenger/content/preferences/offline.xul",
+                             "", null);
+    }
   },
 
   /**
@@ -382,9 +413,13 @@ updateWritePrefs: function ()
    */
   showCertificates: function ()
   {
-    document.documentElement.openWindow("mozilla:certmanager",
-                                        "chrome://pippki/content/certManager.xul",
-                                        "", null);
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://pippki/content/certManager.xul");
+    } else {
+      document.documentElement.openWindow("mozilla:certmanager",
+                                          "chrome://pippki/content/certManager.xul",
+                                          "", null);
+    }
   },
 
   /**
@@ -415,9 +450,13 @@ updateWritePrefs: function ()
    */
   showSecurityDevices: function ()
   {
-    document.documentElement.openWindow("mozilla:devicemanager",
-                                        "chrome://pippki/content/device_manager.xul",
-                                        "", null);
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://pippki/content/device_manager.xul");
+    } else {
+      document.documentElement.openWindow("mozilla:devicemanager",
+                                          "chrome://pippki/content/device_manager.xul",
+                                          "", null);
+    }
   },
 
   /**

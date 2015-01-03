@@ -50,3 +50,11 @@ filefield + button {
 treecol:hover:active {
   padding: 0 2px;
 }
+
+/**
+ * Dialog
+ */
+
+#dialogTitle {
+  font-size: 1.05em;
+}

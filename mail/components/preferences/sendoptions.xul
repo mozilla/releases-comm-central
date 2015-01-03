@@ -19,7 +19,7 @@
 <prefwindow id="SendOptionsDialog" type="child"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
             dlgbuttons="accept,cancel"
-            style="height: 33em;"
+            style="min-height: 33em;"
             title="&dialog.title;">
 
   <prefpane id="SendOptionsDialogPane" onpaneload="gSendOptionsDialog.init();">
