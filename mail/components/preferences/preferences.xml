@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+  - License, v. 2.0. If a copy of the MPL was not distributed with this
+  - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE bindings [
+  <!ENTITY % preferencesDTD SYSTEM "chrome://global/locale/preferences.dtd">
+  %preferencesDTD;
+  <!ENTITY % globalKeysDTD SYSTEM "chrome://global/locale/globalKeys.dtd">
+  %globalKeysDTD;
+]>
+
+<bindings id="preferencesBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <binding id="preftab"
+           extends="chrome://global/content/bindings/preferences.xml#prefwindow">
+    <resources>
+      <stylesheet src="chrome://global/skin/preferences.css"/>
+    </resources>
+    <content dlgbuttons="accept,cancel" persist="lastSelected"
+             closebuttonlabel="&preferencesCloseButton.label;"
+             closebuttonaccesskey="&preferencesCloseButton.accesskey;"
+             role="dialog">
+      <xul:hbox id="prefBox" flex="1">
+        <xul:windowdragbox orient="vertical">
+          <xul:radiogroup anonid="selector" orient="vertical" class="paneSelector chromeclass-toolbar"
+                          role="listbox"/> <!-- Expose to accessibility APIs as a listbox -->
+        </xul:windowdragbox>
+        <xul:hbox id="preferencesContainer" flex="1">
+          <xul:hbox class="paneDeckContainer" flex="1">
+            <xul:deck anonid="paneDeck" flex="1">
+              <children includes="prefpane"/>
+            </xul:deck>
+          </xul:hbox>
+        </xul:hbox>
+      </xul:hbox>
+      <xul:hbox anonid="dlg-buttons" class="prefWindow-dlgbuttons"
+                pack="end">
+        <xul:button dlgtype="extra2" class="dialog-button" hidden="true"/>
+        <xul:spacer anonid="spacer" flex="1"/>
+        <xul:button dlgtype="accept" class="dialog-button" icon="accept"/>
+        <xul:button dlgtype="extra1" class="dialog-button" hidden="true"/>
+        <xul:button dlgtype="cancel" class="dialog-button" icon="cancel"/>
+        <xul:button dlgtype="help" class="dialog-button" hidden="true" icon="help"/>
+        <xul:button dlgtype="disclosure" class="dialog-button" hidden="true"/>
+      </xul:hbox>
+      <xul:hbox>
+        <children/>
+      </xul:hbox>
+    </content>
+    <implementation>
+      <!-- Don't resize the window at Prefs opening -->
+      <field name="_initialized">true</field>
+      <!-- Don't resize the window at pane change -->
+      <field name="_shouldAnimate">false</field>
+      <!-- Always use instantApply in Prefs in Tab -->
+      <property name="instantApply" readonly="true" onget="return true;"/>
+      <method name="_selectPane">
+        <parameter name="aPaneElement"/>
+        <body>
+        <![CDATA[
+          let helpButton = document.documentElement.getButton("help");
+          // If there's no topic, we don't need the help button.
+          helpButton.hidden = !aPaneElement.helpTopic;
+
+          // Find this pane's index in the deck and set the deck's
+          // selectedIndex to that value to switch to it.
+          let prefpanes = this.preferencePanes;
+          for (let i = 0; i < prefpanes.length; ++i) {
+            if (prefpanes[i] == aPaneElement) {
+              this._paneDeck.selectedIndex = i;
+              if (this.type != "child") {
+                let oldPane = this.lastSelected ? document.getElementById(this.lastSelected) : this.preferencePanes[0];
+                oldPane.selected = !(aPaneElement.selected = true);
+                this.lastSelected = aPaneElement.id;
+                this.currentPane = aPaneElement;
+
+                let targetHeight = parseInt(window.getComputedStyle(this._paneDeckContainer, "").height);
+                let verticalPadding = parseInt(window.getComputedStyle(aPaneElement, "").paddingTop);
+                verticalPadding += parseInt(window.getComputedStyle(aPaneElement, "").paddingBottom);
+                if (aPaneElement.contentHeight + verticalPadding < targetHeight)
+                  aPaneElement._content.style.height = targetHeight - verticalPadding + "px";
+              }
+              break;
+            }
+          }
+        ]]>
+        </body>
+      </method>
+    </implementation>
+  </binding>
+
+</bindings>

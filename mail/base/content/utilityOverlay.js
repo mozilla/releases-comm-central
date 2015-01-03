@@ -273,6 +273,29 @@ function openSearchTab(query, where) {
 }
 
 /**
+ * Open the preferences page for the specified query in a new tab.
+ *
+ * @param paneID     ID of prefpane to select automatically.
+ * @param tabID      ID of tab to select on the prefpane.
+ * @param otherArgs  other prefpane specific arguments.
+ */
+function openPreferencesTab(paneID, tabID, otherArgs)
+{
+  let url = "about:preferences";
+  let params = {
+    contentPage: url,
+    paneID: paneID,
+    tabID: tabID,
+    otherArgs: otherArgs,
+    onLoad: function(aEvent, aBrowser) {
+      let prefWindow = aBrowser.contentDocument.getElementById("MailPreferences");
+      aBrowser.contentWindow.selectPaneAndTab(prefWindow, paneID, tabID, otherArgs);
+    }
+  };
+  openTab("preferencesTab", params);
+}
+
+/**
  * Open the dictionary list in a new content tab, if possible in an available
  * mail:3pane window, otherwise by opening a new mail:3pane.
  *

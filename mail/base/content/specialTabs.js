@@ -246,7 +246,7 @@ const kTelemetryServerOwner = "toolkit.telemetry.server_owner";
 const kTelemetryPromptRev   = 2;
 
 var contentTabBaseType = {
-  inContentWhitelist: ['about:addons'],
+  inContentWhitelist: ['about:addons', 'about:preferences'],
   shouldSwitchTo: function onSwitchTo({contentPage: aContentPage}) {
     let tabmail = document.getElementById("tabmail");
     let tabInfo = tabmail.tabInfo;

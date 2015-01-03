@@ -509,6 +509,7 @@ function OnLoadMessenger()
 
   // This also registers the contentTabType ("contentTab")
   specialTabs.openSpecialTabsOnStartup();
+  preferencesTabType.initialize();
   webSearchTabType.initialize();
   tabmail.registerTabType(accountProvisionerTabType);
 

@@ -317,3 +317,11 @@ splitmenu {
 .button-appmenu {
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#appmenu-vertical") !important;
 }
+
+/* Preferences */
+
+preftab,
+preftab:root /* override :root */ {
+  -moz-binding: url("chrome://messenger/content/preferences/preferences.xml#preftab");
+  -moz-box-orient: vertical;
+}

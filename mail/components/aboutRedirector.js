@@ -22,6 +22,8 @@ AboutRedirector.prototype = {
                        Ci.nsIAboutModule.URI_SAFE_FOR_UNTRUSTED_CONTENT)},
     "support": {url: "chrome://messenger/content/about-support/aboutSupport.xhtml",
                 flags: Ci.nsIAboutModule.ALLOW_SCRIPT},
+    "preferences": {url: "chrome://messenger/content/preferences/aboutPreferences.xul",
+                    flags: Ci.nsIAboutModule.ALLOW_SCRIPT},
   },
 
   /**

@@ -4,7 +4,11 @@
 
 messenger.jar:
 *   content/messenger/preferences/preferences.xul
+*   content/messenger/preferences/aboutPreferences.xul
+    content/messenger/preferences/preferences.xml
     content/messenger/preferences/preferences.js
+    content/messenger/preferences/preferencesTab.xul
+    content/messenger/preferences/preferencesTab.js
 *   content/messenger/preferences/general.xul
     content/messenger/preferences/general.js
 #ifdef XP_MACOSX

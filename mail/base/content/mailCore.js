@@ -395,23 +395,31 @@ function toSanitize()
  */
 function openOptionsDialog(aPaneID, aTabID, aOtherArgs)
 {
-  let win = Services.wm.getMostRecentWindow("Mail:Preferences");
-  if (win) {
-    // the dialog is already open
-    win.focus();
-    if (aPaneID) {
-      let prefWindow = win.document.getElementById("MailPreferences");
-      win.selectPaneAndTab(prefWindow, aPaneID, aTabID);
-    }
+  let loadInContent = Services.prefs.getBoolPref("mail.preferences.inContent");
+  // Load the prefs in a tab?
+  if (loadInContent) {
+    // Yes, load the prefs in a tab
+    openPreferencesTab(aPaneID, aTabID, aOtherArgs);
   } else {
-    // the dialog must be created
-    let instantApply = Services.prefs
-                               .getBoolPref("browser.preferences.instantApply");
-    let features = "chrome,titlebar,toolbar,centerscreen" +
-                   (instantApply ? ",dialog=no" : ",modal");
+    // No, load the prefs in a dialog
+    let win = Services.wm.getMostRecentWindow("Mail:Preferences");
+    if (win) {
+      // the dialog is already open
+      win.focus();
+      if (aPaneID) {
+        let prefWindow = win.document.getElementById("MailPreferences");
+        win.selectPaneAndTab(prefWindow, aPaneID, aTabID);
+      }
+    } else {
+      // the dialog must be created
+      let instantApply = Services.prefs
+                                 .getBoolPref("browser.preferences.instantApply");
+      let features = "chrome,titlebar,toolbar,centerscreen" +
+                     (instantApply ? ",dialog=no" : ",modal");
 
-    openDialog("chrome://messenger/content/preferences/preferences.xul",
-               "Preferences", features, aPaneID, aTabID, aOtherArgs);
+      openDialog("chrome://messenger/content/preferences/preferences.xul",
+                 "Preferences", features, aPaneID, aTabID, aOtherArgs);
+    }
   }
 }
 

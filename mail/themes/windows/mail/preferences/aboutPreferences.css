@@ -1,0 +1,22 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/shared/in-content/aboutPreferences.css");
+
+radio {
+  -moz-binding: url("chrome://global/content/bindings/radio.xml#radio") !important;
+}
+
+.actionsMenu > .menulist-label-box > .menulist-icon {
+  -moz-margin-end: 9px;
+}
+
+treecol:hover:active {
+  padding: 0 4px;
+}
+
+textbox + button,
+filefield + button {
+  -moz-margin-start: -4px;
+}

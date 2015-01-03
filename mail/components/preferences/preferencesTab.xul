@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+  - License, v. 2.0. If a copy of the MPL was not distributed with this
+  - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<overlay id="preferencesTab-overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/x-javascript"
+          src="chrome://messenger/content/preferences/preferencesTab.js"/>
+
+  <hbox id="tabmail-container">
+    <vbox id="preferencesTab" collapsed="true">
+      <vbox flex="1">
+        <notificationbox flex="1">
+          <browser id="preferencesbrowser" type="content-targetable" flex="1"
+                   disablehistory="true" autocompletepopup="PopupAutoComplete"
+                   context="mailContext"/>
+        </notificationbox>
+        <findbar browserid="preferencesbrowser"/>
+      </vbox>
+    </vbox>
+  </hbox>
+</overlay>

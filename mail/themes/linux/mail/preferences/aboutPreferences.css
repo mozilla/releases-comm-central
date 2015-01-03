@@ -1,0 +1,52 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/shared/in-content/aboutPreferences.css");
+
+checkbox {
+  -moz-binding: url("chrome://global/content/bindings/checkbox.xml#checkbox") !important;
+}
+
+radio {
+  -moz-binding: url("chrome://global/content/bindings/radio.xml#radio") !important;
+}
+
+spinbuttons {
+  -moz-appearance: none;
+}
+
+.treecol-sortdirection {
+  /* override the Linux only toolkit rule */
+  -moz-appearance: none;
+}
+
+.actionsMenu {
+  font-family: "Clear Sans", sans-serif;
+  font-size: 1.25rem;
+  line-height: 22px;
+}
+
+.actionsMenu > .menulist-label-box > .menulist-icon {
+  margin-top: 1px;
+  -moz-margin-start: 1px;
+  -moz-margin-end: 6px;
+}
+
+.actionsMenu > .menulist-label-box > .menulist-label {
+  margin-top: 2px !important;
+}
+
+menulist.actionsMenu > .menulist-dropmarker {
+  margin-top: 11px;
+  margin-bottom: 11px;
+}
+
+textbox + button,
+filefield + button {
+  -moz-margin-start: -4px;
+}
+
+treecol:hover:active {
+  padding: 0 2px;
+}

@@ -1,0 +1,51 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/shared/in-content/aboutPreferences.css");
+
+prefpane .groupbox-title {
+  background: none;
+  margin-bottom: 0;
+}
+
+spinbuttons {
+  -moz-appearance: none;
+}
+
+.spinbuttons-up {
+  margin-top: 0 !important;
+  border-radius: 4px 4px 0 0;
+}
+
+.spinbuttons-down  {
+  margin-bottom: 0 !important;
+  border-radius: 0 0 4px 4px;
+}
+
+.spinbuttons-button > .button-box {
+  -moz-padding-start: 2px !important;
+  -moz-padding-end: 3px !important;
+}
+
+.spinbuttons-button > .button-box > .button-text {
+  display: none;
+}
+
+radio[pane] {
+  text-shadow: none;
+}
+
+.actionsMenu > .menulist-label-box > .menulist-icon {
+  margin-top: 2px;
+  -moz-margin-start: 2px;
+  -moz-margin-end: 8px !important;
+}
+
+textbox + button {
+  -moz-margin-start: -4px;
+}
+
+filefield + button {
+  -moz-margin-start: -8px;
+}
