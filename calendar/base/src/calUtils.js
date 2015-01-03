@@ -1214,7 +1214,8 @@ calListenerBag.prototype = {
             try {
                 iface[func].apply(iface, args ? args : []);
             } catch (exc) {
-                Components.utils.reportError(exc + "\nSTACK: " + exc.stack);
+                let stack = exc.stack || (exc.location ? exc.location.formattedStack : null);
+                Components.utils.reportError(exc + "\nSTACK: " + stack);
             }
         }
         this.mInterfaces.forEach(notifyFunc);
