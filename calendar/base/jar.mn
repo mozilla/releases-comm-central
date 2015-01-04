@@ -144,6 +144,7 @@ calendar.jar:
     ../skin/common/dialogs/calendar-alarm-dialog.css  (themes/common/dialogs/calendar-alarm-dialog.css)
     ../skin/common/dialogs/calendar-event-dialog.css  (themes/common/dialogs/calendar-event-dialog.css)
     ../skin/common/widgets/calendar-widgets.css       (themes/common/widgets/calendar-widgets.css)
+    ../skin/common/widgets/minimonth.css              (themes/common/widgets/minimonth.css)
 
 # Linux theme files
     ../skin/linux/calendar/calendar-alarms.css                            (themes/common/calendar-alarms.css)

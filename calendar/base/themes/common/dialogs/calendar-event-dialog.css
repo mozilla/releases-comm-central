@@ -2,6 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+dialog {
+    --eventBorderColor: #8d8e90;
+    --eventWidgetBorderColor: #cacaff;
+    --eventGridStartBorderColor: #bdbec0;
+}
+
+dialog[systemcolors] {
+    --eventBorderColor: ThreeDShadow;
+    --eventWidgetBorderColor: ThreeDShadow;
+    --eventGridStartBorderColor: ThreeDShadow;
+}
+
 #calendar-event-dialog,
 #calendar-task-dialog {
     padding: 0px;
@@ -176,11 +188,7 @@ daypicker-monthday {
 .listbox-noborder {
     -moz-appearance: none;
     margin: 0px 0px;
-    border: 1px solid #8D8E90;
-}
-
-dialog[systemcolors] .listbox-noborder {
-    border: 1px solid ThreeDShadow;
+    border: 1px solid var(--eventBorderColor);
 }
 
 #timebar > .listbox-noborder {
@@ -220,24 +228,16 @@ dialog[systemcolors] .listbox-noborder {
 
 freebusy-day {
     -moz-margin-end: 2px;
-    -moz-border-start: 1px solid #8D8E90;
-    -moz-border-end: 1px solid #8D8E90;
-    border-bottom: 1px solid #8D8E90;
+    -moz-border-start: 1px solid var(--eventBorderColor);
+    -moz-border-end: 1px solid var(--eventBorderColor);
+    border-bottom: 1px solid var(--eventBorderColor);
 }
 
-dialog[systemcolors] freebusy-day {
-    -moz-border-start: 1px solid ThreeDShadow;
-    -moz-border-end: 1px solid ThreeDShadow;
-    border-bottom: 1px solid ThreeDShadow;
-}
-
-freebusy-day:first-child,
-dialog[systemcolors] freebusy-day:first-child {
+freebusy-day:first-child {
     -moz-border-start: 1px solid transparent;
 }
 
-freebusy-day:last-child,
-dialog[systemcolors] freebusy-day:last-child {
+freebusy-day:last-child {
     -moz-border-end: 1px solid transparent;
 }
 
@@ -276,15 +276,11 @@ freebusy-day > box {
 }
 
 .freebusy-grid {
-    -moz-border-start: 1px solid #BDBEC0;
+    -moz-border-start: 1px solid var(--eventGridStartBorderColor);
     background-color: #E09EBD;
     color: #E09EBD;
     min-height: 16px;
     -moz-padding-start: 1px;
-}
-
-dialog[systemcolors] .freebusy-grid {
-    -moz-border-start: 1px solid ThreeDShadow;
 }
 
 .freebusy-grid[state="busy"] {
@@ -307,18 +303,13 @@ dialog[systemcolors] .freebusy-grid {
     color: #EBEBE4;
 }
 
-.freebusy-grid:first-child,
-dialog[systemcolors] .freebusy-grid:first-child {
+.freebusy-grid:first-child {
     -moz-border-start: 1px solid transparent;
 }
 
 .freebusy-grid.last-in-day {
-    -moz-border-end: 1px solid #8D8E90;
+    -moz-border-end: 1px solid var(--eventBorderColor);
     -moz-margin-end: 2px;
-}
-
-dialog[systemcolors] .freebusy-grid.last-in-day {
-    -moz-border-end: 1px solid ThreeDShadow;
 }
 
 #dialog-box {
@@ -334,7 +325,7 @@ dialog[systemcolors] .freebusy-grid.last-in-day {
 
 #typecol-addressingWidget {
     min-width: 9em;
-    border-right: 1px solid #CACAFF;
+    border-right: 1px solid var(--eventWidgetBorderColor);
 }
 
 /* This applies to rows of the attendee-list and the freebusy-grid */
@@ -353,12 +344,8 @@ dialog[systemcolors] .freebusy-grid.last-in-day {
 }
 
 .addressingWidgetCell {
-    border-bottom: 1px solid #CACAFF;
+    border-bottom: 1px solid var(--eventWidgetBorderColor);
     padding: 0px;
-}
-
-dialog[systemcolors] .addressingWidgetCell {
-    border-bottom: 1px solid ThreeDShadow;
 }
 
 .addressingWidgetCell:first-child {
