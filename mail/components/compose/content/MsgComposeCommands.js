@@ -2412,7 +2412,10 @@ function GetCharsetUIString()
 {
   // The charset here is already the canonical charset (not an alias).
   let charset = gMsgCompose.compFields.characterSet;
-  if (charset && charset != gMsgCompose.compFields.defaultCharacterSet) {
+  if (!charset)
+    return "";
+
+  if (charset.toLowerCase() != gMsgCompose.compFields.defaultCharacterSet.toLowerCase()) {
     try {
       return " - " + gCharsetConvertManager.getCharsetTitle(charset);
     }
