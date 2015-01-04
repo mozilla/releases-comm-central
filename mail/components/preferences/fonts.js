@@ -81,8 +81,9 @@ var gFontsDialog = {
 
     let defaultValue = aElement.firstChild.firstChild.getAttribute("value");
     let languagePref = document.getElementById("font.language.group");
-    preference = document.getElementById("font.name-list." + aElement.id + "." + languagePref.value);
-    if (!preference)
+    let prefId = "font.name-list." + aElement.id + "." + languagePref.value;
+    preference = document.getElementById(prefId);
+    if (!preference || !preference.value)
       return defaultValue;
 
     let fontNames = preference.value.split(",");
