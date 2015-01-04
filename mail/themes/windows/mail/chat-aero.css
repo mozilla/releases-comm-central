@@ -271,12 +271,12 @@ toolbar[iconsize="small"] #button-chat-accounts[disabled] {
   -moz-image-region: rect(1px 53px 17px 37px);
 }
 
-toolbar:-moz-lwtheme-darktext #button-add-buddy,
-toolbar:-moz-lwtheme-darktext #button-add-buddy[disabled],
-toolbar:-moz-lwtheme-darktext #button-join-chat,
-toolbar:-moz-lwtheme-darktext #button-join-chat[disabled],
-toolbar:-moz-lwtheme-darktext #button-chat-accounts,
-toolbar:-moz-lwtheme-darktext #button-chat-accounts[disabled] {
+toolbar[brighttext] #button-add-buddy,
+toolbar[brighttext] #button-add-buddy[disabled],
+toolbar[brighttext] #button-join-chat,
+toolbar[brighttext] #button-join-chat[disabled],
+toolbar[brighttext] #button-chat-accounts,
+toolbar[brighttext] #button-chat-accounts[disabled] {
   list-style-image: url("chrome://messenger/skin/icons/chat-toolbar-inverted.png");
 }
 
