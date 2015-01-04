@@ -71,9 +71,9 @@ menu:not(:-moz-lwtheme):-moz-window-inactive {
 }
 
 #tabs-toolbar {
+  border-bottom-width: 0;
 %ifndef WINDOWS_AERO
   -moz-appearance: none;
-  border-bottom-width: 0;
   background-image: linear-gradient(to top, hsla(209, 67%, 12%, 0.35) 1px,
                                     transparent 1px);
 %else

@@ -10,6 +10,10 @@
 @import url("chrome://messenger/content/messenger.css");
 @import url("chrome://messenger/skin/shared/messenger.css");
 
+toolbox:-moz-lwtheme {
+  border-top-width: 0;
+}
+
 %ifdef WINDOWS_AERO
 @media not all and (-moz-windows-default-theme) {
 %endif
