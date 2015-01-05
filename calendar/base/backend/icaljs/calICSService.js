@@ -30,10 +30,22 @@ calIcalProperty.prototype = {
     get parent() this.innerObject.parent,
     toString: function() this.innerObject.toICAL(),
 
-    get value() this.innerObject.getValues().join(","),
+    get value() {
+        // Unescaped value for properties of TEXT or X- type, escaped otherwise.
+        // In both cases, innerObject.type is "text".
+        if (this.innerObject.type == "text") {
+            return this.innerObject.getValues().join(",")
+        }
+        return this.valueAsIcalString;
+    },
     set value(val) {
-        this.innerObject.setValue(val);
-        return val;
+        // Unescaped value for properties of TEXT or X- type, escaped otherwise.
+        // In both cases, innerObject.type is "text".
+        if (this.innerObject.type == "text") {
+            this.innerObject.setValue(val);
+            return val;
+        }
+        return this.valueAsIcalString = val;
     },
 
     get valueAsIcalString() {

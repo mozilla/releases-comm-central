@@ -3895,7 +3895,7 @@ ICAL.TimezoneService = (function() {
       this.day = epoch.day;
       this.hour = epoch.hour;
       this.minute = epoch.minute;
-      this.second = epoch.second;
+      this.second = Math.floor(epoch.second);
     },
 
     toUnixTime: function toUnixTime() {
@@ -4259,7 +4259,7 @@ ICAL.TimezoneService = (function() {
     },
 
     setComponent: function setComponent(aType, aValues) {
-      this.parts[aType] = aValues;
+      this.parts[aType] = aValues.slice();
     },
 
     getComponent: function getComponent(aType, aCount) {
@@ -4267,7 +4267,7 @@ ICAL.TimezoneService = (function() {
       var components = (ucName in this.parts ? this.parts[ucName] : []);
 
       if (aCount) aCount.value = components.length;
-      return components;
+      return components.slice();
     },
 
     getNextOccurrence: function getNextOccurrence(aStartTime, aRecurrenceId) {
@@ -5353,7 +5353,12 @@ ICAL.RecurIterator = (function() {
       } else if (partCount == 1 && "BYMONTHDAY" in parts) {
         for (var monthdaykey in this.by_data.BYMONTHDAY) {
           var t2 = this.dtstart.clone();
-          t2.day = this.by_data.BYMONTHDAY[monthdaykey];
+          var day_ = this.by_data.BYMONTHDAY[monthdaykey];
+          if (day_ < 0) {
+            var daysInMonth = ICAL.Time.daysInMonth(t2.month, aYear);
+            day_ = day_ + daysInMonth + 1;
+          }
+          t2.day = day_;
           t2.year = aYear;
           t2.isDate = true;
           this.days.push(t2.dayOfYear());
@@ -5362,9 +5367,15 @@ ICAL.RecurIterator = (function() {
                  "BYMONTHDAY" in parts &&
                  "BYMONTH" in parts) {
         for (var monthkey in this.by_data.BYMONTH) {
+          var month_ = this.by_data.BYMONTH[monthkey];
+          var daysInMonth = ICAL.Time.daysInMonth(month_, aYear);
           for (var monthdaykey in this.by_data.BYMONTHDAY) {
-            t.day = this.by_data.BYMONTHDAY[monthdaykey];
-            t.month = this.by_data.BYMONTH[monthkey];
+            var day_ = this.by_data.BYMONTHDAY[monthdaykey];
+            if (day_ < 0) {
+              day_ = day_ + daysInMonth + 1;
+            }
+            t.day = day_;
+            t.month = month_;
             t.year = aYear;
             t.isDate = true;
 

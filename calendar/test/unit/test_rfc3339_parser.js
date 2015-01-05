@@ -26,7 +26,12 @@ function run_test() {
         };
         for (let prop in expectedDateProps) {
             do_print("Checking prop: " + prop);
-            do_check_eq(dateTime[prop], expectedDateProps[prop]);
+            // Object comparison fails with ical.js, and we only want to check
+            // that we have the right timezone.
+            if (prop == "timezone")
+                do_check_eq(dateTime[prop].tzid, expectedDateProps[prop].tzid)
+            else
+                do_check_eq(dateTime[prop], expectedDateProps[prop]);
         }
 
         // Test round tripping that dateTime object back to an RFC 3339 string.

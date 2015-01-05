@@ -87,8 +87,8 @@ function run_test() {
     // Bug 794477 - setting jsdate across compartments needs to work
     let someDate = new Date();
     let createdDate = cal.jsDateToDateTime(someDate).getInTimezone(cal.calendarDefaultTimezone());
-    do_check_eq(Math.floor(someDate.getTime() / 1000),
-                Math.floor(cal.dateTimeToJsDate(createdDate).getTime() / 1000));
+    someDate.setMilliseconds(0);
+    do_check_eq(someDate.getTime(), cal.dateTimeToJsDate(createdDate).getTime());
 
     // Comparing a date-time with a date of the same day should be 0
     do_check_eq(cal.createDateTime("20120101T120000").compare(cal.createDateTime("20120101")), 0);
