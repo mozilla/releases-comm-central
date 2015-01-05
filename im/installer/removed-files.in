@@ -195,10 +195,9 @@ res/fonts/mathfontSymbol.properties
 #endif /* XP_WIN */
 res/fonts/mathfontUnicode.properties
 res/mathml.css
-#ifdef XP_WIN
 defaults/profile/US/localstore.rdf
 defaults/profile/US/mimeTypes.rdf
-#endif /* XP_WIN */
+defaults/profile/US/
 #ifdef UNIX_BUT_NOT_MAC
 chrome/icons/default/default.xpm
 #endif
