@@ -53,7 +53,7 @@
 @RESPATH@/searchplugins/*
 @RESPATH@/dictionaries/*
 @RESPATH@/hyphenation/*
-#ifdef MAKENSISU
+#ifdef XP_WIN32
 @BINPATH@/uninstall/helper.exe
 #endif
 #ifdef MOZ_UPDATER
