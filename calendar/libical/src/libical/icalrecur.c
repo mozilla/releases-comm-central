@@ -1916,6 +1916,12 @@ static pvl_list expand_by_day(icalrecur_iterator* impl, int year)
     return days_list;
 }
 
+/* A compare function to be used with qsort() in order to get
+   a sorted array of days of the year */
+int daysOfYear_compare(const void * a, const void * b)
+{
+    return ( *(short*)a - *(short*)b );
+}
 
 /* For INTERVAL=YEARLY, set up the days[] array in the iterator to
    list all of the days of the current year that are specified in this
@@ -2183,6 +2189,8 @@ static int expand_year_days(icalrecur_iterator* impl, int year)
 		}
 	    }
         }
+        /* Sort the days according to the Bymonthday order (1,2,3,...). */
+        qsort(impl->days, days_index, sizeof(short), daysOfYear_compare);
         break;
     }
 

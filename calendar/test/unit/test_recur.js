@@ -226,6 +226,37 @@ function test_rules() {
                  "20170430T220000Z", "20180430T220000Z", "20190430T220000Z"],
                 false);
 
+    // Bug 958978 - Check a yearly recurrence on every WE and FR of January and March
+    //              (more BYMONTH and more BYDAY).
+    // Check for the occurrences in the first year.
+    check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
+                                         "DESCRIPTION:Repeat Yearly every WE and FR of January and March (more BYMONTH and more BYDAY)\n" +
+                                         "RRULE:FREQ=YEARLY;COUNT=18;BYMONTH=1,3;BYDAY=WE,FR\n" +
+                                         "DTSTART:20140101T150000Z\n" +
+                                         "DTEND:20140101T160000Z\n" +
+                                         "END:VEVENT\nEND:VCALENDAR\n"),
+               ["20140101T150000Z", "20140103T150000Z", "20140108T150000Z", "20140110T150000Z",
+                "20140115T150000Z", "20140117T150000Z", "20140122T150000Z", "20140124T150000Z",
+                "20140129T150000Z", "20140131T150000Z",
+                "20140305T150000Z", "20140307T150000Z", "20140312T150000Z", "20140314T150000Z",
+                "20140319T150000Z", "20140321T150000Z", "20140326T150000Z", "20140328T150000Z"],
+               false);
+
+    // Bug 958978 - Check a yearly recurrence every day of January (BYMONTH and more BYDAY).
+    // Check for all the occurrences in the first year.
+    let expectedDates = [];
+    for (let i = 1; i < 32; i++) {
+        expectedDates.push("201401" + (i<10 ? "0"+i : i) + "T150000Z");
+    }
+    check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
+                                         "DESCRIPTION:Yearly, every day of January (one BYMONTH and more BYDAY)\n" +
+                                         "RRULE:FREQ=YEARLY;COUNT=31;BYMONTH=1;BYDAY=SU,MO,TU,WE,TH,FR,SA\n" +
+                                         "DTSTART:20140101T150000Z\n" +
+                                         "DTEND:20140101T160000Z\n" +
+                                         "END:VEVENT\nEND:VCALENDAR\n"),
+                expectedDates,
+                false);
+
     let item, occ1;
     item = makeEvent("DESCRIPTION:occurrence on day 1 moved between the occurrences " +
                                      "on days 2 and 3\n" +
