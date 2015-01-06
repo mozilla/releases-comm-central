@@ -67,7 +67,7 @@ cal.async = {
      * will be complaints that an argument is missing.
      */
     promisifyCalendar: function(aCalendar) {
-        return Proxy(aCalendar, promisifyProxyHandler);
+        return new Proxy(aCalendar, promisifyProxyHandler);
     },
     /**
      * Create an operation listener (calIOperationListener) that resolves when
