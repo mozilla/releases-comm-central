@@ -48,10 +48,10 @@ protected:
   nsresult ComputeArbitraryHeaders();
   nsresult SaveTextFilters(nsIOutputStream *aStream);
   // file streaming methods
-  char ReadChar(nsIInputStream *aStream);
-  char SkipWhitespace(nsIInputStream *aStream);
+  int ReadChar(nsIInputStream *aStream);
+  int SkipWhitespace(nsIInputStream *aStream);
   bool StrToBool(nsCString &str);
-  char LoadAttrib(nsMsgFilterFileAttribValue &attrib, nsIInputStream *aStream);
+  int LoadAttrib(nsMsgFilterFileAttribValue &attrib, nsIInputStream *aStream);
   const char *GetStringForAttrib(nsMsgFilterFileAttribValue attrib);
   nsresult LoadValue(nsCString &value, nsIInputStream *aStream);
   int16_t m_fileVersion;

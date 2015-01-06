@@ -33,7 +33,7 @@ static const char16_t unicodeFormatter[] = {
 };
 
 // Marker for EOF or failure during read
-#define EOF_CHAR (char) 0xFF
+#define EOF_CHAR -1
 
 nsMsgFilterList::nsMsgFilterList() :
     m_fileVersion(0)
@@ -379,7 +379,7 @@ static const unsigned int sNumFilterFileAttribTable =
   MOZ_ARRAY_LENGTH(FilterFileAttribTable);
 
 // If we want to buffer file IO, wrap it in here.
-char nsMsgFilterList::ReadChar(nsIInputStream *aStream)
+int nsMsgFilterList::ReadChar(nsIInputStream *aStream)
 {
   char  newChar;
   uint32_t bytesRead;
@@ -394,13 +394,13 @@ char nsMsgFilterList::ReadChar(nsIInputStream *aStream)
   {
     if (m_startWritingToBuffer)
       m_unparsedFilterBuffer.Append(newChar);
-    return newChar;
+    return (unsigned char)newChar; // Make sure the char is unsigned.
   }
 }
 
-char nsMsgFilterList::SkipWhitespace(nsIInputStream *aStream)
+int nsMsgFilterList::SkipWhitespace(nsIInputStream *aStream)
 {
-  char ch;
+  int ch;
   do
   {
     ch = ReadChar(aStream);
@@ -414,10 +414,10 @@ bool nsMsgFilterList::StrToBool(nsCString &str)
   return str.Equals("yes") ;
 }
 
-char nsMsgFilterList::LoadAttrib(nsMsgFilterFileAttribValue &attrib, nsIInputStream *aStream)
+int nsMsgFilterList::LoadAttrib(nsMsgFilterFileAttribValue &attrib, nsIInputStream *aStream)
 {
   char  attribStr[100];
-  char  curChar;
+  int curChar;
   attrib = nsIMsgFilterList::attribNone;
 
   curChar = SkipWhitespace(aStream);
@@ -454,7 +454,7 @@ const char *nsMsgFilterList::GetStringForAttrib(nsMsgFilterFileAttribValue attri
 nsresult nsMsgFilterList::LoadValue(nsCString &value, nsIInputStream *aStream)
 {
   nsAutoCString  valueStr;
-  char  curChar;
+  int curChar;
   value = "";
   curChar = SkipWhitespace(aStream);
   if (curChar != '"')
@@ -467,7 +467,7 @@ nsresult nsMsgFilterList::LoadValue(nsCString &value, nsIInputStream *aStream)
   {
     if (curChar == '\\')
     {
-      char nextChar = ReadChar(aStream);
+      int nextChar = ReadChar(aStream);
       if (nextChar == '"')
         curChar = '"';
       else if (nextChar == '\\')  // replace "\\" with "\"
@@ -513,7 +513,7 @@ nsresult nsMsgFilterList::LoadTextFilters(nsIInputStream *aStream)
     nsAutoCString value;
     nsresult intToStringResult;
 
-    char curChar;
+    int curChar;
     curChar = LoadAttrib(attrib, bufStream);
     if (curChar == EOF_CHAR)  //reached eof
       break;
