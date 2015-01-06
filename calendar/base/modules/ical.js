@@ -5453,7 +5453,7 @@ ICAL.RecurIterator = (function() {
             }
             // Return dates in order of occurrence (1,2,3, etc...)
             // instead of by weekday (su, mo, etc..).
-            this.days.sort();
+            this.days.sort(function(a,b){return a - b;});
           }
         }
       } else if (partCount == 2 && "BYDAY" in parts && "BYMONTHDAY" in parts) {
