@@ -351,6 +351,29 @@ mime_generate_headers (nsMsgCompFields *fields,
 
   buffer_tail = buffer;
 
+  // Make a new block of headers to store the usable headers in, and copy all
+  // headers from the original compose field.
+  nsCOMPtr<msgIWritableStructuredHeaders> finalHeaders =
+    do_CreateInstance(NS_ISTRUCTUREDHEADERS_CONTRACTID);
+  rv = finalHeaders->AddAllHeaders(fields);
+  MOZ_ASSERT(NS_SUCCEEDED(rv), "This shouldn't fail");
+
+  // Don't emit any of these headers, handled by legacy code for now...
+  finalHeaders->DeleteHeader("from");
+  finalHeaders->DeleteHeader("reply-to");
+  finalHeaders->DeleteHeader("to");
+  finalHeaders->DeleteHeader("cc");
+  finalHeaders->DeleteHeader("bcc");
+  finalHeaders->DeleteHeader("newsgroups");
+  finalHeaders->DeleteHeader("followup-to");
+  finalHeaders->DeleteHeader("subject");
+  finalHeaders->DeleteHeader("organization");
+  finalHeaders->DeleteHeader("references");
+  finalHeaders->DeleteHeader("x-mozilla-news-host");
+  finalHeaders->DeleteHeader("x-priority");
+  finalHeaders->DeleteHeader("message-id");
+  finalHeaders->DeleteHeader("x-template");
+
   if (pMessageID && *pMessageID) {
     PUSH_STRING ("Message-ID: ");
     PUSH_STRING (pMessageID);
@@ -717,16 +740,14 @@ mime_generate_headers (nsMsgCompFields *fields,
     PUSH_STRING (pOtherHdr);
   }
 
-  if (buffer_tail > buffer + size - 1) {
-    PR_FREEIF(buffer);
-    return nullptr;
-  }
-  /* realloc it smaller... */
-  char *newBuffer = (char*) PR_REALLOC(buffer, buffer_tail - buffer + 1);
-  if (!newBuffer) // The original bigger buffer is still usable to the caller.
-    return buffer;
+  // Convert the blocks of headers into a single string for emission.
+  nsCString headerText;
+  headerText.Adopt(buffer);
+  nsCString moreHeaders;
+  finalHeaders->BuildMimeText(moreHeaders);
+  headerText += moreHeaders;
 
-  return newBuffer;
+  return ToNewCString(headerText);
 }
 
 static void
