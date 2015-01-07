@@ -290,13 +290,8 @@ mime_generate_headers (nsMsgCompFields *fields,
   const char* pFrom;
   const char* pTo;
   const char* pCc;
-  const char* pMessageID;
-  const char* pReplyTo;
-  const char* pOrg;
   const char* pNewsGrp;
   const char* pFollow;
-  const char* pSubject;
-  const char* pPriority;
   const char* pReference;
   char *convbuf;
 
@@ -313,9 +308,6 @@ mime_generate_headers (nsMsgCompFields *fields,
   pFrom = fields->GetFrom();
   if (pFrom)
     headerBuf.Append(pFrom);
-  pReplyTo =fields->GetReplyTo();
-  if (pReplyTo)
-    headerBuf.Append(pReplyTo);
   pTo = fields->GetTo();
   if (pTo)
     headerBuf.Append(pTo);
@@ -324,15 +316,7 @@ mime_generate_headers (nsMsgCompFields *fields,
     headerBuf.Append(pCc);
   pNewsGrp = fields->GetNewsgroups(); if (pNewsGrp)     size += 3 * PL_strlen (pNewsGrp);
   pFollow= fields->GetFollowupTo(); if (pFollow)        size += 3 * PL_strlen (pFollow);
-  pSubject = fields->GetSubject();
-  if (pSubject)
-    headerBuf.Append(pSubject);
   pReference = fields->GetReferences(); if (pReference)   size += 3 * PL_strlen (pReference);
-  pOrg= fields->GetOrganization();
-  if (pOrg)
-    headerBuf.Append(pOrg);
-  pPriority = fields->GetPriority();  if (pPriority)      size += 3 * PL_strlen (pPriority);
-  pMessageID = fields->GetMessageId(); if (pMessageID)    size += PL_strlen (pMessageID);
 
   /* Multiply by 3 here to make enough room for MimePartII conversion */
   size += 3 * headerBuf.Length();
@@ -358,24 +342,14 @@ mime_generate_headers (nsMsgCompFields *fields,
 
   // Don't emit any of these headers, handled by legacy code for now...
   finalHeaders->DeleteHeader("from");
-  finalHeaders->DeleteHeader("reply-to");
   finalHeaders->DeleteHeader("to");
   finalHeaders->DeleteHeader("cc");
   finalHeaders->DeleteHeader("bcc");
-  finalHeaders->DeleteHeader("newsgroups");
-  finalHeaders->DeleteHeader("followup-to");
-  finalHeaders->DeleteHeader("subject");
-  finalHeaders->DeleteHeader("organization");
-  finalHeaders->DeleteHeader("references");
-  finalHeaders->DeleteHeader("x-mozilla-news-host");
-  finalHeaders->DeleteHeader("x-priority");
-  finalHeaders->DeleteHeader("message-id");
-  finalHeaders->DeleteHeader("x-template");
 
-  if (pMessageID && *pMessageID) {
-    PUSH_STRING ("Message-ID: ");
-    PUSH_STRING (pMessageID);
-    PUSH_NEWLINE ();
+  bool hasMessageId = false;
+  if (NS_SUCCEEDED(fields->HasHeader("Message-ID", &hasMessageId)) &&
+      hasMessageId)
+  {
     /* MDN request header requires to have MessageID header presented
     * in the message in order to
     * coorelate the MDN reports to the original message. Here will be
@@ -399,14 +373,6 @@ mime_generate_headers (nsMsgCompFields *fields,
         ENCODE_AND_PUSH(
 	  "Return-Receipt-To: ", true, pFrom, charset, usemime);
     }
-
-#ifdef SUPPORT_X_TEMPLATE_NAME
-    if (deliver_mode == MSG_SaveAsTemplate) {
-      const char *pStr = fields->GetTemplateName();
-      pStr = pStr ? pStr : "";
-      ENCODE_AND_PUSH("X-Template: ", false, pStr, charset, usemime);
-    }
-#endif /* SUPPORT_X_TEMPLATE_NAME */
   }
 
   PRExplodedTime now;
@@ -433,16 +399,6 @@ mime_generate_headers (nsMsgCompFields *fields,
   if (pFrom && *pFrom)
   {
     ENCODE_AND_PUSH("From: ", true, pFrom, charset, usemime);
-  }
-
-  if (pReplyTo && *pReplyTo)
-  {
-    ENCODE_AND_PUSH("Reply-To: ", true, pReplyTo, charset, usemime);
-  }
-
-  if (pOrg && *pOrg)
-  {
-    ENCODE_AND_PUSH("Organization: ", false, pOrg, charset, usemime);
   }
 
   // X-Mozilla-Draft-Info
@@ -496,14 +452,11 @@ mime_generate_headers (nsMsgCompFields *fields,
     pHTTPHandler->GetUserAgent(userAgentString);
 
     if (!userAgentString.IsEmpty())
-    {
-      PUSH_STRING ("User-Agent: ");
-      PUSH_STRING(userAgentString.get());
-      PUSH_NEWLINE ();
-    }
+      finalHeaders->SetUnstructuredHeader("User-Agent",
+        NS_ConvertUTF8toUTF16(userAgentString));
   }
 
-  PUSH_STRING ("MIME-Version: 1.0" CRLF);
+  finalHeaders->SetUnstructuredHeader("MIME-Version", NS_LITERAL_STRING("1.0"));
 
   if (pNewsGrp && *pNewsGrp) {
     /* turn whitespace into a comma list
@@ -562,22 +515,20 @@ mime_generate_headers (nsMsgCompFields *fields,
 
     // fixme:the newsgroups header had better be encoded as the server-side
     // character encoding, but this |charset| might be different from it.
-    ENCODE_AND_PUSH("Newsgroups: ", false, newsgroupsHeaderVal.get(),
-                    charset, false);
+    finalHeaders->SetRawHeader("Newsgroups", newsgroupsHeaderVal, charset);
 
     // If we are here, we are NOT going to send this now. (i.e. it is a Draft,
     // Send Later file, etc...). Because of that, we need to store what the user
     // typed in on the original composition window for use later when rebuilding
     // the headers
-    if (deliver_mode != nsIMsgSend::nsMsgDeliverNow && deliver_mode != nsIMsgSend::nsMsgSendUnsent)
+    if (deliver_mode != nsIMsgSend::nsMsgDeliverNow &&
+        deliver_mode != nsIMsgSend::nsMsgSendUnsent)
     {
       // This is going to be saved for later, that means we should just store
       // what the user typed into the "Newsgroup" line in the HEADER_X_MOZILLA_NEWSHOST
       // header for later use by "Send Unsent Messages", "Drafts" or "Templates"
-      PUSH_STRING (HEADER_X_MOZILLA_NEWSHOST);
-      PUSH_STRING (": ");
-      PUSH_STRING (newshostHeaderVal.get());
-      PUSH_NEWLINE ();
+      finalHeaders->SetRawHeader(HEADER_X_MOZILLA_NEWSHOST, newshostHeaderVal,
+        charset);
     }
 
     PR_FREEIF(duppedNewsGrp);
@@ -615,7 +566,7 @@ mime_generate_headers (nsMsgCompFields *fields,
         PL_strcpy(ptr+1, ptr2);
     }
 
-    ENCODE_AND_PUSH("Followup-To: ", false, n2, charset, false);
+    finalHeaders->SetRawHeader("Followup-To", nsDependentCString(n2), charset);
     PR_Free (duppedFollowup);
   }
 
@@ -667,15 +618,14 @@ mime_generate_headers (nsMsgCompFields *fields,
     }
   }
 
-  if (pSubject && *pSubject)
-    ENCODE_AND_PUSH("Subject: ", false, pSubject, charset, usemime);
-
   // Skip no or empty priority.
-  if (pPriority && *pPriority) 
+  nsAutoCString priority;
+  rv = fields->GetRawHeader("X-Priority", priority);
+  if (NS_SUCCEEDED(rv) && !priority.IsEmpty())
   {
     nsMsgPriorityValue priorityValue;
 
-    NS_MsgGetPriorityFromString(pPriority, priorityValue);
+    NS_MsgGetPriorityFromString(priority.get(), priorityValue);
 
     // Skip default priority.
     if (priorityValue != nsMsgPriority::Default) {
@@ -686,17 +636,14 @@ mime_generate_headers (nsMsgCompFields *fields,
       NS_MsgGetUntranslatedPriorityName(priorityValue, priorityName);
 
       // Output format: [X-Priority: <pValue> (<pName>)]
-      PUSH_STRING("X-Priority: ");
-      PUSH_STRING(priorityValueString.get());
-      PUSH_STRING(" (");
-      PUSH_STRING(priorityName.get());
-      PUSH_STRING(")");
-      PUSH_NEWLINE();
+      priorityValueString.AppendLiteral(" (");
+      priorityValueString += priorityName;
+      priorityValueString.AppendLiteral(")");
+      finalHeaders->SetRawHeader("X-Priority", priorityValueString, nullptr);
     }
   }
 
   if (pReference && *pReference) {
-    PUSH_STRING ("References: ");
     if (PL_strlen(pReference) >= 986) {
       char *references = PL_strdup(pReference);
       char *trimAt = PL_strchr(references+1, '<');
@@ -714,20 +661,17 @@ mime_generate_headers (nsMsgCompFields *fields,
       }
       NS_ASSERTION(references, "null references");
       if (references) {
-        PUSH_STRING (references);
+        finalHeaders->SetRawHeader("References", nsDependentCString(references),
+          charset);
         PR_Free(references);
       }
     }
-    else
-      PUSH_STRING (pReference);
-    PUSH_NEWLINE ();
     {
       const char *lastRef = PL_strrchr(pReference, '<');
 
       if (lastRef) {
-        PUSH_STRING ("In-Reply-To: ");
-        PUSH_STRING (lastRef);
-        PUSH_NEWLINE ();
+        finalHeaders->SetRawHeader("In-Reply-To", nsDependentCString(lastRef),
+          nullptr);
       }
     }
   }
