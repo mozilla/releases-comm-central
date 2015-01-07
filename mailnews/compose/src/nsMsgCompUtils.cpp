@@ -224,30 +224,6 @@ nsresult mime_sanity_check_fields (
   return mime_sanity_check_fields_recipients(to, cc, bcc, newsgroups);
 }
 
-static char *
-nsMsgStripLine (char * string)
-{
-  char * ptr;
-
-  /* remove leading blanks */
-  while(*string=='\t' || *string==' ' || *string=='\r' || *string=='\n')
-    string++;
-
-  for(ptr=string; *ptr; ptr++)
-    ;   /* NULL BODY; Find end of string */
-
-  /* remove trailing blanks */
-  for(ptr--; ptr >= string; ptr--)
-  {
-    if(*ptr=='\t' || *ptr==' ' || *ptr=='\r' || *ptr=='\n')
-      *ptr = '\0';
-    else
-      break;
-  }
-
-  return string;
-}
-
 //
 // Generate the message headers for the new RFC822 message
 //
@@ -275,8 +251,6 @@ mime_generate_headers (nsMsgCompFields *fields,
     deliver_mode == nsIMsgSend::nsMsgQueueForLater ||
     deliver_mode == nsIMsgSend::nsMsgDeliverBackground;
 
-  const char* pNewsGrp;
-  const char* pFollow;
   const char* pReference;
 
   bool hasDisclosedRecipient = false;
@@ -286,8 +260,6 @@ mime_generate_headers (nsMsgCompFields *fields,
     *status = NS_ERROR_NULL_POINTER;
     return nullptr;
   }
-  pNewsGrp = fields->GetNewsgroups(); if (pNewsGrp)     size += 3 * PL_strlen (pNewsGrp);
-  pFollow= fields->GetFollowupTo(); if (pFollow)        size += 3 * PL_strlen (pFollow);
   pReference = fields->GetReferences(); if (pReference)   size += 3 * PL_strlen (pReference);
 
   /* Add a bunch of slop for the static parts of the headers. */
@@ -417,63 +389,31 @@ mime_generate_headers (nsMsgCompFields *fields,
 
   finalHeaders->SetUnstructuredHeader("MIME-Version", NS_LITERAL_STRING("1.0"));
 
-  if (pNewsGrp && *pNewsGrp) {
-    /* turn whitespace into a comma list
-    */
-    char *duppedNewsGrp = PL_strdup(pNewsGrp);
-    if (!duppedNewsGrp) {
-      PR_FREEIF(buffer);
-      *status = NS_ERROR_OUT_OF_MEMORY;
-      return nullptr; /* NS_ERROR_OUT_OF_MEMORY */
-    }
-    char *n2 = nsMsgStripLine(duppedNewsGrp);
-
-    for(char *ptr = n2; *ptr != '\0'; ptr++) {
-      /* find first non white space */
-      while(!IS_SPACE(*ptr) && *ptr != ',' && *ptr != '\0')
-        ptr++;
-
-      if(*ptr == '\0')
-        break;
-
-      if(*ptr != ',')
-        *ptr = ',';
-
-      /* find next non white space */
-      char *ptr2 = ptr+1;
-      while(IS_SPACE(*ptr2))
-        ptr2++;
-
-      if(ptr2 != ptr+1)
-        PL_strcpy(ptr+1, ptr2);
-    }
-
-    // we need to decide the Newsgroup related headers
-    // to write to the outgoing message. In ANY case, we need to write the
-    // "Newsgroup" header which is the "proper" header as opposed to the
-    // HEADER_X_MOZILLA_NEWSHOST which can contain the "news:" URL's.
-    //
-    // Since n2 can contain data in the form of:
+  nsAutoCString newsgroups;
+  finalHeaders->GetRawHeader("Newsgroups", newsgroups);
+  if (!newsgroups.IsEmpty())
+  {
+    // Since the newsgroup header can contain data in the form of:
     // "news://news.mozilla.org/netscape.test,news://news.mozilla.org/netscape.junk"
     // we need to turn that into: "netscape.test,netscape.junk"
-    //
-    nsCOMPtr<nsINntpService> nntpService = do_GetService("@mozilla.org/messenger/nntpservice;1", &rv);
-    if (NS_FAILED(rv) || !nntpService) {
+    // (XXX: can it really?)
+    nsCOMPtr<nsINntpService> nntpService =
+      do_GetService("@mozilla.org/messenger/nntpservice;1", &rv);
+    if (NS_FAILED(rv) || !nntpService)
+    {
       *status = NS_ERROR_FAILURE;
       return nullptr;
     }
 
     nsCString newsgroupsHeaderVal;
     nsCString newshostHeaderVal;
-    rv = nntpService->GenerateNewsHeaderValsForPosting(nsDependentCString(n2), getter_Copies(newsgroupsHeaderVal), getter_Copies(newshostHeaderVal));
+    rv = nntpService->GenerateNewsHeaderValsForPosting(newsgroups,
+      getter_Copies(newsgroupsHeaderVal), getter_Copies(newshostHeaderVal));
     if (NS_FAILED(rv)) 
     {
       *status = rv;
       return nullptr;
     }
-
-    // fixme:the newsgroups header had better be encoded as the server-side
-    // character encoding, but this |charset| might be different from it.
     finalHeaders->SetRawHeader("Newsgroups", newsgroupsHeaderVal, charset);
 
     // If we are here, we are NOT going to send this now. (i.e. it is a Draft,
@@ -490,43 +430,8 @@ mime_generate_headers (nsMsgCompFields *fields,
         charset);
     }
 
-    PR_FREEIF(duppedNewsGrp);
+    // Newsgroups are a recipient...
     hasDisclosedRecipient = true;
-  }
-
-  /* #### shamelessly duplicated from above */
-  if (pFollow && *pFollow) {
-    /* turn whitespace into a comma list
-    */
-    char *duppedFollowup = PL_strdup(pFollow);
-    if (!duppedFollowup) {
-      PR_FREEIF(buffer);
-      return nullptr; /* NS_ERROR_OUT_OF_MEMORY */
-    }
-    char *n2 = nsMsgStripLine (duppedFollowup);
-
-    for (char *ptr = n2; *ptr != '\0'; ptr++) {
-      /* find first non white space */
-      while(!IS_SPACE(*ptr) && *ptr != ',' && *ptr != '\0')
-        ptr++;
-
-      if(*ptr == '\0')
-        break;
-
-      if(*ptr != ',')
-        *ptr = ',';
-
-      /* find next non white space */
-      char *ptr2 = ptr+1;
-      while(IS_SPACE(*ptr2))
-        ptr2++;
-
-      if(ptr2 != ptr+1)
-        PL_strcpy(ptr+1, ptr2);
-    }
-
-    finalHeaders->SetRawHeader("Followup-To", nsDependentCString(n2), charset);
-    PR_Free (duppedFollowup);
   }
 
   nsCOMArray<msgIAddressObject> recipients;

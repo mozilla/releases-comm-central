@@ -81,6 +81,7 @@ EXTRA_COMPONENTS += [
 ]
 
 EXTRA_JS_MODULES += [
+    'extraMimeParsers.jsm',
     'jsmime.jsm',
     'mimeParser.jsm'
 ]
