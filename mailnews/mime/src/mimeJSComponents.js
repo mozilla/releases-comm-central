@@ -422,7 +422,7 @@ MimeConverter.prototype = {
     if (aStructured) {
       // Structured really means "this is an addressing header"
       let addresses = MimeParser.parseHeaderField(aHeader,
-        MimeParser.HEADER_ADDRESS);
+        MimeParser.HEADER_ADDRESS | MimeParser.HEADER_OPTION_DECODE_2047);
       // This happens in one of our tests if there is a "bare" email but no
       // @ sign. Without it, the result disappears since our emission code
       // assumes that an empty email is not worth emitting.

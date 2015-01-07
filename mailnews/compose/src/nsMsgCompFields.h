@@ -33,6 +33,8 @@ public:
 
   /* this macro defines QueryInterface, AddRef and Release for this class */
   NS_DECL_THREADSAFE_ISUPPORTS
+  NS_FORWARD_MSGISTRUCTUREDHEADERS(mStructuredHeaders->)
+  NS_FORWARD_MSGIWRITABLESTRUCTUREDHEADERS(mStructuredHeaders->)
   NS_DECL_NSIMSGCOMPFIELDS
 
   typedef enum MsgHeaderID
@@ -156,6 +158,7 @@ protected:
   bool        m_needToCheckCharset;
 
   nsCOMPtr<nsISupports> mSecureCompFields;
+  nsCOMPtr<msgIWritableStructuredHeaders> mStructuredHeaders;
 };
 
 

@@ -3,12 +3,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsISupports.idl"
-#include "nsIMsgAttachment.idl"
-#include "nsISimpleEnumerator.idl"
+#include "msgIStructuredHeaders.idl"
 
-[scriptable, uuid(4f803e7a-5bd5-4344-9901-7a9ee89be780)]
-interface nsIMsgCompFields : nsISupports {
+interface nsIMsgAttachment;
+interface nsISimpleEnumerator;
+
+/**
+ * A collection of headers and other attributes for building a mail message.
+ */
+[scriptable, uuid(4508e23e-a059-4a7e-bec9-4c6bc90e1847)]
+interface nsIMsgCompFields : msgIWritableStructuredHeaders {
 
   attribute AString from;
   attribute AString replyTo;
@@ -75,9 +79,6 @@ interface nsIMsgCompFields : nsISupports {
                        [array, size_is(aLength), retval] out wstring aResult);
 
   void ConvertBodyToPlainText();
-
-  // Check if the composing mail headers can be converted to a mail charset.
-  boolean checkCharsetConversion(out string fallbackCharset);
 
   /**
    * Indicates whether we need to check if the current |DocumentCharset|

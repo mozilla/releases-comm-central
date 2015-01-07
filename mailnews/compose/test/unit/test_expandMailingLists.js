@@ -54,10 +54,10 @@ function run_test() {
   MailServices.ab.directories;
 
   // Test expansion of list with no description.
-  checkPopulate("simpson <simpson>", "Simpson <homer@example.com>,Marge <marge@example.com>,Bart <bart@foobar.invalid>,\"lisa@example.com\" <lisa@example.com>");
+  checkPopulate("simpson <simpson>", "Simpson <homer@example.com>, Marge <marge@example.com>, Bart <bart@foobar.invalid>, \"lisa@example.com\" <lisa@example.com>");
 
   // Test expansion fo list with description.
-  checkPopulate("marge <marges own list>", "Simpson <homer@example.com>,Marge <marge@example.com>");
+  checkPopulate("marge <marges own list>", "Simpson <homer@example.com>, Marge <marge@example.com>");
 
   // Test we don't mistake an email address for a list, with a few variations.
   checkPopulate("Simpson <homer@example.com>", "Simpson <homer@example.com>");

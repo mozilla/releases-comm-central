@@ -64,6 +64,7 @@
 #include "nsIMsgAccountManager.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsIAbCard.h"
+#include "nsIMsgAttachment.h"
 #include "nsIMsgProgress.h"
 #include "nsIMsgMessageService.h"
 #include "nsIMsgHdr.h"

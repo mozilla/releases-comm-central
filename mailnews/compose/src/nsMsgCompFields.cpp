@@ -9,19 +9,58 @@
 #include "nsMsgUtils.h"
 #include "prmem.h"
 #include "nsIFileChannel.h"
+#include "nsIMsgAttachment.h"
 #include "nsIMsgMdnGenerator.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgMimeCID.h"
 #include "nsArrayEnumerator.h"
 #include "nsMemory.h"
+#include "mozilla/ArrayUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 
 using namespace mozilla::mailnews;
 
-/* the following macro actually implement addref, release and query interface for our component. */
-NS_IMPL_ISUPPORTS(nsMsgCompFields, nsIMsgCompFields)
+struct HeaderInfo {
+  /// Header name
+  const char *mName;
+  /// If true, nsMsgCompFields should reflect the raw header value instead of
+  /// the unstructured header value.
+  bool mStructured;
+};
 
+// This is a mapping of the m_headers local set to the actual header name we
+// store on the structured header object.
+static HeaderInfo kHeaders[] = {
+  { "From", true },
+  { "Reply-To", true },
+  { "To", true },
+  { "Cc", true },
+  { "Bcc", true },
+  { nullptr, false },
+  { nullptr, false },
+  { "Newsgroups", true },
+  { "Followup-To", true },
+  { "Subject", false },
+  { "Organization", false },
+  { "References", true },
+  { nullptr, false },
+  { "X-Mozilla-News-Host", false },
+  { "X-Priority", false },
+  { nullptr, false },
+  { "Message-Id", true },
+  { "X-Template", true },
+  { nullptr, false }
+};
+
+static_assert(MOZ_ARRAY_LENGTH(kHeaders) ==
+    nsMsgCompFields::MSG_MAX_HEADERS,
+  "These two arrays need to be kept in sync or bad things will happen!");
+
+NS_IMPL_ISUPPORTS(nsMsgCompFields, nsIMsgCompFields, msgIStructuredHeaders,
+  msgIWritableStructuredHeaders)
+ 
 nsMsgCompFields::nsMsgCompFields()
+: mStructuredHeaders(do_CreateInstance(NS_ISTRUCTUREDHEADERS_CONTRACTID))
 {
   m_body.Truncate();
 
@@ -54,7 +93,22 @@ nsresult nsMsgCompFields::SetAsciiHeader(MsgHeaderID header, const char *value)
   NS_ASSERTION(header >= 0 && header < MSG_MAX_HEADERS,
                "Invalid message header index!");
 
+  // If we are storing this on the structured header object, we need to set the
+  // value on that object as well. Note that the value may be null, which we'll
+  // take as an attempt to delete the header.
+  const char *headerName = kHeaders[header].mName;
+  if (headerName)
+  {
+    if (!value || !*value)
+      return mStructuredHeaders->DeleteHeader(headerName);
+
+    return mStructuredHeaders->SetRawHeader(headerName,
+      nsDependentCString(value), "UTF-8");
+  }
+
+  // Not on the structurd header object, so save it locally.
   m_headers[header] = value;
+
   return NS_OK;
 }
 
@@ -62,6 +116,23 @@ const char* nsMsgCompFields::GetAsciiHeader(MsgHeaderID header)
 {
   NS_ASSERTION(header >= 0 && header < MSG_MAX_HEADERS,
                "Invalid message header index!");
+
+  const char *headerName = kHeaders[header].mName;
+  if (headerName)
+  {
+    // We may be out of sync with the structured header object. Retrieve the
+    // header value.
+    if (kHeaders[header].mStructured)
+    {
+      mStructuredHeaders->GetRawHeader(headerName, m_headers[header]);
+    }
+    else
+    {
+      nsString value;
+      mStructuredHeaders->GetUnstructuredHeader(headerName, value);
+      CopyUTF16toUTF8(value, m_headers[header]);
+    }
+  }
 
   return m_headers[header].get();
 }
@@ -495,7 +566,7 @@ nsMsgCompFields::SplitRecipients(const nsAString &aRecipients,
     ExtractEmails(header, results);
   else
     ExtractDisplayAddresses(header, results);
-  
+
   uint32_t count = results.Length();
   char16_t **result = (char16_t **)NS_Alloc(sizeof(char16_t *) * count);
   for (uint32_t i = 0; i < count; ++i)
@@ -564,21 +635,6 @@ NS_IMETHODIMP nsMsgCompFields::GetDefaultCharacterSet(char * *aDefaultCharacterS
   NS_ENSURE_ARG_POINTER(aDefaultCharacterSet);
   *aDefaultCharacterSet = ToNewCString(m_DefaultCharacterSet);
   return *aDefaultCharacterSet ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
-}
-
-NS_IMETHODIMP nsMsgCompFields::CheckCharsetConversion(char **fallbackCharset, bool *_retval)
-{
-  NS_ENSURE_ARG_POINTER(_retval);
-
-  nsAutoCString headers;
-  for (int16_t i = 0; i < MSG_MAX_HEADERS; i++)
-    headers.Append(m_headers[i]);
-
-  // charset conversion check
-  *_retval = nsMsgI18Ncheck_data_in_charset_range(GetCharacterSet(), NS_ConvertUTF8toUTF16(headers.get()).get(),
-                                                  fallbackCharset);
-
-  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgCompFields::GetNeedToCheckCharset(bool *_retval)

@@ -66,8 +66,8 @@ function test_send_enabled_manual_address() {
   // On an empty window, Send must be disabled.
   check_send_commands_state(cwc, false);
 
-  // On any (even invalid) "To:" addressee input, Send must be enabled.
-  setupComposeWin(cwc, "recipient", "", "");
+  // On valid "To:" addressee input, Send must be enabled.
+  setupComposeWin(cwc, "recipient@fake.invalid", "", "");
   check_send_commands_state(cwc, true);
 
   // When the addressee is not in To, Cc, Bcc or Newsgroup, disable Send again.

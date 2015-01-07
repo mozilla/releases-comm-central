@@ -33,6 +33,7 @@
 #include "nsIIOService.h"
 #include "nsNetUtil.h"
 #include "comi18n.h"
+#include "nsIMsgAttachment.h"
 #include "nsIMsgCompFields.h"
 #include "nsMsgCompCID.h"
 #include "nsIMsgComposeService.h"

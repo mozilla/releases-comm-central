@@ -38,7 +38,13 @@ function checkPopulate(aTo, aCheckTo)
   msgCompose.initialize(params);
 
   msgCompose.expandMailingLists();
-  do_check_eq(fields.to, aCheckTo);
+  let addresses = fields.getHeader("To");
+  let checkEmails = MailServices.headerParser.parseDecodedHeader(aCheckTo);
+  do_check_eq(addresses.length, checkEmails.length);
+  for (let i = 0; i < addresses.length; i++) {
+    do_check_eq(addresses[i].name, checkEmails[i].name);
+    do_check_eq(addresses[i].email, checkEmails[i].email);
+  }
 }
 
 function run_test() {

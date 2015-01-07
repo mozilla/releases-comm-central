@@ -63,6 +63,7 @@
 #include "nsUConvCID.h"
 #include "nsIUnicodeNormalizer.h"
 #include "nsIMsgAccountManager.h"
+#include "nsIMsgAttachment.h"
 #include "nsIMsgProgress.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgDatabase.h"
@@ -5376,34 +5377,12 @@ NS_IMETHODIMP nsMsgCompose::CheckCharsetConversion(nsIMsgIdentity *identity, cha
   NS_ENSURE_ARG_POINTER(identity);
   NS_ENSURE_ARG_POINTER(_retval);
 
-  nsresult rv = m_compFields->CheckCharsetConversion(fallbackCharset, _retval);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (*_retval)
-  {
-    nsString fullName;
-    nsString organization;
-    nsAutoString identityStrings;
-
-    rv = identity->GetFullName(fullName);
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (!fullName.IsEmpty())
-      identityStrings.Append(fullName);
-
-    rv = identity->GetOrganization(organization);
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (!organization.IsEmpty())
-      identityStrings.Append(organization);
-
-    if (!identityStrings.IsEmpty())
-    {
-      // use fallback charset if that's already set
-      const char *charset = (fallbackCharset && *fallbackCharset) ? *fallbackCharset : m_compFields->GetCharacterSet();
-      *_retval = nsMsgI18Ncheck_data_in_charset_range(charset, identityStrings.get(),
-                                                      fallbackCharset);
-    }
-  }
-
+  // Kept around for legacy reasons. This method is supposed to check that the
+  // headers can be converted to the appropriate charset, but we don't support
+  // encoding headers to non-UTF-8, so this is now moot.
+  if (fallbackCharset)
+    *fallbackCharset = nullptr;
+  *_retval = true;
   return NS_OK;
 }
 
