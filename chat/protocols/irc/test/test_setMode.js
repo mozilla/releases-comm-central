@@ -12,7 +12,8 @@ function FakeAccount() {
 }
 FakeAccount.prototype = {
   __proto__: irc.ircAccount.prototype,
-  setWhois: (n, f) => true
+  setWhois: (n, f) => true,
+  ERROR: do_throw
 }
 
 function run_test() {
