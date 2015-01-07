@@ -229,6 +229,17 @@ nsresult mime_sanity_check_fields (
 //
 #define UA_PREF_PREFIX "general.useragent."
 
+// Helper macro for generating the X-Mozilla-Draft-Info header.
+#define APPEND_BOOL(method, param) \
+    do { \
+      bool val = false; \
+      fields->Get##method(&val); \
+      if (val) \
+        draftInfo.AppendLiteral(param "=1"); \
+      else \
+        draftInfo.AppendLiteral(param "=0"); \
+    } while (false)
+
 char *
 mime_generate_headers (nsMsgCompFields *fields,
                        const char *charset,
@@ -243,15 +254,11 @@ mime_generate_headers (nsMsgCompFields *fields,
     return nullptr;
   }
 
-  int32_t size = 0;
-  char *buffer = nullptr, *buffer_tail = nullptr;
   bool isDraft =
     deliver_mode == nsIMsgSend::nsMsgSaveAsDraft ||
     deliver_mode == nsIMsgSend::nsMsgSaveAsTemplate ||
     deliver_mode == nsIMsgSend::nsMsgQueueForLater ||
     deliver_mode == nsIMsgSend::nsMsgDeliverBackground;
-
-  const char* pReference;
 
   bool hasDisclosedRecipient = false;
 
@@ -260,19 +267,6 @@ mime_generate_headers (nsMsgCompFields *fields,
     *status = NS_ERROR_NULL_POINTER;
     return nullptr;
   }
-  pReference = fields->GetReferences(); if (pReference)   size += 3 * PL_strlen (pReference);
-
-  /* Add a bunch of slop for the static parts of the headers. */
-  /* size += 2048; */
-  size += 2560;
-
-  buffer = (char *) PR_Malloc (size);
-  if (!buffer) {
-    *status = NS_ERROR_OUT_OF_MEMORY;
-    return nullptr; /* NS_ERROR_OUT_OF_MEMORY */
-  }
-
-  buffer_tail = buffer;
 
   nsCOMArray<msgIAddressObject> from;
   fields->GetAddressingHeader("From", from, true);
@@ -294,7 +288,9 @@ mime_generate_headers (nsMsgCompFields *fields,
     * the right place
     */
 
-    if (fields->GetReturnReceipt() &&
+    bool returnReceipt = false;
+    fields->GetReturnReceipt(&returnReceipt);
+    if (returnReceipt &&
       (deliver_mode != nsIMsgSend::nsMsgSaveAsDraft &&
       deliver_mode != nsIMsgSend::nsMsgSaveAsTemplate))
     {
@@ -320,59 +316,49 @@ mime_generate_headers (nsMsgCompFields *fields,
      PR_FormatTimeUSEnglish() can't do that.) Generate four digit years as
      per RFC 1123 (superceding RFC 822.)
    */
-  PR_FormatTimeUSEnglish(buffer_tail, 100,
-               "Date: %a, %d %b %Y %H:%M:%S ",
+  char dateString[130];
+  PR_FormatTimeUSEnglish(dateString, sizeof(dateString),
+               "%a, %d %b %Y %H:%M:%S ",
                &now);
 
-  buffer_tail += PL_strlen (buffer_tail);
-  PR_snprintf(buffer_tail, buffer + size - buffer_tail,
+  char *entryPoint = dateString + strlen(dateString);
+  PR_snprintf(entryPoint, sizeof(dateString) - (entryPoint - dateString),
         "%c%02d%02d" CRLF,
         (gmtoffset >= 0 ? '+' : '-'),
         ((gmtoffset >= 0 ? gmtoffset : -gmtoffset) / 60),
         ((gmtoffset >= 0 ? gmtoffset : -gmtoffset) % 60));
-  buffer_tail += PL_strlen (buffer_tail);
+  finalHeaders->SetRawHeader("Date", nsDependentCString(dateString), nullptr);
 
   // X-Mozilla-Draft-Info
   if (isDraft)
   {
-    PUSH_STRING(HEADER_X_MOZILLA_DRAFT_INFO);
-    PUSH_STRING(": internal/draft; ");
-    if (fields->GetAttachVCard())
-      PUSH_STRING("vcard=1");
-    else
-      PUSH_STRING("vcard=0");
-    PUSH_STRING("; ");
-    if (fields->GetReturnReceipt()) {
+    nsAutoCString draftInfo;
+    draftInfo.AppendLiteral("internal/draft; ");
+    APPEND_BOOL(AttachVCard, "vcard");
+    draftInfo.AppendLiteral("; ");
+    bool hasReturnReceipt = false;
+    fields->GetReturnReceipt(&hasReturnReceipt);
+    if (hasReturnReceipt)
+    {
       // slight change compared to 4.x; we used to use receipt= to tell
       // whether the draft/template has request for either MDN or DNS or both
       // return receipt; since the DNS is out of the picture we now use the
       // header type + 1 to tell whether user has requested the return receipt
       int32_t headerType = 0;
       fields->GetReceiptHeaderType(&headerType);
-      char *type = PR_smprintf("%d", (int)headerType + 1);
-      if (type)
-      {
-        PUSH_STRING("receipt=");
-        PUSH_STRING(type);
-        PR_FREEIF(type);
-      }
+      draftInfo.AppendLiteral("receipt=");
+      draftInfo.AppendInt(headerType + 1);
     }
     else
-      PUSH_STRING("receipt=0");
-    PUSH_STRING("; ");
-    if (fields->GetDSN())
-      PUSH_STRING("DSN=1");
-    else
-      PUSH_STRING("DSN=0");
-    PUSH_STRING("; ");
-    PUSH_STRING("uuencode=0");
-    PUSH_STRING("; ");
-    if (fields->GetAttachmentReminder())
-      PUSH_STRING("attachmentreminder=1");
-    else
-      PUSH_STRING("attachmentreminder=0");
+      draftInfo.AppendLiteral("receipt=0");
+    draftInfo.AppendLiteral("; ");
+    APPEND_BOOL(DSN, "DSN");
+    draftInfo.AppendLiteral("; ");
+    draftInfo.AppendLiteral("uuencode=0");
+    draftInfo.AppendLiteral("; ");
+    APPEND_BOOL(AttachmentReminder, "attachmentreminder");
 
-    PUSH_NEWLINE ();
+    finalHeaders->SetRawHeader(HEADER_X_MOZILLA_DRAFT_INFO, draftInfo, nullptr);
   }
 
 
@@ -409,7 +395,7 @@ mime_generate_headers (nsMsgCompFields *fields,
     nsCString newshostHeaderVal;
     rv = nntpService->GenerateNewsHeaderValsForPosting(newsgroups,
       getter_Copies(newsgroupsHeaderVal), getter_Copies(newshostHeaderVal));
-    if (NS_FAILED(rv)) 
+    if (NS_FAILED(rv))
     {
       *status = rv;
       return nullptr;
@@ -445,7 +431,7 @@ mime_generate_headers (nsMsgCompFields *fields,
 
   // If we are saving the message as a draft, don't bother inserting the undisclosed recipients field. We'll take care of that when we
   // really send the message.
-  if (!hasDisclosedRecipient && !isDraft) 
+  if (!hasDisclosedRecipient && !isDraft)
   {
     bool bAddUndisclosedRecipients = true;
     prefs->GetBoolPref("mail.compose.add_undisclosed_recipients", &bAddUndisclosedRecipients);
@@ -511,48 +497,42 @@ mime_generate_headers (nsMsgCompFields *fields,
     }
   }
 
-  if (pReference && *pReference) {
-    if (PL_strlen(pReference) >= 986) {
-      char *references = PL_strdup(pReference);
-      char *trimAt = PL_strchr(references+1, '<');
-      char *ptr;
-      // per sfraser, RFC 1036 - a message header line should not exceed
-      // 998 characters including the header identifier
-      // retiring the earliest reference one after the other
-      // but keep the first one for proper threading
-      while (references && PL_strlen(references) >= 986 && trimAt) {
-        ptr = PL_strchr(trimAt+1, '<');
-        if (ptr)
-          memmove(trimAt, ptr, PL_strlen(ptr)+1); // including the
-        else
-          break;
-      }
-      NS_ASSERTION(references, "null references");
-      if (references) {
-        finalHeaders->SetRawHeader("References", nsDependentCString(references),
-          charset);
-        PR_Free(references);
-      }
-    }
+  nsAutoCString references;
+  finalHeaders->GetRawHeader("References", references);
+  if (!references.IsEmpty())
+  {
+    // The References header should be kept under 998 characters: if it's too
+    // long, trim out the earliest references to make it smaller.
+    if (references.Length() > 986)
     {
-      const char *lastRef = PL_strrchr(pReference, '<');
-
-      if (lastRef) {
-        finalHeaders->SetRawHeader("In-Reply-To", nsDependentCString(lastRef),
-          nullptr);
+      int32_t firstRef = references.FindChar('<');
+      int32_t secondRef = references.FindChar('<', firstRef + 1);
+      if (secondRef > 0)
+      {
+        nsAutoCString newReferences(StringHead(references, secondRef));
+        int32_t bracket = references.FindChar('<',
+          references.Length() + newReferences.Length() - 986);
+        if (bracket > 0)
+        {
+          newReferences.Append(Substring(references, bracket));
+          finalHeaders->SetRawHeader("References", newReferences, nullptr);
+        }
       }
     }
+    // The In-Reply-To header is the last entry in the references header...
+    int32_t bracket = references.RFind("<");
+    if (bracket >= 0)
+      finalHeaders->SetRawHeader("In-Reply-To", Substring(references, bracket),
+        nullptr);
   }
 
   // Convert the blocks of headers into a single string for emission.
   nsCString headerText;
-  headerText.Adopt(buffer);
-  nsCString moreHeaders;
-  finalHeaders->BuildMimeText(moreHeaders);
-  headerText += moreHeaders;
-
+  finalHeaders->BuildMimeText(headerText);
   return ToNewCString(headerText);
 }
+
+#undef APPEND_BOOL // X-Mozilla-Draft-Info helper macro
 
 static void
 GenerateGlobalRandomBytes(unsigned char *buf, int32_t len)
