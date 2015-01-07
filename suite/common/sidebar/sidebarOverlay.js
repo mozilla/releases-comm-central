@@ -712,7 +712,8 @@ function sidebar_overlay_init() {
   sidebarObj.master_datasources = get_remote_datasource_url();
   sidebarObj.master_datasources += " " + sidebarObj.datasource_uri;
   sidebarObj.master_resource = 'urn:sidebar:master-panel-list';
-  sidebarObj.component = document.documentElement.getAttribute('windowtype');
+  sidebarObj.component = gPrivate ? "navigator:browser" :
+                         document.documentElement.getAttribute('windowtype');
   debug("sidebarObj.component is " + sidebarObj.component);
 
   // Sync RDF with broadcasters.
