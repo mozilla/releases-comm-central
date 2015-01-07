@@ -82,7 +82,6 @@ function Recipients2CompFields(msgCompFields)
     var addrReply = "";
     var addrNg = "";
     var addrFollow = "";
-    var addrOther = "";
     var to_Sep = "";
     var cc_Sep = "";
     var bcc_Sep = "";
@@ -129,9 +128,11 @@ function Recipients2CompFields(msgCompFields)
           case "addr_reply"       : addrReply += reply_Sep + recipient; reply_Sep = ",";      break; 
           case "addr_newsgroups"  : addrNg += ng_Sep + fieldValue; ng_Sep = ",";              break;
           case "addr_followup"    : addrFollow += follow_Sep + fieldValue; follow_Sep = ",";  break;
-          // do CRLF, same as PUSH_NEWLINE() in nsMsgSend.h / nsMsgCompUtils.cpp
-          // see bug #195965
-          case "addr_other"       : addrOther += awGetPopupElement(i).selectedItem.getAttribute("label") + " " + fieldValue + "\r\n";break;
+          case "addr_other":
+            let headerName = awGetPopupElement(i).selectedItem.getAttribute("label");
+            headerName = headerName.substring(0, headerName.indexOf(':'));
+            msgCompFields.setHeader(headerName, fieldValue);
+            break;
         }
       }
       i ++;
@@ -143,7 +144,6 @@ function Recipients2CompFields(msgCompFields)
     msgCompFields.replyTo = addrReply;
     msgCompFields.newsgroups = addrNg;
     msgCompFields.followupTo = addrFollow;
-    msgCompFields.otherRandomHeaders = addrOther;
 
     gMimeHeaderParser = null;
   }
@@ -167,7 +167,6 @@ function CompFields2Recipients(msgCompFields)
     var msgTo = msgCompFields.to;
     var msgCC = msgCompFields.cc;
     var msgBCC = msgCompFields.bcc;
-    var msgRandomHeaders = msgCompFields.otherRandomHeaders;
     var msgNewsgroups = msgCompFields.newsgroups;
     var msgFollowupTo = msgCompFields.followupTo;
     var havePrimaryRecipient = false;

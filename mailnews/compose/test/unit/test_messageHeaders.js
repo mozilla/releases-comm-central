@@ -200,7 +200,7 @@ function* testOtherHeaders() {
     getBasicSmtpServer());
   fields.priority = "high";
   fields.references = "<fake@tinderbox.invalid> <more@test.invalid>";
-  fields.otherRandomHeaders = "X-Fake-Header: 124\r\n";
+  fields.setHeader("X-Fake-Header", "124");
   let before = Date.now();
   let msgHdr = yield richCreateMessage(fields, [], identity);
   let after = Date.now();

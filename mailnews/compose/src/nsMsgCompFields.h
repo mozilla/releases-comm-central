@@ -51,7 +51,6 @@ public:
     MSG_SUBJECT_HEADER_ID,
     MSG_ORGANIZATION_HEADER_ID,
     MSG_REFERENCES_HEADER_ID,
-    MSG_OTHERRANDOMHEADERS_HEADER_ID,
     MSG_NEWSPOSTURL_HEADER_ID,
     MSG_PRIORITY_HEADER_ID,
     MSG_CHARACTER_SET_HEADER_ID,
@@ -108,9 +107,6 @@ public:
   const char* GetOrganization() {return GetAsciiHeader(MSG_ORGANIZATION_HEADER_ID);}
 
   const char* GetReferences() {return GetAsciiHeader(MSG_REFERENCES_HEADER_ID);}
-
-  nsresult SetOtherRandomHeaders(const char *value) {return SetAsciiHeader(MSG_OTHERRANDOMHEADERS_HEADER_ID, value);}
-  const char* GetOtherRandomHeaders() {return GetAsciiHeader(MSG_OTHERRANDOMHEADERS_HEADER_ID);}
 
   const char* GetNewspostUrl() {return GetAsciiHeader(MSG_NEWSPOSTURL_HEADER_ID);}
 

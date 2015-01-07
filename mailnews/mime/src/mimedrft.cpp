@@ -327,7 +327,6 @@ CreateCompositionFields(const char        *from,
                         const char        *organization,
                         const char        *subject,
                         const char        *references,
-                        const char        *other_random_headers,
                         const char        *priority,
                         const char        *newspost_url,
                         char              *charset,
@@ -403,11 +402,6 @@ CreateCompositionFields(const char        *from,
   if (references) {
     MIME_DecodeMimeHeader(references, charset, false, true, val);
     cFields->SetReferences(!val.IsEmpty() ? val.get() : references);
-  }
-
-  if (other_random_headers) {
-    MIME_DecodeMimeHeader(other_random_headers, charset, false, true, val);
-    cFields->SetOtherRandomHeaders(NS_ConvertUTF8toUTF16(!val.IsEmpty() ? val.get() : other_random_headers));
   }
 
   if (priority) {
@@ -1243,7 +1237,7 @@ mime_parse_stream_complete (nsMIMESession *stream)
 
 
     CreateCompositionFields( from, repl, to, cc, bcc, fcc, grps, foll,
-      org, subj, refs, 0, priority, news_host,
+      org, subj, refs, priority, news_host,
       mdd->mailcharset,
       getter_AddRefs(fields));
 
@@ -1529,7 +1523,7 @@ mime_parse_stream_complete (nsMIMESession *stream)
   else
   {
     CreateCompositionFields( from, repl, to, cc, bcc, fcc, grps, foll,
-      org, subj, refs, 0, priority, news_host,
+      org, subj, refs, priority, news_host,
       mdd->mailcharset,
       getter_AddRefs(fields));
     if (fields)

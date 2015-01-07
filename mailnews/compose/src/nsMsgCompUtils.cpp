@@ -298,7 +298,6 @@ mime_generate_headers (nsMsgCompFields *fields,
   const char* pSubject;
   const char* pPriority;
   const char* pReference;
-  const char* pOtherHdr;
   char *convbuf;
 
   bool hasDisclosedRecipient = false;
@@ -332,7 +331,6 @@ mime_generate_headers (nsMsgCompFields *fields,
   pOrg= fields->GetOrganization();
   if (pOrg)
     headerBuf.Append(pOrg);
-  pOtherHdr= fields->GetOtherRandomHeaders(); if (pOtherHdr)  size += 3 * PL_strlen (pOtherHdr);
   pPriority = fields->GetPriority();  if (pPriority)      size += 3 * PL_strlen (pPriority);
   pMessageID = fields->GetMessageId(); if (pMessageID)    size += PL_strlen (pMessageID);
 
@@ -732,12 +730,6 @@ mime_generate_headers (nsMsgCompFields *fields,
         PUSH_NEWLINE ();
       }
     }
-  }
-
-  if (pOtherHdr && *pOtherHdr) {
-    /* Assume they already have the right newlines and continuations
-     and so on.  for these headers, the PUSH_NEWLINE() happens in addressingWidgetOverlay.js */
-    PUSH_STRING (pOtherHdr);
   }
 
   // Convert the blocks of headers into a single string for emission.

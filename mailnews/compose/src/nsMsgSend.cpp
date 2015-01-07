@@ -2802,10 +2802,6 @@ nsMsgComposeAndSend::InitCompositionFields(nsMsgCompFields *fields,
     }
   }
 
-  pStr = fields->GetOtherRandomHeaders();
-  if (pStr)
-    mCompFields->SetOtherRandomHeaders((char *) pStr);
-
   AddDefaultCustomHeaders();
 
   AddMailFollowupToHeader();

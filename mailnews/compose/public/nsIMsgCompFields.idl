@@ -11,7 +11,7 @@ interface nsISimpleEnumerator;
 /**
  * A collection of headers and other attributes for building a mail message.
  */
-[scriptable, uuid(095fd3b3-41e1-448e-8f9a-534a5f8e5407)]
+[scriptable, uuid(4d251187-8213-467a-90f7-f8f330f59085)]
 interface nsIMsgCompFields : msgIWritableStructuredHeaders {
 
   attribute AString from;
@@ -50,8 +50,6 @@ interface nsIMsgCompFields : msgIWritableStructuredHeaders {
   attribute boolean forceMsgEncoding;
   /// Status of manually-activated attachment reminder.
   attribute boolean attachmentReminder;
-
-  attribute AString otherRandomHeaders;
 
   /**
    * Beware that when setting this property, your body must be properly wrapped,

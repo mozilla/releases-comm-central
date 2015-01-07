@@ -43,7 +43,6 @@ static HeaderInfo kHeaders[] = {
   { "Subject", false },
   { "Organization", false },
   { "References", true },
-  { nullptr, false },
   { "X-Mozilla-News-Host", false },
   { "X-Priority", false },
   { nullptr, false },
@@ -278,16 +277,6 @@ NS_IMETHODIMP nsMsgCompFields::GetReferences(char **_retval)
 {
   *_retval = strdup(GetAsciiHeader(MSG_REFERENCES_HEADER_ID));
   return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
-}
-
-NS_IMETHODIMP nsMsgCompFields::SetOtherRandomHeaders(const nsAString &value)
-{
-  return SetUnicodeHeader(MSG_OTHERRANDOMHEADERS_HEADER_ID, value);
-}
-
-NS_IMETHODIMP nsMsgCompFields::GetOtherRandomHeaders(nsAString &_retval)
-{
-  return GetUnicodeHeader(MSG_OTHERRANDOMHEADERS_HEADER_ID, _retval);
 }
 
 NS_IMETHODIMP nsMsgCompFields::SetNewspostUrl(const char *value)
