@@ -240,19 +240,14 @@ nsresult mime_sanity_check_fields (
         draftInfo.AppendLiteral(param "=0"); \
     } while (false)
 
-char *
-mime_generate_headers (nsMsgCompFields *fields,
-                       const char *charset,
-                       nsMsgDeliverMode deliver_mode, nsIPrompt * aPrompt, nsresult *status)
+nsresult mime_generate_headers(nsIMsgCompFields *fields,
+                               nsMsgDeliverMode deliver_mode,
+                               msgIWritableStructuredHeaders *finalHeaders)
 {
-  nsresult rv;
-  *status = NS_OK;
+  nsresult rv = NS_OK;
 
   nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  if (NS_FAILED(rv)) {
-    *status = rv;
-    return nullptr;
-  }
+  NS_ENSURE_SUCCESS(rv, rv);
 
   bool isDraft =
     deliver_mode == nsIMsgSend::nsMsgSaveAsDraft ||
@@ -262,21 +257,15 @@ mime_generate_headers (nsMsgCompFields *fields,
 
   bool hasDisclosedRecipient = false;
 
-  NS_ASSERTION (fields, "null fields");
-  if (!fields) {
-    *status = NS_ERROR_NULL_POINTER;
-    return nullptr;
-  }
+  MOZ_ASSERT(fields, "null fields");
+  NS_ENSURE_ARG_POINTER(fields);
 
   nsCOMArray<msgIAddressObject> from;
   fields->GetAddressingHeader("From", from, true);
 
-  // Make a new block of headers to store the usable headers in, and copy all
-  // headers from the original compose field.
-  nsCOMPtr<msgIWritableStructuredHeaders> finalHeaders =
-    do_CreateInstance(NS_ISTRUCTUREDHEADERS_CONTRACTID);
+  // Copy all headers from the original compose field.
   rv = finalHeaders->AddAllHeaders(fields);
-  MOZ_ASSERT(NS_SUCCEEDED(rv), "This shouldn't fail");
+  NS_ENSURE_SUCCESS(rv, rv);
 
   bool hasMessageId = false;
   if (NS_SUCCEEDED(fields->HasHeader("Message-ID", &hasMessageId)) &&
@@ -385,22 +374,14 @@ mime_generate_headers (nsMsgCompFields *fields,
     // (XXX: can it really?)
     nsCOMPtr<nsINntpService> nntpService =
       do_GetService("@mozilla.org/messenger/nntpservice;1", &rv);
-    if (NS_FAILED(rv) || !nntpService)
-    {
-      *status = NS_ERROR_FAILURE;
-      return nullptr;
-    }
+    NS_ENSURE_SUCCESS(rv, rv);
 
     nsCString newsgroupsHeaderVal;
     nsCString newshostHeaderVal;
     rv = nntpService->GenerateNewsHeaderValsForPosting(newsgroups,
       getter_Copies(newsgroupsHeaderVal), getter_Copies(newshostHeaderVal));
-    if (NS_FAILED(rv))
-    {
-      *status = rv;
-      return nullptr;
-    }
-    finalHeaders->SetRawHeader("Newsgroups", newsgroupsHeaderVal, charset);
+    NS_ENSURE_SUCCESS(rv, rv);
+    finalHeaders->SetRawHeader("Newsgroups", newsgroupsHeaderVal, nullptr);
 
     // If we are here, we are NOT going to send this now. (i.e. it is a Draft,
     // Send Later file, etc...). Because of that, we need to store what the user
@@ -413,7 +394,7 @@ mime_generate_headers (nsMsgCompFields *fields,
       // what the user typed into the "Newsgroup" line in the HEADER_X_MOZILLA_NEWSHOST
       // header for later use by "Send Unsent Messages", "Drafts" or "Templates"
       finalHeaders->SetRawHeader(HEADER_X_MOZILLA_NEWSHOST, newshostHeaderVal,
-        charset);
+        nullptr);
     }
 
     // Newsgroups are a recipient...
@@ -526,10 +507,7 @@ mime_generate_headers (nsMsgCompFields *fields,
         nullptr);
   }
 
-  // Convert the blocks of headers into a single string for emission.
-  nsCString headerText;
-  finalHeaders->BuildMimeText(headerText);
-  return ToNewCString(headerText);
+  return NS_OK;
 }
 
 #undef APPEND_BOOL // X-Mozilla-Draft-Info helper macro

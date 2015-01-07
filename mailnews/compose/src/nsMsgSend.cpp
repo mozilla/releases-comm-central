@@ -426,14 +426,9 @@ nsMsgComposeAndSend::GatherMimeAttachments()
   bool shouldDeleteDeliveryState = true;
   nsresult status;
   uint32_t    i;
-  char *headers = 0;
   PRFileDesc  *in_file = 0;
-  bool multipart_p = false;
-  bool plaintext_is_mainbody_p = false; // only using text converted from HTML?
   char *buffer = 0;
-  char *buffer_tail = 0;
   nsString msg;
-  bool tonews;
   bool body_is_us_ascii = true;
 
   nsMsgSendPart* toppart = nullptr;      // The very top most container of the message
@@ -465,18 +460,6 @@ nsMsgComposeAndSend::GatherMimeAttachments()
   char *hdrs = 0;
   bool maincontainerISrelatedpart = false;
   const char * toppart_type = nullptr;
-
-  // If we have any attachments, we generate multipart.
-  multipart_p = (m_attachment_count > 0);
-
-  // to news is true if we have a m_field and we have a Newsgroup and it is not empty
-  tonews = false;
-  if (mCompFields)
-  {
-    const char* pstrzNewsgroup = mCompFields->GetNewsgroups();
-    if (pstrzNewsgroup && *pstrzNewsgroup)
-      tonews = true;
-  }
 
   status = m_status;
   if (NS_FAILED(status))
@@ -571,8 +554,6 @@ nsMsgComposeAndSend::GatherMimeAttachments()
   buffer = mime_get_stream_write_buffer();
   if (! buffer)
     goto FAILMEM;
-
-  buffer_tail = buffer;
 
   NS_ASSERTION (m_attachment_pending_count == 0, "m_attachment_pending_count != 0");
 
@@ -744,8 +725,6 @@ nsMsgComposeAndSend::GatherMimeAttachments()
       /* Override attachment1_encoding here. */
       PR_FREEIF(m_attachment1_encoding);
       m_attachment1_encoding = ToNewCString(m_plaintext->m_encoding);
-
-      plaintext_is_mainbody_p = true; // converted plaintext is mainbody
     }
   }
 
@@ -778,38 +757,35 @@ nsMsgComposeAndSend::GatherMimeAttachments()
       goto FAIL;
   }
 
-   /* Write out the message headers.
-   */
-  headers = mime_generate_headers (mCompFields, mCompFields->GetCharacterSet(),
-                                   m_deliver_mode, promptObject, &status);
-  if (NS_FAILED(status))
-    goto FAIL;
+  {
+    nsCOMPtr<msgIWritableStructuredHeaders> outputHeaders =
+      do_CreateInstance(NS_ISTRUCTUREDHEADERS_CONTRACTID);
+    status = mime_generate_headers(mCompFields, m_deliver_mode, outputHeaders);
+    if (NS_FAILED(status))
+      goto FAIL;
 
-  if (!headers)
-    goto FAILMEM;
+    // Convert the blocks of headers into a single string for emission.
+    nsAutoCString headers;
+    outputHeaders->BuildMimeText(headers);
 
-  //
-  // If we converted HTML into plaintext, the plaintext part (plainpart)
-  // already has its content-type and content-transfer-encoding
-  // ("other") headers set.
-  //
-  // In the specific case where such a plaintext part is the
-  // top level message part (iff an HTML message is being sent
-  // as text only and no other attachments exist) we want to
-  // preserve the original plainpart headers, since they
-  // contain accurate transfer encoding and Mac type/creator
-  // information.
-  //
-  // So, in the above case we append the main message headers,
-  // otherwise we overwrite whatever headers may have existed.
-  //
-  /* reordering of headers will happen in nsMsgSendPart::Write */
-  if ((plainpart) && (plainpart == toppart))
-    status = toppart->AppendOtherHeaders(headers);
-  else
-    status = toppart->SetOtherHeaders(headers);
-  PR_Free(headers);
-  headers = nullptr;
+    // If we converted HTML into plaintext, the plaintext part (plainpart)
+    // already has its content-type and content-transfer-encoding ("other")
+    // headers set.
+    //
+    // In the specific case where such a plaintext part is the top-level message
+    // part (iff an HTML message is being sent as text only and no other
+    // attachments exist) we want to preserve the original plainpart headers,
+    // since they contain accurate transfer encoding and Mac type/creator
+    // information.
+    //
+    // So, in the above case we append the main message headers, otherwise we
+    // overwrite whatever headers may have existed.
+    if (plainpart && plainpart == toppart)
+      status = toppart->AppendOtherHeaders(headers.get());
+    else
+      status = toppart->SetOtherHeaders(headers.get());
+  }
+
   if (NS_FAILED(status))
     goto FAIL;
 
@@ -877,7 +853,6 @@ nsMsgComposeAndSend::GatherMimeAttachments()
     buffer = mime_mailto_stream_read_buffer;
     if (! buffer)
       goto FAILMEM;
-    buffer_tail = buffer;
 
     // Gather all of the attachments for this message that are NOT
     // part of an enclosed MHTML message!
@@ -1006,7 +981,6 @@ FAIL:
   mainbody = nullptr;
   maincontainer = nullptr;
 
-  PR_FREEIF(headers);
   if (in_file)
   {
     PR_Close (in_file);
