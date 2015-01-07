@@ -140,7 +140,7 @@ public:
 
 protected:
   virtual ~nsMsgCompFields();
-  char*       m_headers[MSG_MAX_HEADERS];
+  nsCString m_headers[MSG_MAX_HEADERS];
   nsCString   m_body;
   nsCOMArray<nsIMsgAttachment> m_attachments;
   bool        m_attachVCard;

@@ -23,10 +23,6 @@ NS_IMPL_ISUPPORTS(nsMsgCompFields, nsIMsgCompFields)
 
 nsMsgCompFields::nsMsgCompFields()
 {
-  int16_t i;
-  for (i = 0; i < MSG_MAX_HEADERS; i ++)
-    m_headers[i] = nullptr;
-
   m_body.Truncate();
 
   m_attachVCard = false;
@@ -51,9 +47,6 @@ nsMsgCompFields::nsMsgCompFields()
 
 nsMsgCompFields::~nsMsgCompFields()
 {
-  int16_t i;
-  for (i = 0; i < MSG_MAX_HEADERS; i ++)
-    PR_FREEIF(m_headers[i]);
 }
 
 nsresult nsMsgCompFields::SetAsciiHeader(MsgHeaderID header, const char *value)
@@ -61,27 +54,8 @@ nsresult nsMsgCompFields::SetAsciiHeader(MsgHeaderID header, const char *value)
   NS_ASSERTION(header >= 0 && header < MSG_MAX_HEADERS,
                "Invalid message header index!");
 
-  nsresult rv = NS_OK;
-  char* old = m_headers[header]; /* Done with careful paranoia, in case the
-                                    value given is the old value (or worse,
-                                    a substring of the old value, as does
-                                    happen here and there.)
-                                  */
-  if (value != old)
-  {
-    if (value)
-    {
-        m_headers[header] = strdup(value);
-        if (!m_headers[header])
-           rv = NS_ERROR_OUT_OF_MEMORY;
-    }
-    else
-      m_headers[header] = nullptr;
-
-    PR_FREEIF(old);
-  }
-
-  return rv;
+  m_headers[header] = value;
+  return NS_OK;
 }
 
 const char* nsMsgCompFields::GetAsciiHeader(MsgHeaderID header)
@@ -89,7 +63,7 @@ const char* nsMsgCompFields::GetAsciiHeader(MsgHeaderID header)
   NS_ASSERTION(header >= 0 && header < MSG_MAX_HEADERS,
                "Invalid message header index!");
 
-  return m_headers[header] ? m_headers[header] : "";
+  return m_headers[header].get();
 }
 
 nsresult nsMsgCompFields::SetUnicodeHeader(MsgHeaderID header, const nsAString& value)
