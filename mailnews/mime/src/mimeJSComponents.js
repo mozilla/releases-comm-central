@@ -40,6 +40,25 @@ StringEnumerator.prototype = {
 };
 
 /**
+ * If we get XPConnect-wrapped objects for msgIAddressObjects, we will have
+ * properties defined for 'group' that throws off jsmime. This function converts
+ * the addresses into the form that jsmime expects.
+ */
+function fixXpconnectAddresses(addrs) {
+  return addrs.map((addr) => {
+    // This is ideally !addr.group, but that causes a JS strict warning, if
+    // group is not in addr, since that's enabled in all chrome code now.
+    if (!('group' in addr) || addr.group === undefined || addr.group === null) {
+      return MimeAddressParser.prototype.makeMailboxObject(addr.name,
+        addr.email);
+    } else {
+      return MimeAddressParser.prototype.makeGroupObject(addr.name,
+        fixXpconnectAddresses(addr.group));
+    }
+  });
+}
+
+/**
  * This is a base handler for supporting msgIStructuredHeaders, since we have
  * two implementations that need the readable aspects of the interface.
  */
@@ -171,7 +190,7 @@ MimeWritableStructuredHeaders.prototype = {
   },
 
   setAddressingHeader: function (aHeaderName, aAddresses, aCount) {
-    this.setHeader(aHeaderName, aAddresses);
+    this.setHeader(aHeaderName, fixXpconnectAddresses(aAddresses));
   },
 
   setRawHeader: function (aHeaderName, aValue, aCharset) {
@@ -252,6 +271,7 @@ MimeAddressParser.prototype = {
   },
 
   makeMimeHeader: function (addresses, length) {
+    addresses = fixXpconnectAddresses(addresses);
     // Don't output any necessary continuations, so make line length as large as
     // possible first.
     let options = {
@@ -322,7 +342,7 @@ MimeAddressParser.prototype = {
   makeGroupObject: function (aName, aMembers) {
     let object = Object.create(EmailGroup);
     object.name = aName;
-    object.members = aMembers;
+    object.group = aMembers;
     return object;
   },
 

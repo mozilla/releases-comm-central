@@ -496,7 +496,7 @@ function* testSentMessage() {
     });
     yield sendMessage({"bcc": "Somebody <test@tinderbox.invalid"}, identity);
     checkMessageHeaders(daemon.post, {
-      "To": "undisclosed-recipients:;"
+      "To": "undisclosed-recipients: ;"
     });
     yield sendMessage({
       "to": "Somebody <test@tinderbox.invalid>",

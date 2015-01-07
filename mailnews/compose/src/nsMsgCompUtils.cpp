@@ -29,8 +29,10 @@
 #include "nsMemory.h"
 #include "nsCRTGlue.h"
 #include <ctype.h>
+#include "mozilla/mailnews/Services.h"
 #include "mozilla/Services.h"
 #include "nsIMIMEInfo.h"
+#include "nsIMsgHeaderParser.h"
 
 NS_IMPL_ISUPPORTS(nsMsgCompUtils, nsIMsgCompUtils)
 
@@ -251,19 +253,6 @@ nsMsgStripLine (char * string)
 //
 #define UA_PREF_PREFIX "general.useragent."
 
-#define ENCODE_AND_PUSH(name, structured, body, charset, usemime) \
-  { \
-    PUSH_STRING((name)); \
-    convbuf = nsMsgI18NEncodeMimePartIIStr((body), (structured), (charset), strlen(name), (usemime)); \
-    if (convbuf) { \
-      PUSH_STRING (convbuf); \
-      PR_FREEIF(convbuf); \
-    } \
-    else \
-      PUSH_STRING((body)); \
-    PUSH_NEWLINE (); \
-  }
-
 char *
 mime_generate_headers (nsMsgCompFields *fields,
                        const char *charset,
@@ -278,7 +267,6 @@ mime_generate_headers (nsMsgCompFields *fields,
     return nullptr;
   }
 
-  bool usemime = nsMsgMIMEGetConformToStandard();
   int32_t size = 0;
   char *buffer = nullptr, *buffer_tail = nullptr;
   bool isDraft =
@@ -287,39 +275,20 @@ mime_generate_headers (nsMsgCompFields *fields,
     deliver_mode == nsIMsgSend::nsMsgQueueForLater ||
     deliver_mode == nsIMsgSend::nsMsgDeliverBackground;
 
-  const char* pFrom;
-  const char* pTo;
-  const char* pCc;
   const char* pNewsGrp;
   const char* pFollow;
   const char* pReference;
-  char *convbuf;
 
   bool hasDisclosedRecipient = false;
-
-  nsAutoCString headerBuf;    // accumulate header strings to get length
-  headerBuf.Truncate();
 
   NS_ASSERTION (fields, "null fields");
   if (!fields) {
     *status = NS_ERROR_NULL_POINTER;
     return nullptr;
   }
-  pFrom = fields->GetFrom();
-  if (pFrom)
-    headerBuf.Append(pFrom);
-  pTo = fields->GetTo();
-  if (pTo)
-    headerBuf.Append(pTo);
-  pCc = fields->GetCc();
-  if (pCc)
-    headerBuf.Append(pCc);
   pNewsGrp = fields->GetNewsgroups(); if (pNewsGrp)     size += 3 * PL_strlen (pNewsGrp);
   pFollow= fields->GetFollowupTo(); if (pFollow)        size += 3 * PL_strlen (pFollow);
   pReference = fields->GetReferences(); if (pReference)   size += 3 * PL_strlen (pReference);
-
-  /* Multiply by 3 here to make enough room for MimePartII conversion */
-  size += 3 * headerBuf.Length();
 
   /* Add a bunch of slop for the static parts of the headers. */
   /* size += 2048; */
@@ -333,18 +302,15 @@ mime_generate_headers (nsMsgCompFields *fields,
 
   buffer_tail = buffer;
 
+  nsCOMArray<msgIAddressObject> from;
+  fields->GetAddressingHeader("From", from, true);
+
   // Make a new block of headers to store the usable headers in, and copy all
   // headers from the original compose field.
   nsCOMPtr<msgIWritableStructuredHeaders> finalHeaders =
     do_CreateInstance(NS_ISTRUCTUREDHEADERS_CONTRACTID);
   rv = finalHeaders->AddAllHeaders(fields);
   MOZ_ASSERT(NS_SUCCEEDED(rv), "This shouldn't fail");
-
-  // Don't emit any of these headers, handled by legacy code for now...
-  finalHeaders->DeleteHeader("from");
-  finalHeaders->DeleteHeader("to");
-  finalHeaders->DeleteHeader("cc");
-  finalHeaders->DeleteHeader("bcc");
 
   bool hasMessageId = false;
   if (NS_SUCCEEDED(fields->HasHeader("Message-ID", &hasMessageId)) &&
@@ -360,18 +326,16 @@ mime_generate_headers (nsMsgCompFields *fields,
       (deliver_mode != nsIMsgSend::nsMsgSaveAsDraft &&
       deliver_mode != nsIMsgSend::nsMsgSaveAsTemplate))
     {
-        int32_t receipt_header_type = nsIMsgMdnGenerator::eDntType;
-        fields->GetReceiptHeaderType(&receipt_header_type);
+      int32_t receipt_header_type = nsIMsgMdnGenerator::eDntType;
+      fields->GetReceiptHeaderType(&receipt_header_type);
 
       // nsIMsgMdnGenerator::eDntType = MDN Disposition-Notification-To: ;
       // nsIMsgMdnGenerator::eRrtType = Return-Receipt-To: ;
       // nsIMsgMdnGenerator::eDntRrtType = both MDN DNT and RRT headers .
       if (receipt_header_type != nsIMsgMdnGenerator::eRrtType)
-        ENCODE_AND_PUSH(
-	  "Disposition-Notification-To: ", true, pFrom, charset, usemime);
+        finalHeaders->SetAddressingHeader("Disposition-Notification-To", from);
       if (receipt_header_type != nsIMsgMdnGenerator::eDntType)
-        ENCODE_AND_PUSH(
-	  "Return-Receipt-To: ", true, pFrom, charset, usemime);
+        finalHeaders->SetAddressingHeader("Return-Receipt-To", from);
     }
   }
 
@@ -395,11 +359,6 @@ mime_generate_headers (nsMsgCompFields *fields,
         ((gmtoffset >= 0 ? gmtoffset : -gmtoffset) / 60),
         ((gmtoffset >= 0 ? gmtoffset : -gmtoffset) % 60));
   buffer_tail += PL_strlen (buffer_tail);
-
-  if (pFrom && *pFrom)
-  {
-    ENCODE_AND_PUSH("From: ", true, pFrom, charset, usemime);
-  }
 
   // X-Mozilla-Draft-Info
   if (isDraft)
@@ -570,15 +529,11 @@ mime_generate_headers (nsMsgCompFields *fields,
     PR_Free (duppedFollowup);
   }
 
-  if (pTo && *pTo) {
-    ENCODE_AND_PUSH("To: ", true, pTo, charset, usemime);
-    hasDisclosedRecipient = true;
-  }
-
-  if (pCc && *pCc) {
-    ENCODE_AND_PUSH("CC: ", true, pCc, charset, usemime);
-    hasDisclosedRecipient = true;
-  }
+  nsCOMArray<msgIAddressObject> recipients;
+  finalHeaders->GetAddressingHeader("To", recipients);
+  hasDisclosedRecipient |= !recipients.IsEmpty();
+  finalHeaders->GetAddressingHeader("Cc", recipients);
+  hasDisclosedRecipient |= !recipients.IsEmpty();
 
   // If we don't have disclosed recipient (only Bcc), address the message to
   // undisclosed-recipients to prevent problem with some servers
@@ -591,8 +546,9 @@ mime_generate_headers (nsMsgCompFields *fields,
     prefs->GetBoolPref("mail.compose.add_undisclosed_recipients", &bAddUndisclosedRecipients);
     if (bAddUndisclosedRecipients)
     {
-      const char* pBcc = fields->GetBcc(); //Do not free me!
-      if (pBcc && *pBcc)
+      bool hasBcc = false;
+      fields->HasHeader("Bcc", &hasBcc);
+      if (hasBcc)
       {
         nsCOMPtr<nsIStringBundleService> stringService =
           mozilla::services::GetStringBundleService();
@@ -607,16 +563,23 @@ mime_generate_headers (nsMsgCompFields *fields,
                                                         getter_Copies(undisclosedRecipients));
             if (NS_SUCCEEDED(rv) && !undisclosedRecipients.IsEmpty())
             {
-                PUSH_STRING("To: ");
-              PUSH_STRING(NS_LossyConvertUTF16toASCII(undisclosedRecipients).get());
-                PUSH_STRING(":;");
-                PUSH_NEWLINE ();
-              }
+              nsCOMPtr<nsIMsgHeaderParser> headerParser(
+                mozilla::services::GetHeaderParser());
+              nsCOMPtr<msgIAddressObject> group;
+              headerParser->MakeGroupObject(undisclosedRecipients,
+                nullptr, 0, getter_AddRefs(group));
+              recipients.AppendElement(group);
+              finalHeaders->SetAddressingHeader("To", recipients);
+            }
           }
         }
       }
     }
   }
+
+  // We don't want to emit a Bcc header to the output. If we are saving this to
+  // Drafts/Sent, this is readded later in nsMsgSend.cpp.
+  finalHeaders->DeleteHeader("bcc");
 
   // Skip no or empty priority.
   nsAutoCString priority;

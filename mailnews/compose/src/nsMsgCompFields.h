@@ -37,6 +37,11 @@ public:
   NS_FORWARD_MSGIWRITABLESTRUCTUREDHEADERS(mStructuredHeaders->)
   NS_DECL_NSIMSGCOMPFIELDS
 
+  // Allow the C++ utility methods for people who use a concrete class instead
+  // of the interfaces.
+  using msgIStructuredHeaders::GetAddressingHeader;
+  using msgIWritableStructuredHeaders::SetAddressingHeader;
+
   typedef enum MsgHeaderID
   {
     MSG_FROM_HEADER_ID        = 0,
