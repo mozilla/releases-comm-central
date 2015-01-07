@@ -13,7 +13,7 @@
 /**
  * An interface that can extract individual headers from a body of headers.
  */
-[scriptable, uuid(8a570955-c641-4471-8cc1-1bc1bca65561)]
+[scriptable, uuid(a9222679-b991-4786-8314-f8819c3a2ba3)]
 interface nsIMimeHeaders : msgIStructuredHeaders {
   /// Feed in the text of headers
   void initialize(in ACString allHeaders);
@@ -29,6 +29,13 @@ interface nsIMimeHeaders : msgIStructuredHeaders {
    */
   ACString extractHeader(in string headerName, in boolean getAllOfThem);
 
-  /// The current text of all header data.
+  /**
+   * The current text of all header data.
+   *
+   * Unlike the asMimeText property, this result preserves the original
+   * representation of the header text, including alternative line endings or
+   * custom, non-8-bit text. For instances of this interface, this attribute is
+   * usually preferable to asMimeText.
+   */
   readonly attribute ACString allHeaders;
 };

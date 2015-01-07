@@ -35,7 +35,7 @@ interface nsIUTF8StringEnumerator;
  * exception if the header is missing but rather return an appropriate default
  * value as indicated in their documentation.
  */
-[scriptable, uuid(6c105b83-fb73-4282-bd00-05eaf0f4da1d)]
+[scriptable, uuid(e109bf4f-788f-47ba-bfa8-1236ede05597)]
 interface msgIStructuredHeaders : nsISupports {
   /**
    * Retrieve the value of the header stored in this set of headers. If the
@@ -97,6 +97,19 @@ interface msgIStructuredHeaders : nsISupports {
    */
   readonly attribute nsIUTF8StringEnumerator headerNames;
 
+  /**
+   * Retrieve the MIME representation of all of the headers.
+   *
+   * The header values are emitted in an ASCII form, unless internationalized
+   * email addresses are involved. The extra CRLF indicating the end of headers
+   * is not included in this representation.
+   *
+   * This accessor is provided mainly for the benefit of C++ consumers of this
+   * interface, since the JSMime headeremitter functionality allows more
+   * fine-grained customization of the results.
+   */
+   AUTF8String buildMimeText();
+
 %{C++
   /**
    * A special variant of getAddressingHeader that is specialized better for C++
@@ -122,7 +135,7 @@ interface msgIStructuredHeaders : nsISupports {
  * An interface that enhances msgIStructuredHeaders by allowing the values of
  * headers to be modified.
  */
-[scriptable, uuid(de109a13-47e5-4b69-8784-854b66a88da6)]
+[scriptable, uuid(5dcbbef6-2356-45d8-86d7-b3e73f9c9a0c)]
 interface msgIWritableStructuredHeaders : msgIStructuredHeaders {
   /**
    * Store the given value for the given header, overwriting any previous value

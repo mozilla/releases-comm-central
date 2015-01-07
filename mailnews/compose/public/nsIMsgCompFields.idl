@@ -11,7 +11,7 @@ interface nsISimpleEnumerator;
 /**
  * A collection of headers and other attributes for building a mail message.
  */
-[scriptable, uuid(4508e23e-a059-4a7e-bec9-4c6bc90e1847)]
+[scriptable, uuid(095fd3b3-41e1-448e-8f9a-534a5f8e5407)]
 interface nsIMsgCompFields : msgIWritableStructuredHeaders {
 
   attribute AString from;

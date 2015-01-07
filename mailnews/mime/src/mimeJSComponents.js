@@ -88,7 +88,22 @@ MimeStructuredHeaders.prototype = {
 
   get headerNames() {
     return new StringEnumerator(this._headers.keys());
-  }
+  },
+
+  buildMimeText: function () {
+    if (this._headers.size == 0) {
+      return "";
+    }
+    let handler = new HeaderHandler();
+    let emitter = jsmime.headeremitter.makeStreamingEmitter(handler, {
+      useASCII: true
+    });
+    for (let [value, header] of this._headers) {
+      emitter.addStructuredHeader(value, header);
+    }
+    emitter.finish();
+    return handler.value;
+  },
 };
 
 

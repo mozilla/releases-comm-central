@@ -162,6 +162,30 @@ add_task(function* check_nsIMimeHeaders() {
   }
 });
 
+add_task(function* checkBuildMimeText() {
+  let headers = new StructuredHeaders();
+  headers.setHeader("To", [{name: "François Smith", email: "user@☃.invalid"}]);
+  headers.setHeader("From", [{name: "John Doe", email: "jdoe@test.invalid"}]);
+  headers.setHeader("Subject", "A subject that spans a distance quite in " +
+    "excess of 80 characters so as to force an intermediary CRLF");
+  let mimeText =
+    "To: =?UTF-8?Q?Fran=c3=a7ois_Smith?= <user@☃.invalid>\r\n" +
+    "From: John Doe <jdoe@test.invalid>\r\n" +
+    "Subject: A subject that spans a distance quite in excess of 80 characters so\r\n" +
+    " as to force an intermediary CRLF\r\n";
+  do_check_eq(headers.buildMimeText(), mimeText);
+
+  // Check the version used for the nsIMimeHeaders implementation. This requires
+  // initializing with a UTF-8 version.
+  let utf8Text = mimeText.replace("☃", "\xe2\x98\x83");
+  let mimeHeaders = Cc["@mozilla.org/messenger/mimeheaders;1"]
+                      .createInstance(Ci.nsIMimeHeaders);
+  mimeHeaders.initialize(utf8Text);
+  do_check_eq(mimeHeaders.getHeader("To")[0].email, "user@☃.invalid");
+  do_check_eq(mimeHeaders.buildMimeText(), mimeText);
+  do_check_eq(mimeHeaders.allHeaders, utf8Text);
+});
+
 function run_test() {
   run_next_test();
 }
