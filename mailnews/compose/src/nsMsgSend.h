@@ -233,7 +233,6 @@ public:
                                     const nsACString &aOriginalMsgURI,
                                     MSG_ComposeType aType);
 
-  nsresult    SetMimeHeader(nsMsgCompFields::MsgHeaderID header, const char *value);
   NS_IMETHOD  GetBodyFromEditor();
 
 

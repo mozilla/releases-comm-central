@@ -2629,45 +2629,6 @@ nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
   return NS_OK;
 }
 
-nsresult nsMsgComposeAndSend::SetMimeHeader(nsMsgCompFields::MsgHeaderID header, const char *value)
-{
-  char * dupHeader = nullptr;
-  nsresult ret = NS_ERROR_OUT_OF_MEMORY;
-
-  switch (header)
-  {
-    case nsMsgCompFields::MSG_FROM_HEADER_ID :
-    case nsMsgCompFields::MSG_TO_HEADER_ID :
-    case nsMsgCompFields::MSG_REPLY_TO_HEADER_ID :
-    case nsMsgCompFields::MSG_CC_HEADER_ID :
-    case nsMsgCompFields::MSG_BCC_HEADER_ID :
-      dupHeader = mime_fix_addr_header(value);
-      break;
-
-    case nsMsgCompFields::MSG_NEWSGROUPS_HEADER_ID :
-    case nsMsgCompFields::MSG_FOLLOWUP_TO_HEADER_ID :
-      dupHeader = mime_fix_news_header(value);
-      break;
-
-    case nsMsgCompFields::MSG_FCC_HEADER_ID :
-    case nsMsgCompFields::MSG_ORGANIZATION_HEADER_ID :
-    case nsMsgCompFields::MSG_SUBJECT_HEADER_ID :
-    case nsMsgCompFields::MSG_REFERENCES_HEADER_ID :
-    case nsMsgCompFields::MSG_X_TEMPLATE_HEADER_ID :
-      dupHeader = mime_fix_header(value);
-      break;
-
-    default : NS_ASSERTION(false, "invalid header"); // unhandled header - bad boy.
-  }
-
-  if (dupHeader)
-  {
-    ret = mCompFields->SetAsciiHeader(header, dupHeader);
-    PR_Free(dupHeader);
-  }
-  return ret;
-}
-
 nsresult
 nsMsgComposeAndSend::InitCompositionFields(nsMsgCompFields *fields,
                                            const nsACString &aOriginalMsgURI,
@@ -2689,21 +2650,6 @@ nsMsgComposeAndSend::InitCompositionFields(nsMsgCompFields *fields,
   else
   {
     mCompFields->SetCharacterSet(fields->GetCharacterSet());
-  }
-
-  pStr = fields->GetMessageId();
-  if (pStr)
-  {
-    mCompFields->SetMessageId((char *) pStr);
-    /* Don't bother checking for out of memory; if it fails, then we'll just
-       let the server generate the message-id, and suffer with the
-       possibility of duplicate messages.*/
-  }
-
-  pStr = fields->GetNewspostUrl();
-  if (pStr && *pStr)
-  {
-    mCompFields->SetNewspostUrl((char *)pStr);
   }
 
   // Now, we will look for a URI defined as the default FCC pref. If this is set,
@@ -2742,7 +2688,7 @@ nsMsgComposeAndSend::InitCompositionFields(nsMsgCompFields *fields,
         if (folder)
         {
           useDefaultFCC = false;
-          SetMimeHeader(nsMsgCompFields::MSG_FCC_HEADER_ID, fieldsFCC);
+          mCompFields->SetFcc(mime_fix_header(fieldsFCC));
         }
       }
     }
@@ -2836,20 +2782,9 @@ nsMsgComposeAndSend::InitCompositionFields(nsMsgCompFields *fields,
     }
   }
 
-  mCompFields->SetNewspostUrl((char *) fields->GetNewspostUrl());
-
-  /* strip whitespace from and duplicate header fields. */
-  SetMimeHeader(nsMsgCompFields::MSG_FROM_HEADER_ID, fields->GetFrom());
-  SetMimeHeader(nsMsgCompFields::MSG_REPLY_TO_HEADER_ID, fields->GetReplyTo());
-  SetMimeHeader(nsMsgCompFields::MSG_TO_HEADER_ID, fields->GetTo());
-  SetMimeHeader(nsMsgCompFields::MSG_CC_HEADER_ID, fields->GetCc());
-  SetMimeHeader(nsMsgCompFields::MSG_BCC_HEADER_ID, fields->GetBcc());
-  SetMimeHeader(nsMsgCompFields::MSG_NEWSGROUPS_HEADER_ID, fields->GetNewsgroups());
-  SetMimeHeader(nsMsgCompFields::MSG_FOLLOWUP_TO_HEADER_ID, fields->GetFollowupTo());
-  SetMimeHeader(nsMsgCompFields::MSG_ORGANIZATION_HEADER_ID, fields->GetOrganization());
-  SetMimeHeader(nsMsgCompFields::MSG_SUBJECT_HEADER_ID, fields->GetSubject());
-  SetMimeHeader(nsMsgCompFields::MSG_REFERENCES_HEADER_ID, fields->GetReferences());
-  SetMimeHeader(nsMsgCompFields::MSG_X_TEMPLATE_HEADER_ID, fields->GetTemplateName());
+  // Copy the main bodies of headers over.
+  rv = mCompFields->AddAllHeaders(fields);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsISimpleEnumerator> srcAttachments;
   fields->GetAttachments(getter_AddRefs(srcAttachments));
