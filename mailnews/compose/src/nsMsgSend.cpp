@@ -2852,8 +2852,7 @@ nsMsgComposeAndSend::InitCompositionFields(nsMsgCompFields *fields,
                     mCompFields->GetBcc(), mCompFields->GetFcc(),
                     mCompFields->GetNewsgroups(), mCompFields->GetFollowupTo(),
                     mCompFields->GetSubject(), mCompFields->GetReferences(),
-                    mCompFields->GetOrganization(),
-                    mCompFields->GetOtherRandomHeaders());
+                    mCompFields->GetOrganization(), "");
   }
   return NS_OK;
 }
@@ -2872,9 +2871,6 @@ nsMsgComposeAndSend::AddDefaultCustomHeaders() {
     int32_t start = 0;
     int32_t end = 0;
     int32_t len = 0;
-    // preserve any custom headers that have been added through the UI
-    nsAutoCString newHeaderVal(mCompFields->GetOtherRandomHeaders());
-
     while (end != -1) {
       end = headersList.FindChar(',', start);
       if (end == -1) {
@@ -2890,26 +2886,14 @@ nsMsgComposeAndSend::AddDefaultCustomHeaders() {
       nsCString headerVal;
       rv = mUserIdentity->GetCharAttribute(headerName.get(), headerVal);
       if (NS_SUCCEEDED(rv)) {
-        int32_t colonIdx = headerVal.FindChar(':') + 1;
-        if (colonIdx != 0) { // check that the header is *most likely* valid.
-          char * convHeader =
-            nsMsgI18NEncodeMimePartIIStr(headerVal.get() + colonIdx,
-                                         false,
-                                         mCompFields->GetCharacterSet(),
-                                         colonIdx,
-                                         true);
-          if (convHeader) {
-            newHeaderVal.Append(Substring(headerVal, 0, colonIdx));
-            newHeaderVal.Append(convHeader);
-            // we must terminate the header with CRLF here
-            // as nsMsgCompUtils.cpp just calls PUSH_STRING
-            newHeaderVal.Append("\r\n");
-            PR_Free(convHeader);
-          }
+        int32_t colonIdx = headerVal.FindChar(':');
+        if (colonIdx > 0) { // check that the header is *most likely* valid.
+          nsCString name(Substring(headerVal, 0, colonIdx));
+          mCompFields->SetRawHeader(name.get(),
+            Substring(headerVal, colonIdx + 1), nullptr);
         }
       }
     }
-    mCompFields->SetOtherRandomHeaders(newHeaderVal.get());
   }
   return rv;
 }
@@ -2920,13 +2904,13 @@ nsresult
 nsMsgComposeAndSend::AddMailFollowupToHeader() {
   nsresult rv;
 
-  // Get OtherRandomHeaders...
-  nsDependentCString customHeaders(mCompFields->GetOtherRandomHeaders());
-  // ...and look for MFT-Header.  Stop here if MFT is already set.
-  NS_NAMED_LITERAL_CSTRING(mftHeaderLabel, "Mail-Followup-To: ");
-  if (StringBeginsWith(customHeaders, mftHeaderLabel) ||
-      customHeaders.Find("\r\nMail-Followup-To: ") != -1)
+  // If there's already a Mail-Followup-To header, don't need to do anything.
+  nsAutoCString mftHeader;
+  mCompFields->GetRawHeader(HEADER_MAIL_FOLLOWUP_TO, mftHeader);
+  if (!mftHeader.IsEmpty())
+  {
     return NS_OK;
+  }
 
   // Get list of subscribed mailing lists
   nsAutoCString mailing_lists;
@@ -2970,17 +2954,8 @@ nsMsgComposeAndSend::AddMailFollowupToHeader() {
     return NS_OK;
 
   // Set Mail-Followup-To
-  char * mimeHeader = nsMsgI18NEncodeMimePartIIStr(recipients.get(), true,
-      mCompFields->GetCharacterSet(), mftHeaderLabel.Length(), true);
-  if (!mimeHeader)
-    return NS_ERROR_FAILURE;
-
-  customHeaders.Append(mftHeaderLabel);
-  customHeaders.Append(mimeHeader);
-  customHeaders.AppendLiteral("\r\n");
-  mCompFields->SetOtherRandomHeaders(customHeaders.get());
-  PR_Free(mimeHeader);
-  return NS_OK;
+  return mCompFields->SetRawHeader(HEADER_MAIL_FOLLOWUP_TO, recipients,
+    mCompFields->GetCharacterSet());
 }
 
 // Add Mail-Reply-To header
@@ -2989,14 +2964,10 @@ nsresult
 nsMsgComposeAndSend::AddMailReplyToHeader() {
   nsresult rv;
 
-  // Get OtherRandomHeaders...
-  nsDependentCString customHeaders(mCompFields->GetOtherRandomHeaders());
-  // ...and look for MRT-Header.  Stop here if MRT is already set.
-  NS_NAMED_LITERAL_CSTRING(mrtHeaderLabel, "Mail-Reply-To: ");
-  nsAutoCString headers_match = nsAutoCString("\r\n");
-  headers_match.Append(mrtHeaderLabel);
-  if ((StringHead(customHeaders, mrtHeaderLabel.Length()) == mrtHeaderLabel) ||
-      (customHeaders.Find(headers_match) != -1))
+  // If there's already a Mail-Reply-To header, don't need to do anything.
+  nsAutoCString mrtHeader;
+  mCompFields->GetRawHeader(HEADER_MAIL_REPLY_TO, mrtHeader);
+  if (!mrtHeader.IsEmpty())
     return NS_OK;
 
   // Get list of reply-to mangling mailing lists
@@ -3055,27 +3026,16 @@ nsMsgComposeAndSend::AddMailReplyToHeader() {
     mailReplyTo = mCompFields->GetFrom();
   else
     mailReplyTo = replyTo;
-  char * mimeHeader = nsMsgI18NEncodeMimePartIIStr(mailReplyTo.get(), true,
-    mCompFields->GetCharacterSet(), mrtHeaderLabel.Length(), true);
-  if (!mimeHeader)
-    return NS_ERROR_FAILURE;
 
-  customHeaders.Append(mrtHeaderLabel);
-  customHeaders.Append(mimeHeader);
-  customHeaders.AppendLiteral("\r\n");
-  mCompFields->SetOtherRandomHeaders(customHeaders.get());
-  PR_Free(mimeHeader);
+  mCompFields->SetRawHeader(HEADER_MAIL_REPLY_TO, mailReplyTo,
+    mCompFields->GetCharacterSet());
   return NS_OK;
 }
 
 nsresult
 nsMsgComposeAndSend::AddXForwardedMessageIdHeader() {
-  nsAutoCString otherHeaders;
-  otherHeaders.Append(nsDependentCString(mCompFields->GetOtherRandomHeaders()));
-  otherHeaders.Append(NS_LITERAL_CSTRING("X-Forwarded-Message-Id: "));
-  otherHeaders.Append(nsDependentCString(mCompFields->GetReferences()));
-  otherHeaders.Append(NS_LITERAL_CSTRING("\r\n"));
-  return mCompFields->SetOtherRandomHeaders(otherHeaders.get());
+  return mCompFields->SetRawHeader("X-Forwarded-Message-Id",
+    nsDependentCString(mCompFields->GetReferences()), nullptr);
 }
 
 nsresult
