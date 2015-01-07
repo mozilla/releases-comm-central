@@ -57,7 +57,7 @@
     if (ceParams) {
       var href = ceParams.href;
       if (isKeyCommand) {
-        openNewTabWith(href, event.target.ownerDocument, event.altKey);
+        openNewTabWith(href, event.target, event.altKey);
         event.stopPropagation();
       }
       else {
@@ -88,11 +88,11 @@
     return true;
   }
 
-  function openNewTabOrWindow(event, href, doc)
+  function openNewTabOrWindow(event, href, node)
   {
     // should we open it in a new tab?
     if (Services.prefs.getBoolPref("browser.tabs.opentabfor.middleclick")) {
-      openNewTabWith(href, doc, null, event);
+      openNewTabWith(href, node, null, event);
       event.stopPropagation();
       return true;
     }
@@ -100,9 +100,9 @@
     // should we open it in a new window?
     if (Services.prefs.getBoolPref("middlemouse.openNewWindow")) {
       if (gPrivate)
-        openNewPrivateWith(href, doc);
+        openNewPrivateWith(href, node);
       else
-        openNewWindowWith(href, doc);
+        openNewWindowWith(href, node);
       event.stopPropagation();
       return true;
     }
@@ -116,17 +116,17 @@
     // Checking to make sure we are allowed to open this URL
     // (call to urlSecurityCheck) is now done within openNew... functions
 
-    var doc = linkNode.ownerDocument;
     switch (event.button) {
       case 0:                                                         // if left button clicked
         if (event.metaKey || event.ctrlKey) {                         // and meta or ctrl are down
-          if (openNewTabOrWindow(event, href, doc))
+          if (openNewTabOrWindow(event, href, linkNode))
             return true;
         }
         var saveModifier = GetBoolPref("ui.key.saveLink.shift", true);
         saveModifier = saveModifier ? event.shiftKey : event.altKey;
 
         if (saveModifier) {                                           // if saveModifier is down
+          var doc = linkNode.ownerDocument;
           saveURL(href, gatherTextUnder(linkNode), "SaveLinkTitle",
                   false, true, doc.documentURIObject, doc);
           return true;
@@ -135,7 +135,7 @@
           return true;                                                // do nothing
         return false;
       case 1:                                                         // if middle button clicked
-        if (openNewTabOrWindow(event, href, doc))
+        if (openNewTabOrWindow(event, href, linkNode))
           return true;
         break;
     }

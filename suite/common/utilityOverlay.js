@@ -979,10 +979,10 @@ function openAsExternal(aURL)
  *
  * @param aURL
  *        The URL to open (as a string).
- * @param aDocument
- *        The document from which the URL came, or null. This is used to set
+ * @param aNode
+ *        The node from which the URL came, or null. This is used to set
  *        the referrer header and to do a security check of whether the
- *        document is allowed to reference the URL. If null, there will be no
+ *        node is allowed to reference the URL. If null, there will be no
  *        referrer header and no security check.
  * @param aPostData
  *        Form POST data, or null.
@@ -996,26 +996,26 @@ function openAsExternal(aURL)
  *        services (e.g., Google's I Feel Lucky) for interpretation. This
  *        parameter may be undefined in which case it is treated as false.
  * @param [optional] aReferrer
- *        If aDocument is null, then this will be used as the referrer.
+ *        If aNode is null, then this will be used as the referrer.
  *        There will be no security check.
  */
-function openNewPrivateWith(aURL, aDoc, aPostData, aAllowThirdPartyFixup,
+function openNewPrivateWith(aURL, aNode, aPostData, aAllowThirdPartyFixup,
                             aReferrer)
 {
-  return openNewTabWindowOrExistingWith(kNewPrivate, aURL, aDoc, false,
+  return openNewTabWindowOrExistingWith(kNewPrivate, aURL, aNode, false,
                                         aPostData, aAllowThirdPartyFixup,
                                         aReferrer);
 }
 
-function openNewWindowWith(aURL, aDoc, aPostData, aAllowThirdPartyFixup,
+function openNewWindowWith(aURL, aNode, aPostData, aAllowThirdPartyFixup,
                            aReferrer)
 {
-  return openNewTabWindowOrExistingWith(kNewWindow, aURL, aDoc, false,
+  return openNewTabWindowOrExistingWith(kNewWindow, aURL, aNode, false,
                                         aPostData, aAllowThirdPartyFixup,
                                         aReferrer);
 }
 
-function openNewTabWith(aURL, aDoc, aPostData, aEvent,
+function openNewTabWith(aURL, aNode, aPostData, aEvent,
                         aAllowThirdPartyFixup, aReferrer)
 {
   var loadInBackground = Services.prefs.getBoolPref("browser.tabs.loadInBackground");
@@ -1032,22 +1032,27 @@ function openNewTabWith(aURL, aDoc, aPostData, aEvent,
   {
     loadInBackground = !loadInBackground;
   }
-  return openNewTabWindowOrExistingWith(kNewTab, aURL, aDoc, loadInBackground,
+  return openNewTabWindowOrExistingWith(kNewTab, aURL, aNode, loadInBackground,
                                         aPostData, aAllowThirdPartyFixup,
                                         aReferrer);
 }
 
-function openNewTabWindowOrExistingWith(aType, aURL, aDoc, aLoadInBackground,
+function openNewTabWindowOrExistingWith(aType, aURL, aNode, aLoadInBackground,
                                         aPostData, aAllowThirdPartyFixup,
                                         aReferrer)
 {
   // Make sure we are allowed to open this url
-  if (aDoc)
-    urlSecurityCheck(aURL, aDoc.nodePrincipal,
+  if (aNode)
+    urlSecurityCheck(aURL, aNode.nodePrincipal,
                      Components.interfaces.nsIScriptSecurityManager.STANDARD);
 
   // get referrer, if as external should be null
-  var referrerURI = aDoc ? aDoc.documentURIObject : aReferrer;
+  var referrerURI = aReferrer;
+  if (aNode instanceof Document)
+    referrerURI = aNode.documentURIObject;
+  else if (aNode instanceof Element &&
+           !/(?:^|\s)noreferrer(?:\s|$)/i.test(aNode.getAttribute("rel")))
+    referrerURI = aNode.ownerDocument.documentURIObject;
 
   var browserWin;
   // if we're not opening a new window, try and find existing window
@@ -1092,7 +1097,8 @@ function openNewTabWindowOrExistingWith(aType, aURL, aDoc, aLoadInBackground,
               charset: originCharset,
               postData: aPostData,
               inBackground: aLoadInBackground,
-              allowThirdPartyFixup: aAllowThirdPartyFixup
+              allowThirdPartyFixup: aAllowThirdPartyFixup,
+              relatedToCurrent: !!aNode
             });
   if (!aLoadInBackground)
     browserWin.content.focus();
