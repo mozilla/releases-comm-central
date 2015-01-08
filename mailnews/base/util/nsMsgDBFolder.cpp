@@ -751,14 +751,6 @@ nsresult nsMsgDBFolder::GetSummaryFile(nsIFile** aSummaryFile)
   return msgStore->GetSummaryFile(this, aSummaryFile);
 }
 
-NS_IMETHODIMP nsMsgDBFolder::GetOfflineStoreInputStream(nsIInputStream **stream)
-{
-  nsCOMPtr <nsIFile> localStore;
-  nsresult rv = GetFilePath(getter_AddRefs(localStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return NS_NewLocalFileInputStream(stream, localStore);
-}
-
 bool nsMsgDBFolder::VerifyOfflineMessage(nsIMsgDBHdr *msgHdr, nsIInputStream *fileStream)
 {
   nsCOMPtr <nsISeekableStream> seekableStream = do_QueryInterface(fileStream);
@@ -1791,13 +1783,6 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage()
     }
     else
       m_offlineHeader->SetLineCount(m_numOfflineMsgLines);
-#ifdef _DEBUG
-    nsCOMPtr<nsIInputStream> inputStream;
-    GetOfflineStoreInputStream(getter_AddRefs(inputStream));
-    if (inputStream)
-      NS_ASSERTION(VerifyOfflineMessage(m_offlineHeader, inputStream),
-                   "offline message doesn't start with From ");
-#endif
   }
   if (msgStore)
     msgStore->FinishNewMessage(m_tempMessageStream, m_offlineHeader);

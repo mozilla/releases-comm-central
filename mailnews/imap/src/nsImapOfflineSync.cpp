@@ -402,7 +402,9 @@ nsImapOfflineSync::ProcessAppendMsgOperation(nsIMsgOfflineImapOperation *current
         if (NS_SUCCEEDED(rv) && destFolder)
         {
           nsCOMPtr <nsIInputStream> offlineStoreInputStream;
-          rv = destFolder->GetOfflineStoreInputStream(getter_AddRefs(offlineStoreInputStream));
+          bool reusable;
+          rv = destFolder->GetMsgInputStream(
+                 mailHdr, &reusable, getter_AddRefs(offlineStoreInputStream));
           if (NS_SUCCEEDED(rv) && offlineStoreInputStream)
           {
             nsCOMPtr<nsISeekableStream> seekStream = do_QueryInterface(offlineStoreInputStream);
@@ -415,7 +417,7 @@ nsImapOfflineSync::ProcessAppendMsgOperation(nsIMsgOfflineImapOperation *current
                 // now, copy the dest folder offline store msg to the temp file
                 int32_t inputBufferSize = 10240;
                 char *inputBuffer = nullptr;
-                
+
                 while (!inputBuffer && (inputBufferSize >= 512))
                 {
                   inputBuffer = (char *) PR_Malloc(inputBufferSize);

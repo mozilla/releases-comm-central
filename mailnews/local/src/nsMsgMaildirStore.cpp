@@ -977,21 +977,56 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
   NS_ENSURE_ARG_POINTER(aDstFolder);
   NS_ENSURE_ARG_POINTER(aCopyDone);
   NS_ENSURE_ARG_POINTER(aUndoAction);
-  uint32_t messageCount;
-  nsresult rv = aHdrArray->GetLength(&messageCount);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMsgFolder> srcFolder;
-  nsCOMPtr<nsIFile> destFolderPath;
-  nsCOMPtr<nsIMsgDatabase> destDB;
-  nsCOMPtr<nsIMsgDatabase> srcDB;
-  aDstFolder->GetMsgDatabase(getter_AddRefs(destDB));
-  aDstFolder->GetFilePath(getter_AddRefs(destFolderPath));
-  destFolderPath->Append(NS_LITERAL_STRING("cur"));
 
+  *aCopyDone = false;
+
+  nsCOMPtr<nsIMsgFolder> srcFolder;
+  nsresult rv;
   nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(aHdrArray, 0, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = msgHdr->GetFolder(getter_AddRefs(srcFolder));
   NS_ENSURE_SUCCESS(rv, rv);
+
+  // Both source and destination folders must use maildir type store.
+  nsCOMPtr<nsIMsgPluggableStore> srcStore;
+  nsAutoCString srcType;
+  srcFolder->GetMsgStore(getter_AddRefs(srcStore));
+  if (srcStore)
+    srcStore->GetStoreType(srcType);
+  nsCOMPtr<nsIMsgPluggableStore> dstStore;
+  nsAutoCString dstType;
+  aDstFolder->GetMsgStore(getter_AddRefs(dstStore));
+  if (dstStore)
+    dstStore->GetStoreType(dstType);
+  if (!srcType.EqualsLiteral("maildir") || !dstType.EqualsLiteral("maildir"))
+    return NS_OK;
+
+  // Both source and destination must be local folders. In theory we could
+  //   do efficient copies of the offline store of IMAP, but this is not
+  //   supported yet. For that, we need to deal with both correct handling
+  //   of deletes from the src server, and msgKey = UIDL in the dst folder.
+  nsCOMPtr<nsIMsgLocalMailFolder> destLocalFolder(do_QueryInterface(aDstFolder));
+  if (!destLocalFolder)
+    return NS_OK;
+  nsCOMPtr<nsIMsgLocalMailFolder> srcLocalFolder(do_QueryInterface(srcFolder));
+  if (!srcLocalFolder)
+    return NS_OK;
+
+  // We should be able to use a file move for an efficient copy.
+
+  nsCOMPtr<nsIFile> destFolderPath;
+  nsCOMPtr<nsIMsgDatabase> destDB;
+  aDstFolder->GetMsgDatabase(getter_AddRefs(destDB));
+  rv = aDstFolder->GetFilePath(getter_AddRefs(destFolderPath));
+  NS_ENSURE_SUCCESS(rv, rv);
+  destFolderPath->Append(NS_LITERAL_STRING("cur"));
+
+  nsCOMPtr<nsIFile> srcFolderPath;
+  rv = srcFolder->GetFilePath(getter_AddRefs(srcFolderPath));
+  NS_ENSURE_SUCCESS(rv, rv);
+  srcFolderPath->Append(NS_LITERAL_STRING("cur"));
+
+  nsCOMPtr<nsIMsgDatabase> srcDB;
   srcFolder->GetMsgDatabase(getter_AddRefs(srcDB));
   nsRefPtr<nsLocalMoveCopyMsgTxn> msgTxn = new nsLocalMoveCopyMsgTxn;
   NS_ENSURE_TRUE(msgTxn, NS_ERROR_OUT_OF_MEMORY);
@@ -1003,25 +1038,29 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
       msgTxn->SetTransactionType(nsIMessenger::eCopyMsg);
   }
 
+  if (aListener)
+    aListener->OnStartCopy();
+
   nsCOMPtr<nsIMutableArray> dstHdrs(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
+  uint32_t messageCount;
+  rv = aHdrArray->GetLength(&messageCount);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   for (uint32_t i = 0; i < messageCount; i++)
   {
-    nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(aHdrArray, i, &rv);
+    nsCOMPtr<nsIMsgDBHdr> srcHdr = do_QueryElementAt(aHdrArray, i, &rv);
     if (NS_FAILED(rv))
+    {
+      PR_LOG(MailDirLog, PR_LOG_ALWAYS,
+             ("srcHdr null\n"));
       continue;
+    }
     nsMsgKey srcKey;
-    msgHdr->GetMessageKey(&srcKey);
+    srcHdr->GetMessageKey(&srcKey);
     msgTxn->AddSrcKey(srcKey);
-    msgHdr->GetFolder(getter_AddRefs(srcFolder));
-    nsCOMPtr<nsIFile> path;
-    rv = srcFolder->GetFilePath(getter_AddRefs(path));
-    NS_ENSURE_SUCCESS(rv, rv);
     nsAutoCString fileName;
     msgHdr->GetStringProperty("storeToken", getter_Copies(fileName));
-    if (fileName.IsEmpty())
-      return NS_ERROR_FAILURE;
-
     if (fileName.IsEmpty())
     {
       PR_LOG(MailDirLog, PR_LOG_ALWAYS,
@@ -1029,8 +1068,10 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
       return NS_ERROR_FAILURE;
     }
 
-    path->Append(NS_LITERAL_STRING("cur"));
-    path->AppendNative(fileName);
+    nsCOMPtr<nsIFile> srcFile;
+    rv = srcFolderPath->Clone(getter_AddRefs(srcFile));
+    NS_ENSURE_SUCCESS(rv, rv);
+    srcFile->AppendNative(fileName);
 
     nsCOMPtr<nsIFile> destFile;
     destFolderPath->Clone(getter_AddRefs(destFile));
@@ -1044,26 +1085,33 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
       destFile->GetNativeLeafName(fileName);
     }
     if (aIsMove)
-      path->MoveToNative(destFolderPath, fileName);
+      rv = srcFile->MoveToNative(destFolderPath, fileName);
     else
-      path->CopyToNative(destFolderPath, fileName);
+      rv = srcFile->CopyToNative(destFolderPath, fileName);
+    NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIMsgDBHdr> destHdr;
     if (destDB)
     {
-      rv = destDB->CopyHdrFromExistingHdr(nsMsgKey_None, msgHdr, true, getter_AddRefs(destHdr));
+      rv = destDB->CopyHdrFromExistingHdr(nsMsgKey_None, srcHdr, true, getter_AddRefs(destHdr));
       NS_ENSURE_SUCCESS(rv, rv);
       destHdr->SetStringProperty("storeToken", fileName.get());
       dstHdrs->AppendElement(destHdr, false);
       nsMsgKey dstKey;
       destHdr->GetMessageKey(&dstKey);
       msgTxn->AddDstKey(dstKey);
+      if (aListener)
+        aListener->SetMessageKey(dstKey);
     }
   }
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
   if (notifier)
     notifier->NotifyMsgsMoveCopyCompleted(aIsMove, aHdrArray, aDstFolder,
                                           dstHdrs);
+
+  // For now, we only support local dest folders, and for those we are done and
+  // can delete the messages. Perhaps this should be moved into the folder
+  // when we try to support other folder types.
   if (aIsMove)
   {
     for (uint32_t i = 0; i < messageCount; ++i)
@@ -1072,11 +1120,11 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
       rv = srcDB->DeleteHeader(msgDBHdr, nullptr, false, true);
     }
   }
+
   *aCopyDone = true;
   nsCOMPtr<nsISupports> srcSupports(do_QueryInterface(srcFolder));
-  nsCOMPtr<nsIMsgLocalMailFolder> localDest(do_QueryInterface(aDstFolder));
-  if (localDest)
-    localDest->OnCopyCompleted(srcSupports, true);
+  if (destLocalFolder)
+    destLocalFolder->OnCopyCompleted(srcSupports, true);
   if (aListener)
     aListener->OnStopCopy(NS_OK);
   msgTxn.forget(aUndoAction);
@@ -1356,6 +1404,12 @@ NS_IMETHODIMP nsMsgMaildirStore::ChangeKeywords(nsIArray *aHdrArray,
     // or schedule some sort of background task to do this.
   }
   lineBuffer = nullptr;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMaildirStore::GetStoreType(nsACString& aType)
+{
+  aType.AssignLiteral("maildir");
   return NS_OK;
 }
 

@@ -6982,12 +6982,21 @@ nsresult nsImapMailFolder::CopyOfflineMsgBody(nsIMsgFolder *srcFolder,
   {
     // Some offline stores may contain a bug where the storeToken is set but
     // the messageOffset is zero. Detect cases like this, and use storeToken
-    // to set the missing messageOffset. Note that offline stores at least for
-    // now do not fully support pluggable stores, so this assumes mbox.
-    nsCString storeToken;
-    origHdr->GetStringProperty("storeToken", getter_Copies(storeToken));
-    if (!storeToken.IsEmpty())
-      messageOffset = ParseUint64Str(storeToken.get());
+    // to set the missing messageOffset. Note this assumes mbox.
+    nsCOMPtr<nsIMsgPluggableStore> offlineStore;
+    (void) GetMsgStore(getter_AddRefs(offlineStore));
+    if (offlineStore)
+    {
+      nsAutoCString type;
+      offlineStore->GetStoreType(type);
+      if (type.EqualsLiteral("mbox"))
+      {
+        nsCString storeToken;
+        origHdr->GetStringProperty("storeToken", getter_Copies(storeToken));
+        if (!storeToken.IsEmpty())
+          messageOffset = ParseUint64Str(storeToken.get());
+      }
+    }
   }
   origHdr->GetOfflineMessageSize(&messageSize);
   if (!messageSize)
@@ -7134,7 +7143,8 @@ nsresult nsImapMailFolder::CopyMessagesOffline(nsIMsgFolder* srcFolder,
       // on the UI thread but we should check if the offline store is locked.
       bool isLocked;
       GetLocked(&isLocked);
-      nsCOMPtr <nsIInputStream> inputStream;
+      nsCOMPtr<nsIInputStream> inputStream;
+      bool reusable = false;
       nsCOMPtr<nsIOutputStream> outputStream;
       nsTArray<nsMsgKey> addedKeys;
       nsTArray<nsMsgKey> srcKeyArray;
@@ -7144,7 +7154,6 @@ nsresult nsImapMailFolder::CopyMessagesOffline(nsIMsgFolder* srcFolder,
       nsOfflineImapOperationType deleteOpType = nsIMsgOfflineImapOperation::kDeletedMsg;
       if (!deleteToTrash)
         deleteOpType = nsIMsgOfflineImapOperation::kMsgMarkedDeleted;
-      srcFolder->GetOfflineStoreInputStream(getter_AddRefs(inputStream));
       nsCString messageIds;
       rv = BuildIdsAndKeyArray(messages, messageIds, srcKeyArray);
       // put fake message in destination db, delete source if move
@@ -7253,6 +7262,9 @@ nsresult nsImapMailFolder::CopyMessagesOffline(nsIMsgFolder* srcFolder,
             destMsgHdrs->AppendElement(newMailHdr, false);
             srcFolder->HasMsgOffline(originalKey, &hasMsgOffline);
             newMailHdr->SetUint32Property("pseudoHdr", 1);
+            if (!reusable)
+              (void)srcFolder->GetMsgInputStream(newMailHdr, &reusable,
+                                                 getter_AddRefs(inputStream));
 
             if (inputStream && hasMsgOffline && !isLocked)
             {
@@ -8286,7 +8298,6 @@ nsImapMailFolder::CopyFileToOfflineStore(nsIFile *srcFile, nsMsgKey msgKey)
 
   if (msgKey == nsMsgKey_None)
     mDatabase->GetNextFakeOfflineMsgKey(&msgKey);
-  nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID));
 
   nsCOMPtr<nsIMsgOfflineImapOperation> op;
   rv = mDatabase->GetOfflineOpForKey(msgKey, true, getter_AddRefs(op));
@@ -8322,7 +8333,6 @@ nsImapMailFolder::CopyFileToOfflineStore(nsIFile *srcFile, nsMsgKey msgKey)
 
       // Tell the parser to use the offset that will be in the dest stream, not the
       //  temp file.
-      nsCString storeToken;
       uint64_t offset;
       fakeHdr->GetMessageOffset(&offset);
       // This will fail for > 4GB mbox folders, see bug 793865
@@ -8360,16 +8370,24 @@ nsImapMailFolder::CopyFileToOfflineStore(nsIFile *srcFile, nsMsgKey msgKey)
 
         msgParser->FinishHeader();
         uint32_t resultFlags;
-        fakeHdr->SetMessageOffset(curOfflineStorePos);
-        char storeToken[100];
-        PR_snprintf(storeToken, sizeof(storeToken), "%lld", curOfflineStorePos);
-        fakeHdr->SetStringProperty("storeToken", storeToken);
         fakeHdr->OrFlags(nsMsgMessageFlags::Offline | nsMsgMessageFlags::Read, &resultFlags);
         fakeHdr->SetOfflineMessageSize(fileSize);
         fakeHdr->SetUint32Property("pseudoHdr", 1);
         mDatabase->AddNewHdrToDB(fakeHdr, true /* notify */);
         SetFlag(nsMsgFolderFlags::OfflineEvents);
+
+        // Call FinishNewMessage before setting pending attributes, as in
+        //   maildir it copies from tmp to cur and may change the storeToken
+        //   to get a unique filename.
+        nsCOMPtr<nsIMsgPluggableStore> msgStore;
+        GetMsgStore(getter_AddRefs(msgStore));
+        if (msgStore)
+          msgStore->FinishNewMessage(offlineStore, fakeHdr);
+
+        nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
+        NS_ENSURE_SUCCESS(rv, rv);
         messages->AppendElement(fakeHdr, false);
+
         SetPendingAttributes(messages, false);
         // Gloda needs this notification to index the fake message.
         nsCOMPtr<nsIMsgFolderNotificationService>
@@ -8379,10 +8397,6 @@ nsImapMailFolder::CopyFileToOfflineStore(nsIFile *srcFile, nsMsgKey msgKey)
         inputStream->Close();
         inputStream = nullptr;
         delete inputStreamBuffer;
-        nsCOMPtr<nsIMsgPluggableStore> msgStore;
-        GetMsgStore(getter_AddRefs(msgStore));
-        if (msgStore)
-          msgStore->FinishNewMessage(offlineStore, fakeHdr);
       }
       offlineStore->Close();
     }

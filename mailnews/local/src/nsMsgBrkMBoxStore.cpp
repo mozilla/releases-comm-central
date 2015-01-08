@@ -1005,6 +1005,12 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(nsIArray *aHdrArray,
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgBrkMBoxStore::GetStoreType(nsACString& aType)
+{
+  aType.AssignLiteral("mbox");
+  return NS_OK;
+}
+
 // Iterates over the files in the "path" directory, and adds subfolders to
 // parent for each mailbox file found.
 nsresult

@@ -56,8 +56,8 @@ nsMsgThread::~nsMsgThread()
     bool found = m_mdbDB->m_threads.RemoveElement(this);
     NS_ASSERTION(found, "removing thread not in threads array");
   }
-  else
-    NS_ERROR("null db in thread");
+  else // This can happen if db is forced closed
+    NS_WARNING("null db in thread");
   Clear();
 }
 

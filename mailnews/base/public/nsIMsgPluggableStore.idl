@@ -17,7 +17,7 @@ interface nsIUrlListener;
 interface nsIMsgDatabase;
 interface nsITransaction;
 
-[scriptable, uuid(eccf0046-99db-4b08-8e14-29fa254f59c6)]
+[scriptable, uuid(2a861ed8-b4c2-4443-8c20-5e8a217a6310)]
 
 /**
  * Pluggable message store interface. Each incoming server can have a different
@@ -321,4 +321,12 @@ interface nsIMsgPluggableStore : nsISupports {
    */
   void changeKeywords(in nsIArray aHdrArray, in ACString aKeywords,
                       in boolean aAdd);
+
+  /**
+   * Identifies a specific type of store. Please use this only for legacy
+   * bug fixes, and not as a method to change behavior!
+   *
+   * Typical values: "mbox", "maildir"
+   */
+  readonly attribute ACString storeType;
 };
