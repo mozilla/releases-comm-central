@@ -2004,6 +2004,11 @@ NS_IMETHODIMP nsMsgLocalMailFolder::BeginCopy(nsIMsgDBHdr *message)
     NS_ENSURE_SUCCESS(rv, rv);
   }
   nsCOMPtr <nsISeekableStream> seekableStream = do_QueryInterface(mCopyState->m_fileStream, &rv);
+
+  //  XXX ToDo: When copying multiple messages from a non-offline-enabled IMAP
+  //  server, this fails. (The copy succeeds because the file stream is created
+  //  subsequently in StartMessage) We should not be warning on an expected error.
+  //  Perhaps there are unexpected consequences of returning early?
   NS_ENSURE_SUCCESS(rv, rv);
   seekableStream->Seek(nsISeekableStream::NS_SEEK_END, 0);
 
@@ -2197,18 +2202,19 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded)
 
   if (!aCopySucceeded || mCopyState->m_writeFailed)
   {
-    if (mCopyState->m_curDstKey != nsMsgKey_None)
-      mCopyState->m_msgStore->DiscardNewMessage(mCopyState->m_fileStream,
-                                                mCopyState->m_newHdr);
-
     if (mCopyState->m_fileStream)
+    {
+      if (mCopyState->m_curDstKey != nsMsgKey_None)
+        mCopyState->m_msgStore->DiscardNewMessage(mCopyState->m_fileStream,
+                                                  mCopyState->m_newHdr);
       mCopyState->m_fileStream->Close();
+    }
 
     if (!mCopyState->m_isMove)
     {
-      // passing true because the messages that have been successfully 
-      // copied have their corresponding hdrs in place. The message that has 
-      // failed has been truncated so the msf file and berkeley mailbox 
+      // passing true because the messages that have been successfully
+      // copied have their corresponding hdrs in place. The message that has
+      // failed has been truncated so the msf file and berkeley mailbox
       // are in sync.
       (void) OnCopyCompleted(mCopyState->m_srcSupport, true);
       // enable the dest folder
@@ -2221,7 +2227,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded)
 
   nsRefPtr<nsLocalMoveCopyMsgTxn> localUndoTxn = mCopyState->m_undoMsgTxn;
 
-  nsCOMPtr <nsISeekableStream> seekableStream;
   NS_ASSERTION(mCopyState->m_leftOver == 0, "whoops, something wrong with previous copy");
   mCopyState->m_leftOver = 0; // reset to 0.
   // need to reset this in case we're move/copying multiple msgs.
@@ -2229,9 +2234,19 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded)
 
   // flush the copied message. We need a close at the end to get the
   // file size and time updated correctly.
-  if (mCopyState->m_fileStream)
+  //
+  // These filestream closes are handled inconsistently in the code. In some
+  // cases, this is done in EndMessage, while in others it is done here in
+  // EndCopy. When we do the close in EndMessage, we'll set
+  // mCopyState->m_fileStream to null since it is no longer needed, and detect
+  // here the null stream so we know that we don't have to close it here.
+  //
+  // Similarly, m_parseMsgState->GetNewMsgHdr() returns a null hdr if the hdr
+  // has already been processed by EndMessage so it is not doubly added here.
+
+  nsCOMPtr <nsISeekableStream> seekableStream(do_QueryInterface(mCopyState->m_fileStream));
+  if (seekableStream)
   {
-    seekableStream = do_QueryInterface(mCopyState->m_fileStream);
     if (mCopyState->m_dummyEnvelopeNeeded)
     {
       uint32_t bytesWritten;
@@ -2240,30 +2255,14 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded)
       if (mCopyState->m_parseMsgState)
         mCopyState->m_parseMsgState->ParseAFolderLine(CRLF, MSG_LINEBREAK_LEN);
     }
-    // flush the copied message. We need a close at the end to get the
-    // file size and time updated correctly.
-    seekableStream = do_QueryInterface(mCopyState->m_fileStream);
-    if (mCopyState->m_dummyEnvelopeNeeded)
-    {
-      uint32_t bytesWritten;
-      seekableStream->Seek(nsISeekableStream::NS_SEEK_END, 0);
-      mCopyState->m_fileStream->Write(MSG_LINEBREAK, MSG_LINEBREAK_LEN,
-                                      &bytesWritten);
-      if (mCopyState->m_parseMsgState)
-        mCopyState->m_parseMsgState->ParseAFolderLine(CRLF, MSG_LINEBREAK_LEN);
-    }
-    // flush the copied message. We need a close at the end to get the
-    // file size and time updated correctly.
     rv = mCopyState->m_msgStore->FinishNewMessage(mCopyState->m_fileStream,
-                                             mCopyState->m_newHdr);
+                                                  mCopyState->m_newHdr);
     if (NS_SUCCEEDED(rv) && mCopyState->m_newHdr)
       mCopyState->m_newHdr->GetMessageKey(&mCopyState->m_curDstKey);
     if (multipleCopiesFinished)
       mCopyState->m_fileStream->Close();
     else
       mCopyState->m_fileStream->Flush();
-    mCopyState->m_msgStore->FinishNewMessage(mCopyState->m_fileStream,
-                                             mCopyState->m_newHdr);
   }
   //Copy the header to the new database
   if (mCopyState->m_message)
@@ -2579,6 +2578,11 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key)
   mCopyState->m_fileStream->Write(MSG_LINEBREAK, MSG_LINEBREAK_LEN, &bytesWritten);
   if (mCopyState->m_parseMsgState)
     mCopyState->m_parseMsgState->ParseAFolderLine(CRLF, MSG_LINEBREAK_LEN);
+
+  rv = mCopyState->m_msgStore->FinishNewMessage(mCopyState->m_fileStream,
+                                                mCopyState->m_newHdr);
+  mCopyState->m_fileStream->Close();
+  mCopyState->m_fileStream = nullptr; // all done with the file stream
 
   // CopyFileMessage() and CopyMessages() from servers other than mailbox
   if (mCopyState->m_parseMsgState)
