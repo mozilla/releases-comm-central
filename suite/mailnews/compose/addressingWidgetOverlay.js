@@ -188,8 +188,6 @@ function CompFields2Recipients(msgCompFields)
     if(msgBCC)
       awSetInputAndPopupFromArray(msgCompFields.splitRecipients(msgBCC, false, {}),
                                   "addr_bcc", newListBoxNode, templateNode);
-    if(msgRandomHeaders)
-      awSetInputAndPopup(msgRandomHeaders, "addr_other", newListBoxNode, templateNode);
     if(msgNewsgroups)
     {
       awSetInputAndPopup(msgNewsgroups, "addr_newsgroups", newListBoxNode, templateNode);
