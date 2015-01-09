@@ -641,7 +641,7 @@ treechildren::-moz-tree-image(subscribed-news) {
   background-color: -moz-field;
 }
 
-.aw-menulist [disabled="true"] {
+.aw-menulist[disabled="true"] {
   list-style-image: url("chrome://global/skin/arrow/arrow-dn-dis.gif");
 }
 
