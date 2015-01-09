@@ -790,7 +790,7 @@ function ircAccount(aProtocol, aImAccount) {
   this.pendingIsOnQueue = [];
   this.whoisInformation = new NormalizedMap(this.normalizeNick.bind(this));
   this._caps = new Set();
-
+  this._commandBuffers = new Map();
   this._roomInfoCallbacks = new Set();
 }
 ircAccount.prototype = {
@@ -993,6 +993,86 @@ ircAccount.prototype = {
     delete this._pendingList;
   },
 
+  // The last time a buffered command was sent.
+  _lastCommandSendTime: 0,
+  // A map from command names to the parameter buffer for that command.
+  // This buffer is a map from first parameter to the corresponding (optional)
+  // second parameter, to ensure automatic deduplication.
+  _commandBuffers: new Map(),
+  _handleCommandBuffer: function(aCommand) {
+    let buffer = this._commandBuffers.get(aCommand);
+    if (!buffer.size)
+      return;
+    // This short delay should usually not affect commands triggered by
+    // user action, but helps gather commands together which are sent
+    // by the prpl on connection (e.g. WHOIS sent in response to incoming
+    // WATCH results).
+    const kInterval = 1000;
+    let delay = kInterval - (Date.now() - this._lastCommandSendTime);
+    if (delay > 0) {
+      setTimeout(() => this._handleCommandBuffer(aCommand), delay);
+      return;
+    }
+    this._lastCommandSendTime = Date.now();
+
+    let getParams = (aItems) => {
+      // Taking the JOIN use case as an example, aItems is an array
+      // of [channel, key] pairs. To send the command, we have to
+      // group all the channels and keys together, i.e. grab the
+      // columns of this matrix, and build the two parameters of
+      // the command from that.
+      let channels = aItems.map(([channel, key]) => channel);
+      let keys = aItems.map(([channel, key]) => key);
+      let params = [channels.join(",")];
+      if (keys.some(key => !!key))
+        params.push(keys.join(","));
+      return params;
+    };
+    let tooMany = (aItems) => {
+      let params = getParams(aItems);
+      let length = this.countBytes(this.buildMessage(aCommand, params)) + 2;
+      return this.maxMessageLength < length;
+    };
+    let send = (aItems) => {
+      let params = getParams(aItems);
+      // Send the command, but don't log the keys.
+      this.sendMessage(aCommand, params, aCommand + " " + params[0] +
+                       (params.length > 1 ? " <keys not logged>" : ""));
+    };
+
+    let items = [];
+    for (let item of buffer) {
+      items.push(item);
+      if (tooMany(items)) {
+        items.pop();
+        send(items);
+        items = [item];
+      }
+    }
+    send(items);
+    buffer.clear();
+  },
+  // For commands which allow an arbitrary number of parameters, we use a
+  // buffer to send as few commands as possible, by gathering the parameters.
+  // On servers which impose command penalties (e.g. inspircd) this helps
+  // avoid triggering fakelags by minimizing the command penalty.
+  // aParam is the first and aKey the optional second parameter of a command
+  // with the syntax <param> *("," <param>) [<key> *("," <key>)]
+  // While this code is mostly abstracted, it is currently assumed the second
+  // parameter is only used for JOIN.
+  sendBufferedCommand: function(aCommand, aParam, aKey = "") {
+    if (!this._commandBuffers.has(aCommand))
+      this._commandBuffers.set(aCommand, new Map());
+    let buffer = this._commandBuffers.get(aCommand);
+    // If the buffer is empty, schedule sending the command, otherwise
+    // we just need to add the parameter to the buffer.
+    // We use executeSoon so as to not delay the sending of these
+    // commands when it is not necessary.
+    if (!buffer.size)
+      executeSoon(() => this._handleCommandBuffer(aCommand));
+    buffer.set(aParam, aKey);
+  },
+
   // The whois information: nicks are used as keys and refer to a map of field
   // to value.
   whoisInformation: null,
@@ -1003,7 +1083,7 @@ ircAccount.prototype = {
       return;
 
     this.removeBuddyInfo(aBuddyName);
-    this.sendMessage("WHOIS", aBuddyName);
+    this.sendBufferedCommand("WHOIS", aBuddyName);
   },
   notifyWhois: function(aNick) {
     Services.obs.notifyObservers(this.getBuddyInfo(aNick), "user-info-received",
@@ -1511,14 +1591,8 @@ ircAccount.prototype = {
       }
     }
 
-    let params = [channel];
     let key = aComponents.getValue("password");
-    if (key)
-      params.push(key);
-
-    // Send the join command, but don't log the channel key.
-    this.sendMessage("JOIN", params,
-                     "JOIN " + channel + (key ? " <key not logged>" : ""));
+    this.sendBufferedCommand("JOIN", channel, key);
 
     // Open conversation early for better responsiveness.
     let conv = this.getConversation(channel);
@@ -1693,6 +1767,9 @@ ircAccount.prototype = {
 
   _reportDisconnecting: function(aErrorReason, aErrorMessage) {
     this.reportDisconnecting(aErrorReason, aErrorMessage);
+
+    // Cancel any pending buffered commands.
+    this._commandBuffers.clear();
 
     // Mark all contacts on the account as having an unknown status.
     this.buddies.forEach(function(aBuddy)
