@@ -31,3 +31,5 @@
 <!-- LOCALIZATION NOTE (ignoreDocColors.label): This is option two, and it appends to 'someProvColors' above.  -->
 <!ENTITY useMyColors.label                 "Use my chosen colors, ignoring the colors and background image specified">
 <!ENTITY useMyColors.accesskey             "m">
+<!ENTITY automaticColors.label             "Only ignore the page colors when using a High Contrast theme">
+<!ENTITY automaticColors.accesskey         "O">
