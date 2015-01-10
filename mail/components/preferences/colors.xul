@@ -83,7 +83,6 @@
 #else
     <vbox>
 #endif
-    <vbox>
       <label accesskey="&overridePageColors.accesskey;"
              control="useDocumentColors">&overridePageColors.label;</label>
       <menulist id="useDocumentColors" preference="browser.display.document_color_use"
