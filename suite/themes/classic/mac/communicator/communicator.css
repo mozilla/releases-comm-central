@@ -20,7 +20,7 @@
 
 #titlebar {
   height: 22px;
-  -moz-binding: url("chrome://global/content/bindings/general.xml#windowdragbox");
+  -moz-window-dragging: drag;
 }
 
 /* ::::: toolbar-primary ::::: */

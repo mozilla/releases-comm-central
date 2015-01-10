@@ -8,18 +8,6 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-toolbar:not([nowindowdrag="true"]):not([type="menubar"]) {
-  -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#grippytoolbar-drag");
-}
-
-.toolbar-primary:not([nowindowdrag="true"]):not([type="menubar"]) {
-  -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#grippytoolbar-primary-drag");
-}
-
-toolbox[xpfe="false"] > toolbar:not([nowindowdrag="true"]) {
-  -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-drag");
-}
-
 toolbargrippy {
   display: none;
   -moz-box-orient: vertical;
