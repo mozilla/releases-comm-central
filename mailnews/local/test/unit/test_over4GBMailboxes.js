@@ -67,7 +67,7 @@ var FListener = {
   OnItemRemoved: function act_remove(aRDFParentItem, aItem) {},
   OnItemPropertyChanged: function(aItem, aProperty, aOld, aNew) {},
   OnItemIntPropertyChanged: function(aItem, aProperty, aOld, aNew) {
-    if (aItem.prettyName == "Inbox") {
+    if (aItem === gInbox) {
       dump("Property change on folder Inbox:" + aProperty + "=" + aOld + "->" + aNew + "\n");
       if (aProperty == "FolderSize")
         this.folderSize.push(aNew);
@@ -85,6 +85,8 @@ var FListener = {
  * Grow local inbox folder to the wanted size using direct appending
  * to the underlying file. The folder is filled with copies of a dummy
  * message with kSparseBlockSize bytes in size.
+ * The file must be reparsed (getDatabaseWithReparse) after it is artificially
+ * enlarged here.
  * The file is marked as sparse in the filesystem so that it does not
  * really take 4GiB and working with it is faster.
  *
@@ -104,9 +106,10 @@ function growInbox(aWantedSize) {
   let plugStore = gInbox.msgStore;
   // Grow local inbox to our wished size that is below the max limit.
   do {
-    let nextOffset = gInboxFile.fileSize +
-      Math.min(kSparseBlockSize + mboxString.length,
-               aWantedSize - gInboxFile.fileSize) - 2;
+    let sparseStart = gInboxFile.fileSize + mboxString.length;
+    let nextOffset = Math.min(sparseStart + kSparseBlockSize, aWantedSize - 2);
+    if ((aWantedSize - (nextOffset + 2)) < (mboxString.length + 2))
+      nextOffset = aWantedSize - 2;
 
     // Get stream to write a new message.
     let reusable = new Object;
@@ -115,18 +118,24 @@ function growInbox(aWantedSize) {
                                 .QueryInterface(Ci.nsISeekableStream);
     // Write message header.
     outputStream.write(mboxString, mboxString.length);
+    outputStream.close();
 
     // "Add" a new (empty) sparse block at the end of the file.
-    mailTestUtils.mark_file_region_sparse(gInboxFile,
-      gInboxFile.fileSize + mboxString.length,
-      nextOffset - (gInboxFile.fileSize + mboxString.length));
+    if (nextOffset - sparseStart == kSparseBlockSize)
+      mailTestUtils.mark_file_region_sparse(gInboxFile, sparseStart, kSparseBlockSize);
+
+    // Append message terminator.
+    outputStream = Cc["@mozilla.org/network/file-output-stream;1"]
+                     .createInstance(Ci.nsIFileOutputStream)
+                     .QueryInterface(Ci.nsISeekableStream);
+    // Open in write-only mode, no truncate.
+    outputStream.init(gInboxFile, 0x02, parseInt("0600", 8), 0);
 
     // Skip to the wished end of the message.
     outputStream.seek(0, nextOffset);
     // Add a CR+LF to terminate the message.
     outputStream.write("\r\n", 2);
     outputStream.close();
-    plugStore.finishNewMessage(outputStream, newMsgHdr);
     msgsAdded++;
 
     // Refresh 'gInboxFile'.
@@ -135,6 +144,7 @@ function growInbox(aWantedSize) {
   }
   while (localSize < aWantedSize);
 
+  do_check_eq(gInboxFile.fileSize, aWantedSize);
   do_print("Local inbox size = " + localSize + "bytes = " +
            mailTestUtils.toMiBString(localSize));
   do_check_eq(localSize, aWantedSize);
@@ -219,8 +229,8 @@ function downloadUnder4GiB()
  */
 function downloadOver4GiB()
 {
-  let localInboxSize = gInboxFile.fileSize;
-  do_check_true(localInboxSize > kNearLimit);
+  let localInboxSize = gInboxFile.clone().fileSize;
+  do_check_true(localInboxSize >= kNearLimit);
   do_check_true(localInboxSize < kSizeLimit);
   do_check_eq(gInbox.sizeOnDisk, localInboxSize);
   // The big file is between 1 and 2 MiB. Append it 16 times to attempt to cross the 4GiB limit.

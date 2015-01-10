@@ -318,7 +318,10 @@ function nsMailReader(server, handler, transport, debug, logTransaction) {
   this._lines = [];
   this._handler = handler;
   this._transport = transport;
-  var output = transport.openOutputStream(Ci.nsITransport.OPEN_BLOCKING, 0, 0);
+  // We don't seem to properly handle large streams when the buffer gets
+  // exhausted, which causes issues trying to test large messages. So just
+  // allow a really big buffer.
+  var output = transport.openOutputStream(Ci.nsITransport.OPEN_BLOCKING, 1024, 4096);
   this._output = output;
   if (logTransaction)
     this.transaction = { us : [], them : [] };
