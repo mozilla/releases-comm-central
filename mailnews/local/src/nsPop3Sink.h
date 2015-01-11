@@ -63,7 +63,6 @@ protected:
     nsRefPtr<nsParseNewMailState> m_newMailParser;
     nsCOMPtr <nsIOutputStream> m_outFileStream; // the file we write to, which may be temporary
     nsCOMPtr<nsIMsgPluggableStore> m_msgStore;
-    nsCOMPtr <nsIOutputStream> m_inboxOutputStream; // the actual mailbox
     bool m_uidlDownload;
     bool m_buildMessageUri;
     bool m_downloadingToTempFile;
