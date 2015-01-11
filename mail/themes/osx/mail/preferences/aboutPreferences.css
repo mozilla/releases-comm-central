@@ -9,6 +9,11 @@ prefpane .groupbox-title {
   margin-bottom: 0;
 }
 
+caption {
+  border-bottom-width: 0;
+  padding-bottom: 2px !important;
+}
+
 spinbuttons {
   -moz-appearance: none;
 }
@@ -34,6 +39,14 @@ spinbuttons {
 
 radio[pane] {
   text-shadow: none;
+}
+
+radio[pane][selected] {
+  border-image: none;
+}
+
+radio[pane]:active:hover > .paneButtonIcon {
+  filter: none;
 }
 
 .actionsMenu > .menulist-label-box > .menulist-icon {
