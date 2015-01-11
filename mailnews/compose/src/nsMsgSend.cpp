@@ -2345,9 +2345,7 @@ nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
   // For now, manually add the remote attachments in the comp field!
   mRemoteAttachmentCount += mCompFieldRemoteAttachments;
 
-  int32_t tCount = 0;
   mRemoteAttachmentCount += numAttachments;
-  tCount += numAttachments;
 
   m_attachment_count = mPreloadedAttachmentCount + mRemoteAttachmentCount;
 

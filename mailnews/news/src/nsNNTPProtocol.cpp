@@ -2538,7 +2538,6 @@ nsresult nsNNTPProtocol::BeginNewsgroups()
 nsresult nsNNTPProtocol::ProcessNewsgroups(nsIInputStream * inputStream, uint32_t length)
 {
   char *line, *lineToFree, *s, *s1=NULL, *s2=NULL, *flag=NULL;
-  int32_t oldest, youngest;
   uint32_t status = 0;
   nsresult rv = NS_OK;
 
@@ -2615,8 +2614,6 @@ nsresult nsNNTPProtocol::ProcessNewsgroups(nsIInputStream * inputStream, uint32_
       }
     }
   }
-  youngest = s2 ? atol(s1) : 0;
-  oldest   = s1 ? atol(s2) : 0;
 
   mBytesReceived += status;
   mBytesReceivedSinceLastStatusUpdate += status;
@@ -2792,12 +2789,6 @@ nsresult nsNNTPProtocol::ReadNewsList(nsIInputStream * inputStream, uint32_t len
   /* find whitespace separator if it exits */
   for(i=0; line[i] != '\0' && !NET_IS_SPACE(line[i]); i++)
     ;  /* null body */
-
-  char *description;
-  if(line[i] == '\0')
-    description = &line[i];
-  else
-    description = &line[i+1];
 
   line[i] = 0; /* terminate group name */
 

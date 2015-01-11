@@ -102,7 +102,6 @@ nsresult
 ProcessBodyAsAttachment(MimeObject *obj, nsMsgAttachmentData **data)
 {
   nsMsgAttachmentData   *tmp;
-  int32_t               n;
   char                  *disp = nullptr;
   char                  *charset = nullptr;
 
@@ -113,7 +112,6 @@ ProcessBodyAsAttachment(MimeObject *obj, nsMsgAttachmentData **data)
   // to do this.
   MimeObject    *child = obj;
 
-  n = 1;
   *data = new nsMsgAttachmentData[2];
   if (!*data)
     return NS_ERROR_OUT_OF_MEMORY;
@@ -279,7 +277,6 @@ GenerateAttachmentData(MimeObject *object, const char *aMessageURL, MimeDisplayO
 {
   nsCString imappart;
   nsCString part;
-  bool isIMAPPart;
   bool isExternalAttachment = false;
 
   /* be sure the object has not be marked as Not to be an attachment */
@@ -296,12 +293,10 @@ GenerateAttachmentData(MimeObject *object, const char *aMessageURL, MimeDisplayO
   char *urlSpec = nullptr;
   if (!imappart.IsEmpty())
   {
-    isIMAPPart = true;
     urlSpec = mime_set_url_imap_part(aMessageURL, imappart.get(), part.get());
   }
   else
   {
-    isIMAPPart = false;
     char *no_part_url = nullptr;
     if (options->part_to_load && options->format_out == nsMimeOutput::nsMimeMessageBodyDisplay)
       no_part_url = mime_get_base_url(aMessageURL);

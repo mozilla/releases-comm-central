@@ -415,12 +415,10 @@ static void *MimeCMS_init(MimeObject *obj,
                           void *output_closure)
 {
   MimeCMSdata *data;
-  MimeDisplayOptions *opts;
   nsresult rv;
 
   if (!(obj && obj->options && output_fn)) return 0;
 
-  opts = obj->options;
   data = new MimeCMSdata;
   if (!data) return 0;
 

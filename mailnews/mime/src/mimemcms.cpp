@@ -402,9 +402,7 @@ static char *
 MimeMultCMS_generate (void *crypto_closure)
 {
   MimeMultCMSdata *data = (MimeMultCMSdata *) crypto_closure;
-  bool encrypted_p;
   if (!data) return 0;
-  encrypted_p = data->parent_is_encrypted_p;
   nsCOMPtr<nsIX509Cert> signerCert;
 
   int aRelativeNestLevel = MIMEGetRelativeCryptoNestLevel(data->self);

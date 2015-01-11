@@ -217,10 +217,9 @@ morkPortTableCursor::SetTableKind(morkEnv* ev, mork_kind inTableKind)
   if ( !space && mPortTableCursor_RowScope == 0 )
   {
     this->SetRowScope(ev, 0);
-    space = mPortTableCursor_RowSpace;
   }
   this->init_space_tables_map(ev);
-  
+
   return ev->Good();
 }
 

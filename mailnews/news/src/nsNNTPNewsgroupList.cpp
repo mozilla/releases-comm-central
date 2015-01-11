@@ -501,8 +501,6 @@ nsNNTPNewsgroupList::ParseLine(char *line, uint32_t * message_number)
 {
   nsresult rv = NS_OK;
   nsCOMPtr <nsIMsgDBHdr> newMsgHdr;
-  char *dateStr = nullptr;  // keep track of date str, for filters
-  char *authorStr = nullptr; // keep track of author str, for filters
 
   if (!line || !message_number) {
     return NS_ERROR_NULL_POINTER;
@@ -551,7 +549,6 @@ nsNNTPNewsgroupList::ParseLine(char *line, uint32_t * message_number)
 
   GET_TOKEN (); /* author */
   if (line) {
-    authorStr = line;
     rv = newMsgHdr->SetAuthor(line);
     if (NS_FAILED(rv))
       return rv;
@@ -559,7 +556,6 @@ nsNNTPNewsgroupList::ParseLine(char *line, uint32_t * message_number)
 
   GET_TOKEN ();
   if (line) {
-    dateStr = line;
     PRTime date;
     PRStatus status = PR_ParseTimeString (line, false, &date);
     if (PR_SUCCESS == status) {

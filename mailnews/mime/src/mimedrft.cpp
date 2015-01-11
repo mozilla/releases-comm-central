@@ -1648,7 +1648,6 @@ mime_decompose_file_init_fn ( void *stream_closure, MimeHeaders *headers )
   int nAttachments = 0;
   //char *hdr_value = NULL;
   char *parm_value = NULL;
-  bool needURL = false;
   bool creatingMsgBody = true;
   bool bodyPart = false;
 
@@ -1698,7 +1697,6 @@ mime_decompose_file_init_fn ( void *stream_closure, MimeHeaders *headers )
   else
   {
     /* always allocate one more extra; don't ask me why */
-    needURL = true;
     newAttachment = new nsMsgAttachedFile;
     if (!newAttachment)
       return MIME_OUT_OF_MEMORY;
