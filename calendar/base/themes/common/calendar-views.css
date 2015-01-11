@@ -18,7 +18,7 @@ window {
     --viewHeaderSelectedBackground: #fffcd8;
     --viewDayBoxSelectedBackground: #fffcd8;
     --viewDayBoxOffSelectedBackground: #fffcd8;
-    --viewDayBoxOffSelectedBackground: #fffcd8;
+    --viewDayBoxOtherSelectedBackground: #fffcd8;
     --viewMonthCurrentBackground: #f7f7f7;
     --viewMonthOtherBackground: #f3f3f3;
     --viewMonthDayBoxSelectedColor: -moz-dialogtext;
@@ -53,7 +53,7 @@ window[systemcolors] {
     --viewHeaderSelectedBackground: ButtonFace;
     --viewDayBoxSelectedBackground: -moz-Field;
     --viewDayBoxOffSelectedBackground: rgba(0, 0, 0, .1);
-    --viewDayBoxOffSelectedBackground: ThreeDLightShadow;
+    --viewDayBoxOtherSelectedBackground: ThreeDLightShadow;
     --viewMonthCurrentBackground: -moz-Field;
     --viewMonthOtherBackground: ButtonFace;
     --viewMonthDayBoxSelectedColor: HighlightText;
@@ -627,7 +627,7 @@ calendar-month-day-box {
 }
 
 .calendar-month-day-box-other-month[selected="true"] {
-    background-color: var(--dayBoxOtherSelectedBackground);
+    background-color: var(--viewDayBoxOtherSelectedBackground);
 }
 
 .calendar-month-day-box-date-label[selected="true"] {
