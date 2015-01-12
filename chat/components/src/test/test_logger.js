@@ -196,7 +196,7 @@ let test_queueFileOperation = function* () {
   yield p2.then(() => do_throw(), () => {});
   ok(!gFP.has("path2"));
 
-  onPromiseComplete = (aPromise, aHandler) => {
+  let onPromiseComplete = (aPromise, aHandler) => {
     return aPromise.then(aHandler, aHandler);
   }
   let test_queueOrder = (aOperation) => {
@@ -256,8 +256,10 @@ let test_getLogFilePathForTwitterConv = function* () {
 let test_appendToFile = function* () {
   const kStringToWrite = "Hello, world!";
   let path = OS.Path.join(OS.Constants.Path.profileDir, "testFile.txt");
-  let encodedString = (new TextEncoder()).encode(kStringToWrite);
+  let encoder = new TextEncoder();
+  let encodedString = encoder.encode(kStringToWrite);
   gLogger.appendToFile(path, encodedString);
+  encodedString = encoder.encode(kStringToWrite);
   gLogger.appendToFile(path, encodedString);
   let text = (new TextDecoder()).decode(
     yield gLogger.queueFileOperation(path, () => OS.File.read(path)));
