@@ -237,7 +237,7 @@ var searchTests =
       testAttribute: OtherHeader,
       op: Contains,
       customHeader: "withspace",
-      count: 1},
+      count: 1}
 ];
 
 // load and update a message in the imap fake server
@@ -256,10 +256,10 @@ function loadImapMessage()
 var testObject;
 function testSearch()
 {
-  let test;
-  while (test = searchTests.shift())
+  while (searchTests.length)
   {
-    if (test && test.dbHeader)
+    let test = searchTests.shift();
+    if (test.dbHeader)
     {
       //  test of a custom db header
       dump("testing dbHeader " + test.dbHeader + "\n");
@@ -267,7 +267,7 @@ function testSearch()
                                      .getProperty(test.dbHeader);
       do_check_eq(customValue, test.testString);
     }
-    else if (test)
+    else
     {
       dump("testing for string '" + test.testString + "'\n");
       testObject = new TestSearch(IMAPPump.inbox,
