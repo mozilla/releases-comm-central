@@ -236,7 +236,6 @@ nsPgpMimeProxy::nsPgpMimeProxy()
     mLoadFlags(LOAD_NORMAL),
     mCancelStatus(NS_OK)
 {
-  NS_INIT_ISUPPORTS();
 }
 
 nsPgpMimeProxy::~nsPgpMimeProxy()
