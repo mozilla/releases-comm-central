@@ -33,9 +33,9 @@
       <preference id="browser.underline_anchors"
                   name="browser.underline_anchors"
                   type="bool"/>
-      <preference id="browser.display.use_document_colors"
-                  name="browser.display.use_document_colors"
-                  type="bool"/>
+      <preference id="browser.display.document_color_use"
+                  name="browser.display.document_color_use"
+                  type="int"/>
     </preferences>
     <hbox>
       <groupbox flex="1" id="pageColours">
@@ -116,12 +116,14 @@
     <groupbox>
       <caption label="&someProvColors;"/>
 
-      <radiogroup id="browserUseDocumentColors"
-                  preference="browser.display.use_document_colors">
-        <radio value="true" label="&alwaysUseDocumentColors.label;"
+      <radiogroup id="browserDocumentColorUse"
+                  preference="browser.display.document_color_use">
+        <radio value="1" label="&alwaysUseDocumentColors.label;"
                accesskey="&alwaysUseDocumentColors.accesskey;"/>
-        <radio value="false" label="&useMyColors.label;"
+        <radio value="2" label="&useMyColors.label;"
                accesskey="&useMyColors.accesskey;"/>
+        <radio value="0" label="&automaticColors.label;"
+               accesskey="&automaticColors.accesskey;"/>
       </radiogroup>
 
     </groupbox>

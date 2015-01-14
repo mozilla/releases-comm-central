@@ -229,7 +229,7 @@ nsThunderbirdProfileMigrator::PrefTransform gTransforms[] = {
   MAKESAMETYPEPREFTRANSFORM("browser.display.background_color",        String),
   MAKESAMETYPEPREFTRANSFORM("browser.display.foreground_color",        String),
   MAKESAMETYPEPREFTRANSFORM("browser.display.use_system_colors",       Bool),
-  MAKESAMETYPEPREFTRANSFORM("browser.display.use_document_colors",     Bool),
+  MAKESAMETYPEPREFTRANSFORM("browser.display.document_color_use",      Int),
   MAKESAMETYPEPREFTRANSFORM("browser.display.use_document_fonts",      Bool),
   MAKESAMETYPEPREFTRANSFORM("browser.enable_automatic_image_resizing", Bool),
   MAKESAMETYPEPREFTRANSFORM("browser.tabs.autoHide",                   Bool),

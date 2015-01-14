@@ -935,6 +935,15 @@ SuiteGlue.prototype = {
       }
     } catch (ex) {}
 
+    // Migration of document-color preference which changed from boolean to
+    // tri-state; 0=always but not accessibility themes, 1=always, 2=never
+    try {
+      if (!Services.prefs.getBoolPref("browser.display.use_document_colors")) {
+        Services.prefs.setIntPref("browser.display.document_color_use", 2);
+        Services.prefs.clearUserPref("browser.display.use_document_colors");
+      }
+    } catch (ex) {}
+
     // Migration of download-manager preferences
     if (Services.prefs.getPrefType("browser.download.dir") == Services.prefs.PREF_INVALID ||
         Services.prefs.getPrefType("browser.download.lastDir") != Services.prefs.PREF_INVALID)
