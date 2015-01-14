@@ -522,6 +522,8 @@
 @RESPATH@/components/UnifiedComplete.js
 @RESPATH@/components/nsAsyncShutdown.manifest
 @RESPATH@/components/nsAsyncShutdown.js
+@RESPATH@/components/PresentationDeviceInfoManager.manifest
+@RESPATH@/components/PresentationDeviceInfoManager.js
 @RESPATH@/components/nsIDService.js
 @RESPATH@/components/nsInputListAutoComplete.js
 @RESPATH@/components/nsLivemarkService.js
@@ -603,6 +605,7 @@
 @RESPATH@/components/dom_offline.xpt
 @RESPATH@/components/dom_permissionsettings.xpt
 @RESPATH@/components/dom_power.xpt
+@RESPATH@/components/dom_presentation.xpt
 @RESPATH@/components/dom_quota.xpt
 @RESPATH@/components/dom_range.xpt
 @RESPATH@/components/dom_security.xpt

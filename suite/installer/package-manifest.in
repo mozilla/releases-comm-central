@@ -209,6 +209,7 @@
 @RESPATH@/components/dom_offline.xpt
 @RESPATH@/components/dom_permissionsettings.xpt
 @RESPATH@/components/dom_power.xpt
+@RESPATH@/components/dom_presentation.xpt
 @RESPATH@/components/dom_quota.xpt
 @RESPATH@/components/dom_range.xpt
 @RESPATH@/components/dom_settings.xpt
@@ -421,6 +422,8 @@
 @RESPATH@/components/nsHandlerService.manifest
 @RESPATH@/components/nsHelperAppDlg.js
 @RESPATH@/components/nsHelperAppDlg.manifest
+@RESPATH@/components/PresentationDeviceInfoManager.manifest
+@RESPATH@/components/PresentationDeviceInfoManager.js
 @RESPATH@/components/nsIDService.js
 @RESPATH@/components/nsINIProcessor.js
 @RESPATH@/components/nsINIProcessor.manifest
