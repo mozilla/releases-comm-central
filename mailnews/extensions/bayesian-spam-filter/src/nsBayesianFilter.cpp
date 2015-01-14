@@ -201,7 +201,7 @@ char* TokenHash::copyWord(const char* word, uint32_t len)
 
 inline BaseToken* TokenHash::get(const char* word)
 {
-    PLDHashEntryHdr* entry = PL_DHashTableOperate(&mTokenTable, word, PL_DHASH_LOOKUP);
+    PLDHashEntryHdr* entry = PL_DHashTableLookup(&mTokenTable, word);
     if (PL_DHASH_ENTRY_IS_BUSY(entry))
         return static_cast<BaseToken*>(entry);
     return NULL;
@@ -217,7 +217,7 @@ BaseToken* TokenHash::add(const char* word)
 
     PR_LOG(BayesianFilterLogModule, PR_LOG_DEBUG, ("add word: %s", word));
 
-    PLDHashEntryHdr* entry = PL_DHashTableOperate(&mTokenTable, word, PL_DHASH_ADD);
+    PLDHashEntryHdr* entry = PL_DHashTableAdd(&mTokenTable, word);
     BaseToken* token = static_cast<BaseToken*>(entry);
     if (token) {
         if (token->mWord == NULL) {
