@@ -720,8 +720,6 @@ nsresult nsMsgDatabase::GetHdrFromUseCache(nsMsgKey key, nsIMsgDBHdr* *result)
 
 PLDHashTableOps nsMsgDatabase::gMsgDBHashTableOps =
 {
-  PL_DHashAllocTable,
-  PL_DHashFreeTable,
   HashKey,
   MatchEntry,
   MoveEntry,
@@ -4101,8 +4099,6 @@ bool nsMsgDatabase::UseCorrectThreading()
 
 PLDHashTableOps nsMsgDatabase::gRefHashTableOps =
 {
-  PL_DHashAllocTable,
-  PL_DHashFreeTable,
   PL_DHashStringKey,
   PL_DHashMatchStringKey,
   PL_DHashMoveEntryStub,

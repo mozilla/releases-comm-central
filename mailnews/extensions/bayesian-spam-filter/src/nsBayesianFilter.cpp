@@ -142,8 +142,6 @@ static PLDHashOperator VisitEntry(PLDHashTable* table, PLDHashEntryHdr* entry,
 
 // member variables
 static const PLDHashTableOps gTokenTableOps = {
-    PL_DHashAllocTable,
-    PL_DHashFreeTable,
     PL_DHashStringKey,
     PL_DHashMatchStringKey,
     PL_DHashMoveEntryStub,
