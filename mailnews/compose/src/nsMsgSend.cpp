@@ -2349,14 +2349,12 @@ nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
 
   m_attachment_count = mPreloadedAttachmentCount + mRemoteAttachmentCount;
 
+  uint32_t i; // counter for location in attachment array...
   // Now create the array of attachment handlers...
-  for (int i = 0; i < m_attachment_count; i++) {
+  for (i = 0; i < m_attachment_count; i++) {
     nsRefPtr<nsMsgAttachmentHandler> handler = new nsMsgAttachmentHandler;
     m_attachments.AppendElement(handler);
   }
-
-  // clear this new memory...
-  uint32_t     i;    // counter for location in attachment array...
 
   //
   // First, we need to attach the files that are defined in the comp fields...
