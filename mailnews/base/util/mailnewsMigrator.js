@@ -19,6 +19,7 @@ const Ci = Components.interfaces;
 const kServerPrefVersion = 1;
 const kSmtpPrefVersion = 1;
 const kABRemoteContentPrefVersion = 1;
+const kDefaultCharsetsPrefVersion = 1;
 
 function migrateMailnews()
 {
@@ -28,6 +29,10 @@ function migrateMailnews()
 
   try {
     MigrateABRemoteContentSettings();
+  } catch (e) { logException(e); }
+
+  try {
+    MigrateDefaultCharsets();
   } catch (e) { logException(e); }
 }
 
@@ -160,3 +165,38 @@ function MigrateABRemoteContentSettings()
                             kABRemoteContentPrefVersion);
 }
 
+/**
+ * If the default sending or viewing charset is one that is no longer available,
+ * change it back to the default.
+ */
+function MigrateDefaultCharsets()
+{
+  if (Services.prefs.prefHasUserValue("mail.default_charsets.migrated"))
+    return;
+
+  let charsetConvertManager = Components.classes['@mozilla.org/charset-converter-manager;1']
+    .getService(Components.interfaces.nsICharsetConverterManager);
+
+  let sendCharsetStr = Services.prefs.getComplexValue(
+      "mailnews.send_default_charset",
+      Components.interfaces.nsIPrefLocalizedString).data;
+
+  try {
+    charsetConvertManager.getCharsetTitle(sendCharsetStr);
+  } catch (e) {
+    Services.prefs.clearUserPref("mailnews.send_default_charset");
+  }
+
+  let viewCharsetStr = Services.prefs.getComplexValue(
+      "mailnews.view_default_charset",
+      Components.interfaces.nsIPrefLocalizedString).data;
+
+  try {
+    charsetConvertManager.getCharsetTitle(viewCharsetStr);
+  } catch (e) {
+    Services.prefs.clearUserPref("mailnews.view_default_charset");
+  }
+
+  Services.prefs.setIntPref("mail.default_charsets.migrated",
+                            kDefaultCharsetsPrefVersion);
+}

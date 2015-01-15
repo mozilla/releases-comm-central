@@ -45,6 +45,17 @@ function run_test() {
   do_check_eq(Services.perms.testPermission(uriDisallowed, "image"),
               Services.perms.UNKNOWN_ACTION);
 
+  // Set default charsets to an encoding no longer supported: VISCII.
+  let charset = Components.classes["@mozilla.org/pref-localizedstring;1"]
+                .createInstance(Components.interfaces.nsIPrefLocalizedString);
+  charset.data = "VISCII";
+  Services.prefs.setComplexValue("mailnews.send_default_charset",
+        Components.interfaces.nsIPrefLocalizedString, charset);
+  do_check_true(Services.prefs.prefHasUserValue("mailnews.send_default_charset"));
+  Services.prefs.setComplexValue("mailnews.view_default_charset",
+        Components.interfaces.nsIPrefLocalizedString, charset);
+  do_check_true(Services.prefs.prefHasUserValue("mailnews.view_default_charset"));
+
   // Now migrate the prefs.
   migrateMailnews();
 
@@ -86,6 +97,11 @@ function run_test() {
               Services.perms.ALLOW_ACTION);
   do_check_eq(Services.perms.testPermission(uriDisallowed, "image"),
               Services.perms.UNKNOWN_ACTION);
+
+  // Migration should have cleared the charset user pref values.
+  do_check_true(Services.prefs.getIntPref("mail.default_charsets.migrated") > 0);
+  do_check_false(Services.prefs.prefHasUserValue("mailnews.send_default_charset"));
+  do_check_false(Services.prefs.prefHasUserValue("mailnews.view_default_charset"));
 
   // Now migrate the prefs
   migrateMailnews();
