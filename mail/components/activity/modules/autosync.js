@@ -200,9 +200,10 @@ let autosyncModule =
 
         let syncItem = this._syncInfoPerFolder[folder.URI];
         let process = syncItem.activity;
+        let canceled = false;
         if (process instanceof Components.interfaces.nsIActivityProcess)
         {
-          let canceled = (process.state == Components.interfaces.nsIActivityProcess.STATE_CANCELED);
+          canceled = (process.state == Components.interfaces.nsIActivityProcess.STATE_CANCELED);
           process.state = Components.interfaces.nsIActivityProcess.STATE_COMPLETED;
 
           try {
