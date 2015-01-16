@@ -397,8 +397,6 @@
 @RESPATH@/components/autoconfig.xpt
 
 ; Phishing Protection
-@RESPATH@/components/phishing.manifest
-@RESPATH@/components/nsPhishingProtectionApplication.js
 @RESPATH@/components/nsUrlClassifierListManager.js
 @RESPATH@/components/nsUrlClassifierHashCompleter.js
 @RESPATH@/components/nsUrlClassifierLib.js

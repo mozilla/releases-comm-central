@@ -436,26 +436,7 @@ pref("mail.phishing.detection.enabled", true);
 pref("mail.phishing.detection.ipaddresses", true);
 pref("mail.phishing.detection.mismatched_hosts", true);
 
-pref("browser.safebrowsing.enabled", false);
-
-// Non-enhanced mode (local url lists) URL list to check for updates
-pref("browser.safebrowsing.provider.0.updateURL", "");
-pref("browser.safebrowsing.dataProvider", 0);
-
-// Does the provider name need to be localizable?
-pref("browser.safebrowsing.provider.0.name", "");
-pref("browser.safebrowsing.provider.0.lookupURL", "");
-pref("browser.safebrowsing.provider.0.keyURL", "");
-pref("browser.safebrowsing.provider.0.reportURL", "");
-
-// HTML report pages
-pref("browser.safebrowsing.provider.0.reportGenericURL", "http://{moz:locale}.phish-generic.mozilla.com/?hl={moz:locale}");
-pref("browser.safebrowsing.provider.0.reportErrorURL", "http://{moz:locale}.phish-error.mozilla.com/?hl={moz:locale}");
-pref("browser.safebrowsing.provider.0.reportPhishURL", "http://{moz:locale}.phish-report.mozilla.com/?hl={moz:locale}");
-
-// FAQ URL
-// XXX Firefox is hard-coded because we haven't got our own version yet.
-pref("browser.safebrowsing.warning.infoURL", "https://www.mozilla.org/%LOCALE%/firefox/phishing-protection/");
+pref("browser.safebrowsing.reportPhishURL", "http://%LOCALE%.phish-report.mozilla.com/?hl=%LOCALE%");
 
 // prevent status-bar spoofing even if people are foolish enough to turn on JS
 pref("dom.disable_window_status_change",          true);

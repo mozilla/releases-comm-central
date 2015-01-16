@@ -11,16 +11,13 @@ const kPhishingNotSuspicious = 0;
 const kPhishingWithIPAddress = 1;
 const kPhishingWithMismatchedHosts = 2;
 
+
 var gPhishingDetector = {
   mCheckForIPAddresses: true,
   mCheckForMismatchedHosts: true,
-  mPhishingWarden: null,
 
   shutdown: function()
   {
-    try {
-      this.mPhishingWarden.shutdown();
-    } catch (ex) {}
   },
 
   /**
@@ -31,23 +28,6 @@ var gPhishingDetector = {
   init: function()
   {
     Components.utils.import("resource:///modules/hostnameUtils.jsm", this);
-
-    try {
-      // set up the anti phishing service
-      var appContext = Components.classes["@mozilla.org/phishingprotection/application;1"]
-                         .getService().wrappedJSObject;
-
-      this.mPhishingWarden  = new appContext.PROT_PhishingWarden();
-
-      // Register tables
-      // XXX: move table names to a pref that we originally will download
-      // from the provider (need to workout protocol details)
-      this.mPhishingWarden.registerWhiteTable("goog-white-exp");
-      this.mPhishingWarden.registerBlackTable("goog-phish-sha128");
-
-      // Download/update lists if we're in non-enhanced mode
-      this.mPhishingWarden.maybeToggleUpdateChecking();
-    } catch (ex) { dump('unable to create the phishing warden: ' + ex + '\n');}
 
     this.mCheckForIPAddresses = Services.prefs.getBoolPref("mail.phishing.detection.ipaddresses");
     this.mCheckForMismatchedHosts = Services.prefs.getBoolPref("mail.phishing.detection.mismatched_hosts");
@@ -151,61 +131,29 @@ var gPhishingDetector = {
             this.misMatchedHostWithLinkText(hrefURL, aLinkText))
         }
       }
-
-      // Lookup the url against our local list. We want to do this even if the url fails our static
-      // test checks because the url might be in the white list.
-      if (this.mPhishingWarden)
-        this.mPhishingWarden.isEvilURL(gFolderDisplay.selectedMessage,
-                                       failsStaticTests, aUrl,
-                                       this.localListCallback);
-      else
-        this.localListCallback(gFolderDisplay.selectedMessage,
-                               failsStaticTests, aUrl, 2 /* not found */);
-    }
-  },
-
-  /**
-    *
-    * @param aMsgHdr the header for the loaded message when the look up was initiated.
-    * @param aFailsStaticTests true if our static tests think the url is a phishing scam
-    * @param aUrl the url we looked up in the phishing tables
-    * @param aLocalListStatus the result of the local lookup (PROT_ListWarden.IN_BLACKLIST,
-    *        PROT_ListWarden.IN_WHITELIST or PROT_ListWarden.NOT_FOUND.
-    */
-  localListCallback: function (aMsgHdr, aFailsStaticTests, aUrl, aLocalListStatus)
-  {
-    // for urls in the blacklist, notify the phishing bar.
-    // for urls in the whitelist, do nothing
-    // for all other urls, fall back to the static tests
-    if (aMsgHdr == gFolderDisplay.selectedMessage)
-    {
-      if (aLocalListStatus == 0 /* PROT_ListWarden.IN_BLACKLIST */ ||
-          (aLocalListStatus == 2 /* PROT_ListWarden.PROT_ListWarden.NOT_FOUND */ && aFailsStaticTests)) {
+      // We don't use dynamic checks anymore. The old implementation was removed
+      // in bug bug 1085382. Using the toolkit safebrowsing is bug 778611.
+      if (failsStaticTests) {
         gMessageNotificationBar.setPhishingMsg();
       }
     }
   },
 
   /**
-   * Looks up the report phishing url for the current phishing provider, appends aPhishingURL to the url,
-   * and loads it in the default browser where the user can submit the url as a phish.
+   * Opens the default browser to a page where the user can submit the given url
+   * as a phish.
    * @param aPhishingURL the url we want to report back as a phishing attack
    */
    reportPhishingURL: function(aPhishingURL)
    {
-     var appContext = Components.classes["@mozilla.org/phishingprotection/application;1"]
-                       .getService().wrappedJSObject;
-     var reportUrl = appContext.getReportPhishingURL();
-     if (reportUrl)
-     {
-       reportUrl += "&url=" + encodeURIComponent(aPhishingURL);
-       // now send the url to the default browser
+     let reportUrl = Services.urlFormatter.formatURLPref(
+       "browser.safebrowsing.reportPhishURL");
+     reportUrl += "&url=" + encodeURIComponent(aPhishingURL);
 
-       var uri = Services.io.newURI(reportUrl, null, null);
-       var protocolSvc = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                         .getService(Components.interfaces.nsIExternalProtocolService);
-       protocolSvc.loadUrl(uri);
-     }
+     let uri = Services.io.newURI(reportUrl, null, null);
+     let protocolSvc = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
+                       .getService(Components.interfaces.nsIExternalProtocolService);
+     protocolSvc.loadUrl(uri);
    },
 
   /**
