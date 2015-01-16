@@ -1592,16 +1592,18 @@ function MsgReplyToListMessage(event)
 function BatchMessageMover() {
   this._batches = {};
   this._currentKey = null;
+  this._dstFolderParent = null;
+  this._dstFolderName = null;
 }
 
 BatchMessageMover.prototype = {
 
-  archiveMessages: function BatchMessageMover_archiveMessages(aMsgHdrs) {
-    gFolderDisplay.hintMassMoveStarting();
+  archiveMessages: function (aMsgHdrs) {
 
     if (!aMsgHdrs.length)
       return;
 
+    gFolderDisplay.hintMassMoveStarting();
     for (let i = 0; i < aMsgHdrs.length; i++) {
       let msgHdr = aMsgHdrs[i];
 
@@ -1674,16 +1676,70 @@ BatchMessageMover.prototype = {
     this.processNextBatch();
   },
 
-  processNextBatch: function BatchMessageMover_processNextBatch() {
-    const Ci = Components.interfaces;
+  processNextBatch: function () {
+    // get the first defined key and value
     for (let key in this._batches) {
-      this._currentKey = key;
-      let batch = this._batches[key];
+      this._currentBatch = this._batches[key];
+      delete this._batches[key];
+      return this.filterBatch();
+    }
+    this._batches = null;
+    gFolderDisplay.hintMassMoveCompleted();
+    MailServices.mfn.removeListener(this);
+    // all done
+    return;
+  },
 
+  filterBatch: function () {
+    let batch = this._currentBatch;
+
+    let filterArray = Components.classes["@mozilla.org/array;1"]
+                                .createInstance(Components.interfaces.nsIMutableArray);
+    for (let message of batch.messages) {
+      filterArray.appendElement(message, false);
+    }
+
+    // Apply filters to this batch.
+    MailServices.filters.applyFilters(
+      Components.interfaces.nsMsgFilterType.Archive,
+      filterArray, batch.srcFolder, msgWindow, this);
+    return; // continues with onStopOperation
+  },
+
+  onStopOperation: function (aResult) {
+    if (!Components.isSuccessCode(aResult))
+    {
+      Components.utils.reportError("Archive filter failed: " + aResult);
+      // We don't want to effectively disable archiving because a filter
+      // failed, so we'll continue after reporting the error.
+    }
+    // Now do the default archive processing
+    this.continueBatch();
+  },
+
+  // continue processing of default archive operations
+  continueBatch: function () {
+      const Ci = Components.interfaces;
+      let batch = this._currentBatch;
       let srcFolder = batch.srcFolder;
       let archiveFolderURI = batch.archiveFolderURI;
       let archiveFolder = MailUtils.getFolderForURI(archiveFolderURI, false);
       let dstFolder = archiveFolder;
+
+      let moveArray = Components.classes["@mozilla.org/array;1"]
+                                .createInstance(Ci.nsIMutableArray);
+      // Don't move any items that the filter moves or deleted
+      for (let item of batch.messages) {
+        if (srcFolder.msgDatabase.ContainsKey(item.messageKey) &&
+            !(srcFolder.getProcessingFlags(item.messageKey) &
+              Components.interfaces.nsMsgProcessingFlags.FilterToMove)) {
+          moveArray.appendElement(item, false);
+        }
+      }
+
+      if (moveArray.length == 0)
+        return this.processNextBatch(); // continue processing
+
       // For folders on some servers (e.g. IMAP), we need to create the
       // sub-folders asynchronously, so we chain the urls using the listener
       // called back from createStorageIfMissing. For local,
@@ -1693,7 +1749,7 @@ BatchMessageMover.prototype = {
         archiveFolder.setFlag(Ci.nsMsgFolderFlags.Archive);
         archiveFolder.createStorageIfMissing(this);
         if (isAsync)
-          return;
+          return; // continues with OnStopRunningUrl
       }
 
       let granularity = batch.granularity;
@@ -1710,7 +1766,7 @@ BatchMessageMover.prototype = {
         if (!dstFolder.parent) {
           dstFolder.createStorageIfMissing(this);
           if (isAsync)
-            return;
+            return; // continues with OnStopRunningUrl
         }
       }
       if (granularity >= Ci.nsIMsgIdentity.perMonthArchiveFolders) {
@@ -1719,11 +1775,11 @@ BatchMessageMover.prototype = {
         if (!dstFolder.parent) {
           dstFolder.createStorageIfMissing(this);
           if (isAsync)
-            return;
+            return; // continues with OnStopRunningUrl
         }
       }
 
-      // Create the folder structure in Archives
+      // Create the folder structure in Archives.
       // For imap folders, we need to create the sub-folders asynchronously,
       // so we chain the actions using the listener called back from
       // createSubfolder. For local, createSubfolder is synchronous.
@@ -1738,51 +1794,45 @@ BatchMessageMover.prototype = {
           folderNames.unshift(folder.name);
           folder = folder.parent;
         }
-        // Determine Archive folder structure
+        // Determine Archive folder structure.
         for (let i = 0; i < folderNames.length; ++i) {
           let folderName = folderNames[i];
           if (!dstFolder.containsChildNamed(folderName)) {
-            // Create Archive sub-folder (IMAP: async)
+            // Create Archive sub-folder (IMAP: async).
             if (isAsync) {
               this._dstFolderParent = dstFolder;
               this._dstFolderName = folderName;
             }
             dstFolder.createSubfolder(folderName, msgWindow);
             if (isAsync)
-              return;
+              return; // continues with folderAdded
           }
           dstFolder = dstFolder.getChildNamed(folderName);
         }
       }
 
       if (dstFolder != srcFolder) {
-        let array = Components.classes["@mozilla.org/array;1"]
-                              .createInstance(Ci.nsIMutableArray);
-        batch.messages.forEach(function(item) {
-          array.appendElement(item, false);
-        });
         // If the source folder doesn't support deleting messages, we
         // make archive a copy, not a move.
         MailServices.copy.CopyMessages(
-          batch.srcFolder, array, dstFolder,
-          batch.srcFolder.canDeleteMessages, this, msgWindow, true
+          srcFolder, moveArray, dstFolder,
+          srcFolder.canDeleteMessages, this, msgWindow, true
         );
-        return; // only do one.
+        return; // continues with OnStopCopy
       }
-      delete this._batches[key];
-    }
-
-    gFolderDisplay.hintMassMoveCompleted();
-    MailServices.mfn.removeListener(this);
-  },
+      return this.processNextBatch(); // next batch
+    },
 
   OnStartRunningUrl: function(url) {},
   OnStopRunningUrl: function(url, exitCode) {
     // this will always be a create folder url, afaik.
     if (Components.isSuccessCode(exitCode))
-      this.processNextBatch();
-    else
+      this.continueBatch();
+    else {
+      Components.utils.reportError("Archive failed to create folder: " + exitCode);
       this._batches = null;
+      this.processNextBatch(); // for cleanup and exit
+    }
   },
 
   // also implements nsIMsgCopyServiceListener, but we only care
@@ -1792,15 +1842,13 @@ BatchMessageMover.prototype = {
   SetMessageKey: function(aKey) {},
   GetMessageId: function() {},
   OnStopCopy: function(aStatus) {
-    if (Components.isSuccessCode(aStatus)) {
-      // remove batch we just finished and continue
-      delete this._batches[this._currentKey];
-      this._currentKey = null;
-      this.processNextBatch();
-    }
-    else {
-      this._batches = null;
-    }
+    if (Components.isSuccessCode(aStatus))
+      return this.processNextBatch();
+
+    // stop on error
+    Components.utils.reportError("Archive failed to copy: " + aStatus);
+    this._batches = null;
+    this.processNextBatch(); // for cleanup and exit
   },
 
   // This also implements nsIMsgFolderListener, but we only care about the
@@ -1811,14 +1859,15 @@ BatchMessageMover.prototype = {
         aFolder.name == this._dstFolderName) {
       this._dstFolderParent = null;
       this._dstFolderName = null;
-      this.processNextBatch();
+      this.continueBatch();
     }
   },
 
   QueryInterface: function(iid) {
     if (!iid.equals(Components.interfaces.nsIUrlListener) &&
-      !iid.equals(Components.interfaces.nsIMsgCopyServiceListener) &&
-      !iid.equals(Components.interfaces.nsISupports))
+        !iid.equals(Components.interfaces.nsIMsgCopyServiceListener) &&
+        !iid.equals(Components.interfaces.nsIMsgOperationListener) &&
+        !iid.equals(Components.interfaces.nsISupports))
       throw Components.results.NS_ERROR_NO_INTERFACE;
     return this;
   }
