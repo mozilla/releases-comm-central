@@ -1173,106 +1173,13 @@ BatchMessageMover.prototype =
 
   processNextBatch: function()
   {
-    for (let key in this._batches)
-    {
-      this._currentKey = key;
-      let batch = this._batches[key];
-      let [srcFolder, archiveFolderUri, granularity, keepFolderStructure, msgYear, msgMonth] = batch;
-      let msgs = batch.slice(6);
-
-      let archiveFolder = GetMsgFolderFromUri(archiveFolderUri, false);
-      let dstFolder = archiveFolder;
-      // For folders on some servers (e.g. IMAP), we need to create the
-      // sub-folders asynchronously, so we chain the urls using the listener
-      // called back from createStorageIfMissing. For local,
-      // createStorageIfMissing is synchronous.
-      let isAsync = archiveFolder.server.protocolInfo.foldersCreatedAsync;
-      if (!archiveFolder.parent)
-      {
-        archiveFolder.setFlag(Components.interfaces.nsMsgFolderFlags.Archive);
-        archiveFolder.createStorageIfMissing(this);
-        if (isAsync)
-          return;
-      }
-      if (!archiveFolder.canCreateSubfolders)
-        granularity = Components.interfaces.nsIMsgIdentity.singleArchiveFolder;
-      if (granularity >= Components.interfaces.nsIMsgIdentity.perYearArchiveFolders)
-      {
-        archiveFolderUri += "/" + msgYear;
-        dstFolder = GetMsgFolderFromUri(archiveFolderUri, false);
-        if (!dstFolder.parent)
-        {
-          dstFolder.createStorageIfMissing(this);
-          if (isAsync)
-            return;
-        }
-      }
-      if (granularity >= Components.interfaces.nsIMsgIdentity.perMonthArchiveFolders)
-      {
-        archiveFolderUri += "/" + msgMonth;
-        dstFolder = GetMsgFolderFromUri(archiveFolderUri, false);
-        if (!dstFolder.parent)
-        {
-          dstFolder.createStorageIfMissing(this);
-          if (isAsync)
-            return;
-        }
-      }
-
-      // Create the folder structure in Archives
-      // For imap folders, we need to create the sub-folders asynchronously,
-      // so we chain the actions using the listener called back from 
-      // createSubfolder. For local, createSubfolder is synchronous.
-      if (archiveFolder.canCreateSubfolders && keepFolderStructure)
-      {
-        // Collect in-order list of folders of source folder structure,
-        // excluding top-level INBOX folder
-        let folderNames = [];
-        let rootFolder = srcFolder.server.rootFolder;
-        let inboxFolder = GetInboxFolder(srcFolder.server);
-        let folder = srcFolder;
-        while (folder != rootFolder && folder != inboxFolder)
-        {
-          folderNames.unshift(folder.name);
-          folder = folder.parent;
-        }
-        // Determine Archive folder structure
-        for (let i = 0; i < folderNames.length; ++i)
-        {
-          let folderName = folderNames[i];
-          if (!dstFolder.containsChildNamed(folderName))
-          {
-            // Create Archive sub-folder (IMAP: async)
-            if (isAsync)
-            {
-              this._dstFolderParent = dstFolder;
-              this._dstFolderName = folderName;
-            }
-            dstFolder.createSubfolder(folderName, msgWindow);
-            if (isAsync)
-              return;
-          }
-          dstFolder = dstFolder.getChildNamed(folderName);
-        }
-      }
-
-      if (dstFolder != srcFolder)
-      {
-        // Make sure the target folder is visible in the folder tree.
-        EnsureFolderIndex(GetFolderTree().builderView, dstFolder);
-
-        let array = Components.classes["@mozilla.org/array;1"]
-                              .createInstance(Components.interfaces.nsIMutableArray);
-        msgs.forEach(function(item){array.appendElement(item, false);});
-        // If the source folder doesn't support deleting messages, we
-        // make archive a copy, not a move.
-        gCopyService.CopyMessages(srcFolder, array, dstFolder,
-                                  srcFolder.canDeleteMessages, this, msgWindow, true);
-        return; // only do one.
-      }
+    for (let key in this._batches) {
+      this._currentBatch = this._batches[key];
       delete this._batches[key];
+      return this.filterBatch();
     }
 
+    // all done
     Components.classes["@mozilla.org/messenger/msgnotificationservice;1"]
               .getService(Components.interfaces.nsIMsgFolderNotificationService)
               .removeListener(this);
@@ -1281,7 +1188,151 @@ BatchMessageMover.prototype =
     let treeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
     treeView.selection.select(this.messageToSelectAfterWereDone);
     treeView.selectionChanged();
+    return;
   },
+
+  filterBatch: function()
+  {
+    let batch = this._currentBatch;
+    let msgs = batch.slice(6);
+
+    let filterArray = Components.classes["@mozilla.org/array;1"]
+                                .createInstance(Components.interfaces.nsIMutableArray);
+    for (let message of msgs) {
+      filterArray.appendElement(message, false);
+    }
+
+    // Apply filters to this batch.
+    let srcFolder = batch[0];
+    MailServices.filters.applyFilters(
+      Components.interfaces.nsMsgFilterType.Archive,
+      filterArray, srcFolder, msgWindow, this);
+    return; // continues with onStopOperation
+  },
+
+  onStopOperation: function(aResult)
+  {
+    if (!Components.isSuccessCode(aResult))
+    {
+      Components.utils.reportError("Archive filter failed: " + aResult);
+      // We don't want to effectively disable archiving because a filter
+      // failed, so we'll continue after reporting the error.
+    }
+    // Now do the default archive processing
+    this.continueBatch();
+  },
+
+  // continue processing of default archive operations
+  continueBatch: function()
+  {
+    let batch = this._currentBatch;
+    let [srcFolder, archiveFolderUri, granularity, keepFolderStructure, msgYear, msgMonth] = batch;
+    let msgs = batch.slice(6);
+
+    let moveArray = Components.classes["@mozilla.org/array;1"]
+                              .createInstance(Components.interfaces.nsIMutableArray);
+    // Don't move any items that the filter moves or deleted
+    for (let item of msgs) {
+      if (srcFolder.msgDatabase.ContainsKey(item.messageKey) &&
+          !(srcFolder.getProcessingFlags(item.messageKey) &
+            Components.interfaces.nsMsgProcessingFlags.FilterToMove)) {
+        moveArray.appendElement(item, false);
+      }
+    }
+
+    if (moveArray.length == 0)
+      return this.processNextBatch(); // continue processing
+
+    let archiveFolder = GetMsgFolderFromUri(archiveFolderUri, false);
+    let dstFolder = archiveFolder;
+    // For folders on some servers (e.g. IMAP), we need to create the
+    // sub-folders asynchronously, so we chain the urls using the listener
+    // called back from createStorageIfMissing. For local,
+    // createStorageIfMissing is synchronous.
+    let isAsync = archiveFolder.server.protocolInfo.foldersCreatedAsync;
+    if (!archiveFolder.parent)
+    {
+      archiveFolder.setFlag(Components.interfaces.nsMsgFolderFlags.Archive);
+      archiveFolder.createStorageIfMissing(this);
+      if (isAsync)
+        return; // continues with OnStopRunningUrl
+    }
+    if (!archiveFolder.canCreateSubfolders)
+      granularity = Components.interfaces.nsIMsgIdentity.singleArchiveFolder;
+    if (granularity >= Components.interfaces.nsIMsgIdentity.perYearArchiveFolders)
+    {
+      archiveFolderUri += "/" + msgYear;
+      dstFolder = GetMsgFolderFromUri(archiveFolderUri, false);
+      if (!dstFolder.parent)
+      {
+        dstFolder.createStorageIfMissing(this);
+        if (isAsync)
+          return; // continues with OnStopRunningUrl
+      }
+    }
+    if (granularity >= Components.interfaces.nsIMsgIdentity.perMonthArchiveFolders)
+    {
+      archiveFolderUri += "/" + msgMonth;
+      dstFolder = GetMsgFolderFromUri(archiveFolderUri, false);
+      if (!dstFolder.parent)
+      {
+        dstFolder.createStorageIfMissing(this);
+        if (isAsync)
+          return; // continues with OnStopRunningUrl
+      }
+    }
+
+    // Create the folder structure in Archives.
+    // For imap folders, we need to create the sub-folders asynchronously,
+    // so we chain the actions using the listener called back from 
+    // createSubfolder. For local, createSubfolder is synchronous.
+    if (archiveFolder.canCreateSubfolders && keepFolderStructure)
+    {
+      // Collect in-order list of folders of source folder structure,
+      // excluding top-level INBOX folder
+      let folderNames = [];
+      let rootFolder = srcFolder.server.rootFolder;
+      let inboxFolder = GetInboxFolder(srcFolder.server);
+      let folder = srcFolder;
+      while (folder != rootFolder && folder != inboxFolder)
+      {
+        folderNames.unshift(folder.name);
+        folder = folder.parent;
+      }
+      // Determine Archive folder structure.
+      for (let i = 0; i < folderNames.length; ++i)
+      {
+        let folderName = folderNames[i];
+        if (!dstFolder.containsChildNamed(folderName))
+        {
+          // Create Archive sub-folder (IMAP: async).
+          if (isAsync)
+          {
+            this._dstFolderParent = dstFolder;
+            this._dstFolderName = folderName;
+          }
+          dstFolder.createSubfolder(folderName, msgWindow);
+          if (isAsync)
+            return; // continues with folderAdded
+        }
+        dstFolder = dstFolder.getChildNamed(folderName);
+      }
+    }
+
+    if (dstFolder != srcFolder)
+    {
+      // Make sure the target folder is visible in the folder tree.
+      EnsureFolderIndex(GetFolderTree().builderView, dstFolder);
+
+      // If the source folder doesn't support deleting messages, we
+      // make archive a copy, not a move.
+      gCopyService.CopyMessages(srcFolder, moveArray, dstFolder,
+                                srcFolder.canDeleteMessages, this, msgWindow, true);
+      return; // continues with OnStopCopy
+    }
+    return this.processNextBatch();
+  },
+
 
   // This also implements nsIUrlListener, but we only care about the
   // OnStopRunningUrl (createStorageIfMissing callback).
@@ -1292,9 +1343,13 @@ BatchMessageMover.prototype =
   {
     // This will always be a create folder url, afaik.
     if (Components.isSuccessCode(aExitCode))
-      this.processNextBatch();
+      this.continueBatch();
     else
+    {
+      Components.utils.reportError("Archive failed to create folder: " + aExitCode);
       this._batches = null;
+      this.processNextBatch(); // for cleanup and exit
+    }
   },
 
   // This also implements nsIMsgCopyServiceListener, but we only care
@@ -1315,14 +1370,13 @@ BatchMessageMover.prototype =
   {
     if (Components.isSuccessCode(aStatus))
     {
-      // remove batch we just finished and continue
-      delete this._batches[this._currentKey];
-      this._currentKey = null;
-      this.processNextBatch();
+      return this.processNextBatch();
     }
     else
     {
+      Components.utils.reportError("Archive failed to copy: " + aStatus);
       this._batches = null;
+      this.processNextBatch(); // for cleanup and exit
     }
   },
 
@@ -1336,7 +1390,7 @@ BatchMessageMover.prototype =
     {
       this._dstFolderParent = null;
       this._dstFolderName = null;
-      this.processNextBatch();
+      this.continueBatch();
     }
   },
 
@@ -1345,6 +1399,7 @@ BatchMessageMover.prototype =
     if (aIID.equals(Components.interfaces.nsIUrlListener) ||
         aIID.equals(Components.interfaces.nsIMsgCopyServiceListener) ||
         aIID.equals(Components.interfaces.nsIMsgFolderListener) ||
+        aIID.equals(Components.interfaces.nsIMsgOperationListener) ||
         aIID.equals(Components.interfaces.nsISupports))
       return this;
     throw Components.results.NS_ERROR_NO_INTERFACE;
