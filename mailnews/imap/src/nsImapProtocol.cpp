@@ -14,7 +14,6 @@
 
 #include "nsMsgImapCID.h"
 #include "nsThreadUtils.h"
-#include "nsISupportsObsolete.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsImapCore.h"
 #include "nsImapProtocol.h"

@@ -19,7 +19,6 @@
 #include "nsIMsgFolder.h"
 #include "prprf.h"
 #include "prmem.h"
-#include "nsISupportsObsolete.h"
 #include "nsIMsgMailSession.h"
 #include "nsNetUtil.h"
 #include "nsIFileURL.h"

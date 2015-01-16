@@ -17,7 +17,6 @@
 #include "nsIMsgAccountManager.h"
 #include "nsMsgBaseCID.h"
 #include "prprf.h"
-#include "nsISupportsObsolete.h"
 #include "nsISupportsPrimitives.h"
 #include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"

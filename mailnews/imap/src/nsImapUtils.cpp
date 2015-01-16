@@ -19,7 +19,6 @@
 #include "nsImapCore.h"
 #include "nsMsgUtils.h"
 #include "nsImapFlagAndUidState.h"
-#include "nsISupportsObsolete.h"
 #include "nsIMAPNamespace.h"
 #include "nsIImapFlagAndUidState.h"
 

@@ -26,7 +26,6 @@
 #include "nsMsgFolderFlags.h"
 #include "nsMsgI18N.h"
 #include "nsUnicharUtils.h"
-#include "nsISupportsObsolete.h"
 #include "nsILineInputStream.h"
 #include "nsNetUtil.h"
 #include "nsISimpleEnumerator.h"

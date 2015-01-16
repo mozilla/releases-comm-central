@@ -13,7 +13,6 @@
 #include "nsIObserver.h"
 #include "nsIObserverService.h"
 #include "nsIMsgDBView.h"
-#include "nsISupportsObsolete.h"
 #include "nsServiceManagerUtils.h"
 #include "nsImapCore.h"
 #include "mozilla/Services.h"

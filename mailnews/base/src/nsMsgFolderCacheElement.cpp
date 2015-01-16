@@ -6,7 +6,6 @@
 #include "msgCore.h"
 #include "nsMsgFolderCacheElement.h"
 #include "prmem.h"
-#include "nsISupportsObsolete.h"
 #include "nsMsgUtils.h"
 
 nsMsgFolderCacheElement::nsMsgFolderCacheElement()

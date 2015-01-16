@@ -8,7 +8,6 @@
 #include "nsIStringBundle.h"
 #include "nsImportFieldMap.h"
 #include "nsImportStringBundle.h"
-#include "nsISupportsObsolete.h"
 #include "nsCRTGlue.h"
 #include "ImportDebug.h"
 #include "nsCOMPtr.h"
@@ -32,7 +31,18 @@ NS_METHOD nsImportFieldMap::Create(nsIStringBundle *aBundle, nsISupports *aOuter
 
 NS_IMPL_ISUPPORTS(nsImportFieldMap, nsIImportFieldMap)
 
-NS_IMPL_GETSET(nsImportFieldMap, SkipFirstRecord, bool, m_skipFirstRecord)
+NS_IMETHODIMP nsImportFieldMap::GetSkipFirstRecord(bool *result)
+{
+  NS_ENSURE_ARG_POINTER(result);
+  *result = m_skipFirstRecord;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsImportFieldMap::SetSkipFirstRecord(bool aResult)
+{
+  m_skipFirstRecord = aResult;
+  return NS_OK;
+}
 
 nsImportFieldMap::nsImportFieldMap(nsIStringBundle *aBundle)
 {

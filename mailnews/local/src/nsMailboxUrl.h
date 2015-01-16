@@ -13,7 +13,6 @@
 #include "nsCOMPtr.h"
 #include "MailNewsTypes.h"
 #include "nsTArray.h"
-#include "nsISupportsObsolete.h"
 
 class nsMailboxUrl : public nsIMailboxUrl, public nsMsgMailNewsUrl, public nsIMsgMessageUrl, public nsIMsgI18NUrl
 {
@@ -31,12 +30,32 @@ public:
   NS_IMETHOD GetMessageKey(nsMsgKey* aMessageKey) MOZ_OVERRIDE;
   NS_IMETHOD GetMessageSize(uint32_t *aMessageSize) MOZ_OVERRIDE;
   NS_IMETHOD SetMessageSize(uint32_t aMessageSize) MOZ_OVERRIDE;
-  NS_IMPL_CLASS_GETSET(MailboxAction, nsMailboxAction, m_mailboxAction)
+  NS_IMETHOD GetMailboxAction(nsMailboxAction *result) MOZ_OVERRIDE
+  {
+    NS_ENSURE_ARG_POINTER(result);
+    *result = m_mailboxAction;
+    return NS_OK;
+  }
+  NS_IMETHOD SetMailboxAction(nsMailboxAction aAction) MOZ_OVERRIDE
+  {
+    m_mailboxAction = aAction;
+    return NS_OK;
+  }
   NS_IMETHOD IsUrlType(uint32_t type, bool *isType);
   NS_IMETHOD SetMoveCopyMsgKeys(nsMsgKey *keysToFlag, int32_t numKeys) MOZ_OVERRIDE;
   NS_IMETHOD GetMoveCopyMsgHdrForIndex(uint32_t msgIndex, nsIMsgDBHdr **msgHdr) MOZ_OVERRIDE;
   NS_IMETHOD GetNumMoveCopyMsgs(uint32_t *numMsgs) MOZ_OVERRIDE;
-  NS_IMPL_CLASS_GETSET(CurMoveCopyMsgIndex, uint32_t, m_curMsgIndex)
+  NS_IMETHOD GetCurMoveCopyMsgIndex(uint32_t *result) MOZ_OVERRIDE
+  {
+    NS_ENSURE_ARG_POINTER(result);
+    *result = m_curMsgIndex;
+    return NS_OK;
+  }
+  NS_IMETHOD SetCurMoveCopyMsgIndex(uint32_t aIndex) MOZ_OVERRIDE
+  {
+    m_curMsgIndex = aIndex;
+    return NS_OK;
+  }
 
   NS_IMETHOD GetFolder(nsIMsgFolder **msgFolder);
 

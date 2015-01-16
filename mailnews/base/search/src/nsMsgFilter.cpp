@@ -17,7 +17,6 @@
 #include "nsIMsgIncomingServer.h"
 #include "nsMsgSearchValue.h"
 #include "nsMsgI18N.h"
-#include "nsISupportsObsolete.h"
 #include "nsIOutputStream.h"
 #include "nsIStringBundle.h"
 #include "nsDateTimeFormatCID.h"

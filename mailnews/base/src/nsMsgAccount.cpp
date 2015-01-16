@@ -7,7 +7,6 @@
 #include "prprf.h"
 #include "plstr.h"
 #include "prmem.h"
-#include "nsISupportsObsolete.h"
 #include "nsIComponentManager.h"
 #include "nsIServiceManager.h"
 #include "nsCRTGlue.h"

@@ -5,7 +5,6 @@
 
 #include "msgCore.h"    // precompiled header...
 #include "nntpCore.h"
-#include "nsISupportsObsolete.h"
 #include "nsMsgNewsCID.h"
 #include "nsINntpUrl.h"
 #include "nsIMsgNewsFolder.h"
@@ -831,8 +830,6 @@ nsNntpService::PostMessage(nsIFile *aFileToPost, const char *newsgroupsNames, co
 
   NS_ENSURE_ARG(*newsgroupsNames);
 
-  NS_LOCK_INSTANCE();
-
   nsresult rv;
 
   nsCOMPtr <nsINntpUrl> nntpUrl = do_CreateInstance(NS_NNTPURL_CONTRACTID, &rv);
@@ -869,8 +866,6 @@ nsNntpService::PostMessage(nsIFile *aFileToPost, const char *newsgroupsNames, co
 
   if (_retval)
     rv = CallQueryInterface(nntpUrl, _retval);
-
-  NS_UNLOCK_INSTANCE();
 
   return rv;
 }
@@ -1086,7 +1081,6 @@ NS_IMETHODIMP nsNntpService::GetNewNews(nsINntpIncomingServer *nntpServer, const
 {
   NS_ENSURE_ARG_POINTER(uri);
 
-  NS_LOCK_INSTANCE();
   nsresult rv = NS_OK;
 
   nsCOMPtr<nsIMsgIncomingServer> server;
@@ -1121,8 +1115,6 @@ NS_IMETHODIMP nsNntpService::GetNewNews(nsINntpIncomingServer *nntpServer, const
     rv = NS_ERROR_FAILURE;
   }
 
-
-  NS_UNLOCK_INSTANCE();
   return rv;
 }
 

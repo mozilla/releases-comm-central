@@ -13,7 +13,6 @@
 #include "nsIStringStream.h"
 #include "nsIFile.h"
 #include "nsDirectoryServiceDefs.h"
-#include "nsISupportsObsolete.h"
 #include "nsQuickSort.h"
 #include "nsAutoPtr.h"
 #include "nsNativeCharsetUtils.h"

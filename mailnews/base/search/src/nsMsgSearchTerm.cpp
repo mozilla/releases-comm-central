@@ -26,7 +26,6 @@
 #include "nsIPrefService.h"
 #include "nsIMsgFilterPlugin.h"
 #include "nsIFile.h"
-#include "nsISupportsObsolete.h"
 #include "nsISeekableStream.h"
 #include "nsNetCID.h"
 #include "nsIFileStreams.h"

@@ -21,7 +21,6 @@
 #include "nsImapUtils.h"
 #include "nsIMAPNamespace.h"
 #include "nsICacheEntryDescriptor.h"
-#include "nsISupportsObsolete.h"
 #include "nsIMsgFolder.h"
 #include "nsIDocShell.h"
 #include "nsIInterfaceRequestor.h"
@@ -1221,7 +1220,12 @@ NS_IMETHODIMP nsImapUrl::GetUri(char** aURI)
 
 NS_IMPL_GETSET(nsImapUrl, AddDummyEnvelope, bool, m_addDummyEnvelope)
 NS_IMPL_GETSET(nsImapUrl, CanonicalLineEnding, bool, m_canonicalLineEnding)
-NS_IMPL_GETTER(nsImapUrl::GetMsgLoadingFromCache, bool, m_msgLoadingFromCache)
+NS_IMETHODIMP nsImapUrl::GetMsgLoadingFromCache(bool *result)
+{
+  NS_ENSURE_ARG_POINTER(result);
+  *result = m_msgLoadingFromCache;
+  return NS_OK;
+}
 NS_IMPL_GETSET(nsImapUrl, LocalFetchOnly, bool, m_localFetchOnly)
 NS_IMPL_GETSET(nsImapUrl, ExternalLinkUrl, bool, m_externalLinkUrl)
 NS_IMPL_GETSET(nsImapUrl, RerunningUrl, bool, m_rerunningUrl)

@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsSpamSettings.h"
-#include "nsISupportsObsolete.h"
 #include "nsIFile.h"
 #include "plstr.h"
 #include "prmem.h"

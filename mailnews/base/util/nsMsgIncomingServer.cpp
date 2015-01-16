@@ -12,7 +12,6 @@
 #include "nsIServiceManager.h"
 #include "nsCOMPtr.h"
 #include "nsStringGlue.h"
-#include "nsISupportsObsolete.h"
 #include "nsISupportsPrimitives.h"
 
 #include "nsMsgBaseCID.h"

@@ -17,7 +17,6 @@
 #include "nsMsgBaseCID.h"
 #include "nsIMsgFilterService.h"
 #include "nsMsgSearchScopeTerm.h"
-#include "nsISupportsObsolete.h"
 #include "nsNetUtil.h"
 #include "nsMsgI18N.h"
 #include "nsMemory.h"

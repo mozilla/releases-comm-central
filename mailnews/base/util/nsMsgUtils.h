@@ -556,4 +556,20 @@ NS_MSG_BASE nsMsgKey msgKeyFromInt(uint32_t aValue);
 
 NS_MSG_BASE nsMsgKey msgKeyFromInt(uint64_t aValue);
 
+/**
+ * Helper macro for defining getter/setters. Ported from nsISupportsObsolete.h
+ */
+#define NS_IMPL_GETSET(clazz, attr, type, member) \
+  NS_IMETHODIMP clazz::Get##attr(type *result) \
+  { \
+    NS_ENSURE_ARG_POINTER(result); \
+    *result = member; \
+    return NS_OK; \
+  } \
+  NS_IMETHODIMP clazz::Set##attr(type aValue) \
+  { \
+    member = aValue; \
+    return NS_OK; \
+  }
+
 #endif

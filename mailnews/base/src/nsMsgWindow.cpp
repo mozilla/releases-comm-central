@@ -28,11 +28,11 @@
 #include "plbase64.h"
 #include "nsMsgI18N.h"
 #include "nsIWebNavigation.h"
-#include "nsISupportsObsolete.h"
 #include "nsMsgContentPolicy.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIAuthPrompt.h"
+#include "nsMsgUtils.h"
 
 // used to dispatch urls to default protocol handlers
 #include "nsCExternalHandlerService.h"

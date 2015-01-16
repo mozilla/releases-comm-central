@@ -9,8 +9,7 @@
 #include "msgCore.h"
 #include "nsINNTPNewsgroupPost.h"
 #include "nsCOMPtr.h"
-#include "prmem.h"
-#include "nsISupportsObsolete.h"
+#include "nsStringGlue.h"
 #include "nsIFile.h"
 
 #define IDX_HEADER_FROM             0
@@ -48,45 +47,14 @@ public:
     nsNNTPNewsgroupPost();
     
     NS_DECL_ISUPPORTS
-    
-    // Required headers
-    NS_IMPL_CLASS_GETSET_STR(RelayVersion, m_header[IDX_HEADER_RELAYVERSION])
-    NS_IMPL_CLASS_GETSET_STR(PostingVersion, m_header[IDX_HEADER_POSTINGVERSION])
-    NS_IMPL_CLASS_GETSET_STR(From, m_header[IDX_HEADER_FROM])
-    NS_IMPL_CLASS_GETSET_STR(Date, m_header[IDX_HEADER_DATE])
-    NS_IMPL_CLASS_GETSET_STR(Subject, m_header[IDX_HEADER_SUBJECT])
-
-    NS_IMPL_CLASS_GETTER_STR(GetNewsgroups, m_header[IDX_HEADER_NEWSGROUPS])
-    NS_IMPL_CLASS_GETSET_STR(Path, m_header[IDX_HEADER_PATH])
-
-    // Optional Headers
-    NS_IMPL_CLASS_GETSET_STR(ReplyTo, m_header[IDX_HEADER_REPLYTO])
-    NS_IMPL_CLASS_GETSET_STR(Sender, m_header[IDX_HEADER_SENDER])
-    NS_IMPL_CLASS_GETSET_STR(FollowupTo, m_header[IDX_HEADER_FOLLOWUPTO])
-    NS_IMPL_CLASS_GETSET_STR(DateReceived, m_header[IDX_HEADER_DATERECEIVED])
-    NS_IMPL_CLASS_GETSET_STR(Expires, m_header[IDX_HEADER_EXPIRES])
-    NS_IMPL_CLASS_GETSET_STR(Control, m_header[IDX_HEADER_CONTROL])
-    NS_IMPL_CLASS_GETSET_STR(Distribution, m_header[IDX_HEADER_DISTRIBUTION])
-    NS_IMPL_CLASS_GETSET_STR(Organization, m_header[IDX_HEADER_ORGANIZATION])
-    NS_IMPL_CLASS_GETSET_STR(Body, m_body)
-    NS_IMPL_CLASS_GETTER_STR(GetReferences, m_header[IDX_HEADER_REFERENCES])
-
-    NS_IMPL_CLASS_GETTER(GetIsControl, bool, m_isControl)
-
-    // the message can be stored in a file....allow accessors for getting and setting
-    // the file name to post...
-    NS_IMETHOD SetPostMessageFile(nsIFile * aFile);
-    NS_IMETHOD GetPostMessageFile(nsIFile ** aFile);
-
-    NS_IMETHOD AddNewsgroup(const char *newsgroupName);
+    NS_DECL_NSINNTPNEWSGROUPPOST
     
 private:
     virtual ~nsNNTPNewsgroupPost();
 
-    nsCOMPtr <nsIFile> m_postMessageFile;
-    char *m_header[HEADER_LAST+1];
-    char *m_body;
-    char *m_messageBuffer;
+    nsCOMPtr<nsIFile> m_postMessageFile;
+    nsCString m_header[HEADER_LAST+1];
+    nsCString m_body;
     bool m_isControl;
 };
 

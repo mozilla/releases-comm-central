@@ -12,7 +12,6 @@
 #include "nsMsgUtils.h"
 #include "nsIMimeConverter.h"
 #include "nsMsgMimeCID.h"
-#include "nsISupportsObsolete.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsCRT.h"
