@@ -147,17 +147,16 @@ static const PLDHashTableOps gTokenTableOps = {
     PL_DHashStringKey,
     PL_DHashMatchStringKey,
     PL_DHashMoveEntryStub,
-    PL_DHashClearEntryStub,
-    PL_DHashFinalizeStub
+    PL_DHashClearEntryStub
 };
 
 TokenHash::TokenHash(uint32_t aEntrySize)
 {
     mEntrySize = aEntrySize;
     PL_INIT_ARENA_POOL(&mWordPool, "Words Arena", 16384);
-    bool ok = PL_DHashTableInit(&mTokenTable, &gTokenTableOps, nullptr,
+    bool ok = PL_DHashTableInit(&mTokenTable, &gTokenTableOps,
                                 aEntrySize, mozilla::fallible_t(), 128);
-    mTokenTable.data = reinterpret_cast<void*>(ok);
+    mTableInitialized = ok;
     NS_ASSERTION(ok, "mTokenTable failed to initialize");
     if (!ok)
       PR_LOG(BayesianFilterLogModule, PR_LOG_ERROR, ("mTokenTable failed to initialize"));
@@ -165,7 +164,7 @@ TokenHash::TokenHash(uint32_t aEntrySize)
 
 TokenHash::~TokenHash()
 {
-    if (reinterpret_cast<uintptr_t>(mTokenTable.data))
+    if (mTableInitialized)
         PL_DHashTableFinish(&mTokenTable);
     PL_FinishArenaPool(&mWordPool);
 }
@@ -175,13 +174,13 @@ nsresult TokenHash::clearTokens()
     // we re-use the tokenizer when classifying multiple messages,
     // so this gets called after every message classification.
     bool ok = true;
-    if (mTokenTable.data)
+    if (mTableInitialized)
     {
         PL_DHashTableFinish(&mTokenTable);
         PL_FreeArenaPool(&mWordPool);
-        ok = PL_DHashTableInit(&mTokenTable, &gTokenTableOps, nullptr,
+        ok = PL_DHashTableInit(&mTokenTable, &gTokenTableOps,
                                mEntrySize, mozilla::fallible_t(), 128);
-        mTokenTable.data = reinterpret_cast<void*>(ok);
+        mTableInitialized = ok;
         NS_ASSERTION(ok, "mTokenTable failed to initialize");
         if (!ok)
           PR_LOG(BayesianFilterLogModule, PR_LOG_ERROR, ("mTokenTable failed to initialize in clearTokens()"));

@@ -91,7 +91,7 @@ public:
      * Clears out the previous message tokens.
      */
     nsresult clearTokens();
-    operator bool() { return reinterpret_cast<uintptr_t>(mTokenTable.data); }
+    operator bool() { return mTableInitialized; }
     uint32_t countTokens();
     TokenEnumeration getTokens();
     BaseToken* add(const char* word);
@@ -101,6 +101,7 @@ protected:
     PLArenaPool mWordPool;
     uint32_t mEntrySize;
     PLDHashTable mTokenTable;
+    bool mTableInitialized;
     char* copyWord(const char* word, uint32_t len);
     /**
      * Calls passed-in function for each token in the table.
