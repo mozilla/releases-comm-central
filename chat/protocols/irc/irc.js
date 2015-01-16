@@ -1017,12 +1017,21 @@ ircAccount.prototype = {
 
     let getParams = (aItems) => {
       // Taking the JOIN use case as an example, aItems is an array
-      // of [channel, key] pairs. To send the command, we have to
-      // group all the channels and keys together, i.e. grab the
-      // columns of this matrix, and build the two parameters of
-      // the command from that.
-      let channels = aItems.map(([channel, key]) => channel);
-      let keys = aItems.map(([channel, key]) => key);
+      // of [channel, key] pairs.
+      // To work around an inspircd bug (bug 1108596), we reorder
+      // the list so that entries with keys appear first.
+      let items = aItems.slice().sort(([c1, k1], [c2, k2]) => {
+        if (!k1 && k2)
+          return 1;
+        if (k1 && !k2)
+          return -1;
+        return 0;
+      });
+      // To send the command, we have to group all the channels and keys
+      // together, i.e. grab the columns of this matrix, and build the two
+      // parameters of the command from that.
+      let channels = items.map(([channel, key]) => channel);
+      let keys = items.map(([channel, key]) => key);
       let params = [channels.join(",")];
       if (keys.some(key => !!key))
         params.push(keys.join(","));
