@@ -24,6 +24,8 @@ function Extractor(baseUrl, fallbackLocale, dayStart, fixedLang) {
     this.fallbackLocale = fallbackLocale;
     this.email = "";
     this.marker = "--MARK--";
+    // this should never be found in an email
+    this.defPattern = "061dc19c-719f-47f3-b2b5-e767e6f02b7a";
     this.collected = [];
     this.numbers = [];
     this.hourlyNumbers = [];
@@ -974,14 +976,12 @@ Extractor.prototype = {
 
     getPatterns: function getPatterns(name) {
         let value;
-        // this should never be found in an email
-        let def = "061dc19c-719f-47f3-b2b5-e767e6f02b7a";
         try {
             value = this.bundle.GetStringFromName(name);
             this.checkForFaultyPatterns(value, name);
             if (value.trim() == "") {
                 cal.LOG("[calExtract] Pattern not found: " + name);
-                return def;
+                return this.defPattern;
             }
 
             let vals = this.cleanPatterns(value).split("|");
@@ -1014,7 +1014,7 @@ Extractor.prototype = {
             cal.LOG("[calExtract] Pattern not found: " + name);
 
             // fake a value to avoid empty regexes creating endless loops
-            return def;
+            return this.defPattern;
         }
     },
 
@@ -1173,7 +1173,7 @@ Extractor.prototype = {
     limitChars: function limitChars(res, email) {
         let alphabet = this.getPatterns("alphabet");
         // for languages without regular alphabet surrounding characters are ignored
-        if (alphabet == "") {
+        if (alphabet == this.defPattern) {
             return false;
         }
 
