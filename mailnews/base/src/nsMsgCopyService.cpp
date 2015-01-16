@@ -460,6 +460,18 @@ nsMsgCopyService::CopyMessages(nsIMsgFolder* srcFolder, /* UI src folder */
   // make sure dest folder exists
   // and has proper flags, before we start copying?
 
+  // bail early if nothing to do
+  messages->GetLength(&cnt);
+  if (!cnt)
+  {
+    if (listener)
+    {
+      listener->OnStartCopy();
+      listener->OnStopCopy(NS_OK);
+    }
+    return NS_OK;
+  }
+
   copyRequest = new nsCopyRequest();
   if (!copyRequest)
     return NS_ERROR_OUT_OF_MEMORY;
@@ -471,8 +483,6 @@ nsMsgCopyService::CopyMessages(nsIMsgFolder* srcFolder, /* UI src folder */
                         listener, window, allowUndo);
   if (NS_FAILED(rv))
     goto done;
-
-  messages->GetLength(&cnt);
 
   if (PR_LOG_TEST(gCopyServiceLog, PR_LOG_ALWAYS))
     LogCopyRequest("CopyMessages request", copyRequest);

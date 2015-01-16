@@ -5290,7 +5290,9 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
             }
 
           }
-          if (m_copyState->m_msgWindow && NS_SUCCEEDED(aExitCode)) //we should do this only if move/copy succeeds
+          if (m_copyState->m_msgWindow &&
+              m_copyState->m_undoMsgTxn &&  // may be null from filters
+              NS_SUCCEEDED(aExitCode))      //we should do this only if move/copy succeeds
           {
             nsCOMPtr<nsITransactionManager> txnMgr;
             m_copyState->m_msgWindow->GetTransactionManager(getter_AddRefs(txnMgr));
@@ -5300,7 +5302,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
               NS_ASSERTION(NS_SUCCEEDED(rv2), "doing transaction failed");
             }
           }
-           (void) OnCopyCompleted(m_copyState->m_srcSupport, aExitCode);
+          (void) OnCopyCompleted(m_copyState->m_srcSupport, aExitCode);
         }
 
         // we're the dest folder of a move/copy - if we're not open in the ui,

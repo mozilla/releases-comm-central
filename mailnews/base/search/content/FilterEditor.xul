@@ -80,6 +80,12 @@
             </menulist>
           </row>
           <row>
+            <checkbox id="runArchive"
+                      label="&contextArchive.label;"
+                      accesskey="&contextArchive.accesskey;"
+                      command="cmd_updateFilterType"/>
+          </row>
+          <row>
             <checkbox id="runOutgoing"
                       label="&contextOutgoing.label;"
                       accesskey="&contextOutgoing.accesskey;"

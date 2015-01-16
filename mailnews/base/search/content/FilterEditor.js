@@ -250,6 +250,7 @@ function initializeFilterTypeSelector()
     menuitemBeforePlugins: document.getElementById("runBeforePlugins"),
     menuitemAfterPlugins: document.getElementById("runAfterPlugins"),
 
+    checkBoxArchive: document.getElementById("runArchive"),
     checkBoxOutgoing: document.getElementById("runOutgoing"),
 
     /**
@@ -276,6 +277,9 @@ function initializeFilterTypeSelector()
         }
       }
 
+      if (this.checkBoxArchive.checked)
+        type |= nsMsgFilterType.Archive;
+
       if (this.checkBoxOutgoing.checked)
         type |= nsMsgFilterType.PostOutgoing;
 
@@ -301,6 +305,8 @@ function initializeFilterTypeSelector()
 
       this.menulistIncoming.selectedItem = aType & nsMsgFilterType.PostPlugin ?
         this.menuitemAfterPlugins : this.menuitemBeforePlugins;
+
+      this.checkBoxArchive.checked  = aType & nsMsgFilterType.Archive;
 
       this.checkBoxOutgoing.checked = aType & nsMsgFilterType.PostOutgoing;
 

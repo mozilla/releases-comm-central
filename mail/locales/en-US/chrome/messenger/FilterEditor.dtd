@@ -25,6 +25,8 @@
 <!ENTITY contextAfterCls.label "Filter after Junk Classification">
 <!ENTITY contextOutgoing.label "After Sending">
 <!ENTITY contextOutgoing.accesskey "S">
+<!ENTITY contextArchive.label "Archiving">
+<!ENTITY contextArchive.accesskey "A">
 
 <!ENTITY filterActionDesc.label "Perform these actions:">
 <!ENTITY filterActionDesc.accesskey "P">
