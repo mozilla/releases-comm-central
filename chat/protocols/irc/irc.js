@@ -1918,9 +1918,8 @@ ircProtocol.prototype = {
   ],
 
   options: {
-    // TODO Default to IRC over SSL.
-    "port": {get label() _("options.port"), default: 6667},
-    "ssl": {get label() _("options.ssl"), default: false},
+    "port": {get label() _("options.port"), default: 6697},
+    "ssl": {get label() _("options.ssl"), default: true},
     // TODO We should attempt to auto-detect encoding instead.
     "encoding": {get label() _("options.encoding"), default: "UTF-8"},
     "quitmsg": {get label() _("options.quitMessage"),
