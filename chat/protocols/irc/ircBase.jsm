@@ -375,7 +375,8 @@ var ircBase = {
         this.observe(null, "status-changed");
 
       // Check if any of our buddies are online!
-      this.sendIsOn();
+      const kInitialIsOnDelay = 1000;
+      this._isOnTimer = setTimeout(this.sendIsOn.bind(this), kInitialIsOnDelay);
 
       // If we didn't handle all the CAPs we added, something is wrong.
       if (this._caps.size)
