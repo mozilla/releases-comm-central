@@ -84,9 +84,9 @@
                             label="&pref.calendar.alarms.sound.browse.label;"
                             accesskey="&pref.calendar.alarms.sound.browse.accessKey;"
                             oncommand="gAlarmsPane.browseAlarm()"/>
-                    <button id="calendar.prefs.alarm.sound.preview"
-                            label="&pref.calendar.alarms.sound.preview.label;"
-                            accesskey="&pref.calendar.alarms.sound.preview.accessKey;"
+                    <button id="calendar.prefs.alarm.sound.play"
+                            label="&pref.calendar.alarms.sound.play.label;"
+                            accesskey="&pref.calendar.alarms.sound.play.accessKey;"
                             oncommand="gAlarmsPane.previewAlarm()"/>
                 </hbox>
             </vbox>

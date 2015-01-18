@@ -127,7 +127,7 @@ var gAlarmsPane = {
         var items = [document.getElementById("alarmSoundFileField"),
                      document.getElementById("calendar.prefs.alarm.sound.useDefault"),
                      document.getElementById("calendar.prefs.alarm.sound.browse"),
-                     document.getElementById("calendar.prefs.alarm.sound.preview")];
+                     document.getElementById("calendar.prefs.alarm.sound.play")];
 
         for (var i=0; i < items.length; i++) {
             items[i].disabled = !alarmsPlaySoundPref.value;
