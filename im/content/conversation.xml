@@ -110,6 +110,10 @@
       <method name="destroy">
         <body>
         <![CDATA[
+          window.XULBrowserWindow.hideOverLinkImmediately = true;
+          window.XULBrowserWindow.setOverLink("", null);
+          delete window.XULBrowserWindow.hideOverLinkImmediately;
+
           if ("buddies" in this) {
             this.buddies.forEach(chatBuddy => {
               if (chatBuddy.activeTimer)
