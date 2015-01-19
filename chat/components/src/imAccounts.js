@@ -30,6 +30,9 @@ XPCOMUtils.defineLazyGetter(this, "_maxDebugMessages", function()
   Services.prefs.getIntPref("messenger.accounts.maxDebugMessages")
 );
 
+XPCOMUtils.defineLazyServiceGetter(this, "HttpProtocolHandler",
+  "@mozilla.org/network/protocol;1?name=http", "nsIHttpProtocolHandler");
+
 var gUserCanceledMasterPasswordPrompt = false;
 var gConvertingOldPasswords = false;
 
@@ -328,6 +331,14 @@ imAccount.prototype = {
     }
     if (this._debugMessages)
       messages = messages.concat(this._debugMessages);
+    if (messages.length) {
+      let appInfo = Services.appinfo;
+      let header =
+        `${appInfo.name} ${appInfo.version} (${appInfo.appBuildID}), ` +
+        `Gecko ${appInfo.platformVersion} (${appInfo.platformBuildID}) ` +
+        `on ${HttpProtocolHandler.oscpu}`;
+      messages.unshift(this._createDebugMessage(header));
+    }
 
     if (aCount)
       aCount.value = messages.length;
