@@ -9,3 +9,8 @@ XPI_NAME = 'calendar-timezones'
 export('XPI_NAME')
 
 JAR_MANIFESTS += ['jar.mn']
+
+JS_PREFERENCE_FILES += [
+    'defaults/preferences.js',
+]
+

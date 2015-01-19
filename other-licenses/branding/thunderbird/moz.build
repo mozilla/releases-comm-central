@@ -6,3 +6,8 @@
 DIRS += ['locales']
 
 JAR_MANIFESTS += ['jar.mn']
+
+JS_PREFERENCE_FILES += [
+    'thunderbird-branding.js',
+]
+

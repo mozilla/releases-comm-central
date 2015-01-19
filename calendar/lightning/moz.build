@@ -26,3 +26,8 @@ elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
     DEFINES['THEME'] = 'osx'
 else:
     DEFINES['THEME'] = 'linux'
+
+JS_PREFERENCE_FILES += [
+    'content/lightning.js',
+]
+

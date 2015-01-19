@@ -76,3 +76,8 @@ TESTING_JS_MODULES.mailnews += [
 	'test/resources/MockFactory.js',
 	'test/resources/PromiseTestUtils.jsm',
 ]
+
+JS_PREFERENCE_FILES += [
+    'mailnews.js',
+]
+

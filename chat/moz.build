@@ -22,3 +22,7 @@ DIRS += [
 if CONFIG['MOZ_DEBUG']:
     DIRS += ['protocols/jsTest']
 
+JS_PREFERENCE_FILES += [
+    'chat-prefs.js',
+]
+
