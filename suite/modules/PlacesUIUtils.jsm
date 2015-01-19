@@ -795,6 +795,10 @@ var PlacesUIUtils = {
       return !PlacesUtils.nodeIsFolder(parentNode);
     }
 
+    // Generally it's always possible to remove children of a query.
+    if (PlacesUtils.nodeIsQuery(parentNode))
+      return true;
+
     // Otherwise it has to be a child of an editable folder.
     return !this.isContentsReadOnly(parentNode);
   },
