@@ -38,7 +38,7 @@ FacebookAccount.prototype = {
     let server = "chat.facebook.com";
     if (this.prefs.prefHasUserValue("server"))
       server = this.getString("server");
-    this._connection = new XMPPSession(server, 5222, "opportunistic_tls",
+    this._connection = new XMPPSession(server, 5222, "require_tls",
                                        this._jid, this.imAccount.password,
                                        this);
   }

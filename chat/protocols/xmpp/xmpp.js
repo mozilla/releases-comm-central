@@ -39,7 +39,7 @@ XMPPProtocol.prototype = {
         // "old_ssl" and "none" are also supported, but not exposed in the UI.
         // Any unknown value will fallback to the opportunistic_tls behavior.
       },
-      default: "opportunistic_tls"
+      default: "require_tls"
     },
     server: {get label() _("options.connectServer"), default: ""},
     port: {get label() _("options.connectPort"), default: 5222}
