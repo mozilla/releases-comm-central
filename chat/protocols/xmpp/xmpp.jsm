@@ -1326,42 +1326,42 @@ const XMPPAccountPrototype = {
     }
 
     this._cachingUserIcon = true;
-    let channel = Services.io.newChannelFromURI(userIcon);
-    NetUtil.asyncFetch2(channel, (function(inputStream, resultCode) {
-        if (!Components.isSuccessCode(resultCode))
-          return;
-        try {
-          let readImage = {value: null};
-          let type = channel.contentType;
-          imgTools.decodeImageData(inputStream, type, readImage);
-          readImage = readImage.value;
-          let scaledImage;
-          if (readImage.width <= 96 && readImage.height <= 96)
-            scaledImage = imgTools.encodeImage(readImage, type);
-          else {
-            if (type != "image/jpeg")
-              type = "image/png";
-            scaledImage = imgTools.encodeScaledImage(readImage, type, 64, 64);
-          }
-
-          let bstream = Cc["@mozilla.org/binaryinputstream;1"]
-                          .createInstance(Ci.nsIBinaryInputStream);
-          bstream.setInputStream(scaledImage);
-
-          let data = bstream.readBytes(bstream.available());
-          this._cachedUserIcon = {
-            type: type,
-            binval: btoa(data).replace(/.{74}/g, "$&\n")
-          };
-        } catch (e) {
-          Cu.reportError(e);
-          this._cachedUserIcon = null;
+    let channel = Services.io.newChannelFromURI2(userIcon,
+      null, Services.scriptSecurityManager.getSystemPrincipal(), null,
+      Ci.nsILoadInfo.SEC_NORMAL, Ci.nsIContentPolicy.TYPE_IMAGE);
+    NetUtil.asyncFetch2(channel, (inputStream, resultCode) => {
+      if (!Components.isSuccessCode(resultCode))
+        return;
+      try {
+        let readImage = {value: null};
+        let type = channel.contentType;
+        imgTools.decodeImageData(inputStream, type, readImage);
+        readImage = readImage.value;
+        let scaledImage;
+        if (readImage.width <= 96 && readImage.height <= 96)
+          scaledImage = imgTools.encodeImage(readImage, type);
+        else {
+          if (type != "image/jpeg")
+            type = "image/png";
+          scaledImage = imgTools.encodeScaledImage(readImage, type, 64, 64);
         }
-        delete this._cachingUserIcon;
-        this._sendVCard();
-      }).bind(this),
-      null, null, Services.scriptSecurityManager.getSystemPrincipal(),
-      null, Ci.nsILoadInfo.SEC_NORMAL, Ci.nsIContentPolicy.TYPE_OTHER);
+
+        let bstream = Cc["@mozilla.org/binaryinputstream;1"]
+                        .createInstance(Ci.nsIBinaryInputStream);
+        bstream.setInputStream(scaledImage);
+
+        let data = bstream.readBytes(bstream.available());
+        this._cachedUserIcon = {
+          type: type,
+          binval: btoa(data).replace(/.{74}/g, "$&\n")
+        };
+      } catch (e) {
+        Cu.reportError(e);
+        this._cachedUserIcon = null;
+      }
+      delete this._cachingUserIcon;
+      this._sendVCard();
+    });
   },
   _sendVCard: function() {
     if (!this._connection)
