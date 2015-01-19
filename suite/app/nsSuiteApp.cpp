@@ -108,21 +108,12 @@ static bool IsArg(const char* arg, const char* s)
   return false;
 }
 
-/**
- * A helper class which calls NS_LogInit/NS_LogTerm in its scope.
- */
-class ScopedLogging
-{
-public:
-  ScopedLogging() { NS_LogInit(); }
-  ~ScopedLogging() { NS_LogTerm(); }
-};
-
 XRE_GetFileFromPathType XRE_GetFileFromPath;
 XRE_CreateAppDataType XRE_CreateAppData;
 XRE_FreeAppDataType XRE_FreeAppData;
 XRE_TelemetryAccumulateType XRE_TelemetryAccumulate;
 XRE_mainType XRE_main;
+XRE_StopLateWriteChecksType XRE_StopLateWriteChecks;
 
 static const nsDynamicFunctionLoad kXULFuncs[] = {
     { "XRE_GetFileFromPath", (NSFuncPtr*) &XRE_GetFileFromPath },
@@ -130,6 +121,7 @@ static const nsDynamicFunctionLoad kXULFuncs[] = {
     { "XRE_FreeAppData", (NSFuncPtr*) &XRE_FreeAppData },
     { "XRE_TelemetryAccumulate", (NSFuncPtr*) &XRE_TelemetryAccumulate },
     { "XRE_main", (NSFuncPtr*) &XRE_main },
+    { "XRE_StopLateWriteChecks", (NSFuncPtr*) &XRE_StopLateWriteChecks },
     { nullptr, nullptr }
 };
 
@@ -138,7 +130,7 @@ static int do_main(int argc, char* argv[], nsIFile *xreDirectory)
   nsCOMPtr<nsIFile> appini;
   nsresult rv;
   uint32_t mainFlags = 0;
-  
+
   // Allow seamonkey.exe to launch XULRunner apps via -app <application.ini>
   // Note that -app must be the *first* argument.
   const char *appDataFile = getenv("XUL_APP_FILE");
@@ -154,13 +146,13 @@ static int do_main(int argc, char* argv[], nsIFile *xreDirectory)
       Output("Incorrect number of arguments passed to -app");
       return 255;
     }
-    
+
     rv = XRE_GetFileFromPath(argv[2], getter_AddRefs(appini));
     if (NS_FAILED(rv)) {
       Output("application.ini path not recognized: '%s'", argv[2]);
       return 255;
     }
-    
+
     char appEnv[MAXPATHLEN];
     snprintf(appEnv, MAXPATHLEN, "XUL_APP_FILE=%s", argv[2]);
     if (putenv(appEnv)) {
@@ -171,7 +163,7 @@ static int do_main(int argc, char* argv[], nsIFile *xreDirectory)
     argv += 2;
     argc -= 2;
   }
-  
+
   int result;
   if (appini) {
     nsXREAppData *appData;
@@ -182,7 +174,7 @@ static int do_main(int argc, char* argv[], nsIFile *xreDirectory)
     }
     // xreDirectory already has a refcount from NS_NewLocalFile
     appData->xreDirectory = xreDirectory;
-    result = XRE_main(argc, argv, appData, 0);
+    result = XRE_main(argc, argv, appData, mainFlags);
     XRE_FreeAppData(appData);
   } else {
     ScopedAppData appData(&sAppData);
@@ -204,7 +196,7 @@ static int do_main(int argc, char* argv[], nsIFile *xreDirectory)
 
     result = XRE_main(argc, argv, &appData, mainFlags);
   }
-  
+
   return result;
 }
 
@@ -339,7 +331,7 @@ int main(int argc, char* argv[])
   IO_COUNTERS ioCounters;
   gotCounters = GetProcessIoCounters(GetCurrentProcess(), &ioCounters);
 #endif
-  
+
   nsIFile *xreDirectory;
 
 #ifdef HAS_DLL_BLOCKLIST
@@ -382,12 +374,19 @@ int main(int argc, char* argv[])
     }
 #endif
   }
-  
-  int result;
-  {
-    ScopedLogging log;
-    result = do_main(argc, argv, xreDirectory);
-  }
-  
+
+  int result = do_main(argc, argv, xreDirectory);
+
+  NS_LogTerm();
+
+#ifdef XP_MACOSX
+  // Allow writes again. While we would like to catch writes from static
+  // destructors to allow early exits to use _exit, we know that there is
+  // at least one such write that we don't control (see bug 826029). For
+  // now we enable writes again and early exits will have to use exit instead
+  // of _exit.
+  XRE_StopLateWriteChecks();
+#endif
+
   return result;
 }
