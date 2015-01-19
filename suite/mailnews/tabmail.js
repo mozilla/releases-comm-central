@@ -543,6 +543,13 @@ function MsgOpenNewTabForMessage()
   MsgOpenNewTab("3pane", kTabModeMessage);
 }
 
+// A Thunderbird compatibility function called from e.g. newsblog.
+// We ignore aHandlerRegExp as it is not needed by SeaMonkey.
+function openContentTab(aUrl, aWhere, aHandlerRegExp)
+{
+  openUILinkIn(aUrl, aWhere);
+}
+
 function MsgCloseCurrentTab()
 {
   var tabmail = GetTabMail();
