@@ -44,12 +44,12 @@ function test_parameterCollect() {
     },
     {
       data: [["one"], ["two", "password"], ["three"]],
-      result: "JOIN two,one,three password,,"
+      result: "JOIN two,one,three password"
     },
     {
       data: [["one"], ["two", "password"], ["three"],
              ["four", "anotherpassword"]],
-      result: "JOIN two,four,one,three password,anotherpassword,,"
+      result: "JOIN two,four,one,three password,anotherpassword"
     }
   ];
 
@@ -127,9 +127,9 @@ function test_maxLength() {
         ["blueberrypancake"], ["mangojuice"], ["raspberryberet"],
         ["pineapplesoup"], ["limejelly", "password2"], ["lemonsorbet"]],
       results: [
-        "JOIN strawberryfield,applecustard,pearpie password1,,",
+        "JOIN strawberryfield,applecustard,pearpie password1",
         "JOIN blueberrypancake,mangojuice,raspberryberet",
-        "JOIN limejelly,pineapplesoup,lemonsorbet password2,,"
+        "JOIN limejelly,pineapplesoup,lemonsorbet password2"
       ]
     }
   ];

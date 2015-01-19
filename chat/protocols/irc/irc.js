@@ -1031,9 +1031,9 @@ ircAccount.prototype = {
       // together, i.e. grab the columns of this matrix, and build the two
       // parameters of the command from that.
       let channels = items.map(([channel, key]) => channel);
-      let keys = items.map(([channel, key]) => key);
+      let keys = items.map(([channel, key]) => key).filter(key => !!key);
       let params = [channels.join(",")];
-      if (keys.some(key => !!key))
+      if (keys.length)
         params.push(keys.join(","));
       return params;
     };
