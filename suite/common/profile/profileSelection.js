@@ -107,6 +107,7 @@ function AcceptDialog()
   try {
     var profileLock = selected.profile.lock({});
     gProfileService.selectedProfile = selected.profile;
+    gProfileService.defaultProfile = selected.profile;
     gProfileService.flush();
     if (gDialogParams.objects) {
       gDialogParams.objects.insertElementAt(profileLock, 0, false);
