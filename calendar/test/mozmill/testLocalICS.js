@@ -74,7 +74,6 @@ var testLocalICS = function () {
   controller.waitForElement(new elementslib.Lookup(controller.window.document, box));
 
   // verify in file
-  let contents = "";
   let fstream = Components.classes["@mozilla.org/network/file-input-stream;1"]
                           .createInstance(Components.interfaces.nsIFileInputStream);
   let cstream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
@@ -89,14 +88,12 @@ var testLocalICS = function () {
 
   fstream.init(file, -1, 0, 0);
   cstream.init(fstream, "UTF-8", 0, 0);
-  
-  let (str = {}) {
-    cstream.readString(-1, str);
-    contents = str.value;
-  }
-  
+
+  let str = {};
+  cstream.readString(-1, str);
   cstream.close();
-  controller.assertJS(contents.indexOf("SUMMARY:" + title) != -1);
+
+  controller.assertJS(str.value.indexOf("SUMMARY:" + title) != -1);
 }
 
 var teardownTest = function(module) {

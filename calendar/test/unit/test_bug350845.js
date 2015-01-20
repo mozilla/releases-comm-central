@@ -16,16 +16,9 @@ function run_test() {
     do_check_true(event.hasPropertyParameter("X-FOO", "X-BAR"));
 
     // Test setters
-    let (passed = false) {
-        try {
-            event.setPropertyParameter("X-UNKNOWN", "UNKNOWN", "VALUE");
-        } catch (e) {
-            passed = true;
-        }
-        if (!passed) {
-            do_throw("Setting parameter on unset property unexpectedly succeeded");
-        }
-    }
+    do_check_throws(function() {
+      event.setPropertyParameter("X-UNKNOWN", "UNKNOWN", "VALUE");
+    }, Components.results.NS_ERROR_XPC_JS_THREW_STRING);
 
     // More setters
     event.setPropertyParameter("X-FOO", "X-BAR", "FNORD");
@@ -33,16 +26,9 @@ function run_test() {
     do_check_neq(event.icalString.match(/^X-FOO;X-BAR=FNORD:QUUX$/m), null);
 
     // Enumerator
-    let (passed = false) {
-        try {
-            event.getParameterEnumerator("X-UNKNOWN");
-        } catch (e) {
-            passed = true;
-        }
-        if (!passed) {
-            do_throw("Getting parameter enumerator on unset property unexpectedly succeeded");
-        }
-    }
+    do_check_throws(function() {
+      event.getParameterEnumerator("X-UNKNOWN");
+    }, Components.results.NS_ERROR_XPC_JS_THREW_STRING);
 
     // More enumerator
     let enume = event.getParameterEnumerator("X-FOO");
