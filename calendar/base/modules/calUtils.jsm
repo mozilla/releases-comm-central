@@ -83,7 +83,8 @@ let cal = {
      * Create an adapter for the given interface. If passed, methods will be
      * added to the template object, otherwise a new object will be returned.
      *
-     * @param iface     The interface to adapt (Components.interfaces...)
+     * @param iface     The interface to adapt, either using
+     *                    Components.interfaces or the name as a string.
      * @param template  (optional) A template object to extend
      * @return          If passed the adapted template object, otherwise a
      *                    clean adapter.
@@ -97,20 +98,20 @@ let cal = {
     createAdapter: function createAdapter(iface, template) {
         let methods;
         let adapter = template || {};
-        switch (iface) {
-            case Components.interfaces.calIObserver:
+        switch (iface.name || iface) {
+            case "calIObserver":
                 methods = ["onStartBatch", "onEndBatch", "onLoad", "onAddItem",
                            "onModifyItem", "onDeleteItem", "onError",
                            "onPropertyChanged", "onPropertyDeleting"];
                 break;
-            case Components.interfaces.calICalendarManagerObserver:
+            case "calICalendarManagerObserver":
                 methods = ["onCalendarRegistered", "onCalendarUnregistering",
                            "onCalendarDeleting"];
                 break;
-            case Components.interfaces.calIOperationListener:
+            case "calIOperationListener":
                 methods = ["onGetResult", "onOperationComplete"];
                 break;
-            case Components.interfaces.calICompositeObserver:
+            case "calICompositeObserver":
                 methods = ["onCalendarAdded", "onCalendarRemoved",
                            "onDefaultCalendarChanged"];
                 break;
