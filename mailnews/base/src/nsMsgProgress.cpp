@@ -235,7 +235,7 @@ NS_IMETHODIMP nsMsgProgress::GetMsgWindow(nsIMsgWindow **aMsgWindow)
 }
 
 NS_IMETHODIMP nsMsgProgress::OnProgress(nsIRequest *request, nsISupports* ctxt,
-                                        uint64_t aProgress, uint64_t aProgressMax)
+                                        int64_t aProgress, int64_t aProgressMax)
 {
   // XXX: What should the nsIWebProgress be?
   // XXX: This truncates 64-bit to 32-bit

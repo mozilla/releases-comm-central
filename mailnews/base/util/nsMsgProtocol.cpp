@@ -749,7 +749,7 @@ nsMsgProtocol::SetNotificationCallbacks(nsIInterfaceRequestor* aNotificationCall
 
 NS_IMETHODIMP
 nsMsgProtocol::OnTransportStatus(nsITransport *transport, nsresult status,
-                                 uint64_t progress, uint64_t progressMax)
+                                 int64_t progress, int64_t progressMax)
 {
   if ((mLoadFlags & LOAD_BACKGROUND) || !m_url)
     return NS_OK;

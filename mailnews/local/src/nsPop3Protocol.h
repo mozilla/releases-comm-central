@@ -269,7 +269,7 @@ public:
 
   nsresult StartGetAsyncPassword(Pop3StatesEnum aNextState);
 
-  NS_IMETHOD OnTransportStatus(nsITransport *transport, nsresult status, uint64_t progress, uint64_t progressMax) MOZ_OVERRIDE;
+  NS_IMETHOD OnTransportStatus(nsITransport *transport, nsresult status, int64_t progress, int64_t progressMax) MOZ_OVERRIDE;
   NS_IMETHOD OnStopRequest(nsIRequest *request, nsISupports * aContext, nsresult aStatus) MOZ_OVERRIDE;
   NS_IMETHOD Cancel(nsresult status) MOZ_OVERRIDE;
 

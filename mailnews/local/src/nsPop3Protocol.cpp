@@ -910,7 +910,7 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptCanceled()
   return NS_OK;
 }
 
-NS_IMETHODIMP nsPop3Protocol::OnTransportStatus(nsITransport *aTransport, nsresult aStatus, uint64_t aProgress, uint64_t aProgressMax)
+NS_IMETHODIMP nsPop3Protocol::OnTransportStatus(nsITransport *aTransport, nsresult aStatus, int64_t aProgress, int64_t aProgressMax)
 {
   return nsMsgProtocol::OnTransportStatus(aTransport, aStatus, aProgress, aProgressMax);
 }

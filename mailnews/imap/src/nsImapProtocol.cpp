@@ -9580,7 +9580,7 @@ nsImapMockChannel::SetNotificationCallbacks(nsIInterfaceRequestor* aNotification
 
 NS_IMETHODIMP
 nsImapMockChannel::OnTransportStatus(nsITransport *transport, nsresult status,
-                                     uint64_t progress, uint64_t progressMax)
+                                     int64_t progress, int64_t progressMax)
 {
   if (NS_FAILED(m_cancelStatus) || (mLoadFlags & LOAD_BACKGROUND) || !m_url)
     return NS_OK;
