@@ -51,3 +51,36 @@ tr:first-child > td {
   overflow: hidden;
 }
 
+#reset-box {
+  background-color: #C7D0D9;
+  border: 1px solid #2D3B49;
+  color: #22262F;
+  float: right;
+  margin-top: 2em;
+  margin-bottom: 20px;
+  -moz-margin-start: 20px;
+  -moz-margin-end: 0;
+  padding: 16px;
+  width: 30%;
+  visibility: hidden;
+}
+
+#reset-box:-moz-dir(rtl) {
+  float: left;
+}
+
+#reset-box > h3 {
+  margin-top: 0;
+}
+
+#reset-box > button {
+  display: block;
+}
+
+.block {
+  display: block;
+}
+
+.hidden {
+  display: none;
+}
