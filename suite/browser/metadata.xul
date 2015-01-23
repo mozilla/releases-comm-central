@@ -7,25 +7,21 @@
 <?xml-stylesheet href="chrome://navigator/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://navigator/skin/pageInfo.css" type="text/css"?>
 
-<?xul-overlay href="chrome://global/content/dialogOverlay.xul"?>
-
-<!DOCTYPE window [
+<!DOCTYPE dialog [
   <!ENTITY % metadataDTD SYSTEM "chrome://navigator/locale/metadata.dtd" >
   %metadataDTD;
 ]>
  
-<window id="metadata"
+<dialog id="metadata"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="&caption.label;"
         onload="onLoad()"
-        class="dialog"
         minwidth="350"
+        buttons="none"
         persist="screenX screenY"
         screenX="24" screenY="24">
 
   <script type="application/javascript" src="chrome://navigator/content/metadata.js"/>
-
-  <keyset id="dialogKeys"/>
 
   <stringbundle src="chrome://navigator/locale/metadata.properties" id="bundle_metadata"/>
   <stringbundle src="chrome://global/locale/languageNames.properties" id="bundle_languages"/>
@@ -193,4 +189,4 @@
     </grid>
     <separator/>
   </vbox>
- </window>
+ </dialog>
