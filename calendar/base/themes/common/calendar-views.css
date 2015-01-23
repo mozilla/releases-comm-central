@@ -21,11 +21,10 @@ window {
     --viewDayBoxOtherSelectedBackground: #fffcd8;
     --viewMonthCurrentBackground: #f7f7f7;
     --viewMonthOtherBackground: #f3f3f3;
-    --viewMonthDayBoxSelectedColor: -moz-dialogtext;
+    --viewMonthDayBoxSelectedColor: #616163;
     --viewMonthDayBoxSelectedBackground: #f2edb2;
     --viewMonthDayBoxLabelColor: #616163;
     --viewMonthDayBoxLabelTexture: none;
-    --viewMonthDayOtherColor: -moz-dialogtext;
     --viewMonthDayOtherBackground: #e8e8e8;
     --viewMonthDayOtherLabelBackground: #ddd;
     --viewMonthDayOffLabelBackground: #eaf7ca;
@@ -60,7 +59,6 @@ window[systemcolors] {
     --viewMonthDayBoxSelectedBackground: Highlight;
     --viewMonthDayBoxLabelColor: WindowText;
     --viewMonthDayBoxLabelTexture: linear-gradient(rgba(0, 0, 0, .05), rgba(0, 0, 0, .05));
-    --viewMonthDayOtherColor: GrayText;
     --viewMonthDayOtherBackground: ButtonFace;
     --viewMonthDayOtherLabelBackground: ButtonFace;
     --viewMonthDayOffLabelBackground: rgba(0, 0, 0, .1);
@@ -590,7 +588,6 @@ calendar-month-day-box {
 }
 
 .calendar-month-day-box-other-month .calendar-month-day-box-date-label {
-    color: var(--viewMonthDayOtherColor);
     background-color: var(--viewMonthDayOtherBackground);
 }
 
@@ -599,7 +596,6 @@ calendar-month-day-box {
 }
 
 .calendar-month-day-box-other-month.calendar-month-day-box-day-off .calendar-month-day-box-date-label {
-    color: var(--viewMonthDayOtherColor);
     background-color: var(--viewMonthDayOtherLabelBackground);
 }
 
@@ -637,6 +633,10 @@ calendar-month-day-box {
 
 .calendar-month-day-box-date-label[relation="today"][selected="true"] {
     background-color: var(--viewTodayLabelBackground);
+}
+
+.calendar-month-day-box-other-month.calendar-month-day-box-day-off .calendar-month-day-box-date-label[selected="true"] {
+    background-color: var(--viewMonthDayBoxSelectedBackground);
 }
 
 .calendar-month-day-box-date-label {
