@@ -97,6 +97,7 @@
                       <hbox pack="center">
                         <deck id="weekdayNameContainer" pack="center"
                               ondblclick="TodayPane.onDoubleClick(event);">
+                          <label/><!-- workaround for bug 1070491-->
                           <label/>
                           <label/>
                           <label/>

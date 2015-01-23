@@ -104,8 +104,13 @@ var TodayPane = {
             this.setMonthDescription(monthlabel, i,  kYEARINIT, kCALWEEKINIT);
         }
 
+        let now = cal.now();
+        // Workaround for bug 1070491. Show the correct month and year
+        // after startup even if deck's selectedIndex is reset to 0.
+        this.setMonthDescription(childNodes[0], now.month, now.year, kCALWEEKINIT);
+
         agendaListbox.addListener(this);
-        this.setDay(cal.now());
+        this.setDay(now);
     },
 
     /**
@@ -312,8 +317,14 @@ var TodayPane = {
     setShortWeekdays: function setShortWeekdays() {
         let weekdisplaydeck = document.getElementById("weekdayNameContainer");
         let childNodes = weekdisplaydeck.childNodes;
-        for (let i = 0; i < childNodes.length; i++) {
-            childNodes[i].setAttribute("value", cal.calGetString("dateFormat","day." + (i+1) + ".Mmm"));
+
+        // Workaround for bug 1070491. Show the correct weekday after
+        // startup even if deck's selectedIndex is reset to 0.
+        let weekday = cal.now().weekday + 1;
+        childNodes[0].setAttribute("value", cal.calGetString("dateFormat", "day." + weekday + ".Mmm"));
+
+        for (let i = 1; i < childNodes.length; i++) {
+            childNodes[i].setAttribute("value", cal.calGetString("dateFormat", "day." + i + ".Mmm"));
         }
     },
 
@@ -342,7 +353,7 @@ var TodayPane = {
         daylabel.value = this.start.day;
 
         let weekdaylabel = document.getElementById("weekdayNameContainer");
-        weekdaylabel.selectedIndex = this.start.weekday;
+        weekdaylabel.selectedIndex = this.start.weekday + 1;
 
         let monthnamedeck = document.getElementById("monthNameContainer");
         monthnamedeck.selectedIndex = this.start.month;
