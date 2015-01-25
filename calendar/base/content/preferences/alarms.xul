@@ -63,33 +63,45 @@
 
         <groupbox>
             <caption label="&pref.alarmgoesoff.label;"/>
-            <vbox>
-                <hbox align="center" flex="1">
-                    <checkbox id="alarmSoundCheckbox"
-                              preference="calendar.alarms.playsound"
-                              label="&pref.playasound;"
-                              accesskey="&pref.calendar.alarms.playsound.accessKey;"/>
-                    <filefield id="alarmSoundFileField"
-                               flex="1"
-                               preference="calendar.alarms.soundURL"
-                               preference-editable="true"
-                               onsyncfrompreference="return gAlarmsPane.readSoundLocation();"/>
-                </hbox>
-                <hbox pack="end">
-                    <button id="calendar.prefs.alarm.sound.useDefault"
-                            label="&pref.calendar.alarms.sound.useDefault.label;"
-                            accesskey="&pref.calendar.alarms.sound.useDefault.accessKey;"
-                            oncommand="gAlarmsPane.useDefaultSound()"/>
-                    <button id="calendar.prefs.alarm.sound.browse"
-                            label="&pref.calendar.alarms.sound.browse.label;"
-                            accesskey="&pref.calendar.alarms.sound.browse.accessKey;"
-                            oncommand="gAlarmsPane.browseAlarm()"/>
-                    <button id="calendar.prefs.alarm.sound.play"
-                            label="&pref.calendar.alarms.sound.play.label;"
-                            accesskey="&pref.calendar.alarms.sound.play.accessKey;"
-                            oncommand="gAlarmsPane.previewAlarm()"/>
-                </hbox>
-            </vbox>
+            <grid id="alarm-sound-grid">
+                <columns id="alarm-sound-columns">
+                    <column id="alarm-sound-label-column"/>
+                    <column id="alarm-sound-content-column" flex="1"/>
+                </columns>
+                <rows id="alarm-sound-rows">
+                    <row id="alarm-sound-soundfile-row" align="center">
+                        <checkbox id="alarmSoundCheckbox"
+                                  preference="calendar.alarms.playsound"
+                                  label="&pref.playasound;"
+                                  accesskey="&pref.calendar.alarms.playsound.accessKey;"/>
+                        <filefield id="alarmSoundFileField"
+                                   flex="1"
+                                   preference="calendar.alarms.soundURL"
+                                   preference-editable="true"
+                                   onsyncfrompreference="return gAlarmsPane.readSoundLocation();"/>
+                    </row>
+                    <row id="alarm-sound-buttons-row">
+                        <spacer id="alarm-sound-spacer"/>
+                        <hbox id="alarm-sound-buttons-box">
+                            <button id="calendar.prefs.alarm.sound.useDefault"
+                                    flex="1"
+                                    label="&pref.calendar.alarms.sound.useDefault.label;"
+                                    accesskey="&pref.calendar.alarms.sound.useDefault.accessKey;"
+                                    oncommand="gAlarmsPane.useDefaultSound()"/>
+                            <button id="calendar.prefs.alarm.sound.browse"
+                                    flex="1"
+                                    label="&pref.calendar.alarms.sound.browse.label;"
+                                    accesskey="&pref.calendar.alarms.sound.browse.accessKey;"
+                                    oncommand="gAlarmsPane.browseAlarm()"/>
+                            <button id="calendar.prefs.alarm.sound.play"
+                                    flex="1"
+                                    label="&pref.calendar.alarms.sound.play.label;"
+                                    accesskey="&pref.calendar.alarms.sound.play.accessKey;"
+                                    oncommand="gAlarmsPane.previewAlarm()"/>
+                        </hbox>
+                    </row>
+                </rows>
+            </grid>
             <hbox align="center" flex="1">
                 <checkbox id="alarmshow"
                           preference="calendar.alarms.show"
