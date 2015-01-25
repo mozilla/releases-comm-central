@@ -21,6 +21,7 @@
 #include "nsUnicharUtils.h"
 #include "nsIFile.h"
 
+class nsIChannel;
 class nsIFile;
 class nsIPrefBranch;
 class nsIMsgFolder;
@@ -227,8 +228,8 @@ NS_MSG_BASE nsresult MsgGetHeadersFromKeys(nsIMsgDatabase *aDB,
                                            const nsTArray<nsMsgKey> &aKeys,
                                            nsIMutableArray *aHeaders);
  
-NS_MSG_BASE nsresult MsgExamineForProxy(const char *scheme, const char *host,
-                                        int32_t port, nsIProxyInfo **proxyInfo);
+NS_MSG_BASE nsresult MsgExamineForProxy(nsIChannel *channel,
+                                        nsIProxyInfo **proxyInfo);
 
 NS_MSG_BASE int32_t MsgFindCharInSet(const nsCString &aString,
                                      const char* aChars, uint32_t aOffset = 0);

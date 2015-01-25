@@ -283,11 +283,13 @@ void nsSmtpProtocol::Initialize(nsIURI * aURL)
     }
     InitPrefAuthMethods(authMethod);
 
-#if defined(PR_LOGGING)
     nsAutoCString hostName;
+    int32_t port = 0;
+
+    aURL->GetPort(&port);
     aURL->GetAsciiHost(hostName);
+
     PR_LOG(SMTPLogModule, PR_LOG_ALWAYS, ("SMTP Connecting to: %s", hostName.get()));
-#endif
 
     // When we are making a secure connection, we need to make sure that we
     // pass an interface requestor down to the socket transport so that PSM can
@@ -297,19 +299,27 @@ void nsSmtpProtocol::Initialize(nsIURI * aURL)
     if (smtpUrl)
         smtpUrl->GetNotificationCallbacks(getter_AddRefs(callbacks));
 
+    nsCOMPtr<nsIProxyInfo> proxyInfo;
+    rv = MsgExamineForProxy(this, getter_AddRefs(proxyInfo));
+    if (NS_FAILED(rv)) proxyInfo = nullptr;
+
     if (m_prefSocketType == nsMsgSocketType::SSL)
-        rv = OpenNetworkSocket(aURL, "ssl", callbacks);
+        rv = OpenNetworkSocketWithInfo(hostName.get(), port, "ssl", proxyInfo,
+            callbacks);
     else if (m_prefSocketType != nsMsgSocketType::plain)
     {
-        rv = OpenNetworkSocket(aURL, "starttls", callbacks);
+        rv = OpenNetworkSocketWithInfo(hostName.get(), port, "starttls",
+            proxyInfo, callbacks);
         if (NS_FAILED(rv) && m_prefSocketType == nsMsgSocketType::trySTARTTLS)
         {
             m_prefSocketType = nsMsgSocketType::plain;
-            rv = OpenNetworkSocket(aURL, nullptr, callbacks);
+            rv = OpenNetworkSocketWithInfo(hostName.get(), port, nullptr,
+                proxyInfo, callbacks);
         }
     }
     else
-        rv = OpenNetworkSocket(aURL, nullptr, callbacks);
+        rv = OpenNetworkSocketWithInfo(hostName.get(), port, nullptr, proxyInfo,
+            callbacks);
 }
 
 void nsSmtpProtocol::AppendHelloArgument(nsACString& aResult)

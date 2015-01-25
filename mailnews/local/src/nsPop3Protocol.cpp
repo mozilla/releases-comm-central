@@ -531,7 +531,7 @@ nsresult nsPop3Protocol::Initialize(nsIURI * aURL)
       server->GetRealHostName(hostName);
 
     nsCOMPtr<nsIProxyInfo> proxyInfo;
-    rv = MsgExamineForProxy("pop", hostName.get(), port, getter_AddRefs(proxyInfo));
+    rv = MsgExamineForProxy(this, getter_AddRefs(proxyInfo));
     if (NS_FAILED(rv)) proxyInfo = nullptr;
 
     const char *connectionType = nullptr;

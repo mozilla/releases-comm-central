@@ -25,7 +25,6 @@
 #include "prprf.h"
 #include "plbase64.h"
 #include "nsIStringBundle.h"
-#include "nsIProtocolProxyService2.h"
 #include "nsIProxyInfo.h"
 #include "nsThreadUtils.h"
 #include "nsIPrefBranch.h"
@@ -161,67 +160,6 @@ nsMsgProtocol::OpenNetworkSocketWithInfo(const char * aHostName,
     strans->SetQoSBits(qos);
 
   return SetupTransportState();
-}
-
-// open a connection on this url
-nsresult
-nsMsgProtocol::OpenNetworkSocket(nsIURI * aURL, const char *connectionType,
-                                 nsIInterfaceRequestor* callbacks)
-{
-  NS_ENSURE_ARG(aURL);
-
-  nsAutoCString hostName;
-  int32_t port = 0;
-
-  aURL->GetPort(&port);
-  aURL->GetAsciiHost(hostName);
-
-  nsCOMPtr<nsIProxyInfo> proxyInfo;
-
-  nsCOMPtr<nsIProtocolProxyService2> pps =
-      do_GetService("@mozilla.org/network/protocol-proxy-service;1");
-
-  NS_ASSERTION(pps, "Couldn't get the protocol proxy service!");
-
-  if (pps)
-  {
-      nsresult rv = NS_OK;
-
-      // Yes, this is ugly. But necko needs to grap a protocol handler
-      // to ask for flags, and smtp isn't registered as a handler, only
-      // mailto.
-      // Note that I cannot just clone, and call SetSpec, since Clone on
-      // nsSmtpUrl calls nsStandardUrl's clone method, which fails
-      // because smtp isn't a registered protocol.
-      // So we cheat. Whilst creating a uri manually is valid here,
-      // do _NOT_ copy this to use in your own code - bbaetz
-      nsCOMPtr<nsIURI> proxyUri = aURL;
-      bool isSMTP = false;
-      if (NS_SUCCEEDED(aURL->SchemeIs("smtp", &isSMTP)) && isSMTP)
-      {
-          nsAutoCString spec;
-          rv = aURL->GetSpec(spec);
-          if (NS_SUCCEEDED(rv))
-              proxyUri = do_CreateInstance(NS_STANDARDURL_CONTRACTID, &rv);
-
-          if (NS_SUCCEEDED(rv))
-              rv = proxyUri->SetSpec(spec);
-          if (NS_SUCCEEDED(rv))
-              rv = proxyUri->SetScheme(NS_LITERAL_CSTRING("mailto"));
-      }
-      //
-      // XXX(darin): Consider using AsyncResolve instead to avoid blocking
-      //             the calling thread in cases where PAC may call into
-      //             our DNS resolver.
-      //
-      if (NS_SUCCEEDED(rv))
-          rv = pps->DeprecatedBlockingResolve(proxyUri, 0, getter_AddRefs(proxyInfo));
-      NS_ASSERTION(NS_SUCCEEDED(rv), "Couldn't successfully resolve a proxy");
-      if (NS_FAILED(rv)) proxyInfo = nullptr;
-  }
-
-  return OpenNetworkSocketWithInfo(hostName.get(), port, connectionType,
-                                   proxyInfo, callbacks);
 }
 
 nsresult nsMsgProtocol::GetFileFromURL(nsIURI * aURL, nsIFile **aResult)

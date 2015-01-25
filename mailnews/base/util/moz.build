@@ -65,6 +65,10 @@ EXTRA_JS_MODULES += [
     'traceHelper.js',
 ]
 
+LOCAL_INCLUDES += [
+  '/mozilla/netwerk/base'
+]
+
 FINAL_LIBRARY = 'mail'
 
 Library('msgbsutl_s')

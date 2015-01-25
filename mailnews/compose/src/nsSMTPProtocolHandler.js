@@ -17,6 +17,7 @@ function makeProtocolHandler(aProtocol, aDefaultPort, aClassID) {
     protocolFlags: nsIProtocolHandler.URI_NORELATIVE |
                    nsIProtocolHandler.URI_DANGEROUS_TO_LOAD |
       nsIProtocolHandler.URI_NON_PERSISTABLE |
+      nsIProtocolHandler.ALLOWS_PROXY |
       nsIProtocolHandler.URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT,
 
     newURI: function (aSpec, aOriginCharset, aBaseURI) {

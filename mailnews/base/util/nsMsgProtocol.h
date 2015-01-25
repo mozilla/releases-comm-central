@@ -81,11 +81,6 @@ protected:
   // mscott -okay this is lame. I should break this up into a file protocol and a socket based
   // protocool class instead of cheating and putting both methods here...
 
-  // open a connection on this url
-  virtual nsresult OpenNetworkSocket(nsIURI * aURL,
-                                     const char *connectionType,
-                                     nsIInterfaceRequestor* callbacks);
-
   // open a connection with a specific host and port
   // aHostName must be UTF-8 encoded.
   virtual nsresult OpenNetworkSocketWithInfo(const char * aHostName,

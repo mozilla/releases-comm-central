@@ -834,8 +834,9 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI * aURL, nsISupports* aConsumer)
         else if (m_socketType == nsMsgSocketType::trySTARTTLS)
           connectionType =  "starttls";
 
+        m_url = aURL; // Need to set the URL before getting proxy info.
         nsCOMPtr<nsIProxyInfo> proxyInfo;
-        rv = MsgExamineForProxy("imap", m_realHostName.get(), port, getter_AddRefs(proxyInfo));
+        rv = MsgExamineForProxy(this, getter_AddRefs(proxyInfo));
         if (NS_FAILED(rv))
           proxyInfo = nullptr;
 

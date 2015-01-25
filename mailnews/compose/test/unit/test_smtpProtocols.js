@@ -7,6 +7,7 @@ const defaultProtocolFlags =
   Ci.nsIProtocolHandler.URI_NORELATIVE |
   Ci.nsIProtocolHandler.URI_DANGEROUS_TO_LOAD |
   Ci.nsIProtocolHandler.URI_NON_PERSISTABLE |
+  Ci.nsIProtocolHandler.ALLOWS_PROXY |
   Ci.nsIProtocolHandler.URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT;
 
 const protocols =

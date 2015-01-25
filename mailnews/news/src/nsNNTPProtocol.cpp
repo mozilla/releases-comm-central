@@ -432,7 +432,7 @@ NS_IMETHODIMP nsNNTPProtocol::Initialize(nsIURI *aURL, nsIMsgWindow *aMsgWindow)
       this, hostName.get(), port));
 
     nsCOMPtr<nsIProxyInfo> proxyInfo;
-    rv = MsgExamineForProxy("nntp", hostName.get(), port, getter_AddRefs(proxyInfo));
+    rv = MsgExamineForProxy(this, getter_AddRefs(proxyInfo));
     if (NS_FAILED(rv)) proxyInfo = nullptr;
 
     rv = OpenNetworkSocketWithInfo(hostName.get(), port,
