@@ -139,15 +139,15 @@ function onSynchronizeClick(event)
 
     if (elt.value == "twisty") {
         var folderResource = GetFolderResource(gSynchronizeTree, row.value);
-        var msgFolder = folderResource.QueryInterface(Components.interfaces.nsIMsgFolder);
+        var folder = folderResource.QueryInterface(Components.interfaces.nsIMsgFolder);
 
         if (!(gSynchronizeTree.treeBoxObject.view.isContainerOpen(row.value))) {
-            var serverType = msgFolder.server.type;
+            var serverType = folder.server.type;
             // imap is the only server type that does folder discovery
             if (serverType != "imap") return;
 
             if (folder.isServer) {
-                var server = msgFolder.server;
+                var server = folder.server;
                 server.performExpand(gMsgWindow);
             }
             else {
