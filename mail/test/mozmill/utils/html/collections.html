@@ -2,11 +2,15 @@
   <head>
     <title>Collections</title>
     <script type="application/javascript;version=1.7">
-      var gIterator = Iterator([1, 2, 3, 4, 5]);
+      const JS_HAS_SYMBOLS = typeof Symbol === "function";
+      const ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
+      var gIterator = (function*() {
+        yield 1; yield 2; yield 3; yield 4; yield 5;
+      })();
 
       var gCustomIterator = {
         _array: [6, 7, 8, 9],
-        __iterator__: function testIterator() {
+        [ITERATOR_SYMBOL]: function* testIterator() {
           for (var i = 0; i < this._array.length; ++i)
             yield this._array[i];
         }
@@ -14,8 +18,8 @@
     </script>
   </head>
   <body>
-    I have two collections defined - gIterator is an Iterator, and contains
-    [1, 2, 3, 4, 5], and gCustomIterator is an object with an __iterator__
+    I have two collections defined - gIterator is an iterator, and contains
+    [1, 2, 3, 4, 5], and gCustomIterator is an object with an @@iterator
     method that contains [6, 7, 8, 9].
   </body>
 </html>
