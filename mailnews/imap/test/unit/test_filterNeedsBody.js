@@ -7,9 +7,6 @@
  */
 
 load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-
-Components.utils.import("resource:///modules/mailServices.js");
 
 // Globals
 var gFilter; // a message filter with a subject search
@@ -18,26 +15,26 @@ const gMessage = "draft1"; // message file used as the test message
 
 // Definition of tests
 var tests = [
+  setupIMAPPump,
   setup,
   function NeedsBodyTrue() {
     gAction.type = Ci.nsMsgFilterAction.Custom;
     gAction.customId = 'mailnews@mozilla.org#testOffline';
     actionTestOffline.needsBody = true;
     gAction.strValue = 'true';
-    runFilterAction(gFilter, gAction);
   },
+  runFilterAction,
   function NeedsBodyFalse() {
     gAction.type = Ci.nsMsgFilterAction.Custom;
     gAction.customId = 'mailnews@mozilla.org#testOffline';
     actionTestOffline.needsBody = false;
     gAction.strValue = 'false';
-    runFilterAction(gFilter, gAction);
   },
-  teardown
+  runFilterAction,
+  teardownIMAPPump
 ];
 
 function setup() {
-  setupIMAPPump();
 
   // Create a test filter.
   let filterList = IMAPPump.incomingServer.getFilterList(null);
@@ -56,29 +53,27 @@ function setup() {
 }
 
 // basic preparation done for each test
-function runFilterAction(aFilter, aAction) {
+function *runFilterAction() {
   let filterList = IMAPPump.incomingServer.getFilterList(null);
   while (filterList.filterCount)
     filterList.removeFilterAt(0);
-  if (aFilter) {
-    aFilter.clearActionList();
-    if (aAction) {
-      aFilter.appendAction(aAction);
-      filterList.insertFilterAt(0, aFilter);
+  if (gFilter) {
+    gFilter.clearActionList();
+    if (gAction) {
+      gFilter.appendAction(gAction);
+      filterList.insertFilterAt(0, gFilter);
     }
   }
   IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
-                          IMAPPump.mailbox.uidnext++, []));
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
-}
-
-function teardown() {
-  teardownIMAPPump();
+                              IMAPPump.mailbox.uidnext++, []));
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  yield listener.promise;
 }
 
 function run_test() {
-  async_run_tests(tests);
+  tests.forEach(add_task);
+  run_next_test();
 }
 
 // custom action to test offline status
@@ -92,7 +87,7 @@ let actionTestOffline =
     {
       var msgHdr = aMsgHdrs.queryElementAt(i, Ci.nsIMsgDBHdr);
       let isOffline = msgHdr.flags & Ci.nsMsgMessageFlags.Offline;
-      do_check_eq(isOffline, aActionValue == 'true');
+      Assert.equal(!!isOffline, aActionValue == 'true');
     }
   },
   isValidForType: function(type, scope) {return true;},
@@ -109,9 +104,8 @@ let actionTestOffline =
  */
 
 // given a test file, return the file uri spec
-function specForFileName(aFileName)
-{
-  let file = do_get_file("../../../data/" + aFileName);
+function specForFileName(aFileName) {
+  let file = do_get_file(gDEPTH + "mailnews/data/" + aFileName);
   let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;
 }

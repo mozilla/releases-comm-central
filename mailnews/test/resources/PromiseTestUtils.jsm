@@ -249,10 +249,49 @@ PromiseTestUtils.promiseFolderAdded = function promiseFolderAdded(folderName) {
  * @return          promise that resolves after the delay
  */
 
-PromiseTestUtils.promiseDelay= function promiseDelay(aDelay)
+PromiseTestUtils.promiseDelay = function promiseDelay(aDelay)
 {
   return new Promise((resolve, reject) => {
     let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
     timer.initWithCallback(resolve, aDelay, Ci.nsITimer.TYPE_ONE_SHOT);
   });
+}
+
+/**
+ * Search listener to resolve a promise when a search completes
+ *
+ * @param [aSearchSession] The nsIMsgSearchSession to search
+ * @param [aWrapped] The nsIMsgSearchNotify to pass all notifications through to.
+ *     This gets called prior to the callback (or async resumption).
+ */
+
+PromiseTestUtils.PromiseSearchNotify = function(aSearchSession, aWrapped) {
+  this._searchSession = aSearchSession;
+  this._searchSession.registerListener(this);
+  this.wrapped = aWrapped ? aWrapped.QueryInterface(Ci.nsIMsgSearchNotify) : null;
+  this._promise = new Promise((resolve, reject) => {
+    this._resolve = resolve;
+    this._reject = reject;
+  });
+}
+ 
+PromiseTestUtils.PromiseSearchNotify.prototype = {
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgSearchNotify]),
+  onSearchHit: function(aHeader, aFolder) {
+    if (this.wrapped && this.wrapped.onSearchHit)
+      this.wrapped.onSearchHit(aHeader, aFolder);
+  },
+  onSearchDone: function onSearchDone(aResult) {
+    this._searchSession.unregisterListener(this);
+    if (this.wrapped && this.wrapped.onSearchDone)
+      this.wrapped.onSearchDone(aResult);
+    if (aResult == Cr.NS_OK)
+      this._resolve();
+    else
+      this._reject(aResult);
+  },
+  onNewSearch: function onNewSearch() {
+    if (this.wrapped && this.wrapped.onNewSearch)
+      this.wrapped.onNewSearch();
+  }
 }

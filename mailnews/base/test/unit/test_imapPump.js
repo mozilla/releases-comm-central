@@ -22,28 +22,44 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 // Messages to load must have CRLF line endings, that is Windows style
 const gMessage = "bugmail10"; // message file used as the test message
 
-setupIMAPPump();
-
 // Definition of tests
 
 // load and update a message in the imap fake server
-add_task(function* loadImapMessage() {
-  IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
-                          IMAPPump.mailbox.uidnext++, []));
-  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(gDummyMsgWindow, promiseUrlListener);
-  yield promiseUrlListener.promise;
 
-  do_check_eq(1, IMAPPump.inbox.getTotalMessages(false));
-  let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  do_check_true(msgHdr instanceof Ci.nsIMsgDBHdr);
-});
+var gTestArray = 
+[
+  // initial setup of IMAP environment
+  setupIMAPPump,
 
-// Cleanup at end
-add_task(teardownIMAPPump);
+  // optionally set server parameters, here enabling debug messages
+  function serverParms() {
+    if (typeof fsDebugAll == "undefined")
+      Components.utils.import("resource://testing-common/mailnews/maild.js");
+    IMAPPump.server.setDebugLevel(fsDebugAll);
+  },
+
+  // the main test
+  function* loadImapMessage()
+  {
+    IMAPPump.mailbox.addMessage(
+      new imapMessage(specForFileName(gMessage),
+                      IMAPPump.mailbox.uidnext++, []));
+    let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+    IMAPPump.inbox.updateFolderWithListener(gDummyMsgWindow, promiseUrlListener);
+    yield promiseUrlListener.promise;
+
+    Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
+    let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+    Assert.ok(msgHdr instanceof Ci.nsIMsgDBHdr);
+  },
+
+  // all done
+  teardownIMAPPump,
+];
 
 function run_test() {
-  Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
+  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  gTestArray.forEach(add_task);
   run_next_test();
 }
 
@@ -53,7 +69,7 @@ function run_test() {
 
 // given a test file, return the file uri spec
 function specForFileName(aFileName) {
-  let file = do_get_file("../../../data/" + aFileName);
+  let file = do_get_file(gDEPTH + "mailnews/data/" + aFileName);
   let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;
 }

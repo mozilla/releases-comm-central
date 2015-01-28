@@ -16,15 +16,20 @@ const gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
 var gOfflineManager;
 
 var tests = [
+  setupIMAPPump,
+  function serverParms() {
+    Components.utils.import("resource://testing-common/mailnews/maild.js");
+    IMAPPump.server.setDebugLevel(fsDebugAll);
+  },
   setup,
-  function *prepareToGoOffline() {
+
+  function prepareToGoOffline() {
     let rootFolder = IMAPPump.incomingServer.rootFolder;
     gSecondFolder = rootFolder.getChildNamed("secondFolder")
                       .QueryInterface(Ci.nsIMsgImapMailFolder);
     gThirdFolder =  rootFolder.getChildNamed("thirdFolder")
                       .QueryInterface(Ci.nsIMsgImapMailFolder);
     IMAPPump.incomingServer.closeCachedConnections();
-    yield PromiseTestUtils.promiseDelay(2000);
   },
   function *doOfflineOps() {
     IMAPPump.server.stop();
@@ -89,11 +94,10 @@ var tests = [
     do_check_neq(msgHdr2, null);
     do_check_neq(msgHdr3, null);
   },
-  teardown
+  teardownIMAPPump
 ];
 
 function *setup() {
-  setupIMAPPump();
 
   /*
    * Set up an IMAP server.
@@ -132,12 +136,8 @@ function *setup() {
   yield promiseUrlListener.promise;
 }
 
-function teardown() {
-  teardownIMAPPump();
-}
-
 function run_test() {
+  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
   tests.forEach(add_task);
-
   run_next_test();
 }

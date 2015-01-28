@@ -12,14 +12,6 @@ var Cu = Components.utils;
 // async support
 load("../../../resources/logHelper.js");
 load("../../../resources/alertTestUtils.js");
-Cu.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
-Cu.import("resource://gre/modules/Promise.jsm");
-
-// IMAP pump
-Cu.import("resource://testing-common/mailnews/IMAPpump.js");
-Cu.import("resource://testing-common/mailnews/imapd.js");
-
-Cu.import("resource://gre/modules/Services.jsm");
 
 // Globals
 
@@ -27,8 +19,6 @@ Cu.import("resource://gre/modules/Services.jsm");
 const gMessage = "bugmail10"; // message file used as the test message
 
 add_task(function () {
-  Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                             "@mozilla.org/msgstore/maildirstore;1");
   Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
   setupIMAPPump();
 });

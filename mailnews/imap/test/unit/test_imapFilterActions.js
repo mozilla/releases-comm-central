@@ -10,8 +10,7 @@
  */
 
 Components.utils.import("resource:///modules/folderUtils.jsm");
-Components.utils.import("resource:///modules/iteratorUtils.jsm");
-Components.utils.import("resource:///modules/mailServices.js");
+Components.utils.import("resource://gre/modules/Task.jsm");
 
 const nsMsgSearchScope = Ci.nsMsgSearchScope;
 const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
@@ -22,13 +21,6 @@ const Subject = nsMsgSearchAttrib.Subject;
 const Body = nsMsgSearchAttrib.Body;
 
 // Globals
-var gIMAPDaemon; // the imap fake server daemon
-var gServer; // the imap fake server
-var gIMAPIncomingServer; // nsIMsgIncomingServer for the imap server
-var gRootFolder; // root message folder for the imap server
-var gIMAPInbox; // imap inbox message folder
-var gIMAPMailbox; // imap mailbox
-var gIMAPTrashFolder; // imap trash message folder
 var gSubfolder; // a local message folder used as a target for moves and copies
 var gLastKey; // the last message key
 var gFilter; // a message filter with a subject search
@@ -65,313 +57,294 @@ const kDeleteOrMoveMsgCompleted = Cc["@mozilla.org/atom-service;1"]
 // being tested, with "Body" appended to tests that use delayed
 // application of filters due to a body search
 const gTestArray =
-[  // The initial tests do not result in new messages added.
-//  function MoveToFolder() {
-//    gAction.type = Ci.nsMsgFilterAction.MoveToFolder;
-//    gAction.targetFolderUri = gSubfolder.URI;
-//    gChecks = function checkMoveToFolder() {
-//      testCounts(false, 0, 0, 0);
-//      do_check_eq(gSubfolderCount + 1, folderCount(gSubfolder));
-      // no net messages were added to the inbox
-//      do_check_eq(gInboxCount, folderCount(gIMAPInbox));
-//    }
-//    gInboxCount = folderCount(gIMAPInbox);
-//    gSubfolderCount = folderCount(gSubfolder);
-//    setupTest(gFilter, gAction);
-//  },
-  function MoveToFolderBody() {
+[ 
+  setupIMAPPump,
+    // optionally set server parameters, here enabling debug messages
+  //function serverParms() {
+  //  IMAPPump.server.setDebugLevel(fsDebugAll);
+  //},
+  setupFilters,
+  // The initial tests do not result in new messages added.
+  function *MoveToFolder() {
     gAction.type = Ci.nsMsgFilterAction.MoveToFolder;
     gAction.targetFolderUri = gSubfolder.URI;
-    gChecks = function checkMoveToFolderBody() {
-      testCounts(false, 0, 0, 0);
-      do_check_eq(gSubfolderCount + 1, folderCount(gSubfolder));
-      // no net messsages were added to the inbox
-      do_check_eq(gInboxCount, folderCount(gIMAPInbox));
-    }
-    gInboxCount = folderCount(gIMAPInbox);
+    gInboxCount = folderCount(IMAPPump.inbox);
     gSubfolderCount = folderCount(gSubfolder);
-    setupTest(gBodyFilter, gAction);
-  },
-  function MarkRead() {
-    gAction.type = Ci.nsMsgFilterAction.MarkRead;
-    gChecks = function checkMarkRead() {
-      testCounts(false, 0, 0, 0);
-      do_check_true(gHeader.isRead);
-    }
-    setupTest(gFilter, gAction);
-  },
-  function MarkReadBody() {
-    gAction.type = Ci.nsMsgFilterAction.MarkRead;
-    gChecks = function checkMarkReadBody() {
-      testCounts(false, 0, 0, 0);
-      do_check_true(gHeader.isRead);
-    }
-    setupTest(gBodyFilter, gAction);
-  },
-  function KillThread() {
-    gAction.type = Ci.nsMsgFilterAction.KillThread;
-    gChecks = function checkKillThread() {
-      testCounts(false, 0, 0, 0);
-      let thread = db().GetThreadContainingMsgHdr(gHeader);
-      do_check_neq(0, thread.flags & Ci.nsMsgMessageFlags.Ignored);
-    }
-    setupTest(gFilter, gAction);
-  },
-  function KillThreadBody() {
-    gAction.type = Ci.nsMsgFilterAction.KillThread;
-    gChecks = function checkKillThread() {
-      testCounts(false, 0, 0, 0);
-      let thread = db().GetThreadContainingMsgHdr(gHeader);
-      do_check_neq(0, thread.flags & Ci.nsMsgMessageFlags.Ignored);
-    }
-    setupTest(gBodyFilter, gAction);
-  },
-  function KillSubthread() {
-    gAction.type = Ci.nsMsgFilterAction.KillSubthread;
-    gChecks = function checkKillSubthread() {
-      testCounts(false, 0, 0, 0);
-      do_check_neq(0, gHeader.flags & Ci.nsMsgMessageFlags.Ignored);
-    }
-    setupTest(gFilter, gAction);
-  },
-  function KillSubthreadBody() {
-    gAction.type = Ci.nsMsgFilterAction.KillSubthread;
-    gChecks = function checkKillSubthreadBody() {
-      testCounts(false, 0, 0, 0);
-      do_check_neq(0, gHeader.flags & Ci.nsMsgMessageFlags.Ignored);
-    }
-    setupTest(gBodyFilter, gAction);
-  },
-  // this tests for marking message as junk
-  function JunkScore() {
-    gAction.type = Ci.nsMsgFilterAction.JunkScore;
-    gAction.junkScore = 100;
-    gChecks = function checkJunkScore() {
-      // marking as junk resets new but not unread
-      testCounts(false, 1, 0, 0);
-      do_check_eq(gHeader.getStringProperty("junkscore"), "100");
-      do_check_eq(gHeader.getStringProperty("junkscoreorigin"), "filter");
-    }
-    setupTest(gFilter, gAction);
-  },
-  // this tests for marking message as junk
-  function JunkScoreBody() {
-    gAction.type = Ci.nsMsgFilterAction.JunkScore;
-    gAction.junkScore = 100;
-    gChecks = function checkJunkScoreBody() {
-      // marking as junk resets new but not unread
-      testCounts(false, 1, 0, 0);
-      do_check_eq(gHeader.getStringProperty("junkscore"), "100");
-      do_check_eq(gHeader.getStringProperty("junkscoreorigin"), "filter");
-    }
-    setupTest(gBodyFilter, gAction);
-  },
+    yield setupTest(gFilter, gAction);
 
+    testCounts(false, 0, 0, 0);
+    Assert.equal(gInboxCount, folderCount(IMAPPump.inbox));
+    Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
+  },
+  // do it again, sometimes that causes multiple downloads
+  function *MoveToFolder2() {
+    gAction.type = Ci.nsMsgFilterAction.MoveToFolder;
+    gAction.targetFolderUri = gSubfolder.URI;
+    gInboxCount = folderCount(IMAPPump.inbox);
+    gSubfolderCount = folderCount(gSubfolder);
+    yield setupTest(gFilter, gAction);
+
+    testCounts(false, 0, 0, 0);
+    Assert.equal(gInboxCount, folderCount(IMAPPump.inbox));
+    Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
+  },
+  /**/
+  function *MoveToFolderBody() {
+    gAction.type = Ci.nsMsgFilterAction.MoveToFolder;
+    gAction.targetFolderUri = gSubfolder.URI;
+    gInboxCount = folderCount(IMAPPump.inbox);
+    gSubfolderCount = folderCount(gSubfolder);
+    yield setupTest(gBodyFilter, gAction);
+
+    testCounts(false, 0, 0, 0);
+    Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
+    // no net messsages were added to the inbox
+    Assert.equal(gInboxCount, folderCount(IMAPPump.inbox));
+  },
+  function *MoveToFolderBody2() {
+    gAction.type = Ci.nsMsgFilterAction.MoveToFolder;
+    gAction.targetFolderUri = gSubfolder.URI;
+    gInboxCount = folderCount(IMAPPump.inbox);
+    gSubfolderCount = folderCount(gSubfolder);
+    yield setupTest(gBodyFilter, gAction);
+
+    testCounts(false, 0, 0, 0);
+    Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
+    // no net messsages were added to the inbox
+    Assert.equal(gInboxCount, folderCount(IMAPPump.inbox));
+  },
+  function *MarkRead() {
+    gAction.type = Ci.nsMsgFilterAction.MarkRead;
+    gInboxCount = folderCount(IMAPPump.inbox);
+    yield setupTest(gFilter, gAction);
+    testCounts(false, 0, 0, 0);
+    Assert.ok(gHeader.isRead);
+    Assert.equal(gInboxCount + 1, folderCount(IMAPPump.inbox));
+  },
+  function *MarkReadBody() {
+    gAction.type = Ci.nsMsgFilterAction.MarkRead;
+    gInboxCount = folderCount(IMAPPump.inbox);
+    yield setupTest(gBodyFilter, gAction);
+
+    testCounts(false, 0, 0, 0);
+    Assert.ok(gHeader.isRead);
+    Assert.equal(gInboxCount + 1, folderCount(IMAPPump.inbox));
+  },
+  function *KillThread() {
+    gAction.type = Ci.nsMsgFilterAction.KillThread;
+    yield setupTest(gFilter, gAction);
+
+    testCounts(false, 0, 0, 0);
+    let thread = db().GetThreadContainingMsgHdr(gHeader);
+    Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Ignored);
+  },
+  function *KillThreadBody() {
+    gAction.type = Ci.nsMsgFilterAction.KillThread;
+    yield setupTest(gBodyFilter, gAction);
+
+    testCounts(false, 0, 0, 0);
+    let thread = db().GetThreadContainingMsgHdr(gHeader);
+    Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Ignored);
+  },
+  function *KillSubthread() {
+    gAction.type = Ci.nsMsgFilterAction.KillSubthread;
+    yield setupTest(gFilter, gAction);
+
+    testCounts(false, 0, 0, 0);
+    Assert.notEqual(0, gHeader.flags & Ci.nsMsgMessageFlags.Ignored);
+  },
+  function *KillSubthreadBody() {
+    gAction.type = Ci.nsMsgFilterAction.KillSubthread;
+    yield setupTest(gBodyFilter, gAction);
+
+    testCounts(false, 0, 0, 0);
+    Assert.notEqual(0, gHeader.flags & Ci.nsMsgMessageFlags.Ignored);
+  },
+  function *DoNothing() {
+    gAction.type = Ci.nsMsgFilterAction.StopExecution;
+    yield setupTest(gFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+  },
+  function *DoNothingBody() {
+    gAction.type = Ci.nsMsgFilterAction.StopExecution;
+    yield setupTest(gFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+  },
+  // this tests for marking message as junk
+  function *JunkScore() {
+    gAction.type = Ci.nsMsgFilterAction.JunkScore;
+    gAction.junkScore = 100;
+    yield setupTest(gFilter, gAction);
+
+    // marking as junk resets new but not unread
+    testCounts(false, 1, 0, 0);
+    Assert.equal(gHeader.getStringProperty("junkscore"), "100");
+    Assert.equal(gHeader.getStringProperty("junkscoreorigin"), "filter");
+  },
+  // this tests for marking message as junk
+  function *JunkScoreBody() {
+    gAction.type = Ci.nsMsgFilterAction.JunkScore;
+    gAction.junkScore = 100;
+    yield setupTest(gBodyFilter, gAction);
+
+    // marking as junk resets new but not unread
+    testCounts(false, 1, 0, 0);
+    Assert.equal(gHeader.getStringProperty("junkscore"), "100");
+    Assert.equal(gHeader.getStringProperty("junkscoreorigin"), "filter");
+  },
   // The remaining tests add new messages
-  function MarkUnread() {
+  function *MarkUnread() {
     gAction.type = Ci.nsMsgFilterAction.MarkUnread;
-    gChecks = function checkMarkUnread() {
-      testCounts(true, 1, 1, 1);
-      do_check_true(!gHeader.isRead);
-    }
-    setupTest(gFilter, gAction);
+    yield setupTest(gFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+    Assert.ok(!gHeader.isRead);
   },
-  function MarkUnreadBody() {
+  function *MarkUnreadBody() {
     gAction.type = Ci.nsMsgFilterAction.MarkUnread;
-    gChecks = function checkMarkUnreadBody() {
-      testCounts(true, 1, 1, 1);
-      do_check_true(!gHeader.isRead);
-    }
-    setupTest(gBodyFilter, gAction);
+    yield setupTest(gBodyFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+    Assert.ok(!gHeader.isRead);
   },
-  function WatchThread() {
+  function *WatchThread() {
     gAction.type = Ci.nsMsgFilterAction.WatchThread;
-    gChecks = function checkWatchThread() {
-      testCounts(true, 1, 1, 1);
-      let thread = db().GetThreadContainingMsgHdr(gHeader);
-      do_check_neq(0, thread.flags & Ci.nsMsgMessageFlags.Watched);
-    }
-    setupTest(gFilter, gAction);
+    yield setupTest(gFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+    let thread = db().GetThreadContainingMsgHdr(gHeader);
+    Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Watched);
   },
-  function WatchThreadBody() {
+  function *WatchThreadBody() {
     gAction.type = Ci.nsMsgFilterAction.WatchThread;
-    gChecks = function checkWatchThreadBody() {
-      testCounts(true, 1, 1, 1);
-      let thread = db().GetThreadContainingMsgHdr(gHeader);
-      do_check_neq(0, thread.flags & Ci.nsMsgMessageFlags.Watched);
-    }
-    setupTest(gBodyFilter, gAction);
+    yield setupTest(gBodyFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+    let thread = db().GetThreadContainingMsgHdr(gHeader);
+    Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Watched);
   },
-  function MarkFlagged() {
+  function *MarkFlagged() {
     gAction.type = Ci.nsMsgFilterAction.MarkFlagged;
-    gChecks = function checkMarkFlagged() {
-      testCounts(true, 1, 1, 1);
-      do_check_true(gHeader.isFlagged);
-    }
-    setupTest(gFilter, gAction);
+    yield setupTest(gFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+    Assert.ok(gHeader.isFlagged);
   },
-  function MarkFlaggedBody() {
+  function *MarkFlaggedBody() {
     gAction.type = Ci.nsMsgFilterAction.MarkFlagged;
-    gChecks = function checkMarkFlaggedBody() {
-      testCounts(true, 1, 1, 1);
-      do_check_true(gHeader.isFlagged);
-    }
-    setupTest(gBodyFilter, gAction);
+    yield setupTest(gBodyFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+    Assert.ok(gHeader.isFlagged);
   },
-  function ChangePriority() {
+  function *ChangePriority() {
     gAction.type = Ci.nsMsgFilterAction.ChangePriority;
     gAction.priority = Ci.nsMsgPriority.highest;
-    gChecks = function checkChangePriority() {
-      testCounts(true, 1, 1, 1);
-      do_check_eq(Ci.nsMsgPriority.highest, gHeader.priority);
-    }
-    setupTest(gFilter, gAction);
+    yield setupTest(gFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+    Assert.equal(Ci.nsMsgPriority.highest, gHeader.priority);
   },
-  function ChangePriorityBody() {
+  function *ChangePriorityBody() {
     gAction.type = Ci.nsMsgFilterAction.ChangePriority;
     gAction.priority = Ci.nsMsgPriority.highest;
-    gChecks = function checkChangePriorityBody() {
-      testCounts(true, 1, 1, 1);
-      do_check_eq(Ci.nsMsgPriority.highest, gHeader.priority);
-    }
-    setupTest(gBodyFilter, gAction);
+    yield setupTest(gBodyFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+    Assert.equal(Ci.nsMsgPriority.highest, gHeader.priority);
   },
-  function Label() {
+  function *Label() {
     gAction.type = Ci.nsMsgFilterAction.Label;
     gAction.label = 2;
-    gChecks = function checkLabel() {
-      testCounts(true, 1, 1, 1);
-      do_check_eq(2, gHeader.label);
-    }
-    setupTest(gFilter, gAction);
+    yield setupTest(gFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+    Assert.equal(2, gHeader.label);
   },
-  function LabelBody() {
+  function *LabelBody() {
     gAction.type = Ci.nsMsgFilterAction.Label;
     gAction.label = 3;
-    gChecks = function checkLabelBody() {
-      testCounts(true, 1, 1, 1);
-      do_check_eq(3, gHeader.label);
-    }
-    setupTest(gBodyFilter, gAction);
+    yield setupTest(gBodyFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+    Assert.equal(3, gHeader.label);
   },
-  function AddTag() {
+  function *AddTag() {
     gAction.type = Ci.nsMsgFilterAction.AddTag;
     gAction.strValue = "TheTag";
-    gChecks = function checkAddTag() {
-      testCounts(true, 1, 1, 1);
-      do_check_eq(gHeader.getStringProperty("keywords"), "thetag");
-    }
-    setupTest(gFilter, gAction);
+    yield setupTest(gFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+    Assert.equal(gHeader.getStringProperty("keywords"), "thetag");
   },
-  function AddTagBody() {
+  function *AddTagBody() {
     gAction.type = Ci.nsMsgFilterAction.AddTag;
     gAction.strValue = "TheTag2";
-    gChecks = function checkAddTagBody() {
-      testCounts(true, 1, 1, 1);
-      do_check_eq(gHeader.getStringProperty("keywords"), "thetag2");
-    }
-    setupTest(gBodyFilter, gAction);
+    yield setupTest(gBodyFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+    Assert.equal(gHeader.getStringProperty("keywords"), "thetag2");
   },
   // this tests for marking message as good
-  function JunkScoreAsGood() {
+  function *JunkScoreAsGood() {
     gAction.type = Ci.nsMsgFilterAction.JunkScore;
     gAction.junkScore = 0;
-    gChecks = function checkJunkScore() {
-      testCounts(true, 1, 1, 1);
-      do_check_eq(gHeader.getStringProperty("junkscore"), "0");
-      do_check_eq(gHeader.getStringProperty("junkscoreorigin"), "filter");
-    }
-    setupTest(gFilter, gAction);
+    yield setupTest(gFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+    Assert.equal(gHeader.getStringProperty("junkscore"), "0");
+    Assert.equal(gHeader.getStringProperty("junkscoreorigin"), "filter");
   },
   // this tests for marking message as good
-  function JunkScoreAsGoodBody() {
+  function *JunkScoreAsGoodBody() {
     gAction.type = Ci.nsMsgFilterAction.JunkScore;
     gAction.junkScore = 0;
-    gChecks = function checkJunkScoreBody() {
-      testCounts(true, 1, 1, 1);
-      do_check_eq(gHeader.getStringProperty("junkscore"), "0");
-      do_check_eq(gHeader.getStringProperty("junkscoreorigin"), "filter");
-    }
-    setupTest(gBodyFilter, gAction);
+    yield setupTest(gBodyFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+    Assert.equal(gHeader.getStringProperty("junkscore"), "0");
+    Assert.equal(gHeader.getStringProperty("junkscoreorigin"), "filter");
   },
-  function CopyToFolder() {
+  function *CopyToFolder() {
     gAction.type = Ci.nsMsgFilterAction.CopyToFolder;
     gAction.targetFolderUri = gSubfolder.URI;
-    gChecks = function checkCopyToFolder() {
-      testCounts(true, 1, 1, 1);
-      do_check_eq(gInboxCount + 1, folderCount(gIMAPInbox));
-      do_check_eq(gSubfolderCount + 1, folderCount(gSubfolder));
-    }
-    gInboxCount = folderCount(gIMAPInbox);
+    gInboxCount = folderCount(IMAPPump.inbox);
     gSubfolderCount = folderCount(gSubfolder);
-    setupTest(gFilter, gAction);
+    yield setupTest(gFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+    Assert.equal(gInboxCount + 1, folderCount(IMAPPump.inbox));
+    Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
   },
-  function CopyToFolderBody() {
+  function *CopyToFolderBody() {
     gAction.type = Ci.nsMsgFilterAction.CopyToFolder;
     gAction.targetFolderUri = gSubfolder.URI;
-    gChecks = function checkCopyToFolderBody() {
-      testCounts(true, 1, 1, 1);
-      do_check_eq(gInboxCount + 1, folderCount(gIMAPInbox));
-      do_check_eq(gSubfolderCount + 1, folderCount(gSubfolder));
-    }
-    gInboxCount = folderCount(gIMAPInbox);
+    gInboxCount = folderCount(IMAPPump.inbox);
     gSubfolderCount = folderCount(gSubfolder);
-    setupTest(gBodyFilter, gAction);
+    yield setupTest(gBodyFilter, gAction);
+
+    testCounts(true, 1, 1, 1);
+    Assert.equal(gInboxCount + 1, folderCount(IMAPPump.inbox));
+    Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
   },
+  /**/
+  endTest
 
 ];
 
-function run_test()
+function run_test() {
+  //Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  gTestArray.forEach(add_task);
+  run_next_test();
+}
+
+function setupFilters()
 {
-  // Add a listener.
-  gIMAPDaemon = new imapDaemon();
-  gServer = makeServer(gIMAPDaemon, "");
 
-  gIMAPIncomingServer = createLocalIMAPServer(gServer.port);
-
-  if (!localAccountUtils.inboxFolder)
-    localAccountUtils.loadLocalMailAccount();
-
-  // We need an identity so that updateFolder doesn't fail
-  let localAccount = MailServices.accounts.createAccount();
-  let identity = MailServices.accounts.createIdentity();
-  localAccount.addIdentity(identity);
-  localAccount.defaultIdentity = identity;
-  localAccount.incomingServer = localAccountUtils.incomingServer;
-  MailServices.accounts.defaultAccount = localAccount;
-
-  // Let's also have another account, using the same identity
-  let imapAccount = MailServices.accounts.createAccount();
-  imapAccount.addIdentity(identity);
-  imapAccount.defaultIdentity = identity;
-  imapAccount.incomingServer = gIMAPIncomingServer;
-
-  // The server doesn't support more than one connection
-  Services.prefs.setIntPref("mail.server.default.max_cached_connections", 1);
-  // We aren't interested in downloading messages automatically
-  Services.prefs.setBoolPref("mail.server.default.download_on_biff", false);
-  Services.prefs.setBoolPref("mail.biff.play_sound", false);
-  Services.prefs.setBoolPref("mail.biff.show_alert", false);
-  Services.prefs.setBoolPref("mail.biff.show_tray_icon", false);
-  Services.prefs.setBoolPref("mail.biff.animate_dock_icon", false);
-
-  gSubfolder = localAccountUtils.rootFolder.createLocalSubfolder("Subfolder");
-  gIMAPIncomingServer.performExpand(null);
-
-  gRootFolder = gIMAPIncomingServer.rootFolder;
-  gIMAPInbox = gRootFolder.getChildNamed("INBOX");
-  gIMAPMailbox = gIMAPDaemon.getMailbox("INBOX");
-  dump("gIMAPInbox uri = " + gIMAPInbox.URI + "\n");
-  let msgImapFolder = gIMAPInbox.QueryInterface(Ci.nsIMsgImapMailFolder);
-  // these hacks are required because we've created the inbox before
-  // running initial folder discovery, and adding the folder bails
-  // out before we set it as verified online, so we bail out, and
-  // then remove the INBOX folder since it's not verified.
-  msgImapFolder.hierarchyDelimiter = '/';
-  msgImapFolder.verifiedAsOnlineFolder = true;
-
-// Create a non-body filter.
-  let filterList = gIMAPIncomingServer.getFilterList(null);
+  // Create a non-body filter.
+  let filterList = IMAPPump.incomingServer.getFilterList(null);
   gFilter = filterList.createFilter("subject");
   let searchTerm = gFilter.createTerm();
   searchTerm.attrib = Subject;
@@ -401,125 +374,64 @@ function run_test()
   // an action that can be modified by tests
   gAction = gFilter.createAction();
 
+  gSubfolder = localAccountUtils.rootFolder.createLocalSubfolder("Subfolder");
+
   MailServices.mailSession.AddFolderListener(FolderListener, Ci.nsIFolderListener.event);
+  gPreviousUnread = 0;
 
-  // "Master" do_test_pending(), paired with a do_test_finished() at the end of
-  // all the operations.
-  do_test_pending();
+  // When a message body is not downloaded, and then later a filter is
+  //   applied that requires a download of message bodies, then the previous
+  //   bodies are downloaded - and the message filters are applied twice!
+  //   See bug 1116228, but for now workaround by always downloading bodies.
+  IMAPPump.incomingServer.downloadBodiesOnGetNewMail = true;
 
-  //start first test
-  gCurTestNum = 1;
-  doTest();
 }
 
 /*
  * functions used to support test setup and execution
  */
 
-// if the source matches the listener used to continue a test,
-// run the test checks, and start the next test.
-function testContinue(source)
-{
-  if (gContinueListener === source)
-  {
-    if (gContinueListener == kDeleteOrMoveMsgCompleted &&
-        gAction.type == Ci.nsMsgFilterAction.MoveToFolder)
-    {
-      // Moves give 2 events, just use the second.
-      gMoveCallbackCount++;
-      if (gMoveCallbackCount != 2)
-        return;
-    }
-    gCurTestNum++;
-    do_timeout(200, doTest);
-  }
-}
-
 // basic preparation done for each test
 function setupTest(aFilter, aAction)
 {
-  if (aAction &&
-      ((aAction.type == Ci.nsMsgFilterAction.CopyToFolder) ||
-       (aAction.type == Ci.nsMsgFilterAction.MoveToFolder)))
-    gContinueListener = kDeleteOrMoveMsgCompleted;
-  else if (aFilter === gBodyFilter)
-    gContinueListener = kFiltersAppliedAtom;
-  else
-    gContinueListener = URLListener;
-  let filterList = gIMAPIncomingServer.getFilterList(null);
-  while (filterList.filterCount)
-    filterList.removeFilterAt(0);
-  if (aFilter)
-  {
-    aFilter.clearActionList();
-    if (aAction) {
-      aFilter.appendAction(aAction);
-      filterList.insertFilterAt(0, aFilter);
+  return Task.spawn(function* () {
+    let filterList = IMAPPump.incomingServer.getFilterList(null);
+    while (filterList.filterCount)
+      filterList.removeFilterAt(0);
+    if (aFilter)
+    {
+      aFilter.clearActionList();
+      if (aAction) {
+        aFilter.appendAction(aAction);
+        filterList.insertFilterAt(0, aFilter);
+      }
     }
-  }
-  if (gInboxListener)
-    gDbService.unregisterPendingListener(gInboxListener);
+    if (gInboxListener)
+      gDbService.unregisterPendingListener(gInboxListener);
 
-  gInboxListener = new DBListener();
-  gDbService.registerPendingListener(gIMAPInbox, gInboxListener);
-  gMoveCallbackCount = 0;
-  gIMAPMailbox.addMessage(new imapMessage(specForFileName(gMessage),
-                          gIMAPMailbox.uidnext++, []));
-  gIMAPInbox.updateFolderWithListener(null, URLListener);
-}
+    IMAPPump.inbox.clearNewMessages();
 
-// run the next test
-function doTest()
-{
-  // Run the checks, if any, from the previous test.
-  if (gChecks)
-    gChecks();
-
-  var test = gCurTestNum;
-  if (test <= gTestArray.length)
-  {
-
-    var testFn = gTestArray[test-1];
-    dump("Doing test " + test + " " + testFn.name + "\n");
-    // Set a limit of ten seconds; if the notifications haven't arrived by then there's a problem.
-    do_timeout(10000, function()
-        {
-          if (gCurTestNum == test)
-            do_throw("Notifications not received in 10000 ms for operation " + testFn.name);
-        }
-      );
-    try {
-    testFn();
-    } catch(ex) {
-      gServer.stop();
-      do_throw ('TEST FAILED ' + ex);
-    }
-  }
-  else
-    do_timeout(1000, endTest);
+    gInboxListener = new DBListener();
+    gDbService.registerPendingListener(IMAPPump.inbox, gInboxListener);
+    gMoveCallbackCount = 0;
+    IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
+                            IMAPPump.mailbox.uidnext++, []));
+    let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+    IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+    yield promiseUrlListener.promise;
+    yield PromiseTestUtils.promiseDelay(200);
+  });
 }
 
 // Cleanup, null out everything, close all cached connections and stop the
 // server
 function endTest()
 {
-  dump(" Exiting mail tests\n");
   if (gInboxListener)
     gDbService.unregisterPendingListener(gInboxListener);
+  gInboxListener = null;
   MailServices.mailSession.RemoveFolderListener(FolderListener);
-  gRootFolder = null;
-  gIMAPInbox = null;
-  gIMAPTrashFolder = null;
-  gSubfolder = null;
-  gServer.resetTest();
-  gIMAPIncomingServer.closeCachedConnections();
-  gServer.performTest();
-  gServer.stop();
-  let thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
-    thread.processNextEvent(true);
-
-  do_test_finished(); // for the one in run_test()
+  teardownIMAPPump();
 }
 
 /*
@@ -532,45 +444,8 @@ var FolderListener = {
     dump("received folder event " + aEvent.toString() +
          " folder " + aEventFolder.name +
          "\n");
-    testContinue(aEvent);
   }
 };
-
-// nsIMsgCopyServiceListener implementation - runs next test when copy
-// is completed.
-var CopyListener =
-{
-  OnStartCopy: function OnStartCopy() {},
-  OnProgress: function OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey: function SetMessageKey(aKey)
-  {
-    gLastKey = aKey;
-  },
-  SetMessageId: function SetMessageId(aMessageId) {},
-  OnStopCopy: function OnStopCopy(aStatus)
-  {
-    dump("in OnStopCopy " + gCurTestNum + "\n");
-    // Check: message successfully copied.
-    do_check_eq(aStatus, 0);
-    // Ugly hack: make sure we don't get stuck in a JS->C++->JS->C++... call stack
-    // This can happen with a bunch of synchronous functions grouped together, and
-    // can even cause tests to fail because they're still waiting for the listener
-    // to return
-    testContinue(this);
-  }
-};
-
-// nsIURLListener implementation - runs next test
-var URLListener =
-{
-  OnStartRunningUrl: function OnStartRunningUrl(aURL) {},
-  OnStopRunningUrl: function OnStopRunningUrl(aURL, aStatus)
-  {
-    dump("in OnStopRunningURL " + gCurTestNum + "\n");
-    do_check_eq(aStatus, 0);
-    testContinue(this);
-  }
-}
 
 // nsIDBChangeListener implementation. Counts of calls are kept, but not
 // currently used in the tests. Current role is to provide a reference
@@ -623,7 +498,7 @@ DBListener.prototype =
     {
       if (gInboxListener)
         try {
-          gIMAPInbox.msgDatabase.RemoveListener(gInboxListener);
+          IMAPPump.inbox.msgDatabase.RemoveListener(gInboxListener);
         }
         catch (e) {dump(" listener not found\n");}
       this.counts.onAnnouncerGoingAway++;
@@ -676,21 +551,8 @@ function folderCount(folder)
   let folderCount = folder.getTotalMessages(false);
 
   // compare the two
-  do_check_eq(dbCount, folderCount);
+  Assert.equal(dbCount, folderCount);
   return dbCount;
-}
-
-// list all of the messages in a folder for debug
-function listMessages(folder) {
-  let enumerator = folder.msgDatabase.EnumerateMessages();
-  var msgCount = 0;
-  dump("listing messages for " + folder.prettyName + "\n");
-  while(enumerator.hasMoreElements())
-  {
-    msgCount++;
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    dump(msgCount + ": " + hdr.subject + "\n");
-  }
 }
 
 // given a test file, return the file uri spec
@@ -704,22 +566,11 @@ function specForFileName(aFileName)
 // shorthand for the inbox message summary database
 function db()
 {
-  return gIMAPInbox.msgDatabase;
-}
-
-// This function may be used in the test array to show
-// more detailed results after a particular test.
-function showResults() {
-  listMessages(gIMAPInbox);
-  if (gInboxListener)
-    printListener(gInboxListener);
-  gCurTestNum++;
-  do_timeout(100, doTest);
+  return IMAPPump.inbox.msgDatabase;
 }
 
 // static variables used in testCounts
 var gPreviousUnread = 0;
-var gPreviousDbNew = 0;
 
 // Test various counts.
 //
@@ -731,14 +582,14 @@ var gPreviousDbNew = 0;
 function testCounts(aHasNew, aUnreadDelta, aFolderNewDelta, aDbNewDelta)
 {
   try {
-  let folderNew = gIMAPInbox.getNumNewMessages(false);
-  let hasNew = gIMAPInbox.hasNewMessages;
-  let unread = gIMAPInbox.getNumUnread(false);
+  let folderNew = IMAPPump.inbox.getNumNewMessages(false);
+  let hasNew = IMAPPump.inbox.hasNewMessages;
+  let unread = IMAPPump.inbox.getNumUnread(false);
   let countOut = {};
   let arrayOut = {};
   db().getNewList(countOut, arrayOut);
   let dbNew = countOut.value ? countOut.value : 0;
-  let folderNewFlag = gIMAPInbox.getFlag(Ci.nsMsgFolderFlags.GotNew);
+  let folderNewFlag = IMAPPump.inbox.getFlag(Ci.nsMsgFolderFlags.GotNew);
   dump(" hasNew: " + hasNew +
        " unread: " + unread +
        " folderNew: " + folderNew +
@@ -746,8 +597,8 @@ function testCounts(aHasNew, aUnreadDelta, aFolderNewDelta, aDbNewDelta)
        " dbNew: " + dbNew +
        " prevUnread " + gPreviousUnread +
        "\n");
-  do_check_eq(aHasNew, hasNew);
-  do_check_eq(aUnreadDelta, unread - gPreviousUnread);
+  Assert.equal(aHasNew, hasNew);
+  Assert.equal(aUnreadDelta, unread - gPreviousUnread);
   gPreviousUnread = unread;
   // This seems to be reset for each folder update.
   //
@@ -756,18 +607,7 @@ function testCounts(aHasNew, aUnreadDelta, aFolderNewDelta, aDbNewDelta)
   // the messiness of new count management (see bug 507638 for a
   // refactoring proposal, and attachment 398899 on bug 514801 for one possible
   // fix to this particular test). So I am disabling this.
-  //do_check_eq(aFolderNewDelta, folderNew);
-  do_check_eq(aDbNewDelta, dbNew - gPreviousDbNew);
-  gPreviousDbNew = dbNew;
+  //Assert.equal(aFolderNewDelta, folderNew);
+  Assert.equal(aDbNewDelta, dbNew);
   } catch (e) {dump(e);}
-}
-
-// print the counts for debugging purposes in this test
-function printListener(listener)
-{
-  print("DBListener counts: ");
-  for (var item in listener.counts) {
-      dump(item + ": " + listener.counts[item] + " ");
-  }
-  dump("\n");
 }

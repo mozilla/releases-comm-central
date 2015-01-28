@@ -35,6 +35,7 @@ var IMAPPump = {
   mailbox: null         // imap fake server mailbox
 };
 var Ci = Components.interfaces;
+var Cc = Components.classes;
 
 function setupIMAPPump(extensions)
 {
@@ -111,18 +112,23 @@ function setupIMAPPump(extensions)
   IMAPPump.inbox instanceof Ci.nsIMsgImapMailFolder;
 }
 
+// This will clear not only the imap accounts but also local accounts.
 function teardownIMAPPump()
 {
-  IMAPPump.inbox = null;
-  IMAPPump.server.resetTest();
-  try {
-    IMAPPump.incomingServer.closeCachedConnections();
-    let serverSink = IMAPPump.incomingServer.QueryInterface(Ci.nsIImapServerSink);
-    serverSink.abortQueuedUrls();
-  } catch (ex) {dump(ex);}
-  IMAPPump.server.performTest();
-  IMAPPump.server.stop();
+  // try to finish any pending operations
   let thread = gThreadManager.currentThread;
   while (thread.hasPendingEvents())
     thread.processNextEvent(true);
+
+  IMAPPump.inbox = null;
+  try {
+    let serverSink = IMAPPump.incomingServer.QueryInterface(Ci.nsIImapServerSink);
+    serverSink.abortQueuedUrls();
+    IMAPPump.incomingServer.closeCachedConnections();
+    IMAPPump.server.resetTest();
+    IMAPPump.server.stop();
+    MailServices.accounts.removeIncomingServer(IMAPPump.incomingServer, false);
+    localAccountUtils.clearAll();
+  } catch (ex) {dump(ex);}
+
 }

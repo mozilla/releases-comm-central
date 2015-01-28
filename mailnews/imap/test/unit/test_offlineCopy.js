@@ -22,7 +22,6 @@ var gMsgFile1 = do_get_file("../../../data/bugmail10");
 const gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
 var gMsgFile2 = do_get_file("../../../data/image-attach-test");
 const gMsgId2 = "4A947F73.5030709@example.com";
-var gMessages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
 var gMsgFile3 = do_get_file("../../../data/SpamAssassinYes");
 var gMsg3Id = "bugmail7.m47LtAEf007543@mrapp51.mozilla.org";
 var gMsgFile4 = do_get_file("../../../data/bug460636");
@@ -62,7 +61,7 @@ var tests = [
     yield promiseFolderAdded;
 
     gFolder1 = IMAPPump.incomingServer.rootFolder.getChildNamed("folder 1");
-    do_check_true(gFolder1 instanceof Ci.nsIMsgFolder);
+    Assert.ok(gFolder1 instanceof Ci.nsIMsgFolder);
 
     // these hacks are required because we've created the inbox before
     // running initial folder discovery, and adding the folder bails
@@ -94,6 +93,7 @@ var tests = [
                                       "", promiseCopyListener, null);
     yield promiseCopyListener.promise;
 
+    promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
     MailServices.copy.CopyFileMessage(gMsgFile4, IMAPPump.inbox, null, false, 0,
                                       "", promiseCopyListener, null);
     yield promiseCopyListener.promise;
@@ -106,8 +106,10 @@ var tests = [
 
     // test the headers in the inbox
     let enumerator = db.EnumerateMessages();
+    let count = 0;
     while (enumerator.hasMoreElements())
     {
+      count++;
       var message = enumerator.getNext();
       message instanceof Ci.nsIMsgDBHdr;
       dump('message <'+ message.subject +
@@ -117,42 +119,47 @@ var tests = [
            '>\n');
       // This fails for file copies in bug 790912. Without  this, messages that
       //  are copied are not visible in pre-pluggableStores versions of TB (pre TB 12)
-      do_check_eq(message.messageOffset, parseInt(message.getStringProperty("storeToken")));
+      if (IMAPPump.inbox.msgStore.storeType == "mbox")
+        Assert.equal(message.messageOffset, parseInt(message.getStringProperty("storeToken")));
     }
+    Assert.equal(count, 4);
   },
   function copyMessagesToSubfolder() {
     //  a message created from IMAP download
     let db = IMAPPump.inbox.msgDatabase;
     let msg1 = db.getMsgHdrForMessageID(gMsgId1);
-    gMessages.appendElement(msg1, false);
+    let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+    messages.appendElement(msg1, false);
     // this is sync, I believe?
-    MailServices.copy.CopyMessages(IMAPPump.inbox, gMessages, gFolder1, false,
+    MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gFolder1, false,
                                    null, null, true);
 
     // two messages originally created from file copies (like in Send)
     let msg3 = db.getMsgHdrForMessageID(gMsg3Id);
-    do_check_true(msg3 instanceof Ci.nsIMsgDBHdr);
-    gMessages.clear();
-    gMessages.appendElement(msg3, false);
-    MailServices.copy.CopyMessages(IMAPPump.inbox, gMessages, gFolder1, false,
+    Assert.ok(msg3 instanceof Ci.nsIMsgDBHdr);
+    messages.clear();
+    messages.appendElement(msg3, false);
+    MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gFolder1, false,
                                    null, null, true);
 
     let msg4 = db.getMsgHdrForMessageID(gMsg4Id);
-    do_check_true(msg4 instanceof Ci.nsIMsgDBHdr);
+    Assert.ok(msg4 instanceof Ci.nsIMsgDBHdr);
 
     // because bug 790912 created messages with correct storeToken but messageOffset=0,
     //  these messages may not copy correctly. Make sure that they do, as fixed in bug 790912
     msg4.messageOffset = 0;
-    gMessages.clear();
-    gMessages.appendElement(msg4, false);
-    MailServices.copy.CopyMessages(IMAPPump.inbox, gMessages, gFolder1, false,
+    messages.clear();
+    messages.appendElement(msg4, false);
+    MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gFolder1, false,
                                    null, null, true);
 
     // test the db headers in folder1
     db = gFolder1.msgDatabase;
     let enumerator = db.EnumerateMessages();
+    let count = 0;
     while (enumerator.hasMoreElements())
     {
+      count++;
       var message = enumerator.getNext();
       message instanceof Ci.nsIMsgDBHdr;
       dump('message <'+ message.subject +
@@ -160,14 +167,17 @@ var tests = [
            '> offset: <' + message.messageOffset +
            '> id: <' + message.messageId +
            '>\n');
-      do_check_eq(message.messageOffset, parseInt(message.getStringProperty("storeToken")));
+      if (gFolder1.msgStore.storeType == "mbox")
+        Assert.equal(message.messageOffset, parseInt(message.getStringProperty("storeToken")));
     }
+    Assert.equal(count, 3);
   },
   function *test_headers() {
     let msgIds = [gMsgId1, gMsg3Id, gMsg4Id];
     for (let msgId of msgIds)
     {
       let newMsgHdr= gFolder1.msgDatabase.getMsgHdrForMessageID(msgId);
+      Assert.ok(newMsgHdr.flags & Ci.nsMsgMessageFlags.Offline);
       let msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
       let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
       let msgServ = messenger.messageServiceFromURI(msgURI);
@@ -175,15 +185,13 @@ var tests = [
       msgServ.streamHeaders(msgURI, promiseStreamListener, null, true);
       let data = yield promiseStreamListener.promise;
       dump('\nheaders for messageId ' + msgId + '\n' + data + '\n\n');
-      do_check_true(data.contains(msgId));
+      Assert.ok(data.contains(msgId));
     }
   },
   teardownIMAPPump
 ];
 
 function run_test() {
-  for (let test of tests)
-    add_task(test);
-
+  tests.forEach(add_task);
   run_next_test();
 }

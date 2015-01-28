@@ -5,7 +5,6 @@
  */
 
 load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 
 const gFileName = "bug460636";
@@ -15,10 +14,10 @@ var tests = [
   setup,
   downloadAllForOffline,
   verifyDownloaded,
-  teardown
+  teardownIMAPPump
 ];
 
-function setup() {
+function *setup() {
   setupIMAPPump();
 
  /*
@@ -41,13 +40,15 @@ function setup() {
   IMAPPump.mailbox.addMessage(imapMsg);
   
   // ...and download for offline use.
-  IMAPPump.inbox.downloadAllForOffline(asyncUrlListener, null);
-  yield false;
+  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
+  yield promiseUrlListener.promise;
 }
 
-function downloadAllForOffline() {
-  IMAPPump.inbox.downloadAllForOffline(asyncUrlListener, null);
-  yield false;
+function *downloadAllForOffline() {
+  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
+  yield promiseUrlListener.promise;
 }
 
 function verifyDownloaded() {
@@ -66,10 +67,7 @@ function verifyDownloaded() {
   }
 }
 
-function teardown() {
-  teardownIMAPPump();
-}
-
 function run_test() {
-  async_run_tests(tests);
+  tests.forEach(add_task);
+  run_next_test();
 }

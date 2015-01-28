@@ -9,6 +9,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://testing-common/mailnews/mailTestUtils.js");
 Components.utils.import("resource://testing-common/mailnews/localAccountUtils.js");
 Components.utils.import("resource://testing-common/mailnews/IMAPpump.js");
+Components.utils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -88,3 +89,19 @@ function do_check_transaction(fromServer, expected, withParams) {
 
   do_check_eq(realTransaction.join(", "), expected.join(", "));
 }
+
+/**
+ * add a simple message to the IMAP pump mailbox
+ */
+function addImapMessage()
+{
+  let messages = [];
+  let messageGenerator = new MessageGenerator();
+  messages = messages.concat(messageGenerator.makeMessage());
+  let dataUri = Services.io.newURI("data:text/plain;base64," +
+                  btoa(messages[0].toMessageString()),
+                  null, null);
+  let imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
+  IMAPPump.mailbox.addMessage(imapMsg);
+}
+
