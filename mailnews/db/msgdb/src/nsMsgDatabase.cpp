@@ -679,8 +679,9 @@ nsresult nsMsgDatabase::RemoveHdrFromCache(nsIMsgDBHdr *hdr, nsMsgKey key)
     if (key == nsMsgKey_None)
       hdr->GetMessageKey(&key);
 
-    PLDHashEntryHdr *entry = PL_DHashTableLookup(m_cachedHeaders, (const void *)(uintptr_t) key);
-    if (PL_DHASH_ENTRY_IS_BUSY(entry))
+    PLDHashEntryHdr *entry =
+      PL_DHashTableSearch(m_cachedHeaders, (const void *)(uintptr_t) key);
+    if (entry)
     {
       PL_DHashTableRemove(m_cachedHeaders, (void *)(uintptr_t) key);
       NS_RELEASE(hdr); // get rid of extra ref the cache was holding.
@@ -702,9 +703,9 @@ nsresult nsMsgDatabase::GetHdrFromUseCache(nsMsgKey key, nsIMsgDBHdr* *result)
 
   if (m_headersInUse)
   {
-    PLDHashEntryHdr *entry;
-    entry = PL_DHashTableLookup(m_headersInUse, (const void *)(uintptr_t) key);
-    if (PL_DHASH_ENTRY_IS_BUSY(entry))
+    PLDHashEntryHdr *entry =
+      PL_DHashTableSearch(m_headersInUse, (const void *)(uintptr_t) key);
+    if (entry)
     {
       MsgHdrHashElement* element = reinterpret_cast<MsgHdrHashElement*>(entry);
       *result = element->mHdr;
@@ -4117,9 +4118,9 @@ nsresult nsMsgDatabase::GetRefFromHash(nsCString &reference, nsMsgKey *threadId)
   }
 
   // Find reference from the hash
-  PLDHashEntryHdr *entry;
-  entry = PL_DHashTableLookup(m_msgReferences, (const void *) reference.get());
-  if (PL_DHASH_ENTRY_IS_BUSY(entry))
+  PLDHashEntryHdr *entry =
+    PL_DHashTableSearch(m_msgReferences, (const void *) reference.get());
+  if (entry)
   {
     RefHashElement *element = reinterpret_cast<RefHashElement *>(entry);
     *threadId = element->mThreadId;
@@ -4180,9 +4181,9 @@ nsresult nsMsgDatabase::RemoveRefFromHash(nsCString &reference)
 {
   if (m_msgReferences)
   {
-    PLDHashEntryHdr *entry;
-    entry = PL_DHashTableLookup(m_msgReferences, (const void *) reference.get());
-    if (PL_DHASH_ENTRY_IS_BUSY(entry))
+    PLDHashEntryHdr *entry =
+     PL_DHashTableSearch(m_msgReferences, (const void *) reference.get());
+    if (entry)
     {
       RefHashElement *element = reinterpret_cast<RefHashElement *>(entry);
       if (--element->mCount == 0)

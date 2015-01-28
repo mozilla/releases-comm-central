@@ -198,8 +198,8 @@ char* TokenHash::copyWord(const char* word, uint32_t len)
 
 inline BaseToken* TokenHash::get(const char* word)
 {
-    PLDHashEntryHdr* entry = PL_DHashTableLookup(&mTokenTable, word);
-    if (PL_DHASH_ENTRY_IS_BUSY(entry))
+    PLDHashEntryHdr* entry = PL_DHashTableSearch(&mTokenTable, word);
+    if (entry)
         return static_cast<BaseToken*>(entry);
     return NULL;
 }
