@@ -42,10 +42,12 @@
               oncommandupdate="goUpdatePlacesCommands();">
     <command id="placesCmd_open"
              oncommand="goDoPlacesCommand('placesCmd_open');"/>
-    <command id="placesCmd_open:window"
-             oncommand="goDoPlacesCommand('placesCmd_open:window');"/>
     <command id="placesCmd_open:tab"
              oncommand="goDoPlacesCommand('placesCmd_open:tab');"/>
+    <command id="placesCmd_open:window"
+             oncommand="goDoPlacesCommand('placesCmd_open:window');"/>
+    <command id="placesCmd_open:privatewindow"
+             oncommand="goDoPlacesCommand('placesCmd_open:privatewindow');"/>
 
     <command id="placesCmd_new:bookmark"
              oncommand="goDoPlacesCommand('placesCmd_new:bookmark');"/>
@@ -136,6 +138,13 @@
               command="placesCmd_open:window"
               label="&cmd.open_window.label;"
               accesskey="&cmd.open_window.accesskey;"
+              selectiontype="single"
+              selection="link"
+              hideifprivatebrowsing="true"/>
+    <menuitem id="placesContext_open:newprivatewindow"
+              command="placesCmd_open:privatewindow"
+              label="&cmd.open_private.label;"
+              accesskey="&cmd.open_private.accesskey;"
               selectiontype="single"
               selection="link"/>
     <menuitem id="placesContext_openContainer:tabs"

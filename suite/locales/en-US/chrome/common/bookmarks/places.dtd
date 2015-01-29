@@ -48,10 +48,12 @@
 
 <!ENTITY cmd.open.label                  "Open">
 <!ENTITY cmd.open.accesskey              "O">
-<!ENTITY cmd.open_window.label           "Open in a New Window">
-<!ENTITY cmd.open_window.accesskey       "N">
 <!ENTITY cmd.open_tab.label              "Open in a New Tab">
 <!ENTITY cmd.open_tab.accesskey          "w">
+<!ENTITY cmd.open_window.label           "Open in a New Window">
+<!ENTITY cmd.open_window.accesskey       "N">
+<!ENTITY cmd.open_private.label          "Open in a Private Window">
+<!ENTITY cmd.open_private.accesskey      "v">
 <!ENTITY cmd.open_all_in_tabs.label      "Open All in Tabs">
 <!ENTITY cmd.open_all_in_tabs.accesskey  "O">
 

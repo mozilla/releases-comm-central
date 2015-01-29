@@ -163,8 +163,9 @@ PlacesController.prototype = {
       }
       return false;
     case "placesCmd_open":
-    case "placesCmd_open:window":
     case "placesCmd_open:tab":
+    case "placesCmd_open:window":
+    case "placesCmd_open:privatewindow":
       var selectedNode = this._view.selectedNode;
       return selectedNode && PlacesUtils.nodeIsURI(selectedNode);
     case "placesCmd_new:folder":
@@ -238,11 +239,14 @@ PlacesController.prototype = {
     case "placesCmd_open":
       PlacesUIUtils.openNodeIn(this._view.selectedNode, "current");
       break;
+    case "placesCmd_open:tab":
+      PlacesUIUtils.openNodeIn(this._view.selectedNode, "tab");
+      break;
     case "placesCmd_open:window":
       PlacesUIUtils.openNodeIn(this._view.selectedNode, "window");
       break;
-    case "placesCmd_open:tab":
-      PlacesUIUtils.openNodeIn(this._view.selectedNode, "tab");
+    case "placesCmd_open:privatewindow":
+      PlacesUIUtils.openNodeIn(this._view.selectedNode, "private");
       break;
     case "placesCmd_new:folder":
       this.newItem("folder");
@@ -559,9 +563,11 @@ PlacesController.prototype = {
    *     separated with the | character.
    *  5) The "hideifnoinsertionpoint" attribute may be set on a menu-item to
    *     true if it should be hidden when there's no insertion point
-   *  6) The visibility state of a menu-item is unchanged if none of these
+   *  6) The "hideifprivatebrowsing" attribute may be set on a menu-item to
+   *     true if it should be hidden in a private window
+   *  7) The visibility state of a menu-item is unchanged if none of these
    *     attribute are set.
-   *  7) These attributes should not be set on separators for which the
+   *  8) These attributes should not be set on separators for which the
    *     visibility state is "auto-detected."
    * @param   aPopup
    *          The menupopup to build children into.
@@ -579,9 +585,10 @@ PlacesController.prototype = {
       var item = aPopup.childNodes[i];
       if (item.localName != "menuseparator") {
         // We allow pasting into tag containers, so special case that.
-        var hideIfNoIP = item.getAttribute("hideifnoinsertionpoint") == "true" &&
+        var hideIfNoIP = item.hasAttribute("hideifnoinsertionpoint") &&
                          noIp && !(ip && ip.isTag && item.id == "placesContext_paste");
-        item.hidden = hideIfNoIP ||
+        var hideIfPrivate = item.hasAttribute("hideifprivatebrowsing") && top.gPrivate;
+        item.hidden = hideIfNoIP || hideIfPrivate ||
                       !this._shouldShowMenuItem(item, metadata);
 
         if (!item.hidden) {
@@ -1546,8 +1553,9 @@ function goUpdatePlacesCommands() {
   }
 
   updatePlacesCommand("placesCmd_open");
-  updatePlacesCommand("placesCmd_open:window");
   updatePlacesCommand("placesCmd_open:tab");
+  updatePlacesCommand("placesCmd_open:window");
+  updatePlacesCommand("placesCmd_open:privatewindow");
   updatePlacesCommand("placesCmd_new:folder");
   updatePlacesCommand("placesCmd_new:bookmark");
   updatePlacesCommand("placesCmd_new:livemark");

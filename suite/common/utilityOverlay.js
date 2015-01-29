@@ -1514,6 +1514,12 @@ function openUILinkIn(url, where, aAllowThirdPartyFixup, aPostData, aReferrerURI
     return null;
   }
 
+  if (where == "private") {
+    window.openDialog(getBrowserURL(), "_blank", "private,chrome,all,dialog=no",
+                      url, null, null, aPostData, aAllowThirdPartyFixup, aIsUTF8);
+    return null;
+  }
+
   var w = getTopWin();
 
   if (!w || where == "window") {
