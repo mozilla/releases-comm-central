@@ -10,6 +10,7 @@ var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource:///modules/gloda/log4moz.js");
 Cu.import("resource:///modules/mailServices.js");
 Cu.import("resource:///modules/MailUtils.js");
+Cu.import("resource:///modules/jsmime.jsm");
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -1330,9 +1331,7 @@ var FeedUtils = {
   {
     let d = new Date(aDateString || new Date().getTime());
     d = isNaN(d.getTime()) ? new Date() : d;
-    let rfcDate = d.toUTCString().split(" ").slice(0,4).join(" ");
-    let rfcTimeLocal = d.toTimeString().split(" ").slice(0,2).join(" ");
-    return rfcDate + " " + rfcTimeLocal.replace(/GMT/,"");
+    return jsmime.headeremitter.emitStructuredHeader("Date", d, {}).substring(6).trim();
   },
 
   // Progress glue code.  Acts as a go between the RSS back end and the mail
