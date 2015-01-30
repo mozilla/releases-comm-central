@@ -27,6 +27,8 @@ var gSmtpServerListWindow =
     this.mSetDefaultServerButton = document.getElementById("setDefaultButton");
 
     this.refreshServerList("", false);
+
+    this.updateButtons(this.getSelectedServer());
   },
 
   onSelectionChanged: function(aEvent)
@@ -93,6 +95,11 @@ var gSmtpServerListWindow =
       this.mSetDefaultServerButton.removeAttribute("disabled");
       this.mDeleteButton.removeAttribute("disabled");
     }
+
+    if (this.mServerList.selectedItems.length == 0)
+      this.mEditButton.setAttribute("disabled", "true");
+    else
+      this.mEditButton.removeAttribute("disabled");
   },
 
   updateServerInfoBox: function(aServer)
@@ -226,6 +233,9 @@ var gSmtpServerListWindow =
 
   setSelectedServer: function(aServer)
   {
+    if (!aServer)
+      return;
+
     setTimeout(function(aServerList) {
       aServerList.ensureElementIsVisible(aServer);
       aServerList.selectItem(aServer);
@@ -234,7 +244,10 @@ var gSmtpServerListWindow =
 
   getSelectedServer: function()
   {
-    var serverKey = this.mServerList.selectedItems[0].getAttribute("key");
+    if (this.mServerList.selectedItems.length == 0)
+      return null;
+
+    let serverKey = this.mServerList.selectedItems[0].getAttribute("key");
     return MailServices.smtp.getServerByKey(serverKey);
   }
 };

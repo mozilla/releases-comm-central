@@ -701,15 +701,20 @@ function AddIMAccount()
 }
 
 /**
- * Highlight the default server in the account tree,
+ * Highlight the default account row in the account tree,
  * optionally un-highlight the previous one.
+ *
+ * @param newDefault  The account that has become the new default.
+ *                    Can be given as null if there is none.
+ * @param oldDefault  The account that has stopped being the default.
+ *                    Can be given as null if there was none.
  */
 function markDefaultServer(newDefault, oldDefault) {
   let accountTreeNodes = document.getElementById("account-tree-children")
                                  .childNodes;
   for (let i = 0; i < accountTreeNodes.length; i++) {
     let accountNode = accountTreeNodes[i];
-    if (newDefault == accountNode._account) {
+    if (newDefault && newDefault == accountNode._account) {
       accountNode.firstChild
                  .firstChild
                  .setAttribute("properties", "isDefaultServer-true");
@@ -730,7 +735,7 @@ function onSetDefault(event) {
   if (event.target.getAttribute("disabled") == "true")
     return;
 
-  let previousDefault = MailServices.accounts.defaultAccount;
+  let previousDefault = getDefaultAccount();
   MailServices.accounts.defaultAccount = currentAccount;
   markDefaultServer(currentAccount, previousDefault);
 
@@ -814,7 +819,7 @@ function onRemoveAccount(event) {
   // Either the default account was deleted so there is a new one
   // or the default account was not changed. Either way, there is
   // no need to unmark the old one.
-  markDefaultServer(MailServices.accounts.defaultAccount, null);
+  markDefaultServer(getDefaultAccount(), null);
 }
 
 function saveAccount(accountValues, account)
@@ -971,7 +976,7 @@ function updateItems(tree, account, addAccountItem, setDefaultItem, removeItem) 
     // problem. Either way, we don't want the user to act on it.
     let server = account.incomingServer;
 
-    if (account != MailServices.accounts.defaultAccount &&
+    if (account != getDefaultAccount() &&
         server.canBeDefaultServer && account.identities.length > 0)
       canSetDefault = true;
 
@@ -1424,6 +1429,18 @@ function getCurrentAccount()
   return currentAccount;
 }
 
+/**
+ * Returns the default account without throwing exception if there is none.
+ * The account manager can be opened even if there are no account yet.
+ */
+function getDefaultAccount() {
+  try {
+    return MailServices.accounts.defaultAccount;
+  } catch (e) {
+    return null; // No default account yet.
+  }
+}
+
 // get the array of form elements for the given page
 function getPageFormElements() {
   if ("getElementsByAttribute" in top.frames["contentFrame"].document)
@@ -1603,7 +1620,7 @@ var gAccountTree = {
       treeitem._account = account;
     }
 
-    markDefaultServer(MailServices.accounts.defaultAccount, null);
+    markDefaultServer(getDefaultAccount(), null);
 
     // Now add the outgoing server node.
     var treeitem = document.createElement("treeitem");
