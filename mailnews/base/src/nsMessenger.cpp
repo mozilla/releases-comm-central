@@ -950,6 +950,42 @@ enum MESSENGER_SAVEAS_FILE_TYPE
 #define HTML_FILE_EXTENSION2 ".html"
 #define TEXT_FILE_EXTENSION ".txt"
 
+/**
+ * Adjust the file name, removing characters from the middle of the name if
+ * the name would otherwise be too long - too long for what file systems
+ * usually support.
+ */
+nsresult nsMessenger::AdjustFileIfNameTooLong(nsIFile* aFile)
+{
+  NS_ENSURE_ARG_POINTER(aFile);
+  nsAutoString path;
+  nsresult rv = aFile->GetPath(path);
+  NS_ENSURE_SUCCESS(rv, rv);
+  // Most common file systems have a max filename length of 255. On windows, the
+  // total path length is (at least for all practical purposees) limited to 255.
+  // Let's just don't allow paths longer than that elsewhere either for
+  // simplicity.
+  uint32_t MAX = 255;
+  if (path.Length() > MAX) {
+    nsAutoString leafName;
+    rv = aFile->GetLeafName(leafName);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    uint32_t pathLengthUpToLeaf = path.Length() - leafName.Length();
+    if (pathLengthUpToLeaf >= MAX - 8) { // want at least 8 chars for name
+      return NS_ERROR_FILE_NAME_TOO_LONG;
+    }
+    uint32_t x = MAX - pathLengthUpToLeaf; // x = max leaf size
+    nsAutoString truncatedLeaf;
+    truncatedLeaf.Append(Substring(leafName, 0, x/2));
+    truncatedLeaf.AppendLiteral("...");
+    truncatedLeaf.Append(Substring(leafName, leafName.Length() - x/2 + 3,
+                                   leafName.Length()));
+    rv = aFile->SetLeafName(truncatedLeaf);
+  }
+  return rv;
+}
+
 NS_IMETHODIMP
 nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
                     nsIMsgIdentity *aIdentity, const nsAString& aMsgFilename,
@@ -993,7 +1029,15 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
         saveAsFileType = HTML_FILE_TYPE;
       else
         saveAsFileType = EML_FILE_TYPE;
-    } 
+    }
+
+    rv = AdjustFileIfNameTooLong(saveAsFile);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = PromptIfFileExists(saveAsFile);
+    if (NS_FAILED(rv)) {
+      goto done;
+    }
 
     // After saveListener goes out of scope, the listener will be owned by
     // whoever the listener is registered with, usually a URL.
@@ -1317,6 +1361,9 @@ nsMessenger::SaveMessages(uint32_t aCount,
     rv = saveToFile->Append(nsDependentString(aFilenameArray[i]));
     NS_ENSURE_SUCCESS(rv, rv);
 
+    rv = AdjustFileIfNameTooLong(saveToFile);
+    NS_ENSURE_SUCCESS(rv, rv);
+
     rv = PromptIfFileExists(saveToFile);
     if (NS_FAILED(rv))
       continue;
@@ -1352,6 +1399,11 @@ nsMessenger::SaveMessages(uint32_t aCount,
                                            saveToFile, false,
                                            urlListener, nullptr,
                                            true, mMsgWindow);
+    if (NS_FAILED(rv)) {
+      NS_IF_RELEASE(saveListener);
+      Alert("saveMessageFailed");
+      return rv;
+    }
   }
   return rv;
 }

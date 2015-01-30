@@ -66,6 +66,8 @@ private:
   // if aLocalFile is a dir, we use it.  otherwise, we use the parent of aLocalFile.
   nsresult SetLastSaveDirectory(nsIFile *aLocalFile);
 
+  nsresult AdjustFileIfNameTooLong(nsIFile* aFile);
+
   nsresult GetSaveAsFile(const nsAString& aMsgFilename, int32_t *aSaveAsFileType,
                          nsIFile **aSaveAsFile);
 
