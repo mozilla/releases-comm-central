@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Promise.jsm");
+Components.utils.import("resource://gre/modules/PromiseUtils.jsm");
 
 /*
  * Asynchronous tools for handling calendar operations.
@@ -15,7 +16,7 @@ const cIC = Components.interfaces.calICalendar;
 
 const promisifyProxyHandler = {
     promiseOperation: function(target, name, args) {
-        let deferred = Promise.defer();
+        let deferred = PromiseUtils.defer();
         let listener = cal.async.promiseOperationListener(deferred);
         args.push(listener);
         target[name].apply(target, args);
@@ -77,7 +78,7 @@ cal.async = {
      *
      * Standalone Usage:
      *   function promiseAddItem(aItem) {
-     *     let deferred = Promise.defer();
+     *     let deferred = PromiseUtils.defer();
      *     let listener = cal.async.promiseOperationListener(deferred);
      *     aItem.calendar.addItem(aItem, listener);
      *     return deferred.promise;

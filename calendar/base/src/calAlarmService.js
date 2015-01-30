@@ -8,6 +8,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://gre/modules/Promise.jsm");
+Components.utils.import("resource://gre/modules/PromiseUtils.jsm");
 
 const kHoursBetweenUpdates = 6;
 const kSleepMonitorInterval = 60000;
@@ -481,7 +482,7 @@ calAlarmService.prototype = {
     findAlarms: function cAS_findAlarms(aCalendars, aStart, aUntil) {
         let getListener = {
             alarmService: this,
-            addRemovePromise: Promise.defer(),
+            addRemovePromise: PromiseUtils.defer(),
             onOperationComplete: function cAS_fA_onOperationComplete(aCalendar,
                                                                      aStatus,
                                                                      aOperationType,
