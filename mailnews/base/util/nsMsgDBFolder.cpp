@@ -386,7 +386,7 @@ NS_IMETHODIMP nsMsgDBFolder::EndFolderLoading(void)
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::GetExpungedBytes(uint32_t *count)
+nsMsgDBFolder::GetExpungedBytes(int64_t *count)
 {
   NS_ENSURE_ARG_POINTER(count);
 
@@ -396,7 +396,7 @@ nsMsgDBFolder::GetExpungedBytes(uint32_t *count)
     nsCOMPtr<nsIDBFolderInfo> folderInfo;
     rv = mDatabase->GetDBFolderInfo(getter_AddRefs(folderInfo));
     if (NS_FAILED(rv)) return rv;
-    rv = folderInfo->GetExpungedBytes((int32_t *) count);
+    rv = folderInfo->GetExpungedBytes(count);
     if (NS_SUCCEEDED(rv))
       mExpungedBytes = *count; // sync up with the database
     return rv;
@@ -668,7 +668,7 @@ nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force)
 
         folderInfo->GetNumMessages(&mNumTotalMessages);
         folderInfo->GetNumUnreadMessages(&mNumUnreadMessages);
-        folderInfo->GetExpungedBytes((int32_t *)&mExpungedBytes);
+        folderInfo->GetExpungedBytes(&mExpungedBytes);
 
         nsCString utf8Name;
         folderInfo->GetFolderName(utf8Name);
@@ -1290,7 +1290,7 @@ NS_IMETHODIMP nsMsgDBFolder::ReadFromFolderCacheElem(nsIMsgFolderCacheElement *e
   element->GetInt32Property("totalUnreadMsgs", &mNumUnreadMessages);
   element->GetInt32Property("pendingUnreadMsgs", &mNumPendingUnreadMessages);
   element->GetInt32Property("pendingMsgs", &mNumPendingTotalMessages);
-  element->GetInt32Property("expungedBytes", (int32_t *) &mExpungedBytes);
+  element->GetInt64Property("expungedBytes", &mExpungedBytes);
   element->GetInt64Property("folderSize", &mFolderSize);
   element->GetStringProperty("charset", mCharset);
 
@@ -1413,7 +1413,7 @@ NS_IMETHODIMP nsMsgDBFolder::WriteToFolderCacheElem(nsIMsgFolderCacheElement *el
   element->SetInt32Property("totalUnreadMsgs", mNumUnreadMessages);
   element->SetInt32Property("pendingUnreadMsgs", mNumPendingUnreadMessages);
   element->SetInt32Property("pendingMsgs", mNumPendingTotalMessages);
-  element->SetInt32Property("expungedBytes", mExpungedBytes);
+  element->SetInt64Property("expungedBytes", mExpungedBytes);
   element->SetInt64Property("folderSize", mFolderSize);
   element->SetStringProperty("charset", mCharset);
 
@@ -1841,9 +1841,9 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow)
       NS_ENSURE_SUCCESS(rv, rv);
       nsCOMPtr<nsIMutableArray> offlineFolderArray = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
-      int32_t totalExpungedBytes = 0;
-      int32_t offlineExpungedBytes = 0;
-      int32_t localExpungedBytes = 0;
+      int64_t totalExpungedBytes = 0;
+      int64_t offlineExpungedBytes = 0;
+      int64_t localExpungedBytes = 0;
       do
       {
         nsCOMPtr<nsIMsgIncomingServer> server = do_QueryElementAt(allServers, serverIndex, &rv);
@@ -1868,7 +1868,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow)
           uint32_t cnt = 0;
           rv = allDescendents->GetLength(&cnt);
           NS_ENSURE_SUCCESS(rv, rv);
-          uint32_t expungedBytes=0;
+          int64_t expungedBytes = 0;
           if (offlineSupportLevel > 0)
           {
             uint32_t flags;
@@ -1968,7 +1968,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow)
           nsCOMPtr <nsIAtom> aboutToCompactAtom = MsgGetAtom("AboutToCompact");
           NotifyFolderEvent(aboutToCompactAtom);
 
-         if ( localExpungedBytes > 0)
+         if (localExpungedBytes > 0)
          {
             nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
               do_CreateInstance(NS_MSGLOCALFOLDERCOMPACTOR_CONTRACTID, &rv);

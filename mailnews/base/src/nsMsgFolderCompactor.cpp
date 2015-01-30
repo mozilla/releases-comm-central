@@ -167,7 +167,7 @@ nsFolderCompactState::Compact(nsIMsgFolder *folder, bool aOfflineStore,
       return imapFolder->Expunge(this, aMsgWindow);
   }
 
-   uint32_t expunged;
+   int64_t expunged;
    folder->GetExpungedBytes(&expunged);
    m_totalExpungedBytes += expunged;
    m_window = aMsgWindow;
@@ -1084,7 +1084,7 @@ nsOfflineStoreCompactState::FinishCompact()
   if (dbFolderInfo)
     dbFolderInfo->SetExpungedBytes(0);
   // this forces the m_folder to update mExpungedBytes from the db folder info.
-  uint32_t expungedBytes;
+  int64_t expungedBytes;
   m_folder->GetExpungedBytes(&expungedBytes);
   m_folder->UpdateSummaryTotals(true);
   m_db->SetSummaryValid(true);

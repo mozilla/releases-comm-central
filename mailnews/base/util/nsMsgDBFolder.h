@@ -197,7 +197,7 @@ protected:
   int32_t mNumUnreadMessages;        /* count of unread messages (-1 means unknown; -2 means unknown but we already tried to find out.) */
   int32_t mNumTotalMessages;         /* count of existing messages. */
   bool mNotifyCountChanges;
-  uint32_t mExpungedBytes;
+  int64_t mExpungedBytes;
   nsCOMArray<nsIMsgFolder> mSubFolders;
   // This can't be refcounted due to ownsership issues
   nsTObserverArray<nsIFolderListener*> mListeners;

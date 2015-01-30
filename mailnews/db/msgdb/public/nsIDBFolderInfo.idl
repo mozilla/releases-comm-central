@@ -46,7 +46,7 @@ interface  nsIDBFolderInfo : nsISupports {
   attribute long numUnreadMessages;
   attribute long numMessages;
 
-  attribute long expungedBytes;
+  attribute long long expungedBytes;
   attribute long imapUidValidity;
   attribute unsigned long version;
   attribute long imapTotalPendingMessages;

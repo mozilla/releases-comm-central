@@ -803,7 +803,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CompactFolder(nsIMsgFolder *aFolder,
     do_CreateInstance(NS_MSGLOCALFOLDERCOMPACTOR_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t expungedBytes = 0;
+  int64_t expungedBytes = 0;
   aFolder->GetExpungedBytes(&expungedBytes);
   // check if we need to compact the folder
   return (expungedBytes > 0) ?

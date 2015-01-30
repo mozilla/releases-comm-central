@@ -729,7 +729,7 @@ nsMsgNewsFolder::UpdateSummaryFromNNTPInfo(int32_t oldest, int32_t youngest, int
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetExpungedBytesCount(uint32_t *count)
+NS_IMETHODIMP nsMsgNewsFolder::GetExpungedBytesCount(int64_t *count)
 {
   NS_ENSURE_ARG_POINTER(count);
   *count = mExpungedBytes;

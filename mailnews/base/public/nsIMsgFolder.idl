@@ -30,7 +30,7 @@ typedef long nsMsgBiffState;
 // enumerated type for determining if a message has been replied to, forwarded, etc.
 typedef long nsMsgDispositionState;
 
-[scriptable, uuid(8EC4D122-1082-4fa2-B97C-4AE852B254D2)]
+[scriptable, uuid(d277b1d2-e820-42f9-8706-914df7d429b3)]
 interface nsIMsgFolder : nsISupports {
 
   const nsMsgBiffState nsMsgBiffState_NewMail = 0; // User has new mail waiting.
@@ -266,7 +266,7 @@ interface nsIMsgFolder : nsISupports {
    */
   void clearNewMessages();
 
-  readonly attribute unsigned long expungedBytes;
+  readonly attribute long long expungedBytes;
 
   /**
    * Can this folder be deleted?

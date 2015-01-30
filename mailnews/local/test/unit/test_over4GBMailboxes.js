@@ -293,13 +293,14 @@ function copyIntoOver4GiB()
   do_check_true(gGotAlert);
 
   // Make sure inbox file did not grow (i.e., no data were appended).
-  let newLocalInboxSize = gInbox.filePath.fileSize;
+  let newLocalInboxSize = gInboxFile.fileSize;
   do_print("Local inbox size (after copyFileMessageInLocalFolder()) = " +
            newLocalInboxSize);
   do_check_eq(newLocalInboxSize, localInboxSize);
 
-  // Append a new small message to the folder (+1 MiB).
-  growInbox(gInboxFile.fileSize + 0x100000);
+  // Append 2 new small messages to the folder (+1 MiB each).
+  growInbox(gInboxFile.fileSize + 0x100000); // will be removed in compactOver4GB
+  growInbox(gInboxFile.fileSize + 0x100000); // will be preserved in CompactUnder4GB
   do_check_true(gInboxFile.fileSize > kSizeLimit);
 
   // Force the db closed, so that getDatabaseWithReparse will notice
@@ -323,17 +324,18 @@ function compactOver4GiB()
   gInboxSize = gInboxFile.fileSize;
   do_check_true(gInboxSize > kSizeLimit);
   // Delete the last small message at folder end.
-  let msgDB = gInbox.msgDatabase;
-  let enumerator = msgDB.EnumerateMessages();
+  let enumerator = gInbox.messages;
   let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  let sizeToExpunge = 0;
   while (enumerator.hasMoreElements()) {
-    let header = enumerator.getNext();
+    let header = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     if (!enumerator.hasMoreElements()) {
-      do_check_true(header instanceof Ci.nsIMsgDBHdr);
       messages.appendElement(header, false);
+      sizeToExpunge = header.messageSize;
     }
   }
   gInbox.deleteMessages(messages, null, true, false, null, false);
+  do_check_eq(gInbox.expungedBytes, sizeToExpunge);
 
   /* Unfortunately, the compaction now would kill the sparse markings in the file
    * so it will really take 4GiB of space in the filesystem and may be slow
@@ -372,19 +374,24 @@ function compactUnder4GiB()
   do_check_eq(gInbox.sizeOnDisk, folderSize);
   do_check_eq(gInbox.getTotalMessages(false), totalMsgs);
 
-  // Very first header in msgDB is retained,
-  // then all other headers are marked as deleted.
-  let msgDB = gInbox.msgDatabase;
-  let enumerator = msgDB.EnumerateMessages();
-  let firstHdr = true;
+  // Very last header in folder is retained,
+  // but all other preceding headers are marked as deleted.
+  let enumerator = gInbox.messages;
   let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  let sizeToExpunge = gInbox.expungedBytes; // If compact in compactOver4GB was skipped, this is not 0.
   while (enumerator.hasMoreElements()) {
-    let header = enumerator.getNext();
-    if (header instanceof Ci.nsIMsgDBHdr && !firstHdr)
+    let header = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+    if (enumerator.hasMoreElements()) {
       messages.appendElement(header, false);
-    firstHdr = false;
+      sizeToExpunge += header.messageSize;
+    }
   }
   gInbox.deleteMessages(messages, null, true, false, null, false);
+
+  // Bug 894012: size of messages to expunge is now higher than 4GB.
+  // Only the small 1MiB message remains.
+  do_check_eq(gInbox.expungedBytes, sizeToExpunge);
+  do_check_true(sizeToExpunge > kSizeLimit);
 
   // Note: compact() will also add 'X-Mozilla-Status' and 'X-Mozilla-Status2'
   // lines to message(s).
@@ -429,6 +436,7 @@ var ParseListener_growOver4GiB =
     do_check_true(FListener.sizeHistory(1) < FListener.sizeHistory(0));
     do_check_eq(FListener.msgsHistory(0),
                 FListener.msgsHistory(1) + gExpectedNewMessages);
+    do_check_eq(gInbox.expungedBytes, 0);
 
     copyIntoOver4GiB();
   }
@@ -490,7 +498,7 @@ var CompactListener_compactUnder4GiB =
 
 function endTest()
 {
-   MailServices.mailSession.RemoveFolderListener(FListener);
+  MailServices.mailSession.RemoveFolderListener(FListener);
   // Free up disk space - if you want to look at the file after running
   // this test, comment out this line.
   gInbox.filePath.remove(false);

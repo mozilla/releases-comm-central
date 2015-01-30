@@ -359,7 +359,7 @@ nsresult nsDBFolderInfo::LoadMemberVariables()
   GetInt32PropertyWithToken(m_folderDateColumnToken, (int32_t &) m_folderDate);
   GetInt32PropertyWithToken(m_imapUidValidityColumnToken, m_ImapUidValidity, kUidUnknown);
   GetInt32PropertyWithToken(m_expiredMarkColumnToken, (int32_t &) m_expiredMark);
-  GetInt32PropertyWithToken(m_expungedBytesColumnToken, (int32_t &) m_expungedBytes);
+  GetUint64PropertyWithToken(m_expungedBytesColumnToken, (uint64_t *) &m_expungedBytes);
   GetInt32PropertyWithToken(m_highWaterMessageKeyColumnToken, (int32_t &) m_highWaterMessageKey);
   int32_t version;
 
@@ -487,10 +487,10 @@ NS_IMETHODIMP nsDBFolderInfo::GetExpiredMark(nsMsgKey *result)
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsDBFolderInfo::ChangeExpungedBytes(int32_t delta)
+// The size of the argument depends on the maximum size of a single message
+NS_IMETHODIMP nsDBFolderInfo::ChangeExpungedBytes(int32_t delta)
 {
-    return SetExpungedBytes(m_expungedBytes + delta);
+  return SetExpungedBytes(m_expungedBytes + delta);
 }
 
 NS_IMETHODIMP nsDBFolderInfo::SetMailboxName(const nsAString &newBoxName)
@@ -556,16 +556,16 @@ NS_IMETHODIMP nsDBFolderInfo::SetNumMessages(int32_t numMessages)
   return SetUint32PropertyWithToken(m_numMessagesColumnToken, m_numMessages);
 }
 
-NS_IMETHODIMP nsDBFolderInfo::GetExpungedBytes(int32_t *result)
+NS_IMETHODIMP nsDBFolderInfo::GetExpungedBytes(int64_t *result)
 {
   *result = m_expungedBytes;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsDBFolderInfo::SetExpungedBytes(int32_t expungedBytes)
+NS_IMETHODIMP nsDBFolderInfo::SetExpungedBytes(int64_t expungedBytes)
 {
   m_expungedBytes = expungedBytes;
-  return SetUint32PropertyWithToken(m_expungedBytesColumnToken, m_expungedBytes);
+  return SetUint64PropertyWithToken(m_expungedBytesColumnToken, m_expungedBytes);
 }
 
 
@@ -830,6 +830,11 @@ nsresult nsDBFolderInfo::SetPropertyWithToken(mdb_token aProperty, const nsAStri
 nsresult  nsDBFolderInfo::SetUint32PropertyWithToken(mdb_token aProperty, uint32_t propertyValue)
 {
   return m_mdb->UInt32ToRowCellColumn(m_mdbRow, aProperty, propertyValue);
+}
+
+nsresult  nsDBFolderInfo::SetUint64PropertyWithToken(mdb_token aProperty, uint64_t propertyValue)
+{
+  return m_mdb->UInt64ToRowCellColumn(m_mdbRow, aProperty, propertyValue);
 }
 
 nsresult  nsDBFolderInfo::SetUint64Property(const char *aProperty,

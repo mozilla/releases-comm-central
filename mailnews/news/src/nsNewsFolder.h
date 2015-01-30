@@ -48,7 +48,7 @@ public:
 
   NS_IMETHOD GetFolderURL(nsACString& url) MOZ_OVERRIDE;
 
-  NS_IMETHOD GetExpungedBytesCount(uint32_t *count);
+  NS_IMETHOD GetExpungedBytesCount(int64_t *count);
   NS_IMETHOD GetDeletable(bool *deletable) MOZ_OVERRIDE;
 
   NS_IMETHOD RefreshSizeOnDisk();
@@ -116,7 +116,7 @@ protected:
   virtual nsresult CreateBaseMessageURI(const nsACString& aURI) MOZ_OVERRIDE;
 
 protected:
-  uint32_t  mExpungedBytes;
+  int64_t mExpungedBytes;
   bool mGettingNews;
   bool mInitialized;
   bool m_downloadMessageForOfflineUse;
