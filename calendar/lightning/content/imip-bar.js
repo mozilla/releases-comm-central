@@ -195,7 +195,7 @@ var ltnImipBar = {
 
         imipBar.setAttribute("label", data.label);
         // let's reset all buttons first
-        imipBar.resetButtons();
+        ltnImipBar.resetButtons();
         // menu items are visible by default, let's hide what's not available
         data.hideMenuItems.forEach(function(aElementId) hideElement(document.getElementById(aElementId)));
         // buttons are hidden by default, let's make required buttons visible
