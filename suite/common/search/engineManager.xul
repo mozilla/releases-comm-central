@@ -51,8 +51,14 @@
   <description>&engineManager.intro;</description>
   <separator class="thin"/>
   <hbox flex="1">
-    <tree id="engineList" flex="1" rows="10" hidecolumnpicker="true"
-          seltype="single" onselect="gEngineManagerDialog.onSelect();">
+    <tree id="engineList"
+          flex="1"
+          rows="10"
+          hidecolumnpicker="true"
+          editable="true"
+          seltype="single"
+          onselect="gEngineManagerDialog.onSelect();"
+          onkeydown="gEngineManagerDialog.onKeydown(event);">
       <treechildren id="engineChildren" flex="1"
                     ondragstart="onDragEngineStart(event);"/>
       <treecols>

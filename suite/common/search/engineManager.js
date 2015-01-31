@@ -116,44 +116,51 @@ var gEngineManagerDialog = {
     var msg = strings.getFormattedString("editMsg", [selectedEngine.name]);
 
     while (Services.prompt.prompt(window, title, msg, alias, null, {})) {
-      var bduplicate = false;
-      var eduplicate = false;
-      var dupName = "";
+      if (this.updateKeyword(selectedEngine, alias.value))
+        break;
+    }
+  },
 
-      if (alias.value != "") {
-        try {
-          let bmserv = Cc["@mozilla.org/browser/nav-bookmarks-service;1"].
-                       getService(Ci.nsINavBookmarksService);
-          if (bmserv.getURIForKeyword(alias.value))
-            bduplicate = true;
-        } catch(ex) {}
+  updateKeyword: function(aEngine, aKeyword) {
+    var bduplicate = false;
+    var eduplicate = false;
+    var dupName = "";
 
-        // Check for duplicates in changes we haven't committed yet
-        let engines = gEngineView._engineStore.engines;
-        for each (let engine in engines) {
-          if (engine.alias == alias.value &&
-              engine.name != selectedEngine.name) {
-            eduplicate = true;
-            dupName = engine.name;
-            break;
-          }
+    if (aKeyword) {
+      try {
+        let bmserv =
+          Components.classes["@mozilla.org/browser/nav-bookmarks-service;1"]
+                    .getService(Components.interfaces.nsINavBookmarksService);
+        if (bmserv.getURIForKeyword(aKeyword))
+          bduplicate = true;
+      } catch(ex) {}
+
+      // Check for duplicates in changes we haven't committed yet
+      let engines = gEngineView._engineStore.engines;
+      for (let engine of engines) {
+        if (engine.alias == aKeyword &&
+            engine.name != aEngine.name) {
+          eduplicate = true;
+          dupName = engine.name;
+          break;
         }
       }
-
-      // Notify the user if they have chosen an existing engine/bookmark keyword
-      if (eduplicate || bduplicate) {
-        var dtitle = strings.getString("duplicateTitle");
-        var bmsg = strings.getString("duplicateBookmarkMsg");
-        var emsg = strings.getFormattedString("duplicateEngineMsg", [dupName]);
-
-        Services.prompt.alert(window, dtitle, eduplicate ? emsg : bmsg);
-      } else {
-        gEngineView._engineStore.changeEngine(selectedEngine, "alias",
-                                              alias.value);
-        gEngineView.invalidate();
-        break;
-      }
     }
+
+    // Notify the user if they have chosen an existing engine/bookmark keyword
+    if (eduplicate || bduplicate) {
+      var strings = document.getElementById("engineManagerBundle");
+      var dtitle = strings.getString("duplicateTitle");
+      var bmsg = strings.getString("duplicateBookmarkMsg");
+      var emsg = strings.getFormattedString("duplicateEngineMsg", [dupName]);
+
+      Services.prompt.alert(window, dtitle, eduplicate ? emsg : bmsg);
+      return false;
+    }
+
+    gEngineView._engineStore.changeEngine(aEngine, "alias", aKeyword);
+    gEngineView.invalidate();
+    return true;
   },
 
   onSelect: function engineManager_onSelect() {
@@ -175,6 +182,18 @@ var gEngineManagerDialog = {
 
     document.getElementById("cmd_editkeyword")
             .setAttribute("disabled", noSelection);
+  },
+
+  onKeydown: function(aEvent) {
+    var tree = document.getElementById("engineList");
+    if (tree.editingColumn)
+      return;
+
+    var isMac = Application.platformIsMac;
+    if (aEvent.keyCode == (isMac ? KeyEvent.DOM_VK_RETURN : KeyEvent.DOM_VK_F2))
+      if (tree.startEditing(gEngineView.selectedIndex,
+                            tree.columns.engineKeyword))
+        aEvent.preventDefault();
   }
 };
 
@@ -432,6 +451,14 @@ EngineView.prototype = {
     return "";
   },
 
+  setCellText: function(index, column, value) {
+    if (column.id != "engineKeyword")
+      return;
+    gEngineManagerDialog.updateKeyword(this._engineStore.engines[index], value);
+    document.getElementById("engineList").stopEditing(false);
+    return;
+  },
+
   setTree: function(tree) {
     this.tree = tree;
   },
@@ -481,10 +508,9 @@ EngineView.prototype = {
   cycleHeader: function(column) { },
   selectionChanged: function() { },
   cycleCell: function(row, column) { },
-  isEditable: function(index, column) { return false; },
+  isEditable: function(index, column) { return column.id == "engineKeyword"; },
   isSelectable: function(index, column) { return false; },
   setCellValue: function(index, column, value) { },
-  setCellText: function(index, column, value) { },
   performAction: function(action) { },
   performActionOnRow: function(action, index) { },
   performActionOnCell: function(action, index, column) { }
