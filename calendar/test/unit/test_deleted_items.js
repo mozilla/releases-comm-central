@@ -21,15 +21,16 @@ function check_delmgr_call(aFunc) {
     const mISSC = Components.interfaces.mozIStorageStatementCallback;
     let delmgr = Components.classes["@mozilla.org/calendar/deleted-items-manager;1"]
                            .getService(Components.interfaces.calIDeletedItems);
-    aFunc();
-    return new Promise(function(resolve, reject){
-	 (delmgr.wrappedJSObject.completedNotifier.handleCompletion = (aReason) => {
-        if (aReason == mISSC.REASON_FINISHED) {
-          resolve();
-        } else {
-          reject(aReason);
-        });
-	});
+    return new Promise(function(resolve, reject) {
+        delmgr.wrappedJSObject.completedNotifier.handleCompletion = (aReason) => {
+            if (aReason == mISSC.REASON_FINISHED) {
+                resolve();
+            } else {
+                reject(aReason);
+            };
+        };
+        aFunc();
+    });
 }
 
 add_task(function test_deleted_items() {
