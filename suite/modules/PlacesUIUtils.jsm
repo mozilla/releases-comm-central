@@ -644,12 +644,12 @@ var PlacesUIUtils = {
   },
 
   _getTopBrowserWin: function PUIU__getTopBrowserWin() {
-    return focusManager.activeWindow.gPrivate ||
+    return this._getCurrentActiveWin().gPrivate ||
            Services.wm.getMostRecentWindow("navigator:browser");
   },
 
   _getCurrentActiveWin: function PUIU__getCurrentActiveWin() {
-    return focusManager.activeWindow;
+    return focusManager.activeWindow || Services.wm.getMostRecentWindow(null);
   },
 
   /**
@@ -931,12 +931,12 @@ var PlacesUIUtils = {
     }
   },
 
-  openContainerNodeInTabs: function PUIU_openContainerInTabs(aNode, aEvent) {
+  openContainerNodeInTabs: function PUIU_openContainerInTabs(aNode, aEvent, aWhere) {
     var urlsToOpen = PlacesUtils.getURLsForContainerNode(aNode);
     if (!this._confirmOpenInTabs(urlsToOpen.length))
       return;
 
-    this._openTabset(urlsToOpen, aEvent);
+    this._openTabset(urlsToOpen, aEvent, aWhere);
   },
 
   openURINodesInTabs: function PUIU_openURINodesInTabs(aNodes, aEvent) {
@@ -977,7 +977,7 @@ var PlacesUIUtils = {
       return;
     var win = this._getCurrentActiveWin();
     if (PlacesUtils.nodeIsContainer(aNode) && aWhere != "current") {
-        this.openContainerNodeInTabs(aNode, aWhere);
+      this.openContainerNodeInTabs(aNode, null, aWhere);
     } else if (PlacesUtils.nodeIsURI(aNode) && this.checkURLSecurity(aNode, win)) {
       var isBookmark = PlacesUtils.nodeIsBookmark(aNode);
 
