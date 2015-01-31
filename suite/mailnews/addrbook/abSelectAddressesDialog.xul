@@ -19,7 +19,6 @@
 <dialog id="selectAddressesWindow"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="&selectAddressWindow.title;"
-        class="dialog"
         style="width: 50em; height: 35em;"
         persist="width height screenX screenY"
         buttons="accept,cancel"
