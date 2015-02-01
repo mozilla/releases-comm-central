@@ -94,15 +94,16 @@ let alarmObserver = {
 
 function run_test() {
     do_get_profile();
-    // Initialize the floating timezone without actually starting the service.
-    cal.getTimezoneService().floating;
+
     add_test(test_addItems);
     add_test(test_loadCalendar);
     add_test(test_modifyItems);
 
     initializeAlarmService();
     cal.getCalendarManager().startup({onResult: function() {
-        run_next_test();
+        cal.getTimezoneService().startup({onResult: function() {
+            run_next_test();
+        }});
     }});
 }
 
