@@ -592,13 +592,15 @@ var FeedUtils = {
     if (!aFolder || !win)
       return;
 
-    let row = win.gFolderTreeView.getIndexOfFolder(aFolder);
-    let rowItem = win.gFolderTreeView.getFTVItemForIndex(row);
-    if (rowItem == null)
-      return;
+    if ("gFolderTreeView" in win) {
+      let row = win.gFolderTreeView.getIndexOfFolder(aFolder);
+      let rowItem = win.gFolderTreeView.getFTVItemForIndex(row);
+      if (rowItem == null)
+        return;
 
-    rowItem[aProperty] = aValue;
-    win.gFolderTreeView._tree.invalidateRow(row);
+      rowItem[aProperty] = aValue;
+      win.gFolderTreeView._tree.invalidateRow(row);
+    }
   },
 
   get mFaviconService() {
