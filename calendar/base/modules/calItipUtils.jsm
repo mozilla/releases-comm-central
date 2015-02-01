@@ -614,6 +614,11 @@ cal.itip = {
                     aItem = aItem.clone();
                     aItem.removeAllAttendees();
                     aItem.addAttendee(invitedAttendee);
+                    // we remove X-MS-OLK-SENDER to avoid confusing Outlook 2007+ (w/o Exchange)
+                    // about the notification sender (see bug 603933)
+                    if (aItem.hasProperty("X-MS-OLK-SENDER")) {
+                        aItem.deleteProperty("X-MS-OLK-SENDER");
+                    }
                     sendMessage(aItem, "REPLY", [aItem.organizer], autoResponse);
                 }
             }
