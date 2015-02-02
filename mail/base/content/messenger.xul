@@ -185,9 +185,9 @@
                           .copyString(window.getSelection().isCollapsed ?
                               document.popupNode.textContent :
                               window.getSelection().toString());"/>
-     <menuitem id="createFilterFromItem" label="&CreateFilterFrom.label;"
+     <menuitem id="createFilterFromMenuItem" label="&CreateFilterFrom.label;"
                accesskey="&CreateFilterFrom.accesskey;"
-               oncommand="CreateFilter(findEmailNodeFromPopupNode(document.popupNode, 'copyPopup'))"
+               oncommand="CreateFilter(this.parentNode.triggerNode.parentNode)"
                observes="cmd_createFilterFromPopup"/>
 </menupopup>
 
