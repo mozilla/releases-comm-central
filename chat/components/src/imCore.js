@@ -249,6 +249,8 @@ CoreService.prototype = {
     if (this._initialized)
       return;
 
+    initLogModule("core", this);
+
     Services.obs.addObserver(this, kQuitApplicationGranted, false);
     this._initialized = true;
 
@@ -306,6 +308,16 @@ CoreService.prototype = {
     let entries = categoryManager.enumerateCategory(kProtocolPluginCategory);
     while (entries.hasMoreElements()) {
       let id = entries.getNext().QueryInterface(Ci.nsISupportsCString).data;
+
+      // If the preference is set to disable this prpl, don't show it in the
+      // full list of protocols.
+      let pref = "chat.prpls." + id + ".disable";
+      if (Services.prefs.getPrefType(pref) == Services.prefs.PREF_BOOL &&
+          Services.prefs.getBoolPref(pref)) {
+        this.LOG("Disabling prpl: " + id);
+        continue;
+      }
+
       let proto = this.getProtocolById(id);
       if (proto)
         protocols.push(proto);
