@@ -129,17 +129,27 @@ nsAbAutoCompleteSearch.prototype = {
    * results that match the beginning of a "word" in the result to score better
    * than a result that matches only in the middle of the word.
    *
+   * @param aCard - the card whose score is being decided
    * @param aAddress - full lower-cased address, including display name and address
    * @param aSearchString - search string provided by user
    * @return a score; a higher score is better than a lower one
    */
-  _getScore: function(aAddress, aSearchString) {
+  _getScore: function(aCard, aAddress, aSearchString) {
     const BEST = 100;
+
+    // We will firstly check if the search term provided by the user
+    // is the nick name for the card or at least in the beginning of it.
+    let nick = aCard.getProperty("NickName", "").toLocaleLowerCase();
+    aSearchString = aSearchString.toLocaleLowerCase();
+    if (nick == aSearchString)
+      return BEST + 1;
+    if (nick.indexOf(aSearchString) == 0)
+      return BEST;
+
     // We'll do this case-insensitively and ignore the domain.
     let atIdx = aAddress.lastIndexOf("@");
     if (atIdx != -1) // mail lists don't have an @
       aAddress = aAddress.substr(0, atIdx);
-    aSearchString = aSearchString.toLocaleLowerCase();
     let idx = aAddress.indexOf(aSearchString);
     if (idx == 0)
       return BEST;
@@ -296,7 +306,7 @@ nsAbAutoCompleteSearch.prototype = {
       isPrimaryEmail: isPrimaryEmail,
       emailToUse: emailToUse,
       popularity: this._getPopularityIndex(directory, card),
-      score: this._getScore(lcEmailAddress, result.searchString)
+      score: this._getScore(card, lcEmailAddress, result.searchString)
     });
   },
 

@@ -46,11 +46,11 @@ const displayNames = [ { search: "d",      expected: [5, 0, 1, 2, 3, 4, 9] },
                        { search: "displ",  expected: [5, 4]},
                        { search: "displa", expected: [5]} ];
 
-const nickNames = [ { search: "n",      expected: [5, 0, 1, 2, 3, 4] },
-                    { search: "ni",     expected: [5, 0, 1, 2, 3] },
-                    { search: "nic",    expected: [5, 1, 2, 3] },
-                    { search: "nick",   expected: [5, 2, 3] },
-                    { search: "nickn",  expected: [5, 3] },
+const nickNames = [ { search: "n",      expected: [4, 5, 0, 1, 2, 3] },
+                    { search: "ni",     expected: [0, 5, 1, 2, 3] },
+                    { search: "nic",    expected: [1, 5, 2, 3] },
+                    { search: "nick",   expected: [2, 5, 3] },
+                    { search: "nickn",  expected: [3, 5] },
                     { search: "nickna", expected: [5] } ];
 
 const emails = [ { search: "e",     expected: [0, 1, 2, 3, 4, 5, 7, 8, 9] },
