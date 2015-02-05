@@ -175,6 +175,17 @@ var ircNonStandard = {
              aMessage.params[1] == "Password required";
     },
 
+    "470": function(aMessage) { // Channel forward (Unreal, inspircd)
+      // <requested channel> <redirect channel>: You may not join this channel,
+      // so you are automatically being transferred to the redirect channel.
+      // Join redirect channel so when the automatic join happens, we are
+      // not surprised.
+      this.joinChat(this.getChatRoomDefaultFieldValues(aMessage.params[2]));
+      // Mark requested channel as left and add a system message.
+      return conversationErrorMessage(this, aMessage, "error.channelForward",
+        true, false);
+    },
+
     "499": function(aMessage) { // ERR_CHANOWNPRIVNEEDED (Unreal)
       // <channel> :You're not the channel owner (status +q is needed)
       return conversationErrorMessage(this, aMessage, "error.notChannelOwner");
