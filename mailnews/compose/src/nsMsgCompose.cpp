@@ -3745,33 +3745,48 @@ nsMsgComposeSendListener::RemoveCurrentDraftMessage(nsIMsgCompose *compObj, bool
     NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't get msg header DB interface pointer.");
     if (NS_SUCCEEDED(rv) && msgDBHdr)
     {
-      // get the folder for the message resource
-      msgDBHdr->GetFolder(getter_AddRefs(msgFolder));
-      NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't get msg folder interface pointer.");
-      if (NS_SUCCEEDED(rv) && msgFolder)
-      {
-        uint32_t folderFlags;
-        msgFolder->GetFlags(&folderFlags);
-        // only do this if it's a drafts or templates folder.
-        if (folderFlags & nsMsgFolderFlags::Drafts)
-        {
-          // build the msg arrary
-          nsCOMPtr<nsIMutableArray> messageArray(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-          NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't allocate array.");
+      do { // Break on failure or removal not needed.
+        // Get the folder for the message resource.
+        rv = msgDBHdr->GetFolder(getter_AddRefs(msgFolder));
+        NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't get msg folder interface pointer.");
+        if (NS_FAILED(rv) || !msgFolder)
+          break;
 
-          //nsCOMPtr<nsISupports> msgSupport = do_QueryInterface(msgDBHdr, &rv);
-          //NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't get msg header interface pointer.");
-          if (NS_SUCCEEDED(rv) && messageArray)
-          {
-            // ready to delete the msg
-            rv = messageArray->AppendElement(msgDBHdr, false);
-            NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't append msg header to array.");
-            if (NS_SUCCEEDED(rv))
-              rv = msgFolder->DeleteMessages(messageArray, nullptr, true, false, nullptr, false /*allowUndo*/);
-            NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't delete message.");
-          }
-        }
-      }
+        // Only do this if it's a drafts folder.
+        bool isDraft;
+        msgFolder->GetFlag(nsMsgFolderFlags::Drafts, &isDraft);
+        if (!isDraft)
+          break;
+
+        // Only remove if the message is actually in the db. It might have only
+        // been in the use cache.
+        nsMsgKey key;
+        rv = msgDBHdr->GetMessageKey(&key);
+        if (NS_FAILED(rv))
+          break;
+        nsCOMPtr<nsIMsgDatabase> db;
+        msgFolder->GetMsgDatabase(getter_AddRefs(db));
+        if (!db)
+          break;
+        bool containsKey = false;
+        db->ContainsKey(key, &containsKey);
+        if (!containsKey)
+          break;
+
+        // Build the msg array.
+        nsCOMPtr<nsIMutableArray> messageArray(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
+        NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't allocate array.");
+        if (NS_FAILED(rv) || !messageArray)
+          break;
+        rv = messageArray->AppendElement(msgDBHdr, false);
+        NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't append msg header to array.");
+        if (NS_FAILED(rv))
+          break;
+
+        // Ready to delete the msg.
+        rv = msgFolder->DeleteMessages(messageArray, nullptr, true, false, nullptr, false /*allowUndo*/);
+        NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't delete message.");
+      } while(false);
     }
     else
     {
