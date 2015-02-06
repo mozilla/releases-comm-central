@@ -71,7 +71,7 @@ def main(args=None):
     sys.exit(1)
 
   # packages to install in dependency order
-  packages = ["simplejson-2.1.6", "mozrunner", "jsbridge", "mozmill"]
+  packages = ["mozrunner", "jsbridge", "mozmill"]
 
   # create the virtualenv and install packages
   env = os.environ.copy()

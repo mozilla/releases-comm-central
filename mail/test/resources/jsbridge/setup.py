@@ -46,9 +46,6 @@ PACKAGE_VERSION = "2.4.14"
 
 requires = ['mozrunner == 2.5.13']
 
-if not sys.version.startswith('2.6'):
-    requires.append('simplejson')
-
 setup(name=PACKAGE_NAME,
       version=PACKAGE_VERSION,
       description=desc,

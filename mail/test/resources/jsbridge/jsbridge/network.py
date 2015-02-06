@@ -43,12 +43,8 @@ import uuid
 from time import sleep
 from threading import Thread
 
-try:
-    import json as simplejson
-    from json.encoder import encode_basestring_ascii, encode_basestring
-except ImportError:
-    import simplejson
-    from simplejson.encoder import encode_basestring_ascii, encode_basestring
+import json
+from json.encoder import encode_basestring_ascii, encode_basestring
 
 logger = logging.getLogger(__name__)
 
@@ -97,9 +93,9 @@ class Telnet(asyncore.dispatcher):
         
     read_callback = lambda self, data: None
 
-decoder = simplejson.JSONDecoder()
+decoder = json.JSONDecoder()
 
-class JSObjectEncoder(simplejson.JSONEncoder):
+class JSObjectEncoder(json.JSONEncoder):
     """Encoder that supports jsobject references by name."""
 
     def encode(self, o):
@@ -107,7 +103,7 @@ class JSObjectEncoder(simplejson.JSONEncoder):
         if isinstance(o, jsobjects.JSObject):
             return o._name_
         else:
-            return simplejson.JSONEncoder.encode(self, o)
+            return json.JSONEncoder.encode(self, o)
 
     def _iterencode(self, o, markers=None):
         import jsobjects
@@ -132,7 +128,7 @@ class JSObjectEncoder(simplejson.JSONEncoder):
         elif isinstance(o, (int, long)):
             yield str(o)
         elif isinstance(o, float):
-            yield getattr(simplejson.encoder, 'floatstr', simplejson.encoder._floatstr)(o, self.allow_nan)
+            yield getattr(json.encoder, 'floatstr', json.encoder._floatstr)(o, self.allow_nan)
         elif isinstance(o, (list, tuple)):
             for chunk in self._iterencode_list(o, markers):
                 yield chunk
