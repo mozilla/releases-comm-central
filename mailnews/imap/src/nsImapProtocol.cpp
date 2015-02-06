@@ -1092,7 +1092,7 @@ NS_IMETHODIMP nsImapProtocol::Run()
 NS_IMETHODIMP nsImapProtocol::CloseStreams()
 {
   // make sure that it is called by the UI thread
-  NS_ABORT_IF_FALSE(NS_IsMainThread(), "CloseStreams() should not be called from an off UI thread");
+  MOZ_ASSERT(NS_IsMainThread(), "CloseStreams() should not be called from an off UI thread");
 
   {
     MutexAutoLock mon(mLock);

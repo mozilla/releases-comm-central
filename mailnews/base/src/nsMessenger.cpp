@@ -2309,8 +2309,8 @@ static int CompareAttachmentPartId(const char * aAttachUrlLeft, const char * aAt
   long idLeft, idRight;
   do
   {
-    NS_ABORT_IF_FALSE(partIdLeft && IS_DIGIT(*partIdLeft), "Invalid character in part id string");
-    NS_ABORT_IF_FALSE(partIdRight && IS_DIGIT(*partIdRight), "Invalid character in part id string");
+    MOZ_ASSERT(partIdLeft && IS_DIGIT(*partIdLeft), "Invalid character in part id string");
+    MOZ_ASSERT(partIdRight && IS_DIGIT(*partIdRight), "Invalid character in part id string");
 
     // if the part numbers are different then the numerically smaller one is first
     char *fixConstLoss;
@@ -2331,8 +2331,8 @@ static int CompareAttachmentPartId(const char * aAttachUrlLeft, const char * aAt
     if (!*partIdLeft)
       return 0;
 
-    NS_ABORT_IF_FALSE(*partIdLeft == '.', "Invalid character in part id string");
-    NS_ABORT_IF_FALSE(*partIdRight == '.', "Invalid character in part id string");
+    MOZ_ASSERT(*partIdLeft == '.', "Invalid character in part id string");
+    MOZ_ASSERT(*partIdRight == '.', "Invalid character in part id string");
 
     ++partIdLeft;
     ++partIdRight;
@@ -2445,7 +2445,7 @@ nsAttachmentState::Init(uint32_t aCount, const char ** aContentTypeArray,
                         const char ** aUrlArray, const char ** aDisplayNameArray,
                         const char ** aMessageUriArray)
 {
-  NS_ABORT_IF_FALSE(aCount > 0, "count is invalid");
+  MOZ_ASSERT(aCount > 0, "count is invalid");
 
   mCount = aCount;
   mCurIndex = 0;

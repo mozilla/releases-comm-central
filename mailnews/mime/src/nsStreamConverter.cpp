@@ -348,7 +348,7 @@ nsStreamConverter::DetermineOutputFormat(const char *aUrl, nsMimeOutputType *aNe
     // is added to any URL. It appears that this code has been orphaned off by a change
     // elsewhere and is no longer required. It will be removed in the future unless
     // someone complains.
-    NS_ABORT_IF_FALSE(false, "Is this code actually being used?");
+    MOZ_ASSERT(false, "Is this code actually being used?");
 
     while (*format == ' ')
       ++format;
