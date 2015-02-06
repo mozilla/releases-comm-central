@@ -10,6 +10,7 @@ Runs the Bloat test harness
 import sys
 import os, os.path, platform, subprocess, signal
 import shutil
+import mozprofile
 import mozrunner
 import jsbridge
 import mozmill
@@ -25,26 +26,7 @@ except ImportError:
 SCRIPT_DIRECTORY = os.path.abspath(os.path.realpath(os.path.dirname(sys.argv[0])))
 sys.path.append(SCRIPT_DIRECTORY)
 
-from automation import Automation
-automation = Automation()
-
-# --------------------------------------------------------------
-# TODO: this is a hack for mozbase without virtualenv, remove with bug 849900
-#
-here = os.path.dirname(__file__)
-mozbase = os.path.realpath(os.path.join(os.path.dirname(here), 'mozbase'))
-
-try:
-    import mozcrash
-except:
-    deps = ['mozcrash',
-            'mozlog']
-    for dep in deps:
-        module = os.path.join(mozbase, dep)
-        if module not in sys.path:
-            sys.path.append(module)
-    import mozcrash
-# ---------------------------------------------------------------
+import mozcrash
 
 from time import sleep
 import imp
@@ -78,7 +60,7 @@ def rmtree_onerror(func, path, exc_info):
     it attempts to add write permission and then retries.
 
     If the error is for another reason it re-raises the error.
-    
+
     Usage : ``shutil.rmtree(path, onerror=rmtree_onerror)``
     """
     import stat
@@ -89,7 +71,7 @@ def rmtree_onerror(func, path, exc_info):
     else:
         raise
 
-class ThunderTestProfile(mozrunner.ThunderbirdProfile):
+class ThunderTestProfile(mozprofile.ThunderbirdProfile):
     preferences = {
         # say yes to debug output via dump
         'browser.dom.window.dump.enabled': True,
@@ -194,7 +176,19 @@ class ThunderTestProfile(mozrunner.ThunderbirdProfile):
         'messenger.accounts' :  "account1",
     }
 
-    def create_new_profile(self, binary):
+    def __init__(self, *args, **kwargs):
+        kwargs['profile'] = self.get_profile_dir()
+        super(ThunderTestProfile, self).__init__(*args, **kwargs)
+        self.set_preferences(self.preferences)
+
+        if (wrapper is not None and hasattr(wrapper, "NO_ACCOUNTS")
+            and wrapper.NO_ACCOUNTS):
+            pass
+        else:
+            self.set_preferences(self.account_preferences)
+
+
+    def get_profile_dir(self):
         '''
         We always put our profile in the same location.  We only clear it out
         when we are creating a new profile so that we can go in after the run
@@ -220,12 +214,6 @@ class ThunderTestProfile(mozrunner.ThunderbirdProfile):
             # profile object, because it isn't fully initalized yet
             wrapper.on_profile_created(PROFILE_DIR)
 
-        if (wrapper is not None and hasattr(wrapper, "NO_ACCOUNTS")
-            and wrapper.NO_ACCOUNTS):
-            pass
-        else:
-            self.preferences.update(self.account_preferences)
-
         return PROFILE_DIR
 
     def cleanup(self):
@@ -236,21 +224,24 @@ class ThunderTestProfile(mozrunner.ThunderbirdProfile):
         '''
         pass
 
-class ThunderTestRunner(mozrunner.ThunderbirdRunner):
+def ThunderTestRunner(*args, **kwargs):
+    kwargs['env'] = env = dict(os.environ)
+    # note, we do NOT want to set NO_EM_RESTART or jsbridge wouldn't work
+    # avoid dialogs on windows
+    if 'NO_EM_RESTART' in env:
+        del env['NO_EM_RESTART']
+    if 'XPCOM_DEBUG_BREAK' not in env:
+        env['XPCOM_DEBUG_BREAK'] = 'stack'
+    # do not reuse an existing instance
+    env['MOZ_NO_REMOTE'] = '1'
+
+    return mozrunner.ThunderbirdRunner(*args, **kwargs)
+
+class ThunderTestMozmill(mozmill.MozMill):
     VNC_SERVER_PATH = '/usr/bin/vncserver'
     VNC_PASSWD_PATH = '~/.vnc/passwd'
 
     def __init__(self, *args, **kwargs):
-        kwargs['env'] = env = dict(os.environ)
-        # note, we do NOT want to set NO_EM_RESTART or jsbridge wouldn't work
-        # avoid dialogs on windows
-        if 'NO_EM_RESTART' in env:
-            del env['NO_EM_RESTART']
-        if 'XPCOM_DEBUG_BREAK' not in env:
-            env['XPCOM_DEBUG_BREAK'] = 'stack'
-        # do not reuse an existing instance
-        env['MOZ_NO_REMOTE'] = '1'
-
         # Only use the VNC server if the capability is available and a password
         # is already defined so this can run without prompting the user.
         self.use_vnc_server = (
@@ -260,14 +251,20 @@ class ThunderTestRunner(mozrunner.ThunderbirdRunner):
             env.get('MOZMILL_NO_VNC') != '1')
 
         global USE_RICH_FAILURES
-        USE_RICH_FAILURES = (env.get('MOZMILL_RICH_FAILURES') == '1')
+        USE_RICH_FAILURES = (os.environ.get('MOZMILL_RICH_FAILURES') == '1')
 
-        mozrunner.Runner.__init__(self, *args, **kwargs)
+        super(ThunderTestMozmill, self).__init__(*args, **kwargs)
 
-    def find_binary(self):
-        return self.profile.app_path
+    def start(self, profile=None, runner=None):
+        if not profile:
+            profile = self.profile_class(addons=[jsbridge.extension_path, extension_path])
+        self.profile = profile
+        
+        if not runner:
+            runner = self.runner_class(profile=self.profile, 
+                                       cmdargs=["-jsbridge", str(self.jsbridge_port)])
+        self.runner = runner
 
-    def start(self):
         if self.use_vnc_server:
             try:
                 subprocess.check_call([self.VNC_SERVER_PATH, ':99'])
@@ -281,14 +278,14 @@ class ThunderTestRunner(mozrunner.ThunderbirdRunner):
                 # the exception kill us.
                 subprocess.check_call([self.VNC_SERVER_PATH, ':99'])
             self.vnc_alive = True
-            self.env['DISPLAY'] = ':99'
+            self.runner.env['DISPLAY'] = ':99'
 
         if wrapper is not None and hasattr(wrapper, "on_before_start"):
-            wrapper.on_before_start(self.profile)
+            wrapper.on_before_start(self.runner.profile)
 
-        return mozrunner.ThunderbirdRunner.start(self)
+        return super(ThunderTestMozmill, self).start(profile, runner)
 
-    def wait(self, timeout=None):
+    def stop_runner(self, *args, **kwargs):
         '''
         Wrap the call to wait in logic that kills the VNC server when we are
         done waiting.  During normal operation, wait is the last thing.  In
@@ -297,7 +294,7 @@ class ThunderTestRunner(mozrunner.ThunderbirdRunner):
         to specialize for stop/kill though.
         '''
         try:
-            return mozrunner.ThunderbirdRunner.wait(self, timeout)
+            return super(ThunderTestMozmill, self).stop_runner(*args, **kwargs)
         finally:
             try:
                 if self.use_vnc_server and self.vnc_alive:
@@ -332,28 +329,33 @@ if hasattr(mozmill.MozMill, 'find_tests'):
     mozmill.MozMill.run_tests = monkeypatched_15_run_tests
 
 class ThunderTestCLI(mozmill.CLI):
+    mozmill_class = ThunderTestMozmill
 
-    profile_class = ThunderTestProfile
-    runner_class = ThunderTestRunner
-    parser_options = copy.copy(mozmill.CLI.parser_options)
-    parser_options[('--symbols-path',)] = {"default": None, "dest": "symbols",
-                                           "help": "The path to the symbol files from build_symbols"}
-    parser_options[('--plugins-path',)] = {"default": None, "dest": "plugins",
-                                           "help": "The path to the plugins directory for the created profile"}
+    def add_options(self, parser):
+        mozmill.CLI.add_options(self, parser)
+        parser.add_option('--symbols-path', default=None, dest="symbols",
+                          help="The path to the symbol files from build_symbols")
+        parser.add_option('--plugins-path', default=None, dest="plugins",
+                          help="The path to the plugins directory for the created profile")
 
     def __init__(self, *args, **kwargs):
         global SYMBOLS_PATH, PLUGINS_PATH, TEST_NAME
 
-        # mozmill 1.5.4 still explicitly hardcodes references to Firefox; in
-        # order to avoid missing out on initializer logic or needing to copy
-        # it, we monkeypatch mozmill's view of mozrunner.  (Keep in mind that
-        # the python module import process shallow copies dictionaries...)
-        mozmill.mozrunner.FirefoxRunner = self.runner_class
-        mozmill.mozrunner.FirefoxProfile = self.profile_class
-
         # note: we previously hardcoded a JS bridge timeout of 300 seconds,
         # but the default is now 60 seconds...
         mozmill.CLI.__init__(self, *args, **kwargs)
+
+        # Mozrunner expects the filename on OS X to point to the executable, but
+        # we only have the directory passed in. Remedy this.
+        if (sys.platform == 'darwin' and
+                self.options.binary.find('Contents/MacOS/') == -1):
+            self.options.binary = os.path.join(self.options.binary,
+                'Contents/MacOS/thunderbird-bin')
+
+        # Add these manually after the fact. No way to override the defaults
+        # from mozrunner that I can see.
+        self.runner_class = ThunderTestRunner
+        self.profile_class = ThunderTestProfile
 
         SYMBOLS_PATH = self.options.symbols
         PLUGINS_PATH = self.options.plugins

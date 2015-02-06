@@ -44,7 +44,7 @@ summ = """A powerful and extensible Python to JavaScript bridge interface."""
 PACKAGE_NAME = "jsbridge"
 PACKAGE_VERSION = "2.4.14"
 
-requires = ['mozrunner == 2.5.13']
+requires = ['mozrunner >= 6.0']
 
 setup(name=PACKAGE_NAME,
       version=PACKAGE_VERSION,

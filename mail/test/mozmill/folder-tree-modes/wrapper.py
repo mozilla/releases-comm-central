@@ -13,10 +13,6 @@ def on_before_start(profile):
     install_plugin/install_addon depends on the profile object being fully
     initalized.
     """
-    # Newer mozmill renames install_plugin to install_addon
-    if hasattr(profile, "install_addon"):
-        install_addon = profile.install_addon
-    else:
-        install_addon = profile.install_plugin
 
-    install_addon(os.path.join(os.path.dirname(__file__), "test-extension"))
+    profile.addon_manager.install_addons(
+        [os.path.join(os.path.dirname(__file__), "test-extension")])

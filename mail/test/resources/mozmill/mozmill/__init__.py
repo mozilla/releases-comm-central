@@ -59,6 +59,7 @@ logger = logging.getLogger('mozmill')
 
 import jsbridge
 from jsbridge.network import JSBridgeDisconnectError
+import mozprofile
 import mozrunner
 
 from time import sleep
@@ -124,7 +125,7 @@ class MozMill(object):
 
     def __init__(self,
                  runner_class=mozrunner.FirefoxRunner, 
-                 profile_class=mozrunner.FirefoxProfile,
+                 profile_class=mozprofile.FirefoxProfile,
                  jsbridge_port=24242,
                  jsbridge_timeout=60):
         """
@@ -704,30 +705,34 @@ class CLI(jsbridge.CLI):
     mozmill_class = MozMill
     module = "mozmill"
 
-    parser_options = copy.copy(jsbridge.CLI.parser_options)
-    parser_options[("-t", "--test",)] = dict(dest="test", action='append', default=[],
-                                             help="Run test")
-    parser_options[("-l", "--logfile",)] = dict(dest="logfile", default=None,
-                                                help="Log all events to file.")
-    parser_options[("--show-errors",)] = dict(dest="showerrors", default=False, 
-                                              action="store_true",
-                                              help="Print logger errors to the console.")
-    parser_options[("--report",)] = dict(dest="report", default=False,
-                                         help="Report the results. Requires url to results server. Use 'stdout' for stdout.")
-    parser_options[("--show-all",)] = dict(dest="showall", default=False, action="store_true",
-                                         help="Show all test output.")
-    parser_options[("--timeout",)] = dict(dest="timeout", type="float",
-                                          default=60., 
-                                          help="seconds before harness timeout if no communication is taking place")
-    parser_options[("-m", "--manifest")] = dict(dest='manifests', action='append',
-                                                help='test manifest .ini file')
-    parser_options[("--app-arg",)] = dict(dest='appArgs', action='append', default=[],
-                                          help='provides an argument to the test application')
+    def add_options(self, parser):
+        jsbridge.CLI.add_options(self, parser)
+        parser.add_option("-t", "--test", dest="test", action='append',
+                          default=[],
+                          help="Run test")
+        parser.add_option("-l", "--logfile", dest="logfile",
+                          default=None,
+                          help="Log all events to file.")
+        parser.add_option("--show-errors", dest="showerrors",
+                          default=False, 
+                          action="store_true",
+                          help="Print logger errors to the console.")
+        parser.add_option("--report", dest="report", default=False,
+                          help="Report the results. Requires url to results server. Use 'stdout' for stdout.")
+        parser.add_option("--show-all", dest="showall", default=False,
+                          action="store_true",
+                          help="Show all test output.")
+        parser.add_option("--timeout", dest="timeout", type="float",
+                          default=60., 
+                          help="seconds before harness timeout if no communication is taking place")
+        parser.add_option("-m", "--manifest", dest='manifests',
+                          action='append',
+                          help='test manifest .ini file')
 
     def __init__(self, *args, **kwargs):
         jsbridge.CLI.__init__(self, *args, **kwargs)
         self.mozmill = self.mozmill_class(runner_class=mozrunner.FirefoxRunner,
-                                          profile_class=mozrunner.FirefoxProfile,
+                                          profile_class=mozprofile.FirefoxProfile,
                                           jsbridge_port=int(self.options.port),
                                           jsbridge_timeout=self.options.timeout,
                                           )
@@ -748,10 +753,10 @@ class CLI(jsbridge.CLI):
             log_options['level'] = logging.DEBUG    
         logging.basicConfig(**log_options)
 
-    def get_profile(self, *args, **kwargs):
-        profile = jsbridge.CLI.get_profile(self, *args, **kwargs)
-        profile.install_addon(extension_path)
-        return profile
+    def profile_args(self):
+        profargs = super(CLI, self).profile_args()
+        profargs.setdefault('addons', []).append(extension_path)
+        return profargs
 
     def run(self):
 
@@ -831,11 +836,11 @@ class RestartCLI(CLI):
 
 
 class ThunderbirdCLI(CLI):
-    profile_class = mozrunner.ThunderbirdProfile
+    profile_class = mozprofile.ThunderbirdProfile
     runner_class = mozrunner.ThunderbirdRunner
 
 class ThunderbirdRestartCLI(RestartCLI):
-    profile_class = mozrunner.ThunderbirdProfile
+    profile_class = mozprofile.ThunderbirdProfile
     runner_class = mozrunner.ThunderbirdRunner
 
 def enum(*sequential, **named):

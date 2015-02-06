@@ -71,7 +71,7 @@ def main(args=None):
     sys.exit(1)
 
   # packages to install in dependency order
-  packages = ["mozrunner", "jsbridge", "mozmill"]
+  packages = ["jsbridge", "mozmill"]
 
   # create the virtualenv and install packages
   env = os.environ.copy()
@@ -85,7 +85,9 @@ def main(args=None):
   pip = entry_point_path(destination, 'pip')
 
   # Install mozbase packages to the virtualenv
-  mozbase_packages = ['manifestparser', 'mozfile', 'mozinfo']
+  mozbase_packages = ['manifestparser', 'mozfile', 'mozinfo', 'mozlog',
+    'mozprofile', 'mozcrash', 'moznetwork', 'mozprocess', 'mozdevice',
+    'mozrunner']
   returncode = call([pip, 'install'] +
     [os.path.join(mozbase, package) for package in mozbase_packages], env=env)
   if returncode:
