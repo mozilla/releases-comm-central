@@ -527,5 +527,15 @@ protected:
   nsTArray<nsMsgKey> m_keysToFetch;
   uint32_t m_totalKeysToFetch;
 
+  /**
+   * delete if appropriate local storage for messages in this folder
+   *
+   * @parm aMessages array (of nsIMsgDBHdr) of messages to delete
+   *       (or an array of message keys)
+   * @parm aSrcFolder the folder containing the messages (optional)
+   */
+  void DeleteStoreMessages(nsIArray* aMessages);
+  void DeleteStoreMessages(nsTArray<nsMsgKey> &aMessages);
+  static void DeleteStoreMessages(nsTArray<nsMsgKey> &aMessages, nsIMsgFolder* aFolder);
 };
 #endif

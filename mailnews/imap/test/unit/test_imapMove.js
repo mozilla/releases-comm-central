@@ -34,6 +34,11 @@ function *startTest()
   let listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   yield listener.promise;
+
+  // ...and download for offline use.
+  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
+  yield promiseUrlListener.promise;
 }
 
 function *doMove() {
@@ -57,6 +62,18 @@ function *testMove() {
   gFolder1.updateFolderWithListener(null, listener);
   yield listener.promise;
   Assert.equal(gFolder1.getTotalMessages(false), 1);
+
+  // maildir should also delete the files.
+  if (IMAPPump.inbox.msgStore.storeType == "maildir")
+  {
+    let curDir = IMAPPump.inbox.filePath.clone();
+    curDir.append("cur");
+    Assert.ok(curDir.exists());
+    Assert.ok(curDir.isDirectory());
+    let curEnum = curDir.directoryEntries;
+    // the directory should be empty, fails from bug 771643
+    Assert.ok(!curEnum.hasMoreElements())
+  }
 }
 
 function run_test() {

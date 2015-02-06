@@ -945,22 +945,28 @@ NS_IMETHODIMP nsMsgMaildirStore::DeleteMessages(nsIArray *aHdrArray)
     NS_ENSURE_SUCCESS(rv, rv);
     nsAutoCString fileName;
     msgHdr->GetStringProperty("storeToken", getter_Copies(fileName));
-    if (fileName.IsEmpty())
-      return NS_ERROR_FAILURE;
 
     if (fileName.IsEmpty())
     {
       PR_LOG(MailDirLog, PR_LOG_ALWAYS,
-             ("GetMsgInputStream - empty storeToken!!\n"));
-      return NS_ERROR_FAILURE;
+             ("DeleteMessages - empty storeToken!!\n"));
+      // Perhaps an offline store has not downloaded this particular message.
+      continue;
     }
 
     path->Append(NS_LITERAL_STRING("cur"));
     path->AppendNative(fileName);
 
-    // let's check if the folder exists
+    // Let's check if the message exists.
     bool exists;
     path->Exists(&exists);
+    if (!exists)
+    {
+      PR_LOG(MailDirLog, PR_LOG_ALWAYS,
+             ("DeleteMessages - file does not exist !!\n"));
+      // Perhaps an offline store has not downloaded this particular message.
+      continue;
+    }
     path->Remove(false);
   }
   return NS_OK;

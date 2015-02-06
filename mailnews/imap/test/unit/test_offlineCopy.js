@@ -188,6 +188,33 @@ var tests = [
       Assert.ok(data.contains(msgId));
     }
   },
+  function moveMessagesToSubfolder() {
+    let db = IMAPPump.inbox.msgDatabase;
+    let enumerator = db.EnumerateMessages();
+    Assert.ok(enumerator.hasMoreElements());
+    let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+    while (enumerator.hasMoreElements())
+      messages.appendElement(enumerator.getNext(), false);
+    // this is sync, I believe?
+    MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gFolder1, true,
+                                   null, null, true);
+
+    // the inbox should now be empty
+    enumerator = db.EnumerateMessages();
+    Assert.ok(!enumerator.hasMoreElements());
+
+    // maildir should also delete the files.
+    if (IMAPPump.inbox.msgStore.storeType == "maildir")
+    {
+      let curDir = IMAPPump.inbox.filePath.clone();
+      curDir.append("cur");
+      Assert.ok(curDir.exists());
+      Assert.ok(curDir.isDirectory());
+      let curEnum = curDir.directoryEntries;
+      // the directory should be empty, fails from bug 771643
+      Assert.ok(!curEnum.hasMoreElements())
+    }
+  },
   teardownIMAPPump
 ];
 
