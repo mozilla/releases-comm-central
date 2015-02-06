@@ -71,9 +71,8 @@ def main(args=None):
     sys.exit(1)
 
   # packages to install in dependency order
-  packages = ["ManifestDestiny", "simplejson-2.1.6", "mozrunner", "jsbridge",
-              "mozmill"]
-  
+  packages = ["simplejson-2.1.6", "mozrunner", "jsbridge", "mozmill"]
+
   # create the virtualenv and install packages
   env = os.environ.copy()
   env.pop('PYTHONHOME', None)
@@ -84,15 +83,17 @@ def main(args=None):
     print 'Failure to install virtualenv'
     sys.exit(returncode)
   pip = entry_point_path(destination, 'pip')
-  returncode = call([pip, 'install'] + [os.path.abspath(package) for package in packages], env=env)
+
+  # Install mozbase packages to the virtualenv
+  mozbase_packages = ['manifestparser', 'mozfile', 'mozinfo']
+  returncode = call([pip, 'install'] +
+    [os.path.join(mozbase, package) for package in mozbase_packages], env=env)
   if returncode:
     print 'Failure to install packages'
     sys.exit(returncode)
 
-  # Install mozbase packages to the virtualenv
-  mozbase_packages = ['mozfile', 'mozinfo']
-  returncode = call([pip, 'install'] +
-    [os.path.join(mozbase, package) for package in mozbase_packages], env=env)
+  # Install mozmill
+  returncode = call([pip, 'install'] + [os.path.abspath(package) for package in packages], env=env)
   if returncode:
     print 'Failure to install packages'
     sys.exit(returncode)
