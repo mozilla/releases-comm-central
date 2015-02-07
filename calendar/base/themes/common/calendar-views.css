@@ -10,7 +10,10 @@ window {
     --viewHighlightBorderColor: #67acd8;
     --viewTodayBorderColor: #7fb9ee;
     --viewTodayBackground: #e1f0fd;
+    --viewTodayLabelColor: #616163;
     --viewTodayLabelBackground: #d2e3f3;
+    --viewTodayLabelSelectedColor: #616163;
+    --viewTodayLabelSelectedBackground: #d2e3f3;
     --viewTodayOffBackground: #d7e8f8;
     --viewTodayDayLabelBackground: #d2e3f3;
     --viewTodayWeekendBackground: #e1f0fd;
@@ -44,7 +47,10 @@ window[systemcolors] {
     --viewHighlightBorderColor: Highlight;
     --viewTodayBorderColor: Highlight;
     --viewTodayBackground: -moz-Field;
-    --viewTodayLabelBackground: Highlight;
+    --viewTodayLabelColor: Highlight;
+    --viewTodayLabelBackground: HighlightText;
+    --viewTodayLabelSelectedColor: HighlightText;
+    --viewTodayLabelSelectedBackground: Highlight;
     --viewTodayOffBackground: ButtonFace;
     --viewTodayDayLabelBackground: ButtonFace;
     --viewTodayWeekendBackground: ButtonFace;
@@ -610,6 +616,7 @@ calendar-month-day-box {
 }
 
 .calendar-month-day-box-date-label[relation="today"] {
+    color: var(--viewTodayLabelColor);
     background-color: var(--viewTodayLabelBackground);
     font-weight: bold;
 }
@@ -632,7 +639,8 @@ calendar-month-day-box {
 }
 
 .calendar-month-day-box-date-label[relation="today"][selected="true"] {
-    background-color: var(--viewTodayLabelBackground);
+    color: var(--viewTodayLabelSelectedColor);
+    background-color: var(--viewTodayLabelSelectedBackground);
 }
 
 .calendar-month-day-box-other-month.calendar-month-day-box-day-off .calendar-month-day-box-date-label[selected="true"] {
@@ -845,15 +853,15 @@ agenda-richlist-item[status="CANCELLED"] .agenda-container-box {
 #view-tabs .tabs-left,
 #view-tabs .tabs-right {
     border-bottom: 1px solid ThreeDShadow;
-	-moz-border-bottom-colors: none;
+    -moz-border-bottom-colors: none;
 }
 
 tab[calview] {
     -moz-appearance: none;
     border-top-left-radius: 4px;
-    border-top-right-radius: 4px; 
+    border-top-right-radius: 4px;
     margin-top: 0px;
-    -moz-user-focus: normal;  
+    -moz-user-focus: normal;
 }
 
 tab[calview][selected="true"],
