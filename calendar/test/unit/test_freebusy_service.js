@@ -22,7 +22,9 @@ function test_found() {
 
     let provider1 = {
         id: 1,
-        getFreeBusyIntervals: function() {}
+        getFreeBusyIntervals: function() {
+          aListener.onResult(null, []);
+        }
     };
 
     let provider2 = {
@@ -32,7 +34,7 @@ function test_found() {
             do_check_false(this.called)
             this.called = true;
 
-            let interval = cal.FreeBusyInterval(aCalId, cIFI.BUSY, aStart, aEnd);
+            let interval = new cal.FreeBusyInterval(aCalId, cIFI.BUSY, aStart, aEnd);
             aListener.onResult(null, [interval]);
         }
     };
@@ -49,53 +51,54 @@ function test_found() {
     let listener = {
         called: false,
         onResult: function(request, result) {
-            do_check_false(this.called);
-            this.called = true;
-
-            do_check_eq(result[0].start.icalString, "20120101T010101");
-            do_check_eq(result[0].end.icalString, "20120102T010101");
+            do_check_eq(result.length, 1);
+            do_check_eq(result[0].interval.start.icalString, "20120101T010101");
+            do_check_eq(result[0].interval.end.icalString, "20120102T010101");
             do_check_eq(result[0].freeBusyType, cIFI.BUSY);
 
             do_check_eq(result.length, 1);
-
+            do_check_true(provider2.called);
+            do_test_finished();
         }
     };
 
-    let op = freebusy.getFreeBusyIntervals("email",
-                                           cal.createDateTime("20120101T010101"),
-                                           cal.createDateTime("20120102T010101"),
-                                           cIFI.BUSY_ALL,
-                                           listener);
-    do_check_true(listener.called);
-    do_check_true(provider2.called);
+    do_test_pending();
+    freebusy.getFreeBusyIntervals("email",
+                                  cal.createDateTime("20120101T010101"),
+                                  cal.createDateTime("20120102T010101"),
+                                  cIFI.BUSY_ALL, listener);
 }
 
 function test_failure() {
     _clearProviders();
 
     let provider = {
+        called: false,
         getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
-            throw "error";
+            do_check_false(this.called);
+            this.called = true;
+            aListener.onResult({ status: Components.results.NS_ERROR_FAILURE }, "notFound");
         }
     };
 
     let listener = {
-        called: false,
         onResult: function(request, result) {
             do_check_false(this.called);
-            this.called = true;
             do_check_eq(result.length, 0);
+            do_check_eq(request.status, 0);
+            do_check_true(provider.called);
+            do_test_finished();
         }
     };
 
     freebusy.addProvider(provider);
 
+    do_test_pending();
     let op = freebusy.getFreeBusyIntervals("email",
                                            cal.createDateTime("20120101T010101"),
                                            cal.createDateTime("20120102T010101"),
                                            cIFI.BUSY_ALL,
                                            listener);
-    do_check_true(listener.called);
 }
 
 function test_cancel() {

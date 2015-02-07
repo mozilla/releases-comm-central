@@ -40,8 +40,12 @@ calFreeBusyListener.prototype = {
                     this.opGroup.notifyCompleted();
                 }
             }
-            if (aResult) {
+            let opStatus = aOperation ? aOperation.status : Components.results.NS_OK;
+            if (Components.isSuccessCode(opStatus) &&
+                aResult && Array.isArray(aResult)) {
                 this.notifyResult(aResult);
+            } else {
+                this.notifyResult([]);
             }
         }
     }
@@ -76,19 +80,13 @@ calFreeBusyService.prototype = {
                                                                            aBusyTypes,
                                                                            aListener) {
         var groupListener = new calFreeBusyListener(this.mProviders.size, aListener);
-        function getFreeBusyIntervals_(provider) {
-            try {
-                groupListener.opGroup.add(provider.getFreeBusyIntervals(aCalId,
-                                                                        aRangeStart,
-                                                                        aRangeEnd,
-                                                                        aBusyTypes,
-                                                                        groupListener));
-            } catch (exc) {
-                Components.utils.reportError(exc);
-                groupListener.onResult(null, []); // dummy to adopt mNumOperations
-            }
+        for (let provider of this.mProviders) {
+            let operation = provider.getFreeBusyIntervals(aCalId, aRangeStart,
+                                                          aRangeEnd,
+                                                          aBusyTypes,
+                                                          groupListener);
+            groupListener.opGroup.add(operation);
         }
-        this.mProviders.forEach(getFreeBusyIntervals_);
         return groupListener.opGroup;
     },
 

@@ -1159,6 +1159,9 @@ calInterfaceBag.prototype = {
     mIid: null,
     mInterfaces: null,
 
+    // Iterating the inteface bag iterates the interfaces it contains
+    [Symbol.iterator]: function() this.mInterfaces[Symbol.iterator](),
+
     /// internal:
     init: function calInterfaceBag_init(iid) {
         this.mIid = iid;
