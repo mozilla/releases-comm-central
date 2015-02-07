@@ -248,7 +248,7 @@ class ThunderTestMozmill(mozmill.MozMill):
             platform.system() == 'Linux' and
             os.path.isfile(self.VNC_SERVER_PATH) and
             os.path.isfile(os.path.expanduser(self.VNC_PASSWD_PATH)) and
-            env.get('MOZMILL_NO_VNC') != '1')
+            os.environ.get('MOZMILL_NO_VNC') != '1')
 
         global USE_RICH_FAILURES
         USE_RICH_FAILURES = (os.environ.get('MOZMILL_RICH_FAILURES') == '1')
