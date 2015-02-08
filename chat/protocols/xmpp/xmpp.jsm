@@ -641,6 +641,11 @@ const XMPPAccountPrototype = {
   _connection: null, // XMPP Connection
   authMechanisms: null, // hook to let prpls tweak the list of auth mechanisms
 
+  /* Generate unique id for a stanza. Using id and unique sid is defined in
+   * RFC 6120 (Section 8.2.3, 4.7.3).
+   */
+  generateId: function() UuidGenerator.generateUUID().toString().slice(1, -1),
+
   _init: function(aProtoInstance, aImAccount) {
     GenericAccountPrototype._init.call(this, aProtoInstance, aImAccount);
 
@@ -838,11 +843,9 @@ const XMPPAccountPrototype = {
   },
 
   /* Called when a iq stanza is received */
-  onIQStanza: function(aStanza, aHandled) {
-    if (aHandled)
-      return;
-
-    if (aStanza.attributes["type"] == "set") {
+  onIQStanza: function(aStanza) {
+    let type = aStanza.attributes["type"];
+    if (type == "set") {
       for each (let qe in aStanza.getChildren("query")) {
         if (qe.uri != Stanza.NS.roster)
           continue;
@@ -861,11 +864,6 @@ const XMPPAccountPrototype = {
       }
     }
   },
-
-  /* Generate unique sid for the stanza. Using id and unique sid is defined in
-   * RFC 6120 (Section 8.2.3, 4.7.3).
-   */
-  generateId: function() UuidGenerator.generateUUID().toString().slice(1, -1),
 
   /* Called when a presence stanza is received */
   onPresenceStanza: function(aStanza) {

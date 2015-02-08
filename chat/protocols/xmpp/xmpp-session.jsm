@@ -43,8 +43,7 @@ function XMPPSession(aHost, aPort, aSecurity, aJID, aPassword, aAccount) {
   this._account = aAccount;
 
   this._resource = aJID.resource || XMPPDefaultResource;
-  this._handlers = {};
-  this._stanzaId = 0;
+  this._handlers = new Map();
 
   this._account.reportConnecting();
   try {
@@ -102,32 +101,31 @@ XMPPSession.prototype = {
   },
 
   /* Send a stanza to the server.
-   * Can set a callback if required, which will be called
-   * when the server responds to the stanza with
-   * a stanza of the same id. */
-  sendStanza: function(aStanza, aCallback, aObject) {
+   * Can set a callback if required, which will be called when the server
+   * responds to the stanza with a stanza of the same id. The callback should
+   * return true if the stanza was handled, false if not. Note that an
+   * undefined return value is treated as true.
+   */
+  sendStanza: function(aStanza, aCallback, aThis) {
     if (!aStanza.attributes.hasOwnProperty("id"))
-      aStanza.attributes["id"] = ++this._stanzaId;
+      aStanza.attributes["id"] = this._account.generateId();
     if (aCallback)
-      this.addHandler(aStanza.attributes.id, aCallback.bind(aObject));
+      this._handlers.set(aStanza.attributes.id, aCallback.bind(aThis));
     this.send(aStanza.getXML());
     return aStanza.attributes.id;
   },
 
-
-  /* these 3 methods handle callbacks for specific ids. */
-  addHandler: function(aId, aCallback) {
-    this._handlers[aId] = aCallback;
-  },
-  removeHandler: function(aId) {
-    delete this._handlers[aId];
-  },
+  /* This method handles callbacks for specific ids. */
   execHandler: function(aId, aStanza) {
-    if (!this._handlers.hasOwnProperty(aId))
+    let handler = this._handlers.get(aId);
+    if (!handler)
       return false;
-    this._handlers[aId](aStanza);
-    this.removeHandler(aId);
-    return true;
+    let isHandled = handler(aStanza);
+    // Treat undefined return values as handled.
+    if (isHandled === undefined)
+      isHandled = true;
+    this._handlers.delete(aId);
+    return isHandled;
   },
 
   /* Start the XMPP stream */
@@ -496,18 +494,18 @@ XMPPSession.prototype = {
       this.onXmppStanza = this.stanzaListeners.accountListening;
     },
     accountListening: function(aStanza) {
-      let handled = false;
-      if (aStanza.attributes.id)
-        handled = this.execHandler(aStanza.attributes.id, aStanza);
+      let id = aStanza.attributes.id;
+      if (id && this.execHandler(id, aStanza))
+        return;
 
-      this._account.onXmppStanza(aStanza, handled);
+      this._account.onXmppStanza(aStanza);
       let name = aStanza.qName;
       if (name == "presence")
-        this._account.onPresenceStanza(aStanza, handled);
+        this._account.onPresenceStanza(aStanza);
       else if (name == "message")
-        this._account.onMessageStanza(aStanza, handled);
+        this._account.onMessageStanza(aStanza);
       else if (name == "iq")
-        this._account.onIQStanza(aStanza, handled);
+        this._account.onIQStanza(aStanza);
     }
   },
   onXmppStanza: function(aStanza) {

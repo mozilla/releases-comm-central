@@ -130,7 +130,7 @@ const Stanza = {
     if (aData) {
       if (!Array.isArray(aData))
         aData = [aData];
-      for each (let child in aData)
+      for (let child of aData)
         n[typeof(child) == "string" ? "addText" : "addChild"](child);
     }
 
