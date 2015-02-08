@@ -331,7 +331,8 @@ const XMPPAccountBuddyPrototype = {
   __proto__: GenericAccountBuddyPrototype,
 
   subscription: "none",
-  /* Returns a list of TooltipInfo objects to be displayed when the user hovers over the buddy */
+  // Returns a list of TooltipInfo objects to be displayed when the user
+  // hovers over the buddy.
   getTooltipInfo: function() {
     if (!this._account.connected)
       return null;
@@ -404,7 +405,7 @@ const XMPPAccountBuddyPrototype = {
 
     let s = Stanza.iq("set", null, null,
                       Stanza.node("query", Stanza.NS.roster, null, item));
-    this._account._connection.sendStanza(s);
+    this._account.sendStanza(s);
 
     // If we are going to change the alias on the server, discard the cached
     // value that we got from our local sqlite storage at startup.
@@ -449,7 +450,7 @@ const XMPPAccountBuddyPrototype = {
 
     let s = Stanza.iq("set", null, null,
                       Stanza.node("query", Stanza.NS.roster, null, item));
-    this._account._connection.sendStanza(s);
+    this._account.sendStanza(s);
   },
 
   remove: function() {
@@ -461,7 +462,7 @@ const XMPPAccountBuddyPrototype = {
                                   Stanza.node("item", null,
                                               {jid: this.normalizedName,
                                                subscription: "remove"})));
-    this._account._connection.sendStanza(s);
+    this._account.sendStanza(s);
   },
 
   _photoHash: null,
@@ -638,7 +639,7 @@ const XMPPAccountPrototype = {
   __proto__: GenericAccountPrototype,
 
   _jid: null, // parsed Jabber ID: node, domain, resource
-  _connection: null, // XMPP Connection
+  _connection: null, // XMPPSession socket
   authMechanisms: null, // hook to let prpls tweak the list of auth mechanisms
 
   /* Generate unique id for a stanza. Using id and unique sid is defined in
@@ -697,7 +698,7 @@ const XMPPAccountPrototype = {
       x = Stanza.node("x", Stanza.NS.muc, null,
                       Stanza.node("password", null, null, password));
     }
-    this._connection.sendStanza(Stanza.presence({to: jid + "/" + nick}, x));
+    this.sendStanza(Stanza.presence({to: jid + "/" + nick}, x));
 
     let muc = new this._MUCConversationConstructor(this, jid, nick);
     this._mucs.set(jid, muc);
@@ -804,9 +805,9 @@ const XMPPAccountPrototype = {
                                     Stanza.node("item", null, {jid: jid},
                                                 Stanza.node("group", null, null,
                                                             aTag.name))));
-      this._connection.sendStanza(s);
+      this.sendStanza(s);
     }
-    this._connection.sendStanza(Stanza.presence({to: jid, type: "subscribe"}));
+    this.sendStanza(Stanza.presence({to: jid, type: "subscribe"}));
   },
 
   /* Loads a buddy from the local storage.
@@ -823,20 +824,20 @@ const XMPPAccountPrototype = {
     if (!this._connection)
       return;
     let s = Stanza.presence({to: aRequest.userName, type: aReply})
-    this._connection.sendStanza(s);
+    this.sendStanza(s);
     this.removeBuddyRequest(aRequest);
   },
 
   /* XMPPSession events */
+
   /* Called when the XMPP session is started */
   onConnection: function() {
     this.reportConnecting(_("connection.downloadingRoster"));
     let s = Stanza.iq("get", null, null, Stanza.node("query", Stanza.NS.roster));
 
     /* Set the call back onRoster */
-    this._connection.sendStanza(s, this.onRoster, this);
+    this.sendStanza(s, this.onRoster, this);
   },
-
 
   /* Called whenever a stanza is received */
   onXmppStanza: function(aStanza) {
@@ -855,12 +856,15 @@ const XMPPAccountPrototype = {
         return;
       }
     }
-
-    if (aStanza.attributes["from"] == this._jid.domain) {
+    else if (type == "get") {
+      // XEP-0199: XMPP server-to-client ping (XEP-0199)
       let ping = aStanza.getElement(["ping"]);
       if (ping && ping.uri == Stanza.NS.ping) {
-        let s = Stanza.iq("result", aStanza.attributes["id"], this._jid.domain);
-        this._connection.sendStanza(s);
+        if (aStanza.attributes["from"] == this._jid.domain) {
+          this.sendStanza(Stanza.iq("result", aStanza.attributes["id"],
+                          this._jid.domain));
+        }
+        return;
       }
     }
   },
@@ -1141,7 +1145,7 @@ const XMPPAccountPrototype = {
   _requestVCard: function(aJID) {
     let s = Stanza.iq("get", null, aJID,
                       Stanza.node("vCard", Stanza.NS.vcard));
-    this._connection.sendStanza(s, this.onVCard, this);
+    this.sendStanza(s, this.onVCard, this);
   },
 
   /* When the roster is received */
@@ -1176,9 +1180,9 @@ const XMPPAccountPrototype = {
   },
 
   /* Public methods */
-  /* Send a stanza to a buddy */
-  sendStanza: function(aStanza) {
-    this._connection.sendStanza(aStanza);
+
+  sendStanza(aStanza, aCallback, aThis) {
+    return this._connection.sendStanza(aStanza, aCallback, aThis);
   },
 
   // Variations of the XMPP protocol can change these default constructors:
@@ -1279,7 +1283,7 @@ const XMPPAccountPrototype = {
       if (priority)
         children.push(Stanza.node("priority", null, null, priority.toString()));
     }
-    this._connection.sendStanza(Stanza.presence({"xml:lang": "en"}, children));
+    this.sendStanza(Stanza.presence({"xml:lang": "en"}, children));
   },
 
   _downloadingUserVCard: false,
@@ -1290,7 +1294,7 @@ const XMPPAccountPrototype = {
     this._downloadingUserVCard = true;
     let s = Stanza.iq("get", null, null,
                       Stanza.node("vCard", Stanza.NS.vcard));
-    this._connection.sendStanza(s, this.onUserVCard, this);
+    this.sendStanza(s, this.onUserVCard, this);
   },
 
   onUserVCard: function(aStanza) {
@@ -1436,8 +1440,12 @@ const XMPPAccountPrototype = {
     delete this._forceUserIconUpdate;
 
     // Send the vCard only if it has really changed.
-    if (this._userVCard.getXML() != existingVCard)
-      this._connection.sendStanza(Stanza.iq("set", null, null, this._userVCard));
+    // We handle the result response from the server (it does not require
+    // any further action).
+    if (this._userVCard.getXML() != existingVCard) {
+      this.sendStanza(Stanza.iq("set", null, null, this._userVCard),
+        aStanza => aStanza.attributes.type == "result");
+    }
     else
       this.LOG("Not sending the vCard because the server stored vCard is identical.");
   }
