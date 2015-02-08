@@ -770,6 +770,9 @@ pref("plugins.hide_infobar_for_missing_plugin", false);
 pref("plugins.click_to_play", true);
 pref("plugin.disable", false);
 
+// Digital Rights Management, Encrypted Media Extensions
+pref("media.eme.enabled", false);
+
 #ifndef XP_MACOSX
 // Restore the spinner that was removed in bug 481359
 pref("ui.use_activity_cursor", true);
