@@ -1060,10 +1060,14 @@ nsresult nsMsgCompose::_SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity *ide
     identity->GetFullName(fullName);
     identity->GetOrganization(organization);
 
-    nsCString sender;
-    MakeMimeAddress(NS_ConvertUTF16toUTF8(fullName), email, sender);
+    const char* pFrom = m_compFields->GetFrom();
+    if (!pFrom || !*pFrom)
+    {
+      nsCString sender;
+      MakeMimeAddress(NS_ConvertUTF16toUTF8(fullName), email, sender);
+      m_compFields->SetFrom(sender.IsEmpty() ? email.get() : sender.get());
+    }
 
-    m_compFields->SetFrom(sender.IsEmpty() ? email.get() : sender.get());
     m_compFields->SetOrganization(organization);
     mMsgSend = do_CreateInstance(NS_MSGSEND_CONTRACTID);
     if (mMsgSend)
