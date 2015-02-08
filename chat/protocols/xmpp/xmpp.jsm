@@ -277,23 +277,13 @@ const XMPPConversationPrototype = {
     let from = aStanza.attributes["from"];
     this._targetResource = this._account._parseJID(from).resource;
     let flags = {};
-    if (aStanza.attributes["type"] == "error") {
+    let error = this._account.parseError(aStanza);
+    if (error) {
       if (!aMsg) {
         // Failed outgoing message unknown.
-        let error = aStanza.getElement(["error"]);
-        if (error) {
-          // Look for defined-condition child.
-          if (error.getElement(["remote-server-not-found"]))
-            aMsg = _("conversation.error.remoteServerNotFound");
-          else {
-            // If we don't recognize the defined condition, try to use
-            // the supplied descriptive error message if available.
-            let errortext = error.getElement(["text"]);
-            if (errortext)
-              aMsg = errortext.innerText;
-          }
-        }
-        if (!aMsg)
+        if (error.condition == "remote-server-not-found")
+          aMsg = _("conversation.error.remoteServerNotFound");
+        else
           aMsg = _("conversation.error.unknownError");
       }
       aMsg = _("conversation.error.notDelivered", aMsg);
@@ -828,6 +818,110 @@ const XMPPAccountPrototype = {
     this.removeBuddyRequest(aRequest);
   },
 
+  // Returns undefined if not an error stanza, and an object
+  // describing the error otherwise:
+  parseError(aStanza) {
+    if (aStanza.attributes["type"] != "error")
+      return undefined;
+
+    let retval = {stanza: aStanza};
+    let error = aStanza.getElement(["error"]);
+
+    // RFC 6120 Section 8.3.2: Type must be one of
+    // auth -- retry after providing credentials
+    // cancel -- do not retry (the error cannot be remedied)
+    // continue -- proceed (the condition was only a warning)
+    // modify -- retry after changing the data sent
+    // wait -- retry after waiting (the error is temporary).
+    retval.type = error.attributes["type"];
+
+    // RFC 6120 Section 8.3.3.
+    const kDefinedConditions = [
+      "bad-request",
+      "conflict",
+      "feature-not-implemented",
+      "forbidden",
+      "gone",
+      "internal-server-error",
+      "item-not-found",
+      "jid-malformed",
+      "not-acceptable",
+      "not-allowed",
+      "not-authorized",
+      "policy-violation",
+      "recipient-unavailable",
+      "redirect",
+      "registration-required",
+      "remote-server-not-found",
+      "remote-server-timeout",
+      "resource-constraint",
+      "service-unavailable",
+      "subscription-required",
+      "undefined-condition",
+      "unexpected-request"
+    ];
+    let condition = kDefinedConditions.find(c => error.getElement([c]));
+    if (!condition) {
+      // RFC 6120 Section 8.3.2.
+      this.WARN("Nonstandard or missing defined-condition element in " +
+        "error stanza.");
+      condition = "undefined-condition";
+    }
+    retval.condition = condition;
+
+    let errortext = error.getElement(["text"]);
+    if (errortext)
+      retval.text = errortext.innerText;
+
+    return retval;
+  },
+
+  // Returns an error-handling callback for use with sendStanza generated
+  // from aHandlers, an object containing the error handlers.
+  // If the stanza passed to the callback is an error stanza, and
+  // aHandlers contains a method with the name of the defined condition
+  // of the error, that method is called. It should return true if the
+  // error was handled.
+  handleErrors(aHandlers, aThis) {
+    return (aStanza) => {
+      let error = this.parseError(aStanza);
+      if (!error)
+        return false;
+      let toCamelCase = aStr => {
+        // Turn defined condition string into a valid camelcase
+        // JS property name.
+        let capitalize = s => (s[0].toUpperCase() + s.slice(1));
+        let uncapitalize = s => (s[0].toLowerCase() + s.slice(1));
+        return uncapitalize(aStr.split("-").map(capitalize).join(""));
+      }
+      let condition = toCamelCase(error.condition);
+      if (!(condition in aHandlers))
+        return false;
+      return aHandlers[condition].call(aThis, error);
+    };
+  },
+
+  // Send an error stanza in response to the given stanza (rfc6120#8.3).
+  // aCondition is the name of the defined-condition child, aText an
+  // optional plain-text description.
+  sendErrorStanza(aStanza, aCondition, aType, aText) {
+    // TODO: Support the other stanza types (message, presence).
+    let qName = aStanza.qName;
+    if (qName != "iq") {
+      this.ERROR(`Sending an error stanza for a ${qName} stanza is not ` +
+                 `implemented yet.`);
+      return;
+    }
+
+    let error = Stanza.node("error", null, {type: aType},
+                            Stanza.node(aCondition, Stanza.NS.stanzas));
+    if (aText)
+      error.addChild(Stanza.node("text", Stanza.NS.stanzas, null, aText));
+    return this.sendStanza(Stanza.iq("error", aStanza.attributes.id,
+      aStanza.attributes.from, error));
+  },
+
+
   /* XMPPSession events */
 
   /* Called when the XMPP session is started */
@@ -867,6 +961,7 @@ const XMPPAccountPrototype = {
         return;
       }
     }
+    this.WARN(`Unhandled IQ ${type} stanza.`);
   },
 
   /* Called when a presence stanza is received */
