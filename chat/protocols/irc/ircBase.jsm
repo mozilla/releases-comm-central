@@ -192,16 +192,24 @@ var ircBase = {
     },
     "JOIN": function(aMessage) {
       // JOIN ( <channel> *( "," <channel> ) [ <key> *( "," <key> ) ] ) / "0"
-      // Add the buddy to each channel
-      for each (let channelName in aMessage.params[0].split(",")) {
+      // Iterate over each channel.
+      for (let channelName of aMessage.params[0].split(",")) {
         let conversation = this.getConversation(channelName);
+
+        // Check whether we joined the channel or if someone else did.
         if (this.normalize(aMessage.origin, this.userPrefixes) ==
             this.normalize(this._nickname)) {
-          // If you join, clear the participants list to avoid errors with
+          // If we join, clear the participants list to avoid errors with
           // repeated participants.
           conversation.removeAllParticipants();
           conversation.left = false;
           conversation.joining = false;
+
+          // Update the channel name if it has improper capitalization.
+          if (channelName != conversation.name) {
+            conversation._name = channelName;
+            conversation.notifyObservers(null, "update-conv-title");
+          }
 
           // If the user parted from this room earlier, confirm the rejoin.
           if (conversation._rejoined) {
