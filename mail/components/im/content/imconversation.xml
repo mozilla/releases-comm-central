@@ -397,36 +397,41 @@
       <parameter name="event"/>
       <body>
       <![CDATA[
-        // shift + page up/down should scroll the browser.
-        if (event.shiftKey && (event.keyCode == KeyEvent.DOM_VK_PAGE_UP ||
-                               event.keyCode == KeyEvent.DOM_VK_PAGE_DOWN)) {
+        var inputBox = this.editor;
+        let text = inputBox.value;
 
-          let direction = (event.keyCode == KeyEvent.DOM_VK_PAGE_UP) ? -1 : 1;
-          this.browser.docShell
-              .QueryInterface(Components.interfaces.nsITextScroll)
-              .scrollByPages(direction);
+        const navKeyCodes = [KeyEvent.DOM_VK_PAGE_UP, KeyEvent.DOM_VK_PAGE_DOWN,
+                             KeyEvent.DOM_VK_HOME, KeyEvent.DOM_VK_END,
+                             KeyEvent.DOM_VK_UP, KeyEvent.DOM_VK_DOWN];
 
+        // Pass navigation keys to the browser if
+        // 1) the textbox is empty or 2) it's an IB-specific key combination
+        if ((!text && navKeyCodes.indexOf(event.keyCode) != -1) ||
+            ((event.shiftKey || event.altKey) && (event.keyCode == KeyEvent.DOM_VK_PAGE_UP ||
+                                                  event.keyCode == KeyEvent.DOM_VK_PAGE_DOWN))) {
+          let newEvent = document.createEvent("KeyboardEvent");
+          newEvent.initKeyEvent("keypress", event.bubbles, event.cancelable, null,
+                                event.ctrlKey, event.altKey, event.shiftKey, event.metaKey,
+                                event.keyCode, event.charCode);
           event.preventDefault();
+          event.stopPropagation();
+          // Keyboard events must be sent to the focused element for bubbling to work.
+          this.browser.focus();
+          this.browser.dispatchEvent(newEvent);
+          inputBox.focus();
           return;
         }
 
-        var inputBox = this.editor;
         // When attempting to copy an empty selection, copy the
         // browser selection instead (see bug 693).
         // The 'C' won't be lowercase if caps lock is enabled.
         if ((event.charCode == 99 /* 'c' */ ||
              (event.charCode == 67 /* 'C' */ && !event.shiftKey)) &&
-#ifndef XP_MACOSX
-            event.ctrlKey &&
-#else
-            event.metaKey &&
-#endif
+            (navigator.platform.indexOf("Mac") >= 0 ? event.metaKey : event.ctrlKey) &&
             inputBox.selectionStart == inputBox.selectionEnd) {
           this.browser.doCommand();
           return;
         }
-
-        let text = inputBox.value;
 
         // Keep the default behavior of the tab key if the input box
         // is empty or a modifier is used.
