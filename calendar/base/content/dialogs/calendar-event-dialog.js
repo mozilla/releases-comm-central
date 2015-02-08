@@ -36,6 +36,7 @@ var gIgnoreUpdate = false;
 var gShowTimeAs = null;
 var gWarning = false;
 var gPreviousCalendarId = null;
+var gIsModifyingItem = false;
 
 var eventDialogQuitObserver = {
   observe: function(aSubject, aTopic, aData) {
@@ -46,6 +47,66 @@ var eventDialogQuitObserver = {
         !aSubject.data)
       aSubject.data = !onCancel();
   }
+};
+
+var eventDialogCalendarObserver = {
+    onModifyItem: function(aNewItem, aOldItem) {
+        if (gIsModifyingItem) {
+            // the modification was triggered from this dialog, no need to prompt
+            gIsModifyingItem = false;
+        } else if (window.calendarItem && window.calendarItem.id == aOldItem.id) {
+            let doUpdate = true;
+
+            // The item has been modified outside the dialog. We only need to
+            // prompt if there have been local changes also.
+            if (isItemChanged()) {
+                let promptService = Components.interfaces.nsIPromptService;
+                let promptTitle = calGetString("calendar", "modifyConflictPromptTitle");
+                let promptMessage = calGetString("calendar", "modifyConflictPromptMessage");
+                let promptButton1 = calGetString("calendar", "modifyConflictPromptButton1");
+                let promptButton2 = calGetString("calendar", "modifyConflictPromptButton2");
+                let flags = promptService.BUTTON_TITLE_IS_STRING *
+                            promptService.BUTTON_POS_0 +
+                            promptService.BUTTON_TITLE_IS_STRING *
+                            promptService.BUTTON_POS_1;
+
+                let choice = Services.prompt.confirmEx(window, promptTitle, promptMessage, flags,
+                                                       promptButton1, promptButton2, null, null, {});
+                if (!choice) {
+                    doUpdate = false;
+                }
+            }
+
+            let item = aNewItem;
+            if (window.calendarItem.recurrenceId && aNewItem.recurrenceInfo) {
+                item = aNewItem.recurrenceInfo
+                               .getOccurrenceFor(window.calendarItem.recurrenceId) || item;
+            }
+            window.calendarItem = item;
+
+            if (doUpdate) {
+                loadDialog(window.calendarItem);
+            }
+        }
+    },
+
+    onDeleteItem: function(aDeletedItem) {
+        if (gIsModifyingItem) {
+            // the deletion was triggered from this dialog, no need to prompt
+            gIsModifyingItem = false;
+        } else if (window.calendarItem && window.calendarItem.id == aDeletedItem.id) {
+            gConfirmCancel = false;
+            document.documentElement.cancelDialog();
+        }
+    },
+
+    onStartBatch: function() {},
+    onEndBatch: function() {},
+    onLoad: function() {},
+    onAddItem: function() {},
+    onError: function() {},
+    onPropertyChanged: function() {},
+    onPropertyDeleting: function() {}
 };
 
 /**
@@ -234,6 +295,11 @@ function onLoad() {
     // Stopping event propagation doesn't seem to work, so just overwrite the
     // function that does this.
     document.documentElement._hitEnter = function() {};
+
+    // set up our calendar event observer
+    if (item.calendar) {
+        item.calendar.addObserver(eventDialogCalendarObserver);
+    }
 }
 
 function onEventDialogUnload() {
@@ -2783,6 +2849,11 @@ function onCommandSave(aIsClosing) {
         return;
     }
 
+    // set flag so the calendar observer expects a modify event
+    if (window.mode == "modify") {
+        gIsModifyingItem = true;
+    }
+
     let originalItem = window.calendarItem;
     let item = saveItem();
     let calendar = getCurrentCalendar();
@@ -2879,6 +2950,7 @@ function onCommandDeleteItem() {
             }
         };
 
+        gIsModifyingItem = true;
         if (window.calendarItem.parentItem.recurrenceInfo && window.calendarItem.recurrenceId) {
             // if this is a single occurrence of a recurring item
             let newItem = window.calendarItem.parentItem.clone();
