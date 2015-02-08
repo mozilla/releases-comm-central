@@ -415,7 +415,17 @@ var commands = [
   {
     name: "time",
     get helpString() _("command.time", "time"),
-    run: function(aMsg, aConv) simpleCommand(aConv, "TIME")
+    run: function(aMsg, aConv) {
+      // Send a time command to the entered nick using the current time (in
+      // milliseconds) as the param. If no nick is entered, get the current
+      // server time.
+      if (aMsg && aMsg.trim().length)
+        ctcpCommand(aConv, aMsg, "TIME");
+      else
+        getAccount(aConv).sendMessage("TIME");
+
+      return true;
+    }
   },
   {
     name: "topic",

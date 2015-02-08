@@ -1080,8 +1080,12 @@ var ircBase = {
     },
     "391": function(aMessage) { // RPL_TIME
       // <server> :<string showing server's local time>
-      // TODO parse date string & store or just show it?
-      return false;
+
+      let msg = _("ctcp.time", aMessage.params[1], aMessage.params[2]);
+      // Show the date returned from the server, note that this doesn't use
+      // the serverMessage function: since this is in response to a command, it
+      // should always be shown.
+      return writeMessage(this, aMessage, msg, "system");
     },
     "392": function(aMessage) { // RPL_USERSSTART
       // :UserID   Terminal  Host
