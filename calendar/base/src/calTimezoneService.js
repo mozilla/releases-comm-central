@@ -497,37 +497,43 @@ function guessSystemTimezone() {
                                 .getService(Components.interfaces.nsIHttpProtocolHandler);
 
         if (handler.oscpu.match(/^Windows/)) {
-            // If on Windows NT (2K/XP/Vista), current timezone only lists its
-            // localized name, so to find its registry key name, match localized
-            // name to localized names of each windows timezone listed in
-            // registry.  Then use the registry key name to see if this
-            // timezone has a known ZoneInfo name.
             var wrk = (Components
                        .classes["@mozilla.org/windows-registry-key;1"]
                        .createInstance(Components.interfaces.nsIWindowsRegKey));
             wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
                      "SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation",
                      wrk.ACCESS_READ);
-            var currentTZStandardName = wrk.readStringValue("StandardName");
-            wrk.close()
+            if (wrk.hasValue("TimeZoneKeyName")) {
+                // Windows Vista and later have this key.
+                // Clear trailing garbage on this key, see bug 1129712.
+                osUserTimeZone = wrk.readStringValue("TimeZoneKeyName").split("\0")[0];
+            } else {
+                // If on Windows XP, current timezone only lists its localized name,
+                // so to find its registry key name, match localized name to
+                // localized names of each windows timezone listed in registry.
+                // Then use the registry key name to see if this timezone has a
+                // known ZoneInfo name.
+                var currentTZStandardName = wrk.readStringValue("StandardName");
+                wrk.close()
 
-            wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
-                     "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Time Zones",
-                     wrk.ACCESS_READ);
+                wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
+                         "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Time Zones",
+                         wrk.ACCESS_READ);
 
-            // Linear search matching localized name of standard timezone
-            // to find the non-localized registry key.
-            // (Registry keys are sorted by subkeyName, not by localized name
-            //  nor offset, so cannot use binary search.)
-            for (var i = 0; i < wrk.childCount; i++) {
-              var subkeyName  = wrk.getChildName(i);
-              var subkey = wrk.openChild(subkeyName, wrk.ACCESS_READ);
-              var std = subkey.readStringValue("Std");
-              subkey.close();
-              if (std == currentTZStandardName) {
-                osUserTimeZone = subkeyName;
-                break;
-              }
+                // Linear search matching localized name of standard timezone
+                // to find the non-localized registry key.
+                // (Registry keys are sorted by subkeyName, not by localized name
+                //  nor offset, so cannot use binary search.)
+                for (var i = 0; i < wrk.childCount; i++) {
+                    var subkeyName  = wrk.getChildName(i);
+                    var subkey = wrk.openChild(subkeyName, wrk.ACCESS_READ);
+                    var std = subkey.readStringValue("Std");
+                    subkey.close();
+                    if (std == currentTZStandardName) {
+                        osUserTimeZone = subkeyName;
+                        break;
+                    }
+                }
             }
             wrk.close();
 
