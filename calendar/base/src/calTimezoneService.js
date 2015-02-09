@@ -213,7 +213,9 @@ calTimezoneService.prototype = {
     },
 
     get timezoneIds() {
-        return new calStringEnumerator([k for ([k, v] of this.mZones.entries()) if (!v.aliasTo)]);
+        return new calStringEnumerator([
+            k for ([k, v] of this.mZones.entries()) if (!v.aliasTo && k != "UTC" && k != "floating")
+        ]);
     },
 
     get version() {
