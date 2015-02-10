@@ -630,10 +630,10 @@ Logger.prototype = {
   // Returned Promise resolves to an array of entries for the
   // log folder if it exists, otherwise null.
   _getLogArray: Task.async(function* (aAccount, aNormalizedName) {
-    let iterator;
+    let iterator, path;
     try {
-      let path = OS.Path.join(getLogFolderPathForAccount(aAccount),
-                              encodeName(aNormalizedName));
+      path = OS.Path.join(getLogFolderPathForAccount(aAccount),
+                          encodeName(aNormalizedName));
       if (yield queueFileOperation(path, () => OS.File.exists(path))) {
         iterator = new OS.File.DirectoryIterator(path);
         let entries = yield iterator.nextBatch();
