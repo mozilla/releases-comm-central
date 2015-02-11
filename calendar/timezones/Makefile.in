@@ -4,17 +4,12 @@
 
 USE_EXTENSION_MANIFEST = 1
 DIST_FILES = install.rdf
-XPI_PKGNAME = calendar-timezones
-
-ifndef DISABLE_LIGHTNING_INSTALL
-# install as a global extension in dist/bin/extensions/
-INSTALL_EXTENSION_ID = calendar-timezones@mozilla.org
-endif
+XPI_PKGNAME = calendar-timezones-$(TIMEZONES_VERSION)
 
 THUNDERBIRD_VERSION := $(shell cat $(topsrcdir)/mail/config/version.txt)
 SEAMONKEY_VERSION := $(shell cat $(topsrcdir)/suite/config/version.txt)
 CALENDAR_VERSION := $(shell $(PYTHON) $(topsrcdir)/calendar/lightning/build/makeversion.py $(word 1,$(MOZ_PKG_VERSION) $(THUNDERBIRD_VERSION)))
-TIMEZONES_VERSION := $(shell cat $(srcdir)/config/version.txt)
+TIMEZONES_VERSION := $(shell $(PYTHON) $(srcdir)/version.py)
 
 DEFINES += -DAB_CD=$(AB_CD) \
            -DTHUNDERBIRD_VERSION=$(THUNDERBIRD_VERSION) \
@@ -22,9 +17,6 @@ DEFINES += -DAB_CD=$(AB_CD) \
            -DCALENDAR_VERSION=$(CALENDAR_VERSION) \
            -DTIMEZONES_VERSION=$(TIMEZONES_VERSION) \
            $(NULL)
-
-libs::
-	$(NSINSTALL) -m 0644 zones.json $(FINAL_TARGET)/timezones
 
 libs-%:
 	$(MAKE) -C locales libs AB_CD=$* XPI_NAME=calendar-timezones USE_EXTENSION_MANIFEST=1

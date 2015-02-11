@@ -19,7 +19,10 @@ if CONFIG['MOZ_COMPOSER']:
     DIRS += ['/editor/ui']
 
 if CONFIG['MOZ_CALENDAR']:
-    DIRS += ['/calendar/lightning']
+    DIRS += [
+        '/calendar/lightning',
+        '/calendar/timezones'
+    ]
 
 DIRS += [
     '/chat',
