@@ -92,8 +92,9 @@ function* testEnvelope() {
   fields.subject = "This is an obscure reference";
   yield richCreateMessage(fields, [], identity);
   checkDraftHeaders({
-    // The identity should override the compose fields here.
-    "From": "Me <from@tinderbox.invalid>",
+    // As of bug 87987, the identity does not override the from header.
+    "From": "Nobody <nobody@tinderbox.invalid>",
+    // The identity should override the organization field here.
     "Organization": "World Destruction Committee",
     "To": "Nobody <nobody@tinderbox.invalid>",
     "Cc": "Alex <alex@tinderbox.invalid>",
@@ -143,7 +144,7 @@ function* testIDNEnvelope() {
   fields.subject = "This is an obscure reference";
   yield richCreateMessage(fields, [], identity);
   checkDraftHeaders({
-    // The identity should override the compose fields here.
+    // The identity sets the from field here.
     "From": "from@tinderbox.invalid",
     "To": "Nobody <nobody@" + utf8Domain + ">",
     "Cc": "Alex <alex@" + utf8Domain + ">",
