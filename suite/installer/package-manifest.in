@@ -414,6 +414,7 @@
 @RESPATH@/components/nsDefaultCLH.js
 @RESPATH@/components/nsDefaultCLH.manifest
 @RESPATH@/components/nsDOMIdentity.js
+@RESPATH@/components/nsDownloadsStartup.js
 #ifdef MOZ_GTK2
 @RESPATH@/components/nsFilePicker.js
 @RESPATH@/components/nsFilePicker.manifest

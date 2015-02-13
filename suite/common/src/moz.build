@@ -5,6 +5,7 @@
 
 EXTRA_COMPONENTS += [
     'nsAbout.js',
+    'nsDownloadsStartup.js',
     'nsGopherProtocolStubHandler.js',
     'nsSessionStartup.js',
     'nsSidebar.js',
