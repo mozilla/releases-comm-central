@@ -37,6 +37,7 @@ MailGlue.prototype = {
     Services.obs.addObserver(this, "final-ui-startup", false);
     Services.obs.addObserver(this, "mail-startup-done", false);
     Services.obs.addObserver(this, "handle-xul-text-link", false);
+    Services.obs.addObserver(this, "profile-after-change", false);
   },
 
   // cleanup (called at shutdown)
@@ -45,6 +46,7 @@ MailGlue.prototype = {
     Services.obs.removeObserver(this, "final-ui-startup");
     Services.obs.removeObserver(this, "mail-startup-done");
     Services.obs.removeObserver(this, "handle-xul-text-link");
+    Services.obs.removeObserver(this, "profile-after-change");
   },
 
   // nsIObserver implementation
@@ -61,6 +63,14 @@ MailGlue.prototype = {
       break;
     case "handle-xul-text-link":
       this._handleLink(aSubject, aData);
+      break;
+    case "profile-after-change":
+        // Override Toolkit's nsITransfer implementation with the one from the
+        // JavaScript API for downloads. This will eventually be removed when
+        // we use Downloads.jsm - bug 907732, bug 1087233.
+        Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar)
+          .registerFactory(Components.ID("{b02be33b-d47c-4bd3-afd9-402a942426b0}"),
+                           "", "@mozilla.org/transfer;1", null);
       break;
     }
   },
