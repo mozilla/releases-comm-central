@@ -244,7 +244,6 @@
 @RESPATH@/components/html5.xpt
 @RESPATH@/components/htmlparser.xpt
 @RESPATH@/components/identity.xpt
-@RESPATH@/components/imgicon.xpt
 @RESPATH@/components/imglib2.xpt
 @RESPATH@/components/inspector.xpt
 @RESPATH@/components/intl.xpt
