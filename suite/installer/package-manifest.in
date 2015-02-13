@@ -369,6 +369,8 @@
 @RESPATH@/components/AppsService.manifest
 @RESPATH@/components/BrowserElementParent.js
 @RESPATH@/components/BrowserElementParent.manifest
+@RESPATH@/components/ChromeNotifications.js
+@RESPATH@/components/ChromeNotifications.manifest
 @RESPATH@/components/ColorAnalyzer.js
 @RESPATH@/components/ConsoleAPIStorage.js
 @RESPATH@/components/ConsoleAPI.manifest
@@ -398,6 +400,8 @@
 @RESPATH@/components/messageWakeupService.manifest
 @RESPATH@/components/NetworkGeolocationProvider.js
 @RESPATH@/components/NetworkGeolocationProvider.manifest
+@RESPATH@/components/NotificationStorage.js
+@RESPATH@/components/NotificationStorage.manifest
 @RESPATH@/components/nsAbout.js
 @RESPATH@/components/nsBlocklistService.js
 @RESPATH@/components/nsBrowserContentHandler.js

@@ -156,6 +156,7 @@ SuiteGlue.prototype = {
         Services.search.init();
         LoginManagerParent.init();
         Components.utils.import("resource://gre/modules/Webapps.jsm");
+        Components.utils.import("resource://gre/modules/NotificationDB.jsm");
         break;
       case "sessionstore-windows-restored":
         this._onBrowserStartup(subject);
