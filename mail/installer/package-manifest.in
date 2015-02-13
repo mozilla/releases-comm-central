@@ -452,7 +452,6 @@
 @RESPATH@/components/inspector.xpt
 
 ; Imaging:
-@RESPATH@/components/imgicon.xpt
 @RESPATH@/components/imglib2.xpt
 
 ; accessibility (out of process API support)
