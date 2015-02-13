@@ -92,7 +92,7 @@
           <![CDATA[
             this.crashNotified = false;
             this.clickToPlayPluginsActivated = false;
-            this.clickToPlayTypes = Set();
+            this.clickToPlayTypes = new Set();
             if (this.popupCount) {
               this.popupCount = 0;
               this.notifyPopupCountChanged();
@@ -546,7 +546,7 @@
 
       <field name="clickToPlayPluginsActivated">false</field>
 
-      <field name="clickToPlayTypes">Set()</field>
+      <field name="clickToPlayTypes">new Set()</field>
 
       <method name="getPluginInfo">
         <parameter name="pluginElement"/>
