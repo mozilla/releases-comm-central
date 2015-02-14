@@ -954,7 +954,7 @@
            this._activeBuddies[aBuddy.name] = true;
          }
 
-         if (!this.tab.selected)
+         if (!this._isConversationSelected)
            return;
 
          // Is aOldName is not null, then we are renaming the buddy
@@ -976,6 +976,7 @@
        ]]>
        </body>
      </method>
+
      <method name="removeBuddy">
        <parameter name="aName"/>
        <body>
@@ -1210,12 +1211,12 @@
          case "update-buddy-icon":
          case "update-conv-chatleft":
          case "update-typing":
-           if (this.tab && this.tab.selected)
+           if (this.tab && this._isConversationSelected)
              this.updateConvStatus();
            break;
 
          case "chat-buddy-add":
-           if (!this.tab.selected)
+           if (!this._isConversationSelected)
              break;
            aSubject.QueryInterface(Ci.nsISimpleEnumerator);
            while (aSubject.hasMoreElements())
@@ -1225,7 +1226,7 @@
 
          case "chat-buddy-remove":
            aSubject.QueryInterface(Ci.nsISimpleEnumerator);
-           if (!this.tab.selected) {
+           if (!this._isConversationSelected) {
              while (aSubject.hasMoreElements()) {
                let name = aSubject.getNext().QueryInterface(Ci.nsISupportsString).toString();
                if (this._isBuddyActive(name))
@@ -1246,13 +1247,25 @@
            break;
 
          case "chat-update-topic":
-           if (this.tab.selected)
+           if (this._isConversationSelected)
              this.updateTopic();
            break;
          }
        ]]>
        </body>
      </method>
+
+     <property name="_isConversationSelected">
+       <getter>
+       <![CDATA[
+         // TB-only: returns true if the conversation binding is the currently
+         // selected one, i.e if it has to maintain the participant list.
+         // The JS property this.tab.selected is always false when the chat tab
+         // is inactive, so we need to double-check to be sure.
+         return (this.tab.selected || this.tab.hasAttribute("selected"));
+       ]]>
+       </getter>
+     </property>
 
      <property name="convId">
        <getter>
