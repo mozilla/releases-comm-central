@@ -271,4 +271,18 @@ var MousePosTracker = {
   }
 };
 
+function findAgain(aReversed) {
+  let conv = getTabBrowser().selectedConversation;
+  // Find from the bottom up if it's a conversation.
+  if (conv) {
+    conv.findbar.onFindAgainCommand(!aReversed);
+    return;
+  }
+  let panel = getTabBrowser().selectedPanel;
+  if (!panel)
+    return;
+  if (panel.findbar)
+    panel.findbar.onFindAgainCommand(aReversed);
+}
+
 this.addEventListener("load", convWindow.load);
