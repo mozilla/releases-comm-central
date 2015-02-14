@@ -8,8 +8,8 @@
  */
 
 const EXPORTED_SYMBOLS = ["copyBytes", "ArrayBufferToBytes",
-  "BytesToArrayBuffer", "StringToBytes", "ArrayBufferToString",
-  "ArrayBufferToHexString"];
+  "BytesToArrayBuffer", "StringToBytes", "StringToArrayBuffer",
+  "ArrayBufferToString", "ArrayBufferToHexString"];
 
 /*
  * aTarget / aSource are ArrayBuffers.
@@ -34,6 +34,8 @@ function BytesToArrayBuffer(aBytes = []) {
 }
 
 function StringToBytes(aString) [aString.charCodeAt(i) for (i in aString)];
+
+function StringToArrayBuffer(aString) BytesToArrayBuffer(StringToBytes(aString))
 
 function ArrayBufferToString(aData)
   [String.fromCharCode(b) for (b of new Uint8Array(aData))].join("");

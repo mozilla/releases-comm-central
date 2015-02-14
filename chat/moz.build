@@ -14,6 +14,7 @@ DIRS += [
     'protocols/gtalk',
     'protocols/irc',
     'protocols/odnoklassniki',
+    'protocols/skype',
     'protocols/twitter',
     'protocols/xmpp',
     'protocols/yahoo',

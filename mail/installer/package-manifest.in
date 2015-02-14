@@ -278,10 +278,12 @@
 @RESPATH@/components/facebook.manifest
 @RESPATH@/components/gtalk.js
 @RESPATH@/components/gtalk.manifest
-@RESPATH@/components/twitter.js
-@RESPATH@/components/twitter.manifest
 @RESPATH@/components/irc.js
 @RESPATH@/components/irc.manifest
+@RESPATH@/components/skype.js
+@RESPATH@/components/skype.manifest
+@RESPATH@/components/twitter.js
+@RESPATH@/components/twitter.manifest
 @RESPATH@/components/xmpp.js
 @RESPATH@/components/xmpp.manifest
 @RESPATH@/components/yahoo.js

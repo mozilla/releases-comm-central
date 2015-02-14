@@ -80,6 +80,8 @@ pref("chat.irc.defaultQuitMessage", "");
 // called automatically by the awesometab. Otherwise, requestRoomInfo will
 // only do so when explicitly requested by the user, e.g. via the /list command.
 pref("chat.irc.automaticList", true);
+// Disable Skype until it can be tested further.
+pref("chat.prpls.prpl-skype.disable", true);
 
 // loglevel is the minimum severity level that a libpurple message
 // must have to be reported in the Error Console.

@@ -1,0 +1,9 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+chat.jar:
+% skin prpl-skype classic/1.0 %skin/classic/prpl/skype/
+	skin/classic/prpl/skype/icon32.png	(icons/prpl-skype-32.png)
+	skin/classic/prpl/skype/icon48.png	(icons/prpl-skype-48.png)
+	skin/classic/prpl/skype/icon.png	(icons/prpl-skype.png)
