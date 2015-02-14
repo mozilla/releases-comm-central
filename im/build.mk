@@ -35,12 +35,6 @@ ifeq ($(OS_TARGET), WINNT)
 INSTALLER_PACKAGE = $(PKG_INST_BASENAME).exe
 endif
 
-UPLOAD_FILES = $(wildcard $(foreach file,\
-	                     $(foreach AB_CD,$(AB_CD) $(SHIPPED_LOCALES),\
-                                       $(PACKAGE) $(INSTALLER_PACKAGE))\
-                             $(PKG_BASENAME).txt $(PKG_UPDATE_PATH)*.mar,\
-                            $(DIST)/$(file)))
-
 PREVIOUS_MAR_DIR := $(DIST)/$(PKG_UPDATE_PATH)previous
 MAR_FILE_DEST = $(PREVIOUS_MAR_DIR)/$(buildid)/$(notdir $(MAR_FILE_SRC))
 PATCH_FILE := $(DIST)/$(PKG_UPDATE_PATH)patch_list
@@ -83,7 +77,7 @@ ifdef ENABLE_TESTS
 	$(MAKE) xpcshell-tests
 endif
 ifdef MOZ_UPDATE_PACKAGING
-	$(MAKE) -C tools/update-packaging full-update PKG_INST_PATH=
+	$(MAKE) -C tools/update-packaging complete-patch PKG_INST_PATH=
 endif
 ifdef L10NBASEDIR
 	$(foreach locale,$(SHIPPED_LOCALES),$(MAKE) -C im/locales/ repack-$(locale) LOCALE_MERGEDIR=mergedir MOZ_MAKE_COMPLETE_MAR=$(MOZ_UPDATE_PACKAGING) ;)
