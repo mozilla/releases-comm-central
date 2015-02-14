@@ -505,6 +505,12 @@ grippy {
 .conv-nicklist:-moz-window-inactive {
   background: #e8e8e8;
 }
+
+@media (-moz-mac-yosemite-theme) {
+  .conv-nicklist {
+    -moz-appearance: -moz-mac-vibrancy-light;
+  }
+}
 %endif
 
 .listitem-iconic[inactive] > .listcell-iconic > .listcell-icon {
