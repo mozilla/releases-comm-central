@@ -6,6 +6,8 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
 
+const PREF_EM_HOTFIX_ID = "extensions.hotfix.id";
+
 function init(aEvent)
 {
   if (aEvent.target != document)
@@ -397,6 +399,11 @@ appUpdater.prototype =
    * Checks the compatibility of add-ons for the application update.
    */
   checkAddonCompatibility: function() {
+    try {
+      var hotfixID = Services.prefs.getCharPref(PREF_EM_HOTFIX_ID);
+    }
+    catch (e) { }
+
     var self = this;
     AddonManager.getAllAddons(function(aAddons) {
       self.addons = [];
@@ -421,9 +428,10 @@ appUpdater.prototype =
         // incompatible. If an addon's type equals plugin it is skipped since
         // checking plugins compatibility information isn't supported and
         // getting the scope property of a plugin breaks in some environments
-        // (see bug 566787).
+        // (see bug 566787). The hotfix add-on is also ignored as it shouldn't
+        // block the user from upgrading.
         try {
-          if (aAddon.type != "plugin" &&
+          if (aAddon.type != "plugin" && aAddon.id != hotfixID &&
               !aAddon.appDisabled && !aAddon.userDisabled &&
               aAddon.scope != AddonManager.SCOPE_APPLICATION &&
               aAddon.isCompatible &&
