@@ -145,6 +145,7 @@ function appUpdater()
 
   if (this.isDownloading) {
     this.startDownload();
+    // selectPanel("downloading") is called from setupDownloadingUI().
     return;
   }
 
@@ -514,6 +515,13 @@ appUpdater.prototype =
       return;
     }
 
+    this.setupDownloadingUI();
+  },
+
+  /**
+   * Switches to the UI responsible for tracking the download.
+   */
+  setupDownloadingUI: function() {
     this.downloadStatus = document.getElementById("downloadStatus");
     this.downloadStatus.value =
       DownloadUtils.getTransferTotal(0, this.update.selectedPatch.size);
@@ -559,7 +567,7 @@ appUpdater.prototype =
         let self = this;
         Services.obs.addObserver(function selectPanelOnUpdate(aSubject, aTopic, aData) {
           // Update the UI when the background updater is finished
-          let status = update.state;
+          let status = aData;
           if (status == "applied" || status == "applied-service" ||
               status == "pending" || status == "pending-service") {
             // If the update is successfully applied, or if the updater has
@@ -570,6 +578,12 @@ appUpdater.prototype =
             // Background update has failed, let's show the UI responsible for
             // prompting the user to update manually.
             self.selectPanel("downloadFailed");
+          } else if (status == "downloading") {
+            // We've fallen back to downloading the full update because the
+            // partial update failed to get staged in the background.
+            // Therefore we need to keep our observer.
+            self.setupDownloadingUI();
+            return;
           }
           Services.obs.removeObserver(selectPanelOnUpdate, "update-staged");
         }, "update-staged", false);
