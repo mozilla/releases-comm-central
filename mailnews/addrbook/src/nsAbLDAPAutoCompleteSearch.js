@@ -105,7 +105,7 @@ nsAbLDAPAutoCompleteSearch.prototype = {
 
   _parser: MailServices.headerParser,
 
-  applicableHeaders: Set(["addr_to", "addr_cc", "addr_bcc", "addr_reply"]),
+  applicableHeaders: new Set(["addr_to", "addr_cc", "addr_bcc", "addr_reply"]),
 
   // Private methods
 

@@ -11,7 +11,7 @@ Cu.import("resource:///modules/mailServices.js");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 const kACR = Ci.nsIAutoCompleteResult;
-const kSupportedTypes = Set(["addr_newsgroups", "addr_followup"]);
+const kSupportedTypes = new Set(["addr_newsgroups", "addr_followup"]);
 
 function nsNewsAutoCompleteResult(aSearchString) {
   // Can't create this in the prototype as we'd get the same array for

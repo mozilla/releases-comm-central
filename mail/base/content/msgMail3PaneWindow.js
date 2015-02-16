@@ -1443,7 +1443,7 @@ function ThreadPaneOnDragStart(aEvent) {
  * of existing names.
  *
  * Example use:
- *   suggestUniqueFileName("testname", ".txt", Set("testname", "testname1"))
+ *   suggestUniqueFileName("testname", ".txt", new Set("testname", "testname1"))
  *   returns "testname2.txt"
  * Does not check file system for existing files.
  *

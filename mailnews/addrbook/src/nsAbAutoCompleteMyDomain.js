@@ -15,7 +15,7 @@ nsAbAutoCompleteMyDomain.prototype = {
   cachedIdKey: "",
   cachedIdentity: null,
 
-  applicableHeaders: Set(["addr_to", "addr_cc", "addr_bcc", "addr_reply"]),
+  applicableHeaders: new Set(["addr_to", "addr_cc", "addr_bcc", "addr_reply"]),
 
   startSearch: function(aString, aSearchParam, aResult, aListener) {
     let params = JSON.parse(aSearchParam);

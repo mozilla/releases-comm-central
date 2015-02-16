@@ -322,7 +322,7 @@ MimeAddressParser.prototype = {
     }
 
     // First, collect all of the emails to forcibly delete.
-    let allAddresses = Set();
+    let allAddresses = new Set();
     for (let element of this.parseDecodedHeader(aOtherAddrs, false)) {
       allAddresses.add(normalize(element.email));
     }
