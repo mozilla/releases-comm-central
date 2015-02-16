@@ -106,6 +106,7 @@
             </deck>
 #endif
           </vbox>
+
 #ifdef MOZ_UPDATER
           <description class="text-blurb" id="currentChannelText">
             &channel.description.start;<label id="currentChannel"/>&channel.description.end;

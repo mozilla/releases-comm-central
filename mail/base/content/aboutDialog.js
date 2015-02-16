@@ -4,7 +4,6 @@
 
 // Services = object with smart getters for common XPCOM services
 Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource:///modules/iteratorUtils.jsm");
 
 const PREF_EM_HOTFIX_ID = "extensions.hotfix.id";
 
@@ -17,16 +16,23 @@ function init(aEvent)
     var distroId = Services.prefs.getCharPref("distribution.id");
     if (distroId) {
       var distroVersion = Services.prefs.getCharPref("distribution.version");
-      var distroAbout = Services.prefs.getComplexValue("distribution.about",
-        Components.interfaces.nsISupportsString);
-
-      var distroField = document.getElementById("distribution");
-      distroField.value = distroAbout;
-      distroField.style.display = "block";
 
       var distroIdField = document.getElementById("distributionId");
       distroIdField.value = distroId + " - " + distroVersion;
       distroIdField.style.display = "block";
+
+      try {
+        // This is in its own try catch due to bug 895473 and bug 900925.
+        var distroAbout = Services.prefs.getComplexValue("distribution.about",
+          Components.interfaces.nsISupportsString);
+        var distroField = document.getElementById("distribution");
+        distroField.value = distroAbout;
+        distroField.style.display = "block";
+      }
+      catch (ex) {
+        // Pref is unset
+        Components.utils.reportError(ex);
+      }
     }
   }
   catch (e) {
@@ -36,7 +42,7 @@ function init(aEvent)
   // XXX FIXME
   // Include the build ID and display warning if this is an "a#" (nightly or aurora) build
   let version = Services.appinfo.version;
-  if (/a\d+(pre)?$/.test(version)) {
+  if (/a\d+$/.test(version)) {
     let buildID = Services.appinfo.appBuildID;
     let buildDate = buildID.slice(0,4) + "-" + buildID.slice(4,6) + "-" + buildID.slice(6,8);
     document.getElementById("version").textContent += " (" + buildDate + ")";
@@ -191,6 +197,7 @@ appUpdater.prototype =
             this.um.activeUpdate.state == "pending-service");
   },
 
+  // true when there is an update already installed in the background.
   get isApplied() {
     if (this.update) {
       return this.update.state == "applied" ||
@@ -227,7 +234,7 @@ appUpdater.prototype =
   // true when updating in background is enabled.
   get backgroundUpdateEnabled() {
     return this.updateEnabled &&
-           Services.prefs.getBoolPref("app.update.staging.enabled");
+           gAppUpdater.aus.canStageUpdates;
   },
 
   // true when updating is automatic.
@@ -245,12 +252,11 @@ appUpdater.prototype =
    * @param  aChildID
    *         The id of the deck's child to select, e.g. "apply".
    */
-
   selectPanel: function(aChildID) {
     let panel = document.getElementById(aChildID);
 
-    if (panel.firstChild.localName == "button") {
-      let button = panel.firstChild;
+    let button = panel.querySelector("button");
+    if (button) {
       if (aChildID == "downloadAndInstall") {
         let updateVersion = gAppUpdater.update.displayVersion;
         button.label = this.bundle.formatStringFromName("update.downloadAndInstallButton.label", [updateVersion], 1);
@@ -308,15 +314,17 @@ appUpdater.prototype =
       if (cancelQuit.data)
         return;
 
+      let appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"].
+                       getService(Components.interfaces.nsIAppStartup);
+
       // If already in safe mode restart in safe mode (bug 327119)
       if (Services.appinfo.inSafeMode) {
-        let env = Components.classes["@mozilla.org/process/environment;1"].
-                  getService(Components.interfaces.nsIEnvironment);
-        env.set("MOZ_SAFE_MODE_RESTART", "1");
+        appStartup.restartInSafeMode(Components.interfaces.nsIAppStartup.eAttemptQuit);
+        return;
       }
 
-      Services.startup.quit(Components.interfaces.nsIAppStartup.eAttemptQuit |
-                            Components.interfaces.nsIAppStartup.eRestart);
+      appStartup.quit(Components.interfaces.nsIAppStartup.eAttemptQuit |
+                      Components.interfaces.nsIAppStartup.eRestart);
     },
 
   /**
@@ -325,11 +333,13 @@ appUpdater.prototype =
    */
   buttonApplyBillboard: function() {
     const URI_UPDATE_PROMPT_DIALOG = "chrome://mozapps/content/update/updates.xul";
-    var ary = toXPCOMArray([this.update],
-    Components.interfaces.nsIMutableArray);
+    var ary = null;
+    ary = Components.classes["@mozilla.org/supports-array;1"].
+          createInstance(Components.interfaces.nsISupportsArray);
+    ary.AppendElement(this.update);
     var openFeatures = "chrome,centerscreen,dialog=no,resizable=no,titlebar,toolbar=no";
     Services.ww.openWindow(null, URI_UPDATE_PROMPT_DIALOG, "", openFeatures, ary);
-    window.close();
+    window.close(); // close the "About" window; updates.xul takes over.
   },
 
   /**
