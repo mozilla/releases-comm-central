@@ -1293,7 +1293,7 @@ calDavCalendar.prototype = {
             }
         } else {
             if (!this.checkedServerInfo) {
-                this.mQueuedQueries.push(arguments);
+                this.mQueuedQueries.push(Array.from(arguments));
             } else {
                 this.mOfflineStorage.getItems.apply(this.mOfflineStorage, arguments);
             }
