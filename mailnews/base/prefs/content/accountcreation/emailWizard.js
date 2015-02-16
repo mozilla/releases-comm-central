@@ -1259,6 +1259,11 @@ EmailConfigWizard.prototype =
   onOpenOutgoingDropdown : function()
   {
     var menulist = e("outgoing_hostname");
+    // If the menulist is not editable, there is nothing to update
+    // and menulist.inputField does not even exist.
+    if (!menulist.editable)
+      return;
+
     var menuitem = menulist.getItemAtIndex(0);
     assert(!menuitem.serverKey, "I wanted the special item for the new host");
     menuitem.label = menulist.inputField.value;
@@ -1651,6 +1656,11 @@ SecurityWarningDialog.prototype =
    */
   _acknowledged : null,
 
+  _inSecurityBad:  0x0001,
+  _inCertBad:      0x0010,
+  _outSecurityBad: 0x0100,
+  _outCertBad:     0x1000,
+
   /**
    * Checks whether we need to warn about this config.
    *
@@ -1678,24 +1688,30 @@ SecurityWarningDialog.prototype =
     assert(configSchema.isComplete());
     assert(configFilledIn.isComplete());
 
-    var incomingOK = configFilledIn.incoming.socketType > 1 &&
-        !configFilledIn.incoming.badCert;
-    var outgoingOK = configFilledIn.outgoing.socketType > 1 &&
-        !configFilledIn.outgoing.badCert;
+    var incomingBad = ((configFilledIn.incoming.socketType > 1) ? 0 : this._inSecurityBad) |
+                      ((configFilledIn.incoming.badCert) ? this._inCertBad : 0);
+    var outgoingBad = 0;
+    if (!configFilledIn.outgoing.existingServerKey) {
+      outgoingBad = ((configFilledIn.outgoing.socketType > 1) ? 0 : this._outSecurityBad) |
+                    ((configFilledIn.outgoing.badCert) ? this._outCertBad : 0);
+    }
 
-    if (!incomingOK) {
-      incomingOK = this._acknowledged.some(
+    if (incomingBad > 0) {
+      if (this._acknowledged.some(
           function(ackServer) {
             return serverMatches(ackServer, configFilledIn.incoming);
-          });
+          }))
+        incomingBad = 0;
     }
-    if (!outgoingOK) {
-      outgoingOK = this._acknowledged.some(
+    if (outgoingBad > 0) {
+      if (this._acknowledged.some(
           function(ackServer) {
             return serverMatches(ackServer, configFilledIn.outgoing);
-          });
+          }))
+        outgoingBad = 0;
     }
-    return !incomingOK || !outgoingOK;
+
+    return incomingBad | outgoingBad;
   },
 
   /**
@@ -1724,11 +1740,12 @@ SecurityWarningDialog.prototype =
     assert(typeof(cancelCallback) == "function");
     // needed() also checks the parameters
     var needed = this.needed(configSchema, configFilledIn);
-    if (!needed && onlyIfNeeded) {
+    if ((needed == 0) && onlyIfNeeded) {
       okCallback();
       return;
     }
-    assert(needed, "security dialog opened needlessly");
+
+    assert(needed > 0 , "security dialog opened needlessly");
     this._currentConfigFilledIn = configFilledIn;
     this._okCallback = okCallback;
     this._cancelCallback = cancelCallback;
@@ -1745,42 +1762,41 @@ SecurityWarningDialog.prototype =
     e("outgoing_technical").removeAttribute("expanded");
     e("outgoing_details").setAttribute("collapsed", true);
 
-    if (incoming.socketType == 1) {
+    if (needed & this._inSecurityBad) {
       setText("warning_incoming", gStringsBundle.getFormattedString(
           "cleartext_warning", [incoming.hostname]));
       setText("incoming_details", gStringsBundle.getString(
           "cleartext_details"));
       _show("incoming_box");
-      _show("acknowledge_warning");
-    } else if (incoming.badCert) {
+    } else if (needed & this._inCertBad) {
       setText("warning_incoming", gStringsBundle.getFormattedString(
           "selfsigned_warning", [incoming.hostname]));
       setText("incoming_details", gStringsBundle.getString(
           "selfsigned_details"));
       _show("incoming_box");
-      _show("acknowledge_warning");
     } else {
       _hide("incoming_box");
-      _hide("acknowledge_warning");
     }
 
-    if (outgoing.socketType == 1) {
+    if (needed & this._outSecurityBad) {
       setText("warning_outgoing", gStringsBundle.getFormattedString(
           "cleartext_warning", [outgoing.hostname]));
       setText("outgoing_details", gStringsBundle.getString(
           "cleartext_details"));
       _show("outgoing_box");
-      _show("acknowledge_warning");
-    } else if (outgoing.badCert) {
+    } else if (needed & this._outCertBad) {
       setText("warning_outgoing", gStringsBundle.getFormattedString(
           "selfsigned_warning", [outgoing.hostname]));
       setText("outgoing_details", gStringsBundle.getString(
           "selfsigned_details"));
       _show("outgoing_box");
-      _show("acknowledge_warning");
     } else {
       _hide("outgoing_box");
     }
+    _show("acknowledge_warning");
+    assert(!e("incoming_box").hidden || !e("outgoing_box").hidden,
+           "warning dialog shown for unknown reason");
+
     window.sizeToContent();
   },
 
