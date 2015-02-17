@@ -168,6 +168,9 @@ nsresult nsMsgAccountManager::Init()
     observerService->AddObserver(this, "sleep_notification", true);
   }
 
+  // Make sure PSM gets initialized before any accounts use certificates.
+  net_EnsurePSMInit();
+
   return NS_OK;
 }
 
