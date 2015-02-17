@@ -223,11 +223,16 @@ NS_MSG_BASE nsresult MsgUnescapeString(const nsACString &aStr,
 NS_MSG_BASE nsresult MsgEscapeURL(const nsACString &aStr, uint32_t aFlags,
                                   nsACString &aResult);
 
-// Converts an array of nsMsgKeys plus a database, to an array of nsIMsgDBHdrs.
-NS_MSG_BASE nsresult MsgGetHeadersFromKeys(nsIMsgDatabase *aDB, 
+// Converts an nsTArray of nsMsgKeys plus a database, to an array of nsIMsgDBHdrs.
+NS_MSG_BASE nsresult MsgGetHeadersFromKeys(nsIMsgDatabase *aDB,
                                            const nsTArray<nsMsgKey> &aKeys,
                                            nsIMutableArray *aHeaders);
- 
+// Converts an array of nsMsgKeys plus a database, to an array of nsIMsgDBHdrs.
+NS_MSG_BASE nsresult MsgGetHdrsFromKeys(nsIMsgDatabase *aDB,
+                                        nsMsgKey *aKeys,
+                                        uint32_t aNumKeys,
+                                        nsIMutableArray **aHeaders);
+
 NS_MSG_BASE nsresult MsgExamineForProxy(nsIChannel *channel,
                                         nsIProxyInfo **proxyInfo);
 

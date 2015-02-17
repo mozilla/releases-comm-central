@@ -1236,6 +1236,33 @@ nsMsgLocalMailFolder::DeleteMessages(nsIArray *messages,
 }
 
 NS_IMETHODIMP
+nsMsgLocalMailFolder::AddMessageDispositionState(nsIMsgDBHdr *aMessage, nsMsgDispositionState aDispositionFlag)
+{
+  nsMsgMessageFlagType msgFlag = 0;
+  switch (aDispositionFlag) {
+    case nsIMsgFolder::nsMsgDispositionState_Replied:
+      msgFlag = nsMsgMessageFlags::Replied;
+      break;
+    case nsIMsgFolder::nsMsgDispositionState_Forwarded:
+      msgFlag = nsMsgMessageFlags::Forwarded;
+      break;
+    default:
+      return NS_ERROR_UNEXPECTED;
+  }
+
+  nsresult rv = nsMsgDBFolder::AddMessageDispositionState(aMessage, aDispositionFlag);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  rv = GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+  messages->AppendElement(aMessage, false);
+  return msgStore->ChangeFlags(messages, msgFlag, true);
+}
+
+NS_IMETHODIMP
 nsMsgLocalMailFolder::MarkMessagesRead(nsIArray *aMessages, bool aMarkRead)
 {
   nsresult rv = nsMsgDBFolder::MarkMessagesRead(aMessages, aMarkRead);
@@ -1257,6 +1284,79 @@ nsMsgLocalMailFolder::MarkMessagesFlagged(nsIArray *aMessages,
   NS_ENSURE_SUCCESS(rv, rv);
   return msgStore->ChangeFlags(aMessages, nsMsgMessageFlags::Marked,
                                aMarkFlagged);
+}
+
+NS_IMETHODIMP
+nsMsgLocalMailFolder::MarkAllMessagesRead(nsIMsgWindow *aMsgWindow)
+{
+  nsresult rv = GetDatabase();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsMsgKey *thoseMarked = nullptr;
+  uint32_t numMarked = 0;
+  EnableNotifications(allMessageCountNotifications, false, true /*dbBatching*/);
+  rv = mDatabase->MarkAllRead(&numMarked, &thoseMarked);
+  EnableNotifications(allMessageCountNotifications, true, true /*dbBatching*/);
+  if (NS_FAILED(rv) || !numMarked || !thoseMarked)
+    return rv;
+
+  do {
+    nsCOMPtr<nsIMutableArray> messages;
+    rv = MsgGetHdrsFromKeys(mDatabase, thoseMarked, numMarked, getter_AddRefs(messages));
+    if (NS_FAILED(rv))
+      break;
+
+    nsCOMPtr<nsIMsgPluggableStore> msgStore;
+    rv = GetMsgStore(getter_AddRefs(msgStore));
+    if (NS_FAILED(rv))
+      break;
+
+    rv = msgStore->ChangeFlags(messages, nsMsgMessageFlags::Read, true);
+    if (NS_FAILED(rv))
+      break;
+
+    mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
+
+    // Setup a undo-state
+    if (aMsgWindow)
+      rv = AddMarkAllReadUndoAction(aMsgWindow, thoseMarked, numMarked);
+  } while (false);
+
+  nsMemory::Free(thoseMarked);
+  return rv;
+}
+
+NS_IMETHODIMP nsMsgLocalMailFolder::MarkThreadRead(nsIMsgThread *thread)
+{
+  nsresult rv = GetDatabase();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsMsgKey *thoseMarked = nullptr;
+  uint32_t numMarked = 0;
+  rv = mDatabase->MarkThreadRead(thread, nullptr, &numMarked, &thoseMarked);
+  if (NS_FAILED(rv) || !numMarked || !thoseMarked)
+    return rv;
+
+  do {
+    nsCOMPtr<nsIMutableArray> messages;
+    rv = MsgGetHdrsFromKeys(mDatabase, thoseMarked, numMarked, getter_AddRefs(messages));
+    if (NS_FAILED(rv))
+      break;
+
+    nsCOMPtr<nsIMsgPluggableStore> msgStore;
+    rv = GetMsgStore(getter_AddRefs(msgStore));
+    if (NS_FAILED(rv))
+      break;
+
+    rv = msgStore->ChangeFlags(messages, nsMsgMessageFlags::Read, true);
+    if (NS_FAILED(rv))
+      break;
+
+    mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
+  } while (false);
+
+  nsMemory::Free(thoseMarked);
+  return rv;
 }
 
 nsresult

@@ -153,8 +153,12 @@ public:
                              const nsACString &aNewMsgKeywords,
                              nsIMsgWindow *msgWindow,
                              nsIMsgCopyServiceListener* listener) MOZ_OVERRIDE;
+
+  NS_IMETHOD AddMessageDispositionState(nsIMsgDBHdr *aMessage, nsMsgDispositionState aDispositionFlag) MOZ_OVERRIDE;
   NS_IMETHOD MarkMessagesRead(nsIArray *aMessages, bool aMarkRead) MOZ_OVERRIDE;
   NS_IMETHOD MarkMessagesFlagged(nsIArray *aMessages, bool aMarkFlagged) MOZ_OVERRIDE;
+  NS_IMETHOD MarkAllMessagesRead(nsIMsgWindow *aMsgWindow) MOZ_OVERRIDE;
+  NS_IMETHOD MarkThreadRead(nsIMsgThread *thread) MOZ_OVERRIDE;
   NS_IMETHOD GetNewMessages(nsIMsgWindow *aWindow, nsIUrlListener *aListener) MOZ_OVERRIDE;
   NS_IMETHOD NotifyCompactCompleted() MOZ_OVERRIDE;
   NS_IMETHOD Shutdown(bool shutdownChildren) MOZ_OVERRIDE;

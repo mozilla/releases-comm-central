@@ -952,7 +952,7 @@ var AugmentEverybodyWith = {
      * @param aKeepOpen  If set to true the popups are not closed after last click.
      *
      * @return  An array of popup elements that were left open. It will be
-     *          an empty array if aKeepOpen was set to true.
+     *          an empty array if aKeepOpen was set to false.
      */
     click_menus_in_sequence: function _click_menus(aRootPopup, aActions, aKeepOpen) {
       if (aRootPopup.state == "closed")
