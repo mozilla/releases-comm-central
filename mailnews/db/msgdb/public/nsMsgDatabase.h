@@ -387,8 +387,7 @@ protected:
   static PLDHashOperator ClearHeaderEnumerator (PLDHashTable *table, PLDHashEntryHdr *hdr,
                                uint32_t number, void *arg);
   static PLDHashTableOps gMsgDBHashTableOps;
-  struct MsgHdrHashElement {
-    PLDHashEntryHdr mHeader;
+  struct MsgHdrHashElement : public PLDHashEntryHdr {
     nsMsgKey       mKey;
     nsIMsgDBHdr     *mHdr;
   };

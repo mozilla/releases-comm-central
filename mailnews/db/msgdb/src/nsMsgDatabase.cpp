@@ -515,7 +515,7 @@ nsresult nsMsgDatabase::AddHdrToCache(nsIMsgDBHdr *hdr, nsMsgKey key) // do we w
       if (!entry)
         return NS_ERROR_OUT_OF_MEMORY; // XXX out of memory
 
-      MsgHdrHashElement* element = reinterpret_cast<MsgHdrHashElement*>(entry);
+      MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(entry);
       element->mHdr = hdr;
       element->mKey = key;
       NS_ADDREF(hdr);     // make the cache hold onto the header
@@ -530,7 +530,7 @@ nsresult nsMsgDatabase::AddHdrToCache(nsIMsgDBHdr *hdr, nsMsgKey key) // do we w
                                uint32_t number, void *arg)
 {
 
-  MsgHdrHashElement* element = reinterpret_cast<MsgHdrHashElement*>(hdr);
+  MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(hdr);
   if (element)
     NS_IF_RELEASE(element->mHdr);
   return PL_DHASH_NEXT;
@@ -540,7 +540,7 @@ nsresult nsMsgDatabase::AddHdrToCache(nsIMsgDBHdr *hdr, nsMsgKey key) // do we w
                                uint32_t number, void *arg)
 {
 
-  MsgHdrHashElement* element = reinterpret_cast<MsgHdrHashElement*>(hdr);
+  MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(hdr);
   if (element && element->mHdr)
   {
     nsMsgHdr* msgHdr = static_cast<nsMsgHdr*>(element->mHdr);  // closed system, so this is ok
@@ -707,7 +707,7 @@ nsresult nsMsgDatabase::GetHdrFromUseCache(nsMsgKey key, nsIMsgDBHdr* *result)
       PL_DHashTableSearch(m_headersInUse, (const void *)(uintptr_t) key);
     if (entry)
     {
-      MsgHdrHashElement* element = reinterpret_cast<MsgHdrHashElement*>(entry);
+      MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(entry);
       *result = element->mHdr;
     }
     if (*result)
@@ -739,15 +739,15 @@ nsMsgDatabase::HashKey(PLDHashTable* aTable, const void* aKey)
 bool
 nsMsgDatabase::MatchEntry(PLDHashTable* aTable, const PLDHashEntryHdr* aEntry, const void* aKey)
 {
-  const MsgHdrHashElement* hdr = reinterpret_cast<const MsgHdrHashElement*>(aEntry);
+  const MsgHdrHashElement* hdr = static_cast<const MsgHdrHashElement*>(aEntry);
   return aKey == (const void *)(uintptr_t) hdr->mKey; // ### or get the key from the hdr...
 }
 
 void
 nsMsgDatabase::MoveEntry(PLDHashTable* aTable, const PLDHashEntryHdr* aFrom, PLDHashEntryHdr* aTo)
 {
-  const MsgHdrHashElement* from = reinterpret_cast<const MsgHdrHashElement*>(aFrom);
-  MsgHdrHashElement* to = reinterpret_cast<MsgHdrHashElement*>(aTo);
+  const MsgHdrHashElement* from = static_cast<const MsgHdrHashElement*>(aFrom);
+  MsgHdrHashElement* to = static_cast<MsgHdrHashElement*>(aTo);
   // ### eh? Why is this needed? I don't think we have a copy operator?
   *to = *from;
 }
@@ -755,7 +755,7 @@ nsMsgDatabase::MoveEntry(PLDHashTable* aTable, const PLDHashEntryHdr* aFrom, PLD
 void
 nsMsgDatabase::ClearEntry(PLDHashTable* aTable, PLDHashEntryHdr* aEntry)
 {
-  MsgHdrHashElement* element = reinterpret_cast<MsgHdrHashElement*>(aEntry);
+  MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(aEntry);
   element->mHdr = nullptr; // eh? Need to release this or not?
   element->mKey = nsMsgKey_None; // eh?
 }
@@ -778,7 +778,7 @@ nsresult nsMsgDatabase::AddHdrToUseCache(nsIMsgDBHdr *hdr, nsMsgKey key)
     if (!entry)
       return NS_ERROR_OUT_OF_MEMORY; // XXX out of memory
 
-    MsgHdrHashElement* element = reinterpret_cast<MsgHdrHashElement*>(entry);
+    MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(entry);
     element->mHdr = hdr;
     element->mKey = key;
     // the hash table won't add ref, we'll do it ourselves
@@ -981,7 +981,7 @@ size_t nsMsgDatabase::HeaderHashSizeOf(PLDHashEntryHdr *hdr,
                                        mozilla::MallocSizeOf aMallocSizeOf,
                                        void *arg)
 {
-  MsgHdrHashElement *entry = reinterpret_cast<MsgHdrHashElement*>(hdr);
+  MsgHdrHashElement *entry = static_cast<MsgHdrHashElement*>(hdr);
   // Sigh, this is dangerous, but so long as this is a closed system, this is
   // safe.
   return static_cast<nsMsgHdr*>(entry->mHdr)->
@@ -4122,7 +4122,7 @@ nsresult nsMsgDatabase::GetRefFromHash(nsCString &reference, nsMsgKey *threadId)
     PL_DHashTableSearch(m_msgReferences, (const void *) reference.get());
   if (entry)
   {
-    RefHashElement *element = reinterpret_cast<RefHashElement *>(entry);
+    RefHashElement *element = static_cast<RefHashElement *>(entry);
     *threadId = element->mThreadId;
     return NS_OK;
   }
@@ -4138,7 +4138,7 @@ nsresult nsMsgDatabase::AddRefToHash(nsCString &reference, nsMsgKey threadId)
     if (!entry)
       return NS_ERROR_OUT_OF_MEMORY; // XXX out of memory
 
-    RefHashElement *element = reinterpret_cast<RefHashElement *>(entry);
+    RefHashElement *element = static_cast<RefHashElement *>(entry);
     if (!element->mRef)
     {
       element->mRef = ToNewCString(reference);  // Will be freed in PL_DHashFreeStringKey()
@@ -4185,7 +4185,7 @@ nsresult nsMsgDatabase::RemoveRefFromHash(nsCString &reference)
      PL_DHashTableSearch(m_msgReferences, (const void *) reference.get());
     if (entry)
     {
-      RefHashElement *element = reinterpret_cast<RefHashElement *>(entry);
+      RefHashElement *element = static_cast<RefHashElement *>(entry);
       if (--element->mCount == 0)
         PL_DHashTableRemove(m_msgReferences, (void *) reference.get());
     }
