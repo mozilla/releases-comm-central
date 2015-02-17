@@ -6,6 +6,8 @@
 <!ENTITY itemAutoComplete.label              "Addressing">
 <!ENTITY itemSpellCheck.label                "Spelling">
 
+<!ENTITY dialogCompose.title                 "Composing">
+
 <!ENTITY forwardMsg.label                     "Forward messages:">
 <!ENTITY forwardMsg.accesskey                 "F">
 <!ENTITY inline.label                         "Inline">
