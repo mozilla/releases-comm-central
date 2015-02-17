@@ -1469,10 +1469,14 @@ bool nsMsgLocalMailFolder::CheckIfSpaceForCopy(nsIMsgWindow *msgWindow,
                                                  bool isMove,
                                                  int64_t totalMsgSize)
 {
-  bool spaceNotAvailable = true;
-  nsresult rv = WarnIfLocalFileTooBig(msgWindow, totalMsgSize, &spaceNotAvailable);
-  if (NS_FAILED(rv) || spaceNotAvailable)
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  nsresult rv = GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, false);
+  bool spaceAvailable;
+  rv = msgStore->HasSpaceAvailable(this, totalMsgSize, &spaceAvailable);
+  if (!spaceAvailable)
   {
+    ThrowAlertMsg("mailboxTooLarge", msgWindow);
     if (isMove && srcFolder)
       srcFolder->NotifyFolderEvent(mDeleteOrMoveMsgFailedAtom);
     OnCopyCompleted(srcSupports, false);
@@ -3715,12 +3719,11 @@ nsMsgLocalMailFolder::WarnIfLocalFileTooBig(nsIMsgWindow *aWindow,
   bool spaceAvailable = false;
   // check if we have a reasonable amount of space left
   rv = msgStore->HasSpaceAvailable(this, aSpaceRequested, &spaceAvailable);
-  if (NS_SUCCEEDED(rv) && spaceAvailable) {
-    *aTooBig = false;
-  } else if (rv == NS_ERROR_FILE_TOO_BIG) {
+  if (NS_FAILED(rv) || !spaceAvailable)
+  {
     ThrowAlertMsg("mailboxTooLarge", aWindow);
   } else {
-    ThrowAlertMsg("outOfDiskSpace", aWindow);
+    *aTooBig = false;
   }
   return NS_OK;
 }

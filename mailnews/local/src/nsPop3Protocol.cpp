@@ -31,7 +31,6 @@
 #include "nsCOMPtr.h"
 #include "nsIMsgWindow.h"
 #include "nsIMsgFolder.h" // TO include biffState enum. Change to bool later...
-#include "nsIMsgLocalMailFolder.h"
 #include "nsIDocShell.h"
 #include "nsMsgUtils.h"
 #include "nsISocketTransport.h"
@@ -2933,25 +2932,18 @@ int32_t nsPop3Protocol::GetMsg()
       if (NS_FAILED(rv))
         return -1;
 
-      nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url, &rv);
-      if (NS_FAILED(rv) || !mailnewsUrl)
-        return -1;
+      nsCOMPtr<nsIMsgPluggableStore> msgStore;
+      rv = folder->GetMsgStore(getter_AddRefs(msgStore));
+      NS_ENSURE_SUCCESS(rv, -1);
 
-      nsCOMPtr<nsIMsgWindow> msgWindow;
-      (void)mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow));
-
-      bool spaceNotAvailable = true;
-      nsCOMPtr<nsIMsgLocalMailFolder> localFolder(do_QueryInterface(folder, &rv));
-      if (NS_FAILED(rv) || !localFolder)
-        return -1;
-
+      bool spaceAvailable;
       // check if we have a reasonable amount of space left
-      rv = localFolder->WarnIfLocalFileTooBig(msgWindow, m_totalDownloadSize, &spaceNotAvailable);
-      if (NS_FAILED(rv) || spaceNotAvailable) {
+      rv = msgStore->HasSpaceAvailable(folder, m_totalDownloadSize, &spaceAvailable);
+      if (NS_FAILED(rv) || !spaceAvailable) {
 #ifdef DEBUG
         printf("Not enough disk space! Raising error!\n");
 #endif
-        return -1;
+        return Error("pop3OutOfDiskSpace");
       }
 
       // Here we know how many messages we're going to download, so let
