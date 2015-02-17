@@ -896,6 +896,7 @@ httpHooks.prototype = {
             var httpchannel = aChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
             // Somehow the webdav header 'If' doesn't work on apache when
             // passing in a Not, so use the http version here.
+            httpchannel.setRequestHeader("Accept", "text/calendar,text/plain;q=0.8,*/*;q=0.5", false);
             httpchannel.setRequestHeader("If-None-Match", this.mEtag, false);
         }
 
