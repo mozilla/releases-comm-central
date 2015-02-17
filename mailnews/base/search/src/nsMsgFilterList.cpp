@@ -86,24 +86,42 @@ NS_IMETHODIMP nsMsgFilterList::SaveToFile(nsIOutputStream *stream)
   return SaveTextFilters(stream);
 }
 
-NS_IMETHODIMP nsMsgFilterList::EnsureLogFile()
-{
-  nsCOMPtr <nsIFile> file;
-  nsresult rv = GetLogFile(getter_AddRefs(file));
-  NS_ENSURE_SUCCESS(rv,rv);
+#define LOG_HEADER "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style type=\"text/css\">body{font-family:Consolas,\"Lucida Console\",Monaco,\"Courier New\",Courier,monospace;font-size:small}</style>\n</head>\n<body>\n"
+#define LOG_HEADER_LEN (strlen(LOG_HEADER))
 
+nsresult nsMsgFilterList::EnsureLogFile(nsIFile *file)
+{
   bool exists;
-  rv = file->Exists(&exists);
+  nsresult rv = file->Exists(&exists);
   if (NS_SUCCEEDED(rv) && !exists) {
-    rv = file->Create(nsIFile::NORMAL_FILE_TYPE, 0644);
-    NS_ENSURE_SUCCESS(rv,rv);
+    rv = file->Create(nsIFile::NORMAL_FILE_TYPE, 0666);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
+
+  int64_t fileSize;
+  rv = file->GetFileSize(&fileSize);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // write the header at the start
+  if (fileSize == 0)
+  {
+    nsCOMPtr<nsIOutputStream> outputStream;
+    rv = MsgGetFileStream(file, getter_AddRefs(outputStream));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    uint32_t writeCount;
+    rv = outputStream->Write(LOG_HEADER, LOG_HEADER_LEN, &writeCount);
+    NS_ASSERTION(writeCount == LOG_HEADER_LEN, "failed to write out log header");
+    NS_ENSURE_SUCCESS(rv, rv);
+    outputStream->Close();
+  }
+
   return NS_OK;
 }
 
 nsresult nsMsgFilterList::TruncateLog()
 {
-  // this will flush and close the steam
+  // This will flush and close the stream.
   nsresult rv = SetLogStream(nullptr);
   NS_ENSURE_SUCCESS(rv,rv);
 
@@ -112,9 +130,8 @@ nsresult nsMsgFilterList::TruncateLog()
   NS_ENSURE_SUCCESS(rv,rv);
 
   file->Remove(false);
-  rv = file->Create(nsIFile::NORMAL_FILE_TYPE, 0644);
-  NS_ENSURE_SUCCESS(rv,rv);
-  return rv;
+
+  return EnsureLogFile(file);
 }
 
 NS_IMETHODIMP nsMsgFilterList::ClearLog()
@@ -197,7 +214,7 @@ nsMsgFilterList::GetLogFile(nsIFile **aFile)
     rv = (*aFile)->AppendNative(NS_LITERAL_CSTRING("filterlog.html"));
     NS_ENSURE_SUCCESS(rv,rv);
   }
-  return NS_OK;
+  return EnsureLogFile(*aFile);
 }
 
 NS_IMETHODIMP
@@ -227,9 +244,6 @@ nsMsgFilterList::SetLogStream(nsIOutputStream *aLogStream)
   return NS_OK;
 }
 
-#define LOG_HEADER "<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\">body{font-family:Consolas,\"Lucida Console\",Monaco,\"Courier New\",Courier,monospace;font-size:small}</style></head>"
-#define LOG_HEADER_LEN (strlen(LOG_HEADER))
-
 NS_IMETHODIMP
 nsMsgFilterList::GetLogStream(nsIOutputStream **aLogStream)
 {
@@ -246,25 +260,11 @@ nsMsgFilterList::GetLogStream(nsIOutputStream **aLogStream)
     rv = MsgNewBufferedFileOutputStream(getter_AddRefs(m_logStream),
                                         logFile,
                                         PR_CREATE_FILE | PR_WRONLY | PR_APPEND,
-                                        0600);
+                                        0666);
     NS_ENSURE_SUCCESS(rv,rv);
 
     if (!m_logStream)
       return NS_ERROR_FAILURE;
-
-    int64_t fileSize;
-    rv = logFile->GetFileSize(&fileSize);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // write the header at the start
-    if (fileSize == 0)
-    {
-      uint32_t writeCount;
-
-      rv = m_logStream->Write(LOG_HEADER, LOG_HEADER_LEN, &writeCount);
-      NS_ENSURE_SUCCESS(rv, rv);
-      NS_ASSERTION(writeCount == LOG_HEADER_LEN, "failed to write out log header");
-    }
   }
 
   NS_ADDREF(*aLogStream = m_logStream);

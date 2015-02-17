@@ -19,7 +19,6 @@ const int16_t kManualContextVersion = 9;
 const int16_t k60Beta1Version = 7;
 const int16_t k45Version = 6;
 
-
 ////////////////////////////////////////////////////////////////////////////////////////
 // The Msg Filter List is an interface designed to make accessing filter lists
 // easier. Clients typically open a filter list and either enumerate the filters,
@@ -69,6 +68,7 @@ protected:
 private:
   nsresult TruncateLog();
   nsresult GetLogFile(nsIFile **aFile);
+  nsresult EnsureLogFile(nsIFile *file);
   nsCOMPtr<nsIOutputStream> m_logStream;
 };
 

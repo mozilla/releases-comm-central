@@ -21,7 +21,7 @@ interface nsIMsgFolder;
 
 typedef long nsMsgFilterFileAttribValue;
 
-[scriptable, uuid(84d29635-e6c6-41ca-8b9f-82c9976dad58)]
+[scriptable, uuid(5d0ec03e-7e2f-49e9-b58a-b274c85f279e)]
 interface nsIMsgFilterList : nsISupports {
 
     const nsMsgFilterFileAttribValue attribNone = 0;
@@ -91,10 +91,11 @@ interface nsIMsgFilterList : nsISupports {
     boolean matchOrChangeFilterTarget(in ACString oldUri, in ACString newUri, in boolean caseInsensitive);
  
     // for filter logging
+    // If both attributes are fetched successfully, they guarantee
+    // the log file exists and is set up with a header.
     attribute nsIOutputStream logStream;
     readonly attribute ACString logURL;
     void clearLog();
-    void ensureLogFile();
     void flushLogIfNecessary();
 };
 

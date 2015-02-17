@@ -18,10 +18,6 @@ function onLoad()
   // for security, disable JS
   gLogView.docShell.allowJavascript = false;
 
-  // if log doesn't exist, this will create an empty file on disk
-  // otherwise, the user will get an error that the file doesn't exist
-  gFilterList.ensureLogFile();
-
   gLogView.setAttribute("src", gFilterList.logURL);
 }
 
