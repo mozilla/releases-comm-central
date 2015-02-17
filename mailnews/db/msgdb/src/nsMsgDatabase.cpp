@@ -579,6 +579,29 @@ NS_IMETHODIMP nsMsgDatabase::SetLastUseTime(PRTime aTime)
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgDatabase::GetDatabaseSize(int64_t *_retval)
+{
+  NS_ENSURE_ARG_POINTER(_retval);
+
+  nsresult rv;
+  nsCOMPtr<nsIFile> summaryFilePath = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = summaryFilePath->InitWithNativePath(m_dbName);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  bool exists;
+  rv = summaryFilePath->Exists(&exists);
+  if (NS_SUCCEEDED(rv))
+  {
+    if (exists)
+      rv = summaryFilePath->GetFileSize(_retval);
+    else
+      *_retval = 0;
+  }
+
+  return rv;
+}
+
 NS_IMETHODIMP nsMsgDatabase::ClearCachedHdrs()
 {
   ClearCachedObjects(false);

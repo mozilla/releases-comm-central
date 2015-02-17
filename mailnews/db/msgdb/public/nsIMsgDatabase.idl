@@ -243,7 +243,7 @@ interface nsIMsgDBService : nsISupports
   readonly attribute nsIArray openDBs;
 };
 
-[scriptable, uuid(2dbc9e31-5f8c-408c-960e-a91cecde368c)]
+[scriptable, uuid(b64e66f8-4717-423a-be42-482658fb2199)]
 interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   void Close(in boolean aForceCommit);
 
@@ -255,6 +255,9 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   void resetHdrCacheSize(in unsigned long size);
 
   readonly attribute nsIDBFolderInfo  dBFolderInfo;
+
+  /// Size of the database file in bytes.
+  readonly attribute long long databaseSize;
 
   /// Folder this db was opened on.
   readonly attribute nsIMsgFolder folder;

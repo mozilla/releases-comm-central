@@ -88,6 +88,7 @@ protected:
   uint32_t m_addedHeaderSize;
   nsCOMPtr<nsIArray> m_offlineFolderArray;
   nsCOMPtr<nsIUrlListener> m_listener;
+  bool m_alreadyWarnedDiskSpace;
 };
 
 class nsOfflineStoreCompactState : public nsFolderCompactState

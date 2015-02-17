@@ -33,6 +33,7 @@
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsMsgFolderCompactor.h"
+#include <algorithm>
 
 //////////////////////////////////////////////////////////////////////////////
 // nsFolderCompactState
@@ -54,6 +55,7 @@ nsFolderCompactState::nsFolderCompactState()
   m_startOfMsg = true;
   m_needStatusLine = false;
   m_totalExpungedBytes = 0;
+  m_alreadyWarnedDiskSpace = false;
 }
 
 nsFolderCompactState::~nsFolderCompactState()
@@ -167,14 +169,9 @@ nsFolderCompactState::Compact(nsIMsgFolder *folder, bool aOfflineStore,
       return imapFolder->Expunge(this, aMsgWindow);
   }
 
-   int64_t expunged;
-   folder->GetExpungedBytes(&expunged);
-   m_totalExpungedBytes += expunged;
    m_window = aMsgWindow;
    nsresult rv;
    nsCOMPtr<nsIMsgDatabase> db;
-   nsCOMPtr<nsIDBFolderInfo> folderInfo;
-   nsCOMPtr<nsIMsgDatabase> mailDBFactory;
    nsCOMPtr<nsIFile> path;
    nsCString baseMessageURI;
 
@@ -212,28 +209,77 @@ nsFolderCompactState::Compact(nsIMsgFolder *folder, bool aOfflineStore,
      rv = folder->GetMsgDatabase(getter_AddRefs(db));
      NS_ENSURE_SUCCESS(rv, rv);
    }
+
    rv = folder->GetFilePath(getter_AddRefs(path));
    NS_ENSURE_SUCCESS(rv, rv);
 
-   rv = folder->GetBaseMessageURI(baseMessageURI);
-   NS_ENSURE_SUCCESS(rv, rv);
-    
-   rv = Init(folder, baseMessageURI.get(), db, path, m_window);
+   int64_t expunged;
+   folder->GetExpungedBytes(&expunged);
+
+   bool abortCompactFolder = false;
+   int64_t diskSize;
+   rv = folder->GetSizeOnDisk(&diskSize);
    NS_ENSURE_SUCCESS(rv, rv);
 
-   bool isLocked;
-   m_folder->GetLocked(&isLocked);
-   if(!isLocked)
+   int64_t diskFree;
+   rv = path->GetDiskSpaceAvailable(&diskFree);
+   NS_ENSURE_SUCCESS(rv, rv);
+
+   // Let's try to not even start compact if there is really low free space.
+   // It may still fail later as we do not know how big exactly the folder DB will
+   // end up being.
+   // The DB already doesn't contain references to messages that are already deleted.
+   // So theoretically it shouldn't shrink with compact. But in practice,
+   // the automatic shrinking of the DB may still have not yet happened.
+   // So we cap the final size at 1KB per message.
+   db->Commit(nsMsgDBCommitType::kCompressCommit);
+
+   int64_t dbSize;
+   rv = db->GetDatabaseSize(&dbSize);
+   NS_ENSURE_SUCCESS(rv, rv);
+
+   int32_t totalMsgs;
+   rv = folder->GetTotalMessages(false, &totalMsgs);
+   NS_ENSURE_SUCCESS(rv, rv);
+   int64_t expectedDBSize = std::min<int64_t>(dbSize, totalMsgs * 1024);
+   if (diskFree < diskSize - expunged + expectedDBSize)
+   {
+     if (!m_alreadyWarnedDiskSpace)
+     {
+       folder->ThrowAlertMsg("compactFolderInsufficientSpace", m_window);
+       m_alreadyWarnedDiskSpace = true;
+     }
+     abortCompactFolder = true;
+   }
+
+   if (!abortCompactFolder)
+   {
+     rv = folder->GetBaseMessageURI(baseMessageURI);
+     NS_ENSURE_SUCCESS(rv, rv);
+
+     rv = Init(folder, baseMessageURI.get(), db, path, m_window);
+     NS_ENSURE_SUCCESS(rv, rv);
+
+     bool isLocked;
+     m_folder->GetLocked(&isLocked);
+     if (isLocked)
+     {
+       m_folder->NotifyCompactCompleted();
+       CleanupTempFilesAfterError();
+       m_folder->ThrowAlertMsg("compactFolderDeniedLock", m_window);
+       abortCompactFolder = true;
+     }
+   }
+
+   if (!abortCompactFolder)
    {
      nsCOMPtr <nsISupports> supports = do_QueryInterface(static_cast<nsIMsgFolderCompactor*>(this));
      m_folder->AcquireSemaphore(supports);
+     m_totalExpungedBytes += expunged;
      return StartCompacting();
    }
    else
    {
-     m_folder->NotifyCompactCompleted();
-     CleanupTempFilesAfterError();
-     m_folder->ThrowAlertMsg("compactFolderDeniedLock", m_window);
      if (m_compactAll)
        return CompactNextFolder();
      else
@@ -433,7 +479,7 @@ nsFolderCompactState::FinishCompact()
   rv = m_file->Clone(getter_AddRefs(cloneFile));
   if (NS_SUCCEEDED(rv))
     rv = cloneFile->GetFileSize(&fileSize);
-  bool tempFileRightSize = (fileSize == m_totalMsgSize);
+  bool tempFileRightSize = ((uint64_t)fileSize == m_totalMsgSize);
   NS_WARN_IF_FALSE(tempFileRightSize, "temp file not of expected size in compact");
 
   bool folderRenameSucceeded = false;
