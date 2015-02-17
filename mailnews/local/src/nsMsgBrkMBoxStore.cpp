@@ -196,13 +196,18 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::HasSpaceAvailable(nsIMsgFolder *aFolder,
   nsresult rv = aFolder->GetFilePath(getter_AddRefs(pathFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // Allow the mbox to only reach 0xFFC00000 = 4 GiB - 4 MiB for now.
+  // This limit can be increased after bug 789679 is fixed.
   int64_t fileSize;
   rv = pathFile->GetFileSize(&fileSize);
   NS_ENSURE_SUCCESS(rv, rv);
+  *aResult = ((fileSize + aSpaceRequested) < 0xFFC00000LL);
+  if (!*aResult)
+    return NS_ERROR_FILE_TOO_BIG;
 
-  // Allow the mbox to only reach 0xFFC00000 = 4 GiB - 4 MiB for now.
-  *aResult = ((fileSize + aSpaceRequested) < 0xFFC00000) &&
-              DiskSpaceAvailableInStore(pathFile, aSpaceRequested);
+  *aResult = DiskSpaceAvailableInStore(pathFile, aSpaceRequested);
+  if (!*aResult)
+    return NS_ERROR_FILE_DISK_FULL;
 
   return NS_OK;
 }

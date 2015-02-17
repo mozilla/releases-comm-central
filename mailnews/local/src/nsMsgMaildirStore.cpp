@@ -263,7 +263,19 @@ NS_IMETHODIMP nsMsgMaildirStore::HasSpaceAvailable(nsIMsgFolder *aFolder,
   nsresult rv = aFolder->GetFilePath(getter_AddRefs(pathFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // Allow the folder to only reach 0xFFC00000 = 4 GiB - 4 MiB for now.
+  // This limit can be increased after bug 1078367 is fixed.
+  int64_t folderSize;
+  rv = aFolder->GetSizeOnDisk(&folderSize);
+  NS_ENSURE_SUCCESS(rv, rv);
+  *aResult = ((folderSize + aSpaceRequested) < 0xFFC00000LL);
+  if (!*aResult)
+    return NS_ERROR_FILE_TOO_BIG;
+
   *aResult = DiskSpaceAvailableInStore(pathFile, aSpaceRequested);
+  if (!*aResult)
+    return NS_ERROR_FILE_DISK_FULL;
+
   return NS_OK;
 }
 
