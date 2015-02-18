@@ -33,6 +33,19 @@
     </content>
     <implementation implements="nsIObserver">
 
+     <constructor>
+      <![CDATA[
+        new MutationObserver(aMutations => {
+          if (!this.convView || !this.convView.loaded)
+            return;
+          if (this.hasAttribute("selected"))
+            this.convView.switchingToPanel();
+          else
+            this.convView.switchingAwayFromPanel();
+        }).observe(this, {attributes: true, attributeFilter: ["selected"]});
+      ]]>
+     </constructor>
+
      <destructor>
       <![CDATA[
         if (this.conv) {
@@ -103,7 +116,7 @@
       <body>
       <![CDATA[
         this.setAttribute("displayname", this.displayName);
-        if (this.selected) {
+        if (this.selected && document.hasFocus()) {
           if (this.convView && this.convView.loaded) {
             this.conv.markAsRead();
             this.directedUnreadCount = 0;

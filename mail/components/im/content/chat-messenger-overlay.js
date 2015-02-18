@@ -86,6 +86,23 @@ var chatTabType = {
     }
   },
 
+  tabMonitor: {
+    monitorName: "chattab",
+
+    // Unused, but needed functions
+    onTabTitleChanged: function() {},
+    onTabOpened: function(aTab) {},
+    onTabClosing: function() {},
+    onTabPersist: function() {},
+    onTabRestored: function() {},
+
+    onTabSwitched(aNewTab, aOldTab) {
+      // aNewTab == chat is handled earlier by showTab() below.
+      if (aOldTab.mode.name == "chat")
+        chatHandler._onTabDeactivated();
+    }
+  },
+
   _handleArgs: function(aArgs) {
     if (!aArgs || !("convType" in aArgs) ||
         (aArgs.convType != "log" && aArgs.convType != "focus"))
@@ -108,6 +125,16 @@ var chatTabType = {
     else
       document.getElementById("contactlistbox").selectedItem = item;
   },
+  _onWindowActivated() {
+    let tabmail = document.getElementById("tabmail");
+    if (tabmail.currentTabInfo.mode.name == "chat")
+      chatHandler._onTabActivated();
+  },
+  _onWindowDeactivated() {
+    let tabmail = document.getElementById("tabmail");
+    if (tabmail.currentTabInfo.mode.name == "chat")
+      chatHandler._onTabDeactivated();
+  },
   openTab: function(aTab, aArgs) {
     if (!this.hasBeenOpened) {
       let convs = imServices.conversations.getUIConversations();
@@ -117,14 +144,19 @@ var chatTabType = {
         for each (let conv in convs)
           chatHandler._addConversation(conv);
       }
+
+      // The tab monitor will inform us when a different tab is selected.
+      let tabmail = document.getElementById("tabmail");
+      tabmail.registerTabMonitor(this.tabMonitor);
+      window.addEventListener("deactivate", chatTabType._onWindowDeactivated);
+      window.addEventListener("activate", chatTabType._onWindowActivated);
     }
 
     gChatTab = aTab;
     aTab.tabNode.setAttribute("type", "chat");
     this._handleArgs(aArgs);
-    chatHandler._updateSelectedConversation();
+    this.showTab(aTab);
     chatHandler.updateTitle();
-    chatHandler._updateFocus();
     this.hasBeenOpened = true;
   },
   shouldSwitchTo: function(aArgs) {
@@ -135,12 +167,18 @@ var chatTabType = {
   },
   showTab: function(aTab) {
     gChatTab = aTab;
-    let list = document.getElementById("contactlistbox");
+    chatHandler._onTabActivated();
+    // The next call may change the selected conversation, but that
+    // will be handled by the selected mutation observer of the imconv.
     chatHandler._updateSelectedConversation();
     chatHandler._updateFocus();
   },
   closeTab: function(aTab) {
     gChatTab = null;
+    let tabmail = document.getElementById("tabmail");
+    tabmail.unregisterTabMonitor(this.tabMonitor);
+    window.removeEventListener("deactivate", chatTabType._onWindowDeactivated);
+    window.removeEventListener("activate", chatTabType._onWindowActivated);
   },
 
   supportsCommand: function ct_supportsCommand(aCommand, aTab) {
@@ -581,6 +619,7 @@ var chatHandler = {
     else if (item.localName == "imconv") {
       let convDeck = document.getElementById("conversationsDeck");
       if (!item.convView) {
+        // Create new conversation binding.
         let conv = document.createElement("imconversation");
         convDeck.appendChild(conv);
         conv.conv = item.conv;
@@ -820,6 +859,28 @@ var chatHandler = {
   _updateFocus: function() {
     let focusId = this._placeHolderButtonId || "contactlistbox";
     document.getElementById(focusId).focus();
+  },
+  _getActiveConvView() {
+    let list = document.getElementById("contactlistbox");
+    if (list.disabled)
+      return null;
+    let selectedItem = list.selectedItem;
+    if (!selectedItem || selectedItem.localName != "imconv")
+      return null;
+    let convView = selectedItem.convView;
+    if (!convView || !convView.loaded)
+      return null;
+    return convView;
+  },
+  _onTabActivated() {
+    let convView = chatHandler._getActiveConvView();
+    if (convView)
+      convView.switchingToPanel();
+  },
+  _onTabDeactivated() {
+    let convView = chatHandler._getActiveConvView();
+    if (convView)
+      convView.switchingAwayFromPanel();
   },
   observe: function(aSubject, aTopic, aData) {
     if (aTopic == "chat-core-initialized") {

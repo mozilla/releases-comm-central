@@ -119,7 +119,10 @@
         this.loaded = true;
         let messages = this._conv.getMessages();
         this._readCount = messages.length - this._conv.unreadMessageCount;
+        if (this._readCount)
+          this._writingContextMessages = true;
         messages.forEach(this.addMsg.bind(this));
+        delete this._writingContextMessages;
       ]]>
       </body>
      </method>
@@ -171,25 +174,50 @@
           aMsg.color = "color: hsl(" + color + ", 100%, 40%);";
         }
 
+        // Porting note: In TB, this.tab points at the imconv listitem element.
         let read = this._readCount > 0;
-        this.browser.appendMessage(aMsg, read);
+        let isUnreadMessage = !read && aMsg.incoming && !aMsg.system;
+        let isTabFocused = this.tab && this.tab.selected && document.hasFocus();
+        let shouldSetUnreadFlag = this.tab && isUnreadMessage && !isTabFocused;
+        let firstUnread = this.tab && !this.tab.hasAttribute("unread") &&
+                          isUnreadMessage && this._isAfterFirstRealMessage &&
+                          (!isTabFocused || this._writingContextMessages);
+
+        // Since the unread flag won't be set if the tab is focused,
+        // we need the following when showing the first messages to stop
+        // firstUnread being set for subsequent messages.
+        if (firstUnread)
+          delete this._writingContextMessages;
+
+        this.browser.appendMessage(aMsg, read, firstUnread);
+        if (!aMsg.system)
+          this._isAfterFirstRealMessage = true;
+
         if (read) {
           --this._readCount;
+          if (!this._readCount && !this._isAfterFirstRealMessage) {
+            // If all the context messages were system messages, we don't want
+            // an unread ruler after the context messages, so we forget that
+            // we had context messages.
+            delete this._writingContextMessages;
+          }
           return;
         }
 
 /*
-        if (aMsg.incoming && !aMsg.system &&
-            (!aMsg.conversation.isChat || aMsg.containsNick) &&
-            Services.prefs.getBoolPref("messenger.options.getAttentionOnNewMessages"))
-          window.getAttention();
+        if (isUnreadMessage && (!aMsg.conversation.isChat || aMsg.containsNick)) {
+          if (Services.prefs.getBoolPref("messenger.options.getAttentionOnNewMessages"))
+            window.getAttention();
+        }
 */
 
-        if (this.tab && this.tab.selected && document.hasFocus())
-          this.tab.update(); // this will mark the conv as read
+        if (isTabFocused) {
+          // Porting note: This will mark the conv as read, but also update
+          // the conv title with the new unread count etc. as required for TB.
+          this.tab.update();
+        }
 
-        if (this.tab && aMsg.incoming && !aMsg.system &&
-            (!this.tab.selected || !document.hasFocus())) {
+        if (shouldSetUnreadFlag) {
           if (conv.isChat && aMsg.containsNick)
             this.tab.setAttribute("attention", "true");
           this.tab.setAttribute("unread", "true");
@@ -1066,6 +1094,43 @@
        ]]>
        </body>
      </method>
+
+    <method name="switchingToPanel">
+      <body>
+      <![CDATA[
+        if (this._visibleTimer)
+          return;
+
+        // Start a timer to detect if the tab has been visible to the
+        // user for long enough to actually be seen (as opposed to the
+        // tab only being visible "accidentally in passing").
+        delete this._wasVisible;
+        this._visibleTimer = setTimeout(function() {
+          this._wasVisible = true;
+          delete this._visibleTimer;
+
+          // Porting note: For TB, we also need to update the conv title
+          // and reset the unread flag. In IB, this is done by tabbrowser.
+          this.tab.update();
+        }.bind(this), 1000);
+      ]]>
+      </body>
+    </method>
+
+    <method name="switchingAwayFromPanel">
+      <body>
+        <![CDATA[
+          if (this._visibleTimer) {
+            clearTimeout(this._visibleTimer);
+            delete this._visibleTimer;
+          }
+          // Remove the unread ruler if the tab has been visible without
+          // interruptions for sufficiently long.
+          if (this._wasVisible)
+            this.browser.removeUnreadRuler();
+        ]]>
+      </body>
+    </method>
 
      <method name="getElt">
        <parameter name="aAnonId"/>
