@@ -393,9 +393,6 @@ var chatHandler = {
     if (!aConversation)
       return;
     this._showLogPanel();
-    if (this._displayedLog == aPath)
-      return;
-    this._displayedLog = aPath;
     let browser = document.getElementById("conv-log-browser");
     browser._autoScrollEnabled = false;
     if (this._pendingLogBrowserLoad) {
@@ -668,7 +665,7 @@ var chatHandler = {
 
       document.getElementById("contextPane").removeAttribute("chat");
 
-      imServices.logs.getLogsForContact(contact).then(aLogs => {
+      imServices.logs.getLogsForContact(contact, true).then(aLogs => {
         if (!this._showLogList(aLogs, true)) {
           document.getElementById("conversationsDeck").selectedPanel =
             document.getElementById("logDisplay");
