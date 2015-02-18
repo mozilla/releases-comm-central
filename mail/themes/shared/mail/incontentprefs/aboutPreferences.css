@@ -53,6 +53,8 @@ caption > label {
   border-bottom: none;
   padding: 39px 0 0;
   margin: 0;
+  max-height: 100vh;
+  overflow-x: auto;
 }
 
 radio[pane] {
@@ -209,12 +211,21 @@ description > html|a {
   padding-bottom: 15px;
 }
 
+tabs {
+  -moz-margin-end: 4px; /* add the 4px end-margin of other elements */
+}
+
 .indent {
   -moz-margin-start: 33px;
 }
 
 .inset {
   border-color: #424e5a;
+}
+
+#telemetryLearnMore,
+#crashReporterLearnMore {
+  -moz-margin-end: 4px !important;
 }
 
 /**
@@ -288,6 +299,11 @@ description > html|a {
   /* Default dialog dimensions */
   height: 20em;
   width: 66ch;
+}
+
+.largeDialogContainer.doScroll {
+  overflow-y: auto;
+  -moz-box-flex: 1;
 }
 
 /**

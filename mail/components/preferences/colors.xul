@@ -85,8 +85,8 @@
 #endif
       <label accesskey="&overridePageColors.accesskey;"
              control="useDocumentColors">&overridePageColors.label;</label>
-      <menulist id="useDocumentColors" preference="browser.display.document_color_use"
-             flex="1">
+      <menulist id="useDocumentColors"
+                preference="browser.display.document_color_use">
         <menupopup>
           <menuitem label="&overridePageColors.always.label;"
                     value="2" id="documentColorAlways"/>

@@ -22,7 +22,8 @@
             dlgbuttons="accept,cancel"
             ondialogaccept="gFontsDialog.ondialogaccept();">
 
-  <prefpane id="FontsDialogPane">
+  <prefpane id="FontsDialogPane"
+            class="largeDialogContainer">
 
     <preferences id="fontPreferences">
       <preference id="font.language.group"  name="font.language.group"  type="wstring"/>
