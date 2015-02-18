@@ -35,7 +35,7 @@ function setupModule(module) {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
 
   gOutbox = MailServices.accounts.localFoldersServer.rootFolder.getChildNamed("Outbox");
-  gInbox = MailServices.accounts.localFoldersServer.rootFolder.getChildNamed("Inbox");
+  gInbox = create_folder("MsgStoreChecks");
   make_new_sets_in_folder(gInbox, [ {count: 6} ]);
 
   // We delete the first message so that we have to compact anything.
@@ -173,10 +173,10 @@ function reply_forward_message(aMsgRow, aReply) {
   be_in_folder(gInbox);
   select_click_row(aMsgRow);
   let cwc;
-  if (aReply)
+  if (aReply) {
     // Reply to the message.
     cwc = open_compose_with_reply();
-  else {
+  } else {
     // Forward the message.
     cwc = open_compose_with_forward();
     // Type in some recipient.
@@ -186,7 +186,7 @@ function reply_forward_message(aMsgRow, aReply) {
   // Send it later.
   plan_for_window_close(cwc);
   // Ctrl+Shift+Return = Send Later
-  cwc.keypress(null, "VK_RETURN", {shiftKey: true, accelKey: true});
+  cwc.keypress(cwc.eid("content-frame"), "VK_RETURN", {shiftKey: true, accelKey: true});
   wait_for_window_close(cwc);
 
   subtest_check_queued_message();
