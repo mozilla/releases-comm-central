@@ -109,85 +109,47 @@ radio[pane][selected]::before {
 .paneButtonIcon {
   width: 24px;
   height: 24px;
-  list-style-image: url("icons.png");
+  -moz-image-region: auto;
 }
 
 radio[pane=paneGeneral] > .paneButtonIcon {
-  -moz-image-region: rect(0, 24px, 24px, 0);
+  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#general");
 }
 
 radio[pane=paneDisplay] > .paneButtonIcon {
-  -moz-image-region: rect(0, 48px, 24px, 24px);
+  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#display");
 }
 
 radio[pane=paneApplications] > .paneButtonIcon {
-  -moz-image-region: rect(0, 72px, 24px, 48px);
+  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#applications");
 }
 
 radio[pane=panePrivacy] > .paneButtonIcon {
-  -moz-image-region: rect(0, 96px, 24px, 72px);
+  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#privacy");
 }
 
 radio[pane=paneSecurity]> .paneButtonIcon {
-  -moz-image-region: rect(0, 120px, 24px, 96px);
+  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#security");
 }
 
 radio[pane=paneCompose] > .paneButtonIcon {
-  -moz-image-region: rect(0, 144px, 24px, 120px);
+  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#compose");
 }
 
 radio[pane=paneAdvanced] > .paneButtonIcon {
-  -moz-image-region: rect(0, 168px, 24px, 144px);
+  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#advanced");
 }
 
 radio[pane=paneChat] > .paneButtonIcon {
-  -moz-image-region: rect(0, 192px, 24px, 168px);
+  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#chat");
 }
 
 radio[pane=paneLightning] > .paneButtonIcon {
-  -moz-image-region: rect(0, 216px, 24px, 192px);
+  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#calendar");
 }
 
-@media (min-resolution: 2dppx) {
-  .paneButtonIcon {
-    list-style-image: url("icons@2x.png");
-  }
-
-  radio[pane=paneGeneral] > .paneButtonIcon {
-    -moz-image-region: rect(0, 48px, 48px, 0);
-  }
-
-  radio[pane=paneDisplay] > .paneButtonIcon {
-    -moz-image-region: rect(0, 96px, 48px, 48px);
-  }
-
-  radio[pane=paneApplications] > .paneButtonIcon {
-    -moz-image-region: rect(0, 144px, 48px, 96px);
-  }
-
-  radio[pane=panePrivacy] > .paneButtonIcon {
-    -moz-image-region: rect(0, 192px, 48px, 144px);
-  }
-
-  radio[pane=paneSecurity]> .paneButtonIcon {
-    -moz-image-region: rect(0, 240px, 48px, 192px);
-  }
-
-  radio[pane=paneCompose] > .paneButtonIcon {
-    -moz-image-region: rect(0, 288px, 48px, 240px);
-  }
-
-  radio[pane=paneAdvanced] > .paneButtonIcon {
-    -moz-image-region: rect(0, 336px, 48px, 288px);
-  }
-
-  radio[pane=paneChat] > .paneButtonIcon {
-    -moz-image-region: rect(0, 384px, 48px, 336px);
-  }
-
-  radio[pane=paneLightning] > .paneButtonIcon {
-    -moz-image-region: rect(0, 432px, 48px, 384px);
-  }
+radio[pane=paneAccount] > .paneButtonIcon {
+  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#account");
 }
 
 /* Applications Pane Styles */

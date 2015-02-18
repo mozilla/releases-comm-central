@@ -4,6 +4,48 @@
 
 @import url("chrome://messenger/skin/shared/in-content/aboutPreferences.css");
 
+@media not all and (-moz-windows-default-theme) {
+  radio[pane=paneGeneral] > .paneButtonIcon {
+    list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#general-native");
+  }
+
+  radio[pane=paneDisplay] > .paneButtonIcon {
+    list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#display-native");
+  }
+
+  radio[pane=paneApplications] > .paneButtonIcon {
+    list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#applications-native");
+  }
+
+  radio[pane=panePrivacy] > .paneButtonIcon {
+    list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#privacy-native");
+  }
+
+  radio[pane=paneSecurity]> .paneButtonIcon {
+    list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#security-native");
+  }
+
+  radio[pane=paneCompose] > .paneButtonIcon {
+    list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#compose-native");
+  }
+
+  radio[pane=paneAdvanced] > .paneButtonIcon {
+    list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#advanced-native");
+  }
+
+  radio[pane=paneChat] > .paneButtonIcon {
+    list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#chat-native");
+  }
+
+  radio[pane=paneLightning] > .paneButtonIcon {
+    list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#calendar-native");
+  }
+
+  radio[pane=paneAccount] > .paneButtonIcon {
+    list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#account-native");
+  }
+}
+
 radio {
   -moz-binding: url("chrome://global/content/bindings/radio.xml#radio") !important;
 }
