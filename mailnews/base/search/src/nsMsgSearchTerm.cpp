@@ -607,6 +607,7 @@ nsresult nsMsgSearchTerm::ParseValue(char *inStream)
     m_value.string = (char *) PR_Malloc(valueLen + 1);
     PL_strncpy(m_value.string, inStream, valueLen + 1);
     m_value.string[valueLen] = '\0';
+    CopyUTF8toUTF16(m_value.string, m_value.utf16String);
   }
   else
   {
@@ -733,6 +734,7 @@ nsresult nsMsgSearchTerm::DeStreamNew (char *inStream, int16_t /*length*/)
     m_value.attribute = m_attribute = nsMsgSearchAttrib::Keywords;
     keyword.Append('0' + m_value.u.label);
     m_value.string = PL_strdup(keyword.get());
+    CopyUTF8toUTF16(m_value.string, m_value.utf16String);
   }
   return NS_OK;
 }
@@ -1136,15 +1138,7 @@ nsresult nsMsgSearchTerm::MatchString(const nsAString &utf16StrToMatch,
   bool result = false;
 
   nsresult rv = NS_OK;
-  nsAutoString needle;
-
-  // Save some performance for opIsEmpty / opIsntEmpty
-  if(nsMsgSearchOp::IsEmpty != m_operator && nsMsgSearchOp::IsntEmpty != m_operator)
-  {
-    NS_ASSERTION(MsgIsUTF8(nsDependentCString(m_value.string)),
-                 "m_value.string is not UTF-8");
-    CopyUTF8toUTF16(nsDependentCString(m_value.string), needle);
-  }
+  auto needle = m_value.utf16String;
 
   switch (m_operator)
   {
@@ -2033,6 +2027,7 @@ nsresult nsMsgResultElement::AssignValues (nsIMsgSearchValue *src, nsMsgSearchVa
       nsString unicodeString;
       rv = src->GetStr(unicodeString);
       dst->string = ToNewUTF8String(unicodeString);
+      dst->utf16String = unicodeString;
     }
     else
       rv = NS_ERROR_INVALID_ARG;

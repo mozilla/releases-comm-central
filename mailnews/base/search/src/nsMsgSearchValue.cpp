@@ -13,7 +13,10 @@ nsMsgSearchValueImpl::nsMsgSearchValueImpl(nsMsgSearchValue *aInitialValue)
 {
     mValue = *aInitialValue;
     if (IS_STRING_ATTRIBUTE(aInitialValue->attribute) && aInitialValue->string)
+    {
         mValue.string = NS_strdup(aInitialValue->string);
+        CopyUTF8toUTF16(mValue.string, mValue.utf16String);
+    }
     else
         mValue.string = 0;
 }
@@ -59,10 +62,7 @@ NS_IMETHODIMP
 nsMsgSearchValueImpl::GetStr(nsAString &aResult)
 {
     NS_ENSURE_TRUE(IS_STRING_ATTRIBUTE(mValue.attribute), NS_ERROR_ILLEGAL_VALUE);
-    if (mValue.string)
-        CopyUTF8toUTF16(nsDependentCString(mValue.string), aResult);
-    else
-        aResult.Truncate();
+    aResult = mValue.utf16String;
     return NS_OK;
 }
 
@@ -73,6 +73,7 @@ nsMsgSearchValueImpl::SetStr(const nsAString &aValue)
     if (mValue.string)
         NS_Free(mValue.string);
     mValue.string = ToNewUTF8String(aValue);
+    mValue.utf16String = aValue;
     return NS_OK;
 }
 
@@ -81,7 +82,7 @@ nsMsgSearchValueImpl::ToString(nsAString &aResult)
 {
     aResult.AssignLiteral("[nsIMsgSearchValue: ");
     if (IS_STRING_ATTRIBUTE(mValue.attribute)) {
-        aResult.Append(NS_ConvertUTF8toUTF16(mValue.string));
+        aResult.Append(mValue.utf16String);
         return NS_OK;
     }
 
