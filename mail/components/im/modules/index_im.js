@@ -245,6 +245,18 @@ var GlodaIMIndexer = {
     Services.obs.removeObserver(this, "ui-conversation-closed");
   },
 
+  /* _knownFiles is a tree whose leaves are the last modified times of
+   * log files when they were last indexed.
+   * Each level of the tree is stored as an object. The root node is an
+   * object that maps a protocol name to an object representing the subtree
+   * for that protocol. The structure is:
+   * _knownFiles    -> protoObj      -> accountObj  -> convObj
+   * The corresponding keys of the above objects are:
+   * protocol names -> account names -> conv names  -> file names -> last modified time
+   * convObj maps ALL previously indexed log files of a chat buddy or MUC to
+   * their last modified times. Note that gloda knows nothing about log grouping
+   * done by logger.js.
+   */
   _knownFiles: {},
   _cacheSaveTimer: null,
   _scheduleCacheSave: function() {
@@ -315,14 +327,19 @@ var GlodaIMIndexer = {
     if (!(convId in this._knownConversations))
       this._knownConversations[convId] = {id: convId};
 
+    let conv = this._knownConversations[convId];
+
     Task.spawn(function* () {
-      if (!this._knownConversations[convId].logFile) {
+      if (!conv.logFile) {
         let logFile =
           yield Services.logs.getLogPathForConversation(aConversation);
         if (!logFile) {
           // Log file doesn't exist yet, nothing to do!
           return;
         }
+
+        // We initialize the _knownFiles tree path for the current file below in
+        // case it doesn't already exist.
         let folder = OS.Path.dirname(logFile);
         let convName = OS.Path.basename(folder);
         folder = OS.Path.dirname(folder);
@@ -338,32 +355,30 @@ var GlodaIMIndexer = {
         if (!Object.prototype.hasOwnProperty.call(accountObj, convName))
           accountObj[convName] = {};
 
-        this._knownConversations[convId].logFile = logFile;
-        this._knownConversations[convId].convObj = accountObj[convName];
+        conv.logFile = logFile;
+        // convObj is the penultimate level of the tree,
+        // maps file name -> last modified time
+        conv.convObj = accountObj[convName];
       }
 
-      let conv = this._knownConversations[convId];
-      let cache = conv.convObj;
-      let fileName = OS.Path.basename(conv.logFile);
-      let fileInfo = yield OS.File.stat(conv.logFile);
-      let lastModifiedTime = fileInfo.lastModificationDate.valueOf();
-      if (Object.prototype.hasOwnProperty.call(cache, fileName) &&
-          cache[fileName] == lastModifiedTime)
+      let logPath = conv.logFile;
+      let fileName = OS.Path.basename(logPath);
+      let lastModifiedTime =
+        (yield OS.File.stat(logPath)).lastModificationDate.valueOf();
+      if (Object.prototype.hasOwnProperty.call(conv.convObj, fileName) &&
+          conv.convObj[fileName] == lastModifiedTime) {
+        // The file hasn't changed since we last indexed it, so we're done.
         return;
+      }
       if (this._indexingJobPromise)
         yield this._indexingJobPromise;
       this._indexingJobPromise = new Promise(aResolve => {
         this._indexingJobCallbacks.set(convId, aResolve);
       });
-      let log = yield Services.logs.getLogFromFile(conv.logFile);
-      let logConv = yield log.getConversation();
       let job = new IndexingJob("indexIMConversation", null);
       job.conversation = conv;
-      job.log = log;
-      job.path = conv.logFile;
-      job.logConv = logConv;
+      job.path = logPath;
       GlodaIndexer.indexJob(job);
-      cache[fileName] = lastModifiedTime;
     }.bind(this)).catch(Components.utils.reportError);
 
     // Now clear the job, so we can index in the future.
@@ -436,51 +451,63 @@ var GlodaIMIndexer = {
    * the conversation in the database. This id is required to later update the
    * conversation in the database, so the caller dealing with ongoing
    * conversation has to provide the aGlodaConv parameter, while the caller
-   * dealing with old conversations doesn't care. */
-  indexIMConversation: function(aCallbackHandle, aLog, aLogConv, aCache, aGlodaConv) {
-    let fileName =  OS.Path.basename(aLog.path);
-    let isNew = !Object.prototype.hasOwnProperty.call(aCache, fileName);
+   * dealing with old conversations doesn't care.
+   * The aCache parameter is an object mapping file names to their last
+   * modified times at the time they were last indexed. The value for the file
+   * currently being indexed is updated to the aLastModifiedTime parameter's
+   * value once indexing is complete.
+   * */
+  indexIMConversation: Task.async(function* (aCallbackHandle, aLogPath, aLastModifiedTime, aCache, aGlodaConv) {
+    let log = yield Services.logs.getLogFromFile(aLogPath);
+    let logConv = yield log.getConversation();
 
     // Ignore corrupted log files.
-    if (!aLogConv)
+    if (!logConv)
       return Gloda.kWorkDone;
 
-    let content = aLogConv.getMessages()
-                          // Some messages returned, e.g. sessionstart messages,
-                          // may have the noLog flag set. Ignore these.
-                          .filter(m => !m.noLog)
-                          .map(m => {
-                            let who = m.alias || m.who;
-                            // Some messages like topic change notifications may
-                            // not have a source.
-                            let prefix = who ? who + ": " : "";
-                            return prefix + MailFolder.convertMsgSnippetToPlainText(m.message);
-                          })
-                          .join("\n\n");
+    let content = logConv.getMessages()
+                         // Some messages returned, e.g. sessionstart messages,
+                         // may have the noLog flag set. Ignore these.
+                         .filter(m => !m.noLog)
+                         .map(m => {
+                           let who = m.alias || m.who;
+                           // Some messages like topic change notifications may
+                           // not have a source.
+                           let prefix = who ? who + ": " : "";
+                           return prefix + MailFolder.convertMsgSnippetToPlainText(m.message);
+                         })
+                         .join("\n\n");
     let glodaConv;
     if (aGlodaConv && aGlodaConv.value) {
       glodaConv = aGlodaConv.value;
       glodaConv._content = content;
     }
     else {
-      glodaConv = new GlodaIMConversation(aLogConv.title, aLog.time, aLog.path, content);
+      glodaConv = new GlodaIMConversation(logConv.title, log.time, log.path, content);
       if (aGlodaConv)
         aGlodaConv.value = glodaConv;
     }
 
+    let fileName = OS.Path.basename(aLogPath);
+    let isNew = !Object.prototype.hasOwnProperty.call(aCache, fileName);
     let rv = aCallbackHandle.pushAndGo(
       Gloda.grokNounItem(glodaConv, {}, true, isNew, aCallbackHandle));
+    aCache[fileName] = aLastModifiedTime;
     this._scheduleCacheSave();
     return rv;
-  },
+  }),
 
   _worker_indexIMConversation: function(aJob, aCallbackHandle) {
     let glodaConv = {};
     if (aJob.conversation.glodaConv)
       glodaConv.value = aJob.conversation.glodaConv;
     // indexIMConversation may initiate an async grokNounItem sub-job.
-    yield this.indexIMConversation(aCallbackHandle, aJob.log, aJob.logConv,
-                                   aJob.conversation.convObj, glodaConv);
+    this.indexIMConversation(aCallbackHandle, aJob.path, aJob.lastModifiedTime,
+                             aJob.conversation.convObj, glodaConv)
+        .then(() => GlodaIndexer.callbackDriver());
+    // Tell the Indexer that we're doing async indexing. We'll be left alone
+    // until callbackDriver() is called above.
+    yield Gloda.kWorkAsync;
     // Resolve the promise for this job.
     this._indexingJobCallbacks.get(aJob.conversation.id)();
     this._indexingJobCallbacks.delete(aJob.conversation.id);
@@ -521,6 +548,8 @@ var GlodaIMIndexer = {
       }
     }
 
+    // Sweep the logs directory for log files, adding any new entries to the
+    // _knownFiles tree as we traverse.
     let children = dir.directoryEntries;
     while (children.hasMoreElements()) {
       let proto = children.getNext().QueryInterface(Ci.nsIFile);
@@ -563,10 +592,17 @@ var GlodaIMIndexer = {
     while (sessions.hasMoreElements()) {
       let file = sessions.getNext().QueryInterface(Ci.nsIFile);
       let fileName = file.leafName;
-      if (!file.isFile() || !file.isReadable() || !fileName.endsWith(".json"))
+      if (!file.isFile() || !file.isReadable() || !fileName.endsWith(".json") ||
+          (Object.prototype.hasOwnProperty.call(aJob.convObj, fileName) &&
+           aJob.convObj[fileName] == file.lastModifiedTime))
         continue;
       // indexIMConversation may initiate an async grokNounItem sub-job.
-      yield this.indexIMConversation(aCallbackHandle, file, aJob.convObj);
+      this.indexIMConversation(aCallbackHandle, file.path,
+                               file.lastModifiedTime, aJob.convObj)
+          .then(() => GlodaIndexer.callbackDriver());
+      // Tell the Indexer that we're doing async indexing. We'll be left alone
+      // until callbackDriver() is called above.
+      yield Gloda.kWorkAsync;
     }
     yield Gloda.kWorkDone;
   },
