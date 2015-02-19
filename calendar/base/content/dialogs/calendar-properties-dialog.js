@@ -17,12 +17,10 @@ let gCalendar;
  */
 function onLoad() {
     gCalendar = window.arguments[0].calendar;
+    let calColor = gCalendar.getProperty('color');
 
     document.getElementById("calendar-name").value = gCalendar.name;
-    let calColor = gCalendar.getProperty('color');
-    if (calColor) {
-       document.getElementById("calendar-color").color = calColor;
-    }
+    document.getElementById("calendar-color").value = calColor || "#A8C2E1";
     document.getElementById("calendar-uri").value = gCalendar.uri.spec;
     document.getElementById("read-only").checked = gCalendar.readOnly;
 
@@ -78,7 +76,7 @@ function onAcceptDialog() {
     gCalendar.name = document.getElementById("calendar-name").value;
 
     // Save calendar color
-    gCalendar.setProperty("color", document.getElementById("calendar-color").color);
+    gCalendar.setProperty("color", document.getElementById("calendar-color").value);
 
     // Save readonly state
     gCalendar.readOnly = document.getElementById("read-only").checked;

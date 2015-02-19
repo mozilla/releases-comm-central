@@ -15,6 +15,7 @@
         title="&wizard.title;"
         windowtype="Calendar:NewCalendarWizard"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         onwizardfinish=""
         persist="screenX screenY">
 
@@ -109,10 +110,10 @@
                 <row id="customize-color-row" align="center">
                     <label value="&calendarproperties.color.label;" control="calendar-color"/>
                     <hbox align="center">
-                        <colorpicker id="calendar-color"
-                                     class="small-margin"
-                                     type="button"
-                                     palettename="standard"/>
+                        <html:input id="calendar-color"
+                                    class="small-margin"
+                                    type="color"
+                                    palettename="standard"/>
                     </hbox>
                 </row>
                 <row id="customize-suppressAlarms-row" align="center">

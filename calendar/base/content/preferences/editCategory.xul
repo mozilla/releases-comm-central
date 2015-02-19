@@ -15,6 +15,7 @@
 
 <dialog id="editCategory"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         buttons="accept,cancel"
         onload="editCategoryLoad();"
         ondialogaccept="return doOK();">
@@ -22,17 +23,19 @@
 
   <!-- dialog-box: from dialogOverlay.xul -->
   <vbox id="dialog-box">
-    <hbox>
+    <hbox align="center">
       <label value="&pref.categories.name.label;" control="categoryName"/>
-      <textbox id="categoryName"/>
+      <textbox id="categoryName" onchange="categoryNameChanged()" oninput="delay(500, categoryNameChanged)"/>
     </hbox>
-    <hbox id="row2" pack="center">
+    <hbox id="row2">
       <checkbox id="useColor"
                 label="&pref.categories.usecolor.label;"
-                oncommand="toggleColor()"/>
-      <colorpicker id="categoryColor"
-                   type="button"
-                   onchange="colorPickerChanged()"/>
+                oncommand="toggleColor(); categoryNameChanged()"/>
+      <html:input id="categoryColor"
+                  type="color"
+                  style="width: 64px; height: 23px"
+                  onclick="clickColor()"
+                  onchange="colorPickerChanged()"/>
     </hbox>
   </vbox>
 </dialog>

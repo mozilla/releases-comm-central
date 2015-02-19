@@ -35,6 +35,7 @@ function initCustomizePage() {
     let suppressAlarmsRow = document.getElementById("customize-suppressAlarms-row");
     suppressAlarmsRow.hidden =
         (gCalendar && gCalendar.getProperty("capabilities.alarms.popup.supported") === false);
+    document.getElementById("calendar-color").value = "#A8C2E1";
 }
 
 /**
@@ -166,7 +167,7 @@ function prepareCreateCalendar() {
  */
 function doCreateCalendar() {
     let cal_name = document.getElementById("calendar-name").value;
-    let cal_color = document.getElementById('calendar-color').color;
+    let cal_color = document.getElementById("calendar-color").value;
 
     gCalendar.name = cal_name;
     gCalendar.setProperty('color', cal_color);
