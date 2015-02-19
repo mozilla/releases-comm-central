@@ -40,8 +40,6 @@
          title="&prefWindow.titleMAC;">
 #endif
 #endif
-  <xhtml:link rel="shortcut icon"
-              href="chrome://mozapps/skin/extensions/utilities.png"/>
 
   <stringbundle id="bundleBrand" src="chrome://branding/locale/brand.properties"/>
   <stringbundle id="bundlePreferences"

@@ -40,6 +40,10 @@
   z-index: 2;
 }
 
+.tabmail-tab[type="preferencesTab"] {
+  list-style-image: url("chrome://mozapps/skin/extensions/utilities.svg#utilities");
+}
+
 .tab-background-middle {
   -moz-box-flex: 1;
   background-clip: padding-box;
