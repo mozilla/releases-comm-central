@@ -458,7 +458,7 @@ pref("mail.tabs.closeWindowWithLastTab", true);
 pref("mail.tabs.closeButtons", 1);
 
 // Allow the tabs to be in the titlebar on supported systems
-#ifdef XP_MACOSX
+#ifdef UNIX_BUT_NOT_MAC
 pref("mail.tabs.drawInTitlebar", false);
 #else
 pref("mail.tabs.drawInTitlebar", true);
