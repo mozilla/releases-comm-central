@@ -48,7 +48,7 @@ nsStatusBarBiffManager::~nsStatusBarBiffManager()
 #define SYSTEM_SOUND_TYPE 0
 #define CUSTOM_SOUND_TYPE 1
 #define PREF_CHAT_ENABLED                "mail.chat.enabled"
-#define NEW_CHAT_MESSAGE_TOPIC           "new-directed-incoming-message"
+#define PLAY_CHAT_NOTIFICATION_SOUND     "play-chat-notification-sound"
 
 nsresult nsStatusBarBiffManager::Init()
 {
@@ -74,7 +74,7 @@ nsresult nsStatusBarBiffManager::Init()
     nsCOMPtr<nsIObserverService> observerService =
       mozilla::services::GetObserverService();
     if (observerService)
-      observerService->AddObserver(this, NEW_CHAT_MESSAGE_TOPIC, false);
+      observerService->AddObserver(this, PLAY_CHAT_NOTIFICATION_SOUND, false);
   }
 
   mInitialized = true;
