@@ -820,6 +820,8 @@ const GenericProtocolPrototype = {
     this.commands.forEach(function(command) {
       if (!command.hasOwnProperty("name") || !command.hasOwnProperty("run"))
         throw "Every command must have a name and a run function.";
+      if (!("QueryInterface" in command))
+        command.QueryInterface = XPCOMUtils.generateQI([Ci.imICommand]);
       if (!command.hasOwnProperty("usageContext"))
         command.usageContext = Ci.imICommand.CMD_CONTEXT_ALL;
       if (!command.hasOwnProperty("priority"))
