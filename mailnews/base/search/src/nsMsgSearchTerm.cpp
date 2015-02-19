@@ -1206,6 +1206,14 @@ NS_IMETHODIMP nsMsgSearchTerm::MatchRfc822String(const nsACString &string,
   GetMatchAllBeforeDeciding(&boolContinueLoop);
   result = boolContinueLoop;
 
+  // If the operator is Contains, then we can cheat and avoid having to parse
+  // addresses. This does open up potential spurious matches for punctuation
+  // (e.g., ; or <), but the likelihood of users intending to search for these
+  // and also being able to match them is rather low. This optimization is not
+  // applicable to any other search type.
+  if (m_operator == nsMsgSearchOp::Contains)
+    return MatchRfc2047String(string, charset, false, pResult);
+
   nsTArray<nsString> names, addresses;
   ExtractAllAddresses(EncodedHeader(string, charset), names, addresses);
   uint32_t count = names.Length();
