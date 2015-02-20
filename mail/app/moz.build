@@ -53,8 +53,6 @@ if CONFIG['MOZILLA_OFFICIAL']:
 
 DISABLE_STL_WRAPPING = True
 
-JAR_MANIFESTS += ['jar.mn']
-
 JS_PREFERENCE_FILES += [
     'profile/all-thunderbird.js',
     'profile/channel-prefs.js',
