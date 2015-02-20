@@ -45,6 +45,7 @@
       <![CDATA[
        let textbox = this.editor;
        textbox.addEventListener("keypress", this.inputKeyPress.bind(this));
+       textbox.addEventListener("input", this.inputValueChanged.bind(this));
        textbox.addEventListener("overflow", this.inputExpand.bind(this), true);
        textbox.addEventListener("underflow", this._onTextboxUnderflow, true);
 
@@ -204,12 +205,14 @@
           return;
         }
 
-/*
         if (isUnreadMessage && (!aMsg.conversation.isChat || aMsg.containsNick)) {
+          this._lastPing = aMsg.who;
+          this._lastPingTime = aMsg.time;
+/*
           if (Services.prefs.getBoolPref("messenger.options.getAttentionOnNewMessages"))
             window.getAttention();
-        }
 */
+        }
 
         if (isTabFocused) {
           // Porting note: This will mark the conv as read, but also update
@@ -461,21 +464,98 @@
           return;
         }
 
+        // Undo tab complete.
+        if (this._completions && event.keyCode == KeyEvent.DOM_VK_BACK_SPACE &&
+            !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+          if (text == this._beforeTabComplete) {
+            // Nothing to undo, so let backspace act normally.
+            delete this._completions;
+          }
+          else {
+            event.preventDefault();
+
+            // First undo the comma separating multiple nicks or the suffix.
+            // More than one nick:
+            //   "nick1, nick2: " -> "nick1: nick2"
+            // Single nick: remove the suffix
+            //   "nick1: " -> "nick1"
+            let pos = inputBox.selectionStart;
+            const suffix = ": ";
+            if (pos > suffix.length &&
+                text.substring(pos - suffix.length, pos) == suffix) {
+              let completions = [b for (b of this.buddies.keys())];
+              // Check if the preceding words are a sequence of nick completions.
+              let preceding = text.substring(0, pos - suffix.length).split(", ");
+              if (preceding.every(n => completions.includes(n))) {
+                let s = preceding.pop();
+                if (preceding.length)
+                  s = suffix + s;
+                inputBox.selectionStart -= s.length + suffix.length;
+                this.addString(s);
+                if (this._completions[0].slice(-suffix.length) == suffix) {
+                  this._completions =
+                    this._completions.map(function(c) c.slice(0, -suffix.length));
+                }
+                if (this._completions.length == 1 &&
+                    inputBox.value == this._beforeTabComplete) {
+                  // Nothing left to undo or to cycle through.
+                  delete this._completions;
+                }
+                return;
+              }
+            }
+
+            // Full undo.
+            inputBox.selectionStart = 0;
+            this.addString(this._beforeTabComplete);
+            delete this._completions;
+            return;
+          }
+        }
+
+        // Tab complete.
         // Keep the default behavior of the tab key if the input box
         // is empty or a modifier is used.
         if (event.keyCode == KeyEvent.DOM_VK_TAB && text.length != 0 &&
-            !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+            !event.altKey && !event.ctrlKey && !event.metaKey &&
+            (!event.shiftKey || this._completions)) {
           event.preventDefault();
+
+          if (this._completions) {
+            // Tab has been pressed more than once.
+            if (this._completions.length == 1)
+              return;
+            if (this._shouldListCompletionsLater) {
+              this._conv.systemMessage(this._shouldListCompletionsLater);
+              delete this._shouldListCompletionsLater;
+            }
+
+            inputBox.selectionStart = this._completionsStart;
+            if (event.shiftKey) {
+              // Reverse cycle completions.
+              this._completionsIndex -= 2;
+              if (this._completionsIndex < 0)
+                this._completionsIndex += this._completions.length;
+            }
+            this.addString(this._completions[this._completionsIndex++]);
+            this._completionsIndex %= this._completions.length;
+            return;
+          }
 
           let completions = [];
           let firstWordSuffix = " ";
-          let word = text.substring(0, inputBox.selectionStart).match(/\S*$/)[0];
+          let secondNick = false;
+
+          // Second regex result will contain word without leading special characters.
+          this._beforeTabComplete = text.substring(0, inputBox.selectionStart);
+          let words = this._beforeTabComplete.match(/\S*?([\w-]+)?$/);
+          let word = words[0];
           if (!word)
             return;
-
           let isFirstWord = inputBox.selectionStart == word.length;
-          // check if we are completing a command.
-          let completingCommand = isFirstWord && word.startsWith("/");
+
+          // Check if we are completing a command.
+          let completingCommand = isFirstWord && word[0] == "/";
           if (completingCommand) {
             for each (let cmd in Services.cmd.listCommandsForConversation(this._conv)) {
               // It's possible to have a global and a protocol specific command
@@ -490,118 +570,174 @@
             if (!this._conv.isChat)
               return;
 
-            // Twitter username mentions start with "@".
-            // TODO: find a less prpl-specific way to handle username prefixes.
-            if (this._conv.account.protocol.id == "prpl-twitter") {
-              if (word[0] != "@")
-                return;
-              word = word.substring(1);
-            }
-            else
-              firstWordSuffix = ": ";
+            firstWordSuffix = ": ";
 
             completions = [b for (b of this.buddies.keys())];
+
+/*
+            // Add recently parted nicks.
+            const kIncludeNickTimespan = 300000;
+            let cutoffTime = Date.now() - kIncludeNickTimespan;
+            let partedNicks = Object.keys(this.partedBuddies);
+            let j = partedNicks.length - 1;
+            while (j >= 0 &&
+                   this.partedBuddies[partedNicks[j]].partTime > cutoffTime)
+              --j;
+            ++j; // Index of the first nick we want to keep.
+            if (partedNicks.length > j)
+              completions = completions.concat(partedNicks.slice(j));
+*/
+
             let outgoingNick = this._conv.nick;
             completions = completions.filter(function(c) c != outgoingNick);
+
+            // Check if the preceding words are a sequence of nick completions.
+            let wordStart = inputBox.selectionStart - word.length;
+            if (wordStart > 2) {
+              let separator = text.substring(wordStart - 2, wordStart);
+              if (separator == ": " || separator == ", ") {
+                let preceding = text.substring(0, wordStart - 2).split(", ");
+                if (preceding.every(n => completions.includes(n))) {
+                  secondNick = true;
+                  isFirstWord = true;
+                  // Remove preceding completions from possible completions.
+                  completions = completions.filter(c => !preceding.includes(c));
+                }
+              }
+            }
           }
 
           // Keep only the completions that share |word| as a prefix.
           // Be case insensitive only if |word| is entirely lower case.
           let condition;
           if (word.toLocaleLowerCase() == word)
-            condition = function(c) c.toLocaleLowerCase().startsWith(word);
+            condition = c => c.toLocaleLowerCase().startsWith(word);
           else
-            condition = function(c) c.startsWith(word);
-          completions = completions.filter(condition);
-          if (completions.length == 0)
+            condition = c => c.startsWith(word);
+          let matchingCompletions = completions.filter(condition);
+          if (!matchingCompletions.length && words[1]) {
+            word = words[1];
+            firstWordSuffix = " ";
+            matchingCompletions = completions.filter(condition);
+          }
+          if (!matchingCompletions.length)
             return;
 
-          if (this._conv.isChat && !completingCommand) {
-            // If only one of the possible completions is an active nick, take it.
-            let activeNick = null;
-            for each (let c in completions) {
-              if (this.buddies.has(c) &&
-                  !this.buddies.get(c).hasAttribute("inactive")) {
-                if (!activeNick)
-                  activeNick = c;
-                else {
-                  activeNick = null;
-                  break;
-                }
+          // If the cursor is in the middle of a word, and the word is a nick,
+          // there is no need to complete - just jump to the end of the nick.
+          let wholeWord = text.substring(inputBox.selectionStart - word.length);
+          for each (let completion in matchingCompletions) {
+            if (wholeWord.lastIndexOf(completion, 0) == 0) {
+              let moveCursor = completion.length - word.length;
+              inputBox.selectionStart += moveCursor;
+              let separator = text.substring(inputBox.selectionStart,
+                                             inputBox.selectionStart + 2);
+              if (separator == ": " || separator == ", ")
+                inputBox.selectionStart += 2;
+              else if (!moveCursor) {
+                // If we're already at the end of a nick, carry on to display
+                // a list of possible alternatives and/or apply punctuation.
+                break;
               }
-            }
-            if (activeNick)
-              completions = [activeNick];
-          }
-
-          // Only one possible completion? Apply it! :-)
-          // Replace what the user typed as its upper/lowercase may not be correct.
-          if (completions.length == 1) {
-            inputBox.selectionStart -= word.length;
-            this.addString(completions[0] + (isFirstWord ? firstWordSuffix : " "));
-            return;
-          }
-
-          // We have several possible completions, attempt to find a common prefix.
-          completions.sort();
-          let i = 0;
-          let maxLength = Math.min(completions[0].length,
-                                   completions[completions.length - 1].length);
-          while (i < maxLength &&
-                 completions[0][i] == completions[completions.length - 1][i])
-            ++i;
-
-          // Apply the common prefix, if any.
-          if (i > 0) {
-            inputBox.selectionStart -= word.length;
-            this.addString(completions[0].substring(0, i));
-          }
-
-          // Finally, display the possible completions in a system message.
-          this._conv.systemMessage(completions.join(" "));
-          return;
-        }
-
-        // Handle typing notifications / character count.
-        if (event.keyCode != 13) {
-          setTimeout((function () {
-            // By the time the timeout is executed, the conversation may have
-            // been closed.
-            if (!this._conv)
               return;
-
-            let text = inputBox.value;
-
-            // try to avoid sending typing notifications when the user is
-            // typing a command in the conversation.
-            // These checks are not perfect (especially if non-existing
-            // commands are sent as regular messages on the in-use prpl).
-            let left = Ci.prplIConversation.NO_TYPING_LIMIT;
-            if (!text.startsWith("/"))
-              left = this._conv.sendTyping(text);
-            else if (/^\/me /.test(text))
-              left = this._conv.sendTyping(text.slice(4));
-
-            let charCounter = this.getElt("charCounter");
-
-            // When the input box is cleared or there is no character limit,
-            // don't show the character limit.
-            if (left == Ci.prplIConversation.NO_TYPING_LIMIT || !text.length) {
-              charCounter.setAttribute("value", "");
-              inputBox.removeAttribute("invalidInput");
             }
+          }
+
+          // We have possible completions!
+          this._completions = matchingCompletions.sort();
+          this._completionsIndex = 0;
+          // Save now the first and last completions in alphabetical order,
+          // as we will need them to find a common prefix. However they may
+          // not be the first and last completions in the list of completions
+          // actually exposed to the user, as if there are active nicks
+          // they will be moved to the beginning of the list.
+          let firstCompletion = this._completions[0];
+          let lastCompletion = this._completions.slice(-1)[0];
+
+          let preferredNick = false;
+          if (this._conv.isChat && !completingCommand) {
+            // If there are active nicks, prefer those.
+            let activeCompletions = this._completions.filter(function(c)
+              this.buddies.has(c) &&
+              !this.buddies.get(c).hasAttribute("inactive"), this);
+            if (activeCompletions.length == 1)
+              preferredNick = true;
+            if (activeCompletions.length) {
+              // Move active nicks to the front of the queue.
+              activeCompletions.reverse();
+              activeCompletions.forEach(function(c) {
+                this._completions.splice(this._completions.indexOf(c), 1);
+                this._completions.unshift(c);
+              }, this);
+            }
+
+            // If one of the completions is the sender of the last ping,
+            // take it, if it was less than an hour ago.
+            if (this._lastPing && this.buddies.has(this._lastPing) &&
+                this._completions.includes(this._lastPing) &&
+                (Date.now() / 1000 - this._lastPingTime) < 3600) {
+              preferredNick = true;
+              this._completionsIndex = this._completions.indexOf(this._lastPing);
+            }
+          }
+
+          // Display the possible completions in a system message.
+          delete this._shouldListCompletionsLater;
+          if (this._completions.length > 1) {
+            let completionsList = this._completions.join(" ");
+            if (preferredNick) {
+              // If we have a preferred nick (which is completed as a whole
+              // even if there are alternatives), only show the list of
+              // completions on the next <tab> press.
+              this._shouldListCompletionsLater = completionsList;
+            }
+            else
+              this._conv.systemMessage(completionsList);
+          }
+
+          let suffix = (isFirstWord ? firstWordSuffix : "");
+          this._completions = this._completions.map(function(c) c + suffix);
+
+          let completion;
+          if (this._completions.length == 1 || preferredNick) {
+            // Only one possible completion? Apply it! :-)
+            completion = this._completions[this._completionsIndex++];
+            this._completionsIndex %= this._completions.length;
+          }
+          else {
+            // We have several possible completions, attempt to find a common prefix.
+            let maxLength = Math.min(firstCompletion.length, lastCompletion.length);
+            let i = 0;
+            while (i < maxLength && firstCompletion[i] == lastCompletion[i])
+              ++i;
+
+            if (i)
+              completion = firstCompletion.substring(0, i);
             else {
-              // 200 is a 'magic' constant to avoid showing big numbers.
-              charCounter.setAttribute("value", (left < 200 ? left : ""));
-
-              if (left >= 0)
-                inputBox.removeAttribute("invalidInput");
-              else if (left < 0)
-                inputBox.setAttribute("invalidInput", "true");
+              // Include this case so that secondNick is applied anyway,
+              // in case a completion is added by another tab press.
+              completion = word;
             }
-          }).bind(this), 0);
-          return;
+          }
+
+          // Always replace what the user typed as its upper/lowercase may
+          // not be correct.
+          inputBox.selectionStart -= word.length;
+          this._completionsStart = inputBox.selectionStart;
+
+          if (secondNick) {
+            // Replace the trailing colon with a comma before the completed nick.
+            inputBox.selectionStart -= 2;
+            completion = ", " + completion;
+          }
+
+          this.addString(completion);
         }
+        else if (this._completions)
+          delete this._completions;
+
+        if (event.keyCode != 13)
+          return;
 
         if (!event.ctrlKey && !event.shiftKey && !event.altKey) {
           // Prevent the default action before calling sendMsg to avoid having
@@ -613,6 +749,67 @@
           this.addString("\n");
       ]]>
       </body>
+     </method>
+
+     <field name="_pendingValueChangedCall">false</field>
+     <method name="inputValueChanged">
+       <body>
+       <![CDATA[
+         // Delaying typing notifications will avoid sending several updates in
+         // a row if the user is on a slow or overloaded machine that has
+         // trouble to handle keystrokes in a timely fashion.
+         // Make sure only one typing notification call can be pending.
+         if (this._pendingValueChangedCall)
+           return;
+
+         this._pendingValueChangedCall = true;
+         Services.tm.mainThread.dispatch(this.delayedInputValueChanged.bind(this),
+                                         Ci.nsIEventTarget.DISPATCH_NORMAL);
+       ]]>
+       </body>
+     </method>
+
+     <method name="delayedInputValueChanged">
+       <body>
+       <![CDATA[
+         this._pendingValueChangedCall = false;
+
+         // By the time this function is executed, the conversation may have
+         // been closed.
+         if (!this._conv)
+           return;
+
+         let inputBox = this.editor;
+         let text = inputBox.value;
+
+         // Try to avoid sending typing notifications when the user is
+         // typing a command in the conversation.
+         // These checks are not perfect (especially if non-existing
+         // commands are sent as regular messages on the in-use prpl).
+         let left = Ci.prplIConversation.NO_TYPING_LIMIT;
+         if (!text.startsWith("/"))
+           left = this._conv.sendTyping(text);
+         else if (/^\/me /.test(text))
+           left = this._conv.sendTyping(text.slice(4));
+
+         // When the input box is cleared or there is no character limit,
+         // don't show the character limit.
+         let charCounter = this.getElt("charCounter");
+         if (left == Ci.prplIConversation.NO_TYPING_LIMIT || !text.length) {
+           charCounter.setAttribute("value", "");
+           inputBox.removeAttribute("invalidInput");
+         }
+         else {
+           // 200 is a 'magic' constant to avoid showing big numbers.
+           charCounter.setAttribute("value", (left < 200 ? left : ""));
+
+           if (left >= 0)
+             inputBox.removeAttribute("invalidInput");
+           else if (left < 0)
+             inputBox.setAttribute("invalidInput", "true");
+         }
+       ]]>
+       </body>
      </method>
 
      <method name="resetInput">
@@ -816,6 +1013,7 @@
          editor.value = editor.value.substr(0, editor.selectionStart) + aString +
                         editor.value.substr(editor.selectionEnd);
          editor.selectionStart = editor.selectionEnd = cursorPosition;
+         this.inputValueChanged();
        ]]>
        </body>
      </method>
@@ -829,6 +1027,7 @@
          if (!currentEditorValue.startsWith(aPrompt))
            editor.value = aPrompt + currentEditorValue;
          editor.focus();
+         this.inputValueChanged();
        ]]>
        </body>
      </method>
