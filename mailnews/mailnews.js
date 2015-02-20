@@ -460,6 +460,9 @@ pref("mail.server.default.offline_download",true);
 // -1 means no limit, no purging of offline stores.
 pref("mail.server.default.autosync_max_age_days", -1);
 
+// can we change the store type?
+pref("mail.server.default.canChangeStoreType", false);
+
 // This is the default store contractID for newly created servers.
 // We don't use mail.server.default because we want to ensure that the
 // store contract id is always written out to prefs.js

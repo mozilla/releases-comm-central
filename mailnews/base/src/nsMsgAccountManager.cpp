@@ -464,6 +464,10 @@ nsMsgAccountManager::CreateIncomingServer(const nsACString&  username,
     nsCString defaultStore;
     m_prefs->GetCharPref("mail.serverDefaultStoreContractID", getter_Copies(defaultStore));
     (*_retval)->SetCharValue("storeContractID", defaultStore);
+
+    // From when we first create the account until we have created some folders,
+    // we can change the store type.
+    (*_retval)->SetBoolValue("canChangeStoreType", true);
   }
   return rv;
 }
