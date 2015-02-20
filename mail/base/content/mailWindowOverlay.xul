@@ -132,6 +132,7 @@
    <command id="cmd_viewWideMailLayout" oncommand="goDoCommand('cmd_viewWideMailLayout')" disabled="true"/>
    <command id="cmd_viewVerticalMailLayout" oncommand="goDoCommand('cmd_viewVerticalMailLayout')" disabled="true"/>
    <command id="cmd_toggleFolderPane" oncommand="goDoCommand('cmd_toggleFolderPane')" disabled="true"/>
+   <command id="cmd_toggleFolderPaneCols" oncommand="goDoCommand('cmd_toggleFolderPaneCols')" disabled="true"/>
    <command id="cmd_toggleMessagePane" oncommand="goDoCommand('cmd_toggleMessagePane')" disabled="true"/>
    <command id="cmd_viewAllMsgs" oncommand="goDoCommand('cmd_viewAllMsgs')" disabled="true"/>
    <command id="cmd_viewUnreadMsgs" oncommand="goDoCommand('cmd_viewUnreadMsgs')" disabled="true"/>
@@ -901,7 +902,7 @@
   </menupopup>
 
   <menupopup id="folderPaneContext"
-             onpopupshowing="return fillFolderPaneContextMenu();"
+             onpopupshowing="return fillFolderPaneContextMenu(event);"
              onpopuphiding="if (event.target == this) folderPaneOnPopupHiding();">
     <menuitem id="folderPaneContext-getMessages"
               label="&folderContextGetMessages.label;"
@@ -1346,6 +1347,10 @@
                           type="checkbox"
                           label="&showFolderPaneCmd.label;"
                           command="cmd_toggleFolderPane"/>
+                <menuitem id="appmenu_showFolderPaneCols"
+                          type="checkbox"
+                          label="&showFolderPaneColsCmd.label;"
+                          command="cmd_toggleFolderPaneCols"/>
                 <menuitem id="appmenu_showMessage"
                           type="checkbox"
                           label="&showMessageCmd.label;"
@@ -2368,6 +2373,8 @@
             <menuseparator id="viewMenuAfterPaneVerticalSeparator"/>
             <menuitem id="menu_showFolderPane" type="checkbox" label="&showFolderPaneCmd.label;"
                       accesskey="&showFolderPaneCmd.accesskey;" command="cmd_toggleFolderPane"/>
+            <menuitem id="menu_showFolderPaneCols" type="checkbox" label="&showFolderPaneColsCmd.label;"
+                      accesskey="&showFolderPaneColsCmd.accesskey;" command="cmd_toggleFolderPaneCols"/>
             <menuitem id="menu_showMessage" type="checkbox" label="&showMessageCmd.label;" key="key_toggleMessagePane"
                       accesskey="&showMessageCmd.accesskey;" command="cmd_toggleMessagePane"/>
           </menupopup>

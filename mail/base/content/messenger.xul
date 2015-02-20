@@ -362,7 +362,7 @@
 
           <box id="messengerBox" orient="horizontal" flex="1" minheight="100" height="100" persist="height">
             <vbox id="folderPaneBox" minwidth="125" width="200" persist="width">
-              <label id="folderColumnLabel" hidden="true" value="&folderColumn.label;"/>
+              <label id="folderColumnLabel" hidden="true" value="&folderNameColumn.label;"/>
               <sidebarheader id="folderPaneHeader" hidden="true" align="center">
                 <label id="folderpane-title" crop="end" flex="1"/>
                 <toolbarbutton id="folderview-cycler-prev"
@@ -386,14 +386,40 @@
                     onselect="FolderPaneSelectionChange();">
                 <treecols id="folderPaneCols">
                   <treecol id="folderNameCol"
+                           label2="&folderNameColumn.label;"
                            flex="5"
                            crop="center"
                            persist="width"
                            hideheader="true"
                            ignoreincolumnpicker="true"
-                           primary="true"
-                           sortActive="true"
-                           sortDirection="ascending"/>
+                           primary="true"/>
+                  <splitter class="tree-splitter"/>
+                  <treecol id="folderUnreadCol"
+                           label2="&folderUnreadColumn.label;"
+                           tooltiptext="&folderUnreadColumn.label;"
+                           hideheader="true"
+                           hidden="true"
+                           persist="width hidden"
+                           width="50"
+                           selectable="false"/>
+                  <splitter class="tree-splitter"/>
+                  <treecol id="folderTotalCol"
+                           label2="&folderTotalColumn.label;"
+                           tooltiptext="&folderTotalColumn.label;"
+                           hideheader="true"
+                           hidden="true"
+                           persist="width hidden"
+                           width="50"
+                           selectable="false"/>
+                  <splitter class="tree-splitter"/>
+                  <treecol id="folderSizeCol"
+                           label2="&folderSizeColumn.label;"
+                           tooltiptext="&folderSizeColumn.label;"
+                           hideheader="true"
+                           hidden="true"
+                           persist="width hidden"
+                           width="50"
+                           selectable="false"/>
                 </treecols>
                 <treechildren tooltip="folderpopup"
                               onoverflow="document.getElementById('folderPaneHeader').setAttribute('overflowing', 'true');"

@@ -225,6 +225,14 @@ pref("mail.spellcheck.inline", true);
 
 pref("mail.folder.views.version", 0);
 
+pref("mail.folderpane.showColumns", false);
+// Force the unit shown for the size of all folders. If empty, the unit
+// is determined automatically for each folder. Allowed values: KB/MB/<empty string>
+pref("mail.folderpane.sizeUnits", "");
+// Summarize messages count and size of subfolders into a collapsed parent?
+// Allowed values: true/false
+pref("mail.folderpane.sumSubfolders", true);
+
 // target folder URI used for the last move or copy
 pref("mail.last_msg_movecopy_target_uri", "");
 // last move or copy operation was a move

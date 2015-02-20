@@ -761,8 +761,14 @@ NS_IMETHODIMP nsMsgNewsFolder::GetSizeOnDisk(int64_t *size)
 {
   NS_ENSURE_ARG_POINTER(size);
 
+  bool isServer = false;
+  nsresult rv = GetIsServer(&isServer);
+  // If this is the rootFolder, return 0 as a safe value.
+  if (NS_FAILED(rv) || isServer)
+    mFolderSize = 0;
+
   // 0 is a valid folder size (meaning empty file with no offline messages),
-  // but 1 is not. So use 1 as a special value meaning no file size was fetched
+  // but 1 is not. So use -1 as a special value meaning no file size was fetched
   // from disk yet.
   if (mFolderSize == kSizeUnknown)
   {

@@ -4192,7 +4192,11 @@ NS_IMETHODIMP nsMsgDBFolder::GetNumUnread(bool deep, int32_t *numUnread)
 {
   NS_ENSURE_ARG_POINTER(numUnread);
 
-  int32_t total = mNumUnreadMessages + mNumPendingUnreadMessages;
+  bool isServer = false;
+  nsresult rv = GetIsServer(&isServer);
+  NS_ENSURE_SUCCESS(rv, rv);
+  int32_t total = isServer ? 0 : mNumUnreadMessages + mNumPendingUnreadMessages;
+
   if (deep)
   {
     if (total < 0) // deep search never returns negative counts
@@ -4219,7 +4223,11 @@ NS_IMETHODIMP nsMsgDBFolder::GetTotalMessages(bool deep, int32_t *totalMessages)
 {
   NS_ENSURE_ARG_POINTER(totalMessages);
 
-  int32_t total = mNumTotalMessages + mNumPendingTotalMessages;
+  bool isServer = false;
+  nsresult rv = GetIsServer(&isServer);
+  NS_ENSURE_SUCCESS(rv, rv);
+  int32_t total = isServer ? 0 : mNumTotalMessages + mNumPendingTotalMessages;
+
   if (deep)
   {
     if (total < 0) // deep search never returns negative counts

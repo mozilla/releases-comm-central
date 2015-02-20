@@ -1766,6 +1766,13 @@ NS_IMETHODIMP nsImapMailFolder::GetDeletable (bool *deletable)
 NS_IMETHODIMP nsImapMailFolder::GetSizeOnDisk(int64_t *size)
 {
   NS_ENSURE_ARG_POINTER(size);
+
+  bool isServer = false;
+  nsresult rv = GetIsServer(&isServer);
+  // If this is the rootFolder, return 0 as a safe value.
+  if (NS_FAILED(rv) || isServer)
+    mFolderSize = 0;
+
   *size = mFolderSize;
   return NS_OK;
 }

@@ -117,6 +117,8 @@ let IFolderTreeMode = {
  * implementation, as well as other control functions.
  */
 let gFolderTreeView = {
+  messengerBundle: null,
+
   /**
    * Called when the window is initially loaded.  This function initializes the
    * folder-pane to the view last shown before the application was closed.
@@ -125,6 +127,7 @@ let gFolderTreeView = {
     const Cc = Components.classes;
     const Ci = Components.interfaces;
     this._treeElement = aTree;
+    this.messengerBundle = document.getElementById("bundle_messenger");
 
     // the folder pane can be used for other trees which may not have these elements.
     if (document.getElementById("folderpane_splitter"))
@@ -149,7 +152,7 @@ let gFolderTreeView = {
           string = this._modeDisplayNames[this.mode];
         else {
           let key = "folderPaneModeHeader_" + this.mode;
-          string = document.getElementById("bundle_messenger").getString(key);
+          string = this.messengerBundle.getString(key);
         }
       document.getElementById('folderpane-title').value = string;
     }
@@ -177,8 +180,8 @@ let gFolderTreeView = {
           this._persistOpenMap = JSON.parse(data);
         } catch (x) {
           Components.utils.reportError(
-            document.getElementById("bundle_messenger")
-                    .getFormattedString("failedToReadFile", [aJSONFile, x]));
+            gFolderTreeView.messengerBundle
+                           .getFormattedString("failedToReadFile", [aJSONFile, x]));
         }
       }
     }
@@ -188,6 +191,9 @@ let gFolderTreeView = {
     this._rebuild();
     // And actually draw the tree
     aTree.view = this;
+
+    this.toggleCols(true);
+    gFolderStatsHelpers.init();
 
     // Add this listener so that we can update the tree when things change
     MailServices.mailSession.AddFolderListener(this, Ci.nsIFolderListener.all);
@@ -301,6 +307,35 @@ let gFolderTreeView = {
   },
 
   /**
+   * Toggle displaying the headers of columns in the folder pane.
+   * @param aSetup  Set to true if the columns should be set up according
+   *                to the pref, not toggle them.
+   */
+  toggleCols: function(aSetup = false) {
+    let hide = Services.prefs.getBoolPref("mail.folderpane.showColumns");
+    if (aSetup)
+      hide = !hide;
+    this._treeElement.setAttribute("hidecolumnpicker", hide ? "true" : "false");
+    for (let columnName of ["folderNameCol", "folderUnreadCol",
+                            "folderTotalCol", "folderSizeCol"])
+    {
+      let column = document.getElementById(columnName);
+      if (hide) {
+        column.setAttribute("hideheader", "true");
+        column.removeAttribute("label");
+        if (columnName != "folderNameCol")
+          column.setAttribute("hidden", "true");
+      } else {
+        column.setAttribute("label", column.getAttribute("label2"));
+        column.setAttribute("hideheader", "false");
+      }
+    }
+
+    if (!aSetup)
+      Services.prefs.setBoolPref("mail.folderpane.showColumns", !hide);
+  },
+
+  /**
    * Toggles the compact view of the current mode.
    *
    * @param aCompact  Boolean telling whether compact view should be enabled.
@@ -392,7 +427,7 @@ let gFolderTreeView = {
       string = this._modeDisplayNames[this._mode];
     else {
       let key = "folderPaneModeHeader_" + this._mode;
-      string = document.getElementById("bundle_messenger").getString(key);
+      string = gFolderTreeView.messengerBundle.getString(key);
     }
     document.getElementById('folderpane-title').value = string;
 
@@ -832,8 +867,11 @@ let gFolderTreeView = {
    * The actual text to display in the tree
    */
   getCellText: function ftv_getCellText(aRow, aCol) {
-    if (aCol.id == "folderNameCol")
-      return this._rowMap[aRow].text;
+    if ((aCol.id == "folderNameCol") ||
+        (aCol.id == "folderUnreadCol") ||
+        (aCol.id == "folderTotalCol") ||
+        (aCol.id == "folderSizeCol"))
+      return this._rowMap[aRow].getText(aCol.id);
     return "";
   },
 
@@ -1764,8 +1802,8 @@ let gFolderTreeView = {
         let map = [];
         let accounts = gFolderTreeView._sortedAccounts();
         let smartServer = this._smartServer;
-        smartServer.prettyName = document.getElementById("bundle_messenger")
-                                         .getString("unifiedAccountName");
+        smartServer.prettyName = gFolderTreeView.messengerBundle
+                                                .getString("unifiedAccountName");
         smartServer.canHaveFilters = false;
 
         let smartRoot = smartServer.rootFolder;
@@ -2163,27 +2201,83 @@ ftvItem.prototype = {
     return this._folder.URI;
   },
   get text() {
-    let text;
-    if (this.useServerNameOnly) {
-      text = this._folder.server.prettyName;
+    return this.getText("folderNameCol");
+  },
+
+  getText(aColName) {
+    // Only show counts / total size of subtree if the pref is set,
+    // we are in "All folders" mode and this folder row is not expanded.
+    gFolderStatsHelpers.sumSubfolders = gFolderStatsHelpers.sumSubfoldersPref &&
+                          (gFolderTreeView.mode == kDefaultMode) &&
+                          this._folder.hasSubFolders && !this.open;
+
+    switch (aColName) {
+      case "folderNameCol":
+        let text;
+        if (this.useServerNameOnly)
+          text = this._folder.server.prettyName;
+        else {
+          text = this._folder.abbreviatedName;
+          if (this.addServerName)
+            text = gFolderTreeView.messengerBundle.getFormattedString(
+              "folderWithAccount", [text, this._folder.server.prettyName]);
+        }
+
+        // If the unread column is shown, we don't need to add the count
+        // to the name.
+        if (!document.getElementById("folderUnreadCol").hidden)
+          return text;
+
+        let unread = this._folder.getNumUnread(gFolderStatsHelpers.sumSubfolders);
+        if (unread > 0)
+          text = gFolderTreeView.messengerBundle
+            .getFormattedString("folderWithUnreadMsgs",
+                                [text, gFolderStatsHelpers.addSummarizedPrefix(unread)]);
+        return text;
+
+      case "folderUnreadCol":
+        return gFolderStatsHelpers
+                 .fixNum(this._folder.getNumUnread(gFolderStatsHelpers.sumSubfolders));
+
+      case "folderTotalCol":
+        return gFolderStatsHelpers
+                 .fixNum(this._folder.getTotalMessages(gFolderStatsHelpers.sumSubfolders));
+
+      case "folderSizeCol":
+        let size = gFolderStatsHelpers.getFolderSize(this._folder);
+        if (size == 0)
+          return "";
+        if (size == gFolderStatsHelpers.kUnknownSize)
+          return size;
+
+        // If size is non-zero try to show it in a unit that fits in 3 digits,
+        // but if user specified a fixed unit, use that.
+        size = Math.round(size / 1024);
+        let units = gFolderStatsHelpers.kiloUnit;
+        if (gFolderStatsHelpers.sizeUnits != "KB" &&
+            (size > 999 || gFolderStatsHelpers.sizeUnits == "MB")) {
+          size = Math.round(size / 1024);
+          units = gFolderStatsHelpers.megaUnit;
+        }
+
+        // This needs to be updated if the "%.*f" placeholder string
+        // in "*ByteAbbreviation2" in messenger.properties changes.
+        return gFolderStatsHelpers
+                 .addSummarizedPrefix(units.replace("%.*f", size).replace(" ",""));
+
+        default:
+        return "";
     }
-    else {
-      text = this._folder.abbreviatedName;
-      if (this.addServerName)
-        text += " - " + this._folder.server.prettyName;
-    }
-    // Yeah, we hard-code this, but so did the old code...
-    let unread = this._folder.getNumUnread(!this.open);
-    if (unread > 0)
-      text += " (" + unread + ")";
-    return text;
   },
 
   get level() {
     return this._level;
   },
 
-  getProperties: function ftvItem_getProperties() {
+  getProperties: function (aColumn) {
+    if (aColumn && aColumn.id != "folderNameCol")
+      return "";
+
     // From folderUtils.jsm
     let properties = getFolderProperties(this._folder, this.open);
     if (this._folder.getFlag(nsMsgFolderFlags.Virtual)) {
@@ -2305,8 +2399,8 @@ let gFolderTreeController = {
       return;
     }
 
-    let title = document.getElementById("bundle_messenger")
-                        .getString("folderProperties");
+    let title = gFolderTreeView.messengerBundle
+                               .getString("folderProperties");
 
     //xxx useless param
     function editFolderCallback(aNewName, aOldName, aUri) {
@@ -2410,10 +2504,10 @@ let gFolderTreeController = {
       throw new Error("Can't delete folder: " + folder.name);
 
     if (folder.flags & nsMsgFolderFlags.Virtual) {
-      let confirmation = document.getElementById("bundle_messenger")
-                                 .getString("confirmSavedSearchDeleteMessage");
-      let title = document.getElementById("bundle_messenger")
-                          .getString("confirmSavedSearchTitle");
+      let confirmation = gFolderTreeView.messengerBundle
+                                        .getString("confirmSavedSearchDeleteMessage");
+      let title = gFolderTreeView.messengerBundle
+                                 .getString("confirmSavedSearchTitle");
       if (Services.prompt
             .confirmEx(window, title, confirmation,
                        Services.prompt.STD_YES_NO_BUTTONS + Services.prompt.BUTTON_POS_1_DEFAULT,
@@ -2589,15 +2683,15 @@ let gFolderTreeController = {
 
     if (showPrompt) {
       let checkbox = {value:false};
-      let bundle = document.getElementById("bundle_messenger");
-      let title = bundle.getFormattedString(aCommand + "FolderTitle", [aFolder.prettyName]);
-      let msg = bundle.getString(aCommand + "FolderMessage");
+      let title = gFolderTreeView.messengerBundle
+        .getFormattedString(aCommand + "FolderTitle", [aFolder.prettyName]);
+      let msg = gFolderTreeView.messengerBundle.getString(aCommand + "FolderMessage");
       let ok = Services.prompt.confirmEx(window,
                                          title,
                                          msg,
                                          Services.prompt.STD_YES_NO_BUTTONS,
                                          null, null, null,
-                                         bundle.getString(aCommand + "DontAsk"),
+                                         gFolderTreeView.messengerBundle.getString(aCommand + "DontAsk"),
                                          checkbox) == 0;
       if (checkbox.value)
         Services.prefs.setBoolPref("mailnews." + aCommand + ".dontAskAgain", true);
@@ -2678,3 +2772,74 @@ function getSmartFolderName(aFolder) {
   }
 }
 
+var gFolderStatsHelpers = {
+    kUnknownSize: "-",
+    sumSubfoldersPref: false,
+    sumSubfolders: false,
+    sizeUnits: "",
+    kiloUnit: "KB",
+    megaUnit: "MB",
+
+    init: function() {
+      // We cache these values because the cells in the folder pane columns
+      // using these helpers can be redrawn often.
+      this.sumSubfoldersPref = Services.prefs.getBoolPref("mail.folderpane.sumSubfolders");
+      this.sizeUnits = Services.prefs.getCharPref("mail.folderpane.sizeUnits");
+      this.kiloUnit = gFolderTreeView.messengerBundle.getString("kiloByteAbbreviation2");
+      this.megaUnit = gFolderTreeView.messengerBundle.getString("megaByteAbbreviation2");
+    },
+
+    /**
+     * Add a prefix to denote the value is actually a sum of all the subfolders.
+     * The prefix is useful as this sum may not always be the exact sum of individual
+     * folders when they are shown expanded (due to rounding to a unit).
+     * E.g. folder1 600bytes -> 1KB, folder2 700bytes -> 1KB
+     * summarized at parent folder: 1300bytes -> 1KB
+     */
+    addSummarizedPrefix: function(aValue) {
+      if (!this.sumSubfolders)
+        return aValue;
+
+      return gFolderTreeView.messengerBundle
+        .getFormattedString("folderSummarizedValue", [aValue]);
+    },
+
+    /**
+     * nsIMsgFolder uses -1 as a magic number to mean "I don't know". In those
+     * cases we indicate it to the user. The user has to open the folder
+     * so that the property is initialized from the DB.
+     */
+    fixNum: function(aNumber) {
+      if (aNumber < 0)
+        return this.kUnknownSize;
+
+      return (aNumber == 0 ? "" : this.addSummarizedPrefix(aNumber));
+    },
+
+    /**
+     * Recursively get the size of specified folder and all its subfolders.
+     */
+    getFolderSize: function(aFolder) {
+      let size = 0;
+      try {
+        size = aFolder.sizeOnDisk;
+        if (size < 0)
+          return this.kUnknownSize;
+      } catch(ex) {
+        return this.kUnknownSize;
+      }
+      if (this.sumSubfolders && aFolder.hasSubFolders) {
+        let subFolders = aFolder.subFolders;
+        while (subFolders.hasMoreElements()) {
+          let subFolder = subFolders.getNext()
+            .QueryInterface(Components.interfaces.nsIMsgFolder);
+          let subSize = this.getFolderSize(subFolder);
+          if (subSize == this.kUnknownSize)
+            return subSize;
+
+          size += subSize;
+        }
+      }
+      return size;
+    }
+};

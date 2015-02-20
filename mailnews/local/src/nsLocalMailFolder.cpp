@@ -1114,7 +1114,13 @@ NS_IMETHODIMP nsMsgLocalMailFolder::RefreshSizeOnDisk()
 NS_IMETHODIMP nsMsgLocalMailFolder::GetSizeOnDisk(int64_t *aSize)
 {
   NS_ENSURE_ARG_POINTER(aSize);
-  nsresult rv = NS_OK;
+
+  bool isServer = false;
+  nsresult rv = GetIsServer(&isServer);
+  // If this is the rootFolder, return 0 as a safe value.
+  if (NS_FAILED(rv) || isServer)
+    mFolderSize = 0;
+
   if (mFolderSize == kSizeUnknown)
   {
     nsCOMPtr<nsIFile> file;
@@ -1129,7 +1135,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetSizeOnDisk(int64_t *aSize)
     mFolderSize = folderSize;
   }
   *aSize = mFolderSize;
-  return rv;
+  return NS_OK;
 }
 
 nsresult
