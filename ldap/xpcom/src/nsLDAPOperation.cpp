@@ -283,6 +283,10 @@ nsLDAPOperation::SimpleBind(const nsACString& passwd)
            ("nsLDAPOperation::SimpleBind(): called; bindName = '%s'; ",
             bindName.get()));
 
+    // this (nsLDAPOperation) may be released by RemovePendingOperation()
+    // See https://bugzilla.mozilla.org/show_bug.cgi?id=1063829.
+    nsRefPtr<nsLDAPOperation> kungFuDeathGrip = this;
+
     // If this is a second try at binding, remove the operation from pending ops
     // because msg id has changed...
     if (originalMsgID)
