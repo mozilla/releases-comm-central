@@ -9,6 +9,15 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 
 var gServer;
 
+function onSave()
+{
+  let storeContractID = document.getElementById("server.storeTypeMenulist")
+                                .selectedItem
+                                .value;
+  document.getElementById("server.storeContractID")
+          .setAttribute("value", storeContractID);
+}
+
 function onInit(aPageId, aServerId)
 {
   initServerType();
@@ -24,6 +33,17 @@ function onInit(aPageId, aServerId)
   // allow users to choose it anymore. Hide the option unless the user already
   // has it set.
   hideUnlessSelected(document.getElementById("connectionSecurityType-1"));
+
+  // UI for account store type.
+  let storeTypeElement = document.getElementById("server.storeTypeMenulist");
+  // set the menuitem to match the account
+  let currentStoreID = document.getElementById("server.storeContractID")
+                               .getAttribute("value");
+  let targetItem = storeTypeElement.getElementsByAttribute("value", currentStoreID);
+  storeTypeElement.selectedItem = targetItem[0];
+  // disable store type change if store has already been used
+  storeTypeElement.setAttribute("disabled",
+    gServer.getBoolValue("canChangeStoreType") ? "false" : "true");
 }
 
 function onPreInit(account, accountValues)

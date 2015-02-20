@@ -217,6 +217,22 @@ type="int"/>
                           label="&enableGlodaSearch.label;"
                           accesskey="&enableGlodaSearch.accesskey;"/>
               </hbox>
+              <hbox align="center">
+                <label value="&storeType.label;"
+                       accesskey="&storeType.accesskey;"
+                       control="storeTypeMenulist"/>
+                <menulist id="storeTypeMenulist"
+                          oncommand="gAdvancedPane.updateDefaultStore(this.selectedItem.value)">
+                  <menupopup id="storeTypeMenupopup">
+                    <menuitem id="mboxStore"
+                              label="&mboxStore.label;"
+                              value="@mozilla.org/msgstore/berkeleystore;1"/>
+                    <menuitem id="maildirStore"
+                              label="&maildirStore.label;"
+                              value="@mozilla.org/msgstore/maildirstore;1"/>
+                  </menupopup>
+                </menulist>
+              </hbox>
               <hbox>
                 <checkbox id="allowHWAccel"
                           label="&allowHWAccel.label;"

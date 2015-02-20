@@ -28,6 +28,13 @@
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
     <label hidden="true" wsm_persist="true" id="server.type"/>
+    <label hidden="true"
+           wsm_persist="true"
+           preftype="string"
+           prefattribute="value"
+           prefstring="mail.server.%serverkey%.storeContractID"
+           genericattr="true"
+           id="server.storeContractID"/>
 
     <dialogheader title="&serverSettings.label;"/>
 
@@ -372,6 +379,21 @@
                 id="server.popAdvancedButton"
                 prefstring="mail.server.%serverkey%.advanced.disable"
                 hidefor="imap,nntp,movemail"/>
+      </hbox>
+      <hbox align="center">
+        <label value="&storeType.label;"
+               accesskey="&storeType.accesskey;"
+               control="server.storeTypeMenulist"/>
+        <menulist id="server.storeTypeMenulist">
+          <menupopup id="server.storeTypeMenupopup">
+            <menuitem id="server.mboxStore"
+                      value="@mozilla.org/msgstore/berkeleystore;1"
+                      label="&mboxStore.label;"/>
+            <menuitem id="server.maildirStore"
+                      value="@mozilla.org/msgstore/maildirstore;1"
+                      label="&maildirStore.label;"/>
+          </menupopup>
+        </menulist>
       </hbox>
 
       <vbox hidefor="imap,pop3,movemail">

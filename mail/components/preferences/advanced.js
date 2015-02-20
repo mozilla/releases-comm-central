@@ -27,6 +27,13 @@ var gAdvancedPane = {
     this.updateReadPrefs();
 #endif
 
+    // Default store type initialization.
+    let storeTypeElement = document.getElementById("storeTypeMenulist");
+    // set the menuitem to match the account
+    let defaultStoreID = Services.prefs.getCharPref("mail.serverDefaultStoreContractID");
+    let targetItem = storeTypeElement.getElementsByAttribute("value", defaultStoreID);
+    storeTypeElement.selectedItem = targetItem[0];
+
 #ifdef MOZ_CRASHREPORTER
     this.initSubmitCrashes();
 #endif
@@ -124,6 +131,14 @@ var gAdvancedPane = {
                                           "chrome://global/content/config.xul",
                                           "", null);
     }
+  },
+
+  /**
+   * Set the default store contract ID.
+   */
+  updateDefaultStore: function(storeID)
+  {
+    Services.prefs.setCharPref("mail.serverDefaultStoreContractID", storeID);
   },
 
   // NETWORK TAB

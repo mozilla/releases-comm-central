@@ -14,6 +14,10 @@
 <!ENTITY enableGlodaSearch.accesskey   "E">
 <!ENTITY allowHWAccel.label            "Use hardware acceleration when available">
 <!ENTITY allowHWAccel.accesskey        "h">
+<!ENTITY storeType.label               "Message Store Type for new accounts:">
+<!ENTITY storeType.accesskey           "T">
+<!ENTITY mboxStore.label               "One large file (mbox)">
+<!ENTITY maildirStore.label            "File per message (maildir)">
 
 <!ENTITY scrolling.label               "Scrolling">
 <!ENTITY useAutoScroll.label           "Use autoscrolling">
