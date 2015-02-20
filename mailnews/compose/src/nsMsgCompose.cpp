@@ -1333,18 +1333,18 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
       switch (deliverMode)
       {
         case nsIMsgCompDeliverMode::Later:
-          nsMsgDisplayMessageByID(prompt, NS_MSG_UNABLE_TO_SEND_LATER);
+          nsMsgDisplayMessageByName(prompt, MOZ_UTF16("unableToSendLater"));
           break;
         case nsIMsgCompDeliverMode::AutoSaveAsDraft:
         case nsIMsgCompDeliverMode::SaveAsDraft:
-          nsMsgDisplayMessageByID(prompt, NS_MSG_UNABLE_TO_SAVE_DRAFT);
+          nsMsgDisplayMessageByName(prompt, MOZ_UTF16("unableToSaveDraft"));
           break;
         case nsIMsgCompDeliverMode::SaveAsTemplate:
-          nsMsgDisplayMessageByID(prompt, NS_MSG_UNABLE_TO_SAVE_TEMPLATE);
+          nsMsgDisplayMessageByName(prompt, MOZ_UTF16("unableToSaveTemplate"));
           break;
 
         default:
-          nsMsgDisplayMessageByID(prompt, NS_ERROR_SEND_FAILED);
+          nsMsgDisplayMessageByName(prompt, MOZ_UTF16("sendFailed"));
           break;
       }
     }
@@ -2660,7 +2660,7 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
           compose->GetDomWindow(getter_AddRefs(composeWindow));
           if (composeWindow)
             composeWindow->GetPrompter(getter_AddRefs(prompt));
-          nsMsgDisplayMessageByName(prompt, NS_LITERAL_STRING("followupToSenderMessage"));
+          nsMsgDisplayMessageByName(prompt, MOZ_UTF16("followupToSenderMessage"));
 
           if (!replyTo.IsEmpty())
           {
@@ -3908,10 +3908,12 @@ NS_IMETHODIMP nsMsgComposeSendListener::OnStateChange(nsIWebProgress *aWebProgre
             mozilla::services::GetStringBundleService();
           NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
           nsCOMPtr<nsIStringBundle> bundle;
-          rv = bundleService->CreateBundle("chrome://messenger/locale/messengercompose/composeMsgs.properties", getter_AddRefs(bundle));
+          rv = bundleService->CreateBundle(
+            "chrome://messenger/locale/messengercompose/composeMsgs.properties",
+            getter_AddRefs(bundle));
           NS_ENSURE_SUCCESS(rv, rv);
           nsString msg;
-          bundle->GetStringFromID(NS_ERROR_GET_CODE(NS_MSG_CANCELLING), getter_Copies(msg));
+          bundle->GetStringFromName(MOZ_UTF16("msgCancelling"), getter_Copies(msg));
           progress->OnStatusChange(nullptr, nullptr, NS_OK, msg.get());
         }
       }

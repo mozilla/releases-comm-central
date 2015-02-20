@@ -1076,31 +1076,33 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI *url,
     if (NS_SUCCEEDED(aExitCode))
       return NS_OK;
 
+    const char16_t* exitString;
+
     switch (aExitCode)
-    {    
+    {
       case NS_ERROR_UNKNOWN_HOST:
       case NS_ERROR_UNKNOWN_PROXY_HOST:
-        aExitCode = NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER;
+        exitString = MOZ_UTF16("smtpSendFailedUnknownServer");
         break;
       case NS_ERROR_CONNECTION_REFUSED:
-      case NS_ERROR_PROXY_CONNECTION_REFUSED: 
-        aExitCode = NS_ERROR_SMTP_SEND_FAILED_REFUSED;
+      case NS_ERROR_PROXY_CONNECTION_REFUSED:
+        exitString = MOZ_UTF16("smtpSendRefused");
         break;
       case NS_ERROR_NET_INTERRUPT:
-        aExitCode = NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED;
-        break; 
+        exitString = MOZ_UTF16("smtpSendInterrupted");
+        break;
       case NS_ERROR_NET_TIMEOUT:
       case NS_ERROR_NET_RESET:
-        aExitCode = NS_ERROR_SMTP_SEND_FAILED_TIMEOUT;
+        exitString = MOZ_UTF16("smtpSendTimeout");
         break;
       case NS_ERROR_SMTP_PASSWORD_UNDEFINED:
-        // nothing to do, just keep the code
+        exitString = MOZ_UTF16("smtpPasswordUndefined");
         break;
       default:
         if (aExitCode != NS_ERROR_ABORT && !NS_IS_MSG_ERROR(aExitCode))
-          aExitCode = NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_REASON;
+          exitString = MOZ_UTF16("smtpSendFailedUnknownReason");
       break;
-    }    
+    }
 
     nsCOMPtr<nsISmtpService> smtpService(do_GetService(NS_SMTPSERVICE_CONTRACTID, &rv));
     NS_ENSURE_SUCCESS(rv,rv);
@@ -1109,9 +1111,9 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI *url,
     nsCString smtpHostName;
     nsCOMPtr<nsISmtpServer> smtpServer;
     rv = smtpService->GetServerByIdentity(m_identity, getter_AddRefs(smtpServer));
-    if (NS_SUCCEEDED(rv)) 
+    if (NS_SUCCEEDED(rv))
       smtpServer->GetHostname(smtpHostName);
-     
+
     nsAutoString hostStr;
     CopyASCIItoUTF16(smtpHostName, hostStr);
     const char16_t *params[] = { hostStr.get() };
@@ -1121,12 +1123,14 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI *url,
       mozilla::services::GetStringBundleService();
     NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
-    rv = bundleService->CreateBundle("chrome://messenger/locale/messengercompose/composeMsgs.properties", getter_AddRefs(bundle));
+    rv = bundleService->CreateBundle(
+      "chrome://messenger/locale/messengercompose/composeMsgs.properties",
+      getter_AddRefs(bundle));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsString failed_msg, dialogTitle;
 
-    bundle->FormatStringFromID(NS_ERROR_GET_CODE(aExitCode), params, 1, getter_Copies(failed_msg));
+    bundle->FormatStringFromName(exitString, params, 1, getter_Copies(failed_msg));
     bundle->GetStringFromName(MOZ_UTF16("sendMessageErrorTitle"), getter_Copies(dialogTitle));
 
     nsCOMPtr<nsIPrompt> dialog;

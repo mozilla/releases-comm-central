@@ -2579,7 +2579,9 @@ nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
         {
           nsCOMPtr<nsIStringBundle> bundle;
           const char16_t *params[] = { attachmentFileName.get() };
-          mComposeBundle->FormatStringFromID(NS_ERROR_GET_CODE(NS_MSG_ERROR_ATTACHING_FILE), params, 1, getter_Copies(errorMsg));
+          mComposeBundle->FormatStringFromName(MOZ_UTF16("errorAttachingFile"),
+                                               params, 1,
+                                               getter_Copies(errorMsg));
           mSendReport->SetMessage(nsIMsgSendReport::process_Current, errorMsg.get(), false);
           mSendReport->SetError(nsIMsgSendReport::process_Current,
                                 NS_MSG_ERROR_ATTACHING_FILE,
@@ -3517,7 +3519,7 @@ nsMsgComposeAndSend::Fail(nsresult aFailureCode, const char16_t *aErrorMsg,
     else
     {
       if (aFailureCode != NS_ERROR_BUT_DONT_SHOW_ALERT)
-        nsMsgDisplayMessageByID(prompt, NS_ERROR_SEND_FAILED);
+        nsMsgDisplayMessageByName(prompt, MOZ_UTF16("sendFailed"));
     }
   }
 
@@ -3531,7 +3533,7 @@ nsMsgComposeAndSend::Fail(nsresult aFailureCode, const char16_t *aErrorMsg,
 }
 
 nsresult
-nsMsgComposeAndSend::FormatStringWithSMTPHostNameByID(nsresult aMsgId, char16_t **aString)
+nsMsgComposeAndSend::FormatStringWithSMTPHostNameByName(const char16_t* aMsgName, char16_t **aString)
 {
   NS_ENSURE_ARG(aString);
 
@@ -3550,7 +3552,7 @@ nsMsgComposeAndSend::FormatStringWithSMTPHostNameByID(nsresult aMsgId, char16_t 
   CopyASCIItoUTF16(smtpHostName, hostStr);
   const char16_t *params[] = { hostStr.get() };
   if (NS_SUCCEEDED(rv))
-    mComposeBundle->FormatStringFromID(NS_ERROR_GET_CODE(aMsgId), params, 1, aString);
+    mComposeBundle->FormatStringFromName(aMsgName, params, 1, aString);
   return rv;
 }
 
@@ -3561,7 +3563,7 @@ nsMsgComposeAndSend::DoDeliveryExitProcessing(nsIURI * aUri, nsresult aExitCode,
   // the user and exit.
   if (NS_FAILED(aExitCode))
   {
-
+    const char16_t* exitString = errorStringNameForErrorCode(aExitCode);
     nsString eMsg;
     if (aExitCode == NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER ||
         aExitCode == NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_REASON ||
@@ -3576,10 +3578,11 @@ nsMsgComposeAndSend::DoDeliveryExitProcessing(nsIURI * aUri, nsresult aExitCode,
         aExitCode == NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL ||
         aExitCode == NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL ||
         aExitCode == NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT ||
-        aExitCode == NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS)
-      FormatStringWithSMTPHostNameByID(aExitCode, getter_Copies(eMsg));
-    else
-      mComposeBundle->GetStringFromID(NS_ERROR_GET_CODE(aExitCode), getter_Copies(eMsg));
+        aExitCode == NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS) {
+      FormatStringWithSMTPHostNameByName(exitString, getter_Copies(eMsg));
+    } else {
+      mComposeBundle->GetStringFromName(exitString, getter_Copies(eMsg));
+    }
 
     Fail(aExitCode, eMsg.get(), &aExitCode);
     NotifyListenerOnStopSending(nullptr, aExitCode, nullptr, nullptr);

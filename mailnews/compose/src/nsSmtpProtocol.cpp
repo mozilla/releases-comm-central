@@ -68,7 +68,7 @@ using namespace mozilla::mailnews;
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 /* based on in NET_ExplainErrorDetails in mkmessag.c */
-nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult code, ...)
+nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
 {
   NS_ENSURE_ARG(aSmtpUrl);
 
@@ -84,37 +84,40 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult code, ...)
     mozilla::services::GetStringBundleService();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
   nsCOMPtr<nsIStringBundle> bundle;
-  nsresult rv = bundleService->CreateBundle("chrome://messenger/locale/messengercompose/composeMsgs.properties", getter_AddRefs(bundle));
+  nsresult rv = bundleService->CreateBundle(
+    "chrome://messenger/locale/messengercompose/composeMsgs.properties",
+    getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  va_start (args, code);
+  va_start (args, aCode);
 
-  switch (code)
+  const char16_t* exitString;
+  switch (aCode)
   {
     case NS_ERROR_ILLEGAL_LOCALPART:
-      bundle->GetStringFromName(
-        MOZ_UTF16("errorIllegalLocalPart"),
-        getter_Copies(eMsg));
+      bundle->GetStringFromName(MOZ_UTF16("errorIllegalLocalPart"),
+                                getter_Copies(eMsg));
       msg = nsTextFormatter::vsmprintf(eMsg.get(), args);
       break;
-
-      case NS_ERROR_SMTP_SERVER_ERROR:
-      case NS_ERROR_TCP_READ_ERROR:
-      case NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED:
-      case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1:
-      case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2:
-      case NS_ERROR_SENDING_FROM_COMMAND:
-      case NS_ERROR_SENDING_RCPT_COMMAND:
-      case NS_ERROR_SENDING_DATA_COMMAND:
-      case NS_ERROR_SENDING_MESSAGE:
-      case NS_ERROR_SMTP_GREETING:
-         bundle->GetStringFromID(NS_ERROR_GET_CODE(code), getter_Copies(eMsg));
-         msg = nsTextFormatter::vsmprintf(eMsg.get(), args);
-         break;
-      default:
-         bundle->GetStringFromID(NS_ERROR_GET_CODE(NS_ERROR_COMMUNICATIONS_ERROR), getter_Copies(eMsg));
-         msg = nsTextFormatter::smprintf(eMsg.get(), code);
-         break;
+    case NS_ERROR_SMTP_SERVER_ERROR:
+    case NS_ERROR_TCP_READ_ERROR:
+    case NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED:
+    case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1:
+    case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2:
+    case NS_ERROR_SENDING_FROM_COMMAND:
+    case NS_ERROR_SENDING_RCPT_COMMAND:
+    case NS_ERROR_SENDING_DATA_COMMAND:
+    case NS_ERROR_SENDING_MESSAGE:
+    case NS_ERROR_SMTP_GREETING:
+      exitString = errorStringNameForErrorCode(aCode);
+      bundle->GetStringFromName(exitString, getter_Copies(eMsg));
+      msg = nsTextFormatter::vsmprintf(eMsg.get(), args);
+      break;
+    default:
+      NS_WARNING("falling to default error code");
+      bundle->GetStringFromName(MOZ_UTF16("communicationsError"), getter_Copies(eMsg));
+      msg = nsTextFormatter::smprintf(eMsg.get(), aCode);
+      break;
   }
 
   if (msg)
@@ -780,7 +783,7 @@ nsresult nsSmtpProtocol::SendEhloResponse(nsIInputStream * inputStream, uint32_t
         nsresult rv =
 #endif
         nsExplainErrorDetails(m_runningURL,
-                      NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1, m_sizelimit);
+                              NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1, m_sizelimit);
         NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain SMTP error");
 
         m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
@@ -1597,7 +1600,9 @@ nsresult nsSmtpProtocol::SendDataResponse()
 
   if (m_responseCode != 354)
   {
-    nsresult rv = nsExplainErrorDetails(m_runningURL, NS_ERROR_SENDING_DATA_COMMAND, m_responseText.get());
+    nsresult rv = nsExplainErrorDetails(m_runningURL,
+                                        NS_ERROR_SENDING_DATA_COMMAND,
+                                        m_responseText.get());
     NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain SMTP error");
 
     m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
@@ -1668,7 +1673,9 @@ nsresult nsSmtpProtocol::SendMessageResponse()
 {
   if((m_responseCode/10 != 25))
   {
-    nsresult rv = nsExplainErrorDetails(m_runningURL, NS_ERROR_SENDING_MESSAGE, m_responseText.get());
+    nsresult rv = nsExplainErrorDetails(m_runningURL,
+                                        NS_ERROR_SENDING_MESSAGE,
+                                        m_responseText.get());
     NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain SMTP error");
 
     m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
@@ -1788,8 +1795,8 @@ nsresult nsSmtpProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer )
           // the mailnews main window, because we don't necessarily get
           // passed down a compose window - we might be sending in the
           // background!
-          rv = nsExplainErrorDetails(m_runningURL, NS_ERROR_ILLEGAL_LOCALPART,
-            start);
+          rv = nsExplainErrorDetails(m_runningURL,
+                                     NS_ERROR_ILLEGAL_LOCALPART, start);
           NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain illegal localpart");
           m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
           return NS_ERROR_BUT_DONT_SHOW_ALERT;

@@ -2718,12 +2718,11 @@ function updateSendLock()
  *
  * @param aMsgCompFields  A nsIMsgCompFields object containing the fields to check.
  */
-const NS_MSG_NO_RECIPIENTS = "12511"; // from composeMsgs.properties
 function CheckValidEmailAddress(aMsgCompFields)
 {
   if (!aMsgCompFields.hasRecipients) {
     Services.prompt.alert(window, getComposeBundle().getString("addressInvalidTitle"),
-                          getComposeBundle().getString(NS_MSG_NO_RECIPIENTS));
+                          getComposeBundle().getString("noRecipients"));
 
     return false;
   }

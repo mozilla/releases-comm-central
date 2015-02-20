@@ -15,7 +15,7 @@
 #include "mozilla/Services.h"
 
 nsresult
-nsMsgGetMessageByID(nsresult aMsgID, nsString& aResult)
+nsMsgGetMessageByName(const char16_t* aName, nsString& aResult)
 {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService =
@@ -23,27 +23,12 @@ nsMsgGetMessageByID(nsresult aMsgID, nsString& aResult)
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> bundle;
-  rv = bundleService->CreateBundle("chrome://messenger/locale/messengercompose/composeMsgs.properties", getter_AddRefs(bundle));
+  rv = bundleService->CreateBundle(
+    "chrome://messenger/locale/messengercompose/composeMsgs.properties",
+    getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return bundle->GetStringFromID(NS_ERROR_GET_CODE(aMsgID),
-                                 getter_Copies(aResult));
-}
-
-nsresult
-nsMsgGetMessageByName(const nsString &aName, nsString& aResult)
-{
-  nsresult rv;
-  nsCOMPtr<nsIStringBundleService> bundleService =
-    mozilla::services::GetStringBundleService();
-  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-
-  nsCOMPtr<nsIStringBundle> bundle;
-  rv = bundleService->CreateBundle("chrome://messenger/locale/messengercompose/composeMsgs.properties", getter_AddRefs(bundle));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return bundle->GetStringFromName(aName.get(),
-                                   getter_Copies(aResult));
+  return bundle->GetStringFromName(aName, getter_Copies(aResult));
 }
 
 static nsresult
@@ -79,15 +64,7 @@ nsMsgBuildMessageWithTmpFile(nsIFile *aFile, nsString& aResult)
 }
 
 nsresult
-nsMsgDisplayMessageByID(nsIPrompt * aPrompt, nsresult msgID, const char16_t * windowTitle)
-{
-  nsString msg;
-  nsMsgGetMessageByID(msgID, msg);
-  return nsMsgDisplayMessageByString(aPrompt, msg.get(), windowTitle);
-}
-
-nsresult
-nsMsgDisplayMessageByName(nsIPrompt *aPrompt, const nsString &aName, const char16_t *windowTitle)
+nsMsgDisplayMessageByName(nsIPrompt *aPrompt, const char16_t* aName, const char16_t *windowTitle)
 {
   nsString msg;
   nsMsgGetMessageByName(aName, msg);
