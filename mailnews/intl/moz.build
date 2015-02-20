@@ -26,6 +26,9 @@ LOCAL_INCLUDES += [
 GENERATED_FILES += [
     'charsetalias.properties.h',
 ]
+charsetalias = GENERATED_FILES['charsetalias.properties.h']
+charsetalias.script = TOPSRCDIR + '/mozilla/intl/locale/props2arrays.py'
+charsetalias.inputs = ['charsetalias.properties']
 
 MSVC_ENABLE_PGO = True
 
