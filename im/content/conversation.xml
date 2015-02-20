@@ -566,7 +566,7 @@
                 let completions = [b for (b of this.buddies.keys())];
                 // Check if the preceding words are a sequence of nick completions.
                 let preceding = text.substring(0, pos - suffix.length).split(", ");
-                if (preceding.every(function(n) completions.indexOf(n) != -1)) {
+                if (preceding.every(n => completions.includes(n))) {
                   let s = preceding.pop();
                   if (preceding.length)
                     s = suffix + s;
@@ -675,12 +675,11 @@
                 let separator = text.substring(wordStart - 2, wordStart);
                 if (separator == ": " || separator == ", ") {
                   let preceding = text.substring(0, wordStart - 2).split(", ");
-                  if (preceding.every(function(n) completions.indexOf(n) != -1)) {
+                  if (preceding.every(n => completions.includes(n))) {
                     secondNick = true;
                     isFirstWord = true;
                     // Remove preceding completions from possible completions.
-                    completions = completions.filter(function(c)
-                      preceding.indexOf(c) == -1);
+                    completions = completions.filter(c => !preceding.includes(c));
                   }
                 }
               }
@@ -690,9 +689,9 @@
             // Be case insensitive only if |word| is entirely lower case.
             let condition;
             if (word.toLocaleLowerCase() == word)
-              condition = function(c) c.toLocaleLowerCase().indexOf(word) == 0;
+              condition = c => c.toLocaleLowerCase().startsWith(word);
             else
-              condition = function(c) c.indexOf(word) == 0;
+              condition = c => c.startsWith(word);
             let matchingCompletions = completions.filter(condition);
             if (!matchingCompletions.length && words[1]) {
               word = words[1];
@@ -753,7 +752,7 @@
               // If one of the completions is the sender of the last ping,
               // take it, if it was less than an hour ago.
               if (this._lastPing && this.buddies.has(this._lastPing) &&
-                  this._completions.indexOf(this._lastPing) != -1 &&
+                  this._completions.includes(this._lastPing) &&
                   (Date.now() / 1000 - this._lastPingTime) < 3600) {
                 preferredNick = true;
                 this._completionsIndex = this._completions.indexOf(this._lastPing);
