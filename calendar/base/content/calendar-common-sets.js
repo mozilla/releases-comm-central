@@ -278,9 +278,9 @@ var calendarController = {
                     let focusedRichListbox = getParentNodeOrThis(focusedElement, "richlistbox");
                     if (focusedRichListbox && focusedRichListbox.id == "agenda-listbox") {
                         agendaListbox.editSelectedItem();
-                    } else if (focusedElement.className == "calendar-task-tree") {
+                    } else if (focusedElement && focusedElement.className == "calendar-task-tree") {
                         modifyTaskFromContext();
-                    } else {
+                    } else if (this.isInMode("calendar")) {
                         editSelectedEvents();
                     }
                 }
@@ -297,11 +297,9 @@ var calendarController = {
                     let focusedRichListbox = getParentNodeOrThis(focusedElement, "richlistbox");
                     if (focusedRichListbox && focusedRichListbox.id == "agenda-listbox") {
                         agendaListbox.deleteSelectedItem(false);
-                    } else if (focusedElement.className == "calendar-task-tree") {
+                    } else if (focusedElement && focusedElement.className == "calendar-task-tree") {
                         deleteToDoCommand(null, false);
-                    } else if (this.defaultController && !this.isCalendarInForeground()) {
-                        this.defaultController.doCommand(aCommand);
-                    } else {
+                    } else if (this.isInMode("calendar")) {
                         deleteSelectedEvents();
                     }
                 }
