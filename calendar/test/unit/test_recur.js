@@ -268,6 +268,61 @@ function test_rules() {
                 expectedDates,
                 false);
 
+    // Bug 958974 - Monthly recurrence every WE, FR and the third MO (monthly with more bydays).
+    // Check the occurrences in the first month until the week with the first monday of the rule.
+    check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
+                                         "DESCRIPTION:Repeat Monthly every Wednesday, Friday and the third Monday\n" +
+                                         "RRULE:FREQ=MONTHLY;COUNT=8;BYDAY=3MO,WE,FR\n" +
+                                         "DTSTART:20150102T080000Z\n" +
+                                         "DTEND:20150102T090000Z\n" +
+                                         "END:VEVENT\nEND:VCALENDAR\n"),
+               ["20150102T080000Z", "20150107T080000Z", "20150109T080000Z",
+                "20150114T080000Z", "20150116T080000Z", "20150119T080000Z",
+                "20150121T080000Z", "20150123T080000Z"],
+               false);
+
+    // Bug 419490 - Monthly recurrence, the fifth Saturday starting from February.
+    // Check a monthly rule that specifies a day that is not part of the month
+    // the events starts in.
+    check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
+                                         "DESCRIPTION:Repeat Monthly the fifth Saturday\n" +
+                                         "RRULE:FREQ=MONTHLY;COUNT=6;BYDAY=5SA\n" +
+                                         "DTSTART:20150202T080000Z\n" +
+                                         "DTEND:20150202T090000Z\n" +
+                                         "END:VEVENT\nEND:VCALENDAR\n"),
+               ["20150202T080000Z",
+                "20150530T080000Z", "20150829T080000Z", "20151031T080000Z",
+                "20160130T080000Z", "20160430T080000Z", "20160730T080000Z"],
+               false);
+
+    // Bug 419490 - Monthly recurrence, the fifth Wednesday every two months starting from February.
+    // Check a monthly rule that specifies a day that is not part of the month
+    // the events starts in.
+    check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
+                                         "DESCRIPTION:Repeat Monthly the fifth Friday every two months\n" +
+                                         "RRULE:FREQ=MONTHLY;INTERVAL=2;COUNT=6;BYDAY=5FR\n" +
+                                         "DTSTART:20150202T080000Z\n" +
+                                         "DTEND:20150202T090000Z\n" +
+                                         "END:VEVENT\nEND:VCALENDAR\n"),
+               ["20150202T080000Z",
+                "20151030T080000Z", "20160429T080000Z", "20161230T080000Z",
+                "20170630T080000Z", "20171229T080000Z", "20180629T080000Z"],
+               false);
+
+    // Bugs 419490, 958974 - Monthly recurrence, the 2nd Monday, 5th Wednesday and the 5th to last Saturday every month starting from February.
+    // Check a monthly rule that specifies a day that is not part of the month
+    // the events starts in with positive and negative position along with other byday.
+    check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
+                                         "DESCRIPTION:Repeat Monthly the 2nd Monday, 5th Wednesday and the 5th to last Saturday every month\n" +
+                                         "RRULE:FREQ=MONTHLY;COUNT=7;BYDAY=2MO,-5WE,5SA\n" +
+                                         "DTSTART:20150401T080000Z\n" +
+                                         "DTEND:20150401T090000Z\n" +
+                                         "END:VEVENT\nEND:VCALENDAR\n"),
+               ["20150401T080000Z",
+                "20150413T080000Z", "20150511T080000Z", "20150530T080000Z",
+                "20150608T080000Z", "20150701T080000Z", "20150713T080000Z"],
+               false);
+
     let item, occ1;
     item = makeEvent("DESCRIPTION:occurrence on day 1 moved between the occurrences " +
                                      "on days 2 and 3\n" +

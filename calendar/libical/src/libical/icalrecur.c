@@ -812,6 +812,8 @@ static int has_by_data(icalrecur_iterator* impl, enum byrule byrule){
 
 
 static int expand_year_days(icalrecur_iterator* impl, int year);
+static int nth_weekday(int dow, int pos, struct icaltimetype t);
+static void increment_month(icalrecur_iterator* impl);
 
 
 icalrecur_iterator* icalrecur_iterator_new(struct icalrecurrencetype rule, 
@@ -1025,52 +1027,58 @@ icalrecur_iterator* icalrecur_iterator_new(struct icalrecurrencetype rule,
     if(impl->rule.freq == ICAL_MONTHLY_RECURRENCE &&
        has_by_data(impl,BY_DAY)) {
 
-	int dow = icalrecurrencetype_day_day_of_week(
-	    impl->by_ptrs[BY_DAY][impl->by_indices[BY_DAY]]);  
-	int pos =  icalrecurrencetype_day_position(
-	    impl->by_ptrs[BY_DAY][impl->by_indices[BY_DAY]]);  
-	
-	int poscount = 0;
-	int days_in_month = 
-            icaltime_days_in_month(impl->last.month, impl->last.year); 
-	
-        if(pos >= 0){
-            /* Count up from the first day pf the month to find the
-               pos'th weekday of dow ( like the second monday. ) */
+        struct icaltimetype tmp_last = icaltime_null_time();
+        struct icaltimetype init_last = impl->last;
+        int days_in_month =
+            icaltime_days_in_month(impl->last.month, impl->last.year);
+        int i, dow, pos, day_of_month;
 
-            for(impl->last.day = 1;
-                impl->last.day <= days_in_month;
-                impl->last.day++){
-                
-                if(icaltime_day_of_week(impl->last) == dow){
-                    if(++poscount == pos || pos == 0){
-                        break;
-                    }
+        /* Check every weekday in BYDAY with relative dow and pos. */
+        for (i = 0; impl->by_ptrs[BY_DAY][i] != ICAL_RECURRENCE_ARRAY_MAX; i++) {
+            impl->last = init_last;
+            dow = icalrecurrencetype_day_day_of_week(impl->by_ptrs[BY_DAY][i]);
+            pos = icalrecurrencetype_day_position(impl->by_ptrs[BY_DAY][i]);
+            day_of_month = nth_weekday(dow, pos, impl->last);
+
+            /* If |pos| >= 6, the byday is invalid for a monthly rule */
+            if (pos >= 6 || pos <= -6) {
+                icalerror_set_errno(ICAL_MALFORMEDDATA_ERROR);
+                free(impl);
+                return 0;
+            }
+
+            /* If a Byday with pos=+/-5 is not in the current month it
+               must be searched in the next months. */
+            if (day_of_month > days_in_month || day_of_month <= 0) {
+                /* Skip if we have already found a "last" in this month. */
+                if (!icaltime_is_null_time(tmp_last) && tmp_last.month == init_last.month) {
+                    continue;
+                }
+                while (day_of_month > days_in_month || day_of_month <= 0) {
+                    impl->last.day = 1;
+                    increment_month(impl);
+                    days_in_month =
+                        icaltime_days_in_month(impl->last.month, impl->last.year);
+                    day_of_month = nth_weekday(dow, pos, impl->last);
                 }
             }
-        } else {
-            /* Count down from the last day pf the month to find the
-               pos'th weekday of dow ( like the second to last monday. ) */
-            pos = -pos;
-            for(impl->last.day = days_in_month;
-                impl->last.day != 0;
-                impl->last.day--){
-                
-                if(icaltime_day_of_week(impl->last) == dow){
-                    if(++poscount == pos ){
-                        break;
-                    }
-                }
+
+            impl->last.day = day_of_month;
+            if (icaltime_is_null_time(tmp_last) ||
+                icaltime_compare(impl->last, tmp_last) < 0) {
+                tmp_last = impl->last;
             }
         }
 
+        impl->last = tmp_last;
 
-	if(impl->last.day > days_in_month || impl->last.day == 0){
-	    icalerror_set_errno(ICAL_MALFORMEDDATA_ERROR);
+
+        if (impl->last.day > days_in_month || impl->last.day == 0) {
+            icalerror_set_errno(ICAL_MALFORMEDDATA_ERROR);
             free(impl);
             return 0;
-	}
-	
+        }
+
     } else if (has_by_data(impl,BY_MONTH_DAY)) {
         // setup_defaults sets the day to -1 for negative BYMONTHDAY values,
         // so make sure to re-calculate with days_in_month
