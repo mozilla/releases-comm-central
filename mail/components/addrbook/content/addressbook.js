@@ -250,7 +250,6 @@ function GetCurrentPrefs()
 
 }
 
-
 function SetNameColumn(cmd)
 {
   var prefValue;
@@ -463,7 +462,10 @@ function SetStatusText(total)
       }
     }
     else
-      statusText = gAddressBookBundle.getFormattedString("totalContactStatus", [gAbView.directory.dirName, total]);
+      statusText =
+        gAddressBookBundle.getFormattedString(
+          "totalContactStatus",
+          [GetDirectoryFromURI(GetSelectedDirectory()).dirName, total]);
 
     gStatusText.setAttribute("label", statusText);
   }
@@ -500,7 +502,6 @@ function onAdvancedAbSearch()
 function onEnterInSearchBar()
 {
   ClearCardViewPane();
-
   if (!gQueryURIFormat) {
     gQueryURIFormat = Services.prefs
       .getComplexValue("mail.addr_book.quicksearchquery.format",
@@ -525,6 +526,14 @@ function onEnterInSearchBar()
     let searchWords = getSearchTokens(searchInput.value);
     searchURI += generateQueryURI(gQueryURIFormat, searchWords);
   }
+
+  if (searchURI == kAllDirectoryRoot)
+    searchURI += "?";
+
+  document.getElementById("localResultsOnlyMessage")
+            .setAttribute("hidden",
+                          !gDirectoryTreeView.hasRemoteAB ||
+                          searchURI != kAllDirectoryRoot + "?");
 
   SetAbView(searchURI);
 

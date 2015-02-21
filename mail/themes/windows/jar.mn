@@ -297,6 +297,7 @@ classic.jar:
   skin/classic/messenger/shared/messenger.css                 (../shared/mail/messenger.css)
   skin/classic/messenger/shared/messageHeader.css             (../shared/mail/messageHeader.css)
   skin/classic/messenger/shared/tabmail.css                   (../shared/mail/tabmail.css)
+  skin/classic/messenger/shared/addressbook.css               (../shared/mail/addressbook.css)
   skin/classic/messenger/shared/accountProvisioner.css        (../shared/mail/accountProvisioner.css)
 #ifdef XP_WIN
 % skin communicator classic/1.0 %skin/classic/aero/communicator/ os=WINNT osversion>=6
@@ -583,5 +584,6 @@ classic.jar:
   skin/classic/aero/messenger/shared/messenger.css                 (../shared/mail/messenger.css)
   skin/classic/aero/messenger/shared/messageHeader.css             (../shared/mail/messageHeader.css)
   skin/classic/aero/messenger/shared/tabmail.css                   (../shared/mail/tabmail.css)
+  skin/classic/aero/messenger/shared/addressbook.css               (../shared/mail/addressbook.css)
   skin/classic/aero/messenger/shared/accountProvisioner.css        (../shared/mail/accountProvisioner.css)
 #endif

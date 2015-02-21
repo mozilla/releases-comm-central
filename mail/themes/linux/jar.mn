@@ -281,4 +281,4 @@ classic.jar:
   skin/classic/messenger/shared/messageHeader.css             (../shared/mail/messageHeader.css)
   skin/classic/messenger/shared/tabmail.css                   (../shared/mail/tabmail.css)
   skin/classic/messenger/shared/accountProvisioner.css         (../shared/mail/accountProvisioner.css)
-
+  skin/classic/messenger/shared/addressbook.css               (../shared/mail/addressbook.css)

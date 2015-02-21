@@ -222,6 +222,38 @@ nsAbManager::GetRootDirectory(nsIAbDirectory **aResult)
   return NS_OK;
 }
 
+NS_IMETHODIMP nsAbManager::GetDirectoryFromId(const nsACString &aDirPrefId,
+                                              nsIAbDirectory **aResult)
+{
+  NS_ENSURE_ARG_POINTER(aResult);
+
+  nsCOMPtr<nsISimpleEnumerator> enumerator;
+  nsresult rv = GetDirectories(getter_AddRefs(enumerator));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsISupports> support;
+  nsCOMPtr<nsIAbDirectory> directory;
+
+  bool hasMore = false;
+  while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
+    rv = enumerator->GetNext(getter_AddRefs(support));
+    NS_ENSURE_SUCCESS(rv, rv);
+    directory = do_QueryInterface(support, &rv);
+    if (NS_FAILED(rv)) {
+      NS_WARNING("Unable to select Address book nsAbManager::GetDirectoryFromId()");
+      continue;
+    }
+
+    nsCString dirPrefId;
+    directory->GetDirPrefId(dirPrefId);
+    if (dirPrefId.Equals(aDirPrefId)) {
+      *aResult = directory;
+      return NS_OK;
+    }
+  }
+
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsAbManager::GetDirectory(const nsACString &aURI,
                                         nsIAbDirectory **aResult)
 {

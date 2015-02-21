@@ -98,7 +98,7 @@ var MailMigrator = {
   _migrateUI: function() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 9;
+    const UI_VERSION = 10;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul";
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = 0;
@@ -267,6 +267,48 @@ var MailMigrator = {
           // reset to default (varies by localization).
           Services.prefs.clearUserPref("intl.charset.detector");
         }
+      }
+
+      // Add an expanded entry for All Address Books.
+      if (currentUIVersion < 10) {
+        let PERMS_FILE = parseInt("0644", 8);
+        let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
+        file.append("directoryTree.json");
+        let data = "";
+
+        // If the file exists, read its contents, prepend the "All ABs" URI
+        // and save it, else, just write the "All ABs" URI to the file.
+        if (file.exists()) {
+          let fstream = Cc["@mozilla.org/network/file-input-stream;1"]
+                        .createInstance(Ci.nsIFileInputStream);
+          let sstream = Cc["@mozilla.org/scriptableinputstream;1"]
+                        .createInstance(Ci.nsIScriptableInputStream);
+          fstream.init(file, -1, 0, 0);
+          sstream.init(fstream);
+          while (sstream.available()) {
+            data += sstream.read(4096);
+          }
+
+          sstream.close();
+          fstream.close();
+        }
+
+        if (data == "[]") {
+          data = "";
+        } else if (data.length > 0) {
+          data = data.substring(1, data.length - 1);
+        }
+
+        data = "[" + "\"moz-abdirectory://?\"" +
+               ((data.length > 0) ? ("," + data) : "") + "]";
+
+        let foStream = Cc["@mozilla.org/network/safe-file-output-stream;1"]
+                       .createInstance(Ci.nsIFileOutputStream);
+
+        foStream.init(file, 0x02 | 0x08 | 0x20, PERMS_FILE, 0);
+        foStream.write(data, data.length);
+        foStream.QueryInterface(Ci.nsISafeOutputStream).finish();
+        foStream.close();
       }
 
       // Update the migration version.

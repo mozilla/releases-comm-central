@@ -99,6 +99,10 @@ var abDirTreeObserver = {
 
     var srcURI = GetSelectedDirectory();
 
+    // We cannot allow copy/move to "All Address Books".
+    if (targetURI == kAllDirectoryRoot + "?")
+      return false;
+
     // The same place case
     if (targetURI == srcURI)
       return false;
@@ -269,7 +273,22 @@ var abDirTreeObserver = {
             directory.addMailList(GetDirectoryFromURI(card.mailListURI));
           }
         } else {
+          let srcDirectory = null;
+          if (srcURI == (kAllDirectoryRoot + "?") && actionIsMoving) {
+            let dirId = card.directoryId.substring(0, card.directoryId.indexOf("&"));
+            srcDirectory = MailServices.ab.getDirectoryFromId(dirId);
+          }
+
           directory.dropCard(card, needToCopyCard);
+
+          // This is true only if srcURI is "All ABs" and action is moving.
+          if (srcDirectory) {
+            let cardArray =
+              Components.classes["@mozilla.org/array;1"]
+                        .createInstance(Components.interfaces.nsIMutableArray);
+            cardArray.appendElement(card, false);
+            srcDirectory.deleteCards(cardArray);
+          }
         }
       }
 
@@ -277,15 +296,21 @@ var abDirTreeObserver = {
 
       // If we are moving, but not moving to a directory, then delete the
       // selected cards and display the appropriate text
-      if (actionIsMoving) {
+      if (actionIsMoving && srcURI != (kAllDirectoryRoot + "?")) {
         // If we have moved the cards, then delete them as well.
         gAbView.deleteSelectedCards();
+      }
 
+      if (actionIsMoving) {
         cardsTransferredText = PluralForm.get(numrows,
           gAddressBookBundle.getFormattedString("contactsMoved", [numrows]));
       } else {
         cardsTransferredText = PluralForm.get(numrows,
           gAddressBookBundle.getFormattedString("contactsCopied", [numrows]));
+      }
+
+      if (srcURI == kAllDirectoryRoot + "?") {
+        SetAbView(srcURI);
       }
 
       document.getElementById("statusText").label = cardsTransferredText;

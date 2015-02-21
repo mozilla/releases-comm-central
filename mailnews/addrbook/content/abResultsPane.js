@@ -80,6 +80,27 @@ function SetAbView(aURI)
     gAbView.QueryInterface(Components.interfaces.nsITreeView);
 
   UpdateSortIndicators(actualSortColumn, sortDirection);
+
+  // If the selected address book is LDAP and the search box is empty,
+  // inform the user of the empty results pane.
+  if (aURI.indexOf("moz-abldapdirectory") != -1 &&
+      aURI.indexOf("?") == -1) {
+    let element = null;
+    if (element = document.getElementById("abResultsTree"))
+      element.setAttribute("hidden", "true");
+    if (element = document.getElementById("CardViewOuterBox"))
+      element.setAttribute("hidden", "true");
+    if (element = document.getElementById("blankResultsPaneMessageBox"))
+      element.setAttribute("hidden", "false");
+  } else {
+    let element = null;
+    if (element = document.getElementById("abResultsTree"))
+      element.removeAttribute("hidden");
+    if (element = document.getElementById("CardViewOuterBox"))
+      element.removeAttribute("hidden");
+    if (element = document.getElementById("blankResultsPaneMessageBox"))
+      element.setAttribute("hidden", "true");
+  }
 }
 
 function CloseAbView()
@@ -347,7 +368,6 @@ var ResultsPaneController =
       case "button_delete":
       case "cmd_properties":
       case "cmd_newlist":
-        return true;
       default:
         return false;
     }
@@ -398,7 +418,7 @@ var ResultsPaneController =
         return (GetNumSelectedCards() == 1);
       case "cmd_newlist":
         var selectedDir = GetSelectedDirectory();
-        if (selectedDir) {
+        if (selectedDir && (selectedDir != kAllDirectoryRoot + "?")) {
           var abDir = GetDirectoryFromURI(selectedDir);
           if (abDir) {
             return abDir.supportsMailingLists;
@@ -440,6 +460,6 @@ var ResultsPaneController =
 
 function SelectFirstCard()
 {
-  if (gAbView && gAbView.selection)
+  if (gAbView && gAbView.selection && (gAbView.selection.count > 0))
     gAbView.selection.select(0);
 }

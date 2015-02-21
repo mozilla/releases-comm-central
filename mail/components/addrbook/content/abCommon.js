@@ -12,10 +12,14 @@ var abList = 0;
 var gAbResultsTree = null;
 var gAbView = null;
 var gAddressBookBundle;
+// A boolean variable determining whether AB column should be shown in AB
+// sidebar in compose window.
+var gAbColumnInComposeSidebar = false;
 
 const kDefaultSortColumn = "GeneratedName";
 const kDefaultAscending = "ascending";
 const kDefaultDescending = "descending";
+const kAllDirectoryRoot = "moz-abdirectory://";
 const kLdapUrlPrefix = "moz-abldapdirectory://";
 const kPersonalAddressbookURI = "moz-abmdbdirectory://abook.mab";
 const kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";
@@ -39,6 +43,7 @@ var DirPaneController =
       case "cmd_printcard":
       case "cmd_printcardpreview":
       case "cmd_newlist":
+      case "cmd_newCard":
         return true;
       default:
         return false;
@@ -65,8 +70,9 @@ var DirPaneController =
                                   "valueList" : "valueAddressBook");
 
         if (selectedDir &&
-	    (selectedDir != kPersonalAddressbookURI) &&
-	    (selectedDir != kCollectedAddressbookURI)) {
+            (selectedDir != kPersonalAddressbookURI) &&
+            (selectedDir != kCollectedAddressbookURI) &&
+            (selectedDir != (kAllDirectoryRoot + "?"))) {
           // If the directory is a mailing list, and it is read-only, return
           // false.
           var abDir = GetDirectoryFromURI(selectedDir);
@@ -100,13 +106,16 @@ var DirPaneController =
         return (GetSelectedDirectory() != null);
       case "cmd_newlist":
         selectedDir = GetSelectedDirectory();
-        if (selectedDir) {
+        if (selectedDir && selectedDir != (kAllDirectoryRoot + "?")) {
           var abDir = GetDirectoryFromURI(selectedDir);
           if (abDir) {
             return abDir.supportsMailingLists;
           }
         }
         return false;
+      case "cmd_newCard":
+        selectedDir = GetSelectedDirectory();
+        return (selectedDir && selectedDir != (kAllDirectoryRoot + "?"));
       default:
         return false;
     }
@@ -130,6 +139,9 @@ var DirPaneController =
         break;
       case "cmd_newlist":
         AbNewList();
+        break;
+      case "cmd_newCard":
+        AbNewCard();
         break;
     }
   },
@@ -255,6 +267,14 @@ function InitCommonJS()
   gDirTree = document.getElementById("dirTree");
   abList = document.getElementById("addressbookList");
   gAddressBookBundle = document.getElementById("bundle_addressBook");
+
+  // Make an entry for "All Address Books".
+  if (abList) {
+    abList.insertItemAt(0, gAddressBookBundle.getString("allAddressBooks"),
+                        kAllDirectoryRoot + "?");
+    // Select the newly added entry.
+    abList.selectedIndex = 0;
+  }
 }
 
 function AbDelete()
@@ -279,8 +299,28 @@ function AbDelete()
       confirmDeleteMessage = gAddressBookBundle.getString("confirmDeleteContacts");
   }
 
-  if (confirmDeleteMessage && Services.prompt.confirm(window, null, confirmDeleteMessage))
-    gAbView.deleteSelectedCards();
+  if (confirmDeleteMessage &&
+      Services.prompt.confirm(window, null, confirmDeleteMessage)) {
+    if (GetSelectedDirectory() != (kAllDirectoryRoot + "?")) {
+      gAbView.deleteSelectedCards();
+    } else {
+      let cards = GetSelectedAbCards();
+      for (let i = 0; i < cards.length; i++) {
+        let dirId = cards[i].directoryId
+                            .substring(0, cards[i].directoryId.indexOf("&"));
+        let directory = MailServices.ab.getDirectoryFromId(dirId);
+
+        let cardArray =
+          Components.classes["@mozilla.org/array;1"]
+                    .createInstance(Components.interfaces.nsIMutableArray);
+        cardArray.appendElement(cards[i], false);
+        if (directory)
+          directory.deleteCards(cardArray);
+      }
+
+      SetAbView(kAllDirectoryRoot + "?");
+    }
+  }
 }
 
 function AbNewCard()
@@ -449,13 +489,20 @@ function DirPaneDoubleClick(event)
 
 function DirPaneSelectionChange()
 {
+  let uri = GetSelectedDirectory();
   // clear out the search box when changing folders...
   onAbClearSearch();
   if (gDirTree && gDirTree.view.selection && gDirTree.view.selection.count == 1) {
     gPreviousDirTreeIndex = gDirTree.currentIndex;
-    ChangeDirectoryByURI(GetSelectedDirectory());
+    ChangeDirectoryByURI(uri);
+    document.getElementById("localResultsOnlyMessage")
+            .setAttribute("hidden",
+                          !gDirectoryTreeView.hasRemoteAB ||
+                          uri != kAllDirectoryRoot + "?");
   }
+
   goUpdateCommand('cmd_newlist');
+  goUpdateCommand('cmd_newCard');
 }
 
 function ChangeDirectoryByURI(uri = kPersonalAddressbookURI)
@@ -680,6 +727,7 @@ function onAbClearSearch()
   var searchInput = document.getElementById("peopleSearchInput");
   if (searchInput)
     searchInput.value = "";
+
   onEnterInSearchBar();
 }
 

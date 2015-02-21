@@ -74,6 +74,7 @@ private:
   nsCOMPtr<nsIStringBundle> mABBundle;
 
   bool mInitialized;
+  bool mIsAllDirectoryRootView;
   bool mSuppressSelectionChange;
   bool mSuppressCountChange;
   int32_t mGeneratedNameFormat;

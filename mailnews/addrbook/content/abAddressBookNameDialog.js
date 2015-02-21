@@ -10,6 +10,7 @@ var gDirectory = null;
 
 const kPersonalAddressbookURI = "moz-abmdbdirectory://abook.mab";
 const kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";
+const kAllDirectoryRoot = "moz-abdirectory://";
 const kPABDirectory = 2; // defined in nsDirPrefs.h
 
 function abNameOnLoad()
@@ -34,7 +35,8 @@ function abNameOnLoad()
 
   if (gDirectory &&
      (gDirectory.URI == kCollectedAddressbookURI ||
-       gDirectory.URI == kPersonalAddressbookURI)) {
+       gDirectory.URI == kPersonalAddressbookURI ||
+       gDirectory.URI == kAllDirectoryRoot + "?")) {
     // Address book name is not editable, therefore disable the field and
     // only have an ok button that doesn't do anything.
     gNameInput.readOnly = true;

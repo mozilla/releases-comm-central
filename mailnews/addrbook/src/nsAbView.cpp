@@ -45,6 +45,7 @@ using namespace mozilla;
 NS_IMPL_ISUPPORTS(nsAbView, nsIAbView, nsITreeView, nsIAbListener, nsIObserver)
 
 nsAbView::nsAbView() : mInitialized(false),
+                       mIsAllDirectoryRootView(false),
                        mSuppressSelectionChange(false),
                        mSuppressCountChange(false),
                        mGeneratedNameFormat(0)
@@ -189,10 +190,57 @@ NS_IMETHODIMP nsAbView::SetView(nsIAbDirectory *aAddressBook,
   mSortColumn.AssignLiteral("");
   mSortDirection.AssignLiteral("");
 
-  mDirectory = aAddressBook;
+  nsCString uri;
+  aAddressBook->GetURI(uri);
+  int32_t searchBegin = uri.FindChar('?');
+  nsCString searchQuery(Substring(uri, searchBegin));
+  // This is a special case, a workaround basically, to just have all ABs.
+  if (searchQuery.EqualsLiteral("?")) {
+    searchQuery.AssignLiteral("");
+  }
 
-  rv = EnumerateCards();
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (Substring(uri, 0, searchBegin).EqualsLiteral(kAllDirectoryRoot)) {
+    mIsAllDirectoryRootView = true;
+    // We have special request case to search all addressbooks, so we need
+    // to iterate over all addressbooks.
+    // Since the request is for all addressbooks, the URI must have been
+    // passed with an extra '?'. We still check it for sanity and trim it here.
+    if (searchQuery.Find("??") != kNotFound)
+      searchQuery = Substring(searchQuery, 1);
+
+    nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID,
+                                                   &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsISimpleEnumerator> enumerator;
+    rv = abManager->GetDirectories(getter_AddRefs(enumerator));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    bool hasMore = false;
+    nsCOMPtr<nsISupports> support;
+    nsCOMPtr<nsIAbDirectory> directory;
+    while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
+      rv = enumerator->GetNext(getter_AddRefs(support));
+      NS_ENSURE_SUCCESS(rv, rv);
+      directory = do_QueryInterface(support, &rv);
+
+      // If, for some reason, we are unable to get a directory, we continue.
+      if (NS_FAILED(rv))
+        continue;
+
+      // Get appropriate directory with search query.
+      nsCString uri;
+      directory->GetURI(uri);
+      rv = abManager->GetDirectory(uri + searchQuery, getter_AddRefs(directory));
+      mDirectory = directory;
+      rv = EnumerateCards();
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+  } else {
+    mIsAllDirectoryRootView = false;
+    mDirectory = aAddressBook;
+    rv = EnumerateCards();
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   NS_NAMED_LITERAL_STRING(generatedNameColumnId, GENERATED_NAME_COLUMN_ID);
 
@@ -409,6 +457,15 @@ NS_IMETHODIMP nsAbView::GetCellValue(int32_t row, nsITreeColumn* col, nsAString&
 nsresult nsAbView::GetCardValue(nsIAbCard *card, const char16_t *colID,
                                 nsAString &_retval)
 {
+  if (nsString(colID).EqualsLiteral("addrbook")) {
+    nsCString dirID;
+    nsresult rv = card->GetDirectoryId(dirID);
+    if (NS_SUCCEEDED(rv))
+      CopyUTF8toUTF16(Substring(dirID, dirID.FindChar('&') + 1), _retval);
+
+    return rv;
+  }
+
   // "G" == "GeneratedName", "_P" == "_PhoneticName"
   // else, standard column (like PrimaryEmail and _AimScreenName)
   if (colID[0] == char16_t('G'))
@@ -762,13 +819,28 @@ nsresult nsAbView::GenerateCollationKeysForCard(const char16_t *colID, AbCard *a
   return rv;
 }
 
+// A helper method currently returns true if the directory is an LDAP.
+// We can tweak this to return true for all Remote Address Books where the
+// search is asynchronous.
+bool isDirectoryRemote(nsCOMPtr<nsIAbDirectory> aDir)
+{
+  nsCString uri;
+  aDir->GetURI(uri);
+  return (uri.Find("moz-abldapdirectory") != kNotFound);
+}
+
 NS_IMETHODIMP nsAbView::OnItemAdded(nsISupports *parentDir, nsISupports *item)
 {
   nsresult rv;
-  nsCOMPtr <nsIAbDirectory> directory = do_QueryInterface(parentDir,&rv);
+  nsCOMPtr <nsIAbDirectory> directory = do_QueryInterface(parentDir, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
 
-  if (directory.get() == mDirectory.get()) {
+  bool isRemote = isDirectoryRemote(directory);
+  // If the search is performed on All Address books, its possible that the LDAP
+  // results start coming when mDirectory has changed (LDAP search works in an
+  // asynchronous manner).
+  if ((mIsAllDirectoryRootView && isRemote) ||
+      directory.get() == mDirectory.get()) {
     nsCOMPtr <nsIAbCard> addedCard = do_QueryInterface(item);
     if (addedCard) {
       // Malloc these from an arena

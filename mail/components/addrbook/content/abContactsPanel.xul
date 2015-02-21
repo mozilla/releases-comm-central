@@ -95,6 +95,10 @@
         <treecol id="GeneratedName"
                  persist="hidden ordinal width sortDirection" flex="1" label="&GeneratedName.label;" primary="true"/>
         <splitter class="tree-splitter"/>
+        <treecol id="addrbook"
+                 persist="hidden ordinal width sortDirection" hidden="true"
+                 flex="1" label="&Addrbook.label;"/>
+        <splitter class="tree-splitter"/>
         <treecol id="PrimaryEmail"
                  persist="hidden ordinal width sortDirection" hidden="true"
                  flex="1" label="&PrimaryEmail.label;"/>

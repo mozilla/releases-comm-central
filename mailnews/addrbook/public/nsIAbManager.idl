@@ -21,7 +21,7 @@ interface nsIAbBooleanExpression;
  * It contains the main functions to create and delete address books as well
  * as some helper functions.
  */
-[scriptable, uuid(c3b33078-0b9c-4b56-83ed-3c5e84de82c8)]
+[scriptable, uuid(4271daa0-de0b-48ed-9c2b-934dc895383d)]
 interface nsIAbManager : nsISupports 
 {
   /**
@@ -37,6 +37,14 @@ interface nsIAbManager : nsISupports
    * @return            The found address book.
    */
   nsIAbDirectory getDirectory(in ACString aURI);
+
+  /**
+   * Returns the directory that has the supplied dirPrefId.
+   *
+   * @param aDirPrefId  The dirPrefId of the directory.
+   * @return            The found AB directory.
+   */
+  nsIAbDirectory getDirectoryFromId(in ACString aDirPrefId);
 
   /**
    * Creates a new address book.

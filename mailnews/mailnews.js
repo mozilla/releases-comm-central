@@ -370,7 +370,6 @@ pref("mail.collect_email_address_incoming", false);
 pref("mail.collect_email_address_newsgroup", false);
 #endif
 pref("mail.collect_email_address_outgoing", true);
-
 // by default, use the Collected Addressbook for collection
 pref("mail.collect_addressbook", "moz-abmdbdirectory://history.mab");
 

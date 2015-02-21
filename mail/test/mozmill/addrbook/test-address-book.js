@@ -62,12 +62,12 @@ function setupModule(module)
   mListD = create_mailing_list("ML D");
   addrBook3.addMailList(mListD);
 
-  // There are 7 address books (Personal, AB 1, AB 2, AB 3, AB 4, LDAP Book
+  // There are 8 address book lists (All, Personal, AB 1, AB 2, AB 3, AB 4, LDAP Book
   // and Collected Address Book.  So let's ensure that those address books
   // exist in the tree view before executing our tests.
   abController.waitFor(
-    function () (abController.window.gDirectoryTreeView.rowCount == 7),
-    "Timeout waiting for all 7 address books to show up in the tree view",
+    function () (abController.window.gDirectoryTreeView.rowCount == 8),
+    "Timeout waiting for all 8 rows in address books list to show up in the tree view",
     1000, 10);
 }
 
@@ -75,14 +75,16 @@ function setupModule(module)
  * address books.
  *
  * Currently, we sort address books as follows:
- * 1. Personal Address Book
- * 2. Mork Address Books
- * 3. LDAP / Other Address Books
- * 4. Collected Address Book
+ * 1. All Address Books
+ * 2. Personal Address Book
+ * 3. Mork Address Books
+ * 4. LDAP / Other Address Books
+ * 5. Collected Address Book
  *
- * With the Personal and Collapsed address books existing
+ * With the All, Personal and Collapsed address books existing
  * automatically, our address books *should* be in this order:
  *
+ * All Address Books
  * Personal Address Book
  * AB 1
  *    ML A
@@ -97,7 +99,8 @@ function setupModule(module)
  **/
 function test_order_of_address_books()
 {
-  const EXPECTED_AB_ORDER = ["Personal Address Book", "AB 1", "AB 2",
+  const EXPECTED_AB_ORDER = ["All Address Books",
+                             "Personal Address Book", "AB 1", "AB 2",
                              "AB 3", "AB 4", "LDAP Book",
                              "Collected Addresses"];
 

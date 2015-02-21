@@ -10,6 +10,67 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 
+// Tree Sort helper methods.
+const AB_ORDER = ["aab", "pab", "mork", "ldap", "mapi+other", "anyab", "cab"];
+
+function getDirectoryValue(aDir, aKey) {
+  const Ci = Components.interfaces;
+
+  if (aKey == "ab_type") {
+    if (aDir._directory.URI == kAllDirectoryRoot + "?")
+      return "aab";
+    if (aDir._directory.URI == kPersonalAddressbookURI)
+      return "pab";
+    if (aDir._directory.URI == kCollectedAddressbookURI)
+      return "cab";
+    if (aDir._directory instanceof Ci.nsIAbMDBDirectory)
+      return "mork";
+    if (aDir._directory instanceof Ci.nsIAbLDAPDirectory)
+      return "ldap";
+
+    // If there is any other AB type.
+    return "mapi+other";
+  } else if (aKey == "ab_name") {
+    return aDir._directory.dirName;
+  }
+
+  // This should never happen.
+  return null;
+}
+
+function abNameCompare(a, b) {
+  return a.localeCompare(b);
+}
+
+function abTypeCompare(a, b) {
+  return (AB_ORDER.indexOf(a) - AB_ORDER.indexOf(b));
+}
+
+const SORT_PRIORITY = ["ab_type", "ab_name"];
+const SORT_FUNCS = [abTypeCompare, abNameCompare];
+
+function abSort(a, b) {
+  for (let i = 0; i < SORT_FUNCS.length; i++) {
+    let sortBy = SORT_PRIORITY[i];
+    let aValue = getDirectoryValue(a, sortBy);
+    let bValue = getDirectoryValue(b, sortBy);
+
+    if (!aValue && !bValue)
+      return 0;
+    if (!aValue)
+      return -1;
+    if (!bValue)
+      return 1;
+    if (aValue != bValue) {
+      let result = SORT_FUNCS[i](aValue, bValue);
+
+      if (result != 0)
+        return result;
+    }
+  }
+  return 0;
+}
+
 /**
  * Each abDirTreeItem corresponds to one row in the tree view.
  */
@@ -38,22 +99,29 @@ abDirTreeItem.prototype = {
 
   _children: null,
   get children() {
+    const Ci = Components.interfaces;
     if (!this._children) {
       this._children = [];
-      const Ci = Components.interfaces;
-      var myEnum = this._directory.childNodes;
+      let myEnum;
+      if (this._directory.URI == (kAllDirectoryRoot + "?"))
+        myEnum = MailServices.ab.directories;
+      else
+        myEnum = this._directory.childNodes;
+
       while (myEnum.hasMoreElements()) {
         var abItem = new abDirTreeItem(myEnum.getNext()
-                                      .QueryInterface(Ci.nsIAbDirectory));
+                                       .QueryInterface(Ci.nsIAbDirectory));
+        if (gDirectoryTreeView&&
+            this.id == kAllDirectoryRoot + "?" &&
+            getDirectoryValue(abItem, "ab_type") == "ldap")
+          gDirectoryTreeView.hasRemoteAB = true;
+
         this._children.push(abItem);
         this._children[this._children.length - 1]._level = this._level + 1;
         this._children[this._children.length - 1]._parent = this;
       }
 
-      // We sort children based on their names
-      this._children.sort(function nameSort(a, b) {
-        return a._directory.dirName.localeCompare(b._directory.dirName);
-      });
+      this._children.sort(abSort);
     }
     return this._children;
   },
@@ -79,7 +147,10 @@ directoryTreeView.prototype = {
 
   PERMS_FILE: parseInt("0644", 8),
 
+  hasRemoteAB: false,
+
   init: function dtv_init(aTree, aJSONFile) {
+
     const Cc = Components.classes;
     const Ci = Components.interfaces;
 
@@ -97,8 +168,9 @@ directoryTreeView.prototype = {
         fstream.init(file, -1, 0, 0);
         sstream.init(fstream);
 
-        while (sstream.available())
+        while (sstream.available()) {
           data += sstream.read(4096);
+        }
 
         sstream.close();
         fstream.close();
@@ -164,71 +236,27 @@ directoryTreeView.prototype = {
 
     var dirEnum = MailServices.ab.directories;
 
-    while (dirEnum.hasMoreElements()) {
-      this._rowMap.push(new abDirTreeItem(dirEnum.getNext().QueryInterface(Ci.nsIAbDirectory)));
-    }
+    // Make an entry for All Address Books.
+    let rootAB = MailServices.ab.getDirectory(kAllDirectoryRoot + "?");
+    rootAB.dirName = gAddressBookBundle.getString("allAddressBooks");
+    this._rowMap.push(new abDirTreeItem(rootAB));
 
     // Sort our addressbooks now
-
-    const AB_ORDER = ["pab", "mork", "ldap", "mapi+other", "cab"];
-
-    function getDirectoryValue(aDir, aKey) {
-      if (aKey == "ab_type") {
-        if (aDir._directory.URI == kPersonalAddressbookURI)
-          return "pab";
-        if (aDir._directory.URI == kCollectedAddressbookURI)
-          return "cab";
-        if (aDir._directory instanceof Ci.nsIAbMDBDirectory)
-          return "mork";
-        if (aDir._directory instanceof Ci.nsIAbLDAPDirectory)
-          return "ldap";
-        return "mapi+other";
-      } else if (aKey == "ab_name") {
-        return aDir._directory.dirName;
-      }
-      // This should never happen.
-      return null;
-    }
-
-    function abNameCompare(a, b) {
-      return a.localeCompare(b);
-    }
-
-    function abTypeCompare(a, b) {
-      return (AB_ORDER.indexOf(a) - AB_ORDER.indexOf(b));
-    }
-
-    const SORT_PRIORITY = ["ab_type", "ab_name"];
-    const SORT_FUNCS = [abTypeCompare, abNameCompare];
-
-    function abSort(a, b) {
-      for (let i = 0; i < SORT_FUNCS.length; i++) {
-        let sortBy = SORT_PRIORITY[i];
-        let aValue = getDirectoryValue(a, sortBy);
-        let bValue = getDirectoryValue(b, sortBy);
-
-        if (!aValue && !bValue)
-          return 0;
-        if (!aValue)
-          return -1;
-        if (!bValue)
-          return 1;
-        if (aValue != bValue) {
-          let result = SORT_FUNCS[i](aValue, bValue);
-
-          if (result != 0)
-            return result;
-        }
-      }
-      return 0;
-    }
-
     this._rowMap.sort(abSort);
 
     if (this._tree)
       this._tree.rowCountChanged(0, this._rowMap.length - oldCount);
 
     this._restoreOpenStates();
+  },
+
+  getIndexForId: function(aId) {
+    for (let i = 0; i < this._rowMap.length; i++) {
+      if (this._rowMap[i].id == aId)
+        return i;
+    }
+
+    return -1;
   },
 
   // nsIAbListener interfaces
@@ -260,7 +288,8 @@ directoryTreeView.prototype = {
       return;
 
     // If we're deleting a top-level address-book, just select the first book
-    if (aParent.URI == "moz-abdirectory://") {
+    if (aParent.URI == kAllDirectoryRoot ||
+        aParent.URI == kAllDirectoryRoot + "?") {
       this.selection.select(0);
       return;
     }
