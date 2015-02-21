@@ -4,6 +4,7 @@ component {8cc51368-6aa0-43e8-b762-bde9b9fd828c} aboutRedirector.js
 contract @mozilla.org/network/protocol/about;1?what=rights {8cc51368-6aa0-43e8-b762-bde9b9fd828c}
 contract @mozilla.org/network/protocol/about;1?what=support {8cc51368-6aa0-43e8-b762-bde9b9fd828c}
 contract @mozilla.org/network/protocol/about;1?what=preferences {8cc51368-6aa0-43e8-b762-bde9b9fd828c}
+contract @mozilla.org/network/protocol/about;1?what=downloads {8cc51368-6aa0-43e8-b762-bde9b9fd828c}
 
 component {44346520-c5d2-44e5-a1ec-034e04d7fac4} nsMailDefaultHandler.js
 contract @mozilla.org/mail/clh;1 {44346520-c5d2-44e5-a1ec-034e04d7fac4}
@@ -17,3 +18,7 @@ contract @mozilla.org/uriloader/content-handler;1?type=text/plain {1c73f03a-b817
 component {eb239c82-fac9-431e-98d7-11cacd0f71b8} mailGlue.js
 contract @mozilla.org/mail/mailglue;1 {eb239c82-fac9-431e-98d7-11cacd0f71b8}
 category app-startup MailGlue service,@mozilla.org/mail/mailglue;1
+
+component {a93f0d6f-02a3-4486-a662-8f49b8c1de48} DownloadsStartup.js
+contract @mozilla.org/mail/downloadsstartup;1 {a93f0d6f-02a3-4486-a662-8f49b8c1de48}
+category profile-after-change DownloadsStartup @mozilla.org/mail/downloadsstartup;1

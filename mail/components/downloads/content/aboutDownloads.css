@@ -1,0 +1,26 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+richlistitem.download {
+  -moz-binding: url('chrome://messenger/content/downloads/download.xml#download');
+}
+
+#msgDownloadsRichListBox {
+  /** The default listbox appearance comes with an unwanted margin. **/
+  margin: 0;
+  display: -moz-box;
+}
+
+#msgDownloadsRichListBox > richlistitem.download {
+  height: 5em;
+  padding: 5px 8px;
+}
+
+#msgDownloadsListEmptyDescription {
+  display: none;
+}
+
+#msgDownloadsRichListBox:empty + #msgDownloadsListEmptyDescription {
+  display: -moz-box;
+}

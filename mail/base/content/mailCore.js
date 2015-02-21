@@ -508,9 +508,10 @@ function openIMAccountWizard()
 
 function openSavedFilesWnd()
 {
-  Components.classes['@mozilla.org/download-manager-ui;1']
-            .getService(Components.interfaces.nsIDownloadManagerUI)
-            .show(window);
+  let tabmail = document.getElementById("tabmail");
+  tabmail.openTab("chromeTab",
+                  { chromePage: "about:downloads",
+                    clickHandler: "specialTabs.aboutClickHandler(event);" });
 }
 
 function SetBusyCursor(window, enable)

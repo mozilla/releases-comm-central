@@ -1777,6 +1777,10 @@ nsresult nsSaveMsgListener::InitializeDownload(nsIRequest * aRequest, uint32_t a
     // so make an arbitrary decision based on the content length of the
     // attachment -- show it if less than half of the download has completed
 
+    // Set saveToDisk explicitly to avoid launching the saved file.
+    // See http://hg.mozilla.org/mozilla-central/file/814a6f071472/toolkit/components/jsdownloads/src/DownloadLegacy.js#l164
+    mimeinfo->SetPreferredAction(nsIHandlerInfo::saveToDisk);
+
     // When we don't allow warnings, also don't show progress, as this
     //  is an environment (typically filters) where we don't want
     //  interruption.

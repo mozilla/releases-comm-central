@@ -43,3 +43,4 @@ MAR_CHANNEL_ID=thunderbird-comm-central
 # Enable generational GC on desktop.
 JSGC_GENERATIONAL=1
 MOZ_PROFILE_MIGRATOR=1
+MOZ_JSDOWNLOADS=1

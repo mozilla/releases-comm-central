@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/"?>
+<?xml-stylesheet href="chrome://messenger/content/downloads/aboutDownloads.css" type="text/css"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+  - License, v. 2.0. If a copy of the MPL was not distributed with this
+  - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE window [
+<!ENTITY % aboutDownloadsDTD SYSTEM "chrome://messenger/locale/aboutDownloads.dtd">
+%aboutDownloadsDTD;
+]>
+
+<window id="aboutDownloads"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="&aboutDownloads.title;"
+        onload="DownloadsView.init();">
+  <script type="application/javascript"
+          src="chrome://global/content/globalOverlay.js"/>
+  <script type="application/javascript"
+          src="chrome://messenger/content/downloads/aboutDownloads.js"/>
+
+  <stack flex="1">
+    <richlistbox id="msgDownloadsRichListBox"
+                 flex="1"
+                 seltype="multiple"
+                 context="msgDownloadsContextMenu"
+                 oncontextmenu="DownloadsView.onDownloadContextMenu(event);"/>
+    <description id="msgDownloadsListEmptyDescription"
+                 value="&aboutDownloads.empty;"
+                 mousethrough="always"/>
+  </stack>
+
+  <commandset id="msgDownloadCommands"
+              commandupdater="true"
+              events="focus,select,contextmenu">
+    <command id="msgDownloadsCmd_open"
+             oncommand="goDoCommand('msgDownloadsCmd_open')"/>
+    <command id="msgDownloadsCmd_show"
+             oncommand="goDoCommand('msgDownloadsCmd_show')"/>
+    <command id="msgDownloadsCmd_remove"
+             oncommand="goDoCommand('msgDownloadsCmd_remove')"/>
+    <command id="msgDownloadsCmd_clearDownloads"
+             oncommand="goDoCommand('msgDownloadsCmd_clearDownloads')"/>
+  </commandset>
+
+  <menupopup id="msgDownloadsContextMenu">
+    <menuitem command="msgDownloadsCmd_remove"
+              class="msgDownloadRemoveFromHistoryMenuItem"
+              label="&cmd.removeFromHistory.label;"
+              accesskey="&cmd.removeFromHistory.accesskey;"/>
+    <menuitem command="msgDownloadsCmd_open"
+              label="&cmd.open.label;"
+              accesskey="&cmd.open.accesskey;"/>
+    <menuitem command="msgDownloadsCmd_show"
+              class="msgDownloadShowMenuItem"
+#ifdef XP_MACOSX
+              label="&cmd.showMac.label;"
+              accesskey="&cmd.showMac.accesskey;"
+#else
+              label="&cmd.show.label;"
+              accesskey="&cmd.show.accesskey;"
+#endif
+              />
+    <menuitem command="msgDownloadsCmd_clearDownloads"
+              label="&cmd.clearDownloads.label;"
+              accesskey="&cmd.clearDownloads.accesskey;"/>
+  </menupopup>
+</window>

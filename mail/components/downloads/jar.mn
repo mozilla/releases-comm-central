@@ -1,0 +1,9 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+messenger.jar:
+    content/messenger/downloads/download.xml           (content/download.xml)
+    content/messenger/downloads/aboutDownloads.js      (content/aboutDownloads.js)
+*   content/messenger/downloads/aboutDownloads.xul     (content/aboutDownloads.xul)
+    content/messenger/downloads/aboutDownloads.css     (content/aboutDownloads.css)
