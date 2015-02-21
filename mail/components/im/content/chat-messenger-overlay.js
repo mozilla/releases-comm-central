@@ -602,7 +602,7 @@ var chatHandler = {
       this.observedContact = null;
 
       let path = "logs/" + item.log.path;
-      path = OS.Path.join(OS.Constants.Path.profileDir, path.split("/"));
+      path = OS.Path.join(OS.Constants.Path.profileDir, ...path.split("/"));
       imServices.logs.getLogFromFile(path, true).then(aLog => {
         aLog.getConversation().then(aConv => {
           this._showLog(aConv, path, item.searchTerm || undefined);

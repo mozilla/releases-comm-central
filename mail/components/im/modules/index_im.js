@@ -465,6 +465,8 @@ var GlodaIMIndexer = {
     if (!logConv)
       return Gloda.kWorkDone;
 
+    let fileName = OS.Path.basename(aLogPath);
+
     let content = logConv.getMessages()
                          // Some messages returned, e.g. sessionstart messages,
                          // may have the noLog flag set. Ignore these.
@@ -483,12 +485,14 @@ var GlodaIMIndexer = {
       glodaConv._content = content;
     }
     else {
-      glodaConv = new GlodaIMConversation(logConv.title, log.time, log.path, content);
+      // Get the path of the file relative to the logs directory - the last 4
+      // components of the path.
+      let relativePath = OS.Path.split(aLogPath).components.slice(-4).join("/");
+      glodaConv = new GlodaIMConversation(logConv.title, log.time, relativePath, content);
       if (aGlodaConv)
         aGlodaConv.value = glodaConv;
     }
 
-    let fileName = OS.Path.basename(aLogPath);
     let isNew = !Object.prototype.hasOwnProperty.call(aCache, fileName);
     let rv = aCallbackHandle.pushAndGo(
       Gloda.grokNounItem(glodaConv, {}, true, isNew, aCallbackHandle));
