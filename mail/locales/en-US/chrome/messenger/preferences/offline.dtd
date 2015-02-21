@@ -11,8 +11,8 @@
 <!ENTITY radioRememberPrevState.accesskey "R">
 <!ENTITY radioAskState.label "Ask me for online state">
 <!ENTITY radioAskState.accesskey "k">
-<!ENTITY radioAlwaysOnline.label "Online">
-<!ENTITY radioAlwaysOnline.accesskey "l">
+<!ENTITY radioAlwaysOnlineState.label "Online">
+<!ENTITY radioAlwaysOnlineState.accesskey "l">
 <!ENTITY radioAlwaysOffline.label "Offline">
 <!ENTITY radioAlwaysOffline.accesskey "f">
 

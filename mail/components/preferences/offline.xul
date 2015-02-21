@@ -50,8 +50,8 @@
              accesskey="&radioRememberPrevState.accesskey;"/>
       <radio value="1" label="&radioAskState.label;"
              accesskey="&radioAskState.accesskey;"/>
-      <radio value="2" label="&radioAlwaysOnline.label;"
-             accesskey="&radioAlwaysOnline.accesskey;"/>
+      <radio value="2" label="&radioAlwaysOnlineState.label;"
+             accesskey="&radioAlwaysOnlineState.accesskey;"/>
       <radio value="3" label="&radioAlwaysOffline.label;"
              accesskey="&radioAlwaysOffline.accesskey;"/>
       <radio value="4" hidden="true"/>
