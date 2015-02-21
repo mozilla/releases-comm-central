@@ -368,6 +368,7 @@ var ResultsPaneController =
       case "button_delete":
       case "cmd_properties":
       case "cmd_newlist":
+        return true;
       default:
         return false;
     }
