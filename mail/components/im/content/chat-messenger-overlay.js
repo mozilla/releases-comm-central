@@ -389,7 +389,7 @@ var chatHandler = {
     document.getElementById("logDisplayDeck").selectedPanel =
       document.getElementById("logDisplayBrowserBox");
   },
-  _showLog: function(aConversation, aPath, aSearchTerm) {
+  _showLog: function(aConversation, aSearchTerm) {
     if (!aConversation)
       return;
     this._showLogPanel();
@@ -490,7 +490,7 @@ var chatHandler = {
     if (list.selectedItem.getAttribute("id") != "searchResultConv")
       document.getElementById("goToConversation").hidden = false;
     log.getConversation().then(aLogConv => {
-      this._showLog(aLogConv, log.path);
+      this._showLog(aLogConv);
     });
   },
 
@@ -605,7 +605,7 @@ var chatHandler = {
       path = OS.Path.join(OS.Constants.Path.profileDir, ...path.split("/"));
       imServices.logs.getLogFromFile(path, true).then(aLog => {
         aLog.getConversation().then(aConv => {
-          this._showLog(aConv, path, item.searchTerm || undefined);
+          this._showLog(aConv, item.searchTerm || undefined);
           cti.setAttribute("displayName", aConv.title);
           imServices.logs.getSimilarLogs(aLog, true).then(aSimilarLogs => {
             this._showLogList(aSimilarLogs, aLog);
