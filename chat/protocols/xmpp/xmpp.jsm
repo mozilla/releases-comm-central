@@ -511,6 +511,12 @@ const XMPPAccountBuddyPrototype = {
       this._account._parseJID(aStanza.attributes["from"]).resource || "";
 
     let type = aStanza.attributes["type"];
+
+    // Reset typing status if the buddy is in a conversation and becomes unavailable.
+    let conv = this._account._conv.get(this.normalizedName);
+    if (type == "unavailable" && conv)
+      conv.updateTyping(Ci.prplIConvIM.NOT_TYPING);
+
     if (type == "unavailable" || type == "error") {
       if (!this._resources || !(resource in this._resources))
         return; // ignore for already offline resources.
