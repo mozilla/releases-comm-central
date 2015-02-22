@@ -180,7 +180,7 @@
                                                checked="false"
                                                persist="checked"/>
                 <agenda-checkbox-richlist-item id="nextweek-header-hidden"
-                                               title="&calendar.soon.button.label;"
+                                               title="&calendar.upcoming.button.label;"
                                                checked="false"
                                                persist="checked"/>
               </vbox>

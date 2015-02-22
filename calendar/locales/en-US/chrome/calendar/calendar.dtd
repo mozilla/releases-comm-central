@@ -12,9 +12,9 @@
 <!ENTITY calendar.unifinder.todoitems.label       "Tasks" >
 <!ENTITY calendar.unifinder.showcompletedtodos.label "Show completed Tasks">
 
-<!ENTITY calendar.today.button.label       "Today">
+<!ENTITY calendar.today.button.label          "Today">
 <!ENTITY calendar.tomorrow.button.label       "Tomorrow">
-<!ENTITY calendar.soon.button.label           "Soon">
+<!ENTITY calendar.upcoming.button.label       "Upcoming">
 
 <!ENTITY calendar.events.filter.all.label "All Events">
 <!ENTITY calendar.events.filter.today.label "Today's Events">

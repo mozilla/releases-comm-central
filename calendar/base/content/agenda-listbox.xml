@@ -52,6 +52,7 @@
       <constructor><![CDATA[
           this.kCheckbox = document.getAnonymousElementByAttribute(this, "anonid", "agenda-checkbox-widget");
       ]]></constructor>
+
       <method name="getItem">
         <body><![CDATA[
             return this.mItem;
@@ -62,8 +63,16 @@
         <parameter name="showsToday"/>
         <body><![CDATA[
             this.mItem = synthetic;
+            let duration = synthetic.duration;
             if (showsToday) {
                 this.kCheckbox.label = this.getAttribute("title");
+                if (this.id == "nextweek-header") {
+                    if (duration > 7) {
+                        this.kCheckbox.label += " (" + unitPluralForm(duration / 7, "weeks") + ")";
+                    } else {
+                        this.kCheckbox.label += " (" + unitPluralForm(duration, "days") + ")";
+                    }
+                }
             } else {
                 if (synthetic.duration == 1) {
                     this.kCheckbox.label = getDateFormatter().formatDate(synthetic.start);
@@ -121,7 +130,9 @@
                               .getInTimezone(calendarDefaultTimezone());
             let endPreviousDay = endDate.clone();
             endPreviousDay.day--;
-            let longPeriod = aPeriod.duration > 1;
+            let now = cal.now();
+            now.isDate = true;
+            let longPeriod = periodStartDate.subtractDate(now).days > 1;
 
             let date = "";
             let iconType = "";
@@ -211,7 +222,9 @@
             if (endAtMidnight) {
                 endDate.day--;
             }
-            let longFormat = aPeriod.duration > 1;
+            let now = cal.now();
+            now.isDate = true;
+            let longFormat = periodStartDate.subtractDate(now).days > 1;
 
             let duration = "";
             let iconType = "";

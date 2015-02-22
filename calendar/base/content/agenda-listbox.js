@@ -14,7 +14,8 @@ var agendaListbox = {
     agendaListboxControl: null,
     mPendingRefreshJobs: null,
     kDefaultTimezone: null,
-    showsToday: false
+    showsToday: false,
+    soonDays: 5
 };
 
 /**
@@ -30,15 +31,28 @@ function initAgendaListbox() {
     this.today = new Synthetic(showTodayHeader, 1);
     this.addPeriodListItem(this.today, "today-header");
     this.tomorrow = new Synthetic(showTomorrowHeader, 1);
-    var soondays = Preferences.get("calendar.agendaListbox.soondays", 5);
-    this.soon = new Synthetic(showSoonHeader, soondays);
+    this.soonDays = getSoondaysPreference();
+    this.soon = new Synthetic(showSoonHeader, this.soonDays);
     this.periods = [this.today, this.tomorrow, this.soon];
     this.mPendingRefreshJobs = new Map();
+
+    var prefObserver = {
+        observe: function aL_observe(aSubject, aTopic, aPrefName) {
+            switch (aPrefName) {
+                case "calendar.agendaListbox.soondays":
+                    agendaListbox.soonDays = getSoondaysPreference();
+                    agendaListbox.updateSoonSection();
+                    break;
+            }
+        }
+    }
+    Services.prefs.addObserver("calendar.agendaListbox", prefObserver, false);
 
     // Make sure the agenda listbox is unloaded
     var self = this;
     window.addEventListener("unload",
                             function unload_agendaListbox() {
+                                Services.prefs.removeObserver("calendar.agendaListbox", prefObserver);
                                 self.uninit();
                             },
                             false);
@@ -393,7 +407,7 @@ function isBefore(aItem, aCompItem, aPeriod) {
 }
 
 /**
- * Returns the a start or end date of an item according to which of them
+ * Returns the start or end date of an item according to which of them
  * must be displayed in a given period of the agenda
  *
  * @param aItem         The item to compare.
@@ -1020,6 +1034,18 @@ agendaListbox.calendarObserver.onDefaultCalendarChanged = function(aCalendar) {
 };
 
 /**
+ * Updates the "Soon" section of today pane when preference soondays changes
+ **/
+agendaListbox.updateSoonSection =
+function updateSoonSection() {
+    let soonHeader = document.getElementById("nextweek-header");
+    this.soon.duration = this.soonDays;
+    this.soon.open = true;
+    soonHeader.setItem(this.soon, true);
+    agendaListbox.refreshPeriodDates(now());
+}
+
+/**
  * Updates the event considered "current". This goes through all "today" items
  * and sets the "current" attribute on all list items that are currently
  * occurring.
@@ -1125,4 +1151,25 @@ function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
         gEventTimer.cancel();
     }
     gEventTimer.initWithCallback(udCallback, aMsUntil, gEventTimer.TYPE_ONE_SHOT);
+}
+
+/**
+ * Gets a right value for calendar.agendaListbox.soondays preference, avoid
+ * erroneus values edited in the lightning.js preference file
+ **/
+function getSoondaysPreference() {
+    let prefName = "calendar.agendaListbox.soondays";
+    let soonpref = Preferences.get(prefName, 5);
+
+    if (soonpref > 0 && soonpref <= 28) {
+        if (soonpref % 7 != 0) {
+            let intSoonpref = Math.floor(soonpref / 7) * 7;
+            soonpref = (intSoonpref == 0 ? soonpref : intSoonpref);
+            Preferences.set(prefName, soonpref, "INT");
+        }
+    } else {
+        soonpref = soonpref > 28 ? 28 : 1;
+        Preferences.set(prefName, soonpref, "INT");
+    }
+    return soonpref;
 }

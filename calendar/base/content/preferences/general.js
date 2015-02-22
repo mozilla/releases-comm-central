@@ -59,6 +59,9 @@ var gCalendarGeneralPane = {
             prefValue = calendarDefaultTimezone().tzid;
         }
         tzMenuList.value = prefValue;
+
+        // Set the soondays menulist preference
+        this.initializeTodaypaneMenu();
     },
 
     updateDefaultTodoDates: function gCGP_updateDefaultTodoDates() {
@@ -79,5 +82,41 @@ var gCalendarGeneralPane = {
         let panelId = document.getElementById("defaults-itemtype-menulist").value;
         let panel = document.getElementById(panelId);
         document.getElementById("defaults-itemtype-deck").selectedPanel = panel;
+    },
+
+    initializeTodaypaneMenu: function gCGP_initializeTodaypaneMenu() {
+        // Assign the labels for the menuitem
+        let soondaysMenu = document.getElementById("soondays-menulist");
+        let items = soondaysMenu.getElementsByTagName("menuitem");
+        for (let menuItem of items) {
+            let menuitemValue = Number(menuItem.value);
+            if (menuitemValue > 7) {
+                menuItem.label = unitPluralForm(menuitemValue / 7, "weeks");
+            } else {
+                menuItem.label = unitPluralForm(menuitemValue, "days");
+            }
+        }
+
+        let prefName = "calendar.agendaListbox.soondays";
+        let soonpref = Preferences.get(prefName, 5);
+
+        // Check if soonDays preference has been edited with a wrong value.
+        if (soonpref > 0 && soonpref <= 28) {
+            if (soonpref % 7 != 0) {
+                let intSoonpref = Math.floor(soonpref / 7) * 7;
+                soonpref = (intSoonpref == 0 ? soonpref : intSoonpref);
+                Preferences.set(prefName, soonpref, "INT");
+            }
+        } else {
+            soonpref = soonpref > 28 ? 28 : 1;
+            Preferences.set(prefName, soonpref, "INT");
+        }
+
+        document.getElementById("soondays-menulist").value = soonpref;
+    },
+
+    updateTodaypaneMenu: function gCGP_updateTodaypaneMenu() {
+        let soonpref = Number(document.getElementById("soondays-menulist").value);
+        Preferences.set("calendar.agendaListbox.soondays", soonpref);
     }
 };

@@ -62,6 +62,9 @@
             <preference id="calendar.view.useSystemColors"
                         name="calendar.view.useSystemColors"
                         type="bool"/>
+            <preference id="calendar.agendaListbox.soondays"
+                        name="calendar.agendaListbox.soondays"
+                        type="int"/>
         </preferences>
 
         <groupbox>
@@ -254,6 +257,31 @@
                         </rows>
                     </grid>
                 </deck>
+            </hbox>
+        </groupbox>
+
+        <groupbox>
+            <caption label="&pref.calendar.todaypane.agenda.caption;"/>
+            <hbox align="center">
+                <label value="&pref.soondays.label;"
+                       accesskey="&pref.soondays.accesskey;"
+                       control="soondays-menulist"/>
+                <menulist id="soondays-menulist"
+                          preference="calendar.agendaListbox.soondays"
+                          oncommand="gCalendarGeneralPane.updateTodaypaneMenu()">
+                    <menupopup id="soondaysdurationpopup">
+                        <menuitem value="1"/>
+                        <menuitem value="2"/>
+                        <menuitem value="3"/>
+                        <menuitem value="4"/>
+                        <menuitem value="5"/>
+                        <menuitem value="6"/>
+                        <menuitem value="7"/>
+                        <menuitem value="14"/>
+                        <menuitem value="21"/>
+                        <menuitem value="28"/>
+                    </menupopup>
+                </menulist>
             </hbox>
         </groupbox>
 
