@@ -127,7 +127,7 @@
             &community.start2;<label class="text-link" onclick="openURL('http://www.mozilla.org/');" oncommand="openUILink(this.getAttribute('href'), event);">&community.mozillaLink;</label>&community.middle2;<label class="text-link" onclick="openAboutTab('about:credits');">&community.creditsLink;</label>&community.end3;
           </description>
           <description class="text-blurb" id="contributeDesc">
-            &contribute.start;<label class="text-link" onclick="openURL('http://www.mozilla.org/contribute/');">&contribute.getInvolvedLink;</label>&contribute.end;
+            &helpus.start;<label class="text-link" onclick="openUILink(this.getAttribute('href'), event)" href="https://sendto.mozilla.org/page/contribute/givenow-seq?source=thunderbird_about">&helpus.donateLink;</label>&helpus.middle;<label class="text-link" onclick="openUILink(this.getAttribute('href'), event)" href="http://www.mozilla.org/contribute/" >&helpus.getInvolvedLink;</label>&helpus.end;
           </description>
        </vbox>
      </vbox>

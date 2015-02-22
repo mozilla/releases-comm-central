@@ -90,9 +90,10 @@ function openAboutTab(url)
 function openUILink(url, event)
 {
   if (!event.button) {
-    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-      .getService(Ci.nsIExternalProtocolService)
-      .loadUri(Services.io.newURI(url, null, null));
+    let m = ("messenger" in window) ? messenger :
+      Components.classes["@mozilla.org/messenger;1"]
+                .createInstance(Components.interfaces.nsIMessenger);
+    m.launchExternalURL(url);
     event.preventDefault();
   }
 }
