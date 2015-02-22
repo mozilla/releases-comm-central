@@ -8332,9 +8332,36 @@ nsImapMailFolder::CopyFileToOfflineStore(nsIFile *srcFile, nsMsgKey msgKey)
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (msgKey == nsMsgKey_None)
-    mDatabase->GetNextFakeOfflineMsgKey(&msgKey);
+  bool storeOffline = (mFlags & nsMsgFolderFlags::Offline) && !WeAreOffline();
 
+  if (msgKey == nsMsgKey_None)
+  {
+    // To support send filters, we need to store the message in the database when
+    // it is copied to the FCC folder. In that case, we know the UID of the
+    // message and therefore have the correct msgKey. In other cases, where
+    // we don't need the offline message copied, don't add to db.
+    if (!storeOffline)
+      return NS_OK;
+
+    mDatabase->GetNextFakeOfflineMsgKey(&msgKey);
+  }
+
+  nsCOMPtr<nsIMsgDBHdr> fakeHdr;
+  rv = mDatabase->CreateNewHdr(msgKey, getter_AddRefs(fakeHdr));
+  NS_ENSURE_SUCCESS(rv, rv);
+  fakeHdr->SetUint32Property("pseudoHdr", 1);
+
+  // Should we add this to the offline store?
+  nsCOMPtr<nsIOutputStream> offlineStore;
+  if (storeOffline)
+  {
+    rv = GetOfflineStoreOutputStream(fakeHdr, getter_AddRefs(offlineStore));
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  // We set an offline kMoveResult because in any case we want to update this
+  // msgHdr with one downloaded from the server, with possible additional
+  // headers added.
   nsCOMPtr<nsIMsgOfflineImapOperation> op;
   rv = mDatabase->GetOfflineOpForKey(msgKey, true, getter_AddRefs(op));
   if (NS_SUCCEEDED(rv) && op)
@@ -8343,100 +8370,99 @@ nsImapMailFolder::CopyFileToOfflineStore(nsIFile *srcFile, nsMsgKey msgKey)
     GetURI(destFolderUri);
     op->SetOperation(nsIMsgOfflineImapOperation::kMoveResult);
     op->SetDestinationFolderURI(destFolderUri.get());
-    nsCOMPtr<nsIMsgDBHdr> fakeHdr;
-    nsCOMPtr<nsIOutputStream> offlineStore;
-    rv = mDatabase->CreateNewHdr(msgKey, getter_AddRefs(fakeHdr));
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = GetOfflineStoreOutputStream(fakeHdr, getter_AddRefs(offlineStore));
     SetFlag(nsMsgFolderFlags::OfflineEvents);
-
-    if (NS_SUCCEEDED(rv) && offlineStore)
-    {
-      int64_t curOfflineStorePos = 0;
-      nsCOMPtr<nsISeekableStream> seekable = do_QueryInterface(offlineStore);
-      if (seekable)
-        seekable->Tell(&curOfflineStorePos);
-      else
-      {
-        NS_ERROR("needs to be a random store!");
-        return NS_ERROR_FAILURE;
-      }
-
-      nsCOMPtr<nsIInputStream> inputStream;
-      nsCOMPtr<nsIMsgParseMailMsgState> msgParser =
-        do_CreateInstance(NS_PARSEMAILMSGSTATE_CONTRACTID, &rv);
-      msgParser->SetMailDB(mDatabase);
-
-      // Tell the parser to use the offset that will be in the dest stream, not the
-      //  temp file.
-      uint64_t offset;
-      fakeHdr->GetMessageOffset(&offset);
-      // This will fail for > 4GB mbox folders, see bug 793865
-      msgParser->SetEnvelopePos((uint32_t) offset);
-
-      rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), srcFile);
-      if (NS_SUCCEEDED(rv) && inputStream)
-      {
-        // now, copy the temp file to the offline store for the cur folder.
-        int32_t inputBufferSize = 10240;
-        nsMsgLineStreamBuffer *inputStreamBuffer =
-          new nsMsgLineStreamBuffer(inputBufferSize, true, false);
-        int64_t fileSize;
-        srcFile->GetFileSize(&fileSize);
-        uint32_t bytesWritten;
-        rv = NS_OK;
-        msgParser->SetState(nsIMsgParseMailMsgState::ParseHeadersState);
-        msgParser->SetNewMsgHdr(fakeHdr);
-        bool needMoreData = false;
-        char * newLine = nullptr;
-        uint32_t numBytesInLine = 0;
-        const char *envelope = "From " CRLF;
-        offlineStore->Write(envelope, strlen(envelope), &bytesWritten);
-        fileSize += bytesWritten;
-        do
-        {
-          newLine = inputStreamBuffer->ReadNextLine(inputStream, numBytesInLine, needMoreData);
-          if (newLine)
-          {
-            msgParser->ParseAFolderLine(newLine, numBytesInLine);
-            rv = offlineStore->Write(newLine, numBytesInLine, &bytesWritten);
-            NS_Free(newLine);
-          }
-        } while (newLine);
-
-        msgParser->FinishHeader();
-        uint32_t resultFlags;
-        fakeHdr->OrFlags(nsMsgMessageFlags::Offline | nsMsgMessageFlags::Read, &resultFlags);
-        fakeHdr->SetOfflineMessageSize(fileSize);
-        fakeHdr->SetUint32Property("pseudoHdr", 1);
-        mDatabase->AddNewHdrToDB(fakeHdr, true /* notify */);
-        SetFlag(nsMsgFolderFlags::OfflineEvents);
-
-        // Call FinishNewMessage before setting pending attributes, as in
-        //   maildir it copies from tmp to cur and may change the storeToken
-        //   to get a unique filename.
-        nsCOMPtr<nsIMsgPluggableStore> msgStore;
-        GetMsgStore(getter_AddRefs(msgStore));
-        if (msgStore)
-          msgStore->FinishNewMessage(offlineStore, fakeHdr);
-
-        nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-        NS_ENSURE_SUCCESS(rv, rv);
-        messages->AppendElement(fakeHdr, false);
-
-        SetPendingAttributes(messages, false);
-        // Gloda needs this notification to index the fake message.
-        nsCOMPtr<nsIMsgFolderNotificationService>
-          notifier(do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
-        if (notifier)
-          notifier->NotifyMsgsClassified(messages, false, false);
-        inputStream->Close();
-        inputStream = nullptr;
-        delete inputStreamBuffer;
-      }
-      offlineStore->Close();
-    }
   }
+
+  nsCOMPtr<nsIInputStream> inputStream;
+  nsCOMPtr<nsIMsgParseMailMsgState> msgParser =
+    do_CreateInstance(NS_PARSEMAILMSGSTATE_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  msgParser->SetMailDB(mDatabase);
+
+  uint64_t offset = 0;
+  if (offlineStore)
+  {
+    // Tell the parser to use the offset that will be in the dest stream,
+    //   not the temp file.
+    fakeHdr->GetMessageOffset(&offset);
+  }
+  // This will fail for > 4GB mbox folders, see bug 793865
+  msgParser->SetEnvelopePos((uint32_t) offset);
+
+  rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), srcFile);
+  if (NS_SUCCEEDED(rv) && inputStream)
+  {
+    // Now, parse the temp file to (optionally) copy to
+    // the offline store for the cur folder.
+    int32_t inputBufferSize = 10240;
+    nsMsgLineStreamBuffer *inputStreamBuffer =
+      new nsMsgLineStreamBuffer(inputBufferSize, true, false);
+    int64_t fileSize;
+    srcFile->GetFileSize(&fileSize);
+    uint32_t bytesWritten;
+    rv = NS_OK;
+    msgParser->SetState(nsIMsgParseMailMsgState::ParseHeadersState);
+    msgParser->SetNewMsgHdr(fakeHdr);
+    bool needMoreData = false;
+    char * newLine = nullptr;
+    uint32_t numBytesInLine = 0;
+    if (offlineStore)
+    {
+      const char *envelope = "From " CRLF;
+      offlineStore->Write(envelope, strlen(envelope), &bytesWritten);
+      fileSize += bytesWritten;
+    }
+    do
+    {
+      newLine = inputStreamBuffer->ReadNextLine(inputStream, numBytesInLine, needMoreData);
+      if (newLine)
+      {
+        msgParser->ParseAFolderLine(newLine, numBytesInLine);
+        if (offlineStore)
+          rv = offlineStore->Write(newLine, numBytesInLine, &bytesWritten);
+
+        NS_Free(newLine);
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
+    } while (newLine);
+
+    msgParser->FinishHeader();
+    uint32_t resultFlags;
+    if (offlineStore)
+      fakeHdr->OrFlags(nsMsgMessageFlags::Offline | nsMsgMessageFlags::Read, &resultFlags);
+    else
+      fakeHdr->OrFlags(nsMsgMessageFlags::Read, &resultFlags);
+    if (offlineStore)          
+      fakeHdr->SetOfflineMessageSize(fileSize);
+    mDatabase->AddNewHdrToDB(fakeHdr, true /* notify */);
+
+    // Call FinishNewMessage before setting pending attributes, as in
+    //   maildir it copies from tmp to cur and may change the storeToken
+    //   to get a unique filename.
+    if (offlineStore)
+    {
+      nsCOMPtr<nsIMsgPluggableStore> msgStore;
+      GetMsgStore(getter_AddRefs(msgStore));
+      if (msgStore)
+        msgStore->FinishNewMessage(offlineStore, fakeHdr);
+    }
+
+    nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+    messages->AppendElement(fakeHdr, false);
+
+    SetPendingAttributes(messages, false);
+    // Gloda needs this notification to index the fake message.
+    nsCOMPtr<nsIMsgFolderNotificationService>
+      notifier(do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+    if (notifier)
+      notifier->NotifyMsgsClassified(messages, false, false);
+    inputStream->Close();
+    inputStream = nullptr;
+    delete inputStreamBuffer;
+  }
+  if (offlineStore)
+    offlineStore->Close();
   return rv;
 }
 
@@ -8448,7 +8474,7 @@ nsImapMailFolder::OnCopyCompleted(nsISupports *srcSupport, nsresult rv)
   if (NS_SUCCEEDED(rv) && m_copyState)
   {
     nsCOMPtr<nsIFile> srcFile(do_QueryInterface(srcSupport));
-    if (srcFile && (mFlags & nsMsgFolderFlags::Offline) && !WeAreOffline())
+    if (srcFile)
       (void) CopyFileToOfflineStore(srcFile, m_copyState->m_appendUID);
   }
   m_copyState = nullptr;

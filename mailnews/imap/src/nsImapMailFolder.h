@@ -365,6 +365,14 @@ protected:
   nsresult  NormalEndHeaderParseStream(nsIImapProtocol *aProtocol, nsIImapUrl *imapUrl);
 
   void EndOfflineDownload();
+
+  /**
+   * At the end of a file-to-folder copy operation, copy the file to the
+   * offline store and/or add to the message database, (if needed).
+   *
+   * @param srcFile       file containing the message key
+   * @param msgKey        key to use for the new messages
+   */   
   nsresult CopyFileToOfflineStore(nsIFile *srcFile, nsMsgKey msgKey);
 
   nsresult MarkMessagesImapDeleted(nsTArray<nsMsgKey> *keyArray, bool deleted, nsIMsgDatabase *db);
