@@ -2787,6 +2787,10 @@ var GlodaMsgIndexer = {
         return;
       if (!GlodaMsgIndexer.shouldIndexFolder(aFolderItem))
         return;
+      // Only reset priority if folder Special Use changes.
+      if ((aOldValue & Ci.nsMsgFolderFlags.SpecialUse) ==
+          (aNewValue & Ci.nsMsgFolderFlags.SpecialUse))
+        return;
       GlodaMsgIndexer.resetFolderIndexingPriority(aFolderItem);
     },
     OnItemBoolPropertyChanged: function gloda_indexer_OnItemBoolPropertyChanged(
