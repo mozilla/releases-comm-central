@@ -349,6 +349,9 @@ pref("network.predictor.enabled", false);
 
 pref("mail.biff.show_new_alert",     true);
 
+// default calendar integration
+pref("mail.calendar-integration.opt-out", false);
+
 pref("mailnews.ui.deleteMarksRead", true);
 
 // The maximum amount of decoded image data we'll willingly keep around (we
