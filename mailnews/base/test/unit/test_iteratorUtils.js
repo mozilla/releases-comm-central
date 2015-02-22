@@ -84,6 +84,38 @@ function test_fixIterator() {
     do_check_eq(val, JSArray[i++]);
   }
   do_check_true(i > 0);
+
+  // Bug 1126509, test that fixIterator rejects unknown objects.
+  let thrown = false;
+  let tryIterate = { item: "An object, that is not supported by fixIterator." };
+  try {
+    for (let val in iteratorUtils.fixIterator(tryIterate)) { dump(val); }
+  } catch (e) {
+    // A specific exception is the correct behaviour here.
+    if (e.message == "An unsupported object sent to fixIterator: [object Object]")
+      thrown = true;
+  }
+  do_check_true(thrown);
+
+  thrown = false;
+  try {
+    for (let val of iteratorUtils.fixIterator(tryIterate)) { dump(val); }
+  } catch (e) {
+    // A specific exception is the correct behaviour here.
+    if (e.message == "An unsupported object sent to fixIterator: [object Object]")
+      thrown = true;
+  }
+  do_check_true(thrown);
+
+  thrown = false;
+  try {
+    let result = iteratorUtils.toXPCOMArray(tryIterate, Ci.nsIArray);
+  } catch (e) {
+    // A specific exception is the correct behaviour here.
+    if (e.message == "An unsupported interface requested from toXPCOMArray: nsIArray")
+      thrown = true;
+  }
+  do_check_true(thrown);
 }
 
 /**
@@ -119,6 +151,18 @@ function test_toArray_builtin_iterator() {
     do_check_eq(i, iteratorArray[i][0]);
     do_check_eq(val, iteratorArray[i][1]);
   }
+
+  // Bug 1126509, test that toArray rejects unknown objects.
+  let thrown = false;
+  let tryIterate = { item: "An object, that is not supported by toArray." };
+  try {
+    let result = iteratorUtils.toArray(tryIterate);
+  } catch (e) {
+    // A specific exception is the correct behaviour here.
+    if (e.message == "An unsupported object sent to toArray: [object Object]")
+      thrown = true;
+  }
+  do_check_true(thrown);
 }
 
 const Symbol_iterator = typeof Symbol === "function" && Symbol.iterator ?
@@ -151,6 +195,6 @@ var gTests = [
 ];
 
 function run_test() {
-  for (let [, test] in Iterator(gTests))
+  for (let test of gTests)
     test();
 }

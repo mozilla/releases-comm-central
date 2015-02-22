@@ -20,20 +20,20 @@ const ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
  * This function will take a number of objects and convert them to an array.
  *
  * Currently, we support the following objects:
- *   NodeList     (i.e. element.childNodes)
  *   Anything you can for (let x of aObj) on
- *                (e.g. toArray(fixIterator(enum))[4])
+ *                (e.g. toArray(fixIterator(enum))[4],
+ *                 also a NodeList from element.childNodes)
  *
  * @param aObj        The object to convert
  */
 function toArray(aObj) {
   if (ITERATOR_SYMBOL in aObj) {
     return Array.from(aObj);
-  } else if (aObj.constructor.contains("NodeList")) {
-    return Array.slice(aObj);
   }
 
-  return null;
+  // We got something unexpected, notify the caller loudly.
+  throw new Error("An unsupported object sent to toArray: " +
+                  (("toString" in aObj) ? aObj.toString() : aObj));
 }
 
 /**
@@ -123,7 +123,9 @@ function fixIterator(aEnum, aIface) {
     })());
   }
 
-  return null;
+  // We got something unexpected, notify the caller loudly.
+  throw new Error("An unsupported object sent to fixIterator: " +
+                  (("toString" in aEnum) ? aEnum.toString() : aEnum));
 }
 
 /**
@@ -148,6 +150,7 @@ function toXPCOMArray(aArray, aInterface) {
     }
     return supportsArray;
   }
+
   if (aInterface.equals(Ci.nsIMutableArray)) {
     let mutableArray = Components.classes["@mozilla.org/array;1"]
                                  .createInstance(Ci.nsIMutableArray);
@@ -157,5 +160,7 @@ function toXPCOMArray(aArray, aInterface) {
     return mutableArray;
   }
 
-  throw "no supports for interface conversion";
+  // We got something unexpected, notify the caller loudly.
+  throw new Error("An unsupported interface requested from toXPCOMArray: " +
+                  aInterface);
 }
