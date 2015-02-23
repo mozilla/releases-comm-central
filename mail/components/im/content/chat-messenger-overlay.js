@@ -404,6 +404,9 @@ var chatHandler = {
     if (aSearchTerm)
       this._pendingSearchTerm = aSearchTerm;
     Services.obs.addObserver(this, "conversation-loaded", false);
+    // Conversation title may not be set yet if this is a search result.
+    let cti = document.getElementById("conv-top-info");
+    cti.setAttribute("displayName", aConversation.title);
   },
   _makeFriendlyDate: function(aDate) {
     let dts = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
@@ -444,35 +447,42 @@ var chatHandler = {
     let treeView = this._treeView = new chatLogTreeView(logTree, aLogs);
     if (!treeView._rowMap.length)
       return false;
-    if (aShouldSelect) {
-      if (aShouldSelect === true) {
-        // Select the first line.
-        let selectIndex = 0;
-        if (treeView.isContainer(selectIndex)) {
-          // If the first line is a group, open it and select the
-          // next line instead.
-          treeView.toggleOpenState(selectIndex++);
-        }
-        logTree.view.selection.select(selectIndex);
+    if (!aShouldSelect)
+      return true;
+    if (aShouldSelect === true) {
+      // Select the first line.
+      let selectIndex = 0;
+      if (treeView.isContainer(selectIndex)) {
+        // If the first line is a group, open it and select the
+        // next line instead.
+        treeView.toggleOpenState(selectIndex++);
       }
-      else {
-        let logTime = aShouldSelect.time;
-        for (let index = 0; index < treeView._rowMap.length; ++index) {
-          if (!treeView._rowMap[index].children.some(function (i) i.log.time == logTime))
-            continue;
-          treeView.toggleOpenState(index);
-          ++index;
-          while (index < treeView._rowMap.length && treeView._rowMap[index].log.time != logTime)
-            ++index;
-          if (treeView._rowMap[index].log.time == logTime) {
-            logTree.view.selection.select(index);
-            logTree.treeBoxObject.ensureRowIsVisible(index);
-          }
-          return true;
-        }
-      }
+      logTree.view.selection.select(selectIndex);
+      return true;
     }
-    return true;
+    // Find the aShouldSelect log and select it.
+    let logTime = aShouldSelect.time;
+    for (let index = 0; index < treeView._rowMap.length; ++index) {
+      if (!treeView.isContainer(index) &&
+          treeView._rowMap[index].log.time == logTime) {
+        logTree.view.selection.select(index);
+        logTree.treeBoxObject.ensureRowIsVisible(index);
+        return true;
+      }
+      if (!treeView._rowMap[index].children.some(i => i.log.time == logTime))
+        continue;
+      treeView.toggleOpenState(index);
+      ++index;
+      while (index < treeView._rowMap.length &&
+             treeView._rowMap[index].log.time != logTime)
+        ++index;
+      if (treeView._rowMap[index].log.time == logTime) {
+        logTree.view.selection.select(index);
+        logTree.treeBoxObject.ensureRowIsVisible(index);
+      }
+      return true;
+    }
+    throw("Couldn't find the log to select among the set of logs passed.");
   },
 
   onLogSelect: function() {
@@ -604,12 +614,9 @@ var chatHandler = {
       let path = "logs/" + item.log.path;
       path = OS.Path.join(OS.Constants.Path.profileDir, ...path.split("/"));
       imServices.logs.getLogFromFile(path, true).then(aLog => {
-        aLog.getConversation().then(aConv => {
-          this._showLog(aConv, item.searchTerm || undefined);
-          cti.setAttribute("displayName", aConv.title);
-          imServices.logs.getSimilarLogs(aLog, true).then(aSimilarLogs => {
-            this._showLogList(aSimilarLogs, aLog);
-          });
+        imServices.logs.getSimilarLogs(aLog, true).then(aSimilarLogs => {
+          this._pendingSearchTerm = item.searchTerm || undefined;
+          this._showLogList(aSimilarLogs, aLog);
         });
       });
     }
@@ -898,20 +905,20 @@ var chatHandler = {
 
       if (this._pendingSearchTerm) {
         let findbar = document.getElementById("log-findbar");
-        let findField = findbar._findField;
-        findField.value = this._pendingSearchTerm;
+        findbar._findField.value = this._pendingSearchTerm;
         findbar.open();
-        findField.focus();
+        browser.focus();
         delete this._pendingSearchTerm;
         let eventListener = function() {
           findbar.onFindAgainCommand();
-          if (findbar._findField.getAttribute("status") != "notfound" ||
-              !browser._messageDisplayPending)
-            browser.removeEventListener("MessagesDisplayed", eventListener);
+          if (findbar._findFailedString && browser._messageDisplayPending)
+            return;
+          // Search result found or all messages added, we're done.
+          browser.removeEventListener("MessagesDisplayed", eventListener);
         };
         browser.addEventListener("MessagesDisplayed", eventListener);
       }
-      delete this._pendingLogBrowserLoad;
+      this._pendingLogBrowserLoad = false;
       Services.obs.removeObserver(this, "conversation-loaded");
       return;
     }

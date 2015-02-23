@@ -426,7 +426,6 @@
             }
             let event = document.createEvent("UIEvents");
             event.initUIEvent("MessagesDisplayed", false, false, window, 0);
-            this.dispatchEvent(event);
             if (this._pendingMessagesDisplayed < max) {
               if (this.progressBar) {
                 // Show progress bar if after the third call (ca. 120ms)
@@ -439,6 +438,7 @@
               }
               Services.tm.mainThread.dispatch(this.displayPendingMessages.bind(this),
                                               Ci.nsIEventTarget.DISPATCH_NORMAL);
+              this.dispatchEvent(event);
               return;
             }
             this.contentWindow.messageInsertPending = false;
@@ -447,6 +447,7 @@
             this._displayPendingMessagesCalls = 0;
             if (this.progressBar)
               this.progressBar.hidden = true;
+            this.dispatchEvent(event);
           ]]>
         </body>
       </method>
