@@ -38,52 +38,52 @@ function testAttachRoundtrip() {
             let item = items[0];
 
             // Check start date
-            do_check_eq(item.startDate.compare(cal.createDateTime("20120101T010101Z")), 0);
+            equal(item.startDate.compare(cal.createDateTime("20120101T010101Z")), 0);
 
             // Check attachment
             let attaches = item.getAttachments({});
             let attach = attaches[0];
-            do_check_eq(attaches.length, 1);
-            do_check_eq(attach.uri.spec, "http://example.com/test.ics");
-            do_check_eq(attach.formatType, "text/calendar");
-            do_check_eq(attach.encoding, "BASE64");
-            do_check_eq(attach.getParameter("FILENAME"), "test.ics");
+            equal(attaches.length, 1);
+            equal(attach.uri.spec, "http://example.com/test.ics");
+            equal(attach.formatType, "text/calendar");
+            equal(attach.encoding, "BASE64");
+            equal(attach.getParameter("FILENAME"), "test.ics");
 
             // Check attendee
             let attendees = item.getAttendees({});
             let attendee = attendees[0];
-            do_check_eq(attendees.length, 1);
-            do_check_eq(attendee.id, "mailto:test@example.com");
-            do_check_eq(attendee.commonName, "Name");
-            do_check_eq(attendee.rsvp, "TRUE");
-            do_check_eq(attendee.isOrganizer, false);
-            do_check_eq(attendee.role, "REQ-PARTICIPANT");
-            do_check_eq(attendee.participationStatus, "ACCEPTED");
-            do_check_eq(attendee.userType, "INDIVIDUAL");
-            do_check_eq(attendee.getProperty("X-THING"), "BAR");
+            equal(attendees.length, 1);
+            equal(attendee.id, "mailto:test@example.com");
+            equal(attendee.commonName, "Name");
+            equal(attendee.rsvp, "TRUE");
+            equal(attendee.isOrganizer, false);
+            equal(attendee.role, "REQ-PARTICIPANT");
+            equal(attendee.participationStatus, "ACCEPTED");
+            equal(attendee.userType, "INDIVIDUAL");
+            equal(attendee.getProperty("X-THING"), "BAR");
 
             // Check relation
             let relations = item.getRelations({});
             let rel = relations[0];
-            do_check_eq(relations.length, 1);
-            do_check_eq(rel.relType, "SIBLING");
-            do_check_eq(rel.relId, "VALUE");
-            do_check_eq(rel.getParameter("FOO"), "BAR");
+            equal(relations.length, 1);
+            equal(rel.relType, "SIBLING");
+            equal(rel.relId, "VALUE");
+            equal(rel.getParameter("FOO"), "BAR");
 
             // Check recurrence item
             for each (let ritem in item.recurrenceInfo.getRecurrenceItems({})) {
                 if (ritem instanceof Components.interfaces.calIRecurrenceRule) {
-                    do_check_eq(ritem.type, "MONTHLY");
-                    do_check_eq(ritem.interval, 2);
-                    do_check_eq(ritem.count, 5);
-                    do_check_eq(ritem.isByCount, true);
-                    do_check_eq(ritem.getComponent("BYDAY", {}).toString(), [2].toString());
-                    do_check_eq(ritem.isNegative, false);
+                    equal(ritem.type, "MONTHLY");
+                    equal(ritem.interval, 2);
+                    equal(ritem.count, 5);
+                    equal(ritem.isByCount, true);
+                    equal(ritem.getComponent("BYDAY", {}).toString(), [2].toString());
+                    equal(ritem.isNegative, false);
                 } else if (ritem instanceof Components.interfaces.calIRecurrenceDate) {
                     if (ritem.isNegative) {
-                        do_check_eq(ritem.date.compare(cal.createDateTime("20120301T010101Z")), 0);
+                        equal(ritem.date.compare(cal.createDateTime("20120301T010101Z")), 0);
                     } else {
-                        do_check_eq(ritem.date.compare(cal.createDateTime("20120201T010101Z")), 0);
+                        equal(ritem.date.compare(cal.createDateTime("20120201T010101Z")), 0);
                     }
                 } else {
                     do_throw("Found unknown recurrence item " + ritem);

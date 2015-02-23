@@ -32,8 +32,8 @@ function run_test() {
         let seq = addedItem.getProperty("SEQUENCE");
         let rec = addedItem.recurrenceInfo.getOccurrenceFor(rid);
 
-        do_check_eq(seq, 3);
-        do_check_eq(rec.getProperty("SEQUENCE"), seq);
+        equal(seq, 3);
+        equal(rec.getProperty("SEQUENCE"), seq);
 
         let changedItem = addedItem.clone();
         changedItem.setProperty("SEQUENCE", parseInt(seq, 10) + 1);
@@ -45,8 +45,8 @@ function run_test() {
         let seq = changedItem.getProperty("SEQUENCE");
         let rec = changedItem.recurrenceInfo.getOccurrenceFor(rid);
 
-        do_check_eq(seq, 4);
-        do_check_eq(rec.getProperty("SEQUENCE"), seq);
+        equal(seq, 4);
+        equal(rec.getProperty("SEQUENCE"), seq);
 
         // Now check with the pref off
         storage.deleteProperty("capabilities.propagate-sequence");
@@ -62,8 +62,8 @@ function run_test() {
         let seq = changedItem.getProperty("SEQUENCE");
         let rec = changedItem.recurrenceInfo.getOccurrenceFor(rid);
 
-        do_check_eq(seq, 5);
-        do_check_eq(rec.getProperty("SEQUENCE"), 4);
+        equal(seq, 5);
+        equal(rec.getProperty("SEQUENCE"), 4);
         completeTest();
     }
 

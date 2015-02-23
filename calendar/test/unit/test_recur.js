@@ -39,7 +39,7 @@ function test_rules() {
         // Check number of items
         dump("Expected " + expected.length + " occurrences\n");
         dump("Got: " + recdates.map(function(x) x.toString()) + "\n");
-        //do_check_eq(recdates.length, expected.length);
+        //equal(recdates.length, expected.length);
         let fmt = cal.getDateFormatter();
 
         for (let i = 0; i < expected.length; i++) {
@@ -47,11 +47,11 @@ function test_rules() {
             let ed = cal.createDateTime(expected[i]);
             dump("Expecting instance at " + ed + "(" + fmt.dayName(ed.weekday) + ")\n");
             dump("Recdate:");
-            do_check_eq(recdates[i].icalString, expected[i]);
+            equal(recdates[i].icalString, expected[i]);
 
             // Make sure occurrences are correct
             dump("Occurrence:");
-            do_check_eq(occurrences[i].startDate.icalString, expected[i]);
+            equal(occurrences[i].startDate.icalString, expected[i]);
 
             if (ignoreNextOccCheck) {
                 continue;
@@ -60,25 +60,25 @@ function test_rules() {
             // Make sure getNextOccurrence works correctly
             let nextOcc = event.recurrenceInfo.getNextOccurrence(recdates[i]);
             if (expected.length > i + 1) {
-                do_check_neq(nextOcc, null);
+                notEqual(nextOcc, null);
                 dump("Checking next occurrence: " + expected[i+1]+"\n");
-                do_check_eq(nextOcc.startDate.icalString, expected[i + 1]);
+                equal(nextOcc.startDate.icalString, expected[i + 1]);
             } else {
                 dump("Expecting no more occurrences, found " +
                         (nextOcc ? nextOcc.startDate : null) + "\n");
-                do_check_eq(nextOcc, null);
+                equal(nextOcc, null);
             }
 
             // Make sure getPreviousOccurrence works correctly
             let prevOcc = event.recurrenceInfo.getPreviousOccurrence(recdates[i]);
             if (i > 0) {
                 dump("Checking previous occurrence: " + expected[i-1]+", found " + (prevOcc ? prevOcc.startDate : prevOcc) + "\n");
-                do_check_neq(prevOcc, null);
-                do_check_eq(prevOcc.startDate.icalString, expected[i - 1]);
+                notEqual(prevOcc, null);
+                equal(prevOcc.startDate.icalString, expected[i - 1]);
             } else {
                 dump("Expecting no previous occurrences, found " +
                         (prevOcc ? prevOcc.startDate : prevOcc) + "\n");
-                do_check_eq(prevOcc, null);
+                equal(prevOcc, null);
             }
         }
 
@@ -390,20 +390,20 @@ function test_limit() {
     let recdates = item.recurrenceInfo.getOccurrenceDates(start, end, 0, {});
     let occurrences = item.recurrenceInfo.getOccurrences(start, end, 0, {});
 
-    do_check_eq(recdates.length, 3);
-    do_check_eq(occurrences.length, 3);
+    equal(recdates.length, 3);
+    equal(occurrences.length, 3);
 
     recdates = item.recurrenceInfo.getOccurrenceDates(start, end, 2, {});
     occurrences = item.recurrenceInfo.getOccurrences(start, end, 2, {});
 
-    do_check_eq(recdates.length, 2);
-    do_check_eq(occurrences.length, 2);
+    equal(recdates.length, 2);
+    equal(occurrences.length, 2);
 
     recdates = item.recurrenceInfo.getOccurrenceDates(start, end, 9, {});
     occurrences = item.recurrenceInfo.getOccurrences(start, end, 9, {});
 
-    do_check_eq(recdates.length, 3);
-    do_check_eq(occurrences.length, 3);
+    equal(recdates.length, 3);
+    equal(occurrences.length, 3);
 }
 
 function test_clone(event) {
@@ -412,11 +412,11 @@ function test_clone(event) {
     let newRecurItems = cloned.getRecurrenceItems({});
 
     // Check number of recurrence items
-    do_check_eq(oldRecurItems.length, newRecurItems.length);
+    equal(oldRecurItems.length, newRecurItems.length);
 
     for (let i = 0; i < oldRecurItems.length; i++) {
         // Check if recurrence item cloned correctly
-        do_check_eq(oldRecurItems[i].icalProperty.icalString,
+        equal(oldRecurItems[i].icalProperty.icalString,
                     newRecurItems[i].icalProperty.icalString);
     }
 }
@@ -429,20 +429,20 @@ function test_interface() {
                          "RDATE:20020401T114500Z\r\n");
 
     let rinfo = item.recurrenceInfo;
-    do_check_true(compareObjects(rinfo.item, item, Components.interfaces.calIEvent));
+    ok(compareObjects(rinfo.item, item, Components.interfaces.calIEvent));
 
     // getRecurrenceItems
     let ritems = rinfo.getRecurrenceItems({});
-    do_check_eq(ritems.length, 3);
+    equal(ritems.length, 3);
 
     let checkritems = new Map([ [ritem.icalProperty.propertyName, ritem.icalProperty] for (ritem of ritems)]);
     let rparts = new Map([ v.split("=", 2) for (v of checkritems.get("RRULE").value.split(";")) ])
-    do_check_eq(rparts.size, 3);
-    do_check_eq(rparts.get("FREQ"), "WEEKLY");
-    do_check_eq(rparts.get("COUNT"), "6");
-    do_check_eq(rparts.get("BYDAY"), "TU,WE");
-    do_check_eq(checkritems.get("EXDATE").value, "20020403T114500Z");
-    do_check_eq(checkritems.get("RDATE").value, "20020401T114500Z");
+    equal(rparts.size, 3);
+    equal(rparts.get("FREQ"), "WEEKLY");
+    equal(rparts.get("COUNT"), "6");
+    equal(rparts.get("BYDAY"), "TU,WE");
+    equal(checkritems.get("EXDATE").value, "20020403T114500Z");
+    equal(checkritems.get("RDATE").value, "20020401T114500Z");
 
     // setRecurrenceItems
     let newRItems = [cal.createRecurrenceRule(), cal.createRecurrenceDate()];
@@ -456,98 +456,98 @@ function test_interface() {
     rinfo.setRecurrenceItems(2, newRItems);
     let itemString = item.icalString;
 
-    do_check_eq(itemString.match(/RRULE:[A-Z=,]*FREQ=WEEKLY/), null);
-    do_check_eq(itemString.match(/EXDATE[A-Z;=-]*:20020403T114500Z/, null));
-    do_check_eq(itemString.match(/RDATE[A-Z;=-]*:20020401T114500Z/, null));
-    do_check_neq(itemString.match(/RRULE:[A-Z=,]*FREQ=DAILY/), null)
-    do_check_neq(itemString.match(/EXDATE[A-Z;=-]*:20020404T114500Z/, null));
+    equal(itemString.match(/RRULE:[A-Z=,]*FREQ=WEEKLY/), null);
+    equal(itemString.match(/EXDATE[A-Z;=-]*:20020403T114500Z/, null));
+    equal(itemString.match(/RDATE[A-Z;=-]*:20020401T114500Z/, null));
+    notEqual(itemString.match(/RRULE:[A-Z=,]*FREQ=DAILY/), null)
+    notEqual(itemString.match(/EXDATE[A-Z;=-]*:20020404T114500Z/, null));
 
     // This may be an implementation detail, but we don't want this breaking
     rinfo.wrappedJSObject.ensureSortedRecurrenceRules();
-    do_check_eq(rinfo.wrappedJSObject.mNegativeRules[0].icalProperty.icalString, newRItems[1].icalProperty.icalString);
-    do_check_eq(rinfo.wrappedJSObject.mPositiveRules[0].icalProperty.icalString, newRItems[0].icalProperty.icalString);
+    equal(rinfo.wrappedJSObject.mNegativeRules[0].icalProperty.icalString, newRItems[1].icalProperty.icalString);
+    equal(rinfo.wrappedJSObject.mPositiveRules[0].icalProperty.icalString, newRItems[0].icalProperty.icalString);
 
     // countRecurrenceItems
-    do_check_eq(2, rinfo.countRecurrenceItems());
+    equal(2, rinfo.countRecurrenceItems());
 
     // clearRecurrenceItems
     rinfo.clearRecurrenceItems();
-    do_check_eq(0, rinfo.countRecurrenceItems());
+    equal(0, rinfo.countRecurrenceItems());
 
     // appendRecurrenceItems / getRecurrenceItemAt / insertRecurrenceItemAt
     rinfo.appendRecurrenceItem(ritems[0]);
     rinfo.appendRecurrenceItem(ritems[1]);
     rinfo.insertRecurrenceItemAt(ritems[2], 0);
 
-    do_check_true(compareObjects(ritems[2],
+    ok(compareObjects(ritems[2],
                                  rinfo.getRecurrenceItemAt(0),
                                  Components.interfaces.calIRecurrenceItem));
-    do_check_true(compareObjects(ritems[0],
+    ok(compareObjects(ritems[0],
                                  rinfo.getRecurrenceItemAt(1),
                                  Components.interfaces.calIRecurrenceItem));
-    do_check_true(compareObjects(ritems[1],
+    ok(compareObjects(ritems[1],
                                  rinfo.getRecurrenceItemAt(2),
                                  Components.interfaces.calIRecurrenceItem));
 
 
     // deleteRecurrenceItem
     rinfo.deleteRecurrenceItem(ritems[0]);
-    do_check_true(item.icalString.indexOf("RRULE") < 0);
+    ok(item.icalString.indexOf("RRULE") < 0);
 
     // deleteRecurrenceItemAt
     rinfo.deleteRecurrenceItemAt(1);
     itemString = item.icalString;
-    do_check_true(itemString.indexOf("EXDATE") < 0);
-    do_check_false(itemString.indexOf("RDATE") < 0);
+    ok(itemString.indexOf("EXDATE") < 0);
+    ok(!(itemString.indexOf("RDATE") < 0));
 
     // insertRecurrenceItemAt with exdate
     rinfo.insertRecurrenceItemAt(ritems[1], 1);
-    do_check_true(compareObjects(ritems[1],
+    ok(compareObjects(ritems[1],
                                  rinfo.getRecurrenceItemAt(1),
                                  Components.interfaces.calIRecurrenceItem));
     rinfo.deleteRecurrenceItem(ritems[1]);
 
     // isFinite = true
-    do_check_true(rinfo.isFinite);
+    ok(rinfo.isFinite);
     rinfo.appendRecurrenceItem(ritems[0]);
-    do_check_true(rinfo.isFinite);
+    ok(rinfo.isFinite);
 
     // isFinite = false
     let item2 = makeEvent("DTSTART:20020402T114500Z\n" +
                           "DTEND:20020402T124500Z\n" +
                           "RRULE:FREQ=WEEKLY;BYDAY=TU,WE\n");
-    do_check_false(item2.recurrenceInfo.isFinite);
+    ok(!item2.recurrenceInfo.isFinite);
 
     // removeOccurrenceAt/restoreOccurreceAt
     let occDate1 = cal.createDateTime("20020403T114500Z");
     let occDate2 = cal.createDateTime("20020404T114500Z");
     rinfo.removeOccurrenceAt(occDate1);
-    do_check_false(item.icalString.indexOf("EXDATE") < 0);
+    ok(!(item.icalString.indexOf("EXDATE") < 0));
     rinfo.restoreOccurrenceAt(occDate1)
-    do_check_true(item.icalString.indexOf("EXDATE") < 0);
+    ok(item.icalString.indexOf("EXDATE") < 0);
 
     // modifyException / getExceptionFor
     let occ1 = rinfo.getOccurrenceFor(occDate1);
     occ1.startDate = cal.createDateTime("20020401T114500");
     rinfo.modifyException(occ1, true);
-    do_check_true(rinfo.getExceptionFor(occDate1) != null);
+    ok(rinfo.getExceptionFor(occDate1) != null);
 
     // modifyException immutable
     let occ2 = rinfo.getOccurrenceFor(occDate2);
     occ2.makeImmutable();
     rinfo.modifyException(occ2, true);
-    do_check_true(rinfo.getExceptionFor(occDate2) != null);
+    ok(rinfo.getExceptionFor(occDate2) != null);
 
     // getExceptionIds
     let ids = rinfo.getExceptionIds({});
-    do_check_eq(ids.length, 2);
-    do_check_true(ids[0].compare(occDate1) == 0);
-    do_check_true(ids[1].compare(occDate2) == 0);
+    equal(ids.length, 2);
+    ok(ids[0].compare(occDate1) == 0);
+    ok(ids[1].compare(occDate2) == 0);
 
     // removeExceptionFor
     rinfo.removeExceptionFor(occDate1);
-    do_check_true(rinfo.getExceptionFor(occDate1) == null);
-    do_check_eq(rinfo.getExceptionIds({}).length, 1);
+    ok(rinfo.getExceptionFor(occDate1) == null);
+    equal(rinfo.getExceptionIds({}).length, 1);
 }
 
 function test_rrule_interface() {
@@ -556,37 +556,37 @@ function test_rrule_interface() {
                          "RRULE:INTERVAL=2;FREQ=WEEKLY;COUNT=6;BYDAY=TU,WE\r\n");
 
     let rrule = item.recurrenceInfo.getRecurrenceItemAt(0);
-    do_check_eq(rrule.type, "WEEKLY");
-    do_check_eq(rrule.interval, 2);
-    do_check_eq(rrule.count, 6);
-    do_check_true(rrule.isByCount);
-    do_check_false(rrule.isNegative);
-    do_check_true(rrule.isFinite);
-    do_check_eq(rrule.getComponent("BYDAY", {}).toString(), [3,4].toString());
+    equal(rrule.type, "WEEKLY");
+    equal(rrule.interval, 2);
+    equal(rrule.count, 6);
+    ok(rrule.isByCount);
+    ok(!rrule.isNegative);
+    ok(rrule.isFinite);
+    equal(rrule.getComponent("BYDAY", {}).toString(), [3,4].toString());
 
     // Now start changing things
     rrule.setComponent("BYDAY", 2, [4,5]);
-    do_check_eq(rrule.icalString.match(/BYDAY=WE,TH/), "BYDAY=WE,TH");
+    equal(rrule.icalString.match(/BYDAY=WE,TH/), "BYDAY=WE,TH");
 
     rrule.count = -1;
-    do_check_false(rrule.isByCount);
-    do_check_false(rrule.isFinite);
-    do_check_eq(rrule.icalString.match(/COUNT=/), null);
-    do_check_throws(function() {
+    ok(!rrule.isByCount);
+    ok(!rrule.isFinite);
+    equal(rrule.icalString.match(/COUNT=/), null);
+    throws(function() {
         rrule.count;
-    }, Components.results.NS_ERROR_FAILURE);
+    }, /0x80004005/);
 
     rrule.interval = 1;
-    do_check_eq(rrule.interval, 1);
-    do_check_eq(rrule.icalString.match(/INTERVAL=/), null);
+    equal(rrule.interval, 1);
+    equal(rrule.icalString.match(/INTERVAL=/), null);
 
     rrule.interval = 3;
-    do_check_eq(rrule.interval, 3);
-    do_check_eq(rrule.icalString.match(/INTERVAL=3/), "INTERVAL=3");
+    equal(rrule.interval, 3);
+    equal(rrule.icalString.match(/INTERVAL=3/), "INTERVAL=3");
 
     rrule.type = "MONTHLY";
-    do_check_eq(rrule.type, "MONTHLY");
-    do_check_eq(rrule.icalString.match(/FREQ=MONTHLY/), "FREQ=MONTHLY");
+    equal(rrule.type, "MONTHLY");
+    equal(rrule.icalString.match(/FREQ=MONTHLY/), "FREQ=MONTHLY");
 }
 
 function test_startdate_change() {
@@ -618,19 +618,19 @@ function test_startdate_change() {
     item = makeRecEvent("RDATE:20020403T114500Z\r\n");
     changeBy(item, "PT1H");
     ritem = item.recurrenceInfo.getRecurrenceItemAt(0);
-    do_check_eq(ritem.date.icalString, "20020403T124500Z");
+    equal(ritem.date.icalString, "20020403T124500Z");
 
     // Event with an exdate
     item = makeRecEvent("EXDATE:20020403T114500Z\r\n");
     changeBy(item, "PT1H");
     ritem = item.recurrenceInfo.getRecurrenceItemAt(0);
-    do_check_eq(ritem.date.icalString, "20020403T124500Z");
+    equal(ritem.date.icalString, "20020403T124500Z");
 
     // Event with an rrule with until date
     item = makeRecEvent("RRULE:FREQ=WEEKLY;UNTIL=20020406T114500Z\r\n");
     changeBy(item, "PT1H");
     ritem = item.recurrenceInfo.getRecurrenceItemAt(0);
-    do_check_eq(ritem.untilDate.icalString, "20020406T124500Z");
+    equal(ritem.untilDate.icalString, "20020406T124500Z");
 
     // Event with an exception item
     item = makeRecEvent("RRULE:FREQ=DAILY\r\n");
@@ -638,9 +638,9 @@ function test_startdate_change() {
     occ.startDate = cal.createDateTime("20020406T124500Z");
     item.recurrenceInfo.modifyException(occ, true);
     changeBy(item, "PT1H");
-    do_check_eq(item.startDate.icalString, "20020402T124500Z");
+    equal(item.startDate.icalString, "20020402T124500Z");
     occ = item.recurrenceInfo.getExceptionFor(cal.createDateTime("20020406T124500Z"));
-    do_check_eq(occ.startDate.icalString, "20020406T134500Z");
+    equal(occ.startDate.icalString, "20020406T134500Z");
 }
 
 function test_idchange() {
@@ -651,12 +651,12 @@ function test_idchange() {
     let occ = item.recurrenceInfo.getOccurrenceFor(cal.createDateTime("20020406T114500Z"));
     occ.startDate = cal.createDateTime("20020406T124500Z");
     item.recurrenceInfo.modifyException(occ, true);
-    do_check_eq(occ.id, "unchanged");
+    equal(occ.id, "unchanged");
 
     item.id = "changed";
 
     occ = item.recurrenceInfo.getExceptionFor(cal.createDateTime("20020406T114500Z"));
-    do_check_eq(occ.id , "changed");
+    equal(occ.id , "changed");
 }
 
 function test_failures() {
@@ -666,26 +666,26 @@ function test_failures() {
     let rinfo = item.recurrenceInfo;
     let ritem = cal.createRecurrenceDate();
 
-    do_check_throws(function() rinfo.getRecurrenceItemAt(-1), Cr.NS_ERROR_INVALID_ARG);
-    do_check_throws(function() rinfo.getRecurrenceItemAt(1), Cr.NS_ERROR_INVALID_ARG);
-    do_check_throws(function() rinfo.deleteRecurrenceItemAt(-1), Cr.NS_ERROR_INVALID_ARG);
-    do_check_throws(function() rinfo.deleteRecurrenceItemAt(1), Cr.NS_ERROR_INVALID_ARG);
-    do_check_throws(function() rinfo.deleteRecurrenceItem(ritem), Cr.NS_ERROR_INVALID_ARG);
-    do_check_throws(function() rinfo.insertRecurrenceItemAt(ritem, -1), Cr.NS_ERROR_INVALID_ARG);
-    do_check_throws(function() rinfo.insertRecurrenceItemAt(ritem, 2), Cr.NS_ERROR_INVALID_ARG);
-    do_check_throws(function() rinfo.restoreOccurrenceAt(cal.createDateTime("20080101T010101")), Cr.NS_ERROR_INVALID_ARG);
-    do_check_throws(function() cal.createRecurrenceInfo().isFinite, Cr.NS_ERROR_NOT_INITIALIZED);
+    throws(function() rinfo.getRecurrenceItemAt(-1), /Illegal value/, "Invalid Argument");
+    throws(function() rinfo.getRecurrenceItemAt(1), /Illegal value/, "Invalid Argument");
+    throws(function() rinfo.deleteRecurrenceItemAt(-1), /Illegal value/, "Invalid Argument");
+    throws(function() rinfo.deleteRecurrenceItemAt(1), /Illegal value/, "Invalid Argument");
+    throws(function() rinfo.deleteRecurrenceItem(ritem), /Illegal value/, "Invalid Argument");
+    throws(function() rinfo.insertRecurrenceItemAt(ritem, -1), /Illegal value/, "Invalid Argument");
+    throws(function() rinfo.insertRecurrenceItemAt(ritem, 2), /Illegal value/, "Invalid Argument");
+    throws(function() rinfo.restoreOccurrenceAt(cal.createDateTime("20080101T010101")), /Illegal value/, "Invalid Argument");
+    throws(function() cal.createRecurrenceInfo().isFinite, /Component not initialized/);
 
     // modifyException with a different parent item
     let occ = rinfo.getOccurrenceFor(cal.createDateTime("20120102T114500Z"));
     occ.calendar = {}
     occ.id = "1234";
     occ.parentItem = occ;
-    do_check_throws(function() rinfo.modifyException(occ, true), Cr.NS_ERROR_INVALID_ARG);
+    throws(function() rinfo.modifyException(occ, true), /Illegal value/, "Invalid Argument");
 
     occ = rinfo.getOccurrenceFor(cal.createDateTime("20120102T114500Z"));
     occ.recurrenceId = null;
-    do_check_throws(function() rinfo.modifyException(occ, true), Cr.NS_ERROR_INVALID_ARG);
+    throws(function() rinfo.modifyException(occ, true), /Illegal value/, "Invalid Argument");
 
     // Missing DTSTART/DUE but RRULE
     item = createEventFromIcalString("BEGIN:VCALENDAR\r\n" +
@@ -695,7 +695,7 @@ function test_failures() {
         "END:VCALENDAR\r\n"
     );
     rinfo = item.recurrenceInfo;
-    do_check_eq(rinfo.getOccurrenceDates(cal.createDateTime("20120101T010101"),
+    equal(rinfo.getOccurrenceDates(cal.createDateTime("20120101T010101"),
                                          cal.createDateTime("20120203T010101"),
                                          0, {}).length, 0);
 }
@@ -707,12 +707,12 @@ function test_immutable() {
         "END:VTODO\r\n" +
         "END:VCALENDAR\r\n"
     );
-    do_check_true(item.recurrenceInfo.isMutable);
+    ok(item.recurrenceInfo.isMutable);
     let rinfo2 = item.recurrenceInfo.clone();
     rinfo2.makeImmutable();
     rinfo2.makeImmutable(); // Doing so twice shouldn't throw
-    do_check_throws(function() rinfo2.appendRecurrenceItem(ritem), Cr.NS_ERROR_OBJECT_IS_IMMUTABLE);
-    do_check_false(rinfo2.isMutable);
+    throws(function() rinfo2.appendRecurrenceItem(ritem), /Can not modify immutable data container/);
+    ok(!rinfo2.isMutable);
 
     let ritem = cal.createRecurrenceDate();
     rinfo.appenRecurrenceItem(ritem);

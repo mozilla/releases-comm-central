@@ -35,9 +35,9 @@ function run_test() {
 
     // the following call caused a never ending loop:
     let occurrenceDates = event.recurrenceInfo.getOccurrenceDates(start, end, 0, {});
-    do_check_eq(occurrenceDates.length, 2);
+    equal(occurrenceDates.length, 2);
 
     // the following call caused a never ending loop:
     let occurrences = event.recurrenceInfo.getOccurrences(start, end, 0, {});
-    do_check_eq(occurrences.length, 2);
+    equal(occurrences.length, 2);
 }

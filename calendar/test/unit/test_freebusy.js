@@ -23,9 +23,9 @@ function test_freebusy() {
         "END:VFREEBUSY\n" +
         "END:VCALENDAR\n";
     var fbComp = icsService.parseICS(data, null).getFirstSubcomponent("VFREEBUSY");
-    do_check_eq(fbComp.getFirstProperty("FREEBUSY").value, fbVal1);
-    do_check_eq(fbComp.getNextProperty("FREEBUSY").value, fbVal2);
-    do_check_eq(fbComp.getNextProperty("FREEBUSY").value, fbVal3);
+    equal(fbComp.getFirstProperty("FREEBUSY").value, fbVal1);
+    equal(fbComp.getNextProperty("FREEBUSY").value, fbVal2);
+    equal(fbComp.getNextProperty("FREEBUSY").value, fbVal3);
 }
 
 function test_period() {
@@ -35,40 +35,40 @@ function test_period() {
     period.start = cal.createDateTime("20120101T010101");
     period.end = cal.createDateTime("20120101T010102");
 
-    do_check_eq(period.icalString, "20120101T010101/20120101T010102");
-    do_check_eq(period.duration.icalString, "PT1S");
+    equal(period.icalString, "20120101T010101/20120101T010102");
+    equal(period.duration.icalString, "PT1S");
 
     period.icalString = "20120101T010103/20120101T010104";
 
-    do_check_eq(period.start.icalString, "20120101T010103");
-    do_check_eq(period.end.icalString, "20120101T010104");
-    do_check_eq(period.duration.icalString, "PT1S");
+    equal(period.start.icalString, "20120101T010103");
+    equal(period.end.icalString, "20120101T010104");
+    equal(period.duration.icalString, "PT1S");
 
     period.icalString = "20120101T010105/PT1S";
-    do_check_eq(period.start.icalString, "20120101T010105");
-    do_check_eq(period.end.icalString, "20120101T010106");
-    do_check_eq(period.duration.icalString, "PT1S");
+    equal(period.start.icalString, "20120101T010105");
+    equal(period.end.icalString, "20120101T010106");
+    equal(period.duration.icalString, "PT1S");
 
     period.makeImmutable();
     if (!Preferences.get("calendar.icaljs", false)) {
         // ical.js doesn't support immutability yet
-        do_check_throws(function() {
+        throws(function() {
             period.start = cal.createDateTime("20120202T020202");
-        }, Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE);
-        do_check_throws(function() {
+        }, /0x80460002/,"Object is Immutable");
+        throws(function() {
             period.end = cal.createDateTime("20120202T020202");
-        }, Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE);
+        }, /0x80460002/,"Object is Immutable");
     }
 
     let copy = period.clone();
-    do_check_eq(copy.start.icalString, "20120101T010105");
-    do_check_eq(copy.end.icalString, "20120101T010106");
-    do_check_eq(copy.duration.icalString, "PT1S");
+    equal(copy.start.icalString, "20120101T010105");
+    equal(copy.end.icalString, "20120101T010106");
+    equal(copy.duration.icalString, "PT1S");
 
     copy.start.icalString = "20120101T010106";
     copy.end = cal.createDateTime("20120101T010107");
 
-    do_check_eq(period.start.icalString, "20120101T010105");
-    do_check_eq(period.end.icalString, "20120101T010106");
-    do_check_eq(period.duration.icalString, "PT1S");
+    equal(period.start.icalString, "20120101T010105");
+    equal(period.end.icalString, "20120101T010106");
+    equal(period.duration.icalString, "PT1S");
 }

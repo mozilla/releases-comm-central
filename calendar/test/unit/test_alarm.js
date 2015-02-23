@@ -45,29 +45,29 @@ function test_display_alarm() {
     let alarm = cal.createAlarm();
     // Set ACTION to DISPLAY, make sure this was not rejected
     alarm.action = "DISPLAY";
-    do_check_eq(alarm.action, "DISPLAY");
+    equal(alarm.action, "DISPLAY");
 
     // Set a Description, REQUIRED for ACTION:DISPLAY
     alarm.description = "test";
-    do_check_eq(alarm.description, "test");
+    equal(alarm.description, "test");
 
     // SUMMARY is not valid for ACTION:DISPLAY
     alarm.summary = "test";
-    do_check_eq(alarm.summary, null);
+    equal(alarm.summary, null);
 
     // No attendees allowed
     let attendee = cal.createAttendee();
     attendee.id = "mailto:horst";
 
-    do_check_throws(function() {
+    throws(function() {
         // DISPLAY alarm should not be able to save attendees
         alarm.addAttendee(attendee);
-    }, Components.results.NS_ERROR_XPC_JAVASCRIPT_ERROR_WITH_DETAILS);
+    }, /Alarm type AUDIO\/DISPLAY may not have attendees/);
 
-    do_check_throws(function() {
+    throws(function() {
         // DISPLAY alarm should not be able to save attachment
         alarm.addAttachment(cal.createAttachment());
-    }, Components.results.NS_ERROR_XPC_JAVASCRIPT_ERROR_WITH_DETAILS);
+    }, /Alarm type DISPLAY may not have attachments/);
 
     dump("Done\n");
 }
@@ -77,15 +77,15 @@ function test_email_alarm() {
     let alarm = cal.createAlarm();
     // Set ACTION to DISPLAY, make sure this was not rejected
     alarm.action = "EMAIL";
-    do_check_eq(alarm.action, "EMAIL");
+    equal(alarm.action, "EMAIL");
 
     // Set a Description, REQUIRED for ACTION:EMAIL
     alarm.description = "description";
-    do_check_eq(alarm.description, "description");
+    equal(alarm.description, "description");
 
     // Set a Summary, REQUIRED for ACTION:EMAIL
     alarm.summary = "summary";
-    do_check_eq(alarm.summary, "summary");
+    equal(alarm.summary, "summary");
 
     // Set an offset of some sort
     alarm.related = Components.interfaces.calIAlarm.ALARM_RELATED_START;
@@ -97,25 +97,25 @@ function test_email_alarm() {
     let attendee2 = cal.createAttendee();
     attendee2.id = "mailto:gustav";
 
-    do_check_eq(alarm.getAttendees({}).length, 0);
+    equal(alarm.getAttendees({}).length, 0);
     alarm.addAttendee(attendee1);
-    do_check_eq(alarm.getAttendees({}).length, 1);
+    equal(alarm.getAttendees({}).length, 1);
     alarm.addAttendee(attendee2);
-    do_check_eq(alarm.getAttendees({}).length, 2);
+    equal(alarm.getAttendees({}).length, 2);
     alarm.addAttendee(attendee1);
     let addedAttendees = alarm.getAttendees({});
-    do_check_eq(addedAttendees.length, 2);
-    do_check_eq(addedAttendees[0], attendee2);
-    do_check_eq(addedAttendees[1], attendee1);
+    equal(addedAttendees.length, 2);
+    equal(addedAttendees[0], attendee2);
+    equal(addedAttendees[1], attendee1);
 
-    do_check_true(!!alarm.icalComponent.serializeToICS().match(/mailto:horst/));
-    do_check_true(!!alarm.icalComponent.serializeToICS().match(/mailto:gustav/));
+    ok(!!alarm.icalComponent.serializeToICS().match(/mailto:horst/));
+    ok(!!alarm.icalComponent.serializeToICS().match(/mailto:gustav/));
 
     alarm.deleteAttendee(attendee1);
-    do_check_eq(alarm.getAttendees({}).length, 1);
+    equal(alarm.getAttendees({}).length, 1);
 
     alarm.clearAttendees();
-    do_check_eq(alarm.getAttendees({}).length, 0);
+    equal(alarm.getAttendees({}).length, 0);
 
     // TODO test attachments
     dump("Done\n");
@@ -128,15 +128,15 @@ function test_audio_alarm() {
     alarm.alarmDate = cal.createDateTime();
     // Set ACTION to AUDIO, make sure this was not rejected
     alarm.action = "AUDIO";
-    do_check_eq(alarm.action, "AUDIO");
+    equal(alarm.action, "AUDIO");
 
     // No Description for ACTION:AUDIO
     alarm.description = "description";
-    do_check_eq(alarm.description, null);
+    equal(alarm.description, null);
 
     // No Summary, for ACTION:AUDIO
     alarm.summary = "summary";
-    do_check_eq(alarm.summary, null);
+    equal(alarm.summary, null);
 
     // No attendees allowed
     let attendee = cal.createAttendee();
@@ -148,9 +148,9 @@ function test_audio_alarm() {
     } catch (e) {}
 
     // No attendee yet, should not be initialized
-    do_check_throws(function() {
+    throws(function() {
         alarm.icalComponent;
-    }, Components.results.NS_ERROR_NOT_INITIALIZED);
+    }, /Component not initialized/);
 
     // Test attachments
     let sound = cal.createAttachment();
@@ -161,15 +161,15 @@ function test_audio_alarm() {
     // Adding an attachment should work
     alarm.addAttachment(sound);
     let addedAttachments = alarm.getAttachments({});
-    do_check_eq(addedAttachments.length, 1);
-    do_check_eq(addedAttachments[0], sound);
-    do_check_true(alarm.icalString.indexOf("ATTACH:file:///sound.wav") > -1);
+    equal(addedAttachments.length, 1);
+    equal(addedAttachments[0], sound);
+    ok(alarm.icalString.indexOf("ATTACH:file:///sound.wav") > -1);
 
     // Adding twice shouldn't change anything
     alarm.addAttachment(sound);
     addedAttachments = alarm.getAttachments({});
-    do_check_eq(addedAttachments.length, 1);
-    do_check_eq(addedAttachments[0], sound);
+    equal(addedAttachments.length, 1);
+    equal(addedAttachments[0], sound);
 
     try {
         alarm.addAttachment(sound2);
@@ -179,13 +179,13 @@ function test_audio_alarm() {
     // Deleting should work
     alarm.deleteAttachment(sound);
     addedAttachments = alarm.getAttachments({});
-    do_check_eq(addedAttachments.length, 0);
+    equal(addedAttachments.length, 0);
 
     // As well as clearing
     alarm.addAttachment(sound);
     alarm.clearAttachments();
     addedAttachments = alarm.getAttachments({});
-    do_check_eq(addedAttachments.length, 0);
+    equal(addedAttachments.length, 0);
 
     dump("Done\n");
 }
@@ -195,15 +195,15 @@ function test_custom_alarm() {
     let alarm = cal.createAlarm();
     // Set ACTION to a custom value, make sure this was not rejected
     alarm.action = "X-SMS"
-    do_check_eq(alarm.action, "X-SMS");
+    equal(alarm.action, "X-SMS");
 
     // There is no restriction on DESCRIPTION for custom alarms
     alarm.description = "description";
-    do_check_eq(alarm.description, "description");
+    equal(alarm.description, "description");
 
     // There is no restriction on SUMMARY for custom alarms
     alarm.summary = "summary";
-    do_check_eq(alarm.summary, "summary");
+    equal(alarm.summary, "summary");
 
     // Test for attendees
     let attendee1 = cal.createAttendee();
@@ -211,19 +211,19 @@ function test_custom_alarm() {
     let attendee2 = cal.createAttendee();
     attendee2.id = "mailto:gustav";
 
-    do_check_eq(alarm.getAttendees({}).length, 0);
+    equal(alarm.getAttendees({}).length, 0);
     alarm.addAttendee(attendee1);
-    do_check_eq(alarm.getAttendees({}).length, 1);
+    equal(alarm.getAttendees({}).length, 1);
     alarm.addAttendee(attendee2);
-    do_check_eq(alarm.getAttendees({}).length, 2);
+    equal(alarm.getAttendees({}).length, 2);
     alarm.addAttendee(attendee1);
-    do_check_eq(alarm.getAttendees({}).length, 2);
+    equal(alarm.getAttendees({}).length, 2);
 
     alarm.deleteAttendee(attendee1);
-    do_check_eq(alarm.getAttendees({}).length, 1);
+    equal(alarm.getAttendees({}).length, 1);
 
     alarm.clearAttendees();
-    do_check_eq(alarm.getAttendees({}).length, 0);
+    equal(alarm.getAttendees({}).length, 0);
 
     // Test for attachments
     let attach1 = cal.createAttachment();
@@ -235,17 +235,17 @@ function test_custom_alarm() {
     alarm.addAttachment(attach2);
 
     let addedAttachments = alarm.getAttachments({});
-    do_check_eq(addedAttachments.length, 2);
-    do_check_eq(addedAttachments[0], attach1);
-    do_check_eq(addedAttachments[1], attach2);
+    equal(addedAttachments.length, 2);
+    equal(addedAttachments[0], attach1);
+    equal(addedAttachments[1], attach2);
 
     alarm.deleteAttachment(attach1);
     addedAttachments = alarm.getAttachments({});
-    do_check_eq(addedAttachments.length, 1);
+    equal(addedAttachments.length, 1);
 
     alarm.clearAttachments();
     addedAttachments = alarm.getAttachments({});
-    do_check_eq(addedAttachments.length, 0);
+    equal(addedAttachments.length, 0);
 }
 
 // Check if any combination of REPEAT and DURATION work as expected.
@@ -255,22 +255,22 @@ function test_repeat() {
     let alarm = cal.createAlarm();
 
     // Check initial value
-    do_check_eq(alarm.repeat, 0);
-    do_check_eq(alarm.repeatOffset, null);
-    do_check_eq(alarm.repeatDate, null);
+    equal(alarm.repeat, 0);
+    equal(alarm.repeatOffset, null);
+    equal(alarm.repeatDate, null);
 
     // Should not be able to get REPEAT when DURATION is not set
     alarm.repeat = 1;
-    do_check_eq(alarm.repeat, 0);
+    equal(alarm.repeat, 0);
 
     // Both REPEAT and DURATION should be accessible, when the two are set.
     alarm.repeatOffset = createDuration();
-    do_check_neq(alarm.repeatOffset, null);
-    do_check_neq(alarm.repeat, 0);
+    notEqual(alarm.repeatOffset, null);
+    notEqual(alarm.repeat, 0);
 
     // Should not be able to get DURATION when REPEAT is not set
     alarm.repeat = null;
-    do_check_eq(alarm.repeatOffset, null);
+    equal(alarm.repeatOffset, null);
 
     // Should be able to unset alarm DURATION attribute. (REPEAT already tested above)
     try {
@@ -280,8 +280,8 @@ function test_repeat() {
     }
 
     // Check unset value
-    do_check_eq(alarm.repeat, 0);
-    do_check_eq(alarm.repeatOffset, null);
+    equal(alarm.repeat, 0);
+    equal(alarm.repeatOffset, null);
 
     // Check repeatDate
     alarm = cal.createAlarm();
@@ -293,7 +293,7 @@ function test_repeat() {
 
     let dt = alarm.alarmDate.clone();
     dt.second += 3600;
-    do_check_eq(alarm.repeatDate.icalString, dt.icalString);
+    equal(alarm.repeatDate.icalString, dt.icalString);
 
     dump("Done\n");
 }
@@ -302,11 +302,11 @@ function test_xprop() {
     dump("Testing X-Props...");
     let alarm = cal.createAlarm();
     alarm.setProperty("X-PROP", "X-VALUE");
-    do_check_true(alarm.hasProperty("X-PROP"));
-    do_check_eq(alarm.getProperty("X-PROP"), "X-VALUE");
+    ok(alarm.hasProperty("X-PROP"));
+    equal(alarm.getProperty("X-PROP"), "X-VALUE");
     alarm.deleteProperty("X-PROP");
-    do_check_false(alarm.hasProperty("X-PROP"));
-    do_check_eq(alarm.getProperty("X-PROP"), null);
+    ok(!alarm.hasProperty("X-PROP"));
+    equal(alarm.getProperty("X-PROP"), null);
 
     // also check X-MOZ-LASTACK prop
     let dt = cal.createDateTime();
@@ -315,10 +315,10 @@ function test_xprop() {
     alarm.description = "test";
     alarm.related = Ci.calIAlarm.ALARM_RELATED_START
     alarm.offset = createDuration("-PT5M");
-    do_check_true(alarm.icalComponent.serializeToICS().indexOf(dt.icalString) > -1);
+    ok(alarm.icalComponent.serializeToICS().indexOf(dt.icalString) > -1);
 
     alarm.deleteProperty("X-MOZ-LASTACK");
-    do_check_false(alarm.icalComponent.serializeToICS().indexOf(dt.icalString) > -1);
+    ok(!alarm.icalComponent.serializeToICS().indexOf(dt.icalString) > -1);
     dump("Done\n");
 }
 
@@ -327,15 +327,15 @@ function test_dates() {
     let passed;
     // Initial value
     let alarm = cal.createAlarm();
-    do_check_eq(alarm.alarmDate, null);
-    do_check_eq(alarm.offset, null);
+    equal(alarm.alarmDate, null);
+    equal(alarm.offset, null);
 
     // Set an offset and check it
     alarm.related = Ci.calIAlarm.ALARM_RELATED_START
     let offset = createDuration("-PT5M");
     alarm.offset = offset;
-    do_check_eq(alarm.alarmDate, null);
-    do_check_eq(alarm.offset, offset);
+    equal(alarm.alarmDate, null);
+    equal(alarm.offset, offset);
     try {
         alarm.alarmDate = createDateTime();
         passed = false;
@@ -350,8 +350,8 @@ function test_dates() {
     alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
     let alarmDate = createDate(2007, 0, 1, true, 2, 0, 0);
     alarm.alarmDate = alarmDate;
-    do_check_eq(alarm.alarmDate, alarmDate);
-    do_check_eq(alarm.offset, null);
+    equal(alarm.alarmDate, alarmDate);
+    equal(alarm.offset, null);
     try {
         alarm.offset = createDuration();
         passed = false;
@@ -397,33 +397,33 @@ function test_immutable() {
 
     let passed = false;
     // Initial checks
-    do_check_true(alarm.isMutable);
+    ok(alarm.isMutable);
     alarm.makeImmutable();
-    do_check_false(alarm.isMutable);
+    ok(!alarm.isMutable);
     alarm.makeImmutable();
-    do_check_false(alarm.isMutable);
+    ok(!alarm.isMutable);
 
     // Check each attribute
     for (let prop in propMap) {
         try {
             alarm[prop] = propMap[prop];
         } catch (e) {
-            do_check_eq(e.result, Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE);
+            equal(e.result, Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE);
             continue;
         }
         do_throw("Attribute " + prop + " was writable while item was immutable");
     }
 
     // Functions
-    do_check_throws(function() {
+    throws(function() {
         alarm.setProperty("X-FOO", "changed");
-    }, Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE);
+    }, /Can not modify immutable data container/);
 
-    do_check_throws(function() {
+    throws(function() {
         alarm.deleteProperty("X-FOO");
-    }, Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE);
+    }, /Can not modify immutable data container/);
 
-    do_check_false(alarm.getProperty("X-DATEPROP").isMutable);
+    ok(!alarm.getProperty("X-DATEPROP").isMutable);
 
     dump("Done\n");
 }
@@ -445,14 +445,14 @@ function test_clone() {
     let newAlarm = alarm.clone();
     newAlarm.makeImmutable();
     newAlarm = newAlarm.clone();
-    do_check_true(newAlarm.isMutable);
+    ok(newAlarm.isMutable);
 
     // Check if item is still the same
     // TODO This is not quite optimal, maybe someone can find a better way to do
     // the comparisons.
     for (let prop in propMap) {
         if (prop == "item") {
-            do_check_eq(alarm.item.icalString, newAlarm.item.icalString)
+            equal(alarm.item.icalString, newAlarm.item.icalString)
         } else {
             if ((alarm[prop] instanceof Ci.nsISupports &&
                  alarm[prop].icalString != newAlarm[prop].icalString) ||
@@ -467,16 +467,16 @@ function test_clone() {
     for (let prop in clonePropMap) {
         newAlarm[prop] = clonePropMap[prop];
         dump("Checking " + prop + "...");
-        do_check_neq(alarm[prop], newAlarm[prop]);
+        notEqual(alarm[prop], newAlarm[prop]);
         dump("OK!\n");
         break;
     }
 
     // Check x props
     alarm.setProperty("X-FOO", "BAR");
-    do_check_eq(alarm.getProperty("X-FOO"), "BAR");
+    equal(alarm.getProperty("X-FOO"), "BAR");
     let dt = alarm.getProperty("X-DATEPROP");
-    do_check_eq(dt.isMutable, true);
+    equal(dt.isMutable, true);
 
     // Test xprop params
     alarm.icalString =
@@ -488,7 +488,7 @@ function test_clone() {
         "END:VALARM";
 
     newAlarm = alarm.clone();
-    do_check_eq(alarm.icalString, newAlarm.icalString);
+    equal(alarm.icalString, newAlarm.icalString);
 
     dump("Done\n");
 }
@@ -498,9 +498,9 @@ function test_serialize() {
     let alarm = cal.createAlarm();
     let srv = cal.getIcsService();
 
-    do_check_throws(function() {
+    throws(function() {
         alarm.icalComponent = srv.createIcalComponent("BARF");
-    }, Components.results.NS_ERROR_INVALID_ARG);
+    }, /0x80070057/ , "Invalid Argument");
 
     function addProp(k,v) { let p = srv.createIcalProperty(k); p.value = v; comp.addProperty(p) }
     function addActionDisplay() addProp("ACTION", "DISPLAY");
@@ -526,34 +526,34 @@ function test_serialize() {
     alarm.toString();
 
     // Missing action
-    do_check_throws(function() {
+    throws(function() {
         comp = srv.createIcalComponent("VALARM");
         addTrigger(); addDescr();
         alarm.icalComponent = comp;
-    }, Components.results.NS_ERROR_INVALID_ARG);
+    }, /Illegal value/, "Invalid Argument");
 
     // Missing trigger
-    do_check_throws(function() {
+    throws(function() {
         comp = srv.createIcalComponent("VALARM");
         addActionDisplay(); addDescr();
         alarm.icalComponent = comp;
-    }, Components.results.NS_ERROR_INVALID_ARG);
+    }, /Illegal value/, "Invalid Argument");
 
     // Missing duration with repeat
-    do_check_throws(function() {
+    throws(function() {
         comp = srv.createIcalComponent("VALARM");
         addActionDisplay(); addTrigger(); addDescr();
         addRepeat();
         alarm.icalComponent = comp;
-    }, Components.results.NS_ERROR_INVALID_ARG);
+    }, /Illegal value/, "Invalid Argument");
 
     // Missing repeat with duration
-    do_check_throws(function() {
+    throws(function() {
         comp = srv.createIcalComponent("VALARM");
         addActionDisplay(); addTrigger(); addDescr();
         addDuration();
         alarm.icalComponent = comp;
-    }, Components.results.NS_ERROR_INVALID_ARG);
+    }, /Illegal value/, "Invalid Argument");
 
 }
 

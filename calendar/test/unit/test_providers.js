@@ -279,12 +279,12 @@ function run_test() {
                                           aOperationType,
                                           aId,
                                           aDetail) {
-                do_check_eq(aStatus, 0);
+                equal(aStatus, 0);
                 if (aOperationType == Ci.calIOperationListener.ADD) {
                     // perform getItems() on calendar
                     aCalendar.getItems(filter, 0, rangeStart, rangeEnd, listener);
                 } else if (aOperationType == Ci.calIOperationListener.GET) {
-                    do_check_eq(count, aResult);
+                    equal(count, aResult);
                     do_test_finished();
                 }
             },
@@ -329,13 +329,13 @@ function run_test() {
                                               aOperationType,
                                               aId,
                                               aDetail) {
-                    do_check_eq(aStatus, 0);
+                    equal(aStatus, 0);
                     if (aOperationType == Ci.calIOperationListener.ADD) {
                         compareItemsSpecific(aDetail, aItem);
                         // perform getItem() on calendar
                         aCalendar.getItem(aId, listener);
                     } else if (aOperationType == Ci.calIOperationListener.GET) {
-                        do_check_eq(count, 1);
+                        equal(count, 1);
                         compareItemsSpecific(returnedItem, aItem);
                     }
                 },
@@ -369,46 +369,46 @@ function testMetaData() {
         event1.id = "item1";
         aCalendar.addItem(event1, null);
         aCalendar.setMetaData("item1", "meta1");
-        do_check_eq(aCalendar.getMetaData("item1"), "meta1");
-        do_check_eq(aCalendar.getMetaData("unknown"), null);
+        equal(aCalendar.getMetaData("item1"), "meta1");
+        equal(aCalendar.getMetaData("unknown"), null);
 
         var event2 = event1.clone();
         event2.id = "item2";
         aCalendar.addItem(event2, null);
         aCalendar.setMetaData("item2", "meta2-");
-        do_check_eq(aCalendar.getMetaData("item2"), "meta2-");
+        equal(aCalendar.getMetaData("item2"), "meta2-");
 
         aCalendar.setMetaData("item2", "meta2");
-        do_check_eq(aCalendar.getMetaData("item2"), "meta2");
+        equal(aCalendar.getMetaData("item2"), "meta2");
 
         var count = {};
         var ids = {};
         var values = {};
         aCalendar.getAllMetaData(count, ids, values);
-        do_check_eq(count.value, 2);
-        do_check_true(ids.value[0] ==  "item1" || ids.value[1] == "item1");
-        do_check_true(ids.value[0] ==  "item2" || ids.value[1] == "item2");
-        do_check_true(values.value[0] ==  "meta1" || values.value[1] == "meta1");
-        do_check_true(values.value[0] ==  "meta2" || values.value[1] == "meta2");
+        equal(count.value, 2);
+        ok(ids.value[0] ==  "item1" || ids.value[1] == "item1");
+        ok(ids.value[0] ==  "item2" || ids.value[1] == "item2");
+        ok(values.value[0] ==  "meta1" || values.value[1] == "meta1");
+        ok(values.value[0] ==  "meta2" || values.value[1] == "meta2");
 
         aCalendar.deleteItem(event1, null);
-        do_check_eq(aCalendar.getMetaData("item1"), null);
+        equal(aCalendar.getMetaData("item1"), null);
         aCalendar.getAllMetaData(count, ids, values);
-        do_check_eq(count.value, 1);
-        do_check_true(ids.value[0] ==  "item2");
-        do_check_true(values.value[0] ==  "meta2");
+        equal(count.value, 1);
+        ok(ids.value[0] ==  "item2");
+        ok(values.value[0] ==  "meta2");
 
         aCalendar.deleteMetaData("item2");
-        do_check_eq(aCalendar.getMetaData("item2"), null);
+        equal(aCalendar.getMetaData("item2"), null);
         aCalendar.getAllMetaData(count, ids, values);
-        do_check_eq(count.value, 0);
+        equal(count.value, 0);
 
         aCalendar.setMetaData("item2", "meta2");
-        do_check_eq(aCalendar.getMetaData("item2"), "meta2");
+        equal(aCalendar.getMetaData("item2"), "meta2");
         aCalendar.QueryInterface(Ci.calICalendarProvider).deleteCalendar(aCalendar, null);
-        do_check_eq(aCalendar.getMetaData("item2"), null);
+        equal(aCalendar.getMetaData("item2"), null);
         aCalendar.getAllMetaData(count, ids, values);
-        do_check_eq(count.value, 0);
+        equal(count.value, 0);
 
         aCalendar.deleteMetaData("unknown"); // check graceful return
     }

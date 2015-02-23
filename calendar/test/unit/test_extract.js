@@ -28,17 +28,17 @@ function test_event_start_end() {
     let guessed = extractor.guessStart();
     let endGuess = extractor.guessEnd(guessed);
 
-    do_check_eq(guessed.year, 2012);
-    do_check_eq(guessed.month, 10);
-    do_check_eq(guessed.day, 3);
-    do_check_eq(guessed.hour, 14);
-    do_check_eq(guessed.minute, 0);
+    equal(guessed.year, 2012);
+    equal(guessed.month, 10);
+    equal(guessed.day, 3);
+    equal(guessed.hour, 14);
+    equal(guessed.minute, 0);
 
-    do_check_eq(endGuess.year, 2012);
-    do_check_eq(endGuess.month, 10);
-    do_check_eq(endGuess.day, 3);
-    do_check_eq(endGuess.hour, 15);
-    do_check_eq(endGuess.minute, 0);
+    equal(endGuess.year, 2012);
+    equal(endGuess.month, 10);
+    equal(endGuess.day, 3);
+    equal(endGuess.hour, 15);
+    equal(endGuess.minute, 0);
 }
 
 function test_event_start_duration() {
@@ -50,17 +50,17 @@ function test_event_start_duration() {
     let guessed = extractor.guessStart();
     let endGuess = extractor.guessEnd(guessed);
 
-    do_check_eq(guessed.year, 2012);
-    do_check_eq(guessed.month, 10);
-    do_check_eq(guessed.day, 3);
-    do_check_eq(guessed.hour, 14);
-    do_check_eq(guessed.minute, 0);
+    equal(guessed.year, 2012);
+    equal(guessed.month, 10);
+    equal(guessed.day, 3);
+    equal(guessed.hour, 14);
+    equal(guessed.minute, 0);
 
-    do_check_eq(endGuess.year, 2012);
-    do_check_eq(endGuess.month, 10);
-    do_check_eq(endGuess.day, 3);
-    do_check_eq(endGuess.hour, 14);
-    do_check_eq(endGuess.minute, 30);
+    equal(endGuess.year, 2012);
+    equal(endGuess.month, 10);
+    equal(endGuess.day, 3);
+    equal(endGuess.hour, 14);
+    equal(endGuess.minute, 30);
 }
 
 function test_event_start_end_whitespace() {
@@ -72,17 +72,17 @@ function test_event_start_end_whitespace() {
     let guessed = extractor.guessStart();
     let endGuess = extractor.guessEnd(guessed);
 
-    do_check_eq(guessed.year, 2012);
-    do_check_eq(guessed.month, 10);
-    do_check_eq(guessed.day, 3);
-    do_check_eq(guessed.hour, 14);
-    do_check_eq(guessed.minute, 0);
+    equal(guessed.year, 2012);
+    equal(guessed.month, 10);
+    equal(guessed.day, 3);
+    equal(guessed.hour, 14);
+    equal(guessed.minute, 0);
 
-    do_check_eq(endGuess.year, 2012);
-    do_check_eq(endGuess.month, 10);
-    do_check_eq(endGuess.day, 3);
-    do_check_eq(endGuess.hour, 15);
-    do_check_eq(endGuess.minute, 0);
+    equal(endGuess.year, 2012);
+    equal(endGuess.month, 10);
+    equal(endGuess.day, 3);
+    equal(endGuess.hour, 15);
+    equal(endGuess.minute, 0);
 }
 
 function test_event_without_date() {
@@ -94,17 +94,17 @@ function test_event_without_date() {
     let guessed = extractor.guessStart();
     let endGuess = extractor.guessEnd(guessed);
 
-    do_check_eq(guessed.year, 2012);
-    do_check_eq(guessed.month, 10);
-    do_check_eq(guessed.day, 1);
-    do_check_eq(guessed.hour, 14);
-    do_check_eq(guessed.minute, 0);
+    equal(guessed.year, 2012);
+    equal(guessed.month, 10);
+    equal(guessed.day, 1);
+    equal(guessed.hour, 14);
+    equal(guessed.minute, 0);
 
-    do_check_eq(endGuess.year, 2012);
-    do_check_eq(endGuess.month, 10);
-    do_check_eq(endGuess.day, 1);
-    do_check_eq(endGuess.hour, 15);
-    do_check_eq(endGuess.minute, 0);
+    equal(endGuess.year, 2012);
+    equal(endGuess.month, 10);
+    equal(endGuess.day, 1);
+    equal(endGuess.hour, 15);
+    equal(endGuess.minute, 0);
 }
 
 function test_event_next_year() {
@@ -116,17 +116,17 @@ function test_event_next_year() {
     let guessed = extractor.guessStart();
     let endGuess = extractor.guessEnd(guessed);
 
-    do_check_eq(guessed.year, 2013);
-    do_check_eq(guessed.month, 2);
-    do_check_eq(guessed.day, 5);
-    do_check_eq(guessed.hour, undefined);
-    do_check_eq(guessed.minute, undefined);
+    equal(guessed.year, 2013);
+    equal(guessed.month, 2);
+    equal(guessed.day, 5);
+    equal(guessed.hour, undefined);
+    equal(guessed.minute, undefined);
 
-    do_check_eq(endGuess.year, undefined);
-    do_check_eq(endGuess.month, undefined);
-    do_check_eq(endGuess.day, undefined);
-    do_check_eq(endGuess.hour, undefined);
-    do_check_eq(endGuess.minute, undefined);
+    equal(endGuess.year, undefined);
+    equal(endGuess.month, undefined);
+    equal(endGuess.day, undefined);
+    equal(endGuess.hour, undefined);
+    equal(endGuess.minute, undefined);
 }
 
 function test_task_due() {
@@ -138,17 +138,17 @@ function test_task_due() {
     let guessed = extractor.guessStart(true);
     let endGuess = extractor.guessEnd(guessed, true);
 
-    do_check_eq(guessed.year, 2012);
-    do_check_eq(guessed.month, 10);
-    do_check_eq(guessed.day, 1);
-    do_check_eq(guessed.hour, 9);
-    do_check_eq(guessed.minute, 0);
+    equal(guessed.year, 2012);
+    equal(guessed.month, 10);
+    equal(guessed.day, 1);
+    equal(guessed.hour, 9);
+    equal(guessed.minute, 0);
 
-    do_check_eq(endGuess.year, 2012);
-    do_check_eq(endGuess.month, 10);
-    do_check_eq(endGuess.day, 5);
-    do_check_eq(endGuess.hour, 0);
-    do_check_eq(endGuess.minute, 0);
+    equal(endGuess.year, 2012);
+    equal(endGuess.month, 10);
+    equal(endGuess.day, 5);
+    equal(endGuess.hour, 0);
+    equal(endGuess.minute, 0);
 }
 
 function test_overrides() {
@@ -160,17 +160,17 @@ function test_overrides() {
     let guessed = extractor.guessStart(false);
     let endGuess = extractor.guessEnd(guessed, true);
 
-    do_check_eq(guessed.year, 2012);
-    do_check_eq(guessed.month, 10);
-    do_check_eq(guessed.day, 1);
-    do_check_eq(guessed.hour, 10);
-    do_check_eq(guessed.minute, 11);
+    equal(guessed.year, 2012);
+    equal(guessed.month, 10);
+    equal(guessed.day, 1);
+    equal(guessed.hour, 10);
+    equal(guessed.minute, 11);
 
-    do_check_eq(endGuess.year, undefined);
-    do_check_eq(endGuess.month, undefined);
-    do_check_eq(endGuess.day, undefined);
-    do_check_eq(endGuess.hour, undefined);
-    do_check_eq(endGuess.minute, undefined);
+    equal(endGuess.year, undefined);
+    equal(endGuess.month, undefined);
+    equal(endGuess.day, undefined);
+    equal(endGuess.hour, undefined);
+    equal(endGuess.minute, undefined);
 
     // recognize a custom "tomorrow" and hour.minutes pattern
     let overrides = {"from.hour.minutes":
@@ -183,17 +183,17 @@ function test_overrides() {
     guessed = extractor.guessStart(false);
     endGuess = extractor.guessEnd(guessed, true);
 
-    do_check_eq(guessed.year, 2012);
-    do_check_eq(guessed.month, 10);
-    do_check_eq(guessed.day, 2);
-    do_check_eq(guessed.hour, 11);
-    do_check_eq(guessed.minute, 10);
+    equal(guessed.year, 2012);
+    equal(guessed.month, 10);
+    equal(guessed.day, 2);
+    equal(guessed.hour, 11);
+    equal(guessed.minute, 10);
 
-    do_check_eq(endGuess.year, undefined);
-    do_check_eq(endGuess.month, undefined);
-    do_check_eq(endGuess.day, undefined);
-    do_check_eq(endGuess.hour, undefined);
-    do_check_eq(endGuess.minute, undefined);
+    equal(endGuess.year, undefined);
+    equal(endGuess.month, undefined);
+    equal(endGuess.day, undefined);
+    equal(endGuess.hour, undefined);
+    equal(endGuess.minute, undefined);
 }
 
 function test_event_start_dollar_sign() {
@@ -205,9 +205,9 @@ function test_event_start_dollar_sign() {
     let guessed = extractor.guessStart();
     let endGuess = extractor.guessEnd(guessed);
 
-    do_check_eq(guessed.year, 2012);
-    do_check_eq(guessed.month, 10);
-    do_check_eq(guessed.day, 3);
-    do_check_eq(guessed.hour, 15);
-    do_check_eq(guessed.minute, 0);
+    equal(guessed.year, 2012);
+    equal(guessed.month, 10);
+    equal(guessed.day, 3);
+    equal(guessed.hour, 15);
+    equal(guessed.minute, 0);
 }

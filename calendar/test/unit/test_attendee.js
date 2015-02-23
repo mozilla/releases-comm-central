@@ -15,34 +15,34 @@ function test_values() {
         let countObj = {};
         // Getting all attendees
         let allAttendees = event.getAttendees(countObj);
-        do_check_eq(countObj.value, allAttendees.length);
+        equal(countObj.value, allAttendees.length);
 
-        do_check_eq(allAttendees.length, expectedAttendees.length);
+        equal(allAttendees.length, expectedAttendees.length);
 
         // Check if all expected attendees are found
         for (let i = 0; i < expectedAttendees.length; i++) {
-            do_check_neq(allAttendees.indexOf(expectedAttendees[i]), -1);
+            notEqual(allAttendees.indexOf(expectedAttendees[i]), -1);
         }
 
         // Check if all found attendees are expected
         for (let i = 0; i < allAttendees.length; i++) {
-            do_check_neq(expectedAttendees.indexOf(allAttendees[i]), -1);
+            notEqual(expectedAttendees.indexOf(allAttendees[i]), -1);
         }
     }
     function findById(event, id, a) {
         let foundAttendee = event.getAttendeeById(id);
-        do_check_eq(foundAttendee, a);
+        equal(foundAttendee, a);
     }
     function testImmutability(a, properties) {
-        do_check_false(a.isMutable);
+         ok(!a.isMutable);
         // Check if setting a property throws. It should.
         for (let i = 0; i < properties.length; i++) {
             let old = a[properties[i]];
-            do_check_throws(function() {
+            throws(function() {
                 a[properties[i]] = old + 1;
-            }, Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE);
+            }, /Can not modify immutable data container/);
 
-            do_check_eq(a[properties[i]], old);
+            equal(a[properties[i]], old);
         }
     }
 
@@ -55,11 +55,11 @@ function test_values() {
                       "userType"];
     var values = ["myid", "mycn", "TRUE", "CHAIR", "DECLINED", "RESOURCE"];
     // Make sure test is valid
-    do_check_eq(properties.length, values.length);
+    equal(properties.length, values.length);
 
     for (var i = 0; i < properties.length; i++) {
         a1[properties[i]] = values[i];
-        do_check_eq(a1[properties[i]], values[i]);
+        equal(a1[properties[i]], values[i]);
     }
 
     // Create event
@@ -90,13 +90,13 @@ function test_values() {
     var ec = event.clone();
     var clonedatts = ec.getAttendees({});
     var atts = event.getAttendees({});
-    do_check_eq(atts.length, clonedatts.length)
+    equal(atts.length, clonedatts.length)
 
     for (i = 0; i < clonedatts.length; i++) {
         // The attributes should not be equal
-        do_check_neq(atts[i], clonedatts[i]);
+        notEqual(atts[i], clonedatts[i]);
         // But the ids should
-        do_check_eq(atts[i].id, clonedatts[i].id)
+        equal(atts[i].id, clonedatts[i].id)
     }
 
     // Make sure organizers are also cloned correctly
@@ -105,17 +105,17 @@ function test_values() {
     a3.isOrganizer = true;
     let a4 = a3.clone();
 
-    do_check_true(a4.isOrganizer)
+    ok(a4.isOrganizer)
     a3.isOrganizer = false;
-    do_check_true(a4.isOrganizer)
+    ok(a4.isOrganizer)
 }
 
 function test_serialize() {
     let a = cal.createAttendee();
 
-    do_check_throws(function() {
+    throws(function() {
         a.icalProperty;
-    }, Components.results.NS_ERROR_NOT_INITIALIZED);
+    }, /Component not initialized/);
 
     a.id = "horst";
     a.commonName = "Horst";
@@ -131,34 +131,34 @@ function test_serialize() {
 
     let prop = a.icalProperty;
     dump(prop.icalString);
-    do_check_eq(prop.value, "horst");
-    do_check_eq(prop.propertyName, "ATTENDEE");
-    do_check_eq(prop.getParameter("CN"), "Horst");
-    do_check_eq(prop.getParameter("RSVP"), "TRUE");
-    do_check_eq(prop.getParameter("ROLE"), "CHAIR");
-    do_check_eq(prop.getParameter("PARTSTAT"), "DECLINED");
-    do_check_eq(prop.getParameter("CUTYPE"), "RESOURCE");
-    do_check_eq(prop.getParameter("X-NAME"), "X-VALUE");
+    equal(prop.value, "horst");
+    equal(prop.propertyName, "ATTENDEE");
+    equal(prop.getParameter("CN"), "Horst");
+    equal(prop.getParameter("RSVP"), "TRUE");
+    equal(prop.getParameter("ROLE"), "CHAIR");
+    equal(prop.getParameter("PARTSTAT"), "DECLINED");
+    equal(prop.getParameter("CUTYPE"), "RESOURCE");
+    equal(prop.getParameter("X-NAME"), "X-VALUE");
 
     a.isOrganizer = true;
     prop = a.icalProperty;
-    do_check_eq(prop.value, "horst");
-    do_check_eq(prop.propertyName, "ORGANIZER");
-    do_check_eq(prop.getParameter("CN"), "Horst");
-    do_check_eq(prop.getParameter("RSVP"), "TRUE");
-    do_check_eq(prop.getParameter("ROLE"), "CHAIR");
-    do_check_eq(prop.getParameter("PARTSTAT"), "DECLINED");
-    do_check_eq(prop.getParameter("CUTYPE"), "RESOURCE");
-    do_check_eq(prop.getParameter("X-NAME"), "X-VALUE");
+    equal(prop.value, "horst");
+    equal(prop.propertyName, "ORGANIZER");
+    equal(prop.getParameter("CN"), "Horst");
+    equal(prop.getParameter("RSVP"), "TRUE");
+    equal(prop.getParameter("ROLE"), "CHAIR");
+    equal(prop.getParameter("PARTSTAT"), "DECLINED");
+    equal(prop.getParameter("CUTYPE"), "RESOURCE");
+    equal(prop.getParameter("X-NAME"), "X-VALUE");
 
 }
 
 function test_properties() {
     let a = cal.createAttendee();
 
-    do_check_throws(function() {
+    throws(function() {
         a.icalProperty;
-    }, Components.results.NS_ERROR_NOT_INITIALIZED);
+    }, /Component not initialized/);
 
     a.id = "horst";
     a.commonName = "Horst";
@@ -173,8 +173,8 @@ function test_properties() {
     // Only X-Props should show up in the enumerator
     a.setProperty("X-NAME", "X-VALUE");
     for (let x in fixIterator(a.propertyEnumerator, Components.interfaces.nsIProperty)) {
-        do_check_eq(x.name, "X-NAME");
-        do_check_eq(x.value, "X-VALUE");
+        equal(x.name, "X-NAME");
+        equal(x.value, "X-VALUE");
     }
 
     a.deleteProperty("X-NAME");

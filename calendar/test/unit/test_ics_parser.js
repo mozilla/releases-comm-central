@@ -27,14 +27,14 @@ function test_props_comps() {
     parser.parseString(str);
 
     let props = parser.getProperties({});
-    do_check_eq(props.length, 1);
-    do_check_eq(props[0].propertyName, "X-WR-CALNAME");
-    do_check_eq(props[0].value, "CALNAME");
+    equal(props.length, 1);
+    equal(props[0].propertyName, "X-WR-CALNAME");
+    equal(props[0].value, "CALNAME");
 
     let comps = parser.getComponents({});
-    do_check_eq(comps.length, 1);
-    do_check_eq(comps[0].componentType, "VJOURNAL");
-    do_check_eq(comps[0].location, "BEFORE TIME");
+    equal(comps.length, 1);
+    equal(comps[0].componentType, "VJOURNAL");
+    equal(comps[0].location, "BEFORE TIME");
 }
 
 function test_failures() {
@@ -45,7 +45,7 @@ function test_failures() {
     parser.parseString("BOGUS", null, {
         onParsingComplete: function(rc, parser) {
             dump("Note: The previous error message is expected ^^\n");
-            do_check_eq(rc, Components.results.NS_ERROR_FAILURE);
+            equal(rc, Components.results.NS_ERROR_FAILURE);
             do_test_finished();
         }
     });
@@ -61,8 +61,8 @@ function test_failures() {
         "END:VWORLD"].join("\r\n");
     dump("Note: The following error message is expected:\n");
     parser.parseString(str);
-    do_check_eq(parser.getComponents({}).length, 0);
-    do_check_eq(parser.getItems({}).length, 0);
+    equal(parser.getComponents({}).length, 0);
+    equal(parser.getItems({}).length, 0);
 
 }
 
@@ -83,23 +83,23 @@ function test_fake_parent() {
     parser.parseString(str);
 
     let items = parser.getItems({});
-    do_check_eq(items.length, 1);
+    equal(items.length, 1);
     let item = items[0];
 
-    do_check_eq(item.id, "123");
-    do_check_true(!!item.recurrenceInfo);
-    do_check_eq(item.startDate.icalString, "20120101T010101");
-    do_check_eq(item.getProperty("X-MOZ-FAKED-MASTER"), "1");
+    equal(item.id, "123");
+    ok(!!item.recurrenceInfo);
+    equal(item.startDate.icalString, "20120101T010101");
+    equal(item.getProperty("X-MOZ-FAKED-MASTER"), "1");
 
     let rinfo = item.recurrenceInfo;
 
-    do_check_eq(rinfo.countRecurrenceItems(), 1);
+    equal(rinfo.countRecurrenceItems(), 1);
     let excs = rinfo.getOccurrences(cal.createDateTime("20120101T010101"), null, 0, {});
-    do_check_eq(excs.length, 1);
+    equal(excs.length, 1);
     let exc = excs[0];
-    do_check_eq(exc.startDate.icalString, "20120101T010102");
+    equal(exc.startDate.icalString, "20120101T010102");
 
-    do_check_eq(parser.getParentlessItems({})[0], exc);
+    equal(parser.getParentlessItems({})[0], exc);
 }
 
 function test_async() {
@@ -123,18 +123,18 @@ function test_async() {
     parser.parseString(str, null, {
         onParsingComplete: function(rc, parser) {
             let items = parser.getItems({});
-            do_check_eq(items.length, 2);
+            equal(items.length, 2);
             let item = items[0];
-            do_check_true(cal.isToDo(item));
+            ok(cal.isToDo(item));
 
-            do_check_eq(item.entryDate.icalString, "20120101T010101");
-            do_check_eq(item.dueDate.icalString, "20120101T010102");
+            equal(item.entryDate.icalString, "20120101T010101");
+            equal(item.dueDate.icalString, "20120101T010102");
 
             item = items[1];
-            do_check_true(cal.isToDo(item));
+            ok(cal.isToDo(item));
 
-            do_check_eq(item.entryDate.icalString, "20120101T010103");
-            do_check_eq(item.dueDate.icalString, "20120101T010104");
+            equal(item.entryDate.icalString, "20120101T010103");
+            equal(item.dueDate.icalString, "20120101T010104");
 
             do_test_finished();
         }
@@ -174,7 +174,7 @@ function test_roundtrip() {
     parser.getProperties({}).forEach(serializer.addProperty, serializer);
     parser.getComponents({}).forEach(serializer.addComponent, serializer);
 
-    do_check_eq(serializer.serializeToString().split("\r\n").sort().join("\r\n"),
+    equal(serializer.serializeToString().split("\r\n").sort().join("\r\n"),
                 str.split("\r\n").sort().join("\r\n"));
 
     // Test parseFromStream
@@ -187,15 +187,15 @@ function test_roundtrip() {
     items = parser.getItems({});
     let comps = parser.getComponents({});
     let props = parser.getProperties({});
-    do_check_eq(items.length, 1);
-    do_check_eq(comps.length, 1);
-    do_check_eq(props.length, 1);
+    equal(items.length, 1);
+    equal(comps.length, 1);
+    equal(props.length, 1);
 
     let everything = items[0].icalString.split("\r\n").concat(comps[0].serializeToICS().split("\r\n"))
     everything.push((props[0].icalString.split("\r\n"))[0]);
     everything.sort();
 
-    do_check_eq(everything.join("\r\n"), str.split("\r\n").concat([""]).sort().join("\r\n"));
+    equal(everything.join("\r\n"), str.split("\r\n").concat([""]).sort().join("\r\n"));
 
     // Test serializeToStream/parseFromStream
     parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
@@ -210,13 +210,13 @@ function test_roundtrip() {
     items = parser.getItems({});
     comps = parser.getComponents({});
     props = parser.getProperties({});
-    do_check_eq(items.length, 1);
-    do_check_eq(comps.length, 1);
-    do_check_eq(props.length, 1);
+    equal(items.length, 1);
+    equal(comps.length, 1);
+    equal(props.length, 1);
 
     everything = items[0].icalString.split("\r\n").concat(comps[0].serializeToICS().split("\r\n"));
     everything.push((props[0].icalString.split("\r\n"))[0]);
     everything.sort();
 
-    do_check_eq(everything.join("\r\n"), str.split("\r\n").concat([""]).sort().join("\r\n"));
+    equal(everything.join("\r\n"), str.split("\r\n").concat([""]).sort().join("\r\n"));
 }

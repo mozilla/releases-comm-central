@@ -17,7 +17,7 @@ function run_test() {
 function test_found() {
     search.getProviders({}).forEach(search.removeProvider, search);
 
-    do_check_eq(search.getProviders({}).length, 0);
+    equal(search.getProviders({}).length, 0);
 
     let provider1 = {
         id: 1,
@@ -28,12 +28,12 @@ function test_found() {
         id: 2,
         called: false,
         searchForCalendars: function(aStr, aHint, aMax, aListener) {
-            do_check_false(this.called)
+            ok(!this.called)
             this.called = true;
 
-            do_check_eq(aStr, "str");
-            do_check_eq(aHint, HINT_EXACT_MATCH);
-            do_check_eq(aMax, 0);
+            equal(aStr, "str");
+            equal(aHint, HINT_EXACT_MATCH);
+            equal(aMax, 0);
 
             let mockCalendar = {
                 id: "test"
@@ -45,28 +45,28 @@ function test_found() {
     provider2.wrappedJSObject = provider2;
 
     search.addProvider(provider1);
-    do_check_eq(search.getProviders({}).length, 1);
+    equal(search.getProviders({}).length, 1);
     search.addProvider(provider2);
-    do_check_eq(search.getProviders({}).length, 2);
+    equal(search.getProviders({}).length, 2);
     search.removeProvider(provider1);
-    do_check_eq(search.getProviders({}).length, 1);
-    do_check_eq(search.getProviders({})[0].wrappedJSObject.id, 2);
+    equal(search.getProviders({}).length, 1);
+    equal(search.getProviders({})[0].wrappedJSObject.id, 2);
 
     let listener = {
         called: false,
         onResult: function(request, result) {
-            do_check_false(this.called);
+            ok(!this.called);
             this.called = true;
 
-            do_check_eq(result.length, 1);
-            do_check_eq(result[0].id, "test");
+            equal(result.length, 1);
+            equal(result[0].id, "test");
 
         }
     };
 
     let op = search.searchForCalendars("str", HINT_EXACT_MATCH, 0, listener);
-    do_check_true(listener.called);
-    do_check_true(provider2.called);
+    ok(listener.called);
+    ok(provider2.called);
 }
 
 function test_failure() {
@@ -81,16 +81,16 @@ function test_failure() {
     let listener = {
         called: false,
         onResult: function(request, result) {
-            do_check_false(this.called);
+            ok(!this.called);
             this.called = true;
-            do_check_eq(result.length, 0);
+            equal(result.length, 0);
         }
     };
 
     search.addProvider(provider);
 
     let op = search.searchForCalendars("str", HINT_EXACT_MATCH, 0, listener);
-    do_check_true(listener.called);
+    ok(listener.called);
 }
 
 function test_cancel() {
@@ -121,10 +121,10 @@ function test_cancel() {
     let listener = {
         called: false,
         onResult: function(request, result) {
-            do_check_eq(result, null);
+            equal(result, null);
 
             // If an exception occurs, the operation is not added to the opgroup
-            do_check_false(provider.cancelCalled);
+            ok(!provider.cancelCalled);
             do_test_finished();
         }
     };

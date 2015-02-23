@@ -65,15 +65,15 @@ function run_test() {
 function check_relative(aIcalString, aRelated) {
     let alarm = cal.createAlarm();
     alarm.icalString = aIcalString;
-    do_check_eq(alarm.related, aRelated);
-    do_check_eq(alarm.alarmDate, null);
-    do_check_neq(alarm.offset, null);
+    equal(alarm.related, aRelated);
+    equal(alarm.alarmDate, null);
+    notEqual(alarm.offset, null);
 }
 
 function check_absolute(aIcalString) {
     let alarm = cal.createAlarm();
     alarm.icalString = aIcalString;
-    do_check_eq(alarm.related, Ci.calIAlarm.ALARM_RELATED_ABSOLUTE);
-    do_check_neq(alarm.alarmDate, null);
-    do_check_eq(alarm.offset, null);
+    equal(alarm.related, Ci.calIAlarm.ALARM_RELATED_ABSOLUTE);
+    notEqual(alarm.alarmDate, null);
+    equal(alarm.offset, null);
 }

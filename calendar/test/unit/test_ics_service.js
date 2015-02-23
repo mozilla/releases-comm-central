@@ -16,20 +16,20 @@ function run_test() {
 function test_icalstring() {
     function checkComp(createFunc, icalString, members, properties) {
         let thing = createFunc(icalString);
-        do_check_eq(ics_unfoldline(thing.icalString), icalString + "\r\n");
+        equal(ics_unfoldline(thing.icalString), icalString + "\r\n");
 
         if (members) {
             for (let k in members) {
-                do_check_eq(thing[k], members[k]);
+                equal(thing[k], members[k]);
             }
         }
 
         if (properties) {
             for (let k in properties) {
                 if ("getParameter" in thing) {
-                    do_check_eq(thing.getParameter(k), properties[k]);
+                    equal(thing.getParameter(k), properties[k]);
                 } else if ("getProperty" in thing) {
-                    do_check_eq(thing.getProperty(k), properties[k]);
+                    equal(thing.getProperty(k), properties[k]);
                 }
             }
         }
@@ -40,7 +40,7 @@ function test_icalstring() {
                            "ATTACH;ENCODING=BASE64;FMTTYPE=text/calendar;FILENAME=test.ics:http://example.com/test.ics",
                            { formatType: "text/calendar", encoding: "BASE64" },
                            { FILENAME: "test.ics" });
-    do_check_eq(attach.uri.spec, "http://example.com/test.ics");
+    equal(attach.uri.spec, "http://example.com/test.ics");
 
     checkComp(cal.createAttendee.bind(cal),
               "ATTENDEE;RSVP=TRUE;CN=Name;PARTSTAT=ACCEPTED;CUTYPE=RESOURCE;ROLE=REQ-PARTICIPANT;X-THING=BAR:mailto:test@example.com",
@@ -57,30 +57,30 @@ function test_icalstring() {
     let rrule = checkComp(cal.createRecurrenceRule.bind(cal),
                           "RRULE:FREQ=WEEKLY;COUNT=5;INTERVAL=2;BYDAY=MO",
                           { count: 5, isByCount: true, type: "WEEKLY", interval: 2 });
-    do_check_eq(rrule.getComponent("BYDAY", {}).toString(), [2].toString());
+    equal(rrule.getComponent("BYDAY", {}).toString(), [2].toString());
 
     if (Preferences.get("calendar.icaljs", false)) {
         let rdate = checkComp(cal.createRecurrenceDate.bind(cal),
                               "RDATE:20120101T000000",
                               { isNegative: false });
-        do_check_eq(rdate.date.compare(cal.createDateTime("20120101T000000")), 0);
+        equal(rdate.date.compare(cal.createDateTime("20120101T000000")), 0);
     } else {
         let rdate = checkComp(cal.createRecurrenceDate.bind(cal),
                               "RDATE;VALUE=DATE-TIME:20120101T000000",
                               { isNegative: false });
-        do_check_eq(rdate.date.compare(cal.createDateTime("20120101T000000")), 0);
+        equal(rdate.date.compare(cal.createDateTime("20120101T000000")), 0);
     }
 
     /* TODO consider removing period support, ics throws badarg
     let rdateperiod = checkComp(cal.createRecurrenceDate.bind(cal),
                                 "RDATE;VALUE=PERIOD;20120101T000000Z/20120102T000000Z");
-    do_check_eq(rdate.date.compare(cal.createDateTime("20120101T000000Z")), 0);
+    equal(rdate.date.compare(cal.createDateTime("20120101T000000Z")), 0);
     */
 
     let exdate = checkComp(cal.createRecurrenceDate.bind(cal),
                            "EXDATE:20120101T000000",
                            { isNegative: true });
-    do_check_eq(exdate.date.compare(cal.createDateTime("20120101T000000")), 0);
+    equal(exdate.date.compare(cal.createDateTime("20120101T000000")), 0);
 }
 
 function test_icsservice() {
@@ -88,14 +88,14 @@ function test_icsservice() {
 
     function checkProp(createFunc, icalString, members, parameters) {
         let thing = createFunc(icalString);
-        do_check_eq(ics_unfoldline(thing.icalString), icalString + "\r\n");
+        equal(ics_unfoldline(thing.icalString), icalString + "\r\n");
 
         for (let k in members) {
-            do_check_eq(thing[k], members[k]);
+            equal(thing[k], members[k]);
         }
 
         for (let k in parameters) {
-            do_check_eq(thing.getParameter(k), parameters[k]);
+            equal(thing.getParameter(k), parameters[k]);
         }
         return thing;
     }
@@ -113,9 +113,9 @@ function test_icsservice() {
 
     // Test ::createIcalProperty
     let attach2 = svc.createIcalProperty("ATTACH");
-    do_check_eq(attach2.propertyName, "ATTACH");
+    equal(attach2.propertyName, "ATTACH");
     attach2.value = "http://example.com/";
-    do_check_eq(attach2.icalString, "ATTACH:http://example.com/\r\n");
+    equal(attach2.icalString, "ATTACH:http://example.com/\r\n");
 }
 
 function test_icalproperty() {
@@ -125,26 +125,26 @@ function test_icalproperty() {
     prop.value = "VAL";
 
     comp.addProperty(prop);
-    do_check_eq(prop.parent.toString(), comp.toString());
-    do_check_eq(prop.valueAsDatetime, null);
+    equal(prop.parent.toString(), comp.toString());
+    equal(prop.valueAsDatetime, null);
 
     prop = svc.createIcalProperty("PROP");
     prop.value = "A\nB";
-    do_check_eq(prop.value, "A\nB");
-    do_check_eq(prop.valueAsIcalString, "A\\nB");
-    do_check_eq(prop.valueAsDatetime, null);
+    equal(prop.value, "A\nB");
+    equal(prop.valueAsIcalString, "A\\nB");
+    equal(prop.valueAsDatetime, null);
 
     prop = svc.createIcalProperty("PROP");
     prop.valueAsIcalString = "A\\nB";
-    do_check_eq(prop.value, "A\nB");
-    do_check_eq(prop.valueAsIcalString, "A\\nB");
-    do_check_eq(prop.valueAsDatetime, null);
+    equal(prop.value, "A\nB");
+    equal(prop.valueAsIcalString, "A\\nB");
+    equal(prop.valueAsDatetime, null);
 
     prop = svc.createIcalProperty("PROP");
     prop.value = "A\\nB";
-    do_check_eq(prop.value, "A\\nB");
-    do_check_eq(prop.valueAsIcalString, "A\\\\nB");
-    do_check_eq(prop.valueAsDatetime, null);
+    equal(prop.value, "A\\nB");
+    equal(prop.valueAsIcalString, "A\\\\nB");
+    equal(prop.valueAsDatetime, null);
 }
 
 function test_icalcomponent() {
@@ -156,17 +156,17 @@ function test_icalcomponent() {
 
     // Check that the parent works and does not appear on cloned instances
     let alarm2 = alarm.clone();
-    do_check_eq(alarm.parent.toString(), event.toString());
-    do_check_eq(alarm2.parent, null);
+    equal(alarm.parent.toString(), event.toString());
+    equal(alarm2.parent, null);
 
     function check_getset(k, v) {
         dump("Checking " + k + " = " + v + "\n");
         event[k] = v;
         vstring = v.icalString || v;
-        do_check_eq(event[k].icalString || event[k], vstring);
-        do_check_eq(event.serializeToICS().match(new RegExp(vstring, "g")).length, 1);
+        equal(event[k].icalString || event[k], vstring);
+        equal(event.serializeToICS().match(new RegExp(vstring, "g")).length, 1);
         event[k] = v;
-        do_check_eq(event.serializeToICS().match(new RegExp(vstring, "g")).length, 1);
+        equal(event.serializeToICS().match(new RegExp(vstring, "g")).length, 1);
     }
 
     let props = [
@@ -201,16 +201,16 @@ function test_param() {
     let svc = cal.getIcsService();
     let prop = svc.createIcalProperty("DTSTART");
     prop.value = "20120101T010101";
-    do_check_eq(prop.icalString, "DTSTART:20120101T010101\r\n");
+    equal(prop.icalString, "DTSTART:20120101T010101\r\n");
     prop.setParameter("VALUE", "TEXT");
-    do_check_eq(prop.icalString, "DTSTART;VALUE=TEXT:20120101T010101\r\n");
+    equal(prop.icalString, "DTSTART;VALUE=TEXT:20120101T010101\r\n");
     prop.removeParameter("VALUE");
-    do_check_eq(prop.icalString, "DTSTART:20120101T010101\r\n");
+    equal(prop.icalString, "DTSTART:20120101T010101\r\n");
 
     prop.setParameter("X-FOO", "BAR");
-    do_check_eq(prop.icalString, "DTSTART;X-FOO=BAR:20120101T010101\r\n");
+    equal(prop.icalString, "DTSTART;X-FOO=BAR:20120101T010101\r\n");
     prop.removeParameter("X-FOO", "BAR");
-    do_check_eq(prop.icalString, "DTSTART:20120101T010101\r\n");
+    equal(prop.icalString, "DTSTART:20120101T010101\r\n");
 
 }
 
@@ -229,15 +229,15 @@ function test_iterator() {
     for (let p = comp.getFirstProperty("ANY");
          p;
          p = comp.getNextProperty("ANY")) {
-        do_check_eq(p.propertyName, propNames.shift());
-        do_check_eq(p.parent.toString(), comp.toString());
+        equal(p.propertyName, propNames.shift());
+        equal(p.parent.toString(), comp.toString());
     }
     propNames = ["X-ONE", "X-TWO"];
     for (let p = comp.getNextProperty("ANY");
          p;
          p = comp.getNextProperty("ANY")) {
-        do_check_eq(p.propertyName, propNames.shift());
-        do_check_eq(p.parent.toString(), comp.toString());
+        equal(p.propertyName, propNames.shift());
+        equal(p.parent.toString(), comp.toString());
     }
 
     // Property iterator with multiple values
@@ -248,9 +248,9 @@ function test_iterator() {
     for (let p = comp.getFirstProperty("CATEGORIES");
          p;
          p = comp.getNextProperty("CATEGORIES")) {
-        do_check_eq(p.propertyName, "CATEGORIES");
-        do_check_eq(p.value, propValues.shift());
-        do_check_eq(p.parent.toString(), comp.toString());
+        equal(p.propertyName, "CATEGORIES");
+        equal(p.value, propValues.shift());
+        equal(p.parent.toString(), comp.toString());
     }
 
     // Param iterator
@@ -263,7 +263,7 @@ function test_iterator() {
     for (let p = prop.getFirstParameterName();
          p;
          p = prop.getNextParameterName()) {
-        do_check_eq(p, params.shift());
+        equal(p, params.shift());
     }
 
     // Now try again, but start with next. Should act like first
@@ -271,6 +271,6 @@ function test_iterator() {
     for (let p = prop.getNextParameterName();
          p;
          p = prop.getNextParameterName()) {
-        do_check_eq(p, params.shift());
+        equal(p, params.shift());
     }
 }

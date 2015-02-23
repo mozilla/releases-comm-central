@@ -55,11 +55,11 @@ function checkConsistancy(har, testItems, itemAccessor) {
     itemAccessor = itemAccessor || function(o) { return o; }
     for (let idx in testItems) {
         let ti = itemAccessor(testItems[idx]);
-        do_check_eq(itemAccessor(har.itemByIndex(idx)).title,
+        equal(itemAccessor(har.itemByIndex(idx)).title,
                     ti.title);
-        do_check_eq(itemAccessor(har.itemById(ti.hashId)).title,
+        equal(itemAccessor(har.itemById(ti.hashId)).title,
                     ti.title);
-        do_check_eq(har.indexOf(testItems[idx]), idx);
+        equal(har.indexOf(testItems[idx]), idx);
     }
 }
 

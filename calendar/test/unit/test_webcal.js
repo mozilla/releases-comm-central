@@ -11,7 +11,7 @@ function run_test() {
     httpserv.registerPrefixHandler("/", {
         handle: function(request, response) {
           response.setStatusLine(request.httpVersion, 200, "OK");
-          do_check_eq(request.path, "/test_webcal");
+          equal(request.path, "/test_webcal");
         }
     });
     httpserv.start(-1);
@@ -29,7 +29,7 @@ function run_test() {
 function check_webcal_uri(uri) {
     let chan = Services.io.newChannel(uri, null, null);
     NetUtil.asyncFetch(chan, function(data, status, request) {
-        do_check_true(Components.isSuccessCode(status));
+        ok(Components.isSuccessCode(status));
         run_next_test();
     });
 }

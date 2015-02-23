@@ -11,5 +11,5 @@ function run_test() {
     let expected = "A String with \"quotes\" and 'other quotes'";
 
     prop.value = expected;
-    do_check_eq(prop.icalString, "DESCRIPTION:" + expected + "\r\n");
+    equal(prop.icalString, "DESCRIPTION:" + expected + "\r\n");
 }

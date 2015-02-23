@@ -29,9 +29,9 @@ function run_test() {
                                          "END:VEVENT");
 
     // There should be one alarm, one relation and one attachment
-    do_check_eq(item.getAlarms({}).length, 1);
-    do_check_eq(item.getRelations({}).length, 1);
-    do_check_eq(item.getAttachments({}).length, 1);
+    equal(item.getAlarms({}).length, 1);
+    equal(item.getRelations({}).length, 1);
+    equal(item.getAttachments({}).length, 1);
 
     // Change the occurrence to another day
     let occ = item.recurrenceInfo.getOccurrenceFor(cal.createDateTime("20090604T073000Z"));
@@ -39,9 +39,9 @@ function run_test() {
     item.recurrenceInfo.modifyException(occ, true);
 
     // There should still be one alarm, one relation and one attachment
-    do_check_eq(item.getAlarms({}).length, 1);
-    do_check_eq(item.getRelations({}).length, 1);
-    do_check_eq(item.getAttachments({}).length, 1);
+    equal(item.getAlarms({}).length, 1);
+    equal(item.getRelations({}).length, 1);
+    equal(item.getAttachments({}).length, 1);
 
     // Add the item to the storage calendar and retrieve it again
     storageCal.adoptItem(item, null);
@@ -54,7 +54,7 @@ function run_test() {
     });
 
     // There should still be one alarm, one relation and one attachment
-    do_check_eq(item.getAlarms({}).length, 1);
-    do_check_eq(item.getRelations({}).length, 1);
-    do_check_eq(item.getAttachments({}).length, 1);
+    equal(item.getAlarms({}).length, 1);
+    equal(item.getRelations({}).length, 1);
+    equal(item.getAttachments({}).length, 1);
 }

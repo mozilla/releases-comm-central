@@ -38,8 +38,8 @@ add_task(function test_deleted_items() {
     let delmgr = Components.classes["@mozilla.org/calendar/deleted-items-manager;1"]
                            .getService(Components.interfaces.calIDeletedItems);
     // No items have been deleted, retrieving one should return null.
-    do_check_null(delmgr.getDeletedDate("random"));
-    do_check_null(delmgr.getDeletedDate("random", "random"));
+    equal(delmgr.getDeletedDate("random"), null);
+    equal(delmgr.getDeletedDate("random", "random"), null);
 
     // Make sure the cache is initially flushed and that this doesn't throw an
     // error.
@@ -55,8 +55,8 @@ add_task(function test_deleted_items() {
 
     // Add the item, it still shouldn't be in the deleted database.
     yield check_delmgr_call(function() memory.addItem(item, null));
-    do_check_null(delmgr.getDeletedDate(item.id));
-    do_check_null(delmgr.getDeletedDate(item.id, memory.id));
+    equal(delmgr.getDeletedDate(item.id), null);
+    equal(delmgr.getDeletedDate(item.id, memory.id), null);
 
     // We need to stop time so we have something to compare with.
     let referenceDate = cal.createDateTime("20120726T112045"); referenceDate.timezone = cal.calendarDefaultTimezone();
@@ -72,33 +72,33 @@ add_task(function test_deleted_items() {
 
     // Now check if it was deleted at our reference date.
     let deltime = delmgr.getDeletedDate(item.id);
-    do_check_neq(deltime, null);
-    do_check_eq(deltime.compare(referenceDate), 0);
+    notEqual(deltime, null);
+    equal(deltime.compare(referenceDate), 0);
 
     // The same with the calendar.
     deltime = delmgr.getDeletedDate(item.id, memory.id);
-    do_check_neq(deltime, null);
-    do_check_eq(deltime.compare(referenceDate), 0);
+    notEqual(deltime, null);
+    equal(deltime.compare(referenceDate), 0);
 
     // Item should not be found in other calendars.
-    do_check_null(delmgr.getDeletedDate(item.id, "random"));
+    equal(delmgr.getDeletedDate(item.id, "random"), null);
 
     // Check if flushing works, we need to travel time for that.
     useFutureDate = true;
     yield check_delmgr_call(function() delmgr.flush());
-    do_check_null(delmgr.getDeletedDate(item.id));
-    do_check_null(delmgr.getDeletedDate(item.id, memory.id));
+    equal(delmgr.getDeletedDate(item.id), null);
+    equal(delmgr.getDeletedDate(item.id, memory.id), null);
 
     // Start over with our past time.
     useFutureDate = false;
 
     // Add, delete, add. Item should no longer be deleted.
     yield check_delmgr_call(function() memory.addItem(item, null));
-    do_check_null(delmgr.getDeletedDate(item.id));
+    equal(delmgr.getDeletedDate(item.id), null);
     yield check_delmgr_call(function() memory.deleteItem(item, null));
-    do_check_eq(delmgr.getDeletedDate(item.id).compare(referenceDate), 0);
+    equal(delmgr.getDeletedDate(item.id).compare(referenceDate), 0);
     yield check_delmgr_call(function() memory.addItem(item, null));
-    do_check_null(delmgr.getDeletedDate(item.id));
+    equal(delmgr.getDeletedDate(item.id), null);
 
     // Revert now function, in case more tests are written.
     cal.now = oldNowFunction;

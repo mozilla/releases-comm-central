@@ -18,7 +18,7 @@ function run_test() {
 function test_found() {
     _clearProviders();
 
-    do_check_eq(_countProviders(), 0);
+    equal(_countProviders(), 0);
 
     let provider1 = {
         id: 1,
@@ -31,7 +31,7 @@ function test_found() {
         id: 2,
         called: false,
         getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
-            do_check_false(this.called)
+            ok(!this.called)
             this.called = true;
 
             let interval = new cal.FreeBusyInterval(aCalId, cIFI.BUSY, aStart, aEnd);
@@ -41,23 +41,23 @@ function test_found() {
     provider2.wrappedJSObject = provider2;
 
     freebusy.addProvider(provider1);
-    do_check_eq(_countProviders(), 1);
+    equal(_countProviders(), 1);
     freebusy.addProvider(provider2);
-    do_check_eq(_countProviders(), 2);
+    equal(_countProviders(), 2);
     freebusy.removeProvider(provider1);
-    do_check_eq(_countProviders(), 1);
-    do_check_eq(_getFirstProvider().id, 2);
+    equal(_countProviders(), 1);
+    equal(_getFirstProvider().id, 2);
 
     let listener = {
         called: false,
         onResult: function(request, result) {
-            do_check_eq(result.length, 1);
-            do_check_eq(result[0].interval.start.icalString, "20120101T010101");
-            do_check_eq(result[0].interval.end.icalString, "20120102T010101");
-            do_check_eq(result[0].freeBusyType, cIFI.BUSY);
+            equal(result.length, 1);
+            equal(result[0].interval.start.icalString, "20120101T010101");
+            equal(result[0].interval.end.icalString, "20120102T010101");
+            equal(result[0].freeBusyType, cIFI.BUSY);
 
-            do_check_eq(result.length, 1);
-            do_check_true(provider2.called);
+            equal(result.length, 1);
+            ok(provider2.called);
             do_test_finished();
         }
     };
@@ -75,7 +75,7 @@ function test_failure() {
     let provider = {
         called: false,
         getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
-            do_check_false(this.called);
+            ok(!this.called);
             this.called = true;
             aListener.onResult({ status: Components.results.NS_ERROR_FAILURE }, "notFound");
         }
@@ -83,10 +83,10 @@ function test_failure() {
 
     let listener = {
         onResult: function(request, result) {
-            do_check_false(this.called);
-            do_check_eq(result.length, 0);
-            do_check_eq(request.status, 0);
-            do_check_true(provider.called);
+            ok(!this.called);
+            equal(result.length, 0);
+            equal(request.status, 0);
+            ok(provider.called);
             do_test_finished();
         }
     };
@@ -129,10 +129,10 @@ function test_cancel() {
     let listener = {
         called: false,
         onResult: function(request, result) {
-            do_check_eq(result, null);
+            equal(result, null);
 
             // If an exception occurs, the operation is not added to the opgroup
-            do_check_false(provider.cancelCalled);
+            ok(!provider.cancelCalled);
             do_test_finished();
         }
     };

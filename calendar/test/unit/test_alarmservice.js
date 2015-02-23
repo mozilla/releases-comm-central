@@ -9,7 +9,7 @@ const EXPECT_NONE = 0;
 const EXPECT_FIRED = 1;
 const EXPECT_TIMER = 2;
 
-function do_check_xor(a, b) do_check_true((a && !b) || (!a && b));
+function do_check_xor(a, b) ok((a && !b) || (!a && b));
 
 let alarmObserver = {
     service: null,
@@ -111,10 +111,10 @@ function initializeAlarmService() {
     alarmObserver.service = Components.classes["@mozilla.org/calendar/alarm-service;1"]
                                        .getService(Components.interfaces.calIAlarmService)
                                        .wrappedJSObject;
-    do_check_false(alarmObserver.service.mStarted);
+    ok(!alarmObserver.service.mStarted);
 
     alarmObserver.service.startup();
-    do_check_true(alarmObserver.service.mStarted);
+    ok(alarmObserver.service.mStarted);
 
     // we need to replace the existing observers with our observer
     for each (let obs in alarmObserver.service.mObservers.mInterfaces) {
@@ -291,7 +291,7 @@ function doAcknowledgeTest(aCalendar) {
 
     // the snoozed alarm timer delay should be close to an hour
     let tmr = alarmObserver.getTimer(aCalendar.id, item.hashId, alarm.icalString);
-    do_check_true(Math.abs(tmr.delay - 3600000) <= 1000);
+    ok(Math.abs(tmr.delay - 3600000) <= 1000);
 
     // test dismiss alarm
     alarmObserver.service.dismissAlarm(item2, alarm2);

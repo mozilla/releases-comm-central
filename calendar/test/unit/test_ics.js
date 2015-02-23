@@ -130,7 +130,7 @@ function test_roundtrip() {
         icssrv.parseICSAsync(data.ics, null, {
             onParsingComplete: function onParsingComplete(rc, rootComp) {
                 try {
-                    do_check_true(Components.isSuccessCode(rc));
+                    ok(Components.isSuccessCode(rc));
                     let event2 = cal.createEvent();
                     event2.icalComponent = rootComp;
                     checkEvent(thisdata, event2);
@@ -150,8 +150,8 @@ function test_folding() {
     let todo = cal.createTodo(), todo_ = cal.createTodo();
     todo.id = id;
     todo_.icalString = todo.icalString;
-    do_check_eq(todo.id, todo_.id);
-    do_check_eq(todo_.icalComponent.getFirstProperty("UID").value, id);
+    equal(todo.id, todo_.id);
+    equal(todo_.icalComponent.getFirstProperty("UID").value, id);
 }
 
 function test_icalProps() {
@@ -174,20 +174,20 @@ function checkIcalProp(aPropName, aObj) {
 
     if (aObj.setParameter) {
         aObj.icalProperty = prop1;
-        do_check_eq(aObj.getParameter("X-FOO"), "BAR");
+        equal(aObj.getParameter("X-FOO"), "BAR");
         aObj.icalProperty = prop2;
-        do_check_eq(aObj.getParameter("X-FOO"), null);
+        equal(aObj.getParameter("X-FOO"), null);
     } else if (aObj.setProperty) {
         aObj.icalProperty = prop1;
-        do_check_eq(aObj.getProperty("X-FOO"), "BAR");
+        equal(aObj.getProperty("X-FOO"), "BAR");
         aObj.icalProperty = prop2;
-        do_check_eq(aObj.getProperty("X-FOO"), null);
+        equal(aObj.getProperty("X-FOO"), null);
     }
 }
 
 function checkProps(expectedProps, obj) {
     for (let key in expectedProps) {
-        do_check_eq(obj[key], expectedProps[key]);
+        equal(obj[key], expectedProps[key]);
     }
 }
 
@@ -204,8 +204,8 @@ function checkRoundtrip(expectedProps, obj) {
                 icskey = "summary";
                 break;
         }
-        do_check_true(icsdata.indexOf(icskey.toUpperCase()) > 0);
-        do_check_true(icsdata.indexOf(expectedProps[key]) > 0);
+        ok(icsdata.indexOf(icskey.toUpperCase()) > 0);
+        ok(icsdata.indexOf(expectedProps[key]) > 0);
     }
 }
 
@@ -213,14 +213,14 @@ function test_duration() {
     let e = cal.createEvent();
     e.startDate = cal.createDateTime();
     e.endDate = null;
-    do_check_eq(e.duration.icalString, "PT0S");
+    equal(e.duration.icalString, "PT0S");
 }
 
 function test_serialize() {
     let e = cal.createEvent();
     let prop = cal.getIcsService().createIcalComponent("VTODO");
 
-    do_check_throws(function() {
+    throws(function() {
         e.icalComponent = prop;
-    }, Components.results.NS_ERROR_INVALID_ARG);
+    }, /Illegal value/);
 }

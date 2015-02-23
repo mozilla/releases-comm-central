@@ -39,9 +39,9 @@ function really_run_test() {
             // Object comparison fails with ical.js, and we only want to check
             // that we have the right timezone.
             if (prop == "timezone")
-                do_check_eq(dateTime[prop].tzid, expectedDateProps[prop].tzid)
+                equal(dateTime[prop].tzid, expectedDateProps[prop].tzid)
             else
-                do_check_eq(dateTime[prop], expectedDateProps[prop]);
+                equal(dateTime[prop], expectedDateProps[prop]);
         }
 
         // Test round tripping that dateTime object back to an RFC 3339 string.
@@ -50,7 +50,7 @@ function really_run_test() {
         // In theory this should just match the input RFC 3339 date, but there are
         // multiple ways of generating the same time, e.g. 2006-03-14Z is
         // equivalent to 2006-03-14.
-        do_check_eq(rfc3339Date, aExpectedRfc3339Date);
+        equal(rfc3339Date, aExpectedRfc3339Date);
     }
 
     /*

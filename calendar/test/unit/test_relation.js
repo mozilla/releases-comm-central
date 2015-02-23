@@ -18,7 +18,7 @@ function run_test() {
 
     for (let [property, value] in Iterator(properties)) {
         r1[property] = value;
-        do_check_eq(r1[property], value);
+        equal(r1[property], value);
     }
 
     // Add relation to event
@@ -44,17 +44,17 @@ function run_test() {
 function checkRelations(event, expRel) {
     let countObj = {};
     let allRel = event.getRelations(countObj);
-    do_check_eq(countObj.value, allRel.length);
-    do_check_eq(allRel.length, expRel.length);
+    equal(countObj.value, allRel.length);
+    equal(allRel.length, expRel.length);
 
     // check if all expacted relations are found
     for (let i = 0; i < expRel.length; i++) {
-        do_check_neq(allRel.indexOf(expRel[i]), -1);
+        notEqual(allRel.indexOf(expRel[i]), -1);
     }
 
     // Check if all found relations are expected
     for (let i = 0; i < allRel.length; i++) {
-        do_check_neq(expRel.indexOf(allRel[i]), -1);
+        notEqual(expRel.indexOf(allRel[i]), -1);
     }
 }
 
@@ -64,17 +64,17 @@ function modifyRelations(event, oldRel) {
 
     // modify the properties
     rel.relType = "SIBLING";
-    do_check_eq(rel.relType, "SIBLING");
-    do_check_eq(rel.relType, allRel[0].relType);
+    equal(rel.relType, "SIBLING");
+    equal(rel.relType, allRel[0].relType);
 
     // remove one relation
     event.removeRelation(rel);
-    do_check_eq(event.getRelations({}).length, oldRel.length - 1);
+    equal(event.getRelations({}).length, oldRel.length - 1);
 
     // add one relation and remove all relations
     event.addRelation(oldRel[0]);
     event.removeAllRelations();
-    do_check_eq(event.getRelations({}), 0);
+    equal(event.getRelations({}), 0);
 }
 
 function test_icalprop() {
@@ -87,41 +87,41 @@ function test_icalprop() {
     let prop = rel.icalProperty;
     let propOrig = rel.icalProperty;
 
-    do_check_eq(rel.icalString, prop.icalString);
+    equal(rel.icalString, prop.icalString);
 
-    do_check_eq(prop.value, "value");
-    do_check_eq(prop.getParameter("X-PROP"), "VAL");
-    do_check_eq(prop.getParameter("RELTYPE"), "SIBLING");
+    equal(prop.value, "value");
+    equal(prop.getParameter("X-PROP"), "VAL");
+    equal(prop.getParameter("RELTYPE"), "SIBLING");
 
     prop.value = "changed";
     prop.setParameter("RELTYPE", "changedtype");
     prop.setParameter("X-PROP", "changedxprop");
 
-    do_check_eq(rel.relId, "value");
-    do_check_eq(rel.getParameter("X-PROP"), "VAL");
-    do_check_eq(rel.relType, "SIBLING");
+    equal(rel.relId, "value");
+    equal(rel.getParameter("X-PROP"), "VAL");
+    equal(rel.relType, "SIBLING");
 
     rel.icalProperty = prop;
 
-    do_check_eq(rel.relId, "changed");
-    do_check_eq(rel.getParameter("X-PROP"), "changedxprop");
-    do_check_eq(rel.relType, "changedtype");
+    equal(rel.relId, "changed");
+    equal(rel.getParameter("X-PROP"), "changedxprop");
+    equal(rel.relType, "changedtype");
 
     rel.icalString = propOrig.icalString;
 
-    do_check_eq(rel.relId, "value");
-    do_check_eq(rel.getParameter("X-PROP"), "VAL");
-    do_check_eq(rel.relType, "SIBLING");
+    equal(rel.relId, "value");
+    equal(rel.getParameter("X-PROP"), "VAL");
+    equal(rel.relType, "SIBLING");
 
     let rel2 = rel.clone();
     rel.icalProperty = prop;
 
-    do_check_neq(rel.icalString, rel2.icalString);
+    notEqual(rel.icalString, rel2.icalString);
 
     rel.deleteParameter("X-PROP");
-    do_check_eq(rel.icalProperty.getParameter("X-PROP"), null);
+    equal(rel.icalProperty.getParameter("X-PROP"), null);
 
-    do_check_throws(function() {
+    throws(function() {
         rel.icalString = "X-UNKNOWN:value";
-    }, Components.results.NS_ERROR_ILLEGAL_VALUE);
+    }, /Illegal value/);
 }

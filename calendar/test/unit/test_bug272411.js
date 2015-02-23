@@ -11,5 +11,5 @@ function run_test() {
 
     // calIDateTime is only accurate to the second, milliseconds need to be
     // stripped.
-    do_check_eq(cdtTime, jsdTime);
+    equal(cdtTime, jsdTime);
 }

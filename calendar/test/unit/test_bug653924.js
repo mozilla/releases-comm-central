@@ -7,7 +7,7 @@ function run_test() {
     let rel = cal.createRelation();
     evt.addRelation(rel);
 
-    do_check_eq(1, evt.icalString.match(/RELATED-TO/g).length);
+    equal(1, evt.icalString.match(/RELATED-TO/g).length);
     evt.icalString = evt.icalString;
-    do_check_eq(1, evt.icalString.match(/RELATED-TO/g).length);
+    equal(1, evt.icalString.match(/RELATED-TO/g).length);
 }

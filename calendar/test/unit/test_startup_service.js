@@ -12,14 +12,14 @@ function run_test() {
             aListener.onResult(null, Cr.NS_OK);
         },
         shutdown: function(aListener) {
-            do_check_true(this.canStop);
+            ok(this.canStop);
             aListener.onResult(null, Cr.NS_OK);
         }
     };
 
     let second = {
         startup: function(aListener) {
-            do_check_true(this.canStart);
+            ok(this.canStart);
             aListener.onResult(null, Cr.NS_OK);
         },
         shutdown: function(aListener) {
@@ -39,9 +39,9 @@ function run_test() {
 
     // Pretend a startup run
     ssvc.observe(null, "profile-after-change", null);
-    do_check_true(second.canStart);
+    ok(second.canStart);
 
     // Pretend a stop run
     ssvc.observe(null, "profile-before-change", null);
-    do_check_true(first.canStop);
+    ok(first.canStop);
 }

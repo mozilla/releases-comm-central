@@ -6,5 +6,5 @@ function run_test() {
     let a = cal.createDuration("PT1S");
     let b = cal.createDuration("PT3S");
     a.addDuration(b);
-    do_check_eq(a.icalString, "PT4S");
+    equal(a.icalString, "PT4S");
 }

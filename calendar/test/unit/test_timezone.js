@@ -67,6 +67,6 @@ function run_test() {
 
     g.timezone = tzs.getTimezone(g.timezone.tzid);
     h.timezone = tzs.getTimezone(h.timezone.tzid);
-    do_check_neq(strTz,g.timezone.toString());
+    notEqual(strTz,g.timezone.toString());
 }
 
