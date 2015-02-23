@@ -19,7 +19,7 @@ interface prplIChatRoomFieldValues;
  * This is the XPCOM purple conversation component, a proxy for PurpleConversation.
  */
 
-[scriptable, uuid(e40dc3e5-c9ff-457b-a6cc-655cce81042c)]
+[scriptable, uuid(f71c58d6-2c47-4468-934b-b1c61462c01a)]
 interface prplIConversation: nsISupports {
 
   /* Indicate if this conversation implements prplIConvIM or prplIConvChat */

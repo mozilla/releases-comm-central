@@ -7,7 +7,7 @@
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
 
-[scriptable, uuid(CA620E0E-927F-4fbe-A108-9ECF31A7ECC7)]
+[scriptable, uuid(da6b9843-5464-4630-b121-c5970aa3d6ed)]
 interface nsIMsgCopyServiceListener : nsISupports {
 
     /**

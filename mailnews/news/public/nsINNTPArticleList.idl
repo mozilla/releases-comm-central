@@ -8,7 +8,7 @@
 
 interface nsIMsgNewsFolder;
 
-[scriptable, uuid(921AC214-96B5-11d2-B7EB-00805F05FFA5)]
+[scriptable, uuid(043d9dd4-b133-4eb4-a1a8-71abff69b613)]
 interface nsINNTPArticleList : nsISupports {
     void initialize(in nsIMsgNewsFolder newsFolder);
     void addArticleKey(in nsMsgKey key);

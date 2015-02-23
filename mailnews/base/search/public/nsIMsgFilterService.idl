@@ -16,7 +16,7 @@ interface nsIMsgSearchCustomTerm;
 interface nsIArray;
 interface nsIMsgOperationListener;
 
-[scriptable, uuid(f2cd5e30-ac60-46c0-ad29-54321efd4128)]
+[scriptable, uuid(78a74023-1692-4567-8d72-9ca58fbbd427)]
 interface nsIMsgFilterService : nsISupports {
 
     nsIMsgFilterList OpenFilterList(in nsIFile filterFile, in nsIMsgFolder rootFolder, in nsIMsgWindow msgWindow);

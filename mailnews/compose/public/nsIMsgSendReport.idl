@@ -17,7 +17,7 @@ interface nsIMsgProcessReport : nsISupports {
   void reset();
 };
 
-[scriptable, uuid(2247c281-7f7f-11d5-9daa-994d49414e7c)]
+[scriptable, uuid(428c5bde-29f5-4bfe-830a-ec795a1c2975)]
 interface nsIMsgSendReport : nsISupports {
 
   const long process_Current = -1;
