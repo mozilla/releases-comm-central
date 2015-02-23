@@ -7,7 +7,7 @@
 
 typedef long nsMsgFilterTypeType;
 
-[scriptable,uuid(425fc6a8-820b-4cb5-a8cb-db4f25872135)]
+[scriptable,uuid(b963a9c6-3a75-4d91-9f79-7186418d4d2d)]
 interface nsMsgFilterType {
     /* these longs are all actually of type nsMsgFilterTypeType */
   const long None             = 0x00;

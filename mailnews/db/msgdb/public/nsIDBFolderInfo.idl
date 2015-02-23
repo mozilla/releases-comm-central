@@ -6,7 +6,7 @@
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
 
-[scriptable, uuid(538577e4-80e9-4567-8de1-3578efaef62d)]
+[scriptable, uuid(6e49d723-cefe-4dd0-bc98-f62c2f8f7f0f)]
 interface  nsIDBFolderInfo : nsISupports {
   attribute long flags;
 
