@@ -14,10 +14,9 @@ var gGeneralPane = {
     this.mPane = document.getElementById("paneGeneral");
 
     this.updateStartPage();
-
     this.updatePlaySound();
-
     this.updateCustomizeAlert();
+    this.updateWebSearch();
 
     if (this._loadInContent) {
       gSubDialog.init();
@@ -178,5 +177,28 @@ var gGeneralPane = {
       customizeAlertButton.disabled =
         !document.getElementById("newMailNotificationAlert").checked;
     }
-  }
+  },
+
+  updateWebSearch: function() {
+    Services.search.init({
+      onInitComplete: function() {
+        let engineList = document.getElementById("defaultWebSearch");
+        for (let engine of Services.search.getVisibleEngines()) {
+          let item = engineList.appendItem(engine.name);
+          item.engine = engine;
+          item.className = "menuitem-iconic";
+          item.setAttribute(
+            "image", engine.iconURI ? engine.iconURI.spec :
+                     "resource://gre-resources/broken-image.png"
+          );
+          if (engine == Services.search.currentEngine)
+            engineList.selectedItem = item;
+        }
+
+        engineList.addEventListener("command", function() {
+          Services.search.currentEngine = engineList.selectedItem.engine;
+        });
+      }
+    });
+  },
 };

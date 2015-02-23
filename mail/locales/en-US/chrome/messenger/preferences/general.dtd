@@ -35,3 +35,5 @@
 <!ENTITY customsound.accesskey            "U">
 <!ENTITY browse.label                     "Browse…">
 <!ENTITY browse.accesskey                 "B">
+
+<!ENTITY defaultSearchEngine.label        "Default Search Engine">

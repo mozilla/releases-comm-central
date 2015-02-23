@@ -54,6 +54,15 @@
     </groupbox>
 
     <groupbox>
+      <caption label="&defaultSearchEngine.label;"/>
+      <hbox>
+        <menulist id="defaultWebSearch">
+          <menupopup id="defaultWebSearchPopup"/>
+        </menulist>
+      </hbox>
+    </groupbox>
+
+    <groupbox>
       <caption label="&newMessagesArrive.label;"/>
       <hbox align="center">
 #ifdef XP_MACOSX
