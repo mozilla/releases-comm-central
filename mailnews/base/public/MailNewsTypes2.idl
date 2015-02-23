@@ -80,6 +80,9 @@ interface nsMsgAuthMethod {
     /// Let us pick any of the auth types supported by the server.
     /// Discouraged, because vulnerable to MITM attacks, even if server offers secure auth.
     const nsMsgAuthMethodValue anything = 9;
+
+    /// Use OAuth2 to authenticate.
+    const nsMsgAuthMethodValue OAuth2 = 10;
 };
 
 typedef unsigned long nsMsgLabelValue;

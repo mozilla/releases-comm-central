@@ -78,6 +78,7 @@ function initServerType()
   setLabelFromStringBundle("authMethod-kerberos", "authKerberos");
   setLabelFromStringBundle("authMethod-external", "authExternal");
   setLabelFromStringBundle("authMethod-ntlm", "authNTLM");
+  setLabelFromStringBundle("authMethod-oauth2", "authOAuth2");
   setLabelFromStringBundle("authMethod-anysecure", "authAnySecure");
   setLabelFromStringBundle("authMethod-any", "authAny");
   setLabelFromStringBundle("authMethod-password-encrypted",

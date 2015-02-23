@@ -140,6 +140,9 @@ var gSmtpServerListWindow =
                   ? "authPasswordCleartextViaSSL"
                   : "authPasswordCleartextInsecurely";
         break;
+      case AuthMethod.OAuth2:
+        authStr = "authOAuth2";
+        break;
       default:
         // leave empty
         Components.utils.reportError("Warning: unknown value for smtpserver... authMethod: " +
