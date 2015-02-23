@@ -5,6 +5,33 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 function populateGraphicsSection() {
+  function assembleFromGraphicsFailure(i, data)
+  {
+    // Only cover the cases we have today; for example, we do not have
+    // log failures that assert and we assume the log level is 1/error.
+    let message = data.failures[i];
+    let index = data.indices[i];
+    let what = "";
+    if (message.search(/\[GFX1-\]: \(LF\)/) == 0) {
+      // Non-asserting log failure - the message is substring(14)
+      what = "LogFailure";
+      message = message.substring(14);
+    } else if (message.search(/\[GFX1-\]: /) == 0) {
+      // Non-asserting - the message is substring(9)
+      what = "Error";
+      message = message.substring(9);
+    } else if (message.search(/\[GFX1\]: /) == 0) {
+      // Asserting - the message is substring(8)
+      what = "Assert";
+      message = message.substring(8);
+    }
+    let assembled = {"index" : index,
+                    "header" : ("(#" + index + ") " + what),
+                    "message" : message};
+    return assembled;
+  }
+  
+
   function createHeader(name)
   {
     let elem = createElement("th", name);
@@ -167,11 +194,46 @@ function populateGraphicsSection() {
 
     // display any failures that have occurred
     let graphics_failures_tbody = document.getElementById("graphics-failures-tbody");
-    let trGraphicsFailures = gfxInfo.getFailures().map(function (value)
-        createParentElement("tr", [
-            createElement("td", value)
-        ])
-    );
+
+    let data = {failures: [], indices: []};
+
+    let failureCount = {};
+    let failureIndices = {};
+
+    let failures = gfxInfo.getFailures(failureCount, failureIndices);
+    if (failures.length) {
+      data.failures = failures;
+      if (failureIndices.value.length == failures.length) {
+        data.indices = failureIndices.value;
+      }
+    }
+    let trGraphicFailures;
+    // If indices is there, it should be the same length as failures,
+    // (see Troubleshoot.jsm) but we check anyway:
+    if ("indices" in data && data.failures.length == data.indices.length) {
+      let combined = [];
+      for (let i = 0; i < data.failures.length; i++) {
+        let assembled = assembleFromGraphicsFailure(i, data);
+        combined.push(assembled);
+      }
+      combined.sort(function(a,b) {
+          if (a.index < b.index) return -1;
+          if (a.index > b.index) return 1;
+          return 0;});
+      trGraphicsFailures = combined.map(function(val) {
+                               createParentElement("tr", [
+                                   createElement("th", val.header, {class: "column"}),
+                                   createElement("td", val.message),
+                               ]);
+                           });
+    } else {
+      trGraphicsFailures = createParentElement("tr", [
+                               createElement("th", "LogFailure", {class: "column"}),
+                               createParentElement("td", data.failures.map(val =>
+                                   createElement("p", val)
+                           ))]);
+    }
+
     appendChildren(graphics_failures_tbody, trGraphicsFailures);
 
 
