@@ -282,9 +282,6 @@
 @RESPATH@/components/necko_wifi.xpt
 #endif
 @RESPATH@/components/necko_wyciwyg.xpt
-#ifdef MOZ_ENABLE_GNOMEVFS
-@RESPATH@/components/@DLL_PREFIX@nkgnomevfs@DLL_SUFFIX@
-#endif
 @RESPATH@/components/parentalcontrols.xpt
 #ifdef MOZ_WEBRTC
 @RESPATH@/components/peerconnection.xpt

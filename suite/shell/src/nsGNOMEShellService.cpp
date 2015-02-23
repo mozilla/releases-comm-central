@@ -11,7 +11,6 @@
 #include "nsServiceManagerUtils.h"
 #include "nsIGSettingsService.h"
 #include "nsIGConfService.h"
-#include "nsIGnomeVFSService.h"
 #include "nsIGIOService.h"
 #include "nsIPrefService.h"
 #include "nsIStringBundle.h"
