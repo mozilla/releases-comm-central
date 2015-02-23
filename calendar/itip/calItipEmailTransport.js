@@ -235,7 +235,7 @@ calItipEmailTransport.prototype = {
                                                   .createInstance(Components.interfaces.nsIMsgCompFields);
                     composeFields.characterSet = "UTF-8";
                     composeFields.to = toList;
-                    let mailfrom = (!identity.fullName.length) ? identity.mail : identity.fullName + "<" + identity.mail + ">";
+                    let mailfrom = (!identity.fullName.length) ? identity.mail : identity.fullName + " <" + identity.mail + ">";
                     composeFields.from = (cal.validateRecipientList(mailfrom) == mailfrom)
                                          ? mailfrom : identity.email;
                     composeFields.replyTo = identity.replyTo;
@@ -332,7 +332,6 @@ calItipEmailTransport.prototype = {
                             (aIdentity.organization
                              ? "Organization: " + aIdentity.organization + "\r\n" : "") +
                             "Message-ID: " + aMessageId + "\r\n" +
-                            "User-Agent: " + cal.calUserAgent() "\r\n"+
                             "To: " + aToList + "\r\n" +
                             "Date: " + (new Date()).toUTCString() + "\r\n" +
                             "Subject: " + encodeMimeHeader(aSubject.replace(/(\n|\r\n)/, "|")) + "\r\n");
