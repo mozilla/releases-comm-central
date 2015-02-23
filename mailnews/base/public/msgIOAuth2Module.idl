@@ -1,0 +1,59 @@
+/* -*- Mode: IDL; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+interface nsIMsgIncomingServer;
+interface nsISmtpServer;
+
+/**
+ * A listener callback for OAuth2 SASL authentication. This would be represented
+ * as a promise, but this needs to be consumed by C++ code.
+ */
+[scriptable, uuid(9a088b49-bc13-4f99-9478-053a6a43e370)]
+interface msgIOAuth2ModuleListener : nsISupports {
+  /// Called on successful OAuth2 authentication with the bearer token to use.
+  void onSuccess(in ACString aBearerToken);
+
+  /// Called on failed OAuth2 authentication.
+  void onFailure(in nsresult aError);
+};
+
+/**
+ * An interface for managing the responsibilities of using OAuth2 to produce a
+ * bearer token, for use in SASL steps.
+ */
+[scriptable, uuid(68c275f8-cfa7-4622-b279-af290616cae6)]
+interface msgIOAuth2Module : nsISupports {
+  /**
+   * Initialize the OAuth2 parameters from an SMTP server, and return whether or
+   * not we can authenticate with OAuth2.
+   */
+  bool initFromSmtp(in nsISmtpServer aSmtpServer);
+
+  /**
+   * Initialize the OAuth2 parameters from an incoming server, and return
+   * whether or not we can authenticate with OAuth2.
+   */
+  bool initFromMail(in nsIMsgIncomingServer aServer);
+
+  /**
+   * Connect to the OAuth2 server to get an access token.
+   * @param aWithUI   If false, do not allow a dialog to be popped up to query
+   *                  for a password.
+   * @param aCallback Listener that handles the async response.
+   */
+  void connect(in boolean aWithUI, in msgIOAuth2ModuleListener aCallback);
+
+  /**
+   * Return the base64-encoded string to send as the client initial response for
+   * SASL XOAUTH2.
+   */
+  ACString buildXOAuth2String();
+};
+
+%{C++
+#define MSGIOAUTH2MODULE_CONTRACTID "@mozilla.org/mail/oauth2-module;1"
+%}

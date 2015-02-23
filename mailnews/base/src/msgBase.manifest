@@ -8,3 +8,5 @@ contract @mozilla.org/newMailNotificationService;1 {740880E6-E299-4165-B82F-DF1D
 category profile-after-change NewMailNotificationService @mozilla.org/newMailNotificationService;1 
 component {a30be08c-afc8-4fed-9af7-79778a23db23} folderLookupService.js
 contract @mozilla.org/mail/folder-lookup;1 {a30be08c-afc8-4fed-9af7-79778a23db23}
+component {b63d8e4c-bf60-439b-be0e-7c9f67291042} msgOAuth2Module.js
+contract @mozilla.org/mail/oauth2-module;1 {b63d8e4c-bf60-439b-be0e-7c9f67291042}
