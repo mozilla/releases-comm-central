@@ -425,6 +425,14 @@ nsresult nsMsgFilterAfterTheFact::AdvanceToNextFolder()
     m_nextAction = 0;
     rv = m_folders->QueryElementAt(m_curFolderIndex++, NS_GET_IID(nsIMsgFolder), getter_AddRefs(m_curFolder));
     CONTINUE_IF_FAILURE(rv, "Could not get next folder");
+
+    // Note: I got rv = NS_OK but null m_curFolder after deleting a folder
+    // outside of TB, when I select a single message and "run filter on message"
+    // and the filter is to move the message to the deleted folder.
+
+     // m_curFolder may be null when the folder is deleted externally.
+    CONTINUE_IF_FALSE(m_curFolder, "Next folder returned null");
+
     rv = m_curFolder->GetMsgDatabase(getter_AddRefs(m_curFolderDB));
     if (rv == NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE)
     {
@@ -1068,6 +1076,9 @@ nsresult nsMsgApplyFiltersToMessages::RunNextFilter()
   }
   m_curFilter = nullptr;
   NS_WARN_IF_FALSE(NS_SUCCEEDED(rv), "Failed to run filters");
+  // We expect the failure is already recorded through one of the macro
+  // expressions, that will have console logging added to them.
+  // So an additional console warning is not needed here.
   return AdvanceToNextFolder();
 }
 

@@ -30,7 +30,7 @@ interface nsIMsgRuleAction : nsISupports {
   // target label. throws an exception if the action is not label
   attribute nsMsgLabelValue label;
 
-  attribute long junkScore; 
+  attribute long junkScore;
 
   attribute AUTF8String strValue;
 
@@ -40,10 +40,10 @@ interface nsIMsgRuleAction : nsISupports {
   // custom action associated with customId
   // (which must be set prior to reading this attribute)
   readonly attribute nsIMsgFilterCustomAction customAction;
-  
+
 };
 
-[scriptable, uuid(ed4b7a8e-3190-4b0b-b842-d4f1ca652170)]
+[scriptable, uuid(d304fcfc-b588-11e4-981c-770e1e5d46b0)]
 interface nsIMsgFilter : nsISupports {
     attribute nsMsgFilterTypeType filterType;
     /**
@@ -90,7 +90,29 @@ interface nsIMsgFilter : nsISupports {
                   //                  [array, size_is(headerSize)] in string headers,
                   in unsigned long headerSize, out boolean result);
 
-    void logRuleHit(in nsIMsgRuleAction aFilterAction, in nsIMsgDBHdr aHeader);
+
+    /*
+     * Report that Rule was matched and executed when filter logging is enabled.
+     *
+     * @param aFilterAction  The filter rule that was invoked.
+     * @param aHeader        The header information of the message acted on by
+     *                       the filter.
+     */
+    void logRuleHit(in nsIMsgRuleAction aFilterAction,
+                    in nsIMsgDBHdr aHeader);
+
+    /* Report that filtering failed for some reason when filter logging is enabled.
+     *
+     * @param aFilterAction Filter rule that was invoked.
+     * @param aHeader Header of the message acted on by the filter.
+     * @param aRcode  Error code returned by low-level routine that
+     *                led to the filter failure.
+     * @param aErrmsg Error message
+     */
+    void logRuleHitFail(in nsIMsgRuleAction aFilterAction,
+                        in nsIMsgDBHdr aHeader,
+                        in nsresult aRcode,
+                        in string aErrmsg );
 
     nsIMsgRuleAction createAction();
 

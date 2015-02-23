@@ -425,13 +425,13 @@ NS_IMETHODIMP nsMsgFilter::GetTerm(int32_t termIndex,
                                            (void **)getter_AddRefs(term));
   if (NS_SUCCEEDED(rv) && term)
   {
-    if(attrib)
+    if (attrib)
       term->GetAttrib(attrib);
-    if(op)
+    if (op)
       term->GetOp(op);
-    if(value)
+    if (value)
       term->GetValue(value);
-    if(booleanAnd)
+    if (booleanAnd)
       term->GetBooleanAnd(booleanAnd);
     if (attrib && *attrib > nsMsgSearchAttrib::OtherHeader
         && *attrib < nsMsgSearchAttrib::kNumMsgSearchAttributes)
@@ -476,7 +476,35 @@ NS_IMETHODIMP nsMsgFilter::GetScope(nsIMsgSearchScopeTerm **aResult)
 #define LOG_ENTRY_END_TAG "</p>\n"
 #define LOG_ENTRY_END_TAG_LEN (strlen(LOG_ENTRY_END_TAG))
 
-NS_IMETHODIMP nsMsgFilter::LogRuleHit(nsIMsgRuleAction *aFilterAction, nsIMsgDBHdr *aMsgHdr)
+// This function handles the logging both for success of filtering
+// (NS_SUCCEEDED(aRcode)), and for error reporting (NS_FAILED(aRcode)
+// when the filter action (such as file move/copy) failed.
+//
+// @param aRcode  NS_OK for successful filtering
+//                operation, otherwise, an error code for filtering failure.
+// @param aErrmsg Not used for success case (ignored), and a non-null
+//                error message for failure case.
+//
+// CAUTION: Unless logging is enabled, no error/warning is shown.
+// So enable logging if you would like to see the error/warning.
+//
+// XXX The current code in this file does not report errors of minor
+// operations such as adding labels and so forth which may fail when
+// underlying file system for the message store experiences
+// failure. For now, most visible major errors such as message
+// move/copy failures are taken care of.
+//
+// XXX Possible Improvement: For error case reporting, someone might
+// want to implement a transient message that appears and stick until
+// the user clears in the message status bar, etc. For now, we log an
+// error in a similar form as a conventional successful filter event
+// with additional error information at the beginning.
+//
+nsresult
+nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
+                               nsIMsgDBHdr *aMsgHdr,
+                               nsresult aRcode,
+                               const char *aErrmsg)
 {
     NS_ENSURE_ARG_POINTER(aFilterAction);
     NS_ENSURE_ARG_POINTER(aMsgHdr);
@@ -531,6 +559,38 @@ NS_IMETHODIMP nsMsgFilter::LogRuleHit(nsIMsgRuleAction *aFilterAction, nsIMsgDBH
     rv = bundleService->CreateBundle("chrome://messenger/locale/filter.properties",
       getter_AddRefs(bundle));
     NS_ENSURE_SUCCESS(rv, rv);
+
+    // If error, prefix with the error code and error message.
+    // A desired wording (without NEWLINEs):
+    // Filter Action Failed "Move failed" with error code=0x80004005
+    // while attempting: Applied filter "test" to message from
+    // Some Test <test@example.com> - send test 3 at 2/13/2015 11:32:53 AM
+    // moved message id = 54DE5165.7000907@example.com to
+    // mailbox://nobody@Local%20Folders/test
+
+    if (NS_FAILED(aRcode))
+    {
+
+      // Let us put "Filter Action Failed: "%s" with error code=%s while attempting: " inside bundle.
+      // Convert aErrmsg to UTF16 string, and
+      // convert aRcode to UTF16 string in advance.
+
+      char tcode[20];
+      PR_snprintf(tcode, sizeof(tcode), "0x%08x", aRcode);
+
+      NS_ConvertASCIItoUTF16 tcode16(tcode) ;
+      NS_ConvertASCIItoUTF16 tErrmsg16(aErrmsg) ;
+
+      const char16_t *logErrorFormatStrings[2] = { tErrmsg16.get(),  tcode16.get()};
+      nsString filterFailureWarningPrefix;
+      rv = bundle->FormatStringFromName(
+                      MOZ_UTF16("filterFailureWarningPrefix"),
+                      logErrorFormatStrings, 2,
+                      getter_Copies(filterFailureWarningPrefix));
+      NS_ENSURE_SUCCESS(rv, rv);
+      buffer += NS_ConvertUTF16toUTF8(filterFailureWarningPrefix);
+      buffer += "\n";
+    }
 
     const char16_t *filterLogDetectFormatStrings[4] = { filterName.get(), authorValue.get(), subjectValue.get(), dateValue.get() };
     nsString filterLogDetectStr;
@@ -591,6 +651,10 @@ NS_IMETHODIMP nsMsgFilter::LogRuleHit(nsIMsgRuleAction *aFilterAction, nsIMsgDBH
     }
     buffer += "\n";
 
+    // XXX: Finally, here we have enough context and buffer
+    // (string) to display the filtering error if we want: for
+    // example, a sticky error message in status bar, etc.
+
     uint32_t writeCount;
 
     rv = logStream->Write(LOG_ENTRY_START_TAG, LOG_ENTRY_START_TAG_LEN, &writeCount);
@@ -614,6 +678,20 @@ NS_IMETHODIMP nsMsgFilter::LogRuleHit(nsIMsgRuleAction *aFilterAction, nsIMsgDBH
     NS_ENSURE_SUCCESS(rv,rv);
     NS_ASSERTION(writeCount == LOG_ENTRY_END_TAG_LEN, "failed to write out end log tag");
     return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgFilter::LogRuleHit(nsIMsgRuleAction *aFilterAction,
+                                      nsIMsgDBHdr *aMsgHdr)
+{
+  return nsMsgFilter::LogRuleHitGeneric(aFilterAction, aMsgHdr, NS_OK, nullptr);
+}
+
+NS_IMETHODIMP nsMsgFilter::LogRuleHitFail(nsIMsgRuleAction *aFilterAction,
+                                          nsIMsgDBHdr *aMsgHdr,
+                                          nsresult aRcode,
+                                          const char *aErrMsg)
+{
+  return nsMsgFilter::LogRuleHitGeneric(aFilterAction, aMsgHdr, aRcode, aErrMsg);
 }
 
 NS_IMETHODIMP
@@ -960,4 +1038,3 @@ void nsMsgFilter::Dump()
   printf("filter %s type = %c desc = %s\n", s.get(), m_type + '0', m_description.get());
 }
 #endif
-

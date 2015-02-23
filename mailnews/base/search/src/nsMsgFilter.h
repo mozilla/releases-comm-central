@@ -70,6 +70,16 @@ public:
   static nsresult GetActionFilingStr(nsMsgRuleActionType action, nsCString &actionStr);
   static nsMsgRuleActionType GetActionForFilingStr(nsCString &actionStr);
 protected:
+
+  /*
+   * Reporting function for filtering success/failure.
+   * Logging has to be enabled for the message to appear.
+   */
+  nsresult LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
+                             nsIMsgDBHdr *aMsgHdr,
+                             nsresult aRcode,
+                             const char *aErrmsg);
+
   virtual ~nsMsgFilter();
 
   nsMsgFilterTypeType m_type;
