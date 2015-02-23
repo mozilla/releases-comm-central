@@ -146,8 +146,8 @@ function populateGraphicsSection() {
     // If ANGLE is not available but OpenGL is, we want to report on the OpenGL feature, because that's what's going to get used.
     // In all other cases we want to report on the ANGLE feature.
     var webglfeature = gfxInfo.FEATURE_WEBGL_ANGLE;
-    if (gfxInfo.getFeatureStatus(gfxInfo.FEATURE_WEBGL_ANGLE)  != gfxInfo.FEATURE_NO_INFO &&
-        gfxInfo.getFeatureStatus(gfxInfo.FEATURE_WEBGL_OPENGL) == gfxInfo.FEATURE_NO_INFO)
+    if (gfxInfo.getFeatureStatus(gfxInfo.FEATURE_WEBGL_ANGLE)  != gfxInfo.FEATURE_STATUS_OK &&
+        gfxInfo.getFeatureStatus(gfxInfo.FEATURE_WEBGL_OPENGL) == gfxInfo.FEATURE_STATUS_OK)
       webglfeature = gfxInfo.FEATURE_WEBGL_OPENGL;
 #else
     var webglfeature = gfxInfo.FEATURE_WEBGL_OPENGL;
