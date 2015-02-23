@@ -15,7 +15,6 @@ XPCOMUtils.defineLazyGetter(this, "PageMenuParent", function() {
 });
 
 var gSpellChecker = new InlineSpellChecker();
-var gGlodaBundle = null;
 
 function nsContextMenu(aXulMenu, aIsShift) {
   this.target         = null;
@@ -181,22 +180,23 @@ nsContextMenu.prototype = {
                   this.isContentSelected);
 
     if (!searchTheWeb.hidden) {
-      let selection = document.commandDispatcher.focusedWindow.getSelection();
-      if (gGlodaBundle === null)
-        gGlodaBundle = Services.strings.createBundle(
-          "chrome://messenger/locale/glodaComplete.properties");
+      let selection = document.commandDispatcher.focusedWindow.getSelection()
+                              .toString();
 
-      let key = "glodaComplete.webSearch1.label";
-      let selString = selection.toString();
-      if (selString.length > 15) {
+      let bundle = document.getElementById("bundle_messenger");
+      let key = "openSearch.label";
+      let abbrSelection;
+      if (selection.length > 15) {
         key += ".truncated";
-        selString = selString.slice(0, 15);
+        abbrSelection = selection.slice(0, 15);
+      } else {
+        abbrSelection = selection;
       }
 
-      searchTheWeb.label = gGlodaBundle.GetStringFromName(key)
-                                      .replace("#1", Services.search.currentEngine.name)
-                                      .replace("#2", selString);
-      searchTheWeb.value = selection.toString();
+      searchTheWeb.label = bundle.getFormattedString(key, [
+        Services.search.currentEngine.name, abbrSelection
+      ]);
+      searchTheWeb.value = selection;
     }
   },
   initMediaPlayerItems: function CM_initMediaPlayerItems() {

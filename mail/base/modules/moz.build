@@ -8,7 +8,6 @@ EXTRA_JS_MODULES += [
     'dbViewWrapper.js',
     'displayNameUtils.js',
     'distribution.js',
-    'glodaWebSearch.js',
     'MailConsts.js',
     'mailInstrumentation.js',
     'mailMigrator.js',
