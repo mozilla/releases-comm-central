@@ -227,15 +227,20 @@ calItipEmailTransport.prototype = {
                     // Add this recipient id to the list.
                     toList += rId;
                 }
-                let mailFile = this._createTempImipFile(compatMode, toList, aSubject, aBody, aItem, identity);
+                let messageId = composeUtils.msgGenerateMessageId(identity);
+                let mailFile = this._createTempImipFile(compatMode, toList, aSubject, aBody, aItem, identity, messageId);
                 if (mailFile) {
                     // compose fields for message: from/to etc need to be specified both here and in the file
                     let composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
                                                   .createInstance(Components.interfaces.nsIMsgCompFields);
                     composeFields.characterSet = "UTF-8";
                     composeFields.to = toList;
-                    composeFields.from = identity.email;
+                    let mailfrom = (!identity.fullName.length) ? identity.mail : identity.fullName + "<" + identity.mail + ">";
+                    composeFields.from = (cal.validateRecipientList(mailfrom) == mailfrom)
+                                         ? mailfrom : identity.email;
                     composeFields.replyTo = identity.replyTo;
+                    composeFields.organization = identity.organization;
+                    composeFields.messageId = messageId;
                     let validRecipients;
                     if (identity.doCc) {
                         validRecipients = cal.validateRecipientList(identity.doCcList);
@@ -286,7 +291,7 @@ calItipEmailTransport.prototype = {
         return false;
     },
 
-    _createTempImipFile: function cietCTIF(compatMode, aToList, aSubject, aBody, aItem, aIdentity) {
+    _createTempImipFile: function cietCTIF(compatMode, aToList, aSubject, aBody, aItem, aIdentity, aMessageId) {
         try {
             function encodeUTF8(text) {
                 return convertFromUnicode("UTF-8", text).replace(/(\r\n)|\n/g, "\r\n");
@@ -311,13 +316,23 @@ calItipEmailTransport.prototype = {
             let calText = serializer.serializeToString();
             let utf8CalText = encodeUTF8(calText);
 
+            let fullFrom = !aIdentity.fullName.length ? null :
+                           cal.validateRecipientList(aIdentity.fullName + "<" + aIdentity.email + ">");
+
+            let composeUtils = Components.classes["@mozilla.org/messengercompose/computils;1"]
+                                         .createInstance(Components.interfaces.nsIMsgCompUtils);
+
             // Home-grown mail composition; I'd love to use nsIMimeEmitter, but it's not clear to me whether
             // it can cope with nested attachments,
             // like multipart/alternative with enclosed text/calendar and text/plain.
             let mailText = ("MIME-version: 1.0\r\n" +
                             (aIdentity.replyTo
                              ? "Return-path: " + aIdentity.replyTo + "\r\n" : "") +
-                            "From: " + aIdentity.email + "\r\n" +
+                            "From: " + (fullFrom || aIdentity.email) + "\r\n" +
+                            (aIdentity.organization
+                             ? "Organization: " + aIdentity.organization + "\r\n" : "") +
+                            "Message-ID: " + aMessageId + "\r\n" +
+                            "User-Agent: " + cal.calUserAgent() "\r\n"+
                             "To: " + aToList + "\r\n" +
                             "Date: " + (new Date()).toUTCString() + "\r\n" +
                             "Subject: " + encodeMimeHeader(aSubject.replace(/(\n|\r\n)/, "|")) + "\r\n");
