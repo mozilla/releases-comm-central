@@ -302,9 +302,9 @@ function deleteCalendars(controller, name){
   let manager = defaultView.getCalendarManager();
   let cals = manager.getCalendars({});
 
-  for (let calendar of manager.getCalendars({})) {
-    if (calendar.name == name) {
-      manager.removeCalendar(calendar);
+  for (let i = 0; i < cals.length; i++)
+    if (cals[i].name == name) {
+        manager.removeCalendar(cals[i]);
     }
 }
 
