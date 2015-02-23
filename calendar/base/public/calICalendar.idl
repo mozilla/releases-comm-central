@@ -187,6 +187,13 @@ interface calICalendar : nsISupports
    *
    *   capabilities.realmrewrite.disabled = false
    *
+   * The following capability describes if the calendar can be permanently
+   * deleted, or just unsubscribed. If this property is not specified, then
+   * only unsubscribing is allowed. If an empty array is specified, neither
+   * deleting nor unsubscribing is presented in the UI.
+   *
+   *   capabilities.removeModes = ["delete", "unsubscribe"]
+   *
    * @param aName property name
    * @return value (string, integer and boolean values are supported),
    *               else null

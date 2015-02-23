@@ -589,29 +589,47 @@ calCalendarManager.prototype = {
         this.clearRefreshTimer(calendar);
     },
 
+    // Delete this method for Lightning 4.7 at latest
     deleteCalendar: function(calendar) {
-        /* check to see if calendar is unregistered first... */
-        /* delete the calendar for good */
-        if (this.mCache && (calendar.id in this.mCache)) {
-            throw "Can't delete a registered calendar";
+        if (!this.deleteCalendar.warningIssued) {
+            cal.WARN("Use of calICalendarManager::deleteCalendar is deprecated" +
+                     " and will be removed with the next release. Use" +
+                     " ::removeCalendar instead.\n" + cal.STACK(10));
+            this.deleteCalendar.warningIssued = true;
         }
+
+        const cICM = Components.interfaces.calICalendarManager;
+        this.removeCalendar(calendar, cICM.REMOVE_NO_UNREGISTER);
+    },
+
+    removeCalendar: function(calendar, mode=0) {
+        const cICM = Components.interfaces.calICalendarManager;
+
+        let removeModes = new Set(calendar.getProperty("capabilities.removeModes") || ["unsubscribe"]);
+        if (!removeModes.has("unsubscribe") && !removeModes.has("delete")) {
+            // Removing is not allowed
+            return;
+        }
+
+        if ((mode & cICM.REMOVE_NO_UNREGISTER) && this.mCache &&
+            (calendar.id in this.mCache)) {
+            throw new Components.Exception("Can't remove a registered calendar");
+        } else if (!(mode & cICM.REMOVE_NO_UNREGISTER)) {
+            this.unregisterCalendar(calendar);
+        }
+
+        // This observer notification needs to be fired for both unsubscribe
+        // and delete, we don't differ this at the moment.
         this.notifyObservers("onCalendarDeleting", [calendar]);
 
-        // XXX This is a workaround for bug 351499. We should remove it once
-        // we sort out the whole "delete" vs. "unsubscribe" UI thing.
-        //
-        // We only want to delete the contents of calendars from local
-        // providers (storage and memory). Otherwise we may nuke someone's
-        // calendar stored on a server when all they really wanted to do was
-        // unsubscribe.
-        let wrappedCalendar = cal.wrapInstance(calendar, Components.interfaces.calICalendarProvider);
-        if (wrappedCalendar &&
-            (wrappedCalendar.type == "storage" || wrappedCalendar.type == "memory")) {
-            try {
-                wrappedCalendar.deleteCalendar(calendar, null);
-            } catch (e) {
-                Components.utils.reportError("error purging calendar: " + e);
+        // For deleting, we also call the deleteCalendar method from the provider.
+        if (removeModes.has("delete") && (mode & cICM.REMOVE_NO_DELETE) == 0) {
+            let wrappedCalendar = cal.wrapInstance(calendar, Components.interfaces.calICalendarProvider);
+            if (!wrappedCalendar) {
+                throw new Components.Exception("Calendar is missing a provider implementation for delete");
             }
+
+            wrappedCalendar.deleteCalendar(calendar, null);
         }
     },
 
@@ -813,6 +831,7 @@ calMgrCalendarObserver.prototype = {
     },
 
     changeCalendarCache: function(aCalendar, aName, aValue, aOldValue) {
+        const cICM = Components.interfaces.calICalendarManager;
         aOldValue = aOldValue || false;
         aValue = aValue || false;
 
@@ -829,8 +848,7 @@ calMgrCalendarObserver.prototype = {
             // it so the registerCalendar call can wrap/unwrap the
             // calCachedCalendar facade saving the user the need to
             // restart Thunderbird and making sure a new Id is used.
-            this.calMgr.unregisterCalendar(aCalendar);
-            this.calMgr.deleteCalendar(aCalendar);
+            this.calMgr.removeCalendar(aCalendar, cICM.REMOVE_UNSUBSCRIBE);
             var newCal = this.calMgr.createCalendar(aCalendar.type,aCalendar.uri);
             newCal.name = aCalendar.name;
 

@@ -24,22 +24,53 @@ function getSelectedCalendar() {
  * @param aCalendar     The calendar to delete.
  */
 function promptDeleteCalendar(aCalendar) {
-    let calendars = cal.getCalendarManager().getCalendars({});
+    const nIPS = Components.interfaces.nsIPromptService;
+    const cICM = Components.interfaces.calICalendarManager;
+
+    let calMgr = cal.getCalendarManager();
+    let calendars = calMgr.getCalendars({});
     if (calendars.length <= 1) {
         // If this is the last calendar, don't delete it.
         return;
     }
 
-    let ok = Services.prompt.confirm(window,
-                                     calGetString("calendar", "unsubscribeCalendarTitle"),
-                                     calGetString("calendar", "unsubscribeCalendarMessage",
-                                                  [aCalendar.name]),
-                                     {});
+    let modes = new Set(aCalendar.getProperty("capabilities.removeModes") || ["unsubscribe"]);
+    let title = cal.calGetString("calendar", "removeCalendarTitle");
 
-    if (ok) {
-        let calMgr = cal.getCalendarManager();
-        calMgr.unregisterCalendar(aCalendar);
-        calMgr.deleteCalendar(aCalendar);
+    let textKey, b0text, b2text;
+    let removeFlags = 0;
+    let promptFlags = (nIPS.BUTTON_POS_0 * nIPS.BUTTON_TITLE_IS_STRING) +
+                      (nIPS.BUTTON_POS_1 * nIPS.BUTTON_TITLE_CANCEL);
+
+    if (modes.has("delete") && !modes.has("unsubscribe")) {
+        textKey = "removeCalendarMessageDelete";
+        promptFlags += nIPS.BUTTON_DELAY_ENABLE;
+        b0text = cal.calGetString("calendar", "removeCalendarButtonDelete");
+    } else if (modes.has("delete")) {
+        textKey = "removeCalendarMessageDeleteOrUnsubscribe";
+        promptFlags += (nIPS.BUTTON_POS_2 * nIPS.BUTTON_TITLE_IS_STRING);
+        b0text = cal.calGetString("calendar", "removeCalendarButtonUnsubscribe");
+        b2text = cal.calGetString("calendar", "removeCalendarButtonDelete");
+    } else if (modes.has("unsubscribe")) {
+        textKey = "removeCalendarMessageUnsubscribe";
+        removeFlags |= cICM.REMOVE_NO_DELETE;
+        b0text = cal.calGetString("calendar", "removeCalendarButtonUnsubscribe");
+    } else {
+        return;
+    }
+
+    let text = cal.calGetString("calendar", textKey, [aCalendar.name]);
+    let res = Services.prompt.confirmEx(window, title, text, promptFlags,
+                                        b0text, null, b2text, null, {});
+
+    if (res != 1) { // Not canceled
+        if (textKey == "removeCalendarMessageDeleteOrUnsubscribe" && res == 0) {
+            // Both unsubscribing and deleting is possible, but unsubscribing was
+            // requested. Make sure no delete is executed.
+            removeFlags |= cICM.REMOVE_NO_DELETE;
+        }
+
+        calMgr.removeCalendar(aCalendar, removeFlags);
     }
 }
 
@@ -173,11 +204,6 @@ function calendarListSetupContextMenu(event) {
     if (calendar) {
         enableElement("list-calendars-context-edit");
         enableElement("list-calendars-context-publish");
-        // Only enable the delete calendars item if there is more than one
-        // calendar. We don't want to have the last calendar deleted.
-        if (calendars.length > 1) {
-            enableElement("list-calendars-context-delete");
-        }
 
         enableElement("list-calendars-context-togglevisible");
         setElementValue("list-calendars-context-togglevisible", false, "collapsed");
@@ -190,6 +216,11 @@ function calendarListSetupContextMenu(event) {
         setElementValue("list-calendars-context-showonly",
                         cal.calGetString("calendar", "showOnlyCalendar", [calendar.name]),
                         "label");
+
+        setupDeleteMenuitem("list-calendars-context-delete", calendar);
+        // Only enable the delete calendars item if there is more than one
+        // calendar. We don't want to have the last calendar deleted.
+        setElementValue("list-calendars-context-delete", calendars.length < 2 && "true", "disabled");
     } else {
         disableElement("list-calendars-context-edit");
         disableElement("list-calendars-context-publish");
@@ -198,8 +229,33 @@ function calendarListSetupContextMenu(event) {
         setElementValue("list-calendars-context-togglevisible", true, "collapsed");
         disableElement("list-calendars-context-showonly");
         setElementValue("list-calendars-context-showonly", true, "collapsed");
+        setupDeleteMenuitem("list-calendars-context-delete", null);
     }
     return true;
+}
+
+/**
+ * Changes the "delete calendar" menuitem to have the right label based on the
+ * removeModes. The menuitem must have the attributes "labelremove",
+ * "labeldelete" and "labelunsubscribe".
+ *
+ * @param aDeleteId     The id of the menuitem to delete the calendar
+ */
+function setupDeleteMenuitem(aDeleteId, aCalendar) {
+    let calendar = (aCalendar === undefined ?  getSelectedCalendar() : aCalendar);
+    let modes = new Set(calendar ? calendar.getProperty("capabilities.removeModes") || ["unsubscribe"] : []);
+
+    let type = "remove";
+    if (modes.has("delete") && !modes.has("unsubscribe")) {
+        type = "delete";
+    } else if (modes.has("unsubscribe") && !modes.has("delete")) {
+        type = "unsubscribe";
+    }
+
+    let deleteItem = document.getElementById(aDeleteId);
+    setElementValue(deleteItem, deleteItem.getAttribute("label" + type), "label");
+    setElementValue(deleteItem, deleteItem.getAttribute("accesskey" + type), "accesskey");
+    setElementValue(deleteItem, modes.size == 0 && "true", "disabled");
 }
 
 /**

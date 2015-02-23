@@ -15,6 +15,7 @@ function run_test() {
     add_test(test_registration);
     add_test(test_calobserver);
     add_test(test_calprefs);
+    add_test(test_removeModes);
     cal.getCalendarManager().startup({ onResult: function() {
         run_next_test();
     }});
@@ -173,7 +174,7 @@ function test_registration() {
     ok(calmgr.getCalendars({}).every(function(x) x.id != memory.id));
 
     // And finally delete it
-    calmgr.deleteCalendar(memory);
+    calmgr.removeCalendar(memory, Ci.calICalendarManager.REMOVE_NO_UNREGISTER);
     checkRegistration(false, false, true);
     checkCalendarCount(0, 0, 0);
 
@@ -183,14 +184,64 @@ function test_registration() {
 
     // Check if removing it actually worked
     calmgr.registerCalendar(memory);
-    calmgr.unregisterCalendar(memory);
-    calmgr.deleteCalendar(memory);
+    calmgr.removeCalendar(memory);
     memory.setProperty("readOnly", false);
     checkRegistration(false, false, false);
     equal(readOnly, true);
     checkCalendarCount(0, 0, 0);
 
     // We are done now, start the next test
+    run_next_test();
+}
+
+function test_removeModes() {
+    function checkCounts(modes, shouldDelete, expectCount, extraFlags=0) {
+        if (calmgr.calendarCount == baseCalendarCount) {
+            calmgr.registerCalendar(memory);
+            equal(calmgr.calendarCount, baseCalendarCount + 1);
+        }
+        deleteCalled = false;
+        removeModes = modes;
+
+        calmgr.removeCalendar(memory, extraFlags);
+        equal(calmgr.calendarCount, baseCalendarCount + expectCount);
+        equal(deleteCalled, shouldDelete);
+    }
+    function mockCalendar(memory) {
+        let oldGetProperty = memory.wrappedJSObject.getProperty;
+        memory.wrappedJSObject.getProperty = function(name) {
+            if (name == "capabilities.removeModes") {
+                return removeModes;
+            } else {
+                return oldGetProperty.apply(this, arguments);
+            }
+        };
+
+        let oldDeleteCalendar = memory.wrappedJSObject.deleteCalendar;
+        memory.wrappedJSObject.deleteCalendar = function(calendar, listener) {
+            deleteCalled = true;
+            return oldDeleteCalendar.apply(this, arguments);
+        };
+    }
+
+    // For better readability
+    const SHOULD_DELETE = true, SHOULD_NOT_DELETE = false;
+    const cICM = Components.interfaces.calICalendarManager;
+
+    let calmgr = cal.getCalendarManager();
+    let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
+    let baseCalendarCount = calmgr.calendarCount;
+    let removeModes = null;
+    let deleteCalled = false;
+
+    mockCalendar(memory);
+
+    checkCounts([], SHOULD_NOT_DELETE, 1);
+    checkCounts(["unsubscribe"], SHOULD_NOT_DELETE, 0);
+    checkCounts(["unsubscribe", "delete"], SHOULD_DELETE, 0);
+    checkCounts(["unsubscribe", "delete"], SHOULD_NOT_DELETE, 0, cICM.REMOVE_NO_DELETE);
+    checkCounts(["delete"], SHOULD_DELETE, 0);
+
     run_next_test();
 }
 

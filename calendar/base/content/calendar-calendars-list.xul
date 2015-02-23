@@ -34,8 +34,12 @@
                 accesskey="&calendar.context.findcalendar.accesskey;"
                 oncommand="openCalendarSubscriptionsDialog();"/>
       <menuitem id="list-calendars-context-delete"
-                label="&calendar.context.deleteserver.label;"
-                accesskey="&calendar.context.deleteserver.accesskey;"
+                labeldelete="&calendar.context.deleteserver2.label;"
+                labelremove="&calendar.context.removeserver.label;"
+                labelunsubscribe="&calendar.context.unsubscribeserver.label;"
+                accesskeydelete="&calendar.context.deleteserver2.accesskey;"
+                accesskeyremove="&calendar.context.removeserver.accesskey;"
+                accesskeyunsubscribe="&calendar.context.unsubscribeserver.accesskey;"
                 observes="calendar_delete_calendar_command"/>
       <menuseparator id="list-calendars-context-itemops-menuseparator"/>
       <menuitem id="list-calendars-context-export"

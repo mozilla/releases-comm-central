@@ -138,6 +138,8 @@ calStorageCalendar.prototype = {
                 return false;
             case "requiresNetwork":
                 return false;
+            case "capabilities.removeModes":
+                return ["delete"];
         }
         return this.__proto__.__proto__.getProperty.apply(this, arguments);
     },

@@ -232,8 +232,17 @@
 <!ENTITY calendar.context.newserver.accesskey          "N">
 <!ENTITY calendar.context.findcalendar.label           "Find Calendar…" >
 <!ENTITY calendar.context.findcalendar.accesskey       "F" >
-<!ENTITY calendar.context.deleteserver.label           "Delete Calendar">
-<!ENTITY calendar.context.deleteserver.accesskey       "D">
+<!ENTITY calendar.context.deleteserver2.label          "Delete Calendar…">
+<!ENTITY calendar.context.deleteserver2.accesskey      "D">
+
+<!-- LOCALIZATION NOTE (calendar.context.removeserver.label): Removing the
+      calendar is the general action of removing it, while deleting means to
+      clear the data and unsubscribing means just taking it out of the calendar
+      list. -->
+<!ENTITY calendar.context.removeserver.label           "Remove Calendar…">
+<!ENTITY calendar.context.removeserver.accesskey       "R">
+<!ENTITY calendar.context.unsubscribeserver.label      "Unsubscribe Calendar…">
+<!ENTITY calendar.context.unsubscribeserver.accesskey  "U">
 <!ENTITY calendar.context.synccalendars.label          "Synchronize Calendars">
 <!ENTITY calendar.context.synccalendars.accesskey      "S">
 <!ENTITY calendar.context.publish.label                "Publish Calendar…">

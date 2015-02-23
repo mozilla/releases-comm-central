@@ -94,6 +94,8 @@ calMemoryCalendar.prototype = {
             case "cache.supported":
             case "requiresNetwork":
                 return false;
+            case "removemodes":
+                return ["delete"];
         }
         return this.__proto__.__proto__.getProperty.apply(this, arguments);
     },

@@ -64,18 +64,8 @@ function createTodoFromIcalString(icalString) {
 }
 
 function getMemoryCal() {
-    // create memory calendar
-    var memoryCalendar = Cc["@mozilla.org/calendar/calendar;1?type=memory"]
-                         .createInstance(Ci.calISyncWriteCalendar);
-
-    // remove existing items
-    var calendar = memoryCalendar.QueryInterface(Ci.calICalendarProvider);
-    try {
-        calendar.deleteCalendar(calendar, null);
-    } catch (e) {
-        print("*** error purging calendar: " + e);
-    }
-    return memoryCalendar;
+    return Cc["@mozilla.org/calendar/calendar;1?type=memory"]
+             .createInstance(Ci.calISyncWriteCalendar);
 }
 
 function getStorageCal() {
@@ -98,14 +88,6 @@ function getStorageCal() {
               .createInstance(Ci.calISyncWriteCalendar);
     stor.uri = uri;
     stor.id = cal.getUUID();
-
-    // remove existing items
-    var calendar = stor.QueryInterface(Ci.calICalendarProvider);
-    try {
-        calendar.deleteCalendar(calendar, null);
-    } catch (e) {
-        print("*** error purging calendar: " + e);
-    }
     return stor;
 }
 

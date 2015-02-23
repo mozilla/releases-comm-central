@@ -11,7 +11,7 @@ interface nsIVariant;
 
 interface calICalendarManagerObserver;
 
-[scriptable, uuid(613fb99f-359c-4a12-9c87-10b2b968f8cd)]
+[scriptable, uuid(fd8a2565-cb0f-4ecc-945d-760d75ab16d8)]
 interface calICalendarManager : nsISupports
 {
   /**
@@ -40,8 +40,30 @@ interface calICalendarManager : nsISupports
   /* unregister a calendar */
   void unregisterCalendar(in calICalendar aCalendar);
 
-  /* delete a calendar for good */
+  /** @deprecated This method has been replaced by ::removeCalendar */
   void deleteCalendar(in calICalendar aCalendar);
+
+  /** Remove the calendar following the calendar's capabilities.removeModes. */
+  const unsigned short REMOVE_AUTO = 0;
+
+  /** Just unsubscribe from the calendar, do not delete it. */
+  const unsigned short REMOVE_NO_DELETE = 1;
+
+  /** Passing this flag will cause the call to fail if the calendar is registered */
+  const unsigned short REMOVE_NO_UNREGISTER = 2;
+
+  /**
+   * Unregister and delete the calendar from the calendar manager. By default
+   * the calendar will be removed based on the capabilities.removeModes
+   * property of the calendar.
+   *
+   * WARNING: If the calendar supports deletion, the calendar will be
+   * permanently deleted. You can prevent this with the REMOVE_NO_DELETE flag.
+   *
+   * @param aCalendar       The calendar to remove.
+   * @param aMode           A combination of the above mode flags.
+   */
+  void removeCalendar(in calICalendar aCalendar, [optional] in uint8_t aMode);
 
   /* get a calendar by its id */
   calICalendar getCalendarById(in AUTF8String aId);
