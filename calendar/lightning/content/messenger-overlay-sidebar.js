@@ -4,6 +4,9 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/Promise.jsm");
+Components.utils.import("resource://gre/modules/Task.jsm");
+Components.utils.import("resource://gre/modules/AddonManager.jsm");
 
 var gLastShownCalendarView = null;
 
@@ -148,6 +151,9 @@ function ltnOnLoad(event) {
     // nuke the onload, or we get called every time there's
     // any load that occurs
     window.removeEventListener("load", ltnOnLoad, false);
+
+    // Check if the binary component was loaded
+    checkCalendarBinaryComponent();
 
     document.getElementById("calendarDisplayDeck").
       addEventListener("select", LtnObserveDisplayDeckChange, true);
@@ -484,4 +490,54 @@ function InitViewCalendarPaneMenu() {
         setBooleanAttribute("appmenu_ltnViewCalendarPane", "checked",
                             !calSidebar.getAttribute("collapsed"));
     }
+}
+
+/**
+ * Checks if Lightning's binary component was successfully loaded.
+ */
+function checkCalendarBinaryComponent() {
+    // Don't even get started if we are running ical.js or the binary component
+    // was successfully loaded.
+    if ("@mozilla.org/calendar/datetime;1" in Components.classes ||
+        Preferences.get("calendar.icaljs", false)) {
+        return;
+    }
+
+    const THUNDERBIRD_GUID = "{3550f703-e582-4d05-9a08-453d09bdfdc6}";
+    const SEAMONKEY_GUID = "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}";
+    const LIGHTNING_GUID = "{e2fda1a4-762b-4020-b5ad-a41df1933103}";
+
+    AddonManager.getAddonByID(LIGHTNING_GUID, (ext) => {
+        if (!ext) {
+            return;
+        }
+
+        let version;
+        let appversion = Services.appinfo.version;
+        let versionparts = appversion.split(".");
+        let extbrand = ltnGetString("lightning", "brandShortName");
+
+        switch (Services.appinfo.ID) {
+            case THUNDERBIRD_GUID: // e.g. 31.4.0 -> 3.3
+                version = ((parseInt(versionparts[0], 10) + 2) / 10).toFixed(1);
+                break;
+            case SEAMONKEY_GUID: // e.g. 2.28.4 -> 3.3
+                version = ((parseInt(versionparts[1], 10) + 5) / 10).toFixed(1);
+                break;
+        }
+
+        let text;
+        if (version && version != ext.version) {
+            let args = [extbrand, ext.version, version];
+            text = ltnGetString("lightning", "binaryComponentKnown", args);
+        } else {
+            let brand = cal.calGetString("brand", "brandShortName", null, "branding");
+            let args = [extbrand, brand, appversion, ext.version];
+            text = ltnGetString("lightning", "binaryComponentUnknown", args);
+        }
+
+        let title = ltnGetString("lightning", "binaryComponentTitle", [extbrand]);
+        openAddonsMgr("addons://detail/" + encodeURIComponent(LIGHTNING_GUID));
+        Services.prompt.alert(window, title, text);
+    });
 }
