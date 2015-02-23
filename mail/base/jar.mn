@@ -48,8 +48,6 @@ messenger.jar:
 *   content/messenger/plugins.js                    (content/plugins.js)
     content/messenger/specialTabs.js                (content/specialTabs.js)
     content/messenger/specialTabs.xul               (content/specialTabs.xul)
-    content/messenger/webSearchTab.xul              (content/webSearchTab.xul)
-    content/messenger/webSearchTab.js               (content/webSearchTab.js)
     content/messenger/subscribe.xul                 (content/subscribe.xul)
     content/messenger/subscribe.js                  (content/subscribe.js)
 *   content/messenger/aboutDialog.xul               (content/aboutDialog.xul)

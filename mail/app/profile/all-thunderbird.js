@@ -798,8 +798,6 @@ pref("mail.provider.providerList", "https://broker-live.mozillamessaging.com/pro
 pref("mail.provider.suggestFromName", "https://broker-live.mozillamessaging.com/provider/suggest");
 pref("mail.provider.enabled", true);
 
-pref("mail.websearch.open_externally", false);
-
 // Pointer to the default engine name.
 pref("browser.search.defaultenginename", "chrome://messenger-region/locale/region.properties");
 

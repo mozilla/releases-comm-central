@@ -626,7 +626,7 @@
 
     <menuitem id="mailContext-searchTheWeb"
               label="[glodaComplete.webSearch1.label]"
-              oncommand="openSearchTab(event.target.value)"/>
+              oncommand="openWebSearch(event.target.value)"/>
 
     <!-- Spellchecking general menu items (enable, add dictionaries...) -->
     <menuseparator id="mailContext-spell-separator"/>

@@ -469,6 +469,7 @@ function OnLoadMessenger()
   CreateMailWindowGlobals();
   GetMessagePaneWrapper().collapsed = true;
   msgDBCacheManager.init();
+  Services.search.init();
 
   // This needs to be before we throw up the account wizard on first run.
   try {
@@ -510,7 +511,6 @@ function OnLoadMessenger()
   // This also registers the contentTabType ("contentTab")
   specialTabs.openSpecialTabsOnStartup();
   preferencesTabType.initialize();
-  webSearchTabType.initialize();
   tabmail.registerTabType(accountProvisionerTabType);
 
   // verifyAccounts returns true if the callback won't be called
@@ -711,8 +711,6 @@ function OnUnloadMessenger()
 
   let tabmail = document.getElementById("tabmail");
   tabmail._teardown();
-
-  webSearchTabType.shutdown();
 
   MailServices.mailSession.RemoveFolderListener(folderListener);
 
