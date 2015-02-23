@@ -36,7 +36,6 @@ var gIgnoreUpdate = false;
 var gShowTimeAs = null;
 var gWarning = false;
 var gPreviousCalendarId = null;
-var gIsModifyingItem = false;
 
 var eventDialogQuitObserver = {
   observe: function(aSubject, aTopic, aData) {
@@ -50,11 +49,12 @@ var eventDialogQuitObserver = {
 };
 
 var eventDialogCalendarObserver = {
+    target: null,
+    isObserving: false,
+
     onModifyItem: function(aNewItem, aOldItem) {
-        if (gIsModifyingItem) {
-            // the modification was triggered from this dialog, no need to prompt
-            gIsModifyingItem = false;
-        } else if (window.calendarItem && window.calendarItem.id == aOldItem.id) {
+        if (this.isObserving && "calendarItem" in window &&
+            window.calendarItem && window.calendarItem.id == aOldItem.id) {
             let doUpdate = true;
 
             // The item has been modified outside the dialog. We only need to
@@ -91,10 +91,8 @@ var eventDialogCalendarObserver = {
     },
 
     onDeleteItem: function(aDeletedItem) {
-        if (gIsModifyingItem) {
-            // the deletion was triggered from this dialog, no need to prompt
-            gIsModifyingItem = false;
-        } else if (window.calendarItem && window.calendarItem.id == aDeletedItem.id) {
+        if (this.isObserving && "calendarItem" in window &&
+            window.calendarItem && window.calendarItem.id == aDeletedItem.id) {
             gConfirmCancel = false;
             document.documentElement.cancelDialog();
         }
@@ -106,7 +104,24 @@ var eventDialogCalendarObserver = {
     onAddItem: function() {},
     onError: function() {},
     onPropertyChanged: function() {},
-    onPropertyDeleting: function() {}
+    onPropertyDeleting: function() {},
+
+    observe: function(aCalendar) {
+        // use the new calendar if one was passed, otherwise use the last one
+        this.target = aCalendar || this.target;
+        if (this.target) {
+            this.cancel();
+            this.target.addObserver(this);
+            this.isObserving = true;
+        }
+    },
+
+    cancel: function() {
+        if (this.isObserving && this.target) {
+            this.target.removeObserver(this);
+            this.isObserving = false;
+        }
+    }
 };
 
 /**
@@ -297,14 +312,13 @@ function onLoad() {
     document.documentElement._hitEnter = function() {};
 
     // set up our calendar event observer
-    if (item.calendar) {
-        item.calendar.addObserver(eventDialogCalendarObserver);
-    }
+    eventDialogCalendarObserver.observe(item.calendar);
 }
 
 function onEventDialogUnload() {
-  Services.obs.removeObserver(eventDialogQuitObserver,
-                              "quit-application-requested");
+    Services.obs.removeObserver(eventDialogQuitObserver,
+                                "quit-application-requested");
+    eventDialogCalendarObserver.cancel();
 }
 
 /**
@@ -405,8 +419,9 @@ function loadDialog(item) {
     loadDateTime(item);
 
     // add calendars to the calendar menulist
-    var calendarList = document.getElementById("item-calendar");
-    var indexToSelect = appendCalendarItems(item, calendarList, window.arguments[0].calendar);
+    let calendarList = document.getElementById("item-calendar");
+    removeChildren(calendarList);
+    let indexToSelect = appendCalendarItems(item, calendarList, item.calendar || window.arguments[0].calendar);
     if (indexToSelect > -1) {
         calendarList.selectedIndex = indexToSelect;
     }
@@ -2849,10 +2864,7 @@ function onCommandSave(aIsClosing) {
         return;
     }
 
-    // set flag so the calendar observer expects a modify event
-    if (window.mode == "modify") {
-        gIsModifyingItem = true;
-    }
+    eventDialogCalendarObserver.cancel();
 
     let originalItem = window.calendarItem;
     let item = saveItem();
@@ -2895,6 +2907,7 @@ function onCommandSave(aIsClosing) {
                     // We now have an item, so we must change to an edit.
                     window.mode = "modify";
                     updateTitle();
+                    eventDialogCalendarObserver.observe(window.calendarItem.calendar);
                 }
             }
         }
@@ -2945,12 +2958,14 @@ function onCommandDeleteItem() {
                     if (aId == window.calendarItem.id && Components.isSuccessCode(aStatus)) {
                         gConfirmCancel = false;
                         document.documentElement.cancelDialog();
+                    } else {
+                        eventDialogCalendarObserver.observe(window.calendarItem.calendar);
                     }
                 }
             }
         };
 
-        gIsModifyingItem = true;
+        eventDialogCalendarObserver.cancel();
         if (window.calendarItem.parentItem.recurrenceInfo && window.calendarItem.recurrenceId) {
             // if this is a single occurrence of a recurring item
             let newItem = window.calendarItem.parentItem.clone();
