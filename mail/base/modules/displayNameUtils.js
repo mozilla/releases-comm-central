@@ -107,19 +107,15 @@ function FormatDisplayName(aEmailAddress, aHeaderDisplayName, aContext, aCard)
  * FormatDisplayName, then fall back to the header's display name or the
  * address.
  *
- * @param aHeaderValue  The raw header value.
+ * @param aHeaderValue  The decoded header value (e.g. mime2DecodedAuthor).
  * @param aContext      The context of the header field (e.g. "to", "from").
  * @return The formatted display name.
  */
 function FormatDisplayNameList(aHeaderValue, aContext) {
-  let addresses = {}, fullNames = {}, names = {};
-  let numAddresses = MailServices.headerParser.parseHeadersWithArray(
-    aHeaderValue, addresses, names, fullNames
-  );
-
-  if (numAddresses > 0) {
-    return FormatDisplayName(addresses.value[0], names.value[0], aContext) ||
-      names.value[0] || addresses.value[0];
+  let addresses = MailServices.headerParser.parseDecodedHeader(aHeaderValue);
+  if (addresses.length > 0) {
+    return FormatDisplayName(addresses[0].email, addresses[0].name, aContext) ||
+      addresses[0].name || addresses[0].email;
   }
   else {
     // Something strange happened, just return the raw header value.
