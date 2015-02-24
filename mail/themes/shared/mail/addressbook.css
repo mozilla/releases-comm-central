@@ -4,6 +4,10 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+#blankResultsPaneMessageBox {
+  background-color: -moz-field;
+}
+
 #blankResultsPaneMessage {
   font-style: italic;
 }
@@ -11,4 +15,9 @@
 #localResultsOnlyMessage {
   font-style: italic;
   text-align: center;
+}
+
+/* Hide the splitter when the blankResultsPaneMessageBox is shown */
+#abResultsTree[hidden="true"] + #results-splitter {
+  display: none;
 }

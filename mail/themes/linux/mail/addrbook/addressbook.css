@@ -215,6 +215,10 @@ treechildren::-moz-tree-image(DirCol, IsRemote-true, IsSecure-true) {
 
 /* ::::: results pane ::::: */
 
+#blankResultsPaneMessageBox {
+  border-bottom: 1px solid ThreeDShadow;
+}
+
 #GeneratedName {
   -moz-padding-start: 26px;
 }

@@ -513,7 +513,7 @@ splitter {
 /* ::::: results pane ::::: */
 
 #abResultsTree {
-  border-left: 1px solid #bebebe;
+  -moz-border-start: 1px solid #bebebe;
   border-bottom: 1px solid #bebebe;
 }
 
@@ -550,6 +550,10 @@ treechildren::-moz-tree-cell-text(GeneratedName) {
 }
 
 /* ::::: card view pane ::::: */
+
+#blankResultsPaneMessageBox {
+  -moz-border-start: 1px solid #bebebe;
+}
 
 #CardViewOuterBox {
   margin: 0px;
