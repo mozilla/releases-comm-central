@@ -9,10 +9,6 @@ ac_add_options --with-l10n-base=../../l10n
 # Build lightning locales
 ac_add_options --enable-calendar
 
-# Temporary options until bug 794378 is fixed
-ac_add_options --enable-gnomevfs
-ac_add_options --disable-gio
-
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
 

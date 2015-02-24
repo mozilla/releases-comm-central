@@ -172,7 +172,7 @@
 
 @RESPATH@/isp/*
 
-#if defined(MOZ_ENABLE_DBUS) || defined(MOZ_ENABLE_GNOME_COMPONENT) || defined(MOZ_ENABLE_GNOMEVFS)
+#if defined(MOZ_ENABLE_DBUS) || defined(MOZ_ENABLE_GNOME_COMPONENT)
 @RESPATH@/components/components.manifest
 #endif
 @RESPATH@/components/aboutRedirector.js
