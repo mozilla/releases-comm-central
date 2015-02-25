@@ -486,7 +486,7 @@
               let completions = [b for (b of this.buddies.keys())];
               // Check if the preceding words are a sequence of nick completions.
               let preceding = text.substring(0, pos - suffix.length).split(", ");
-              if (preceding.every(n => completions.includes(n))) {
+              if (preceding.every(function(n) completions.indexOf(n) != -1)) {
                 let s = preceding.pop();
                 if (preceding.length)
                   s = suffix + s;
@@ -597,11 +597,12 @@
               let separator = text.substring(wordStart - 2, wordStart);
               if (separator == ": " || separator == ", ") {
                 let preceding = text.substring(0, wordStart - 2).split(", ");
-                if (preceding.every(n => completions.includes(n))) {
+                if (preceding.every(function(n) completions.indexOf(n) != -1)) {
                   secondNick = true;
                   isFirstWord = true;
                   // Remove preceding completions from possible completions.
-                  completions = completions.filter(c => !preceding.includes(c));
+                  completions = completions.filter(function(c)
+                    preceding.indexOf(c) == -1);
                 }
               }
             }
@@ -674,7 +675,7 @@
             // If one of the completions is the sender of the last ping,
             // take it, if it was less than an hour ago.
             if (this._lastPing && this.buddies.has(this._lastPing) &&
-                this._completions.includes(this._lastPing) &&
+                this._completions.indexOf(this._lastPing) != -1 &&
                 (Date.now() / 1000 - this._lastPingTime) < 3600) {
               preferredNick = true;
               this._completionsIndex = this._completions.indexOf(this._lastPing);
