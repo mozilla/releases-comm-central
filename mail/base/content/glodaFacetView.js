@@ -100,7 +100,7 @@ ActiveSingularConstraint.prototype = {
     if (aInclusive != this.inclusive)
       throw new Error("You can't relax a constraint that isn't possible.");
 
-    for each (let [, groupValue] in Iterator(aGroupValues)) {
+    for (let groupValue of aGroupValues) {
       let index = this.groupValues.indexOf(groupValue);
       if (index == -1)
         throw new Error("Tried to relax a constraint that was not in force.");
@@ -135,22 +135,17 @@ ActiveSingularConstraint.prototype = {
   sieve: function(aItems) {
     let query = this.query;
     let expectedResult = !this.invertQuery;
-    let outItems = [];
-    for each (let [, item] in Iterator(aItems)) {
-      if (query.test(item) == expectedResult)
-        outItems.push(item);
-    }
-    return outItems;
+    return aItems.filter(item => query.test(item) == expectedResult);
   },
   isIncludedGroup: function(aGroupValue) {
     if (!this.inclusive)
       return false;
-    return this.groupValues.indexOf(aGroupValue) > -1;
+    return this.groupValues.contains(aGroupValue);
   },
   isExcludedGroup: function(aGroupValue) {
     if (this.inclusive)
       return false;
-    return this.groupValues.indexOf(aGroupValue) > -1;
+    return this.groupValues.contains(aGroupValue);
   }
 };
 
@@ -199,7 +194,7 @@ ActiveNonSingularConstraint.prototype = {
                            : this.excludedGroupIds;
     let valList = aInclusive ? this.includedGroupValues
                              : this.excludedGroupValues;
-    for each (let [, groupValue] in Iterator(aGroupValues)) {
+    for (let groupValue of aGroupValues) {
       let valId = (groupIdAttr !== null && groupValue != null) ?
                     groupValue[groupIdAttr] : groupValue;
       idMap[valId] = true;
@@ -227,7 +222,7 @@ ActiveNonSingularConstraint.prototype = {
                            : this.excludedGroupIds;
     let valList = aInclusive ? this.includedGroupValues
                              : this.excludedGroupValues;
-    for each (let [, groupValue] in Iterator(aGroupValues)) {
+    for (let groupValue of aGroupValues) {
       let valId = (groupIdAttr !== null && groupValue != null) ?
                     groupValue[groupIdAttr] : groupValue;
       if (!(valId in idMap))
@@ -276,14 +271,10 @@ ActiveNonSingularConstraint.prototype = {
    * Filter the items against our constraint.
    */
   sieve: function(aItems) {
-    let includeQuery = this.includeQuery, excludeQuery = this.excludeQuery;
-    let outItems = [];
-    for each (let [, item] in Iterator(aItems)) {
-      if ((!includeQuery || includeQuery.test(item)) &&
-          (!excludeQuery || !excludeQuery.test(item)))
-        outItems.push(item);
-    }
-    return outItems;
+    let includeQuery = this.includeQuery;
+    let excludeQuery = this.excludeQuery;
+    return aItems.filter(item => (!includeQuery || includeQuery.test(item)) &&
+                                 (!excludeQuery || !excludeQuery.test(item)));
   },
   isIncludedGroup: function(aGroupValue) {
     let valId = aGroupValue[this.facetDef.groupIdAttr];
@@ -351,11 +342,9 @@ var FacetContext = {
       scores = this.searcher.scores;
     else
       scores = Gloda.scoreNounItems(items);
-    let scoredItems = [[scores[i], item] for each
-                        ([i, item] in Iterator(items))];
+    let scoredItems = items.map(function(item, index) { return [scores[index], item]; });
     scoredItems.sort(function(a,b) b[0]-a[0]);
-    this._relevantSortedItems = [scoredItem[1] for each
-                                  ([, scoredItem] in Iterator(scoredItems))];
+    this._relevantSortedItems = scoredItems.map(scoredItem => scoredItem[1]);
 
     this._dateSortedItems =
       this._relevantSortedItems.concat().sort(function(a,b) b.date-a.date);
@@ -400,7 +389,7 @@ var FacetContext = {
   _removeDupes: function(aItems) {
     let deduped = [];
     let msgIdsSeen = {};
-    for each (let [, item] in Iterator(aItems)) {
+    for (let item of aItems) {
       if (item.headerMessageID in msgIdsSeen)
         continue;
       deduped.push(item);
@@ -437,7 +426,7 @@ var FacetContext = {
    * Clean up the UI in preparation for a new query to come in.
    */
   _resetUI: function() {
-    for each (let [, faceter] in Iterator(this.faceters)) {
+    for (let faceter of this.faceters) {
       if (faceter.xblNode && !faceter.xblNode.explicit)
         faceter.xblNode.remove();
       faceter.xblNode = null;
@@ -460,7 +449,7 @@ var FacetContext = {
     if (!this.everFaceted) {
       this.everFaceted = true;
       this.faceters.sort(this._groupCountComparator);
-      for each (let [, faceter] in Iterator(this.faceters)) {
+      for (let faceter of this.faceters) {
         let attrName = faceter.attrDef.attributeName;
         let explicitBinding = document.getElementById("facet-" + attrName);
 
@@ -502,7 +491,7 @@ var FacetContext = {
       }
     }
     else {
-      for each (let [, faceter] in Iterator(this.faceters)) {
+      for (let faceter of this.faceters) {
         // Do not bother with un-displayed facets, or that are locked by a
         //  constraint.  But do bother if the widget can be updated without
         //  losing important data.
@@ -635,7 +624,7 @@ var FacetContext = {
   },
   _timeoutHover: function() {
     this._brushTimeout = null;
-    for each (let [, faceter] in Iterator(this.faceters)) {
+    for (let faceter of this.faceters) {
       if (faceter == this._brushedFacet || !faceter.xblNode)
         continue;
 
@@ -770,8 +759,8 @@ var FacetContext = {
   _sieveAll: function() {
     let items = this.fullSet;
 
-    for each (let [, constraint] in Iterator(this._activeConstraints)) {
-      items = constraint.sieve(items);
+    for (let elem in this._activeConstraints) {
+      items = this._activeConstraints[elem].sieve(items);
     }
 
     return items;

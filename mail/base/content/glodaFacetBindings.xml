@@ -28,7 +28,7 @@
           this.lastChild.remove();
 
         let dis = this;
-        function spanify(aText, aClass) {
+        let spanify = function(aText, aClass) {
           let span = document.createElement("span");
           span.setAttribute("class", aClass);
           span.textContent = aText;
@@ -58,7 +58,7 @@
           this.lastChild.remove();
 
         let dis = this;
-        function spanify(aText, aClass) {
+        let spanify = function(aText, aClass) {
           let span = document.createElement("span");
           span.setAttribute("class", aClass);
           span.textContent = aText;
@@ -71,7 +71,7 @@
         spanify(label, "explanation-query-label");
 
         let constraintStrings = [];
-        for each (let constraint in aMsgQuery._constraints) {
+        for (let constraint of aMsgQuery._constraints) {
           if (constraint[0] != 1) return; // no idea what this is about
           if (constraint[1].attributeName == 'involves') {
             let involvesLabel = glodaFacetStrings.get(
@@ -121,8 +121,8 @@
         let facet = document.createElement("div");
         facet.attrDef = aAttrDef;
         facet.nounDef = aAttrDef.objectNounDef;
-        for each (let [key, value] in Iterator(aArgs)) {
-          facet[key] = value;
+        for (let key in aArgs) {
+          facet[key] = aArgs[key];
         }
         facet.setAttribute("class", "facetious");
         facet.setAttribute("type", aType);
@@ -278,7 +278,7 @@
         //  currently, so leave a reasonable failure case)
         this.trueValues = [];
         this.trueGroups = [true];
-        for each (let [, groupPair] in Iterator(this.orderedGroups)) {
+        for (let groupPair of this.orderedGroups) {
           if (groupPair[0] == true)
             this.trueValues = groupPair[1];
         }
@@ -356,7 +356,7 @@
         //  still holds.)
         if (this.selectedValue != "all") {
           let count = 0;
-          for each (let [, groupPair] in Iterator(this.orderedGroups)) {
+          for (let groupPair of this.orderedGroups) {
             if (groupPair[0] != null)
               count += groupPair[1].length;
           }
@@ -386,7 +386,7 @@
         this.trueValues = [];
         this.falseValues = [];
         let selectNodes = [];
-        for each (let [, groupPair] in Iterator(this.orderedGroups)) {
+        for (let groupPair of this.orderedGroups) {
           if (groupPair[0] == null)
             this.falseValues.push.apply(this.falseValues, groupPair[1]);
           else {
@@ -405,10 +405,8 @@
         }
         selectNodes.sort(function(a, b) {
           return a.textContent.localeCompare(b.textContent);
-        })
-        for each (let [, selNode] in Iterator(selectNodes)) {
-          this.filterNode.appendChild(selNode);
-        }
+        });
+        selectNodes.forEach(function(selNode) { this.filterNode.appendChild(selNode); }, this);
 
         this.disabled = !this.trueValues.length;
 
@@ -850,7 +848,7 @@
         let ambiguousKeyValues;
         if ("userVisibleString" in nounDef) {
           ambiguousKeyValues = {};
-          for each (let [, groupPair] in Iterator(useGroups)) {
+          for (let groupPair of useGroups) {
             let [groupValue, groupItems] = groupPair;
 
             // skip null values, they are handled by the none special-case
@@ -870,7 +868,7 @@
 
         // -- create the items, assigning them to the right list based on
         //  existing constraint values
-        for each (let [, groupPair] in Iterator(useGroups)) {
+        for (let groupPair of useGroups) {
           let [groupValue, groupItems] = groupPair;
           let li = document.createElement("li");
           li.setAttribute("class", "bar");
@@ -1010,8 +1008,7 @@
         if (remListVisible != remListShouldBeVisible)
           showNodes = [labelNode, this.remainderLabel];
 
-        for each (let [, node] in Iterator(showNodes))
-          node.style.display = "block";
+        showNodes.forEach(node => node.style.display = "block");
 
         aCallback();
       ]]></body>
@@ -1380,8 +1377,8 @@
         let showNode = document.getAnonymousElementByAttribute(
                           this, "anonid", "showall");
         const GlodaMessage = Gloda.lookupNounDef("message").clazz;
-        let visble = aMessages.some(function(m) m instanceof GlodaMessage);
-        showNode.style.display = visble ? "inline" : "none";
+        let visible = aMessages.some(m => m instanceof GlodaMessage);
+        showNode.style.display = visible ? "inline" : "none";
         showNode.textContent = glodaFacetStrings.get(
           "glodaFacetView.results.message.openEmailAsList.label");
         showNode.setAttribute("title", glodaFacetStrings.get(
@@ -1440,7 +1437,7 @@
           messagesNode.lastChild.remove();
       try {
         // -- Messages
-        for each (let [, message] in Iterator(aMessages)) {
+        for (let message of aMessages) {
           let msgNode = document.createElement("message");
           msgNode.message = message;
           msgNode.setAttribute("class", "message");
@@ -1560,10 +1557,10 @@
           let totalRecipientCount = message.recipients.length;
           let recipientSeparator = glodaFacetStrings.get(
               "glodaFacetView.results.message.recipientSeparator")
-          for each (let [index, recip] in Iterator(message.recipients)) {
+          for (let index in message.recipients) {
             let recipNode = document.createElement("span");
             recipNode.setAttribute("class", "message-recipient");
-            recipNode.textContent = recip.contact.name;
+            recipNode.textContent = message.recipients[index].contact.name;
             recipientsNode.appendChild(recipNode);
             recipientCount++;
             if (recipientCount == MAX_RECIPIENTS)
@@ -1605,7 +1602,7 @@
           let imgNode = document.createElement("div");
           imgNode.setAttribute("class", "message-attachment-icon");
           attachmentsNode.appendChild(imgNode);
-          for each (let [, attach] in Iterator(message.attachmentNames)) {
+          for (let attach of message.attachmentNames) {
             let attachNode = document.createElement("div");
             attachNode.setAttribute("class", "message-attachment");
             if (attach.length >= 28)
@@ -1618,7 +1615,7 @@
         // - Tags
         let tagsNode = anonElem("tags");
         if ("tags" in message && message.tags.length) {
-          for each (let [, tag] in Iterator(message.tags)) {
+          for (let tag of message.tags) {
             let tagNode = document.createElement("span");
             let colorClass = "blc-" + MailServices.tags.getColorForKey(tag.key).substr(1);
             tagNode.setAttribute("class", "message-tag tag " + colorClass);
@@ -1640,7 +1637,7 @@
             else
               collection = FacetContext.collection;
             let offsets = collection.stashedColumns[message.id][0];
-            let offsetNums = [parseInt(x) for each (x in offsets.split(" "))];
+            let offsetNums = offsets.split(" ").map(x => parseInt(x));
             for (let i = 0; i < offsetNums.length; i += 4) {
               // i is the column index. The indexedBodyText is in the column 0.
               // Ignore matches for other columns.
@@ -1661,7 +1658,7 @@
             matches.sort(function(a, b) a[0] - b[0]);
 
             // Convert the byte offsets and lengths into character indexes.
-            function charCodeToByteCount(c) {
+            let charCodeToByteCount = function(c) {
               // UTF-8 stores:
               // - code points below U+0080 on 1 byte,
               // - code points below U+0800 on 2 bytes,
@@ -1673,7 +1670,7 @@
             }
             let byteOffset = 0;
             let offset = 0;
-            for each (let [, match] in Iterator(matches)) {
+            for (let match of matches) {
               while (byteOffset < match[0])
                 byteOffset += charCodeToByteCount(bodyText.charCodeAt(offset++));
               match[0] = offset;
@@ -1737,7 +1734,7 @@
           parent.appendChild(node);
 
           let offset = startIndex ? startIndex - 1 : 0; // The ellipsis takes 1 character.
-          for each (let [, match] in Iterator(matches)) {
+          for (let match of matches) {
             if (idxNewline > -1 && match[0] > startIndex + idxNewline)
               break;
             let secondNode = node.splitText(match[0] - offset);

@@ -94,7 +94,7 @@ DateFacetVis.prototype = {
 
     // day is our smallest unit
     const ALLOWED_SPANS = [Span.DAYS, Span.WEEKS, Span.MONTHS, Span.YEARS];
-    for each (let [, trySpan] in Iterator(ALLOWED_SPANS)) {
+    for (let trySpan of ALLOWED_SPANS) {
       if (enoughPix(trySpan)) {
         // do the equivalent of nice() for our chosen span
         scale.min(scale.round(scale.min(), trySpan, false));
@@ -184,10 +184,10 @@ DateFacetVis.prototype = {
     let ctx = fontMetricCanvas.getContext("2d");
 
     // do the labeling logic,
-    for each (let [, labelTier] in Iterator(labelTiers)) {
+    for (let labelTier of labelTiers) {
       let labelRules = labelTier.rules;
       let perLabelBudget = width / (labelRules.length - 1);
-      for each (let [, labelFormat] in Iterator(labelTier.label)) {
+      for (let labelFormat of labelTier.label) {
         let maxWidth = 0;
         let displayValues = [];
         for (let iRule = 0; iRule < labelRules.length - 1; iRule++) {
@@ -249,7 +249,7 @@ DateFacetVis.prototype = {
     let [bins, maxBinSize] = this.binBySpan(scale, span, rules);
 
     // build empty bins for our hot bins
-    this.emptyBins = [0 for each (bin in bins)];
+    this.emptyBins = bins.map(bin => 0);
 
     let binScale = maxBinSize ? (ch / maxBinSize) : 1;
 
@@ -288,7 +288,7 @@ DateFacetVis.prototype = {
       .left(function() this.index * barPix)
       .fillStyle("#3465a4");
 
-    for each (let [, labelTier] in Iterator(labelTiers)) {
+    for (let labelTier of labelTiers) {
       let labelBar = vis.add(pv.Bar)
         .data(labelTier.displayValues)
         .bottom(-totalAxisLabelHeight + labelTier.vertOffset)
@@ -324,7 +324,7 @@ DateFacetVis.prototype = {
   hoverItems: function(aItems) {
     let itemToBin = this.itemToBin;
     let bins = this.emptyBins.concat();
-    for each (let [, item] in Iterator(aItems)) {
+    for (let item of aItems) {
       if (item.id in itemToBin)
         bins[itemToBin[item.id]]++;
     }
@@ -365,7 +365,7 @@ DateFacetVis.prototype = {
                  endDate: binEndDate});
     }
     let attrKey = this.attrDef.boundName;
-    for each (let [, item] in Iterator(this.faceter.validItems)) {
+    for (let item of this.faceter.validItems) {
       let val = item[attrKey];
       // round it to the rule...
       val = aScale.round(val, aSpan, false);
@@ -374,7 +374,7 @@ DateFacetVis.prototype = {
       itemToBin[item.id] = itemBin;
       bins[itemBin].items.push(item);
     }
-    for each (let [, bin] in Iterator(bins)) {
+    for (let bin of bins) {
       maxBinSize = Math.max(bin.items.length, maxBinSize);
     }
 
