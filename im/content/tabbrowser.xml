@@ -1541,6 +1541,8 @@
 
           if (val) {
             this.setAttribute("label", val);
+            if (this.hasAttribute("flipped"))
+              this.setAttribute("mirror", "true");
             this.removeAttribute("inactive");
             this._calcMouseTargetRect();
             MousePosTracker.addListener(this);
@@ -1591,7 +1593,9 @@
       <method name="_calcMouseTargetRect">
         <body><![CDATA[
           let container = this.parentNode;
-          let alignRight = (getComputedStyle(container).direction == "rtl");
+          let xor = (a, b) => a != b;
+          let alignRight = xor(getComputedStyle(container).direction == "rtl",
+                               this.hasAttribute("flipped"));
           let panelRect = this.getBoundingClientRect();
           let containerRect = container.getBoundingClientRect();
 

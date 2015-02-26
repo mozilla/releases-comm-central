@@ -151,6 +151,11 @@ var XULBrowserWindow = {
       let field = this.statusTextField;
       field.setAttribute("previoustype", field.getAttribute("type"));
       field.setAttribute("type", type);
+      // Show IB typing notifications on the opposite side.
+      if (this.status)
+        field.setAttribute("flipped", "true");
+      else
+        field.removeAttribute("flipped");
       field.label = text;
       field.setAttribute("crop", type == "overLink" ? "center" : "end");
       this.statusText = text;
