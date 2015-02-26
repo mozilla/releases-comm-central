@@ -120,10 +120,11 @@ libs:: $(call MERGE_FILES,$(addprefix profile/chrome/,$(PROFILE_CHROME)))
 	$(SYSINSTALL) $(IFLAGS1) $^ $(FINAL_TARGET)/defaults/profile/chrome
 
 SEARCH_PLUGINS_NAMES = $(shell cat $(call MERGE_FILE,searchplugins/list.txt))
+SEARCH_PLUGINS_PATH := $(FINAL_TARGET)/searchplugins
+.PHONY: searchplugins
+SEARCH_PLUGINS_TARGET := libs searchplugins
 SEARCH_PLUGINS := $(foreach plugin,$(addsuffix .xml,$(SEARCH_PLUGINS_NAMES)),$(or $(wildcard $(call MERGE_FILE,searchplugins/$(plugin))),$(info Missing searchplugin: $(plugin))))
-
-libs:: $(addsuffix .xml,$(SEARCH_PLUGINS))
-	$(SYSINSTALL) $(IFLAGS1) $^ $(FINAL_TARGET)/searchplugins
+PP_TARGETS += SEARCH_PLUGINS
 
 # Extend l10n.mk clobber-% target for our localised extensions
 clobber-%:
