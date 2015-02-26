@@ -110,7 +110,7 @@ nsURLFetcher::CanHandleContent(const char * aContentType,
 } 
 
 NS_IMETHODIMP 
-nsURLFetcher::DoContent(const char * aContentType,
+nsURLFetcher::DoContent(const nsACString& aContentType,
                       bool aIsContentPreferred,
                       nsIRequest *request,
                       nsIStreamListener ** aContentHandler,
@@ -125,14 +125,14 @@ nsURLFetcher::DoContent(const char * aContentType,
   /*
     Check the content-type to see if we need to insert a converter
   */
-  if (PL_strcasecmp(aContentType, UNKNOWN_CONTENT_TYPE) == 0 ||
-      PL_strcasecmp(aContentType, MULTIPART_MIXED_REPLACE) == 0 ||
-      PL_strcasecmp(aContentType, MULTIPART_MIXED) == 0 ||
-      PL_strcasecmp(aContentType, MULTIPART_BYTERANGES) == 0)
+  if (PL_strcasecmp(PromiseFlatCString(aContentType).get(), UNKNOWN_CONTENT_TYPE) == 0 ||
+      PL_strcasecmp(PromiseFlatCString(aContentType).get(), MULTIPART_MIXED_REPLACE) == 0 ||
+      PL_strcasecmp(PromiseFlatCString(aContentType).get(), MULTIPART_MIXED) == 0 ||
+      PL_strcasecmp(PromiseFlatCString(aContentType).get(), MULTIPART_BYTERANGES) == 0)
   {
-    rv = InsertConverter(aContentType);
+    rv = InsertConverter(PromiseFlatCString(aContentType).get());
     if (NS_SUCCEEDED(rv))
-      mConverterContentType = aContentType;
+      mConverterContentType = PromiseFlatCString(aContentType).get();
   }
 
   return rv;

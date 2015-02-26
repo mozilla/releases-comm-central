@@ -31,7 +31,7 @@ NS_IMETHODIMP
 MailNewsDLF::CreateInstance(const char* aCommand,
                             nsIChannel* aChannel,
                             nsILoadGroup* aLoadGroup,
-                            const char* aContentType, 
+                            const nsACString& aContentType,
                             nsIDocShell* aContainer,
                             nsISupports* aExtraInfo,
                             nsIStreamListener** aDocListener,
@@ -39,7 +39,8 @@ MailNewsDLF::CreateInstance(const char* aCommand,
 {
   nsresult rv;
 
-  bool viewSource = (PL_strstr(aContentType,"view-source") != 0);
+  bool viewSource = (PL_strstr(PromiseFlatCString(aContentType).get(),
+                               "view-source") != 0);
 
   aChannel->SetContentType(NS_LITERAL_CSTRING(TEXT_HTML));
 
@@ -61,11 +62,11 @@ MailNewsDLF::CreateInstance(const char* aCommand,
 
   if (viewSource) {
     rv = factory->CreateInstance("view-source", aChannel, aLoadGroup,
-                                 TEXT_HTML "; x-view-type=view-source",
+                                 NS_LITERAL_CSTRING(TEXT_HTML "; x-view-type=view-source"),
                                  aContainer, aExtraInfo, getter_AddRefs(listener),
                                  aDocViewer);
   } else {
-    rv = factory->CreateInstance("view", aChannel, aLoadGroup, TEXT_HTML,
+    rv = factory->CreateInstance("view", aChannel, aLoadGroup, NS_LITERAL_CSTRING(TEXT_HTML),
                                  aContainer, aExtraInfo, getter_AddRefs(listener),
                                  aDocViewer);
   }

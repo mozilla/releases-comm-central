@@ -370,10 +370,10 @@ NS_IMETHODIMP nsMsgWindow::OnStartURIOpen(nsIURI* aURI, bool* aAbortOpen)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::DoContent(const char *aContentType, bool aIsContentPreferred,
+NS_IMETHODIMP nsMsgWindow::DoContent(const nsACString& aContentType, bool aIsContentPreferred,
                                      nsIRequest *request, nsIStreamListener **aContentHandler, bool *aAbortProcess)
 {
-  if (aContentType)
+  if (!aContentType.IsEmpty())
   {
     // forward the DoContent call to our docshell
     nsCOMPtr<nsIDocShell> messageWindowDocShell;
