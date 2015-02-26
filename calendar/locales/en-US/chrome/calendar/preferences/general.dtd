@@ -35,7 +35,7 @@
 
 <!ENTITY pref.calendar.todaypane.agenda.caption "Today Pane">
 <!ENTITY pref.soondays.label "The upcoming section shows:">
-<!ENTITY pref.soondays.accesskey "g">
+<!ENTITY pref.soondays.accesskey "u">
 
 <!ENTITY pref.accessibility.label "Accessibility" >
 <!ENTITY pref.systemcolors.label "Optimize colors for accessibility" >
