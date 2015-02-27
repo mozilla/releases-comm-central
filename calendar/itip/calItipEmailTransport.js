@@ -227,6 +227,8 @@ calItipEmailTransport.prototype = {
                     // Add this recipient id to the list.
                     toList += rId;
                 }
+                let composeUtils = Components.classes["@mozilla.org/messengercompose/computils;1"]
+                                             .createInstance(Components.interfaces.nsIMsgCompUtils);
                 let messageId = composeUtils.msgGenerateMessageId(identity);
                 let mailFile = this._createTempImipFile(compatMode, toList, aSubject, aBody, aItem, identity, messageId);
                 if (mailFile) {
@@ -318,9 +320,6 @@ calItipEmailTransport.prototype = {
 
             let fullFrom = !aIdentity.fullName.length ? null :
                            cal.validateRecipientList(aIdentity.fullName + "<" + aIdentity.email + ">");
-
-            let composeUtils = Components.classes["@mozilla.org/messengercompose/computils;1"]
-                                         .createInstance(Components.interfaces.nsIMsgCompUtils);
 
             // Home-grown mail composition; I'd love to use nsIMimeEmitter, but it's not clear to me whether
             // it can cope with nested attachments,
