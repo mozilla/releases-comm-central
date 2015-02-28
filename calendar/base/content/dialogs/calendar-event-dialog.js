@@ -551,6 +551,7 @@ function loadDialog(item) {
     // display transparency controls only for events
     if (!cal.isEvent(item)) {
         setBooleanAttribute("options-freebusy-menu", "hidden", true);
+        setBooleanAttribute("options-menuseparator2", "hidden", true);
         setBooleanAttribute("button-freebusy", "hidden", true);
         setBooleanAttribute("status-freebusy", "hidden", true);
     }
