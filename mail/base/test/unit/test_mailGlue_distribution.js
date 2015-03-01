@@ -115,7 +115,7 @@ function run_test()
     let key = keys.getNext();
     if (overrides.indexOf(key) == -1) {
       let value = eval(testIni.getString(s, key));
-      value =  value.replace("%LOCALE%", "en-US", "g");
+      value =  value.replace(/%LOCALE%/g, "en-US");
       value = "data:text/plain," + key + "=" + value;
       do_check_eq(value, Services.prefs.getCharPref(key));
     }

@@ -2205,7 +2205,7 @@ function ComposeStartup(recycled, aParams)
         cleanBody = decodeURI(body);
       } catch(e) { cleanBody = body; }
 
-      body = body.replace("&", "&amp;", "g");
+      body = body.replace(/&/g, "&amp;");
       gMsgCompose.compFields.body =
         "<br /><a href=\"" + body + "\">" + cleanBody + "</a><br />";
     }

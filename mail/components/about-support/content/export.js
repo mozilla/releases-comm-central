@@ -232,6 +232,6 @@ function generateTextForTextNode(node, indent, textFragmentAccumulator) {
 
   // Trim the text node's text content and add proper indentation after
   // any internal line breaks.
-  let text = node.textContent.trim().replace("\n", "\n" + indent, "g");
+  let text = node.textContent.trim().replace(/\n/g, "\n" + indent);
   textFragmentAccumulator.push(text);
 }
