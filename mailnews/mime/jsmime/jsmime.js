@@ -605,7 +605,7 @@ function decodeRFC2047Words(headerValue) {
       // whitespace at the end of the string. Such an input string is already
       // malformed to begin with, so stripping the = and following input in that
       // case should not be an important loss.
-      buffer = mimeutils.decode_qp(text.replace('_', ' ', 'g'), false)[0];
+      buffer = mimeutils.decode_qp(text.replace(/_/g, ' '), false)[0];
     } else {
       return false;
     }
