@@ -3629,7 +3629,7 @@ SessionStoreService.prototype = {
 
     // By creating a regex we reduce overhead and there is only one loop pass
     // through either array (cookieHosts and aWinState.cookies).
-    let hosts = Object.keys(cookieHosts).join("|").replace("\\.", "\\.", "g");
+    let hosts = Object.keys(cookieHosts).join("|").replace(/\./g, "\\.");
     let cookieRegex = new RegExp(".*(" + hosts + ")");
     for (let cIndex = 0; cIndex < aWinState.cookies.length;) {
       if (cookieRegex.test(aWinState.cookies[cIndex].host)) {
