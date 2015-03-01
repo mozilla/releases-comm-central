@@ -190,13 +190,10 @@ const XMPPConversationPrototype = {
   supportChatStateNotifications: true,
   _typingState: "active",
 
-  _init: function(aAccount, aBuddy) {
-    this.buddy = aBuddy;
-    GenericConvIMPrototype._init.call(this, aAccount, aBuddy.normalizedName);
-  },
-
-  get title() this.buddy.contactDisplayName,
-  get normalizedName() this.buddy.normalizedName,
+  get buddy() this._account._buddies.get(this.name),
+  get title() this.contactDisplayName,
+  get contactDisplayName() this.buddy ? this.buddy.contactDisplayName : this.name,
+  get userName() this.buddy ? this.buddy.userName : this.name,
 
   get shouldSendTypingNotifications()
     this.supportChatStateNotifications &&
@@ -243,7 +240,7 @@ const XMPPConversationPrototype = {
 
   _targetResource: "",
   get to() {
-    let to = this.buddy.userName;
+    let to = this.userName;
     if (this._targetResource)
       to += "/" + this._targetResource;
     return to;
@@ -291,7 +288,7 @@ const XMPPConversationPrototype = {
       flags.error = true;
     }
     else
-      flags = {incoming: true, _alias: this.buddy.contactDisplayName};
+      flags = {incoming: true, _alias: this.contactDisplayName};
     if (aDate) {
       flags.time = aDate / 1000;
       flags.delayed = true;
@@ -305,14 +302,13 @@ const XMPPConversationPrototype = {
     GenericConvIMPrototype.close.call(this);
   },
   unInit: function() {
-    this._account.removeConversation(this.buddy.normalizedName);
-    delete this.buddy;
+    this._account.removeConversation(this.normalizedName);
     GenericConvIMPrototype.unInit.call(this);
   }
 };
-function XMPPConversation(aAccount, aBuddy)
+function XMPPConversation(aAccount, aName)
 {
-  this._init(aAccount, aBuddy);
+  this._init(aAccount, aName);
 }
 XMPPConversation.prototype = XMPPConversationPrototype;
 
@@ -1293,15 +1289,9 @@ const XMPPAccountPrototype = {
 
   /* Create a new conversation */
   createConversation: function(aNormalizedName) {
-    if (!this._buddies.has(aNormalizedName)) {
-      this.ERROR("Trying to create a conversation; buddy not present: " + aNormalizedName);
-      return null;
-    }
-
     if (!this._conv.has(aNormalizedName)) {
       this._conv.set(aNormalizedName,
-        new this._conversationConstructor(this,
-                                          this._buddies.get(aNormalizedName)));
+        new this._conversationConstructor(this, aNormalizedName));
     }
 
     return this._conv.get(aNormalizedName);
