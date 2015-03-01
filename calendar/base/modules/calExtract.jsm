@@ -78,7 +78,7 @@ Extractor.prototype = {
     },
 
     checkBundle: function checkBundle(locale) {
-        let path = this.bundleUrl.replace("LOCALE", locale, "g");
+        let path = this.bundleUrl.replace(/LOCALE/g, locale);
         let bundle = Services.strings.createBundle(path);
 
         try {
@@ -119,7 +119,7 @@ Extractor.prototype = {
                 this.fallbackLocale = "en-US";
             }
 
-            path = this.bundleUrl.replace("LOCALE", this.fallbackLocale, "g");
+            path = this.bundleUrl.replace(/LOCALE/g, this.fallbackLocale);
 
             let pref = "calendar.patterns.last.used.languages";
             let lastUsedLangs = Preferences.get(pref, "");
@@ -207,34 +207,34 @@ Extractor.prototype = {
             // very well, possibly because of bug 471799
             if (avgCharCode > 48000 && avgCharCode < 50000) {
                 cal.LOG("[calExtract] Using ko patterns based on charcodes");
-                path = this.bundleUrl.replace("LOCALE", "ko", "g");
+                path = this.bundleUrl.replace(/LOCALE/g, "ko");
             // is it possible to differentiate zh-TW and zh-CN?
             } else if (avgCharCode > 24000 && avgCharCode < 32000) {
                 cal.LOG("[calExtract] Using zh-TW patterns based on charcodes");
-                path = this.bundleUrl.replace("LOCALE", "zh-TW", "g");
+                path = this.bundleUrl.replace(/LOCALE/g, "zh-TW");
             } else if (avgCharCode > 14000 && avgCharCode < 24000) {
                 cal.LOG("[calExtract] Using ja patterns based on charcodes");
-                path = this.bundleUrl.replace("LOCALE", "ja", "g");
+                path = this.bundleUrl.replace(/LOCALE/g, "ja");
             // Bulgarian also looks like that
             } else if (avgCharCode > 1000 && avgCharCode < 1200) {
                 cal.LOG("[calExtract] Using ru patterns based on charcodes");
-                path = this.bundleUrl.replace("LOCALE", "ru", "g");
+                path = this.bundleUrl.replace(/LOCALE/g, "ru");
             // dictionary based
             } else if (most > 0) {
                 cal.LOG("[calExtract] Using " + mostLocale + " patterns based on dictionary");
-                path = this.bundleUrl.replace("LOCALE", mostLocale, "g");
+                path = this.bundleUrl.replace(/LOCALE/g, mostLocale);
             // fallbackLocale matches patterns exactly
             } else if (this.checkBundle(this.fallbackLocale)) {
                 cal.LOG("[calExtract] Falling back to " + this.fallbackLocale);
-                path = this.bundleUrl.replace("LOCALE", this.fallbackLocale, "g");
+                path = this.bundleUrl.replace(/LOCALE/g, this.fallbackLocale);
             // beginning of fallbackLocale matches patterns
             } else if (this.checkBundle(this.fallbackLocale.substring(0, 2))) {
                 this.fallbackLocale = this.fallbackLocale.substring(0, 2);
                 cal.LOG("[calExtract] Falling back to " + this.fallbackLocale);
-                path = this.bundleUrl.replace("LOCALE", this.fallbackLocale, "g");
+                path = this.bundleUrl.replace(/LOCALE/g, this.fallbackLocale);
             } else {
                 cal.LOG("[calExtract] Using en-US");
-                path = this.bundleUrl.replace("LOCALE", "en-US", "g");
+                path = this.bundleUrl.replace(/LOCALE/g, "en-US");
             }
         }
         this.bundle = Services.strings.createBundle(path);
@@ -290,13 +290,13 @@ Extractor.prototype = {
         }
         this.hourlyNumbers += this.numbers[23];
 
-        this.hourlyNumbers = this.hourlyNumbers.replace("|", this.marker, "g");
-        this.dailyNumbers = this.dailyNumbers.replace("|", this.marker, "g");
+        this.hourlyNumbers = this.hourlyNumbers.replace(/\|/g, this.marker);
+        this.dailyNumbers = this.dailyNumbers.replace(/\|/g, this.marker);
 
         for (let i = 0; i < 12; i++) {
             this.months[i] = this.getPatterns("month." + (i + 1));
         }
-        this.allMonths = this.months.join(this.marker).replace("|", this.marker, "g");
+        this.allMonths = this.months.join(this.marker).replace(/\|/g, this.marker);
 
         // time
         this.extractTime("from.noon", "start", 12, 0);
@@ -385,7 +385,7 @@ Extractor.prototype = {
                                                 "(\\d{2,4})" ]);
         let res;
         for (let alt in alts) {
-            let exp = alts[alt].pattern.replace(this.marker, "|", "g");
+            let exp = alts[alt].pattern.split(this.marker).join("|");
             let positions = alts[alt].positions;
             let re = new RegExp(exp, "ig");
 
@@ -430,7 +430,7 @@ Extractor.prototype = {
                                        "(" + this.allMonths + ")"]);
         let res;
         for (let alt in alts) {
-            let exp = alts[alt].pattern.replace(this.marker, "|", "g");
+            let exp = alts[alt].pattern.split(this.marker).join("|");
             let positions = alts[alt].positions;
             let re = new RegExp(exp, "ig");
 
@@ -511,7 +511,7 @@ Extractor.prototype = {
                                        ["(\\d{1,2}" + this.marker + this.dailyNumbers + ")"]);
         let res;
         for (let alt in alts) {
-            let exp = alts[alt].pattern.replace(this.marker, "|", "g");
+            let exp = alts[alt].pattern.split(this.marker).join("|");
             let re = new RegExp(exp, "ig");
 
             while ((res = re.exec(this.email)) != null) {
@@ -571,7 +571,7 @@ Extractor.prototype = {
                                        ["(\\d{1,2}" + this.marker + this.hourlyNumbers + ")"]);
         let res;
         for (let alt in alts) {
-            let exp = alts[alt].pattern.replace(this.marker, "|", "g");
+            let exp = alts[alt].pattern.split(this.marker).join("|");
             let re = new RegExp(exp, "ig");
 
             while ((res = re.exec(this.email)) != null) {
@@ -601,7 +601,7 @@ Extractor.prototype = {
                                        ["(\\d{1,2}" + this.marker + this.hourlyNumbers + ")"]);
         let res;
         for (let alt in alts) {
-            let exp = alts[alt].pattern.replace(this.marker, "|", "g");
+            let exp = alts[alt].pattern.split(this.marker).join("|");
             let re = new RegExp(exp, "ig");
 
             while ((res = re.exec(this.email)) != null) {
@@ -674,7 +674,7 @@ Extractor.prototype = {
                                        ["(\\d{1,2}" + this.marker + this.dailyNumbers + ")"]);
         let res;
         for (let alt in alts) {
-            let exp = alts[alt].pattern.replace(this.marker, "|", "g");
+            let exp = alts[alt].pattern.split(this.marker).join("|");
             let re = new RegExp(exp, "ig");
 
             while ((res = re.exec(this.email)) != null) {
@@ -1059,7 +1059,7 @@ Extractor.prototype = {
                 let pattern = vals[val];
                 let cnt = 1;
                 for (let replaceable in replaceables) {
-                    pattern = pattern.replace("%" + cnt + "$S", replaceables[cnt - 1], "g");
+                    pattern = pattern.split("%" + cnt + "$S").join(replaceables[cnt - 1]);
                     cnt++;
                 }
                 patterns.push(pattern);

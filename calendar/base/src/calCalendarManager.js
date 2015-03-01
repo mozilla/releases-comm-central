@@ -125,8 +125,8 @@ calCalendarManager.prototype = {
                             // The provider may choose to explicitly disable the
                             // rewriting, for example if all calendars on a
                             // domain have the same credentials
-                            let escapedName = calendar.name.replace('\\', '\\\\', 'g')
-                                                           .replace('"','\\"', 'g');
+                            let escapedName = calendar.name.replace(/\\/g, '\\\\')
+                                                           .replace(/\"/g, '\\"');
                             authHeader = appendToRealm(authHeader, "(" + escapedName + ")");
                             channel.setResponseHeader("WWW-Authenticate", authHeader, false);
                         }

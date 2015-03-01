@@ -377,7 +377,7 @@ var gDataMigrator = {
                         endIndex = otherEnd;
                     }
                     var sub = str.substring(index, endIndex);
-                    str = str.replace(sub, "", "g");
+                    str = str.split(sub).join("");
                     index = str.indexOf(";TZID=");
                 }
                 var tempFile = gDataMigrator.dirService.get("TmpD", Components.interfaces.nsIFile);
