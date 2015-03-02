@@ -398,7 +398,7 @@
                            tooltiptext="&folderUnreadColumn.label;"
                            hideheader="true"
                            hidden="true"
-                           persist="width hidden"
+                           persist="width hidden hiddeninactive"
                            width="50"
                            selectable="false"/>
                   <splitter class="tree-splitter"/>
@@ -407,7 +407,7 @@
                            tooltiptext="&folderTotalColumn.label;"
                            hideheader="true"
                            hidden="true"
-                           persist="width hidden"
+                           persist="width hidden hiddeninactive"
                            width="50"
                            selectable="false"/>
                   <splitter class="tree-splitter"/>
@@ -416,7 +416,7 @@
                            tooltiptext="&folderSizeColumn.label;"
                            hideheader="true"
                            hidden="true"
-                           persist="width hidden"
+                           persist="width hidden hiddeninactive"
                            width="50"
                            selectable="false"/>
                 </treecols>

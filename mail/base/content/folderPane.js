@@ -323,11 +323,31 @@ let gFolderTreeView = {
       if (hide) {
         column.setAttribute("hideheader", "true");
         column.removeAttribute("label");
-        if (columnName != "folderNameCol")
+        if (columnName != "folderNameCol") {
+          if (!aSetup) {
+            // If user hides the columns store their visible state in a special attribute
+            // that is persisted by XUL.
+            let state = column.getAttribute("hidden");
+            column.setAttribute("hiddeninactive", state);
+          }
           column.setAttribute("hidden", "true");
+        }
       } else {
         column.setAttribute("label", column.getAttribute("label2"));
         column.setAttribute("hideheader", "false");
+        if (!aSetup) {
+          // If user unhides the columns restore their visible state
+          // from our special attribute.
+          if (column.hasAttribute("hiddeninactive")) {
+            let state = column.getAttribute("hiddeninactive");
+            column.setAttribute("hidden", state);
+          } else if (columnName == "folderTotalCol") {
+            // If there was no hiddeninactive attribute set, that means this is
+            // our first showing of the folder pane columns. Show the TotalCol
+            // as a sample so the user notices what is happening.
+            column.setAttribute("hidden", "false");
+          }
+        }
       }
     }
 
