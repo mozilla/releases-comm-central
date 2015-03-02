@@ -23,7 +23,7 @@ function setColors(target)
   var senderHue = parsed[1];
 
   target.style.borderTop = p_border_top.replace("#", senderHue);
-  target.style.background = p_background.replace("#", senderHue, "g");
+  target.style.background = p_background.replace(/#/g, senderHue);
 }
 
 function checkNewText(target)
@@ -35,7 +35,7 @@ function checkNewText(target)
   for (var i = 0; i < nicks.length; ++i) {
     var nick = nicks[i];
     if (!nick.hasAttribute("left"))
-      nick.style.background = nick_background.replace("#", nick.getAttribute("nickColor"), "g");
+      nick.style.background = nick_background.replace(/#/g, nick.getAttribute("nickColor"));
   }
 }
 

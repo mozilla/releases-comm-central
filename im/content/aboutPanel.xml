@@ -32,7 +32,7 @@
         <![CDATA[
           let browser = this.browser;
           this.tab.setAttribute("label",
-            browser.contentTitle.replace("\0", "", "g") || browser.currentURI.spec);
+            browser.contentTitle.replace(/\0/g, "") || browser.currentURI.spec);
           if (browser.currentURI.spec == "about:addons") {
             // Set the tab type to "addons" so that CSS will set its favicon.
             this.tab.setAttribute("type", "addons");

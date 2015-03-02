@@ -22,9 +22,9 @@ function setColors(target)
     if (parsed) {
       var senderHue = parsed[1];
       if (target.classList.contains("context"))
-        target.setAttribute("style", bg_context_gradient.replace("#", senderHue, "g"));
+        target.setAttribute("style", bg_context_gradient.replace(/#/g, senderHue));
       else
-        target.setAttribute("style", bg_gradient.replace("#", senderHue, "g"));
+        target.setAttribute("style", bg_gradient.replace(/#/g, senderHue));
     }
   }
 
