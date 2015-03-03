@@ -8,6 +8,7 @@ const EXPORTED_SYMBOLS = [
   "GenericConvIMPrototype",
   "GenericConvChatPrototype",
   "GenericConvChatBuddyPrototype",
+  "GenericConversationPrototype",
   "GenericMessagePrototype",
   "GenericProtocolPrototype",
   "Message",
@@ -482,7 +483,12 @@ const GenericConversationPrototype = {
   },
 
   prepareForSending: function(aOutgoingMessage, aCount) null,
-  prepareForDisplaying: function(aImMessage) {},
+  prepareForDisplaying: function(aImMessage) {
+    if (aImMessage.displayMessage !== aImMessage.message) {
+      this.DEBUG("Preparing:\n" + aImMessage.message + "\nDisplaying:\n" +
+                 aImMessage.displayMessage);
+    }
+  },
   sendMsg: function(aMsg) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },

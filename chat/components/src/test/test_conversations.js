@@ -26,7 +26,8 @@ Conversation.prototype = {
       alias: "",
       name: "Fake Account"
     },
-    ERROR: function(e) {throw e;}
+    ERROR: function(e) {throw e;},
+    DEBUG: function() {}
   },
   addObserver: function(aObserver) {
     if (!(aObserver instanceof Ci.nsIObserver))

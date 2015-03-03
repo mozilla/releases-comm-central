@@ -134,6 +134,7 @@ const GenericIRCConversation = {
   // Apply CTCP formatting before displaying.
   prepareForDisplaying: function(aMsg) {
     aMsg.displayMessage = ctcpFormatToHTML(aMsg.displayMessage);
+    GenericConversationPrototype.prepareForDisplaying.apply(this, arguments);
   },
   prepareForSending: function(aOutgoingMessage, aCount) {
     // Split the message by line breaks and send each one individually.
