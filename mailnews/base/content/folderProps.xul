@@ -71,14 +71,14 @@
                 accesskey="&folderCheckForNewMessages2.accesskey;"/>
       <vbox>
         <hbox align="center" valign="middle">
-          <label value="&folderCharsetFallback.label;"
-                 accesskey="&folderCharsetFallback.accesskey;"
+          <label value="&folderCharsetFallback2.label;"
+                 accesskey="&folderCharsetFallback2.accesskey;"
                  control="folderCharsetList"/>
           <menulist id="folderCharsetList" type="charset"/>
         </hbox>
         <checkbox class="indent" id="folderCharsetOverride"
-                  label="&folderCharsetEnforce.label;"
-                  accesskey="&folderCharsetEnforce.accesskey;"/>
+                  label="&folderCharsetEnforce2.label;"
+                  accesskey="&folderCharsetEnforce2.accesskey;"/>
       </vbox>
       <groupbox id="folderRebuildSummaryGroupBox" align="baseline">
         <grid>

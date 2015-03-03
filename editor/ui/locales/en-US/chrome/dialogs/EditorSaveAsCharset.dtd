@@ -7,10 +7,10 @@
 <!-- This button is for the progressive disclosure of additional editing functionality -->
 
 <!-- These strings are for use specifically in the editor's link dialog. -->
-<!ENTITY windowTitle.label "Save And Change Character Encoding">
+<!ENTITY windowTitle2.label "Save And Change Text Encoding">
 <!ENTITY documentTitleTitle.label "Page Title">
-<!ENTITY documentCharsetTitle.label "Character Encoding">
-<!ENTITY documentCharsetDesc.label "Select the character encoding you want to save a document in:">
+<!ENTITY documentCharsetTitle2.label "Text Encoding">
+<!ENTITY documentCharsetDesc2.label "Select the text encoding you want to save a document in:">
 <!ENTITY documentExportToText.label "Export to Text">
 
 

@@ -5,17 +5,17 @@
 <!ENTITY folderProps.windowtitle.label           "Properties">
 
 <!ENTITY generalInfo.label                       "General Information">
-<!ENTITY folderCharsetFallback.label             "Fallback Character Encoding:">
-<!ENTITY folderCharsetFallback.accesskey         "E">
-<!ENTITY folderCharsetEnforce.label              "Apply encoding to all messages in the folder (individual message character encoding settings and auto-detection will be ignored)">
-<!ENTITY folderCharsetEnforce.accesskey          "A">
+<!ENTITY folderCharsetFallback2.label            "Fallback Text Encoding:">
+<!ENTITY folderCharsetFallback2.accesskey        "E">
+<!ENTITY folderCharsetEnforce2.label             "Apply encoding to all messages in the folder (individual message text encoding settings and auto-detection will be ignored)">
+<!ENTITY folderCharsetEnforce2.accesskey         "A">
 <!ENTITY folderRebuildSummaryFileTip2.label      "Rebuild Summary File Index">
 <!ENTITY folderRebuildSummaryFile2.label         "Repair Folder">
 <!ENTITY folderRebuildSummaryFile2.accesskey     "R">
 <!ENTITY folderRebuildSummaryFile.explanation    "Sometimes the folder index (.msf) file becomes damaged and messages may appear missing or deleted messages continue showing; repairing the folder may fix these issues.">
 <!ENTITY folderIncludeInGlobalSearch.label       "Include messages in this folder in Global Search results">
 <!ENTITY folderIncludeInGlobalSearch.accesskey   "G">
-     
+
 <!ENTITY retention.label "Retention Policy">
 <!ENTITY retentionUseAccount.label  "Use my account settings">
 <!ENTITY retentionUseAccount.accesskey "U">

@@ -13,7 +13,7 @@
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <prefpane id="character_encoding_pane"
-            label="&pref.character.encoding.title;"
+            label="&pref.character.encoding2.title;"
             script="chrome://messenger/content/pref-character_encoding.js">
     <preferences id="character_encoding_preferences">
       <preference id="mailnews.view_default_charset"
@@ -38,8 +38,8 @@
       <caption label="&messageDisplay.caption;"/>
       <hbox align="center">
         <label control="viewDefaultCharsetList"
-               value="&viewFallbackCharset.label;"
-               accesskey="&viewFallbackCharset.accesskey;"/>
+               value="&viewFallbackCharset2.label;"
+               accesskey="&viewFallbackCharset2.accesskey;"/>
         <menulist id="viewDefaultCharsetList"
                   oncommand="UpdatePref(this);">
           <menupopup>
@@ -75,8 +75,8 @@
                 preference="mail.strictly_mime"/>
 
       <hbox align="center">
-        <label value="&sendDefaultCharset.label;"
-               accesskey="&sendDefaultCharset.accesskey;"
+        <label value="&sendDefaultCharset2.label;"
+               accesskey="&sendDefaultCharset2.accesskey;"
                control="sendDefaultCharsetList"/>
         <menulist id="sendDefaultCharsetList"
                   oncommand="UpdatePref(this);">
@@ -98,11 +98,11 @@
             <menuitem label="&FallbackCharset.vietnamese;"  value="windows-1258"/>
             <menuitem label="&FallbackCharset.other;"       value="windows-1252"/>
           </menupopup>
-        </menulist>  
+        </menulist>
       </hbox>
       <checkbox id="replyInDefaultCharset"
-                label="&replyInDefaultCharset2.label;"
-                accesskey="&replyInDefaultCharset2.accesskey;"
+                label="&replyInDefaultCharset3.label;"
+                accesskey="&replyInDefaultCharset3.accesskey;"
                 preference="mailnews.reply_in_default_charset"/>
     </groupbox>
   </prefpane>

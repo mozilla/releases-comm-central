@@ -75,7 +75,7 @@
                   label="&composingMessages.label;"
                   prefpane="composing_messages_pane"
                   url="chrome://messenger/content/messengercompose/pref-composing_messages.xul"
-                  helpTopic="mail_prefs_messages"/> 
+                  helpTopic="mail_prefs_messages"/>
         <treeitem id="formattingItem"
                   label="&format.label;"
                   prefpane="formatting_pane"
@@ -102,7 +102,7 @@
                   url="chrome://messenger/content/pref-receipts.xul"
                   helpTopic="mail-prefs-receipts"/>
         <treeitem id="characterEncodingItem"
-                  label="&characterEncoding.label;"
+                  label="&characterEncoding2.label;"
                   prefpane="character_encoding_pane"
                   url="chrome://messenger/content/pref-character_encoding.xul"
                   helpTopic="mail_prefs_character_encoding"/>

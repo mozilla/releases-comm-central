@@ -6,12 +6,12 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?> 
+<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorSaveAsCharset.dtd">
 <!-- dialog containing a control requiring initial setup -->
 <!-- WE SHOULD NOT USE ABSOLUTE WITH AND HEIGHT - USE BOXES INSTEAD? -->
-<dialog title="&windowTitle.label;"
+<dialog title="&windowTitle2.label;"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     onload = "Startup()"
     ondialogaccept="return onAccept();"
@@ -22,19 +22,19 @@
     <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
     <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
     <script type="application/javascript" src="chrome://editor/content/EditorSaveAsCharset.js"/>
-    
+
     <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
     <broadcaster id="args" value=""/>
 
     <groupbox><caption label="&documentTitleTitle.label;"/>
         <!-- Text labels filled in from editor.properties -->
-        <label id="EnterTitleLabel"/> 
+        <label id="EnterTitleLabel"/>
         <textbox id="TitleInput" oninput="TitleChanged();"/>
         <description id="TitleHelp" class="wrap" style="width:1em" />
     </groupbox>
 
-    <groupbox flex="1"><caption label="&documentCharsetTitle.label;"/>
-        <label value="&documentCharsetDesc.label;"/>
+    <groupbox flex="1"><caption label="&documentCharsetTitle2.label;"/>
+        <label value="&documentCharsetDesc2.label;"/>
         <tree id="CharsetTree" rows="8" hidecolumnpicker="true" onselect="SelectCharset();">
             <treecols>
                 <treecol id="CharsetCol" flex="1" hideheader="true"/>

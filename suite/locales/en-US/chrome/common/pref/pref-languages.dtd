@@ -18,10 +18,10 @@
 <!ENTITY languages.customize.active.accesskey           "L">
 <!ENTITY languages.customize.others.label               "Others:">
 <!ENTITY languages.customize.others.accesskey           "O">
-<!ENTITY languages.customize.Fallback.grouplabel        "Character Encoding for Legacy Content">
-<!ENTITY languages.customize.Fallback.label             "Fallback Character Encoding:">
-<!ENTITY languages.customize.Fallback.accesskey         "C">
-<!ENTITY languages.customize.Fallback.desc              "Used for legacy content that fails to declare its encoding.">
+<!ENTITY languages.customize.Fallback2.grouplabel       "Text Encoding for Legacy Content">
+<!ENTITY languages.customize.Fallback2.label            "Fallback Text Encoding:">
+<!ENTITY languages.customize.Fallback2.accesskey        "T">
+<!ENTITY languages.customize.Fallback2.desc             "Used for legacy content that fails to declare its encoding.">
 <!-- LOCALIZATION NOTE  Character Encoding Preferences Dialog: Do NOT localize the terms "en-bz, ar-jo"  -->
 <!ENTITY languages.customize.others.examples            "e.g.: en-bz, ar-jo">
 <!ENTITY languages.customize.moveUp.label               "Move Up">

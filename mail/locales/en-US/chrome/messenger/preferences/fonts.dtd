@@ -68,10 +68,10 @@
 <!-- Language settings -->
 <!ENTITY sendDefaultCharset.label         "Outgoing Mail:">
 <!ENTITY sendDefaultCharset.accesskey     "u">
-<!ENTITY languagesTitle1.label            "Character Encodings">
-<!ENTITY composingDescription.label       "Set the default character encodings for sending and receiving mail">
+<!ENTITY languagesTitle2.label            "Text Encoding">
+<!ENTITY composingDescription2.label      "Set the default text encoding for sending and receiving mail">
 
 <!ENTITY viewDefaultCharsetList.label     "Incoming Mail:">
 <!ENTITY viewDefaultCharsetList.accesskey  "I">
-<!ENTITY replyInDefaultCharset2.label     "When possible, use the default character encoding in replies">
-<!ENTITY replyInDefaultCharset2.accesskey "h">
+<!ENTITY replyInDefaultCharset3.label     "When possible, use the default text encoding in replies">
+<!ENTITY replyInDefaultCharset3.accesskey "h">

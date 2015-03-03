@@ -1745,8 +1745,8 @@
             <menu id="appmenu_charsetMenu"
                   onpopupshowing="UpdateCharsetMenu(msgWindow.mailCharacterSet, this);"
                   oncommand="MailSetCharacterSet(event)"
-                  label="&charsetMenu.label;"
-                  accesskey="&charsetMenu.accesskey;">
+                  label="&charsetMenu2.label;"
+                  accesskey="&charsetMenu2.accesskey;">
               <menupopup id="appmenu_charsetPopup"
                          onpopupshowing="CharsetMenu.build(this, true, this.getAttribute('detectors') != 'false');"/>
             </menu>

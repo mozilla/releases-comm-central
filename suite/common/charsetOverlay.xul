@@ -21,8 +21,8 @@
   </stringbundleset>
 
   <menu id="charsetMenu"
-        label="&charsetMenu.label;"
-        accesskey="&charsetMenu.accesskey;">
+        label="&charsetMenu2.label;"
+        accesskey="&charsetMenu2.accesskey;">
     <menupopup id="charsetPopup"
                onpopupshowing="CharsetMenu.build(this, true, this.getAttribute('detectors') != 'false');"/>
   </menu>

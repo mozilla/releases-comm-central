@@ -95,7 +95,7 @@
     </grid>
 
     <separator class="thin"/>
-  
+
     <groupbox hidefor="movemail">
       <caption label="&securitySettings.label;"/>
 
@@ -153,7 +153,7 @@
       <caption label="&serverSettings.label;"/>
       <vbox align="start">
       <checkbox wsm_persist="true"
-                id="server.loginAtStartUp" 
+                id="server.loginAtStartUp"
                 label="&loginAtStartup.label;"
                 accesskey="&loginAtStartup.accesskey;"
                 prefattribute="value"
@@ -225,7 +225,7 @@
     </hbox>
     </vbox>
     <!-- IMAP -->
-    <label hidden="true" wsm_persist="true" id="imap.trashFolderName" 
+    <label hidden="true" wsm_persist="true" id="imap.trashFolderName"
                   prefattribute="value"
                   prefstring="mail.server.%serverkey%.trash_folder_name"/>
 
@@ -340,11 +340,11 @@
       <hbox flex="1" hidefor="pop3,imap,movemail">
         <groupbox>
            <caption class="header" label="&abbreviate.label;"/>
-  
+
            <radiogroup wsm_persist="true" id="nntp.abbreviate">
              <radio wsm_persist="true" value="true"
                     label="&abbreviateOn.label;"/>
-             <radio wsm_persist="true" value="false" 
+             <radio wsm_persist="true" value="false"
                     label="&abbreviateOff.label;"/>
            </radiogroup>
         </groupbox>
@@ -440,7 +440,7 @@
     <separator class="thin"/>
 
     <hbox hidefor="imap,pop3,movemail" align="center" valign="middle" iscontrolcontainer="true">
-      <label value="&serverDefaultCharset.label;" control="nntp.charset"/>
+      <label value="&serverDefaultCharset2.label;" control="nntp.charset"/>
       <menulist hidable="true"
                 type="charset"
                 hidefor="imap,pop3,movemail"

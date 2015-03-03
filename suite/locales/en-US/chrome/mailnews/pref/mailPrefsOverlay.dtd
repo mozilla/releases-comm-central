@@ -21,5 +21,5 @@
 <!ENTITY return.label                     "Return Receipts">
 <!ENTITY junk.label                       "Junk &amp; Suspect Mail">
 <!ENTITY tags.label                       "Tags">
-<!ENTITY characterEncoding.label          "Character Encoding">
+<!ENTITY characterEncoding2.label         "Text Encoding">
 <!ENTITY networkStorage.label             "Network &amp; Storage">

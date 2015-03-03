@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
@@ -40,7 +40,7 @@
     <command id="cmd_openRemote"
              oncommand="goDoCommand('cmd_openRemote');"/>
     <command id="cmd_printpreview"
-             oncommand="goDoCommand('cmd_printpreview');"/> 
+             oncommand="goDoCommand('cmd_printpreview');"/>
   </commandset>
 
   <commandset id="composerSaveMenuItems"
@@ -113,8 +113,8 @@
                 accesskey="&saveAsCmd.accesskey;"
                 command="cmd_saveAs"/>
       <menuitem id="menu_saveAsChangeEncoding"
-                label="&saveAsChangeEncodingCmd.label;"
-                accesskey="&saveAsChangeEncodingCmd.accesskey;"
+                label="&saveAsChangeEncodingCmd2.label;"
+                accesskey="&saveAsChangeEncodingCmd2.accesskey;"
                 command="cmd_saveAndChangeEncoding"/>
       <menuseparator id="sep_saveCmd"/>
       <menuitem id="menu_publish"
