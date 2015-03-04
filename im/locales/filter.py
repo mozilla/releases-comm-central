@@ -6,12 +6,12 @@ def test(mod, path, entity = None):
   import re
   # ignore anything but Instantbird
   if mod not in ("netwerk", "dom", "toolkit", "security/manager",
-                 "instantbird", "chat", "purple", "extensions/reporter", "extensions/spellcheck",
-                 "instantbird/branding/release", "instantbird/branding/nightly"):
+                 "im", "chat", "purple", "extensions/reporter", "extensions/spellcheck",
+                 "im/branding/release", "im/branding/nightly"):
     return False
-  if mod == "instantbird" and path.startswith("branding/"):
+  if mod == "im" and path.startswith("branding/"):
     return False
-  if mod != "instantbird" and mod != "extensions/spellcheck":
+  if mod != "im" and mod != "extensions/spellcheck":
     # we only have exceptions for instantbird and extensions/spellcheck
     return True
   if not entity:
