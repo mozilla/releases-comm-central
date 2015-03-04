@@ -3056,7 +3056,7 @@ var GlodaDatastore = {
   },
 
   _stringSQLQuoter: function(aString) {
-    return "'" + aString.replace("'", "''", "g") + "'";
+    return "'" + aString.replace(/\'/g, "''") + "'";
   },
   _numberQuoter: function(aNum) {
     return aNum;
@@ -3373,7 +3373,7 @@ var GlodaDatastore = {
               //  feels wrong to do it. (just double the quote character...)
               if (attrDef.special == this.kSpecialString)
                 clausePart += valueColumnName + " IN (" +
-                  [("'" + v.replace("'", "''", "g") + "'") for each
+                  [("'" + v.replace(/\'/g, "''") + "'") for each
                    ([, v] in Iterator(values))].join(",") + "))";
               else
                 clausePart += valueColumnName + " IN (" + values.join(",") +

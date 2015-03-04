@@ -317,8 +317,8 @@ function synTransformBody(aSynBodyPart) {
   if (aSynBodyPart._contentType == "text/enriched") {
     // Our job here is just to transform just enough for our example above.
     // We also could have provided a manual translation on the body part.
-    text = text.replace("bold", "B", "g")
-               .replace("italic", "I", "g") + "\n<BR>";
+    text = text.replace(/bold/g, "B")
+               .replace(/italic/g, "I") + "\n<BR>";
   }
   return text;
 }
@@ -340,7 +340,7 @@ function verify_body_part_equivalence(aSynBodyPart, aMimePart) {
   if (aSynBodyPart.body && !aSynBodyPart._filename &&
       aSynBodyPart._contentType.startsWith("text/"))
     do_check_eq(synTransformBody(aSynBodyPart),
-                aMimePart.body.trim().replace("\r", "", "g"));
+                aMimePart.body.trim().replace(/\r/g, ""));
   if (aSynBodyPart.parts) {
     let iPart;
     let realPartOffsetCompensator = 0;
