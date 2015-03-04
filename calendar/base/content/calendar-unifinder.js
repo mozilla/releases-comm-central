@@ -601,7 +601,7 @@ var unifinderTreeView = {
      * @param aItemArray        An array of items to select.
      */
     setSelectedItems: function uTV_setSelectedItems(aItemArray) {
-        if (this.doingSelection || !this.tree) {
+        if (this.doingSelection || !this.tree || !this.tree.view) {
             return;
         }
 
