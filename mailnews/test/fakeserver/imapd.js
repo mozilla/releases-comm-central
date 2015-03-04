@@ -2003,8 +2003,7 @@ var IMAP_RFC4315_extension = {
       response =
         response.replace("OK MOVE",
                          "OK [COPYUID " + this._selectedMailbox.uidvalidity +
-                            " " + args[0] + " " + first + ":" + last + "]",
-                         "");
+                            " " + args[0] + " " + first + ":" + last + "]");
     }
     return response;
   },

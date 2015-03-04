@@ -166,7 +166,7 @@ function _async_driver() {
         dump("Generator explosion!\n");
         dump("Unhappiness at: " + ex.fileName + ":" + ex.lineNumber + "\n");
         dump("Because: " + ex + "\n");
-        dump("Stack:\n  " + ex.stack.replace("\n", "\n  ", "g") + "\n");
+        dump("Stack:\n  " + ex.stack.replace(/\n/g, "\n  ") + "\n");
         dump("**** Async Generator Stack source functions:\n");
         for (let i = asyncGeneratorStack.length - 1; i >= 0; i--) {
           dump("  " + asyncGeneratorStack[i][1] + "\n");
