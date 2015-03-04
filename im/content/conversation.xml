@@ -1698,28 +1698,32 @@
           let cti = this.getElt("conv-top-info");
           cti.setAttribute("prplIcon", this._conv.account.protocol.iconBaseURI + "icon.png");
 
+          let tab = this.tab;
+          let displayName = this._conv.title;
           if (this._conv.isChat) {
-            if (this._conv.joining)
-              this.tab.setAttribute("status", "joining");
-            else if (!this._conv.account.connected || this._conv.left)
-              this.tab.setAttribute("status", "left");
-            else
-              this.tab.removeAttribute("status");
+            if (tab) {
+              if (this._conv.joining)
+                tab.setAttribute("status", "joining");
+              else if (!this._conv.account.connected || this._conv.left)
+                tab.setAttribute("status", "left");
+              else
+                tab.removeAttribute("status");
+            }
             let account = this._conv.account;
             let targetTooltip =
               this.bundle.formatStringFromName("targetTooltipChat",
-                                               [this._conv.title, account.name,
+                                               [displayName, account.name,
                                                 account.protocol.name], 3);
             cti.setAttribute("targetTooltiptext",  targetTooltip);
           }
           else {
-            let displayName = this._conv.title;
             let statusText = "";
             let statusType = Ci.imIStatusInfo.STATUS_UNKNOWN;
 
             let buddy = this._conv.buddy;
             if (!buddy || !buddy.account.connected) {
-              this.tab.removeAttribute("status");
+              if (tab)
+                tab.removeAttribute("status");
 
               // This is ugly, but when an account gets disconnected libpurple
               // doesn't reset the typing state... :(
@@ -1730,7 +1734,8 @@
               displayName = buddy.displayName;
               statusText = buddy.statusText;
               statusType = buddy.statusType;
-              this.tab.setAttribute("status", Status.toAttribute(statusType));
+              if (tab)
+                tab.setAttribute("status", Status.toAttribute(statusType));
               cti.setAttribute("userIcon", buddy.buddyIconFilename);
             }
 
@@ -1743,7 +1748,6 @@
               targetTooltip += this.bundle.GetStringFromName("targetChangeable");
             cti.setAttribute("targetTooltiptext", targetTooltip);
 
-            cti.setAttribute("displayName", displayName);
             if (statusText)
               statusText = " - " + statusText;
             cti.setAttribute("statusMessageWithDash", statusText);
@@ -1752,6 +1756,10 @@
             cti.setAttribute("status", Status.toAttribute(statusType));
             cti.setAttribute("statusTypeTooltiptext", statusString);
           }
+
+          cti.setAttribute("displayName", displayName);
+          if (tab)
+            tab.setAttribute("label", displayName);
         ]]>
         </body>
       </method>
@@ -1877,9 +1885,7 @@
           case "update-conv-buddy":
           case "target-prpl-conversation-changed":
           case "update-conv-title":
-            if (this.tab)
-              this.tab.setAttribute("label", this.conv.title);
-            // Update the status too.
+          case "update-buddy-display-name":
           case "update-buddy-status":
           case "update-buddy-icon":
           case "update-conv-chatleft":

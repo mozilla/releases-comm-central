@@ -240,6 +240,10 @@ UIConversation.prototype = {
                                         Ci.nsIEventTarget.DISPATCH_NORMAL);
       }
     }
+    else if (aTopic == "account-buddy-display-name-changed" &&
+             aSubject.account.id == this.account.id &&
+             aSubject.buddy.id == this.buddy.buddy.id)
+      this.notifyObservers(this, "update-buddy-display-name");
   },
 
   _iconUpdatePending: false,
