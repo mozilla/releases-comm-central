@@ -267,7 +267,6 @@ const XMPPConversationPrototype = {
   prepareForDisplaying: function(aMsg) {
     if (aMsg.outgoing && !aMsg.system)
       aMsg.displayMessage = TXTToHTML(aMsg.displayMessage);
-    GenericConversationPrototype.prepareForDisplaying.apply(this, arguments);
   },
 
   /* Called by the account when a messsage is received from the buddy */
