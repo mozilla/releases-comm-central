@@ -309,6 +309,9 @@
         if (this.hasAttribute("aliasing"))
           return; // prevent re-entry.
 
+        // The window may not be focused if "rename" was selected from the
+        // context menu, in which case selecting/focusing the textbox will fail.
+        window.focus();
         this.setAttribute("aliasing", "true");
         let textbox =
           document.getAnonymousElementByAttribute(this, "anonid", "displayname");
