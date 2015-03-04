@@ -14,7 +14,7 @@ var gAbView = null;
 var gAddressBookBundle;
 // A boolean variable determining whether AB column should be shown in AB
 // sidebar in compose window.
-var gAbColumnInComposeSidebar = false;
+var gShowAbColumnInComposeSidebar = false;
 
 const kDefaultSortColumn = "GeneratedName";
 const kDefaultAscending = "ascending";
