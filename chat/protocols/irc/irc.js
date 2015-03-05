@@ -166,11 +166,12 @@ const GenericIRCConversation = {
 
     return messages;
   },
-  sendMsg: function(aMessage) {
+  sendMsg: function(aMessage, aIsNotice) {
     if (!aMessage.length)
       return;
 
-    if (!this._account.sendMessage("PRIVMSG", [this.name, aMessage])) {
+    if (!this._account.sendMessage(aIsNotice ? "NOTICE" : "PRIVMSG",
+                                   [this.name, aMessage])) {
       this.writeMessage(this._account._currentServerName,
                         _("error.sendMessageFailed"),
                         {error: true, system: true});

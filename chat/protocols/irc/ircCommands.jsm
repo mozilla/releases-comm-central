@@ -42,7 +42,7 @@ function kickCommand(aMsg, aConv) {
 // Send a message directly to a user.
 // aMsg is <user> <message>
 // aReturnedConv is optional and returns the resulting conversation.
-function messageCommand(aMsg, aConv, aReturnedConv) {
+function messageCommand(aMsg, aConv, aReturnedConv, aIsNotice = false) {
   // Trim leading whitespace.
   aMsg = aMsg.trimLeft();
   let sep = aMsg.indexOf(" ");
@@ -58,7 +58,7 @@ function messageCommand(aMsg, aConv, aReturnedConv) {
   }
 
   return privateMessage(aConv, aMsg.slice(sep + 1), aMsg.slice(0, sep),
-                        aReturnedConv);
+                        aReturnedConv, aIsNotice);
 }
 
 // aAdd is true to add a mode, false to remove a mode.
@@ -92,12 +92,13 @@ function actionCommand(aMsg, aConv) {
 
 // This will open the conversation, and send and display the text.
 // aReturnedConv is optional and returns the resulting conversation.
-function privateMessage(aConv, aMsg, aNickname, aReturnedConv) {
+// aIsNotice is optional and sends a NOTICE instead of a PRIVMSG.
+function privateMessage(aConv, aMsg, aNickname, aReturnedConv, aIsNotice) {
   if (!aMsg.length)
     return false;
 
   let conv = getAccount(aConv).getConversation(aNickname);
-  conv.sendMsg(aMsg);
+  conv.sendMsg(aMsg, aIsNotice);
   if (aReturnedConv)
     aReturnedConv.value = conv;
   return true;
@@ -340,7 +341,8 @@ var commands = [
   {
     name: "notice",
     get helpString() _("command.notice", "notice"),
-    run: function(aMsg, aConv) simpleCommand(aConv, "NOTICE", aMsg)
+    run: function(aMsg, aConv, aReturnedConv)
+      messageCommand(aMsg, aConv, aReturnedConv, true)
   },
   {
     name: "op",
