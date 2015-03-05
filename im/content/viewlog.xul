@@ -105,7 +105,7 @@
           onselect="logWindow.onselect();">
       <treecols>
         <treecol id="logCol" flex="1" primary="true" hideheader="true"
-                 crop="center" ignorecolumnpicker="true"/>
+                 crop="center" ignoreincolumnpicker="true"/>
       </treecols>
       <treechildren/>
     </tree>
