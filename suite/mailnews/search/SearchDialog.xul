@@ -145,13 +145,13 @@
               type="menu"
               label="&moveButton.label;"
               accesskey="&moveButton.accesskey;"
-              observes="file_message_button">
+              observes="file_message_button"
+              oncommand="MoveMessageInSearch(event.target);">
         <menupopup type="folder"
                    showFileHereLabel="true"
                    mode="filing"
                    fileHereLabel="&moveHereMenu.label;"
-                   fileHereAccessKey="&moveHereMenu.accesskey;"
-                   oncommand="MoveMessageInSearch(event.target);"/>
+                   fileHereAccessKey="&moveHereMenu.accesskey;"/>
       </button>
 
       <button id="deleteButton"
