@@ -658,7 +658,8 @@ pref("extensions.modern@themes.mozilla.org.name", "chrome://navigator/locale/nav
 pref("extensions.modern@themes.mozilla.org.description", "chrome://navigator/locale/navigator.properties");
 
 pref("xpinstall.enabled", true);
-pref("xpinstall.whitelist.add", "addons.mozilla.org");
+// Built-in default permissions.
+pref("permissions.manager.defaultsUrl", "resource:///defaults/permissions");
 
 pref("lightweightThemes.update.enabled", true);
 
