@@ -475,11 +475,13 @@
                    removable="true"
                    oncommand="goDoCommand('button_delete');"/>
     <toolbaritem id="searchBox"
+                 flex="1"
                  title="&searchBox.title;"
                  removable="true"
                  align="center"
                  class="toolbaritem-noline chromeclass-toolbar-additional">
       <textbox id="searchInput"
+               flex="1"
                type="search"
                aria-controls="abResultsTree"
                placeholder="&searchNameAndEmail.placeholder;"
