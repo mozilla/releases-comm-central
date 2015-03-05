@@ -26,6 +26,12 @@ XMPPProtocol.prototype = {
   get name() "XMPP",
   get iconBaseURI() "chrome://prpl-jabber/skin/",
   getAccount: function(aImAccount) new XMPPAccount(this, aImAccount),
+
+  usernameSplits: [
+    {get label() _("options.domain"), separator: "@",
+     defaultValue: "jabber.org", reverse: true}
+  ],
+
   options: {
     resource: {get label() _("options.resource"),
                get default() XMPPDefaultResource},
