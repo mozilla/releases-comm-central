@@ -1794,7 +1794,7 @@ nsresult
 nsMsgFolderDataSource::GetFolderSizeNode(int64_t aFolderSize, nsIRDFNode **aNode)
 {
   nsresult rv;
-  if (aFolderSize == kDisplayBlankCount64)
+  if (aFolderSize == kDisplayBlankCount64 || aFolderSize == 0)
     createNode(EmptyString().get(), aNode, getRDFService());
   else if (aFolderSize == kDisplayQuestionCount64)
     createNode(MOZ_UTF16("???"), aNode, getRDFService());
