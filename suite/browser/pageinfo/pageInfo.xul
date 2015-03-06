@@ -156,7 +156,7 @@
               <textbox readonly="true" crop="end" id="modetext"/>
             </row>
             <row>
-              <label control="encodingtext" value="&generalEncoding;"/>
+              <label control="encodingtext" value="&generalEncoding2;"/>
               <separator/>
               <textbox readonly="true" id="encodingtext"/>
             </row>
@@ -431,7 +431,7 @@
             </columns>
             <rows>
               <row>
-                <label control="formenctype" value="&formEncoding;"/>
+                <label control="formenctype" value="&formEncoding2;"/>
                 <separator/>
                 <textbox readonly="true" id="formenctype"/>
               </row>
