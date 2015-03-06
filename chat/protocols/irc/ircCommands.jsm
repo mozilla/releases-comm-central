@@ -8,8 +8,8 @@ const EXPORTED_SYMBOLS = ["commands"];
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
+Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/ircUtils.jsm");
-Cu.import("resource:///modules/imServices.jsm");
 
 // Shortcut to get the JavaScript conversation object.
 function getConv(aConv) aConv.wrappedJSObject;
@@ -45,20 +45,38 @@ function kickCommand(aMsg, aConv) {
 function messageCommand(aMsg, aConv, aReturnedConv, aIsNotice = false) {
   // Trim leading whitespace.
   aMsg = aMsg.trimLeft();
-  let sep = aMsg.indexOf(" ");
-  // If no space in the message or the first space is at the end of the message.
-  if (sep == -1 || (sep + 1) == aMsg.length) {
-    let msg = aMsg.trim();
-    if (!msg.length)
-      return false;
-    let conv = getAccount(aConv).createConversation(msg);
-    if (aReturnedConv)
-      aReturnedConv.value = conv;
-    return true;
-  }
 
-  return privateMessage(aConv, aMsg.slice(sep + 1), aMsg.slice(0, sep),
-                        aReturnedConv, aIsNotice);
+  let nickname = aMsg;
+  let message = "";
+
+  let sep = aMsg.indexOf(" ");
+  if (sep > -1) {
+    nickname = aMsg.slice(0, sep);
+    message = aMsg.slice(sep + 1);
+  }
+  if (!nickname.length)
+    return false;
+
+  let conv = getAccount(aConv).getConversation(nickname);
+  if (aReturnedConv)
+    aReturnedConv.value = conv;
+
+  if (!message.length)
+    return true;
+
+  // Give add-ons an opportunity to tweak or cancel the message.
+  let om = {
+    __proto__: ClassInfo("imIOutgoingMessage", "Outgoing Message"),
+    message: message,
+    conversation: conv,
+    cancelled: false
+  };
+  conv.notifyObservers(om, "sending-message");
+  // If a NOTICE is cancelled and resent, it will end up being sent as PRIVMSG.
+  if (om.cancelled)
+    return true;
+
+  return privateMessage(aConv, om.message, nickname, aReturnedConv, aIsNotice);
 }
 
 // aAdd is true to add a mode, false to remove a mode.
