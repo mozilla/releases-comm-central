@@ -743,14 +743,6 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgStore(nsIMsgPluggableStore **aStore)
   return server->GetMsgStore(aStore);
 }
 
-nsresult nsMsgDBFolder::GetSummaryFile(nsIFile** aSummaryFile)
-{
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  nsresult rv = GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return msgStore->GetSummaryFile(this, aSummaryFile);
-}
-
 bool nsMsgDBFolder::VerifyOfflineMessage(nsIMsgDBHdr *msgHdr, nsIInputStream *fileStream)
 {
   nsCOMPtr <nsISeekableStream> seekableStream = do_QueryInterface(fileStream);
@@ -4703,6 +4695,33 @@ nsMsgDBFolder::GetFilePath(nsIFile * *aFile)
     parseURI(true);
   rv = file->InitWithFile(mPath);
   file.swap(*aFile);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgDBFolder::GetSummaryFile(nsIFile **aSummaryFile)
+{
+  NS_ENSURE_ARG_POINTER(aSummaryFile);
+
+  nsresult rv;
+  nsCOMPtr <nsIFile> newSummaryLocation =
+    do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIFile> pathFile;
+  rv = GetFilePath(getter_AddRefs(pathFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  newSummaryLocation->InitWithFile(pathFile);
+
+  nsString fileName;
+  rv = newSummaryLocation->GetLeafName(fileName);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  fileName.Append(NS_LITERAL_STRING(SUMMARY_SUFFIX));
+  rv = newSummaryLocation->SetLeafName(fileName);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  newSummaryLocation.forget(aSummaryFile);
   return NS_OK;
 }
 

@@ -126,8 +126,6 @@ protected:
                                    const nsString& aOldName,
                                    const nsString& aNewName);
 
-  nsresult GetSummaryFile(nsIFile** aSummaryFile);
-
   // Returns true if: a) there is no need to prompt or b) the user is already
   // logged in or c) the user logged in successfully.
   static bool PromptForMasterPasswordIfNecessary();

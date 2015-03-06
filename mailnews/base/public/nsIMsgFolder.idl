@@ -30,7 +30,7 @@ typedef long nsMsgBiffState;
 // enumerated type for determining if a message has been replied to, forwarded, etc.
 typedef long nsMsgDispositionState;
 
-[scriptable, uuid(d277b1d2-e820-42f9-8706-914df7d429b3)]
+[scriptable, uuid(E065F5CC-A358-4258-96EB-99F944162D32)]
 interface nsIMsgFolder : nsISupports {
 
   const nsMsgBiffState nsMsgBiffState_NewMail = 0; // User has new mail waiting.
@@ -454,6 +454,9 @@ interface nsIMsgFolder : nsISupports {
    * local path of this folder
    */
   attribute nsIFile filePath;
+
+  /// an nsIFile corresponding to the .msf file.
+  readonly attribute nsIFile summaryFile;
 
   readonly attribute ACString baseMessageURI;
   ACString generateMessageURI(in nsMsgKey msgKey);

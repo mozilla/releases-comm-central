@@ -769,7 +769,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Delete()
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr <nsIFile> summaryFile;
-  rv = msgStore->GetSummaryFile(this, getter_AddRefs(summaryFile));
+  rv = GetSummaryFile(getter_AddRefs(summaryFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
   //Clean up .sbd folder if it exists.

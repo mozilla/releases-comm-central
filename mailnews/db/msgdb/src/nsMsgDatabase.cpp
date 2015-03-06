@@ -97,15 +97,12 @@ NS_IMETHODIMP nsMsgDBService::OpenFolderDB(nsIMsgFolder *aFolder,
                                            nsIMsgDatabase **_retval)
 {
   NS_ENSURE_ARG(aFolder);
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
   nsCOMPtr<nsIMsgIncomingServer> incomingServer;
-  nsCOMPtr <nsIFile> summaryFilePath;
-
   nsresult rv = aFolder->GetServer(getter_AddRefs(incomingServer));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = aFolder->GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = msgStore->GetSummaryFile(aFolder, getter_AddRefs(summaryFilePath));
+
+  nsCOMPtr<nsIFile> summaryFilePath;
+  rv = aFolder->GetSummaryFile(getter_AddRefs(summaryFilePath));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsMsgDatabase *cacheDB = FindInCache(summaryFilePath);
@@ -167,12 +164,8 @@ NS_IMETHODIMP nsMsgDBService::AsyncOpenFolderDB(nsIMsgFolder *aFolder,
 {
   NS_ENSURE_ARG(aFolder);
 
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  nsresult rv = aFolder->GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsCOMPtr <nsIFile> summaryFilePath;
-  rv = msgStore->GetSummaryFile(aFolder, getter_AddRefs(summaryFilePath));
+  nsresult rv = aFolder->GetSummaryFile(getter_AddRefs(summaryFilePath));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsMsgDatabase *cacheDB = FindInCache(summaryFilePath);
@@ -381,11 +374,8 @@ NS_IMETHODIMP nsMsgDBService::CreateNewDB(nsIMsgFolder *aFolder,
   nsresult rv = aFolder->GetServer(getter_AddRefs(incomingServer));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  rv = aFolder->GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIFile> summaryFilePath;
-  rv = msgStore->GetSummaryFile(aFolder, getter_AddRefs(summaryFilePath));
+  rv = aFolder->GetSummaryFile(getter_AddRefs(summaryFilePath));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString localStoreType;
@@ -447,12 +437,8 @@ NS_IMETHODIMP nsMsgDBService::CachedDBForFolder(nsIMsgFolder *aFolder, nsIMsgDat
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_ENSURE_ARG_POINTER(aRetDB);
 
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  nsresult rv = aFolder->GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsCOMPtr<nsIFile> summaryFilePath;
-  rv = msgStore->GetSummaryFile(aFolder, getter_AddRefs(summaryFilePath));
+  nsresult rv = aFolder->GetSummaryFile(getter_AddRefs(summaryFilePath));
   NS_ENSURE_SUCCESS(rv, rv);
 
   *aRetDB = FindInCache(summaryFilePath);

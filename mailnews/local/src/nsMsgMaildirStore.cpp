@@ -324,35 +324,6 @@ NS_IMETHODIMP nsMsgMaildirStore::SetSummaryFileValid(nsIMsgFolder *aFolder,
   return dbFolderInfo->SetBooleanProperty("maildirValid", aValid);
 }
 
-NS_IMETHODIMP nsMsgMaildirStore::GetSummaryFile(nsIMsgFolder *aFolder,
-                                                nsIFile **aSummaryFile)
-{
-  NS_ENSURE_ARG_POINTER(aFolder);
-  NS_ENSURE_ARG_POINTER(aSummaryFile);
-
-  nsresult rv;
-  nsCOMPtr <nsIFile> newSummaryLocation =
-    do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIFile> pathFile;
-  rv = aFolder->GetFilePath(getter_AddRefs(pathFile));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  newSummaryLocation->InitWithFile(pathFile);
-  nsString fileName;
-
-  rv = newSummaryLocation->GetLeafName(fileName);
-  if (NS_FAILED(rv))
-    return rv;
-  fileName.Append(NS_LITERAL_STRING(SUMMARY_SUFFIX));
-  rv = newSummaryLocation->SetLeafName(fileName);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  NS_IF_ADDREF(*aSummaryFile = newSummaryLocation);
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgMaildirStore::DeleteFolder(nsIMsgFolder *aFolder)
 {
   NS_ENSURE_ARG_POINTER(aFolder);
@@ -398,7 +369,7 @@ NS_IMETHODIMP nsMsgMaildirStore::RenameFolder(nsIMsgFolder *aFolder,
 
   // old summary
   nsCOMPtr<nsIFile> oldSummaryFile;
-  rv = GetSummaryFile(aFolder, getter_AddRefs(oldSummaryFile));
+  rv = aFolder->GetSummaryFile(getter_AddRefs(oldSummaryFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Validate new name

@@ -17,7 +17,7 @@ interface nsIUrlListener;
 interface nsIMsgDatabase;
 interface nsITransaction;
 
-[scriptable, uuid(2a861ed8-b4c2-4443-8c20-5e8a217a6310)]
+[scriptable, uuid(F732CE58-E540-4dc4-B803-9456056EBEFC)]
 
 /**
  * Pluggable message store interface. Each incoming server can have a different
@@ -49,15 +49,6 @@ interface nsIMsgPluggableStore : nsISupports {
    * @exception NS_MSG_CANT_CREATE_FOLDER for other errors.
    */
   nsIMsgFolder createFolder(in nsIMsgFolder aParent, in AString aFolderName);
-
-  /**
-   * Get an nsIFile corresponding to the .msf file. This allows stores
-   * to put the .msf files where they want.
-   *
-   * @param aFolder folder we want summary file for
-   * @return summary file
-   */
-  nsIFile getSummaryFile(in nsIMsgFolder aFolder);
 
   /**
    * Delete the passed in folder. This is a real delete, not a move

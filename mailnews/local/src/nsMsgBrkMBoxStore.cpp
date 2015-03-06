@@ -139,31 +139,6 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CreateFolder(nsIMsgFolder *aParent,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgBrkMBoxStore::GetSummaryFile(nsIMsgFolder *aFolder,
-                                                nsIFile **aSummaryFile)
-{
-  NS_ENSURE_ARG_POINTER(aFolder);
-  NS_ENSURE_ARG_POINTER(aSummaryFile);
-
-  nsresult rv;
-  nsCOMPtr<nsIFile> newSummaryLocation;
-  rv = aFolder->GetFilePath(getter_AddRefs(newSummaryLocation));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsString fileName;
-
-  rv = newSummaryLocation->GetLeafName(fileName);
-  if (NS_FAILED(rv))
-    return rv;
-
-  fileName.Append(NS_LITERAL_STRING(SUMMARY_SUFFIX));
-  rv = newSummaryLocation->SetLeafName(fileName);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  newSummaryLocation.forget(aSummaryFile);
-  return NS_OK;
-}
-
 // Get the current attributes of the mbox file, corrected for caching
 void nsMsgBrkMBoxStore::GetMailboxModProperties(nsIMsgFolder *aFolder,
                                                 int64_t *aSize, uint32_t *aDate)
@@ -363,7 +338,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::RenameFolder(nsIMsgFolder *aFolder,
   nsCOMPtr<nsISupports> parentSupport = do_QueryInterface(parentFolder);
 
   nsCOMPtr<nsIFile> oldSummaryFile;
-  rv = GetSummaryFile(aFolder, getter_AddRefs(oldSummaryFile));
+  rv = aFolder->GetSummaryFile(getter_AddRefs(oldSummaryFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIFile> dirFile;

@@ -71,7 +71,7 @@ function badStreaming()
   let folder = gHdr.folder;
   let uri = folder.getUriForMsg(gHdr);
 
-  let dbFile = folder.msgStore.getSummaryFile(folder);
+  let dbFile = folder.summaryFile;
   // force invalid database
   folder.msgDatabase.ForceClosed();
   dbFile.remove(false);
