@@ -993,9 +993,18 @@ const XMPPAccountPrototype = {
 
       // The join failed.
       if (muc.left && aStanza.attributes["type"] == "error") {
-        muc.writeMessage(muc.name, _("conversation.error.joinFailed", muc.name),
-                         {system: true, error: true});
-        this.ERROR("Failed to join MUC: " + aStanza.convertToString());
+        let error = this.parseError(aStanza);
+        let message;
+        switch (error.condition) {
+          case "not-authorized":
+            message = _("conversation.error.joinFailedNotAuthorized");
+            break;
+          default:
+            message = _("conversation.error.joinFailed", muc.name);
+            this.ERROR("Failed to join MUC: " + aStanza.convertToString());
+            break;
+        }
+        muc.writeMessage(muc.name, message, {system: true, error: true});
         return;
       }
 
