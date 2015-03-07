@@ -149,7 +149,9 @@ type="int"/>
     <tabbox id="advancedPrefs" flex="1" onselect="gAdvancedPane.tabSelectionChanged();">
       <tabs id="advancedPrefsTabs">
         <tab id="generalTab" label="&itemGeneral.label;"/>
+#ifdef MOZ_DATA_REPORTING
         <tab id="dataChoicesTab" label="&dataChoicesTab.label;"/>
+#endif
         <tab id="displayTab" label="&itemDisplay.label;"/>
         <tab id="networkingTab" label="&itemNetworking.label;"/>
         <tab id="updateTab" label="&itemUpdate.label;"/>
