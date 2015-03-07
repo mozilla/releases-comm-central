@@ -427,7 +427,7 @@ function NewMailAccountProvisioner(aMsgWindow, args) {
  *                   everything's okay.
  * @param extraData an optional param that allows us to pass data in and
  *                  out.  Used in the upcoming AccountProvisioner add-on.
- * @see msgOpenAccountWizard below for the previous implementation.
+ * @see msgOpenAccountWizard above for the previous implementation.
  */
 function msgNewMailAccount(msgWindow, okCallback, extraData)
 {
@@ -435,20 +435,28 @@ function msgNewMailAccount(msgWindow, okCallback, extraData)
     throw new Error("msgNewMailAccount must be given a msgWindow.");
 
   let existingWindow = Services.wm.getMostRecentWindow("mail:autoconfig");
-  if (existingWindow)
+  if (existingWindow) {
     existingWindow.focus();
-  else
+  } else {
     // disabling modal for the time being, see 688273 REMOVEME
     window.openDialog("chrome://messenger/content/accountcreation/emailWizard.xul",
                       "AccountSetup", "chrome,titlebar,centerscreen",
                       {msgWindow:msgWindow,
                        okCallback:okCallback,
                        extraData:extraData});
+  }
+
+  // No sense to run the remaining code while the dialog is not modal.
+  return;
 
   // If we started with no servers at all and "smtp servers" list selected,
   // refresh display somehow. Bug 58506.
   // TODO Better fix: select newly created account (in all cases)
-  if (typeof(getCurrentAccount) == "function" && // in AccountManager, not menu
-      !getCurrentAccount())
+  let existingAccountManager =
+      Services.wm.getMostRecentWindow("mailnews:accountmanager");
+  // in AccountManager, not menu
+  if (existingAccountManager && typeof(getCurrentAccount) == "function" &&
+      !getCurrentAccount()) {
     selectServer(null, null);
+  }
 }
