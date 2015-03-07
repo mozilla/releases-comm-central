@@ -61,20 +61,27 @@ function searchOnLoad()
         Services.prefs.getComplexValue("mail.addr_book.show_phonetic_fields",
                                        Components.interfaces.nsIPrefLocalizedString).data;
 
+  // Initialize globals, see abCommon.js , InitCommonJS()
+  abList = document.getElementById("abPopup");
+  if (abList.getItemAtIndex(0) != (kAllDirectoryRoot + "?"))
+    abList.insertItemAt(0, gAddressBookBundle.getString("allAddressBooks"),
+                        kAllDirectoryRoot + "?");
+
   if (window.arguments && window.arguments[0])
     SelectDirectory(window.arguments[0].directory);
   else
     SelectDirectory(document.getElementById("abPopup-menupopup")
                             .firstChild.value);
 
-  // initialize globals, see abCommon.js, InitCommonJS()
-  abList = document.getElementById("abPopup");
-
   onMore(null);
 }
 
 function searchOnUnload()
 {
+  let abPopup = document.getElementById('abPopup');
+  if (abPopup.getItemAtIndex(0) == (kAllDirectoryRoot + "?"))
+    document.getElementById('abPopup').removeItemAt(0);
+
   CloseAbView();
 }
 
