@@ -80,10 +80,6 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 
 /* ::::: message column icons ::::: */
 
-.treecol-image:hover:active {
-  -moz-padding-start: 1px;
-}
-
 .treecol-image image {
   -moz-padding-end: 4px;
   padding-bottom: 3px;
@@ -238,10 +234,6 @@ treechildren::-moz-tree-image(subjectCol, new) {
 
 treechildren::-moz-tree-image(subjectCol, imapdeleted) {
   -moz-image-region: rect(0 80px 16px 64px);
-}
-
-#threadTree treecolpicker.treecol-image {
-  padding-bottom: 2px;
 }
 
 /* ..... folder pane adjustments ..... */
