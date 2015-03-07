@@ -629,7 +629,7 @@ nsresult nsAbCardProperty::ConvertToEscapedVCard(nsACString &aResult)
     }
 
     (void)GetPrimaryEmail(str);
-    if (NS_SUCCEEDED(rv) && !str.IsEmpty())
+    if (!str.IsEmpty())
     {
         t = myAddPropValue(vObj, VCEmailAddressProp, str.get(), &vCardHasData);
         addProp(t, VCInternetProp);
