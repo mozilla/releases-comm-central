@@ -175,7 +175,7 @@ public:
   bool    mInitialized;
   bool    mUrlHasStopped;
   bool    mRequestHasStopped;
-  nsresult InitializeDownload(nsIRequest * aRequest, uint32_t aBytesDownloaded);
+  nsresult InitializeDownload(nsIRequest * aRequest);
 
 private:
   virtual ~nsSaveMsgListener();
@@ -1744,7 +1744,7 @@ nsSaveMsgListener::OnStopCopy(nsresult aStatus)
 
 // initializes the progress window if we are going to show one
 // and for OSX, sets creator flags on the output file
-nsresult nsSaveMsgListener::InitializeDownload(nsIRequest * aRequest, uint32_t aBytesDownloaded)
+nsresult nsSaveMsgListener::InitializeDownload(nsIRequest * aRequest)
 {
   nsresult rv = NS_OK;
   
@@ -1772,10 +1772,6 @@ nsresult nsSaveMsgListener::InitializeDownload(nsIRequest * aRequest, uint32_t a
     mimeService->GetFromTypeAndExtension(m_contentType, EmptyCString(), getter_AddRefs(mimeinfo));
     
     // create a download progress window
-    // We don't want to show the progress dialog if the download is really small.
-    // but what is a small download? Well that's kind of arbitrary
-    // so make an arbitrary decision based on the content length of the
-    // attachment -- show it if less than half of the download has completed
 
     // Set saveToDisk explicitly to avoid launching the saved file.
     // See http://hg.mozilla.org/mozilla-central/file/814a6f071472/toolkit/components/jsdownloads/src/DownloadLegacy.js#l164
@@ -1787,8 +1783,7 @@ nsresult nsSaveMsgListener::InitializeDownload(nsIRequest * aRequest, uint32_t a
     bool allowProgress = true;
     if (m_saveAllAttachmentsState)
       allowProgress = !m_saveAllAttachmentsState->m_withoutWarning;
-    if (allowProgress && mMaxProgress != -1 &&
-        mMaxProgress > aBytesDownloaded * 2)
+    if (allowProgress)
     {
       nsCOMPtr<nsITransfer> tr = do_CreateInstance(NS_TRANSFER_CONTRACTID, &rv);
       if (tr && m_file)
@@ -1961,7 +1956,7 @@ nsSaveMsgListener::OnDataAvailable(nsIRequest* request,
     return request->Cancel(NS_BINDING_ABORTED);
   
   if (!mInitialized)
-    InitializeDownload(request, count);
+    InitializeDownload(request);
 
   if (m_dataBuffer && m_outputStream)
   {
