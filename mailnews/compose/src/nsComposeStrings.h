@@ -153,11 +153,11 @@ static const char16_t* errorStringNameForErrorCode(nsresult aCode)
     case NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_REASON:
       return MOZ_UTF16("smtpSendFailedUnknownReason");
     case NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL:
-      return MOZ_UTF16("smtpAuthChangeEncryptToPlainNoSsl");
+      return MOZ_UTF16("smtpHintAuthEncryptToPlainNoSsl");
     case NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL:
-      return MOZ_UTF16("smtpAuthChangeEncryptToPlainSsl");
+      return MOZ_UTF16("smtpHintAuthEncryptToPlainSsl");
     case NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT:
-      return MOZ_UTF16("smtpAuthChangePlainToEncrypt");
+      return MOZ_UTF16("smtpHintAuthPlainToEncrypt");
     case NS_ERROR_SMTP_AUTH_FAILURE:
       return MOZ_UTF16("smtpAuthFailure");
     case NS_ERROR_SMTP_AUTH_GSSAPI:
