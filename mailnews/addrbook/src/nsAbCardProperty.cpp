@@ -701,6 +701,7 @@ nsresult nsAbCardProperty::ConvertToEscapedVCard(nsACString &aResult)
 
     if (!vCardHasData) {
         aResult.Truncate();
+        cleanVObject(vObj);
         return NS_OK;
     }
 
