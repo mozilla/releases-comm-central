@@ -74,7 +74,7 @@ function SetAbView(aURI)
                         .createInstance(Components.interfaces.nsIAbView);
 
   var actualSortColumn = gAbView.setView(directory, GetAbViewListener(),
-					 sortColumn, sortDirection);
+                                         sortColumn, sortDirection);
 
   gAbResultsTree.treeBoxObject.view =
     gAbView.QueryInterface(Components.interfaces.nsITreeView);
@@ -83,23 +83,23 @@ function SetAbView(aURI)
 
   // If the selected address book is LDAP and the search box is empty,
   // inform the user of the empty results pane.
-  if (aURI.indexOf("moz-abldapdirectory") != -1 &&
-      aURI.indexOf("?") == -1) {
-    let element = null;
-    if (element = document.getElementById("abResultsTree"))
-      element.setAttribute("hidden", "true");
-    if (element = document.getElementById("CardViewOuterBox"))
-      element.setAttribute("hidden", "true");
-    if (element = document.getElementById("blankResultsPaneMessageBox"))
-      element.setAttribute("hidden", "false");
+  let abResultsTree = document.getElementById("abResultsTree");
+  let cardViewOuterBox = document.getElementById("CardViewOuterBox");
+  let blankResultsPaneMessageBox = document.getElementById("blankResultsPaneMessageBox");
+  if (aURI.startsWith("moz-abldapdirectory://") && !aURI.contains("?")) {
+    if (abResultsTree)
+      abResultsTree.hidden = true;
+    if (cardViewOuterBox)
+      cardViewOuterBox.hidden = true;
+    if (blankResultsPaneMessageBox)
+      blankResultsPaneMessageBox.hidden = false;
   } else {
-    let element = null;
-    if (element = document.getElementById("abResultsTree"))
-      element.removeAttribute("hidden");
-    if (element = document.getElementById("CardViewOuterBox"))
-      element.removeAttribute("hidden");
-    if (element = document.getElementById("blankResultsPaneMessageBox"))
-      element.setAttribute("hidden", "true");
+    if (abResultsTree)
+      abResultsTree.hidden = false;
+    if (cardViewOuterBox)
+      cardViewOuterBox.hidden = false;
+    if (blankResultsPaneMessageBox)
+      blankResultsPaneMessageBox.hidden = true;
   }
 }
 
