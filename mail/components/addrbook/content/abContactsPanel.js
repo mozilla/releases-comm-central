@@ -61,14 +61,13 @@ function AddressBookMenuListChange()
     ChangeDirectoryByURI(document.getElementById('addressbookList').value);
 
   // Hide the addressbook column if the selected addressbook isn't
-  // all address books. Since, the value of the column is redundant in all
-  // other cases.
+  // "All address books". Since the column is redundant in all other cases.
   let addrbookColumn = document.getElementById("addrbook");
-  if (abList.selectedIndex == 0) {
-    addrbookColumn.setAttribute("hidden", gShowAbColumnInComposeSidebar);
+  if (abList.value.startsWith(kAllDirectoryRoot + "?")) {
+    addrbookColumn.hidden = !gShowAbColumnInComposeSidebar;
     addrbookColumn.removeAttribute("ignoreincolumnpicker");
   } else {
-    addrbookColumn.setAttribute("hidden", "true");
+    addrbookColumn.hidden = true;
     addrbookColumn.setAttribute("ignoreincolumnpicker", "true");
   }
 
@@ -86,7 +85,7 @@ function AbPanelOnComposerReOpen()
   SetAbView(GetSelectedDirectory());
 }
 
-let mutationObs = null;
+var mutationObs = null;
 
 function AbPanelLoad()
 {
@@ -114,16 +113,13 @@ function AbPanelLoad()
       if (GetSelectedDirectory() == (kAllDirectoryRoot + "?") &&
           mutation.type == "attributes" &&
           mutation.attributeName == "hidden") {
-        let curState = document.getElementById("addrbook").getAttribute("hidden");
-        if (curState == "false")
-          gShowAbColumnInComposeSidebar = true;
-        else if (curState == "true")
-          gShowAbColumnInComposeSidebar = false;
+        let curState = document.getElementById("addrbook").hidden;
+        gShowAbColumnInComposeSidebar = !curState;
       }
     });
   });
 
-  document.getElementById("addrbook").setAttribute("hidden", gShowAbColumnInComposeSidbar);
+  document.getElementById("addrbook").hidden = !gShowAbColumnInComposeSidebar;
 
   mutationObs.observe(document.getElementById("addrbook"),
                       { attributes: true, childList: true });
