@@ -54,11 +54,6 @@
       <hbox align="center">
         <label id="allowEnable"
                value="&limit.enable.label;"/>
-        <checkbox id="allowSSL30"
-                  class="nogray-disabled"
-                  label="&limit.ssl30.label;"
-                  accesskey="&limit.ssl30.accesskey;"
-                  oncommand="UpdateSslPrefs();"/>
         <checkbox id="allowTLS10"
                   class="nogray-disabled"
                   label="&limit.tls10.label;"

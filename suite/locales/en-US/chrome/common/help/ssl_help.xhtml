@@ -50,9 +50,10 @@
   software and the encryption of information that flows between them. It is
   also used for secure communication in various other protocols, e.g., for
   protection of sensitive information exchanged with email, calendar, or
-  directory servers. The newer Transport Layer Security (TLS) protocol is an
-  IETF standard based on SSL but with its own version numbering. TLS 1.0 can
-  be thought of as SSL 3.1, TLS 1.1 is in turn an update to TLS 1.0, etc. Newer
+  directory servers. The SSL 2.0 and SSL 3.0 protocols are insecure and thus
+  deprecated. The current Transport Layer Security (TLS) protocol is an IETF
+  standard based on SSL but with its own version numbering. TLS 1.0 can be
+  thought of as SSL 3.1, TLS 1.1 is in turn an update to TLS 1.0, etc. Newer
   protocols are preferred over older ones as they provide better security and
   more features. Older protocols are supported to ensure compatibility.</p>
 
@@ -65,8 +66,8 @@
   with the following options:</p>
 
 <ul>
-  <li><strong>Enable</strong>: Check the <strong>SSL 3.0</strong>, <strong>TLS
-    1.0</strong>, <strong>TLS 1.1</strong>, and/or <strong>TLS 1.2</strong>
+  <li><strong>Enable</strong>: Check the <strong>TLS 1.0</strong>,
+    <strong>TLS 1.1</strong>, and/or <strong>TLS 1.2</strong>
     boxes to indicate which protocol versions can be used for a secure
     connection to a server.</li>
 </ul>
@@ -77,10 +78,10 @@
   <li>At least one protocol version must be selected, thus it is not possible
     to uncheck the last remaining box.</li>
   <li>Also, the selection must be contiguous. It is not possible to select both
-    SSL 3.0 and TLS 1.1 but to exclude the intermediate TLS 1.0 version.</li>
-  <li>You can extend the range by multiple versions. For example, if only SSL
-    3.0 is currently checked and you select TLS 1.2, the TLS 1.0 and TLS 1.1
-    versions are automatically selected as well.</li>
+    TLS 1.0 and TLS 1.2 but to exclude the intermediate TLS 1.1 version.</li>
+  <li>You can extend the range by multiple versions. For example, if only TLS
+    1.0 is currently checked and you select TLS 1.2, the TLS 1.1 version is
+     automatically selected as well.</li>
   <li>Checkboxes may appear checked but grayed out if you cannot uncheck them
     without violating these rules. Uncheck the outermost boxes to regain
     access to an enclosed intermediate version.</li>
