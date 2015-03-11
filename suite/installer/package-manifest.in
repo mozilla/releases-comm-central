@@ -386,7 +386,6 @@
 @RESPATH@/components/folderLookupService.js
 @RESPATH@/components/formautofill.manifest
 @RESPATH@/components/FormAutofillContentService.js
-@RESPATH@/components/Identity.manifest
 @RESPATH@/components/htmlMenuBuilder.js
 @RESPATH@/components/htmlMenuBuilder.manifest
 @RESPATH@/components/jsconsole-clhandler.js
@@ -408,7 +407,6 @@
 @RESPATH@/components/nsContentPrefService.manifest
 @RESPATH@/components/nsDefaultCLH.js
 @RESPATH@/components/nsDefaultCLH.manifest
-@RESPATH@/components/nsDOMIdentity.js
 @RESPATH@/components/nsDownloadsStartup.js
 #ifdef MOZ_GTK2
 @RESPATH@/components/nsFilePicker.js
@@ -424,7 +422,6 @@
 @RESPATH@/components/nsHelperAppDlg.manifest
 @RESPATH@/components/PresentationDeviceInfoManager.manifest
 @RESPATH@/components/PresentationDeviceInfoManager.js
-@RESPATH@/components/nsIDService.js
 @RESPATH@/components/nsINIProcessor.js
 @RESPATH@/components/nsINIProcessor.manifest
 @RESPATH@/components/nsInputListAutoComplete.js

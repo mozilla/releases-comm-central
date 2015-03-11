@@ -492,7 +492,6 @@
 @RESPATH@/components/BrowserElementParent.js
 @RESPATH@/components/BrowserElementParent.manifest
 @RESPATH@/components/ColorAnalyzer.js
-@RESPATH@/components/Identity.manifest
 @RESPATH@/components/PageThumbsProtocol.js
 @RESPATH@/components/PermissionSettings.js
 @RESPATH@/components/SettingsManager.js
@@ -511,7 +510,6 @@
 @RESPATH@/components/nsCrashMonitor.js
 @RESPATH@/components/nsDefaultCLH.js
 @RESPATH@/components/nsDefaultCLH.manifest
-@RESPATH@/components/nsDOMIdentity.js
 @RESPATH@/components/nsFormAutoComplete.js
 @RESPATH@/components/nsFormHistory.js
 @RESPATH@/components/FormHistoryStartup.js
@@ -521,7 +519,6 @@
 @RESPATH@/components/nsAsyncShutdown.js
 @RESPATH@/components/PresentationDeviceInfoManager.manifest
 @RESPATH@/components/PresentationDeviceInfoManager.js
-@RESPATH@/components/nsIDService.js
 @RESPATH@/components/nsInputListAutoComplete.js
 @RESPATH@/components/nsLivemarkService.js
 @RESPATH@/components/nsPlacesAutoComplete.js
