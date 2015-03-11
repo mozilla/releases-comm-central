@@ -12,10 +12,6 @@ SOURCES += [
     'nsMorkFactory.cpp',
 ]
 
-USE_LIBS += [
-    'mozalloc',
-]
-
 if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
     XPCOMBinaryComponent('mork')
     USE_LIBS += [

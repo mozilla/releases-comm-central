@@ -12,7 +12,6 @@ LOCAL_INCLUDES += [
 ]
 
 USE_LIBS += [
-    'mozalloc',
     'msgbsutl_s',
     'msgimap_s',
     'nspr',

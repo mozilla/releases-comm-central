@@ -7,10 +7,6 @@ SOURCES += [
     'nsMailComps.cpp',
 ]
 
-USE_LIBS += [
-    'mozalloc',
-]
-
 # NOTE: if we switch away from LIBXUL_LIBRARY at any stage
 # we need to clear the EMBED_MANIFEST_AT flag. (See Bug 714495)
 if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:

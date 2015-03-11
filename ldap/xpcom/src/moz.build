@@ -28,7 +28,6 @@ EXTRA_COMPONENTS += [
 
 USE_LIBS += [
     'ldapsdks',
-    'mozalloc',
 ]
 
 if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:

@@ -38,7 +38,6 @@ EXPORTS += [
 JAR_MANIFESTS += ['jar.mn']
 
 USE_LIBS += [
-    'mozalloc',
     'nspr',
     'xpcomglue_s',
     'xul',
