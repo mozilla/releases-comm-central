@@ -256,6 +256,11 @@ function view_init()
   document.getElementById("viewAttachmentsInlineMenuitem")
           .setAttribute("checked", viewAttachmentInline);
 
+  let viewAttachmentInlineMenu =
+    document.getElementById("appmenu_viewAttachmentsInlineMenuitem");
+  if (viewAttachmentInlineMenu)
+    viewAttachmentInlineMenu.setAttribute("checked", viewAttachmentInline);
+
   document.commandDispatcher.updateCommands('create-menu-view');
 
   // Disable the charset item if there's nothing to enable
