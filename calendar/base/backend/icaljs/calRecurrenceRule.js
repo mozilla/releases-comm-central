@@ -129,6 +129,11 @@ calRecurrenceRule.prototype = {
         }
     },
     set untilDate(val) unwrapSetter(ICAL.Time, val, function(val) {
+        if (val.timezone != ICAL.Timezone.utcTimezone &&
+            val.timezone != ICAL.Timezone.localTimezone) {
+            val = val.convertToZone(ICAL.Timezone.utcTimezone);
+        }
+
         this.innerObject.until = val;
     }, this),
 

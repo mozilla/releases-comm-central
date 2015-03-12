@@ -5,9 +5,7 @@
 
 #include "nsISupports.idl"
 
-[ptr] native icaldurationtypeptr(struct icaldurationtype);
-
-[scriptable, uuid(f5e1c987-e722-4dec-bf91-93d4062b504a)]
+[scriptable, uuid(78537f21-fd5c-4e02-ab26-8ff6a3d946cb)]
 interface calIDuration : nsISupports
 {
   /**
@@ -97,11 +95,19 @@ interface calIDuration : nsISupports
    */
   AUTF8String toString();
 
-  [noscript,notxpcom] void toIcalDuration(in icaldurationtypeptr idt);
   attribute jsval icalDuration;
 
   /**
    * This object as an iCalendar DURATION string
    */
   attribute ACString icalString;
+};
+
+/** Libical specific interfaces */
+
+[ptr] native icaldurationtypeptr(struct icaldurationtype);
+[scriptable, uuid(f5e1c987-e722-4dec-bf91-93d4062b504a)]
+interface calIDurationLibical : calIDuration
+{
+  [noscript,notxpcom] void toIcalDuration(in icaldurationtypeptr idt);
 };

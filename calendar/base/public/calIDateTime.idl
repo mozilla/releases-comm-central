@@ -221,3 +221,12 @@ interface calIDateTime : nsISupports
    */
   attribute ACString icalString;
 };
+
+/** Libical specific interfaces */
+
+[ptr] native icaltimetypeptr(struct icaltimetype);
+[scriptable, uuid(04139dff-a6f0-446d-9aec-2062df887ef2)]
+interface calIDateTimeLibical : calIDateTime
+{
+  [noscript,notxpcom] void toIcalTime(in icaltimetypeptr itt);
+};

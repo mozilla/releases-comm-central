@@ -17,7 +17,6 @@ extern "C" {
 }
 
 class calICSService : public calIICSService,
-                      public nsIClassInfo,
                       public cal::XpcomBase
 {
 protected:
@@ -50,8 +49,8 @@ protected:
                               nsresult status,
                               calIIcalComponent *component,
                               const nsMainThreadPtrHandle<calIIcsComponentParsingListener> &listener) :
-          mListener(listener), mComp(component),
-          mStatus(status), mWorkerThread(workerThread)
+          mWorkerThread(workerThread), mListener(listener),
+          mComp(component), mStatus(status)
         {
         }
 
@@ -67,22 +66,22 @@ public:
     calICSService();
 
     NS_DECL_THREADSAFE_ISUPPORTS
-    NS_DECL_NSICLASSINFO
     NS_DECL_CALIICSSERVICE
 };
 
 class calIcalComponent;
 
-class calIcalProperty : public calIIcalProperty,
+class calIcalProperty : public calIIcalPropertyLibical,
                         public cal::XpcomBase
 {
     friend class calIcalComponent;
 public:
-    calIcalProperty(icalproperty * prop, calIIcalComponent * parent)
+    calIcalProperty(icalproperty * prop, calIIcalComponentLibical * parent)
         : mProperty(prop), mParent(parent) {}
 
     NS_DECL_ISUPPORTS
     NS_DECL_CALIICALPROPERTY
+    NS_DECL_CALIICALPROPERTYLIBICAL
 
 protected:
     virtual ~calIcalProperty();
@@ -94,17 +93,16 @@ protected:
                                  icalproperty *prop,
                                  calIDateTime *dt);
 
-    icalproperty *              mProperty;
-    nsCOMPtr<calIIcalComponent> mParent;
+    icalproperty *                     mProperty;
+    nsCOMPtr<calIIcalComponentLibical> mParent;
 };
 
-class calIcalComponent : public calIIcalComponent,
-                         public nsIClassInfo,
+class calIcalComponent : public calIIcalComponentLibical,
                          public cal::XpcomBase
 {
     friend class calIcalProperty;
 public:
-    calIcalComponent(icalcomponent *ical, calIIcalComponent *parent,
+    calIcalComponent(icalcomponent *ical, calIIcalComponentLibical *parent,
                      calITimezoneProvider *tzProvider = nullptr)
         : mComponent(ical), mTimezone(nullptr), mTzProvider(tzProvider), mParent(parent)
     {
@@ -115,8 +113,8 @@ public:
     }
 
     NS_DECL_THREADSAFE_ISUPPORTS
-    NS_DECL_NSICLASSINFO
     NS_DECL_CALIICALCOMPONENT
+    NS_DECL_CALIICALCOMPONENTLIBICAL
 
 protected:
     virtual ~calIcalComponent();
@@ -129,7 +127,7 @@ protected:
             if (ret) {
                 return ret;
             }
-            calIIcalComponent * const p = that->mParent;
+            calIIcalComponentLibical * const p = that->mParent;
             that = static_cast<calIcalComponent const *>(p);
         }
         return nullptr;
@@ -139,7 +137,7 @@ protected:
         // walk up the parents to find a VCALENDAR:
         calIcalComponent * that = this;
         while (that && icalcomponent_isa(that->mComponent) != ICAL_VCALENDAR_COMPONENT) {
-            calIIcalComponent * const p = that->mParent;
+            calIIcalComponentLibical * const p = that->mParent;
             that = static_cast<calIcalComponent *>(p);
         }
         if (!that)
@@ -167,13 +165,13 @@ protected:
     icalcomponent *                                      mComponent;
     icaltimezone *                                       mTimezone; // set iff VTIMEZONE
     nsCOMPtr<calITimezoneProvider> const                 mTzProvider;
-    nsCOMPtr<calIIcalComponent>                          mParent;
+    nsCOMPtr<calIIcalComponentLibical>                   mParent;
 };
 
-inline calIcalProperty * toIcalProperty(calIIcalProperty * p) {
+inline calIcalProperty * toIcalProperty(calIIcalPropertyLibical * p) {
     return static_cast<calIcalProperty *>(p);
 }
-inline calIcalComponent * toIcalComponent(calIIcalComponent * p) {
+inline calIcalComponent * toIcalComponent(calIIcalComponentLibical * p) {
     return static_cast<calIcalComponent *>(p);
 }
 

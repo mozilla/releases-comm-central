@@ -197,17 +197,25 @@ NS_IMETHODIMP
 calRecurrenceRule::SetUntilDate(calIDateTime * aRecurEnd)
 {
     if (aRecurEnd) {
-        nsCOMPtr<calIDateTime> dt(aRecurEnd);
+        nsresult rv;
+        bool b;
+        nsCOMPtr<calIDateTimeLibical> icaldt;
         nsCOMPtr<calITimezone> tz;
         aRecurEnd->GetTimezone(getter_AddRefs(tz));
-        bool b;
+
         if (NS_SUCCEEDED(tz->GetIsUTC(&b)) && !b &&
             NS_SUCCEEDED(tz->GetIsFloating(&b)) && !b) {
             // convert to UTC:
+            nsCOMPtr<calIDateTime> dt;
             aRecurEnd->GetInTimezone(cal::UTC(), getter_AddRefs(dt));
+            icaldt = do_QueryInterface(dt, &rv);
+        } else {
+            icaldt = do_QueryInterface(aRecurEnd, &rv);
         }
+
+        NS_ENSURE_SUCCESS(rv, rv);
         struct icaltimetype itt;
-        dt->ToIcalTime(&itt);
+        icaldt->ToIcalTime(&itt);
 
         mIcalRecur.until = itt;
     } else {
@@ -335,11 +343,19 @@ calRecurrenceRule::GetNextOccurrence(calIDateTime *aStartTime,
     NS_ENSURE_ARG_POINTER(aOccurrenceTime);
     NS_ENSURE_ARG_POINTER(_retval);
 
+    nsresult rv;
+
+    nsCOMPtr<calIDateTimeLibical> icaldtstart = do_QueryInterface(aStartTime, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<calIDateTimeLibical> icaloccurtime = do_QueryInterface(aOccurrenceTime, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
     struct icaltimetype dtstart;
-    aStartTime->ToIcalTime(&dtstart);
+    icaldtstart->ToIcalTime(&dtstart);
 
     struct icaltimetype occurtime;
-    aOccurrenceTime->ToIcalTime(&occurtime);
+    icaloccurtime->ToIcalTime(&occurtime);
 
     icalrecur_iterator* recur_iter;
     recur_iter = icalrecur_iterator_new(mIcalRecur, dtstart);
@@ -411,15 +427,25 @@ calRecurrenceRule::GetOccurrences(calIDateTime *aStartTime,
     }
 #endif
 
+    nsresult rv;
+
+    nsCOMPtr<calIDateTimeLibical> icalrangestart = do_QueryInterface(aRangeStart, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<calIDateTimeLibical> icaldtstart = do_QueryInterface(aStartTime, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
     struct icaltimetype rangestart, dtstart, dtend;
-    aRangeStart->ToIcalTime(&rangestart);
+    icalrangestart->ToIcalTime(&rangestart);
     rangestart = ensureDateTime(rangestart);
-    aStartTime->ToIcalTime(&dtstart);
+    icaldtstart->ToIcalTime(&dtstart);
     nsCOMPtr<calITimezone> tz;
     aStartTime->GetTimezone(getter_AddRefs(tz));
 
     if (aRangeEnd) {
-        aRangeEnd->ToIcalTime(&dtend);
+        nsCOMPtr<calIDateTimeLibical> icalrangeend = do_QueryInterface(aRangeEnd, &rv);
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        icalrangeend->ToIcalTime(&dtend);
         dtend = ensureDateTime(dtend);
 
         // if the start of the recurrence is past the end,
@@ -512,12 +538,16 @@ NS_IMETHODIMP
 calRecurrenceRule::SetIcalProperty(calIIcalProperty *aProp)
 {
     NS_ENSURE_ARG_POINTER(aProp);
+    nsresult rv;
+
+    nsCOMPtr<calIIcalPropertyLibical> icalprop = do_QueryInterface(aProp, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
 
     if (mImmutable)
         return NS_ERROR_OBJECT_IS_IMMUTABLE;
 
     nsAutoCString propname;
-    nsresult rv = aProp->GetPropertyName(propname);
+    rv = aProp->GetPropertyName(propname);
     NS_ENSURE_SUCCESS(rv, rv);
     if (propname.EqualsLiteral("RRULE")) {
         mIsNegative = false;
@@ -528,7 +558,7 @@ calRecurrenceRule::SetIcalProperty(calIIcalProperty *aProp)
     icalproperty *prop;
     struct icalrecurrencetype icalrecur;
 
-    prop = aProp->GetLibicalProperty();
+    prop = icalprop->GetLibicalProperty();
 
     icalrecur = icalproperty_get_rrule(prop);
 

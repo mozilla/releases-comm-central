@@ -572,9 +572,7 @@ function test_rrule_interface() {
     ok(!rrule.isByCount);
     ok(!rrule.isFinite);
     equal(rrule.icalString.match(/COUNT=/), null);
-    throws(function() {
-        rrule.count;
-    }, /0x80004005/);
+    throws(() => rrule.count, /0x80004005/);
 
     rrule.interval = 1;
     equal(rrule.interval, 1);
@@ -587,6 +585,24 @@ function test_rrule_interface() {
     rrule.type = "MONTHLY";
     equal(rrule.type, "MONTHLY");
     equal(rrule.icalString.match(/FREQ=MONTHLY/), "FREQ=MONTHLY");
+
+    // untilDate (without UTC)
+    rrule.count = 3;
+    let untilDate = cal.createDateTime();
+    untilDate.timezone = cal.getTimezoneService().getTimezone("Europe/Berlin");
+    rrule.untilDate = untilDate;
+    ok(!rrule.isByCount)
+    throws(() => rrule.count, /0x80004005/);
+    equal(rrule.untilDate.icalString, untilDate.getInTimezone(cal.UTC()).icalString);
+
+    // untilDate (with UTC)
+    rrule.count = 3;
+    untilDate = cal.createDateTime();
+    untilDate.timezone = cal.UTC();
+    rrule.untilDate = untilDate;
+    ok(!rrule.isByCount)
+    throws(() => rrule.count, /0x80004005/);
+    equal(rrule.untilDate.icalString, untilDate.icalString);
 }
 
 function test_startdate_change() {

@@ -11,7 +11,7 @@
 struct icaltimetype;
 typedef struct _icaltimezone icaltimezone;
 
-class calDateTime : public calIDateTime,
+class calDateTime : public calIDateTimeLibical,
                     public cal::XpcomBase
 {
 public:
@@ -20,6 +20,7 @@ public:
 
     NS_DECL_ISUPPORTS
     NS_DECL_CALIDATETIME
+    NS_DECL_CALIDATETIMELIBICAL
 
 protected:
     virtual ~calDateTime() {}

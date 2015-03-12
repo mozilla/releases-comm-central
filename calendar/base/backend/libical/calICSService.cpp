@@ -22,8 +22,8 @@ calIcalProperty::~calIcalProperty()
     }
 }
 
-NS_IMPL_CLASSINFO(calIcalProperty, NULL, 0, CAL_ICALPROPERTY_CID)
-NS_IMPL_ISUPPORTS_CI(calIcalProperty, calIIcalProperty)
+NS_IMPL_CLASSINFO(calIcalProperty, nullptr, 0, CAL_ICALPROPERTY_CID)
+NS_IMPL_ISUPPORTS_CI(calIcalProperty, calIIcalProperty, calIIcalPropertyLibical)
 
 NS_IMETHODIMP_(icalproperty *)
 calIcalProperty::GetLibicalProperty()
@@ -112,7 +112,7 @@ calIcalProperty::SetValue(const nsACString &str)
         icalproperty_set_value(mProperty, v);
     } else if (kind == ICAL_ATTACH_VALUE) {
         const char *strdata = PromiseFlatCString(str).get();
-        icalattach *v = icalattach_new_from_data(strdata, NULL, NULL);
+        icalattach *v = icalattach_new_from_data(strdata, nullptr, nullptr);
         icalproperty_set_attach(mProperty, v);
     } else {
         icalproperty_set_value_from_string(mProperty,
@@ -774,13 +774,17 @@ nsresult calIcalProperty::setDatetime_(calIcalComponent * parent,
     NS_ENSURE_ARG_POINTER(prop);
     NS_ENSURE_ARG_POINTER(dt);
 
+    nsresult rv;
+    nsCOMPtr<calIDateTimeLibical> icaldt = do_QueryInterface(dt, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
     icaltimetype itt;
-    dt->ToIcalTime(&itt);
+    icaldt->ToIcalTime(&itt);
 
     if (parent) {
         if (!itt.is_utc) {
             nsCOMPtr<calITimezone> tz;
-            nsresult rv = dt->GetTimezone(getter_AddRefs(tz));
+            rv = dt->GetTimezone(getter_AddRefs(tz));
             NS_ENSURE_SUCCESS(rv, rv);
             if (itt.zone) {
                 rv = parent->getParentVCalendarOrThis()->AddTimezoneReference(tz);
@@ -852,10 +856,9 @@ calIcalComponent::Get##Attrname(calIDuration **dtp)                     \
 }
 
 
-NS_IMPL_CLASSINFO(calIcalComponent, NULL, nsIClassInfo::THREADSAFE, CAL_ICALCOMPONENT_CID)
-NS_IMPL_ISUPPORTS(calIcalComponent, calIIcalComponent, nsIClassInfo)
-NS_IMPL_CI_INTERFACE_GETTER(calIcalComponent, calIIcalComponent)
-NS_IMPL_THREADSAFE_CI(calIcalComponent)
+
+NS_IMPL_CLASSINFO(calIcalComponent, nullptr, nsIClassInfo::THREADSAFE, CAL_ICALCOMPONENT_CID)
+NS_IMPL_ISUPPORTS_CI(calIcalComponent, calIIcalComponent, calIIcalComponentLibical)
 
 NS_IMETHODIMP_(icalcomponent *)
 calIcalComponent::GetLibicalComponent()
@@ -1069,9 +1072,9 @@ calIcalComponent::Clone(calIIcalComponent **_retval)
 }
 
 NS_IMETHODIMP
-calIcalComponent::AddSubcomponent(calIIcalComponent *comp)
+calIcalComponent::AddSubcomponent(calIIcalComponent *aComp)
 {
-    NS_ENSURE_ARG_POINTER(comp);
+    NS_ENSURE_ARG_POINTER(aComp);
 
     /* XXX mildly unsafe assumption here.
      * To fix it, I will:
@@ -1082,11 +1085,16 @@ calIcalComponent::AddSubcomponent(calIIcalComponent *comp)
      * I should probably also return the new/reused component so that the
      * caller has something it can poke at all live-like.
      */
-    calIcalComponent * const ical = toIcalComponent(comp);
+
+    nsresult rv;
+    nsCOMPtr<calIIcalComponentLibical> icalcomp = do_QueryInterface(aComp, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    calIcalComponent * const ical = toIcalComponent(icalcomp);
 
     uint32_t tzCount = 0;
     calITimezone ** timezones = nullptr;
-    nsresult rv = ical->GetReferencedTimezones(&tzCount, &timezones);
+    rv = ical->GetReferencedTimezones(&tzCount, &timezones);
     NS_ENSURE_SUCCESS(rv, rv);
 
     calIcalComponent * const vcal = getParentVCalendarOrThis();
@@ -1199,13 +1207,18 @@ calIcalComponent::GetNextProperty(const nsACString &kind, calIIcalProperty **pro
 }
 
 NS_IMETHODIMP
-calIcalComponent::AddProperty(calIIcalProperty * prop)
+calIcalComponent::AddProperty(calIIcalProperty * aProp)
 {
-    NS_ENSURE_ARG_POINTER(prop);
+    NS_ENSURE_ARG_POINTER(aProp);
     // We assume a calIcalProperty is passed in (else the cast wouldn't run and
     // we are about to crash), so we assume that this ICS service code has created
     // the property.
-    calIcalProperty * const ical = toIcalProperty(prop);
+
+    nsresult rv;
+    nsCOMPtr<calIIcalPropertyLibical> icalprop = do_QueryInterface(aProp, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    calIcalProperty * const ical = toIcalProperty(icalprop);
     if (ical->mParent) {
         ical->mProperty = icalproperty_new_clone(ical->mProperty);
     }
@@ -1213,7 +1226,7 @@ calIcalComponent::AddProperty(calIIcalProperty * prop)
     icalcomponent_add_property(mComponent, ical->mProperty);
 
     nsCOMPtr<calIDateTime> dt;
-    if (NS_SUCCEEDED(prop->GetValueAsDatetime(getter_AddRefs(dt))) && dt) {
+    if (NS_SUCCEEDED(aProp->GetValueAsDatetime(getter_AddRefs(dt))) && dt) {
         // make sure timezone definition will be included:
         nsCOMPtr<calITimezone> tz;
         if (NS_SUCCEEDED(dt->GetTimezone(getter_AddRefs(tz))) && tz) {
@@ -1237,10 +1250,8 @@ calIcalComponent::AddProperty(calIIcalProperty * prop)
 //     return NS_OK;
 // }
 
-NS_IMPL_CLASSINFO(calICSService, NULL, nsIClassInfo::THREADSAFE, CAL_ICSSERVICE_CID)
-NS_IMPL_ISUPPORTS(calICSService, calIICSService, nsIClassInfo)
-NS_IMPL_CI_INTERFACE_GETTER(calICSService, calIICSService)
-NS_IMPL_THREADSAFE_CI(calICSService)
+NS_IMPL_CLASSINFO(calICSService, nullptr, nsIClassInfo::THREADSAFE, CAL_ICSSERVICE_CID)
+NS_IMPL_ISUPPORTS_CI(calICSService, calIICSService)
 
 calICSService::calICSService()
 {

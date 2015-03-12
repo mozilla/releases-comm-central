@@ -12,7 +12,7 @@ extern "C" {
     #include "ical.h"
 }
 
-class calDuration MOZ_FINAL : public calIDuration
+class calDuration MOZ_FINAL : public calIDurationLibical
 {
 public:
     calDuration ();
@@ -24,6 +24,7 @@ public:
 
     // calIDateTime interface
     NS_DECL_CALIDURATION
+    NS_DECL_CALIDURATIONLIBICAL
 
 protected:
     ~calDuration() {}

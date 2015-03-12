@@ -3,15 +3,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-XPIDL_SOURCES += [
-    'calIDateTimeJS.idl',
-    'calIDurationJS.idl',
-    'calIICSServiceJS.idl',
-    'calIPeriodJS.idl',
-]
-
-XPIDL_MODULE = 'caldatetime_icaljs'
-
 EXTRA_COMPONENTS += [
     'calICALJSComponents.js',
 ]

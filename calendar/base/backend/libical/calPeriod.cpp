@@ -10,8 +10,8 @@
 
 #include "calUtils.h"
 
-NS_IMPL_CLASSINFO(calPeriod, NULL, 0, CAL_PERIOD_CID)
-NS_IMPL_ISUPPORTS_CI(calPeriod, calIPeriod)
+NS_IMPL_CLASSINFO(calPeriod, nullptr, 0, CAL_PERIOD_CID)
+NS_IMPL_ISUPPORTS_CI(calPeriod, calIPeriod, calIPeriodLibical)
 
 calPeriod::calPeriod()
     : mImmutable(false)
@@ -21,10 +21,16 @@ calPeriod::calPeriod()
 calPeriod::calPeriod(const calPeriod& cpt)
     : mImmutable(false)
 {
-    if (cpt.mStart)
-        cpt.mStart->Clone(getter_AddRefs(mStart));
-    if (cpt.mEnd)
-        cpt.mEnd->Clone(getter_AddRefs(mEnd));
+    if (cpt.mStart) {
+        nsCOMPtr<calIDateTime> start;
+        cpt.mStart->Clone(getter_AddRefs(start));
+        mStart = do_QueryInterface(start);
+    }
+    if (cpt.mEnd) {
+        nsCOMPtr<calIDateTime> end;
+        cpt.mEnd->Clone(getter_AddRefs(end));
+        mEnd = do_QueryInterface(end);
+    }
 }
 
 calPeriod::calPeriod(struct icalperiodtype const* aPeriodPtr)
@@ -87,7 +93,7 @@ NS_IMETHODIMP calPeriod::SetStart(calIDateTime *aValue)
     if (mImmutable)
         return NS_ERROR_OBJECT_IS_IMMUTABLE;
 
-    mStart = aValue;
+    mStart = do_QueryInterface(aValue);
     return mStart->MakeImmutable();
 }
 
@@ -104,7 +110,7 @@ NS_IMETHODIMP calPeriod::SetEnd(calIDateTime *aValue)
     if (mImmutable)
         return NS_ERROR_OBJECT_IS_IMMUTABLE;
 
-    mEnd = aValue;
+    mEnd = do_QueryInterface(aValue);
     return mEnd->MakeImmutable();
 }
 

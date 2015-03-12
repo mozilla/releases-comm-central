@@ -80,7 +80,8 @@ icaltimezone * getIcalTimezone(calITimezone * tz) {
         nsCOMPtr<calIIcalComponent> tzComp;
         tz->GetIcalComponent(getter_AddRefs(tzComp));
         if (tzComp) {
-            icaltz = tzComp->GetLibicalTimezone();
+            nsCOMPtr<calIIcalComponentLibical> tzCompLibical = do_QueryInterface(tzComp);
+            icaltz = tzCompLibical->GetLibicalTimezone();
         } // else floating or phantom timezone
     }
     return icaltz;

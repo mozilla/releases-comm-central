@@ -18,8 +18,8 @@
 #define SECONDS_PER_HOUR     3600
 #define SECONDS_PER_MINUTE     60
 
-NS_IMPL_CLASSINFO(calDuration, NULL, 0, CAL_DURATION_CID)
-NS_IMPL_ISUPPORTS_CI(calDuration, calIDuration)
+NS_IMPL_CLASSINFO(calDuration, nullptr, 0, CAL_DURATION_CID)
+NS_IMPL_ISUPPORTS_CI(calDuration, calIDuration, calIDurationLibical)
 
 calDuration::calDuration()
     : mImmutable(false)
@@ -219,8 +219,12 @@ NS_IMETHODIMP calDuration::AddDuration(calIDuration *aDuration)
     if (mImmutable)
         return NS_ERROR_CALENDAR_IMMUTABLE;
 
+    nsresult rv;
+    nsCOMPtr<calIDurationLibical> icaldur = do_QueryInterface(aDuration, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
     struct icaldurationtype idt;
-    aDuration->ToIcalDuration(&idt);
+    icaldur->ToIcalDuration(&idt);
 
     // Calculate the new absolute value of the duration
     // For two negative durations, the abs. value will increase,

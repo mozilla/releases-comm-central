@@ -258,3 +258,23 @@ interface calIICSService : nsISupports
                                   in AUTF8String paramValue);
     */
 };
+
+/** Libical specific interfaces */
+
+[ptr] native icalpropertyptr(struct icalproperty_impl);
+[ptr] native icalcomponentptr(struct icalcomponent_impl);
+[ptr] native icaltimezoneptr(struct _icaltimezone);
+
+[scriptable,uuid(d2fc0264-191e-435e-8ef2-b2ab1fa81ca9)]
+interface calIIcalComponentLibical : calIIcalComponent
+{
+    [noscript,notxpcom] icalcomponentptr getLibicalComponent();
+    [noscript,notxpcom] icaltimezoneptr getLibicalTimezone();
+};
+
+[scriptable,uuid(e0b9067f-0a53-4724-9c69-63599681877e)]
+interface calIIcalPropertyLibical : calIIcalProperty
+{
+    [noscript,notxpcom] icalpropertyptr getLibicalProperty();
+    [noscript,notxpcom] icalcomponentptr getLibicalComponent();
+};

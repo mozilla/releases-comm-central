@@ -24,8 +24,8 @@ extern "C" {
 #define CAL_ATTR_SET_POST Normalize()
 #include "calAttributeHelpers.h"
 
-NS_IMPL_CLASSINFO(calDateTime, NULL, 0, CAL_DATETIME_CID)
-NS_IMPL_ISUPPORTS_CI(calDateTime, calIDateTime)
+NS_IMPL_CLASSINFO(calDateTime, nullptr, 0, CAL_DATETIME_CID)
+NS_IMPL_ISUPPORTS_CI(calDateTime, calIDateTime, calIDateTimeLibical)
 
 calDateTime::calDateTime()
     : mImmutable(false)
@@ -168,8 +168,12 @@ calDateTime::AddDuration(calIDuration *aDuration)
     NS_ENSURE_ARG_POINTER(aDuration);
     ensureTimezone();
 
+    nsresult rv;
+    nsCOMPtr<calIDurationLibical> icaldur = do_QueryInterface(aDuration, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
     icaldurationtype idt;
-    aDuration->ToIcalDuration(&idt);
+    icaldur->ToIcalDuration(&idt);
 
     icaltimetype itt;
     ToIcalTime(&itt);
@@ -568,19 +572,23 @@ calDateTime::Compare(calIDateTime * aOther, int32_t * aResult)
     NS_ENSURE_ARG_POINTER(aOther);
     NS_ENSURE_ARG_POINTER(aResult);
 
+    nsresult rv;
+    nsCOMPtr<calIDateTimeLibical> icalother = do_QueryInterface(aOther, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
     bool otherIsDate = false;
     aOther->GetIsDate(&otherIsDate);
 
     icaltimetype a, b;
     ToIcalTime(&a);
-    aOther->ToIcalTime(&b);
+    icalother->ToIcalTime(&b);
 
     // If either this or aOther is floating, both objects are treated
     // as floating for the comparison.
     if (!a.zone || !b.zone) {
-        a.zone = NULL;
+        a.zone = nullptr;
         a.is_utc = 0;
-        b.zone = NULL;
+        b.zone = nullptr;
         b.is_utc = 0;
     }
 
