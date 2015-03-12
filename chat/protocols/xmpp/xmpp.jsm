@@ -1016,6 +1016,58 @@ const XMPPAccountPrototype = {
       this.WARN("received presence stanza for unknown buddy " + from);
   },
 
+  // Returns null if not an invitation stanza, and an object
+  // describing the invitation otherwise.
+  parseInvitation: function(aStanza) {
+      let x = aStanza.getElement(["x"]);
+      if (!x)
+        return null;
+      let retVal = {};
+
+      // XEP-0045. Direct Invitation (7.8.1)
+      // Described in XEP-0249.
+      // jid (chatroom) is required.
+      // Password, reason, continue and thread are optional.
+      if (x.uri == Stanza.NS.conference) {
+        if (!x.attributes["jid"]) {
+          this.WARN("Received an invitation with missing MUC jid.");
+          return null;
+        }
+        retVal.mucJid = this.normalize(x.attributes["jid"]);
+        retVal.from = this.normalize(aStanza.attributes["from"]);
+        retVal.password = x.attributes["password"];
+        retVal.reason = x.attributes["reason"];
+        retVal.continue = x.attributes["continue"];
+        retVal.thread = x.attributes["thread"];
+        return retVal;
+      }
+
+      // XEP-0045. Mediated Invitation (7.8.2)
+      // Sent by the chatroom on behalf of someone in the chatroom.
+      // jid (chatroom) and from (inviter) are required.
+      // password and reason are optional.
+      if (x.uri == Stanza.NS.muc_user) {
+        let invite = x.getElement(["invite"]);
+        if (!invite || !invite.attributes["from"]) {
+          this.WARN("Received an invitation with missing MUC invite or from.");
+          return null;
+        }
+        retVal.mucJid = this.normalize(aStanza.attributes["from"]);
+        retVal.from = this.normalize(invite.attributes["from"]);
+        let continueElement = invite.getElement(["continue"]);
+        retVal.continue = !!continueElement;
+        if (continueElement)
+          retVal.thread = continueElement.attributes["thread"];
+        if (x.getElement(["password"]))
+          retVal.password = x.getElement(["password"]).innerText;
+        if (invite.getElement(["reason"]))
+          retVal.reason = invite.getElement(["reason"]).innerText;
+        return retVal;
+      }
+
+      return null;
+  },
+
   /* Called when a message stanza is received */
   onMessageStanza: function(aStanza) {
     let norm = this.normalize(aStanza.attributes["from"]);
@@ -1062,6 +1114,32 @@ const XMPPAccountPrototype = {
           muc.setTopic(s.innerText);
 
         muc.incomingMessage(body, aStanza, date);
+        return;
+      }
+
+      let invitation = this.parseInvitation(aStanza);
+      if (invitation) {
+        if (invitation.reason) {
+          body = _("conversation.muc.invitationWithReason",
+                   invitation.from, invitation.mucJid, invitation.reason);
+        }
+        else {
+          body = _("conversation.muc.invitationWithoutReason",
+                   invitation.from, invitation.mucJid);
+        }
+        if (Services.prefs.getIntPref("messenger.conversations.autoAcceptChatInvitations") == 1) {
+          // Auto-accept the invitation.
+          let chatRoomFields = this.getChatRoomDefaultFieldValues(invitation.mucJid);
+          if (invitation.password)
+            chatRoomFields.setValue("password", invitation.password);
+          let muc = this.joinChat(chatRoomFields);
+          muc.writeMessage(muc.name, body, {system: true});
+          return;
+        }
+        // Otherwise, just notify the user.
+        let conv = this.createConversation(invitation.from);
+        if (conv)
+          conv.writeMessage(invitation.from, body, {system: true});
         return;
       }
 
