@@ -232,21 +232,23 @@ let calendarExtract = {
         let hdrEventButton = document.getElementById("hdrExtractEventButton");
         let hdrTaskButton = document.getElementById("hdrExtractTaskButton");
         let contextMenu = document.getElementById("mailContext-calendar-convert-menu");
-        let state = (gFolderDisplay.selectedCount == 0);
-        let contextState = state;
+        let buttonsDisabled = (gFolderDisplay.selectedCount == 0);
+        let contextDisabled = false;
         let newEvent = document.getElementById("calendar_new_event_command");
+
         if (newEvent.getAttribute("disabled") == "true") {
-            state = true;
+            buttonsDisabled = true;
+            contextDisabled = true;
         }
         if (eventButton)
-            eventButton.disabled = state
+            eventButton.disabled = buttonsDisabled
         if (taskButton)
-            taskButton.disabled = state;
+            taskButton.disabled = buttonsDisabled;
         if (hdrEventButton)
-            hdrEventButton.disabled = state;
+            hdrEventButton.disabled = buttonsDisabled;
         if (hdrTaskButton)
-            hdrTaskButton.disabled = state;
-        contextMenu.disabled = contextState;
+            hdrTaskButton.disabled = buttonsDisabled;
+        contextMenu.disabled = contextDisabled;
     }
 };
 
