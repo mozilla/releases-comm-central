@@ -39,84 +39,11 @@ var calendarViewController = {
         }
     },
 
-    pendingJobs: [],
-
-    /**
-     * In order to initiate a modification for the occurrence passed as argument
-     * we create an object that records the necessary details and store it in an
-     * internal array ('pendingJobs'). this way we're in a position to terminate
-     * any pending modification if need should be.
-     *
-     * @param aOccurrence       The occurrence to create the pending
-     *                            modification for.
-     */
-    createPendingModification: function (aOccurrence) {
-        // finalize a (possibly) pending modification. this will notify
-        // an open dialog to save any outstanding modifications.
-        aOccurrence = this.finalizePendingModification(aOccurrence);
-
-        // XXX TODO logic to ask for which occurrence to modify is currently in
-        // modifyEventWithDialog, since the type of transactions done depend on
-        // this. This in turn makes the aOccurrence here be potentially wrong, I
-        // haven't seen it used anywhere though.
-        var pendingModification = {
-            controller: this,
-            item: aOccurrence,
-            finalize: null,
-            dispose: function() {
-                var array = this.controller.pendingJobs;
-                for (var i=0; i<array.length; i++) {
-                    if (array[i] == this) {
-                        array.splice(i,1);
-                        break;
-                    }
-                }
-            }
-        }
-
-        this.pendingJobs.push(pendingModification);
-
-        modifyEventWithDialog(aOccurrence, pendingModification, true);
-    },
-
-    /**
-     * Iterate the list of pending modifications and see if the occurrence
-     * passed as argument is currently about to be modified (event dialog is
-     * open with the item in question). If this should be the case we call
-     * finalize() in order to bring the dialog down and avoid dataloss.
-     *
-     * @param aOccurrence       The occurrence to finalize the modification for.
-     */
-    finalizePendingModification: function (aOccurrence) {
-
-      for each (var job in this.pendingJobs) {
-          var item = job.item;
-          var parent = item.parent;
-          if ((item.hashId == aOccurrence.hashId) ||
-              (item.parentItem.hashId == aOccurrence.hashId) ||
-              (item.hashId == aOccurrence.parentItem.hashId)) {
-              // terminate() will most probably create a modified item instance.
-              aOccurrence = job.finalize();
-              break;
-        }
-      }
-
-      return aOccurrence;
-    },
-
     /**
      * Modifies the given occurrence
      * @see calICalendarViewController
      */
     modifyOccurrence: function (aOccurrence, aNewStartTime, aNewEndTime, aNewTitle) {
-        let dlg = cal.findItemWindow(aOccurrence);
-        if (dlg) {
-            dlg.focus();
-            return;
-        }
-
-        aOccurrence = this.finalizePendingModification(aOccurrence);
-
         // if modifying this item directly (e.g. just dragged to new time),
         // then do so; otherwise pop up the dialog
         if (aNewStartTime || aNewEndTime || aNewTitle) {
@@ -153,7 +80,7 @@ var calendarViewController = {
 
             doTransaction('modify', instance, instance.calendar, aOccurrence, null);
         } else {
-            this.createPendingModification(aOccurrence);
+            modifyEventWithDialog(aOccurrence, null, true);
         }
     },
 
@@ -210,7 +137,6 @@ var calendarViewController = {
             // deleted by saving the recurring items and removing occurrences as
             // they come in. If this is not an occurrence, we can go ahead and
             // delete the whole item.
-            itemToDelete = this.finalizePendingModification(itemToDelete);
             if (itemToDelete.parentItem.hashId != itemToDelete.hashId) {
                 var savedItem = getSavedItem(itemToDelete);
                 savedItem.newItem.recurrenceInfo
