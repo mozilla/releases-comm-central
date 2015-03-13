@@ -7,5 +7,18 @@ EXTRA_COMPONENTS += [
     'calICALJSComponents.js',
 ]
 
+FINAL_TARGET_FILES.components += [
+    'icaljs-manifest'
+]
+
+FINAL_TARGET_FILES['calendar-js'] += [
+    'calDateTime.js',
+    'calDuration.js',
+    'calICSService-worker.js',
+    'calICSService.js',
+    'calPeriod.js',
+    'calRecurrenceRule.js'
+]
+
 with Files('**'):
     BUG_COMPONENT = ('Calendar', 'ICAL.js Integration')

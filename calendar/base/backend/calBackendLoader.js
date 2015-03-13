@@ -51,7 +51,7 @@ calBackendLoader.prototype = {
                            .getFileFromURLSpec(uri.spec);
 
         file.append("components");
-        file.append(backend + ".manifest");
+        file.append(backend + "-manifest");
 
         Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar)
                   .autoRegister(file);

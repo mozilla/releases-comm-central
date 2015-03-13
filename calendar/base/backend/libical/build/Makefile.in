@@ -1,31 +1,13 @@
-#
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DEPTH   = @DEPTH@
-topsrcdir = @top_srcdir@
-srcdir    = @srcdir@
-VPATH   = @srcdir@
-
-include $(DEPTH)/config/autoconf.mk
-
 NO_COMPONENTS_MANIFEST = 1
-
-include $(topsrcdir)/config/rules.mk
 
 # Ensure that we don't embed a manifest referencing the CRT
 EMBED_MANIFEST_AT =
 
-BACKEND_MANIFESTS = libical.manifest
-DEFINES += -DSHARED_LIBRARY=$(SHARED_LIBRARY) -DXPIDL_MODULE=$(XPIDL_MODULE)
+DEFINES += -DSHARED_LIBRARY=$(SHARED_LIBRARY)
 
-libs:: $(BACKEND_MANIFESTS)
-	$(EXIT_ON_ERROR) \
-	$(NSINSTALL) -D $(FINAL_TARGET)/components; \
-	for i in $^; do \
-	  fname=`basename $$i`; \
-	  dest=$(FINAL_TARGET)/components/$${fname}; \
-	  $(RM) -f $$dest; \
-	  $(PYTHON) -m mozbuild.action.preprocessor $(DEFINES) $(ACDEFINES) $(XULPPFLAGS) $$i -o $$dest; \
-	done
+libs::
+	$(call py_action,preprocessor,$(DEFINES) $(srcdir)/libical-manifest -o $(FINAL_TARGET)/components/libical-manifest)
