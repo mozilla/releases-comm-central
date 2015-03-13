@@ -913,6 +913,7 @@ EmailConfigWizard.prototype =
     config.incoming.socketType = sanitize.integer(e("incoming_ssl").value);
     config.incoming.auth = sanitize.integer(e("incoming_authMethod").value);
     config.incoming.username = e("incoming_username").value;
+    config.outgoing.username = e("outgoing_username").value;
 
     // Outgoing server
 
@@ -943,8 +944,8 @@ EmailConfigWizard.prototype =
       }
       config.outgoing.socketType = sanitize.integer(e("outgoing_ssl").value);
       config.outgoing.auth = sanitize.integer(e("outgoing_authMethod").value);
+      config.outgoing.username = config.incoming.username;
     }
-    config.outgoing.username = e("outgoing_username").value;
 
     return config;
   },

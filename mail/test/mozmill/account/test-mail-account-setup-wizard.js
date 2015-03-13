@@ -125,7 +125,7 @@ function subtest_verify_account(amc) {
       actual: incoming.username, expected: user.email.split("@")[0]
     },
     "outgoing server username": {
-      actual: outgoing.username, expected: user.email
+      actual: outgoing.username, expected: user.email.split("@")[0]
     },
     "incoming server hostname": {
       // Note: N in the hostName is uppercase
@@ -156,9 +156,7 @@ function subtest_verify_account(amc) {
  * file if the password is incorrect.
  */
 function test_bad_password_uses_old_settings() {
-  // Set the pref to load a local autoconfig file, that will fetch the
-  // ../account/xml/example.com which contains the settings for the
-  // @example.com email account (see the 'user' object).
+  // Set the pref to load a local autoconfig file.
   let pref_name = "mailnews.auto_config_url";
   let url = collector.addHttpResource("../account/xml", "autoconfig");
   Services.prefs.setCharPref(pref_name, url);
