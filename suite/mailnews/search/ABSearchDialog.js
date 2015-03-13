@@ -183,7 +183,7 @@ function onSearch()
 
       switch (searchTerm.attrib) {
        case nsMsgSearchAttrib.Name:
-         if (gSearchPhoneticName == "false")
+         if (gSearchPhoneticName != "true")
            attrs = ["DisplayName","FirstName","LastName","NickName","_AimScreenName"];
          else
            attrs = ["DisplayName","FirstName","LastName","NickName","_AimScreenName","PhoneticFirstName","PhoneticLastName"];

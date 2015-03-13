@@ -356,7 +356,7 @@ function InitPhoneticFields()
     Services.prefs.getComplexValue("mail.addr_book.show_phonetic_fields", 
       Components.interfaces.nsIPrefLocalizedString).data;
 
-  // hide phonetic fields if indicated by the pref
+  // show phonetic fields if indicated by the pref
   if (showPhoneticFields == "true")
   {
     for (var i = kPhoneticFields.length; i-- > 0; )
