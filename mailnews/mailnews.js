@@ -809,6 +809,10 @@ pref("mailnews.database.summary.dontPreserveOnCopy",
 //                     Allows extensions to control preservation of properties.
 pref("mailnews.database.summary.dontPreserveOnMove",
   "account msgOffset threadParent msgThreadId statusOfset flags size numLines ProtoThreadFlags label storeToken");
+// Should we output dbcache log via dump? Set to "Debug" to show.
+pref("mailnews.database.dbcache.logging.dump", "None");
+// Should we output dbcache log to the "error console"? Set to "Debug" to show.
+pref("mailnews.database.dbcache.logging.console", "None");
 
 // -- Global Database (gloda) options
 // Should the indexer be enabled?

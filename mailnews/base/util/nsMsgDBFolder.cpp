@@ -967,6 +967,15 @@ nsMsgDBFolder::SetMsgDatabase(nsIMsgDatabase *aMsgDatabase)
 }
 
 NS_IMETHODIMP
+nsMsgDBFolder::GetDatabaseOpen(bool *aOpen)
+{
+  NS_ENSURE_ARG_POINTER(aOpen);
+
+  *aOpen = (mDatabase != nullptr);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 nsMsgDBFolder::GetBackupMsgDatabase(nsIMsgDatabase** aMsgDatabase)
 {
   NS_ENSURE_ARG_POINTER(aMsgDatabase);

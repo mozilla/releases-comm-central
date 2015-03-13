@@ -30,7 +30,7 @@ typedef long nsMsgBiffState;
 // enumerated type for determining if a message has been replied to, forwarded, etc.
 typedef long nsMsgDispositionState;
 
-[scriptable, uuid(E065F5CC-A358-4258-96EB-99F944162D32)]
+[scriptable, uuid(E6CC0770-D0D8-4E67-8A2E-02C82C32C99A)]
 interface nsIMsgFolder : nsISupports {
 
   const nsMsgBiffState nsMsgBiffState_NewMail = 0; // User has new mail waiting.
@@ -140,7 +140,10 @@ interface nsIMsgFolder : nsISupports {
    */
   void setEditableFilterList(in nsIMsgFilterList aFilterList);
 
-  void ForceDBClosed ();
+  /**
+   * Force close the mail database associated with this folder.
+   */
+  void ForceDBClosed();
   /**
    * Close and backup a folder database prior to reparsing
    *
@@ -479,6 +482,9 @@ interface nsIMsgFolder : nsISupports {
    * throw an error. For a handle to the database which MAY NOT throw an error,
    * one can use getDBFolderInfoAndDB.
    *
+   * The attribute can also be set to another database or to null to force the
+   * folder to reopen the same database when it is needed again.
+   *
    * @exception NS_MSG_ERROR_FOLDER_SUMMARY_MISSING If the database does not
    *                         exist.
    * @exception NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE If the database contains
@@ -486,6 +492,9 @@ interface nsIMsgFolder : nsISupports {
    * @see nsIMsgFolder::getDBFolderInfoAndDB.
    */
   attribute nsIMsgDatabase msgDatabase;
+
+  /// Does the folder have a local reference to the msgDatabase?
+  readonly attribute boolean databaseOpen;
 
   /**
    * Get the backup message database, used in reparsing. This database must

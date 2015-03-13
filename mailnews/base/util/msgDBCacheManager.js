@@ -16,6 +16,8 @@ const Cu = Components.utils;
 
 Cu.import("resource:///modules/mailServices.js");
 Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource:///modules/gloda/log4moz.js");
+var log = Log4Moz.getConfiguredLogger("mailnews.database.dbcache");
 
 /**
  */
@@ -108,34 +110,60 @@ var msgDBCacheManager =
     let idleLimit = Services.prefs.getIntPref("mail.db.idle_limit");
     let maxOpenDBs = Services.prefs.getIntPref("mail.db.max_open");
 
-    let closeThreshold = Date.now() - idleLimit;
-    const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
+    // db.lastUseTime below is in microseconds while Date.now and idleLimit pref
+    // is in milliseconds.
+    let closeThreshold = (Date.now() - idleLimit) * 1000;
     let cachedDBs = gDbService.openDBs;
+    log.info("periodic check of cached dbs, count=" + cachedDBs.length);
     let numOpenDBs = 0;
     for (let i = 0; i < cachedDBs.length; i++) {
       let db = cachedDBs.queryElementAt(i, Ci.nsIMsgDatabase);
+      if (!db.folder.databaseOpen) {
+        log.debug("skipping cachedDB not open in folder: " + db.folder.name);
+        continue;
+      }
+
       if (MailServices.mailSession.IsFolderOpenInWindow(db.folder)) {
+        log.debug("folder open in window, name: " + db.folder.name);
         numOpenDBs++;
         continue;
       }
-      let lruTime = db.lastUseTime / 1000;
-      if (lruTime < closeThreshold)
+      if (db.lastUseTime < closeThreshold)
+      {
+        log.debug("closing expired msgDatabase for folder: " + db.folder.name);
         db.folder.msgDatabase = null;
-      numOpenDBs++;
+      }
+      else
+        numOpenDBs++;
     }
-    let openDBs = gDbService.openDBs;
+    cachedDBs = gDbService.openDBs;
+    log.info("open db count " + numOpenDBs);
     if (numOpenDBs > maxOpenDBs) {
+      // Close some DBs so that we do not have more than maxOpenDBs.
+      // However, we do not close DB for a folder that is open in a window
+      // so if there are so many windows open, it may be possible for
+      // more than maxOpenDBs folders to stay open after this loop.
       let dbs = [];
-      for (let i = 0; i < openDBs.length; i++)
-        dbs.push(openDBs.queryElementAt(i, Ci.nsIMsgDatabase));
+      for (let i = 0; i < cachedDBs.length; i++) {
+        let db = cachedDBs.queryElementAt(i, Ci.nsIMsgDatabase);
+        if (db.folder.databaseOpen)
+          dbs.push(db);
+      }
       dbs.sort(function(a, b) a.lastUseTime > b.lastUseTime);
-      let dbsToClose = maxOpenDBs - dbs.length;
-      for each (let [, db] in Iterator(dbs)) {
-        if (MailServices.mailSession.IsFolderOpenInWindow(db.folder))
-          continue;
-        db.folder.msgDatabase = null;
-        if (--dbsToClose == 0)
-          break;
+      let dbsToClose = dbs.length - maxOpenDBs;
+      if (dbsToClose > 0) {
+        log.info("trying to close " + dbsToClose + " databases");
+        for (let db of dbs) {
+          if (MailServices.mailSession.IsFolderOpenInWindow(db.folder))
+          {
+            log.debug("not closing db open in window, name: " + db.folder.name);
+            continue;
+          }
+          log.debug("closing db for folder: " + db.folder.name);
+          db.folder.msgDatabase = null;
+          if (--dbsToClose == 0)
+            break;
+        }
       }
     }
   },
