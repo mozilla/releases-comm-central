@@ -21,7 +21,8 @@ function OutgoingMessage(aMsg, aConversation) {
 }
 OutgoingMessage.prototype = {
   __proto__: ClassInfo("imIOutgoingMessage", "Outgoing Message"),
-  cancelled: false
+  cancelled: false,
+  action: false
 };
 
 function imMessage(aPrplMessage) {

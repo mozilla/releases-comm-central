@@ -20,6 +20,16 @@ function getAccount(aConv) getConv(aConv)._account;
 // Trim leading and trailing spaces and split a string by any type of space.
 function splitInput(aString) aString.trim().split(/\s+/);
 
+function OutgoingMessage(aMsg, aConversation, aAction) {
+  this.message = aMsg;
+  this.conversation = aConversation;
+  this.action = !!aAction;
+}
+OutgoingMessage.prototype = {
+  __proto__: ClassInfo("imIOutgoingMessage", "Outgoing Message"),
+  cancelled: false
+};
+
 // Kick a user from a channel
 // aMsg is <user> [comment]
 function kickCommand(aMsg, aConv) {
@@ -65,12 +75,7 @@ function messageCommand(aMsg, aConv, aReturnedConv, aIsNotice = false) {
     return true;
 
   // Give add-ons an opportunity to tweak or cancel the message.
-  let om = {
-    __proto__: ClassInfo("imIOutgoingMessage", "Outgoing Message"),
-    message: message,
-    conversation: conv,
-    cancelled: false
-  };
+  let om = new OutgoingMessage(message, conv);
   conv.notifyObservers(om, "sending-message");
   // If a NOTICE is cancelled and resent, it will end up being sent as PRIVMSG.
   if (om.cancelled)
@@ -96,15 +101,22 @@ function actionCommand(aMsg, aConv) {
     return false;
 
   let conv = getConv(aConv);
+
+  // Give add-ons an opportunity to tweak or cancel the action.
+  let om = new OutgoingMessage(aMsg, aConv, true);
+  conv.notifyObservers(om, "sending-message");
+  if (om.cancelled)
+    return true;
+
   let account = getAccount(aConv);
-  if (!ctcpCommand(aConv, aConv.name, "ACTION", aMsg)) {
+  if (!ctcpCommand(aConv, aConv.name, "ACTION", om.message)) {
     conv.writeMessage(account._currentServerName, _("error.sendMessageFailed"),
                       {error: true, system: true});
     return true;
   }
 
   // Show the action on our conversation.
-  conv.writeMessage(account._nickname, "/me " + aMsg, {outgoing: true});
+  conv.writeMessage(account._nickname, "/me " + om.message, {outgoing: true});
   return true;
 }
 
