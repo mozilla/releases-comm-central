@@ -11,20 +11,18 @@
   display: none;
 }
 
-/* Pick the desired icons depending on the window's context */
-
-#warningBox.private > #warningBoxIcon {
-  list-style-image: url("chrome://global/skin/icons/information-48.png");
-  width: 48px;
-  height: 48px;
-  -moz-margin-end: 3em;
+.title {
+  background-size: auto;
 }
 
-#warningBox.normal > #warningBoxIcon {
-  list-style-image: url("chrome://global/skin/icons/question-48.png");
-  width: 48px;
-  height: 48px;
-  -moz-margin-end: 3em;
+/* Pick the desired icons depending on the window's context */
+
+.private.title {
+  background-image: url("chrome://global/skin/icons/information-48.png");
+}
+
+.normal.title {
+  background-image: url("chrome://global/skin/icons/question-48.png");
 }
 
 #trackWarnBox {
@@ -41,14 +39,8 @@
 
 /* Define additional styles to look similar to the netError/certError pages */
 
-#warningTitle {
-  font-weight: bold;
-}
-
 #warningStatus {
   margin: 0.4em 0 1.2em 0;
-  padding-bottom: 1.2em;
-  border-bottom: 1px solid ThreeDLightShadow;
   font-size: 135%;
 }
 
@@ -56,7 +48,6 @@
   margin: 0.8em 0 1em 0;
 }
 
-#warningOuterBox > vbox > label,
-#warningInnerBox > description {
+#warningStatus > label {
   -moz-margin-start: 0;
 }

@@ -4,6 +4,8 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://global/skin/in-content/info-pages.css" type="text/css"?>
 <?xml-stylesheet href="chrome://global/skin/config.css" type="text/css"?>
 <?xml-stylesheet href="chrome://communicator/skin/aboutPrivateBrowsing.css" type="text/css"?>
 
@@ -23,21 +25,20 @@
   <script type="text/javascript" src="chrome://communicator/content/aboutPrivateBrowsing.js"/>
   <spacer flex="1"/>
   <hbox id="warningBox" align="start">
-    <image id="warningBoxIcon"/>
     <vbox id="warningOuterBox">
-      <vbox id="warningTitle">
-        <label id="privateTitle" class="private">&privatebrowsingpage.title.private;</label>
-        <label id="normalTitle" class="normal">&privatebrowsingpage.title.normal;</label>
+      <vbox>
+        <label id="privateTitle" class="private title">&privatebrowsingpage.title.private;</label>
+        <label id="normalTitle" class="normal title">&privatebrowsingpage.title.normal;</label>
       </vbox>
-      <vbox id="warningStatus">
+      <vbox id="warningStatus" class="title-text">
         <label class="private">&privatebrowsingpage.status.private;</label>
         <label class="normal">&privatebrowsingpage.status.normal;</label>
       </vbox>
-      <vbox id="warningInnerBox" align="start">
+      <vbox id="warningInnerBox" class="container" align="start">
         <description id="warningText">&privatebrowsingpage.common.description;</description>
         <hbox id="trackWarnBox" class="private">
           <image id="trackWarnIcon"/>
-          <description flex="1">&privatebrowsingpage.track.warn;</description>
+          <label flex="1">&privatebrowsingpage.track.warn;</label>
         </hbox>
         <button id="learnMoreButton"
                 label="&privatebrowsingpage.learnmore.label;"
