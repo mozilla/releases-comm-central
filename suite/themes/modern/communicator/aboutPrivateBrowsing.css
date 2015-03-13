@@ -13,18 +13,12 @@
 
 /* Pick the desired icons depending on the window's context */
 
-#warningBox.private > #warningBoxIcon {
-  list-style-image: url("chrome://global/skin/icons/information-48.png");
-  width: 48px;
-  height: 48px;
-  -moz-margin-end: 3em;
+#warningBox.private {
+  background-image: url("chrome://global/skin/icons/information-48.png");
 }
 
-#warningBox.normal > #warningBoxIcon {
-  list-style-image: url("chrome://global/skin/icons/question-48.png");
-  width: 48px;
-  height: 48px;
-  -moz-margin-end: 3em;
+#warningBox.normal {
+  background-image: url("chrome://global/skin/icons/question-48.png");
 }
 
 #trackWarnBox {
@@ -41,7 +35,11 @@
 
 /* Define additional styles to look similar to the netError/certError pages */
 
-#warningTitle {
+#privateTitle,
+#normalTitle {
+  -moz-padding-start: 0px;
+  margin: 0 0 .6em;
+  font-size: 160%;
   font-weight: bold;
 }
 
@@ -52,8 +50,17 @@
   font-size: 135%;
 }
 
+#warningInnerBox
+{
+  max-width: 50em;
+}
+
 #warningInnerBox > button {
   margin: 0.8em 0 1em 0;
+}
+
+#warningOuterBox {
+  -moz-padding-start: 3em;
 }
 
 #warningOuterBox > vbox > label,
