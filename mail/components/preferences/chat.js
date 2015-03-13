@@ -59,12 +59,18 @@ var gChatPane = {
 
     let soundLocation = document.getElementById("chatSoundType").value == 1 ?
                         document.getElementById("chatSoundUrlLocation").value :
-                        "_moz_mailbeep";
+                        "";
 
-    if (!soundLocation.startsWith("file://"))
-      sound.playSystemSound(soundLocation);
-    else
+    // This should be in sync with the code in nsStatusBarBiffManager::PlayBiffSound.
+    if (!soundLocation.startsWith("file://")) {
+#ifdef XP_MACOSX
+      sound.beep();
+#else
+      sound.playEventSound(nsISound.EVENT_NEW_MAIL_RECEIVED);
+#endif
+    } else {
       sound.play(Services.io.newURI(soundLocation, null, null));
+    }
   },
 
   browseForSoundFile: function ()
