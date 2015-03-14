@@ -829,6 +829,18 @@ bool isDirectoryRemote(nsCOMPtr<nsIAbDirectory> aDir)
   return (uri.Find("moz-abldapdirectory") != kNotFound);
 }
 
+// A helper method to get the query string for nsIAbDirectory.
+nsCString getQuery(nsCOMPtr<nsIAbDirectory> aDir)
+{
+  nsCString uri;
+  aDir->GetURI(uri);
+  int32_t searchBegin = uri.FindChar('?');
+  if (searchBegin == kNotFound)
+    return EmptyCString();
+
+  return nsCString(Substring(uri, searchBegin));
+}
+
 NS_IMETHODIMP nsAbView::OnItemAdded(nsISupports *parentDir, nsISupports *item)
 {
   nsresult rv;
@@ -839,13 +851,29 @@ NS_IMETHODIMP nsAbView::OnItemAdded(nsISupports *parentDir, nsISupports *item)
   // If the search is performed on All Address books, its possible that the LDAP
   // results start coming when mDirectory has changed (LDAP search works in an
   // asynchronous manner).
-  if ((mIsAllDirectoryRootView && isRemote) ||
+  // Since the listeners are being added to all nsAbView instances, we need to
+  // make sure that all the views aren't updated by the listeners.
+  bool isDirectoryQuery = false;
+  bool isMDirectoryQuery = false;
+  // See if current parent directory to which the item is added is a query
+  // directory.
+  directory->GetIsQuery(&isDirectoryQuery);
+  // Get the query string for the directory in Advanced AB Search window.
+  nsCString directoryQuery(getQuery(directory));
+  // See if the selected directory in Address book main window is a query
+  // directory.
+  mDirectory->GetIsQuery(&isMDirectoryQuery);
+  // Get the query string for the selected directory in the main AB window.
+  nsCString mDirectoryQuery(getQuery(mDirectory));
+  if ((mIsAllDirectoryRootView && isRemote &&
+       isDirectoryQuery && isMDirectoryQuery &&
+       directoryQuery.Equals(mDirectoryQuery)) ||
       directory.get() == mDirectory.get()) {
     nsCOMPtr <nsIAbCard> addedCard = do_QueryInterface(item);
     if (addedCard) {
       // Malloc these from an arena
       AbCard *abcard = (AbCard *) PR_Calloc(1, sizeof(struct AbCard));
-      if (!abcard) 
+      if (!abcard)
         return NS_ERROR_OUT_OF_MEMORY;
 
       abcard->card = addedCard;
