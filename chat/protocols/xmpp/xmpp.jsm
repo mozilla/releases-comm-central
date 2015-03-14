@@ -679,11 +679,20 @@ const XMPPAccountPrototype = {
     let jid =
       aComponents.getValue("room") + "@" + aComponents.getValue("server");
     let nick = aComponents.getValue("nick");
-    if (this._mucs.has(jid)) {
-      let muc = this._mucs.get(jid);
+
+    let muc = this._mucs.get(jid);
+    if (muc) {
       if (!muc.left)
         return muc; // We are already in this conversation.
     }
+    else {
+      muc = new this._MUCConversationConstructor(this, jid, nick);
+      this._mucs.set(jid, muc);
+    }
+
+    // Store the prplIChatRoomFieldValues to enable later reconnections.
+    muc._chatRoomFields = aComponents;
+    muc.joining = true;
 
     let x;
     let password = aComponents.getValue("password");
@@ -692,12 +701,6 @@ const XMPPAccountPrototype = {
                       Stanza.node("password", null, null, password));
     }
     this.sendStanza(Stanza.presence({to: jid + "/" + nick}, x));
-
-    let muc = new this._MUCConversationConstructor(this, jid, nick);
-    this._mucs.set(jid, muc);
-    // Store the prplIChatRoomFieldValues to enable later reconnections.
-    muc._chatRoomFields = aComponents;
-    muc.joining = true;
     return muc;
   },
 
