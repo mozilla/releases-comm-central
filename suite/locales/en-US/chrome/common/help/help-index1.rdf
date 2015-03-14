@@ -1113,11 +1113,6 @@
          nc:link="mailnews_getting_started.xhtml#changing_the_settings_for_an_account"/>
      </rdf:li>
      <rdf:li>
-       <rdf:Description ID="Mail_and_Newsgroups:Character_Encoding"
-         nc:name="Character Encoding"
-         nc:link="mailnews_preferences.xhtml#character_encoding"/>
-     </rdf:li>
-     <rdf:li>
        <rdf:Description ID="Mail_and_Newsgroups:Compose_window"
          nc:name="Compose window"
          nc:link="mailnews_using_mail.xhtml#using_the_message_composition_window"/>
@@ -1261,6 +1256,11 @@
        <rdf:Description ID="Mail_and_Newsgroups:SMTP_settings"
          nc:name="SMTP settings"
          nc:link="mailnews_account_settings.xhtml#outgoing_server"/>
+     </rdf:li>
+     <rdf:li>
+       <rdf:Description ID="Mail_and_Newsgroups:Text_Encoding"
+         nc:name="Text Encoding"
+         nc:link="mailnews_preferences.xhtml#text_encoding"/>
      </rdf:li>
      <rdf:li>
        <rdf:Description ID="Mail_and_Newsgroups:sorting_and_threading_messages"

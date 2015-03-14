@@ -97,7 +97,7 @@
   <rdf:Description about="#nav-doc-language">
     <nc:subheadings>
       <rdf:Seq>
-        <rdf:li> <rdf:Description ID="nav-doc-charencode" nc:name="Selecting Character Encodings and Fonts" nc:link="nav_help.xhtml#selecting_character_encodings_and_fonts"/> </rdf:li>
+        <rdf:li> <rdf:Description ID="nav-doc-charencode" nc:name="Selecting Text Encodings and Fonts" nc:link="nav_help.xhtml#selecting_text_encodings_and_fonts"/> </rdf:li>
         <rdf:li> <rdf:Description ID="nav-doc-languagepref" nc:name="Setting Language Preferences" nc:link="nav_help.xhtml#setting_language_preferences"/> </rdf:li>
         <rdf:li> <rdf:Description ID="nav-doc-webcontent" nc:name="Finding a &brandShortName; version in your own language" nc:link="nav_help.xhtml#finding_localized_version"/> </rdf:li>
       </rdf:Seq>
@@ -509,7 +509,7 @@
         <rdf:li> <rdf:Description ID="mail-prefs-junk" nc:name="Junk &amp; Suspect Mail" nc:link="mailnews_preferences.xhtml#junk_and_suspect_preferences"/> </rdf:li>
         <rdf:li> <rdf:Description ID="mail-prefs-tags" nc:name="Tags" nc:link="mailnews_preferences.xhtml#tags"/> </rdf:li>
         <rdf:li> <rdf:Description ID="mail-prefs-receipts" nc:name="Return Receipts" nc:link="mailnews_preferences.xhtml#return_receipts_preferences"/> </rdf:li>
-        <rdf:li> <rdf:Description ID="mail_prefs_character_encoding" nc:name="Character Encoding" nc:link="mailnews_preferences.xhtml#character_encoding"/> </rdf:li>
+        <rdf:li> <rdf:Description ID="mail_prefs_text_encoding" nc:name="Text Encoding" nc:link="mailnews_preferences.xhtml#text_encoding"/> </rdf:li>
         <rdf:li> <rdf:Description ID="mail_prefs_offline" nc:name="Network &amp; Storage" nc:link="mailnews_preferences.xhtml#network_and_storage_preferences"/> </rdf:li>
       </rdf:Seq>
     </nc:subheadings>

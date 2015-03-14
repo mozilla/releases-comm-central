@@ -105,7 +105,7 @@
                   label="&characterEncoding2.label;"
                   prefpane="character_encoding_pane"
                   url="chrome://messenger/content/pref-character_encoding.xul"
-                  helpTopic="mail_prefs_character_encoding"/>
+                  helpTopic="mail_prefs_text_encoding"/>
         <treeitem id="offlineItem"
                   label="&networkStorage.label;"
                   prefpane="offline_pane"
