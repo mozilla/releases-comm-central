@@ -500,6 +500,7 @@ updateWritePrefs: function ()
     var messenger = Components.classes["@mozilla.org/messenger;1"]
       .createInstance(Components.interfaces.nsIMessenger);
     messenger.launchExternalURL(url);
+    evt.preventDefault();
     return false;
   },
 
