@@ -552,7 +552,8 @@
           <hbox align="center">
             <label value="&fromAddr.label;" accesskey="&fromAddr.accesskey;" control="msgIdentity"/>
             <menulist id="msgIdentity"
-                      type="description"
+                      editable="true"
+                      disableautoselect="true"
                       flex="1"
                       oncommand="LoadIdentity(false);">
               <menupopup id="msgIdentityPopup"/>

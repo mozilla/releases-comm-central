@@ -947,7 +947,10 @@ function ComposeStartup(recycled, aParams)
     params.identity = identities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
   }
 
-  identityList.value = params.identity.key;
+  identityList.selectedItem =
+    identityList.getElementsByAttribute("identitykey", params.identity.key)[0];
+  if (params.composeFields.from)
+    identityList.value = params.composeFields.from;
   LoadIdentity(true);
   if (sMsgComposeService)
   {
@@ -1274,6 +1277,7 @@ function GenericSendMessage( msgType )
     if (msgCompFields)
     {
       Recipients2CompFields(msgCompFields);
+      msgCompFields.from = GetMsgIdentityElement().value;
       var subject = GetMsgSubjectElement().value;
       msgCompFields.subject = subject;
       Attachments2CompFields(msgCompFields);
@@ -1893,8 +1897,10 @@ function FillIdentityList(menulist)
     for (let i = 0; i < identities.length; i++)
     {
       let identity = identities[i];
-      let item = menulist.appendItem(identity.identityName, identity.key,
+      let item = menulist.appendItem(identity.identityName,
+                                     identity.identityName,
                                      account.incomingServer.prettyName);
+      item.setAttribute("identitykey", identity.key);
       item.setAttribute("accountkey", account.key);
       if (i == 0)
       {
@@ -1905,13 +1911,6 @@ function FillIdentityList(menulist)
   }
 }
 
-function getCurrentIdentity()
-{
-  // fill in Identity combobox
-  var identityKey = GetMsgIdentityElement().value;
-  return gAccountManager.getIdentity(identityKey);
-}
-
 function getCurrentAccountKey()
 {
     // get the accounts key
@@ -1919,9 +1918,21 @@ function getCurrentAccountKey()
     return identityList.selectedItem.getAttribute("accountkey");
 }
 
+function getCurrentIdentityKey()
+{
+    // get the identity key
+    var identityList = GetMsgIdentityElement();
+    return identityList.selectedItem.getAttribute("identitykey");
+}
+
 function getIdentityForKey(key)
 {
     return gAccountManager.getIdentity(key);
+}
+
+function getCurrentIdentity()
+{
+  return getIdentityForKey(getCurrentIdentityKey());
 }
 
 function AdjustFocus()
@@ -2369,7 +2380,7 @@ function LoadIdentity(startup)
     var prevIdentity = gCurrentIdentity;
 
     if (identityElement) {
-        var idKey = identityElement.value;
+        var idKey = identityElement.selectedItem.getAttribute("identitykey");
         gCurrentIdentity = gAccountManager.getIdentity(idKey);
 
         let accountKey = null;
