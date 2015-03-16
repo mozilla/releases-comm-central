@@ -1,0 +1,47 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/*** Panel and outer controls ***/
+
+#aboutDownloads {
+  background-color: #f1f1f1;
+  color: #424e5a;
+  padding: 18px;
+}
+
+#msgDownloadsListEmptyDescription {
+  margin: 1em;
+  text-align: center;
+  color: GrayText;
+}
+
+#msgDownloadsRichListBox {
+  /** The default listbox appearance comes with an unwanted margin. **/
+  -moz-appearance: none;
+  margin: 0;
+}
+
+#msgDownloadsRichListBox > richlistitem.download {
+  height: 6em;
+  padding: 5px 8px;
+}
+
+.fileTypeIcon {
+  -moz-margin-end: 8px;
+  /* Ensure icons are displayed at 32px size even on Retina display */
+  height: 32px;
+  width: 32px;
+}
+
+.fileName {
+  margin-bottom: 3px;
+  cursor: inherit;
+}
+
+.size,
+.startDate {
+  opacity: 0.7;
+  font-size: 95%;
+  cursor: inherit;
+}

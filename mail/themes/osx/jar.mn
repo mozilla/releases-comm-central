@@ -114,6 +114,8 @@ classic.jar:
   skin/classic/messenger/messengercompose/format-buttons@2x.png   (mail/compose/format-buttons@2x.png)
   skin/classic/messenger/messengercompose/insert-menu.png         (mail/compose/insert-menu.png)
   skin/classic/messenger/messengercompose/insert-menu@2x.png      (mail/compose/insert-menu@2x.png)
+  skin/classic/messenger/downloads/aboutDownloads.css             (mail/downloads/aboutDownloads.css)
+  skin/classic/messenger/downloads/download.svg                   (mail/downloads/download.svg)
 % skin messenger-newsblog classic/1.0 %skin/classic/messenger-newsblog/
   skin/classic/messenger-newsblog/feed-subscriptions.css         (mail/newsblog/feed-subscriptions.css)
   skin/classic/messenger-newsblog/rss-feed.png                   (mail/newsblog/rss-feed.png)

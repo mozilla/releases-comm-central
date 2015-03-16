@@ -98,6 +98,8 @@ classic.jar:
   skin/classic/messenger/messengercompose/compose-toolbar-small.png   (mail/compose/compose-toolbar-small.png)
   skin/classic/messenger/messengercompose/format-buttons.png  (mail/compose/format-buttons.png)
   skin/classic/messenger/messengercompose/linux-noise.png     (mail/compose/linux-noise.png)
+  skin/classic/messenger/downloads/download.svg               (mail/downloads/download.svg)
+  skin/classic/messenger/downloads/aboutDownloads.css         (mail/downloads/aboutDownloads.css)
 % skin messenger-newsblog classic/1.0 %skin/classic/messenger-newsblog/
   skin/classic/messenger-newsblog/feed-subscriptions.css      (mail/newsblog/feed-subscriptions.css)
   skin/classic/messenger-newsblog/icons/rss-feed.png          (mail/newsblog/rss-feed.png)

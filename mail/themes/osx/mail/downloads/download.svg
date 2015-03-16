@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 16 16">
+  <path
+     d="m 8,14.5 6.5,-6 -4,0 0,-6.5 C 10.5,1.75 10.25,1.5 10,1.5 l -4,0 C 5.75,1.5 5.5,1.75 5.5,2 l 0,6.5 -4,0 z"
+     style="fill:#4d4d4d;stroke:#4d4d4d;stroke-width:0.5;"/>
+</svg>
