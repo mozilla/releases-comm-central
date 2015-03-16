@@ -3701,9 +3701,15 @@ function RemoveSelectedAttachment()
       }
 
       if (item.attachment.sendViaCloud && item.cloudProvider) {
-        let file = fileHandler.getFileFromURLSpec(item.originalUrl);
-        item.cloudProvider.deleteFile(
-          file, new deletionListener(item.attachment, item.cloudProvider));
+        let originalUrl = item.originalUrl;
+        if (!originalUrl)
+          originalUrl = item.attachment.url;
+        let file = fileHandler.getFileFromURLSpec(originalUrl);
+        if (item.uploading)
+          item.cloudProvider.cancelFileUpload(file);
+        else
+          item.cloudProvider.deleteFile(file,
+            new deletionListener(item.attachment, item.cloudProvider));
       }
 
       removedAttachments.appendElement(item.attachment, false);
