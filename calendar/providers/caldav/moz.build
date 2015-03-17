@@ -10,3 +10,5 @@ EXTRA_COMPONENTS += [
     'calDavCalendar.manifest',
 ]
 
+with Files('**'):
+    BUG_COMPONENT = ('Calendar', 'Provider: CalDAV')

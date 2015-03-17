@@ -31,3 +31,14 @@ JS_PREFERENCE_FILES += [
     'content/lightning.js',
 ]
 
+with Files('**'):
+    BUG_COMPONENT = ('Calendar', 'Lightning Only')
+
+with Files('content/suite-*'):
+    BUG_COMPONENT = ('Calendar', 'Lightning: SeaMonkey Integration')
+
+with Files('build/**'):
+    BUG_COMPONENT = ('Calendar', 'Build Config')
+
+with Files('application.ini'):
+    BUG_COMPONENT = ('Calendar', 'Build Config')

@@ -6,3 +6,6 @@
 EXTRA_COMPONENTS += [
     'calICALJSComponents.js',
 ]
+
+with Files('**'):
+    BUG_COMPONENT = ('Calendar', 'ICAL.js Integration')

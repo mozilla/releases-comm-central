@@ -8,3 +8,5 @@ EXTRA_COMPONENTS += [
     'calICSCalendar.manifest',
 ]
 
+with Files('**'):
+    BUG_COMPONENT = ('Calendar', 'Provider: ICS/WebDAV')

@@ -12,3 +12,9 @@ else:
 
 if CONFIG['MOZ_UPDATER']:
     DEFINES['MOZ_UPDATER'] = 1
+
+with Files('content/*'):
+    BUG_COMPONENT = ('Calendar', 'Dialogs')
+
+with Files('content/datetimepickers/*'):
+    BUG_COMPONENT = ('Calendar', 'Calendar Views')

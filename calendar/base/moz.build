@@ -18,3 +18,24 @@ elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
     DEFINES['THEME'] = 'osx'
 else:
     DEFINES['THEME'] = 'linux'
+
+with Files('content/**'):
+    BUG_COMPONENT = ('Calendar', 'Calendar Views')
+
+with Files('content/preferences/**'):
+    BUG_COMPONENT = ('Calendar', 'Preferences')
+
+with Files('content/dialogs/**'):
+    BUG_COMPONENT = ('Calendar', 'Dialogs')
+
+with Files('content/*task*'):
+    BUG_COMPONENT = ('Calendar', 'Tasks')
+
+with Files('content/dialogs/*alarm*'):
+    BUG_COMPONENT = ('Calendar', 'Alarms')
+
+with Files('content/widgets/*alarm*'):
+    BUG_COMPONENT = ('Calendar', 'Alarms')
+
+with Files('themes/**'):
+    BUG_COMPONENT = ('Calendar', 'Calendar Views')

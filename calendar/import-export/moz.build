@@ -9,3 +9,9 @@ EXTRA_COMPONENTS += [
 ]
 
 JAR_MANIFESTS += ['jar.mn']
+
+with Files('**'):
+    BUG_COMPONENT = ('Calendar', 'Import and Export')
+
+with Files('*Print*'):
+    BUG_COMPONENT = ('Calendar', 'Printing')

@@ -54,3 +54,8 @@ EXPORTS += [
     'calBaseCID.h',
 ]
 
+with Files('**'):
+    BUG_COMPONENT = ('Calendar', 'Internal Components')
+
+with Files('calIAlarm*'):
+    BUG_COMPONENT = ('Calendar', 'Alarms')

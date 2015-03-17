@@ -13,3 +13,21 @@ if CONFIG['MOZ_CALENDAR']:
 
 TEST_DIRS += ['test']
 
+with Files('**'):
+    BUG_COMPONENT = ('Calendar', 'General')
+
+with Files('**/moz.build'):
+    BUG_COMPONENT = ('Calendar', 'Build Config')
+    FINAL = True
+
+with Files('**/*.mk'):
+    BUG_COMPONENT = ('Calendar', 'Build Config')
+    FINAL = True
+
+with Files('**/*manifest'):
+    BUG_COMPONENT = ('Calendar', 'Build Config')
+    FINAL = True
+
+with Files('**/Makefile.in'):
+    BUG_COMPONENT = ('Calendar', 'Build Config')
+    FINAL = True
