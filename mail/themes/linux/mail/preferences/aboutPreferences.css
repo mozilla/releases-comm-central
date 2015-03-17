@@ -47,10 +47,6 @@ filefield + button {
   -moz-margin-start: -4px;
 }
 
-treecol:hover:active {
-  padding: 0 2px;
-}
-
 /**
  * Dialog
  */

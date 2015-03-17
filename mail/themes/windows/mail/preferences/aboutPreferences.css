@@ -54,10 +54,6 @@ radio {
   -moz-margin-end: 9px;
 }
 
-treecol:hover:active {
-  padding: 0 4px;
-}
-
 textbox + button,
 filefield + button {
   -moz-margin-start: -4px;
