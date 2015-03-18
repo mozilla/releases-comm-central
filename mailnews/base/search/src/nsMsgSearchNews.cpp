@@ -127,7 +127,6 @@ char *nsMsgSearchNews::EncodeTerm (nsIMsgSearchTerm *term)
   // Build a string to represent the string pattern
   bool leadingStar = false;
   bool trailingStar = false;
-  int overhead = 1; // null terminator
   nsMsgSearchOpValue op;
   term->GetOp(&op);
 
@@ -136,17 +135,14 @@ char *nsMsgSearchNews::EncodeTerm (nsIMsgSearchTerm *term)
   case nsMsgSearchOp::Contains:
     leadingStar = true;
     trailingStar = true;
-    overhead += 2;
     break;
   case nsMsgSearchOp::Is:
     break;
   case nsMsgSearchOp::BeginsWith:
     trailingStar = true;
-    overhead++;
     break;
   case nsMsgSearchOp::EndsWith:
     leadingStar = true;
-    overhead++;
     break;
   default:
     NS_ASSERTION(false,"malformed search"); // malformed search term?
@@ -184,25 +180,7 @@ char *nsMsgSearchNews::EncodeTerm (nsIMsgSearchTerm *term)
   if (!escapedValue)
     return nullptr;
 
-#if 0
-  // We also need to apply NET_Escape to it since we have to pass 8-bits data
-  // And sometimes % in the 7-bit doulbe byte JIS
-  //
-  char16_t * urlEncoded = nsEscape(escapedValue, url_Path);
-  NS_Free(escapedValue);
-
-  if (! urlEncoded)
-    return nullptr;
-
-  char *pattern = new char [NS_strlen(urlEncoded) + overhead];
-  if (!pattern)
-    return nullptr;
-  else
-    pattern[0] = '\0';
-#else
-    nsAutoCString pattern;
-#endif
-
+  nsAutoCString pattern;
 
   if (leadingStar)
       pattern.Append('*');
