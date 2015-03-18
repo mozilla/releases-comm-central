@@ -955,6 +955,13 @@ function FillLinkMenulist(linkMenulist, headingsArray)
     }
     else
     {
+      // Don't bother with named anchors in Mail.
+      if (editor && (editor.flags & Components.interfaces.nsIPlaintextEditor.eEditorMailMask))
+      {
+        menupopup.remove();
+        linkMenulist.removeAttribute("enablehistory");
+        return;
+      }
       var item = createMenuItem(menupopup, GetString("NoNamedAnchorsOrHeadings"));
       item.setAttribute("disabled", "true");
     }
