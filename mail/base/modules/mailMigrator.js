@@ -81,7 +81,7 @@ var MailMigrator = {
           if (fontPrefVersion < 1)
             encodings.push("x-unicode", "x-western");
           // (Thunderbird 3.2)
-          encodings.push("x-central-euro", "x-cyrillic", "x-baltic", "el", "tr");
+          encodings.push("x-cyrillic", "el");
 
           this._switchDefaultFonts(fonts, encodings);
 

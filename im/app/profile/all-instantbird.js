@@ -81,17 +81,14 @@ pref("messenger.options.playSounds.logout", true);
 
 pref("font.default.x-western", "sans-serif");
 pref("font.default.x-unicode", "sans-serif");
-pref("font.default.x-central-euro", "sans-serif");
 pref("font.default.x-cyrillic", "sans-serif");
 #ifdef XP_MACOSX
 pref("font.name.sans-serif.x-unicode", "Lucida Grande");
 pref("font.name.sans-serif.x-western", "Lucida Grande");
-pref("font.name.sans-serif.x-central-euro", "Lucida Grande");
 pref("font.name.sans-serif.x-cyrillic", "Lucida Grande");
 #endif
 pref("font.size.variable.x-western", 13);
 pref("font.size.variable.x-unicode", 13);
-pref("font.size.variable.x-central-euro", 13);
 pref("font.size.variable.x-cyrillic", 13);
 
 pref("messenger.proxies", "");
