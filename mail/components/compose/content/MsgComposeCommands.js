@@ -2148,8 +2148,7 @@ function ComposeStartup(recycled, aParams)
     params.identity = identities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
   }
 
-  identityList.selectedItem =
-    identityList.getElementsByAttribute("identitykey", params.identity.key)[0];
+  identityList.value = params.identity.key;
   LoadIdentity(true);
 
   // Get the <editor> element to startup an editor
@@ -2443,7 +2442,6 @@ function GenericSendMessage(msgType)
   var msgCompFields = gMsgCompose.compFields;
 
   Recipients2CompFields(msgCompFields);
-  msgCompFields.from = GetMsgIdentityElement().value;
   var subject = GetMsgSubjectElement().value;
   msgCompFields.subject = subject;
   Attachments2CompFields(msgCompFields);
@@ -3215,10 +3213,8 @@ function FillIdentityList(menulist)
 
     for (let i = 0; i < identities.length; i++) {
       let identity = identities[i];
-      let item = menulist.appendItem(identity.identityName,
-                                     identity.identityName,
+      let item = menulist.appendItem(identity.identityName, identity.key,
                                      account.incomingServer.prettyName);
-      item.setAttribute("identitykey", identity.key);
       item.setAttribute("accountkey", account.key);
       if (i == 0) {
         // Mark the first identity as default.
@@ -3228,6 +3224,12 @@ function FillIdentityList(menulist)
   }
 }
 
+function getCurrentIdentity()
+{
+  var identityKey = document.getElementById("msgIdentity").value;
+  return MailServices.accounts.getIdentity(identityKey);
+}
+
 function getCurrentAccountKey()
 {
     // get the accounts key
@@ -3235,21 +3237,9 @@ function getCurrentAccountKey()
     return identityList.selectedItem.getAttribute("accountkey");
 }
 
-function getCurrentIdentityKey()
-{
-  // get the identity key
-  var identityList = GetMsgIdentityElement();
-  return identityList.selectedItem.getAttribute("identitykey");
-}
-
 function getIdentityForKey(key)
 {
     return MailServices.accounts.getIdentity(key);
-}
-
-function getCurrentIdentity()
-{
-  return getIdentityForKey(getCurrentIdentityKey());
 }
 
 function AdjustFocus()
@@ -3919,7 +3909,7 @@ function LoadIdentity(startup)
     var prevIdentity = gCurrentIdentity;
 
     if (identityElement) {
-        var idKey = identityElement.selectedItem.getAttribute("identitykey");
+        var idKey = identityElement.value;
         gCurrentIdentity = MailServices.accounts.getIdentity(idKey);
 
         let accountKey = null;
