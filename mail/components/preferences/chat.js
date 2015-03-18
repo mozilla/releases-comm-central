@@ -63,11 +63,10 @@ var gChatPane = {
 
     // This should be in sync with the code in nsStatusBarBiffManager::PlayBiffSound.
     if (!soundLocation.startsWith("file://")) {
-#ifdef XP_MACOSX
-      sound.beep();
-#else
-      sound.playEventSound(nsISound.EVENT_NEW_MAIL_RECEIVED);
-#endif
+      if (Services.appinfo.OS == "Darwin") // OS X
+        sound.beep();
+      else
+        sound.playEventSound(Ci.nsISound.EVENT_NEW_MAIL_RECEIVED);
     } else {
       sound.play(Services.io.newURI(soundLocation, null, null));
     }
