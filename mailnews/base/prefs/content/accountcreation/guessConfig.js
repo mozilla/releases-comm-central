@@ -992,16 +992,6 @@ SSLErrorHandler.prototype =
                    " flags=" + flags + "\n");
     return true;
   },
-
-  processSSLError : function(socketInfo, status, targetSite)
-  {
-    this._log.error("got SSL error, please implement the handler!");
-    // XXX record that there was an SSL error, and tell the user
-    // about it somehow
-    // XXX test case?
-    // return true if you want to suppress the default PSM dialog
-    return false;
-  },
 }
 
 

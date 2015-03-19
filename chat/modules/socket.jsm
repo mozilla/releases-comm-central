@@ -8,7 +8,7 @@
  *
  * This implements nsIServerSocketListener, nsIStreamListener,
  * nsIRequestObserver, nsITransportEventSink, nsIBadCertListener2,
- * nsISSLErrorListener, and nsIProtocolProxyCallback.
+ * and nsIProtocolProxyCallback.
  *
  * This uses nsISocketTransportServices, nsIServerSocket, nsIThreadManager,
  * nsIBinaryInputStream, nsIScriptableInputStream, nsIInputStreamPump,
@@ -527,14 +527,6 @@ const Socket = {
   },
 
   /*
-   * nsISSLErrorListener
-   */
-  notifySSLError: function(aSocketInfo, aError, aTargetSite) {
-    this.sslStatus = null;
-    return true;
-  },
-
-  /*
    * nsITransportEventSink methods
    */
   onTransportStatus: function(aTransport, aStatus, aProgress, aProgressmax) {
@@ -590,8 +582,8 @@ const Socket = {
 
   // Open the incoming and outgoing streams, and init the nsISocketTransport.
   _openStreams: function() {
-    // Security notification callbacks (must support nsIBadCertListener2 and
-    // nsISSLErrorListener for SSL connections, and possibly other interfaces).
+    // Security notification callbacks (must support nsIBadCertListener2
+    // for SSL connections, and possibly other interfaces).
     this.transport.securityCallbacks = this;
 
     // Set the timeouts for the nsISocketTransport for both a connect event and
@@ -680,8 +672,7 @@ const Socket = {
   /* QueryInterface and nsIInterfaceRequestor implementations */
   _interfaces: [Ci.nsIServerSocketListener, Ci.nsIStreamListener,
                 Ci.nsIRequestObserver, Ci.nsITransportEventSink,
-                Ci.nsIBadCertListener2, Ci.nsISSLErrorListener,
-                Ci.nsIProtocolProxyCallback],
+                Ci.nsIBadCertListener2, Ci.nsIProtocolProxyCallback],
   QueryInterface: function(iid) {
     if (iid.equals(Ci.nsISupports) ||
         this._interfaces.some(function(i) i.equals(iid)))
