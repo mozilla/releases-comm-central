@@ -18,6 +18,8 @@ Cu.import("resource://gre/modules/NetUtil.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "Task", "resource://gre/modules/Task.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "AsyncShutdown",
+                                  "resource://gre/modules/AsyncShutdown.jsm");
 
 const kCacheFileName = "indexedFiles.json";
 
@@ -233,13 +235,55 @@ Gloda.defineAttribute({
 var GlodaIMIndexer = {
   name: "index_im",
   enable: function() {
-    Services.obs.addObserver(this, "new-text", false);
     Services.obs.addObserver(this, "conversation-closed", false);
     Services.obs.addObserver(this, "new-ui-conversation", false);
     Services.obs.addObserver(this, "ui-conversation-closed", false);
+
+    // The shutdown blocker ensures pending saves happen even if the app
+    // gets shut down before the timer fires.
+    if (this._shutdownBlockerAdded)
+      return;
+    this._shutdownBlockerAdded = true;
+    AsyncShutdown.profileBeforeChange.addBlocker("GlodaIMIndexer cache save",
+      () => {
+        if (!this._cacheSaveTimer)
+          return;
+        clearTimeout(this._cacheSaveTimer);
+        return this._saveCacheNow();
+      });
+
+    this._knownFiles = {};
+
+    let dir = FileUtils.getFile("ProfD", ["logs"]);
+    if (!dir.exists() || !dir.isDirectory())
+      return;
+    let cacheFile = dir.clone();
+    cacheFile.append(kCacheFileName);
+    if (!cacheFile.exists())
+      return;
+
+    const PR_RDONLY = 0x01;
+    let fis = new FileInputStream(cacheFile, PR_RDONLY, parseInt("0444", 8),
+                                  Ci.nsIFileInputStream.CLOSE_ON_EOF);
+    let sis = new ScriptableInputStream(fis);
+    let text = sis.read(sis.available());
+    sis.close();
+
+    let data = JSON.parse(text);
+
+    // Check to see if the Gloda datastore ID matches the one that we saved
+    // in the cache. If so, we can trust it. If not, that means that the
+    // cache is likely invalid now, so we ignore it (and eventually
+    // overwrite it).
+    if ("datastoreID" in data &&
+        Gloda.datastoreID &&
+        data.datastoreID === Gloda.datastoreID) {
+      // Ok, the cache's datastoreID matches the one we expected, so it's
+      // still valid.
+      this._knownFiles = data.knownFiles;
+    }
   },
   disable: function() {
-    Services.obs.removeObserver(this, "new-text");
     Services.obs.removeObserver(this, "conversation-closed");
     Services.obs.removeObserver(this, "new-ui-conversation");
     Services.obs.removeObserver(this, "ui-conversation-closed");
@@ -259,31 +303,25 @@ var GlodaIMIndexer = {
    */
   _knownFiles: {},
   _cacheSaveTimer: null,
+  _shutdownBlockerAdded: false,
   _scheduleCacheSave: function() {
     if (this._cacheSaveTimer)
       return;
     this._cacheSaveTimer = setTimeout(this._saveCacheNow, 5000);
   },
   _saveCacheNow: function() {
+    GlodaIMIndexer._cacheSaveTimer = null;
+
     let data = {
       knownFiles: GlodaIMIndexer._knownFiles,
       datastoreID: Gloda.datastoreID,
     };
 
-    let file = FileUtils.getFile("ProfD", ["logs", kCacheFileName]);
-    let ostream = FileUtils.openSafeFileOutputStream(file);
-
-    // Obtain a converter to convert our data to a UTF-8 encoded input stream.
-    let converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Ci.nsIScriptableUnicodeConverter);
-    converter.charset = "UTF-8";
-
     // Asynchronously copy the data to the file.
-    let istream = converter.convertToInputStream(JSON.stringify(data));
-    NetUtil.asyncCopy(istream, ostream, function(rc) {
-      if (!Components.isSuccessCode(rc)) {
-        Cu.reportError("Failed to write cache file");
-      }
-    });
+    let path = OS.Path.join(OS.Constants.Path.profileDir, "logs", kCacheFileName);
+    return OS.File.writeAtomic(path, JSON.stringify(data),
+                               {encoding: "utf-8", tmpPath: path + ".tmp"})
+             .catch(aError => Cu.reportError("Failed to write cache file: " + aError));
   },
 
   _knownConversations: {},
@@ -309,7 +347,7 @@ var GlodaIMIndexer = {
       };
     }
 
-    if (this._knownConversations[convId].scheduledIndex == null) {
+    if (!this._knownConversations[convId].scheduledIndex) {
       // Ok, let's schedule the job.
       this._knownConversations[convId].scheduledIndex = setTimeout(
         this._beginIndexingJob.bind(this, aConversation),
@@ -324,11 +362,16 @@ var GlodaIMIndexer = {
     // bothering to schedule it (for example, when a conversation is closed),
     // we give the conversation an entry in _knownConversations, which would
     // normally have been done in _scheduleIndexingJob.
-    if (!(convId in this._knownConversations))
-      this._knownConversations[convId] = {id: convId};
+    if (!(convId in this._knownConversations)) {
+      this._knownConversations[convId] = {
+        id: convId,
+        scheduledIndex: null,
+        logFile: null,
+        convObj: {}
+      };
+    }
 
     let conv = this._knownConversations[convId];
-
     Task.spawn(function* () {
       if (!conv.logFile) {
         let logFile =
@@ -370,14 +413,17 @@ var GlodaIMIndexer = {
         // The file hasn't changed since we last indexed it, so we're done.
         return;
       }
+
       if (this._indexingJobPromise)
         yield this._indexingJobPromise;
       this._indexingJobPromise = new Promise(aResolve => {
         this._indexingJobCallbacks.set(convId, aResolve);
       });
+
       let job = new IndexingJob("indexIMConversation", null);
       job.conversation = conv;
       job.path = logPath;
+      job.lastModifiedTime = lastModifiedTime;
       GlodaIndexer.indexJob(job);
     }.bind(this)).catch(Components.utils.reportError);
 
@@ -396,6 +442,7 @@ var GlodaIMIndexer = {
 
     if (aTopic == "ui-conversation-closed") {
       aSubject.removeObserver(this);
+      return;
     }
 
     if (aTopic == "unread-message-count-changed") {
@@ -466,7 +513,6 @@ var GlodaIMIndexer = {
       return Gloda.kWorkDone;
 
     let fileName = OS.Path.basename(aLogPath);
-
     let content = logConv.getMessages()
                          // Some messages returned, e.g. sessionstart messages,
                          // may have the noLog flag set. Ignore these.
@@ -493,11 +539,17 @@ var GlodaIMIndexer = {
         aGlodaConv.value = glodaConv;
     }
 
+    if (!aCache)
+      throw("indexIMConversation called without aCache parameter.");
     let isNew = !Object.prototype.hasOwnProperty.call(aCache, fileName);
     let rv = aCallbackHandle.pushAndGo(
       Gloda.grokNounItem(glodaConv, {}, true, isNew, aCallbackHandle));
-    aCache[fileName] = aLastModifiedTime;
+
+    if (!aLastModifiedTime)
+      Cu.reportError("indexIMConversation called without lastModifiedTime parameter.");
+    aCache[fileName] = aLastModifiedTime || 1;
     this._scheduleCacheSave();
+
     return rv;
   }),
 
@@ -505,6 +557,7 @@ var GlodaIMIndexer = {
     let glodaConv = {};
     if (aJob.conversation.glodaConv)
       glodaConv.value = aJob.conversation.glodaConv;
+
     // indexIMConversation may initiate an async grokNounItem sub-job.
     this.indexIMConversation(aCallbackHandle, aJob.path, aJob.lastModifiedTime,
                              aJob.conversation.convObj, glodaConv)
@@ -512,13 +565,13 @@ var GlodaIMIndexer = {
     // Tell the Indexer that we're doing async indexing. We'll be left alone
     // until callbackDriver() is called above.
     yield Gloda.kWorkAsync;
+
     // Resolve the promise for this job.
     this._indexingJobCallbacks.get(aJob.conversation.id)();
     this._indexingJobCallbacks.delete(aJob.conversation.id);
     this._indexingJobPromise = null;
     aJob.conversation.indexPending = false;
     aJob.conversation.glodaConv = glodaConv.value;
-
     yield Gloda.kWorkDone;
   },
 
@@ -526,31 +579,6 @@ var GlodaIMIndexer = {
     let dir = FileUtils.getFile("ProfD", ["logs"]);
     if (!dir.exists() || !dir.isDirectory())
       return;
-
-    let cacheFile = dir.clone();
-    cacheFile.append(kCacheFileName);
-    if (cacheFile.exists()) {
-      const PR_RDONLY = 0x01;
-      let fis = new FileInputStream(cacheFile, PR_RDONLY, parseInt("0444", 8),
-                                    Ci.nsIFileInputStream.CLOSE_ON_EOF);
-      let sis = new ScriptableInputStream(fis);
-      let text = sis.read(sis.available());
-      sis.close();
-
-      let data = JSON.parse(text);
-
-      // Check to see if the Gloda datastore ID matches the one that we saved
-      // in the cache. If so, we can trust it. If not, that means that the
-      // cache is likely invalid now, so we ignore it (and eventually
-      // overwrite it).
-      if ("datastoreID" in data &&
-          Gloda.datastoreID &&
-          data.datastoreID === Gloda.datastoreID) {
-        // Ok, the cache's datastoreID matches the one we expected, so it's
-        // still valid.
-        this._knownFiles = data.knownFiles;
-      }
-    }
 
     // Sweep the logs directory for log files, adding any new entries to the
     // _knownFiles tree as we traverse.
