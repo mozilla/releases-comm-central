@@ -389,7 +389,7 @@
           <menupopup id="server.storeTypeMenupopup">
             <menuitem id="server.mboxStore"
                       value="@mozilla.org/msgstore/berkeleystore;1"
-                      label="&mboxStore.label;"/>
+                      label="&mboxStore2.label;"/>
             <menuitem id="server.maildirStore"
                       value="@mozilla.org/msgstore/maildirstore;1"
                       label="&maildirStore.label;"/>

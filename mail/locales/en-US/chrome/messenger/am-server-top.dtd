@@ -86,5 +86,5 @@
 <!ENTITY accountSettingsDesc.label "The following is a special account.  There are no identities associated with it.">
 <!ENTITY storeType.label "Message Store Type:">
 <!ENTITY storeType.accesskey "T">
-<!ENTITY mboxStore.label "One large file (mbox)">
+<!ENTITY mboxStore2.label "File per folder (mbox)">
 <!ENTITY maildirStore.label "File per message (maildir)">
