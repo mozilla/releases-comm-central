@@ -59,6 +59,7 @@
 #define SHOW_ALERT_PREVIEW "mail.biff.alert.show_preview"
 #define SHOW_ALERT_SENDER  "mail.biff.alert.show_sender"
 #define SHOW_ALERT_SUBJECT "mail.biff.alert.show_subject"
+#define SHOW_ALERT_SYSTEM  "mail.biff.use_system_alert"
 
 using namespace mozilla::mailnews;
 
@@ -323,22 +324,32 @@ nsresult nsMessengerUnixIntegration::ShowAlertMessage(const nsAString& aAlertTit
     return NS_OK;
 
   mAlertInProgress = true;
-  nsCOMPtr<nsIAlertsService> alertsService(do_GetService(NS_SYSTEMALERTSERVICE_CONTRACTID, &rv));
-  if (NS_SUCCEEDED(rv)) {
-    rv = alertsService->ShowAlertNotification(NS_LITERAL_STRING(NEW_MAIL_ALERT_ICON),
-                                              aAlertTitle,
-                                              aAlertText,
-                                              false,
-                                              NS_ConvertASCIItoUTF16(aFolderURI),
-                                              this,
-                                              EmptyString(),
-                                              NS_LITERAL_STRING("auto"),
-                                              EmptyString(),
-                                              EmptyString(),
-                                              nullptr,
-                                              false);
-    if (NS_SUCCEEDED(rv))
-      return rv;
+
+  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // determine if we should use libnotify or the built-in alert system
+  bool useSystemAlert = true;
+  prefBranch->GetBoolPref(SHOW_ALERT_SYSTEM, &useSystemAlert);
+
+  if (useSystemAlert) {
+    nsCOMPtr<nsIAlertsService> alertsService(do_GetService(NS_SYSTEMALERTSERVICE_CONTRACTID, &rv));
+    if (NS_SUCCEEDED(rv)) {
+      rv = alertsService->ShowAlertNotification(NS_LITERAL_STRING(NEW_MAIL_ALERT_ICON),
+                                                aAlertTitle,
+                                                aAlertText,
+                                                false,
+                                                NS_ConvertASCIItoUTF16(aFolderURI),
+                                                this,
+                                                EmptyString(),
+                                                NS_LITERAL_STRING("auto"),
+                                                EmptyString(),
+                                                EmptyString(),
+                                                nullptr,
+                                                false);
+      if (NS_SUCCEEDED(rv))
+        return rv;
+    }
   }
   AlertFinished();
   rv = ShowNewAlertNotification(false);

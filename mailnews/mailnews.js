@@ -629,9 +629,14 @@ pref("mail.biff.play_sound.type", 0);
 // otherwise, this needs to be a file url
 pref("mail.biff.play_sound.url", "");
 pref("mail.biff.show_alert", true);
-pref("mail.biff.show_tray_icon", true); // currently Windows-only
-pref("mail.biff.show_balloon", false); // currently Windows-only
+#ifdef XP_WIN
+pref("mail.biff.show_tray_icon", true);
+pref("mail.biff.show_balloon", false);
+#elifdef XP_MACOSX
 pref("mail.biff.animate_dock_icon", false);
+#elifdef XP_UNIX
+pref("mail.biff.use_system_alert", true);
+#endif
 
 // add jitter to biff interval
 pref("mail.biff.add_interval_jitter", true);
@@ -641,10 +646,12 @@ pref("mail.biff.add_interval_jitter", true);
 pref("mail.biff.on_new_window", true);
 #endif
 
+#ifdef XP_MACOSX
 // If true, the number used in the Mac OS X dock notification will be the
 // the number of "new" messages, as per the classic Thunderbird definition.
 // Defaults to false, which notifies about the number of unread messages.
 pref("mail.biff.use_new_count_in_mac_dock", false);
+#endif
 
 // For feed account serverType=rss sound on biff; if true, mail.biff.play_sound.* settings are used.
 pref("mail.feed.play_sound", false);
