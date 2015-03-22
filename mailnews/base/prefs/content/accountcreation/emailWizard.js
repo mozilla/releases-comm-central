@@ -1278,13 +1278,13 @@ EmailConfigWizard.prototype =
     var menuitem = menulist.selectedItem;
     if (menuitem && menuitem.serverKey) {
       // an existing server has been selected from the dropdown
-      menulist.setAttribute("editable", false);
+      menulist.editable = false;
       _hide("outgoing_port");
       _hide("outgoing_ssl");
       _hide("outgoing_authMethod");
     } else {
       // new server, with hostname, port etc.
-      menulist.setAttribute("editable", true);
+      menulist.editable = true;
       _show("outgoing_port");
       _show("outgoing_ssl");
       _show("outgoing_authMethod");

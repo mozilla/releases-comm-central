@@ -19,7 +19,7 @@
         windowtype="mail:autoconfig"
         title="&autoconfigWizard.title;"
         onload="gEmailConfigWizard.onLoad();"
-        onkeypress="gEmailConfigWizard.onKeyDown(event)"
+        onkeypress="gEmailConfigWizard.onKeyDown(event);"
         onclose="gEmailConfigWizard.onWizardShutdown();"
         onunload="gEmailConfigWizard.onWizardShutdown();"
         >
@@ -265,9 +265,9 @@
                    value="&incoming.label;"
                    control="incoming_hostname"/>
             <menulist id="incoming_protocol"
+                      oncommand="gEmailConfigWizard.onChangedProtocolIncoming();"
                       sizetopopup="always">
-              <menupopup
-              onpopuphidden="gEmailConfigWizard.onChangedProtocolIncoming();">
+              <menupopup>
                 <menuitem label="&imap.label;" value="1"/>
                 <menuitem label="&pop3.label;" value="2"/>
               </menupopup>
@@ -278,15 +278,15 @@
             <menulist id="incoming_port"
                       editable="true"
                       oninput="gEmailConfigWizard.onChangedPortIncoming();"
+                      oncommand="gEmailConfigWizard.onChangedPortIncoming();"
                       class="port">
-              <menupopup
-                    onpopuphidden="gEmailConfigWizard.onChangedPortIncoming();"/>
+              <menupopup/>
             </menulist>
             <menulist id="incoming_ssl"
                       class="security"
+                      oncommand="gEmailConfigWizard.onChangedSSLIncoming();"
                       sizetopopup="always">
-              <menupopup
-                  onpopuphidden="gEmailConfigWizard.onChangedSSLIncoming();">
+              <menupopup>
                 <!-- values defined in nsMsgSocketType -->
                 <menuitem label="&autodetect.label;" value="0"/>
                 <menuitem label="&noEncryption.label;" value="1"/>
@@ -296,8 +296,9 @@
             </menulist>
             <menulist id="incoming_authMethod"
                       class="auth"
+                      oncommand="gEmailConfigWizard.onChangedInAuth();"
                       sizetopopup="always">
-              <menupopup onpopuphidden="gEmailConfigWizard.onChangedInAuth();">
+              <menupopup>
                 <menuitem label="&autodetect.label;" value="0"/>
                 <!-- values defined in nsMsgAuthMethod -->
                 <!-- labels set from messenger.properties
@@ -319,7 +320,7 @@
                 editable="true"
                 sizetopopup="none"
                 oninput="gEmailConfigWizard.onInputHostname();"
-                onpopuphidden="gEmailConfigWizard.onChangedOutgoingDropdown();"
+                oncommand="gEmailConfigWizard.onChangedOutgoingDropdown();"
                 onpopupshowing="gEmailConfigWizard.onOpenOutgoingDropdown();"
                 class="host uri-element">
               <menupopup id="outgoing_hostname_popup"/>
@@ -327,15 +328,15 @@
             <menulist id="outgoing_port"
                       editable="true"
                       oninput="gEmailConfigWizard.onChangedPortOutgoing();"
+                      oncommand="gEmailConfigWizard.onChangedPortOutgoing();"
                       class="port">
-              <menupopup
-                    onpopuphidden="gEmailConfigWizard.onChangedPortOutgoing();"/>
+              <menupopup/>
             </menulist>
             <menulist id="outgoing_ssl"
                       class="security"
+                      oncommand="gEmailConfigWizard.onChangedSSLOutgoing();"
                       sizetopopup="always">
-              <menupopup
-                    onpopuphidden="gEmailConfigWizard.onChangedSSLOutgoing();">
+              <menupopup>
                 <!-- @see incoming -->
                 <menuitem label="&autodetect.label;" value="0"/>
                 <menuitem label="&noEncryption.label;" value="1"/>
@@ -345,8 +346,9 @@
             </menulist>
             <menulist id="outgoing_authMethod"
                       class="auth"
+                      oncommand="gEmailConfigWizard.onChangedOutAuth(this.selectedItem);"
                       sizetopopup="always">
-              <menupopup onpopuphidden="gEmailConfigWizard.onChangedOutAuth(this.parentNode.selectedItem);">
+              <menupopup>
                 <menuitem label="&autodetect.label;" value="0"/>
                 <!-- @see incoming -->
                 <menuitem id="out-authMethod-no" value="1"/>
