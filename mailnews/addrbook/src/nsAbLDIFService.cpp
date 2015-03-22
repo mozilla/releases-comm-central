@@ -634,10 +634,7 @@ void nsAbLDIFService::AddLdifColToDatabase(nsIAddrDatabase *aDatabase,
   case 'r':
     if (colType.EqualsLiteral("region"))
     {
-      if (mStoreLocAsHome)
-        aDatabase->AddWorkState(newRow, column.get());
-      else
-        aDatabase->AddWorkState(newRow, column.get());
+      aDatabase->AddWorkState(newRow, column.get());
     }
 
     break; // 'r'

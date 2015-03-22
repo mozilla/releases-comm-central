@@ -969,10 +969,7 @@ RFC2231ParmFolding(const char *parmName, const nsCString& charset,
   int32_t parmNameLen = PL_strlen(parmName);
   int32_t parmValueLen = dupParm.Length();
 
-  if (needEscape)
-    parmNameLen += 5;   // *=__'__'___ or *[0]*=__'__'__ or *[1]*=___
-  else
-    parmNameLen += 5;   // *[0]="___";
+  parmNameLen += 5;  // *=__'__'___ or *[0]*=__'__'__ or *[1]*=___ or *[0]="___"
 
   int32_t languageLen = language ?  PL_strlen(language) : 0;
   int32_t charsetLen = charset.Length();
