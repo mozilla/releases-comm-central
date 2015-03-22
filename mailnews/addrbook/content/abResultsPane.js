@@ -368,6 +368,7 @@ var ResultsPaneController =
       case "button_delete":
       case "cmd_properties":
       case "cmd_newlist":
+      case "cmd_newCard":
         return true;
       default:
         return false;
@@ -419,13 +420,16 @@ var ResultsPaneController =
         return (GetNumSelectedCards() == 1);
       case "cmd_newlist":
         var selectedDir = GetSelectedDirectory();
-        if (selectedDir && (selectedDir != kAllDirectoryRoot + "?")) {
+        if (selectedDir && (selectedDir != (kAllDirectoryRoot + "?"))) {
           var abDir = GetDirectoryFromURI(selectedDir);
           if (abDir) {
             return abDir.supportsMailingLists;
           }
         }
         return false;
+      case "cmd_newCard":
+        var selectedDir = GetSelectedDirectory();
+        return (selectedDir && selectedDir != (kAllDirectoryRoot + "?"));
       default:
         return false;
     }
@@ -447,6 +451,9 @@ var ResultsPaneController =
         break;
       case "cmd_newlist":
         AbNewList();
+        break;
+      case "cmd_newCard":
+        AbNewCard();
         break;
     }
   },
