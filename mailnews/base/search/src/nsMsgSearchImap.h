@@ -17,10 +17,10 @@ public:
   nsMsgSearchOnlineMail (nsMsgSearchScopeTerm *scope, nsISupportsArray *termList);
   virtual ~nsMsgSearchOnlineMail ();
 
-  NS_IMETHOD ValidateTerms () MOZ_OVERRIDE;
-  NS_IMETHOD Search (bool *aDone) MOZ_OVERRIDE;
-  NS_IMETHOD GetEncoding (char **result) MOZ_OVERRIDE;
-  NS_IMETHOD AddResultElement (nsIMsgDBHdr *) MOZ_OVERRIDE;
+  NS_IMETHOD ValidateTerms () override;
+  NS_IMETHOD Search (bool *aDone) override;
+  NS_IMETHOD GetEncoding (char **result) override;
+  NS_IMETHOD AddResultElement (nsIMsgDBHdr *) override;
 
   static nsresult Encode (nsCString& ppEncoding,
                             nsISupportsArray *searchTerms,

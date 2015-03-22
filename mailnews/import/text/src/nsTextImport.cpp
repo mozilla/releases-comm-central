@@ -48,7 +48,7 @@
 static NS_DEFINE_IID(kISupportsIID, NS_ISUPPORTS_IID);
 PRLogModuleInfo* TEXTIMPORTLOGMODULE;
 
-class ImportAddressImpl MOZ_FINAL : public nsIImportAddressBooks
+class ImportAddressImpl final : public nsIImportAddressBooks
 {
 public:
   ImportAddressImpl(nsIStringBundle* aStringBundle);

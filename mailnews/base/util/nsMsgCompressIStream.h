@@ -9,7 +9,7 @@
 #include "nsAutoPtr.h"
 #include "zlib.h"
 
-class NS_MSG_BASE nsMsgCompressIStream MOZ_FINAL : public nsIAsyncInputStream
+class NS_MSG_BASE nsMsgCompressIStream final : public nsIAsyncInputStream
 {
 public:
   nsMsgCompressIStream();

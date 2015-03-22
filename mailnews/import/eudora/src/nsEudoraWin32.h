@@ -28,19 +28,19 @@ public:
   ~nsEudoraWin32();
 
     // retrieve the mail folder
-  virtual bool      FindMailFolder(nsIFile **pFolder) MOZ_OVERRIDE;
+  virtual bool      FindMailFolder(nsIFile **pFolder) override;
     // get the list of mailboxes
-  virtual nsresult  FindMailboxes(nsIFile *pRoot, nsIMutableArray *pArray) MOZ_OVERRIDE;
+  virtual nsresult  FindMailboxes(nsIFile *pRoot, nsIMutableArray *pArray) override;
     // get a TOC file from a mailbox file
-  virtual nsresult  FindTOCFile(nsIFile *pMailFile, nsIFile **pTOCFile, bool *pDeleteToc) MOZ_OVERRIDE;
+  virtual nsresult  FindTOCFile(nsIFile *pMailFile, nsIFile **pTOCFile, bool *pDeleteToc) override;
 
-  virtual nsresult  GetAttachmentInfo(const char *pFileName, nsIFile *pFile, nsCString& mimeType, nsCString& aAttachment) MOZ_OVERRIDE;
+  virtual nsresult  GetAttachmentInfo(const char *pFileName, nsIFile *pFile, nsCString& mimeType, nsCString& aAttachment) override;
 
   // Things that must be overridden because they are platform specific.
     // retrieve the address book folder
-  virtual bool      FindAddressFolder(nsIFile **pFolder) MOZ_OVERRIDE;
+  virtual bool      FindAddressFolder(nsIFile **pFolder) override;
     // get the list of address books
-  virtual nsresult  FindAddressBooks(nsIFile *pRoot, nsIMutableArray *pArray) MOZ_OVERRIDE;
+  virtual nsresult  FindAddressBooks(nsIFile *pRoot, nsIMutableArray *pArray) override;
 
     // import settings from Win32 ini file
   static bool    ImportSettings(nsIFile *pIniFile, nsIMsgAccount **localMailAccount);

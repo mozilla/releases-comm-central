@@ -9,7 +9,7 @@
 #include "nsIMdbFactoryFactory.h"
 #include "mdb.h"
 
-class nsMorkFactoryService MOZ_FINAL : public nsIMdbFactoryService
+class nsMorkFactoryService final : public nsIMdbFactoryService
 {
 public:
   nsMorkFactoryService() {};

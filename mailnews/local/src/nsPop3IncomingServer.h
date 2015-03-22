@@ -28,19 +28,19 @@ public:
 
   nsPop3IncomingServer();
 
-  NS_IMETHOD PerformBiff(nsIMsgWindow *aMsgWindow) MOZ_OVERRIDE;
-  NS_IMETHOD GetDownloadMessagesAtStartup(bool *getMessages) MOZ_OVERRIDE;
-  NS_IMETHOD GetCanBeDefaultServer(bool *canBeDefaultServer) MOZ_OVERRIDE;
-  NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) MOZ_OVERRIDE;
-  NS_IMETHOD GetOfflineSupportLevel(int32_t *aSupportLevel) MOZ_OVERRIDE;
-  NS_IMETHOD CloseCachedConnections() MOZ_OVERRIDE;
-  NS_IMETHOD GetRootMsgFolder(nsIMsgFolder **aRootMsgFolder) MOZ_OVERRIDE;
-  NS_IMETHOD GetCanFileMessagesOnServer(bool *aCanFileMessagesOnServer) MOZ_OVERRIDE;
-  NS_IMETHOD GetCanCreateFoldersOnServer(bool *aCanCreateFoldersOnServer) MOZ_OVERRIDE;
+  NS_IMETHOD PerformBiff(nsIMsgWindow *aMsgWindow) override;
+  NS_IMETHOD GetDownloadMessagesAtStartup(bool *getMessages) override;
+  NS_IMETHOD GetCanBeDefaultServer(bool *canBeDefaultServer) override;
+  NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) override;
+  NS_IMETHOD GetOfflineSupportLevel(int32_t *aSupportLevel) override;
+  NS_IMETHOD CloseCachedConnections() override;
+  NS_IMETHOD GetRootMsgFolder(nsIMsgFolder **aRootMsgFolder) override;
+  NS_IMETHOD GetCanFileMessagesOnServer(bool *aCanFileMessagesOnServer) override;
+  NS_IMETHOD GetCanCreateFoldersOnServer(bool *aCanCreateFoldersOnServer) override;
   NS_IMETHOD VerifyLogon(nsIUrlListener *aUrlListener, nsIMsgWindow *aMsgWindow,
-                         nsIURI **aURL) MOZ_OVERRIDE;
+                         nsIURI **aURL) override;
   NS_IMETHOD GetNewMessages(nsIMsgFolder *aFolder, nsIMsgWindow *aMsgWindow,
-                            nsIUrlListener *aUrlListener) MOZ_OVERRIDE;
+                            nsIUrlListener *aUrlListener) override;
 
 protected:
   virtual ~nsPop3IncomingServer();

@@ -12,7 +12,7 @@ extern "C" {
     #include "ical.h"
 }
 
-class calDuration MOZ_FINAL : public calIDurationLibical
+class calDuration final : public calIDurationLibical
 {
 public:
     calDuration ();

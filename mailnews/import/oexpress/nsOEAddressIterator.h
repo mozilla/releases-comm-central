@@ -18,8 +18,8 @@ public:
   nsOEAddressIterator(CWAB *pWab, nsIAddrDatabase *database);
   ~nsOEAddressIterator();
   
-  virtual nsresult  EnumUser(const char16_t * pName, LPENTRYID pEid, ULONG cbEid) MOZ_OVERRIDE;
-  virtual nsresult  EnumList(const char16_t * pName, LPENTRYID pEid, ULONG cbEid, LPMAPITABLE table) MOZ_OVERRIDE;
+  virtual nsresult  EnumUser(const char16_t * pName, LPENTRYID pEid, ULONG cbEid) override;
+  virtual nsresult  EnumList(const char16_t * pName, LPENTRYID pEid, ULONG cbEid, LPMAPITABLE table) override;
         void FindListRow(nsString &eMail, nsIMdbRow **cardRow);
 
 private:

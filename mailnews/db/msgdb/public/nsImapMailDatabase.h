@@ -17,24 +17,24 @@ public:
   nsImapMailDatabase();
   virtual ~nsImapMailDatabase();
   
-  NS_IMETHOD    StartBatch() MOZ_OVERRIDE;
-  NS_IMETHOD    EndBatch() MOZ_OVERRIDE;
-  NS_IMETHOD    GetSummaryValid(bool *aResult) MOZ_OVERRIDE;
-  NS_IMETHOD    SetSummaryValid(bool valid = true) MOZ_OVERRIDE;
-  virtual nsresult AdjustExpungedBytesOnDelete(nsIMsgDBHdr *msgHdr) MOZ_OVERRIDE;
+  NS_IMETHOD    StartBatch() override;
+  NS_IMETHOD    EndBatch() override;
+  NS_IMETHOD    GetSummaryValid(bool *aResult) override;
+  NS_IMETHOD    SetSummaryValid(bool valid = true) override;
+  virtual nsresult AdjustExpungedBytesOnDelete(nsIMsgDBHdr *msgHdr) override;
 
-  NS_IMETHOD    ForceClosed() MOZ_OVERRIDE;
-  NS_IMETHOD    AddNewHdrToDB(nsIMsgDBHdr *newHdr, bool notify) MOZ_OVERRIDE;
+  NS_IMETHOD    ForceClosed() override;
+  NS_IMETHOD    AddNewHdrToDB(nsIMsgDBHdr *newHdr, bool notify) override;
   NS_IMETHOD    SetAttributeOnPendingHdr(nsIMsgDBHdr *pendingHdr, const char *property,
-                                  const char *propertyVal) MOZ_OVERRIDE;
+                                  const char *propertyVal) override;
   NS_IMETHOD    SetUint32AttributeOnPendingHdr(nsIMsgDBHdr *pendingHdr, const char *property,
-                                  uint32_t propertyVal) MOZ_OVERRIDE;
+                                  uint32_t propertyVal) override;
   NS_IMETHOD    SetUint64AttributeOnPendingHdr(nsIMsgDBHdr *aPendingHdr,
                                                const char *aProperty,
-                                               uint64_t aPropertyVal) MOZ_OVERRIDE;
+                                               uint64_t aPropertyVal) override;
   NS_IMETHOD    DeleteMessages(uint32_t aNumKeys, nsMsgKey* nsMsgKeys,
-                               nsIDBChangeListener *instigator) MOZ_OVERRIDE;
-  NS_IMETHOD    UpdatePendingAttributes(nsIMsgDBHdr* aNewHdr) MOZ_OVERRIDE;
+                               nsIDBChangeListener *instigator) override;
+  NS_IMETHOD    UpdatePendingAttributes(nsIMsgDBHdr* aNewHdr) override;
 
 protected:
   // IMAP does not set local file flags, override does nothing

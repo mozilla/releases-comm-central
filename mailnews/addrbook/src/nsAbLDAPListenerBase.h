@@ -26,7 +26,7 @@ public:
                        const int32_t timeOut = 0);
   virtual ~nsAbLDAPListenerBase();
 
-  NS_IMETHOD OnLDAPInit(nsILDAPConnection *aConn, nsresult aStatus) MOZ_OVERRIDE;
+  NS_IMETHOD OnLDAPInit(nsILDAPConnection *aConn, nsresult aStatus) override;
 
 protected:
   nsresult OnLDAPMessageBind(nsILDAPMessage *aMessage);

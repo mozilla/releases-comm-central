@@ -18,40 +18,40 @@ class nsMailboxUrl : public nsIMailboxUrl, public nsMsgMailNewsUrl, public nsIMs
 {
 public:
   // nsIURI over-ride...
-  NS_IMETHOD SetSpec(const nsACString &aSpec) MOZ_OVERRIDE;
-  NS_IMETHOD SetQuery(const nsACString &aQuery) MOZ_OVERRIDE;
+  NS_IMETHOD SetSpec(const nsACString &aSpec) override;
+  NS_IMETHOD SetQuery(const nsACString &aQuery) override;
 
   // from nsIMailboxUrl:
-  NS_IMETHOD SetMailboxParser(nsIStreamListener * aConsumer) MOZ_OVERRIDE;
-  NS_IMETHOD GetMailboxParser(nsIStreamListener ** aConsumer) MOZ_OVERRIDE;
-  NS_IMETHOD SetMailboxCopyHandler(nsIStreamListener *  aConsumer) MOZ_OVERRIDE;
-  NS_IMETHOD GetMailboxCopyHandler(nsIStreamListener ** aConsumer) MOZ_OVERRIDE;
+  NS_IMETHOD SetMailboxParser(nsIStreamListener * aConsumer) override;
+  NS_IMETHOD GetMailboxParser(nsIStreamListener ** aConsumer) override;
+  NS_IMETHOD SetMailboxCopyHandler(nsIStreamListener *  aConsumer) override;
+  NS_IMETHOD GetMailboxCopyHandler(nsIStreamListener ** aConsumer) override;
 
-  NS_IMETHOD GetMessageKey(nsMsgKey* aMessageKey) MOZ_OVERRIDE;
-  NS_IMETHOD GetMessageSize(uint32_t *aMessageSize) MOZ_OVERRIDE;
-  NS_IMETHOD SetMessageSize(uint32_t aMessageSize) MOZ_OVERRIDE;
-  NS_IMETHOD GetMailboxAction(nsMailboxAction *result) MOZ_OVERRIDE
+  NS_IMETHOD GetMessageKey(nsMsgKey* aMessageKey) override;
+  NS_IMETHOD GetMessageSize(uint32_t *aMessageSize) override;
+  NS_IMETHOD SetMessageSize(uint32_t aMessageSize) override;
+  NS_IMETHOD GetMailboxAction(nsMailboxAction *result) override
   {
     NS_ENSURE_ARG_POINTER(result);
     *result = m_mailboxAction;
     return NS_OK;
   }
-  NS_IMETHOD SetMailboxAction(nsMailboxAction aAction) MOZ_OVERRIDE
+  NS_IMETHOD SetMailboxAction(nsMailboxAction aAction) override
   {
     m_mailboxAction = aAction;
     return NS_OK;
   }
   NS_IMETHOD IsUrlType(uint32_t type, bool *isType);
-  NS_IMETHOD SetMoveCopyMsgKeys(nsMsgKey *keysToFlag, int32_t numKeys) MOZ_OVERRIDE;
-  NS_IMETHOD GetMoveCopyMsgHdrForIndex(uint32_t msgIndex, nsIMsgDBHdr **msgHdr) MOZ_OVERRIDE;
-  NS_IMETHOD GetNumMoveCopyMsgs(uint32_t *numMsgs) MOZ_OVERRIDE;
-  NS_IMETHOD GetCurMoveCopyMsgIndex(uint32_t *result) MOZ_OVERRIDE
+  NS_IMETHOD SetMoveCopyMsgKeys(nsMsgKey *keysToFlag, int32_t numKeys) override;
+  NS_IMETHOD GetMoveCopyMsgHdrForIndex(uint32_t msgIndex, nsIMsgDBHdr **msgHdr) override;
+  NS_IMETHOD GetNumMoveCopyMsgs(uint32_t *numMsgs) override;
+  NS_IMETHOD GetCurMoveCopyMsgIndex(uint32_t *result) override
   {
     NS_ENSURE_ARG_POINTER(result);
     *result = m_curMsgIndex;
     return NS_OK;
   }
-  NS_IMETHOD SetCurMoveCopyMsgIndex(uint32_t aIndex) MOZ_OVERRIDE
+  NS_IMETHOD SetCurMoveCopyMsgIndex(uint32_t aIndex) override
   {
     m_curMsgIndex = aIndex;
     return NS_OK;
@@ -60,7 +60,7 @@ public:
   NS_IMETHOD GetFolder(nsIMsgFolder **msgFolder);
 
   // nsIMsgMailNewsUrl override
-  NS_IMETHOD Clone(nsIURI **_retval) MOZ_OVERRIDE;
+  NS_IMETHOD Clone(nsIURI **_retval) override;
 
   // nsMailboxUrl
   nsMailboxUrl();

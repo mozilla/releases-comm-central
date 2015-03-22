@@ -98,16 +98,16 @@ public:
   nsOfflineStoreCompactState(void);
   virtual ~nsOfflineStoreCompactState(void);
   NS_IMETHOD OnStopRequest(nsIRequest *request, nsISupports *ctxt,
-                                    nsresult status) MOZ_OVERRIDE;
+                                    nsresult status) override;
   NS_IMETHODIMP OnDataAvailable(nsIRequest *request, nsISupports *ctxt,
                                 nsIInputStream *inStr,
                                 uint64_t sourceOffset, uint32_t count);
 
 protected:
     nsresult         CopyNextMessage(bool &done);
-    virtual nsresult InitDB(nsIMsgDatabase *db) MOZ_OVERRIDE;
-    virtual nsresult StartCompacting() MOZ_OVERRIDE;
-    virtual nsresult FinishCompact() MOZ_OVERRIDE;
+    virtual nsresult InitDB(nsIMsgDatabase *db) override;
+    virtual nsresult StartCompacting() override;
+    virtual nsresult FinishCompact() override;
 
     uint32_t m_offlineMsgSize;
 };

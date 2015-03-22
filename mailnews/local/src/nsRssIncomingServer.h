@@ -24,13 +24,13 @@ public:
     NS_DECL_NSILOCALMAILINCOMINGSERVER
     NS_DECL_NSIMSGFOLDERLISTENER
 
-    NS_IMETHOD GetOfflineSupportLevel(int32_t *aSupportLevel) MOZ_OVERRIDE;
-    NS_IMETHOD GetSupportsDiskSpace(bool *aSupportsDiskSpace) MOZ_OVERRIDE;
-    NS_IMETHOD GetAccountManagerChrome(nsAString& aResult) MOZ_OVERRIDE;
-    NS_IMETHOD PerformBiff(nsIMsgWindow *aMsgWindow) MOZ_OVERRIDE;
-    NS_IMETHOD GetServerRequiresPasswordForBiff(bool *aServerRequiresPasswordForBiff) MOZ_OVERRIDE;
-    NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) MOZ_OVERRIDE;
-    NS_IMETHOD GetSortOrder(int32_t* aSortOrder) MOZ_OVERRIDE;
+    NS_IMETHOD GetOfflineSupportLevel(int32_t *aSupportLevel) override;
+    NS_IMETHOD GetSupportsDiskSpace(bool *aSupportsDiskSpace) override;
+    NS_IMETHOD GetAccountManagerChrome(nsAString& aResult) override;
+    NS_IMETHOD PerformBiff(nsIMsgWindow *aMsgWindow) override;
+    NS_IMETHOD GetServerRequiresPasswordForBiff(bool *aServerRequiresPasswordForBiff) override;
+    NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) override;
+    NS_IMETHOD GetSortOrder(int32_t* aSortOrder) override;
 
     nsRssIncomingServer();
 protected:

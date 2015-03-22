@@ -29,13 +29,13 @@ public:
 
   virtual const char * GetViewName(void) {return "SearchView"; }
   NS_IMETHOD Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder, 
-        nsMsgViewFlagsTypeValue viewFlags, int32_t *pCount) MOZ_OVERRIDE;
+        nsMsgViewFlagsTypeValue viewFlags, int32_t *pCount) override;
   NS_IMETHOD CloneDBView(nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWindow,
                          nsIMsgDBViewCommandUpdater *aCmdUpdater, nsIMsgDBView **_retval);
   NS_IMETHOD CopyDBView(nsMsgDBView *aNewMsgDBView, nsIMessenger *aMessengerInstance, 
-                        nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCmdUpdater) MOZ_OVERRIDE;
-  NS_IMETHOD Close() MOZ_OVERRIDE;
-  NS_IMETHOD GetViewType(nsMsgViewTypeValue *aViewType) MOZ_OVERRIDE;
+                        nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCmdUpdater) override;
+  NS_IMETHOD Close() override;
+  NS_IMETHOD GetViewType(nsMsgViewTypeValue *aViewType) override;
   NS_IMETHOD Sort(nsMsgViewSortTypeValue sortType, 
                   nsMsgViewSortOrderValue sortOrder);
   NS_IMETHOD GetCommandStatus(nsMsgViewCommandTypeValue command,
@@ -48,56 +48,56 @@ public:
                           nsMsgViewSortTypeValue aSortType,
                           nsMsgViewSortOrderValue aSortOrder, 
                           nsMsgViewFlagsTypeValue aViewFlags,
-                          int32_t *aCount) MOZ_OVERRIDE;
+                          int32_t *aCount) override;
   NS_IMETHOD OnHdrDeleted(nsIMsgDBHdr *aHdrDeleted, nsMsgKey aParentKey, 
-                          int32_t aFlags, nsIDBChangeListener *aInstigator) MOZ_OVERRIDE;
+                          int32_t aFlags, nsIDBChangeListener *aInstigator) override;
   NS_IMETHOD OnHdrFlagsChanged(nsIMsgDBHdr *aHdrChanged, uint32_t aOldFlags,
-                               uint32_t aNewFlags, nsIDBChangeListener *aInstigator) MOZ_OVERRIDE;
+                               uint32_t aNewFlags, nsIDBChangeListener *aInstigator) override;
   NS_IMETHOD GetNumMsgsInView(int32_t *aNumMsgs);
   // override to get location
-  NS_IMETHOD GetCellText(int32_t aRow, nsITreeColumn* aCol, nsAString& aValue) MOZ_OVERRIDE;
-  virtual nsresult GetMsgHdrForViewIndex(nsMsgViewIndex index, nsIMsgDBHdr **msgHdr) MOZ_OVERRIDE;
-  virtual nsresult OnNewHeader(nsIMsgDBHdr *newHdr, nsMsgKey parentKey, bool ensureListed) MOZ_OVERRIDE;
+  NS_IMETHOD GetCellText(int32_t aRow, nsITreeColumn* aCol, nsAString& aValue) override;
+  virtual nsresult GetMsgHdrForViewIndex(nsMsgViewIndex index, nsIMsgDBHdr **msgHdr) override;
+  virtual nsresult OnNewHeader(nsIMsgDBHdr *newHdr, nsMsgKey parentKey, bool ensureListed) override;
   NS_IMETHOD GetFolderForViewIndex(nsMsgViewIndex index, nsIMsgFolder **folder);
 
-  NS_IMETHOD OnAnnouncerGoingAway(nsIDBChangeAnnouncer *instigator) MOZ_OVERRIDE;
+  NS_IMETHOD OnAnnouncerGoingAway(nsIDBChangeAnnouncer *instigator) override;
 
-  virtual nsCOMArray<nsIMsgFolder>* GetFolders() MOZ_OVERRIDE;
-  virtual nsresult GetFolderFromMsgURI(const char *aMsgURI, nsIMsgFolder **aFolder) MOZ_OVERRIDE;
+  virtual nsCOMArray<nsIMsgFolder>* GetFolders() override;
+  virtual nsresult GetFolderFromMsgURI(const char *aMsgURI, nsIMsgFolder **aFolder) override;
 
   NS_IMETHOD SetCurCustomColumn(const nsAString& aColID);
   NS_IMETHOD GetCurCustomColumn(nsAString &result);
-  NS_IMETHOD GetThreadContainingMsgHdr(nsIMsgDBHdr *msgHdr, nsIMsgThread **pThread) MOZ_OVERRIDE;
+  NS_IMETHOD GetThreadContainingMsgHdr(nsIMsgDBHdr *msgHdr, nsIMsgThread **pThread) override;
 
 protected:
   virtual ~nsMsgSearchDBView();
-  virtual void InternalClose() MOZ_OVERRIDE;
-  virtual nsresult HashHdr(nsIMsgDBHdr *msgHdr, nsString& aHashKey) MOZ_OVERRIDE;
+  virtual void InternalClose() override;
+  virtual nsresult HashHdr(nsIMsgDBHdr *msgHdr, nsString& aHashKey) override;
   virtual nsresult ListIdsInThread(nsIMsgThread *threadHdr, 
                                    nsMsgViewIndex startOfThreadViewIndex, 
-                                   uint32_t *pNumListed) MOZ_OVERRIDE;
+                                   uint32_t *pNumListed) override;
   nsresult FetchLocation(int32_t aRow, nsAString& aLocationString);
   virtual nsresult AddHdrFromFolder(nsIMsgDBHdr *msgHdr, nsIMsgFolder *folder);
-  virtual nsresult GetDBForViewIndex(nsMsgViewIndex index, nsIMsgDatabase **db) MOZ_OVERRIDE;
-  virtual nsresult RemoveByIndex(nsMsgViewIndex index) MOZ_OVERRIDE;
-  virtual nsresult CopyMessages(nsIMsgWindow *window, nsMsgViewIndex *indices, int32_t numIndices, bool isMove, nsIMsgFolder *destFolder) MOZ_OVERRIDE;
-  virtual nsresult DeleteMessages(nsIMsgWindow *window, nsMsgViewIndex *indices, int32_t numIndices, bool deleteStorage) MOZ_OVERRIDE;
+  virtual nsresult GetDBForViewIndex(nsMsgViewIndex index, nsIMsgDatabase **db) override;
+  virtual nsresult RemoveByIndex(nsMsgViewIndex index) override;
+  virtual nsresult CopyMessages(nsIMsgWindow *window, nsMsgViewIndex *indices, int32_t numIndices, bool isMove, nsIMsgFolder *destFolder) override;
+  virtual nsresult DeleteMessages(nsIMsgWindow *window, nsMsgViewIndex *indices, int32_t numIndices, bool deleteStorage) override;
   virtual void InsertMsgHdrAt(nsMsgViewIndex index, nsIMsgDBHdr *hdr,
-                              nsMsgKey msgKey, uint32_t flags, uint32_t level) MOZ_OVERRIDE;
+                              nsMsgKey msgKey, uint32_t flags, uint32_t level) override;
   virtual void SetMsgHdrAt(nsIMsgDBHdr *hdr, nsMsgViewIndex index,
-                              nsMsgKey msgKey, uint32_t flags, uint32_t level) MOZ_OVERRIDE;
-  virtual bool InsertEmptyRows(nsMsgViewIndex viewIndex, int32_t numRows) MOZ_OVERRIDE;
-  virtual void RemoveRows(nsMsgViewIndex viewIndex, int32_t numRows) MOZ_OVERRIDE;
+                              nsMsgKey msgKey, uint32_t flags, uint32_t level) override;
+  virtual bool InsertEmptyRows(nsMsgViewIndex viewIndex, int32_t numRows) override;
+  virtual void RemoveRows(nsMsgViewIndex viewIndex, int32_t numRows) override;
   virtual nsMsgViewIndex FindHdr(nsIMsgDBHdr *msgHdr, nsMsgViewIndex startIndex = 0,
-                                 bool allowDummy=false) MOZ_OVERRIDE;
+                                 bool allowDummy=false) override;
   nsresult GetFoldersAndHdrsForSelection(nsMsgViewIndex *indices, int32_t numIndices);
   nsresult GroupSearchResultsByFolder();
   nsresult PartitionSelectionByFolder(nsMsgViewIndex *indices, int32_t numIndices, nsTArray<uint32_t> **indexArrays, int32_t *numArrays);
   virtual nsresult ApplyCommandToIndicesWithFolder(nsMsgViewCommandTypeValue command, nsMsgViewIndex* indices,
-                    int32_t numIndices, nsIMsgFolder *destFolder) MOZ_OVERRIDE;
+                    int32_t numIndices, nsIMsgFolder *destFolder) override;
   void MoveThreadAt(nsMsgViewIndex threadIndex);
   
-  virtual nsresult GetMessageEnumerator(nsISimpleEnumerator **enumerator) MOZ_OVERRIDE;
+  virtual nsresult GetMessageEnumerator(nsISimpleEnumerator **enumerator) override;
   virtual nsresult InsertHdrFromFolder(nsIMsgDBHdr *msgHdr, nsIMsgFolder *folder);
 
   nsCOMArray<nsIMsgFolder> m_folders;
@@ -135,7 +135,7 @@ protected:
   PR_STATIC_CALLBACK(PLDHashOperator) MsgHdrTableCloner(const nsACString &aKey, 
                                                         nsIMsgDBHdr* aMsgHdr, 
                                                         void* aArg);
-  virtual nsMsgGroupThread *CreateGroupThread(nsIMsgDatabase *db) MOZ_OVERRIDE;
+  virtual nsMsgGroupThread *CreateGroupThread(nsIMsgDatabase *db) override;
   nsresult GetXFThreadFromMsgHdr(nsIMsgDBHdr *msgHdr, nsIMsgThread **pThread,
                                  bool *foundByMessageId = nullptr);
   bool     GetThreadFromHash(nsCString &reference, nsIMsgThread **thread);

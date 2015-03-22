@@ -29,23 +29,23 @@ public:
 
   nsAbLDAPDirectory();
 
-  NS_IMETHOD Init(const char *aUri) MOZ_OVERRIDE;
+  NS_IMETHOD Init(const char *aUri) override;
 
   // nsIAbDirectory methods
-  NS_IMETHOD GetPropertiesChromeURI(nsACString &aResult) MOZ_OVERRIDE;
-  NS_IMETHOD GetURI(nsACString &aURI) MOZ_OVERRIDE;
-  NS_IMETHOD GetChildNodes(nsISimpleEnumerator* *result) MOZ_OVERRIDE;
-  NS_IMETHOD GetChildCards(nsISimpleEnumerator* *result) MOZ_OVERRIDE;
-  NS_IMETHOD GetIsQuery(bool *aResult) MOZ_OVERRIDE;
-  NS_IMETHOD HasCard(nsIAbCard *cards, bool *hasCard) MOZ_OVERRIDE;
-  NS_IMETHOD GetSupportsMailingLists(bool *aSupportsMailingsLists) MOZ_OVERRIDE;
-  NS_IMETHOD GetReadOnly(bool *aReadOnly) MOZ_OVERRIDE;
-  NS_IMETHOD GetIsRemote(bool *aIsRemote) MOZ_OVERRIDE;
-  NS_IMETHOD GetIsSecure(bool *aIsRemote) MOZ_OVERRIDE;
-  NS_IMETHOD UseForAutocomplete(const nsACString &aIdentityKey, bool *aResult) MOZ_OVERRIDE;
-  NS_IMETHOD AddCard(nsIAbCard *aChildCard, nsIAbCard **aAddedCard) MOZ_OVERRIDE;
-  NS_IMETHOD ModifyCard(nsIAbCard *aModifiedCard) MOZ_OVERRIDE;
-  NS_IMETHOD DeleteCards(nsIArray *aCards) MOZ_OVERRIDE;
+  NS_IMETHOD GetPropertiesChromeURI(nsACString &aResult) override;
+  NS_IMETHOD GetURI(nsACString &aURI) override;
+  NS_IMETHOD GetChildNodes(nsISimpleEnumerator* *result) override;
+  NS_IMETHOD GetChildCards(nsISimpleEnumerator* *result) override;
+  NS_IMETHOD GetIsQuery(bool *aResult) override;
+  NS_IMETHOD HasCard(nsIAbCard *cards, bool *hasCard) override;
+  NS_IMETHOD GetSupportsMailingLists(bool *aSupportsMailingsLists) override;
+  NS_IMETHOD GetReadOnly(bool *aReadOnly) override;
+  NS_IMETHOD GetIsRemote(bool *aIsRemote) override;
+  NS_IMETHOD GetIsSecure(bool *aIsRemote) override;
+  NS_IMETHOD UseForAutocomplete(const nsACString &aIdentityKey, bool *aResult) override;
+  NS_IMETHOD AddCard(nsIAbCard *aChildCard, nsIAbCard **aAddedCard) override;
+  NS_IMETHOD ModifyCard(nsIAbCard *aModifiedCard) override;
+  NS_IMETHOD DeleteCards(nsIArray *aCards) override;
 
   // nsIAbDirectorySearch methods
   NS_DECL_NSIABDIRECTORYSEARCH

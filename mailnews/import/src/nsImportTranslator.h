@@ -38,9 +38,9 @@ public:
 // rfc2231
 class CMHTranslator : public nsImportTranslator {
 public:
-  virtual uint32_t  GetMaxBufferSize(uint32_t inLen) MOZ_OVERRIDE { return (inLen * 3) + 1;}
-  virtual void    ConvertBuffer(const uint8_t * pIn, uint32_t inLen, uint8_t * pOut) MOZ_OVERRIDE;
-  virtual bool      ConvertToFile(const uint8_t * pIn, uint32_t inLen, ImportOutFile *pOutFile, uint32_t *pProcessed = nullptr) MOZ_OVERRIDE;
+  virtual uint32_t  GetMaxBufferSize(uint32_t inLen) override { return (inLen * 3) + 1;}
+  virtual void    ConvertBuffer(const uint8_t * pIn, uint32_t inLen, uint8_t * pOut) override;
+  virtual bool      ConvertToFile(const uint8_t * pIn, uint32_t inLen, ImportOutFile *pOutFile, uint32_t *pProcessed = nullptr) override;
 };
 
 // Specialized encoder, not a vaild language translator, used for mail headers
@@ -53,7 +53,7 @@ public:
 
   void  SetUseQuotedPrintable(void) { m_useQuotedPrintable = true;}
 
-  virtual bool    ConvertToFile(const uint8_t * pIn, uint32_t inLen, ImportOutFile *pOutFile, uint32_t *pProcessed = nullptr) MOZ_OVERRIDE;
+  virtual bool    ConvertToFile(const uint8_t * pIn, uint32_t inLen, ImportOutFile *pOutFile, uint32_t *pProcessed = nullptr) override;
   bool    ConvertToFileQ(const uint8_t * pIn, uint32_t inLen, ImportOutFile *pOutFile, uint32_t *pProcessed);
 
 protected:

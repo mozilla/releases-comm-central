@@ -64,7 +64,7 @@ public:
   NS_IMETHOD ReadFromFolderCacheElem(nsIMsgFolderCacheElement *element);
 
   // nsRDFResource overrides
-  NS_IMETHOD Init(const char* aURI) MOZ_OVERRIDE;
+  NS_IMETHOD Init(const char* aURI) override;
 
   // These functions are used for tricking the front end into thinking that we have more 
   // messages than are really in the DB.  This is usually after and IMAP message copy where

@@ -196,20 +196,20 @@ public:
   nsParseNewMailState();
   NS_DECL_ISUPPORTS_INHERITED
 
-  NS_IMETHOD FinishHeader() MOZ_OVERRIDE;
+  NS_IMETHOD FinishHeader() override;
 
   nsresult Init(nsIMsgFolder *rootFolder, nsIMsgFolder *downloadFolder,
                 nsIMsgWindow *aMsgWindow, nsIMsgDBHdr *aHdr,
                 nsIOutputStream *aOutputStream);
 
-  virtual void  DoneParsingFolder(nsresult status) MOZ_OVERRIDE;
+  virtual void  DoneParsingFolder(nsresult status) override;
 
   void DisableFilters() {m_disableFilters = true;}
 
   NS_DECL_NSIMSGFILTERHITNOTIFY
 
   nsOutputFileStream *GetLogFile();
-  virtual int32_t PublishMsgHeader(nsIMsgWindow *msgWindow) MOZ_OVERRIDE;
+  virtual int32_t PublishMsgHeader(nsIMsgWindow *msgWindow) override;
   void            GetMsgWindow(nsIMsgWindow **aMsgWindow);
   nsresult EndMsgDownload();
 
@@ -219,7 +219,7 @@ public:
   virtual void ApplyFilters(bool *pMoved, nsIMsgWindow *msgWindow,
                              uint32_t msgOffset);
   nsresult    ApplyForwardAndReplyFilter(nsIMsgWindow *msgWindow);
-  virtual void OnNewMessage(nsIMsgWindow *msgWindow) MOZ_OVERRIDE;
+  virtual void OnNewMessage(nsIMsgWindow *msgWindow) override;
 
   // this keeps track of how many messages we downloaded that
   // aren't new - e.g., marked read, or moved to an other server.

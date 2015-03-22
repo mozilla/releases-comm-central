@@ -33,9 +33,9 @@ class nsAbOSXCard : public nsAbCardProperty,
 public:
   NS_DECL_ISUPPORTS_INHERITED
     
-  nsresult Update(bool aNotify) MOZ_OVERRIDE;
-  nsresult GetURI(nsACString &aURI) MOZ_OVERRIDE;
-  nsresult Init(const char *aUri) MOZ_OVERRIDE;
+  nsresult Update(bool aNotify) override;
+  nsresult GetURI(nsACString &aURI) override;
+  nsresult Init(const char *aUri) override;
   // this is needed so nsAbOSXUtils.mm can get at nsAbCardProperty
   friend class nsAbOSXUtils;
 private:

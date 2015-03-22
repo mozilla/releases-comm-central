@@ -19,7 +19,7 @@
 #define NS_SUITEDIRECTORYPROVIDER_CID \
   { 0x9aa21826, 0x9d1d, 0x433d, { 0x8c, 0x10, 0xf3, 0x13, 0xb2, 0x6f, 0xa9, 0xdd } }
 
-class nsSuiteDirectoryProvider MOZ_FINAL : public nsIDirectoryServiceProvider2
+class nsSuiteDirectoryProvider final : public nsIDirectoryServiceProvider2
 {
 public:
   NS_DECL_ISUPPORTS
@@ -38,7 +38,7 @@ private:
   void AppendFileKey(const char *key, nsIProperties* aDirSvc,
                      nsCOMArray<nsIFile> &array);
 
-  class AppendingEnumerator MOZ_FINAL : public nsISimpleEnumerator
+  class AppendingEnumerator final : public nsISimpleEnumerator
   {
   public:
     NS_DECL_ISUPPORTS

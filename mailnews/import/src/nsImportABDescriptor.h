@@ -20,53 +20,53 @@ class nsImportABDescriptor : public nsIImportABDescriptor
 public:
   NS_DECL_THREADSAFE_ISUPPORTS
 
-  NS_IMETHOD GetIdentifier(uint32_t *pIdentifier) MOZ_OVERRIDE {
+  NS_IMETHOD GetIdentifier(uint32_t *pIdentifier) override {
     *pIdentifier = mId;
     return NS_OK;
   }
-  NS_IMETHOD SetIdentifier(uint32_t ident) MOZ_OVERRIDE {
+  NS_IMETHOD SetIdentifier(uint32_t ident) override {
     mId = ident;
     return NS_OK;
   }
 
-  NS_IMETHOD GetRef(uint32_t *pRef) MOZ_OVERRIDE {
+  NS_IMETHOD GetRef(uint32_t *pRef) override {
     *pRef = mRef;
     return NS_OK;
   }
-  NS_IMETHOD SetRef(uint32_t ref) MOZ_OVERRIDE {
+  NS_IMETHOD SetRef(uint32_t ref) override {
     mRef = ref;
     return NS_OK;
   }
 
   /* attribute unsigned long size; */
-  NS_IMETHOD GetSize(uint32_t *pSize) MOZ_OVERRIDE {
+  NS_IMETHOD GetSize(uint32_t *pSize) override {
     *pSize = mSize;
     return NS_OK;
   }
-  NS_IMETHOD SetSize(uint32_t theSize) MOZ_OVERRIDE {
+  NS_IMETHOD SetSize(uint32_t theSize) override {
     mSize = theSize;
     return NS_OK;
   }
 
   /* attribute AString displayName; */
-  NS_IMETHOD GetPreferredName(nsAString &aName) MOZ_OVERRIDE {
+  NS_IMETHOD GetPreferredName(nsAString &aName) override {
     aName = mDisplayName;
     return NS_OK;
   }
-  NS_IMETHOD SetPreferredName(const nsAString &aName) MOZ_OVERRIDE {
+  NS_IMETHOD SetPreferredName(const nsAString &aName) override {
     mDisplayName = aName;
     return NS_OK;
   }
 
   /* readonly attribute nsIFile fileSpec; */
-  NS_IMETHOD GetAbFile(nsIFile **aFile) MOZ_OVERRIDE {
+  NS_IMETHOD GetAbFile(nsIFile **aFile) override {
     if (!mFile)
       return NS_ERROR_NULL_POINTER;
 
     return mFile->Clone(aFile);
   }
 
-  NS_IMETHOD SetAbFile(nsIFile *aFile) MOZ_OVERRIDE {
+  NS_IMETHOD SetAbFile(nsIFile *aFile) override {
     if (!aFile) {
       mFile = nullptr;
       return NS_OK;
@@ -76,11 +76,11 @@ public:
   }
 
   /* attribute boolean import; */
-  NS_IMETHOD GetImport(bool *pImport) MOZ_OVERRIDE {
+  NS_IMETHOD GetImport(bool *pImport) override {
     *pImport = mImport;
     return NS_OK;
   }
-  NS_IMETHOD SetImport(bool doImport) MOZ_OVERRIDE {
+  NS_IMETHOD SetImport(bool doImport) override {
     mImport = doImport;
     return NS_OK;
   }

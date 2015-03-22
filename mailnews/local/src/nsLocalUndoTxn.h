@@ -28,8 +28,8 @@ public:
     NS_DECL_NSIFOLDERLISTENER
 
     // overloading nsITransaction methods
-    NS_IMETHOD UndoTransaction(void) MOZ_OVERRIDE;
-    NS_IMETHOD RedoTransaction(void) MOZ_OVERRIDE;
+    NS_IMETHOD UndoTransaction(void) override;
+    NS_IMETHOD RedoTransaction(void) override;
 
     // helper
     nsresult AddSrcKey(nsMsgKey aKey);

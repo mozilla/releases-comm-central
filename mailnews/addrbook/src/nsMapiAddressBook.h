@@ -40,9 +40,9 @@ protected :
     // Load the MAPI environment
     BOOL Initialize(void) ;
     // Allocation of a buffer for transmission to interfaces
-    virtual void AllocateBuffer(ULONG aByteCount, LPVOID *aBuffer) MOZ_OVERRIDE;
+    virtual void AllocateBuffer(ULONG aByteCount, LPVOID *aBuffer) override;
     // Destruction of a buffer provided by the interfaces
-    virtual void FreeBuffer(LPVOID aBuffer) MOZ_OVERRIDE;
+    virtual void FreeBuffer(LPVOID aBuffer) override;
     // Library management 
     static BOOL LoadMapiLibrary(void) ;
     static void FreeMapiLibrary(void) ;

@@ -16,7 +16,7 @@
 #include "nsDirPrefs.h"
 #include "nsStringGlue.h"
 
-class nsAbLDAPReplicationQuery MOZ_FINAL : public nsIAbLDAPReplicationQuery
+class nsAbLDAPReplicationQuery final : public nsIAbLDAPReplicationQuery
 {
 public:
   NS_DECL_THREADSAFE_ISUPPORTS

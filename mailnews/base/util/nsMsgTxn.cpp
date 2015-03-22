@@ -77,7 +77,7 @@ NS_IMETHODIMP nsMsgTxn::DeleteProperty(const nsAString& name)
 // This is same as nsSimpleProperty but for external API use.
 //
 
-class nsMailSimpleProperty MOZ_FINAL : public nsIProperty 
+class nsMailSimpleProperty final : public nsIProperty 
 {
 public:
   nsMailSimpleProperty(const nsAString& aName, nsIVariant* aValue)

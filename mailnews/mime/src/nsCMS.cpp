@@ -369,7 +369,7 @@ NS_IMETHODIMP nsCMSMessage::AsyncVerifyDetachedSignature(
   return CommonAsyncVerifySignature(aListener, aDigestData, aDigestDataLen);
 }
 
-class SMimeVerificationTask MOZ_FINAL : public CryptoTask
+class SMimeVerificationTask final : public CryptoTask
 {
 public:
   SMimeVerificationTask(nsICMSMessage *aMessage,
@@ -383,8 +383,8 @@ public:
   }
 
 private:
-  virtual void ReleaseNSSResources() MOZ_OVERRIDE {}
-  virtual nsresult CalculateResult() MOZ_OVERRIDE
+  virtual void ReleaseNSSResources() override {}
+  virtual nsresult CalculateResult() override
   {
     MOZ_ASSERT(!NS_IsMainThread());
 
@@ -399,7 +399,7 @@ private:
 
     return rv;
   }
-  virtual void CallCallback(nsresult rv) MOZ_OVERRIDE
+  virtual void CallCallback(nsresult rv) override
   {
     MOZ_ASSERT(NS_IsMainThread());
 

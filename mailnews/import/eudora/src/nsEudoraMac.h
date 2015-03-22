@@ -28,25 +28,25 @@ public:
   ~nsEudoraMac();
 
     // retrieve the mail folder
-  virtual bool      FindMailFolder(nsIFile **pFolder) MOZ_OVERRIDE;
+  virtual bool      FindMailFolder(nsIFile **pFolder) override;
     // get the list of mailboxes
   virtual nsresult  FindMailboxes(nsIFile *pRoot,
-                                  nsIMutableArray *pArray) MOZ_OVERRIDE;
+                                  nsIMutableArray *pArray) override;
     // get a TOC file from a mailbox file
   virtual nsresult  FindTOCFile(nsIFile *pMailFile,
                                 nsIFile **pTOCFile,
-                                bool *pDeleteToc) MOZ_OVERRIDE;
+                                bool *pDeleteToc) override;
 
   virtual nsresult  GetAttachmentInfo(const char *pFileName,
                                       nsIFile *pFile,
                                       nsCString& mimeType,
-                                      nsCString& aAttachment) MOZ_OVERRIDE;
+                                      nsCString& aAttachment) override;
 
     // Address book stuff
-  virtual bool      FindAddressFolder(nsIFile **pFolder) MOZ_OVERRIDE;
+  virtual bool      FindAddressFolder(nsIFile **pFolder) override;
     // get the list of mailboxes
   virtual nsresult  FindAddressBooks(nsIFile *pRoot,
-                                     nsIMutableArray *pArray) MOZ_OVERRIDE;
+                                     nsIMutableArray *pArray) override;
 
     // import settings
   static bool    ImportSettings(nsIFile *pIniFile,

@@ -29,7 +29,7 @@
 
 static NS_DEFINE_CID(kCPop3ServiceCID, NS_POP3SERVICE_CID);
 
-class nsPop3GetMailChainer MOZ_FINAL : public nsIUrlListener
+class nsPop3GetMailChainer final : public nsIUrlListener
 {
 public:
   NS_DECL_ISUPPORTS

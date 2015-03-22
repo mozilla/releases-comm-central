@@ -23,29 +23,29 @@ public:
   // we override all the methods, currently. Might change...
   NS_DECL_NSIMSGSEARCHNOTIFY
 
-  virtual const char * GetViewName(void) MOZ_OVERRIDE {return "XFVirtualFolderView"; }
+  virtual const char * GetViewName(void) override {return "XFVirtualFolderView"; }
   NS_IMETHOD Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder, 
-        nsMsgViewFlagsTypeValue viewFlags, int32_t *pCount) MOZ_OVERRIDE;
+        nsMsgViewFlagsTypeValue viewFlags, int32_t *pCount) override;
   NS_IMETHOD CloneDBView(nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWindow, 
-                         nsIMsgDBViewCommandUpdater *aCmdUpdater, nsIMsgDBView **_retval) MOZ_OVERRIDE;
+                         nsIMsgDBViewCommandUpdater *aCmdUpdater, nsIMsgDBView **_retval) override;
   NS_IMETHOD CopyDBView(nsMsgDBView *aNewMsgDBView, nsIMessenger *aMessengerInstance, 
-                        nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCmdUpdater) MOZ_OVERRIDE;
-  NS_IMETHOD Close() MOZ_OVERRIDE;
-  NS_IMETHOD GetViewType(nsMsgViewTypeValue *aViewType) MOZ_OVERRIDE;
-  NS_IMETHOD DoCommand(nsMsgViewCommandTypeValue command) MOZ_OVERRIDE;
+                        nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCmdUpdater) override;
+  NS_IMETHOD Close() override;
+  NS_IMETHOD GetViewType(nsMsgViewTypeValue *aViewType) override;
+  NS_IMETHOD DoCommand(nsMsgViewCommandTypeValue command) override;
   NS_IMETHOD SetViewFlags(nsMsgViewFlagsTypeValue aViewFlags);
   NS_IMETHOD OnHdrPropertyChanged(nsIMsgDBHdr *aHdrToChange, bool aPreChange, uint32_t *aStatus, 
-                                 nsIDBChangeListener * aInstigator) MOZ_OVERRIDE;
+                                 nsIDBChangeListener * aInstigator) override;
   NS_IMETHOD GetMsgFolder(nsIMsgFolder **aMsgFolder);
 
-  virtual nsresult OnNewHeader(nsIMsgDBHdr *newHdr, nsMsgKey parentKey, bool ensureListed) MOZ_OVERRIDE;
+  virtual nsresult OnNewHeader(nsIMsgDBHdr *newHdr, nsMsgKey parentKey, bool ensureListed) override;
   void UpdateCacheAndViewForPrevSearchedFolders(nsIMsgFolder *curSearchFolder);
   void UpdateCacheAndViewForFolder(nsIMsgFolder *folder, nsMsgKey *newHits, uint32_t numNewHits);
   void RemovePendingDBListeners();
 
 protected:
 
-  virtual nsresult GetMessageEnumerator(nsISimpleEnumerator **enumerator) MOZ_OVERRIDE;
+  virtual nsresult GetMessageEnumerator(nsISimpleEnumerator **enumerator) override;
 
   uint32_t m_cachedFolderArrayIndex; // array index of next folder with cached hits to deal with.
   nsCOMArray<nsIMsgFolder> m_foldersSearchingOver;

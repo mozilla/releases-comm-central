@@ -23,30 +23,30 @@ public:
   NS_DECL_ISUPPORTS_INHERITED 
   NS_DECL_NSINEWSDATABASE
 
-  NS_IMETHOD Close(bool forceCommit) MOZ_OVERRIDE;
-  NS_IMETHOD ForceClosed() MOZ_OVERRIDE;
-  NS_IMETHOD Commit(nsMsgDBCommit commitType) MOZ_OVERRIDE;
-  virtual uint32_t GetCurVersion() MOZ_OVERRIDE;
+  NS_IMETHOD Close(bool forceCommit) override;
+  NS_IMETHOD ForceClosed() override;
+  NS_IMETHOD Commit(nsMsgDBCommit commitType) override;
+  virtual uint32_t GetCurVersion() override;
 
   // methods to get and set docsets for ids.
-  NS_IMETHOD  IsRead(nsMsgKey key, bool *pRead) MOZ_OVERRIDE;
-  virtual nsresult  IsHeaderRead(nsIMsgDBHdr *msgHdr, bool *pRead) MOZ_OVERRIDE;
+  NS_IMETHOD  IsRead(nsMsgKey key, bool *pRead) override;
+  virtual nsresult  IsHeaderRead(nsIMsgDBHdr *msgHdr, bool *pRead) override;
 
-  NS_IMETHOD         GetHighWaterArticleNum(nsMsgKey *key) MOZ_OVERRIDE;
-  NS_IMETHOD         GetLowWaterArticleNum(nsMsgKey *key) MOZ_OVERRIDE;
-  NS_IMETHOD         MarkAllRead(uint32_t *aNumMarked, nsMsgKey **thoseMarked) MOZ_OVERRIDE;
+  NS_IMETHOD         GetHighWaterArticleNum(nsMsgKey *key) override;
+  NS_IMETHOD         GetLowWaterArticleNum(nsMsgKey *key) override;
+  NS_IMETHOD         MarkAllRead(uint32_t *aNumMarked, nsMsgKey **thoseMarked) override;
 
   virtual nsresult    ExpireUpTo(nsMsgKey expireKey);
   virtual nsresult    ExpireRange(nsMsgKey startRange, nsMsgKey endRange);
  
-  virtual bool        SetHdrReadFlag(nsIMsgDBHdr *msgHdr, bool bRead) MOZ_OVERRIDE;
+  virtual bool        SetHdrReadFlag(nsIMsgDBHdr *msgHdr, bool bRead) override;
  
-  virtual nsresult  AdjustExpungedBytesOnDelete(nsIMsgDBHdr *msgHdr) MOZ_OVERRIDE;
+  virtual nsresult  AdjustExpungedBytesOnDelete(nsIMsgDBHdr *msgHdr) override;
   nsresult          SyncWithReadSet();
   
-  NS_IMETHOD GetDefaultViewFlags(nsMsgViewFlagsTypeValue *aDefaultViewFlags) MOZ_OVERRIDE;
-  NS_IMETHOD GetDefaultSortType(nsMsgViewSortTypeValue *aDefaultSortType) MOZ_OVERRIDE;
-  NS_IMETHOD GetDefaultSortOrder(nsMsgViewSortOrderValue *aDefaultSortOrder) MOZ_OVERRIDE;
+  NS_IMETHOD GetDefaultViewFlags(nsMsgViewFlagsTypeValue *aDefaultViewFlags) override;
+  NS_IMETHOD GetDefaultSortType(nsMsgViewSortTypeValue *aDefaultSortType) override;
+  NS_IMETHOD GetDefaultSortOrder(nsMsgViewSortOrderValue *aDefaultSortOrder) override;
 
 protected:
   virtual ~nsNewsDatabase();

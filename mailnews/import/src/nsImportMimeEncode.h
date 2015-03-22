@@ -35,7 +35,7 @@ protected:
 	bool	TranslateFileName(nsCString& inFile, nsCString& outFile);
 
 
-	virtual bool	ScanBuffer(bool *pDone) MOZ_OVERRIDE;
+	virtual bool	ScanBuffer(bool *pDone) override;
 
 
 protected:

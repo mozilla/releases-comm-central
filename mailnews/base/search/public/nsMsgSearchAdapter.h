@@ -108,7 +108,7 @@ protected:
 //      servers
 //-----------------------------------------------------------------------------
 
-class nsMsgSearchValidityTable MOZ_FINAL : public nsIMsgSearchValidityTable
+class nsMsgSearchValidityTable final : public nsIMsgSearchValidityTable
 {
 public:
   nsMsgSearchValidityTable ();

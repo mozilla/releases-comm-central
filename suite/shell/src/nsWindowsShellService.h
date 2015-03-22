@@ -22,7 +22,7 @@ typedef struct {
   int32_t flags;
 } SETTING;
 
-class nsWindowsShellService MOZ_FINAL : public nsIWindowsShellService
+class nsWindowsShellService final : public nsIWindowsShellService
 {
 public:
   nsWindowsShellService() : mCheckedThisSessionClient(false) {};

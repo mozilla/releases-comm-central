@@ -21,7 +21,7 @@ public :
   nsAbLDAPChangeLogQuery();
   virtual ~nsAbLDAPChangeLogQuery();
 
-  NS_IMETHOD DoReplicationQuery() MOZ_OVERRIDE;
+  NS_IMETHOD DoReplicationQuery() override;
   NS_IMETHOD Init(const nsACString & aPrefName, nsIWebProgressListener *aProgressListener);
 };
 

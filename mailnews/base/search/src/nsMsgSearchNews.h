@@ -18,11 +18,11 @@ public:
   nsMsgSearchNews (nsMsgSearchScopeTerm *scope, nsISupportsArray *termList);
   virtual ~nsMsgSearchNews ();
 
-  NS_IMETHOD ValidateTerms () MOZ_OVERRIDE;
-  NS_IMETHOD Search (bool *aDone) MOZ_OVERRIDE;
-  NS_IMETHOD GetEncoding (char **result) MOZ_OVERRIDE;
-  NS_IMETHOD AddHit(nsMsgKey key) MOZ_OVERRIDE;
-  NS_IMETHOD CurrentUrlDone(nsresult exitCode) MOZ_OVERRIDE;
+  NS_IMETHOD ValidateTerms () override;
+  NS_IMETHOD Search (bool *aDone) override;
+  NS_IMETHOD GetEncoding (char **result) override;
+  NS_IMETHOD AddHit(nsMsgKey key) override;
+  NS_IMETHOD CurrentUrlDone(nsresult exitCode) override;
 
   virtual nsresult Encode (nsCString *outEncoding);
   virtual char *EncodeTerm (nsIMsgSearchTerm *);

@@ -2663,7 +2663,7 @@ NS_IMETHODIMP nsAddrDBEnumerator::OnAnnouncerGoingAway()
   return NS_OK;
 }
 
-class nsListAddressEnumerator MOZ_FINAL : public nsISimpleEnumerator
+class nsListAddressEnumerator final : public nsISimpleEnumerator
 {
 public:
     NS_DECL_ISUPPORTS

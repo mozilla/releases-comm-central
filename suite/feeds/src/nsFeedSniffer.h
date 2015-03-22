@@ -16,7 +16,7 @@
   { 0xe5eeef51, 0x5ce, 0x4885, { 0x94, 0x34, 0x72, 0x87, 0x61, 0x6d, 0x95, 0x47 } }
 
 
-class nsFeedSniffer MOZ_FINAL : public nsIContentSniffer, nsIStreamListener
+class nsFeedSniffer final : public nsIContentSniffer, nsIStreamListener
 {
 public:
   NS_DECL_ISUPPORTS

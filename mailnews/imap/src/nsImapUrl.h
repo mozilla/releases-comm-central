@@ -27,9 +27,9 @@ public:
   NS_DECL_ISUPPORTS_INHERITED
 
   // nsIURI override
-  NS_IMETHOD SetSpec(const nsACString &aSpec) MOZ_OVERRIDE;
-  NS_IMETHOD SetQuery(const nsACString &aQuery) MOZ_OVERRIDE;
-  NS_IMETHOD Clone(nsIURI **_retval) MOZ_OVERRIDE;
+  NS_IMETHOD SetSpec(const nsACString &aSpec) override;
+  NS_IMETHOD SetQuery(const nsACString &aQuery) override;
+  NS_IMETHOD Clone(nsIURI **_retval) override;
 
   //////////////////////////////////////////////////////////////////////////////
   // we support the nsIImapUrl interface
@@ -37,9 +37,9 @@ public:
   NS_DECL_NSIIMAPURL
 
   // nsIMsgMailNewsUrl overrides
-  NS_IMETHOD IsUrlType(uint32_t type, bool *isType) MOZ_OVERRIDE;
-  NS_IMETHOD GetFolder(nsIMsgFolder **aFolder) MOZ_OVERRIDE;
-  NS_IMETHOD SetFolder(nsIMsgFolder *aFolder) MOZ_OVERRIDE;
+  NS_IMETHOD IsUrlType(uint32_t type, bool *isType) override;
+  NS_IMETHOD GetFolder(nsIMsgFolder **aFolder) override;
+  NS_IMETHOD SetFolder(nsIMsgFolder *aFolder) override;
   // nsIMsgMessageUrl
   NS_DECL_NSIMSGMESSAGEURL
   NS_DECL_NSIMSGI18NURL

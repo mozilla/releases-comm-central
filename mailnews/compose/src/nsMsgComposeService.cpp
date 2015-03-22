@@ -872,7 +872,7 @@ nsMsgComposeService::CacheWindow(nsIDOMWindow *aWindow, bool aComposeHTML, nsIMs
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-class nsMsgTemplateReplyHelper MOZ_FINAL: public nsIStreamListener,
+class nsMsgTemplateReplyHelper final: public nsIStreamListener,
                                           public nsIUrlListener
 {
 public:

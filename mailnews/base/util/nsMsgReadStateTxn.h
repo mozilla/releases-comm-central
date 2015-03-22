@@ -33,8 +33,8 @@ public:
   nsresult Init(nsIMsgFolder *aParentFolder,
                 uint32_t aNumKeys,
                 nsMsgKey *aMsgKeyArray);
-  NS_IMETHOD UndoTransaction() MOZ_OVERRIDE;
-  NS_IMETHOD RedoTransaction() MOZ_OVERRIDE;
+  NS_IMETHOD UndoTransaction() override;
+  NS_IMETHOD RedoTransaction() override;
 
 protected:
   NS_IMETHOD MarkMessages(bool aAsRead);

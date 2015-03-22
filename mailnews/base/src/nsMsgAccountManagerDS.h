@@ -34,9 +34,9 @@ class nsMsgAccountManagerDataSource : public nsMsgRDFDataSource,
 public:
     
   nsMsgAccountManagerDataSource();
-  virtual nsresult Init() MOZ_OVERRIDE;
+  virtual nsresult Init() override;
 
-  virtual void Cleanup() MOZ_OVERRIDE;
+  virtual void Cleanup() override;
   // service manager shutdown method
   
   NS_DECL_ISUPPORTS_INHERITED
@@ -51,15 +51,15 @@ public:
   NS_IMETHOD GetTargets(nsIRDFResource *source,
                         nsIRDFResource *property,
                         bool aTruthValue,
-                        nsISimpleEnumerator **_retval) MOZ_OVERRIDE;
+                        nsISimpleEnumerator **_retval) override;
   NS_IMETHOD ArcLabelsOut(nsIRDFResource *source,
-                          nsISimpleEnumerator **_retval) MOZ_OVERRIDE;
+                          nsISimpleEnumerator **_retval) override;
 
   NS_IMETHOD HasAssertion(nsIRDFResource *aSource, nsIRDFResource *aProperty,
                           nsIRDFNode *aTarget, bool aTruthValue,
-                          bool *_retval) MOZ_OVERRIDE;
+                          bool *_retval) override;
   NS_IMETHOD HasArcOut(nsIRDFResource *source, nsIRDFResource *aArc,
-                       bool *result) MOZ_OVERRIDE;
+                       bool *result) override;
     
 protected:
   virtual ~nsMsgAccountManagerDataSource();

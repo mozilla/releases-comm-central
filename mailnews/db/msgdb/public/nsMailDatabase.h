@@ -22,28 +22,28 @@ class nsMailDatabase : public nsMsgDatabase
 public:
   nsMailDatabase();
   virtual ~nsMailDatabase();
-  NS_IMETHOD  ForceClosed() MOZ_OVERRIDE;
+  NS_IMETHOD  ForceClosed() override;
   NS_IMETHOD DeleteMessages(uint32_t aNumKeys, nsMsgKey* nsMsgKeys,
-                            nsIDBChangeListener *instigator) MOZ_OVERRIDE;
+                            nsIDBChangeListener *instigator) override;
 
-  NS_IMETHOD StartBatch() MOZ_OVERRIDE;
-  NS_IMETHOD EndBatch() MOZ_OVERRIDE;
+  NS_IMETHOD StartBatch() override;
+  NS_IMETHOD EndBatch() override;
 
-  nsresult  Open(nsMsgDBService* aDBService, nsIFile *aSummaryFile, bool create, bool upgrading) MOZ_OVERRIDE;
+  nsresult  Open(nsMsgDBService* aDBService, nsIFile *aSummaryFile, bool create, bool upgrading) override;
   virtual nsMailDatabase  *GetMailDB() {return this;}
 
-  virtual uint32_t  GetCurVersion() MOZ_OVERRIDE {return kMsgDBVersion;}
+  virtual uint32_t  GetCurVersion() override {return kMsgDBVersion;}
   
   NS_IMETHOD  GetOfflineOpForKey(nsMsgKey opKey, bool create,
-                                 nsIMsgOfflineImapOperation **op) MOZ_OVERRIDE;
-  NS_IMETHOD  RemoveOfflineOp(nsIMsgOfflineImapOperation *op) MOZ_OVERRIDE;
+                                 nsIMsgOfflineImapOperation **op) override;
+  NS_IMETHOD  RemoveOfflineOp(nsIMsgOfflineImapOperation *op) override;
 
-  NS_IMETHOD  SetSummaryValid(bool valid) MOZ_OVERRIDE;
-  NS_IMETHOD  GetSummaryValid(bool *valid) MOZ_OVERRIDE;
+  NS_IMETHOD  SetSummaryValid(bool valid) override;
+  NS_IMETHOD  GetSummaryValid(bool *valid) override;
 	
-  NS_IMETHOD    EnumerateOfflineOps(nsISimpleEnumerator **enumerator) MOZ_OVERRIDE;
-  NS_IMETHOD    ListAllOfflineOpIds(nsTArray<nsMsgKey> *offlineOpIds) MOZ_OVERRIDE;
-  NS_IMETHOD    ListAllOfflineDeletes(nsTArray<nsMsgKey> *offlineDeletes) MOZ_OVERRIDE;
+  NS_IMETHOD    EnumerateOfflineOps(nsISimpleEnumerator **enumerator) override;
+  NS_IMETHOD    ListAllOfflineOpIds(nsTArray<nsMsgKey> *offlineOpIds) override;
+  NS_IMETHOD    ListAllOfflineDeletes(nsTArray<nsMsgKey> *offlineDeletes) override;
 
   friend class nsMsgOfflineOpEnumerator;
 protected:

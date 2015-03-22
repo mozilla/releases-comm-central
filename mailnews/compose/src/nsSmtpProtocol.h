@@ -82,15 +82,15 @@ public:
     // Creating a protocol instance requires the URL which needs to be run.
     nsSmtpProtocol(nsIURI * aURL);
 
-    virtual nsresult LoadUrl(nsIURI * aURL, nsISupports * aConsumer = nullptr) MOZ_OVERRIDE;
-    virtual nsresult SendData(const char * dataBuffer, bool aSuppressLogging = false) MOZ_OVERRIDE;
+    virtual nsresult LoadUrl(nsIURI * aURL, nsISupports * aConsumer = nullptr) override;
+    virtual nsresult SendData(const char * dataBuffer, bool aSuppressLogging = false) override;
 
     ////////////////////////////////////////////////////////////////////////////////////////
     // we suppport the nsIStreamListener interface 
     ////////////////////////////////////////////////////////////////////////////////////////
 
     // stop binding is a "notification" informing us that the stream associated with aURL is going away. 
-    NS_IMETHOD OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult status) MOZ_OVERRIDE;
+    NS_IMETHOD OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult status) override;
 
 private:
     virtual ~nsSmtpProtocol();
@@ -143,7 +143,7 @@ private:
     // initialization function given a new url and transport layer
     void Initialize(nsIURI * aURL);
     virtual nsresult ProcessProtocolState(nsIURI * url, nsIInputStream * inputStream, 
-                                          uint64_t sourceOffset, uint32_t length) MOZ_OVERRIDE;
+                                          uint64_t sourceOffset, uint32_t length) override;
 
     ////////////////////////////////////////////////////////////////////////////////////////
     // Communication methods --> Reading and writing protocol
@@ -199,7 +199,7 @@ private:
     void    MarkAuthMethodAsFailed(int32_t failedAuthMethod);
     void    ResetAuthMethods();
 
-    virtual const char* GetType() MOZ_OVERRIDE {return "smtp";}
+    virtual const char* GetType() override {return "smtp";}
 
     int32_t m_prefAuthMethods; // set of capability flags for auth methods
     int32_t m_failedAuthMethods; // ditto

@@ -31,7 +31,7 @@
 
 class nsIRDFService;
 
-class VirtualFolderChangeListener MOZ_FINAL : public nsIDBChangeListener
+class VirtualFolderChangeListener final : public nsIDBChangeListener
 {
 public:
   VirtualFolderChangeListener();

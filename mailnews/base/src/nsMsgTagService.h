@@ -12,7 +12,7 @@
 #include "nsStringGlue.h"
 #include "nsTArray.h"
 
-class nsMsgTag MOZ_FINAL : public nsIMsgTag
+class nsMsgTag final : public nsIMsgTag
 {
 public:
   NS_DECL_ISUPPORTS
@@ -31,7 +31,7 @@ protected:
 };
 
 
-class nsMsgTagService MOZ_FINAL : public nsIMsgTagService
+class nsMsgTagService final : public nsIMsgTagService
 {
 public:
   NS_DECL_ISUPPORTS

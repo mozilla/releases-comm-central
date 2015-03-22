@@ -6346,7 +6346,7 @@ NS_IMETHODIMP nsImapMailFolder::GetOtherUsersWithAccess(
   return GetFolderACL()->GetOtherUsers(aResult);
 }
 
-class AdoptUTF8StringEnumerator MOZ_FINAL : public nsIUTF8StringEnumerator
+class AdoptUTF8StringEnumerator final : public nsIUTF8StringEnumerator
 {
 public:
   AdoptUTF8StringEnumerator(nsTArray<nsCString>* array) :
@@ -7725,7 +7725,7 @@ done:
   return rv;
 }
 
-class nsImapFolderCopyState MOZ_FINAL : public nsIUrlListener, public nsIMsgCopyServiceListener
+class nsImapFolderCopyState final : public nsIUrlListener, public nsIMsgCopyServiceListener
 {
 public:
   nsImapFolderCopyState(nsIMsgFolder *destParent, nsIMsgFolder *srcFolder,

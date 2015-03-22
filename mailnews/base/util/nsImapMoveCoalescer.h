@@ -51,7 +51,7 @@ protected:
   int32_t m_outstandingMoves;
 };
 
-class nsMoveCoalescerCopyListener MOZ_FINAL : public nsIMsgCopyServiceListener
+class nsMoveCoalescerCopyListener final : public nsIMsgCopyServiceListener
 {
 public:
     nsMoveCoalescerCopyListener(nsImapMoveCoalescer * coalescer, nsIMsgFolder *destFolder);

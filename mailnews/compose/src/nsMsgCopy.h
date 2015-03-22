@@ -35,15 +35,15 @@ public:
   // nsISupports interface
   NS_DECL_THREADSAFE_ISUPPORTS
 
-  NS_IMETHOD OnStartCopy() MOZ_OVERRIDE;
+  NS_IMETHOD OnStartCopy() override;
   
-  NS_IMETHOD OnProgress(uint32_t aProgress, uint32_t aProgressMax) MOZ_OVERRIDE;
+  NS_IMETHOD OnProgress(uint32_t aProgress, uint32_t aProgressMax) override;
 
-  NS_IMETHOD SetMessageKey(nsMsgKey aMessageKey) MOZ_OVERRIDE;
+  NS_IMETHOD SetMessageKey(nsMsgKey aMessageKey) override;
 
-  NS_IMETHOD GetMessageId(nsACString& aMessageId) MOZ_OVERRIDE;
+  NS_IMETHOD GetMessageId(nsACString& aMessageId) override;
   
-  NS_IMETHOD OnStopCopy(nsresult aStatus) MOZ_OVERRIDE;
+  NS_IMETHOD OnStopCopy(nsresult aStatus) override;
 
   NS_IMETHOD SetMsgComposeAndSendObject(nsIMsgSend *obj);
   

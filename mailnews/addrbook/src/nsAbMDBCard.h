@@ -17,7 +17,7 @@ public:
 
   nsAbMDBCard(void);
 
-  NS_IMETHOD Equals(nsIAbCard *card, bool *result) MOZ_OVERRIDE;
+  NS_IMETHOD Equals(nsIAbCard *card, bool *result) override;
 
 private:
   virtual ~nsAbMDBCard();

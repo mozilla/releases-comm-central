@@ -15,7 +15,7 @@
 #include "nsInterfaceHashtable.h"
 #include "nsISeekableStream.h"
 
-class nsMsgBrkMBoxStore MOZ_FINAL : public nsMsgLocalStoreUtils, nsIMsgPluggableStore
+class nsMsgBrkMBoxStore final : public nsMsgLocalStoreUtils, nsIMsgPluggableStore
 {
 public:
   NS_DECL_ISUPPORTS

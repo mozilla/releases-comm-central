@@ -11,7 +11,7 @@
 #include "nsIMsgSend.h"
 
 // Attachment file/URL structures - we're letting libmime use this directly
-class nsMsgAttachmentData MOZ_FINAL : public nsIMsgAttachmentData
+class nsMsgAttachmentData final : public nsIMsgAttachmentData
 {
 public:
   NS_DECL_NSIMSGATTACHMENTDATA
@@ -59,7 +59,7 @@ public:
   bool    m_displayableInline;     // Tells whether the attachment could be displayed inline
 };
 
-class nsMsgAttachedFile MOZ_FINAL : public nsIMsgAttachedFile
+class nsMsgAttachedFile final : public nsIMsgAttachedFile
 {
 public:
   NS_DECL_NSIMSGATTACHEDFILE

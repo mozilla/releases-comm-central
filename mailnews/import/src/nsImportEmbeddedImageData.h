@@ -11,7 +11,7 @@
 #include "nsCOMPtr.h"
 #include "nsIURI.h"
 
-class nsImportEmbeddedImageData MOZ_FINAL : public nsIMsgEmbeddedImageData
+class nsImportEmbeddedImageData final : public nsIMsgEmbeddedImageData
 {
 public:
   nsImportEmbeddedImageData(nsIURI *aUri, const nsACString &aCID);

@@ -12,10 +12,10 @@
 class nsMailboxServer : public nsMsgIncomingServer
 {
 public:
-  NS_IMETHOD GetLocalStoreType(nsACString& type) MOZ_OVERRIDE;
+  NS_IMETHOD GetLocalStoreType(nsACString& type) override;
 protected:
   virtual nsresult CreateRootFolderFromUri(const nsCString &serverUri,
-                                           nsIMsgFolder **rootFolder) MOZ_OVERRIDE;
+                                           nsIMsgFolder **rootFolder) override;
 };
 
 #endif

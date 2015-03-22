@@ -30,10 +30,10 @@ public:
 
   NS_DECL_NSIURLLISTENER
 
-  NS_IMETHOD ValidateTerms () MOZ_OVERRIDE;
-  NS_IMETHOD Search (bool *aDone) MOZ_OVERRIDE;
-  NS_IMETHOD Abort () MOZ_OVERRIDE;
-  NS_IMETHOD AddResultElement (nsIMsgDBHdr *) MOZ_OVERRIDE;
+  NS_IMETHOD ValidateTerms () override;
+  NS_IMETHOD Search (bool *aDone) override;
+  NS_IMETHOD Abort () override;
+  NS_IMETHOD AddResultElement (nsIMsgDBHdr *) override;
 
   static nsresult  MatchTermsForFilter(nsIMsgDBHdr * msgToMatch,
                                          nsISupportsArray *termList,
@@ -93,9 +93,9 @@ class nsMsgSearchOfflineNews : public nsMsgSearchOfflineMail
 public:
   nsMsgSearchOfflineNews (nsIMsgSearchScopeTerm*, nsISupportsArray *);
   virtual ~nsMsgSearchOfflineNews ();
-  NS_IMETHOD ValidateTerms () MOZ_OVERRIDE;
+  NS_IMETHOD ValidateTerms () override;
 
-  virtual nsresult OpenSummaryFile () MOZ_OVERRIDE;
+  virtual nsresult OpenSummaryFile () override;
 };
 
 

@@ -31,8 +31,8 @@ protected :
   nsCOMPtr <nsIAbLDAPChangeLogQuery> mChangeLogQuery;
 
   nsresult OnLDAPBind(nsILDAPMessage *aMessage);
-  nsresult OnLDAPSearchEntry(nsILDAPMessage *aMessage) MOZ_OVERRIDE;
-  nsresult OnLDAPSearchResult(nsILDAPMessage *aMessage) MOZ_OVERRIDE;
+  nsresult OnLDAPSearchEntry(nsILDAPMessage *aMessage) override;
+  nsresult OnLDAPSearchResult(nsILDAPMessage *aMessage) override;
 
   nsresult ParseChangeLogEntries(nsILDAPMessage *aMessage);
   nsresult ParseRootDSEEntry(nsILDAPMessage *aMessage);

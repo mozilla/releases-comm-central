@@ -44,7 +44,7 @@ public:
   virtual bool ProcessLine(uint8_t * /* pLine */, uint32_t /* len */, bool * /* pDone */) {return true;}
 
 protected:
-  virtual bool    ScanBuffer(bool *pDone) MOZ_OVERRIDE;
+  virtual bool    ScanBuffer(bool *pDone) override;
 
   bool    m_needEol;
 

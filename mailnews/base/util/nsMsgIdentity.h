@@ -12,7 +12,7 @@
 #include "nsCOMPtr.h"
 #include "nsStringGlue.h"
 
-class NS_MSG_BASE nsMsgIdentity MOZ_FINAL : public nsIMsgIdentity
+class NS_MSG_BASE nsMsgIdentity final : public nsIMsgIdentity
 {
 public:
   NS_DECL_THREADSAFE_ISUPPORTS

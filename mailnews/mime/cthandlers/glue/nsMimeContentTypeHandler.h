@@ -33,11 +33,11 @@ public:
     /* this macro defines QueryInterface, AddRef and Release for this class */
     NS_DECL_ISUPPORTS 
 
-    NS_IMETHOD    GetContentType(char **contentType) MOZ_OVERRIDE;
+    NS_IMETHOD    GetContentType(char **contentType) override;
 
     NS_IMETHOD    CreateContentTypeHandlerClass(const char *content_type, 
                                                 contentTypeHandlerInitStruct *initStruct, 
-                                                MimeObjectClass **objClass) MOZ_OVERRIDE;
+                                                MimeObjectClass **objClass) override;
  private:
     virtual ~nsMimeContentTypeHandler();
     char *mimeType;

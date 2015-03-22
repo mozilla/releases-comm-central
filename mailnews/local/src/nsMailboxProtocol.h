@@ -56,14 +56,14 @@ public:
   nsresult Initialize(nsIURI * aURL);
 
   // the consumer of the url might be something like an nsIDocShell....
-  virtual nsresult LoadUrl(nsIURI * aURL, nsISupports * aConsumer) MOZ_OVERRIDE;
+  virtual nsresult LoadUrl(nsIURI * aURL, nsISupports * aConsumer) override;
 
   ////////////////////////////////////////////////////////////////////////////////////////
   // we suppport the nsIStreamListener interface
   ////////////////////////////////////////////////////////////////////////////////////////
 
-  NS_IMETHOD OnStartRequest(nsIRequest *request, nsISupports *ctxt) MOZ_OVERRIDE;
-  NS_IMETHOD OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult aStatus) MOZ_OVERRIDE;
+  NS_IMETHOD OnStartRequest(nsIRequest *request, nsISupports *ctxt) override;
+  NS_IMETHOD OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult aStatus) override;
 
 private:
   nsCOMPtr<nsIMailboxUrl>  m_runningUrl; // the nsIMailboxURL that is currently running
@@ -91,8 +91,8 @@ private:
   nsCOMPtr<nsIInputStream> m_multipleMsgMoveCopyStream;
 
   virtual nsresult ProcessProtocolState(nsIURI * url, nsIInputStream * inputStream,
-                                        uint64_t sourceOffset, uint32_t length) MOZ_OVERRIDE;
-  virtual nsresult CloseSocket() MOZ_OVERRIDE;
+                                        uint64_t sourceOffset, uint32_t length) override;
+  virtual nsresult CloseSocket() override;
 
   nsresult SetupMessageExtraction();
   nsresult OpenMultipleMsgTransport(uint64_t offset, int32_t size);

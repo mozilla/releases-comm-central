@@ -64,23 +64,23 @@ class nsMsgXFGroupThread : public nsMsgGroupThread
 public:
   nsMsgXFGroupThread();
 
-  NS_IMETHOD GetNumChildren(uint32_t *aNumChildren) MOZ_OVERRIDE;
-  NS_IMETHOD GetChildKeyAt(uint32_t aIndex, nsMsgKey *aResult) MOZ_OVERRIDE;
-  NS_IMETHOD GetChildHdrAt(uint32_t aIndex, nsIMsgDBHdr **aResult) MOZ_OVERRIDE;
-  NS_IMETHOD RemoveChildAt(uint32_t aIndex) MOZ_OVERRIDE;
+  NS_IMETHOD GetNumChildren(uint32_t *aNumChildren) override;
+  NS_IMETHOD GetChildKeyAt(uint32_t aIndex, nsMsgKey *aResult) override;
+  NS_IMETHOD GetChildHdrAt(uint32_t aIndex, nsIMsgDBHdr **aResult) override;
+  NS_IMETHOD RemoveChildAt(uint32_t aIndex) override;
 protected:
   virtual ~nsMsgXFGroupThread();
 
   virtual void InsertMsgHdrAt(nsMsgViewIndex index,
-                              nsIMsgDBHdr *hdr) MOZ_OVERRIDE;
-  virtual void SetMsgHdrAt(nsMsgViewIndex index, nsIMsgDBHdr *hdr) MOZ_OVERRIDE;
-  virtual nsMsgViewIndex FindMsgHdr(nsIMsgDBHdr *hdr) MOZ_OVERRIDE;
+                              nsIMsgDBHdr *hdr) override;
+  virtual void SetMsgHdrAt(nsMsgViewIndex index, nsIMsgDBHdr *hdr) override;
+  virtual nsMsgViewIndex FindMsgHdr(nsIMsgDBHdr *hdr) override;
   virtual nsMsgViewIndex AddMsgHdrInDateOrder(nsIMsgDBHdr *child, 
-                                              nsMsgDBView *view) MOZ_OVERRIDE;
+                                              nsMsgDBView *view) override;
   virtual nsMsgViewIndex GetInsertIndexFromView(nsMsgDBView *view, 
                                           nsIMsgDBHdr *child, 
                                           nsMsgViewSortOrderValue threadSortOrder
-                                                ) MOZ_OVERRIDE;
+                                                ) override;
 
   nsCOMArray<nsIMsgFolder> m_folders;
 };

@@ -73,7 +73,7 @@ nsVoidArray *dir_ServerList = nullptr;
 /*****************************************************************************
  * Functions for creating the new back end managed DIR_Server list.
  */
-class DirPrefObserver MOZ_FINAL : public nsSupportsWeakReference,
+class DirPrefObserver final : public nsSupportsWeakReference,
                                   public nsIObserver
 {
 public:

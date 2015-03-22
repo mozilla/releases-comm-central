@@ -30,20 +30,20 @@ public:
   NS_IMETHOD    MimeObjectWrite(void *mimeObject,
                                 char *data,
                                 int32_t length,
-                                bool user_visible_p) MOZ_OVERRIDE;
+                                bool user_visible_p) override;
 
   // The following group of calls expose the pointers for the object
   // system within libmime.
-  NS_IMETHOD    GetmimeInlineTextClass(void **ptr) MOZ_OVERRIDE;
-  NS_IMETHOD    GetmimeLeafClass(void **ptr) MOZ_OVERRIDE;
-  NS_IMETHOD    GetmimeObjectClass(void **ptr) MOZ_OVERRIDE;
-  NS_IMETHOD    GetmimeContainerClass(void **ptr) MOZ_OVERRIDE;
-  NS_IMETHOD    GetmimeMultipartClass(void **ptr) MOZ_OVERRIDE;
-  NS_IMETHOD    GetmimeMultipartSignedClass(void **ptr) MOZ_OVERRIDE;
-  NS_IMETHOD    GetmimeEncryptedClass(void **ptr) MOZ_OVERRIDE;
+  NS_IMETHOD    GetmimeInlineTextClass(void **ptr) override;
+  NS_IMETHOD    GetmimeLeafClass(void **ptr) override;
+  NS_IMETHOD    GetmimeObjectClass(void **ptr) override;
+  NS_IMETHOD    GetmimeContainerClass(void **ptr) override;
+  NS_IMETHOD    GetmimeMultipartClass(void **ptr) override;
+  NS_IMETHOD    GetmimeMultipartSignedClass(void **ptr) override;
+  NS_IMETHOD    GetmimeEncryptedClass(void **ptr) override;
 
   NS_IMETHOD    MimeCreate(char *content_type, void * hdrs,
-                           void * opts, void**ptr) MOZ_OVERRIDE;
+                           void * opts, void**ptr) override;
 
 private:
   virtual ~nsMimeObjectClassAccess();

@@ -8,7 +8,7 @@
 #include "nsCOMPtr.h"
 #include "zlib.h"
 
-class NS_MSG_BASE nsMsgCompressOStream MOZ_FINAL : public nsIOutputStream
+class NS_MSG_BASE nsMsgCompressOStream final : public nsIOutputStream
 {
 public:
   nsMsgCompressOStream();

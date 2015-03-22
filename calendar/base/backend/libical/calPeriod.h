@@ -16,7 +16,7 @@ extern "C" {
     #include "ical.h"
 }
 
-class calPeriod MOZ_FINAL : public calIPeriodLibical
+class calPeriod final : public calIPeriodLibical
 {
 public:
     calPeriod ();

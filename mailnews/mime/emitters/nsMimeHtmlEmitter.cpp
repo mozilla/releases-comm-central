@@ -37,7 +37,7 @@
  * A helper class to implement nsIUTF8StringEnumerator
  */
 
-class nsMimeStringEnumerator MOZ_FINAL : public nsIUTF8StringEnumerator {
+class nsMimeStringEnumerator final : public nsIUTF8StringEnumerator {
 public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIUTF8STRINGENUMERATOR

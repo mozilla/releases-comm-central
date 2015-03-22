@@ -32,8 +32,8 @@ public:
   virtual ~nsImapServerResponseParser();
 
   // Overridden from the base parser class
-  virtual bool       LastCommandSuccessful() MOZ_OVERRIDE;
-  virtual void HandleMemoryFailure() MOZ_OVERRIDE;
+  virtual bool       LastCommandSuccessful() override;
+  virtual void HandleMemoryFailure() override;
 
   // aignoreBadAndNOResponses --> don't throw a error dialog if this command results in a NO or Bad response
   // from the server..in other words the command is "exploratory" and we don't really care if it succeeds or fails.
@@ -182,9 +182,9 @@ protected:
 
   // Overridden from the nsIMAPGenericParser, to retrieve the next line
   // from the open socket.
-  virtual bool    GetNextLineForParser(char **nextLine) MOZ_OVERRIDE;
+  virtual bool    GetNextLineForParser(char **nextLine) override;
   // overriden to do logging
-  virtual void    SetSyntaxError(bool error, const char *msg = nullptr) MOZ_OVERRIDE;
+  virtual void    SetSyntaxError(bool error, const char *msg = nullptr) override;
 
 private:
   bool            fCurrentCommandFailed;

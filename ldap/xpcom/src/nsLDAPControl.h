@@ -15,7 +15,7 @@
   { 0x5b608bbe, 0xc0ea, 0x4f74, \
       { 0xb2, 0x9, 0x9c, 0xdc, 0xd7, 0x9e, 0xc4, 0x1 } }
 
-class nsLDAPControl MOZ_FINAL : public nsILDAPControl
+class nsLDAPControl final : public nsILDAPControl
 {
 public:
   NS_DECL_ISUPPORTS

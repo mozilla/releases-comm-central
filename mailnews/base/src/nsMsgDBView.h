@@ -472,7 +472,7 @@ private:
                                          bool &changeReadState,
                                          nsIMsgFolder** targetFolder);
 
-  class nsMsgViewHdrEnumerator MOZ_FINAL : public nsISimpleEnumerator
+  class nsMsgViewHdrEnumerator final : public nsISimpleEnumerator
   {
   public:
     NS_DECL_ISUPPORTS

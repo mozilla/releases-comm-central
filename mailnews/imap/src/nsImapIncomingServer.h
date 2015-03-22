@@ -34,52 +34,52 @@ public:
     nsImapIncomingServer();
 
     // overriding nsMsgIncomingServer methods
-  NS_IMETHOD SetKey(const nsACString& aKey) MOZ_OVERRIDE;  // override nsMsgIncomingServer's implementation...
-  NS_IMETHOD GetLocalStoreType(nsACString& type) MOZ_OVERRIDE;
+  NS_IMETHOD SetKey(const nsACString& aKey) override;  // override nsMsgIncomingServer's implementation...
+  NS_IMETHOD GetLocalStoreType(nsACString& type) override;
 
   NS_DECL_NSIIMAPINCOMINGSERVER
   NS_DECL_NSIIMAPSERVERSINK
   NS_DECL_NSISUBSCRIBABLESERVER
   NS_DECL_NSIURLLISTENER
 
-  NS_IMETHOD PerformBiff(nsIMsgWindow *aMsgWindow) MOZ_OVERRIDE;
-  NS_IMETHOD PerformExpand(nsIMsgWindow *aMsgWindow) MOZ_OVERRIDE;
-  NS_IMETHOD CloseCachedConnections() MOZ_OVERRIDE;
-  NS_IMETHOD GetConstructedPrettyName(nsAString& retval) MOZ_OVERRIDE;
-  NS_IMETHOD GetCanBeDefaultServer(bool *canBeDefaultServer) MOZ_OVERRIDE;
+  NS_IMETHOD PerformBiff(nsIMsgWindow *aMsgWindow) override;
+  NS_IMETHOD PerformExpand(nsIMsgWindow *aMsgWindow) override;
+  NS_IMETHOD CloseCachedConnections() override;
+  NS_IMETHOD GetConstructedPrettyName(nsAString& retval) override;
+  NS_IMETHOD GetCanBeDefaultServer(bool *canBeDefaultServer) override;
   NS_IMETHOD GetCanCompactFoldersOnServer(bool *canCompactFoldersOnServer
-                                          ) MOZ_OVERRIDE;
-  NS_IMETHOD GetCanUndoDeleteOnServer(bool *canUndoDeleteOnServer) MOZ_OVERRIDE;
-  NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) MOZ_OVERRIDE;
-  NS_IMETHOD GetCanEmptyTrashOnExit(bool *canEmptyTrashOnExit) MOZ_OVERRIDE;
-  NS_IMETHOD GetOfflineSupportLevel(int32_t *aSupportLevel) MOZ_OVERRIDE;
-  NS_IMETHOD GeneratePrettyNameForMigration(nsAString& aPrettyName) MOZ_OVERRIDE;
-  NS_IMETHOD GetSupportsDiskSpace(bool *aSupportsDiskSpace) MOZ_OVERRIDE;
+                                          ) override;
+  NS_IMETHOD GetCanUndoDeleteOnServer(bool *canUndoDeleteOnServer) override;
+  NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) override;
+  NS_IMETHOD GetCanEmptyTrashOnExit(bool *canEmptyTrashOnExit) override;
+  NS_IMETHOD GetOfflineSupportLevel(int32_t *aSupportLevel) override;
+  NS_IMETHOD GeneratePrettyNameForMigration(nsAString& aPrettyName) override;
+  NS_IMETHOD GetSupportsDiskSpace(bool *aSupportsDiskSpace) override;
   NS_IMETHOD GetCanCreateFoldersOnServer(bool *aCanCreateFoldersOnServer
-                                         ) MOZ_OVERRIDE;
+                                         ) override;
   NS_IMETHOD GetCanFileMessagesOnServer(bool *aCanFileMessagesOnServer
-                                        ) MOZ_OVERRIDE;
-  NS_IMETHOD GetFilterScope(nsMsgSearchScopeValue *filterScope) MOZ_OVERRIDE;
-  NS_IMETHOD GetSearchScope(nsMsgSearchScopeValue *searchScope) MOZ_OVERRIDE;
+                                        ) override;
+  NS_IMETHOD GetFilterScope(nsMsgSearchScopeValue *filterScope) override;
+  NS_IMETHOD GetSearchScope(nsMsgSearchScopeValue *searchScope) override;
   NS_IMETHOD GetServerRequiresPasswordForBiff(bool *aServerRequiresPasswordForBiff
-                                              ) MOZ_OVERRIDE;
+                                              ) override;
   NS_IMETHOD OnUserOrHostNameChanged(const nsACString& oldName,
                                      const nsACString& newName,
-                                     bool hostnameChanged) MOZ_OVERRIDE;
+                                     bool hostnameChanged) override;
   NS_IMETHOD GetNumIdleConnections(int32_t *aNumIdleConnections);
-  NS_IMETHOD ForgetSessionPassword() MOZ_OVERRIDE;
+  NS_IMETHOD ForgetSessionPassword() override;
   NS_IMETHOD GetMsgFolderFromURI(nsIMsgFolder *aFolderResource,
                                  const nsACString& aURI,
-                                 nsIMsgFolder **aFolder) MOZ_OVERRIDE;
+                                 nsIMsgFolder **aFolder) override;
   NS_IMETHOD SetSocketType(int32_t aSocketType);
   NS_IMETHOD VerifyLogon(nsIUrlListener *aUrlListener, nsIMsgWindow *aMsgWindow,
-                         nsIURI **aURL) MOZ_OVERRIDE;
+                         nsIURI **aURL) override;
 
 protected:
   virtual ~nsImapIncomingServer();
   nsresult GetFolder(const nsACString& name, nsIMsgFolder** pFolder);
   virtual nsresult CreateRootFolderFromUri(const nsCString &serverUri,
-                                           nsIMsgFolder **rootFolder) MOZ_OVERRIDE;
+                                           nsIMsgFolder **rootFolder) override;
   nsresult ResetFoldersToUnverified(nsIMsgFolder *parentFolder);
   void GetUnverifiedSubFolders(nsIMsgFolder *parentFolder,
                                nsCOMArray<nsIMsgImapMailFolder> &aFoldersArray);

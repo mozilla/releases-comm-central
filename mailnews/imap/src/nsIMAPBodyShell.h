@@ -115,11 +115,11 @@ class nsIMAPMessageHeaders : public nsIMAPBodypart
 {
 public:
     nsIMAPMessageHeaders(char *partNum, nsIMAPBodypart *parentPart);
-	virtual nsIMAPBodypartType	GetType() MOZ_OVERRIDE;
+	virtual nsIMAPBodypartType	GetType() override;
     // Generates an HTML representation of this part.  Returns content length generated, -1 if failed.
     virtual int32_t Generate(nsIMAPBodyShell *aShell, bool stream,
-                             bool prefetch) MOZ_OVERRIDE;
-    virtual bool ShouldFetchInline(nsIMAPBodyShell *aShell) MOZ_OVERRIDE;
+                             bool prefetch) override;
+    virtual bool ShouldFetchInline(nsIMAPBodyShell *aShell) override;
     virtual void QueuePrefetchMessageHeaders(nsIMAPBodyShell *aShell);
 };
 
@@ -128,17 +128,17 @@ class nsIMAPBodypartMultipart : public nsIMAPBodypart
 {
 public:
     nsIMAPBodypartMultipart(char *partNum, nsIMAPBodypart *parentPart);
-	virtual nsIMAPBodypartType	GetType() MOZ_OVERRIDE;
+	virtual nsIMAPBodypartType	GetType() override;
 	virtual ~nsIMAPBodypartMultipart();
-    virtual bool ShouldFetchInline(nsIMAPBodyShell *aShell) MOZ_OVERRIDE;
-    virtual bool PreflightCheckAllInline(nsIMAPBodyShell *aShell) MOZ_OVERRIDE;
+    virtual bool ShouldFetchInline(nsIMAPBodyShell *aShell) override;
+    virtual bool PreflightCheckAllInline(nsIMAPBodyShell *aShell) override;
     // Generates an HTML representation of this part.  Returns content length generated, -1 if failed.
     virtual int32_t Generate(nsIMAPBodyShell *aShell, bool stream,
-                             bool prefetch) MOZ_OVERRIDE;
+                             bool prefetch) override;
     // Returns the part object with the given number
 	virtual nsIMAPBodypart	*FindPartWithNumber(const char *partNum
-                                                ) MOZ_OVERRIDE;
-    virtual bool IsLastTextPart(const char *partNumberString) MOZ_OVERRIDE;
+                                                ) override;
+    virtual bool IsLastTextPart(const char *partNumberString) override;
     void AppendPart(nsIMAPBodypart *part)  { m_partList->AppendElement(part); }
     void SetBodySubType(char *bodySubType);
 
@@ -156,12 +156,12 @@ public:
                      char *bodySubType, char *bodyID, char *bodyDescription,
                      char *bodyEncoding, int32_t partLength,
                      bool preferPlainText);
-	virtual nsIMAPBodypartType	GetType() MOZ_OVERRIDE;
+	virtual nsIMAPBodypartType	GetType() override;
     // Generates an HTML representation of this part.  Returns content length generated, -1 if failed.
-    virtual int32_t Generate(nsIMAPBodyShell *aShell, bool stream, bool prefetch) MOZ_OVERRIDE;
+    virtual int32_t Generate(nsIMAPBodyShell *aShell, bool stream, bool prefetch) override;
     // returns true if this part should be fetched inline for generation.
-    virtual bool ShouldFetchInline(nsIMAPBodyShell *aShell) MOZ_OVERRIDE;
-    virtual bool PreflightCheckAllInline(nsIMAPBodyShell *aShell) MOZ_OVERRIDE;
+    virtual bool ShouldFetchInline(nsIMAPBodyShell *aShell) override;
+    virtual bool PreflightCheckAllInline(nsIMAPBodyShell *aShell) override;
 private:
   bool mPreferPlainText;
 };
@@ -176,19 +176,19 @@ public:
                         char *bodyDescription, char *bodyEncoding,
                         int32_t partLength, bool preferPlainText);
     void SetBody(nsIMAPBodypart *body);
-	virtual nsIMAPBodypartType	GetType() MOZ_OVERRIDE;
+	virtual nsIMAPBodypartType	GetType() override;
 	virtual ~nsIMAPBodypartMessage();
     virtual int32_t Generate(nsIMAPBodyShell *aShell, bool stream,
-                             bool prefetch) MOZ_OVERRIDE;
-    virtual bool ShouldFetchInline(nsIMAPBodyShell *aShell) MOZ_OVERRIDE;
-    virtual bool PreflightCheckAllInline(nsIMAPBodyShell *aShell) MOZ_OVERRIDE;
+                             bool prefetch) override;
+    virtual bool ShouldFetchInline(nsIMAPBodyShell *aShell) override;
+    virtual bool PreflightCheckAllInline(nsIMAPBodyShell *aShell) override;
 	// Returns the part object with the given number
 	virtual nsIMAPBodypart	*FindPartWithNumber(const char *partNum
-                                                ) MOZ_OVERRIDE;
+                                                ) override;
 	void	AdoptMessageHeaders(char *headers);			// Fills in buffer (and adopts storage) for header object
 														// partNum specifies the message part number to which the
 														// headers correspond.  NULL indicates the top-level message
-	virtual nsIMAPBodypartMessage	*GetnsIMAPBodypartMessage() MOZ_OVERRIDE { return this; }
+	virtual nsIMAPBodypartMessage	*GetnsIMAPBodypartMessage() override { return this; }
 	virtual	bool		GetIsTopLevelMessage() { return m_topLevelMessage; }
 
 protected:

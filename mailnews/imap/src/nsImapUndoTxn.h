@@ -32,8 +32,8 @@ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIURLLISTENER
 
-  NS_IMETHOD UndoTransaction(void) MOZ_OVERRIDE;
-  NS_IMETHOD RedoTransaction(void) MOZ_OVERRIDE;
+  NS_IMETHOD UndoTransaction(void) override;
+  NS_IMETHOD RedoTransaction(void) override;
 
   // helper
   nsresult SetCopyResponseUid(const char *msgIdString);
@@ -78,8 +78,8 @@ public:
                    nsOfflineImapOperationType opType,
                    nsCOMArray<nsIMsgDBHdr> &srcHdrs);
 
-  NS_IMETHOD UndoTransaction(void) MOZ_OVERRIDE;
-  NS_IMETHOD RedoTransaction(void) MOZ_OVERRIDE;
+  NS_IMETHOD UndoTransaction(void) override;
+  NS_IMETHOD RedoTransaction(void) override;
   void SetAddFlags(bool addFlags) {m_addFlags = addFlags;}
   void SetFlags(uint32_t flags) {m_flags = flags;}
 protected:

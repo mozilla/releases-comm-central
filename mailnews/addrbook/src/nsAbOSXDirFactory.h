@@ -8,7 +8,7 @@
 
 #include "nsIAbDirFactory.h"
 
-class nsAbOSXDirFactory MOZ_FINAL : public nsIAbDirFactory
+class nsAbOSXDirFactory final : public nsIAbDirFactory
 {
 public:
     NS_DECL_ISUPPORTS

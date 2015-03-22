@@ -40,7 +40,7 @@ const int32_t kMsgDBVersion = 1;
 // array.
 const uint32_t kInitialMsgDBCacheSize = 20;
 
-class nsMsgDBService MOZ_FINAL : public nsIMsgDBService
+class nsMsgDBService final : public nsIMsgDBService
 {
 public:
   NS_DECL_ISUPPORTS
@@ -115,7 +115,7 @@ public:
   nsresult InitSearchSession(nsIArray *searchTerms, nsIMsgFolder *folder);
 
 protected:
-  virtual nsresult               PrefetchNext() MOZ_OVERRIDE;
+  virtual nsresult               PrefetchNext() override;
 
   nsCOMPtr <nsIMsgSearchSession> m_searchSession;
 

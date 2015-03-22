@@ -37,15 +37,15 @@ public:
 
     nsresult Init();
 
-    NS_IMETHOD DoTransaction(void) MOZ_OVERRIDE;
+    NS_IMETHOD DoTransaction(void) override;
 
-    NS_IMETHOD UndoTransaction(void) MOZ_OVERRIDE = 0;
+    NS_IMETHOD UndoTransaction(void) override = 0;
 
-    NS_IMETHOD RedoTransaction(void) MOZ_OVERRIDE = 0;
+    NS_IMETHOD RedoTransaction(void) override = 0;
     
-    NS_IMETHOD GetIsTransient(bool *aIsTransient) MOZ_OVERRIDE;
+    NS_IMETHOD GetIsTransient(bool *aIsTransient) override;
 
-    NS_IMETHOD Merge(nsITransaction *aTransaction, bool *aDidMerge) MOZ_OVERRIDE;
+    NS_IMETHOD Merge(nsITransaction *aTransaction, bool *aDidMerge) override;
 
     nsresult GetMsgWindow(nsIMsgWindow **msgWindow);
     nsresult SetMsgWindow(nsIMsgWindow *msgWindow);

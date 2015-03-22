@@ -20,7 +20,7 @@ public:
     virtual       ~nsMimeRawEmitter (void);
 
     NS_IMETHOD    WriteBody(const nsACString &buf,
-                            uint32_t *amountWritten) MOZ_OVERRIDE;
+                            uint32_t *amountWritten) override;
 
 protected:
 };

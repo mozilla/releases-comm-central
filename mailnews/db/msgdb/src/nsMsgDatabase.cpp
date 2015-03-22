@@ -1033,7 +1033,7 @@ namespace mailnews {
 
 MOZ_DEFINE_MALLOC_SIZE_OF(GetMallocSize)
 
-class MsgDBReporter MOZ_FINAL : public nsIMemoryReporter
+class MsgDBReporter final : public nsIMemoryReporter
 {
   nsMsgDatabase *mDatabase;
 public:

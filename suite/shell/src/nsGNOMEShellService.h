@@ -15,7 +15,7 @@
 
 struct ProtocolAssociation;
 
-class nsGNOMEShellService MOZ_FINAL : public nsIShellService
+class nsGNOMEShellService final : public nsIShellService
 {
 public:
   nsGNOMEShellService() : mCheckedThisSessionClient(false) { }

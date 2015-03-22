@@ -30,66 +30,66 @@ public:
   NS_DECL_NSIMSGNEWSFOLDER
 
   // nsIUrlListener method
-  NS_IMETHOD OnStopRunningUrl(nsIURI * aUrl, nsresult aExitCode) MOZ_OVERRIDE;
+  NS_IMETHOD OnStopRunningUrl(nsIURI * aUrl, nsresult aExitCode) override;
   // nsIMsgFolder methods:
-  NS_IMETHOD GetSubFolders(nsISimpleEnumerator **aResult) MOZ_OVERRIDE;
+  NS_IMETHOD GetSubFolders(nsISimpleEnumerator **aResult) override;
 
-  NS_IMETHOD GetMessages(nsISimpleEnumerator **result) MOZ_OVERRIDE;
-  NS_IMETHOD UpdateFolder(nsIMsgWindow *aWindow) MOZ_OVERRIDE;
+  NS_IMETHOD GetMessages(nsISimpleEnumerator **result) override;
+  NS_IMETHOD UpdateFolder(nsIMsgWindow *aWindow) override;
 
   NS_IMETHOD CreateSubfolder(const nsAString& folderName,
-                             nsIMsgWindow *msgWindow) MOZ_OVERRIDE;
+                             nsIMsgWindow *msgWindow) override;
 
-  NS_IMETHOD Delete() MOZ_OVERRIDE;
+  NS_IMETHOD Delete() override;
   NS_IMETHOD Rename(const nsAString& newName,
-                     nsIMsgWindow *msgWindow) MOZ_OVERRIDE;
+                     nsIMsgWindow *msgWindow) override;
 
-  NS_IMETHOD GetAbbreviatedName(nsAString& aAbbreviatedName) MOZ_OVERRIDE;
+  NS_IMETHOD GetAbbreviatedName(nsAString& aAbbreviatedName) override;
 
-  NS_IMETHOD GetFolderURL(nsACString& url) MOZ_OVERRIDE;
+  NS_IMETHOD GetFolderURL(nsACString& url) override;
 
   NS_IMETHOD GetExpungedBytesCount(int64_t *count);
-  NS_IMETHOD GetDeletable(bool *deletable) MOZ_OVERRIDE;
+  NS_IMETHOD GetDeletable(bool *deletable) override;
 
   NS_IMETHOD RefreshSizeOnDisk();
 
-  NS_IMETHOD GetSizeOnDisk(int64_t *size) MOZ_OVERRIDE;
+  NS_IMETHOD GetSizeOnDisk(int64_t *size) override;
 
   NS_IMETHOD GetDBFolderInfoAndDB(nsIDBFolderInfo **folderInfo,
-                                  nsIMsgDatabase **db) MOZ_OVERRIDE;
+                                  nsIMsgDatabase **db) override;
 
   NS_IMETHOD DeleteMessages(nsIArray *messages,
                             nsIMsgWindow *msgWindow, bool deleteStorage,
                             bool isMove, nsIMsgCopyServiceListener* listener, 
-                            bool allowUndo) MOZ_OVERRIDE;
+                            bool allowUndo) override;
   NS_IMETHOD GetNewMessages(nsIMsgWindow *aWindow,
-                            nsIUrlListener *aListener) MOZ_OVERRIDE;
+                            nsIUrlListener *aListener) override;
 
-  NS_IMETHOD GetCanSubscribe(bool *aResult) MOZ_OVERRIDE;
-  NS_IMETHOD GetCanFileMessages(bool *aResult) MOZ_OVERRIDE;
-  NS_IMETHOD GetCanCreateSubfolders(bool *aResult) MOZ_OVERRIDE;
-  NS_IMETHOD GetCanRename(bool *aResult) MOZ_OVERRIDE;
-  NS_IMETHOD GetCanCompact(bool *aResult) MOZ_OVERRIDE;
-  NS_IMETHOD OnReadChanged(nsIDBChangeListener * aInstigator) MOZ_OVERRIDE;
+  NS_IMETHOD GetCanSubscribe(bool *aResult) override;
+  NS_IMETHOD GetCanFileMessages(bool *aResult) override;
+  NS_IMETHOD GetCanCreateSubfolders(bool *aResult) override;
+  NS_IMETHOD GetCanRename(bool *aResult) override;
+  NS_IMETHOD GetCanCompact(bool *aResult) override;
+  NS_IMETHOD OnReadChanged(nsIDBChangeListener * aInstigator) override;
 
   NS_IMETHOD DownloadMessagesForOffline(nsIArray *messages,
-                                        nsIMsgWindow *window) MOZ_OVERRIDE;
+                                        nsIMsgWindow *window) override;
   NS_IMETHOD Compact(nsIUrlListener *aListener,
-                     nsIMsgWindow *aMsgWindow) MOZ_OVERRIDE;
+                     nsIMsgWindow *aMsgWindow) override;
   NS_IMETHOD DownloadAllForOffline(nsIUrlListener *listener,
-                                   nsIMsgWindow *msgWindow) MOZ_OVERRIDE;
-  NS_IMETHOD GetSortOrder(int32_t *order) MOZ_OVERRIDE;
-  NS_IMETHOD SetSortOrder(int32_t order) MOZ_OVERRIDE;
+                                   nsIMsgWindow *msgWindow) override;
+  NS_IMETHOD GetSortOrder(int32_t *order) override;
+  NS_IMETHOD SetSortOrder(int32_t order) override;
 
-  NS_IMETHOD Shutdown(bool shutdownChildren) MOZ_OVERRIDE;
+  NS_IMETHOD Shutdown(bool shutdownChildren) override;
 
   NS_IMETHOD GetFilterList(nsIMsgWindow *aMsgWindow,
-                           nsIMsgFilterList **aFilterList) MOZ_OVERRIDE;
+                           nsIMsgFilterList **aFilterList) override;
   NS_IMETHOD GetEditableFilterList(nsIMsgWindow *aMsgWindow,
-                                   nsIMsgFilterList **aFilterList) MOZ_OVERRIDE;
-  NS_IMETHOD SetFilterList(nsIMsgFilterList *aFilterList) MOZ_OVERRIDE;
-  NS_IMETHOD SetEditableFilterList(nsIMsgFilterList *aFilterList) MOZ_OVERRIDE;
-  NS_IMETHOD ApplyRetentionSettings() MOZ_OVERRIDE;
+                                   nsIMsgFilterList **aFilterList) override;
+  NS_IMETHOD SetFilterList(nsIMsgFilterList *aFilterList) override;
+  NS_IMETHOD SetEditableFilterList(nsIMsgFilterList *aFilterList) override;
+  NS_IMETHOD ApplyRetentionSettings() override;
 
 protected:
   virtual ~nsMsgNewsFolder();
@@ -98,9 +98,9 @@ protected:
   nsresult ParseFolder(nsIFile *path);
   nsresult CreateSubFolders(nsIFile *path);
   nsresult AddDirectorySeparator(nsIFile *path);
-  nsresult GetDatabase() MOZ_OVERRIDE;
+  nsresult GetDatabase() override;
   virtual nsresult CreateChildFromURI(const nsCString &uri,
-                                      nsIMsgFolder **folder) MOZ_OVERRIDE;
+                                      nsIMsgFolder **folder) override;
 
   nsresult LoadNewsrcFileAndCreateNewsgroups();
   int32_t RememberLine(const nsACString& line);
@@ -109,11 +109,11 @@ protected:
   nsresult GetNewsMessages(nsIMsgWindow *aMsgWindow, bool getOld, nsIUrlListener *aListener);
 
   int32_t HandleNewsrcLine(const char * line, uint32_t line_size);
-  virtual void GetIncomingServerType(nsCString& serverType) MOZ_OVERRIDE
+  virtual void GetIncomingServerType(nsCString& serverType) override
   {
     serverType.AssignLiteral("nntp");
   }
-  virtual nsresult CreateBaseMessageURI(const nsACString& aURI) MOZ_OVERRIDE;
+  virtual nsresult CreateBaseMessageURI(const nsACString& aURI) override;
 
 protected:
   int64_t mExpungedBytes;

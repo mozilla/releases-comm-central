@@ -10,11 +10,11 @@ class CRTFMailDecoder: public CRTFDecoder {
 public:
   enum Mode {mNone, mText, mHTML};
   CRTFMailDecoder() : m_mode(mNone), m_state(sNormal), m_skipLevel(0) {}
-  void BeginGroup() MOZ_OVERRIDE;
-  void EndGroup() MOZ_OVERRIDE;
-  void Keyword(const char* name, const int* Val) MOZ_OVERRIDE;
-  void PCDATA(const wchar_t* data, size_t cch) MOZ_OVERRIDE;
-  void BDATA(const char* data, size_t sz) MOZ_OVERRIDE;
+  void BeginGroup() override;
+  void EndGroup() override;
+  void Keyword(const char* name, const int* Val) override;
+  void PCDATA(const wchar_t* data, size_t cch) override;
+  void BDATA(const char* data, size_t sz) override;
   const wchar_t* text() { return m_text.c_str(); }
   std::wstring::size_type textSize() { return m_text.size(); }
   Mode mode() { return m_mode; }

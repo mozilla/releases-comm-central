@@ -19,7 +19,7 @@
 // synchronously. The main thread must not block on this thread, or a
 // deadlock condition can occur.
 
-class StreamListenerProxy MOZ_FINAL : public nsIStreamListener
+class StreamListenerProxy final : public nsIStreamListener
 {
 public:
   StreamListenerProxy(nsIStreamListener* receiver)
@@ -38,7 +38,7 @@ private:
   nsCOMPtr<nsIStreamListener> mReceiver;
 };
 
-class ImapMailFolderSinkProxy MOZ_FINAL : public nsIImapMailFolderSink
+class ImapMailFolderSinkProxy final : public nsIImapMailFolderSink
 {
 public:
   ImapMailFolderSinkProxy(nsIImapMailFolderSink* receiver)
@@ -58,7 +58,7 @@ private:
   nsCOMPtr<nsIImapMailFolderSink> mReceiver;
 };
 
-class ImapServerSinkProxy MOZ_FINAL : public nsIImapServerSink
+class ImapServerSinkProxy final : public nsIImapServerSink
 {
 public:
   ImapServerSinkProxy(nsIImapServerSink* receiver)
@@ -77,7 +77,7 @@ private:
 };
 
 
-class ImapMessageSinkProxy MOZ_FINAL : public nsIImapMessageSink
+class ImapMessageSinkProxy final : public nsIImapMessageSink
 {
 public:
   ImapMessageSinkProxy(nsIImapMessageSink* receiver)
@@ -95,7 +95,7 @@ private:
   nsCOMPtr<nsIImapMessageSink> mReceiver;
 };
 
-class ImapProtocolSinkProxy MOZ_FINAL : public nsIImapProtocolSink
+class ImapProtocolSinkProxy final : public nsIImapProtocolSink
 {
 public:
   ImapProtocolSinkProxy(nsIImapProtocolSink* receiver)
