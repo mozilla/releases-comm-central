@@ -373,8 +373,8 @@ FolderDisplayWidget.prototype = {
     "flaggedCol",
     "subjectCol",
     "unreadButtonColHeader",
-    "senderCol", // incoming folders
-    "recipientCol", // outgoing folders
+    "senderCol", // news folders
+    "correspondentCol", // mail folders
     "junkStatusCol",
     "dateCol",
     "locationCol", // multiple-folder backed folders
@@ -392,13 +392,13 @@ FolderDisplayWidget.prototype = {
    *  displayed by default.
    */
   COLUMN_DEFAULT_TESTERS: {
-    // senderCol = From.  You only care in incoming folders.
-    senderCol: function (viewWrapper) {
-      return viewWrapper.isIncomingFolder;
+    // Don't show the correspondent for news or RSS where it doesn't make sense.
+    correspondentCol: function (viewWrapper) {
+      return viewWrapper.isMailFolder && !viewWrapper.isFeedFolder;
     },
-    // recipient = To. You only care in outgoing folders.
-    recipientCol: function (viewWrapper) {
-      return viewWrapper.isOutgoingFolder;
+    // Instead show the sender.
+    senderCol: function (viewWrapper) {
+      return viewWrapper.isNewsFolder || viewWrapper.isFeedFolder;
     },
     // Only show the location column for non-single-folder results
     locationCol: function(viewWrapper) {
@@ -687,6 +687,30 @@ FolderDisplayWidget.prototype = {
    */
   _restoreColumnStates: function FolderDisplayWidget__restoreColumnStates() {
     if (this._savedColumnStates) {
+      // upgrade column states that don't have a correspondent column
+      if (!("correspondentCol" in this._savedColumnStates)) {
+        this._savedColumnStates.correspondentCol =
+          this._getDefaultColumnsForCurrentFolder().correspondentCol;
+        if (this._savedColumnStates.correspondentCol.visible) {
+          if (this._savedColumnStates.senderCol &&
+            this._savedColumnStates.senderCol.visible &&
+            this._savedColumnStates.senderCol.ordinal) {
+            this._savedColumnStates.senderCol.visible = false;
+            this._savedColumnStates.correspondentCol.ordinal =
+              this._savedColumnStates.senderCol.ordinal;
+          }
+          if (this._savedColumnStates.recipientCol &&
+            this._savedColumnStates.recipientCol.visible &&
+            this._savedColumnStates.recipientCol.ordinal) {
+            this._savedColumnStates.recipientCol.visible = false;
+            this._savedColumnStates.correspondentCol.ordinal =
+              this._savedColumnStates.recipientCol.ordinal;
+          }
+          if (!this._savedColumnStates.correspondentCol.ordinal)
+            this._savedColumnStates.correspondentCol.visible = false;
+        }
+      }
+
       this.setColumnStates(this._savedColumnStates);
       this._savedColumnStates = null;
     }

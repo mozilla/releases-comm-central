@@ -280,6 +280,26 @@ treechildren::-moz-tree-image(junkStatusCol, junk, focus, selected) {
   -moz-image-region: rect(16px 96px 32px 80px);
 }
 
+/* ..... correspondent column ..... */
+
+treechildren::-moz-tree-image(correspondentCol, incoming) {
+  list-style-image: url("chrome://messenger/skin/icons/threadpane-col.png");
+  -moz-image-region: rect(0px 107px 16px 96px);
+}
+
+treechildren::-moz-tree-image(correspondentCol, incoming, selected) {
+  -moz-image-region: rect(16px 107px 32px 96px);
+}
+
+treechildren::-moz-tree-image(correspondentCol, outgoing) {
+  list-style-image: url("chrome://messenger/skin/icons/threadpane-col.png");
+  -moz-image-region: rect(0px 118px 16px 107px);
+}
+
+treechildren::-moz-tree-image(correspondentCol, outgoing, selected) {
+  -moz-image-region: rect(16px 118px 32px 107px);
+}
+
 /* ..... subject column ..... */
 
 #subjectCol {
@@ -447,13 +467,32 @@ treechildren::-moz-tree-image(threadCol, ignoreSubthread) {
     -moz-image-region: rect(0px 192px 32px 160px);
   }
 
+  treechildren::-moz-tree-image(correspondentCol, incoming) {
+    list-style-image: url("chrome://messenger/skin/icons/threadpane-col@2x.png");
+    -moz-image-region: rect(0px 214px 32px 192px);
+  }
+
+  treechildren::-moz-tree-image(correspondentCol, incoming, selected) {
+    -moz-image-region: rect(32px 214px 64px 192px);
+  }
+
+  treechildren::-moz-tree-image(correspondentCol, outgoing) {
+    list-style-image: url("chrome://messenger/skin/icons/threadpane-col@2x.png");
+    -moz-image-region: rect(0px 236px 32px 214px);
+  }
+
+  treechildren::-moz-tree-image(correspondentCol, outgoing, selected) {
+    -moz-image-region: rect(32px 236px 64px 214px);
+  }
+
   .tree-columnpicker-icon,
   #threadCols > treecol > .treecol-icon,
   treechildren::-moz-tree-image(threadCol, container),
   treechildren::-moz-tree-image(unreadButtonColHeader),
   treechildren::-moz-tree-image(attachmentCol),
   treechildren::-moz-tree-image(flaggedCol),
-  treechildren::-moz-tree-image(junkStatusCol) {
+  treechildren::-moz-tree-image(junkStatusCol),
+  treechildren::-moz-tree-image(correspondentCol) {
     width: 16px;
     height: 16px;
   }
