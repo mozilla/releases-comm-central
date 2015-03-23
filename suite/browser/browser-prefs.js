@@ -148,13 +148,13 @@ pref("browser.urlbar.showSearch", true);
 // 3: Match at the beginning of the url or title
 pref("browser.urlbar.matchBehavior", 1);
 
-// The default behavior for the urlbar can be configured to use any combination
-// of the restrict or match filters with each additional filter restricting
-// more (intersection). Add the following values to set the behavior as the
-// default: 1: history, 2: bookmark, 4: tag, 8: title, 16: url, 32: typed
-// E.g., 0 = show all results (no filtering), 1 = only visited pages in history,
-// 2 = only bookmarks, 3 = visited bookmarks, 1+16 = history matching in the url
-pref("browser.urlbar.default.behavior", 1);
+pref("browser.urlbar.suggest.history", true);
+pref("browser.urlbar.suggest.bookmark", false);
+// SeaMonkey doesn't support this.
+pref("browser.urlbar.suggest.openpage", false);
+
+pref("browser.urlbar.suggest.history.onlyTyped", false);
+
 pref("browser.urlbar.filter.javascript", true);
 
 // Size of "chunks" affects the number of places to process between each search
@@ -871,7 +871,9 @@ pref("services.sync.prefs.sync.browser.tabs.warnOnCloseOther", true);
 pref("services.sync.prefs.sync.browser.tabs.warnOnOpen", true);
 pref("services.sync.prefs.sync.browser.urlbar.autocomplete.enabled", true);
 pref("services.sync.prefs.sync.browser.urlbar.autoFill", true);
-pref("services.sync.prefs.sync.browser.urlbar.default.behavior", true);
+pref("services.sync.prefs.sync.browser.urlbar.suggest.history", true);
+pref("services.sync.prefs.sync.browser.urlbar.suggest.bookmark", true);
+pref("services.sync.prefs.sync.browser.urlbar.suggest.history.onlyTyped", true);
 pref("services.sync.prefs.sync.dom.disable_open_during_load", true);
 pref("services.sync.prefs.sync.dom.disable_window_flip", true);
 pref("services.sync.prefs.sync.dom.disable_window_move_resize", true);

@@ -33,15 +33,9 @@ function updateDependent(aValue)
   // We then need to update autoFill and showPopup.
   if (document.getElementById("autoFill").hasAttribute("class"))
   {
-    toggleCheckbox("autoFill", aValue);
-    toggleCheckbox("showPopup", aValue);
+    EnableElementById("autoFill", aValue);
+    EnableElementById("showPopup", aValue);
   }
-}
-
-function toggleCheckbox(aCheckbox, aPrefValue)
-{
-  if (!document.getElementById("browser.urlbar." + aCheckbox).locked)
-    document.getElementById(aCheckbox).disabled = !aPrefValue;
 }
 
 function updateMatchPrefs()
@@ -52,31 +46,9 @@ function updateMatchPrefs()
   var autoFillPref = document.getElementById("browser.urlbar.autoFill");
   var showPopupPref = document.getElementById("browser.urlbar.showPopup");
 
-  var matchDisabled = (!autoFillPref.value && !showPopupPref.value) ||
-                      !autoCompletePref.value;
+  var matchEnabled = (autoFillPref.value || showPopupPref.value) &&
+                     autoCompletePref.value;
 
-  if (!document.getElementById("browser.urlbar.default.behavior").locked) {
-    document.getElementById("matchOnlyTyped").disabled = matchDisabled;
-    document.getElementById("matchOnlyURLs").disabled = matchDisabled;
-  }
-
-  if (!document.getElementById("browser.urlbar.matchBehavior").locked)
-    document.getElementById("matchBehavior").disabled = matchDisabled;
-}
-
-function ReadDefaultBehavior(aField)
-{
-  var curval = document.getElementById("browser.urlbar.default.behavior").value;
-  // Return the right bit based on the id of "aField"
-  return (curval & kBehaviorBit[aField.id]) != 0;
-}
-
-function WriteDefaultBehavior(aField)
-{
-  var curval = document.getElementById("browser.urlbar.default.behavior").value;
-  // Only care about the bit we have to change
-  if (aField.checked)
-    return curval | kBehaviorBit[aField.id];
-
-  return curval & ~kBehaviorBit[aField.id];
+  EnableElementById("matchOnlyTyped", matchEnabled);
+  EnableElementById("matchBehavior", matchEnabled);
 }
