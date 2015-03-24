@@ -495,9 +495,6 @@
                                  hidden="true" swappedhidden="false"
                                  label="&recipientColumn.label;" tooltiptext="&recipientColumn2.tooltip;"/>
                         <splitter class="tree-splitter"/>
-                        <treecol id="correspondentCol" persist="width" flex="4" hidden="true"
-                                 label="&correspondentColumn.label;" tooltiptext="&correspondentColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
                         <treecol id="junkStatusCol" persist="width" fixed="true" cycler="true"
                                  class="treecol-image junkStatusHeader"
                                  label="&junkStatusColumn.label;" tooltiptext="&junkStatusColumn2.tooltip;"/>

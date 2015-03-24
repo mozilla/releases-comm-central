@@ -140,9 +140,6 @@
                      hidden="true" swappedhidden="false"
                      label="&recipientColumn.label;" tooltiptext="&recipientColumn2.tooltip;"/>
             <splitter class="tree-splitter"/>
-            <treecol id="correspondentCol" persist="hidden ordinal width" flex="4"
-                     label="&correspondentColumn.label;" tooltiptext="&correspondentColumn2.tooltip;"/>
-            <splitter class="tree-splitter"/>
             <treecol id="unreadButtonColHeader" persist="hidden ordinal" fixed="true" cycler="true"
                      class="treecol-image readColumnHeader"
                      label="&readColumn.label;" tooltiptext="&readColumn2.tooltip;"/>

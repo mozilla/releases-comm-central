@@ -238,12 +238,6 @@ nsresult nsMsgGroupView::HashHdr(nsIMsgDBHdr *msgHdr, nsString& aHashKey)
         break;
       }
     }
-    case nsMsgViewSortType::byCorrespondent:
-      if (IsOutgoingMsg(msgHdr))
-        rv = FetchRecipients(msgHdr, aHashKey);
-      else
-        rv = FetchAuthor(msgHdr, aHashKey);
-      break;
     default:
       NS_ASSERTION(false, "no hash key for this type");
       rv = NS_ERROR_FAILURE;
@@ -833,7 +827,6 @@ NS_IMETHODIMP nsMsgGroupView::CellTextForColumn(int32_t aRow,
         //  all this logic in nsMsgSearchDBView, and its hash key is what we
         //  want anyways, so just copy it across.
         case nsMsgViewSortType::byLocation:
-        case nsMsgViewSortType::byCorrespondent:
           aValue = hashKey;
           break;
         case nsMsgViewSortType::byCustom:

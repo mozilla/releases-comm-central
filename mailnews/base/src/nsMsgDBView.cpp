@@ -840,18 +840,6 @@ nsresult nsMsgDBView::FetchLabel(nsIMsgDBHdr *aHdr, nsAString &aLabelString)
   return NS_OK;
 }
 
-bool nsMsgDBView::IsOutgoingMsg(nsIMsgDBHdr* aHdr)
-{
-  nsString author;
-  aHdr->GetMime2DecodedAuthor(author);
-
-  nsCString emailAddress;
-  nsString name;
-  ExtractFirstAddress(DecodedHeader(author), name, emailAddress);
-
-  return mEmails.Contains(emailAddress);
-}
-
 
 /*if you call SaveAndClearSelection make sure to call RestoreSelection otherwise
 m_saveRestoreSelectionDepth will be incorrect and will lead to selection msg problems*/
@@ -1353,13 +1341,6 @@ NS_IMETHODIMP nsMsgDBView::GetCellProperties(int32_t aRow, nsITreeColumn *col, n
   nsIMsgCustomColumnHandler* colHandler = GetColumnHandler(colID);
   if (colHandler != nullptr)
     colHandler->GetCellProperties(aRow, col, properties);
-  else if (colID[0] == 'c') // correspondent
-  {
-    if (IsOutgoingMsg(msgHdr))
-      properties.AssignLiteral("outgoing");
-    else
-      properties.AssignLiteral("incoming");
-  }
 
   if (!properties.IsEmpty())
     properties.Append(' ');
@@ -1983,12 +1964,6 @@ NS_IMETHODIMP nsMsgDBView::CellTextForColumn(int32_t aRow,
   case 'd':  // date
     rv = FetchDate(msgHdr, aValue);
     break;
-  case 'c': // correspondent
-    if (IsOutgoingMsg(msgHdr))
-      rv = FetchRecipients(msgHdr, aValue);
-    else
-      rv = FetchAuthor(msgHdr, aValue);
-    break;
   case 'p': // priority
     rv = FetchPriority(msgHdr, aValue);
     break;
@@ -2244,29 +2219,6 @@ NS_IMETHODIMP nsMsgDBView::Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sor
       if (mIsNews)
         prefs->GetBoolPref("news.show_size_in_lines", &mShowSizeInLines);
     }
-  }
-
-  nsCOMPtr<nsIArray> identities;
-  rv = accountManager->GetAllIdentities(getter_AddRefs(identities));
-  if (!identities)
-    return rv;
-
-  uint32_t count;
-  identities->GetLength(&count);
-  for (uint32_t i = 0; i < count; i++)
-  {
-    nsCOMPtr<nsIMsgIdentity> identity(do_QueryElementAt(identities, i));
-    if (!identity)
-      continue;
-
-    nsCString email;
-    identity->GetEmail(email);
-    if (!email.IsEmpty())
-      mEmails.PutEntry(email);
-
-    identity->GetReplyTo(email);
-    if (!email.IsEmpty())
-      mEmails.PutEntry(email);
   }
   return NS_OK;
 }
@@ -3859,7 +3811,6 @@ nsresult nsMsgDBView::GetFieldTypeAndLenForSort(nsMsgViewSortTypeValue sortType,
             *pMaxLen = kMaxLocationKey;
             break;
         case nsMsgViewSortType::byRecipient:
-        case nsMsgViewSortType::byCorrespondent:
             *pFieldType = kCollationKey;
             *pMaxLen = kMaxRecipientKey;
             break;
@@ -4243,25 +4194,6 @@ nsMsgDBView::GetCollationKey(nsIMsgDBHdr *msgHdr, nsMsgViewSortTypeValue sortTyp
       {
         NS_ERROR("should not be here (Sort Type: byCustom (String), but no custom handler)");
         rv = NS_ERROR_UNEXPECTED;
-      }
-      break;
-    case nsMsgViewSortType::byCorrespondent:
-      {
-        nsString value;
-        if (IsOutgoingMsg(msgHdr))
-          rv = FetchRecipients(msgHdr, value);
-        else
-          rv = FetchAuthor(msgHdr, value);
-        if (NS_SUCCEEDED(rv))
-        {
-          nsCOMPtr <nsIMsgDatabase> dbToUse = m_db;
-          if (!dbToUse) // probably search view
-          {
-            rv = GetDBForHeader(msgHdr, getter_AddRefs(dbToUse));
-            NS_ENSURE_SUCCESS(rv,rv);
-          }
-          rv = dbToUse->CreateCollationKey(value, len, result);
-        }
       }
       break;
     default:

@@ -1362,11 +1362,6 @@ DBViewWrapper.prototype = {
                    (this.displayedFolder.flags & nsMsgFolderFlags.Newsgroup));
   },
 
-  get isFeedFolder() {
-    return Boolean(this.displayedFolder &&
-                   this.displayedFolder.server.type == "rss");
-  },
-
   OUTGOING_FOLDER_FLAGS: nsMsgFolderFlags.SentMail |
                          nsMsgFolderFlags.Drafts |
                          nsMsgFolderFlags.Queue |

@@ -184,20 +184,6 @@ treechildren::-moz-tree-image(junkStatusCol, notjunk) {
   -moz-padding-start: 0px;
 }
 
-/* ..... correspondent column ..... */
-
-treechildren::-moz-tree-image(correspondentCol, incoming) {
-  -moz-margin-end: 2px;
-  list-style-image: url("chrome://messenger/skin/icons/message.png");
-  -moz-image-region: rect(0 112px 16px 96px);
-}
-
-treechildren::-moz-tree-image(correspondentCol, outgoing) {
-  -moz-margin-end: 2px;
-  list-style-image: url("chrome://messenger/skin/icons/message.png");
-  -moz-image-region: rect(0 128px 16px 112px);
-}
-
 /* ..... subject column ..... */
 
 %ifndef WINDOWS_AERO

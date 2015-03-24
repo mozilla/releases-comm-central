@@ -55,7 +55,7 @@ interface nsMsgViewFlagsType
   const nsMsgViewFlagsTypeValue kGroupBySort = 0x40;
 };
 
-[scriptable, uuid(b94fc200-3008-420a-85c7-67842f133ef8)]
+[scriptable, uuid(e8fdf9ca-9425-49de-b231-8d8fb51b8ee2)]
 interface nsMsgViewSortType
 {
   const nsMsgViewSortTypeValue byNone = 0x11; /* not sorted */
@@ -77,7 +77,6 @@ interface nsMsgViewSortType
   const nsMsgViewSortTypeValue byAccount = 0x21;
   const nsMsgViewSortTypeValue byCustom = 0x22;
   const nsMsgViewSortTypeValue byReceived = 0x23;
-  const nsMsgViewSortTypeValue byCorrespondent = 0x24;
 };
 
 [scriptable, uuid(255d1c1e-fde7-11d4-a5be-0060b0fc04b7)]

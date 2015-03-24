@@ -29,8 +29,6 @@
 #include "nsMsgTagService.h"
 #include "nsCOMArray.h"
 #include "nsTArray.h"
-#include "nsTHashtable.h"
-#include "nsHashKeys.h"
 #include "nsIMsgCustomColumnHandler.h"
 #include "nsAutoPtr.h"
 #include "nsIWeakReferenceUtils.h"
@@ -66,8 +64,6 @@ public:
 #define MSG_VIEW_FLAG_HASCHILDREN 0x40000000
 #define MSG_VIEW_FLAG_DUMMY 0x20000000
 #define MSG_VIEW_FLAG_ISTHREAD 0x8000000
-#define MSG_VIEW_FLAG_OUTGOING 0x2000000
-#define MSG_VIEW_FLAG_INCOMING 0x1000000
 
 /* There currently only 5 labels defined */
 #define PREF_LABELS_MAX 5
@@ -164,7 +160,6 @@ protected:
   nsresult FetchRowKeywords(nsMsgViewIndex aRow, nsIMsgDBHdr *aHdr,
                             nsACString & keywordString);
   nsresult FetchAccount(nsIMsgDBHdr * aHdr, nsAString& aAccount);
-  bool IsOutgoingMsg(nsIMsgDBHdr * aHdr);
   nsresult CycleThreadedColumn(nsIDOMElement * aElement);
 
   // The default enumerator is over the db, but things like
@@ -438,8 +433,6 @@ protected:
   nsCOMPtr<nsIMutableArray> mJunkHdrs;
   
   nsTArray<uint32_t> mIndicesToNoteChange;
-
-  nsTHashtable<nsCStringHashKey> mEmails;
 
   // the saved search views keep track of the XX most recently deleted msg ids, so that if the 
   // delete is undone, we can add the msg back to the search results, even if it no longer

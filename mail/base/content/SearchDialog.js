@@ -243,7 +243,7 @@ function searchOnLoad()
 
   gFolderDisplay.setColumnStates({
     subjectCol: { visible: true },
-    correspondentCol: { visible: true },
+    senderCol: { visible: true },
     dateCol: { visible: true },
     locationCol: { visible: true },
   });

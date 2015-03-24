@@ -75,8 +75,7 @@ function HandleColumnClick(columnID)
                      tagsCol: 'byTags',
                      junkStatusCol: 'byJunkStatus',
                      idCol: 'byId',
-                     attachmentCol: 'byAttachments',
-                     correspondentCol: 'byCorrespondent'};
+                     attachmentCol: 'byAttachments'};
 
 
   var sortType;
