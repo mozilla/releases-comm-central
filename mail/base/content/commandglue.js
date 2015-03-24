@@ -261,6 +261,9 @@ function ConvertSortTypeToColumnID(sortKey)
       }
 
       break;
+    case nsMsgViewSortType.byCorrespondent:
+      columnID = "correspondentCol";
+      break;
     default:
       dump("unsupported sort key: " + sortKey + "\n");
       columnID = "dateCol";

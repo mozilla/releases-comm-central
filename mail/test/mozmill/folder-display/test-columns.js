@@ -106,7 +106,7 @@ var INBOX_DEFAULTS = [
   "attachmentCol",
   "subjectCol",
   "unreadButtonColHeader",
-  "senderCol",
+  "correspondentCol",
   "junkStatusCol",
   "dateCol"
 ];
@@ -149,7 +149,7 @@ var VIRTUAL_DEFAULTS = [
   "attachmentCol",
   "subjectCol",
   "unreadButtonColHeader",
-  "senderCol",
+  "correspondentCol",
   "junkStatusCol",
   "dateCol",
   "locationCol"
@@ -306,11 +306,11 @@ function test_column_reordering_persists() {
   let tabA = be_in_folder(folderA);
   let tabB = open_folder_in_new_tab(folderB);
 
-  // put sender before subject
-  reorder_column("senderCol", "subjectCol");
+  // put correspondent before subject
+  reorder_column("correspondentCol", "subjectCol");
   let reorderdB = columnsB.concat();
   reorderdB.splice(5, 1);
-  reorderdB.splice(3, 0, "senderCol");
+  reorderdB.splice(3, 0, "correspondentCol");
   assert_visible_columns(reorderdB);
 
   switch_tab(tabA);
@@ -455,7 +455,7 @@ var GLODA_DEFAULTS = [
   "threadCol",
   "flaggedCol",
   "subjectCol",
-  "senderCol",
+  "correspondentCol",
   "dateCol",
   "locationCol"
 ];

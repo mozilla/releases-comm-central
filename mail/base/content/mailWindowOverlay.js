@@ -319,6 +319,7 @@ function InitViewSortByMenu()
   setSortByMenuItemCheckState("sortByFromMenuitem", (sortType == nsMsgViewSortType.byAuthor));
   setSortByMenuItemCheckState("sortByRecipientMenuitem", (sortType == nsMsgViewSortType.byRecipient));
   setSortByMenuItemCheckState("sortByAttachmentsMenuitem", (sortType == nsMsgViewSortType.byAttachments));
+  setSortByMenuItemCheckState("sortByCorrespondentMenuitem", (sortType == nsMsgViewSortType.byCorrespondent));
 
   var sortOrder = gFolderDisplay.view.primarySortOrder;
   var sortTypeSupportsGrouping = (sortType == nsMsgViewSortType.byAuthor ||
@@ -327,7 +328,7 @@ function InitViewSortByMenu()
       sortType == nsMsgViewSortType.bySubject || sortType == nsMsgViewSortType.byTags ||
       sortType == nsMsgViewSortType.byRecipient || sortType == nsMsgViewSortType.byAccount ||
       sortType == nsMsgViewSortType.byStatus || sortType == nsMsgViewSortType.byFlagged ||
-      sortType == nsMsgViewSortType.byAttachments);
+      sortType == nsMsgViewSortType.byAttachments || sortType == nsMsgViewSortType.byCorrespondent);
 
   setSortByMenuItemCheckState("sortAscending", (sortOrder == nsMsgViewSortOrder.ascending));
   setSortByMenuItemCheckState("sortDescending", (sortOrder == nsMsgViewSortOrder.descending));
@@ -376,7 +377,8 @@ function InitAppViewSortByMenu()
                                   sortType == nsMsgViewSortType.byAccount ||
                                   sortType == nsMsgViewSortType.byStatus ||
                                   sortType == nsMsgViewSortType.byFlagged ||
-                                  sortType == nsMsgViewSortType.byAttachments);
+                                  sortType == nsMsgViewSortType.byAttachments ||
+                                  sortType == nsMsgViewSortType.byCorrespondent);
 
   setSortByMenuItemCheckState("appmenu_sortAscending", (sortOrder == nsMsgViewSortOrder.ascending));
   setSortByMenuItemCheckState("appmenu_sortDescending", (sortOrder == nsMsgViewSortOrder.descending));

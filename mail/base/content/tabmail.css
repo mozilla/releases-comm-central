@@ -64,3 +64,12 @@
 #tabcontainer:not([overflow="true"]) ~ #alltabs-button {
   visibility: collapse;
 }
+
+/**
+ * Override the thread pane column picker.
+ * We do it here because we don't want it in the Search dialog.
+ */
+
+#threadCols > treecolpicker {
+  -moz-binding: url("chrome://messenger/content/threadPaneColumnPicker.xml#threadPaneColumnPicker");
+}

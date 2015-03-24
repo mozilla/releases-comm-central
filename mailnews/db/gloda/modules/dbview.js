@@ -122,7 +122,7 @@ GlodaSyntheticView.prototype = {
     subjectCol: {
       visible: true,
     },
-    senderCol: {
+    correspondentCol: {
       visible: true,
     },
     dateCol: {
