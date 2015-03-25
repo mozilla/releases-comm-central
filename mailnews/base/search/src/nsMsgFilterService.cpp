@@ -356,8 +356,9 @@ nsresult nsMsgFilterAfterTheFact::OnEndExecution()
   if (m_callback)
     (void)m_callback->OnStopOperation(mFinalResult);
 
+  nsresult rv = mFinalResult;
   Release(); // release ourselves.
-  return mFinalResult;
+  return rv;
 }
 
 nsresult nsMsgFilterAfterTheFact::RunNextFilter()
