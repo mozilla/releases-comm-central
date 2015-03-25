@@ -814,6 +814,7 @@ static int has_by_data(icalrecur_iterator* impl, enum byrule byrule){
 static int expand_year_days(icalrecur_iterator* impl, int year);
 static int nth_weekday(int dow, int pos, struct icaltimetype t);
 static void increment_month(icalrecur_iterator* impl);
+static int next_month(icalrecur_iterator* impl);
 
 
 icalrecur_iterator* icalrecur_iterator_new(struct icalrecurrencetype rule, 
@@ -1077,6 +1078,28 @@ icalrecur_iterator* icalrecur_iterator_new(struct icalrecurrencetype rule,
             icalerror_set_errno(ICAL_MALFORMEDDATA_ERROR);
             free(impl);
             return 0;
+        }
+
+        if (has_by_data(impl, BY_MONTH_DAY)) {
+            /* If there is also a BYMONTHDAY rule, the "last" found must
+               match one of the bymonthdays too.
+               The funtion next_month() allows to find it. */
+
+            int months_counter = 48; /* Maximum number of months to check for
+                                        (keeping in count a possible leap year).*/
+            impl->last.day--;
+            while (!next_month(impl) && months_counter) {
+                /* If next_month() hasn't found a valid day, continue to loop
+                   in the next month.
+                   Malformed rules such as BYDAY=4MO;BYMONTHDAY=1,2,3 can
+                   cause an infinite loop, months_counter allows to get out. */
+                months_counter--;
+            }
+            if (months_counter <= 0) {
+                icalerror_set_errno(ICAL_MALFORMEDDATA_ERROR);
+                free(impl);
+                return 0;
+            }
         }
 
     } else if (has_by_data(impl,BY_MONTH_DAY)) {

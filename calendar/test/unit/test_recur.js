@@ -323,6 +323,56 @@ function test_rules() {
                 "20150608T080000Z", "20150701T080000Z", "20150713T080000Z"],
                false);
 
+    // Bug 1146500 - Monthly recurrence, every MO and FR when are odd days starting from the 1st of March.
+    // Check the first occurrence when we have BYDAY along with BYMONTHDAY.
+    check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
+                                         "DESCRIPTION:Monthly recurrence, every MO and FR when are odd days starting from the 1st of March\n" +
+                                         "RRULE:FREQ=MONTHLY;BYDAY=MO,FR;BYMONTHDAY=1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31;COUNT=4\n" +
+                                         "DTSTART:20150301T080000Z\n" +
+                                         "DTEND:20150301T090000Z\n" +
+                                         "END:VEVENT\nEND:VCALENDAR\n"),
+               ["20150301T080000Z",
+                "20150309T080000Z", "20150313T080000Z", "20150323T080000Z", "20150327T080000Z"],
+               false);
+
+    // Bug 1146500 - Monthly recurrence, every MO and FR when are odd days starting from the 1st of April.
+    // Check the first occurrence when we have BYDAY along with BYMONTHDAY.
+    check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
+                                         "DESCRIPTION:Monthly recurrence, every MO and FR when are odd days starting from the 1st of March\n" +
+                                         "RRULE:FREQ=MONTHLY;BYDAY=MO,FR;BYMONTHDAY=1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31;COUNT=4\n" +
+                                         "DTSTART:20150401T080000Z\n" +
+                                         "DTEND:20150401T090000Z\n" +
+                                         "END:VEVENT\nEND:VCALENDAR\n"),
+               ["20150401T080000Z",
+                "20150403T080000Z", "20150413T080000Z", "20150417T080000Z", "20150427T080000Z"],
+               false);
+
+    // Bug 1146500 - Monthly recurrence, every MO and FR when are odd days starting from the 1st of April.
+    // Check the first occurrence when we have BYDAY along with BYMONTHDAY.
+    check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
+                                         "DESCRIPTION:Monthly recurrence, every MO and FR when are odd days starting from the 1st of March\n" +
+                                         "RRULE:FREQ=MONTHLY;BYDAY=MO,SA;BYMONTHDAY=1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31;COUNT=4\n" +
+                                         "DTSTART:20150401T080000Z\n" +
+                                         "DTEND:20150401T090000Z\n" +
+                                         "END:VEVENT\nEND:VCALENDAR\n"),
+               ["20150401T080000Z",
+                "20150411T080000Z", "20150413T080000Z", "20150425T080000Z", "20150427T080000Z"],
+               false);
+
+    // Bug 1146500 - Monthly every SU and FR when are odd days starting from 28 of February (BYDAY and BYMONTHDAY).
+    // Check the first occurrence when we have BYDAY along with BYMONTHDAY.
+    check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
+                                         "DESCRIPTION:Monthly recurrence, every SU and FR when are odd days starting from the 1st of March\n" +
+                                         "RRULE:FREQ=MONTHLY;BYDAY=SU,FR;BYMONTHDAY=1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31;COUNT=9\n" +
+                                         "DTSTART:20150228T080000Z\n" +
+                                         "DTEND:20150228T090000Z\n" +
+                                         "END:VEVENT\nEND:VCALENDAR\n"),
+               ["20150228T080000Z",
+                "20150301T080000Z", "20150313T080000Z", "20150315T080000Z", "20150327T080000Z",
+                "20150329T080000Z", "20150403T080000Z", "20150405T080000Z", "20150417T080000Z",
+                "20150419T080000Z"],
+               false);
+
     let item, occ1;
     item = makeEvent("DESCRIPTION:occurrence on day 1 moved between the occurrences " +
                                      "on days 2 and 3\n" +
