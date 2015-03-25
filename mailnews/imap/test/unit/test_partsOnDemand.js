@@ -86,7 +86,7 @@ function startMime()
     // downloaded on demand.
     do_check_true(url.contains("/;section="));
     async_driver();
-  }, true /* allowDownload */, { partsOnDemand: true });
+  }, true /* allowDownload */, { partsOnDemand: true, examineEncryptedParts: true });
   yield false;
 }
 

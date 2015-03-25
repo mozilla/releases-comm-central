@@ -385,8 +385,10 @@ MimeMessageEmitter.prototype = {
       aUrl, aIsExternalAttachment) {
     this._state = kStateInAttachment;
 
-    // we need to strip our magic flags from the URL
-    aUrl = aUrl.replace(/header=filter&emitter=js(&fetchCompleteMessage=false)?&?/, "");
+    // we need to strip our magic flags from the URL; this regexp matches all
+    // the specific flags that the jsmimeemitter understands (we abuse the URL
+    // parameters to pass information all the way to here)
+    aUrl = aUrl.replace(/((header=filter|emitter=js|fetchCompleteMessage=(true|false)|examineEncryptedParts=(true|false)))&?/g, "");
     // the url should contain a part= piece that tells us the part name, which
     // we then use to figure out where to place that part if it's a real
     // attachment.
