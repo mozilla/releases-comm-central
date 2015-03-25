@@ -25,6 +25,7 @@
 #include "mozilla/Services.h"
 #include "nsMemory.h"
 #include "nsLDAPUtils.h"
+#include "nsProxyRelease.h"
 
 using namespace mozilla;
 
@@ -615,6 +616,12 @@ nsLDAPConnectionRunnable::nsLDAPConnectionRunnable(int32_t aOperationID,
 
 nsLDAPConnectionRunnable::~nsLDAPConnectionRunnable()
 {
+  if (mConnection) {
+    nsCOMPtr<nsIThread> thread = do_GetMainThread();
+    nsILDAPConnection* forgettableConnection;
+    mConnection.forget(&forgettableConnection);
+    NS_ProxyRelease(thread, forgettableConnection, false);
+  }
 }
 
 NS_IMPL_ISUPPORTS(nsLDAPConnectionRunnable, nsIRunnable)
