@@ -988,12 +988,15 @@
               this.mCurrentBrowser.droppedLinkHandler = null;
               this.mCurrentBrowser.docShellIsActive = false;
               this.mCurrentBrowser.setAttribute("type", "content-targetable");
+              this.finder.mListeners.forEach(l => this.mCurrentBrowser.finder.removeResultListener(l));
             }
 
             newBrowser.setAttribute("type", "content-primary");
             this.mCurrentBrowser = newBrowser;
             this.mCurrentTab = this.selectedTab;
             this.mCurrentTab.removeAttribute("unread");
+            this.finder.mListeners.forEach(l => this.mCurrentBrowser.finder.addResultListener(l));
+
             var tabListener = this.mTabListeners[this.tabContainer.selectedIndex];
 
             // Update the URL bar.
@@ -2566,9 +2569,65 @@
                 onget="return this.mCurrentBrowser.currentURI;"
                 readonly="true"/>
 
-      <property name="finder"
-                onget="return this.mCurrentBrowser.finder"
-                readonly="true"/>
+      <field name="finder"><![CDATA[
+        ({
+          mTabBrowser: this,
+          mListeners: new Set(),
+          get finder() {
+            return this.mTabBrowser.mCurrentBrowser.finder;
+          },
+          addResultListener: function(aListener) {
+            this.mListeners.add(aListener);
+            this.finder.addResultListener(aListener);
+          },
+          removeResultListener: function(aListener) {
+            this.mListeners.delete(aListener);
+            this.finder.removeResultListener(aListener);
+          },
+          get searchString() {
+            return this.finder.searchString;
+          },
+          get clipboardSearchString() {
+            return this.finder.clipboardSearchString;
+          },
+          set clipboardSearchString(val) {
+            return this.finder.clipboardSearchString = val;
+          },
+          set caseSensitive(val) {
+            return this.finder.caseSensitive = val;
+          },
+          fastFind: function(aSearchString, aLinksOnly, aDrawOutline) {
+            this.finder.fastFind(aSearchString, aLinksOnly, aDrawOutline);
+          },
+          findAgain: function(aFindBackwards, aLinksOnly, aDrawOutline) {
+            this.finder.findAgain(aFindBackwards, aLinksOnly, aDrawOutline);
+          },
+          setSearchStringToSelection: function() {
+            return this.finder.setSearchStringToSelection();
+          },
+          highlight: function(aHighlight, aWord) {
+            this.finder.highlight(aHighlight, aWord);
+          },
+          getInitialSelection: function() {
+            this.finder.getInitialSelection();
+          },
+          enableSelection: function() {
+            this.finder.enableSelection();
+          },
+          removeSelection: function() {
+            this.finder.removeSelection();
+          },
+          focusContent: function() {
+            this.finder.focusContent();
+          },
+          keyPress: function(aEvent) {
+            this.finder.keyPress(aEvent);
+          },
+          requestMatchesCount: function(aWord, aMatchLimit, aLinksOnly) {
+            this.finder.requestMatchesCount(aWord, aMatchLimit, aLinksOnly);
+          }
+        })
+      ]]></field>
 
       <property name="docShell"
                 onget="return this.mCurrentBrowser.docShell"
