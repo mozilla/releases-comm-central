@@ -250,6 +250,15 @@ var DefaultController =
       case "cmd_downloadSelected":
       case "cmd_synchronizeOffline":
         return MailOfflineMgr.isOnline();
+      case "cmd_newFolder":
+      case "cmd_newVirtualFolder":
+        return !!gFolderTreeController;
+      case "cmd_goFolder":
+        return !!gFolderTreeView;
+      case "cmd_joinChat":
+      case "cmd_addChatBuddy":
+      case "cmd_chatStatus":
+        return !!chatHandler;
 
       default:
         return false;
@@ -258,11 +267,7 @@ var DefaultController =
 
   isCommandEnabled: function(command)
   {
-    var enabled = new Object();
-    enabled.value = false;
-    var checkStatus = new Object();
-
-    switch ( command )
+    switch (command)
     {
       case "cmd_delete":
         UpdateDeleteCommand();
@@ -429,8 +434,8 @@ var DefaultController =
       case "cmd_goForward":
       case "cmd_goBack":
         if (gDBView)
-          enabled.value = gDBView.navigateStatus((command == "cmd_goBack" || command == "button_goBack") ? nsMsgNavigationType.back : nsMsgNavigationType.forward);
-        return enabled.value;
+          return gDBView.navigateStatus((command == "cmd_goBack" || command == "button_goBack") ? nsMsgNavigationType.back : nsMsgNavigationType.forward);
+        return false;
       case "cmd_goStartPage":
         return document.getElementById("tabmail").selectedTab.mode.name == "folder" &&
                !IsMessagePaneCollapsed();
@@ -566,6 +571,16 @@ var DefaultController =
         return IsFolderSelected() && !IsMessagePaneCollapsed();
       case "cmd_chat":
         return true;
+      case "cmd_newFolder":
+      case "cmd_newVirtualFolder":
+        return !!gFolderTreeController;
+      case "cmd_goFolder":
+        return !!gFolderTreeView;
+      case "cmd_joinChat":
+      case "cmd_addChatBuddy":
+      case "cmd_chatStatus":
+        return !!chatHandler;
+
       default:
         return false;
     }
@@ -574,9 +589,10 @@ var DefaultController =
 
   doCommand: function(command, aTab)
   {
-    // if the user invoked a key short cut then it is possible that we got here for a command which is
-    // really disabled. kick out if the command should be disabled.
-    if (!this.isCommandEnabled(command)) return;
+    // If the user invoked a key short cut then it is possible that we got here
+    // for a command which is really disabled. Kick out if the command should be disabled.
+    if (!this.isCommandEnabled(command))
+      return;
 
     switch ( command )
     {
@@ -967,6 +983,18 @@ var DefaultController =
         break;
       case "cmd_chat":
         showChatTab();
+        break;
+      case "cmd_newFolder":
+        gFolderTreeController.newFolder();
+        break;
+      case "cmd_newVirtualFolder":
+        gFolderTreeController.newVirtualFolder();
+        break;
+      case "cmd_joinChat":
+        chatHandler.joinChat();
+        break;
+      case "cmd_addChatBuddy":
+        chatHandler.addBuddy();
         break;
     }
   },

@@ -65,8 +65,9 @@ function menu_new_init()
 
   const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
   var isInbox = folder.isSpecialFolder(nsMsgFolderFlags.Inbox);
-  var showNew = folder.canCreateSubfolders ||
-                (isInbox && !(folder.flags & nsMsgFolderFlags.Virtual));
+  var showNew = (folder.canCreateSubfolders ||
+                 (isInbox && !(folder.flags & nsMsgFolderFlags.Virtual))) &&
+                (document.getElementById("cmd_newFolder").getAttribute("disabled") != "true");
   ShowMenuItem("menu_newFolder", showNew);
   ShowMenuItem("menu_newVirtualFolder", showNew);
 

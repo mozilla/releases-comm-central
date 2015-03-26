@@ -531,6 +531,8 @@ function ShowMenus()
 
 function HideMenus()
 {
+  // TODO: Seems to be a lot of repetitive code.
+  // Can we just fold this into an array of element IDs and loop over them?
   var message_menuitem=document.getElementById('menu_showMessage');
   if (message_menuitem)
     message_menuitem.setAttribute("hidden", "true");
@@ -719,6 +721,22 @@ function HideMenus()
   goRecentlyClosedTabsSeparator = document.getElementById('appmenu_goRecentlyClosedTabsSeparator');
   if (goRecentlyClosedTabsSeparator)
     goRecentlyClosedTabsSeparator.setAttribute("hidden", "true");
+
+  let goFolder = document.getElementById('goFolderMenu');
+  if (goFolder)
+    goFolder.hidden = true;
+
+  goFolder = document.getElementById('appmenu_goFolderMenu');
+  if (goFolder)
+    goFolder.hidden = true;
+
+  goFolder = document.getElementById("goFolderSeparator");
+  if (goFolder)
+    goFolder.hidden = true;
+
+  goFolder = document.getElementById("appmenu_goFolderSeparator");
+  if (goFolder)
+    goFolder.hidden = true;
 
   var goStartPage = document.getElementById('goStartPage');
   if (goStartPage)
@@ -1053,14 +1071,15 @@ var MessageWindowController =
 
   doCommand: function(command)
   {
-    // if the user invoked a key short cut then it is possible that we got here for a command which is
-    // really disabled. kick out if the command should be disabled.
-    if (!this.isCommandEnabled(command)) return;
+    // If the user invoked a key short cut then it is possible that we got here
+    // for a command which is really disabled. Kick out if the command should be disabled.
+    if (!this.isCommandEnabled(command))
+      return;
 
     var navigationType = nsMsgNavigationType.nextUnreadMessage;
 
-  switch ( command )
-  {
+    switch (command)
+    {
     case "cmd_getNewMessages":
       MsgGetMessage();
       break;
@@ -1264,7 +1283,7 @@ var MessageWindowController =
       case "button_previous":
       case "cmd_previousUnreadMsg":
         performNavigation(nsMsgNavigationType.previousUnreadMessage);
-    break;
+        break;
       case "cmd_previousFlaggedMsg":
         performNavigation(nsMsgNavigationType.previousFlagged);
         break;
