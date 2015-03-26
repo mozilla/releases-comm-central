@@ -90,7 +90,9 @@ typeAheadFind.prototype = {
     if (aTopic == "domwindowopened") {
       // Add our listeners. They get automatically removed on window teardown.
       aSubject.controllers.appendController(new findTypeController(this, aSubject));
-      aSubject.addEventListener("keypress", this, false);
+      Components.classes["@mozilla.org/eventlistenerservice;1"]
+                .getService(Components.interfaces.nsIEventListenerService)
+                .addSystemEventListener(aSubject, "keypress", this, false);
     }
     if (aTopic == "nsWebBrowserFind_FindAgain" &&
         aSubject instanceof Components.interfaces.nsISupportsInterfacePointer &&
