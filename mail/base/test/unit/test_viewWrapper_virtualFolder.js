@@ -40,6 +40,7 @@ function test_virtual_folder_single_load_no_pred() {
                 " notification!");
 
   verify_messages_in_view(setOne, viewWrapper);
+  virtFolder.parent.propagateDelete(virtFolder, true, null);
 }
 
 /**
@@ -57,6 +58,7 @@ function test_virtual_folder_single_load_simple_pred() {
   yield async_view_open(viewWrapper, virtFolder);
 
   verify_messages_in_view(oneSubjFoo, viewWrapper);
+  virtFolder.parent.propagateDelete(virtFolder, true, null);
 }
 
 /**
@@ -78,6 +80,7 @@ function test_virtual_folder_single_load_complex_pred() {
   yield async_view_open(viewWrapper, virtFolder);
 
   verify_messages_in_view(oneBoth, viewWrapper);
+  virtFolder.parent.propagateDelete(virtFolder, true, null);
 }
 
 /**
@@ -102,6 +105,8 @@ function test_virtual_folder_single_load_after_load() {
                                     {subject: "bar"});
   yield async_view_open(viewWrapper, virtTwo);
   verify_messages_in_view([twoSubjBar], viewWrapper);
+  virtOne.parent.propagateDelete(virtOne, true, null);
+  virtTwo.parent.propagateDelete(virtTwo, true, null);
 }
 
 /**
@@ -118,6 +123,7 @@ function test_virtual_folder_multi_load_no_pred() {
   yield async_view_open(viewWrapper, virtFolder);
 
   verify_messages_in_view([setOne, setTwo], viewWrapper);
+  virtFolder.parent.propagateDelete(virtFolder, true, null);
 }
 
 /**
@@ -144,7 +150,7 @@ function test_virtual_folder_multi_sortorder_persistence() {
                "should have remembered sort type.");
   assert_equals(viewWrapper.primarySortOrder, Ci.nsMsgViewSortOrder.ascending,
                "should have remembered sort order.");
-
+  virtFolder.parent.propagateDelete(virtFolder, true, null);
 }
 
 /**
@@ -164,6 +170,7 @@ function test_virtual_folder_multi_load_simple_pred() {
   yield async_view_open(viewWrapper, virtFolder);
 
   verify_messages_in_view([oneSubjFoo, twoSubjFoo], viewWrapper);
+  virtFolder.parent.propagateDelete(virtFolder, true, null);
 }
 
 /**
@@ -188,6 +195,7 @@ function test_virtual_folder_multi_load_complex_pred() {
   yield async_view_open(viewWrapper, virtFolder);
 
   verify_messages_in_view([oneBoth, twoBoth], viewWrapper);
+  virtFolder.parent.propagateDelete(virtFolder, true, null);
 }
 
 function test_virtual_folder_multi_load_alotta_folders_no_pred() {
@@ -203,6 +211,7 @@ function test_virtual_folder_multi_load_alotta_folders_no_pred() {
   yield async_view_open(viewWrapper, virtFolder);
 
   verify_messages_in_view([setOne], viewWrapper);
+  virtFolder.parent.propagateDelete(virtFolder, true, null);
 }
 
 function test_virtual_folder_multi_load_alotta_folders_simple_pred() {
@@ -218,6 +227,7 @@ function test_virtual_folder_multi_load_alotta_folders_simple_pred() {
   yield async_view_open(viewWrapper, virtFolder);
 
   verify_messages_in_view([setOne], viewWrapper);
+  virtFolder.parent.propagateDelete(virtFolder, true, null);
 }
 
 /**
@@ -243,6 +253,8 @@ function test_virtual_folder_multi_load_after_load() {
 
   yield async_view_open(viewWrapper, virtOne);
   verify_messages_in_view([oneSubjFoo], viewWrapper);
+  virtOne.parent.propagateDelete(virtOne, true, null);
+  virtTwo.parent.propagateDelete(virtTwo, true, null);
 }
 
 /**
@@ -271,6 +283,8 @@ function test_virtual_folder_combo_load_after_load() {
 
   yield async_view_open(viewWrapper, virtOne);
   verify_messages_in_view([oneSubjFoo], viewWrapper);
+  virtOne.parent.propagateDelete(virtOne, true, null);
+  virtTwo.parent.propagateDelete(virtTwo, true, null);
 }
 
 /**
@@ -287,6 +301,7 @@ function test_virtual_folder_filters_out_servers() {
 
   assert_equals(viewWrapper._underlyingFolders.length, 2,
                 "Server folder should have been filtered out.");
+  virtFolder.parent.propagateDelete(virtFolder, true, null);
 }
 
 /**
@@ -318,6 +333,8 @@ function test_virtual_folder_underlying_folder_deleted() {
 
   // now the view wrapper should have closed itself.
   do_check_eq(null, viewWrapper.displayedFolder);
+  // This fails because virtFolder.parent is null, not sure why
+  //virtFolder.parent.propagateDelete(virtFolder, true, null);
 }
 
 /* ===== Virtual Folder, Mail Views ===== */
@@ -355,6 +372,7 @@ function test_virtual_folder_mail_views_unread(aNumFolders) {
   //  least for the unread case.
   yield async_view_refresh(viewWrapper);
   verify_messages_in_view([fooOne, fooTwo, fooThree], viewWrapper);
+  virtFolder.parent.propagateDelete(virtFolder, true, null);
 }
 
 // This tests that clearing the new messages in a folder also clears the
@@ -385,6 +403,7 @@ function test_virtual_folder_mail_new_handling() {
   folder.clearNewMessages();
   if (virtFolder.hasNewMessages)
     do_throw("saved search should not have new messages!");
+  virtFolder.parent.propagateDelete(virtFolder, true, null);
 }
 
 var tests = [

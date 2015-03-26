@@ -151,7 +151,8 @@ void nsMsgBrkMBoxStore::GetMailboxModProperties(nsIMsgFolder *aFolder,
   NS_ENSURE_SUCCESS_VOID(rv);
 
   rv = pathFile->GetFileSize(aSize);
-  NS_ENSURE_SUCCESS_VOID(rv);
+  if (NS_FAILED(rv))
+    return; // expected result for virtual folders
 
   PRTime lastModTime;
   rv = pathFile->GetLastModifiedTime(&lastModTime);

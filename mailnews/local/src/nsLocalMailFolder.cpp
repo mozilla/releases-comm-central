@@ -774,9 +774,14 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Delete()
 
   //Clean up .sbd folder if it exists.
   // Remove summary file.
-  summaryFile->Remove(false);
+  rv = summaryFile->Remove(false);
+  NS_WARN_IF_FALSE(NS_SUCCEEDED(rv), "Could not delete msg summary file");
 
-  return msgStore->DeleteFolder(this);
+  rv = msgStore->DeleteFolder(this);
+  if (rv == NS_ERROR_FILE_NOT_FOUND ||
+      rv == NS_ERROR_FILE_TARGET_DOES_NOT_EXIST)
+    rv = NS_OK; // virtual folders do not have a msgStore file
+  return rv;
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::DeleteSubFolders(nsIArray *folders, nsIMsgWindow *msgWindow)

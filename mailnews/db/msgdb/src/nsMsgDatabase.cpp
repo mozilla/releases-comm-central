@@ -5721,9 +5721,8 @@ nsMsgDatabase::GetCachedHits(const char *aSearchFolderUri, nsISimpleEnumerator *
 {
   nsCOMPtr <nsIMdbTable> table;
   nsresult err = GetSearchResultsTable(aSearchFolderUri, false, getter_AddRefs(table));
-  NS_ENSURE_SUCCESS(err, err);
   if (!table)
-    return NS_ERROR_FAILURE;
+    return NS_ERROR_FAILURE; // expected result for no cached hits
   nsMsgDBEnumerator* e = new nsMsgDBEnumerator(this, table, nullptr, nullptr);
   if (e == nullptr)
       return NS_ERROR_OUT_OF_MEMORY;

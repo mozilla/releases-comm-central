@@ -52,6 +52,7 @@ var VirtualFolderHelper = {
     wrappedVirt.onlineSearch = aOnlineSearch;
 
     let msgDatabase = msgFolder.msgDatabase;
+    msgDatabase.summaryValid = true;
     msgDatabase.Close(true);
 
     aParentFolder.NotifyItemAdded(msgFolder);

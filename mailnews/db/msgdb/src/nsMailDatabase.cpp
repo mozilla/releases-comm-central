@@ -117,10 +117,17 @@ NS_IMETHODIMP nsMailDatabase::GetSummaryValid(bool *aResult)
 NS_IMETHODIMP nsMailDatabase::SetSummaryValid(bool aValid)
 {
   nsMsgDatabase::SetSummaryValid(aValid);
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+
   if (!m_folder)
     return NS_ERROR_NULL_POINTER;
 
+  // If this is a virtual folder, there is no storage.
+  bool flag;
+  m_folder->GetFlag(nsMsgFolderFlags::Virtual, &flag);
+  if (flag)
+    return NS_OK;
+
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
   nsresult rv = m_folder->GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
   return msgStore->SetSummaryFileValid(m_folder, this, aValid);
