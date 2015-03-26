@@ -8,6 +8,7 @@ EXPORTS += [
 ]
 
 SOURCES += [
+    'nsComposeStrings.cpp',
     'nsMsgAttachment.cpp',
     'nsMsgAttachmentHandler.cpp',
     'nsMsgCompFields.cpp',
