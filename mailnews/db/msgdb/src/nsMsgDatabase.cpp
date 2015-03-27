@@ -3158,7 +3158,6 @@ nsMsgDatabase::SyncCounts()
   return NS_OK;
 }
 
-// resulting output array is sorted by key.
 NS_IMETHODIMP nsMsgDatabase::ListAllKeys(nsIMsgKeyArray *aKeys)
 {
   NS_ENSURE_ARG_POINTER(aKeys);
@@ -3169,7 +3168,6 @@ NS_IMETHODIMP nsMsgDatabase::ListAllKeys(nsIMsgKeyArray *aKeys)
 
   if (m_mdbAllMsgHeadersTable)
   {
-    mdb_id largestId = 0;
     uint32_t numMsgs = 0;
     m_mdbAllMsgHeadersTable->GetCount(GetEnv(), &numMsgs);
     aKeys->SetCapacity(numMsgs);
@@ -3185,17 +3183,7 @@ NS_IMETHODIMP nsMsgDatabase::ListAllKeys(nsIMsgKeyArray *aKeys)
       if (outPos < 0 || outOid.mOid_Id == (mdb_id) -1)
         break;
       if (NS_SUCCEEDED(rv))
-      {
-        if (outOid.mOid_Id < largestId)
-        {
-          aKeys->InsertElementSorted(outOid.mOid_Id);
-        }
-        else
-        {
-          largestId = outOid.mOid_Id;
-          aKeys->AppendElement(outOid.mOid_Id);
-        }
-      }
+        aKeys->AppendElement(outOid.mOid_Id);
     }
   }
   return rv;
@@ -4920,7 +4908,6 @@ NS_IMETHODIMP nsMsgDatabase::ListAllOfflineMsgs(nsIMsgKeyArray *aKeys)
       }
     }
   }
-  aKeys->Sort();
   return rv;
 }
 

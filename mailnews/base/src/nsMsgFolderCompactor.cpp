@@ -401,6 +401,11 @@ nsresult nsFolderCompactState::StartCompacting()
     notifier->NotifyItemEvent(m_folder,
                               NS_LITERAL_CSTRING("FolderCompactStart"),
                               nullptr);
+
+  // TODO: test whether sorting the messages (m_keyArray) by messageOffset
+  // would improve performance on large files (less seeks).
+  // The m_keyArray is in the order as stored in DB and on IMAP or News
+  // the messages stored on the mbox file are not necessarily in the same order.
   if (m_size > 0)
   {
     nsCOMPtr<nsIURI> notUsed;

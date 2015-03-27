@@ -342,6 +342,7 @@ NS_IMETHODIMP nsAutoSyncState::ProcessExistingHeaders(uint32_t aNumOfHdrsToProce
     nsRefPtr<nsMsgKeyArray> keys = new nsMsgKeyArray;
     rv = database->ListAllKeys(keys);
     NS_ENSURE_SUCCESS(rv, rv);
+    keys->Sort();
     mExistingHeadersQ.AppendElements(keys->m_keys);
     mProcessPointer = 0;
   }

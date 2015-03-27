@@ -10,6 +10,9 @@ NS_IMPL_ISUPPORTS(nsMsgKeyArray, nsIMsgKeyArray)
 
 nsMsgKeyArray::nsMsgKeyArray()
 {
+#ifdef DEBUG
+  m_sorted = false;
+#endif
 }
 
 nsMsgKeyArray::~nsMsgKeyArray()
@@ -18,6 +21,9 @@ nsMsgKeyArray::~nsMsgKeyArray()
 
 NS_IMETHODIMP nsMsgKeyArray::Sort()
 {
+#ifdef DEBUG
+  m_sorted = true;
+#endif
   m_keys.Sort();
   return NS_OK;
 }
@@ -44,14 +50,19 @@ NS_IMETHODIMP nsMsgKeyArray::SetCapacity(uint32_t aCapacity)
 
 NS_IMETHODIMP nsMsgKeyArray::AppendElement(nsMsgKey aKey)
 {
+#ifdef DEBUG
+  NS_ASSERTION(!m_sorted || m_keys.Length() == 0 ||
+               aKey > m_keys[m_keys.Length() - 1],
+               "Inserting a new key at wrong position in a sorted key list!");
+#endif
   m_keys.AppendElement(aKey);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgKeyArray::InsertElementSorted(nsMsgKey aKey)
 {
-  m_keys.InsertElementSorted(aKey);
-  return NS_OK;
+  // Ths function should be removed after interfaces are not frozen for TB38.
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsMsgKeyArray::GetArray(uint32_t *aCount, nsMsgKey **aKeys)
@@ -64,4 +75,3 @@ NS_IMETHODIMP nsMsgKeyArray::GetArray(uint32_t *aCount, nsMsgKey **aKeys)
                                  m_keys.Length() * sizeof(nsMsgKey));
   return (*aKeys) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
-

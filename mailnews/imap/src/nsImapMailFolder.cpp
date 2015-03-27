@@ -2677,10 +2677,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(nsIImapProtocol* aProtocol
     rv = mDatabase->ListAllKeys(keys);
     NS_ENSURE_SUCCESS(rv, rv);
     existingKeys.AppendElements(keys->m_keys);
-    uint32_t keyCount = existingKeys.Length();
     mDatabase->ListAllOfflineDeletes(&existingKeys);
-    if (keyCount < existingKeys.Length())
-      existingKeys.Sort();
   }
   int32_t folderValidity;
   aSpec->GetFolder_UIDVALIDITY(&folderValidity);
@@ -2787,6 +2784,8 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(nsIImapProtocol* aProtocol
   {
     uint32_t boxFlags;
     aSpec->GetBox_flags(&boxFlags);
+    // FindKeysToDelete and FindKeysToAdd require sorted lists
+    existingKeys.Sort();
     FindKeysToDelete(existingKeys, keysToDelete, flagState, boxFlags);
     // if this is the result of an expunge then don't grab headers
     if (!(boxFlags & kJustExpunged))

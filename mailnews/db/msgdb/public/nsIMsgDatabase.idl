@@ -300,6 +300,11 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
 
   nsIMsgDBHdr CopyHdrFromExistingHdr(in nsMsgKey key, in nsIMsgDBHdr existingHdr, in boolean addHdrToDB);
 
+  /**
+   * Returns all message keys stored in the database.
+   * Keys are returned in the order as stored in the database.
+   * The caller should sort them if it needs to.
+   */
   void ListAllKeys(in nsIMsgKeyArray array);
 
   nsISimpleEnumerator EnumerateMessages();

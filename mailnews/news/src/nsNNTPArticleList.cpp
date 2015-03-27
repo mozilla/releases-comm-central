@@ -48,6 +48,7 @@ nsNNTPArticleList::Initialize(nsIMsgNewsFolder *newsFolder)
     nsRefPtr<nsMsgKeyArray> keys = new nsMsgKeyArray;
     rv = m_newsDB->ListAllKeys(keys);
     NS_ENSURE_SUCCESS(rv,rv);
+    keys->Sort();
     m_idsInDB.AppendElements(keys->m_keys);
 
     return NS_OK;

@@ -24,6 +24,10 @@ public:
 
 private:
   virtual ~nsMsgKeyArray();
+
+#ifdef DEBUG
+  bool m_sorted;
+#endif
 };
 
 #endif
