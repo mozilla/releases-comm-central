@@ -115,7 +115,7 @@ class nsIMAPMessageHeaders : public nsIMAPBodypart
 {
 public:
     nsIMAPMessageHeaders(char *partNum, nsIMAPBodypart *parentPart);
-	virtual nsIMAPBodypartType	GetType() override;
+    virtual nsIMAPBodypartType	GetType() override;
     // Generates an HTML representation of this part.  Returns content length generated, -1 if failed.
     virtual int32_t Generate(nsIMAPBodyShell *aShell, bool stream,
                              bool prefetch) override;
@@ -156,7 +156,7 @@ public:
                      char *bodySubType, char *bodyID, char *bodyDescription,
                      char *bodyEncoding, int32_t partLength,
                      bool preferPlainText);
-	virtual nsIMAPBodypartType	GetType() override;
+    virtual nsIMAPBodypartType	GetType() override;
     // Generates an HTML representation of this part.  Returns content length generated, -1 if failed.
     virtual int32_t Generate(nsIMAPBodyShell *aShell, bool stream, bool prefetch) override;
     // returns true if this part should be fetched inline for generation.

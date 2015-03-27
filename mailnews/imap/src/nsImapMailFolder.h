@@ -283,8 +283,8 @@ public:
   NS_IMETHOD GetCanFileMessages(bool *aCanFileMessages) override;
   NS_IMETHOD GetCanDeleteMessages(bool *aCanDeleteMessages) override;
   NS_IMETHOD FetchMsgPreviewText(nsMsgKey *aKeysToFetch, uint32_t aNumKeys,
-                                                 bool aLocalOnly, nsIUrlListener *aUrlListener,
-                                                 bool *aAsyncResults) override;
+                                 bool aLocalOnly, nsIUrlListener *aUrlListener,
+                                 bool *aAsyncResults) override;
 
   NS_IMETHOD AddKeywordsToMessages(nsIArray *aMessages, const nsACString& aKeywords) override;
   NS_IMETHOD RemoveKeywordsFromMessages(nsIArray *aMessages, const nsACString& aKeywords) override;

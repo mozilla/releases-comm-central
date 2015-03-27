@@ -26,9 +26,9 @@ public:
   NS_IMETHOD    ForceClosed() override;
   NS_IMETHOD    AddNewHdrToDB(nsIMsgDBHdr *newHdr, bool notify) override;
   NS_IMETHOD    SetAttributeOnPendingHdr(nsIMsgDBHdr *pendingHdr, const char *property,
-                                  const char *propertyVal) override;
+                                         const char *propertyVal) override;
   NS_IMETHOD    SetUint32AttributeOnPendingHdr(nsIMsgDBHdr *pendingHdr, const char *property,
-                                  uint32_t propertyVal) override;
+                                               uint32_t propertyVal) override;
   NS_IMETHOD    SetUint64AttributeOnPendingHdr(nsIMsgDBHdr *aPendingHdr,
                                                const char *aProperty,
                                                uint64_t aPropertyVal) override;

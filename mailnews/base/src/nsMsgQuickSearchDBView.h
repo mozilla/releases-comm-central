@@ -45,9 +45,9 @@ public:
   NS_IMETHOD SetSearchSession(nsIMsgSearchSession *aSearchSession);
   NS_IMETHOD GetSearchSession(nsIMsgSearchSession* *aSearchSession);
   NS_IMETHOD OnHdrFlagsChanged(nsIMsgDBHdr *aHdrChanged, uint32_t aOldFlags, 
-                         uint32_t aNewFlags, nsIDBChangeListener *aInstigator) override;
+                               uint32_t aNewFlags, nsIDBChangeListener *aInstigator) override;
   NS_IMETHOD OnHdrPropertyChanged(nsIMsgDBHdr *aHdrToChange, bool aPreChange, uint32_t *aStatus, 
-                                 nsIDBChangeListener * aInstigator) override;
+                                  nsIDBChangeListener * aInstigator) override;
   NS_IMETHOD OnHdrDeleted(nsIMsgDBHdr *aHdrDeleted, nsMsgKey aParentKey,
                           int32_t aFlags, nsIDBChangeListener *aInstigator) override;
   NS_IMETHOD GetNumMsgsInView(int32_t *aNumMsgs);

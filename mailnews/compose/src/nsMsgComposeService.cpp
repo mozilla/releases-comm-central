@@ -873,7 +873,7 @@ nsMsgComposeService::CacheWindow(nsIDOMWindow *aWindow, bool aComposeHTML, nsIMs
 }
 
 class nsMsgTemplateReplyHelper final: public nsIStreamListener,
-                                          public nsIUrlListener
+                                      public nsIUrlListener
 {
 public:
   NS_DECL_ISUPPORTS

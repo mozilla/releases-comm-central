@@ -31,9 +31,9 @@ public:
                         nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCmdUpdater);
   NS_IMETHOD Close();
   NS_IMETHOD OnHdrDeleted(nsIMsgDBHdr *aHdrDeleted, nsMsgKey aParentKey, int32_t aFlags, 
-                            nsIDBChangeListener *aInstigator) override;
+                          nsIDBChangeListener *aInstigator) override;
   NS_IMETHOD OnHdrFlagsChanged(nsIMsgDBHdr *aHdrChanged, uint32_t aOldFlags, 
-                                      uint32_t aNewFlags, nsIDBChangeListener *aInstigator) override;
+                               uint32_t aNewFlags, nsIDBChangeListener *aInstigator) override;
 
   NS_IMETHOD LoadMessageByViewIndex(nsMsgViewIndex aViewIndex);
   NS_IMETHOD GetCellProperties(int32_t aRow, nsITreeColumn *aCol, nsAString& aProperties) override;
@@ -50,9 +50,9 @@ protected:
   nsresult OnNewHeader(nsIMsgDBHdr *newHdr, nsMsgKey aParentKey, bool /*ensureListed*/) override;
   virtual int32_t FindLevelInThread(nsIMsgDBHdr *msgHdr, nsMsgViewIndex startOfThread, nsMsgViewIndex viewIndex) override;
   nsMsgViewIndex ThreadIndexOfMsg(nsMsgKey msgKey, 
-                                            nsMsgViewIndex msgIndex = nsMsgViewIndex_None,
-                                            int32_t *pThreadCount = NULL,
-                                            uint32_t *pFlags = NULL) override;
+                                  nsMsgViewIndex msgIndex = nsMsgViewIndex_None,
+                                  int32_t *pThreadCount = NULL,
+                                  uint32_t *pFlags = NULL) override;
 
   bool GroupViewUsesDummyRow(); // returns true if we are grouped by a sort attribute that uses a dummy row
   virtual nsresult RebuildView(nsMsgViewFlagsTypeValue newFlags);
