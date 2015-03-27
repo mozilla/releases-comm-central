@@ -690,10 +690,17 @@ function onFontFaceChange(fontFaceMenuList, commandID)
   {
     var menuPopup = document.getElementById("FontFacePopup");
     var menuItems = menuPopup.childNodes;
+
+    // Bug 1139524: Normalise before we compare: Make it lower case
+    // and replace ", " with "," so that entries like
+    // "Helvetica, Arial, sans-serif" are always recognised correctly
+    var stateToLower = state.toLowerCase().replace(/, /g, ",");
+
     for (var i=0; i < menuItems.length; i++)
     {
       var menuItem = menuItems.item(i);
-      if (menuItem.getAttribute("label") && ("value" in menuItem && menuItem.value.toLowerCase() == state.toLowerCase()))
+      if (menuItem.getAttribute("label") && ("value" in menuItem &&
+          menuItem.value.toLowerCase().replace(/, /g, ",") == stateToLower))
       {
         fontFaceMenuList.selectedItem = menuItem;
         break;
