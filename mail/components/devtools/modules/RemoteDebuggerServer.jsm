@@ -109,6 +109,7 @@ let RemoteDebuggerServer = {
     if (DebuggerServer.initialized && DebuggerServer.createRootActor) {
       return;
     }
+
     // Initialize the debugger, if non-local connections are permitted then
     // have the default prompt kick in.
     DebuggerServer.init(() => {
@@ -158,10 +159,20 @@ let RemoteDebuggerServer = {
     this._checkInit();
     Services.prefs.setBoolPref('devtools.debugger.remote-enabled', true);
 
+    // Make sure chrome debugging is enabled, no sense in starting otherwise.
+    DebuggerServer.allowChromeProcess = true;
+
     let port = Services.prefs.getIntPref('devtools.debugger.remote-port') || 6000;
     try {
       let listener = DebuggerServer.createListener();
       listener.portOrPath = port;
+
+      // Expose this listener via wifi discovery, if enabled.
+      if (Services.prefs.getBoolPref("devtools.remote.wifi.visible") &&
+          !Services.prefs.getBoolPref("devtools.debugger.force-local")) {
+        listener.discoverable = true;
+      }
+
       listener.open();
     } catch (e) {
       Components.utils.reportError("Unable to start debugger server: " + e);

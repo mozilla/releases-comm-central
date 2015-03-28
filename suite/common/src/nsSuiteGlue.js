@@ -53,6 +53,7 @@ const BOOKMARKS_BACKUP_MAX_BACKUPS = 10;
 const DEBUGGER_REMOTE_ENABLED = "devtools.debugger.remote-enabled";
 const DEBUGGER_REMOTE_PORT = "devtools.debugger.remote-port";
 const DEBUGGER_FORCE_LOCAL = "devtools.debugger.force-local";
+const DEBUGGER_WIFI_VISIBLE = "devtools.remote.wifi.visible";
 
 // Constructor
 
@@ -139,6 +140,12 @@ SuiteGlue.prototype = {
              * The new value will be picked up if the server is started.
              */
             if (this.dbgIsEnabled)
+              this.dbgRestart();
+            break;
+          case DEBUGGER_WIFI_VISIBLE:
+            // Wifi visibility has changed, we need to restart the debugger
+            // server.
+            if (this.dbgIsEnabled && !Services.prefs.getBoolPref(DEBUGGER_FORCE_LOCAL))
               this.dbgRestart();
             break;
         }
@@ -991,6 +998,10 @@ SuiteGlue.prototype = {
   dbgStart: function()
   {
     var port = Services.prefs.getIntPref(DEBUGGER_REMOTE_PORT);
+
+    // Make sure chrome debugging is enabled, no sense in starting otherwise.
+    DebuggerServer.allowChromeProcess = true;
+
     if (!DebuggerServer.initialized) {
       DebuggerServer.init();
       DebuggerServer.addBrowserActors();
@@ -998,6 +1009,13 @@ SuiteGlue.prototype = {
     try {
       let listener = DebuggerServer.createListener();
       listener.portOrPath = port;
+
+      // Expose this listener via wifi discovery, if enabled.
+      if (Services.prefs.getBoolPref(DEBUGGER_WIFI_VISIBLE) &&
+          !Services.prefs.getBoolPref(DEBUGGER_FORCE_LOCAL)) {
+        listener.discoverable = true;
+      }
+
       listener.open();
     } catch(e) {}
   },
