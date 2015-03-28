@@ -98,7 +98,7 @@ var MailMigrator = {
   _migrateUI: function() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 10;
+    const UI_VERSION = 11;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul";
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = 0;
@@ -309,6 +309,21 @@ var MailMigrator = {
         foStream.write(data, data.length);
         foStream.QueryInterface(Ci.nsISafeOutputStream).finish();
         foStream.close();
+      }
+
+      // Several Latin language groups were consolidated into x-western.
+      if (currentUIVersion < 11) {
+        let group = null;
+        try {
+          group = Services.prefs.getComplexValue("font.language.group",
+                                                 Ci.nsIPrefLocalizedString);
+        } catch (ex) {}
+        if (group &&
+            ["tr", "x-baltic", "x-central-euro"].some(g => g == group.data)) {
+          group.data = "x-western";
+          Services.prefs.setComplexValue("font.language.group",
+                                         Ci.nsIPrefLocalizedString, group);
+        }
       }
 
       // Update the migration version.
