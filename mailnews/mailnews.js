@@ -206,6 +206,7 @@ pref("mail.operate_on_msgs_in_collapsed_threads", false);
 pref("mail.warn_on_collapsed_thread_operation", true);
 pref("mail.warn_on_shift_delete", true);
 pref("news.warn_on_delete", true);
+pref("mail.warn_on_delete_from_trash", true);
 pref("mail.purge_threshhold_mb", 20);
 pref("mail.prompt_purge_threshhold",       true);
 pref("mail.purge.ask",                     true);

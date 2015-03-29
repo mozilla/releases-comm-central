@@ -3114,24 +3114,47 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow *window, nsMsgViewIndex *indic
   const char *warnCollapsedPref = "mail.warn_on_collapsed_thread_operation";
   const char *warnShiftDelPref = "mail.warn_on_shift_delete";
   const char *warnNewsPref = "news.warn_on_delete";
+  const char *warnTrashDelPref = "mail.warn_on_delete_from_trash";
   const char *activePref = nullptr;
+  nsString warningName;
   nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (uint32_t(numIndices) != numMsgs)
+  bool trashFolder = false;
+  rv = m_folder->GetFlag(nsMsgFolderFlags::Trash, &trashFolder);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (trashFolder)
+  {
+    bool pref = false;
+    prefBranch->GetBoolPref(warnTrashDelPref, &pref);
+    if (pref)
+    {
+      activePref = warnTrashDelPref;
+      warningName.AssignLiteral("confirmMsgDelete.deleteFromTrash.desc");
+    }
+  }
+
+  if (!activePref && (uint32_t(numIndices) != numMsgs))
   {
     bool pref = false;
     prefBranch->GetBoolPref(warnCollapsedPref, &pref);
     if (pref)
+    {
       activePref = warnCollapsedPref;
+      warningName.AssignLiteral("confirmMsgDelete.collapsed.desc");
+    }
   }
 
-  if (!activePref && deleteStorage)
+  if (!activePref && deleteStorage && !trashFolder)
   {
     bool pref = false;
     prefBranch->GetBoolPref(warnShiftDelPref, &pref);
     if (pref)
+    {
       activePref = warnShiftDelPref;
+      warningName.AssignLiteral("confirmMsgDelete.deleteNoTrash.desc");
+    }
   }
 
   if (!activePref && mIsNews)
@@ -3139,7 +3162,10 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow *window, nsMsgViewIndex *indic
     bool pref = false;
     prefBranch->GetBoolPref(warnNewsPref, &pref);
     if (pref)
+    {
       activePref = warnNewsPref;
+      warningName.AssignLiteral("confirmMsgDelete.deleteNoTrash.desc");
+    }
   }
 
   if (activePref)
@@ -3162,10 +3188,7 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow *window, nsMsgViewIndex *indic
     checkboxText.Adopt(GetString(MOZ_UTF16("confirmMsgDelete.dontAsk.label")));
     buttonApplyNowText.Adopt(GetString(MOZ_UTF16("confirmMsgDelete.delete.label")));
 
-    if (activePref == warnCollapsedPref)
-      confirmString.Adopt(GetString(MOZ_UTF16("confirmMsgDelete.collapsed.desc")));
-    else // if (activePref == warnShiftDelPref || activePref == warnNewsPref)
-      confirmString.Adopt(GetString(MOZ_UTF16("confirmMsgDelete.deleteNoTrash.desc")));
+    confirmString.Adopt(GetString(warningName.get()));
 
     const uint32_t buttonFlags =
       (nsIPrompt::BUTTON_TITLE_IS_STRING * nsIPrompt::BUTTON_POS_0) +
