@@ -1548,9 +1548,16 @@ nsresult nsSmtpProtocol::SendRecipientResponse()
     else
       errorcode = NS_ERROR_SENDING_RCPT_COMMAND;
 
-    rv = nsExplainErrorDetails(m_runningURL, errorcode,
-                               m_responseText.get(),
-                               m_addresses[m_addressesLeft - 1].get());
+    if (errorcode == NS_ERROR_SENDING_RCPT_COMMAND) {
+      rv = nsExplainErrorDetails(
+        m_runningURL, errorcode, NS_ConvertUTF8toUTF16(m_responseText).get(),
+        NS_ConvertUTF8toUTF16(m_addresses[m_addressesLeft - 1]).get());
+    } else {
+      rv = nsExplainErrorDetails(m_runningURL, errorcode,
+                                 m_responseText.get(),
+                                 m_addresses[m_addressesLeft - 1].get());
+    }
+
     NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain SMTP error");
 
     m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
