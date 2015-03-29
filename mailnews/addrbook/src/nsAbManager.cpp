@@ -516,14 +516,16 @@ NS_IMETHODIMP nsAbManager::MailListNameExists(const char16_t *name, bool *exist)
 #define CSV_FILE_EXTENSION ".csv"
 #define TAB_FILE_EXTENSION ".tab"
 #define TXT_FILE_EXTENSION ".txt"
+#define VCF_FILE_EXTENSION ".vcf"
 #define LDIF_FILE_EXTENSION ".ldi"
 #define LDIF_FILE_EXTENSION2 ".ldif"
 
 enum ADDRESSBOOK_EXPORT_FILE_TYPE
 {
  LDIF_EXPORT_TYPE =  0,
- CSV_EXPORT_TYPE = 1,
- TAB_EXPORT_TYPE = 2
+ CSV_EXPORT_TYPE =   1,
+ TAB_EXPORT_TYPE =   2,
+ VCF_EXPORT_TYPE =   3,
 };
 
 NS_IMETHODIMP nsAbManager::ExportAddressBook(nsIDOMWindow *aParentWin, nsIAbDirectory *aDirectory)
@@ -567,6 +569,12 @@ NS_IMETHODIMP nsAbManager::ExportAddressBook(nsIDOMWindow *aParentWin, nsIAbDire
   rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.tab; *.txt"));
   NS_ENSURE_SUCCESS(rv, rv);
 
+  rv = bundle->GetStringFromName(MOZ_UTF16("VCFFiles"), getter_Copies(filterString));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.vcf"));
+  NS_ENSURE_SUCCESS(rv, rv);
+
   int16_t dialogResult;
   filePicker->Show(&dialogResult);
 
@@ -605,10 +613,10 @@ NS_IMETHODIMP nsAbManager::ExportAddressBook(nsIDOMWindow *aParentWin, nsIAbDire
       if ((MsgFind(fileName, LDIF_FILE_EXTENSION, true, fileName.Length() - strlen(LDIF_FILE_EXTENSION)) == -1) &&
           (MsgFind(fileName, LDIF_FILE_EXTENSION2, true, fileName.Length() - strlen(LDIF_FILE_EXTENSION2)) == -1)) {
 
-       // Add the extension and build a new localFile.
-       fileName.AppendLiteral(LDIF_FILE_EXTENSION2);
-       localFile->SetLeafName(fileName);
-    }
+        // Add the extension and build a new localFile.
+        fileName.AppendLiteral(LDIF_FILE_EXTENSION2);
+        localFile->SetLeafName(fileName);
+      }
       rv = ExportDirectoryToLDIF(aDirectory, localFile);
       break;
 
@@ -616,10 +624,10 @@ NS_IMETHODIMP nsAbManager::ExportAddressBook(nsIDOMWindow *aParentWin, nsIAbDire
       // If filename does not have the correct ext, add one.
       if (MsgFind(fileName, CSV_FILE_EXTENSION, true, fileName.Length() - strlen(CSV_FILE_EXTENSION)) == -1) {
 
-       // Add the extension and build a new localFile.
-       fileName.AppendLiteral(CSV_FILE_EXTENSION);
-       localFile->SetLeafName(fileName);
-    }
+        // Add the extension and build a new localFile.
+        fileName.AppendLiteral(CSV_FILE_EXTENSION);
+        localFile->SetLeafName(fileName);
+      }
       rv = ExportDirectoryToDelimitedText(aDirectory, CSV_DELIM, CSV_DELIM_LEN, localFile);
       break;
 
@@ -628,11 +636,22 @@ NS_IMETHODIMP nsAbManager::ExportAddressBook(nsIDOMWindow *aParentWin, nsIAbDire
       if ((MsgFind(fileName, TXT_FILE_EXTENSION, true, fileName.Length() - strlen(TXT_FILE_EXTENSION)) == -1) &&
           (MsgFind(fileName, TAB_FILE_EXTENSION, true, fileName.Length() - strlen(TAB_FILE_EXTENSION)) == -1)) {
 
-       // Add the extension and build a new localFile.
-       fileName.AppendLiteral(TXT_FILE_EXTENSION);
-       localFile->SetLeafName(fileName);
-  }
+        // Add the extension and build a new localFile.
+        fileName.AppendLiteral(TXT_FILE_EXTENSION);
+        localFile->SetLeafName(fileName);
+      }
       rv = ExportDirectoryToDelimitedText(aDirectory, TAB_DELIM, TAB_DELIM_LEN, localFile);
+      break;
+
+    case VCF_EXPORT_TYPE: // vCard
+      // If filename does not have the correct ext, add one.
+      if (MsgFind(fileName, VCF_FILE_EXTENSION, true, fileName.Length() - strlen(VCF_FILE_EXTENSION)) == -1) {
+
+        // Add the extension and build a new localFile.
+        fileName.AppendLiteral(VCF_FILE_EXTENSION);
+        localFile->SetLeafName(fileName);
+      }
+      rv = ExportDirectoryToVCard(aDirectory, localFile);
       break;
   };
 
@@ -820,6 +839,72 @@ nsAbManager::ExportDirectoryToDelimitedText(nsIAbDirectory *aDirectory, const ch
   NS_ENSURE_SUCCESS(rv,rv);
   return NS_OK;
 }
+
+nsresult
+nsAbManager::ExportDirectoryToVCard(nsIAbDirectory *aDirectory, nsIFile *aLocalFile)
+{
+  nsCOMPtr <nsISimpleEnumerator> cardsEnumerator;
+  nsCOMPtr <nsIAbCard> card;
+
+  nsresult rv;
+
+  nsCOMPtr <nsIOutputStream> outputStream;
+  rv = MsgNewBufferedFileOutputStream(getter_AddRefs(outputStream),
+                                      aLocalFile,
+                                      PR_CREATE_FILE | PR_WRONLY | PR_TRUNCATE,
+                                      0664);
+
+  // the desired file may be read only
+  if (NS_FAILED(rv))
+    return rv;
+
+  uint32_t writeCount;
+  uint32_t length;
+
+  rv = aDirectory->GetChildCards(getter_AddRefs(cardsEnumerator));
+  if (NS_SUCCEEDED(rv) && cardsEnumerator) {
+    nsCOMPtr<nsISupports> item;
+    bool more;
+    while (NS_SUCCEEDED(cardsEnumerator->HasMoreElements(&more)) && more) {
+      rv = cardsEnumerator->GetNext(getter_AddRefs(item));
+      if (NS_SUCCEEDED(rv)) {
+        nsCOMPtr <nsIAbCard> card = do_QueryInterface(item, &rv);
+        NS_ENSURE_SUCCESS(rv,rv);
+
+        bool isMailList;
+        rv = card->GetIsMailList(&isMailList);
+        NS_ENSURE_SUCCESS(rv,rv);
+
+        if (isMailList) {
+          // we don't know how to export mailing lists to vcf
+          // use LDIF for that.
+        }
+        else {
+          nsCString escapedValue;
+          rv = card->TranslateTo(NS_LITERAL_CSTRING("vcard"), escapedValue);
+          NS_ENSURE_SUCCESS(rv,rv);
+
+          nsCString valueCStr;
+          MsgUnescapeString(escapedValue, 0, valueCStr);
+
+          length = valueCStr.Length();
+          rv = outputStream->Write(valueCStr.get(), length, &writeCount);
+          NS_ENSURE_SUCCESS(rv,rv);
+          if (length != writeCount)
+            return NS_ERROR_FAILURE;
+        }
+      }
+    }
+  }
+
+  rv = outputStream->Flush();
+  NS_ENSURE_SUCCESS(rv,rv);
+
+  rv = outputStream->Close();
+  NS_ENSURE_SUCCESS(rv,rv);
+  return NS_OK;
+}
+
 
 nsresult
 nsAbManager::ExportDirectoryToLDIF(nsIAbDirectory *aDirectory, nsIFile *aLocalFile)
