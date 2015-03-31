@@ -251,8 +251,22 @@ const XMPPMUCConversationPrototype = {
   /* Called when the user closed the conversation */
   close: function() {
     if (!this.left) {
-      this._account.sendStanza(Stanza.presence({to: this.name + "/" + this._nick,
-                                               type: "unavailable"}));
+      let s = Stanza.presence({to: this.name + "/" + this._nick,
+                              type: "unavailable"});
+      let account = this._account;
+      this._account.sendStanza(s, aStanza => {
+        // XEP-045 (7.14): Exiting a Room.
+        if (aStanza.attributes["type"] == "unavailable") {
+          try {
+            let x = aStanza.getElements(["x"]).find(e => e.uri == Stanza.NS.muc_user);
+            let codes = x.getElements(["status"]).map(elt => elt.attributes["code"]);
+            if (codes.indexOf("110") != -1)
+              return true;
+          } catch (e) {}
+        }
+        account.WARN("Received unexpected server response on leaving a MUC.");
+        return true;
+      });
     }
     GenericConvChatPrototype.close.call(this);
   },
