@@ -693,7 +693,8 @@ var chatHandler = {
     let nick = aEvent.originalTarget.chatBuddy.name;
     let name = conv.target.getNormalizedChatBuddyName(nick);
     try {
-      conv.account.createConversation(name);
+      let newconv = conv.account.createConversation(name);
+      this.focusConversation(newconv);
     } catch (e) {}
   },
 
@@ -706,13 +707,17 @@ var chatHandler = {
       return;
 
     let conv = document.getElementById("contactlistbox").selectedItem.conv;
+    let newconv;
     for (let i = 0; i < listbox.selectedCount; ++i) {
       let nick = listbox.getSelectedItem(i).chatBuddy.name;
       let name = conv.target.getNormalizedChatBuddyName(nick);
       try {
-        conv.account.createConversation(name);
+        newconv = conv.account.createConversation(name);
       } catch (e) {}
     }
+    // Only focus last of the opened conversations.
+    if (newconv)
+      this.focusConversation(newconv);
   },
 
   _openDialog: function(aType) {
