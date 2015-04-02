@@ -125,7 +125,7 @@ ProcessBodyAsAttachment(MimeObject *obj, nsMsgAttachmentData **data)
   {
     char *fname = NULL;
     fname = mime_decode_filename(tmp->m_realName.get(), charset, obj->options);
-    nsMemory::Free(charset);
+    free(charset);
     if (fname)
       tmp->m_realName.Adopt(fname);
   }
@@ -345,7 +345,7 @@ GenerateAttachmentData(MimeObject *object, const char *aMessageURL, MimeDisplayO
       for (i = 0; i < 2 && tmp->m_realName.IsEmpty(); i ++)
       {
         PR_FREEIF(disp);
-        nsMemory::Free(charset);
+        free(charset);
         disp = MimeHeaders_get(((MimeContainer *)object)->children[i]->headers, HEADER_CONTENT_DISPOSITION, false, false);
         tmp->m_realName.Adopt(MimeHeaders_get_parameter(disp, "filename", &charset, nullptr));
       }
@@ -360,7 +360,7 @@ GenerateAttachmentData(MimeObject *object, const char *aMessageURL, MimeDisplayO
 
       char *fname = nullptr;
       fname = mime_decode_filename(tmp->m_realName.get(), charset, options);
-      nsMemory::Free(charset);
+      free(charset);
 
       if (fname)
         tmp->m_realName.Adopt(fname);
@@ -383,7 +383,7 @@ GenerateAttachmentData(MimeObject *object, const char *aMessageURL, MimeDisplayO
         for (i = 1; i >= 0 && tmp->m_realName.IsEmpty(); i --)
         {
           PR_FREEIF(disp);
-          nsMemory::Free(charset);
+          free(charset);
           disp = MimeHeaders_get(((MimeContainer *)object)->children[i]->headers, HEADER_CONTENT_TYPE, false, false);
           tmp->m_realName.Adopt(MimeHeaders_get_parameter(disp, "name", &charset, nullptr));
           tmp->m_realType.Adopt(
@@ -401,7 +401,7 @@ GenerateAttachmentData(MimeObject *object, const char *aMessageURL, MimeDisplayO
 
         char *fname = nullptr;
         fname = mime_decode_filename(tmp->m_realName.get(), charset, options);
-        nsMemory::Free(charset);
+        free(charset);
 
         if (fname)
           tmp->m_realName.Adopt(fname);

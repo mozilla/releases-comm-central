@@ -928,7 +928,7 @@ nsresult nsAbLDAPDirectory::SplitStringList(
   ParseString(aString, ',', strarr);
 
   char **cArray = nullptr;
-  if (!(cArray = static_cast<char **>(nsMemory::Alloc(
+  if (!(cArray = static_cast<char **>(moz_xmalloc(
       strarr.Length() * sizeof(char *)))))
     return NS_ERROR_OUT_OF_MEMORY;
 

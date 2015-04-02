@@ -2468,7 +2468,7 @@ NS_IMETHODIMP nsMsgDBView::GetURIsForSelection(uint32_t *length, char ***uris)
   uint32_t numMsgsSelected = *length;
 
   char **outArray, **next;
-  next = outArray = (char **)nsMemory::Alloc(numMsgsSelected * sizeof(char *));
+  next = outArray = (char **)moz_xmalloc(numMsgsSelected * sizeof(char *));
   if (!outArray) return NS_ERROR_OUT_OF_MEMORY;
   for (uint32_t i = 0; i < numMsgsSelected; i++)
   {

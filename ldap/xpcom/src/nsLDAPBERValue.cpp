@@ -17,7 +17,7 @@ nsLDAPBERValue::nsLDAPBERValue() : mValue(0), mSize(0)
 nsLDAPBERValue::~nsLDAPBERValue()
 {
     if (mValue) {
-        nsMemory::Free(mValue);
+        free(mValue);
     }
 }
 
@@ -31,7 +31,7 @@ nsLDAPBERValue::Get(uint32_t *aCount, uint8_t **aRetVal)
     if (mSize) {
         // get a buffer to hold a copy of the data
         //
-        uint8_t *array = static_cast<uint8_t *>(nsMemory::Alloc(mSize));
+        uint8_t *array = static_cast<uint8_t *>(moz_xmalloc(mSize));
 
         if (!array) {
             return NS_ERROR_OUT_OF_MEMORY;
@@ -57,7 +57,7 @@ nsLDAPBERValue::Set(uint32_t aCount, uint8_t *aValue)
     // get rid of any old value being held here
     //
     if (mValue) {
-        nsMemory::Free(mValue);
+        free(mValue);
     }
 
     // if this is a non-zero value, allocate a buffer and copy
@@ -65,7 +65,7 @@ nsLDAPBERValue::Set(uint32_t aCount, uint8_t *aValue)
     if (aCount) { 
         // get a buffer to hold a copy of this data
         //
-        mValue = static_cast<uint8_t *>(nsMemory::Alloc(aCount));
+        mValue = static_cast<uint8_t *>(moz_xmalloc(aCount));
         if (!mValue) {
             return NS_ERROR_OUT_OF_MEMORY;
         }
@@ -91,7 +91,7 @@ nsLDAPBERValue::SetFromUTF8(const nsACString & aValue)
     // get rid of any old value being held here
     //
     if (mValue) {
-        nsMemory::Free(mValue);
+        free(mValue);
     }
 
     // copy the data and return

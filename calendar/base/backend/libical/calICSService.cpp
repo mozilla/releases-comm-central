@@ -529,7 +529,7 @@ calIcalComponent::GetReferencedTimezones(uint32_t * aCount, calITimezone *** aTi
     }
 
     calITimezone ** const timezones = static_cast<calITimezone **>(
-        nsMemory::Alloc(sizeof(calITimezone *) * count));
+        moz_xmalloc(sizeof(calITimezone *) * count));
     CAL_ENSURE_MEMORY(timezones);
     // tzptr will get used as an iterator by the enumerator function
     calITimezone ** tzptr = timezones;
@@ -1109,7 +1109,7 @@ calIcalComponent::AddSubcomponent(calIIcalComponent *aComp)
         NS_RELEASE(timezones[i]);
     }
 
-    nsMemory::Free(timezones);
+    free(timezones);
 
     if (failed)
         return rv;

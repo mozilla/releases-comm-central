@@ -1963,7 +1963,7 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
     else if (body)
       body->SetBackground(NS_ConvertASCIItoUTF16(domSaveArray[i].url));
 
-    nsMemory::Free(domSaveArray[i].url);
+    free(domSaveArray[i].url);
   }
 
   PR_FREEIF(domSaveArray);

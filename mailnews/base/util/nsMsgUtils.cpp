@@ -1799,7 +1799,7 @@ NS_MSG_BASE char16_t *MsgEscapeHTML2(const char16_t *aSourceBuffer,
     ((PR_UINT32_MAX - sizeof(char16_t)) / (6 * sizeof(char16_t))) )
       return nullptr;
 
-  char16_t *resultBuffer = (char16_t *)nsMemory::Alloc(aSourceBufferLen *
+  char16_t *resultBuffer = (char16_t *)moz_xmalloc(aSourceBufferLen *
                             6 * sizeof(char16_t) + sizeof(char16_t('\0')));
 
   char16_t *ptr = resultBuffer;

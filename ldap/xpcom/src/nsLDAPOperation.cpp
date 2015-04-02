@@ -193,7 +193,7 @@ nsLDAPOperation::SaslBind(const nsACString &service,
   const int lderrno = ldap_sasl_bind(mConnectionHandle, bindName.get(),
                                      mMechanism.get(), &creds, NULL, NULL,
                                      &mMsgID);
-  nsMemory::Free(creds.bv_val);
+  free(creds.bv_val);
 
   if (lderrno != LDAP_SUCCESS)
     return TranslateLDAPErrorToNSError(lderrno);
@@ -236,7 +236,7 @@ nsLDAPOperation::SaslStep(const char *token, uint32_t tokenLen)
                                      mMechanism.get(), &clientCreds, NULL,
                                      NULL, &mMsgID);
 
-  nsMemory::Free(clientCreds.bv_val);
+  free(clientCreds.bv_val);
 
   if (lderrno != LDAP_SUCCESS)
     return TranslateLDAPErrorToNSError(lderrno);
@@ -607,7 +607,7 @@ nsLDAPOperation::AddExt(const char *base,
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (mods && modCount) {
-    attrs = static_cast<LDAPMod **>(nsMemory::Alloc((modCount + 1) *
+    attrs = static_cast<LDAPMod **>(moz_xmalloc((modCount + 1) *
                                                        sizeof(LDAPMod *)));
     if (!attrs) {
       NS_ERROR("nsLDAPOperation::AddExt: out of memory ");
@@ -660,7 +660,7 @@ nsLDAPOperation::AddExt(const char *base,
   for (uint32_t counter = 0; counter < modCount; ++counter)
     delete attrs[counter];
 
-  nsMemory::Free(attrs);
+  free(attrs);
 
   return NS_FAILED(rv) ? rv : TranslateLDAPErrorToNSError(retVal);
 }
@@ -771,7 +771,7 @@ nsLDAPOperation::ModifyExt(const char *base,
   nsresult rv = mods->GetLength(&modCount);
   NS_ENSURE_SUCCESS(rv, rv);
   if (modCount && mods) {
-    attrs = static_cast<LDAPMod **>(nsMemory::Alloc((modCount + 1) *
+    attrs = static_cast<LDAPMod **>(moz_xmalloc((modCount + 1) *
                                                        sizeof(LDAPMod *)));
     if (!attrs) {
       NS_ERROR("nsLDAPOperation::ModifyExt: out of memory ");
@@ -822,7 +822,7 @@ nsLDAPOperation::ModifyExt(const char *base,
   for (uint32_t counter = 0; counter < modCount; ++counter)
     delete attrs[counter];
 
-  nsMemory::Free(attrs);
+  free(attrs);
 
   return NS_FAILED(rv) ? rv : TranslateLDAPErrorToNSError(retVal);
 }
@@ -944,7 +944,7 @@ nsLDAPOperation::CopyValues(nsILDAPModification* aMod, berval*** aBValues)
   NS_ENSURE_SUCCESS(rv, rv);
 
   *aBValues = static_cast<berval **>
-                         (nsMemory::Alloc((valuesCount + 1) *
+                         (moz_xmalloc((valuesCount + 1) *
                                              sizeof(berval *)));
   if (!*aBValues)
     return NS_ERROR_OUT_OF_MEMORY;
@@ -960,7 +960,7 @@ nsLDAPOperation::CopyValues(nsILDAPModification* aMod, berval*** aBValues)
            ++counter)
         delete (*aBValues)[valueIndex];
 
-      nsMemory::Free(*aBValues);
+      free(*aBValues);
       delete bval;
       return NS_ERROR_OUT_OF_MEMORY;
     }

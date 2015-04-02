@@ -748,7 +748,7 @@ static nsresult dir_GetChildList(const nsCString &aBranch,
             if (!comparePrefArrayMembers(&((*aChildList)[cur]), &((*aChildList)[next]), &branchLen)) {
                 // equal - just free & increment the next element ptr
 
-                nsMemory::Free((*aChildList)[next]);
+                free((*aChildList)[next]);
             } else {
                 // cur & next are unique, so we need to shift the element.
                 // ++cur will point to the next free location in the

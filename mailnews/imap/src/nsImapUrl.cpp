@@ -861,7 +861,7 @@ NS_IMETHODIMP nsImapUrl::AllocateServerPath(const char * canonicalPath, char onl
       extra += 1; /* ^ -> ^^ */
     src++;
   }
-  char* result = (char *)nsMemory::Alloc(len + extra + 1);
+  char* result = (char *)moz_xmalloc(len + extra + 1);
   if (!result)
     return NS_ERROR_OUT_OF_MEMORY;
 

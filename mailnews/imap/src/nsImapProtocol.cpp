@@ -3563,7 +3563,7 @@ nsImapProtocol::FetchMessage(const nsCString &messageIds,
 
     nsresult rv = SendData(protocolString);
 
-    nsMemory::Free(cCommandStr);
+    free(cCommandStr);
     if (NS_SUCCEEDED(rv))
       ParseIMAPandCheckForNewMail(protocolString);
     PR_Free(protocolString);

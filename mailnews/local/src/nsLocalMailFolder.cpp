@@ -1333,7 +1333,7 @@ nsMsgLocalMailFolder::MarkAllMessagesRead(nsIMsgWindow *aMsgWindow)
       rv = AddMarkAllReadUndoAction(aMsgWindow, thoseMarked, numMarked);
   } while (false);
 
-  nsMemory::Free(thoseMarked);
+  free(thoseMarked);
   return rv;
 }
 
@@ -1366,7 +1366,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::MarkThreadRead(nsIMsgThread *thread)
     mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
   } while (false);
 
-  nsMemory::Free(thoseMarked);
+  free(thoseMarked);
   return rv;
 }
 

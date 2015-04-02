@@ -1485,7 +1485,7 @@ nsMsgDBFolder::MarkAllMessagesRead(nsIMsgWindow *aMsgWindow)
     // Setup a undo-state
     if (aMsgWindow && numMarked)
       rv = AddMarkAllReadUndoAction(aMsgWindow, thoseMarked, numMarked);
-    nsMemory::Free(thoseMarked);
+    free(thoseMarked);
   }
 
   SetHasNewMessages(false);
@@ -1500,7 +1500,7 @@ NS_IMETHODIMP nsMsgDBFolder::MarkThreadRead(nsIMsgThread *thread)
     nsMsgKey *keys;
     uint32_t numKeys;
     rv = mDatabase->MarkThreadRead(thread, nullptr, &numKeys, &keys);
-    nsMemory::Free(keys);
+    free(keys);
   }
   return rv;
 }

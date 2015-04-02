@@ -92,7 +92,7 @@ extern char *MimeHeaders_get(MimeHeaders *hdrs,
 
    RFC2231 has added the character sets, languages, and continuations mechanism.
    charset, and language information may also be returned to the caller.
-   Note that charset and language should be nsMemory::Free()'d while
+   Note that charset and language should be free()'d while
    the return value (parameter) has to be PR_FREE'd.
 
    For example,

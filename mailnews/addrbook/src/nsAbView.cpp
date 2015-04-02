@@ -1078,9 +1078,9 @@ NS_IMETHODIMP nsAbView::OnItemPropertyChanged(nsISupports *item, const char *pro
     // We just need to clean up what we allocated.
     NS_IF_RELEASE(newCard->card);
     if (newCard->primaryCollationKey)
-      nsMemory::Free(newCard->primaryCollationKey);
+      free(newCard->primaryCollationKey);
     if (newCard->secondaryCollationKey)
-      nsMemory::Free(newCard->secondaryCollationKey);
+      free(newCard->secondaryCollationKey);
     PR_FREEIF(newCard);
 
     // Still need to invalidate, as the other columns may have changed.

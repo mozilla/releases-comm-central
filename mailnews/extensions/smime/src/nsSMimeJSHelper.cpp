@@ -63,19 +63,19 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
 
   if (mailbox_count)
   {
-    char16_t **outEA = static_cast<char16_t **>(nsMemory::Alloc(mailbox_count * sizeof(char16_t *)));
-    int32_t *outCV = static_cast<int32_t *>(nsMemory::Alloc(mailbox_count * sizeof(int32_t)));
-    char16_t **outCII = static_cast<char16_t **>(nsMemory::Alloc(mailbox_count * sizeof(char16_t *)));
-    char16_t **outCEI = static_cast<char16_t **>(nsMemory::Alloc(mailbox_count * sizeof(char16_t *)));
-    nsIX509Cert **outCerts = static_cast<nsIX509Cert **>(nsMemory::Alloc(mailbox_count * sizeof(nsIX509Cert *)));
+    char16_t **outEA = static_cast<char16_t **>(moz_xmalloc(mailbox_count * sizeof(char16_t *)));
+    int32_t *outCV = static_cast<int32_t *>(moz_xmalloc(mailbox_count * sizeof(int32_t)));
+    char16_t **outCII = static_cast<char16_t **>(moz_xmalloc(mailbox_count * sizeof(char16_t *)));
+    char16_t **outCEI = static_cast<char16_t **>(moz_xmalloc(mailbox_count * sizeof(char16_t *)));
+    nsIX509Cert **outCerts = static_cast<nsIX509Cert **>(moz_xmalloc(mailbox_count * sizeof(nsIX509Cert *)));
 
     if (!outEA || !outCV || !outCII || !outCEI || !outCerts)
     {
-      nsMemory::Free(outEA);
-      nsMemory::Free(outCV);
-      nsMemory::Free(outCII);
-      nsMemory::Free(outCEI);
-      nsMemory::Free(outCerts);
+      free(outEA);
+      free(outCV);
+      free(outCII);
+      free(outCEI);
+      free(outCerts);
       rv = NS_ERROR_OUT_OF_MEMORY;
     }
     else
@@ -156,7 +156,7 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
         NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(mailbox_count, outCII);
         NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(mailbox_count, outCEI);
         NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(mailbox_count, outCerts);
-        nsMemory::Free(outCV);
+        free(outCV);
         rv = NS_ERROR_OUT_OF_MEMORY;
       }
       else {
@@ -235,7 +235,7 @@ NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(
 
   if (missing_count)
   {
-    char16_t **outEA = static_cast<char16_t **>(nsMemory::Alloc(missing_count * sizeof(char16_t *)));
+    char16_t **outEA = static_cast<char16_t **>(moz_xmalloc(missing_count * sizeof(char16_t *)));
     if (!outEA )
     {
       rv = NS_ERROR_OUT_OF_MEMORY;

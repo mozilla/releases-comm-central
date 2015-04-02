@@ -375,7 +375,7 @@ void nsAbLDIFService::AddLdifRowToDatabase(nsIAddrDatabase *aDatabase,
     else
       continue; // parse error: continue with next loop iteration
   }
-  nsMemory::Free(saveCursor);
+  free(saveCursor);
   aDatabase->AddCardRowToDB(newRow);    
 
   if (bIsList)

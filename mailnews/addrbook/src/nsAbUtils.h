@@ -68,7 +68,7 @@ private:
             NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(mSize, mArray);
         else
         {
-          nsMemory::Free(mArray);
+          free(mArray);
         }
     }
 };
@@ -132,7 +132,7 @@ private:
           NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(mSize, mArray);
         else
         {
-          nsMemory::Free(mArray);
+          free(mArray);
         }
     }
 };

@@ -4036,7 +4036,7 @@ nsresult nsMsgDatabase::SetNSStringPropertyWithToken(nsIMdbRow *row, mdb_token a
 
   yarn.mYarn_Grow = NULL;
   nsresult err = row->AddColumn(GetEnv(), aProperty, nsStringToYarn(&yarn, propertyStr));
-  nsMemory::Free((char *)yarn.mYarn_Buf);  // won't need this when we have nsCString
+  free((char *)yarn.mYarn_Buf);  // won't need this when we have nsCString
   return err;
 }
 
@@ -5677,7 +5677,7 @@ nsMsgDatabase::GetNewList(uint32_t *aCount, nsMsgKey **aNewKeys)
     *aCount = m_newSet.Length();
     if (*aCount > 0)
     {
-      *aNewKeys = static_cast<nsMsgKey *>(nsMemory::Alloc(*aCount * sizeof(nsMsgKey)));
+      *aNewKeys = static_cast<nsMsgKey *>(moz_xmalloc(*aCount * sizeof(nsMsgKey)));
       if (!*aNewKeys)
         return NS_ERROR_OUT_OF_MEMORY;
       memcpy(*aNewKeys, m_newSet.Elements(), *aCount * sizeof(nsMsgKey));
@@ -5785,7 +5785,7 @@ NS_IMETHODIMP nsMsgDatabase::RefreshCache(const char *aSearchFolderUri, uint32_t
    *aNumBadHits = staleHits.Length();
    if (*aNumBadHits)
    {
-     *aStaleHits = static_cast<nsMsgKey *>(nsMemory::Alloc(*aNumBadHits * sizeof(nsMsgKey)));
+     *aStaleHits = static_cast<nsMsgKey *>(moz_xmalloc(*aNumBadHits * sizeof(nsMsgKey)));
      if (!*aStaleHits)
        return NS_ERROR_OUT_OF_MEMORY;
      memcpy(*aStaleHits, staleHits.Elements(), *aNumBadHits * sizeof(nsMsgKey));

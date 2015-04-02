@@ -834,7 +834,7 @@ nsresult nsMsgProtocol::DoGSSAPIStep1(const char *service, const char *username,
             response.Adopt(base64Str);
         else
             rv = NS_ERROR_OUT_OF_MEMORY;
-        nsMemory::Free(outBuf);
+        free(outBuf);
     }
 
 #ifdef DEBUG_BenB
@@ -857,7 +857,7 @@ nsresult nsMsgProtocol::DoGSSAPIStep2(nsCString &commandResponse, nsCString &res
     if (len > 0) {
         // decode into the input secbuffer
         inBufLen = (len * 3)/4;      // sufficient size (see plbase64.h)
-        inBuf = nsMemory::Alloc(inBufLen);
+        inBuf = moz_xmalloc(inBufLen);
         if (!inBuf)
             return NS_ERROR_OUT_OF_MEMORY;
 
@@ -880,7 +880,7 @@ nsresult nsMsgProtocol::DoGSSAPIStep2(nsCString &commandResponse, nsCString &res
              ? m_authModule->GetNextToken(inBuf, inBufLen, &outBuf, &outBufLen)
              : NS_ERROR_FAILURE;
 
-        nsMemory::Free(inBuf);
+        free(inBuf);
     }
     else
     {
@@ -929,7 +929,7 @@ nsresult nsMsgProtocol::DoNtlmStep1(const char *username, const char *password, 
           response.Adopt(base64Str);
         else
           rv = NS_ERROR_OUT_OF_MEMORY;
-        nsMemory::Free(outBuf);
+        free(outBuf);
     }
 
     return rv;
@@ -944,7 +944,7 @@ nsresult nsMsgProtocol::DoNtlmStep2(nsCString &commandResponse, nsCString &respo
 
     // decode into the input secbuffer
     inBufLen = (len * 3)/4;      // sufficient size (see plbase64.h)
-    inBuf = nsMemory::Alloc(inBufLen);
+    inBuf = moz_xmalloc(inBufLen);
     if (!inBuf)
         return NS_ERROR_OUT_OF_MEMORY;
 
@@ -957,7 +957,7 @@ nsresult nsMsgProtocol::DoNtlmStep2(nsCString &commandResponse, nsCString &respo
          ? m_authModule->GetNextToken(inBuf, inBufLen, &outBuf, &outBufLen)
          : NS_ERROR_FAILURE;
 
-    nsMemory::Free(inBuf);
+    free(inBuf);
     if (NS_SUCCEEDED(rv) && outBuf)
     {
         char *base64Str = PL_Base64Encode((char *)outBuf, outBufLen, nullptr);

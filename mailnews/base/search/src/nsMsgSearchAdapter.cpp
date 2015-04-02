@@ -868,7 +868,7 @@ nsMsgSearchValidityTable::GetAvailableAttributes(uint32_t *length,
     }
 
     nsMsgSearchAttribValue *array = (nsMsgSearchAttribValue*)
-        nsMemory::Alloc(sizeof(nsMsgSearchAttribValue) * totalAttributes);
+        moz_xmalloc(sizeof(nsMsgSearchAttribValue) * totalAttributes);
     NS_ENSURE_TRUE(array, NS_ERROR_OUT_OF_MEMORY);
 
     uint32_t numStored=0;
@@ -911,7 +911,7 @@ nsMsgSearchValidityTable::GetAvailableOperators(nsMsgSearchAttribValue aAttribut
     }
 
     nsMsgSearchOpValue *array = (nsMsgSearchOpValue*)
-        nsMemory::Alloc(sizeof(nsMsgSearchOpValue) * totalOperators);
+        moz_xmalloc(sizeof(nsMsgSearchOpValue) * totalOperators);
     NS_ENSURE_TRUE(array, NS_ERROR_OUT_OF_MEMORY);
 
     uint32_t numStored = 0;

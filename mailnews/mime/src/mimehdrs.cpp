@@ -708,7 +708,7 @@ MimeHeaders_get_name(MimeHeaders *hdrs, MimeDisplayOptions *opt)
     s = MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false);
     if (s)
     {
-      nsMemory::Free(charset);
+      free(charset);
 
       name = MimeHeaders_get_parameter(s, HEADER_PARM_NAME, &charset, NULL);
       PR_Free(s);
@@ -735,7 +735,7 @@ MimeHeaders_get_name(MimeHeaders *hdrs, MimeDisplayOptions *opt)
        at this juncture. So just decode qtext/mime2 here. */
     cvt = mime_decode_filename(name, charset, opt);
 
-    nsMemory::Free(charset);
+    free(charset);
 
     if (cvt && cvt != name)
     {

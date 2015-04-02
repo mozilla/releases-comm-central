@@ -987,7 +987,7 @@ BOOL CMapiApi::IterateStores(CMapiFolderList& stores)
         // which is the desired behaviour.
 
         int         strLen = strlen(lpStr);
-        char16_t * pwszStr = (char16_t *) nsMemory::Alloc((strLen + 1) * sizeof(WCHAR));
+        char16_t * pwszStr = (char16_t *) moz_xmalloc((strLen + 1) * sizeof(WCHAR));
         if (!pwszStr) {
           // out of memory
           FreeProws(lpRow);
@@ -996,7 +996,7 @@ BOOL CMapiApi::IterateStores(CMapiFolderList& stores)
         }
         ::MultiByteToWideChar(CP_ACP, 0, lpStr, strlen(lpStr) + 1, pwszStr, (strLen + 1) * sizeof(WCHAR));
         CMapiFolder *pFolder = new CMapiFolder(pwszStr, cbEID, lpEID, 0, MAPI_STORE);
-        nsMemory::Free(pwszStr);
+        free(pwszStr);
 
         long szContents = 1;
         GetStoreInfo(pFolder, &szContents);

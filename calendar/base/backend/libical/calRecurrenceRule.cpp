@@ -501,7 +501,7 @@ calRecurrenceRule::GetOccurrences(calIDateTime *aStartTime,
 
     if (count) {
         calIDateTime ** const dateArray =
-            static_cast<calIDateTime **>(nsMemory::Alloc(sizeof(calIDateTime*) * count));
+            static_cast<calIDateTime **>(moz_xmalloc(sizeof(calIDateTime*) * count));
         CAL_ENSURE_MEMORY(dateArray);
         for (uint32_t i = 0; i < count; ++i) {
             NS_ADDREF(dateArray[i] = dates[i]);

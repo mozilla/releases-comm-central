@@ -302,7 +302,7 @@ nsMimeHtmlDisplayEmitter::EndHeader(const nsACString &name)
         PR_snprintf(buf, bufLen, "<title>%s</title>", subject);
         UtilityWriteCRLF(buf);
         delete [] buf;
-        nsMemory::Free(subject);
+        free(subject);
       }
     }
 

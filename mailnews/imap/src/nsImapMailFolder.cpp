@@ -1915,7 +1915,7 @@ nsImapMailFolder::MarkAllMessagesRead(nsIMsgWindow *aMsgWindow)
       // Setup a undo-state
       if (aMsgWindow)
         rv = AddMarkAllReadUndoAction(aMsgWindow, thoseMarked, numMarked);
-      nsMemory::Free(thoseMarked);
+      free(thoseMarked);
     }
   }
   return rv;
@@ -1933,7 +1933,7 @@ NS_IMETHODIMP nsImapMailFolder::MarkThreadRead(nsIMsgThread *thread)
     {
       rv = StoreImapFlags(kImapMsgSeenFlag, true, keys, numKeys, nullptr);
       mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
-      nsMemory::Free(keys);
+      free(keys);
     }
   }
   return rv;

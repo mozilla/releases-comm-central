@@ -68,7 +68,7 @@ char16_t *nsMsgSearchNews::EncodeToWildmat (const char16_t *value)
   // a case-insensitive match by specifying each case possibility for each character
   // So, "FooBar" is encoded as "[Ff][Oo][Bb][Aa][Rr]"
 
-  char16_t *caseInsensitiveValue = (char16_t*) nsMemory::Alloc(sizeof(char16_t) * ((4 * NS_strlen(value)) + 1));
+  char16_t *caseInsensitiveValue = (char16_t*) moz_xmalloc(sizeof(char16_t) * ((4 * NS_strlen(value)) + 1));
   if (caseInsensitiveValue)
   {
     char16_t *walkValue = caseInsensitiveValue;
@@ -176,7 +176,7 @@ char *nsMsgSearchNews::EncodeTerm (nsIMsgSearchTerm *term)
   // so we should search a string in either RFC1522 format and non-RFC1522 format
 
   char16_t *escapedValue = EscapeSearchUrl (caseInsensitiveValue);
-  nsMemory::Free(caseInsensitiveValue);
+  free(caseInsensitiveValue);
   if (!escapedValue)
     return nullptr;
 

@@ -1258,7 +1258,7 @@ public:
     {
       mCurMessageToClassify = 0;
       mNumMessagesToClassify = aNumMessagesToClassify;
-      mMessageURIs = (char **) nsMemory::Alloc(sizeof(char *) * aNumMessagesToClassify);
+      mMessageURIs = (char **) moz_xmalloc(sizeof(char *) * aNumMessagesToClassify);
       for (uint32_t i = 0; i < aNumMessagesToClassify; i++)
         mMessageURIs[i] = PL_strdup(aMessageURIs[i]);
 
@@ -1279,7 +1279,7 @@ public:
     {
       mCurMessageToClassify = 0;
       mNumMessagesToClassify = aNumMessagesToClassify;
-      mMessageURIs = (char **) nsMemory::Alloc(sizeof(char *) * aNumMessagesToClassify);
+      mMessageURIs = (char **) moz_xmalloc(sizeof(char *) * aNumMessagesToClassify);
       for (uint32_t i = 0; i < aNumMessagesToClassify; i++)
         mMessageURIs[i] = PL_strdup(aMessageURIs[i]);
       mProTraits.AppendElement(kJunkTrait);

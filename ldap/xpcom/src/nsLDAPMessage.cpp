@@ -322,7 +322,7 @@ nsLDAPMessage::IterateAttributes(uint32_t *aAttrCount, char** *aAttributes,
 
         // create an array of the appropriate size
         //
-        *aAttributes = static_cast<char **>(nsMemory::Alloc(*aAttrCount *
+        *aAttributes = static_cast<char **>(moz_xmalloc(*aAttrCount *
                                                       sizeof(char *)));
         if (!*aAttributes) {
             return NS_ERROR_OUT_OF_MEMORY;
@@ -345,7 +345,7 @@ nsLDAPMessage::IterateAttributes(uint32_t *aAttrCount, char** *aAttributes,
         (*aAttributes)[0] = NS_strdup(attr);
         if (!(*aAttributes)[0]) {
             ldap_memfree(attr);
-            nsMemory::Free(*aAttributes);
+            free(*aAttributes);
             return NS_ERROR_OUT_OF_MEMORY;
         }
 
@@ -491,7 +491,7 @@ nsLDAPMessage::GetValues(const char *aAttr, uint32_t *aCount,
 
     // create an array of the appropriate size
     //
-    *aValues = static_cast<char16_t **>(nsMemory::Alloc(numVals * sizeof(char16_t *)));
+    *aValues = static_cast<char16_t **>(moz_xmalloc(numVals * sizeof(char16_t *)));
     if (!*aValues) {
         ldap_value_free(values);
         return NS_ERROR_OUT_OF_MEMORY;
@@ -570,7 +570,7 @@ nsLDAPMessage::GetBinaryValues(const char *aAttr, uint32_t *aCount,
     // create the out array
     //
     *aValues = 
-        static_cast<nsILDAPBERValue **>(nsMemory::Alloc(numVals * sizeof(nsILDAPBERValue)));
+        static_cast<nsILDAPBERValue **>(moz_xmalloc(numVals * sizeof(nsILDAPBERValue)));
     if (!aValues) {
         ldap_value_free_len(values);
         return NS_ERROR_OUT_OF_MEMORY;

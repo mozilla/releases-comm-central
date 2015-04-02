@@ -2179,7 +2179,7 @@ NS_IMETHODIMP nsMessenger::GetNavigateHistory(uint32_t *aCurPos, uint32_t *aCoun
     return NS_OK;
 
   char **outArray, **next;
-  next = outArray = (char **)nsMemory::Alloc(*aCount * sizeof(char *));
+  next = outArray = (char **)moz_xmalloc(*aCount * sizeof(char *));
   if (!outArray) return NS_ERROR_OUT_OF_MEMORY;
   for (uint32_t i = 0; i < *aCount; i++)
   {

@@ -286,7 +286,7 @@ nsMsgKeySet::Output(char **outputStr)
   end = head + size;
 
   s_size = (size * 12) + 10;  // dmb - try to make this allocation get used at least once.
-  s_head = (char *) nsMemory::Alloc(s_size);
+  s_head = (char *) moz_xmalloc(s_size);
   if (! s_head) return NS_ERROR_OUT_OF_MEMORY;
 
   s_head[0] = '\0';      // otherwise, s_head will contain garbage.
@@ -302,9 +302,9 @@ nsMsgKeySet::Output(char **outputStr)
                         plus 10 bytes of slop. */
       int32_t so = s - s_head;
       s_size += 200;
-      char* tmp = (char *) nsMemory::Alloc(s_size);
+      char* tmp = (char *) moz_xmalloc(s_size);
       if (tmp) PL_strcpy(tmp, s_head);
-      nsMemory::Free(s_head);
+      free(s_head);
       s_head = tmp;
       if (!s_head) return NS_ERROR_OUT_OF_MEMORY;
       s = s_head + so;
@@ -1211,7 +1211,7 @@ nsMsgKeySet::test_decoder (const char *string)
   char* tmp;
   set.Output(&tmp);
   printf ("\t\"%s\"\t--> \"%s\"\n", string, tmp);
-  nsMemory::Free(tmp);
+  free(tmp);
 }
 
 
@@ -1224,19 +1224,19 @@ nsMsgKeySet::test_decoder (const char *string)
   if (!(NS_SUCCEEDED(set->Output(&s)))) abort ();          \
   printf ("%3lu: %-58s %c %3lu =\n", (unsigned long)set->m_length, s,  \
       (PUSHP ? '+' : '-'), (unsigned long)i);            \
-  nsMemory::Free(s);                      \
+  free(s);                      \
   if (PUSHP                        \
     ? set->Add(i) < 0                  \
     : set->Remove(i) < 0)                \
   abort ();                      \
   if (!(NS_SUCCEEDED(set->Output(&s)))) abort ();          \
   printf ("%3lu: %-58s optimized =\n", (unsigned long)set->m_length, s);  \
-  nsMemory::Free(s);                      \
+  free(s);                      \
 
 #define END()                 \
   if (!(NS_SUCCEEDED(set->Output(&s)))) abort ();          \
   printf ("%3lu: %s\n\n", (unsigned long)set->m_length, s); \
-  nsMemory::Free(s);                      \
+  free(s);                      \
   delete set;                 \
 
 
@@ -1332,7 +1332,7 @@ nsMsgKeySet::test_adder (void)
   j = M;                            \
   if (!(NS_SUCCEEDED(set->Output(&s)))) abort ();          \
   printf ("%3lu: %-58s + %3lu-%3lu =\n", (unsigned long)set->m_length, s, (unsigned long)i, (unsigned long)j);  \
-  nsMemory::Free(s);                      \
+  free(s);                      \
   switch (set->AddRange(i, j)) {                \
   case 0:                            \
   printf("(no-op)\n");                    \
@@ -1344,13 +1344,13 @@ nsMsgKeySet::test_adder (void)
   }                                \
   if (!(NS_SUCCEEDED(set->Output(&s)))) abort ();          \
   printf ("%3lu: %-58s\n", (unsigned long)set->m_length, s);            \
-  nsMemory::Free(s);                      \
+  free(s);                      \
 
 
 #define END()                 \
   if (!(NS_SUCCEEDED(set->Output(&s)))) abort ();          \
   printf ("%3lu: %s\n\n", (unsigned long)set->m_length, s); \
-  nsMemory::Free(s);                      \
+  free(s);                      \
   delete set;
 
 
@@ -1391,7 +1391,7 @@ nsMsgKeySet::test_ranges(void)
   if (!(NS_SUCCEEDED(set->Output(&s)))) abort ();          \
   printf (" %3d = %s\n", N,              \
       (set->IsMember(N) ? "true" : "false")); \
-  nsMemory::Free(s);
+  free(s);
 
 void
 nsMsgKeySet::test_member(bool with_cache)

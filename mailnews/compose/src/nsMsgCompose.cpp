@@ -2148,7 +2148,7 @@ NS_IMETHODIMP nsMsgCompose::GetOriginalMsgURI(char ** originalMsgURI)
 QuotingOutputStreamListener::~QuotingOutputStreamListener()
 {
   if (mUnicodeConversionBuffer)
-    nsMemory::Free(mUnicodeConversionBuffer);
+    free(mUnicodeConversionBuffer);
 }
 
 QuotingOutputStreamListener::QuotingOutputStreamListener(const char * originalMsgURI,
@@ -2883,8 +2883,8 @@ NS_IMETHODIMP QuotingOutputStreamListener::AppendToMsgBody(const nsCString &inSt
               unicharLength > mUnicodeBufferCharacterLength)
           {
             if (mUnicodeConversionBuffer)
-              nsMemory::Free(mUnicodeConversionBuffer);
-            mUnicodeConversionBuffer = (char16_t *) nsMemory::Alloc(unicharLength * sizeof(char16_t));
+              free(mUnicodeConversionBuffer);
+            mUnicodeConversionBuffer = (char16_t *) moz_xmalloc(unicharLength * sizeof(char16_t));
             if (!mUnicodeConversionBuffer)
             {
               mUnicodeBufferCharacterLength = 0;
