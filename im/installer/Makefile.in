@@ -93,6 +93,10 @@ ifdef MOZ_PURPLE
 DEFINES += -DMOZ_PURPLE
 endif
 
+ifdef MAKENSISU
+DEFINES += -DHAVE_MAKENSISU=1
+endif
+
 ifdef MOZ_PKG_MANIFEST_P
 MOZ_PKG_MANIFEST = package-manifest
 
