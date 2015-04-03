@@ -140,3 +140,6 @@ pref("calendar.filter.maxiterations", 50);
 
 // Backend to use. false: libical, true: ical.js
 pref("calendar.icaljs", false);
+
+// Calendar integration notification
+pref("calendar.integration.notify", true);

@@ -7,6 +7,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Promise.jsm");
 Components.utils.import("resource://gre/modules/Task.jsm");
 Components.utils.import("resource://gre/modules/AddonManager.jsm");
+Components.utils.import("resource://calendar/modules/calAsyncUtils.jsm");
 
 var gLastShownCalendarView = null;
 
@@ -189,8 +190,144 @@ function ltnOnLoad(event) {
         MailToolboxCustomizeDone(aEvent, "CustomizeTaskToolbar");
     };
 
-    Services.obs.notifyObservers(window, "lightning-startup-done", false);
+    ltnIntegrationCheck();
 
+    Services.obs.notifyObservers(window, "lightning-startup-done", false);
+}
+
+/**
+ * Displays the Lightning integration notification bar
+ */
+function ltnIntegrationNotification() {
+    const kOptOut = "mail.calendar-integration.opt-out"; // default: false
+    const kNotify = "calendar.integration.notify"; // default: true
+    const kSupportUri = "https://support.mozilla.org/products/thunderbird/calendar";
+    const kLightningGuuid = "{e2fda1a4-762b-4020-b5ad-a41df1933103}";
+
+    // we fall back to messagepanebox for Seamonkey
+    let notifyBox = document.getElementById("mail-notification-box") ||
+                    document.getElementById("messagepanebox");
+
+    let appBrand = cal.calGetString("brand", "brandShortName", null, "branding");
+    let ltnBrand = ltnGetString("lightning", "brandShortName");
+    let label = ltnGetString("lightning", "integrationLabel", [appBrand, ltnBrand]);
+
+    // call backs for doing/undoing Lightning removal
+    let cbRemoveLightning = function (aAddon) {
+        try {
+            aAddon.uninstall();
+        } catch (e) {
+            aAddon.userDisabled = true;
+        }
+    };
+    let cbUndoRemoveLightning = function (aAddon) {
+        switch (aAddon.pendingOperations) {
+            case AddonManager.PENDING_DISABLE:
+                aAddon.userDisabled = false;
+                break;
+            case AddonManager.PENDING_UNINSTALL:
+                aAddon.cancelUninstall();
+                break;
+        }
+    };
+
+    // call backs for the undo opt-out bar
+    let cbRestartNow = function(aNotificationBar, aButton) {
+        Services.startup.quit(Components.interfaces.nsIAppStartup.eRestart |
+                              Components.interfaces.nsIAppStartup.eForceQuit);
+    };
+    let cbUndoOptOut = function(aNotificationBar, aButton) {
+        Preferences.set(kNotify, true);
+        Preferences.set(kOptOut, false);
+        AddonManager.getAddonByID(kLightningGuuid, cbUndoRemoveLightning);
+        // display notification bar again
+        ltnIntegrationNotification();
+    };
+
+    // call backs for the opt-out bar
+    let cbLearnMore = function(aNotificationBar, aButton) {
+        openUILink(kSupportUri, {});
+        return true;
+    };
+    let cbKeepIt = function(aNotificationBar, aButton) {
+        Preferences.set(kNotify, false);
+    };
+    let cbOptOut = function(aNotificationBar, aButton) {
+        Preferences.set(kNotify, false);
+        Preferences.set(kOptOut, true);
+        AddonManager.getAddonByID(kLightningGuuid, cbRemoveLightning);
+        // let the user know that removal will be applied after restart
+        let restartLabel = ltnGetString("lightning", "integrationRestartLabel",[ltnBrand, appBrand]);
+        let button = [{
+             label:     ltnGetString("lightning", "integrationUndoButton"),
+             accessKey: ltnGetString("lightning", "integrationUndoAccessKey"),
+             popup:     null,
+             callback:  cbUndoOptOut
+         }, {
+             label:     ltnGetString("lightning", "integrationRestartButton"),
+             accessKey: ltnGetString("lightning", "integrationRestartAccessKey"),
+             popup:     null,
+             callback:  cbRestartNow
+         }];
+         notifyBox.appendNotification(restartLabel,
+                                      "restart-required",
+                                      null,
+                                      notifyBox.PRIORITY_INFO_MEDIUM,
+                                      button);
+    };
+
+    let buttons = [{
+         label:     ltnGetString("lightning", "integrationLearnMoreButton"),
+         accessKey: ltnGetString("lightning", "integrationLearnMoreAccessKey"),
+         popup:     null,
+         callback:  cbLearnMore
+    }, {
+        label:     ltnGetString("lightning", "integrationOptOutButton"),
+        accessKey: ltnGetString("lightning", "integrationOptOutAccessKey"),
+        popup:     null,
+        callback:  cbOptOut
+    }, {
+        label:     ltnGetString("lightning", "integrationKeepItButton"),
+        accessKey: ltnGetString("lightning", "integrationKeepItAccessKey"),
+        popup:     null,
+        callback:  cbKeepIt
+    }];
+
+    // we use PRIORITY_INFO_MEDIUM to overrule notifications from specialTabs.js if any
+    let notification = notifyBox.appendNotification(label,
+                                                    "calendar-integration",
+                                                    null,
+                                                    notifyBox.PRIORITY_INFO_MEDIUM,
+                                                    buttons);
+    notification.persistence = 3;
+}
+
+/**
+ * Checks whether to display the opt-out notification for Lightning integration
+ */
+function ltnIntegrationCheck() {
+    const kOptOut = "mail.calendar-integration.opt-out"; // default: false
+    const kNotify = "calendar.integration.notify"; // default: true
+    // don't do anything if the opt-out pref doesn't exist or is enabled by the user or the user has
+    // already decided to keep Lightning
+    if (!Preferences.get(kOptOut, true) && Preferences.get(kNotify, false)) {
+        // action is only needed, if hasn't used Lightning before, so lets check whether this looks
+        // like a default calendar setup
+        let cnt = new Object();
+        let calMgr = cal.getCalendarManager();
+        let cals = calMgr.getCalendars(cnt);
+        let homeCalName = cal.calGetString("calendar", "homeCalendarName", null, "calendar");
+        if (cnt.value == 1 &&
+            calMgr.getCalendarPref_(cals[0], "type") == "storage" &&
+            calMgr.getCalendarPref_(cals[0], "name") == homeCalName) {
+            // this looks like a default setup, so let's see whether the calendar contains any items
+            let pCal = cal.async.promisifyCalendar(cals[0]);
+            // we look at all items at any time, but we can stop if the first item was found
+            // if we've found no items, we call ltnIntegrationNotification to display the bar
+            pCal.getItems(Components.interfaces.calICalendar.ITEM_FILTER_ALL_ITEMS, 1, null, null)
+                .then(function(aItems) {if (!aItems.length) {ltnIntegrationNotification()}});
+        }
+    }
 }
 
 /* Called at midnight to tell us to redraw date-specific widgets.  Do NOT call
