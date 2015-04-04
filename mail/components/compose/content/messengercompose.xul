@@ -1061,7 +1061,12 @@
 
   <!-- The mail message body frame -->
   <vbox id="appcontent" flex="1">
-    <editor type="content-primary" id="content-frame" src="about:blank" name="browser.message.body" flex="1"
+    <editor id="content-frame"
+            type="content-primary"
+            src="about:blank"
+            name="browser.message.body"
+            minheight="100"
+            flex="1"
             ondblclick="EditorDblClick(event);"
             context="msgComposeContext"/>
     <findbar id="FindToolbar" browserid="content-frame"/>
