@@ -394,6 +394,8 @@
 @RESPATH@/components/nsAsyncShutdown.js
 @RESPATH@/components/PresentationDeviceInfoManager.manifest
 @RESPATH@/components/PresentationDeviceInfoManager.js
+@RESPATH@/components/BuiltinProviders.manifest
+@RESPATH@/components/TCPPresentationServer.js
 @RESPATH@/components/nsInputListAutoComplete.js
 @RESPATH@/components/nsLivemarkService.js
 @RESPATH@/components/nsPlacesAutoComplete.js
