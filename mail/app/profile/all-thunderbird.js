@@ -753,9 +753,19 @@ pref("plugins.update.url", "https://www.mozilla.org/%LOCALE%/plugincheck/");
 pref("plugins.update.notifyUser", false);
 pref("plugins.crash.supportUrl", "https://live.mozillamessaging.com/%APP%/plugin-crashed?locale=%LOCALE%&version=%VERSION%&os=%OS%&buildid=%APPBUILDID%");
 
-// let all plugins except Flash default to click-to-play
-pref("plugin.default.state", 1);
+// Click-to-play has not been ported for TB yet, see bug 814168.
+// The default plugin state should be changed to "ask to activate" when this
+// has been done.
+pref("plugins.click_to_play", false);
+// Disable by default.
+pref("plugin.default.state", 0);
+
+// Plugins bundled in XPIs are enabled by default.
+pref("plugin.defaultXpi.state", 2);
+
+// Flash is enabled and Java is disabled by default.
 pref("plugin.state.flash", 2);
+pref("plugin.state.java", 0);
 
 // Windows taskbar support
 #ifdef XP_WIN
