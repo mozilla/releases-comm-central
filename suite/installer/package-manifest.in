@@ -315,6 +315,7 @@
 @RESPATH@/components/toolkit_finalizationwitness.xpt
 @RESPATH@/components/toolkit_formautofill.xpt
 @RESPATH@/components/toolkit_osfile.xpt
+@RESPATH@/components/toolkit_perfmonitoring.xpt
 @RESPATH@/components/toolkit_xulstore.xpt
 @RESPATH@/components/toolkitplaces.manifest
 @RESPATH@/components/toolkitprofile.xpt

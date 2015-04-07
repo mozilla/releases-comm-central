@@ -546,6 +546,7 @@
 @RESPATH@/components/toolkit_asyncshutdown.xpt
 @RESPATH@/components/toolkit_filewatcher.xpt
 @RESPATH@/components/toolkit_formautofill.xpt
+@RESPATH@/components/toolkit_perfmonitoring.xpt
 @RESPATH@/components/toolkit_osfile.xpt
 @RESPATH@/components/toolkit_xulstore.xpt
 @RESPATH@/components/toolkitplaces.manifest
