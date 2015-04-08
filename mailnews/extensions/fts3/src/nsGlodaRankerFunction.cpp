@@ -57,7 +57,7 @@ nsGlodaRankerFunction::~nsGlodaRankerFunction()
 {
 }
 
-static int32_t COLUMN_SATURATION[] = {10, 1, 1, 1, 1};
+static uint32_t COLUMN_SATURATION[] = {10, 1, 1, 1, 1};
 
 /**
  * Our ranking function basically just multiplies the weight of the column
@@ -77,19 +77,19 @@ nsGlodaRankerFunction::OnFunctionCall(mozIStorageValueArray *aArguments,
   NS_ENSURE_SUCCESS(rv, rv);
 
   /* Check that the number of arguments passed to this function is correct.
-  ** If not, jump to wrong_number_args. Set aMatchinfo to point to the array
-  ** of unsigned integer values returned by FTS3 function matchinfo. Set
-  ** nPhrase to contain the number of reportable phrases in the users full-text
-  ** query, and nCol to the number of columns in the table.
-  */
+   * If not, return an error. Set aArgsData to point to the array
+   * of unsigned integer values returned by FTS3 function. Set nPhrase
+   * to contain the number of reportable phrases in the users full-text
+   * query, and nCol to the number of columns in the table.
+   */
   if (nVal < 1)
     return NS_ERROR_INVALID_ARG;
 
-  uint32_t lenMatchInfo;
-  int32_t *aMatchinfo = (int32_t *)aArguments->AsSharedBlob(0, &lenMatchInfo);
-  
-  int32_t nPhrase = aMatchinfo[0];
-  int32_t nCol = aMatchinfo[1];
+  uint32_t lenArgsData;
+  uint32_t *aArgsData = (uint32_t *)aArguments->AsSharedBlob(0, &lenArgsData);
+
+  uint32_t nPhrase = aArgsData[0];
+  uint32_t nCol = aArgsData[1];
   if (nVal != (1 + nCol))
     return NS_ERROR_INVALID_ARG;
 
@@ -97,12 +97,11 @@ nsGlodaRankerFunction::OnFunctionCall(mozIStorageValueArray *aArguments,
 
   // SQLite 3.6.22 has a different matchinfo layout than SQLite 3.6.23+
 #if SQLITE_VERSION_NUMBER <= 3006022
-
   /* Iterate through each phrase in the users query. */
   for (uint32_t iPhrase = 0; iPhrase < nPhrase; iPhrase++) {
     // in SQ
     for (uint32_t iCol = 0; iCol < nCol; iCol++) {
-      int32_t nHitCount = aMatchinfo[2 + (iPhrase+1)*nCol + iCol];
+      uint32_t nHitCount = aArgsData[2 + (iPhrase+1)*nCol + iCol];
       double weight = aArguments->AsDouble(iCol+1);
       if (nHitCount > 0) {
         score += (nHitCount > COLUMN_SATURATION[iCol]) ?
@@ -111,9 +110,7 @@ nsGlodaRankerFunction::OnFunctionCall(mozIStorageValueArray *aArguments,
       }
     }
   }
-
 #else
-
   /* Iterate through each phrase in the users query. */
   for (uint32_t iPhrase = 0; iPhrase < nPhrase; iPhrase++) {
     /* Now iterate through each column in the users query. For each column,
@@ -125,9 +122,9 @@ nsGlodaRankerFunction::OnFunctionCall(mozIStorageValueArray *aArguments,
     ** the hit count and global hit counts for each column are found in 
     ** aPhraseinfo[iCol*3] and aPhraseinfo[iCol*3+1], respectively.
     */
-    int32_t *aPhraseinfo = &aMatchinfo[2 + iPhrase*nCol*3];
+    uint32_t *aPhraseinfo = &aArgsData[2 + iPhrase*nCol*3];
     for (uint32_t iCol = 0; iCol < nCol; iCol++) {
-      int32_t nHitCount = aPhraseinfo[3 * iCol];
+      uint32_t nHitCount = aPhraseinfo[3 * iCol];
       double weight = aArguments->AsDouble(iCol+1);
       if (nHitCount > 0) {
         score += (nHitCount > COLUMN_SATURATION[iCol]) ?
@@ -136,7 +133,6 @@ nsGlodaRankerFunction::OnFunctionCall(mozIStorageValueArray *aArguments,
       }
     }
   }
-
 #endif
 
   nsCOMPtr<nsIWritableVariant> result =

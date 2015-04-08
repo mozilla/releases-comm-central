@@ -2723,15 +2723,16 @@ CorpusStore::UpdateData(nsIFile *aFile,
     NS_ENSURE_ARG_POINTER(aToTraits);
   }
 
-  FILE* stream;
-  nsresult rv = aFile->OpenANSIFileDesc("rb", &stream);
+  int64_t fileSize;
+  nsresult rv = aFile->GetFileSize(&fileSize);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  int64_t fileSize;
-  rv = aFile->GetFileSize(&fileSize);
+  FILE* stream;
+  rv = aFile->OpenANSIFileDesc("rb", &stream);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   bool error;
-  while(NS_SUCCEEDED(rv)) // break on error or done
+  do // break on error or done
   {
     char cookie[4];
     if ((error = (fread(cookie, sizeof(cookie), 1, stream) != 1)))
@@ -2768,10 +2769,11 @@ CorpusStore::UpdateData(nsIFile *aFile,
         break;
     }
     break;
-  }
+  } while (0);
 
   fclose(stream);
-  if (error || NS_FAILED(rv))
+
+  if (error)
     return NS_ERROR_FAILURE;
   return NS_OK;
 }

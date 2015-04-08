@@ -1014,12 +1014,12 @@ NS_IMETHODIMP nsMsgComposeSecure::MimeCryptoWriteBlock (const char *buf, int32_t
       }
     }
   } else {
-	  /* If we're not encrypting (presumably just signing) then write this
-		 data directly to the file. */
+    /* If we're not encrypting (presumably just signing) then write this
+       data directly to the file. */
 
     uint32_t n;
     rv = mStream->Write(buf, size, &n);
-    if (NS_FAILED(rv) || n < size) {
+    if (NS_FAILED(rv) || n < (uint32_t)size) {
       // XXX MK_MIME_ERROR_WRITING_FILE is -1, which is not a valid nsresult
       return static_cast<nsresult>(MK_MIME_ERROR_WRITING_FILE);
     }
@@ -1110,6 +1110,7 @@ mime_crypto_write_base64 (void *closure, const char *buf, unsigned long size)
    the signature for a multipart/signed object, this is used to write the
    base64-encoded representation of the signature to the file.
  */
+// TODO: size should probably be converted to uint32_t
 nsresult mime_encoder_output_fn(const char *buf, int32_t size, void *closure)
 {
   nsMsgComposeSecure *state = (nsMsgComposeSecure *) closure;
@@ -1117,7 +1118,7 @@ nsresult mime_encoder_output_fn(const char *buf, int32_t size, void *closure)
   state->GetOutputStream(getter_AddRefs(stream));
   uint32_t n;
   nsresult rv = stream->Write((char *) buf, size, &n);
-  if (NS_FAILED(rv) || n < size)
+  if (NS_FAILED(rv) || n < (uint32_t)size)
     return NS_ERROR_FAILURE;
   else
     return NS_OK;
