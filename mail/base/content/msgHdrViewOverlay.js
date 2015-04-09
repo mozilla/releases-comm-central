@@ -446,6 +446,12 @@ var messageHeaderSink = {
         if ("onBeforeShowHeaderPane" in gMessageListeners[index])
           gMessageListeners[index].onBeforeShowHeaderPane();
 
+      // Load feed web page if so configured. This entry point works for
+      // messagepane loads in 3pane folder tab, 3pane message tab, and the
+      // standalone message window.
+      if (!FeedMessageHandler.shouldShowSummary(gMessageDisplay.displayedMessage, false))
+        FeedMessageHandler.setContent(gMessageDisplay.displayedMessage, false);
+
       ShowMessageHeaderPane();
       // WARNING: This is the ONLY routine inside of the message Header Sink
       // that should trigger a reflow!

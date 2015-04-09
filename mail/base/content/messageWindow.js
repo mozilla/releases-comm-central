@@ -364,8 +364,6 @@ function delayedOnLoadMessageWindow()
     onEndHeaders: function() {
       if (gMessageDisplay.isDummy)
         gMessageDisplay.onDisplayingMessage(messageHeaderSink.dummyMsgHeader);
-      if (!FeedMessageHandler.shouldShowSummary(gMessageDisplay.displayedMessage, false))
-        FeedMessageHandler.setContent(gMessageDisplay.displayedMessage, false);
       UpdateMailToolbar(".eml/message from attachment finished loading");
     },
     onEndAttachments: function () {},

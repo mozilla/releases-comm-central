@@ -1317,13 +1317,6 @@ FolderDisplayWidget.prototype = {
     let viewIndex = this.view.dbView.currentlyDisplayedMessage;
     let msgHdr = (viewIndex != nsMsgViewIndex_None) ?
                    this.view.dbView.getMsgHdrAt(viewIndex) : null;
-
-    if (this._tabInfo && !FeedMessageHandler.shouldShowSummary(msgHdr, false)) {
-      // Load a web page if we have a tabInfo (i.e. 3pane), but not for a
-      // standalone window instance; it has its own method.
-      FeedMessageHandler.setContent(msgHdr, false);
-    }
-
     this.messageDisplay.onDisplayingMessage(msgHdr);
 
     // Although deletes should now be so fast that the user has no time to do
