@@ -19,13 +19,13 @@ var Core = {
     "quit-application-requested"
   ],
 
-  get bundle() l10nHelper("chrome://instantbird/locale/core.properties"),
+  get bundle() { return l10nHelper("chrome://instantbird/locale/core.properties"); },
 
   initLibpurpleOverrides: function() {
     let forcePurple = Services.prefs.getCharPref("chat.prpls.forcePurple")
                               .split(",")
                               .map(String.trim)
-                              .filter(function(aPrplId) !!aPrplId);
+                              .filter(aPrplId => !!aPrplId);
     if (!forcePurple.length)
       return;
 
@@ -97,7 +97,7 @@ var Core = {
     let self = this;
     Services.cmd.registerCommand({
       name: "about",
-      get helpString() self.bundle("aboutCommand.help"),
+      get helpString() { return self.bundle("aboutCommand.help"); },
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
       run: function (aMsg, aConv) {
@@ -122,7 +122,7 @@ var Core = {
 
     Services.cmd.registerCommand({
       name: "debug",
-      get helpString() self.bundle("debugCommand.help"),
+      get helpString() { return self.bundle("debugCommand.help"); },
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
       run: (aMsg, aConv) => {
@@ -230,7 +230,7 @@ var Core = {
     while (aEnumerator.hasMoreElements())
       yield aEnumerator.getNext();
   },
-  getAccounts: function() this.getIter(Services.accounts.getAccounts()),
+  getAccounts: function() { return this.getIter(Services.accounts.getAccounts()); },
 
   /* This function pops up the account manager if no account is
    * connected or connecting.
@@ -304,7 +304,7 @@ var Core = {
 
     let unreadConvsCount =
       Services.conversations.getUIConversations()
-              .filter(function(c) c.unreadTargetedMessageCount)
+              .filter(c => c.unreadTargetedMessageCount)
               .length;
     if (unreadConvsCount == 0)
       return;

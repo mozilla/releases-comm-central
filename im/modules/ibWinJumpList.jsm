@@ -30,21 +30,21 @@ var WinJumpList = {
   jumplistEntries: [
     { type: "shortcut",
       id: "status_available",
-      get label() Status.toLabel("available"),
+      get label() { return Status.toLabel("available"); },
       description: null,
       parameter: "-status available",
       iconIndex: 1
     },
     { type: "shortcut",
       id: "status_unavailable",
-      get label() Status.toLabel("unavailable"),
+      get label() { return Status.toLabel("unavailable"); },
       description: null,
       parameter: "-status unavailable",
       iconIndex: 2
     },
     { type: "shortcut",
       id: "status_offline",
-      get label() Status.toLabel("offline"),
+      get label() { return Status.toLabel("offline"); },
       description: null,
       parameter: "-status offline",
       iconIndex: 3

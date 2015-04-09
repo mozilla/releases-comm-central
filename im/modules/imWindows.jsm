@@ -10,7 +10,7 @@ Components.utils.import("resource:///modules/ibInterruptions.jsm");
 
 var Conversations = {
   _unreadCount: 0,
-  get unreadCount() this._unreadCount,
+  get unreadCount() { return this._unreadCount; },
   set unreadCount(val) {
     if (val == this._unreadCount)
       return val;
@@ -66,9 +66,10 @@ var Conversations = {
     }
   },
 
-  isConversationWindowFocused: function()
-    this._windows.length > 0 && this._windows[0].document.hasFocus(),
-  isUIConversationDisplayed: function(aUIConv) aUIConv.id in this._uiConv,
+  isConversationWindowFocused: function() {
+    return this._windows.length > 0 && this._windows[0].document.hasFocus();
+  },
+  isUIConversationDisplayed: function(aUIConv) { return aUIConv.id in this._uiConv; },
   focusConversation: function(aConv) {
     let uiConv = Services.conversations.getUIConversation(aConv);
     uiConv.target = aConv;
@@ -178,7 +179,7 @@ var Conversations = {
                                                 aConv.normalizedName);
   },
 
-  _requestShowConversation: function(aTopic, aSubject)
+  _requestShowConversation: (aTopic, aSubject) =>
     Interruptions.requestInterrupt(aTopic, aSubject, "show-conversation"),
 
   showConversation: function(aConv) {

@@ -18,7 +18,7 @@ var Sounds = {
     alert: "chrome://instantbird-sounds/skin/alert.wav"
   },
 
-  getBoolPref: function(aPrefName)
+  getBoolPref: aPrefName =>
     Services.prefs.getBoolPref("messenger.options.playSounds." + aPrefName),
 
   play: function sh_play(aEvent, aPref, aSubject, aTopic) {

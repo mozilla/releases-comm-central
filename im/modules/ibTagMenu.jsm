@@ -8,7 +8,7 @@ const Cu = Components.utils;
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", function()
+XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://instantbird/locale/instantbird.properties")
 );
 
@@ -79,7 +79,7 @@ TagMenu.prototype = {
       item.groupId = id;
       if (this.target) {
         item.setAttribute("type", "checkbox");
-        if (tags.some(function(t) t.id == id)) {
+        if (tags.some(t => t.id == id)) {
           item.setAttribute("checked", "true");
           if (tags.length == 1)
             item.setAttribute("disabled", "true"); // can't remove the last tag.
