@@ -7,7 +7,7 @@ Components.utils.import("resource:///modules/imServices.jsm");
 var gMinTrayR = {
   trayService: null,
   _prefs: null,
-  get menu() document.getElementById("MinTrayR_context"),
+  get menu() { return document.getElementById("MinTrayR_context"); },
 
   load: function() {
     window.removeEventListener("load", gMinTrayR.load, true);

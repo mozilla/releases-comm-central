@@ -18,11 +18,11 @@ const kNotificationsToObserve =
 // the stats cache file.
 const gStatsCacheVersion = 2;
 
-XPCOMUtils.defineLazyGetter(this, "_newtab", function()
+XPCOMUtils.defineLazyGetter(this, "_newtab", () =>
   l10nHelper("chrome://instantbird/locale/newtab.properties")
 );
 
-XPCOMUtils.defineLazyGetter(this, "_instantbird", function()
+XPCOMUtils.defineLazyGetter(this, "_instantbird", () =>
   l10nHelper("chrome://instantbird/locale/instantbird.properties")
 );
 
@@ -241,10 +241,10 @@ ConvStatsService.prototype = {
     if (!this._chatsByAccountIdAndName.has(aAccId))
       return;
     // Keep only convs that either aren't chats or have a different account id.
-    this._convs = this._convs.filter(function(c)
+    this._convs = this._convs.filter(c =>
       c.source != "chat" || c.accountId != aAccId);
     this._chatsByAccountIdAndName.delete(aAccId);
-    this._pendingChats = this._pendingChats.filter(function(c) c.accountId != aAccId);
+    this._pendingChats = this._pendingChats.filter(c => c.accountId != aAccId);
   },
 
   _getPositionToInsert: function(aPossibleConversation, aArrayToInsert) {
@@ -271,7 +271,7 @@ ConvStatsService.prototype = {
     // followed by contacts with no stats, and finally chats with no stats.
     // Conversations with stats have a positive score.
     // Contacts with no stats get a 0, and chats get -1.
-    let sign = function(x) x > 0 ? 1 : x < 0 ? -1 : 0;
+    let sign = x => x > 0 ? 1 : x < 0 ? -1 : 0;
     return sign(scoreB) - sign(scoreA) ||
       scoreB - scoreA ||
       aPossibleConvB.statusType - aPossibleConvA.statusType ||
@@ -298,7 +298,7 @@ ConvStatsService.prototype = {
     // Duplicate this._convs to avoid modifying it while adding existing convs.
     let filteredConvs = this._convs.slice(0);
     let existingConvs = Services.conversations.getUIConversations().map(
-                          function(uiConv) new ExistingConversation(uiConv));
+                          uiConv => new ExistingConversation(uiConv));
     for (let existingConv of existingConvs) {
       let uiConv = existingConv.uiConv;
       if (existingConv.isChat) {
@@ -409,7 +409,7 @@ ConvStatsService.prototype = {
   },
 
   removeObserver: function(aObserver) {
-    this._observers = this._observers.filter(function(o) o !== aObserver);
+    this._observers = this._observers.filter(o => o !== aObserver);
   },
 
   _notifyObservers: function(aTopic, aData) {
@@ -543,12 +543,13 @@ ConversationStats.prototype = {
   id: "",
   lastDate: 0,
   ONE_DAY: 24 * 60 * 60 * 1000,
-  get daysBefore() (Date.now() - this.lastDate) / this.ONE_DAY,
-  get msgCount() this.incomingCount + this.outgoingCount,
+  get daysBefore() { return (Date.now() - this.lastDate) / this.ONE_DAY; },
+  get msgCount() { return this.incomingCount + this.outgoingCount; },
   incomingCount: 0,
   outgoingCount: 0,
-  get frequencyMultiplier()
-    this.outgoingCount / (this.incomingCount || 1),
+  get frequencyMultiplier() {
+    return this.outgoingCount / (this.incomingCount || 1);
+  },
   get recencyMultiplier() {
     let daysBefore = this.daysBefore;
     if (daysBefore < 4)
@@ -575,15 +576,16 @@ ConversationStats.prototype = {
 }
 
 let PossibleConversation = {
-  get displayName() this._displayName,
-  get lowerCaseName()
-    this._lowerCaseName || (this._lowerCaseName = this._displayName.toLowerCase()),
+  get displayName() { return this._displayName; },
+  get lowerCaseName() {
+    return this._lowerCaseName || (this._lowerCaseName = this._displayName.toLowerCase());
+  },
   _isChat: false, // False by default. Extensions should override this.
-  get isChat() this._isChat,
-  get statusType() this._statusType,
-  get statusText() this._statusText,
-  get infoText() this._infoText,
-  get buddyIconFilename() this._buddyIconFilename,
+  get isChat() { return this._isChat; },
+  get statusType() { return this._statusType; },
+  get statusText() { return this._statusText; },
+  get infoText() { return this._infoText; },
+  get buddyIconFilename() { return this._buddyIconFilename; },
   QueryInterface: XPCOMUtils.generateQI([Ci.ibIPossibleConversation])
 };
 
@@ -595,8 +597,8 @@ function PossibleConvFromContact(aContact) {
 }
 PossibleConvFromContact.prototype = {
   __proto__: PossibleConversation,
-  get statusText() this._statusText,
-  get source() "contact",
+  get statusText() { return this._statusText; },
+  get source() { return "contact"; },
   get id() {
     let buddy = this.contact.preferredBuddy;
     return getConversationId(buddy.protocol.normalizedName,
@@ -624,14 +626,14 @@ PossibleConvFromContact.prototype = {
     }
     return this._lowerCaseName;
   },
-  get buddyIconFilename() this.contact.buddyIconFilename,
+  get buddyIconFilename() { return this.contact.buddyIconFilename; },
   get infoText() {
-    let tagNames = this.contact.getTags().map(function(aTag) aTag.name);
-    tagNames.sort(function(a, b) a.toLowerCase().localeCompare(b.toLowerCase()));
+    let tagNames = this.contact.getTags().map(aTag => aTag.name);
+    tagNames.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
     return tagNames.join(", ");
   },
-  get contact() Services.contacts.getContactById(this._contactId),
-  get account() this.contact.preferredBuddy.preferredAccountBuddy.account,
+  get contact() { return Services.contacts.getContactById(this._contactId); },
+  get account() { return this.contact.preferredBuddy.preferredAccountBuddy.account; },
   get computedScore() {
     let contactId = this._contactId;
     if (gStatsByContactId && gStatsByContactId[contactId])
@@ -655,7 +657,7 @@ PossibleConvFromContact.prototype = {
       score *= 0.75;
     return score;
   },
-  createConversation: function() this.contact.createConversation()
+  createConversation: function() { return this.contact.createConversation(); }
 };
 
 function PossibleChat(aRoomInfo) {
@@ -666,18 +668,20 @@ function PossibleChat(aRoomInfo) {
                               account.normalize(aRoomInfo.name), true);
 }
 PossibleChat.prototype = {
-  get isChat() true,
-  get statusType() Ci.imIStatusInfo.STATUS_AVAILABLE,
-  get buddyIconFilename() "",
-  get displayName() this._roomInfo.name,
-  get lowerCaseName()
-    this._lowerCaseName || (this._lowerCaseName = this.displayName.toLowerCase()),
-  get statusText()
-    "(" + this._roomInfo.participantCount + ") " + this._roomInfo.topic,
-  get infoText() this.account.normalizedName,
-  get source() "chat",
-  get accountId() this._roomInfo.accountId,
-  get account() Services.accounts.getAccountById(this.accountId),
+  get isChat() { return true; },
+  get statusType() { return Ci.imIStatusInfo.STATUS_AVAILABLE; },
+  get buddyIconFilename() { return ""; },
+  get displayName() { return this._roomInfo.name; },
+  get lowerCaseName() {
+    return this._lowerCaseName || (this._lowerCaseName = this.displayName.toLowerCase());
+  },
+  get statusText() {
+    return "(" + this._roomInfo.participantCount + ") " + this._roomInfo.topic;
+  },
+  get infoText() { return this.account.normalizedName; },
+  get source() { return "chat"; },
+  get accountId() { return this._roomInfo.accountId; },
+  get account() { return Services.accounts.getAccountById(this.accountId); },
   createConversation: function() {
     this.account.joinChat(this._roomInfo.chatRoomFieldValues);
     // Work around the fact that joinChat doesn't return the conv.
@@ -729,12 +733,12 @@ function ExistingConversation(aUIConv) {
 }
 ExistingConversation.prototype = {
   __proto__: PossibleConversation,
-  get source() "existing",
+  get source() { return "existing"; },
   get uiConv() {
     return Services.conversations.getUIConversation(Services.conversations
                    .getConversationById(this._convId));
   },
-  get account() this.uiConv.account,
+  get account() { return this.uiConv.account; },
   get computedScore() {
     let stats = gStatsByConvId[this.id];
     if (!stats) {
@@ -752,7 +756,7 @@ ExistingConversation.prototype = {
     // Averaging this out eliminates the status bias.
     return score;
   },
-  createConversation: function() this.uiConv.target
+  createConversation: function() { return this.uiConv.target; }
 };
 
 const NSGetFactory = XPCOMUtils.generateNSGetFactory([ConvStatsService]);
