@@ -224,7 +224,7 @@ var fake = {
       "Contacts",
       "Friends",
       "Colleagues"
-    ].map(function(name) Services.tags.createTag(name));
+    ].map(name => Services.tags.createTag(name));
 
     this.buddies = [
       new AccountBuddy("Michael", this.accounts[2], this.groups[0], {_statusType: idle, _statusText: "I'm currently away from the computer."}),
@@ -340,7 +340,7 @@ function Account(aName, aProto)
 }
 Account.prototype = {
   __proto__: ClassInfo("imIAccount", "generic account object"),
-  get imAccount() this,
+  get imAccount() { return this; },
   protocol: null,
   password: "",
   autoLogin: true,
@@ -355,7 +355,7 @@ Account.prototype = {
   disconnected: false,
   connected: true,
   connecting: false,
-  normalize: function(aStr) aStr
+  normalize: aStr => aStr
 
   //FIXME: PurpleConnectionFlags
 };

@@ -165,7 +165,7 @@ buddyListContextMenu.prototype = {
   },
   toggleTag: function blcm_toggleTag(aTag) {
     let contact = this.tagMenu.target.contact;
-    if (contact.getTags().some(function(t) t.id == aTag.id))
+    if (contact.getTags().some(t => t.id == aTag.id))
       contact.removeTag(aTag);
     else
       contact.addTag(aTag);
@@ -854,7 +854,7 @@ var buddyList = {
     if (convs.length != 0) {
       if (!("Conversations" in window))
         Components.utils.import("resource:///modules/imWindows.jsm");
-      convs.sort(function(a, b)
+      convs.sort((a, b) =>
         a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
       for each (let conv in convs) {
         if (!Conversations.isUIConversationDisplayed(conv)) {

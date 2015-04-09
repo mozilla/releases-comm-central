@@ -46,7 +46,7 @@
         this.tag = aGroup;
         let contacts = this.tag.getContacts();
         if (!this.showOffline)
-          contacts = contacts.filter((function (c) c.online), this);
+          contacts = contacts.filter(c => c.online);
         if (!contacts.length)
           return false;
 
@@ -88,12 +88,12 @@
          <![CDATA[
            this._showOffline = val;
            if (val) {
-             this.tag.getContacts().filter(function (c) !c.online)
+             this.tag.getContacts().filter(c => !c.online)
                                    .forEach(this.addContact, this);
              this._updateGroupLabel();
            }
            else {
-             this.contacts.filter(function (b) !b.contact.online)
+             this.contacts.filter(b => !b.contact.online)
                           .forEach(function (b) {
                b.destroy();
                b.remove();
@@ -272,7 +272,7 @@
           throw "Removing a contact that doesn't exist?";
 
         // create a new array to remove without breaking for each loops.
-        this.contacts = this.contacts.filter(function(c) c !== aContact);
+        this.contacts = this.contacts.filter(c => c !== aContact);
         delete this.contactsById[aContact.contact.id];
 
         // Check if some contacts remain in the group, if empty remove it

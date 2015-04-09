@@ -50,7 +50,7 @@ var accountWizard = {
     if (!this.userNameBoxes[0].value)
       return "";
 
-    return this.userNameBoxes.reduce(function(prev, elt) prev + elt.value, "");
+    return this.userNameBoxes.reduce((prev, elt) => prev + elt.value, "");
   },
 
   checkUsername: function aw_checkUsername() {
@@ -478,12 +478,15 @@ var accountWizard = {
     while (aEnumerator.hasMoreElements())
       yield aEnumerator.getNext();
   },
-  getProtocols: function aw_getProtocols()
-    this.getIter(Services.core.getProtocols()),
-  getProtoOptions: function aw_getProtoOptions()
-    this.getIter(this.proto.getOptions()),
-  getProtoUserSplits: function aw_getProtoUserSplits()
-    this.getIter(this.proto.getUsernameSplit()),
+  getProtocols: function aw_getProtocols() {
+    return this.getIter(Services.core.getProtocols());
+  },
+  getProtoOptions: function aw_getProtoOptions() {
+    return this.getIter(this.proto.getOptions());
+  },
+  getProtoUserSplits: function aw_getProtoUserSplits() {
+    return this.getIter(this.proto.getUsernameSplit());
+  },
 
   onGroupboxKeypress: function aw_onGroupboxKeypress(aEvent) {
     let target = aEvent.target;
@@ -572,7 +575,7 @@ var accountWizard = {
     let protos = [];
     for (let proto in accountWizard.getProtocols())
       protos.push(proto);
-    protos.sort(function(a, b) a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+    protos.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
 
     protos.forEach(function(proto) {
       let item = protoList.appendItem(proto.name, proto.id);

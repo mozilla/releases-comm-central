@@ -938,7 +938,7 @@
        <getter>
           <![CDATA[
             return this._tabPanels ||
-                   (this._tabPanels = Array.map(this.mTabs, function (tab) tab.linkedTabPanel));
+                   (this._tabPanels = Array.map(this.mTabs, tab => tab.linkedTabPanel));
           ]]>
         </getter>
       </property>
@@ -1718,7 +1718,7 @@
             Components.utils.import("resource://gre/modules/WindowDraggingUtils.jsm");
           let draghandle = new WindowDraggingElement(this.mTabstrip, window);
           draghandle.mouseDownCheck =
-            function(aEvent) aEvent.originalTarget.localName != "tab";
+            aEvent => aEvent.originalTarget.localName != "tab";
 #endif
         ]]>
       </constructor>

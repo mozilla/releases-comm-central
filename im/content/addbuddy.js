@@ -39,7 +39,7 @@ var addBuddy = {
       !addBuddy.getValue("name");
   },
 
-  getValue: function ab_getValue(aId) document.getElementById(aId).value,
+  getValue: function ab_getValue(aId) { return document.getElementById(aId).value; },
 
   create: function ab_create() {
     var account = Services.accounts.getAccountById(this.getValue("accountlist"));

@@ -24,11 +24,11 @@ function Message(aWho, aMessage, aObject) {
 }
 Message.prototype = {
   __proto__: jsProtoHelper.GenericMessagePrototype,
-  get displayMessage() this.originalMessage
+  get displayMessage() { return this.originalMessage; }
 };
 
 // Message style tooltips use this.
-function getBrowser() document.getElementById("previewbrowser");
+function getBrowser() { return document.getElementById("previewbrowser"); }
 
 var previewObserver = {
   _loaded: false,

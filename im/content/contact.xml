@@ -172,7 +172,7 @@
              // If the contact is fading out because it's no longer in this group,
              // ignore the signed-on notification; otherwise cancel the animation.
              let groupId = this.group.tag.id;
-             if (this.contact.getTags().some(function(t) t.id == groupId))
+             if (this.contact.getTags().some(t => t.id == groupId))
                this.state = "visible";
            }
          }
@@ -565,7 +565,7 @@
        <![CDATA[
          let propertyName = "contact.collapsed";
          let params = [this.contact.displayName, this.getAttribute("statusText")];
-         let buddies = this.contact.getBuddies().map(function(b) b.displayName);
+         let buddies = this.contact.getBuddies().map(b => b.displayName);
 
          // Add the list of buddies only if there's more than one to avoid un-
          // necessary duplication of the same name.

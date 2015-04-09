@@ -773,7 +773,7 @@ var gApplicationsPane = {
       case Ci.nsIHandlerInfo.useHelperApp:
         if (preferredApp)
           menu.selectedItem = 
-            possibleAppMenuItems.filter(function(v) v.handlerApp.equals(preferredApp))[0];
+            possibleAppMenuItems.filter(v => v.handlerApp.equals(preferredApp))[0];
         break;
       case Ci.nsIHandlerInfo.saveToDisk:
         menu.selectedItem = saveMenuItem;

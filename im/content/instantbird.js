@@ -62,11 +62,11 @@ var convWindow = {
   }
 };
 
-function getConvWindowURL() "chrome://instantbird/content/instantbird.xul"
+function getConvWindowURL() { return "chrome://instantbird/content/instantbird.xul"; }
 
-function getTabBrowser() document.getElementById("conversations")
+function getTabBrowser() { return document.getElementById("conversations"); }
 
-function getBrowser() getTabBrowser().selectedBrowser
+function getBrowser() { return getTabBrowser().selectedBrowser; }
 
 // Copied from mozilla/browser/base/content/utilityOverlay.js
 function trimURL(aURL) {
@@ -164,7 +164,7 @@ var LinkTargetDisplay = {
   DELAY_HIDE: 250,
   _timer: 0,
 
-  get _isVisible () XULBrowserWindow.statusTextField.label != "",
+  get _isVisible () { return XULBrowserWindow.statusTextField.label != ""; },
 
   update: function () {
     clearTimeout(this._timer);

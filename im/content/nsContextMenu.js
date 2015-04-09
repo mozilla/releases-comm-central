@@ -69,7 +69,7 @@ nsContextMenu.prototype = {
 
     let isParticipantList = node.localName == "listitem";
     let nickActions = this.getNickActions(isParticipantList);
-    this.onNick = nickActions.some(function(action) action.visible);
+    this.onNick = nickActions.some(action => action.visible);
     if (isParticipantList && !this.onNick) {
       // If we're in the participant list, there will be no other entries.
       this.shouldDisplay = false;
@@ -201,8 +201,9 @@ nsContextMenu.prototype = {
     let newConv = this.conv.account.createConversation(name);
     Conversations.focusConversation(newConv);
   },
-  nickAddContact: function(aTag)
-    this.conv.account.addBuddy(aTag, this.nick),
+  nickAddContact: function(aTag) {
+    return this.conv.account.addBuddy(aTag, this.nick);
+  },
   nickShowLogs: function() {
     let nick = this.nick;
     this.getLogsForNick(nick).then(aLogs => {

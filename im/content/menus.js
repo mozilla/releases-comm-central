@@ -14,7 +14,7 @@ if (!("Core" in window))
   Components.utils.import("resource:///modules/ibCore.jsm");
 
 var menus = {
-  supportsCommand: function(aCmd)
+  supportsCommand: aCmd =>
     aCmd == "cmd_addbuddy" || aCmd == "cmd_joinchat" || aCmd == "cmd_newtab",
   isCommandEnabled: function(aCmd) {
     let enumerator = Services.accounts.getAccounts();
