@@ -80,8 +80,9 @@ const kMsPerMinute = 60 * 1000;
 const kMsPerHour = 60 * kMsPerMinute;
 const kMsPerDay = 24 * kMsPerHour;
 
-function computeSpace(aInterval)
-  Math.round(coef * Math.log(aInterval + 1))
+function computeSpace(aInterval) {
+  return Math.round(coef * Math.log(aInterval + 1));
+}
 
 var lastMessageTimeout;
 var lastMessageTimeoutTime = -1;
@@ -238,7 +239,7 @@ function checkNewText(target)
     if (!parent.grouped && parent.querySelector("p.event:nth-of-type(4)")) {
       var p = document.createElement("p");
       p.className = "eventToggle";
-      p.addEventListener("click", function (event)
+      p.addEventListener("click", event =>
         event.target.parentNode.classList.toggle("hide-children"));
       parent.insertBefore(p, parent.querySelector("p.event:nth-of-type(2)"));
       parent.classList.add("hide-children");
