@@ -8,6 +8,9 @@ export MOZ_PKG_PLATFORM=mac
 
 export PYTHON=/usr/local/bin/python
 
+# If this isn't set, the symbol upload will happen without the API.
+unset SOCORRO_SYMBOL_UPLOAD_TOKEN_FILE
+
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
 
