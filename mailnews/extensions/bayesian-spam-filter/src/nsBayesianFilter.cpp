@@ -214,7 +214,7 @@ BaseToken* TokenHash::add(const char* word)
 
     PR_LOG(BayesianFilterLogModule, PR_LOG_DEBUG, ("add word: %s", word));
 
-    PLDHashEntryHdr* entry = PL_DHashTableAdd(&mTokenTable, word);
+    PLDHashEntryHdr* entry = PL_DHashTableAdd(&mTokenTable, word, mozilla::fallible);
     BaseToken* token = static_cast<BaseToken*>(entry);
     if (token) {
         if (token->mWord == NULL) {
