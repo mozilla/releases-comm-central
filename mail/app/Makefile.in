@@ -18,7 +18,6 @@ DEFINES += -DMOZ_SOURCE_REPO="$(SOURCE_REPO)"
 endif
 
 DEFINES += \
-  -DAB_CD=$(AB_CD) \
   -DTHUNDERBIRD_ICO='"$(DIST)/branding/thunderbird.ico"' \
   -DGRE_MILESTONE=$(GRE_MILESTONE) \
   -DGRE_BUILDID=$(GRE_BUILDID) \
