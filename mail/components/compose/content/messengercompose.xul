@@ -836,7 +836,11 @@
                    command="cmd_paste"
                    tooltiptext="&pasteButton.tooltip;"/>
 
-    <toolbaritem id="priority-button" align="center" pack="center">
+    <toolbaritem id="priority-button"
+                 align="center"
+                 pack="center"
+                 title="&priorityButton.title;"
+                 tooltiptext="&priorityButton.tooltiptext;">
       <label value="&priorityButton.label;" control="priorityMenu-button"/>
       <menulist id="priorityMenu-button" value="Normal" oncommand="PriorityMenuSelect(event.target);">
         <menupopup id="priorityMenu-buttonPopup">
