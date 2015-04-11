@@ -14,6 +14,7 @@ USE_LIBS += [
 if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
     XPCOMBinaryComponent('import')
     USE_LIBS += [
+        'msgbsutl_s',
         'rdfutil_external_s',
         'unicharutil_external_s',
         'xpcomglue_s',
