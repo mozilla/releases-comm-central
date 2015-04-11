@@ -3,24 +3,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DEPTH		= @DEPTH@
-topsrcdir	= @top_srcdir@
-srcdir		= @srcdir@
-VPATH		= @srcdir@
-
-include $(DEPTH)/config/autoconf.mk
-include $(topsrcdir)/config/rules.mk
-
-FILES := \
-	install.rdf \
-	chrome.manifest \
-	preview.png \
-	$(NULL)
-
-install.rdf: install.rdf.in
-	$(call py_action,preprocessor,$(DEFINES) $(ACDEFINES) $< -o $@)
-
-libs:: $(FILES)
-	$(INSTALL) $(foreach f,$^,"$f") $(DIST)/bin/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}
-
-GARBAGE += install.rdf
+THEME_FILES := install.rdf.in
+THEME_FILES_PATH := $(FINAL_TARGET)/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}
+PP_TARGETS := THEME_FILES

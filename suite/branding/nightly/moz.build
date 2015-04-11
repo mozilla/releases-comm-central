@@ -4,3 +4,67 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 JAR_MANIFESTS += ['jar.mn']
+
+# Note: mac icons are handled in /suite/app during the final application
+# packaging
+if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk', 'gtk2'):
+    if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
+        icon_suffix = '.ico'
+    else:
+        icon_suffix = '.png'
+
+    if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk2':
+        icon_dir = 'gtk'
+    else:
+        icon_dir = CONFIG['MOZ_WIDGET_TOOLKIT']
+
+    desktop_icons = [
+        'abcardWindow',
+        'ablistWindow',
+        'addressbookWindow',
+        'bookmarkproperties',
+        'downloadManager',
+        'editorWindow',
+        'findBookmarkWindow',
+        'findHistoryWindow',
+        'history-window',
+        'JSConsoleWindow',
+        'main-window',
+        'messengerWindow',
+        'msgcomposeWindow',
+        'places',
+    ]
+
+    if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
+        # Windows icons
+        desktop_icons += [
+            'gif-file',
+            'html-file',
+            'misc-file',
+            'image-file',
+            'jpeg-file',
+            'script-file',
+            'xml-file',
+            'xul-file',
+        ]
+
+    desktop_icons_small = []
+    desktop_icons_large = []
+
+    if ICON_DIR == 'gtk':
+        FINAL_TARGET_FILES.chrome.icons.default += [
+            'icons/gtk/seamonkey.png'
+        ]
+
+        desktop_icons += [
+            'default'
+        ]
+
+        desktop_icons_small = [ '%s16' % i for i in desktop_icons ]
+        desktop_icons_large = [ '%s48' % i for i in desktop_icons ]
+
+    FINAL_TARGET_FILES.chrome.icons.default += [
+        'icons/%s/%s%s' % (icon_dir, i, icon_suffix) for i in sorted(
+            desktop_icons + desktop_icons_small + desktop_icons_large
+        ),
+    ]

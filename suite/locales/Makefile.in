@@ -2,14 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DEPTH          = @DEPTH@
-topsrcdir      = @top_srcdir@
-srcdir         = @srcdir@
-VPATH          = @srcdir@
-relativesrcdir = @relativesrcdir@
-
-include $(DEPTH)/config/autoconf.mk
-
 include $(topsrcdir)/config/config.mk
 
 _ABS_SRCDIR := $(abspath $(topsrcdir))
@@ -81,10 +73,6 @@ $(STAGEDIST): $(DIST)/branding
 $(DIST)/branding:
 	$(NSINSTALL) -D $@
 
-PROFILE_FILES = \
-	mimeTypes.rdf \
-	$(NULL)
-
 PROFILE_CHROME = userChrome-example.css userContent-example.css
 
 NO_JA_JP_MAC_AB_CD := $(if $(filter ja-JP-mac, $(AB_CD)),ja,$(AB_CD))
@@ -119,9 +107,6 @@ PANELS_XTRA_FILE = $(call MERGE_FILE,profile/panels.extra)
 
 libs:: $(FINAL_TARGET)/defaults/profile/bookmarks.html ;
 libs:: $(FINAL_TARGET)/defaults/profile/panels.rdf ;
-
-libs:: $(addprefix generic/profile/,$(PROFILE_FILES))
-	$(SYSINSTALL) $(IFLAGS1) $^ $(FINAL_TARGET)/defaults/profile
 
 libs:: $(call MERGE_FILES,$(addprefix profile/chrome/,$(PROFILE_CHROME)))
 	$(SYSINSTALL) $(IFLAGS1) $^ $(FINAL_TARGET)/defaults/profile/chrome

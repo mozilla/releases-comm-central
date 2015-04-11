@@ -31,6 +31,10 @@ JS_PREFERENCE_FILES += [
     'content/lightning.js',
 ]
 
+FINAL_TARGET_FILES.timezones += [
+    '../timezones/zones.json',
+]
+
 with Files('**'):
     BUG_COMPONENT = ('Calendar', 'Lightning Only')
 

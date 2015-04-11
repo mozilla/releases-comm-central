@@ -10,6 +10,15 @@ EXTRA_COMPONENTS += [
 
 JAR_MANIFESTS += ['jar.mn']
 
+FINAL_TARGET_FILES['calendar-js'] += [
+    'calHtmlExport.js',
+    'calIcsImportExport.js',
+    'calListFormatter.js',
+    'calMonthGridPrinter.js',
+    'calOutlookCSVImportExport.js',
+    'calWeekPrinter.js',
+]
+
 with Files('**'):
     BUG_COMPONENT = ('Calendar', 'Import and Export')
 

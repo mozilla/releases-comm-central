@@ -9,5 +9,6 @@ EMBED_MANIFEST_AT =
 
 DEFINES += -DSHARED_LIBRARY=$(SHARED_LIBRARY)
 
-libs::
-	$(call py_action,preprocessor,$(DEFINES) $(srcdir)/libical-manifest -o $(FINAL_TARGET)/components/libical-manifest)
+BACKEND_MANIFESTS = libical-manifest
+BACKEND_MANIFESTS_PATH = $(FINAL_TARGET)/components
+PP_TARGETS += BACKEND_MANIFESTS
