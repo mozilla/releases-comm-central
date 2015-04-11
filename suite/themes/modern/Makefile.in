@@ -3,9 +3,25 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+DEPTH		= @DEPTH@
+topsrcdir	= @top_srcdir@
+srcdir		= @srcdir@
+VPATH		= @srcdir@
+
 USE_EXTENSION_MANIFEST = 1
+
+include $(topsrcdir)/config/config.mk
 
 DIST_FILES = \
 	install.rdf \
 	$(NULL)
 
+FILES = \
+	$(srcdir)/preview.png \
+	$(srcdir)/icon.png \
+	$(NULL)
+
+libs::
+	$(INSTALL) $(FILES) $(FINAL_TARGET)
+
+include $(topsrcdir)/config/rules.mk

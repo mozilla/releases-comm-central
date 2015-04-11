@@ -9,7 +9,3 @@ EXTRA_COMPONENTS += [
 ]
 
 JAR_MANIFESTS += ['jar.mn']
-
-JS_PREFERENCE_FILES += [
-    'content/dsn.js',
-]

@@ -8,8 +8,3 @@ DIST_SUBDIR = 'extensions/modern@themes.mozilla.org'
 JAR_MANIFESTS += ['jar.mn']
 
 DEFINES['SEAMONKEY_VERSION'] = CONFIG['SEAMONKEY_VERSION']
-
-FINAL_TARGET_FILES += [
-    'icon.png',
-    'preview.png',
-]

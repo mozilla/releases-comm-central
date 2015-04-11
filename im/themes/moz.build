@@ -4,7 +4,3 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 JAR_MANIFESTS += ['jar.mn']
-
-FINAL_TARGET_Files.extensions['{972ce4c6-7e08-4474-a285-3208198ce6fd}'] += [
-    'icon.png',
-]

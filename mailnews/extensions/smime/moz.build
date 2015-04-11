@@ -9,7 +9,3 @@ DIRS += [
 ]
 
 JAR_MANIFESTS += ['jar.mn']
-
-JS_PREFERENCE_FILES += [
-    'content/smime.js',
-]

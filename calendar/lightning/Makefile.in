@@ -84,6 +84,7 @@ endif
 
 DEFINES += -DTHUNDERBIRD_VERSION=$(THUNDERBIRD_VERSION) \
            -DTHUNDERBIRD_MAXVERSION=$(THUNDERBIRD_MAXVERSION) \
+           -DAB_CD=$(AB_CD) \
            -DSEAMONKEY_VERSION=$(SEAMONKEY_VERSION) \
            -DSEAMONKEY_MAXVERSION=$(SEAMONKEY_MAXVERSION) \
            -DLIGHTNING_VERSION=$(LIGHTNING_VERSION) \
@@ -93,6 +94,9 @@ DEFINES += -DTHUNDERBIRD_VERSION=$(THUNDERBIRD_VERSION) \
 
 GRE_BUILDID = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(LIBXUL_DIST)/bin/application.ini App BuildID)
 DEFINES += -DGRE_BUILDID=$(GRE_BUILDID)
+
+libs::
+	$(NSINSTALL) -m 0644 $(srcdir)/../timezones/zones.json $(FINAL_TARGET)/timezones
 
 include $(topsrcdir)/config/rules.mk
 include $(srcdir)/lightning-packager.mk

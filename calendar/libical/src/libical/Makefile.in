@@ -35,6 +35,14 @@
 #
 # ***** END LICENSE BLOCK *****
 
+DEPTH= @DEPTH@
+
+topsrcdir	= @top_srcdir@
+srcdir		= @srcdir@
+VPATH		= @srcdir@
+
+include $(DEPTH)/config/autoconf.mk
+
 DEFINES += -DHAVE_CONFIG_H
 DEFINES += -DHAVE_SNPRINTF
 

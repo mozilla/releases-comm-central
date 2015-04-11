@@ -9,6 +9,7 @@ relativesrcdir = calendar/locales
 USE_EXTENSION_MANIFEST = 1
 MOZ_CHROME_FILE_FORMAT=jar
 
-DEFINES += -DTHEME=$(THEME) \
+DEFINES += -DAB_CD=$(AB_CD) \
+           -DTHEME=$(THEME) \
            -DLOCALE_SRCDIR=$(LOCALE_SRCDIR) \
            $(NULL)

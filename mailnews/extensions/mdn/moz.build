@@ -7,7 +7,3 @@ DIRS += ['src']
 TEST_DIRS += ['test']
 
 JAR_MANIFESTS += ['jar.mn']
-
-JS_PREFERENCE_FILES += [
-    'content/mdn.js',
-]

@@ -24,10 +24,3 @@ EXTRA_COMPONENTS += [
 
 FINAL_LIBRARY = 'mail'
 
-FINAL_TARGET_FILES.isp += [
-    'Bogofilter.sfd',
-    'DSPAM.sfd',
-    'POPFile.sfd',
-    'SpamAssassin.sfd',
-    'SpamPal.sfd',
-]

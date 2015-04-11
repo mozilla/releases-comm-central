@@ -4,9 +4,3 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 JAR_MANIFESTS += ['jar.mn']
-
-FINAL_TARGET_FILES.extensions['{972ce4c6-7e08-4474-a285-3208198ce6fd}'] += [
-    '../shared/mail/icon.png',
-    '../shared/mail/icon64.png',
-    'mail/chrome.manifest',
-]

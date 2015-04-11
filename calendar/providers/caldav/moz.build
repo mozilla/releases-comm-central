@@ -10,9 +10,5 @@ EXTRA_COMPONENTS += [
     'calDavCalendar.manifest',
 ]
 
-FINAL_TARGET_FILES['calendar-js'] += [
-    'calDavRequestHandlers.js',
-]
-
 with Files('**'):
     BUG_COMPONENT = ('Calendar', 'Provider: CalDAV')

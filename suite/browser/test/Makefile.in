@@ -1,0 +1,104 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+DEPTH		= @DEPTH@
+topsrcdir	= @top_srcdir@
+srcdir		= @srcdir@
+VPATH		= @srcdir@
+relativesrcdir  = @relativesrcdir@
+
+include $(DEPTH)/config/autoconf.mk
+include $(topsrcdir)/config/rules.mk
+
+_TEST_FILES =	test_feed_discovery.html \
+		feed_discovery.html \
+		test_bug395533.html \
+		bug395533-data.txt \
+		test_bug364677.html \
+		bug364677-data.xml \
+		bug364677-data.xml^headers^ \
+		test_registerHandler.html \
+		valid-feed.xml \
+		valid-unsniffable-feed.xml \
+		$(NULL)
+
+# test_contextmenu.html is disabled on Linux due to bug 513558
+ifneq (gtk2,$(MOZ_WIDGET_TOOLKIT))
+_TEST_FILES += \
+		test_contextmenu.html \
+		subtst_contextmenu.html \
+		ctxmenu-image.png \
+		audio.ogg \
+		video.ogg \
+		$(NULL)
+endif
+
+_BROWSER_FILES = \
+                 head.js \
+                 browser_bug329212.js \
+                 browser_bug409624.js \
+                 browser_bug413915.js \
+                 browser_bug427559.js \
+                 browser_bug435325.js \
+                 browser_bug519216.js \
+                 browser_bug561636.js \
+                 browser_bug562649.js \
+                 browser_bug581947.js \
+                 browser_bug585511.js \
+                 browser_bug595507.js \
+                 browser_bug623155.js \
+                 browser_fayt.js \
+                 browser_page_style_menu.js \
+                 blockPluginVulnerableNoUpdate.xml \
+                 blockPluginVulnerableUpdatable.xml \
+                 blockNoPlugins.xml \
+                 blockPluginHard.xml \
+                 browser_pluginCrashCommentAndURL.js \
+                 page_style_sample.html \
+                 browser_pageInfo.js \
+                 feed_tab.html \
+                 browser_pluginnotification.js \
+                 browser_pluginplaypreview.js \
+                 pluginCrashCommentAndURL.html \
+                 plugin_alternate_content.html \
+                 plugin_bug743421.html \
+                 plugin_bug749455.html \
+                 plugin_clickToPlayAllow.html \
+                 plugin_clickToPlayDeny.html \
+                 plugin_hidden_to_visible.html \
+                 plugin_unknown.html \
+                 plugin_test.html \
+                 plugin_test2.html \
+                 plugin_test3.html \
+                 plugin_two_types.html \
+                 plugin_both.html \
+                 plugin_both2.html \
+                 browser_popupNotification.js \
+                 browser_scope.js \
+                 browser_alltabslistener.js \
+                 alltabslistener.html \
+                 browser_relatedTabs.js \
+                 browser_selectTabAtIndex.js \
+                 title_test.svg \
+                 redirect_bug623155.sjs \
+                 browser_privatebrowsing_protocolhandler.js \
+                 browser_privatebrowsing_protocolhandler_page.html \
+    $(NULL)
+
+ifneq (cocoa,$(MOZ_WIDGET_TOOLKIT))
+_BROWSER_FILES += browser_bug462289.js
+endif
+
+_CHROME_FILES = \
+                 test_maxSniffing.html \
+    $(NULL)
+
+libs:: $(addprefix mochitest/, $(_TEST_FILES))
+	$(INSTALL) $(foreach f,$^,"$f") $(DEPTH)/_tests/testing/mochitest/tests/$(relativesrcdir)
+
+libs:: $(addprefix browser/, $(_BROWSER_FILES))
+	$(INSTALL) $(foreach f,$^,"$f") $(DEPTH)/_tests/testing/mochitest/browser/$(relativesrcdir)
+
+libs:: $(addprefix chrome/, $(_CHROME_FILES))
+	$(INSTALL) $(foreach f,$^,"$f") $(DEPTH)/_tests/testing/mochitest/chrome/$(relativesrcdir)

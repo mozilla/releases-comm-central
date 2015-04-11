@@ -8,22 +8,12 @@ DIRS += [
     'src',
 ]
 
-BROWSER_CHROME_MANIFESTS += [
-    'dataman/tests/browser.ini',
-    'downloads/tests/browser/browser.ini',
-    'places/tests/browser/browser.ini',
-    'tests/browser/browser.ini',
-    'tests/preferences/browser.ini',
+TEST_DIRS += [
+    'tests',
+    'dataman/tests',
+    'downloads/tests',
+    'places/tests',
 ]
-
-MOCHITEST_CHROME_MANIFESTS += [
-    'downloads/tests/chrome/chrome.ini',
-    'places/tests/chrome/chrome.ini',
-    'tests/chrome/chrome.ini',
-]
-
-XPCSHELL_TESTS_MANIFESTS += ['places/tests/unit/xpcshell.ini']
-
 
 JAR_MANIFESTS += ['jar.mn']
 
