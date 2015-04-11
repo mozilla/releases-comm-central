@@ -19,18 +19,13 @@ _DEST_DIR = $(DEPTH)/_tests/mozmill
 $(_DEST_DIR):
 	$(NSINSTALL) -D $@
 
-# Copy the mailnews and mail resources that we require.
-libs:: $(_DEST_DIR)
-	$(INSTALL) $(topsrcdir)/mailnews/test/resources/* $(_DEST_DIR)/resources
-	$(INSTALL) $(topsrcdir)/mailnews/test/fakeserver/* $(_DEST_DIR)/resources
-	$(INSTALL) $(topsrcdir)/mail/base/test/unit/resources/* $(_DEST_DIR)/resources
 
 # Copy MozMill and its dependencies over, and set up a virtualenv. The
 # virtualenv directory is outside because we don't want to bundle it up during
 # stage-package.
 VIRTUALENV_DIR = $(_DEST_DIR)/../mozmill-virtualenv
 mozmill-virtualenv: NSDISTMODE=copy
-mozmill-virtualenv:
+mozmill-virtualenv: $(_DEST_DIR)
 	$(INSTALL) $(topsrcdir)/mail/test/resources $(_DEST_DIR)
 	$(INSTALL) $(topsrcdir)/mozilla/python/virtualenv $(_DEST_DIR)/resources/
 	rm -rf $(VIRTUALENV_DIR) && \
