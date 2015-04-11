@@ -28,8 +28,8 @@ OAuth2Module.prototype = {
       // own application--register it yourself. This code (and possibly even the
       // registration itself) will disappear when this is switched to dynamic
       // client registration.
-      this._appKey = '572172754692-vfo2oqvu2oju9be729s915glghp1vpfj.apps.googleusercontent.com';
-      this._appSecret = 'YpeuM0eYPQe_r98HZ7p16zUm';
+      this._appKey = '406964657835-aq8lmia8j95dhl1a2bvharmfk3t1hgqj.apps.googleusercontent.com';
+      this._appSecret = 'kSmqreRr0qwBWJgbf5Y-PjSU';
       this._authURI = "https://accounts.google.com/o/oauth2/auth";
       this._tokenURI = "https://www.googleapis.com/oauth2/v3/token";
     } else {
@@ -51,8 +51,18 @@ OAuth2Module.prototype = {
 
     // These properties are absolutely essential to OAuth2 support. If we don't
     // have them, we don't support OAuth2.
-    if (!issuer || !scope)
-      return false;
+    if (!issuer || !scope) {
+      // Since we currently only support gmail, init values if server matches.
+      if (aHostname == "imap.googlemail.com" || aHostname == "smtp.googlemail.com")
+      {
+        issuer = "accounts.google.com";
+        scope = "http://mail.google.com/";
+        Preferences.set(root + "oauth2.issuer", issuer);
+        Preferences.set(root + "oauth2.scope", scope);
+      }
+      else
+        return false;
+    }
 
     // Find the app key we need for the OAuth2 string. Eventually, this should
     // be using dynamic client registration, but there are no current
@@ -110,9 +120,17 @@ OAuth2Module.prototype = {
     // password on that, if we do.
     let logins = loginMgr.findLogins({}, this._loginUrl, null, this._scope);
     for (let login of logins) {
-      if (login.username == this._username)
-        loginMgr.modifyLogin(login, {password: token});
-      return token;
+      if (login.username == this._username) {
+        if (token) {
+          let propBag = Cc["@mozilla.org/hash-property-bag;1"].
+                        createInstance(Ci.nsIWritablePropertyBag);
+          propBag.setProperty("password", token);
+          loginMgr.modifyLogin(login, propBag);
+        }
+        else
+          loginMgr.removeLogin(login);
+        return token;
+      }
     }
 
     // Otherwise, we need a new login, so create one and fill it in.

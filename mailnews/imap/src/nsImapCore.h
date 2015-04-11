@@ -147,6 +147,7 @@ const eIMAPCapabilityFlag kHasHighestModSeqCapability = 0x80000000;  /* Subset o
 const eIMAPCapabilityFlag kHasListExtendedCapability = 0x100000000LL;  /* RFC 5258 */
 const eIMAPCapabilityFlag kHasSpecialUseCapability = 0x200000000LL;  /* RFC 6154: Sent, Draft etc. folders */
 const eIMAPCapabilityFlag kGmailImapCapability = 0x400000000LL;  /* X-GM-EXT-1 capability extension for gmail */
+const eIMAPCapabilityFlag kHasXOAuth2Capability = 0x800000000LL;  /* AUTH XOAUTH2 extension */
 
 
 // this used to be part of the connection object class - maybe we should move it into 

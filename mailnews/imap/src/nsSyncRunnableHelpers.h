@@ -8,6 +8,8 @@
 #include "nsThreadUtils.h"
 #include "nsProxyRelease.h"
 
+#include "mozilla/Monitor.h"
+#include "msgIOAuth2Module.h"
 #include "nsIStreamListener.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsIImapMailFolderSink.h"
@@ -112,4 +114,38 @@ private:
   }
   nsCOMPtr<nsIImapProtocolSink> mReceiver;
 };
+
+class msgIOAuth2Module;
+class nsIMsgIncomingServer;
+class nsIVariant;
+class nsIWritableVariant;
+
+namespace mozilla {
+namespace mailnews {
+
+class OAuth2ThreadHelper final : public msgIOAuth2ModuleListener
+{
+public:
+  OAuth2ThreadHelper(nsIMsgIncomingServer *aServer);
+
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_MSGIOAUTH2MODULELISTENER
+
+  bool SupportsOAuth2();
+  void GetXOAuth2String(nsACString &base64Str);
+
+private:
+  ~OAuth2ThreadHelper();
+  void Init();
+  void Connect();
+
+  Monitor mMonitor;
+  nsCOMPtr<msgIOAuth2Module> mOAuth2Support;
+  nsCOMPtr<nsIMsgIncomingServer> mServer;
+  nsCString mOAuth2String;
+};
+
+} // namespace mailnews
+} // namespace mozilla
+
 #endif // nsSyncRunnableHelpers_h

@@ -772,7 +772,7 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI * aURL, nsISupports* aConsumer)
     server->GetRealHostName(m_realHostName);
     int32_t authMethod;
     (void) server->GetAuthMethod(&authMethod);
-    InitPrefAuthMethods(authMethod);
+    InitPrefAuthMethods(authMethod, server);
     (void) server->GetSocketType(&m_socketType);
     bool shuttingDown;
     (void) imapServer->GetShuttingDown(&shuttingDown);
@@ -5501,7 +5501,8 @@ void nsImapProtocol::EscapeUserNamePasswordString(const char *strToEscape, nsCSt
   }
 }
 
-void nsImapProtocol::InitPrefAuthMethods(int32_t authMethodPrefValue)
+void nsImapProtocol::InitPrefAuthMethods(int32_t authMethodPrefValue,
+                                         nsIMsgIncomingServer *aServer)
 {
     // for m_prefAuthMethods, using the same flags as server capablities.
     switch (authMethodPrefValue)
@@ -5544,9 +5545,21 @@ void nsImapProtocol::InitPrefAuthMethods(int32_t authMethodPrefValue)
             kHasAuthLoginCapability | kHasAuthPlainCapability |
             kHasCRAMCapability | kHasAuthGssApiCapability |
             kHasAuthNTLMCapability | kHasAuthMSNCapability |
-            kHasAuthExternalCapability;
+            kHasAuthExternalCapability | kHasXOAuth2Capability;
+        break;
+      case nsMsgAuthMethod::OAuth2:
+        m_prefAuthMethods = kHasXOAuth2Capability;
         break;
     }
+
+    if (m_prefAuthMethods & kHasXOAuth2Capability)
+      mOAuth2Support = new mozilla::mailnews::OAuth2ThreadHelper(aServer);
+
+    // Disable OAuth2 support if we don't have the prefs installed.
+    if (m_prefAuthMethods & kHasXOAuth2Capability &&
+        (!mOAuth2Support || !mOAuth2Support->SupportsOAuth2()))
+      m_prefAuthMethods &= ~kHasXOAuth2Capability;
+
     NS_ASSERTION(m_prefAuthMethods != kCapabilityUndefined,
          "IMAP: InitPrefAuthMethods() didn't work");
 }
@@ -5561,14 +5574,14 @@ nsresult nsImapProtocol::ChooseAuthMethod()
   eIMAPCapabilityFlags serverCaps = GetServerStateParser().GetCapabilityFlag();
   eIMAPCapabilityFlags availCaps = serverCaps & m_prefAuthMethods & ~m_failedAuthMethods;
 
-  PR_LOG(IMAP, PR_LOG_DEBUG, ("IMAP auth: server caps 0x%X, pref 0x%X, failed 0x%X, avail caps 0x%X",
+  PR_LOG(IMAP, PR_LOG_DEBUG, ("IMAP auth: server caps 0x%llx, pref 0x%llx, failed 0x%llx, avail caps 0x%llx",
         serverCaps, m_prefAuthMethods, m_failedAuthMethods, availCaps));
-  PR_LOG(IMAP, PR_LOG_DEBUG, ("(GSSAPI = 0x%X, CRAM = 0x%X, NTLM = 0x%X, "
-        "MSN =  0x%X, PLAIN = 0x%X, LOGIN = 0x%X, old-style IMAP login = 0x%X)"
-        "auth external IMAP login = 0x%X",
+  PR_LOG(IMAP, PR_LOG_DEBUG, ("(GSSAPI = 0x%llx, CRAM = 0x%llx, NTLM = 0x%llx, "
+        "MSN = 0x%llx, PLAIN = 0x%llx,\n  LOGIN = 0x%llx, old-style IMAP login = 0x%llx"
+        ", auth external IMAP login = 0x%llx, OAUTH2 = 0x%llx)",
         kHasAuthGssApiCapability, kHasCRAMCapability, kHasAuthNTLMCapability,
         kHasAuthMSNCapability, kHasAuthPlainCapability, kHasAuthLoginCapability,
-        kHasAuthOldLoginCapability, kHasAuthExternalCapability));
+        kHasAuthOldLoginCapability, kHasAuthExternalCapability, kHasXOAuth2Capability));
 
   if (kHasAuthExternalCapability & availCaps)
     m_currentAuthMethod = kHasAuthExternalCapability;
@@ -5580,6 +5593,8 @@ nsresult nsImapProtocol::ChooseAuthMethod()
     m_currentAuthMethod = kHasAuthNTLMCapability;
   else if (kHasAuthMSNCapability & availCaps)
     m_currentAuthMethod = kHasAuthMSNCapability;
+  else if (kHasXOAuth2Capability & availCaps)
+    m_currentAuthMethod = kHasXOAuth2Capability;
   else if (kHasAuthPlainCapability & availCaps)
     m_currentAuthMethod = kHasAuthPlainCapability;
   else if (kHasAuthLoginCapability & availCaps)
@@ -5592,13 +5607,13 @@ nsresult nsImapProtocol::ChooseAuthMethod()
     m_currentAuthMethod = kCapabilityUndefined;
     return NS_ERROR_FAILURE;
   }
-  PR_LOG(IMAP, PR_LOG_DEBUG, ("trying auth method 0x%X", m_currentAuthMethod));
+  PR_LOG(IMAP, PR_LOG_DEBUG, ("trying auth method 0x%llx", m_currentAuthMethod));
   return NS_OK;
 }
 
 void nsImapProtocol::MarkAuthMethodAsFailed(eIMAPCapabilityFlags failedAuthMethod)
 {
-  PR_LOG(IMAP, PR_LOG_DEBUG, ("marking auth method 0x%X failed", failedAuthMethod));
+  PR_LOG(IMAP, PR_LOG_DEBUG, ("marking auth method 0x%llx failed", failedAuthMethod));
   m_failedAuthMethods |= failedAuthMethod;
 }
 
@@ -5620,7 +5635,7 @@ nsresult nsImapProtocol::AuthLogin(const char *userName, const nsCString &passwo
   char * currentCommand=nullptr;
   nsresult rv;
 
-  PR_LOG(IMAP, PR_LOG_DEBUG, ("IMAP: trying auth method 0x%X", m_currentAuthMethod));
+  PR_LOG(IMAP, PR_LOG_DEBUG, ("IMAP: trying auth method 0x%llx", m_currentAuthMethod));
 
   if (flag & kHasAuthExternalCapability)
   {
@@ -5830,6 +5845,33 @@ nsresult nsImapProtocol::AuthLogin(const char *userName, const nsCString &passwo
     EscapeUserNamePasswordString(password.get(), &correctedPassword);
     command.Append(correctedPassword);
     command.Append("\"" CRLF);
+    rv = SendData(command.get(), true /* suppress logging */);
+    NS_ENSURE_SUCCESS(rv, rv);
+    ParseIMAPandCheckForNewMail();
+  }
+  else if (flag & kHasXOAuth2Capability)
+  {
+    PR_LOG(IMAP, PR_LOG_DEBUG, ("XOAUTH2 auth"));
+
+    // Get the XOAuth2 base64 string.
+    NS_ASSERTION(mOAuth2Support,
+      "What are we doing here without OAuth2 helper?");
+    if (!mOAuth2Support)
+      return NS_ERROR_UNEXPECTED;
+    nsAutoCString base64Str;
+    mOAuth2Support->GetXOAuth2String(base64Str);
+    mOAuth2Support = nullptr; // Its purpose has been served.
+    if (base64Str.IsEmpty())
+    {
+      PR_LOG(IMAP, PR_LOG_DEBUG, ("OAuth2 failed"));
+      return NS_ERROR_FAILURE;
+    }
+
+    // Send the data on the network.
+    nsAutoCString command (GetServerCommandTag());
+    command += " AUTHENTICATE XOAUTH2 ";
+    command += base64Str;
+    command += CRLF;
     rv = SendData(command.get(), true /* suppress logging */);
     NS_ENSURE_SUCCESS(rv, rv);
     ParseIMAPandCheckForNewMail();
@@ -8381,6 +8423,7 @@ bool nsImapProtocol::TryToLogon()
       // Get password
       if (m_currentAuthMethod != kHasAuthGssApiCapability && // GSSAPI uses no pw in apps
           m_currentAuthMethod != kHasAuthExternalCapability &&
+          m_currentAuthMethod != kHasXOAuth2Capability &&
           m_currentAuthMethod != kHasAuthNoneCapability)
       {
           rv = GetPassword(password, newPasswordRequested);
@@ -8414,6 +8457,15 @@ bool nsImapProtocol::TryToLogon()
             // GSSAPI failed, and it's the only available method,
             // and it's password-less, so nothing left to do.
             AlertUserEventUsingName("imapAuthGssapiFailed");
+            break;
+          }
+
+          if (m_prefAuthMethods & kHasXOAuth2Capability)
+          {
+            // OAuth2 failed. We don't have an error message for this, and we
+            // in a string freeze, so use a generic error message. Entering
+            // a password does not help.
+            AlertUserEventUsingName("imapUnknownHostError");
             break;
           }
 
