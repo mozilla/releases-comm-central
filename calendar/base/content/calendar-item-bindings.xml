@@ -76,15 +76,19 @@
           if (hideLabels) {
               this.setAttribute("hidden", "true");
           } else {
-              this.removeAttribute("hidden");
-              var label = getDateFormatter().formatDateTime(date);
-              if (date.timezone.tzid != calendarDefaultTimezone().tzid) {
-                  itemDateTimeLabel.value = calGetString("calendar",
-                                            "datetimeWithTimezone",
-                                            [label, date.timezone.tzid]);
-              } else {
-                  itemDateTimeLabel.value = label;
+              const kDefaultTimezone = cal.calendarDefaultTimezone();
+              let localTime = date.getInTimezone(kDefaultTimezone);
+              let formatter = getDateFormatter();
+              itemDateTimeLabel.value = formatter.formatDateTime(localTime);
+              if (date.timezone.tzid != kDefaultTimezone.tzid) {
+                  // we additionally display the original datetime with timezone
+                  let orgTime = cal.calGetString("calendar",
+                                                 "datetimeWithTimezone",
+                                                 [formatter.formatDateTime(date),
+                                                  date.timezone.tzid]);
+                  itemDateTimeLabel.value += " (" + orgTime + ")";
               }
+              this.removeAttribute("hidden");
           }
         ]]></setter>
       </property>
