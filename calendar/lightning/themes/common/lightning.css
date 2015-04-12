@@ -6,3 +6,7 @@
 #calendarTabPanel:not([selected]) {
   visibility: collapse;
 }
+
+.imipMoreButton >.toolbarbutton-icon {
+  display: none;
+}

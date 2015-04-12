@@ -40,36 +40,46 @@
   list-style-image: url(chrome://lightning/skin/mode-switch-icons-inverted.png);
 }
 
+/* ::: imip button icons ::: */
+.imipAcceptRecurrencesButton,
 .imipAcceptButton {
   list-style-image: url(chrome://lightning/skin/imip-aero.png);
   -moz-image-region: rect(0px 16px 16px 0px);
 }
 
+.imipDeclineRecurrencesButton,
 .imipDeclineButton {
   list-style-image: url(chrome://lightning/skin/imip-aero.png);
   -moz-image-region: rect(0px 32px 16px 16px);
 }
 
+.imipTentativeRecurrencesButton,
 .imipTentativeButton {
   list-style-image: url(chrome://lightning/skin/imip-aero.png);
-  -moz-image-region: rect(0px 48px 16px 32px);
+  -moz-image-region: rect(1px 48px 17px 32px);
 }
 
-/* These buttons may also deserve an icon:
-   .imipDetailsButton
-       (-> open the event or summary dialog)
-   .imipMoreButton
-       (-> dropdown button to offer more options to the user)
-   .imipAddButton
-       (-> add an event to the calendar)
-   .imipUpdateButton
-       (-> ipdate an event in the calendar)
-   .imipDeleteButton
-       (-> delete an event from the calendar)
-   .imipReconfirmButton
-       (-> re-confirm the own participation status on organizer's request)
-   .imipAcceptRecurrencesButton
-   .imipDeclineRecurrencesButton
-   .imipTentativeRecurrencesButton
-       (-> the same functionality as above, but for recurring events)
-*/
+.imipDetailsButton {
+  list-style-image: url(chrome://calendar/skin/toolbar-aero.png);
+  -moz-image-region: rect(1px 143px 17px 126px);
+}
+
+.imipAddButton {
+  list-style-image: url(chrome://calendar/skin/toolbar-aero.png);
+  -moz-image-region: rect(2px 35px 18px 17px);
+}
+
+.imipUpdateButton {
+  list-style-image: url(chrome://calendar/skin/toolbar-aero.png);
+  -moz-image-region: rect(1px 17px 17px 1px);
+}
+
+.imipDeleteButton {
+  list-style-image: url(chrome://calendar/skin/toolbar-aero.png);
+  -moz-image-region: rect(1px 107px 17px 91px);
+}
+
+.imipReconfirmButton {
+  list-style-image: url(chrome://calendar/skin/tasks-actions-aero.png);
+  -moz-image-region: rect(1px 53px 17px 37px);
+}

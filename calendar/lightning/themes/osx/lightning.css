@@ -205,51 +205,81 @@ radio[pane=paneLightning] {
   -moz-margin-end: -3px !important;
 }
 
+/* ::: imip button icons ::: */
+.imipAcceptRecurrencesButton,
 .imipAcceptButton {
   list-style-image: url(chrome://lightning/skin/imip.png);
   -moz-image-region: rect(0px 16px 16px 0px);
 }
 
+.imipAcceptRecurrencesButton:active,
 .imipAcceptButton:active {
   -moz-image-region: rect(16px 16px 32px 0px);
 }
 
+.imipDeclineRecurrencesButton,
 .imipDeclineButton {
   list-style-image: url(chrome://lightning/skin/imip.png);
   -moz-image-region: rect(0px 32px 16px 16px);
 }
 
+.imipDeclineRecurrencesButton:active,
 .imipDeclineButton:active {
   -moz-image-region: rect(16px 32px 32px 16px);
 }
 
+.imipTentativeRecurrencesButton,
 .imipTentativeButton {
   list-style-image: url(chrome://lightning/skin/imip.png);
   -moz-image-region: rect(0px 48px 16px 32px);
 }
 
+.imipTentativeRecurrencesButton:active,
 .imipTentativeButton:active {
   -moz-image-region: rect(16px 48px 32px 32px);
 }
 
-/* Are the separate icons for :active state of the imipButtons
-   above still required with the button redesign?
+.imipDetailsButton {
+  list-style-image: url(chrome://calendar/skin/toolbar.png);
+  -moz-image-region: rect(1px 143px 17px 126px);
+}
 
-   These buttons may also deserve an icon:
-   .imipDetailsButton
-       (-> open the event or summary dialog)
-   .imipMoreButton
-       (-> dropdown button to offer more options to the user)
-   .imipAddButton
-       (-> add an event to the calendar)
-   .imipUpdateButton
-       (-> ipdate an event in the calendar)
-   .imipDeleteButton
-       (-> delete an event from the calendar)
-   .imipReconfirmButton
-       (-> re-confirm the own participation status on organizer's request)
-   .imipAcceptRecurrencesButton
-   .imipDeclineRecurrencesButton
-   .imipTentativeRecurrencesButton
-       (-> the same functionality as above, but for recurring events)
-*/
+.imipDetailsButton:active {
+  -moz-image-region: rect(19px 143px 35px 126px);
+}
+
+.imipAddButton {
+  list-style-image: url(chrome://calendar/skin/toolbar.png);
+  -moz-image-region: rect(2px 35px 18px 17px);
+}
+
+.imipAddButton:active {
+  -moz-image-region: rect(20px 35px 36px 17px);
+}
+
+.imipUpdateButton {
+  list-style-image: url(chrome://calendar/skin/toolbar.png);
+  -moz-image-region: rect(1px 17px 17px 1px);
+}
+
+.imipUpdateButton:active {
+  -moz-image-region: rect(19px 17px 35px 1px);
+}
+
+.imipDeleteButton {
+  list-style-image: url(chrome://calendar/skin/toolbar.png);
+  -moz-image-region: rect(1px 107px 17px 91px);
+}
+
+.imipDeleteButton:active {
+  -moz-image-region: rect(19px 107px 35px 91px);
+}
+
+.imipReconfirmButton {
+  list-style-image: url(chrome://calendar/skin/tasks-actions.png);
+  -moz-image-region: rect(1px 53px 17px 37px);
+}
+
+.imipReconfirmButton:active {
+  /*currently no separate image available*/
+}

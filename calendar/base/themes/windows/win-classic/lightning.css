@@ -37,36 +37,45 @@
 }
 
 /* ::: imip button icons ::: */
+.imipAcceptRecurrencesButton,
 .imipAcceptButton {
   list-style-image: url(chrome://lightning/skin/imip.png);
   -moz-image-region: rect(0px 16px 16px 0px);
 }
 
+.imipDeclineRecurrencesButton,
 .imipDeclineButton {
   list-style-image: url(chrome://lightning/skin/imip.png);
   -moz-image-region: rect(0px 32px 16px 16px);
 }
 
+.imipTentativeRecurrencesButton,
 .imipTentativeButton {
   list-style-image: url(chrome://lightning/skin/imip.png);
   -moz-image-region: rect(0px 48px 16px 32px);
 }
 
-/* These buttons may also deserve an icon:
-   .imipDetailsButton
-       (-> open the event or summary dialog)
-   .imipMoreButton
-       (-> dropdown button to offer more options to the user)
-   .imipAddButton
-       (-> add an event to the calendar)
-   .imipUpdateButton
-       (-> ipdate an event in the calendar)
-   .imipDeleteButton
-       (-> delete an event from the calendar)
-   .imipReconfirmButton
-       (-> re-confirm the own participation status on organizer's request)
-   .imipAcceptRecurrencesButton
-   .imipDeclineRecurrencesButton
-   .imipTentativeRecurrencesButton
-       (-> the same functionality as above, but for recurring events)
-*/
+.imipDetailsButton {
+  list-style-image: url(chrome://calendar/skin/toolbar-small.png);
+  -moz-image-region: rect(0px 352px 16px 336px);
+}
+
+.imipAddButton {
+  list-style-image: url(chrome://calendar/skin/toolbar-small.png);
+  -moz-image-region: rect(0px 16px 16px 0px);
+}
+
+.imipUpdateButton {
+  list-style-image: url(chrome://calendar/skin/toolbar-small.png);
+  -moz-image-region: rect(0px 432px 16px 416px);
+}
+
+.imipDeleteButton {
+  list-style-image: url(chrome://calendar/skin/toolbar-small.png);
+  -moz-image-region: rect(0px 48px 16px 32px);
+}
+
+.imipReconfirmButton {
+  list-style-image: url(chrome://calendar/skin/toolbar-small.png);
+  -moz-image-region: rect(0px 400px 16px 385px);
+}
