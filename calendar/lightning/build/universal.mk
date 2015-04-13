@@ -24,23 +24,36 @@ XPI_PKGNAME = lightning-$(LIGHTNING_VERSION).$(AB_CD).$(MOZ_PKG_PLATFORM)
 STANDALONE_MAKEFILE := 1
 include $(TOPSRCDIR)/config/config.mk
 
+define unify_lightning
+mkdir -p $(DIST_UNI)/$1
+rm -rf $(DIST_UNI)/$1/$2*
+cp -R $(DIST_ARCH_1)/$1/$2 $(DIST_UNI)/$1
+grep -v binary-component $(DIST_ARCH_1)/$1/$2/components/libical-manifest > \
+	$(DIST_UNI)/$1/$2/components/libical-manifest || true
+platform=`$(PYTHON) $(TOPSRCDIR)/calendar/lightning/build/get-platform.py \
+	$(DIST_ARCH_1)/$1/$2`; \
+mkdir -p $(DIST_UNI)/$1/$2/components/$$platform; \
+mv $(DIST_UNI)/$1/$2/components/*.dylib \
+	$(DIST_UNI)/$1/$2/components/$$platform; \
+$(foreach dylib,$(wildcard $(DIST_ARCH_1)/$1/$2/components/*.dylib),echo binary-component $$platform/$(notdir $(dylib)) abi=$$platform >> $(DIST_UNI)/$1/$2/components/libical-manifest)
+platform=`$(PYTHON) $(TOPSRCDIR)/calendar/lightning/build/get-platform.py \
+	$(DIST_ARCH_2)/$1/$2`; \
+mkdir -p $(DIST_UNI)/$1/$2/components/$$platform; \
+cp $(DIST_ARCH_2)/$1/$2/components/*.dylib \
+	$(DIST_UNI)/$1/$2/components/$$platform; \
+$(foreach dylib,$(wildcard $(DIST_ARCH_2)/$1/$2/components/*.dylib),echo binary-component $$platform/$(notdir $(dylib)) abi=$$platform >> $(DIST_UNI)/$1/$2/components/libical-manifest)
+grep -v em:targetPlatform $(DIST_ARCH_1)/$1/$2/install.rdf > $(DIST_UNI)/$1/$2/install.rdf
+endef
+
+define unify_lightning_repackage
+cd $(DIST_UNI)/$1/$2 && $(ZIP) -qr ../$(XPI_PKGNAME).xpi *
+endef
+
 postflight_all:
-	mkdir -p $(DIST_UNI)/xpi-stage
-	rm -rf $(DIST_UNI)/xpi-stage/lightning*
-	cp -R $(DIST_ARCH_1)/xpi-stage/lightning $(DIST_UNI)/xpi-stage
-	grep -v binary-component $(DIST_ARCH_1)/xpi-stage/lightning/components/libical-manifest > \
-	    $(DIST_UNI)/xpi-stage/lightning/components/libical-manifest || true
-	platform=`$(PYTHON) $(TOPSRCDIR)/calendar/lightning/build/get-platform.py \
-		$(DIST_ARCH_1)/xpi-stage/lightning`; \
-	mkdir -p $(DIST_UNI)/xpi-stage/lightning/components/$$platform; \
-	mv $(DIST_UNI)/xpi-stage/lightning/components/*.dylib \
-		$(DIST_UNI)/xpi-stage/lightning/components/$$platform; \
-	$(foreach dylib,$(wildcard $(DIST_ARCH_1)/xpi-stage/lightning/components/*.dylib),echo binary-component $$platform/$(notdir $(dylib)) abi=$$platform >> $(DIST_UNI)/xpi-stage/lightning/components/libical-manifest)
-	platform=`$(PYTHON) $(TOPSRCDIR)/calendar/lightning/build/get-platform.py \
-		$(DIST_ARCH_2)/xpi-stage/lightning`; \
-	mkdir -p $(DIST_UNI)/xpi-stage/lightning/components/$$platform; \
-	cp $(DIST_ARCH_2)/xpi-stage/lightning/components/*.dylib \
-		$(DIST_UNI)/xpi-stage/lightning/components/$$platform; \
-	$(foreach dylib,$(wildcard $(DIST_ARCH_2)/xpi-stage/lightning/components/*.dylib),echo binary-component $$platform/$(notdir $(dylib)) abi=$$platform >> $(DIST_UNI)/xpi-stage/lightning/components/libical-manifest)
-	grep -v em:targetPlatform $(DIST_ARCH_1)/xpi-stage/lightning/install.rdf > $(DIST_UNI)/xpi-stage/lightning/install.rdf
-	cd $(DIST_UNI)/xpi-stage/lightning && $(ZIP) -qr ../$(XPI_PKGNAME).xpi *
+	$(call unify_lightning,xpi-stage,lightning)
+	$(call unify_lightning_repackage,xpi-stage,lightning)
+ifdef NIGHTLY_BUILD
+	$(call unify_lightning,$(MOZ_APP_DISPLAYNAME).app/Contents/Resources/extensions,{e2fda1a4-762b-4020-b5ad-a41df1933103})
+else
+	$(call unify_lightning,$(MOZ_APP_DISPLAYNAME).app/Contents/Resources/distribution/extensions,{e2fda1a4-762b-4020-b5ad-a41df1933103})
+endif

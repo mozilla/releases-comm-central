@@ -7,6 +7,10 @@ if test -e "$topsrcdir/mail/config/version.txt"; then
   unset CXX
 fi
 
+# Make sure Lightning is also unified, this needs to happen before including
+# the universal mozconfig because Lightning's univeral.mk needs to run first.
+mk_add_options MOZ_POSTFLIGHT_ALL+=calendar/lightning/build/universal.mk
+
 . $topsrcdir/build/macosx/universal/mozconfig
 
 # Universal builds override the default of mail (bug 575283 comment 29)
