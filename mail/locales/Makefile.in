@@ -224,6 +224,13 @@ calendar-unpack:
 calendar-upload:
 	$(MAKE) -C $(LIGHTNING_PATH) upload AB_CD=$(AB_CD)
 
+# Hook into l10n.mk, providing extra arguments to l10n-repack.py
+ifdef NIGHTLY_BUILD
+MOZ_PKG_EXTRAL10N += extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}=$(DIST)/xpi-stage/lightning-$(AB_CD)
+else
+MOZ_PKG_EXTRAL10N += distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}=$(DIST)/xpi-stage/lightning-$(AB_CD)
+endif
+
 # Hook calendar targets to the mail non-pattern rules
 wget-en-US: calendar-wget-en-US
 unpack: calendar-unpack
