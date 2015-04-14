@@ -127,7 +127,7 @@ var SENT_DEFAULTS = [
   "attachmentCol",
   "subjectCol",
   "unreadButtonColHeader",
-  "recipientCol",
+  "correspondentCol",
   "junkStatusCol",
   "dateCol"
 ];
