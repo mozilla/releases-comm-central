@@ -294,11 +294,18 @@ function DisplayCardViewPane(realCard)
       var date = new Date(year, month - 1, day);
       // if the year exists, just use Date.toLocaleString
       if (year) {
-        date.setFullYear(year);
-        dateStr = date.toLocaleDateString();
+        // use UTC-based calculations to avoid off-by-one day
+        // due to time zone/dst discontinuity
+        date = new Date(Date.UTC(year, month - 1, day));
+        date.setUTCFullYear(year); // to handle two-digit years properly
+        dateStr = date.toLocaleDateString([], {timeZone: "UTC"});
       }
       // if the year doesn't exist, display Month DD (ex. January 01)
       else {
+        // toLocaleFormat() seems to have a different implementation than
+        // toLocaleDateString() and returns correct results even when not
+        // passing UTC times; besides, it would not support an options
+        // parameter for {timeZone: "UTC"} anyway.
         dateStr = date.toLocaleFormat(
           gAddressBookBundle.getString("dateFormatMonthDay")
         );
