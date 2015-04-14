@@ -11,7 +11,7 @@
 #include "nsTObserverArray.h"
 #include "nsCOMPtr.h"
 
-class nsMsgFolderNotificationService : public nsIMsgFolderNotificationService
+class nsMsgFolderNotificationService final : public nsIMsgFolderNotificationService
 {
 public:
   NS_DECL_ISUPPORTS

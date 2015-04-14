@@ -86,7 +86,7 @@ class nsIMsgFolder;
 /**
  * Default strategy implementation to prioritize messages in the download queue.   
  */
-class nsDefaultAutoSyncMsgStrategy : public nsIAutoSyncMsgStrategy
+class nsDefaultAutoSyncMsgStrategy final : public nsIAutoSyncMsgStrategy
 {
   static const uint32_t kFirstPassMessageSize = 60U*1024U; // 60K
 
@@ -103,7 +103,7 @@ class nsDefaultAutoSyncMsgStrategy : public nsIAutoSyncMsgStrategy
 /**
  * Default strategy implementation to prioritize folders in the download queue.  
  */
-class nsDefaultAutoSyncFolderStrategy : public nsIAutoSyncFolderStrategy
+class nsDefaultAutoSyncFolderStrategy final : public nsIAutoSyncFolderStrategy
 {
   public:
     NS_DECL_ISUPPORTS
@@ -120,9 +120,9 @@ class nsDefaultAutoSyncFolderStrategy : public nsIAutoSyncFolderStrategy
 /**
  * Manages background message download operations for offline imap folders. 
  */
-class nsAutoSyncManager : public nsIObserver, 
-                          public nsIUrlListener,
-                          public nsIAutoSyncManager
+class nsAutoSyncManager final : public nsIObserver,
+                                public nsIUrlListener,
+                                public nsIAutoSyncManager
 {
   static const PRTime kAutoSyncFreq = 60UL * (PR_USEC_PER_SEC * 60UL);  // 1hr
   static const uint32_t kDefaultUpdateInterval = 10UL;                  // 10min

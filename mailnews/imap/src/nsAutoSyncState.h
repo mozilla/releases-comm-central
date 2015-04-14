@@ -49,7 +49,7 @@ class MsgStrategyComparatorAdaptor
 /**
  * Facilitates auto-sync capabilities for imap folders.
  */
-class nsAutoSyncState : public nsIAutoSyncState, public nsIUrlListener
+class nsAutoSyncState final : public nsIAutoSyncState, public nsIUrlListener
 {
 public:
   NS_DECL_ISUPPORTS

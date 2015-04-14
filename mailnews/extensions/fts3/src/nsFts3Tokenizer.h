@@ -12,7 +12,7 @@
 
 extern const sqlite3_tokenizer_module* getWindowsTokenizer();
 
-class nsFts3Tokenizer : public nsIFts3Tokenizer {
+class nsFts3Tokenizer final : public nsIFts3Tokenizer {
 public:
     NS_DECL_ISUPPORTS
     NS_DECL_NSIFTS3TOKENIZER

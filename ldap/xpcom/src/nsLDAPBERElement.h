@@ -12,7 +12,7 @@
   { 0x070af769, 0xb7f5, 0x40e7, \
       { 0x81, 0xbe, 0x19, 0x61, 0x55, 0xea, 0xd8, 0x4c }}
 
-class nsLDAPBERElement : public nsILDAPBERElement
+class nsLDAPBERElement final : public nsILDAPBERElement
 {
 public:
   NS_DECL_ISUPPORTS

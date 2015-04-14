@@ -11,7 +11,7 @@
  * Basically a port of the example FTS3 ranking function to mozStorage's
  * view of the universe.  This might get fancier at some point.
  */
-class nsGlodaRankerFunction : public mozIStorageFunction
+class nsGlodaRankerFunction final : public mozIStorageFunction
 {
 public:
   NS_DECL_ISUPPORTS
