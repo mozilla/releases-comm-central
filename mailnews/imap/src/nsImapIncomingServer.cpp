@@ -16,7 +16,6 @@
 #include "nsThreadUtils.h"
 #include "nsImapProtocol.h"
 #include "nsCOMPtr.h"
-#include "nsImapStringBundle.h"
 #include "nsIPrefBranch.h"
 #include "nsIPrefService.h"
 #include "nsMsgFolderFlags.h"
@@ -2160,24 +2159,31 @@ nsImapIncomingServer::AsyncGetPassword(nsIImapProtocol *aProtocol,
 
 NS_IMETHODIMP
 nsImapIncomingServer::PromptPassword(nsIMsgWindow *aMsgWindow,
-                                  nsACString &aPassword)
+                                     nsACString &aPassword)
 {
   nsString passwordTitle;
-  IMAPGetStringByName("imapEnterPasswordPromptTitle",
-                      getter_Copies(passwordTitle));
-  nsCString promptValue;
-  GetRealUsername(promptValue);
+  GetImapStringByName("imapEnterPasswordPromptTitle", passwordTitle);
+  NS_ENSURE_STATE(m_stringBundle);
 
-  nsCString hostName;
+  nsAutoCString userName;
+  GetRealUsername(userName);
+
+  nsAutoCString hostName;
   GetRealHostName(hostName);
-  promptValue.Append('@');
-  promptValue.Append(hostName);
+
+  nsresult rv = GetStringBundle();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  NS_ConvertASCIItoUTF16 finalUserName(userName);
+  NS_ConvertASCIItoUTF16 finalHostName(hostName);
+
+  const char16_t *formatStrings[] = { finalUserName.get(), finalHostName.get() };
 
   nsString passwordText;
-  nsresult rv = GetFormattedStringFromName(NS_ConvertASCIItoUTF16(promptValue),
-                                           "imapEnterPasswordPrompt",
-                                           passwordText);
-  NS_ENSURE_SUCCESS(rv,rv);
+  rv = m_stringBundle->FormatStringFromName(
+    MOZ_UTF16("imapEnterServerPasswordPrompt"),
+    formatStrings, 2, getter_Copies(passwordText));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   rv = GetPasswordWithUI(passwordText, passwordTitle, aMsgWindow, aPassword);
   if (NS_SUCCEEDED(rv))
