@@ -99,7 +99,7 @@ const char16_t* errorStringNameForErrorCode(nsresult aCode)
     case NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED:
       return MOZ_UTF16("smtpAuthMechNotSupported");
     case NS_ERROR_SMTP_AUTH_NOT_SUPPORTED:
-      return MOZ_UTF16("smtpAuthNotSupported");
+      return MOZ_UTF16("smtpAuthenticationNotSupported");
     case NS_ERROR_ILLEGAL_LOCALPART:
       return MOZ_UTF16("illegalLocalPart");
     default:
