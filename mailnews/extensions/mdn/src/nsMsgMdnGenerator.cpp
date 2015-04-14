@@ -1089,19 +1089,16 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI *url,
         exitString = MOZ_UTF16("smtpSendRequestRefused");
         break;
       case NS_ERROR_NET_INTERRUPT:
+      case NS_ERROR_ABORT: // we have no proper string for error code NS_ERROR_ABORT in compose bundle
         exitString = MOZ_UTF16("smtpSendInterrupted");
         break;
       case NS_ERROR_NET_TIMEOUT:
       case NS_ERROR_NET_RESET:
         exitString = MOZ_UTF16("smtpSendTimeout");
         break;
-      case NS_ERROR_SMTP_PASSWORD_UNDEFINED:
-        exitString = MOZ_UTF16("smtpPasswordUndefined");
-        break;
       default:
-        if (aExitCode != NS_ERROR_ABORT && !NS_IS_MSG_ERROR(aExitCode))
-          exitString = MOZ_UTF16("smtpSendFailedUnknownReason");
-      break;
+        exitString = errorStringNameForErrorCode(aExitCode);
+        break;
     }
 
     nsCOMPtr<nsISmtpService> smtpService(do_GetService(NS_SMTPSERVICE_CONTRACTID, &rv));
