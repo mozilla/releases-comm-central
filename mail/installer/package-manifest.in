@@ -700,10 +700,6 @@
 #endif
 #endif # MOZ_ANGLE_RENDERER
 
-#ifdef MOZ_WEBSERVICES
-@RESPATH@/components/websrvcs.xpt
-#endif
-
 ; editor resource files
 @RESPATH@/res/EditorOverride.css
 @RESPATH@/res/contenteditable.css

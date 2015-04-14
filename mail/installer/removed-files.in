@@ -111,9 +111,7 @@
 @DIR_MACOS@components/walleteditor.xpt
 @DIR_MACOS@components/walletpreview.xpt
 @DIR_MACOS@components/@DLL_PREFIX@walletviewers@DLL_SUFFIX@
-#ifndef MOZ_WEBSERVICES
-  @DIR_MACOS@components/websrvcs.xpt
-#endif
+@DIR_MACOS@components/websrvcs.xpt
 #ifdef XP_MACOSX
   @DIR_MACOS@components/widget_mac.xpt
 #endif
