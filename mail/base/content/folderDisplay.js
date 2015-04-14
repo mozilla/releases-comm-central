@@ -482,8 +482,7 @@ FolderDisplayWidget.prototype = {
    * Either inherit the column state of another folder or use heuristics to
    *  figure out the best column state for the current folder.
    */
-  _getDefaultColumnsForCurrentFolder:
-      function FolderDisplayWidget__getDefaultColumnsForCurrentFolder() {
+  _getDefaultColumnsForCurrentFolder: function(aDoNotInherit) {
     const InboxFlag = Components.interfaces.nsMsgFolderFlags.Inbox;
 
     // If the view is synthetic, try asking it for its default columns. If it
@@ -507,7 +506,7 @@ FolderDisplayWidget.prototype = {
     //    (Although we could try and see if they have opened any other news
     //    folders in the same account.  But it's not all that important to us.)
     // - It's an inbox!
-    let doNotInherit =
+    let doNotInherit = aDoNotInherit ||
       this.view.isOutgoingFolder ||
       this.view.isVirtual ||
       this.view.isMultiFolder ||
@@ -691,9 +690,9 @@ FolderDisplayWidget.prototype = {
   _restoreColumnStates: function FolderDisplayWidget__restoreColumnStates() {
     if (this._savedColumnStates) {
       // upgrade column states that don't have a correspondent column
-      if (!("correspondentCol" in this._savedColumnStates) &&
-          (this._savedColumnStates.correspondentCol =
-            this._getDefaultColumnsForCurrentFolder().correspondentCol)) {
+      if (!("correspondentCol" in this._savedColumnStates)) {
+        this._savedColumnStates.correspondentCol =
+          this._getDefaultColumnsForCurrentFolder(true).correspondentCol;
         if (this._savedColumnStates.correspondentCol.visible) {
           if (this._savedColumnStates.senderCol &&
             this._savedColumnStates.senderCol.visible &&
