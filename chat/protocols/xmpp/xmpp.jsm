@@ -125,6 +125,10 @@ const XMPPMUCConversationPrototype = {
         case "not-allowed":
           message = _("conversation.error.creationFailedNotAllowed");
           break;
+        case "remote-server-not-found":
+          message = _("conversation.error.joinFailedRemoteServerNotFound",
+                      this.name);
+          break;
         default:
           message = _("conversation.error.joinFailed", this.name);
           this.ERROR("Failed to join MUC: " + aStanza.convertToString());
