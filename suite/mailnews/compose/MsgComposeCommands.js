@@ -5,6 +5,7 @@
 
 Components.utils.import("resource:///modules/folderUtils.jsm");
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
+Components.utils.import("resource:///modules/mailServices.js");
 
 /**
  * interfaces
@@ -1897,8 +1898,11 @@ function FillIdentityList(menulist)
     for (let i = 0; i < identities.length; i++)
     {
       let identity = identities[i];
-      let item = menulist.appendItem(identity.identityName,
-                                     identity.identityName,
+      let address = MailServices.headerParser
+                                .makeMailboxObject(identity.fullName,
+                                                   identity.email).toString();
+      let item = menulist.appendItem(address,
+                                     address,
                                      account.incomingServer.prettyName);
       item.setAttribute("identitykey", identity.key);
       item.setAttribute("accountkey", account.key);
