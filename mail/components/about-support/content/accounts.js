@@ -64,7 +64,7 @@ function populateAccountsSection() {
     return createElement("td", text, attributes, copyData);
   }
 
-  for (let [, account] in Iterator(gAccountDetails)) {
+  for (let account of gAccountDetails) {
     // We want a minimum rowspan of 1
     let rowSpan = account.smtpServers.length || 1;
     // incomingTDs is a list of TDs
@@ -83,8 +83,9 @@ function populateAccountsSection() {
     let tr = createParentElement("tr", incomingTDs.concat(outgoingTDs[0]));
     trAccounts.push(tr);
     // Add the remaining SMTP servers as separate trs
-    for each (let [, tds] in Iterator(outgoingTDs.slice(1)))
+    for (let tds of outgoingTDs.slice(1)) {
       trAccounts.push(createParentElement("tr", tds));
+    }
   }
 
   appendChildren(document.getElementById("accounts-tbody"), trAccounts);
@@ -105,7 +106,7 @@ function getAccountsText(aHidePrivateData, aIndent) {
     return data.neutral;
   }
 
-  for (let [, account] in Iterator(gAccountDetails)) {
+  for (let account of gAccountDetails) {
     accumulator.push(aIndent + account.key + ":");
     // incomingData is a list of strings
     let incomingData = [neutralizer(fn(account[prop]))

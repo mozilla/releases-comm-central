@@ -112,7 +112,7 @@ function getModifiedPrefs() {
   // time it's called.  See bug 517312.
   let prefNames = getWhitelistedPrefNames();
   let prefs = [Application.prefs.get(prefName)
-                      for each (prefName in prefNames)
+                      for (prefName of prefNames)
                           if (Services.prefs.prefHasUserValue(prefName)
                             && !isBlacklisted(prefName))];
   return prefs;

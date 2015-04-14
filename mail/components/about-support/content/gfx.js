@@ -207,7 +207,7 @@ function populateGraphicsSection() {
         data.indices = failureIndices.value;
       }
     }
-    let trGraphicFailures;
+    let trGraphicsFailures;
     // If indices is there, it should be the same length as failures,
     // (see Troubleshoot.jsm) but we check anyway:
     if ("indices" in data && data.failures.length == data.indices.length) {
@@ -235,9 +235,6 @@ function populateGraphicsSection() {
     }
 
     appendChildren(graphics_failures_tbody, trGraphicsFailures);
-
-
-
   } // end if (gfxInfo)
 
   let windows = Services.ww.getWindowEnumerator();

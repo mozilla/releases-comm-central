@@ -6,7 +6,7 @@ messenger.jar:
 %   overlay chrome://messenger/content/messenger.xul           chrome://messenger/content/about-support/overlay.xul
     content/messenger/about-support/hide-private.css           (content/hide-private.css)
     content/messenger/about-support/show-private.css           (content/show-private.css)
-*   content/messenger/about-support/init.js                    (content/init.js)
+    content/messenger/about-support/init.js                    (content/init.js)
     content/messenger/about-support/accounts.js                (content/accounts.js)
 #ifdef MOZ_CRASHREPORTER
     content/messenger/about-support/crashes.js                 (content/crashes.js)

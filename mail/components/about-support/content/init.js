@@ -10,6 +10,7 @@ Components.utils.import("resource://gre/modules/AddonManager.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 Components.utils.import("resource:///modules/aboutSupport.js");
 
@@ -63,9 +64,10 @@ window.onload = function () {
   // Update the other sections.
   populateAccountsSection();
   populatePreferencesSection();
-#ifdef MOZ_CRASHREPORTER
-  populateCrashesSection();
-#endif
+
+  if (AppConstants.MOZ_CRASHREPORTER)
+    populateCrashesSection();
+
   populateExtensionsSection();
   populateGraphicsSection();
   populateJavaScriptSection();
@@ -85,11 +87,12 @@ function createParentElement(tagName, childElems) {
 
 function createElement(tagName, textContent, opt_attributes, opt_copyData) {
   if (opt_attributes == null)
-    opt_attributes = [];
+    opt_attributes = {};
   let elem = document.createElement(tagName);
   elem.textContent = textContent;
-  for each (let [key, value] in Iterator(opt_attributes))
-    elem.setAttribute(key, "" + value);
+  for (let key in opt_attributes) {
+    elem.setAttribute(key, "" + opt_attributes[key]);
+  }
 
   if (opt_copyData != null) {
     elem.dataset.copyData = opt_copyData;

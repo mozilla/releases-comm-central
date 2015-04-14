@@ -571,9 +571,9 @@ var EmailAccountProvisioner = {
       }
     });
 
-    for each (let [i, provider] in Iterator(otherLangProviders)) {
+    for (let provider of otherLangProviders) {
       providerList.append(provider);
-    };
+    }
 
     if (otherLangProviders.length) {
       let otherLangDesc = document.getElementById("otherLangDesc");
@@ -732,7 +732,7 @@ var EmailAccountProvisioner = {
       return;
     }
 
-    for each (let [i, provider] in Iterator(returnedProviders)) {
+    for (let provider of returnedProviders) {
       let group = $("<div class='resultsGroup'></div>");
       let header = $("#resultsHeader")
                    .clone()
@@ -750,8 +750,9 @@ var EmailAccountProvisioner = {
       group.append(header);
 
       let renderedAddresses = 0;
-
-      for each (let [j, address] in Iterator(provider.addresses)) {
+      let addrIndex = 0;
+      for (let address of provider.addresses) {
+        addrIndex++;
         let tmplData = {
           address: address,
         };
@@ -765,11 +766,11 @@ var EmailAccountProvisioner = {
         //   so if the provider's price is > 0, use that.
         //   Or if the provider's price is 0, use "Free".
         if (address.price && address.price != "0")
-          tmplData.priceStr = stringBundle.get("price", [address.price])
+          tmplData.priceStr = stringBundle.get("price", [address.price]);
         else if (address.price && address.price == "0")
           tmplData.priceStr = stringBundle.get("free");
         else if (provider.price && provider.price != "0")
-          tmplData.priceStr = stringBundle.get("price", [provider.price])
+          tmplData.priceStr = stringBundle.get("price", [provider.price]);
         else
           tmplData.priceStr = stringBundle.get("free");
 
@@ -780,7 +781,7 @@ var EmailAccountProvisioner = {
           // "More" buttons, etc.
           renderedAddresses++;
 
-          if (j >= MAX_SMALL_ADDRESSES)
+          if (addrIndex >= MAX_SMALL_ADDRESSES)
             result.addClass("extra").hide();
 
         } catch(e) {
@@ -807,10 +808,10 @@ var EmailAccountProvisioner = {
     $("#notifications").children().hide();
     $("#notifications .success").show();
 
-    for each (let [i, provider] in Iterator(data)) {
-      delete provider.succeeded
-      delete provider.addresses
-      delete provider.price
+    for (let provider of data) {
+      delete provider.succeeded;
+      delete provider.addresses;
+      delete provider.price;
       storedData[provider.provider] = provider;
     }
   },
