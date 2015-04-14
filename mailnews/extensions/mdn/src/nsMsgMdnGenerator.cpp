@@ -1086,7 +1086,7 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI *url,
         break;
       case NS_ERROR_CONNECTION_REFUSED:
       case NS_ERROR_PROXY_CONNECTION_REFUSED:
-        exitString = MOZ_UTF16("smtpSendRefused");
+        exitString = MOZ_UTF16("smtpSendRequestRefused");
         break;
       case NS_ERROR_NET_INTERRUPT:
         exitString = MOZ_UTF16("smtpSendInterrupted");

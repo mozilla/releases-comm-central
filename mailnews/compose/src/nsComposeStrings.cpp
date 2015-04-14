@@ -79,7 +79,7 @@ const char16_t* errorStringNameForErrorCode(nsresult aCode)
     case NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER:
       return MOZ_UTF16("smtpSendFailedUnknownServer");
     case NS_ERROR_SMTP_SEND_FAILED_REFUSED:
-      return MOZ_UTF16("smtpSendRefused");
+      return MOZ_UTF16("smtpSendRequestRefused");
     case NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED:
       return MOZ_UTF16("smtpSendInterrupted");
     case NS_ERROR_SMTP_SEND_FAILED_TIMEOUT:
