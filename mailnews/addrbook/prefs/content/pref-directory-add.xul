@@ -103,15 +103,15 @@
                <column/>
                <column flex="1"/>
              </columns>
-      
+
              <rows>
                <row align="center">
-                 <label value="&return.label;" 
-                       accesskey="&return.accesskey;"
-                       control="results"/>
+                 <label value="&return.label;"
+                        accesskey="&return.accesskey;"
+                        control="results"/>
                  <hbox align="center">
                    <textbox id="results" type="number" size="10" min="1"
-                            max="2147483647" hidespinbuttons="true"/>
+                            max="2147483647" increment="10"/>
                    <label value="&results.label;"/>
                  </hbox>
                </row>
@@ -125,12 +125,12 @@
                  </radiogroup>
                </row>
                <row>
-                 <label value="&searchFilter.label;" 
-                       accesskey="&searchFilter.accesskey;"
-                       control="search"/>
+                 <label value="&searchFilter.label;"
+                        accesskey="&searchFilter.accesskey;"
+                        control="search"/>
                  <textbox id="search" multiline="true" flex="1" disableiflocked="true"/>
               </row>
-              <row>
+              <row align="center">
                 <label value="&saslMechanism.label;" control="saslMechanism" accesskey="&saslMechanism.accesskey;"/>
                 <menulist id="saslMechanism">
                   <menupopup>
