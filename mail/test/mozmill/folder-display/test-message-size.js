@@ -1,3 +1,4 @@
+/* -*- Mode: Java; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -40,7 +41,7 @@ function _help_test_message_size(index, unit) {
   let curMessage = select_click_row(index);
   // Look at the size column's data
   let tree = mc.folderDisplay.tree;
-  let sizeCol = tree.columns[11];
+  let sizeCol = tree.columns.sizeCol;
   let sizeStr = tree.view.getCellText(index, sizeCol);
 
   // Note: this assumes that the numeric part of the size string is first
