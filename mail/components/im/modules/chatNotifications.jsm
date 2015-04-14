@@ -43,7 +43,8 @@ var Notifications = {
   _showMessageNotification: function(aMessage, aCounter = 0) {
     // We are about to show the notification, so let's play the notification sound.
     // We play the sound if the user is away from TB window or even away from chat tab.
-    if (Services.wm.getMostRecentWindow("mail:3pane").document
+    if (!Services.focus.activeWindow ||
+        Services.wm.getMostRecentWindow("mail:3pane").document
                 .getElementById("tabmail").currentTabInfo.mode.name != "chat")
       Services.obs.notifyObservers(aMessage, "play-chat-notification-sound", false);
 
