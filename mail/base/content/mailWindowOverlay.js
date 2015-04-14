@@ -79,6 +79,8 @@ function menu_new_init()
     SetMenuItemLabel("menu_newFolder", bundle.getString(
       (folder.isServer || isInbox) ? "newFolderMenuItem" : "newSubfolderMenuItem"));
   }
+
+  goUpdateCommand("cmd_newMessage");
 }
 
 function goUpdateMailMenuItems(commandset)

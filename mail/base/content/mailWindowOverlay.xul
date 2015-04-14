@@ -260,6 +260,7 @@
             commandupdater="true"
             events="mail-toolbar"
             oncommandupdate="goUpdateMailMenuItems(this)">
+  <command id="cmd_newMessage"/>
   <command id="button_reply"/>
   <command id="button_replyall"/>
   <command id="button_replylist"/>
