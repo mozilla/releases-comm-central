@@ -233,14 +233,6 @@ const nsICookiePermission  = Components.interfaces.nsICookiePermission;
 const nsICertificateDialogs = Components.interfaces.nsICertificateDialogs;
 const CERTIFICATEDIALOGS_CONTRACTID = "@mozilla.org/nsCertificateDialogs;1"
 
-// clipboard helper
-try {
-  const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper);
-}
-catch(e) {
-  // do nothing, later code will handle the error
-}
-
 // Interface for image loading content
 const nsIImageLoadingContent = Components.interfaces.nsIImageLoadingContent;
 
@@ -289,7 +281,6 @@ var onFinished = [ ];
 
 // These functions are called once when the Page Info window is closed.
 var onUnloadRegistry = [ ];
-
 
 /* Called when PageInfo window is loaded.  Arguments are:
  *  window.arguments[0] - (optional) an object consisting of
@@ -1369,12 +1360,11 @@ function getSelectedItems(linksMode)
 
 function doCopy(isLinkMode)
 {
-  if (!gClipboardHelper)
-    return;
-
   var text = getSelectedItems(isLinkMode);
 
-  gClipboardHelper.copyString(text.join("\n"), gDocument);
+  Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+            .getService(Components.interfaces.nsIClipboardHelper)
+            .copyString(text.join("\n"), gDocument);
 }
 
 function doSelectAll()
