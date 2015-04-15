@@ -522,13 +522,13 @@ function OpenBrowserWithMessageId(messageId)
 // accounts and open corresponding message if found
 function OpenMessageForMessageId(messageId)
 {
-  var startServer = msgWindow.openFolder.server;
+  var startServer = gDBView.msgFolder.server;
   var messageHeader;
 
   window.setCursor("wait");
 
   // first search in current folder for message id
-  var messageHeader = CheckForMessageIdInFolder(msgWindow.openFolder, messageId);
+  var messageHeader = CheckForMessageIdInFolder(gDBView.msgFolder, messageId);
 
   // if message id not found in current folder search in all folders
   if (!messageHeader)
