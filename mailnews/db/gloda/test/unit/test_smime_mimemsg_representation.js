@@ -6,64 +6,91 @@
  * Test that S/MIME messages are properly displayed and that the MimeMessage
  * representation is correct.
  */
-var MODULE_NAME = "test-display-smime";
+load("../../../../resources/logHelper.js");
+load("../../../../resources/asyncTestUtils.js");
 
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "message-helpers"];
+load("../../../../resources/messageGenerator.js");
+load("../../../../resources/messageModifier.js");
+load("../../../../resources/messageInjection.js");
 
-var folder;
+const msgGen = gMessageGenerator = new MessageGenerator();
 
-function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let mh = collector.getModule("message-helpers");
-  mh.installInto(module);
+Components.utils.import("resource:///modules/FileUtils.jsm");
+Components.utils.import("resource:///modules/gloda/mimemsg.js");
 
-  folder = create_folder("SMIME_A");
+function initNSS() {
+  // Copy the NSS database files over.
+  let profile = FileUtils.getDir("ProfD", []);
+  let files = ['cert8.db', 'key3.db', 'secmod.db'];
+  let directory = do_get_file("../../../../data/db-tinderbox-invalid");
+  for (let f of files) {
+    let keydb = directory.clone();
+    keydb.append(f);
+    keydb.copyTo(profile, f);
+  }
 
-  let msg = create_encrypted_smime_message({
+  // Ensure NSS is initialized.
+  Cc["@mozilla.org/psm;1"].getService(Ci.nsISupports);
+}
+
+var gInbox;
+function test_smime_mimemsg() {
+  let msg = msgGen.makeEncryptedSMimeMessage({
     from: ["Tinderbox", "tinderbox@foo.invalid"],
     to: [["Tinderbox", "tinderbox@foo.invalid"]],
     subject: "Albertine disparue (La Fugitive)",
     body: { body: encrypted_blurb },
   });
-  add_message_to_folder(folder, msg);
-}
+  let synSet = new SyntheticMessageSet([msg]);
+  yield add_sets_to_folder(gInbox, [synSet]);
 
-function test_smime_mimemsg() {
-  be_in_folder(folder);
-  let msgHdr = select_click_row(0);
+  let msgHdr = synSet.getMsgHdr(0);
 
   // Make sure by default, MimeMessages do not include encrypted parts
-  to_mime_message(msgHdr, null, function(aMsgHdr, aMimeMsg) {
+  MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
     // First make sure the MIME structure is as we expect it to be.
-    assert_equals(aMimeMsg.parts.length, 1);
+    do_check_eq(aMimeMsg.parts.length, 1);
     // Then, make sure the MimeUnknown part there has the encrypted flag
-    assert_true(aMimeMsg.parts[0].isEncrypted);
+    do_check_true(aMimeMsg.parts[0].isEncrypted);
     // And that we can't "see through" the MimeUnknown container
-    assert_equals(aMimeMsg.parts[0].parts.length, 0);
+    do_check_eq(aMimeMsg.parts[0].parts.length, 0);
     // Make sure we can't see the attachment
-    assert_equals(aMimeMsg.allUserAttachments.length, 0);
+    do_check_eq(aMimeMsg.allUserAttachments.length, 0);
+    async_driver();
   }, true, {
   });
 
+  yield false;
+
   // Now what about we specifically ask to "see" the encrypted parts?
-  to_mime_message(msgHdr, null, function(aMsgHdr, aMimeMsg) {
+  MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
     // First make sure the MIME structure is as we expect it to be.
-    assert_equals(aMimeMsg.parts.length, 1);
+    do_check_eq(aMimeMsg.parts.length, 1);
     // Then, make sure the MimeUnknown part there has the encrypted flag
-    assert_true(aMimeMsg.parts[0].isEncrypted);
+    do_check_true(aMimeMsg.parts[0].isEncrypted);
     // And that we can "see through" the MimeUnknown container
-    assert_equals(aMimeMsg.parts[0].parts.length, 1);
-    assert_equals(aMimeMsg.parts[0].parts[0].parts.length, 1);
-    assert_equals(aMimeMsg.parts[0].parts[0].parts[0].parts.length, 2);
+    do_check_eq(aMimeMsg.parts[0].parts.length, 1);
+    do_check_eq(aMimeMsg.parts[0].parts[0].parts.length, 1);
+    do_check_eq(aMimeMsg.parts[0].parts[0].parts[0].parts.length, 2);
     // Make sure we can see the attachment
-    assert_equals(aMimeMsg.allUserAttachments.length, 1);
-    assert_equals(aMimeMsg.allUserAttachments[0].contentType, "image/jpeg");
+    do_check_eq(aMimeMsg.allUserAttachments.length, 1);
+    do_check_eq(aMimeMsg.allUserAttachments[0].contentType, "image/jpeg");
+    async_driver();
     // Extra little bit of testing
   }, true, {
     examineEncryptedParts: true,
   });
+  yield false;
+}
+
+var tests = [
+  test_smime_mimemsg,
+];
+
+function run_test() {
+  initNSS();
+  gInbox = configure_message_injection({mode: "local"});
+  async_run_tests(tests);
 }
 
 var encrypted_blurb =
