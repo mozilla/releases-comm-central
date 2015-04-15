@@ -275,7 +275,8 @@ nsContextMenu.prototype = {
   },
 
   initSpellingItems: function() {
-    var canSpell = InlineSpellCheckerUI.canSpellCheck;
+    var canSpell = InlineSpellCheckerUI.canSpellCheck &&
+                   !InlineSpellCheckerUI.initialSpellCheckPending;
     var onMisspelling = InlineSpellCheckerUI.overMisspelling;
     var showUndo = InlineSpellCheckerUI.enabled &&
                    InlineSpellCheckerUI.canUndo();
@@ -471,8 +472,8 @@ nsContextMenu.prototype = {
         this.onTextInput           = true;
         this.possibleSpellChecking = true;
         InlineSpellCheckerUI.init(editingSession.getEditorForWindow(win));
-        var canSpell = InlineSpellCheckerUI.canSpellCheck;
         InlineSpellCheckerUI.initFromEvent(aRangeParent, aRangeOffset);
+        var canSpell = InlineSpellCheckerUI.canSpellCheck;
         this.showItem("spell-check-enabled", canSpell);
         this.showItem("spell-separator", canSpell);
         return;
