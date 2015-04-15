@@ -666,7 +666,9 @@ SuiteGlue.prototype = {
     var maxAge = 90 * 86400; // 90 days
     var now = Math.round(Date.now() / 1000);
     // If there was an automated update tried in the interval, don't worry.
-    var lastUpdateTime = Services.prefs.getIntPref("app.update.lastUpdateTime.background-update-timer");
+    const PREF_APP_UPDATE_LASTUPDATETIME = "app.update.lastUpdateTime.background-update-timer";
+    var lastUpdateTime = Services.prefs.prefHasUserValue(PREF_APP_UPDATE_LASTUPDATETIME) ?
+                         Services.prefs.getIntPref(PREF_APP_UPDATE_LASTUPDATETIME) : 0;
     if (lastUpdateTime + maxAge > now)
       return false;
 
