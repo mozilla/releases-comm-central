@@ -394,7 +394,7 @@ nsBrowserAccess.prototype = {
     }
   },
   isTabContentWindow: function isTabContentWindow(aWindow) {
-    return gBrowser.browsers.some(function (browser) browser.contentWindow == aWindow);
+    return gBrowser.browsers.some(browser => browser.contentWindow == aWindow);
   }
 }
 
@@ -1075,7 +1075,7 @@ const BrowserSearch = {
 
     // Check to see whether we've already added an engine with this title
     if (browser.engines) {
-      if (browser.engines.some(function (e) e.title == engine.title))
+      if (browser.engines.some(e => e.title == engine.title))
         return;
     }
 

@@ -1461,7 +1461,7 @@ function SidebarCleanUpExpandCollapse() {
   }
 
   setTimeout(Persist, 100, "sidebar-box", "collapsed");
-  setTimeout(function() sidebarObj.panels.refresh(), 100);
+  setTimeout(() => sidebarObj.panels.refresh(), 100);
 }
 
 function PersistHeight() {

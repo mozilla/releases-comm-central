@@ -99,8 +99,8 @@ var tasksCfg = [
    */
   // Open new tab
   {
-    get title()       _getString("taskbar.tasks.newTab.label"),
-    get description() _getString("taskbar.tasks.newTab.description"),
+    get title()       { return _getString("taskbar.tasks.newTab.label"); },
+    get description() { return _getString("taskbar.tasks.newTab.description"); },
     args:             "-new-tab about:blank",
     iconIndex:        0, // SeaMonkey app icon
     open:             true,
@@ -111,8 +111,8 @@ var tasksCfg = [
 
   // Open new window
   {
-    get title()       _getString("taskbar.tasks.newWindow.label"),
-    get description() _getString("taskbar.tasks.newWindow.description"),
+    get title()       { return _getString("taskbar.tasks.newWindow.label"); },
+    get description() { return _getString("taskbar.tasks.newWindow.description"); },
     args:             "-browser",
     iconIndex:        0, // SeaMonkey app icon
     open:             true,
@@ -122,8 +122,8 @@ var tasksCfg = [
 
   // Open private window
   {
-    get title()       _getString("taskbar.tasks.newPrivate.label"),
-    get description() _getString("taskbar.tasks.newPrivate.description"),
+    get title()       { return _getString("taskbar.tasks.newPrivate.label"); },
+    get description() { return _getString("taskbar.tasks.newPrivate.description"); },
     args:             "-private",
     iconIndex:        0, // SeaMonkey app icon
     open:             true,
@@ -133,8 +133,8 @@ var tasksCfg = [
 
   // Open mailnews
   {
-    get title()       _getString("taskbar.tasks.mailWindow.label"),
-    get description() _getString("taskbar.tasks.mailWindow.description"),
+    get title()       { return _getString("taskbar.tasks.mailWindow.label"); },
+    get description() { return _getString("taskbar.tasks.mailWindow.description"); },
     args:             "-mail",
     iconIndex:        0, // SeaMonkey app icon
     open:             true,
@@ -144,8 +144,8 @@ var tasksCfg = [
 
   // Compose Message
   {
-    get title()       _getString("taskbar.tasks.composeMessage.label"),
-    get description() _getString("taskbar.tasks.composeMessage.description"),
+    get title()       { return _getString("taskbar.tasks.composeMessage.label"); },
+    get description() { return _getString("taskbar.tasks.composeMessage.description"); },
     args:             "-compose",
     iconIndex:        0, // SeaMonkey app icon
     open:             true,
@@ -155,8 +155,8 @@ var tasksCfg = [
 
   // Address Book
   {
-    get title()       _getString("taskbar.tasks.openAddressBook.label"),
-    get description() _getString("taskbar.tasks.openAddressBook.description"),
+    get title()       { return _getString("taskbar.tasks.openAddressBook.label"); },
+    get description() { return _getString("taskbar.tasks.openAddressBook.description"); },
     args:             "-addressbook",
     iconIndex:        0, // SeaMonkey app icon
     open:             true,
@@ -166,8 +166,8 @@ var tasksCfg = [
 
   // Composer
   {
-    get title()       _getString("taskbar.tasks.openEditor.label"),
-    get description() _getString("taskbar.tasks.openEditor.description"),
+    get title()       { return _getString("taskbar.tasks.openEditor.label"); },
+    get description() { return _getString("taskbar.tasks.openEditor.description"); },
     args:             "-edit",
     iconIndex:        0, // SeaMonkey app icon
     open:             true,

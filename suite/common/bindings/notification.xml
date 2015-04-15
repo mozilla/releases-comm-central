@@ -1781,7 +1781,7 @@
 
             var buttons = [];
             var messageString;
-            if (installInfo.installs.some(function(install)
+            if (installInfo.installs.some(install =>
                   install.addon.pendingOperations &
                   tmp.AddonManager.PENDING_INSTALL)) {
               messageString = this._stringBundle.GetStringFromName("addonsInstalledNeedsRestart");
@@ -2991,7 +2991,7 @@
               };
             }
 
-            if (installInfo.installs.some(function(install)
+            if (installInfo.installs.some(install =>
                   install.addon.pendingOperations &
                   tmp.AddonManager.PENDING_INSTALL)) {
               messageString = this._stringBundle.GetStringFromName("addonsInstalledNeedsRestart");

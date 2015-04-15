@@ -46,7 +46,7 @@ let notificationsObserver = {
       return;
 
     getDistinctNotifications().forEach(
-      function (topic) Services.obs.removeObserver(notificationsObserver, topic)
+      topic => Services.obs.removeObserver(notificationsObserver, topic)
     );
 
     print("Looking for uncleared stuff.");
@@ -112,7 +112,7 @@ function run_test_continue()
 {
   print("Simulate and wait shutdown.");
   getDistinctNotifications().forEach(
-    function (topic)
+    topic =>
       Services.obs.addObserver(notificationsObserver, topic, false)
   );
 

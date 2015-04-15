@@ -64,7 +64,7 @@ function test()
   // Empty any old downloads
   dm.DBConnection.executeSimpleSQL("DELETE FROM moz_downloads");
 
-  var setClose = function(aVal)
+  var setClose = aVal =>
     Services.prefs.setBoolPref("browser.download.manager.closeWhenDone", aVal);
 
   // Close the UI if necessary

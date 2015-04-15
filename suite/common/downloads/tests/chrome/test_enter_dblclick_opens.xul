@@ -81,7 +81,7 @@ dlObs.prototype = {
 
       // Default test/check for invocations
       var invokeCount = 0;
-      var counter = function() invokeCount++;
+      var counter = () => invokeCount++;
 
       // Run tests
 

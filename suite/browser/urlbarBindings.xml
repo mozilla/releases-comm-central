@@ -250,7 +250,7 @@
                 val = uri.spec;
 
                 // Parentheses are known to confuse third-party applications (bug 458565).
-                val = val.replace(/[()]/g, function (c) escape(c));
+                val = val.replace(/[()]/g, c => escape(c));
               }
             }
 

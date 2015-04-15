@@ -464,7 +464,7 @@ DownloadTreeView.prototype = {
         this._dm.getDownloadByGUID(dl.guid, this);
 
     // Send a notification that we finished
-    setTimeout(function()
+    setTimeout(() =>
       Services.obs.notifyObservers(window, "download-manager-ui-done", null), 0);
   },
 

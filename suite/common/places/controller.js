@@ -1302,8 +1302,9 @@ PlacesController.prototype = {
    * @return true if there's a cached mozILivemarkInfo object for
    * aNode, false otherwise.
    */
-  hasCachedLivemarkInfo: function PC_hasCachedLivemarkInfo(aNode)
-    this._cachedLivemarkInfoObjects.has(aNode),
+  hasCachedLivemarkInfo: function PC_hasCachedLivemarkInfo(aNode) {
+    return this._cachedLivemarkInfoObjects.has(aNode);
+  },
 
   /**
    * Returns the cached livemark info for a node, if set by cacheLivemarkInfo,
@@ -1312,8 +1313,9 @@ PlacesController.prototype = {
    *        a places result node.
    * @return the mozILivemarkInfo object for aNode, if set, null otherwise.
    */
-  getCachedLivemarkInfo: function PC_getCachedLivemarkInfo(aNode)
-    this._cachedLivemarkInfoObjects.get(aNode, null)
+  getCachedLivemarkInfo: function PC_getCachedLivemarkInfo(aNode) {
+    return this._cachedLivemarkInfoObjects.get(aNode, null);
+  }
 };
 
 /**

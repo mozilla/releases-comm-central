@@ -1914,7 +1914,7 @@ SessionStoreService.prototype = {
           hasDefaultValue = hasDefaultValue && (oSelected == aOpt.defaultSelected);
           return oSelected ? aIx : -1;
         });
-        value = options.filter(function(aIx) aIx >= 0);
+        value = options.filter(aIx => aIx >= 0);
       }
       // In order to reduce XPath generation (which is slow), we only save data
       // for form fields that have been changed. (cf. bug 537289)
@@ -2919,8 +2919,9 @@ SessionStoreService.prototype = {
     }
 
     // always call this before injecting content into a document!
-    function hasExpectedURL(aDocument, aURL)
-      !aURL || aURL.replace(/#.*/, "") == aDocument.location.href.replace(/#.*/, "");
+    function hasExpectedURL(aDocument, aURL) {
+      return !aURL || aURL.replace(/#.*/, "") == aDocument.location.href.replace(/#.*/, "");
+    }
 
     function restoreFormData(aDocument, aData, aURL) {
       for (let key in aData) {

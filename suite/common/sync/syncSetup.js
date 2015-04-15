@@ -45,7 +45,9 @@ var gSyncSetup = {
     server: true
   },
 
-  get _remoteSites() [Weave.Service.serverURL, RECAPTCHA_DOMAIN],
+  get _remoteSites() {
+    return [Weave.Service.serverURL, RECAPTCHA_DOMAIN];
+  },
 
   get _usingMainServers() {
     if (this._settingUpNew)
@@ -73,7 +75,7 @@ var gSyncSetup = {
       });
     };
     addRem(true);
-    window.addEventListener("unload", function() addRem(false), false);
+    window.addEventListener("unload", () => addRem(false), false);
 
     setTimeout(function () {
       // Force Service to be loaded so that engines are registered.
@@ -771,9 +773,10 @@ var gSyncSetup = {
 
   _handleSuccess: function() {
     let self = this;
-    function fill(id, string)
+    function fill(id, string) {
       document.getElementById(id).textContent =
         string ? self._stringBundle.GetStringFromName(string) : "";
+    }
 
     fill("firstSyncAction", "");
     fill("firstSyncActionWarning", "");

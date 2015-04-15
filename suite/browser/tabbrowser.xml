@@ -2009,7 +2009,7 @@
         <getter>
           <![CDATA[
             return this._browsers ||
-                   (this._browsers = Array.map(this.tabs, function (tab) tab.linkedBrowser));
+                   (this._browsers = Array.map(this.tabs, tab => tab.linkedBrowser));
           ]]>
         </getter>
       </property>

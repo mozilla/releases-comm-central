@@ -115,7 +115,7 @@ ProfileMigrator.prototype = {
     // make sure to check it before any other browser, by moving it to the head
     // of the array.
     if (defaultBrowser)
-      migratorsOrdered.sort(function(a, b) b == defaultBrowser ? 1 : 0);
+      migratorsOrdered.sort((a, b) => b == defaultBrowser ? 1 : 0);
 #endif
     for (let key of migratorsOrdered) {
       let migrator = this._getMigratorIfSourceExists(key);

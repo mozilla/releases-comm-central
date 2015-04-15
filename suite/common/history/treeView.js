@@ -960,7 +960,9 @@ PlacesTreeView.prototype = {
     return false;
   },
 
-  getLevel: function(aRow) this._getNodeForRow(aRow).indentLevel,
+  getLevel: function(aRow) {
+    return this._getNodeForRow(aRow).indentLevel;
+  },
 
   getImageSrc: function PTV_getImageSrc(aRow, aColumn) {
     // Only the title column has an image.

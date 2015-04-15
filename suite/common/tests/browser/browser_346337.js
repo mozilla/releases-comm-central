@@ -51,7 +51,7 @@ function test() {
     else if (node instanceof Components.interfaces.nsIDOMHTMLInputElement && node.type == "file")
       node.mozSetFileNameArray(aValue, aValue.length);
     else
-      Array.forEach(node.options, function(aOpt, aIx)
+      Array.forEach(node.options, (aOpt, aIx) =>
                                     (aOpt.selected = aValue.indexOf(aIx) > -1));
   }
 
@@ -63,7 +63,7 @@ function test() {
       if (node.type == "file") {
         let fileNames = node.mozGetFileNameArray();
         return fileNames.length == aValue.length &&
-               Array.every(fileNames, function(aFile) aValue.indexOf(aFile) >= 0);
+               Array.every(fileNames, aFile => aValue.indexOf(aFile) >= 0);
       }
       return aValue == (node.type == "checkbox" || node.type == "radio" ?
                         node.checked : node.value);
@@ -72,7 +72,7 @@ function test() {
       return aValue == node.value;
     if (!node.multiple)
       return aValue == node.selectedIndex;
-    return Array.every(node.options, function(aOpt, aIx)
+    return Array.every(node.options, (aOpt, aIx) =>
                                        (aValue.indexOf(aIx) > -1) == aOpt.selected);
   }
 

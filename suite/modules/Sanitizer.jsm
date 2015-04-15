@@ -83,9 +83,13 @@ var Sanitizer = {
     this.items[aItemName].willClear = aWillClear;
   },
 
-  willClearItem: function(aItemName) this.items[aItemName].willClear,
+  willClearItem: function(aItemName) {
+    return this.items[aItemName].willClear;
+  },
 
-  canClearItem: function(aItemName) this.items[aItemName].canClear,
+  canClearItem: function(aItemName) {
+    return this.items[aItemName].canClear;
+  },
 
   // this is called on startup and shutdown, to perform pending sanitizations
   checkSettings: function() {

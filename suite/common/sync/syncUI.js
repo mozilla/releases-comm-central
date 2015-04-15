@@ -235,7 +235,7 @@ let gSyncUI = {
 
   // Commands
   doSync: function SUI_doSync() {
-    setTimeout(function() Weave.Service.errorHandler.syncAndReportErrors(), 0);
+    setTimeout(() => Weave.Service.errorHandler.syncAndReportErrors(), 0);
   },
 
   handleToolbarButton: function SUI_handleToolbarButton() {

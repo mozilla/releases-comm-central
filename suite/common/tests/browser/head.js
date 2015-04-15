@@ -37,7 +37,7 @@ function waitForBrowserState(aState, aSetStateCallback) {
   let listening = false;
   let windowObserving = false;
 
-  aState.windows.forEach(function(winState) expectedTabsRestored += winState.tabs.length);
+  aState.windows.forEach(winState => expectedTabsRestored += winState.tabs.length);
 
   function onSSTabRestored(aEvent) {
     if (++tabsRestored == expectedTabsRestored) {

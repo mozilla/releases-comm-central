@@ -25,7 +25,7 @@ function test() {
       newTab.linkedBrowser.addEventListener("load", function loadListener2(aEvent) {
         newTab.linkedBrowser.removeEventListener("load", loadListener2, true);
         let states = Array.map(newTab.linkedBrowser.contentDocument.styleSheets,
-                               function(aSS) !aSS.disabled);
+                               aSS => !aSS.disabled);
         let correct = states.indexOf(true) == aIx && states.indexOf(true, aIx + 1) == -1;
         
         if (/^fail_/.test(ssTitle))

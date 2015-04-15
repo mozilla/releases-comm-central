@@ -260,7 +260,7 @@ function test9a() {
 
   EventUtils.synthesizeMouseAtCenter(plugin1, {}, gTestBrowser.contentWindow);
   var objLoadingContent = plugin1.QueryInterface(Ci.nsIObjectLoadingContent);
-  var condition = function() objLoadingContent.activated;
+  var condition = () => objLoadingContent.activated;
   waitForCondition(condition, test9b, "Test 9a, Waited too long for plugin to activate");
 }
 
@@ -291,7 +291,7 @@ function test9b() {
 
   EventUtils.synthesizeMouseAtCenter(plugin2, {}, gTestBrowser.contentWindow);
   var objLoadingContent = plugin2.QueryInterface(Ci.nsIObjectLoadingContent);
-  var condition = function() objLoadingContent.activated;
+  var condition = () => objLoadingContent.activated;
   waitForCondition(condition, test9c, "Test 9b, Waited too long for plugin to activate");
 }
 
@@ -335,7 +335,7 @@ function test10a() {
   ok(!objLoadingContent.activated, "Test 10a, Plugin should not be activated");
 
   popupNotification.mainAction.callback();
-  var condition = function() objLoadingContent.activated;
+  var condition = () => objLoadingContent.activated;
   waitForCondition(condition, test10b, "Test 10a, Waited too long for plugin to activate");
 }
 
@@ -368,7 +368,7 @@ function test11b() {
 // Tests that the going back will reshow the notification for click-to-play plugins (part 3/4)
 function test11c() {
   Services.obs.removeObserver(test11c, "PopupNotifications-updateNotShowing", false);
-  var condition = function() PopupNotifications.getNotification("click-to-play-plugins", gTestBrowser);
+  var condition = () => PopupNotifications.getNotification("click-to-play-plugins", gTestBrowser);
   waitForCondition(condition, test11d, "Test 11c, waited too long for click-to-play-plugin notification");
 }
 
@@ -393,7 +393,7 @@ function test12a() {
 
   // Simulate clicking the "Allow Always" button.
   popupNotification.secondaryActions[0].callback();
-  var condition = function() objLoadingContent.activated;
+  var condition = () => objLoadingContent.activated;
   waitForCondition(condition, test12b, "Test 12a, Waited too long for plugin to activate");
 }
 
@@ -507,7 +507,7 @@ function test13d() {
   ok(overlay.style.visibility != "hidden", "Test 13d, Test plugin should have visible overlay");
   ok(!objLoadingContent.activated, "Test 13d, Second Test plugin (B) should not be activated");
 
-  var condition = function() objLoadingContent.activated;
+  var condition = () => objLoadingContent.activated;
   // "click" "Activate All Plugins"
   popupNotification.mainAction.callback();
   waitForCondition(condition, test13e, "Test 13d, Waited too long for plugin to activate");
@@ -566,7 +566,7 @@ function test16a() {
   var popupNotification = PopupNotifications.getNotification("click-to-play-plugins", gTestBrowser);
   ok(!popupNotification, "Test 16a, Should not have a click-to-play notification");
   var plugin = gTestBrowser.contentWindow.addPlugin();
-  var condition = function() PopupNotifications.getNotification("click-to-play-plugins", gTestBrowser);
+  var condition = () => PopupNotifications.getNotification("click-to-play-plugins", gTestBrowser);
   waitForCondition(condition, test16b, "Test 16a, Waited too long for click-to-play-plugin notification");
 }
 
@@ -578,7 +578,7 @@ function test16b() {
   var objLoadingContent = plugin.QueryInterface(Ci.nsIObjectLoadingContent);
   ok(!objLoadingContent.activated, "Test 16b, Plugin should not be activated");
   EventUtils.synthesizeMouseAtCenter(plugin, {}, gTestBrowser.contentWindow);
-  var condition = function() objLoadingContent.activated;
+  var condition = () => objLoadingContent.activated;
   waitForCondition(condition, test16c, "Test 16b, Waited too long for plugin to activate");
 }
 
@@ -590,7 +590,7 @@ function test16c() {
   var objLoadingContent = plugin.QueryInterface(Ci.nsIObjectLoadingContent);
   ok(objLoadingContent.activated, "Test 16c, Plugin should be activated");
   var plugin = gTestBrowser.contentWindow.addPlugin();
-  var condition = function() PopupNotifications.getNotification("click-to-play-plugins", gTestBrowser);
+  var condition = () => PopupNotifications.getNotification("click-to-play-plugins", gTestBrowser);
   waitForCondition(condition, test16d, "Test 16c, Waited too long for click-to-play-plugin notification");
 }
 
@@ -691,7 +691,7 @@ function test18c() {
 
   // check that click "Always allow" works with blocklisted plugins
   clickToPlayNotification.secondaryActions[0].callback();
-  var condition = function() objLoadingContent.activated;
+  var condition = () => objLoadingContent.activated;
   waitForCondition(condition, test18d, "Test 18d, Waited too long for plugin to activate");
 }
 
@@ -765,7 +765,7 @@ function test19a() {
 
   var icon = doc.getAnonymousElementByAttribute(plugin, "class", "icon");
   EventUtils.synthesizeMouseAtCenter(icon, {}, gTestBrowser.contentWindow);
-  var condition = function() objLoadingContent.activated;
+  var condition = () => objLoadingContent.activated;
   waitForCondition(condition, test19b, "Test 19a, Waited too long for plugin to activate");
 }
 
@@ -787,7 +787,7 @@ function test19c() {
 
   var text = doc.getAnonymousElementByAttribute(plugin, "class", "msg msgClickToPlay");
   EventUtils.synthesizeMouseAtCenter(text, {}, gTestBrowser.contentWindow);
-  var condition = function() objLoadingContent.activated;
+  var condition = () => objLoadingContent.activated;
   waitForCondition(condition, test19d, "Test 19c, Waited too long for plugin to activate");
 }
 
@@ -809,7 +809,7 @@ function test19e() {
   ok(!objLoadingContent.activated, "Test 19e, Plugin should not be activated");
 
   EventUtils.synthesizeMouse(plugin, 50, 50, {}, gTestBrowser.contentWindow);
-  var condition = function() objLoadingContent.activated;
+  var condition = () => objLoadingContent.activated;
   waitForCondition(condition, test19f, "Test 19e, Waited too long for plugin to activate");
 }
 
@@ -859,7 +859,7 @@ function test20b() {
   ok(!objLoadingContent.activated, "Test 20b, plugin should not be activated");
 
   EventUtils.synthesizeMouseAtCenter(plugin, {}, gTestBrowser.contentWindow);
-  var condition = function() objLoadingContent.activated;
+  var condition = () => objLoadingContent.activated;
   waitForCondition(condition, test20c, "Test 20b, Waited too long for plugin to activate");
 }
 
@@ -928,7 +928,7 @@ function test21b(type) {
   var doc = gTestBrowser.contentDocument;
   var plugin = doc.getElementById("test");
   var objLoadingContent = plugin.QueryInterface(Ci.nsIObjectLoadingContent);
-  var condition = function() objLoadingContent.activated;
+  var condition = () => objLoadingContent.activated;
   waitForCondition(condition, test21c, "Test 21b, Waited too long for plugin to activate");
 }
 
@@ -991,7 +991,7 @@ function test21d(type) {
   var doc = gTestBrowser.contentDocument;
   var plugin = doc.getElementById("secondtestA");
   var objLoadingContent = plugin.QueryInterface(Ci.nsIObjectLoadingContent);
-  var condition = function() objLoadingContent.activated;
+  var condition = () => objLoadingContent.activated;
   waitForCondition(condition, test21e, "Test 21d, Waited too long for plugin to activate");
 }
 

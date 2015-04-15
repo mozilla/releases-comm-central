@@ -1338,72 +1338,92 @@ XPCOMUtils.defineLazyGetter(PlacesUIUtils, "ptm", function() {
   PlacesUtils;
 
   return {
-    aggregateTransactions: function(aName, aTransactions)
-      new PlacesAggregatedTransaction(aName, aTransactions),
+    aggregateTransactions: function(aName, aTransactions) {
+      return new PlacesAggregatedTransaction(aName, aTransactions);
+    },
 
     createFolder: function(aName, aContainer, aIndex, aAnnotations,
-                           aChildItemsTransactions)
-      new PlacesCreateFolderTransaction(aName, aContainer, aIndex, aAnnotations,
-                                        aChildItemsTransactions),
+                           aChildItemsTransactions) {
+      return new PlacesCreateFolderTransaction(aName, aContainer, aIndex, aAnnotations,
+                                               aChildItemsTransactions);
+    },
 
     createItem: function(aURI, aContainer, aIndex, aTitle, aKeyword,
-                         aAnnotations, aChildTransactions)
-      new PlacesCreateBookmarkTransaction(aURI, aContainer, aIndex, aTitle,
-                                          aKeyword, aAnnotations,
-                                          aChildTransactions),
+                         aAnnotations, aChildTransactions) {
+      return new PlacesCreateBookmarkTransaction(aURI, aContainer, aIndex, aTitle,
+                                                 aKeyword, aAnnotations,
+                                                 aChildTransactions);
+    },
 
-    createSeparator: function(aContainer, aIndex)
-      new PlacesCreateSeparatorTransaction(aContainer, aIndex),
+    createSeparator: function(aContainer, aIndex) {
+      return new PlacesCreateSeparatorTransaction(aContainer, aIndex);
+    },
 
     createLivemark: function(aFeedURI, aSiteURI, aName, aContainer, aIndex,
-                             aAnnotations)
-      new PlacesCreateLivemarkTransaction(aFeedURI, aSiteURI, aName, aContainer,
-                                          aIndex, aAnnotations),
+                             aAnnotations) {
+      return new PlacesCreateLivemarkTransaction(aFeedURI, aSiteURI, aName, aContainer,
+                                                 aIndex, aAnnotations);
+    },
 
-    moveItem: function(aItemId, aNewContainer, aNewIndex)
-      new PlacesMoveItemTransaction(aItemId, aNewContainer, aNewIndex),
+    moveItem: function(aItemId, aNewContainer, aNewIndex) {
+      return new PlacesMoveItemTransaction(aItemId, aNewContainer, aNewIndex);
+    },
 
-    removeItem: function(aItemId)
-      new PlacesRemoveItemTransaction(aItemId),
+    removeItem: function(aItemId) {
+      return new PlacesRemoveItemTransaction(aItemId);
+    },
 
-    editItemTitle: function(aItemId, aNewTitle)
-      new PlacesEditItemTitleTransaction(aItemId, aNewTitle),
+    editItemTitle: function(aItemId, aNewTitle) {
+      return new PlacesEditItemTitleTransaction(aItemId, aNewTitle);
+    },
 
-    editBookmarkURI: function(aItemId, aNewURI)
-      new PlacesEditBookmarkURITransaction(aItemId, aNewURI),
+    editBookmarkURI: function(aItemId, aNewURI) {
+      return new PlacesEditBookmarkURITransaction(aItemId, aNewURI);
+    },
 
-    setItemAnnotation: function(aItemId, aAnnotationObject)
-      new PlacesSetItemAnnotationTransaction(aItemId, aAnnotationObject),
+    setItemAnnotation: function(aItemId, aAnnotationObject) {
+      return new PlacesSetItemAnnotationTransaction(aItemId, aAnnotationObject);
+    },
 
-    setPageAnnotation: function(aURI, aAnnotationObject)
-      new PlacesSetPageAnnotationTransaction(aURI, aAnnotationObject),
+    setPageAnnotation: function(aURI, aAnnotationObject) {
+      return new PlacesSetPageAnnotationTransaction(aURI, aAnnotationObject);
+    },
 
-    editBookmarkKeyword: function(aItemId, aNewKeyword)
-      new PlacesEditBookmarkKeywordTransaction(aItemId, aNewKeyword),
+    editBookmarkKeyword: function(aItemId, aNewKeyword) {
+      return new PlacesEditBookmarkKeywordTransaction(aItemId, aNewKeyword);
+    },
 
-    editBookmarkPostData: function(aItemId, aPostData)
-      new PlacesEditBookmarkPostDataTransaction(aItemId, aPostData),
+    editBookmarkPostData: function(aItemId, aPostData) {
+      return new PlacesEditBookmarkPostDataTransaction(aItemId, aPostData);
+    },
 
-    editLivemarkSiteURI: function(aLivemarkId, aSiteURI)
-      new PlacesEditLivemarkSiteURITransaction(aLivemarkId, aSiteURI),
+    editLivemarkSiteURI: function(aLivemarkId, aSiteURI) {
+      return new PlacesEditLivemarkSiteURITransaction(aLivemarkId, aSiteURI);
+    },
 
-    editLivemarkFeedURI: function(aLivemarkId, aFeedURI)
-      new PlacesEditLivemarkFeedURITransaction(aLivemarkId, aFeedURI),
+    editLivemarkFeedURI: function(aLivemarkId, aFeedURI) {
+      return new PlacesEditLivemarkFeedURITransaction(aLivemarkId, aFeedURI);
+    },
 
-    editItemDateAdded: function(aItemId, aNewDateAdded)
-      new PlacesEditItemDateAddedTransaction(aItemId, aNewDateAdded),
+    editItemDateAdded: function(aItemId, aNewDateAdded) {
+      return new PlacesEditItemDateAddedTransaction(aItemId, aNewDateAdded);
+    },
 
-    editItemLastModified: function(aItemId, aNewLastModified)
-      new PlacesEditItemLastModifiedTransaction(aItemId, aNewLastModified),
+    editItemLastModified: function(aItemId, aNewLastModified) {
+      return new PlacesEditItemLastModifiedTransaction(aItemId, aNewLastModified);
+    },
 
-    sortFolderByName: function(aFolderId)
-      new PlacesSortFolderByNameTransaction(aFolderId),
+    sortFolderByName: function(aFolderId) {
+      return new PlacesSortFolderByNameTransaction(aFolderId);
+    },
 
-    tagURI: function(aURI, aTags)
-      new PlacesTagURITransaction(aURI, aTags),
+    tagURI: function(aURI, aTags) {
+      return new PlacesTagURITransaction(aURI, aTags);
+    },
 
-    untagURI: function(aURI, aTags)
-      new PlacesUntagURITransaction(aURI, aTags),
+    untagURI: function(aURI, aTags) {
+      return new PlacesUntagURITransaction(aURI, aTags);
+    },
 
    /**
     * Transaction for editing the description of a bookmark or a folder.
@@ -1427,50 +1447,66 @@ XPCOMUtils.defineLazyGetter(PlacesUIUtils, "ptm", function() {
     ////////////////////////////////////////////////////////////////////////////
     //// nsITransactionManager forwarders.
 
-    beginBatch: function()
-      PlacesUtils.transactionManager.beginBatch(null),
+    beginBatch: function() {
+      PlacesUtils.transactionManager.beginBatch(null);
+    },
 
-    endBatch: function()
-      PlacesUtils.transactionManager.endBatch(false),
+    endBatch: function() {
+      PlacesUtils.transactionManager.endBatch(false);
+    },
 
-    doTransaction: function(txn)
-      PlacesUtils.transactionManager.doTransaction(txn),
+    doTransaction: function(txn) {
+      PlacesUtils.transactionManager.doTransaction(txn);
+    },
 
-    undoTransaction: function()
-      PlacesUtils.transactionManager.undoTransaction(),
+    undoTransaction: function() {
+      PlacesUtils.transactionManager.undoTransaction();
+    },
 
-    redoTransaction: function()
-      PlacesUtils.transactionManager.redoTransaction(),
+    redoTransaction: function() {
+      PlacesUtils.transactionManager.redoTransaction();
+    },
 
-    get numberOfUndoItems()
-      PlacesUtils.transactionManager.numberOfUndoItems,
-    get numberOfRedoItems()
-      PlacesUtils.transactionManager.numberOfRedoItems,
-    get maxTransactionCount()
-      PlacesUtils.transactionManager.maxTransactionCount,
-    set maxTransactionCount(val)
-      PlacesUtils.transactionManager.maxTransactionCount = val,
+    get numberOfUndoItems() {
+      return PlacesUtils.transactionManager.numberOfUndoItems;
+    },
+    get numberOfRedoItems() {
+      return PlacesUtils.transactionManager.numberOfRedoItems;
+    },
+    get maxTransactionCount() {
+      return PlacesUtils.transactionManager.maxTransactionCount;
+    },
+    set maxTransactionCount(val) {
+      return PlacesUtils.transactionManager.maxTransactionCount = val;
+    },
 
-    clear: function()
-      PlacesUtils.transactionManager.clear(),
+    clear: function() {
+      PlacesUtils.transactionManager.clear();
+    },
 
-    peekUndoStack: function()
-      PlacesUtils.transactionManager.peekUndoStack(),
+    peekUndoStack: function() {
+      return PlacesUtils.transactionManager.peekUndoStack();
+    },
 
-    peekRedoStack: function()
-      PlacesUtils.transactionManager.peekRedoStack(),
+    peekRedoStack: function() {
+      return PlacesUtils.transactionManager.peekRedoStack();
+    },
 
-    getUndoStack: function()
-      PlacesUtils.transactionManager.getUndoStack(),
+    getUndoStack: function() {
+      return PlacesUtils.transactionManager.getUndoStack();
+    },
 
-    getRedoStack: function()
-      PlacesUtils.transactionManager.getRedoStack(),
+    getRedoStack: function() {
+      return PlacesUtils.transactionManager.getRedoStack();
+    },
 
-    AddListener: function(aListener)
-      PlacesUtils.transactionManager.AddListener(aListener),
+    AddListener: function(aListener) {
+      PlacesUtils.transactionManager.AddListener(aListener);
+    },
 
-    RemoveListener: function(aListener)
-      PlacesUtils.transactionManager.RemoveListener(aListener)
+    RemoveListener: function(aListener) {
+      PlacesUtils.transactionManager.RemoveListener(aListener);
+    }
   }
 });
 

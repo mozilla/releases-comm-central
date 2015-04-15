@@ -84,11 +84,11 @@ function test()
 
     // Default test/check for invocations
     var invokeCount = 0;
-    var counter = function() invokeCount++;
+    var counter = () => invokeCount++;
 
     // Accessors for returning a value for various properties
-    var getItems = function() downloadView.rowCount;
-    var getSelected = function() downloadView.selection.count;
+    var getItems = () => downloadView.rowCount;
+    var getSelected = () => downloadView.selection.count;
     var getClipboard = function() {
       var clip = Components.classes["@mozilla.org/widget/clipboard;1"]
                            .getService(Components.interfaces.nsIClipboard);

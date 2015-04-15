@@ -18,7 +18,7 @@
   <binding id="extdescription" extends="chrome://global/content/bindings/listbox.xml#listbox-base">
     <implementation>
       <constructor><![CDATA[
-          this.children.filter(function(aChild) aChild.getAttribute("selected") == "true")
+          this.children.filter(aChild => aChild.getAttribute("selected") == "true")
                        .forEach(this.selectedItems.push, this.selectedItems);
       ]]></constructor>
 

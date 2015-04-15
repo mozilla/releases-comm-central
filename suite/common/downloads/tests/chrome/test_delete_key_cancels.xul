@@ -81,7 +81,7 @@ dlObs.prototype = {
     if (aDownload.state == Components.interfaces.nsIDownloadManager.DOWNLOAD_DOWNLOADING &&
         !this.wasPaused) {
       // Make a copy of the cancelDownload function and replace it with a test
-      var counter = function() invokeCount++;
+      var counter = () => invokeCount++;
       [cancelDownload, this.mWin["cancelDownload"]] = [this.mWin["cancelDownload"], counter];
 
       synthesizeKey("VK_DELETE", {}, this.mWin);

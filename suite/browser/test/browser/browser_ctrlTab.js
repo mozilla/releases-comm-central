@@ -133,14 +133,17 @@ function test() {
 
   /* private utility functions */
 
-  function pressCtrlTab(aShiftKey)
+  function pressCtrlTab(aShiftKey) {
     EventUtils.synthesizeKey("VK_TAB", { ctrlKey: true, shiftKey: !!aShiftKey });
+  }
 
-  function releaseCtrl()
+  function releaseCtrl() {
     EventUtils.synthesizeKey("VK_CONTROL", { type: "keyup" });
+  }
 
-  function isOpen()
-    ctrlTab.panel.state == "showing" || ctrlTab.panel.state == "open";
+  function isOpen() {
+    return ctrlTab.panel.state == "showing" || ctrlTab.panel.state == "open";
+  }
 
   function assertTabs(aTabs) {
     var tabs = gBrowser.tabs.length;

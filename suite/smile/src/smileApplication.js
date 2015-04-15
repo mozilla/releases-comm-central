@@ -17,13 +17,13 @@ var Utilities = {
     let bookmarks =
       Components.classes["@mozilla.org/browser/nav-bookmarks-service;1"]
                 .getService(Components.interfaces.nsINavBookmarksService);
-    this.__defineGetter__("bookmarks", function() bookmarks);
+    this.__defineGetter__("bookmarks", () => bookmarks);
     return this.bookmarks;
   },
 
   get bookmarksObserver() {
     let bookmarksObserver = new BookmarksObserver();
-    this.__defineGetter__("bookmarksObserver", function() bookmarksObserver);
+    this.__defineGetter__("bookmarksObserver", () => bookmarksObserver);
     return this.bookmarksObserver;
   },
 
@@ -31,7 +31,7 @@ var Utilities = {
     let annotations =
       Components.classes["@mozilla.org/browser/annotation-service;1"]
                 .getService(Components.interfaces.nsIAnnotationService);
-    this.__defineGetter__("annotations", function() annotations);
+    this.__defineGetter__("annotations", () => annotations);
     return this.annotations;
   },
 
@@ -39,7 +39,7 @@ var Utilities = {
     let history =
       Components.classes["@mozilla.org/browser/nav-history-service;1"]
                 .getService(Components.interfaces.nsINavHistoryService);
-    this.__defineGetter__("history", function() history);
+    this.__defineGetter__("history", () => history);
     return this.history;
   },
 
@@ -47,7 +47,7 @@ var Utilities = {
     let windowMediator =
       Components.classes["@mozilla.org/appshell/window-mediator;1"]
                 .getService(Components.interfaces.nsIWindowMediator);
-    this.__defineGetter__("windowMediator", function() windowMediator);
+    this.__defineGetter__("windowMediator", () => windowMediator);
     return this.windowMediator;
   },
 
@@ -776,7 +776,7 @@ Application.prototype = {
 
   get bookmarks() {
     let bookmarks = new BookmarkRoots();
-    this.__defineGetter__("bookmarks", function() bookmarks);
+    this.__defineGetter__("bookmarks", () => bookmarks);
     return this.bookmarks;
   },
 

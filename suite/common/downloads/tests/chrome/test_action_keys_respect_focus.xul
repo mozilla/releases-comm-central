@@ -71,11 +71,11 @@ function getCounter(aFn)
 {
   switch (aFn) {
     case "openDownload":
-      return function() openInvokeCount++;
+      return () => openInvokeCount++;
     case "removeDownload":
-      return function() removeInvokeCount++;
+      return () => removeInvokeCount++;
     case "resumeDownload":
-      return function() resumeInvokeCount++;
+      return () => resumeInvokeCount++;
   }
 }
 

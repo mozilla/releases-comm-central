@@ -271,7 +271,7 @@ function EngineStore() {
   this._ops = [];
 
   // check if we need to disable the restore defaults button
-  var someHidden = this._defaultEngines.some(function (e) e.hidden);
+  var someHidden = this._defaultEngines.some(e => e.hidden);
   gEngineManagerDialog.showRestoreDefaults(someHidden);
 }
 EngineStore.prototype = {
