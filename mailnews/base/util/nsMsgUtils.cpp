@@ -374,6 +374,8 @@ static bool ConvertibleToNative(const nsAutoString& str)
 
 nsresult NS_MsgHashIfNecessary(nsAutoCString &name)
 {
+  if (name.IsEmpty())
+    return NS_OK; // Nothing to do.
   nsAutoCString str(name);
 
   // Given a filename, make it safe for filesystem
@@ -432,6 +434,8 @@ nsresult NS_MsgHashIfNecessary(nsAutoCString &name)
 // because MAX_LEN is defined rather conservatively in the first place.
 nsresult NS_MsgHashIfNecessary(nsAutoString &name)
 {
+  if (name.IsEmpty())
+    return NS_OK; // Nothing to do.
   int32_t illegalCharacterIndex = MsgFindCharInSet(name,
                                                    FILE_PATH_SEPARATOR
                                                    FILE_ILLEGAL_CHARACTERS
