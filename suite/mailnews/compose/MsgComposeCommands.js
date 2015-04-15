@@ -362,6 +362,7 @@ var defaultController =
       case "cmd_sendWithCheck":
       case "cmd_sendLater":
       case "cmd_printSetup":
+      case "cmd_printpreview":
       case "cmd_print":
 
       //Edit Menu
@@ -395,6 +396,7 @@ var defaultController =
       case "cmd_sendButton":
       case "cmd_sendLater":
       case "cmd_printSetup":
+      case "cmd_printpreview":
       case "cmd_print":
       case "cmd_sendWithCheck":
         return !gWindowLocked;
@@ -444,9 +446,10 @@ var defaultController =
         }
         break;
       case "cmd_sendNow"            : if (defaultController.isCommandEnabled(command)) SendMessage();          break;
-      case "cmd_sendWithCheck"   : if (defaultController.isCommandEnabled(command)) SendMessageWithCheck();          break;
+      case "cmd_sendWithCheck"      : if (defaultController.isCommandEnabled(command)) SendMessageWithCheck(); break;
       case "cmd_sendLater"          : if (defaultController.isCommandEnabled(command)) SendMessageLater();     break;
       case "cmd_printSetup"         : PrintUtils.showPageSetup(); break;
+      case "cmd_printpreview"       : PrintUtils.printPreview(PrintPreviewListener); break;
       case "cmd_print"              : PrintUtils.print(); break;
 
       //Edit Menu
@@ -733,6 +736,86 @@ function DoCommandClose()
 function DoCommandPreferences()
 {
   goPreferences('composing_messages_pane');
+}
+
+function toggleAffectedChrome(aHide)
+{
+  // chrome to toggle includes:
+  //   (*) menubar
+  //   (*) toolbox
+  //   (*) sidebar
+  //   (*) statusbar
+
+  if (!gChromeState)
+    gChromeState = {};
+
+  var statusbar = document.getElementById("status-bar");
+
+  // sidebar states map as follows:
+  //   hidden    => hide/show nothing
+  //   collapsed => hide/show only the splitter
+  //   shown     => hide/show the splitter and the box
+  if (aHide)
+  {
+    // going into print preview mode
+    gChromeState.sidebar = SidebarGetState();
+    SidebarSetState("hidden");
+
+    // deal with the Status Bar
+    gChromeState.statusbarWasHidden = statusbar.hidden;
+    statusbar.hidden = true;
+  }
+  else
+  {
+    // restoring normal mode (i.e., leaving print preview mode)
+    SidebarSetState(gChromeState.sidebar);
+
+    // restore the Status Bar
+    statusbar.hidden = gChromeState.statusbarWasHidden;
+  }
+
+  // if we are unhiding and sidebar used to be there rebuild it
+  if (!aHide && gChromeState.sidebar == "visible")
+    SidebarRebuild();
+
+  getMailToolbox().hidden = aHide;
+  document.getElementById("appcontent").collapsed = aHide;
+}
+
+var PrintPreviewListener = {
+  getPrintPreviewBrowser()
+  {
+    var browser = document.getElementById("ppBrowser");
+    if (!browser)
+    {
+      browser = document.createElement("browser");
+      browser.setAttribute("id", "ppBrowser");
+      browser.setAttribute("flex", "1");
+      browser.setAttribute("disablehistory", "true");
+      browser.setAttribute("disablesecurity", "true");
+      browser.setAttribute("type", "content");
+      document.getElementById("sidebar-parent")
+              .insertBefore(browser, document.getElementById("appcontent"));
+    }
+    return browser;
+  },
+  getSourceBrowser()
+  {
+    return GetCurrentEditorElement();
+  },
+  getNavToolbox()
+  {
+    return getMailToolbox();
+  },
+  onEnter()
+  {
+    toggleAffectedChrome(true);
+  },
+  onExit()
+  {
+    document.getElementById("ppBrowser").collapsed = true;
+    toggleAffectedChrome(false);
+  }
 }
 
 function ToggleWindowLock()

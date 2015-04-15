@@ -39,8 +39,6 @@
              oncommand="goDoCommand('cmd_open');"/>
     <command id="cmd_openRemote"
              oncommand="goDoCommand('cmd_openRemote');"/>
-    <command id="cmd_printpreview"
-             oncommand="goDoCommand('cmd_printpreview');"/>
   </commandset>
 
   <commandset id="composerSaveMenuItems"

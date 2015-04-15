@@ -118,8 +118,9 @@
           commandupdater="true"
           events="create"
           oncommandupdate="goUpdateComposerMenuItems(this)">
-    <command id="cmd_printSetup"   oncommand="goDoCommand('cmd_printSetup')"/>
-    <command id="cmd_print"        oncommand="goDoCommand('cmd_print')"/>
+    <command id="cmd_printSetup"   oncommand="goDoCommand('cmd_printSetup');"/>
+    <command id="cmd_printpreview" oncommand="goDoCommand('cmd_printpreview');"/>
+    <command id="cmd_print"        oncommand="goDoCommand('cmd_print');"/>
     <command id="cmd_close"        oncommand="goDoCommand('cmd_close');"/>
   </commandset>
 
