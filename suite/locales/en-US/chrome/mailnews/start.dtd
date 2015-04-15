@@ -29,6 +29,6 @@ client, supporting advanced junk mail detection and other useful features.">
 <!ENTITY info.title "More Information">
 <!--# LOCALIZATION NOTE (info_bugs.label): the URL for <a id="releaseNotesURL"> is fetched from brand.properties -->
 <!ENTITY info_bugs.label
-'<a href="http://www.mozilla.org/mailnews/">We</a> welcome bug reports and feature
+'<a href="https://developer.mozilla.org/docs/Mozilla/Projects/MailNews">We</a> welcome bug reports and feature
 requests, but please read the <a id="releaseNotesURL" href="">release notes</a> and query
 <a href="https://bugzilla.mozilla.org/query.cgi">Bugzilla</a> first.'>
