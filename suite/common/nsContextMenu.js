@@ -775,6 +775,10 @@ nsContextMenu.prototype = {
                              this.target.ownerDocument);
   },
 
+  printFrame: function() {
+    PrintUtils.print(this.target.ownerDocument.defaultView);
+  },
+
   // Open clicked-in frame in the same window
   showOnlyThisFrame: function() {
     openTopWin( this.target.ownerDocument.location.href, this.target.ownerDocument.defaultView );
