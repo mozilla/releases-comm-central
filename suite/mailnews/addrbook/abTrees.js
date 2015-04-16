@@ -7,6 +7,8 @@
  * depends on jsTreeView.js being loaded before this script is loaded.
  */
 
+Components.utils.import("resource:///modules/IOUtils.js");
+
 /**
  * Each abDirTreeItem corresponds to one row in the tree view.
  */
@@ -90,24 +92,8 @@ directoryTreeView.prototype =
   {
     if (aJSONFile) {
       // Parse our persistent-open-state json file
-      let file = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
-      file.append(aJSONFile);
-
-      if (file.exists())
-      {
-        let data = "";
-        let fstream = Components.classes["@mozilla.org/network/file-input-stream;1"]
-                                .createInstance(Components.interfaces.nsIFileInputStream);
-        let sstream = Components.classes["@mozilla.org/scriptableinputstream;1"]
-                                .createInstance(Components.interfaces.nsIScriptableInputStream);
-        fstream.init(file, -1, 0, 0);
-        sstream.init(fstream);
-
-        while (sstream.available())
-          data += sstream.read(4096);
-
-        sstream.close();
-        fstream.close();
+      let data = IOUtils.loadFileToString(aJSONFile);
+      if (data) {
         this._persistOpenMap = JSON.parse(data);
       }
     }
@@ -123,14 +109,7 @@ directoryTreeView.prototype =
     {
       // Write out our json file...
       let data = JSON.stringify(this._persistOpenMap);
-      let file = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
-      file.append(aJSONFile);
-      let foStream = Components.classes["@mozilla.org/network/safe-file-output-stream;1"]
-                               .createInstance(Components.interfaces.nsIFileOutputStream);
-      foStream.init(file, 0x02 | 0x08 | 0x20, parseInt("0666", 8), 0);
-      foStream.write(data, data.length);
-      foStream.QueryInterface(Components.interfaces.nsISafeOutputStream).finish();
-      foStream.close();
+      IOUtils.saveStringToFile(aJSONFile, data);
     }
   },
 

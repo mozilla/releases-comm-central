@@ -9,6 +9,7 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
+Components.utils.import("resource:///modules/IOUtils.js");
 
 // Tree Sort helper methods.
 const AB_ORDER = ["aab", "pab", "mork", "ldap", "mapi+other", "anyab", "cab"];
@@ -145,37 +146,14 @@ function directoryTreeView() {}
 directoryTreeView.prototype = {
   __proto__: new PROTO_TREE_VIEW(),
 
-  PERMS_FILE: parseInt("0644", 8),
-
   hasRemoteAB: false,
 
   init: function dtv_init(aTree, aJSONFile) {
-
-    const Cc = Components.classes;
-    const Ci = Components.interfaces;
-
     if (aJSONFile) {
       // Parse our persistent-open-state json file
-      let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
-      file.append(aJSONFile);
-
-      if (file.exists()) {
-        let data = "";
-        let fstream = Cc["@mozilla.org/network/file-input-stream;1"]
-                         .createInstance(Ci.nsIFileInputStream);
-        let sstream = Cc["@mozilla.org/scriptableinputstream;1"]
-                         .createInstance(Ci.nsIScriptableInputStream);
-        fstream.init(file, -1, 0, 0);
-        sstream.init(fstream);
-
-        while (sstream.available()) {
-          data += sstream.read(4096);
-        }
-
-        sstream.close();
-        fstream.close();
+      let data = IOUtils.loadFileToString(aJSONFile);
+      if (data)
         this._persistOpenMap = JSON.parse(data);
-      }
     }
 
     this._rebuild();
@@ -183,22 +161,11 @@ directoryTreeView.prototype = {
   },
 
   shutdown: function dtv_shutdown(aJSONFile) {
-    const Cc = Components.classes;
-    const Ci = Components.interfaces;
-
     // Write out the persistOpenMap to our JSON file
     if (aJSONFile) {
       // Write out our json file...
       let data = JSON.stringify(this._persistOpenMap);
-      let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
-      file.append(aJSONFile);
-      let foStream = Cc["@mozilla.org/network/safe-file-output-stream;1"]
-                    .createInstance(Ci.nsIFileOutputStream);
-
-      foStream.init(file, 0x02 | 0x08 | 0x20, PERMS_FILE, 0);
-      foStream.write(data, data.length);
-      foStream.QueryInterface(Ci.nsISafeOutputStream).finish();
-      foStream.close();
+      IOUtils.saveStringToFile(aJSONFile, data);
     }
   },
 
@@ -230,9 +197,6 @@ directoryTreeView.prototype = {
   _rebuild: function dtv__rebuild() {
     var oldCount = this._rowMap.length;
     this._rowMap = [];
-
-    const Cc = Components.classes;
-    const Ci = Components.interfaces;
 
     var dirEnum = MailServices.ab.directories;
 

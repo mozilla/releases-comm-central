@@ -6,6 +6,7 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
+Components.utils.import("resource:///modules/IOUtils.js");
 
 var gDirTree;
 var abList = 0;
@@ -27,7 +28,6 @@ const kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";
 // blank.
 let defaultPhotoURI = "";
 
-const PERMS_FILE = parseInt("0644", 8);
 const PERMS_DIRECTORY = parseInt("0755", 8);
 
 // Controller object for Dir Pane
@@ -779,41 +779,6 @@ function getPhotoURI(aPhotoName) {
 }
 
 /**
- * Saves the given input stream to a file.
- *
- * @param aIStream The input stream to save.
- * @param aFile    The file to which the stream is saved.
- */
-function saveStreamToFile(aIStream, aFile) {
-  if (!(aIStream instanceof Components.interfaces.nsIInputStream))
-    throw "Invalid stream passed to saveStreamToFile";
-  if (!(aFile instanceof Components.interfaces.nsIFile))
-    throw "Invalid file passed to saveStreamToFile";
-  // Write the input stream to the file
-  var fstream = Components.classes["@mozilla.org/network/safe-file-output-stream;1"]
-                          .createInstance(Components.interfaces.nsIFileOutputStream);
-  var buffer  = Components.classes["@mozilla.org/network/buffered-output-stream;1"]
-                          .createInstance(Components.interfaces.nsIBufferedOutputStream);
-  fstream.init(aFile, 0x04 | 0x08 | 0x20, PERMS_FILE, 0); // write, create, truncate
-  buffer.init(fstream, 8192);
-
-  buffer.writeFrom(aIStream, aIStream.available());
-
-  // Close the output streams
-  if (buffer instanceof Components.interfaces.nsISafeOutputStream)
-      buffer.finish();
-  else
-      buffer.close();
-  if (fstream instanceof Components.interfaces.nsISafeOutputStream)
-      fstream.finish();
-  else
-      fstream.close();
-  // Close the input stream
-  aIStream.close();
-  return aFile;
-}
-
-/**
  * Copies the photo at the given URI in a folder named "Photos" in the current
  * profile folder.
  * The filename is randomly generated and is unique.
@@ -840,7 +805,7 @@ function storePhoto(aUri)
   // Get the photo file
   file = makePhotoFile(file, findPhotoExt(channel));
 
-  return saveStreamToFile(istream, file);
+  return IOUtils.saveStreamToFile(istream, file);
 }
 
 /**

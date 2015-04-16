@@ -6,6 +6,7 @@ Components.utils.import("resource:///modules/folderUtils.jsm");
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/MailUtils.js");
+Components.utils.import("resource:///modules/IOUtils.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 const kDefaultMode = "all";
@@ -159,23 +160,8 @@ let gFolderTreeView = {
 
     if (aJSONFile) {
       // Parse our persistent-open-state json file
-      let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
-      file.append(aJSONFile);
-
-      if (file.exists()) {
-        let data = "";
-        let fstream = Cc["@mozilla.org/network/file-input-stream;1"]
-                         .createInstance(Ci.nsIFileInputStream);
-        let sstream = Cc["@mozilla.org/scriptableinputstream;1"]
-                         .createInstance(Ci.nsIScriptableInputStream);
-        fstream.init(file, -1, 0, 0);
-        sstream.init(fstream);
-
-        while (sstream.available())
-          data += sstream.read(4096);
-
-        sstream.close();
-        fstream.close();
+      let data = IOUtils.loadFileToString(aJSONFile);
+      if (data) {
         try {
           this._persistOpenMap = JSON.parse(data);
         } catch (x) {
@@ -213,17 +199,7 @@ let gFolderTreeView = {
     if (aJSONFile) {
       // Write out our json file...
       let data = JSON.stringify(this._persistOpenMap);
-      let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
-      file.append(aJSONFile);
-      let foStream = Cc["@mozilla.org/network/safe-file-output-stream;1"]
-                        .createInstance(Ci.nsIFileOutputStream);
-
-      foStream.init(file, 0x02 | 0x08 | 0x20, parseInt("0666", 8), 0);
-      // safe-file-output-stream appears to throw an error if it doesn't write everything at once
-      // so we won't worry about looping to deal with partial writes
-      foStream.write(data, data.length);
-      foStream.QueryInterface(Ci.nsISafeOutputStream).finish();
-      foStream.close();
+      IOUtils.saveStringToFile(aJSONFile, data);
     }
   },
 

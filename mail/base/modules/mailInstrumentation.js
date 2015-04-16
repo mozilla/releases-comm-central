@@ -16,7 +16,6 @@ const Cu = Components.utils;
 
 const nsIMFNService = Ci.nsIMsgFolderNotificationService;
 
-Cu.import("resource:///modules/IOUtils.js");
 Cu.import("resource:///modules/errUtils.js");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/mailServices.js");
