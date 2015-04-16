@@ -25,6 +25,14 @@ function onLoadIdentityProperties()
 // based on the values of gIdentity, initialize the identity fields we expose to the user
 function initIdentityValues(identity)
 {
+  function initSmtpServer(aServerKey) {
+    // Select a server in the SMTP server menulist by its key.
+    // The value of the identity.smtpServerKey is null when the
+    // "use default server" option is used so, if we get that passed in, select
+    // the useDefaultItem representing this option by using the value of "".
+    document.getElementById("identity.smtpServerKey").value = aServerKey || "";
+  }
+
   if (identity)
   {
     document.getElementById('identity.fullName').value = identity.fullName;
@@ -40,15 +48,12 @@ function initIdentityValues(identity)
 
     document.getElementById('identity.attachVCard').checked = identity.attachVCard;
     document.getElementById('identity.escapedVCard').value = identity.escapedVCard;
-
-    document.getElementById('identity.smtpServerKey').value =
-      identity.smtpServerKey || ""; // useDefaultItem.value is ""
+    initSmtpServer(identity.smtpServerKey);
   }
   else
   {
     // We're adding an identity, use the best default we have.
-    document.getElementById('identity.smtpServerKey').value =
-      gAccount.defaultIdentity.smtpServerKey;
+    initSmtpServer(gAccount.defaultIdentity.smtpServerKey);
   }
 
   setupSignatureItems();
@@ -345,7 +350,7 @@ function loadSMTPServerList()
   let servers = MailServices.smtp.servers;
   let defaultServer = MailServices.smtp.defaultServer;
 
-  var smtpPopup = document.getElementById("smtpPopup");
+  var smtpPopup = smtpServerList.menupopup;
   while (smtpPopup.lastChild.nodeName != "menuseparator")
     smtpPopup.lastChild.remove();
 
