@@ -1038,7 +1038,8 @@ EmailConfigWizard.prototype =
       let menulist = e("outgoing_hostname");
       // We can't use menulist.value = config.outgoing.existingServerKey
       // because would overwrite the text field, so have to do it manually:
-      for each (let menuitem in e("outgoing_hostname_popup").childNodes) {
+      let menuitems = menulist.menupopup.childNodes;
+      for (let menuitem of menuitems) {
         if (menuitem.serverKey == config.outgoing.existingServerKey) {
           menulist.selectedItem = menuitem;
           break;
@@ -1189,7 +1190,7 @@ EmailConfigWizard.prototype =
     // add standard ports
     var autoPort = gStringsBundle.getString("port_auto");
     menu.appendItem(autoPort, autoPort, ""); // label,value,descr
-    for each (let port in getStandardPorts(protocolType)) {
+    for (let port of getStandardPorts(protocolType)) {
       menu.appendItem(port, port, ""); // label,value,descr
     }
   },
@@ -1479,7 +1480,7 @@ EmailConfigWizard.prototype =
         { id: "half-manual-test_button",
           action: makeCallback(this, this.onHalfManualTest) },
       ];
-      for each (let button in buttons) {
+      for (let button of buttons) {
         button.e = e(button.id);
         if (button.e.hidden || button.e.disabled) {
           continue;

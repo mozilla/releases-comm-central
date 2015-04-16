@@ -151,7 +151,7 @@ var sanitize =
    */
   enum : function(unchecked, allowedValues, defaultValue)
   {
-    for each (var allowedValue in allowedValues)
+    for (let allowedValue of allowedValues)
     {
       if (allowedValue == unchecked)
         return allowedValue;

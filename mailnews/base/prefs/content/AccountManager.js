@@ -993,12 +993,12 @@ function updateItems(tree, account, addAccountItem, setDefaultItem, removeItem) 
  * SeaMonkey: Not currently handled by WSM or the main loop yet
  * since these buttons aren't under the IFRAME.
  *
- * @param aItems  the elements to be checked
+ * @param aItems       an array or NodeList of elements to be checked
  * @param aMustBeTrue  if true then the pref must be boolean and set to true
  *                     to trigger the disabling (TB requires this, SM not)
  */
 function updateBlockedItems(aItems, aMustBeTrue) {
-  for each (let [, item] in Iterator(aItems)) {
+  for (let item of aItems) {
     let prefstring = item.getAttribute("prefstring");
     if (!prefstring)
       continue;

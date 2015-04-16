@@ -91,7 +91,7 @@ function onCheckItem(aChangeElementId, aCheckElementIds)
   let elementToControl = document.getElementById(aChangeElementId);
   let disabled = false;
 
-  for each (let notifyId in aCheckElementIds) {
+  for (let notifyId of aCheckElementIds) {
     let notifyElement = document.getElementById(notifyId);
     let notifyElementState = null;
     if ("checked" in notifyElement)

@@ -178,7 +178,7 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
     outgoingEx = null;
     HostTryToAccountServer(thisTry, resultConfig.outgoing);
 
-    for each (let alternativeTry in alternativeTries)
+    for (let alternativeTry of alternativeTries)
     {
       // resultConfig.createNewOutgoing(); misses username etc., so copy
       let altServer = deepCopy(resultConfig.outgoing);
@@ -201,7 +201,7 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
     incomingEx = null;
     HostTryToAccountServer(thisTry, resultConfig.incoming);
 
-    for each (let alternativeTry in alternativeTries)
+    for (let alternativeTry of alternativeTries)
     {
       // resultConfig.createNewIncoming(); misses username etc., so copy
       let altServer = deepCopy(resultConfig.incoming);
