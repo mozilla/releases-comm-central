@@ -84,6 +84,19 @@
                 onget="return this._docShell || (this._docShell = this.boxObject.docShell);"
                 readonly="true"/>
 
+      <property name="messageManager"
+                readonly="true">
+        <getter>
+          <![CDATA[
+            var owner = this.QueryInterface(Components.interfaces.nsIFrameLoaderOwner);
+            if (!owner.frameLoader) {
+              return null;
+            }
+            return owner.frameLoader.messageManager;
+          ]]>
+        </getter>
+      </property>
+
       <field name="_webNavigation">null</field>
 
       <property name="webNavigation"
@@ -138,6 +151,10 @@
       <property name="contentWindow"
                 readonly="true"
                 onget="return this._contentWindow || (this._contentWindow = this.docShell.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindow));"/>
+
+      <property name="contentWindowAsCPOW"
+                readonly="true"
+                onget="return this.contentWindow;"/>
 
       <property name="contentDocument"
                 onget="return this.webNavigation.document;"
