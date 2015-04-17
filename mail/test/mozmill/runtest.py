@@ -38,6 +38,7 @@ PLUGINS_PATH = None
 # because we know that we run MozMill only once per process. This needs to be
 # fixed if that ever changes.
 TEST_NAME = None
+TESTING_MODULES_DIR = None
 
 # The name of the (optional) module that tests can define as a wrapper (e.g. to
 # run before Thunderbird is started)
@@ -312,6 +313,8 @@ def monkeypatched_15_run_tests(self, tests, sleeptime=0):
     # transfer persisted data
     frame.persisted = self.persisted
 
+    frame.registerModule("testing-common", TESTING_MODULES_DIR)
+
     if len(tests) == 1 and not os.path.isdir(tests[0]):
         # tests[0] isn't necessarily an abspath'd path, so do that now
         test = os.path.abspath(tests[0])
@@ -337,9 +340,12 @@ class ThunderTestCLI(mozmill.CLI):
                           help="The path to the symbol files from build_symbols")
         parser.add_option('--plugins-path', default=None, dest="plugins",
                           help="The path to the plugins directory for the created profile")
+        parser.add_option('--testing-modules-dir', default=None,
+                          dest="testingmodules",
+                          help="The path to the testing modules directory")
 
     def __init__(self, *args, **kwargs):
-        global SYMBOLS_PATH, PLUGINS_PATH, TEST_NAME
+        global SYMBOLS_PATH, PLUGINS_PATH, TEST_NAME, TESTING_MODULES_DIR
 
         # note: we previously hardcoded a JS bridge timeout of 300 seconds,
         # but the default is now 60 seconds...
@@ -359,6 +365,7 @@ class ThunderTestCLI(mozmill.CLI):
 
         SYMBOLS_PATH = self.options.symbols
         PLUGINS_PATH = self.options.plugins
+        TESTING_MODULES_DIR = self.options.testingmodules
         if isinstance(self.options.test, basestring):
             test_paths = [self.options.test]
         else:

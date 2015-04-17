@@ -718,3 +718,13 @@ var runTestFile = function (filename, invokedFromIDE) {
 var getThread = function () {
   return thread;
 }
+
+function registerModule(name, path) {
+  let protocolHandler = Services.io.getProtocolHandler("resource")
+                                .QueryInterface(Components.interfaces.nsIResProtocolHandler);
+
+  let modulesFile = Components.classes["@mozilla.org/file/local;1"]
+                              .createInstance(Components.interfaces.nsILocalFile);
+  modulesFile.initWithPath(path);
+  protocolHandler.setSubstitution(name, ios.newFileURI(modulesFile));
+}

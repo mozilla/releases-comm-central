@@ -34,6 +34,7 @@ mozmill:
 	--dir=$(abspath $(topsrcdir))/../mail/test/mozmill \
 	--symbols-path=$(abspath $(DIST)/crashreporter-symbols) \
 	--plugins-path=$(abspath $(DIST)/plugins) \
+	--testing-modules-dir=$(abspath $(DEPTH)/_tests/modules) \
 	$(MOZMILL_EXTRA)
 
 mozmill-one: solo-test = $(find-solo-test)
@@ -44,6 +45,7 @@ mozmill-one:
 	--binary=$(abspath $(BINARY)) \
 	--symbols-path=$(abspath $(DIST)/crashreporter-symbols) \
 	--plugins-path=$(abspath $(DIST)/plugins) \
+	--testing-modules-dir=$(abspath $(DEPTH)/_tests/modules) \
 	$(MOZMILL_EXTRA)
 
 # We need to add the mozmill tests to the package for tests.

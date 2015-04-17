@@ -42,6 +42,11 @@ class RunTestListOptions(optparse.OptionParser):
                         action = "store", type = "string", dest = "plugins",
                         help = "The path to the plugins folder for the test profiles")
 
+        self.add_option("--testing-modules-dir",
+                        action="store", type="string", dest="testingmodules",
+                        help="The path to the testing modules directory")
+        defaults["testingmodules"] = ""
+
         self.set_defaults(**defaults);
 
         usage = """\
@@ -79,6 +84,10 @@ for directory in f:
     if options.plugins:
         args.append("--plugins-path")
         args.append(options.plugins)
+
+    if options.testingmodules:
+        args.append("--testing-modules-dir")
+        args.append(os.path.abspath(options.testingmodules))
 
     print args
     outputPipe = subprocess.PIPE
