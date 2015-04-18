@@ -630,6 +630,8 @@ imAccount.prototype = {
         break;
       }
     }
+    if (this.connected || this.connecting)
+      this.disconnect();
     if (this.prplAccount)
       this.prplAccount.remove();
     this.unInit();
