@@ -54,7 +54,7 @@ ImportOutFile::~ImportOutFile()
 
   delete m_pTrans;
   delete m_pTransOut;
-  delete m_pTransBuf;
+  delete [] m_pTransBuf;
 }
 
 bool ImportOutFile::Set8bitTranslator(nsImportTranslator *pTrans)
@@ -95,7 +95,7 @@ bool ImportOutFile::End8bitTranslation(bool *pEngaged, nsCString& useCharset, ns
   m_pTrans = nullptr;
   delete m_pTransOut;
   m_pTransOut = nullptr;
-  delete m_pTransBuf;
+  delete [] m_pTransBuf;
   m_pTransBuf = nullptr;
 
   return bResult;
