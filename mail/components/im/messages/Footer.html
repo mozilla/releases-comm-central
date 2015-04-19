@@ -13,7 +13,7 @@ function checkNewText(target)
     if (!parent.grouped && parent.querySelector("p.event:nth-of-type(4)")) {
       var p = document.createElement("p");
       p.className = "eventToggle";
-      p.addEventListener("click", function (event)
+      p.addEventListener("click", event =>
         event.target.parentNode.classList.toggle("hide-children"));
       parent.insertBefore(p, parent.querySelector("p.event:nth-of-type(2)"));
       parent.classList.add("hide-children");

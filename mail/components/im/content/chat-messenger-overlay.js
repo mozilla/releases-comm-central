@@ -139,7 +139,7 @@ var chatTabType = {
     if (!this.hasBeenOpened) {
       let convs = imServices.conversations.getUIConversations();
       if (convs.length != 0) {
-        convs.sort(function(a, b)
+        convs.sort((a, b) =>
                    a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
         for each (let conv in convs)
           chatHandler._addConversation(conv);
@@ -290,7 +290,7 @@ var chatHandler = {
 
   _hasConversationForContact: function(aContact) {
     let convs = document.getElementById("conversationsGroup").contacts;
-    return convs.some(function(aConversation)
+    return convs.some(aConversation =>
       aConversation.hasOwnProperty("imContact") &&
       aConversation.imContact.id == aContact.id);
   },
@@ -513,7 +513,7 @@ var chatHandler = {
     }
   },
   _observedContact: null,
-  get observedContact() this._observedContact,
+  get observedContact() { return this._observedContact; },
   set observedContact(aContact) {
     if (aContact == this._observedContact)
       return aContact;
@@ -806,7 +806,7 @@ var chatHandler = {
     }
     let groupIds = ["conversations", "onlinecontacts", "offlinecontacts"];
     let contactlist = document.getElementById("contactlistbox");
-    if (!hasAccount || !connected && groupIds.every(function(id)
+    if (!hasAccount || !connected && groupIds.every(id =>
         document.getElementById(id + "Group").contacts.length)) {
       contactlist.disabled = true;
     }
@@ -1111,7 +1111,7 @@ var chatHandler = {
     });
     window.addEventListener("resize", this.onConvResize.bind(this));
     document.getElementById("conversationsGroup").sortComparator =
-      function(a, b) a.title.toLowerCase().localeCompare(b.title.toLowerCase());
+      (a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase());
 
     Components.utils.import("resource:///modules/chatHandler.jsm", this);
     if (this.ChatCore.initialized)
@@ -1131,13 +1131,13 @@ function chatLogTreeGroupItem(aTitle, aLogItems) {
   this._open = false;
 }
 chatLogTreeGroupItem.prototype = {
-  getText: function() this._title,
-  get id() this._title,
-  get open() this._open,
-  get level() 0,
-  get _parent() null,
-  get children() this._children,
-  getProperties: function() ""
+  getText: function() { return this._title; },
+  get id() { return this._title; },
+  get open() { return this._open; },
+  get level() { return 0; },
+  get _parent() { return null; },
+  get children() { return this._children; },
+  getProperties: function() { return ""; }
 };
 
 function chatLogTreeLogItem(aLog, aText, aLevel) {
@@ -1146,12 +1146,12 @@ function chatLogTreeLogItem(aLog, aText, aLevel) {
   this._level = aLevel;
 }
 chatLogTreeLogItem.prototype = {
-  getText: function() this._text,
-  get id() this.log.title,
-  get open() false,
-  get level() this._level,
-  get children() [],
-  getProperties: function() ""
+  getText: function() { return this._text; },
+  get id() { return this.log.title; },
+  get open() { return false; },
+  get level() { return this._level; },
+  get children() { return []; },
+  getProperties: function() { return ""; }
 };
 
 function chatLogTreeView(aTree, aLogs) {
@@ -1194,9 +1194,9 @@ chatLogTreeView.prototype = {
       return placesBundle.getFormattedString("finduri-MonthYear",
                                              [month, aDate.getFullYear()]);
     };
-    let formatMonth = function(aDate)
+    let formatMonth = aDate =>
       dateFormatBundle.getString("month." + (aDate.getMonth() + 1) + ".name");
-    let formatWeekday = function(aDate)
+    let formatWeekday = aDate =>
       dateFormatBundle.getString("day." + (aDate.getDay() + 1) + ".name");
 
     let nowDate = new Date();
@@ -1295,7 +1295,7 @@ chatLogTreeView.prototype = {
       this._rowMap.push(yesterday);
     groupIDs.forEach(function (aGroupID) {
       let group = groups[aGroupID];
-      group.entries.sort(function(l1, l2) l2.log.time - l1.log.time);
+      group.entries.sort((l1, l2) => l2.log.time - l1.log.time);
       this._rowMap.push(new chatLogTreeGroupItem(group.name, group.entries));
     }, this);
 

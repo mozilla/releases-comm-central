@@ -492,7 +492,7 @@
               let completions = [b for (b of this.buddies.keys())];
               // Check if the preceding words are a sequence of nick completions.
               let preceding = text.substring(0, pos - suffix.length).split(", ");
-              if (preceding.every(function(n) completions.indexOf(n) != -1)) {
+              if (preceding.every(n => completions.indexOf(n) != -1)) {
                 let s = preceding.pop();
                 if (preceding.length)
                   s = suffix + s;
@@ -500,7 +500,7 @@
                 this.addString(s);
                 if (this._completions[0].slice(-suffix.length) == suffix) {
                   this._completions =
-                    this._completions.map(function(c) c.slice(0, -suffix.length));
+                    this._completions.map(c => c.slice(0, -suffix.length));
                 }
                 if (this._completions.length == 1 &&
                     inputBox.value == this._beforeTabComplete) {
@@ -595,7 +595,7 @@
 */
 
             let outgoingNick = this._conv.nick;
-            completions = completions.filter(function(c) c != outgoingNick);
+            completions = completions.filter(c => c != outgoingNick);
 
             // Check if the preceding words are a sequence of nick completions.
             let wordStart = inputBox.selectionStart - word.length;
@@ -603,11 +603,11 @@
               let separator = text.substring(wordStart - 2, wordStart);
               if (separator == ": " || separator == ", ") {
                 let preceding = text.substring(0, wordStart - 2).split(", ");
-                if (preceding.every(function(n) completions.indexOf(n) != -1)) {
+                if (preceding.every(n => completions.indexOf(n) != -1)) {
                   secondNick = true;
                   isFirstWord = true;
                   // Remove preceding completions from possible completions.
-                  completions = completions.filter(function(c)
+                  completions = completions.filter(c =>
                     preceding.indexOf(c) == -1);
                 }
               }
@@ -664,9 +664,9 @@
           let preferredNick = false;
           if (this._conv.isChat && !completingCommand) {
             // If there are active nicks, prefer those.
-            let activeCompletions = this._completions.filter(function(c)
+            let activeCompletions = this._completions.filter(c =>
               this.buddies.has(c) &&
-              !this.buddies.get(c).hasAttribute("inactive"), this);
+              !this.buddies.get(c).hasAttribute("inactive"));
             if (activeCompletions.length == 1)
               preferredNick = true;
             if (activeCompletions.length) {
@@ -703,7 +703,7 @@
           }
 
           let suffix = (isFirstWord ? firstWordSuffix : "");
-          this._completions = this._completions.map(function(c) c + suffix);
+          this._completions = this._completions.map(c => c + suffix);
 
           let completion;
           if (this._completions.length == 1 || preferredNick) {

@@ -34,7 +34,7 @@ const ScriptableInputStream = CC("@mozilla.org/scriptableinputstream;1",
 // job to actually carrying it out.
 const kIndexingDelay = 5000; // in milliseconds
 
-XPCOMUtils.defineLazyGetter(this, "MailFolder", function()
+XPCOMUtils.defineLazyGetter(this, "MailFolder", () =>
   Cc["@mozilla.org/rdf/resource-factory;1?name=mailbox"].createInstance(Ci.nsIMsgFolder)
 );
 
@@ -52,10 +52,10 @@ function GlodaIMConversation(aTitle, aTime, aPath, aContent)
   this._content = aContent;
 }
 GlodaIMConversation.prototype = {
-  get title() this._title,
-  get time() this._time,
-  get path() this._path,
-  get content() this._content,
+  get title() { return this._title; },
+  get time() { return this._time; },
+  get path() { return this._path; },
+  get content() { return this._content; },
 
   // for glodaFacetBindings.xml compatibility (pretend we are a message object)
   get account() {
@@ -79,9 +79,9 @@ GlodaIMConversation.prototype = {
     // The IM conversation is probably for an account that no longer exists.
     return null;
   },
-  get subject() this._title,
-  get date() new Date(this._time * 1000),
-  get involves() Gloda.IGNORE_FACET,
+  get subject() { return this._title; },
+  get date() { return new Date(this._time * 1000); },
+  get involves() { return Gloda.IGNORE_FACET; },
   _recipients: null,
   get recipients() {
     if (!this._recipients)
@@ -99,15 +99,15 @@ GlodaIMConversation.prototype = {
     }
     return this._from;
   },
-  get tags() [],
-  get starred() false,
-  get attachmentNames() null,
-  get indexedBodyText() this._content,
-  get read() true,
-  get folder() Gloda.IGNORE_FACET,
+  get tags() { return []; },
+  get starred() { return false; },
+  get attachmentNames() { return null; },
+  get indexedBodyText() { return this._content; },
+  get read() { return true; },
+  get folder() { return Gloda.IGNORE_FACET; },
 
   // for glodaFacetView.js _removeDupes
-  get headerMessageID() this.id
+  get headerMessageID() { return this.id; }
 };
 
 // FIXME

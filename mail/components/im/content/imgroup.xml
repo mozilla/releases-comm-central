@@ -119,7 +119,7 @@
           throw "Removing a contact that isn't here?";
 
         // create a new array to remove without breaking for each loops.
-        this.contacts = this.contacts.filter(function(c) c !== contact);
+        this.contacts = this.contacts.filter(c => c !== contact);
         delete this.contactsById[contact.contact.id];
 
         contact.destroy();

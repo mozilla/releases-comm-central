@@ -9,7 +9,7 @@ Cu.import("resource:///modules/imServices.jsm");
 function imIncomingServer() { }
 
 imIncomingServer.prototype = {
-  get wrappedJSObject() this,
+  get wrappedJSObject() { return this; },
   _imAccount: null,
   get imAccount() {
     if (this._imAccount)
@@ -28,16 +28,17 @@ imIncomingServer.prototype = {
   _prefBranch: null,
   valid: true,
   hidden: false,
-  get offlineSupportLevel() 0,
-  get supportsDiskSpace() false,
+  get offlineSupportLevel() { return 0; },
+  get supportsDiskSpace() { return false; },
   _key: "",
-  get key() this._key,
+  get key() { return this._key; },
   set key(aKey) {
     this._key = aKey;
     this._prefBranch = Services.prefs.getBranch("mail.server." + aKey + ".");
   },
-  equals: function(aServer)
-    "wrappedJSObject" in aServer && aServer.wrappedJSObject == this,
+  equals: function (aServer) {
+    return "wrappedJSObject" in aServer && aServer.wrappedJSObject == this;
+  },
 
   clearAllValues: function() {
     Services.accounts.deleteAccount(this.imAccount.id);
@@ -55,8 +56,8 @@ imIncomingServer.prototype = {
   },
 
   //XXX Flo: I don't think constructedPrettyName is visible in the UI
-  get constructedPrettyName() "constructedPrettyName FIXME",
-  get realHostName() this.hostName,
+  get constructedPrettyName() { return "constructedPrettyName FIXME"; },
+  get realHostName() { return this.hostName; },
   set realHostName(aValue) {},
 
   port: -1,
@@ -64,11 +65,11 @@ imIncomingServer.prototype = {
 
 
   //FIXME need a new imIIncomingService iface + classinfo for these 3 properties :(
-  get password() this.imAccount.password,
+  get password() { return this.imAccount.password; },
   set password(aPassword) {
     this.imAccount.password = aPassword;
   },
-  get alias() this.imAccount.alias,
+  get alias() { return this.imAccount.alias; },
   set alias(aAlias) {
     this.imAccount.alias = aAlias;
   },
@@ -174,12 +175,12 @@ imIncomingServer.prototype = {
     }
   },
 
-  get type() this._prefBranch.getCharPref("type"),
+  get type() { return this._prefBranch.getCharPref("type"); },
   set type(aType) {
     this._prefBranch.setCharPref("type", aType);
   },
 
-  get username() this._prefBranch.getCharPref("userName"),
+  get username() { return this._prefBranch.getCharPref("userName"); },
   set username(aUsername) {
     if (!aUsername) {
       // nsMsgAccountManager::GetIncomingServer expects the pref to
@@ -190,7 +191,7 @@ imIncomingServer.prototype = {
     this._prefBranch.setCharPref("userName", aUsername);
   },
 
-  get hostName() this._prefBranch.getCharPref("hostname"),
+  get hostName() { return this._prefBranch.getCharPref("hostname"); },
   set hostName(aHostName) {
     this._prefBranch.setCharPref("hostname", aHostName);
   },
@@ -200,7 +201,7 @@ imIncomingServer.prototype = {
   shutdown: function() { },
   setFilterList: function() { },
 
-  get canBeDefaultServer() false,
+  get canBeDefaultServer() { return false; },
 
   // AccountManager.js verifies that spamSettings is non-null before
   // using the initialize method, but we can't just use a null value
@@ -220,9 +221,9 @@ imIncomingServer.prototype = {
     supportsCompaction: false
   },
 
-  get serverURI() "im://" + this.imAccount.protocol.id + "/" + this.imAccount.name,
+  get serverURI() { return "im://" + this.imAccount.protocol.id + "/" + this.imAccount.name; },
   _rootFolder: null,
-  get rootMsgFolder() this.rootFolder,
+  get rootMsgFolder() { return this.rootFolder; },
   get rootFolder() {
     if (this._rootFolder)
       return this._rootFolder;
@@ -230,29 +231,29 @@ imIncomingServer.prototype = {
     return (this._rootFolder = {
       isServer: true,
       server: this,
-      get prettyName() this.server.prettyName, // used in the account manager tree
-      get prettiestName() this.server.prettyName + " prettiestName", // never displayed?
-      get name() this.server.prettyName + " name", // never displayed?
+      get prettyName() { return this.server.prettyName; }, // used in the account manager tree
+      get prettiestName() { return this.server.prettyName + " prettiestName"; }, // never displayed?
+      get name() { return this.server.prettyName + " name"; }, // never displayed?
       // used in the folder pane tree, if we don't hide the IM accounts:
-      get abbreviatedName() this.server.prettyName + "abbreviatedName",
+      get abbreviatedName() { return this.server.prettyName + "abbreviatedName"; },
       AddFolderListener: function() {},
       RemoveFolderListener: function() {},
       descendants: Components.classes["@mozilla.org/array;1"]
                   .createInstance(Components.interfaces.nsIArray),
       ListDescendants: function(descendants) {},
-      getFolderWithFlags: function(aFlags) null,
-      getFoldersWithFlags: function(aFlags)
+      getFolderWithFlags: aFlags => null,
+      getFoldersWithFlags: aFlags =>
         Components.classes["@mozilla.org/array;1"]
                   .createInstance(Components.interfaces.nsIArray),
-      get subFolders() EmptyEnumerator,
-      getStringProperty: function(aPropertyName) "",
-      getNumUnread: function(aDeep) 0,
+      get subFolders() { return EmptyEnumerator; },
+      getStringProperty: aPropertyName => "",
+      getNumUnread: aDeep => 0,
       Shutdown: function() {},
       QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgFolder])
     });
   },
 
-  get sortOrder() 300000000,
+  get sortOrder() { return 300000000; },
 
   get protocolInfo() {
     return Components.classes["@mozilla.org/messenger/protocol/info;1?type=im"]
