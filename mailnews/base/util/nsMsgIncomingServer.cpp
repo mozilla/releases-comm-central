@@ -1620,7 +1620,7 @@ NS_IMETHODIMP nsMsgIncomingServer::DisplayOfflineMsg(nsIMsgWindow *aMsgWindow)
   {
     nsString errorMsgTitle;
     nsString errorMsgBody;
-    bundle->GetStringFromName(MOZ_UTF16("nocachedbodybody"), getter_Copies(errorMsgBody));
+    bundle->GetStringFromName(MOZ_UTF16("nocachedbodybody2"), getter_Copies(errorMsgBody));
     bundle->GetStringFromName(MOZ_UTF16("nocachedbodytitle"), getter_Copies(errorMsgTitle));
     aMsgWindow->DisplayHTMLInMessagePane(errorMsgTitle, errorMsgBody, true);
   }
