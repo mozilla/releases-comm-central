@@ -254,6 +254,7 @@ classic.jar:
   skin/classic/messenger/icons/arrow/foldercycler-arrow-right.png       (mail/icons/arrow/foldercycler-arrow-right.png)
   skin/classic/messenger/icons/connecting.png                 (mail/icons/connecting.png)
   skin/classic/messenger/icons/loading.png                    (mail/icons/loading.png)
+  skin/classic/messenger/icons/notloading.png                 (mail/icons/notloading.png)
   skin/classic/messenger/tagbg.png                            (mail/tagbg.png)
 % skin editor classic/1.0 %skin/classic/editor/
   skin/classic/editor/editor.css                              (editor/editor.css)

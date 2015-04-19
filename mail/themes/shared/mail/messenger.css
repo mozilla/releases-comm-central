@@ -39,7 +39,7 @@ toolbar[printpreview="true"] {
 }
 
 #wrapper-throbber-box > #throbber-box {
-  list-style-image: url("chrome://global/skin/icons/notloading_16.png");
+  list-style-image: url("chrome://messenger/skin/icons/notloading.png");
 }
 
 /* ::::: online/offline icons ::::: */
