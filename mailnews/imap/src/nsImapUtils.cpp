@@ -33,12 +33,12 @@ nsImapURI2FullName(const char* rootURI, const char* hostName, const char* uriStr
     fullName = Substring(uri, strlen(rootURI));
     uri = fullName;
     int32_t hostStart = uri.Find(hostName);
-    if (hostStart <= 0) 
+    if (hostStart <= 0)
       return NS_ERROR_FAILURE;
     fullName = Substring(uri, hostStart);
     uri = fullName;
     int32_t hostEnd = uri.FindChar('/');
-    if (hostEnd <= 0) 
+    if (hostEnd <= 0)
       return NS_ERROR_FAILURE;
     fullName = Substring(uri, hostEnd + 1);
     if (fullName.IsEmpty())
@@ -136,15 +136,15 @@ nsImapMailboxSpec::nsImapMailboxSpec()
   mNumOfUnseenMessages = 0;
   mNumOfRecentMessages = 0;
   mNextUID = 0;
-  
+
   mBoxFlags = 0;
   mSupportedUserFlags = 0;
-  
+
   mHierarchySeparator = '\0';
-  
+
   mFolderSelected = false;
   mDiscoveredFromLsub = false;
-  
+
   mOnlineVerified = false;
   mNamespaceForFolder = nullptr;
 }
@@ -171,37 +171,37 @@ NS_IMETHODIMP nsImapMailboxSpec::GetAllocatedPathName(nsACString &aAllocatedPath
 {
   aAllocatedPathName = mAllocatedPathName;
   return NS_OK;
-} 
+}
 
 NS_IMETHODIMP nsImapMailboxSpec::SetAllocatedPathName(const nsACString &aAllocatedPathName)
 {
   mAllocatedPathName = aAllocatedPathName;
   return NS_OK;
-} 
+}
 
 NS_IMETHODIMP nsImapMailboxSpec::GetUnicharPathName(nsAString &aUnicharPathName)
 {
   aUnicharPathName = aUnicharPathName;
   return NS_OK;
-} 
+}
 
 NS_IMETHODIMP nsImapMailboxSpec::SetUnicharPathName(const nsAString &aUnicharPathName)
 {
   mUnicharPathName = aUnicharPathName;
   return NS_OK;
-} 
+}
 
 NS_IMETHODIMP nsImapMailboxSpec::GetHostName(nsACString &aHostName)
 {
   aHostName = mHostName;
   return NS_OK;
-} 
+}
 
 NS_IMETHODIMP nsImapMailboxSpec::SetHostName(const nsACString &aHostName)
 {
   mHostName = aHostName;
   return NS_OK;
-} 
+}
 
 NS_IMETHODIMP nsImapMailboxSpec::GetFlagState(nsIImapFlagAndUidState ** aFlagState)
 {
@@ -217,35 +217,35 @@ NS_IMETHODIMP nsImapMailboxSpec::SetFlagState(nsIImapFlagAndUidState * aFlagStat
   return NS_OK;
 }
 
-nsImapMailboxSpec& nsImapMailboxSpec::operator= (const nsImapMailboxSpec& aCopy) 
+nsImapMailboxSpec& nsImapMailboxSpec::operator= (const nsImapMailboxSpec& aCopy)
 {
   mFolder_UIDVALIDITY = aCopy.mFolder_UIDVALIDITY;
   mHighestModSeq = aCopy.mHighestModSeq;
   mNumOfMessages = aCopy.mNumOfMessages;
   mNumOfUnseenMessages = aCopy.mNumOfUnseenMessages;
   mNumOfRecentMessages = aCopy.mNumOfRecentMessages;
-	
+
   mBoxFlags = aCopy.mBoxFlags;
   mSupportedUserFlags = aCopy.mSupportedUserFlags;
-  
+
   mAllocatedPathName.Assign(aCopy.mAllocatedPathName);
   mUnicharPathName.Assign(aCopy.mUnicharPathName);
   mHostName.Assign(aCopy.mHostName);
-	
+
   mFlagState = aCopy.mFlagState;
   mNamespaceForFolder = aCopy.mNamespaceForFolder;
-	
+
   mFolderSelected = aCopy.mFolderSelected;
   mDiscoveredFromLsub = aCopy.mDiscoveredFromLsub;
 
   mOnlineVerified = aCopy.mOnlineVerified;
-  
+
   return *this;
 }
 
 // use the flagState to determine if the gaps in the msgUids correspond to gaps in the mailbox,
 // in which case we can still use ranges. If flagState is null, we won't do this.
-void AllocateImapUidString(uint32_t *msgUids, uint32_t &msgCount, 
+void AllocateImapUidString(uint32_t *msgUids, uint32_t &msgCount,
                            nsImapFlagAndUidState *flagState, nsCString &returnString)
 {
   uint32_t startSequence = (msgCount > 0) ? msgUids[0] : 0xFFFFFFFF;
@@ -257,7 +257,7 @@ void AllocateImapUidString(uint32_t *msgUids, uint32_t &msgCount,
   if (flagState && flagState->GetPartialUIDFetch())
     flagState = nullptr;
 
-  
+
   for (uint32_t keyIndex = 0; keyIndex < total; keyIndex++)
   {
     uint32_t curKey = msgUids[keyIndex];
@@ -320,15 +320,15 @@ void AllocateImapUidString(uint32_t *msgUids, uint32_t &msgCount,
     // check if we've generated too long a string - if there's no flag state,
     // it means we just need to go ahead and generate a too long string
     // because the calling code won't handle breaking up the strings.
-    if (flagState && returnString.Length() > 950) 
+    if (flagState && returnString.Length() > 950)
     {
       msgCount = keyIndex;
       break;
     }
-    // If we are not the last item then we need to add the comma 
-    // but it's important we do it here, after the length check 
-    if (!lastKey) 
-      returnString += ','; 
+    // If we are not the last item then we need to add the comma
+    // but it's important we do it here, after the length check
+    if (!lastKey)
+      returnString += ',';
   }
 }
 
