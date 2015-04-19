@@ -158,13 +158,11 @@ nsAbAutoCompleteSearch.prototype = {
 
     // We want to treat firstname, lastname and word boundary(ish) parts of
     // the email address the same. E.g. for "John Doe (:xx) <jd.who@example.com>"
-    // all of these should score (almost) the same: "John", "Doe", "xx",
-    // ":xx:", "jd", "who".
+    // all of these should score the same: "John", "Doe", "xx",
+    // ":xx", "jd", "who".
     let prevCh = aAddress.charAt(idx - 1);
-    if (/[ :."'(\-_<&]/.test(prevCh)) {
-      // -1, so exact begins-with match will still be the first hit.
-      return BEST - 1;
-    }
+    if (/[ :."'(\-_<&]/.test(prevCh))
+      return BEST;
 
     // The match was inside a word -> we don't care about the position.
     return 0;
@@ -179,7 +177,7 @@ nsAbAutoCompleteSearch.prototype = {
    * @param directory    An nsIAbDirectory to search.
    * @param result       The result element to append results to.
    */
-  _searchCards: function _searchCards(searchQuery, directory, result) {
+  _searchCards: function(searchQuery, directory, result) {
     let childCards;
     try {
       childCards = this._abManager.getDirectory(directory.URI + searchQuery).childCards;
@@ -359,18 +357,22 @@ nsAbAutoCompleteSearch.prototype = {
       // We have successful previous matches, therefore iterate through the
       // list and reduce as appropriate
       for (let i = 0; i < aPreviousResult.matchCount; ++i) {
-        if (this._checkEntry(aPreviousResult.getCardAt(i),
-                             aPreviousResult.getEmailToUse(i), searchWords))
-          // If it matches, just add it straight onto the array, these will
-          // already be in order because the previous search returned them
-          // in the correct order.
+        let card = aPreviousResult.getCardAt(i);
+        let email = aPreviousResult.getEmailToUse(i);
+        if (this._checkEntry(card, email, searchWords)) {
+          // Add matches into the results array. We re-sort as needed later.
           result._searchResults.push({
             value: aPreviousResult.getValueAt(i),
             comment: aPreviousResult.getCommentAt(i),
-            card: aPreviousResult.getCardAt(i),
-            emailToUse: aPreviousResult.getEmailToUse(i),
-            popularity: parseInt(aPreviousResult.getCardAt(i).getProperty("PopularityIndex", "0"))
+            card: card,
+            isPrimaryEmail: (card.primaryEmail == email),
+            emailToUse: email,
+            popularity: parseInt(card.getProperty("PopularityIndex", "0")),
+            score: this._getScore(card,
+              aPreviousResult.getValueAt(i).toLocaleLowerCase(),
+              fullString)
           });
+        }
       }
     }
     else
@@ -406,17 +408,19 @@ nsAbAutoCompleteSearch.prototype = {
       }
 
       result._searchResults = [...result._collectedValues.values()];
-      result._searchResults.sort(function(a, b) {
-        // Order by 1) descending score, then 2) descending popularity,
-        // then 3) primary email before secondary for the same card, then
-        // 4) by differing cards sort by email.
-        return (b.score - a.score) ||
-               (b.popularity - a.popularity) ||
-               ((a.card == b.card && a.isPrimaryEmail) ? -1 : 0) ||
-               ((a.value < b.value) ? -1 : (a.value == b.value) ? 0 : 1);
-        // TODO: this should actually use a.value.localeCompare(b.value) .
-      });
     }
+
+    // Sort the results. Scoring may have changed so do it even if this is
+    // just filtered previous results.
+    result._searchResults.sort(function(a, b) {
+      // Order by 1) descending score, then 2) descending popularity,
+      // then 3) primary email before secondary for the same card, then
+      // 4) by emails sorted alphabetically.
+      return (b.score - a.score) ||
+             (b.popularity - a.popularity) ||
+             ((a.card == b.card && a.isPrimaryEmail) ? -1 : 0) ||
+             a.value.localeCompare(b.value);
+    });
 
     if (result.matchCount) {
       result.searchResult = ACR.RESULT_SUCCESS;

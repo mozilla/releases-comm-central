@@ -112,7 +112,8 @@ function run_test()
                  .createInstance(Ci.nsIAbCard);
 
     card.primaryEmail = element.email;
-    card.setProperty("SecondEmail", element.secondEmail);
+    if ("secondEmail" in element)
+      card.setProperty("SecondEmail", element.secondEmail);
     card.displayName = element.displayName;
     if ("popularityIndex" in element)
       card.setProperty("PopularityIndex", element.popularityIndex);
@@ -133,6 +134,10 @@ function run_test()
   function checkSearch(element, index, array) {
     print("Search #" + index + ": search=" + element);
     acs.startSearch(element, JSON.stringify({ type: "addr_to"  }), null, obs);
+
+    for (var i = 0; i < obs._result.matchCount; i++) {
+      print("... got " + i + ": " + obs._result.getValueAt(i));
+    }
 
     do_check_eq(obs._search, acs);
     do_check_eq(obs._result.searchString, element);

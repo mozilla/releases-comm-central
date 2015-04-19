@@ -105,7 +105,7 @@ const inputs = [
   { search: "xx", expected: [0, 5] },
   { search: "jan", expected: [1, 3] },
   // expecting nickname to score highest.
-  { search: "sh", expected: [15, 14, 16, 2, 10, 7] },
+  { search: "sh", expected: [15, 14, 2, 16, 10, 7] },
   { search: "st", expected: [3,8] },
   { search: "paul mary", expected: [11, 12] },
   { search: "\"paul mary\"", expected: [11] },
@@ -144,7 +144,8 @@ function run_test()
     card.setProperty("PopularityIndex", element.popularityIndex);
     card.firstName = element.firstName;
     card.lastName = element.lastName;
-    card.setProperty("NickName", element.nickName);
+    if ("nickName" in element)
+      card.setProperty("NickName", element.nickName);
 
     ab.addCard(card);
   }

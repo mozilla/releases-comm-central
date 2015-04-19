@@ -25,31 +25,31 @@ const results = [ { email: "d <ema@foo.invalid>", dirName: kPABData.dirName }, /
                    // this contact has a nickname of "abcdef"
                   { email: "test <l>", dirName: kPABData.dirName } // 9
                 ];
-const firstNames = [ { search: "f",      expected: [5, 0, 1, 2, 3, 4, 9] },
-                     { search: "fi",     expected: [5, 0, 1, 3, 4] },
-                     { search: "fir",    expected: [5, 0, 1, 4] },
-                     { search: "firs",   expected: [5, 0, 1] },
-                     { search: "first",  expected: [5, 1] },
+const firstNames = [ { search: "f",      expected: [0, 1, 2, 3, 4, 5, 9] },
+                     { search: "fi",     expected: [0, 1, 3, 4, 5] },
+                     { search: "fir",    expected: [0, 1, 4, 5] },
+                     { search: "firs",   expected: [0, 1, 5] },
+                     { search: "first",  expected: [1, 5] },
                      { search: "firstn", expected: [5] } ];
 
-const lastNames = [ { search: "l",      expected: [6, 7, 8, 9, 5, 0, 1, 2, 3, 4] },
-                    { search: "la",     expected: [5, 0, 2, 3, 4] },
-                    { search: "las",    expected: [5, 0, 3, 4] },
-                    { search: "last",   expected: [5, 0, 4] },
-                    { search: "lastn",  expected: [5, 0] },
+const lastNames = [ { search: "l",      expected: [6, 7, 8, 9, 0, 1, 2, 3, 4, 5] },
+                    { search: "la",     expected: [0, 2, 3, 4, 5] },
+                    { search: "las",    expected: [0, 3, 4, 5] },
+                    { search: "last",   expected: [0, 4, 5] },
+                    { search: "lastn",  expected: [0, 5] },
                     { search: "lastna", expected: [5]} ];
 
-const displayNames = [ { search: "d",      expected: [5, 0, 1, 2, 3, 4, 9] },
-                       { search: "di",     expected: [5, 1, 2, 3, 4] },
-                       { search: "dis",    expected: [5, 2, 3, 4] },
-                       { search: "disp",   expected: [5, 3, 4]},
-                       { search: "displ",  expected: [5, 4]},
+const displayNames = [ { search: "d",      expected: [0, 1, 2, 3, 4, 5, 9] },
+                       { search: "di",     expected: [1, 2, 3, 4, 5] },
+                       { search: "dis",    expected: [2, 3, 4, 5] },
+                       { search: "disp",   expected: [3, 4, 5]},
+                       { search: "displ",  expected: [4, 5]},
                        { search: "displa", expected: [5]} ];
 
-const nickNames = [ { search: "n",      expected: [4, 5, 0, 1, 2, 3] },
-                    { search: "ni",     expected: [0, 5, 1, 2, 3] },
-                    { search: "nic",    expected: [1, 5, 2, 3] },
-                    { search: "nick",   expected: [2, 5, 3] },
+const nickNames = [ { search: "n",      expected: [4, 0, 1, 2, 3, 5] },
+                    { search: "ni",     expected: [0, 1, 2, 3, 5] },
+                    { search: "nic",    expected: [1, 2, 3, 5] },
+                    { search: "nick",   expected: [2, 3, 5] },
                     { search: "nickn",  expected: [3, 5] },
                     { search: "nickna", expected: [5] } ];
 
@@ -60,18 +60,18 @@ const emails = [ { search: "e",     expected: [0, 1, 2, 3, 4, 5, 7, 8, 9] },
                  { search: "email", expected: [2, 5] } ];
 
 // "l" case tested above
-const lists = [ { search: "li", expected: [6, 7, 8, 5, 0, 1, 2, 3, 4] },
+const lists = [ { search: "li", expected: [6, 7, 8, 0, 1, 2, 3, 4, 5] },
                 { search: "lis", expected: [6, 7] },
                 { search: "list", expected: [6] },
-                { search: "t", expected: [6, 7, 8, 9, 5, 0, 1, 4] },
+                { search: "t", expected: [6, 7, 8, 9, 0, 1, 4, 5] },
                 { search: "te", expected: [7, 8, 9, 5] },
                 { search: "tes", expected: [8, 9, 5] },
                 { search: "test", expected: [9, 5] },
                 { search: "abcdef", expected: [9] } // Bug 441586
               ];
 
-const bothNames = [ { search: "f l",            expected: [5, 0, 1, 2, 3, 4, 9] },
-                    { search: "l f",            expected: [5, 0, 1, 2, 3, 4, 9] },
+const bothNames = [ { search: "f l",            expected: [0, 1, 2, 3, 4, 5, 9] },
+                    { search: "l f",            expected: [0, 1, 2, 3, 4, 5, 9] },
                     { search: "firstn lastna",  expected: [5] },
                     { search: "lastna firstna", expected: [5] } ];
 
@@ -90,15 +90,143 @@ acObserver.prototype = {
   }
 };
 
+const PAB_CARD_DATA = [
+  {
+    "FirstName": "firs",
+    "LastName": "lastn",
+    "DisplayName": "d",
+    "NickName": "ni",
+    "PrimaryEmail": "ema@foo.invalid",
+    "PreferDisplayName": true,
+    "PopularityIndex": 0
+  },
+  {
+    "FirstName": "first",
+    "LastName": "l",
+    "DisplayName": "di",
+    "NickName": "nic",
+    "PrimaryEmail": "emai@foo.invalid",
+    "PreferDisplayName": true,
+    "PopularityIndex": 0
+  },
+  {
+    "FirstName": "f",
+    "LastName": "la",
+    "DisplayName": "dis",
+    "NickName": "nick",
+    "PrimaryEmail": "email@foo.invalid",
+    "PreferDisplayName": true,
+    "PopularityIndex": 0
+  },
+  {
+    "FirstName": "fi",
+    "LastName": "las",
+    "DisplayName": "disp",
+    "NickName": "nickn",
+    "PrimaryEmail": "e@foo.invalid",
+    "PreferDisplayName": true,
+    "PopularityIndex": 0
+  },
+  {
+    "FirstName": "fir",
+    "LastName": "last",
+    "DisplayName": "displ",
+    "NickName": "n",
+    "PrimaryEmail": "em@foo.invalid",
+    "PreferDisplayName": true,
+    "PopularityIndex": 0
+  }
+];
+
+const PAB_LIST_DATA =  [
+  {
+    "dirName" : "t",
+    "listNickName": null,
+    "description": "list"
+  },
+  {
+    "dirName" : "te",
+    "listNickName": null,
+    "description": "lis"
+  },
+  {
+    "dirName" : "tes",
+    "listNickName": null,
+    "description": "li"
+  },
+  {
+    "dirName" : "test",
+    "listNickName": "abcdef",
+    "description": "l"
+  }
+];
+
+const CAB_CARD_DATA = [
+  {
+    "FirstName": "FirstName1",
+    "LastName": "LastName1",
+    "DisplayName": "DisplayName1",
+    "NickName": "NickName1",
+    "PrimaryEmail": "PrimaryEmail1@test.invalid",
+    "PreferDisplayName": true,
+    "PopularityIndex": 0
+  },
+  {
+    "FirstName": "Empty",
+    "LastName": "Email",
+    "DisplayName": "Empty Email",
+    "PreferDisplayName": true,
+    "PopularityIndex": 0
+  }
+];
+
+const CAB_LIST_DATA = [];
+
+const ABMDB_PREFIX = "moz-abmdbdirectory://";
+
+function setupAddressBookData(aDirURI, aCardData, aMailListData) {
+  let ab = MailServices.ab.getDirectory(aDirURI);
+
+  // Getting all directories ensures we create all ABs because mailing
+  // lists need help initialising themselves
+  MailServices.ab.directories;
+
+  let childCards0 = ab.childCards;
+  while (childCards0.hasMoreElements()) {
+    let c = childCards0.getNext().QueryInterface(Components.interfaces.nsIAbCard);
+    ab.dropCard(c, false);
+  }
+
+  aCardData.forEach(function(cd) {
+    let card = Components.classes["@mozilla.org/addressbook/cardproperty;1"]
+      .createInstance(Components.interfaces.nsIAbCard);
+    for (var prop in cd) {
+      card.setProperty(prop, cd[prop]);
+    }
+    ab.addCard(card);
+  });
+
+  aMailListData.forEach(function(ld) {
+    let list = Components.classes["@mozilla.org/addressbook/directoryproperty;1"]
+      .createInstance(Components.interfaces.nsIAbDirectory);
+    list.isMailList = true;
+    for (var prop in ld) {
+      list[prop] = ld[prop];
+    }
+    ab.addMailList(list);
+  });
+
+  let childCards = ab.childCards;
+  while (childCards.hasMoreElements()) {
+    let c = childCards.getNext().QueryInterface(Components.interfaces.nsIAbCard);
+  }
+}
+
 function run_test() {
-  // Copy the data files into place
-  var testAB = do_get_file("data/autocomplete.mab");
-
-  testAB.copyTo(do_get_profile(), kPABData.fileName);
-
-  testAB = do_get_file("data/autocomplete2.mab");
-
-  testAB.copyTo(do_get_profile(), kCABData.fileName);
+  // Set up addresses for in the personal address book.
+  setupAddressBookData(kPABData.URI, PAB_CARD_DATA, PAB_LIST_DATA);
+  // ... and collected addresses address book.
+  setupAddressBookData(kCABData.URI, CAB_CARD_DATA, CAB_LIST_DATA);
 
   // Test - Create a new search component
 
@@ -220,11 +348,11 @@ function run_test() {
   do_check_eq(obs._result.getStyleAt(0), "local-abook");
   do_check_eq(obs._result.getImageAt(0), "");
 
-
   // Now check multiple matches
   function checkInputItem(element, index, array) {
+    let prevRes = obs._result;
     print("Search #" + index + ": search=" + element.search);
-    acs.startSearch(element.search, param, null, obs);
+    acs.startSearch(element.search, param, prevRes, obs);
 
     for (var i = 0; i < obs._result.matchCount; i++) {
       print("... got " + i + ": " + obs._result.getValueAt(i));
@@ -256,7 +384,6 @@ function run_test() {
 
   inputs.forEach(checkInputSet);
 
-
   // Test - Popularity Index
   print("Checking by popularity index:");
   let pab = MailServices.ab.getDirectory(kPABData.URI);
@@ -270,17 +397,17 @@ function run_test() {
       continue;
 
     switch (card.displayName) {
-    case "dis":
-    case "disp":
+    case "dis": // 2
+    case "disp": // 3
       card.setProperty("PopularityIndex", 4);
       break;
-    case "displ":
+    case "displ": // 4
       card.setProperty("PopularityIndex", 5);
       break;
-    case "d":
+    case "d": // 0
       card.setProperty("PopularityIndex", 1);
       break;
-    case "di":
+    case "di": // 1
       card.setProperty("PopularityIndex", 20);
       break;
     default:
