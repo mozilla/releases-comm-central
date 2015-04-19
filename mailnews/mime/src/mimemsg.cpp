@@ -429,16 +429,28 @@ MimeMessage_close_headers (MimeObject *obj)
 
       /* Emit a normal header block. */
       status = MimeMessage_write_headers_html(obj);
-      if (status < 0) return status;
+      if (status < 0)
+      {
+        PR_FREEIF(ct);
+        return status;
+      }
     }
     else if (obj->output_p)
     {
       /* Dump the headers, raw. */
       status = MimeObject_write(obj, "", 0, false);  /* initialize */
-      if (status < 0) return status;
+      if (status < 0)
+      {
+        PR_FREEIF(ct);
+        return status;
+      }
       status = MimeHeaders_write_raw_headers(msg->hdrs, obj->options,
                          obj->options->decrypt_p);
-      if (status < 0) return status;
+      if (status < 0)
+      {
+        PR_FREEIF(ct);
+        return status;
+      }
     }
 
 #ifdef XP_UNIX
