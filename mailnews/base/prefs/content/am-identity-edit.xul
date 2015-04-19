@@ -32,14 +32,6 @@
           src="chrome://messenger/content/am-prefs.js"/>
   <script type="application/javascript"
           src="chrome://messenger/content/am-identity-edit.js"/>
-  <script type="application/javascript">
-  <![CDATA[
-    function getServerIdAndPageIdFromTree(tree)
-    {
-      return {"serverId": gAccount.incomingServer.key, "pageId": "" }
-    }
-  ]]>
-  </script>
 
   <broadcaster id="broadcaster_attachSignature"/>
 
