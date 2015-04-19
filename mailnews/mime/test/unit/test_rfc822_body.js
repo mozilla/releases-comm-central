@@ -22,7 +22,7 @@ const msgGen = gMessageGenerator = new MessageGenerator();
 let messages = [
   // a message whose body is itself a message
   { bodyPart: msgGen.makeMessage(),
-    attachmentCount: function(inline) 1,
+    attachmentCount: inline => 1,
   },
   // a message whose body is itself a message, and which has an attachment
   { bodyPart: msgGen.makeMessage({
@@ -30,7 +30,7 @@ let messages = [
                       filename: "attachment.txt",
                       format: "" }]
     }),
-    attachmentCount: function(inline) inline ? 2 : 1,
+    attachmentCount: inline => inline ? 2 : 1,
   },
 ];
 
