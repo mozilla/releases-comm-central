@@ -309,7 +309,7 @@
 
             // Now generate our folder-list.  Note that we'll special case this
             // situation below, to avoid destroying the sort order we just made
-            folders = accounts.map(function(acct) acct.incomingServer.rootFolder);
+            folders = accounts.map(acct => acct.incomingServer.rootFolder);
           } else {
             // If we do have a parent folder, then we just build based on those
             // subFolders for that parent.
@@ -566,7 +566,7 @@
           let allFolders = this.toArray(
             this.fixIterator(this.MailServices.accounts.allFolders, Ci.nsIMsgFolder));
 
-          allFolders = allFolders.filter(function (f) f.canFileMessages);
+          allFolders = allFolders.filter(f => f.canFileMessages);
 
           let recentFolders = this.getMostRecentFolders(allFolders,
                                                         this._MAXRECENT,

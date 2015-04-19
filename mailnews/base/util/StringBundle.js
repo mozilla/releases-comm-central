@@ -56,7 +56,7 @@ StringBundle.prototype = {
    */
   get _stringBundle() {
     let stringBundle = Services.strings.createBundle(this.url, this._appLocale);
-    this.__defineGetter__("_stringBundle", function() stringBundle);
+    this.__defineGetter__("_stringBundle", () => stringBundle);
     return this._stringBundle;
   },
 

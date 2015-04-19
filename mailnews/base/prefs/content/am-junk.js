@@ -255,7 +255,7 @@ function buildServerFilterMenuList()
       menuEntries.push.apply(menuEntries, buildServerFilterListFromDir(ispDirectory, menuEntries));
   }
 
-  menuEntries.sort(function(a,b) a.localeCompare(b));
+  menuEntries.sort((a, b) => a.localeCompare(b));
   for (let entry of menuEntries) {
     ispHeaderList.appendItem(entry, entry);
   }

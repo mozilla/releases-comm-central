@@ -149,7 +149,7 @@ var msgDBCacheManager =
         if (db.folder.databaseOpen)
           dbs.push(db);
       }
-      dbs.sort(function(a, b) a.lastUseTime > b.lastUseTime);
+      dbs.sort((a, b) => a.lastUseTime > b.lastUseTime);
       let dbsToClose = dbs.length - maxOpenDBs;
       if (dbsToClose > 0) {
         log.info("trying to close " + dbsToClose + " databases");
