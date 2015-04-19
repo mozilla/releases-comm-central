@@ -1979,15 +1979,9 @@ nsresult nsNNTPProtocol::SendFirstNNTPCommandResponse()
          rv = m_newsFolder->RemoveMessage(m_key);
       }
     }
-
     return NS_ERROR_FAILURE;
   }
 
-  /* start the graph progress indicator
-  */
-  NNTP_LOG_NOTE("start the graph progress indicator");
-  SetFlag(NNTP_DESTROY_PROGRESS_GRAPH);
-  return NS_OK;
 }
 
 nsresult nsNNTPProtocol::SendGroupForArticle()
