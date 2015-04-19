@@ -25,12 +25,12 @@
       <constructor><![CDATA[
         let children = Array.slice(this._childNodes);
 
-        children.filter(function(aChild) aChild.getAttribute("selected") == "true")
+        children.filter(aChild => aChild.getAttribute("selected") == "true")
                 .forEach(this.selectedItems.push, this.selectedItems);
 
-        children.filter(function(aChild) !aChild.hasAttribute("context"))
-                .forEach(function(aChild) aChild.setAttribute("context",
-                         this.getAttribute("itemcontext")), this);
+        children.filter(aChild => !aChild.hasAttribute("context"))
+                .forEach(aChild => aChild.setAttribute("context",
+                           this.getAttribute("itemcontext")));
 
         this.sizes = {small: 16, large: 32, tile: 32};
         this.messenger = Components.classes["@mozilla.org/messenger;1"]

@@ -1655,7 +1655,7 @@
             // Sort the matches by index, just to be sure.
             // They are probably already sorted, but if they aren't it could
             // mess things up at the next step.
-            matches.sort(function(a, b) a[0] - b[0]);
+            matches.sort((a, b) => a[0] - b[0]);
 
             // Convert the byte offsets and lengths into character indexes.
             let charCodeToByteCount = function(c) {

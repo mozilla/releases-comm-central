@@ -265,13 +265,13 @@ DateFacetVis.prototype = {
     vis.add(pv.Bar)
       .data(bins)
       .bottom(0)
-      .height(function (d) Math.floor(d.items.length * binScale))
-      .width(function() barWidth)
-      .left(function() isRTL ? null : (this.index * barPix))
-      .right(function() isRTL ? (this.index * barPix) : null)
+      .height(d => Math.floor(d.items.length * binScale))
+      .width(() => barWidth)
+      .left(function() { return isRTL ? null : (this.index * barPix); })
+      .right(function() { return isRTL ? (this.index * barPix) : null; })
       .fillStyle("#add2fb")
-      .event("mouseover", function(d) this.fillStyle("#3465a4"))
-      .event("mouseout", function(d) this.fillStyle("#add2fb"))
+      .event("mouseover", function(d) { return this.fillStyle("#3465a4"); })
+      .event("mouseout", function(d) { return this.fillStyle("#add2fb"); })
       .event("click", function(d) {
           dis.constraints = [[d.startDate, d.endDate]];
           dis.binding.setAttribute("zoomedout", "false");
@@ -283,9 +283,9 @@ DateFacetVis.prototype = {
     this.hotBars = vis.add(pv.Bar)
       .data(this.emptyBins)
       .bottom(0)
-      .height(function (d) Math.floor(d * binScale))
-      .width(function() barWidth)
-      .left(function() this.index * barPix)
+      .height(d => Math.floor(d * binScale))
+      .width(() => barWidth)
+      .left(function() { return this.index * barPix; })
       .fillStyle("#3465a4");
 
     for (let labelTier of labelTiers) {
@@ -293,13 +293,12 @@ DateFacetVis.prototype = {
         .data(labelTier.displayValues)
         .bottom(-totalAxisLabelHeight + labelTier.vertOffset)
         .height(labelTier.vertHeight)
-        .left(function(d) isRTL ? null : Math.floor(width * d[0]))
-        .right(function(d) isRTL ? Math.floor(width * d[0]) : null)
-        .width(function(d)
-                 Math.floor(width * d[1]) - Math.floor(width * d[0]) - 1)
+        .left(d => isRTL ? null : Math.floor(width * d[0]))
+        .right(d => isRTL ? Math.floor(width * d[0]) : null)
+        .width(d => Math.floor(width * d[1]) - Math.floor(width * d[0]) - 1)
         .fillStyle("#dddddd")
-        .event("mouseover", function(d) this.fillStyle("#3465a4"))
-        .event("mouseout", function(d) this.fillStyle("#dddddd"))
+        .event("mouseover", function(d) { return this.fillStyle("#3465a4"); })
+        .event("mouseout", function(d) { return this.fillStyle("#dddddd"); })
         .event("click", function(d) {
           dis.constraints = [[d[3], d[4]]];
           dis.binding.setAttribute("zoomedout", "false");
@@ -313,7 +312,7 @@ DateFacetVis.prototype = {
           .textAlign("center")
           .textBaseline("top")
           .textStyle("black")
-          .text(function(d) d[2]);
+          .text(d => d[2]);
       }
     }
 

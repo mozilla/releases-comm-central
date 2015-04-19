@@ -343,11 +343,11 @@ var FacetContext = {
     else
       scores = Gloda.scoreNounItems(items);
     let scoredItems = items.map(function(item, index) { return [scores[index], item]; });
-    scoredItems.sort(function(a,b) b[0]-a[0]);
+    scoredItems.sort((a, b) => b[0]-a[0]);
     this._relevantSortedItems = scoredItems.map(scoredItem => scoredItem[1]);
 
     this._dateSortedItems =
-      this._relevantSortedItems.concat().sort(function(a,b) b.date-a.date);
+      this._relevantSortedItems.concat().sort((a, b) => b.date-a.date);
   },
 
   initialBuild: function() {

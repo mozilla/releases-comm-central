@@ -985,7 +985,7 @@ var specialTabs = {
       }
     },
 
-    shouldSwitchTo: function ({ chromePage: x })
+    shouldSwitchTo: ({ chromePage: x }) =>
       contentTabBaseType.shouldSwitchTo({ contentPage: x }),
 
     /**

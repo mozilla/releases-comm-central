@@ -112,7 +112,7 @@ OAuth.prototype = {
     if (queryIndex != -1) {
       urlSpec = url.slice(0, queryIndex);
       dataParams = url.slice(queryIndex + 1).split("&")
-                      .map(function(p) p.split("=").map(percentEncode));
+                      .map(p => p.split("=").map(percentEncode));
     }
     this.log.info("in sign and send url = " + url + "\nurlSpec = " + urlSpec);
     this.log.info("dataParams = " + dataParams);
@@ -123,8 +123,8 @@ OAuth.prototype = {
       let signatureBase =
         aMethod + "&" + encodeURIComponent(urlSpec) + "&" +
         params.concat(dataParams)
-              .sort(function(a,b) (a[0] < b[0]) ? -1 : (a[0] > b[0]) ? 1 : 0)
-              .map(function(p) p.map(percentEncode).join("%3D"))
+              .sort((a, b) => (a[0] < b[0]) ? -1 : (a[0] > b[0]) ? 1 : 0)
+              .map(p => p.map(percentEncode).join("%3D"))
               .join("%26");
 
       this.log.info("sig base = " + signatureBase);
@@ -150,7 +150,7 @@ OAuth.prototype = {
     params.push(["oauth_signature", signature]);
 
     let authorization =
-      "OAuth " + params.map(function (p) p[0] + "=\"" + p[1] + "\"").join(", ");
+      "OAuth " + params.map(p => p[0] + "=\"" + p[1] + "\"").join(", ");
     let options = {
       headers: (aHeaders || []).concat([["Authorization", authorization]]),
       postData: aPOSTData,

@@ -1173,7 +1173,7 @@ function HideMessageHeaderPane()
 function OutputNewsgroups(headerEntry, headerValue)
 {
   headerValue.split(",").forEach(
-    function(newsgroup) headerEntry.enclosingBox.addNewsgroupView(newsgroup));
+    newsgroup => headerEntry.enclosingBox.addNewsgroupView(newsgroup));
 
   headerEntry.enclosingBox.buildViews();
 }

@@ -1134,7 +1134,7 @@ let gFolderTreeView = {
       let folderItem = new ftvItem(subFolders[0]);
       folderItem._level = 0;
       if (flag & nsMsgFolderFlags.Inbox)
-        folderItem.__defineGetter__("children", function() []);
+        folderItem.__defineGetter__("children", () => []);
       if (position == undefined)
         map.push(folderItem);
       else
@@ -1183,7 +1183,7 @@ let gFolderTreeView = {
       // don't show sub-folders of the inbox, but I think Archives/Sent, etc
       // should have the sub-folders.
       if (flag & nsMsgFolderFlags.Inbox)
-        child.__defineGetter__("children", function() []);
+        child.__defineGetter__("children", () => []);
       // If we have consecutive children with the same server, then both
       // should display as folder - server.
       if (prevChild && (child._folder.server == prevChild._folder.server)) {
@@ -1507,7 +1507,7 @@ let gFolderTreeView = {
 
         // There are no children in this view!
         for (let folder of map) {
-          folder.__defineGetter__("children", function() []);
+          folder.__defineGetter__("children", () => []);
           folder.addServerName = true;
         }
         sortFolderItems(map);
@@ -1602,7 +1602,7 @@ let gFolderTreeView = {
         // There are no children in this view!
         for (let item of faves) {
           let name = item._folder.abbreviatedName.toLocaleLowerCase();
-          item.__defineGetter__("children", function() []);
+          item.__defineGetter__("children", () => []);
           item.addServerName = dupeNames.has(name);
         }
         sortFolderItems(faves);
@@ -1655,7 +1655,7 @@ let gFolderTreeView = {
         // And we want to display the account name to distinguish folders w/
         // the same name.
         for (let folder of items) {
-          folder.__defineGetter__("children", function() []);
+          folder.__defineGetter__("children", () => []);
           folder.addServerName = true;
         }
 
@@ -1755,7 +1755,7 @@ let gFolderTreeView = {
       get _allSmartFlags() {
         delete this._allSmartFlags;
         return this._allSmartFlags = this._flagNameList.reduce(
-          function (res, [flag,, isDeep,]) res | flag, 0);
+          (res, [flag,, isDeep,]) => res | flag, 0);
       },
 
       /**
@@ -1764,7 +1764,7 @@ let gFolderTreeView = {
       get _allShallowFlags() {
         delete this._allShallowFlags;
         return this._allShallowFlags = this._flagNameList.reduce(
-          function (res, [flag,, isDeep,]) isDeep ? res : (res | flag), 0);
+          (res, [flag,, isDeep,]) => isDeep ? res : (res | flag), 0);
       },
 
       /**
@@ -2023,7 +2023,7 @@ let gFolderTreeView = {
       newChild.useServerNameOnly = true;
     }
     if (aItem.flags & nsMsgFolderFlags.Inbox)
-      newChild.__defineGetter__("children", function() []);
+      newChild.__defineGetter__("children", () => []);
     if (parent)
       this._addChildToView(parent, parentIndex, newChild);
     else {

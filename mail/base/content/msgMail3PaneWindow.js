@@ -1797,9 +1797,9 @@ let TabsInTitlebar = {
   },
 
   _update: function (aForce=false) {
-    function $(id) document.getElementById(id);
-    function rect(ele) ele.getBoundingClientRect();
-    function verticalMargins(cstyle) parseFloat(cstyle.marginBottom) + parseFloat(cstyle.marginTop);
+    function $(id) { return document.getElementById(id); }
+    function rect(ele) { return ele.getBoundingClientRect(); }
+    function verticalMargins(cstyle) { return parseFloat(cstyle.marginBottom) + parseFloat(cstyle.marginTop); }
 
     if (!this._initialized || window.fullScreen)
       return;
