@@ -230,7 +230,6 @@ nsImapMailboxSpec& nsImapMailboxSpec::operator= (const nsImapMailboxSpec& aCopy)
   
   mAllocatedPathName.Assign(aCopy.mAllocatedPathName);
   mUnicharPathName.Assign(aCopy.mUnicharPathName);
-  mHierarchySeparator = mHierarchySeparator;
   mHostName.Assign(aCopy.mHostName);
 	
   mFlagState = aCopy.mFlagState;
