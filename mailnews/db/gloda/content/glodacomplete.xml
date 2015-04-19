@@ -62,14 +62,14 @@
           }
 
           // yield after each batch of items so that typing the url bar is responsive
-          setTimeout(function (self) { self._appendCurrentResult(); }, 0, this);
+          setTimeout(() => this._appendCurrentResult(), 0);
         ]]>
         </body>
       </method>
       <method name="_invalidate">
         <body>
           <![CDATA[
-          setTimeout(function(self) self.adjustHeight(), 0, this);
+          setTimeout(() => this.adjustHeight(), 0);
 
           // remove all child nodes because we never want to reuse them.
           while (this.richlistbox.hasChildNodes())

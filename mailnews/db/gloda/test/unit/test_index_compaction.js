@@ -134,7 +134,7 @@ function test_sweep_performs_compaction() {
   yield false;
 
   // Erase the compaction job.
-  GlodaIndexer.purgeJobsUsingFilter(function() true);
+  GlodaIndexer.purgeJobsUsingFilter(() => true);
 
   // Make sure the folder is marked compacted...
   let glodaFolder = Gloda.getFolderForFolder(msgFolder);
@@ -178,7 +178,7 @@ function test_moves_and_deletions_on_compacted_folder_edge_case() {
   yield false;
 
   // Erase the compaction job.
-  GlodaIndexer.purgeJobsUsingFilter(function() true);
+  GlodaIndexer.purgeJobsUsingFilter(() => true);
 
   // - Delete
   // Because of the compaction, the PendingCommitTracker forgot that the message
@@ -192,7 +192,7 @@ function test_moves_and_deletions_on_compacted_folder_edge_case() {
   // Kill the event-based indexing job of the target; we want the indexing sweep
   //  to see it as a move.
   mark_action("actual", "killing all indexing jobs", []);
-  GlodaIndexer.purgeJobsUsingFilter(function() true);
+  GlodaIndexer.purgeJobsUsingFilter(() => true);
 
   // - Indexing pass
   // Reenable indexing so we can do a sweep.

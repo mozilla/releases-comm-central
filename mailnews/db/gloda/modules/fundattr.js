@@ -521,7 +521,7 @@ var GlodaFundAttr = {
     if (listIdentities.length)
       aGlodaMessage.mailingLists = listIdentities;
 
-    let findIsEncrypted = function (x)
+    let findIsEncrypted = x =>
       x.isEncrypted || (x.parts ? x.parts.some(findIsEncrypted) : false);
 
     // -- Encryption

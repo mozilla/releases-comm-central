@@ -288,7 +288,7 @@ Logger.prototype = {
   },
 
   _parent: null,
-  get parent() this._parent,
+  get parent() { return this._parent; },
   set parent(parent) {
     if (this._parent == parent) {
       return;

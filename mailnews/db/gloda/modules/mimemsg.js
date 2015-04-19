@@ -205,7 +205,7 @@ function MsgHdrToMimeMessage(aMsgHdr, aCallbackThis, aCallback,
     if (aOptions && aOptions.examineEncryptedParts)
       return aCallback;
     else
-      return (function (aMsgHdr, aMimeMsg)
+      return ((aMsgHdr, aMimeMsg) =>
         aCallback.call(aCallbackThis, aMsgHdr, stripEncryptedParts(aMimeMsg))
       );
   };
@@ -385,7 +385,7 @@ MimeMessage.prototype = {
     else
       // Why is there no flatten method for arrays?
       return [child.allUserAttachments for each ([, child] in Iterator(this.parts))]
-        .reduce(function (a, b) a.concat(b), []);
+        .reduce((a, b) => a.concat(b), []);
   },
 
   /**
@@ -393,7 +393,7 @@ MimeMessage.prototype = {
    */
   get size () {
     return [child.size for each ([, child] in Iterator(this.parts))]
-      .reduce(function (a, b) a + Math.max(b, 0), 0);
+      .reduce((a, b) => a + Math.max(b, 0), 0);
   },
 
   /**
@@ -491,11 +491,11 @@ MimeContainer.prototype = {
   },
   get allUserAttachments () {
     return [child.allUserAttachments for each ([, child] in Iterator(this.parts))]
-      .reduce(function (a, b) a.concat(b), []);
+      .reduce((a, b) => a.concat(b), []);
   },
   get size () {
     return [child.size for each ([, child] in Iterator(this.parts))]
-      .reduce(function (a, b) a + Math.max(b, 0), 0);
+      .reduce((a, b) => a + Math.max(b, 0), 0);
   },
   set size (whatever) {
     // nop
@@ -631,15 +631,15 @@ MimeUnknown.prototype = {
   __proto__: HeaderHandlerBase,
   get allAttachments() {
     return [child.allAttachments for each ([, child] in Iterator(this.parts))]
-      .reduce(function (a, b) a.concat(b), []);
+      .reduce((a, b) => a.concat(b), []);
   },
   get allUserAttachments() {
     return [child.allUserAttachments for each ([, child] in Iterator(this.parts))]
-      .reduce(function (a, b) a.concat(b), []);
+      .reduce((a, b) => a.concat(b), []);
   },
   get size() {
     return this._size + [child.size for each ([, child] in Iterator(this.parts))]
-      .reduce(function (a, b) a + Math.max(b, 0), 0);
+      .reduce((a, b) => a + Math.max(b, 0), 0);
   },
   set size(aSize) {
     this._size = aSize;

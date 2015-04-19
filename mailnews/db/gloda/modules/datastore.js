@@ -1691,7 +1691,7 @@ var GlodaDatastore = {
    */
   get _beginTransactionStatement() {
     let statement = this._createAsyncStatement("BEGIN TRANSACTION");
-    this.__defineGetter__("_beginTransactionStatement", function() statement);
+    this.__defineGetter__("_beginTransactionStatement", () => statement);
     return this._beginTransactionStatement;
   },
 
@@ -1700,7 +1700,7 @@ var GlodaDatastore = {
    */
   get _commitTransactionStatement() {
     let statement = this._createAsyncStatement("COMMIT");
-    this.__defineGetter__("_commitTransactionStatement", function() statement);
+    this.__defineGetter__("_commitTransactionStatement", () => statement);
     return this._commitTransactionStatement;
   },
 
@@ -1709,7 +1709,7 @@ var GlodaDatastore = {
    */
   get _rollbackTransactionStatement() {
     let statement = this._createAsyncStatement("ROLLBACK");
-    this.__defineGetter__("_rollbackTransactionStatement", function() statement);
+    this.__defineGetter__("_rollbackTransactionStatement", () => statement);
     return this._rollbackTransactionStatement;
   },
 
@@ -1853,7 +1853,7 @@ var GlodaDatastore = {
       "INSERT INTO attributeDefinitions (id, attributeType, extensionName, \
                                   name, parameter) \
               VALUES (?1, ?2, ?3, ?4, ?5)");
-    this.__defineGetter__("_insertAttributeDefStatement", function() statement);
+    this.__defineGetter__("_insertAttributeDefStatement", () => statement);
     return this._insertAttributeDefStatement;
   },
 
@@ -1958,7 +1958,7 @@ var GlodaDatastore = {
                                     indexingPriority) VALUES \
         (?1, ?2, ?3, ?4, ?5)");
     this.__defineGetter__("_insertFolderLocationStatement",
-      function() statement);
+      () => statement);
     return this._insertFolderLocationStatement;
   },
 
@@ -2134,7 +2134,7 @@ var GlodaDatastore = {
       "UPDATE folderLocations SET dirtyStatus = ?1 \
               WHERE id = ?2");
     this.__defineGetter__("_updateFolderDirtyStatusStatement",
-      function() statement);
+      () => statement);
     return this._updateFolderDirtyStatusStatement;
   },
 
@@ -2150,7 +2150,7 @@ var GlodaDatastore = {
       "UPDATE folderLocations SET indexingPriority = ?1 \
               WHERE id = ?2");
     this.__defineGetter__("_updateFolderIndexingPriorityStatement",
-      function() statement);
+      () => statement);
     return this._updateFolderIndexingPriorityStatement;
   },
 
@@ -2166,7 +2166,7 @@ var GlodaDatastore = {
       "UPDATE folderLocations SET folderURI = ?1 \
               WHERE id = ?2");
     this.__defineGetter__("_updateFolderLocationStatement",
-      function() statement);
+      () => statement);
     return this._updateFolderLocationStatement;
   },
 
@@ -2195,7 +2195,7 @@ var GlodaDatastore = {
     let statement = this._createAsyncStatement(
       "DELETE FROM folderLocations WHERE id = ?1");
     this.__defineGetter__("_deleteFolderByIDStatement",
-      function() statement);
+      () => statement);
     return this._deleteFolderByIDStatement;
   },
 
@@ -2294,7 +2294,7 @@ var GlodaDatastore = {
       "INSERT INTO conversations (id, subject, oldestMessageDate, \
                                   newestMessageDate) \
               VALUES (?1, ?2, ?3, ?4)");
-    this.__defineGetter__("_insertConversationStatement", function() statement);
+    this.__defineGetter__("_insertConversationStatement", () => statement);
     return this._insertConversationStatement;
   },
 
@@ -2303,7 +2303,7 @@ var GlodaDatastore = {
       "INSERT INTO conversationsText (docid, subject) \
               VALUES (?1, ?2)");
     this.__defineGetter__("_insertConversationTextStatement",
-      function() statement);
+      () => statement);
     return this._insertConversationTextStatement;
   },
 
@@ -2348,7 +2348,7 @@ var GlodaDatastore = {
     let statement = this._createAsyncStatement(
       "DELETE FROM conversations WHERE id = ?1");
     this.__defineGetter__("_deleteConversationByIDStatement",
-                          function() statement);
+                          () => statement);
     return this._deleteConversationByIDStatement;
   },
 
@@ -2406,7 +2406,7 @@ var GlodaDatastore = {
       "INSERT INTO messages (id, folderID, messageKey, conversationID, date, \
                              headerMessageID, jsonAttributes, notability) \
               VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)");
-    this.__defineGetter__("_insertMessageStatement", function() statement);
+    this.__defineGetter__("_insertMessageStatement", () => statement);
     return this._insertMessageStatement;
   },
 
@@ -2415,7 +2415,7 @@ var GlodaDatastore = {
       "INSERT INTO messagesText (docid, subject, body, attachmentNames, \
                                  author, recipients) \
               VALUES (?1, ?2, ?3, ?4, ?5, ?6)");
-    this.__defineGetter__("_insertMessageTextStatement", function() statement);
+    this.__defineGetter__("_insertMessageTextStatement", () => statement);
     return this._insertMessageTextStatement;
   },
 
@@ -2543,7 +2543,7 @@ var GlodaDatastore = {
                            notability = ?7, \
                            deleted = ?8 \
               WHERE id = ?9");
-    this.__defineGetter__("_updateMessageStatement", function() statement);
+    this.__defineGetter__("_updateMessageStatement", () => statement);
     return this._updateMessageStatement;
   },
 
@@ -2553,7 +2553,7 @@ var GlodaDatastore = {
                                attachmentNames = ?2 \
               WHERE docid = ?3");
 
-    this.__defineGetter__("_updateMessageTextStatement", function() statement);
+    this.__defineGetter__("_updateMessageTextStatement", () => statement);
     return this._updateMessageTextStatement;
   },
 
@@ -2648,7 +2648,7 @@ var GlodaDatastore = {
     let statement = this._createAsyncStatement(
       "UPDATE messages SET folderID = ?1, messageKey = ?2 WHERE id = ?3");
     this.__defineGetter__("_updateMessageLocationStatement",
-                          function() statement);
+                          () => statement);
     return this._updateMessageLocationStatement;
   },
 
@@ -2701,7 +2701,7 @@ var GlodaDatastore = {
     let statement = this._createAsyncStatement(
       "UPDATE messages SET messageKey = ?1 WHERE id = ?2");
     this.__defineGetter__("_updateMessageKeyStatement",
-                          function() statement);
+                          () => statement);
     return this._updateMessageKeyStatement;
   },
 
@@ -2822,7 +2822,7 @@ var GlodaDatastore = {
       "UPDATE messages SET folderID = NULL, messageKey = NULL, \
               deleted = 1 WHERE folderID = ?1");
     this.__defineGetter__("_updateMessagesMarkDeletedByFolderID",
-      function() statement);
+      () => statement);
     return this._updateMessagesMarkDeletedByFolderID;
   },
 
@@ -2846,7 +2846,7 @@ var GlodaDatastore = {
     //  in-memory messages in that folder.
     GlodaCollectionManager.itemsDeletedByAttribute(
       GlodaMessage.prototype.NOUN_ID,
-      function(aMsg) aMsg._folderID == aFolderID);
+      aMsg => aMsg._folderID == aFolderID);
   },
 
   /**
@@ -2874,7 +2874,7 @@ var GlodaDatastore = {
     let statement = this._createAsyncStatement(
       "SELECT COUNT(*) FROM messages WHERE deleted = 1");
     this.__defineGetter__("_countDeletedMessagesStatement",
-                          function() statement);
+                          () => statement);
     return this._countDeletedMessagesStatement;
   },
 
@@ -2890,7 +2890,7 @@ var GlodaDatastore = {
     let statement = this._createAsyncStatement(
       "DELETE FROM messages WHERE id = ?1");
     this.__defineGetter__("_deleteMessageByIDStatement",
-                          function() statement);
+                          () => statement);
     return this._deleteMessageByIDStatement;
   },
 
@@ -2898,7 +2898,7 @@ var GlodaDatastore = {
     let statement = this._createAsyncStatement(
       "DELETE FROM messagesText WHERE docid = ?1");
     this.__defineGetter__("_deleteMessageTextByIDStatement",
-                          function() statement);
+                          () => statement);
     return this._deleteMessageTextByIDStatement;
   },
 
@@ -2927,7 +2927,7 @@ var GlodaDatastore = {
         WHERE folderID = ?1 AND \
           messageKey >= ?2 AND +deleted = 0 ORDER BY messageKey LIMIT ?3");
     this.__defineGetter__("_folderCompactionStatement",
-                          function() statement);
+                          () => statement);
     return this._folderCompactionStatement;
   },
 
@@ -2948,7 +2948,7 @@ var GlodaDatastore = {
                              value) \
               VALUES (?1, ?2, ?3, ?4)");
     this.__defineGetter__("_insertMessageAttributeStatement",
-      function() statement);
+      () => statement);
     return this._insertMessageAttributeStatement;
   },
 
@@ -2957,7 +2957,7 @@ var GlodaDatastore = {
       "DELETE FROM messageAttributes WHERE attributeID = ?1 AND value = ?2 \
          AND conversationID = ?3 AND messageID = ?4");
     this.__defineGetter__("_deleteMessageAttributeStatement",
-      function() statement);
+      () => statement);
     return this._deleteMessageAttributeStatement;
   },
 
@@ -3034,7 +3034,7 @@ var GlodaDatastore = {
     let statement = this._createAsyncStatement(
       "DELETE FROM messageAttributes WHERE messageID = ?1");
     this.__defineGetter__("_deleteMessageAttributesByMessageIDStatement",
-      function() statement);
+      () => statement);
     return this._deleteMessageAttributesByMessageIDStatement;
   },
 
@@ -3146,7 +3146,7 @@ var GlodaDatastore = {
    */
   get _escapeLikeStatement() {
     let statement = this._createAsyncStatement("SELECT 0");
-    this.__defineGetter__("_escapeLikeStatement", function() statement);
+    this.__defineGetter__("_escapeLikeStatement", () => statement);
     return this._escapeLikeStatement;
   },
 
@@ -3772,7 +3772,7 @@ var GlodaDatastore = {
       "INSERT INTO contacts (id, directoryUUID, contactUUID, name, popularity,\
                              frecency, jsonAttributes) \
               VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)");
-    this.__defineGetter__("_insertContactStatement", function() statement);
+    this.__defineGetter__("_insertContactStatement", () => statement);
     return this._insertContactStatement;
   },
 
@@ -3818,7 +3818,7 @@ var GlodaDatastore = {
                            frecency = ?5, \
                            jsonAttributes = ?6 \
                        WHERE id = ?7");
-    this.__defineGetter__("_updateContactStatement", function() statement);
+    this.__defineGetter__("_updateContactStatement", () => statement);
     return this._updateContactStatement;
   },
 
@@ -3862,7 +3862,7 @@ var GlodaDatastore = {
     let statement = this._createSyncStatement(
       "SELECT * FROM contacts WHERE id = ?1");
     this.__defineGetter__("_selectContactByIDStatement",
-      function() statement);
+      () => statement);
     return this._selectContactByIDStatement;
   },
 
@@ -3905,7 +3905,7 @@ var GlodaDatastore = {
     let statement = this._createAsyncStatement(
       "INSERT INTO identities (id, contactID, kind, value, description, relay) \
               VALUES (?1, ?2, ?3, ?4, ?5, ?6)");
-    this.__defineGetter__("_insertIdentityStatement", function() statement);
+    this.__defineGetter__("_insertIdentityStatement", () => statement);
     return this._insertIdentityStatement;
   },
 
@@ -3940,7 +3940,7 @@ var GlodaDatastore = {
     let statement = this._createSyncStatement(
       "SELECT * FROM identities WHERE kind = ?1 AND value = ?2");
     this.__defineGetter__("_selectIdentityByKindValueStatement",
-      function() statement);
+      () => statement);
     return this._selectIdentityByKindValueStatement;
   },
 
