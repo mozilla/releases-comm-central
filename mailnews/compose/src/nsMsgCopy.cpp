@@ -387,16 +387,16 @@ nsMsgCopy::CreateIfMissing(nsIMsgFolder **folder, bool *waitForUrl)
       bool exists = false;
       if (!isAsyncFolder && folderPath)
         folderPath->Exists(&exists);
-        if (!exists)
-        {
-          (*folder)->CreateStorageIfMissing(this);
-          if (isAsyncFolder)
-            *waitForUrl = true;
+      if (!exists)
+      {
+        (*folder)->CreateStorageIfMissing(this);
+        if (isAsyncFolder)
+          *waitForUrl = true;
 
-          rv = NS_OK;
-        }
+        rv = NS_OK;
       }
     }
+  }
   return rv;
 }
 ////////////////////////////////////////////////////////////////////////////////////
