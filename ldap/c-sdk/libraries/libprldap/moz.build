@@ -5,7 +5,7 @@
 
 include('/ldap/ldap-sdk.mozbuild')
 
-SharedLibrary('nsldappr32v60' if CONFIG['OS_ARCH'] == 'WINNT' else 'prldap60')
+SharedLibrary('prldap60')
 
 SOURCES += [
     'ldappr-dns.c',
@@ -26,6 +26,6 @@ LOCAL_INCLUDES += [
 ]
 
 USE_LIBS += [
-    get_ldap_name('ldap'),
+    'ldap60',
     'nspr'
 ]

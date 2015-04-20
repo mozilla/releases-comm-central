@@ -5,7 +5,7 @@
 
 include('/ldap/ldap-sdk.mozbuild')
 
-SharedLibrary(get_ldap_name('ldif'))
+SharedLibrary('ldif60')
 
 SOURCES += [
     'line64.c'

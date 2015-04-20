@@ -6,11 +6,6 @@
 DIRS += [
     'liblber',
     'libldif',
-    'libiutil',
     'libldap',
     'libprldap'
 ]
- 
-if CONFIG['OS_ARCH'] == 'WINNT':
-    DIRS += ['libutil']
- 

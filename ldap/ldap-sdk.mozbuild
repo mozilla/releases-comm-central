@@ -23,8 +23,3 @@ DEFINES['NS_DOMESTIC'] = True
 
 if CONFIG['MOZ_DEBUG']:
     DEFINES['LDAP_DEBUG'] = True
-
-if CONFIG['OS_ARCH'] == 'WINNT':
-    get_ldap_name = lambda simple: 'ns%s32v60' % simple
-else:
-    get_ldap_name = lambda simple: '%s60' % simple

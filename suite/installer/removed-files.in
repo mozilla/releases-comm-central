@@ -350,6 +350,11 @@ jsj3250.dll
 @DIR_MACOS@@DLL_PREFIX@nssutil3@DLL_SUFFIX@
 @DIR_MACOS@@DLL_PREFIX@mozsqlite3@DLL_SUFFIX@
 #endif
+#ifdef XP_WIN
+nsldap32v60.dll
+nsldappr32v60.dll
+nsldif32v60.dll
+#endif
 @DLL_PREFIX@mozlcms@DLL_SUFFIX@
 omni.jar
 #ifdef XP_MACOSX

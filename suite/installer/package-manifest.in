@@ -720,15 +720,9 @@ bin/libfreebl_32int64_3.so
 ; LDAP components need to be in the browser for AutoConfig
 @RESPATH@/components/mozldap.xpt
 @RESPATH@/components/nsLDAPProtocolHandler.js
-#ifdef XP_WIN32
-@BINPATH@/nsldap32v60.dll
-@BINPATH@/nsldappr32v60.dll
-@BINPATH@/nsldif32v60.dll
-#else
 @BINPATH@/@DLL_PREFIX@ldap60@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@ldif60@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@prldap60@DLL_SUFFIX@
-#endif
 
 ; [Updater]
 ;

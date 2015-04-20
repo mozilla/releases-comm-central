@@ -35,7 +35,7 @@
 ; 
 ; ***** END LICENSE BLOCK ***** 
 
-LIBRARY         NSLDAPPR32V60
+LIBRARY         PRLDAP60
 DESCRIPTION     'LDAP to NSPR glue library for 32-bit Windows'
 VERSION		6.0
 HEAPSIZE        4096

@@ -323,15 +323,9 @@
 @RESPATH@/components/nsAbLDAPAutoCompleteSearch.js
 @RESPATH@/components/nsLDAPProtocolHandler.js
 @RESPATH@/components/ldapComponents.manifest
-#ifdef XP_WIN32
-@BINPATH@/nsldap32v60@DLL_SUFFIX@
-@BINPATH@/nsldappr32v60@DLL_SUFFIX@
-@BINPATH@/nsldif32v60@DLL_SUFFIX@
-#else
 @BINPATH@/@DLL_PREFIX@ldap60@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@ldif60@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@prldap60@DLL_SUFFIX@
-#endif
 
 ; download progress for jsdownloads
 @RESPATH@/components/DownloadsStartup.js

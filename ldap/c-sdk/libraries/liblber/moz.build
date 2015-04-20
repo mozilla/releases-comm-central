@@ -5,7 +5,7 @@
 
 include('/ldap/ldap-sdk.mozbuild')
 
-Library(get_ldap_name('lber'))
+Library('lber60')
 
 SOURCES += [
     'bprint.c',

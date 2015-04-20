@@ -35,7 +35,7 @@
 ; 
 ; ***** END LICENSE BLOCK ***** 
 
-LIBRARY         NSLDAP32V60
+LIBRARY         LDAP60
 DESCRIPTION     'Lightweight Directory Access Protocol Client API for 32-bit Windows'
 VERSION		6.0
 HEAPSIZE        4096

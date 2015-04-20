@@ -377,6 +377,11 @@ uninstall/uninstall.exe
 @DIR_MACOS@@DLL_PREFIX@ldap50@DLL_SUFFIX@
 @DIR_MACOS@nsldappr32v50.dll
 @DIR_MACOS@@DLL_PREFIX@prldap50@DLL_SUFFIX@
+#ifdef XP_WIN
+  nsldap32v60.dll
+  nsldappr32v60.dll
+  nsldif32v60.dll
+#endif
 @DIR_MACOS@redo-prebinding.sh
 @DIR_MACOS@regxpcom.exe
 #ifdef XP_WIN
