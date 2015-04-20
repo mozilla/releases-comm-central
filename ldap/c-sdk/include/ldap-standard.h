@@ -1,4 +1,3 @@
-/* This file is a template.  The generated file is ldap-standard.h>
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  * 
@@ -58,8 +57,8 @@ extern "C" {
 #define LDAP_VERSION_MIN	LDAP_VERSION1
 #define LDAP_VERSION_MAX	LDAP_VERSION3
 
-#define LDAP_VENDOR_VERSION	{{LDAP_VENDOR_VERSION}}	/* version # * 100 */
-#define LDAP_VENDOR_NAME	"{{LDAP_VENDOR_NAME}}"
+#define LDAP_VENDOR_VERSION	607	/* version # * 100 */
+#define LDAP_VENDOR_NAME	"mozilla.org"
 /*
  * The following will be an RFC number once the LDAP C API Internet Draft
  * is published as a Proposed Standard RFC.  For now we use 2000 + the

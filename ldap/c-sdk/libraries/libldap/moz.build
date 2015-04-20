@@ -1,0 +1,88 @@
+# vim: set filetype=python:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+include('/ldap/ldap-sdk.mozbuild')
+
+SharedLibrary(get_ldap_name('ldap'))
+
+SOURCES += [
+    'abandon.c',
+    'add.c',
+    'authzidctrl.c',
+    'bind.c',
+    'cache.c',
+    'charray.c',
+    'charset.c',
+    'compare.c',
+    'compat.c',
+    'control.c',
+    'countvalues.c',
+    'delete.c',
+    'disptmpl.c',
+    'dsparse.c',
+    'error.c',
+    'extendop.c',
+    'free.c',
+    'freevalues.c',
+    'friendly.c',
+    'getattr.c',
+    'getdn.c',
+    'getdxbyname.c',
+    'geteffectiverightsctrl.c',
+    'getentry.c',
+    'getfilter.c',
+    'getoption.c',
+    'getvalues.c',
+    'memcache.c',
+    'message.c',
+    'modify.c',
+    'open.c',
+    'os-ip.c',
+    'proxyauthctrl.c',
+    'psearch.c',
+    'pwmodext.c',
+    'pwpctrl.c',
+    'referral.c',
+    'regex.c',
+    'rename.c',
+    'request.c',
+    'reslist.c',
+    'result.c',
+    'saslbind.c',
+    'sbind.c',
+    'search.c',
+    'setoption.c',
+    'sort.c',
+    'sortctrl.c',
+    'srchpref.c',
+    'tmplout.c',
+    'ufn.c',
+    'unbind.c',
+    'unescape.c',
+    'url.c',
+    'userstatusctrl.c',
+    'utf8.c',
+    'vlistctrl.c',
+    'whoami.c',
+]
+
+if CONFIG['OS_TARGET'] == 'WINNT':
+    SOURCES += [
+        'dllmain.c',
+        'mozock.c',
+    ]
+    DEFFILE = SRCDIR + '/libldap.def'
+
+if CONFIG['OS_TARGET'] != 'WINNT':
+    DEFINES['USE_WAITPID'] = True
+    DEFINES['USE_PTHREADS'] = True
+
+DEFINES['NEEDPROTOS'] = True
+
+LOCAL_INCLUDES += [
+    '/ldap/c-sdk/include'
+]
+
+USE_LIBS += [get_ldap_name('lber')]

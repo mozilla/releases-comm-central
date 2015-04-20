@@ -150,14 +150,8 @@
 /*
  * Is snprintf() part of the standard C runtime library?
  */
-#if !defined(HAVE_SNPRINTF)
-#if defined(SOLARIS) || defined(LINUX) || defined(HPUX) || defined(AIX)
-#define HAVE_SNPRINTF
-#endif
 #if defined(_WINDOWS)
 #define snprintf _snprintf
-#define HAVE_SNPRINTF
-#endif
 #endif
 
 

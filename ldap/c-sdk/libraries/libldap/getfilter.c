@@ -149,11 +149,7 @@ ldap_init_getfilter_buf( char *buf, long buflen )
 	    if (( errmsg = re_comp( nextflp->lfl_pattern )) != NULL ) {
 		char    msg[512];
 		ldap_getfilter_free( lfdp );
-#ifdef HAVE_SNPRINTF
 		snprintf( msg, sizeof(msg),
-#else
-		sprintf( msg,
-#endif
 			"bad regular expression \"%s\" - %s\n",
 			nextflp->lfl_pattern, errmsg );
 		ber_err_print( msg );

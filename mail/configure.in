@@ -50,12 +50,7 @@ MOZ_ARG_DISABLE_BOOL(ldap,
     MOZ_LDAP_XPCOM=,
     MOZ_LDAP_XPCOM=1)
 
-if test "$MOZ_LDAP_XPCOM"; then
-    LDAP_CFLAGS='-I${DIST}/public/ldap'
-fi
-
 AC_SUBST(MOZ_LDAP_XPCOM)
-AC_SUBST(LDAP_CFLAGS)
 
 dnl =========================================================
 dnl = MAPI support (Windows only)
@@ -74,33 +69,3 @@ AC_SUBST(MOZ_MAPI_SUPPORT)
 if test -n "$MOZ_MAPI_SUPPORT"; then
     AC_DEFINE(MOZ_MAPI_SUPPORT)
 fi
-
-# if we're building the LDAP XPCOM component, we need to build
-# the c-sdk first.
-if test -n "$COMPILE_ENVIRONMENT" -a -n "$MOZ_LDAP_XPCOM"; then
-    # Save configure args so we can restore them after configuring LDAP.
-    _save_ac_configure_args="$ac_configure_args"
-    ac_configure_args="$_SUBDIR_CONFIG_ARGS"
-
-    mkdir -p ldap/sdks/c-sdk/ldap
-    ac_configure_args="$_SUBDIR_CONFIG_ARGS --prefix=$MOZ_BUILD_ROOT/dist --with-dist-prefix=$MOZ_BUILD_ROOT/dist --without-nss --with-mozilla"
-    if test -n "$HAVE_64BIT_BUILD"; then
-        dnl A 64-bit OS was (auto-)detected: (explicitly) enable 64-bit support.
-        ac_configure_args="$ac_configure_args --enable-64bit"
-    fi
-    if test -n "$LIBXUL_SDK"; then
-        ac_configure_args="$ac_configure_args --with-nspr=$LIBXUL_DIST"
-    fi
-
-    dnl Explicitly disable the DEBUG RTL
-    if test -n "$MOZ_NO_DEBUG_RTL"; then
-      ac_configure_args="$ac_configure_args --disable-debug-rtl"
-    fi
-
-    dnl The cache file needs to be an absolute path to work properly.
-    cache_file_base=`dirname $cache_file`
-    cache_file=`cd $cache_file_base && pwd`/`basename $cache_file`
-
-    AC_OUTPUT_SUBDIRS(ldap/sdks/c-sdk)
-    ac_configure_args="$_save_ac_configure_args"
-fi # COMPILE_ENVIRONMENT && MOZ_LDAP_XPCOM
