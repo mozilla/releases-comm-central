@@ -703,12 +703,16 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
     // Disable JavaScript on message URLs.
     rv = docShell->SetAllowJavascript(false);
     NS_ENSURE_SUCCESS(rv, rv);
+    rv = docShell->SetAllowContentRetargetingOnChildren(false);
+    NS_ENSURE_SUCCESS(rv, rv);
     rv = docShell->SetAllowPlugins(mAllowPlugins);
     NS_ENSURE_SUCCESS(rv, rv);
   }
   else {
     // JavaScript and plugins are allowed on non-message URLs.
     rv = docShell->SetAllowJavascript(true);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = docShell->SetAllowContentRetargetingOnChildren(true);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = docShell->SetAllowPlugins(true);
     NS_ENSURE_SUCCESS(rv, rv);
