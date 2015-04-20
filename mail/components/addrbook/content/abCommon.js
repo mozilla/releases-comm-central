@@ -20,6 +20,9 @@ var gShowAbColumnInComposeSidebar = false;
 const kDefaultSortColumn = "GeneratedName";
 const kDefaultAscending = "ascending";
 const kDefaultDescending = "descending";
+// kDefaultYear will be used in birthday calculations when no year is given;
+// this is a leap year so that Feb 29th works.
+const kDefaultYear = 2000;
 const kAllDirectoryRoot = "moz-abdirectory://";
 const kLdapUrlPrefix = "moz-abldapdirectory://";
 const kPersonalAddressbookURI = "moz-abmdbdirectory://abook.mab";
@@ -862,3 +865,11 @@ function encodeABTermValue(aString) {
   return encodeURIComponent(aString).replace(/\(/g, "%28").replace(/\)/g, "%29");
 }
 
+/**
+ * Validates the given year and returns it, if it looks sane.
+ * Returns kDefaultYear (a leap year), if no valid date is given.
+ * This ensures that month/day calculations still work.
+ */
+function saneBirthYear(aYear) {
+  return aYear && aYear < 10000 && aYear > 0 ? aYear : kDefaultYear;
+}

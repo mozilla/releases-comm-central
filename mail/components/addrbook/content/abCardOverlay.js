@@ -68,7 +68,6 @@ const kVcardFields =
          ["IRC", "_IRC"]
         ];
 
-const kDefaultYear = 2000;
 var gEditCard;
 var gOnSaveListeners = new Array();
 var gOnLoadListeners = new Array();
@@ -459,6 +458,14 @@ function GetCardValues(cardproperty, doc)
   var birthday = doc.getElementById("Birthday");
   modifyDatepicker(birthday);
 
+  // Get the year first, so that the following month/day
+  // calculations can take leap years into account.
+  var year = cardproperty.getProperty("BirthYear", null);
+  var birthYear = doc.getElementById("BirthYear");
+  // set the year in the datepicker to the stored year
+  birthday.year = saneBirthYear(year);
+  birthYear.value = year;
+
   // get the month of the year (1 - 12)
   var month = cardproperty.getProperty("BirthMonth", null);
   if (month > 0 && month < 13)
@@ -472,14 +479,6 @@ function GetCardValues(cardproperty, doc)
     birthday.date = date;
   else
     birthday.dateField.value = null;
-
-  // get the year
-  var year = cardproperty.getProperty("BirthYear", null);
-  var birthYear = doc.getElementById("BirthYear");
-  // set the year in the datepicker to the stored year
-  // if the year isn't present, default to 2000 (a leap year)
-  birthday.year = year && year < 10000 && year > 0 ? year : kDefaultYear;
-  birthYear.value = year;
 
   // get the current age
   calculateAge(null, birthYear);

@@ -15,6 +15,9 @@ var gAddressBookBundle;
 const kDefaultSortColumn = "GeneratedName";
 const kDefaultAscending = "ascending";
 const kDefaultDescending = "descending";
+// kDefaultYear will be used in birthday calculations when no year is given;
+// this is a leap year so that Feb 29th works.
+const kDefaultYear = 2000;
 const kLdapUrlPrefix = "moz-abldapdirectory://";
 const kPersonalAddressbookURI = "moz-abmdbdirectory://abook.mab";
 const kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";
@@ -740,4 +743,13 @@ function makePhotoFile(aDir, aExtension) {
  */
 function encodeABTermValue(aString) {
   return encodeURIComponent(aString).replace(/\(/g, "%28").replace(/\)/g, "%29");
+}
+
+/**
+ * Validates the given year and returns it, if it looks sane.
+ * Returns kDefaultYear (a leap year), if no valid date is given.
+ * This ensures that month/day calculations still work.
+ */
+function saneBirthYear(aYear) {
+  return aYear && aYear < 10000 && aYear > 0 ? aYear : kDefaultYear;
 }
