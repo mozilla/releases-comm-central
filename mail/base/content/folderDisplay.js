@@ -690,7 +690,9 @@ FolderDisplayWidget.prototype = {
   _restoreColumnStates: function FolderDisplayWidget__restoreColumnStates() {
     if (this._savedColumnStates) {
       // upgrade column states that don't have a correspondent column
-      if (!("correspondentCol" in this._savedColumnStates)) {
+      if ((this._savedColumnStates.senderCol ||
+           this._savedColumnStates.recipientCol) &&
+          !this._savedColumnStates.correspondentCol) {
         this._savedColumnStates.correspondentCol =
           this._getDefaultColumnsForCurrentFolder(true).correspondentCol;
         if (this._savedColumnStates.correspondentCol.visible) {
