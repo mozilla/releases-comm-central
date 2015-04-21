@@ -229,6 +229,17 @@ tabs {
 }
 
 /**
+ * Font dialog menulist fixes
+ */
+
+#defaultFontType,
+#serif,
+#sans-serif,
+#monospace {
+  min-width: 30ch;
+}
+
+/**
  * Dialog
  */
 
