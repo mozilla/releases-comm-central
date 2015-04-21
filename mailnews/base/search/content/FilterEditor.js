@@ -329,7 +329,7 @@ function initializeFilterTypeSelector()
     disableDeferredAccount: function()
     {
       this.menuitemAfterPlugins.disabled = true;
-      this.checkboxOutgoing.disabled = true;
+      this.checkBoxOutgoing.disabled = true;
     }
   };
 }
