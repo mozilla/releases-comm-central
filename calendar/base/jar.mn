@@ -107,8 +107,6 @@ calendar.jar:
 % skin calendar classic/1.0 chrome/skin/osx/calendar/ os=Darwin
 % skin calendar classic/1.0 chrome/skin/windows/calendar/ os=WINNT
 % skin calendar-common classic/1.0 chrome/skin/common/
-% skin calendar-windows classic/1.0 chrome/skin/windows/calendar/win-classic/ os=WINNT osversion<6
-% skin calendar-windows classic/1.0 chrome/skin/windows/calendar/win-aero/ os=WINNT osversion>=6
 % style chrome://global/content/customizeToolbar.xul chrome://calendar/skin/calendar-task-view.css
 % style chrome://global/content/customizeToolbar.xul chrome://calendar/skin/calendar-event-dialog.css
 % style chrome://calendar/content/calendar-event-dialog.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
@@ -136,6 +134,7 @@ calendar.jar:
     ../skin/common/widgets/drag-center.svg            (themes/common/widgets/images/drag-center.svg)
     ../skin/common/calendar-daypicker.css             (themes/common/calendar-daypicker.css)
     ../skin/common/calendar-management.css            (themes/common/calendar-management.css)
+    ../skin/common/calendar-occurrence-prompt.css     (themes/common/calendar-occurrence-prompt.css)
     ../skin/common/calendar-task-tree.css             (themes/common/calendar-task-tree.css)
     ../skin/common/calendar-task-view.css             (themes/common/calendar-task-view.css)
     ../skin/common/calendar-toolbar.svg               (themes/common/calendar-toolbar.svg)
@@ -151,7 +150,6 @@ calendar.jar:
     ../skin/linux/calendar/calendar-alarms.css                            (themes/common/calendar-alarms.css)
     ../skin/linux/calendar/calendar-attendees.css                         (themes/common/calendar-attendees.css)
     ../skin/linux/calendar/calendar-creation-wizard.css                   (themes/common/calendar-creation-wizard.css)
-    ../skin/linux/calendar/calendar-occurrence-prompt.css                 (themes/common/calendar-occurrence-prompt.css)
     ../skin/linux/calendar/calendar-timezone-highlighter.css              (themes/common/dialogs/calendar-timezone-highlighter.css)
     ../skin/linux/calendar/calendar-properties-dialog.css                 (themes/common/dialogs/calendar-properties-dialog.css)
     ../skin/linux/calendar/calendar-subscriptions-dialog.css              (themes/common/dialogs/calendar-subscriptions-dialog.css)
@@ -182,7 +180,6 @@ calendar.jar:
     ../skin/osx/calendar/calendar-alarms.css                            (themes/common/calendar-alarms.css)
     ../skin/osx/calendar/calendar-attendees.css                         (themes/common/calendar-attendees.css)
     ../skin/osx/calendar/calendar-creation-wizard.css                   (themes/common/calendar-creation-wizard.css)
-    ../skin/osx/calendar/calendar-occurrence-prompt.css                 (themes/common/calendar-occurrence-prompt.css)
     ../skin/osx/calendar/calendar-timezone-highlighter.css              (themes/common/dialogs/calendar-timezone-highlighter.css)
     ../skin/osx/calendar/calendar-properties-dialog.css                 (themes/common/dialogs/calendar-properties-dialog.css)
     ../skin/osx/calendar/calendar-subscriptions-dialog.css              (themes/common/dialogs/calendar-subscriptions-dialog.css)
@@ -212,14 +209,9 @@ calendar.jar:
     ../skin/osx/calendar/sidebar-item.png                               (themes/osx/images/sidebar-item.png)
 
 # Windows theme files
-% style chrome://global/content/customizeToolbar.xul chrome://calendar-windows/skin/calendar-event-dialog.css os=WINNT
-% style chrome://calendar/content/calendar-event-dialog.xul chrome://calendar-windows/skin/calendar-event-dialog.css os=WINNT
-% style chrome://calendar/content/calendar-event-dialog-attendees.xul chrome://calendar-windows/skin/calendar-event-dialog.css os=WINNT
-% style chrome://calendar/content/calendar-occurrence-prompt.xul chrome://calendar-windows/skin/calendar.css os=WINNT osversion>=6
     ../skin/windows/calendar/calendar-alarms.css                            (themes/common/calendar-alarms.css)
     ../skin/windows/calendar/calendar-attendees.css                         (themes/common/calendar-attendees.css)
     ../skin/windows/calendar/calendar-creation-wizard.css                   (themes/common/calendar-creation-wizard.css)
-    ../skin/windows/calendar/calendar-occurrence-prompt.css                 (themes/common/calendar-occurrence-prompt.css)
     ../skin/windows/calendar/calendar-timezone-highlighter.css              (themes/common/dialogs/calendar-timezone-highlighter.css)
     ../skin/windows/calendar/calendar-properties-dialog.css                 (themes/common/dialogs/calendar-properties-dialog.css)
     ../skin/windows/calendar/calendar-subscriptions-dialog.css              (themes/common/dialogs/calendar-subscriptions-dialog.css)
@@ -250,12 +242,4 @@ calendar.jar:
     ../skin/windows/calendar/tasks-actions.png                              (themes/windows/images/tasks-actions.png)
     ../skin/windows/calendar/toolbar-large.png                              (themes/windows/images/toolbar-large.png)
     ../skin/windows/calendar/toolbar-small.png                              (themes/windows/images/toolbar-small.png)
-    ../skin/windows/calendar/win-classic/calendar.css                       (themes/windows/win-classic/calendar.css)
-    ../skin/windows/calendar/win-classic/calendar-event-dialog.css          (themes/windows/win-classic/calendar-event-dialog.css)
-    ../skin/windows/calendar/win-classic/lightning.css                      (themes/windows/win-classic/lightning.css)
-    ../skin/windows/calendar/win-classic/lightning-toolbar.css              (themes/windows/win-classic/lightning-toolbar.css)
-    ../skin/windows/calendar/win-aero/calendar.css                          (themes/windows/win-aero/calendar.css)
-    ../skin/windows/calendar/win-aero/calendar-event-dialog.css             (themes/windows/win-aero/calendar-event-dialog.css)
-    ../skin/windows/calendar/win-aero/lightning.css                         (themes/windows/win-aero/lightning.css)
-    ../skin/windows/calendar/win-aero/lightning-toolbar.css                 (themes/windows/win-aero/lightning-toolbar.css)
     ../skin/windows/calendar/calendar-occurrence-prompt-aero.png            (themes/windows/images/calendar-occurrence-prompt-aero.png)

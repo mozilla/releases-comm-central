@@ -61,3 +61,9 @@
 #accept-buttons-box[action="delete"] > #accept-allfollowing-button {
   -moz-image-region: rect(0 120px 20px 100px);
 }
+
+@media not all and (-moz-os-version: windows-xp) {
+  .occurrence-accept-buttons {
+    list-style-image: url(chrome://calendar/skin/calendar-occurrence-prompt-aero.png);
+  }
+}

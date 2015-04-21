@@ -10,20 +10,6 @@
     background-color: -moz-Dialog;
 }
 
-#calsidebar_splitter {
-    border-right: none;
-}
-
-#today-splitter {
-    border-right: none;
-}
-
-#today-splitter:-moz-lwtheme {
-    background-image: linear-gradient(rgba(255, 255, 255, 0.5),
-                      rgba(255, 255, 255, 0) 19px, rgba(255, 255, 255, 0) 25px,
-                      ThreeDDarkShadow 25px, -moz-Dialog 26px);
-}
-
 /* Calendar list rules */
 #calendar-panel {
     padding-bottom: 5px;
@@ -78,6 +64,20 @@ radio[pane=paneLightning] {
 }
 
 @media (-moz-os-version: windows-xp) {
+  #calsidebar_splitter {
+      border-right: none;
+  }
+
+  #today-splitter {
+      border-right: none;
+  }
+
+  #today-splitter:-moz-lwtheme {
+      background-image: linear-gradient(rgba(255, 255, 255, 0.5),
+                        rgba(255, 255, 255, 0) 19px, rgba(255, 255, 255, 0) 25px,
+                        ThreeDDarkShadow 25px, -moz-Dialog 26px);
+  }
+
   #newMsgButton-mail-menuitem {
     list-style-image: url(chrome://messenger/skin/icons/mail-toolbar-small.png);
     -moz-image-region: rect(0 32px 16px 16px);
@@ -277,5 +277,58 @@ radio[pane=paneLightning] {
     width: 18px;
     height: 18px;
     margin: -1px;
+  }
+
+  #calsidebar_splitter {
+    border: none;
+    -moz-border-start: 1px solid #a9b7c9;
+    min-width: 0;
+    width: 5px;
+    background-color: transparent;
+    margin-top: 0;
+    -moz-margin-end: -5px;
+    position: relative;
+    z-index: 10;
+    transition: border-width .3s ease-in;
+  }
+
+  #calsidebar_splitter[state="collapsed"] {
+    -moz-border-start: 1px solid transparent;
+  }
+
+  #calsidebar_splitter[state="collapsed"]:hover {
+    -moz-border-start: 4px solid highlight;
+  }
+
+  #today-splitter {
+    border: none;
+    -moz-border-end: 1px solid #a9b7c9;
+    min-width: 0;
+    width: 5px;
+    background-color: transparent;
+    margin-top: 0;
+    -moz-margin-start: -5px;
+    position: relative;
+    z-index: 10;
+    transition: border-width .3s ease-in;
+  }
+
+  #today-splitter.calendar-sidebar-splitter:-moz-lwtheme {
+    background-image: none;
+  }
+
+  #today-splitter > grippy {
+    display: none;
+  }
+
+  #today-pane-splitter {
+    border: none;
+    border-bottom: 3px double #a9b7c9;
+    min-height: 0;
+    height: 5px;
+    background-color: transparent;
+    margin-top: -3px;
+    position: relative;
+    z-index: 10;
   }
 }

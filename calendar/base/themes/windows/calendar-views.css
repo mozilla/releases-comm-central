@@ -31,7 +31,7 @@ tab[calview][selected="true"]:hover {
 }
 
 tab[calview]:hover {
-    background-color: ButtonHighlight;    
+    background-color: ButtonHighlight;
 }
 
 #calendarWeek {
@@ -59,4 +59,17 @@ tab[calview]:hover {
 
 .today-navigation-button {
     padding-top: 0px !important; /* a workaround to center the label vertically on Windows */
+}
+
+@media not all and (-moz-os-version: windows-xp) {
+  #calendar-view-box #calendar-view-splitter {
+    border: none;
+    border-bottom: 1px solid #A9B7C9;
+    min-height: 0;
+    height: 5px;
+    background-color: transparent;
+    margin-top: -5px;
+    position: relative;
+    z-index: 10;
+  }
 }
