@@ -318,7 +318,7 @@ function saveReminder(item) {
         let propIterator = fixIterator(item.propertyEnumerator, Components.interfaces.nsIProperty);
         let propsToDelete = [
             prop.name
-            for each (prop in propIterator)
+            for (prop in propIterator)
             if (prop.name.substr(0, cmpLength) == cmp)
         ];
 

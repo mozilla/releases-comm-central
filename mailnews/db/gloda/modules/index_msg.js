@@ -1879,7 +1879,7 @@ var GlodaMsgIndexer = {
     this._log.info("Queueing all accounts for indexing.");
 
     GlodaDatastore._beginTransaction();
-    let sideEffects = [this.indexAccount(account) for each
+    let sideEffects = [this.indexAccount(account) for
                        (account in fixIterator(MailServices.accounts.accounts,
                                                Ci.nsIMsgAccount))];
     GlodaDatastore._commitTransaction();

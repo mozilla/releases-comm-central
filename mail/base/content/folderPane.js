@@ -2570,7 +2570,7 @@ let gFolderTreeController = {
 
     // Now delete the messages
     iter = fixIterator(folder.messages);
-    let messages = [m for each (m in iter)];
+    let messages = [m for (m in iter)];
     let children = toXPCOMArray(messages, Ci.nsIMutableArray);
     folder.deleteMessages(children, msgWindow, true, false, null, false);
   },
