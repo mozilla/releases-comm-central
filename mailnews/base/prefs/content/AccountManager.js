@@ -1563,16 +1563,24 @@ var gAccountTree = {
         const CATEGORY = "mailnews-accountmanager-extensions";
         let catEnum = catMan.enumerateCategory(CATEGORY);
         while (catEnum.hasMoreElements()) {
-          var string = Components.interfaces.nsISupportsCString;
-          var entryName = catEnum.getNext().QueryInterface(string).data;
-          var svc = Components.classes[catMan.getCategoryEntry(CATEGORY, entryName)]
-                              .getService(Ci.nsIMsgAccountManagerExtension);
-          if (svc.showPanel(server)) {
-            let bundleName = "chrome://" + svc.chromePackageName +
-                             "/locale/am-" + svc.name + ".properties";
-            let bundle = Services.strings.createBundle(bundleName);
-            let title = bundle.GetStringFromName("prefPanel-" + svc.name);
-            panelsToKeep.push({string: title, src: "am-" + svc.name + ".xul"});
+          let entryName = null;
+          try {
+            entryName = catEnum.getNext().QueryInterface(Ci.nsISupportsCString).data;
+            let svc = Components.classes[catMan.getCategoryEntry(CATEGORY, entryName)]
+                                .getService(Ci.nsIMsgAccountManagerExtension);
+            if (svc.showPanel(server)) {
+              let bundleName = "chrome://" + svc.chromePackageName +
+                               "/locale/am-" + svc.name + ".properties";
+              let bundle = Services.strings.createBundle(bundleName);
+              let title = bundle.GetStringFromName("prefPanel-" + svc.name);
+              panelsToKeep.push({string: title, src: "am-" + svc.name + ".xul"});
+            }
+          } catch(e) {
+            // Fetching of this extension panel failed so do not show it,
+            // just log error.
+            let extName = entryName || "(unknown)";
+            Components.utils.reportError("Error accessing panel from extension '" +
+                                         extName + "': " + e);
           }
         }
         amChrome = server.accountManagerChrome;
