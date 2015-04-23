@@ -246,7 +246,7 @@ NS_IMETHODIMP nsAbManager::GetDirectoryFromId(const nsACString &aDirPrefId,
     nsCString dirPrefId;
     directory->GetDirPrefId(dirPrefId);
     if (dirPrefId.Equals(aDirPrefId)) {
-      *aResult = directory;
+      directory.forget(aResult);
       return NS_OK;
     }
   }
