@@ -56,10 +56,6 @@ OAuth2.prototype = {
     tokenExpires: 0,
 
     connect: function connect(aSuccess, aFailure, aWithUI, aRefresh) {
-        if (gConnecting[this.authURI]) {
-            aFailure("Window already open");
-            return;
-        }
 
         this.connectSuccessCallback = aSuccess;
         this.connectFailureCallback = aFailure;
@@ -67,14 +63,16 @@ OAuth2.prototype = {
         if (!aRefresh && this.accessToken) {
             aSuccess();
         } else if (this.refreshToken) {
-            gConnecting[this.authURI] = true;
             this.requestAccessToken(this.refreshToken, OAuth2.CODE_REFRESH);
         } else {
             if (!aWithUI) {
                 aFailure('{ "error": "auth_noui" }');
                 return;
             }
-            gConnecting[this.authURI] = true;
+            if (gConnecting[this.authURI]) {
+                aFailure("Window already open");
+                return;
+            }
             this.requestAuthorization();
         }
     },
@@ -156,9 +154,11 @@ OAuth2.prototype = {
         };
 
         this.wrappedJSObject = this._browserRequest;
+        gConnecting[this.authURI] = true;
         Services.ww.openWindow(null, this.requestWindowURI, null, this.requestWindowFeatures, this);
     },
     finishAuthorizationRequest: function() {
+        gConnecting[this.authURI] = false;
         if (!("_browserRequest" in this)) {
             return;
         }
@@ -183,7 +183,6 @@ OAuth2.prototype = {
     },
 
     onAuthorizationFailed: function(aError, aData) {
-        gConnecting[this.authURI] = false;
         this.connectFailureCallback(aData);
     },
 
@@ -210,7 +209,6 @@ OAuth2.prototype = {
     },
 
     onAccessTokenFailed: function onAccessTokenFailed(aError, aData) {
-        gConnecting[this.authURI] = false;
         if (aError != "offline") {
             this.refreshToken = null;
         }
@@ -218,7 +216,6 @@ OAuth2.prototype = {
     },
 
     onAccessTokenReceived: function onRequestTokenReceived(aData) {
-        gConnecting[this.authURI] = false;
         let result = JSON.parse(aData);
 
         this.accessToken = result.access_token;

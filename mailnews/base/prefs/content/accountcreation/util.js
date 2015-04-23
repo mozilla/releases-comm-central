@@ -248,11 +248,13 @@ function deepCopy(org)
   return result;
 }
 
-let kDebug = false;
+if (typeof gEmailWizardLogger == "undefined") {
+  Cu.import("resource:///modules/gloda/log4moz.js");
+  var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.wizard");
+}
 function ddump(text)
 {
-  if (kDebug)
-    dump(text + "\n");
+  gEmailWizardLogger.info(text);
 }
 
 function debugObject(obj, name, maxDepth, curDepth)

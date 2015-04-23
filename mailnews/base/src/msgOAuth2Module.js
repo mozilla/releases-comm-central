@@ -9,6 +9,7 @@ const Ci = Components.interfaces;
 const Cr = Components.results;
 
 Components.utils.import("resource://gre/modules/OAuth2.jsm");
+Components.utils.import("resource://gre/modules/OAuth2Providers.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -22,19 +23,11 @@ OAuth2Module.prototype = {
   classID: Components.ID("{b63d8e4c-bf60-439b-be0e-7c9f67291042}"),
 
   _loadOAuthClientDetails(aIssuer) {
-    if (aIssuer == "accounts.google.com") {
-      // For the moment, these details are hard-coded, since Google does not
-      // provide dynamic client registration. Don't copy these values for your
-      // own application--register it yourself. This code (and possibly even the
-      // registration itself) will disappear when this is switched to dynamic
-      // client registration.
-      this._appKey = '406964657835-aq8lmia8j95dhl1a2bvharmfk3t1hgqj.apps.googleusercontent.com';
-      this._appSecret = 'kSmqreRr0qwBWJgbf5Y-PjSU';
-      this._authURI = "https://accounts.google.com/o/oauth2/auth";
-      this._tokenURI = "https://www.googleapis.com/oauth2/v3/token";
-    } else {
+    let details = OAuth2Providers.getIssuerDetails(aIssuer);
+    if (details)
+      [this._appKey, this._appSecret, this._authURI, this._tokenURI] = details;
+    else
       throw Cr.NS_ERROR_INVALID_ARGUMENT;
-    }
   },
   initFromSmtp(aServer) {
     return this._initPrefs("mail.smtpserver." + aServer.key + ".",
@@ -53,10 +46,10 @@ OAuth2Module.prototype = {
     // have them, we don't support OAuth2.
     if (!issuer || !scope) {
       // Since we currently only support gmail, init values if server matches.
-      if (aHostname == "imap.googlemail.com" || aHostname == "smtp.googlemail.com")
+      let details = OAuth2Providers.getHostnameDetails(aHostname);
+      if (details)
       {
-        issuer = "accounts.google.com";
-        scope = "http://mail.google.com/";
+        [issuer, scope] = details;
         Preferences.set(root + "oauth2.issuer", issuer);
         Preferences.set(root + "oauth2.scope", scope);
       }

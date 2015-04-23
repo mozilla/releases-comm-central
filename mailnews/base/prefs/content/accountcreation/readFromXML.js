@@ -54,6 +54,16 @@ function readFromXML(clientConfigXML)
     throw exception ? exception : "need proper <domain> in XML";
   exception = null;
 
+  let oauthSettings = null;
+  if ("oauth2Settings" in clientConfigXML.clientConfig) {
+    oauthSettings = {};
+    oauthSettings.scope = sanitize.nonemptystring(
+      clientConfigXML.clientConfig.oauth2Settings.scope);
+    if (!oauthSettings.scope)
+      throw new Error("Malformed oauth2Settings in configuration XML");
+    d.oauthSettings = oauthSettings;
+  }
+
   // incoming server
   for (let iX of array_or_undef(xml.$incomingServer)) // input (XML)
   {
@@ -94,7 +104,13 @@ function readFromXML(clientConfigXML)
                 // @deprecated TODO remove
                 "secure" : Ci.nsMsgAuthMethod.passwordEncrypted,
                 "GSSAPI" : Ci.nsMsgAuthMethod.GSSAPI,
-                "NTLM" : Ci.nsMsgAuthMethod.NTLM });
+                "NTLM" : Ci.nsMsgAuthMethod.NTLM,
+                "OAuth2" : Ci.nsMsgAuthMethod.OAuth2 });
+
+          // If we're using OAuth2, but don't have working settings, bail.
+          if (iO.auth == Ci.nsMsgAuthMethod.OAuth2 && !oauthSettings)
+            continue;
+
           break; // take first that we support
         } catch (e) { exception = e; }
       }
@@ -175,7 +191,13 @@ function readFromXML(clientConfigXML)
                 "secure" : Ci.nsMsgAuthMethod.passwordEncrypted,
                 "GSSAPI" : Ci.nsMsgAuthMethod.GSSAPI,
                 "NTLM" : Ci.nsMsgAuthMethod.NTLM,
+                "OAuth2" : Ci.nsMsgAuthMethod.OAuth2,
               });
+
+          // If we're using OAuth2, but don't have working settings, bail.
+          if (oO.auth == Ci.nsMsgAuthMethod.OAuth2 && !oauthSettings)
+            continue;
+
           break; // take first that we support
         } catch (e) { exception = e; }
       }

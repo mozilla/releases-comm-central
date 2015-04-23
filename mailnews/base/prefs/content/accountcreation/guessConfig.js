@@ -59,6 +59,13 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
   assert(typeof(progressCallback) == "function", "need progressCallback");
   assert(typeof(successCallback) == "function", "need successCallback");
   assert(typeof(errorCallback) == "function", "need errorCallback");
+
+  // Servers that we know enough that they support OAuth2 do not need guessing.
+  if (resultConfig.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
+    successCallback(resultConfig);
+    return null;
+  }
+
   if (!resultConfig)
     resultConfig = new AccountConfig();
   resultConfig.source = AccountConfig.kSourceGuess;

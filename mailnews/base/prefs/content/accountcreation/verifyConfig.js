@@ -30,6 +30,12 @@
  */
 
 Components.utils.import("resource:///modules/mailServices.js");
+Components.utils.import("resource://gre/modules/OAuth2Providers.jsm");
+
+if (typeof gEmailWizardLogger == "undefined") {
+  Cu.import("resource:///modules/gloda/log4moz.js");
+  var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.wizard");
+}
 
 function verifyConfig(config, alter, msgWindow, successCallback, errorCallback)
 {
@@ -63,10 +69,35 @@ function verifyConfig(config, alter, msgWindow, successCallback, errorCallback)
     inServer.socketType = Ci.nsMsgSocketType.SSL;
   else if (config.incoming.socketType == 3) // STARTTLS
     inServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
+
+  gEmailWizardLogger.info("Setting incoming server authMethod to " +
+                           config.incoming.auth);
   inServer.authMethod = config.incoming.auth;
 
   try {
-    if (inServer.password)
+    // Lookup issuer if needed.
+    if (config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2 ||
+        config.outgoing.auth == Ci.nsMsgAuthMethod.OAuth2) {
+      if (!config.oauthSettings.issuer || !config.oauthSettings.scope) {
+        // lookup issuer or scope from hostname
+        let hostname = (config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) ?
+                       config.incoming.hostname : config.outgoing.hostname;
+        let hostDetails = OAuth2Providers.getHostnameDetails(hostname);
+        if (hostDetails)
+          [config.oauthSettings.issuer, config.oauthSettings.scope] = hostDetails;
+        if (!config.oauthSettings.issuer || !config.oauthSettings.scope)
+          throw "Could not get issuer for oauth2 authentication";
+      }
+      gEmailWizardLogger.info("Saving oauth parameters for issuer " +
+                               config.oauthSettings.issuer);
+      inServer.setCharValue("oauth2.scope", config.oauthSettings.scope);
+      inServer.setCharValue("oauth2.issuer", config.oauthSettings.issuer);
+      gEmailWizardLogger.info("OAuth2 issuer, scope is " +
+                              config.oauthSettings.issuer + ", " + config.oauthSettings.scope);
+    }
+
+    if (inServer.password ||
+        inServer.authMethod == Ci.nsMsgAuthMethod.OAuth2)
       verifyLogon(config, inServer, alter, msgWindow,
                   successCallback, errorCallback);
     else {
@@ -74,16 +105,20 @@ function verifyConfig(config, alter, msgWindow, successCallback, errorCallback)
       MailServices.accounts.removeIncomingServer(inServer, true);
       successCallback(config);
     }
-  } catch (e) {
-    ddump("ERROR: verify logon shouldn't have failed");
-    errorCallback(e);
-    throw(e);
+    return;
   }
-};
+  catch (e) {
+    gEmailWizardLogger.error("ERROR: verify logon shouldn't have failed");
+  }
+  // Avoid pref pollution, clear out server prefs.
+  MailServices.accounts.removeIncomingServer(inServer, true);
+  errorCallback(e);
+}
 
 function verifyLogon(config, inServer, alter, msgWindow, successCallback,
                      errorCallback)
 {
+  gEmailWizardLogger.info("verifyLogon for server at " + inServer.hostName);
   // hack - save away the old callbacks.
   let saveCallbacks = msgWindow.notificationCallbacks;
   // set our own callbacks - this works because verifyLogon will
@@ -99,6 +134,7 @@ function verifyLogon(config, inServer, alter, msgWindow, successCallback,
     // clear msgWindow so url won't prompt for passwords.
     uri.QueryInterface(Ci.nsIMsgMailNewsUrl).msgWindow = null;
   }
+  catch (e) { gEmailWizardLogger.error("verifyLogon failed: " + e); throw e;}
   finally {
     // restore them
     msgWindow.notificationCallbacks = saveCallbacks;

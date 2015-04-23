@@ -6,6 +6,7 @@
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/hostnameUtils.jsm");
+Components.utils.import("resource://gre/modules/OAuth2Providers.jsm");
 
 /**
  * This is the dialog opened by menu File | New account | Mail... .
@@ -34,8 +35,10 @@ Components.utils.import("resource:///modules/hostnameUtils.jsm");
 // from http://xyfer.blogspot.com/2005/01/javascript-regexp-email-validator.html
 var emailRE = /^[-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@(?:[-a-z0-9.]+\.[a-z]{2,6}|\d{1,3}(?:\.\d{1,3}){3})(?::\d+)?$/i;
 
-Cu.import("resource:///modules/gloda/log4moz.js");
-let gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.wizard");
+if (typeof gEmailWizardLogger == "undefined") {
+  Cu.import("resource:///modules/gloda/log4moz.js");
+  var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.wizard");
+}
 
 var gStringsBundle;
 var gMessengerBundle;
@@ -181,6 +184,7 @@ EmailConfigWizard.prototype =
         "authPasswordEncrypted");
     setLabelFromStringBundle("in-authMethod-kerberos", "authKerberos");
     setLabelFromStringBundle("in-authMethod-ntlm", "authNTLM");
+    setLabelFromStringBundle("in-authMethod-oauth2", "authOAuth2");
     setLabelFromStringBundle("out-authMethod-no", "authNo");
     setLabelFromStringBundle("out-authMethod-password-cleartext",
         "authPasswordCleartextViaSSL"); // will warn about insecure later
@@ -188,6 +192,7 @@ EmailConfigWizard.prototype =
         "authPasswordEncrypted");
     setLabelFromStringBundle("out-authMethod-kerberos", "authKerberos");
     setLabelFromStringBundle("out-authMethod-ntlm", "authNTLM");
+    setLabelFromStringBundle("out-authMethod-oauth2", "authOAuth2");
 
     e("incoming_port").value = gStringsBundle.getString("port_auto");
     this.fillPortDropdown("smtp");
@@ -665,7 +670,7 @@ EmailConfigWizard.prototype =
     assert(config instanceof AccountConfig,
         "BUG: Arg 'config' needs to be an AccountConfig object");
 
-    this._haveValidConfigForDomain = this._email.split("@")[1];;
+    this._haveValidConfigForDomain = this._email.split("@")[1];
 
     if (!this._realname || !this._email) {
       return;
@@ -792,6 +797,7 @@ EmailConfigWizard.prototype =
           unknownString);
       let certStatus = gStringsBundle.getString(server.badCert ?
           "resultSSLCertWeak" : "resultSSLCertOK");
+      // TODO: we should really also display authentication method here.
       return gStringsBundle.getFormattedString(stringName,
           [ type, host, ssl, certStatus ]);
     };
@@ -1008,7 +1014,7 @@ EmailConfigWizard.prototype =
     e("incoming_ssl").value = sanitize.enum(config.incoming.socketType,
                                             [ 0, 1, 2, 3 ], 0);
     e("incoming_authMethod").value = sanitize.enum(config.incoming.auth,
-                                                   [ 0, 3, 4, 5, 6 ], 0);
+                                                   [ 0, 3, 4, 5, 6, 10 ], 0);
     e("incoming_username").value = config.incoming.username;
     if (config.incoming.port) {
       e("incoming_port").value = config.incoming.port;
@@ -1016,6 +1022,19 @@ EmailConfigWizard.prototype =
       this.adjustIncomingPortToSSLAndProtocol(config);
     }
     this.fillPortDropdown(config.incoming.type);
+
+    // If the hostname supports OAuth2 and imap is enabled, enable OAuth2.
+    let iDetails = OAuth2Providers.getHostnameDetails(config.incoming.hostname);
+    gEmailWizardLogger.info("OAuth2 details for incoming hostname " +
+                            config.incoming.hostname + " is " + iDetails);
+    e("in-authMethod-oauth2").hidden = !(iDetails && e("incoming_protocol").value == 1);
+    if (!e("in-authMethod-oauth2").hidden) {
+      config.oauthSettings = {};
+      [config.oauthSettings.issuer, config.oauthSettings.scope] = iDetails;
+      // oauthsettings are not stored nor changable in the user interface, so just
+      // store them in the base configuration.
+      this._currentConfig.oauthSettings = config.oauthSettings;
+    }
 
     // outgoing server
     e("outgoing_hostname").value = config.outgoing.hostname;
@@ -1026,14 +1045,27 @@ EmailConfigWizard.prototype =
     e("outgoing_ssl").value = sanitize.enum(config.outgoing.socketType,
                                             [ 0, 1, 2, 3 ], 0);
     e("outgoing_authMethod").value = sanitize.enum(config.outgoing.auth,
-                                                   [ 0, 1, 3, 4, 5, 6 ], 0);
+                                                   [ 0, 1, 3, 4, 5, 6, 10 ], 0);
     if (config.outgoing.port) {
       e("outgoing_port").value = config.outgoing.port;
     } else {
       this.adjustOutgoingPortToSSLAndProtocol(config);
     }
-    // populate fields even if existingServerKey, in case user changes back
 
+    // If the hostname supports OAuth2 and imap is enabled, enable OAuth2.
+    let oDetails = OAuth2Providers.getHostnameDetails(config.outgoing.hostname);
+    gEmailWizardLogger.info("OAuth2 details for outgoing hostname " +
+                            config.outgoing.hostname + " is " + oDetails);
+    e("out-authMethod-oauth2").hidden = !oDetails;
+    if (!e("out-authMethod-oauth2").hidden) {
+      config.oauthSettings = {};
+      [config.oauthSettings.issuer, config.oauthSettings.scope] = oDetails;
+      // oauthsettings are not stored nor changable in the user interface, so just
+      // store them in the base configuration.
+      this._currentConfig.oauthSettings = config.oauthSettings;
+    }
+
+    // populate fields even if existingServerKey, in case user changes back
     if (config.outgoing.existingServerKey) {
       let menulist = e("outgoing_hostname");
       // We can't use menulist.value = config.outgoing.existingServerKey
@@ -1581,6 +1613,12 @@ EmailConfigWizard.prototype =
         self._currentConfig.outgoing.auth = successfulConfig.outgoing.auth;
         self._currentConfig.incoming.username = successfulConfig.incoming.username;
         self._currentConfig.outgoing.username = successfulConfig.outgoing.username;
+
+        // We loaded dynamic client registration, fill this data back in to the
+        // config set.
+        if (successfulConfig.oauthSettings)
+          self._currentConfig.oauthSettings = successfulConfig.oauthSettings;
+
         self.finish();
       },
       function(e) // failed

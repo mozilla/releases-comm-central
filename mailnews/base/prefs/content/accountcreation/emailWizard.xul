@@ -307,6 +307,7 @@
                 <menuitem id="in-authMethod-password-encrypted" value="4"/>
                 <menuitem id="in-authMethod-kerberos" value="5"/>
                 <menuitem id="in-authMethod-ntlm" value="6"/>
+                <menuitem id="in-authMethod-oauth2" value="10" hidden="true"/>
               </menupopup>
             </menulist>
           </row>
@@ -356,6 +357,7 @@
                 <menuitem id="out-authMethod-password-encrypted" value="4"/>
                 <menuitem id="out-authMethod-kerberos" value="5"/>
                 <menuitem id="out-authMethod-ntlm" value="6"/>
+                <menuitem id="out-authMethod-oauth2" value="10" hidden="true"/>
               </menupopup>
             </menulist>
           </row>
