@@ -1,17 +1,41 @@
 {
-  "version": "2.2015a",
+  "version": "2.2015b",
   "aliases": {
+    "AUS Central Standard Time": {
+      "aliasTo": "Australia/Darwin"
+    },
+    "AUS Eastern Standard Time": {
+      "aliasTo": "Australia/Sydney"
+    },
+    "Afghanistan Standard Time": {
+      "aliasTo": "Asia/Kabul"
+    },
     "Africa/Asmera": {
       "aliasTo": "Africa/Asmara"
     },
     "Africa/Timbuktu": {
       "aliasTo": "Africa/Bamako"
     },
+    "Alaskan Standard Time": {
+      "aliasTo": "America/Anchorage"
+    },
     "America/Argentina/ComodRivadavia": {
       "aliasTo": "America/Argentina/Catamarca"
     },
     "America/Louisville": {
       "aliasTo": "America/Kentucky/Louisville"
+    },
+    "Arab Standard Time": {
+      "aliasTo": "Asia/Riyadh"
+    },
+    "Arabian Standard Time": {
+      "aliasTo": "Asia/Dubai"
+    },
+    "Arabic Standard Time": {
+      "aliasTo": "Asia/Baghdad"
+    },
+    "Argentina Standard Time": {
+      "aliasTo": "America/Buenos_Aires"
     },
     "Asia/Calcutta": {
       "aliasTo": "Asia/Kolkata"
@@ -22,11 +46,86 @@
     "Asia/Saigon": {
       "aliasTo": "Asia/Ho_Chi_Minh"
     },
+    "Atlantic Standard Time": {
+      "aliasTo": "America/Halifax"
+    },
     "Atlantic/Faeroe": {
       "aliasTo": "Atlantic/Faroe"
     },
     "Atlantic/Jan_Mayen": {
       "aliasTo": "Europe/Oslo"
+    },
+    "Azerbaijan Standard Time": {
+      "aliasTo": "Asia/Baku"
+    },
+    "Azores Standard Time": {
+      "aliasTo": "Atlantic/Azores"
+    },
+    "Bahia Standard Time": {
+      "aliasTo": "America/Bahia"
+    },
+    "Bangladesh Standard Time": {
+      "aliasTo": "Asia/Dhaka"
+    },
+    "Belarus Standard Time": {
+      "aliasTo": "Europe/Minsk"
+    },
+    "Canada Central Standard Time": {
+      "aliasTo": "America/Regina"
+    },
+    "Cape Verde Standard Time": {
+      "aliasTo": "Atlantic/Cape_Verde"
+    },
+    "Caucasus Standard Time": {
+      "aliasTo": "Asia/Yerevan"
+    },
+    "Cen. Australia Standard Time": {
+      "aliasTo": "Australia/Adelaide"
+    },
+    "Central America Standard Time": {
+      "aliasTo": "America/Guatemala"
+    },
+    "Central Asia Standard Time": {
+      "aliasTo": "Asia/Almaty"
+    },
+    "Central Brazilian Standard Time": {
+      "aliasTo": "America/Cuiaba"
+    },
+    "Central Europe Standard Time": {
+      "aliasTo": "Europe/Budapest"
+    },
+    "Central European Standard Time": {
+      "aliasTo": "Europe/Warsaw"
+    },
+    "Central Pacific Standard Time": {
+      "aliasTo": "Pacific/Guadalcanal"
+    },
+    "Central Standard Time": {
+      "aliasTo": "America/Chicago"
+    },
+    "Central Standard Time (Mexico)": {
+      "aliasTo": "America/Mexico_City"
+    },
+    "China Standard Time": {
+      "aliasTo": "Asia/Shanghai"
+    },
+    "E. Africa Standard Time": {
+      "aliasTo": "Africa/Nairobi"
+    },
+    "E. Australia Standard Time": {
+      "aliasTo": "Australia/Brisbane"
+    },
+    "E. South America Standard Time": {
+      "aliasTo": "America/Sao_Paulo"
+    },
+    "Eastern Standard Time": {
+      "aliasTo": "America/New_York"
+    },
+    "Egypt Standard Time": {
+      "aliasTo": "Africa/Cairo"
+    },
+    "Ekaterinburg Standard Time": {
+      "aliasTo": "Asia/Yekaterinburg"
     },
     "Etc/GMT": {
       "aliasTo": "UTC"
@@ -49,8 +148,17 @@
     "Europe/Belfast": {
       "aliasTo": "Europe/London"
     },
+    "FLE Standard Time": {
+      "aliasTo": "Europe/Kiev"
+    },
+    "Fiji Standard Time": {
+      "aliasTo": "Pacific/Fiji"
+    },
     "GMT": {
       "aliasTo": "UTC"
+    },
+    "GMT Standard Time": {
+      "aliasTo": "Europe/London"
     },
     "GMT+0": {
       "aliasTo": "UTC"
@@ -58,14 +166,203 @@
     "GMT0": {
       "aliasTo": "UTC"
     },
+    "GTB Standard Time": {
+      "aliasTo": "Europe/Bucharest"
+    },
+    "Georgian Standard Time": {
+      "aliasTo": "Asia/Tbilisi"
+    },
+    "Greenland Standard Time": {
+      "aliasTo": "America/Godthab"
+    },
     "Greenwich": {
       "aliasTo": "UTC"
+    },
+    "Greenwich Standard Time": {
+      "aliasTo": "Atlantic/Reykjavik"
+    },
+    "Hawaiian Standard Time": {
+      "aliasTo": "Pacific/Honolulu"
+    },
+    "India Standard Time": {
+      "aliasTo": "Asia/Calcutta"
+    },
+    "Iran Standard Time": {
+      "aliasTo": "Asia/Tehran"
+    },
+    "Israel Standard Time": {
+      "aliasTo": "Asia/Jerusalem"
+    },
+    "Jordan Standard Time": {
+      "aliasTo": "Asia/Amman"
+    },
+    "Kaliningrad Standard Time": {
+      "aliasTo": "Europe/Kaliningrad"
+    },
+    "Korea Standard Time": {
+      "aliasTo": "Asia/Seoul"
+    },
+    "Libya Standard Time": {
+      "aliasTo": "Africa/Tripoli"
+    },
+    "Line Islands Standard Time": {
+      "aliasTo": "Pacific/Kiritimati"
+    },
+    "Magadan Standard Time": {
+      "aliasTo": "Asia/Magadan"
+    },
+    "Mauritius Standard Time": {
+      "aliasTo": "Indian/Mauritius"
+    },
+    "Middle East Standard Time": {
+      "aliasTo": "Asia/Beirut"
+    },
+    "Montevideo Standard Time": {
+      "aliasTo": "America/Montevideo"
+    },
+    "Morocco Standard Time": {
+      "aliasTo": "Africa/Casablanca"
+    },
+    "Mountain Standard Time": {
+      "aliasTo": "America/Denver"
+    },
+    "Mountain Standard Time (Mexico)": {
+      "aliasTo": "America/Chihuahua"
+    },
+    "Myanmar Standard Time": {
+      "aliasTo": "Asia/Rangoon"
+    },
+    "N. Central Asia Standard Time": {
+      "aliasTo": "Asia/Novosibirsk"
+    },
+    "Namibia Standard Time": {
+      "aliasTo": "Africa/Windhoek"
+    },
+    "Nepal Standard Time": {
+      "aliasTo": "Asia/Katmandu"
+    },
+    "New Zealand Standard Time": {
+      "aliasTo": "Pacific/Auckland"
+    },
+    "Newfoundland Standard Time": {
+      "aliasTo": "America/St_Johns"
+    },
+    "North Asia East Standard Time": {
+      "aliasTo": "Asia/Irkutsk"
+    },
+    "North Asia Standard Time": {
+      "aliasTo": "Asia/Krasnoyarsk"
+    },
+    "Pacific SA Standard Time": {
+      "aliasTo": "America/Santiago"
+    },
+    "Pacific Standard Time": {
+      "aliasTo": "America/Los_Angeles"
+    },
+    "Pacific Standard Time (Mexico)": {
+      "aliasTo": "America/Santa_Isabel"
+    },
+    "Pakistan Standard Time": {
+      "aliasTo": "Asia/Karachi"
+    },
+    "Paraguay Standard Time": {
+      "aliasTo": "America/Asuncion"
+    },
+    "Romance Standard Time": {
+      "aliasTo": "Europe/Paris"
+    },
+    "Russia Time Zone 10": {
+      "aliasTo": "Asia/Srednekolymsk"
+    },
+    "Russia Time Zone 11": {
+      "aliasTo": "Asia/Kamchatka"
+    },
+    "Russia Time Zone 3": {
+      "aliasTo": "Europe/Samara"
+    },
+    "Russian Standard Time": {
+      "aliasTo": "Europe/Moscow"
+    },
+    "SA Eastern Standard Time": {
+      "aliasTo": "America/Cayenne"
+    },
+    "SA Pacific Standard Time": {
+      "aliasTo": "America/Bogota"
+    },
+    "SA Western Standard Time": {
+      "aliasTo": "America/La_Paz"
+    },
+    "SE Asia Standard Time": {
+      "aliasTo": "Asia/Bangkok"
+    },
+    "Samoa Standard Time": {
+      "aliasTo": "Pacific/Apia"
+    },
+    "Singapore Standard Time": {
+      "aliasTo": "Asia/Singapore"
+    },
+    "South Africa Standard Time": {
+      "aliasTo": "Africa/Johannesburg"
+    },
+    "Sri Lanka Standard Time": {
+      "aliasTo": "Asia/Colombo"
+    },
+    "Syria Standard Time": {
+      "aliasTo": "Asia/Damascus"
+    },
+    "Taipei Standard Time": {
+      "aliasTo": "Asia/Taipei"
+    },
+    "Tasmania Standard Time": {
+      "aliasTo": "Australia/Hobart"
+    },
+    "Tokyo Standard Time": {
+      "aliasTo": "Asia/Tokyo"
+    },
+    "Tonga Standard Time": {
+      "aliasTo": "Pacific/Tongatapu"
+    },
+    "Turkey Standard Time": {
+      "aliasTo": "Europe/Istanbul"
     },
     "UCT": {
       "aliasTo": "UTC"
     },
+    "US Eastern Standard Time": {
+      "aliasTo": "America/Indianapolis"
+    },
+    "US Mountain Standard Time": {
+      "aliasTo": "America/Phoenix"
+    },
+    "Ulaanbaatar Standard Time": {
+      "aliasTo": "Asia/Ulaanbaatar"
+    },
     "Universal": {
       "aliasTo": "UTC"
+    },
+    "Venezuela Standard Time": {
+      "aliasTo": "America/Caracas"
+    },
+    "Vladivostok Standard Time": {
+      "aliasTo": "Asia/Vladivostok"
+    },
+    "W. Australia Standard Time": {
+      "aliasTo": "Australia/Perth"
+    },
+    "W. Central Africa Standard Time": {
+      "aliasTo": "Africa/Lagos"
+    },
+    "W. Europe Standard Time": {
+      "aliasTo": "Europe/Berlin"
+    },
+    "West Asia Standard Time": {
+      "aliasTo": "Asia/Tashkent"
+    },
+    "West Pacific Standard Time": {
+      "aliasTo": "Pacific/Port_Moresby"
+    },
+    "Yakutsk Standard Time": {
+      "aliasTo": "Asia/Yakutsk"
     },
     "Z": {
       "aliasTo": "UTC"
@@ -1207,7 +1504,7 @@
       "longitude": "+1132800"
     },
     "Asia/Choibalsan": {
-      "ics": "BEGIN:VTIMEZONE\r\nTZID:Asia/Choibalsan\r\nBEGIN:STANDARD\r\nTZOFFSETFROM:+0800\r\nTZOFFSETTO:+0800\r\nDTSTART:19700101T000000\r\nEND:STANDARD\r\nEND:VTIMEZONE",
+      "ics": "BEGIN:VTIMEZONE\r\nTZID:Asia/Choibalsan\r\nBEGIN:DAYLIGHT\r\nTZOFFSETFROM:+0800\r\nTZOFFSETTO:+0900\r\nTZNAME:CHOST\r\nDTSTART:19700328T020000\r\nRRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SA\r\nEND:DAYLIGHT\r\nBEGIN:STANDARD\r\nTZOFFSETFROM:+0900\r\nTZOFFSETTO:+0800\r\nTZNAME:CHOT\r\nDTSTART:19700926T000000\r\nRRULE:FREQ=YEARLY;BYMONTH=9;BYDAY=-1SA\r\nEND:STANDARD\r\nEND:VTIMEZONE",
       "latitude": "+0480400",
       "longitude": "+1143000"
     },
@@ -1242,12 +1539,12 @@
       "longitude": "+0684800"
     },
     "Asia/Gaza": {
-      "ics": "BEGIN:VTIMEZONE\r\nTZID:Asia/Gaza\r\nBEGIN:DAYLIGHT\r\nTZOFFSETFROM:+0200\r\nTZOFFSETTO:+0300\r\nTZNAME:EEST\r\nDTSTART:19700326T235959\r\nRRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1TH\r\nEND:DAYLIGHT\r\nBEGIN:STANDARD\r\nTZOFFSETFROM:+0300\r\nTZOFFSETTO:+0200\r\nTZNAME:EET\r\nDTSTART:19700925T000000\r\nRRULE:FREQ=YEARLY;BYMONTH=9;BYMONTHDAY=21,22,23,24,25,26,27;BYDAY=FR\r\nEND:STANDARD\r\nEND:VTIMEZONE",
+      "ics": "BEGIN:VTIMEZONE\r\nTZID:Asia/Gaza\r\nBEGIN:STANDARD\r\nTZOFFSETFROM:+0300\r\nTZOFFSETTO:+0200\r\nTZNAME:EET\r\nDTSTART:19701023T000000\r\nRRULE:FREQ=YEARLY;BYMONTH=10;BYMONTHDAY=21,22,23,24,25,26,27;BYDAY=FR\r\nEND:STANDARD\r\nBEGIN:DAYLIGHT\r\nTZOFFSETFROM:+0200\r\nTZOFFSETTO:+0300\r\nTZNAME:EEST\r\nDTSTART:19700327T235959\r\nRRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1FR\r\nEND:DAYLIGHT\r\nEND:VTIMEZONE",
       "latitude": "+0313000",
       "longitude": "+0342800"
     },
     "Asia/Hebron": {
-      "ics": "BEGIN:VTIMEZONE\r\nTZID:Asia/Hebron\r\nBEGIN:DAYLIGHT\r\nTZOFFSETFROM:+0200\r\nTZOFFSETTO:+0300\r\nTZNAME:EEST\r\nDTSTART:19700326T235959\r\nRRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1TH\r\nEND:DAYLIGHT\r\nBEGIN:STANDARD\r\nTZOFFSETFROM:+0300\r\nTZOFFSETTO:+0200\r\nTZNAME:EET\r\nDTSTART:19700925T000000\r\nRRULE:FREQ=YEARLY;BYMONTH=9;BYMONTHDAY=21,22,23,24,25,26,27;BYDAY=FR\r\nEND:STANDARD\r\nEND:VTIMEZONE",
+      "ics": "BEGIN:VTIMEZONE\r\nTZID:Asia/Hebron\r\nBEGIN:STANDARD\r\nTZOFFSETFROM:+0300\r\nTZOFFSETTO:+0200\r\nTZNAME:EET\r\nDTSTART:19701023T000000\r\nRRULE:FREQ=YEARLY;BYMONTH=10;BYMONTHDAY=21,22,23,24,25,26,27;BYDAY=FR\r\nEND:STANDARD\r\nBEGIN:DAYLIGHT\r\nTZOFFSETFROM:+0200\r\nTZOFFSETTO:+0300\r\nTZNAME:EEST\r\nDTSTART:19700327T235959\r\nRRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1FR\r\nEND:DAYLIGHT\r\nEND:VTIMEZONE",
       "latitude": "+0313200",
       "longitude": "+0350542"
     },
@@ -1262,7 +1559,7 @@
       "longitude": "+1140900"
     },
     "Asia/Hovd": {
-      "ics": "BEGIN:VTIMEZONE\r\nTZID:Asia/Hovd\r\nBEGIN:STANDARD\r\nTZOFFSETFROM:+0700\r\nTZOFFSETTO:+0700\r\nTZNAME:HOVT\r\nDTSTART:19700101T000000\r\nEND:STANDARD\r\nEND:VTIMEZONE",
+      "ics": "BEGIN:VTIMEZONE\r\nTZID:Asia/Hovd\r\nBEGIN:DAYLIGHT\r\nTZOFFSETFROM:+0700\r\nTZOFFSETTO:+0800\r\nTZNAME:HOVST\r\nDTSTART:19700328T020000\r\nRRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SA\r\nEND:DAYLIGHT\r\nBEGIN:STANDARD\r\nTZOFFSETFROM:+0800\r\nTZOFFSETTO:+0700\r\nTZNAME:HOVT\r\nDTSTART:19700926T000000\r\nRRULE:FREQ=YEARLY;BYMONTH=9;BYDAY=-1SA\r\nEND:STANDARD\r\nEND:VTIMEZONE",
       "latitude": "+0480100",
       "longitude": "+0913900"
     },
@@ -1487,7 +1784,7 @@
       "longitude": "+1394441"
     },
     "Asia/Ulaanbaatar": {
-      "ics": "BEGIN:VTIMEZONE\r\nTZID:Asia/Ulaanbaatar\r\nBEGIN:STANDARD\r\nTZOFFSETFROM:+0800\r\nTZOFFSETTO:+0800\r\nTZNAME:ULAT\r\nDTSTART:19700101T000000\r\nEND:STANDARD\r\nEND:VTIMEZONE",
+      "ics": "BEGIN:VTIMEZONE\r\nTZID:Asia/Ulaanbaatar\r\nBEGIN:DAYLIGHT\r\nTZOFFSETFROM:+0800\r\nTZOFFSETTO:+0900\r\nTZNAME:ULAST\r\nDTSTART:19700328T020000\r\nRRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SA\r\nEND:DAYLIGHT\r\nBEGIN:STANDARD\r\nTZOFFSETFROM:+0900\r\nTZOFFSETTO:+0800\r\nTZNAME:ULAT\r\nDTSTART:19700926T000000\r\nRRULE:FREQ=YEARLY;BYMONTH=9;BYDAY=-1SA\r\nEND:STANDARD\r\nEND:VTIMEZONE",
       "latitude": "+0475500",
       "longitude": "+1065300"
     },
