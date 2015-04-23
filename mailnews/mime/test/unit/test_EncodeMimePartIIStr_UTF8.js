@@ -16,8 +16,8 @@ function run_test() {
     ["IamASCII", false, "IamASCII"],
     // Although an invalid email, we shouldn't crash on it (bug 479206)
     ["crash test@foo.invalid>", true, "\"crash test\"@foo.invalid"],
-    ["MXR now displays links to Github log & Blame for Gaia/Rust/Servo", false,
-     "MXR now displays links to Github log & Blame for Gaia/Rust/Servo"],
+    ["MXR now displays links to Github log & Blame for\r\n Gaia/Rust/Servo", false,
+     "MXR now displays links to Github log & Blame for\r\n Gaia/Rust/Servo"],
     ["-----------------------:", false, "-----------------------:"],
   ];
 

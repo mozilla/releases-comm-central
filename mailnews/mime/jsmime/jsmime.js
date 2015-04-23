@@ -2705,7 +2705,7 @@ HeaderEmitter.prototype.addPhrase = function (text, qchars, mayBreakAfter) {
   // If quoting the entire string at once could fit in the line length, then do
   // so. The check here is very loose, but this will inform is if we are going
   // to definitely overrun the soft margin.
-  if (text.length < this._softMargin) {
+  if ((this._currentLine.length + text.length) < this._softMargin) {
     try {
       this.addQuotable(text, qchars, mayBreakAfter);
       // If we don't have a breakpoint, and the text is encoded as a sequence of
@@ -2859,7 +2859,7 @@ HeaderEmitter.prototype.addHeaderName = function (name) {
   if (this._currentLine.length > 0) {
     this._commitLine();
   }
-  this.addText(name + ": ", true);
+  this.addText(name + ": ", false);
 };
 
 /**

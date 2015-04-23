@@ -168,11 +168,14 @@ add_task(function* checkBuildMimeText() {
   headers.setHeader("From", [{name: "John Doe", email: "jdoe@test.invalid"}]);
   headers.setHeader("Subject", "A subject that spans a distance quite in " +
     "excess of 80 characters so as to force an intermediary CRLF");
+  headers.setHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:40.0) Gecko/20100101 Thunderbird/40.0a1");
   let mimeText =
     "To: =?UTF-8?Q?Fran=c3=a7ois_Smith?= <user@☃.invalid>\r\n" +
     "From: John Doe <jdoe@test.invalid>\r\n" +
     "Subject: A subject that spans a distance quite in excess of 80 characters so\r\n" +
-    " as to force an intermediary CRLF\r\n";
+      " as to force an intermediary CRLF\r\n" +
+    "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:40.0) Gecko/20100101\r\n" +
+      " Thunderbird/40.0a1\r\n";
   do_check_eq(headers.buildMimeText(), mimeText);
 
   // Check the version used for the nsIMimeHeaders implementation. This requires
