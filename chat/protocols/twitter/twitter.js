@@ -863,9 +863,16 @@ Account.prototype = {
     Services.obs.notifyObservers(this._browserRequest, "browser-request", null);
   },
   finishAuthorizationRequest: function() {
+    // Clean up the cookies, so that several twitter OAuth dialogs can work
+    // during the same session (bug 954308).
+    let cookies = Services.cookies.getCookiesFromHost("twitter.com");
+    while (cookies.hasMoreElements()) {
+      let cookie = cookies.getNext().QueryInterface(Ci.nsICookie2);
+      Services.cookies.remove(cookie.host, cookie.name, cookie.path, false);
+    }
+
     if (!("_browserRequest" in this))
       return;
-
     this._browserRequest._active = false;
     if ("_listener" in this._browserRequest)
       this._browserRequest._listener._cleanUp();
