@@ -154,6 +154,7 @@ addHeader("Reply-To", parseAddress, writeAddress);
 addHeader("Resent-Bcc", parseAddress, writeAddress);
 addHeader("Resent-Cc", parseAddress, writeAddress);
 addHeader("Resent-From", parseAddress, writeAddress);
+addHeader("Resent-Reply-To", parseAddress, writeAddress);
 addHeader("Resent-Sender", parseAddress, writeAddress);
 addHeader("Resent-To", parseAddress, writeAddress);
 addHeader("Sender", parseAddress, writeAddress);
@@ -166,6 +167,9 @@ addHeader("Disposition-Notification-To", parseAddress, writeAddress);
 addHeader("Delivered-To", parseAddress, writeAddress);
 addHeader("Return-Receipt-To", parseAddress, writeAddress);
 
+// http://cr.yp.to/proto/replyto.html
+addHeader("Mail-Reply-To", parseAddress, writeAddress);
+addHeader("Mail-Followup-To", parseAddress, writeAddress);
 
 // Parameter-based headers. Note that all parameters are slightly different, so
 // we use slightly different variants here.
@@ -206,13 +210,27 @@ function writeUnstructured(value) {
   this.addUnstructured(value);
 }
 
+// Message-ID headers.
+function parseMessageID(values) {
+  // TODO: Proper parsing support for these headers is currently unsupported).
+  return this.decodeRFC2047Words(values[0]);
+}
+function writeMessageID(value) {
+  // TODO: Proper parsing support for these headers is currently unsupported).
+  this.addUnstructured(value);
+}
+
 // RFC 5322
 addHeader("Comments", parseUnstructured, writeUnstructured);
 addHeader("Keywords", parseUnstructured, writeUnstructured);
 addHeader("Subject", parseUnstructured, writeUnstructured);
+
 // RFC 2045
+addHeader("MIME-Version", parseUnstructured, writeUnstructured);
 addHeader("Content-Description", parseUnstructured, writeUnstructured);
 
+// RFC 7231
+addHeader("User-Agent", parseUnstructured, writeUnstructured);
 
 // Date headers
 function parseDate(values) { return this.parseDateHeader(values[0]); }
@@ -226,6 +244,9 @@ addHeader("Expires", parseDate, writeDate);
 addHeader("Injection-Date", parseDate, writeDate);
 addHeader("NNTP-Posting-Date", parseDate, writeDate);
 
+// RFC 5322
+addHeader("Message-ID", parseMessageID, writeMessageID);
+addHeader("Resent-Message-ID", parseMessageID, writeMessageID);
 
 // Miscellaneous headers (those that don't fall under the above schemes):
 
@@ -1183,10 +1204,13 @@ for (let pair of structuredHeaders.decoders) {
  * - Delivered-To
  * - Disposition-Notification-To
  * - From
+ * - Mail-Reply-To
+ * - Mail-Followup-To
  * - Reply-To
  * - Resent-Bcc
  * - Resent-Cc
  * - Resent-From
+ * - Resent-Reply-To
  * - Resent-Sender
  * - Resent-To
  * - Return-Receipt-To
@@ -2857,7 +2881,11 @@ HeaderEmitter.prototype.addStructuredHeader = function (name, value) {
     this.addHeaderName(preferredSpellings.get(lowerName));
     encoders.get(lowerName).call(this, value);
   } else if (typeof value === "string") {
-    // Assume it's an unstructured header
+    // Assume it's an unstructured header.
+    // All-lower-case-names are ugly, so capitalize first letters.
+    name = name.replace(/(^|-)[a-z]/g, function(match) {
+      return match.toUpperCase();
+    });
     this.addHeaderName(name);
     this.addUnstructured(value);
   } else {

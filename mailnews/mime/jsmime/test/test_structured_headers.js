@@ -94,7 +94,8 @@ suite('Structured headers', function () {
   let addressing_headers = ['From', 'To', 'Cc', 'Bcc', 'Sender', 'Reply-To',
     'Resent-Bcc', 'Resent-To', 'Resent-From', 'Resent-Cc', 'Resent-Sender',
     'Approved', 'Disposition-Notification-To', 'Delivered-To',
-    'Return-Receipt-To'];
+    'Return-Receipt-To', 'Resent-Reply-To', 'Mail-Reply-To', 'Mail-Followup-To'
+  ];
   let address_tests = [
     ["", []],
     ["a@example.invalid", [{name: "", email: "a@example.invalid"}]],

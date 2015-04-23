@@ -395,12 +395,12 @@ suite('MimeParser', function () {
           ' for domain of bugzilla-daemon@mozilla.org) smtp.mail=bugzilla-dae' +
           'mon@mozilla.org'],
         'Date': ['Fri, 11 Apr 2008 07:17:29 -0700'],
-        'Message-Id': ['<200804111417.m3BEHTk4030129@mrapp51.mozilla.org>'],
+        'Message-ID': ['<200804111417.m3BEHTk4030129@mrapp51.mozilla.org>'],
         'From': ['bugzilla-daemon@mozilla.org'], 'To': ['bugmail@example.org'],
         'Subject': ['Bugzilla: confirm account creation'],
         'X-Bugzilla-Type': ['admin'],
         'Content-Type': ['text/plain; charset="UTF-8"'],
-        'Mime-Version': ['1.0']}}],
+        'MIME-Version': ['1.0']}}],
     ];
     parser_tests.forEach(function (data) {
       arrayTest(data, function () {
