@@ -68,6 +68,25 @@ XMPPSession.prototype = {
                               Stanza.node("ping", Stanza.NS.ping)),
                     this.cancelDisconnectTimer, this);
   },
+  _lastReceiveTime: 0,
+  _lastSendTime: 0,
+  checkPingTimer(aJustSentSomething = false) {
+    // Don't start a ping timer if we're not fully connected yet.
+    if (this.onXmppStanza != this.stanzaListeners.accountListening)
+      return;
+    let now = Date.now();
+    if (aJustSentSomething)
+      this._lastSendTime = now;
+    else
+      this._lastReceiveTime = now;
+    // We only cancel the ping timer if we've both received and sent
+    // something in the last two minutes. This is because Openfire
+    // servers will disconnect us if we don't send anything for a
+    // couple of minutes.
+    if (Math.min(this._lastSendTime, this._lastReceiveTime) >
+        now - this.kTimeBeforePing)
+      this.resetPingTimer();
+  },
 
   get DEBUG() this._account.DEBUG,
   get LOG() this._account.LOG,
@@ -112,6 +131,7 @@ XMPPSession.prototype = {
     if (aCallback)
       this._handlers.set(aStanza.attributes.id, aCallback.bind(aThis));
     this.send(aStanza.getXML());
+    this.checkPingTimer(true);
     return aStanza.attributes.id;
   },
 
@@ -174,8 +194,7 @@ XMPPSession.prototype = {
 
   /* When incoming data is available to be parsed */
   onDataReceived: function(aData) {
-    if (this.onXmppStanza == this.stanzaListeners.accountListening)
-      this.resetPingTimer();
+    this.checkPingTimer();
     let istream = Cc["@mozilla.org/io/string-input-stream;1"]
                     .createInstance(Ci.nsIStringInputStream);
     istream.setData(aData, aData.length);
