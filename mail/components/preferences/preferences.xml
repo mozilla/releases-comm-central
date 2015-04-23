@@ -83,7 +83,8 @@
       <!-- Don't resize the window at pane change -->
       <field name="_shouldAnimate">false</field>
       <!-- Always use instantApply in Prefs in Tab -->
-      <property name="instantApply" readonly="true" onget="return true;"/>
+      <field name="_instantApplyInitialized">true</field>
+      <field name="instantApply">true</field>
       <method name="_selectPane">
         <parameter name="aPaneElement"/>
         <body>
