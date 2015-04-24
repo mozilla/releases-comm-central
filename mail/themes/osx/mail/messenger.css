@@ -13,6 +13,7 @@
 #titlebar {
   -moz-binding: url("chrome://global/content/bindings/general.xml#windowdragbox");
   height: 22px;
+  -moz-window-dragging: drag;
 }
 
 @media (-moz-mac-yosemite-theme) {
@@ -178,6 +179,11 @@ notification[value="addon-install-complete"] > button:active:hover {
 #messengerWindow[tabsintitlebar="true"]:not([sizemode="fullscreen"]):-moz-window-inactive >
   #navigation-toolbox > #tabs-toolbar  > .tabs-alltabs-button {
   opacity: .5;
+}
+
+#messengerWindow:not([tabsintitlebar]) #titlebar-buttonbox-container {
+  margin-top: 3px;
+  -moz-margin-start: 7px;
 }
 
 #messengerWindow[tabsintitlebar="true"] #titlebar-buttonbox-container,

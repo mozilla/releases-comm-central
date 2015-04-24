@@ -15,10 +15,6 @@
   background-position: top right;
 }
 
-#composeToolbar2:-moz-lwtheme {
-  padding-top: 22px;
-}
-
 #attachmentBucket {
   width: 15em;
   min-width: 15em;
@@ -1533,4 +1529,14 @@ toolbarbutton.formatting-button > .toolbarbutton-menubutton-dropmarker {
 
 #searchInput > .textbox-input-box #sidebar {
   background-image: none !important;
+}
+
+#titlebar:not(:-moz-lwtheme),
+#msgcomposeWindow[sizemode="fullscreen"] > #titlebar {
+  display: none;
+}
+
+#titlebar-buttonbox-container {
+  margin-top: 3px;
+  -moz-margin-start: 7px;
 }

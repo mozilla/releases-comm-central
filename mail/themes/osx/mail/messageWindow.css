@@ -18,12 +18,9 @@
   border-bottom: 0px;
 }
 
-.mail-toolbox:-moz-lwtheme {
-  background: none !important;
-}
-
-#mail-bar3:-moz-lwtheme {
-  padding-top: 22px;
+#mail-toolbox:-moz-lwtheme {
+  background: none;
+  box-shadow: none;
 }
 
 .mail-toolbox > toolbar:not(:-moz-lwtheme) {

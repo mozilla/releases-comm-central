@@ -13,10 +13,6 @@
   padding: 0 4px;
 }
 
-#ab-bar2:-moz-lwtheme {
-  padding-top: 22px;
-}
-
 /* ::::: primary toolbar buttons ::::: */
 
 .toolbarbutton-1:not([type="menu-button"]),
@@ -556,4 +552,18 @@ spacer {
 #cvWorkMapIt {
   margin-bottom: 0px;
   min-height: 19px; /* aqua size for small buttons */
+}
+
+#titlebar:not(:-moz-lwtheme),
+#addressbookWindow[sizemode="fullscreen"] > #titlebar {
+  display: none;
+}
+
+#titlebar-buttonbox-container {
+  margin-top: 3px;
+  -moz-margin-start: 7px;
+}
+
+#titlebar-spacer {
+  display: -moz-box;
 }
