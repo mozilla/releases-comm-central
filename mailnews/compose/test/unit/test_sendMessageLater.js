@@ -68,7 +68,7 @@ msll.prototype = {
 
       do_check_transaction(server.playTransaction(),
                            ["EHLO test",
-                            "MAIL FROM:<" + kSender + "> SIZE=" + originalData.length,
+                            "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=" + originalData.length,
                             "RCPT TO:<" + kTo + ">",
                             "DATA"]);
 

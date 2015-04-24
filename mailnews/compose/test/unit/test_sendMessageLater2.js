@@ -54,7 +54,7 @@ msll.prototype = {
   checkMessageSend: function(aCurrentMessage) {
     do_check_transaction(server.playTransaction(),
                          ["EHLO test",
-                          "MAIL FROM:<" + kSender + "> SIZE=" + gMsgFileData[gMsgOrder[aCurrentMessage - 1]].length,
+                          "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=" + gMsgFileData[gMsgOrder[aCurrentMessage - 1]].length,
                           "RCPT TO:<" + kTo + ">",
                           "DATA"]);
 

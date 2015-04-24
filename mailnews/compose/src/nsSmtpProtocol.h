@@ -63,6 +63,7 @@ SMTP_AUTH_OAUTH2_RESPONSE,                          // 27
 #define SMTP_EHLO_DSN_ENABLED           0x00000004
 #define SMTP_EHLO_STARTTLS_ENABLED      0x00000008
 #define SMTP_EHLO_SIZE_ENABLED          0x00000010
+#define SMTP_EHLO_8BIT_ENABLED          0x00000020
 
 // insecure mechanisms follow
 #define SMTP_AUTH_LOGIN_ENABLED         0x00000100

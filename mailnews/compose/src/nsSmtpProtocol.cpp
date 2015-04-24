@@ -625,6 +625,13 @@ nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream * inputStream, uint32_t
   buffer += fullAddress;
   buffer += ">";
 
+  nsCOMPtr<nsIPrefService> prefs = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIPrefBranch> prefBranch;
+  rv = prefs->GetBranch(nullptr, getter_AddRefs(prefBranch));
+  NS_ENSURE_SUCCESS(rv, rv);
+
   if (TestFlag(SMTP_EHLO_DSN_ENABLED))
   {
     bool requestDSN = false;
@@ -632,13 +639,6 @@ nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream * inputStream, uint32_t
 
     if (requestDSN)
     {
-      nsCOMPtr <nsIPrefService> prefs = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-      NS_ENSURE_SUCCESS(rv,rv);
-
-      nsCOMPtr<nsIPrefBranch> prefBranch;
-      rv = prefs->GetBranch(nullptr, getter_AddRefs(prefBranch));
-      NS_ENSURE_SUCCESS(rv,rv);
-
       bool requestRetFull = false;
       rv = prefBranch->GetBoolPref("mail.dsn.ret_full_on", &requestRetFull);
 
@@ -657,7 +657,16 @@ nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream * inputStream, uint32_t
     }
   }
 
-  if(TestFlag(SMTP_EHLO_SIZE_ENABLED))
+  if (TestFlag(SMTP_EHLO_8BIT_ENABLED))
+  {
+    bool strictlyMime = false;
+    rv = prefBranch->GetBoolPref("mail.strictly_mime", &strictlyMime);
+
+    if (!strictlyMime)
+      buffer.Append(" BODY=8BITMIME");
+  }
+
+  if (TestFlag(SMTP_EHLO_SIZE_ENABLED))
   {
     buffer.Append(" SIZE=");
     buffer.AppendInt(m_totalMessageSize);
@@ -785,6 +794,10 @@ nsresult nsSmtpProtocol::SendEhloResponse(nsIInputStream * inputStream, uint32_t
             SetFlag(SMTP_EHLO_SIZE_ENABLED);
 
             m_sizelimit = atol((responseLine.get()) + 4);
+        }
+        else if (StringBeginsWith(responseLine, NS_LITERAL_CSTRING("8BITMIME"), nsCaseInsensitiveCStringComparator()))
+        {
+            SetFlag(SMTP_EHLO_8BIT_ENABLED);
         }
 
         startPos = endPos + 1;

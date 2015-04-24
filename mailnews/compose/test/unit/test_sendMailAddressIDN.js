@@ -54,7 +54,7 @@ msgListener.prototype =
       do_check_eq(aStatus, 0);
       do_check_transaction(server.playTransaction(),
                            ["EHLO test",
-                            "MAIL FROM:<" + kSender + "> SIZE=" + originalData.length,
+                            "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=" + originalData.length,
                             "RCPT TO:<" + this.rcpt + ">",
                             "DATA"]);
       // Compare data file to what the server received

@@ -86,7 +86,7 @@ add_task(function *() {
                                        "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword2),
                                        "AUTH LOGIN",
                                        "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword1),
-                                       "MAIL FROM:<" + kSender + "> SIZE=155",
+                                       "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=155",
                                        "RCPT TO:<" + kTo + ">",
                                        "DATA"]);
 

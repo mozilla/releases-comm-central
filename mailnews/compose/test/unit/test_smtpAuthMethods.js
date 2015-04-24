@@ -17,7 +17,7 @@ const kUsername = "fred";
 const kPassword = "wilma";
 const kSender = "from@foo.invalid";
 const kTo = "to@foo.invalid";
-const MAILFROM = "MAIL FROM:<" + kSender + "> SIZE=155";
+const MAILFROM = "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=155";
 const RCPTTO = "RCPT TO:<" + kTo + ">";
 const AUTHPLAIN = "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword);
 

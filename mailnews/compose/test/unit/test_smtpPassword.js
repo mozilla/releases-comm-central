@@ -59,7 +59,7 @@ add_task(function *() {
     var transaction = server.playTransaction();
     do_check_transaction(transaction, ["EHLO test",
                                        "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword),
-                                       "MAIL FROM:<" + kSender + "> SIZE=155",
+                                       "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=155",
                                        "RCPT TO:<" + kTo + ">",
                                        "DATA"]);
 

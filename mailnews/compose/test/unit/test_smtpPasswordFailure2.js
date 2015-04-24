@@ -124,7 +124,7 @@ add_task(function *() {
                                        "AUTH LOGIN",
                                        // then we enter the correct password
                                        "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kValidPassword),
-                                       "MAIL FROM:<" + kSender + "> SIZE=155",
+                                       "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=155",
                                        "RCPT TO:<" + kTo + ">",
                                        "DATA"]);
 
