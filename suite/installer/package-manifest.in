@@ -787,6 +787,8 @@ bin/libfreebl_32int64_3.so
 @RESPATH@/components/mimeJSComponents.js
 @RESPATH@/components/msgAsyncPrompter.js
 @RESPATH@/components/msgMime.manifest
+; OAuth2 for mail
+@RESPATH@/components/msgOAuth2Module.js
 @RESPATH@/components/newsblog.js
 @RESPATH@/components/newsblog.manifest
 @RESPATH@/components/nsAbAutoCompleteMyDomain.js
