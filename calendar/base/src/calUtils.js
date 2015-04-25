@@ -334,7 +334,11 @@ function userCanRespondToInvitation(aItem) {
  */
 function openCalendarWizard(aCallback) {
     openDialog("chrome://calendar/content/calendarCreation.xul", "caEditServer",
-               "chrome,titlebar,modal,resizable", aCallback);
+               // Workaround for Bug 1151440 - the HTML color picker won't work
+               // in linux when opened from modal dialog
+               Application.platformIsLinux ? "chrome,titlebar,resizable" :
+                                             "modal,chrome,titlebar,resizable",
+               aCallback);
 }
 
 /**
@@ -345,7 +349,10 @@ function openCalendarWizard(aCallback) {
 function openCalendarProperties(aCalendar) {
     openDialog("chrome://calendar/content/calendar-properties-dialog.xul",
                "CalendarPropertiesDialog",
-               "chrome,titlebar,modal,resizable",
+               // Workaround for Bug 1151440 - the HTML color picker won't work
+               // in linux when opened from modal dialog
+               Application.platformIsLinux ? "chrome,titlebar,resizable" :
+                                             "modal,chrome,titlebar,resizable",
                {calendar: aCalendar});
 }
 
