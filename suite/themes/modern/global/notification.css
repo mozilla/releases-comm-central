@@ -81,6 +81,10 @@ popupnotification {
   margin-top: 4px !important;
 }
 
+.popup-notification-learnmore-link:not([href]) {
+  display: none;
+}
+
 .popup-notification-closeitem {
   list-style-image: url("chrome://global/skin/icons/closebox.gif");
 }
