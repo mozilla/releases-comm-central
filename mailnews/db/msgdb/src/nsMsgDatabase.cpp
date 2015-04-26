@@ -5,8 +5,6 @@
 
 // this file implements the nsMsgDatabase interface using the MDB Interface.
 
-#include <sys/stat.h>
-
 #include "nscore.h"
 #include "msgCore.h"
 #include "nsMailDatabase.h"
@@ -1332,13 +1330,19 @@ nsresult nsMsgDatabase::OpenMDB(const char *dbName, bool create, bool sync)
     ret = mdbFactory->MakeEnv(NULL, &m_mdbEnv);
     if (NS_SUCCEEDED(ret))
     {
-      struct stat st;
       nsIMdbHeap* dbHeap = nullptr;
 
       if (m_mdbEnv)
         m_mdbEnv->SetAutoClear(true);
       m_dbName = dbName;
-      if (stat(dbName, &st))
+      bool exists = false;
+      nsCOMPtr<nsIFile> dbFile = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &ret);
+      if (NS_SUCCEEDED(ret) && dbFile) {
+        ret = dbFile->InitWithNativePath(m_dbName);
+        if (NS_SUCCEEDED(ret))
+          ret = dbFile->Exists(&exists);
+      }
+      if (!exists)
       {
         ret = NS_MSG_ERROR_FOLDER_SUMMARY_MISSING;
       }
