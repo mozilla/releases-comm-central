@@ -5,6 +5,9 @@
 no_tooltool=1
 . $topsrcdir/build/unix/mozconfig.linux
 
+# If this isn't set, the symbol upload will happen without the API.
+unset SOCORRO_SYMBOL_UPLOAD_TOKEN_FILE
+
 export MOZILLA_OFFICIAL=1
 mk_add_options MOZILLA_OFFICIAL=1
 
