@@ -9,6 +9,10 @@ var Ci = Components.interfaces;
 var Cr = Components.results;
 var CC = Components.Constructor;
 
+// WebApps.jsm called by ProxyAutoConfig (PAC) requires a valid nsIXULAppInfo.
+Components.utils.import("resource://testing-common/AppInfo.jsm");
+updateAppInfo();
+
 // Ensure the profile directory is set up
 do_get_profile();
 
