@@ -1731,65 +1731,66 @@ function promiseShortcutOrURI(aURL)
     return Promise.resolve([submission.uri.spec, submission.postData]);
   }
 
-  var [shortcutURL, postData] =
-    PlacesUtils.getURLAndPostDataForKeyword(keyword);
+  return PlacesUtils.keywords.fetch(keyword).then(entry => {
+    if (!entry)
+      return [aURL];
 
-  if (!shortcutURL)
-    return Promise.resolve([aURL]);
+    var shortcutURL = entry.url.href;
+    var postData = entry.postData;
+    if (postData)
+      postData = unescape(postData);
 
-  if (postData)
-    postData = unescape(postData);
-
-  if (/%s/i.test(shortcutURL) || /%s/i.test(postData)) {
-    var charset;
-    const re = /^(.*)\&mozcharset=([a-zA-Z][_\-a-zA-Z0-9]+)\s*$/;
-    var matches = shortcutURL.match(re);
-    if (matches) {
-      shortcutURL = matches[1];
-      charset = Promise.resolve(matches[2]);
-    } else {
-      // Try to get the saved character-set.
-      try {
-        // makeURI throws if URI is invalid.
-        // Will return an empty string if character-set is not found.
-        charset = PlacesUtils.getCharsetForURI(makeURI(shortcutURL));
-      } catch (e) {
-        charset = Promise.resolve();
+    if (/%s/i.test(shortcutURL) || /%s/i.test(postData)) {
+      var charset;
+      const re = /^(.*)\&mozcharset=([a-zA-Z][_\-a-zA-Z0-9]+)\s*$/;
+      var matches = shortcutURL.match(re);
+      if (matches) {
+        shortcutURL = matches[1];
+        charset = Promise.resolve(matches[2]);
+      } else {
+        // Try to get the saved character-set.
+        try {
+          // makeURI throws if URI is invalid.
+          // Will return an empty string if character-set is not found.
+          charset = PlacesUtils.getCharsetForURI(makeURI(shortcutURL));
+        } catch (e) {
+          charset = Promise.resolve();
+        }
       }
+
+      return charset.then(charset => {
+        // encodeURIComponent produces UTF-8, and cannot be used for other
+        // charsets. escape() works in those cases, but it doesn't uri-encode
+        // +, @, and /. Therefore we need to manually replace these ASCII
+        // characters by their encodeURIComponent result, to match the
+        // behaviour of nsEscape() with url_XPAlphas.
+        var encodedParam = "";
+        if (charset && charset != "UTF-8")
+          encodedParam = escape(convertFromUnicode(charset, param)).
+                         replace(/[+@\/]+/g, encodeURIComponent);
+        else // Default charset is UTF-8
+          encodedParam = encodeURIComponent(param);
+
+        shortcutURL = shortcutURL.replace(/%s/g, encodedParam).replace(/%S/g, param);
+
+        if (/%s/i.test(postData)) { // POST keyword
+          var postDataStream = getPostDataStream(postData, param, encodedParam,
+                                                 "application/x-www-form-urlencoded");
+          return [shortcutURL, postDataStream];
+        }
+
+        return [shortcutURL];
+      });
     }
 
-    return charset.then(charset => {
-      // encodeURIComponent produces UTF-8, and cannot be used for other
-      // charsets. escape() works in those cases, but it doesn't uri-encode
-      // +, @, and /. Therefore we need to manually replace these ASCII
-      // characters by their encodeURIComponent result, to match the
-      // behaviour of nsEscape() with url_XPAlphas.
-      var encodedParam = "";
-      if (charset && charset != "UTF-8")
-        encodedParam = escape(convertFromUnicode(charset, param)).
-                       replace(/[+@\/]+/g, encodeURIComponent);
-      else // Default charset is UTF-8
-        encodedParam = encodeURIComponent(param);
+    if (param) {
+      // This keyword doesn't take a parameter, but one was provided. Just return
+      // the original URL.
+      return [aURL];
+    }
 
-      shortcutURL = shortcutURL.replace(/%s/g, encodedParam).replace(/%S/g, param);
-
-      if (/%s/i.test(postData)) { // POST keyword
-        var postDataStream = getPostDataStream(postData, param, encodedParam,
-                                               "application/x-www-form-urlencoded");
-        return [shortcutURL, postDataStream];
-      }
-
-      return [shortcutURL];
-    });
-  }
-
-  if (param) {
-    // This keyword doesn't take a parameter, but one was provided. Just return
-    // the original URL.
-    return Promise.resolve([aURL]);
-  }
-
-  return Promise.resolve([shortcutURL]);
+    return [shortcutURL];
+  });
 }
 
 function getPostDataStream(aStringData, aKeyword, aEncKeyword, aType)
