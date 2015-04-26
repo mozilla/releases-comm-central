@@ -156,6 +156,13 @@
                  oncommand="openCertManager();"/>
     </menupopup>
 
+    <popupnotification id="password-notification" hidden="true">
+      <popupnotificationcontent orient="vertical">
+        <textbox id="password-notification-username" hidden="true"/>
+        <textbox id="password-notification-password" hidden="true"/>
+      </popupnotificationcontent>
+    </popupnotification>
+
   </popupset>
 
   <!-- context menu -->
