@@ -42,6 +42,7 @@ static bool dir_IsServerDeleted(DIR_Server * server);
 
 static char *DIR_GetStringPref(const char *prefRoot, const char *prefLeaf, const char *defaultValue);
 static int32_t DIR_GetIntPref(const char *prefRoot, const char *prefLeaf, int32_t defaultValue);
+static char *DIR_GetLocalizedStringPref(const char *prefRoot, const char *prefLeaf);
 
 static char * dir_ConvertDescriptionToPrefName(DIR_Server * server);
 
@@ -130,9 +131,11 @@ NS_IMETHODIMP DirPrefObserver::Observe(nsISupports *aSubject, const char *aTopic
       }
     }
 
-    if (id == idDescription)
+    if (id == idDescription) {
       // Ensure the local copy of the description is kept up to date.
-      server->description = DIR_GetStringPref(prefname, "description", nullptr);
+      PR_FREEIF(server->description);
+      server->description = DIR_GetLocalizedStringPref(prefname, nullptr);
+    }
   }
   /* If the server is not in the unified list, we may need to add it.  Servers
    * are only added when the position, serverName and description are valid.
@@ -502,7 +505,7 @@ static bool dir_ValidateAndAddNewServer(nsVoidArray *wholeList, const char *full
       dirType = DIR_GetIntPref(prefname, "dirType", -1);
       if (dirType != -1 &&
           DIR_GetIntPref(prefname, "position", 0) != 0 &&
-          (t1 = DIR_GetStringPref(prefname, "description", nullptr)) != nullptr)
+          (t1 = DIR_GetLocalizedStringPref(prefname, "description")) != nullptr)
       {
         if (dirType == PABDirectory ||
            (t2 = DIR_GetStringPref(prefname, "serverName",  nullptr)) != nullptr)
@@ -799,15 +802,14 @@ static char *DIR_GetStringPref(const char *prefRoot, const char *prefLeaf, const
     return ToNewCString(value);
 }
 
-/*
-  Get localized unicode string pref from properties file, convert into an UTF8 string 
-  since address book prefs store as UTF8 strings.  So far there are 2 default 
-  prefs stored in addressbook.properties.
-  "ldap_2.servers.pab.description"
-  "ldap_2.servers.history.description"
-*/
-
-static char *DIR_GetDescription(const char *prefRoot)
+/**
+ * Get localized unicode string pref from properties file, convert into an UTF8 string
+ * since address book prefs store as UTF8 strings. So far there are 2 default
+ * prefs stored in addressbook.properties.
+ * "ldap_2.servers.pab.description"
+ * "ldap_2.servers.history.description"
+ */
+static char *DIR_GetLocalizedStringPref(const char *prefRoot, const char *prefLeaf)
 {
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> pPref(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
@@ -816,7 +818,10 @@ static char *DIR_GetDescription(const char *prefRoot)
     return nullptr;
 
   nsAutoCString prefLocation(prefRoot);
-  prefLocation.AppendLiteral(".description");
+  if (prefLeaf) {
+    prefLocation.Append('.');
+    prefLocation.Append(prefLeaf);
+  }
 
   nsString wvalue;
   nsCOMPtr<nsIPrefLocalizedString> locStr;
@@ -1092,8 +1097,8 @@ static void DIR_GetPrefsForOneServer(DIR_Server *server)
   // For default address books, this will get the name from the chrome
   // file referenced, for other address books it'll just retrieve it from prefs
   // as normal.
-  server->description = DIR_GetDescription(prefstring);
-  
+  server->description = DIR_GetLocalizedStringPref(prefstring, "description");
+
   server->dirType = (DirectoryType)DIR_GetIntPref (prefstring, "dirType", LDAPDirectory);
 
   server->fileName = DIR_GetStringPref (prefstring, "filename", "");
