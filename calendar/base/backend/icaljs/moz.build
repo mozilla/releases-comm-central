@@ -20,5 +20,7 @@ FINAL_TARGET_FILES['calendar-js'] += [
     'calRecurrenceRule.js'
 ]
 
+NO_JS_MANIFEST = True
+
 with Files('**'):
     BUG_COMPONENT = ('Calendar', 'ICAL.js Integration')
