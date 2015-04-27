@@ -338,7 +338,6 @@
 @RESPATH@/components/nsSMTPProtocolHandler.manifest
 
 ; misson control, autoconfig
-@RESPATH@/defaults/autoconfig/platform.js
 @RESPATH@/defaults/autoconfig/prefcalls.js
 
 ; Address Book autocomplete

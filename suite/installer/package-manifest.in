@@ -613,7 +613,6 @@
 #endif
 @RESPATH@/@PREF_DIR@/composer.js
 @RESPATH@/greprefs.js
-@RESPATH@/defaults/autoconfig/platform.js
 @RESPATH@/defaults/autoconfig/prefcalls.js
 @RESPATH@/defaults/permissions
 #ifndef LIBXUL_SDK
