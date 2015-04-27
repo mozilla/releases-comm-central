@@ -8,8 +8,6 @@ topsrcdir	= @top_srcdir@
 srcdir		= @srcdir@
 VPATH		= @srcdir@
 
-USE_EXTENSION_MANIFEST = 1
-
 include $(topsrcdir)/config/config.mk
 
 DIST_FILES = \

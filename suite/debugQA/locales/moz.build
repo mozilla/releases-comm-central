@@ -6,3 +6,5 @@
 XPI_NAME = 'debugQA'
 
 JAR_MANIFESTS += ['jar.mn']
+
+USE_EXTENSION_MANIFEST = True
