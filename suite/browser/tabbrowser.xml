@@ -2709,6 +2709,10 @@
                 onget="return this.mCurrentBrowser.isSyntheticDocument;"
                 readonly="true"/>
 
+      <property name="messageManager"
+                onget="return this.mCurrentBrowser.messageManager;"
+                readonly="true"/>
+
       <method name="observe">
         <parameter name="aSubject"/>
         <parameter name="aTopic"/>
