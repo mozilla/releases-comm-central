@@ -110,12 +110,16 @@ var gGeneralPane = {
 
     var soundLocation;
     soundLocation = document.getElementById('soundType').value == 1 ?
-                    document.getElementById('soundUrlLocation').value : "_moz_mailbeep"
+                    document.getElementById('soundUrlLocation').value : "";
 
-    if (!soundLocation.contains("file://"))
-      sound.playSystemSound(soundLocation);
-    else
+    if (!soundLocation.contains("file://")) {
+      if (Services.appinfo.OS == "Darwin") // OS X
+        sound.beep();
+      else
+        sound.playEventSound(Components.interfaces.nsISound.EVENT_NEW_MAIL_RECEIVED);
+    } else {
       sound.play(Services.io.newURI(soundLocation, null, null));
+    }
   },
 
   browseForSoundFile: function ()
