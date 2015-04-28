@@ -290,7 +290,6 @@
 @RESPATH@/components/spellchecker.xpt
 
 ; misson control, autoconfig
-@RESPATH@/defaults/autoconfig/platform.js
 @RESPATH@/defaults/autoconfig/prefcalls.js
 @RESPATH@/components/autoconfig.xpt
 
