@@ -18,8 +18,10 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource:///modules/gloda/log4moz.js");
 
 function OAuth(aDisplayName, aBaseUri, aAuthUri, aAuthToken, aAuthTokenSecret,
-               aAppKey, aAppSecret, aSignatureMethod, aTempCredentialsMethod,
-               aAuthorizeMethod, aRequestCredentialsMethod)
+               aAppKey, aAppSecret, aSignatureMethod,
+               aTempCredentialsMethod = "oauth/request_token",
+               aAuthorizeMethod = "oauth/authorize",
+               aRequestCredentialsMethod = "oauth/access_token")
 {
   this._userInfo = {};
   this.displayName = aDisplayName;
@@ -32,9 +34,9 @@ function OAuth(aDisplayName, aBaseUri, aAuthUri, aAuthToken, aAuthTokenSecret,
   this.log = Log4Moz.getConfiguredLogger("TBOAuth");
 
   this.signatureMethod = aSignatureMethod || "HMAC-SHA1";
-  this.tempCredentialsMethod = aTempCredentialsMethod || "oauth/request_token";
-  this.authorizeMethod = aAuthorizeMethod || "oauth/authorize";
-  this.requestCredentialsMethod = aRequestCredentialsMethod || "oauth/access_token";
+  this.tempCredentialsMethod = aTempCredentialsMethod;
+  this.authorizeMethod = aAuthorizeMethod;
+  this.requestCredentialsMethod = aRequestCredentialsMethod;
 }
 
 OAuth.prototype = {
@@ -100,10 +102,12 @@ OAuth.prototype = {
       ["oauth_consumer_key", this.consumerKey],
       ["oauth_nonce", nonce],
       ["oauth_signature_method", this.signatureMethod],
-      ["oauth_token", this.token],
       ["oauth_timestamp", Math.floor(((new Date()).getTime()) / 1000)],
       ["oauth_version", "1.0"]
     ]);
+    if (this.token) {
+      params.push(["oauth_token", this.token]);
+    }
 
     let dataParams = [];
     let url = /^https?:/.test(aUrl) ? aUrl : this.baseURI + aUrl;
@@ -191,7 +195,8 @@ OAuth.prototype = {
   onRequestTokenReceived: function(aData) {
     this.log.info("Received request token.");
     let data = this._parseURLData(aData);
-    if (!data.oauth_token || !data.oauth_token_secret) {
+    if (!data.oauth_token ||
+        (this.signatureMethod == "HMAC-SHA1" && !data.oauth_token_secret)) {
       this.log.info("didn't get request token");
       this.connectFailureCallback();
       return;
@@ -289,7 +294,7 @@ OAuth.prototype = {
 
     this.token = result.oauth_token;
     this.tokenSecret = result.oauth_token_secret;
-    this.connectSuccessCallback();
+    this.connectSuccessCallback(result);
   },
 
 
