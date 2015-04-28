@@ -66,12 +66,6 @@ else
 SHORTOS = linux
 endif
 
-# function oslocales(filename)
-oslocales = $(shell $(AWK) '{ if ($$2 == "" || $$2 == "$(SHORTOS)") { print $$1 } }' $(1))
-
-# function apposlocales(app)
-apposlocales = $(call oslocales,$(topsrcdir)/$1/locales/$(if $(filter $(MOZ_UPDATE_CHANNEL),beta release),shipped-locales,all-locales))
-
 # function print_ltnconfig(section,configname)
 print_ltnconfig = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(XPI_STAGE_PATH)/$(XPI_NAME)/application.ini $1 $2)
 
@@ -96,14 +90,18 @@ unpack: $(XPI_ZIP_IN)
 langpack-en-US:
 	@echo "Skipping $@ as en-US is the default"
 
-# Skip those locales in Thunderbird but not in Lightning. Use either
-# all-locales or shipped-locales, depending on if we are doing a
-# regular repack or a release repack
-CAL_LOCALES := $(call apposlocales,calendar)
-TB_LOCALES := $(call apposlocales,mail)
-TB_SKIP_LOCALES := $(filter-out $(CAL_LOCALES) en-US,$(TB_LOCALES))
-$(addprefix langpack-,$(TB_SKIP_LOCALES)) $(addprefix upload-,$(TB_SKIP_LOCALES)):
-	@echo "Skipping $@ as it is not in Lightning's locales: $(CAL_LOCALES)"
+merge-%:
+ifdef LOCALE_MERGEDIR
+	$(RM) -rf $(LOCALE_MERGEDIR)/calendar
+	MACOSX_DEPLOYMENT_TARGET= compare-locales -m $(LOCALE_MERGEDIR) $(topsrcdir)/calendar/locales/l10n.ini $(L10NBASEDIR) $*
+
+	# This file requires a bugfix with string changes, see bug XXX
+	[ -f $(L10NBASEDIR)/$*/calendar/chrome/calendar/calendar-extract.properties ] && \
+	  $(RM) $(LOCALE_MERGEDIR)/calendar/chrome/calendar/calendar-extract.properties \
+	  || true
+else
+	@echo "Not merging Lightning locales due to missing LOCALE_MERGEDIR"
+endif
 
 # Calling these targets with prerequisites causes the libs and subsequent
 # targets to be switched in order due to some make voodoo. Therefore we call
@@ -123,22 +121,14 @@ clobber-%:
 repackage-zip-%:
 	@echo "Already repackaged zip for $* in langpack step"
 
-repack-stage: repack-stage-all
+repack-stage:
+	@echo "Repackaging $(XPI_PKGNAME) locale for Language $(AB_CD)"
+	$(RM) -rf $(L10N_TARGET)
+	cp -R $(XPI_STAGE_PATH)/$(XPI_NAME) $(L10N_TARGET)
 	grep -v 'locale \w\+ en-US' $(L10N_TARGET)/chrome.manifest > $(L10N_TARGET)/chrome.manifest~ && \
 	  mv $(L10N_TARGET)/chrome.manifest~ $(L10N_TARGET)/chrome.manifest
 	find $(abspath $(L10N_TARGET)) -name '*en-US*' -print0 | xargs -0 rm -rf
 
-repack-stage-all: $(XPI_STAGE_PATH)/$(XPI_NAME)
-	@echo "Repackaging $(XPI_PKGNAME) locale for Language $(AB_CD)"
-	$(RM) -rf $(L10N_TARGET)
-	cp -R $(XPI_STAGE_PATH)/$(XPI_NAME) $(L10N_TARGET)
-
-# Repack the existing lightning to contain all locales in lightning-all.xpi
-langpack-all: AB_CD=all
-langpack-all: L10N_XPI_NAME=$(XPI_NAME)-all
-langpack-all: L10N_XPI_PKGNAME=$(subst .$(AB_CD),,$(XPI_PKGNAME))
-langpack-all: recreate-platformini repack-stage-all $(addprefix libs-,$(call apposlocales,calendar))
-	@echo "Done packaging"
 
 # Actual locale packaging targets. If L10N_XPI_NAME is set, then use it.
 # Otherwise keep the original XPI_NAME

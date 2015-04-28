@@ -201,33 +201,41 @@ ifdef MOZ_CALENDAR
 LIGHTNING_PATH=$(DEPTH)/calendar/lightning
 GDATA_PATH=$(DEPTH)/calendar/providers/gdata
 
-# Define hooks for forwarding targets
-INSTALLERS_TARGETS += calendar-clobber-% calendar-langpack-% calendar-repackage-zip-%
-FORWARD_TARGETS=wget-en-US unpack
-FORWARD_PATTERN_TARGETS=clobber-% langpack-% repackage-zip-%
+define run-calendar-rule
+$(MAKE) -C $(LIGHTNING_PATH) LOCALE_MERGEDIR=$(LOCALE_MERGEDIR) $(subst calendar-,,$@)
+$(MAKE) -C $(GDATA_PATH) LOCALE_MERGEDIR=$(LOCALE_MERGEDIR) $(subst calendar-,,$@)
+endef
 
-# Add calendar targets to the non-pattern rules
+# Add calendar targets for pattern rules. Unfortunately multiple pattern rules
+# on the left hand side do something different with make, therefore we need to
+# write a line for each target.
+calendar-merge-%:
+	$(run-calendar-rule)
+calendar-clobber-%:
+	$(run-calendar-rule)
+calendar-langpack-%:
+	$(run-calendar-rule)
+calendar-repackage-zip-%:
+	$(run-calendar-rule)
+calendar-wget-en-US:
+	$(run-calendar-rule)
+calendar-unpack:
+	$(run-calendar-rule)
+calendar-upload:
+	$(MAKE) -C $(LIGHTNING_PATH) upload AB_CD=$(AB_CD)
+
+# Hook calendar targets to the mail non-pattern rules
 wget-en-US: calendar-wget-en-US
 unpack: calendar-unpack
 upload: calendar-upload
 
-# And finally, define the calendar targets
-$(addprefix calendar-,$(FORWARD_TARGETS)):
-	$(MAKE) -C $(LIGHTNING_PATH) $(subst calendar-,,$@)
-	# TODO temporarily disable gdata since it wasn't built $(MAKE) -C $(GDATA_PATH) $(subst calendar-,,$@)
-
-$(addprefix calendar-,$(FORWARD_PATTERN_TARGETS)):
-	$(MAKE) -C $(LIGHTNING_PATH) $(subst calendar-,,$@)
-	# TODO temporarily disable gdata since it wasn't built $(MAKE) -C $(GDATA_PATH) $(subst calendar-,,$@)
-
-calendar-upload:
-	$(MAKE) -C $(LIGHTNING_PATH) upload AB_CD=$(AB_CD)
-	# TODO temporarily disable gdata since it wasn't built $(MAKE) -C $(GDATA_PATH) upload AB_CD=$(AB_CD)
+# Hook into the pattern rules, this will be used later on in the installers-% target.
+CALENDAR_INSTALLERS_TARGETS = calendar-merge-% calendar-clobber-% calendar-langpack-% calendar-repackage-zip-%
 endif
 
 # This is a generic target that will make a langpack, repack ZIP (+tarball)
 # builds, and repack and installer if applicable. It is called from the
 # tinderbox scripts. Alter it with caution.
-INSTALLERS_TARGETS += clobber-% langpack-% repackage-win32-installer-% repackage-zip-%
+INSTALLERS_TARGETS = clobber-% $(CALENDAR_INSTALLERS_TARGETS) langpack-% repackage-win32-installer-% repackage-zip-%
 installers-%: $(INSTALLERS_TARGETS)
 	@echo 'repackaging done'
