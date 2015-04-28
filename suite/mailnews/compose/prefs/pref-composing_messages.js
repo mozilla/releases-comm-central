@@ -20,7 +20,8 @@ function PopulateFonts() {
     var localFontCount = { value: 0 }
     var localFonts = enumerator.EnumerateAllFonts(localFontCount);
     for (let font of localFonts)
-      fontsList.appendItem(font, font);
+      if (font != "serif" && font != "sans-serif" && font != "monospace")
+        fontsList.appendItem(font, font);
   } catch (ex) { }
 
   // Select the item after the list is completely generated.
