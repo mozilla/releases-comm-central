@@ -218,6 +218,20 @@ Section "-InstallStartCleanup"
   ; Remove the updates directory for Vista and above
   ${CleanUpdatesDir} "Thunderbird"
 
+  ${GetParameters} $0
+  ${GetOptions} "$0" "/INI=" $1
+  ${Unless} ${Errors}
+    ; The configuration file must also exist
+    ${If} ${FileExists} "$1"
+      ReadINIStr $0 $1 "Install" "RemoveDistributionDir"
+    ${EndIf}
+  ${EndUnless}
+
+  ${If} ${FileExists} "$INSTDIR\distribution"
+  ${AndIf} $0 != "false"
+    RmDir /r "$INSTDIR\distribution"
+  ${EndIf}
+
   ${InstallStartCleanupCommon}
 SectionEnd
 
