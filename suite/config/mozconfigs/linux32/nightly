@@ -13,6 +13,10 @@ ac_add_options --enable-profiling
 export CFLAGS="-gdwarf-2"
 export CXXFLAGS="-gdwarf-2"
 
+# Bug 1155007 temporary workaround. Needs to be
+# backed out once we get a Socorro token generated.
+unset SOCORRO_SYMBOL_UPLOAD_TOKEN_FILE
+
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
 ac_add_options --enable-debug-symbols="-gdwarf-2"
