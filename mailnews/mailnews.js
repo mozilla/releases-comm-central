@@ -698,6 +698,9 @@ pref("mailnews.ui.advanced_directory_search_results.version", 1);
 //If set to a number greater than 0, msg compose windows will be recycled in order to open them quickly
 pref("mail.compose.max_recycled_windows", 1);
 
+// from/recipient columns will be replaced with correspondents column
+pref("mailnews.ui.upgrade.correspondents", true);
+
 // default description and color prefs for tags
 // (we keep the .labels. names for backwards compatibility)
 pref("mailnews.labels.description.1", "chrome://messenger/locale/messenger.properties");

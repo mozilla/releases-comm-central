@@ -690,7 +690,8 @@ FolderDisplayWidget.prototype = {
   _restoreColumnStates: function FolderDisplayWidget__restoreColumnStates() {
     if (this._savedColumnStates) {
       // upgrade column states that don't have a correspondent column
-      if ((this._savedColumnStates.senderCol ||
+      if (Services.prefs.getBoolPref("mailnews.ui.upgrade.correspondents") &&
+          (this._savedColumnStates.senderCol ||
            this._savedColumnStates.recipientCol) &&
           !this._savedColumnStates.correspondentCol) {
         this._savedColumnStates.correspondentCol =
