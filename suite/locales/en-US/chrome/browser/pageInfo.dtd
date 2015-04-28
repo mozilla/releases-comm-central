@@ -42,7 +42,7 @@
 <!ENTITY  formAction            "Form Action">
 <!ENTITY  formMethod            "Method">
 <!ENTITY  formName              "Name">
-<!ENTITY  formEncoding2         "Text Encoding:">
+<!ENTITY  formEncoding          "Encoding:">
 <!ENTITY  formTarget            "Target:">
 <!ENTITY  formFields            "Fields:">
 <!ENTITY  formLabel             "Label">

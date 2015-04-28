@@ -431,7 +431,7 @@
             </columns>
             <rows>
               <row>
-                <label control="formenctype" value="&formEncoding2;"/>
+                <label control="formenctype" value="&formEncoding;"/>
                 <separator/>
                 <textbox readonly="true" id="formenctype"/>
               </row>
