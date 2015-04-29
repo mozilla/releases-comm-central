@@ -557,7 +557,7 @@ DBViewWrapper.prototype = {
    */
   get isMultiFolder() {
     return (this._underlyingData == this.kUnderlyingMultipleFolder) ||
-           (this._underlyingData == this.kUnderlyingSearchView);;
+           (this._underlyingData == this.kUnderlyingSearchView);
   },
 
   /**
