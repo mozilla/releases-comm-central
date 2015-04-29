@@ -151,11 +151,12 @@ nsAutoCompleteGlodaResult.prototype = {
       return null;
 
     return ""; // we don't want to use gravatars as is.
-
+    /*
     let md5hash = GlodaUtils.md5HashString(thing.value);
     let gravURL = "http://www.gravatar.com/avatar/" + md5hash +
                                 "?d=identicon&s=32&r=g";
     return gravURL;
+    */
   },
   getFinalCompleteValueAt: function(aIndex) {
     return this.getValueAt(aIndex);
