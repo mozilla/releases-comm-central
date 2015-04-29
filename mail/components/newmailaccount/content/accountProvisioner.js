@@ -781,7 +781,7 @@ var EmailAccountProvisioner = {
         // Keep a count of the rendered addresses for the "More" buttons, etc.
         renderedAddresses++;
 
-        if (j >= MAX_SMALL_ADDRESSES) {
+        if (addrIndex >= MAX_SMALL_ADDRESSES) {
           result.classList.add("extra");
           result.style.display = "none";
         }
