@@ -5,10 +5,14 @@
 Components.utils.import("resource://calendar/modules/calExtract.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-var baseUrl = "jar:resource://calendar/chrome/calendar-LOCALE.jar!/locale/LOCALE/calendar/calendar-extract.properties";
-var extractor = new Extractor(baseUrl, "en-US", 8);
+let baseUrl = "resource://calendar/chrome/calendar-LOCALE/locale/LOCALE/calendar/calendar-extract.properties";
+let extractor = new Extractor(baseUrl, "en-US", 8);
 
 function run_test() {
+    // Sanity check to make sure the base url is still right. If this fails,
+    // don't forget to also fix the url in base/content/calendar-extract.js.
+    ok(extractor.checkBundle("en-US"));
+
     test_event_start_end();
     test_event_start_duration();
     test_event_start_end_whitespace();

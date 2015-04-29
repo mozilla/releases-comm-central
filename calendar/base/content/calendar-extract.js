@@ -92,7 +92,7 @@ let calendarExtract = {
         let time = (new Date()).getTime();
 
         let locale = Preferences.get("general.useragent.locale", "en-US");
-        let baseUrl = "jar:resource://calendar/chrome/calendar-LOCALE.jar!/locale/LOCALE/calendar/calendar-extract.properties";
+        let baseUrl = "resource://calendar/chrome/calendar-LOCALE/locale/LOCALE/calendar/calendar-extract.properties";
         let dayStart = Preferences.get("calendar.view.daystarthour", 6);
         let extractor;
 
