@@ -280,8 +280,14 @@ function UpdateMailPaneConfig(aMsgWindowInitialized) {
     // doesn't fire when the element is removed from the document.  Manually
     // call destroy here to avoid a nasty leak.
     document.getElementById("messagepane").destroy();
-    desiredParent.appendChild(messagePaneSplitter);
-    desiredParent.appendChild(messagePaneBoxWrapper);
+    let footerBox = desiredParent.lastChild;
+    if (footerBox && footerBox.id == "msg-footer-notification-box") {
+      desiredParent.insertBefore(messagePaneSplitter, footerBox);
+      desiredParent.insertBefore(messagePaneBoxWrapper, footerBox);
+    } else {
+      desiredParent.appendChild(messagePaneSplitter);
+      desiredParent.appendChild(messagePaneBoxWrapper);
+    }
     hdrToolbox.palette  = cloneToolboxPalette;
     hdrToolbox.toolbarset = cloneToolbarset;
     hdrToolbar = document.getElementById("header-view-toolbar");
