@@ -446,9 +446,8 @@ function msgNewMailAccount(msgWindow, okCallback, extraData)
                        extraData:extraData});
   }
 
-  // No sense to run the remaining code while the dialog is not modal.
-  return;
-
+  /*
+  // TODO: Enable this block of code once the dialog above is made modal.
   // If we started with no servers at all and "smtp servers" list selected,
   // refresh display somehow. Bug 58506.
   // TODO Better fix: select newly created account (in all cases)
@@ -459,4 +458,5 @@ function msgNewMailAccount(msgWindow, okCallback, extraData)
       !getCurrentAccount()) {
     selectServer(null, null);
   }
+  */
 }
