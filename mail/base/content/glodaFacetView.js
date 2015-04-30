@@ -533,7 +533,7 @@ var FacetContext = {
     results.setMessages(this._activeSet.slice(0, numMessageToShow));
 
     let showLoading = document.getElementById("showLoading");
-    showLoading.display = "none"; /* hide spinner, we're done thinking */
+    showLoading.style.display = "none"; /* hide spinner, we're done thinking */
 
     let showEmpty = document.getElementById("showEmpty");
     let dateToggle = document.getElementById("date-toggle");
