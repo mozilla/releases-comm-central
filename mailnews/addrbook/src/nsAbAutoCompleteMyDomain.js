@@ -22,13 +22,13 @@ nsAbAutoCompleteMyDomain.prototype = {
     let applicable = this.applicableHeaders.has(params.type);
     const ACR = Components.interfaces.nsIAutoCompleteResult;
     var address = null;
-    if (applicable && aString && !aString.contains(",")) {
+    if (applicable && aString && !aString.includes(",")) {
       if (params.idKey != this.cachedIdKey) {
         this.cachedIdentity = MailServices.accounts.getIdentity(params.idKey);
         this.cachedIdKey = params.idKey;
       }
       if (this.cachedIdentity.autocompleteToMyDomain)
-        address = aString.contains("@") ? aString :
+        address = aString.includes("@") ? aString :
                   this.cachedIdentity.email.replace(/[^@]*/, aString);
     }
 

@@ -632,7 +632,7 @@ HostDetector.prototype =
       result.push(Ci.nsMsgAuthMethod.passwordEncrypted);
     if (new RegExp(prefix + "(NTLM|MSN)").test(line))
       result.push(Ci.nsMsgAuthMethod.NTLM);
-    if (protocol != IMAP || !line.contains("LOGINDISABLED"))
+    if (protocol != IMAP || !line.includes("LOGINDISABLED"))
       result.push(Ci.nsMsgAuthMethod.passwordCleartext);
     return result;
   },
@@ -641,7 +641,7 @@ HostDetector.prototype =
   {
     var capa = thisTry.protocol == POP ? "STLS" : "STARTTLS";
     return thisTry.ssl == TLS &&
-        wiredata.join("").toUpperCase().contains(capa);
+        wiredata.join("").toUpperCase().includes(capa);
   },
 }
 

@@ -52,7 +52,7 @@ function setupMailboxes()
 
   handler = IMAPPump.server._handlerCreator(IMAPPump.daemon);
   let response = handler.onError('1', 'LOGIN user password');
-  do_check_true(response.contains('OK'));
+  do_check_true(response.includes('OK'));
   // wait for imap pump to do it's thing or else we get memory leaks
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
   yield false;
@@ -63,15 +63,15 @@ function testList()
 {
   let response = handler.onError('2', 'LIST "" "*"');
 
-  do_check_true(response.contains('* LIST (\\Marked \\NoInferiors) "/" "INBOX"'));
-  do_check_true(response.contains('* LIST () "/" "Fruit"'));
-  do_check_true(response.contains('* LIST () "/" "Fruit/Apple"'));
-  do_check_true(response.contains('* LIST () "/" "Fruit/Banana"'));
-  do_check_true(response.contains('* LIST () "/" "Tofu"'));
-  do_check_true(response.contains('* LIST () "/" "Vegetable"'));
-  do_check_true(response.contains('* LIST () "/" "Vegetable/Broccoli"'));
-  do_check_true(response.contains('* LIST () "/" "Vegetable/Corn"'));
-  do_check_false(response.contains('Peach'));
+  do_check_true(response.includes('* LIST (\\Marked \\NoInferiors) "/" "INBOX"'));
+  do_check_true(response.includes('* LIST () "/" "Fruit"'));
+  do_check_true(response.includes('* LIST () "/" "Fruit/Apple"'));
+  do_check_true(response.includes('* LIST () "/" "Fruit/Banana"'));
+  do_check_true(response.includes('* LIST () "/" "Tofu"'));
+  do_check_true(response.includes('* LIST () "/" "Vegetable"'));
+  do_check_true(response.includes('* LIST () "/" "Vegetable/Broccoli"'));
+  do_check_true(response.includes('* LIST () "/" "Vegetable/Corn"'));
+  do_check_false(response.includes('Peach'));
 
   yield true;
 }
@@ -81,15 +81,15 @@ function testListSelectSubscribed()
 {
   let response = handler.onError('3', 'LIST (SUBSCRIBED) "" "*"');
 
-  do_check_true(response.contains('* LIST (\\Marked \\NoInferiors \\Subscribed) "/" "INBOX"'));
-  do_check_true(response.contains('* LIST (\\Subscribed) "/" "Fruit/Banana"'));
-  do_check_true(response.contains('* LIST (\\Subscribed \\NonExistent) "/" "Fruit/Peach"'));
-  do_check_true(response.contains('* LIST (\\Subscribed) "/" "Vegetable"'));
-  do_check_true(response.contains('* LIST (\\Subscribed) "/" "Vegetable/Broccoli"'));
-  do_check_false(response.contains('"Fruit"'));
-  do_check_false(response.contains('Apple'));
-  do_check_false(response.contains('Tofu'));
-  do_check_false(response.contains('Corn'));
+  do_check_true(response.includes('* LIST (\\Marked \\NoInferiors \\Subscribed) "/" "INBOX"'));
+  do_check_true(response.includes('* LIST (\\Subscribed) "/" "Fruit/Banana"'));
+  do_check_true(response.includes('* LIST (\\Subscribed \\NonExistent) "/" "Fruit/Peach"'));
+  do_check_true(response.includes('* LIST (\\Subscribed) "/" "Vegetable"'));
+  do_check_true(response.includes('* LIST (\\Subscribed) "/" "Vegetable/Broccoli"'));
+  do_check_false(response.includes('"Fruit"'));
+  do_check_false(response.includes('Apple'));
+  do_check_false(response.includes('Tofu'));
+  do_check_false(response.includes('Corn'));
 
   yield true;
 }
@@ -99,15 +99,15 @@ function testListReturnChilderen()
 {
   let response = handler.onError('4', 'LIST "" "%" RETURN (CHILDREN)');
 
-  do_check_true(response.contains('* LIST (\\Marked \\NoInferiors) "/" "INBOX"'));
-  do_check_true(response.contains('* LIST (\\HasChildren) "/" "Fruit"'));
-  do_check_true(response.contains('* LIST (\\HasNoChildren) "/" "Tofu"'));
-  do_check_true(response.contains('* LIST (\\HasChildren) "/" "Vegetable"'));
-  do_check_false(response.contains('Apple'));
-  do_check_false(response.contains('Banana'));
-  do_check_false(response.contains('Peach'));
-  do_check_false(response.contains('Broccoli'));
-  do_check_false(response.contains('Corn'));
+  do_check_true(response.includes('* LIST (\\Marked \\NoInferiors) "/" "INBOX"'));
+  do_check_true(response.includes('* LIST (\\HasChildren) "/" "Fruit"'));
+  do_check_true(response.includes('* LIST (\\HasNoChildren) "/" "Tofu"'));
+  do_check_true(response.includes('* LIST (\\HasChildren) "/" "Vegetable"'));
+  do_check_false(response.includes('Apple'));
+  do_check_false(response.includes('Banana'));
+  do_check_false(response.includes('Peach'));
+  do_check_false(response.includes('Broccoli'));
+  do_check_false(response.includes('Corn'));
 
   yield true;
 }
@@ -117,15 +117,15 @@ function testListReturnSubscribed()
 {
   let response = handler.onError('5', 'LIST "" "*" RETURN (SUBSCRIBED)');
 
-  do_check_true(response.contains('* LIST (\\Marked \\NoInferiors \\Subscribed) "/" "INBOX"'));
-  do_check_true(response.contains('* LIST () "/" "Fruit"'));
-  do_check_true(response.contains('* LIST () "/" "Fruit/Apple"'));
-  do_check_true(response.contains('* LIST (\\Subscribed) "/" "Fruit/Banana"'));
-  do_check_true(response.contains('* LIST () "/" "Tofu"'));
-  do_check_true(response.contains('* LIST (\\Subscribed) "/" "Vegetable"'));
-  do_check_true(response.contains('* LIST (\\Subscribed) "/" "Vegetable/Broccoli"'));
-  do_check_true(response.contains('* LIST () "/" "Vegetable/Corn"'));
-  do_check_false(response.contains('Peach'));
+  do_check_true(response.includes('* LIST (\\Marked \\NoInferiors \\Subscribed) "/" "INBOX"'));
+  do_check_true(response.includes('* LIST () "/" "Fruit"'));
+  do_check_true(response.includes('* LIST () "/" "Fruit/Apple"'));
+  do_check_true(response.includes('* LIST (\\Subscribed) "/" "Fruit/Banana"'));
+  do_check_true(response.includes('* LIST () "/" "Tofu"'));
+  do_check_true(response.includes('* LIST (\\Subscribed) "/" "Vegetable"'));
+  do_check_true(response.includes('* LIST (\\Subscribed) "/" "Vegetable/Broccoli"'));
+  do_check_true(response.includes('* LIST () "/" "Vegetable/Corn"'));
+  do_check_false(response.includes('Peach'));
 
   yield true;
 }
@@ -135,13 +135,13 @@ function testListSelectMultiple()
 {
   let response = handler._dispatchCommand('LIST', ['', '("INBOX" "Tofu" "Vegetable/%")']);
 
-  do_check_true(response.contains('* LIST (\\Marked \\NoInferiors) "/" "INBOX"'));
-  do_check_true(response.contains('* LIST () "/" "Tofu"'));
-  do_check_true(response.contains('* LIST () "/" "Vegetable/Broccoli"'));
-  do_check_true(response.contains('* LIST () "/" "Vegetable/Corn"'));
-  do_check_false(response.contains('"Vegetable"'));
-  do_check_false(response.contains('Fruit'));
-  do_check_false(response.contains('Peach'));
+  do_check_true(response.includes('* LIST (\\Marked \\NoInferiors) "/" "INBOX"'));
+  do_check_true(response.includes('* LIST () "/" "Tofu"'));
+  do_check_true(response.includes('* LIST () "/" "Vegetable/Broccoli"'));
+  do_check_true(response.includes('* LIST () "/" "Vegetable/Corn"'));
+  do_check_false(response.includes('"Vegetable"'));
+  do_check_false(response.includes('Fruit'));
+  do_check_false(response.includes('Peach'));
 
   yield true;
 }

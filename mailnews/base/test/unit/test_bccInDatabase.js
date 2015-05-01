@@ -37,9 +37,9 @@ function continueTest()
   //dump("\nbccList >" + hdr.bccList);
   //dump("\nccList >" + hdr.ccList);
   //dump("\n");
-  do_check_true(hdr.bccList.contains("Another Person"));
-  do_check_true(hdr.bccList.contains("<u1@example.com>"));
-  do_check_false(hdr.bccList.contains("IDoNotExist"));
+  do_check_true(hdr.bccList.includes("Another Person"));
+  do_check_true(hdr.bccList.includes("<u1@example.com>"));
+  do_check_false(hdr.bccList.includes("IDoNotExist"));
   hdr = null;
   do_test_finished();
 }

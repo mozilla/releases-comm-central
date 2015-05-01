@@ -723,7 +723,7 @@ function test_streamed_bodies_are_size_capped() {
   yield wait_for_gloda_indexer(msgSet, {augment: true});
   let gmsg = msgSet.glodaMessages[0];
   do_check_true(gmsg.indexedBodyText.startsWith("aabb"));
-  do_check_false(gmsg.indexedBodyText.contains("xxyy"));
+  do_check_false(gmsg.indexedBodyText.includes("xxyy"));
 
   if (gmsg.indexedBodyText.length > (20 * 1024 + 58 + 10))
     do_throw("indexed body text is too big! (" + gmsg.indexedBodyText.length +

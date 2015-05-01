@@ -38,7 +38,7 @@ var streamListener =
   },
   onStopRequest: function(aRequest, aContext, aStatusCode) {
     do_check_eq(aStatusCode, 0);
-    do_check_true(this._data.contains("Content-Type"));
+    do_check_true(this._data.includes("Content-Type"));
     async_driver();
   },
 

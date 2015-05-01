@@ -1291,7 +1291,7 @@ IMAP_RFC3501_handler.prototype = {
     var messages = this._parseSequenceSet(args[0], uid, ids);
 
     args[1] = args[1].toUpperCase();
-    var silent = args[1].contains('.SILENT', 1);
+    var silent = args[1].includes('.SILENT', 1);
     if (silent)
       args[1] = args[1].substring(0, args[1].indexOf('.'));
 
@@ -1424,7 +1424,7 @@ IMAP_RFC3501_handler.prototype = {
     var elements = set.split(/,/);
     set = [];
     for each (var part in elements) {
-      if (!part.contains(':')) {
+      if (!part.includes(':')) {
         set.push(part2num(part));
       } else {
         var range = part.split(/:/);
@@ -1498,12 +1498,12 @@ IMAP_RFC3501_handler.prototype = {
       query = data[2];
     } else {
       var partNum = "";
-      if (parts[1].contains(" ", 1))
+      if (parts[1].includes(" ", 1))
         query = parts[1].substring(0, parts[1].indexOf(" "));
       else
         query = parts[1];
     }
-    if (parts[1].contains(" ", 1))
+    if (parts[1].includes(" ", 1))
       var queryArgs = parseCommand(parts[1].substr(parts[1].indexOf(" ")))[0];
     else
       var queryArgs = [];

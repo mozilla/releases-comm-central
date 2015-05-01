@@ -124,7 +124,7 @@ function fetchConfigFromDB(domain, successCallback, errorCallback)
   domain = sanitize.hostname(domain);
 
   // If we don't specify a place to put the domain, put it at the end.
-  if (!url.contains("{{domain}}"))
+  if (!url.includes("{{domain}}"))
     url = url + domain;
   else
     url = url.replace("{{domain}}", domain);

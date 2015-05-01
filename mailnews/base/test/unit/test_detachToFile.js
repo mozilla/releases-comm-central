@@ -74,7 +74,7 @@ function testDetach()
   let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
   let messageContent = getContentFromMessage(msgHdr);
-  do_check_true(messageContent.contains("AttachmentDetached"));
+  do_check_true(messageContent.includes("AttachmentDetached"));
 }
 
 function SaveAttachmentCallback() {

@@ -52,7 +52,7 @@ for (let name of Object.getOwnPropertyNames(Date.prototype)) {
   if (MockDate.prototype.hasOwnProperty(name))
     continue;
 
-  if (name.contains('UTC')) {
+  if (name.includes('UTC')) {
     // 'name' is already supposed to be freshly bound per newest ES6 drafts, but
     // current ES6 implementations reuse the bindings. Until implementations
     // catch up, use a new let to bind it freshly.

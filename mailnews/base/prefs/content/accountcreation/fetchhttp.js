@@ -98,7 +98,7 @@ FetchHTTP.prototype =
     var url = this._url;
     for (var name in this._urlArgs)
     {
-      url += (!url.contains("?") ? "?" : "&") +
+      url += (!url.includes("?") ? "?" : "&") +
               name + "=" + encodeURIComponent(this._urlArgs[name]);
     }
     this._request = new XMLHttpRequest();

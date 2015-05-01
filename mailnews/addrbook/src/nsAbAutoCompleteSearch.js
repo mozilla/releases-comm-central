@@ -233,7 +233,7 @@ nsAbAutoCompleteSearch.prototype = {
       cumulativeFieldText += " " + aCard.getProperty("Notes", "");
     cumulativeFieldText = cumulativeFieldText.toLocaleLowerCase();
 
-    return aSearchWords.every(String.prototype.contains,
+    return aSearchWords.every(String.prototype.includes,
                               cumulativeFieldText);
   },
 
@@ -335,7 +335,7 @@ nsAbAutoCompleteSearch.prototype = {
     // result ignored.
     // The comma check is so that we don't autocomplete against the user
     // entering multiple addresses.
-    if (!fullString || aSearchString.contains(",")) {
+    if (!fullString || aSearchString.includes(",")) {
       result.searchResult = ACR.RESULT_IGNORED;
       aListener.onSearchResult(this, result);
       return;

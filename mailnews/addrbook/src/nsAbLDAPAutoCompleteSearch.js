@@ -178,7 +178,7 @@ nsAbLDAPAutoCompleteSearch.prototype = {
     // result ignored.
     // The comma check is so that we don't autocomplete against the user
     // entering multiple addresses.
-    if (!applicable || !aSearchString || aSearchString.contains(",")) {
+    if (!applicable || !aSearchString || aSearchString.includes(",")) {
       this._result.searchResult = ACR.RESULT_IGNORED;
       aListener.onSearchResult(this, this._result);
       return;

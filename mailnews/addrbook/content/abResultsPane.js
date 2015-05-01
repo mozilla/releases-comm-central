@@ -86,7 +86,7 @@ function SetAbView(aURI)
   let abResultsTree = document.getElementById("abResultsTree");
   let cardViewOuterBox = document.getElementById("CardViewOuterBox");
   let blankResultsPaneMessageBox = document.getElementById("blankResultsPaneMessageBox");
-  if (aURI.startsWith("moz-abldapdirectory://") && !aURI.contains("?")) {
+  if (aURI.startsWith("moz-abldapdirectory://") && !aURI.includes("?")) {
     if (abResultsTree)
       abResultsTree.hidden = true;
     if (cardViewOuterBox)

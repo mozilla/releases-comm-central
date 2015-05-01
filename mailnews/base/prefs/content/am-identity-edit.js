@@ -149,7 +149,7 @@ function validEmailAddress()
 
   // quickly test for an @ sign to test for an email address. We don't have
   // to be anymore precise than that.
-  if (!emailAddress.contains("@"))
+  if (!emailAddress.includes("@"))
   {
     // alert user about an invalid email address
 

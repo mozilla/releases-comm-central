@@ -44,7 +44,7 @@ function setupMailboxes()
 
   handler = IMAPPump.server._handlerCreator(IMAPPump.daemon);
   let response = handler.onError('1', 'LOGIN user password');
-  do_check_true(response.contains('OK'));
+  do_check_true(response.includes('OK'));
   // wait for imap pump to do its thing or else we get memory leaks
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
   yield false;
@@ -55,15 +55,15 @@ function testXlist()
 {
   let response = handler.onError('2', 'XLIST "" "*"');
 
-  do_check_true(response.contains('* LIST (\\HasNoChildren \\Inbox) "/" "INBOX"'));
-  do_check_true(response.contains('* LIST (\\Noselect \\HasChildren) "/" "[Gmail]"'));
-  do_check_true(response.contains('* LIST (\\HasNoChildren \\AllMail) "/" "[Gmail]/All Mail"'));
-  do_check_true(response.contains('* LIST (\\HasNoChildren \\Drafts) "/" "[Gmail]/Drafts"'));
-  do_check_true(response.contains('* LIST (\\HasNoChildren \\Sent) "/" "[Gmail]/Sent"'));
-  do_check_true(response.contains('* LIST (\\HasNoChildren \\Spam) "/" "[Gmail]/Spam"'));
-  do_check_true(response.contains('* LIST (\\HasNoChildren \\Starred) "/" "[Gmail]/Starred"'));
-  do_check_true(response.contains('* LIST (\\HasNoChildren \\Trash) "/" "[Gmail]/Trash"'));
-  do_check_true(response.contains('* LIST (\\HasNoChildren) "/" "test"'));
+  do_check_true(response.includes('* LIST (\\HasNoChildren \\Inbox) "/" "INBOX"'));
+  do_check_true(response.includes('* LIST (\\Noselect \\HasChildren) "/" "[Gmail]"'));
+  do_check_true(response.includes('* LIST (\\HasNoChildren \\AllMail) "/" "[Gmail]/All Mail"'));
+  do_check_true(response.includes('* LIST (\\HasNoChildren \\Drafts) "/" "[Gmail]/Drafts"'));
+  do_check_true(response.includes('* LIST (\\HasNoChildren \\Sent) "/" "[Gmail]/Sent"'));
+  do_check_true(response.includes('* LIST (\\HasNoChildren \\Spam) "/" "[Gmail]/Spam"'));
+  do_check_true(response.includes('* LIST (\\HasNoChildren \\Starred) "/" "[Gmail]/Starred"'));
+  do_check_true(response.includes('* LIST (\\HasNoChildren \\Trash) "/" "[Gmail]/Trash"'));
+  do_check_true(response.includes('* LIST (\\HasNoChildren) "/" "test"'));
 
   yield true;
 }

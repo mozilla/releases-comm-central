@@ -91,7 +91,7 @@ function streamMessages() {
            "##########\nTesting--->" + fileNames[i-1] +
            "; 'prefer plain text': " + isPlain + "\n");
       try {
-        do_check_true(buf.contains(marker));
+        do_check_true(buf.includes(marker));
       }
       catch(e){}
     }

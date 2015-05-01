@@ -64,7 +64,7 @@ let _errorConsoleTunnel = {
       // meh, let's just use mark_failure for now.
       // and let's avoid feedback loops (happens in mozmill)
       if ((aMessage instanceof Components.interfaces.nsIScriptError) &&
-        (!aMessage.errorMessage.contains("Error console says")))
+        (!aMessage.errorMessage.includes("Error console says")))
         {
           // Unfortunately changes to mozilla-central are throwing lots
           // of console errors during testing, so disable (we hope temporarily)

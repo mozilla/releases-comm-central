@@ -370,7 +370,7 @@ MimeAddressParser.prototype = {
 
   /// Construct a single email address from a name <local@domain> token.
   _makeSingleAddress: function (aDisplayName) {
-    if (aDisplayName.contains('<')) {
+    if (aDisplayName.includes('<')) {
       let lbracket = aDisplayName.lastIndexOf('<');
       let rbracket = aDisplayName.lastIndexOf('>');
       // If there are multiple spaces between the display name and the bracket,

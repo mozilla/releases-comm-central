@@ -185,7 +185,7 @@ var tests = [
       msgServ.streamHeaders(msgURI, promiseStreamListener, null, true);
       let data = yield promiseStreamListener.promise;
       dump('\nheaders for messageId ' + msgId + '\n' + data + '\n\n');
-      Assert.ok(data.contains(msgId));
+      Assert.ok(data.includes(msgId));
     }
   },
   function moveMessagesToSubfolder() {

@@ -40,7 +40,7 @@ function readFile(fileName) {
   if ("@mozilla.org/windows-registry-key;1" in Components.classes) {
     // Windows doesn't allow '..' in appendRelativePath,
     // so we'll have to do this the long way.
-    if (fileName.contains('/')) {
+    if (fileName.includes('/')) {
       let parts = fileName.split('/');
       for (let part of parts) {
         if (part == "..")

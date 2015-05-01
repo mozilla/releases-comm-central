@@ -110,7 +110,7 @@ function testDetach()
   let msgHdr = IMAPPump.inbox.GetMessageHeader(2);
   do_check_neq(msgHdr, null);
   let messageContent = getContentFromMessage(msgHdr);
-  do_check_true(messageContent.contains("AttachmentDetached"));
+  do_check_true(messageContent.includes("AttachmentDetached"));
 }
 
 // Cleanup

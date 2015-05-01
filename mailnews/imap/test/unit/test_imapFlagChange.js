@@ -83,7 +83,7 @@ var tests = [
   function checkTagSet() {
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
     let keywords = msgHdr.getStringProperty("keywords");
-    do_check_true(keywords.contains("randomtag"));
+    do_check_true(keywords.includes("randomtag"));
     gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
@@ -95,7 +95,7 @@ var tests = [
   function checkTagCleared() {
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
     let keywords = msgHdr.getStringProperty("keywords");
-    do_check_false(keywords.contains("randomtag"));
+    do_check_false(keywords.includes("randomtag"));
   },
   teardown
 ];

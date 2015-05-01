@@ -235,7 +235,7 @@ function rememberPassword(server, password)
   login.init(passwordURI, null, passwordURI, server.username, password, "", "");
   try {
     Services.logins.addLogin(login);
-  } catch (e if e.message.contains("This login already exists")) {
+  } catch (e if e.message.includes("This login already exists")) {
     // TODO modify
   }
 }
@@ -262,7 +262,7 @@ function checkIncomingServerAlreadyExists(config)
 
   // if username does not have an '@', also check the e-mail
   // address form of the name.
-  if (!existing && !incoming.username.contains("@"))
+  if (!existing && !incoming.username.includes("@"))
     existing = MailServices.accounts.findRealServer(config.identity.emailAddress,
           incoming.hostname,
           sanitize.enum(incoming.type, ["pop3", "imap", "nntp"]),
