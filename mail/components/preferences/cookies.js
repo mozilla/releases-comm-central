@@ -813,9 +813,9 @@ var gCookiesWindow = {
 
   _cookieMatchesFilter: function (aCookie)
   {
-    return aCookie.rawHost.contains(this._view._filterValue) ||
-           aCookie.name.contains(this._view._filterValue) ||
-           aCookie.value.contains(this._view._filterValue);
+    return aCookie.rawHost.includes(this._view._filterValue) ||
+           aCookie.name.includes(this._view._filterValue) ||
+           aCookie.value.includes(this._view._filterValue);
   },
 
   _filterCookies: function (aFilterValue)

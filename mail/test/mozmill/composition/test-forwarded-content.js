@@ -50,7 +50,7 @@ function test_forwarded_subj() {
 
   let headerTableText  = fwdWin.e("content-frame").contentDocument
                           .querySelector("table").textContent;
-  if (!headerTableText.contains(msg.mime2DecodedSubject)) {
+  if (!headerTableText.includes(msg.mime2DecodedSubject)) {
     throw new Error("Subject not set correctly in header table: subject=" +
                     msg.mime2DecodedSubject + ", header table text=" +
                     headerTableText);

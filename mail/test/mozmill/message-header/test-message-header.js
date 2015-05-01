@@ -875,7 +875,7 @@ function subtest_addresses_in_tooltip_text(aRecipients, aHeaderBox,
 
   for (let i = aShownAddrsNum; (i < numAddresses) &&
                                (i < maxTooltipAddrsNum + aShownAddrsNum); i++) {
-    assert_true(tooltipText.contains(fullNames.value[i]), fullNames.value[i]);
+    assert_true(tooltipText.includes(fullNames.value[i]), fullNames.value[i]);
     addrsNumInTooltip += 1;
   }
 

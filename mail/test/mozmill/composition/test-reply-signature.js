@@ -94,10 +94,10 @@ function check_sig_strip_works(aRow, aShouldStrip) {
   let rwc = open_compose_with_reply();
   let body = get_compose_body(rwc);
 
-  if (aShouldStrip && body.textContent.contains(sig)) {
+  if (aShouldStrip && body.textContent.includes(sig)) {
     throw new Error("signature was not stripped; body=" + body.textContent);
   }
-  else if (!aShouldStrip && !body.textContent.contains(sig)) {
+  else if (!aShouldStrip && !body.textContent.includes(sig)) {
     throw new Error("signature stripped; body=" + body.textContent);
   }
   close_compose_window(rwc);

@@ -452,11 +452,11 @@ function subtest_html_characters_and_ampersands(w) {
   // & should have been replaced with &amp;, and the
   // greater than / less than characters with &gt; and
   // &lt; respectively.
-  assert_true(displayedName.contains("&amp;"),
+  assert_true(displayedName.includes("&amp;"),
               "Should have eliminated ampersands");
-  assert_true(displayedName.contains("&gt;"),
+  assert_true(displayedName.includes("&gt;"),
               "Should have eliminated greater-than signs");
-  assert_true(displayedName.contains("&lt;"),
+  assert_true(displayedName.includes("&lt;"),
               "Should have eliminated less-than signs");
 }
 

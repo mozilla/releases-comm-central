@@ -96,10 +96,10 @@ function assert_mdn_shown(shouldShow) {
 function assert_mdn_text_contains(text, shouldContain) {
   let nb = mc.window.document.getElementById(kBoxId);
   let notificationText = nb.currentNotification.label;
-  if (shouldContain && !notificationText.contains(text))
+  if (shouldContain && !notificationText.includes(text))
     throw new Error("mdnBar should contain text=" + text +
                     "; notificationText=" + notificationText);
-  if (!shouldContain && notificationText.contains(text))
+  if (!shouldContain && notificationText.includes(text))
     throw new Error("mdnBar shouldn't contain text=" + text +
                     "; notificationText=" + notificationText);
 }

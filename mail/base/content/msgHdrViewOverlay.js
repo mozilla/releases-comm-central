@@ -539,7 +539,7 @@ var messageHeaderSink = {
         var fromMailboxes = kMailboxSeparator +
           MailServices.headerParser.extractHeaderAddressMailboxes(
             currentHeaderData.from.headerValue) + kMailboxSeparator;
-        if (fromMailboxes.contains(senderMailbox))
+        if (fromMailboxes.includes(senderMailbox))
           delete currentHeaderData.sender;
       }
 

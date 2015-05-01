@@ -2734,7 +2734,7 @@ function CheckValidEmailAddress(aMsgCompFields)
    // We could parse each address, but that might be overkill.
   function isInvalidAddress(aAddress) {
     return (aAddress.length > 0 &&
-            ((!aAddress.contains("@", 1) && aAddress.toLowerCase() != "postmaster") ||
+            ((!aAddress.includes("@", 1) && aAddress.toLowerCase() != "postmaster") ||
               aAddress.endsWith("@")));
   }
   if (isInvalidAddress(aMsgCompFields.to))

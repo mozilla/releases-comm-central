@@ -880,7 +880,7 @@ function getFirstFolder(msgFolder)
  */
 function filterSearchMatch(aFilter, aKeyword)
 {
-  return (aFilter.filterName.toLocaleLowerCase().contains(aKeyword))
+  return (aFilter.filterName.toLocaleLowerCase().includes(aKeyword))
 }
 
 /**

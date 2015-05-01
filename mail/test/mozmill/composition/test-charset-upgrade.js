@@ -116,7 +116,7 @@ function test_encoding_upgrade_html_compose() {
   assert_equals(draftMsg.Charset, "windows-1252");
 
   let draftMsgContent = getMsgSource(draftMsg);
-  if (!draftMsgContent.contains('content="text/html; charset=windows-1252"'))
+  if (!draftMsgContent.includes('content="text/html; charset=windows-1252"'))
     throw new Error("Expected content type not in msg; draftMsgContent=" +
                     draftMsgContent);
 
@@ -140,11 +140,11 @@ function test_encoding_upgrade_html_compose() {
   assert_equals(draftMsg2.Charset, "UTF-8");
 
   let draftMsg2Content = getMsgSource(draftMsg2);
-  if (!draftMsg2Content.contains('content="text/html; charset=UTF-8"'))
+  if (!draftMsg2Content.includes('content="text/html; charset=UTF-8"'))
     throw new Error("Expected content type not in msg; draftMsg2Content=" +
                     draftMsg2Content);
 
-  if (!draftMsg2Content.contains(CHINESE))
+  if (!draftMsg2Content.includes(CHINESE))
     throw new Error("Chinese text not in msg; CHINESE=" + CHINESE +
                     ", draftMsg2Content=" + draftMsg2Content);
 
@@ -156,7 +156,7 @@ function test_encoding_upgrade_html_compose() {
   let outMsgContent = getMsgSource(outMsg);
 
   // This message should be multipart/alternative.
-  if (!outMsgContent.contains("Content-Type: multipart/alternative"))
+  if (!outMsgContent.includes("Content-Type: multipart/alternative"))
     throw new Error("Expected multipart/alternative; content=" + outMsgContent);
 
   let chinesePlainIdx = outMsgContent.indexOf(CHINESE);
@@ -168,7 +168,7 @@ function test_encoding_upgrade_html_compose() {
                                   ", outMsgContent=" + outMsgContent);
 
   // Make sure the actual html also got the content type set correctly.
-  if (!outMsgContent.contains('content="text/html; charset=UTF-8"'))
+  if (!outMsgContent.includes('content="text/html; charset=UTF-8"'))
     throw new Error("Expected content type not in html; outMsgContent=" +
                     outMsgContent);
 
@@ -213,11 +213,11 @@ function test_encoding_upgrade_plaintext_compose() {
   assert_equals(draftMsg2.Charset, "UTF-8");
 
   let draftMsg2Content = getMsgSource(draftMsg2);
-  if (draftMsg2Content.contains("<html>"))
+  if (draftMsg2Content.includes("<html>"))
     throw new Error("Plaintext draft contained <html>; "+
                     "draftMsg2Content=" + draftMsg2Content);
 
-  if (!draftMsg2Content.contains(CHINESE))
+  if (!draftMsg2Content.includes(CHINESE))
     throw new Error("Chinese text not in msg; CHINESE=" + CHINESE +
                     ", draftMsg2Content=" + draftMsg2Content);
 
@@ -229,10 +229,10 @@ function test_encoding_upgrade_plaintext_compose() {
   let outMsgContent = getMsgSource(outMsg);
 
   // This message should be text/plain;
-  if (!outMsgContent.contains("Content-Type: text/plain"))
+  if (!outMsgContent.includes("Content-Type: text/plain"))
     throw new Error("Expected text/plain; content=" + outMsgContent);
 
-  if (!outMsgContent.contains(CHINESE))
+  if (!outMsgContent.includes(CHINESE))
     throw new Error("Chinese text not in msg; CHINESE=" + CHINESE +
                     ", outMsgContent=" + outMsgContent);
 

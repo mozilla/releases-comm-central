@@ -1138,8 +1138,8 @@ var gApplicationsPane = {
 
   _matchesFilter: function(aType) {
     var filterValue = this._filter.value.toLowerCase();
-    return this._describeType(aType).toLowerCase().contains(filterValue) ||
-           this._describePreferredAction(aType).toLowerCase().contains(filterValue);
+    return this._describeType(aType).toLowerCase().includes(filterValue) ||
+           this._describePreferredAction(aType).toLowerCase().includes(filterValue);
   },
 
   /**

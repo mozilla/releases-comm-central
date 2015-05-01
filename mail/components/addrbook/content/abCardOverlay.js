@@ -582,7 +582,7 @@ function CheckAndSetCardValues(cardproperty, doc, check)
 function CleanUpWebPage(webPage)
 {
   // no :// yet so we should add something
-  if (webPage.length && !webPage.contains("://"))
+  if (webPage.length && !webPage.includes("://"))
   {
     // check for missing / on http://
     if (webPage.startsWith("http:/"))

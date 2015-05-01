@@ -103,15 +103,15 @@ function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
 
   let bodyText= compWin.e("content-frame").contentDocument
                        .querySelector("body").textContent;
-  if (bodyText.contains("html"))
+  if (bodyText.includes("html"))
     throw new Error("body text contains raw html; bodyText=" + bodyText);
 
-  if (!bodyText.contains(msgbodyA))
+  if (!bodyText.includes(msgbodyA))
     throw new Error("body text didn't contain the body text; msgbodyA=" +
                     msgbodyB + ", bodyText=" + bodyText);
 
   let subjectText = compWin.e("msgSubject").value;
-  if (!subjectText.contains(msgsubject))
+  if (!subjectText.includes(msgsubject))
     throw new Error("subject text didn't contain the original subject; " +
                     "msgsubject=" +  msgsubject + ", subjectText=" + subjectText);
 

@@ -72,7 +72,7 @@ var gPermissionManager = {
   addPermission: function (aCapability)
   {
     var textbox = document.getElementById("url");
-    let scheme = textbox.value.contains("@") ? "mailto:" : "http://";
+    let scheme = textbox.value.includes("@") ? "mailto:" : "http://";
     let host = textbox.value.replace(/^\s*([-\w]*:\/*)?/, ""); // trim any leading space and scheme
     try {
       let uri = Services.io.newURI(scheme + host, null, null);

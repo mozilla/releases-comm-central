@@ -198,7 +198,7 @@ var gConsoleListener = {
     if (!this._msg)
       return;
 
-    this._sawMsg |= (aMsg.message.contains(this._msg));
+    this._sawMsg |= (aMsg.message.includes(this._msg));
   },
 
   listenFor: function(aMsg) {

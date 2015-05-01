@@ -54,7 +54,7 @@ var mailInstrumentationManager =
 
   _accountsChanged: function() {
     // check if there are at least two accounts - one is local folders account
-    if (Services.prefs.getCharPref("mail.accountmanager.accounts").contains(',', 1)) {
+    if (Services.prefs.getCharPref("mail.accountmanager.accounts").includes(',', 1)) {
       mailInstrumentationManager.addEvent("accountAdded", true);
       mailInstrumentationManager._removeObserver(
         "mail.accountmanager.accounts",

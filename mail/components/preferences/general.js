@@ -112,7 +112,7 @@ var gGeneralPane = {
     soundLocation = document.getElementById('soundType').value == 1 ?
                     document.getElementById('soundUrlLocation').value : "";
 
-    if (!soundLocation.contains("file://")) {
+    if (!soundLocation.includes("file://")) {
       if (Services.appinfo.OS == "Darwin") // OS X
         sound.beep();
       else

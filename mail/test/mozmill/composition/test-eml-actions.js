@@ -112,7 +112,7 @@ function test_reply_to_base64_eml() {
                         .querySelector("body").textContent;
 
   const message = "You have decoded this text from base64.";
-  if (!bodyText.contains(message))
+  if (!bodyText.includes(message))
     throw new Error("body text didn't contain the decoded text; message=" +
                     message + ", bodyText=" + bodyText);
 
@@ -135,7 +135,7 @@ function test_forward_base64_eml() {
                         .querySelector("body").textContent;
 
   const message = "You have decoded this text from base64.";
-  if (!bodyText.contains(message))
+  if (!bodyText.includes(message))
     throw new Error("body text didn't contain the decoded text; message=" +
                     message + ", bodyText=" + bodyText);
 

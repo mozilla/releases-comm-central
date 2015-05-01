@@ -149,7 +149,7 @@ function test_no_mojibake() {
   let draftMsg = select_click_row(1);
   assert_equals(getMsgHeaders(draftMsg).get("").charset, "UTF-8");
   let text = getMsgHeaders(draftMsg, true).get("");
-  if (!text.contains(nonASCII))
+  if (!text.includes(nonASCII))
     throw new Error("Expected to find " + nonASCII + " in " + text);
   press_delete(mc); // Delete message
 

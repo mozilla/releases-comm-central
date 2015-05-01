@@ -342,7 +342,7 @@ function wait_for_content_tab_element_display_value(aTab, aElem, aValue) {
  */
 function assert_content_tab_text_present(aTab, aText) {
   let html = aTab.browser.contentDocument.documentElement.innerHTML;
-  if (!html.contains(aText)) {
+  if (!html.includes(aText)) {
     mark_failure(["Unable to find string \"" + aText + "\" on the content tab's page"]);
   }
 }
@@ -352,7 +352,7 @@ function assert_content_tab_text_present(aTab, aText) {
  */
 function assert_content_tab_text_absent(aTab, aText) {
   let html = aTab.browser.contentDocument.documentElement.innerHTML;
-  if (html.contains(aText)) {
+  if (html.includes(aText)) {
     mark_failure(["Found string \"" + aText + "\" on the content tab's page"]);
   }
 }
@@ -392,14 +392,14 @@ function plugins_run_in_separate_processes(aController) {
   let supportsOOPP = false;
 
   if (aController.mozmillModule.isMac) {
-    if (Services.appinfo.XPCOMABI.contains("x86-")) {
+    if (Services.appinfo.XPCOMABI.includes("x86-")) {
       try {
         supportsOOPP = Services.prefs.getBoolPref("dom.ipc.plugins.enabled.i386.test.plugin");
       } catch(e) {
         supportsOOPP = Services.prefs.getBoolPref("dom.ipc.plugins.enabled.i386");
       }
     }
-    else if (Services.appinfo.XPCOMABI.contains("x86_64-")) {
+    else if (Services.appinfo.XPCOMABI.includes("x86_64-")) {
       try {
         supportsOOPP = Services.prefs.getBoolPref("dom.ipc.plugins.enabled.x86_64.test.plugin");
       } catch(e) {

@@ -82,7 +82,7 @@ function test_view_source_reload() {
               "Timeout waiting for the latin1 view-source document to load.");
 
   let source = vsc.e("content").contentDocument.querySelector("pre").textContent;
-  if (!source.contains(contentLatin1))
+  if (!source.includes(contentLatin1))
     throw new Error("View source didn't contain the latin1 text;\n" +
                     contentLatin1 + "\n" + source);
 
@@ -96,7 +96,7 @@ function test_view_source_reload() {
               "Timeout waiting utf-8 encoded view-source document to load.");
 
   source = vsc.e("content").contentDocument.querySelector("pre").textContent;
-  if (!source.contains(contentUTF8))
+  if (!source.includes(contentUTF8))
     throw new Error("View source didn't contain the utf-8 text;\n" +
                     contentUTF8 + "\n" + source);
 

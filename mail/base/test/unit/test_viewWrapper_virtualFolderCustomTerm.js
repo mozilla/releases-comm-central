@@ -37,7 +37,7 @@ var gCustomSearchTermSubject = {
     return [Components.interfaces.nsMsgSearchOp.Contains];
   },
   match: function subject_match(aMsgHdr, aSearchValue, aSearchOp) {
-    return (aMsgHdr.subject.contains(aSearchValue));
+    return (aMsgHdr.subject.includes(aSearchValue));
   },
   needsBody: false,
 };

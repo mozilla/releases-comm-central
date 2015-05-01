@@ -956,8 +956,8 @@ function InitMessageTags(menuPopup)
   for (var i = 0; i < tagCount; ++i)
   {
     var taginfo = tagArray[i];
-    let removeKey = (" " + curKeys + " ").contains(" " + taginfo.key + " ");
-    if (taginfo.ordinal.contains("~AUTOTAG") && !removeKey)
+    let removeKey = (" " + curKeys + " ").includes(" " + taginfo.key + " ");
+    if (taginfo.ordinal.includes("~AUTOTAG") && !removeKey)
       continue;
 
     // TODO we want to either remove or "check" the tags that already exist
@@ -1188,7 +1188,7 @@ function IsReplyAllEnabled()
   // Check to see if my email address is in the list of addresses.
   let myEmail = getIdentityForHeader(msgHdr).email;
   // We aren't guaranteed to have an email address, so guard against that.
-  let imInAddresses = myEmail && (addresses.toLowerCase().contains(
+  let imInAddresses = myEmail && (addresses.toLowerCase().includes(
                                     myEmail.toLowerCase()));
 
   // Now, let's get the number of unique addresses.
@@ -1204,7 +1204,7 @@ function IsReplyAllEnabled()
   // show up in the address at all.)
   for (var i in emailAddresses.value)
   {
-    if (emailAddresses.value[i].contains(":"))
+    if (emailAddresses.value[i].includes(":"))
       numAddresses--;
   }
 
@@ -3179,7 +3179,7 @@ function onRemoteContentOptionsShowing(aEvent) {
   // ... and in with the new.
   for (let host of hosts) {
     let uri = Services.io.newURI(
-      host.contains("@") ? "mailto:" + host : "http://" + host, null, null);
+      host.includes("@") ? "mailto:" + host : "http://" + host, null, null);
 
     let menuitem = document.createElement("menuitem");
     menuitem.setAttribute("label",

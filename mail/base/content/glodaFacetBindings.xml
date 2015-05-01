@@ -495,7 +495,7 @@
         else
           labelFormat = glodaFacetStrings.get(
               "glodaFacetView.facets."+stringName+".fallbackLabel");
-        if (!labelFormat.contains("#1"))
+        if (!labelFormat.includes("#1"))
           return labelFormat;
         else
           return labelFormat.replace("#1", facetValue);

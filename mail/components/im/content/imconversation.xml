@@ -968,7 +968,7 @@
         if (event.metaKey)
           modifiers |= masks.META_MASK;
         if (event.accelKey)
-          modifiers |= (navigator.platform.contains("Mac")) ? masks.META_MASK
+          modifiers |= (navigator.platform.includes("Mac")) ? masks.META_MASK
                                                             : masks.CONTROL_MASK;
 
         // resend the event

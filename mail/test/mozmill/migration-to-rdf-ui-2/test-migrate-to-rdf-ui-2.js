@@ -62,6 +62,6 @@ function test_throbber_removed() {
   else
     currentSet = mc.e("mail-toolbar-menubar2").getAttribute("currentset");
 
-  assert_false(currentSet.contains("throbber-box"),
+  assert_false(currentSet.includes("throbber-box"),
                "We found a throbber-box where we shouldn't have.");
 }
