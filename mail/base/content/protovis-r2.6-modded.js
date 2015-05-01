@@ -56,7 +56,7 @@ try {
   pv.parse = function(js) { // hacky regex support
     var re = new RegExp("function(\\s+\\w+)?\\([^)]*\\)\\s*", "mg"), m, i = 0;
     var s = "";
-    while (m = re.exec(js)) {
+    while ((m = re.exec(js))) {
       var j = m.index + m[0].length;
       if (js[j--] != '{') {
         s += js.substring(i, j) + "{return ";
@@ -624,11 +624,11 @@ pv.color = function(format) {
       }
       case "rgba":
       case "rgb": {
-        function parse(c) { // either integer or percentage
-          var f = parseFloat(c);
+        let parse = function(c) { // either integer or percentage
+          let f = parseFloat(c);
           return (c[c.length - 1] == '%') ? Math.round(f * 2.55) : f;
-        }
-        var r = parse(m2[0]), g = parse(m2[1]), b = parse(m2[2]);
+        };
+        let r = parse(m2[0]), g = parse(m2[1]), b = parse(m2[2]);
         return new pv.Color.Rgb(r, g, b, a);
       }
     }
@@ -998,9 +998,9 @@ pv.Ramp = function(start, end) {
     return value(f.apply(this, this.root.scene.data));
   }
 
-  /** @ignore Interpolates between start and end at value t in [0,1]. */
-  function value(t) {
-    var t = Math.max(0, Math.min(1, t));
+  /** @ignore Interpolates between start and end at value aT in [0,1]. */
+  function value(aT) {
+    var t = Math.max(0, Math.min(1, aT));
     var a = s.a * (1 - t) + e.a * t;
     if (a < 1e-5) a = 0; // avoid scientific notation
     return (s.a == 0) ? new pv.Color.Rgb(e.r, e.g, e.b, a)
@@ -1841,7 +1841,7 @@ pv.Mark.prototype.updateInstance = function(s) {
     return function(e) {
         /* TODO set full scene stack. */
         var data = [s.data], p = s;
-        while (p = p.parent) {
+        while ((p = p.parent)) {
           data.push(p.data);
         }
         that.index = s.index;
@@ -1855,6 +1855,8 @@ pv.Mark.prototype.updateInstance = function(s) {
   };
 
   /* TODO inherit event handlers. */
+  if (!this.events)
+    return;
   for (var type in this.events) {
     v["on" + type] = dispatch(type);
   }
@@ -3609,7 +3611,7 @@ pv.Panel.prototype.buildImplied = function(s) {
       var d = (typeof c == "string") ? document.getElementById(c) : c;
 
       /* Clear the container if it's not already associated with this panel. */
-      if (d.$panel != this) {
+      if (!d.$panel || d.$panel != this) {
         d.$panel = this;
         delete d.$canvas;
         while (d.lastChild)
@@ -3623,9 +3625,9 @@ pv.Panel.prototype.buildImplied = function(s) {
       }
 
       /** Returns the computed style for the given element and property. */
-      function css(e, p) {
+      let css = function(e, p) {
         return parseFloat(self.getComputedStyle(e, null).getPropertyValue(p));
-      }
+      };
 
       /* If width and height weren't specified, inspect the container. */
       var w, h;
