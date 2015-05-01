@@ -888,7 +888,7 @@ const XMPPAccountPrototype = {
       throw "The account isn't connected";
 
     let jid = this.normalize(aName);
-    if (!jid || !jid.contains("@"))
+    if (!jid || !jid.includes("@"))
       throw "Invalid username";
 
     if (this._buddies.has(jid)) {

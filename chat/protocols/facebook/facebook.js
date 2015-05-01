@@ -20,7 +20,7 @@ FacebookAccount.prototype = {
   __proto__: XMPPAccountPrototype,
   get canJoinChat() false,
   connect: function() {
-    if (!this.name.contains("@")) {
+    if (!this.name.includes("@")) {
       let jid = this.name + "@chat.facebook.com/" + XMPPDefaultResource;
       this._jid = this._parseJID(jid);
     }

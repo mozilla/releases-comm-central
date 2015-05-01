@@ -161,7 +161,7 @@ function smileTextNode(aNode)
     if (testNode instanceof Components.interfaces.nsIDOMHTMLAnchorElement &&
         (testNode.getAttribute("href") == testNode.textContent.trim() ||
          testNode.getAttribute("href") == aNode.data.trim() ||
-         testNode.className.contains("moz-txt-link-")))
+         testNode.className.includes("moz-txt-link-")))
       return 0;
   }
 

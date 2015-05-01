@@ -335,7 +335,7 @@ Conversation.prototype = {
       name == this._account.name ? {outgoing: true} : {incoming: true};
     flags.time = Math.round(new Date(aTweet.created_at) / 1000);
     flags._iconURL = aTweet.user.profile_image_url;
-    if (text.contains("@" + this.nick))
+    if (text.includes("@" + this.nick))
       flags.containsNick = true;
 
     (new Tweet(aTweet, name, text, flags)).conversation = this;
