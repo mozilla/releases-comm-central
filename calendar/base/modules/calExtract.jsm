@@ -721,8 +721,8 @@ Extractor.prototype = {
                 for (let j = 0; j < this.collected.length; j++) {
                     let selection = sel.getRangeAt(i).toString();
 
-                    if (!selection.contains(this.collected[j].str) &&
-                        !title.contains(this.collected[j].str) &&
+                    if (!selection.includes(this.collected[j].str) &&
+                        !title.includes(this.collected[j].str) &&
                         this.collected[j].start != null) { // always keep email date, needed for tasks
                         cal.LOG("[calExtract] Marking " + JSON.stringify(this.collected[j]) + " as notadatetime");
                         this.collected[j].relation = "notadatetime";

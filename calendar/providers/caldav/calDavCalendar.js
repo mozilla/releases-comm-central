@@ -338,7 +338,7 @@ calDavCalendar.prototype = {
             let error = false;
             try {
                 let wwwauth = request.getResponseHeader("WWW-Authenticate");
-                if (wwwauth.startsWith("Bearer") && wwwauth.contains("error=")) {
+                if (wwwauth.startsWith("Bearer") && wwwauth.includes("error=")) {
                     // An OAuth error occurred, we need to reauthenticate.
                     error = true;
                 }
