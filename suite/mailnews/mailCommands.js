@@ -45,7 +45,7 @@ function getBestIdentity(identities, optionalHint)
         if (!identity.email)
           continue;
         if (hints[i].trim() == identity.email.toLowerCase() ||
-            hints[i].contains("<" + identity.email.toLowerCase() + ">"))
+            hints[i].includes("<" + identity.email.toLowerCase() + ">"))
           return identity;
       }
     }
@@ -88,7 +88,7 @@ function GetIdentityForHeader(aMsgHdr, aType)
           continue;
         // If the deliver-to header contains the defined identity, that's it.
         if (deliveredTos[i] == identity.email.toLowerCase() ||
-            deliveredTos[i].contains("<" + identity.email.toLowerCase() + ">"))
+            deliveredTos[i].includes("<" + identity.email.toLowerCase() + ">"))
           return identity.email;
       }
     }

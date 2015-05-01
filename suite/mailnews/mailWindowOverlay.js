@@ -706,7 +706,7 @@ function InitMessageTags(menuPopup)
   {
     var taginfo = tagArray[i];
     var removeKey = (" " + curKeys + " ").indexOf(" " + taginfo.key + " ") > -1;
-    if (taginfo.ordinal.contains("~AUTOTAG") && !removeKey)
+    if (taginfo.ordinal.includes("~AUTOTAG") && !removeKey)
       continue;
 
     // TODO we want to either remove or "check" the tags that already exist
