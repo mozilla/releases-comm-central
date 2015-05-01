@@ -65,7 +65,7 @@ function Startup()
     var range = editor.document.createRange();
     range.selectNode(legendElement);
     gDialog.legendText.value = range.toString();
-    if (legendElement.innerHTML.contains("<"))
+    if (legendElement.innerHTML.includes("<"))
     {
       gDialog.editText.checked = false;
       gDialog.editText.disabled = false;

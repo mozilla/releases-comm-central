@@ -26,7 +26,7 @@ function BuildHTMLAttributeNameList()
 
           // only filtering rule used for core attributes as of 8-20-01
           // Add more rules if necessary.
-          if (name.contains("^"))
+          if (name.includes("^"))
           {
             menuitem = gDialog.AddHTMLAttributeNameInput.appendItem(name.replace(/\^/g, ""));
             menuitem.setAttribute("limitFirstChar", "true");
@@ -49,12 +49,12 @@ function BuildHTMLAttributeNameList()
       else
       {
         // Get information about value filtering
-        let forceOneChar = name.contains("!");
-        let forceInteger = name.contains("#");
-        let forceSignedInteger = name.contains("+");
-        let forceIntOrPercent = name.contains("%");
-        let limitFirstChar = name.contains("\^");
-        //let required = name.contains("$");
+        let forceOneChar = name.includes("!");
+        let forceInteger = name.includes("#");
+        let forceSignedInteger = name.includes("+");
+        let forceIntOrPercent = name.includes("%");
+        let limitFirstChar = name.includes("\^");
+        //let required = name.includes("$");
 
         // Strip flag characters
         name = name.replace(/[!^#%$+]/g, "");

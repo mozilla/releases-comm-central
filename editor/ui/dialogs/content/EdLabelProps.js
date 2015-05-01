@@ -32,7 +32,7 @@ function Startup()
   range.selectNode(labelElement);
   gDialog.labelText.value = range.toString();
 
-  if (labelElement.innerHTML.contains("<"))
+  if (labelElement.innerHTML.includes("<"))
   {
     gDialog.editText.checked = false;
     gDialog.editText.disabled = false;

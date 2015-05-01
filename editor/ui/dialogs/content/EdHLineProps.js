@@ -61,7 +61,7 @@ function InitDialog()
   // Just to be confusing, "size" is used instead of height because it does
   // not accept % values, only pixels
   var height = GetHTMLOrCSSStyleValue(globalElement, "size", "height")
-  if (height.contains("px")) {
+  if (height.includes("px")) {
     height = height.substr(0, height.indexOf("px"));
   }
   if(!height) {
@@ -116,7 +116,7 @@ function onSaveDefault()
 
     if (width)
     {
-      if (width.contains("%")) {
+      if (width.includes("%")) {
         percent = true;
         widthInt = Number(width.substr(0, width.indexOf("%")));
       } else {

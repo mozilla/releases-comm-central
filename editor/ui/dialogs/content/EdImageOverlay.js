@@ -117,7 +117,7 @@ function InitImage()
 
   // dialog.border.value       = globalElement.getAttribute("border");
   var bv = GetHTMLOrCSSStyleValue(globalElement, "border", "border-top-width");
-  if (bv.contains("px"))
+  if (bv.includes("px"))
   {
     // Strip out the px
     bv = bv.substr(0, bv.indexOf("px"));

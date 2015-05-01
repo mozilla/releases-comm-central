@@ -261,7 +261,7 @@ function InitPixelOrPercentMenulist(elementForAtt, elementInDoc, attribute, menu
   if (size && size.length > 0)
   {
     // Search for a "%" or "px"
-    if (size.contains("%"))
+    if (size.includes("%"))
     {
       // Strip out the %
       size = size.substr(0, size.indexOf("%"));
@@ -270,7 +270,7 @@ function InitPixelOrPercentMenulist(elementForAtt, elementInDoc, attribute, menu
     }
     else
     {
-      if (size.contains("px"))
+      if (size.includes("px"))
         // Strip out the px
         size = size.substr(0, size.indexOf("px"));
       menulist.selectedItem = pixelItem;
@@ -410,7 +410,7 @@ function GetLocalFileURL(filterType)
     fp.appendFilters(nsIFilePicker.filterText);
 
     // Link dialog also allows linking to images
-    if (filterType.contains("img", 1))
+    if (filterType.includes("img", 1))
       fp.appendFilters(nsIFilePicker.filterImages);
 
   }

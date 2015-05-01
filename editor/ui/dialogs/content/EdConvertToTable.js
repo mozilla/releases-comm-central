@@ -208,7 +208,7 @@ function onAccept()
   {
     var tempStr = sepCharacter;
     var regExpChars = ".!@#$%^&*-+[]{}()\|\\\/";
-    if (regExpChars.contains(sepCharacter))
+    if (regExpChars.includes(sepCharacter))
       tempStr = "\\" + sepCharacter;
 
     if (gIndex == gSpaceIndex)
