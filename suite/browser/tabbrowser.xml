@@ -956,7 +956,7 @@
             for (let menuitem of menuItems) {
               let tbattr = menuitem.getAttribute("tbattr");
 
-              if (tbattr.contains("tabbrowser-undoclosetab")) {
+              if (tbattr.includes("tabbrowser-undoclosetab")) {
                 menuitem.setAttribute("disabled", (this.usePrivateBrowsing ?
                     this.savedBrowsers.length :
                     this.mSessionStore.getClosedTabCount(window)) == 0);
@@ -965,8 +965,8 @@
                                   this.mPrefs.getIntPref("browser.tabs.max_tabs_undo") <= 0;
               }
               else
-                menuitem.setAttribute("disabled", tbattr.contains("tabbrowser-multiple") && !isMultiple ||
-                                                  tbattr.contains("tabbrowser-tab") && !isTab)
+                menuitem.setAttribute("disabled", tbattr.includes("tabbrowser-multiple") && !isMultiple ||
+                                                  tbattr.includes("tabbrowser-tab") && !isTab)
             }
           ]]>
         </body>
