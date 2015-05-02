@@ -168,6 +168,6 @@ function teardown(block) {
 
 /// The actual binding xpcshell needs to do its work.
 function run_test() {
-  add_task(currentSuite.runSuite());
+  add_task(() => currentSuite.runSuite());
   run_next_test();
 }
