@@ -666,8 +666,8 @@ nsresult nsMsgDatabase::ClearHdrCache(bool reInit)
     if (reInit)
     {
       PL_DHashTableFinish(saveCachedHeaders);
-      PL_DHashTableInit(saveCachedHeaders, &gMsgDBHashTableOps, sizeof(struct MsgHdrHashElement),
-                        mozilla::fallible_t(), m_cacheSize);
+      PL_DHashTableInit(saveCachedHeaders, &gMsgDBHashTableOps,
+                        sizeof(struct MsgHdrHashElement), m_cacheSize);
       m_cachedHeaders = saveCachedHeaders;
 
     }
