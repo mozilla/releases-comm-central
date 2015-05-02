@@ -82,8 +82,10 @@ function onSelectProvider(type) {
         cache.checked = true;
         cache.disabled = true;
     } else {
-        cache.checked = cache.oldValue || false;
-        cache.oldValue = null;
+        if (cache.oldValue !== undefined) {
+            cache.checked = cache.oldValue;
+            cache.oldValue = undefined;
+        }
         cache.disabled = false;
     }
 }

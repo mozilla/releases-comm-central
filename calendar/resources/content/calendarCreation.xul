@@ -71,6 +71,7 @@
                 <row>
                      <label/>
                      <checkbox id="cache"
+                               checked="true"
                                label="&calendarproperties.cache3.label;"/>
                 </row>
                 <notificationbox id="location-notifications" flex="1"/>
