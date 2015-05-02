@@ -366,7 +366,7 @@ SuiteGlue.prototype = {
         cookies = aHttpChannel.getRequestHeader("Cookie");
       } catch (e) { /* no cookie sent */ }
 
-      if (cookies && cookies.contains("MoodleSession"))
+      if (cookies && cookies.includes("MoodleSession"))
         return aOriginalUA.replace(/Gecko\/[^ ]*/, "Gecko/20100101");
       return null;
     }
