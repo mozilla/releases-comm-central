@@ -256,6 +256,15 @@ structuredDecoders.set("Content-Transfer-Encoding", function (values) {
 });
 structuredEncoders.set("Content-Transfer-Encoding", writeUnstructured);
 
+// Some clients like outlook.com send non-compliant References headers that
+// separate values using commas. Temporarily replace commas with spaces until
+// full references header parsing is implemted. See bug 1154521.
+function replaceCommasWithSpaces(values) {
+  return values[0].replace(/,/g, " ");
+}
+structuredDecoders.set("References", replaceCommasWithSpaces);
+structuredDecoders.set("In-Reply-To", replaceCommasWithSpaces);
+
 return Object.freeze({
   decoders: structuredDecoders,
   encoders: structuredEncoders,
