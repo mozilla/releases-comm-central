@@ -199,6 +199,7 @@
   <key id="key_send" keycode="&sendCmd.keycode;" observes="cmd_sendWithCheck" modifiers="accel"/>
   <key id="key_sendLater" keycode="&sendLaterCmd.keycode;" observes="cmd_sendLater" modifiers="accel, shift"/>
   <key id="key_print" key="&printCmd.key;" command="cmd_print" modifiers="accel"/>
+  <key id="printKb" key="&printCmd.key;" command="cmd_print" modifiers="accel"/>
 
   <!-- Edit Menu -->
   <key id="key_undo" key="&undoCmd.key;" modifiers="accel"/>
