@@ -20,6 +20,8 @@ XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm
 XPCOMUtils.defineLazyModuleGetter(this, "Task", "resource://gre/modules/Task.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "AsyncShutdown",
                                   "resource://gre/modules/AsyncShutdown.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "GlodaDatastore",
+                                  "resource:///modules/gloda/datastore.js");
 
 const kCacheFileName = "indexedFiles.json";
 
@@ -234,6 +236,7 @@ Gloda.defineAttribute({
 
 var GlodaIMIndexer = {
   name: "index_im",
+  cacheVersion: 1,
   enable: function() {
     Services.obs.addObserver(this, "conversation-closed", false);
     Services.obs.addObserver(this, "new-ui-conversation", false);
@@ -282,6 +285,13 @@ var GlodaIMIndexer = {
       // still valid.
       this._knownFiles = data.knownFiles;
     }
+
+    this.cacheVersion = data.version;
+
+    // If there was no version set on the cache, there is a chance that the index
+    // is affected by bug 1069845. fixEntriesWithAbsolutePaths() sets the version to 1.
+    if (!this.cacheVersion)
+      this.fixEntriesWithAbsolutePaths();
   },
   disable: function() {
     Services.obs.removeObserver(this, "conversation-closed");
@@ -315,6 +325,7 @@ var GlodaIMIndexer = {
     let data = {
       knownFiles: GlodaIMIndexer._knownFiles,
       datastoreID: Gloda.datastoreID,
+      version: GlodaIMIndexer.cacheVersion
     };
 
     // Asynchronously copy the data to the file.
@@ -656,6 +667,55 @@ var GlodaIMIndexer = {
   initialSweep: function() {
     let job = new IndexingJob("logsFolderSweep", null);
     GlodaIndexer.indexJob(job);
+  },
+
+  // Due to bug 1069845, some logs were indexed against their full paths instead
+  // of their path relative to the logs directory. These entries are updated to
+  // use relative paths below.
+  fixEntriesWithAbsolutePaths: function() {
+    let store = GlodaDatastore;
+    let selectStatement = store._createAsyncStatement(
+      "SELECT id, path FROM imConversations");
+    let updateStatement = store._createAsyncStatement(
+      "UPDATE imConversations SET path = ?1 WHERE id = ?2");
+
+    store._beginTransaction();
+    selectStatement.executeAsync({
+      handleResult: aResultSet => {
+        let row;
+        while ((row = aResultSet.getNextRow())) {
+          // If the path has more than 4 components, it is not relative to
+          // the logs folder. Update it to use only the last 4 components.
+          // The absolute paths were stored as OS-specific paths, so we split
+          // them with OS.Path.split(). It's a safe assumption that nobody
+          // ported their profile folder to a different OS since the regression,
+          // so this should work.
+          let pathComponents = OS.Path.split(row.getString(1)).components;
+          if (pathComponents.length > 4) {
+            updateStatement.bindInt64Parameter(1, row.getInt64(0)); // id
+            updateStatement.bindStringParameter(0,
+              pathComponents.slice(-4).join("/")); // Last 4 path components
+            updateStatement.executeAsync({
+              handleResult: () => {},
+              handleError: aError =>
+                Cu.reportError("Error updating bad entry:\n" + aError),
+              handleCompletion: () => {}
+            });
+          }
+        }
+      },
+
+      handleError: aError =>
+        Cu.reportError("Error looking for bad entries:\n" + aError),
+
+      handleCompletion: () => {
+        store.runPostCommit(() => {
+          this.cacheVersion = 1;
+          this._scheduleCacheSave();
+        });
+        store._commitTransaction();
+      }
+    });
   }
 };
 
