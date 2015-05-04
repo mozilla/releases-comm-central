@@ -116,13 +116,17 @@ var joinChat = {
     else
       name = values.getValue("room") + "@" + values.getValue("server");
 
-/*
     let conv = Services.conversations.getConversationByNameAndAccount(name,
                                                                       account,
                                                                       true);
-    if (conv)
-      // TODO: select conv
-*/
+    if (conv) {
+      let mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
+      if (mailWindow) {
+        mailWindow.focus();
+        let tabmail = mailWindow.document.getElementById("tabmail");
+        tabmail.openTab("chat", {convType: "focus", conv: conv});
+      }
+    }
 
     if (document.getElementById("autojoin").checked) {
       // "nick" for JS-XMPP, "handle" for libpurple prpls.
