@@ -502,6 +502,34 @@ var GlodaIMIndexer = {
     }
   },
 
+
+  /* If there is an existing gloda conversation for the given path,
+   * find its id.
+   */
+  _getIdFromPath: function(aPath) {
+    let selectStatement = GlodaDatastore._createAsyncStatement(
+      "SELECT id FROM imConversations WHERE path = ?1");
+    selectStatement.bindStringParameter(0, aPath);
+    let id;
+    return new Promise((resolve, reject) => {
+      selectStatement.executeAsync({
+        handleResult: aResultSet => {
+          let row = aResultSet.getNextRow();
+          if (!row)
+            return;
+          if (id || aResultSet.getNextRow()) {
+            Cu.reportError("Warning: found more than one gloda conv id for " +
+              aPath  + "\n");
+          }
+          id = id || row.getInt64(0); // We use the first found id.
+        },
+        handleError: aError =>
+          Cu.reportError("Error finding gloda id from path:\n" + aError),
+        handleCompletion: () => {resolve(id);}
+      });
+    });
+  },
+
   /* aGlodaConv is an optional inout param that lets the caller save and reuse
    * the GlodaIMConversation instance created when the conversation is indexed
    * the first time. After a conversation is indexed for the first time,
@@ -546,13 +574,20 @@ var GlodaIMIndexer = {
       // components of the path.
       let relativePath = OS.Path.split(aLogPath).components.slice(-4).join("/");
       glodaConv = new GlodaIMConversation(logConv.title, log.time, relativePath, content);
+      // If we've indexed this file before, we need the id of the existing
+      // gloda conversation so that the existing entry gets updated. This can
+      // happen if the log sweep detects that the last messages in an open
+      // chat were not in fact indexed before that session was shut down.
+      let id = yield this._getIdFromPath(relativePath);
+      if (id)
+        glodaConv.id = id;
       if (aGlodaConv)
         aGlodaConv.value = glodaConv;
     }
 
     if (!aCache)
       throw("indexIMConversation called without aCache parameter.");
-    let isNew = !Object.prototype.hasOwnProperty.call(aCache, fileName);
+    let isNew = !Object.prototype.hasOwnProperty.call(aCache, fileName) && !glodaConv.id;
     let rv = aCallbackHandle.pushAndGo(
       Gloda.grokNounItem(glodaConv, {}, true, isNew, aCallbackHandle));
 
