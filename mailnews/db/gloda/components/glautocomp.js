@@ -83,7 +83,7 @@ function nsAutoCompleteGlodaResult(aListener, aCompleter, aString) {
 }
 nsAutoCompleteGlodaResult.prototype = {
   getObjectAt: function(aIndex) {
-    return this._results[aIndex];
+    return this._results[aIndex] || null;
   },
   markPending: function ACGR_markPending(aCompleter) {
     this._pendingCount++;
@@ -125,7 +125,7 @@ nsAutoCompleteGlodaResult.prototype = {
   // we try and show the contact's name here.
   getValueAt: function(aIndex) {
     let thing = this._results[aIndex];
-    return thing.name || thing.value || thing.subject;
+    return thing.name || thing.value || thing.subject || null;
   },
   getLabelAt: function(aIndex) {
     return this.getValueAt(aIndex);

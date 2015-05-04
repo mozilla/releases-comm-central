@@ -247,6 +247,7 @@
           this.labelNode.textContent = this.facetDef.strings.facetNameLabel;
           this.checkbox.setAttribute("aria-label",
                                      this.facetDef.strings.facetNameLabel);
+          this.trueValues = [];
         }
 
         // If we do not currently have a constraint applied and there is only
@@ -346,6 +347,7 @@
           this.labelNode.textContent = this.facetDef.strings.facetNameLabel;
           this.checkbox.setAttribute("aria-label",
                                      this.facetDef.strings.facetNameLabel);
+          this.trueValues = [];
         }
 
         // Only update count if anything other than "all" is selected.
