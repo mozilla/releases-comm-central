@@ -655,7 +655,7 @@ Logger.prototype = {
     if (!targetDate)
       return null;
 
-    let targetDay = Math.floor(targetDate / (86400 * 1000));
+    targetDate = targetDate.toDateString();
 
     // We'll assume that the files relevant to our interests are
     // in the same folder as the one provided.
@@ -667,8 +667,7 @@ Logger.prototype = {
       let path = aEntry.path;
       let [logTime] = getDateFromFilename(OS.Path.basename(path));
 
-      let day = Math.floor(logTime / (86400 * 1000));
-      if (targetDay == day) {
+      if (targetDate == logTime.toDateString()) {
         relevantEntries.push({
           path: path,
           time: logTime
