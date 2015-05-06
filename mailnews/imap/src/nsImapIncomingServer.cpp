@@ -352,6 +352,8 @@ nsImapIncomingServer::SetDeleteModel(int32_t ivalue)
       if (NS_SUCCEEDED(rv))
       {
         nsCOMPtr<nsIMsgFolder> trashFolder;
+        // XXX GetFolder only returns folders one level below root.
+        //     trashFolderName is a leaf name. So this will not find INBOX.Trash
         rv = GetFolder(trashFolderNameUtf7, getter_AddRefs(trashFolder));
         NS_ENSURE_SUCCESS(rv, rv);
         nsCString trashURI;
@@ -1552,9 +1554,18 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone()
             }
             else
             {
-              nsAutoString folderName;
-              if (NS_FAILED(trashFolder->GetName(folderName)) ||
-                  folderName.Equals(trashName))
+              // trashName is the leaf name on the folder URI, which will be
+              // different from the folder GetName if the trash name is
+              // localized.
+              nsAutoCString trashURL;
+              trashFolder->GetFolderURL(trashURL);
+              int32_t leafPos = trashURL.RFindChar('/');
+              nsAutoCString unescapedName;
+              MsgUnescapeString(Substring(trashURL, leafPos + 1),
+                                nsINetUtil::ESCAPE_URL_PATH, unescapedName);
+              nsAutoString nameUnicode;
+              if (NS_FAILED(CopyMUTF7toUTF16(unescapedName, nameUnicode)) ||
+                  trashName.Equals(nameUnicode))
               {
                 continue;
               }
@@ -1562,7 +1573,7 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone()
               {
                 // We got here because the preferred trash folder does not
                 // exist, but a folder got discovered to be the trash folder.
-                SetUnicharValue(PREF_TRASH_FOLDER_NAME, folderName);
+                SetUnicharValue(PREF_TRASH_FOLDER_NAME, nameUnicode);
                 continue;
               }
             }
