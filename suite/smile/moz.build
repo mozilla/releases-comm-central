@@ -8,5 +8,4 @@ DIRS += [
     'src',
 ]
 
-TEST_DIRS += ['test']
-
+BROWSER_CHROME_MANIFESTS += ['test/smile.ini']
