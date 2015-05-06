@@ -214,21 +214,10 @@ function ltnIntegrationNotification() {
 
     // call backs for doing/undoing Lightning removal
     let cbRemoveLightning = function (aAddon) {
-        try {
-            aAddon.uninstall();
-        } catch (e) {
-            aAddon.userDisabled = true;
-        }
+        aAddon.userDisabled = true;
     };
     let cbUndoRemoveLightning = function (aAddon) {
-        switch (aAddon.pendingOperations) {
-            case AddonManager.PENDING_DISABLE:
-                aAddon.userDisabled = false;
-                break;
-            case AddonManager.PENDING_UNINSTALL:
-                aAddon.cancelUninstall();
-                break;
-        }
+        aAddon.userDisabled = false;
     };
 
     // call backs for the undo opt-out bar
