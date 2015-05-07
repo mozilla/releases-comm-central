@@ -398,11 +398,8 @@ function getHeaderTokens(value, delimiters, opts) {
         // Quoted strings don't include their delimiters.
         let text = value.slice(tokenStart + 1, i);
 
-        // If RFC 2047 is enabled, decode the qstring only if the entire string
-        // appears to be a 2047 token. Don't unquote just yet (this will better
-        // match people who incorrectly treat RFC 2047 decoding as a separate,
-        // earlier step).
-        if (opts.rfc2047 && text.startsWith("=?") && text.endsWith("?="))
+        // If RFC 2047 is enabled, always decode the qstring.
+        if (opts.rfc2047)
           text = decodeRFC2047Words(text);
 
         tokenList.push(new Token(text));

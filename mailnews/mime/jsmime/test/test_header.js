@@ -368,6 +368,24 @@ suite('headerparser', function () {
       ["(=?ISO-8859-1?Q?Joe_L=F6we?=) jl3@b.c (c2)", [{name: "c2", email: "jl3@b.c"}]],
       ["=?ISO-8859-1?Q?Joe_L=F6we?= <jl3@b.c> (c2)", [{name: "Joe Löwe (c2)", email: "jl3@b.c"}]],
       ["(=?ISO-8859-1?Q?Joe_L=F6we?=) <jl3@b.c> (c2)", [{name: "(Joe Löwe) (c2)", email: "jl3@b.c"}]],
+      // Bug 1141446: Malformed From addresses with erroneous quotes,
+      // note: acute accents: a \u00E1, e \u00E9, i \u00ED, o \u00F3, u \u00FA.
+      ["\"=?UTF-8?Q?Jazzy_Fern=C3=A1ndez_Nunoz?= jazzy.f.nunoz@example.com " +
+        "[BCN-FC]\" <Barcelona-Freecycle-noreply@yahoogroups.com>",
+        [{name: "Jazzy Fern\u00E1ndez Nunoz jazzy.f.nunoz@example.com [BCN-FC]",
+      email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
+      ["\"=?UTF-8?B?TWlyaWFtIEJlcm5hYsOpIFBlcmVsbMOz?= miriam@example.com "+
+        "[BCN-FC]\" <Barcelona-Freecycle-noreply@yahoogroups.com>",
+        [{name: "Miriam Bernab\u00E9 Perell\u00F3 miriam@example.com [BCN-FC]",
+      email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
+      ["\"=?iso-8859-1?Q?First_Mar=EDa_Furi=F3_Gancho?= mail@yahoo.es "+
+        "[BCN-FC]\" <Barcelona-Freecycle-noreply@yahoogroups.com>",
+        [{name: "First Mar\u00EDa Furi\u00F3 Gancho mail@yahoo.es [BCN-FC]",
+      email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
+      ["\"=?iso-8859-1?B?U29maWEgQ2FzdGVsbPMgUm9tZXJv?= sonia@example.com "+
+        "[BCN-FC]\" <Barcelona-Freecycle-noreply@yahoogroups.com>",
+        [{name: "Sofia Castell\u00F3 Romero sonia@example.com [BCN-FC]",
+      email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
     ];
     header_tests.forEach(function (data) {
       arrayTest(data, function () {
