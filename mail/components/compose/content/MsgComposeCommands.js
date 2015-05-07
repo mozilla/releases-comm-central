@@ -184,6 +184,9 @@ var gComposeRecyclingListener = {
     // It will be rebuilt later in ComposeStartup
     ClearIdentityListPopup(document.getElementById("msgIdentityPopup"));
 
+    // Do not listen to changes to spell check dictionary.
+    document.removeEventListener("spellcheck-changed", updateDocumentLanguage);
+
     // Stop gSpellChecker so personal dictionary is saved.
     // We need to do this before disabling the editor.
     enableInlineSpellCheck(false);
@@ -3119,6 +3122,11 @@ function ChangeLanguage(event)
   {
     spellChecker.SetCurrentDictionary(event.target.value);
 
+    // Update the document language as well (needed to synchronise
+    // the subject).
+    document.getElementById("msgcomposeWindow")
+            .setAttribute("lang", event.target.value);
+
     // now check the document over again with the new dictionary
     if (gSpellChecker.enabled)
       gSpellChecker.mInlineSpellChecker.spellCheckRange(null);
@@ -4669,6 +4677,17 @@ const gAttachmentNotifier =
 
 function InitEditor()
 {
+  // Set eEditorMailMask flag to avoid using content prefs for spell checker,
+  // otherwise dictionary setting in preferences is ignored and dictionary is
+  // inconsistent in subject and message body.
+  let editorElem = document.getElementById('content-frame');
+  let contentEditor = editorElem.getEditor(editorElem.contentWindow);
+  let msgSubject = document.getElementById('msgSubject');
+  contentEditor.flags = contentEditor.flags |
+    Components.interfaces.nsIPlaintextEditor.eEditorMailMask;
+  msgSubject.editor.flags = msgSubject.editor.flags |
+    Components.interfaces.nsIPlaintextEditor.eEditorMailMask;
+
   var editor = GetCurrentEditor();
 
   editor.QueryInterface(nsIEditorStyleSheets);
@@ -4695,6 +4714,21 @@ function InitEditor()
   // Then, we enable related UI entries.
   enableInlineSpellCheck(getPref("mail.spellcheck.inline"));
   gAttachmentNotifier.init(editor.document);
+
+  // Set document language to preferred dictionary.
+  document.getElementById("msgcomposeWindow").setAttribute("lang",
+    Services.prefs.getCharPref("spellchecker.dictionary"));
+  // Listen for spellchecker changes, set document language to
+  // dictionary picked by the user via the right-click menu in the editor.
+  document.addEventListener("spellcheck-changed", updateDocumentLanguage);
+}
+
+// This is used as event listener to spellcheck-changed event to update
+// document language.
+function updateDocumentLanguage(e)
+{
+  document.getElementById("msgcomposeWindow")
+          .setAttribute("lang", e.detail.dictionary);
 }
 
 // This function modifies gSpellChecker and updates the UI accordingly. It's
