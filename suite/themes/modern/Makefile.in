@@ -10,10 +10,6 @@ VPATH		= @srcdir@
 
 include $(topsrcdir)/config/config.mk
 
-DIST_FILES = \
-	install.rdf \
-	$(NULL)
-
 FILES = \
 	$(srcdir)/preview.png \
 	$(srcdir)/icon.png \

@@ -14,6 +14,4 @@ include $(DEPTH)/config/autoconf.mk
 INSTALL_EXTENSION_ID   = debugQA@mozilla.org
 XPI_PKGNAME            = debugQA-$(MOZ_APP_VERSION)
 
-DIST_FILES = install.rdf
-
 include $(topsrcdir)/config/rules.mk
