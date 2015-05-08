@@ -45,6 +45,20 @@ toolbar[nowindowdrag="true"] {
 
 /* ::::: primary toolbar buttons ::::: */
 
+.findbar-button {
+  background: none;
+  box-shadow: none;
+  border: 1px transparent solid;
+  border-radius: 3px;
+  transition-property: background, border-color;
+  transition-duration: 250ms;
+}
+
+#findbar-replaceButton {
+  padding: 2px 9px;
+  -moz-margin-start: 5px;
+}
+
 .toolbarbutton-1:not([type="menu-button"]),
 .toolbarbutton-1 > .toolbarbutton-menubutton-button,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
@@ -56,31 +70,39 @@ toolbar[nowindowdrag="true"] {
   transition-duration: 250ms;
 }
 
-.toolbarbutton-1:not([type="menu-button"]):hover:not([disabled]),
-.toolbarbutton-1:hover:not([disabled]) > .toolbarbutton-menubutton-button,
-.toolbarbutton-1[open="true"]:not([disabled]) > .toolbarbutton-menubutton-button,
-.toolbarbutton-menubutton-button:active + .toolbarbutton-menubutton-dropmarker,
-.toolbarbutton-1:hover:not([disabled]) > .toolbarbutton-menubutton-dropmarker {
+.findbar-button:not(:-moz-any([checked="true"],[disabled="true"])):hover,
+.toolbarbutton-1:not([type="menu-button"]):not(:-moz-any([checked="true"],[disabled="true"])):hover,
+.toolbarbutton-1:not([disabled]):hover > .toolbarbutton-menubutton-button,
+.toolbarbutton-1:not([disabled])[open="true"] > .toolbarbutton-menubutton-button,
+.toolbarbutton-menubutton-button:not([disabled]):active + .toolbarbutton-menubutton-dropmarker,
+.toolbarbutton-1:not([disabled]):hover > .toolbarbutton-menubutton-dropmarker {
   border-color: hsla(0, 0%, 0%, .2);
   background: hsla(0, 0%, 100%, .1) linear-gradient(hsla(0, 0%, 100%, .3),
               hsla(0, 0%, 100%,.1)) padding-box;
   box-shadow: 0 1px 0 hsla(0, 0%, 100%, .5), 0 1px 0 hsla(0, 0%, 100%, .5) inset;
 }
 
+.findbar-button:not([disabled=true]):-moz-any([checked="true"],:hover:active),
 .toolbarbutton-1[checked="true"],
-.toolbarbutton-1:active:not([disabled]):not([type="menu-button"]),
+.toolbarbutton-1:not([disabled]):not([type="menu-button"]):active,
 .button-appmenu[open="true"],
 .toolbarbutton-1:not([disabled]) > .toolbarbutton-menubutton-button:active,
 .toolbarbutton-1[open="true"] >
 .toolbarbutton-menubutton-dropmarker:not([disabled="true"]) {
   background-color: transparent !important;
-  background: hsla(0, 0%, 0%, .02) linear-gradient(hsla(0, 0%, 0%, .12),
+  background: linear-gradient(hsla(0, 0%, 0%, .12),
               hsla(0, 0%, 0%, 0)) border-box;
   border-color: hsla(0, 0%, 0%, .3);
   box-shadow: 0 1px 0 hsla(0, 0%, 100%, .5),
               0 1px 0 hsla(0, 0%, 0%, .05) inset,
               0 1px 1px hsla(0, 0%, 0%, .2) inset;
   transition-duration: 10ms;
+}
+
+.findbar-button[checked="true"]:not(:active):hover,
+.toolbarbutton-1[checked]:not(:active):hover {
+  background-color: hsla(0,0%,0%,.09) !important;
+  transition: background-color 250ms;
 }
 
 .toolbarbutton-1 > .toolbarbutton-menubutton-button {
@@ -91,6 +113,7 @@ toolbar[nowindowdrag="true"] {
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(rtl) {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
+  -moz-border-end: none;
 }
 
 .toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(rtl),

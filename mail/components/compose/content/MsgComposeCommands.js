@@ -2007,7 +2007,7 @@ function ComposeStartup(recycled, aParams)
   if (!document.getElementById("findbar-replaceButton")) {
     let replaceButton = document.createElement("toolbarbutton");
     replaceButton.setAttribute("id", "findbar-replaceButton");
-    replaceButton.setAttribute("class", "tabbable");
+    replaceButton.setAttribute("class", "findbar-button tabbable");
     replaceButton.setAttribute("label", getComposeBundle().getString("replaceButton.label"));
     replaceButton.setAttribute("accesskey", getComposeBundle().getString("replaceButton.accesskey"));
     replaceButton.setAttribute("tooltiptext", getComposeBundle().getString("replaceButton.tooltip"));

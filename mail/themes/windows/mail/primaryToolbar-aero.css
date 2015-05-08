@@ -48,6 +48,10 @@
   min-height: 24px;
 }
 
+.findbar-button {
+  padding: 2px 6px;
+}
+
 @media not all and (-moz-windows-default-theme) {
   #messengerWindow[tabsintitlebar] #mail-menubar > menu {
     -moz-appearance: none;
@@ -56,6 +60,7 @@
 
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+  .findbar-button,
   .toolbarbutton-1:not([type="menu-button"]),
   .toolbarbutton-1 > .toolbarbutton-menubutton-button,
   .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
@@ -84,6 +89,7 @@
     border-bottom-left-radius: 0;
   }
 
+  .findbar-button:not(:-moz-any([checked="true"],[disabled="true"])):hover,
   .toolbarbutton-1:not([disabled="true"]):-moz-any(:hover,[open="true"]) >
   .toolbarbutton-menubutton-button,
   .toolbarbutton-1:not([disabled="true"]):hover >
@@ -111,6 +117,7 @@
                 0 0 2px hsla(210, 54%, 20%, .1);
   }
 
+  .findbar-button:not([disabled=true]):-moz-any([checked="true"],:hover:active),
   .toolbarbutton-1 > .toolbarbutton-menubutton-button:not([disabled="true"]):hover:active,
   .toolbarbutton-1[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled="true"]),
   .toolbarbutton-1:not([type="menu-button"]):not([disabled="true"]):-moz-any([open="true"],[checked="true"],:hover:active) {
@@ -139,6 +146,7 @@
 }
 
 @media (-moz-os-version: windows-win8) {
+  .findbar-button,
   .toolbarbutton-1:not([type="menu-button"]),
   .toolbarbutton-1 > .toolbarbutton-menubutton-button,
   .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
@@ -153,6 +161,7 @@
     -moz-appearance: none;
   }
 
+  .findbar-button:not(:-moz-any([checked="true"],[disabled="true"])):hover,
   .toolbarbutton-1:not([disabled=true]):-moz-any(:hover,[open]) >
   .toolbarbutton-menubutton-button,
   .toolbarbutton-1:not([disabled=true]):-moz-any(:hover,[open]) >
@@ -165,6 +174,7 @@
     border-color: hsla(210, 4%, 10%, .1);
   }
 
+  .findbar-button:not([disabled=true]):-moz-any([checked="true"],:hover:active),
   .toolbarbutton-1 >
   .toolbarbutton-menubutton-button:not([disabled=true]):hover:active,
   .toolbarbutton-1[open] >
