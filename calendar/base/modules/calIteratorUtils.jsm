@@ -6,7 +6,7 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
+this.EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
 
 /**
  * Iterates an array of items, i.e. the passed item including all
@@ -120,15 +120,16 @@ cal.ical = {
         if (aComponent && aComponent.componentType == "VCALENDAR") {
             return cal.ical.subcomponentIterator(aComponent, compType);
         } else if (aComponent && aComponent.componentType == "XROOT") {
-            function calVCALENDARIterator(aWantKeys) {
-                cal.ASSERT(aWantKeys, "Please use for() on the calendar component iterator");
-                for (let calComp in cal.ical.subcomponentIterator(aComponent, "VCALENDAR")) {
-                    for (let itemComp in cal.ical.subcomponentIterator(calComp, compType)) {
-                        yield itemComp;
+            return {
+                __iterator__: function calVCALENDARIterator(aWantKeys) {
+                    cal.ASSERT(aWantKeys, "Please use for() on the calendar component iterator");
+                    for (let calComp in cal.ical.subcomponentIterator(aComponent, "VCALENDAR")) {
+                        for (let itemComp in cal.ical.subcomponentIterator(calComp, compType)) {
+                            yield itemComp;
+                        }
                     }
                 }
             };
-            return { __iterator__: calVCALENDARIterator };
         } else if (aComponent && (compType == "ANY" || compType == aComponent.componentType)) {
             return {
                 __iterator__: function singleItemIterator(aWantKeys) {

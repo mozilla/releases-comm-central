@@ -488,8 +488,7 @@
            var occ;
            for (var i in this.mEventInfos) {
                occ = this.mEventInfos[i].event;
-               if (occ.hashId == aOccurrence.hashId)
-               {
+               if (occ.hashId == aOccurrence.hashId) {
                    itemIndex = i;
                    break;
                }
@@ -497,11 +496,9 @@
 
            if (itemIndex != -1) {
                delete this.mSelectedItemIds[occ.hashId];
-               function isNotItem(a) {
-                  return !a.occurrence || (a.occurrence.hashId != aOccurrence.hashId);
-               }
-               this.mSelectedChunks = this.mSelectedChunks.filter(isNotItem);
-
+               this.mSelectedChunks = this.mSelectedChunks.filter((item) => {
+                   return !item.occurrence || (item.occurrence.hashId != aOccurrence.hashId);
+               });
                this.mEventInfos.splice(itemIndex, 1);
                return true;
            } else {
@@ -3620,11 +3617,10 @@
           if (!cols.length)
               return;
 
-          function isNotItem(a) {
-              return (a.hashId != aEvent.hashId);
-          }
           var oldLength = this.mSelectedItems.length;
-          this.mSelectedItems = this.mSelectedItems.filter(isNotItem);
+          this.mSelectedItems = this.mSelectedItems.filter((item) => {
+              return item.hashId != aEvent.hashId;
+          });
 
           for each (let col in cols) {
               let column = col.column;

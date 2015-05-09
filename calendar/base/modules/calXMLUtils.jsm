@@ -6,7 +6,7 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
-EXPORTED_SYMBOLS = ["cal"];
+this.EXPORTED_SYMBOLS = ["cal"];
 cal.xml = {} || cal.xml;
 
 /**

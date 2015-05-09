@@ -51,26 +51,14 @@ calTransactionManager.prototype = {
     },
 
     checkWritable: function cTM_checkWritable(transaction) {
-        if (transaction) {
-            transaction = transaction.wrappedJSObject;
-            if (transaction) {
-                function checkItem(item) {
-                    if (item) {
-                        var calendar = item.calendar;
-                        if (calendar && (!isCalendarWritable(calendar) || !userCanAddItemsToCalendar(calendar))) {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-
-                if (!checkItem(transaction.mItem) ||
-                    !checkItem(transaction.mOldItem)) {
-                    return false;
-                }
-            }
+        function checkItem(item) {
+            return item && item.calendar &&
+                   isCalendarWritable(item.calendar) &&
+                   userCanAddItemsToCalendar(item.calendar);
         }
-        return true;
+
+        let trans = transaction && transaction.wrappedJSObject;
+        return trans && checkItem(trans.mItem) && checkItem(trans.mOldItem);
     },
 
     undo: function cTM_undo() {

@@ -749,7 +749,7 @@
             }
             for (var j = 0; j < row.childNodes.length; j++) {
               var daybox = row.childNodes[j];
-              var date = dateList[dateBoxes.length];
+              var dt = dateList[dateBoxes.length];
 
               // Remove the attribute "relation" for all the column headers.
               // Consider only the first row index otherwise it will be
@@ -765,18 +765,17 @@
               // the month being currently shown or not.
               var boxClass;
               if (this.showFullMonth) {
-                  boxClass = "calendar-month-day-box-" + 
-                             (mainMonth == date.month ? "current-month" : "other-month");
+                  boxClass = "calendar-month-day-box-" +
+                             (mainMonth == dt.month ? "current-month" : "other-month");
               } else {
                   boxClass = "calendar-month-day-box-current-month";
               }
-              function matchesDayOff(dayOffNum) { return dayOffNum == date.weekday; }
-              if (this.mDaysOffArray.some(matchesDayOff)) {
+              if (this.mDaysOffArray.some(dayOffNum => dayOffNum == dt.weekday)) {
                 boxClass = "calendar-month-day-box-day-off " + boxClass;
               }
 
               // Set up date relations
-              switch (date.compare(today)) {
+              switch (dt.compare(today)) {
                   case -1:
                       daybox.setAttribute("relation", "past");
                       break;
@@ -791,14 +790,14 @@
 
               daybox.setAttribute("class", boxClass);
 
-              daybox.setDate(date);
-              if (date.day == 1 || date.day == date.endOfMonth.day) {
+              daybox.setDate(dt);
+              if (dt.day == 1 || dt.day == dt.endOfMonth.day) {
                 daybox.showMonthLabel = true;
               } else {
                 daybox.showMonthLabel = false;
               }
               daybox.calendarView = this;
-              daybox.date = date;
+              daybox.date = dt;
               dateBoxes.push(daybox);
 
               // If we've now assigned all of our dates, set this to true so we

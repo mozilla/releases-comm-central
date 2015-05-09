@@ -4,7 +4,7 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
-EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
+var EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
 
 /**
  * An unsorted array of hashable items with some extra functions to quickly

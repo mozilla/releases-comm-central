@@ -1058,15 +1058,16 @@ calWcapSession.prototype = {
 
     // called after the calendar is registered
     onCalendarRegistered: function calWcapSession_onCalendarRegistered(aCalendar) {
+        function assureDefault(pref, val) {
+            if (aCalendar.getProperty(pref) === null) {
+                aCalendar.setProperty(pref, val);
+            }
+        }
+
         try {
             // make sure the calendar belongs to this session:
             if (this.belongsTo(aCalendar)) {
 
-                function assureDefault(pref, val) {
-                    if (aCalendar.getProperty(pref) === null) {
-                        aCalendar.setProperty(pref, val);
-                    }
-                }
 
                 assureDefault("shared_context", this.m_contextId);
                 assureDefault("name", aCalendar.name);

@@ -468,6 +468,7 @@ calMemoryCalendar.prototype = {
             if (aCount && itemsFound.length >= aCount) {
                 return cal.forEach.BREAK;
             }
+            return cal.forEach.CONTINUE;
         }, () => {
             aListener.onGetResult(this.superCalendar,
                                   Components.results.NS_OK,

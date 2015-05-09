@@ -157,7 +157,7 @@ function calWcapCalendar_getAlarmParams(item) {
                 alarmStart.addDuration(dur);
             } // else only end|due is set, alarm makes little sense though
         }
-        
+
         let emails = "";
         if (item.hasProperty("alarmEmailAddress")) {
             emails = encodeURIComponent(item.getProperty("alarmEmailAddress"));
@@ -279,6 +279,51 @@ const METHOD_UPDATE  = 256;
 
 calWcapCalendar.prototype.storeItem =
 function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
+    function getOrgId(item) {
+        return (item && item.organizer && item.organizer.id ? item.organizer.id : null);
+    }
+    function encodeAttendees(atts) {
+        function attendeeSort(one, two) {
+            one = one.id;
+            two = two.id;
+            if (one == two) {
+                return 0;
+            }
+            return (one < two ? -1 : 1);
+        }
+        atts = atts.concat([]);
+        atts.sort(attendeeSort);
+        return atts.map(this_.encodeAttendee, this_).join(";");
+    }
+    function encodeCategories(cats) {
+        cats = cats.concat([]);
+        cats.sort();
+        return cats.join(";");
+    }
+    function getPrivacy(item) {
+        return ((item.privacy && item.privacy != "") ? item.privacy : "PUBLIC");
+    }
+    function getAttachments(item) {
+        var ret;
+        var attachments = item.attachments;
+        if (attachments) {
+            var strings = [];
+            for each (var att in attachements) {
+                let wrappedAtt = cal.wrapInstance(att, Components.interfaces.calIAttachment);
+                if (typeof(att) == "string") {
+                    strings.push(encodeURIComponent(att));
+                } else if (wrappedAtt && wrappedAtt.uri) {
+                    strings.push(encodeURIComponent(wrappedAtt.uri.spec));
+                } else { // xxx todo
+                    logError("only URLs supported as attachment, not: " + att, this_);
+                }
+            }
+            strings.sort();
+            ret = strings.join(";");
+        }
+        return ret || "";
+    }
+
     var this_ = this;
     var bIsEvent = isEvent(item);
     var bIsParent = isParent(item);
@@ -358,10 +403,7 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
                 params += recParams;
             }
         }
-        
-        function getOrgId(item) {
-            return (item && item.organizer && item.organizer.id ? item.organizer.id : null);
-        }
+
         var orgCalId = getCalId(item.organizer);
         if (!orgCalId) { // new events yet don't have X-S1CS-CALID set on ORGANIZER or this is outbound iTIP
             var orgId = getOrgId(item);
@@ -369,23 +411,10 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
                 orgCalId = calId; // own event
             } // else outbound
         }
-        
+
         var attendees = item.getAttendees({});
         if (attendees.length > 0) {
             // xxx todo: why ever, X-S1CS-EMAIL is unsupported though documented for calprops... WTF.
-            function encodeAttendees(atts) {
-                function attendeeSort(one, two) {
-                    one = one.id;
-                    two = two.id;
-                    if (one == two) {
-                        return 0;
-                    }
-                    return (one < two ? -1 : 1);
-                }
-                atts = atts.concat([]);
-                atts.sort(attendeeSort);
-                return atts.map(this_.encodeAttendee, this_).join(";");
-            }
             var attParam = encodeAttendees(attendees);
             if (!oldItem || attParam != encodeAttendees(oldItem.getAttendees({}))) {
                 params += ("&attendees=" + attParam);
@@ -419,11 +448,6 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
         }
 
         let categories = item.getCategories({});
-        function encodeCategories(cats) {
-            cats = cats.concat([]);
-            cats.sort();
-            return cats.join(";");
-        }
         let catParam = encodeCategories(categories);
         if (!oldItem || catParam != encodeCategories(oldItem.getCategories({}))) {
             params += ("&categories=" + catParam);
@@ -447,9 +471,6 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
             params += ("&priority=" + encodeURIComponent(val));
         }
 
-        function getPrivacy(item) {
-            return ((item.privacy && item.privacy != "") ? item.privacy : "PUBLIC");
-        }
         var icsClass = getPrivacy(item);
         if (!oldItem || icsClass != getPrivacy(oldItem)) {
             params += ("&icsClass=" + icsClass);
@@ -496,32 +517,12 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
         }
 
         // attachment urls:
-        function getAttachments(item) {
-            var ret = "";
-            var attachments = item.attachments;
-            if (attachments) {
-                var strings = [];
-                for each (var att in attachements) {
-                    let wrappedAtt = cal.wrapInstance(att, Components.interfaces.calIAttachment);
-                    if (typeof(att) == "string") {
-                        strings.push(encodeURIComponent(att));
-                    } else if (wrappedAtt && wrappedAtt.uri) {
-                        strings.push(encodeURIComponent(wrappedAtt.uri.spec));
-                    } else { // xxx todo
-                        logError("only URLs supported as attachment, not: " + att, this_);
-                    }
-                }
-                strings.sort();
-                ret += strings.join(";");
-            }
-            return ret;
-        }
         var val = getAttachments(item);
         if (!oldItem || val != getAttachments(oldItem)) {
             params += ("&attachments=" + val);
         }
     } // PUBLISH, REQUEST
-    
+
     var alarmParams = this.getAlarmParams(item);
     if (!oldItem || (this.getAlarmParams(oldItem) != alarmParams)) {
         if ((method == METHOD_REQUEST) && params.length == 0) {
@@ -566,28 +567,28 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
         if (bNoSmtpNotify) {
             params += "&smtp=0&smtpNotify=0&notify=0";
         }
-        params += "&replace=1"; // (update) don't append to any lists    
+        params += "&replace=1"; // (update) don't append to any lists
         params += "&fetch=1&relativealarm=1&compressed=1&recurring=1";
         params += "&emailorcalid=1&fmt-out=text%2Fcalendar";
 
-        function netRespFunc(err, icalRootComp) {
+        let netRespFunc = (err, icalRootComp) => {
             if (err) {
                 throw err;
             }
-            var items = this_.parseItems(icalRootComp, calICalendar.ITEM_FILTER_ALL_ITEMS,
-                                         0, null, null, true /* bLeaveMutable */);
+            var items = this.parseItems(icalRootComp, calICalendar.ITEM_FILTER_ALL_ITEMS,
+                                        0, null, null, true /* bLeaveMutable */);
             if (items.length != 1) {
-                this_.notifyError(NS_ERROR_UNEXPECTED,
-                                  "unexpected number of items: " + items.length);
+                this.notifyError(NS_ERROR_UNEXPECTED,
+                                 "unexpected number of items: " + items.length);
             }
             var newItem = items[0];
-            this_.tunnelXProps(newItem, item);
+            this.tunnelXProps(newItem, item);
             newItem.makeImmutable();
             // invalidate cached results:
-            delete this_.m_cachedResults;
+            delete this.m_cachedResults;
             // xxx todo: may log request status
             request.execRespFunc(null, newItem);
-        }
+        };
         this.issueNetworkRequest(request, netRespFunc, stringToIcal,
                                  bIsEvent ? "storeevents" : "storetodos", params,
                                  calIWcapCalendar.AC_COMP_READ |
@@ -944,7 +945,7 @@ calWcapCalendar.prototype.parseItems = function calWcapCalendar_parseItems(
             uid2parent[item.id] = parent;
             items.push(parent);
         }
-        if (item.id in fakedParents) { 
+        if (item.id in fakedParents) {
             let rdate = Components.classes["@mozilla.org/calendar/recurrence-date;1"]
                                   .createInstance(Components.interfaces.calIRecurrenceDate);
             rdate.date = item.recurrenceId;
@@ -1063,26 +1064,26 @@ function calWcapCalendar_getItem(id, listener) {
         params += "&emailorcalid=1&fmt-out=text%2Fcalendar&uid=";
         params += encodeURIComponent(id);
 
-        function notifyResult(icalRootComp) {
-            var items = this_.parseItems(icalRootComp, calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null);
-            if (items.length < 1) {
-                throw new Components.Exception("no such item!");
-            }
-            if (items.length > 1) {
-                this_.notifyError(NS_ERROR_UNEXPECTED,
-                                  "unexpected number of items: " + items.length);
-            }
-            if (listener) {
-                listener.onGetResult(this_.superCalendar, NS_OK,
-                                     calIItemBase, log("getItem(): success. id=" + id, this_),
-                                     items.length, items);
-            }
-            request.execRespFunc(null, items[0]);
-        };
         // most common: try events first
         this.issueNetworkRequest(
             request,
             function fetchEventById_resp(err, icalRootComp) {
+                function notifyResult(icalRootComp) {
+                    var items = this_.parseItems(icalRootComp, calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null);
+                    if (items.length < 1) {
+                        throw new Components.Exception("no such item!");
+                    }
+                    if (items.length > 1) {
+                        this_.notifyError(NS_ERROR_UNEXPECTED,
+                                          "unexpected number of items: " + items.length);
+                    }
+                    if (listener) {
+                        listener.onGetResult(this_.superCalendar, NS_OK,
+                                             calIItemBase, log("getItem(): success. id=" + id, this_),
+                                             items.length, items);
+                    }
+                    request.execRespFunc(null, items[0]);
+                };
                 if (err) {
                     if (!checkErrorCode(err, calIWcapErrors.WCAP_FETCH_EVENTS_BY_ID_FAILED) &&
                         !checkErrorCode(err, calIWcapErrors.WCAP_COMPONENT_NOT_FOUND)) {
@@ -1148,7 +1149,7 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
     rangeEnd = ensureDateTime(rangeEnd);
     var zRangeStart = getIcalUTC(rangeStart);
     var zRangeEnd = getIcalUTC(rangeEnd);
-    
+
     var this_ = this;
     var request = new calWcapRequest(
         function getItems_resp(request, err, data) {
@@ -1163,7 +1164,7 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
             ",\n\tmaxResults=" + maxResults +
             ",\n\trangeStart=" + zRangeStart +
             ",\n\trangeEnd=" + zRangeEnd, this));
-    
+
     if (this.aboutToBeUnregistered) {
         // limiting the amount of network traffic while unregistering
         log("being unregistered, no results.", this);

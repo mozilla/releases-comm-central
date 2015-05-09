@@ -461,6 +461,39 @@ var gDataMigrator = {
     },
 
     checkWindowsMail: function gdm_windowsMail() {
+        function doMigrate(aCalendarNodes, aMailDir, aCallback) {
+            let calManager = cal.getCalendarManager();
+
+            for (let node of aCalendarNodes) {
+                let name = node.getElementsByTagName("Name")[0].textContent;
+                let color = node.getElementsByTagName("Color")[0].textContent;
+                let enabled = node.getElementsByTagName("Enabled")[0].textContent == "True";
+
+                // The name is quoted, and the color also contains an alpha
+                // value. Lets just ignore the alpha value and take the
+                // color part.
+                name = name.replace(/(^'|'$)/g, "");
+                color = color.replace(/0x[0-9a-fA-F]{2}([0-9a-fA-F]{4})/, "#$1");
+
+                let calfile = aMailDir.clone();
+                calfile.append(name + ".ics");
+
+                if (calfile.exists()) {
+                    let storage = gDataMigrator.importICSToStorage(calfile)
+                    storage.name = name;
+
+                    if (color) {
+                        storage.setProperty("color", color);
+                    }
+                    calManager.registerCalendar(storage);
+
+                    if (enabled) {
+                        getCompositeCalendar().addCalendar(storage);
+                    }
+                }
+            }
+            aCallback();
+        }
 
         if (!this.dirService.has("LocalAppData")) {
             // We are probably not on windows
@@ -476,60 +509,27 @@ var gDataMigrator = {
 
         let settingsxml = maildir.clone();
         settingsxml.append("Settings.xml");
-        if (!settingsxml || !settingsxml.exists()) {
-            // No Settings.xml, maybe Windows Calendar was never started?
-            return [];
-        }
-        let settingsXmlUri = Services.io.newFileURI(settingsxml);
 
-        let req = new XMLHttpRequest();
-        req.open("GET", settingsXmlUri.spec, false);
-        req.send(null);
-        if (req.status == 0) {
-            // The file was found, it seems we are on windows vista.
-            let doc = req.responseXML;
-            let root = doc.documentElement;
+        let migrators = [];
+        if (settingsxml.exists()) {
+            let settingsXmlUri = Services.io.newFileURI(settingsxml);
 
-            // Get all calendar property tags and return the migrator.
-            let calendars = doc.getElementsByTagName("VCalendar");
-            function doMigrate(aCallback) {
-                for each (let node in Array.slice(calendars)) {
-                    let name = node.getElementsByTagName("Name")[0].textContent;
-                    let color = node.getElementsByTagName("Color")[0].textContent;
-                    let enabled = node.getElementsByTagName("Enabled")[0].textContent == "True";
+            let req = new XMLHttpRequest();
+            req.open("GET", settingsXmlUri.spec, false);
+            req.send(null);
+            if (req.status == 0) {
+                // The file was found, it seems we are on windows vista.
+                let doc = req.responseXML;
+                let root = doc.documentElement;
 
-                    // The name is quoted, and the color also contains an alpha
-                    // value. Lets just ignore the alpha value and take the
-                    // color part.
-                    name = name.replace(/(^'|'$)/g, "");
-                    color = color.replace(/0x[0-9a-fA-F]{2}([0-9a-fA-F]{4})/, "#$1");
-
-                    let calfile = maildir.clone();
-                    calfile.append(name + ".ics");
-
-                    if (calfile.exists()) {
-                        let storage = gDataMigrator.importICSToStorage(calfile)
-
-                        storage.name = name;
-
-                        if (color) {
-                            storage.setProperty("color", color);
-                        }
-                        let calManager = cal.getCalendarManager();
-                        calManager.registerCalendar(storage);
-
-                        if (enabled) {
-                            getCompositeCalendar().addCalendar(storage);
-                        }
-                    }
+                // Get all calendar property tags and return the migrator.
+                let calendars = doc.getElementsByTagName("VCalendar");
+                if (calendars.length > 0) {
+                    migrators = [new dataMigrator("Windows Calendar", doMigrate.bind(null, calendars, maildir))];
                 }
-                aCallback();
-            }
-            if (calendars.length > 0) {
-                return [new dataMigrator("Windows Calendar", doMigrate)];
             }
         }
-        return [];
+        return migrators;
     },
 
     /**

@@ -998,10 +998,7 @@ calFreeBusyListener.prototype = {
     onResult: function cFBL_onResult(aRequest, aEntries) {
         if (aRequest && !aRequest.isPending) {
             // Find request in list of pending requests and remove from queue:
-            function neq(aOp) {
-                return (aRequest.id != aOp.id);
-            }
-            this.mBinding.mPendingRequests = this.mBinding.mPendingRequests.filter(neq);
+            this.mBinding.mPendingRequests = this.mBinding.mPendingRequests.filter(aOp => aRequest.id != aOp.id);
         }
         if (aEntries) {
             this.mFbElement.onFreeBusy(aEntries);

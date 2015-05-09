@@ -278,7 +278,7 @@ calStorageCalendar.prototype = {
                  * @param newCalId  The new calendar id to set
                  * @param oldCalId  The old calendar id to look for
                  */
-                function migrateTables(db, newCalId, oldCalId) {
+                let migrateTables = function(db, newCalId, oldCalId) {
                     for each (let tbl in ["cal_alarms", "cal_attachments",
                                           "cal_attendees", "cal_events",
                                           "cal_metadata", "cal_properties",
@@ -301,7 +301,7 @@ calStorageCalendar.prototype = {
                             }
                         }
                     }
-                }
+                };
 
                 let id = 0;
                 let path = this.uri.path;
@@ -1561,7 +1561,7 @@ calStorageCalendar.prototype = {
 
         try {
             this.prepareStatement(this.mSelectTodosWithRecurrence);
-            sp = this.mSelectTodosWithRecurrence.params;
+            let sp = this.mSelectTodosWithRecurrence.params;
             while (this.mSelectTodosWithRecurrence.executeStep()) {
                 var row = this.mSelectTodosWithRecurrence.row;
                 var item = this.getTodoFromRow(row, {});

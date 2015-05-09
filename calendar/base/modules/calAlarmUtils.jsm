@@ -5,7 +5,7 @@
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
+this.EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
 cal.alarms = {
     /**
      * Read default alarm settings from user preferences and apply them to the

@@ -10,7 +10,7 @@ Components.utils.import("resource://gre/modules/Preferences.jsm");
  * Authentication helper code
  */
 
-EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
+this.EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
 cal.auth = {
     /**
      * Auth prompt implementation - Uses password manager if at all possible.

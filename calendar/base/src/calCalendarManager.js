@@ -452,7 +452,7 @@ calCalendarManager.prototype = {
                 case Components.interfaces.calIErrors.STORAGE_UNKNOWN_SCHEMA_ERROR:
                     // For now we alert and quit on schema errors like we've done before:
                     this.alertAndQuit();
-                    return;
+                    return null;
                 case Components.interfaces.calIErrors.STORAGE_UNKNOWN_TIMEZONES_ERROR:
                     uiMessage = calGetString("calendar", "unknownTimezonesError", [uri.spec]);
                     break;
@@ -946,63 +946,54 @@ calMgrCalendarObserver.prototype = {
 
         // Log warnings in error console.
         // Report serious errors in both error console and in prompt window.
-        var isSerious = (aErrNo == calIErrors.MODIFICATION_FAILED);
-        if (!isSerious) {
-            WARN(summary);
-        } else {
-            // Write error to console.
+        if (aErrNo == calIErrors.MODIFICATION_FAILED) {
             Components.utils.reportError(summary);
-
-            // silently don't do anything if this message already has
-            // been announced without being acknowledged.
-            if (this.announcedMessages.some(
-                function(element, index, array) {
-                    return equalMessage(paramBlock, element);
-                })) {
-                return;
-            }
-
-            // this message hasn't been announced recently, remember the
-            // details of the message for future reference.
-            this.announcedMessages.push(paramBlock);
-
-            // Display in prompt window.
-            var promptWindow =
-                Services.ww.openWindow
-                    (null, "chrome://calendar/content/calendar-error-prompt.xul",
-                     "_blank", "chrome,dialog=yes,alwaysRaised=yes",
-                     paramBlock);
-            // Will remove paramBlock from announced messages when
-            // promptWindow is closed.  (Closing fires unloaded event, but
-            // promptWindow is also unloaded [to clean it?] before loading,
-            // so wait for detected load event before detecting unload event
-            // that signifies user closed this prompt window.)
-            var observer = this;
-            function awaitLoad(event) {
-                // #2 loaded, remove load listener
-                promptWindow.removeEventListener("load", awaitLoad, false);
-                function awaitUnload(event) {
-                    // #4 unloaded (user closed prompt window),
-                    // remove paramBlock and unload listener.
-                    try {
-                        // remove the message that has been shown from
-                        // the list of all announced messages.
-                        observer.announcedMessages =
-                            observer.announcedMessages.filter(function(msg) {
-                                return !equalMessage(msg, paramBlock);
-                            });
-                        promptWindow.removeEventListener("unload", awaitUnload,
-                                                         false);
-                    } catch (e) {
-                        Components.utils.reportError(e);
-                    }
-                }
-                // #3 add unload listener (wait for user to close promptWindow)
-                promptWindow.addEventListener("unload", awaitUnload, false);
-            }
-            // #1 add load listener
-            promptWindow.addEventListener("load", awaitLoad, false);
+            this.announceParamBlock(paramBlock);
+        } else {
+            cal.WARN(summary);
         }
+    },
+
+    announceParamBlock: function(paramBlock) {
+        function awaitLoad(event) {
+            promptWindow.removeEventListener("load", awaitLoad, false);
+            promptWindow.addEventListener("unload", awaitUnload, false);
+        }
+        let awaitUnload = (event) => {
+            promptWindow.removeEventListener("unload", awaitUnload, false);
+            // unloaded (user closed prompt window),
+            // remove paramBlock and unload listener.
+            try {
+                // remove the message that has been shown from
+                // the list of all announced messages.
+                this.announcedMessages = this.announcedMessages.filter((msg) => {
+                    return !equalMessage(msg, paramBlock);
+                });
+            } catch (e) {
+                Components.utils.reportError(e);
+            }
+        };
+
+        // silently don't do anything if this message already has been
+        // announced without being acknowledged.
+        if (this.announcedMessages.some(equalMessage.bind(null, paramBlock))) {
+            return;
+        }
+
+        // this message hasn't been announced recently, remember the details of
+        // the message for future reference.
+        this.announcedMessages.push(paramBlock);
+
+        // Will remove paramBlock from announced messages when promptWindow is
+        // closed.  (Closing fires unloaded event, but promptWindow is also
+        // unloaded [to clean it?] before loading, so wait for detected load
+        // event before detecting unload event that signifies user closed this
+        // prompt window.)
+        let promptUrl = "chrome://calendar/content/calendar-error-prompt.xul";
+        let features = "chrome,dialog=yes,alwaysRaised=yes";
+        let promptWindow =  Services.ww.openWindow(null, url, "_blank",
+                                                   features, paramBlock);
+        promptWindow.addEventListener("load", awaitLoad, false);
     }
 };
 

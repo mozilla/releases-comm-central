@@ -49,9 +49,9 @@ calIcalProperty.prototype = {
     },
 
     get valueAsIcalString() {
-        let type = this.innerObject.type;
-        function stringifyValue(x) ICAL.stringify.value(x.toString(), type);
-        return this.innerObject.getValues().map(stringifyValue).join(",");
+        return this.innerObject.getValues().map(v => {
+            return ICAL.stringify.value(v.toString(), this.innerObject.type);
+        }).join(",");
     },
     set valueAsIcalString(val) {
         var icalval = ICAL.parse._parseValue(val, this.innerObject.type);
@@ -107,31 +107,33 @@ calIcalProperty.prototype = {
         // ICAL.js we need to save the value, reset the type and then try to
         // set the value again.
         if (n == "VALUE") {
-            function stringifyValue(x) ICAL.stringify.value(x.toString(), type);
-            function reparseValue(x) ICAL.parse._parseValue(stringifyValue(x), v);
+            let oldValues;
             let type = this.innerObject.type;
 
-            let oldValue;
             let wasMultiValue = this.innerObject.isMultiValue;
             if (wasMultiValue) {
-                oldValue = this.innerObject.getValues();
+                oldValues = this.innerObject.getValues();
             } else {
-                oldValue = [this.innerObject.getFirstValue()];
+                oldValues = [this.innerObject.getFirstValue()];
             }
+
             this.innerObject.resetType(v.toLowerCase());
             try {
-                oldValue = oldValue.map(reparseValue);
+                oldValues = oldValues.map(oldValue => {
+                    let strvalue = ICAL.stringify.value(oldValue.toString(), type);
+                    return ICAL.parse._parseValue(strvalue, v)
+                });
             } catch (e) {
                 // If there was an error reparsing the value, then just keep it
                 // empty.
-                oldValue = null;
+                oldValues = null;
             }
 
-            if (oldValue) {
+            if (oldValues) {
                 if (wasMultiValue && this.innerObject.isMultiValue) {
-                    this.innerObject.setValues(oldValue);
-                } else if (oldValue) {
-                    this.innerObject.setValue(oldValue.join(","));
+                    this.innerObject.setValues(oldValues);
+                } else {
+                    this.innerObject.setValue(oldValues.join(","));
                 }
             }
         } else {

@@ -10,7 +10,7 @@ Components.utils.import("resource://gre/modules/PromiseUtils.jsm");
  * Asynchronous tools for handling calendar operations.
  */
 
-EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
+this.EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
 const cIOL = Components.interfaces.calIOperationListener;
 const cIC = Components.interfaces.calICalendar;
 

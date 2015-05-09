@@ -12,7 +12,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 /**
  * Scheduling and iTIP helper code
  */
-EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
+this.EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
 cal.itip = {
     /**
      * Gets the sequence/revision number, either of the passed item or
@@ -175,16 +175,18 @@ cal.itip = {
             return cal.calGetString("lightning", strName, param, "lightning");
         }
 
+        let text = "";
         const cIOL = Components.interfaces.calIOperationListener;
         if (Components.isSuccessCode(aStatus)) {
             switch (aOperationType) {
-                case cIOL.ADD: return _gs("imipAddedItemToCal");
-                case cIOL.MODIFY: return _gs("imipUpdatedItem");
-                case cIOL.DELETE: return _gs("imipCanceledItem");
+                case cIOL.ADD: text = gs("imipAddedItemToCal"); break;
+                case cIOL.MODIFY: text = _gs("imipUpdatedItem"); break;
+                case cIOL.DELETE: text = _gs("imipCanceledItem"); break;
             }
         } else {
-            return _gs("imipBarProcessingFailed", [aStatus.toString(16)]);
+            text = _gs("imipBarProcessingFailed", [aStatus.toString(16)]);
         }
+        return text;
     },
 
     /**

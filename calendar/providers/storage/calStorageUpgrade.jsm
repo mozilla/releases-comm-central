@@ -254,12 +254,10 @@ function setDbVersionAndCommit(db, version) {
  * @return              The delegate function for the passed named function.
  */
 function createDBDelegate(funcName) {
-    let func = function(db /* , ... */) {
+    return function(db, ...args) {
         if (db) {
-            let args = Array.slice(arguments);
-            args.shift();
             try {
-                return db[funcName].apply(db, args);
+                return db[funcName](...args);
             } catch (e) {
                 cal.ERROR("Error calling '" + funcName + "' db error: '" +
                           lastErrorString(db) + "'.\nException: " + e);
@@ -267,9 +265,6 @@ function createDBDelegate(funcName) {
             }
         }
     };
-
-    func.name = "dbDelegate_" + funcName;
-    return func;
 }
 
 /**
@@ -281,12 +276,9 @@ function createDBDelegate(funcName) {
  * @return                  The function that delegates the getter.
  */
 function createDBDelegateGetter(getterAttr) {
-    let func = function(db) {
+    return function(db) {
         return (db ? db[getterAttr] : null);
     }
-
-    func.name = "dbDelegate_get_" + getterAttr;
-    return func;
 }
 
 // These functions use the db delegate to allow easier calling of common
@@ -741,6 +733,11 @@ upgrade.v2 = upgrade.v1 = function upgrade_v2(db, version) {
  * p=vlad
  */
 upgrade.v3 = function upgrade_v3(db, version) {
+    function updateSql(tbl, field) {
+        executeSimpleSQL(db, "UPDATE " + tbl + " SET " + field + "_tz='UTC'" +
+                             " WHERE " + field + " IS NOT NULL");
+    }
+
     let tbl = upgrade.v2(version < 2 && db, version);
     LOGdb(db, "Storage: Upgrading to v3");
 
@@ -788,11 +785,6 @@ upgrade.v3 = function upgrade_v3(db, version) {
         // given, since that's what the default was for v2 calendars
 
         // Fix up the new timezone columns
-        function updateSql(tbl, field) {
-            executeSimpleSQL(db, "UPDATE " + tbl + " SET " + field + "_tz='UTC'" +
-                                 " WHERE " + field + " IS NOT NULL");
-        }
-
         updateSql("cal_events", "event_start");
         updateSql("cal_events", "event_end");
         updateSql("cal_todos", "todo_entry");
@@ -1535,6 +1527,7 @@ upgrade.v22 = function upgrade_v22(db, version) {
         // Update recurrence table to using icalString directly
         createFunction(db, "translateRecurrence", 17, {
             onFunctionCall: function translateRecurrence(storArgs) {
+                function parseInt10(x) parseInt(x, 10);
                 try {
                     let [aIndex, aType, aIsNegative, aDates, aCount,
                          aEndDate, aInterval, aSecond, aMinute, aHour,
@@ -1585,7 +1578,6 @@ upgrade.v22 = function upgrade_v22(db, version) {
                             SETPOS: aSetPos
                         };
 
-                        function parseInt10(x) parseInt(x, 10);
                         for (let rtype in rtypes) {
                             if (rtypes[rtype]) {
                                 let comp = "BY" + rtype;

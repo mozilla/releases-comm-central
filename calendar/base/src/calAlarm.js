@@ -623,6 +623,16 @@ calAlarm.prototype = {
     },
 
     toString: function cA_toString(aItem) {
+        function getItemBundleStringName(aPrefix) {
+            if (!aItem || isEvent(aItem)) {
+                return aPrefix + "Event";
+            } else if (isToDo(aItem)) {
+                return aPrefix + "Task";
+            } else {
+                return aPrefix;
+            }
+        }
+
         if (this.related == ALARM_RELATED_ABSOLUTE && this.mAbsoluteDate) {
             // this is an absolute alarm. Use the calendar default timezone and
             // format it.
@@ -630,15 +640,6 @@ calAlarm.prototype = {
             let formatDate = this.mAbsoluteDate.getInTimezone(cal.calendarDefaultTimezone());
             return formatter.formatDateTime(formatDate);
         } else if (this.related != ALARM_RELATED_ABSOLUTE && this.mOffset) {
-            function getItemBundleStringName(aPrefix) {
-                if (!aItem || isEvent(aItem)) {
-                    return aPrefix + "Event";
-                } else if (isToDo(aItem)) {
-                    return aPrefix + "Task";
-                } else {
-                    return aPrefix;
-                }
-            }
 
             // Relative alarm length
             let alarmlen = Math.abs(this.mOffset.inSeconds / 60);

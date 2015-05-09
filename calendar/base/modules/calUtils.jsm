@@ -15,7 +15,7 @@ Components.utils.import("resource://gre/modules/Preferences.jsm");
 // Getting the service here will load if its not already loaded
 Components.classes["@mozilla.org/calendar/backend-loader;1"].getService();
 
-EXPORTED_SYMBOLS = ["cal"];
+this.EXPORTED_SYMBOLS = ["cal"];
 let cal = {
     // new code should land here,
     // and more code should be moved from calUtils.js into this object to avoid
@@ -412,21 +412,19 @@ let cal = {
     sortEntryComparer: function cal_sortEntryComparer(sortType, modifier) {
       switch (sortType) {
         case "number":
-          function compareNumbers(sortEntryA, sortEntryB) {
+          return function compareNumbers(sortEntryA, sortEntryB) {
             let nsA = cal.sortEntryKey(sortEntryA);
             let nsB = cal.sortEntryKey(sortEntryB);
             return cal.compareNumber(nsA, nsB) * modifier;
-          }
-          return compareNumbers;
+          };
         case "date":
-          function compareTimes(sortEntryA, sortEntryB) {
+          return function compareTimes(sortEntryA, sortEntryB) {
             let nsA = cal.sortEntryKey(sortEntryA);
             let nsB = cal.sortEntryKey(sortEntryB);
             return cal.compareNativeTime(nsA, nsB) * modifier;
-          }
-          return compareTimes;
+          };
         case "date_filled":
-          function compareTimesFilled(sortEntryA, sortEntryB) {
+          return function compareTimesFilled(sortEntryA, sortEntryB) {
             let nsA = cal.sortEntryKey(sortEntryA);
             let nsB = cal.sortEntryKey(sortEntryB);
             if (modifier == 1) {
@@ -434,11 +432,9 @@ let cal = {
             } else {
               return cal.compareNativeTimeFilledDesc(nsA, nsB);
             }
-          }
-          return compareTimesFilled
+          };
         case "string":
-          let collator = cal.createLocaleCollator();
-          function compareStrings(sortEntryA, sortEntryB) {
+          return function compareStrings(sortEntryA, sortEntryB) {
             let sA = cal.sortEntryKey(sortEntryA);
             let sB = cal.sortEntryKey(sortEntryB);
             if (sA.length == 0 || sB.length == 0) {
@@ -447,16 +443,14 @@ let cal = {
               // column without scrolling past all the empty values).
               return -(sA.length - sB.length) * modifier;
             }
+            let collator = cal.createLocaleCollator();
             let comparison = collator.compareString(0, sA, sB);
             return comparison * modifier;
-          }
-          return compareStrings;
-
+          };
         default:
-          function compareOther(sortEntryA, sortEntryB) {
+          return function compareOther(sortEntryA, sortEntryB) {
             return 0;
-          }
-          return compareOther;
+          };
       }
     },
 
@@ -526,6 +520,8 @@ let cal = {
         case "percentComplete":
         case "status":
           return "number";
+        default:
+          return "unknown";
       }
     },
 

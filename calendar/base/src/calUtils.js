@@ -1186,25 +1186,22 @@ calInterfaceBag.prototype = {
 
     add: function calInterfaceBag_add(iface) {
         if (iface) {
-            var iid = this.mIid;
-            function eq(obj) {
-                return compareObjects(obj, iface, iid);
-            }
-            if (!this.mInterfaces.some(eq)) {
+            let existing = this.mInterfaces.some(obj => {
+                return compareObjects(obj, iface, this.mIid);
+            });
+            if (!existing) {
                 this.mInterfaces.push(iface);
-                return true;
             }
+            return !existing;
         }
         return false;
     },
 
     remove: function calInterfaceBag_remove(iface) {
         if (iface) {
-            var iid = this.mIid;
-            function neq(obj) {
-                return !compareObjects(obj, iface, iid);
-            }
-            this.mInterfaces = this.mInterfaces.filter(neq);
+            this.mInterfaces = this.mInterfaces.filter((obj) => {
+                return !compareObjects(obj, iface, this.mIid);
+            });
         }
     },
 
@@ -1287,10 +1284,7 @@ calOperationGroup.prototype = {
 
     remove: function calOperationGroup_remove(op) {
         if (op) {
-            function filterFunc(op_) {
-                return (op.id != op_.id);
-            }
-            this.mSubOperations = this.mSubOperations.filter(filterFunc);
+            this.mSubOperations = this.mSubOperations.filter(op_ => op.id != op_.id);
         }
     },
 
@@ -1338,10 +1332,9 @@ calOperationGroup.prototype = {
             }
             var subOperations = this.mSubOperations;
             this.mSubOperations = [];
-            function forEachFunc(op) {
+            for (let op of subOperations) {
                 op.cancel(Components.interfaces.calIErrors.OPERATION_CANCELLED);
             }
-            subOperations.forEach(forEachFunc);
         }
     }
 };

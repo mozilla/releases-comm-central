@@ -642,6 +642,7 @@
               // It seems errors in these functions are not shown, do this
               // explicitly.
               cal.ERROR("Error getting cell props: " + e);
+              return "";
           }
         ]]></body>
       </method>

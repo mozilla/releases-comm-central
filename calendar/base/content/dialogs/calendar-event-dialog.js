@@ -3360,58 +3360,55 @@ function updateDateTime() {
  * the links will be collapsed.
  */
 function updateTimezone() {
+    function updateTimezoneElement(aTimezone, aId, aDateTime) {
+        let element = document.getElementById(aId);
+        if (!element) {
+            return;
+        }
+
+        if (aTimezone) {
+            element.removeAttribute('collapsed');
+            element.value = aTimezone.displayName || aTimezone.tzid;
+            if (!aDateTime || !aDateTime.isValid || gIsReadOnly || aDateTime.isDate) {
+                if (element.hasAttribute('class')) {
+                    element.setAttribute('class-on-enabled',
+                                         element.getAttribute('class'));
+                    element.removeAttribute('class');
+                }
+                if (element.hasAttribute('onclick')) {
+                    element.setAttribute('onclick-on-enabled',
+                                         element.getAttribute('onclick'));
+                    element.removeAttribute('onclick');
+                }
+                element.setAttribute('disabled', 'true');
+            } else {
+                if (element.hasAttribute('class-on-enabled')) {
+                    element.setAttribute('class',
+                                         element.getAttribute('class-on-enabled'));
+                    element.removeAttribute('class-on-enabled');
+                }
+                if (element.hasAttribute('onclick-on-enabled')) {
+                    element.setAttribute('onclick',
+                                         element.getAttribute('onclick-on-enabled'));
+                    element.removeAttribute('onclick-on-enabled');
+                }
+                element.removeAttribute('disabled');
+            }
+        } else {
+            element.setAttribute('collapsed', 'true');
+        }
+    }
+
     let timezonesEnabled = document.getElementById('cmd_timezone')
                                    .getAttribute('checked') == 'true';
     // convert to default timezone if the timezone option
     // is *not* checked, otherwise keep the specific timezone
     // and display the labels in order to modify the timezone.
     if (timezonesEnabled) {
-        let startTimezone = gStartTimezone;
-        let endTimezone = gEndTimezone;
-
-        function updateTimezoneElement(aTimezone, aId, aDateTime) {
-            let element = document.getElementById(aId);
-            if (!element) {
-                return;
-            }
-
-            if (aTimezone) {
-                element.removeAttribute('collapsed');
-                element.value = aTimezone.displayName || aTimezone.tzid;
-                if (!aDateTime || !aDateTime.isValid || gIsReadOnly || aDateTime.isDate) {
-                    if (element.hasAttribute('class')) {
-                        element.setAttribute('class-on-enabled',
-                                             element.getAttribute('class'));
-                        element.removeAttribute('class');
-                    }
-                    if (element.hasAttribute('onclick')) {
-                        element.setAttribute('onclick-on-enabled',
-                                             element.getAttribute('onclick'));
-                        element.removeAttribute('onclick');
-                    }
-                    element.setAttribute('disabled', 'true');
-                } else {
-                    if (element.hasAttribute('class-on-enabled')) {
-                        element.setAttribute('class',
-                                             element.getAttribute('class-on-enabled'));
-                        element.removeAttribute('class-on-enabled');
-                    }
-                    if (element.hasAttribute('onclick-on-enabled')) {
-                        element.setAttribute('onclick',
-                                             element.getAttribute('onclick-on-enabled'));
-                        element.removeAttribute('onclick-on-enabled');
-                    }
-                    element.removeAttribute('disabled');
-                }
-            } else {
-                element.setAttribute('collapsed', 'true');
-            }
-        }
-
-        updateTimezoneElement(startTimezone,
+        updateTimezoneElement(gStartTimezone,
                               'timezone-starttime',
                               gStartTime);
-        updateTimezoneElement(endTimezone,
+        updateTimezoneElement(gEndTimezone,
                               'timezone-endtime',
                               gEndTime);
     } else {

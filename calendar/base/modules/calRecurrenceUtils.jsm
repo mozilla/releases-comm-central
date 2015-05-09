@@ -4,7 +4,7 @@
 
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
-EXPORTED_SYMBOLS = ["recurrenceRule2String", "splitRecurrenceRules", "checkRecurrenceRule"];
+this.EXPORTED_SYMBOLS = ["recurrenceRule2String", "splitRecurrenceRules", "checkRecurrenceRule"];
 
 /**
  * This function takes the recurrence info passed as argument and creates a
@@ -17,7 +17,31 @@ EXPORTED_SYMBOLS = ["recurrenceRule2String", "splitRecurrenceRules", "checkRecur
  * @return                  A human readable string describing the recurrence.
  */
 function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
-    function getRString(name, args) cal.calGetString("calendar-event-dialog", name, args);
+    function getRString(name, args) {
+        return cal.calGetString("calendar-event-dialog", name, args);
+    }
+    function day_of_week(day) {
+        return Math.abs(day) % 8;
+    }
+    function day_position(day) {
+        return (Math.abs(day) - day_of_week(day)) / 8 * (day < 0 ? -1 : 1);
+    }
+    function nounClass(aDayString, aRuleString) {
+        // Select noun class (grammatical gender) for rule string
+        let nounClass = getRString(aDayString + "Nounclass");
+        return aRuleString + nounClass.substr(0, 1).toUpperCase() +
+               nounClass.substr(1);
+    }
+    function pluralWeekday(aDayString) {
+        let plural = getRString("pluralForWeekdays") == "true";
+        return (plural ? aDayString + "Plural" : aDayString);
+    }
+    function everyWeekDay(aByDay) {
+        // Checks if aByDay contains only values from 1 to 7 with any order.
+        let mask = aByDay.reduce((v, c) => v | (1 << c), 1);
+        return aByDay.length == 7 && mask == Math.pow(2, 8) - 1;
+    }
+
 
     // Retrieve a valid recurrence rule from the currently
     // set recurrence info. Bail out if there's more
@@ -37,29 +61,6 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                                         'BYWEEKNO',
                                         //'BYMONTH',
                                         'BYSETPOS'])) {
-            function day_of_week(day) {
-                return Math.abs(day) % 8;
-            }
-            function day_position(day) {
-                let dow = day_of_week(day);
-                return (Math.abs(day) - dow) / 8 * (day < 0 ? -1 : 1);
-            }
-            function nounClass(aDayString, aRuleString) {
-                // Select noun class (grammatical gender) for rule string
-                let nounClass = getRString(aDayString + "Nounclass");
-                return aRuleString + nounClass.substr(0, 1).toUpperCase() +
-                       nounClass.substr(1);
-            }
-            function pluralWeekday(aDayString) {
-                let plural = getRString("pluralForWeekdays") == "true";
-                return (plural ? aDayString + "Plural" : aDayString);
-            }
-            function everyWeekDay(aByDay) {
-                // Checks if aByDay contains only values from 1 to 7 with any order.
-                let mask = aByDay.reduce(function(v, c) v | (1 << c), 1);
-                return aByDay.length == 7 && mask == Math.pow(2, 8) - 1;
-            }
-
             let dateFormatter = cal.getDateFormatter();
             let ruleString;
             if (rule.type == 'DAILY') {

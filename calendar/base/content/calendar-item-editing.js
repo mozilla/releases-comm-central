@@ -399,7 +399,7 @@ function openEventDialog(calendarItem, calendar, mode, callback, job, initialDat
     if (mode == "new") {
         calendars = calendars.filter(userCanAddItemsToCalendar);
     } else { /* modify */
-        function calendarCanModifyItems(aCalendar) {
+        calendars = calendars.filter((aCalendar) => {
             /* If the calendar is the item calendar, we check that the item
              * can be modified. If the calendar is NOT the item calendar, we
              * check that the user can remove items from that calendar and
@@ -410,8 +410,7 @@ function openEventDialog(calendarItem, calendar, mode, callback, job, initialDat
                      && userCanAddItemsToCalendar(aCalendar))
                     || ((calendarItem.calendar == aCalendar)
                         && userCanModifyItem(calendarItem)));
-        }
-        calendars = calendars.filter(calendarCanModifyItems);
+        });
     }
 
     if (mode == "new"

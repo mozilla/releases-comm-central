@@ -13,7 +13,7 @@ Components.utils.import("resource://gre/modules/Preferences.jsm");
  * Provider helper code
  */
 
-EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
+this.EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
 
 /**
  * Prepare HTTP channel with standard request headers and upload
