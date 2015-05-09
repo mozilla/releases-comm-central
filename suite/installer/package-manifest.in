@@ -517,6 +517,9 @@
 @RESPATH@/components/XULStore.js
 @RESPATH@/components/XULStore.manifest
 
+@RESPATH@/components/PACGenerator.js
+@RESPATH@/components/PACGenerator.manifest
+
 ; Modules
 @RESPATH@/modules/*
 
