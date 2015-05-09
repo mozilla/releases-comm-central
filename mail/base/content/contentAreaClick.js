@@ -57,7 +57,8 @@
 function messagePaneOnResize(aEvent)
 {
   // Scale any overflowing images, exclude http content.
-  let doc = getBrowser().contentDocument;
+  let browser = getBrowser();
+  let doc = browser && browser.contentDocument ? browser.contentDocument : null;
   if (!doc || doc.URL.startsWith("http") || !doc.images)
     return;
 
