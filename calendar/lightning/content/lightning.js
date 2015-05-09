@@ -139,7 +139,11 @@ pref("calendar.view.useSystemColors", false);
 pref("calendar.filter.maxiterations", 50);
 
 // Backend to use. false: libical, true: ical.js
+#ifdef LIGHTNING_PRERELEASE_VERSION
+pref("calendar.icaljs", true);
+#else
 pref("calendar.icaljs", false);
+#endif
 
 // Calendar integration notification
 pref("calendar.integration.notify", true);
