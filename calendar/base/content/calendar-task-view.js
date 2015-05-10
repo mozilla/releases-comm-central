@@ -213,28 +213,11 @@ function taskViewUpdate(aFilter) {
 function sendMailToOrganizer() {
     var item = document.getElementById("calendar-task-tree").currentTask;
     if (item != null) {
-        var organizer = item.organizer;
-        if (organizer) {
-            if (organizer.id && organizer.id.length) {
-                var email = organizer.id;
-                var re = new RegExp("^mailto:(.*)", "i");
-                if (email && email.length) {
-                    if (re.test(email)) {
-                        email = RegExp.$1;
-                    } else {
-                        email = email;
-                    }
-                }
-
-                // Set up the subject
-                var emailSubject = calGetString("calendar-event-dialog",
-                                                "emailSubjectReply",
-                                                [item.title]);
-
-                let identity = item.calendar.getProperty("imip.identity");
-                sendMailTo(email, emailSubject, null, identity);
-            }
-        }
+        let organizer = item.organizer;
+        let email = cal.getAttendeeEmail(organizer, true);
+        let emailSubject = cal.calGetString("calendar-event-dialog", "emailSubjectReply", [item.title]);
+        let identity = item.calendar.getProperty("imip.identity");
+        sendMailTo(email, emailSubject, null, identity);
     }
 }
 

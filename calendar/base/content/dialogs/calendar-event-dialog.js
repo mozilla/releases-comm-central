@@ -3665,33 +3665,9 @@ function sendMailToUndecidedAttendees(aAttendees) {
  * @param aAttendees    The attendees to send mail to.
  */
 function sendMailToAttendees(aAttendees) {
-    var toList = "";
-    var item = saveItem();
-
-    for each (var attendee in aAttendees) {
-        if (attendee.id && attendee.id.length) {
-            var email = attendee.id;
-            var re = new RegExp("^mailto:(.*)", "i");
-            if (email && email.length) {
-                if (re.test(email)) {
-                    email = RegExp.$1;
-                } else {
-                    email = email;
-                }
-            }
-            // Prevent trailing commas.
-            if (toList.length > 0) {
-                toList += ",";
-            }
-            // Add this recipient id to the list.
-            toList += email;
-        }
-    }
-
-    // Set up the subject
-    var emailSubject = calGetString("calendar-event-dialog",
-                                    "emailSubjectReply",
-                                    [item.title]);
+    let toList = cal.getRecipientList(aAttendees);
+    let item = saveItem();
+    let emailSubject = cal.calGetString("calendar-event-dialog", "emailSubjectReply", [item.title]);
     let identity = window.calendarItem.calendar.getProperty("imip.identity");
     sendMailTo(toList, emailSubject, null, identity);
 }

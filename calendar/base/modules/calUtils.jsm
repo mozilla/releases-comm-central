@@ -331,6 +331,25 @@ let cal = {
     },
 
     /**
+     * Provides a string to use in email "to" header for given attendees
+     *
+     * @param  {array}   aAttendees - array of calIAttendee's to check
+     * @return {string}  Valid string to use in a 'to' header of an email
+     */
+    getRecipientList: function (aAttendees) {
+        let cbEmail = function (aVal, aInd, aArr) {
+            let email = cal.getAttendeeEmail(aVal, true);
+            if (!email.length) {
+                cal.LOG("Dropping invalid recipient for email transport: " + aVal.toString());
+            }
+            return email;
+        }
+        return aToList.map(cbEmail)
+                      .filter(function (aVal, aInd, aArr) {return (aVal.length)})
+                      .join(', ');
+    },
+
+    /**
      * Returns the default transparency to apply for an event depending on whether its an all-day event
      *
      * @param aIsAllDay      If true, the default transparency for all-day events is returned

@@ -359,23 +359,13 @@ function browseDocument() {
  * organizer an email.
  */
 function sendMailToOrganizer() {
-    var args = window.arguments[0];
-    var item = args.calendarEvent;
-
-    var organizer = item.organizer;
-    if (organizer) {
-        if (organizer.id && organizer.id.length) {
-            var email = organizer.id.replace(/^mailto:/i, "");
-
-            // Set up the subject
-            var emailSubject = calGetString("calendar-event-dialog",
-                                            "emailSubjectReply",
-                                            [item.title]);
-
-            let identity = item.calendar.getProperty("imip.identity");
-            sendMailTo(email, emailSubject, null, identity);
-        }
-    }
+    let args = window.arguments[0];
+    let item = args.calendarEvent;
+    let organizer = item.organizer;
+    let email = cal.getAttendeeEmail(organizer, true);
+    let emailSubject = cal.calGetString("calendar-event-dialog", "emailSubjectReply", [item.title]);
+    let identity = item.calendar.getProperty("imip.identity");
+    sendMailTo(email, emailSubject, null, identity);
 }
 
 /**

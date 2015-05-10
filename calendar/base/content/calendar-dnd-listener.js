@@ -411,30 +411,8 @@ calMailButtonDNDObserver.prototype = {
      */
     onDropItems: function(aItems) {
         if (aItems && aItems.length > 0) {
-            var item = aItems[0];
-
-            var recipients = "";
-            var attendees = item.getAttendees({});
-            for each (var attendee in attendees) {
-                if (attendee.id && attendee.id.length) {
-                    var email = attendee.id;
-                    var re = new RegExp("^mailto:(.*)", "i");
-                    if (email && email.length) {
-                        if (re.test(email)) {
-                            email = RegExp.$1;
-                        } else {
-                            email = email;
-                        }
-                    }
-                    // Prevent trailing commas.
-                    if (recipients.length > 0) {
-                        recipients += ",";
-                    }
-                    // Add this recipient id to the list.
-                    recipients += email;
-                }
-            }
-
+            let item = aItems[0];
+            let recipients = cal.getRecipientList(item.getAttendees({}));
             let identity = item.calendar.getProperty("imip.identity");
             sendMailTo(recipients, item.title, item.getProperty("DESCRIPTION"), identity);
         }
