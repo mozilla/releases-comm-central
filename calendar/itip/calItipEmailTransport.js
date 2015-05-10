@@ -215,18 +215,23 @@ calItipEmailTransport.prototype = {
                 }
             }
             case (Components.interfaces.calIItipItem.AUTO): {
-                cal.LOG("sendXpcomMail: Found AUTO autoResponse type.");
-                let toList = "";
-                for each (let recipient in aToList) {
-                    // Strip leading "mailto:" if it exists.
-                    let rId = recipient.id.replace(/^mailto:/i, "");
-                    // Prevent trailing commas.
-                    if (toList.length > 0) {
-                        toList += ", ";
-                    }
-                    // Add this recipient id to the list.
-                    toList += rId;
+                // don't show log message in case of falling through
+                if (aItem.autoResponse == Components.interfaces.calIItipItem.AUTO) {
+                    cal.LOG("sendXpcomMail: Found AUTO autoResponse type.");
                 }
+                let cbEmail = function (aVal, aInd, aArr) {
+                    let email = cal.getAttendeeEmail(aVal, true);
+                    if (!email.length) {
+                        cal.LOG("Invalid recipient for email transport: " + aVal.toString());
+                    }
+                    return email;
+                }
+                let toMap = aToList.map(cbEmail).filter(function (aVal, aInd, aArr) {return (aVal.length)});
+                if (toMap.length < aToList.length) {
+                    // at least one invalid recipient, so we skip sending for this message
+                    return false;
+                }
+                let toList = toMap.join(', ');
                 let composeUtils = Components.classes["@mozilla.org/messengercompose/computils;1"]
                                              .createInstance(Components.interfaces.nsIMsgCompUtils);
                 let messageId = composeUtils.msgGenerateMessageId(identity);
