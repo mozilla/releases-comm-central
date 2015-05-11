@@ -201,7 +201,7 @@ function ltnOnLoad(event) {
 function ltnIntegrationNotification() {
     const kOptOut = "mail.calendar-integration.opt-out"; // default: false
     const kNotify = "calendar.integration.notify"; // default: true
-    const kSupportUri = "https://support.mozilla.org/products/thunderbird/calendar";
+    const kSupportUri = "https://support.mozilla.org/kb/thunderbird-calendar-integration";
     const kLightningGuuid = "{e2fda1a4-762b-4020-b5ad-a41df1933103}";
 
     // we fall back to messagepanebox for Seamonkey
