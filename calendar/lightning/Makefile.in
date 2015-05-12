@@ -11,7 +11,7 @@ XPI_VERSION = $(LIGHTNING_VERSION)
 
 XPI_EM_ID = {e2fda1a4-762b-4020-b5ad-a41df1933103}
 
-DIST_FILES = install.rdf application.ini
+DIST_FILES = install.rdf app.ini
 
 # Lighting version number
 THUNDERBIRD_VERSION := $(shell cat $(topsrcdir)/mail/config/version.txt)
@@ -112,10 +112,10 @@ lightning-extrafiles:
 ident:
 	@printf 'comm_revision '
 	@$(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py \
-	    $(FINAL_TARGET)/application.ini App SourceStamp
+	    $(FINAL_TARGET)/app.ini App SourceStamp
 	@printf 'moz_revision '
 	@$(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py \
-	    $(FINAL_TARGET)/application.ini Build SourceStamp
+	    $(FINAL_TARGET)/app.ini Build SourceStamp
 	@printf 'buildid '
 	@$(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py \
-	    $(FINAL_TARGET)/application.ini App BuildID
+	    $(FINAL_TARGET)/app.ini App BuildID

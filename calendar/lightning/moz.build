@@ -40,5 +40,5 @@ with Files('content/suite-*'):
 with Files('build/**'):
     BUG_COMPONENT = ('Calendar', 'Build Config')
 
-with Files('application.ini'):
+with Files('app.ini'):
     BUG_COMPONENT = ('Calendar', 'Build Config')

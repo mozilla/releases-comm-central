@@ -67,7 +67,7 @@ SHORTOS = linux
 endif
 
 # function print_ltnconfig(section,configname)
-print_ltnconfig = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(XPI_STAGE_PATH)/$(XPI_NAME)/application.ini $1 $2)
+print_ltnconfig = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(XPI_STAGE_PATH)/$(XPI_NAME)/app.ini $1 $2)
 
 wget-en-US: FINAL_BINARY_URL = $(subst thunderbird,calendar/lightning,$(EN_US_BINARY_URL))
 wget-en-US: $(XPI_STAGE_PATH)
@@ -155,7 +155,7 @@ libs-%:
 repack-process-extrafiles:
 
 # When repackaging Lightning from the builder, platform.ini is not yet created.
-# Recreate it from the application.ini bundled with the downloaded xpi.
+# Recreate it from the app.ini bundled with the downloaded xpi.
 $(LIBXUL_DIST)/bin/platform.ini:
 	mkdir -p $(@D)
 	echo "[Build]" >> $(LIBXUL_DIST)/bin/platform.ini
