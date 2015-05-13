@@ -902,7 +902,8 @@ nsMsgFilterService::ApplyFiltersToFolders(nsIMsgFilterList *aFilterList,
   NS_ENSURE_ARG_POINTER(aFilterList);
   NS_ENSURE_ARG_POINTER(aFolders);
 
-  nsMsgFilterAfterTheFact *filterExecutor = new nsMsgFilterAfterTheFact(aMsgWindow, aFilterList, aFolders, aCallback);
+  nsRefPtr<nsMsgFilterAfterTheFact> filterExecutor =
+    new nsMsgFilterAfterTheFact(aMsgWindow, aFilterList, aFolders, aCallback);
   if (filterExecutor)
     return filterExecutor->AdvanceToNextFolder();
   else
@@ -1102,8 +1103,9 @@ NS_IMETHODIMP nsMsgFilterService::ApplyFilters(nsMsgFilterTypeType aFilterType,
 
   // Create our nsMsgApplyFiltersToMessages object which will be called when ApplyFiltersToHdr
   // finds one or more filters that hit.
-  nsMsgApplyFiltersToMessages * filterExecutor = new nsMsgApplyFiltersToMessages
-      (aMsgWindow, filterList, folderList, aMsgHdrList, aFilterType, aCallback);
+  nsRefPtr<nsMsgApplyFiltersToMessages> filterExecutor =
+    new nsMsgApplyFiltersToMessages(aMsgWindow, filterList, folderList,
+                                    aMsgHdrList, aFilterType, aCallback);
 
   if (filterExecutor)
     return filterExecutor->AdvanceToNextFolder();
