@@ -5699,6 +5699,8 @@ nsresult nsMsgDatabase::GetSearchResultsTable(const char *searchFolderUri, bool 
   mdb_kind kindToken;
   mdb_count numTables;
   mdb_bool mustBeUnique;
+  NS_ENSURE_TRUE(m_mdbStore, NS_ERROR_NULL_POINTER);
+
   nsresult err = m_mdbStore->StringToToken(GetEnv(), searchFolderUri, &kindToken);
   err = m_mdbStore->GetTableKind(GetEnv(), m_hdrRowScopeToken,  kindToken,
                                   &numTables, &mustBeUnique, table);
