@@ -47,14 +47,14 @@ nsOEScanBoxes::~nsOEScanBoxes()
 {
   int i, max;
   MailboxEntry *pEntry;
-  for (i = 0, max = m_entryArray.Count(); i < max; i++) {
-    pEntry = (MailboxEntry *) m_entryArray.ElementAt(i);
+  for (i = 0, max = m_entryArray.Length(); i < max; i++) {
+    pEntry = m_entryArray.ElementAt(i);
     delete pEntry;
   }
   // Now free the unprocessed child entries (ie, those without parents for some reason).
-  for (i = 0, max = m_pendingChildArray.Count(); i < max; i++)
+  for (i = 0, max = m_pendingChildArray.Length(); i < max; i++)
   {
-    pEntry = (MailboxEntry *) m_pendingChildArray.ElementAt(i);
+    pEntry = m_pendingChildArray.ElementAt(i);
     if (!pEntry->processed)
       delete pEntry;
   }
@@ -184,9 +184,9 @@ bool nsOEScanBoxes::GetMailboxes(nsIFile *pWhere, nsIArray **pArray)
 
 void nsOEScanBoxes::Reset(void)
 {
-  int max = m_entryArray.Count();
+  int max = m_entryArray.Length();
   for (int i = 0; i < max; i++) {
-    MailboxEntry *pEntry = (MailboxEntry *) m_entryArray.ElementAt(i);
+    MailboxEntry *pEntry = m_entryArray.ElementAt(i);
     delete pEntry;
   }
   m_entryArray.Clear();
@@ -270,7 +270,7 @@ bool nsOEScanBoxes::FindMailBoxes(nsIFile* descFile)
   if (pZero)
     m_pFirst = GetIndexEntry(pZero->child);
 
-  IMPORT_LOG1("Read the folders.nch file, found %ld mailboxes\n", (long) m_entryArray.Count());
+  IMPORT_LOG1("Read the folders.nch file, found %ld mailboxes\n", (long) m_entryArray.Length());
 
   return true;
 }
@@ -427,7 +427,7 @@ bool nsOEScanBoxes::Find50MailBoxes(nsIFile* descFile)
 
   delete [] pIndex;
 
-  return m_entryArray.Count();
+  return m_entryArray.Length();
 }
 
 nsOEScanBoxes::MailboxEntry *nsOEScanBoxes::NewMailboxEntry(uint32_t id, uint32_t parent, const char *prettyName, char *pFileName)
@@ -448,13 +448,13 @@ nsOEScanBoxes::MailboxEntry *nsOEScanBoxes::NewMailboxEntry(uint32_t id, uint32_
   return pEntry;
 }
 
-void nsOEScanBoxes::ProcessPendingChildEntries(uint32_t parent, uint32_t rootIndex, nsVoidArray  &childArray)
+void nsOEScanBoxes::ProcessPendingChildEntries(uint32_t parent, uint32_t rootIndex, nsTArray<MailboxEntry*>  &childArray)
 {
   int32_t i, max;
   MailboxEntry *pEntry;
-  for (i = 0, max = childArray.Count(); i < max; i++)
+  for (i = 0, max = childArray.Length(); i < max; i++)
   {
-    pEntry = (MailboxEntry *) childArray.ElementAt(i);
+    pEntry = childArray.ElementAt(i);
     if ((!pEntry->processed) && (pEntry->parent == parent))
     {
       AddChildEntry(pEntry, rootIndex);
@@ -472,9 +472,9 @@ void nsOEScanBoxes::RemoveProcessedChildEntries()
   // on 'm_entryArray' list so we don't want to deallocate the space for the entries now.
   MailboxEntry * pEntry;
   int32_t i;
-  for (i = m_pendingChildArray.Count()-1; i >= 0; i--)
+  for (i = m_pendingChildArray.Length()-1; i >= 0; i--)
   {
-    pEntry = (MailboxEntry *) m_pendingChildArray.ElementAt(i);
+    pEntry = m_pendingChildArray.ElementAt(i);
     if (pEntry->processed)
       m_pendingChildArray.RemoveElementAt(i);
   }
@@ -579,8 +579,8 @@ bool nsOEScanBoxes::Scan50MailboxDir(nsIFile * srcDir)
     }
   }
 
-  if (m_entryArray.Count() > 0) {
-    pEntry = (MailboxEntry *)m_entryArray.ElementAt(m_entryArray.Count() - 1);
+  if (m_entryArray.Length() > 0) {
+    pEntry = m_entryArray.ElementAt(m_entryArray.Length() - 1);
     pEntry->sibling = -1;
     return true;
   }
@@ -644,8 +644,8 @@ void nsOEScanBoxes::ScanMailboxDir(nsIFile * srcDir)
     }
   }
 
-  if (m_entryArray.Count() > 0) {
-    pEntry = (MailboxEntry *)m_entryArray.ElementAt(m_entryArray.Count() - 1);
+  if (m_entryArray.Length() > 0) {
+    pEntry = m_entryArray.ElementAt(m_entryArray.Length() - 1);
     pEntry->sibling = -1;
   }
 }
@@ -656,8 +656,8 @@ uint32_t nsOEScanBoxes::CountMailboxes(MailboxEntry *pBox)
     if (m_pFirst != nullptr)
       pBox = m_pFirst;
     else {
-      if (m_entryArray.Count() > 0)
-        pBox = (MailboxEntry *) m_entryArray.ElementAt(0);
+      if (m_entryArray.Length() > 0)
+        pBox = m_entryArray.ElementAt(0);
     }
   }
   uint32_t    count = 0;
@@ -704,8 +704,8 @@ void nsOEScanBoxes::BuildMailboxList(MailboxEntry *pBox, nsIFile * root, int32_t
       IMPORT_LOG0("Assigning start of mailbox list to m_pFirst\n");
     }
     else {
-      if (m_entryArray.Count() > 0) {
-        pBox = (MailboxEntry *) m_entryArray.ElementAt(0);
+      if (m_entryArray.Length() > 0) {
+        pBox = m_entryArray.ElementAt(0);
 
         IMPORT_LOG0("Assigning start of mailbox list to entry at index 0\n");
       }
@@ -763,9 +763,9 @@ void nsOEScanBoxes::BuildMailboxList(MailboxEntry *pBox, nsIFile * root, int32_t
 
 nsOEScanBoxes::MailboxEntry * nsOEScanBoxes::GetIndexEntry(uint32_t index)
 {
-  int32_t max = m_entryArray.Count();
+  int32_t max = m_entryArray.Length();
   for (int32_t i = 0; i < max; i++) {
-    MailboxEntry *pEntry = (MailboxEntry *) m_entryArray.ElementAt(i);
+    MailboxEntry *pEntry = m_entryArray.ElementAt(i);
     if (pEntry->index == index)
       return pEntry;
   }

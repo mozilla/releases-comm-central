@@ -10,7 +10,7 @@
 #include "nsDirPrefs.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsIObserver.h"
-#include "nsVoidArray.h"
+#include "nsTArray.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMemory.h"
 #include "nsIAddrDatabase.h"
@@ -48,9 +48,9 @@ static char * dir_ConvertDescriptionToPrefName(DIR_Server * server);
 
 void DIR_SetFileName(char** filename, const char* leafName);
 static void DIR_SetIntPref(const char *prefRoot, const char *prefLeaf, int32_t value, int32_t defaultValue);
-static DIR_Server *dir_MatchServerPrefToServer(nsVoidArray *wholeList, const char *pref);
-static bool dir_ValidateAndAddNewServer(nsVoidArray *wholeList, const char *fullprefname);
-static void DIR_DeleteServerList(nsVoidArray *wholeList);
+static DIR_Server *dir_MatchServerPrefToServer(nsTArray<DIR_Server*> *wholeList, const char *pref);
+static bool dir_ValidateAndAddNewServer(nsTArray<DIR_Server*> *wholeList, const char *fullprefname);
+static void DIR_DeleteServerList(nsTArray<DIR_Server*> *wholeList);
 
 static char *dir_CreateServerPrefName(DIR_Server *server);
 static void DIR_GetPrefsForOneServer(DIR_Server *server);
@@ -60,16 +60,16 @@ static DIR_PrefId  DIR_AtomizePrefName(const char *prefname);
 
 const int32_t DIR_POS_APPEND = -1;
 const int32_t DIR_POS_DELETE = -2;
-static bool DIR_SetServerPosition(nsVoidArray *wholeList, DIR_Server *server, int32_t position);
+static bool DIR_SetServerPosition(nsTArray<DIR_Server*> *wholeList, DIR_Server *server, int32_t position);
 
 /* These two routines should be called to initialize and save 
  * directory preferences from the XP Java Script preferences
  */
-static nsresult DIR_GetServerPreferences(nsVoidArray** list);
-static void DIR_SaveServerPreferences(nsVoidArray *wholeList);
+static nsresult DIR_GetServerPreferences(nsTArray<DIR_Server*>** list);
+static void DIR_SaveServerPreferences(nsTArray<DIR_Server*> *wholeList);
 
 static int32_t dir_UserId = 0;
-nsVoidArray *dir_ServerList = nullptr;
+nsTArray<DIR_Server*> *dir_ServerList = nullptr;
 
 /*****************************************************************************
  * Functions for creating the new back end managed DIR_Server list.
@@ -179,7 +179,7 @@ static nsresult DIR_GetDirServers()
   return rv;
 }
 
-nsVoidArray* DIR_GetDirectories()
+nsTArray<DIR_Server*>* DIR_GetDirectories()
 {
     if (!dir_ServerList)
         DIR_GetDirServers();
@@ -195,7 +195,7 @@ DIR_Server* DIR_GetServerFromList(const char* prefName)
 
   if (dir_ServerList)
   {
-    int32_t count = dir_ServerList->Count();
+    int32_t count = dir_ServerList->Length();
     int32_t i;
     for (i = 0; i < count; ++i)
     {
@@ -245,7 +245,7 @@ nsresult DIR_ContainsServer(DIR_Server* pServer, bool *hasDir)
 {
   if (dir_ServerList)
   {
-    int32_t count = dir_ServerList->Count();
+    int32_t count = dir_ServerList->Length();
     int32_t i;
     for (i = 0; i < count; i++)
     {
@@ -338,7 +338,7 @@ static void DIR_InitServer(DIR_Server *server, DirectoryType dirType)
  *
  * Returns true if the server list was re-sorted.
  */
-static bool DIR_SetServerPosition(nsVoidArray *wholeList, DIR_Server *server, int32_t position)
+static bool DIR_SetServerPosition(nsTArray<DIR_Server*> *wholeList, DIR_Server *server, int32_t position)
  {
    NS_ENSURE_TRUE(wholeList, false);
 
@@ -351,7 +351,7 @@ static bool DIR_SetServerPosition(nsVoidArray *wholeList, DIR_Server *server, in
    /* Do nothing if the request is to append a server that is already
      * in the list.
      */
-     count = wholeList->Count();
+     count = wholeList->Length();
      for (i= 0; i < count; i++)
      {
        if  ((s = (DIR_Server *)wholeList->ElementAt(i)) != nullptr)
@@ -399,7 +399,7 @@ static bool DIR_SetServerPosition(nsVoidArray *wholeList, DIR_Server *server, in
      /* The list does not need to be re-sorted if the server is the
      * last one in the list.
        */
-       count = wholeList->Count();
+       count = wholeList->Length();
        if (num == count - 1)
        {
          wholeList->RemoveElementAt(num);
@@ -415,7 +415,7 @@ static bool DIR_SetServerPosition(nsVoidArray *wholeList, DIR_Server *server, in
    default:
    /* See if the server is already in the list.
      */
-     count = wholeList->Count();
+     count = wholeList->Length();
      for (i= 0; i < count; i++)
      {
        if  ((s = (DIR_Server *)wholeList->ElementAt(i)) != nullptr)
@@ -460,11 +460,11 @@ static bool DIR_SetServerPosition(nsVoidArray *wholeList, DIR_Server *server, in
  * This function finds the DIR_Server in the unified DIR_Server list to which
  * the given preference string belongs.
  */
-static DIR_Server *dir_MatchServerPrefToServer(nsVoidArray *wholeList, const char *pref)
+static DIR_Server *dir_MatchServerPrefToServer(nsTArray<DIR_Server*> *wholeList, const char *pref)
 {
   DIR_Server *server;
 
-  int32_t count = wholeList->Count();
+  int32_t count = wholeList->Length();
   int32_t i;
   for (i = 0; i < count; i++)
   {
@@ -487,7 +487,7 @@ static DIR_Server *dir_MatchServerPrefToServer(nsVoidArray *wholeList, const cha
  * are set for the given prefName.  If they are then it adds the server to the
  * unified server list.
  */
-static bool dir_ValidateAndAddNewServer(nsVoidArray *wholeList, const char *fullprefname)
+static bool dir_ValidateAndAddNewServer(nsTArray<DIR_Server*> *wholeList, const char *fullprefname)
 {
   bool rc = false;
 
@@ -660,7 +660,7 @@ nsresult DIR_DeleteServerFromList(DIR_Server *server)
       }
     }
 
-    nsVoidArray *dirList = DIR_GetDirectories();
+    nsTArray<DIR_Server*> *dirList = DIR_GetDirectories();
     DIR_SetServerPosition(dirList, server, DIR_POS_DELETE);
     DIR_DeleteServer(server);
 
@@ -670,14 +670,14 @@ nsresult DIR_DeleteServerFromList(DIR_Server *server)
   return NS_ERROR_NULL_POINTER;
 }
 
-static void DIR_DeleteServerList(nsVoidArray *wholeList)
+static void DIR_DeleteServerList(nsTArray<DIR_Server*> *wholeList)
 {
   if (wholeList)
   {
     DIR_Server *server = nullptr;
   
     /* TBD: Send notifications? */
-    int32_t count = wholeList->Count();
+    int32_t count = wholeList->Length();
     int32_t i;
     for (i = count - 1; i >=0; i--)
     {
@@ -1120,14 +1120,14 @@ static void DIR_GetPrefsForOneServer(DIR_Server *server)
   server->uri = DIR_GetStringPref (prefstring, "uri", s.get ());
 }
 
-static nsresult dir_GetPrefs(nsVoidArray **list)
+static nsresult dir_GetPrefs(nsTArray<DIR_Server*> **list)
 {
     nsresult rv;
     nsCOMPtr<nsIPrefBranch> pPref(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
     if (NS_FAILED(rv))
         return rv;
 
-    (*list) = new nsVoidArray();
+    (*list) = new nsTArray<DIR_Server*>();
     if (!(*list))
         return NS_ERROR_OUT_OF_MEMORY;
 
@@ -1181,12 +1181,12 @@ static nsresult dir_GetPrefs(nsVoidArray **list)
 }
 
 // I don't think we care about locked positions, etc.
-void DIR_SortServersByPosition(nsVoidArray *serverList)
+void DIR_SortServersByPosition(nsTArray<DIR_Server*> *serverList)
 {
   int i, j;
   DIR_Server *server;
   
-  int count = serverList->Count();
+  int count = serverList->Length();
   for (i = 0; i < count - 1; i++)
   {
     for (j = i + 1; j < count; j++)
@@ -1194,14 +1194,14 @@ void DIR_SortServersByPosition(nsVoidArray *serverList)
       if (((DIR_Server *) serverList->ElementAt(j))->position < ((DIR_Server *) serverList->ElementAt(i))->position)
       {
         server        = (DIR_Server *) serverList->ElementAt(i);
-        serverList->ReplaceElementAt(serverList->ElementAt(j), i);
-        serverList->ReplaceElementAt(server, j);
+        serverList->ReplaceElementAt(i, serverList->ElementAt(j));
+        serverList->ReplaceElementAt(j, server);
       }
     }
   }
 }
 
-static nsresult DIR_GetServerPreferences(nsVoidArray** list)
+static nsresult DIR_GetServerPreferences(nsTArray<DIR_Server*>** list)
 {
   nsresult err;
   nsCOMPtr<nsIPrefBranch> pPref(do_GetService(NS_PREFSERVICE_CONTRACTID, &err));
@@ -1209,7 +1209,7 @@ static nsresult DIR_GetServerPreferences(nsVoidArray** list)
     return err;
 
   int32_t version = -1;
-  nsVoidArray *newList = nullptr;
+  nsTArray<DIR_Server*> *newList = nullptr;
   
   /* Update the ldap list version and see if there are old prefs to migrate. */
   err = pPref->GetIntPref(PREF_LDAP_VERSION_NAME, &version);
@@ -1426,7 +1426,7 @@ void DIR_SavePrefsForOneServer(DIR_Server *server)
   server->savingServer = false;
 }
 
-static void DIR_SaveServerPreferences(nsVoidArray *wholeList)
+static void DIR_SaveServerPreferences(nsTArray<DIR_Server*> *wholeList)
 {
   if (wholeList)
   {
@@ -1438,7 +1438,7 @@ static void DIR_SaveServerPreferences(nsVoidArray *wholeList)
     }
 
     int32_t  i;
-    int32_t  count = wholeList->Count();
+    int32_t  count = wholeList->Length();
     DIR_Server *server;
 
     for (i = 0; i < count; i++)

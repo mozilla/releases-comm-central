@@ -71,7 +71,7 @@ nsIMAPNamespaceList::nsIMAPNamespaceList()
 
 int nsIMAPNamespaceList::GetNumberOfNamespaces()
 {
-	return m_NamespaceList.Count();
+	return m_NamespaceList.Length();
 }
 
 
@@ -114,7 +114,7 @@ nsresult nsIMAPNamespaceList::OutputToString(nsCString &string)
 int nsIMAPNamespaceList::GetNumberOfNamespaces(EIMAPNamespaceType type)
 {
 	int nodeIndex = 0, count = 0;
-	for (nodeIndex=m_NamespaceList.Count()-1; nodeIndex >= 0; nodeIndex--)
+	for (nodeIndex = m_NamespaceList.Length() - 1; nodeIndex >= 0; nodeIndex--)
 	{
 		nsIMAPNamespace *nspace = (nsIMAPNamespace *) m_NamespaceList.ElementAt(nodeIndex);
 		if (nspace->GetType() == type)
@@ -134,7 +134,7 @@ int nsIMAPNamespaceList::AddNewNamespace(nsIMAPNamespace *ns)
 	{
 		int nodeIndex;
         // iterate backwards because we delete elements
-		for (nodeIndex=m_NamespaceList.Count()-1; nodeIndex >= 0; nodeIndex--)
+		for (nodeIndex = m_NamespaceList.Length() - 1; nodeIndex >= 0; nodeIndex--)
 		{
 			nsIMAPNamespace *nspace = (nsIMAPNamespace *) m_NamespaceList.ElementAt(nodeIndex);
 			// if we find existing namespace(s) that matches the 
@@ -166,7 +166,7 @@ nsIMAPNamespace *nsIMAPNamespaceList::GetDefaultNamespaceOfType(EIMAPNamespaceTy
 {
 	nsIMAPNamespace *rv = 0, *firstOfType = 0;
 
-	int nodeIndex, count = m_NamespaceList.Count();
+	int nodeIndex, count = m_NamespaceList.Length();
 	for (nodeIndex= 0; nodeIndex < count && !rv; nodeIndex++)
 	{
 		nsIMAPNamespace *ns = (nsIMAPNamespace *) m_NamespaceList.ElementAt(nodeIndex);
@@ -198,7 +198,7 @@ void nsIMAPNamespaceList::ClearNamespaces(bool deleteFromPrefsNamespaces, bool d
 	int nodeIndex;
 	
     // iterate backwards because we delete elements
-	for (nodeIndex=m_NamespaceList.Count()-1; nodeIndex >= 0; nodeIndex--)
+	for (nodeIndex = m_NamespaceList.Length() - 1; nodeIndex >= 0; nodeIndex--)
 	{
 		nsIMAPNamespace *ns = (nsIMAPNamespace *) m_NamespaceList.ElementAt(nodeIndex);
 		if (ns->GetIsNamespaceFromPrefs())
@@ -231,7 +231,7 @@ nsIMAPNamespace *nsIMAPNamespaceList::GetNamespaceNumber(int nodeIndex)
 nsIMAPNamespace *nsIMAPNamespaceList::GetNamespaceNumber(int nodeIndex, EIMAPNamespaceType type)
 {
   int nodeCount, count = 0;
-  for (nodeCount=m_NamespaceList.Count()-1; nodeCount >= 0; nodeCount--)
+  for (nodeCount=m_NamespaceList.Length() - 1; nodeCount >= 0; nodeCount--)
   {
     nsIMAPNamespace *nspace = (nsIMAPNamespace *) m_NamespaceList.ElementAt(nodeCount);
     if (nspace->GetType() == type)
@@ -263,7 +263,7 @@ nsIMAPNamespace *nsIMAPNamespaceList::GetNamespaceForMailbox(const char *boxname
   if (!PL_strcasecmp(boxname, "INBOX"))
     return GetDefaultNamespaceOfType(kPersonalNamespace);
   
-  for (nodeIndex=m_NamespaceList.Count()-1; nodeIndex >= 0; nodeIndex--)
+  for (nodeIndex = m_NamespaceList.Length() - 1; nodeIndex >= 0; nodeIndex--)
   {
     nsIMAPNamespace *nspace = (nsIMAPNamespace *) m_NamespaceList.ElementAt(nodeIndex);
     currentMatchedLength = nspace->MailboxMatchesNamespace(boxname);

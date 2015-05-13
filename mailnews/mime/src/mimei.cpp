@@ -62,7 +62,7 @@
 #include "nsXPCOMCID.h"
 #include "nsISimpleMimeConverter.h"
 #include "nsSimpleMimeConverterStub.h"
-#include "nsVoidArray.h"
+#include "nsTArray.h"
 #include "nsMimeStringResources.h"
 #include "nsMimeTypes.h"
 #include "nsMsgUtils.h"
@@ -93,28 +93,7 @@ typedef struct {
   bool        force_inline_display;
 } cthandler_struct;
 
-nsVoidArray         *ctHandlerList = NULL;
-bool                foundIt = false;
-bool                force_display = false;
-
-bool
-EnumFunction(void* aElement, void *aData)
-{
-  cthandler_struct    *ptr = (cthandler_struct *) aElement;
-  char                *ctPtr = (char *)aData;
-
-  if ( (!aElement) || (!aData) )
-    return true;
-
-  if (PL_strcasecmp(ctPtr, ptr->content_type) == 0)
-  {
-    foundIt = true;
-    force_display = ptr->force_inline_display;
-    return false;
-  }
-
-  return true;
-}
+nsTArray<cthandler_struct*> *ctHandlerList = NULL;
 
 /*
  * This will return TRUE if the content_type is found in the
@@ -128,13 +107,17 @@ find_content_type_attribs(const char *content_type,
   if (!ctHandlerList)
     return false;
 
-  foundIt = false;
-  force_display = false;
-  ctHandlerList->EnumerateForwards(EnumFunction, (void *)content_type);
-  if (foundIt)
-    *force_inline_display = force_display;
+  for (size_t i = 0; i < ctHandlerList->Length(); i++) 
+  {
+    cthandler_struct *ptr = ctHandlerList->ElementAt(i);
+    if (PL_strcasecmp(content_type, ptr->content_type) == 0)
+    {
+      *force_inline_display = ptr->force_inline_display;
+      return true;
+    }
+  }
 
-  return (foundIt);
+  return false;
 }
 
 void
@@ -151,7 +134,7 @@ add_content_type_attribs(const char *content_type,
     return;
 
   if (!ctHandlerList)
-    ctHandlerList = new nsVoidArray();
+    ctHandlerList = new nsTArray<cthandler_struct*>();
 
   if (!ctHandlerList)
     return;

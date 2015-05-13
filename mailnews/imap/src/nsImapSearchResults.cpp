@@ -21,16 +21,13 @@ nsImapSearchResultSequence *nsImapSearchResultSequence::CreateSearchResultSequen
 
 void nsImapSearchResultSequence::Clear(void)
 {
-  if (mImpl) 
-  {
-    int32_t i = mImpl->mCount;
+    int32_t i = Length();
     while (0 <= --i) 
     {
-      char* string = (char*)mImpl->mArray[i];
+      char* string = ElementAt(i);
       PR_Free(string);
     }
-    nsVoidArray::Clear();
-  }
+    nsTArray<char*>::Clear();
 }
 
 nsImapSearchResultSequence::~nsImapSearchResultSequence()

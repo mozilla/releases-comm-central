@@ -36,8 +36,6 @@
 #include "nsIWeakReferenceUtils.h"
 #define MESSENGER_STRING_URL       "chrome://messenger/locale/messenger.properties"
 
-class nsVoidArray;
-
 typedef nsAutoTArray<nsMsgViewIndex, 1> nsMsgViewIndexArray;
 static_assert(nsMsgViewIndex(nsMsgViewIndexArray::NoIndex) ==
   nsMsgViewIndex_None, "These need to be the same value.");
@@ -366,7 +364,7 @@ protected:
   nsresult GetDBForHeader(nsIMsgDBHdr *msgHdr, nsIMsgDatabase **db);
 
   bool AdjustReadFlag(nsIMsgDBHdr *msgHdr, uint32_t *msgFlags);
-  void FreeAll(nsVoidArray *ptrs);
+  void FreeAll(nsTArray<void*> *ptrs);
   void ClearHdrCache();
   nsTArray<nsMsgKey> m_keys;
   nsTArray<uint32_t> m_flags;

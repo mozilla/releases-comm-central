@@ -8,7 +8,7 @@
 
 #include "nsStringGlue.h"
 #include "nsIImportModule.h"
-#include "nsVoidArray.h"
+#include "nsTArray.h"
 #include "nsCOMPtr.h"
 #include "nsIArray.h"
 #include "nsIMutableArray.h"
@@ -52,7 +52,7 @@ private:
   MailboxEntry *  GetIndexEntry(uint32_t index);
   void      AddChildEntry(MailboxEntry *pEntry, uint32_t rootIndex);
   MailboxEntry *  NewMailboxEntry(uint32_t id, uint32_t parent, const char *prettyName, char *pFileName);
-  void        ProcessPendingChildEntries(uint32_t parent, uint32_t rootIndex, nsVoidArray &childArray);
+  void        ProcessPendingChildEntries(uint32_t parent, uint32_t rootIndex, nsTArray<MailboxEntry*> &childArray);
   void        RemoveProcessedChildEntries();
 
 
@@ -67,8 +67,8 @@ private:
 
 private:
   MailboxEntry *        m_pFirst;
-  nsVoidArray          m_entryArray;
-  nsVoidArray          m_pendingChildArray; // contains child folders whose parent folders have not showed up.
+  nsTArray<MailboxEntry*>  m_entryArray;
+  nsTArray<MailboxEntry*>  m_pendingChildArray; // contains child folders whose parent folders have not showed up.
 
   nsCOMPtr<nsIImportService>  mService;
 };

@@ -16,7 +16,7 @@
 #include "nsIUrlListener.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsCOMArray.h"
-#include "nsVoidArray.h"
+#include "nsTArray.h"
 #include "mozilla/Mutex.h"
 
 class nsIRDFService;
@@ -110,7 +110,7 @@ private:
   nsCOMPtr<nsIStringBundle>	m_stringBundle;
   nsCOMArray<nsIMsgFolder> m_subscribeFolders; // used to keep folder resources around while subscribe UI is up.
   nsCOMArray<nsIMsgImapMailFolder> m_foldersToStat; // folders to check for new mail with Status
-  nsVoidArray       m_urlConsumers;
+  nsTArray<nsISupports*> m_urlConsumers;
   eIMAPCapabilityFlags          m_capability;
   nsCString         m_manageMailAccountUrl;
   bool              m_userAuthenticated;

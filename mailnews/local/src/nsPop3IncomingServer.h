@@ -51,7 +51,7 @@ private:
   bool m_authenticated;
   nsCOMPtr <nsIPop3Protocol> m_runningProtocol;
   nsCOMPtr <nsIMsgFolder> m_rootMsgFolder;
-  nsVoidArray m_uidlsToMark;
+  nsTArray<Pop3UidlEntry*> m_uidlsToMark;
 };
 
 #endif

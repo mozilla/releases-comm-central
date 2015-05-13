@@ -37,7 +37,7 @@
 
 
 #ifdef IMPORT_DEBUG
-void DumpAliasArray(nsVoidArray& a);
+void DumpAliasArray(nsTArray<CAliasEntry*>& a);
 #endif
 
 class CAliasData {
@@ -61,7 +61,7 @@ public:
 
   void EmptyList(void) {
     CAliasData *pData;
-    for (int32_t i = 0; i < m_list.Count(); i++) {
+    for (int32_t i = 0; i < m_list.Length(); i++) {
       pData = (CAliasData *)m_list.ElementAt(i);
       delete pData;
     }
@@ -70,7 +70,7 @@ public:
 
 public:
   nsCString  m_name;
-  nsVoidArray  m_list;
+  nsTArray<CAliasData*>  m_list;
   nsCString  m_notes;
 };
 
@@ -157,8 +157,8 @@ int32_t nsEudoraAddress::CountWhiteSpace(const char *pLine, int32_t len)
 void nsEudoraAddress::EmptyAliases(void)
 {
   CAliasEntry *pData;
-  for (int32_t i = 0; i < m_alias.Count(); i++) {
-    pData = (CAliasEntry *)m_alias.ElementAt(i);
+  for (int32_t i = 0; i < m_alias.Length(); i++) {
+    pData = m_alias.ElementAt(i);
     delete pData;
   }
   m_alias.Clear();
@@ -331,7 +331,7 @@ void nsEudoraAddress::ProcessNote(const char *pLine, int32_t len, nsString& erro
   if (idx == -1)
     return;
 
-  pEntry = (CAliasEntry *) m_alias.ElementAt(idx);
+  pEntry = m_alias.ElementAt(idx);
   pEntry->m_notes.Append(pLine, len);
   pEntry->m_notes.Trim(kWhitespace);
 }
@@ -533,19 +533,19 @@ bool CAliasData::Process(const char *pLine, int32_t len)
 }
 
 #ifdef IMPORT_DEBUG
-void DumpAliasArray(nsVoidArray& a)
+void DumpAliasArray(nsTArray<CAliasEntry*>& a)
 {
   CAliasEntry *pEntry;
   CAliasData *pData;
 
-  int32_t cnt = a.Count();
+  int32_t cnt = a.Length();
   IMPORT_LOG1("Alias list size: %ld\n", cnt);
   for (int32_t i = 0; i < cnt; i++) {
-    pEntry = (CAliasEntry *)a.ElementAt(i);
+    pEntry = a.ElementAt(i);
     IMPORT_LOG1("\tAlias: %s\n", pEntry->m_name.get());
-    if (pEntry->m_list.Count() > 1) {
-      IMPORT_LOG1("\tList count #%ld\n", pEntry->m_list.Count());
-      for (int32_t j = 0; j < pEntry->m_list.Count(); j++) {
+    if (pEntry->m_list.Length() > 1) {
+      IMPORT_LOG1("\tList count #%ld\n", pEntry->m_list.Length());
+      for (int32_t j = 0; j < pEntry->m_list.Length(); j++) {
         pData = (CAliasData *) pEntry->m_list.ElementAt(j);
         IMPORT_LOG0("\t\t--------\n");
         IMPORT_LOG1("\t\temail: %s\n", pData->m_email.get());
@@ -553,7 +553,7 @@ void DumpAliasArray(nsVoidArray& a)
         IMPORT_LOG1("\t\tnickName: %s\n", pData->m_nickName.get());
       }
     }
-    else if (pEntry->m_list.Count()) {
+    else if (pEntry->m_list.Length()) {
       pData = (CAliasData *) pEntry->m_list.ElementAt(0);
       IMPORT_LOG1("\t\temail: %s\n", pData->m_email.get());
       IMPORT_LOG1("\t\trealName: %s\n", pData->m_realName.get());
@@ -565,10 +565,10 @@ void DumpAliasArray(nsVoidArray& a)
 
 CAliasEntry *nsEudoraAddress::ResolveAlias(nsCString& name)
 {
-  int32_t  max = m_alias.Count();
+  int32_t  max = m_alias.Length();
   CAliasEntry *pEntry;
   for (int32_t i = 0; i < max; i++) {
-    pEntry = (CAliasEntry *) m_alias.ElementAt(i);
+    pEntry = m_alias.ElementAt(i);
     if (name.Equals(pEntry->m_name, nsCaseInsensitiveCStringComparator()))
       return pEntry;
   }
@@ -576,15 +576,15 @@ CAliasEntry *nsEudoraAddress::ResolveAlias(nsCString& name)
   return nullptr;
 }
 
-void nsEudoraAddress::ResolveEntries(nsCString& name, nsVoidArray& list,
-                                     nsVoidArray& result, bool addResolvedEntries,
+void nsEudoraAddress::ResolveEntries(nsCString& name, nsTArray<CAliasData*>& list,
+                                     nsTArray<CAliasData*>& result, bool addResolvedEntries,
                                      bool wasResolved, int32_t& numResolved)
 {
     /* a safe-guard against recursive entries */
-    if (result.Count() > m_alias.Count())
+    if (result.Length() > m_alias.Length())
         return;
 
-    int32_t         max = list.Count();
+    int32_t         max = list.Length();
     int32_t         i;
     CAliasData *    pData;
     CAliasEntry *   pEntry;
@@ -617,11 +617,11 @@ void nsEudoraAddress::ResolveEntries(nsCString& name, nsVoidArray& list,
 int32_t nsEudoraAddress::FindAlias(nsCString& name)
 {
   CAliasEntry *  pEntry;
-  int32_t      max = m_alias.Count();
+  int32_t      max = m_alias.Length();
   int32_t      i;
 
   for (i = 0; i < max; i++) {
-    pEntry = (CAliasEntry *) m_alias.ElementAt(i);
+    pEntry = m_alias.ElementAt(i);
     if (pEntry->m_name == name)
       return i;
   }
@@ -632,16 +632,16 @@ int32_t nsEudoraAddress::FindAlias(nsCString& name)
 void nsEudoraAddress::BuildABCards(uint32_t *pBytes, nsIAddrDatabase *pDb)
 {
   CAliasEntry *  pEntry;
-  int32_t      max = m_alias.Count();
+  int32_t      max = m_alias.Length();
   int32_t      i;
-  nsVoidArray    emailList;
-  nsVoidArray membersArray;// Remember group members.
-  nsVoidArray groupsArray; // Remember groups.
+  nsTArray<CAliasData*>    emailList;
+  nsTArray<CAliasData*> membersArray; // Remember group members.
+  nsTArray<CAliasEntry*> groupsArray; // Remember groups.
 
   // First off, run through the list and build person cards - groups/lists have to be done later
   for (i = 0; i < max; i++) {
     int32_t   numResolved = 0;
-    pEntry = (CAliasEntry *) m_alias.ElementAt(i);
+    pEntry = m_alias.ElementAt(i);
 
     // false for 4th parameter tells ResolveEntries not to add resolved entries (avoids
     // duplicates as mailing lists are being resolved to other cards - the other cards that
@@ -654,7 +654,7 @@ void nsEudoraAddress::BuildABCards(uint32_t *pBytes, nsIAddrDatabase *pDb)
     // Treat it as a group if there's more than one email address or if we
     // needed to resolve one or more aliases. We treat single aliases to
     // other aliases as a mailing list because there's no better equivalent.
-    if ((emailList.Count() > 1) || (numResolved > 0))
+    if ((emailList.Length() > 1) || (numResolved > 0))
     {
       // Remember group members uniquely and add them to db later.
       RememberGroupMembers(membersArray, emailList);
@@ -678,11 +678,11 @@ void nsEudoraAddress::BuildABCards(uint32_t *pBytes, nsIAddrDatabase *pDb)
     return;
 
   // Now add the lists/groups (now that all cards have been added).
-  max = groupsArray.Count();
+  max = groupsArray.Length();
   for (i = 0; i < max; i++)
   {
     int32_t   numResolved = 0;
-    pEntry = (CAliasEntry *) groupsArray.ElementAt(i);
+    pEntry = groupsArray.ElementAt(i);
 
     // false for 4th parameter tells ResolveEntries to add resolved entries so that we
     // can create the mailing list with references to all entries correctly.
@@ -756,7 +756,7 @@ void nsEudoraAddress::SplitString(nsCString& val1, nsCString& val2)
   }
 }
 
-void nsEudoraAddress::AddSingleCard(CAliasEntry *pEntry, nsVoidArray &emailList, nsIAddrDatabase *pDb)
+void nsEudoraAddress::AddSingleCard(CAliasEntry *pEntry, nsTArray<CAliasData*> &emailList, nsIAddrDatabase *pDb)
 {
   // We always have a nickname and everything else is optional.
   // Map both home and work related fields to our address card. Eudora
@@ -863,7 +863,7 @@ void nsEudoraAddress::AddSingleCard(CAliasEntry *pEntry, nsVoidArray &emailList,
     }
   }
 
-  CAliasData *pData = emailList.Count() ? (CAliasData *)emailList.ElementAt(0) : nullptr;
+  CAliasData *pData = emailList.Length() ? (CAliasData *)emailList.ElementAt(0) : nullptr;
 
   if (pData && !pData->m_realName.IsEmpty())
     displayName = pData->m_realName;
@@ -1007,9 +1007,9 @@ void nsEudoraAddress::AddSingleCard(CAliasEntry *pEntry, nsVoidArray &emailList,
 // elements in 'membersArray' are make unique. So for each email address in 'emailList'
 // we check it in 'membersArray' and if it's not there then we add it to 'membersArray'.
 //
-void nsEudoraAddress::RememberGroupMembers(nsVoidArray &membersArray, nsVoidArray &emailList)
+void nsEudoraAddress::RememberGroupMembers(nsTArray<CAliasData*> &membersArray, nsTArray<CAliasData*> &emailList)
 {
-  int32_t cnt = emailList.Count();
+  int32_t cnt = emailList.Length();
   CAliasData *pData;
 
   for (int32_t i = 0; i < cnt; i++)
@@ -1018,7 +1018,7 @@ void nsEudoraAddress::RememberGroupMembers(nsVoidArray &membersArray, nsVoidArra
     if (!pData)
       continue;
 
-    int32_t memberCnt = membersArray.Count();
+    int32_t memberCnt = membersArray.Length();
     int32_t j = 0;
     for (j = 0; j < memberCnt; j++)
     {
@@ -1030,9 +1030,9 @@ void nsEudoraAddress::RememberGroupMembers(nsVoidArray &membersArray, nsVoidArra
   }
 }
 
-nsresult nsEudoraAddress::AddGroupMembersAsCards(nsVoidArray &membersArray, nsIAddrDatabase *pDb)
+nsresult nsEudoraAddress::AddGroupMembersAsCards(nsTArray<CAliasData*> &membersArray, nsIAddrDatabase *pDb)
 {
-  int32_t max = membersArray.Count();
+  int32_t max = membersArray.Length();
   CAliasData *pData;
   nsresult rv = NS_OK;
   nsCOMPtr <nsIMdbRow> newRow;
@@ -1065,7 +1065,7 @@ nsresult nsEudoraAddress::AddGroupMembersAsCards(nsVoidArray &membersArray, nsIA
   return rv;
 }
 
-nsresult nsEudoraAddress::AddSingleList(CAliasEntry *pEntry, nsVoidArray &emailList, nsIAddrDatabase *pDb)
+nsresult nsEudoraAddress::AddSingleList(CAliasEntry *pEntry, nsTArray<CAliasData*> &emailList, nsIAddrDatabase *pDb)
 {
   // Create a list.
   nsCOMPtr <nsIMdbRow> newRow;
@@ -1092,7 +1092,7 @@ nsresult nsEudoraAddress::AddSingleList(CAliasEntry *pEntry, nsVoidArray &emailL
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Now add the members.
-  int32_t max = emailList.Count();
+  int32_t max = emailList.Length();
   for (int32_t i = 0; i < max; i++)
   {
     CAliasData *pData = (CAliasData *)emailList.ElementAt(i);

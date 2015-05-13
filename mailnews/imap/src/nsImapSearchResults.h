@@ -6,9 +6,9 @@
 #ifndef nsImapSearchResults_h___
 #define nsImapSearchResults_h___
 
-#include "nsVoidArray.h"
+#include "nsTArray.h"
 
-class nsImapSearchResultSequence : public nsVoidArray
+class nsImapSearchResultSequence : public nsTArray<char*>
 {
 public:
     virtual ~nsImapSearchResultSequence();

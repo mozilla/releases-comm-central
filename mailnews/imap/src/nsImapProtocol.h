@@ -33,7 +33,6 @@
 #include "nsImapServerResponseParser.h"
 #include "nsImapFlagAndUidState.h"
 #include "nsIMAPNamespace.h"
-#include "nsVoidArray.h"
 #include "nsTArray.h"
 #include "nsWeakPtr.h"
 #include "nsMsgLineBuffer.h" // we need this to use the nsMsgLineStreamBuffer helper class...
@@ -61,6 +60,7 @@
 class nsIMAPMessagePartIDArray;
 class nsIMsgIncomingServer;
 class nsIPrefBranch;
+class nsIMAPMailboxInfo;
 
 #define kDownLoadCacheSize 16000 // was 1536 - try making it bigger
 
@@ -663,8 +663,8 @@ private:
   };
   EMailboxHierarchyNameState  m_hierarchyNameState;
   EMailboxDiscoverStatus      m_discoveryStatus;
-  nsVoidArray                 m_listedMailboxList;
-  nsVoidArray*                m_deletableChildren;
+  nsTArray<nsIMAPMailboxInfo*> m_listedMailboxList;
+  nsTArray<char*> *            m_deletableChildren;
   uint32_t                    m_flagChangeCount;
   PRTime                      m_lastCheckTime;
 

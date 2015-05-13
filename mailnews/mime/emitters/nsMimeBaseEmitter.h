@@ -18,7 +18,7 @@
 #include "nsIPipe.h"
 #include "nsIStringBundle.h"
 #include "nsCOMPtr.h"
-#include "nsVoidArray.h"
+#include "nsTArray.h"
 #include "nsIMimeConverter.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsIInterfaceRequestorUtils.h"
@@ -81,7 +81,7 @@ public:
 protected:
   virtual ~nsMimeBaseEmitter();
   // Internal methods...
-  void                CleanupHeaderArray(nsVoidArray *aArray);
+  void                CleanupHeaderArray(nsTArray<headerInfoType*> *aArray);
 
   // For header output...
   nsresult            DumpSubjectFromDate();
@@ -119,12 +119,12 @@ protected:
 
   // For attachment processing...
   int32_t             mAttachCount;
-  nsVoidArray         *mAttachArray;
+  nsTArray<attachmentInfoType*>  *mAttachArray;
   attachmentInfoType  *mCurrentAttachment;
 
   // For header caching...
-  nsVoidArray         *mHeaderArray;
-  nsVoidArray         *mEmbeddedHeaderArray;
+  nsTArray<headerInfoType*>  *mHeaderArray;
+  nsTArray<headerInfoType*>  *mEmbeddedHeaderArray;
 
   // For body caching...
   bool                mBodyStarted;

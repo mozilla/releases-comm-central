@@ -401,7 +401,7 @@ void nsPop3Protocol::MarkMsgInHashTable(PLHashTable *hashTable, const Pop3UidlEn
 nsresult
 nsPop3Protocol::MarkMsgForHost(const char *hostName, const char *userName,
                                       nsIFile *mailDirectory,
-                                       nsVoidArray &UIDLArray)
+                                       nsTArray<Pop3UidlEntry*> &UIDLArray)
 {
   if (!hostName || !userName || !mailDirectory)
     return NS_ERROR_NULL_POINTER;
@@ -412,11 +412,10 @@ nsPop3Protocol::MarkMsgForHost(const char *hostName, const char *userName,
 
   bool changed = false;
 
-  uint32_t count = UIDLArray.Count();
+  uint32_t count = UIDLArray.Length();
   for (uint32_t i = 0; i < count; i++)
   {
-    MarkMsgInHashTable(uidlHost->hash,
-      static_cast<Pop3UidlEntry*>(UIDLArray[i]), &changed);
+    MarkMsgInHashTable(uidlHost->hash, UIDLArray[i], &changed);
   }
 
   if (changed)
@@ -4079,18 +4078,18 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI * url, nsIInputStream * aIn
 
 }
 
-NS_IMETHODIMP nsPop3Protocol::MarkMessages(nsVoidArray *aUIDLArray)
+NS_IMETHODIMP nsPop3Protocol::MarkMessages(nsTArray<Pop3UidlEntry*> *aUIDLArray)
 {
   NS_ENSURE_ARG_POINTER(aUIDLArray);
-  uint32_t count = aUIDLArray->Count();
+  uint32_t count = aUIDLArray->Length();
 
   for (uint32_t i = 0; i < count; i++)
   {
     bool changed;
     if (m_pop3ConData->newuidl)
-      MarkMsgInHashTable(m_pop3ConData->newuidl, static_cast<Pop3UidlEntry*>(aUIDLArray->ElementAt(i)), &changed);
+      MarkMsgInHashTable(m_pop3ConData->newuidl, aUIDLArray->ElementAt(i), &changed);
     if (m_pop3ConData->uidlinfo)
-      MarkMsgInHashTable(m_pop3ConData->uidlinfo->hash, static_cast<Pop3UidlEntry*>(aUIDLArray->ElementAt(i)), &changed);
+      MarkMsgInHashTable(m_pop3ConData->uidlinfo->hash, aUIDLArray->ElementAt(i), &changed);
   }
   return NS_OK;
 }

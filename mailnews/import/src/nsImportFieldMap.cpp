@@ -63,7 +63,7 @@ nsImportFieldMap::nsImportFieldMap(nsIStringBundle *aBundle)
     }
     else
       pStr->AppendInt(i);
-    m_descriptions.AppendElement((void *)pStr);
+    m_descriptions.AppendElement(pStr);
   }
 }
 
@@ -110,7 +110,7 @@ NS_IMETHODIMP nsImportFieldMap::GetFieldDescription(int32_t index, char16_t **_r
     return NS_ERROR_NULL_POINTER;
 
   *_retval = nullptr;
-  if ((index < 0) || (index >= m_descriptions.Count()))
+  if ((index < 0) || (index >= m_descriptions.Length()))
     return NS_ERROR_FAILURE;
 
   *_retval = ToNewUnicode(*((nsString *)m_descriptions.ElementAt(index)));

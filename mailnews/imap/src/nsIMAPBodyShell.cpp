@@ -763,9 +763,9 @@ bool nsIMAPBodypartMultipart::IsLastTextPart(const char *partNumberString)
 {
  // iterate backwards over the parent's part list and if the part is
   // text, compare it to the part number string
-  for (int i = m_partList->Count() - 1; i >= 0; i--)
+  for (int i = m_partList->Length() - 1; i >= 0; i--)
   {
-      nsIMAPBodypart *part = (nsIMAPBodypart *)(m_partList->ElementAt(i));
+      nsIMAPBodypart *part = m_partList->ElementAt(i);
       if (!PL_strcasecmp(part->GetBodyType(), "text"))
         return !PL_strcasecmp(part->GetPartNumberString(), partNumberString);
   }
@@ -957,7 +957,7 @@ nsIMAPBodypart(partNum, parentPart)
     else
       m_partNumberString = NS_strdup(m_parentPart->GetPartNumberString());
   }
-  m_partList = new nsVoidArray();
+  m_partList = new nsTArray<nsIMAPBodypart*>();
   m_bodyType = NS_strdup("multipart");
   if (m_partList && m_parentPart && m_bodyType)
     SetIsValid(true);
@@ -972,9 +972,9 @@ nsIMAPBodypartType nsIMAPBodypartMultipart::GetType()
 
 nsIMAPBodypartMultipart::~nsIMAPBodypartMultipart()
 {
-  for (int i = m_partList->Count() - 1; i >= 0; i--)
+  for (int i = m_partList->Length() - 1; i >= 0; i--)
   {
-    delete (nsIMAPBodypart *)(m_partList->ElementAt(i));
+    delete m_partList->ElementAt(i);
   }
   delete m_partList;
 }
@@ -1013,12 +1013,12 @@ int32_t nsIMAPBodypartMultipart::Generate(nsIMAPBodyShell *aShell, bool stream, 
     
     if (ShouldFetchInline(aShell))
     {
-      for (int i = 0; i < m_partList->Count(); i++)
+      for (int i = 0; i < m_partList->Length(); i++)
       {
         if (!aShell->GetPseudoInterrupted())
           len += GenerateBoundary(aShell, stream, prefetch, false);
         if (!aShell->GetPseudoInterrupted())
-          len += ((nsIMAPBodypart *)(m_partList->ElementAt(i)))->Generate(aShell, stream, prefetch);
+          len += m_partList->ElementAt(i)->Generate(aShell, stream, prefetch);
       }
       if (!aShell->GetPseudoInterrupted())
         len += GenerateBoundary(aShell, stream, prefetch, true);
@@ -1087,9 +1087,9 @@ bool nsIMAPBodypartMultipart::PreflightCheckAllInline(nsIMAPBodyShell *aShell)
   bool rv = ShouldFetchInline(aShell);
   
   int i = 0;
-  while (rv && (i < m_partList->Count()))
+  while (rv && (i < m_partList->Length()))
   {
-    rv = ((nsIMAPBodypart *)(m_partList->ElementAt(i)))->PreflightCheckAllInline(aShell);
+    rv = m_partList->ElementAt(i)->PreflightCheckAllInline(aShell);
     i++;
   }
   
@@ -1105,9 +1105,9 @@ nsIMAPBodypart	*nsIMAPBodypartMultipart::FindPartWithNumber(const char *partNum)
     return this;
   
   // check children
-  for (int i = m_partList->Count() - 1; i >= 0; i--)
+  for (int i = m_partList->Length() - 1; i >= 0; i--)
   {
-    nsIMAPBodypart *foundPart = ((nsIMAPBodypart *)(m_partList->ElementAt(i)))->FindPartWithNumber(partNum);
+    nsIMAPBodypart *foundPart = m_partList->ElementAt(i)->FindPartWithNumber(partNum);
     if (foundPart)
       return foundPart;
   }
@@ -1201,7 +1201,7 @@ imap_shell_cache_strcmp (const void *a, const void *b)
 nsIMAPBodyShellCache::nsIMAPBodyShellCache()
 : m_shellHash(20)
 {
-  m_shellList = new nsVoidArray();
+  m_shellList = new nsTArray<nsIMAPBodyShell*>();
 }
 
 /* static */ nsIMAPBodyShellCache *nsIMAPBodyShellCache::Create()
@@ -1224,10 +1224,10 @@ nsIMAPBodyShellCache::~nsIMAPBodyShellCache()
 // least recently used one will be in slot 0.
 bool nsIMAPBodyShellCache::EjectEntry()
 {
-  if (m_shellList->Count() < 1)
+  if (m_shellList->Length() < 1)
     return false;
 
-  nsIMAPBodyShell *removedShell = (nsIMAPBodyShell *) (m_shellList->ElementAt(0));
+  nsIMAPBodyShell *removedShell = m_shellList->ElementAt(0);
 
   m_shellList->RemoveElementAt(0);
   m_shellHash.Remove(removedShell->GetUID());
@@ -1323,7 +1323,7 @@ nsIMAPMessagePartIDArray::~nsIMAPMessagePartIDArray()
 
 void nsIMAPMessagePartIDArray::RemoveAndFreeAll()
 {
-    int n = Count();
+    int n = Length();
 	for (int i = 0; i < n; i++)
 	{
 		nsIMAPMessagePartID *part = GetPart(i);

@@ -456,7 +456,7 @@ nsImapIncomingServer::GetImapConnectionAndLoadUrl(nsIImapUrl* aImapUrl,
     nsImapProtocol::LogImapUrl("queuing url", aImapUrl);
     PR_CEnterMonitor(this);
     m_urlQueue.AppendObject(aImapUrl);
-    m_urlConsumers.AppendElement((void*)aConsumer);
+    m_urlConsumers.AppendElement(aConsumer);
     NS_IF_ADDREF(aConsumer);
     PR_CExitMonitor(this);
     // let's try running it now - maybe the connection is free now.

@@ -648,10 +648,10 @@ NS_IMETHODIMP nsPop3IncomingServer::MarkMessages()
     // do it all in one fell swoop
     rv = nsPop3Protocol::MarkMsgForHost(hostName.get(), userName.get(), localPath, m_uidlsToMark);
   }
-  uint32_t count = m_uidlsToMark.Count();
+  uint32_t count = m_uidlsToMark.Length();
   for (uint32_t i = 0; i < count; i++)
   {
-    Pop3UidlEntry *ue = static_cast<Pop3UidlEntry*>(m_uidlsToMark[i]);
+    Pop3UidlEntry *ue = m_uidlsToMark[i];
     PR_Free(ue->uidl);
     PR_Free(ue);
   }

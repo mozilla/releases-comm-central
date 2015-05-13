@@ -278,7 +278,7 @@ public:
 
   static nsresult MarkMsgForHost(const char *hostName, const char *userName,
                                       nsIFile *mailDirectory,
-                                      nsVoidArray  &UIDLArray);
+                                      nsTArray<Pop3UidlEntry*> &UIDLArray);
 private:
   virtual ~nsPop3Protocol();
   nsCString m_ApopTimestamp;

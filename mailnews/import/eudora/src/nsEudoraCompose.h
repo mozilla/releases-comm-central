@@ -13,7 +13,7 @@
 #include "nsMsgUtils.h"
 #include "nsIFile.h"
 #include "nsIInputStream.h"
-#include "nsVoidArray.h"
+#include "nsTArray.h"
 #include "nsIImportService.h"
 
 #ifdef MOZILLA_INTERNAL_API
@@ -117,7 +117,7 @@ public:
 
   void    SetBody(const char *pBody, int32_t len, nsCString &bodyType) { m_pBody = pBody; m_bodyLen = len; m_bodyType = bodyType;}
   void    SetHeaders(const char *pHeaders, int32_t len) { m_pHeaders = pHeaders; m_headerLen = len;}
-  void    SetAttachments(nsVoidArray *pAttachments) { m_pAttachments = pAttachments;}
+  void    SetAttachments(nsTArray<ImportAttachment*> *pAttachments) { m_pAttachments = pAttachments;}
   void    SetDefaultDate(nsCString date) { m_defaultDate = date;}
 
   nsresult  CopyComposedMessage(nsCString& fromLine, nsIFile *pSrc, nsIOutputStream *pDst, SimpleBufferTonyRCopiedOnce& copy);
@@ -152,7 +152,7 @@ private:
 private:
   static nsIMsgIdentity *    s_pIdentity;
 
-  nsVoidArray *      m_pAttachments;
+  nsTArray<ImportAttachment*> *  m_pAttachments;
   nsIMsgSendListener *  m_pListener;
   nsIMsgCompFields *    m_pMsgFields;
   nsCOMPtr<nsIIOService> m_pIOService;

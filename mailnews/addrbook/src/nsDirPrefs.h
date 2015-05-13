@@ -11,7 +11,7 @@
 // Prefs etc. should be handled via their appropriate nsAb*Directory classes.
 //
 
-class nsVoidArray;
+template <class> class nsTArray;
 
 #define kPreviousListVersion   2
 #define kCurrentListVersion    3
@@ -65,7 +65,7 @@ typedef struct DIR_Server
 	world, the back end does most of the list management so we are going to have the back end create and 
 	manage the list. Replace calls to FE_GetDirServers() with DIR_GetDirServers(). */
 
-nsVoidArray* DIR_GetDirectories();
+nsTArray<DIR_Server*>* DIR_GetDirectories();
 DIR_Server* DIR_GetServerFromList(const char* prefName);
 nsresult DIR_ShutDown(void);  /* FEs should call this when the app is shutting down. It frees all DIR_Servers regardless of ref count values! */
 

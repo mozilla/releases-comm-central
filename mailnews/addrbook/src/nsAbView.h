@@ -12,7 +12,7 @@
 #include "nsITreeView.h"
 #include "nsITreeBoxObject.h"
 #include "nsITreeSelection.h"
-#include "nsVoidArray.h"
+#include "nsTArray.h"
 #include "nsIAbDirectory.h"
 #include "nsIAtom.h"
 #include "nsICollation.h"
@@ -66,7 +66,7 @@ private:
   nsCOMPtr<nsITreeBoxObject> mTree;
   nsCOMPtr<nsITreeSelection> mTreeSelection;
   nsCOMPtr <nsIAbDirectory> mDirectory;
-  nsVoidArray mCards;
+  nsTArray<AbCard*> mCards;
   nsString mSortColumn;
   nsString mSortDirection;
   nsCOMPtr<nsICollation> mCollationKeyGenerator;

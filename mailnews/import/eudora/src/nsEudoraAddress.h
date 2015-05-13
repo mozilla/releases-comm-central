@@ -9,7 +9,7 @@
 
 #include "nscore.h"
 #include "nsStringGlue.h"
-#include "nsVoidArray.h"
+#include "nsTArray.h"
 #include "nsIFile.h"
 #include "nsCOMPtr.h"
 #include "nsIImportService.h"
@@ -49,12 +49,12 @@ private:
   void      ProcessNote(const char *pLine, int32_t len, nsString& errors);
   int32_t      GetAliasName(const char *pLine, int32_t len, nsCString& name);
   CAliasEntry *  ResolveAlias(nsCString& name);
-  void       ResolveEntries(nsCString& name, nsVoidArray& list, nsVoidArray& result, bool addResolvedEntries, bool wasResolved, int32_t& numResolved);
+  void       ResolveEntries(nsCString& name, nsTArray<CAliasData*>& list, nsTArray<CAliasData*>& result, bool addResolvedEntries, bool wasResolved, int32_t& numResolved);
   void      BuildABCards(uint32_t *pBytes, nsIAddrDatabase *pDb);
-  void      AddSingleCard(CAliasEntry *pEntry, nsVoidArray &emailList, nsIAddrDatabase *pDb);
-  nsresult  AddSingleList(CAliasEntry *pEntry, nsVoidArray &emailList, nsIAddrDatabase *pDb);
-  nsresult  AddGroupMembersAsCards(nsVoidArray &membersArray, nsIAddrDatabase *pDb);
-  void      RememberGroupMembers(nsVoidArray &membersArray, nsVoidArray &emailList);
+  void      AddSingleCard(CAliasEntry *pEntry, nsTArray<CAliasData*> &emailList, nsIAddrDatabase *pDb);
+  nsresult  AddSingleList(CAliasEntry *pEntry, nsTArray<CAliasData*> &emailList, nsIAddrDatabase *pDb);
+  nsresult  AddGroupMembersAsCards(nsTArray<CAliasData*> &membersArray, nsIAddrDatabase *pDb);
+  void      RememberGroupMembers(nsTArray<CAliasData*> &membersArray, nsTArray<CAliasData*> &emailList);
   int32_t      FindAlias(nsCString& name);
   void      ExtractNoteField(nsCString& note, nsCString& field, const char *pFieldName);
   void FormatExtraDataInNoteField(int32_t labelStringID, nsCString& extraData, nsString& noteUTF16);
@@ -67,7 +67,7 @@ public:
   static int32_t     CountAngle(const char *pLine, int32_t len);
 
 private:
-  nsVoidArray    m_alias;
+  nsTArray<CAliasEntry*>  m_alias;
 };
 
 

@@ -9,7 +9,8 @@
 #include "nscore.h"
 #include "nsIImportFieldMap.h"
 #include "nsIAddrDatabase.h"
-#include "nsVoidArray.h"
+#include "nsTArray.h"
+#include "nsString.h"
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -36,7 +37,7 @@ private:
   int32_t  *  m_pFields;
   bool *  m_pActive;
   int32_t    m_allocated;
-  nsVoidArray  m_descriptions;
+  nsTArray<nsString*>  m_descriptions;
   int32_t    m_mozFieldCount;
   bool        m_skipFirstRecord;
 };

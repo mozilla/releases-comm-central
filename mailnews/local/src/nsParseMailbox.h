@@ -26,7 +26,7 @@
 #include "nsIMsgFilterList.h"
 #include "nsIMsgFilterHitNotify.h"
 #include "nsIMsgFolderNotificationService.h"
-#include "nsVoidArray.h"
+#include "nsTArray.h"
 
 class nsByteArray;
 class nsOutputFileStream;
@@ -95,11 +95,11 @@ public:
   struct message_header m_bccList;
 
   // Support for having multiple To or Cc header lines in a message
-  nsVoidArray m_toList;
-  nsVoidArray m_ccList;
-  struct message_header *GetNextHeaderInAggregate (nsVoidArray &list);
-  void GetAggregateHeader (nsVoidArray &list, struct message_header *);
-  void ClearAggregateHeader (nsVoidArray &list);
+  nsTArray<struct message_header*> m_toList;
+  nsTArray<struct message_header*> m_ccList;
+  struct message_header *GetNextHeaderInAggregate (nsTArray<struct message_header*> &list);
+  void GetAggregateHeader (nsTArray<struct message_header*> &list, struct message_header *);
+  void ClearAggregateHeader (nsTArray<struct message_header*> &list);
 
   struct message_header m_envelope_from;
   struct message_header m_envelope_date;

@@ -508,7 +508,7 @@ nsresult nsEudoraCompose::GetLocalAttachments(nsIArray **aArray)
   NS_IF_ADDREF(*aArray = attachments);
   int32_t count = 0;
   if (m_pAttachments)
-    count = m_pAttachments->Count();
+    count = m_pAttachments->Length();
   if (!count)
     return NS_OK;
 

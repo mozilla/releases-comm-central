@@ -8,7 +8,6 @@
 #include "mozilla/Attributes.h"
 #include "nsAbLDAPReplicationData.h"
 #include "nsAbLDAPChangeLogQuery.h"
-#include "nsVoidArray.h"
 
 typedef struct {
   nsCString     changeLogDN;

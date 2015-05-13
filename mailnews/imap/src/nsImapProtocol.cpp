@@ -4978,7 +4978,7 @@ nsImapProtocol::DiscoverMailboxSpec(nsImapMailboxSpec * adoptedBoxSpec)
             {
               // remember the info here also
               nsIMAPMailboxInfo *mb = new nsIMAPMailboxInfo(adoptedBoxSpec->mAllocatedPathName, adoptedBoxSpec->mHierarchySeparator);
-              m_listedMailboxList.AppendElement((void*) mb);
+              m_listedMailboxList.AppendElement(mb);
             }
             SetMailboxDiscoveryStatus(eContinue);
           }
@@ -4992,7 +4992,7 @@ nsImapProtocol::DiscoverMailboxSpec(nsImapMailboxSpec * adoptedBoxSpec)
     case kDeleteSubFoldersInProgress:
       {
         NS_ASSERTION(m_deletableChildren, "Oops .. null m_deletableChildren\n");
-        m_deletableChildren->AppendElement((void *)ToNewCString(adoptedBoxSpec->mAllocatedPathName));
+        m_deletableChildren->AppendElement(ToNewCString(adoptedBoxSpec->mAllocatedPathName));
         NS_IF_RELEASE(adoptedBoxSpec);
       }
       break;
@@ -5003,7 +5003,7 @@ nsImapProtocol::DiscoverMailboxSpec(nsImapMailboxSpec * adoptedBoxSpec)
           adoptedBoxSpec->mAllocatedPathName.get());
         nsIMAPMailboxInfo *mb = new nsIMAPMailboxInfo(adoptedBoxSpec->mAllocatedPathName,
                                                       adoptedBoxSpec->mHierarchySeparator);
-        m_listedMailboxList.AppendElement((void*) mb);
+        m_listedMailboxList.AppendElement(mb);
         NS_IF_RELEASE(adoptedBoxSpec);
       }
       break;
@@ -6403,11 +6403,11 @@ void nsImapProtocol::OnRefreshAllACLs()
   // This will fill in the list
   List("*", true);
 
-  int32_t total = m_listedMailboxList.Count(), count = 0;
+  int32_t total = m_listedMailboxList.Length(), count = 0;
   GetServerStateParser().SetReportingErrors(false);
   for (int32_t i = 0; i < total; i++)
   {
-    mb = (nsIMAPMailboxInfo *) m_listedMailboxList.ElementAt(i);
+    mb = m_listedMailboxList.ElementAt(i);
     if (mb) // paranoia
     {
       char *onlineName = nullptr;
@@ -6733,7 +6733,7 @@ bool nsImapProtocol::RenameHierarchyByHand(const char *oldParentMailboxName,
 {
   bool renameSucceeded = true;
     char onlineDirSeparator = kOnlineHierarchySeparatorUnknown;
-  m_deletableChildren = new nsVoidArray();
+  m_deletableChildren = new nsTArray<char*>();
 
   bool nonHierarchicalRename =
         ((GetServerStateParser().GetCapabilityFlag() & kNoHierarchyRename)
@@ -6774,7 +6774,7 @@ bool nsImapProtocol::RenameHierarchyByHand(const char *oldParentMailboxName,
                 RenameMailboxRespectingSubscriptions(oldParentMailboxName,
                                                      newParentMailboxName, true);
 
-    int32_t numberToDelete = m_deletableChildren->Count();
+    int32_t numberToDelete = m_deletableChildren->Length();
         int32_t childIndex;
 
     for (childIndex = 0;
@@ -6815,7 +6815,7 @@ bool nsImapProtocol::RenameHierarchyByHand(const char *oldParentMailboxName,
 bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox, bool &aDeleteSelf)
 {
   bool deleteSucceeded = true;
-  m_deletableChildren = new nsVoidArray();
+  m_deletableChildren = new nsTArray<char*>();
 
   if (m_deletableChildren)
   {
@@ -6838,7 +6838,7 @@ bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox, bool &aDelete
     // longest name mailbox.  Deleting the longest first will hopefully
         // prevent the server from having problems about deleting parents
         // ** jt - why? I don't understand this.
-    int32_t numberToDelete = m_deletableChildren->Count();
+    int32_t numberToDelete = m_deletableChildren->Length();
     int32_t outerIndex, innerIndex;
 
     // intelligently decide if myself(either plain format or following the dir-separator)
@@ -6856,7 +6856,7 @@ bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox, bool &aDelete
             int32_t i;
             for( i=0; i<numberToDelete && !folderInSubfolderList; i++ )
             {
-                char *currentName = (char *) m_deletableChildren->ElementAt(i);
+                char *currentName = m_deletableChildren->ElementAt(i);
                 if( !strcmp(currentName, selectedMailbox) || !strcmp(currentName, selectedMailboxDir) )
                     folderInSubfolderList = true;
             }
@@ -6871,11 +6871,10 @@ bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox, bool &aDelete
         char* longestName = nullptr;
         int32_t longestIndex = 0; // fix bogus warning by initializing
         for (innerIndex = 0;
-             innerIndex < m_deletableChildren->Count();
+             innerIndex < m_deletableChildren->Length();
              innerIndex++)
         {
-            char *currentName =
-                (char *) m_deletableChildren->ElementAt(innerIndex);
+            char *currentName = m_deletableChildren->ElementAt(innerIndex);
             if (!longestName || strlen(longestName) < strlen(currentName))
             {
                 longestName = currentName;
@@ -6926,7 +6925,7 @@ bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox, bool &aDelete
               bool deleted = false;
               if( folderInSubfolderList )	// for performance
               {
-                  nsVoidArray* pDeletableChildren = m_deletableChildren;
+                  nsTArray<char*> *pDeletableChildren = m_deletableChildren;
                   m_deletableChildren = nullptr;
                   bool folderDeleted = true;
                   deleted = DeleteSubFolders(longestName, folderDeleted);
@@ -7380,7 +7379,7 @@ void nsImapProtocol::DiscoverMailboxList()
   // Get the ACLs for newly discovered folders
   if (GetServerStateParser().ServerHasACLCapability())
   {
-    int32_t total = m_listedMailboxList.Count(), cnt = 0;
+    int32_t total = m_listedMailboxList.Length(), cnt = 0;
     // Let's not turn this off here, since we don't turn it on after
     // GetServerStateParser().SetReportingErrors(false);
     if (total)
@@ -7389,10 +7388,10 @@ void nsImapProtocol::DiscoverMailboxList()
       nsIMAPMailboxInfo * mb = nullptr;
       do
       {
-        if (m_listedMailboxList.Count() == 0)
+        if (m_listedMailboxList.Length() == 0)
             break;
 
-        mb = (nsIMAPMailboxInfo *) m_listedMailboxList[0]; // get top element
+        mb = m_listedMailboxList[0]; // get top element
         m_listedMailboxList.RemoveElementAt(0); // XP_ListRemoveTopObject(fListedMailboxList);
         if (mb)
         {

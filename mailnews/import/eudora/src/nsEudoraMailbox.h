@@ -9,7 +9,7 @@
 
 #include "nscore.h"
 #include "nsStringGlue.h"
-#include "nsVoidArray.h"
+#include "nsTArray.h"
 #include "nsIFile.h"
 #include "nsEudoraCompose.h"
 
@@ -192,7 +192,7 @@ protected:
 private:
   int64_t    m_mailSize;
   uint32_t      m_fromLen;
-  nsVoidArray    m_attachments;
+  nsTArray<ImportAttachment*>  m_attachments;
 };
 
 

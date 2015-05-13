@@ -1216,7 +1216,7 @@ nsresult nsEudoraMailbox::WriteFromSep(nsIOutputStream *pDst)
 
 void nsEudoraMailbox::EmptyAttachments(void)
 {
-  int32_t max = m_attachments.Count();
+  int32_t max = m_attachments.Length();
   ImportAttachment *  pAttach;
   for (int32_t i = 0; i < max; i++) {
     pAttach = (ImportAttachment *) m_attachments.ElementAt(i);

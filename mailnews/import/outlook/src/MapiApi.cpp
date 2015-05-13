@@ -16,7 +16,7 @@
 
 int      CMapiApi::m_clients = 0;
 BOOL    CMapiApi::m_initialized = false;
-nsVoidArray  *CMapiApi::m_pStores = NULL;
+nsTArray<CMsgStore*>  *CMapiApi::m_pStores = NULL;
 LPMAPISESSION CMapiApi::m_lpSession = NULL;
 LPMDB    CMapiApi::m_lpMdb = NULL;
 HRESULT    CMapiApi::m_lastError;
@@ -255,7 +255,7 @@ CMapiApi::CMapiApi()
   m_clients++;
   LoadMapi();
   if (!m_pStores)
-    m_pStores = new nsVoidArray();
+    m_pStores = new nsTArray<CMsgStore*>();
 }
 
 CMapiApi::~CMapiApi()
@@ -1106,8 +1106,8 @@ void CMapiApi::ClearMessageStores(void)
 {
   if (m_pStores) {
     CMsgStore *  pStore;
-    for (int i = 0; i < m_pStores->Count(); i++) {
-      pStore = (CMsgStore *) m_pStores->ElementAt(i);
+    for (int i = 0; i < m_pStores->Length(); i++) {
+      pStore = m_pStores->ElementAt(i);
       delete pStore;
     }
     m_pStores->Clear();
@@ -1131,8 +1131,8 @@ CMsgStore *  CMapiApi::FindMessageStore(ULONG cbEid, LPENTRYID lpEid)
   ULONG    result;
   HRESULT    hr;
   CMsgStore *  pStore;
-  for (int i = 0; i < m_pStores->Count(); i++) {
-    pStore = (CMsgStore *) m_pStores->ElementAt(i);
+  for (int i = 0; i < m_pStores->Length(); i++) {
+    pStore = m_pStores->ElementAt(i);
     hr = m_lpSession->CompareEntryIDs(cbEid, lpEid, pStore->GetCBEntryID(), pStore->GetLPEntryID(),
                       0, &result);
     if (HR_FAILED(hr)) {
@@ -1584,9 +1584,9 @@ void CMapiFolderList::EnsureUniqueName(CMapiFolder *pFolder)
   pFolder->GetDisplayName(name);
   do {
     done = TRUE;
-    i = m_array.Count() - 1;
+    i = m_array.Length() - 1;
     while (i >= 0) {
-      pCurrent = (CMapiFolder *)GetAt(i);
+      pCurrent = GetAt(i);
       if (pCurrent->GetDepth() == pFolder->GetDepth()) {
         pCurrent->GetDisplayName(cName);
         if (cName.Equals(name, nsCaseInsensitiveStringComparator())) {
@@ -1615,9 +1615,9 @@ void CMapiFolderList::GenerateFilePath(CMapiFolder *pFolder)
   }
 
   CMapiFolder *  pCurrent;
-  int        i = m_array.Count() - 1;
+  int        i = m_array.Length() - 1;
   while (i >= 0) {
-    pCurrent = (CMapiFolder *) GetAt(i);
+    pCurrent = GetAt(i);
     if (pCurrent->GetDepth() == (pFolder->GetDepth() - 1)) {
       pCurrent->GetFilePath(path);
       path.AppendLiteral(".sbd\\");
@@ -1635,8 +1635,8 @@ void CMapiFolderList::GenerateFilePath(CMapiFolder *pFolder)
 void CMapiFolderList::ClearAll(void)
 {
   CMapiFolder *pFolder;
-  for (int i = 0; i < m_array.Count(); i++) {
-    pFolder = (CMapiFolder *)GetAt(i);
+  for (int i = 0; i < m_array.Length(); i++) {
+    pFolder = GetAt(i);
     delete pFolder;
   }
   m_array.Clear();
@@ -1650,8 +1650,8 @@ void CMapiFolderList::DumpList(void)
   char    prefix[256];
 
   MAPI_TRACE0("Folder List ---------------------------------\n");
-  for (int i = 0; i < m_array.Count(); i++) {
-    pFolder = (CMapiFolder *)GetAt(i);
+  for (int i = 0; i < m_array.Length(); i++) {
+    pFolder = GetAt(i);
     depth = pFolder->GetDepth();
     pFolder->GetDisplayName(str);
     depth *= 2;

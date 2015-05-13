@@ -7,7 +7,7 @@
 
 #include "nscore.h"
 #include "nsStringGlue.h"
-#include "nsVoidArray.h"
+#include "nsTArray.h"
 
 #include <stdio.h>
 
@@ -146,7 +146,7 @@ protected:
 private:
   static int        m_clients;
   static BOOL        m_initialized;
-  static nsVoidArray *  m_pStores;
+  static nsTArray<CMsgStore*> *  m_pStores;
   static LPMAPISESSION  m_lpSession;
   static LPMDB      m_lpMdb;
   static HRESULT      m_lastError;
@@ -198,14 +198,14 @@ public:
   ~CMapiFolderList();
 
   void      AddItem(CMapiFolder *pFolder);
-  CMapiFolder *  GetItem(int index) { if ((index >= 0) && (index < m_array.Count())) return (CMapiFolder *)GetAt(index); else return NULL;}
+  CMapiFolder *  GetItem(int index) { if ((index >= 0) && (index < m_array.Length())) return GetAt(index); else return NULL;}
   void      ClearAll(void);
 
   // Debugging and reporting
   void      DumpList(void);
 
-  void *      GetAt(int index) { return m_array.ElementAt(index);}
-  int        GetSize(void) { return m_array.Count();}
+  CMapiFolder *  GetAt(int index) { return m_array.ElementAt(index);}
+  int        GetSize(void) { return m_array.Length();}
 
 protected:
   void  EnsureUniqueName(CMapiFolder *pFolder);
@@ -213,7 +213,7 @@ protected:
   void  ChangeName(nsString& name);
 
 private:
-  nsVoidArray    m_array;
+  nsTArray<CMapiFolder*>    m_array;
 };
 
 

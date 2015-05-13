@@ -15,7 +15,6 @@
 #include "nsAbDirFactoryService.h"
 #include "nsAbMDBDirFactory.h"
 #include "nsArrayEnumerator.h"
-#include "nsVoidArray.h"
 
 #include "nsCRTGlue.h"
 
@@ -108,14 +107,14 @@ nsresult nsAbBSDirectory::EnsureInitialized()
     do_GetService(NS_ABDIRFACTORYSERVICE_CONTRACTID,&rv);
   NS_ENSURE_SUCCESS (rv, rv);
     
-  nsVoidArray *directories = DIR_GetDirectories();
+  nsTArray<DIR_Server*> *directories = DIR_GetDirectories();
   if (!directories)
     return NS_ERROR_FAILURE;
     
-  int32_t count = directories->Count();
+  int32_t count = directories->Length();
   for (int32_t i = 0; i < count; i++)
   {
-    DIR_Server *server = (DIR_Server *)(directories->ElementAt(i));
+    DIR_Server *server = directories->ElementAt(i);
       
     // if this is a 4.x, local .na2 addressbook (PABDirectory)
     // we must skip it.

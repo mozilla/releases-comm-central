@@ -6,7 +6,7 @@
 #ifndef _nsIMAPNamespace_H_
 #define _nsIMAPNamespace_H_
 
-#include "nsVoidArray.h"
+#include "nsTArray.h"
 
 class nsIMAPNamespace
 {
@@ -79,7 +79,7 @@ public:
 protected:
   nsIMAPNamespaceList();	// use CreatensIMAPNamespaceList to create one
   
-  nsVoidArray m_NamespaceList;
+  nsTArray<nsIMAPNamespace*> m_NamespaceList;
   
 };
 

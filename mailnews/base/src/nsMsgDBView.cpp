@@ -49,7 +49,7 @@
 #include "nsIAbCard.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
-#include "nsVoidArray.h"
+#include "nsTArray.h"
 #include <algorithm>
 
 using namespace mozilla::mailnews;
@@ -4473,7 +4473,7 @@ NS_IMETHODIMP nsMsgDBView::Sort(nsMsgViewSortTypeValue sortType, nsMsgViewSortOr
   if (NS_FAILED(rv))
     return NS_OK;
 
-  nsVoidArray ptrs;
+  nsTArray<void*> ptrs;
   uint32_t arraySize = GetSize();
 
   if (!arraySize)
@@ -4645,10 +4645,10 @@ NS_IMETHODIMP nsMsgDBView::Sort(nsMsgViewSortTypeValue sortType, nsMsgViewSortOr
   return NS_OK;
 }
 
-void nsMsgDBView::FreeAll(nsVoidArray *ptrs)
+void nsMsgDBView::FreeAll(nsTArray<void*> *ptrs)
 {
   int32_t i;
-  int32_t count = (int32_t) ptrs->Count();
+  int32_t count = (int32_t) ptrs->Length();
   if (count == 0)
     return;
 
