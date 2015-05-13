@@ -78,6 +78,8 @@ function verifyConfig(config, alter, msgWindow, successCallback, errorCallback)
     // Lookup issuer if needed.
     if (config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2 ||
         config.outgoing.auth == Ci.nsMsgAuthMethod.OAuth2) {
+      if (!config.oauthSettings)
+        config.oauthSettings = {};
       if (!config.oauthSettings.issuer || !config.oauthSettings.scope) {
         // lookup issuer or scope from hostname
         let hostname = (config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) ?
