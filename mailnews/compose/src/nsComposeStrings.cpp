@@ -103,6 +103,6 @@ const char16_t* errorStringNameForErrorCode(nsresult aCode)
     case NS_ERROR_ILLEGAL_LOCALPART:
       return MOZ_UTF16("illegalLocalPart");
     default:
-      return MOZ_UTF16("smtpSendFailedUnknownReason");
+      return MOZ_UTF16("sendFailed");
   }
 }
