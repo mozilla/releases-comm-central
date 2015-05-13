@@ -1013,7 +1013,7 @@ int32_t nsIMAPBodypartMultipart::Generate(nsIMAPBodyShell *aShell, bool stream, 
     
     if (ShouldFetchInline(aShell))
     {
-      for (int i = 0; i < m_partList->Length(); i++)
+      for (size_t i = 0; i < m_partList->Length(); i++)
       {
         if (!aShell->GetPseudoInterrupted())
           len += GenerateBoundary(aShell, stream, prefetch, false);
@@ -1086,7 +1086,7 @@ bool nsIMAPBodypartMultipart::PreflightCheckAllInline(nsIMAPBodyShell *aShell)
 {
   bool rv = ShouldFetchInline(aShell);
   
-  int i = 0;
+  size_t i = 0;
   while (rv && (i < m_partList->Length()))
   {
     rv = m_partList->ElementAt(i)->PreflightCheckAllInline(aShell);

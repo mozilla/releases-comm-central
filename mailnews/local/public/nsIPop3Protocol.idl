@@ -5,20 +5,20 @@
 
 #include "nsISupports.idl"
 
-[ptr] native nsPop3UidlEntryArrayRef(nsTArray<Pop3UidlEntry*>);
+[ptr] native Pop3UidlEntryArrayRef(nsTArray<Pop3UidlEntry*>);
 
 %{C++
 #include "nsTArray.h"
 struct Pop3UidlEntry;
 %}
 
-[scriptable, uuid(f3e1c1e8-3005-4554-9d46-595b1713a3a6)]
+[scriptable, uuid(3aff0550-87de-4337-9bc1-c84eb5462afe)]
 interface nsIPop3Protocol : nsISupports {
   /* aUidl is an array of pointers to Pop3UidlEntry's. That structure is
    * currently defined in nsPop3Protocol.h, perhaps it should be here
    * instead...
    */
-  [noscript] void markMessages(in nsPop3UidlEntryArrayRef aUidl);
+  [noscript] void markMessages(in Pop3UidlEntryArrayRef aUidl);
   boolean checkMessage(in string aUidl);
 };
 

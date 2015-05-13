@@ -198,7 +198,7 @@ public:
   ~CMapiFolderList();
 
   void      AddItem(CMapiFolder *pFolder);
-  CMapiFolder *  GetItem(int index) { if ((index >= 0) && (index < m_array.Length())) return GetAt(index); else return NULL;}
+  CMapiFolder *  GetItem(int index) { if ((index >= 0) && (index < (int)m_array.Length())) return GetAt(index); else return NULL;}
   void      ClearAll(void);
 
   // Debugging and reporting

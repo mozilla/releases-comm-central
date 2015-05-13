@@ -543,7 +543,7 @@ nsImapIncomingServer::LoadNextQueuedUrl(nsIImapProtocol *aProtocol, bool *aResul
       // if we didn't doom the url, lets run it.
       if (!removeUrlFromQueue)
       {
-        nsISupports *aConsumer = (nsISupports*)m_urlConsumers.ElementAt(0);
+        nsISupports *aConsumer = m_urlConsumers.ElementAt(0);
         NS_IF_ADDREF(aConsumer);
 
         nsImapProtocol::LogImapUrl("creating protocol instance to play queued url", aImapUrl);

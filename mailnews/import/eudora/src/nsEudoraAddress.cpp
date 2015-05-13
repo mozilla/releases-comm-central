@@ -61,8 +61,8 @@ public:
 
   void EmptyList(void) {
     CAliasData *pData;
-    for (int32_t i = 0; i < m_list.Length(); i++) {
-      pData = (CAliasData *)m_list.ElementAt(i);
+    for (size_t i = 0; i < m_list.Length(); i++) {
+      pData = m_list.ElementAt(i);
       delete pData;
     }
     m_list.Clear();
@@ -157,7 +157,7 @@ int32_t nsEudoraAddress::CountWhiteSpace(const char *pLine, int32_t len)
 void nsEudoraAddress::EmptyAliases(void)
 {
   CAliasEntry *pData;
-  for (int32_t i = 0; i < m_alias.Length(); i++) {
+  for (size_t i = 0; i < m_alias.Length(); i++) {
     pData = m_alias.ElementAt(i);
     delete pData;
   }
@@ -546,7 +546,7 @@ void DumpAliasArray(nsTArray<CAliasEntry*>& a)
     if (pEntry->m_list.Length() > 1) {
       IMPORT_LOG1("\tList count #%ld\n", pEntry->m_list.Length());
       for (int32_t j = 0; j < pEntry->m_list.Length(); j++) {
-        pData = (CAliasData *) pEntry->m_list.ElementAt(j);
+        pData = pEntry->m_list.ElementAt(j);
         IMPORT_LOG0("\t\t--------\n");
         IMPORT_LOG1("\t\temail: %s\n", pData->m_email.get());
         IMPORT_LOG1("\t\trealName: %s\n", pData->m_realName.get());
@@ -554,7 +554,7 @@ void DumpAliasArray(nsTArray<CAliasEntry*>& a)
       }
     }
     else if (pEntry->m_list.Length()) {
-      pData = (CAliasData *) pEntry->m_list.ElementAt(0);
+      pData = pEntry->m_list.ElementAt(0);
       IMPORT_LOG1("\t\temail: %s\n", pData->m_email.get());
       IMPORT_LOG1("\t\trealName: %s\n", pData->m_realName.get());
       IMPORT_LOG1("\t\tnickName: %s\n", pData->m_nickName.get());
@@ -589,7 +589,7 @@ void nsEudoraAddress::ResolveEntries(nsCString& name, nsTArray<CAliasData*>& lis
     CAliasData *    pData;
     CAliasEntry *   pEntry;
     for (i = 0; i < max; i++) {
-        pData = (CAliasData *)list.ElementAt(i);
+        pData = list.ElementAt(i);
         // resolve the email to an existing alias!
         if (!name.Equals(pData->m_email, nsCaseInsensitiveCStringComparator()) &&
              ((pEntry = ResolveAlias(pData->m_fullEntry)) != nullptr)) {
@@ -863,7 +863,7 @@ void nsEudoraAddress::AddSingleCard(CAliasEntry *pEntry, nsTArray<CAliasData*> &
     }
   }
 
-  CAliasData *pData = emailList.Length() ? (CAliasData *)emailList.ElementAt(0) : nullptr;
+  CAliasData *pData = emailList.Length() ? emailList.ElementAt(0) : nullptr;
 
   if (pData && !pData->m_realName.IsEmpty())
     displayName = pData->m_realName;
@@ -1014,7 +1014,7 @@ void nsEudoraAddress::RememberGroupMembers(nsTArray<CAliasData*> &membersArray, 
 
   for (int32_t i = 0; i < cnt; i++)
   {
-    pData = (CAliasData *)emailList.ElementAt(i);
+    pData = emailList.ElementAt(i);
     if (!pData)
       continue;
 
@@ -1041,7 +1041,7 @@ nsresult nsEudoraAddress::AddGroupMembersAsCards(nsTArray<CAliasData*> &membersA
 
   for (int32_t i = 0; i < max; i++)
   {
-    pData = (CAliasData *)membersArray.ElementAt(i);
+    pData = membersArray.ElementAt(i);
 
     if (!pData || (pData->m_email.IsEmpty()))
       continue;
@@ -1095,7 +1095,7 @@ nsresult nsEudoraAddress::AddSingleList(CAliasEntry *pEntry, nsTArray<CAliasData
   int32_t max = emailList.Length();
   for (int32_t i = 0; i < max; i++)
   {
-    CAliasData *pData = (CAliasData *)emailList.ElementAt(i);
+    CAliasData *pData = emailList.ElementAt(i);
     nsAutoCString ldifValue("mail");
     ldifValue.Append(pData->m_email);
     rv = pDb->AddLdifListMember(newRow, ldifValue.get());

@@ -5584,7 +5584,7 @@ NS_IMETHODIMP nsMsgDBView::InsertTreeRows(nsMsgViewIndex aIndex,
   {
     // In a search/xfvf view only, a folder is required.
     NS_ENSURE_ARG_POINTER(aFolder);
-    for (int32_t i = 0; i < aNumRows; i++)
+    for (size_t i = 0; i < aNumRows; i++)
       // Insert into m_folders.
       if (!folders->InsertObjectAt(aFolder, aIndex + i))
         return NS_ERROR_UNEXPECTED;

@@ -6774,15 +6774,15 @@ bool nsImapProtocol::RenameHierarchyByHand(const char *oldParentMailboxName,
                 RenameMailboxRespectingSubscriptions(oldParentMailboxName,
                                                      newParentMailboxName, true);
 
-    int32_t numberToDelete = m_deletableChildren->Length();
-        int32_t childIndex;
+    size_t numberToDelete = m_deletableChildren->Length();
+    size_t childIndex;
 
     for (childIndex = 0;
              (childIndex < numberToDelete) && renameSucceeded; childIndex++)
     {
       // the imap parser has already converted to a non UTF7 string in the canonical
       // format so convert it back
-        char *currentName = (char *) m_deletableChildren->ElementAt(childIndex);
+        char *currentName = m_deletableChildren->ElementAt(childIndex);
         if (currentName)
         {
           char *serverName = nullptr;
@@ -6838,8 +6838,8 @@ bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox, bool &aDelete
     // longest name mailbox.  Deleting the longest first will hopefully
         // prevent the server from having problems about deleting parents
         // ** jt - why? I don't understand this.
-    int32_t numberToDelete = m_deletableChildren->Length();
-    int32_t outerIndex, innerIndex;
+    size_t numberToDelete = m_deletableChildren->Length();
+    size_t outerIndex, innerIndex;
 
     // intelligently decide if myself(either plain format or following the dir-separator)
     // is in the sub-folder list
@@ -6853,7 +6853,7 @@ bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox, bool &aDelete
             strcpy(selectedMailboxDir, selectedMailbox);
             selectedMailboxDir[length] = onlineDirSeparator;
             selectedMailboxDir[length+1] = '\0';
-            int32_t i;
+            size_t i;
             for( i=0; i<numberToDelete && !folderInSubfolderList; i++ )
             {
                 char *currentName = m_deletableChildren->ElementAt(i);
@@ -6869,7 +6869,7 @@ bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox, bool &aDelete
          outerIndex++)
     {
         char* longestName = nullptr;
-        int32_t longestIndex = 0; // fix bogus warning by initializing
+        size_t longestIndex = 0; // fix bogus warning by initializing
         for (innerIndex = 0;
              innerIndex < m_deletableChildren->Length();
              innerIndex++)

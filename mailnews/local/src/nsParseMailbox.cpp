@@ -866,7 +866,7 @@ void nsParseMailMessageState::GetAggregateHeader (nsTArray<struct message_header
 
   struct message_header *header = nullptr;
   int length = 0;
-  int i;
+  size_t i;
 
   // Count up the bytes required to allocate the aggregated header
   for (i = 0; i < list.Length(); i++)
@@ -882,7 +882,7 @@ void nsParseMailMessageState::GetAggregateHeader (nsTArray<struct message_header
     {
       // Catenate all the To lines together, separated by commas
       value[0] = '\0';
-      int size = list.Length();
+      size_t size = list.Length();
       for (i = 0; i < size; i++)
       {
         header = list.ElementAt(i);
@@ -906,7 +906,7 @@ void nsParseMailMessageState::ClearAggregateHeader (nsTArray<struct message_head
   // Reset the aggregate headers. Free only the message_header struct since
   // we don't own the value pointer
 
-  for (int i = 0; i < list.Length(); i++)
+  for (size_t i = 0; i < list.Length(); i++)
     PR_Free (list.ElementAt(i));
   list.Clear();
 }

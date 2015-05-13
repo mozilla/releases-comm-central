@@ -12,7 +12,6 @@
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
 #include "MailNewsTypes.h"
-#include "nsTArray.h"
 #include "nsIDBChangeListener.h"
 #include "nsITreeView.h"
 #include "nsITreeBoxObject.h"

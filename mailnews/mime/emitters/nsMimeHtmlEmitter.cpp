@@ -184,7 +184,7 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(nsIMsgHeaderSink * aHeaderSi
     }
   }
 
-  for (int32_t i=0; i<mHeaderArray->Length(); i++)
+  for (size_t i = 0; i < mHeaderArray->Length(); i++)
   {
     headerInfoType * headerInfo = mHeaderArray->ElementAt(i);
     if ( (!headerInfo) || (!headerInfo->name) || (!(*headerInfo->name)) || (!headerInfo->value) || (!(*headerInfo->value)))
@@ -251,7 +251,7 @@ NS_IMETHODIMP nsMimeHtmlDisplayEmitter::WriteHTMLHeaders(const nsACString &name)
     mFirstHeaders = false;
 
   bool bFromNewsgroups = false;
-  for (int32_t j=0; j < mHeaderArray->Length(); j++)
+  for (size_t j = 0; j < mHeaderArray->Length(); j++)
   {
     headerInfoType *headerInfo = mHeaderArray->ElementAt(j);
     if (!(headerInfo && headerInfo->name && *headerInfo->name))

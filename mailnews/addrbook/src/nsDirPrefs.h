@@ -6,12 +6,12 @@
 #ifndef _NSDIRPREFS_H_
 #define _NSDIRPREFS_H_
 
+#include "nsTArray.h"
+
 //
 // XXX nsDirPrefs is being greatly reduced if not removed altogether. Directory
 // Prefs etc. should be handled via their appropriate nsAb*Directory classes.
 //
-
-template <class> class nsTArray;
 
 #define kPreviousListVersion   2
 #define kCurrentListVersion    3

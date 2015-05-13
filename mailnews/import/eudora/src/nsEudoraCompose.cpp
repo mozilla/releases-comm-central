@@ -521,7 +521,7 @@ nsresult nsEudoraCompose::GetLocalAttachments(nsIArray **aArray)
     // nsMsgNewURL(&url, "file://C:/boxster.jpg");
     // a[i].orig_url = url;
 
-    pAttach = (ImportAttachment *) m_pAttachments->ElementAt(i);
+    pAttach = m_pAttachments->ElementAt(i);
     nsCOMPtr<nsIFile> tmpFile = do_QueryInterface(pAttach->pAttachment);
     a->SetTmpFile(tmpFile);
     urlStr.Adopt(0);

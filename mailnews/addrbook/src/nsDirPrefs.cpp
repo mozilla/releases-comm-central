@@ -199,7 +199,7 @@ DIR_Server* DIR_GetServerFromList(const char* prefName)
     int32_t i;
     for (i = 0; i < count; ++i)
     {
-      DIR_Server *server = (DIR_Server *)dir_ServerList->ElementAt(i);
+      DIR_Server *server = dir_ServerList->ElementAt(i);
 
       if (server && strcmp(server->prefName, prefName) == 0)
       {
@@ -249,7 +249,7 @@ nsresult DIR_ContainsServer(DIR_Server* pServer, bool *hasDir)
     int32_t i;
     for (i = 0; i < count; i++)
     {
-      DIR_Server* server = (DIR_Server *)(dir_ServerList->ElementAt(i));
+      DIR_Server* server = dir_ServerList->ElementAt(i);
       if (server == pServer)
       {
         *hasDir = true;
@@ -354,7 +354,7 @@ static bool DIR_SetServerPosition(nsTArray<DIR_Server*> *wholeList, DIR_Server *
      count = wholeList->Length();
      for (i= 0; i < count; i++)
      {
-       if  ((s = (DIR_Server *)wholeList->ElementAt(i)) != nullptr)
+       if  ((s = wholeList->ElementAt(i)) != nullptr)
          if (s == server)
            return false;
      }
@@ -364,7 +364,7 @@ static bool DIR_SetServerPosition(nsTArray<DIR_Server*> *wholeList, DIR_Server *
      */
      if (count > 0)
      {
-       s = (DIR_Server *)wholeList->ElementAt(count - 1);
+       s = wholeList->ElementAt(count - 1);
        server->position = s->position + 1;
      }
      else
@@ -418,7 +418,7 @@ static bool DIR_SetServerPosition(nsTArray<DIR_Server*> *wholeList, DIR_Server *
      count = wholeList->Length();
      for (i= 0; i < count; i++)
      {
-       if  ((s = (DIR_Server *)wholeList->ElementAt(i)) != nullptr)
+       if  ((s = wholeList->ElementAt(i)) != nullptr)
          if (s == server)
            break;
      }
@@ -468,7 +468,7 @@ static DIR_Server *dir_MatchServerPrefToServer(nsTArray<DIR_Server*> *wholeList,
   int32_t i;
   for (i = 0; i < count; i++)
   {
-    if ((server = (DIR_Server *)wholeList->ElementAt(i)) != nullptr)
+    if ((server = wholeList->ElementAt(i)) != nullptr)
     {
       if (server->prefName && PL_strstr(pref, server->prefName) == pref)
       {
@@ -681,7 +681,7 @@ static void DIR_DeleteServerList(nsTArray<DIR_Server*> *wholeList)
     int32_t i;
     for (i = count - 1; i >=0; i--)
     {
-      server = (DIR_Server *)wholeList->ElementAt(i);
+      server = wholeList->ElementAt(i);
       if (server != nullptr)
         DIR_DeleteServer(server);
     }
@@ -1191,9 +1191,9 @@ void DIR_SortServersByPosition(nsTArray<DIR_Server*> *serverList)
   {
     for (j = i + 1; j < count; j++)
     {
-      if (((DIR_Server *) serverList->ElementAt(j))->position < ((DIR_Server *) serverList->ElementAt(i))->position)
+      if (serverList->ElementAt(j)->position < serverList->ElementAt(i)->position)
       {
-        server        = (DIR_Server *) serverList->ElementAt(i);
+        server = serverList->ElementAt(i);
         serverList->ReplaceElementAt(i, serverList->ElementAt(j));
         serverList->ReplaceElementAt(j, server);
       }
@@ -1443,7 +1443,7 @@ static void DIR_SaveServerPreferences(nsTArray<DIR_Server*> *wholeList)
 
     for (i = 0; i < count; i++)
     {
-      server = (DIR_Server *) wholeList->ElementAt(i);
+      server = wholeList->ElementAt(i);
       if (server)
         DIR_SavePrefsForOneServer(server);
     }

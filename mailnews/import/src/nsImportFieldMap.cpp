@@ -76,7 +76,7 @@ nsImportFieldMap::~nsImportFieldMap()
 
   nsString *  pStr;
   for (int32_t i = 0; i < m_mozFieldCount; i++) {
-    pStr = (nsString *) m_descriptions.ElementAt(i);
+    pStr = m_descriptions.ElementAt(i);
     delete pStr;
   }
   m_descriptions.Clear();
@@ -110,10 +110,10 @@ NS_IMETHODIMP nsImportFieldMap::GetFieldDescription(int32_t index, char16_t **_r
     return NS_ERROR_NULL_POINTER;
 
   *_retval = nullptr;
-  if ((index < 0) || (index >= m_descriptions.Length()))
+  if ((index < 0) || ((size_t)index >= m_descriptions.Length()))
     return NS_ERROR_FAILURE;
 
-  *_retval = ToNewUnicode(*((nsString *)m_descriptions.ElementAt(index)));
+  *_retval = ToNewUnicode(*(m_descriptions.ElementAt(index)));
   return NS_OK;
 }
 

@@ -1106,7 +1106,7 @@ void CMapiApi::ClearMessageStores(void)
 {
   if (m_pStores) {
     CMsgStore *  pStore;
-    for (int i = 0; i < m_pStores->Length(); i++) {
+    for (size_t i = 0; i < m_pStores->Length(); i++) {
       pStore = m_pStores->ElementAt(i);
       delete pStore;
     }
@@ -1131,7 +1131,7 @@ CMsgStore *  CMapiApi::FindMessageStore(ULONG cbEid, LPENTRYID lpEid)
   ULONG    result;
   HRESULT    hr;
   CMsgStore *  pStore;
-  for (int i = 0; i < m_pStores->Length(); i++) {
+  for (size_t i = 0; i < m_pStores->Length(); i++) {
     pStore = m_pStores->ElementAt(i);
     hr = m_lpSession->CompareEntryIDs(cbEid, lpEid, pStore->GetCBEntryID(), pStore->GetLPEntryID(),
                       0, &result);
@@ -1635,7 +1635,7 @@ void CMapiFolderList::GenerateFilePath(CMapiFolder *pFolder)
 void CMapiFolderList::ClearAll(void)
 {
   CMapiFolder *pFolder;
-  for (int i = 0; i < m_array.Length(); i++) {
+  for (size_t i = 0; i < m_array.Length(); i++) {
     pFolder = GetAt(i);
     delete pFolder;
   }
@@ -1650,7 +1650,7 @@ void CMapiFolderList::DumpList(void)
   char    prefix[256];
 
   MAPI_TRACE0("Folder List ---------------------------------\n");
-  for (int i = 0; i < m_array.Length(); i++) {
+  for (size_t i = 0; i < m_array.Length(); i++) {
     pFolder = GetAt(i);
     depth = pFolder->GetDepth();
     pFolder->GetDisplayName(str);

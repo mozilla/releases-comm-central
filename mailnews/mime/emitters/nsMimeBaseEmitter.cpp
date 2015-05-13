@@ -91,8 +91,6 @@ nsMimeBaseEmitter::nsMimeBaseEmitter()
 
 nsMimeBaseEmitter::~nsMimeBaseEmitter(void)
 {
-  int32_t i;
-
   // Delete the buffer manager...
   if (mBufferMgr)
   {
@@ -103,9 +101,9 @@ nsMimeBaseEmitter::~nsMimeBaseEmitter(void)
   // Clean up the attachment array structures...
   if (mAttachArray)
   {
-    for (i=0; i<mAttachArray->Length(); i++)
+    for (size_t i = 0; i < mAttachArray->Length(); i++)
     {
-      attachmentInfoType *attachInfo = (attachmentInfoType *)mAttachArray->ElementAt(i);
+      attachmentInfoType *attachInfo = mAttachArray->ElementAt(i);
       if (!attachInfo)
         continue;
 
@@ -138,7 +136,7 @@ nsMimeBaseEmitter::CleanupHeaderArray(nsTArray<headerInfoType*> *aArray)
   if (!aArray)
     return;
 
-  for (int32_t i=0; i<aArray->Length(); i++)
+  for (size_t i = 0; i < aArray->Length(); i++)
   {
     headerInfoType *headerInfo = aArray->ElementAt(i);
     if (!headerInfo)
@@ -500,14 +498,13 @@ nsMimeBaseEmitter::WriteHelper(const nsACString &buf, uint32_t *countWritten)
 const char *
 nsMimeBaseEmitter::GetHeaderValue(const char  *aHeaderName)
 {
-  int32_t     i;
   char        *retVal = nullptr;
   nsTArray<headerInfoType*> *array = mDocHeader? mHeaderArray : mEmbeddedHeaderArray;
 
   if (!array)
     return nullptr;
 
-  for (i = 0; i < array->Length(); i++)
+  for (size_t i = 0; i < array->Length(); i++)
   {
     headerInfoType *headerInfo = array->ElementAt(i);
     if ( (!headerInfo) || (!headerInfo->name) || (!(*headerInfo->name)) )
@@ -985,12 +982,11 @@ nsMimeBaseEmitter::DumpToCC()
 nsresult
 nsMimeBaseEmitter::DumpRestOfHeaders()
 {
-  int32_t     i;
   nsTArray<headerInfoType*> *array = mDocHeader? mHeaderArray : mEmbeddedHeaderArray;
 
   mHTMLHeaders.Append("<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" class=\"header-part3\">");
 
-  for (i = 0; i < array->Length(); i++)
+  for (size_t i = 0; i < array->Length(); i++)
   {
     headerInfoType *headerInfo = array->ElementAt(i);
     if ( (!headerInfo) || (!headerInfo->name) || (!(*headerInfo->name)) ||

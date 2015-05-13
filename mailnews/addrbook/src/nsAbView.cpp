@@ -98,7 +98,7 @@ nsresult nsAbView::RemoveCardAt(int32_t row)
 {
   nsresult rv;
 
-  AbCard *abcard = (AbCard*) (mCards.ElementAt(row));
+  AbCard *abcard = mCards.ElementAt(row);
   NS_IF_RELEASE(abcard->card);
   mCards.RemoveElementAt(row);
   PR_FREEIF(abcard->primaryCollationKey);
@@ -354,7 +354,7 @@ NS_IMETHODIMP nsAbView::GetCellProperties(int32_t row, nsITreeColumn* col, nsASt
 {
   NS_ENSURE_TRUE(row >= 0, NS_ERROR_UNEXPECTED);
 
-  if (mCards.Length() <= row)
+  if (mCards.Length() <= (size_t)row)
     return NS_OK;
 
   const char16_t* colID;
@@ -525,7 +525,7 @@ nsresult nsAbView::RefreshTree()
 
 NS_IMETHODIMP nsAbView::GetCellText(int32_t row, nsITreeColumn* col, nsAString& _retval)
 {
-  NS_ENSURE_TRUE(row >= 0 && row < mCards.Length(), NS_ERROR_UNEXPECTED);
+  NS_ENSURE_TRUE(row >= 0 && (size_t)row < mCards.Length(), NS_ERROR_UNEXPECTED);
 
   nsIAbCard *card = mCards.ElementAt(row)->card;
   const char16_t* colID;
@@ -612,11 +612,10 @@ NS_IMETHODIMP nsAbView::PerformActionOnCell(const char16_t *action, int32_t row,
 NS_IMETHODIMP nsAbView::GetCardFromRow(int32_t row, nsIAbCard **aCard)
 {
   *aCard = nullptr;  
-  if (mCards.Length() <= row) {
+  NS_ENSURE_TRUE(row >= 0, NS_ERROR_UNEXPECTED);
+  if (mCards.Length() <= (size_t)row) {
     return NS_OK;
   }
-
-  NS_ENSURE_TRUE(row >= 0, NS_ERROR_UNEXPECTED);
 
   AbCard *a = mCards.ElementAt(row);
   if (!a)
@@ -637,13 +636,8 @@ typedef struct SortClosure
 } SortClosure;
 
 static int
-inplaceSortCallback(const void *data1, const void *data2, void *privateData)
+inplaceSortCallback(const AbCard *card1, const AbCard *card2, SortClosure *closure)
 {
-  AbCard *card1 = (AbCard *)data1;
-  AbCard *card2 = (AbCard *)data2;
-  
-  SortClosure *closure = (SortClosure *) privateData;
-  
   int32_t sortValue;
   
   // If we are sorting the "PrimaryEmail", swap the collation keys, as the secondary is always the
@@ -679,19 +673,20 @@ static void SetSortClosure(const char16_t *sortColumn, const char16_t *sortDirec
   return;
 }
 
-class CardComparator {
-  private:
-    SortClosure *m_closure;
+class CardComparator
+{
+public:
+  void SetClosure(SortClosure *closure) { m_closure = closure; };
 
-  public:
-    void SetClosure(SortClosure *closure) { m_closure = closure; };
-    /** @return True if the elements are equals; false otherise. */
-    bool Equals(const AbCard* a, const AbCard* b) const {
-      return inplaceSortCallback(a, b, m_closure) == 0;
-    }
-    bool LessThan(const AbCard* a, const AbCard* b) const{
-      return inplaceSortCallback(a, b, m_closure) < 0;
-    }
+  bool Equals(const AbCard *a, const AbCard *b) const {
+    return inplaceSortCallback(a, b, m_closure) == 0;
+  }
+  bool LessThan(const AbCard *a, const AbCard *b) const{
+    return inplaceSortCallback(a, b, m_closure) < 0;
+  }
+
+private:
+  SortClosure *m_closure;
 };
 
 NS_IMETHODIMP nsAbView::SortBy(const char16_t *colID, const char16_t *sortDir, bool aResort = false)
@@ -952,16 +947,13 @@ int32_t nsAbView::FindIndexForInsert(AbCard *abcard)
   int32_t count = mCards.Length();
   int32_t i;
 
-  void *item = (void *)abcard;
-  
   SortClosure closure;
   SetSortClosure(mSortColumn.get(), mSortDirection.get(), this, &closure);
   
   // XXX todo
   // Make this a binary search
   for (i=0; i < count; i++) {
-    void *current = (void *)mCards.ElementAt(i);
-    int32_t value = inplaceSortCallback(item, current, (void *)(&closure));
+    int32_t value = inplaceSortCallback(abcard, mCards.ElementAt(i), &closure);
     // XXX Fix me, this is not right for both ascending and descending
     if (value <= 0) 
       break;
@@ -1046,7 +1038,7 @@ int32_t nsAbView::FindIndexForCard(nsIAbCard *card)
   // you might be here because one of the card properties has changed, and that property
   // could be the collation key.
   for (i=0; i < count; i++) {
-    AbCard *abcard = (AbCard*) (mCards.ElementAt(i));
+    AbCard *abcard = mCards.ElementAt(i);
     bool equals;
     nsresult rv = card->Equals(abcard->card, &equals);
     if (NS_SUCCEEDED(rv) && equals) {
@@ -1068,7 +1060,7 @@ NS_IMETHODIMP nsAbView::OnItemPropertyChanged(nsISupports *item, const char *pro
   if (index == -1)
     return NS_OK;
 
-  AbCard *oldCard = (AbCard*) (mCards.ElementAt(index));
+  AbCard *oldCard = mCards.ElementAt(index);
 
   // Malloc these from an arena
   AbCard *newCard = (AbCard *) PR_Calloc(1, sizeof(struct AbCard));
