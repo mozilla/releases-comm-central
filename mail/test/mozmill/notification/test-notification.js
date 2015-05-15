@@ -103,6 +103,9 @@ function setupModule(module) {
   // Ensure we have enabled new mail notifications
   remember_and_set_bool_pref("mail.biff.show_alert", true);
 
+  // Ensure that system notifications are used (relevant for Linux only)
+  remember_and_set_bool_pref("mail.biff.use_system_alert", true);
+
   MailServices.accounts.localFoldersServer.performingBiff = true;
 
   // Create a second identity to check cross-account
