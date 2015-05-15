@@ -117,6 +117,15 @@
 #define NS_POP3SERVICE_CONTRACTID2 \
   NS_NETWORK_PROTOCOL_CONTRACTID_PREFIX "pop"
 
+// Mailnews has used "pop" as the protocol scheme for pop3 in some places,
+// but "pop3" in others. Necko code needs to be able to locate protocolInfo
+// based on pop3 to get proxy information.
+//
+// TODO: fix the mailnews code to use a consistent POP3 protocol scheme.
+
+#define NS_POP3SERVICE_CONTRACTID3 \
+  NS_NETWORK_PROTOCOL_CONTRACTID_PREFIX "pop3"
+
 #define NS_POP3PROTOCOLINFO_CONTRACTID \
   NS_MSGPROTOCOLINFO_CONTRACTID_PREFIX NS_POP3INCOMINGSERVER_TYPE
 
