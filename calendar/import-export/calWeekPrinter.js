@@ -33,6 +33,7 @@ calWeekPrinter.prototype = {
 
     formatToHtml: function weekPrint_format(aStream, aStart, aEnd, aCount, aItems, aTitle) {
         let document = cal.xml.parseFile("chrome://calendar-common/skin/printing/calWeekPrinter.html");
+        let defaultTimezone = cal.calendarDefaultTimezone();
 
         // Set page title
         document.getElementById("title").textContent = aTitle;
@@ -51,6 +52,8 @@ calWeekPrinter.prototype = {
         for each (let item in aItems) {
             let itemStartDate = item[cal.calGetStartDateProp(item)] || item[cal.calGetEndDateProp(item)];
             let itemEndDate = item[cal.calGetEndDateProp(item)] || item[cal.calGetStartDateProp(item)];
+            itemStartDate = itemStartDate.getInTimezone(defaultTimezone);
+            itemEndDate = itemEndDate.getInTimezone(defaultTimezone);
 
             if (!itemStartDate && !itemEndDate) {
                 cal.print.addItemToDayboxNodate(document, item);
