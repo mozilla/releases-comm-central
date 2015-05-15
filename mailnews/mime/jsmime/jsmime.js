@@ -807,7 +807,15 @@ function parseAddressingHeader(header, doRFC2047) {
         results = results.concat(addrlist);
       addrlist = [];
     } else if (token === '<') {
-      inAngle = true;
+      if (inAngle) {
+        // Interpret the address we were parsing as a name.
+        if (address.length > 0) {
+          name = address;
+        }
+        localPart = address = '';
+      } else {
+        inAngle = true;
+      }
     } else if (token === '>') {
       inAngle = false;
       // Forget addr-spec comments.

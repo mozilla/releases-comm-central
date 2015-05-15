@@ -329,6 +329,18 @@ suite('headerparser', function () {
       ["=?UTF-8?Q?Simple?= <a@b.c>",
         [{name: "=?UTF-8?Q?Simple?=", email: "a@b.c"}]],
       ["No email address", [{name: "No email address", email: ""}]],
+      // Thought we were parsing an address, but it was a name.
+      ["name@example.com <receiver@example.com>",
+        [{name: "name@example.com", email: "receiver@example.com"}]],
+      ["name@huhu.com <receiver@example.com>",
+        [{name: "name@huhu.com", email: "receiver@example.com"}]],
+      // Some names with quotes.
+      ["\"name@huhu.com\" <receiver@example.com>",
+        [{name: "name@huhu.com", email: "receiver@example.com"}]],
+      ["\"Chaplin, Charlie\" <receiver@example.com>",
+        [{name: "Chaplin, Charlie", email: "receiver@example.com"}]],
+      ["\"name@huhu.com and name@haha.com\" <receiver@example.com>",
+        [{name: "name@huhu.com and name@haha.com", email: "receiver@example.com"}]],
       // Handling of comments and legacy display-names as per RFC 5322 §3.4
       ["(c1)n(c2) <(c3)a(c4)@(c5)b(c6).(c7)d(c8)> (c9(c10)c11)",
         [{name: "(c1) n (c2) (c9(c10)c11)", email: "a@b.d"}]],
@@ -386,6 +398,14 @@ suite('headerparser', function () {
         "[BCN-FC]\" <Barcelona-Freecycle-noreply@yahoogroups.com>",
         [{name: "Sofia Castell\u00F3 Romero sonia@example.com [BCN-FC]",
       email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
+      ["=?iso-8859-1?Q?Klaus_Eisschl=E4ger_=28k=2Eeisschlaeger=40t-onli?=" +
+        "=?iso-8859-1?Q?ne=2Ede=29?= <k.eisschlaeger@t-online.de>",
+      [{name: "Klaus Eisschläger (k.eisschlaeger@t-online.de)",
+        email: "k.eisschlaeger@t-online.de"}]],
+      ["\"=?UTF-8?Q?=22Claudia_R=C3=B6hschicht=22?= Claudia_Roehschicht@web.de [freecycle-berlin]\" " +
+        "<freecycle-berlin-noreply@yahoogroups.de>",
+      [{name: "\"Claudia Röhschicht\" Claudia_Roehschicht@web.de [freecycle-berlin]",
+        email: "freecycle-berlin-noreply@yahoogroups.de"}]],
     ];
     header_tests.forEach(function (data) {
       arrayTest(data, function () {
