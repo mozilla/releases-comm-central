@@ -38,10 +38,8 @@ calBackendLoader.prototype = {
             return;
         }
 
-        let backend = "libical";
-        if (Services.prefs.prefHasUserValue("calendar.icaljs")) {
-            backend = Services.prefs.getBoolPref("calendar.icaljs") ? "icaljs" : "libical";
-        }
+        let backend = Services.prefs.getBoolPref("calendar.icaljs") ? "icaljs" : "libical";
+
         let uri = Services.io.getProtocolHandler("resource")
                           .QueryInterface(Components.interfaces.nsIResProtocolHandler)
                           .getSubstitution("calendar");
