@@ -62,7 +62,10 @@
                control="msgNewFolderPicker"/>
         <menulist id="msgNewFolderPicker" class="folderMenuItem" flex="1"
                   displayformat="verbose">
-          <menupopup id="msgNewFolderPopup" type="folder" mode="newFolder"
+          <menupopup id="msgNewFolderPopup"
+                     class="menulist-menupopup"
+                     type="folder"
+                     mode="newFolder"
                      showFileHereLabel="true"
                      oncommand="onFolderPick(event);"/>
         </menulist>
@@ -71,7 +74,8 @@
 
       <row align="center">
         <label value="&folderSelectionCaption.label;"/>
-        <hbox>
+        <hbox align="center">
+          <label id="chosenFoldersCount"/>
           <spacer flex="1"/>
           <button label="&chooseFoldersButton.label;"
                   accesskey="&chooseFoldersButton.accesskey;"

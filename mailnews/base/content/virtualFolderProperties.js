@@ -8,10 +8,12 @@ var gMailView = null;
 var msgWindow; // important, don't change the name of this variable. it's really a global used by commandglue.js
 var gSearchTermSession; // really an in memory temporary filter we use to read in and write out the search terms
 var gSearchFolderURIs = "";
+var gMessengerBundle = null;
 
-var nsMsgSearchScope = Components.interfaces.nsMsgSearchScope;
+const nsMsgSearchScope = Components.interfaces.nsMsgSearchScope;
 
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/PluralForm.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/virtualFolderWrapper.js");
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
@@ -21,6 +23,8 @@ function onLoad()
 {
   var windowArgs = window.arguments[0];
   var acceptButton = document.documentElement.getButton("accept");
+
+  gMessengerBundle = document.getElementById("bundle_messenger");
 
   // call this when OK is pressed
   msgWindow = windowArgs.msgWindow;
@@ -83,6 +87,7 @@ function onLoad()
   if (typeof windowArgs.searchOnline != "undefined")
     document.getElementById('searchOnline').checked = windowArgs.searchOnline;
   updateOnlineSearchState();
+  updateFoldersCount();
 }
 
 function setupSearchRows(aSearchTerms)
@@ -125,6 +130,7 @@ function InitDialogWithVirtualFolder(aVirtualFolder)
   folderNameField.hidden = false;
 
   gSearchFolderURIs = virtualFolderWrapper.searchFolderURIs;
+  updateFoldersCount();
   document.getElementById('searchOnline').checked = virtualFolderWrapper.onlineSearch;
   gSearchTermSession = virtualFolderWrapper.searchTermsSession;
 
@@ -136,9 +142,8 @@ function InitDialogWithVirtualFolder(aVirtualFolder)
                [aVirtualFolder.prettyName, aVirtualFolder.server.prettyName]);
   folderNameField.setAttribute("label", name);
   // update the window title based on the name of the saved search
-  let messengerBundle = document.getElementById("bundle_messenger");
-  document.title = messengerBundle.getFormattedString('editVirtualFolderPropertiesTitle',
-                                                      [aVirtualFolder.prettyName]);
+  document.title = gMessengerBundle.getFormattedString("editVirtualFolderPropertiesTitle",
+                                                       [aVirtualFolder.prettyName]);
 }
 
 function onFolderPick(aEvent) {
@@ -150,13 +155,12 @@ function onFolderPick(aEvent) {
 function onOK()
 {
   var name = document.getElementById("name").value;
-  var messengerBundle = document.getElementById("bundle_messenger");
   var searchOnline = document.getElementById('searchOnline').checked;
 
   if (!gSearchFolderURIs)
   {
     Services.prompt.alert(window, null,
-                          messengerBundle.getString('alertNoSearchFoldersSelected'));
+                          gMessengerBundle.getString('alertNoSearchFoldersSelected'));
     return false;
   }
 
@@ -189,13 +193,13 @@ function onOK()
     if (/^\.|[\.\~ ]$|[\;\#]/.test(name))
     {
       Services.prompt.alert(window, null,
-                            messengerBundle.getString('folderCreationFailed'));
+                            gMessengerBundle.getString("folderCreationFailed"));
       return false;
     }
     else if (parentFolder.containsChildNamed(name))
     {
       Services.prompt.alert(window, null,
-                            messengerBundle.getString('folderExists'));
+                            gMessengerBundle.getString("folderExists"));
       return false;
     }
 
@@ -219,7 +223,6 @@ function chooseFoldersToSearch()
   // if we have some search folders already, then root the folder picker dialog off the account
   // for those folders. Otherwise fall back to the preselectedfolderURI which is the parent folder
   // for this new virtual folder.
-  var srchFolderUriArray = gSearchFolderURIs.split('|');
   var dialog = window.openDialog("chrome://messenger/content/virtualFolderListDialog.xul", "",
                                  "chrome,titlebar,modal,centerscreen,resizable",
                                  {searchFolderURIs:gSearchFolderURIs,
@@ -230,7 +233,30 @@ function chooseFoldersToSearch()
 function onFolderListDialogCallback(searchFolderURIs)
 {
   gSearchFolderURIs = searchFolderURIs;
+  updateFoldersCount();
   updateOnlineSearchState(); // we may have changed the server type we are searching...
+}
+
+function updateFoldersCount()
+{
+  let srchFolderUriArray = gSearchFolderURIs.split('|');
+  let folderCount = gSearchFolderURIs ? srchFolderUriArray.length : 0;
+  let foldersList = document.getElementById("chosenFoldersCount");
+  foldersList.textContent =
+    PluralForm.get(folderCount, gMessengerBundle.getString("virtualFolderSourcesChosen"))
+              .replace("#1", folderCount);
+  if (folderCount > 0) {
+    let folderNames = [];
+    for (let folderURI of srchFolderUriArray) {
+      let folder = MailUtils.getFolderForURI(folderURI);
+      let name = this.gMessengerBundle.getFormattedString("verboseFolderFormat",
+        [folder.prettyName, folder.server.prettyName]);
+      folderNames.push(name);
+    }
+    foldersList.setAttribute("tooltiptext", folderNames.join("\n"));
+  } else {
+    foldersList.removeAttribute("tooltiptext");
+  }
 }
 
 function onEnterInSearchTerm()
