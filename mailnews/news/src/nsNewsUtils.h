@@ -11,11 +11,11 @@
 
 class nsIMsgNewsFolder;
 
-static const char kNntpRootURI[] = "nntp:/";
-static const char kNewsRootURI[] = "news:/";
-static const char kNewsMessageRootURI[] = "news-message:/";
-static const char kNewsURIGroupQuery[] = "?group=";
-static const char kNewsURIKeyQuery[] = "&key=";
+#define kNewsRootURI "news:/"
+#define kNntpRootURI "nntp:/"
+#define kNewsMessageRootURI "news-message:/"
+#define kNewsURIGroupQuery "?group="
+#define kNewsURIKeyQuery "&key="
 
 #define kNewsRootURILen 6
 #define kNntpRootURILen 6
