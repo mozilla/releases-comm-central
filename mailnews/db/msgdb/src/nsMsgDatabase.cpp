@@ -488,7 +488,7 @@ nsresult nsMsgDatabase::AddHdrToCache(nsIMsgDBHdr *hdr, nsMsgKey key) // do we w
   if (m_bCacheHeaders)
   {
     if (!m_cachedHeaders)
-      m_cachedHeaders = new PLDHashTable(&gMsgDBHashTableOps, sizeof(struct MsgHdrHashElement), m_cacheSize);
+      m_cachedHeaders = PL_NewDHashTable(&gMsgDBHashTableOps, sizeof(struct MsgHdrHashElement), m_cacheSize);
     if (m_cachedHeaders)
     {
       if (key == nsMsgKey_None)
@@ -673,8 +673,7 @@ nsresult nsMsgDatabase::ClearHdrCache(bool reInit)
     }
     else
     {
-      delete saveCachedHeaders;
-      saveCachedHeaders = nullptr;
+      PL_DHashTableDestroy(saveCachedHeaders);
     }
   }
   return NS_OK;
@@ -776,7 +775,7 @@ nsresult nsMsgDatabase::AddHdrToUseCache(nsIMsgDBHdr *hdr, nsMsgKey key)
     mdb_count numHdrs = MSG_HASH_SIZE;
     if (m_mdbAllMsgHeadersTable)
       m_mdbAllMsgHeadersTable->GetCount(GetEnv(), &numHdrs);
-    m_headersInUse = new PLDHashTable(&gMsgDBHashTableOps, sizeof(struct MsgHdrHashElement), std::max((mdb_count)MSG_HASH_SIZE, numHdrs));
+    m_headersInUse = PL_NewDHashTable(&gMsgDBHashTableOps, sizeof(struct MsgHdrHashElement), std::max((mdb_count)MSG_HASH_SIZE, numHdrs));
   }
   if (m_headersInUse)
   {
@@ -805,7 +804,7 @@ nsresult nsMsgDatabase::ClearUseHdrCache()
     // clear mdb row pointers of any headers still in use, because the
     // underlying db is going away.
     PL_DHashTableEnumerate(m_headersInUse, ClearHeaderEnumerator, nullptr);
-    delete m_headersInUse;
+    PL_DHashTableDestroy(m_headersInUse);
     m_headersInUse = nullptr;
   }
   return NS_OK;
@@ -1149,7 +1148,7 @@ nsMsgDatabase::~nsMsgDatabase()
 
   if (m_msgReferences)
   {
-    delete m_msgReferences;
+    PL_DHashTableDestroy(m_msgReferences);
     m_msgReferences = nullptr;
   }
 
@@ -4230,10 +4229,10 @@ nsresult nsMsgDatabase::InitRefHash()
 {
   // Delete an existing table just in case
   if (m_msgReferences)
-    delete m_msgReferences;
+    PL_DHashTableDestroy(m_msgReferences);
 
   // Create new table
-  m_msgReferences = new PLDHashTable(&gRefHashTableOps, sizeof(struct RefHashElement), MSG_HASH_SIZE);
+  m_msgReferences = PL_NewDHashTable(&gRefHashTableOps, sizeof(struct RefHashElement), MSG_HASH_SIZE);
   if (!m_msgReferences)
     return NS_ERROR_OUT_OF_MEMORY;
 
