@@ -18,6 +18,11 @@ TEST_DIRS += ['../test']
 XPI_NAME = 'lightning'
 export('XPI_NAME')
 
+DIST_FILES += [
+    'app.ini',
+    'install.rdf',
+]
+
 JAR_MANIFESTS += ['jar.mn']
 
 USE_EXTENSION_MANIFEST = True

@@ -8,6 +8,8 @@ DIRS += ['locales']
 XPI_NAME = 'calendar-timezones'
 export('XPI_NAME')
 
+DIST_FILES += ['install.rdf']
+
 JAR_MANIFESTS += ['jar.mn']
 
 USE_EXTENSION_MANIFEST = True
