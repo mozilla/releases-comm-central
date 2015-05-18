@@ -24,6 +24,7 @@
 #include "nsMsgCompose.h"
 #include "nsMsgMailNewsUrl.h"
 #include "mozilla/Services.h"
+#include "nsIScriptSecurityManager.h"
 
 NS_IMPL_ISUPPORTS(nsMsgQuoteListener, nsIMsgQuoteListener,
   nsIMimeStreamConverterListener)
@@ -172,11 +173,25 @@ nsMsgQuote::QuoteMessage(const char *msgURI, bool quoteHeaders,
   NS_IF_RELEASE(supports);
 
   // now we want to create a necko channel for this url and we want to open it
+  nsCOMPtr<nsIScriptSecurityManager> secMan(
+      do_GetService(NS_SCRIPTSECURITYMANAGER_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv,rv);
+
+  nsCOMPtr<nsIPrincipal> systemPrincipal;
+  rv = secMan->GetSystemPrincipal(getter_AddRefs(systemPrincipal));
+  NS_ENSURE_SUCCESS(rv,rv);
+
   mQuoteChannel = nullptr;
-  nsCOMPtr<nsIIOService> netService =
-    mozilla::services::GetIOService();
+  nsCOMPtr<nsIIOService> netService = mozilla::services::GetIOService();
   NS_ENSURE_TRUE(netService, NS_ERROR_UNEXPECTED);
-  rv = netService->NewChannelFromURI(aURL, getter_AddRefs(mQuoteChannel));
+  rv = netService->NewChannelFromURI2(aURL,
+                                      nullptr,
+                                      systemPrincipal,
+                                      nullptr,
+                                      nsILoadInfo::SEC_NORMAL,
+                                      nsIContentPolicy::TYPE_OTHER,
+                                      getter_AddRefs(mQuoteChannel));
+
   if (NS_FAILED(rv)) return rv;
   nsCOMPtr<nsISupports> ctxt = do_QueryInterface(aURL);
 

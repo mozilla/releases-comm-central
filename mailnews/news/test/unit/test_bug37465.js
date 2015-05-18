@@ -20,7 +20,12 @@ function run_test() {
   do_check_eq(newsUri.folder, null);
 
   // Run the URI and make sure we get the message
-  let channel = Services.io.newChannelFromURI(uri);
+  let channel = Services.io.newChannelFromURI2(uri,
+                                               null,
+                                               Services.scriptSecurityManager.getSystemPrincipal(),
+                                               null,
+                                               Ci.nsILoadInfo.SEC_NORMAL,
+                                               Ci.nsIContentPolicy.TYPE_OTHER);
   channel.asyncOpen(articleTextListener, null);
 
   // Run the server

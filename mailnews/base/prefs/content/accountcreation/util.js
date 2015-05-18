@@ -66,7 +66,12 @@ function readURLasUTF8(uri)
 {
   assert(uri instanceof Ci.nsIURI, "uri must be an nsIURI");
   try {
-    let chan = Services.io.newChannelFromURI(uri);
+    let chan = Services.io.newChannelFromURI2(uri,
+                                              null,
+                                              Services.scriptSecurityManager.getSystemPrincipal(),
+                                              null,
+                                              Ci.nsILoadInfo.SEC_NORMAL,
+                                              Ci.nsIContentPolicy.TYPE_OTHER);
     let is = Cc["@mozilla.org/intl/converter-input-stream;1"]
              .createInstance(Ci.nsIConverterInputStream);
     is.init(chan.open(), "UTF-8", 1024,

@@ -44,7 +44,13 @@ function TrainingData() {
     { 
       var oUri = Services.io.newFileURI(oFile);
       // open stream (channel)
-      var oStream = Services.io.newChannelFromURI(oUri).open();
+      let channel = Services.io.newChannelFromURI2(oUri,
+                                                   null,
+                                                   Services.scriptSecurityManager.getSystemPrincipal(),
+                                                   null,
+                                                   Ci.nsILoadInfo.SEC_NORMAL,
+                                                   Ci.nsIContentPolicy.TYPE_OTHER);
+      var oStream = channel.open();
       // buffer it
       var oBufStream = Cc["@mozilla.org/network/buffered-input-stream;1"].
         createInstance(Ci.nsIBufferedInputStream);

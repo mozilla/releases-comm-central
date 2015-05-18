@@ -48,14 +48,24 @@ function run_test() {
     let urlToRun = Services.io.newURI(neckoURL.value.spec, null, null);
 
     // Get a channel from this URI, and check its content length
-    let channel = Services.io.newChannelFromURI(urlToRun);
+    let channel = Services.io.newChannelFromURI2(urlToRun,
+                                                 null,
+                                                 Services.scriptSecurityManager.getSystemPrincipal(),
+                                                 null,
+                                                 Ci.nsILoadInfo.SEC_NORMAL,
+                                                 Ci.nsIContentPolicy.TYPE_OTHER);
     do_check_eq(channel.contentLength, kSimpleNewsArticle.length);
 
     // Now try an attachment. &part=1.2
     // XXX the message doesn't really have an attachment
     let attachmentURL = Services.io.newURI(neckoURL.value.spec + "&part=1.2",
                                            null, null);
-    let attachmentChannel = Services.io.newChannelFromURI(attachmentURL);
+    let attachmentChannel = Services.io.newChannelFromURI2(attachmentURL,
+                                                           null,
+                                                           Services.scriptSecurityManager.getSystemPrincipal(),
+                                                           null,
+                                                           Ci.nsILoadInfo.SEC_NORMAL,
+                                                           Ci.nsIContentPolicy.TYPE_OTHER);
     // Currently attachments have their content length set to the length of the
     // entire message
     do_check_eq(channel.contentLength, kSimpleNewsArticle.length);

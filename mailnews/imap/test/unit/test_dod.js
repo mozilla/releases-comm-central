@@ -81,7 +81,12 @@ function streamMessages() {
       let uri = {};
       imapS.GetUrlForUri("imap-message://user@localhost/INBOX#" + i,uri,null);
       uri.value.spec += "?header=quotebody";
-      let channel = Services.io.newChannelFromURI(uri.value);
+      let channel = Services.io.newChannelFromURI2(uri.value,
+                                                   null,
+                                                   Services.scriptSecurityManager.getSystemPrincipal(),
+                                                   null,
+                                                   Ci.nsILoadInfo.SEC_NORMAL,
+                                                   Ci.nsIContentPolicy.TYPE_OTHER);
       channel.asyncOpen(gStreamListener, null);
       yield false;
       let buf = gStreamListener._data;

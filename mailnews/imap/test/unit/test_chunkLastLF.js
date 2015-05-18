@@ -70,7 +70,12 @@ function verifyContentLength()
   imapS.GetUrlForUri("imap-message://user@localhost/INBOX#1", uri, null);
 
   // Get a channel from this URI, and check its content length
-  let channel = Services.io.newChannelFromURI(uri.value);
+  let channel = Services.io.newChannelFromURI2(uri.value,
+                                               null,
+                                               Services.scriptSecurityManager.getSystemPrincipal(),
+                                               null,
+                                               Ci.nsILoadInfo.SEC_NORMAL,
+                                               Ci.nsIContentPolicy.TYPE_OTHER);
 
   dump(channel + "\n");
 
@@ -87,7 +92,12 @@ function verifyContentLength()
   // Now try an attachment. &part=1.2
   // let attachmentURL = Services.io.newURI(neckoURL.value.spec + "&part=1.2",
   //                                        null, null);
-  // let attachmentChannel = Services.io.newChannelFromURI(attachmentURL);
+  // let attachmentChannel = Services.io.newChannelFromURI2(attachmentURL,
+  //                                                        null,
+  //                                                        Services.scriptSecurityManager.getSystemPrincipal(),
+  //                                                        null,
+  //                                                        Ci.nsILoadInfo.SEC_NORMAL,
+  //                                                        Ci.nsIContentPolicy.TYPE_OTHER);
   // Currently attachments have their content length set to the length of the
   // entire message
   // do_check_eq(attachmentChannel.contentLength, gFile.fileSize);

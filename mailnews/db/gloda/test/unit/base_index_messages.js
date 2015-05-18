@@ -19,6 +19,7 @@ load("resources/glodaTestHelper.js");
 
 Components.utils.import("resource:///modules/MailUtils.js");
 Components.utils.import("resource://gre/modules/NetUtil.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 // Whether we can expect fulltext results
 var expectFulltextResults = true;
@@ -471,7 +472,13 @@ function verify_attributes_fundamental(smsg, gmsg) {
       // because it's unreliable and depends on the platform
       do_check_true(Math.abs(attInfos.size - expectedSize) <= 2);
       // check that the attachment URLs are correct
-      let channel = NetUtil.newChannel(attInfos.url);
+      let channel = NetUtil.newChannel({
+         uri: attInfos.url,
+         loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+         securityFlags: Ci.nsILoadInfo.SEC_NORMAL,
+         contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER
+      });
+
       try {
         // will throw if the URL is invalid
         channel.open();
@@ -515,7 +522,12 @@ function test_moved_message_attributes() {
         // verify the url has changed
         do_check_neq(fundamentalGlodaMsgAttachmentUrls[i], attInfos.url);
         // and verify that the new url is still valid
-        let channel = NetUtil.newChannel(attInfos.url);
+        let channel = NetUtil.newChannel({
+           uri: attInfos.url,
+           loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+           securityFlags: Ci.nsILoadInfo.SEC_NORMAL,
+           contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER
+        });
         try {
           channel.open();
         } catch (e) {
