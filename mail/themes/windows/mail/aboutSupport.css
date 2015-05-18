@@ -3,15 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .gray-text {
-  color: GrayText;
+  color: #888;
 }
 
 .thead-level2 > th {
-  background-color: -moz-Dialog;
-  color: -moz-DialogText;
+  background-color: #ebebeb;
+  color: #333;
 }
 
 td.data-private {
-  background-color: infobackground;
-  color: infotext;
+  background-color: #ff9;
 }
