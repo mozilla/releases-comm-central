@@ -10,6 +10,9 @@ export('XPI_NAME')
 
 JAR_MANIFESTS += ['jar.mn']
 
+USE_EXTENSION_MANIFEST = True
+export('USE_EXTENSION_MANIFEST')
+
 JS_PREFERENCE_FILES += [
     'defaults/preferences.js',
 ]

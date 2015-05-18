@@ -10,8 +10,6 @@ VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-USE_EXTENSION_MANIFEST = 1
-
 WINDOW_ICONS = calendar-alarm-dialog \
                calendar-event-dialog \
                calendar-event-summary-dialog \

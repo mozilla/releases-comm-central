@@ -9,6 +9,5 @@ ifeq (calendar,$(firstword $(subst /, ,$(subst $(topsrcdir)/,,$(srcdir)))))
 # override this.
 ifndef XPI_NAME
 XPI_NAME = lightning
-USE_EXTENSION_MANIFEST = 1
 endif
 endif
