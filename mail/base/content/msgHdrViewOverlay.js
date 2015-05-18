@@ -1860,7 +1860,13 @@ AttachmentInfo.prototype = {
   {
     // Create an input stream on the attachment url.
     let url = Services.io.newURI(this.url, null, null);
-    let stream = Services.io.newChannelFromURI(url).open();
+    let channel = Services.io.newChannelFromURI2(url,
+                                                 null,
+                                                 Services.scriptSecurityManager.getSystemPrincipal(),
+                                                 null,
+                                                 Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                 Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+    let stream = channel.open();
 
     let inputStream = Components.classes["@mozilla.org/binaryinputstream;1"]
                                 .createInstance(Components.interfaces.nsIBinaryInputStream);

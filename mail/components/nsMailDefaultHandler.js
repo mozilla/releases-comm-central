@@ -84,7 +84,12 @@ function openURI(uri)
   if (!mayOpenURI(uri))
     throw Components.results.NS_ERROR_FAILURE;
 
-  var channel = Services.io.newChannelFromURI(uri);
+  var channel = Services.io.newChannelFromURI2(uri,
+                                               null,
+                                               Services.scriptSecurityManager.getSystemPrincipal(),
+                                               null,
+                                               Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                               Components.interfaces.nsIContentPolicy.TYPE_OTHER);
   var loader = Components.classes["@mozilla.org/uriloader;1"]
                          .getService(Components.interfaces.nsIURILoader);
 

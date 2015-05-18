@@ -3806,7 +3806,12 @@ function OpenSelectedAttachment()
 
       if (url)
       {
-        let channel = Services.io.newChannelFromURI(url);
+        let channel = Services.io.newChannelFromURI2(url,
+                                                     null,
+                                                     Services.scriptSecurityManager.getSystemPrincipal(),
+                                                     null,
+                                                     Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                     Components.interfaces.nsIContentPolicy.TYPE_OTHER);
         if (channel)
         {
           let uriLoader = Components.classes["@mozilla.org/uriloader;1"].getService(Components.interfaces.nsIURILoader);

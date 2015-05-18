@@ -802,7 +802,12 @@ function storePhoto(aUri)
   let file = getPhotosDir();
 
   // Create a channel from the URI and open it as an input stream
-  let channel = Services.io.newChannelFromURI(Services.io.newURI(aUri, null, null));
+  let channel = Services.io.newChannelFromURI2(Services.io.newURI(aUri, null, null),
+                                               null,
+                                               Services.scriptSecurityManager.getSystemPrincipal(),
+                                               null,
+                                               Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                               Components.interfaces.nsIContentPolicy.TYPE_OTHER);
   let istream = channel.open();
 
   // Get the photo file
