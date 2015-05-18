@@ -230,6 +230,43 @@ toolbar[brighttext] #button-print {
   border-bottom: 0px solid;
 }
 
+#identityLabel {
+  margin: 0;
+  margin-inline-end: 4px;
+  padding: 2px 1px;
+  background-color: transparent;
+  border: 1px solid transparent;
+  transition: background-color .25s ease-in;
+}
+
+#identityLabel:hover {
+  background-color: rgba(150, 150, 150, .4);
+  border-color: rgba(149, 165, 166, 0.3);
+}
+
+#msgIdentity {
+   margin: 0px;
+   padding-inline-start: 3px;
+   background: transparent;
+   line-height: 1;
+   border: 1px solid transparent;
+   border-bottom: 1px solid #C6C6C6;
+   border-radius: 0;
+   -moz-appearance: none;
+   background: url("chrome://global/skin/arrow/arrow-dn.gif") no-repeat right;
+   transition: border .2s, background-color .2s;
+}
+
+#msgIdentity:hover,
+#msgIdentity[focused="true"] {
+  background-color: white;
+  border: 1px solid #C6C6C6;
+}
+
+#msgIdentity > .menulist-editable-box {
+  padding-inline-start: 3px;
+}
+
 #addresses-box {
   margin: 4px 6px;
 }

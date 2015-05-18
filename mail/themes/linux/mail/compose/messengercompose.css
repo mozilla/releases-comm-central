@@ -359,7 +359,64 @@ treechildren::-moz-tree-image(subscribed-news) {
 }
 
 #identityLabel {
-  padding-top: 3px;
+  -moz-appearance: none;
+  margin-inline-end: 3px;
+  margin-top: 2px;
+  margin-bottom: 0;
+  padding: 3px 5px;
+  color: ButtonText;
+  background-color: transparent;
+  border: 1px solid transparent;
+  transition: background-color .25s ease-in;
+}
+
+#identityLabel:hover {
+  border-color: rgba(125, 125, 125, .4);
+  background-color: rgba(125, 125, 125, .4);
+}
+
+#msgIdentity {
+  -moz-appearance: none;
+  -moz-box-align: center;
+  margin-right: 5px;
+  margin-bottom: 0;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-inline-start: 2px;
+  background: transparent;
+  height: 22px;
+  line-height: 1;
+  border: 2px solid transparent;
+  -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
+  transition: border .2s, background-color .2s;
+}
+
+#msgIdentity:hover,
+#msgIdentity[focused="true"] {
+  background-color: -moz-field;
+  -moz-border-top-colors: ThreeDShadow ThreeDHighlight;
+  -moz-border-right-colors: ThreeDShadow ThreeDHighlight;
+  -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
+  -moz-border-left-colors: ThreeDShadow ThreeDHighlight;
+}
+
+#msgIdentity > .menulist-editable-box {
+  -moz-appearance: none;
+  padding-inline-start: 3px;
+}
+
+#msgIdentity > .menulist-dropmarker {
+  -moz-appearance: none;
+  display: -moz-box;
+  padding: 6px;
+  border: none;
+  background: transparent;
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+}
+
+#msgIdentity > .menulist-dropmarker > .dropmarker-icon {
+  width: 5px;
+  height: 3px;
 }
 
 /* ::::: format toolbar ::::: */

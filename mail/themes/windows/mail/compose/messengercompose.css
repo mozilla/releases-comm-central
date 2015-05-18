@@ -109,6 +109,14 @@
   margin-top: 2px;
 }
 
+#identityLabel {
+  transition: border .2s, background-color .2s;
+}
+
+#identityLabel > .toolbarbutton-icon {
+  display: none;
+}
+
 #msgSubject {
   -moz-appearance: none;
   -moz-margin-end: 5px;
@@ -861,20 +869,30 @@
   }
 
   #identityLabel {
-    margin-top: 2px;
-    margin-bottom: 1px;
+    -moz-appearance: none;
+    height: 22px;
+    margin: 1px 3px;
+    padding-top:4px;
+    padding-bottom: 0;
+    padding-inline-start: 4px;
+    padding-inline-end: 2px;
+    border: 1px solid transparent;
+    background-color: transparent;
+    color: ButtonText;
+  }
+
+  #identityLabel:hover {
+    border-color: ThreeDShadow;
+    background-color: -moz-ButtonHoverFace;
   }
 
   #msgIdentity {
-    -moz-padding-end: 18px;
-    -moz-padding-start: 2px !important;
+    padding-inline-start: 2px !important;
     margin-bottom: 1px;
     -moz-border-top-colors: none;
     -moz-border-left-colors: none;
     -moz-border-right-colors: none;
     -moz-border-bottom-colors: none;
-    background: url("chrome://global/skin/arrow/arrow-dn.gif") no-repeat;
-    background-position: calc(100% - 7px);
   }
 
   @media (-moz-windows-default-theme) {
@@ -890,8 +908,15 @@
     }
   }
 
+  #msgIdentity > .menulist-editable-box {
+    padding-inline-start: 3px;
+  }
+
   #msgIdentity > .menulist-dropmarker {
-    display: none;
+    -moz-appearance: none;
+    margin-top: 0;
+    border: none;
+    background: transparent;
   }
 
   #appcontent {
@@ -1094,7 +1119,11 @@
   }
 
   #identityLabel {
-    padding-top: 1px;
+    -moz-appearance: none;
+    border: 1px solid transparent;
+    margin-bottom: 1px;
+    margin-inline-end: 0;
+    padding: 3px 4px 2px;
   }
 
   #compose-toolbox:not(:-moz-lwtheme) {
@@ -1124,6 +1153,19 @@
     background-image: none;
   }
 
+  #msgIdentity > .menulist-dropmarker {
+    -moz-appearance: none;
+    margin-top: 0;
+    border: none;
+    background: transparent;
+  }
+
+  #msgIdentity > .menulist-dropmarker > .dropmarker-icon {
+    list-style-image: url("chrome://messenger/skin/icons/dropmarker.svg#win");
+    width: 9px;
+    height: 7px;
+  }
+
   @media (-moz-windows-default-theme) {
     #msgIdentity {
       border-radius: 0;
@@ -1134,6 +1176,11 @@
     #msgIdentity[focused="true"] {
       background-color: -moz-field;
       border-color: #a9b7c9;
+    }
+
+    #msgIdentity[editable="true"] > .menulist-dropmarker {
+      margin-inline-start: 3px;
+      margin-inline-end: -3px;
     }
   }
 
@@ -1387,11 +1434,13 @@
       transition-duration: 150ms;
     }
 
+    #identityLabel:hover,
     menulist:not([disabled="true"]):not([open="true"]):hover {
       background: var(--toolbarbutton-active-background);
       border-color: var(--toolbarbutton-active-bordercolor);
     }
 
+    #identityLabel:hover:active,
     menulist[open="true"] {
       background: var(--toolbarbutton-active-background);
       border-color: var(--toolbarbutton-active-bordercolor);
@@ -1514,10 +1563,12 @@
     background-color: #eef3fa;
   }
 
+  #identityLabel,
   menulist {
     border-radius: 2px;
   }
 
+  #identityLabel:hover:active,
   menulist[open="true"] {
     text-shadow: none;
     transition: none;
@@ -1539,6 +1590,13 @@
     border: none;
     border-top: 1px solid threedshadow;
     background-color: hsl(210, 75%, 92%);
+  }
+}
+
+@media (-moz-os-version: windows-win8),
+       (-moz-os-version: windows-win10) {
+  #msgIdentity > .menulist-dropmarker > .dropmarker-icon {
+    list-style-image: url("chrome://messenger/skin/icons/dropmarker.svg#win8");
   }
 }
 
