@@ -79,7 +79,7 @@ var gAllProgressListener = {
 
 var gFrontNotifications, gAllNotifications, gFrontNotificationsPos, gAllNotificationsPos;
 var gBackgroundTab, gForegroundTab, gBackgroundBrowser, gForegroundBrowser, gTestBrowser;
-var gTestPage = "/browser/suite/browser/test/alltabslistener.html";
+var gTestPage = "/browser/suite/browser/test/browser/alltabslistener.html";
 var gNextTest;
 
 function test() {

@@ -11,7 +11,7 @@ function test() {
     pageInfo = BrowserPageInfo();
   }, true);
   content.location =
-    "https://example.com/browser/suite/browser/test/feed_tab.html";
+    "https://example.com/browser/suite/browser/test/browser/feed_tab.html";
 
   function observer(win, topic, data) {
     Services.obs.removeObserver(observer, "page-info-dialog-loaded");

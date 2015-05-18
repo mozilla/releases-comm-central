@@ -37,6 +37,6 @@ function test() {
   }, true);
 
   content.location = 
-    "http://mochi.test:8888/browser/suite/browser/test/title_test.svg";
+    "http://mochi.test:8888/browser/suite/browser/test/browser/title_test.svg";
 }
 

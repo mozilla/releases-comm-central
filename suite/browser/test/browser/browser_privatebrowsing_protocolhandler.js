@@ -11,7 +11,7 @@ function test() {
   let windowsToClose = [];
   let notificationValue = "Protocol Registration: testprotocol";
   let testURI = "http://example.com/browser/" +
-    "suite/browser/test/browser_privatebrowsing_protocolhandler_page.html";
+    "suite/browser/test/browser/browser_privatebrowsing_protocolhandler_page.html";
 
   function doTest(aIsPrivateMode, aWindow, aCallback) {
     aWindow.getBrowser().selectedBrowser.addEventListener("load", function onLoad() {

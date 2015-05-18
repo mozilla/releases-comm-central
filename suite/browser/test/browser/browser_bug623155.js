@@ -1,7 +1,7 @@
 /* Any copyright is dedicated to the Public Domain.
    http://creativecommons.org/publicdomain/zero/1.0/ */
 
-const REDIRECT_FROM = "https://example.com/browser/suite/browser/test/" +
+const REDIRECT_FROM = "https://example.com/browser/suite/browser/test/browser/" +
                       "redirect_bug623155.sjs";
 
 const REDIRECT_TO = "https://www.bank1.com/"; // Bad-cert host.
