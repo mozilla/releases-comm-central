@@ -26,9 +26,17 @@ function run_test() {
     run_next_test();
 }
 
-function check_webcal_uri(uri) {
-    let chan = Services.io.newChannel(uri, null, null);
-    NetUtil.asyncFetch(chan, function(data, status, request) {
+function check_webcal_uri(aUri) {
+    let uri = Services.io.newURI(aUri, null, null);
+
+    let channel = Services.io.newChannelFromURI2(uri,
+                                                 null,
+                                                 Services.scriptSecurityManager.getSystemPrincipal(),
+                                                 null,
+                                                 Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                 Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+
+    NetUtil.asyncFetch(channel, function(data, status, request) {
         ok(Components.isSuccessCode(status));
         run_next_test();
     });

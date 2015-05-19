@@ -74,7 +74,15 @@ calTimezoneService.prototype = {
             cal.LOG("[calTimezoneService] Loading " + aURL);
 
             return new Promise((resolve, reject) => {
-                NetUtil.asyncFetch(aURL, (inputStream, status) => {
+                let uri = Services.io.newURI(aURL, null, null);
+                let channel = Services.io.newChannelFromURI2(uri,
+                                                             null,
+                                                             Services.scriptSecurityManager.getSystemPrincipal(),
+                                                             null,
+                                                             Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                             Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+
+                NetUtil.asyncFetch(channel, (inputStream, status) => {
                     if (!Components.isSuccessCode(status)) {
                         reject(status);
                         return;

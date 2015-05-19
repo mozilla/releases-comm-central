@@ -33,11 +33,11 @@ calProtocolHandler.prototype = {
     newURI: function cph_newURI(aSpec, anOriginalCharset, aBaseURI) {
         var uri = Components.classes["@mozilla.org/network/standard-url;1"].
                              createInstance(Components.interfaces.nsIStandardURL);
-        uri.init(Components.interfaces.nsIStandardURL.URLTYPE_STANDARD, 
+        uri.init(Components.interfaces.nsIStandardURL.URLTYPE_STANDARD,
                  this.mHttpProtocol.defaultPort, aSpec, anOriginalCharset, aBaseURI);
         return uri;
     },
-    
+
     newChannel: function cph_newChannel(aUri) {
       return this.newChannel2(aUri, null);
     },
@@ -46,10 +46,20 @@ calProtocolHandler.prototype = {
     {
         // make sure to clone the uri, because we are about to change
         // it, and we don't want to change the original uri.
-        var uri = aUri.clone();
+        let uri = aUri.clone();
         uri.scheme = this.mHttpProtocol.scheme;
 
-        var channel = Services.io.newChannelFromURI(uri, null);
+        let channel;
+        if (aLoadInfo) {
+            channel = Services.io.newChannelFromURIWithLoadInfo(uri, aLoadInfo);
+        } else {
+            channel = Services.io.newChannelFromURI2(uri,
+                                                     null,
+                                                     Services.scriptSecurityManager.getSystemPrincipal(),
+                                                     null,
+                                                     Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                     Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+        }
         channel.originalURI = aUri;
         return channel;
     },

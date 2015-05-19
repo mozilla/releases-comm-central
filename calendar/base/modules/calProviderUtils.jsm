@@ -30,7 +30,12 @@ this.EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, im
  * @param aExisting                  An existing channel to modify (optional)
  */
 cal.prepHttpChannel = function calPrepHttpChannel(aUri, aUploadData, aContentType, aNotificationCallbacks, aExisting) {
-    let channel = aExisting || Services.io.newChannelFromURI(aUri);
+    let channel = aExisting || Services.io.newChannelFromURI2(aUri,
+                                                              null,
+                                                              Services.scriptSecurityManager.getSystemPrincipal(),
+                                                              null,
+                                                              Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                              Components.interfaces.nsIContentPolicy.TYPE_OTHER);
     let httpchannel = channel.QueryInterface(Components.interfaces.nsIHttpChannel);
 
     httpchannel.setRequestHeader("Accept", "text/xml", false);

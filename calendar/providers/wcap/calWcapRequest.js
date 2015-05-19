@@ -407,7 +407,12 @@ function issueNetworkRequest(parentRequest, respFunc, url, bLogging) {
     }
     try {
         var uri = Services.io.newURI(url, null, null);
-        var channel = Services.io.newChannelFromURI(uri);
+        var channel = Services.io.newChannelFromURI2(uri,
+                                                     null,
+                                                     Services.scriptSecurityManager.getSystemPrincipal(),
+                                                     null,
+                                                     Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                     Components.interfaces.nsIContentPolicy.TYPE_OTHER);
         netRequest.prepareChannel(channel);
         channel = channel.QueryInterface(Components.interfaces.nsIHttpChannel);
         channel.redirectionLimit = 3;

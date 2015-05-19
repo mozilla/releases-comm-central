@@ -116,7 +116,12 @@ calICSCalendar.prototype = {
 
         // Use the ioservice, to create a channel, which makes finding the
         // right hooks to use easier.
-        var channel = Services.io.newChannelFromURI(this.mUri);
+        var channel = Services.io.newChannelFromURI2(this.mUri,
+                                                     null,
+                                                     Services.scriptSecurityManager.getSystemPrincipal(),
+                                                     null,
+                                                     Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                     Components.interfaces.nsIContentPolicy.TYPE_OTHER);
         let wHttpChannel = cal.wrapInstance(channel, Components.interfaces.nsIHttpChannel);
         let wFileChannel = cal.wrapInstance(channel, Components.interfaces.nsIFileChannel);
 
@@ -173,7 +178,12 @@ calICSCalendar.prototype = {
                                  .createInstance(Components.interfaces.nsISupportsPRBool);
         prbForce.data = aForce;
 
-        var channel = Services.io.newChannelFromURI(this.mUri);
+        var channel = Services.io.newChannelFromURI2(this.mUri,
+                                                     null,
+                                                     Services.scriptSecurityManager.getSystemPrincipal(),
+                                                     null,
+                                                     Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                     Components.interfaces.nsIContentPolicy.TYPE_OTHER);
         this.prepareChannel(channel, aForce);
 
         var streamLoader = Components.classes["@mozilla.org/network/stream-loader;1"]
@@ -317,7 +327,12 @@ calICSCalendar.prototype = {
                     // All events are returned. Now set up a channel and a
                     // streamloader to upload.  onStopRequest will be called
                     // once the write has finished
-                    var channel = Services.io.newChannelFromURI(savedthis.mUri);
+                    var channel = Services.io.newChannelFromURI2(savedthis.mUri,
+                                                                 null,
+                                                                 Services.scriptSecurityManager.getSystemPrincipal(),
+                                                                 null,
+                                                                 Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                                 Components.interfaces.nsIContentPolicy.TYPE_OTHER);
 
                     // Allow the hook to add things to the channel, like a
                     // header that checks etags
@@ -451,14 +466,14 @@ calICSCalendar.prototype = {
         this.adoptItem(aItem.clone(), aListener);
     },
     adoptItem: function (aItem, aListener) {
-        if (this.readOnly) 
+        if (this.readOnly)
             throw calIErrors.CAL_IS_READONLY;
         this.queue.push({action:'add', item:aItem, listener:aListener});
         this.processQueue();
     },
 
     modifyItem: function (aNewItem, aOldItem, aListener) {
-        if (this.readOnly) 
+        if (this.readOnly)
             throw calIErrors.CAL_IS_READONLY;
         this.queue.push({action:'modify', oldItem: aOldItem,
                          newItem: aNewItem, listener:aListener});
@@ -466,7 +481,7 @@ calICSCalendar.prototype = {
     },
 
     deleteItem: function (aItem, aListener) {
-        if (this.readOnly) 
+        if (this.readOnly)
             throw calIErrors.CAL_IS_READONLY;
         this.queue.push({action:'delete', item:aItem, listener:aListener});
         this.processQueue();
@@ -767,7 +782,12 @@ calICSCalendar.prototype = {
         purgeOldBackups();
 
         // Now go download the remote file, and store it somewhere local.
-        var channel = Services.io.newChannelFromURI(this.mUri);
+        var channel = Services.io.newChannelFromURI2(this.mUri,
+                                                     null,
+                                                     Services.scriptSecurityManager.getSystemPrincipal(),
+                                                     null,
+                                                     Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                     Components.interfaces.nsIContentPolicy.TYPE_OTHER);
         channel.loadFlags |= Components.interfaces.nsIRequest.LOAD_BYPASS_CACHE;
         channel.notificationCallbacks = this;
 

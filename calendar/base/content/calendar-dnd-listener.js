@@ -284,7 +284,12 @@ calDNDBaseObserver.prototype = {
                 var uri = Services.io.newURI(data.toString(), null, null);
                 var loader = Components.classes["@mozilla.org/network/unichar-stream-loader;1"]
                              .createInstance(Components.interfaces.nsIUnicharStreamLoader);
-                var channel = Services.io.newChannelFromURI(uri);
+                var channel = Services.io.newChannelFromURI2(uri,
+                                                             null,
+                                                             Services.scriptSecurityManager.getSystemPrincipal(),
+                                                             null,
+                                                             Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                             Components.interfaces.nsIContentPolicy.TYPE_OTHER);
                 channel.loadFlags |= Components.interfaces.nsIRequest.LOAD_BYPASS_CACHE;
 
                 var self = this;
