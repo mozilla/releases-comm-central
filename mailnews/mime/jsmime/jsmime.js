@@ -2847,7 +2847,7 @@ let nonAsciiRe = /[^\x20-\x7e]/;
 const b64Prelude = "=?UTF-8?B?", qpPrelude = "=?UTF-8?Q?";
 
 /// A list of ASCII characters forbidden in RFC 2047 encoded-words
-const qpForbidden = "=?_()\"";
+const qpForbidden = "=?_()\",";
 
 const hexString = "0123456789abcdef";
 

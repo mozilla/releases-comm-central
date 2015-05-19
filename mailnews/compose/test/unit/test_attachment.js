@@ -46,8 +46,8 @@ const ParamFoldingPref = {
 
 const expectedCTList0 = {
   RFC2047: 'Content-Type: text/plain; charset=US-ASCII;\r\n'+
-           ' name="=?UTF-8?Q?_!=22#$%&\'=28=29*+,-./0123456789:;<=3d>=3f@ABCDEFGHIJKLMNO?='+
-           '=?UTF-8?Q?PQRSTUVWXYZ[\\\\]^=5f`abcdefghijklmnopqrstuvwxyz{|}~=c2=a0?='+
+           ' name="=?UTF-8?Q?_!=22#$%&\'=28=29*+=2c-./0123456789:;<=3d>=3f@ABCDEFGHIJKLM?='+
+           '=?UTF-8?Q?NOPQRSTUVWXYZ[\\\\]^=5f`abcdefghijklmnopqrstuvwxyz{|}~=c2=a0?='+
            '=?UTF-8?B?wqHCosKjwqTCpcKmwqfCqMKpwqrCq8Kswq3CrsKvwrDCscKywrPCtMK1?='+
            '=?UTF-8?B?wrbCt8K4wrnCusK7wrzCvcK+wr/DgMOBw4LDg8OEw4XDhsOHw4jDicOK?='+
            '=?UTF-8?B?w4vDjMONw47Dj8OQw5HDksOTw5TDlcOWw5fDmMOZw5rDm8Ocw53DnsOf?='+
@@ -55,8 +55,8 @@ const expectedCTList0 = {
            '=?UTF-8?B?w7XDtsO3w7jDucO6w7vDvMO9w77Dvy50eHQ=?="\r\n',
 
   RFC2047WithCRLF: 'Content-Type: text/plain; charset=US-ASCII;\r\n'+
-                   ' name="=?UTF-8?Q?_!=22#$%&\'=28=29*+,-./0123456789:;<=3d>=3f@ABCDEFGHIJKLMNO?=\r\n'+
-                   ' =?UTF-8?Q?PQRSTUVWXYZ[\\\\]^=5f`abcdefghijklmnopqrstuvwxyz{|}~=c2=a0?=\r\n'+
+                   ' name="=?UTF-8?Q?_!=22#$%&\'=28=29*+=2c-./0123456789:;<=3d>=3f@ABCDEFGHIJKLM?=\r\n'+
+                   ' =?UTF-8?Q?NOPQRSTUVWXYZ[\\\\]^=5f`abcdefghijklmnopqrstuvwxyz{|}~=c2=a0?=\r\n'+
                    ' =?UTF-8?B?wqHCosKjwqTCpcKmwqfCqMKpwqrCq8Kswq3CrsKvwrDCscKywrPCtMK1?=\r\n'+
                    ' =?UTF-8?B?wrbCt8K4wrnCusK7wrzCvcK+wr/DgMOBw4LDg8OEw4XDhsOHw4jDicOK?=\r\n'+
                    ' =?UTF-8?B?w4vDjMONw47Dj8OQw5HDksOTw5TDlcOWw5fDmMOZw5rDm8Ocw53DnsOf?=\r\n'+

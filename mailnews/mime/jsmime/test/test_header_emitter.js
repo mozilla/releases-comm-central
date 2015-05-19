@@ -97,6 +97,11 @@ suite('headeremitter', function () {
       [[{name: "\ud83d\udca9\ud83d\udca9\ud83d\udca9\ud83d\udca9",
         email: "a@a.c"}],
         "=?UTF-8?B?8J+SqfCfkqnwn5Kp?=\r\n =?UTF-8?B?8J+SqQ==?= <a@a.c>"],
+      // Bug 1088975: Since the encoded-word should be recognized as an atom,
+      // encode commas.
+      [[{name: "B\u00fcg 1088975, FirstName", email: "a@b.c"}],
+        "=?UTF-8?Q?B=c3=bcg_1088975?=\r\n" +
+        " =?UTF-8?Q?=2c_FirstName?=\r\n <a@b.c>"],
     ];
     header_tests.forEach(function (data) {
       arrayTest(data, function () {
@@ -127,12 +132,12 @@ suite('headeremitter', function () {
       ["My house   burned down!", "My house burned down!"],
 
       // Which variables need to be encoded in QP encoding?
-      ["! \" # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \\ ] ^ _ ` { | } ~ \x7f",
-        "=?UTF-8?Q?!_=22_#_$_%_&_'_?=\r\n" +
-        " =?UTF-8?Q?=28_=29_*_+_,_-_.?=\r\n" +
-        " =?UTF-8?Q?_/_:_;_<_=3d_>_?=\r\n" +
-        " =?UTF-8?Q?=3f_@_[_\\_]_^_=5f?=\r\n" +
-        " =?UTF-8?Q?_`_{_|_}_~_=7f?="],
+      ["! \" # $ % & ' ( ) * + - .", 
+       "! \" # $ % & ' ( ) * + - ."],
+      [" / : ; < = > ? , @ [ \\ ] ^ _ ` { | } ~ \x7f",
+        "=?UTF-8?Q?_/_:_;_<_=3d_>_=3f?=\r\n" +
+        " =?UTF-8?Q?_=2c_@_[_\\_]_^_?=\r\n" +
+        " =?UTF-8?Q?=5f_`_{_|_}_~_=7f?="],
       // But non-printable characters don't need it in the first place!
       ["! \" # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \\ ] ^ _ ` { | } ~",
         "! \" # $ % & ' ( ) * + , - . /\r\n" +
