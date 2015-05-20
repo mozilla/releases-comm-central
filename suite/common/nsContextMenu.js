@@ -79,8 +79,10 @@ nsContextMenu.prototype = {
         if (props) {
           let nsISupportsCString = Components.interfaces.nsISupportsCString;
           contentType = props.get("type", nsISupportsCString).data;
-          contentDisposition = props.get("content-disposition",
-                                         nsISupportsCString).data;
+          try {
+            contentDisposition = props.get("content-disposition",
+                                           nsISupportsCString).data;
+          } catch (e) {}
         }
       } catch (e) {
         Components.utils.reportError(e);
