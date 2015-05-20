@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource:///modules/mailServices.js");
+
 //NOTE: gMessengerBundle must be defined and set or this Overlay won't work
 
 /**
@@ -450,23 +452,25 @@ function SendMailToNode(emailAddressNode, aEvent)
 
 function SendMailTo(fullAddress, aEvent)
 {
-  var fields = Components.classes["@mozilla.org/messengercompose/composefields;1"].createInstance(Components.interfaces.nsIMsgCompFields);
-  var params = Components.classes["@mozilla.org/messengercompose/composeparams;1"].createInstance(Components.interfaces.nsIMsgComposeParams);
-  if (fields && params)
-  {
-    fields.to = fullAddress;
-    params.type = Components.interfaces.nsIMsgCompType.New;
+  var fields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
+                         .createInstance(Components.interfaces.nsIMsgCompFields);
+  var params = Components.classes["@mozilla.org/messengercompose/composeparams;1"]
+                         .createInstance(Components.interfaces.nsIMsgComposeParams);
 
-    // If aEvent is passed, check if Shift key was pressed for composition in
-    // non-default format (HTML vs. plaintext).
-    params.format = (aEvent && aEvent.shiftKey) ? 
-      Components.interfaces.nsIMsgCompFormat.OppositeOfDefault :
-      Components.interfaces.nsIMsgCompFormat.Default;
+  var headerParser = MailServices.headerParser;
+  var addresses = headerParser.makeFromDisplayAddress(fullAddress);
+  fields.to = headerParser.makeMimeHeader(addresses, 1);
+  params.type = Components.interfaces.nsIMsgCompType.New;
 
-    params.identity = accountManager.getFirstIdentityForServer(GetLoadedMsgFolder().server);
-    params.composeFields = fields;
-    msgComposeService.OpenComposeWindowWithParams(null, params);
-  }
+  // If aEvent is passed, check if Shift key was pressed for composition in
+  // non-default format (HTML vs. plaintext).
+  params.format = (aEvent && aEvent.shiftKey) ?
+    Components.interfaces.nsIMsgCompFormat.OppositeOfDefault :
+    Components.interfaces.nsIMsgCompFormat.Default;
+
+  params.identity = accountManager.getFirstIdentityForServer(GetLoadedMsgFolder().server);
+  params.composeFields = fields;
+  MailServices.compose.OpenComposeWindowWithParams(null, params);
 }
 
 // CopyEmailAddress takes the email address title button, extracts
