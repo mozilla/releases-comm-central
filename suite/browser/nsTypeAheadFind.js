@@ -125,7 +125,7 @@ typeAheadFind.prototype = {
 
   /* nsIDOMEventListener */
   handleEvent: function(aEvent) {
-    if (aEvent.type != "keypress") {
+    if (!aEvent.type.startsWith("key")) {
       this.stopFind(false);
       return true;
     }
@@ -133,6 +133,11 @@ typeAheadFind.prototype = {
     // We don't care about these keys.
     if (aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey)
       return true;
+
+    if (aEvent.type != "keypress") {
+      aEvent.stopPropagation();
+      return true;
+    }
 
     // Are we already in a find?
     if (aEvent.eventPhase == Components.interfaces.nsIDOMEvent.CAPTURING_PHASE)
@@ -259,6 +264,7 @@ typeAheadFind.prototype = {
     // Escape always cancels the find.
     if (aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_ESCAPE) {
       aEvent.preventDefault();
+      aEvent.stopPropagation();
       this.stopFind(false);
       return false;
     }
@@ -266,6 +272,7 @@ typeAheadFind.prototype = {
     var result = Components.interfaces.nsITypeAheadFind.FIND_NOTFOUND;
     if (aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE) {
       aEvent.preventDefault();
+      aEvent.stopPropagation();
       this.mSearchString = this.mSearchString.slice(0, -1);
       // Backspacing past the start of the string cancels the find.
       if (!this.mSearchString) {
@@ -287,6 +294,7 @@ typeAheadFind.prototype = {
 
       this.startTimer();
       aEvent.preventDefault();
+      aEvent.stopPropagation();
 
       // It looks as if the cat walked on the keyboard.
       if (this.mBadKeysSinceMatch >= 3)
@@ -374,6 +382,8 @@ typeAheadFind.prototype = {
     this.mFound.setDocShell(docShell);
     this.mEventTarget = docShell.chromeEventHandler;
     this.mEventTarget.addEventListener("keypress", this, true);
+    this.mEventTarget.addEventListener("keydown", this, true);
+    this.mEventTarget.addEventListener("keyup", this, true);
     this.mEventTarget.addEventListener("pagehide", this, true);
     this.mCurrentWindow = w;
     this.mBadKeysSinceMatch = 0;
@@ -392,6 +402,8 @@ typeAheadFind.prototype = {
       this.mEventTarget.removeEventListener("blur", this, true);
       this.mEventTarget.removeEventListener("pagehide", this, true);
       this.mEventTarget.removeEventListener("keypress", this, true);
+      this.mEventTarget.removeEventListener("keydown", this, true);
+      this.mEventTarget.removeEventListener("keyup", this, true);
     }
     this.mEventTarget = null;
     if (this.mSelection)
