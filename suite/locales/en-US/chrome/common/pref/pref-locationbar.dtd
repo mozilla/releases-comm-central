@@ -6,16 +6,16 @@
 <!ENTITY pref.locationBar.title                "Location Bar">
 
 <!ENTITY autoComplete.label                    "Autocomplete">
-<!ENTITY enableAutoComplete.label              "Autocomplete from your browsing history as you type">
-<!ENTITY enableAutoComplete.accesskey          "A">
+<!ENTITY autoCompleteMatchHistory.label        "Automatically suggest websites from History">
+<!ENTITY autoCompleteMatchHistory.accesskey    "A">
+<!ENTITY autoCompleteMatchBookmarks.label      "Automatically suggest websites from Bookmarks">
+<!ENTITY autoCompleteMatchBookmarks.accesskey  "B">
 <!ENTITY autoCompleteAutoFill.label            "Automatically prefill the best match">
 <!ENTITY autoCompleteAutoFill.accesskey        "u">
 <!ENTITY autoCompleteShowPopup.label           "Show list of matching results">
 <!ENTITY autoCompleteShowPopup.accesskey       "S">
 <!ENTITY autoCompleteMatchOnlyTyped.label      "Match only websites you've typed previously">
 <!ENTITY autoCompleteMatchOnlyTyped.accesskey  "o">
-<!ENTITY autoCompleteMatchOnlyURLs.label       "Only match locations, not website titles">
-<!ENTITY autoCompleteMatchOnlyURLs.accesskey   "n">
 <!--LOCALIZATION NOTE (autoCompleteMatch.label): This is the common leading
   part of the menulist items listed below, mainly to make the control available
   via the accesskey

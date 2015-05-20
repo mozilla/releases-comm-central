@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const kBehaviorBit = {
-  matchOnlyURLs: 16,
-  matchOnlyTyped: 32
-};
-
 function Startup()
 {
   // On systems that has the file view component, autoFill and showPopup will
@@ -21,34 +16,27 @@ function Startup()
     document.getElementById("showPopup").removeAttribute("class");
   }
 
-  updateDependent(document.getElementById("browser.urlbar.autocomplete.enabled").value);
+  updateDependent();
 }
 
-function updateDependent(aValue)
+function updateDependent()
 {
-  // The match pref checkboxes always depend on autocomplete.enabled.
-  updateMatchPrefs();
+  var matchHistoryPref = document.getElementById("browser.urlbar.suggest.history");
+  EnableElementById("matchOnlyTyped", matchHistoryPref.value);
+
+  var matchBookmarkPref = document.getElementById("browser.urlbar.suggest.bookmark");
+  var autoCompleteEnabled = matchHistoryPref.value || matchBookmarkPref.value;
+  EnableElementById("matchBehavior", autoCompleteEnabled);
 
   // If autoFill has a class attribute, we don't have the file view component.
   // We then need to update autoFill and showPopup.
   if (document.getElementById("autoFill").hasAttribute("class"))
   {
-    EnableElementById("autoFill", aValue);
-    EnableElementById("showPopup", aValue);
+    EnableElementById("autoFill", autoCompleteEnabled);
+    EnableElementById("showPopup", autoCompleteEnabled);
   }
-}
 
-function updateMatchPrefs()
-{
-  // The various match prefs don't make sense if both autoFill and showPopup
-  // prefs are false or if autocomplete is turned off.
-  var autoCompletePref = document.getElementById("browser.urlbar.autocomplete.enabled");
-  var autoFillPref = document.getElementById("browser.urlbar.autoFill");
-  var showPopupPref = document.getElementById("browser.urlbar.showPopup");
-
-  var matchEnabled = (autoFillPref.value || showPopupPref.value) &&
-                     autoCompletePref.value;
-
-  EnableElementById("matchOnlyTyped", matchEnabled);
-  EnableElementById("matchBehavior", matchEnabled);
+  // We need to update autocomplete.enabled as the backend still respects it.
+  document.getElementById("browser.urlbar.autocomplete.enabled").value =
+    autoCompleteEnabled;
 }

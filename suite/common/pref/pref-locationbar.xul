@@ -12,12 +12,21 @@
             script="chrome://communicator/content/pref/pref-locationbar.js">
 
     <preferences id="locationBar_preferences">
-      <preference id="browser.urlbar.autocomplete.enabled"
-                  name="browser.urlbar.autocomplete.enabled"
+      <!-- The suggest preferences need to come first otherwise the backend
+           will enable both bookmarks and history if either is enabled -->
+      <preference id="browser.urlbar.suggest.bookmark"
+                  name="browser.urlbar.suggest.bookmark"
                   type="bool"
-                  onchange="updateDependent(this.value);"/>
+                  onchange="updateDependent();"/>
+      <preference id="browser.urlbar.suggest.history"
+                  name="browser.urlbar.suggest.history"
+                  type="bool"
+                  onchange="updateDependent();"/>
       <preference id="browser.urlbar.suggest.history.onlyTyped"
                   name="browser.urlbar.suggest.history.onlyTyped"
+                  type="bool"/>
+      <preference id="browser.urlbar.autocomplete.enabled"
+                  name="browser.urlbar.autocomplete.enabled"
                   type="bool"/>
       <preference id="browser.urlbar.matchBehavior"
                   name="browser.urlbar.matchBehavior"
@@ -49,15 +58,19 @@
 
     <groupbox>
       <caption label="&autoComplete.label;"/>
-      <checkbox id="autoCompleteEnabled"
-                label="&enableAutoComplete.label;"
-                accesskey="&enableAutoComplete.accesskey;"
-                preference="browser.urlbar.autocomplete.enabled"/>
+      <checkbox id="matchHistory"
+                label="&autoCompleteMatchHistory.label;"
+                accesskey="&autoCompleteMatchHistory.accesskey;"
+                preference="browser.urlbar.suggest.history"/>
       <checkbox id="matchOnlyTyped"
                 class="indent"
                 label="&autoCompleteMatchOnlyTyped.label;"
                 accesskey="&autoCompleteMatchOnlyTyped.accesskey;"
                 preference="browser.urlbar.suggest.history.onlyTyped"/>
+      <checkbox id="matchBookmark"
+                label="&autoCompleteMatchBookmarks.label;"
+                accesskey="&autoCompleteMatchBookmarks.accesskey;"
+                preference="browser.urlbar.suggest.bookmark"/>
       <hbox align="center" class="indent">
         <label value="&autoCompleteMatch.label;" control="matchBehavior"
                accesskey="&autoCompleteMatch.accesskey;"/>
