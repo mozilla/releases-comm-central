@@ -331,14 +331,14 @@
        return newURI.spec;
      },
      getFile: function getFile(path) {
-       var channel = Services.io.newChannel2(path,
-                                             null,
-                                             null,
-                                             null,
-                                             Services.scriptSecurityManager.getSystemPrincipal(),
-                                             null,
-                                             Ci.nsILoadInfo.SEC_NORMAL,
-                                             Ci.nsIContentPolicy.TYPE_OTHER);
+       var channel = ios.newChannel2(path,
+                                     null,
+                                     null,
+                                     null,
+                                     scriptSecurityManager.getSystemPrincipal(),
+                                     null,
+                                     Ci.nsILoadInfo.SEC_NORMAL,
+                                     Ci.nsIContentPolicy.TYPE_OTHER);
        var iStream = channel.open();
        var ciStream = Cc["@mozilla.org/intl/converter-input-stream;1"].
                       createInstance(Ci.nsIConverterInputStream);
