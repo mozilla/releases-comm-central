@@ -184,7 +184,7 @@ function subtest_get_an_account(w) {
   // Click on the first address. This reveals the button with the price.
   let address = w.window.document.querySelector(".address:first-child");
   w.click(new elib.Elem(address));
-  w.waitFor(function () w.window.document.querySelectorAll("button.create:not([hidden=true])").length > 0);
+  w.waitFor(() => w.window.document.querySelectorAll("button.create:not([hidden=true])").length > 0);
 
   // Pick the email address green@example.com
   plan_for_content_tab_load();
@@ -413,7 +413,7 @@ function subtest_persist_name_in_search_field(w) {
  * indeed persisted.
  */
 function subtest_persist_name_in_search_field_part_2(w) {
-  mc.waitFor(function () w.e("name").value == NAME);
+  mc.waitFor(() => w.e("name").value == NAME);
 }
 
 /**
@@ -563,7 +563,7 @@ function subtest_shows_error_on_bad_suggest_from_name(w) {
   // Do the search.
   w.click(w.eid("searchSubmit"));
 
-  mc.waitFor(function () !w.window.document.querySelector("#notifications > .error").hidden);
+  mc.waitFor(() => !w.window.document.querySelector("#notifications > .error").hidden);
 }
 
 /**
@@ -594,7 +594,7 @@ function subtest_shows_error_on_empty_suggest_from_name(w) {
   // Do the search.
   w.click(w.eid("searchSubmit"));
 
-  mc.waitFor(function () !w.window.document.querySelector("#notifications > .error").hidden);
+  mc.waitFor(() => !w.window.document.querySelector("#notifications > .error").hidden);
 }
 
 /**
@@ -907,7 +907,7 @@ function sub_get_to_order_form(aController, aAddress) {
   // Click on the first address. This reveals the button with the price.
   let address = aController.window.document.querySelector(".address:first-child");
   aController.click(new elib.Elem(address));
-  aController.waitFor(function () aController.window.document.querySelectorAll("button.create:not([hidden=true])").length > 0);
+  aController.waitFor(() => aController.window.document.querySelectorAll("button.create:not([hidden=true])").length > 0);
 
   // Pick the email address green@example.com
   plan_for_content_tab_load();
@@ -988,7 +988,7 @@ function test_external_link_opening_behaviour() {
   let targetHref = external.href;
   mc.click(new elib.Elem(external));
 
-  mc.waitFor(function () gMockExtProtSvc.urlLoaded(targetHref),
+  mc.waitFor(() => gMockExtProtSvc.urlLoaded(targetHref),
              "Timed out waiting for the link " + targetHref + "to be " +
              "opened in the default browser.");
   gMockExtProtSvcReg.unregister();
@@ -1119,7 +1119,7 @@ function subtest_disabled_fields_when_searching(aController) {
   server.stop(function() {
     serverStopped = true;
   });
-  aController.waitFor(function() serverStopped,
+  aController.waitFor(() => serverStopped,
                       "Timed out waiting for the fake server to stop.");
 
   close_dialog_immediately(aController);
@@ -1306,7 +1306,7 @@ function subtest_per_address_prices(w) {
 
   // Click on the multi provider. This reveals the buttons with the prices.
   mc.click(new elib.Elem(multi));
-  mc.waitFor(function () w.window.document.querySelectorAll("button.create:not([hidden=true])").length > 0);
+  mc.waitFor(() => w.window.document.querySelectorAll("button.create:not([hidden=true])").length > 0);
 
   // For each button, make sure it has the correct price.
   let buttons = w.window.document.querySelectorAll("button.create:not([hidden=true])");

@@ -77,7 +77,7 @@ function test_blocklisted_plugin_notification() {
 
   resetBlocklist(mc, function() { finishedReset = true; });
 
-  mc.waitFor(function () finishedReset, "Reset blocklist took too long");
+  mc.waitFor(() => finishedReset, "Reset blocklist took too long");
 
   plugin.enabledState = pluginState;
 

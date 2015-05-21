@@ -66,7 +66,7 @@ function test_move_message() {
   };
   MailServices.copy.CopyMessages(folder1, array, folder2, true,
                                  copyListener, mc.window.msgWindow, true);
-  mc.waitFor(function () copyListener.copyDone,
+  mc.waitFor(() => copyListener.copyDone,
              "Timeout waiting for copy to complete", 10000, 100);
   // We've moved a message to aaafolder2 - it should appear in recent list now.
   // Clicking the menuitem by label is not localizable, but Recent doesn't have an

@@ -60,7 +60,7 @@ function test_re_test_config() {
     awc.e("next_button").click();
 
     // Wait for 'edit' button to be enabled
-    awc.waitFor(function () (this.disabled == false && this.hidden == false),
+    awc.waitFor(function() { return this.disabled == false && this.hidden == false; },
                 "Timeout waiting for edit button to be enabled",
                 8000, 600, awc.e("create_button"));
 
@@ -69,7 +69,7 @@ function test_re_test_config() {
     // Click "re-test" button
     awc.e("half-manual-test_button").click();
 
-    awc.waitFor(function () (this.disabled == false),
+    awc.waitFor(function () { return this.disabled == false; },
                 "Timeout waiting for re-test button to be enabled",
                 20000, 600, awc.e("half-manual-test_button"));
 
@@ -82,7 +82,7 @@ function test_re_test_config() {
 
     // Wait for the "continue" button to be back, which means we're back to the
     // original state.
-    awc.waitFor(function () (this.hidden == false),
+    awc.waitFor(function() { return this.hidden == false; },
                 "Timeout waiting for continue button to be visible",
                 20000, 600, awc.e("next_button"));
 

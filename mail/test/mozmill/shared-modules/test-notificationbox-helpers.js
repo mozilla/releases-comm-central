@@ -92,7 +92,7 @@ function wait_for_notification_to_stop(aController, aBoxId, aValue) {
   let nb = aController.window.document.getElementById(aBoxId);
   if (!nb)
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
-  aController.waitFor(function() !nb.getNotificationWithValue(aValue),
+  aController.waitFor(() => !nb.getNotificationWithValue(aValue),
                       "Timed out waiting for notification with value " +
                       aValue + " to stop.");
 }

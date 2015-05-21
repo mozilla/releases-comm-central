@@ -78,7 +78,7 @@ function test_view_source_reload() {
   mc.keypress(null, "U", {shiftKey: false, accelKey: true});
   let vsc = wait_for_new_window("navigator:view-source");
 
-  vsc.waitFor(function() vsc.e("content").contentDocument.querySelector("pre") != null,
+  vsc.waitFor(() => vsc.e("content").contentDocument.querySelector("pre") != null,
               "Timeout waiting for the latin1 view-source document to load.");
 
   let source = vsc.e("content").contentDocument.querySelector("pre").textContent;
@@ -91,8 +91,8 @@ function test_view_source_reload() {
   vsc.click_menus_in_sequence(vsc.e("viewmenu-popup"),
     [{id: "charsetMenu"}, {label: "Unicode (UTF-8)"}]);
 
-  vsc.waitFor(function() vsc.e("content").contentDocument != doc &&
-                         vsc.e("content").contentDocument.querySelector("pre") != null,
+  vsc.waitFor(() => vsc.e("content").contentDocument != doc &&
+                    vsc.e("content").contentDocument.querySelector("pre") != null,
               "Timeout waiting utf-8 encoded view-source document to load.");
 
   source = vsc.e("content").contentDocument.querySelector("pre").textContent;

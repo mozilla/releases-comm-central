@@ -30,7 +30,7 @@ function setupModule(module) {
 }
 
 function wait_for_resize(width) {
-  mc.waitFor(function () (mc.window.outerWidth == width),
+  mc.waitFor(() => (mc.window.outerWidth == width),
              "Timeout waiting for resize (is the screen resolution 1280 x 1024?)", 1000, 50);
 }
 
@@ -141,7 +141,7 @@ function test_buttons_collapse_and_expand_on_spawn_in_vertical_mode() {
   // Now spawn a new 3pane...
   let mc2 = open_folder_in_new_window(folder);
   let qfb = mc2.e("quick-filter-bar-collapsible-buttons");
-  mc2.waitFor(function () (qfb.getAttribute("shrink") == "true"),
+  mc2.waitFor(() => (qfb.getAttribute("shrink") == "true"),
               "New 3pane should have had a collapsed QFB");
   close_window(mc2);
 

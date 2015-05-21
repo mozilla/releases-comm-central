@@ -63,7 +63,7 @@ function test_mail_account_setup() {
   let config = null;
 
   // XXX: This should probably use a notification, once we fix bug 561143.
-  awc.waitFor(function () awc.window.gEmailConfigWizard._currentConfig != null,
+  awc.waitFor(() => awc.window.gEmailConfigWizard._currentConfig != null,
               "Timeout waiting for current config to become non-null",
               8000, 600);
   config = awc.window.gEmailConfigWizard._currentConfig;

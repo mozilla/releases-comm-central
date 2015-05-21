@@ -375,8 +375,8 @@ var WindowWatcher = {
     if (this.subTestFunc == null)
       return;
     // spin the event loop until we the window has come and gone.
-    utils.waitFor(function () (this.waitingForOpen == null &&
-                               this.monitorizeClose()),
+    utils.waitFor(function () { return (this.waitingForOpen == null &&
+                                        this.monitorizeClose()); },
                   "Timeout waiting for modal dialog to open.",
                   aTimeout || WINDOW_OPEN_TIMEOUT_MS,
                   WINDOW_OPEN_CHECK_INTERVAL_MS, this);
@@ -682,7 +682,7 @@ function wait_for_window_focused(aWindow) {
     targetWindow.focus();
   }
 
-  utils.waitFor(function() focused,
+  utils.waitFor(() => focused,
       "Timeout waiting for window to be focused.",
       WINDOW_FOCUS_TIMEOUT_MS, 100, this);
 }
@@ -712,11 +712,13 @@ function wait_for_frame_load(aFrame, aURLOrPredicate) {
   let details = {
     // Not sure whether all of these really need to be getters, but this is the
     // safest thing to do.
-    get webProgress () (aFrame.contentWindow.QueryInterface(Ci.nsIInterfaceRequestor)
-                              .getInterface(Ci.nsIWebNavigation)
-                              .QueryInterface(Ci.nsIWebProgress)),
-    get currentURI () (NetUtil.newURI(aFrame.contentDocument.location)),
-    get contentWindow () (aFrame.contentWindow),
+    get webProgress () {
+      return aFrame.contentWindow.QueryInterface(Ci.nsIInterfaceRequestor)
+             .getInterface(Ci.nsIWebNavigation)
+             .QueryInterface(Ci.nsIWebProgress);
+    },
+    get currentURI () { return NetUtil.newURI(aFrame.contentDocument.location); },
+    get contentWindow () { return aFrame.contentWindow; },
   };
   return _wait_for_generic_load(details, aURLOrPredicate);
 }
@@ -732,7 +734,7 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
   let predicate;
   if (typeof aURLOrPredicate == "string") {
     let expectedURL = NetUtil.newURI(aURLOrPredicate);
-    predicate = function (url) (expectedURL.equals(url));
+    predicate = url => expectedURL.equals(url);
   }
   else {
     predicate = aURLOrPredicate;
@@ -1845,7 +1847,7 @@ function captureWindowStatesForErrorReporting(normalizeForJsonFunc) {
     let openPopups =
       Array.prototype.slice.call(
           win.document.documentElement.getElementsByTagName("menupopup"))
-        .filter(function(x) x.state != "closed")
+        .filter(x => x.state != "closed")
         .map(function (x) normalizeForJsonFunc(x));
 
     let ignoredFocusedWindow = {};

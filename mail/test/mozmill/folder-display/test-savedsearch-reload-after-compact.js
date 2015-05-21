@@ -57,7 +57,7 @@ function test_setup_virtual_folder_and_compact() {
   if (otherFolder.msgStore.supportsCompaction) {
     otherFolder.compactAll(urlListener, null, false);
 
-    mc.waitFor(function () urlListener.compactDone,
+    mc.waitFor(() => urlListener.compactDone,
                "Timeout waiting for compact to complete", 10000, 100);
   }
   // Let the event queue clear.

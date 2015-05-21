@@ -238,7 +238,7 @@ function test_crashed_plugin_notification_inline() {
     });
     observer.observe(submitDiv, { attributes: true });
 
-    mc.waitFor(function() submitStatusChanged,
+    mc.waitFor(() => submitStatusChanged,
                "Timed out: Notification existed and did not disappear.");
     observer.disconnect();
   }

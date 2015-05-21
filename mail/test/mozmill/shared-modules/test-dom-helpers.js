@@ -162,7 +162,7 @@ function wait_for_element_enabled(aController, aElement, aEnabled) {
     throw new Error("Element does not appear to have disabled property; id=" +
                     aElement.id);
 
-  aController.waitFor(function() aElement.disabled != aEnabled,
+  aController.waitFor(() => aElement.disabled != aEnabled,
                       "Element should have eventually been " +
                       (aEnabled ? "enabled" : "disabled") +
                       "; id=" + aElement.id);

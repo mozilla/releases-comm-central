@@ -66,7 +66,7 @@ function setupModule(module)
   // and Collected Address Book.  So let's ensure that those address books
   // exist in the tree view before executing our tests.
   abController.waitFor(
-    function () (abController.window.gDirectoryTreeView.rowCount == 8),
+    () => abController.window.gDirectoryTreeView.rowCount == 8,
     "Timeout waiting for all 8 rows in address books list to show up in the tree view",
     1000, 10);
 }

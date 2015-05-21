@@ -40,7 +40,7 @@ function test_main_menu_not_collapsed() {
   close_window(wizard);
 
   // Spin the event loop until mail-startup-done is fired.
-  mc.waitFor(function () done);
+  mc.waitFor(() => done);
 
   let mainMenu = mc.e("mail-toolbar-menubar2");
   assert_false(mainMenu.hasAttribute("autohide"),

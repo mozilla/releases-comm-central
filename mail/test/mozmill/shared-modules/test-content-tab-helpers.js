@@ -136,7 +136,7 @@ let NotificationWatcher = {
     let notificationBox =
       mc.tabmail.selectedTab.panel.querySelector("notificationbox");
     if (notificationBox && notificationBox._animating)
-      aController.waitFor(function () !notificationBox._animating,
+      aController.waitFor(() => !notificationBox._animating,
                           "Timeout waiting for notification box animation to finish",
                           ALERT_TIMEOUT, 100);
 
@@ -171,7 +171,7 @@ function open_content_tab_with_url(aURL, aClickHandler, aBackground, aController
   let newTab = mc.tabmail.openTab("contentTab", {contentPage: aURL,
                                                  background: aBackground,
                                                  clickHandler: aClickHandler});
-  utils.waitFor(function () (
+  utils.waitFor(() => (
                   aController.tabmail.tabContainer.childNodes.length == preCount + 1),
                 "Timeout waiting for the content tab to open with URL: " + aURL,
                 FAST_TIMEOUT, FAST_INTERVAL);
@@ -200,7 +200,7 @@ function open_content_tab_with_click(aElem, aExpectedURL, aController) {
 
   let preCount = aController.tabmail.tabContainer.childNodes.length;
   aController.click(new elib.Elem(aElem));
-  utils.waitFor(function () (
+  utils.waitFor(() => (
                   aController.tabmail.tabContainer.childNodes.length == preCount + 1),
                 "Timeout waiting for the content tab to open",
                 FAST_TIMEOUT, FAST_INTERVAL);

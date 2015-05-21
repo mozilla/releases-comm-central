@@ -153,7 +153,7 @@ MockHightailServer.prototype = {
     this._server.stop(function() {
       allDone = true;
     });
-    aController.waitFor(function () allDone,
+    aController.waitFor(() => allDone,
                         "Timed out waiting for Hightail server to stop!",
                         10000);
   },

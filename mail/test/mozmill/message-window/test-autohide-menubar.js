@@ -60,7 +60,7 @@ function help_test_autohide(controller, menubar) {
   function hiddenChecker(aHidden) {
     // The XUL hidden attribute isn't what is set, so it's useless here -- use
     // information from the box model instead.
-    return function () ((menubar.getBoundingClientRect().height != 0) != aHidden);
+    return () => ((menubar.getBoundingClientRect().height != 0) != aHidden);
   }
   set_autohide_menubar(controller, menubar, true);
   controller.waitFor(hiddenChecker(true), "Menubar should be hidden!");

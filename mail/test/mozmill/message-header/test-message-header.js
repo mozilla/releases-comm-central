@@ -224,7 +224,7 @@ function test_clicking_star_opens_inline_contact_editor()
   // Click on the star, and ensure that the inline contact
   // editing panel opens
   mc.click(mc.aid(lastAddr, {class: 'emailStar'}));
-  mc.waitFor(function() contactPanel.state == "open",
+  mc.waitFor(() => contactPanel.state == "open",
              "Timeout waiting for contactPanel to open; state=" +
              contactPanel.state);
   contactPanel.hidePopup();
@@ -764,7 +764,7 @@ function test_toolbar_collapse_and_expand() {
     mc.window.resizeTo(1200, 600);
     // spin the event loop once
     mc.sleep(0);
-    mc.waitFor(function() expandedHeadersTopBox.clientHeight == shortHeight,
+    mc.waitFor(() => expandedHeadersTopBox.clientHeight == shortHeight,
                "The header box should have returned to its wide size!")
   }
   finally {

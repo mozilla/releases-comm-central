@@ -233,7 +233,7 @@ function wait_for_compose_window(aController) {
     editor.commandManager.addCommandObserver(editorObserver,
                                              "obs_documentCreated");
 
-    utils.waitFor(function () editorObserver.editorLoaded,
+    utils.waitFor(() => editorObserver.editorLoaded,
                   "Timeout waiting for compose window editor to load",
                   10000, 100);
 

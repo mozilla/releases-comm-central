@@ -142,7 +142,7 @@ function assert_links_not_shown(aController, aLinks) {
 /* Waits for account provisioner search results to come in.
  */
 function wait_for_search_results(w) {
-  w.waitFor(function() w.e("results").childNodes.length > 0,
+  w.waitFor(() => w.e("results").childNodes.length > 0,
             "Timed out waiting for search results to arrive.");
 }
 

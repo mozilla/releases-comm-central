@@ -36,10 +36,10 @@ function test_subscribe_newsgroup_filter() {
  */
 function filter_test_helper(swc) {
   enter_text_in_search_box(swc, "subscribe empty");
-  utils.waitFor( function() check_newsgroup_displayed(swc, "test.subscribe.empty"),
+  utils.waitFor( () => check_newsgroup_displayed(swc, "test.subscribe.empty"),
     "test.subscribe.empty not in the list");
-  utils.waitFor( function() !check_newsgroup_displayed(swc, "test.empty"),
+  utils.waitFor( () => !check_newsgroup_displayed(swc, "test.empty"),
     "test.empty is in the list, but should not be");
-  utils.waitFor( function() !check_newsgroup_displayed(swc, "test.subscribe.simple"),
+  utils.waitFor( () => !check_newsgroup_displayed(swc, "test.subscribe.simple"),
     "test.subscribe.simple is in the list, but should not be");
 }

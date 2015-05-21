@@ -87,7 +87,7 @@ function test_simple_case() {
   let provider = gServer.getPreparedBackend("someAccountKey");
   provider.uploadFile(file, requestObserver);
 
-  mc.waitFor(function () requestObserver.success);
+  mc.waitFor( () => requestObserver.success);
 
   let urlForFile = provider.urlForFile(file);
   assert_equals(kExpectedUrl, urlForFile);
@@ -98,7 +98,7 @@ function test_simple_case() {
   gServer.planForGetFileURL("testFile1", {url: kExpectedUrl});
   requestObserver = gObsManager.create("test_simple_case - Upload 2");
   provider.uploadFile(file, requestObserver);
-  mc.waitFor(function () requestObserver.success);
+  mc.waitFor(() => requestObserver.success);
   urlForFile = provider.urlForFile(file);
   assert_equals(kExpectedUrl, urlForFile);
 
@@ -140,7 +140,7 @@ function test_chained_uploads() {
   });
 
   mc.waitFor(function() {
-    return observers.every(function(aListener) aListener.success);
+    return observers.every(aListener => aListener.success);
   }, "Timed out waiting for chained uploads to complete.", 10000);
 
   assert_equals(kFilenames.length, obs.numSightings(kUploadFile));
@@ -169,7 +169,7 @@ function test_deleting_uploads() {
   gServer.planForUploadFile(kFilename);
   let requestObserver = gObsManager.create("test_deleting_uploads - upload 1");
   provider.uploadFile(file, requestObserver);
-  mc.waitFor(function() requestObserver.success);
+  mc.waitFor(() => requestObserver.success);
 
   // Try deleting a file
   let obs = new ObservationRecorder();
@@ -179,7 +179,7 @@ function test_deleting_uploads() {
   gServer.planForDeleteFile(kFilename);
   let deleteObserver = gObsManager.create("test_deleting_uploads - delete 1");
   provider.deleteFile(file, deleteObserver);
-  mc.waitFor(function() deleteObserver.success);
+  mc.waitFor(() => deleteObserver.success);
 
   // Check to make sure the file was deleted on the server
   assert_equals(1, obs.numSightings(kDeleteFile));
@@ -234,7 +234,7 @@ function test_create_existing_account() {
   }
 
   provider.createExistingAccount(myObs);
-  mc.waitFor(function() done);
+  mc.waitFor(() => done);
   gMockAuthPromptReg.unregister();
 }
 
@@ -268,7 +268,7 @@ function test_delete_refreshes_stale_token() {
   gServer.planForUploadFile(kFilename);
   let requestObserver = gObsManager.create("test_delete_refreshes_stale_token - upload 1");
   provider.uploadFile(file, requestObserver);
-  mc.waitFor(function() requestObserver.success);
+  mc.waitFor(() => requestObserver.success);
 
   // At this point, we should not have seen any auth attempts.
   assert_equals(gServer.auth.count, 0,
@@ -283,7 +283,7 @@ function test_delete_refreshes_stale_token() {
 
   // Now, since the token was stale, we should see us hit authentication
   // again.
-  mc.waitFor(function() gServer.auth.count > 0,
+  mc.waitFor(() => gServer.auth.count > 0,
              "Timed out waiting for authorization attempt");
 }
 
@@ -305,7 +305,7 @@ function test_bug771132_fix_no_scheme() {
   let provider = gServer.getPreparedBackend("someAccountKey");
   provider.uploadFile(file, requestObserver);
 
-  mc.waitFor(function () requestObserver.success);
+  mc.waitFor(() => requestObserver.success);
 
   let urlForFile = provider.urlForFile(file);
   assert_equals(kExpectedUrl, urlForFile);
@@ -316,7 +316,7 @@ function test_bug771132_fix_no_scheme() {
   gServer.planForGetFileURL("testFile1", {url: kExpectedUrl});
   requestObserver = gObsManager.create("test_simple_case - Upload 2");
   provider.uploadFile(file, requestObserver);
-  mc.waitFor(function () requestObserver.success);
+  mc.waitFor(() => requestObserver.success);
 
   urlForFile = provider.urlForFile(file);
   assert_equals(kExpectedUrl, urlForFile);

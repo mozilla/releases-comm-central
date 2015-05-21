@@ -41,5 +41,5 @@ function to_mime_message(aMsgHdr, aCallbackThis, aCallback, aAllowDownload, aOpt
         called = true;
       }
     }, aAllowDownload, aOptions);
-  utils.waitFor(function () called, "Timeout waiting for message to be parsed");
+  utils.waitFor(() => called, "Timeout waiting for message to be parsed");
 }

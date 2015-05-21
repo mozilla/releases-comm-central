@@ -109,7 +109,7 @@ ObservationRecorder.prototype = {
       aTopics = [aTopics];
 
     this._topics = this._topics.filter(
-      function (topic) aTopics.indexOf(topic) == -1
+      topic => aTopics.indexOf(topic) == -1
     );
   },
 

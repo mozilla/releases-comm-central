@@ -63,14 +63,14 @@ function open_advanced_settings_from_account_wizard(aCallback, aController) {
  * @param rowIndex the row to click
  */
 function click_account_tree_row(controller, rowIndex) {
-  utils.waitFor(function () controller.window.currentAccount != null,
+  utils.waitFor(() => controller.window.currentAccount != null,
                 "Timeout waiting for currentAccount to become non-null");
 
   let tree = controller.window.document.getElementById("accounttree");
 
   fdh.click_tree_row(tree, rowIndex, controller);
 
-  utils.waitFor(function () controller.window.pendingAccount == null,
+  utils.waitFor(() => controller.window.pendingAccount == null,
                 "Timeout waiting for pendingAccount to become null");
 
   // Ensure the page is fully loaded (e.g. onInit functions).

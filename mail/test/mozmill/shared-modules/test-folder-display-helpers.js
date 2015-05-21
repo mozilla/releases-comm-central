@@ -276,7 +276,7 @@ function installInto(module) {
       // The value of |key| changes between iterations, so it's important to
       // capture the right key in a local variable.
       let thisKey = key;
-      module.__defineGetter__(thisKey, function () self[thisKey]);
+      module.__defineGetter__(thisKey, () => self[thisKey]);
       module.__defineSetter__(thisKey, function (aNewValue) {
                                self[thisKey] = aNewValue;
                              });
@@ -1382,7 +1382,7 @@ function delete_via_popup() {
 
 function wait_for_popup_to_open(popupElem) {
   mark_action("fdh", "wait_for_popup_to_open", [popupElem]);
-  utils.waitFor(function () popupElem.state == "open",
+  utils.waitFor(() => popupElem.state == "open",
                 "Timeout waiting for popup to open", 1000, 50);
 }
 
@@ -1406,7 +1406,7 @@ function close_popup(aController, eid) {
                 ["popup suspiciously already closing..."]);
   else // actually push escape because it's not closing/closed
     aController.keypress(eid, "VK_ESCAPE", {});
-  utils.waitFor(function () elem.state == "closed", "Popup did not close!",
+  utils.waitFor(() => elem.state == "closed", "Popup did not close!",
                 1000, 50);
 }
 
@@ -1506,7 +1506,7 @@ function press_enter(aController) {
 function wait_for_all_messages_to_load(aController) {
   if (aController == null)
     aController = mc;
-  utils.waitFor(function () aController.folderDisplay.allMessagesLoaded,
+  utils.waitFor(() => aController.folderDisplay.allMessagesLoaded,
                 "Messages never finished loading.  Timed Out.");
   // the above may return immediately, meaning the event queue might not get a
   //  chance.  give it a chance now.
@@ -1677,7 +1677,7 @@ var FolderListener = {
       return;
     let self = this;
     try {
-      utils.waitFor(function () self.sawEvents);
+      utils.waitFor(() => self.sawEvents);
     } catch (e if e instanceof utils.TimeoutError) {
       mark_failure(["Timeout waiting for events:", this.watchingFor]);
     }
@@ -2459,9 +2459,9 @@ function assert_folders_selected() {
   // no shortcuts here. check if each folder in either array is present in the
   // other array
   if (desiredFolders.some(
-      function (folder) _non_strict_index_of(selectedFolders, folder) == -1) ||
+      folder => _non_strict_index_of(selectedFolders, folder) == -1) ||
       selectedFolders.some(
-      function (folder) _non_strict_index_of(desiredFolders, folder) == -1))
+      folder => _non_strict_index_of(desiredFolders, folder) == -1))
     throw new Error("Desired selection is: " +
                     _prettify_folder_array(desiredFolders) + " but actual " +
                     "selection is: " + _prettify_folder_array(selectedFolders));
@@ -2555,7 +2555,7 @@ function _non_strict_index_of(aArray, aSearchElement) {
 }
 
 function _prettify_folder_array(aArray) {
-  return aArray.map(function (folder) folder.prettiestName).join(", ");
+  return aArray.map(folder => folder.prettiestName).join(", ");
 }
 
 /**

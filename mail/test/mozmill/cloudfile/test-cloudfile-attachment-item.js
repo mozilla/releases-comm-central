@@ -80,7 +80,7 @@ function test_upload_cancel_repeat() {
     // Select the attachment, and choose to convert it to a Filelink
     let attachmentitem = select_attachments(cw, 0)[0];
     cw.window.convertSelectedToCloudAttachment(provider);
-    cw.waitFor(function() started);
+    cw.waitFor(() => started);
 
     assert_can_cancel_upload(cw, provider, listener, file);
   }
@@ -160,7 +160,7 @@ function assert_can_cancel_upload(aController, aProvider, aListener,
 
   // Close the popup, and wait for the cancellation to be complete.
   close_popup(aController, aController.eid(kAttachmentItemContextID));
-  aController.waitFor(function() cancelled);
+  aController.waitFor(() => cancelled);
 }
 
 /**

@@ -249,7 +249,7 @@ function test_attachments_removed_on_multiple() {
   let removedAttachmentItems = select_attachments(cw, 0, 2);
 
   let removedAttachmentUrls = removedAttachmentItems.map(
-    function(aAttachment) aAttachment.attachment.url
+    aAttachment => aAttachment.attachment.url
   );
 
   cw.window.goDoCommand("cmd_delete");
