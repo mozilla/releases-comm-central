@@ -55,13 +55,13 @@ function isMainWindow(aWindow) {
  */
 let RemoteDebuggerServer = {
   /** @return true if the debugger server is running */
-  get listening() DebuggerServer && DebuggerServer._listener != null,
+  get listening() { return DebuggerServer && DebuggerServer._listener != null; },
 
   /** @return the number of connections to the debugger server */
-  get connections() DebuggerServer ? Object.keys(DebuggerServer._connections).length : 0,
+  get connections() { return DebuggerServer ? Object.keys(DebuggerServer._connections).length : 0; },
 
   /** @return true if the debugger server could be loaded */
-  get supported() debugServerSupported,
+  get supported() { return debugServerSupported; },
 
   /**
    * Get all windows that should be checked by the actors. The first one
@@ -78,7 +78,7 @@ let RemoteDebuggerServer = {
 
     return this._chromeWindowTypes || [];
   },
-  set chromeWindowTypes(v) this._chromeWindowTypes = v,
+  set chromeWindowTypes(v) { this._chromeWindowTypes = v; },
 
   /**
    * Set a function to wrap the DebuggerServer's onConnectionChange
@@ -86,7 +86,7 @@ let RemoteDebuggerServer = {
    * callers changing the DebuggerServer's function, so it should be used
    * with caution.
    */
-  get onConnectionChange() DebuggerServer.onConnectionChange,
+  get onConnectionChange() { return DebuggerServer.onConnectionChange; },
   set onConnectionChange(aFunc) {
     if (this.supported) {
       if (aFunc) {

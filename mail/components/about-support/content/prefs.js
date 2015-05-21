@@ -128,5 +128,5 @@ function getWhitelistedPrefNames() {
 }
 
 function isBlacklisted(prefName) {
-  return PREFS_BLACKLIST.some(function (re) re.test(prefName));
+  return PREFS_BLACKLIST.some(re => re.test(prefName));
 }

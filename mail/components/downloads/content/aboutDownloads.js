@@ -210,7 +210,7 @@ DownloadItem.prototype = {
     return false;
   },
 
-  get download() this._download,
+  get download() { return this._download; },
 
   get element() {
     if (!this._element) {
@@ -270,11 +270,11 @@ DownloadItem.prototype = {
     this.updateElement(this.element);
   },
 
-  get fileName() this._fileName,
+  get fileName() { return this._fileName; },
 
-  get iconUrl() this._iconUrl,
+  get iconUrl() { return this._iconUrl; },
 
-  get sender() this._sender,
+  get sender() { return this._sender; },
 
   get size() {
     let bytes;
@@ -286,7 +286,7 @@ DownloadItem.prototype = {
     return DownloadUtils.convertByteUnits(bytes).join("");
   },
 
-  get startDate() this._startDate,
+  get startDate() { return this._startDate; },
 
   supportsCommand(aCommand) {
     return this.commands.some(command => command == aCommand);

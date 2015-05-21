@@ -136,7 +136,7 @@
 
           // convert strings to those in the string bundle
           let sb = document.getElementById("activityStrings");
-          let getStr = function(string) sb.getString(string);
+          let getStr = string => sb.getString(string);
           for (let [name, value] in Iterator(this.text)) {
             this.text[name] = typeof value == "string" ? getStr(value)
                                                        : value.map(getStr);

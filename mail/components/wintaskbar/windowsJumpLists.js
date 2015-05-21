@@ -44,16 +44,16 @@ function _getString(aName) {
 let gTasks = [
   // Write new message
   {
-    get title()       _getString("taskbar.tasks.composeMessage.label"),
-    get description() _getString("taskbar.tasks.composeMessage.description"),
+    get title()       { return _getString("taskbar.tasks.composeMessage.label"); },
+    get description() { return _getString("taskbar.tasks.composeMessage.description"); },
     args:             "-compose",
     iconIndex:        2, // Write message icon
   },
 
   // Open address book
   {
-    get title()       _getString("taskbar.tasks.openAddressBook.label"),
-    get description() _getString("taskbar.tasks.openAddressBook.description"),
+    get title()       { return _getString("taskbar.tasks.openAddressBook.label"); },
+    get description() { return _getString("taskbar.tasks.openAddressBook.description"); },
     args:             "-addressbook",
     iconIndex:        3, // Open address book icon
   },

@@ -49,7 +49,7 @@ var gOutgoingDetails = [
  * A list of account details.
  */
 XPCOMUtils.defineLazyGetter(window, "gAccountDetails",
-                            function () AboutSupport.getAccountDetails());
+                            () => AboutSupport.getAccountDetails());
 
 function populateAccountsSection() {
   let trAccounts = [];

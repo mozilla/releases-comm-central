@@ -24,7 +24,7 @@ let isOSX = (Services.appinfo.OS == 'Darwin');
 const RETRY_TIMEOUT = 5000; // 5 seconds
 const CONNECTION_TIMEOUT = 15000; // 15 seconds
 
-function isAccel (event) (isOSX && event.metaKey || event.ctrlKey)
+function isAccel (event) { return isOSX && event.metaKey || event.ctrlKey; }
 
 /**
  * Get the localstorage for this page in a way that works in chrome.
