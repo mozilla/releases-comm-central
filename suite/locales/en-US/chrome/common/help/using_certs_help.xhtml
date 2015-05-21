@@ -33,8 +33,8 @@
     <li><a href="#managing_certificates">Managing Certificates</a></li>
     <li><a href="#managing_smart_cards_and_other_security_devices">Managing
       Smart Cards and Other Security Devices</a></li>
-    <li><a href="#managing_ssl_warnings_and_settings">Managing SSL Warnings and
-      Settings</a></li>
+    <li><a href="#managing_ssltls_warnings_and_settings">Managing SSL/TLS
+      Warnings and Settings</a></li>
     <li><a href="#controlling_validation">Controlling Validation</a></li>
   </ul>
 </div>
@@ -135,9 +135,9 @@
 <p><strong>Important</strong>: The lock icon describes only the encryption
   status of the page while it was being received by your computer. To be
   notified when you send or receive information without encryption, or to
-  block potentially harmful mixed content, select the appropriate SSL warning
-  and mixed content options. See <a href="ssl_help.xhtml">Privacy &amp;
-  Security Preferences - SSL</a> for details.</p>
+  block potentially harmful mixed content, select the appropriate SSL/TLS
+  warning and mixed content options. See <a href="ssl_help.xhtml">Privacy &amp;
+  Security Preferences - SSL/TLS</a> for details.</p>
 
 <p>[<a href="#using_certificates">Return to beginning of section</a>]</p>
 
@@ -477,7 +477,7 @@
 <p>[<a href="#managing_smart_cards_and_other_security_devices">Return to
   beginning of section</a>]</p>
 
-<h1 id="managing_ssl_warnings_and_settings">Managing SSL Warnings and
+<h1 id="managing_ssltls_warnings_and_settings">Managing SSL/TLS Warnings and
   Settings</h1>
 
 <p>The Secure Sockets Layer (SSL) protocol allows your computer to exchange
@@ -487,28 +487,26 @@
   means of <a href="glossary.xhtml#certificate">certificates</a>.</p>
 
 <p>The Transport Layer Security (TLS) protocol is a new standard based on SSL.
-  By default, the browser supports both SSL and TLS. This approach works for
-  most people, because it guarantees that the browser will work with virtually
-  all other existing software on the Internet that supports any version of SSL
-  or TLS.</p>
+  The old SSL versions have been deprecated for security reasons and TLS is the
+  only supported protocol. The default set of enabled TLS versions works for
+  most people with current servers. However, in some circumstances system
+  administrators or other knowledgeable persons may wish to adjust the SSL/TLS
+  settings to fine-tune them for special security needs or to account for
+  limited capabilities of some legacy servers.</p>
 
-<p>However, in some circumstances system administrators or other knowledgeable
-  persons may wish to adjust the SSL settings to fine-tune them for special
-  security needs or to account for bugs in some older software products.</p>
-
-<p>You shouldn&apos;t adjust the SSL settings for your browser unless you know
-  what you&apos;re doing or have the assistance of someone else who does. If
-  you do need to adjust them for some reason, follow these steps:</p>
+<p>You shouldn&apos;t adjust the SSL/TLS settings for your browser unless you
+  know what you&apos;re doing or have the assistance of someone else who does.
+  If you do need to adjust them for some reason, follow these steps:</p>
 
 <ol>
   <li>Open the <span class="mac">&brandShortName;</span>
     <span class="noMac">Edit</span> menu and choose Preferences.</li>
-  <li>Under the Privacy &amp; Security category, select SSL. (If no
+  <li>Under the Privacy &amp; Security category, select SSL/TLS. (If no
     subcategories are visible, double-click Privacy &amp; Security to expand
     the list.)</li>
 </ol>
 
-<p>For more details, see <a href="ssl_help.xhtml">SSL Settings</a>.</p>
+<p>For more details, see <a href="ssl_help.xhtml">SSL/TLS Settings</a>.</p>
 
 <p>[<a href="#using_certificates">Return to beginning of section</a>]</p>
 

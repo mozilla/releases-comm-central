@@ -958,7 +958,7 @@
         <rdf:li><rdf:Description ID="sec_gen_popup_windows" nc:name="Popup Windows" nc:link="cs_priv_prefs_popup.xhtml#privacy_and_security_preferences_popup_windows"/> </rdf:li>
         <rdf:li><rdf:Description ID="sec_gen_passwords" nc:name="Passwords" nc:link="passwords_help.xhtml#passwords"/> </rdf:li>
         <rdf:li><rdf:Description ID="sec_gen_master_passwords" nc:name="Master Passwords" nc:link="passwords_help.xhtml#master_passwords"/> </rdf:li>
-        <rdf:li><rdf:Description ID="sec_gen_ssl" nc:name="SSL" nc:link="ssl_help.xhtml#privacy_and_security_preferences_ssl"/> </rdf:li>
+        <rdf:li><rdf:Description ID="sec_gen_ssltls" nc:name="SSL/TLS" nc:link="ssl_help.xhtml#privacy_and_security_preferences_ssltls"/> </rdf:li>
         <rdf:li><rdf:Description ID="sec_gen_certificates" nc:name="Certificates" nc:link="certs_prefs_help.xhtml#privacy_and_security_preferences_certificates"/> </rdf:li>
       </rdf:Seq>
     </nc:subheadings>
@@ -972,7 +972,7 @@
         <rdf:li><rdf:Description ID="using-help-certs-info" nc:name="Checking Security For a Web Page" nc:link="using_certs_help.xhtml#checking_security_for_a_web_page"/> </rdf:li>
         <rdf:li><rdf:Description ID="using-help-certs-manage" nc:name="Managing Certificates" nc:link="using_certs_help.xhtml#managing_certificates"/> </rdf:li>
         <rdf:li><rdf:Description ID="using-help-certs-devices" nc:name="Managing Smart Cards and Other Security Devices" nc:link="using_certs_help.xhtml#managing_smart_cards_and_other_security_devices"/> </rdf:li>
-        <rdf:li><rdf:Description ID="using-help-certs-ssl" nc:name="Managing SSL Warnings and Settings" nc:link="using_certs_help.xhtml#managing_ssl_warnings_and_settings"/> </rdf:li>
+        <rdf:li><rdf:Description ID="using-help-certs-ssltls" nc:name="Managing SSL/TLS Warnings and Settings" nc:link="using_certs_help.xhtml#managing_ssltls_warnings_and_settings"/> </rdf:li>
         <rdf:li><rdf:Description ID="using-help-certs-validation" nc:name="Controlling Validation" nc:link="using_certs_help.xhtml#controlling_validation"/> </rdf:li>
         <rdf:li><rdf:Description ID="using-help-certs-context-help" nc:name="Certificate Settings" nc:link="certs_prefs_help.xhtml#certificate_settings"/> </rdf:li>
 
@@ -1004,18 +1004,18 @@
     </nc:subheadings>
   </rdf:Description>
 
-<rdf:Description about="#using-help-certs-ssl">
+<rdf:Description about="#using-help-certs-ssltls">
     <nc:subheadings>
       <rdf:Seq>
-        <rdf:li><rdf:Description ID="ssl-settings" nc:name="SSL Settings" nc:link="ssl_help.xhtml"/> </rdf:li>
+        <rdf:li><rdf:Description ID="ssltls-settings" nc:name="SSL/TLS Settings" nc:link="ssl_help.xhtml"/> </rdf:li>
       </rdf:Seq>
     </nc:subheadings>
   </rdf:Description>
 
-<rdf:Description about="#ssl-settings">
+<rdf:Description about="#ssltls-settings">
     <nc:subheadings>
       <rdf:Seq>
-        <rdf:li><rdf:Description ID="ssl_prefs" nc:name="SSL Preferences" nc:link="ssl_help.xhtml#privacy_and_security_preferences_ssl"/> </rdf:li>
+        <rdf:li><rdf:Description ID="ssl_prefs" nc:name="SSL/TLS Preferences" nc:link="ssl_help.xhtml#privacy_and_security_preferences_ssltls"/> </rdf:li>
       </rdf:Seq>
     </nc:subheadings>
   </rdf:Description>

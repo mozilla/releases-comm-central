@@ -175,7 +175,7 @@
                     url="chrome://pippki/content/pref-masterpass.xul"
                     helpTopic="passwords_master"/>
           <treeitem id="sslItem"
-                    label="&ssl.label;"
+                    label="&ssltls.label;"
                     prefpane="ssl_pane"
                     url="chrome://pippki/content/pref-ssl.xul"
                     helpTopic="ssl_prefs"/>

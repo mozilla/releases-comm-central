@@ -15,7 +15,7 @@
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <prefpane id="ssl_pane"
-            label="&pref.ssl.title;"
+            label="&pref.ssltls.title;"
             script="chrome://pippki/content/pref-ssl.js">
     <preferences id="ssl_preferences">
       <preference id="security.tls.version.min"
@@ -48,7 +48,7 @@
     </preferences>
 
     <groupbox align="start">
-      <caption label="&SSLProtocolVersions.caption;"/>
+      <caption label="&SSLTLSProtocolVersions.caption;"/>
       <description>&limit.description;</description>
 
       <hbox align="center">
@@ -74,7 +74,7 @@
     </groupbox>
 
     <groupbox align="start">
-      <caption label="&SSLWarnings.caption;"/>
+      <caption label="&SSLTLSWarnings.caption;"/>
       <description>&warn.description2;</description>
       <checkbox id="warnEnteringSecure"
                 label="&warn.enteringsecure;"

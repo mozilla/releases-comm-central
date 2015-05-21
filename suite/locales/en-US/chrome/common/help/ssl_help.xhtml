@@ -12,50 +12,53 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>SSL Settings</title>
+<title>SSL/TLS Settings</title>
 <link rel="stylesheet" href="helpFileLayout.css"
   type="text/css"/>
 </head>
 <body>
 
-<h1 id="ssl_settings">SSL Settings</h1>
+<h1 id="ssltls_settings">SSL/TLS Settings</h1>
 
-<p>This section describes how to set your SSL preferences.</p>
+<p>This section describes how to set your SSL/TLS preferences.</p>
 
 <div class="contentsBox">In this section:
   <ul>
-    <li><a href="#privacy_and_security_preferences_ssl">Privacy &amp; Security
-      Preferences - SSL</a></li>
+    <li><a href="#privacy_and_security_preferences_ssltls">Privacy &amp; Security
+      Preferences - SSL/TLS</a></li>
   </ul>
 </div>
 
-<h2 id="privacy_and_security_preferences_ssl">Privacy &amp; Security
-  Preferences - SSL</h2>
+<h2 id="privacy_and_security_preferences_ssltls">Privacy &amp; Security
+  Preferences - SSL/TLS</h2>
 
-<p>This section describes how to use the SSL preferences panel. If you are not
-  already viewing the panel, follow these steps:</p>
+<p>This section describes how to use the SSL/TLS preferences panel. If you are
+  not already viewing the panel, follow these steps:</p>
 
 <ol>
   <li>Open the <span class="mac">&brandShortName;</span>
     <span class="noMac">Edit</span> menu and choose Preferences.</li>
-  <li>Under the Privacy &amp; Security category, click SSL. (If no
+  <li>Under the Privacy &amp; Security category, click SSL/TLS. (If no
     subcategories are visible, double-click Privacy &amp; Security to expand
     the list.)</li>
 </ol>
 
-<h3 id="ssl_protocol_versions">SSL Protocol Versions</h3>
+<h3 id="ssltls_protocol_versions">SSL/TLS Protocol Versions</h3>
 
 <p>The <a href="glossary.xhtml#ssl">Secure Sockets Layer (SSL)</a> protocol
-  defines rules governing mutual authentication between a website and browser
-  software and the encryption of information that flows between them. It is
-  also used for secure communication in various other protocols, e.g., for
-  protection of sensitive information exchanged with email, calendar, or
-  directory servers. The SSL 2.0 and SSL 3.0 protocols are insecure and thus
-  deprecated. The current Transport Layer Security (TLS) protocol is an IETF
-  standard based on SSL but with its own version numbering. TLS 1.0 can be
-  thought of as SSL 3.1, TLS 1.1 is in turn an update to TLS 1.0, etc. Newer
-  protocols are preferred over older ones as they provide better security and
-  more features. Older protocols are supported to ensure compatibility.</p>
+  and its successor, the <a href="glossary.xhtml#tls">Transport Layer Security
+  (TLS)</a> protocol, are standards which define rules governing mutual
+  authentication between a website and browser software and the encryption
+  of information that flows between them.  They are also used for secure
+  communication in various other protocols, e.g., for protection of sensitive
+  information exchanged with email, calendar, or directory servers.</p>
+
+<p>The SSL 2.0 and SSL 3.0 protocols are insecure and thus deprecated. The
+  current TLS protocol is based on SSL but with its own version numbering.
+  TLS 1.0 can be thought of as SSL 3.1, TLS 1.1 is in turn an update to TLS
+  1.0, etc. Newer protocols are preferred over older ones as they provide
+  better security and more features. Older protocols are supported to ensure
+  compatibility.</p>
 
 <p>By default, &brandShortName; will select the most secure version which is
   widely supported to connect to the server. If that attempt doesn&apos;t
@@ -87,7 +90,7 @@
     access to an enclosed intermediate version.</li>
 </ul>
 
-<h3 id="ssl_warnings">SSL Warnings</h3>
+<h3 id="ssltls_warnings">SSL/TLS Warnings</h3>
 
 <p>It&apos;s easy to tell when the website you are viewing is using an encrypted
   connection. If the connection is encrypted, the lock icon in the lower-right
@@ -100,7 +103,7 @@
   (<img src="chrome://communicator/skin/icons/lock-broken.png"/>).</p>
 
 <p>If you want additional warnings, you can select one or more of the warning
-  checkboxes in the SSL preferences panel. Unless stated otherwise, a
+  checkboxes in the SSL/TLS preferences panel. Unless stated otherwise, a
   notification bar will be presented at the top of the page triggering the
   alert, with an option to enter this panel to change the option if the alert
   is considered annoying.</p>
