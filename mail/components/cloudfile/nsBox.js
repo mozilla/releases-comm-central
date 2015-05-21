@@ -62,14 +62,14 @@ nsBox.prototype = {
 
   classID: Components.ID("{c06a8707-7463-416c-8b39-e85044a4ff6e}"),
 
-  get type() "Box",
-  get displayName() "Box",
-  get serviceURL() "https://www.box.com/thunderbird",
-  get iconClass() "chrome://messenger/skin/icons/box-logo.png",
-  get accountKey() this._accountKey,
-  get lastError() this._lastErrorText,
-  get settingsURL() "chrome://messenger/content/cloudfile/Box/settings.xhtml",
-  get managementURL() "chrome://messenger/content/cloudfile/Box/management.xhtml",
+  get type() { return "Box"; },
+  get displayName() { return "Box"; },
+  get serviceURL() { return "https://www.box.com/thunderbird"; },
+  get iconClass() { return "chrome://messenger/skin/icons/box-logo.png"; },
+  get accountKey() { return this._accountKey; },
+  get lastError() { return this._lastErrorText; },
+  get settingsURL() { return "chrome://messenger/content/cloudfile/Box/settings.xhtml"; },
+  get managementURL() { return "chrome://messenger/content/cloudfile/Box/management.xhtml"; },
 
   completionURI: "http://boxauthcallback.local/",
 
@@ -77,7 +77,7 @@ nsBox.prototype = {
   _prefBranch: null,
   _folderId: "",
   // If an access token exists, the user is logged in.
-  get _loggedIn() !!this._oauth.accessToken,
+  get _loggedIn() { return !!this._oauth.accessToken; },
   _userInfo: null,
   _file : null,
   _maxFileSize : -1,
@@ -506,14 +506,14 @@ nsBox.prototype = {
    * there's a url we can load in a content tab that will allow the user
    * to create an account.
    */
-  get createNewAccountUrl() "",
+  get createNewAccountUrl() { return ""; },
 
   /**
    * If we don't know the limit, this will return -1.
    */
-  get fileUploadSizeLimit() this._maxFileSize,
-  get remainingFileSpace() this._totalStorage - this._fileSpaceUsed,
-  get fileSpaceUsed() this._fileSpaceUsed,
+  get fileUploadSizeLimit() { return this._maxFileSize; },
+  get remainingFileSpace() { return this._totalStorage - this._fileSpaceUsed; },
+  get fileSpaceUsed() { return this._fileSpaceUsed; },
 
   /**
    * Attempts to delete an uploaded file.

@@ -30,7 +30,7 @@ function onLoadProvider(provider) {
     .top(75)
     .innerRadius(30)
     .outerRadius(65)
-    .angle(function(d) d * pieScale);
+    .angle(d => d * pieScale);
 
   vis.add(pv.Label)
     .left(75)

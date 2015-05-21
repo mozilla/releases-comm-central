@@ -37,14 +37,14 @@ nsHightail.prototype = {
 
   classID: Components.ID("{dd2bce44-ca71-42ce-b806-6fa4e073919c}"),
 
-  get type() "YouSendIt", // Saved in prefs, cannot change!
-  get displayName() "Hightail",
-  get serviceURL() "https://www.hightail.com",
-  get iconClass() "chrome://messenger/skin/icons/hightail.png",
-  get accountKey() this._accountKey,
-  get lastError() this._lastErrorText,
-  get settingsURL() "chrome://messenger/content/cloudfile/Hightail/settings.xhtml",
-  get managementURL() "chrome://messenger/content/cloudfile/Hightail/management.xhtml",
+  get type() { return "YouSendIt"; }, // Saved in prefs, cannot change!
+  get displayName() { return "Hightail"; },
+  get serviceURL() { return "https://www.hightail.com"; },
+  get iconClass() { return "chrome://messenger/skin/icons/hightail.png"; },
+  get accountKey() { return this._accountKey; },
+  get lastError() { return this._lastErrorText; },
+  get settingsURL() { return "chrome://messenger/content/cloudfile/Hightail/settings.xhtml"; },
+  get managementURL() { return "chrome://messenger/content/cloudfile/Hightail/management.xhtml"; },
 
   _accountKey: false,
   _prefBranch: null,
@@ -650,16 +650,16 @@ nsHightail.prototype = {
    * there's a url we can load in a content tab that will allow the user
    * to create an account.
    */
-  get createNewAccountUrl() "",
+  get createNewAccountUrl() { return ""; },
 
   /**
    * If we don't know the limit, this will return -1.
    */
-  get fileUploadSizeLimit() this._maxFileSize,
+  get fileUploadSizeLimit() { return this._maxFileSize; },
 
-  get remainingFileSpace() this._availableStorage,
+  get remainingFileSpace() { return this._availableStorage; },
 
-  get fileSpaceUsed() this._fileSpaceUsed,
+  get fileSpaceUsed() { return this._fileSpaceUsed; },
 
   /**
    * Attempts to delete an uploaded file.
