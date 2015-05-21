@@ -598,10 +598,11 @@ function onToolbarsPopupShowingWithMode(aEvent, aInsertPoint) {
         return;
     }
 
-    let toolbox = [gCurrentMode + "-toolbox"];
+    let toolbox = [];
     if (gCurrentMode != "mail") {
         toolbox.push("navigation-toolbox");
     }
+    toolbox.push(gCurrentMode + "-toolbox");
     onViewToolbarsPopupShowing(aEvent, toolbox, aInsertPoint);
 }
 

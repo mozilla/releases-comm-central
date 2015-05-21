@@ -128,16 +128,12 @@
       <!-- Unfortunately we use the same panel for task and calendar tabs, so
            we need to differ which toolbar is being shown. The actual toolbar
            content will be added via a further overlay -->
-      <toolbox id="calendar-toolbox">
-        <observes element="modeBroadcaster"
-                  attribute="mode"
-                  onbroadcast="this.parentNode.setAttribute('collapsed', '' + document.getElementById('modeBroadcaster').getAttribute('mode') != 'calendar')"/>
-      </toolbox>
-      <toolbox id="task-toolbox">
-        <observes element="modeBroadcaster"
-                  attribute="mode"
-                  onbroadcast="this.parentNode.setAttribute('collapsed', '' + document.getElementById('modeBroadcaster').getAttribute('mode') != 'task')"/>
-      </toolbox>
+      <modevbox id="calendar-toolbox-container" mode="calendar" broadcaster="modeBroadcaster" flex="1">
+        <toolbox id="calendar-toolbox"/>
+      </modevbox>
+      <modevbox id="task-toolbox-container" mode="task" broadcaster="modeBroadcaster" flex="1">
+        <toolbox id="task-toolbox"/>
+      </modevbox>
       <hbox id="calendarContent" flex="1">
         <vbox id="ltnSidebar"
               width="200"
