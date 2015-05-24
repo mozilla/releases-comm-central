@@ -138,6 +138,11 @@ function unloadCalendarManager() {
 function updateSortOrderPref(event) {
     let sortOrderString = event.sortOrder.join(" ");
     Preferences.set("calendar.list.sortOrder", sortOrderString);
+    try {
+        Services.prefs.savePrefFile(null);
+    } catch (e) {
+        cal.ERROR(e);
+    }
 }
 
 /**
