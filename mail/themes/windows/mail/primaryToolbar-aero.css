@@ -339,11 +339,6 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1 .toolbarbutton
 }
 
 @media (-moz-windows-default-theme) and (-moz-windows-compositor) {
-  #messengerWindow {
-    -moz-appearance: -moz-win-borderless-glass;
-    background: transparent;
-  }
-
   #navigation-toolbox:not(:-moz-lwtheme),
   #tabs-toolbar {
     background-color: transparent;
