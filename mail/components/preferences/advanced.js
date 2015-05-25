@@ -13,7 +13,6 @@ var gAdvancedPane = {
   init: function ()
   {
     this.mPane = document.getElementById("paneAdvanced");
-    this.updateMarkAsReadOptions(document.getElementById("automaticallyMarkAsRead").checked);
     this.updateCompactOptions();
 
     if (!(("arguments" in window) && window.arguments[1]))
@@ -329,40 +328,6 @@ updateWritePrefs: function ()
     prompter.showUpdateHistory(window);
   },
 #endif
-
-  /**
-   * Enable/disable the options of automatic marking as read depending on the
-   * state of the automatic marking feature.
-   *
-   * @param aEnableRadioGroup  Boolean value indicating whether the feature is enabled.
-   */
-  updateMarkAsReadOptions: function(aEnableRadioGroup)
-  {
-    let autoMarkAsPref = document.getElementById("mailnews.mark_message_read.delay");
-    let autoMarkDisabled = !aEnableRadioGroup || autoMarkAsPref.locked;
-    document.getElementById("markAsReadAutoPreferences").disabled = autoMarkDisabled;
-    document.getElementById("secondsLabel").disabled = autoMarkDisabled;
-    this.updateMarkAsReadTextbox();
-  },
-
-  /**
-   * Automatically enable/disable delay textbox depending on state of the
-   * Mark As Read On Delay feature.
-   *
-   * @param aFocusTextBox  Boolean value whether Mark As Read On Delay
-   *                       option was selected and the textbox should be focused.
-   */
-  updateMarkAsReadTextbox: function(aFocusTextBox)
-  {
-    let globalCheckbox = document.getElementById("automaticallyMarkAsRead");
-    let delayRadioOption = document.getElementById("markAsReadAfterDelay");
-    let delayTextbox = document.getElementById("markAsReadDelay");
-    let intervalPref = document.getElementById("mailnews.mark_message_read.delay.interval");
-    delayTextbox.disabled = !globalCheckbox.checked ||
-                            !delayRadioOption.selected || intervalPref.locked;
-    if (!delayTextbox.disabled && aFocusTextBox)
-      delayTextbox.focus();
-  },
 
   updateCompactOptions: function(aCompactEnabled)
   {

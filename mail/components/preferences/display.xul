@@ -41,12 +41,26 @@
       <!-- FONTS -->
       <preference id="font.language.group" name="font.language.group"
                   type="wstring" onchange="gDisplayPane._rebuildFonts();"/>
+
+      <!-- Advanced -->
+      <preference id="mail.showCondensedAddresses" name="mail.showCondensedAddresses" type="bool"/>
+      <preference id="mailnews.mark_message_read.auto"
+                  name="mailnews.mark_message_read.auto" type="bool"/>
+      <preference id="mailnews.mark_message_read.delay"
+                  name="mailnews.mark_message_read.delay" type="bool"
+                  onchange="gDisplayPane.updateMarkAsReadTextbox(this.value);"/>
+      <preference id="mailnews.mark_message_read.delay.interval"
+                  name="mailnews.mark_message_read.delay.interval" type="int"/>
+      <preference id="mail.openMessageBehavior" name="mail.openMessageBehavior" type="int"/>
+      <preference id="mail.close_message_window.on_delete"
+                  name="mail.close_message_window.on_delete" type="bool"/>
     </preferences>
 
     <tabbox id="displayPrefs" flex="1" onselect="gDisplayPane.tabSelectionChanged();">
       <tabs id="displayPrefsTabs">
         <tab id="formattingTab" label="&itemFormatting.label;"/>
         <tab id="tagTab" label="&itemTags.label;"/>
+        <tab id="displayTab" label="&itemAdvanced.label;"/>
       </tabs>
 
       <tabpanels id="displayPrefsPanels" flex="1">
@@ -173,6 +187,83 @@
                       oncommand="gDisplayPane.removeTag();"/>
             </vbox>
           </hbox>
+        </tabpanel>
+
+        <!-- Advanced -->
+        <tabpanel orient="vertical">
+          <groupbox>
+            <caption label="&reading.caption;"/>
+
+            <vbox>
+              <hbox>
+                <checkbox id="automaticallyMarkAsRead"
+                          preference="mailnews.mark_message_read.auto"
+                          label="&autoMarkAsRead.label;"
+                          accesskey="&autoMarkAsRead.accesskey;"
+                          oncommand="gDisplayPane.updateMarkAsReadOptions(this.checked)"/>
+              </hbox>
+
+              <radiogroup id="markAsReadAutoPreferences" orient="vertical"
+                          class="indent"
+                          align="start"
+                          preference="mailnews.mark_message_read.delay">
+                <radio id="mark_read_immediately"
+                       label="&markAsReadNoDelay.label;"
+                       value="false"
+                       accesskey="&markAsReadNoDelay.accesskey;"/>
+                <hbox align="center">
+                  <radio id="markAsReadAfterDelay" value="true"
+                         label="&markAsReadDelay.label;"
+                         accesskey="&markAsReadDelay.accesskey;"/>
+                  <textbox id="markAsReadDelay" size="2"
+                           type="number" min="1" max="2147483"
+                           preference="mailnews.mark_message_read.delay.interval"
+                           aria-labelledby="markAsReadAfterDelay markAsReadDelay secondsLabel"/>
+                  <label id="secondsLabel" value="&secondsLabel.label;"/>
+                </hbox>
+              </radiogroup>
+            </vbox>
+
+            <vbox>
+              <hbox>
+                <label value="&openMsgIn.label;"
+                       control="mailOpenMessageBehavior"/>
+              </hbox>
+
+              <hbox>
+                <radiogroup id="mailOpenMessageBehavior" class="indent"
+                            preference="mail.openMessageBehavior"
+                            orient="horizontal">
+                  <radio id="newTab" value="2" label="&openMsgInNewTab.label;"
+                         accesskey="&openMsgInNewTab.accesskey;"/>
+                  <radio id="newWindow" value="0" label="&reuseExpRadio0.label;"
+                         accesskey="&reuseExpRadio0.accesskey;"/>
+                  <radio id="existingWindow" value="1"
+                         label="&reuseExpRadio1.label;"
+                         accesskey="&reuseExpRadio1.accesskey;"/>
+                </radiogroup>
+              </hbox>
+              <hbox>
+                <checkbox id="closeMsgOnMoveOrDelete"
+                          label="&closeMsgOnMoveOrDelete.label;"
+                          accesskey="&closeMsgOnMoveOrDelete.accesskey;"
+                          preference="mail.close_message_window.on_delete"/>
+              </hbox>
+            </vbox>
+
+          </groupbox>
+
+          <groupbox>
+            <caption label="&display.caption;"/>
+
+            <hbox>
+              <checkbox id="showCondensedAddresses"
+                        label="&showCondensedAddresses.label;"
+                        accesskey="&showCondensedAddresses.accesskey;"
+                        preference="mail.showCondensedAddresses"/>
+            </hbox>
+          </groupbox>
+
         </tabpanel>
       </tabpanels>
     </tabbox>

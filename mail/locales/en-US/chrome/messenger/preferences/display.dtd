@@ -4,6 +4,7 @@
 
 <!ENTITY itemFormatting.label             "Formatting">
 <!ENTITY itemTags.label                   "Tags">
+<!ENTITY itemAdvanced.label               "Advanced">
 
 <!ENTITY style.label                      "Style:">
 <!ENTITY style.accesskey                  "y">
@@ -44,3 +45,29 @@
 <!ENTITY fontOptions.label       "Advanced…">
 <!ENTITY colorButton.label       "Colors…">
 <!ENTITY colorButton.accesskey   "C">
+
+<!-- Advanced -->
+<!ENTITY reading.caption                  "Reading">
+<!ENTITY display.caption                  "Display">
+<!ENTITY showCondensedAddresses.label     "Show only display name for people in my address book">
+<!ENTITY showCondensedAddresses.accesskey "S">
+
+<!ENTITY autoMarkAsRead.label             "Automatically mark messages as read">
+<!ENTITY autoMarkAsRead.accesskey         "A">
+<!ENTITY markAsReadNoDelay.label          "Immediately on display">
+<!ENTITY markAsReadNoDelay.accesskey      "o">
+<!-- LOCALIZATION NOTE (markAsReadDelay.label): This will concatenate to
+     "After displaying for [___] seconds",
+     using (markAsReadDelay.label) and a number (secondsLabel.label). -->
+<!ENTITY markAsReadDelay.label            "After displaying for">
+<!ENTITY markAsReadDelay.accesskey        "d">
+<!ENTITY secondsLabel.label               "seconds">
+<!ENTITY openMsgIn.label                  "Open messages in:">
+<!ENTITY openMsgInNewTab.label            "A new tab">
+<!ENTITY openMsgInNewTab.accesskey        "t">
+<!ENTITY reuseExpRadio0.label             "A new message window">
+<!ENTITY reuseExpRadio0.accesskey         "n">
+<!ENTITY reuseExpRadio1.label             "An existing message window">
+<!ENTITY reuseExpRadio1.accesskey         "e">
+<!ENTITY closeMsgOnMoveOrDelete.label     "Close message window/tab on move or delete">
+<!ENTITY closeMsgOnMoveOrDelete.accesskey "C">
