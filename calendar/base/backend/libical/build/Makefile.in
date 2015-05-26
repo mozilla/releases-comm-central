@@ -8,6 +8,3 @@ NO_COMPONENTS_MANIFEST = 1
 EMBED_MANIFEST_AT =
 
 DEFINES += -DSHARED_LIBRARY=$(SHARED_LIBRARY)
-
-libs::
-	$(call py_action,preprocessor,$(DEFINES) $(srcdir)/libical-manifest -o $(FINAL_TARGET)/components/libical-manifest)
