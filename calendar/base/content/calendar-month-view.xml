@@ -275,7 +275,25 @@
       <method name="onDropItem">
         <parameter name="aItem"/>
         <body><![CDATA[
-          return cal.moveItem(aItem, this.mDate);
+          // When item's timezone is different than the default one, the
+          // item might get moved on a day different than the drop day.
+          // Changing the drop day allows to compensate a possible difference.
+
+          // Figure out if the timezones cause a days difference.
+          let start = (aItem[calGetStartDateProp(aItem)] ||
+                       aItem[calGetEndDateProp(aItem)]).clone();
+          let dayboxDate = this.mDate.clone();
+          if (start.timezone != dayboxDate.timezone) {
+              let startInDefaultTz = start.clone().getInTimezone(dayboxDate.timezone);
+              start.isDate = true;
+              startInDefaultTz.isDate = true;
+              startInDefaultTz.timezone = start.timezone;
+              let dayDiff = start.subtractDate(startInDefaultTz);
+              // Change the day where to drop the item.
+              dayboxDate.addDuration(dayDiff);
+          }
+
+          return cal.moveItem(aItem, dayboxDate);
         ]]></body>
       </method>
 
