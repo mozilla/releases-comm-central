@@ -8,6 +8,11 @@ EXTRA_JS_MODULES += ["../modules/RemoteDebuggerServer.jsm",
 
 XPI_NAME = 'dbgserver'
 
+DIST_FILES += [
+    'bootstrap.js',
+    'install.rdf',
+]
+
 JAR_MANIFESTS += ['jar.mn']
 
 USE_EXTENSION_MANIFEST = True
