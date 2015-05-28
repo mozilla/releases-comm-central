@@ -71,7 +71,7 @@ SOURCES += [
 
 LOCAL_INCLUDES += [
      '/mozilla/security/certverifier',
-     '/mozilla/security/manager/ssl/src',
+     '/mozilla/security/manager/ssl',
      '/mozilla/security/pkix/include',
 ]
 
