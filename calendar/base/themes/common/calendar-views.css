@@ -20,7 +20,7 @@ window {
     --viewWeekendBackground: #f7ffe3;
     --viewHeaderSelectedBackground: #fffcd8;
     --viewDayBoxSelectedBackground: #fffcd8;
-    --viewDayBoxOffSelectedBackground: #fffcd8;
+    --viewDayBoxOffSelectedBackground: #f2edb2;
     --viewDayBoxOtherSelectedBackground: #fffcd8;
     --viewMonthCurrentBackground: #f7f7f7;
     --viewMonthOtherBackground: #f3f3f3;
@@ -57,7 +57,7 @@ window[systemcolors] {
     --viewWeekendBackground: rgba(0, 0, 0, .1);
     --viewHeaderSelectedBackground: ButtonFace;
     --viewDayBoxSelectedBackground: -moz-Field;
-    --viewDayBoxOffSelectedBackground: rgba(0, 0, 0, .1);
+    --viewDayBoxOffSelectedBackground: rgba(0, 0, 0, .2);
     --viewDayBoxOtherSelectedBackground: ThreeDLightShadow;
     --viewMonthCurrentBackground: -moz-Field;
     --viewMonthOtherBackground: ButtonFace;
@@ -238,7 +238,7 @@ calendar-header-container[weekend="true"][selected="true"],
 }
 
 .calendar-event-column-linebox[off-time="true"][selected="true"] {
-    background-color: var(--viewTodayOffBackground);
+    background-color: var(--viewDayBoxOffSelectedBackground);
 }
 
 .calendar-event-column-linebox[orient="horizontal"] {
