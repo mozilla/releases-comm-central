@@ -8,10 +8,15 @@
 <!ENTITY lightning.toolbar.task.name.accesskey "T">
 
 <!ENTITY lightning.toolbar.sync.label "Synchronize">
+<!ENTITY lightning.toolbar.sync.tooltip "Reload calendars and synchronize changes">
 <!ENTITY lightning.toolbar.delete.label "Delete">
+<!ENTITY lightning.toolbar.delete.tooltip "Delete selected events or tasks">
 <!ENTITY lightning.toolbar.edit.label "Edit">
+<!ENTITY lightning.toolbar.edit.tooltip "Edit selected event or task">
 <!ENTITY lightning.toolbar.gototoday.label "Go to Today">
+<!ENTITY lightning.toolbar.gototoday.tooltip "Go to Today">
 <!ENTITY lightning.toolbar.print.label "Print">
+<!ENTITY lightning.toolbar.print.tooltip "Print events or tasks">
 
 <!-- Mode Toolbar -->
 <!ENTITY lightning.toolbar.calendar.label     "Calendar">
@@ -23,7 +28,9 @@
 
 <!-- Toolbar write button -->
 <!ENTITY lightning.toolbar.newevent.label     "Event">
+<!ENTITY lightning.toolbar.newevent.tooltip   "Create a new event">
 <!ENTITY lightning.toolbar.newtask.label      "Task">
+<!ENTITY lightning.toolbar.newtask.tooltip    "Create a new task">
 
 <!-- Calendar and Task Mode Toolbar -->
 <!ENTITY lightning.toolbar.day.label                 "Day">
