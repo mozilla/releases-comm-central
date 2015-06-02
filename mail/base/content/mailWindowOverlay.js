@@ -3291,7 +3291,7 @@ function OnMsgParsed(aUrl)
   Services.obs.notifyObservers(msgWindow.msgHeaderSink, "MsgMsgDisplayed", msgURI);
 
   // Scale any overflowing images, exclude http content.
-  let browser = getBrowser();
+  let browser = getMessagePaneBrowser();
   let doc = browser && browser.contentDocument ? browser.contentDocument : null;
   let imgs = doc && !doc.URL.startsWith("http") ? doc.images : [];
   for (let img of imgs)

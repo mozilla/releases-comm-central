@@ -447,13 +447,22 @@ function loadStartPage(aForce)
   }
 }
 
-// The zoom manager, view source and possibly some other functions still rely
-// on the getBrowser function.
+/**
+ * Returns the browser element of the current tab.
+ * The zoom manager, view source and possibly some other functions still rely
+ * on the getBrowser function.
+ */
 function getBrowser()
 {
   let tabmail = document.getElementById('tabmail');
-  return tabmail ? tabmail.getBrowserForSelectedTab() :
-                   document.getElementById("messagepane");
+  return tabmail ? tabmail.getBrowserForSelectedTab() : getMessagePaneBrowser();
+}
+
+/**
+ * Returns the browser element of the message pane.
+ */
+function getMessagePaneBrowser() {
+  return document.getElementById("messagepane");
 }
 
 /**

@@ -362,7 +362,7 @@ const MailPrefObserver = {
                                   ++currentDisplayNameVersion);
 
         //refresh the thread pane
-        threadTree.treeBoxObject.invalid();
+        threadTree.treeBoxObject.invalidate();
       }
     }
   }
@@ -1265,7 +1265,12 @@ function SelectFolder(folderUri)
 
 function ReloadMessage()
 {
-  gFolderDisplay.view.dbView.reloadMessage();
+  if (!gFolderDisplay.selectedMessage)
+    return;
+
+  let view = gFolderDisplay.view.dbView;
+  if (view)
+    view.reloadMessage();
 }
 
 // Some of the per account junk mail settings have been
