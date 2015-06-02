@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/folderUtils.jsm");
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
@@ -150,6 +151,9 @@ var gComposeRecyclingListener = {
 
     // We need to clear the identity popup menu in case the user will change them. It will be rebuilded later in ComposeStartup
     ClearIdentityListPopup(document.getElementById("msgIdentityPopup"));
+
+    // Stop listening to changes in the spell check dictionary.
+    document.removeEventListener("spellcheck-changed", updateDocumentLanguage);
 
     // Stop InlineSpellCheckerUI so personal dictionary is saved.
     // We need to do this before disabling the editor.
@@ -946,6 +950,10 @@ function ComposeStartup(recycled, aParams)
       args = GetArgs(window.arguments[0]);
     }
   }
+
+  // Set the document language to the preference as early as possible.
+  document.documentElement
+          .setAttribute("lang", getPref("spellchecker.dictionary"));
 
   var identityList = GetMsgIdentityElement();
 
@@ -1913,6 +1921,10 @@ function ChangeLanguage(event)
   if (spellChecker.GetCurrentDictionary() != event.target.value)
   {
     spellChecker.SetCurrentDictionary(event.target.value);
+
+    // Update the document language as well.
+    // This is needed to synchronize the subject.
+    document.documentElement.setAttribute("lang", event.target.value);
 
     // now check the document and the subject over again with the new dictionary
     if (InlineSpellCheckerUI.enabled)
@@ -2989,10 +3001,30 @@ function AutoSave()
 
 function InitEditor(editor)
 {
+  // Set the eEditorMailMask flag to avoid using content prefs for the spell
+  // checker, otherwise the dictionary setting in preferences is ignored and
+  // the dictionary is inconsistent between the subject and message body.
+  var eEditorMailMask = Components.interfaces.nsIPlaintextEditor.eEditorMailMask;
+  editor.flags |= eEditorMailMask;
+  GetMsgSubjectElement().editor.flags |= eEditorMailMask;
+
   gMsgCompose.initEditor(editor, window.content);
   InlineSpellCheckerUI.init(editor);
   EnableInlineSpellCheck(getPref("mail.spellcheck.inline"));
   document.getElementById("menu_inlineSpellCheck").setAttribute("disabled", !InlineSpellCheckerUI.canSpellCheck);
+
+  // Listen for spellchecker changes, set the document language to the
+  // dictionary picked by the user via the right-click menu in the editor.
+  document.addEventListener("spellcheck-changed", updateDocumentLanguage);
+}
+
+/**
+ * The event listener for the "spellcheck-changed" event updates
+ * the document language.
+ */
+function updateDocumentLanguage(event)
+{
+  document.documentElement.setAttribute("lang", event.detail.dictionary);
 }
 
 function EnableInlineSpellCheck(aEnableInlineSpellCheck)
