@@ -91,6 +91,7 @@
     <menupopup id="messageIdContext"/>
     <menupopup id="emailAddressPopup"/>
     <menupopup id="toolbar-context-menu"/>
+    <menupopup id="remoteContentOptions"/>
     <tooltip id="aHTMLTooltip"
              onpopupshowing="return FillInHTMLTooltip(document.tooltipNode);"/>
     <panel id="customizeToolbarSheetPopup"/>

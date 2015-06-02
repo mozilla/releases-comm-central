@@ -2537,7 +2537,7 @@ function HandleJunkStatusChanged(folder)
   }
 }
 
-var gMessageNotificationBar = 
+var gMessageNotificationBar =
 {
   get mStringBundle()
   {
@@ -2607,49 +2607,39 @@ var gMessageNotificationBar =
     }
   },
 
-  setRemoteContentMsg: function(aMsgHdr)
-  {  
-    var headerParser = Components.classes["@mozilla.org/messenger/headerparser;1"]
-                                 .getService(Components.interfaces.nsIMsgHeaderParser);
-    var emailAddress = headerParser.extractHeaderAddressMailboxes(aMsgHdr.author);
+  remoteHosts: null,
 
-    var oldNotif = this.mMsgNotificationBar.getNotificationWithValue("remoteContent");
-    if (!oldNotif)
-    {
-      let displayName = headerParser.extractHeaderAddressName(aMsgHdr.author);
-      let brandName = this.mBrandBundle.getString('brandShortName');
-      let remoteContentMsg = this.mStringBundle.getFormattedString('remoteContentBarMessage', 
-                                                                   [brandName]);
-      let buttons = [{
-        label: this.mStringBundle.getString('remoteContentBarButton'),
-        accessKey: this.mStringBundle.getString('remoteContentBarButtonKey'),
-        popup: null,
-        callback: function()
-        {
-          LoadMsgWithRemoteContent();
-        }
-      }];
+  setRemoteContentMsg: function(aMsgHdr, aContentURI)
+  {
+    // remoteHosts is a Set of all blockable hosts.
+    if (!this.remoteHosts)
+      this.remoteHosts = new Set();
+    this.remoteHosts.add(aContentURI.host);
 
-      let bar =
-        this.mMsgNotificationBar.appendNotification(remoteContentMsg, "remoteContent",
-          null, this.mMsgNotificationBar.PRIORITY_WARNING_MEDIUM, buttons);
+    if (this.mMsgNotificationBar.getNotificationWithValue("remoteContent"))
+      return;
 
-      if (emailAddress)
-      {
-        let XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-        let linkLabel = bar.ownerDocument.createElementNS(XULNS, "label");
-        let addedLink = this.mStringBundle.getFormattedString('alwaysLoadRemoteContentForSender', 
-                                                              [emailAddress]);
+    var headerParser = MailServices.headerParser;
+    // update the allow remote content for sender string
+    var mailbox = headerParser.extractHeaderAddressMailboxes(aMsgHdr.author);
+    var emailAddress = mailbox || aMsgHdr.author;
+    var displayName = headerParser.extractHeaderAddressName(aMsgHdr.author);
+    var brandName = this.mBrandBundle.getString("brandShortName");
+    var remoteContentMsg = this.mStringBundle
+                               .getFormattedString("remoteContentBarMessage",
+                                                   [brandName]);
+    var buttons = [{
+      label: this.mStringBundle.getString("remoteContentPrefLabel"),
+      accessKey: this.mStringBundle.getString("remoteContentPrefAccesskey"),
+      popup: "remoteContentOptions"
+    }];
 
-        linkLabel.className = "text-link";
-        linkLabel.textContent = addedLink;
-        linkLabel.flex = 1;
-        linkLabel.onclick = function() { allowRemoteContentForSender(emailAddress, 
-                                                                     displayName); };
-
-        bar.insertBefore(linkLabel, bar.firstChild);
-      }
-    }
+    this.mMsgNotificationBar
+        .appendNotification(remoteContentMsg,
+                            "remoteContent",
+                            null,
+                            this.mMsgNotificationBar.PRIORITY_WARNING_MEDIUM,
+                            buttons);
   },
 
   // aUrl is the nsIURI for the message currently loaded in the message pane
@@ -2754,6 +2744,68 @@ function LoadMsgWithRemoteContent()
 }
 
 /**
+ * Populate the remote content options for the current message.
+ */
+function onRemoteContentOptionsShowing(aEvent)
+{
+  var hosts = [...gMessageNotificationBar.remoteHosts];
+
+  var addresses = {};
+  MailServices.headerParser.parseHeadersWithArray(
+    gMessageDisplay.displayedMessage.author, addresses, {}, {});
+  var authorEmailAddress = addresses.value[0];
+  if (authorEmailAddress)
+    hosts.unshift(authorEmailAddress);
+
+  // Out with the old...
+  let childNodes = aEvent.target.querySelectorAll(".allow-remote-uri");
+  for (let child of childNodes)
+    child.remove();
+
+  var messengerBundle = gMessageNotificationBar.mStringBundle;
+  var separator = document.getElementById("remoteContentSettingsMenuSeparator")
+
+  // ... and in with the new.
+  for (let host of hosts)
+  {
+    let menuitem = document.createElement("menuitem");
+    menuitem.setAttribute("label",
+      messengerBundle.getFormattedString("remoteContentAllow", [host]));
+    menuitem.setAttribute("host", host);
+    menuitem.setAttribute("class", "allow-remote-uri");
+    aEvent.target.insertBefore(menuitem, separator);
+  }
+}
+
+/**
+ * Add privileges to display remote content for the given uri.
+ * @param aItem |nsIDOMNode| Item that was selected. The host
+ *        is extracted and converted to a uri and used to add
+ *        permissions for the site.
+ */
+function allowRemoteContentForURI(aItem)
+{
+  var host = aItem.getAttribute("host");
+  if (!host)
+    return;
+
+  var scheme = host.includes("@") ? "mailto:" : "http://";
+  var uri = Services.io.newURI(scheme + host, null, null);
+  Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
+  ReloadMessage();
+}
+
+/**
+ * Displays fine-grained, per-site permissions for remote content.
+ */
+function editRemoteContentSettings()
+{
+  toDataManager("|permissions");
+  if (!Services.prefs.getBoolPref("browser.preferences.instantApply"))
+    ReloadMessage();
+}
+
+/**
  *  msgHdrForCurrentMessage
  *   Returns the msg hdr associated with the current loaded message.
  */
@@ -2761,57 +2813,6 @@ function msgHdrForCurrentMessage()
 {
   var msgURI = GetLoadedMessage();
   return (msgURI && !(/type=application\/x-message-display/.test(msgURI))) ? messenger.msgHdrFromURI(msgURI) : null;
-}
-
-/**
- *  Reloads the message after adjusting the remote content policy for the sender.
- *  Iterate through the local address books looking for a card with the same e-mail address as the 
- *  sender of the current loaded message. If we find a card, update the allow remote content field.
- *  If we can't find a card, prompt the user with a new AB card dialog, pre-selecting the remote content field.
- */
-function allowRemoteContentForSender(aAuthorEmailAddress, aAuthorDisplayName)
-{
-  // search through all of our local address books looking for a match.
-  var enumerator = Components.classes["@mozilla.org/abmanager;1"]
-                             .getService(Components.interfaces.nsIAbManager)
-                             .directories;
-  var cardForEmailAddress = null;
-  var addrbook = null;
-  while (!cardForEmailAddress && enumerator.hasMoreElements())
-  {
-    addrbook = enumerator.getNext()
-                         .QueryInterface(Components.interfaces.nsIAbDirectory);
-    // Try/catch because cardForEmailAddress will throw if not implemented.
-    try
-    {
-      // If it's a read-only book, don't find a card as we won't be able
-      // to modify the card.
-      if (!addrbook.readOnly)
-        cardForEmailAddress = addrbook.cardForEmailAddress(authorEmailAddress);
-    } catch (e) {}
-  }
-
-  var allowRemoteContent = false;
-  if (cardForEmailAddress)
-  {
-    // set the property for remote content
-    cardForEmailAddress.setProperty("AllowRemoteContent", true);
-    addrbook.modifyCard(cardForEmailAddress);
-    allowRemoteContent = true;
-  }
-  else
-  {
-    var args = {primaryEmail:aAuthorEmailAddress, displayName:aAuthorDisplayName,
-                 allowRemoteContent:true};
-    // create a new card and set the property
-    window.openDialog("chrome://messenger/content/addressbook/abNewCardDialog.xul",
-                      "", "chrome,resizable=no,titlebar,modal,centerscreen", args);
-    allowRemoteContent = args.allowRemoteContent;
-  } 
-
-  // reload the message if we've updated the remote content policy for the sender  
-  if (allowRemoteContent)
-    ReloadMessage();
 }
 
 function MsgIsNotAScam()
@@ -2921,6 +2922,9 @@ function OnMsgLoaded(aUrl)
 
     var msgHdr = msgHdrForCurrentMessage();
     gMessageNotificationBar.setJunkMsg(msgHdr);
+    // Reset the blocked hosts so we can populate it again for this message.
+    // Reset to null so it's only a Set if there's something in the Set.
+    gMessageNotificationBar.remoteHosts = null;
 
     var markReadAutoMode = Services.prefs.getBoolPref("mailnews.mark_message_read.auto");
 

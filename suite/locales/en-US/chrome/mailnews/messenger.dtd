@@ -445,6 +445,12 @@
 <!ENTITY junkButton.tooltip "Mark the selected messages as junk">
 <!ENTITY notJunkButton.tooltip "Mark the selected messages as not junk">
 
+<!-- Remote Content Button Popup -->
+<!ENTITY remoteContentOptionsAllowForMsg.label "Show remote content in this message">
+<!ENTITY remoteContentOptionsAllowForMsg.accesskey "S">
+<!ENTITY editRemoteContentSettings.label "Edit permissions for remote content…">
+<!ENTITY editRemoteContentSettings.accesskey "E">
+
 <!-- Statusbar -->
 <!ENTITY  statusText.label "Done">
 

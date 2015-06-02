@@ -618,9 +618,9 @@ var messageHeaderSink = {
       OnMsgLoaded(url);
     },
 
-    onMsgHasRemoteContent: function(aMsgHdr)
+    onMsgHasRemoteContent: function(aMsgHdr, aContentURI)
     {
-      gMessageNotificationBar.setRemoteContentMsg(aMsgHdr);
+      gMessageNotificationBar.setRemoteContentMsg(aMsgHdr, aContentURI);
     },
 
     mSecurityInfo  : null,

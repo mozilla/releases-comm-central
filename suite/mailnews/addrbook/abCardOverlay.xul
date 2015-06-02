@@ -183,9 +183,6 @@
               <menuitem value="2" label="&HTML.label;"/>
             </menupopup>
           </menulist>
-          <checkbox id="allowRemoteContent" label="&allowRemoteContent1.label;"
-                    accesskey="&allowRemoteContent1.accesskey;"
-                    tooltiptext="&allowRemoteContent1.tooltip;"/>
         </hbox>
       </vbox> <!-- End of Name Tab -->
 

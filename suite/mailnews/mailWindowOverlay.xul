@@ -876,6 +876,20 @@
                                                                 gContextMenu.linkText());"/>
   </menupopup>
 
+  <menupopup id="remoteContentOptions"
+             onpopupshowing="onRemoteContentOptionsShowing(event);"
+             oncommand="allowRemoteContentForURI(event.target);">
+    <menuitem id="remoteContentOptionAllowForMsg"
+              label="&remoteContentOptionsAllowForMsg.label;"
+              accesskey="&remoteContentOptionsAllowForMsg.accesskey;"
+              oncommand="LoadMsgWithRemoteContent();"/>
+    <menuseparator id="remoteContentSettingsMenuSeparator"/>
+    <menuitem id="editRemoteContentSettings"
+              label="&editRemoteContentSettings.label;"
+              accesskey="&editRemoteContentSettings.accesskey;"
+              oncommand="editRemoteContentSettings();"/>
+  </menupopup>
+
   <toolbar type="menubar"
            id="mail-toolbar-menubar2"
            class="chromeclass-menubar"
