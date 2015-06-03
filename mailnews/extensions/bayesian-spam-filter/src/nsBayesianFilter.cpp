@@ -149,15 +149,14 @@ static const PLDHashTableOps gTokenTableOps = {
 };
 
 TokenHash::TokenHash(uint32_t aEntrySize)
+  : mTokenTable(&gTokenTableOps, aEntrySize, 128)
 {
     mEntrySize = aEntrySize;
     PL_INIT_ARENA_POOL(&mWordPool, "Words Arena", 16384);
-    PL_DHashTableInit(&mTokenTable, &gTokenTableOps, aEntrySize, 128);
 }
 
 TokenHash::~TokenHash()
 {
-    PL_DHashTableFinish(&mTokenTable);
     PL_FinishArenaPool(&mWordPool);
 }
 
@@ -165,9 +164,8 @@ nsresult TokenHash::clearTokens()
 {
     // we re-use the tokenizer when classifying multiple messages,
     // so this gets called after every message classification.
-    PL_DHashTableFinish(&mTokenTable);
+    mTokenTable.ClearAndPrepareForLength(128);
     PL_FreeArenaPool(&mWordPool);
-    PL_DHashTableInit(&mTokenTable, &gTokenTableOps, mEntrySize, 128);
     return NS_OK;
 }
 
