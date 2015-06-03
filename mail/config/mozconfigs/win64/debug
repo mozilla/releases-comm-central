@@ -1,3 +1,4 @@
+. "$topsrcdir/build/mozconfig.win-common"
 . "$topsrcdir/build/mozconfig.common"
 
 ac_add_options --target=x86_64-pc-mingw32
