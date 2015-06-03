@@ -978,3 +978,7 @@ pref("services.sync.prefs.sync.security.warn_viewing_mixed", true);
 pref("services.sync.prefs.sync.signon.rememberSignons", true);
 pref("services.sync.prefs.sync.spellchecker.dictionary", true);
 pref("services.sync.prefs.sync.xpinstall.whitelist.required", true);
+
+// Disable cache v2 since migration has not been done, it is pending in bug 1021843.
+pref("browser.cache.use_new_backend",       0);
+pref("browser.cache.use_new_backend_temp",  false);
