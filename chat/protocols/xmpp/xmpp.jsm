@@ -146,6 +146,10 @@ const XMPPMUCConversationPrototype = {
           message = _("conversation.error.joinFailedRemoteServerNotFound",
                       this.name);
           break;
+        case "forbidden":
+          // XEP-0045 (7.2.8): Banned users.
+          message = _("conversation.error.joinForbidden", this.name);
+          break;
         default:
           message = _("conversation.error.joinFailed", this.name);
           this.ERROR("Failed to join MUC: " + aStanza.convertToString());
