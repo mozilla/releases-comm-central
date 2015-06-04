@@ -83,6 +83,8 @@ GTalkAccount.prototype = {
 };
 
 function GTalkProtocol() {
+  Cu.import("resource:///modules/xmpp-commands.jsm", this);
+  this.registerCommands();
 }
 GTalkProtocol.prototype = {
   __proto__: GenericProtocolPrototype,

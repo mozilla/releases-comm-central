@@ -19,6 +19,8 @@ function XMPPAccount(aProtoInstance, aImAccount) {
 XMPPAccount.prototype = XMPPAccountPrototype;
 
 function XMPPProtocol() {
+  Cu.import("resource:///modules/xmpp-commands.jsm", this);
+  this.registerCommands();
 }
 XMPPProtocol.prototype = {
   __proto__: GenericProtocolPrototype,

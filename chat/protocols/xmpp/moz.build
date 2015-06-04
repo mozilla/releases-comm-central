@@ -10,6 +10,7 @@ EXTRA_COMPONENTS += [
 
 EXTRA_JS_MODULES += [
     'xmpp-authmechs.jsm',
+    'xmpp-commands.jsm',
     'xmpp-session.jsm',
     'xmpp-xml.jsm',
     'xmpp.jsm',
