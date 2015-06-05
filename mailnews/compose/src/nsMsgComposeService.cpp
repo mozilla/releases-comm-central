@@ -51,7 +51,7 @@
 #include "mimemoz2.h"
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
-#include "prlog.h"
+#include "mozilla/Logging.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"
@@ -768,7 +768,7 @@ NS_IMETHODIMP nsMsgComposeService::TimeStamp(const char * label, bool resetTime)
 
   if (resetTime)
   {
-    PR_LOG(MsgComposeLogModule, PR_LOG_ALWAYS, ("\n[process]: [totalTime][deltaTime]\n--------------------\n"));
+    MOZ_LOG(MsgComposeLogModule, mozilla::LogLevel::Info, ("\n[process]: [totalTime][deltaTime]\n--------------------\n"));
 
     mStartTime = PR_IntervalNow();
     mPreviousTime = mStartTime;
@@ -780,7 +780,7 @@ NS_IMETHODIMP nsMsgComposeService::TimeStamp(const char * label, bool resetTime)
   PRIntervalTime totalTime = PR_IntervalToMilliseconds(now - mStartTime);
   PRIntervalTime deltaTime = PR_IntervalToMilliseconds(now - mPreviousTime);
 
-  PR_LOG(MsgComposeLogModule, PR_LOG_ALWAYS, ("[%3.2f][%3.2f] - %s\n",
+  MOZ_LOG(MsgComposeLogModule, mozilla::LogLevel::Info, ("[%3.2f][%3.2f] - %s\n",
 ((double)totalTime/1000.0) + 0.005, ((double)deltaTime/1000.0) + 0.005, label));
 
   mPreviousTime = now;

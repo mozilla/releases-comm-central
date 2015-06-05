@@ -20,7 +20,7 @@
 #include "nsIMsgIdentity.h"
 #include "nsISmtpServer.h"
 #include "prtime.h"
-#include "prlog.h"
+#include "mozilla/Logging.h"
 #include "prerror.h"
 #include "prprf.h"
 #include "prmem.h"
@@ -301,7 +301,7 @@ void nsSmtpProtocol::Initialize(nsIURI * aURL)
     aURL->GetPort(&port);
     aURL->GetAsciiHost(hostName);
 
-    PR_LOG(SMTPLogModule, PR_LOG_ALWAYS, ("SMTP Connecting to: %s", hostName.get()));
+    MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Info, ("SMTP Connecting to: %s", hostName.get()));
 
     // When we are making a secure connection, we need to make sure that we
     // pass an interface requestor down to the socket transport so that PSM can
@@ -409,7 +409,7 @@ NS_IMETHODIMP nsSmtpProtocol::OnStopRequest(nsIRequest *request, nsISupports *ct
   // ignore errors handling the QUIT command so fcc can continue.
   if (m_sendDone && NS_FAILED(aStatus))
   {
-    PR_LOG(SMTPLogModule, PR_LOG_ALWAYS,
+    MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Info,
      ("SMTP connection error quitting %lx, ignoring ", aStatus));
     aStatus = NS_OK;
   }
@@ -418,7 +418,7 @@ NS_IMETHODIMP nsSmtpProtocol::OnStopRequest(nsIRequest *request, nsISupports *ct
     // but we haven't finished clean, that's spells trouble.
     // it means that the server has dropped us before we could send the whole mail
     // for example, see bug #200647
-    PR_LOG(SMTPLogModule, PR_LOG_ALWAYS,
+    MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Info,
  ("SMTP connection dropped after %ld total bytes read", m_totalAmountRead));
     if (!connDroppedDuringAuth)
       nsMsgAsyncWriteProtocol::OnStopRequest(nullptr, ctxt, NS_ERROR_NET_INTERRUPT);
@@ -500,7 +500,7 @@ nsresult nsSmtpProtocol::SmtpResponse(nsIInputStream * inputStream, uint32_t len
 
   m_totalAmountRead += ln;
 
-  PR_LOG(SMTPLogModule, PR_LOG_ALWAYS, ("SMTP Response: %s", line));
+  MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Info, ("SMTP Response: %s", line));
   cont_char = ' '; /* default */
   // sscanf() doesn't update m_responseCode if line doesn't start
   // with a number. That can be dangerous. So be sure to set
@@ -880,7 +880,7 @@ void nsSmtpProtocol::InitPrefAuthMethods(int32_t authMethodPrefValue)
     default:
       NS_ASSERTION(false, "SMTP: authMethod pref invalid");
       // TODO log to error console
-      PR_LOG(SMTPLogModule, PR_LOG_ERROR,
+      MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Error,
           ("SMTP: bad pref authMethod = %d\n", authMethodPrefValue));
       // fall to any
     case nsMsgAuthMethod::anything:
@@ -910,10 +910,10 @@ nsresult nsSmtpProtocol::ChooseAuthMethod()
   int32_t serverCaps = m_flags; // from nsMsgProtocol::TestFlag()
   int32_t availCaps = serverCaps & m_prefAuthMethods & ~m_failedAuthMethods;
 
-  PR_LOG(SMTPLogModule, PR_LOG_DEBUG,
+  MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug,
         ("SMTP auth: server caps 0x%X, pref 0x%X, failed 0x%X, avail caps 0x%X",
         serverCaps, m_prefAuthMethods, m_failedAuthMethods, availCaps));
-  PR_LOG(SMTPLogModule, PR_LOG_DEBUG,
+  MOZ_LOG(SMTPLogModule, mozilla::LogLevel:: Debug,
         ("(GSSAPI = 0x%X, CRAM = 0x%X, NTLM = 0x%X, "
         "MSN =  0x%X, PLAIN = 0x%X, LOGIN = 0x%X, EXTERNAL = 0x%X)",
         SMTP_AUTH_GSSAPI_ENABLED, SMTP_AUTH_CRAM_MD5_ENABLED,
@@ -938,17 +938,17 @@ nsresult nsSmtpProtocol::ChooseAuthMethod()
     m_currentAuthMethod = SMTP_AUTH_EXTERNAL_ENABLED;
   else
   {
-    PR_LOG(SMTPLogModule, PR_LOG_ERROR, ("no auth method remaining"));
+    MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Error, ("no auth method remaining"));
     m_currentAuthMethod = 0;
     return NS_ERROR_SMTP_AUTH_FAILURE;
   }
-  PR_LOG(SMTPLogModule, PR_LOG_DEBUG, ("trying auth method 0x%X", m_currentAuthMethod));
+  MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("trying auth method 0x%X", m_currentAuthMethod));
   return NS_OK;
 }
 
 void nsSmtpProtocol::MarkAuthMethodAsFailed(int32_t failedAuthMethod)
 {
-  PR_LOG(SMTPLogModule, PR_LOG_DEBUG,
+  MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug,
       ("marking auth method 0x%X failed", failedAuthMethod));
   m_failedAuthMethods |= failedAuthMethod;
 }
@@ -1047,7 +1047,7 @@ nsresult nsSmtpProtocol::ProcessAuth()
     {
       // we didn't even try anything, so we had a non-working config:
       // pref doesn't match server
-      PR_LOG(SMTPLogModule, PR_LOG_ERROR,
+      MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Error,
           ("no working auth mech - pref doesn't match server capas"));
 
       // pref has encrypted pw & server claims to support plaintext pw
@@ -1078,13 +1078,13 @@ nsresult nsSmtpProtocol::ProcessAuth()
     else if (m_failedAuthMethods == SMTP_AUTH_GSSAPI_ENABLED)
     {
       // We have only GSSAPI, and it failed, so nothing left to do.
-      PR_LOG(SMTPLogModule, PR_LOG_ERROR, ("GSSAPI only and it failed"));
+      MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Error, ("GSSAPI only and it failed"));
       m_urlErrorState = NS_ERROR_SMTP_AUTH_GSSAPI;
     }
     else
     {
       // we tried to login, but it all failed
-      PR_LOG(SMTPLogModule, PR_LOG_ERROR, ("All auth attempts failed"));
+      MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Error, ("All auth attempts failed"));
       m_urlErrorState = NS_ERROR_SMTP_AUTH_FAILURE;
     }
     m_nextState = SMTP_ERROR_DONE;
@@ -1098,7 +1098,7 @@ nsresult nsSmtpProtocol::ProcessAuth()
 
 nsresult nsSmtpProtocol::AuthLoginResponse(nsIInputStream * stream, uint32_t length)
 {
-  PR_LOG(SMTPLogModule, PR_LOG_DEBUG, ("SMTP Login response, code %d", m_responseCode));
+  MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("SMTP Login response, code %d", m_responseCode));
   nsresult status = NS_OK;
 
   switch (m_responseCode/100)
@@ -1128,7 +1128,7 @@ nsresult nsSmtpProtocol::AuthLoginResponse(nsIInputStream * stream, uint32_t len
         {
           // We've tried all avail. methods, and they all failed, and we have no mechanism left.
           // Ask user to try with a new password.
-          PR_LOG(SMTPLogModule, PR_LOG_WARN,
+          MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Warning,
               ("SMTP: ask user what to do (after login failed): new password, retry or cancel"));
 
           nsCOMPtr<nsISmtpServer> smtpServer;
@@ -1145,14 +1145,14 @@ nsresult nsSmtpProtocol::AuthLoginResponse(nsIInputStream * stream, uint32_t len
           {
             if (buttonPressed == 1) // Cancel button
             {
-              PR_LOG(SMTPLogModule, PR_LOG_WARN, ("cancel button pressed"));
+              MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Warning, ("cancel button pressed"));
               // abort and get out of here
               status = NS_ERROR_ABORT;
               break;
             }
             else if (buttonPressed == 2) // 'New password' button
             {
-              PR_LOG(SMTPLogModule, PR_LOG_WARN, ("new password button pressed"));
+              MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Warning, ("new password button pressed"));
               // Change password was pressed. For now, forget the stored
               // password and we'll prompt for a new one next time around.
               smtpServer->ForgetPassword();
@@ -1168,13 +1168,13 @@ nsresult nsSmtpProtocol::AuthLoginResponse(nsIInputStream * stream, uint32_t len
             }
             else if (buttonPressed == 0) // Retry button
             {
-              PR_LOG(SMTPLogModule, PR_LOG_WARN, ("retry button pressed"));
+              MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Warning, ("retry button pressed"));
               // try all again, including GSSAPI
               ResetAuthMethods();
             }
           }
         }
-        PR_LOG(SMTPLogModule, PR_LOG_ERROR,
+        MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Error,
             ("SMTP: login failed: failed %X, current %X", m_failedAuthMethods, m_currentAuthMethod));
 
         m_nextState = SMTP_AUTH_PROCESS_STATE; // try auth (ProcessAuth()) again, with other method
@@ -1209,13 +1209,13 @@ nsresult nsSmtpProtocol::AuthGSSAPIFirst()
   if (NS_FAILED(rv))
     return NS_ERROR_FAILURE;
   service.Append(hostName);
-  PR_LOG(SMTPLogModule, PR_LOG_DEBUG, ("SMTP: GSSAPI step 1 for user %s at server %s, service %s",
+  MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("SMTP: GSSAPI step 1 for user %s at server %s, service %s",
       userName.get(), hostName.get(), service.get()));
 
   rv = DoGSSAPIStep1(service.get(), userName.get(), resp);
   if (NS_FAILED(rv))
   {
-    PR_LOG(SMTPLogModule, PR_LOG_ERROR, ("SMTP: GSSAPI step 1 failed early"));
+    MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Error, ("SMTP: GSSAPI step 1 failed early"));
     MarkAuthMethodAsFailed(SMTP_AUTH_GSSAPI_ENABLED);
     m_nextState = SMTP_AUTH_PROCESS_STATE;
     return NS_OK;
@@ -1233,7 +1233,7 @@ nsresult nsSmtpProtocol::AuthGSSAPIFirst()
 
 nsresult nsSmtpProtocol::AuthGSSAPIStep()
 {
-  PR_LOG(SMTPLogModule, PR_LOG_DEBUG, ("SMTP: GSSAPI auth step 2"));
+  MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("SMTP: GSSAPI auth step 2"));
   NS_ASSERTION(m_currentAuthMethod == SMTP_AUTH_GSSAPI_ENABLED, "called in invalid state");
   nsresult rv;
   nsAutoCString cmd;
@@ -1266,7 +1266,7 @@ nsresult nsSmtpProtocol::AuthLoginStep0()
     NS_ASSERTION(m_currentAuthMethod == SMTP_AUTH_MSN_ENABLED ||
         m_currentAuthMethod == SMTP_AUTH_LOGIN_ENABLED,
         "called in invalid state");
-    PR_LOG(SMTPLogModule, PR_LOG_DEBUG, ("SMTP: MSN or LOGIN auth, step 0"));
+    MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("SMTP: MSN or LOGIN auth, step 0"));
     nsAutoCString command(m_currentAuthMethod == SMTP_AUTH_MSN_ENABLED
         ? "AUTH MSN" CRLF : "AUTH LOGIN" CRLF);
     m_nextState = SMTP_RESPONSE;
@@ -1307,26 +1307,26 @@ nsresult nsSmtpProtocol::AuthLoginStep1()
     if (username.IsEmpty() || password.IsEmpty())
       return NS_ERROR_SMTP_PASSWORD_UNDEFINED;
   }
-  PR_LOG(SMTPLogModule, PR_LOG_DEBUG, ("SMTP AuthLoginStep1() for %s@%s",
+  MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("SMTP AuthLoginStep1() for %s@%s",
       username.get(), smtpServer.get()));
 
   GetPassword(password);
   if (password.IsEmpty())
   {
-    PR_LOG(SMTPLogModule, PR_LOG_ERROR, ("SMTP: password undefined"));
+    MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Error, ("SMTP: password undefined"));
     m_urlErrorState = NS_ERROR_SMTP_PASSWORD_UNDEFINED;
     return NS_ERROR_SMTP_PASSWORD_UNDEFINED;
   }
 
   if (m_currentAuthMethod == SMTP_AUTH_CRAM_MD5_ENABLED)
   {
-    PR_LOG(SMTPLogModule, PR_LOG_ERROR, ("CRAM auth, step 1"));
+    MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Error, ("CRAM auth, step 1"));
     PR_snprintf(buffer, sizeof(buffer), "AUTH CRAM-MD5" CRLF);
   }
   else if (m_currentAuthMethod == SMTP_AUTH_NTLM_ENABLED ||
            m_currentAuthMethod == SMTP_AUTH_MSN_ENABLED)
   {
-    PR_LOG(SMTPLogModule, PR_LOG_DEBUG, ("NTLM/MSN auth, step 1"));
+    MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("NTLM/MSN auth, step 1"));
     nsAutoCString response;
     rv = DoNtlmStep1(username.get(), password.get(), response);
     PR_snprintf(buffer, sizeof(buffer), TestFlag(SMTP_AUTH_NTLM_ENABLED) ?
@@ -1335,7 +1335,7 @@ nsresult nsSmtpProtocol::AuthLoginStep1()
   }
   else if (m_currentAuthMethod == SMTP_AUTH_PLAIN_ENABLED)
   {
-    PR_LOG(SMTPLogModule, PR_LOG_DEBUG, ("PLAIN auth"));
+    MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("PLAIN auth"));
     char plain_string[512];
     int len = 1; /* first <NUL> char */
 
@@ -1351,7 +1351,7 @@ nsresult nsSmtpProtocol::AuthLoginStep1()
   }
   else if (m_currentAuthMethod == SMTP_AUTH_LOGIN_ENABLED)
   {
-    PR_LOG(SMTPLogModule, PR_LOG_DEBUG, ("LOGIN auth"));
+    MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("LOGIN auth"));
     base64Str = PL_Base64Encode(username.get(),
         username.Length(), nullptr);
     PR_snprintf(buffer, sizeof(buffer), "%.256s" CRLF, base64Str);
@@ -1385,14 +1385,14 @@ nsresult nsSmtpProtocol::AuthLoginStep2()
     m_urlErrorState = NS_ERROR_SMTP_PASSWORD_UNDEFINED;
     return NS_ERROR_SMTP_PASSWORD_UNDEFINED;
   }
-  PR_LOG(SMTPLogModule, PR_LOG_MAX, ("SMTP AuthLoginStep2"));
+  MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("SMTP AuthLoginStep2"));
 
   if (!password.IsEmpty())
   {
     char buffer[512];
     if (m_currentAuthMethod == SMTP_AUTH_CRAM_MD5_ENABLED)
     {
-      PR_LOG(SMTPLogModule, PR_LOG_DEBUG, ("CRAM auth, step 2"));
+      MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("CRAM auth, step 2"));
       unsigned char digest[DIGEST_LENGTH];
       char * decodedChallenge = PL_Base64Decode(m_responseText.get(),
         m_responseText.Length(), nullptr);
@@ -1432,7 +1432,7 @@ nsresult nsSmtpProtocol::AuthLoginStep2()
     else if (m_currentAuthMethod == SMTP_AUTH_NTLM_ENABLED ||
              m_currentAuthMethod == SMTP_AUTH_MSN_ENABLED)
     {
-      PR_LOG(SMTPLogModule, PR_LOG_DEBUG, ("NTLM/MSN auth, step 2"));
+      MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("NTLM/MSN auth, step 2"));
       nsAutoCString response;
       rv = DoNtlmStep2(m_responseText, response);
       PR_snprintf(buffer, sizeof(buffer), "%.256s" CRLF, response.get());
@@ -1440,7 +1440,7 @@ nsresult nsSmtpProtocol::AuthLoginStep2()
     else if (m_currentAuthMethod == SMTP_AUTH_PLAIN_ENABLED ||
              m_currentAuthMethod == SMTP_AUTH_LOGIN_ENABLED)
     {
-      PR_LOG(SMTPLogModule, PR_LOG_DEBUG, ("PLAIN/LOGIN auth, step 2"));
+      MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("PLAIN/LOGIN auth, step 2"));
       char *base64Str = PL_Base64Encode(password.get(), password.Length(), nullptr);
       PR_snprintf(buffer, sizeof(buffer), "%.256s" CRLF, base64Str);
       NS_Free(base64Str);
@@ -1502,7 +1502,7 @@ nsresult nsSmtpProtocol::OnSuccess(const nsACString &aAccessToken)
 
 nsresult nsSmtpProtocol::OnFailure(nsresult aError)
 {
-  PR_LOG(SMTPLogModule, PR_LOG_DEBUG, ("OAuth2 login error %08x",
+  MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("OAuth2 login error %08x",
     (uint32_t)aError));
   m_urlErrorState = aError;
   m_nextState = SMTP_ERROR_DONE;
@@ -1670,9 +1670,9 @@ nsresult nsSmtpProtocol::SendData(const char *dataBuffer, bool aSuppressLogging)
   if (!dataBuffer) return static_cast<nsresult>(-1);
 
   if (!aSuppressLogging) {
-      PR_LOG(SMTPLogModule, PR_LOG_ALWAYS, ("SMTP Send: %s", dataBuffer));
+      MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Info, ("SMTP Send: %s", dataBuffer));
   } else {
-      PR_LOG(SMTPLogModule, PR_LOG_ALWAYS, ("Logging suppressed for this command (it probably contained authentication information)"));
+      MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Info, ("Logging suppressed for this command (it probably contained authentication information)"));
   }
   return nsMsgAsyncWriteProtocol::SendData(dataBuffer);
 }
@@ -1918,7 +1918,7 @@ nsresult nsSmtpProtocol::ProcessProtocolState(nsIURI * url, nsIInputStream * inp
 
    while(!TestFlag(SMTP_PAUSE_FOR_READ))
    {
-     PR_LOG(SMTPLogModule, PR_LOG_ALWAYS, ("SMTP entering state: %d",
+     MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Info, ("SMTP entering state: %d",
        m_nextState));
      switch(m_nextState)
      {

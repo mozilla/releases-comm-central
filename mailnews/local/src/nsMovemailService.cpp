@@ -35,13 +35,13 @@
 #include "nsIMsgPluggableStore.h"
 #include "mozilla/Services.h"
 
-#include "prlog.h"
+#include "mozilla/Logging.h"
 #if defined(PR_LOGGING)
 //
 // export NSPR_LOG_MODULES=Movemail:5
 //
 static PRLogModuleInfo *gMovemailLog = nullptr;
-#define LOG(args) PR_LOG(gMovemailLog, PR_LOG_DEBUG, args)
+#define LOG(args) MOZ_LOG(gMovemailLog, mozilla::LogLevel::Debug, args)
 #else
 #define LOG(args)
 #endif

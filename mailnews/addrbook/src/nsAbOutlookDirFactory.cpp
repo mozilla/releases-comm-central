@@ -12,15 +12,14 @@
 #include "nsIMutableArray.h"
 #include "nsArrayEnumerator.h"
 #include "nsAbBaseCID.h"
-
-#include "prlog.h"
+#include "mozilla/Logging.h"
 
 #ifdef PR_LOGGING
 static PRLogModuleInfo* gAbOutlookDirFactoryLog
     = PR_NewLogModule("nsAbOutlookDirFactoryLog");
 #endif
 
-#define PRINTF(args) PR_LOG(nsAbOutlookDirFactoryLog, PR_LOG_DEBUG, args)
+#define PRINTF(args) MOZ_LOG(nsAbOutlookDirFactoryLog, mozilla::LogLevel::Debug, args)
 
 
 NS_IMPL_ISUPPORTS(nsAbOutlookDirFactory, nsIAbDirFactory)

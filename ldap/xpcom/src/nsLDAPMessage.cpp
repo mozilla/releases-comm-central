@@ -15,6 +15,7 @@
 #include "nsILDAPErrors.h"
 #include "nsIClassInfoImpl.h"
 #include "nsLDAPUtils.h"
+#include "mozilla/Logging.h"
 
 NS_IMPL_CLASSINFO(nsLDAPMessage, NULL, nsIClassInfo::THREADSAFE,
                   NS_LDAPMESSAGE_CID)
@@ -70,14 +71,14 @@ nsLDAPMessage::~nsLDAPMessage(void)
 
         case LDAP_SUCCESS:
             // timed out (dunno why LDAP_SUCCESS is used to indicate this) 
-            PR_LOG(gLDAPLogModule, PR_LOG_WARNING, 
+            MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Warning, 
                    ("nsLDAPMessage::~nsLDAPMessage: ldap_msgfree() "
                     "timed out\n"));
             break;
 
         default:
             // other failure
-            PR_LOG(gLDAPLogModule, PR_LOG_WARNING, 
+            MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Warning, 
                    ("nsLDAPMessage::~nsLDAPMessage: ldap_msgfree() "
                     "failed: %s\n", ldap_err2string(rc)));
             break;
@@ -436,7 +437,7 @@ NS_IMETHODIMP nsLDAPMessage::GetDn(nsACString& aDn)
         }
     }
 
-    PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
            ("nsLDAPMessage::GetDn(): dn = '%s'", rawDn));
 
     aDn.Assign(rawDn);
@@ -455,7 +456,7 @@ nsLDAPMessage::GetValues(const char *aAttr, uint32_t *aCount,
     
 #if defined(DEBUG)
     // We only want this being logged for debug builds so as not to affect performance too much.
-    PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
            ("nsLDAPMessage::GetValues(): called with aAttr = '%s'", aAttr));
 #endif
 
@@ -470,7 +471,7 @@ nsLDAPMessage::GetValues(const char *aAttr, uint32_t *aCount,
             // this may not be an error; it could just be that the 
             // caller has asked for an attribute that doesn't exist.
             //
-            PR_LOG(gLDAPLogModule, PR_LOG_WARNING, 
+            MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Warning, 
                    ("nsLDAPMessage::GetValues(): ldap_get_values returned "
                     "LDAP_DECODING_ERROR"));
             return NS_ERROR_LDAP_DECODING_ERROR;
@@ -532,7 +533,7 @@ nsLDAPMessage::GetBinaryValues(const char *aAttr, uint32_t *aCount,
 
 #if defined(DEBUG)
     // We only want this being logged for debug builds so as not to affect performance too much.
-    PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
            ("nsLDAPMessage::GetBinaryValues(): called with aAttr = '%s'", 
             aAttr));
 #endif
@@ -548,7 +549,7 @@ nsLDAPMessage::GetBinaryValues(const char *aAttr, uint32_t *aCount,
             // this may not be an error; it could just be that the 
             // caller has asked for an attribute that doesn't exist.
             //
-            PR_LOG(gLDAPLogModule, PR_LOG_WARNING, 
+            MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Warning, 
                    ("nsLDAPMessage::GetBinaryValues(): ldap_get_values "
                     "returned LDAP_DECODING_ERROR"));
             return NS_ERROR_LDAP_DECODING_ERROR;

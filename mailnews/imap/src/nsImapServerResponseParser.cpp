@@ -15,6 +15,7 @@
 #include "nsImapUtils.h"
 #include "nsCRT.h"
 #include "nsMsgUtils.h"
+#include "mozilla/Logging.h"
 
 ////////////////// nsImapServerResponseParser /////////////////////////
 
@@ -438,7 +439,7 @@ void nsImapServerResponseParser::ProcessOkCommand(const char *commandToken)
         // If we have a valid shell that has not already been cached, then cache it.
         if (!m_shell->IsShellCached() && fHostSessionList)	// cache is responsible for destroying it
         {
-          PR_LOG(IMAP, PR_LOG_ALWAYS,
+          MOZ_LOG(IMAP, mozilla::LogLevel::Info,
             ("BODYSHELL:  Adding shell to cache."));
           const char *serverKey = fServerConnection.GetImapServerKey();
           fHostSessionList->AddShellToCacheForHost(
@@ -3071,13 +3072,13 @@ bool nsImapServerResponseParser::GetDownloadingHeaders()
 // Tells the server state parser to use a previously cached shell.
 void	nsImapServerResponseParser::UseCachedShell(nsIMAPBodyShell *cachedShell)
 {
-	// We shouldn't already have another shell we're dealing with.
-	if (m_shell && cachedShell)
-	{
-		PR_LOG(IMAP, PR_LOG_ALWAYS, ("PARSER: Shell Collision"));
-		NS_ASSERTION(false, "shell collision");
-	}
-	m_shell = cachedShell;
+  // We shouldn't already have another shell we're dealing with.
+  if (m_shell && cachedShell)
+  {
+    MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("PARSER: Shell Collision"));
+    NS_ASSERTION(false, "shell collision");
+  }
+  m_shell = cachedShell;
 }
 
 
@@ -3100,9 +3101,10 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin)
 
 #ifdef DEBUG
   if (lastChunk)
-    PR_LOG(IMAP, PR_LOG_DEBUG, ("PARSER: fetch_literal chunk = %d, requested %d, receiving %d",
-                                chunk, fServerConnection.GetCurFetchSize(),
-                                numberOfCharsInThisChunk));
+    MOZ_LOG(IMAP, mozilla::LogLevel::Debug,
+                  ("PARSER: fetch_literal chunk = %d, requested %d, receiving %d",
+                    chunk, fServerConnection.GetCurFetchSize(),
+                    numberOfCharsInThisChunk));
 #endif
 
   charsReadSoFar = 0;
@@ -3158,7 +3160,7 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin)
 
   // This would be a good thing to log.
   if (lastCRLFwasCRCRLF)
-    PR_LOG(IMAP, PR_LOG_ALWAYS, ("PARSER: CR/LF fell on chunk boundary."));
+    MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("PARSER: CR/LF fell on chunk boundary."));
 
   if (ContinueParse())
   {

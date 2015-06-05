@@ -60,7 +60,7 @@ nsPop3Sink::nsPop3Sink()
 
 nsPop3Sink::~nsPop3Sink()
 {
-    PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("Calling ReleaseFolderLock from ~nsPop3Sink"));
+    MOZ_LOG(POP3LOGMODULE, mozilla::LogLevel::Debug, ("Calling ReleaseFolderLock from ~nsPop3Sink"));
     ReleaseFolderLock();
 }
 
@@ -228,12 +228,12 @@ nsPop3Sink::BeginMailDelivery(bool uidlDownload, nsIMsgWindow *aMsgWindow, bool*
   m_folder->GetLocked(&isLocked);
   if(!isLocked)
   {
-    PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("BeginMailDelivery acquiring semaphore"));
+    MOZ_LOG(POP3LOGMODULE, mozilla::LogLevel::Debug, ("BeginMailDelivery acquiring semaphore"));
     m_folder->AcquireSemaphore(supports);
   }
   else
   {
-    PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("BeginMailDelivery folder locked"));
+    MOZ_LOG(POP3LOGMODULE, mozilla::LogLevel::Debug, ("BeginMailDelivery folder locked"));
     return NS_MSG_FOLDER_BUSY;
   }
   m_uidlDownload = uidlDownload;
@@ -278,7 +278,7 @@ nsPop3Sink::EndMailDelivery(nsIPop3Protocol *protocol)
   if (m_newMailParser)
     m_newMailParser->UpdateDBFolderInfo();
 
-  PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("Calling ReleaseFolderLock from EndMailDelivery"));
+  MOZ_LOG(POP3LOGMODULE, mozilla::LogLevel::Debug, ("Calling ReleaseFolderLock from EndMailDelivery"));
   nsresult rv = ReleaseFolderLock();
   NS_ASSERTION(NS_SUCCEEDED(rv),"folder lock not released successfully");
 
@@ -377,7 +377,7 @@ nsPop3Sink::ReleaseFolderLock()
   bool haveSemaphore;
   nsCOMPtr <nsISupports> supports = do_QueryInterface(static_cast<nsIPop3Sink*>(this));
   result = m_folder->TestSemaphore(supports, &haveSemaphore);
-  PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("ReleaseFolderLock haveSemaphore = %s", haveSemaphore ? "TRUE" : "FALSE"));
+  MOZ_LOG(POP3LOGMODULE, mozilla::LogLevel::Debug, ("ReleaseFolderLock haveSemaphore = %s", haveSemaphore ? "TRUE" : "FALSE"));
 
   if(NS_SUCCEEDED(result) && haveSemaphore)
     result = m_folder->ReleaseSemaphore(supports);
@@ -404,7 +404,7 @@ nsPop3Sink::AbortMailDelivery(nsIPop3Protocol *protocol)
   we have truncated the inbox, so berkeley mailbox and msf file are in sync*/
   if (m_newMailParser)
     m_newMailParser->UpdateDBFolderInfo();
-  PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("Calling ReleaseFolderLock from AbortMailDelivery"));
+  MOZ_LOG(POP3LOGMODULE, mozilla::LogLevel::Debug, ("Calling ReleaseFolderLock from AbortMailDelivery"));
 
   nsresult rv = ReleaseFolderLock();
   NS_ASSERTION(NS_SUCCEEDED(rv),"folder lock not released successfully");

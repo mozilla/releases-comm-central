@@ -20,7 +20,7 @@
 #include "nsIMimeStreamConverter.h"
 #include "nsIMimeConverter.h"
 #include "nsMsgMimeCID.h"
-#include "prlog.h"
+#include "mozilla/Logging.h"
 #include "prprf.h"
 #include "nsIMimeHeaders.h"
 #include "nsIMsgWindow.h"
@@ -429,7 +429,7 @@ nsMimeBaseEmitter::Write(const nsACString &buf, uint32_t *amountWritten)
   printf("%s", buf);
 #endif
 
-  PR_LOG(gMimeEmitterLogModule, PR_LOG_ALWAYS, ("%s", PromiseFlatCString(buf).get()));
+  MOZ_LOG(gMimeEmitterLogModule, mozilla::LogLevel::Info, ("%s", PromiseFlatCString(buf).get()));
   //
   // Make sure that the buffer we are "pushing" into has enough room
   // for the write operation. If not, we have to buffer, return, and get

@@ -23,7 +23,7 @@
 #include "nsINntpUrl.h"
 #include "prmem.h"
 #include "prtime.h"
-#include "prlog.h"
+#include "mozilla/Logging.h"
 #include "prerror.h"
 #include "nsStringGlue.h"
 #include "mozilla/Services.h"
@@ -89,6 +89,7 @@
 #define UPDATE_THRESHHOLD 25600 /* only update every 25 KB */
 
 using namespace mozilla::mailnews;
+using namespace mozilla;
 
 // NNTP extensions are supported yet
 // until the extension code is ported,
@@ -103,22 +104,22 @@ char *MSG_UnEscapeSearchUrl (const char *commandSpecificData);
 /* Logging stuff */
 
 PRLogModuleInfo* NNTP = NULL;
-#define out     PR_LOG_ALWAYS
+#define out     LogLevel::Info
 
 #define NNTP_LOG_READ(buf) \
 if (NNTP==NULL) \
     NNTP = PR_NewLogModule("NNTP"); \
-PR_LOG(NNTP, out, ("(%p) Receiving: %s", this, buf)) ;
+MOZ_LOG(NNTP, out, ("(%p) Receiving: %s", this, buf)) ;
 
 #define NNTP_LOG_WRITE(buf) \
 if (NNTP==NULL) \
     NNTP = PR_NewLogModule("NNTP"); \
-PR_LOG(NNTP, out, ("(%p) Sending: %s", this, buf)) ;
+MOZ_LOG(NNTP, out, ("(%p) Sending: %s", this, buf)) ;
 
 #define NNTP_LOG_NOTE(buf) \
 if (NNTP==NULL) \
     NNTP = PR_NewLogModule("NNTP"); \
-PR_LOG(NNTP, out, ("(%p) %s",this, buf)) ;
+MOZ_LOG(NNTP, out, ("(%p) %s",this, buf)) ;
 
 const char *const stateLabels[] = {
 "NNTP_RESPONSE",
@@ -286,15 +287,15 @@ nsNNTPProtocol::nsNNTPProtocol(nsINntpIncomingServer *aServer, nsIURI *aURL,
 
   m_runningURL = nullptr;
   m_fromCache = false;
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) creating",this));
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) initializing, so unset m_currentGroup",this));
+  MOZ_LOG(NNTP, LogLevel::Info,("(%p) creating",this));
+  MOZ_LOG(NNTP, LogLevel::Info,("(%p) initializing, so unset m_currentGroup",this));
   m_currentGroup.Truncate();
   m_lastActiveTimeStamp = 0;
 }
 
 nsNNTPProtocol::~nsNNTPProtocol()
 {
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) destroying",this));
+  MOZ_LOG(NNTP, LogLevel::Info,("(%p) destroying",this));
   if (m_nntpServer) {
     m_nntpServer->WriteNewsrcFile();
     m_nntpServer->RemoveConnection(this);
@@ -428,7 +429,7 @@ NS_IMETHODIMP nsNNTPProtocol::Initialize(nsIURI *aURL, nsIMsgWindow *aMsgWindow)
     rv = server->GetRealHostName(hostName);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    PR_LOG(NNTP, PR_LOG_ALWAYS, ("(%p) opening connection to %s on port %d",
+    MOZ_LOG(NNTP,  LogLevel::Info, ("(%p) opening connection to %s on port %d",
       this, hostName.get(), port));
 
     nsCOMPtr<nsIProxyInfo> proxyInfo;
@@ -483,7 +484,7 @@ NS_IMETHODIMP nsNNTPProtocol::GetIsBusy(bool *aIsBusy)
 
 NS_IMETHODIMP nsNNTPProtocol::SetIsBusy(bool aIsBusy)
 {
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) setting busy to %d",this, aIsBusy));
+  MOZ_LOG(NNTP, LogLevel::Info,("(%p) setting busy to %d",this, aIsBusy));
   m_connectionBusy = aIsBusy;
   
   // Maybe we could load another URI.
@@ -835,11 +836,11 @@ nsNNTPProtocol::OnCacheEntryAvailable(nsICacheEntryDescriptor *entry, nsCacheAcc
       nsCOMPtr<nsIStreamListenerTee> tee = do_CreateInstance(NS_STREAMLISTENERTEE_CONTRACTID, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      nsCOMPtr<nsIOutputStream> out;
-      rv = entry->OpenOutputStream(0, getter_AddRefs(out));
+      nsCOMPtr<nsIOutputStream> outStream;
+      rv = entry->OpenOutputStream(0, getter_AddRefs(outStream));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      rv = tee->Init(m_channelListener, out, nullptr);
+      rv = tee->Init(m_channelListener, outStream, nullptr);
       m_channelListener = do_QueryInterface(tee);
       NS_ENSURE_SUCCESS(rv, rv);
     }
@@ -954,9 +955,9 @@ nsresult nsNNTPProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
   NS_ASSERTION(MsgIsUTF8(group), "newsgroup name is not in UTF-8");
   NS_ASSERTION(m_nntpServer, "Parsing must result in an m_nntpServer");
 
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) m_messageID = %s", this, m_messageID.get()));
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) group = %s", this, group.get()));
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) m_key = %d",this,m_key));
+  MOZ_LOG(NNTP, LogLevel::Info,("(%p) m_messageID = %s", this, m_messageID.get()));
+  MOZ_LOG(NNTP, LogLevel::Info,("(%p) group = %s", this, group.get()));
+  MOZ_LOG(NNTP, LogLevel::Info,("(%p) m_key = %d",this,m_key));
 
   if (m_newsAction == nsINntpUrl::ActionFetchArticle ||
       m_newsAction == nsINntpUrl::ActionFetchPart ||
@@ -1181,7 +1182,7 @@ nsNNTPProtocol::ParseURL(nsIURI *aURL, nsCString &aGroup, nsCString &aMessageID)
 {
     NS_ENSURE_ARG_POINTER(aURL);
 
-    PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) ParseURL",this));
+    MOZ_LOG(NNTP, LogLevel::Info,("(%p) ParseURL",this));
 
     nsresult rv;
     nsCOMPtr <nsIMsgFolder> folder;
@@ -1200,7 +1201,7 @@ nsNNTPProtocol::ParseURL(nsIURI *aURL, nsCString &aGroup, nsCString &aMessageID)
 
     // if the original spec is non empty, use it to determine m_newsFolder and m_key
     if (!spec.IsEmpty()) {
-        PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) original message spec = %s",this,spec.get()));
+        MOZ_LOG(NNTP, LogLevel::Info,("(%p) original message spec = %s",this,spec.get()));
 
         rv = nntpService->DecomposeNewsURI(spec.get(), getter_AddRefs(folder), &m_key);
         NS_ENSURE_SUCCESS(rv,rv);
@@ -1273,7 +1274,7 @@ nsresult nsNNTPProtocol::SendData(const char * dataBuffer, bool aSuppressLogging
         NNTP_LOG_WRITE(dataBuffer);
     }
     else {
-        PR_LOG(NNTP, out, ("(%p) Logging suppressed for this command (it probably contained authentication information)", this));
+        MOZ_LOG(NNTP, out, ("(%p) Logging suppressed for this command (it probably contained authentication information)", this));
     }
 
   return nsMsgProtocol::SendData(dataBuffer); // base class actually transmits the data
@@ -1705,7 +1706,7 @@ nsresult nsNNTPProtocol::SendFirstNNTPCommand(nsIURI * url)
                 rv = m_newsFolder->GetRawName(newsgroupName);
                 NS_ENSURE_SUCCESS(rv,rv);
             }
-            PR_LOG(NNTP,PR_LOG_ALWAYS,
+            MOZ_LOG(NNTP, LogLevel::Info,
                    ("(%p) current group = %s, desired group = %s", this,
                    m_currentGroup.get(), newsgroupName.get()));
             // if the current group is the desired group, we can just issue the ARTICLE command
@@ -1797,7 +1798,7 @@ nsresult nsNNTPProtocol::SendFirstNNTPCommand(nsIURI * url)
   else if (m_typeWanted == SEARCH_WANTED)
   {
     nsresult rv;
-    PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) doing GROUP for XPAT", this));
+    MOZ_LOG(NNTP, LogLevel::Info,("(%p) doing GROUP for XPAT", this));
     nsCString group_name;
 
     /* for XPAT, we have to GROUP into the group before searching */
@@ -1884,7 +1885,7 @@ nsresult nsNNTPProtocol::SendFirstNNTPCommandResponse()
 
     if (m_responseCode == MK_NNTP_RESPONSE_GROUP_NO_GROUP &&
       m_typeWanted == GROUP_WANTED) {
-      PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) group (%s) not found, so unset"
+      MOZ_LOG(NNTP, LogLevel::Info,("(%p) group (%s) not found, so unset"
                                  " m_currentGroup", this,
                                  NS_ConvertUTF16toUTF8(group_name).get()));
       m_currentGroup.Truncate();
@@ -2020,7 +2021,7 @@ nsNNTPProtocol::SetCurrentGroup()
 
   rv = m_newsFolder->GetRawName(groupname);
   NS_ASSERTION(NS_SUCCEEDED(rv) && !groupname.IsEmpty(), "no group name");
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) SetCurrentGroup to %s",this, groupname.get()));
+  MOZ_LOG(NNTP, LogLevel::Info,("(%p) SetCurrentGroup to %s",this, groupname.get()));
   m_currentGroup = groupname;
   return NS_OK;
 }
@@ -2330,7 +2331,7 @@ nsresult nsNNTPProtocol::BeginAuthorization()
   }
 
   NS_MsgSACopy(&command, "AUTHINFO user ");
-  PR_LOG(NNTP, PR_LOG_ALWAYS,("(%p) use %s as the username", this, username.get()));
+  MOZ_LOG(NNTP,  LogLevel::Info,("(%p) use %s as the username", this, username.get()));
   NS_MsgSACat(&command, username.get());
   NS_MsgSACat(&command, CRLF);
 
@@ -2515,7 +2516,7 @@ nsresult nsNNTPProtocol::DisplayNewsgroups()
   m_nextState = NEWS_DONE;
   ClearFlag(NNTP_PAUSE_FOR_READ);
 
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) DisplayNewsgroups()",this));
+  MOZ_LOG(NNTP, LogLevel::Info,("(%p) DisplayNewsgroups()",this));
 
   return NS_OK;
 }
@@ -2562,7 +2563,7 @@ nsresult nsNNTPProtocol::ProcessNewsgroups(nsIInputStream * inputStream, uint32_
         rv = m_nntpServer->FindGroup(groupName, getter_AddRefs(m_newsFolder));
         NS_ASSERTION(NS_SUCCEEDED(rv), "FindGroup failed");
         m_nextState = NNTP_LIST_XACTIVE;
-        PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) listing xactive for %s", this,
+        MOZ_LOG(NNTP, LogLevel::Info,("(%p) listing xactive for %s", this,
                                    groupName.get()));
         PR_Free(lineToFree);
         return NS_OK;
@@ -2847,7 +2848,7 @@ nsNNTPProtocol::Notify(nsITimer *timer)
 
 void nsNNTPProtocol::TimerCallback()
 {
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("nsNNTPProtocol::TimerCallback\n"));
+  MOZ_LOG(NNTP, LogLevel::Info,("nsNNTPProtocol::TimerCallback\n"));
   m_nextState = NNTP_READ_LIST;
 
   // process whatever is already in the buffer at least once.
@@ -2962,7 +2963,7 @@ nsresult nsNNTPProtocol::FigureNextChunk()
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(m_runningURL);
   if (m_firstArticle > 0)
   {
-      PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) add to known articles:  %d - %d", this, m_firstArticle, m_lastArticle));
+      MOZ_LOG(NNTP, LogLevel::Info,("(%p) add to known articles:  %d - %d", this, m_firstArticle, m_lastArticle));
 
       if (NS_SUCCEEDED(rv) && m_newsgroupList) {
           rv = m_newsgroupList->AddToKnownArticles(m_firstArticle,
@@ -3009,7 +3010,7 @@ nsresult nsNNTPProtocol::FigureNextChunk()
     return NS_OK;
   }
 
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) Chunk will be (%d-%d)", this, m_firstArticle, m_lastArticle));
+  MOZ_LOG(NNTP, LogLevel::Info,("(%p) Chunk will be (%d-%d)", this, m_firstArticle, m_lastArticle));
 
   m_articleNumber = m_firstArticle;
 
@@ -3295,7 +3296,7 @@ nsresult nsNNTPProtocol::ReadNewsgroupBody(nsIInputStream * inputStream, uint32_
   if(!line)
     return rv;
 
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) read_group_body: got line: %s|",this,line));
+  MOZ_LOG(NNTP, LogLevel::Info,("(%p) read_group_body: got line: %s|",this,line));
 
   /* End of body? */
   if (line[0]=='.' && line[1]=='\0')
@@ -3483,14 +3484,14 @@ void nsNNTPProtocol::CheckIfAuthor(nsIMsgIdentity *aIdentity, const nsCString &a
   nsresult rv = aIdentity->GetEmail(from);
   if (NS_FAILED(rv))
     return;
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("from = %s", from.get()));
+  MOZ_LOG(NNTP, LogLevel::Info,("from = %s", from.get()));
 
   nsCString us;
   nsCString them;
   ExtractEmail(EncodedHeader(from), us);
   ExtractEmail(EncodedHeader(aOldFrom), them);
 
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("us = %s, them = %s", us.get(), them.get()));
+  MOZ_LOG(NNTP, LogLevel::Info,("us = %s, them = %s", us.get(), them.get()));
 
   if (us.Equals(them, nsCaseInsensitiveCStringComparator()))
     aFrom = from;
@@ -3628,7 +3629,7 @@ nsresult nsNNTPProtocol::DoCancel()
     }
     else
     {
-      PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) CANCELCHK not supported, so post the cancel message as %s", this, from.get()));
+      MOZ_LOG(NNTP, LogLevel::Info,("(%p) CANCELCHK not supported, so post the cancel message as %s", this, from.get()));
     }
   }
   else
@@ -3913,7 +3914,7 @@ nsresult nsNNTPProtocol::ListPrettyNamesResponse(nsIInputStream * inputStream, u
         }
         m_nntpServer->SetPrettyNameForGroup(lineUtf16, prettyNameUtf16);
 
-        PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) adding pretty name %s", this,
+        MOZ_LOG(NNTP, LogLevel::Info,("(%p) adding pretty name %s", this,
                NS_ConvertUTF16toUTF8(prettyNameUtf16).get()));
       }
 #endif
@@ -4014,7 +4015,7 @@ nsresult nsNNTPProtocol::ListXActiveResponse(nsIInputStream * inputStream, uint3
         /* we're either going to list prettynames first, or list
         all prettynames every time, so we won't care so much
         if it gets interrupted. */
-        PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) got xactive for %s of %s", this, line, flags));
+        MOZ_LOG(NNTP, LogLevel::Info,("(%p) got xactive for %s of %s", this, line, flags));
         /*  This isn't required, because the extra info is
         initialized to false for new groups. And it's
         an expensive call.
@@ -4044,7 +4045,7 @@ nsresult nsNNTPProtocol::ListXActiveResponse(nsIInputStream * inputStream, uint3
           (old_newsFolder.get() != m_newsFolder.get()))
           /* make sure we're not stuck on the same group */
         {
-          PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) listing xactive for %s", this, groupName.get()));
+          MOZ_LOG(NNTP, LogLevel::Info,("(%p) listing xactive for %s", this, groupName.get()));
           m_nextState = NNTP_LIST_XACTIVE;
           ClearFlag(NNTP_PAUSE_FOR_READ);
           PR_FREEIF(line);
@@ -4244,7 +4245,7 @@ nsresult nsNNTPProtocol::ProcessProtocolState(nsIURI * url, nsIInputStream * inp
     uint32_t readData = 0;
     inputStream->Read(buffer, 127, &readData);
     buffer[readData] = '\0';
-    PR_LOG(NNTP, PR_LOG_DEBUG, ("(%p) Ignoring data: %s", this, buffer));
+    MOZ_LOG(NNTP, LogLevel::Debug, ("(%p) Ignoring data: %s", this, buffer));
   }
 
   if (!mailnewsurl)
@@ -4264,7 +4265,7 @@ nsresult nsNNTPProtocol::ProcessProtocolState(nsIURI * url, nsIInputStream * inp
 
   while(!TestFlag(NNTP_PAUSE_FOR_READ))
   {
-    PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) Next state: %s",this, stateLabels[m_nextState]));
+    MOZ_LOG(NNTP, LogLevel::Info,("(%p) Next state: %s",this, stateLabels[m_nextState]));
     // examine our current state and call an appropriate handler for that state.....
     switch(m_nextState)
     {
@@ -4596,7 +4597,7 @@ nsresult nsNNTPProtocol::ProcessProtocolState(nsIURI * url, nsIInputStream * inp
 
 NS_IMETHODIMP nsNNTPProtocol::CloseConnection()
 {
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) ClosingConnection",this));
+  MOZ_LOG(NNTP, LogLevel::Info,("(%p) ClosingConnection",this));
   SendData(NNTP_CMD_QUIT); // this will cause OnStopRequest get called, which will call CloseSocket()
   // break some cycles
   CleanupNewsgroupList();
@@ -4637,7 +4638,7 @@ nsresult nsNNTPProtocol::CleanupAfterRunningUrl()
   something.  So, tell libmsg there was an abnormal
   exit so that it can free its data. */
 
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) CleanupAfterRunningUrl()", this));
+  MOZ_LOG(NNTP, LogLevel::Info,("(%p) CleanupAfterRunningUrl()", this));
 
   // send StopRequest notification after we've cleaned up the protocol
   // because it can synchronously causes a new url to get run in the
@@ -4686,7 +4687,7 @@ nsresult nsNNTPProtocol::CleanupAfterRunningUrl()
 
 nsresult nsNNTPProtocol::CloseSocket()
 {
-  PR_LOG(NNTP,PR_LOG_ALWAYS,("(%p) ClosingSocket()",this));
+  MOZ_LOG(NNTP, LogLevel::Info,("(%p) ClosingSocket()",this));
 
   if (m_nntpServer) {
     m_nntpServer->RemoveConnection(this);

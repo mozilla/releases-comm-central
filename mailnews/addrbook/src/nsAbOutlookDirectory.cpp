@@ -17,7 +17,7 @@
 #include "nsEnumeratorUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
-#include "prlog.h"
+#include "mozilla/Logging.h"
 #include "prthread.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
@@ -31,7 +31,7 @@ static PRLogModuleInfo* gAbOutlookDirectoryLog
     = PR_NewLogModule("nsAbOutlookDirectoryLog");
 #endif
 
-#define PRINTF(args) PR_LOG(gAbOutlookDirectoryLog, PR_LOG_DEBUG, args)
+#define PRINTF(args) MOZ_LOG(gAbOutlookDirectoryLog, mozilla::LogLevel::Debug, args)
 
 nsAbOutlookDirectory::nsAbOutlookDirectory(void)
   : nsAbDirProperty(),

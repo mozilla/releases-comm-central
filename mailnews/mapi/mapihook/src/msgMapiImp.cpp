@@ -32,6 +32,7 @@
 #include "nsNetCID.h"
 #include "nsMsgMessageFlags.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "mozilla/Logging.h"
 
 using namespace mozilla::mailnews;
 
@@ -129,7 +130,7 @@ STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LOGIN_PW_TYPE aLogin, LOGIN_P
      bool bNewSession = false;
     nsCString id_key;
 
-    PR_LOG(MAPI, PR_LOG_DEBUG, ("CMapiImp::Login using flags %d\n", aFlags));
+    MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::Login using flags %d\n", aFlags));
     if (aFlags & MAPI_NEW_SESSION)
         bNewSession = true;
 
@@ -139,7 +140,7 @@ STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LOGIN_PW_TYPE aLogin, LOGIN_P
         if (!nsMapiHook::VerifyUserName(nsString(aLogin), id_key))
         {
             *aSessionId = MAPI_E_LOGIN_FAILURE;
-            PR_LOG(MAPI, PR_LOG_DEBUG, ("CMapiImp::Login failed for username %s\n", aLogin));
+            MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::Login failed for username %s\n", aLogin));
             NS_ASSERTION(false, "failed verifying user name");
             return hr;
         }
@@ -185,7 +186,7 @@ STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LOGIN_PW_TYPE aLogin, LOGIN_P
         default :
         {
             *aSessionId = nSession_Id;
-            PR_LOG(MAPI, PR_LOG_DEBUG, ("CMapiImp::Login succeeded\n"));
+            MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::Login succeeded\n"));
             break;
         }
     }
@@ -199,13 +200,13 @@ STDMETHODIMP CMapiImp::SendMail( unsigned long aSession, lpnsMapiMessage aMessag
 {
     nsresult rv = NS_OK ;
 
-    PR_LOG(MAPI, PR_LOG_DEBUG, ("CMapiImp::SendMail using flags %d\n", aFlags));
+    MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::SendMail using flags %d\n", aFlags));
     // Assign the pointers in the aMessage struct to the array of Recips and Files
     // received here from MS COM. These are used in BlindSendMail and ShowCompWin fns 
     aMessage->lpRecips = aRecips ;
     aMessage->lpFiles = aFiles ;
 
-    PR_LOG(MAPI, PR_LOG_DEBUG, ("CMapiImp::SendMail flags=%x subject: %s sender: %s\n", 
+    MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::SendMail flags=%x subject: %s sender: %s\n", 
       aFlags, (char *) aMessage->lpszSubject, (aMessage->lpOriginator) ? aMessage->lpOriginator->lpszAddress : ""));
 
     /** create nsIMsgCompFields obj and populate it **/
@@ -239,7 +240,7 @@ STDMETHODIMP CMapiImp::SendDocuments( unsigned long aSession, LPTSTR aDelimChar,
 {
     nsresult rv = NS_OK ;
 
-    PR_LOG(MAPI, PR_LOG_DEBUG, ("CMapiImp::SendDocument using flags %d\n", aFlags));
+    MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::SendDocument using flags %d\n", aFlags));
     /** create nsIMsgCompFields obj and populate it **/
     nsCOMPtr<nsIMsgCompFields> pCompFields = do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv) ;
     if (NS_FAILED(rv) || (!pCompFields) ) return MAPI_E_INSUFFICIENT_MEMORY ;
@@ -252,7 +253,7 @@ STDMETHODIMP CMapiImp::SendDocuments( unsigned long aSession, LPTSTR aDelimChar,
     if (NS_SUCCEEDED (rv)) 
         rv = nsMapiHook::ShowComposerWindow(aSession, pCompFields);
     else
-      PR_LOG(MAPI, PR_LOG_DEBUG, ("CMapiImp::SendDocument error rv = %lx, paths = %s names = %s\n", rv, aFilePaths, aFileNames));
+      MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::SendDocument error rv = %lx, paths = %s names = %s\n", rv, aFilePaths, aFileNames));
 
     return nsMAPIConfiguration::GetMAPIErrorFromNSError (rv) ;
 }
@@ -405,7 +406,7 @@ STDMETHODIMP CMapiImp::FindNext(unsigned long aSession, unsigned long ulUIParam,
     sprintf((char *) lpszMessageID, "%d", nextKey);
   }
 
-  PR_LOG(MAPI, PR_LOG_DEBUG, ("CMapiImp::FindNext returning key %s\n", (char *) lpszMessageID));
+  MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::FindNext returning key %s\n", (char *) lpszMessageID));
   return(SUCCESS_SUCCESS);
 }
 
@@ -414,7 +415,7 @@ STDMETHODIMP CMapiImp::ReadMail(unsigned long aSession, unsigned long ulUIParam,
 {
   nsresult irv;
   nsAutoCString keyString((char *) lpszMessageID);
-  PR_LOG(MAPI, PR_LOG_DEBUG, ("CMapiImp::ReadMail asking for key %s\n", (char *) lpszMessageID));
+  MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::ReadMail asking for key %s\n", (char *) lpszMessageID));
   nsMsgKey msgKey = keyString.ToInteger(&irv);
   if (NS_FAILED(irv))
   {
@@ -622,7 +623,7 @@ lpnsMapiMessage MsgMapiListContext::GetMessage (nsMsgKey key, unsigned long flFl
           &message->lpRecips[numToRecips], MAPI_CC);
       }
   
-      PR_LOG(MAPI, PR_LOG_DEBUG, ("MsgMapiListContext::GetMessage flags=%x subject %s date %s sender %s\n", 
+      MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("MsgMapiListContext::GetMessage flags=%x subject %s date %s sender %s\n", 
         flFlags, (char *) message->lpszSubject,(char *) message->lpszDateReceived, author.get()) );
 
       // Convert any body text that we have locally
@@ -748,7 +749,7 @@ char *MsgMapiListContext::ConvertBodyToMapiFormat (nsIMsgDBHdr *hdr)
         bytesCopied += curLine.Length();
       }
     }
-    PR_LOG(MAPI, PR_LOG_DEBUG, ("ConvertBodyToMapiFormat size=%x allocated size %x body = %100.100s\n", 
+    MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("ConvertBodyToMapiFormat size=%x allocated size %x body = %100.100s\n", 
         bytesCopied, msgSize + 1, (char *) body) );
     body[bytesCopied] = '\0';   // rhp - fix last line garbage...
     return body;

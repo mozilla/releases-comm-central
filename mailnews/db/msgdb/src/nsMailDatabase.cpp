@@ -11,12 +11,14 @@
 #include "nsISeekableStream.h"
 #include "nsMsgOfflineImapOperation.h"
 #include "nsMsgFolderFlags.h"
-#include "prlog.h"
+#include "mozilla/Logging.h"
 #include "prprf.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgPluggableStore.h"
 
 extern PRLogModuleInfo *IMAPOffline;
+
+using namespace mozilla;
 
 // scope for all offine ops table
 const char *kOfflineOpsScope = "ns:msg:db:row:scope:ops:all";
@@ -240,7 +242,7 @@ NS_IMETHODIMP nsMailDatabase::ListAllOfflineOpIds(nsTArray<nsMsgKey> *offlineOpI
       if (NS_SUCCEEDED(err))
       {
         offlineOpIds->AppendElement(outOid.mOid_Id);
-        if (PR_LOG_TEST(IMAPOffline, PR_LOG_ALWAYS))
+        if (MOZ_LOG_TEST(IMAPOffline, LogLevel::Info))
         {
           nsCOMPtr <nsIMsgOfflineImapOperation> offlineOp;
           GetOfflineOpForKey(outOid.mOid_Id, false, getter_AddRefs(offlineOp));

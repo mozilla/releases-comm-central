@@ -184,7 +184,7 @@ bool nsIMAPBodyShell::PreflightCheckAllInline()
 {
   bool rv = m_message->PreflightCheckAllInline(this);
   //	if (rv)
-  //		PR_LOG(IMAP, out, ("BODYSHELL: All parts inline.  Reverting to whole message download."));
+  //		MOZ_LOG(IMAP, out, ("BODYSHELL: All parts inline.  Reverting to whole message download."));
   return rv;
 }
 
@@ -332,7 +332,7 @@ void nsIMAPBodypart::SetIsValid(bool valid)
   m_isValid = valid;
   if (!m_isValid)
   {
-    //PR_LOG(IMAP, out, ("BODYSHELL: Part is invalid.  Part Number: %s Content-Type: %s", m_partNumberString, m_contentType));
+    //MOZ_LOG(IMAP, out, ("BODYSHELL: Part is invalid.  Part Number: %s Content-Type: %s", m_partNumberString, m_contentType));
   }
 }
 

@@ -15,6 +15,7 @@
 #include "nsILDAPErrors.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
+#include "mozilla/Logging.h"
 
 using namespace mozilla;
 
@@ -798,7 +799,7 @@ NS_IMETHODIMP nsLDAPService::CreateFilter(uint32_t aMaxSize,
         break;
 
     case LDAP_SIZELIMIT_EXCEEDED:
-        PR_LOG(gLDAPLogModule, PR_LOG_DEBUG, 
+        MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug, 
                    ("nsLDAPService::CreateFilter(): "
                     "filter longer than max size of %d generated", 
                     aMaxSize));

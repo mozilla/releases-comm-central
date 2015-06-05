@@ -41,6 +41,9 @@
 #include "nsMsgMessageFlags.h"
 #include "nsMsgBaseCID.h"
 #include "mozilla/Services.h"
+#include "mozilla/Logging.h"
+
+using namespace mozilla;
 
 PRLogModuleInfo *POP3LOGMODULE = nullptr;
 
@@ -565,7 +568,7 @@ nsresult nsPop3Protocol::Initialize(nsIURI * aURL)
 nsPop3Protocol::~nsPop3Protocol()
 {
   Cleanup();
-  PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("~nsPop3Protocol()"));
+  MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("~nsPop3Protocol()"));
 }
 
 void nsPop3Protocol::Cleanup()
@@ -737,7 +740,7 @@ nsresult nsPop3Protocol::StartGetAsyncPassword(Pop3StatesEnum aNextState)
 
 NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult)
 {
-  PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("OnPromptStart()"));
+  MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("OnPromptStart()"));
 
   *aResult = false;
 
@@ -778,7 +781,7 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult)
     // TODO shouldn't we skip the new password prompt below as well for biff? Just exit here?
     if (msgWindow)
     {
-      PR_LOG(POP3LOGMODULE, PR_LOG_WARN,
+      MOZ_LOG(POP3LOGMODULE, LogLevel::Warning,
           ("POP: ask user what to do (after password failed): new password, retry or cancel"));
 
       int32_t buttonPressed = 0;
@@ -787,7 +790,7 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult)
       {
         if (buttonPressed == 1) // Cancel button
         {
-          PR_LOG(POP3LOGMODULE, PR_LOG_WARN, ("cancel button pressed"));
+          MOZ_LOG(POP3LOGMODULE, LogLevel::Warning, ("cancel button pressed"));
           // Abort quickly and stop trying for now.
 
           // If we haven't actually connected yet (i.e. we're doing an early
@@ -815,7 +818,7 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult)
         }
         else if (buttonPressed == 2) // "New password" button
         {
-          PR_LOG(POP3LOGMODULE, PR_LOG_WARN, ("new password button pressed"));
+          MOZ_LOG(POP3LOGMODULE, LogLevel::Warning, ("new password button pressed"));
           // Forget the stored password
           // and we'll prompt for a new one next time around.
           rv = server->ForgetPassword();
@@ -830,7 +833,7 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult)
         }
         else if (buttonPressed == 0) // "Retry" button
         {
-          PR_LOG(POP3LOGMODULE, PR_LOG_WARN, ("retry button pressed"));
+          MOZ_LOG(POP3LOGMODULE, LogLevel::Warning, ("retry button pressed"));
           // try all methods again, including GSSAPI
           ResetAuthMethods();
           ClearFlag(POP3_PASSWORD_FAILED|POP3_AUTH_FAILURE);
@@ -931,7 +934,7 @@ NS_IMETHODIMP nsPop3Protocol::OnStopRequest(nsIRequest *aRequest, nsISupports * 
          m_pop3ConData->next_state_after_response == POP3_AUTH_LOGIN_RESPONSE) &&
         m_pop3ConData->next_state != POP3_OBTAIN_PASSWORD_EARLY)
     {
-      PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("dropped connection before auth error"));
+      MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("dropped connection before auth error"));
       SetFlag(POP3_AUTH_FAILURE);
       m_pop3ConData->command_succeeded = false;
       m_needToRerunUrl = true;
@@ -954,7 +957,7 @@ NS_IMETHODIMP nsPop3Protocol::OnStopRequest(nsIRequest *aRequest, nsISupports * 
   nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_pop3Server);
   if (server)
   {
-    PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("Clearing server busy in OnStopRequest"));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("Clearing server busy in OnStopRequest"));
     server->SetServerBusy(false); // the server is not busy
   }
   if(m_pop3ConData->list_done)
@@ -973,7 +976,7 @@ void nsPop3Protocol::Abort()
   }
   // need this to close the stream on the inbox.
   m_nsIPop3Sink->AbortMailDelivery(this);
-  PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("Clearing running protocol in nsPop3Protocol::Abort"));
+  MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("Clearing running protocol in nsPop3Protocol::Abort"));
   m_pop3Server->SetRunningProtocol(nullptr);
 }
 
@@ -1056,7 +1059,7 @@ nsresult nsPop3Protocol::LoadUrl(nsIURI* aURL, nsISupports * /* aConsumer */)
   {
     rv = server->GetLocalPath(getter_AddRefs(mailDirectory));
     NS_ENSURE_SUCCESS(rv, rv);
-    PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("Setting server busy in nsPop3Protocol::LoadUrl"));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("Setting server busy in nsPop3Protocol::LoadUrl"));
     server->SetServerBusy(true); // the server is now busy
     server->GetHostName(hostName);
     server->GetUsername(userName);
@@ -1125,7 +1128,7 @@ nsPop3Protocol::WaitForStartOfConnectionResponse(nsIInputStream* aInputStream,
   nsresult rv;
   line = m_lineStreamBuffer->ReadNextLine(aInputStream, line_length, pauseForMoreData, &rv);
 
-  PR_LOG(POP3LOGMODULE, PR_LOG_ALWAYS,("RECV: %s", line));
+  MOZ_LOG(POP3LOGMODULE, LogLevel::Info,("RECV: %s", line));
   if (NS_FAILED(rv))
     return -1;
 
@@ -1181,7 +1184,7 @@ nsPop3Protocol::WaitForResponse(nsIInputStream* inputStream, uint32_t length)
     return(ln);
   }
 
-  PR_LOG(POP3LOGMODULE, PR_LOG_ALWAYS,("RECV: %s", line));
+  MOZ_LOG(POP3LOGMODULE, LogLevel::Info,("RECV: %s", line));
 
   if(*line == '+')
   {
@@ -1210,7 +1213,7 @@ nsPop3Protocol::WaitForResponse(nsIInputStream* inputStream, uint32_t length)
         // code for authentication failure due to the user's credentials
         if(m_commandResponse.Find("[AUTH", true) >= 0)
         {
-          PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("setting auth failure"));
+          MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("setting auth failure"));
           SetFlag(POP3_AUTH_FAILURE);
         }
 
@@ -1240,7 +1243,7 @@ nsPop3Protocol::Error(const char* err_code,
                       uint32_t length)
 {
     
-    PR_LOG(POP3LOGMODULE, PR_LOG_ALWAYS, ("ERROR: %s", err_code));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Info, ("ERROR: %s", err_code));
 
     // the error code is just the resource name for the error string...
     // so print out that error message!
@@ -1318,9 +1321,9 @@ int32_t nsPop3Protocol::Pop3SendData(const char * dataBuffer, bool aSuppressLogg
   nsresult result = nsMsgProtocol::SendData(dataBuffer);
 
   if (!aSuppressLogging)
-      PR_LOG(POP3LOGMODULE, PR_LOG_ALWAYS, ("SEND: %s", dataBuffer));
+      MOZ_LOG(POP3LOGMODULE, LogLevel::Info, ("SEND: %s", dataBuffer));
   else
-      PR_LOG(POP3LOGMODULE, PR_LOG_ALWAYS, ("Logging suppressed for this command (it probably contained authentication information)"));
+      MOZ_LOG(POP3LOGMODULE, LogLevel::Info, ("Logging suppressed for this command (it probably contained authentication information)"));
 
   if (NS_SUCCEEDED(result))
   {
@@ -1330,7 +1333,7 @@ int32_t nsPop3Protocol::Pop3SendData(const char * dataBuffer, bool aSuppressLogg
   }
 
   m_pop3ConData->next_state = POP3_ERROR_DONE;
-  PR_LOG(POP3LOGMODULE, PR_LOG_ALWAYS, ("Pop3SendData failed: %lx", result));
+  MOZ_LOG(POP3LOGMODULE, LogLevel::Info, ("Pop3SendData failed: %lx", result));
   return -1;
 }
 
@@ -1385,7 +1388,7 @@ int32_t nsPop3Protocol::AuthResponse(nsIInputStream* inputStream,
         return(0);
     }
 
-    PR_LOG(POP3LOGMODULE, PR_LOG_ALWAYS,("RECV: %s", line));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Info,("RECV: %s", line));
 
     if (!PL_strcmp(line, "."))
     {
@@ -1418,7 +1421,7 @@ int32_t nsPop3Protocol::AuthResponse(nsIInputStream* inputStream,
 
 int32_t nsPop3Protocol::SendCapa()
 {
-    PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("SendCapa()"));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("SendCapa()"));
     if(!m_pop3ConData->command_succeeded)
         return Error("pop3ServerError");
 
@@ -1456,7 +1459,7 @@ int32_t nsPop3Protocol::CapaResponse(nsIInputStream* inputStream,
         return(0);
     }
 
-    PR_LOG(POP3LOGMODULE, PR_LOG_ALWAYS,("RECV: %s", line));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Info,("RECV: %s", line));
 
     if (!PL_strcmp(line, "."))
     {
@@ -1520,7 +1523,7 @@ int32_t nsPop3Protocol::CapaResponse(nsIInputStream* inputStream,
     }
 
     PR_Free(line);
-    PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("capa processed"));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("capa processed"));
     return 0;
 }
 
@@ -1606,7 +1609,7 @@ void nsPop3Protocol::InitPrefAuthMethods(int32_t authMethodPrefValue)
     default:
       NS_ASSERTION(false, "POP: authMethod pref invalid");
       // TODO log to error console
-      PR_LOG(POP3LOGMODULE, PR_LOG_ERROR,
+      MOZ_LOG(POP3LOGMODULE, LogLevel::Error,
           ("POP: bad pref authMethod = %d\n", authMethodPrefValue));
       // fall to any
     case nsMsgAuthMethod::anything:
@@ -1631,10 +1634,10 @@ nsresult nsPop3Protocol::ChooseAuthMethod()
 {
   int32_t availCaps = GetCapFlags() & m_prefAuthMethods & ~m_failedAuthMethods;
 
-  PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG,
+  MOZ_LOG(POP3LOGMODULE, LogLevel::Debug,
         ("POP auth: server caps 0x%X, pref 0x%X, failed 0x%X, avail caps 0x%X",
         GetCapFlags(), m_prefAuthMethods, m_failedAuthMethods, availCaps));
-  PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG,
+  MOZ_LOG(POP3LOGMODULE, LogLevel::Debug,
         ("(GSSAPI = 0x%X, CRAM = 0x%X, APOP = 0x%X, NTLM = 0x%X, "
         "MSN =  0x%X, PLAIN = 0x%X, LOGIN = 0x%X, USER/PASS = 0x%X)",
         POP3_HAS_AUTH_GSSAPI, POP3_HAS_AUTH_CRAM_MD5, POP3_HAS_AUTH_APOP,
@@ -1661,16 +1664,16 @@ nsresult nsPop3Protocol::ChooseAuthMethod()
   {
     // there are no matching login schemes at all, per server and prefs
     m_currentAuthMethod = POP3_AUTH_MECH_UNDEFINED;
-    PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("no auth method remaining"));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("no auth method remaining"));
     return NS_ERROR_FAILURE;
   }
-  PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("trying auth method 0x%X", m_currentAuthMethod));
+  MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("trying auth method 0x%X", m_currentAuthMethod));
   return NS_OK;
 }
 
 void nsPop3Protocol::MarkAuthMethodAsFailed(int32_t failedAuthMethod)
 {
-  PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG,
+  MOZ_LOG(POP3LOGMODULE, LogLevel::Debug,
       ("marking auth method 0x%X failed", failedAuthMethod));
   m_failedAuthMethods |= failedAuthMethod;
 }
@@ -1680,7 +1683,7 @@ void nsPop3Protocol::MarkAuthMethodAsFailed(int32_t failedAuthMethod)
  */
 void nsPop3Protocol::ResetAuthMethods()
 {
-  PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("resetting (failed) auth methods"));
+  MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("resetting (failed) auth methods"));
   m_currentAuthMethod = POP3_AUTH_MECH_UNDEFINED;
   m_failedAuthMethods = 0;
 }
@@ -1693,7 +1696,7 @@ void nsPop3Protocol::ResetAuthMethods()
  */
 int32_t nsPop3Protocol::ProcessAuth()
 {
-    PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("ProcessAuth()"));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("ProcessAuth()"));
 
     // Try to upgrade to STARTTLS -- TODO move into its own function
     if (!m_tlsEnabled)
@@ -1722,7 +1725,7 @@ int32_t nsPop3Protocol::ProcessAuth()
     if (NS_FAILED(rv))
     {
       // Pref doesn't match server. Now, find an appropriate error msg.
-      PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG,
+      MOZ_LOG(POP3LOGMODULE, LogLevel::Debug,
            ("ProcessAuth() early exit because no auth methods"));
 
       // AuthGSSAPI* falls in here in case of an auth failure.
@@ -1761,35 +1764,35 @@ int32_t nsPop3Protocol::ProcessAuth()
     switch (m_currentAuthMethod)
     {
       case POP3_HAS_AUTH_GSSAPI:
-        PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("POP GSSAPI"));
+        MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("POP GSSAPI"));
         m_pop3ConData->next_state = POP3_AUTH_GSSAPI;
         break;
       case POP3_HAS_AUTH_APOP:
-        PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("POP APOP"));
+        MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("POP APOP"));
         m_pop3ConData->next_state = POP3_SEND_PASSWORD;
         break;
       case POP3_HAS_AUTH_CRAM_MD5:
-        PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("POP CRAM"));
+        MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("POP CRAM"));
       case POP3_HAS_AUTH_PLAIN:
       case POP3_HAS_AUTH_USER:
-        PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("POP username"));
+        MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("POP username"));
         m_pop3ConData->next_state = POP3_SEND_USERNAME;
         break;
       case POP3_HAS_AUTH_LOGIN:
-        PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("POP AUTH=LOGIN"));
+        MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("POP AUTH=LOGIN"));
         m_pop3ConData->next_state = POP3_AUTH_LOGIN;
         break;
       case POP3_HAS_AUTH_NTLM:
-        PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("POP NTLM"));
+        MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("POP NTLM"));
         m_pop3ConData->next_state = POP3_AUTH_NTLM;
         break;
       case POP3_HAS_AUTH_NONE:
-        PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("POP no auth"));
+        MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("POP no auth"));
         m_pop3ConData->command_succeeded = true;
         m_pop3ConData->next_state = POP3_NEXT_AUTH_STEP;
         break;
       default:
-        PR_LOG(POP3LOGMODULE, PR_LOG_ERROR,
+        MOZ_LOG(POP3LOGMODULE, LogLevel::Error,
              ("POP: m_currentAuthMethod has unknown value"));
         return Error("pop3AuthMechNotSupported");
     }
@@ -1807,13 +1810,13 @@ int32_t nsPop3Protocol::ProcessAuth()
  */
 int32_t nsPop3Protocol::NextAuthStep()
 {
-    PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("NextAuthStep()"));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("NextAuthStep()"));
     if (m_pop3ConData->command_succeeded)
     {
         if (m_password_already_sent || // (also true for GSSAPI)
             m_currentAuthMethod == POP3_HAS_AUTH_NONE)
         {
-            PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("login succeeded"));
+            MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("login succeeded"));
             m_nsIPop3Sink->SetUserAuthenticated(true);
             ClearFlag(POP3_PASSWORD_FAILED);
             if (m_pop3ConData->verify_logon)
@@ -1827,7 +1830,7 @@ int32_t nsPop3Protocol::NextAuthStep()
     }
     else
     {
-        PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("command did not succeed"));
+        MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("command did not succeed"));
         // response code received shows that login failed not because of
         // wrong credential -> stop login without retry or pw dialog, only alert
         // parameter list -> user
@@ -1848,7 +1851,7 @@ int32_t nsPop3Protocol::NextAuthStep()
         // credential was wrong -> no fallback, show alert and pw dialog
         if (TestFlag(POP3_AUTH_FAILURE))
         {
-            PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG,
+            MOZ_LOG(POP3LOGMODULE, LogLevel::Debug,
                ("auth failure, setting password failed"));
             if (m_password_already_sent)
               Error("pop3PasswordFailed", params, 1);
@@ -1866,7 +1869,7 @@ int32_t nsPop3Protocol::NextAuthStep()
         if (m_currentAuthMethod == POP3_HAS_AUTH_USER &&
             !m_password_already_sent)
         {
-            PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("USER username failed"));
+            MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("USER username failed"));
             // if USER auth method failed before sending the password,
             // the username was wrong.
             // no fallback but return error
@@ -1877,7 +1880,7 @@ int32_t nsPop3Protocol::NextAuthStep()
         rv = ChooseAuthMethod();
         if (NS_FAILED(rv))
         {
-            PR_LOG(POP3LOGMODULE, PR_LOG_ERROR,
+            MOZ_LOG(POP3LOGMODULE, LogLevel::Error,
                 ("POP: no auth methods remaining, setting password failure"));
             /* Sever the connection and go back to the `read password' state,
                which, upon success, will re-open the connection.  Set a flag
@@ -1891,7 +1894,7 @@ int32_t nsPop3Protocol::NextAuthStep()
             Error("pop3PasswordFailed", params, 1);
             return 0;
         }
-        PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG,
+        MOZ_LOG(POP3LOGMODULE, LogLevel::Debug,
            ("still have some auth methods to try"));
 
         // TODO needed?
@@ -1978,7 +1981,7 @@ int32_t nsPop3Protocol::AuthNtlmResponse()
 
 int32_t nsPop3Protocol::AuthGSSAPI()
 {
-    PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("AuthGSSAPI()"));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("AuthGSSAPI()"));
     nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_pop3Server);
     if (server) {
         nsAutoCString cmd;
@@ -2026,7 +2029,7 @@ int32_t nsPop3Protocol::AuthGSSAPIResponse(bool first)
     }
     else {
         nsAutoCString cmd;
-        PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("GSSAPI step 2"));
+        MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("GSSAPI step 2"));
         nsresult rv = DoGSSAPIStep2(m_commandResponse, cmd);
         if (NS_FAILED(rv))
             cmd = "*";
@@ -2043,7 +2046,7 @@ int32_t nsPop3Protocol::AuthGSSAPIResponse(bool first)
 
 int32_t nsPop3Protocol::SendUsername()
 {
-    PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("SendUsername()"));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("SendUsername()"));
     if(m_username.IsEmpty())
       return Error("pop3UsernameUndefined");
 
@@ -2076,13 +2079,13 @@ int32_t nsPop3Protocol::SendUsername()
     }
     else if (m_currentAuthMethod == POP3_HAS_AUTH_USER)
     {
-        PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("USER login"));
+        MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("USER login"));
         cmd = "USER ";
         cmd += m_username;
     }
     else
     {
-      PR_LOG(POP3LOGMODULE, PR_LOG_ERROR,
+      MOZ_LOG(POP3LOGMODULE, LogLevel::Error,
           ("In nsPop3Protocol::SendUsername(), m_currentAuthMethod is 0x%X, "
           "but that is unexpected", m_currentAuthMethod));
       return Error("pop3AuthInternalError");
@@ -2099,7 +2102,7 @@ int32_t nsPop3Protocol::SendUsername()
 
 int32_t nsPop3Protocol::SendPassword()
 {
-  PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("SendPassword()"));
+  MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("SendPassword()"));
   if (m_username.IsEmpty())
     return Error("pop3UsernameUndefined");
 
@@ -2122,7 +2125,7 @@ int32_t nsPop3Protocol::SendPassword()
     rv = DoNtlmStep2(m_commandResponse, cmd);
   else if (m_currentAuthMethod == POP3_HAS_AUTH_CRAM_MD5)
   {
-    PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("CRAM login"));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("CRAM login"));
     char buffer[512]; // TODO nsAutoCString
     unsigned char digest[DIGEST_LENGTH];
 
@@ -2158,7 +2161,7 @@ int32_t nsPop3Protocol::SendPassword()
   }
   else if (m_currentAuthMethod == POP3_HAS_AUTH_APOP)
   {
-    PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("APOP login"));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("APOP login"));
     char buffer[512];
     unsigned char digest[DIGEST_LENGTH];
 
@@ -2186,7 +2189,7 @@ int32_t nsPop3Protocol::SendPassword()
   }
   else if (m_currentAuthMethod == POP3_HAS_AUTH_PLAIN)
   {
-    PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("PLAIN login"));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("PLAIN login"));
     // workaround for IPswitch's IMail server software
     // this server goes into LOGIN mode even if we send "AUTH PLAIN"
     // "VXNlc" is the beginning of the base64 encoded prompt ("Username:") for LOGIN
@@ -2218,7 +2221,7 @@ int32_t nsPop3Protocol::SendPassword()
   }
   else if (m_currentAuthMethod == POP3_HAS_AUTH_LOGIN)
   {
-    PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("LOGIN password"));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("LOGIN password"));
     char * base64Str =
         PL_Base64Encode(m_passwordResult.get(), m_passwordResult.Length(),
                         nullptr);
@@ -2227,13 +2230,13 @@ int32_t nsPop3Protocol::SendPassword()
   }
   else if (m_currentAuthMethod == POP3_HAS_AUTH_USER)
   {
-    PR_LOG(POP3LOGMODULE, PR_LOG_DEBUG, ("PASS password"));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("PASS password"));
     cmd = "PASS ";
     cmd += m_passwordResult;
   }
   else
   {
-    PR_LOG(POP3LOGMODULE, PR_LOG_ERROR,
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Error,
         ("In nsPop3Protocol::SendPassword(), m_currentAuthMethod is %X, "
         "but that is unexpected", m_currentAuthMethod));
     return Error("pop3AuthInternalError");
@@ -2459,7 +2462,7 @@ nsPop3Protocol::GetList(nsIInputStream* inputStream,
     return(ln);
   }
 
-  PR_LOG(POP3LOGMODULE, PR_LOG_ALWAYS,("RECV: %s", line));
+  MOZ_LOG(POP3LOGMODULE, LogLevel::Info,("RECV: %s", line));
 
   /* parse the line returned from the list command
   * it looks like
@@ -2629,7 +2632,7 @@ nsPop3Protocol::GetXtndXlstMsgid(nsIInputStream* inputStream,
     return ln;
   }
 
-  PR_LOG(POP3LOGMODULE, PR_LOG_ALWAYS,("RECV: %s", line));
+  MOZ_LOG(POP3LOGMODULE, LogLevel::Info,("RECV: %s", line));
 
   /* parse the line returned from the list command
   * it looks like
@@ -2745,7 +2748,7 @@ int32_t nsPop3Protocol::GetUidlList(nsIInputStream* inputStream,
       return ln;
     }
 
-    PR_LOG(POP3LOGMODULE, PR_LOG_ALWAYS,("RECV: %s", line));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Info,("RECV: %s", line));
 
     /* parse the line returned from the list command
      * it looks like
@@ -3240,7 +3243,7 @@ nsPop3Protocol::RetrResponse(nsIInputStream* inputStream,
 
         m_pop3Server->GetDotFix(&m_pop3ConData->dot_fix);
 
-        PR_LOG(POP3LOGMODULE,PR_LOG_ALWAYS,
+        MOZ_LOG(POP3LOGMODULE,LogLevel::Info,
                ("Opening message stream: MSG_IncorporateBegin"));
 
         /* open the message stream so we have someplace
@@ -3251,7 +3254,7 @@ nsPop3Protocol::RetrResponse(nsIInputStream* inputStream,
         rv = m_nsIPop3Sink->IncorporateBegin(uidl, m_url, flags,
                                         &m_pop3ConData->msg_closure);
 
-        PR_LOG(POP3LOGMODULE, PR_LOG_ALWAYS, ("Done opening message stream!"));
+        MOZ_LOG(POP3LOGMODULE, LogLevel::Info, ("Done opening message stream!"));
 
         if(!m_pop3ConData->msg_closure || NS_FAILED(rv))
             return Error("pop3MessageWriteError");
@@ -3261,7 +3264,7 @@ nsPop3Protocol::RetrResponse(nsIInputStream* inputStream,
 
     bool pauseForMoreData = false;
     char *line = m_lineStreamBuffer->ReadNextLine(inputStream, status, pauseForMoreData, &rv, true);
-    PR_LOG(POP3LOGMODULE, PR_LOG_ALWAYS,("RECV: %s", line));
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Info,("RECV: %s", line));
     if (NS_FAILED(rv))
       return -1;
 
@@ -3296,7 +3299,7 @@ nsPop3Protocol::RetrResponse(nsIInputStream* inputStream,
         if (NS_FAILED(rv))
           return -1;
 
-        PR_LOG(POP3LOGMODULE, PR_LOG_ALWAYS,("RECV: %s", line));
+        MOZ_LOG(POP3LOGMODULE, LogLevel::Info,("RECV: %s", line));
         // buffer_size already includes MSG_LINEBREAK_LEN so
         // subtract and add CRLF
         // but not really sure we always had CRLF in input since
@@ -3663,7 +3666,7 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI * url, nsIInputStream * aIn
   bool urlStatusSet = false;
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(m_url);
 
-  PR_LOG(POP3LOGMODULE, PR_LOG_ALWAYS, ("Entering NET_ProcessPop3 %d",
+  MOZ_LOG(POP3LOGMODULE, LogLevel::Info, ("Entering NET_ProcessPop3 %d",
     aLength));
 
   m_pop3ConData->pause_for_read = false; /* already paused; reset */
@@ -3677,7 +3680,7 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI * url, nsIInputStream * aIn
 
   while(!m_pop3ConData->pause_for_read)
   {
-    PR_LOG(POP3LOGMODULE, PR_LOG_ALWAYS,
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Info,
       ("POP3: Entering state: %d", m_pop3ConData->next_state));
 
     switch(m_pop3ConData->next_state)
@@ -4025,7 +4028,7 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI * url, nsIInputStream * aIn
           {
             // The server dropped the connection, so we're going
             // to re-run the url.
-            PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("need to rerun url because connection dropped during auth"));
+            MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("need to rerun url because connection dropped during auth"));
             m_needToRerunUrl = true;
             return NS_OK;
           }
@@ -4049,10 +4052,10 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI * url, nsIInputStream * aIn
         nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_pop3Server);
         if (server)
         {
-          PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("Clearing server busy in POP3_FREE"));
+          MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("Clearing server busy in POP3_FREE"));
           server->SetServerBusy(false); // the server is now not busy
         }
-        PR_LOG(POP3LOGMODULE, PR_LOG_MAX, ("Clearing running protocol in POP3_FREE"));
+        MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, ("Clearing running protocol in POP3_FREE"));
         CloseSocket();
         m_pop3Server->SetRunningProtocol(nullptr);
         if (mailnewsurl && urlStatusSet)

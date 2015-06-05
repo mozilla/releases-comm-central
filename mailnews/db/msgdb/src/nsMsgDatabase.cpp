@@ -15,7 +15,7 @@
 #include "nsMsgBaseCID.h"
 #include "nsMorkCID.h"
 #include "nsIMdbFactoryFactory.h"
-#include "prlog.h"
+#include "mozilla/Logging.h"
 #include "prprf.h"
 #include "nsMsgDBCID.h"
 #include "nsILocale.h"
@@ -46,6 +46,7 @@
 #include <algorithm>
 
 using namespace mozilla::mailnews;
+using namespace mozilla;
 
 #if defined(DEBUG_sspitzer_) || defined(DEBUG_seth_)
 #define DEBUG_MSGKEYSET 1
@@ -969,11 +970,11 @@ void nsMsgDBService::AddToCache(nsMsgDatabase* pMessageDB)
 void nsMsgDBService::DumpCache()
 {
   nsMsgDatabase* db = nullptr;
-  PR_LOG(DBLog, PR_LOG_ALWAYS, ("%d open DB's\n", m_dbCache.Length()));
+  MOZ_LOG(DBLog, LogLevel::Info, ("%d open DB's\n", m_dbCache.Length()));
   for (uint32_t i = 0; i < m_dbCache.Length(); i++)
   {
     db = m_dbCache.ElementAt(i);
-    PR_LOG(DBLog, PR_LOG_ALWAYS, ("%s - %ld hdrs in use\n",
+    MOZ_LOG(DBLog, LogLevel::Info, ("%s - %ld hdrs in use\n",
       (const char*)db->m_dbName.get(),
       db->m_headersInUse ? db->m_headersInUse->EntryCount() : 0));
   }
@@ -1149,7 +1150,7 @@ nsMsgDatabase::~nsMsgDatabase()
     m_msgReferences = nullptr;
   }
 
-  PR_LOG(DBLog, PR_LOG_ALWAYS, ("closing database    %s\n",
+  MOZ_LOG(DBLog, LogLevel::Info, ("closing database    %s\n",
     (const char*)m_dbName.get()));
 
   nsCOMPtr<nsIMsgDBService> serv(do_GetService(NS_MSGDB_SERVICE_CONTRACTID));
@@ -1210,16 +1211,16 @@ nsresult nsMsgDatabase::OpenInternal(nsMsgDBService *aDBService,
   nsAutoCString summaryFilePath;
   summaryFile->GetNativePath(summaryFilePath);
 
-  PR_LOG(DBLog, PR_LOG_ALWAYS, ("nsMsgDatabase::Open(%s, %s, %p, %s)\n",
+  MOZ_LOG(DBLog, LogLevel::Info, ("nsMsgDatabase::Open(%s, %s, %p, %s)\n",
     (const char*)summaryFilePath.get(), aCreate ? "TRUE":"FALSE",
     this, aLeaveInvalidDB ? "TRUE":"FALSE"));
 
 
   nsresult rv = OpenMDB(summaryFilePath.get(), aCreate, sync);
   if (NS_FAILED(rv))
-    PR_LOG(DBLog, PR_LOG_ALWAYS, ("error opening db %lx", rv));
+    MOZ_LOG(DBLog, LogLevel::Info, ("error opening db %lx", rv));
 
-  if (PR_LOG_TEST(DBLog, PR_LOG_DEBUG))
+  if (MOZ_LOG_TEST(DBLog, LogLevel::Debug))
     aDBService->DumpCache();
 
   if (rv == NS_ERROR_FILE_TARGET_DOES_NOT_EXIST)

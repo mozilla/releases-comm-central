@@ -6,7 +6,7 @@
 #ifndef nsAppleMailImport_h___
 #define nsAppleMailImport_h___
 
-#include "prlog.h"
+#include "mozilla/Logging.h"
 #include "nsIImportModule.h"
 #include "nsCOMPtr.h"
 #include "nsIStringBundle.h"
@@ -15,10 +15,10 @@
 // logging facilities
 extern PRLogModuleInfo *APPLEMAILLOGMODULE;
 
-#define IMPORT_LOG0(x)          PR_LOG(APPLEMAILLOGMODULE, PR_LOG_DEBUG, (x))
-#define IMPORT_LOG1(x, y)       PR_LOG(APPLEMAILLOGMODULE, PR_LOG_DEBUG, (x, y))
-#define IMPORT_LOG2(x, y, z)    PR_LOG(APPLEMAILLOGMODULE, PR_LOG_DEBUG, (x, y, z))
-#define IMPORT_LOG3(a, b, c, d) PR_LOG(APPLEMAILLOGMODULE, PR_LOG_DEBUG, (a, b, c, d))
+#define IMPORT_LOG0(x)          MOZ_LOG(APPLEMAILLOGMODULE, mozilla::LogLevel::Debug, (x))
+#define IMPORT_LOG1(x, y)       MOZ_LOG(APPLEMAILLOGMODULE, mozilla::LogLevel::Debug, (x, y))
+#define IMPORT_LOG2(x, y, z)    MOZ_LOG(APPLEMAILLOGMODULE, mozilla::LogLevel::Debug, (x, y, z))
+#define IMPORT_LOG3(a, b, c, d) MOZ_LOG(APPLEMAILLOGMODULE, mozilla::LogLevel::Debug, (a, b, c, d))
 
 #define NS_APPLEMAILIMPL_CID \
 { 0x9117a1ea, 0xe012, 0x43b5, { 0xa0, 0x20, 0xcb, 0x8a, 0x66, 0xcc, 0x09, 0xe1 } }

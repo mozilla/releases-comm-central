@@ -14,6 +14,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
+#include "mozilla/Logging.h"
 
 static PRLogModuleInfo *gCopyServiceLog;
 
@@ -143,7 +144,7 @@ void nsMsgCopyService::LogCopyCompletion(nsISupports *aSrc, nsIMsgFolder *aDest)
   if (srcFolder)
     srcFolder->GetURI(srcFolderUri);
   aDest->GetURI(destFolderUri);
-  PR_LOG(gCopyServiceLog, PR_LOG_ALWAYS,
+  MOZ_LOG(gCopyServiceLog, mozilla::LogLevel::Info,
          ("NotifyCompletion - src %s dest %s\n",
           srcFolderUri.get(), destFolderUri.get()));
 }
@@ -160,7 +161,7 @@ void nsMsgCopyService::LogCopyRequest(const char *logMsg, nsCopyRequest* aReques
       aRequest->m_copySourceArray.Length() > 0 &&
       aRequest->m_copySourceArray[0]->m_messageArray)
     aRequest->m_copySourceArray[0]->m_messageArray->GetLength(&numMsgs);
-  PR_LOG(gCopyServiceLog, PR_LOG_ALWAYS,
+  MOZ_LOG(gCopyServiceLog, mozilla::LogLevel::Info,
          ("request %lx %s - src %s dest %s numItems %d type=%d",
          aRequest, logMsg, srcFolderUri.get(),
          destFolderUri.get(), numMsgs, aRequest->m_requestType));
@@ -171,7 +172,7 @@ nsMsgCopyService::ClearRequest(nsCopyRequest* aRequest, nsresult rv)
 {
   if (aRequest)
   {
-    if (PR_LOG_TEST(gCopyServiceLog, PR_LOG_ALWAYS))
+    if (MOZ_LOG_TEST(gCopyServiceLog, mozilla::LogLevel::Info))
       LogCopyRequest(NS_SUCCEEDED(rv) ? "Clearing OK request" 
                                       : "Clearing failed request", aRequest);
 
@@ -252,7 +253,7 @@ nsMsgCopyService::DoCopy(nsCopyRequest* aRequest)
   bool copyImmediately;
   QueueRequest(aRequest, &copyImmediately);
   m_copyRequests.AppendElement(aRequest);
-  if (PR_LOG_TEST(gCopyServiceLog, PR_LOG_ALWAYS))
+  if (MOZ_LOG_TEST(gCopyServiceLog, mozilla::LogLevel::Info))
     LogCopyRequest(copyImmediately ? "DoCopy" : "QueueRequest", aRequest);
 
   // if no active request for this dest folder then we can copy immediately
@@ -439,7 +440,7 @@ nsMsgCopyService::CopyMessages(nsIMsgFolder* srcFolder, /* UI src folder */
   NS_ENSURE_ARG_POINTER(messages);
   NS_ENSURE_ARG_POINTER(dstFolder);
 
-  PR_LOG(gCopyServiceLog, PR_LOG_DEBUG, ("CopyMessages"));
+  MOZ_LOG(gCopyServiceLog, mozilla::LogLevel::Debug, ("CopyMessages"));
 
   if (srcFolder == dstFolder)
   {
@@ -484,7 +485,7 @@ nsMsgCopyService::CopyMessages(nsIMsgFolder* srcFolder, /* UI src folder */
   if (NS_FAILED(rv))
     goto done;
 
-  if (PR_LOG_TEST(gCopyServiceLog, PR_LOG_ALWAYS))
+  if (MOZ_LOG_TEST(gCopyServiceLog, mozilla::LogLevel::Info))
     LogCopyRequest("CopyMessages request", copyRequest);
 
   // duplicate the message array so we could sort the messages by it's
@@ -653,7 +654,7 @@ nsMsgCopyService::NotifyCompletion(nsISupports* aSupport,
                                    nsIMsgFolder* dstFolder,
                                    nsresult result)
 {
-  if (PR_LOG_TEST(gCopyServiceLog, PR_LOG_ALWAYS))
+  if (MOZ_LOG_TEST(gCopyServiceLog, mozilla::LogLevel::Info))
     LogCopyCompletion(aSupport, dstFolder);
   nsCopyRequest* copyRequest = nullptr;
   uint32_t numOrigRequests = m_copyRequests.Length();

@@ -15,14 +15,14 @@
 
 #include <mapiguid.h>
 
-#include "prlog.h"
+#include "mozilla/Logging.h"
 
 #ifdef PR_LOGGING
 static PRLogModuleInfo* gAbWinHelperLog
     = PR_NewLogModule("nsAbWinHelperLog");
 #endif
 
-#define PRINTF(args) PR_LOG(gAbWinHelperLog, PR_LOG_DEBUG, args)
+#define PRINTF(args) MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug, args)
 
 // Small utility to ensure release of all MAPI interfaces
 template <class tInterface> struct nsMapiInterfaceWrapper

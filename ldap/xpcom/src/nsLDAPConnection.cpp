@@ -26,6 +26,7 @@
 #include "nsMemory.h"
 #include "nsLDAPUtils.h"
 #include "nsProxyRelease.h"
+#include "mozilla/Logging.h"
 
 using namespace mozilla;
 
@@ -176,7 +177,7 @@ void
 nsLDAPConnection::Close()
 {
   int rc;
-  PR_LOG(gLDAPLogModule, PR_LOG_DEBUG, ("unbinding\n"));
+  MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug, ("unbinding\n"));
 
   if (mConnectionHandle) {
       // note that the ldap_unbind() call in the 5.0 version of the LDAP C SDK
@@ -186,7 +187,7 @@ nsLDAPConnection::Close()
       rc = ldap_unbind(mConnectionHandle);
 #ifdef PR_LOGGING
       if (rc != LDAP_SUCCESS) {
-          PR_LOG(gLDAPLogModule, PR_LOG_WARNING,
+          MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Warning,
                  ("nsLDAPConnection::Close(): %s\n",
                   ldap_err2string(rc)));
       }
@@ -194,7 +195,7 @@ nsLDAPConnection::Close()
       mConnectionHandle = nullptr;
   }
 
-  PR_LOG(gLDAPLogModule, PR_LOG_DEBUG, ("unbound\n"));
+  MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug, ("unbound\n"));
 
   NS_ASSERTION(!mThread || NS_SUCCEEDED(mThread->Shutdown()),
                "Failed to shutdown thread cleanly");
@@ -333,7 +334,7 @@ nsLDAPConnection::AddPendingOperation(uint32_t aOperationID, nsILDAPOperation *a
   {
     MutexAutoLock lock(mPendingOperationsMutex);
     mPendingOperations.Put((uint32_t)aOperationID, aOperation);
-    PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
            ("pending operation added; total pending operations now = %d\n",
             mPendingOperations.Count()));
   }
@@ -369,13 +370,13 @@ nsLDAPConnection::RemovePendingOperation(uint32_t aOperationID)
 {
   NS_ENSURE_TRUE(aOperationID > 0, NS_ERROR_UNEXPECTED);
 
-  PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+  MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
          ("nsLDAPConnection::RemovePendingOperation(): operation removed\n"));
 
   {
     MutexAutoLock lock(mPendingOperationsMutex);
     mPendingOperations.Remove(aOperationID);
-    PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
            ("nsLDAPConnection::RemovePendingOperation(): operation "
             "removed; total pending operations now = %d\n",
             mPendingOperations.Count()));
@@ -428,7 +429,7 @@ nsLDAPConnection::InvokeMessageCallback(LDAPMessage *aMsgHandle,
 {
 #if defined(DEBUG)
   // We only want this being logged for debug builds so as not to affect performance too much.
-  PR_LOG(gLDAPLogModule, PR_LOG_DEBUG, ("InvokeMessageCallback entered\n"));
+  MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug, ("InvokeMessageCallback entered\n"));
 #endif
 
   // Get the operation.
@@ -456,7 +457,7 @@ nsLDAPConnection::InvokeMessageCallback(LDAPMessage *aMsgHandle,
     MutexAutoLock lock(mPendingOperationsMutex);
     mPendingOperations.Remove(aOperation);
 
-    PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
            ("pending operation removed; total pending operations now ="
             " %d\n", mPendingOperations.Count()));
   }

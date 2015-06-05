@@ -16,7 +16,7 @@
 #include "nsIMsgFilterPlugin.h"
 #include "nsIPrefBranch.h"
 #include "nsIPrefService.h"
-#include "prlog.h"
+#include "mozilla/Logging.h"
 #include "nsMsgFolderFlags.h"
 #include <stdlib.h>
 #include "nsComponentManagerUtils.h"
@@ -71,8 +71,8 @@ NS_IMETHODIMP nsMsgPurgeService::Init()
       mPurgeTimerInterval = purge_timer_interval;
   }
 
-  PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("mail.purge.min_delay=%d minutes",mMinDelayBetweenPurges));
-  PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("mail.purge.timer_interval=%d minutes",mPurgeTimerInterval));
+  MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("mail.purge.min_delay=%d minutes",mMinDelayBetweenPurges));
+  MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("mail.purge.timer_interval=%d minutes",mPurgeTimerInterval));
 
   // don't start purging right away.
   // because the accounts aren't loaded and because the user might be trying to sign in
@@ -97,7 +97,7 @@ NS_IMETHODIMP nsMsgPurgeService::Shutdown()
 
 nsresult nsMsgPurgeService::SetupNextPurge()
 {
-  PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("setting to check again in %d minutes",mPurgeTimerInterval));
+  MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("setting to check again in %d minutes",mPurgeTimerInterval));
 
   // Convert mPurgeTimerInterval into milliseconds
   uint32_t timeInMSUint32 = mPurgeTimerInterval * 60000;
@@ -125,7 +125,7 @@ nsresult nsMsgPurgeService::SetupNextPurge()
 // for now, until we have a cleanup on shutdown architecture.
 nsresult nsMsgPurgeService::PerformPurge()
 {
-  PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("performing purge"));
+  MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("performing purge"));
 
   nsresult rv;
 
@@ -139,7 +139,7 @@ nsresult nsMsgPurgeService::PerformPurge()
   {
     uint32_t numServers;
     rv = allServers->GetLength(&numServers);
-    PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("%d servers", numServers));
+    MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("%d servers", numServers));
     nsCOMPtr<nsIMsgFolder> folderToPurge;
     PRIntervalTime startTime = PR_IntervalNow();
     int32_t purgeIntervalToUse;
@@ -197,7 +197,7 @@ nsresult nsMsgPurgeService::PerformPurge()
               }
 
               childFolder->GetURI(curFolderUri);
-              PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("%s curFolderLastPurgeTime=%s (if blank, then never)", curFolderUri.get(), curFolderLastPurgeTimeString.get()));
+              MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("%s curFolderLastPurgeTime=%s (if blank, then never)", curFolderUri.get(), curFolderLastPurgeTimeString.get()));
 
               // check if this folder is due to purge
               // has to have been purged at least mMinDelayBetweenPurges minutes ago
@@ -207,7 +207,7 @@ nsresult nsMsgPurgeService::PerformPurge()
               PRTime nextPurgeTime = curFolderLastPurgeTime + (minDelayBetweenPurges * microSecondsPerMinute);
               if (nextPurgeTime < PR_Now())
               {
-                PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("purging %s", curFolderUri.get()));
+                MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("purging %s", curFolderUri.get()));
                 childFolder->ApplyRetentionSettings();
               }
               PRIntervalTime elapsedTime = PR_IntervalNow() - startTime;
@@ -226,7 +226,7 @@ nsresult nsMsgPurgeService::PerformPurge()
 
         nsCString realHostName;
         server->GetRealHostName(realHostName);
-        PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("[%d] %s (%s)", serverIndex, realHostName.get(), type.get()));
+        MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("[%d] %s (%s)", serverIndex, realHostName.get(), type.get()));
 
         nsCOMPtr <nsISpamSettings> spamSettings;
         rv = server->GetSpamSettings(getter_AddRefs(spamSettings));
@@ -234,7 +234,7 @@ nsresult nsMsgPurgeService::PerformPurge()
 
         int32_t spamLevel;
         spamSettings->GetLevel(&spamLevel);
-        PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("[%d] spamLevel=%d (if 0, don't purge)", serverIndex, spamLevel));
+        MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("[%d] spamLevel=%d (if 0, don't purge)", serverIndex, spamLevel));
         if (!spamLevel)
           continue;
 
@@ -243,7 +243,7 @@ nsresult nsMsgPurgeService::PerformPurge()
         bool purgeSpam;
         spamSettings->GetPurge(&purgeSpam);
 
-        PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("[%d] purgeSpam=%s (if false, don't purge)", serverIndex, purgeSpam ? "true" : "false"));
+        MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("[%d] purgeSpam=%s (if false, don't purge)", serverIndex, purgeSpam ? "true" : "false"));
         if (!purgeSpam)
           continue;
 
@@ -253,7 +253,7 @@ nsresult nsMsgPurgeService::PerformPurge()
         rv = spamSettings->GetSpamFolderURI(getter_Copies(junkFolderURI));
         NS_ENSURE_SUCCESS(rv,rv);
 
-        PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("[%d] junkFolderURI=%s (if empty, don't purge)", serverIndex, junkFolderURI.get()));
+        MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("[%d] junkFolderURI=%s (if empty, don't purge)", serverIndex, junkFolderURI.get()));
         if (junkFolderURI.IsEmpty())
           continue;
 
@@ -263,7 +263,7 @@ nsresult nsMsgPurgeService::PerformPurge()
         nsCOMPtr<nsIMsgFolder> junkFolder;
         GetExistingFolder(junkFolderURI, getter_AddRefs(junkFolder));
 
-        PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("[%d] %s exists? %s (if doesn't exist, don't purge)", serverIndex, junkFolderURI.get(), junkFolder ? "true" : "false"));
+        MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("[%d] %s exists? %s (if doesn't exist, don't purge)", serverIndex, junkFolderURI.get(), junkFolder ? "true" : "false"));
         if (!junkFolder)
           continue;
 
@@ -280,7 +280,7 @@ nsresult nsMsgPurgeService::PerformPurge()
           curJunkFolderLastPurgeTime = theTime;
         }
 
-        PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("[%d] %s curJunkFolderLastPurgeTime=%s (if blank, then never)", serverIndex, junkFolderURI.get(), curJunkFolderLastPurgeTimeString.get()));
+        MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("[%d] %s curJunkFolderLastPurgeTime=%s (if blank, then never)", serverIndex, junkFolderURI.get(), curJunkFolderLastPurgeTimeString.get()));
 
         // check if this account is due to purge
         // has to have been purged at least mMinDelayBetweenPurges minutes ago
@@ -288,7 +288,7 @@ nsresult nsMsgPurgeService::PerformPurge()
         PRTime nextPurgeTime = curJunkFolderLastPurgeTime + mMinDelayBetweenPurges * 60000000 /* convert mMinDelayBetweenPurges to into microseconds */;
         if (nextPurgeTime < PR_Now())
         {
-          PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("[%d] last purge greater than min delay", serverIndex));
+          MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("[%d] last purge greater than min delay", serverIndex));
 
           nsCOMPtr <nsIMsgIncomingServer> junkFolderServer;
           rv = junkFolder->GetServer(getter_AddRefs(junkFolderServer));
@@ -305,10 +305,10 @@ nsresult nsMsgPurgeService::PerformPurge()
           // Make sure we're logged on before doing the search (assuming we need to be)
           // and make sure the server isn't already in the middle of downloading new messages
           // and make sure a search isn't already going on
-          PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("[%d] (search in progress? %s)", serverIndex, mSearchSession ? "true" : "false"));
-          PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("[%d] (server busy? %s)", serverIndex, serverBusy ? "true" : "false"));
-          PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("[%d] (serverRequiresPassword? %s)", serverIndex, serverRequiresPassword ? "true" : "false"));
-          PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("[%d] (passwordPromptRequired? %s)", serverIndex, passwordPromptRequired ? "true" : "false"));
+          MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("[%d] (search in progress? %s)", serverIndex, mSearchSession ? "true" : "false"));
+          MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("[%d] (server busy? %s)", serverIndex, serverBusy ? "true" : "false"));
+          MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("[%d] (serverRequiresPassword? %s)", serverIndex, serverRequiresPassword ? "true" : "false"));
+          MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("[%d] (passwordPromptRequired? %s)", serverIndex, passwordPromptRequired ? "true" : "false"));
           if (canSearchMessages && !mSearchSession && !serverBusy && (!serverRequiresPassword || !passwordPromptRequired))
           {
             int32_t purgeInterval;
@@ -316,7 +316,7 @@ nsresult nsMsgPurgeService::PerformPurge()
 
             if ((oldestPurgeTime == 0) || (curJunkFolderLastPurgeTime < oldestPurgeTime))
             {
-              PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("[%d] purging! searching for messages older than %d days", serverIndex, purgeInterval));
+              MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("[%d] purging! searching for messages older than %d days", serverIndex, purgeInterval));
               oldestPurgeTime = curJunkFolderLastPurgeTime;
               purgeIntervalToUse = purgeInterval;
               folderToPurge = junkFolder;
@@ -327,11 +327,11 @@ nsresult nsMsgPurgeService::PerformPurge()
           }
           else {
             NS_ASSERTION(canSearchMessages, "unexpected, you should be able to search");
-            PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("[%d] not a good time for this server, try again later", serverIndex));
+            MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("[%d] not a good time for this server, try again later", serverIndex));
           }
         }
         else {
-          PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("[%d] last purge too recent", serverIndex));
+          MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("[%d] last purge too recent", serverIndex));
         }
       }
     }
@@ -359,7 +359,7 @@ nsresult nsMsgPurgeService::SearchFolderToPurge(nsIMsgFolder *folder, int32_t pu
   PR_ExplodeTime(PR_Now(), PR_LocalTimeParameters, &exploded);
   PR_FormatTimeUSEnglish(dateBuf, sizeof(dateBuf), "%a %b %d %H:%M:%S %Y", &exploded);
   folder->SetStringProperty("curJunkFolderLastPurgeTime", nsDependentCString(dateBuf));
-  PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("curJunkFolderLastPurgeTime is now %s", dateBuf));
+  MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("curJunkFolderLastPurgeTime is now %s", dateBuf));
 
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = folder->GetServer(getter_AddRefs(server)); //we need to get the folder's server scope because imap can have local junk folder
@@ -413,7 +413,7 @@ nsresult nsMsgPurgeService::SearchFolderToPurge(nsIMsgFolder *folder, int32_t pu
 
 NS_IMETHODIMP nsMsgPurgeService::OnNewSearch()
 {
-  PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("on new search"));
+  MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("on new search"));
   return NS_OK;
 }
 
@@ -426,11 +426,11 @@ NS_IMETHODIMP nsMsgPurgeService::OnSearchHit(nsIMsgDBHdr* aMsgHdr, nsIMsgFolder 
   nsCString subject;
 
   aMsgHdr->GetMessageId(getter_Copies(messageId));
-  PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("messageId=%s", messageId.get()));
+  MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("messageId=%s", messageId.get()));
   aMsgHdr->GetSubject(getter_Copies(subject));
-  PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("subject=%s",subject.get()));
+  MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("subject=%s",subject.get()));
   aMsgHdr->GetAuthor(getter_Copies(author));
-  PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("author=%s",author.get()));
+  MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("author=%s",author.get()));
 
   // double check that the message is junk before adding to
   // the list of messages to delete
@@ -445,14 +445,14 @@ NS_IMETHODIMP nsMsgPurgeService::OnSearchHit(nsIMsgDBHdr* aMsgHdr, nsIMsgFolder 
   nsresult rv = aMsgHdr->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
   NS_ENSURE_SUCCESS(rv,rv);
 
-  PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("junkScore=%s (if empty or != nsIJunkMailPlugin::IS_SPAM_SCORE, don't add to list delete)", junkScoreStr.get()));
+  MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("junkScore=%s (if empty or != nsIJunkMailPlugin::IS_SPAM_SCORE, don't add to list delete)", junkScoreStr.get()));
 
   // if "junkscore" is not set, don't delete the message
   if (junkScoreStr.IsEmpty())
     return NS_OK;
 
   if (atoi(junkScoreStr.get()) == nsIJunkMailPlugin::IS_SPAM_SCORE) {
-    PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("added message to delete"));
+    MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("added message to delete"));
     return mHdrsToDelete->AppendElement(aMsgHdr, false);
   }
   return NS_OK;
@@ -465,10 +465,10 @@ NS_IMETHODIMP nsMsgPurgeService::OnSearchDone(nsresult status)
     uint32_t count;
     if (mHdrsToDelete)
       mHdrsToDelete->GetLength(&count);
-    PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("%d messages to delete", count));
+    MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("%d messages to delete", count));
 
     if (count > 0) {
-      PR_LOG(MsgPurgeLogModule, PR_LOG_ALWAYS, ("delete messages"));
+      MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("delete messages"));
       if (mSearchFolder)
         mSearchFolder->DeleteMessages(mHdrsToDelete, nullptr, false /*delete storage*/, false /*isMove*/, nullptr, false /*allowUndo*/);
     }

@@ -20,6 +20,9 @@
 #include "nsServiceManagerUtils.h"
 #include "mozilla/Services.h"
 #include "nsArrayUtils.h"
+#include "mozilla/Logging.h"
+
+using namespace mozilla;
 
 NS_IMPL_ISUPPORTS(nsDefaultAutoSyncMsgStrategy, nsIAutoSyncMsgStrategy)
 
@@ -536,7 +539,7 @@ NS_IMETHODIMP nsAutoSyncManager::Pause()
 {
   StopTimer();
   mPaused = true;
-  PR_LOG(gAutoSyncLog, PR_LOG_DEBUG, ("autosync paused\n"));
+  MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("autosync paused\n"));
   return NS_OK;
 }
 
@@ -544,7 +547,7 @@ NS_IMETHODIMP nsAutoSyncManager::Resume()
 {
   mPaused = false;
   StartTimerIfNeeded();
-  PR_LOG(gAutoSyncLog, PR_LOG_DEBUG, ("autosync resumed\n"));
+  MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("autosync resumed\n"));
   return NS_OK;
 }
 

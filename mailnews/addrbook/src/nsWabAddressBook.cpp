@@ -5,7 +5,7 @@
 
 #include <tchar.h>
 #include "nsWabAddressBook.h"
-#include "prlog.h"
+#include "mozilla/Logging.h"
 #include <algorithm>
 
 #ifdef PR_LOGGING
@@ -13,7 +13,7 @@ static PRLogModuleInfo* gWabAddressBookLog
     = PR_NewLogModule("nsWabAddressBookLog");
 #endif
 
-#define PRINTF(args) PR_LOG(gWabAddressBookLog, PR_LOG_DEBUG, args)
+#define PRINTF(args) MOZ_LOG(gWabAddressBookLog, mozilla::LogLevel::Debug, args)
 
 using namespace mozilla;
 

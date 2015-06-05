@@ -22,6 +22,7 @@
 #include "nsLDAPSyncQuery.h"
 #endif
 #include "ldappr.h"
+#include "mozilla/Logging.h"
 
 // use the default constructor
 //
@@ -108,7 +109,7 @@ nsLDAPInitialize()
     int rv = prldap_install_routines( NULL, 1 /* shared */ );
 
     if (rv != LDAP_SUCCESS) {
-        PR_LOG(gLDAPLogModule, PR_LOG_ERROR,
+        MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
                ("nsLDAPInitialize(): pr_ldap_install_routines() failed: %s\n",
                ldap_err2string(rv)));
         return NS_ERROR_FAILURE;
@@ -120,7 +121,7 @@ nsLDAPInitialize()
     rv = prldap_set_session_option(0, 0, PRLDAP_OPT_IO_MAX_TIMEOUT, 
                                    10000);
     if (rv != LDAP_SUCCESS) {
-        PR_LOG(gLDAPLogModule, PR_LOG_ERROR,
+        MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
                ("nsLDAPInitialize(): error setting PRLDAP_OPT_IO_MAX_TIMEOUT:"
                 " %s\n", ldap_err2string(rv)));
         return NS_ERROR_FAILURE;

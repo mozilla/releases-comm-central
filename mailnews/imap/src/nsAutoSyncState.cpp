@@ -14,6 +14,9 @@
 #include "nsIAutoSyncMsgStrategy.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
+#include "mozilla/Logging.h"
+
+using namespace mozilla;
 
 extern PRLogModuleInfo *gAutoSyncLog;
 
@@ -362,7 +365,7 @@ NS_IMETHODIMP nsAutoSyncState::ProcessExistingHeaders(uint32_t aNumOfHdrsToProce
   {
     nsCString folderName;
     folder->GetURI(folderName);
-    PR_LOG(gAutoSyncLog, PR_LOG_DEBUG,
+    MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
           ("%d messages will be added into the download q of folder %s\n",
             msgKeys.Length(), folderName.get()));
 
@@ -446,10 +449,10 @@ NS_IMETHODIMP nsAutoSyncState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode
     {
       nsCString folderName;
       ownerFolder->GetURI(folderName);
-      PR_LOG(gAutoSyncLog, PR_LOG_DEBUG,
+      MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
              ("folder %s status changed serverNextUID = %lx lastNextUID = %lx\n", folderName.get(),
               serverNextUID, mLastNextUID));
-      PR_LOG(gAutoSyncLog, PR_LOG_DEBUG,
+      MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
              ("serverTotal = %lx lastServerTotal = %lx serverRecent = %lx lastServerRecent = %lx\n",
               serverTotal, mLastServerTotal, serverRecent, mLastServerRecent));
       SetServerCounts(serverTotal, serverRecent, serverUnseen, serverNextUID);
@@ -642,7 +645,7 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(nsIArray *aMessagesLis
 
   nsCString folderName;
   folder->GetURI(folderName);
-  PR_LOG(gAutoSyncLog, PR_LOG_DEBUG, ("downloading %s for %s", messageIds.get(),
+  MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("downloading %s for %s", messageIds.get(),
            folderName.get()));
   // start downloading
   rv = imapService->DownloadMessagesForOffline(messageIds, 
@@ -711,11 +714,11 @@ void nsAutoSyncState::LogQWithSize(nsTArray<nsMsgKey>& q, uint32_t toOffset)
       if (h)
       {
         h->GetMessageSize(&s);
-        PR_LOG(gAutoSyncLog, PR_LOG_DEBUG,
+        MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
               ("Elem #%d, size: %u bytes\n", x+1, s));
       }
       else
-        PR_LOG(gAutoSyncLog, PR_LOG_DEBUG, ("unable to get header for key %ul", q[x]));
+        MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("unable to get header for key %ul", q[x]));
     }
   }
 }
@@ -740,11 +743,11 @@ void nsAutoSyncState::LogQWithSize(nsIMutableArray *q, uint32_t toOffset)
       if (h)
       {
         h->GetMessageSize(&s);
-        PR_LOG(gAutoSyncLog, PR_LOG_DEBUG,
+        MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
               ("Elem #%d, size: %u bytes\n", x+1, s));
       }
       else
-        PR_LOG(gAutoSyncLog, PR_LOG_DEBUG, ("null header in q at index %ul", x));
+        MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("null header in q at index %ul", x));
     }
   }
 }
@@ -756,7 +759,7 @@ void nsAutoSyncState::LogOwnerFolderName(const char *s)
   {
     nsCString folderName;
     ownerFolder->GetURI(folderName);
-    PR_LOG(gAutoSyncLog, PR_LOG_DEBUG,
+    MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
            ("*** %s Folder: %s ***\n", s, folderName.get()));
   }
 }

@@ -4,14 +4,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 #include "nsMapiAddressBook.h"
 
-#include "prlog.h"
+#include "mozilla/Logging.h"
 
 #ifdef PR_LOGGING
 static PRLogModuleInfo* gMapiAddressBookLog
     = PR_NewLogModule("nsMapiAddressBookLog");
 #endif
 
-#define PRINTF(args) PR_LOG(gMapiAddressBookLog, PR_LOG_DEBUG, args)
+#define PRINTF(args) MOZ_LOG(gMapiAddressBookLog, mozilla::LogLevel::Debug, args)
 
 using namespace mozilla;
 

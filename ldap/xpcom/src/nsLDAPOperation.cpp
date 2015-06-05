@@ -18,6 +18,7 @@
 #include "nsIAuthModule.h"
 #include "nsArrayUtils.h"
 #include "nsMemory.h"
+#include "mozilla/Logging.h"
 
 // Helper function
 static nsresult TranslateLDAPErrorToNSError(const int ldapError)
@@ -48,7 +49,7 @@ static nsresult TranslateLDAPErrorToNSError(const int ldapError)
     return NS_ERROR_LDAP_FILTER_ERROR;
 
   default:
-    PR_LOG(gLDAPLogModule, PR_LOG_ERROR,
+    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
            ("TranslateLDAPErrorToNSError: "
             "Do not know how to translate LDAP error: 0x%x", ldapError));
     return NS_ERROR_UNEXPECTED;
@@ -279,7 +280,7 @@ nsLDAPOperation::SimpleBind(const nsACString& passwd)
     if (NS_FAILED(rv))
         return rv;
 
-    PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
            ("nsLDAPOperation::SimpleBind(): called; bindName = '%s'; ",
             bindName.get()));
 
@@ -412,7 +413,7 @@ nsLDAPOperation::SearchExt(const nsACString& aBaseDn, int32_t aScope,
     }
 
     // XXX add control logging
-    PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
            ("nsLDAPOperation::SearchExt(): called with aBaseDn = '%s'; "
             "aFilter = '%s'; aAttributes = %s; aSizeLimit = %d",
             PromiseFlatCString(aBaseDn).get(),
@@ -424,7 +425,7 @@ nsLDAPOperation::SearchExt(const nsACString& aBaseDn, int32_t aScope,
     if (mServerControls) {
         rv = convertControlArray(mServerControls, &serverctls);
         if (NS_FAILED(rv)) {
-            PR_LOG(gLDAPLogModule, PR_LOG_ERROR,
+            MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
                    ("nsLDAPOperation::SearchExt(): error converting server "
                     "control array: %x", rv));
             return rv;
@@ -435,7 +436,7 @@ nsLDAPOperation::SearchExt(const nsACString& aBaseDn, int32_t aScope,
     if (mClientControls) {
         rv = convertControlArray(mClientControls, &clientctls);
         if (NS_FAILED(rv)) {
-            PR_LOG(gLDAPLogModule, PR_LOG_ERROR,
+            MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
                    ("nsLDAPOperation::SearchExt(): error converting client "
                     "control array: %x", rv));
             ldap_controls_free(serverctls);
@@ -681,7 +682,7 @@ NS_IMETHODIMP
 nsLDAPOperation::AddExt(const nsACString& aBaseDn,
                         nsIArray *aMods)
 {
-  PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+  MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
          ("nsLDAPOperation::AddExt(): called with aBaseDn = '%s'",
           PromiseFlatCString(aBaseDn).get()));
 
@@ -695,7 +696,7 @@ nsLDAPOperation::AddExt(const nsACString& aBaseDn,
 
   if (NS_FAILED(rv)) {
     (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
-    PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
            ("nsLDAPOperation::AddExt(): abandoned due to rv %x",
             rv));
   }
@@ -731,7 +732,7 @@ nsLDAPOperation::DeleteExt(const char *base,
 NS_IMETHODIMP
 nsLDAPOperation::DeleteExt(const nsACString& aBaseDn)
 {
-  PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+  MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
          ("nsLDAPOperation::DeleteExt(): called with aBaseDn = '%s'",
           PromiseFlatCString(aBaseDn).get()));
 
@@ -745,7 +746,7 @@ nsLDAPOperation::DeleteExt(const nsACString& aBaseDn)
 
   if (NS_FAILED(rv)) {
     (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
-    PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
            ("nsLDAPOperation::AddExt(): abandoned due to rv %x",
             rv));
   }
@@ -843,7 +844,7 @@ NS_IMETHODIMP
 nsLDAPOperation::ModifyExt(const nsACString& aBaseDn,
                            nsIArray *aMods)
 {
-  PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+  MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
          ("nsLDAPOperation::ModifyExt(): called with aBaseDn = '%s'",
           PromiseFlatCString(aBaseDn).get()));
 
@@ -858,7 +859,7 @@ nsLDAPOperation::ModifyExt(const nsACString& aBaseDn,
 
   if (NS_FAILED(rv)) {
     (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
-    PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
            ("nsLDAPOperation::AddExt(): abandoned due to rv %x",
             rv));
   }
@@ -904,7 +905,7 @@ nsLDAPOperation::Rename(const nsACString& aBaseDn,
                         const nsACString& aNewParent,
                         bool aDeleteOldRDn)
 {
-  PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+  MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
          ("nsLDAPOperation::Rename(): called with aBaseDn = '%s'",
           PromiseFlatCString(aBaseDn).get()));
 
@@ -921,7 +922,7 @@ nsLDAPOperation::Rename(const nsACString& aBaseDn,
 
   if (NS_FAILED(rv)) {
     (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
-    PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
            ("nsLDAPOperation::AddExt(): abandoned due to rv %x",
             rv));
   }

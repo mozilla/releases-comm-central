@@ -6,6 +6,9 @@
 #include "msgCore.h"
 #include "nsMsgOfflineImapOperation.h"
 #include "nsMsgUtils.h"
+#include "mozilla/Logging.h"
+
+using namespace mozilla;
 
 PRLogModuleInfo *IMAPOffline;
 
@@ -64,8 +67,8 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetOperation(nsOfflineImapOperationType
 
 NS_IMETHODIMP nsMsgOfflineImapOperation::SetOperation(nsOfflineImapOperationType aOperation)
 {
-  if (PR_LOG_TEST(IMAPOffline, PR_LOG_ALWAYS))
-    PR_LOG(IMAPOffline, PR_LOG_ALWAYS, ("msg id %x setOperation was %x add %x", m_messageKey, m_operation, aOperation));
+  if (MOZ_LOG_TEST(IMAPOffline, LogLevel::Info))
+    MOZ_LOG(IMAPOffline, LogLevel::Info, ("msg id %x setOperation was %x add %x", m_messageKey, m_operation, aOperation));
 
   m_operation |= aOperation;
   return m_mdb->SetUint32Property(m_mdbRow, PROP_OPERATION, m_operation);
@@ -74,8 +77,8 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::SetOperation(nsOfflineImapOperationType
 /* void clearOperation (in nsOfflineImapOperationType operation); */
 NS_IMETHODIMP nsMsgOfflineImapOperation::ClearOperation(nsOfflineImapOperationType aOperation)
 {
-  if (PR_LOG_TEST(IMAPOffline, PR_LOG_ALWAYS))
-    PR_LOG(IMAPOffline, PR_LOG_ALWAYS, ("msg id %x clearOperation was %x clear %x", m_messageKey, m_operation, aOperation));
+  if (MOZ_LOG_TEST(IMAPOffline, LogLevel::Info))
+    MOZ_LOG(IMAPOffline, LogLevel::Info, ("msg id %x clearOperation was %x clear %x", m_messageKey, m_operation, aOperation));
   m_operation &= ~aOperation;
   switch (aOperation)
   {
@@ -128,8 +131,8 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetFlagOperation(imapMessageFlagsType *
 
 NS_IMETHODIMP nsMsgOfflineImapOperation::SetFlagOperation(imapMessageFlagsType aFlagOperation)
 {
-  if (PR_LOG_TEST(IMAPOffline, PR_LOG_ALWAYS))
-    PR_LOG(IMAPOffline, PR_LOG_ALWAYS, ("msg id %x setFlagOperation was %x add %x", m_messageKey, m_operationFlags, aFlagOperation));
+  if (MOZ_LOG_TEST(IMAPOffline, LogLevel::Info))
+    MOZ_LOG(IMAPOffline, LogLevel::Info, ("msg id %x setFlagOperation was %x add %x", m_messageKey, m_operationFlags, aFlagOperation));
   SetOperation(kFlagsChanged);
   nsresult rv = SetNewFlags(aFlagOperation);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -149,8 +152,8 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetNewFlags(imapMessageFlagsType *aNewF
 
 NS_IMETHODIMP nsMsgOfflineImapOperation::SetNewFlags(imapMessageFlagsType aNewFlags)
 {
-  if (PR_LOG_TEST(IMAPOffline, PR_LOG_ALWAYS) && m_newFlags != aNewFlags)
-    PR_LOG(IMAPOffline, PR_LOG_ALWAYS, ("msg id %x SetNewFlags was %x to %x", m_messageKey, m_newFlags, aNewFlags));
+  if (MOZ_LOG_TEST(IMAPOffline, LogLevel::Info) && m_newFlags != aNewFlags)
+    MOZ_LOG(IMAPOffline, LogLevel::Info, ("msg id %x SetNewFlags was %x to %x", m_messageKey, m_newFlags, aNewFlags));
   m_newFlags = aNewFlags;
   return m_mdb->SetUint32Property(m_mdbRow, PROP_NEW_FLAGS, m_newFlags);
 }
@@ -167,8 +170,8 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetDestinationFolderURI(char * *aDestin
 
 NS_IMETHODIMP nsMsgOfflineImapOperation::SetDestinationFolderURI(const char * aDestinationFolderURI)
 {
-  if (PR_LOG_TEST(IMAPOffline, PR_LOG_ALWAYS))
-    PR_LOG(IMAPOffline, PR_LOG_ALWAYS, ("msg id %x SetDestinationFolderURI to %s", m_messageKey, aDestinationFolderURI));
+  if (MOZ_LOG_TEST(IMAPOffline, LogLevel::Info))
+    MOZ_LOG(IMAPOffline, LogLevel::Info, ("msg id %x SetDestinationFolderURI to %s", m_messageKey, aDestinationFolderURI));
   m_moveDestination = aDestinationFolderURI ? aDestinationFolderURI : 0;
   return m_mdb->SetProperty(m_mdbRow, PROP_MOVE_DEST_FOLDER_URI, aDestinationFolderURI);
 }
@@ -343,7 +346,7 @@ void nsMsgOfflineImapOperation::Log(PRLogModuleInfo *logFile)
 {
   if (!IMAPOffline)
     IMAPOffline = PR_NewLogModule("IMAPOFFLINE");
-  if (!PR_LOG_TEST(IMAPOffline, PR_LOG_ALWAYS))
+  if (!MOZ_LOG_TEST(IMAPOffline, LogLevel::Info))
     return;
   //  const long kMoveResult              = 0x8;
   //  const long kAppendDraft           = 0x10;
@@ -353,23 +356,23 @@ void nsMsgOfflineImapOperation::Log(PRLogModuleInfo *logFile)
   //  const long kAppendTemplate      = 0x100;
   //  const long kDeleteAllMsgs          = 0x200;
   if (m_operation & nsIMsgOfflineImapOperation::kFlagsChanged)
-    PR_LOG(IMAPOffline, PR_LOG_ALWAYS, ("msg id %x changeFlag:%x", m_messageKey, m_newFlags));
+    MOZ_LOG(IMAPOffline, LogLevel::Info, ("msg id %x changeFlag:%x", m_messageKey, m_newFlags));
   if (m_operation & nsIMsgOfflineImapOperation::kMsgMoved)
   {
     nsCString moveDestFolder;
     GetDestinationFolderURI(getter_Copies(moveDestFolder));
-    PR_LOG(IMAPOffline, PR_LOG_ALWAYS, ("msg id %x moveTo:%s", m_messageKey, moveDestFolder.get()));
+    MOZ_LOG(IMAPOffline, LogLevel::Info, ("msg id %x moveTo:%s", m_messageKey, moveDestFolder.get()));
   }
   if (m_operation & nsIMsgOfflineImapOperation::kMsgCopy)
   {
     nsCString copyDests;
     m_mdb->GetProperty(m_mdbRow, PROP_COPY_DESTS, getter_Copies(copyDests));
-    PR_LOG(IMAPOffline, PR_LOG_ALWAYS, ("msg id %x moveTo:%s", m_messageKey, copyDests.get()));
+    MOZ_LOG(IMAPOffline, LogLevel::Info, ("msg id %x moveTo:%s", m_messageKey, copyDests.get()));
   }
   if (m_operation & nsIMsgOfflineImapOperation::kAppendDraft)
-    PR_LOG(IMAPOffline, PR_LOG_ALWAYS, ("msg id %x append draft", m_messageKey));
+    MOZ_LOG(IMAPOffline, LogLevel::Info, ("msg id %x append draft", m_messageKey));
   if (m_operation & nsIMsgOfflineImapOperation::kAddKeywords)
-    PR_LOG(IMAPOffline, PR_LOG_ALWAYS, ("msg id %x add keyword:%s", m_messageKey, m_keywordsToAdd.get()));
+    MOZ_LOG(IMAPOffline, LogLevel::Info, ("msg id %x add keyword:%s", m_messageKey, m_keywordsToAdd.get()));
   if (m_operation & nsIMsgOfflineImapOperation::kRemoveKeywords)
-    PR_LOG(IMAPOffline, PR_LOG_ALWAYS, ("msg id %x remove keyword:%s", m_messageKey, m_keywordsToRemove.get()));
+    MOZ_LOG(IMAPOffline, LogLevel::Info, ("msg id %x remove keyword:%s", m_messageKey, m_keywordsToRemove.get()));
 }
