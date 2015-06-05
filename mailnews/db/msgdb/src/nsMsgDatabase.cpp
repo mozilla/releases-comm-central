@@ -4097,12 +4097,21 @@ bool nsMsgDatabase::UseCorrectThreading()
   return gCorrectThreading;
 }
 
+// adapted from removed PL_DHashFreeStringKey
+static void
+msg_DHashFreeStringKey(PLDHashTable* aTable, PLDHashEntryHdr* aEntry)
+{
+  const PLDHashEntryStub* stub = (const PLDHashEntryStub*)aEntry;
+  free((void*)stub->key);
+  PL_DHashClearEntryStub(aTable, aEntry);
+}
+
 PLDHashTableOps nsMsgDatabase::gRefHashTableOps =
 {
   PL_DHashStringKey,
   PL_DHashMatchStringKey,
   PL_DHashMoveEntryStub,
-  PL_DHashFreeStringKey,
+  msg_DHashFreeStringKey,
   nullptr
 };
 
