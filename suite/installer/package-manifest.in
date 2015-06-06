@@ -312,6 +312,7 @@
 @RESPATH@/components/SuiteFeeds.manifest
 @RESPATH@/components/suitemigration.xpt
 @RESPATH@/components/telemetry.xpt
+@RESPATH@/components/toolkit_asyncshutdown.xpt
 @RESPATH@/components/toolkit_finalizationwitness.xpt
 @RESPATH@/components/toolkit_formautofill.xpt
 @RESPATH@/components/toolkit_osfile.xpt
@@ -401,6 +402,8 @@
 @RESPATH@/components/NotificationStorage.js
 @RESPATH@/components/NotificationStorage.manifest
 @RESPATH@/components/nsAbout.js
+@RESPATH@/components/nsAsyncShutdown.manifest
+@RESPATH@/components/nsAsyncShutdown.js
 @RESPATH@/components/nsBlocklistService.js
 @RESPATH@/components/nsBrowserContentHandler.js
 @RESPATH@/components/nsComposerCmdLineHandler.js
