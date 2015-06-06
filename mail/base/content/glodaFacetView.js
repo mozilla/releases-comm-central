@@ -581,20 +581,30 @@ var FacetContext = {
 
   _showTimeline: function() {
     let facetDate = document.getElementById("facet-date");
-    facetDate.classList.remove("slideUp");
-    facetDate.classList.add("slideDown");
+    if (facetDate.style.display == "none") {
+      facetDate.removeAttribute("style");
+      // Force binding attachment so the transition to the
+      // visible state actually happens.
+      facetDate.getBoundingClientRect();
+    }
+    let listener = () => {
+      // Need to set overflow to visible so that the zoom button
+      // is not cut off at the top.
+      facetDate.style.overflow = "visible";
+      facetDate.removeEventListener("transitionend", listener);
+    };
+    facetDate.addEventListener("transitionend", listener);
+    facetDate.removeAttribute("hide");
     document.getElementById("date-toggle").removeAttribute("tucked");
     Application.prefs.setValue('gloda.facetview.hidetimeline', false);
   },
 
   _hideTimeline: function(immediate) {
-    if (immediate) {
-      document.getElementById("facet-date").style.display = "none";
-    } else {
-      let facetDate = document.getElementById("facet-date");
-      facetDate.classList.remove("slideDown");
-      facetDate.classList.add("slideUp");
-    }
+    let facetDate = document.getElementById("facet-date");
+    facetDate.removeAttribute("style"); // removes style.overflow
+    if (immediate)
+      facetDate.style.display = "none";
+    facetDate.setAttribute("hide", "true");
     document.getElementById("date-toggle").setAttribute("tucked", "true");
     Application.prefs.setValue('gloda.facetview.hidetimeline', true);
   },
