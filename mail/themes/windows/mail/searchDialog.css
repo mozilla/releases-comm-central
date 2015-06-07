@@ -168,12 +168,34 @@ treechildren::-moz-tree-image(junkStatusCol, notjunk) {
 
 /* ..... subject column ..... */
 
-#subjectCol {
-  -moz-padding-start: 17px;
+@media (-moz-os-version: windows-xp) {
+  #subjectCol {
+    -moz-padding-start: 17px;
+  }
+
+  #subjectCol[primary="true"] {
+    -moz-padding-start: 30px;
+  }
 }
 
-#subjectCol[primary="true"] {
-  -moz-padding-start: 30px;
+@media not all and (-moz-os-version: windows-xp) {
+  #subjectCol {
+    -moz-padding-start: 20px;
+  }
+
+  #subjectCol[primary="true"] {
+    -moz-padding-start: 30px;
+  }
+
+  @media not all and (-moz-windows-default-theme) {
+    #subjectCol {
+      -moz-padding-start: 17px;
+    }
+
+    #subjectCol[primary="true"] {
+      -moz-padding-start: 27px;
+    }
+  }
 }
 
 treechildren::-moz-tree-image(subjectCol) {

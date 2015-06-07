@@ -8,30 +8,58 @@
   list-style-image: none;
 }
 
-#status-bar[signed="ok"] #signed-status {
-  list-style-image: url("chrome://messenger/skin/smime/icons/sbSignOk.png");
-}
-
-#status-bar[signed="unknown"] #signed-status {
-  list-style-image: url("chrome://messenger/skin/smime/icons/sbSignUnknown.png");
-}
-
-#status-bar[signed="mismatch"] #signed-status {
-  list-style-image: url("chrome://messenger/skin/smime/icons/sbSignUnknown.png");
-}
-
-#status-bar[signed="notok"] #signed-status {
-  list-style-image: url("chrome://messenger/skin/smime/icons/sbSignNotOk.png");
-}
-
 #status-bar #encrypted-status {
   list-style-image: none;
 }
 
-#status-bar[encrypted="ok"] #encrypted-status {
-  list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoOk.png");
+@media (-moz-os-version: windows-xp) {
+  #status-bar[signed="ok"] #signed-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbSignOk-XP.png");
+  }
+
+  #status-bar[signed="unknown"] #signed-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbSignUnknown-XP.png");
+  }
+
+  #status-bar[signed="mismatch"] #signed-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbSignUnknown-XP.png");
+  }
+
+  #status-bar[signed="notok"] #signed-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbSignNotOk-XP.png");
+  }
+
+  #status-bar[encrypted="ok"] #encrypted-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoOk-XP.png");
+  }
+
+  #status-bar[encrypted="notok"] #encrypted-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoNotOk-XP.png");
+  }
 }
 
-#status-bar[encrypted="notok"] #encrypted-status {
-  list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoNotOk.png");
+@media not all and (-moz-os-version: windows-xp) {
+  #status-bar[signed="ok"] #signed-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbSignOk.png");
+  }
+
+  #status-bar[signed="unknown"] #signed-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbSignUnknown.png");
+  }
+
+  #status-bar[signed="mismatch"] #signed-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbSignUnknown.png");
+  }
+
+  #status-bar[signed="notok"] #signed-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbSignNotOk.png");
+  }
+
+  #status-bar[encrypted="ok"] #encrypted-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoOk.png");
+  }
+
+  #status-bar[encrypted="notok"] #encrypted-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoNotOk.png");
+  }
 }

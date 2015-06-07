@@ -1,65 +1,103 @@
-/*
-# -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 4 -*-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-*/
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* Global Styles */
 
-.paneSelector {
-  background-color: rgb(90, 116, 164);
-  color: white;
-  background-image: url("chrome://messenger/skin/preferences/background.png");
-  background-position: center bottom;
-  background-repeat: repeat-x;
-  -moz-padding-start: 0;
+@media (-moz-os-version: windows-xp) {
+  .paneSelector {
+    background-color: rgb(90, 116, 164);
+    color: white;
+    background-image: url("chrome://messenger/skin/preferences/background.png");
+    background-position: center bottom;
+    background-repeat: repeat-x;
+    -moz-padding-start: 0;
+  }
+
+  radio[pane] {
+    background-color: transparent;
+    background-position: center bottom;
+    background-repeat: repeat-x;
+    min-width: 80px;
+  }
+
+  radio[pane]:hover {
+    background-color: rgb(94, 138, 188);
+    background-image: url("chrome://messenger/skin/preferences/hover.png");
+    color: white;
+  }
+
+  radio[pane][selected="true"] {
+    background-color: rgb(174, 198, 226);
+    background-image: none;
+    background-image: url("chrome://messenger/skin/preferences/selected.png");
+    color: black;
+  }
 }
 
-radio[pane] {
-  -moz-appearance: none;
-  background-color: transparent;
-  background-position: center bottom;
-  background-repeat: repeat-x;
-  min-width: 80px;
+@media not all and (-moz-os-version: windows-xp) {
+  .paneSelector {
+    -moz-padding-start: 0;
+  }
+
+  radio[pane] {
+    padding-top: 5px;
+    min-width: 80px;
+  }
 }
 
-radio[pane]:hover {
-  background-color: rgb(94, 138, 188);
-  background-image: url("chrome://messenger/skin/preferences/hover.png");
-  color: white;
+@media (-moz-os-version: windows-xp) {
+  radio[pane=paneGeneral] {
+    list-style-image: url("chrome://messenger/skin/preferences/general-XP.png");
+  }
+  radio[pane=paneDisplay] {
+    list-style-image: url("chrome://messenger/skin/preferences/display-XP.png");
+  }
+  radio[pane=paneCompose] {
+    list-style-image: url("chrome://messenger/skin/preferences/composition-XP.png");
+  }
+  radio[pane=paneChat] {
+    list-style-image: url("chrome://messenger/skin/preferences/chat-XP.png");
+  }
+  radio[pane=panePrivacy] {
+    list-style-image: url("chrome://messenger/skin/preferences/privacy-XP.png");
+  }
+  radio[pane=paneSecurity] {
+    list-style-image: url("chrome://messenger/skin/preferences/security-XP.png");
+  }
+  radio[pane=paneApplications] {
+    list-style-image: url("chrome://messenger/skin/preferences/attachments-XP.png");
+  }
+  radio[pane=paneAdvanced] {
+    list-style-image: url("chrome://messenger/skin/preferences/advanced-XP.png");
+  }
 }
 
-radio[pane][selected="true"] {
-  background-color: rgb(174, 198, 226);
-  background-image: none;
-  background-image: url("chrome://messenger/skin/preferences/selected.png");
-  color: black;
-}
-
-radio[pane=paneGeneral] {
-  list-style-image: url("chrome://messenger/skin/preferences/general.png");
-}
-radio[pane=paneDisplay] {
-  list-style-image: url("chrome://messenger/skin/preferences/display.png");
-}
-radio[pane=paneCompose] {
-  list-style-image: url("chrome://messenger/skin/preferences/composition.png");
-}
-radio[pane=paneChat] {
-  list-style-image: url("chrome://messenger/skin/preferences/chat.png");
-}
-radio[pane=panePrivacy] {
-  list-style-image: url("chrome://messenger/skin/preferences/privacy.png");
-}
-radio[pane=paneSecurity] {
-  list-style-image: url("chrome://messenger/skin/preferences/security.png");
-}
-radio[pane=paneApplications] {
-  list-style-image: url("chrome://messenger/skin/preferences/attachments.png");
-}
-radio[pane=paneAdvanced] {
-  list-style-image: url("chrome://messenger/skin/preferences/advanced.png");
+@media not all and (-moz-os-version: windows-xp) {
+  radio[pane=paneGeneral] {
+    list-style-image: url("chrome://messenger/skin/preferences/general.png");
+  }
+  radio[pane=paneDisplay] {
+    list-style-image: url("chrome://messenger/skin/preferences/display.png");
+  }
+  radio[pane=paneCompose] {
+    list-style-image: url("chrome://messenger/skin/preferences/composition.png");
+  }
+  radio[pane=paneChat] {
+    list-style-image: url("chrome://messenger/skin/preferences/chat.png");
+  }
+  radio[pane=panePrivacy] {
+    list-style-image: url("chrome://messenger/skin/preferences/privacy.png");
+  }
+  radio[pane=paneSecurity] {
+    list-style-image: url("chrome://messenger/skin/preferences/security.png");
+  }
+  radio[pane=paneApplications] {
+    list-style-image: url("chrome://messenger/skin/preferences/attachments.png");
+  }
+  radio[pane=paneAdvanced] {
+    list-style-image: url("chrome://messenger/skin/preferences/advanced.png");
+  }
 }
 
 /* Attachments Pane */

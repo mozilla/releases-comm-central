@@ -48,3 +48,164 @@ attachmentlist:focus > attachmentitem[selected="true"] .attachmentcell-nameselec
 attachmentlist:focus > attachmentitem[selected="true"] .attachmentcell-icon {
   filter: url("chrome://messenger/skin/imageFilters.svg#selected-focus");
 }
+
+@media not all and (-moz-os-version: windows-xp) {
+  @media (-moz-windows-default-theme) {
+    attachmentitem {
+      margin: 1px 0 0 0;
+      pointer-events: auto !important;
+      border: 2px solid transparent;
+      color: -moz-FieldText;
+      background-color: transparent;
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+    }
+
+    .attachmentlist-wrapper {
+      margin: 0 1px 1px 0;
+    }
+
+    attachmentlist[orient="horizontal"] > attachmentitem {
+      margin: 1px 0 0 1px;
+    }
+
+    .attachmentcell-nameselection {
+      outline: none !important;
+      background-color: inherit !important;
+      color: inherit !important;
+    }
+
+    .attachmentcell-icon {
+      filter: none !important;
+      padding: 0 1px;
+    }
+
+    .attachmentcell-name, .attachmentcell-size {
+      margin: 0px 4px 0px 4px;
+    }
+
+    attachmentitem[selected="true"] {
+      -moz-border-top-colors: rgb(217, 217, 217) rgba(255,255,255,.4);
+      -moz-border-right-colors: rgb(217, 217, 217) rgba(255,255,255,.4);
+      -moz-border-left-colors: rgb(217, 217, 217) rgba(255,255,255,.4);
+      -moz-border-bottom-colors: rgb(217, 217, 217) rgba(255,255,255,.6);
+    }
+
+    attachmentitem[selected="true"]:hover {
+      -moz-border-top-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
+      -moz-border-right-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
+      -moz-border-left-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
+      -moz-border-bottom-colors: rgb(125, 162, 206) rgba(255,255,255,.6);
+    }
+
+    attachmentlist:focus > attachmentitem[current="true"] {
+      -moz-border-top-colors: rgb(125, 162, 206) transparent;
+      -moz-border-right-colors: rgb(125, 162, 206) transparent;
+      -moz-border-left-colors: rgb(125, 162, 206) transparent;
+      -moz-border-bottom-colors: rgb(125, 162, 206) transparent;
+    }
+
+    attachmentlist:focus > attachmentitem[current="true"]:hover {
+      -moz-border-top-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
+      -moz-border-right-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
+      -moz-border-left-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
+      -moz-border-bottom-colors: rgb(125, 162, 206) rgba(255,255,255,.6);
+    }
+
+    attachmentlist:focus > attachmentitem[selected="true"] {
+      -moz-border-top-colors: rgb(132, 172, 221) rgba(255,255,255,.4);
+      -moz-border-right-colors: rgb(132, 172, 221) rgba(255,255,255,.4);
+      -moz-border-left-colors: rgb(132, 172, 221) rgba(255,255,255,.4);
+      -moz-border-bottom-colors: rgb(132, 172, 221) rgba(255,255,255,.6);
+    }
+
+    attachmentlist:focus > attachmentitem[selected="true"][current="true"] {
+      -moz-border-top-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
+      -moz-border-right-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
+      -moz-border-left-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
+      -moz-border-bottom-colors: rgb(125, 162, 206) rgba(255,255,255,.6);
+    }
+
+    attachmentitem:hover {
+      -moz-border-top-colors: rgb(184, 214, 251) rgba(255,255,255,.4);
+      -moz-border-right-colors: rgb(184, 214, 251) rgba(255,255,255,.4);
+      -moz-border-left-colors: rgb(184, 214, 251) rgba(255,255,255,.4);
+      -moz-border-bottom-colors: rgb(184, 214, 251) rgba(255,255,255,.6);
+    }
+  }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+  attachmentitem {
+    border-radius: 3px;
+  }
+
+  attachmentitem[selected="true"] {
+    background-image: linear-gradient(rgba(190, 190, 190, 0.1),
+                                      rgba(190, 190, 190, 0.4));
+  }
+
+  attachmentitem[selected="true"]:hover {
+    background-image: linear-gradient(rgba(131, 183, 249, 0.28),
+                                      rgba(131, 183, 249, 0.5));
+  }
+
+  attachmentlist:focus > attachmentitem[current="true"]:hover {
+    background-image: linear-gradient(rgba(131, 183, 249, 0.05),
+                                      rgba(131, 183, 249, 0.16));
+  }
+
+  attachmentlist:focus > attachmentitem[selected="true"] {
+    background-image: linear-gradient(rgba(131, 183, 249, 0.16),
+                                      rgba(131, 183, 249, 0.375));
+  }
+
+  attachmentlist:focus > attachmentitem[selected="true"][current="true"] {
+    background-image: linear-gradient(rgba(131, 183, 249, 0.28),
+                                      rgba(131, 183, 249, 0.5));
+  }
+
+  attachmentitem:hover {
+    background-image: linear-gradient(rgba(131, 183, 249, 0.05),
+                                      rgba(131, 183, 249, 0.16));
+  }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  attachmentitem {
+    padding: 1px;
+    border-width: 1px;
+  }
+
+  attachmentitem[selected="true"] {
+    background-image: linear-gradient(rgba(190, 190, 190, 0.4),
+                                      rgba(190, 190, 190, 0.4));
+  }
+
+  attachmentitem[selected="true"]:hover {
+    background-image: linear-gradient(rgba(131, 183, 249, 0.5),
+                                      rgba(131, 183, 249, 0.5));
+  }
+
+  attachmentlist:focus > attachmentitem[current="true"]:hover {
+    background-image: linear-gradient(rgba(131, 183, 249, 0.16),
+                                      rgba(131, 183, 249, 0.16));
+  }
+
+  attachmentlist:focus > attachmentitem[selected="true"] {
+    background-image: linear-gradient(rgba(131, 183, 249, 0.375),
+                                      rgba(131, 183, 249, 0.375));
+  }
+
+  attachmentlist:focus > attachmentitem[selected="true"][current="true"] {
+    background-image: linear-gradient(rgba(131, 183, 249, 0.5),
+                                      rgba(131, 183, 249, 0.5));
+  }
+
+  attachmentitem:hover {
+    background-image: linear-gradient(rgba(131, 183, 249, 0.16),
+                                      rgba(131, 183, 249, 0.16));
+  }
+}

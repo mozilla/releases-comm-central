@@ -13,27 +13,51 @@
   visibility: collapse;
 }
 
-#msgcomposeWindow[signing="ok"] #signing-status {
-  list-style-image: url("chrome://messenger/skin/smime/icons/sbSignOk.png");
-  visibility: visible;
-}
-
-#msgcomposeWindow[signing="notok"] #signing-status {
-  list-style-image: url("chrome://messenger/skin/smime/icons/sbSignNotOk.png");
-  visibility: visible;
-}
-
 #msgcomposeWindow #encryption-status {
   list-style-image: none;
   visibility: collapse;
 }
 
-#msgcomposeWindow[crypto="ok"] #encryption-status {
-  list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoOk.png");
-  visibility: visible;
+@media (-moz-os-version: windows-xp) {
+  #msgcomposeWindow[signing="ok"] #signing-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbSignOk-XP.png");
+    visibility: visible;
+  }
+
+  #msgcomposeWindow[signing="notok"] #signing-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbSignNotOk-XP.png");
+    visibility: visible;
+  }
+
+  #msgcomposeWindow[crypto="ok"] #encryption-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoOk-XP.png");
+    visibility: visible;
+  }
+
+  #msgcomposeWindow[crypto="notok"] #encryption-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoNotOk-XP.png");
+    visibility: visible;
+  }
 }
 
-#msgcomposeWindow[crypto="notok"] #encryption-status {
-  list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoNotOk.png");
-  visibility: visible;
+@media not all and (-moz-os-version: windows-xp) {
+  #msgcomposeWindow[signing="ok"] #signing-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbSignOk.png");
+    visibility: visible;
+  }
+
+  #msgcomposeWindow[signing="notok"] #signing-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbSignNotOk.png");
+    visibility: visible;
+  }
+
+  #msgcomposeWindow[crypto="ok"] #encryption-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoOk.png");
+    visibility: visible;
+  }
+
+  #msgcomposeWindow[crypto="notok"] #encryption-status {
+    list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoNotOk.png");
+    visibility: visible;
+  }
 }

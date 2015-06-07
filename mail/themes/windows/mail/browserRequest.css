@@ -36,6 +36,14 @@
   font-weight: normal;
 }
 
-#headerMessage {
-  margin-top: 4px;
+@media (-moz-os-version: windows-xp) {
+  #headerMessage {
+    margin-top: 4px;
+  }
+}
+
+@media not all and (-moz-os-version: windows-xp) {
+  #headerMessage {
+    margin-top: 3px;
+  }
 }

@@ -29,7 +29,18 @@ a {
 .small-indent {
   margin-bottom: 15px;
   -moz-margin-start: 6px;
-  -moz-margin-end: 5px;
+}
+
+@media (-moz-os-version: windows-xp) {
+  .small-indent {
+    -moz-margin-end: 5px;
+  }
+}
+
+@media not all and (-moz-os-version: windows-xp) {
+  .small-indent {
+    -moz-margin-end: 6px;
+  }
 }
 
 #accountType {
@@ -97,4 +108,22 @@ a {
 
 .float-right {
   float: right;
+}
+
+@media (-moz-windows-default-theme) and  (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and  (-moz-os-version: windows-win7),
+       (-moz-windows-default-theme) and  (-moz-os-version: windows-win8),
+       (-moz-windows-default-theme) and  (-moz-os-version: windows-win10) {
+  #accountType {
+    height: 26px;
+    /* We have to be a stickler about the width here, or else we get
+       weird issues where the menu will resize itself by a single pixel
+       when switching selections, which is distracting. */
+    min-width: 350px;
+    max-width: 350px;
+  }
+
+  #provider-form label {
+    margin-left: 0px;
+  }
 }
