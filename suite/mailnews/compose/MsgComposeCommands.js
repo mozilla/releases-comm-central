@@ -1042,7 +1042,7 @@ function ComposeStartup(recycled, aParams)
   identityList.selectedItem =
     identityList.getElementsByAttribute("identitykey", params.identity.key)[0];
   if (params.composeFields.from)
-    identityList.value = params.composeFields.from;
+    identityList.value = MailServices.headerParser.parseDecodedHeader(params.composeFields.from)[0].toString();
   LoadIdentity(true);
   if (sMsgComposeService)
   {
@@ -1369,7 +1369,9 @@ function GenericSendMessage( msgType )
     if (msgCompFields)
     {
       Recipients2CompFields(msgCompFields);
-      msgCompFields.from = GetMsgIdentityElement().value;
+      var address = GetMsgIdentityElement().value;
+      address = MailServices.headerParser.makeFromDisplayAddress(address);
+      msgCompFields.from = MailServices.headerParser.makeMimeHeader(address, 1);
       var subject = GetMsgSubjectElement().value;
       msgCompFields.subject = subject;
       Attachments2CompFields(msgCompFields);
