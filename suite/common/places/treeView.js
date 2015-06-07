@@ -775,17 +775,17 @@ PlacesTreeView.prototype = {
   },
 
   _populateLivemarkContainer: function PTV__populateLivemarkContainer(aNode) {
-    PlacesUtils.livemarks.getLivemark({ id: aNode.itemId },
-      function onCompletion(aStatus, aLivemark) {
-        let placesNode = aNode;
-        // Container may have closed since the call
-        if (!Components.isSuccessCode(aStatus) || !placesNode.containerOpen)
-          return;
+    PlacesUtils.livemarks.getLivemark({ id: aNode.itemId })
+                         .then(aLivemark => {
+      let placesNode = aNode;
+      // Container may have closed since the call.
+      if (!placesNode.containerOpen)
+        return;
 
-        let children = aLivemark.getNodesForContainer(placesNode);
-        for (let i = 0; i < children.length; i++)
-          this.nodeInserted(placesNode, children[i], i);
-      }.bind(this));
+      let children = aLivemark.getNodesForContainer(placesNode);
+      for (let i = 0; i < children.length; i++)
+        this.nodeInserted(placesNode, children[i], i);
+    }, () => undefined);
   },
 
   nodeTitleChanged: function PTV_nodeTitleChanged(aNode, aNewTitle) {
@@ -833,19 +833,16 @@ PlacesTreeView.prototype = {
     if (aAnno == PlacesUIUtils.DESCRIPTION_ANNO) {
       this._invalidateCellValue(aNode, this.COLUMN_TYPE_DESCRIPTION);
     } else if (aAnno == PlacesUtils.LMANNO_FEEDURI) {
-      PlacesUtils.livemarks.getLivemark({ id: aNode.itemId },
-        function onCompletion(aStatus, aLivemark) {
-          if (Components.isSuccessCode(aStatus)) {
-            this._controller.cacheLivemarkInfo(aNode, aLivemark);
-            let properties = this._cellProperties.get(aNode);
-            if (properties)
-              this._cellProperties.set(aNode, properties + " livemark");
+      PlacesUtils.livemarks.getLivemark({ id: aNode.itemId })
+                           .then(aLivemark => {
+        this._controller.cacheLivemarkInfo(aNode, aLivemark);
+        let properties = this._cellProperties.get(aNode);
+        if (properties)
+          this._cellProperties.set(aNode, properties + " livemark");
 
-            // The livemark attribute is set as a cell property on the title cell.
-            this._invalidateCellValue(aNode, this.COLUMN_TYPE_TITLE);
-          }
-        }.bind(this)
-      );
+        // The livemark attribute is set as a cell property on the title cell.
+        this._invalidateCellValue(aNode, this.COLUMN_TYPE_TITLE);
+      }, () => undefined);
     }
   },
 
@@ -867,24 +864,21 @@ PlacesTreeView.prototype = {
       if (PlacesUtils.asQuery(this._rootNode).queryOptions.excludeItems)
         return;
 
-      PlacesUtils.livemarks.getLivemark({ id: aNode.itemId },
-        function onCompletion(aStatus, aLivemark) {
-          if (Components.isSuccessCode(aStatus)) {
-            let shouldInvalidate =
-              !this._controller.hasCachedLivemarkInfo(aNode);
-            this._controller.cacheLivemarkInfo(aNode, aLivemark);
-            if (aNewState == Components.interfaces.nsINavHistoryContainerResultNode.STATE_OPENED) {
-              aLivemark.registerForUpdates(aNode, this);
-              aLivemark.reload();
-              if (shouldInvalidate)
-                this.invalidateContainer(aNode);
-            }
-            else {
-              aLivemark.unregisterForUpdates(aNode);
-            }
-          }
-        }.bind(this)
-      );
+      PlacesUtils.livemarks.getLivemark({ id: aNode.itemId })
+                           .then(aLivemark => {
+        let shouldInvalidate =
+          !this._controller.hasCachedLivemarkInfo(aNode);
+        this._controller.cacheLivemarkInfo(aNode, aLivemark);
+        if (aNewState == Components.interfaces.nsINavHistoryContainerResultNode.STATE_OPENED) {
+          aLivemark.registerForUpdates(aNode, this);
+          aLivemark.reload();
+          if (shouldInvalidate)
+            this.invalidateContainer(aNode);
+        }
+        else {
+          aLivemark.unregisterForUpdates(aNode);
+        }
+      }, () => undefined);
     }
   },
 
@@ -1141,17 +1135,14 @@ PlacesTreeView.prototype = {
           if (this._controller.hasCachedLivemarkInfo(node))
             properties += " livemark";
           else {
-            PlacesUtils.livemarks.getLivemark({ id: node.itemId },
-              function onCompletion(aStatus, aLivemark) {
-                if (Components.isSuccessCode(aStatus)) {
-                  this._controller.cacheLivemarkInfo(node, aLivemark);
-                  properties += " livemark";
-                  this._cellProperties.set(node, properties);
-                  // The livemark attribute is set as a cell property on the title cell.
-                  this._invalidateCellValue(node, this.COLUMN_TYPE_TITLE);
-                }
-              }.bind(this)
-            );
+            PlacesUtils.livemarks.getLivemark({ id: node.itemId })
+                                 .then(aLivemark => {
+              this._controller.cacheLivemarkInfo(node, aLivemark);
+              properties += " livemark";
+              this._cellProperties.set(node, properties);
+              // The livemark attribute is set as a cell property on the title cell.
+              this._invalidateCellValue(node, this.COLUMN_TYPE_TITLE);
+            }, () => undefined);
           }
         }
 

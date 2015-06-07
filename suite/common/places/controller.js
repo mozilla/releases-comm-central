@@ -34,19 +34,6 @@ const REMOVE_PAGES_MAX_SINGLEREMOVES = 10;
 var TAB_DROP_TYPE = "application/x-moz-tabbrowser-tab";
 
 /**
- * A completion callback for reloading a live bookmark.
- * @param   aStatus
- *          The status code for the async livemark operation
- * @param   aLivemark
- *          The live bookmark
- */
-function onReload(aStatus, aLivemark)
-{
-  if (Components.isSuccessCode(aStatus))
-    aLivemark.reload(true);
-}
-
-/**
  * Represents an insertion point within a container where we can insert
  * items.
  * @param   aItemId
@@ -680,7 +667,8 @@ PlacesController.prototype = {
   reloadSelectedLivemark: function PC_reloadSelectedLivemark() {
     var selectedNode = this._view.selectedNode;
     if (selectedNode)
-      PlacesUtils.livemarks.getLivemark({ id: selectedNode.itemId }, onReload);
+      PlacesUtils.livemarks.getLivemark({ id: selectedNode.itemId })
+                           .then(aLivemark => aLivemark.reload(true));
   },
 
   /**
