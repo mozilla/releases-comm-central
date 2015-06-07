@@ -1466,7 +1466,7 @@
         <![CDATA[
           let cti = this.getElt("conv-top-info");
           let statusMessage = this.getElt("statusMessage");
-          if (this._conv.topicSettable) {
+          if (this._conv.topicSettable && !this._conv.left) {
             cti.setAttribute("topicEditable", "true");
             cti.setAttribute("topicContext", "");
           }
@@ -1888,9 +1888,13 @@
           case "update-buddy-display-name":
           case "update-buddy-status":
           case "update-buddy-icon":
-          case "update-conv-chatleft":
           case "update-conv-chatjoining":
             this.updateConvStatus();
+            break;
+
+          case "update-conv-chatleft":
+            this.updateConvStatus();
+            this.updateTopic();
             break;
 
           case "chat-buddy-add":
