@@ -62,5 +62,16 @@ var commands = [
         conv.part(aMsg);
       return true;
     }
+  },
+  {
+    name: "topic",
+    get helpString() _("command.topic", "topic"),
+    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    run: function(aMsg, aConv) {
+      let conv = getConv(aConv);
+      if (!conv.left)
+        conv.topic = aMsg;
+      return true;
+    }
   }
 ];

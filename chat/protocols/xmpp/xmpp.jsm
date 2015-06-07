@@ -106,6 +106,25 @@ const XMPPMUCConversationPrototype = {
 
   _targetResource: "",
 
+  get topic() this._topic,
+  set topic(aTopic) {
+    let notAuthorized = (aError) => {
+      // XEP-0045 (8.1): Unauthorized subject change.
+      let message = _("conversation.error.changeTopicFailedNotAuthorized");
+      this.writeMessage(this.name, message, {system: true, error: true});
+      return true;
+    };
+    let errorHandler = this._account.handleErrors({forbidden: notAuthorized,
+                                                   notAcceptable: notAuthorized,
+                                                   itemNotFound: notAuthorized});
+
+    // XEP-0045 (8.1): Modifying the room subject.
+    let subject = Stanza.node("subject", null, null, aTopic.trim());
+    let s = Stanza.message(this.name, null, null,{type: "groupchat"}, subject);
+    this._account.sendStanza(s, errorHandler);
+  },
+  get topicSettable() true,
+
   /* Called when the user enters a chat message */
   sendMsg: function (aMsg) {
     let notInRoom = (aError) => {
@@ -228,6 +247,8 @@ const XMPPMUCConversationPrototype = {
       // XEP-0045: Room exists and joined successfully.
       this.left = false;
       this.joining = false;
+      // TODO (Bug 1172350): Implement Service Discovery Extensions (XEP-0128) to obtain
+      // configuration of this room.
     }
 
     if (!this._participants.get(nick)) {
@@ -1218,7 +1239,8 @@ const XMPPAccountPrototype = {
 
   /* Called when a message stanza is received */
   onMessageStanza: function(aStanza) {
-    let norm = this.normalize(aStanza.attributes["from"]);
+    let from = aStanza.attributes["from"];
+    let norm = this.normalize(from);
 
     let type = aStanza.attributes["type"];
     let body;
@@ -1236,6 +1258,22 @@ const XMPPAccountPrototype = {
         body = TXTToHTML(b.innerText);
       }
     }
+
+    let subject = aStanza.getElement(["subject"]);
+    if (subject) {
+      // XEP-0045 (7.2.16): Check for a subject element in the stanza and update
+      // the topic if it exists.
+      // We are breaking the spec because only a message that contains a
+      // <subject/> but no <body/> element shall be considered a subject change
+      // for MUC, but we ignore that to be compatible with ejabberd versions
+      // before 15.06.
+      let muc = this._mucs.get(norm);
+      let nick = this._parseJID(from).resource;
+      // TODO There can be multiple subject elements with different xml:lang
+      // attributes.
+      muc.setTopic(subject.innerText, nick);
+    }
+
     if (body) {
       let date;
       let delay = aStanza.getElement(["delay"]);
@@ -1252,15 +1290,6 @@ const XMPPAccountPrototype = {
           return;
         }
         let muc = this._mucs.get(norm);
-
-        // Check for a subject element in the stanza and update the topic if
-        // it exists.
-        let s = aStanza.getElement(["subject"]);
-        // TODO There can be multiple subject elements with different xml:lang
-        // attributes.
-        if (s)
-          muc.setTopic(s.innerText);
-
         muc.incomingMessage(body, aStanza, date);
         return;
       }
