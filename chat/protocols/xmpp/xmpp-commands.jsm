@@ -21,7 +21,7 @@ function getAccount(aConv) getConv(aConv)._account;
 var commands = [
   {
     name: "join",
-    get helpString() _("command.join"),
+    get helpString() _("command.join2", "join"),
     run: function(aMsg, aConv, aReturnedConv) {
       let account = getAccount(aConv);
       let params = aMsg.trim();
@@ -54,7 +54,7 @@ var commands = [
   },
   {
     name: "part",
-    get helpString() _("command.part"),
+    get helpString() _("command.part2", "part"),
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: function(aMsg, aConv) {
       let conv = getConv(aConv);
