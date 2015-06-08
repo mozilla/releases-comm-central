@@ -2,60 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#task-actions-toolbar .toolbarbutton-icon {
-  margin: 1px;
-  width: 16px;
-  height: 16px;
-}
-
-#task-actions-toolbar > #task-actions-category {
-  list-style-image: url(chrome://calendar/skin/tasks-actions-aero.png);
-  -moz-image-region: rect(1px 17px 17px 1px);
-}
-
-#task-actions-toolbar > #task-actions-markcompleted {
-  list-style-image: url(chrome://calendar/skin/tasks-actions-aero.png);
-  -moz-image-region: rect(1px 35px 17px 19px);
-}
-
-#task-actions-toolbar > #task-actions-priority {
-  list-style-image: url(chrome://calendar/skin/tasks-actions-aero.png);
-  -moz-image-region: rect(1px 51px 17px 35px);
-}
-
-#task-actions-toolbar > #calendar-delete-task-button {
-  list-style-image: url(chrome://calendar/skin/toolbar-aero.png);
-  -moz-image-region: rect(1px 107px 17px 91px);
-}
-
-#task-addition-box > box > #calendar-add-task-button {
-  list-style-image: url(chrome://calendar/skin/toolbar-aero.png);
-  -moz-image-region: rect(1px 71px 17px 55px);
-}
-
-#task-actions-toolbar[brighttext] > #task-actions-category,
-#task-actions-toolbar[brighttext] > #task-actions-markcompleted,
-#task-actions-toolbar[brighttext] > #task-actions-priority {
-  list-style-image: url(chrome://calendar/skin/tasks-actions-inverted.png);
-}
-
-#task-actions-toolbar[brighttext] > #calendar-delete-task-button {
-  list-style-image: url(chrome://calendar/skin/toolbar-aero-inverted.png);
-}
-
-#calendar-add-task-button[disabled="true"] > .toolbarbutton-icon {
-  opacity: 0.4;
-}
-
-#todaypane-new-event-button {
-  list-style-image: url(chrome://calendar/skin/toolbar-aero.png) !important;
-  -moz-image-region: rect(1px 35px 17px 19px) !important;
-}
-
-#todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {
-  opacity: 0.4;
-}
-
 #unifinder-search-field,
 #view-task-edit-field,
 #task-text-filter-field,

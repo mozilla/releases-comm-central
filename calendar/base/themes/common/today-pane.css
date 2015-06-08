@@ -134,10 +134,6 @@
  -moz-padding-start: 5px;
 }
 
-#todaypane-new-event-button {
-  list-style-image: url("chrome://calendar/skin/toolbar-small.png");
-}
-
 #agenda-listbox {
   -moz-appearance: none;
   -moz-user-focus: normal;

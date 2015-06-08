@@ -4,124 +4,104 @@
 
 /* Lightning "Calendar" Toolbarbutton */
 #lightning-button-calendar {
-    list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
-    -moz-image-region: rect(0px 98px 18px 80px);
-}
-
-#lightning-button-calendar:not([disabled]):active {
-    -moz-image-region: rect(18px 98px 36px 80px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab);
 }
 
 /* Lightning "Tasks" Toolbarbutton */
 #lightning-button-tasks {
-    list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
-    -moz-image-region: rect(0px 116px 18px 98px);
-}
-#lightning-button-tasks:not([disabled]):active {
-    -moz-image-region: rect(18px 116px 36px 98px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab);
 }
 
 /* Toolbar buttons */
 
-.calbar-toolbarbutton-1 {
-  list-style-image: url(chrome://calendar/skin/toolbar.png);
-}
-
 #calendar-synchronize-button,
 #task-synchronize-button {
-  -moz-image-region: rect(0px 18px 18px 0px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize);
 }
 
-#calendar-synchronize-button:not([disabled]):active,
-#task-synchronize-button:not([disabled]):active {
-  -moz-image-region: rect(18px 18px 36px 0px);
+#extractEventButton,
+#task-newevent-button,
+#hdrExtractEventButton,
+#calendar-newevent-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
 }
 
-#calendar-newevent-button,
-#task-newevent-button {
-  -moz-image-region: rect(0px 36px 18px 18px);
-}
-
-#calendar-newevent-button:not([disabled]):active,
-#task-newevent-button:not([disabled]):active {
-  -moz-image-region: rect(18px 36px 36px 18px);
-}
-
-#calendar-newtask-button,
-#task-newtask-button {
-  -moz-image-region: rect(0px 72px 18px 54px);
-}
-
-#calendar-newtask-button:not([disabled]):active,
-#task-newtask-button:not([disabled]):active {
-  -moz-image-region: rect(18px 72px 36px 54px);
+#extractTaskButton,
+#task-newtask-button,
+#hdrExtractTaskButton,
+#calendar-newtask-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newtask);
 }
 
 #calendar-edit-button,
 #task-edit-button {
-  -moz-image-region: rect(0px 90px 18px 72px);
-}
-
-#calendar-edit-button:not([disabled]):active,
-#task-edit-button:not([disabled]):active {
-  -moz-image-region: rect(18px 90px 36px 72px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#edit);
 }
 
 #calendar-delete-button,
 #task-delete-button {
-  -moz-image-region: rect(0px 108px 18px 90px);
-}
-
-#calendar-delete-button:not([disabled]):active,
-#task-delete-button:not([disabled]):active {
-  -moz-image-region: rect(18px 108px 36px 90px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete);
 }
 
 #calendar-goto-today-button {
-  -moz-image-region: rect(0px 54px 18px 36px);
-}
-
-#calendar-goto-today-button:not([disabled]):active {
-  -moz-image-region: rect(18px 54px 36px 36px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#today);
 }
 
 #calendar-print-button,
 #task-print-button {
-  -moz-image-region: rect(0px 126px 18px 108px);
-}
-
-#calendar-print-button:not([disabled]):active,
-#task-print-button:not([disabled]):active {
-  -moz-image-region: rect(18px 126px 36px 108px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#print);
 }
 
 #calendar-unifinder-button {
-  -moz-image-region: rect(0px 144px 18px 126px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#find);
 }
 
-#calendar-unifinder-button:not([disabled]):active,
-#calendar-unifinder-button[checked="true"] {
-  -moz-image-region: rect(18px 144px 36px 126px);
+toolbar[brighttext] #lightning-button-calendar {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab-inverted);
 }
 
-#extractEventButton,
-#hdrExtractEventButton {
-  list-style-image: url(chrome://calendar/skin/toolbar.png);
-  -moz-image-region: rect(0px 36px 18px 18px);
+toolbar[brighttext] #lightning-button-tasks {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab-inverted);
 }
 
-#extractEventButton:not([disabled]):active,
-#hdrExtractEventButton:not([disabled]):active {
-  -moz-image-region: rect(18px 36px 36px 18px);
+toolbar[brighttext] #calendar-synchronize-button,
+toolbar[brighttext] #task-synchronize-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize-inverted);
 }
 
-#extractTaskButton,
-#hdrExtractTaskButton {
-  list-style-image: url(chrome://calendar/skin/toolbar.png);
-  -moz-image-region: rect(0px 72px 18px 54px);
+toolbar[brighttext] #extractEventButton,
+toolbar[brighttext] #task-newevent-button,
+toolbar[brighttext] #hdrExtractEventButton,
+toolbar[brighttext] #calendar-newevent-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent-inverted);
 }
 
-#extractTaskButton:not([disabled]):active,
-#hdrExtractTaskButton:not([disabled]):active {
-  -moz-image-region: rect(18px 72px 36px 54px);
+toolbar[brighttext] #extractTaskButton,
+toolbar[brighttext] #task-newtask-button,
+toolbar[brighttext] #hdrExtractTaskButton,
+toolbar[brighttext] #calendar-newtask-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newtask-inverted);
+}
+
+toolbar[brighttext] #calendar-edit-button,
+toolbar[brighttext] #task-edit-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#edit-inverted);
+}
+
+toolbar[brighttext] #calendar-delete-button,
+toolbar[brighttext] #task-delete-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete-inverted);
+}
+
+toolbar[brighttext] #calendar-goto-today-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#today-inverted);
+}
+
+toolbar[brighttext] #calendar-print-button,
+toolbar[brighttext] #task-print-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#print-inverted);
+}
+
+toolbar[brighttext] #calendar-unifinder-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#find-inverted);
 }

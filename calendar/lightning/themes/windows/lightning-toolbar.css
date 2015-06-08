@@ -9,3 +9,308 @@
   padding: 1px 0;
   border-top-width: 0;
 }
+
+@media (-moz-windows-glass) {
+  #calendar-toolbox:not(:-moz-lwtheme) {
+    border-bottom-color: #AABCCF;
+  }
+}
+
+@media (-moz-os-version: windows-xp) {
+  #lightning-button-calendar {
+      list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
+      -moz-image-region: rect(0px 24px 24px 0px);
+  }
+
+  #lightning-button-calendar[disabled] {
+      -moz-image-region: rect(48px 24px 72px 0px);
+  }
+  toolbar[iconsize="small"] #lightning-button-calendar {
+      -moz-image-region: rect(0px 64px 16px 48px);
+  }
+
+  toolbar[iconsize="small"] #lightning-button-calendar[disabled] {
+      -moz-image-region: rect(32px 64px 48px 48px);
+  }
+
+  /* Lightning "Tasks" Toolbarbutton */
+  #lightning-button-tasks {
+      list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
+      -moz-image-region: rect(0px 48px 24px 24px);
+  }
+
+  #lightning-button-tasks[disabled] {
+      -moz-image-region: rect(48px 48px 72px 24px);
+  }
+
+  toolbar[iconsize="small"] #lightning-button-tasks {
+      -moz-image-region: rect(0px 80px 16px 64px);
+  }
+  toolbar[iconsize="small"] #lightning-button-tasks[disabled] {
+      -moz-image-region: rect(32px 80px 48px 64px);
+  }
+
+  /* Toolbar buttons */
+
+  .calbar-toolbarbutton-1 {
+    list-style-image: url(chrome://calendar/skin/toolbar-large.png);
+  }
+
+  toolbar[iconsize="small"] .calbar-toolbarbutton-1 {
+    list-style-image: url(chrome://calendar/skin/toolbar-small.png);
+  }
+
+  #calendar-synchronize-button,
+  #task-synchronize-button {
+    -moz-image-region: rect(0px 648px 24px 624px);
+  }
+
+  #calendar-synchronize-button[disabled],
+  #task-synchronize-button[disabled] {
+    -moz-image-region: rect(48px 648px 72px 624px);
+  }
+
+  toolbar[iconsize="small"] #calendar-synchronize-button,
+  toolbar[iconsize="small"] #task-synchronize-button {
+    -moz-image-region: rect(0px 432px 16px 416px);
+  }
+
+  toolbar[iconsize="small"] #calendar-synchronize-button[disabled],
+  toolbar[iconsize="small"] #task-synchronize-button[disabled] {
+    -moz-image-region: rect(32px 432px 48px 416px);
+  }
+
+  #calendar-newevent-button,
+  #task-newevent-button {
+    -moz-image-region: rect(0px 24px 24px 0px);
+  }
+
+  #calendar-newevent-button[disabled],
+  #task-newevent-button[disabled] {
+    -moz-image-region: rect(48px 24px 72px 0px);
+  }
+
+  toolbar[iconsize="small"] #calendar-newevent-button,
+  toolbar[iconsize="small"] #task-newevent-button {
+    -moz-image-region: rect(0px 16px 16px 0px);
+  }
+
+  toolbar[iconsize="small"] #calendar-newevent-button[disabled],
+  toolbar[iconsize="small"] #task-newevent-button[disabled] {
+    -moz-image-region: rect(32px 16px 48px 0px);
+  }
+
+  #calendar-newtask-button,
+  #task-newtask-button {
+    -moz-image-region: rect(0px 384px 24px 360px);
+  }
+
+  #calendar-newtask-button[disabled],
+  #task-newtask-button[disabled] {
+    -moz-image-region: rect(48px 384px 72px 360px);
+  }
+
+  toolbar[iconsize="small"] #calendar-newtask-button,
+  toolbar[iconsize="small"] #task-newtask-button {
+    -moz-image-region: rect(0px 256px 16px 240px);
+  }
+
+  toolbar[iconsize="small"] #calendar-newtask-button[disabled],
+  toolbar[iconsize="small"] #task-newtask-button[disabled] {
+    -moz-image-region: rect(32px 256px 48px 240px);
+  }
+
+  #calendar-edit-button,
+  #task-edit-button {
+    -moz-image-region: rect(0px 48px 24px 24px);
+  }
+
+  #calendar-edit-button[disabled],
+  #task-edit-button[disabled] {
+    -moz-image-region: rect(48px 48px 72px 24px);
+  }
+
+  toolbar[iconsize="small"] #calendar-edit-button,
+  toolbar[iconsize="small"] #task-edit-button {
+    -moz-image-region: rect(0px 32px 16px 16px);
+  }
+
+  toolbar[iconsize="small"] #calendar-edit-button[disabled],
+  toolbar[iconsize="small"] #task-edit-button[disabled] {
+    -moz-image-region: rect(32px 32px 48px 16px);
+  }
+
+  #calendar-delete-button,
+  #task-delete-button {
+    -moz-image-region: rect(0px 72px 24px 48px);
+  }
+
+  #calendar-delete-button[disabled],
+  #task-delete-button[disabled] {
+    -moz-image-region: rect(48px 72px 72px 48px);
+  }
+
+  toolbar[iconsize="small"] #calendar-delete-button,
+  toolbar[iconsize="small"] #task-delete-button {
+    -moz-image-region: rect(0px 48px 16px 32px);
+  }
+
+  toolbar[iconsize="small"] #calendar-delete-button[disabled],
+  toolbar[iconsize="small"] #task-delete-button[disabled] {
+    -moz-image-region: rect(32px 48px 48px 32px);
+  }
+
+  #calendar-goto-today-button {
+    -moz-image-region: rect(0px 408px 24px 384px);
+  }
+
+  #calendar-goto-today-button[disabled] {
+    -moz-image-region: rect(48px 408px 72px 384px);
+  }
+
+  toolbar[iconsize="small"] #calendar-goto-today-button {
+    -moz-image-region: rect(0px 272px 16px 256px);
+  }
+
+  toolbar[iconsize="small"] #calendar-goto-today-button[disabled] {
+    -moz-image-region: rect(32px 272px 48px 256px);
+  }
+
+  #calendar-print-button,
+  #task-print-button {
+    -moz-image-region: rect(0px 360px 24px 336px);
+  }
+
+  #calendar-print-button[disabled],
+  #task-print-button[disabled] {
+    -moz-image-region: rect(48px 360px 72px 336px);
+  }
+
+  toolbar[iconsize="small"] #calendar-print-button,
+  toolbar[iconsize="small"] #task-print-button {
+    -moz-image-region: rect(0px 240px 16px 224px);
+  }
+
+  toolbar[iconsize="small"] #calendar-print-button[disabled],
+  toolbar[iconsize="small"] #task-print-button[disabled] {
+    -moz-image-region: rect(32px 240px 48px 224px);
+  }
+
+  #calendar-unifinder-button {
+    -moz-image-region: rect(0px 528px 24px 504px);
+  }
+
+  #calendar-unifinder-button[disabled] {
+    -moz-image-region: rect(48px 528px 72px 504px);
+  }
+
+  toolbar[iconsize="small"] #calendar-unifinder-button {
+    -moz-image-region: rect(0px 352px 16px 336px);
+  }
+
+  toolbar[iconsize="small"] #calendar-unifinder-button[disabled] {
+    -moz-image-region: rect(32px 352px 48px 336px);
+  }
+}
+
+@media not all and (-moz-os-version: windows-xp) {
+  #lightning-button-calendar {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab);
+  }
+
+  #lightning-button-tasks {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab);
+  }
+
+  #calendar-synchronize-button,
+  #task-synchronize-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize);
+  }
+
+  #extractEventButton,
+  #task-newevent-button,
+  #hdrExtractEventButton,
+  #calendar-newevent-button {
+      list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
+  }
+
+  #extractTaskButton,
+  #task-newtask-button,
+  #hdrExtractTaskButton,
+  #calendar-newtask-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newtask);
+  }
+
+  #calendar-edit-button,
+  #task-edit-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#edit);
+  }
+
+  #calendar-delete-button,
+  #task-delete-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete);
+  }
+
+  #calendar-goto-today-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#today);
+  }
+
+  #calendar-print-button,
+  #task-print-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#print);
+  }
+
+  #calendar-unifinder-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#find);
+  }
+
+  toolbar[brighttext] #lightning-button-calendar {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab-inverted);
+  }
+
+  toolbar[brighttext] #lightning-button-tasks {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab-inverted);
+  }
+
+  toolbar[brighttext] #calendar-synchronize-button,
+  toolbar[brighttext] #task-synchronize-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize-inverted);
+  }
+
+  toolbar[brighttext] #extractEventButton,
+  toolbar[brighttext] #task-newevent-button,
+  toolbar[brighttext] #hdrExtractEventButton,
+  toolbar[brighttext] #calendar-newevent-button {
+      list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent-inverted);
+  }
+
+  toolbar[brighttext] #extractTaskButton,
+  toolbar[brighttext] #task-newtask-button,
+  toolbar[brighttext] #hdrExtractTaskButton,
+  toolbar[brighttext] #calendar-newtask-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newtask-inverted);
+  }
+
+  toolbar[brighttext] #calendar-edit-button,
+  toolbar[brighttext] #task-edit-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#edit-inverted);
+  }
+
+  toolbar[brighttext] #calendar-delete-button,
+  toolbar[brighttext] #task-delete-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete-inverted);
+  }
+
+  toolbar[brighttext] #calendar-goto-today-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#today-inverted);
+  }
+
+  toolbar[brighttext] #calendar-print-button,
+  toolbar[brighttext] #task-print-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#print-inverted);
+  }
+
+  toolbar[brighttext] #calendar-unifinder-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#find-inverted);
+  }
+}

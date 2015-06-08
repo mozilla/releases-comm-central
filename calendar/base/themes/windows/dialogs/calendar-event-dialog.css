@@ -13,3 +13,262 @@
 #timezone-endtime {
     -moz-margin-start: 16px;
 }
+
+@media (-moz-os-version: windows-xp) {
+  .cal-event-toolbarbutton {
+    list-style-image: url("chrome://calendar/skin/calendar-event-dialog-toolbar.png");
+  }
+
+  toolbar[iconsize="small"] .cal-event-toolbarbutton {
+    list-style-image: url("chrome://calendar/skin/calendar-event-dialog-toolbar-small.png");
+  }
+
+  #button-attendees {
+    -moz-image-region: rect(0px 48px 24px 24px);
+  }
+  #button-attendees[disabled="true"] {
+    -moz-image-region: rect(48px 48px 72px 24px);
+  }
+
+  toolbar[iconsize="small"] #button-attendees {
+    -moz-image-region: rect(0px 32px 16px 16px);
+  }
+  toolbar[iconsize="small"] #button-attendees[disabled="true"] {
+    -moz-image-region: rect(32px 32px 48px 16px);
+  }
+
+  #button-url {
+    -moz-image-region: rect(0px 96px 24px 72px);
+  }
+  #button-url[disabled="true"] {
+    -moz-image-region: rect(48px 96px 72px 72px);
+  }
+
+  toolbar[iconsize="small"] #button-url {
+    -moz-image-region: rect(0px 64px 16px 48px);
+  }
+  toolbar[iconsize="small"] #button-url[disabled="true"] {
+    -moz-image-region: rect(32px 64px 48px 48px);
+  }
+
+  #button-privacy {
+    -moz-image-region: rect(0px 120px 24px 96px);
+  }
+  #button-privacy[disabled="true"] {
+    -moz-image-region: rect(48px 120px 72px 96px);
+  }
+
+  toolbar[iconsize="small"] #button-privacy {
+    -moz-image-region: rect(0px 80px 16px 64px);
+  }
+  toolbar[iconsize="small"] #button-privacy[disabled="true"] {
+    -moz-image-region: rect(32px 80px 48px 64px);
+  }
+
+  #button-save {
+    -moz-image-region: rect(0px 144px 24px 120px);
+  }
+  #button-save[disabled="true"] {
+    -moz-image-region: rect(48px 144px 72px 120px);
+  }
+
+  toolbar[iconsize="small"] #button-save {
+    -moz-image-region: rect(0px 96px 16px 80px);
+  }
+  toolbar[iconsize="small"] #button-save[disabled="true"] {
+    -moz-image-region: rect(32px 96px 48px 80px);
+  }
+
+  #button-delete.cal-event-toolbarbutton {
+    list-style-image: url("chrome://calendar/skin/calendar-event-dialog-toolbar.png");
+    -moz-image-region: rect(0px 408px 24px 384px);
+  }
+  #button-delete.cal-event-toolbarbutton[disabled="true"],
+  #button-delete.cal-event-toolbarbutton[disabled="true"]:hover {
+    -moz-image-region: rect(48px 408px 72px 384px);
+  }
+  #button-delete.cal-event-toolbarbutton:hover,
+  #button-delete.cal-event-toolbarbutton:hover:active {
+    -moz-image-region: rect(24px 408px 48px 384px);
+  }
+
+  toolbar[iconsize="small"] #button-delete.cal-event-toolbarbutton {
+    list-style-image: url("chrome://calendar/skin/calendar-event-dialog-toolbar-small.png");
+    -moz-image-region: rect(0px 272px 16px 256px);
+  }
+  toolbar[iconsize="small"] #button-delete.cal-event-toolbarbutton[disabled="true"],
+  toolbar[iconsize="small"] #button-delete.cal-event-toolbarbutton[disabled="true"]:hover {
+    -moz-image-region: rect(32px 272px 48px 256px);
+  }
+  toolbar[iconsize="small"] #button-delete.cal-event-toolbarbutton:hover,
+  toolbar[iconsize="small"] #button-delete.cal-event-toolbarbutton:hover:active {
+    -moz-image-region: rect(16px 272px 32px 256px);
+  }
+
+  #button-priority {
+    -moz-image-region: rect(0px 600px 24px 576px);
+  }
+  #button-priority[disabled="true"] {
+    -moz-image-region: rect(48px 600px 72px 576px);
+  }
+
+  toolbar[iconsize="small"] #button-priority {
+    -moz-image-region: rect(0px 400px 16px 384px);
+  }
+  toolbar[iconsize="small"] #button-priority[disabled="true"] {
+    -moz-image-region: rect(32px 400px 48px 384px);
+  }
+
+  #button-status {
+    -moz-image-region: rect(0px 624px 24px 600px);
+  }
+  #button-status[disabled="true"] {
+    -moz-image-region: rect(48px 624px 72px 600px);
+  }
+
+  toolbar[iconsize="small"] #button-status {
+    -moz-image-region: rect(0px 416px 16px 400px);
+  }
+  toolbar[iconsize="small"] #button-status[disabled="true"] {
+    -moz-image-region: rect(32px 416px 48px 400px);
+  }
+
+  #button-freebusy {
+    -moz-image-region: rect(0px 648px 24px 624px);
+  }
+  #button-freebusy[disabled="true"] {
+    -moz-image-region: rect(48px 648px 72px 624px);
+  }
+
+  toolbar[iconsize="small"] #button-freebusy {
+    -moz-image-region: rect(0px 432px 16px 416px);
+  }
+  toolbar[iconsize="small"] #button-freebusy[disabled="true"] {
+    -moz-image-region: rect(32px 432px 48px 416px);
+  }
+
+  #button-timezones {
+    -moz-image-region: rect(0px 672px 24px 648px);
+  }
+  #button-timezones[disabled="true"] {
+    -moz-image-region: rect(48px 672px 72px 648px);
+  }
+
+  toolbar[iconsize="small"] #button-timezones {
+    -moz-image-region: rect(0px 448px 16px 432px);
+  }
+  toolbar[iconsize="small"] #button-timezones[disabled="true"] {
+    -moz-image-region: rect(32px 448px 48px 432px);
+  }
+}
+
+@media not all and (-moz-os-version: windows-xp) {
+  #button-save {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save);
+  }
+
+  #button-attendees {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#address);
+  }
+
+  #button-privacy {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#security);
+  }
+
+  #button-url {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#attach);
+  }
+
+  #button-delete.cal-event-toolbarbutton {
+      /* !important to override the SM #button-delete states */
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete) !important;
+    -moz-image-region: auto !important;
+  }
+
+  #button-priority {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority);
+  }
+
+  #button-status {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#status);
+  }
+
+  #button-freebusy {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#freebusy);
+  }
+
+  #button-timezones {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#timezones);
+  }
+
+  toolbar[brighttext] #button-save {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save-inverted);
+  }
+
+  toolbar[brighttext] #button-attendees {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#address-inverted);
+  }
+
+  toolbar[brighttext] #button-privacy {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#security-inverted);
+  }
+
+  toolbar[brighttext] #button-url {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#attach-inverted);
+  }
+
+  toolbar[brighttext] #button-delete.cal-event-toolbarbutton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete-inverted) !important;
+  }
+
+  toolbar[brighttext] #button-priority {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority-inverted);
+  }
+
+  toolbar[brighttext] #button-status {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#status-inverted);
+  }
+
+  toolbar[brighttext] #button-freebusy {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#freebusy-inverted);
+  }
+
+  toolbar[brighttext] #button-timezones {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#timezones-inverted);
+  }
+
+  #event-toolbox {
+    -moz-appearance: none;
+    border-top: none;
+    background-color: -moz-Dialog;
+    border-bottom: 1px solid ThreeDShadow;
+  }
+
+  #event-menubar,
+  #event-toolbar {
+    -moz-appearance: none;
+    border-style: none;
+    background-color: transparent
+  }
+
+  #event-toolbar {
+    -moz-margin-start: 0;
+    padding: 1px 0 2px;
+  }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+  /* < Win8 */
+  #event-toolbox {
+    background-color: hsl(210, 75%, 92%);
+    background-image: linear-gradient(rgba(255, 255, 255, .5),
+                      rgba(255, 255, 255, 0));
+  }
+}
+
+@media (-moz-windows-glass) {
+  #event-toolbox {
+    border-bottom-color: #AABCCF;
+  }
+}

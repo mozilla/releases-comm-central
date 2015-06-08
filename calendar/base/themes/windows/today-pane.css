@@ -36,14 +36,28 @@
   -moz-margin-end: 0px; /* override toolkit's default value */
 }
 
-#todaypane-new-event-button {
-  -moz-image-region: rect(0px 16px 16px 0px);
+@media (-moz-os-version: windows-xp) {
+  #todaypane-new-event-button {
+    list-style-image: url("chrome://calendar/skin/toolbar-small.png");
+    -moz-image-region: rect(0px 16px 16px 0px);
+  }
+  #todaypane-new-event-button[disabled="true"] {
+    -moz-image-region: rect(32px 16px 48px 0px);
+  }
 }
-#todaypane-new-event-button[disabled="true"],
-#todaypane-new-event-button[disabled="true"]:hover,
-#todaypane-new-event-button[disabled="true"]:hover:active {
-  -moz-image-region: rect(32px 16px 48px 0px);
-}
-#todaypane-new-event-button:hover {
-  -moz-image-region: rect(16px 16px 32px 0px);
+
+@media not all and (-moz-os-version: windows-xp) {
+  #todaypane-new-event-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
+  }
+
+  #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {
+    opacity: 0.4;
+  }
+
+  #todaypane-new-event-button > .toolbarbutton-icon {
+    width: 18px;
+    height: 18px;
+    margin: -1px;
+  }
 }

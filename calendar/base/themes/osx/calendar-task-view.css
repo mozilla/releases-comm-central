@@ -39,36 +39,51 @@
 }
 
 #task-actions-category {
-    list-style-image: url(chrome://calendar/skin/tasks-actions.png);
-    -moz-image-region: rect(0px 18px 18px 0px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#category);
 }
 
 #task-actions-markcompleted {
-    list-style-image: url(chrome://calendar/skin/tasks-actions.png);
-    -moz-image-region: rect(0px 36px 18px 18px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#complete);
 }
 
 #task-actions-priority {
-    list-style-image: url(chrome://calendar/skin/tasks-actions.png);
-    -moz-image-region: rect(0px 54px 18px 36px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority);
 }
 
 #calendar-delete-task-button {
-    list-style-image: url(chrome://calendar/skin/toolbar.png);
-    -moz-image-region: rect(18px 108px 36px 90px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete);
+}
+
+#task-actions-toolbar[brighttext] > #task-actions-category {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#category-inverted);
+}
+
+#task-actions-toolbar[brighttext] > #task-actions-markcompleted {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#complete-inverted);
+}
+
+#task-actions-toolbar[brighttext] > #task-actions-priority {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority-inverted);
+}
+
+
+#task-actions-toolbar[brighttext] > #calendar-delete-task-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete-inverted);
 }
 
 #calendar-add-task-button {
-    list-style-image: url(chrome://calendar/skin/toolbar.png);
-    -moz-image-region: rect(0px 72px 18px 54px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newtask);
+    -moz-image-region: rect(0 18px 18px 0);
 }
 
-#calendar-add-task-button:not([disabled]):active {
-    -moz-image-region: rect(18px 72px 36px 54px);
+#calendar-add-task-button > .toolbarbutton-icon {
+  width: 18px;
+  height: 18px;
+  margin: -1px;
 }
 
 #calendar-add-task-button[disabled="true"] > .toolbarbutton-icon {
-    opacity: .5;
+  opacity: .5;
 }
 
 #calendar-add-task-button > .toolbarbutton-text {

@@ -18,107 +18,76 @@
  *   Event dialog toolbar buttons
  *-------------------------------------------------------------------*/
 
-.cal-event-toolbarbutton {
-    list-style-image: url("chrome://calendar/skin/calendar-event-dialog-toolbar.png");
+#button-save {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save);
 }
-
-/*--------------------------------------------------------------------
- *   invite attendees button
- *-------------------------------------------------------------------*/
 
 #button-attendees {
-  -moz-image-region: rect(0 36px 18px 18px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#address);
 }
-#button-attendees:not([disabled]):active {
-  -moz-image-region: rect(18px 36px 36px 18px);
-}
-
-/*--------------------------------------------------------------------
- *   documents button
- *-------------------------------------------------------------------*/
-
-#button-url {
-  -moz-image-region: rect(0 72px 18px 54px);
-}
-#button-url:not([disabled]):active {
-  -moz-image-region: rect(18px 72px 36px 54px);
-}
-
-/*--------------------------------------------------------------------
- *   privacy button
- *-------------------------------------------------------------------*/
 
 #button-privacy {
-  -moz-image-region: rect(0 90px 18px 72px);
-}
-#button-privacy:not([disabled]):active {
-  -moz-image-region: rect(18px 90px 36px 72px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#security);
 }
 
-/*--------------------------------------------------------------------
- *   save button
- *-------------------------------------------------------------------*/
-
-#button-save {
-  -moz-image-region: rect(0 108px 18px 90px);
+#button-url {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#attach);
 }
-#button-save:not([disabled]):active {
-  -moz-image-region: rect(18px 108px 36px 90px);
-}
-
-/*--------------------------------------------------------------------
- *   delete button
- *-------------------------------------------------------------------*/
 
 #button-delete.cal-event-toolbarbutton {
-  list-style-image: url("chrome://calendar/skin/calendar-event-dialog-toolbar.png");
-  -moz-image-region: rect(0 306px 18px 288px);
+    /* !important to override the SM #button-delete states */
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete) !important;
+  -moz-image-region: auto !important;
 }
-#button-delete.cal-event-toolbarbutton:not([disabled]):active,
-#button-delete.cal-event-toolbarbutton:not([disabled]):hover:active {
-  -moz-image-region: rect(18px 306px 36px 288px);
-}
-
-/*--------------------------------------------------------------------
- *   priority button
- *-------------------------------------------------------------------*/
 
 #button-priority {
-  -moz-image-region: rect(0 432px 18px 414px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority);
 }
-#button-priority:not([disabled]):active {
-  -moz-image-region: rect(18px 432px 36px 414px);
-}
-
-/*--------------------------------------------------------------------
- *   status button
- *-------------------------------------------------------------------*/
 
 #button-status {
-  -moz-image-region: rect(0 450px 18px 432px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#status);
 }
-#button-status:not([disabled]):active {
-  -moz-image-region: rect(18px 450px 36px 432px);
-}
-
-/*--------------------------------------------------------------------
- *   Show Time AS button
- *-------------------------------------------------------------------*/
 
 #button-freebusy {
-  -moz-image-region: rect(0 468px 18px 450px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#freebusy);
 }
-#button-freebusy:not([disabled]):active {
-  -moz-image-region: rect(18px 468px 36px 450px);
-}
-
-/*--------------------------------------------------------------------
- *   timezones button
- *-------------------------------------------------------------------*/
 
 #button-timezones {
-  -moz-image-region: rect(0 486px 18px 468px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#timezones);
 }
-#button-timezones:not([disabled]):active {
-  -moz-image-region: rect(18px 486px 36px 468px);
+
+toolbar[brighttext] #button-save {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save-inverted);
+}
+
+toolbar[brighttext] #button-attendees {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#address-inverted);
+}
+
+toolbar[brighttext] #button-privacy {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#security-inverted);
+}
+
+toolbar[brighttext] #button-url {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#attach-inverted);
+}
+
+toolbar[brighttext] #button-delete.cal-event-toolbarbutton {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete-inverted) !important;
+}
+
+toolbar[brighttext] #button-priority {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority-inverted);
+}
+
+toolbar[brighttext] #button-status {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#status-inverted);
+}
+
+toolbar[brighttext] #button-freebusy {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#freebusy-inverted);
+}
+
+toolbar[brighttext] #button-timezones {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#timezones-inverted);
 }

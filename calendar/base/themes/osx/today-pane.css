@@ -33,12 +33,7 @@
 }
 
 #todaypane-new-event-button {
-  list-style-image: url(chrome://calendar/skin/toolbar.png);
-  -moz-image-region: rect(0px 36px 18px 18px);
-}
-
-#todaypane-new-event-button:not([disabled]):active {
-  -moz-image-region: rect(18px 36px 36px 18px);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
 }
 
 #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {
@@ -47,6 +42,12 @@
 
 #todaypane-new-event-button > .toolbarbutton-text {
   -moz-margin-start: 0px;
+}
+
+#todaypane-new-event-button > .toolbarbutton-icon {
+  width: 18px;
+  height: 18px;
+  margin: -1px;
 }
 
 #agenda-listbox {
