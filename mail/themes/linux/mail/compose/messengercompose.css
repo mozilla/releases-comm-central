@@ -21,6 +21,11 @@
   min-width: 15em;
 }
 
+#compose-toolbox > toolbar {
+  /* force iconsize="small" on these toolbars */
+  counter-reset: smallicons;
+}
+
 /* ::::: primary toolbar buttons ::::: */
 
 .toolbarbutton-1 {
@@ -44,174 +49,107 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   text-align: start;
 }
 
-#button-send {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.png");
-  -moz-image-region: rect(198px 22px 220px 0px);
+.toolbarbutton-1[disabled=true] .toolbarbutton-icon,
+.toolbarbutton-1[disabled=true] .toolbarbutton-menu-dropmarker,
+.toolbarbutton-1[disabled=true] > .toolbarbutton-menubutton-dropmarker,
+.toolbarbutton-1[disabled=true] > .toolbarbutton-menubutton-button >
+.toolbarbutton-icon {
+  opacity: .4;
 }
 
-#button-send[disabled="true"] {
-  -moz-image-region: rect(176px 22px 198px 0px) !important;
+.toolbarbutton-menubutton-button > .toolbarbutton-icon,
+.toolbarbutton-1 .toolbarbutton-icon {
+  width: 18px;
+  height: 18px;
+}
+
+#button-send {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#send");
 }
 
 #button-contacts {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.png");
-  -moz-image-region: rect(22px 22px 44px 0px) !important;
-}
-
-#button-contacts[disabled="true"] {
-  -moz-image-region: rect(0px 22px 22px 0px) !important;
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#contacts");
+  -moz-image-region: auto !important;
 }
 
 #spellingButton {
-  list-style-image: url("moz-icon://stock/gtk-spell-check?size=toolbar");
-}
-
-#spellingButton[disabled="true"] {
-  list-style-image: url("moz-icon://stock/tools-check-spelling?size=toolbar&state=disabled");
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#spelling");
 }
 
 #button-attach {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.png");
-  -moz-image-region: rect(66px 22px 88px 0px);
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#attach");
 }
 
-#button-attach[disabled="true"] {
-  -moz-image-region: rect(44px 22px 66px 0px) !important;
+#button-security {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#security");
 }
 
 #button-save {
-  list-style-image: url("moz-icon://stock/gtk-save?size=toolbar");
-}
-
-#button-save[disabled="true"] {
-  list-style-image: url("moz-icon://stock/gtk-save?size=toolbar&state=disabled");
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#save");
 }
 
 #quoteButton {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.png");
-  -moz-image-region: rect(110px 22px 132px 0px);
-}
-
-#quoteButton[disabled="true"] {
-  -moz-image-region: rect(88px 22px 110px 0px) !important;
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#quote");
 }
 
 #cut-button {
-  list-style-image: url("moz-icon://stock/gtk-cut?size=toolbar");
-}
-
-#cut-button[disabled="true"] {
-  list-style-image: url("moz-icon://stock/gtk-cut?size=toolbar&state=disabled");
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#cut");
 }
 
 #copy-button {
-  list-style-image: url("moz-icon://stock/gtk-copy?size=toolbar");
-}
-
-#copy-button[disabled="true"] {
-  list-style-image: url("moz-icon://stock/gtk-copy?size=toolbar&state=disabled");
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#copy");
 }
 
 #paste-button {
-  list-style-image: url("moz-icon://stock/gtk-paste?size=toolbar");
-}
-
-#paste-button[disabled="true"] {
-  list-style-image: url("moz-icon://stock/gtk-paste?size=toolbar&state=disabled");
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#paste");
 }
 
 #button-print {
-  list-style-image: url("moz-icon://stock/gtk-print?size=toolbar");
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#print");
 }
 
-#button-print[disabled="true"] {
-  list-style-image: url("moz-icon://stock/gtk-print?size=toolbar&state=disabled");
+toolbar[brighttext] #button-send {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#send-inverted");
 }
 
-/* ::::: small primary toolbar buttons ::::: */
-
-toolbar[iconsize="small"] #button-send {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar-small.png");
-  -moz-image-region: rect(144px 16px 160px 0px);
+toolbar[brighttext] #button-contacts {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#contacts-inverted");
 }
 
-toolbar[iconsize="small"] #button-send[disabled="true"] {
-  -moz-image-region: rect(128px 16px 144px 0px) !important;
+toolbar[brighttext] #spellingButton {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#spelling-inverted");
 }
 
-toolbar[iconsize="small"] #button-contacts {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar-small.png");
-  -moz-image-region: rect(16px 16px 32px 0px) !important;
+toolbar[brighttext] #button-attach {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#attach-inverted");
 }
 
-toolbar[iconsize="small"] #button-contacts[disabled="true"] {
-  -moz-image-region: rect(0px 16px 16px 0px) !important;
+toolbar[brighttext] #button-security {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#security-inverted");
 }
 
-toolbar[iconsize="small"] #spellingButton {
-  list-style-image: url("moz-icon://stock/gtk-spell-check?size=menu");
+toolbar[brighttext] #button-save {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#save-inverted");
 }
 
-toolbar[iconsize="small"] #spellingButton[disabled="true"] {
-  list-style-image: url("moz-icon://stock/gtk-spell-check?size=menu&state=disabled");
+toolbar[brighttext] #quoteButton {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#quote-inverted");
 }
 
-toolbar[iconsize="small"] #button-attach {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar-small.png");
-  -moz-image-region: rect(48px 16px 64px 0px);
+toolbar[brighttext] #cut-button {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#cut-inverted");
 }
 
-toolbar[iconsize="small"] #button-attach[disabled="true"] {
-  -moz-image-region: rect(32px 16px 48px 0px) !important;
+toolbar[brighttext] #copy-button {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#copy-inverted");
 }
 
-toolbar[iconsize="small"] #button-save {
-  list-style-image: url("moz-icon://stock/gtk-save?size=menu");
+toolbar[brighttext] #paste-button {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#paste-inverted");
 }
 
-toolbar[iconsize="small"] #button-save[disabled="true"] {
-  list-style-image: url("moz-icon://stock/gtk-save?size=menu&state=disabled");
-}
-
-toolbar[iconsize="small"] #quoteButton {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar-small.png");
-  -moz-image-region: rect(80px 16px 96px 0px);
-}
-
-toolbar[iconsize="small"] #quoteButton[disabled="true"] {
-  -moz-image-region: rect(64px 16px 80px 0px) !important;
-}
-
-toolbar[iconsize="small"] #cut-button {
-  list-style-image: url("moz-icon://stock/gtk-cut?size=menu");
-}
-
-toolbar[iconsize="small"] #cut-button[disabled="true"] {
-  list-style-image: url("moz-icon://stock/gtk-cut?size=menu&state=disabled");
-}
-
-toolbar[iconsize="small"] #copy-button {
-  list-style-image: url("moz-icon://stock/gtk-copy?size=menu");
-}
-
-toolbar[iconsize="small"] #copy-button[disabled="true"] {
-  list-style-image: url("moz-icon://stock/gtk-copy?size=menu&state=disabled");
-}
-
-toolbar[iconsize="small"] #paste-button {
-  list-style-image: url("moz-icon://stock/gtk-paste?size=menu");
-}
-
-toolbar[iconsize="small"] #paste-button[disabled="true"] {
-  list-style-image: url("moz-icon://stock/gtk-paste?size=menu&state=disabled");
-}
-
-toolbar[iconsize="small"] #button-print {
-  list-style-image: url("moz-icon://stock/gtk-print?size=menu");
-}
-
-toolbar[iconsize="small"] #button-print[disabled="true"] {
-  list-style-image: url("moz-icon://stock/gtk-print?size=menu&state=disabled");
+toolbar[brighttext] #button-print {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#print-inverted");
 }
 
 #priority-button:not(:-moz-lwtheme) > label {
@@ -822,13 +760,11 @@ toolbarbutton.formatting-button {
 
 /** Stock icons for the menu items. */
 #menu_NewMessage {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.png");
-  -moz-image-region: rect(176px 22px 198px 0px); /* message-compose.png */
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#newmsg");
 }
 
 #menu_NewContact {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.png");
-  -moz-image-region: rect(44px 22px 66px 0px); /* contact-add.png */
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newcard");
 }
 
 #menu_SaveCmd {

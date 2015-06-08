@@ -4,30 +4,6 @@
 
 @import url("chrome://messenger/content/quickFilterBar.css");
 
-/* :::: Filter Tab Bar Button :::: */
-
-#qfb-show-filter-bar {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
-  -moz-image-region: rect(0px 378px 18px 360px);
-}
-
-#qfb-show-filter-bar:not([disabled="true"]):active,
-#qfb-show-filter-bar[checked="true"] {
-  -moz-image-region: rect(18px 378px 36px 360px);
-}
-
-@media (min-resolution: 2dppx) {
-  #qfb-show-filter-bar {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar@2x.png");
-    -moz-image-region: rect(0px 756px 36px 720px);
-  }
-
-  #qfb-show-filter-bar:not([disabled="true"]):active,
-  #qfb-show-filter-bar[checked="true"] {
-    -moz-image-region: rect(36px 756px 72px 720px);
-  }
-}
-
 /* :::: Filter Bar :::: */
 
 #quick-filter-bar {

@@ -104,63 +104,27 @@
 }
 
 #button-add-buddy {
-  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.png");
-  -moz-image-region: rect(0px 18px 18px 0px);
-}
-
-#button-add-buddy:not([disabled="true"]):active {
-  -moz-image-region: rect(18px 18px 36px 0px);
-}
-
-@media (min-resolution: 2dppx) {
-  #button-add-buddy {
-    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar@2x.png");
-    -moz-image-region: rect(0px 36px 36px 0px);
-  }
-
-  #button-add-buddy:not([disabled="true"]):active {
-    -moz-image-region: rect(36px 36px 72px 0px);
-  }
+  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#add");
 }
 
 #button-join-chat {
-  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.png");
-  -moz-image-region: rect(0px 36px 18px 18px);
-}
-
-#button-join-chat:not([disabled="true"]):active {
-  -moz-image-region: rect(18px 36px 36px 18px);
-}
-
-@media (min-resolution: 2dppx) {
-  #button-join-chat {
-    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar@2x.png");
-    -moz-image-region: rect(0px 72px 36px 36px);
-  }
-
-  #button-join-chat:not([disabled="true"]):active {
-    -moz-image-region: rect(36px 72px 72px 36px);
-  }
+  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#join");
 }
 
 #button-chat-accounts {
-  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.png");
-  -moz-image-region: rect(0px 54px 18px 36px);
+  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#accounts");
 }
 
-#button-chat-accounts:not([disabled="true"]):active {
-  -moz-image-region: rect(18px 54px 36px 36px);
+toolbar[brighttext] #button-add-buddy {
+  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#add-inverted");
 }
 
-@media (min-resolution: 2dppx) {
-  #button-chat-accounts {
-    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar@2x.png");
-    -moz-image-region: rect(0px 108px 36px 72px);
-  }
+toolbar[brighttext] #button-join-chat {
+  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#join-inverted");
+}
 
-  #button-chat-accounts:not([disabled="true"]):active {
-    -moz-image-region: rect(36px 108px 72px 72px);
-  }
+toolbar[brighttext] #button-chat-accounts {
+  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#accounts-inverted");
 }
 
 #statusTypeIcon[status="available"],
@@ -320,14 +284,15 @@ richlistitem[state="disconnected"] .accountStateIcon {
 
 .tabmail-tab[type="chat"],
 .alltabs-item[type="chat"] {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
-  -moz-image-region: rect(1px, 395px, 17px, 379px);
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#chat");
+  -moz-image-region: auto;
 }
 
-@media (min-resolution: 2dppx) {
-  .tabmail-tab[type="chat"],
-  .alltabs-item[type="chat"] {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar@2x.png");
-    -moz-image-region: rect(0px 792px 36px 756px);
-  }
+.tabmail-tab[type="chat"] > .tab-stack > .tab-content > .tab-icon-image {
+  width: 18px;
+  height: 18px;
+  margin-top: 0;
+  -moz-margin-end: 5px;
+  margin-bottom: -1px;
+  -moz-margin-start: -1px;
 }

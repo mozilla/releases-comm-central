@@ -550,6 +550,15 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1[type="menu"] {
   -moz-image-region: rect(48px 576px 72px 552px) !important;
 }
 
+#qfb-show-filter-bar {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
+  -moz-image-region: rect(0px 336px 16px 320px);
+}
+
+#qfb-show-filter-bar[disabled="true"] {
+  -moz-image-region: rect(32px 336px 48px 320px);
+}
+
 .button-appmenu {
   list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
   -moz-image-region: rect(0px 600px 24px 576px);
@@ -880,6 +889,15 @@ toolbar[iconsize="small"] #button-previousMsg:hover {
 
 toolbar[iconsize="small"] #button-previousMsg[disabled] {
   -moz-image-region: rect(32px 384px 48px 368px) !important;
+}
+
+toolbar[iconsize="large"] #qfb-show-filter-bar {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
+  -moz-image-region: rect(0px 504px 24px 480px);
+}
+
+toolbar[iconsize="large"] #qfb-show-filter-bar[disabled="true"] {
+  -moz-image-region: rect(48px 504px 72px 480px);
 }
 
 toolbar[iconsize="small"] .button-appmenu {

@@ -6,24 +6,6 @@
 
 /* :::: Filter Tab Bar Button :::: */
 
-#qfb-show-filter-bar {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
-  -moz-image-region: rect(0px 336px 16px 320px);
-}
-
-toolbar[iconsize="large"] #qfb-show-filter-bar {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
-  -moz-image-region: rect(0px 504px 24px 480px);
-}
-
-#qfb-show-filter-bar[disabled="true"] {
-  -moz-image-region: rect(32px 336px 48px 320px);
-}
-
-toolbar[iconsize="large"] #qfb-show-filter-bar[disabled="true"] {
-  -moz-image-region: rect(48px 504px 72px 480px);
-}
-
 #qfb-show-filter-bar > .toolbarbutton-icon {
   padding: 0 3px;
 }

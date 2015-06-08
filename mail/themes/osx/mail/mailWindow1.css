@@ -45,7 +45,11 @@ treechildren::-moz-tree-twisty {
 /* :::::::::::::::::::::::::::::::::::: */
 
 #tabmail:-moz-lwtheme {
-  color: -moz-DialogText;
+  text-shadow: inherit;
+}
+
+#messengerBox:-moz-lwtheme {
+  text-shadow: none;
 }
 
 #folderPaneBox {

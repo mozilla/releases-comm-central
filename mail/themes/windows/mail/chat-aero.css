@@ -247,41 +247,41 @@
   }
 }
 
-#button-add-buddy,
-#button-add-buddy[disabled],
-toolbar[iconsize="small"] #button-add-buddy,
-toolbar[iconsize="small"] #button-add-buddy[disabled] {
-  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.png");
-  -moz-image-region: rect(1px 17px 17px 1px);
+#button-add-buddy {
+  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#add");
 }
 
-#button-join-chat,
-#button-join-chat[disabled],
-toolbar[iconsize="small"] #button-join-chat,
-toolbar[iconsize="small"] #button-join-chat[disabled] {
-  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.png");
-  -moz-image-region: rect(1px 35px 17px 19px);
+#button-join-chat {
+  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#join");
 }
 
-#button-chat-accounts,
-#button-chat-accounts[disabled],
-toolbar[iconsize="small"] #button-chat-accounts,
-toolbar[iconsize="small"] #button-chat-accounts[disabled] {
-  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.png");
-  -moz-image-region: rect(1px 53px 17px 37px);
+#button-chat-accounts {
+  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#accounts");
 }
 
-toolbar[brighttext] #button-add-buddy,
-toolbar[brighttext] #button-add-buddy[disabled],
-toolbar[brighttext] #button-join-chat,
-toolbar[brighttext] #button-join-chat[disabled],
-toolbar[brighttext] #button-chat-accounts,
-toolbar[brighttext] #button-chat-accounts[disabled] {
-  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar-inverted.png");
+toolbar[brighttext] #button-add-buddy {
+  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#add-inverted");
+}
+
+toolbar[brighttext] #button-join-chat {
+  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#join-inverted");
+}
+
+toolbar[brighttext] #button-chat-accounts {
+  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#accounts-inverted");
 }
 
 .tabmail-tab[type="chat"],
 .alltabs-item[type="chat"] {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
-  -moz-image-region: rect(1px, 395px, 17px, 379px);
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#chat");
+  -moz-image-region: auto;
+}
+
+.tabmail-tab[type="chat"] > .tab-stack > .tab-content > .tab-icon-image {
+  width: 18px;
+  height: 18px;
+  margin-top: 0;
+  -moz-margin-end: 5px;
+  margin-bottom: -1px;
+  -moz-margin-start: -1px;
 }

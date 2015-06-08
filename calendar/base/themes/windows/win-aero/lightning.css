@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #newMsgButton-mail-menuitem {
-  list-style-image: url(chrome://messenger/skin/icons/mail-toolbar.png) !important;
-  -moz-image-region: rect(1px 35px 17px 19px) !important;
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#newmsg") !important;
+  -moz-image-region: auto !important;
 }
 
 #calendar-tab-button,

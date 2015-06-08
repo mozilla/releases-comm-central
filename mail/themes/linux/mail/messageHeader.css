@@ -186,36 +186,81 @@ toolbox[labelalign="end"] toolbar[mode="full"] .msgHeaderView-button .toolbarbut
 .hdrReplyToSenderButton,
 .hdrDummyReplyButton,
 .hdrReplyButton {
-  list-style-image: url("chrome://messenger/skin/icons/button-reply.svg");
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#reply");
 }
 
 .hdrReplyAllButton {
-  list-style-image: url("chrome://messenger/skin/icons/button-reply-all.svg");
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replyall");
 }
 
 .hdrReplyListButton,
 .hdrFollowupButton {
-  list-style-image: url("chrome://messenger/skin/icons/button-reply-list.svg");
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replylist");
 }
 
 .hdrForwardButton {
-  list-style-image: url("chrome://messenger/skin/icons/button-forward.svg");
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#forward");
 }
 
 .hdrArchiveButton {
-  list-style-image: url("chrome://messenger/skin/icons/button-archive.svg");
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive");
 }
 
 .hdrJunkButton {
-  list-style-image: url("chrome://messenger/skin/icons/button-junk.svg");
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#junk");
 }
 
 .hdrTrashButton {
-  list-style-image: url("chrome://messenger/skin/icons/button-delete.svg");
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#delete");
 }
 
 .hdrTagButton {
-  list-style-image: url("chrome://messenger/skin/icons/button-tag.svg");
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag");
+}
+
+#attachmentSaveAllSingle,
+#attachmentSaveAllMultiple {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file");
+}
+
+toolbar[brighttext] .hdrReplyToSenderButton,
+toolbar[brighttext] .hdrDummyReplyButton,
+toolbar[brighttext] .hdrReplyButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#reply-inverted");
+}
+
+toolbar[brighttext] .hdrReplyAllButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replyall-inverted");
+}
+
+toolbar[brighttext] .hdrReplyListButton,
+toolbar[brighttext] .hdrFollowupButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replylist-inverted");
+}
+
+toolbar[brighttext] .hdrForwardButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#forward-inverted");
+}
+
+toolbar[brighttext] .hdrArchiveButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive-inverted");
+}
+
+toolbar[brighttext] .hdrJunkButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#junk-inverted");
+}
+
+toolbar[brighttext] .hdrTrashButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#delete-inverted");
+}
+
+toolbar[brighttext] .hdrTagButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag-inverted");
+}
+
+toolbar[brighttext] #attachmentSaveAllSingle,
+toolbar[brighttext] #attachmentSaveAllMultiple {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file-inverted");
 }
 
 #otherActionsButton > .toolbarbutton-icon {
@@ -393,12 +438,19 @@ window[inlinetoolbox] #newtoolbar {
 
 /* This is a workaround for #562608 in the rare case where the buttons_have_icons gconf key is set to true */
 .hdrArchiveButton > .button-box > .button-icon {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
-  -moz-image-region: rect(0px 224px 16px 208px);
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive");
 }
 
 .hdrTrashButton > .button-box > .button-icon {
-  list-style-image: url("moz-icon://stock/gtk-delete?size=menu");
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag");
+}
+
+toolbar[brighttext] .hdrArchiveButton > .button-box > .button-icon {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive-inverted");
+}
+
+toolbar[brighttext] .hdrTrashButton > .button-box > .button-icon {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag-inverted");
 }
 
 #header-view-toolbox {

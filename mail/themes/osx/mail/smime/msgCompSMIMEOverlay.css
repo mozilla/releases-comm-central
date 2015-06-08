@@ -8,34 +8,6 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-#button-security {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.png");
-  -moz-image-region: rect(0px 160px 32px 128px);
-}
-
-#button-security:hover:active,
-#button-security[open="true"] {
-  -moz-image-region: rect(32px 160px 64px 128px);
-}
-
-#button-security[disabled] {
-  -moz-image-region: rect(64px 160px 96px 128px) !important;
-}
-
-toolbar[iconsize="small"] #button-security {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar-small.png");
-  -moz-image-region: rect(0px 120px 24px 96px);
-}
-
-toolbar[iconsize="small"] #button-security:hover:active,
-toolbar[iconsize="small"] #button-security[open="true"] {
-  -moz-image-region: rect(24px 120px 48px 96px);
-}
-
-toolbar[iconsize="small"] #button-security[disabled] {
-  -moz-image-region: rect(48px 120px 72px 96px) !important;
-}
-
 #msgcomposeWindow #signing-status {
   list-style-image: none;
   visibility: collapse;

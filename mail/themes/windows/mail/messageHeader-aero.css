@@ -125,16 +125,6 @@
   color: #888a85; /* the same color as .headerName */
 }
 
-#attachmentSaveAllSingle,
-#attachmentSaveAllMultiple {
-  list-style-image: url("chrome://messenger/skin/icons/download.png");
-}
-
-toolbar[brighttext] #attachmentSaveAllSingle,
-toolbar[brighttext] #attachmentSaveAllMultiple {
-  list-style-image: url("chrome://messenger/skin/icons/download-inverted.png");
-}
-
 #attachmentView {
   border-top: 1px solid #A9B7C9; /* The same color as the splitters */
 }
@@ -321,47 +311,84 @@ toolbox[labelalign="end"] toolbar[mode="full"]
 .hdrReplyToSenderButton,
 .hdrDummyReplyButton,
 .hdrReplyButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
-  -moz-image-region: rect(1px, 71px, 17px, 55px);
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#reply");
 }
 
 .hdrReplyAllButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
-  -moz-image-region: rect(1px, 89px, 17px, 73px);
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replyall");
 }
 
 .hdrReplyListButton,
 .hdrFollowupButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
-  -moz-image-region: rect(1px, 125px, 17px, 109px);
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replylist");
 }
 
 .hdrForwardButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
-  -moz-image-region: rect(1px, 107px, 17px, 91px);
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#forward");
 }
 
 .hdrArchiveButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
-  -moz-image-region: rect(1px, 359px, 17px, 343px);
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive");
 }
 
 .hdrJunkButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
-  -moz-image-region: rect(1px, 161px, 17px, 145px);
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#junk");
 }
 
 .hdrTrashButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
-  -moz-image-region: rect(1px, 143px, 17px, 127px);
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#delete");
 }
 
 .hdrTagButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
-  -moz-image-region: rect(1px, 287px, 17px, 271px);
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag");
 }
 
-#otherActionsButton > .toolbarbutton-icon {
+#attachmentSaveAllSingle,
+#attachmentSaveAllMultiple {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file");
+}
+
+toolbar[brighttext] .hdrReplyToSenderButton,
+toolbar[brighttext] .hdrDummyReplyButton,
+toolbar[brighttext] .hdrReplyButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#reply-inverted");
+}
+
+toolbar[brighttext] .hdrReplyAllButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replyall-inverted");
+}
+
+toolbar[brighttext] .hdrReplyListButton,
+toolbar[brighttext] .hdrFollowupButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replylist-inverted");
+}
+
+toolbar[brighttext] .hdrForwardButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#forward-inverted");
+}
+
+toolbar[brighttext] .hdrArchiveButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive-inverted");
+}
+
+toolbar[brighttext] .hdrJunkButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#junk-inverted");
+}
+
+toolbar[brighttext] .hdrTrashButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#delete-inverted");
+}
+
+toolbar[brighttext] .hdrTagButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag-inverted");
+}
+
+toolbar[brighttext] #attachmentSaveAllSingle,
+toolbar[brighttext] #attachmentSaveAllMultiple {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file-inverted");
+}
+
+#otherActionsButton > hbox > vbox > .toolbarbutton-icon {
   display: none;
 }
 
@@ -377,10 +404,6 @@ toolbox[labelalign="end"] toolbar[mode="full"]
   padding-top: 4px;
   padding-bottom: 4px;
   list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");
-}
-
-#header-view-toolbox > toolbar[brighttext] .toolbarbutton-1 {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-inverted.png");
 }
 
 toolbar[brighttext] .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
@@ -569,17 +592,6 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
 
 .expandHeaderViewButton {
   list-style-image: url("chrome://global/skin/tree/twisty-open.png");
-}
-
-/* This is a workaround for #562608 to make the buttons smaller */
-.hdrArchiveButton > .button-box > .button-icon {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
-  -moz-image-region: rect(1px, 360px, 17px, 343px);
-}
-
-.hdrTrashButton > .button-box > .button-icon {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
-  -moz-image-region: rect(1px, 144px, 17px, 127px);
 }
 
 #header-view-toolbox {

@@ -4,13 +4,6 @@
 
 @import url("chrome://messenger/content/quickFilterBar.css");
 
-/* :::: Filter Tab Bar Button :::: */
-
-#qfb-show-filter-bar {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
-  -moz-image-region: rect(1px, 377px, 17px, 361px);
-}
-
 #tabbar-toolbar #qfb-show-filter-bar {
   padding-left: 4px !important;
   padding-right: 4px !important;

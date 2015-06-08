@@ -84,10 +84,6 @@
   list-style-image: url(chrome://calendar/skin/toolbar-aero-inverted.png) !important;
 }
 
-toolbar[brighttext] .button-appmenu {
-  list-style-image: url(chrome://messenger/skin/icons/mail-toolbar-inverted.png);
-}
-
 @media (-moz-windows-glass) {
   #calendar-toolbox:not(:-moz-lwtheme) {
     border-bottom-color: #AABCCF;

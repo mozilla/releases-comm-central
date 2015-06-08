@@ -101,6 +101,19 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   -moz-image-region: rect(48px 96px 72px 72px) !important;
 }
 
+#button-security {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.png");
+  -moz-image-region: rect(0px 120px 24px 96px);
+}
+
+#button-security:hover {
+  -moz-image-region: rect(24px 120px 48px 96px);
+}
+
+#button-security[disabled] {
+  -moz-image-region: rect(48px 120px 72px 96px) !important;
+}
+
 #button-save {
   list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.png");
   -moz-image-region: rect(0px 144px 24px 120px);
@@ -231,6 +244,19 @@ toolbar[iconsize="small"] #button-attach:hover {
 
 toolbar[iconsize="small"] #button-attach[disabled="true"] {
   -moz-image-region: rect(32px 64px 48px 48px) !important;
+}
+
+toolbar[iconsize="small"] #button-security {
+  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar-small.png");
+  -moz-image-region: rect(0px 80px 16px 64px);
+}
+
+toolbar[iconsize="small"] #button-security:hover {
+  -moz-image-region: rect(16px 80px 32px 64px);
+}
+
+toolbar[iconsize="small"] #button-security[disabled] {
+  -moz-image-region: rect(32px 80px 48px 64px) !important;
 }
 
 toolbar[iconsize="small"] #button-save {
