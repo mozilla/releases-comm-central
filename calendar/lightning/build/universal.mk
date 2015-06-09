@@ -46,7 +46,7 @@ grep -v em:targetPlatform $(DIST_ARCH_1)/$1/$2/install.rdf > $(DIST_UNI)/$1/$2/i
 endef
 
 define unify_lightning_repackage
-cd $(DIST_UNI)/$1/$2 && $(ZIP) -qr ../$(XPI_PKGNAME).xpi *
+$(call py_action,zip,-C $(DIST_UNI)/$1/$2 ../$(XPI_PKGNAME).xpi '*')
 endef
 
 postflight_all:
