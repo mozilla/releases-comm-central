@@ -507,6 +507,7 @@
 @RESPATH@/components/necko_about.xpt
 @RESPATH@/components/necko_dns.xpt
 @RESPATH@/components/necko_http.xpt
+@RESPATH@/components/necko_mdns.xpt
 @RESPATH@/components/necko_ipc.xpt
 @RESPATH@/components/necko_res.xpt
 @RESPATH@/components/necko_strconv.xpt
