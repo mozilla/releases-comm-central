@@ -75,7 +75,8 @@
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
   button,
   #addressbookList {
     background-color: hsla(210, 4%, 10%, .08);

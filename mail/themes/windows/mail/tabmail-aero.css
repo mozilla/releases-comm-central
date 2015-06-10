@@ -14,7 +14,8 @@
   }
 }
 
-@media (-moz-os-version: windows-win8) {
+@media (-moz-os-version: windows-win8),
+       (-moz-os-version: windows-win10) {
   @media not all and (-moz-windows-default-theme) {
     #tabs-toolbar:not(:-moz-lwtheme) {
       color: CaptionText;
@@ -61,7 +62,6 @@
   list-style-image: url(chrome://messenger/skin/icons/mainwindow-dropdown-arrow-inverted.png);
 }
 
-/* Apply only on Win8 */
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
   #messengerWindow[darkwindowframe="true"]
   #tabs-toolbar:not(:-moz-lwtheme):not(:-moz-window-inactive),

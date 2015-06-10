@@ -16,9 +16,20 @@
     -moz-margin-end: 3px;
   }
 
-  #messengerWindow {
-    -moz-appearance: -moz-win-borderless-glass;
-    background: transparent;
+  @media (-moz-os-version: windows-vista),
+        (-moz-os-version: windows-win7) {
+    #messengerWindow {
+      -moz-appearance: -moz-win-borderless-glass;
+      background-color: transparent;
+    }
+  }
+
+  @media (-moz-os-version: windows-win8),
+        (-moz-os-version: windows-win10) {
+    #messengerWindow {
+      -moz-appearance: -moz-win-glass;
+      background-color: transparent;
+    }
   }
 
   /* Artificially draw window borders that are covered by lwtheme,
@@ -269,7 +280,8 @@ treechildren::-moz-tree-image(junkStatusCol) {
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
   menulist {
     background-color: hsla(210, 4%, 10%, .08);
     border-color: hsla(210, 4%, 10%, .1);
@@ -338,13 +350,16 @@ treechildren::-moz-tree-image(junkStatusCol) {
   }
 }
 
-@media (-moz-os-version: windows-win8) {
+@media (-moz-os-version: windows-win8),
+       (-moz-os-version: windows-win10) {
   #folderTree {
     background-color: -moz-Dialog;
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-windows-compositor) {
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
   #messengerWindow[sizemode=normal] #tabpanelcontainer {
     border: 1px solid rgba(10%, 10%, 10%, .4);
     border-top: none;

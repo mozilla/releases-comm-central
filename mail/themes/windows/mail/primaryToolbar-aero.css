@@ -145,7 +145,8 @@
   }
 }
 
-@media (-moz-os-version: windows-win8) {
+@media (-moz-os-version: windows-win8),
+       (-moz-os-version: windows-win10) {
   .findbar-button,
   .toolbarbutton-1:not([type="menu-button"]),
   .toolbarbutton-1 > .toolbarbutton-menubutton-button,
@@ -456,7 +457,8 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1 .toolbarbutton
   }
 }
 
-@media (-moz-os-version: windows-win8) {
+@media (-moz-os-version: windows-win8),
+       (-moz-os-version: windows-win10) {
   @media not all and (-moz-windows-default-theme) {
     #messengerWindow:not([tabsintitlebar]) #tabs-toolbar:not(:-moz-lwtheme),
     #messengerWindow:not([tabsintitlebar]) #mail-menubar >
@@ -723,7 +725,8 @@ toolbar[iconsize="large"]:not([mode="text"]) .badgeButton-badge {
   -moz-padding-end: 0.5em;
 }
 
-@media (-moz-os-version: windows-win8) {
+@media (-moz-os-version: windows-win8),
+       (-moz-os-version: windows-win10) {
   #appmenuSecondaryPane {
     --appMenu-bg-color: -moz-dialog;
     --appMenu-bg-box-shadow: ThreeDShadow;

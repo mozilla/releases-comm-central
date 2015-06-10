@@ -108,8 +108,8 @@ treechildren::-moz-tree-cell-text {
   }
 }
 
-/* Win8 and beyond. */
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
   #searchInput:not(:-moz-lwtheme),
   #IMSearchInput:not(:-moz-lwtheme),
   .remote-gloda-search:not(:-moz-lwtheme) {

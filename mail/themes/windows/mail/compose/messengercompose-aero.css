@@ -248,7 +248,8 @@ toolbox[labelalign="end"] .toolbarbutton-menubutton-button {
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
   .findbar-button,
   .toolbarbutton-1:not([type="menu-button"]),
   .toolbarbutton-1 > .toolbarbutton-menubutton-button,
@@ -817,7 +818,8 @@ treechildren::-moz-tree-image(subscribed-news) {
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
   .aw-menulist {
     margin: 1px;
     -moz-margin-end: 4px;

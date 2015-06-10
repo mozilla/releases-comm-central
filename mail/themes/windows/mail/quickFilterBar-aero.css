@@ -223,8 +223,8 @@
   }
 }
 
-/* Win8 and beyond. */
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
   #qfb-qs-textbox:not(:-moz-lwtheme) {
     background-color: hsla(0, 0%, 100%, .9);
     border: 1px solid transparent;
