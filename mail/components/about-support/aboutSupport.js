@@ -47,7 +47,7 @@ var AboutSupport = {
   /**
    * Gets details about SMTP servers for a given nsIMsgAccount.
    *
-   * @returns A list of records, each record containing the name and other details
+   * @returns An array of records, each record containing the name and other details
    *          about one SMTP server.
    */
   _getSMTPDetails: function AboutSupport__getSMTPDetails(aAccount) {
@@ -59,7 +59,8 @@ var AboutSupport = {
       let isDefault = identity == defaultIdentity;
       let smtpServer = {};
       MailServices.smtp.getServerByIdentity(identity, smtpServer);
-      smtpDetails.push({name: smtpServer.value.displayname,
+      smtpDetails.push({identityName: identity.identityName,
+                        name: smtpServer.value.displayname,
                         authMethod: smtpServer.value.authMethod,
                         socketType: smtpServer.value.socketType,
                         isDefault: isDefault});
@@ -69,7 +70,7 @@ var AboutSupport = {
   },
 
   /**
-   * Returns account details as a list of records.
+   * Returns account details as an array of records.
    */
   getAccountDetails: function AboutSupport_getAccountDetails() {
     let accountDetails = [];

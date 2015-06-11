@@ -39,6 +39,7 @@ var gIncomingDetails = [
  * similar to gIncomingDetails above.
  */
 var gOutgoingDetails = [
+  ["identityName", toPrivate],
   ["name", toStr],
   ["socketType", AboutSupport.getSocketTypeText.bind(AboutSupport)],
   ["authMethod", AboutSupport.getAuthMethodText.bind(AboutSupport)],
@@ -67,13 +68,13 @@ function populateAccountsSection() {
   for (let account of gAccountDetails) {
     // We want a minimum rowspan of 1
     let rowSpan = account.smtpServers.length || 1;
-    // incomingTDs is a list of TDs
+    // incomingTDs is an array of TDs
     let incomingTDs = [createTD(fn(account[prop]), rowSpan)
-                       for ([, [prop, fn]] in Iterator(gIncomingDetails))];
-    // outgoingTDs is a list of list of TDs
+                       for ([prop, fn] of gIncomingDetails)];
+    // outgoingTDs is an array of arrays of TDs
     let outgoingTDs = [[createTD(fn(smtp[prop]), 1)
-                        for ([, [prop, fn]] in Iterator(gOutgoingDetails))]
-                       for ([, smtp] in Iterator(account.smtpServers))];
+                        for ([prop, fn] of gOutgoingDetails)]
+                       for (smtp of account.smtpServers)];
 
     // If there are no SMTP servers, add a dummy element to make life easier below
     if (outgoingTDs.length == 0)
@@ -110,13 +111,13 @@ function getAccountsText(aHidePrivateData, aIndent) {
     accumulator.push(aIndent + account.key + ":");
     // incomingData is a list of strings
     let incomingData = [neutralizer(fn(account[prop]))
-                        for ([, [prop, fn]] in Iterator(gIncomingDetails))];
+                        for ([prop, fn] of gIncomingDetails)];
     accumulator.push(aIndent + "  INCOMING: " + incomingData.join(", "));
 
     // outgoingData is a list of list of strings
     let outgoingData = [[neutralizer(fn(smtp[prop]))
-                         for ([, [prop, fn]] in Iterator(gOutgoingDetails))]
-                        for ([, smtp] in Iterator(account.smtpServers))];
+                         for ([prop, fn] of gOutgoingDetails)]
+                        for (smtp of account.smtpServers)];
     for (let [, data] in Iterator(outgoingData))
       accumulator.push(aIndent + "  OUTGOING: " + data.join(", "));
 
