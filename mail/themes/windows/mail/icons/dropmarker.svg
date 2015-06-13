@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="0 0 9 7">
+  <style>
+    path {
+      display: none;
+    }
+    path:target {
+      display: block;
+    }
+  </style>
+    <path id="win"
+       style="fill: ButtonText;stroke:none;" d="M 1,1 8,1 4.5,5 Z"/>
+    <path id="win-inverted"
+       style="fill: white;stroke:#111922;" d="m 0.5,0.5 8,0 -4,5.5 z"/>
+    <path id="win8"
+       style="fill: #444;stroke:none;" d="M 1,2.5 1,0 4.5,3 8,0 8,2.5 4.5,5.5 Z"/>
+    <path id="win8-inverted"
+       style="fill: white;stroke:#111922;" d="m 0.5,4 0,-3.5 4,2.5 4,-2.5 0,3.5 -4,2.5 z"/>
+</svg>
