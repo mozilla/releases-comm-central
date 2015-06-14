@@ -1651,6 +1651,7 @@
         </body>
       </method>
 
+      <field name="_currentTypingName">""</field>
       <method name="updateTyping">
         <parameter name="aForceUpdate"/>
         <body>
@@ -1663,7 +1664,12 @@
           this.tab.removeAttribute("typed");
 
           let typingText = "";
-          var name = this._conv.title.replace(/^([a-zA-Z0-9.]+)[@\s].*/, "$1");
+          let name = this._currentTypingName;
+          if (!this._currentTypingName) {
+            // This regex is intended to get a shortened name for prpls that
+            // don't provide a _currentTypingName.
+            name = this._conv.title.replace(/^([a-zA-Z0-9.]+)[@\s].*/, "$1");
+          }
           if (typingState == Ci.prplIConvIM.TYPING) {
             this.tab.setAttribute("typing", "true");
             typingText = this.bundle.formatStringFromName("isTyping", [name], 1);
@@ -1870,6 +1876,7 @@
             break;
 
           case "update-typing":
+            this._currentTypingName = aData;
             this.updateTyping();
             break;
 

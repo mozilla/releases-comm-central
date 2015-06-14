@@ -1269,6 +1269,7 @@
        </body>
      </method>
 
+     <field name="_currentTypingName">""</field>
      <method name="updateTyping">
        <body>
        <![CDATA[
@@ -1277,7 +1278,9 @@
           cti.removeAttribute("typing");
           cti.removeAttribute("typed");
 
-          let name = this._conv.title;//.replace(/^([a-zA-Z0-9.]+)[@\s].*/, "$1");
+          let name = this._currentTypingName;
+          if (!this._currentTypingName)
+            name = this._conv.title;//.replace(/^([a-zA-Z0-9.]+)[@\s].*/, "$1");
           if (typingState == Ci.prplIConvIM.TYPING) {
             cti.setAttribute("typing", "true");
             let typingMsg = this.bundle.formatStringFromName("chat.contactIsTyping",
@@ -1481,9 +1484,15 @@
          case "update-buddy-status":
          case "update-buddy-icon":
          case "update-conv-chatleft":
-         case "update-typing":
            if (this.tab && this._isConversationSelected)
              this.updateConvStatus();
+           break;
+
+         case "update-typing":
+           if (this.tab && this._isConversationSelected) {
+             this._currentTypingName = aData;
+             this.updateConvStatus();
+           }
            break;
 
          case "chat-buddy-add":

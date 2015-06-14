@@ -377,6 +377,17 @@ const XMPPConversationPrototype = {
   get contactDisplayName() this.buddy ? this.buddy.contactDisplayName : this.name,
   get userName() this.buddy ? this.buddy.userName : this.name,
 
+  // Used to avoid showing full jids in typing notifications.
+  get shortName() {
+    if (this.buddy)
+      return this.buddy.contactDisplayName;
+
+    let jid = this._account._parseJID(this.name);
+    if (!jid || !jid.node)
+      return this.name;
+    return jid.node;
+  },
+
   get shouldSendTypingNotifications()
     this.supportChatStateNotifications &&
     Services.prefs.getBoolPref("purple.conversations.im.send_typing"),
@@ -694,7 +705,7 @@ const XMPPAccountBuddyPrototype = {
     // Reset typing status if the buddy is in a conversation and becomes unavailable.
     let conv = this._account._conv.get(this.normalizedName);
     if (type == "unavailable" && conv)
-      conv.updateTyping(Ci.prplIConvIM.NOT_TYPING);
+      conv.updateTyping(Ci.prplIConvIM.NOT_TYPING, this.contactDisplayName);
 
     if (type == "unavailable" || type == "error") {
       if (!this._resources || !(resource in this._resources))
@@ -1352,7 +1363,7 @@ const XMPPAccountPrototype = {
         typingState = Ci.prplIConvIM.TYPED;
     }
     let conv = this._conv.get(norm);
-    conv.updateTyping(typingState);
+    conv.updateTyping(typingState, conv.shortName);
     conv.supportChatStateNotifications = !!state;
   },
 

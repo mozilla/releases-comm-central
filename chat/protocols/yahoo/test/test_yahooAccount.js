@@ -84,9 +84,9 @@ function test_fixFontSize()
     writeMessage: function(aName, aMessage, aProperties) {
       do_check_eq(aMessage, messagePair[1]); // Compare to the good message.
     },
-    updateTyping: function(aStatus) { }
+    updateTyping: function(aStatus, aName) { }
   };
-  
+
   let yahooAccount = new yahoo.YahooAccount(fakeProtocol, fakeImAccount);
   yahooAccount._conversations.set("test-user", fakeConversation);
   for each(let pair in testMessages) {

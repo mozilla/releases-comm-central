@@ -407,7 +407,7 @@ YahooAccount.prototype = {
                       .replace(/(<font[^>]+)size=\"(\d+)\"/g, this._fixFontSize);
 
     conv.writeMessage(aName, message, {incoming: true});
-    conv.updateTyping(Ci.prplIConvIM.NOT_TYPING);
+    conv.updateTyping(Ci.prplIConvIM.NOT_TYPING, conv.name);
   },
 
   receiveConferenceMessage: function(aName, aRoom, aMessage) {
@@ -423,10 +423,11 @@ YahooAccount.prototype = {
     if (!this._conversations.has(aName))
       return;
 
+    let conv = this._conversations.get(aName);
     if (aIsTyping)
-      this._conversations.get(aName).updateTyping(Ci.prplIConvIM.TYPING);
+      conv.updateTyping(Ci.prplIConvIM.TYPING, conv.name);
     else
-      this._conversations.get(aName).updateTyping(Ci.prplIConvIM.NOT_TYPING);
+      conv.updateTyping(Ci.prplIConvIM.NOT_TYPING, conv.name);
   },
 
   encodeMessage: function(aMessage) {

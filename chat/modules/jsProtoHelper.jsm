@@ -519,7 +519,7 @@ const GenericConvIMPrototype = {
   _interfaces: [Ci.prplIConversation, Ci.prplIConvIM],
   classDescription: "generic ConvIM object",
 
-  updateTyping: function(aState) {
+  updateTyping: function(aState, aName) {
     if (aState == this.typingState)
       return;
 
@@ -527,7 +527,7 @@ const GenericConvIMPrototype = {
       delete this.typingState;
     else
       this.typingState = aState;
-    this.notifyObservers(null, "update-typing", null);
+    this.notifyObservers(null, "update-typing", aName);
   },
 
   get isChat() false,
