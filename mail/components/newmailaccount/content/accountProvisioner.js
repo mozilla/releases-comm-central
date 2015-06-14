@@ -773,9 +773,9 @@ var EmailAccountProvisioner = {
         let templateElement = document.querySelector("#result_tmpl");
         let result = document.importNode(templateElement.content, true).children[0];
         result.innerHTML =
-          result.innerHTML.replace("${address}",
-                                   address.address ? address.address : address, "g")
-                          .replace("${priceStr}", priceStr, "g");
+          result.innerHTML.replace(/\${address}/g,
+                                   address.address ? address.address : address)
+                          .replace(/\${priceStr}/g, priceStr);
 
         group.append(result);
         // Keep a count of the rendered addresses for the "More" buttons, etc.
