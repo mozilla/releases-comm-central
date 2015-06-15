@@ -22,14 +22,18 @@ var folder = null;
 // so we get the right path for the resources.
 var url = collector.addHttpResource('../content-policy/html', 'content');
 
-var setupModule = function (module) {
-  let fdh = collector.getModule('folder-display-helpers');
-  fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
-  wh.installInto(module);
+function setupModule(module) {
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   folder = create_folder("jsContentPolicy");
+  Services.prefs.setBoolPref("javascript.enabled", true);
 };
+
+function teardownModule(module) {
+  Services.prefs.clearUserPref("javascript.enabled");
+}
 
 function addToFolder(aSubject, aBody, aFolder) {
 
@@ -172,6 +176,52 @@ function checkJsInFeedContent() {
 }
 
 /**
+ * Check JavaScript for a feed message viewed in a tab, when the
+ * "View as Web Page" pref is set.
+ */
+function checkJsInFeedTab() {
+  let msgDbHdr = addToFolder("JS test message " + gMsgNo + " (feed!)",
+                             jsMsgBody, folder);
+  msgDbHdr.OrFlags(Ci.nsMsgMessageFlags.FeedMsg);
+
+  // Set to "View as Web Page" so we get the Content-Base page shown.
+  Services.prefs.setIntPref("rss.show.summary", 0);
+
+  // Select the newly created message.
+  let msgHdr = select_click_row(gMsgNo);
+  assert_equals(msgDbHdr, msgHdr,
+                "Selected Message Header is not the same as generated header");
+
+  wait_for_message_display_completion();
+
+  let feedUrl = url + "remote-noscript.html";
+
+  open_selected_message_in_new_tab();
+
+  // The above just ensures local "inline" content have loaded. We need to wait
+  // for the remote content to load too before we check anything.
+  mc.waitFor(() => mc.window.content.wrappedJSObject.location.href == feedUrl &&
+                   mc.window.content.wrappedJSObject.document &&
+                   mc.window.content.wrappedJSObject.document.querySelector("body") != null,
+             "Timeout waiting for remote feed doc to load; url=" +
+              mc.window.content.wrappedJSObject.location);
+
+  if (!mc.window.content.wrappedJSObject.jsIsTurnedOn)
+    throw new Error("JS is turned off for remote feed content - it should be on.");
+
+  let noscript = mc.window.content.wrappedJSObject.document
+                   .getElementsByTagName("noscript")[0];
+  let display = mc.window.getComputedStyle(noscript).getPropertyValue("display");
+  if (display != "none")
+    throw new Error("noscript display should be 'none'; display=" + display);
+
+  ++gMsgNo;
+
+  Services.prefs.clearUserPref("rss.show.summary");
+  close_tab();
+}
+
+/**
  * Check JavaScript when loading remote content in the message pane.
  */
 function checkJsInRemoteContent() {
@@ -210,5 +260,6 @@ function test_jsContentPolicy() {
 
   checkJsInFeedContent();
   checkJsInRemoteContent();
+  checkJsInFeedTab();
 
 }
