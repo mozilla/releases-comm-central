@@ -789,6 +789,9 @@ NS_IMETHODIMP nsMsgGroupView::CellTextForColumn(int32_t aRow,
           }
           break;
         }
+        case nsMsgViewSortType::bySubject:
+          FetchSubject(msgHdr, m_flags[aRow], aValue);
+          break;
         case nsMsgViewSortType::byAuthor:
           FetchAuthor(msgHdr, aValue);
           break;
@@ -948,5 +951,6 @@ nsMsgViewIndex nsMsgGroupView::ThreadIndexOfMsg(nsMsgKey msgKey,
 
 bool nsMsgGroupView::GroupViewUsesDummyRow()
 {
-  return (m_sortType != nsMsgViewSortType::bySubject);
+  // Return true to always use a header row as root grouped parent row.
+  return true;
 }
