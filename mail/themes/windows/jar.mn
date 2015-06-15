@@ -17,8 +17,7 @@ classic.jar:
 # ATTENTION! ATTENTION! ATTENTION! ATTENTION! ATTENTION! ATTENTION! ATTENTION!
 # ATTENTION! ATTENTION! ATTENTION! ATTENTION! ATTENTION! ATTENTION! ATTENTION!
 
-% skin communicator classic/1.0 %skin/classic/communicator/ os=WINNT osversion<6
-% skin communicator classic/1.0 %skin/classic/communicator/ os!=WINNT
+% skin communicator classic/1.0 %skin/classic/communicator/
   skin/classic/communicator/communicator.css                       (mail/communicator.css)
   skin/classic/communicator/smileys.css                            (mail/smileys.css)
   skin/classic/communicator/icons/smileys/smiley-smile.png         (mail/icons/smiley-smile.png)
@@ -300,25 +299,6 @@ classic.jar:
   skin/classic/messenger/shared/addressbook.css               (../shared/mail/addressbook.css)
   skin/classic/messenger/shared/accountProvisioner.css        (../shared/mail/accountProvisioner.css)
 #ifdef XP_WIN
-% skin communicator classic/1.0 %skin/classic/aero/communicator/ os=WINNT osversion>=6
-  skin/classic/aero/communicator/communicator.css                       (mail/communicator.css)
-  skin/classic/aero/communicator/smileys.css                            (mail/smileys.css)
-  skin/classic/aero/communicator/icons/smileys/smiley-smile.png         (mail/icons/smiley-smile-aero.png)
-  skin/classic/aero/communicator/icons/smileys/smiley-frown.png         (mail/icons/smiley-frown-aero.png)
-  skin/classic/aero/communicator/icons/smileys/smiley-wink.png          (mail/icons/smiley-wink-aero.png)
-  skin/classic/aero/communicator/icons/smileys/smiley-tongue-out.png    (mail/icons/smiley-tongue-out-aero.png)
-  skin/classic/aero/communicator/icons/smileys/smiley-laughing.png      (mail/icons/smiley-laughing-aero.png)
-  skin/classic/aero/communicator/icons/smileys/smiley-embarassed.png    (mail/icons/smiley-embarassed-aero.png)
-  skin/classic/aero/communicator/icons/smileys/smiley-undecided.png     (mail/icons/smiley-undecided-aero.png)
-  skin/classic/aero/communicator/icons/smileys/smiley-surprised.png     (mail/icons/smiley-surprised-aero.png)
-  skin/classic/aero/communicator/icons/smileys/smiley-kiss.png          (mail/icons/smiley-kiss-aero.png)
-  skin/classic/aero/communicator/icons/smileys/smiley-yell.png          (mail/icons/smiley-yell-aero.png)
-  skin/classic/aero/communicator/icons/smileys/smiley-cool.png          (mail/icons/smiley-cool-aero.png)
-  skin/classic/aero/communicator/icons/smileys/smiley-money-mouth.png   (mail/icons/smiley-money-mouth-aero.png)
-  skin/classic/aero/communicator/icons/smileys/smiley-foot-in-mouth.png (mail/icons/smiley-foot-in-mouth-aero.png)
-  skin/classic/aero/communicator/icons/smileys/smiley-innocent.png      (mail/icons/smiley-innocent-aero.png)
-  skin/classic/aero/communicator/icons/smileys/smiley-cry.png           (mail/icons/smiley-cry-aero.png)
-  skin/classic/aero/communicator/icons/smileys/smiley-sealed.png        (mail/icons/smiley-sealed-aero.png)
 % skin messenger classic/1.0 %skin/classic/aero/messenger/ os=WINNT osversion>=6
 * skin/classic/aero/messenger/primaryToolbar.css                   (mail/primaryToolbar-aero.css)
   skin/classic/aero/messenger/aboutSupport.css                     (mail/aboutSupport.css)
