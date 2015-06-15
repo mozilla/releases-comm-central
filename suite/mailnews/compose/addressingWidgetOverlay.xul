@@ -17,13 +17,13 @@
     onkeydown="awKeyDown(event, this)"
     onclick="awClickEmptySpace(event.originalTarget, true)"
     ondragover="DragAddressOverTargetControl(event);"
-    ondragdrop="DropAddressOverTargetControl(event);">
-    
+    ondrop="DropAddressOverTargetControl(event);">
+
     <listcols>
       <listcol id="typecol-addressingWidget"/>
       <listcol id="textcol-addressingWidget" flex="1"/>
     </listcols>
-  
+
     <listitem class="addressingWidgetItem" allowevents="true">
       <listcell class="addressingWidgetCell" align="stretch">
         <menulist id="addressCol1#1" disableonsend="true"
@@ -40,7 +40,7 @@
           </menupopup>
         </menulist>
       </listcell>
-      
+
       <listcell class="addressingWidgetCell">
         <textbox id="addressCol2#1" class="plain textbox-addressingWidget uri-element"
                  aria-labelledby="addressCol1#1"
@@ -61,5 +61,5 @@
     </listitem>
 
   </listbox>
-  
+
 </overlay>

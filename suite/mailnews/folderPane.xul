@@ -22,7 +22,7 @@
             datasources="rdf:null"
             statedatasource="rdf:mailnewsfolders"
             flags="dont-build-content"
-            ondraggesture="BeginDragFolderTree(event);"
+            ondragstart="BeginDragFolderTree(event);"
             onselect="FolderPaneSelectionChange();">
     <template>
       <rule>

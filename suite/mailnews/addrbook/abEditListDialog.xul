@@ -16,7 +16,7 @@
         onload="OnLoadEditList()"
         ondialogaccept="return EditListOKButton();"
         ondragover="DragOverAddressListTree(event);"
-        ondragdrop="DropOnAddressListTree(event);">
+        ondrop="DropOnAddressListTree(event);">
 
   <stringbundleset id="stringbundleset"/>
   <vbox id="editlist" flex="1"/>		

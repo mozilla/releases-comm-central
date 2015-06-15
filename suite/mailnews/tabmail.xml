@@ -174,9 +174,9 @@
                   tooltip="_child"
                   context="_child"
                   anonid="strip"
-                  ondraggesture="nsDragAndDrop.startDrag(event, this.parentNode.parentNode); event.stopPropagation();"
+                  ondragstart="nsDragAndDrop.startDrag(event, this.parentNode.parentNode); event.stopPropagation();"
                   ondragover="nsDragAndDrop.dragOver(event, this.parentNode.parentNode); event.stopPropagation();"
-                  ondragdrop="nsDragAndDrop.drop(event, this.parentNode.parentNode); event.stopPropagation();"
+                  ondrop="nsDragAndDrop.drop(event, this.parentNode.parentNode); event.stopPropagation();"
                   ondragexit="nsDragAndDrop.dragExit(event, this.parentNode.parentNode); event.stopPropagation();">
           <xul:tooltip onpopupshowing="var tabmail = this.parentNode.parentNode.parentNode;
                                        return tabmail.FillTabmailTooltip(document, event);"/>

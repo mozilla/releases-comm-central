@@ -71,7 +71,7 @@
         <label value="&addressMessageTo.label;" control="addressBucket"/>
         <tree id="addressBucket" flex="1" hidecolumnpicker="true"
             ondragover="DragAddressOverTargetControl(event);"
-            ondragdrop="DropAddressOverTargetControl(event);"
+            ondrop="DropAddressOverTargetControl(event);"
             onselect="DialogBucketPaneSelectionChanged();">
           <treecols>
             <treecol id="addressCol" flex="1" hideheader="true"/>

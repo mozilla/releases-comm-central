@@ -274,7 +274,7 @@
                      onclick="if (event.button == 1) BrowserHome(event);"
                      tooltip="home-button-tooltip"
                      ondragstart="homeButtonObserver.onDragStart(event);"
-                     ondragdrop="homeButtonObserver.onDrop(event);"
+                     ondrop="homeButtonObserver.onDrop(event);"
                      ondragenter="event.stopPropagation();"
                      ondragexit="homeButtonObserver.onDragExit(event);"
                      ondragover="homeButtonObserver.onDragOver(event);"/>
@@ -349,7 +349,7 @@
                 oncommand="handleURLBarCommand('none', event);"
                 onclick="checkForMiddleClick(this, event);"
                 ondragover="goButtonObserver.onDragOver(event);"
-                ondragdrop="goButtonObserver.onDrop(event);"/>
+                ondrop="goButtonObserver.onDrop(event);"/>
       </toolbaritem>
 
       <toolbaritem id="search-button-container"
@@ -361,7 +361,7 @@
                 tooltiptext="&searchButton.tooltip;"
                 oncommand="BrowserSearch.loadSearch(QualifySearchTerm());"
                 ondragover="searchButtonObserver.onDragOver(event);"
-                ondragdrop="searchButtonObserver.onDrop(event);"/>
+                ondrop="searchButtonObserver.onDrop(event);"/>
       </toolbaritem>
 
       <toolbaritem id="search-container" title="&searchItem.title;"

@@ -29,7 +29,7 @@
         persist="sortDirection sortResource sortResource2"
         onclick="OnClick(event);"
         onkeypress="OnClick(event);"
-        ondraggesture="return BeginDragTree(event);">
+        ondragstart="return BeginDragTree(event);">
       <treecols onclick="doSort(event.target)">
         <treecol id="FilenameColumn" flex="3" persist="ordinal hidden"
             label="&directoryWindow.filename.label;"

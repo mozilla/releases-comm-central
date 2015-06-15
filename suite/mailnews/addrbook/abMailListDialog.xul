@@ -15,7 +15,7 @@
     ondialogaccept="return MailListOKButton();"
     onload="OnLoadNewMailList()"
     ondragover="DragOverAddressListTree(event);"
-    ondragdrop="DropOnAddressListTree(event);">
+    ondrop="DropOnAddressListTree(event);">
 
   <stringbundleset id="stringbundleset"/>
 

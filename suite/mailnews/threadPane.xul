@@ -84,7 +84,7 @@
     <treecol id="idCol" persist="hidden ordinal width" flex="1" hidden="true"
              label="&idColumn.label;" tooltiptext="&idColumn2.tooltip;"/>
   </treecols>
-  <treechildren ondraggesture="BeginDragThreadPane(event);"
+  <treechildren ondragstart="BeginDragThreadPane(event);"
                 ondragover="DragOverThreadPane(event);"
                 ondrop="DropOnThreadPane(event);"/>
 </tree>

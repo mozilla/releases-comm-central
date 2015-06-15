@@ -116,7 +116,7 @@
                    flex="3"
                    persist="collapsed"
                    ondragover="nsDragAndDrop.dragOver(event, messagepaneObserver);"
-                   ondragdrop="nsDragAndDrop.drop(event, messagepaneObserver);"
+                   ondrop="nsDragAndDrop.drop(event, messagepaneObserver);"
                    ondragexit="nsDragAndDrop.dragExit(event, messagepaneObserver);">
 
     <hbox id="msgHeaderView"/>

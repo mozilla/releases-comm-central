@@ -209,7 +209,7 @@
       <!-- Media information -->
       <vbox id="mediaPanel">
         <tree id="imagetree" onselect="onImageSelect();" contextmenu="picontext"
-              ondraggesture="onBeginLinkDrag(event,'image-address','image-alt')">
+              ondragstart="onBeginLinkDrag(event,'image-address','image-alt')">
           <treecols>
             <treecol sortSeparators="true" primary="true" persist="width" flex="10"
                      width="10" id="image-address" label="&mediaAddress;"/>
@@ -466,7 +466,7 @@
       <vbox>
         <tree id="linktree"
               flex="1"
-              ondraggesture="onBeginLinkDrag(event,'link-address','link-name')"
+              ondragstart="onBeginLinkDrag(event,'link-address','link-name')"
               contextmenu="piLinksContext">
           <treecols>
             <treecol sortSeparators="true" primary="true" persist="width" flex="5"
