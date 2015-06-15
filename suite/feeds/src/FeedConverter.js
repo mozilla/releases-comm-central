@@ -239,6 +239,8 @@ FeedConverter.prototype = {
       }
 
       var chromeChannel;
+      var oldChannel = this._request.QueryInterface(Components.interfaces.nsIChannel);
+      var loadInfo = oldChannel.loadInfo;
 
       // If there was no automatic handler, or this was a podcast,
       // photostream or some other kind of application, show the
@@ -251,13 +253,13 @@ FeedConverter.prototype = {
 
         // Now load the actual XUL document.
         var chromeURI = Services.io.newURI(FEEDHANDLER_URI, null, null);
-        chromeChannel = Services.io.newChannelFromURI(chromeURI, null);
+        chromeChannel = Services.io.newChannelFromURIWithLoadInfo(chromeURI, loadInfo);
         chromeChannel.owner = Services.scriptSecurityManager
                                       .getNoAppCodebasePrincipal(chromeURI);
         chromeChannel.originalURI = result.uri;
       }
       else
-        chromeChannel = Services.io.newChannelFromURI(result.uri, null);
+        chromeChannel = Services.io.newChannelFromURIWithLoadInfo(result.uri, loadInfo);
 
       chromeChannel.loadGroup = this._request.loadGroup;
       chromeChannel.asyncOpen(this._listener, null);
@@ -515,9 +517,14 @@ GenericProtocolHandler.prototype = {
 
   newChannel2: function newChannel(aUri, aLoadinfo) {
     var uri = aUri.QueryInterface(Components.interfaces.nsINestedURI).innerURI;
+    var ios = Services.io;
     var channel = aLoadinfo ?
-                  Services.io.newChannelFromURIWithLoadInfo(uri, aLoadinfo) :
-                  Services.io.newChannelFromURI(uri);
+                  ios.newChannelFromURIWithLoadInfo(uri, aLoadinfo) :
+                  ios.newChannelFromURI2(uri, null,
+                                         Services.scriptSecurityManager.getSystemPrincipal(),
+                                         null,
+                                         Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                         Components.interfaces.nsIContentPolicy.TYPE_OTHER);
     if (channel instanceof Components.interfaces.nsIHttpChannel)
       // Set this so we know this is supposed to be a feed
       channel.setRequestHeader("X-Moz-Is-Feed", "1", false);

@@ -828,7 +828,12 @@ function check_for_missing_panels() {
     if (!currTab.is_excluded()) {
       if (currHeader.hasAttribute("prereq") && currHeader.getAttribute("prereq") != "") {
         var prereq_file = currHeader.getAttribute("prereq");
-        var channel = Services.io.newChannel(prereq_file, null, null);
+        var ios = Services.io;
+        var channel = ios.newChannel2(prereq_file, null, null, null,
+                                      Services.scriptSecurityManager.getSystemPrincipal(),
+                                      null,
+                                      Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                      Components.interfaces.nsIContentPolicy.TYPE_OTHER);
         try {
           channel.open();
         }

@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /* This is a simple module which can be used as a template for any newly
@@ -46,12 +47,15 @@ GopherProtocol.prototype = {
   },
 
   newChannel2: function GP_newChannel2(inputURI, loadinfo) {
-    var ios = Components.classes["@mozilla.org/network/io-service;1"]
-                        .getService(Components.interfaces.nsIIOService);
+    var ios = Services.io;
     var newURI = ios.newURI("chrome://communicator/content/gopherAddon.xhtml", null, null);
     // Create a chrome channel, and de-chrome it, to our information page.
     var chan = loadinfo ? ios.newChannelFromURIWithLoadInfo(newURI, loadinfo) :
-                          ios.newChannelFromURI(newURI);
+                          ios.newChannelFromURI2(newURI, null,
+                                                 Services.scriptSecurityManager.getSystemPrincipal(),
+                                                 null,
+                                                 Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                 Components.interfaces.nsIContentPolicy.TYPE_OTHER);
     chan.originalURI = inputURI;
     chan.owner = Components.classes["@mozilla.org/scriptsecuritymanager;1"]
                            .getService(Components.interfaces.nsIScriptSecurityManager)

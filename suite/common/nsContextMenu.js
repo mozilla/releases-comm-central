@@ -64,7 +64,7 @@ nsContextMenu.prototype = {
     subject.wrappedJSObject = subject;
     // Notifies the Addon-SDK which then populates addonInfo.
     Services.obs.notifyObservers(subject, "content-contextmenu", null);
-  
+
     var popupNode = this.target;
     var doc = popupNode.ownerDocument;
 
@@ -74,7 +74,7 @@ nsContextMenu.prototype = {
       try {
         let imageCache = Components.classes["@mozilla.org/image/tools;1"]
                                    .getService(Components.interfaces.imgITools)
-                                   .getImgCacheForDocument(doc)
+                                   .getImgCacheForDocument(doc);
         let props = imageCache.findEntryProperties(popupNode.currentURI);
         if (props) {
           let nsISupportsCString = Components.interfaces.nsISupportsCString;
@@ -1058,7 +1058,12 @@ nsContextMenu.prototype = {
     }
 
     // set up a channel to do the saving
-    var channel = Services.io.newChannel(linkURL, null, null);
+    var ios = Services.io;
+    var channel = ios.newChannel2(linkURL, null, null, null,
+                                  Services.scriptSecurityManager.getSystemPrincipal(),
+                                  null,
+                                  Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                  Components.interfaces.nsIContentPolicy.TYPE_OTHER);
     channel.notificationCallbacks = new Callbacks();
 
     var flags = Components.interfaces.nsIChannel.LOAD_CALL_CONTENT_SNIFFERS;

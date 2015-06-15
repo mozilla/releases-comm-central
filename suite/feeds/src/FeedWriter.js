@@ -959,8 +959,13 @@ FeedWriter.prototype = {
                       .getInterface(Components.interfaces.nsIWebNavigation)
                       .QueryInterface(Components.interfaces.nsIDocShell)
                       .currentDocumentChannel;
-
-    var resolvedURI = Services.io.newChannel(FEEDHANDLER_URI, null, null).URI;
+    var ios = Services.io;
+    var channel = ios.newChannelFromURI2(FEEDHANDLER_URI, null,
+                                         this._feedprincipal,
+                                         null,
+                                         Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                         Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+    var resolvedURI = channel.URI;
 
     if (resolvedURI.equals(chan.URI))
       return chan.originalURI;

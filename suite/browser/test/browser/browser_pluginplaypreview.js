@@ -100,7 +100,11 @@ function registerPlayPreview(mimeType, targetUrl) {
 
       // Create a new channel that is viewer loaded as a resource.
       var ioService = Services.io;
-      var channel = ioService.newChannel(targetUrl, null, null);
+      var channel = ios.newChannel2(targetUrl, null, null, null,
+                                    Services.scriptSecurityManager.getSystemPrincipal(),
+                                    null,
+                                    Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                    Components.interfaces.nsIContentPolicy.TYPE_OTHER);
       channel.asyncOpen(this.listener, aContext);
     },
 
