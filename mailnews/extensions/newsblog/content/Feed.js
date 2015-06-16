@@ -162,6 +162,7 @@ Feed.prototype =
     // Only order what you're going to eat...
     this.request.responseType = "document";
     this.request.overrideMimeType("text/xml");
+    this.request.setRequestHeader("Accept", FeedUtils.REQUEST_ACCEPT);
     this.request.timeout = FeedUtils.REQUEST_TIMEOUT;
     this.request.onload = this.onDownloaded;
     this.request.onerror = this.onDownloadError;

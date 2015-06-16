@@ -75,6 +75,12 @@ var FeedUtils = {
   ATOM_IETF_NS: "http://www.w3.org/2005/Atom",
   ATOM_THREAD_NS: "http://purl.org/syndication/thread/1.0",
 
+  // Accept content mimetype preferences for feeds.
+  REQUEST_ACCEPT: "application/atom+xml," +
+                  "application/rss+xml;q=0.9," +
+                  "application/rdf+xml;q=0.8," +
+                  "application/xml;q=0.7,text/xml;q=0.7," +
+                  "*/*;q=0.1",
   // Timeout for nonresponse to request, 30 seconds.
   REQUEST_TIMEOUT: 30 * 1000,
 
