@@ -115,18 +115,20 @@ const uint32_t kTraitStoreCapacity = 16384;
 const uint32_t kTraitAutoCapacity = 10;
 
 TokenEnumeration::TokenEnumeration(PLDHashTable* table)
-    :   mIterator(table->Iterate())
+    :   mIterator(table->Iter())
 {
 }
 
 inline bool TokenEnumeration::hasMoreTokens()
 {
-    return mIterator.HasMoreEntries();
+    return !mIterator.Done();
 }
 
 inline BaseToken* TokenEnumeration::nextToken()
 {
-    return static_cast<BaseToken*>(mIterator.NextEntry());
+    auto token = static_cast<BaseToken*>(mIterator.Get());
+    mIterator.Next();
+    return token;
 }
 
 struct VisitClosure {
@@ -1979,7 +1981,6 @@ void nsBayesianFilter::observeMessage(
 {
 
     bool trainingDataWasDirty = mTrainingDataDirty;
-    TokenEnumeration tokens = tokenizer.getTokens();
 
     // Uhoh...if the user is re-training then the message may already be classified and we are classifying it again with the same classification.
     // the old code would have removed the tokens for this message then added them back. But this really hurts the message occurrence
@@ -2000,7 +2001,7 @@ void nsBayesianFilter::observeMessage(
       if (messageCount > 0)
       {
         mCorpus.setMessageCount(trait, messageCount - 1);
-        mCorpus.forgetTokens(tokens, trait, 1);
+        mCorpus.forgetTokens(tokenizer, trait, 1);
         mTrainingDataDirty = true;
       }
     }
@@ -2012,7 +2013,7 @@ void nsBayesianFilter::observeMessage(
     {
       uint32_t trait = newClassifications.ElementAt(index);
       mCorpus.setMessageCount(trait, mCorpus.getMessageCount(trait) + 1);
-      mCorpus.rememberTokens(tokens, trait, 1);
+      mCorpus.rememberTokens(tokenizer, trait, 1);
       mTrainingDataDirty = true;
 
       if (aJunkListener)
@@ -2219,13 +2220,14 @@ inline int readUInt32(FILE* stream, uint32_t* value)
     return n;
 }
 
-void CorpusStore::forgetTokens(TokenEnumeration tokens,
+void CorpusStore::forgetTokens(Tokenizer& aTokenizer,
                     uint32_t aTraitId, uint32_t aCount)
 {
   // if we are forgetting the tokens for a message, should only
   // subtract 1 from the occurrence count for that token in the training set
   // because we assume we only bumped the training set count once per messages
   // containing the token.
+  TokenEnumeration tokens = aTokenizer.getTokens();
   while (tokens.hasMoreTokens())
   {
     CorpusToken* token = static_cast<CorpusToken*>(tokens.nextToken());
@@ -2233,9 +2235,10 @@ void CorpusStore::forgetTokens(TokenEnumeration tokens,
   }
 }
 
-void CorpusStore::rememberTokens(TokenEnumeration tokens,
+void CorpusStore::rememberTokens(Tokenizer& aTokenizer,
                     uint32_t aTraitId, uint32_t aCount)
 {
+  TokenEnumeration tokens = aTokenizer.getTokens();
   while (tokens.hasMoreTokens())
   {
     CorpusToken* token = static_cast<CorpusToken*>(tokens.nextToken());

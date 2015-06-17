@@ -183,21 +183,21 @@ public:
     /**
      * add tokens to the storage, or increment counts if already exists.
      *
-     * @param tokens     enumerator for the list of tokens to remember
+     * @param aTokenizer tokenizer for the list of tokens to remember
      * @param aTraitId   id for the trait whose counts will be remembered
      * @param aCount     number of new messages represented by the token list
      */
-    void rememberTokens(TokenEnumeration tokens, uint32_t aTraitId, uint32_t aCount);
+    void rememberTokens(Tokenizer& aTokenizer, uint32_t aTraitId, uint32_t aCount);
 
     /**
      * decrement counts for tokens in the storage, removing if all counts
      * are zero
      *
-     * @param tokens     enumerator for the list of tokens to forget
+     * @param aTokenizer tokenizer for the list of tokens to forget
      * @param aTraitId   id for the trait whose counts will be removed
      * @param aCount     number of messages represented by the token list
      */
-    void forgetTokens(TokenEnumeration tokens, uint32_t aTraitId, uint32_t aCount);
+    void forgetTokens(Tokenizer& aTokenizer, uint32_t aTraitId, uint32_t aCount);
 
     /**
      * write the corpus information to file storage
