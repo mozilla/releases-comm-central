@@ -209,7 +209,7 @@ const XMPPMUCConversationPrototype = {
         // XEP-0045: the user is no longer an occupant.
         this.removeParticipant(nick);
         if (codes.indexOf("110") != -1) {
-          // XEP-045: Self-presence.
+          // XEP-0045 7.14: Self-presence.
           // This presence refers to this account.
           this.left = true;
         }
@@ -327,24 +327,8 @@ const XMPPMUCConversationPrototype = {
   part: function(aMsg = null) {
     let s = Stanza.presence({to: this.name + "/" + this._nick, type: "unavailable"},
                             aMsg ? Stanza.node("status", null, null, aMsg.trim()) : null);
-    let account = this._account;
-    account.sendStanza(s, aStanza => {
-      // XEP-045 (7.14): Exiting a Room.
-      if (aStanza.attributes["type"] == "unavailable") {
-        try {
-          let x = aStanza.getElements(["x"]).find(e => e.uri == Stanza.NS.muc_user);
-          let codes = x.getElements(["status"]).map(elt => elt.attributes["code"]);
-          if (codes.indexOf("110") != -1) {
-            delete this.chatRoomFields;
-            this.left = true;
-            this.removeParticipant(this._nick);
-            return true;
-          }
-        } catch (e) {}
-      }
-      account.WARN("Received unexpected server response on leaving a MUC.");
-      return true;
-    });
+    this._account.sendStanza(s);
+    delete this.chatRoomFields;
   },
 
   /* Called when the user closed the conversation */
