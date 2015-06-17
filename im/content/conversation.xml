@@ -544,8 +544,14 @@
             return;
           }
 
+          // We don't want to enable tab completion if the user has selected
+          // some text, as it's not clear what the user would expect
+          // to happen in that case.
+          let noSelection = !(inputBox.selectionEnd - inputBox.selectionStart);
+
           // Undo tab complete.
-          if (this._completions && event.keyCode == KeyEvent.DOM_VK_BACK_SPACE &&
+          if (noSelection && this._completions &&
+              event.keyCode == KeyEvent.DOM_VK_BACK_SPACE &&
               !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
             if (text == this._beforeTabComplete) {
               // Nothing to undo, so let backspace act normally.
@@ -596,7 +602,8 @@
           // Tab complete.
           // Keep the default behavior of the tab key if the input box
           // is empty or a modifier is used.
-          if (event.keyCode == KeyEvent.DOM_VK_TAB && text.length != 0 &&
+          if (event.keyCode == KeyEvent.DOM_VK_TAB &&
+              text.length != 0 && noSelection &&
               !event.altKey && !event.ctrlKey && !event.metaKey &&
               (!event.shiftKey || this._completions)) {
             event.preventDefault();
