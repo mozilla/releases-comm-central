@@ -12,6 +12,7 @@
 
 toolbar:not(.inline-toolbar):not(:-moz-lwtheme) {
   -moz-appearance: menubar;
+  color: -moz-menubartext;
 }
 
 /*
