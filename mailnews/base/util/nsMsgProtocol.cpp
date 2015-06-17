@@ -1446,9 +1446,9 @@ nsresult nsMsgAsyncWriteProtocol::CloseSocket()
     mFilePostHelper = nullptr;
   }
 
-  mAsyncOutStream = 0;
-  mProvider = 0;
-  mProviderThread = 0;
+  mAsyncOutStream = nullptr;
+  mProvider = nullptr;
+  mProviderThread = nullptr;
   mAsyncBuffer.Truncate();
   return rv;
 }
@@ -1480,6 +1480,8 @@ void nsMsgAsyncWriteProtocol::UpdateProgress(uint32_t aNewBytes)
 nsresult nsMsgAsyncWriteProtocol::SendData(const char * dataBuffer, bool aSuppressLogging)
 {
   this->mAsyncBuffer.Append(dataBuffer);
+  if (!mAsyncOutStream)
+    return NS_ERROR_FAILURE;
   return mAsyncOutStream->AsyncWait(mProvider, 0, 0, mProviderThread);
 }
 
