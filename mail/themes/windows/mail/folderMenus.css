@@ -91,6 +91,14 @@
 }
 
 /* Feed server */
-.folderMenuItem[IsServer="true"][ServerType="rss"] {
-  list-style-image: url("chrome://messenger-newsblog/skin/icons/server-rss.png");
+@media (-moz-os-version: windows-xp) {
+  .folderMenuItem[IsServer="true"][ServerType="rss"] {
+    list-style-image: url("chrome://messenger-newsblog/skin/icons/server-rss-XP.png");
+  }
+}
+
+@media not all and (-moz-os-version: windows-xp) {
+  .folderMenuItem[IsServer="true"][ServerType="rss"] {
+    list-style-image: url("chrome://messenger-newsblog/skin/icons/server-rss.png");
+  }
 }

@@ -189,11 +189,20 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-nntp, isS
 }
 
 /* ..... Feed server ..... */
+@media (-moz-os-version: windows-xp) {
+  .tabmail-tab[type="folder"][IsServer="true"][ServerType="rss"],
+  treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-rss) {
+    list-style-image: url("chrome://messenger-newsblog/skin/icons/server-rss-XP.png");
+    -moz-image-region: rect(0 16px 16px 0);
+  }
+}
 
-.tabmail-tab[type="folder"][IsServer="true"][ServerType="rss"],
-treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-rss) {
-  list-style-image: url("chrome://messenger-newsblog/skin/icons/server-rss.png");
-  -moz-image-region: rect(0 16px 16px 0);
+@media not all and (-moz-os-version: windows-xp) {
+  .tabmail-tab[type="folder"][IsServer="true"][ServerType="rss"],
+  treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-rss) {
+    list-style-image: url("chrome://messenger-newsblog/skin/icons/server-rss.png");
+    -moz-image-region: rect(0 16px 16px 0);
+  }
 }
 
 /* ::::: All Servers ::::: */
@@ -214,6 +223,32 @@ treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMai
 treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true, selected, focus),
 treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true, selected, focus) {
   color: HighlightText;
+}
+
+@media not all and (-moz-os-version: windows-xp) {
+  #folderTree treechildren::-moz-tree-indentation {
+    width: 8px;
+  }
+
+  @media all and (-moz-windows-default-theme) {
+    treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
+    treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
+    treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
+      color: -moz-hyperlinktext;
+    }
+
+    treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail, selected),
+    treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true, selected),
+    treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true, selected) {
+      color: -moz-hyperlinktext;
+    }
+
+    treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail, selected, focus),
+    treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true, selected, focus),
+    treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true, selected, focus) {
+      color: -moz-hyperlinktext;
+    }
+  }
 }
 
 treechildren::-moz-tree-cell-text(closed, subfoldersHaveUnreadMessages-true) {

@@ -275,11 +275,11 @@ classic.jar:
   skin/classic/messenger/icons/xp-pin-grey.png                (mail/icons/xp-pin-grey.png)
   skin/classic/messenger/icons/xp-pin-red.png                 (mail/icons/xp-pin-red.png)
   skin/classic/messenger/tagbg.png                            (mail/tagbg.png)
-% skin messenger-newsblog classic/1.0 %skin/classic/messenger-newsblog/ os=WINNT osversion<6
-% skin messenger-newsblog classic/1.0 %skin/classic/messenger-newsblog/ os!=WINNT
+% skin messenger-newsblog classic/1.0 %skin/classic/messenger-newsblog/
   skin/classic/messenger-newsblog/feed-subscriptions.css      (mail/newsblog/feed-subscriptions.css)
   skin/classic/messenger-newsblog/icons/rss-feed.png          (mail/newsblog/rss-feed.png)
   skin/classic/messenger-newsblog/icons/server-rss.png        (mail/newsblog/server-rss.png)
+  skin/classic/messenger-newsblog/icons/server-rss-XP.png     (mail/newsblog/server-rss-XP.png)
   skin/classic/messenger/newmailaccount/accountProvisioner.css (mail/newmailaccount/accountProvisioner.css)
   skin/classic/messenger/newmailaccount/search.gif            (mail/newmailaccount/search.gif)
   skin/classic/messenger/newmailaccount/spinner.gif           (mail/newmailaccount/spinner.gif)
@@ -333,7 +333,7 @@ classic.jar:
   skin/classic/aero/messenger/searchBox.css                        (mail/searchBox.css)
   skin/classic/aero/messenger/junkMail.css                         (mail/junkMail.css)
   skin/classic/aero/messenger/folderMenus.css                      (mail/folderMenus.css)
-* skin/classic/aero/messenger/folderPane.css                       (mail/folderPane-aero.css)
+  skin/classic/aero/messenger/folderPane.css                       (mail/folderPane.css)
   skin/classic/aero/messenger/subscribe.css                        (mail/subscribe.css)
   skin/classic/aero/messenger/virtualFolderListDialog.css          (mail/virtualFolderListDialog.css)
 * skin/classic/aero/messenger/searchDialog.css                     (mail/searchDialog-aero.css)
@@ -538,10 +538,6 @@ classic.jar:
   skin/classic/aero/messenger/icons/chat-toolbar.svg               (../shared/mail/icons/chat-toolbar.svg)
   skin/classic/aero/messenger/icons/status.png                     (mail/icons/status-aero.png)
   skin/classic/aero/messenger/icons/status-small.png               (mail/icons/status-small-aero.png)
-% skin messenger-newsblog classic/1.0 %skin/classic/aero/messenger-newsblog/ os=WINNT osversion>=6
-  skin/classic/aero/messenger-newsblog/feed-subscriptions.css      (mail/newsblog/feed-subscriptions.css)
-  skin/classic/aero/messenger-newsblog/icons/rss-feed.png          (mail/newsblog/rss-feed.png)
-  skin/classic/aero/messenger-newsblog/icons/server-rss.png        (mail/newsblog/server-rss-aero.png)
   skin/classic/aero/messenger/newmailaccount/accountProvisioner.css (mail/newmailaccount/accountProvisioner.css)
   skin/classic/aero/messenger/newmailaccount/search.gif            (mail/newmailaccount/search.gif)
   skin/classic/aero/messenger/newmailaccount/spinner.gif           (mail/newmailaccount/spinner.gif)
