@@ -487,11 +487,11 @@ function SetNewsFolderColumns()
   var sizeColumn = document.getElementById("sizeCol");
 
   if (gDBView.usingLines) {
-     sizeColumn.setAttribute("tooltiptext",gMessengerBundle.getString("linesColumnTooltip"));
+     sizeColumn.setAttribute("tooltiptext",gMessengerBundle.getString("linesColumnTooltip2"));
      sizeColumn.setAttribute("label",gMessengerBundle.getString("linesColumnHeader"));
   }
   else {
-     sizeColumn.setAttribute("tooltiptext", gMessengerBundle.getString("sizeColumnTooltip"));
+     sizeColumn.setAttribute("tooltiptext", gMessengerBundle.getString("sizeColumnTooltip2"));
      sizeColumn.setAttribute("label", gMessengerBundle.getString("sizeColumnHeader"));
   }
 }

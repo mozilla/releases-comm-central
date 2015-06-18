@@ -74,12 +74,12 @@ function SetNewsFolderColumns()
   if (gDBView.usingLines) {
      sizeColumn.setAttribute("label", bundle.getString("linesColumnHeader"));
      sizeColumn.setAttribute("tooltiptext",
-                             bundle.getString("linesColumnTooltip"));
+                             bundle.getString("linesColumnTooltip2"));
   }
   else {
      sizeColumn.setAttribute("label", bundle.getString("sizeColumnHeader"));
      sizeColumn.setAttribute("tooltiptext",
-                             bundle.getString("sizeColumnTooltip"));
+                             bundle.getString("sizeColumnTooltip2"));
   }
 }
 
