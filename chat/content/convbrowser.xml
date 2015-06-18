@@ -876,6 +876,10 @@
                 // message styles.
                 this.contentWindow.scrollToElement = this._scrollToElement.bind(this);
                 this.contentWindow.autoScrollEnabled = this.autoScrollEnabled.bind(this);
+                // A common use case is to click somewhere in the conversation and
+                // start typing a command (often /me). If quick find is enabled, it
+                // will pick up the "/" keypress and open the findbar. See bug 1161930.
+                this.contentWindow.document.documentElement.setAttribute("disablefastfind", "true");
                 return;
               }
               this.removeProgressListener(this);
