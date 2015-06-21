@@ -269,7 +269,7 @@ function* testNewsgroups() {
   yield richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     // The identity should override the compose fields here.
-    "Newsgroups": "mozilla.test, mozilla.test.multimedia",
+    "Newsgroups": "mozilla.test,mozilla.test.multimedia",
     "Followup-To": "mozilla.test",
     "X-Mozilla-News-Host": "localhost",
   });

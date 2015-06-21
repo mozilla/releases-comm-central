@@ -17,7 +17,7 @@ function emitNewsgroups(groups) {
   else {
     this.addText(groups[0], false);
     for (let i = 1; i < groups.length; i++) {
-      this.addText(", ", true);
+      this.addText(",", false); // only comma, no space!
       this.addText(groups[i], false);
     }
   }
