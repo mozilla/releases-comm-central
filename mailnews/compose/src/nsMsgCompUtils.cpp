@@ -935,8 +935,7 @@ msg_generate_message_id (nsIMsgIdentity *identity)
 inline static bool is7bitCharset(const nsCString& charset)
 {
   // charset name is canonical (no worry about case-sensitivity)
-  return charset.EqualsLiteral("HZ-GB-2312") ||
-         Substring(charset, 0, 8).EqualsLiteral("ISO-2022-");
+  return Substring(charset, 0, 8).EqualsLiteral("ISO-2022-");
 }
 
 #define PR_MAX_FOLDING_LEN 75     // this is to gurantee the folded line will
