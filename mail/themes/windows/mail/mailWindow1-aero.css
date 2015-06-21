@@ -360,25 +360,27 @@ treechildren::-moz-tree-image(junkStatusCol) {
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win7),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
-  #messengerWindow[sizemode=normal] #tabpanelcontainer {
-    border: 1px solid rgba(10%, 10%, 10%, .4);
-    border-top: none;
-    background-clip: padding-box;
-  }
+  @media (-moz-windows-compositor) {
+    #messengerWindow[sizemode=normal] #tabpanelcontainer {
+      border: 1px solid rgba(10%, 10%, 10%, .4);
+      border-top: none;
+      background-clip: padding-box;
+    }
 
-  #messengerWindow[sizemode=normal] #mail-toolbar-menubar2 {
-    border-right: 1px solid rgba(10%, 10%, 10%, .4);
-    border-left: 1px solid rgba(10%, 10%, 10%, .4);
-    background-clip: padding-box;
-  }
+    #messengerWindow[sizemode=normal] #mail-toolbar-menubar2 {
+      border-right: 1px solid rgba(10%, 10%, 10%, .4);
+      border-left: 1px solid rgba(10%, 10%, 10%, .4);
+      background-clip: padding-box;
+    }
 
-  #messengerWindow[sizemode=normal] statusbar {
-    -moz-appearance: none;
-    margin-top: -1px;
-    border: 1px solid rgba(10%, 10%, 10%, .4);
-    border-top-color: threedshadow;
-    border-radius: 1px 1px 0 0;
-    background-clip: padding-box;
+    #messengerWindow[sizemode=normal] statusbar {
+      -moz-appearance: none;
+      margin-top: -1px;
+      border: 1px solid rgba(10%, 10%, 10%, .4);
+      border-top-color: threedshadow;
+      border-radius: 1px 1px 0 0;
+      background-clip: padding-box;
+    }
   }
 }
 
