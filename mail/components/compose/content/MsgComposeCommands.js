@@ -2032,10 +2032,8 @@ function getValidSpellcheckerDictionary() {
   }
 
   // Make sure preference contains a valid value.
-  for (let i = 0; i < count; i++) {
-    if (dictList[i] == prefValue) {
-      return prefValue;
-    }
+  if (dictList.indexOf(prefValue) >= 0) {
+    return prefValue;
   }
 
   // Set a valid value, any value will do.
