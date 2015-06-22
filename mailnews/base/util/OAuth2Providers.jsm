@@ -13,6 +13,8 @@ const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 const kHostnames = new Map([
   ["imap.googlemail.com", ["accounts.google.com", "http://mail.google.com/"]],
   ["smtp.googlemail.com", ["accounts.google.com", "http://mail.google.com/"]],
+  ["imap.gmail.com", ["accounts.google.com", "http://mail.google.com/"]],
+  ["smtp.gmail.com", ["accounts.google.com", "http://mail.google.com/"]],
 ]);
 
 // map of issuers to appKey, appSecret, authURI, tokenURI
