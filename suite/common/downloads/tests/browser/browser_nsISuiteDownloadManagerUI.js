@@ -61,7 +61,7 @@ function test()
       var win = wm.getMostRecentWindow("Download:Manager");
 
       // Now we can run our tests
-      for each (var t in testFuncs)
+      for (let t of testFuncs)
         t(win);
 
       // finish will be called by the last test that also hides the DM UI

@@ -233,9 +233,9 @@ function test()
       "state, currBytes, maxBytes, preferredAction, autoResume) " +
     "VALUES (:name, :source, :target, :startTime, :endTime, :state, " +
       ":currBytes, :maxBytes, :preferredAction, :autoResume)");
-  for each (var dl in DownloadData) {
-    for (var prop in dl)
-      stmt.params[prop] = dl[prop];
+  for (let dl of DownloadData) {
+    for (let [prop, value] of Object.entries(dl))
+      stmt.params[prop] = value;
 
     stmt.execute();
   }
@@ -261,7 +261,7 @@ function test()
       var win = aSubject;
 
       // Now we can run our tests
-      for each (let t in testFuncs)
+      for (let t of testFuncs)
         t(win);
 
       win.close();

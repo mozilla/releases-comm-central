@@ -29,7 +29,7 @@ function test() {
     let savedFormData = undoItems[0].state.entries[0].formdata;
 
     let countGood = 0, countBad = 0;
-    for each (let value in savedFormData) {
+    for (let value of Object.values(savedFormData)) {
       if (value == expectedValue)
         countGood++;
       else

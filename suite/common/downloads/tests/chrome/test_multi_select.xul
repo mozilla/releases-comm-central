@@ -36,7 +36,7 @@ function test()
     "VALUES (?1, ?2, ?3, ?4)");
 
   try {
-    for each (let site in ["ed.agadak.net", "mozilla.org", "mozilla.com", "mozilla.net"]) {
+    for (let site of ["ed.agadak.net", "mozilla.org", "mozilla.com", "mozilla.net"]) {
       let file = Components.classes["@mozilla.org/file/directory_service;1"]
                   .getService(Components.interfaces.nsIProperties)
                   .get("TmpD", Components.interfaces.nsIFile);
@@ -154,7 +154,7 @@ function test()
     var cmdName;
 
     // Run two tests: single selected, double selected
-    for each (let whichTest in ["single", "double"]) {
+    for (let whichTest of ["single", "double"]) {
       let expected = allExpected[whichTest];
 
       if (whichTest == "double")
@@ -164,7 +164,7 @@ function test()
         // Select the first download for single
         downloadView.selection.select(0);
 
-      for each (let [command, func, test, value] in commandTests) {
+      for (let [command, func, test, value] of commandTests) {
         // Make a copy of the original function and replace it with a test
         let copy;
         [copy, win[func]] = [win[func], test];

@@ -158,9 +158,9 @@ function test()
   var stmt = db.createStatement(
     "INSERT INTO moz_downloads ( name,  source,  target,  state)" +
     "VALUES                    (:name, :source, :target, :state)");
-  for each (var dl in DownloadData) {
-    for (var prop in dl)
-      stmt.params[prop] = dl[prop];
+  for (let dl of DownloadData) {
+    for (let [prop, value] of Object.entries(dl))
+      stmt.params[prop] = value;
     stmt.execute();
   }
   stmt.finalize();

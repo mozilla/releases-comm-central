@@ -166,7 +166,7 @@ function test() {
       Services.obs.removeObserver(observer, o, false);
 
     // Reset the prefs we touched
-    for each (let pref in [
+    for (let pref of [
       "browser.startup.page"
     ]) {
       if (Services.prefs.prefHasUserValue(pref))
@@ -191,7 +191,7 @@ function test() {
       newWin.removeEventListener("load", loadListener1, false);
       newWin.getBrowser().addEventListener("pageshow", function pageshowListener2(aEvent) {
         newWin.getBrowser().removeEventListener("pageshow", pageshowListener2, true);
-        for each (let url in TEST_URLS) {
+        for (let url of TEST_URLS) {
           newWin.getBrowser().addTab(url);
         }
 

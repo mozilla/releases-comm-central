@@ -104,9 +104,9 @@ function runTest()
       "state, currBytes, maxBytes, preferredAction, autoResume) " +
     "VALUES (:name, :source, :target, :startTime, :endTime, :state, " +
       ":currBytes, :maxBytes, :preferredAction, :autoResume)");
-  for each (var dl in DoneDownloadData) {
-    for (var prop in dl)
-      stmt.params[prop] = dl[prop];
+  for (let dl of DoneDownloadData) {
+    for (let [prop, value] of Object.entries(dl))
+      stmt.params[prop] = value;
 
     stmt.execute();
   }
@@ -155,9 +155,9 @@ function runTest()
           // Populate the download manager with an active download now, and
           // rebuild the list
           stmt.reset();
-          for each (var dl in ActiveDownloadData) {
-            for (var prop in dl)
-              stmt.params[prop] = dl[prop];
+          for (let dl of ActiveDownloadData) {
+            for (let [prop, value] of Object.entries(dl))
+              stmt.params[prop] = value;
 
             stmt.execute();
           }
