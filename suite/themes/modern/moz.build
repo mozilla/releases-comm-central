@@ -12,3 +12,8 @@ JAR_MANIFESTS += ['jar.mn']
 USE_EXTENSION_MANIFEST = True
 
 DEFINES['SEAMONKEY_VERSION'] = CONFIG['SEAMONKEY_VERSION']
+
+FINAL_TARGET_FILES += [
+    'icon.png',
+    'preview.png',
+]
