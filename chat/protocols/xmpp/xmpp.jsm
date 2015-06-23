@@ -812,6 +812,10 @@ const XMPPAccountPrototype = {
   _connection: null, // XMPPSession socket
   authMechanisms: null, // hook to let prpls tweak the list of auth mechanisms
 
+  // Contains the domain of MUC service which is obtained using service
+  // discovery.
+  _mucService: null,
+
   /* Generate unique id for a stanza. Using id and unique sid is defined in
    * RFC 6120 (Section 8.2.3, 4.7.3).
    */
@@ -853,6 +857,8 @@ const XMPPAccountPrototype = {
                                     .call(this, aDefaultChatName);
     if (!rv.values.nick)
       rv.values.nick = this._jid.node;
+    if (!rv.values.server && this._mucService)
+      rv.values.server = this._mucService;
 
     return rv;
   },
@@ -1114,11 +1120,17 @@ const XMPPAccountPrototype = {
 
   /* Called when the XMPP session is started */
   onConnection: function() {
+    // Request the roster. The account will be marked as connected when this is
+    // complete.
     this.reportConnecting(_("connection.downloadingRoster"));
     let s = Stanza.iq("get", null, null, Stanza.node("query", Stanza.NS.roster));
-
-    /* Set the call back onRoster */
     this.sendStanza(s, this.onRoster, this);
+
+    // XEP-0030 and XEP-0045 (6): Service Discovery.
+    // Queries Server for Associated Services.
+    let iq = Stanza.iq("get", null, this._jid.domain,
+                       Stanza.node("query", Stanza.NS.disco_items));
+    this.sendStanza(iq, this.onServiceDiscovery, this);
   },
 
   /* Called whenever a stanza is received */
@@ -1178,6 +1190,45 @@ const XMPPAccountPrototype = {
       this.WARN("received presence stanza for unknown buddy " + from);
     else
       this.WARN("Unhandled presence stanza.");
+  },
+
+  // XEP-0030: Discovering services and their features that are supported by
+  // the server.
+  onServiceDiscovery: function(aStanza) {
+    let query = aStanza.getElement(["query"]);
+    if (aStanza.attributes["type"] != "result" || !query ||
+        query.uri != Stanza.NS.disco_items) {
+      this.WARN("Could not get services for this server: " + this._jid.domain);
+      return true;
+    }
+
+    // Discovering the Features that are Supported by each service.
+    query.getElements(["item"]).forEach(item => {
+      let jid = item.attributes["jid"];
+      if (!jid)
+        return;
+      let iq = Stanza.iq("get", null, jid,
+                         Stanza.node("query", Stanza.NS.disco_info));
+      this.sendStanza(iq, receivedStanza => {
+        let query = receivedStanza.getElement(["query"]);
+        let from = receivedStanza.attributes["from"];
+        if (aStanza.attributes["type"] != "result" || !query ||
+            query.uri != Stanza.NS.disco_info) {
+          this.WARN("Could not get features for this service: " + from);
+          return true;
+        }
+        let features = query.getElements(["feature"])
+                            .map(elt => elt.attributes["var"]);
+        if (features.indexOf(Stanza.NS.muc) != -1) {
+          // XEP-0045 (6.2): this feature is for a MUC Service.
+          this._mucService = from;
+        }
+        // TODO: Handle other services that are supported by XMPP through
+        // their features.
+
+        return true;
+      });
+    });
   },
 
   // Returns null if not an invitation stanza, and an object
