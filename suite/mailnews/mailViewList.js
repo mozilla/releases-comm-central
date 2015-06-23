@@ -55,7 +55,7 @@ var gMailViewListController =
 
   onCommandUpdate: function()
   {
-    for each (let command in ["cmd_new", "cmd_edit", "cmd_delete"])
+    for (let command of ["cmd_new", "cmd_edit", "cmd_delete"])
       goUpdateCommand(command);
   }
 };

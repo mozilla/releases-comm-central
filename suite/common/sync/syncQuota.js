@@ -64,7 +64,7 @@ var gSyncQuota = {
 
   onAccept: function onAccept() {
     let engines = gUsageTreeView.getEnginesToDisable();
-    for each (let engine in engines) {
+    for (let engine of engines) {
       Weave.Service.engineManager.get(engine).enabled = false;
     }
     if (engines.length) {
@@ -95,7 +95,7 @@ var gUsageTreeView = {
 
   init: function init() {
     let retrievingLabel = gSyncQuota.bundle.getString("quota.retrieving.label");
-    for each (let engine in Weave.Service.engineManager.getEnabled()) {
+    for (let engine of Weave.Service.engineManager.getEnabled()) {
       if (this._ignored[engine.name])
         continue;
 
@@ -130,7 +130,7 @@ var gUsageTreeView = {
    * Process the quota information as returned by info/collection_usage.
    */
   displayUsageData: function displayUsageData(data) {
-    for each (let coll in this._collections) {
+    for (let coll of this._collections) {
       coll.size = 0;
       // If we couldn't retrieve any data, just blank out the label.
       if (!data) {
@@ -138,7 +138,7 @@ var gUsageTreeView = {
         continue;
       }
 
-      for each (let engineName in coll.engines)
+      for (let engineName of coll.engines)
         coll.size += data[engineName] || 0;
       let sizeLabel = "";
       sizeLabel = gSyncQuota.bundle.getFormattedString(
@@ -173,7 +173,7 @@ var gUsageTreeView = {
     // Display which ones will be removed
     let freeup = 0;
     let toremove = [];
-    for each (collection in this._collections) {
+    for (let collection of this._collections) {
       if (collection.enabled)
         continue;
       toremove.push(collection.name);

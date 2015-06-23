@@ -573,7 +573,7 @@ FeedHandlerInfo.prototype = {
     if (converterSvc) {
       // Add the registered web handlers.  There can be any number of these.
       var webHandlers = converterSvc.getContentHandlers(this.type, {});
-      for each (let webHandler in webHandlers)
+      for (let webHandler of webHandlers)
         this._possibleApplicationHandlers.appendElement(webHandler, false);
     }
 
@@ -718,7 +718,7 @@ FeedHandlerInfo.prototype = {
   // the only thing we need to store is the removal of possible handlers
   // XXX Should we hold off on making the changes until this method gets called?
   store: function() {
-    for each (let app in this._possibleApplicationHandlers._removed) {
+    for (let app of this._possibleApplicationHandlers._removed) {
       if (app instanceof nsILocalHandlerApp) {
         let pref = document.getElementById(PREF_FEED_SELECTED_APP);
         var preferredAppFile = pref.value;
@@ -1104,7 +1104,7 @@ var gApplicationsPane = {
     if (this._filter.value)
       visibleTypes = visibleTypes.filter(this._matchesFilter, this);
 
-    for each (let visibleType in visibleTypes) {
+    for (let visibleType of visibleTypes) {
       let item = document.createElement("listitem");
       item.setAttribute("allowevents", "true");
       item.setAttribute("type", visibleType.type);

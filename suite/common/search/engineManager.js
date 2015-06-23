@@ -292,7 +292,7 @@ EngineStore.prototype = {
   },
 
   _getEngineByName: function ES_getEngineByName(aName) {
-    for each (var engine in this._engines)
+    for (var engine of this._engines)
       if (engine.name == aName)
         return engine;
 

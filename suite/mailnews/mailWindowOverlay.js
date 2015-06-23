@@ -2898,7 +2898,7 @@ function OnMsgParsed(aUrl)
   // scale any overflowing images
   var doc = getMessageBrowser().contentDocument;
   var imgs = doc.getElementsByTagName("img");
-  for each (var img in imgs)
+  for (var img of imgs)
   {
     if (img.className == "moz-attached-image" &&
         img.naturalWidth > doc.body.clientWidth)

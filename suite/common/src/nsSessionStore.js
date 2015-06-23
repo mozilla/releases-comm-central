@@ -2127,7 +2127,7 @@ SessionStoreService.prototype = {
 
     // collect the data for all windows yet to be restored
     for (ix in this._statesToRestore) {
-      for each (let winData in this._statesToRestore[ix].windows) {
+      for (let winData of this._statesToRestore[ix].windows) {
         total.push(winData);
         if (!winData.isPopup)
           nonPopupCount++;
