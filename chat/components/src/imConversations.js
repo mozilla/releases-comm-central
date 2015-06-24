@@ -135,7 +135,7 @@ UIConversation.prototype = {
     if (!this.isChat) {
       let buddy = this.buddy;
       if (buddy)
-        ({statusType: this.statusType, statusText: this.statusText}) = buddy;
+        ({statusType: this.statusType, statusText: this.statusText} = buddy);
     }
     if (shouldNotify) {
       this.notifyObservers(this, "target-prpl-conversation-changed");
