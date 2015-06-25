@@ -359,7 +359,6 @@
 @RESPATH@/components/pref.xpt
 
 ; profile
-@RESPATH@/components/profile.xpt
 @RESPATH@/components/toolkitprofile.xpt
 @RESPATH@/components/toolkit_finalizationwitness.xpt
 
