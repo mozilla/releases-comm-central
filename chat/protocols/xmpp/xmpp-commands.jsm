@@ -21,7 +21,7 @@ function getAccount(aConv) getConv(aConv)._account;
 var commands = [
   {
     name: "join",
-    get helpString() _("command.join2", "join"),
+    get helpString() _("command.join3", "join"),
     run: function(aMsg, aConv, aReturnedConv) {
       let account = getAccount(aConv);
       let params = aMsg.trim();

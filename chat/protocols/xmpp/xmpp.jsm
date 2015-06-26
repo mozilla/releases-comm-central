@@ -896,9 +896,17 @@ const XMPPAccountPrototype = {
 
     let params = aDefaultChatName.trim().split(/\s+/);
     let jid = this._parseJID(params[0]);
+
+    // We swap node and domain as domain is required for parseJID, but node and
+    // resource are optional. In MUC join command, Node is required as it
+    // represents a room, but domain and resource are optional as we get muc
+    // domain from service discovery.
+    if (!jid.node && jid.domain)
+      [jid.node, jid.domain] = [jid.domain, jid.node];
+
     let chatFields = {
       room: jid.node,
-      server: jid.domain,
+      server: jid.domain || this._mucService,
       nick: jid.resource || this._jid.node
     };
     if (params.length > 1)
