@@ -86,7 +86,7 @@ calMonthPrinter.prototype = {
                 }
 
                 let dayBoxes = dayTable[boxDateKey];
-                let addSingleItem = cal.print.addItemToDaybox.bind(cal.print, document, item);
+                let addSingleItem = cal.print.addItemToDaybox.bind(cal.print, document, item, boxDate);
 
                 if (Array.isArray(dayBoxes)) {
                     dayBoxes.forEach(addSingleItem);

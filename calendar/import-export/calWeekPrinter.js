@@ -79,7 +79,7 @@ calWeekPrinter.prototype = {
                     this.setupWeek(document, startOfWeek, dayTable);
                 }
 
-                cal.print.addItemToDaybox(document, item, dayTable[boxDateKey]);
+                cal.print.addItemToDaybox(document, item, boxDate, dayTable[boxDateKey]);
             }
         }
 
