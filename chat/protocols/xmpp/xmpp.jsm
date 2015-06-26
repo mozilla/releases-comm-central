@@ -294,7 +294,8 @@ const XMPPMUCConversationPrototype = {
     this.writeMessage(from, aMsg, flags);
   },
 
-  getNormalizedChatBuddyName: function(aNick) this.name + "/" + aNick,
+  getNormalizedChatBuddyName: function(aNick)
+    this._account.normalizeFullJid(this.name + "/" + aNick),
 
   // Removes a participant from MUC conversation.
   removeParticipant: function(aNick) {
@@ -356,10 +357,22 @@ const XMPPConversationPrototype = {
   supportChatStateNotifications: true,
   _typingState: "active",
 
+  // Indicates that current conversation is with a MUC participant and the
+  // recipient jid (stored in the userName) is of the form room@domain/nick.
+  _isMucParticipant: false,
+
   get buddy() this._account._buddies.get(this.name),
   get title() this.contactDisplayName,
   get contactDisplayName() this.buddy ? this.buddy.contactDisplayName : this.name,
   get userName() this.buddy ? this.buddy.userName : this.name,
+
+  // Returns jid (room@domain/nick) if it is with a MUC participant, and the
+  // name of conversation otherwise.
+  get normalizedName() {
+    if (this._isMucParticipant)
+      return this._account.normalizeFullJid(this.name);
+    return this._account.normalize(this.name);
+  },
 
   // Used to avoid showing full jids in typing notifications.
   get shortName() {
@@ -367,8 +380,14 @@ const XMPPConversationPrototype = {
       return this.buddy.contactDisplayName;
 
     let jid = this._account._parseJID(this.name);
-    if (!jid || !jid.node)
+    if (!jid)
       return this.name;
+
+    // Returns nick of the recipient if conversation is with a participant of
+    // a MUC we are in as jid of the recipient is of the form room@domain/nick.
+    if (this._isMucParticipant)
+      return jid.resource;
+
     return jid.node;
   },
 
@@ -403,9 +422,13 @@ const XMPPConversationPrototype = {
     if (this._typingState == aNewState)
       return;
 
-    /* to, msg, state, attrib, data */
     let s = Stanza.message(this.to, null, aNewState);
-    this._account.sendStanza(s);
+
+    // We don't care about errors in response to typing notifications
+    // (e.g. because the user has left the room when talking to a MUC
+    // participant).
+    this._account.sendStanza(s, () => true);
+
     this._typingState = aNewState;
   },
   _cancelTypingTimer: function() {
@@ -415,12 +438,15 @@ const XMPPConversationPrototype = {
     }
   },
 
+  // Holds the resource of user that you are currenty talking to, but if the
+  // user is a participant of a MUC we are in, holds the nick of user you are
+  // talking to.
   _targetResource: "",
+
   get to() {
-    let to = this.userName;
-    if (this._targetResource)
-      to += "/" + this._targetResource;
-    return to;
+    if (!this._targetResource || this._isMucParticipant)
+      return this.userName;
+    return this.userName + "/" + this._targetResource;
   },
 
   /* Called when the user enters a chat message */
@@ -454,6 +480,9 @@ const XMPPConversationPrototype = {
     let flags = {};
     let error = this._account.parseError(aStanza);
     if (error) {
+      let norm = this._account.normalize(from);
+      let muc = this._account._mucs.get(norm);
+
       if (!aMsg) {
         // Failed outgoing message unknown.
         if (error.condition == "remote-server-not-found")
@@ -461,7 +490,23 @@ const XMPPConversationPrototype = {
         else
           aMsg = _("conversation.error.unknownError");
       }
-      aMsg = _("conversation.error.notDelivered", aMsg);
+      else if (this._isMucParticipant && muc && !muc.left &&
+               error.condition == "item-not-found") {
+        // XEP-0045 (7.5): MUC private messages.
+        // If we try to send to participant not in a room we are in.
+        aMsg = _("conversation.error.sendFailedAsRecipientNotInRoom",
+                 this._targetResource, aMsg);
+      }
+      else if (this._isMucParticipant &&
+               (error.condition == "item-not-found" ||
+                error.condition == "not-acceptable")) {
+        // If we left a room and try to send to a participant in it or the
+        // room is removed.
+        aMsg = _("conversation.error.sendFailedAsNotInRoom",
+                 this._account.normalize(from), aMsg);
+      }
+      else
+        aMsg = _("conversation.error.notDelivered", aMsg);
       flags.system = true;
       flags.error = true;
     }
@@ -484,9 +529,13 @@ const XMPPConversationPrototype = {
     GenericConvIMPrototype.unInit.call(this);
   }
 };
-function XMPPConversation(aAccount, aName)
+
+// Creates XMPP conversation.
+function XMPPConversation(aAccount, aNormalizedName, aMucParticipant)
 {
-  this._init(aAccount, aName);
+  this._init(aAccount, aNormalizedName);
+  if (aMucParticipant)
+    this._isMucParticipant = true;
 }
 XMPPConversation.prototype = XMPPConversationPrototype;
 
@@ -824,8 +873,12 @@ const XMPPAccountPrototype = {
   _init: function(aProtoInstance, aImAccount) {
     GenericAccountPrototype._init.call(this, aProtoInstance, aImAccount);
 
-    /* Ongoing conversations */
-    this._conv = new NormalizedMap(this.normalize.bind(this));
+    // Ongoing conversations.
+    // The keys of this._conv are assumed to be normalized like account@domain
+    // for normal conversations and like room@domain/nick for MUC participant
+    // convs.
+    this._conv = new NormalizedMap(this.normalizeFullJid.bind(this));
+
     this._buddies = new NormalizedMap(this.normalize.bind(this));
     this._mucs = new NormalizedMap(this.normalize.bind(this));
   },
@@ -1330,7 +1383,7 @@ const XMPPAccountPrototype = {
       if (date && isNaN(date))
         date = undefined;
       if (type == "groupchat" ||
-          (type == "error" && this._mucs.has(norm))) {
+          (type == "error" && this._mucs.has(norm) && !this._conv.has(from))) {
         if (!this._mucs.has(norm)) {
           this.WARN("Received a groupchat message for unknown MUC " + norm);
           return;
@@ -1366,19 +1419,19 @@ const XMPPAccountPrototype = {
         return;
       }
 
-      let conv = this.createConversation(norm);
+      let conv = this.createConversation(from);
       if (!conv)
         return;
       conv.incomingMessage(body, aStanza, date);
     }
     else if (type == "error") {
-      let conv = this.createConversation(norm);
+      let conv = this.createConversation(from);
       if (conv)
         conv.incomingMessage(null, aStanza);
     }
 
     // Don't create a conversation to only display the typing notifications.
-    if (!this._conv.has(norm))
+    if (!this._conv.has(norm) && !this._conv.has(from))
       return;
 
     // Ignore errors while delivering typing notifications.
@@ -1397,7 +1450,12 @@ const XMPPAccountPrototype = {
       else if (state == "paused")
         typingState = Ci.prplIConvIM.TYPED;
     }
-    let conv = this._conv.get(norm);
+    let convName = norm;
+    if (this._mucs.has(norm))
+      convName = from;
+    let conv = this._conv.get(convName);
+    if (!conv)
+      return;
     conv.updateTyping(typingState, conv.shortName);
     conv.supportChatStateNotifications = !!state;
   },
@@ -1438,6 +1496,11 @@ const XMPPAccountPrototype = {
     buddy._vCardReceived = true;
   },
 
+  // XEP-0029 (Section 2) and RFC 6122 (Section 2): The node and domain are
+  // lowercase, while resources are case sensitive and can contain spaces.
+  normalizeFullJid: function(aJID) this._parseJID(aJID.trim()).jid,
+
+  // Standard normalization for XMPP removes the resource part of jids.
   normalize: function(aJID) {
     return aJID.trim()
                .split("/", 1)[0] // up to first slash
@@ -1599,13 +1662,29 @@ const XMPPAccountPrototype = {
   _accountBuddyConstructor: XMPPAccountBuddy,
 
   /* Create a new conversation */
-  createConversation: function(aNormalizedName) {
-    if (!this._conv.has(aNormalizedName)) {
-      this._conv.set(aNormalizedName,
-        new this._conversationConstructor(this, aNormalizedName));
+  createConversation: function(aName) {
+    let convName = this.normalize(aName);
+
+    // Checks if conversation is with a participant of a MUC we are in. We do
+    // not want to strip the resource as it is of the form room@domain/nick.
+    let isMucParticipant = this._mucs.has(convName);
+    if (isMucParticipant)
+      convName = this.normalizeFullJid(aName);
+
+    // Checking that the aName can be parsed and is not broken.
+    let jid = this._parseJID(convName);
+    if (!jid || !jid.node || (isMucParticipant && !jid.resource)) {
+      this.ERROR("Could not create conversation as jid is broken: " + convName);
+      throw "Invalid JID";
     }
 
-    return this._conv.get(aNormalizedName);
+    if (!this._conv.has(convName)) {
+      this._conv.set(convName,
+                     new this._conversationConstructor(this, convName,
+                                                       isMucParticipant));
+    }
+
+    return this._conv.get(convName);
   },
 
   /* Remove an existing conversation */

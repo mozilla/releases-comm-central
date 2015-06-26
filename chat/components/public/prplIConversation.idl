@@ -109,9 +109,7 @@ interface prplIConvChat: prplIConversation {
 
   /* The normalized chat buddy name will be suitable for calling
      createConversation to start a private conversation or calling
-     requestBuddyInfo. Generally this can just be aChatBuddyName, but some
-     protocols (e.g. XMPP) use this to strip out parts of the name (e.g. the
-     resource). */
+     requestBuddyInfo. */
   AUTF8String getNormalizedChatBuddyName(in AUTF8String aChatBuddyName);
 
   /* The topic of this chat room */
