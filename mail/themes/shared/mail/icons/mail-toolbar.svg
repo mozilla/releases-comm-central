@@ -23,9 +23,9 @@
     }
     @media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
       .normal {
-        fill: #616161;
+        fill: #4c4c4c;
       fill-opacity: 1;
-        stroke: #616161;
+        stroke: #4c4c4c;
       }
     }
     @media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
