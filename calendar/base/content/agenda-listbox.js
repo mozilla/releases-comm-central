@@ -646,8 +646,9 @@ function refreshCalendarQuery(aStart, aEnd, aCalendar) {
 
         cancel: function() {
             this.cancelled = true;
-            if (this.operation && this.operation.isPending) {
-                this.operation.cancel();
+            let op = cal.wrapInstance(this.operation, Components.interfaces.calIOperation);
+            if (op && op.isPending) {
+                op.cancel();
                 this.operation = null;
             }
         },
@@ -690,6 +691,7 @@ function refreshCalendarQuery(aStart, aEnd, aCalendar) {
             let filter = this.calendar.ITEM_FILTER_CLASS_OCCURRENCES |
                          this.calendar.ITEM_FILTER_TYPE_EVENT;
             let op = this.calendar.getItems(filter, 0, aStart, aEnd, this);
+            op = cal.wrapInstance(op, Components.interfaces.calIOperation);
             if (op && op.isPending) {
                 this.operation = op;
                 this.agendaListbox.mPendingRefreshJobs.set(this.calId, this);
