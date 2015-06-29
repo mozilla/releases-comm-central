@@ -139,7 +139,7 @@ pref("calendar.view.useSystemColors", false);
 pref("calendar.filter.maxiterations", 50);
 
 // Backend to use. false: libical, true: ical.js
-#ifdef LIGHTNING_PRERELEASE_VERSION
+#ifdef NIGHTLY_BUILD
 pref("calendar.icaljs", true);
 #else
 pref("calendar.icaljs", false);
