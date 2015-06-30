@@ -1202,11 +1202,22 @@ const XMPPAccountPrototype = {
   onIQStanza: function(aStanza) {
     let type = aStanza.attributes["type"];
     if (type == "set") {
-      for each (let qe in aStanza.getChildren("query")) {
-        if (qe.uri != Stanza.NS.roster)
+      for (let query of aStanza.getChildren("query")) {
+        if (query.uri != Stanza.NS.roster)
           continue;
 
-        for each (let item in qe.getChildren("item"))
+        // RFC 6121 2.1.6 (Roster push):
+        // A receiving client MUST ignore the stanza unless it has no 'from'
+        // attribute (i.e., implicitly from the bare JID of the user's
+        // account) or it has a 'from' attribute whose value matches the
+        // user's bare JID <user@domainpart>.
+        let from = aStanza.attributes["from"];
+        if (from && from != this._jid.node + "@" + this._jid.domain) {
+          this.WARN("Ignoring potentially spoofed roster push.");
+          return;
+        }
+
+        for (let item of query.getChildren("item"))
           this._onRosterItem(item, true);
         return;
       }
