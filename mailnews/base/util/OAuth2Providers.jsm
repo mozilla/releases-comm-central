@@ -11,10 +11,10 @@ const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 
 // map of hostnames to [issuer, scope]
 const kHostnames = new Map([
-  ["imap.googlemail.com", ["accounts.google.com", "http://mail.google.com/"]],
-  ["smtp.googlemail.com", ["accounts.google.com", "http://mail.google.com/"]],
-  ["imap.gmail.com", ["accounts.google.com", "http://mail.google.com/"]],
-  ["smtp.gmail.com", ["accounts.google.com", "http://mail.google.com/"]],
+  ["imap.googlemail.com", ["accounts.google.com", "https://mail.google.com/"]],
+  ["smtp.googlemail.com", ["accounts.google.com", "https://mail.google.com/"]],
+  ["imap.gmail.com", ["accounts.google.com", "https://mail.google.com/"]],
+  ["smtp.gmail.com", ["accounts.google.com", "https://mail.google.com/"]],
 ]);
 
 // map of issuers to appKey, appSecret, authURI, tokenURI
