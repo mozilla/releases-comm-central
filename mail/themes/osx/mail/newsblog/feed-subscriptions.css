@@ -15,7 +15,7 @@
   border: 1px solid ThreeDShadow;
   margin: 4px;
   padding-top: 4px;
-  background-color: #EAE8E4;
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 #statusContainerBox {
