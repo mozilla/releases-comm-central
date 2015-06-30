@@ -1836,7 +1836,7 @@ const XMPPAccountPrototype = {
     let channel = Services.io.newChannelFromURI2(userIcon,
       null, Services.scriptSecurityManager.getSystemPrincipal(), null,
       Ci.nsILoadInfo.SEC_NORMAL, Ci.nsIContentPolicy.TYPE_IMAGE);
-    NetUtil.asyncFetch2(channel, (inputStream, resultCode) => {
+    NetUtil.asyncFetch(channel, (inputStream, resultCode) => {
       if (!Components.isSuccessCode(resultCode))
         return;
       try {
