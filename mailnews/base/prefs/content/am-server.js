@@ -26,8 +26,11 @@ function onInit(aPageId, aServerId)
   onCheckItem("nntp.maxArticles", ["nntp.notifyOn"]);
   setupMailOnServerUI();
   setupFixedUI();
-  if (document.getElementById("server.type").getAttribute("value") == "imap")
+  let serverType = document.getElementById("server.type").getAttribute("value");
+  if (serverType == "imap")
     setupImapDeleteUI(aServerId);
+
+  document.getElementById("authMethod-oauth2").hidden = (serverType != "imap");
 
   // "STARTTLS, if available" is vulnerable to MITM attacks so we shouldn't
   // allow users to choose it anymore. Hide the option unless the user already
