@@ -120,6 +120,7 @@ function run_test() {
   add_test(testBrokenUnrealMessages);
   add_test(testNewLinesInMessages);
   add_test(testLocalhost);
+  add_test(testTags);
 
   run_next_test();
 }
@@ -150,13 +151,21 @@ function testRFC2812Messages() {
 }
 
 /*
- * Test if two objects have the same fields (recursively).
+ * Test if two objects have the same fields (recursively). aObject2 should be
+ * an ircMessage and aObject1 its expected values.
  */
 function isEqual(aObject1, aObject2) {
   let result = true;
   for (let fieldName in aObject1) {
     let field1 = aObject1[fieldName];
-    let field2 = aObject2[fieldName];
+    // Get the value current field value of the ircMessage. aObject2 might have
+    // be a Map, if so use the proper getter.
+    let field2;
+    if (aObject2 instanceof Map)
+      field2 = aObject2.get(fieldName);
+    else
+      field2 = aObject2[fieldName];
+
     if (typeof field1 == "object")
       result &= isEqual(field1, field2);
     else if (Array.isArray(field1))
@@ -248,6 +257,71 @@ function testLocalhost() {
 
   for (let messageStr in messages)
     do_check_true(isEqual(messages[messageStr], irc.ircMessage(messageStr)));
+
+  run_next_test();
+}
+
+function testTags() {
+  let messages = {
+    "@aaa=bBb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello": {
+      rawMessage: "@aaa=bBb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello",
+      command: "PRIVMSG",
+      params: ["me", "Hello"],
+      origin: "nick",
+      user: "ident",
+      host: "host.com",
+      tags: {
+        "aaa": "bBb",
+        "ccc": undefined,
+        "example.com/ddd": "eee"
+      }
+    },
+    "@xn--e1afmkfd.org/foo :nick@host.com PRIVMSG him :Test": {
+      rawMessage: "@xn--e1afmkfd.org/foo :nick@host.com PRIVMSG him :Test",
+      command: "PRIVMSG",
+      params: ["him", "Test"],
+      origin: "nick",
+      user: "host.com",
+      tags: {
+        "xn--e1afmkfd.org/foo": undefined
+      }
+    },
+    "@aaa=\\\\n\\:\\n\\r\\s :nick@host.com PRIVMSG it :Yes": {
+      rawMessage: "@aaa=\\\\n\\:\\n\\r\\s :nick@host.com PRIVMSG it :Yes",
+      command: "PRIVMSG",
+      params: ["it", "Yes"],
+      origin: "nick",
+      user: "host.com",
+      tags: {
+        "aaa": "\\n;\n\r "
+      }
+    },
+    "@c;h=;a=b :quux ab cd": {
+      rawMessage: "@c;h=;a=b :quux ab cd",
+      command: "ab",
+      params: ["cd"],
+      origin: "quux",
+      tags: {
+        "c": undefined,
+        "h": "",
+        "a": "b"
+      }
+    },
+    "@time=2012-06-30T23:59:60.419Z :John!~john@1.2.3.4 JOIN #chan": {
+      rawMessage: "@time=2012-06-30T23:59:60.419Z :John!~john@1.2.3.4 JOIN #chan",
+      command: "JOIN",
+      params: ["#chan"],
+      origin: "John",
+      user: "~john",
+      host: "1.2.3.4",
+      tags: {
+        "time": "2012-06-30T23:59:60.419Z"
+      }
+    }
+  };
+
+  for (let messageStr in messages)
+    do_check_true(isEqual(messages[messageStr], irc.ircMessage(messageStr, "")));
 
   run_next_test();
 }

@@ -32,6 +32,8 @@ XPCOMUtils.defineLazyModuleGetter(this, "DownloadUtils",
  *   host       The user's hostname, note that this can be undefined.
  *   source     A "nicely" formatted combination of user & host, which is
  *              <user>@<host> or <user> if host is undefined.
+ *   tags       A Map with tags stored as key-value-pair. The value is a decoded
+ *              string or undefined if the tag has no value.
  *
  * There are cases (e.g. localhost) where it cannot be easily determined if a
  * message is from a server or from a user, thus the usage of a generic "origin"
@@ -46,9 +48,10 @@ function ircMessage(aData, aOrigin) {
   let message = {rawMessage: aData};
   let temp;
 
-  // Splits the raw string into four parts (the second is required), the command
-  // is required. A raw string looks like:
-  //   [":" <prefix> " "] <command> [" " <parameter>]* [":" <last parameter>]
+  // Splits the raw string into five parts. The third part, the command, is
+  // required. A raw string looks like:
+  //   ["@" <tags> " "] [":" <prefix> " "] <command> [" " <parameter>]* [":" <last parameter>]
+  //     <tags>: /[^ ]+/
   //     <prefix>: :(<server name> | <nickname> [["!" <user>] "@" <host>])
   //     <command>: /[^ ]+/
   //     <parameter>: /[^ ]+/
@@ -60,26 +63,66 @@ function ircMessage(aData, aOrigin) {
   // (This is for compatibility with Unreal's 432 response, which returns an
   // empty first parameter.) It also allows a trailing space after the
   // <parameter>s when no <last parameter> is present (also occurs with Unreal).
-  if (!(temp = aData.match(/^(?::([^ ]+) )?([^ ]+)((?: +[^: ][^ ]*)*)? *(?::([\s\S]*))?$/)))
+  if (!(temp = aData.match(/^(?:@([^ ]+) )?(?::([^ ]+) )?([^ ]+)((?: +[^: ][^ ]*)*)? *(?::([\s\S]*))?$/)))
     throw "Couldn't parse message: \"" + aData + "\"";
 
-  message.command = temp[2];
+  message.command = temp[3];
   // Space separated parameters. Since we expect a space as the first thing
   // here, we want to ignore the first value (which is empty).
-  message.params = temp[3] ? temp[3].split(" ").slice(1) : [];
+  message.params = temp[4] ? temp[4].split(" ").slice(1) : [];
   // Last parameter can contain spaces or be an empty string.
-  if (temp[4] != undefined)
-    message.params.push(temp[4]);
+  if (temp[5] != undefined)
+    message.params.push(temp[5]);
 
   // Handle the prefix part of the message per RFC 2812 Section 2.3.
 
   // If no prefix is given, assume the current server is the origin.
-  if (!temp[1])
-    temp[1] = aOrigin;
+  if (!temp[2])
+    temp[2] = aOrigin;
 
   // Split the prefix into separate nickname, username and hostname fields as:
   //   :(servername|(nickname[[!user]@host]))
-  [message.origin, message.user, message.host] = temp[1].split(/[!@]/);
+  [message.origin, message.user, message.host] = temp[2].split(/[!@]/);
+
+  // Store the tags in a Map, see IRCv3.2 Message Tags.
+  message.tags = new Map();
+
+  if (temp[1]) {
+    let tags = temp[1].split(";");
+    tags.forEach((tag) => {
+      let [key, value] = tag.split("=");
+
+      if (value) {
+        // Unescape tag values according to this mapping:
+        // \\ = \
+        // \n = LF
+        // \r = CR
+        // \s = SPACE
+        // \: = ;
+        // everything else stays identical.
+        value = value.replace(/\\(.)/g, (str, type) => {
+          if (type == "\\")
+            return "\\";
+          else if (type == "n")
+            return "\n";
+          else if (type == "r")
+            return "\r";
+          else if (type == "s")
+            return " ";
+          else if (type == ":")
+            return ";";
+          // Ignore the backslash, not specified by the spec, but as it says
+          // backslashes must be escaped this case should not occur in a valid
+          // tag value.
+          return type;
+        });
+      }
+      // The tag key can typically have the form of example.com/aaa for vendor
+      // defined tags. The spec wants any unicode characters in URLs to be
+      // in punycode (xn--). These are not unescaped to their unicode value.
+      message.tags.set(key, value);
+    });
+  }
 
   // It is occasionally useful to have a "source" which is a combination of
   // user@host.
