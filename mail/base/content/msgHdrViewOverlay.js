@@ -1593,9 +1593,11 @@ function SendMailToNode(addressNode, aEvent)
                          .createInstance(Components.interfaces.nsIMsgComposeParams);
 
   fields.newsgroups = addressNode.getAttribute("newsgroup");
-  let addresses = MailServices.headerParser.makeFromDisplayAddress(
-    addressNode.getAttribute("fullAddress"), {});
-  fields.to = MailServices.headerParser.makeMimeHeader(addresses, 1);
+  if (addressNode.hasAttribute("fullAddress")) {
+    let addresses = MailServices.headerParser.makeFromDisplayAddress(
+      addressNode.getAttribute("fullAddress"), {});
+    fields.to = MailServices.headerParser.makeMimeHeader(addresses, 1);
+  }
 
   params.type = Components.interfaces.nsIMsgCompType.New;
 
