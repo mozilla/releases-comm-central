@@ -3470,39 +3470,24 @@ function updateAttendees() {
         }
 
         let attendeeNames = [];
-        let attendeeEmails = [];
-        let numAttendees = window.attendees.length;
-        let emailRE = new RegExp("^mailto:(.*)", "i");
-        for (let i = 0; i < numAttendees; i++) {
-            let attendee = window.attendees[i];
-            let name = attendee.commonName;
-            if (name && name.length) {
-                attendeeNames.push(name);
-                let email = attendee.id;
-                if (email && email.length) {
-                    if (emailRE.test(email)) {
-                        name += ' <' + RegExp.$1 + '>';
-                    } else {
-                        name += ' <' + email + '>';
-                    }
-                    attendeeEmails.push(name);
-                }
-            } else if (attendee.id && attendee.id.length) {
-                let email = attendee.id;
-                if (emailRE.test(email)) {
-                    attendeeNames.push(RegExp.$1);
-                } else {
-                    attendeeNames.push(email);
-                }
-            } else {
-                continue;
+        let attendeeTooltip = [];
+        let pushAttendees = function (aAttendee) {
+            let name = aAttendee.commonName || "";
+            if (name.startsWith('"') && name.endsWith('"')) {
+                name.slice(1, -1);
+            }
+            let email = cal.removeMailTo(aAttendee.id || "");
+            if (email.length) {
+                attendeeNames.push(name.length ? name : email);
+                attendeeTooltip.push(name.length ? name + '<' + email + '>' : email);
             }
         }
+        window.attendees.forEach(pushAttendees);
 
         let attendeeList = document.getElementById("attendee-list");
         let callback = function func() {
-            attendeeList.setAttribute('value', attendeeNames.join(', '));
-            attendeeList.setAttribute('tooltiptext', attendeeEmails.join(', '));
+            attendeeList.setAttribute('value', attendeeNames.join('; '));
+            attendeeList.setAttribute('tooltiptext', attendeeTooltip.join('\n'));
         };
         setTimeout(callback, 1);
     } else {
