@@ -394,6 +394,7 @@
                   <vbox id="accountCentralBox" flex="1">
                     <iframe name="accountCentralPane"
                             contextmenu="pageContextMenu"
+                            tooltip="aHTMLTooltip"
                             width="150" flex="1" src="about:blank"/>
                   </vbox>
                   <!-- The threadPaneBox is the basis for the vertical view and you
