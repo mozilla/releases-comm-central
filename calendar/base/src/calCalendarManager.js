@@ -998,8 +998,7 @@ calMgrCalendarObserver.prototype = {
         // prompt window.)
         let promptUrl = "chrome://calendar/content/calendar-error-prompt.xul";
         let features = "chrome,dialog=yes,alwaysRaised=yes";
-        let promptWindow =  Services.ww.openWindow(null, url, "_blank",
-                                                   features, paramBlock);
+        let promptWindow =  Services.ww.openWindow(null, promptUrl, "_blank", features, paramBlock);
         promptWindow.addEventListener("load", awaitLoad, false);
     }
 };
