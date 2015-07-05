@@ -306,7 +306,7 @@ classic.jar:
   skin/classic/aero/messenger/accountCreation.css                  (mail/accountCreation.css)
   skin/classic/aero/messenger/accountManage.css                    (mail/accountManage.css)
   skin/classic/aero/messenger/accountWizard.css                    (mail/accountWizard.css)
-* skin/classic/aero/messenger/chat.css                             (mail/chat-aero.css)
+* skin/classic/aero/messenger/chat.css                             (mail/chat.css)
   skin/classic/aero/messenger/userIcon.png                         (mail/userIcon.png)
   skin/classic/aero/messenger/noise.png                            (mail/noise.png)
 * skin/classic/aero/messenger/imAccounts.css                       (../../components/im/themes/imAccounts.css)

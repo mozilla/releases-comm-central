@@ -6,49 +6,9 @@
 
 %include ../../../components/im/themes/chat.css
 
-.prplBuddyIcon {
-  margin-top: 2px;
-  margin-bottom: 2px;
-}
-
-/* Make the listSplitter, contextSplitter and splitter appear unified */
-#listSplitter {
-  -moz-border-end: none;
-  min-width: 4px;
-}
-
 #noConvScreen {
   -moz-border-start: 2px solid;
   -moz-border-left-colors: ThreeDFace ThreeDDarkShadow;
-}
-
-.conv-top,
-.conv-bottom,
-#logDisplay {
-  -moz-border-start: 2px solid;
-  -moz-border-end: 2px solid;
-  -moz-border-right-colors: ThreeDHighlight ThreeDShadow;
-  -moz-border-left-colors: ThreeDFace ThreeDDarkShadow;
-}
-
-.conv-top {
-  border-bottom: 2px solid;
-  -moz-border-bottom-colors: ThreeDHighlight ThreeDShadow;
-}
-
-.conv-bottom {
-  border-top: 2px solid;
-  -moz-border-top-colors: ThreeDFace ThreeDDarkShadow;
-}
-
-#contextSplitter {
-  -moz-border-start: none;
-  min-width: 4px;
-}
-
-.splitter {
-  min-height: 2px;
-  background-color: ThreeDFace;
 }
 
 /* Adaptation from #folderTree */
@@ -129,6 +89,52 @@
 }
 
 @media (-moz-os-version: windows-xp) {
+  .prplBuddyIcon {
+    margin-top: 2px;
+    margin-bottom: 2px;
+  }
+
+  .tabmail-tab[type="chat"],
+  .alltabs-item[type="chat"] {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
+    -moz-image-region: rect(0px 352px 16px 336px);
+  }
+
+  /* Make the listSplitter, contextSplitter and splitter appear unified */
+  #listSplitter {
+    -moz-border-end: none;
+    min-width: 4px;
+  }
+
+  #contextSplitter {
+    -moz-border-start: none;
+    min-width: 4px;
+  }
+
+  .splitter {
+    min-height: 2px;
+    background-color: ThreeDFace;
+  }
+
+  .conv-top,
+  .conv-bottom,
+  #logDisplay {
+    -moz-border-start: 2px solid;
+    -moz-border-end: 2px solid;
+    -moz-border-right-colors: ThreeDHighlight ThreeDShadow;
+    -moz-border-left-colors: ThreeDFace ThreeDDarkShadow;
+  }
+
+  .conv-top {
+    border-bottom: 2px solid;
+    -moz-border-bottom-colors: ThreeDHighlight ThreeDShadow;
+  }
+
+  .conv-bottom {
+    border-top: 2px solid;
+    -moz-border-top-colors: ThreeDFace ThreeDDarkShadow;
+  }
+
   #button-add-buddy {
     list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.png");
     -moz-image-region: rect(0px 22px 22px 0px);
@@ -244,8 +250,280 @@ richlistitem[state="disconnected"] .accountStateIcon {
   margin-bottom: 18px;
 }
 
-.tabmail-tab[type="chat"],
-.alltabs-item[type="chat"] {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
-  -moz-image-region: rect(0px 352px 16px 336px);
+@media not all and (-moz-os-version: windows-xp) {
+  .statusMessageToolbarItem {
+    margin: 0 1px;
+    -moz-margin-start: -2px;
+    padding: 3px 3px 4px;
+    border-radius: 2px;
+  }
+
+  #chat-toobar {
+    padding: 1px 0;
+  }
+
+  #listSplitter,
+  #contextSplitter {
+    border: none;
+    -moz-border-start: 1px solid ThreeDShadow;
+    background-color: transparent;
+    min-width: 0;
+    /* splitter grip area */
+    width: 5px;
+    margin-top: 0;
+    /* make only the splitter border visible */
+    -moz-margin-end: -5px;
+    /* because of the negative margin needed to make the splitter visible */
+    position: relative;
+    z-index: 10;
+  }
+
+  #contextSplitter {
+    -moz-border-start: none;
+    -moz-border-end: 1px solid ThreeDShadow;
+    -moz-margin-start: -5px;
+    -moz-margin-end: 0;
+  }
+
+  .splitter,
+  #logsSplitter {
+    border: none;
+    border-bottom: 1px solid ThreeDShadow;
+    min-height: 0;
+    /* splitter grip area */
+    height: 5px;
+    background-color: transparent;
+    /* make only the splitter border visible */
+    margin-top: -5px;
+    -moz-margin-start: 0;
+    /* because of the negative margin needed to make the splitter visible */
+    position: relative;
+    z-index: 10;
+  }
+
+  #noConvScreen {
+    -moz-border-start: none;
+  }
+
+  @media (-moz-windows-default-theme) {
+    .conv-status-container {
+      border-bottom-color: #A9B7C9;
+    }
+
+    #statusTypeIcon .toolbarbutton-menu-dropmarker {
+      padding: 1px 3px;
+      list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");
+    }
+
+    #chat-status-selector:hover > .statusMessageToolbarItem,
+    .statusMessageToolbarItem:focus {
+      border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
+                    hsla(210, 54%, 20%, .3);
+    }
+
+    #chat-status-selector > .statusMessageToolbarItem[editing] {
+      -moz-appearance: none;
+      -moz-padding-start: 2px;
+      -moz-padding-end: 2px;
+      border-color: hsla(206, 100%, 60%, .65) hsla(206, 100%, 55%, .65)
+                    hsla(206, 100%, 50%, .65);
+      background-color: -moz-field;
+    }
+
+    .convBox {
+      background-color: rgb(233,239,245);
+    }
+
+    #conversationsDeck {
+      background-color: rgb(233,239,245);
+    }
+
+    #listSplitter {
+      -moz-border-start: 1px solid #A9B7C9;
+    }
+
+    #contextSplitter {
+      -moz-border-end: 1px solid #A9B7C9;
+    }
+
+    .splitter,
+    #logsSplitter {
+      border-bottom: 1px solid #A9B7C9;
+    }
+
+    :-moz-any(imconv, imcontact, imgroup) {
+      min-height: 1.7em;
+      color: -moz-FieldText !important;
+      -moz-margin-start: 1px;
+      -moz-margin-end: 1px;
+      border: 2px solid transparent;
+      background-color: transparent;
+      background-origin: border-box;
+    }
+
+    :-moz-any(imconv, imcontact, imgroup)[selected] {
+      background-color: transparent;
+      -moz-border-top-colors: rgb(217, 217, 217) rgba(255, 255, 255, .4);
+      -moz-border-right-colors: rgb(217, 217, 217) rgba(255, 255, 255, .4);
+      -moz-border-left-colors: rgb(217, 217, 217) rgba(255, 255, 255, .4);
+      -moz-border-bottom-colors: rgb(217, 217, 217) rgba(255, 255, 255, .6);
+    }
+
+    :-moz-any(imconv, imcontact, imgroup):hover {
+      -moz-border-top-colors: rgb(184, 214, 251) rgba(255, 255, 255, .4);
+      -moz-border-right-colors: rgb(184, 214, 251) rgba(255, 255, 255, .4);
+      -moz-border-left-colors: rgb(184, 214, 251) rgba(255, 255, 255, .4);
+      -moz-border-bottom-colors: rgb(184, 214, 251) rgba(255, 255, 255, .6);
+    }
+
+    :-moz-any(imconv, imcontact, imgroup)[selected]:hover {
+      -moz-border-top-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
+      -moz-border-right-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
+      -moz-border-left-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
+      -moz-border-bottom-colors: rgb(125, 162, 206) rgba(255, 255, 255, .6);
+    }
+
+    #contactlistbox:focus > :-moz-any(imconv, imcontact, imgroup)[selected] {
+      background-color: transparent;
+      border: 2px solid transparent;
+      -moz-border-top-colors: rgb(132, 172, 221) rgba(255, 255, 255, .4);
+      -moz-border-right-colors: rgb(132, 172, 221) rgba(255, 255, 255, .4);
+      -moz-border-left-colors: rgb(132, 172, 221) rgba(255, 255, 255, .4);
+      -moz-border-bottom-colors: rgb(132, 172, 221) rgba(255, 255, 255, .6);
+    }
+
+    #contactlistbox:focus > :-moz-any(imconv, imcontact, imgroup)[selected][current] {
+      -moz-border-top-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
+      -moz-border-right-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
+      -moz-border-left-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
+      -moz-border-bottom-colors: rgb(125, 162, 206) rgba(255, 255, 255, .6);
+    }
+
+    .listitem-iconic[selected] > .listcell-iconic > .listcell-label,
+    #nicklist:focus > .listitem-iconic[inactive][selected] > .listcell-iconic > .listcell-label {
+      color: -moz-dialogtext !important;
+    }
+
+    #nicklist > listitem {
+      border-width: 1px !important;
+      outline: none !important;
+    }
+  }
+
+  #button-add-buddy {
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#add");
+  }
+
+  #button-join-chat {
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#join");
+  }
+
+  #button-chat-accounts {
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#accounts");
+  }
+
+  toolbar[brighttext] #button-add-buddy {
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#add-inverted");
+  }
+
+  toolbar[brighttext] #button-join-chat {
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#join-inverted");
+  }
+
+  toolbar[brighttext] #button-chat-accounts {
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#accounts-inverted");
+  }
+
+  .tabmail-tab[type="chat"],
+  .alltabs-item[type="chat"] {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#chat");
+  }
+
+  .tabmail-tab[type="chat"] > .tab-stack > .tab-content > .tab-icon-image {
+    width: 18px;
+    height: 18px;
+    margin-top: 0;
+    -moz-margin-end: 5px;
+    margin-bottom: -1px;
+    -moz-margin-start: -1px;
+  }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+  #listPaneBox {
+    background-color: rgb(238, 243, 250);
+  }
+
+  .conv-nicklist-header,
+  .conv-logs-header-label {
+    background-color: rgb(233, 239, 245);
+  }
+
+  :-moz-any(imconv, imcontact, imgroup) {
+    border-radius: 3px;
+  }
+
+  :-moz-any(imconv, imcontact, imgroup)[selected] {
+    background-image: linear-gradient(rgba(190, 190, 190, .1),
+                                      rgba(190, 190, 190, .4));
+  }
+
+  :-moz-any(imconv, imcontact, imgroup):hover {
+    background-image: linear-gradient(rgba(131, 183, 249, .05),
+                                      rgba(131, 183, 249, .16));
+  }
+
+  :-moz-any(imconv, imcontact, imgroup)[selected]:hover {
+    background-image: linear-gradient(rgba(131, 183, 249, .28),
+                                      rgba(131, 183, 249, .50));
+  }
+
+  #contactlistbox:focus > :-moz-any(imconv, imcontact, imgroup)[selected] {
+    background-image: linear-gradient(rgba(131, 183, 249, .16),
+                                      rgba(131, 183, 249, .375));
+  }
+}
+
+@media (-moz-os-version: windows-win8),
+       (-moz-os-version: windows-win10) {
+  .closeConversationButton {
+    list-style-image: url("chrome://global/skin/icons/close-XPVista7.png");
+  }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  .statusMessageToolbarItem {
+    border-radius: 0;
+  }
+
+  #listPaneBox {
+    background-color: -moz-Dialog;
+  }
+
+  :-moz-any(imconv, imcontact, imgroup) {
+    border-width: 1px;
+  }
+
+  :-moz-any(imconv, imcontact, imgroup)[selected] {
+    background-image: linear-gradient(rgba(190, 190, 190, .4),
+                                      rgba(190, 190, 190, .4));
+  }
+
+  :-moz-any(imconv, imcontact, imgroup):hover {
+    background-image: linear-gradient(rgba(131, 183, 249, .16),
+                                      rgba(131, 183, 249, .16));
+  }
+
+  :-moz-any(imconv, imcontact, imgroup)[selected]:hover {
+    background-image: linear-gradient(rgba(131, 183, 249, .50),
+                                      rgba(131, 183, 249, .50));
+  }
+
+  #contactlistbox:focus > :-moz-any(imconv, imcontact, imgroup)[selected] {
+    background-image: linear-gradient(rgba(131, 183, 249, .375),
+                                      rgba(131, 183, 249, .375));
+    border-width: 1px;
+  }
 }
