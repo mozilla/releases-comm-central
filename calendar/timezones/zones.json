@@ -22,6 +22,9 @@
     "America/Argentina/ComodRivadavia": {
       "aliasTo": "America/Argentina/Catamarca"
     },
+    "America/Buenos_Aires": {
+      "aliasTo": "America/Argentina/Buenos_Aires"
+    },
     "America/Louisville": {
       "aliasTo": "America/Kentucky/Louisville"
     },
@@ -38,7 +41,7 @@
       "aliasTo": "Asia/Baghdad"
     },
     "Argentina Standard Time": {
-      "aliasTo": "America/Buenos_Aires"
+      "aliasTo": "America/Argentina/Buenos_Aires"
     },
     "Asia/Calcutta": {
       "aliasTo": "Asia/Kolkata"

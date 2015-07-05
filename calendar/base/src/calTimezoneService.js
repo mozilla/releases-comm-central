@@ -226,6 +226,12 @@ calTimezoneService.prototype = {
         ]);
     },
 
+    get aliasIds() {
+        return new calStringEnumerator([
+            k for ([k, v] of this.mZones.entries()) if (v.aliasTo && k != "UTC" && k != "floating")
+        ]);
+    },
+
     get version() {
         return this.mVersion;
     },
