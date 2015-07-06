@@ -4,7 +4,7 @@
 
 function init() {
   document.getElementById("bookmarks-view").place =
-    "place:queryType=1&folder=" + window.top.PlacesUIUtils.allBookmarksFolderId;
+    "place:queryType=1&folder=" + PlacesUIUtils.allBookmarksFolderId;
 }
 
 function searchBookmarks(aSearchString) {
