@@ -101,12 +101,7 @@ protected:
     uint32_t mEntrySize;
     PLDHashTable mTokenTable;
     char* copyWord(const char* word, uint32_t len);
-    /**
-     * Calls passed-in function for each token in the table.
-     */
-    void visit(bool (*f) (BaseToken*, void*), void* data);
     BaseToken* get(const char* word);
-
 };
 
 class Tokenizer: public TokenHash {

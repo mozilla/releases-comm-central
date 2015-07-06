@@ -382,10 +382,6 @@ protected:
   static bool MatchEntry(PLDHashTable* aTable, const PLDHashEntryHdr* aEntry, const void* aKey);
   static void MoveEntry(PLDHashTable* aTable, const PLDHashEntryHdr* aFrom, PLDHashEntryHdr* aTo);
   static void ClearEntry(PLDHashTable* aTable, PLDHashEntryHdr* aEntry);
-  static PLDHashOperator HeaderEnumerator (PLDHashTable *table, PLDHashEntryHdr *hdr,
-                               uint32_t number, void *arg);
-  static PLDHashOperator ClearHeaderEnumerator (PLDHashTable *table, PLDHashEntryHdr *hdr,
-                               uint32_t number, void *arg);
   static PLDHashTableOps gMsgDBHashTableOps;
   struct MsgHdrHashElement : public PLDHashEntryHdr {
     nsMsgKey       mKey;

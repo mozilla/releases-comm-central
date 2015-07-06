@@ -511,33 +511,6 @@ nsresult nsMsgDatabase::AddHdrToCache(nsIMsgDBHdr *hdr, nsMsgKey key) // do we w
 }
 
 
-/* static */PLDHashOperator nsMsgDatabase::HeaderEnumerator (PLDHashTable *table, PLDHashEntryHdr *hdr,
-                               uint32_t number, void *arg)
-{
-
-  MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(hdr);
-  if (element)
-    NS_IF_RELEASE(element->mHdr);
-  return PL_DHASH_NEXT;
-}
-
-/* static */PLDHashOperator nsMsgDatabase::ClearHeaderEnumerator (PLDHashTable *table, PLDHashEntryHdr *hdr,
-                               uint32_t number, void *arg)
-{
-
-  MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(hdr);
-  if (element && element->mHdr)
-  {
-    nsMsgHdr* msgHdr = static_cast<nsMsgHdr*>(element->mHdr);  // closed system, so this is ok
-    // clear out m_mdbRow member variable - the db is going away, which means that this member
-    // variable might very well point to a mork db that is gone.
-    NS_IF_RELEASE(msgHdr->m_mdbRow);
-//    NS_IF_RELEASE(msgHdr->m_mdb);
-  }
-  return PL_DHASH_NEXT;
-}
-
-
 NS_IMETHODIMP nsMsgDatabase::SetMsgHdrCacheSize(uint32_t aSize)
 {
   m_cacheSize = aSize;
@@ -662,7 +635,11 @@ nsresult nsMsgDatabase::ClearHdrCache(bool reInit)
     // save this away in case we renter this code.
     PLDHashTable  *saveCachedHeaders = m_cachedHeaders;
     m_cachedHeaders = nullptr;
-    PL_DHashTableEnumerate(saveCachedHeaders, HeaderEnumerator, nullptr);
+    for (auto iter = saveCachedHeaders->Iter(); !iter.Done(); iter.Next()) {
+      auto element = static_cast<MsgHdrHashElement*>(iter.Get());
+      if (element)
+        NS_IF_RELEASE(element->mHdr);
+    }
 
     if (reInit)
     {
@@ -801,7 +778,16 @@ nsresult nsMsgDatabase::ClearUseHdrCache()
   {
     // clear mdb row pointers of any headers still in use, because the
     // underlying db is going away.
-    PL_DHashTableEnumerate(m_headersInUse, ClearHeaderEnumerator, nullptr);
+    for (auto iter = m_headersInUse->Iter(); !iter.Done(); iter.Next()) {
+      auto element = static_cast<const MsgHdrHashElement*>(iter.Get());
+      if (element && element->mHdr) {
+        nsMsgHdr* msgHdr = static_cast<nsMsgHdr*>(element->mHdr);  // closed system, so this is ok
+        // clear out m_mdbRow member variable - the db is going away, which means that this member
+        // variable might very well point to a mork db that is gone.
+        NS_IF_RELEASE(msgHdr->m_mdbRow);
+    //    NS_IF_RELEASE(msgHdr->m_mdb);
+      }
+    }
     delete m_headersInUse;
     m_headersInUse = nullptr;
   }

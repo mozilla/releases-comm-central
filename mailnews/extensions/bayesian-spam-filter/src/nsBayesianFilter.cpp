@@ -131,19 +131,6 @@ inline BaseToken* TokenEnumeration::nextToken()
     return token;
 }
 
-struct VisitClosure {
-    bool (*f) (BaseToken*, void*);
-    void* data;
-};
-
-static PLDHashOperator VisitEntry(PLDHashTable* table, PLDHashEntryHdr* entry,
-                                  uint32_t number, void* arg)
-{
-    VisitClosure* closure = reinterpret_cast<VisitClosure*>(arg);
-    BaseToken* token = static_cast<BaseToken*>(entry);
-    return (closure->f(token, closure->data) ? PL_DHASH_NEXT : PL_DHASH_STOP);
-}
-
 // member variables
 static const PLDHashTableOps gTokenTableOps = {
     PL_DHashStringKey,
@@ -219,16 +206,6 @@ BaseToken* TokenHash::add(const char* word)
         }
     }
     return token;
-}
-
-void TokenHash::visit(bool (*f) (BaseToken*, void*), void* data)
-{
-    VisitClosure closure = { f, data };
-    uint32_t visitCount = PL_DHashTableEnumerate(&mTokenTable, VisitEntry, &closure);
-    NS_ASSERTION(visitCount == mTokenTable.EntryCount(), "visitCount != entryCount!");
-    if (visitCount != mTokenTable.EntryCount()) {
-      MOZ_LOG(BayesianFilterLogModule, LogLevel::Error, ("visitCount != entryCount!: %d vs %d", visitCount, mTokenTable.EntryCount()));
-    }
 }
 
 inline uint32_t TokenHash::countTokens()
