@@ -207,6 +207,7 @@ menulist[disabled="true"] {
   background: url("chrome://messenger/skin/icons/loading.png") no-repeat;
   width: 16px;
   height: 16px;
+  background-size: 16px 16px;
 }
 
 @media (min-resolution: 2dppx) {
