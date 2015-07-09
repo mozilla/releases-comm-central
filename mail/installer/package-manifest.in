@@ -130,6 +130,7 @@
 #ifdef MOZ_UPDATER
 @RESPATH@/update-settings.ini
 #endif
+@BINPATH@/@DLL_PREFIX@lgpllibs@DLL_SUFFIX@
 @RESPATH@/blocklist.xml
 @RESPATH@/platform.ini
 #ifndef MOZ_NATIVE_SQLITE
