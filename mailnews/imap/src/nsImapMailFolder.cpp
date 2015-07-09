@@ -94,6 +94,8 @@
 #include "nsMsgLineBuffer.h"
 #include <algorithm>
 #include "mozilla/Logging.h"
+#include "nsStringStream.h"
+#include "nsIStreamListener.h"
 
 static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 static NS_DEFINE_CID(kParseMailMsgStateCID, NS_PARSEMAILMSGSTATE_CID);

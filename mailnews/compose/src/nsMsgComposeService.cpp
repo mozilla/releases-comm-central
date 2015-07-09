@@ -60,6 +60,7 @@
 #include "nsICommandLine.h"
 #include "nsIAppStartup.h"
 #include "nsMsgUtils.h"
+#include "nsIPrincipal.h"
 
 #ifdef XP_WIN32
 #include <windows.h>

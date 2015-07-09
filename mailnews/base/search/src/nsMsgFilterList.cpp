@@ -18,6 +18,7 @@
 #include "nsIMsgFilterService.h"
 #include "nsMsgSearchScopeTerm.h"
 #include "nsNetUtil.h"
+#include "nsIInputStream.h"
 #include "nsMsgI18N.h"
 #include "nsMemory.h"
 #include "prmem.h"

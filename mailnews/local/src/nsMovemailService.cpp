@@ -34,6 +34,8 @@
 #include "nsIStringBundle.h"
 #include "nsIMsgPluggableStore.h"
 #include "mozilla/Services.h"
+#include "nsIInputStream.h"
+#include "nsIOutputStream.h"
 
 #include "mozilla/Logging.h"
 #if defined(PR_LOGGING)

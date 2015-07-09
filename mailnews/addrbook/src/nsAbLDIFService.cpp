@@ -7,6 +7,7 @@
 #include "nsAbLDIFService.h"
 #include "nsIFile.h"
 #include "nsILineInputStream.h"
+#include "nsIInputStream.h"
 #include "nsNetUtil.h"
 #include "nsISeekableStream.h"
 #include "mdb.h"
@@ -14,6 +15,7 @@
 #include "prmem.h"
 #include "prprf.h"
 #include "nsCRTGlue.h"
+#include "nsTArray.h"
 
 #include <ctype.h>
 

@@ -25,6 +25,8 @@
 #include "mozilla/Services.h"
 #include "nsIAsyncInputStream.h"
 #include "nsIAsyncOutputStream.h"
+#include "nsIPipe.h"
+#include "nsIPrincipal.h"
 
 nsAddbookProtocolHandler::nsAddbookProtocolHandler()
 {

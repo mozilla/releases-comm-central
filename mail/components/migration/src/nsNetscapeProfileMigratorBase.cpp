@@ -21,6 +21,8 @@
 #include "prprf.h"
 #include "nsINIParser.h"
 #include "nsMailProfileMigratorUtils.h"
+#include "nsISimpleEnumerator.h"
+#include "nsServiceManagerUtils.h"
 
 #define MIGRATION_BUNDLE "chrome://messenger/locale/migration/migration.properties"
 

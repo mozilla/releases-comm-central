@@ -26,6 +26,7 @@
 #include "nsCRTGlue.h"
 #include "nsComponentManagerUtils.h"
 #include "nsUnicharUtils.h"
+#include "nsIFileStreams.h"
 //
 // International functions necessary for composition
 //

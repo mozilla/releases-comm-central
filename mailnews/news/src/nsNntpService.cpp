@@ -49,6 +49,8 @@
 #include "nsIMsgMailSession.h"
 #include "nsISupportsPrimitives.h"
 #include "nsArrayUtils.h"
+#include "nsIStreamListener.h"
+#include "nsIInputStream.h"
 
 #undef GetPort  // XXX Windows!
 #undef SetPort  // XXX Windows!

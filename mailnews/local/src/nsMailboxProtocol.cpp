@@ -8,6 +8,7 @@
 #include "nsMailboxProtocol.h"
 #include "nscore.h"
 #include "nsIOutputStream.h"
+#include "nsIInputStreamPump.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgLineBuffer.h"

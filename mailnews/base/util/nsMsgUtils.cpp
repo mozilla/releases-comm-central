@@ -74,6 +74,10 @@
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/Services.h"
 #include "locale.h"
+#include "nsStringStream.h"
+#include "nsIInputStreamPump.h"
+#include "nsIChannel.h"
+
 using namespace mozilla;
 
 static NS_DEFINE_CID(kImapUrlCID, NS_IMAPURL_CID);

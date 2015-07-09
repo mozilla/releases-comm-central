@@ -17,6 +17,7 @@
 #include "nsStringAPI.h"
 #include "nsIPrefBranch.h"
 #include "nsIPrefService.h"
+#include "nsServiceManagerUtils.h"
 
 static NS_DEFINE_CID(kCookieServiceCID, NS_COOKIESERVICE_CID);
 static NS_DEFINE_CID(kPrefServiceCID,   NS_PREFSERVICE_CID);

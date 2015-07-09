@@ -34,6 +34,7 @@
 #include "nsIDirectoryEnumerator.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeEncoder.h"
+#include "nsIPrincipal.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Mac Specific Attachment Handling for AppleDouble Encoded Files

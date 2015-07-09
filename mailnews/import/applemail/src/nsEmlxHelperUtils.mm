@@ -16,6 +16,7 @@
 #include "nsTArray.h"
 #include "nsAppleMailImport.h"
 #include "prprf.h"
+#include "nsIFile.h"
 
 #import <Cocoa/Cocoa.h>
 

@@ -10,6 +10,7 @@
 #include "prprf.h"
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsIOutputStream.h"
+#include "nsIInputStream.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsIMsgHdr.h"
 #include "nsNetUtil.h"

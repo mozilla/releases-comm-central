@@ -26,6 +26,7 @@
 #include "nsIPrefBranch.h"
 #include "nsIStringEnumerator.h"
 #include "nsIObserverService.h"
+#include "nsIChannel.h"
 
 using namespace mozilla;
 

@@ -21,6 +21,7 @@
 
 #include "nsEmlxHelperUtils.h"
 #include "nsAppleMailImport.h"
+#include "nsIOutputStream.h"
 
 PRLogModuleInfo *APPLEMAILLOGMODULE = nullptr;
 

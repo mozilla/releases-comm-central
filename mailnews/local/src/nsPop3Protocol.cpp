@@ -21,6 +21,7 @@
 #include "nspr.h"
 #include "plbase64.h"
 #include "nsIMsgMailNewsUrl.h"
+#include "nsISafeOutputStream.h"
 #include "nsPop3Protocol.h"
 #include "MailNewsTypes.h"
 #include "nsStringGlue.h"
@@ -40,6 +41,7 @@
 #include "nsIInterfaceRequestor.h"
 #include "nsMsgMessageFlags.h"
 #include "nsMsgBaseCID.h"
+#include "nsIProxyInfo.h"
 #include "mozilla/Services.h"
 #include "mozilla/Logging.h"
 

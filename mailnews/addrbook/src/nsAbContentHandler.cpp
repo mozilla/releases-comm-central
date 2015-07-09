@@ -17,7 +17,7 @@
 #include "nsIAbCard.h"
 #include "nsIAbManager.h"
 #include "nsVCard.h"
-
+#include "nsIChannel.h"
 //
 // nsAbContentHandler
 //

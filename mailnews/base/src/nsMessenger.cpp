@@ -109,6 +109,9 @@ static NS_DEFINE_CID(kRDFServiceCID,  NS_RDFSERVICE_CID);
 //
 #include "nsMsgUtils.h"
 #include "nsCharsetSource.h"
+#include "nsIChannel.h"
+#include "nsIOutputStream.h"
+#include "nsIPrincipal.h"
 
 static void ConvertAndSanitizeFileName(const char * displayName, nsString& aResult)
 {

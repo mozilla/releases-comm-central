@@ -75,6 +75,9 @@
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
 
+#include "nsIInputStreamPump.h"
+#include "nsIProxyInfo.h"
+
 #include <time.h>
 
 #undef GetPort  // XXX Windows!

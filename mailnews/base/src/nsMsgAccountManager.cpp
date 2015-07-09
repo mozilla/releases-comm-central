@@ -65,6 +65,9 @@
 #include "nsDirectoryServiceUtils.h"
 #include "mozilla/Services.h"
 #include <algorithm>
+#include "nsIFileStreams.h"
+#include "nsIOutputStream.h"
+#include "nsISafeOutputStream.h"
 
 #define PREF_MAIL_ACCOUNTMANAGER_ACCOUNTS "mail.accountmanager.accounts"
 #define PREF_MAIL_ACCOUNTMANAGER_DEFAULTACCOUNT "mail.accountmanager.defaultaccount"

@@ -23,6 +23,7 @@
 #include "OutlookDebugLog.h"
 #include "nsOutlookMail.h"
 #include "nsUnicharUtils.h"
+#include "nsIInputStream.h"
 #include "nsIOutputStream.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsIMsgHdr.h"

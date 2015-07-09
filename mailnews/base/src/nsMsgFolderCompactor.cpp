@@ -34,6 +34,9 @@
 #include "nsIMsgPluggableStore.h"
 #include "nsMsgFolderCompactor.h"
 #include <algorithm>
+#include "nsIOutputStream.h"
+#include "nsIInputStream.h"
+
 
 //////////////////////////////////////////////////////////////////////////////
 // nsFolderCompactState

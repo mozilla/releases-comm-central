@@ -14,6 +14,7 @@
 #include "nsSeamonkeyProfileMigrator.h"
 #include "nsAppDirectoryServiceDefs.h"
 #include "mozilla/ArrayUtils.h"
+#include "nsIFile.h"
 
 // Mail specific folder paths
 #define MAIL_DIR_50_NAME             NS_LITERAL_STRING("Mail")

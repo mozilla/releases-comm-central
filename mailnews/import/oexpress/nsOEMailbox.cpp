@@ -11,6 +11,8 @@
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsCRT.h"
 #include "nsNetUtil.h"
+#include "nsIInputStream.h"
+#include "nsIOutputStream.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgPluggableStore.h"

@@ -21,6 +21,8 @@
 #include "nsNetUtil.h"
 #include "EudoraDebugLog.h"
 #include "nsISeekableStream.h"
+#include "nsIInputStream.h"
+#include "nsIOutputStream.h"
 
 #define  kCopyBufferSize    8192
 #define  kMailReadBufferSize  16384

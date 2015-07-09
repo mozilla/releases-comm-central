@@ -9,6 +9,7 @@
 #include "mozilla/Attributes.h"
 #include "nsIMailboxUrl.h"
 #include "nsMsgMailNewsUrl.h"
+#include "nsIStreamListener.h"
 #include "nsIFile.h"
 #include "nsCOMPtr.h"
 #include "MailNewsTypes.h"

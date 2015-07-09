@@ -26,6 +26,7 @@
 #include "prprf.h"
 #include "nsIMsgHdr.h"
 #include "nsIFileURL.h"
+#include "nsRefPtr.h"
 
 nsMailboxService::nsMailboxService()
 {

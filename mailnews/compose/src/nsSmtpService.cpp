@@ -26,6 +26,7 @@
 #include "nsAutoPtr.h"
 #include "nsComposeStrings.h"
 #include "nsIAsyncInputStream.h"
+#include "nsIPrincipal.h"
 
 #define SERVER_DELIMITER ','
 #define APPEND_SERVERS_VERSION_PREF_NAME "append_preconfig_smtpservers.version"

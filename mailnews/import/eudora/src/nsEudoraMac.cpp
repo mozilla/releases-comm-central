@@ -27,6 +27,7 @@
 #include "EudoraDebugLog.h"
 
 #include "nsILocalFileMac.h"
+#include "nsIOutputStream.h"
 
 static NS_DEFINE_IID(kISupportsIID,      NS_ISUPPORTS_IID);
 

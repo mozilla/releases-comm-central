@@ -9,6 +9,7 @@
 #include "nsILoadInfo.h"
 #include "nsNNTPProtocol.h"
 #include "nsNetUtil.h"
+#include "nsIInputStream.h"
 
 NS_IMPL_ISUPPORTS(nsNntpMockChannel, nsIChannel, nsIRequest)
 

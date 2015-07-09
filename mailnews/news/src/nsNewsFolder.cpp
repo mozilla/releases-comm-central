@@ -64,6 +64,7 @@
 #include "nsIDOMWindow.h"
 #include "mozilla/Services.h"
 #include "nsAutoPtr.h"
+#include "nsIInputStream.h"
 
 static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 

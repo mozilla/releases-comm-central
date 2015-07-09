@@ -41,6 +41,7 @@
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Services.h"
 #include "nsINetAddr.h"
+#include "nsIProxyInfo.h"
 
 #ifndef XP_UNIX
 #include <stdarg.h>

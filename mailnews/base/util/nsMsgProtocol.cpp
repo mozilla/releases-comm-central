@@ -34,6 +34,7 @@
 #include "nsILineInputStream.h"
 #include "nsIAsyncInputStream.h"
 #include "nsIMsgIncomingServer.h"
+#include "nsIInputStreamPump.h"
 #include "nsMimeTypes.h"
 #include "nsAlgorithm.h"
 #include "mozilla/Services.h"

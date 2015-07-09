@@ -75,6 +75,7 @@ PRLogModuleInfo *IMAP;
 #include "nsMsgCompressOStream.h"
 #include "nsAlgorithm.h"
 #include "mozilla/Logging.h"
+#include "nsIPrincipal.h"
 
 using namespace mozilla;
 

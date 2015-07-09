@@ -17,6 +17,7 @@
 #include "nsDirectoryServiceDefs.h"
 #include "nsMsgUtils.h"
 #include "nsMimeTypes.h"
+#include "nsIOutputStream.h"
 
 #include "nsMsgCompCID.h"
 #include "nsIMutableArray.h"

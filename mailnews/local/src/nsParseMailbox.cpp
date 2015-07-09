@@ -59,6 +59,7 @@
 #include "nsIMsgPluggableStore.h"
 #include "mozilla/Services.h"
 #include "nsQueryObject.h"
+#include "nsIOutputStream.h"
 
 static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
