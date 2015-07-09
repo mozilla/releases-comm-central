@@ -146,6 +146,7 @@
 @BINPATH@/@DLL_PREFIX@mozsqlite3@DLL_SUFFIX@
 #endif
 #endif
+@BINPATH@/@DLL_PREFIX@lgpllibs@DLL_SUFFIX@
 @RESPATH@/license.txt
 @RESPATH@/blocklist.xml
 #ifdef UNIX_BUT_NOT_MAC
