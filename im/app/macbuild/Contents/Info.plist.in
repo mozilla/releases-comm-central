@@ -30,6 +30,8 @@
 	<string>10.6.0</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
 	<true/>
+	<key>NSDisablePersistence</key>
+	<true/>
 	<key>NSPrincipalClass</key>
 	<string>GeckoNSApplication</string>
 </dict>
