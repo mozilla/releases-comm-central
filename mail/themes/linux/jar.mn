@@ -189,7 +189,6 @@ classic.jar:
   skin/classic/messenger/tabs/background-end.png              (mail/tabs/background-end.png)
   skin/classic/messenger/tabs/background-middle.png           (mail/tabs/background-middle.png)
   skin/classic/messenger/tabs/background-start.png            (mail/tabs/background-start.png)
-  skin/classic/messenger/tabs/closeTab.svg                    (mail/tabs/closeTab.svg)
   skin/classic/messenger/tabs/selected-end.svg                (mail/tabs/selected-end.svg)
   skin/classic/messenger/tabs/selected-start.svg              (mail/tabs/selected-start.svg)
   skin/classic/messenger/tabs/separator.png                   (mail/tabs/separator.png)

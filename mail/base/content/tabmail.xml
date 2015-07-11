@@ -1524,7 +1524,7 @@
                              xbl:inherits="fadein,pinned,selected"
                              tabindex="-1"
                              clickthrough="never"
-                             class="tab-close-button"/>
+                             class="tab-close-button close-icon"/>
         </xul:hbox>
       </xul:stack>
     </content>
@@ -1679,7 +1679,7 @@
             <xul:hbox class="tabs-closebutton-box"
                       anonid="tabstrip-closebutton"
                       align="center" pack="end">
-              <xul:toolbarbutton class="close-button tabs-closebutton"/>
+              <xul:toolbarbutton class="close-icon tabs-closebutton"/>
             </xul:hbox>
           </xul:hbox>
           <xul:spacer class="tabs-bottom-spacer"/>

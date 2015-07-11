@@ -59,16 +59,12 @@ tabpanels {
   margin: -1px !important; /* let the border not consume any space, like outline */
 }
 
-.tabmail-tab:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-text,
-.tabmail-tab:not(:-moz-lwtheme) > .tab-stack > .tab-content >
-  .tab-close-button {
+.tabmail-tab:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-text {
   color: -moz-MenuBarText;
   opacity: .6;
 }
 
-.tabmail-tab[selected]:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-text,
-.tabmail-tab[selected]:not(:-moz-lwtheme) > .tab-stack > .tab-content >
-  .tab-close-button {
+.tabmail-tab[selected]:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-text {
   color: -moz-DialogText;
   opacity: 1;
 }
@@ -83,38 +79,35 @@ tabpanels {
   margin-bottom: -11px;
 }
 
-/* In-tab close button */
-.tab-close-button {
-  -moz-margin-start: 6px;
-  -moz-padding-start: 0 !important;
-  -moz-padding-end: 0 !important;
-  position: relative;
-  z-index: 4;
+/* Tabstrip close button */
+.tabs-closebutton {
   border: none;
-  list-style-image: url(tabs/closeTab.svg);
-  -moz-image-region: auto;
-}
-
-.tab-close-button > .toolbarbutton-icon {
   margin-top: 1px;
 }
 
-.tabmail-tab[selected] > .tab-stack > .tab-content > .tab-close-button {
-  /* Make this button focusable so clicking on it will not focus the tab while
-     it's getting closed. */
-  -moz-user-focus: normal;
+/* In-tab close button */
+.tab-close-button {
+  list-style-image: none;
+}
+
+.tabs-closebutton:not([selected]):not(:hover),
+.tab-close-button:not([selected]):not(:hover) {
+  background-image: -moz-image-rect(url("chrome://global/skin/icons/close.svg"), 0, 64, 16, 48);
+}
+
+#tabs-toolbar[brighttext] .tabs-closebutton:not([selected]):not(:hover),
+#tabs-toolbar[brighttext] .tab-close-button:not([selected]):not(:hover) {
+  background-image: -moz-image-rect(url("chrome://global/skin/icons/close.svg"), 0, 80, 16, 64);
+}
+
+.tabs-closebutton:not([selected]):not(:hover):-moz-lwtheme-darktext,
+.tab-close-button:not([selected]):not(:hover):-moz-lwtheme-darktext {
+  background-image: -moz-image-rect(url("chrome://global/skin/icons/close.svg"), 0, 96, 16, 80);
 }
 
 /**
  * Tab Scrollbox Arrow Buttons
  */
-
-/* Tabstrip close button */
-.tabs-closebutton {
-  list-style-image: url("moz-icon://stock/gtk-close?size=menu");
-  border: none;
-  margin-bottom: 1px;
-}
 
 .tabmail-arrowscrollbox > .scrollbutton-up {
   -moz-appearance: tab-scroll-arrow-back;

@@ -143,43 +143,44 @@ tabmail > tabbox > tabpanels {
   -moz-padding-start: 26px;
 }
 
+/* Tabstrip close button */
+
+.tabs-closebutton {
+  -moz-box-align: stretch;
+  margin-top: 1px;
+  -moz-padding-end: 4px;
+  border: none;
+}
+
+.tabs-closebutton:hover > .toolbarbutton-icon {
+  background-image: none !important;
+}
+
 /**
  * In-tab close button
  */
 
 .tab-close-button > .toolbarbutton-icon {
   -moz-margin-end: 0px !important;
-  padding-top: 1px;
 }
 
 .tab-close-button {
-  list-style-image: url("chrome://global/skin/icons/close.png");
   -moz-appearance: none;
-  -moz-image-region: rect(0, 16px, 16px, 0);
   border: none !important;
-  height: 30px;
-  padding: 0;
-  margin: 0;
-  position: relative;
-  z-index: 2;
   background: none;
   cursor: default;
 }
 
-.tab-close-button:hover,
-.tabs-closebutton:hover {
-  -moz-image-region: rect(0, 32px, 16px, 16px);
+#tabs-toolbar[brighttext] .tabs-closebutton:not([selected=true]):not(:hover),
+#tabs-toolbar[brighttext] .tab-close-button.close-icon:not([selected=true]):not(:hover) {
+  -moz-image-region: rect(0, 64px, 16px, 48px);
 }
 
-.tab-close-button:hover:active,
-.tabs-closebutton:hover:active {
-  -moz-image-region: rect(0, 48px, 16px, 32px);
-}
-
-.tabmail-tab[selected] > .tab-stack > .tab-content > .tab-close-button {
-  /* Make this button focusable so clicking on it will not focus the tab while
-     it's getting closed */
-  -moz-user-focus: normal;
+@media (min-resolution: 2dppx) {
+  #tabs-toolbar[brighttext] .tabs-closebutton:not([selected=true]):not(:hover),
+  #tabs-toolbar[brighttext] .tab-close-button.close-icon:not([selected=true]):not(:hover) {
+    -moz-image-region: rect(0, 128px, 32px, 96px);
+  }
 }
 
 .tabmail-arrowscrollbox > .scrollbutton-up,
@@ -309,18 +310,6 @@ tabmail > tabbox > tabpanels {
   -moz-image-region: auto !important;
 }
 
-.tabs-closebutton {
-  -moz-padding-end: 4px;
-  list-style-image: url("chrome://global/skin/icons/close.png") !important;
-  border: none;
-  -moz-box-align: stretch;
-  -moz-image-region: rect(0, 16px, 16px, 0);
-}
-
-.tabs-closebutton:hover > .toolbarbutton-icon {
-  background-image: none !important;
-}
-
 @media (min-resolution: 2dppx) {
   .tabs-alltabs-button {
     list-style-image: url(chrome://messenger/skin/tabs/alltabs-box-bkgnd-icon@2x.png);
@@ -338,27 +327,6 @@ tabmail > tabbox > tabpanels {
 
   alltabs-item[busy] {
     list-style-image: url("chrome://messenger/skin/icons/loading@2x.png") !important;
-  }
-
-  .tab-close-button,
-  .tabs-closebutton {
-    list-style-image: url("chrome://global/skin/icons/close@2x.png") !important;
-    -moz-image-region: rect(0, 32px, 32px, 0);
-  }
-
-  .tab-close-button:hover,
-  .tabs-closebutton:hover {
-    -moz-image-region: rect(0, 64px, 32px, 32px);
-  }
-
-  .tab-close-button:hover:active,
-  .tabs-closebutton:hover:active {
-    -moz-image-region: rect(0, 96px, 32px, 64px);
-  }
-
-  .tab-close-button > .toolbarbutton-icon,
-  .tabs-closebutton > .toolbarbutton-icon {
-    width: 16px;
   }
 }
 

@@ -89,7 +89,7 @@
   -moz-margin-start: 0;
 }
 
-.tab-close-button {
+.tab-content > .tab-close-button {
   -moz-margin-start: 4px;
   -moz-margin-end: -2px;
   padding: 0;

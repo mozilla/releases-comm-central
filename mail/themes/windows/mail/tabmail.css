@@ -154,74 +154,39 @@ tabpanels {
  * close buttons
  */
 
+.tabs-closebutton,
+.tab-close-button {
+  -moz-appearance: none;
+  border: none;
+}
+
+/* Invert the unhovered close tab icons on bright-text tabs */
+@media not all and (min-resolution: 1.1dppx) {
+  #tabs-toolbar[brighttext] .tabs-closebutton,
+  #tabs-toolbar[brighttext] .tab-close-button:not([selected=true]) {
+    list-style-image: url("chrome://global/skin/icons/close-inverted.png");
+  }
+}
+
+@media (min-resolution: 1.1dppx) {
+  #tabs-toolbar[brighttext] .tabs-closebutton,
+  #tabs-toolbar[brighttext] .tab-close-button:not([selected=true]) {
+    list-style-image: url("chrome://global/skin/icons/close-inverted@2x.png");
+  }
+}
+
 @media (-moz-os-version: windows-xp) {
   .tabs-closebutton-box {
     margin-top: 2px;
     margin-bottom: 4px;
   }
-
-  .tab-close-button > .toolbarbutton-icon {
-    -moz-margin-end: 0px !important;
-    margin-top: 1px;
-  }
-}
-
-.tab-close-button,
-.tabs-closebutton {
-  -moz-appearance: none;
-  -moz-image-region: rect(0, 16px, 16px, 0);
-  border: none;
-  cursor: default;
-  list-style-image: url(icons/closeTab.png);
-}
-
-#tabs-toolbar[brighttext] .tabs-closebutton:not(:hover):not(:active),
-#tabs-toolbar[brighttext] .tab-close-button:not(:hover):not([selected="true"]) {
-  -moz-image-region: rect(0, 64px, 16px, 48px);
 }
 
 .tabs-closebutton-box > .tabs-closebutton {
+  margin-top: 1px;
   padding: 0 2px;
 }
 
-.tab-close-button {
-  position: relative;
-  z-index: 4;
-  pointer-events: auto;
-}
-
-@media(-moz-os-version: windows-xp) {
-  .tab-close-button {
-    -moz-margin-start: 6px;
-    -moz-padding-start: 0 !important;
-    -moz-padding-end: 0 !important;
-  }
-}
-
-@media not all and (-moz-os-version: windows-xp) {
-  .tab-close-button {
-    -moz-padding-start: 0 !important;
-    -moz-padding-end: 0 !important;
-  }
-
-  .tabmail-tab[selected] > .tab-stack > .tab-content > .tab-close-button {
-    /* Make this button focusable so clicking on it will not focus the tab while
-       it's getting closed */
-    -moz-user-focus: normal;
-  }
-}
-
-.tab-close-button:hover,
-.tabs-closebutton:hover {
-  -moz-image-region: rect(0, 32px, 16px, 16px);
-}
-
-.tab-close-button:hover:active,
-.tabs-closebutton:hover:active {
-  -moz-image-region: rect(0, 48px, 16px, 32px);
-}
-
-.tab-close-button:focus,
 .tabs-closebutton:focus {
   outline: none !important;
 }
@@ -416,6 +381,11 @@ tabpanels {
 
   #tabs-toolbar[brighttext] .tabs-alltabs-button {
     list-style-image: url(icons/dropmarker.svg#win8-inverted);
+  }
+
+  .tabs-closebutton > .toolbarbutton-icon,
+  .tab-close-button > .toolbarbutton-icon {
+    width: 20px;
   }
 }
 
