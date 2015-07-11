@@ -36,7 +36,7 @@ let autosyncModule =
 {
 
   _inQFolderList : [],
-  _runnning : false,
+  _running : false,
   _syncInfoPerFolder: {},
   _syncInfoPerServer: {},
   _lastMessage: {},
@@ -143,7 +143,7 @@ let autosyncModule =
 
   onStateChanged : function(running) {
     try {
-      this._runnning = running;
+      this._running = running;
       this.log.info("OnStatusChanged: " + (running ? "running" : "sleeping") + "\n");
     } catch (e) {
       this.log.error("onStateChanged: " + e);
