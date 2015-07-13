@@ -49,6 +49,7 @@ comm.jar:
    content/communicator/about.js
    content/communicator/about.xhtml
    content/communicator/aboutLife.xhtml
+   content/communicator/aboutPrivateBrowsing.css
    content/communicator/aboutPrivateBrowsing.js
    content/communicator/aboutPrivateBrowsing.xul
    content/communicator/aboutSessionRestore.js

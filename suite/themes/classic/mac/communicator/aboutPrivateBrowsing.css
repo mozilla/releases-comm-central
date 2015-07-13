@@ -4,17 +4,6 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-/* Hide selected items by default and display them based on the page status */
-
-#warningBox:not(.private) .private,
-#warningBox:not(.normal) .normal {
-  display: none;
-}
-
-.title {
-  background-size: auto;
-}
-
 /* Pick the desired icons depending on the window's context */
 
 .private.title {

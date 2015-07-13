@@ -7,6 +7,7 @@
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://global/skin/in-content/info-pages.css" type="text/css"?>
 <?xml-stylesheet href="chrome://global/skin/config.css" type="text/css"?>
+<?xml-stylesheet href="chrome://communicator/content/aboutPrivateBrowsing.css" type="text/css"?>
 <?xml-stylesheet href="chrome://communicator/skin/aboutPrivateBrowsing.css" type="text/css"?>
 
 <!DOCTYPE window [
