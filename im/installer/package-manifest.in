@@ -138,6 +138,7 @@
 @BINPATH@/@MOZ_APP_NAME@-bin
 @BINPATH@/@MOZ_APP_NAME@
 #endif
+@BINPATH@/@DLL_PREFIX@lgpllibs@DLL_SUFFIX@
 @RESPATH@/application.ini
 @RESPATH@/platform.ini
 #ifndef MOZ_NATIVE_SQLITE
