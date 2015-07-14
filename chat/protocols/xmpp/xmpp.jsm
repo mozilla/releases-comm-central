@@ -1526,9 +1526,14 @@ const XMPPAccountPrototype = {
                .toLowerCase();
   },
 
+  // RFC 6122 (Section 2): [ localpart "@" ] domainpart [ "/" resourcepart ] is
+  // the form of jid.
+  // Localpart is parsed as node and optional.
+  // Domainpart is parsed as domain and required.
+  // resourcepart is parsed as resource and optional.
   _parseJID: function(aJid) {
     let match =
-      /^(?:([^"&'/:<>@]+)@)?([^@/<>'\"]+)(?:\/(.*))?$/.exec(aJid);
+      /^(?:([^"&'/:<>@]+)@)?([^@/<>'\"]+)(?:\/(.*))?$/.exec(aJid.trim());
     if (!match)
       return null;
 
