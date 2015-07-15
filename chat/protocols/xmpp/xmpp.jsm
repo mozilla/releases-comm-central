@@ -1390,6 +1390,7 @@ const XMPPAccountPrototype = {
       // TODO There can be multiple subject elements with different xml:lang
       // attributes.
       muc.setTopic(subject.innerText, nick);
+      return;
     }
 
     if (body) {
