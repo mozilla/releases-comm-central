@@ -36,12 +36,11 @@ var ircNonStandard = {
       // AUTH); in this case, check if the user's nickname is not auth, or the
       // the message starts with ***.
       let target = aMessage.params[0].toLowerCase();
-      let nickname = aMessage.origin ? aMessage.origin.toLowerCase() : "";
       let isAuth = target == "*" ||
-        (target == "auth" && (nickname != "auth" ||
+        (target == "auth" && (this._nickname.toLowerCase() != "auth" ||
                               aMessage.params[1].startsWith("***")));
 
-      // Some servers , e.g. irc.umich.edu, use NOTICE before connection to give
+      // Some servers, e.g. irc.umich.edu, use NOTICE before connection to give
       // directions to users.
       if (!this.connected && !isAuth) {
         this.getConversation(aMessage.origin)
