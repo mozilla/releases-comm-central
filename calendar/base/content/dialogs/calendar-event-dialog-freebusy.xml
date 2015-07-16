@@ -816,11 +816,7 @@
                       let end_in_minutes = Math.ceil((duration.inSeconds / 60) +
                                                      (offset.inSeconds / 60));
 
-                      function minute2offset(value,
-                                             fNumHours,
-                                             numHours,
-                                             start_hour,
-                                             zoomfactor) {
+                      let minute2offset = function (value, fNumHours, numHours, start_hour, zoomfactor) {
                           // 'value' is some integer in the interval [0, range * 24 * 60].
                           // we need to map this offset into our array which
                           // holds elements for 'range' days with [start, end] hours each.
@@ -840,7 +836,7 @@
                           let block = Math.floor(minute / minutes_per_block);
 
                           return Math.ceil(fNumHours) * day + block;
-                      }
+                      };
 
                       // Number of hours (fractional representation)
                       let numHours = this.mEndHour - this.mStartHour;

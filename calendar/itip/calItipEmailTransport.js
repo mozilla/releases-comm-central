@@ -298,21 +298,22 @@ calItipEmailTransport.prototype = {
         return false;
     },
 
-    _createTempImipFile: function cietCTIF(compatMode, aToList, aSubject, aBody, aItem, aIdentity, aMessageId) {
+    _createTempImipFile: function (compatMode, aToList, aSubject, aBody, aItem, aIdentity, aMessageId) {
+        function encodeUTF8(text) {
+            return convertFromUnicode("UTF-8", text).replace(/(\r\n)|\n/g, "\r\n");
+        }
+        function encodeMimeHeader(header) {
+            let fieldNameLen = (header.indexOf(": ") + 2);
+            return MailServices.mimeConverter
+                               .encodeMimePartIIStr_UTF8(header,
+                                                         false,
+                                                         "UTF-8",
+                                                         fieldNameLen,
+                                                         Components.interfaces
+                                                                   .nsIMimeConverter
+                                                                   .MIME_ENCODED_WORD_SIZE);
+        }
         try {
-            function encodeUTF8(text) {
-                return convertFromUnicode("UTF-8", text).replace(/(\r\n)|\n/g, "\r\n");
-            }
-            function encodeMimeHeader(header) {
-                let fieldNameLen = (header.indexOf(": ") + 2);
-                return MailServices.mimeConverter
-                                   .encodeMimePartIIStr_UTF8(header,
-                                                             false,
-                                                             "UTF-8",
-                                                             fieldNameLen,
-                                                             Components.interfaces.nsIMimeConverter.MIME_ENCODED_WORD_SIZE);
-            }
-
             let itemList = aItem.getItemList({});
             let serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
                                        .createInstance(Components.interfaces.calIIcsSerializer);

@@ -61,7 +61,7 @@ calHtmlExporter.prototype = {
             let itemNode = document.getElementById("item-template").cloneNode(true);
             itemNode.removeAttribute("id");
 
-            function setupTextRow(classKey, propValue, prefixKey) {
+            let setupTextRow = function(classKey, propValue, prefixKey) {
                 if (propValue) {
                     let prefix = cal.calGetString("calendar", prefixKey);
                     itemNode.querySelector("." + classKey + "key").textContent = prefix;
@@ -73,7 +73,7 @@ calHtmlExporter.prototype = {
                     }
                     row.remove();
                 }
-            }
+            };
 
             let startDate = item[cal.calGetStartDateProp(item)];
             let endDate = item[cal.calGetEndDateProp(item)];
