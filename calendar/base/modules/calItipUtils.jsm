@@ -179,7 +179,7 @@ cal.itip = {
         const cIOL = Components.interfaces.calIOperationListener;
         if (Components.isSuccessCode(aStatus)) {
             switch (aOperationType) {
-                case cIOL.ADD: text = gs("imipAddedItemToCal"); break;
+                case cIOL.ADD: text = _gs("imipAddedItemToCal"); break;
                 case cIOL.MODIFY: text = _gs("imipUpdatedItem"); break;
                 case cIOL.DELETE: text = _gs("imipCanceledItem"); break;
             }
