@@ -196,6 +196,7 @@
 @RESPATH@/components/nsNewsAutoCompleteSearch.js
 @RESPATH@/components/nsNewsAutoCompleteSearch.manifest
 @RESPATH@/components/services-crypto-component.xpt
+@RESPATH@/components/captivedetect.xpt
 @RESPATH@/components/shellservice.xpt
 @RESPATH@/chrome/toolkit@JAREXT@
 @RESPATH@/chrome/toolkit.manifest
@@ -648,6 +649,8 @@
 @RESPATH@/components/DataReporting.manifest
 @RESPATH@/components/DataReportingService.js
 #endif
+@RESPATH@/components/CaptivePortalDetectComponents.manifest
+@RESPATH@/components/captivedetect.js
 @RESPATH@/components/servicesComponents.manifest
 @RESPATH@/components/cryptoComponents.manifest
 @RESPATH@/components/TelemetryStartup.js

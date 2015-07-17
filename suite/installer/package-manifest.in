@@ -171,6 +171,7 @@
 @RESPATH@/components/autoconfig.xpt
 @RESPATH@/components/browser-element.xpt
 @RESPATH@/components/caps.xpt
+@RESPATH@/components/captivedetect.xpt
 @RESPATH@/components/chrome.xpt
 @RESPATH@/components/commandhandler.xpt
 @RESPATH@/components/commandlines.xpt
@@ -369,6 +370,8 @@
 @RESPATH@/components/AppsService.manifest
 @RESPATH@/components/BrowserElementParent.js
 @RESPATH@/components/BrowserElementParent.manifest
+@RESPATH@/components/CaptivePortalDetectComponents.manifest
+@RESPATH@/components/captivedetect.js
 @RESPATH@/components/ChromeNotifications.js
 @RESPATH@/components/ChromeNotifications.manifest
 @RESPATH@/components/ColorAnalyzer.js
