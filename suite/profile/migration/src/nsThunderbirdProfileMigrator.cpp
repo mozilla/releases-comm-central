@@ -15,6 +15,8 @@
 #include "nsISupportsPrimitives.h"
 #include "nsNetCID.h"
 #include "nsNetUtil.h"
+#include "nsIProperties.h"
+#include "nsServiceManagerUtils.h"
 #include "nsThunderbirdProfileMigrator.h"
 #include "prprf.h"
 

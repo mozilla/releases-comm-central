@@ -12,6 +12,8 @@
 
 #include "nsIURI.h"
 #include "nsNetUtil.h"
+#include "nsIProperties.h"
+#include "nsServiceManagerUtils.h"
 #include "nsISupportsPrimitives.h"
 
 #include "nsAppDirectoryServiceDefs.h"

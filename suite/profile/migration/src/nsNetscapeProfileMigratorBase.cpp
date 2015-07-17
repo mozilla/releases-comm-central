@@ -18,6 +18,9 @@
 #include "nsIURL.h"
 #include "nsNetscapeProfileMigratorBase.h"
 #include "nsNetUtil.h"
+#include "nsISimpleEnumerator.h"
+#include "nsIFileProtocolHandler.h"
+#include "nsServiceManagerUtils.h"
 #include "prtime.h"
 #include "nsINIParser.h"
 #include "nsArrayUtils.h"
@@ -232,29 +235,38 @@ nsNetscapeProfileMigratorBase::SetFile(PrefTransform* aTransform,
   // going to be saved to once it is modified.
   nsresult rv = NS_OK;
   if (aTransform->prefHasValue) {
+    nsCOMPtr<nsIProtocolHandler> handler;
+    nsCOMPtr<nsIIOService> ioService(do_GetIOService());
+    if (!ioService)
+      return NS_OK;
+    rv = ioService->GetProtocolHandler("file", getter_AddRefs(handler));
+    if (NS_FAILED(rv))
+      return NS_OK;
+    nsCOMPtr<nsIFileProtocolHandler> fileHandler(do_QueryInterface(handler));
+    if (!fileHandler)
+      return NS_OK;
+
     nsCString fileURL(aTransform->stringValue);
-    nsCOMPtr<nsIFile> aFile;
+    nsCOMPtr<nsIFile> file;
     // Start off by assuming fileURL is a URL spec and
     // try and get a File from it.
-    rv = NS_GetFileFromURLSpec(fileURL, getter_AddRefs(aFile));
+    rv = fileHandler->GetFileFromURLSpec(fileURL, getter_AddRefs(file));
     if (NS_FAILED(rv)) {
       // Okay it wasn't a URL spec so assume it is a localfile,
       // if this fails then just don't set anything.
-      nsCOMPtr<nsIFile> localFile;
-      rv = NS_NewNativeLocalFile(fileURL, false, getter_AddRefs(localFile));
+      rv = NS_NewNativeLocalFile(fileURL, false, getter_AddRefs(file));
       if (NS_FAILED(rv))
-        return NS_OK;  
-      aFile = localFile;
+        return NS_OK;
     }
     // Now test to see if File exists and is an actual file.
     bool exists = false;
-    rv = aFile->Exists(&exists);
+    rv = file->Exists(&exists);
     if (NS_SUCCEEDED(rv) && exists)
-      rv = aFile->IsFile(&exists);
+      rv = file->IsFile(&exists);
 
     if (NS_SUCCEEDED(rv) && exists) {
       // After all that let's just get the URL spec and set the pref to it.
-      rv = NS_GetURLSpecFromFile(aFile, fileURL);
+      rv = fileHandler->GetURLSpecFromFile(file, fileURL);
       if (NS_FAILED(rv))
         return NS_OK;
       rv = aBranch->SetCharPref(aTransform->sourcePrefName, fileURL.get());
@@ -452,7 +464,7 @@ nsNetscapeProfileMigratorBase::RecursiveCopy(nsIFile* srcDir,
   NS_ENSURE_SUCCESS(rv, rv); 
 
   nsCOMPtr<nsIFile> dirEntry;
-  
+
   while (hasMore) {
     nsCOMPtr<nsISupports> supports;
     rv = dirIterator->GetNext(getter_AddRefs(supports));
