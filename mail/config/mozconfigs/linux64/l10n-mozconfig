@@ -15,9 +15,6 @@ export MOZILLA_OFFICIAL=1
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
 
-# Use ccache
-ac_add_options --with-ccache=/usr/bin/ccache
-
 ac_add_options --disable-stdcxx-compat
 
 # Run client.py

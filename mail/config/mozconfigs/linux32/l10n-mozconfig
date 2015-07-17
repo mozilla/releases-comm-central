@@ -15,11 +15,10 @@ export MOZILLA_OFFICIAL=1
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
 
-# Use ccache
-ac_add_options --with-ccache=/usr/bin/ccache
-
 ac_add_options --disable-stdcxx-compat
 
 # Run client.py
 mk_add_options CLIENT_PY_ARGS="$([ -f $topsrcdir/build/client.py-l10n-args ] && cat $topsrcdir/build/client.py-l10n-args)"
 mk_add_options ALWAYS_RUN_CLIENT_PY=1
+
+. "$topsrcdir/build/mozconfig.cache"
