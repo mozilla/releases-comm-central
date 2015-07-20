@@ -101,7 +101,7 @@ public:
 #ifdef MOZ_IS_DESTRUCTIBLE
 #define MOZ_ASSERT_TYPE_OK_FOR_REFCOUNTING(X) \
   static_assert(!MOZ_IS_DESTRUCTIBLE(X) || \
-                mozilla::IsSame<X, nsMsgAttachmentData>::value, \
+                mozilla::IsSame<X, nsMsgAttachmentData>::value || \
                 mozilla::IsSame<X, nsMsgAttachedFile>::value, \
                 "Reference-counted class " #X " should not have a public destructor. " \
                 "Try to make this class's destructor non-public. If that is really " \
