@@ -201,11 +201,18 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
   { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
 };
 
-namespace mozilla {
-template <> struct HasDangerousPublicDestructor<morkEnv> {
-  static const bool value = true;
-};
-} // namespace mozilla
+#undef MOZ_ASSERT_TYPE_OK_FOR_REFCOUNTING
+#ifdef MOZ_IS_DESTRUCTIBLE
+#define MOZ_ASSERT_TYPE_OK_FOR_REFCOUNTING(X) \
+  static_assert(!MOZ_IS_DESTRUCTIBLE(X) || \
+                mozilla::IsSame<X, morkEnv>::value, \
+                "Reference-counted class " #X " should not have a public destructor. " \
+                "Try to make this class's destructor non-public. If that is really " \
+                "not possible, you can whitelist this class by providing a " \
+                "HasDangerousPublicDestructor specialization for it.");
+#else
+#define MOZ_ASSERT_TYPE_OK_FOR_REFCOUNTING(X)
+#endif
 
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
