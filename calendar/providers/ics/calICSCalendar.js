@@ -912,12 +912,16 @@ function httpHooks(calendar) {
 
 httpHooks.prototype = {
     onBeforeGet: function(aChannel, aForceRefresh) {
+        var httpchannel = aChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
+        httpchannel.setRequestHeader("Accept", "text/calendar,text/plain;q=0.8,*/*;q=0.5", false);
+
         if (this.mEtag && !aForceRefresh) {
-            var httpchannel = aChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
             // Somehow the webdav header 'If' doesn't work on apache when
             // passing in a Not, so use the http version here.
-            httpchannel.setRequestHeader("Accept", "text/calendar,text/plain;q=0.8,*/*;q=0.5", false);
             httpchannel.setRequestHeader("If-None-Match", this.mEtag, false);
+        } else if (!aForceRefresh && this.mLastModified) {
+            // Only send 'If-Modified-Since' if no ETag is available
+            httpchannel.setRequestHeader("If-Modified-Since", this.mLastModified, false);
         }
 
         return true;
@@ -966,6 +970,13 @@ httpHooks.prototype = {
             // No etag header. Now what?
             this.mEtag = null;
         }
+
+        try {
+            this.mLastModified = httpchannel.getResponseHeader("Last-Modified");
+        } catch(e) {
+            this.mLastModified = null;
+        }
+
         return true;
     },
 
