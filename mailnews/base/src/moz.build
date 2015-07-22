@@ -59,7 +59,7 @@ if CONFIG['NS_PRINTING']:
 if CONFIG['OS_ARCH'] == 'WINNT':
     SOURCES += ['nsMessengerWinIntegration.cpp']
 
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk2':
+if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('gtk2', 'gtk3', 'qt'):
     SOURCES += ['nsMessengerUnixIntegration.cpp']
 elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
     SOURCES += ['nsMessengerOSXIntegration.mm']
