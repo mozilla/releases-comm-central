@@ -475,6 +475,8 @@
 @RESPATH@/components/nsURLFormatter.manifest
 @RESPATH@/components/nsWebHandlerApp.js
 @RESPATH@/components/nsWebHandlerApp.manifest
+@RESPATH@/components/PACGenerator.js
+@RESPATH@/components/PACGenerator.manifest
 @RESPATH@/components/passwordmgr.manifest
 #ifdef MOZ_WEBRTC
 @RESPATH@/components/PeerConnection.js
@@ -522,9 +524,6 @@
 @RESPATH@/components/WebContentConverter.js
 @RESPATH@/components/XULStore.js
 @RESPATH@/components/XULStore.manifest
-
-@RESPATH@/components/PACGenerator.js
-@RESPATH@/components/PACGenerator.manifest
 
 ; Modules
 @RESPATH@/modules/*
