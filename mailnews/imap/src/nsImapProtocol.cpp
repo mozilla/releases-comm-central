@@ -76,6 +76,7 @@ PRLogModuleInfo *IMAP;
 #include "nsAlgorithm.h"
 #include "mozilla/Logging.h"
 #include "nsIPrincipal.h"
+#include "nsContentSecurityManager.h"
 
 using namespace mozilla;
 
@@ -8971,6 +8972,14 @@ NS_IMETHODIMP nsImapMockChannel::Open(nsIInputStream **_retval)
   return NS_ImplementChannelOpen(this, _retval);
 }
 
+NS_IMETHODIMP nsImapMockChannel::Open2(nsIInputStream **_retval)
+{
+  nsCOMPtr<nsIStreamListener> listener;
+  nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return Open(_retval);
+}
+
 NS_IMETHODIMP
 nsImapMockChannel::OnCacheEntryAvailable(nsICacheEntryDescriptor *entry, nsCacheAccessMode access, nsresult status)
 {
@@ -9406,6 +9415,14 @@ NS_IMETHODIMP nsImapMockChannel::AsyncOpen(nsIStreamListener *listener, nsISuppo
   SetupPartExtractorListener(imapUrl, m_channelListener);
   // if for some reason open cache entry failed then just default to opening an imap connection for the url
   return ReadFromImapConnection();
+}
+
+NS_IMETHODIMP nsImapMockChannel::AsyncOpen2(nsIStreamListener *aListener)
+{
+    nsCOMPtr<nsIStreamListener> listener = aListener;
+    nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
+    NS_ENSURE_SUCCESS(rv, rv);
+    return AsyncOpen(listener, nullptr);
 }
 
 nsresult nsImapMockChannel::SetupPartExtractorListener(nsIImapUrl * aUrl, nsIStreamListener * aConsumer)

@@ -450,7 +450,8 @@ NS_IMETHODIMP nsImapService::DisplayMessage(const char *aMessageURI,
 
       nsCOMPtr<nsISupports> aCtxt = do_QueryInterface(uri);
       //  now try to open the channel passing in our display consumer as the listener
-      return aChannel->AsyncOpen(aStreamListener, aCtxt);
+      rv = aChannel->AsyncOpen(aStreamListener, aCtxt);
+      return rv;
     }
   }
 
