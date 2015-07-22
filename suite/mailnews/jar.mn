@@ -5,6 +5,7 @@
 messenger.jar:
 % content messagebody %content/messagebody/ contentaccessible=yes
 % content messenger %content/messenger/
+% override chrome://global/content/nsDragAndDrop.js chrome://messenger/content/nsDragAndDrop.js
 % override chrome://messagebody/skin/messageBody.css chrome://messenger/skin/messageBody.css
 % content messenger-region %content/messenger-region/
 % overlay chrome://communicator/content/pref/preferences.xul                   chrome://messenger/content/mailPrefsOverlay.xul
@@ -24,6 +25,7 @@ messenger.jar:
     content/messenger/mailViewList.xul
     content/messenger/mailViewList.js
     content/messenger/mailWidgets.xml
+    content/messenger/nsDragAndDrop.js
     content/messenger/tabmail.xml
     content/messenger/tabmail.js
     content/messenger/messenger.css
