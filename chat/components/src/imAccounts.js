@@ -103,8 +103,14 @@ UnknownProtocol.prototype = {
   get usePurpleProxy() false
 };
 
+// An unknown prplIAccount.
+function UnknownAccount(aAccount) {
+  this._init(aAccount.protocol, aAccount);
+}
+UnknownAccount.prototype = GenericAccountPrototype;
+
 function UnknownAccountBuddy(aAccount, aBuddy, aTag) {
-  this._init({imAccount: aAccount}, aBuddy, aTag);
+  this._init(new UnknownAccount(aAccount), aBuddy, aTag);
 }
 UnknownAccountBuddy.prototype = GenericAccountBuddyPrototype;
 
