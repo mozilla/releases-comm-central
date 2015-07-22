@@ -22,7 +22,7 @@ function FakeAccount(aPassword) {
   this.convs = [];
 }
 FakeAccount.prototype = {
-  connected: true,
+  connected: false,
   shouldAuthenticate: undefined,
   _nickname: 'nick', // Can be anything except "auth" for most tests.
   sendMessage: function(aCommand, aParams) {
@@ -42,6 +42,7 @@ function run_test() {
   add_test(testZncAuth);
   add_test(testUMich);
   add_test(testAuthNick);
+  add_test(testIgnoredNotices);
 
   run_next_test();
 }
@@ -56,6 +57,7 @@ function testSecureList() {
 
   let message = irc.ircMessage(kSecureListMsg, "");
   let account = new FakeAccount();
+  account.connected = true;
   let result = NOTICE.call(account, message);
 
   // Yes, it was handled.
@@ -88,7 +90,6 @@ function testZncAuth() {
   // No sent data and parameters should be unchanged.
   do_check_true(account.buffer.length == 0);
   do_check_true(account.shouldAuthenticate === undefined);
-  do_check_false(account.connected);
 
   // With a password.
   account = new FakeAccount("password");
@@ -108,10 +109,10 @@ function testZncAuth() {
 
   // Finally, check if the message is wrong.
   account = new FakeAccount("password");
-  message.params[1] = "";
+  message.params[1] = "Test";
   result = NOTICE.call(account, message);
 
-  // Unhandled.
+  // This would be handled as a normal NOTICE.
   do_check_false(result);
 
   run_next_test();
@@ -135,7 +136,6 @@ function testUMich() {
     ':irc.umich.edu NOTICE clokep :To complete your connection to this server, type "/QUOTE PONG :cookie", where cookie is the following ascii.';
 
   let account = new FakeAccount();
-  account.connected = false;
   for (let msg of kMsgs) {
     let message = irc.ircMessage(msg, "");
     let result = NOTICE.call(account, message);
@@ -170,8 +170,34 @@ function testAuthNick() {
   let result = NOTICE.call(account, message);
 
   // Since it is ambiguous if it was an authentication message or a message
-  // directed at the user, let it go through the normal NOTICE handling.
-  do_check_false(result);
+  // directed at the user, print it out.
+  do_check_true(result);
+
+  run_next_test();
+}
+
+/*
+ * We ignore some messages that are annoying to the user and offer little value.
+ * "Ignore" in this context means subject to the normal NOTICE processing.
+ */
+function testIgnoredNotices() {
+  const kMsgs = [
+    // moznet sends a welcome message which is useless.
+    ':levin.mozilla.org NOTICE Auth :Welcome to \u0002Mozilla\u0002!',
+    // Some servers (oftc) send a NOTICE that isn't an auth, but notifies about
+    // the connection. See bug 1182735.
+    ':beauty.oftc.net NOTICE myusername :*** Connected securely via UNKNOWN AES128-SHA-128',
+  ];
+
+  for (let msg of kMsgs) {
+    let account = new FakeAccount();
+
+    let message = irc.ircMessage(msg, "");
+    let result = NOTICE.call(account, message);
+
+    // This message should *NOT* be shown.
+    do_check_false(result);
+  }
 
   run_next_test();
 }
