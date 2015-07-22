@@ -115,7 +115,7 @@
 <!ENTITY showMessengerToolbarCmd.label "Mail Toolbar">
 <!ENTITY showMessengerToolbarCmd.accesskey "M">
 <!ENTITY showSearchToolbarCmd.label "Search Bar">
-<!ENTITY showSearchToolbarCmd.accesskey "e">
+<!ENTITY showSearchToolbarCmd.accesskey "a">
 <!ENTITY showTabsToolbarCmd.label "Tabs Toolbar">
 <!ENTITY showTabsToolbarCmd.accesskey "T">
 

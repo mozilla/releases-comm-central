@@ -250,33 +250,27 @@ function goPreferences(paneID)
                paneID);
 }
 
-function goToggleToolbar( id, elementID )
+function goToggleToolbar(id, elementID)
 {
-  var toolbar = document.getElementById( id );
-  var element = document.getElementById( elementID );
-  if ( toolbar )
-  {
-    var attribValue = toolbar.getAttribute("hidden") ;
+  var toolbar = document.getElementById(id);
+  if (!toolbar)
+    return;
 
-    if ( attribValue == "true" )
-    {
-      toolbar.setAttribute("hidden", "false" );
-      if ( element )
-        element.setAttribute("checked","true")
-    }
-    else
-    {
-      toolbar.setAttribute("hidden", "true" );
-      if ( element )
-        element.setAttribute("checked","false")
-    }
-    document.persist(id, "hidden");
-    document.persist(elementID, "checked");
+  var type = toolbar.getAttribute("type");
+  var toggleAttribute = type == "menubar" ?  "autohide" : "hidden";
+  var hidden = toolbar.getAttribute(toggleAttribute) == "true";
+  var element = document.getElementById(elementID);
 
-    if (toolbar.hasAttribute("customindex"))
-      persistCustomToolbar(toolbar);
+  toolbar.setAttribute(toggleAttribute, !hidden);
+  if (element)
+    element.setAttribute("checked", hidden)
 
-  }
+  document.persist(id, toggleAttribute);
+  document.persist(elementID, "checked");
+
+  if (toolbar.hasAttribute("customindex"))
+    persistCustomToolbar(toolbar);
+
 }
 
 var gCustomizeSheet = false;
@@ -367,19 +361,24 @@ function onViewToolbarsPopupShowing(aEvent, aInsertPoint)
 
   var menubar = toolbox.getElementsByAttribute("type", "menubar").item(0);
   if (!menubar || !toolbars.length) {
-    menusep.hidden = true;
+    if (menusep)
+      menusep.hidden = true;
     return;
   }
-  menusep.hidden = false;
+  if (menusep)
+    menusep.hidden = false;
 
   toolbars.forEach(function(bar) {
+    let type = bar.getAttribute("type");
+    let toggleAttribute = type == "menubar" ?  "autohide" : "hidden";
+    let isHidden = bar.getAttribute(toggleAttribute) == "true";
     let menuItem = document.createElement("menuitem");
     menuItem.setAttribute("id", "toggle_" + bar.id);
     menuItem.setAttribute("toolbarid", bar.id);
     menuItem.setAttribute("type", "checkbox");
     menuItem.setAttribute("label", bar.getAttribute("toolbarname"));
     menuItem.setAttribute("accesskey", bar.getAttribute("accesskey"));
-    menuItem.setAttribute("checked", !bar.hidden);
+    menuItem.setAttribute("checked", !isHidden);
     popup.insertBefore(menuItem, firstMenuItem);
   });
 }

@@ -148,3 +148,19 @@ statusbar[lwthemefooter="true"] {
 #sync-notifications > notification {
   -moz-binding: url("chrome://communicator/content/sync/syncNotification.xml#notification");
 }
+
+/******* autohide toolbars *******/
+
+toolbar[type="menubar"][autohide="true"]
+{
+  -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-menubar-autohide");
+  overflow: hidden;
+}
+
+toolbar[type="menubar"][autohide="true"][inactive="true"]
+{
+  min-height: 0px !important;
+  height: 0px !important;
+  -moz-appearance: none !important;
+  border-style: none !important;
+}

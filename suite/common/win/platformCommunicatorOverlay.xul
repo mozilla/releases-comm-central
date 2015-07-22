@@ -59,12 +59,10 @@
 
   <key id="key_toggleFolderPane" keycode="VK_F9"/>
 
-#ifdef XP_WIN
   <menupopup id="helpPopup">
       <menuitem label="&helpForIEUsers.label;" accesskey="&helpForIEUsers.accesskey;" insertafter="help"
                 oncommand="openHelp('ieusers', 'chrome://communicator/locale/help/suitehelp.rdf');"/>
   </menupopup>
-#endif
 
   <!-- Tasks Keys -->
   <keyset id="tasksKeys">
@@ -72,5 +70,25 @@
          keycode="&openHelpCmd.key;"
          command="cmd_openHelp"/>
   </keyset>
+
+  <toolbar id="toolbar-menubar"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"/>
+
+  <toolbar id="addrbook-toolbar-menubar2"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"/>
+
+  <toolbar id="compose-toolbar-menubar2"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"/>
+
+  <toolbar id="mail-toolbar-menubar2"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"/>
+
+  <toolbar id="placesToolbar"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"/>
 
 </overlay>    

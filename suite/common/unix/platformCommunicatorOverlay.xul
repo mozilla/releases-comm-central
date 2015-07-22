@@ -66,4 +66,24 @@
          command="cmd_openHelp"/>
   </keyset>
 
-</overlay>    
+  <toolbar id="toolbar-menubar"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"/>
+
+  <toolbar id="addrbook-toolbar-menubar2"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"/>
+
+  <toolbar id="compose-toolbar-menubar2"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"/>
+
+  <toolbar id="mail-toolbar-menubar2"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"/>
+
+  <toolbar id="placesToolbar"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"/>
+
+</overlay>

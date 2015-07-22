@@ -122,7 +122,10 @@
   </popupset>
 
   <toolbox id="placesToolbox">
-    <toolbar class="chromeclass-toolbar" id="placesToolbar" align="center">
+    <toolbar id="placesToolbar"
+             class="chromeclass-toolbar"
+             type="menubar"
+             align="center">
       <menubar id="placesMenu">
         <menu id="menu_File">
           <menupopup id="menu_FilePopup">
@@ -175,7 +178,10 @@
         </menu>
 
         <menu id="menu_View">
-          <menupopup id="menu_ViewPopup">
+          <menupopup id="menu_ViewPopup"
+                     onpopupshowing="onViewToolbarsPopupShowing(event)"
+                     oncommand="onViewToolbarCommand(event);">
+            <menuseparator id="toolbarmode-sep"/>
             <menu id="viewColumns"
                   label="&view.columns.label;" accesskey="&view.columns.accesskey;">
               <menupopup onpopupshowing="ViewMenu.fillWithColumns(event, null, null, 'checkbox', null);"
@@ -185,7 +191,7 @@
             <menu id="viewSort" label="&view.sort.label;"
                   accesskey="&view.sort.accesskey;">
               <menupopup onpopupshowing="ViewMenu.populateSortMenu(event);"
-                         oncommand="ViewMenu.setSortColumn(event.target.column, null);">
+                         oncommand="ViewMenu.setSortColumn(event.target.column, null); event.stopPropagation();">
                 <menuitem id="viewUnsorted" type="radio" name="columns" 
                           label="&view.unsorted.label;" accesskey="&view.unsorted.accesskey;"
                           oncommand="ViewMenu.setSortColumn(null, null);"/>
@@ -247,7 +253,6 @@
                      command="OrganizerCommand:Forward"
                      tooltiptext="&forwardButton.tooltip;"
                      disabled="true"/>
-
 
       <textbox id="searchFilter"
                clickSelectsAll="true"

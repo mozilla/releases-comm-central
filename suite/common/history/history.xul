@@ -66,43 +66,53 @@
   </popupset>
 
   <toolbox id="history-toolbox">
-  <menubar id="history-menu"
-           grippytooltiptext="&menuBar.tooltip;">
-    <menu id="menu_File">
-      <menupopup id="menu_FilePopup">
-        <menuitem id="menu_close"/>
-      </menupopup>
-    </menu>
+    <toolbar id="placesToolbar"
+             type="menubar">
+      <menubar id="history-menu"
+               grippytooltiptext="&menuBar.tooltip;">
 
-    <menu id="menu_Edit">
-      <menupopup>
-        <menuitem id="menu_cut"/>
-        <menuitem id="menu_copy"/>
-        <menuitem id="menu_delete"/>
-        <menuitem id="menu_deleteByHostname" command="placesCmd_delete:hostname"/>
-        <menuitem id="menu_deleteByDomain" command="placesCmd_delete:domain"/>
-        <menuseparator/>
-        <menuitem id="menu_selectAll"/>
-      </menupopup>
-    </menu>
-    <menu id="menu_View">
-      <menupopup id="viewPopup"/>
-    </menu>
-    <menu id="tasksMenu"/>
-    <menu id="windowMenu"/>
-    <menu id="menu_Help"/>
-  </menubar>
-  <toolbar class="chromeclass-toolbar"
-           id="placesToolbar"
-           align="center"
-           grippytooltiptext="&searchBar.tooltip;">
-    <textbox id="search-box"
-             clickSelectsAll="true"
-             type="search"
-             aria-controls="historyTree"
-             placeholder="&search.placeholder;"
-             oncommand="searchHistory(this.value);"/>
-  </toolbar>
+        <menu id="menu_File">
+          <menupopup id="menu_FilePopup">
+            <menuitem id="menu_close"/>
+          </menupopup>
+        </menu>
+
+        <menu id="menu_Edit">
+          <menupopup>
+            <menuitem id="menu_cut"/>
+            <menuitem id="menu_copy"/>
+            <menuitem id="menu_delete"/>
+            <menuitem id="menu_deleteByHostname" command="placesCmd_delete:hostname"/>
+            <menuitem id="menu_deleteByDomain" command="placesCmd_delete:domain"/>
+            <menuseparator/>
+            <menuitem id="menu_selectAll"/>
+          </menupopup>
+        </menu>
+
+        <menu id="menu_View">
+          <menupopup id="viewPopup"
+                     onpopupshowing="onViewToolbarsPopupShowing(event)"
+                     oncommand="onViewToolbarCommand(event);">
+            <menuseparator id="toolbarmode-sep"/>
+          </menupopup>
+        </menu>
+
+        <menu id="tasksMenu"/>
+        <menu id="windowMenu"/>
+        <menu id="menu_Help"/>
+      </menubar>
+    </toolbar>
+    <toolbar class="chromeclass-toolbar"
+             id="placesSearchToolbar"
+             align="center"
+             grippytooltiptext="&searchBar.tooltip;">
+      <textbox id="search-box"
+               clickSelectsAll="true"
+               type="search"
+               aria-controls="historyTree"
+               placeholder="&search.placeholder;"
+               oncommand="searchHistory(this.value);"/>
+    </toolbar>
   </toolbox>
 
   <tree id="historyTree"

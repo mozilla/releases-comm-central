@@ -115,7 +115,8 @@
   <vbox id="titlebar"/>
 
   <toolbox id="mail-toolbox" class="toolbox-top">
-    <toolbar id="mail-toolbar-menubar2">
+    <toolbar id="mail-toolbar-menubar2"
+             type="menubar">
       <toolbaritem id="menubar-items">
         <menubar id="mail-menubar"/>
       </toolbaritem>
