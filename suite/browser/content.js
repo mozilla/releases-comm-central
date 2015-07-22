@@ -23,6 +23,10 @@ addEventListener("DOMFormHasPassword", event => {
   InsecurePasswordUtils.checkForInsecurePasswords(event.target);
 });
 
+addEventListener("DOMInputPasswordAdded", event => {
+  LoginManagerContent.onDOMInputPasswordAdded(event, content);
+});
+
 addEventListener("pageshow", event => {
   LoginManagerContent.onPageShow(event, content);
 }, true);
