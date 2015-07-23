@@ -171,10 +171,16 @@ var previewObserver = {
     if (aTopic != "conversation-loaded" || aSubject != this.browser)
       return;
 
+    // Similar to the log viewer, disable the convbrowser feature
+    // that scrolls to the last message after it has been added.
+    this.browser._autoScrollEnabled = false;
+    this.browser.getPendingMessagesCount =
+      () => previewObserver.conv.messages.length + 1;
+
     // Display all queued messages. Use a timeout so that message text
     // modifiers can be added with observers for this notification.
     setTimeout(function() {
-      for each (let message in previewObserver.conv.messages)
+      for (let message of previewObserver.conv.messages)
         aSubject.appendMessage(message, false);
     }, 0);
 
