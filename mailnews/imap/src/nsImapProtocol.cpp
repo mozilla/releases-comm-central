@@ -300,6 +300,7 @@ NS_INTERFACE_MAP_BEGIN(nsImapProtocol)
    NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsIImapProtocol)
    NS_INTERFACE_MAP_ENTRY(nsIRunnable)
    NS_INTERFACE_MAP_ENTRY(nsIImapProtocol)
+   NS_INTERFACE_MAP_ENTRY(nsIProtocolProxyCallback)
    NS_INTERFACE_MAP_ENTRY(nsIInputStreamCallback)
    NS_INTERFACE_MAP_ENTRY(nsISupportsWeakReference)
    NS_INTERFACE_MAP_ENTRY(nsIImapProtocolSink)
@@ -690,7 +691,9 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI * aURL, nsISupports* aConsumer)
   if (aURL)
   {
     m_runningUrl = do_QueryInterface(aURL, &rv);
-    if (NS_FAILED(rv)) return rv;
+    if (NS_FAILED(rv))
+      return rv;
+
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningUrl);
     nsCOMPtr<nsIMsgIncomingServer> server = do_QueryReferent(m_server);
     if (!server)
@@ -818,146 +821,115 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI * aURL, nsISupports* aConsumer)
       }
     }
 
+    bool proxyCallback = false;
     if ( m_runningUrl && !m_transport /* and we don't have a transport yet */)
     {
-      // extract the file name and create a file transport...
-      int32_t port=-1;
-      server->GetPort(&port);
-
-      if (port <= 0)
-      {
-        int32_t socketType;
-        // Be a bit smarter about setting the default port
-        port = (NS_SUCCEEDED(server->GetSocketType(&socketType)) &&
-                socketType == nsMsgSocketType::SSL) ?
-               nsIImapUrl::DEFAULT_IMAPS_PORT : nsIImapUrl::DEFAULT_IMAP_PORT;
-      }
-      nsCOMPtr<nsISocketTransportService> socketService =
-               do_GetService(NS_SOCKETTRANSPORTSERVICE_CONTRACTID, &rv);
-      if (NS_SUCCEEDED(rv) && aURL)
-      {
-        aURL->GetPort(&port);
-
-        Log("SetupWithUrl", nullptr, "clearing IMAP_CONNECTION_IS_OPEN");
-        ClearFlag(IMAP_CONNECTION_IS_OPEN);
-        const char *connectionType = nullptr;
-
-        if (m_socketType == nsMsgSocketType::SSL)
-          connectionType = "ssl";
-        else if (m_socketType == nsMsgSocketType::alwaysSTARTTLS)
-          connectionType = "starttls";
-        // This can go away once we think everyone is migrated
-        // away from the trySTARTTLS socket type.
-        else if (m_socketType == nsMsgSocketType::trySTARTTLS)
-          connectionType =  "starttls";
-
-        nsCOMPtr<nsIProxyInfo> proxyInfo;
-        if (m_mockChannel)
-          rv = MsgExamineForProxy(m_mockChannel, getter_AddRefs(proxyInfo));
+      if (m_mockChannel) {
+        rv = MsgExamineForProxyAsync(m_mockChannel, this, getter_AddRefs(m_proxyRequest));
         if (NS_FAILED(rv))
-          proxyInfo = nullptr;
-
-        const nsACString *socketHost;
-        uint16_t socketPort;
-
-        if (m_overRideUrlConnectionInfo)
         {
-          socketHost = &m_logonHost;
-          socketPort = m_logonPort;
+          rv = SetupWithUrlCallback(nullptr);
         }
         else
         {
-          socketHost = &m_realHostName;
-          socketPort = port;
+          proxyCallback = true;
         }
-        rv = socketService->CreateTransport(&connectionType, connectionType != nullptr,
-                                            *socketHost, socketPort, proxyInfo,
-                                            getter_AddRefs(m_transport));
-        if (NS_FAILED(rv) && m_socketType == nsMsgSocketType::trySTARTTLS)
-        {
-          connectionType = nullptr;
-          m_socketType = nsMsgSocketType::plain;
-          rv = socketService->CreateTransport(&connectionType, connectionType != nullptr,
-                                              *socketHost, socketPort, proxyInfo,
-                                              getter_AddRefs(m_transport));
-        }
-        // remember so we can know whether we can issue a start tls or not...
-        m_connectionType = connectionType;
-        if (m_transport && m_mockChannel)
-        {
-          uint8_t qos;
-          rv = GetQoSBits(&qos);
-          if (NS_SUCCEEDED(rv))
-            m_transport->SetQoSBits(qos);
-
-          // Ensure that the socket can get the notification callbacks
-          SetSecurityCallbacksFromChannel(m_transport, m_mockChannel);
-
-          // open buffered, blocking input stream
-          rv = m_transport->OpenInputStream(nsITransport::OPEN_BLOCKING, 0, 0, getter_AddRefs(m_inputStream));
-          if (NS_FAILED(rv)) return rv;
-
-          // open buffered, blocking output stream
-          rv = m_transport->OpenOutputStream(nsITransport::OPEN_BLOCKING, 0, 0, getter_AddRefs(m_outputStream));
-          if (NS_FAILED(rv)) return rv;
-          SetFlag(IMAP_CONNECTION_IS_OPEN);
-        }
-      }
-    } // if m_runningUrl
-
-    if (m_transport && m_mockChannel)
-    {
-      m_transport->SetTimeout(nsISocketTransport::TIMEOUT_CONNECT, gResponseTimeout + 60);
-      int32_t readWriteTimeout = gResponseTimeout;
-      if (m_runningUrl)
-      {
-        m_runningUrl->GetImapAction(&m_imapAction);
-        // this is a silly hack, but the default of 100 seconds is way too long
-        // for things like APPEND, which should come back immediately.
-        if (m_imapAction == nsIImapUrl::nsImapAppendMsgFromFile ||
-            m_imapAction == nsIImapUrl::nsImapAppendDraftFromFile)
-        {
-          readWriteTimeout = 20;
-        }
-        else if (m_imapAction == nsIImapUrl::nsImapOnlineMove ||
-                 m_imapAction == nsIImapUrl::nsImapOnlineCopy)
-        {
-          nsCString messageIdString;
-          m_runningUrl->GetListOfMessageIds(messageIdString);
-          uint32_t copyCount = CountMessagesInIdString(messageIdString.get());
-          // If we're move/copying a large number of messages,
-          // which should be rare, increase the timeout based on number
-          // of messages. 40 messages per second should be sufficiently slow.
-          if (copyCount > 2400) // 40 * 60, 60 is default read write timeout
-            readWriteTimeout = std::max(readWriteTimeout, (int32_t)copyCount/40);
-        }
-      }
-      m_transport->SetTimeout(nsISocketTransport::TIMEOUT_READ_WRITE, readWriteTimeout);
-      // set the security info for the mock channel to be the security status for our underlying transport.
-      nsCOMPtr<nsISupports> securityInfo;
-      m_transport->GetSecurityInfo(getter_AddRefs(securityInfo));
-      m_mockChannel->SetSecurityInfo(securityInfo);
-
-      SetSecurityCallbacksFromChannel(m_transport, m_mockChannel);
-
-      nsCOMPtr<nsITransportEventSink> sink = do_QueryInterface(m_mockChannel);
-      if (sink) {
-        nsCOMPtr<nsIThread> thread = do_GetMainThread();
-        m_transport->SetEventSink(sink, thread);
-      }
-
-      // and if we have a cache entry that we are saving the message to, set the security info on it too.
-      // since imap only uses the memory cache, passing this on is the right thing to do.
-      nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningUrl);
-      if (mailnewsUrl)
-      {
-        nsCOMPtr<nsICacheEntry> cacheEntry;
-        mailnewsUrl->GetMemCacheEntry(getter_AddRefs(cacheEntry));
-        if (cacheEntry)
-          cacheEntry->SetSecurityInfo(securityInfo);
       }
     }
-  } // if aUR
+
+    if (!proxyCallback)
+      rv = LoadImapUrlInternal();
+  }
+
+  return rv;
+}
+
+// nsIProtocolProxyCallback
+NS_IMETHODIMP
+nsImapProtocol::OnProxyAvailable(nsICancelable *aRequest, nsIChannel *aChannel,
+                                 nsIProxyInfo *aProxyInfo, nsresult aStatus)
+{
+  nsresult rv = SetupWithUrlCallback(aProxyInfo);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return LoadImapUrlInternal();
+}
+
+nsresult nsImapProtocol::SetupWithUrlCallback(nsIProxyInfo* proxyInfo)
+{
+  m_proxyRequest = nullptr;
+
+  nsresult rv;
+
+  nsCOMPtr<nsISocketTransportService> socketService =
+    do_GetService(NS_SOCKETTRANSPORTSERVICE_CONTRACTID, &rv);
+  if (NS_SUCCEEDED(rv))
+  {
+    Log("SetupWithUrlCallback", nullptr, "clearing IMAP_CONNECTION_IS_OPEN");
+    ClearFlag(IMAP_CONNECTION_IS_OPEN);
+    const char *connectionType = nullptr;
+
+    if (m_socketType == nsMsgSocketType::SSL)
+      connectionType = "ssl";
+    else if (m_socketType == nsMsgSocketType::alwaysSTARTTLS)
+      connectionType = "starttls";
+    // This can go away once we think everyone is migrated
+    // away from the trySTARTTLS socket type.
+    else if (m_socketType == nsMsgSocketType::trySTARTTLS)
+      connectionType = "starttls";
+
+    const nsACString *socketHost;
+    uint16_t socketPort;
+
+    if (m_overRideUrlConnectionInfo)
+    {
+      socketHost = &m_logonHost;
+      socketPort = m_logonPort;
+    }
+    else
+    {
+      socketHost = &m_realHostName;
+      int32_t port = -1;
+      nsCOMPtr<nsIURI> uri = do_QueryInterface(m_runningUrl);
+      uri->GetPort(&port);
+      socketPort = port;
+    }
+
+    rv = socketService->CreateTransport(&connectionType, connectionType != nullptr,
+                                        *socketHost, socketPort, proxyInfo,
+                                        getter_AddRefs(m_transport));
+    if (NS_FAILED(rv) && m_socketType == nsMsgSocketType::trySTARTTLS)
+    {
+      connectionType = nullptr;
+      m_socketType = nsMsgSocketType::plain;
+      rv = socketService->CreateTransport(&connectionType, connectionType != nullptr,
+                                          *socketHost, socketPort, proxyInfo,
+                                          getter_AddRefs(m_transport));
+    }
+    // remember so we can know whether we can issue a start tls or not...
+    m_connectionType = connectionType;
+    if (m_transport && m_mockChannel)
+    {
+      uint8_t qos;
+      rv = GetQoSBits(&qos);
+      if (NS_SUCCEEDED(rv))
+        m_transport->SetQoSBits(qos);
+
+      // Ensure that the socket can get the notification callbacks
+      SetSecurityCallbacksFromChannel(m_transport, m_mockChannel);
+
+      // open buffered, blocking input stream
+      rv = m_transport->OpenInputStream(nsITransport::OPEN_BLOCKING, 0, 0, getter_AddRefs(m_inputStream));
+      if (NS_FAILED(rv))
+        return rv;
+
+      // open buffered, blocking output stream
+      rv = m_transport->OpenOutputStream(nsITransport::OPEN_BLOCKING, 0, 0, getter_AddRefs(m_outputStream));
+      if (NS_FAILED(rv))
+        return rv;
+      SetFlag(IMAP_CONNECTION_IS_OPEN);
+    }
+  }
 
   return rv;
 }
@@ -1072,6 +1044,11 @@ NS_IMETHODIMP nsImapProtocol::Run()
 
   // call the platform specific main loop ....
   ImapThreadMainLoop();
+
+  if (m_proxyRequest)
+  {
+    m_proxyRequest->Cancel(NS_BINDING_ABORTED);
+  }
 
   if (m_runningUrl)
   {
@@ -2143,7 +2120,7 @@ bool nsImapProtocol::TryToRunUrlLocally(nsIURI *aURL, nsISupports *aConsumer)
 // attempt to load a url....
 NS_IMETHODIMP nsImapProtocol::LoadImapUrl(nsIURI * aURL, nsISupports * aConsumer)
 {
-  nsresult rv;
+  nsresult rv = NS_ERROR_FAILURE;
   if (aURL)
   {
 #ifdef DEBUG_bienvenu
@@ -2155,48 +2132,104 @@ NS_IMETHODIMP nsImapProtocol::LoadImapUrl(nsIURI * aURL, nsISupports * aConsumer
     m_imapMailFolderSink = nullptr;
     rv = SetupWithUrl(aURL, aConsumer);
     NS_ASSERTION(NS_SUCCEEDED(rv), "error setting up imap url");
-    if (NS_FAILED(rv))
-      return rv;
-
-    rv = SetupSinkProxy(); // generate proxies for all of the event sinks in the url
-    if (NS_FAILED(rv)) // URL can be invalid.
-      return rv;
 
     m_lastActiveTime = PR_Now();
-    if (m_transport && m_runningUrl)
+  }
+  return rv;
+}
+
+nsresult nsImapProtocol::LoadImapUrlInternal()
+{
+  nsresult rv = NS_ERROR_FAILURE;
+
+  if (m_transport && m_mockChannel)
+  {
+    m_transport->SetTimeout(nsISocketTransport::TIMEOUT_CONNECT, gResponseTimeout + 60);
+    int32_t readWriteTimeout = gResponseTimeout;
+    if (m_runningUrl)
     {
-      nsImapAction imapAction;
-      m_runningUrl->GetImapAction(&imapAction);
-      // if we're shutting down, and not running the kinds of urls we run at
-      // shutdown, then this should fail because running urls during
-      // shutdown will very likely fail and potentially hang.
-      nsCOMPtr<nsIMsgAccountManager> accountMgr = do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-      bool shuttingDown = false;
-      (void) accountMgr->GetShutdownInProgress(&shuttingDown);
-      if (shuttingDown && imapAction != nsIImapUrl::nsImapExpungeFolder &&
-          imapAction != nsIImapUrl::nsImapDeleteAllMsgs &&
-          imapAction != nsIImapUrl::nsImapDeleteFolder)
-        return NS_ERROR_FAILURE;
+      m_runningUrl->GetImapAction(&m_imapAction);
+      // this is a silly hack, but the default of 100 seconds is way too long
+      // for things like APPEND, which should come back immediately.
+      if (m_imapAction == nsIImapUrl::nsImapAppendMsgFromFile ||
+        m_imapAction == nsIImapUrl::nsImapAppendDraftFromFile)
+      {
+        readWriteTimeout = 20;
+      }
+      else if (m_imapAction == nsIImapUrl::nsImapOnlineMove ||
+        m_imapAction == nsIImapUrl::nsImapOnlineCopy)
+      {
+        nsCString messageIdString;
+        m_runningUrl->GetListOfMessageIds(messageIdString);
+        uint32_t copyCount = CountMessagesInIdString(messageIdString.get());
+        // If we're move/copying a large number of messages,
+        // which should be rare, increase the timeout based on number
+        // of messages. 40 messages per second should be sufficiently slow.
+        if (copyCount > 2400) // 40 * 60, 60 is default read write timeout
+          readWriteTimeout = std::max(readWriteTimeout, (int32_t)copyCount / 40);
+      }
+    }
+    m_transport->SetTimeout(nsISocketTransport::TIMEOUT_READ_WRITE, readWriteTimeout);
+    // set the security info for the mock channel to be the security status for our underlying transport.
+    nsCOMPtr<nsISupports> securityInfo;
+    m_transport->GetSecurityInfo(getter_AddRefs(securityInfo));
+    m_mockChannel->SetSecurityInfo(securityInfo);
 
-      // if we're running a select or delete all, do a noop first.
-      // this should really be in the connection cache code when we know
-      // we're pulling out a selected state connection, but maybe we
-      // can get away with this.
-      m_needNoop = (imapAction == nsIImapUrl::nsImapSelectFolder || imapAction == nsIImapUrl::nsImapDeleteAllMsgs);
+    SetSecurityCallbacksFromChannel(m_transport, m_mockChannel);
 
-      // We now have a url to run so signal the monitor for url ready to be processed...
-      ReentrantMonitorAutoEnter urlReadyMon(m_urlReadyToRunMonitor);
-      m_nextUrlReadyToRun = true;
-      urlReadyMon.Notify();
+    nsCOMPtr<nsITransportEventSink> sink = do_QueryInterface(m_mockChannel);
+    if (sink) {
+      nsCOMPtr<nsIThread> thread = do_GetMainThread();
+      m_transport->SetEventSink(sink, thread);
+    }
 
-    } // if we have an imap url and a transport
-    else
-      NS_ASSERTION(false, "missing channel or running url");
+    // and if we have a cache entry that we are saving the message to, set the security info on it too.
+    // since imap only uses the memory cache, passing this on is the right thing to do.
+    nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningUrl);
+    if (mailnewsUrl)
+    {
+      nsCOMPtr<nsICacheEntry> cacheEntry;
+      mailnewsUrl->GetMemCacheEntry(getter_AddRefs(cacheEntry));
+      if (cacheEntry)
+        cacheEntry->SetSecurityInfo(securityInfo);
+    }
+  }
 
-  } // if we received a url!
-  else
-    rv = NS_ERROR_UNEXPECTED;
+  rv = SetupSinkProxy(); // generate proxies for all of the event sinks in the url
+  if (NS_FAILED(rv)) // URL can be invalid.
+    return rv;
+
+  if (m_transport && m_runningUrl)
+  {
+    nsImapAction imapAction;
+    m_runningUrl->GetImapAction(&imapAction);
+    // if we're shutting down, and not running the kinds of urls we run at
+    // shutdown, then this should fail because running urls during
+    // shutdown will very likely fail and potentially hang.
+    nsCOMPtr<nsIMsgAccountManager> accountMgr = do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    bool shuttingDown = false;
+    (void) accountMgr->GetShutdownInProgress(&shuttingDown);
+    if (shuttingDown && imapAction != nsIImapUrl::nsImapExpungeFolder &&
+        imapAction != nsIImapUrl::nsImapDeleteAllMsgs &&
+        imapAction != nsIImapUrl::nsImapDeleteFolder)
+      return NS_ERROR_FAILURE;
+
+    // if we're running a select or delete all, do a noop first.
+    // this should really be in the connection cache code when we know
+    // we're pulling out a selected state connection, but maybe we
+    // can get away with this.
+    m_needNoop = (imapAction == nsIImapUrl::nsImapSelectFolder || imapAction == nsIImapUrl::nsImapDeleteAllMsgs);
+
+    // We now have a url to run so signal the monitor for url ready to be processed...
+    ReentrantMonitorAutoEnter urlReadyMon(m_urlReadyToRunMonitor);
+    m_nextUrlReadyToRun = true;
+    urlReadyMon.Notify();
+
+  } // if we have an imap url and a transport
+  else {
+    NS_ASSERTION(false, "missing channel or running url");
+  }
 
   return rv;
 }

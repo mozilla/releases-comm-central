@@ -237,9 +237,6 @@ NS_MSG_BASE nsresult MsgGetHdrsFromKeys(nsIMsgDatabase *aDB,
                                         uint32_t aNumKeys,
                                         nsIMutableArray **aHeaders);
 
-NS_MSG_BASE nsresult MsgExamineForProxy(nsIChannel *channel,
-                                        nsIProxyInfo **proxyInfo);
-
 NS_MSG_BASE nsresult MsgExamineForProxyAsync(nsIChannel *channel,
                                              nsIProtocolProxyCallback *listener,
                                              nsICancelable **result);

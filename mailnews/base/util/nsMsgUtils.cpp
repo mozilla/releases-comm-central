@@ -2122,12 +2122,6 @@ bool MsgAdvanceToNextLine(const char *buffer, uint32_t &bufferOffset, uint32_t m
 }
 
 NS_MSG_BASE nsresult
-MsgExamineForProxy(nsIChannel *channel, nsIProxyInfo **proxyInfo)
-{
-  return NS_ERROR_FAILURE;
-}
-
-NS_MSG_BASE nsresult
 MsgExamineForProxyAsync(nsIChannel *channel, nsIProtocolProxyCallback *listener,
                         nsICancelable **result)
 {

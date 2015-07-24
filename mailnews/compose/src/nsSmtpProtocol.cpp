@@ -406,7 +406,6 @@ nsresult nsSmtpProtocol::Initialize(nsIURI * aURL)
     } // if post message
 
     rv = MsgExamineForProxyAsync(this, this, getter_AddRefs(m_proxyRequest));
-
     if (NS_FAILED(rv))
     {
       rv = InitializeInternal(nullptr);

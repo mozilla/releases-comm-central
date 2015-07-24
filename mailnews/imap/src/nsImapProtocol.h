@@ -56,6 +56,8 @@
 #include "mozilla/ReentrantMonitor.h"
 #include "nsSyncRunnableHelpers.h"
 #include "nsICacheEntryOpenCallback.h"
+#include "nsIProtocolProxyCallback.h"
+#include "nsICancelable.h"
 
 class nsIMAPMessagePartIDArray;
 class nsIMsgIncomingServer;
@@ -130,12 +132,14 @@ class nsImapProtocol : public nsIImapProtocol,
                        public nsSupportsWeakReference,
                        public nsMsgProtocol,
                        public nsIImapProtocolSink,
-                       public nsIMsgAsyncPromptListener
+                       public nsIMsgAsyncPromptListener,
+                       public nsIProtocolProxyCallback
 {
 public:
 
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIINPUTSTREAMCALLBACK
+  NS_DECL_NSIPROTOCOLPROXYCALLBACK
   nsImapProtocol();
 
   virtual nsresult ProcessProtocolState(nsIURI * url, nsIInputStream * inputStream,
@@ -375,6 +379,7 @@ private:
   // helper function to setup imap sink interface proxies
   nsresult SetupSinkProxy();
   // End thread support stuff
+  nsresult LoadImapUrlInternal();
 
   bool GetDeleteIsMoveToTrash();
   bool GetShowDeletedMessages();
@@ -414,6 +419,7 @@ private:
 
   // initialization function given a new url and transport layer
   nsresult  SetupWithUrl(nsIURI * aURL, nsISupports* aConsumer);
+  nsresult  SetupWithUrlCallback(nsIProxyInfo* proxyInfo);
   void ReleaseUrlState(bool rerunningUrl); // release any state that is stored on a per action basis.
   /**
    * Last ditch effort to run the url without using an imap connection.
