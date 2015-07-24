@@ -1270,7 +1270,7 @@ const XMPPAccountPrototype = {
     let query = aStanza.getElement(["query"]);
     if (aStanza.attributes["type"] != "result" || !query ||
         query.uri != Stanza.NS.disco_items) {
-      this.WARN("Could not get services for this server: " + this._jid.domain);
+      this.LOG("Could not get services for this server: " + this._jid.domain);
       return true;
     }
 
