@@ -689,8 +689,20 @@ const XMPPAccountBuddyPrototype = {
     if (!kExt.hasOwnProperty(type))
       return;
 
-    let data = aPhotoNode.getElement(["BINVAL"]).innerText;
-    let content = atob(data.replace(/[^A-Za-z0-9\+\/\=]/g, ""));
+    let content = "", data = "";
+    // Strip all characters not allowed in base64 before parsing.
+    let parseBase64 =
+      (aBase) => atob(aBase.replace(/[^A-Za-z0-9\+\/\=]/g, ""));
+    for (let line of aPhotoNode.getElement(["BINVAL"]).innerText.split("\n")) {
+      data += line;
+      // Mozilla's atob() doesn't handle padding with "=" or "=="
+      // unless it's at the end of the string, so we have to work around that.
+      if (line.endsWith("=")) {
+        content += parseBase64(data);
+        data = "";
+      }
+    }
+    content += parseBase64(data);
 
     // Store a sha1 hash of the photo we have just received.
     let ch = Cc["@mozilla.org/security/hash;1"].createInstance(Ci.nsICryptoHash);
@@ -1810,7 +1822,14 @@ const XMPPAccountPrototype = {
 
   onUserVCard: function(aStanza) {
     delete this._downloadingUserVCard;
-    this._userVCard = aStanza.getElement(["vCard"]) || null;
+    let userVCard = aStanza.getElement(["vCard"]) || null;
+    if (userVCard) {
+      // Strip any server-specific namespace off the incoming vcard
+      // before storing it.
+      this._userVCard =
+        Stanza.node("vCard", Stanza.NS.vcard, null, userVCard.children);
+    }
+
     // If a user icon exists in the vCard we received from the server,
     // we need to ensure the line breaks in its binval are exactly the
     // same as those we would include if we sent the icon, and that

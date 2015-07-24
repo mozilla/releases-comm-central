@@ -166,6 +166,9 @@ TextNode.prototype = {
 };
 
 /* XML node */
+/* aUri is the namespace. */
+/* Example: <f:a xmlns:f='g' d='1'> is parsed to
+   uri/namespace='g', localName='a', qName='f:a', attributes={d='1'} */
 function XMLNode(aParentNode, aUri, aLocalName, aQName, aAttr) {
   this._parentNode = aParentNode; // Used only for parsing
   this.uri = aUri;
@@ -200,14 +203,16 @@ XMLNode.prototype = {
   getChildrenByNS: function(aNS)
     this.children.filter(function(c) c.uri == aNS),
 
-  /* Get the first element inside the node that matches a query. */
+  /* Get the first element anywhere inside the node (including child nodes)
+     that matches the query.
+     A query consists of an array of localNames. */
   getElement: function(aQuery) {
     if (aQuery.length == 0)
       return this;
 
     let nq = aQuery.slice(1);
     for (let child of this.children) {
-      if (child.type == "text" || child.qName != aQuery[0])
+      if (child.type == "text" || child.localName != aQuery[0])
         continue;
       let n = child.getElement(nq);
       if (n)
@@ -217,7 +222,8 @@ XMLNode.prototype = {
     return null;
   },
 
-  /* Get all elements matching the query */
+  /* Get all elements of the node (including child nodes) that match the query.
+     A query consists of an array of localNames. */
   getElements: function(aQuery) {
     if (aQuery.length == 0)
       return [this];
@@ -235,7 +241,7 @@ XMLNode.prototype = {
 
   /* Get immediate children by the node name */
   getChildren: function(aName)
-    this.children.filter((c) => (c.type != "text" && c.qName == aName)),
+    this.children.filter((c) => (c.type != "text" && c.localName == aName)),
 
   /* Test if the node is a stanza */
   isXmppStanza: function() {

@@ -159,7 +159,8 @@ XMPPSession.prototype = {
 
   startSession: function() {
     this.sendStanza(Stanza.iq("set", null, null,
-                              Stanza.node("session", Stanza.NS.session)));
+                              Stanza.node("session", Stanza.NS.session)),
+                    (aStanza) => aStanza.attributes["type"] == "result");
     this.onXmppStanza = this.stanzaListeners.sessionStarted;
   },
 
@@ -510,6 +511,7 @@ XMPPSession.prototype = {
     sessionStarted: function(aStanza) {
       this.resetPingTimer();
       this._account.onConnection();
+      this.LOG("Account successfully connected.");
       this.onXmppStanza = this.stanzaListeners.accountListening;
     },
     accountListening: function(aStanza) {
