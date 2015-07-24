@@ -20,7 +20,7 @@ function run_test() {
 
 function test_contactUrlToName() {
   for (let input in data)
-    equal(data[input], skype.urlToName(input));
+    equal(data[input], skype.contactUrlToName(input));
 
   run_next_test();
 }
