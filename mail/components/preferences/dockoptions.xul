@@ -40,6 +40,7 @@
                  accesskey="&newMessagesCountDock.label;"/>
         </radiogroup>
       </groupbox>
+      <caption label="&directNotificationSettings.label;"/>
     </hbox>
   </prefpane>
   <script type="application/javascript"
