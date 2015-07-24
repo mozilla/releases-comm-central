@@ -38,6 +38,7 @@
 #include "nsIMsgWindow.h"
 #include "MailNewsTypes2.h" // for nsMsgSocketType and nsMsgAuthMethod
 #include "nsIIDNService.h"
+#include "nsICancelable.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Services.h"
 #include "mozilla/Attributes.h"
@@ -217,7 +218,8 @@ esmtp_value_encode(const char *addr)
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 NS_IMPL_ISUPPORTS_INHERITED(nsSmtpProtocol, nsMsgAsyncWriteProtocol,
-                            msgIOAuth2ModuleListener)
+                            msgIOAuth2ModuleListener,
+                            nsIProtocolProxyCallback)
 
 nsSmtpProtocol::nsSmtpProtocol(nsIURI * aURL)
     : nsMsgAsyncWriteProtocol(aURL)
@@ -231,7 +233,7 @@ nsSmtpProtocol::~nsSmtpProtocol()
   delete m_lineStreamBuffer;
 }
 
-void nsSmtpProtocol::Initialize(nsIURI * aURL)
+nsresult nsSmtpProtocol::Initialize(nsIURI * aURL)
 {
     NS_PRECONDITION(aURL, "invalid URL passed into Smtp Protocol");
     nsresult rv = NS_OK;
@@ -244,6 +246,7 @@ void nsSmtpProtocol::Initialize(nsIURI * aURL)
     m_prefSocketType = nsMsgSocketType::trySTARTTLS;
     m_tlsInitiated = false;
 
+    m_url = aURL;
     m_urlErrorState = NS_ERROR_FAILURE;
 
     if (!SMTPLogModule)
@@ -311,37 +314,150 @@ void nsSmtpProtocol::Initialize(nsIURI * aURL)
     aURL->GetPort(&port);
     aURL->GetAsciiHost(hostName);
 
-    MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Info, ("SMTP Connecting to: %s", hostName.get()));
+    MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Info, ("SMTP Connecting to: %s:%d", hostName.get(), port));
 
-    // When we are making a secure connection, we need to make sure that we
-    // pass an interface requestor down to the socket transport so that PSM can
-    // retrieve a nsIPrompt instance if needed.
-    nsCOMPtr<nsIInterfaceRequestor> callbacks;
-    nsCOMPtr<nsISmtpUrl> smtpUrl(do_QueryInterface(aURL));
-    if (smtpUrl)
-        smtpUrl->GetNotificationCallbacks(getter_AddRefs(callbacks));
+    bool postMessage = false;
+    m_runningURL->GetPostMessage(&postMessage);
 
-    nsCOMPtr<nsIProxyInfo> proxyInfo;
-    rv = MsgExamineForProxy(this, getter_AddRefs(proxyInfo));
-    if (NS_FAILED(rv)) proxyInfo = nullptr;
-
-    if (m_prefSocketType == nsMsgSocketType::SSL)
-        rv = OpenNetworkSocketWithInfo(hostName.get(), port, "ssl", proxyInfo,
-            callbacks);
-    else if (m_prefSocketType != nsMsgSocketType::plain)
+    if (postMessage)
     {
-        rv = OpenNetworkSocketWithInfo(hostName.get(), port, "starttls",
-            proxyInfo, callbacks);
-        if (NS_FAILED(rv) && m_prefSocketType == nsMsgSocketType::trySTARTTLS)
+      m_nextState = SMTP_RESPONSE;
+      m_nextStateAfterResponse = SMTP_EXTN_LOGIN_RESPONSE;
+
+      // compile a minimal list of valid target addresses by
+      // - looking only at mailboxes
+      // - dropping addresses with invalid localparts (until we implement RFC 6532)
+      // - using ACE for IDN domainparts
+      // - stripping duplicates
+      nsCString addresses;
+      m_runningURL->GetRecipients(getter_Copies(addresses));
+
+      ExtractEmails(EncodedHeader(addresses), UTF16ArrayAdapter<>(m_addresses));
+
+      nsCOMPtr<nsIIDNService> converter = do_GetService(NS_IDNSERVICE_CONTRACTID);
+      addresses.Truncate();
+      uint32_t count = m_addresses.Length();
+      for (uint32_t i = 0; i < count; i++)
+      {
+        const char *start = m_addresses[i].get();
+        // Location of the @ character
+        const char *lastAt = nullptr;
+        const char *ch = start;
+        for (; *ch; ch++)
         {
-            m_prefSocketType = nsMsgSocketType::plain;
-            rv = OpenNetworkSocketWithInfo(hostName.get(), port, nullptr,
-                proxyInfo, callbacks);
+          if (*ch == '@')
+            lastAt = ch;
+          // Check for first illegal character (outside 0x09,0x20-0x7e)
+          else if ((*ch < ' ' || *ch > '~') && (*ch != '\t'))
+          {
+            break;
+          }
         }
+        // validate the just parsed address
+        if (*ch || m_addresses[i].IsEmpty())
+        {
+          // Fortunately, we will always have an @ in each mailbox address.
+          // We try to fix illegal character in the domain part by converting
+          // that to ACE. Illegal characters in the local part are not fixable
+          // (which charset would it be anyway?), hence we error out in that
+          // case as well.
+          nsresult rv = NS_ERROR_FAILURE; // anything but NS_OK
+          if (lastAt)
+          {
+            // Illegal char in the domain part, hence use ACE
+            nsAutoCString domain;
+            domain.Assign(lastAt + 1);
+            rv = converter->ConvertUTF8toACE(domain, domain);
+            if (NS_SUCCEEDED(rv))
+            {
+              m_addresses[i].SetLength(lastAt - start + 1);
+              m_addresses[i] += domain;
+            }
+          }
+          if (NS_FAILED(rv))
+          {
+            // Throw an error, including the broken address
+            m_nextState = SMTP_ERROR_DONE;
+            ClearFlag(SMTP_PAUSE_FOR_READ);
+            // Unfortunately, nsExplainErrorDetails will show the error above
+            // the mailnews main window, because we don't necessarily get
+            // passed down a compose window - we might be sending in the
+            // background!
+            rv = nsExplainErrorDetails(m_runningURL,
+                                       NS_ERROR_ILLEGAL_LOCALPART, start);
+            NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain illegal localpart");
+            m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
+            return NS_ERROR_BUT_DONT_SHOW_ALERT;
+          }
+        }
+      }
+
+      // final cleanup
+      m_addressesLeft = m_addresses.Length();
+
+      // hmm no addresses to send message to...
+      if (m_addressesLeft == 0)
+      {
+        m_nextState = SMTP_ERROR_DONE;
+        ClearFlag(SMTP_PAUSE_FOR_READ);
+        m_urlErrorState = NS_MSG_NO_RECIPIENTS;
+        return NS_MSG_NO_RECIPIENTS;
+      }
+    } // if post message
+
+    rv = MsgExamineForProxyAsync(this, this, getter_AddRefs(m_proxyRequest));
+
+    if (NS_FAILED(rv))
+    {
+      rv = InitializeInternal(nullptr);
     }
-    else
-        rv = OpenNetworkSocketWithInfo(hostName.get(), port, nullptr, proxyInfo,
-            callbacks);
+
+    return rv;
+}
+
+// nsIProtocolProxyCallback
+NS_IMETHODIMP
+nsSmtpProtocol::OnProxyAvailable(nsICancelable *aRequest, nsIChannel *aChannel,
+                                 nsIProxyInfo *aProxyInfo, nsresult aStatus)
+{
+  return InitializeInternal(aProxyInfo);
+}
+
+nsresult nsSmtpProtocol::InitializeInternal(nsIProxyInfo* proxyInfo)
+{
+  m_proxyRequest = nullptr;
+
+  // When we are making a secure connection, we need to make sure that we
+  // pass an interface requestor down to the socket transport so that PSM can
+  // retrieve a nsIPrompt instance if needed.
+  nsCOMPtr<nsIInterfaceRequestor> callbacks;
+  nsCOMPtr<nsISmtpUrl> smtpUrl(do_QueryInterface(m_url));
+  if (smtpUrl)
+    smtpUrl->GetNotificationCallbacks(getter_AddRefs(callbacks));
+
+  int32_t port = 0;
+  m_url->GetPort(&port);
+
+  nsAutoCString hostName;
+  m_url->GetAsciiHost(hostName);
+
+  nsresult rv;
+  if (m_prefSocketType == nsMsgSocketType::SSL)
+    rv = OpenNetworkSocketWithInfo(hostName.get(), port, "ssl", proxyInfo, callbacks);
+  else if (m_prefSocketType != nsMsgSocketType::plain)
+  {
+    rv = OpenNetworkSocketWithInfo(hostName.get(), port, "starttls",
+      proxyInfo, callbacks);
+    if (NS_FAILED(rv) && m_prefSocketType == nsMsgSocketType::trySTARTTLS)
+    {
+      m_prefSocketType = nsMsgSocketType::plain;
+      rv = OpenNetworkSocketWithInfo(hostName.get(), port, nullptr, proxyInfo, callbacks);
+    }
+  }
+  else
+    rv = OpenNetworkSocketWithInfo(hostName.get(), port, nullptr, proxyInfo, callbacks);
+
+  return LoadUrlInternal(m_url, m_consumer);
 }
 
 void nsSmtpProtocol::AppendHelloArgument(nsACString& aResult)
@@ -1818,7 +1934,13 @@ nsresult nsSmtpProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer )
   if (!aURL)
     return NS_OK;
 
-  Initialize(aURL);
+  m_consumer = aConsumer;
+  return Initialize(aURL);
+}
+
+nsresult nsSmtpProtocol::LoadUrlInternal(nsIURI *aURL, nsISupports *aConsumer)
+{
+  m_url = nullptr;
 
   m_continuationResponse = -1;  /* init */
   m_runningURL = do_QueryInterface(aURL);
@@ -1843,95 +1965,6 @@ nsresult nsSmtpProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer )
     }
     return NS_ERROR_BUT_DONT_SHOW_ALERT;
   }
-
-  bool postMessage = false;
-  m_runningURL->GetPostMessage(&postMessage);
-
-  if (postMessage)
-  {
-    m_nextState = SMTP_RESPONSE;
-    m_nextStateAfterResponse = SMTP_EXTN_LOGIN_RESPONSE;
-
-    // compile a minimal list of valid target addresses by
-    // - looking only at mailboxes
-    // - dropping addresses with invalid localparts (until we implement RFC 6532)
-    // - using ACE for IDN domainparts
-    // - stripping duplicates
-    nsCString addresses;
-    m_runningURL->GetRecipients(getter_Copies(addresses));
-
-    ExtractEmails(EncodedHeader(addresses), UTF16ArrayAdapter<>(m_addresses));
-
-    nsCOMPtr<nsIIDNService> converter = do_GetService(NS_IDNSERVICE_CONTRACTID);
-    addresses.Truncate();
-    uint32_t count = m_addresses.Length();
-    for (uint32_t i = 0; i < count; i++)
-    {
-      const char *start = m_addresses[i].get();
-      // Location of the @ character
-      const char *lastAt = nullptr;
-      const char *ch = start;
-      for (; *ch; ch++)
-      {
-        if (*ch == '@')
-          lastAt = ch;
-        // Check for first illegal character (outside 0x09,0x20-0x7e)
-        else if ((*ch < ' ' || *ch > '~') && (*ch != '\t'))
-        {
-          break;
-        }
-      }
-      // validate the just parsed address
-      if (*ch || m_addresses[i].IsEmpty())
-      {
-        // Fortunately, we will always have an @ in each mailbox address.
-        // We try to fix illegal character in the domain part by converting
-        // that to ACE. Illegal characters in the local part are not fixable
-        // (which charset would it be anyway?), hence we error out in that
-        // case as well.
-        nsresult rv = NS_ERROR_FAILURE; // anything but NS_OK
-        if (lastAt)
-        {
-          // Illegal char in the domain part, hence use ACE
-          nsAutoCString domain;
-          domain.Assign(lastAt + 1);
-          rv = converter->ConvertUTF8toACE(domain, domain);
-          if (NS_SUCCEEDED(rv))
-          {
-            m_addresses[i].SetLength(lastAt - start + 1);
-            m_addresses[i] += domain;
-          }
-        }
-        if (NS_FAILED(rv))
-        {
-          // Throw an error, including the broken address
-          m_nextState = SMTP_ERROR_DONE;
-          ClearFlag(SMTP_PAUSE_FOR_READ);
-          // Unfortunately, nsExplainErrorDetails will show the error above
-          // the mailnews main window, because we don't necessarily get
-          // passed down a compose window - we might be sending in the
-          // background!
-          rv = nsExplainErrorDetails(m_runningURL,
-                                     NS_ERROR_ILLEGAL_LOCALPART, start);
-          NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain illegal localpart");
-          m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
-          return NS_ERROR_BUT_DONT_SHOW_ALERT;
-        }
-      }
-    }
-
-    // final cleanup
-    m_addressesLeft = m_addresses.Length();
-
-    // hmm no addresses to send message to...
-    if (m_addressesLeft == 0)
-    {
-      m_nextState = SMTP_ERROR_DONE;
-      ClearFlag(SMTP_PAUSE_FOR_READ);
-      m_urlErrorState = NS_MSG_NO_RECIPIENTS;
-      return NS_MSG_NO_RECIPIENTS;
-    }
-  } // if post message
 
   return nsMsgProtocol::LoadUrl(aURL, aConsumer);
 }

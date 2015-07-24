@@ -30,6 +30,7 @@ class nsIPrompt;
 class nsIMsgMailNewsUrl;
 class nsMsgFilePostHelper;
 class nsIProxyInfo;
+class nsICancelable;
 
 #undef  IMETHOD_VISIBILITY
 #define IMETHOD_VISIBILITY NS_VISIBILITY_DEFAULT
@@ -126,6 +127,7 @@ protected:
   // Ouput stream for writing commands to the socket
   nsCOMPtr<nsITransport>  m_transport; 
   nsCOMPtr<nsIRequest>    m_request;
+  nsCOMPtr<nsICancelable> m_proxyRequest;
 
   bool          m_socketIsOpen; // mscott: we should look into keeping this state in the nsSocketTransport...
                                   // I'm using it to make sure I open the socket the first time a URL is loaded into the connection
@@ -141,6 +143,7 @@ protected:
   // the following is a catch all for nsIChannel related data
   nsCOMPtr<nsIURI>            m_originalUrl;  // the original url
   nsCOMPtr<nsIURI>            m_url;          // the running url
+  nsCOMPtr<nsISupports>       m_consumer;
   nsCOMPtr<nsIStreamListener> m_channelListener;
   nsCOMPtr<nsISupports>        m_channelContext;
   nsCOMPtr<nsILoadGroup>      m_loadGroup;

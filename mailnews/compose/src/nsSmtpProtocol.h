@@ -14,6 +14,7 @@
 #include "nsIMsgStatusFeedback.h"
 #include "nsMsgLineBuffer.h"
 #include "nsIAuthModule.h"
+#include "nsIProtocolProxyCallback.h"
 #include "MailNewsTypes2.h" // for nsMsgSocketType
 
 #include "nsCOMPtr.h"
@@ -84,11 +85,13 @@ SMTP_AUTH_OAUTH2_RESPONSE,                          // 27
 #define SMTP_AUTH_NONE_ENABLED          0x00040000
 
 class nsSmtpProtocol : public nsMsgAsyncWriteProtocol,
-                       public msgIOAuth2ModuleListener
+                       public msgIOAuth2ModuleListener,
+                       public nsIProtocolProxyCallback
 {
 public:
     NS_DECL_ISUPPORTS_INHERITED
     NS_DECL_MSGIOAUTH2MODULELISTENER
+    NS_DECL_NSIPROTOCOLPROXYCALLBACK
 
     // Creating a protocol instance requires the URL which needs to be run.
     nsSmtpProtocol(nsIURI * aURL);
@@ -152,7 +155,9 @@ private:
     int32_t   m_originalContentLength; /* the content length at the time of calling graph progress */
 
     // initialization function given a new url and transport layer
-    void Initialize(nsIURI * aURL);
+    nsresult Initialize(nsIURI * aURL);
+    nsresult InitializeInternal(nsIProxyInfo* proxyInfo);
+    nsresult LoadUrlInternal(nsIURI *aURL, nsISupports *aConsumer);
     virtual nsresult ProcessProtocolState(nsIURI * url, nsIInputStream * inputStream, 
                                           uint64_t sourceOffset, uint32_t length) override;
 

@@ -36,6 +36,8 @@ class nsIMutableArray;
 class nsIProxyInfo;
 class nsIMsgWindow;
 class nsIStreamListener;
+class nsICancelable;
+class nsIProtocolProxyCallback;
 
 #define FILE_IO_BUFFER_SIZE (16*1024)
 #define MSGS_URL    "chrome://messenger/locale/messenger.properties"
@@ -237,6 +239,10 @@ NS_MSG_BASE nsresult MsgGetHdrsFromKeys(nsIMsgDatabase *aDB,
 
 NS_MSG_BASE nsresult MsgExamineForProxy(nsIChannel *channel,
                                         nsIProxyInfo **proxyInfo);
+
+NS_MSG_BASE nsresult MsgExamineForProxyAsync(nsIChannel *channel,
+                                             nsIProtocolProxyCallback *listener,
+                                             nsICancelable **result);
 
 NS_MSG_BASE int32_t MsgFindCharInSet(const nsCString &aString,
                                      const char* aChars, uint32_t aOffset = 0);

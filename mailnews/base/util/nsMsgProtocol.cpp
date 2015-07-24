@@ -35,6 +35,7 @@
 #include "nsIAsyncInputStream.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsIInputStreamPump.h"
+#include "nsICancelable.h"
 #include "nsMimeTypes.h"
 #include "nsAlgorithm.h"
 #include "mozilla/Services.h"
@@ -768,6 +769,11 @@ NS_IMETHODIMP nsMsgProtocol::Cancel(nsresult status)
   if (!m_request)
     return NS_ERROR_FAILURE;
 
+  if (m_proxyRequest)
+  {
+    m_proxyRequest->Cancel(status);
+  }
+
   return m_request->Cancel(status);
 }
 
@@ -1199,6 +1205,11 @@ nsMsgAsyncWriteProtocol::~nsMsgAsyncWriteProtocol()
 NS_IMETHODIMP nsMsgAsyncWriteProtocol::Cancel(nsresult status)
 {
   mGenerateProgressNotifications = false;
+
+  if (m_proxyRequest)
+  {
+    m_proxyRequest->Cancel(status);
+  }
 
   if (m_request)
     m_request->Cancel(status);

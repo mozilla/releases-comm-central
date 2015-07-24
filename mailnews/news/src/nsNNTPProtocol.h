@@ -25,6 +25,8 @@
 #include "nsIStringBundle.h"
 #include "nsITimer.h"
 #include "nsICacheEntryOpenCallback.h"
+#include "nsIProtocolProxyCallback.h"
+#include "nsIProtocolProxyService.h"
 
 // this is only needed as long as our libmime hack is in place
 #include "prio.h"
@@ -124,7 +126,8 @@ class nsNNTPProtocol : public nsMsgProtocol,
                        public nsINNTPProtocol,
                        public nsITimerCallback,
                        public nsICacheEntryOpenCallback,
-                       public nsIMsgAsyncPromptListener
+                       public nsIMsgAsyncPromptListener,
+                       public nsIProtocolProxyCallback
 {
 public:
   NS_DECL_ISUPPORTS_INHERITED
@@ -132,6 +135,7 @@ public:
   NS_DECL_NSICACHEENTRYOPENCALLBACK
   NS_DECL_NSITIMERCALLBACK
   NS_DECL_NSIMSGASYNCPROMPTLISTENER
+  NS_DECL_NSIPROTOCOLPROXYCALLBACK
 
   // Creating a protocol instance requires the URL
   // need to call Initialize after we do a new of nsNNTPProtocol
@@ -204,6 +208,7 @@ private:
   bool        m_fromCache;  // is this connection from the cache?
   PRTime      m_lastActiveTimeStamp;
   nsNewsAction m_newsAction;
+  nsCOMPtr <nsISupports> m_consumer;
 
   // Generic state information -- What state are we in? What state do we want to go to
   // after the next response? What was the last response code? etc.

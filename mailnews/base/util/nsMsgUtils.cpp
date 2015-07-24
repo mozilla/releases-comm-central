@@ -50,6 +50,8 @@
 #include "nsIFileURL.h"
 #include "nsNetUtil.h"
 #include "nsProtocolProxyService.h"
+#include "nsIProtocolProxyCallback.h"
+#include "nsICancelable.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMutableArray.h"
 #include "nsIMsgMailNewsUrl.h"
@@ -2123,6 +2125,26 @@ NS_MSG_BASE nsresult
 MsgExamineForProxy(nsIChannel *channel, nsIProxyInfo **proxyInfo)
 {
   return NS_ERROR_FAILURE;
+}
+
+NS_MSG_BASE nsresult
+MsgExamineForProxyAsync(nsIChannel *channel, nsIProtocolProxyCallback *listener,
+                        nsICancelable **result)
+{
+  nsresult rv;
+
+#ifdef DEBUG
+  nsCOMPtr<nsIURI> uri;
+  rv = channel->GetURI(getter_AddRefs(uri));
+  NS_ASSERTION(NS_SUCCEEDED(rv) && uri,
+    "The URI needs to be set before calling the proxy service");
+#endif
+
+  nsCOMPtr<nsIProtocolProxyService> pps =
+    do_GetService(NS_PROTOCOLPROXYSERVICE_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return pps->AsyncResolve(channel, 0, listener, result);
 }
 
 NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow *aMsgWindow,

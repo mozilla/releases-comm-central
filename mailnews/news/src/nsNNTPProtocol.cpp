@@ -76,6 +76,7 @@
 #include "nsISocketTransport.h"
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
+#include "nsICancelable.h"
 
 #include "nsIInputStreamPump.h"
 #include "nsIProxyInfo.h"
@@ -260,7 +261,7 @@ char *MSG_UnEscapeSearchUrl (const char *commandSpecificData)
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 NS_IMPL_ISUPPORTS_INHERITED(nsNNTPProtocol, nsMsgProtocol, nsINNTPProtocol,
-  nsITimerCallback, nsICacheEntryOpenCallback, nsIMsgAsyncPromptListener)
+  nsITimerCallback, nsICacheEntryOpenCallback, nsIMsgAsyncPromptListener, nsIProtocolProxyCallback)
 
 nsNNTPProtocol::nsNNTPProtocol(nsINntpIncomingServer *aServer, nsIURI *aURL,
                                nsIMsgWindow *aMsgWindow)
@@ -415,38 +416,6 @@ NS_IMETHODIMP nsNNTPProtocol::Initialize(nsIURI *aURL, nsIMsgWindow *aMsgWindow)
 
   if (!m_socketIsOpen)
   {
-    // When we are making a secure connection, we need to make sure that we
-    // pass an interface requestor down to the socket transport so that PSM can
-    // retrieve a nsIPrompt instance if needed.
-    nsCOMPtr<nsIInterfaceRequestor> ir;
-    if (socketType != nsMsgSocketType::plain && aMsgWindow)
-    {
-      nsCOMPtr<nsIDocShell> docShell;
-      aMsgWindow->GetRootDocShell(getter_AddRefs(docShell));
-      ir = do_QueryInterface(docShell);
-    }
-
-    // call base class to set up the transport
-
-    int32_t port = 0;
-    nsCString hostName;
-    m_url->GetPort(&port);
-
-    rv = server->GetRealHostName(hostName);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    MOZ_LOG(NNTP,  LogLevel::Info, ("(%p) opening connection to %s on port %d",
-      this, hostName.get(), port));
-
-    nsCOMPtr<nsIProxyInfo> proxyInfo;
-    rv = MsgExamineForProxy(this, getter_AddRefs(proxyInfo));
-    if (NS_FAILED(rv)) proxyInfo = nullptr;
-
-    rv = OpenNetworkSocketWithInfo(hostName.get(), port,
-           (socketType == nsMsgSocketType::SSL) ? "ssl" : nullptr,
-           proxyInfo, ir);
-
-    NS_ENSURE_SUCCESS(rv,rv);
     m_nextState = NNTP_LOGIN_RESPONSE;
   }
   else {
@@ -1116,8 +1085,15 @@ FAIL:
       {
         m_nextStateAfterResponse = m_nextState;
         m_nextState = NNTP_RESPONSE;
+
+        // Calls LoadUrl in nsNNTPProtocol::OnProxyAvailable
+        rv = MsgExamineForProxyAsync(this, this, getter_AddRefs(m_proxyRequest));
+        NS_ENSURE_SUCCESS(rv, rv);
       }
-      rv = nsMsgProtocol::LoadUrl(aURL, aConsumer);
+      else
+      {
+        rv = nsMsgProtocol::LoadUrl(aURL, aConsumer);
+      }
     }
 
     // Make sure that we have the information we need to be able to run the
@@ -1144,6 +1120,48 @@ FAIL:
       NS_ASSERTION(m_newsFolder, "IDS_WANTED needs m_newsFolder");
 
     return rv;
+}
+
+// nsIProtocolProxyCallback
+NS_IMETHODIMP
+nsNNTPProtocol::OnProxyAvailable(nsICancelable *aRequest, nsIChannel *aChannel,
+                                 nsIProxyInfo *aProxyInfo, nsresult aStatus)
+{
+  MOZ_ASSERT(aChannel == this, "Should never request a proxy for anyone but ourselves");
+  m_proxyRequest = nullptr;
+
+  nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_nntpServer);
+  nsCString hostName;
+  int32_t port = 0;
+  int32_t socketType;
+
+  nsresult rv = server->GetRealHostName(hostName);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = m_url->GetPort(&port);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = server->GetSocketType(&socketType);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIInterfaceRequestor> ir;
+  if (socketType != nsMsgSocketType::plain && m_msgWindow)
+  {
+    nsCOMPtr<nsIDocShell> docShell;
+    m_msgWindow->GetRootDocShell(getter_AddRefs(docShell));
+    ir = do_QueryInterface(docShell);
+  }
+
+  MOZ_LOG(NNTP, LogLevel::Info, ("(%p) opening connection to %s on port %d",
+    this, hostName.get(), port));
+
+  rv = OpenNetworkSocketWithInfo(hostName.get(), port,
+    (socketType == nsMsgSocketType::SSL) ? "ssl" : nullptr,
+    aProxyInfo, ir);
+
+  rv = nsMsgProtocol::LoadUrl(m_url, m_consumer);
+
+  return rv;
 }
 
 void nsNNTPProtocol::FinishMemCacheEntry(bool valid)
@@ -1184,6 +1202,11 @@ NS_IMETHODIMP nsNNTPProtocol::OnStopRequest(nsIRequest *request, nsISupports * a
 
 NS_IMETHODIMP nsNNTPProtocol::Cancel(nsresult status)  // handle stop button
 {
+    if (m_proxyRequest)
+    {
+      m_proxyRequest->Cancel(status);
+    }
+
     m_nextState = NNTP_ERROR;
     return nsMsgProtocol::Cancel(NS_BINDING_ABORTED);
 }

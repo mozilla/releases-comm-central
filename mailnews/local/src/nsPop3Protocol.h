@@ -22,6 +22,7 @@
 #include "nsIAuthModule.h"
 #include "nsITimer.h"
 #include "nsIMsgAsyncPrompter.h"
+#include "nsIProtocolProxyCallback.h"
 
 #include "prerror.h"
 #include "plhash.h"
@@ -251,7 +252,8 @@ typedef struct _Pop3ConData {
 
 class nsPop3Protocol : public nsMsgProtocol,
                        public nsIPop3Protocol,
-                       public nsIMsgAsyncPromptListener
+                       public nsIMsgAsyncPromptListener,
+                       public nsIProtocolProxyCallback
 {
 public:
   nsPop3Protocol(nsIURI* aURL);
@@ -259,9 +261,12 @@ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIPOP3PROTOCOL
   NS_DECL_NSIMSGASYNCPROMPTLISTENER
+  NS_DECL_NSIPROTOCOLPROXYCALLBACK
 
   nsresult Initialize(nsIURI * aURL);
+  nsresult InitializeInternal(nsIProxyInfo* proxyInfo);
   virtual nsresult LoadUrl(nsIURI *aURL, nsISupports * aConsumer = nullptr) override;
+  nsresult LoadUrlInternal(nsIURI *aURL);
   void Cleanup();
 
   const char* GetUsername() { return m_username.get(); }

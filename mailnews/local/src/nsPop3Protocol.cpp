@@ -39,6 +39,7 @@
 #include "nsISSLSocketControl.h"
 #include "nsILineInputStream.h"
 #include "nsIInterfaceRequestor.h"
+#include "nsICancelable.h"
 #include "nsMsgMessageFlags.h"
 #include "nsMsgBaseCID.h"
 #include "nsIProxyInfo.h"
@@ -441,6 +442,7 @@ NS_IMPL_RELEASE_INHERITED(nsPop3Protocol, nsMsgProtocol)
 NS_INTERFACE_MAP_BEGIN(nsPop3Protocol)
   NS_INTERFACE_MAP_ENTRY(nsIPop3Protocol)
   NS_INTERFACE_MAP_ENTRY(nsIMsgAsyncPromptListener)
+  NS_INTERFACE_MAP_ENTRY(nsIProtocolProxyCallback)
 NS_INTERFACE_MAP_END_INHERITING(nsMsgProtocol)
 
 // nsPop3Protocol class implementation
@@ -481,84 +483,20 @@ nsresult nsPop3Protocol::Initialize(nsIURI * aURL)
   m_currentAuthMethod = POP3_AUTH_MECH_UNDEFINED;
   m_needToRerunUrl = false;
 
+  m_url = do_QueryInterface(aURL);
+
+  bool proxyCallback = false;
   if (aURL)
   {
-    // extract out message feedback if there is any.
-    nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(aURL);
-    if (mailnewsUrl)
+    rv = MsgExamineForProxyAsync(this, this, getter_AddRefs(m_proxyRequest));
+    if (NS_FAILED(rv))
     {
-      nsCOMPtr<nsIMsgIncomingServer> server;
-      mailnewsUrl->GetServer(getter_AddRefs(server));
-      NS_ENSURE_TRUE(server, NS_MSG_INVALID_OR_MISSING_SERVER);
-
-      rv = server->GetSocketType(&m_socketType);
-      NS_ENSURE_SUCCESS(rv,rv);
-
-      int32_t authMethod = 0;
-      rv = server->GetAuthMethod(&authMethod);
-      NS_ENSURE_SUCCESS(rv,rv);
-      InitPrefAuthMethods(authMethod);
-
-      m_pop3Server = do_QueryInterface(server);
-      if (m_pop3Server)
-        m_pop3Server->GetPop3CapabilityFlags(&m_pop3ConData->capability_flags);
+      rv = InitializeInternal(nullptr);
     }
-
-    m_url = do_QueryInterface(aURL);
-
-    // When we are making a secure connection, we need to make sure that we
-    // pass an interface requestor down to the socket transport so that PSM can
-    // retrieve a nsIPrompt instance if needed.
-    nsCOMPtr<nsIInterfaceRequestor> ir;
-    if (m_socketType != nsMsgSocketType::plain)
+    else
     {
-      nsCOMPtr<nsIMsgWindow> msgwin;
-      mailnewsUrl->GetMsgWindow(getter_AddRefs(msgwin));
-      if (!msgwin)
-        GetTopmostMsgWindow(getter_AddRefs(msgwin));
-      if (msgwin)
-      {
-        nsCOMPtr<nsIDocShell> docshell;
-        msgwin->GetRootDocShell(getter_AddRefs(docshell));
-        ir = do_QueryInterface(docshell);
-        nsCOMPtr<nsIInterfaceRequestor> notificationCallbacks;
-        msgwin->GetNotificationCallbacks(getter_AddRefs(notificationCallbacks));
-        if (notificationCallbacks)
-        {
-          nsCOMPtr<nsIInterfaceRequestor> aggregrateIR;
-          MsgNewInterfaceRequestorAggregation(notificationCallbacks, ir, getter_AddRefs(aggregrateIR));
-          ir = aggregrateIR;
-        }
-      }
+      proxyCallback = true;
     }
-
-    int32_t port = 0;
-    nsCString hostName;
-    aURL->GetPort(&port);
-    nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_pop3Server);
-    if (server)
-      server->GetRealHostName(hostName);
-
-    nsCOMPtr<nsIProxyInfo> proxyInfo;
-    rv = MsgExamineForProxy(this, getter_AddRefs(proxyInfo));
-    if (NS_FAILED(rv)) proxyInfo = nullptr;
-
-    const char *connectionType = nullptr;
-    if (m_socketType == nsMsgSocketType::SSL)
-      connectionType = "ssl";
-    else if (m_socketType == nsMsgSocketType::trySTARTTLS ||
-          m_socketType == nsMsgSocketType::alwaysSTARTTLS)
-        connectionType = "starttls";
-
-    rv = OpenNetworkSocketWithInfo(hostName.get(), port, connectionType, proxyInfo, ir);
-    if (NS_FAILED(rv) && m_socketType == nsMsgSocketType::trySTARTTLS)
-    {
-      m_socketType = nsMsgSocketType::plain;
-      rv = OpenNetworkSocketWithInfo(hostName.get(), port, nullptr, proxyInfo, ir);
-    }
-
-    if(NS_FAILED(rv))
-      return rv;
   } // if we got a url...
 
   m_lineStreamBuffer = new nsMsgLineStreamBuffer(OUTPUT_BUFFER_SIZE, true);
@@ -568,7 +506,101 @@ nsresult nsPop3Protocol::Initialize(nsIURI * aURL)
   nsCOMPtr<nsIStringBundleService> bundleService =
     mozilla::services::GetStringBundleService();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-  return bundleService->CreateBundle("chrome://messenger/locale/localMsgs.properties", getter_AddRefs(mLocalBundle));
+  rv = bundleService->CreateBundle("chrome://messenger/locale/localMsgs.properties", getter_AddRefs(mLocalBundle));
+
+  if (!proxyCallback)
+  {
+    rv = LoadUrlInternal(m_url);
+  }
+
+  return rv;
+}
+
+// nsIProtocolProxyCallback
+NS_IMETHODIMP
+nsPop3Protocol::OnProxyAvailable(nsICancelable *aRequest, nsIChannel *aChannel,
+                                 nsIProxyInfo *aProxyInfo, nsresult aStatus)
+{
+  InitializeInternal(aProxyInfo);
+  return LoadUrlInternal(m_url);
+}
+
+nsresult nsPop3Protocol::InitializeInternal(nsIProxyInfo* proxyInfo)
+{
+  nsresult rv;
+
+  m_proxyRequest = nullptr;
+
+  // extract out message feedback if there is any.
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url);
+  if (mailnewsUrl)
+  {
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    mailnewsUrl->GetServer(getter_AddRefs(server));
+    NS_ENSURE_TRUE(server, NS_MSG_INVALID_OR_MISSING_SERVER);
+
+    rv = server->GetSocketType(&m_socketType);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    int32_t authMethod = 0;
+    rv = server->GetAuthMethod(&authMethod);
+    NS_ENSURE_SUCCESS(rv, rv);
+    InitPrefAuthMethods(authMethod);
+
+    m_pop3Server = do_QueryInterface(server);
+    if (m_pop3Server)
+      m_pop3Server->GetPop3CapabilityFlags(&m_pop3ConData->capability_flags);
+  }
+
+  // When we are making a secure connection, we need to make sure that we
+  // pass an interface requestor down to the socket transport so that PSM can
+  // retrieve a nsIPrompt instance if needed.
+  nsCOMPtr<nsIInterfaceRequestor> ir;
+  if (m_socketType != nsMsgSocketType::plain)
+  {
+    nsCOMPtr<nsIMsgWindow> msgwin;
+    mailnewsUrl->GetMsgWindow(getter_AddRefs(msgwin));
+    if (!msgwin)
+      GetTopmostMsgWindow(getter_AddRefs(msgwin));
+    if (msgwin)
+    {
+      nsCOMPtr<nsIDocShell> docshell;
+      msgwin->GetRootDocShell(getter_AddRefs(docshell));
+      ir = do_QueryInterface(docshell);
+      nsCOMPtr<nsIInterfaceRequestor> notificationCallbacks;
+      msgwin->GetNotificationCallbacks(getter_AddRefs(notificationCallbacks));
+      if (notificationCallbacks)
+      {
+        nsCOMPtr<nsIInterfaceRequestor> aggregrateIR;
+        MsgNewInterfaceRequestorAggregation(notificationCallbacks, ir, getter_AddRefs(aggregrateIR));
+        ir = aggregrateIR;
+      }
+    }
+  }
+
+  int32_t port = 0;
+  m_url->GetPort(&port);
+
+  nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_pop3Server);
+  nsAutoCString hostName;
+  if (server)
+    server->GetRealHostName(hostName);
+
+  const char *connectionType = nullptr;
+  if (m_socketType == nsMsgSocketType::SSL)
+    connectionType = "ssl";
+  else if (m_socketType == nsMsgSocketType::trySTARTTLS ||
+    m_socketType == nsMsgSocketType::alwaysSTARTTLS)
+    connectionType = "starttls";
+
+  rv = OpenNetworkSocketWithInfo(hostName.get(), port, connectionType, proxyInfo, ir);
+  if (NS_FAILED(rv) && m_socketType == nsMsgSocketType::trySTARTTLS)
+  {
+    m_socketType = nsMsgSocketType::plain;
+    rv = OpenNetworkSocketWithInfo(hostName.get(), port, nullptr, proxyInfo, ir);
+  }
+
+  return rv;
 }
 
 nsPop3Protocol::~nsPop3Protocol()
@@ -995,6 +1027,11 @@ void nsPop3Protocol::Abort()
 
 NS_IMETHODIMP nsPop3Protocol::Cancel(nsresult status)  // handle stop button
 {
+  if (m_proxyRequest)
+  {
+    m_proxyRequest->Cancel(status);
+  }
+
   Abort();
   return nsMsgProtocol::Cancel(NS_BINDING_ABORTED);
 }
@@ -1004,12 +1041,12 @@ nsresult nsPop3Protocol::LoadUrl(nsIURI* aURL, nsISupports * /* aConsumer */)
 {
   MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, (POP3LOG("LoadUrl()")));
 
-  nsresult rv = Initialize(aURL);
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (aURL)
-    m_url = do_QueryInterface(aURL);
-  else
-    return NS_ERROR_FAILURE;
+  return Initialize(aURL);
+}
+
+nsresult nsPop3Protocol::LoadUrlInternal(nsIURI* aURL)
+{
+  nsresult rv;
 
   nsCOMPtr<nsIURL> url = do_QueryInterface(aURL, &rv);
   if (NS_FAILED(rv)) return rv;
