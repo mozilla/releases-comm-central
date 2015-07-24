@@ -12,7 +12,7 @@
 <prefwindow id="ConnectionsDialog" type="child"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
             title="&connectionsDialog.title;"
-            dlgbuttons="accept,cancel"
+            dlgbuttons="accept,cancel,help"
             onbeforeaccept="return gConnectionsDialog.beforeAccept();"
             onload="gConnectionsDialog.checkForSystemProxy();"
 #ifdef XP_MACOSX
@@ -21,7 +21,8 @@
             style="width: &window.width; !important;">
 #endif
 
-  <prefpane id="ConnectionsDialogPane">
+  <prefpane id="ConnectionsDialogPane"
+            helpTopic="prefs-connection-settings">
 
     <preferences>
       <preference id="network.proxy.type"         name="network.proxy.type"         type="int" onchange="gConnectionsDialog.proxyTypeChanged();"/>
@@ -33,15 +34,17 @@
       <preference id="network.proxy.ssl_port"     name="network.proxy.ssl_port"     type="int"/>
       <preference id="network.proxy.socks"        name="network.proxy.socks"        type="string"/>
       <preference id="network.proxy.socks_port"   name="network.proxy.socks_port"   type="int"/>
-      <preference id="network.proxy.gopher"       name="network.proxy.gopher"       type="string"/>
-      <preference id="network.proxy.gopher_port"  name="network.proxy.gopher_port"  type="int"/>
-      <preference id="network.proxy.socks_version"  name="network.proxy.socks_version"  type="int"/>
+      <preference id="network.proxy.socks_version"  name="network.proxy.socks_version"  type="int" onchange="gConnectionsDialog.updateDNSPref();"/>
+      <preference id="network.proxy.socks_remote_dns"  name="network.proxy.socks_remote_dns"  type="bool"/>
       <preference id="network.proxy.no_proxies_on"  name="network.proxy.no_proxies_on"  type="string"/>
       <preference id="network.proxy.autoconfig_url" name="network.proxy.autoconfig_url" type="string"/>
       <preference id="network.proxy.share_proxy_settings"
                   name="network.proxy.share_proxy_settings"
                   type="bool"/>
-      
+      <preference id="signon.autologin.proxy"
+                  name="signon.autologin.proxy"
+                  type="bool"/>
+
       <preference id="pref.advanced.proxies.disable_button.reload"
                   name="pref.advanced.proxies.disable_button.reload"
                   type="bool"/>
@@ -52,11 +55,11 @@
       <preference id="network.proxy.backup.ssl_port"     name="network.proxy.backup.ssl_port"     type="int"/>
       <preference id="network.proxy.backup.socks"        name="network.proxy.backup.socks"        type="string"/>
       <preference id="network.proxy.backup.socks_port"   name="network.proxy.backup.socks_port"   type="int"/>
-      <preference id="network.proxy.backup.gopher"       name="network.proxy.backup.gopher"       type="string"/>
-      <preference id="network.proxy.backup.gopher_port"  name="network.proxy.backup.gopher_port"  type="int"/>
     </preferences>
     
     <script type="application/javascript" src="chrome://instantbird/content/preferences/connection.js"/>
+
+    <stringbundle id="preferencesBundle" src="chrome://instantbird/locale/preferences/preferences.properties"/>
 
     <groupbox>
       <caption label="&proxyTitle.label;"/>
@@ -119,18 +122,6 @@
             </row>
             <row align="center">
               <hbox pack="end">
-                <label value="&gopher.label;" accesskey="&gopher.accesskey;" control="networkProxyGopher"/>
-              </hbox>
-              <hbox align="center">
-                <textbox id="networkProxyGopher" flex="1" preference="network.proxy.gopher"
-                         onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('gopher', false);"/>
-                <label value="&port.label;" accesskey="&gopherPort.accesskey;" control="networkProxyGopher_Port"/>
-                <textbox id="networkProxyGopher_Port" type="number" max="65535" size="5" preference="network.proxy.gopher_port"
-                         onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('gopher', true);"/>
-              </hbox>
-            </row>
-            <row align="center">
-              <hbox pack="end">
                 <label value="&socks.label;" accesskey="&socks.accesskey;" control="networkProxySOCKS"/>
               </hbox>
               <hbox align="center">
@@ -143,23 +134,18 @@
             </row>
             <row>
               <spacer/>
+              <box pack="start">
               <radiogroup id="networkProxySOCKSVersion" orient="horizontal"
                           preference="network.proxy.socks_version">
                 <radio id="networkProxySOCKSVersion4" value="4" label="&socks4.label;" accesskey="&socks4.accesskey;" />
                 <radio id="networkProxySOCKSVersion5" value="5" label="&socks5.label;" accesskey="&socks5.accesskey;" />
               </radiogroup>
+              <checkbox id="networkProxySOCKSRemoteDNS"  preference="network.proxy.socks_remote_dns" label="&socksRemoteDNS.label;" accesskey="&socksRemoteDNS.accesskey;" />
+              </box>
             </row>
-
-            <row align="center"> 
-              <hbox align="center" pack="end">
-                <label value="&noproxy.label;" accesskey="&noproxy.accesskey;" control="networkProxyNone"/>
-              </hbox>
-              <textbox id="networkProxyNone" preference="network.proxy.no_proxies_on"/>
-            </row>
-            <row>
-              <spacer/>
-              <label value="&noproxyExplain.label;" control="networkProxyNone"/>
-            </row>
+            <label value="&noproxy.label;" accesskey="&noproxy.accesskey;" control="networkProxyNone"/>
+            <textbox id="networkProxyNone" preference="network.proxy.no_proxies_on" multiline="true" rows="2"/>
+            <label value="&noproxyExplain.label;" control="networkProxyNone"/>
           </rows>
         </grid>
         <radio value="2" label="&autoTypeRadio.label;" accesskey="&autoTypeRadio.accesskey;"/>
@@ -173,6 +159,13 @@
         </hbox>
       </radiogroup>
     </groupbox>
+    <separator class="thin"/>
+    <checkbox id="autologinProxy"
+              label="&autologinproxy.label;"
+              accesskey="&autologinproxy.accesskey;"
+              preference="signon.autologin.proxy"
+              tooltiptext="&autologinproxy.tooltip;"/>
+    <separator/>
   </prefpane>
 </prefwindow>
 
