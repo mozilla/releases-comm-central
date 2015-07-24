@@ -171,8 +171,12 @@ var previewObserver = {
     if (aTopic != "conversation-loaded" || aSubject != this.browser)
       return;
 
-    // Similar to the log viewer, disable the convbrowser feature
-    // that scrolls to the last message after it has been added.
+    // We want to avoid the convbrowser trying to scroll to the last
+    // added message, as that causes the entire pref pane to jump up
+    // (bug 1179943). Therefore, we override the method convbrowser
+    // uses to determine if there are further messages pending to be
+    // added. The +1 ensures no scroll occurs after we add the last
+    // message here.
     this.browser._autoScrollEnabled = false;
     this.browser.getPendingMessagesCount =
       () => previewObserver.conv.messages.length + 1;
