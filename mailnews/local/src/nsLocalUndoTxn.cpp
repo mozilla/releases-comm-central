@@ -288,13 +288,16 @@ nsLocalMoveCopyMsgTxn::UndoTransactionInternal()
     {
       nsCOMPtr<nsIMutableArray> dstMessages =
         do_CreateInstance(NS_ARRAY_CONTRACTID);
-      nsCOMPtr<nsIMsgDBHdr> dstHdr;
       m_numHdrsCopied = 0;
       m_srcKeyArray.Clear();
       for (i = 0; i < count; i++)
       {
-        dstDB->GetMsgHdrForKey(m_dstKeyArray[i], getter_AddRefs(dstHdr));
-        NS_ASSERTION(dstHdr, "fatal ... cannot get old msg header\n");
+        // GetMsgHdrForKey is not a test for whether the key exists, so check.
+        bool hasKey = false;
+        dstDB->ContainsKey(m_dstKeyArray[i], &hasKey);
+        nsCOMPtr<nsIMsgDBHdr> dstHdr;
+        if (hasKey)
+          dstDB->GetMsgHdrForKey(m_dstKeyArray[i], getter_AddRefs(dstHdr));
         if (dstHdr)
         {
           nsCString messageId;
@@ -302,12 +305,24 @@ nsLocalMoveCopyMsgTxn::UndoTransactionInternal()
           dstMessages->AppendElement(dstHdr, false);
           m_copiedMsgIds.AppendElement(messageId);
         }
+        else
+        {
+          NS_WARNING("Cannot get old msg header");
+        }
       }
-      srcFolder->AddFolderListener(this);
-      m_undoing = true;
-      return srcFolder->CopyMessages(dstFolder, dstMessages,
-                                     true, nullptr, nullptr, false,
-                                     false);
+      if (m_copiedMsgIds.Length())
+      {
+        srcFolder->AddFolderListener(this);
+        m_undoing = true;
+        return srcFolder->CopyMessages(dstFolder, dstMessages,
+                                       true, nullptr, nullptr, false,
+                                       false);
+      }
+      else
+      {
+        // Nothing to do, probably because original messages were deleted.
+        NS_WARNING("Undo did not find any messages to move");
+      }
     }
     srcDB->SetSummaryValid(true);
   }
