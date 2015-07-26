@@ -23,6 +23,8 @@
 #include "nsStringAPI.h"
 #include "nsIDocShell.h"
 #include "nsILoadContext.h"
+#include "nsIProperties.h"
+#include "nsServiceManagerUtils.h"
 
 #include <ApplicationServices/ApplicationServices.h>
 
