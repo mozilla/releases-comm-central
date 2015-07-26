@@ -6,3 +6,7 @@
 JAR_MANIFESTS += ['jar.mn']
 
 DEFINES['MOZ_APP_MAXVERSION'] = CONFIG['MOZ_APP_MAXVERSION']
+
+FINAL_TARGET_FILES.defaults.profile += [
+    'generic/profile/mimeTypes.rdf',
+]

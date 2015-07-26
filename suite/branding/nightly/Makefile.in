@@ -3,77 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DEPTH		= @DEPTH@
-topsrcdir	= @top_srcdir@
-srcdir		= @srcdir@
-VPATH		= @srcdir@
-
-include $(DEPTH)/config/autoconf.mk
-
 # Note: mac icons are handled in /suite/app during the final application
 # packaging
-ifneq (,$(filter windows gtk gtk2,$(MOZ_WIDGET_TOOLKIT)))
-ifneq (,$(filter windows,$(MOZ_WIDGET_TOOLKIT)))
-ICON_SUFFIX=.ico
-else
-ICON_SUFFIX=.png
-endif
-
-ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
-ICON_DIR=gtk
-else
-ICON_DIR=$(MOZ_WIDGET_TOOLKIT)
-endif
-
-DESKTOP_ICONS = \
-	abcardWindow \
-	ablistWindow \
-	addressbookWindow \
-	bookmarkproperties \
-	downloadManager \
-	editorWindow \
-	findBookmarkWindow \
-	findHistoryWindow \
-	history-window \
-	JSConsoleWindow \
-	main-window \
-	messengerWindow \
-	msgcomposeWindow \
-	places \
-	$(NULL) 
-
-ifeq (windows,$(MOZ_WIDGET_TOOLKIT))
-# Windows icons
-DESKTOP_ICONS += \
-	gif-file \
-	html-file \
-	misc-file \
-	image-file \
-	jpeg-file \
-	script-file \
-	xml-file \
-	xul-file \
-	$(NULL)
-endif
-
-ifeq ($(ICON_DIR),gtk)
-libs:: icons/gtk/seamonkey.png
-	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/chrome/icons/default
-
-GARBAGE	+= $(DIST)/bin/chrome/icons/default/seamonkey.png
-
-DESKTOP_ICONS += default
-DESKTOP_ICONS_SMALL = $(patsubst %,%16,$(DESKTOP_ICONS))
-DESKTOP_ICONS_LARGE = $(patsubst %,%48,$(DESKTOP_ICONS))
-endif
-
-DESKTOP_ICON_FILES = $(addsuffix $(ICON_SUFFIX), $(DESKTOP_ICONS) $(DESKTOP_ICONS_SMALL) $(DESKTOP_ICONS_LARGE))
-
-libs:: $(addprefix icons/$(ICON_DIR)/,$(DESKTOP_ICON_FILES))
-	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/chrome/icons/default
-
-GARBAGE	+= $(addprefix $(DIST)/bin/chrome/icons/default/,$(DESKTOP_ICON_FILES))
-endif
 
 include $(topsrcdir)/config/rules.mk
 

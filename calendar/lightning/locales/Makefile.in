@@ -6,7 +6,6 @@
 # directory
 relativesrcdir = calendar/locales
 
-DEFINES += -DAB_CD=$(AB_CD) \
-           -DTHEME=$(THEME) \
+DEFINES += -DTHEME=$(THEME) \
            -DLOCALE_SRCDIR=$(LOCALE_SRCDIR) \
            $(NULL)

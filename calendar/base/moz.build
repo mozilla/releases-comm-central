@@ -19,6 +19,27 @@ elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
 else:
     DEFINES['THEME'] = 'linux'
 
+# Window icons are not needed on mac
+if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk', 'gtk2'):
+    icon_path = 'themes/windows/icons/'
+    window_icons = [
+        'calendar-alarm-dialog',
+        'calendar-event-dialog',
+        'calendar-event-summary-dialog',
+        'calendar-task-dialog',
+        'calendar-task-summary-dialog',
+    ]
+
+    # Set up the icon suffix to differ between windows and linux
+    if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
+        icon_suffix = '.ico'
+    else:
+        icon_suffix = '.png'
+
+    FINAL_TARGET_FILES.chrome.icons.default += [
+        '%s%s%s' % (icon_path, icon, icon_suffix) for icon in window_icons
+    ]
+
 with Files('content/**'):
     BUG_COMPONENT = ('Calendar', 'Calendar Views')
 

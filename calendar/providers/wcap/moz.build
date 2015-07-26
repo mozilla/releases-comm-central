@@ -10,5 +10,14 @@ EXTRA_COMPONENTS += [
     'calWcapCalendarModule.manifest',
 ]
 
+FINAL_TARGET_FILES['calendar-js'] += [
+    'calWcapCalendar.js',
+    'calWcapCalendarItems.js',
+    'calWcapErrors.js',
+    'calWcapRequest.js',
+    'calWcapSession.js',
+    'calWcapUtils.js',
+]
+
 with Files('**'):
     BUG_COMPONENT = ('Calendar', 'Provider: WCAP')

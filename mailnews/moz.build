@@ -64,17 +64,25 @@ DEFINES['MOZ_WIDGET_TOOLKIT'] = CONFIG['MOZ_WIDGET_TOOLKIT']
 JAR_MANIFESTS += ['jar.mn']
 
 TESTING_JS_MODULES.mailnews += [
-	'test/fakeserver/auth.js',
-	'test/fakeserver/imapd.js',
-	'test/fakeserver/maild.js',
-	'test/fakeserver/nntpd.js',
-	'test/fakeserver/pop3d.js',
-	'test/fakeserver/smtpd.js',
-	'test/resources/IMAPpump.js',
-	'test/resources/localAccountUtils.js',
-	'test/resources/mailTestUtils.js',
-	'test/resources/MockFactory.js',
-	'test/resources/PromiseTestUtils.jsm',
+    'test/fakeserver/auth.js',
+    'test/fakeserver/imapd.js',
+    'test/fakeserver/maild.js',
+    'test/fakeserver/nntpd.js',
+    'test/fakeserver/pop3d.js',
+    'test/fakeserver/smtpd.js',
+    'test/resources/IMAPpump.js',
+    'test/resources/localAccountUtils.js',
+    'test/resources/mailTestUtils.js',
+    'test/resources/MockFactory.js',
+    'test/resources/PromiseTestUtils.jsm',
+]
+
+TEST_HARNESS_FILES.xpcshell.mailnews.data += [
+    '/mailnews/test/data/**',
+]
+
+TEST_HARNESS_FILES.xpcshell.mailnews.resources += [
+    '/mailnews/test/resources/**',
 ]
 
 JS_PREFERENCE_FILES += [

@@ -20,6 +20,7 @@ SOURCES += [
 
 if CONFIG['MOZ_PREF_EXTENSIONS']:
     SOURCES += ['nsLDAPSyncQuery.cpp']
+    DEFINES['MOZ_PREF_EXTENSIONS'] = True
 
 EXTRA_COMPONENTS += [
     'ldapComponents.manifest',

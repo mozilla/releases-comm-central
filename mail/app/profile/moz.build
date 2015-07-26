@@ -5,3 +5,7 @@
 
 DIRS += ['extensions']
 
+FINAL_TARGET_FILES.defaults.profile += [
+    'localstore.rdf',
+    'mimeTypes.rdf',
+]

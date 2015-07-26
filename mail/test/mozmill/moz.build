@@ -8,3 +8,10 @@ TEST_HARNESS_FILES.mozmill += [
     'runtest.py',
     'runtestlist.py',
 ]
+
+TEST_HARNESS_FILES.mozmill.resources += [
+    '/mail/base/test/unit/resources/**',
+    '/mailnews/test/fakeserver/**',
+    '/mailnews/test/resources/**',
+]
+

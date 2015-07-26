@@ -5,10 +5,4 @@
 XPI_PKGNAME = dbgserver-$(MOZILLA_VERSION).$(AB_CD)
 relativesrcdir = mail/locales
 
-include $(DEPTH)/config/autoconf.mk
-
-DEFINES += -DAB_CD=$(AB_CD) \
-           -DLOCALE_SRCDIR=$(LOCALE_SRCDIR) \
-           $(NULL)
-
-include $(topsrcdir)/config/rules.mk
+DEFINES += -DLOCALE_SRCDIR=$(LOCALE_SRCDIR)

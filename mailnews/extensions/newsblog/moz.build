@@ -12,3 +12,7 @@ EXTRA_JS_MODULES += [
     'content/FeedUtils.jsm',
 ]
 JAR_MANIFESTS += ['jar.mn']
+
+FINAL_TARGET_FILES.isp += [
+    'rss.rdf',
+]

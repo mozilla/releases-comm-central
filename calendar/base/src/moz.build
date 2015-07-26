@@ -20,6 +20,36 @@ EXTRA_COMPONENTS += [
     'calTimezoneService.manifest',
 ]
 
+FINAL_TARGET_FILES['calendar-js'] += [
+    'calAlarm.js',
+    'calAlarmMonitor.js',
+    'calAlarmService.js',
+    'calAttachment.js',
+    'calAttendee.js',
+    'calCachedCalendar.js',
+    'calCalendarManager.js',
+    'calCalendarSearchService.js',
+    'calDateTimeFormatter.js',
+    'calDeletedItems.js',
+    'calEvent.js',
+    'calFilter.js',
+    'calFreeBusyService.js',
+    'calIcsParser.js',
+    'calIcsSerializer.js',
+    'calItemBase.js',
+    'calItipItem.js',
+    'calProtocolHandler.js',
+    'calRecurrenceDate.js',
+    'calRecurrenceInfo.js',
+    'calRelation.js',
+    'calStartupService.js',
+    'calTimezone.js',
+    'calTodo.js',
+    'calTransactionManager.js',
+    'calUtils.js',
+    'calWeekInfoService.js',
+]
+
 with Files('**'):
     BUG_COMPONENT = ('Calendar', 'Internal Components')
 
