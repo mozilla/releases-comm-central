@@ -18,6 +18,7 @@ const kDefaultDescending = "descending";
 // kDefaultYear will be used in birthday calculations when no year is given;
 // this is a leap year so that Feb 29th works.
 const kDefaultYear = 2000;
+const kAllDirectoryRoot = "moz-abdirectory://";
 const kLdapUrlPrefix = "moz-abldapdirectory://";
 const kPersonalAddressbookURI = "moz-abmdbdirectory://abook.mab";
 const kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";

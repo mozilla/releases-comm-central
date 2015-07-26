@@ -449,7 +449,7 @@
                    label="&newlistButton.label;"
                    tooltiptext="&newlistButton.tooltip;"
                    removable="true"
-                   oncommand="AbNewList();"/>
+                   command="cmd_newlist"/>
     <toolbarbutton id="button-editcard"
                    class="toolbarbutton-1"
                    label="&editItemButton.label;"
