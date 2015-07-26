@@ -427,12 +427,6 @@ calAlarm.prototype = {
             comp.addProperty(attendee.icalProperty);
         }
 
-        // Set up attachments (REQUIRED for AUDIO and EMAIL types, there MUST
-        // NOT be more than one for AUDIO.
-        if (this.action == "AUDIO" && this.getAttachments({}).length != 1) {
-            throw Components.results.NS_ERROR_NOT_INITIALIZED;
-        }
-
         /* TODO should we be strict here?
         if (this.action == "EMAIL" && !this.attachments.length) {
             throw Components.results.NS_ERROR_NOT_INITIALIZED;

@@ -147,11 +147,6 @@ function test_audio_alarm() {
         do_throw("AUDIO alarm should not be able to save attendees");
     } catch (e) {}
 
-    // No attendee yet, should not be initialized
-    throws(function() {
-        alarm.icalComponent;
-    }, /Component not initialized/);
-
     // Test attachments
     let sound = cal.createAttachment();
     sound.uri = makeURL("file:///sound.wav");
@@ -173,7 +168,7 @@ function test_audio_alarm() {
 
     try {
         alarm.addAttachment(sound2);
-        do_throw("Adding a second alarm should fail for type AUDIO");
+        do_throw("Adding a second attachment should fail for type AUDIO");
     } catch (e) {}
 
     // Deleting should work
