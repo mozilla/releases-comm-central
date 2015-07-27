@@ -31,7 +31,7 @@ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsWindowsShellService, Init)
 #include "nsEudoraProfileMigrator.h"
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsEudoraProfileMigrator)
 #endif
-#ifdef MOZ_WIDGET_GTK2
+#ifdef MOZ_WIDGET_GTK
 #include "nsMailGNOMEIntegration.h"
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMailGNOMEIntegration, Init)
 #endif
@@ -60,7 +60,7 @@ NS_DEFINE_NAMED_CID(NS_MAILWINSEARCHHELPER_CID);
 NS_DEFINE_NAMED_CID(NS_EUDORAPROFILEMIGRATOR_CID);
 #endif
 
-#ifdef MOZ_WIDGET_GTK2
+#ifdef MOZ_WIDGET_GTK
 NS_DEFINE_NAMED_CID(NS_MAILGNOMEINTEGRATION_CID);
 #endif
 
@@ -81,7 +81,7 @@ const mozilla::Module::CIDEntry kMailCIDs[] = {
 #if defined (XP_WIN32) || defined (XP_MACOSX)
   { &kNS_EUDORAPROFILEMIGRATOR_CID, false, NULL, nsEudoraProfileMigratorConstructor },
 #endif
-#ifdef MOZ_WIDGET_GTK2
+#ifdef MOZ_WIDGET_GTK
   { &kNS_MAILGNOMEINTEGRATION_CID, false, NULL, nsMailGNOMEIntegrationConstructor },
 #endif
 #ifdef XP_MACOSX
@@ -103,7 +103,7 @@ const mozilla::Module::ContractIDEntry kMailContracts[] = {
 #if defined (XP_WIN32) || defined (XP_MACOSX)
   { NS_MAILPROFILEMIGRATOR_CONTRACTID_PREFIX "eudora", &kNS_EUDORAPROFILEMIGRATOR_CID },
 #endif
-#ifdef MOZ_WIDGET_GTK2
+#ifdef MOZ_WIDGET_GTK
   { "@mozilla.org/mail/shell-service;1", &kNS_MAILGNOMEINTEGRATION_CID },
 #endif
 #ifdef XP_MACOSX

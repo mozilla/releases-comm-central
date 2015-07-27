@@ -7,13 +7,13 @@ JAR_MANIFESTS += ['jar.mn']
 
 # Note: mac icons are handled in /suite/app during the final application
 # packaging
-if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk', 'gtk2'):
+if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk', 'gtk2', 'gtk3'):
     if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
         icon_suffix = '.ico'
     else:
         icon_suffix = '.png'
 
-    if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk2':
+    if CONFIG['MOZ_WIDGET_GTK']:
         icon_dir = 'gtk'
     else:
         icon_dir = CONFIG['MOZ_WIDGET_TOOLKIT']

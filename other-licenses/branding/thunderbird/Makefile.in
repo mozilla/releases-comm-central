@@ -21,7 +21,7 @@ ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
 	cp $(srcdir)/disk.icns         $(DIST)/branding/disk.icns
 	cp $(srcdir)/thunderbird.icns  $(DIST)/branding/thunderbird.icns
 endif
-ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
+ifdef MOZ_WIDGET_GTK
 	cp $(srcdir)/mailicon16.png  $(DIST)/branding/default16.png
 	cp $(srcdir)/mailicon22.png  $(DIST)/branding/default22.png
 	cp $(srcdir)/mailicon24.png  $(DIST)/branding/default24.png

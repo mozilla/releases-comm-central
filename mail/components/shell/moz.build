@@ -14,7 +14,7 @@ DEFINES['MOZ_APP_NAME'] = '"%s"' % CONFIG['MOZ_APP_NAME']
 if CONFIG['OS_ARCH'] == 'WINNT':
     SOURCES += ['nsMailWinIntegration.cpp']
 
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk2':
+if CONFIG['MOZ_WIDGET_GTK']:
     SOURCES += ['nsMailGNOMEIntegration.cpp']
 
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':

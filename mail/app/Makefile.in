@@ -109,7 +109,7 @@ libs:: $(addprefix $(DIST)/branding/,$(BRANDED_ICON_FILES))
 	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/chrome/icons/default
 endif
 
-ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
+ifdef MOZ_WIDGET_GTK
 libs::
 	$(INSTALL) $(IFLAGS1) $(DIST)/branding/default* $(DIST)/bin/chrome/icons/default
 endif

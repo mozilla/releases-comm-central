@@ -22,7 +22,7 @@ const PREF_HIDE_PLUGINS_WITHOUT_EXTENSIONS =
 const kActionUsePlugin = 5;
 
 /*
-#ifdef MOZ_WIDGET_GTK2
+#ifdef MOZ_WIDGET_GTK
 */
 const ICON_URL_APP      = "moz-icon://dummy.exe?size=16";
 /*

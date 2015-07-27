@@ -14,7 +14,7 @@
 #include "nsWindowsShellService.h"
 #elif defined(XP_MACOSX)
 #include "nsMacShellService.h"
-#elif defined(MOZ_WIDGET_GTK2)
+#elif defined(MOZ_WIDGET_GTK)
 #include "nsGNOMEShellService.h"
 #endif
 
@@ -26,7 +26,7 @@
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsWindowsShellService, Init)
 #elif defined(XP_MACOSX)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMacShellService)
-#elif defined(MOZ_WIDGET_GTK2)
+#elif defined(MOZ_WIDGET_GTK)
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsGNOMEShellService, Init)
 #endif
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsSuiteDirectoryProvider)

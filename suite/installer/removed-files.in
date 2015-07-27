@@ -108,7 +108,7 @@
 @DIR_MACOS@distribution/extensions/langpack-@AB_CD@@venkman.mozilla.org.xpi
 #endif
 #endif
-#ifdef MOZ_GTK2
+#ifdef MOZ_GTK
 @DIR_MACOS@chrome/icons/default/venkman-window.png
 @DIR_MACOS@chrome/icons/default/venkman-window16.png
 @DIR_MACOS@chrome/icons/default/venkman-window48.png

@@ -32,7 +32,7 @@ pref("mail.rights.override", true);
 // gtk2 (*nix) lacks transparent/translucent drag support (bug 376238), so we
 // want to disable it so people can see where they are dragging things.
 // (Stock gtk drag icons will be used instead.)
-#ifdef MOZ_WIDGET_GTK2
+#ifdef MOZ_WIDGET_GTK
 pref("nglayout.enable_drag_images", false);
 #endif
 
