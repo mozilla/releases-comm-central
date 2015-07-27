@@ -235,7 +235,10 @@ function ltnIntegrationNotification() {
 
     // call backs for the opt-out bar
     let cbLearnMore = function(aNotificationBar, aButton) {
-        openUILink(kSupportUri, {});
+        // In SeaMonkey the second parameter should be either null or an
+        // event object with a non null target.ownerDocument.
+        openUILink(kSupportUri, { button: 0,
+                                  target: { ownerDocument: document } });
         return true;
     };
     let cbKeepIt = function(aNotificationBar, aButton) {
