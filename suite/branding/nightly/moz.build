@@ -51,7 +51,7 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk', 'gtk2', 'gtk3'):
     desktop_icons_small = []
     desktop_icons_large = []
 
-    if ICON_DIR == 'gtk':
+    if icon_dir == 'gtk':
         FINAL_TARGET_FILES.chrome.icons.default += [
             'icons/gtk/seamonkey.png'
         ]
@@ -66,5 +66,5 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk', 'gtk2', 'gtk3'):
     FINAL_TARGET_FILES.chrome.icons.default += [
         'icons/%s/%s%s' % (icon_dir, i, icon_suffix) for i in sorted(
             desktop_icons + desktop_icons_small + desktop_icons_large
-        ),
+        )
     ]
