@@ -93,3 +93,20 @@
     margin-top: -1px;
   }
 }
+
+@media (-moz-os-version: windows-win8),
+       (-moz-os-version: windows-win10) {
+  .today-closebutton {
+    padding-top: 0;
+    padding-bottom: 0;
+    -moz-image-region: rect(0 20px 20px 0);
+  }
+
+  .today-closebutton:hover {
+    -moz-image-region: rect(0 40px 20px 20px);
+  }
+
+  .today-closebutton:hover:active {
+    -moz-image-region: rect(0 60px 20px 40px);
+  }
+}

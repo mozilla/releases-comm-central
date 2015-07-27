@@ -80,3 +80,18 @@
     border-color: #4595e5;
   }
 }
+
+@media (-moz-os-version: windows-win8),
+       (-moz-os-version: windows-win10) {
+  .unifinder-closebutton {
+    -moz-image-region: rect(0 20px 20px 0);
+  }
+
+  .unifinder-closebutton:hover {
+    -moz-image-region: rect(0 40px 20px 20px);
+  }
+
+  .unifinder-closebutton:hover:active {
+    -moz-image-region: rect(0 60px 20px 40px);
+  }
+}
