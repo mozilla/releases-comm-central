@@ -21,6 +21,10 @@
 <!ENTITY allowContextmenuDisable.label   "Disable or replace context menus">
 <!ENTITY allowHideStatusBar.label        "Hide the status bar">
 
+<!ENTITY enableDrmMedia.label            "Enable Digital Rights Management for">
+<!ENTITY enableEmeForSuite.label         "Third-party Content Decryption Modules">
+<!ENTITY enableEmeForSuite.accesskey     "C">
+
 <!ENTITY enablePlugins.label             "Enable Plugins for">
 <!ENTITY enablePluginForSuite.label      "Suite">
 <!ENTITY enablePluginForSuite.accesskey  "u">

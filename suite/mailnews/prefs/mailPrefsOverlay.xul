@@ -28,9 +28,9 @@
                 type="bool"/>
   </preferences>
   <!-- plugin toggle for mail/news -->
-  <groupbox id="pluginPreferences">
+  <groupbox id="pluginPreferences"
+            orient="horizontal">
     <checkbox id="pluginAllowMailNews"
-              class="indent"
               onsyncfrompreference="document.getElementById('scripts_pane').setDisableState(this.id, !document.getElementById('plugin.disable').value);"
               label="&enbPluginCheckMailNews.label;"
               accesskey="&enbPluginCheckMailNews.accesskey;"

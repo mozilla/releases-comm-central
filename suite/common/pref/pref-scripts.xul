@@ -33,6 +33,9 @@
       <preference id="dom.event.contextmenu.enabled"
                   name="dom.event.contextmenu.enabled"
                   type="bool"/>
+      <preference id="media.eme.enabled"
+                  name="media.eme.enabled"
+                  type="bool"/>
       <preference id="plugin.disable"
                   name="plugin.disable"
                   type="bool" inverted="true"/>
@@ -52,12 +55,12 @@
                 accesskey="&navigator.accesskey;"
                 preference="javascript.enabled"/>
 
-      <separator class="thin"/>
-
       <label control="AllowList"
-             value="&allowScripts.label;" accesskey="&allowScripts.accesskey;"/>
+             class="indent"
+             value="&allowScripts.label;"
+             accesskey="&allowScripts.accesskey;"/>
 
-      <listbox id="AllowList" flex="1">
+      <listbox id="AllowList" class="indent" flex="1">
         <listitem type="checkbox" id="allowWindowMoveResize"
                   label="&allowWindowMoveResize.label;"
                   preference="dom.disable_window_move_resize"/>
@@ -78,6 +81,17 @@
                   preference="dom.event.contextmenu.enabled"/>
       </listbox>
     </groupbox>
+
+    <!-- REMOVE #ifndef once EME are ready for prime time, meta bug 1015800 -->
+#ifndef RELEASE_BUILD
+    <groupbox id="drmPreferences">
+      <caption label="&enableDrmMedia.label;"/>
+      <checkbox id="emeForSuite"
+                label="&enableEmeForSuite.label;"
+                accesskey="&enableEmeForSuite.accesskey;"
+                preference="media.eme.enabled"/>
+    </groupbox>
+#endif
 
     <groupbox id="pluginPreferences">
       <caption label="&enablePlugins.label;"/>
