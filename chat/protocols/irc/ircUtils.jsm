@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["_", "_conv", "ctcpFormatToText", "ctcpFormatToHTML",
+const EXPORTED_SYMBOLS = ["_", "ctcpFormatToText", "ctcpFormatToHTML",
                           "conversationErrorMessage", "kListRefreshInterval"];
 
 const {classes: Cc, interfaces: Ci} = Components;
@@ -11,10 +11,6 @@ Components.utils.import("resource:///modules/imXPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", function()
   l10nHelper("chrome://chat/locale/irc.properties")
-);
-
-XPCOMUtils.defineLazyGetter(this, "_conv", function()
-  l10nHelper("chrome://chat/locale/conversation.properties")
 );
 
 XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {

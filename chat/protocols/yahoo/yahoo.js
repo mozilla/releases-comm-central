@@ -121,6 +121,23 @@ YahooConference.prototype = {
                       {system: true});
   },
 
+  removeParticipant: function(aName) {
+    // In case we receive two logoff packets, make sure that the user is
+    // actually here before continuing.
+    if (!this._participants.has(aName))
+      return;
+
+    let stringNickname = Cc["@mozilla.org/supports-string;1"]
+                           .createInstance(Ci.nsISupportsString);
+    stringNickname.data = aName;
+    this.notifyObservers(new nsSimpleEnumerator([stringNickname]),
+                         "chat-buddy-remove");
+    this._participants.delete(aName);
+    this.writeMessage(this._roomName,
+                      _("system.message.conferenceLogoff", aName),
+                      {system: true});
+  },
+
   getParticipantNames: function() [p.name for (p of this._participants.values())]
 };
 
@@ -287,9 +304,6 @@ YahooAccount.prototype = {
       return;
     let conf = this._conferences.get(aRoom);
     conf.removeParticipant(aUsername);
-    conf.writeMessage(this._roomName,
-                      _("system.message.conferenceLogoff", aName),
-                      {system: true});
   },
 
   deleteConference: function(aName) {

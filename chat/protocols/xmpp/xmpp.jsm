@@ -201,8 +201,8 @@ const XMPPMUCConversationPrototype = {
                     "element or a nick attribute.");
           return;
         }
-        let newNick = item.attributes["nick"];
-        this.updateNick(nick, newNick, false);
+        let participant = this._participants.get(nick);
+        participant.name = item.attributes["nick"];
         return;
       }
       if (item && item.attributes["role"] == "none") {
@@ -242,19 +242,6 @@ const XMPPMUCConversationPrototype = {
         this.joining = false;
         return true;
       });
-    }
-    else if (codes.indexOf("210") != -1) {
-      // XEP-0045 (7.6): Changing Nickname.
-      // Service modifies this user's nickname in accordance with local service
-      // policies.
-      if (!item  || !item.attributes["nick"]) {
-        this.WARN("Received a MUC presence code 210 stanza without an item " +
-                  "element or a nick attribute.");
-        return;
-      }
-      let newNick = item.attributes["nick"];
-      this.updateNick(this.nick, newNick, true);
-      return;
     }
     else if (codes.indexOf("110") != -1) {
       // XEP-0045: Room exists and joined successfully.
@@ -309,6 +296,33 @@ const XMPPMUCConversationPrototype = {
 
   getNormalizedChatBuddyName: function(aNick)
     this._account.normalizeFullJid(this.name + "/" + aNick),
+
+  // Removes a participant from MUC conversation.
+  removeParticipant: function(aNick) {
+    if (!this._participants.has(aNick))
+      return;
+
+    this._participants.delete(aNick);
+    let nickString = Cc["@mozilla.org/supports-string;1"]
+                       .createInstance(Ci.nsISupportsString);
+    nickString.data = aNick;
+    this.notifyObservers(new nsSimpleEnumerator([nickString]),
+                         "chat-buddy-remove");
+  },
+
+  // Removes all participant in MUC conversation.
+  removeAllParticipants: function() {
+    let stringNicknames = [];
+    this._participants.forEach(function(aParticipant) {
+      let stringNickname = Cc["@mozilla.org/supports-string;1"]
+                              .createInstance(Ci.nsISupportsString);
+      stringNickname.data = aParticipant.name;
+      stringNicknames.push(stringNickname);
+    });
+    this.notifyObservers(new nsSimpleEnumerator(stringNicknames),
+                         "chat-buddy-remove");
+    this._participants.clear();
+  },
 
   // Leaves MUC conversation.
   part: function(aMsg = null) {
