@@ -152,6 +152,10 @@
 @RESPATH@/icons/*.png
 #endif
 #endif
+#ifdef MOZ_GTK3
+@BINPATH@/@DLL_PREFIX@mozgtk@DLL_SUFFIX@
+@BINPATH@/@DLL_PREFIX@mozgtk2@DLL_SUFFIX@
+#endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Instantbird Specific Files
@@ -434,7 +438,7 @@
 #ifdef UNIX_BUT_NOT_MAC
 @RESPATH@/components/toolkitremote.xpt
 #endif
-#ifdef MOZ_GTK2
+#ifdef MOZ_GTK
 @RESPATH@/components/filepicker.xpt
 @RESPATH@/components/nsFilePicker.js
 @RESPATH@/components/nsFilePicker.manifest

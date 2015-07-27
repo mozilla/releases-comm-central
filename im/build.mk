@@ -22,7 +22,7 @@ else
 ifeq ($(OS_ARCH),WINNT)
 PKG_SUFFIX = .zip
 else
-ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
+ifdef MOZ_WIDGET_GTK
 PKG_SUFFIX = .tar.bz2
 else
 PKG_SUFFIX = .tar.gz

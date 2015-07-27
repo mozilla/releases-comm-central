@@ -28,7 +28,7 @@ ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
 	cp $(srcdir)/disk.icns         $(DIST)/branding/disk.icns
 #	cp $(srcdir)/license.r         $(DIST)/branding/license.r
 endif
-ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
+ifdef MOZ_WIDGET_GTK
 	cp $(srcdir)/mozicon128.png    $(DIST)/branding/mozicon128.png
 	cp $(srcdir)/mozicon16.xpm     $(DIST)/branding/mozicon16.xpm
 	cp $(srcdir)/mozicon50.xpm     $(DIST)/branding/mozicon50.xpm
@@ -41,7 +41,7 @@ ifeq ($(OS_ARCH),WINNT)
 	cp $(srcdir)/windows/convWindow.ico  $(DIST)/branding/convWindow.ico
 	cp $(srcdir)/windows/default.ico     $(DIST)/branding/default.ico
 endif
-ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
+ifdef MOZ_WIDGET_GTK
 	cp $(srcdir)/gtk/blistWindow.png    $(DIST)/branding/blistWindow.png
 	cp $(srcdir)/gtk/blistWindow16.png  $(DIST)/branding/blistWindow16.png
 	cp $(srcdir)/gtk/blistWindow48.png  $(DIST)/branding/blistWindow48.png
