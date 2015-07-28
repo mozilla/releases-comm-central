@@ -2,9 +2,16 @@
 {
 "size": 82,
 "digest": "70a6126249e40aa1da32248bf6bfe45e0d8c87334579ec0cf69403e61b635e27c766d9bf08d530978286552f158ee24c74b0168a57cc6b734dcfed4fc5e09cff",
-"algorithm": "sha512", 
+"algorithm": "sha512",
 "filename": "setup.sh"
-}, 
+},
+{
+"size": 80458572,
+"digest": "e5101f9dee1e462f6cbd3897ea57eede41d23981825c7b20d91d23ab461875d54d3dfc24999aa58a31e8b01f49fb3140e05ffe5af2957ef1d1afb89fd0dfe1ad",
+"algorithm": "sha512",
+"filename": "gcc.tar.xz",
+"unpack": true
+},
 {
 "size": 4079256,
 "digest": "bb5238558bcf6db2ca395513c8dccaa15dd61b3c375598eb6a685356b0c1a2d9840e3bf81bc00242b872fd798541f53d723777c754412abf0e772b7cc284937c",
