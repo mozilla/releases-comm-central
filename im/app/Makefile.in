@@ -140,7 +140,7 @@ GARBAGE +=  $(MOZ_APP_NAME)
 GARBAGE += $(addprefix $(DIST)/bin/defaults/pref/, all.js all-instantbird.js channel-prefs.js)
 endif
 
-ifndef MOZ_WIDGET_GTK
+ifdef MOZ_WIDGET_GTK
 ICON_FILES	= \
 		$(DIST)/branding/default16.png \
 		$(DIST)/branding/mozicon128.png \
