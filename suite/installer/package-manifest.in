@@ -224,7 +224,9 @@
 @RESPATH@/components/dom_stylesheets.xpt
 @RESPATH@/components/dom_svg.xpt
 @RESPATH@/components/dom_system.xpt
+@RESPATH@/components/dom_telephony.xpt
 @RESPATH@/components/dom_traversal.xpt
+@RESPATH@/components/dom_voicemail.xpt
 #ifdef MOZ_WEBSPEECH
 @RESPATH@/components/dom_webspeechrecognition.xpt
 @RESPATH@/components/dom_webspeechsynth.xpt
@@ -254,6 +256,7 @@
 @RESPATH@/components/intl.xpt
 @RESPATH@/components/jar.xpt
 @RESPATH@/components/jsdebugger.xpt
+@RESPATH@/components/jsdownloads.xpt
 @RESPATH@/components/jsinspector.xpt
 @RESPATH@/components/layout_base.xpt
 #ifdef NS_PRINTING
@@ -319,6 +322,7 @@
 @RESPATH@/components/suitemigration.xpt
 @RESPATH@/components/telemetry.xpt
 @RESPATH@/components/toolkit_asyncshutdown.xpt
+@RESPATH@/components/toolkit_filewatcher.xpt
 @RESPATH@/components/toolkit_finalizationwitness.xpt
 @RESPATH@/components/toolkit_formautofill.xpt
 @RESPATH@/components/toolkit_osfile.xpt
@@ -374,8 +378,8 @@
 @RESPATH@/components/AppsService.manifest
 @RESPATH@/components/BrowserElementParent.js
 @RESPATH@/components/BrowserElementParent.manifest
-@RESPATH@/components/CaptivePortalDetectComponents.manifest
 @RESPATH@/components/captivedetect.js
+@RESPATH@/components/CaptivePortalDetectComponents.manifest
 @RESPATH@/components/ChromeNotifications.js
 @RESPATH@/components/ChromeNotifications.manifest
 @RESPATH@/components/ColorAnalyzer.js
@@ -481,6 +485,8 @@
 @RESPATH@/components/nsWebHandlerApp.manifest
 @RESPATH@/components/PACGenerator.js
 @RESPATH@/components/PACGenerator.manifest
+@RESPATH@/components/PageThumbsProtocol.js
+@RESPATH@/components/BrowserPageThumbs.manifest
 @RESPATH@/components/passwordmgr.manifest
 #ifdef MOZ_WEBRTC
 @RESPATH@/components/PeerConnection.js
@@ -493,11 +499,13 @@
 @RESPATH@/components/PlacesCategoriesStarter.js
 @RESPATH@/components/pluginGlue.manifest
 @RESPATH@/components/ProcessSingleton.manifest
+@RESPATH@/components/MainProcessSingleton.js
+@RESPATH@/components/ContentProcessSingleton.js
 @RESPATH@/components/Push.js
 @RESPATH@/components/Push.manifest
 @RESPATH@/components/PushNotificationService.js
-@RESPATH@/components/MainProcessSingleton.js
-@RESPATH@/components/ContentProcessSingleton.js
+@RESPATH@/components/recording-cmdline.js
+@RESPATH@/components/recording-cmdline.manifest
 @RESPATH@/components/servicesComponents.manifest
 @RESPATH@/components/SettingsManager.js
 @RESPATH@/components/SettingsManager.manifest
@@ -513,6 +521,7 @@
 #ifdef MOZ_SERVICES_SYNC
 @RESPATH@/components/SyncComponents.manifest
 #endif
+@RESPATH@/components/TCPServerSocket.js
 @RESPATH@/components/TCPSocket.js
 @RESPATH@/components/TCPSocket.manifest
 @RESPATH@/components/TCPSocketParentIntermediary.js
@@ -535,6 +544,8 @@
 ; [Browser Chrome Files]
 @RESPATH@/chrome/comm@JAREXT@
 @RESPATH@/chrome/comm.manifest
+@RESPATH@/chrome/recording.manifest
+@RESPATH@/chrome/recording/*
 @RESPATH@/chrome/toolkit@JAREXT@
 @RESPATH@/chrome/toolkit.manifest
 
