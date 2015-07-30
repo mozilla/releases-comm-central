@@ -27,3 +27,4 @@ export MOZILLA_OFFICIAL=1
 
 #Use ccache
 ac_add_options --with-ccache=/usr/bin/ccache
+. "$topsrcdir/suite/config/mozconfigs/mozconfig.gtk"
