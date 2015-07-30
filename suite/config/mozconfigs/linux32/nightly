@@ -28,5 +28,5 @@ export MOZILLA_OFFICIAL=1
 #Use ccache
 ac_add_options --with-ccache=/usr/bin/ccache
 
-export PKG_CONFIG_LIBDIR=/usr/lib64/pkgconfig:/usr/share/pkgconfig
+export PKG_CONFIG_LIBDIR=/usr/lib/pkgconfig:/usr/share/pkgconfig
 . "$topsrcdir/mozilla/build/unix/mozconfig.gtk"
