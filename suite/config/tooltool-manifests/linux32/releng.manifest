@@ -1,7 +1,7 @@
 [
 {
-"size": 82,
-"digest": "70a6126249e40aa1da32248bf6bfe45e0d8c87334579ec0cf69403e61b635e27c766d9bf08d530978286552f158ee24c74b0168a57cc6b734dcfed4fc5e09cff",
+"size": 115,
+"digest": "1f801b6cae2932260b0e92f43a66874919d01219564463619bd32adc6311c05cbfbb6dc96725363c1093a0f793343d6db715b5e72737877e94bda02e64698011",
 "algorithm": "sha512",
 "filename": "setup.sh"
 },
@@ -18,9 +18,9 @@
 "filename": "gtk3.tar.xz"
 },
 {
- "size": 167175,
- "digest": "0b71a936edf5bd70cf274aaa5d7abc8f77fe8e7b5593a208f805cc9436fac646b9c4f0b43c2b10de63ff3da671497d35536077ecbc72dba7f8159a38b580f831",
- "algorithm": "sha512",
- "filename": "sccache.tar.bz2"
+"size": 167175,
+"digest": "0b71a936edf5bd70cf274aaa5d7abc8f77fe8e7b5593a208f805cc9436fac646b9c4f0b43c2b10de63ff3da671497d35536077ecbc72dba7f8159a38b580f831",
+"algorithm": "sha512",
+"filename": "sccache.tar.bz2"
 }
 ]
