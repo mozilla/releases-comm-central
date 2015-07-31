@@ -1,5 +1,5 @@
 no_tooltool=1
-if [ $topsrcdir == *"mozilla"* ]; then
+if [[ $topsrcdir == *"mozilla"* ]]; then
   oldtopsrcdir=$topsrcdir
   topsrcdir=$(dirname $topsrcdir)
 fi
