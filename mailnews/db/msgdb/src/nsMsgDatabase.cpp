@@ -968,17 +968,6 @@ void nsMsgDBService::DumpCache()
 
 // Memory Reporting implementations
 
-size_t nsMsgDatabase::HeaderHashSizeOf(PLDHashEntryHdr *hdr,
-                                       mozilla::MallocSizeOf aMallocSizeOf,
-                                       void *arg)
-{
-  MsgHdrHashElement *entry = static_cast<MsgHdrHashElement*>(hdr);
-  // Sigh, this is dangerous, but so long as this is a closed system, this is
-  // safe.
-  return static_cast<nsMsgHdr*>(entry->mHdr)->
-    SizeOfIncludingThis(aMallocSizeOf);
-}
-
 size_t nsMsgDatabase::SizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOf) const
 {
   size_t totalSize = 0;
@@ -1000,13 +989,17 @@ size_t nsMsgDatabase::SizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOf) c
   size_t headerSize = 0;
   if (m_headersInUse)
   {
-    headerSize = PL_DHashTableSizeOfIncludingThis(m_headersInUse,
-      nsMsgDatabase::HeaderHashSizeOf, aMallocSizeOf);
+    headerSize = m_headersInUse->ShallowSizeOfIncludingThis(aMallocSizeOf);
+    for (auto iter = m_headersInUse->Iter(); !iter.Done(); iter.Next()) {
+      auto entry = static_cast<MsgHdrHashElement*>(iter.Get());
+      // Sigh, this is dangerous, but so long as this is a closed system, this
+      // is safe.
+      headerSize += static_cast<nsMsgHdr*>(entry->mHdr)->SizeOfIncludingThis(aMallocSizeOf);
+    }
   }
   totalSize += headerSize;
   if (m_msgReferences)
-    totalSize += PL_DHashTableSizeOfIncludingThis(m_msgReferences, nullptr,
-      aMallocSizeOf);
+    totalSize += m_msgReferences->ShallowSizeOfIncludingThis(aMallocSizeOf);
   return totalSize;
 }
 
