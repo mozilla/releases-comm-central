@@ -63,7 +63,7 @@ public:
 
   virtual size_t SizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOf) const
   {
-    return m_lateredKeys.SizeOfExcludingThis(aMallocSizeOf);
+    return m_lateredKeys.ShallowSizeOfExcludingThis(aMallocSizeOf);
   }
   virtual size_t SizeOfIncludingThis(mozilla::MallocSizeOf aMallocSizeOf) const
   {

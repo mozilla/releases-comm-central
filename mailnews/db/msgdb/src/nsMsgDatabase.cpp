@@ -991,9 +991,9 @@ size_t nsMsgDatabase::SizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOf) c
     if (morkHeap)
       totalSize += morkHeap->GetUsedSize();
   }
-  totalSize += m_newSet.SizeOfExcludingThis(aMallocSizeOf);
-  totalSize += m_ChangeListeners.SizeOfExcludingThis(aMallocSizeOf);
-  totalSize += m_threads.SizeOfExcludingThis(aMallocSizeOf);
+  totalSize += m_newSet.ShallowSizeOfExcludingThis(aMallocSizeOf);
+  totalSize += m_ChangeListeners.ShallowSizeOfExcludingThis(aMallocSizeOf);
+  totalSize += m_threads.ShallowSizeOfExcludingThis(aMallocSizeOf);
   // We have two tables of header objects, but every header in m_cachedHeaders
   // should be in m_headersInUse.
   // double-counting...

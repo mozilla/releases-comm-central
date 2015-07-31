@@ -43,7 +43,7 @@ public:
 
     size_t SizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOfFun) const
     {
-      return m_references.SizeOfExcludingThis(aMallocSizeOfFun);
+      return m_references.ShallowSizeOfExcludingThis(aMallocSizeOfFun);
     }
     size_t SizeOfIncludingThis(mozilla::MallocSizeOf aMallocSizeOfFun) const
     {
