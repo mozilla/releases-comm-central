@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-AB_CD = $(MOZ_UI_LOCALE) 
+AB_CD = $(MOZ_UI_LOCALE)
 
 GRE_MILESTONE = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(LIBXUL_DIST)/bin/platform.ini Build Milestone)
 GRE_BUILDID = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(LIBXUL_DIST)/bin/platform.ini Build BuildID)
@@ -44,7 +44,7 @@ include $(topsrcdir)/config/config.mk
 
 ifeq ($(OS_ARCH),WINNT)
 # Extract the icons we care about embedding into the EXE
-mailtoolbar = $(topsrcdir)/mail/themes/windows/mail/icons/mail-toolbar-aero.png
+mailtoolbar = $(topsrcdir)/mail/themes/windows/mail/icons/jumplist.png
 
 # png to ico converter. The function takes 5 arguments, in order: source png
 # file, left, top, size, output ico file.
@@ -53,10 +53,10 @@ png2ico = $(PYTHON) $(srcdir)/png2ico.py $(1) $(2) $(3) $(4) $(5)
 # Each icon is 18x18 in the toolbar, and we want a 16x16 icon here, so we cut
 # off a pixel at each end.
 write-message.ico: $(mailtoolbar) $(srcdir)/png2ico.py
-	$(call png2ico,$(mailtoolbar),19,1,16,write-message.ico)
+	$(call png2ico,$(mailtoolbar),0,0,16,write-message.ico)
 
 address-book.ico: $(mailtoolbar) $(srcdir)/png2ico.py
-	$(call png2ico,$(mailtoolbar),37,1,16,address-book.ico)
+	$(call png2ico,$(mailtoolbar),16,0,16,address-book.ico)
 
 embedded-icons:: write-message.ico address-book.ico
 GARBAGE += write-message.ico address-book.ico
@@ -92,7 +92,7 @@ DESKTOP_ICONS = \
 	abcardWindow \
 	addressbookWindow \
 	msgcomposeWindow \
-	$(NULL) 
+	$(NULL)
 
 BRANDED_ICONS = \
 	messengerWindow \
