@@ -817,8 +817,8 @@ span.empty {
   max-height: 104px;
   padding-top: 2px;
   padding-bottom: 2px;
-  overflow: hidden;
-  transition: all .3s ease-in;
+  overflow: visible;
+  transition: all .2s;
 }
 
 #facet-date[hide="true"] {

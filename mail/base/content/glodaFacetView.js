@@ -582,15 +582,16 @@ var FacetContext = {
   _showTimeline: function() {
     let facetDate = document.getElementById("facet-date");
     if (facetDate.style.display == "none") {
-      facetDate.removeAttribute("style");
+      facetDate.style.display = "inherit";
       // Force binding attachment so the transition to the
       // visible state actually happens.
       facetDate.getBoundingClientRect();
     }
     let listener = () => {
       // Need to set overflow to visible so that the zoom button
-      // is not cut off at the top.
-      facetDate.style.overflow = "visible";
+      // is not cut off at the top, and overflow=hidden causes
+      // the transition to not work as intended.
+      facetDate.removeAttribute("style");
       facetDate.removeEventListener("transitionend", listener);
     };
     facetDate.addEventListener("transitionend", listener);
@@ -601,9 +602,9 @@ var FacetContext = {
 
   _hideTimeline: function(immediate) {
     let facetDate = document.getElementById("facet-date");
-    facetDate.removeAttribute("style"); // removes style.overflow
     if (immediate)
       facetDate.style.display = "none";
+    facetDate.style.overflow = "hidden";
     facetDate.setAttribute("hide", "true");
     document.getElementById("date-toggle").setAttribute("tucked", "true");
     Application.prefs.setValue('gloda.facetview.hidetimeline', true);
