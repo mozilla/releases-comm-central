@@ -182,6 +182,12 @@
                     <prefs>
               </prefs>
     </emItem>
+      <emItem  blockID="i51" id="admin@youtubeplayer.com">
+                        <versionRange  minVersion="0" maxVersion="*">
+                    </versionRange>
+                    <prefs>
+              </prefs>
+    </emItem>
       <emItem  blockID="i668" id="/^(matchersite(pro(srcs?)?)?\@matchersite(pro(srcs?)?)?\.com)|((pro)?sitematcher(_srcs?|pro|site|sitesrc|-generic)?\@(pro)?sitematcher(_srcs?|pro|site|sitesrc|-generic)?\.com)$/">
                         <versionRange  minVersion="0" maxVersion="*" severity="1">
                     </versionRange>
@@ -530,6 +536,15 @@
     </emItem>
       <emItem  blockID="i356" id="{341f4dac-1966-47ff-aacf-0ce175f1498a}">
                         <versionRange  minVersion="0" maxVersion="*" severity="1">
+                    </versionRange>
+                    <prefs>
+              </prefs>
+    </emItem>
+      <emItem  blockID="i950" id="foxyproxy@eric.h.jung">
+                        <versionRange  minVersion="0" maxVersion="4.5.5" severity="1">
+                      <targetApplication  id="{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}">
+                              <versionRange  minVersion="2.35" maxVersion="*" />
+                          </targetApplication>
                     </versionRange>
                     <prefs>
               </prefs>
@@ -1935,8 +1950,11 @@
                     <prefs>
               </prefs>
     </emItem>
-      <emItem  blockID="i51" id="admin@youtubeplayer.com">
-                        <versionRange  minVersion="0" maxVersion="*">
+      <emItem  blockID="i952" id="foxyproxy-basic@eric.h.jung">
+                        <versionRange  minVersion="0" maxVersion="3.5.5" severity="1">
+                      <targetApplication  id="{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}">
+                              <versionRange  minVersion="2.35" maxVersion="*" />
+                          </targetApplication>
                     </versionRange>
                     <prefs>
               </prefs>
