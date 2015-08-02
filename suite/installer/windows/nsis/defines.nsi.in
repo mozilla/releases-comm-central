@@ -1,14 +1,8 @@
 #filter substitution
-
-# These defines should match application.ini settings
 !define AppName               "SeaMonkey"
-!define AppVersion            "@MOZ_APP_VERSION@"
-
+!define AppVersion            "@APP_VERSION@"
 !define GREVersion            @MOZILLA_VERSION@
 !define AB_CD                 "@AB_CD@"
-!define FileInstallerEXE      "@PKG_INST_BASENAME@.exe"
-!define FileInstallerMSI      "@PKG_INST_BASENAME@.msi"
-!define FileInstallerNETRoot  "@PKG_BASENAME@.net-installer"
 !define NO_UNINSTALL_SURVEY
 
 !define FileMainEXE           "@MOZ_APP_NAME@.exe"
@@ -18,6 +12,9 @@
 !define AppRegName            "SeaMonkey"
 !define AppRegNameMail        "SeaMonkey (Mail)"
 !define AppRegNameNews        "SeaMonkey (News)"
+
+!define BrandShortName        "@MOZ_APP_DISPLAYNAME@"
+!define BrandFullName         "${BrandFullNameInternal}"
 
 # ARCH is used when it is necessary to differentiate the x64 registry keys from
 # the x86 registry keys (e.g. the uninstall registry key).

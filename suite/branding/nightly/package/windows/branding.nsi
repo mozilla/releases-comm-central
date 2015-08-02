@@ -3,8 +3,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #NSIS defines
-!define BrandShortName          "SeaMonkey"
-!define BrandFullName           "SeaMonkey"
+# BrandFullNameInternal is used for some registry and file system values
+# instead of BrandFullName and typically should not be modified.
 !define BrandFullNameInternal   "SeaMonkey"
 !define CompanyName             "mozilla.org"
 !define URLInfoAbout            "http://www.mozilla.org"
