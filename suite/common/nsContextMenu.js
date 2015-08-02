@@ -102,6 +102,9 @@ nsContextMenu.prototype = {
       referrerPolicy: doc.referrerPolicy,
       contentType: contentType,
       contentDisposition: contentDisposition,
+      frameOuterWindowID: doc.defaultView.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                                         .getInterface(Components.interfaces.nsIDOMWindowUtils)
+                                         .outerWindowID,
     };
   },
 
@@ -869,7 +872,11 @@ nsContextMenu.prototype = {
 
   // Open new "view source" window with the frame's URL.
   viewFrameSource: function() {
-    BrowserViewSourceOfDocument(this.target.ownerDocument);
+    gViewSourceUtils.viewSource({
+      browser: this.browser,
+      URL: gContextMenuContentData.docLocation,
+      outerWindowID: gContextMenuContentData.frameOuterWindowID,
+    });
   },
 
   viewInfo: function() {

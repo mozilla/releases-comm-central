@@ -1854,46 +1854,65 @@ function readFromClipboard()
   return url;
 }
 
-function BrowserViewSourceOfDocument(aDocument)
-{
-  var pageCookie;
-  var webNav;
+/**
+ * Open the View Source dialog.
+ *
+ * @param aArgsOrDocument
+ *        Either an object or a Document. Passing a Document is deprecated,
+ *        and is not supported with e10s. This function will throw if
+ *        aArgsOrDocument is a CPOW.
+ *
+ *        If aArgsOrDocument is an object, that object can take the
+ *        following properties:
+ *
+ *        URL (required):
+ *          A string URL for the page we'd like to view the source of.
+ *        browser (optional):
+ *          The browser containing the document that we would like to view the
+ *          source of. This is required if outerWindowID is passed.
+ *        outerWindowID (optional):
+ *          The outerWindowID of the content window containing the document that
+ *          we want to view the source of. You only need to provide this if you
+ *          want to attempt to retrieve the document source from the network
+ *          cache.
+ *        lineNumber (optional):
+ *          The line number to focus on once the source is loaded.
+ */
+function BrowserViewSourceOfDocument(aArgsOrDocument) {
+  if (aArgsOrDocument instanceof Document) {
+    // Deprecated API - callers should pass args object instead.
+    if (Components.utils.isCrossProcessWrapper(aArgsOrDocument)) {
+      throw new Error("BrowserViewSourceOfDocument cannot accept a CPOW " +
+                      "as a document.");
+    }
 
-  // Get the nsIWebNavigation associated with the document
-  try {
-      var win;
-      var ifRequestor;
-
-      // Get the DOMWindow for the requested document.  If the DOMWindow
-      // cannot be found, then just use the content window...
-      //
-      // XXX:  This is a bit of a hack...
-      win = aDocument.defaultView;
-      if (win == window) {
-        win = content;
-      }
-      ifRequestor = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
-
-      webNav = ifRequestor.getInterface(Components.interfaces.nsIWebNavigation);
-  } catch(err) {
-      // If nsIWebNavigation cannot be found, just get the one for the whole
-      // window...
-      webNav = getWebNavigation();
+    let requestor = aArgsOrDocument.defaultView
+                                   .QueryInterface(Components.interfaces.nsIInterfaceRequestor);
+    let browser = requestor.getInterface(Components.interfaces.nsIWebNavigation)
+                           .QueryInterface(Components.interfaces.nsIDocShell)
+                           .chromeEventHandler;
+    let outerWindowID = requestor.getInterface(Components.interfaces.nsIDOMWindowUtils)
+                                 .outerWindowID;
+    let URL = browser.currentURI.spec;
+    aArgsOrDocument = { browser, outerWindowID, URL };
   }
-  //
-  // Get the 'PageDescriptor' for the current document. This allows the
-  // view-source to access the cached copy of the content rather than
-  // refetching it from the network...
-  //
-  try{
-    var PageLoader = webNav.QueryInterface(Components.interfaces.nsIWebPageDescriptor);
 
-    pageCookie = PageLoader.currentDescriptor;
-  } catch(err) {
-    // If no page descriptor is available, just use the view-source URL...
-  }
+  gViewSourceUtils.viewSource(aArgsOrDocument);
+}
 
-  gViewSourceUtils.viewSource(webNav.currentURI.spec, pageCookie, aDocument);
+/**
+ * Opens the View Source dialog for the source loaded in the root
+ * top-level document of the browser.
+ *
+ * @param aBrowser
+ *        The browser that we want to load the source of.
+ */
+function BrowserViewSource(aBrowser) {
+  gViewSourceUtils.viewSource({
+    browser: aBrowser,
+    outerWindowID: aBrowser.outerWindowID,
+    URL: aBrowser.currentURI.spec,
+  });
 }
 
 // doc - document to use for source, or null for the current tab

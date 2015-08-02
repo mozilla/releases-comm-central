@@ -1377,7 +1377,7 @@ createNewAttachmentInfo.prototype.viewAttachment = function viewAttachment()
   if (!this.isExternalAttachment)
     url += "&filename=" + encodeURIComponent(this.displayName);
   openDialog("chrome://global/content/viewSource.xul",
-             "_blank", "all,dialog=no", url);
+             "_blank", "all,dialog=no", {URL: url});
 }
 
 createNewAttachmentInfo.prototype.openAttachment = function openAttachment()

@@ -419,13 +419,13 @@ function ViewPageSource(messages)
     return false;
   }
 
+  var browser = getBrowser();
+
     try {
         // First, get the mail session
         const nsIMsgMailSession = Components.interfaces.nsIMsgMailSession;
         var mailSession = Components.classes["@mozilla.org/messenger/services/session;1"]
                                     .getService(nsIMsgMailSession);
-
-        var mailCharacterSet = "charset=" + msgWindow.mailCharacterSet;
 
         for (var i = 0; i < numMessages; i++)
         {
@@ -437,8 +437,9 @@ function ViewPageSource(messages)
             url = url.replace(/(\?|&)type=application\/x-message-display(&|$)/, "$1")
                      .replace(/\?$/, "");
             window.openDialog( "chrome://global/content/viewSource.xul",
-                               "_blank", "all,dialog=no", url,
-                               mailCharacterSet);
+                               "_blank", "all,dialog=no",
+                               {URL: url, browser: browser,
+                                outerWindowID: browser.outerWindowID});
         }
         return true;
     } catch (e) {

@@ -158,7 +158,7 @@
     <command id="cmd_copyImage"/>
 
     <!-- View Menu -->
-    <command id="View:PageSource" oncommand="BrowserViewSourceOfDocument(content.document);" observes="isImage"/>
+    <command id="View:PageSource" oncommand="BrowserViewSource(gBrowser.selectedBrowser);" observes="isImage"/>
     <command id="View:PageInfo"   oncommand="BrowserPageInfo();"/>
     <command id="View:FullScreen" oncommand="BrowserFullScreen();"/>
     <command id="cmd_SwitchDocumentDirection" oncommand="SwitchDocumentDirection(window.content);" />
