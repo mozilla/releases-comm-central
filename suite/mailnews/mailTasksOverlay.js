@@ -240,7 +240,7 @@ nsMsgBadCertHandler.prototype = {
 function InformUserOfCertError(status, targetSite)
 {
   var params = { exceptionAdded : false,
-                 status : status,
+                 sslStatus : status,
                  prefetchCert : true,
                  location : targetSite };
   window.openDialog('chrome://pippki/content/exceptionDialog.xul',
