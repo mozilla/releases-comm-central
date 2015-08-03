@@ -8,9 +8,4 @@
 
 # XPInstall
 host	install	1	addons.mozilla.org
-host	install	1	marketplace.firefox.com
 host	install	1	downloads.mozdev.org
-
-# Remote troubleshooting
-host	remote-troubleshooting	1	input.mozilla.org
-host	remote-troubleshooting	1	support.mozilla.org
