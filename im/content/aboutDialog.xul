@@ -14,7 +14,7 @@
 %brandDTD;
 <!ENTITY % aboutDialogDTD SYSTEM "chrome://instantbird/locale/aboutDialog.dtd" >
 %aboutDialogDTD;
-<!ENTITY copyrightYear "2014">
+<!ENTITY copyrightYear "2015">
 #ifdef XP_MACOSX
  <!ENTITY % instantbirdDTD SYSTEM "chrome://instantbird/locale/instantbird.dtd">
  %instantbirdDTD;

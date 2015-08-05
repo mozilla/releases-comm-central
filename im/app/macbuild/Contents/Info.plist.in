@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>instantbird</string>
 	<key>CFBundleGetInfoString</key>
-	<string>%MAC_APP_NAME% %APP_VERSION%, © 1998-2014 Contributors</string>
+	<string>%MAC_APP_NAME% %APP_VERSION%, © 1998-2015 Contributors</string>
 	<key>CFBundleIconFile</key>
 	<string>instantbird.icns</string>
 	<key>CFBundleIdentifier</key>
