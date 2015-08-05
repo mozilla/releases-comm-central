@@ -180,10 +180,10 @@ function OnLoadNewMailList()
 
   InitCommonJS();
 
-  if (window.arguments && window.arguments[0])
+  if ("arguments" in window && window.arguments[0])
   {
     var abURI = window.arguments[0].selectedAB;
-    if (abURI) {
+    if (abURI && abURI != kAllDirectoryRoot + "?") {
       var directory = GetDirectoryFromURI(abURI);
       if (directory.isMailList) {
         var parentURI = GetParentDirectoryFromMailingListURI(abURI);

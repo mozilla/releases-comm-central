@@ -93,14 +93,7 @@ var DirPaneController =
       case "cmd_properties":
         return (GetSelectedDirectory() != null);
       case "cmd_newlist":
-        selectedDir = GetSelectedDirectory();
-        if (selectedDir) {
-          var abDir = GetDirectoryFromURI(selectedDir);
-          if (abDir) {
-            return abDir.supportsMailingLists;
-          }
-        }
-        return false;
+        return true;
       default:
         return false;
     }

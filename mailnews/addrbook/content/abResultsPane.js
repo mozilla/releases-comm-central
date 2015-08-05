@@ -419,17 +419,8 @@ var ResultsPaneController =
         // only enable "Properties" button for single selection; then fix bug 119999.
         return (GetNumSelectedCards() == 1);
       case "cmd_newlist":
-        var selectedDir = GetSelectedDirectory();
-        if (selectedDir && (selectedDir != (kAllDirectoryRoot + "?"))) {
-          var abDir = GetDirectoryFromURI(selectedDir);
-          if (abDir) {
-            return abDir.supportsMailingLists;
-          }
-        }
-        return false;
       case "cmd_newCard":
-        var selectedDir = GetSelectedDirectory();
-        return (selectedDir && selectedDir != (kAllDirectoryRoot + "?"));
+        return true;
       default:
         return false;
     }

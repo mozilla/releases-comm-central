@@ -92,7 +92,8 @@ function OnLoadNewCard()
   {
     gEditCard.selectedAB = kPersonalAddressbookURI;
 
-    if ("selectedAB" in window.arguments[0]) {
+    if ("selectedAB" in window.arguments[0] &&
+        (window.arguments[0].selectedAB != kAllDirectoryRoot + "?")) {
       // check if selected ab is a mailing list
       var abURI = window.arguments[0].selectedAB;
 

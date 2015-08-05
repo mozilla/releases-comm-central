@@ -108,17 +108,8 @@ var DirPaneController =
       case "cmd_properties":
         return (GetSelectedDirectory() != null);
       case "cmd_newlist":
-        selectedDir = GetSelectedDirectory();
-        if (selectedDir && selectedDir != (kAllDirectoryRoot + "?")) {
-          var abDir = GetDirectoryFromURI(selectedDir);
-          if (abDir) {
-            return abDir.supportsMailingLists;
-          }
-        }
-        return false;
       case "cmd_newCard":
-        selectedDir = GetSelectedDirectory();
-        return (selectedDir && selectedDir != (kAllDirectoryRoot + "?"));
+        return true;
       default:
         return false;
     }
