@@ -242,41 +242,23 @@
           }
 
           // construct the display string from common name and/or email address.
-          var inputValue = aAttendee.commonName;
-          var regexp = new RegExp("^mailto:(.*)", "i");
-          if (inputValue) {
+          let cn = aAttendee.commonName || "";
+          let inputValue = cal.removeMailTo(aAttendee.id || "");
+          if (cn.length) {
               // Make the commonName appear in quotes if it contains a
               // character that could confuse the header parser
-              if (inputValue.search(/[,;<>@]/) != -1) {
-                  inputValue = '"' + inputValue + '"';
+              if (cn.search(/[,;<>@]/) != -1) {
+                  cn = '"' + cn + '"';
               }
-              var email = aAttendee.id;
-              if (email && email.length) {
-                  if (regexp.test(email)) {
-                      inputValue += ' <' + RegExp.$1 + '>';
-                  } else {
-                      inputValue += ' <' + email + '>';
-                  }
-              }
-          } else {
-              var email = aAttendee.id;
-              if (email && email.length) {
-                  if (regexp.test(email)) {
-                      inputValue = RegExp.$1;
-                  } else {
-                      inputValue = email;
-                  }
-              }
+              inputValue = (inputValue.length) ? cn + ' <' + inputValue + '>' : cn;
           }
 
-          // remove leading spaces
-          while (inputValue && inputValue[0] == " " ) {
-              inputValue = inputValue.substring(1, inputValue.length);
-          }
+          // trim spaces if any
+          inputValue = inputValue.trim();
 
           // don't set value with null, otherwise autocomplete stops working,
           // but make sure attendee and dirty are set
-          if (inputValue && inputValue != "") {
+          if (inputValue.length) {
 	          input.setAttribute("value", inputValue);
 	          input.value = inputValue;
           }
@@ -397,24 +379,6 @@
           let attendees = [];
           let inputField;
 
-
-          function copyNameAttributes(email, name, attendee) {
-              // If the new address has no 'mailto'-prefix but seems
-              // to look like an email-address, we prepend the prefix.
-              // This also allows for non-email-addresses.
-              if (email.toLowerCase().indexOf("mailto:") != 0) {
-                  if (email.indexOf("@") >= 0) {
-                      email = "MAILTO:" + email;
-                  }
-              }
-              attendee.id = email;
-
-              if (name && name.length > 0) {
-                  attendee.commonName = name
-              }
-              return attendee;
-          }
-
           for (let i = 1; inputField = this.getInputElement(i); i++) {
               if (inputField && inputField.value != "") {
                   // the inputfield already has a reference to the attendee
@@ -429,24 +393,26 @@
                   let userType = this.getUserTypeElement(i).getAttribute("cutype");
                   attendee.userType = (userType == "INDIVIDUAL" ? null : userType) // INDIVIDUAL is the default
 
-                  // break the list of potentially many attendees back into individual names
-                  let emailAddresses = {};
-                  let names = {};
-                  let fullNames = {};
-
-                  MailServices.headerParser.parseHeadersWithArray(inputField.value,
-                                                                  emailAddresses,
-                                                                  names,
-                                                                  fullNames);
-
-                  // We need to expand the attendees, this happens in case the
-                  // user entered comma-separated attendees in one field and
+                  // break the list of potentially many attendees back into individual names. This
+                  // is required in case the user entered comma-separated attendees in one field and
                   // then clicked OK without switching to the next line.
-                  for (var j = 0; j < emailAddresses.value.length; j++) {
-                      if (j > 0) attendee = attendee.clone();
-                      copyNameAttributes(emailAddresses.value[j], names.value[j], attendee);
+                  let parsedInput = MailServices.headerParser.makeFromDisplayAddress(inputField.value);
+                  let j = 0;
+                  let addAttendee = function(aAddress) {
+                      if (j > 0) {
+                          attendee = attendee.clone();
+                      }
+                      attendee.id = cal.prependMailTo(aAddress.email);
+                      if (aAddress.name.length > 0) {
+                          if (aAddress.name.startsWith('"') && aAddress.name.endsWith('"')) {
+                              aAddress.name.slice(1, -1);
+                          }
+                          attendee.commonName = aAddress.name;
+                      }
                       attendees.push(attendee);
-                  }
+                      j++;
+                  };
+                  parsedInput.forEach(addAttendee);
               }
           }
 
@@ -469,29 +435,12 @@
                   attendee.userType = null;
 
                   // break the list of potentially many attendees back into individual names
-                  let emailAddresses = {};
-                  let names = {};
-                  let fullNames = {};
-
-                  MailServices.headerParser.parseHeadersWithArray(inputField.value,
-                                                                  emailAddresses,
-                                                                  names,
-                                                                  fullNames);
-
-                  if (emailAddresses.value.length > 0) {
-                      // if the new address has no 'mailto'-prefix but seems
-                      // to look like an email-address, we prepend the prefix.
-                      // this also allows for non-email-addresses.
-                      let email = emailAddresses.value[0];
-                      if (email.toLowerCase().indexOf("mailto:") != 0) {
-                          if (email.indexOf("@") >= 0) {
-                              email = "MAILTO:" + email;
-                          }
-                      }
-                      attendee.id = email;
+                  let parsedInput = MailServices.headerParser.makeFromDisplayAddress(inputField.value);
+                  if (parsedInput[0].email > 0) {
+                      attendee.id = cal.prependMailTo(parsedInput[0].email);
                   }
-                  if (names.value.length > 0) {
-                      attendee.commonName = names.value[0];
+                  if (parsedInput[0].name.length > 0) {
+                      attendee.commonName = parsedInput[0].name;
                   }
 
                   if (attendee.isOrganizer) {
@@ -507,17 +456,8 @@
       <method name="_resolveListByName">
         <parameter name="value"/>
         <body><![CDATA[
-            let emailAddresses = {};
-            let names = {};
-            let fullNames = {};
-            MailServices.headerParser.parseHeadersWithArray(value,
-                                                            emailAddresses,
-                                                            names,
-                                                            fullNames);
-
-            let abDir = this._findListInAddrBooks(names.value[0]);
-
-            return abDir;
+            let entries = MailServices.headerParser.makeFromDisplayAddress(value);
+            return (entries.length) ? this._findListInAddrBooks(entries[0].name) : null;
           ]]></body>
     </method>
 
@@ -696,27 +636,8 @@
               let input = this.getInputElement(i);
               if (input && input.value) {
                   // parse the string to break this down to individual names and addresses
-                  let email = "";
-                  let emailAddresses = {};
-                  let names = {};
-                  let fullNames = {};
-
-                  MailServices.headerParser.parseHeadersWithArray(input.value,
-                                                                  emailAddresses,
-                                                                  names,
-                                                                  fullNames);
-
-                  if (emailAddresses.value.length > 0) {
-                      // if the new address has no 'mailto'-prefix but seems
-                      // to look like an email-address, we prepend the prefix.
-                      // this also allows for non-email-addresses.
-                      email = emailAddresses.value[0];
-                      if (email.toLowerCase().indexOf("mailto:") != 0) {
-                          if (email.indexOf("@") >= 0) {
-                              email = "MAILTO:" + email;
-                          }
-                      }
-                  }
+                  let parsedInput = MailServices.headerParser.makeFromDisplayAddress(input.value);
+                  let email = cal.prependMailTo(parsedInput[0].email);
 
                   let isdirty = false;
                   if (input.hasAttribute("dirty")) {

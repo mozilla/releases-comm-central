@@ -288,6 +288,26 @@ let cal = {
     },
 
     /**
+     * Prepends a mailto: prefix to an email address like string
+     *
+     * @param  {string}        the string to prepend the prefix if not already there
+     * @return {string}        the string with prefix
+     */
+    prependMailTo: function(aId) {
+        return (!aId.search(/^MAILTO:/i) && aId.includes("@")) ? "MAILTO:" + aId : aId;
+    },
+
+    /**
+     * Removes an existing mailto: prefix from an attendee id
+     *
+     * @param  {string}       the string to remove the prefix from if any
+     * @return {string}       the string without prefix
+     */
+    removeMailTo: function(aId) {
+        return aId.replace(/^mailto:/i, "");
+    },
+
+    /**
      * Shortcut function to get the invited attendee of an item.
      */
     getInvitedAttendee: function cal_getInvitedAttendee(aItem, aCalendar) {
