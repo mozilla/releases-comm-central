@@ -82,9 +82,8 @@
   }
 
   /* Background tab separators */
-  .tabmail-tab:not([selected]):not(:hover) +
-  .tabmail-tab:not([selected]):not(:hover)::before {
-    background-image: url(tabs/separator@2x.png);
+  #tabs-toolbar:not([brighttext]) {
+    --tab-separator-image: url(chrome://browser/skin/tabbrowser/tab-separator@2x.png);
   }
 
   .tab-throbber {
