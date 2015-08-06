@@ -231,23 +231,39 @@ let calendarExtract = {
         let hdrEventButton = document.getElementById("hdrExtractEventButton");
         let hdrTaskButton = document.getElementById("hdrExtractTaskButton");
         let contextMenu = document.getElementById("mailContext-calendar-convert-menu");
-        let buttonsDisabled = (gFolderDisplay.selectedCount == 0);
+        let contextMenuEvent = document.getElementById("mailContext-calendar-convert-event-menuitem");
+        let contextMenuTask = document.getElementById("mailContext-calendar-convert-task-menuitem");
+        let eventDisabled = (gFolderDisplay.selectedCount == 0);
+        let taskDisabled = (gFolderDisplay.selectedCount == 0);
         let contextDisabled = false;
+        let contextEventDisabled = false;
+        let contextTaskDisabled = false;
         let newEvent = document.getElementById("calendar_new_event_command");
+        let newTask = document.getElementById("calendar_new_todo_command");
 
         if (newEvent.getAttribute("disabled") == "true") {
-            buttonsDisabled = true;
-            contextDisabled = true;
+            eventDisabled = true;
+            contextEventDisabled = true;
         }
+
+        if (newTask.getAttribute("disabled") == "true") {
+            taskDisabled = true;
+            contextTaskDisabled = true;
+        }
+
         if (eventButton)
-            eventButton.disabled = buttonsDisabled
+            eventButton.disabled = eventDisabled;
         if (taskButton)
-            taskButton.disabled = buttonsDisabled;
+            taskButton.disabled = taskDisabled;
         if (hdrEventButton)
-            hdrEventButton.disabled = buttonsDisabled;
+            hdrEventButton.disabled = eventDisabled;
         if (hdrTaskButton)
-            hdrTaskButton.disabled = buttonsDisabled;
-        contextMenu.disabled = contextDisabled;
+            hdrTaskButton.disabled = taskDisabled;
+
+        contextMenuEvent.disabled = contextEventDisabled;
+        contextMenuTask.disabled = contextTaskDisabled;
+
+        contextMenu.disabled = contextEventDisabled && contextTaskDisabled;
     }
 };
 
