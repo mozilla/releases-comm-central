@@ -72,6 +72,9 @@ pref("calendar.itip.notify-replies", false);
 // whether email invitation updates are send out to all attendees if (only) adding a new attendee
 pref("calendar.itip.updateInvitationForNewAttendeesOnly", false);
 
+//whether changes in email invitation updates should be displayed
+pref("calendar.itip.displayInvitationChanges", true);
+
 // whether CalDAV (experimental) scheduling is enabled or not.
 pref("calendar.caldav.sched.enabled", false);
 

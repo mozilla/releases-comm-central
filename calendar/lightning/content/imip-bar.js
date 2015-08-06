@@ -4,6 +4,9 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calItipUtils.jsm");
+Components.utils.import("resource://calendar/modules/calXMLUtils.jsm");
+Components.utils.import("resource://calendar/modules/ltnInvitationUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 /**
  * This bar lives inside the message window.
@@ -14,6 +17,7 @@ var ltnImipBar = {
     actionFunc: null,
     itipItem: null,
     foundItems: null,
+    msgOverlay: null,
 
     /**
      * Thunderbird Message listener interface, hide the bar before we begin
@@ -65,11 +69,14 @@ var ltnImipBar = {
     observe: function ltnImipBar_observe(subject, topic, state) {
         if (topic == "onItipItemCreation") {
             let itipItem = null;
+            let msgOverlay = null;
             try {
                 if (!subject) {
                     let sinkProps = msgWindow.msgHeaderSink.properties;
                     // This property was set by lightningTextCalendarConverter.js
-                    itipItem = sinkProps.getPropertyAsInterface("itipItem", Components.interfaces.calIItipItem);
+                    itipItem = sinkProps.getPropertyAsInterface("itipItem",
+                                                                Components.interfaces.calIItipItem);
+                    msgOverlay = sinkProps.getPropertyAsAUTF8String("msgOverlay");
                 }
             } catch (e) {
                 // This will throw on every message viewed that doesn't have the
@@ -77,7 +84,7 @@ var ltnImipBar = {
 
                 // XXX TODO: Only swallow the errors we need to. Throw all others.
             }
-            if (!itipItem || !gMessageDisplay.displayedMessage) {
+            if (!itipItem || !msgOverlay || !gMessageDisplay.displayedMessage) {
                 return;
             }
 
@@ -87,6 +94,8 @@ var ltnImipBar = {
             let imipBar = document.getElementById("imip-bar");
             imipBar.setAttribute("collapsed", "false");
             imipBar.setAttribute("label",  cal.itip.getMethodText(itipItem.receivedMethod));
+
+            ltnImipBar.msgOverlay = msgOverlay;
 
             cal.itip.processItipItem(itipItem, ltnImipBar.setupOptions);
         }
@@ -181,7 +190,7 @@ var ltnImipBar = {
      * @param rc            The status code from processing
      * @param actionFunc    The action function called for execution
      * @param foundItems    An array of items found while searching for the item
-     *                        in subscribed calendars
+     *                      in subscribed calendars
      */
     setupOptions: function setupOptions(itipItem, rc, actionFunc, foundItems) {
         let imipBar =  document.getElementById("imip-bar");
@@ -202,6 +211,28 @@ var ltnImipBar = {
         data.buttons.forEach(function(aElementId) showElement(document.getElementById(aElementId)));
         // adjust button style if necessary
         ltnImipBar.conformButtonType();
+        if (Preferences.get('calendar.itip.displayInvitationChanges', false)) {
+            // display event modifications if any
+            ltnImipBar.displayModifications();
+        } else if (msgWindow && ltnImipBar.msgOverlay) {
+            msgWindow.displayHTMLInMessagePane('', ltnImipBar.msgOverlay, false);
+        }
+    },
+
+    /**
+     * Displays changes in case of invitation updates in invitation overlay
+     */
+    displayModifications: function () {
+        if (!ltnImipBar.foundItems.length || !ltnImipBar.itipItem || !ltnImipBar.msgOverlay || !msgWindow) {
+            return;
+        }
+        let oldOverlay = ltn.invitation.createInvitationOverlay(ltnImipBar.foundItems[0],
+                                                                ltnImipBar.itipItem);
+        let organizerId = ltnImipBar.itipItem.targetCalendar.getProperty("organizerId");
+        let msgOverlay = ltn.invitation.compareInvitationOverlay(cal.xml.serializeDOM(oldOverlay),
+                                                                 ltnImipBar.msgOverlay,
+                                                                 organizerId);
+        msgWindow.displayHTMLInMessagePane('', msgOverlay, false);
     },
 
     executeAction: function ltnExecAction(partStat, extendResponse) {

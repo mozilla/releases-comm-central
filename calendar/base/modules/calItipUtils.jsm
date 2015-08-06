@@ -145,11 +145,11 @@ cal.itip = {
         }
         cal.LOG("iTIP method: " + imipMethod);
 
-        function isWritableCalendar(aCalendar) {
+        let isWritableCalendar = function (aCalendar) {
             /* TODO: missing ACL check for existing items (require callback API) */
             return (cal.itip.isSchedulingCalendar(aCalendar)
                     && cal.userCanAddItemsToCalendar(aCalendar));
-        }
+        };
 
         let writableCalendars = cal.getCalendarManager().getCalendars({}).filter(isWritableCalendar);
         if (writableCalendars.length > 0) {
@@ -759,7 +759,7 @@ cal.itip = {
             }
         }
 
-        function hashMajorProps(aItem) {
+        let hashMajorProps = function (aItem) {
             const majorProps = {
                 DTSTART: true,
                 DTEND: true,
@@ -782,7 +782,7 @@ cal.itip = {
             }
             propStrings.sort();
             return propStrings.join("");
-        }
+        };
 
         let h1 = hashMajorProps(newItem);
         let h2 = hashMajorProps(oldItem);
@@ -990,7 +990,7 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
     }
     aTransport = aTransport.QueryInterface(Components.interfaces.calIItipTransport);
 
-    function _sendItem(aSendToList, aSendItem) {
+    let _sendItem = function (aSendToList, aSendItem) {
         let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
                                  .createInstance(Components.interfaces.calIItipItem);
         itipItem.init(cal.getSerializedItem(aSendItem));
@@ -1005,7 +1005,7 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
         itipItem.isSend = true;
 
         return aTransport.sendItems(aSendToList.length, aSendToList, itipItem);
-    }
+    };
 
     // split up transport, if attendee undisclosure is requested
     // and this is a message send by the organizer
