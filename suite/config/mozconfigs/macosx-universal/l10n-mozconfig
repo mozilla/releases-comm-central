@@ -7,7 +7,7 @@ if test -e "$topsrcdir/suite/config/version.txt"; then
   unset CXX
 fi
 
-. $topsrcdir/build/macosx/universal/mozconfig
+. $topsrcdir/build/macosx/universal/mozconfig.common
 
 ac_add_options --enable-application=suite
 ac_add_options --with-l10n-base=../../../l10n
