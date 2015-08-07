@@ -24,13 +24,16 @@
       <xul:vbox pack="start">
         <xul:image class="alarm-calendar-image"/>
       </xul:vbox>
-      <xul:vbox>
+      <xul:vbox flex="1">
         <xul:label anonid="alarm-title-label" class="alarm-title-label" crop="end"/>
         <xul:vbox class="additional-information-box">
           <xul:label anonid="alarm-date-label" class="alarm-date-label"/>
           <xul:hbox>
             <xul:label anonid="alarm-location-label" class="location-label">&calendar.alarm.location.label;</xul:label>
-            <xul:description anonid="alarm-location-description" class="alarm-location-description" crop="end"/>
+            <xul:description anonid="alarm-location-description"
+                             class="alarm-location-description"
+                             crop="end"
+                             flex="1"/>
           </xul:hbox>
           <xul:hbox pack="start">
             <xul:label class="text-link alarm-details-label"
@@ -107,12 +110,12 @@
           this.updateRelativeDateLabel();
 
           // Title, location
-          titleLabel.value = this.mItem.title || "";
-          locationDescription.value = this.mItem.getProperty("LOCATION") || "";
-          locationDescription.hidden = (locationDescription.value.length < 1);
+          titleLabel.textContent = this.mItem.title || "";
+          locationDescription.textContent = this.mItem.getProperty("LOCATION") || "";
+          locationDescription.hidden = (locationDescription.textContent.length < 1);
 
           document.getAnonymousElementByAttribute(this, "anonid", "alarm-location-label").hidden =
-              (locationDescription.value.length < 1);
+              (locationDescription.textContent.length < 1);
         ]]></body>
       </method>
 
