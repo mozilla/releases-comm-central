@@ -7,7 +7,7 @@ var FullScreen =
 {
   toggle: function()
   {
-    var show = window.fullScreen;
+    var show = !window.fullScreen;
     // show/hide all menubars, toolbars, and statusbars (except the full screen toolbar)
     this.showXULChrome("toolbar", show);
     this.showXULChrome("statusbar", show);
