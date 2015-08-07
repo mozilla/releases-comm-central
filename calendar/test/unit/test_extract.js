@@ -5,8 +5,7 @@
 Components.utils.import("resource://calendar/modules/calExtract.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-let baseUrl = "resource://calendar/chrome/calendar-LOCALE/locale/LOCALE/calendar/calendar-extract.properties";
-let extractor = new Extractor(baseUrl, "en-US", 8);
+let extractor = new Extractor("en-US", 8);
 
 function run_test() {
     // Sanity check to make sure the base url is still right. If this fails,
