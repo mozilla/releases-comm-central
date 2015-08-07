@@ -90,6 +90,15 @@ function loadCalendarManager() {
     let calendars = cal.getCalendarManager().getCalendars({});
     if (!calendars.length) {
         initHomeCalendar();
+    } else {
+        // migration code to make sure calendars, which do not support caching have cache enabled
+        // required to further clean up on top of bug 1182264
+        for (let calendar of calendars) {
+            if (calendar.getProperty("cache.supported") === false &&
+                calendar.getProperty("cache.enabled") === true) {
+                calendar.deleteProperty("cache.enabled");
+            }
+        }
     }
 }
 

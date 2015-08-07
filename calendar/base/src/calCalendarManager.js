@@ -837,8 +837,10 @@ calMgrCalendarObserver.prototype = {
 
         // hack for bug 1182264 to deal with calendars, which have set cache.enabled, but in fact do
         // not support caching (like storage calendars) - this also prevents enabling cache again
-        if (!aCalendar.getProperty('cache.supported')) {
-            aCalendar.setProperty("cache.enabled", false);
+        if (aCalendar.getProperty("cache.supported") === false) {
+            if (aCalendar.getProperty("cache.enabled") === true) {
+                aCalendar.deleteProperty("cache.enabled");
+            }
             return;
         }
 
