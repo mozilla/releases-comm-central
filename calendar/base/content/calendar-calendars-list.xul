@@ -15,7 +15,8 @@
     <menupopup id="list-calendars-context-menu"
                onpopupshowing="return calendarListSetupContextMenu(event);">
       <menuitem id="list-calendars-context-togglevisible"
-                accesskey="&calendar.context.togglevisible.accesskey;"
+                accesskeyshow="&calendar.context.showcalendar.accesskey;"
+                accesskeyhide="&calendar.context.hidecalendar.accesskey;"
                 oncommand="toggleCalendarVisible(document.getElementById('list-calendars-context-menu').contextCalendar);"/>
       <menuitem id="list-calendars-context-showonly"
                 accesskey="&calendar.context.showonly.accesskey;"

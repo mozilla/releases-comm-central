@@ -225,6 +225,11 @@ function calendarListSetupContextMenu(event) {
         setElementValue("list-calendars-context-togglevisible",
                         cal.calGetString("calendar", stringName, [calendar.name]),
                         "label");
+        let accessKey = document.getElementById("list-calendars-context-togglevisible")
+                                .getAttribute(composite.getCalendarById(calendar.id) ?
+                                              "accesskeyhide" : "accesskeyshow");
+        setElementValue("list-calendars-context-togglevisible", accessKey, "accesskey");
+
         enableElement("list-calendars-context-showonly");
         setElementValue("list-calendars-context-showonly", false, "collapsed");
         setElementValue("list-calendars-context-showonly",
