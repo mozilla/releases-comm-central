@@ -32,15 +32,20 @@ NormalizedMap.prototype = {
   _normalize: null,
 
   // Anything that accepts a key as an input needs to be manually overridden.
-  delete: function(aKey) this._map.delete(this._normalize(aKey)),
-  get: function(aKey) this._map.get(this._normalize(aKey)),
-  has: function(aKey) this._map.has(this._normalize(aKey)),
-  set: function(aKey, aValue) this._map.set(this._normalize(aKey), aValue),
+  delete(key) { return this._map.delete(this._normalize(key)); },
+  get(key) { return this._map.get(this._normalize(key)); },
+  has(key) { return this._map.has(this._normalize(key)); },
+  set(key, val) {
+    this._map.set(this._normalize(key), val);
+    return this;
+  },
 
-  // Properties must be manually forwarded.
-  get size() this._map.size,
-
-  // Here's where the magic happens. If a method is called that isn't defined
-  // here, just pass it to the internal _map object.
-  __noSuchMethod__: function(aId, aArgs) this._map[aId].apply(this._map, aArgs)
+  // The remaining methods are unaffected. Delegate until super is available.
+  get size() { return this._map.size; },
+  [Symbol.iterator]() { return this._map[Symbol.iterator](); },
+  entries() { return this._map.entries(); },
+  keys() { return this._map.keys(); },
+  values() { return this._map.values(); },
+  clear() { this._map.clear(); },
+  forEach(aCallback, aThis) { this._map.forEach(aCallback, aThis); }
 };
