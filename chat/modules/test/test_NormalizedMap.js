@@ -6,7 +6,9 @@ Components.utils.import("resource:///modules/NormalizedMap.jsm");
 function test_setter_getter() {
   let m = new NormalizedMap(aStr => aStr.toLowerCase());
   m.set("foo", "bar");
-  m.set("BaZ", "blah");
+  do_check_eq(m.set("BaZ", "blah") === m, true);
+  do_check_eq(m.has("FOO"), true);
+  do_check_eq(m.has("BaZ"), true);
   do_check_eq(m.get("FOO"), "bar");
 
   let keys = [v for (v of m.keys())];
@@ -44,10 +46,27 @@ function test_iterator() {
   run_next_test();
 }
 
+function test_delete() {
+  let m = new NormalizedMap(aStr => aStr.toLowerCase());
+  m.set("foo", "bar");
+  m.set("BaZ", "blah");
+
+  do_check_eq(m.delete("blah"), false);
+
+  do_check_eq(m.delete("FOO"), true);
+  do_check_eq(m.size, 1);
+
+  do_check_eq(m.delete("baz"), true);
+  do_check_eq(m.size, 0);
+
+  run_next_test();
+}
+
 function run_test() {
   add_test(test_setter_getter);
   add_test(test_constructor);
   add_test(test_iterator);
+  add_test(test_delete);
 
   run_next_test();
 }
