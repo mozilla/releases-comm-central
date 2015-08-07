@@ -14,7 +14,7 @@ let calendarExtract = {
                                .getService(Components.interfaces.nsIXULChromeRegistry);
         chrome.QueryInterface(Components.interfaces.nsIToolkitChromeRegistry);
         let locales = chrome.getLocalesForPackage("calendar");
-        let langRegex = /^((..)-*(.*))$/;
+        let langRegex = /^(([^-]+)-*(.*))$/;
 
         while (locales.hasMore()) {
             let localeParts = langRegex.exec(locales.getNext());
