@@ -2710,7 +2710,7 @@
                 readonly="true"/>
 
       <property name="messageManager"
-                onget="return this.mCurrentBrowser.messageManager;"
+                onget="return window.messageManager;"
                 readonly="true"/>
 
       <method name="observe">

@@ -37,9 +37,9 @@
         prefsvc.addObserver("accessibility.typeaheadfind.usefindbar",
                             this._suiteObserver, false);
 
-        this._useTypeAheadFind =
+        this._findAsYouType =
           prefsvc.getBoolPref("accessibility.typeaheadfind.autostart");
-        this._useTypeAheadFindFindbar =
+        this._useFindbar =
           prefsvc.getBoolPref("accessibility.typeaheadfind.usefindbar");
       ]]></constructor>
 
@@ -64,10 +64,11 @@
 
           switch (aPrefName) {
             case "accessibility.typeaheadfind.autostart":
-              this._self._useTypeAheadFind = prefsvc.getBoolPref(aPrefName);
+              this._self._findAsYouType = prefsvc.getBoolPref(aPrefName);
+              this._self._updateBrowserWithState();
               break;
             case "accessibility.typeaheadfind.usefindbar":
-              this._self._useTypeAheadFindFindbar = prefsvc.getBoolPref(aPrefName);
+              this._self._useFindbar = prefsvc.getBoolPref(aPrefName);
               break;
            }
         }
@@ -81,15 +82,6 @@
           if (this._destroyed)
             return;
           this._destroyed = true;
-
-          // It is possible that the findbar may be destroyed before any
-          // documents it is listening to (see nsIEditActionListener code below).
-          // Thus, to avoid leaking, if we are listening to any editors, unhook
-          // ourselves now, and remove our cached copies
-          if (this._editors) {
-            for (var x = this._editors.length - 1; x >= 0; --x)
-              this._unhookListenersAtIndex(x);
-          }
 
           this.browser = null;
 
@@ -107,48 +99,29 @@
         ]]></body>
       </method>
 
-      <!--
-        - Returns whether FAYT can be used for the given event in
-        - the current content state.
-        -->
-      <method name="_shouldFastFind">
-        <parameter name="aEvent"/>
+      <method name="_updateBrowserWithState">
         <body><![CDATA[
-          if (!this._useTypeAheadFindFindbar || aEvent.ctrlKey ||
-              aEvent.altKey || aEvent.metaKey || aEvent.defaultPrevented)
-            return false;
+          window.messageManager.broadcastAsyncMessage("Findbar:UpdateState", {
+            findMode: this._findMode,
+            findAsYouType: this._findAsYouType,
+          });
+        ]]></body>
+      </method>
 
-          var win = document.commandDispatcher.focusedWindow;
-          if (win)
-            if (!this._mimeTypeIsTextBased(win.document.contentType))
-              return false;
+      <method name="receiveMessage">
+        <parameter name="aMessage"/>
+        <body><![CDATA[
+          switch (aMessage.name) {
+            case "Findbar:Mouseup":
+              if (!this.hidden && this._findMode != this.FIND_NORMAL)
+                this.close();
+              break;
 
-          var elt = document.commandDispatcher.focusedElement;
-          if (elt) {
-            if (elt instanceof HTMLInputElement && elt.mozIsTextField(false))
-              return false;
-
-            if (elt instanceof HTMLTextAreaElement ||
-                elt instanceof HTMLSelectElement ||
-                elt instanceof HTMLObjectElement ||
-                elt instanceof HTMLEmbedElement)
-              return false;
+            case "Findbar:Keypress":
+              if (this._useFindbar)
+                return this._onBrowserKeypress(aMessage.data);
+              break;
           }
-
-          if (win) {
-            try {
-              var editingSession = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                                   .getInterface(Components.interfaces.nsIWebNavigation)
-                                   .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                                   .getInterface(Components.interfaces.nsIEditingSession);
-              if (editingSession.windowIsEditable(win))
-                return false;
-            }
-            catch (e) {
-              // If someone built with composer disabled, we can't get an editing session.
-            }
-          }
-
           return true;
         ]]></body>
       </method>
