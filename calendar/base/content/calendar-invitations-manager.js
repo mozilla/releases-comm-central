@@ -5,6 +5,7 @@
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calItipUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /**
  * This object contains functions to take care of manipulating requests.
@@ -130,6 +131,7 @@ InvitationsManager.prototype = {
         var cals = getCalendarManager().getCalendars({});
 
         var opListener = {
+            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             mCount: cals.length,
             mRequestManager: gInvitationsRequestManager,
             mInvitationsManager: this,
@@ -271,6 +273,7 @@ InvitationsManager.prototype = {
             this.mOldItem = oldItem_;
         }
         operationListener.prototype = {
+            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onOperationComplete: function (aCalendar,
                                            aStatus,
                                            aOperationType,

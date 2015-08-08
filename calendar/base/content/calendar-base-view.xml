@@ -453,6 +453,7 @@
         <parameter name="aCalendar"/>
         <body><![CDATA[
           let refreshJob = {
+              QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
               calView: this,
               calendar: null,
               calId: null,

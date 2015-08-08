@@ -12,6 +12,7 @@ const cICL = Components.interfaces.calIChangeLog;
 const cIOL = Components.interfaces.calIOperationListener;
 
 let gNoOpListener = {
+    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
     onGetResult: function(calendar, status, itemType, detail, count, items) {
     },
 
@@ -55,6 +56,7 @@ function calCachedCalendarObserverHelper(home, isCachedObserver) {
     this.isCachedObserver = isCachedObserver;
 }
 calCachedCalendarObserverHelper.prototype = {
+    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIObserver]),
     isCachedObserver: false,
 
     onStartBatch: function() {
@@ -224,6 +226,7 @@ calCachedCalendar.prototype = {
         let this_ = this;
         this_.offlineCachedItems = {};
         let getListener = {
+            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onGetResult: function cCC_oOC_cL_onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                 for each (let item in aItems) {
                     this_.offlineCachedItems[item.hashId] = item;
@@ -242,6 +245,7 @@ calCachedCalendar.prototype = {
     getOfflineModifiedItems: function cCC_getOfflineModifiedItems(callbackFunc) {
         let this_ = this;
         let getListener = {
+            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onGetResult: function cCC_oOC_cL_onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                 for each (let item in aItems) {
                     this_.offlineCachedItems[item.hashId] = item;
@@ -260,6 +264,7 @@ calCachedCalendar.prototype = {
     getOfflineDeletedItems: function cCC_getOfflineDeletedItems(callbackFunc) {
         let this_ = this;
         let getListener = {
+            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onGetResult: function cCC_oOC_cL_onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                 for each (let item in aItems) {
                     this_.offlineCachedItems[item.hashId] = item;
@@ -335,6 +340,7 @@ calCachedCalendar.prototype = {
 
         cal.LOG("[calCachedCalendar] Doing full sync for calendar " + this.uri.spec);
         let completeListener = {
+            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             modifiedTimes: {},
             hasRenewedCalendar: false,
             getsCompleted: 0,

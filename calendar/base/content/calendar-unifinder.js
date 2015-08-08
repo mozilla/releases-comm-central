@@ -879,6 +879,7 @@ function addItemsFromCalendar(aCalendar, aAddItemsInternalFunc) {
         return;
     }
     var refreshListener = {
+        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
         mEventArray: [],
 
         onOperationComplete: function rET_onOperationComplete(aCalendar,

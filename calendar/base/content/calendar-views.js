@@ -632,6 +632,7 @@ function editSelectedEvents() {
 function selectAllEvents() {
     var items = [];
     var listener = {
+        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
         onOperationComplete: function selectAll_ooc(aCalendar, aStatus,
                                                     aOperationType, aId,
                                                     aDetail) {

@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function Synthetic(aOpen, aDuration) {
     this.open = aOpen;
@@ -619,6 +620,7 @@ function setupContextMenu(popup) {
 agendaListbox.refreshCalendarQuery =
 function refreshCalendarQuery(aStart, aEnd, aCalendar) {
     let refreshJob = {
+        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
         agendaListbox: this,
         calendar: null,
         calId: null,

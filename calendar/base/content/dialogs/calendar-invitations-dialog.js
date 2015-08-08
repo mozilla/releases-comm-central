@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /**
  * Sets up the invitations dialog from the window arguments, retrieves the
@@ -11,6 +12,7 @@ Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
  */
 function onLoad() {
     var operationListener = {
+        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
         onOperationComplete: function oL_onOperationComplete(aCalendar,
                                                              aStatus,
                                                              aOperationType,

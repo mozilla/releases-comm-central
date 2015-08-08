@@ -259,6 +259,7 @@ calDavCalendar.prototype = {
         let self = this;
         let refreshNeeded = false;
         let getMetaListener = {
+            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onGetResult: function meta_onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                 for each (let item in aItems) {
                     if (!(item.id in self.mItemInfoCache)) {
@@ -1329,6 +1330,7 @@ calDavCalendar.prototype = {
         if (!this.mACLEntry) {
             let thisCalendar = this;
             let opListener = {
+                QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
                 onGetResult: function(calendar, status, itemType, detail, count, items) {
                     ASSERT(false, "unexpected!");
                 },
@@ -2634,6 +2636,7 @@ calDavCalendar.prototype = {
         var thisCalendar = this;
 
         var getItemListener = {};
+        getItemListener.QueryInterface = XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
         getItemListener.onOperationComplete = function caldav_gUIs_oOC(aCalendar,
                                                                        aStatus,
                                                                        aOperationType,
@@ -2666,6 +2669,7 @@ calDavCalendar.prototype = {
         };
 
         var modListener = {};
+        modListener.QueryInterface = XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
         modListener.onOperationComplete = function caldav_pIR_moOC(aCalendar,
                                                                    aStatus,
                                                                    aOperationType,

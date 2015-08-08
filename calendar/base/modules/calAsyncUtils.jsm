@@ -5,6 +5,7 @@
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Promise.jsm");
 Components.utils.import("resource://gre/modules/PromiseUtils.jsm");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /*
  * Asynchronous tools for handling calendar operations.
@@ -92,6 +93,7 @@ cal.async = {
      */
     promiseOperationListener: function(deferred) {
         return {
+            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             items: [],
             itemStatus: Components.results.NS_OK,
             onGetResult: function(aCalendar, aStatus, aItemType, aDetail,

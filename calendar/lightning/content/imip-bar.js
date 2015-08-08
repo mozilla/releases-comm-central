@@ -7,6 +7,7 @@ Components.utils.import("resource://calendar/modules/calItipUtils.jsm");
 Components.utils.import("resource://calendar/modules/calXMLUtils.jsm");
 Components.utils.import("resource://calendar/modules/ltnInvitationUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /**
  * This bar lives inside the message window.
@@ -249,6 +250,7 @@ var ltnImipBar = {
                 }
 
                 let opListener = {
+                    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
                     onOperationComplete: function ltnItipActionListener_onOperationComplete(aCalendar,
                                                                                             aStatus,
                                                                                             aOperationType,

@@ -438,6 +438,7 @@ const FIRST_DELAY_UNREGISTER = 0;
 var gInvitationsOperationListener = {
     mCount: 0,
 
+    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
     onOperationComplete: function sBOL_onOperationComplete(aCalendar,
                                                            aStatus,
                                                            aOperationType,

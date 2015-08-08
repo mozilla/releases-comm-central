@@ -320,6 +320,7 @@ calICSCalendar.prototype = {
         var listener =
         {
             serializer: null,
+            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail)
             {
                 var inLastWindowClosingSurvivalArea = false;
@@ -511,6 +512,7 @@ calICSCalendar.prototype = {
             this.mAction = action;
         }
         modListener.prototype = {
+            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onGetResult: function() {},
             onOperationComplete: function() {
                 this.mAction.opCompleteArgs = arguments;

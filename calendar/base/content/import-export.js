@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
 // File constants copied from file-utils.js
 const MODE_RDONLY   = 0x01;
 const MODE_WRONLY   = 0x02;
@@ -152,6 +154,7 @@ function putItemsIntoCal(destCal, aItems, aFilePath) {
     //  quite easy to trigger, so we really should do this)
     var lastError;
     var listener = {
+        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
         onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
             count++;
             if (!Components.isSuccessCode(aStatus)) {
@@ -318,6 +321,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
 function exportEntireCalendar(aCalendar) {
     var itemArray = [];
     var getListener = {
+        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
         onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail)
         {
             saveEventsToFile(itemArray, aCalendar.name);

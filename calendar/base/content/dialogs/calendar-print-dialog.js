@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /**
  * Gets the calendar view from the opening window
@@ -131,6 +132,7 @@ function getPrintSettings(receiverFunc) {
     // then fetch the items here.
     if (requiresFetch) {
         let listener = {
+            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onOperationComplete:
             function onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDateTime) {
                 receiverFunc(settings);

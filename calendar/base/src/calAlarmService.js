@@ -481,6 +481,7 @@ calAlarmService.prototype = {
 
     findAlarms: function cAS_findAlarms(aCalendars, aStart, aUntil) {
         let getListener = {
+            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             alarmService: this,
             addRemovePromise: PromiseUtils.defer(),
             onOperationComplete: function cAS_fA_onOperationComplete(aCalendar,

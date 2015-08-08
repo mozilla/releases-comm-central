@@ -8,6 +8,7 @@ Components.utils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 try {
     Components.utils.import("resource:///modules/cloudFileAccounts.js");
@@ -2884,6 +2885,7 @@ function onCommandSave(aIsClosing) {
     // before the call is complete. In that case, we do need a progress bar and
     // the ability to cancel the operation though.
     var listener = {
+        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
         onOperationComplete: function(aCalendar, aStatus, aOpType, aId, aItem) {
             // Check if the current window has a calendarItem first, because in case of undo
             // window refers to the main window and we would get a 'calendarItem is undefined' warning.
@@ -2911,7 +2913,8 @@ function onCommandSave(aIsClosing) {
                     eventDialogCalendarObserver.observe(window.calendarItem.calendar);
                 }
             }
-        }
+        },
+        onGetResult: function() {}
     };
 
     // Let the caller decide how to handle the modified/added item. Only pass

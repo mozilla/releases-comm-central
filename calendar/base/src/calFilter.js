@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/Preferences.jsm");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
@@ -865,6 +866,7 @@ calFilter.prototype = {
         // the listener passed in the aListener argument.
         let self = this;
         let listener = {
+            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onOperationComplete: aListener.onOperationComplete.bind(aListener),
 
             onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {

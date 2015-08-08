@@ -1043,6 +1043,7 @@ function ItipOpListener(opListener, oldItem) {
     this.mOldItem = oldItem;
 }
 ItipOpListener.prototype = {
+    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
     onOperationComplete: function ItipOpListener_onOperationComplete(aCalendar,
                                                                      aStatus,
                                                                      aOperationType,
