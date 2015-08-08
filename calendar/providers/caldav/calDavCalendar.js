@@ -1866,31 +1866,34 @@ calDavCalendar.prototype = {
                 resourceType = kDavResourceTypeCollection;
             }
 
-            if (resourceType == kDavResourceTypeNone &&
-                !thisCalendar.mDisabled) {
+            if (resourceType == kDavResourceTypeNone) {
                 cal.LOG("CalDAV: No resource type received, " + thisCalendar.name + " doesn't seem to point to a DAV resource");
                 thisCalendar.completeCheckServerInfo(aChangeLogListener,
                                                      Components.interfaces.calIErrors.DAV_NOT_DAV);
                 return;
             }
 
-            if ((resourceType == kDavResourceTypeCollection) &&
-                !thisCalendar.mDisabled) {
+            if (resourceType == kDavResourceTypeCollection) {
                 cal.LOG("CalDAV: " + thisCalendar.name + " points to a DAV resource, but not a CalDAV calendar");
                 thisCalendar.completeCheckServerInfo(aChangeLogListener,
                                                      Components.interfaces.calIErrors.DAV_DAV_NOT_CALDAV);
                 return;
             }
 
-            // if this calendar was previously offline we want to recover
-            if ((resourceType == kDavResourceTypeCalendar) &&
-                thisCalendar.mDisabled) {
-                thisCalendar.mDisabled = false;
-                thisCalendar.mReadOnly = false;
+            if (resourceType == kDavResourceTypeCalendar) {
+                // If this calendar was previously offline we want to recover
+                if (thisCalendar.mDisabled) {
+                    thisCalendar.mDisabled = false;
+                    thisCalendar.mReadOnly = false;
+                }
+                thisCalendar.setCalHomeSet(true);
+                thisCalendar.checkServerCaps(aChangeLogListener);
+                return;
             }
 
-            thisCalendar.setCalHomeSet(true);
-            thisCalendar.checkServerCaps(aChangeLogListener);
+            // If we get here something must have gone wrong. Abort with a
+            // general error to avoid an endless loop.
+            thisCalendar.completeCheckServerInfo(aChangeLogListener, Components.results.NS_ERROR_FAILURE);
         };
 
         this.sendHttpRequest(this.makeUri(), queryXml, MIME_TEXT_XML, null, (channel) => {
