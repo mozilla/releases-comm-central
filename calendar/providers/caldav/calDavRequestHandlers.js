@@ -318,7 +318,7 @@ webDavSyncHandler.prototype = {
     ]),
 
     doWebDAVSync: function doWebDAVSync() {
-        if (this.calendar.mDisabled) {
+        if (this.calendar.getProperty("disabled")) {
             // check if maybe our calendar has become available
             this.calendar.setupAuthentication(this.changeLogListener);
             return;
@@ -690,7 +690,7 @@ multigetSyncHandler.prototype = {
     ]),
 
     doMultiGet: function doMultiGet() {
-        if (this.calendar.mDisabled) {
+        if (this.calendar.getProperty("disabled")) {
             // check if maybe our calendar has become available
             this.calendar.setupAuthentication(this.changeLogListener);
             return;
