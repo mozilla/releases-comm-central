@@ -557,7 +557,7 @@ Log.prototype = {
         messages.push({
           who: "sessionstart",
           date: getDateFromFilename(filename)[0],
-          text: _("badLogFile", filename),
+          text: _("badLogfile", filename),
           flags: ["noLog", "notification", "error", "system"]
         });
         continue;
