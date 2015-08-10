@@ -8,7 +8,7 @@ classic.jar:
   skin/classic/messenger/multimessageview.css                    (mail/multimessageview.css)
   skin/classic/messenger/dialogs.css                             (mail/dialogs.css)
   skin/classic/messenger/messenger.css                           (mail/messenger.css)
-* skin/classic/messenger/messengerLWTheme.css                    (mail/messengerLWTheme.css)
+  skin/classic/messenger/messengerLWTheme.css                    (../shared/mail/messengerLWTheme.css)
   skin/classic/messenger/primaryToolbar.css                      (mail/primaryToolbar.css)
   skin/classic/messenger/aboutSupport.css                        (../windows/mail/aboutSupport.css)
   skin/classic/messenger/accountCentral.css                      (mail/accountCentral.css)
