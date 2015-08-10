@@ -36,7 +36,6 @@ treechildren::-moz-tree-cell-text(nameColumn, Subscribable-false) {
 
 treechildren::-moz-tree-image(nameColumn) {
   -moz-margin-end: 2px;
-  list-style-image: url("chrome://messenger/skin/icons/folder.png");
   -moz-image-region: rect(0 16px 16px 0);
 }
 
@@ -49,7 +48,6 @@ treechildren::-moz-tree-image(nameColumn2, nntp) {
 /* ::::: Servers :::::: */
 
 .subscribeMenuItem {
-  list-style-image: url("chrome://messenger/skin/icons/server.png");
   -moz-image-region: rect(0 16px 16px 0);
 }
 
@@ -63,4 +61,24 @@ treechildren::-moz-tree-image(nameColumn2, nntp) {
 
 .subscribeMenuItem[ServerType="nntp"][IsSecure="true"] {
   -moz-image-region: rect(0 80px 16px 64px);
+}
+
+@media (-moz-os-version: windows-xp) {
+  treechildren::-moz-tree-image(nameColumn) {
+    list-style-image: url("chrome://messenger/skin/icons/folder-XP.png");
+  }
+
+  .subscribeMenuItem {
+    list-style-image: url("chrome://messenger/skin/icons/server-XP.png");
+  }
+}
+
+@media not all and (-moz-os-version: windows-xp) {
+  treechildren::-moz-tree-image(nameColumn) {
+    list-style-image: url("chrome://messenger/skin/icons/folder.png");
+  }
+
+  .subscribeMenuItem {
+    list-style-image: url("chrome://messenger/skin/icons/server.png");
+  }
 }

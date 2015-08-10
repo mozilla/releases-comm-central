@@ -172,7 +172,6 @@ treechildren::-moz-tree-image(junkStatusCol) {
 }
 
 treechildren::-moz-tree-image(junkStatusCol, junk) {
-  list-style-image: url("chrome://messenger/skin/icons/folder.png");
   -moz-image-region: rect(0 128px 16px 112px);
 }
 
@@ -327,6 +326,15 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
     background-image: url("chrome://messenger/skin/icons/row.png");
     background-position: bottom;
     background-repeat: repeat-x;
+  }
+
+  treechildren::-moz-tree-image(junkStatusCol, junk) {
+    list-style-image: url("chrome://messenger/skin/icons/folder-XP.png");
+  }
+
+  .tabmail-tab[type="message"] {
+    list-style-image: url("chrome://messenger/skin/icons/server-xp.png");
+    -moz-image-region: rect(0 16px 16px 0);
   }
 }
 
@@ -613,6 +621,15 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
   treechildren::-moz-tree-image(junkStatusCol) {
     -moz-margin-start: -3px;
+  }
+
+  treechildren::-moz-tree-image(junkStatusCol, junk) {
+    list-style-image: url("chrome://messenger/skin/icons/folder.png");
+  }
+
+  .tabmail-tab[type="message"] {
+    list-style-image: url("chrome://messenger/skin/icons/server.png");
+    -moz-image-region: rect(0 16px 16px 0);
   }
 
   #viewPickerPopup menu,

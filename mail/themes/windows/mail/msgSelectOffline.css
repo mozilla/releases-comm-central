@@ -14,12 +14,23 @@
 
 treechildren::-moz-tree-image(folderNameCol) {
   -moz-margin-end: 2px;
-  list-style-image: url("chrome://messenger/skin/icons/folder.png");
   -moz-image-region: rect(0 16px 16px 0);
 }
 
 treechildren::-moz-tree-image(folderNameCol, newMessages-true) {
   -moz-image-region: rect(16px 16px 32px 0);
+}
+
+@media (-moz-os-version: windows-xp) {
+  treechildren::-moz-tree-image(folderNameCol) {
+    list-style-image: url("chrome://messenger/skin/icons/folder-XP.png");
+  }
+}
+
+@media not all and (-moz-os-version: windows-xp) {
+  treechildren::-moz-tree-image(folderNameCol) {
+    list-style-image: url("chrome://messenger/skin/icons/folder.png");
+  }
 }
 
 /* ..... Inbox ..... */
@@ -78,9 +89,18 @@ treechildren::-moz-tree-image(folderNameCol, imapShared-true) {
 
 /* ..... Mail server  ..... */
 
-treechildren::-moz-tree-image(folderNameCol, isServer-true) {
-  list-style-image: url("chrome://messenger/skin/icons/server.png");
-  -moz-image-region: rect(0 16px 16px 0);
+@media (-moz-os-version: windows-xp) {
+  treechildren::-moz-tree-image(folderNameCol, isServer-true) {
+    list-style-image: url("chrome://messenger/skin/icons/server-XP.png");
+    -moz-image-region: rect(0 16px 16px 0);
+  }
+}
+
+@media not all and (-moz-os-version: windows-xp) {
+  treechildren::-moz-tree-image(folderNameCol, isServer-true) {
+    list-style-image: url("chrome://messenger/skin/icons/server.png");
+    -moz-image-region: rect(0 16px 16px 0);
+  }
 }
 
 treechildren::-moz-tree-image(folderNameCol, biffState-NewMail, isServer-true) {

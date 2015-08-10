@@ -152,21 +152,35 @@ spacer.big {
 #OfflineSettings label:-moz-locale-dir(rtl) {
   background: url("chrome://messenger/skin/accountcentral/offline-settings.png") right no-repeat !important;
 }
-
-#CreateAccountMail,
-#CreateAccountMovemail {
-  background-image: -moz-image-rect(url("chrome://messenger/skin/icons/server.png"), 0, 16, 16, 0);
-  background-repeat: no-repeat;
-}
-
 #CreateAccountChat {
   background-image: url("chrome://chat/skin/chat-16.png");
   background-repeat: no-repeat;
 }
 
-#CreateAccountNewsgroups {
-  background-image: -moz-image-rect(url("chrome://messenger/skin/icons/server.png"), 0, 64, 16, 48);
-  background-repeat: no-repeat;
+@media (-moz-os-version: windows-xp) {
+  #CreateAccountMail,
+  #CreateAccountMovemail {
+    background-image: -moz-image-rect(url("chrome://messenger/skin/icons/server-XP.png"), 0, 16, 16, 0);
+    background-repeat: no-repeat;
+  }
+
+  #CreateAccountNewsgroups {
+    background-image: -moz-image-rect(url("chrome://messenger/skin/icons/server-XP.png"), 0, 64, 16, 48);
+    background-repeat: no-repeat;
+  }
+}
+
+@media not all and (-moz-os-version: windows-xp) {
+  #CreateAccountMail,
+  #CreateAccountMovemail {
+    background-image: -moz-image-rect(url("chrome://messenger/skin/icons/server.png"), 0, 16, 16, 0);
+    background-repeat: no-repeat;
+  }
+
+  #CreateAccountNewsgroups {
+    background-image: -moz-image-rect(url("chrome://messenger/skin/icons/server.png"), 0, 64, 16, 48);
+    background-repeat: no-repeat;
+  }
 }
 
 #CreateAccountRSS {

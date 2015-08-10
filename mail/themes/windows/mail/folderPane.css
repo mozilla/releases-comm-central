@@ -5,7 +5,6 @@
 /* ::::: Folder Pane ::::: */
 
 .tabmail-tab[type="folder"] {
-  list-style-image: url("chrome://messenger/skin/icons/folder.png");
   -moz-image-region: rect(0 16px 16px 0);
 }
 
@@ -15,8 +14,21 @@
 
 treechildren::-moz-tree-image(folderNameCol) {
   -moz-margin-end: 2px;
-  list-style-image: url("chrome://messenger/skin/icons/folder.png");
   -moz-image-region: rect(0 16px 16px 0);
+}
+
+@media (-moz-os-version: windows-xp) {
+  .tabmail-tab[type="folder"],
+  treechildren::-moz-tree-image(folderNameCol) {
+    list-style-image: url("chrome://messenger/skin/icons/folder-XP.png");
+  }
+}
+
+@media not all and (-moz-os-version: windows-xp) {
+  .tabmail-tab[type="folder"],
+  treechildren::-moz-tree-image(folderNameCol) {
+    list-style-image: url("chrome://messenger/skin/icons/folder.png");
+  }
 }
 
 /* ..... Shared folders .....
@@ -141,11 +153,22 @@ treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessage
 
 /* ..... Mail server  ..... */
 
-.tabmail-tab[type="folder"][IsServer="true"],
-treechildren::-moz-tree-image(folderNameCol, isServer-true),
-treechildren::-moz-tree-image(folderNameCol, isServer-true, open) {
-  list-style-image: url("chrome://messenger/skin/icons/server.png");
-  -moz-image-region: rect(0 16px 16px 0);
+@media (-moz-os-version: windows-xp) {
+  .tabmail-tab[type="folder"][IsServer="true"],
+  treechildren::-moz-tree-image(folderNameCol, isServer-true),
+  treechildren::-moz-tree-image(folderNameCol, isServer-true, open) {
+    list-style-image: url("chrome://messenger/skin/icons/server-XP.png");
+    -moz-image-region: rect(0 16px 16px 0);
+  }
+}
+
+@media not all and (-moz-os-version: windows-xp) {
+  .tabmail-tab[type="folder"][IsServer="true"],
+  treechildren::-moz-tree-image(folderNameCol, isServer-true),
+  treechildren::-moz-tree-image(folderNameCol, isServer-true, open) {
+    list-style-image: url("chrome://messenger/skin/icons/server.png");
+    -moz-image-region: rect(0 16px 16px 0);
+  }
 }
 
 treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail) {

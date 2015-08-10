@@ -153,7 +153,6 @@ treechildren::-moz-tree-image(junkStatusCol) {
 }
 
 treechildren::-moz-tree-image(junkStatusCol, junk) {
-  list-style-image: url("chrome://messenger/skin/icons/folder.png");
   -moz-image-region: rect(0 128px 16px 112px);
 }
 
@@ -171,6 +170,10 @@ treechildren::-moz-tree-image(junkStatusCol, notjunk) {
 
   #subjectCol[primary="true"] {
     -moz-padding-start: 30px;
+  }
+
+  treechildren::-moz-tree-image(junkStatusCol, junk) {
+    list-style-image: url("chrome://messenger/skin/icons/folder-XP.png");
   }
 }
 
@@ -191,6 +194,10 @@ treechildren::-moz-tree-image(junkStatusCol, notjunk) {
     #subjectCol[primary="true"] {
       -moz-padding-start: 27px;
     }
+  }
+
+  treechildren::-moz-tree-image(junkStatusCol, junk) {
+    list-style-image: url("chrome://messenger/skin/icons/folder.png");
   }
 }
 
