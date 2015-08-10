@@ -60,7 +60,6 @@
 }
 
 #attachmentIcon {
-  list-style-image: url("chrome://messenger/skin/icons/attachment-col.png");
   -moz-margin-start: 5px;
 }
 
@@ -297,6 +296,10 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
     height: 10px;
   }
 
+  #attachmentIcon {
+    list-style-image: url("chrome://messenger/skin/icons/attachment-col-XP.png");
+  }
+
   #attachmentSize {
     opacity: 0.5; /* lower contrast */
   }
@@ -501,6 +504,10 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
 
   #expandedBoxSpacer {
     height: 6px;
+  }
+
+  #attachmentIcon {
+    list-style-image: url("chrome://messenger/skin/icons/attachment-col.png");
   }
 
   #attachmentToggle:hover {

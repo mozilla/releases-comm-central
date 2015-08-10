@@ -34,6 +34,14 @@ body {
   margin-right: 0.5em;
 }
 
-.starred .star {
-  background-image: url("chrome://messenger/skin/icons/flag-col.png");
+@media (-moz-os-version: windows-xp) {
+  .starred .star {
+    background-image: url("chrome://messenger/skin/icons/flag-col-XP.png");
+  }
+}
+
+@media not all and (-moz-os-version: windows-xp) {
+  .starred .star {
+    background-image: url("chrome://messenger/skin/icons/flag-col.png");
+  }
 }

@@ -221,9 +221,9 @@ spacer.big {
 }
 
 #JunkSettingsMail label {
-  background: url("chrome://messenger/skin/icons/junk.png") no-repeat !important;
+  background: url("chrome://messenger/skin/accountcentral/junk.png") no-repeat !important;
 }
 
 #JunkSettingsMail label:-moz-locale-dir(rtl) {
-  background: url("chrome://messenger/skin/icons/junk.png") right no-repeat !important;
+  background: url("chrome://messenger/skin/accountcentral/junk.png") right no-repeat !important;
 }

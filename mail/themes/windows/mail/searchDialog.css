@@ -119,10 +119,6 @@ treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
   -moz-padding-end: 5px;
 }
 
-treechildren::-moz-tree-image(attachmentCol, attach) {
-  list-style-image: url("chrome://messenger/skin/icons/attachment-col.png");
-}
-
 /* ..... flag column ..... */
 
 .flagColumnHeader {
@@ -172,8 +168,16 @@ treechildren::-moz-tree-image(junkStatusCol, notjunk) {
     -moz-padding-start: 30px;
   }
 
+  treechildren::-moz-tree-image(subjectCol) {
+    list-style-image: url("chrome://messenger/skin/icons/message-XP.png");
+  }
+
   treechildren::-moz-tree-image(junkStatusCol, junk) {
     list-style-image: url("chrome://messenger/skin/icons/folder-XP.png");
+  }
+
+  treechildren::-moz-tree-image(attachmentCol, attach) {
+    list-style-image: url("chrome://messenger/skin/icons/attachment-col-XP.png");
   }
 }
 
@@ -196,14 +200,21 @@ treechildren::-moz-tree-image(junkStatusCol, notjunk) {
     }
   }
 
+  treechildren::-moz-tree-image(subjectCol) {
+    list-style-image: url("chrome://messenger/skin/icons/message.png");
+  }
+
   treechildren::-moz-tree-image(junkStatusCol, junk) {
     list-style-image: url("chrome://messenger/skin/icons/folder.png");
+  }
+
+  treechildren::-moz-tree-image(attachmentCol, attach) {
+    list-style-image: url("chrome://messenger/skin/icons/attachment-col.png");
   }
 }
 
 treechildren::-moz-tree-image(subjectCol) {
   -moz-margin-end: 2px;
-  list-style-image: url("chrome://messenger/skin/icons/message.png");
   -moz-image-region: rect(0 16px 16px 0);
 }
 
