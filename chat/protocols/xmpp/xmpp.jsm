@@ -42,6 +42,44 @@ XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
   return function(aTxt) cs.scanTXT(aTxt, cs.kEntities);
 });
 
+// Parses the status from a presence stanza into an object of statusType,
+// statusText and idleSince.
+function parseStatus(aStanza) {
+  let statusType = Ci.imIStatusInfo.STATUS_AVAILABLE;
+  let show = aStanza.getElement(["show"]);
+  if (show) {
+    show = show.innerText;
+    if (show == "away")
+      statusType = Ci.imIStatusInfo.STATUS_AWAY;
+    else if (show == "chat")
+      statusType = Ci.imIStatusInfo.STATUS_AVAILABLE; //FIXME
+    else if (show == "dnd")
+      statusType = Ci.imIStatusInfo.STATUS_UNAVAILABLE;
+    else if (show == "xa")
+      statusType = Ci.imIStatusInfo.STATUS_IDLE;
+  }
+
+  let idleSince = 0;
+  let query = aStanza.getElement(["query"]);
+  if (query && query.uri == Stanza.NS.last) {
+    let now = Math.floor(Date.now() / 1000);
+    idleSince = now - parseInt(query.attributes["seconds"], 10);
+    statusType = Ci.imIStatusInfo.STATUS_IDLE;
+  }
+
+  // Mark official Android clients as mobile.
+  const kAndroidNodeURI = "http://www.android.com/gtalk/client/caps";
+  if (aStanza.getChildrenByNS(Stanza.NS.caps)
+             .some(function(s) s.localName == "c" &&
+                               s.attributes["node"] == kAndroidNodeURI))
+    statusType = Ci.imIStatusInfo.STATUS_MOBILE;
+
+  let status = aStanza.getElement(["status"]);
+  status = status ? status.innerText : "";
+
+  return {statusType: statusType, statusText: status, idleSince: idleSince};
+};
+
 /* This is an ordered list, used to determine chat buddy flags:
  *  index < member    -> noFlags
  *  index = member    -> voiced
@@ -52,33 +90,54 @@ XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
 const kRoles = ["outcast", "visitor", "participant", "member", "moderator",
                 "admin", "owner"];
 
-function MUCParticipant(aNick, aName, aStanza)
+function MUCParticipant(aNick, aJid, aPresenceStanza)
 {
-  this._jid = aName;
+  this._jid = aJid;
   this.name = aNick;
-  this.stanza = aStanza;
+  this.onPresenceStanza(aPresenceStanza);
 }
 MUCParticipant.prototype = {
   __proto__: ClassInfo("prplIConvChatBuddy", "XMPP ConvChatBuddy object"),
 
   buddy: false,
+
+  // The occupant jid of the participant which is of the form room@domain/nick.
+  _jid: null,
+
+  // The real jid of the participant which is of the form local@domain/resource.
+  accountJid: null,
+
+  statusType: null,
+  statusText: null,
   get alias() this.name,
 
   role: 2, // "participant" by default
-  set stanza(aStanza) {
-    this._stanza = aStanza;
 
-    let x =
-      aStanza.getChildren("x").filter(function (c) c.uri == Stanza.NS.muc_user);
+  // Called when a presence stanza is received for this participant.
+  onPresenceStanza: function(aStanza) {
+    let statusInfo = parseStatus(aStanza);
+    this.statusType = statusInfo.statusType;
+    this.statusText = statusInfo.statusText;
+
+    let x = aStanza.children.filter(child => child.localName == "x" &&
+                                             child.uri == Stanza.NS.muc_user);
     if (x.length == 0)
       return;
+
+    // XEP-0045 (7.2.3): We only expect a single <x/> element of this namespace,
+    // so we ignore any others.
     x = x[0];
+
     let item = x.getElement(["item"]);
     if (!item)
       return;
 
     this.role = Math.max(kRoles.indexOf(item.attributes["role"]),
                          kRoles.indexOf(item.attributes["affiliation"]));
+
+    let accountJid = item.attributes["jid"];
+    if (accountJid)
+      this.accountJid = accountJid;
   },
 
   get noFlags() this.role < kRoles.indexOf("member"),
@@ -258,7 +317,7 @@ const XMPPMUCConversationPrototype = {
                            "chat-buddy-add");
     }
     else {
-      this._participants.get(nick).stanza = aStanza;
+      this._participants.get(nick).onPresenceStanza(aStanza);
       this.notifyObservers(this._participants.get(nick), "chat-buddy-update");
     }
   },
@@ -760,47 +819,16 @@ const XMPPAccountBuddyPrototype = {
         preferred = undefined;
     }
     else {
-      let statusType = Ci.imIStatusInfo.STATUS_AVAILABLE;
-      let show = aStanza.getElement(["show"]);
-      if (show) {
-        show = show.innerText;
-        if (show == "away")
-          statusType = Ci.imIStatusInfo.STATUS_AWAY;
-        else if (show == "chat")
-          statusType = Ci.imIStatusInfo.STATUS_AVAILABLE; //FIXME
-        else if (show == "dnd")
-          statusType = Ci.imIStatusInfo.STATUS_UNAVAILABLE;
-        else if (show == "xa")
-          statusType = Ci.imIStatusInfo.STATUS_IDLE;
-      }
-
-      let idleSince = 0;
-      let query = aStanza.getElement(["query"]);
-      if (query && query.uri == Stanza.NS.last) {
-        let now = Math.floor(Date.now() / 1000);
-        idleSince = now - parseInt(query.attributes["seconds"], 10);
-        statusType = Ci.imIStatusInfo.STATUS_IDLE;
-      }
-
-      // Mark official Android clients as mobile.
-      const kAndroidNodeURI = "http://www.android.com/gtalk/client/caps";
-      if (aStanza.getChildrenByNS(Stanza.NS.caps)
-                 .some(function(s) s.localName == "c" &&
-                                   s.attributes["node"] == kAndroidNodeURI))
-        statusType = Ci.imIStatusInfo.STATUS_MOBILE;
-
-      let status = aStanza.getElement(["status"]);
-      status = status ? status.innerText : "";
-
+      let statusInfo = parseStatus(aStanza);
       let priority = aStanza.getElement(["priority"]);
       priority = priority ? parseInt(priority.innerText, 10) : 0;
 
       if (!this._resources)
         this._resources = {};
       this._resources[resource] = {
-        statusType: statusType,
-        statusText: status,
-        idleSince: idleSince,
+        statusType: statusInfo.statusType,
+        statusText: statusInfo.statusText,
+        idleSince: statusInfo.idleSince,
         priority: priority,
         stanza: aStanza
       };
@@ -1083,6 +1111,105 @@ const XMPPAccountPrototype = {
     let s = Stanza.presence({to: aRequest.userName, type: aReply})
     this.sendStanza(s);
     this.removeBuddyRequest(aRequest);
+  },
+
+  requestBuddyInfo: function(aJid) {
+    if (!this.connected) {
+      Services.obs.notifyObservers(EmptyEnumerator, "user-info-received", aJid);
+      return;
+    }
+
+    let userName;
+    let tooltipInfo = [];
+    let jid = this._parseJID(aJid);
+    let muc = this._mucs.get(jid.node + "@" + jid.domain);
+    if (muc) {
+      let participant = muc._participants.get(jid.resource);
+      if (participant) {
+        if (participant.accountJid)
+          userName = participant.accountJid;
+        if (!muc.left) {
+          let statusType = participant.statusType;
+          let statusText = participant.statusText;
+          tooltipInfo.push(new TooltipInfo(statusType, statusText, true));
+        }
+      }
+    }
+
+    let iq = Stanza.iq("get", null, aJid, Stanza.node("vCard", Stanza.NS.vcard));
+    this.sendStanza(iq, aStanza => {
+      let vCardInfo = {};
+      let vCardNode = aStanza.getElement(["vCard"]);
+
+      // In the case of an error response, we just notify the observers with
+      // what info we already have.
+      if (aStanza.attributes["type"] == "result" && vCardNode)
+        vCardInfo = this.parseVCard(vCardNode);
+
+      // The real jid of participant which is of the form local@domain/resource.
+      // We consider the jid is provided by server is more correct than jid is
+      // set by the user.
+      if (userName)
+        vCardInfo.userName = userName;
+
+      // vCard fields we want to display in the tooltip.
+      const kTooltipFields = ["userName", "fullName", "nickname", "title",
+                              "organization", "email", "birthday", "locality",
+                              "country"];
+
+      for (let field of kTooltipFields) {
+        if (vCardInfo.hasOwnProperty(field))
+          tooltipInfo.push(new TooltipInfo(_("tooltip." + field), vCardInfo[field]));
+      }
+      Services.obs.notifyObservers(new nsSimpleEnumerator(tooltipInfo),
+                                   "user-info-received", aJid);
+    });
+  },
+
+  // Parses the vCard into the properties of the returned object.
+  parseVCard: function(aVCardNode) {
+    // XEP-0054: vcard-temp.
+    let aResult = {};
+    for (let node of aVCardNode.children.filter(child => child.type == "node")) {
+      let localName = node.localName;
+      let innerText = node.innerText;
+      if (innerText) {
+        if (localName == "FN")
+          aResult.fullName = innerText;
+        else if (localName == "NICKNAME")
+          aResult.nickname = innerText;
+        else if (localName == "TITLE")
+          aResult.title = innerText;
+        else if (localName == "BDAY")
+          aResult.birthday = innerText;
+        else if (localName == "JABBERID")
+          aResult.userName = innerText;
+      }
+      if (localName == "ORG") {
+        let organization = node.getElement(["ORGNAME"]);
+        if (organization && organization.innerText)
+          aResult.organization = organization.innerText;
+      }
+      else if (localName == "EMAIL") {
+        let userID = node.getElement(["USERID"]);
+        if (userID && userID.innerText)
+          aResult.email = userID.innerText;
+      }
+      else if (localName == "ADR") {
+        let locality = node.getElement(["LOCALITY"]);
+        if (locality && locality.innerText)
+          aResult.locality = locality.innerText;
+
+        let country = node.getElement(["CTRY"]);
+        if (country && country.innerText)
+          aResult.country = country.innerText;
+      }
+      else if (localName == "PHOTO")
+        aResult.photo = node;
+      // TODO: Parse the other fields of vCard and display it in system messages
+      // in response to /whois.
+    }
+    return aResult;
   },
 
   // Returns undefined if not an error stanza, and an object
@@ -1513,16 +1640,13 @@ const XMPPAccountPrototype = {
       return;
 
     let foundFormattedName = false;
-    for each (let c in vCard.children) {
-      if (c.type != "node")
-        continue;
-      if (c.localName == "FN") {
-        buddy.vCardFormattedName = c.innerText;
-        foundFormattedName = true;
-      }
-      if (c.localName == "PHOTO")
-        buddy._saveIcon(c);
+    let vCardInfo = this.parseVCard(vCard);
+    if (vCardInfo.fullName) {
+      buddy.vCardFormattedName = vCardInfo.fullName;
+      foundFormattedName = true;
     }
+    if (vCardInfo.photo)
+      buddy._saveIcon(vCardInfo.photo);
     if (!foundFormattedName && buddy._vCardFormattedName)
       buddy.vCardFormattedName = "";
     buddy._vCardReceived = true;

@@ -223,11 +223,14 @@
 
          this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
 
-         // Technically there is no reason to restrict this to JS-IRC. But
-         // there is currently no filtering mechanism in place to select which
-         // of the returned fields are to be added to the tooltip for the other
+         // Technically there is no reason to restrict this. But there is
+         // currently no filtering mechanism in place to select which of the
+         // returned fields are to be added to the tooltip for the other
          // protocols (libpurple in particular).
-         if (account.protocol.id == "prpl-irc")
+         let forcePurple = Services.prefs.getCharPref("chat.prpls.forcePurple");
+         let protocolId = account.protocol.id;
+         if (protocolId == "prpl-irc" ||
+             (!forcePurple.includes("prpl-jabber") && protocolId == "prpl-jabber"))
            this.requestBuddyInfo(account, aBuddy.normalizedName);
 
          var tooltipInfo = aBuddy.getTooltipInfo();
