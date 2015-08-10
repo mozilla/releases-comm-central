@@ -2435,6 +2435,10 @@ MsgDetectCharsetFromFile(nsIFile *aFile, nsACString &aCharset)
     if (isUTF8Compat)
       aCharset.AssignLiteral("UTF-8");
   }
+
+  if (aCharset.IsEmpty()) {
+    return NS_ERROR_FAILURE;
+  }
   return NS_OK;
 }
 
