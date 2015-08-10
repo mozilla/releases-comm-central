@@ -93,50 +93,23 @@
     <key keycode="VK_ESCAPE" oncommand="window.close();"/>
   </keyset>
 
-  <popupset id="mainPopupSet">
-    <panel id="editContactPanel"/>
-    <menupopup id="emailAddressPopup" class="emailAddressPopup" position="after_start"
-               onpopupshowing="setupEmailAddressPopup(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup')); goUpdateCommand('cmd_createFilterFromPopup')"
-               onpopuphiding="hideEmailNewsPopup(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))">
-      <menuitem id="emailAddressPlaceHolder" label=""
-                disabled="true"/>
-      <menuseparator/>
-      <menuitem id="addToAddressBookItem"
-                label="&AddDirectlyToAddressBook.label;"
-                accesskey="&AddDirectlyToAddressBook.accesskey;"
-                oncommand="AddContact(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
-      <menuitem id="editContactItem" label="&EditContact1.label;" hidden="true"
-                accesskey="&EditContact1.accesskey;"
-                oncommand="EditContact(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
-      <menuitem id="viewContactItem" label="&ViewContact.label;" hidden="true"
-                accesskey="&ViewContact.accesskey;"
-                oncommand="EditContact(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
-      <menuitem id="sendMailToItem" label="&SendMessageTo.label;"
-                accesskey="&SendMessageTo.accesskey;"
-                oncommand="SendMailToNode(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'), event)"/>
-      <menuitem id="copyEmailAddressItem" label="&CopyEmailAddress.label;"
-                accesskey="&CopyEmailAddress.accesskey;"
-                oncommand="CopyEmailNewsAddress(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
-      <menuseparator/>
-      <menuitem id="createFilterFromItem" label="&CreateFilterFrom.label;"
-                accesskey="&CreateFilterFrom.accesskey;"
-                oncommand="CreateFilter(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"
-                observes="cmd_createFilterFromPopup"/>
-    </menupopup>
+  <!-- Popup menus provided by mailWindowOverlay.xul -->
+  <popupset id="mainPopupSet"/>
+  <menupopup id="mailContext"/>
+  <menupopup id="toolbar-context-menu"/>
+  <menupopup id="remoteContentOptions"/>
+  <menupopup id="phishingOptions"/>
 
-    <menupopup id="messageIdContext"/>
-
-    <menupopup id="mailContext"/>
-  </popupset>
-
+  <!-- Popup menus provided by msgHdrViewOverlay.xul -->
+  <menupopup id="messageIdContext"/>
   <menupopup id="attachmentListContext"/>
   <menupopup id="attachmentItemContext"/>
   <menupopup id="header-toolbar-context-menu"/>
   <menupopup id="attachment-toolbar-context-menu"/>
   <menupopup id="copyUrlPopup"/>
-  <menupopup id="toolbar-context-menu"/>
-  <menupopup id="remoteContentOptions"/>
-  <menupopup id="phishingOptions"/>
+
+  <!-- Panel provided by editContactOverlay.xul -->
+  <panel id="editContactPanel"/>
 
 #ifdef XP_MACOSX
   <vbox id="titlebar">

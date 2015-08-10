@@ -1033,6 +1033,7 @@
               oncommand="OpenPhishingSettings();"/>
   </menupopup>
 
+<!-- Used by messenger.xul and messageWindow.xul -->
 <popupset id="mainPopupSet">
   <menupopup id="appmenu-popup"
              onpopupshowing="initAppMenuPopup(this, event);">
@@ -2132,6 +2133,52 @@
       </vbox>
     </hbox>
   </menupopup>
+
+  <menupopup id="emailAddressPopup" position="after_start" class="emailAddressPopup"
+             onpopupshowing="setupEmailAddressPopup(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup')); goUpdateCommand('cmd_createFilterFromPopup')"
+             onpopuphiding="hideEmailNewsPopup(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'));">
+    <menuitem id="emailAddressPlaceHolder"
+              disabled="true"/>
+    <menuseparator/>
+    <menuitem id="addToAddressBookItem"
+              label="&AddDirectlyToAddressBook.label;"
+              accesskey="&AddDirectlyToAddressBook.accesskey;"
+              oncommand="AddContact(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
+    <menuitem id="editContactItem" label="&EditContact1.label;" hidden="true"
+              accesskey="&EditContact1.accesskey;"
+              oncommand="EditContact(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
+    <menuitem id="viewContactItem" label="&ViewContact.label;" hidden="true"
+              accesskey="&ViewContact.accesskey;"
+              oncommand="EditContact(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
+    <menuitem id="sendMailToItem" label="&SendMessageTo.label;"
+              accesskey="&SendMessageTo.accesskey;"
+              oncommand="SendMailToNode(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'), event)"/>
+    <menuitem id="copyEmailAddressItem" label="&CopyEmailAddress.label;"
+              accesskey="&CopyEmailAddress.accesskey;"
+              oncommand="CopyEmailNewsAddress(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
+    <menuseparator/>
+    <menuitem id="createFilterFromItem" label="&CreateFilterFrom.label;"
+              accesskey="&CreateFilterFrom.accesskey;"
+              oncommand="CreateFilter(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"
+              observes="cmd_createFilterFromPopup"/>
+  </menupopup>
+
+  <menupopup id="copyPopup">
+    <menuitem id="copyMenuitem"
+              label="&copyCmd.label;"
+              accesskey="&copyCmd.accesskey;"
+              tooltiptext="&copyCmd.label;"
+              oncommand="Components.classes['@mozilla.org/widget/clipboardhelper;1']
+                         .getService(Components.interfaces.nsIClipboardHelper)
+                         .copyString(window.getSelection().isCollapsed ?
+                             document.popupNode.textContent :
+                             window.getSelection().toString());"/>
+    <menuitem id="createFilterFromMenuItem" label="&CreateFilterFrom.label;"
+              accesskey="&CreateFilterFrom.accesskey;"
+              oncommand="CreateFilter(this.parentNode.triggerNode.parentNode)"
+              observes="cmd_createFilterFromPopup"/>
+  </menupopup>
+
 </popupset>
 
 <!-- The reason we put the menubar inside a toolbox is due to the labelalign and

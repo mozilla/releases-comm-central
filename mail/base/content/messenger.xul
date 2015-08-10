@@ -128,67 +128,26 @@
   <keyset id="tasksKeys"/>
 </keyset>
 
-<popupset id="mainPopupSet">
-  <panel id="editContactPanel"/>
-</popupset>
-
+<!-- Popup menus provided by mailWindowOverlay.xul -->
+<popupset id="mainPopupSet"/>
 <menupopup id="mailContext"/>
+<menupopup id="toolbar-context-menu"/>
+<menupopup id="remoteContentOptions"/>
+<menupopup id="phishingOptions"/>
 <menupopup id="folderPaneContext"/>
+
+<!-- Popup menus provided by msgHdrViewOverlay.xul -->
+<menupopup id="messageIdContext"/>
 <menupopup id="attachmentListContext"/>
 <menupopup id="attachmentItemContext"/>
 <menupopup id="header-toolbar-context-menu"/>
 <menupopup id="attachment-toolbar-context-menu"/>
 <menupopup id="copyUrlPopup"/>
-<menupopup id="toolbar-context-menu"/>
-<menupopup id="remoteContentOptions"/>
-<menupopup id="phishingOptions"/>
+
+<!-- Panel provided by editContactOverlay.xul -->
+<panel id="editContactPanel"/>
 
 <tooltip id="attachmentListTooltip"/>
-
-<menupopup id="emailAddressPopup" position="after_start" class="emailAddressPopup"
-           onpopupshowing="setupEmailAddressPopup(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup')); goUpdateCommand('cmd_createFilterFromPopup')"
-           onpopuphiding="hideEmailNewsPopup(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'));">
-    <menuitem id="emailAddressPlaceHolder"
-              disabled="true"/>
-    <menuseparator/>
-    <menuitem id="addToAddressBookItem"
-              label="&AddDirectlyToAddressBook.label;"
-              accesskey="&AddDirectlyToAddressBook.accesskey;"
-              oncommand="AddContact(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
-    <menuitem id="editContactItem" label="&EditContact1.label;" hidden="true"
-              accesskey="&EditContact1.accesskey;"
-              oncommand="EditContact(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
-    <menuitem id="viewContactItem" label="&ViewContact.label;" hidden="true"
-              accesskey="&ViewContact.accesskey;"
-              oncommand="EditContact(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
-    <menuitem id="sendMailToItem" label="&SendMessageTo.label;"
-              accesskey="&SendMessageTo.accesskey;"
-              oncommand="SendMailToNode(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'), event)"/>
-    <menuitem id="copyEmailAddressItem" label="&CopyEmailAddress.label;"
-              accesskey="&CopyEmailAddress.accesskey;"
-              oncommand="CopyEmailNewsAddress(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
-    <menuseparator/>
-    <menuitem id="createFilterFromItem" label="&CreateFilterFrom.label;"
-              accesskey="&CreateFilterFrom.accesskey;"
-              oncommand="CreateFilter(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"
-              observes="cmd_createFilterFromPopup"/>
-</menupopup>
-
-<menupopup id="copyPopup">
-     <menuitem id="copyMenuitem"
-               label="&copyCmd.label;"
-               accesskey="&copyCmd.accesskey;"
-               tooltiptext="&copyCmd.label;"
-               oncommand="Components.classes['@mozilla.org/widget/clipboardhelper;1']
-                          .getService(Components.interfaces.nsIClipboardHelper)
-                          .copyString(window.getSelection().isCollapsed ?
-                              document.popupNode.textContent :
-                              window.getSelection().toString());"/>
-     <menuitem id="createFilterFromMenuItem" label="&CreateFilterFrom.label;"
-               accesskey="&CreateFilterFrom.accesskey;"
-               oncommand="CreateFilter(this.parentNode.triggerNode.parentNode)"
-               observes="cmd_createFilterFromPopup"/>
-</menupopup>
 
 <menupopup id="newsgroupPopup" position="after_start" class="newsgroupPopup"
            onpopupshowing="setupNewsgroupPopup(findEmailNodeFromPopupNode(document.popupNode, 'newsgroupPopup')); goUpdateCommand('cmd_createFilterFromPopup')"
@@ -215,8 +174,6 @@
            pagemenu="end"
            onpopupshowing="InitPageMenu(this, event);">
 </menupopup>
-
-<menupopup id="messageIdContext"/>
 
 <!-- We want to be able to do the following:
 
