@@ -38,7 +38,7 @@ classic.jar:
   skin/classic/communicator/icons/smileys/smiley-sealed.png        (mail/icons/smiley-sealed.png)
 % skin messenger classic/1.0 %skin/classic/messenger/ os=WINNT osversion<6
 % skin messenger classic/1.0 %skin/classic/messenger/ os!=WINNT
-* skin/classic/messenger/primaryToolbar.css                   (mail/primaryToolbar.css)
+  skin/classic/messenger/primaryToolbar.css                   (mail/primaryToolbar.css)
   skin/classic/messenger/aboutSupport.css                     (mail/aboutSupport.css)
   skin/classic/messenger/accountCentral.css                   (mail/accountCentral.css)
   skin/classic/messenger/accountCreation.css                  (mail/accountCreation.css)
@@ -301,7 +301,7 @@ classic.jar:
   skin/classic/messenger/shared/accountProvisioner.css        (../shared/mail/accountProvisioner.css)
 #ifdef XP_WIN
 % skin messenger classic/1.0 %skin/classic/aero/messenger/ os=WINNT osversion>=6
-* skin/classic/aero/messenger/primaryToolbar.css                   (mail/primaryToolbar-aero.css)
+  skin/classic/aero/messenger/primaryToolbar.css                   (mail/primaryToolbar.css)
   skin/classic/aero/messenger/aboutSupport.css                     (mail/aboutSupport.css)
   skin/classic/aero/messenger/accountCentral.css                   (mail/accountCentral.css)
   skin/classic/aero/messenger/accountCreation.css                  (mail/accountCreation.css)
