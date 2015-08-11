@@ -265,17 +265,62 @@ const XMPPMUCConversationPrototype = {
         return;
       }
       if (item && item.attributes["role"] == "none") {
-        // XEP-0045: the user is no longer an occupant.
+        // XEP-0045: an occupant has left the room.
         this.removeParticipant(nick);
+
+        // Who caused the participant to leave the room.
+        let actor = item.getElement(["actor"]);
+        let actorNick = actor ? actor.attributes["nick"] : "";
+        let isActor = actorNick ? ".actor" : "";
+
+        // Why the participant left.
+        let reasonNode = item.getElement(["reason"]);
+        let reason = reasonNode ? reasonNode.innerText : "";
+        let isReason = reason ? ".reason" : "";
+
+        let isYou = nick == this.nick ? ".you" : "";
+        let affectedNick = isYou ? "" : nick;
+        if (isYou)
+          this.left = true;
+
+        let message;
         if (codes.indexOf("110") != -1) {
           // XEP-0045 7.14: Self-presence.
-          // This presence refers to this account.
-          this.left = true;
-        }
+          // Received when the user parts a room.
+          message = "conversation.message.parted";
 
-        // Bug 1146093: Add an appropriate system message telling the
-        // user what happened (banned or removed or kicked from
-        // MUC room) using codes.
+          // The reason is in a status element in this case.
+          reasonNode = aStanza.getElement(["status"]);
+          reason = reasonNode ? reasonNode.innerText : "";
+          isReason = reason ? ".reason" : "";
+        }
+        else if (codes.indexOf("301") != -1) {
+          // XEP-0045 (9.1): Banning a User.
+          message = "conversation.message.banned";
+        }
+        else if (codes.indexOf("307") != -1) {
+          // XEP-0045 (8.2): Kicking an Occupant.
+          message = "conversation.message.kicked";
+        }
+        else if (codes.indexOf("322") != -1 || codes.indexOf("321") != -1) {
+          // XEP-0045: Inform user that he or she is being removed from the
+          // room because the room has been changed to members-only and the
+          // user is not a member.
+          message = "conversation.message.removedNonMember";
+        }
+        else if (codes.indexOf("332") != -1) {
+          // XEP-0045: Inform user that he or she is being removed from the
+          // room because the MUC service is being shut down.
+          message = "conversation.message.mucShutdown";
+
+          // The reason here just duplicates what's in the system message.
+          reason = isReason = "";
+        }
+        if (message) {
+          let messageID = message + isYou + isActor + isReason;
+          let params = [actorNick, affectedNick, reason].filter(s => s);
+          this.writeMessage(this.name, _(messageID, ...params), {system: true});
+        }
       }
       else
         this.WARN("Unhandled type==unavailable MUC presence stanza.");
