@@ -165,6 +165,9 @@ const XMPPMUCConversationPrototype = {
 
   _targetResource: "",
 
+  // True while we are rejoining a room previously parted by the user.
+  _rejoined: false,
+
   get topic() this._topic,
   set topic(aTopic) {
     let notAuthorized = (aError) => {
@@ -284,17 +287,7 @@ const XMPPMUCConversationPrototype = {
           this.left = true;
 
         let message;
-        if (codes.indexOf("110") != -1) {
-          // XEP-0045 7.14: Self-presence.
-          // Received when the user parts a room.
-          message = "conversation.message.parted";
-
-          // The reason is in a status element in this case.
-          reasonNode = aStanza.getElement(["status"]);
-          reason = reasonNode ? reasonNode.innerText : "";
-          isReason = reason ? ".reason" : "";
-        }
-        else if (codes.indexOf("301") != -1) {
+        if (codes.indexOf("301") != -1) {
           // XEP-0045 (9.1): Banning a User.
           message = "conversation.message.banned";
         }
@@ -316,6 +309,16 @@ const XMPPMUCConversationPrototype = {
           // The reason here just duplicates what's in the system message.
           reason = isReason = "";
         }
+        else {
+          // XEP-0045 (7.14): Received when the user parts a room.
+          message = "conversation.message.parted";
+
+          // The reason is in a status element in this case.
+          reasonNode = aStanza.getElement(["status"]);
+          reason = reasonNode ? reasonNode.innerText : "";
+          isReason = reason ? ".reason" : "";
+        }
+
         if (message) {
           let messageID = message + isYou + isActor + isReason;
           let params = [actorNick, affectedNick, reason].filter(s => s);
@@ -360,6 +363,15 @@ const XMPPMUCConversationPrototype = {
       this._participants.set(nick, participant);
       this.notifyObservers(new nsSimpleEnumerator([participant]),
                            "chat-buddy-add");
+      if (this.nick != nick && !this.joining) {
+        this.writeMessage(this.name, _("conversation.message.join", nick),
+                          {system: true});
+      }
+      else if (this.nick == nick && this._rejoined) {
+        this.writeMessage(this.name, _("conversation.message.rejoined"),
+                          {system: true});
+        this._rejoined = false;
+      }
     }
     else {
       this._participants.get(nick).onPresenceStanza(aStanza);
@@ -1020,6 +1032,10 @@ const XMPPAccountPrototype = {
     if (muc) {
       if (!muc.left)
         return muc; // We are already in this conversation.
+      else if (!muc.chatRoomFields) {
+        // We are rejoining a room that was parted by the user.
+        muc._rejoined = true;
+      }
     }
     else {
       muc = new this._MUCConversationConstructor(this, jid, nick);
