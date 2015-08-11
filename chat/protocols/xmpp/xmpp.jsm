@@ -1034,7 +1034,13 @@ const XMPPAccountPrototype = {
     let password = aComponents.getValue("password");
     let x = Stanza.node("x", Stanza.NS.muc, null,
                         password ? Stanza.node("password", null, null, password) : null);
-    this.sendStanza(Stanza.presence({to: jid + "/" + nick}, x));
+    let logString;
+    if (password) {
+      logString = "<presence .../> (Stanza containing password to join MUC " +
+        jid + "/" + nick + " not logged)";
+    }
+    this.sendStanza(Stanza.presence({to: jid + "/" + nick}, x),
+      undefined, undefined, logString);
     return muc;
   },
 
@@ -1858,8 +1864,8 @@ const XMPPAccountPrototype = {
 
   /* Public methods */
 
-  sendStanza(aStanza, aCallback, aThis) {
-    return this._connection.sendStanza(aStanza, aCallback, aThis);
+  sendStanza(aStanza, aCallback, aThis, aLogString) {
+    return this._connection.sendStanza(aStanza, aCallback, aThis, aLogString);
   },
 
   // Variations of the XMPP protocol can change these default constructors:

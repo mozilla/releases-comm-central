@@ -26,7 +26,8 @@ PlainAuth.prototype = {
   next: function(aStanza) ({
     done: true,
     send: Stanza.node("auth", Stanza.NS.sasl, {mechanism: "PLAIN"},
-                      this._base64Data)
+                      this._base64Data),
+    log: '<auth mechanism:="PLAIN"/> (base64 encoded username and password not logged)'
   })
 };
 
@@ -122,7 +123,8 @@ DigestMD5Auth.prototype = {
 
     return {
       done: false,
-      send: Stanza.node("response", Stanza.NS.sasl, null, btoa(response))
+      send: Stanza.node("response", Stanza.NS.sasl, null, btoa(response)),
+      log: '<response/> (base64 encoded MD5 response containing password not logged)'
     };
   },
 

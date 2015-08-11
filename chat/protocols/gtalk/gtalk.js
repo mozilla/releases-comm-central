@@ -31,7 +31,8 @@ PlainFullBindAuth.prototype = {
     };
     return {
       done: true,
-      send: Stanza.node("auth", Stanza.NS.sasl, attrs, this._key)
+      send: Stanza.node("auth", Stanza.NS.sasl, attrs, this._key),
+      log: '<auth.../> (PlainFullBindAuth base64 encoded username and password not logged)'
     };
   }
 };
