@@ -182,7 +182,7 @@ toolbarbutton > .toolbarbutton-icon {
   -moz-image-region: rect(0, 64px, 16px, 48px);
   border: none;
   padding: 0px;
-  list-style-image: url("chrome://global/skin/icons/close.png");
+  list-style-image: url("chrome://global/skin/icons/close-XPVista7.png");
 }
 
 .tab-close-button:-moz-system-metric(touch-enabled) {
@@ -316,7 +316,7 @@ toolbarbutton > .toolbarbutton-icon {
 /* Tabstrip close button */
 .tabs-closebutton {
   -moz-appearance: none;
-  list-style-image: url("chrome://global/skin/icons/close.png");
+  list-style-image: url("chrome://global/skin/icons/close-XPVista7.png");
   -moz-image-region: rect(0, 16px, 16px, 0);
   padding: 4px 2px;
   margin: 0px;

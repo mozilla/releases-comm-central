@@ -194,7 +194,11 @@ contact[droptarget] > buddy[dummy] {
 %ifdef UNIX_BUT_NOT_MAC
   list-style-image: url("moz-icon://stock/gtk-close?size=menu");
 %else
+%ifdef XP_WIN
+  list-style-image: url("chrome://global/skin/icons/close-XPVista7.png");
+%else
   list-style-image: url("chrome://global/skin/icons/close.png");
+%endif
   -moz-image-region: rect(0, 16px, 16px, 0);
 }
 .hideGroupButton:hover {
@@ -486,7 +490,11 @@ group[closed] .twisty {
   padding: 0;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.25) 25%, transparent 100%);
   border: none;
+%ifdef XP_WIN
+  list-style-image: url("chrome://global/skin/icons/close-XPVista7.png");
+%else
   list-style-image: url("chrome://global/skin/icons/close.png");
+%endif
   -moz-image-region: rect(0, 16px, 16px, 0);
 }
 

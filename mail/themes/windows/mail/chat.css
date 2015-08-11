@@ -524,13 +524,6 @@
   }
 }
 
-@media (-moz-os-version: windows-win8),
-       (-moz-os-version: windows-win10) {
-  .closeConversationButton {
-    list-style-image: url("chrome://global/skin/icons/close-XPVista7.png");
-  }
-}
-
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
   .statusMessageToolbarItem {
