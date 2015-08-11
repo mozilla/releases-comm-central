@@ -14,32 +14,33 @@ const EXPORTED_SYMBOLS = ["NormalizedMap"];
  *
  * Returns a Map object that will automatically run aNormalize on any operations
  * involving keys.
+ *
+ * This implementation should be able to be significantly simplified once bug
+ * 838540 is fixed and native inheritance of a JavaScript built-in is possible.
  */
-class NormalizedMap {
-  constructor(aNormalize, aIterable = []) {
-    if (typeof(aNormalize) != "function")
-      throw "NormalizedMap must have a normalize function!";
-    this._normalize = aNormalize;
-    // Create the wrapped Map; use the provided iterable after normalizing the
-    // keys.
-    this._map = new Map([[aNormalize(key), val] for ([key, val] of aIterable)]);
-  }
+function NormalizedMap(aNormalize, aIterable = []) {
+  if (typeof(aNormalize) != "function")
+    throw "NormalizedMap must have a normalize function!";
+  this._normalize = aNormalize;
+  // Create the wrapped Map; use the provided iterable after normalizing the
+  // keys.
+  this._map = new Map([[aNormalize(key), val] for ([key, val] of aIterable)]);
+}
+NormalizedMap.prototype = {
+  _map: null,
+  // The function to apply to all keys.
+  _normalize: null,
 
   // Anything that accepts a key as an input needs to be manually overridden.
-  has(key) { return this._map.has(this._normalize(key)); }
-  delete(key) { return this._map.delete(this._normalize(key)); }
-  get(key) { return this._map.get(this._normalize(key)); }
-  set(key, val) {
-    this._map.set(this._normalize(key), val);
-    return this;
-  }
+  delete: function(aKey) this._map.delete(this._normalize(aKey)),
+  get: function(aKey) this._map.get(this._normalize(aKey)),
+  has: function(aKey) this._map.has(this._normalize(aKey)),
+  set: function(aKey, aValue) this._map.set(this._normalize(aKey), aValue),
 
-  // The remaining methods are unaffected. Delegate until super is available.
-  get size() { return this._map.size; }
-  [Symbol.iterator]() { return this._map[Symbol.iterator](); }
-  entries() { return this._map.entries(); }
-  keys() { return this._map.keys(); }
-  values() { return this._map.values(); }
-  clear() { this._map.clear(); }
-  forEach(aCallback, aThis) { this._map.forEach(aCallback, aThis); }
-}
+  // Properties must be manually forwarded.
+  get size() this._map.size,
+
+  // Here's where the magic happens. If a method is called that isn't defined
+  // here, just pass it to the internal _map object.
+  __noSuchMethod__: function(aId, aArgs) this._map[aId].apply(this._map, aArgs)
+};
