@@ -20,7 +20,6 @@
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         id="accountManager"
         windowtype="Messenger:Accounts"
-        onload="gAccountManager.load()"
         title="&accountsWindow.title;"
         style="&accountsWindow2.style;"
         persist="width height screenX screenY">

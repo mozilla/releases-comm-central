@@ -709,3 +709,5 @@ let gAMDragAndDrop = {
     return flavours;
   }
 };
+
+window.addEventListener("DOMContentLoaded", () => { gAccountManager.load(); });
