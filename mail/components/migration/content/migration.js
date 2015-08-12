@@ -70,6 +70,7 @@ var MigrationWizard = {
   onImportSourcePageShow: function ()
   {
     this._wiz.canRewind = false;
+    this._wiz.canAdvance = false;
 
     // Figure out what source apps are are available to import from:
     var group = document.getElementById("importSourceGroup");
@@ -87,12 +88,16 @@ var MigrationWizard = {
 
     var firstNonDisabled = null;
     for (var i = 0; i < group.childNodes.length; ++i) {
-    if (!group.childNodes[i].hidden) {
+    if (!group.childNodes[i].hidden && !group.childNodes[i].disabled) {
         firstNonDisabled = group.childNodes[i];
         break;
       }
     }
     group.selectedItem = this._source == "" ? firstNonDisabled : document.getElementById(this._source);
+
+    if (firstNonDisabled) {
+      this._wiz.canAdvance = true;
+    }
   },
 
   onImportSourcePageAdvanced: function ()
@@ -141,6 +146,9 @@ var MigrationWizard = {
     while (profiles.hasChildNodes())
       profiles.lastChild.remove();
 
+    if (!this._migrator) {
+      return;
+    }
     var sourceProfiles = this._migrator.sourceProfiles;
     var count = sourceProfiles.length;
     for (var i = 0; i < count; ++i) {
