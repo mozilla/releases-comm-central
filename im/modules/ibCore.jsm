@@ -16,7 +16,8 @@ var Core = {
     "account-disconnected",
     "browser-request",
     "handle-xul-text-link",
-    "quit-application-requested"
+    "quit-application-requested",
+    "quit-application-granted"
   ],
 
   get bundle() { return l10nHelper("chrome://instantbird/locale/core.properties"); },
@@ -289,6 +290,13 @@ var Core = {
 
     if (aTopic == "quit-application-requested") {
       this._onQuitRequest(aSubject, aData);
+      return;
+    }
+
+    if (aTopic == "quit-application-granted") {
+      // Don't try to pop up the account manager during shutdown
+      // (it would fail anyway).
+      this._showAccountManagerIfNeeded = () => {};
       return;
     }
   },
