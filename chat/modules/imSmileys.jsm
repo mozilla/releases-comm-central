@@ -124,7 +124,7 @@ function getRegexp()
   let exp = /[[\]{}()*+?.\\^$|]/g;
   emoticonList = emoticonList.sort()
                              .reverse()
-                             .map(function(x) x.replace(exp, "\\$&"));
+                             .map(x => x.replace(exp, "\\$&"));
 
   if (!emoticonList.length) {
     // the theme contains no valid emoticon, make sure we will return

@@ -128,7 +128,7 @@ XPCOMUtils.defineLazyGetter(Cu.getGlobalForObject({}), "gLogLevels", function() 
     .getService(Ci.nsIEnvironment)
     .get("PRPL_LOG")
     .split(/[;,]/)
-    .filter(function(n) n != "")
+    .filter(n => n != "")
     .forEach(function(env) {
       let [, module, level] = env.match(/(?:(.*?)[:=])?(\d+)/);
       logLevels["level" + (module ? "." + module : "")] = parseInt(level, 10);
@@ -176,14 +176,14 @@ function ClassInfo(aInterfaces, aDescription = "JS Proto Object")
       Services.console.logStringMessage("ClassInfo: unknown interface " + i);
 
   this._interfaces =
-    aInterfaces.map(function (i) typeof i == "string" ? Ci[i] : i);
+    aInterfaces.map(i => typeof i == "string" ? Ci[i] : i);
 
   this.classDescription = aDescription;
 }
 ClassInfo.prototype = {
   QueryInterface: function ClassInfo_QueryInterface(iid) {
     if (iid.equals(Ci.nsISupports) || iid.equals(Ci.nsIClassInfo) ||
-        this._interfaces.some(function(i) i.equals(iid)))
+        this._interfaces.some(i => i.equals(iid)))
       return this;
 
     throw Cr.NS_ERROR_NO_INTERFACE;
@@ -194,7 +194,7 @@ ClassInfo.prototype = {
     countRef.value = interfaces.length;
     return interfaces;
   },
-  getHelperForLanguage: function(language) null,
+  getHelperForLanguage: language => null,
   contractID: null,
   classID: null,
   implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
@@ -232,7 +232,7 @@ function nsSimpleEnumerator(items)
   this._nextIndex = 0;
 }
 nsSimpleEnumerator.prototype = {
-  hasMoreElements: function() this._nextIndex < this._items.length,
+  hasMoreElements: function() { return this._nextIndex < this._items.length; },
   getNext: function() {
     if (!this.hasMoreElements())
       throw Cr.NS_ERROR_NOT_AVAILABLE;
@@ -243,7 +243,7 @@ nsSimpleEnumerator.prototype = {
 };
 
 const EmptyEnumerator = {
-  hasMoreElements: function() false,
+  hasMoreElements: () => false,
   getNext: function() { throw Cr.NS_ERROR_NOT_AVAILABLE; },
   QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
 };

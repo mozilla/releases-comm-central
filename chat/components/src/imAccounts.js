@@ -22,11 +22,11 @@ const kPrefAccountFirstConnectionState = "firstConnectionState";
 const kPrefConvertOldPasswords = "messenger.accounts.convertOldPasswords";
 const kPrefAccountPassword = "password";
 
-XPCOMUtils.defineLazyGetter(this, "_", function()
+XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/accounts.properties")
 );
 
-XPCOMUtils.defineLazyGetter(this, "_maxDebugMessages", function()
+XPCOMUtils.defineLazyGetter(this, "_maxDebugMessages", () =>
   Services.prefs.getIntPref("messenger.accounts.maxDebugMessages")
 );
 
@@ -79,28 +79,28 @@ function UnknownProtocol(aPrplId)
 }
 UnknownProtocol.prototype = {
   __proto__: ClassInfo("prplIProtocol", "Unknown protocol"),
-  get name() "",
-  get normalizedName() this.name,
-  get iconBaseURI() "chrome://chat/skin/prpl-unknown/",
-  getOptions: function() EmptyEnumerator,
-  getUsernameSplit: function() EmptyEnumerator,
-  get usernameEmptyText() "",
+  get name() { return ""; },
+  get normalizedName() { return this.name; },
+  get iconBaseURI() { return "chrome://chat/skin/prpl-unknown/"; },
+  getOptions: function() { return EmptyEnumerator; },
+  getUsernameSplit: function() { return EmptyEnumerator; },
+  get usernameEmptyText() { return ""; },
 
   getAccount: function(aKey, aName) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
   accountExists: function() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
 
   // false seems an acceptable default for all options
   // (they should never be called anyway).
-  get uniqueChatName() false,
-  get chatHasTopic() false,
-  get noPassword() false,
-  get newMailNotification() false,
-  get imagesInIM() false,
-  get passwordOptional() true,
-  get usePointSize() true,
-  get registerNoScreenName() false,
-  get slashCommandsNative() false,
-  get usePurpleProxy() false
+  get uniqueChatName() { return false; },
+  get chatHasTopic() { return false; },
+  get noPassword() { return false; },
+  get newMailNotification() { return false; },
+  get imagesInIM() { return false; },
+  get passwordOptional() { return true; },
+  get usePointSize() { return true; },
+  get registerNoScreenName() { return false; },
+  get slashCommandsNative() { return false; },
+  get usePurpleProxy() { return false; }
 };
 
 // An unknown prplIAccount.
@@ -352,7 +352,7 @@ imAccount.prototype = {
   },
 
   _observedStatusInfo: null,
-  get observedStatusInfo() this._observedStatusInfo,
+  get observedStatusInfo() { return this._observedStatusInfo; },
   _statusObserver: null,
   set observedStatusInfo(aUserStatusInfo) {
     if (!this.prplAccount)
@@ -369,7 +369,7 @@ imAccount.prototype = {
       delete this._statusObserver;
     }
   },
-  get statusInfo() this._observedStatusInfo || Services.core.globalUserStatus,
+  get statusInfo() { return this._observedStatusInfo || Services.core.globalUserStatus; },
 
   reconnectAttempt: 0,
   timeOfLastConnect: 0,
@@ -467,10 +467,12 @@ imAccount.prototype = {
 
   // If the protocol plugin is missing, we can't access the normalizedName,
   // but in lots of cases this.name is equivalent.
-  get normalizedName()
-    this.prplAccount ? this.prplAccount.normalizedName : this.name,
-  normalize: function(aName)
-    this.prplAccount ? this.prplAccount.normalize(aName) : aName,
+  get normalizedName() {
+    return this.prplAccount ? this.prplAccount.normalizedName : this.name;
+  },
+  normalize: function(aName) {
+    return this.prplAccount ? this.prplAccount.normalize(aName) : aName;
+  },
 
   _sendUpdateNotification: function() {
     this._sendNotification("account-updated");
@@ -538,8 +540,9 @@ imAccount.prototype = {
     delete this._connectionErrorReason;
     this._sendUpdateNotification();
   },
-  get _passwordRequired()
-    !this.protocol.noPassword && !this.protocol.passwordOptional,
+  get _passwordRequired() {
+    return !this.protocol.noPassword && !this.protocol.passwordOptional;
+  },
   set password(aPassword) {
     this._password = aPassword;
     if (gUserCanceledMasterPasswordPrompt)
@@ -739,10 +742,10 @@ imAccount.prototype = {
       this._ensurePrplAccount.disconnect();
   },
 
-  get disconnected() this.connectionState == Ci.imIAccount.STATE_DISCONNECTED,
-  get connected() this.connectionState == Ci.imIAccount.STATE_CONNECTED,
-  get connecting() this.connectionState == Ci.imIAccount.STATE_CONNECTING,
-  get disconnecting() this.connectionState == Ci.imIAccount.STATE_DISCONNECTING,
+  get disconnected() { return this.connectionState == Ci.imIAccount.STATE_DISCONNECTED; },
+  get connected() { return this.connectionState == Ci.imIAccount.STATE_CONNECTED; },
+  get connecting() { return this.connectionState == Ci.imIAccount.STATE_CONNECTING; },
+  get disconnecting() { return this.connectionState == Ci.imIAccount.STATE_DISCONNECTING; },
 
   _cancelReconnection: function() {
     if (this._reconnectTimer) {
@@ -762,8 +765,9 @@ imAccount.prototype = {
 
     this._cancelReconnection();
   },
-  createConversation: function(aName)
-    this._ensurePrplAccount.createConversation(aName),
+  createConversation: function(aName) {
+    return this._ensurePrplAccount.createConversation(aName);
+  },
   addBuddy: function(aTag, aName) {
     this._ensurePrplAccount.addBuddy(aTag, aName);
   },
@@ -776,10 +780,11 @@ imAccount.prototype = {
   requestBuddyInfo: function(aBuddyName) {
     this._ensurePrplAccount.requestBuddyInfo(aBuddyName);
   },
-  getChatRoomFields: function() this._ensurePrplAccount.getChatRoomFields(),
-  getChatRoomDefaultFieldValues: function(aDefaultChatName)
-    this._ensurePrplAccount.getChatRoomDefaultFieldValues(aDefaultChatName),
-  get canJoinChat() this.prplAccount ? this.prplAccount.canJoinChat : false,
+  getChatRoomFields: function() { return this._ensurePrplAccount.getChatRoomFields(); },
+  getChatRoomDefaultFieldValues: function(aDefaultChatName) {
+    return this._ensurePrplAccount.getChatRoomDefaultFieldValues(aDefaultChatName);
+  },
+  get canJoinChat() { return this.prplAccount ? this.prplAccount.canJoinChat : false; },
   joinChat: function(aComponents) {
     this._ensurePrplAccount.joinChat(aComponents);
   },
@@ -810,16 +815,16 @@ imAccount.prototype = {
   },
   save: function() { SavePrefTimer.saveNow(); },
 
-  get HTMLEnabled() this._ensurePrplAccount.HTMLEnabled,
-  get HTMLEscapePlainText() this._ensurePrplAccount.HTMLEscapePlainText,
-  get noBackgroundColors() this._ensurePrplAccount.noBackgroundColors,
-  get autoResponses() this._ensurePrplAccount.autoResponses,
-  get singleFormatting() this._ensurePrplAccount.singleFormatting,
-  get noFontSizes() this._ensurePrplAccount.noFontSizes,
-  get noUrlDesc() this._ensurePrplAccount.noUrlDesc,
-  get noImages() this._ensurePrplAccount.noImages,
+  get HTMLEnabled() { return this._ensurePrplAccount.HTMLEnabled; },
+  get HTMLEscapePlainText() { return this._ensurePrplAccount.HTMLEscapePlainText; },
+  get noBackgroundColors() { return this._ensurePrplAccount.noBackgroundColors; },
+  get autoResponses() { return this._ensurePrplAccount.autoResponses; },
+  get singleFormatting() { return this._ensurePrplAccount.singleFormatting; },
+  get noFontSizes() { return this._ensurePrplAccount.noFontSizes; },
+  get noUrlDesc() { return this._ensurePrplAccount.noUrlDesc; },
+  get noImages() { return this._ensurePrplAccount.noImages; },
 
-  get proxyInfo() this._ensurePrplAccount.proxyInfo,
+  get proxyInfo() { return this._ensurePrplAccount.proxyInfo; },
   set proxyInfo(val) {
     this._ensurePrplAccount.proxyInfo = val;
     this._connectionInfoChanged();
@@ -868,15 +873,15 @@ AccountsService.prototype = {
 
     this._accounts =
       this._accountList.split(",").map(String.trim)
-          .filter(function (k) k.startsWith(kAccountKeyPrefix))
-          .map(function (k) parseInt(k.substr(kAccountKeyPrefix.length)))
+          .filter(k => k.startsWith(kAccountKeyPrefix))
+          .map(k => parseInt(k.substr(kAccountKeyPrefix.length)))
           .map(this.getAccountByNumericId, this)
-          .filter(function (a) a);
+          .filter(a => a);
 
     Services.obs.notifyObservers(this, "account-list-updated", null);
   },
 
-  get _accountList() Services.prefs.getCharPref(kPrefMessengerAccounts),
+  get _accountList() { return Services.prefs.getCharPref(kPrefMessengerAccounts); },
   set _accountList(aNewList) {
     this._observingAccountListChange = false;
     Services.prefs.setCharPref(kPrefMessengerAccounts, aNewList);
@@ -1020,8 +1025,8 @@ AccountsService.prototype = {
     this._accounts.push(aAccount);
     this._accountsById[aAccount.numericId] = aAccount;
   },
-  getAccountByNumericId: function(aAccountId) this._accountsById[aAccountId],
-  getAccounts: function() new nsSimpleEnumerator(this._accounts),
+  getAccountByNumericId: function(aAccountId) { return this._accountsById[aAccountId]; },
+  getAccounts: function() { return new nsSimpleEnumerator(this._accounts); },
 
   createAccount: function(aName, aPrpl) {
     // Ensure an account with the same name and protocol doesn't already exist.
@@ -1077,7 +1082,7 @@ AccountsService.prototype = {
     /* Update the account list pref. */
     let list = this._accountList;
     this._accountList =
-      list.split(",").filter(function (k) k.trim() != aAccountId).join(",");
+      list.split(",").filter(k => k.trim() != aAccountId).join(",");
   },
 
   QueryInterface: XPCOMUtils.generateQI([Ci.imIAccountsService]),

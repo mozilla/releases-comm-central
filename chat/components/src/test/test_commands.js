@@ -32,7 +32,7 @@ function fakeCommand(aName, aUsageContext) {
     this.usageContext = aUsageContext;
 }
 fakeCommand.prototype = {
-  get helpString() "",
+  get helpString() { return ""; },
   usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
   priority: Ci.imICommand.CMD_PRIORITY_PRPL,
   run: (aMsg, aConv) => true

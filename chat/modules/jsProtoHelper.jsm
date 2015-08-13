@@ -20,13 +20,13 @@ const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", function()
+XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/conversations.properties")
 );
 
 const GenericAccountPrototype = {
   __proto__: ClassInfo("prplIAccount", "generic account object"),
-  get wrappedJSObject() this,
+  get wrappedJSObject() { return this; },
   _init: function _init(aProtocol, aImAccount) {
     this.protocol = aProtocol;
     this.imAccount = aImAccount;
@@ -43,13 +43,13 @@ const GenericAccountPrototype = {
   setInt: function(aName, aVal) {},
   setString: function(aName, aVal) {},
 
-  get name() this.imAccount.name,
-  get connected() this.imAccount.connected,
-  get connecting() this.imAccount.connecting,
-  get disconnected() this.imAccount.disconnected,
-  get disconnecting() this.imAccount.disconnecting,
+  get name() { return this.imAccount.name; },
+  get connected() { return this.imAccount.connected; },
+  get connecting() { return this.imAccount.connecting; },
+  get disconnected() { return this.imAccount.disconnected; },
+  get disconnecting() { return this.imAccount.disconnecting; },
   _connectionErrorReason: Ci.prplIAccount.NO_ERROR,
-  get connectionErrorReason() this._connectionErrorReason,
+  get connectionErrorReason() { return this._connectionErrorReason; },
 
   /*
    * Convert a socket's nsISSLStatus into a prplIAccount connection error. Store
@@ -88,9 +88,9 @@ const GenericAccountPrototype = {
     return Ci.prplIAccount.ERROR_CERT_OTHER_ERROR;
   },
   _connectionTarget: "",
-  get connectionTarget() this._connectionTarget,
+  get connectionTarget() { return this._connectionTarget; },
   _sslStatus: null,
-  get sslStatus() this._sslStatus,
+  get sslStatus() { return this._sslStatus; },
 
   reportConnected: function() {
     this.imAccount.observe(this, "account-connected", null);
@@ -134,8 +134,8 @@ const GenericAccountPrototype = {
     if (!this._pendingBuddyRequests)
       this._pendingBuddyRequests = [];
     let buddyRequest = {
-      get account() this._account.imAccount,
-      get userName() aUserName,
+      get account() { return this._account.imAccount; },
+      get userName() { return aUserName; },
       _account: this,
       // Grant and deny callbacks both receive the auth request object as an
       // argument for further use.
@@ -167,7 +167,7 @@ const GenericAccountPrototype = {
       return;
 
     this._pendingBuddyRequests =
-      this._pendingBuddyRequests.filter(function(r) r !== aRequest);
+      this._pendingBuddyRequests.filter(r => r !== aRequest);
   },
   cancelPendingBuddyRequests: function() {
     if (!this._pendingBuddyRequests)
@@ -180,7 +180,7 @@ const GenericAccountPrototype = {
 
   requestBuddyInfo: function(aBuddyName) {},
 
-  get canJoinChat() false,
+  get canJoinChat() { return false; },
   getChatRoomFields: function() {
     if (!this.chatRoomFields)
       return EmptyEnumerator;
@@ -207,47 +207,50 @@ const GenericAccountPrototype = {
     return new ChatRoomFieldValues(defaultFieldValues);
   },
   requestRoomInfo: function(aCallback) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  get isRoomInfoStale() false,
+  get isRoomInfoStale() { return false; },
 
-  getPref: function (aName, aType)
-    this.prefs.prefHasUserValue(aName) ?
-      this.prefs["get" + aType + "Pref"](aName) :
-      this.protocol._getOptionDefault(aName),
-  getInt: function(aName) this.getPref(aName, "Int"),
-  getBool: function(aName) this.getPref(aName, "Bool"),
+  getPref: function (aName, aType) {
+    return this.prefs.prefHasUserValue(aName) ?
+           this.prefs["get" + aType + "Pref"](aName) :
+           this.protocol._getOptionDefault(aName);
+  },
+  getInt: function(aName) { return this.getPref(aName, "Int"); },
+  getBool: function(aName) { return this.getPref(aName, "Bool"); },
   getString: function(aName) {
     return this.prefs.prefHasUserValue(aName) ?
              this.prefs.getComplexValue(aName, Ci.nsISupportsString).data :
              this.protocol._getOptionDefault(aName);
   },
 
-  get prefs() this._prefs ||
-    (this._prefs = Services.prefs.getBranch("messenger.account." +
-                                            this.imAccount.id + ".options.")),
+  get prefs() {
+    return this._prefs ||
+           (this._prefs = Services.prefs.getBranch("messenger.account." +
+                                                   this.imAccount.id + ".options."));
+  },
 
-  get normalizedName() this.normalize(this.name),
-  normalize: function(aName) aName.toLowerCase(),
+  get normalizedName() { return this.normalize(this.name); },
+  normalize: function(aName) { return aName.toLowerCase(); },
 
   get proxyInfo() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
   set proxyInfo(val) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
 
-  get HTMLEnabled() false,
-  get HTMLEscapePlainText() false,
-  get noBackgroundColors() true,
-  get autoResponses() false,
-  get singleFormatting() false,
-  get noFontSizes() false,
-  get noUrlDesc() false,
-  get noImages() true
+  get HTMLEnabled() { return false; },
+  get HTMLEscapePlainText() { return false; },
+  get noBackgroundColors() { return true; },
+  get autoResponses() { return false; },
+  get singleFormatting() { return false; },
+  get noFontSizes() { return false; },
+  get noUrlDesc() { return false; },
+  get noImages() { return true; }
 };
 
 
 const GenericAccountBuddyPrototype = {
   __proto__: ClassInfo("prplIAccountBuddy", "generic account buddy object"),
-  get DEBUG() this._account.DEBUG,
-  get LOG() this._account.LOG,
-  get WARN() this._account.WARN,
-  get ERROR() this._account.ERROR,
+  get DEBUG() { return this._account.DEBUG; },
+  get LOG() { return this._account.LOG; },
+  get WARN() { return this._account.WARN; },
+  get ERROR() { return this._account.ERROR; },
 
   _init: function(aAccount, aBuddy, aTag, aUserName) {
     if (!aBuddy && !aUserName)
@@ -269,14 +272,14 @@ const GenericAccountBuddyPrototype = {
     delete this._buddy;
   },
 
-  get account() this._account.imAccount,
+  get account() { return this._account.imAccount; },
   set buddy(aBuddy) {
     if (this._buddy)
       throw Cr.NS_ERROR_ALREADY_INITIALIZED;
     this._buddy = aBuddy;
   },
-  get buddy() this._buddy,
-  get tag() this._tag,
+  get buddy() { return this._buddy; },
+  get tag() { return this._tag; },
   set tag(aNewTag) {
     let oldTag = this._tag;
     this._tag = aNewTag;
@@ -292,10 +295,10 @@ const GenericAccountBuddyPrototype = {
   },
 
   _userName: "",
-  get userName() this._userName || this._buddy.userName,
-  get normalizedName() this._account.normalize(this.userName),
+  get userName() { return this._userName || this._buddy.userName; },
+  get normalizedName() { return this._account.normalize(this.userName); },
   _serverAlias: "",
-  get serverAlias() this._serverAlias,
+  get serverAlias() { return this._serverAlias; },
   set serverAlias(aNewAlias) {
     let old = this.displayName;
     this._serverAlias = aNewAlias;
@@ -308,21 +311,21 @@ const GenericAccountBuddyPrototype = {
   },
 
   // imIStatusInfo implementation
-  get displayName() this.serverAlias || this.userName,
+  get displayName() { return this.serverAlias || this.userName; },
   _buddyIconFileName: "",
-  get buddyIconFilename() this._buddyIconFileName,
+  get buddyIconFilename() { return this._buddyIconFileName; },
   set buddyIconFilename(aNewFileName) {
     this._buddyIconFileName = aNewFileName;
     this._notifyObservers("icon-changed");
   },
   _statusType: 0,
-  get statusType() this._statusType,
-  get online() this._statusType > Ci.imIStatusInfo.STATUS_OFFLINE,
-  get available() this._statusType == Ci.imIStatusInfo.STATUS_AVAILABLE,
-  get idle() this._statusType == Ci.imIStatusInfo.STATUS_IDLE,
-  get mobile() this._statusType == Ci.imIStatusInfo.STATUS_MOBILE,
+  get statusType() { return this._statusType; },
+  get online() { return this._statusType > Ci.imIStatusInfo.STATUS_OFFLINE; },
+  get available() { return this._statusType == Ci.imIStatusInfo.STATUS_AVAILABLE; },
+  get idle() { return this._statusType == Ci.imIStatusInfo.STATUS_IDLE; },
+  get mobile() { return this._statusType == Ci.imIStatusInfo.STATUS_MOBILE; },
   _statusText: "",
-  get statusText() this._statusText,
+  get statusText() { return this._statusText; },
 
   // This is for use by the protocol plugin, it's not exposed in the
   // imIStatusInfo interface.
@@ -362,11 +365,11 @@ const GenericAccountBuddyPrototype = {
   },
 
   _availabilityDetails: 0,
-  get availabilityDetails() this._availabilityDetails,
+  get availabilityDetails() { return this._availabilityDetails; },
 
-  get canSendMessage() this.online /*|| this.account.canSendOfflineMessage(this) */,
+  get canSendMessage() { return this.online /*|| this.account.canSendOfflineMessage(this) */; },
 
-  getTooltipInfo: function() EmptyEnumerator,
+  getTooltipInfo: () => EmptyEnumerator,
   createConversation: function() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; }
 };
 
@@ -392,7 +395,7 @@ const GenericMessagePrototype = {
         this[i] = aObject[i];
   },
   _alias: "",
-  get alias() this._alias || this.who,
+  get alias() { return this._alias || this.who; },
   _iconURL: "",
   get iconURL() {
     // If the protocol plugin has explicitly set an icon for the message, use it.
@@ -408,7 +411,7 @@ const GenericMessagePrototype = {
     return "";
   },
   _conversation: null,
-  get conversation() this._conversation,
+  get conversation() { return this._conversation; },
   set conversation(aConv) {
     this._conversation = aConv;
     aConv.notifyObservers(this, "new-text", null);
@@ -442,12 +445,12 @@ Message.prototype = GenericMessagePrototype;
 
 const GenericConversationPrototype = {
   __proto__: ClassInfo("prplIConversation", "generic conversation object"),
-  get wrappedJSObject() this,
+  get wrappedJSObject() { return this; },
 
-  get DEBUG() this._account.DEBUG,
-  get LOG() this._account.LOG,
-  get WARN() this._account.WARN,
-  get ERROR() this._account.ERROR,
+  get DEBUG() { return this._account.DEBUG; },
+  get LOG() { return this._account.LOG; },
+  get WARN() { return this._account.WARN; },
+  get ERROR() { return this._account.ERROR; },
 
   _init: function(aAccount, aName) {
     this._account = aAccount;
@@ -458,7 +461,7 @@ const GenericConversationPrototype = {
   },
 
   _id: 0,
-  get id() this._id,
+  get id() { return this._id; },
   set id(aId) {
     if (this._id)
       throw Cr.NS_ERROR_ALREADY_INITIALIZED;
@@ -470,7 +473,7 @@ const GenericConversationPrototype = {
       this._observers.push(aObserver);
   },
   removeObserver: function(aObserver) {
-    this._observers = this._observers.filter(function(o) o !== aObserver);
+    this._observers = this._observers.filter(o => o !== aObserver);
   },
   notifyObservers: function(aSubject, aTopic, aData) {
     for each (let observer in this._observers) {
@@ -482,7 +485,7 @@ const GenericConversationPrototype = {
     }
   },
 
-  prepareForSending: function(aOutgoingMessage, aCount) null,
+  prepareForSending: (aOutgoingMessage, aCount) => null,
   prepareForDisplaying: function(aImMessage) {
     if (aImMessage.displayMessage !== aImMessage.message) {
       this.DEBUG("Preparing:\n" + aImMessage.message + "\nDisplaying:\n" +
@@ -492,7 +495,7 @@ const GenericConversationPrototype = {
   sendMsg: function(aMsg) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
-  sendTyping: function(aString) Ci.prplIConversation.NO_TYPING_LIMIT,
+  sendTyping: aString => Ci.prplIConversation.NO_TYPING_LIMIT,
 
   close: function() {
     Services.obs.notifyObservers(this, "closing-conversation", null);
@@ -507,11 +510,11 @@ const GenericConversationPrototype = {
     (new Message(aWho, aText, aProperties)).conversation = this;
   },
 
-  get account() this._account.imAccount,
-  get name() this._name,
-  get normalizedName() this._account.normalize(this.name),
-  get title() this.name,
-  get startDate() this._date
+  get account() { return this._account.imAccount; },
+  get name() { return this._name; },
+  get normalizedName() { return this._account.normalize(this.name); },
+  get title() { return this.name; },
+  get startDate() { return this._date; }
 };
 
 const GenericConvIMPrototype = {
@@ -530,7 +533,7 @@ const GenericConvIMPrototype = {
     this.notifyObservers(null, "update-typing", aName);
   },
 
-  get isChat() false,
+  get isChat() { return false; },
   buddy: null,
   typingState: Ci.prplIConvIM.NOT_TYPING
 };
@@ -546,7 +549,7 @@ const GenericConvChatPrototype = {
     GenericConversationPrototype._init.call(this, aAccount, aName);
   },
 
-  get isChat() true,
+  get isChat() { return true; },
 
   // Stores the prplIChatRoomFieldValues required to join this channel
   // to enable later reconnections. If null, the MUC will not be reconnected
@@ -555,9 +558,9 @@ const GenericConvChatPrototype = {
 
   _topic: "",
   _topicSetter: null,
-  get topic() this._topic,
-  get topicSettable() false,
-  get topicSetter() this._topicSetter,
+  get topic() { return this._topic; },
+  get topicSettable() { return false; },
+  get topicSetter() { return this._topicSetter; },
   setTopic: function(aTopic, aTopicSetter, aQuiet) {
     // Only change the topic if the topic and/or topic setter has changed.
     if (this._topic == aTopic &&
@@ -590,7 +593,7 @@ const GenericConvChatPrototype = {
     this.writeMessage(aTopicSetter, message, {system: true});
   },
 
-  get nick() this._nick,
+  get nick() { return this._nick; },
   set nick(aNick) {
     this._nick = aNick;
     let escapedNick = this._nick.replace(/[[\]{}()*+?.\\^$|]/g, "\\$&");
@@ -598,7 +601,7 @@ const GenericConvChatPrototype = {
   },
 
   _left: false,
-  get left() this._left,
+  get left() { return this._left; },
   set left(aLeft) {
     if (aLeft == this._left)
       return;
@@ -607,7 +610,7 @@ const GenericConvChatPrototype = {
   },
 
   _joining: false,
-  get joining() this._joining,
+  get joining() { return this._joining; },
   set joining(aJoining) {
     if (aJoining == this._joining)
       return;
@@ -621,7 +624,7 @@ const GenericConvChatPrototype = {
       [participant for (participant of this._participants.values())]
     );
   },
-  getNormalizedChatBuddyName: function(aChatBuddyName) aChatBuddyName,
+  getNormalizedChatBuddyName: aChatBuddyName => aChatBuddyName,
 
   writeMessage: function (aWho, aText, aProperties) {
     aProperties.containsNick =
@@ -634,12 +637,14 @@ const GenericConvChatBuddyPrototype = {
   __proto__: ClassInfo("prplIConvChatBuddy", "generic ConvChatBuddy object"),
 
   _name: "",
-  get name() this._name,
+  get name() { return this._name; },
   alias: "",
   buddy: false,
 
-  get noFlags() !(this.voiced || this.halfOp || this.op ||
-                  this.founder || this.typing),
+  get noFlags() {
+    return !(this.voiced || this.halfOp || this.op ||
+             this.founder || this.typing);
+  },
   voiced: false,
   halfOp: false,
   op: false,
@@ -710,9 +715,9 @@ purplePref.prototype = {
   masked: false,
 
   // Default value
-  getBool: function() this._defaultValue,
-  getInt: function() this._defaultValue,
-  getString: function() this._defaultValue,
+  getBool: function() { return this._defaultValue; },
+  getInt: function() { return this._defaultValue; },
+  getString: function() { return this._defaultValue; },
   getList: function() {
     // Convert a JavaScript object map {"value 1": "label 1", ...}
     let keys = Object.keys(this._listValues);
@@ -720,11 +725,10 @@ purplePref.prototype = {
       return EmptyEnumerator;
 
     return new nsSimpleEnumerator(
-      keys.map(function(key) new purpleKeyValuePair(this[key], key),
-               this._listValues)
+      keys.map(key => new purpleKeyValuePair(this._listValues[key], key))
     );
   },
-  getListDefault: function() this._defaultValue
+  getListDefault: function() { return this._defaultValue; }
 };
 
 function purpleKeyValuePair(aName, aValue) {
@@ -740,10 +744,10 @@ function UsernameSplit(aValues) {
 UsernameSplit.prototype = {
   __proto__: ClassInfo("prplIUsernameSplit", "username split object"),
 
-  get label() this._values.label,
-  get separator() this._values.separator,
-  get defaultValue() this._values.defaultValue,
-  get reverse() !!this._values.reverse // Ensure boolean
+  get label() { return this._values.label; },
+  get separator() { return this._values.separator; },
+  get defaultValue() { return this._values.defaultValue; },
+  get reverse() { return !!this._values.reverse; } // Ensure boolean
 };
 
 function ChatRoomField(aIdentifier, aField) {
@@ -770,8 +774,9 @@ function ChatRoomFieldValues(aMap) {
 ChatRoomFieldValues.prototype = {
   __proto__: ClassInfo("prplIChatRoomFieldValues", "ChatRoomFieldValues"),
 
-  getValue: function(aIdentifier)
-    this.values.hasOwnProperty(aIdentifier) ? this.values[aIdentifier] : null,
+  getValue: function(aIdentifier) {
+    return this.values.hasOwnProperty(aIdentifier) ? this.values[aIdentifier] : null;
+  },
   setValue: function(aIdentifier, aValue) {
     this.values[aIdentifier] = aValue;
   }
@@ -786,11 +791,11 @@ const GenericProtocolPrototype = {
     if (aId != this.id)
       throw "Creating an instance of " + aId + " but this object implements " + this.id;
   },
-  get id() "prpl-" + this.normalizedName,
+  get id() { return "prpl-" + this.normalizedName; },
   // This is more aggressive than the account normalization of just
   // toLowerCase() since prpl names must be only letters/numbers.
-  get normalizedName() this.name.replace(/[^a-z0-9]/gi, "").toLowerCase(),
-  get iconBaseURI() "chrome://chat/skin/prpl-generic/",
+  get normalizedName() { return this.name.replace(/[^a-z0-9]/gi, "").toLowerCase(); },
+  get iconBaseURI() { return "chrome://chat/skin/prpl-generic/"; },
 
   getAccount: function(aImAccount) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
 
@@ -813,7 +818,7 @@ const GenericProtocolPrototype = {
       return EmptyEnumerator;
 
     return new nsSimpleEnumerator(
-      this.usernameSplits.map(function(split) new UsernameSplit(split)));
+      this.usernameSplits.map(split => new UsernameSplit(split)));
   },
 
   registerCommands: function() {
@@ -834,20 +839,20 @@ const GenericProtocolPrototype = {
   },
 
   // NS_ERROR_XPC_JSOBJECT_HAS_NO_FUNCTION_NAMED errors are too noisy
-  get usernameEmptyText() "",
-  accountExists: function() false, //FIXME
+  get usernameEmptyText() { return ""; },
+  accountExists: () => false, //FIXME
 
-  get uniqueChatName() false,
-  get chatHasTopic() false,
-  get noPassword() false,
-  get newMailNotification() false,
-  get imagesInIM() false,
-  get passwordOptional() false,
-  get usePointSize() true,
-  get registerNoScreenName() false,
-  get slashCommandsNative() false,
-  get usePurpleProxy() false,
+  get uniqueChatName() { return false; },
+  get chatHasTopic() { return false; },
+  get noPassword() { return false; },
+  get newMailNotification() { return false; },
+  get imagesInIM() { return false; },
+  get passwordOptional() { return false; },
+  get usePointSize() { return true; },
+  get registerNoScreenName() { return false; },
+  get slashCommandsNative() { return false; },
+  get usePurpleProxy() { return false; },
 
-  get classDescription() this.name + " Protocol",
-  get contractID() "@mozilla.org/chat/" + this.normalizedName + ";1"
+  get classDescription() { return this.name + " Protocol"; },
+  get contractID() { return "@mozilla.org/chat/" + this.normalizedName + ";1"; }
 };

@@ -675,10 +675,10 @@ const Socket = {
                 Ci.nsIBadCertListener2, Ci.nsIProtocolProxyCallback],
   QueryInterface: function(iid) {
     if (iid.equals(Ci.nsISupports) ||
-        this._interfaces.some(function(i) i.equals(iid)))
+        this._interfaces.some(i => i.equals(iid)))
       return this;
 
     throw Cr.NS_ERROR_NO_INTERFACE;
   },
-  getInterface: function(iid) this.QueryInterface(iid)
+  getInterface: function(iid) { return this.QueryInterface(iid); }
 };

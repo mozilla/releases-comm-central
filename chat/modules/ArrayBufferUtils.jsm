@@ -24,7 +24,9 @@ function copyBytes(aTarget, aSource, aTargetOffset = 0, aSourceOffset = 0,
   view.set(new Uint8Array(aSource, aSourceOffset, aLength));
 }
 
-function ArrayBufferToBytes(aBuf) [b for (b of new Uint8Array(aBuf))];
+function ArrayBufferToBytes(aBuf) {
+  return [...new Uint8Array(aBuf)];
+}
 
 function BytesToArrayBuffer(aBytes = []) {
   let buf = new ArrayBuffer(aBytes.length);
@@ -33,12 +35,18 @@ function BytesToArrayBuffer(aBytes = []) {
   return buf;
 }
 
-function StringToBytes(aString) [aString.charCodeAt(i) for (i in aString)];
+function StringToBytes(aString) {
+  return [aString.charCodeAt(i) for (i in aString)];
+}
 
-function StringToArrayBuffer(aString) BytesToArrayBuffer(StringToBytes(aString))
+function StringToArrayBuffer(aString) {
+  return BytesToArrayBuffer(StringToBytes(aString));
+}
 
-function ArrayBufferToString(aData)
-  [String.fromCharCode(b) for (b of new Uint8Array(aData))].join("");
+function ArrayBufferToString(aData) {
+  return [for (b of new Uint8Array(aData)) String.fromCharCode(b)].join("");
+}
 
-function ArrayBufferToHexString(aData)
-  "0x" + [("0" + b.toString(16)).slice(-2) for (b of new Uint8Array(aData))].join(" ");
+function ArrayBufferToHexString(aData) {
+  return "0x" + [for (b of new Uint8Array(aData)) ("0" + b.toString(16)).slice(-2)].join(" ");
+}

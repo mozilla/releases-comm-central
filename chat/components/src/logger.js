@@ -12,7 +12,7 @@ Cu.import("resource:///modules/jsProtoHelper.jsm");
 Cu.import("resource://gre/modules/Task.jsm")
 XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", function()
+XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/logger.properties")
 );
 
@@ -104,7 +104,7 @@ function encodeName(aName) {
 
   // Reserved characters are replaced by %[hex value]. encodeURIComponent() is
   // not sufficient, nevertheless decodeURIComponent() can be used to decode.
-  function encodeReservedChars(match) "%" + match.charCodeAt(0).toString(16);
+  function encodeReservedChars(match) { return "%" + match.charCodeAt(0).toString(16); }
   return aName.replace(/[<>:"\/\\|?*&%]/g, encodeReservedChars);
 }
 
@@ -137,8 +137,9 @@ function getNewLogFileName(aFormat, aStartTime) {
     dateTime += "-";
   let minutes = offset % 60;
   offset = (offset - minutes) / 60;
-  function twoDigits(aNumber)
-    aNumber == 0 ? "00" : aNumber < 10 ? "0" + aNumber : aNumber;
+  function twoDigits(aNumber) {
+    return aNumber == 0 ? "00" : aNumber < 10 ? "0" + aNumber : aNumber;
+  }
   if (!aFormat)
     aFormat = "txt";
   return dateTime + twoDigits(offset) + twoDigits(minutes) + "." + aFormat;
@@ -265,7 +266,7 @@ LogWriter.prototype = {
         flags: ["outgoing", "incoming", "system", "autoResponse",
                 "containsNick", "error", "delayed",
                 "noFormat", "containsImages", "notification",
-                "noLinkification"].filter(function(f) aMessage[f])
+                "noLinkification"].filter(f => aMessage[f])
       };
       let alias = aMessage.alias;
       if (alias && alias != msg.who)
@@ -428,7 +429,7 @@ function LogMessage(aData, aConversation) {
 LogMessage.prototype = {
   __proto__: GenericMessagePrototype,
   _interfaces: [Ci.imIMessage, Ci.prplIMessage],
-  get displayMessage() this.originalMessage
+  get displayMessage() { return this.originalMessage; }
 };
 
 
@@ -439,19 +440,19 @@ function LogConversation(aMessages, aProperties) {
 }
 LogConversation.prototype = {
   __proto__: ClassInfo("imILogConversation", "Log conversation object"),
-  get isChat() this._isChat,
-  get buddy() null,
-  get account() ({
+  get isChat() { return this._isChat; },
+  get buddy() { return null; },
+  get account() { return {
     alias: "",
     name: this._accountName,
     normalizedName: this._accountName,
     protocol: {name: this._protocolName},
     statusInfo: Services.core.globalUserStatus
-  }),
+  }; },
   getMessages: function(aMessageCount) {
     if (aMessageCount)
       aMessageCount.value = this._messages.length;
-    return this._messages.map(function(m) new LogMessage(m, this), this);
+    return this._messages.map(m => new LogMessage(m, this));
   },
   getMessagesEnumerator: function(aMessageCount) {
     if (aMessageCount)
@@ -460,8 +461,8 @@ LogConversation.prototype = {
       _index: 0,
       _conv: this,
       _messages: this._messages,
-      hasMoreElements: function() this._index < this._messages.length,
-      getNext: function() new LogMessage(this._messages[this._index++], this._conv),
+      hasMoreElements: function() { return this._index < this._messages.length; },
+      getNext: function() { return new LogMessage(this._messages[this._index++], this._conv); },
       QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
     };
     return enumerator;
@@ -505,7 +506,7 @@ function Log(aEntries) {
 
   // Assume aEntries is an array of objects.
   // Sort our list of entries for this day in increasing order.
-  aEntries.sort(function(aLeft, aRight) aLeft.time - aRight.time);
+  aEntries.sort((aLeft, aRight) => aLeft.time - aRight.time);
 
   this._entryPaths = [entry.path for (entry of aEntries)];
   // Calculate the timestamp for the first entry down to the day.
@@ -658,7 +659,7 @@ DailyLogEnumerator.prototype = {
   _entries: {},
   _days: [],
   _index: 0,
-  hasMoreElements: function() this._index < this._days.length,
+  hasMoreElements: function() { return this._index < this._days.length; },
   getNext: function() {
     let dayID = this._days[this._index++];
     return new Log(this._entries[dayID]);
@@ -793,8 +794,9 @@ Logger.prototype = {
       name += ".chat";
     return this.getLogsForAccountAndName(aConversation.account, name, aGroupByDay);
   },
-  getSystemLogsForAccount: function logger_getSystemLogsForAccount(aAccount)
-    this.getLogsForAccountAndName(aAccount, ".system"),
+  getSystemLogsForAccount: function logger_getSystemLogsForAccount(aAccount) {
+    return this.getLogsForAccountAndName(aAccount, ".system");
+  },
   getSimilarLogs: Task.async(function* (aLog, aGroupByDay) {
     let iterator = new OS.File.DirectoryIterator(OS.Path.dirname(aLog.path));
     let entries;

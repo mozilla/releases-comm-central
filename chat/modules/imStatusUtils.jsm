@@ -9,7 +9,7 @@ const {interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", function()
+XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/status.properties")
 );
 
@@ -25,7 +25,7 @@ statusAttributes[imIStatusInfo.STATUS_UNAVAILABLE] = "unavailable";
 statusAttributes[imIStatusInfo.STATUS_AVAILABLE] = "available";
 
 const Status = {
-  toAttribute: function(aStatusType)
+  toAttribute: aStatusType =>
     aStatusType in statusAttributes ? statusAttributes[aStatusType] : "unknown",
 
   _labels: {},

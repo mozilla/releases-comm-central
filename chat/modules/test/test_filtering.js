@@ -261,7 +261,7 @@ function test_addGlobalAllowedTag() {
   removeGlobalAllowedTag("hr");
 
   // Allow <hr> with an src attribute taking only http(s) urls.
-  addGlobalAllowedTag("hr", {src: function(aValue) /^https?:/.test(aValue)});
+  addGlobalAllowedTag("hr", {src: aValue => /^https?:/.test(aValue)});
   do_check_eq("<hr src=\"http://example.com/\">",
               cleanupImMarkup("<hr src=\"http://example.com/\">"));
   do_check_eq("<hr>",
@@ -283,7 +283,7 @@ function test_addGlobalAllowedAttribute() {
   removeGlobalAllowedAttribute("id");
 
   // Allow id only with numbers.
-  addGlobalAllowedAttribute("id", function(aId) /^\d+$/.test(aId));
+  addGlobalAllowedAttribute("id", aId => /^\d+$/.test(aId));
   do_check_eq("<br id=\"123\">", cleanupImMarkup("<br id=\"123\">"));
   do_check_eq("<br>", cleanupImMarkup("<br id=\"foo\">"));
   removeGlobalAllowedAttribute("id");

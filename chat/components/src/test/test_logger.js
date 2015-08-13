@@ -41,8 +41,8 @@ let dummyConv = {
   id: 0,
   title: "dummy conv",
   normalizedName: "dummyconv",
-  get name() this.normalizedName,
-  get startDate() new Date(2011, 5, 28).valueOf() * 1000,
+  get name() { return this.normalizedName; },
+  get startDate() { return new Date(2011, 5, 28).valueOf() * 1000; },
   isChat: false
 };
 
@@ -52,8 +52,8 @@ let dummyConv2 = {
   id: 0,
   title: "dummy conv",
   normalizedName: "dummyconv",
-  get name() this.normalizedName,
-  get startDate() new Date(2011, 5, 29).valueOf() * 1000,
+  get name() { return this.normalizedName; },
+  get startDate() { return new Date(2011, 5, 29).valueOf() * 1000; },
   isChat: false
 };
 
@@ -62,7 +62,7 @@ let dummyMUC = {
   id: 1,
   title: "Dummy MUC",
   normalizedName: "dummymuc",
-  get name() this.normalizedName,
+  get name() { return this.normalizedName; },
   startDate: new Date(2011, 5, 28).valueOf() * 1000,
   isChat: true
 };
@@ -72,7 +72,7 @@ let dummyTwitterConv = {
   id: 2,
   title: "Dummy Twitter Conv",
   normalizedName: "dummytwitterconv",
-  get name() this.normalizedName,
+  get name() { return this.normalizedName; },
   startDate: new Date(2011, 5, 28).valueOf() * 1000,
   isChat: true
 };

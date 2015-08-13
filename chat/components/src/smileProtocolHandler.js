@@ -36,7 +36,7 @@ smileProtocolHandler.prototype = {
     channel.originalURI = aURI;
     return channel;
   },
-  allowPort: function  SPH_allowPort(aPort, aScheme) false,
+  allowPort: function SPH_allowPort(aPort, aScheme) { return false; },
 
   classDescription: "Smile Protocol Handler",
   classID: Components.ID("{04e58eae-dfbc-4c9e-8130-6d9ef19cbff4}"),

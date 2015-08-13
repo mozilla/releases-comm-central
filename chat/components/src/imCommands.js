@@ -7,7 +7,7 @@ const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", function()
+XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/commands.properties")
 );
 
@@ -20,7 +20,7 @@ CommandsService.prototype = {
     // using the /help command).
     this.registerCommand({
       name: "say",
-      get helpString() _("sayHelpString"),
+      get helpString() { return _("sayHelpString"); },
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_HIGH,
       run: function(aMsg, aConv) {
@@ -30,7 +30,7 @@ CommandsService.prototype = {
 
     this.registerCommand({
       name: "raw",
-      get helpString() _("rawHelpString"),
+      get helpString() { return _("rawHelpString"); },
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
       run: function(aMsg, aConv) {
@@ -48,7 +48,7 @@ CommandsService.prototype = {
       cmdSrv: this,
 
       name: "help",
-      get helpString() _("helpHelpString"),
+      get helpString() { return _("helpHelpString"); },
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
       run: function(aMsg, aConv) {
@@ -64,7 +64,7 @@ CommandsService.prototype = {
             return false;
 
           // Concatenate the command names (separated by a comma and space).
-          let cmds = commands.map(function(aCmd) aCmd.name).sort().join(", ");
+          let cmds = commands.map(aCmd => aCmd.name).sort().join(", ");
           let message = _("commands", cmds);
 
           // Display the message
@@ -107,7 +107,7 @@ CommandsService.prototype = {
       let statusValue = Ci.imIStatusInfo["STATUS_" + status[cmd]];
       this.registerCommand({
         name: cmd,
-        get helpString() _("statusCommand", this.name, _(this.name)),
+        get helpString() { return _("statusCommand", this.name, _(this.name)); },
         usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
         priority: Ci.imICommand.CMD_PRIORITY_HIGH,
         run: function(aMsg) {
@@ -172,7 +172,7 @@ CommandsService.prototype = {
   _usageContextFilter: function(aConversation) {
     let usageContext =
       Ci.imICommand["CMD_CONTEXT_" + (aConversation.isChat ? "CHAT" : "IM")];
-    return function(c) c.usageContext & usageContext;
+    return c => c.usageContext & usageContext;
   },
   _findCommands: function(aConversation, aName) {
     let prplId = null;
@@ -222,7 +222,7 @@ CommandsService.prototype = {
     }
 
     // Sort the matching commands by priority before returning the array.
-    return cmdArray.sort(function(a, b) b.priority - a.priority);
+    return cmdArray.sort((a, b) => b.priority - a.priority);
   },
   executeCommand: function(aMessage, aConversation, aReturnedConv) {
     if (!aMessage)

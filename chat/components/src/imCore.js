@@ -116,7 +116,7 @@ UserStatus.prototype = {
   },
 
   _idleTime: 0,
-  get idleTime() this._idleTime,
+  get idleTime() { return this._idleTime; },
   set idleTime(aIdleTime) {
     this._idleTime = aIdleTime;
     this._notifyObservers("idle-time-changed", aIdleTime);
@@ -152,9 +152,9 @@ UserStatus.prototype = {
   },
 
   _statusText: "",
-  get statusText() this._statusText || this._idleStatusText,
+  get statusText() { return this._statusText || this._idleStatusText; },
   _statusType: Ci.imIStatusInfo.STATUS_AVAILABLE,
-  get statusType() Math.min(this._statusType, this._idleStatusType, this._offlineStatusType),
+  get statusType() { return Math.min(this._statusType, this._idleStatusType, this._offlineStatusType); },
   setStatus: function(aStatus, aMessage) {
     if (aStatus != Ci.imIStatusInfo.STATUS_UNKNOWN)
       this._statusType = aStatus;
@@ -163,8 +163,7 @@ UserStatus.prototype = {
     this._notifyObservers("status-changed", aMessage);
   },
 
-  _getProfileDir: function()
-    Services.dirsvc.get("ProfD", Ci.nsIFile),
+  _getProfileDir: () => Services.dirsvc.get("ProfD", Ci.nsIFile),
   setUserIcon: function(aIconFile) {
     let folder = this._getProfileDir();
 
@@ -214,8 +213,10 @@ UserStatus.prototype = {
     return Services.io.newFileURI(file);
   },
 
-  get displayName() Services.prefs.getComplexValue(kPrefUserDisplayname,
-                                                   Ci.nsISupportsString).data,
+  get displayName() {
+    return Services.prefs.getComplexValue(kPrefUserDisplayname,
+                                          Ci.nsISupportsString).data;
+  },
   set displayName(aDisplayName) {
     let str = Cc["@mozilla.org/supports-string;1"]
               .createInstance(Ci.nsISupportsString);
@@ -230,7 +231,7 @@ UserStatus.prototype = {
       this._observers.push(aObserver);
   },
   removeObserver: function(aObserver) {
-    this._observers = this._observers.filter(function(o) o !== aObserver);
+    this._observers = this._observers.filter(o => o !== aObserver);
   },
   _notifyObservers: function(aTopic, aData) {
     for each (let observer in this._observers)
@@ -244,7 +245,7 @@ CoreService.prototype = {
   globalUserStatus: null,
 
   _initialized: false,
-  get initialized() this._initialized,
+  get initialized() { return this._initialized; },
   init: function() {
     if (this._initialized)
       return;

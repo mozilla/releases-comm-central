@@ -6,7 +6,7 @@ const {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", function()
+XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/contacts.properties")
 );
 
@@ -117,8 +117,8 @@ this.__defineGetter__("DBConn", function() {
 
 function TagsService() { }
 TagsService.prototype = {
-  get wrappedJSObject() this,
-  get defaultTag() this.createTag(_("defaultGroup")),
+  get wrappedJSObject() { return this; },
+  get defaultTag() { return this.createTag(_("defaultGroup")); },
   createTag: function(aName) {
     // If the tag already exists, we don't want to create a duplicate.
     let tag = this.getTagByName(aName);
@@ -138,7 +138,7 @@ TagsService.prototype = {
     return tag;
   },
   // Get an existing tag by (numeric) id. Returns null if not found.
-  getTagById: function(aId) TagsById[aId],
+  getTagById: aId => TagsById[aId],
   // Get an existing tag by name (will do an SQL query). Returns null
   // if not found.
   getTagByName: function(aName) {
@@ -155,7 +155,7 @@ TagsService.prototype = {
   // Get an array of all existing tags.
   getTags: function(aTagCount) {
     if (Tags.length)
-      Tags.sort(function(a, b) a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+      Tags.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
     else
       this.defaultTag;
 
@@ -164,7 +164,7 @@ TagsService.prototype = {
     return Tags;
   },
 
-  isTagHidden: function(aTag) aTag.id in otherContactsTag._hiddenTags,
+  isTagHidden: aTag => aTag.id in otherContactsTag._hiddenTags,
   hideTag: function(aTag) { otherContactsTag.hideTag(aTag); },
   showTag: function(aTag) { otherContactsTag.showTag(aTag); },
   get otherContactsTag() {
@@ -191,8 +191,8 @@ function Tag(aId, aName) {
   TagsById[this.id] = this;
 }
 Tag.prototype = {
-  get id() this._id,
-  get name() this._name,
+  get id() { return this._id; },
+  get name() { return this._name; },
   set name(aNewName) {
     let statement = DBConn.createStatement("UPDATE tags SET name = :name WHERE id = :id");
     try {
@@ -207,7 +207,7 @@ Tag.prototype = {
     return aNewName;
   },
   getContacts: function(aContactCount) {
-    let contacts = this._contacts.filter(function(c) !c._empty);
+    let contacts = this._contacts.filter(c => !c._empty);
     if (aContactCount)
       aContactCount.value = contacts.length;
     return contacts;
@@ -226,7 +226,7 @@ Tag.prototype = {
       this._observers.push(aObserver);
   },
   removeObserver: function(aObserver) {
-    this._observers = this._observers.filter(function(o) o !== aObserver);
+    this._observers = this._observers.filter(o => o !== aObserver);
   },
   notifyObservers: function(aSubject, aTopic, aData) {
     for each (let observer in this._observers)
@@ -238,7 +238,7 @@ Tag.prototype = {
     countRef.value = interfaces.length;
     return interfaces;
   },
-  getHelperForLanguage: function(language) null,
+  getHelperForLanguage: language => null,
   implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
   flags: 0,
   QueryInterface: XPCOMUtils.generateQI([Ci.imITag, Ci.nsIClassInfo])
@@ -257,7 +257,7 @@ var otherContactsTag = {
     let id = aTag.id;
     delete this._hiddenTags[id];
     for each (let contact in this._contacts)
-      if (contact.getTags().some(function(t) t.id == id))
+      if (contact.getTags().some(t => t.id == id))
         this._removeContact(contact);
 
     aTag.notifyObservers(aTag, "tag-shown", null);
@@ -279,7 +279,7 @@ var otherContactsTag = {
   _hideTag: function(aTag) {
     for each (let contact in aTag.getContacts())
       if (!(contact.id in this._contacts) &&
-          contact.getTags().every(function(t) t.id in this._hiddenTags, this))
+          contact.getTags().every(t => t.id in this._hiddenTags))
         this._addContact(contact);
   },
   observe: function(aSubject, aTopic, aData) {
@@ -287,7 +287,7 @@ var otherContactsTag = {
     if (aTopic == "contact-tag-removed" || aTopic == "contact-added") {
       if (!(aSubject.id in this._contacts) &&
           !(parseInt(aData) in this._hiddenTags) &&
-          aSubject.getTags().every(function(t) t.id in this._hiddenTags, this))
+          aSubject.getTags().every(t => t.id in this._hiddenTags))
         this._addContact(aSubject);
     }
     else if (aSubject.id in this._contacts &&
@@ -328,8 +328,8 @@ var otherContactsTag = {
   },
 
   // imITag implementation
-  get id() -1,
-  get name() "__others__",
+  get id() { return -1; },
+  get name() { return "__others__"; },
   set name(aNewName) { throw Cr.NS_ERROR_NOT_AVAILABLE; },
   getContacts: function(aContactCount) {
     let contacts = [contact for each (contact in this._contacts)];
@@ -357,7 +357,7 @@ var otherContactsTag = {
       this._observers.push(aObserver);
   },
   removeObserver: function(aObserver) {
-    this._observers = this._observers.filter(function(o) o !== aObserver);
+    this._observers = this._observers.filter(o => o !== aObserver);
   },
   notifyObservers: function(aSubject, aTopic, aData) {
     for each (let observer in this._observers)
@@ -369,7 +369,7 @@ var otherContactsTag = {
     countRef.value = interfaces.length;
     return interfaces;
   },
-  getHelperForLanguage: function(language) null,
+  getHelperForLanguage: language => null,
   implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
   flags: 0,
   QueryInterface: XPCOMUtils.generateQI([Ci.imITag, Ci.nsIObserver, Ci.nsIClassInfo])
@@ -390,8 +390,8 @@ function Contact(aId, aAlias) {
 }
 Contact.prototype = {
   _id: 0,
-  get id() this._id,
-  get alias() this._alias,
+  get id() { return this._id; },
+  get alias() { return this._alias; },
   set alias(aNewAlias) {
     this._ensureNotDummy();
 
@@ -466,7 +466,7 @@ Contact.prototype = {
 
     this._removeContactTagRow(aTag);
 
-    this._tags = this._tags.filter(function(tag) tag.id != aTag.id);
+    this._tags = this._tags.filter(tag => tag.id != aTag.id);
     aTag = TagsById[aTag.id];
     aTag._removeContact(this);
 
@@ -483,7 +483,7 @@ Contact.prototype = {
     statement.params.tagId = aTag.id;
     executeAsyncThenFinalize(statement);
   },
-  hasTag: function(aTag) this._tags.some(function (t) t.id == aTag.id),
+  hasTag: function(aTag) { return this._tags.some((t => t.id == aTag.id)); },
   _massMove: false,
   removeTag: function(aTag) {
     if (!this.hasTag(aTag))
@@ -498,7 +498,7 @@ Contact.prototype = {
     this._buddies.forEach(function (aBuddy) {
       aBuddy._accounts.forEach(function (aAccountBuddy) {
         if (aAccountBuddy.tag.id == aTag.id) {
-          if (aBuddy._accounts.some(function(ab)
+          if (aBuddy._accounts.some(ab =>
                ab.account.numericId == aAccountBuddy.account.numericId &&
                ab.tag.id != aTag.id && hasTag(ab.tag))) {
             // A buddy that already has an accountBuddy of the same
@@ -554,7 +554,7 @@ Contact.prototype = {
     // Apply the changes.
     let tags = this._tags;
     if (shouldRemove) {
-      tags = tags.filter(function(aTag) aTag.id != aOldTag.id);
+      tags = tags.filter(aTag => aTag.id != aOldTag.id);
       aOldTag._removeContact(this);
     }
     if (shouldAdd) {
@@ -584,8 +584,10 @@ Contact.prototype = {
       aBuddyCount.value = this._buddies.length;
     return this._buddies;
   },
-  get _empty() this._buddies.length == 0 ||
-               this._buddies.every(function(b) b._empty),
+  get _empty() {
+    return this._buddies.length == 0 ||
+           this._buddies.every(b => b._empty);
+  },
 
   mergeContact: function(aContact) {
     // Avoid merging the contact with itself or merging into an
@@ -664,7 +666,7 @@ Contact.prototype = {
       if (index == -1)
         throw "Removing an unknown buddy from contact " + this._id;
 
-      this._buddies = this._buddies.filter(function(b) b !== aBuddy);
+      this._buddies = this._buddies.filter(b => b !== aBuddy);
 
       // If we are actually removing the whole contact, don't bother updating
       // the positions or the preferred buddy.
@@ -817,21 +819,21 @@ Contact.prototype = {
       this._notifyObservers(aTopic);
     }, this);
   },
-  get displayName() this._alias || this.preferredBuddy.displayName,
-  get buddyIconFilename() this.preferredBuddy.buddyIconFilename,
+  get displayName() { return this._alias || this.preferredBuddy.displayName; },
+  get buddyIconFilename() { return this.preferredBuddy.buddyIconFilename; },
   _statusType: 0,
-  get statusType() this._statusType,
-  get online() this.statusType > Ci.imIStatusInfo.STATUS_OFFLINE,
-  get available() this.statusType == Ci.imIStatusInfo.STATUS_AVAILABLE,
-  get idle() this.statusType == Ci.imIStatusInfo.STATUS_IDLE,
-  get mobile() this.statusType == Ci.imIStatusInfo.STATUS_MOBILE,
+  get statusType() { return this._statusType; },
+  get online() { return this.statusType > Ci.imIStatusInfo.STATUS_OFFLINE; },
+  get available() { return this.statusType == Ci.imIStatusInfo.STATUS_AVAILABLE; },
+  get idle() { return this.statusType == Ci.imIStatusInfo.STATUS_IDLE; },
+  get mobile() { return this.statusType == Ci.imIStatusInfo.STATUS_MOBILE; },
   _statusText: "",
-  get statusText() this._statusText,
+  get statusText() { return this._statusText; },
   _availabilityDetails: 0,
-  get availabilityDetails() this._availabilityDetails,
-  get canSendMessage() this.preferredBuddy.canSendMessage,
+  get availabilityDetails() { return this._availabilityDetails; },
+  get canSendMessage() { return this.preferredBuddy.canSendMessage; },
   //XXX should we list the buddies in the tooltip?
-  getTooltipInfo: function() this.preferredBuddy.getTooltipInfo(),
+  getTooltipInfo: function() { return this.preferredBuddy.getTooltipInfo(); },
   createConversation: function() {
     let uiConv = Services.conversations.getUIConversationByContactId(this.id);
     if (uiConv)
@@ -847,7 +849,7 @@ Contact.prototype = {
     if (!this.hasOwnProperty("_observers"))
       return;
 
-    this._observers = this._observers.filter(function(o) o !== aObserver);
+    this._observers = this._observers.filter(o => o !== aObserver);
   },
   // internal calls + calls from add-ons
   notifyObservers: function(aSubject, aTopic, aData) {
@@ -900,7 +902,7 @@ Contact.prototype = {
     countRef.value = interfaces.length;
     return interfaces;
   },
-  getHelperForLanguage: function(language) null,
+  getHelperForLanguage: language => null,
   implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
   flags: 0,
   QueryInterface: XPCOMUtils.generateQI([Ci.imIContact, Ci.nsIClassInfo])
@@ -927,7 +929,7 @@ function Buddy(aId, aKey, aName, aSrvAlias, aContactId) {
   BuddiesById[this._id] = this;
 }
 Buddy.prototype = {
-  get id() this._id,
+  get id() { return this._id; },
   destroy: function() {
     for each (let ab in this._accounts)
       ab.unInit();
@@ -935,12 +937,12 @@ Buddy.prototype = {
     delete this._observers;
     delete this._preferredAccount;
   },
-  get protocol() this._accounts[0].account.protocol,
-  get userName() this._name,
-  get normalizedName() this._key,
+  get protocol() { return this._accounts[0].account.protocol; },
+  get userName() { return this._name; },
+  get normalizedName() { return this._key; },
   _srvAlias: "",
   _contact: null,
-  get contact() this._contact,
+  get contact() { return this._contact; },
   set contact(aContact) /* not in imIBuddy */ {
     if (aContact.id == this._contact.id)
       throw Components.results.NS_ERROR_INVALID_ARG;
@@ -991,7 +993,7 @@ Buddy.prototype = {
     if (!this._preferredAccount)
       this._preferredAccount = aAccountBuddy;
   },
-  get _empty() this._accounts.length == 0,
+  get _empty() { return this._accounts.length == 0; },
 
   remove: function() {
     for each (let account in this._accounts)
@@ -1000,7 +1002,7 @@ Buddy.prototype = {
 
   // imIStatusInfo implementation
   _preferredAccount: null,
-  get preferredAccountBuddy() this._preferredAccount,
+  get preferredAccountBuddy() { return this._preferredAccount; },
   _isPreferredAccount: function(aAccountBuddy) {
     if (aAccountBuddy.account.numericId != this._preferredAccount.account.numericId)
       return false;
@@ -1094,23 +1096,25 @@ Buddy.prototype = {
       this._notifyObservers(aTopic);
     }, this);
   },
-  get displayName() this._preferredAccount && this._preferredAccount.displayName ||
-                    this._srvAlias || this._name,
-  get buddyIconFilename() this._preferredAccount.buddyIconFilename,
+  get displayName() {
+    return this._preferredAccount && this._preferredAccount.displayName ||
+           this._srvAlias || this._name;
+  },
+  get buddyIconFilename() { return this._preferredAccount.buddyIconFilename; },
   _statusType: 0,
-  get statusType() this._statusType,
-  get online() this.statusType > Ci.imIStatusInfo.STATUS_OFFLINE,
-  get available() this.statusType == Ci.imIStatusInfo.STATUS_AVAILABLE,
-  get idle() this.statusType == Ci.imIStatusInfo.STATUS_IDLE,
-  get mobile() this.statusType == Ci.imIStatusInfo.STATUS_MOBILE,
+  get statusType() { return this._statusType; },
+  get online() { return this.statusType > Ci.imIStatusInfo.STATUS_OFFLINE; },
+  get available() { return this.statusType == Ci.imIStatusInfo.STATUS_AVAILABLE; },
+  get idle() { return this.statusType == Ci.imIStatusInfo.STATUS_IDLE; },
+  get mobile() { return this.statusType == Ci.imIStatusInfo.STATUS_MOBILE; },
   _statusText: "",
-  get statusText() this._statusText,
+  get statusText() { return this._statusText; },
   _availabilityDetails: 0,
-  get availabilityDetails() this._availabilityDetails,
-  get canSendMessage() this._preferredAccount.canSendMessage,
+  get availabilityDetails() { return this._availabilityDetails; },
+  get canSendMessage() { return this._preferredAccount.canSendMessage; },
   //XXX should we list the accounts in the tooltip?
-  getTooltipInfo: function() this._preferredAccount.getTooltipInfo(),
-  createConversation: function() this._preferredAccount.createConversation(),
+  getTooltipInfo: function() { return this._preferredAccount.getTooltipInfo(); },
+  createConversation: function() { return this._preferredAccount.createConversation(); },
 
   addObserver: function(aObserver) {
     if (this._observers.indexOf(aObserver) == -1)
@@ -1119,7 +1123,7 @@ Buddy.prototype = {
   removeObserver: function(aObserver) {
     if (!this._observers)
       return;
-    this._observers = this._observers.filter(function(o) o !== aObserver);
+    this._observers = this._observers.filter(o => o !== aObserver);
   },
   // internal calls + calls from add-ons
   notifyObservers: function(aSubject, aTopic, aData) {
@@ -1215,7 +1219,7 @@ Buddy.prototype = {
     countRef.value = interfaces.length;
     return interfaces;
   },
-  getHelperForLanguage: function(language) null,
+  getHelperForLanguage: language => null,
   implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
   flags: 0,
   QueryInterface: XPCOMUtils.generateQI([Ci.imIBuddy, Ci.nsIClassInfo])
@@ -1313,7 +1317,7 @@ ContactsService.prototype = {
     ContactsById = { };
   },
 
-  getContactById: function(aId) ContactsById[aId],
+  getContactById: aId => ContactsById[aId],
   // Get an array of all existing contacts.
   getContacts: function(aContactCount) {
     let contacts = [ContactsById[id] for (id in ContactsById) if (!ContactsById[id]._empty)];
@@ -1321,7 +1325,7 @@ ContactsService.prototype = {
       aContactCount.value = contacts.length;
     return contacts;
   },
-  getBuddyById: function(aId) BuddiesById[aId],
+  getBuddyById: aId => BuddiesById[aId],
   getBuddyByNameAndProtocol: function(aNormalizedName, aPrpl) {
     let statement =
       DBConn.createStatement("SELECT b.id FROM buddies b " +

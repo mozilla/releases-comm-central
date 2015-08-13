@@ -11,7 +11,7 @@ Cu.import("resource:///modules/jsProtoHelper.jsm");
 var gLastUIConvId = 0;
 var gLastPrplConvId = 0;
 
-XPCOMUtils.defineLazyGetter(this, "bundle", function()
+XPCOMUtils.defineLazyGetter(this, "bundle", () =>
   Services.strings.createBundle("chrome://chat/locale/conversations.properties")
 );
 
@@ -42,31 +42,31 @@ imMessage.prototype = {
   },
   set displayMessage(aMsg) { this._displayMessage = aMsg; },
 
-  get message() this.prplMessage.message,
+  get message() { return this.prplMessage.message; },
   set message(aMsg) { this.prplMessage.message = aMsg; },
 
   // from prplIMessage
-  get who() this.prplMessage.who,
-  get time() this.prplMessage.time,
-  get id() this.prplMessage.id,
-  get alias() this.prplMessage.alias,
-  get iconURL() this.prplMessage.iconURL,
-  get conversation() this.prplMessage.conversation,
+  get who() { return this.prplMessage.who; },
+  get time() { return this.prplMessage.time; },
+  get id() { return this.prplMessage.id; },
+  get alias() { return this.prplMessage.alias; },
+  get iconURL() { return this.prplMessage.iconURL; },
+  get conversation() { return this.prplMessage.conversation; },
   set conversation(aConv) { this.prplMessage.conversation = aConv; },
-  get outgoing() this.prplMessage.outgoing,
-  get incoming() this.prplMessage.incoming,
-  get system() this.prplMessage.system,
-  get autoResponse() this.prplMessage.autoResponse,
-  get containsNick() this.prplMessage.containsNick,
-  get noLog() this.prplMessage.noLog,
-  get error() this.prplMessage.error,
-  get delayed() this.prplMessage.delayed,
-  get noFormat() this.prplMessage.noFormat,
-  get containsImages() this.prplMessage.containsImages,
-  get notification() this.prplMessage.notification,
-  get noLinkification() this.prplMessage.noLinkification,
-  get originalMessage() this.prplMessage.originalMessage,
-  getActions: function(aCount) this.prplMessage.getActions(aCount || {})
+  get outgoing() { return this.prplMessage.outgoing; },
+  get incoming() { return this.prplMessage.incoming; },
+  get system() { return this.prplMessage.system; },
+  get autoResponse() { return this.prplMessage.autoResponse; },
+  get containsNick() { return this.prplMessage.containsNick; },
+  get noLog() { return this.prplMessage.noLog; },
+  get error() { return this.prplMessage.error; },
+  get delayed() { return this.prplMessage.delayed; },
+  get noFormat() { return this.prplMessage.noFormat; },
+  get containsImages() { return this.prplMessage.containsImages; },
+  get notification() { return this.prplMessage.notification; },
+  get noLinkification() { return this.prplMessage.noLinkification; },
+  get originalMessage() { return this.prplMessage.originalMessage; },
+  getActions: function(aCount) { return this.prplMessage.getActions(aCount || {}); }
 };
 
 function UIConversation(aPrplConversation)
@@ -105,11 +105,11 @@ UIConversation.prototype = {
       delete this._observedContact;
     }
   },
-  get target() this._prplConv[this._currentTargetId],
+  get target() { return this._prplConv[this._currentTargetId]; },
   set target(aPrplConversation) {
     this.changeTargetTo(aPrplConversation);
   },
-  get hasMultipleTargets() Object.keys(this._prplConv).length > 1,
+  get hasMultipleTargets() { return Object.keys(this._prplConv).length > 1; },
   getTargetByAccount: function(aAccount) {
     let accountId = aAccount.id;
     for (let id in this._prplConv) {
@@ -176,11 +176,11 @@ UIConversation.prototype = {
   },
 
   _unreadMessageCount: 0,
-  get unreadMessageCount() this._unreadMessageCount,
+  get unreadMessageCount() { return this._unreadMessageCount; },
   _unreadTargetedMessageCount: 0,
-  get unreadTargetedMessageCount() this._unreadTargetedMessageCount,
+  get unreadTargetedMessageCount() { return this._unreadTargetedMessageCount; },
   _unreadIncomingMessageCount: 0,
-  get unreadIncomingMessageCount() this._unreadIncomingMessageCount,
+  get unreadIncomingMessageCount() { return this._unreadIncomingMessageCount; },
   markAsRead: function() {
     delete this._unreadMessageCount;
     delete this._unreadTargetedMessageCount;
@@ -345,12 +345,12 @@ UIConversation.prototype = {
   },
 
   // prplIConversation
-  get isChat() this.target.isChat,
-  get account() this.target.account,
-  get name() this.target.name,
-  get normalizedName() this.target.normalizedName,
-  get title() this.target.title,
-  get startDate() this.target.startDate,
+  get isChat() { return this.target.isChat; },
+  get account() { return this.target.account; },
+  get name() { return this.target.name; },
+  get normalizedName() { return this.target.normalizedName; },
+  get title() { return this.target.title; },
+  get startDate() { return this.target.startDate; },
   sendMsg: function(aMsg) {
     // Add-ons (eg. pastebin) have an opportunity to cancel the message at this
     // point, or change the text content of the message.
@@ -406,7 +406,7 @@ UIConversation.prototype = {
       this._observers.push(aObserver);
   },
   removeObserver: function(aObserver) {
-    this._observers = this._observers.filter(function(o) o !== aObserver);
+    this._observers = this._observers.filter(o => o !== aObserver);
   },
   notifyObservers: function(aSubject, aTopic, aData) {
     if (aTopic == "new-text") {
@@ -448,26 +448,26 @@ UIConversation.prototype = {
   prepareForDisplaying: function(aMsg) {},
 
   // prplIConvIM
-  get buddy() this.target.buddy,
-  get typingState() this.target.typingState,
-  sendTyping: function(aString) this.target.sendTyping(aString),
+  get buddy() { return this.target.buddy; },
+  get typingState() { return this.target.typingState; },
+  sendTyping: function(aString) { return this.target.sendTyping(aString); },
 
   // Chat only
-  getParticipants: function() this.target.getParticipants(),
-  get topic() this.target.topic,
+  getParticipants: function() { return this.target.getParticipants(); },
+  get topic() { return this.target.topic; },
   set topic(aTopic) { this.target.topic = aTopic; },
-  get topicSetter() this.target.topicSetter,
-  get topicSettable() this.target.topicSettable,
-  get noTopicString() bundle.GetStringFromName("noTopic"),
-  get nick() this.target.nick,
-  get left() this.target.left,
-  get joining() this.target.joining
+  get topicSetter() { return this.target.topicSetter; },
+  get topicSettable() { return this.target.topicSettable; },
+  get noTopicString() { return bundle.GetStringFromName("noTopic"); },
+  get nick() { return this.target.nick; },
+  get left() { return this.target.left; },
+  get joining() { return this.target.joining; }
 };
 
 var gConversationsService;
 function ConversationsService() { gConversationsService = this; }
 ConversationsService.prototype = {
-  get wrappedJSObject() this,
+  get wrappedJSObject() { return this; },
 
   initConversations: function() {
     this._uiConv = {};
@@ -603,7 +603,7 @@ ConversationsService.prototype = {
     aPrplConversation.unInit();
 
     this._prplConversations =
-      this._prplConversations.filter(function(c) c !== aPrplConversation);
+      this._prplConversations.filter(c => c !== aPrplConversation);
   },
 
   getUIConversations: function(aConvCount) {
@@ -628,10 +628,11 @@ ConversationsService.prototype = {
       return this._uiConv[id];
     throw "Unknown conversation";
   },
-  getUIConversationByContactId: function(aId)
-    (aId in this._uiConvByContactId) ? this._uiConvByContactId[aId] : null,
+  getUIConversationByContactId: function(aId) {
+    return (aId in this._uiConvByContactId) ? this._uiConvByContactId[aId] : null;
+  },
 
-  getConversations: function() new nsSimpleEnumerator(this._prplConversations),
+  getConversations: function() { return new nsSimpleEnumerator(this._prplConversations); },
   getConversationById: function(aId) {
     for each (let conv in this._prplConversations)
       if (conv.id == aId)

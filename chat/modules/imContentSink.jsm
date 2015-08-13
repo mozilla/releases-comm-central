@@ -33,7 +33,7 @@ const EXPORTED_SYMBOLS = [
  *
  *    each attribute can have a function returning a boolean indicating if
  *    the attribute is accepted.
- *      example: 'href': function(aValue) aValue == 'about:blank'
+ *      example: 'href': aValue => aValue == 'about:blank'
  *
  *  - styles: an object with the allowed CSS style rule.
  *      example: 'font-size': true
@@ -42,10 +42,10 @@ const EXPORTED_SYMBOLS = [
  *  See the 3 examples of rulesets below.
  */
 
-const kAllowedURLs = function(aValue) /^(https?|ftp|mailto):/.test(aValue);
+const kAllowedURLs = aValue => /^(https?|ftp|mailto):/.test(aValue);
 const kAllowedMozClasses =
-  function(aClassName) aClassName == "moz-txt-underscore" ||
-                       aClassName == "moz-txt-tag";
+  aClassName => aClassName == "moz-txt-underscore" ||
+                aClassName == "moz-txt-tag";
 
 /* Tags whose content should be fully removed, and reported in the Error Console. */
 const kForbiddenTags = {

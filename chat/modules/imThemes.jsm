@@ -32,13 +32,13 @@ const DEFAULT_THEMES = ["bubbles", "dark", "papersheets", "simple"];
 
 const kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
 
-XPCOMUtils.defineLazyGetter(this, "gPrefBranch", function()
+XPCOMUtils.defineLazyGetter(this, "gPrefBranch", () =>
   Services.prefs.getBranch(kMessagesStylePrefBranch)
 );
 
 XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
   let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
-  return function(aTXT) cs.scanTXT(aTXT, cs.kEntities);
+  return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });
 
 var gCurrentTheme = null;
@@ -93,20 +93,20 @@ function HTMLTheme(aBaseURI)
 }
 
 HTMLTheme.prototype = {
-  get footer() "",
-  get header() "",
-  get status() this.incomingContent,
-  get statusNext() this.status,
+  get footer() { return ""; },
+  get header() { return ""; },
+  get status() { return this.incomingContent; },
+  get statusNext() { return this.status; },
   get incomingContent() {
     throw "Incoming/Content.html is a required file";
   },
-  get incomingNextContent() this.incomingContent,
-  get outgoingContent() this.incomingContent,
-  get outgoingNextContent() this.incomingNextContent,
-  get incomingContext() this.incomingContent,
-  get incomingNextContext() this.incomingNextContent,
-  get outgoingContext() this.hasOwnProperty("outgoingContent") ? this.outgoingContent : this.incomingContext,
-  get outgoingNextContext() this.hasOwnProperty("outgoingNextContent") ? this.outgoingNextContent : this.incomingNextContext
+  get incomingNextContent() { return this.incomingContent; },
+  get outgoingContent() { return this.incomingContent; },
+  get outgoingNextContent() { return this.incomingNextContent; },
+  get incomingContext() { return this.incomingContent; },
+  get incomingNextContext() { return this.incomingNextContent; },
+  get outgoingContext() { return this.hasOwnProperty("outgoingContent") ? this.outgoingContent : this.incomingContext; },
+  get outgoingNextContext() { return this.hasOwnProperty("outgoingNextContent") ? this.outgoingNextContent : this.incomingNextContext; }
 };
 
 function plistToJSON(aElt)
@@ -291,8 +291,8 @@ function getDirectoryEntries(aDir)
 function getThemeVariants(aTheme)
 {
   let variants = getDirectoryEntries(aTheme.baseURI + "Variants/");
-  return variants.filter(function(v) v.endsWith(".css"))
-                 .map(function(v) v.substring(0, v.length - 4));
+  return variants.filter(v => v.endsWith(".css"))
+                 .map(v => v.substring(0, v.length - 4));
 }
 
 /* helper function for replacements in messages */
@@ -325,16 +325,16 @@ function getStatusIconFromBuddy(aBuddy)
 }
 
 const headerFooterReplacements = {
-  chatName: function(aConv) TXTToHTML(aConv.title),
-  sourceName: function(aConv) TXTToHTML(aConv.account.alias || aConv.account.name),
-  destinationName: function(aConv) TXTToHTML(aConv.name),
-  destinationDisplayName: function(aConv) TXTToHTML(aConv.title),
+  chatName: aConv => TXTToHTML(aConv.title),
+  sourceName: aConv => TXTToHTML(aConv.account.alias || aConv.account.name),
+  destinationName: aConv => TXTToHTML(aConv.name),
+  destinationDisplayName: aConv => TXTToHTML(aConv.title),
   incomingIconPath: function(aConv) {
     let buddy;
     return (!aConv.isChat && (buddy = aConv.buddy) &&
             buddy.buddyIconFilename) || "incoming_icon.png";
   },
-  outgoingIconPath: function(aConv) "outgoing_icon.png",
+  outgoingIconPath: aConv => "outgoing_icon.png",
   timeOpened: function(aConv, aFormat) {
     let date = new Date(aConv.startDate / 1000);
     if (aFormat)
@@ -344,23 +344,24 @@ const headerFooterReplacements = {
   }
 };
 
-function formatAutoResponce(aTxt)
-  Services.strings
-          .createBundle("chrome://chat/locale/conversations.properties")
-          .formatStringFromName("autoReply", [aTxt], 1)
+function formatAutoResponce(aTxt) {
+  return Services.strings
+                 .createBundle("chrome://chat/locale/conversations.properties")
+                 .formatStringFromName("autoReply", [aTxt], 1);
+}
 
 const statusMessageReplacements = {
-  message: function(aMsg) "<span class=\"ib-msg-txt\">" +
-                          (aMsg.autoResponse ? formatAutoResponce(aMsg.message) : aMsg.message) +
-                          "</span>",
+  message: aMsg => "<span class=\"ib-msg-txt\">" +
+                   (aMsg.autoResponse ? formatAutoResponce(aMsg.message) : aMsg.message) +
+                   "</span>",
   time: function(aMsg, aFormat) {
     let date = new Date(aMsg.time * 1000);
     if (aFormat)
       return date.toLocaleFormat(aFormat);
     return date.toLocaleTimeString();
   },
-  timestamp: function(aMsg) aMsg.time,
-  shortTime: function(aMsg) (new Date(aMsg.time * 1000)).toLocaleTimeString(),
+  timestamp: aMsg => aMsg.time,
+  shortTime: aMsg => (new Date(aMsg.time * 1000)).toLocaleTimeString(),
   messageClasses: function(aMsg) {
     let msgClass = [];
 
@@ -396,8 +397,9 @@ const statusMessageReplacements = {
   }
 };
 
-function formatSender(aName)
-  "<span class=\"ib-sender\">" + TXTToHTML(aName) + "</span>";
+function formatSender(aName) {
+  return "<span class=\"ib-sender\">" + TXTToHTML(aName) + "</span>";
+}
 const messageReplacements = {
   userIconPath: function (aMsg) {
     // If the protocol plugin provides an icon for the message, use it.
@@ -415,22 +417,21 @@ const messageReplacements = {
     // Fallback to the theme's default icons.
     return (aMsg.incoming ? "Incoming" : "Outgoing") + "/buddy_icon.png";
   },
-  senderScreenName: function(aMsg) formatSender(aMsg.who),
-  sender: function(aMsg) formatSender(aMsg.alias || aMsg.who),
-  senderColor: function(aMsg) aMsg.color,
-  senderStatusIcon: function(aMsg)
-    getStatusIconFromBuddy(getBuddyFromMessage(aMsg)),
-  messageDirection: function(aMsg) "ltr",
+  senderScreenName: aMsg => formatSender(aMsg.who),
+  sender: aMsg => formatSender(aMsg.alias || aMsg.who),
+  senderColor: aMsg => aMsg.color,
+  senderStatusIcon: aMsg => getStatusIconFromBuddy(getBuddyFromMessage(aMsg)),
+  messageDirection: aMsg => "ltr",
   // no theme actually use this, don't bother making sure this is the real
   // serverside alias
-  senderDisplayName: function(aMsg) formatSender(aMsg.alias || aMsg.who),
-  service: function(aMsg) aMsg.conversation.account.protocol.name,
-  textbackgroundcolor: function(aMsg, aFormat) "transparent", // FIXME?
+  senderDisplayName: aMsg => formatSender(aMsg.alias || aMsg.who),
+  service: aMsg => aMsg.conversation.account.protocol.name,
+  textbackgroundcolor: (aMsg, aFormat) => "transparent", // FIXME?
   __proto__: statusMessageReplacements
 };
 
 const statusReplacements = {
-  status: function(aMsg) "", //FIXME
+  status: aMsg => "", //FIXME
   statusIcon: function(aMsg) {
     let conv = aMsg.conversation;
     let buddy = null;
@@ -695,7 +696,7 @@ function serializeSelection(aSelection)
     // If at least one selected message has some of its text selected,
     // remove from the selection all the messages that have no text
     // selected
-    let testFunction = function(msg) msg.isTextSelected();
+    let testFunction = msg => msg.isTextSelected();
     if (messages.some(testFunction))
       messages = messages.filter(testFunction);
 
@@ -753,7 +754,7 @@ function SelectedMessage(aRootNode, aRange)
 }
 
 SelectedMessage.prototype = {
-  get msg() this._rootNodes[0]._originalMsg,
+  get msg() { return this._rootNodes[0]._originalMsg; },
   addRoot: function(aRootNode) {
     this._rootNodes.push(aRootNode);
   },
@@ -920,8 +921,8 @@ SelectedMessage.prototype = {
     // have to change the content of msg.message and revert it
     // afterwards.
     replacements = {
-      message: function(aMsg) text,
-      sender: function(aMsg) aMsg.alias || aMsg.who,
+      message: aMsg => text,
+      sender: aMsg => aMsg.alias || aMsg.who,
       __proto__: replacements
     };
 
