@@ -14,7 +14,7 @@ Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/socket.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", function()
+XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/yahoo.properties")
 );
 
@@ -402,9 +402,9 @@ YahooSession.prototype = {
   // Private methods.
 
   // Socket Event Callbacks.
-  LOG: function(aString) this._account.LOG(aString),
+  LOG: function(aString) { return this._account.LOG(aString); },
 
-  DEBUG: function(aString) this._account.DEBUG(aString),
+  DEBUG: function(aString) { return this._account.DEBUG(aString); },
 
   onConnection: function() {
     // We send an authentication request packet as soon as we connect to the
@@ -927,7 +927,7 @@ const YahooPacketHandler = {
   // Conference additional invitation. NOTE: Since this packet has the same
   // structure as the normal conference invite (packet 0x18), we simply
   // reuse that handler.
-  0x1c: function(aPacket) YahooPacketHandler[0x18].call(this, aPacket),
+  0x1c: function(aPacket) { return YahooPacketHandler[0x18].call(this, aPacket); },
 
   // Conference message.
   0x1d: function(aPacket) {
@@ -998,7 +998,7 @@ const YahooPacketHandler = {
 
   // Buddy icon request reply. This can be handled in the same way as a buddy
   // icon checksum packet, so we simply reuse the handler.
-  0xbe: function (aPacket) YahooPacketHandler[0xbd].call(this, aPacket),
+  0xbe: function (aPacket) { return YahooPacketHandler[0xbd].call(this, aPacket); },
 
   // Buddy status update.
   0xc6: function (aPacket) {

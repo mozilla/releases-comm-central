@@ -169,7 +169,7 @@ function isEqual(aObject1, aObject2) {
     if (typeof field1 == "object")
       result &= isEqual(field1, field2);
     else if (Array.isArray(field1))
-      result &= field1.every(function(el, idx) el == field2[idx]);
+      result &= field1.every((el, idx) => el == field2[idx]);
     else
       result &= field1 == field2;
   }

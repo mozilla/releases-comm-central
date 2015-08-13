@@ -8,7 +8,7 @@ Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 const fakeProto = {
   id: "fake-proto",
   options: {alternateNicks: ""},
-  _getOptionDefault: function(aOption) this.options[aOption]
+  _getOptionDefault: function(aOption) { return this.options[aOption]; }
 }
 
 function test_tryNewNick() {
@@ -32,11 +32,11 @@ function test_tryNewNick() {
   let account = new irc.ircAccount(fakeProto,
                                    {name: "clokep@instantbird.org"});
   account.LOG = function(aStr) {};
-  account.normalize = function(aStr) aStr;
+  account.normalize = aStr => aStr;
 
   for (let currentNick in testData) {
     account._sentNickname = currentNick;
-    account.sendMessage = function(aCommand, aNewNick)
+    account.sendMessage = (aCommand, aNewNick) =>
       do_check_eq(aNewNick, testData[currentNick]);
 
     account.tryNewNick(currentNick);
@@ -75,10 +75,10 @@ function test_maxLength() {
                                    {name: "clokep@instantbird.org"});
   account.LOG = function(aStr) {};
   account._sentNickname = "abcdefghi";
-  account.normalize = function(aStr) aStr;
+  account.normalize = aStr => aStr;
 
   for (let currentNick of testData) {
-    account.sendMessage = function(aCommand, aNewNick)
+    account.sendMessage = (aCommand, aNewNick) =>
       do_check_eq(aNewNick, currentNick[1]);
 
     account.tryNewNick(currentNick[0]);
@@ -106,7 +106,7 @@ function test_altNicks() {
   let account = new irc.ircAccount(fakeProto,
                                    {name: "clokep@instantbird.org"});
   account.LOG = function(aStr) {};
-  account.normalize = function(aStr) aStr;
+  account.normalize = aStr => aStr;
 
   for (let currentNick in testData) {
     // Only one pref is touched in here, override the default to return
@@ -119,7 +119,7 @@ function test_altNicks() {
     };
     account._sentNickname = currentNick;
 
-    account.sendMessage = function(aCommand, aNewNick)
+    account.sendMessage = (aCommand, aNewNick) =>
       do_check_eq(aNewNick, testData[currentNick][1]);
 
     account.tryNewNick(currentNick);

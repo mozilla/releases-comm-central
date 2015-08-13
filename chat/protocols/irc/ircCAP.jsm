@@ -59,19 +59,19 @@ var ircCAP = {
   name: "Client Capabilities",
   // Slightly above default RFC 2812 priority.
   priority: ircHandlers.DEFAULT_PRIORITY + 10,
-  isEnabled: function() true,
+  isEnabled: () => true,
 
   commands: {
     "CAP": function(aMessage) {
       // [* | <nick>] <subcommand> :<parameters>
       let messages = capMessage(aMessage);
 
-      messages = messages.filter(function(aMessage)
-        !ircHandlers.handleCAPMessage(this, aMessage), this);
+      messages = messages.filter(aMessage =>
+        !ircHandlers.handleCAPMessage(this, aMessage));
       if (messages.length) {
         // Display the list of unhandled CAP messages.
         let unhandledMessages =
-          messages.map(function(aMsg) aMsg.cap.parameter).join(" ");
+          messages.map(aMsg => aMsg.cap.parameter).join(" ");
         this.LOG("Unhandled CAP messages: " + unhandledMessages +
                  "\nRaw message: " + aMessage.rawMessage);
       }

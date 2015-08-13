@@ -32,7 +32,7 @@ const kStatusMap = {
   "Hidden": "INVISIBLE"
 };
 
-XPCOMUtils.defineLazyGetter(this, "_", function()
+XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/skype.properties")
 );
 
@@ -367,7 +367,7 @@ SkypeAccount.prototype = {
     let params = [["client_id", kClientId],
                   ["redirect_uri", "https://web.skype.com"]];
     loginUrl += "?" +
-      params.map(function(p) p.map(encodeURIComponent).join("=")).join("&");
+      params.map(p => p.map(encodeURIComponent).join("=")).join("&");
 
     this.LOG("Received PIE response:\n" + aResponse);
 
@@ -793,7 +793,7 @@ SkypeAccount.prototype = {
     this._poller = null;
 
     // Mark all contacts on the account as having an unknown status.
-    this._buddies.forEach(function(aBuddy)
+    this._buddies.forEach(aBuddy =>
       aBuddy.setStatus(Ci.imIStatusInfo.STATUS_UNKNOWN, ""));
 
     this.reportDisconnected();
@@ -805,7 +805,7 @@ SkypeAccount.prototype = {
   remove: function() {
     this._conversations.forEach(conv => conv.close());
     delete this._conversations;
-    this.buddies.forEach(function(aBuddy) aBuddy.remove());
+    this.buddies.forEach(aBuddy => aBuddy.remove());
     delete this.buddies;
   },
 
@@ -831,7 +831,7 @@ SkypeAccount.prototype = {
   },
 
   // TODO Add support for MUCs.
-  get canJoinChat() false,
+  get canJoinChat() { return false; },
   chatRoomFields: {},
   joinChat: function(aComponents) {}
 };
@@ -839,13 +839,13 @@ SkypeAccount.prototype = {
 function SkypeProtocol() {}
 SkypeProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
-  get name() "Skype",
-  get iconBaseURI() "chrome://prpl-skype/skin/",
-  get baseId() "prpl-skype",
+  get name() { return "Skype"; },
+  get iconBaseURI() { return "chrome://prpl-skype/skin/"; },
+  get baseId() { return "prpl-skype"; },
 
-  get passwordOptional() false,
+  get passwordOptional() { return false; },
 
-  getAccount: function(aImAccount) new SkypeAccount(this, aImAccount),
+  getAccount: function(aImAccount) { return new SkypeAccount(this, aImAccount); },
   classID: Components.ID("{8446c0f6-9f59-4710-844e-eaa6c1f49d35}")
 };
 

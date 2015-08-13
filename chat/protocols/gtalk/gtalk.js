@@ -10,7 +10,7 @@ Cu.import("resource:///modules/xmpp.jsm");
 Cu.import("resource:///modules/xmpp-session.jsm");
 Cu.import("resource:///modules/xmpp-xml.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", function()
+XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 
@@ -89,16 +89,16 @@ function GTalkProtocol() {
 }
 GTalkProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
-  get normalizedName() "gtalk",
-  get name() _("gtalk.protocolName"),
-  get iconBaseURI() "chrome://prpl-gtalk/skin/",
-  get usernameEmptyText() _("gtalk.usernameHint"),
-  getAccount: function(aImAccount) new GTalkAccount(this, aImAccount),
+  get normalizedName() { return "gtalk"; },
+  get name() { return _("gtalk.protocolName"); },
+  get iconBaseURI() { return "chrome://prpl-gtalk/skin/"; },
+  get usernameEmptyText() { return _("gtalk.usernameHint"); },
+  getAccount: function(aImAccount) { return new GTalkAccount(this, aImAccount); },
   options: {
-    resource: {get label() _("options.resource"),
-               get default() XMPPDefaultResource}
+    resource: {get label() { return _("options.resource"); },
+               get default() { return XMPPDefaultResource; }}
   },
-  get chatHasTopic() true,
+  get chatHasTopic() { return true; },
   classID: Components.ID("{38a224c1-6748-49a9-8ab2-efc362b1000d}")
 };
 

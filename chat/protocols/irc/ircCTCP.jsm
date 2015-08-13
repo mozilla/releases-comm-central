@@ -29,7 +29,7 @@ function CTCPMessage(aMessage, aRawCTCPMessage) {
   // with \001 or \134, respectively. Any other character after \134 is replaced
   // with itself.
   let dequotedCTCPMessage = message.ctcp.rawMessage.replace(/\\(.|$)/g,
-    function(aStr) aStr[1] ? (aStr[1] == "a" ? "\x01" : aStr[1]) : "");
+    aStr => aStr[1] ? (aStr[1] == "a" ? "\x01" : aStr[1]) : "");
 
   let separator = dequotedCTCPMessage.indexOf(" ");
   // If there's no space, then only a command is given.
@@ -51,7 +51,7 @@ var ircCTCP = {
   name: "CTCP",
   // Slightly above default RFC 2812 priority.
   priority: ircHandlers.HIGH_PRIORITY,
-  isEnabled: function() true,
+  isEnabled: () => true,
 
   // CTCP uses only PRIVMSG and NOTICE commands.
   commands: {
@@ -113,7 +113,7 @@ var ctcpBase = {
   // Parameters
   name: "CTCP",
   priority: ircHandlers.DEFAULT_PRIORITY,
-  isEnabled: function() true,
+  isEnabled: () => true,
 
   // These represent CTCP commands.
   commands: {
@@ -138,7 +138,7 @@ var ctcpBase = {
     // supported CTCP parameters and this is not supported.
 
     // Returns the user's full name, and idle time.
-    //"FINGER": function(aMessage) false,
+    //"FINGER": function(aMessage) { return false; },
 
     // Dynamic master index of what a client knows.
     "CLIENTINFO": function(aMessage) {
@@ -185,10 +185,10 @@ var ctcpBase = {
     // supported CTCP parameters and this is not supported.
 
     // An encryption protocol between clients without any known reference.
-    //"SED": function(aMessage) false,
+    //"SED": function(aMessage) { return false; },
 
     // Where to obtain a copy of a client.
-    //"SOURCE": function(aMessage) false,
+    //"SOURCE": function(aMessage) { return false; },
 
     // Gets the local date and time from other clients.
     "TIME": function(aMessage) {
@@ -217,7 +217,7 @@ var ctcpBase = {
     // supported CTCP parameters and this is not supported.
 
     // A string set by the user (never the client coder)
-    //"USERINFO": function(aMessage) false,
+    //"USERINFO": function(aMessage) { return false; },
 
     // The version and type of the client.
     "VERSION": function(aMessage) {

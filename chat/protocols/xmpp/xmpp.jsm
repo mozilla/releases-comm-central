@@ -33,13 +33,13 @@ XPCOMUtils.defineLazyServiceGetter(this, "UuidGenerator",
                                    "@mozilla.org/uuid-generator;1",
                                    "nsIUUIDGenerator");
 
-XPCOMUtils.defineLazyGetter(this, "_", function()
+XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 
 XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
   let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
-  return function(aTxt) cs.scanTXT(aTxt, cs.kEntities);
+  return aTxt => cs.scanTXT(aTxt, cs.kEntities);
 });
 
 // Parses the status from a presence stanza into an object of statusType,
@@ -70,8 +70,8 @@ function parseStatus(aStanza) {
   // Mark official Android clients as mobile.
   const kAndroidNodeURI = "http://www.android.com/gtalk/client/caps";
   if (aStanza.getChildrenByNS(Stanza.NS.caps)
-             .some(function(s) s.localName == "c" &&
-                               s.attributes["node"] == kAndroidNodeURI))
+             .some(s => s.localName == "c" &&
+                        s.attributes["node"] == kAndroidNodeURI))
     statusType = Ci.imIStatusInfo.STATUS_MOBILE;
 
   let status = aStanza.getElement(["status"]);
@@ -109,7 +109,7 @@ MUCParticipant.prototype = {
 
   statusType: null,
   statusText: null,
-  get alias() this.name,
+  get alias() { return this.name; },
 
   role: 2, // "participant" by default
 
@@ -140,11 +140,11 @@ MUCParticipant.prototype = {
       this.accountJid = accountJid;
   },
 
-  get noFlags() this.role < kRoles.indexOf("member"),
-  get voiced() this.role == kRoles.indexOf("member"),
-  get halfOp() this.role == kRoles.indexOf("moderator"),
-  get op() this.role == kRoles.indexOf("admin"),
-  get founder() this.role == kRoles.indexOf("owner"),
+  get noFlags() { return this.role < kRoles.indexOf("member"); },
+  get voiced() { return this.role == kRoles.indexOf("member"); },
+  get halfOp() { return this.role == kRoles.indexOf("moderator"); },
+  get op() { return this.role == kRoles.indexOf("admin"); },
+  get founder() { return this.role == kRoles.indexOf("owner"); },
   typing: false
 };
 
@@ -410,8 +410,9 @@ const XMPPMUCConversationPrototype = {
     this.writeMessage(from, aMsg, flags);
   },
 
-  getNormalizedChatBuddyName: function(aNick)
-    this._account.normalizeFullJid(this.name + "/" + aNick),
+  getNormalizedChatBuddyName: function(aNick) {
+    return this._account.normalizeFullJid(this.name + "/" + aNick);
+  },
 
   // Removes a participant from MUC conversation.
   removeParticipant: function(aNick) {
@@ -477,10 +478,10 @@ const XMPPConversationPrototype = {
   // recipient jid (stored in the userName) is of the form room@domain/nick.
   _isMucParticipant: false,
 
-  get buddy() this._account._buddies.get(this.name),
-  get title() this.contactDisplayName,
-  get contactDisplayName() this.buddy ? this.buddy.contactDisplayName : this.name,
-  get userName() this.buddy ? this.buddy.userName : this.name,
+  get buddy() { return this._account._buddies.get(this.name); },
+  get title() { return this.contactDisplayName; },
+  get contactDisplayName() { return this.buddy ? this.buddy.contactDisplayName : this.name; },
+  get userName() { return this.buddy ? this.buddy.userName : this.name; },
 
   // Returns jid (room@domain/nick) if it is with a MUC participant, and the
   // name of conversation otherwise.
@@ -507,9 +508,10 @@ const XMPPConversationPrototype = {
     return jid.node;
   },
 
-  get shouldSendTypingNotifications()
-    this.supportChatStateNotifications &&
-    Services.prefs.getBoolPref("purple.conversations.im.send_typing"),
+  get shouldSendTypingNotifications() {
+    return this.supportChatStateNotifications &&
+           Services.prefs.getBoolPref("purple.conversations.im.send_typing");
+  },
 
   /* Called when the user is typing a message
    * aString - the currently typed message
@@ -718,7 +720,7 @@ const XMPPAccountBuddyPrototype = {
   // _serverAlias is set by jsProtoHelper to the value we cached in sqlite.
   // Use it only if we have neither of the other two values; usually because
   // we haven't connected to the server yet.
-  get serverAlias() this._rosterAlias || this._vCardFormattedName || this._serverAlias,
+  get serverAlias() { return this._rosterAlias || this._vCardFormattedName || this._serverAlias; },
   set serverAlias(aNewAlias) {
     if (!this._rosterItem) {
       this.ERROR("attempting to update the server alias of an account buddy " +
@@ -742,9 +744,9 @@ const XMPPAccountBuddyPrototype = {
   },
 
   /* Display name of the buddy */
-  get contactDisplayName() this.buddy.contact.displayName || this.displayName,
+  get contactDisplayName() { return this.buddy.contact.displayName || this.displayName; },
 
-  get tag() this._tag,
+  get tag() { return this._tag; },
   set tag(aNewTag) {
     let oldTag = this._tag;
     if (oldTag.name == aNewTag.name) {
@@ -764,11 +766,11 @@ const XMPPAccountBuddyPrototype = {
     let oldXML = item.getXML();
     // Remove the old tag if it was listed in the roster item.
     item.children =
-      item.children.filter(function (c) c.qName != "group" ||
-                                        c.innerText != oldTag.name);
+      item.children.filter(c => c.qName != "group" ||
+                                c.innerText != oldTag.name);
     // Ensure the new tag is listed.
     let newTagName = aNewTag.name;
-    if (!item.getChildren("group").some(function (g) g.innerText == newTagName))
+    if (!item.getChildren("group").some(g => g.innerText == newTagName))
       item.addChild(Stanza.node("group", null, null, newTagName));
     // Avoid sending anything to the server if the roster item hasn't changed.
     // It's possible that the roster item hasn't changed if the roster
@@ -826,7 +828,7 @@ const XMPPAccountBuddyPrototype = {
     let dataArray = [content.charCodeAt(i) for (i in content)];
     ch.update(dataArray, dataArray.length);
     let hash = ch.finish(false);
-    function toHexString(charCode) ("0" + charCode.toString(16)).slice(-2)
+    function toHexString(charCode) { return ("0" + charCode.toString(16)).slice(-2); }
     this._photoHash = [toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
 
     let istream = Cc["@mozilla.org/io/string-input-stream;1"]
@@ -938,11 +940,12 @@ const XMPPAccountBuddyPrototype = {
   },
 
   /* Can send messages to buddies who appear offline */
-  get canSendMessage() this.account.connected,
+  get canSendMessage() { return this.account.connected; },
 
   /* Called when the user wants to chat with the buddy */
-  createConversation: function()
-    this._account.createConversation(this.normalizedName)
+  createConversation: function() {
+    return this._account.createConversation(this.normalizedName);
+  }
 };
 function XMPPAccountBuddy(aAccount, aBuddy, aTag, aUserName)
 {
@@ -965,7 +968,7 @@ const XMPPAccountPrototype = {
   /* Generate unique id for a stanza. Using id and unique sid is defined in
    * RFC 6120 (Section 8.2.3, 4.7.3).
    */
-  generateId: function() UuidGenerator.generateUUID().toString().slice(1, -1),
+  generateId: () => UuidGenerator.generateUUID().toString().slice(1, -1),
 
   _init: function(aProtoInstance, aImAccount) {
     GenericAccountPrototype._init.call(this, aProtoInstance, aImAccount);
@@ -980,12 +983,12 @@ const XMPPAccountPrototype = {
     this._mucs = new NormalizedMap(this.normalize.bind(this));
   },
 
-  get canJoinChat() true,
+  get canJoinChat() { return true; },
   chatRoomFields: {
-    room: {get label() _("chatRoomField.room"), required: true},
-    server: {get label() _("chatRoomField.server"), required: true},
-    nick: {get label() _("chatRoomField.nick"), required: true},
-    password: {get label() _("chatRoomField.password"), isPassword: true}
+    room: {get label() { return _("chatRoomField.room"); }, required: true},
+    server: {get label() { return _("chatRoomField.server"); }, required: true},
+    nick: {get label() { return _("chatRoomField.nick"); }, required: true},
+    password: {get label() { return _("chatRoomField.password"); }, isPassword: true}
   },
   parseDefaultChatName: function(aDefaultChatName) {
     if (!aDefaultChatName)
@@ -1781,7 +1784,7 @@ const XMPPAccountPrototype = {
         // If the server specified at least one group, ensure the group we use
         // as the account buddy's tag is still a group on the server...
         let tagName = buddy.tag.name;
-        if (!groups.some(function (g) g.innerText == tagName)) {
+        if (!groups.some(g => g.innerText == tagName)) {
           // ... otherwise we need to move our account buddy to a new group.
           tagName = groups[0].innerText;
           if (tagName) { // Should always be true, but check just in case...
@@ -2135,7 +2138,7 @@ const XMPPAccountPrototype = {
       // a user action. This is to avoid removing data from the server each
       // time the user connects from a new profile.
       this._userVCard.children =
-        this._userVCard.children.filter(function (n) n.qName != "FN");
+        this._userVCard.children.filter(n => n.qName != "FN");
     }
     delete this._forceUserDisplayNameUpdate;
 
@@ -2156,7 +2159,7 @@ const XMPPAccountPrototype = {
       // Like for the display name, we remove a photo without
       // replacing it only if the call is caused by a user action.
       this._userVCard.children =
-        this._userVCard.children.filter(function (n) n.qName != "PHOTO");
+        this._userVCard.children.filter(n => n.qName != "PHOTO");
     }
     delete this._forceUserIconUpdate;
 

@@ -11,15 +11,15 @@ Cu.import("resource:///modules/socket.jsm");
 Cu.import("resource:///modules/xmpp-xml.jsm");
 Cu.import("resource:///modules/xmpp-authmechs.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", function()
+XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 
 // Workaround because a lazy getter can't be exported.
-XPCOMUtils.defineLazyGetter(this, "_defaultResource", function()
+XPCOMUtils.defineLazyGetter(this, "_defaultResource", () =>
   l10nHelper("chrome://branding/locale/brand.properties")("brandShortName")
 );
-__defineGetter__("XMPPDefaultResource", function() _defaultResource);
+__defineGetter__("XMPPDefaultResource", () => _defaultResource);
 
 function XMPPSession(aHost, aPort, aSecurity, aJID, aPassword, aAccount) {
   this._host = aHost;
@@ -88,10 +88,10 @@ XMPPSession.prototype = {
       this.resetPingTimer();
   },
 
-  get DEBUG() this._account.DEBUG,
-  get LOG() this._account.LOG,
-  get WARN() this._account.WARN,
-  get ERROR() this._account.ERROR,
+  get DEBUG() { return this._account.DEBUG; },
+  get LOG() { return this._account.LOG; },
+  get WARN() { return this._account.WARN; },
+  get ERROR() { return this._account.ERROR; },
 
   _security: null,
   _encrypted: false,
@@ -256,7 +256,7 @@ XMPPSession.prototype = {
         return;
       }
       if (starttls &&
-          starttls.children.some(function (c) c.localName == "required")) {
+          starttls.children.some(c => c.localName == "required")) {
         this.onError(Ci.prplIAccount.ERROR_ENCRYPTION_ERROR,
                      _("connection.error.startTLSRequired"));
         return;
@@ -485,7 +485,7 @@ XMPPSession.prototype = {
         ch.update(data, data.length);
         let hash = ch.finish(false);
         let toHexString =
-          function(charCode) ("0" + charCode.toString(16)).slice(-2);
+          charCode => ("0" + charCode.toString(16)).slice(-2);
         let digest = [toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
 
         children.push(Stanza.node("digest", null, null, digest));

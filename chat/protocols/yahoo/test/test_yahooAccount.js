@@ -27,7 +27,7 @@ function test_cleanUsername()
     options: {
       local_charset: "UTF-8"
     },
-    _getOptionDefault: function(aOption) this.options[aOption]
+    _getOptionDefault: function(aOption) { return this.options[aOption]; }
   };
   let fakeImAccount = {};
 
@@ -74,7 +74,7 @@ function test_fixFontSize()
     options: {
       local_charset: "UTF-8"
     },
-    _getOptionDefault: function(aOption) this.options[aOption]
+    _getOptionDefault: function(aOption) { return this.options[aOption]; }
   };
   let fakeImAccount = {name: "test-user"};
   // We create a fake conversation object so we can obtain the cleaned up

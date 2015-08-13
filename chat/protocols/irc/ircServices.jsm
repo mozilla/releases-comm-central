@@ -51,7 +51,7 @@ function ServiceMessage(aAccount, aMessage) {
 var ircServices = {
   name: "IRC Services",
   priority: ircHandlers.HIGH_PRIORITY,
-  isEnabled: function() true,
+  isEnabled: () => true,
   sendIdentify: function(aAccount) {
     if (aAccount.imAccount.password && aAccount.shouldAuthenticate &&
         !aAccount.isAuthenticated) {
@@ -121,7 +121,7 @@ var ircServices = {
 var servicesBase = {
   name: "IRC Services",
   priority: ircHandlers.DEFAULT_PRIORITY,
-  isEnabled: function() true,
+  isEnabled: () => true,
 
   commands: {
     "ChanServ": function(aMessage) {
@@ -214,8 +214,8 @@ var servicesBase = {
         this.nickservMessageQueue = [aMessage];
         this.nickservAuthTimeout = setTimeout(function() {
           this.isHandlingQueuedMessages = true;
-          this.nickservMessageQueue.every(function(aMessage)
-            ircHandlers.handleMessage(this, aMessage), this);
+          this.nickservMessageQueue.every(aMessage =>
+            ircHandlers.handleMessage(this, aMessage));
           delete this.isHandlingQueuedMessages;
           delete this.nickservMessageQueue;
         }.bind(this), 10000);

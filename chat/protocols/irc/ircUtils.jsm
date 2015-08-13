@@ -9,13 +9,13 @@ const {classes: Cc, interfaces: Ci} = Components;
 
 Components.utils.import("resource:///modules/imXPCOMUtils.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", function()
+XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")
 );
 
 XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
   let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
-  return function(aTXT) cs.scanTXT(aTXT, cs.kEntities);
+  return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });
 
 // The timespan after which we consider LIST roomInfo to be stale.
@@ -71,12 +71,14 @@ function ctcpFormatToText(aString) {
   return output + input;
 }
 
-function openStack(aStack)
-  aStack.map(function(aTag) "<" + aTag + ">").join("")
+function openStack(aStack) {
+  return aStack.map(aTag => "<" + aTag + ">").join("");
+}
 
 // Close the tags in the opposite order they were opened.
-function closeStack(aStack)
-  aStack.reverse().map(function(aTag) "</" + aTag.split(" ", 1) + ">").join("")
+function closeStack(aStack) {
+  return aStack.reverse().map(aTag => "</" + aTag.split(" ", 1) + ">").join("");
+}
 
 /**
  * Convert a string from CTCP escaped formatting to HTML markup.
@@ -180,13 +182,13 @@ function mIRCColoring(aStack, aInput) {
     // first open font tag.
     if (!matches[1]) {
       // Find the first font tag.
-      let offset = stack.map(function(aTag) aTag.indexOf("font") == 0)
+      let offset = stack.map(aTag => aTag.indexOf("font") == 0)
                         .indexOf(true);
 
       // Close all tags from the first font tag on.
       output = closeStack(stack.slice(offset));
       // Remove the font tags from the stack.
-      stack = stack.filter(function(aTag) aTag.indexOf("font"));
+      stack = stack.filter(aTag => aTag.indexOf("font"));
       // Reopen the other tags.
       output += openStack(stack.slice(offset));
     }

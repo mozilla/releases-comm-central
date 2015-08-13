@@ -50,7 +50,7 @@ var ircISUPPORT = {
   name: "ISUPPORT",
   // Slightly above default RFC 2812 priority.
   priority: ircHandlers.DEFAULT_PRIORITY + 10,
-  isEnabled: function() true,
+  isEnabled: () => true,
 
   commands: {
     // RPL_ISUPPORT
@@ -58,12 +58,12 @@ var ircISUPPORT = {
     "005": function(aMessage) {
       let messages = isupportMessage(aMessage);
 
-      messages = messages.filter(function(aMessage)
-        !ircHandlers.handleISUPPORTMessage(this, aMessage), this);
+      messages = messages.filter(aMessage =>
+        !ircHandlers.handleISUPPORTMessage(this, aMessage));
       if (messages.length) {
         // Display the list of unhandled ISUPPORT messages.
         let unhandledMessages =
-          messages.map(function(aMsg) aMsg.isupport.parameter).join(" ");
+          messages.map(aMsg => aMsg.isupport.parameter).join(" ");
         this.LOG("Unhandled ISUPPORT messages: " + unhandledMessages +
                  "\nRaw message: " + aMessage.rawMessage);
       }
@@ -81,13 +81,14 @@ function setSimpleNumber(aAccount, aField, aMessage, aDefaultValue) {
 }
 
 // Generates an expression to search for the ASCII range of a-b.
-function generateNormalize(a, b)
-  new RegExp("[\\x" + a.toString(16) + "-\\x" + b.toString(16) + "]", "g");
+function generateNormalize(a, b) {
+  return new RegExp("[\\x" + a.toString(16) + "-\\x" + b.toString(16) + "]", "g");
+}
 
 var isupportBase = {
   name: "ISUPPORT",
   priority: ircHandlers.DEFAULT_PRIORITY,
-  isEnabled: function() true,
+  isEnabled: () => true,
 
   commands: {
     "CASEMAPPING": function(aMessage) {
@@ -131,7 +132,7 @@ var isupportBase = {
       }
       return true;
     },
-    "CHANMODES": function(aMessage) false,
+    "CHANMODES": aMessage => false,
     "CHANNELLEN": function(aMessage) {
       // CHANNELLEN=<number>
       // Default is from RFC 1493.
@@ -143,17 +144,17 @@ var isupportBase = {
       this.channelPrefixes = value.split("");
       return true;
     },
-    "EXCEPTS": function(aMessage) false,
-    "IDCHAN": function(aMessage) false,
-    "INVEX": function(aMessage) false,
+    "EXCEPTS": aMessage => false,
+    "IDCHAN": aMessage => false,
+    "INVEX": aMessage => false,
     "KICKLEN": function(aMessage) {
       // KICKLEN=<number>
       // Default value is Infinity.
       return setSimpleNumber(this, "maxKickLength", aMessage, Infinity);
     },
-    "MAXLIST": function(aMessage) false,
-    "MODES": function(aMessage) false,
-    "NETWORK": function(aMessage) false,
+    "MAXLIST": aMessage => false,
+    "MODES": aMessage => false,
+    "NETWORK": aMessage => false,
     "NICKLEN": function(aMessage) {
       // NICKLEN=<number>
       // Default value is from RFC 1493.
@@ -188,12 +189,12 @@ var isupportBase = {
     // SAFELIST allows the client to request the server buffer LIST responses to
     // avoid flooding the client. This is not an issue for us, so just ignore
     // it.
-    "SAFELIST": function(aMessage) true,
+    "SAFELIST": aMessage => true,
     // SECURELIST tells us that the server won't send LIST data directly after
     // connection. Unfortunately, the exact time the client has to wait is
     // configurable, so we can't do anything with this information.
-    "SECURELIST": function(aMessage) true,
-    "STATUSMSG": function(aMessage) false,
+    "SECURELIST": aMessage => true,
+    "STATUSMSG": aMessage => false,
     "STD": function(aMessage) {
       // This was never updated as the RFC was never formalized.
       if (aMessage.isupport.value != "rfcnnnn")
@@ -227,9 +228,9 @@ var isupportBase = {
     },
 
     // The following are considered "obsolete" by the RFC, but are still in use.
-    "CHARSET": function(aMessage) false,
-    "MAXBANS": function(aMessage) false,
-    "MAXCHANNELS": function(aMessage) false,
+    "CHARSET": aMessage => false,
+    "MAXBANS": aMessage => false,
+    "MAXCHANNELS": aMessage => false,
     "MAXTARGETS": function(aMessage) {
       return setSimpleNumber(this, "maxTargets", aMessage, 1);
     }

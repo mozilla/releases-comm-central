@@ -94,7 +94,7 @@ var isupportWATCH = {
   name: "WATCH",
   // Slightly above default ISUPPORT priority.
   priority: ircHandlers.DEFAULT_PRIORITY + 10,
-  isEnabled: function() true,
+  isEnabled: () => true,
 
   commands: {
     "WATCH": function(aMessage) {
@@ -140,7 +140,7 @@ var ircWATCH = {
   // Slightly above default IRC priority.
   priority: ircHandlers.DEFAULT_PRIORITY + 10,
   // Use WATCH if it is supported.
-  isEnabled: function() !!this.watchEnabled,
+  isEnabled: function() { return !!this.watchEnabled; },
 
   commands: {
     "251": function(aMessage) { // RPL_LUSERCLIENT
@@ -267,7 +267,7 @@ var isupportMONITOR = {
   name: "MONITOR",
   // Slightly above default ISUPPORT priority.
   priority: ircHandlers.DEFAULT_PRIORITY + 10,
-  isEnabled: function() true,
+  isEnabled: () => true,
 
   commands: {
     "MONITOR": function(aMessage) {
@@ -343,7 +343,7 @@ var ircMONITOR = {
   priority: ircHandlers.DEFAULT_PRIORITY + 10,
   // Use MONITOR only if MONITOR is enabled and WATCH is not enabled, as WATCH
   // supports more features.
-  isEnabled: function() this.monitorEnabled && !this.watchEnabled,
+  isEnabled: function() { return this.monitorEnabled && !this.watchEnabled; },
 
   commands: {
     "251": function(aMessage) { // RPL_LUSERCLIENT
@@ -377,18 +377,18 @@ var ircMONITOR = {
       // :<server> 730 <nick> :nick!user@host[,nick!user@host]*
       // Mark each nick as online.
       return aMessage.params[1].split(",")
-                               .map(function(aNick)
+                               .map(aNick =>
                                       setStatus(this, aNick.split("!", 1)[0],
-                                                "AVAILABLE"),
-                                    this).every(function(aResult) aResult);
+                                                "AVAILABLE"))
+                               .every(aResult => aResult);
     },
 
     "731": function(aMessage) { // RPL_MONOFFLINE
       // :<server> 731 <nick> :nick[,nick1]*
       return aMessage.params[1].split(",")
-                               .map(function(aNick)
-                                      setStatus(this, aNick, "OFFLINE"),
-                                    this).every(function(aResult) aResult);
+                               .map(aNick =>
+                                      setStatus(this, aNick, "OFFLINE"))
+                               .every(aResult => aResult);
     },
 
     "732": function(aMessage) { // RPL_MONLIST

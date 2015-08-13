@@ -53,7 +53,7 @@ irc.ircAccount.prototype.sendMessage = function(aCommand, aParams) {
 }
 
 function run_test() {
-  let output = input.map(function(aStr)
+  let output = input.map(aStr =>
     irc.ircAccount.prototype.sendCTCPMessage("", false, "ACTION", aStr));
 
   // Ensure both arrays have the same length.

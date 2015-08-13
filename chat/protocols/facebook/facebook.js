@@ -9,7 +9,7 @@ Cu.import("resource:///modules/jsProtoHelper.jsm");
 Cu.import("resource:///modules/xmpp.jsm");
 Cu.import("resource:///modules/xmpp-session.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", function()
+XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/facebook.properties")
 );
 
@@ -18,7 +18,7 @@ function FacebookAccount(aProtoInstance, aImAccount) {
 }
 FacebookAccount.prototype = {
   __proto__: XMPPAccountPrototype,
-  get canJoinChat() false,
+  get canJoinChat() { return false; },
   connect: function() {
     if (!this.name.includes("@")) {
       let jid = this.name + "@chat.facebook.com/" + XMPPDefaultResource;
@@ -48,10 +48,10 @@ function FacebookProtocol() {
 }
 FacebookProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
-  get normalizedName() "facebook",
-  get name() _("facebook.chat.name"),
-  get iconBaseURI() "chrome://prpl-facebook/skin/",
-  getAccount: function(aImAccount) new FacebookAccount(this, aImAccount),
+  get normalizedName() { return "facebook"; },
+  get name() { return _("facebook.chat.name"); },
+  get iconBaseURI() { return "chrome://prpl-facebook/skin/"; },
+  getAccount: function(aImAccount) { return new FacebookAccount(this, aImAccount); },
   classID: Components.ID("{1d1d0bc5-610c-472f-b2cb-4b89857d80dc}")
 };
 

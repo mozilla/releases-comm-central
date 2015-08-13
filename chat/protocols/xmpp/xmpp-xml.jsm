@@ -93,7 +93,7 @@ const Stanza = {
   NS: NS,
 
   /* Create a presence stanza */
-  presence: function(aAttr, aData) Stanza.node("presence", null, aAttr, aData),
+  presence: (aAttr, aData) => Stanza.node("presence", null, aAttr, aData),
 
   /* Create a message stanza */
   message: function(aTo, aMsg, aState, aAttr = {}, aData = []) {
@@ -146,23 +146,24 @@ function TextNode(aText) {
   this.text = aText;
 }
 TextNode.prototype = {
-  get type() "text",
+  get type() { return "text"; },
 
   append: function(aText) {
     this.text += aText;
   },
 
   /* For debug purposes, returns an indented (unencoded) string */
-  convertToString: function(aIndent) aIndent + this.text + "\n",
+  convertToString: function(aIndent) { return aIndent + this.text + "\n"; },
 
   /* Returns the encoded XML */
-  getXML: function()
-    Cc["@mozilla.org/txttohtmlconv;1"]
-      .getService(Ci.mozITXTToHTMLConv)
-      .scanTXT(this.text, Ci.mozITXTToHTMLConv.kEntities),
+  getXML: function() {
+    return Cc["@mozilla.org/txttohtmlconv;1"]
+           .getService(Ci.mozITXTToHTMLConv)
+           .scanTXT(this.text, Ci.mozITXTToHTMLConv.kEntities);
+  },
 
   /* To read the unencoded data. */
-  get innerText() this.text
+  get innerText() { return this.text; }
 };
 
 /* XML node */
@@ -183,7 +184,7 @@ function XMLNode(aParentNode, aUri, aLocalName, aQName, aAttr) {
   }
 }
 XMLNode.prototype = {
-  get type() "node",
+  get type() { return "node"; },
 
   /* Add a new child node */
   addChild: function(aNode) {
@@ -200,8 +201,9 @@ XMLNode.prototype = {
   },
 
   /* Get child elements by namespace */
-  getChildrenByNS: function(aNS)
-    this.children.filter(function(c) c.uri == aNS),
+  getChildrenByNS: function(aNS) {
+    return this.children.filter(c => c.uri == aNS);
+  },
 
   /* Get the first element anywhere inside the node (including child nodes)
      that matches the query.
@@ -240,8 +242,9 @@ XMLNode.prototype = {
   },
 
   /* Get immediate children by the node name */
-  getChildren: function(aName)
-    this.children.filter((c) => (c.type != "text" && c.localName == aName)),
+  getChildren: function(aName) {
+    return this.children.filter((c) => (c.type != "text" && c.localName == aName));
+  },
 
   /* Test if the node is a stanza */
   isXmppStanza: function() {
@@ -268,11 +271,11 @@ XMLNode.prototype = {
     return s + (innerXML ? ">" + innerXML + "</" + this.qName : "/") + ">";
   },
 
-  get innerXML() this.children.map(function(c) c.getXML()).join(""),
-  get innerText() this.children.map(function(c) c.innerText).join(""),
+  get innerXML() { return this.children.map(c => c.getXML()).join(""); },
+  get innerText() { return this.children.map(c => c.innerText).join(""); },
 
   /* Private methods */
-  _getXmlns: function() this.uri ? " xmlns=\"" + this.uri + "\"" : "",
+  _getXmlns: function() { return this.uri ? " xmlns=\"" + this.uri + "\"" : ""; },
   _getAttributeText: function() {
     let s = "";
     for (let name in this.attributes)

@@ -35,9 +35,10 @@ function ircRoomInfo(aName, aTopic, aParticipantCount, aAccount) {
 }
 ircRoomInfo.prototype = {
   __proto__: ClassInfo("prplIRoomInfo", "IRC RoomInfo Object"),
-  get accountId() this._account.imAccount.id,
-  get chatRoomFieldValues()
-    this._account.getChatRoomDefaultFieldValues(this.name)
+  get accountId() { return this._account.imAccount.id; },
+  get chatRoomFieldValues() {
+    return this._account.getChatRoomDefaultFieldValues(this.name);
+  }
 }
 
 function privmsg(aAccount, aMessage, aIsNotification) {
@@ -150,7 +151,7 @@ var ircBase = {
   // Parameters
   name: "RFC 2812", // Name identifier
   priority: ircHandlers.DEFAULT_PRIORITY,
-  isEnabled: function() true,
+  isEnabled: () => true,
 
   // The IRC commands that can be handled.
   commands: {
@@ -932,7 +933,7 @@ var ircBase = {
       conversation.setModesFromRestriction(aMessage.params[1]);
       // Add the participants.
       let newParticipants = [];
-      aMessage.params[3].trim().split(" ").forEach(function(aNick)
+      aMessage.params[3].trim().split(" ").forEach(aNick =>
         newParticipants.push(conversation.getParticipant(aNick, false)));
       conversation.notifyObservers(new nsSimpleEnumerator(newParticipants),
                                    "chat-buddy-add");

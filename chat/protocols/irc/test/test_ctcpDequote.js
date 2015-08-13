@@ -46,7 +46,7 @@ const expectedOutputParam = [
 ];
 
 function run_test() {
-  let output = input.map(function(aStr) ircCTCP.CTCPMessage({}, aStr));
+  let output = input.map(aStr => ircCTCP.CTCPMessage({}, aStr));
   // Ensure both arrays have the same length.
   do_check_eq(expectedOutputParam.length, output.length);
   // Ensure the values in the arrays are equal.

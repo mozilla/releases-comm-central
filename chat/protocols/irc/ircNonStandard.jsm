@@ -22,7 +22,7 @@ Cu.import("resource:///modules/ircUtils.jsm");
 var ircNonStandard = {
   name: "Non-Standard IRC Extensions",
   priority: ircHandlers.DEFAULT_PRIORITY + 1,
-  isEnabled: function() true,
+  isEnabled: () => true,
 
   commands: {
     "NOTICE": function(aMessage) {

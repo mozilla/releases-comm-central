@@ -9,7 +9,7 @@ Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
 Cu.import("resource:///modules/yahoo-session.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", function()
+XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/yahoo.properties")
 );
 
@@ -71,7 +71,7 @@ YahooConversation.prototype = {
     this._typingTimer = null;
   },
 
-  get name() this._buddyUserName
+  get name() { return this._buddyUserName; }
 };
 
 function YahooConference(aAccount, aRoom, aOwner)
@@ -138,7 +138,7 @@ YahooConference.prototype = {
                       {system: true});
   },
 
-  getParticipantNames: function() [p.name for (p of this._participants.values())]
+  getParticipantNames: function() { return [for (p of this._participants.values()) p.name]; }
 };
 
 function YahooConferenceBuddy(aName, aConference)
@@ -150,7 +150,7 @@ YahooConferenceBuddy.prototype = {
   __proto__: GenericConvChatBuddyPrototype,
   _conference: null,
 
-  get founder() this._conference._owner == this._name
+  get founder() { return this._conference._owner == this._name; }
 };
 
 function YahooAccountBuddy(aAccount, aBuddy, aTag, aUserName)
@@ -162,10 +162,10 @@ YahooAccountBuddy.prototype = {
   iconChecksum: null,
 
   // This removes the buddy locally, and from the Yahoo! servers.
-  remove: function() this._account.removeBuddy(this, true),
+  remove: function() { return this._account.removeBuddy(this, true); },
   // This removes the buddy locally, but keeps him on the servers.
-  removeLocal: function() this._account.removeBuddy(this, false),
-  createConversation: function() this._account.createConversation(this.userName)
+  removeLocal: function() { return this._account.removeBuddy(this, false); },
+  createConversation: function() { return this._account.createConversation(this.userName); }
 }
 
 function YahooAccount(aProtoInstance, aImAccount)
@@ -460,7 +460,7 @@ YahooAccount.prototype = {
     return decodedMsg;
   },
 
-  get canJoinChat() true,
+  get canJoinChat() { return true; },
   chatRoomFields: {},
   joinChat: function(aComponents) {
     // Use _roomsCreated to append a unique number to the room name.
@@ -533,18 +533,18 @@ YahooProtocol.prototype = {
   loginTokenLoginUrl: "https://login.yahoo.com/config/pwtoken_login",
   buildId: "4194239",
 
-  get id() "prpl-yahoo",
-  get name() "Yahoo",
-  get iconBaseURI() "chrome://prpl-yahoo/skin/",
+  get id() { return "prpl-yahoo"; },
+  get name() { return "Yahoo"; },
+  get iconBaseURI() { return "chrome://prpl-yahoo/skin/"; },
   options: {
-    port: {get label() _("options.pagerPort"), default: 5050},
-    local_charset: {get label() _("options.chatEncoding"), default: "UTF-8"},
-    ignore_invites: {get label() _("options.ignoreInvites"), default: false}
+    port: {get label() { return _("options.pagerPort"); }, default: 5050},
+    local_charset: {get label() { return _("options.chatEncoding"); }, default: "UTF-8"},
+    ignore_invites: {get label() { return _("options.ignoreInvites"); }, default: false}
   },
   commands: [
     {
       name: "invite",
-      get helpString() _("command.help.invite2", "invite"),
+      get helpString() { return _("command.help.invite2", "invite"); },
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       run: function(aMsg, aConv) {
         if (aMsg.trim().length == 0)
@@ -577,7 +577,7 @@ YahooProtocol.prototype = {
 
     {
       name: "conference",
-      get helpString() _("command.help.conference", "conference"),
+      get helpString() { return _("command.help.conference", "conference"); },
       usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
       run: function(aMsg, aConv) {
         aConv.account.joinChat(null);
@@ -585,7 +585,7 @@ YahooProtocol.prototype = {
       }
     }
   ],
-  getAccount: function(aImAccount) new YahooAccount(this, aImAccount),
+  getAccount: function(aImAccount) { return new YahooAccount(this, aImAccount); },
   classID: Components.ID("{50ea817e-5d79-4657-91ae-aa0a52bdb98c}")
 };
 

@@ -8,20 +8,24 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", function()
+XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 
 // Get conversation object.
-function getConv(aConv) aConv.wrappedJSObject;
+function getConv(aConv) {
+  return aConv.wrappedJSObject;
+}
 
 // Get account object.
-function getAccount(aConv) getConv(aConv)._account;
+function getAccount(aConv) {
+  return getConv(aConv)._account;
+}
 
 var commands = [
   {
     name: "join",
-    get helpString() _("command.join3", "join"),
+    get helpString() { return _("command.join3", "join"); },
     run: function(aMsg, aConv, aReturnedConv) {
       let account = getAccount(aConv);
       let params = aMsg.trim();
@@ -54,7 +58,7 @@ var commands = [
   },
   {
     name: "part",
-    get helpString() _("command.part2", "part"),
+    get helpString() { return _("command.part2", "part"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: function(aMsg, aConv) {
       let conv = getConv(aConv);
@@ -65,7 +69,7 @@ var commands = [
   },
   {
     name: "topic",
-    get helpString() _("command.topic", "topic"),
+    get helpString() { return _("command.topic", "topic"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: function(aMsg, aConv) {
       let conv = getConv(aConv);

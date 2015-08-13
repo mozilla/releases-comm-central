@@ -18,7 +18,7 @@ Cu.import("resource:///modules/ircUtils.jsm");
 var ircSASL = {
   name: "SASL AUTHENTICATE",
   priority: ircHandlers.DEFAULT_PRIORITY,
-  isEnabled: function() true,
+  isEnabled: () => true,
 
   commands: {
     "AUTHENTICATE": function(aMessage) {
@@ -126,7 +126,7 @@ var ircSASL = {
 var capSASL = {
   name: "SASL CAP",
   priority: ircHandlers.DEFAULT_PRIORITY,
-  isEnabled: function() true,
+  isEnabled: () => true,
 
   commands: {
     "sasl": function(aMessage) {

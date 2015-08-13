@@ -30,7 +30,7 @@ Conversation.prototype = {
                       {incoming: true, autoResponse: true});
   },
 
-  get name() "/dev/null",
+  get name() { return "/dev/null"; },
 };
 
 function Account(aProtoInstance, aImAccount)
@@ -60,7 +60,7 @@ Account.prototype = {
     this.reportDisconnected();
   },
 
-  get canJoinChat() true,
+  get canJoinChat() { return true; },
   chatRoomFields: {
     channel: {label: "_Channel Field", required: true},
     channelDefault: {label: "_Field with default", default: "Default Value"},
@@ -74,7 +74,7 @@ Account.prototype = {
 function jsTestProtocol() { }
 jsTestProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
-  get name() "JS Test",
+  get name() { return "JS Test"; },
   options: {
     "text": {label: "Text option",    default: "foo"},
     "bool": {label: "Boolean option", default: true},
@@ -88,7 +88,7 @@ jsTestProtocol.prototype = {
     {label: "Server", separator: "@", defaultValue: "default.server",
      reverse: true}
   ],
-  getAccount: function(aImAccount) new Account(this, aImAccount),
+  getAccount: function(aImAccount) { return new Account(this, aImAccount); },
   classID: Components.ID("{a0774c5a-4aea-458b-9fbc-8d3cbf1a4630}"),
 };
 
