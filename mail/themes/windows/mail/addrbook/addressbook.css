@@ -677,6 +677,12 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   }
 }
 
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  #dirTree {
+    background-color: #fafafa;
+  }
+}
+
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
   .toolbarbutton-1:not([type="menu-button"]),

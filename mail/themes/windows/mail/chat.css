@@ -524,14 +524,23 @@
   }
 }
 
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+  #listPaneBox {
+    background-color: -moz-Dialog;
+  }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  #listPaneBox,
+  .im-placeholder-screen  {
+    background-color: #fafafa;
+  }
+}
+
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
   .statusMessageToolbarItem {
     border-radius: 0;
-  }
-
-  #listPaneBox {
-    background-color: -moz-Dialog;
   }
 
   :-moz-any(imconv, imcontact, imgroup) {

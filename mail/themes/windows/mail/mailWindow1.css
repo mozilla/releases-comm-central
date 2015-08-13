@@ -709,9 +709,22 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
     #folderTree {
       -moz-appearance: none;
-      background-color: #eef3fa;
+      background-color: -moz-Dialog;
       border-bottom: none;
       border-left: none;
+    }
+
+    @media (-moz-os-version: windows-vista),
+           (-moz-os-version: windows-win7) {
+      #folderTree {
+        background-color: #eef3fa;
+      }
+    }
+
+    @media (-moz-os-version: windows-win10) {
+      #folderTree {
+        background-color: #fafafa;
+      }
     }
 
     #folderTree treechildren::-moz-tree-cell(dropOn) {
@@ -813,10 +826,6 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
                 0 0 2px hsla(210, 4%, 10%, 0);
     text-shadow: none;
     transition: none;
-  }
-
-  #folderTree {
-    background-color: -moz-Dialog;
   }
 }
 
