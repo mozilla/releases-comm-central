@@ -628,6 +628,8 @@ NS_IMPL_GETSET(nsSpamSettings, ServerFilterTrustFlags, int32_t, mServerFilterTru
 #define LOG_ENTRY_START_TAG_LEN (strlen(LOG_ENTRY_START_TAG))
 #define LOG_ENTRY_END_TAG "</p>\n"
 #define LOG_ENTRY_END_TAG_LEN (strlen(LOG_ENTRY_END_TAG))
+// Does this need to be localizable?
+#define LOG_ENTRY_TIMESTAMP "[$S] "
 
 NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr *aMsgHdr, bool aMoveMessage)
 {
@@ -726,6 +728,26 @@ NS_IMETHODIMP nsSpamSettings::LogJunkString(const char *string)
   if (!loggingEnabled)
     return NS_OK;
 
+  nsString dateValue;
+  PRExplodedTime exploded;
+  PR_ExplodeTime(PR_Now(), PR_LocalTimeParameters, &exploded);
+
+  if (!mDateFormatter)
+  {
+    mDateFormatter = do_CreateInstance(NS_DATETIMEFORMAT_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!mDateFormatter)
+    {
+      return NS_ERROR_FAILURE;
+    }
+  }
+  mDateFormatter->FormatPRExplodedTime(nullptr, kDateFormatShort,
+                                       kTimeFormatSeconds, &exploded,
+                                       dateValue);
+
+  nsCString timestampString(LOG_ENTRY_TIMESTAMP);
+  MsgReplaceSubstring(timestampString, "$S", NS_ConvertUTF16toUTF8(dateValue).get());
+
   nsCOMPtr <nsIOutputStream> logStream;
   rv = GetLogStream(getter_AddRefs(logStream));
   NS_ENSURE_SUCCESS(rv,rv);
@@ -736,9 +758,13 @@ NS_IMETHODIMP nsSpamSettings::LogJunkString(const char *string)
   NS_ENSURE_SUCCESS(rv,rv);
   NS_ASSERTION(writeCount == LOG_ENTRY_START_TAG_LEN, "failed to write out start log tag");
 
-  // html escape the log for security reasons.
-  // we don't want some to send us a message with a subject with
-  // html tags, especially <script>
+  rv = logStream->Write(timestampString.get(), timestampString.Length(), &writeCount);
+  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ASSERTION(writeCount == timestampString.Length(), "failed to write out timestamp");
+
+  // HTML-escape the log for security reasons.
+  // We don't want someone to send us a message with a subject with
+  // HTML tags, especially <script>.
   char *escapedBuffer = MsgEscapeHTML(string);
   if (!escapedBuffer)
     return NS_ERROR_OUT_OF_MEMORY;

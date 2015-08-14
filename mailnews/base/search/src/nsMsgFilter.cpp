@@ -475,6 +475,8 @@ NS_IMETHODIMP nsMsgFilter::GetScope(nsIMsgSearchScopeTerm **aResult)
 #define LOG_ENTRY_START_TAG_LEN (strlen(LOG_ENTRY_START_TAG))
 #define LOG_ENTRY_END_TAG "</p>\n"
 #define LOG_ENTRY_END_TAG_LEN (strlen(LOG_ENTRY_END_TAG))
+// Does this need to be localizable?
+#define LOG_ENTRY_TIMESTAMP "[$S] "
 
 // This function handles the logging both for success of filtering
 // (NS_SUCCEEDED(aRcode)), and for error reporting (NS_FAILED(aRcode)
@@ -651,6 +653,15 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
     }
     buffer += "\n";
 
+    // Prepare timestamp
+    PR_ExplodeTime(PR_Now(), PR_LocalTimeParameters, &exploded);
+    mDateFormatter->FormatPRExplodedTime(nullptr, kDateFormatShort,
+                                         kTimeFormatSeconds, &exploded,
+                                         dateValue);
+
+    nsCString timestampString(LOG_ENTRY_TIMESTAMP);
+    MsgReplaceSubstring(timestampString, "$S", NS_ConvertUTF16toUTF8(dateValue).get());
+
     // XXX: Finally, here we have enough context and buffer
     // (string) to display the filtering error if we want: for
     // example, a sticky error message in status bar, etc.
@@ -661,9 +672,13 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
     NS_ENSURE_SUCCESS(rv,rv);
     NS_ASSERTION(writeCount == LOG_ENTRY_START_TAG_LEN, "failed to write out start log tag");
 
-    // html escape the log for security reasons.
-    // we don't want some to send us a message with a subject with
-    // html tags, especially <script>
+    rv = logStream->Write(timestampString.get(), timestampString.Length(), &writeCount);
+    NS_ENSURE_SUCCESS(rv,rv);
+    NS_ASSERTION(writeCount == timestampString.Length(), "failed to write out timestamp");
+
+    // HTML-escape the log for security reasons.
+    // We don't want someone to send us a message with a subject with
+    // HTML tags, especially <script>.
     char *escapedBuffer = MsgEscapeHTML(buffer.get());
     if (!escapedBuffer)
       return NS_ERROR_OUT_OF_MEMORY;
