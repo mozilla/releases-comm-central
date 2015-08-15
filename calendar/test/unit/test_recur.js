@@ -38,7 +38,7 @@ function test_rules() {
 
         // Check number of items
         dump("Expected " + expected.length + " occurrences\n");
-        dump("Got: " + recdates.map(function(x) x.toString()) + "\n");
+        dump("Got: " + recdates.map(x => x.toString()) + "\n");
         //equal(recdates.length, expected.length);
         let fmt = cal.getDateFormatter();
 
@@ -732,26 +732,26 @@ function test_failures() {
     let rinfo = item.recurrenceInfo;
     let ritem = cal.createRecurrenceDate();
 
-    throws(function() rinfo.getRecurrenceItemAt(-1), /Illegal value/, "Invalid Argument");
-    throws(function() rinfo.getRecurrenceItemAt(1), /Illegal value/, "Invalid Argument");
-    throws(function() rinfo.deleteRecurrenceItemAt(-1), /Illegal value/, "Invalid Argument");
-    throws(function() rinfo.deleteRecurrenceItemAt(1), /Illegal value/, "Invalid Argument");
-    throws(function() rinfo.deleteRecurrenceItem(ritem), /Illegal value/, "Invalid Argument");
-    throws(function() rinfo.insertRecurrenceItemAt(ritem, -1), /Illegal value/, "Invalid Argument");
-    throws(function() rinfo.insertRecurrenceItemAt(ritem, 2), /Illegal value/, "Invalid Argument");
-    throws(function() rinfo.restoreOccurrenceAt(cal.createDateTime("20080101T010101")), /Illegal value/, "Invalid Argument");
-    throws(function() cal.createRecurrenceInfo().isFinite, /Component not initialized/);
+    throws(() => rinfo.getRecurrenceItemAt(-1), /Illegal value/, "Invalid Argument");
+    throws(() => rinfo.getRecurrenceItemAt(1), /Illegal value/, "Invalid Argument");
+    throws(() => rinfo.deleteRecurrenceItemAt(-1), /Illegal value/, "Invalid Argument");
+    throws(() => rinfo.deleteRecurrenceItemAt(1), /Illegal value/, "Invalid Argument");
+    throws(() => rinfo.deleteRecurrenceItem(ritem), /Illegal value/, "Invalid Argument");
+    throws(() => rinfo.insertRecurrenceItemAt(ritem, -1), /Illegal value/, "Invalid Argument");
+    throws(() => rinfo.insertRecurrenceItemAt(ritem, 2), /Illegal value/, "Invalid Argument");
+    throws(() => rinfo.restoreOccurrenceAt(cal.createDateTime("20080101T010101")), /Illegal value/, "Invalid Argument");
+    throws(() => cal.createRecurrenceInfo().isFinite, /Component not initialized/);
 
     // modifyException with a different parent item
     let occ = rinfo.getOccurrenceFor(cal.createDateTime("20120102T114500Z"));
     occ.calendar = {}
     occ.id = "1234";
     occ.parentItem = occ;
-    throws(function() rinfo.modifyException(occ, true), /Illegal value/, "Invalid Argument");
+    throws(() => rinfo.modifyException(occ, true), /Illegal value/, "Invalid Argument");
 
     occ = rinfo.getOccurrenceFor(cal.createDateTime("20120102T114500Z"));
     occ.recurrenceId = null;
-    throws(function() rinfo.modifyException(occ, true), /Illegal value/, "Invalid Argument");
+    throws(() => rinfo.modifyException(occ, true), /Illegal value/, "Invalid Argument");
 
     // Missing DTSTART/DUE but RRULE
     item = createEventFromIcalString("BEGIN:VCALENDAR\r\n" +
@@ -777,7 +777,7 @@ function test_immutable() {
     let rinfo2 = item.recurrenceInfo.clone();
     rinfo2.makeImmutable();
     rinfo2.makeImmutable(); // Doing so twice shouldn't throw
-    throws(function() rinfo2.appendRecurrenceItem(ritem), /Can not modify immutable data container/);
+    throws(() => rinfo2.appendRecurrenceItem(ritem), /Can not modify immutable data container/);
     ok(!rinfo2.isMutable);
 
     let ritem = cal.createRecurrenceDate();

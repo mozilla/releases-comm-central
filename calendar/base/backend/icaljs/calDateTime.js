@@ -26,37 +26,37 @@ calDateTime.prototype = {
     }),
 
     isMutable: true,
-    makeImmutable: function() this.isMutable = false,
-    clone: function() new calDateTime(this.innerObject.clone()),
+    makeImmutable: function () { this.isMutable = false; },
+    clone: function() { return new calDateTime(this.innerObject.clone()); },
 
     isValid: true,
     innerObject: null,
 
-    get nativeTime() this.innerObject.toUnixTime() * UNIX_TIME_TO_PRTIME,
-    set nativeTime(val) this.innerObject.fromUnixTime(val / UNIX_TIME_TO_PRTIME),
+    get nativeTime() { return this.innerObject.toUnixTime() * UNIX_TIME_TO_PRTIME; },
+    set nativeTime(val) { this.innerObject.fromUnixTime(val / UNIX_TIME_TO_PRTIME); },
 
-    get year() this.innerObject.year,
-    set year(val) this.innerObject.year = val,
+    get year() { return this.innerObject.year; },
+    set year(val) { this.innerObject.year = val; },
 
-    get month() this.innerObject.month - 1,
-    set month(val) this.innerObject.month = val + 1,
+    get month() { return this.innerObject.month - 1; },
+    set month(val) { this.innerObject.month = val + 1; },
 
-    get day() this.innerObject.day,
-    set day(val) this.innerObject.day = val,
+    get day() { return this.innerObject.day; },
+    set day(val) { this.innerObject.day = val; },
 
-    get hour() this.innerObject.hour,
-    set hour(val) this.innerObject.hour = val,
+    get hour() { return this.innerObject.hour; },
+    set hour(val) { this.innerObject.hour = val; },
 
-    get minute() this.innerObject.minute,
-    set minute(val) this.innerObject.minute = val,
+    get minute() { return this.innerObject.minute; },
+    set minute(val) { this.innerObject.minute = val; },
 
-    get second() this.innerObject.second,
-    set second(val) this.innerObject.second = val,
+    get second() { return this.innerObject.second; },
+    set second(val) { this.innerObject.second = val; },
 
-    get timezone() new calICALJSTimezone(this.innerObject.zone),
-    set timezone(val) unwrapSetter(ICAL.Timezone, val, function(val) {
+    get timezone() { return new calICALJSTimezone(this.innerObject.zone); },
+    set timezone(val) { unwrapSetter(ICAL.Timezone, val, function(val) {
         return this.innerObject.zone = val;
-    }, this),
+    }, this); },
 
     resetTo: function (yr,mo,dy,hr,mi,sc,tz) {
         this.innerObject.fromData({
@@ -66,16 +66,16 @@ calDateTime.prototype = {
         this.timezone = tz;
     },
 
-    reset: function() this.innerObject.reset(),
+    reset: function() { this.innerObject.reset(); },
 
-    get timezoneOffset() this.innerObject.utcOffset(),
-    get isDate() this.innerObject.isDate,
-    set isDate(val) this.innerObject.isDate = val,
+    get timezoneOffset() { return this.innerObject.utcOffset(); },
+    get isDate() { return this.innerObject.isDate; },
+    set isDate(val) { this.innerObject.isDate = val; },
 
-    get weekday() this.innerObject.dayOfWeek() - 1,
-    get yearday() this.innerObject.dayOfYear(),
+    get weekday() { return this.innerObject.dayOfWeek() - 1; },
+    get yearday() { return this.innerObject.dayOfYear(); },
 
-    toString: function() this.innerObject.toString(),
+    toString: function() { return this.innerObject.toString(); },
 
     getInTimezone: unwrap(ICAL.Timezone, function(val) {
         return new calDateTime(this.innerObject.convertToZone(val));
@@ -109,14 +109,14 @@ calDateTime.prototype = {
         }
     }),
 
-    get startOfWeek() new calDateTime(this.innerObject.startOfWeek()),
-    get endOfWeek() new calDateTime(this.innerObject.endOfWeek()),
-    get startOfMonth() new calDateTime(this.innerObject.startOfMonth()),
-    get endOfMonth() new calDateTime(this.innerObject.endOfMonth()),
-    get startOfYear() new calDateTime(this.innerObject.startOfYear()),
-    get endOfYear() new calDateTime(this.innerObject.endOfYear()),
+    get startOfWeek() { return new calDateTime(this.innerObject.startOfWeek()); },
+    get endOfWeek() { return new calDateTime(this.innerObject.endOfWeek()); },
+    get startOfMonth() { return new calDateTime(this.innerObject.startOfMonth()); },
+    get endOfMonth() { return new calDateTime(this.innerObject.endOfMonth()); },
+    get startOfYear() { return new calDateTime(this.innerObject.startOfYear()); },
+    get endOfYear() { return new calDateTime(this.innerObject.endOfYear()); },
 
-    get icalString() this.innerObject.toICALString(),
+    get icalString() { return this.innerObject.toICALString(); },
     set icalString(val) {
         let jcalString;
         if (val.length > 10) {

@@ -730,7 +730,7 @@
               let numBlocksInserted = 0;
 
               // column count determined by layer with no special span columns
-              if (layer.every(function (e) !e.specialSpan)) {
+              if (layer.every(e => !e.specialSpan)) {
                   columnCount = layer.length;
               }
               spanTotal = 0;

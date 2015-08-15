@@ -601,7 +601,7 @@ function hashColor(str) {
                           "#000000", "#330000", "#663300", "#663333", "#333300",
                           "#003300", "#003333", "#000066", "#330099", "#330033"];
 
-    let sum = Array.map(str || " ", function(e) e.charCodeAt(0)).reduce(function(a,b) a + b);
+    let sum = Array.map(str || " ", e => e.charCodeAt(0)).reduce((a, b) => a + b);
     return colorPalette[sum % colorPalette.length];
 }
 
@@ -1167,7 +1167,7 @@ calInterfaceBag.prototype = {
     mInterfaces: null,
 
     // Iterating the inteface bag iterates the interfaces it contains
-    [Symbol.iterator]: function() this.mInterfaces[Symbol.iterator](),
+    [Symbol.iterator]: function() { return this.mInterfaces[Symbol.iterator](); },
 
     /// internal:
     init: function calInterfaceBag_init(iid) {
@@ -1806,7 +1806,7 @@ function binaryInsertNode(parentNode, insertNode, aItem, comptor, discardDuplica
     }
     return newIndex;
 }
-binaryInsertNode.defaultAccessor = function(n) n.item;
+binaryInsertNode.defaultAccessor = n => n.item;
 
 /**
  * Insert an item into the given array, using binary search. See binarySearch

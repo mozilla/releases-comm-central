@@ -70,7 +70,7 @@ function checkConsistancy(har, testItems, itemAccessor) {
  * @param ar        The array to dump
  */
 function dumpArray(ar) {
-    dump("ARR: " + ar.map(function(e) e.title).toSource() + "\n");
+    dump("ARR: " + ar.map(e => e.title).toSource() + "\n");
 }
 
 /**
@@ -89,7 +89,7 @@ function dumpArray(ar) {
  */
 function testRemoveModify(har, testItems, postprocessFunc, itemAccessor, itemCreator) {
     postprocessFunc = postprocessFunc || function(a, b) { return [a,b]; };
-    itemCreator = itemCreator || function(title) hashedCreateItem(title);
+    itemCreator = itemCreator || (title => hashedCreateItem(title));
     itemAccessor = itemAccessor || function(o) { return o; }
 
     // Now, delete the second item and check again
@@ -174,7 +174,7 @@ function test_array_sorted() {
  */
 function test_hashAccessor() {
     let har, testItems, testItemsSorted;
-    let comptor = function(a,b) titleComptor(a.item, b.item);
+    let comptor = (a, b) => titleComptor(a.item, b.item);
 
     har = new cal.SortedHashedArray(comptor);
     har.hashAccessor = function(obj) {

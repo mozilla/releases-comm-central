@@ -25,8 +25,8 @@ function really_run_test() {
 
 function test_aclmanager() {
     let mockCalendar = {
-        get superCalendar() this,
-        get aclManager() this,
+        get superCalendar() { return this; },
+        get aclManager() { return this; },
 
         getItemEntry: function(item) {
             if (item.id == "withentry") {

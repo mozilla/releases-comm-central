@@ -63,7 +63,7 @@ var testLocalICS = function () {
   // HACK - Wait for the value to be selected. This is needed for platforms
   // like mac where selecting the menuitem is an asynchronous process, it might
   // be fixed in a later version of mozmill.
-  event.waitFor(function() itemCalendar.getNode().value == calendar);
+  event.waitFor(() => itemCalendar.getNode().value == calendar);
   
   // save
   event.click(new elementslib.ID(event.window.document, "button-save"));

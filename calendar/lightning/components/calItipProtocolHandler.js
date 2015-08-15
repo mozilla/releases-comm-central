@@ -72,7 +72,7 @@ ItipProtocolHandler.prototype = {
     }),
 
     protocolFlags: CI.nsIProtocolHandler.URI_NORELATIVE | CI.nsIProtocolHandler.URI_DANGEROUS_TO_LOAD,
-    allowPort: function () false,
+    allowPort: () => false,
     isSecure: false,
     newURI: function (spec, charSet, baseURI) {
         let cls = Components.classes["@mozilla.org/network/standard-url;1"];

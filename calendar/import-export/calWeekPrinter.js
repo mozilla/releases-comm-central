@@ -29,7 +29,7 @@ calWeekPrinter.prototype = {
         interfaces: calWeekPrinterInterfaces
     }),
 
-    get name() cal.calGetString("calendar", "weekPrinterName"),
+    get name() { return cal.calGetString("calendar", "weekPrinterName"); },
 
     formatToHtml: function weekPrint_format(aStream, aStart, aEnd, aCount, aItems, aTitle) {
         let document = cal.xml.parseFile("chrome://calendar-common/skin/printing/calWeekPrinter.html");

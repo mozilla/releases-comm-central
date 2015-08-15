@@ -25,7 +25,7 @@ calListFormatter.prototype = {
         interfaces: calListFormatterInterfaces
     }),
 
-    get name() cal.calGetString("calendar", "formatListName"),
+    get name() { return cal.calGetString("calendar", "formatListName"); },
 
     formatToHtml: function list_formatToHtml(aStream, aStart, aEnd, aCount, aItems, aTitle) {
         let htmlexporter = Components.classes["@mozilla.org/calendar/export;1?type=htmllist"]

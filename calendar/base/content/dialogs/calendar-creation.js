@@ -21,7 +21,7 @@ function openLocalCalendar() {
 
     let calMgr = getCalendarManager();
     let calendars = calMgr.getCalendars({});
-    if (calendars.some(function(x) x.uri == fp.fileURL)) {
+    if (calendars.some(x => x.uri == fp.fileURL)) {
         // The calendar already exists, select it and return.
         document.getElementById("calendar-list-tree-widget")
                 .tree.view.selection.select(index);

@@ -44,14 +44,14 @@ function test_calobserver() {
 
     // These observers will end up counting calls which we will use later on
     let calobs = cal.createAdapter(Components.interfaces.calIObserver, {
-        onAddItem: function(itm) calcounter.addItem++,
-        onModifyItem: function(itm) calcounter.modifyItem++,
-        onDeleteItem: function(itm) calcounter.deleteItem++
+        onAddItem: itm => calcounter.addItem++,
+        onModifyItem: itm => calcounter.modifyItem++,
+        onDeleteItem: itm => calcounter.deleteItem++
     });
     let allobs = cal.createAdapter(Components.interfaces.calIObserver, {
-        onAddItem: function(itm) allcounter.addItem++,
-        onModifyItem: function(itm) allcounter.modifyItem++,
-        onDeleteItem: function(itm) allcounter.deleteItem++
+        onAddItem: itm => allcounter.addItem++,
+        onModifyItem: itm => allcounter.modifyItem++,
+        onDeleteItem: itm => allcounter.deleteItem++
     });
 
     // Set up counters and observers
@@ -158,7 +158,7 @@ function test_registration() {
 
     // And be in the list of calendars
     equal(memory, calmgr.getCalendarById(memory.id));
-    ok(calmgr.getCalendars({}).some(function(x) x.id == memory.id));
+    ok(calmgr.getCalendars({}).some(x => x.id == memory.id));
 
     // Make it readonly and check if the observer caught it
     memory.setProperty("readOnly", true);
@@ -171,7 +171,7 @@ function test_registration() {
 
     // The calendar shouldn't be in the list of ids
     equal(calmgr.getCalendarById(memory.id), null);
-    ok(calmgr.getCalendars({}).every(function(x) x.id != memory.id));
+    ok(calmgr.getCalendars({}).every(x => x.id != memory.id));
 
     // And finally delete it
     calmgr.removeCalendar(memory, Ci.calICalendarManager.REMOVE_NO_UNREGISTER);

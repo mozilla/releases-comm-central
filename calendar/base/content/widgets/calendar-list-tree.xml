@@ -378,7 +378,7 @@
 
       <property name="sortOrder"
                 readonly="true"
-                onget="return this.mCalendarList.map(function(x) x.id);"/>
+                onget="return this.mCalendarList.map(x => x.id);"/>
       <property name="selectedCalendars"
                 readonly="true"
                 onget="return this.compositeCalendar.getCalendars({});"/>

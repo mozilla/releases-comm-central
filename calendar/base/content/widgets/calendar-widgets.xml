@@ -57,7 +57,7 @@
                 let checkedNodes = categoryListbox.getElementsByAttribute("checked", "true");
                 let sliceEnd = this.maxCount > 0 ? this.maxCount : checkedNodes.length;
                 return Array.slice(checkedNodes, 0, sliceEnd)
-                            .map(function(x) x.getAttribute("value"));
+                            .map(x => x.getAttribute("value"));
             }
         ]]></getter>
       </property>

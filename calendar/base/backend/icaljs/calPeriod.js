@@ -25,33 +25,33 @@ calPeriod.prototype = {
     isMutable: true,
     innerObject: null,
 
-    get icalPeriod() this.innerObject,
-    set icalPeriod(val) this.innerObject = val,
+    get icalPeriod() { return this.innerObject; },
+    set icalPeriod(val) { this.innerObject = val; },
 
-    makeImmutable: function() this.isMutable = false,
-    clone: function() new calPeriod(this.innerObject.clone()),
+    makeImmutable: function() { this.isMutable = false; },
+    clone: function() { return new calPeriod(this.innerObject.clone()); },
 
-    get start() wrapGetter(calDateTime, this.innerObject.start),
-    set start(val) unwrapSetter(ICAL.Time, val, function(val) {
+    get start() { return wrapGetter(calDateTime, this.innerObject.start); },
+    set start(val) { unwrapSetter(ICAL.Time, val, function(val) {
         this.innerObject.start = val;
-    }, this),
+    }, this); },
 
-    get end() wrapGetter(calDateTime, this.innerObject.getEnd()),
-    set end(val) unwrapSetter(ICAL.Time, val, function(val) {
+    get end() { return wrapGetter(calDateTime, this.innerObject.getEnd()); },
+    set end(val) { unwrapSetter(ICAL.Time, val, function(val) {
         if (this.innerObject.duration) {
             this.innerObject.duration = null;
         }
         this.innerObject.end = val;
-    }, this),
+    }, this); },
 
-    get duration() wrapGetter(calDuration, this.innerObject.getDuration()),
+    get duration() { return wrapGetter(calDuration, this.innerObject.getDuration()); },
 
-    get icalString() this.innerObject.toICALString(),
+    get icalString() { return this.innerObject.toICALString(); },
     set icalString(val) {
         let str = ICAL.parse._parseValue(val, "period");
         this.innerObject = ICAL.Period.fromString(str);
         return val;
     },
 
-    toString: function() this.innerObject.toString()
+    toString: function() { return this.innerObject.toString(); }
 };

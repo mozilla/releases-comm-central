@@ -9,7 +9,7 @@ function onLoad() {
     document.getElementById("provider-name-label").value = extension.name;
 
     let calendars = cal.getCalendarManager().getCalendars({})
-                       .filter(function(x) x.providerID == extension.id);
+                       .filter(x => x.providerID == extension.id);
 
     document.getElementById("calendar-list-tree").calendars = calendars;
 }

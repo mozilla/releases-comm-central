@@ -80,10 +80,10 @@ var calendarTabType = {
         aTab.title = ltnGetString("lightning", "tabTitleCalendar");
       },
 
-      supportsCommand: function (aCommand, aTab) calendarController2.supportsCommand(aCommand),
-      isCommandEnabled: function (aCommand, aTab) calendarController2.isCommandEnabled(aCommand),
-      doCommand: function(aCommand, aTab) calendarController2.doCommand(aCommand),
-      onEvent: function(aEvent, aTab) calendarController2.onEvent(aEvent)
+      supportsCommand: (aCommand, aTab) => calendarController2.supportsCommand(aCommand),
+      isCommandEnabled: (aCommand, aTab) => calendarController2.isCommandEnabled(aCommand),
+      doCommand: (aCommand, aTab) => calendarController2.doCommand(aCommand),
+      onEvent: (aEvent, aTab) => calendarController2.onEvent(aEvent)
     },
 
     tasks: {
@@ -125,10 +125,10 @@ var calendarTabType = {
         aTab.title = ltnGetString("lightning", "tabTitleTasks");
       },
 
-      supportsCommand: function (aCommand, aTab) calendarController2.supportsCommand(aCommand),
-      isCommandEnabled: function (aCommand, aTab) calendarController2.isCommandEnabled(aCommand),
-      doCommand: function(aCommand, aTab) calendarController2.doCommand(aCommand),
-      onEvent: function(aEvent, aTab) calendarController2.onEvent(aEvent)
+      supportsCommand: (aCommand, aTab) => calendarController2.supportsCommand(aCommand),
+      isCommandEnabled: (aCommand, aTab) => calendarController2.isCommandEnabled(aCommand),
+      doCommand: (aCommand, aTab) => calendarController2.doCommand(aCommand),
+      onEvent: (aEvent, aTab) => calendarController2.onEvent(aEvent)
     }
   },
 

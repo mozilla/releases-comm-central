@@ -9,7 +9,7 @@ const EXPECT_NONE = 0;
 const EXPECT_FIRED = 1;
 const EXPECT_TIMER = 2;
 
-function do_check_xor(a, b) ok((a && !b) || (!a && b));
+function do_check_xor(a, b) { return ok((a && !b) || (!a && b)); }
 
 let alarmObserver = {
     service: null,

@@ -42,15 +42,15 @@ calRecurrenceDate.prototype = {
         return other;
     },
 
-    get isNegative() this.mIsNegative,
+    get isNegative() { return this.mIsNegative; },
     set isNegative(val) {
         this.ensureMutable();
         return (this.mIsNegative = val);
     },
 
-    get isFinite() true,
+    get isFinite() { return true; },
 
-    get date() this.mDate,
+    get date() { return this.mDate; },
     set date(val) {
         this.ensureMutable();
         return (this.mDate = val);

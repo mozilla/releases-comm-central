@@ -498,14 +498,14 @@ function test_serialize() {
     }, /0x80070057/ , "Invalid Argument");
 
     function addProp(k,v) { let p = srv.createIcalProperty(k); p.value = v; comp.addProperty(p) }
-    function addActionDisplay() addProp("ACTION", "DISPLAY");
-    function addActionEmail() addProp("ACTION", "EMAIL");
-    function addTrigger() addProp("TRIGGER", "-PT15M");
-    function addDescr() addProp("DESCRIPTION", "TEST");
-    function addDuration() addProp("DURATION", "-PT15M");
-    function addRepeat() addProp("REPEAT", "1");
-    function addAttendee() addProp("ATTENDEE", "mailto:horst");
-    function addAttachment() addProp("ATTACH", "data:yeah");
+    function addActionDisplay() { addProp("ACTION", "DISPLAY"); }
+    function addActionEmail() { addProp("ACTION", "EMAIL"); }
+    function addTrigger() { addProp("TRIGGER", "-PT15M"); }
+    function addDescr() { addProp("DESCRIPTION", "TEST"); }
+    function addDuration() { addProp("DURATION", "-PT15M"); }
+    function addRepeat() { addProp("REPEAT", "1"); }
+    function addAttendee() { addProp("ATTENDEE", "mailto:horst"); }
+    function addAttachment() { addProp("ATTACH", "data:yeah"); }
 
     // All is there, should not throw
     let comp = srv.createIcalComponent("VALARM");

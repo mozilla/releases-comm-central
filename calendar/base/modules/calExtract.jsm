@@ -783,7 +783,7 @@ Extractor.prototype = {
     * @return          datetime object for start time
     */
     guessStart: function guessStart(isTask) {
-        let startTimes = this.collected.filter(function(val) val.relation == "start");
+        let startTimes = this.collected.filter(val => val.relation == "start");
         if (startTimes.length == 0) {
             return {};
         }
@@ -793,7 +793,7 @@ Extractor.prototype = {
         }
 
         let guess = {};
-        let wDayInit = startTimes.filter(function(val) val.day != null && val.start === undefined);
+        let wDayInit = startTimes.filter(val => val.day != null && val.start === undefined);
 
         // with tasks we don't try to guess start but assume email date
         if (isTask) {
@@ -805,12 +805,12 @@ Extractor.prototype = {
             return guess;
         }
 
-        let wDay = startTimes.filter(function(val) val.day != null && val.start !== undefined);
-        let wDayNA = wDay.filter(function(val) val.ambiguous === undefined);
+        let wDay = startTimes.filter(val => val.day != null && val.start !== undefined);
+        let wDayNA = wDay.filter(val => val.ambiguous === undefined);
 
-        let wMinute = startTimes.filter(function(val) val.minute != null && val.start !== undefined);
-        let wMinuteNA = wMinute.filter(function(val) val.ambiguous === undefined);
-        let wMinuteInit = startTimes.filter(function(val) val.minute != null && val.start === undefined);
+        let wMinute = startTimes.filter(val => val.minute != null && val.start !== undefined);
+        let wMinuteNA = wMinute.filter(val => val.ambiguous === undefined);
+        let wMinuteInit = startTimes.filter(val => val.minute != null && val.start === undefined);
 
         if (wMinuteNA.length != 0) {
             guess.hour = wMinuteNA[0].hour;
@@ -860,8 +860,8 @@ Extractor.prototype = {
     */
     guessEnd: function guessEnd(start, isTask) {
         let guess = {};
-        let endTimes = this.collected.filter(function(val) val.relation == "end");
-        let durations = this.collected.filter(function(val) val.relation == "duration");
+        let endTimes = this.collected.filter(val => val.relation == "end");
+        let durations = this.collected.filter(val => val.relation == "duration");
         if (endTimes.length == 0 && durations.length == 0) {
             return {};
         } else {
@@ -869,10 +869,10 @@ Extractor.prototype = {
                 cal.LOG("[calExtract] End: " + JSON.stringify(endTimes[val]));
             }
 
-            let wDay = endTimes.filter(function(val) val.day != null);
-            let wDayNA = wDay.filter(function(val) val.ambiguous === undefined);
-            let wMinute = endTimes.filter(function(val) val.minute != null);
-            let wMinuteNA = wMinute.filter(function(val) val.ambiguous === undefined);
+            let wDay = endTimes.filter(val => val.day != null);
+            let wDayNA = wDay.filter(val => val.ambiguous === undefined);
+            let wMinute = endTimes.filter(val => val.minute != null);
+            let wMinuteNA = wMinute.filter(val => val.ambiguous === undefined);
 
             // first set non-ambiguous dates
             let pos = isTask == true ? 0 : wDayNA.length - 1;

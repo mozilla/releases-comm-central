@@ -1527,7 +1527,7 @@ upgrade.v22 = function upgrade_v22(db, version) {
         // Update recurrence table to using icalString directly
         createFunction(db, "translateRecurrence", 17, {
             onFunctionCall: function translateRecurrence(storArgs) {
-                function parseInt10(x) parseInt(x, 10);
+                function parseInt10(x) { return parseInt(x, 10); }
                 try {
                     let [aIndex, aType, aIsNegative, aDates, aCount,
                          aEndDate, aInterval, aSecond, aMinute, aHour,

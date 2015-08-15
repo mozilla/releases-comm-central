@@ -17,7 +17,7 @@ function onLoad() {
 
     // Make sure the origin menulist uses the right labels, depending on if the
     // dialog is showing an event or task.
-    function _sn(x) cal.calGetString("calendar-alarms", getItemBundleStringName(x));
+    function _sn(x) { return cal.calGetString("calendar-alarms", getItemBundleStringName(x)); }
 
     setElementValue("reminder-before-start-menuitem",
                     _sn("reminderCustomOriginBeginBefore"),

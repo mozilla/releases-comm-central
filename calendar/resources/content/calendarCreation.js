@@ -222,7 +222,7 @@ function parseUri(aUri) {
     let calManager = cal.getCalendarManager();
     let cals = calManager.getCalendars({});
     let type = document.getElementById('calendar-type').selectedItem.value;
-    if (type != 'local' && cals.some(function (c) c.uri.spec == uri.spec)) {
+    if (type != 'local' && cals.some(c => c.uri.spec == uri.spec)) {
         // If the calendar is not local, we check if there is already a calendar
         // with the same uri spec. Storage calendars all have the same uri, so
         // we have to specialcase them.

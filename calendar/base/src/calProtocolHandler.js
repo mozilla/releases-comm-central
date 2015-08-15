@@ -27,8 +27,8 @@ function calProtocolHandler(scheme) {
 }
 
 calProtocolHandler.prototype = {
-    get defaultPort() this.mHttpProtocol.defaultPort,
-    get protocolFlags() this.mHttpProtocol.protocolFlags,
+    get defaultPort() { return this.mHttpProtocol.defaultPort; },
+    get protocolFlags() { return this.mHttpProtocol.protocolFlags; },
 
     newURI: function cph_newURI(aSpec, anOriginalCharset, aBaseURI) {
         var uri = Components.classes["@mozilla.org/network/standard-url;1"].
@@ -65,7 +65,7 @@ calProtocolHandler.prototype = {
     },
 
     // We are not overriding any special ports
-    allowPort: function cph_allowPort(aPort, aScheme) false
+    allowPort: function cph_allowPort(aPort, aScheme) { return false; }
 };
 
 const calProtocolHandlerWebcalClassID = Components.ID("{1153c73a-39be-46aa-9ba9-656d188865ca}");

@@ -593,7 +593,7 @@ calItemBase.prototype = {
     addAttachment: function cIB_addAttachment(attachment) {
         this.modify();
         this.mAttachments = this.getAttachments({});
-        if (!this.mAttachments.some(function(x) x.hashId == attachment.hashId)) {
+        if (!this.mAttachments.some(x => x.hashId == attachment.hashId)) {
             this.mAttachments.push(attachment);
         }
     },

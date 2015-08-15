@@ -432,7 +432,7 @@ calCachedCalendar.prototype = {
                     function completed() {
                         this_.offlineCachedItems = {};
                         this_.offlineCachedItemFlags = {};
-                        this_.playbackOfflineItems(function() emptyQueue(aStatus));
+                        this_.playbackOfflineItems(() => emptyQueue(aStatus));
                     });
                 } else {
                     this_.playbackOfflineItems(function() {this_.mCachedObserver.onLoad(this_.mCachedCalendar);});

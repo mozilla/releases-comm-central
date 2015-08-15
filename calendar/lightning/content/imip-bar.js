@@ -119,7 +119,7 @@ var ltnImipBar = {
     resetButtons: function ltnResetImipButtons() {
         let buttons = ltnImipBar.getButtons();
         buttons.forEach(hideElement);
-        buttons.forEach(function(aButton) ltnImipBar.getMenuItems(aButton).forEach(showElement));
+        buttons.forEach(aButton => ltnImipBar.getMenuItems(aButton).forEach(showElement));
     },
 
     /**
@@ -161,10 +161,10 @@ var ltnImipBar = {
     conformButtonType: function ltnConformButtonType() {
         // check only needed on visible and not simple buttons
         let buttons = ltnImipBar.getButtons()
-                                .filter(function(aElement) aElement.hasAttribute("type") && !aElement.hidden);
+                                .filter(aElement => aElement.hasAttribute("type") && !aElement.hidden);
         // change button if appropriate
         for (let button of buttons) {
-            let items = ltnImipBar.getMenuItems(button).filter(function(aItem) !aItem.hidden);
+            let items = ltnImipBar.getMenuItems(button).filter(aItem => !aItem.hidden);
             if (button.type == "menu" && items.length == 0) {
                 // hide non functional buttons
                 button.hidden = true;
@@ -206,9 +206,9 @@ var ltnImipBar = {
         // let's reset all buttons first
         ltnImipBar.resetButtons();
         // menu items are visible by default, let's hide what's not available
-        data.hideMenuItems.forEach(function(aElementId) hideElement(document.getElementById(aElementId)));
+        data.hideMenuItems.forEach(aElementId => hideElement(document.getElementById(aElementId)));
         // buttons are hidden by default, let's make required buttons visible
-        data.buttons.forEach(function(aElementId) showElement(document.getElementById(aElementId)));
+        data.buttons.forEach(aElementId => showElement(document.getElementById(aElementId)));
         // adjust button style if necessary
         ltnImipBar.conformButtonType();
         if (Preferences.get('calendar.itip.displayInvitationChanges', false)) {

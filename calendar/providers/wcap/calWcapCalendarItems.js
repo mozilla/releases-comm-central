@@ -143,7 +143,7 @@ calWcapCalendar.prototype.getAlarmParams =
 function calWcapCalendar_getAlarmParams(item) {
     let params = null;
     // xxx TODO ALARMSUPPORT check if WCAP supports multiple alarms
-    let alarms = item.getAlarms({}).filter(function(x) x.action == "EMAIL");
+    let alarms = item.getAlarms({}).filter(x => x.action == "EMAIL");
     let alarm = alarms.length > 0 && alarms[0];
 
     if (alarm) {

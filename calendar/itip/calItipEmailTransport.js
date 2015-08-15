@@ -39,8 +39,8 @@ calItipEmailTransport.prototype = {
     mDefaultIdentity: null,
     mDefaultSmtpServer: null,
 
-    get scheme() "mailto",
-    get type() "email",
+    get scheme() { return "mailto"; },
+    get type() { return "email"; },
 
     mSenderAddress: null,
     get senderAddress() {

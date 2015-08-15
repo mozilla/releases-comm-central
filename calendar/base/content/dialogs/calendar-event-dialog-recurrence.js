@@ -100,7 +100,7 @@ function initializeControls(rule) {
 
     function everyWeekDay(aByDay) {
         // Checks if aByDay contains only values from 1 to 7 with any order.
-        let mask = aByDay.reduce(function(v, c) v | (1 << c), 1);
+        let mask = aByDay.reduce((v, c) => v | (1 << c), 1);
         return aByDay.length == 7 && mask == Math.pow(2, 8) - 1;
     }
 

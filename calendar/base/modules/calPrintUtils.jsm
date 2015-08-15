@@ -149,7 +149,7 @@ cal.print = {
         taskNode.querySelector(".task-title").textContent = item.title;
 
         let collator = cal.createLocaleCollator();
-        cal.binaryInsertNode(taskContainer, taskNode, item, function(a, b) collator.compareString(0, a, b), function(node) node.item.title);
+        cal.binaryInsertNode(taskContainer, taskNode, item, (a, b) => collator.compareString(0, a, b), node => node.item.title);
     },
 
     /**

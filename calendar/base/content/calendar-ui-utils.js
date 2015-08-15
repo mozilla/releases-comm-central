@@ -624,13 +624,13 @@ function setupAttendanceMenu(aMenu, aItems) {
 
     goUpdateCommand("calendar_attendance_command");
 
-    let allSingle = aItems.every(function(x) !x.recurrenceId);
+    let allSingle = aItems.every(x => !x.recurrenceId);
     setElementValue(aMenu, allSingle ? "single" : "recurring", "itemType");
 
     let firstStatusOccurrences = aItems.length && getInvStat(aItems[0]);
     let firstStatusParents = aItems.length && getInvStat(aItems[0].parentItem);
-    let sameStatusOccurrences = aItems.every(function (x) getInvStat(x) == firstStatusOccurrences);
-    let sameStatusParents = aItems.every(function (x) getInvStat(x.parentItem) == firstStatusParents)
+    let sameStatusOccurrences = aItems.every(x => getInvStat(x) == firstStatusOccurrences);
+    let sameStatusParents = aItems.every(x => getInvStat(x.parentItem) == firstStatusParents);
 
     let occurrenceChildren = aMenu.getElementsByAttribute("value", firstStatusOccurrences);
     let parentsChildren = aMenu.getElementsByAttribute("value", firstStatusParents);

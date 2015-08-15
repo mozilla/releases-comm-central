@@ -36,9 +36,9 @@ calCalendarManager.prototype = {
         flags: Components.interfaces.nsIClassInfo.SINGLETON
     }),
 
-    get networkCalendarCount() this.mNetworkCalendarCount,
-    get readOnlyCalendarCount() this.mReadonlyCalendarCount,
-    get calendarCount() this.mCalendarCount,
+    get networkCalendarCount() { return this.mNetworkCalendarCount; },
+    get readOnlyCalendarCount() { return this.mReadonlyCalendarCount; },
+    get calendarCount() { return this.mCalendarCount; },
 
     // calIStartupService:
     startup: function ccm_startup(aCompleteListener) {
@@ -758,14 +758,14 @@ calCalendarManager.prototype = {
     },
 
     mObservers: null,
-    addObserver: function(aObserver) this.mObservers.add(aObserver),
-    removeObserver: function(aObserver) this.mObservers.remove(aObserver),
-    notifyObservers: function(functionName, args) this.mObservers.notify(functionName, args),
+    addObserver: function(aObserver) { return this.mObservers.add(aObserver); },
+    removeObserver: function(aObserver) { return this.mObservers.remove(aObserver); },
+    notifyObservers: function(functionName, args) { return this.mObservers.notify(functionName, args); },
 
     mCalendarObservers: null,
-    addCalendarObserver: function(aObserver) this.mCalendarObservers.add(aObserver),
-    removeCalendarObserver: function(aObserver) this.mCalendarObservers.remove(aObserver),
-    notifyCalendarObservers: function(functionName, args) this.mCalendarObservers.notify(functionName, args)
+    addCalendarObserver: function(aObserver) { return this.mCalendarObservers.add(aObserver); },
+    removeCalendarObserver: function(aObserver) { return this.mCalendarObservers.remove(aObserver); },
+    notifyCalendarObservers: function(functionName, args) { return this.mCalendarObservers.notify(functionName, args); }
 };
 
 function equalMessage(msg1, msg2) {
@@ -796,12 +796,12 @@ calMgrCalendarObserver.prototype = {
     ]),
 
     // calIObserver:
-    onStartBatch: function() this.calMgr.notifyCalendarObservers("onStartBatch", arguments),
-    onEndBatch: function() this.calMgr.notifyCalendarObservers("onEndBatch", arguments),
-    onLoad: function(calendar) this.calMgr.notifyCalendarObservers("onLoad", arguments),
-    onAddItem: function(aItem) this.calMgr.notifyCalendarObservers("onAddItem", arguments),
-    onModifyItem: function(aNewItem, aOldItem) this.calMgr.notifyCalendarObservers("onModifyItem", arguments),
-    onDeleteItem: function(aDeletedItem) this.calMgr.notifyCalendarObservers("onDeleteItem", arguments),
+    onStartBatch: function() { return this.calMgr.notifyCalendarObservers("onStartBatch", arguments); },
+    onEndBatch: function() { return this.calMgr.notifyCalendarObservers("onEndBatch", arguments); },
+    onLoad: function(calendar) { return this.calMgr.notifyCalendarObservers("onLoad", arguments); },
+    onAddItem: function(aItem) { return this.calMgr.notifyCalendarObservers("onAddItem", arguments); },
+    onModifyItem: function(aNewItem, aOldItem) { return this.calMgr.notifyCalendarObservers("onModifyItem", arguments); },
+    onDeleteItem: function(aDeletedItem) { return this.calMgr.notifyCalendarObservers("onDeleteItem", arguments); },
     onError: function(aCalendar, aErrNo, aMessage) {
         this.calMgr.notifyCalendarObservers("onError", arguments);
         this.announceError(aCalendar, aErrNo, aMessage);

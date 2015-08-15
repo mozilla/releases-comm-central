@@ -22,33 +22,33 @@ calDuration.prototype = {
         interfaces: calDurationInterfaces
     }),
 
-    get icalDuration() this.innerObject,
-    set icalDuration(val) this.innerObject = val,
+    get icalDuration() { return this.innerObject; },
+    set icalDuration(val) { this.innerObject = val; },
 
     isMutable: true,
-    makeImmutable: function() this.isMutable = false,
-    clone: function() new calDuration(this.innerObject.clone()),
+    makeImmutable: function() { this.isMutable = false; },
+    clone: function() { return new calDuration(this.innerObject.clone()); },
 
-    get isNegative() this.innerObject.isNegative,
-    set isNegative(val) this.innerObject.isNegative = val,
+    get isNegative() { return this.innerObject.isNegative; },
+    set isNegative(val) { this.innerObject.isNegative = val; },
 
-    get weeks() this.innerObject.weeks,
-    set weeks(val) this.innerObject.weeks = val,
+    get weeks() { return this.innerObject.weeks; },
+    set weeks(val) { this.innerObject.weeks = val; },
 
-    get days() this.innerObject.days,
-    set days(val) this.innerObject.days = val,
+    get days() { return this.innerObject.days; },
+    set days(val) { this.innerObject.days = val; },
 
-    get hours() this.innerObject.hours,
-    set hours(val) this.innerObject.hours = val,
+    get hours() { return this.innerObject.hours; },
+    set hours(val) { this.innerObject.hours = val; },
 
-    get minutes() this.innerObject.minutes,
-    set minutes(val) this.innerObject.minutes = val,
+    get minutes() { return this.innerObject.minutes; },
+    set minutes(val) { this.innerObject.minutes = val; },
 
-    get seconds() this.innerObject.seconds,
-    set seconds(val) this.innerObject.seconds = val,
+    get seconds() { return this.innerObject.seconds; },
+    set seconds(val) { this.innerObject.seconds = val; },
 
-    get inSeconds() this.innerObject.toSeconds(),
-    set inSeconds(val) this.innerObject.fromSeconds(val),
+    get inSeconds() { return this.innerObject.toSeconds(); },
+    set inSeconds(val) { this.innerObject.fromSeconds(val); },
 
     addDuration: unwrap(ICAL.Duration, function(val) {
         this.innerObject.fromSeconds(this.innerObject.toSeconds() + val.toSeconds());
@@ -58,10 +58,10 @@ calDuration.prototype = {
         return this.innerObject.compare(val);
     }),
 
-    reset: function() this.innerObject.reset(),
-    normalize: function() this.innerObject.normalize(),
-    toString: function() this.innerObject.toString(),
+    reset: function() { this.innerObject.reset(); },
+    normalize: function() { this.innerObject.normalize(); },
+    toString: function() { return this.innerObject.toString(); },
 
-    get icalString() this.innerObject.toString(),
-    set icalString(val) this.innerObject = ICAL.Duration.fromString(val)
+    get icalString() { return this.innerObject.toString(); },
+    set icalString(val) { this.innerObject = ICAL.Duration.fromString(val); }
 };

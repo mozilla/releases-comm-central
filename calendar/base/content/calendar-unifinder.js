@@ -707,7 +707,7 @@ var unifinderTreeView = {
 
         return properties.join(" ");
     },
-    getColumnProperties: function uTV_getColumnProperties(aCol) "",
+    getColumnProperties: function uTV_getColumnProperties(aCol) { return ""; },
 
     isContainer: function uTV_isContainer() {
         return false;

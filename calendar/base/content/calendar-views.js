@@ -217,7 +217,7 @@ function switchToView(aViewType) {
     // Set up the labels for the view navigation
     ["previous-view-button",
      "today-view-button",
-     "next-view-button"].forEach(function(x) setupViewNode(x, "tooltiptext"));
+     "next-view-button"].forEach(x => setupViewNode(x, "tooltiptext"));
 
     try {
         selectedDay = viewDeck.selectedPanel.selectedDay;

@@ -2073,7 +2073,7 @@ calDavCalendar.prototype = {
             let pcs = caldavXPath(multistatus, "/D:multistatus/D:response/D:propstat/D:prop/D:principal-collection-set/D:href/text()");
             let nsList = [];
             if (pcs) {
-                nsList = pcs.map(function(x) thisCalendar.ensureDecodedPath(x));
+                nsList = pcs.map(x => thisCalendar.ensureDecodedPath(x));
             }
 
             thisCalendar.checkPrincipalsNameSpace(nsList, aChangeLogListener);

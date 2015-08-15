@@ -19,7 +19,7 @@ function wrapGetter(type, val) {
 }
 
 function unwrap(type, innerFunc) {
-    return function(val) unwrapSetter.call(this, type, val, innerFunc);
+    return function(val) { return unwrapSetter.call(this, type, val, innerFunc); };
 }
 
 function unwrapSetter(type, val, innerFunc, thisObj) {

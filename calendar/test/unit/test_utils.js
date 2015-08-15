@@ -121,15 +121,15 @@ function test_getStartEndProps() {
     equal(cal.calGetStartDateProp(cal.createTodo()), "entryDate");
     equal(cal.calGetEndDateProp(cal.createTodo()), "dueDate");
 
-    throws(function() cal.calGetStartDateProp(null),
-                    /2147500033/);
-   throws(function() cal.calGetEndDateProp(null),
-                    /2147500033/);
+    throws(() => cal.calGetStartDateProp(null),
+           /2147500033/);
+    throws(() => cal.calGetEndDateProp(null),
+           /2147500033/);
 }
 
 function test_calOperationGroup() {
     let cancelCalled = false;
-    function cancelFunc() cancelCalled = true;
+    function cancelFunc() { return cancelCalled = true; }
 
     let group = new cal.calOperationGroup(cancelFunc);
 
@@ -149,7 +149,7 @@ function test_calOperationGroup() {
     let pendingOp1 = {
         id: 1,
         isPending: true,
-        cancel: function() this.cancelCalled = true
+        cancel: function() { return this.cancelCalled = true; }
     };
 
     group.add(pendingOp1);
@@ -159,7 +159,7 @@ function test_calOperationGroup() {
     let pendingOp2 = {
         id: 2,
         isPending: true,
-        cancel: function() this.cancelCalled = true
+        cancel: function() { return this.cancelCalled = true; }
     };
 
     group.add(pendingOp2);

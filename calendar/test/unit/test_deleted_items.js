@@ -43,7 +43,7 @@ add_task(function test_deleted_items() {
 
     // Make sure the cache is initially flushed and that this doesn't throw an
     // error.
-    yield check_delmgr_call(function() delmgr.flush());
+    yield check_delmgr_call(() => delmgr.flush());
 
     let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-storage-calendar://", null, null));
     calmgr.registerCalendar(memory);
@@ -54,7 +54,7 @@ add_task(function test_deleted_items() {
     item.endDate = cal.now();
 
     // Add the item, it still shouldn't be in the deleted database.
-    yield check_delmgr_call(function() memory.addItem(item, null));
+    yield check_delmgr_call(() => memory.addItem(item, null));
     equal(delmgr.getDeletedDate(item.id), null);
     equal(delmgr.getDeletedDate(item.id, memory.id), null);
 
@@ -68,7 +68,7 @@ add_task(function test_deleted_items() {
     }
 
     // Deleting an item should trigger it being marked for deletion.
-    yield check_delmgr_call(function() memory.deleteItem(item, null));
+    yield check_delmgr_call(() => memory.deleteItem(item, null));
 
     // Now check if it was deleted at our reference date.
     let deltime = delmgr.getDeletedDate(item.id);
@@ -85,7 +85,7 @@ add_task(function test_deleted_items() {
 
     // Check if flushing works, we need to travel time for that.
     useFutureDate = true;
-    yield check_delmgr_call(function() delmgr.flush());
+    yield check_delmgr_call(() => delmgr.flush());
     equal(delmgr.getDeletedDate(item.id), null);
     equal(delmgr.getDeletedDate(item.id, memory.id), null);
 
@@ -93,11 +93,11 @@ add_task(function test_deleted_items() {
     useFutureDate = false;
 
     // Add, delete, add. Item should no longer be deleted.
-    yield check_delmgr_call(function() memory.addItem(item, null));
+    yield check_delmgr_call(() => memory.addItem(item, null));
     equal(delmgr.getDeletedDate(item.id), null);
-    yield check_delmgr_call(function() memory.deleteItem(item, null));
+    yield check_delmgr_call(() => memory.deleteItem(item, null));
     equal(delmgr.getDeletedDate(item.id).compare(referenceDate), 0);
-    yield check_delmgr_call(function() memory.addItem(item, null));
+    yield check_delmgr_call(() => memory.addItem(item, null));
     equal(delmgr.getDeletedDate(item.id), null);
 
     // Revert now function, in case more tests are written.

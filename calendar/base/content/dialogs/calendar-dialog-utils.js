@@ -134,7 +134,7 @@ function updateReminderDetails() {
     }
 
     // Filter out any unsupported action types.
-    reminders = reminders.filter(function(x) x.action in actionMap);
+    reminders = reminders.filter(x => x.action in actionMap);
 
     if (reminderList.value == "custom") {
         // Depending on how many alarms we have, show either the "Multiple Alarms"
@@ -275,7 +275,7 @@ function saveReminder(item) {
             // reminders.
 
             // XXX do we need to clone here?
-            reminders = menuitem.reminders.map(function(x) x.clone());
+            reminders = menuitem.reminders.map(x => x.clone());
         } else {
             // Pre-defined entries specify the necessary information
             // as attributes attached to the menuitem elements.
@@ -290,7 +290,7 @@ function saveReminder(item) {
         }
 
         // Make sure only alarms are saved that work in the given calendar.
-        reminders.filter(function(x) x.action in alarmActions)
+        reminders.filter(x => x.action in alarmActions)
                  .forEach(item.addAlarm, item);
     }
 
@@ -422,7 +422,7 @@ function commonUpdateReminder(aSuppressDialogs) {
             let reminders = menuitem.reminders || [createReminderFromMenuitem(menuitem)];
 
             // If a reminder is related to the entry date...
-            if (reminders.some(function(x) x.related == x.ALARM_RELATED_START)) {
+            if (reminders.some(x => x.related == x.ALARM_RELATED_START)) {
                 // ...automatically check 'has entrydate'.
                 if (!getElementValue("todo-has-entrydate", "checked")) {
                     setElementValue("todo-has-entrydate", "true", "checked");
@@ -436,7 +436,7 @@ function commonUpdateReminder(aSuppressDialogs) {
             }
 
             // If a reminder is related to the due date...
-            if (reminders.some(function(x) x.related == x.ALARM_RELATED_END)) {
+            if (reminders.some(x => x.related == x.ALARM_RELATED_END)) {
                 // ...automatically check 'has duedate'.
                 if (!getElementValue("todo-has-duedate", "checked")) {
                     setElementValue("todo-has-duedate", "true", "checked");

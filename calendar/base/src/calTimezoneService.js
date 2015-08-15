@@ -61,7 +61,7 @@ calTimezoneService.prototype = {
     }),
 
     // ical.js TimezoneService methods
-    has: function(id) this.getTimezone(id) != null,
+    has: function(id) { return this.getTimezone(id) != null; },
     get: function(id) {
         return id ? unwrapSingle(ICAL.Timezone, this.getTimezone(id)) : null;
     },

@@ -436,9 +436,9 @@ calOutlookCSVExporter.prototype = {
 
     exportToStream: function csv_exportToStream(aStream, aCount, aItems) {
         // Helper functions
-        function dateString(aDateTime) cal.dateTimeToJsDate(aDateTime).toLocaleFormat(localeEn.dateFormat);
-        function timeString(aDateTime) cal.dateTimeToJsDate(aDateTime).toLocaleFormat(localeEn.timeFormat);
-        function txtString(aString) aString || "";
+        function dateString(aDateTime) { return cal.dateTimeToJsDate(aDateTime).toLocaleFormat(localeEn.dateFormat); }
+        function timeString(aDateTime) { return cal.dateTimeToJsDate(aDateTime).toLocaleFormat(localeEn.timeFormat); }
+        function txtString(aString) { return aString || ""; }
 
         let str = "";
         let headers = [];
