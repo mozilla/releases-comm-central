@@ -51,18 +51,10 @@
 }
 
 @media (min-resolution: 2dppx) {
-  /* image preloading hack from shared/tabmail.css */
-  #tabs-toolbar::before {
-    background-image: url(tabs/background-end@2x.png),
-                      url(tabs/background-middle@2x.png),
-                      url(tabs/background-start@2x.png);
-  }
-
-  .tabmail-tab:hover > .tab-stack > .tab-background:not([selected=true]),
-  .tabs-newtab-button:hover {
-    background-image: url(tabs/background-start@2x.png),
-                      url(tabs/background-middle@2x.png),
-                      url(tabs/background-end@2x.png);
+  #tabs-toolbar {
+    --tabBackgroundImage: url(chrome://messenger/skin/tabs/background-start@2x.png),
+                          url(chrome://messenger/skin/tabs/background-middle@2x.png),
+                          url(chrome://messenger/skin/tabs/background-end@2x.png);
   }
 
   .tab-background-middle[selected=true] {

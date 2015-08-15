@@ -43,18 +43,14 @@
 }
 
 @media (min-resolution: 1.1dppx) {
-  /* image preloading hack from shared/tabmail.css */
-  #tabs-toolbar::before {
-    background-image: url(tabs/background-end@2x.png),
-                      url(tabs/background-middle@2x.png),
-                      url(tabs/background-start@2x.png);
+  #tabs-toolbar {
+    --tabBackgroundImage: url(chrome://messenger/skin/tabs/background-start@2x.png),
+                          url(chrome://messenger/skin/tabs/background-middle@2x.png),
+                          url(chrome://messenger/skin/tabs/background-end@2x.png);
   }
 
-  .tabmail-tab:hover > .tab-stack > .tab-background:not([selected=true]),
-  .tabs-newtab-button:hover {
-    background-image: url(tabs/background-start@2x.png),
-                      url(tabs/background-middle@2x.png),
-                      url(tabs/background-end@2x.png);
+  .tabmail-tab:hover > .tab-stack > .tab-background:not([selected=true]) {
+    background-image: var(--tabBackgroundImage);
   }
 
   .tab-background-middle[selected=true] {
@@ -122,6 +118,35 @@
   .tabmail-tab:not([selected]):not(:hover) +
   .tabmail-tab:not([selected]):not(:hover)::before {
     background-image: url("chrome://messenger/skin/tabs/separator-XP.png");
+  }
+}
+
+@media (-moz-os-version: windows-win10) {
+  #tabs-toolbar {
+    --tabBackgroundImage: url(chrome://messenger/skin/tabs/background-start-win10.png),
+                          url(chrome://messenger/skin/tabs/background-middle-win10.png),
+                          url(chrome://messenger/skin/tabs/background-end-win10.png);
+    --tab-stroke-background-size: 0 0;
+  }
+
+  @media (min-resolution: 1.1dppx) {
+    #tabs-toolbar {
+      --tabBackgroundImage: url(chrome://messenger/skin/tabs/background-start-win10@2x.png),
+                            url(chrome://messenger/skin/tabs/background-middle-win10@2x.png),
+                            url(chrome://messenger/skin/tabs/background-end-win10@2x.png);
+    }
+  }
+
+  /* Remove border between tab strip and navigation toolbar on Windows 10+ */
+  .tab-background-end[selected=true]::after,
+  .tab-background-start[selected=true]::after {
+    content: none;
+  }
+
+  .tab-background-middle[selected=true] {
+    /* Setting background-size to "0 0" for the first
+    background-image to remove the stroke. */
+    background-size: 0 0, auto 100%, auto 100%;
   }
 }
 

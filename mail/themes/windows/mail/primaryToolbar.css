@@ -48,6 +48,12 @@ menu:not(:-moz-lwtheme):-moz-window-inactive {
                                     transparent 1px);
 }
 
+@media (-moz-os-version: windows-win10) {
+  #tabs-toolbar {
+    background-image: none;
+  }
+}
+
 /**
  * In the classic themes, the titlebar has a horizontal gradient, which is
  * problematic for reading the text of background tabs when they're in the
@@ -1757,7 +1763,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 @media (-moz-windows-glass) {
-  #mail-toolbox:not(:-moz-lwtheme),
+  .mail-toolbox:not(:-moz-lwtheme),
   .contentTabToolbox:not(:-moz-lwtheme) {
     box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset,
                 0 -1px 0 #AABCCF inset;
@@ -1895,6 +1901,16 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
     --appMenu-bg-box-shadow: ThreeDShadow;
   }
 
+  .mail-toolbox:not(:-moz-lwtheme),
+  .contentTabToolbox:not(:-moz-lwtheme) {
+    background-image: none;
+  }
+
+  #mail-toolbar-menubar2 {
+    background-image: none;
+    box-shadow: none;
+  }
+
   @media not all and (-moz-windows-default-theme) {
     #mail-toolbar-menubar2:not([autohide="true"]) {
       -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-drag");
@@ -1921,6 +1937,11 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  .mail-toolbox,
+  .contentTabToolbox {
+    box-shadow: 0 -1px 0 #c2c2c2 inset;
+  }
+
   .findbar-button,
   .toolbarbutton-1:not([type="menu-button"]),
   .toolbarbutton-1 > .toolbarbutton-menubutton-button,

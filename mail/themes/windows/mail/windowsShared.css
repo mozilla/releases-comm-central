@@ -12,3 +12,10 @@
 
   --customToolbarColor: hsl(210, 75%, 92%);
 }
+
+@media (-moz-os-version: windows-win8),
+       (-moz-os-version: windows-win10) {
+  :root:not(:-moz-lwtheme) {
+    --fgTabTexture: linear-gradient(transparent, transparent)
+  }
+}

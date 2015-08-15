@@ -10,6 +10,10 @@
   --tabCurveWidthNegative: -30px;
   --tabCurveHalfWidth: 15px;
   --tabCurveHalfWidthNegative: -15px;
+  --tabBackgroundImage: url("chrome://messenger/skin/tabs/background-start.png"),
+                        url("chrome://messenger/skin/tabs/background-middle.png"),
+                        url("chrome://messenger/skin/tabs/background-end.png");
+  --tab-stroke-background-size: auto 100%;
   --tab-separator-image: url(chrome://messenger/skin/tabs/separator.png);
   --tab-separator-size: 3px 100%;
   --tab-separator-opacity: 1;
@@ -28,9 +32,7 @@
   -moz-box-ordinal-group: 0;
   content: '';
   display: block;
-  background-image: url("chrome://messenger/skin/tabs/background-start.png"),
-                    url("chrome://messenger/skin/tabs/background-middle.png"),
-                    url("chrome://messenger/skin/tabs/background-end.png");
+  background-image: var(--tabBackgroundImage);
 }
 
 .tabmail-tab {
@@ -190,7 +192,7 @@
                     var(--fgTabTexture),
                     none;
   background-repeat: repeat-x;
-  background-size: auto 100%;
+  background-size: var(--tab-stroke-background-size), auto 100%;
   /* The padding-top combined with background-clip: content-box
      (the bottom-most) ensure the background-color doesn't extend
      above the top border. */
@@ -207,9 +209,7 @@
 
 /* new tab button border and gradient on hover */
 .tabmail-tab:hover > .tab-stack > .tab-background:not([selected=true]) {
-  background-image: url("chrome://messenger/skin/tabs/background-start.png"),
-                    url("chrome://messenger/skin/tabs/background-middle.png"),
-                    url("chrome://messenger/skin/tabs/background-end.png");
+  background-image: var(--tabBackgroundImage);
   background-position: left bottom, var(--tabCurveWidth) bottom, right bottom;
   background-repeat: no-repeat;
   background-size: var(--tabCurveWidth) 100%,

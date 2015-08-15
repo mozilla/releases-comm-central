@@ -346,10 +346,6 @@ button[type="menu-button"] > button {
 }
 
 @media (-moz-windows-compositor) {
-  #tabmail-container {
-    -moz-appearance: -moz-win-exclude-glass;
-  }
-
   #unifinder-searchBox,
   #task-addition-box {
     border-top: none;

@@ -17,6 +17,12 @@
           background-color: hsl(210,75%,92%);
         }
       }
+      @media (-moz-os-version: windows-win8),
+             (-moz-os-version: windows-win10) {
+        #tab-background-fill {
+          background-image: linear-gradient(transparent, transparent)
+        }
+      }
     </style>
 
     <svg:clipPath id="tab-curve-clip-path-start" clipPathUnits="objectBoundingBox">
