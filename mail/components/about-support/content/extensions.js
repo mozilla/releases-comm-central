@@ -32,7 +32,7 @@ function populateExtensionsSection() {
     for (let i = 0; i < extensions.length; i++) {
       let extension = extensions[i];
       let extensionTDs = [createElement("td", extension[prop])
-                          for ([, prop] in Iterator(gExtensionDetails))];
+                          for (prop of gExtensionDetails)];
       let tr = createParentElement("tr", extensionTDs);
       trExtensions.push(tr);
     }
@@ -44,9 +44,11 @@ function populateExtensionsSection() {
  * Returns a plaintext representation of extension data.
  */
 function getExtensionsText(aHidePrivateData, aIndent) {
-  let extensionData = [aIndent +
+  let extensionData = [];
+  for (let extension of gExtensions) {
+    extensionData.push(aIndent +
                        [extension[prop]
-                        for ([, prop] in Iterator(gExtensionDetails))].join(", ")
-                       for ([, extension] in Iterator(gExtensions))];
+                        for (prop of gExtensionDetails)].join(", "));
+  }
   return extensionData.join("\n");
 }
