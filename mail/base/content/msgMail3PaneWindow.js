@@ -1423,9 +1423,13 @@ function ThreadPaneOnDragStart(aEvent) {
     if (i > 0)
       continue;
 
-    // Generate file name in case the object is dropped onto the desktop.
-    let subject = messenger.messageServiceFromURI(messages[i])
-                           .messageURIToMsgHdr(messages[i]).mime2DecodedSubject;
+    let msgHdr = messenger.messageServiceFromURI(messages[i])
+                          .messageURIToMsgHdr(messages[i]);
+
+    let subject = msgHdr.mime2DecodedSubject || "";
+    if (msgHdr.flags & Components.interfaces.nsMsgMessageFlags.HasRe)
+        subject = "Re: " + subject;
+
     let uniqueFileName;
     // If there is no subject, use a default name.
     // If subject needs to be truncated, add a truncation character to indicate it.
