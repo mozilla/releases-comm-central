@@ -5,7 +5,7 @@
 <!ENTITY itemJunk.label          "Junk">
 <!ENTITY itemPhishing.label      "E-mail Scams">
 <!ENTITY itemPasswords.label     "Passwords">
-<!ENTITY itemAntiVirus.label     "Anti-Virus">
+<!ENTITY itemAntiVirus.label     "Antivirus">
 
 <!-- Junk Mail Controls -->
 <!ENTITY junkMail.intro "Set your default junk mail settings. Account-specific junk mail settings can be configured in Account Settings.">
@@ -42,7 +42,7 @@
 <!ENTITY savedPasswords.accesskey       "S">
 
 <!-- Anti Virus -->
-<!ENTITY antiVirus.intro      "&brandShortName; can make it easy for anti-virus software to analyze incoming mail messages for viruses before they are stored locally.">
-<!ENTITY antiVirus.label      "Allow anti-virus clients to quarantine individual incoming messages">
+<!ENTITY antiVirus.intro      "&brandShortName; can make it easy for antivirus software to analyze incoming mail messages for viruses before they are stored locally.">
+<!ENTITY antiVirus.label      "Allow antivirus clients to quarantine individual incoming messages">
 <!ENTITY antiVirus.accesskey  "A">
 
