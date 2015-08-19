@@ -331,6 +331,15 @@ NS_IMETHODIMP nsLDAPURL::GetAsciiHost(nsACString &_retval)
   return mBaseURL->GetAsciiHost(_retval);
 }
 
+NS_IMETHODIMP
+nsLDAPURL::GetAsciiHostPort(nsACString &_retval)
+{
+  if (!mBaseURL)
+    return NS_ERROR_NOT_INITIALIZED;
+
+  return mBaseURL->GetAsciiHostPort(_retval);
+}
+
 NS_IMETHODIMP nsLDAPURL::GetOriginCharset(nsACString &result)
 {
   if (!mBaseURL)

@@ -457,6 +457,11 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetAsciiHost(nsACString &aHostA)
     return m_baseURL->GetAsciiHost(aHostA);
 }
 
+NS_IMETHODIMP nsMsgMailNewsUrl::GetAsciiHostPort(nsACString &aHostPortA)
+{
+  return m_baseURL->GetAsciiHostPort(aHostPortA);
+}
+
 NS_IMETHODIMP nsMsgMailNewsUrl::GetAsciiSpec(nsACString &aSpecA)
 {
     return m_baseURL->GetAsciiSpec(aSpecA);

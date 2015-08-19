@@ -484,6 +484,11 @@ NS_IMETHODIMP nsMailtoUrl::GetAsciiHost(nsACString &aHostA)
 	return m_baseURL->GetAsciiHost(aHostA);
 }
 
+NS_IMETHODIMP nsMailtoUrl::GetAsciiHostPort(nsACString &aHostPortA)
+{
+	return m_baseURL->GetAsciiHostPort(aHostPortA);
+}
+
 NS_IMETHODIMP nsMailtoUrl::GetAsciiSpec(nsACString &aSpecA)
 {
 	return m_baseURL->GetAsciiSpec(aSpecA);

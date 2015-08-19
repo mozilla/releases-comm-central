@@ -152,6 +152,11 @@ NS_IMETHODIMP nsAddbookUrl::GetAsciiHost(nsACString &aHostA)
 	return m_baseURL->GetAsciiHost(aHostA);
 }
 
+NS_IMETHODIMP nsAddbookUrl::GetAsciiHostPort(nsACString &aHostPortA)
+{
+	return m_baseURL->GetAsciiHostPort(aHostPortA);
+}
+
 NS_IMETHODIMP nsAddbookUrl::GetAsciiSpec(nsACString &aSpecA)
 {
 	return m_baseURL->GetAsciiSpec(aSpecA);
