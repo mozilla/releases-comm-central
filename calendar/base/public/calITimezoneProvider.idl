@@ -7,10 +7,11 @@
 interface nsIUTF8StringEnumerator;
 interface calITimezone;
 
-[scriptable, uuid(0E502BF5-4FD3-4090-9122-F1EC3CA701BB)]
+[scriptable, uuid(331a7c6d-805a-4926-940b-2d78dcd90554)]
 interface calITimezoneProvider : nsISupports
 {
     readonly attribute nsIUTF8StringEnumerator timezoneIds;
+    readonly attribute nsIUTF8StringEnumerator aliasIds;
 
     /**
      * Gets a timezone defintion passing a TZID.

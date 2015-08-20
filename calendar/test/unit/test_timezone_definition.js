@@ -3,54 +3,57 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
+    do_test_pending();
     cal.getTimezoneService().startup({onResult: function() {
+        do_test_finished();
         run_next_test();
     }});
 }
 
 //check tz database version
-add_task(function version_test() {
+add_task(function* version_test() {
     let tzs = cal.getTimezoneService();
-    equal(version, null, "No timezone db version information available");
-    if (version) {
-        do_print("Timezone DB version: " + version);
-    }
+    notEqual(tzs.version, null, "Checking for a timezone version");
 });
 
 //check whether all tz definitions have all properties
-add_task(function zone_test() {
-    let tzs = cal.getTimezoneService();
-    let resolveZone = function (aZoneId) {
+add_task(function* zone_test() {
+    function resolveZone(aZoneId) {
         let tz = tzs.getTimezone(aZoneId);
-        equal(tz, null, "Failed to resolve " + aZoneId);
-        ok((tz.ics), "Ics property missing for " + aZoneId);
-        equal(tz.ics.search(/^BEGIN:VTIMEZONE\\r\\n.*END:VTIMEZONE$/), -1,
-              "Invalid property " + aZoneId + ".ics");
-        ok((tz.latitude), "Latitude property missing for " + aZoneId);
-        equal(tz.latitude.search(/^[+-]d{7}$/), -1, "Invalid property " + aZoneId + ".latitude");
-        ok((tz.longitude), "Longitude property missing for " + aZoneId);
-        equal(tz.longitude.search(/^[+-]d{7}$/), -1, "Invalid property " + aZoneId + ".longitude");
+        notEqual(tz, null, aZoneId + "exists");
+        ok(tz.icalComponent.serializeToICS().startsWith("BEGIN:VTIMEZONE"),
+                 "ics property contains VTIMEZONE for " + aZoneId);
+        ok(tz.latitude && !!tz.latitude.match(/^[+-]\d{7}$/), "Correct latitude on " + aZoneId);
+        ok(tz.longitude && !!tz.longitude.match(/^[+-]\d{7}$/), "Correct longitude on " + aZoneId);
     }
+
+    let tzs = cal.getTimezoneService();
     let zones = tzs.timezoneIds;
-    ok(Array.isArray(zones));
-    if (zones && zones.length) {
-        notEqual(zones.length, 0, "No timezone definitions found.");
-        zones.forEach(resolveZone);
+    let foundZone = false;
+    while (zones.hasMore()) {
+        foundZone = true;
+        resolveZone(zones.getNext());
+        zones.getNext();
     }
+
+    ok(foundZone, "There is at least one timezone");
 });
 
 // check whether all tz aliases resolve to a tz definition
 add_task(function alias_test() {
-    let tzs = cal.getTimezoneService();
-    let resolveAlias = function (aAliasId) {
+    function resolveAlias(aAliasId) {
         let tz = tzs.getTimezone(aAliasId);
-        equal(tz, null, "Failed to resolve " + aAliasId + " in version " + tzs.version);
+        notEqual(tz, null, "Zone " + aAliasId + " exists in " + tzs.version);
     }
+    let tzs = cal.getTimezoneService();
     let aliases = tzs.aliasIds;
-    ok(Array.isArray(aliases));
-    if (aliases.length > 0) {
-        aliases.forEach(resolveAlias);
-    } else {
-        do_print("No aliases defined.");
+
+    let foundAlias = false;
+    while (aliases.hasMore()) {
+        foundAlias = true;
+        resolveAlias(aliases.getNext());
+        aliases.getNext();
     }
+
+    ok(foundAlias, "There is at least one alias");
 });
