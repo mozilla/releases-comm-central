@@ -84,6 +84,9 @@ pref("calendar.week.start", 0);
 pref("calendar.weeks.inview", 4);
 pref("calendar.previousweeks.inview", 0);
 
+// Show week number in minimonth and multiweek/month views
+pref("calendar.view-minimonth.showWeekNumber", true);
+
 // Default days off
 pref("calendar.week.d0sundaysoff", true);
 pref("calendar.week.d1mondaysoff", false);

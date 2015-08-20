@@ -23,6 +23,9 @@
             <preference id="calendar.week.start"
                         name="calendar.week.start"
                         type="int"/>
+            <preference id="calendar.view-minimonth.showWeekNumber"
+                        name="calendar.view-minimonth.showWeekNumber"
+                        type="bool"/>
             <preference id="calendar.week.d0sundaysoff"
                         name="calendar.week.d0sundaysoff"
                         type="bool"
@@ -70,23 +73,32 @@
 
         <groupbox>
             <caption label="&pref.calendar.view.allview.caption;"/>
-            <hbox align="center">
-                <label value="&pref.weekstarts.label;"
-                       accesskey="&pref.weekstarts.accesskey;"
-                       control="weekstarts"/>
-                <menulist id="weekstarts"
-                          preference="calendar.week.start"
-                          oncommand="gViewsPane.updateViewWorkDayCheckboxes(this.value)">
-                    <menupopup id="weekstartspopup">
-                        <menuitem label="&day.1.name;" value="0"/>
-                        <menuitem label="&day.2.name;" value="1"/>
-                        <menuitem label="&day.3.name;" value="2"/>
-                        <menuitem label="&day.4.name;" value="3"/>
-                        <menuitem label="&day.5.name;" value="4"/>
-                        <menuitem label="&day.6.name;" value="5"/>
-                        <menuitem label="&day.7.name;" value="6"/>
-                    </menupopup>
-                </menulist>
+            <hbox>
+                <hbox align="center" flex="1">
+                    <label value="&pref.weekstarts.label;"
+                           accesskey="&pref.weekstarts.accesskey;"
+                           control="weekstarts"/>
+                    <menulist id="weekstarts"
+                              preference="calendar.week.start"
+                              oncommand="gViewsPane.updateViewWorkDayCheckboxes(this.value)">
+                        <menupopup id="weekstartspopup">
+                            <menuitem label="&day.1.name;" value="0"/>
+                            <menuitem label="&day.2.name;" value="1"/>
+                            <menuitem label="&day.3.name;" value="2"/>
+                            <menuitem label="&day.4.name;" value="3"/>
+                            <menuitem label="&day.5.name;" value="4"/>
+                            <menuitem label="&day.6.name;" value="5"/>
+                            <menuitem label="&day.7.name;" value="6"/>
+                        </menupopup>
+                    </menulist>
+                </hbox>
+                <hbox align="center" flex="1">
+                    <checkbox id="weekNumber"
+                              crop="end"
+                              label="&pref.calendar.view-minimonth.showweeknumber.label;"
+                              accesskey="&pref.calendar.view-minimonth.showweeknumber.accesskey;"
+                              preference="calendar.view-minimonth.showWeekNumber"/>
+                </hbox>
             </hbox>
         </groupbox>
 

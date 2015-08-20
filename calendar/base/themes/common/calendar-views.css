@@ -20,7 +20,7 @@ window {
     --viewWeekendBackground: #f7ffe3;
     --viewHeaderSelectedBackground: #fffcd8;
     --viewDayBoxSelectedBackground: #fffcd8;
-    --viewDayBoxOffSelectedBackground: #f2edb2;
+    --viewDayBoxOffSelectedBackground: #fffcd8;
     --viewDayBoxOtherSelectedBackground: #fffcd8;
     --viewMonthCurrentBackground: #f7f7f7;
     --viewMonthOtherBackground: #f3f3f3;
@@ -28,6 +28,7 @@ window {
     --viewMonthDayBoxSelectedBackground: #f2edb2;
     --viewMonthDayBoxLabelColor: #616163;
     --viewMonthDayBoxLabelTexture: none;
+    --viewMonthDayBoxWeekLabel: #aaaaaa;
     --viewMonthDayOtherBackground: #e8e8e8;
     --viewMonthDayOtherLabelBackground: #ddd;
     --viewMonthDayOffLabelBackground: #eaf7ca;
@@ -48,7 +49,7 @@ window[systemcolors] {
     --viewTodayBorderColor: Highlight;
     --viewTodayBackground: -moz-Field;
     --viewTodayLabelColor: Highlight;
-    --viewTodayLabelBackground: HighlightText;
+    --viewTodayLabelBackground: rgba(0, 0, 0, .2);
     --viewTodayLabelSelectedColor: HighlightText;
     --viewTodayLabelSelectedBackground: Highlight;
     --viewTodayOffBackground: ButtonFace;
@@ -58,13 +59,14 @@ window[systemcolors] {
     --viewHeaderSelectedBackground: ButtonFace;
     --viewDayBoxSelectedBackground: -moz-Field;
     --viewDayBoxOffSelectedBackground: rgba(0, 0, 0, .2);
-    --viewDayBoxOtherSelectedBackground: ThreeDLightShadow;
+    --viewDayBoxOtherSelectedBackground: rgba(0, 0, 0, .2);
     --viewMonthCurrentBackground: -moz-Field;
     --viewMonthOtherBackground: ButtonFace;
     --viewMonthDayBoxSelectedColor: HighlightText;
     --viewMonthDayBoxSelectedBackground: Highlight;
     --viewMonthDayBoxLabelColor: WindowText;
     --viewMonthDayBoxLabelTexture: linear-gradient(rgba(0, 0, 0, .05), rgba(0, 0, 0, .05));
+    --viewMonthDayBoxWeekLabel: GrayText;
     --viewMonthDayOtherBackground: ButtonFace;
     --viewMonthDayOtherLabelBackground: ButtonFace;
     --viewMonthDayOffLabelBackground: rgba(0, 0, 0, .1);
@@ -656,6 +658,13 @@ calendar-month-day-box {
     -moz-padding-end: 2px;
     padding-bottom: 1px;
     background-image: var(--viewMonthDayBoxLabelTexture);
+}
+
+.calendar-month-day-box-week-label {
+    text-align: left;
+    -moz-padding-start: 2px;
+    font-weight: normal !important;
+    color: var(--viewMonthDayBoxWeekLabel) !important;
 }
 
 calendar-month-day-box-item {

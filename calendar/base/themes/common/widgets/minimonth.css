@@ -125,6 +125,21 @@ minimonth {
   min-height: 16px;
 }
 
+.minimonth-row-header-week {
+  color: var(--mmDayOtherColor);
+  text-align: center;
+  border-right: 1px dotted var(--mmDayOtherColor);
+}
+
+.minimonth-week {
+  color: var(--mmDayOtherColor);
+  text-align: center;
+  border: 1px solid var(--mmDayBorderColor);
+  border-right: 1px dotted var(--mmDayOtherColor);
+  background-color: var(--mmMainBackground);
+  min-height: 16px;
+}
+
 .minimonth-day[othermonth="true"] {
   color: var(--mmDayOtherColor);
   background-color: var(--mmDayOtherBackground);

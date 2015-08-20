@@ -320,6 +320,7 @@
         <xul:minimonth-header anonid="minimonth-header" xbl:inherits="readonly,month,year"/>
         <xul:vbox anonid="minimonth-calendar" class="minimonth-cal-box">
           <xul:hbox class="minimonth-row-head" anonid="minimonth-row-header" equalsize="always">
+            <xul:text class="minimonth-row-header-week" flex="1"/>
             <xul:text class="minimonth-row-header" flex="1"/>
             <xul:text class="minimonth-row-header" flex="1"/>
             <xul:text class="minimonth-row-header" flex="1"/>
@@ -329,6 +330,7 @@
             <xul:text class="minimonth-row-header" flex="1"/>
           </xul:hbox>
           <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
+            <xul:text class="minimonth-week" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
@@ -338,6 +340,7 @@
             <xul:text class="minimonth-day" flex="1"/>
           </xul:hbox>
           <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
+            <xul:text class="minimonth-week" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
@@ -347,6 +350,7 @@
             <xul:text class="minimonth-day" flex="1"/>
           </xul:hbox>
           <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
+            <xul:text class="minimonth-week" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
@@ -356,6 +360,7 @@
             <xul:text class="minimonth-day" flex="1"/>
           </xul:hbox>
           <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
+            <xul:text class="minimonth-week" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
@@ -365,6 +370,7 @@
             <xul:text class="minimonth-day" flex="1"/>
           </xul:hbox>
           <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
+            <xul:text class="minimonth-week" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
@@ -374,6 +380,7 @@
             <xul:text class="minimonth-day" flex="1"/>
           </xul:hbox>
           <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
+            <xul:text class="minimonth-week" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
             <xul:text class="minimonth-day" flex="1"/>
@@ -395,7 +402,7 @@
       <property name="firstDate" readonly="true">
         <getter><![CDATA[
             let calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
-            let dt = calbox.childNodes[1].firstChild.date;
+            let dt = calbox.childNodes[1].firstChild.nextSibling.date;
             return cal.jsDateToDateTime(dt);
         ]]></getter>
       </property>
@@ -416,6 +423,7 @@
       <field name="mPixelScrollDelta">0</field>
       <field name="mIsReadOnly">false</field>
       <field name="mObservesComposite">false</field>
+      <field name="mShowWeekNumber">true</field>
       <constructor><![CDATA[
           Components.utils.import("resource://gre/modules/Services.jsm");
           Components.utils.import("resource://gre/modules/Preferences.jsm");
@@ -431,10 +439,11 @@
           if (this.hasAttribute("freebusy")) {
               this._setFreeBusy(this.getAttribute("freebusy") == "true");
           }
+          this.mShowWeekNumber = Preferences.get("calendar.view-minimonth.showWeekNumber", true);
 
-          // Add pref observer for calendar.week.start
+          // Add pref observer
           let branch = Services.prefs.getBranch("");
-          branch.addObserver("calendar.week.start", this, false);
+          branch.addObserver("calendar.", this, false);
       ]]></constructor>
       <destructor><![CDATA[
           Components.utils.import("resource://gre/modules/Services.jsm");
@@ -443,9 +452,9 @@
               getCompositeCalendar().removeObserver(this);
           }
 
-          // Remove pref observer for calendar.week.start
+          // Remove pref observer
           let branch = Services.prefs.getBranch("");
-          branch.removeObserver("calendar.week.start", this, false);
+          branch.removeObserver("calendar.", this, false);
       ]]></destructor>
 
      <!-- calIOperationListener methods -->
@@ -683,12 +692,10 @@
         <parameter name="aTopic"/>
         <parameter name="aData"/>
         <body><![CDATA[
-          // WARNING: In the constructor, only calendar.week.start is observed.
-          // If you decide to add further prefs to this observer, you'll need to
-          // modify constructor and destructor.
           switch (aData) {
               case "calendar.week.start":
-                  this.refreshDisplay(true);
+              case "calendar.view-minimonth.showWeekNumber":
+                  this.refreshDisplay();
                   break;
           }
         ]]></body>
@@ -698,6 +705,7 @@
         <body><![CDATA[
           // Find out which should be the first day of the week
           this.weekStart = Preferences.get("calendar.week.start", 0);
+          this.mShowWeekNumber = Preferences.get("calendar.view-minimonth.showWeekNumber", true);
           if (!this.mValue) {
               this.mValue = new Date();
           }
@@ -714,7 +722,7 @@
           var i, j;
           var useOSFormat;
           tempDate.setDate(tempDate.getDate() - (tempDate.getDay() - this.weekStart));
-          for (i = 0; i < header.childNodes.length; i++) {
+          for (i = 0; i < header.childNodes.length - 1; i++) {
               // if available, use UILocale days, else operating system format
               try {
                   dayList[i] = calGetString("dateFormat",
@@ -766,8 +774,10 @@
                   dayList[i] = dayList[i].substring(0,foundMatch)
               }
           }
-          for (var column = 0; column < header.childNodes.length; column++) {
-              header.childNodes[column].setAttribute( "value", dayList[column]);
+
+          setBooleanAttribute(header.childNodes[0], "hidden", !this.mShowWeekNumber);
+          for (var column = 1; column < header.childNodes.length; column++) {
+              header.childNodes[column].setAttribute("value", dayList[column - 1]);
           }
         ]]></body>
       </method>
@@ -819,7 +829,16 @@
             this.mDayMap = {};
             for (var k = 1; k < calbox.childNodes.length; k++) {
                 var row = calbox.childNodes[k];
-                for (var i = 0; i < 7; i++) {
+
+                // Set the week number.
+                let firstElement = row.childNodes[0];
+                setBooleanAttribute(firstElement, "hidden", !this.mShowWeekNumber);
+                if (this.mShowWeekNumber) {
+                    let weekNumber = cal.getWeekInfoService().getWeekTitle(cal.jsDateToDateTime(date));
+                    firstElement.setAttribute("value", weekNumber);
+                }
+
+                for (var i = 1; i < 8; i++) {
                     var day = row.childNodes[i];
                     var ymd = date.getFullYear() + "-" +
                               date.getMonth() + "-" +
@@ -915,7 +934,7 @@
             } else {
               var calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
               for (var k = 1; k < calbox.childNodes.length; k++) {
-                for (var i = 0; i < 7; i++) {
+                for (var i = 1; i < 8; i++) {
                     removeForBox(calbox.childNodes[k].childNodes[i]);
                 }
               }
@@ -1107,7 +1126,7 @@
         ]]></body>
       </method>
     </implementation>
-     <handlers>
+    <handlers>
       <handler event="wheel">
         <![CDATA[
           const pixelThreshold = 150;

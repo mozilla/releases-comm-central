@@ -14,6 +14,8 @@
 
 <!ENTITY pref.weekstarts.label "Start the week on:">
 <!ENTITY pref.weekstarts.accesskey "r">
+<!ENTITY pref.calendar.view-minimonth.showweeknumber.label "Show week number in views and minimonth">
+<!ENTITY pref.calendar.view-minimonth.showweeknumber.accesskey "w">
 <!ENTITY pref.daysoff.label "Include these days in the workweek:">
 
 <!ENTITY pref.calendar.view.daystart.label "Day starts at:">
