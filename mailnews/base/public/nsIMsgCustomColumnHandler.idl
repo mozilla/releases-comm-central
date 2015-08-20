@@ -22,6 +22,11 @@ interface nsIMsgDBHdr;
        You can, at your option, implement 
        9.  GetRowProperties.
 
+       With Bug 1192696, Grouped By Sort was implemented for custom columns.
+       Implementers should consider that the value returned by GetSortStringForRow
+       will be displayed in the grouped header row, as well as be used as the
+       sort string.
+
       If implementing a c++ custom column handler, you must define all 
       nsITreeView and nsIMsgCustomColumnHandler methods.
     */

@@ -41,6 +41,7 @@ public:
   NS_IMETHOD CellTextForColumn(int32_t aRow, const char16_t *aColumnName,
                                nsAString &aValue);
   NS_IMETHOD GetThreadContainingMsgHdr(nsIMsgDBHdr *msgHdr, nsIMsgThread **pThread);
+  NS_IMETHOD AddColumnHandler(const nsAString& column, nsIMsgCustomColumnHandler* handler) override;
 
 protected:
   virtual void InternalClose();
@@ -54,8 +55,9 @@ protected:
                                   int32_t *pThreadCount = NULL,
                                   uint32_t *pFlags = NULL) override;
 
-  bool GroupViewUsesDummyRow(); // returns true if we are grouped by a sort attribute that uses a dummy row
-  virtual nsresult RebuildView(nsMsgViewFlagsTypeValue newFlags);
+  // Returns true if we are grouped by a sort attribute that uses a dummy row.
+  bool GroupViewUsesDummyRow();
+  nsresult RebuildView(nsMsgViewFlagsTypeValue viewFlags);
   virtual nsMsgGroupThread *CreateGroupThread(nsIMsgDatabase *db);
   PR_STATIC_CALLBACK(PLDHashOperator) GroupTableCloner(const nsAString &aKey,
                                                        nsIMsgThread* aGroupThread,
