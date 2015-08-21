@@ -730,16 +730,6 @@ function makePhotoFile(aDir, aExtension) {
 }
 
 /**
- * Encode the string passed as value into an addressbook search term.
- * The '(' and ')' characters are special for the addressbook
- * search query language, but are not escaped in encodeURIComponent()
- * so must be done manually on top of it.
- */
-function encodeABTermValue(aString) {
-  return encodeURIComponent(aString).replace(/\(/g, "%28").replace(/\)/g, "%29");
-}
-
-/**
  * Validates the given year and returns it, if it looks sane.
  * Returns kDefaultYear (a leap year), if no valid date is given.
  * This ensures that month/day calculations still work.

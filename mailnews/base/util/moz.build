@@ -49,6 +49,7 @@ SOURCES += [
 ]
 
 EXTRA_JS_MODULES += [
+    'ABQueryUtils.jsm',
     'errUtils.js',
     'folderUtils.jsm',
     'hostnameUtils.jsm',

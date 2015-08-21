@@ -8,6 +8,7 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 // Ensure the activity modules are loaded for this window.
 Components.utils.import("resource:///modules/activity/activityModules.js");
+Components.utils.import("resource:///modules/ABQueryUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 
 const nsIAbListener = Components.interfaces.nsIAbListener;
