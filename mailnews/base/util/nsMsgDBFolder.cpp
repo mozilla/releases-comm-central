@@ -5941,6 +5941,14 @@ NS_IMETHODIMP nsMsgDBFolder::AndProcessingFlags(nsMsgKey aKey, uint32_t mask)
   return NS_OK;
 }
 
+// Each implementation must provide an override of this, connecting the folder
+// type to the corresponding incoming server type.
+NS_IMETHODIMP nsMsgDBFolder::GetIncomingServerType(nsACString& aIncomingServerType)
+{
+  NS_ASSERTION(false, "subclasses need to override this");
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
 void nsMsgDBFolder::ClearProcessingFlags()
 {
   for (uint32_t i = 0; i < nsMsgProcessingFlags::NumberOfFlags; i++)

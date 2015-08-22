@@ -154,6 +154,86 @@ nsMsgAttachmentHandler::~nsMsgAttachmentHandler()
   CleanupTempFile();
 }
 
+NS_IMPL_ISUPPORTS(nsMsgAttachmentHandler, nsIMsgAttachmentHandler)
+
+// nsIMsgAttachmentHandler implementation.
+
+NS_IMETHODIMP nsMsgAttachmentHandler::GetType(nsACString& aType)
+{
+  aType.Assign(m_type);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgAttachmentHandler::GetUri(nsACString& aUri)
+{
+  nsAutoCString turl;
+  if (!mURL)
+  {
+    if (!m_uri.IsEmpty())
+      turl = m_uri;
+  }
+  else
+    mURL->GetSpec(turl);
+  aUri.Assign(turl);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgAttachmentHandler::GetTmpFile(nsIFile **aTmpFile)
+{
+  NS_ENSURE_ARG_POINTER(aTmpFile);
+  if (!mTmpFile)
+    return NS_ERROR_FAILURE;
+  NS_ADDREF(*aTmpFile = mTmpFile);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgAttachmentHandler::GetName(nsACString& aName)
+{
+  aName.Assign(m_realName);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgAttachmentHandler::GetSize(uint32_t *aSize)
+{
+  NS_ENSURE_ARG_POINTER(aSize);
+  *aSize = m_size;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgAttachmentHandler::GetContentId(nsACString& aContentId)
+{
+  aContentId.Assign(m_contentId);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgAttachmentHandler::GetSendViaCloud(bool* aSendViaCloud)
+{
+  NS_ENSURE_ARG_POINTER(aSendViaCloud);
+  *aSendViaCloud = mSendViaCloud;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgAttachmentHandler::GetCharset(nsACString& aCharset)
+{
+  aCharset.Assign(m_charset);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgAttachmentHandler::GetEncoding(nsACString& aEncoding)
+{
+  aEncoding.Assign(m_encoding);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgAttachmentHandler::GetAlreadyEncoded(bool* aAlreadyEncoded)
+{
+  NS_ENSURE_ARG_POINTER(aAlreadyEncoded);
+  *aAlreadyEncoded = m_already_encoded_p;
+  return NS_OK;
+}
+
+// Local methods.
+
 void
 nsMsgAttachmentHandler::CleanupTempFile()
 {

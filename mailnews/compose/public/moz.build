@@ -5,6 +5,7 @@
 
 XPIDL_SOURCES += [
     'nsIMsgAttachment.idl',
+    'nsIMsgAttachmentHandler.idl',
     'nsIMsgCompFields.idl',
     'nsIMsgCompose.idl',
     'nsIMsgComposeParams.idl',

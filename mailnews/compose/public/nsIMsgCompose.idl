@@ -98,7 +98,7 @@ interface nsIMsgComposeRecyclingListener : nsISupports {
   void onReopen(in nsIMsgComposeParams params);
 };
 
-[scriptable, uuid(44596460-2de4-11e4-8c21-0800200c9a66)]
+[scriptable, uuid(d06ca5af-66b5-4a08-961f-5b47e88cee98)]
 interface nsIMsgCompose : nsIMsgSendListener {
 
   /**
@@ -125,6 +125,19 @@ interface nsIMsgCompose : nsIMsgSendListener {
 
   /* ... */
   void SendMsg(in MSG_DeliverMode deliverMode, in nsIMsgIdentity identity, in string accountKey, in nsIMsgWindow aMsgWindow, in nsIMsgProgress progress);
+
+  /**
+   * After all Compose preparations are complete, send the prepared message to
+   * the server. This exists primarily to allow an override of the sending to
+   * use a non-SMTP method for send.
+   *
+   * @param deliverMode One of the nsIMsgCompDeliverMode values.
+   * @param identity The message identity.
+   * @param accountKey The message account key.
+   */
+  void sendMsgToServer(in MSG_DeliverMode deliverMode,
+                       in nsIMsgIdentity identity,
+                       in string accountKey);
 
   /* ... */
   void CloseWindow(in boolean reclycleIt);
@@ -178,8 +191,11 @@ interface nsIMsgCompose : nsIMsgSendListener {
   */
   boolean checkCharsetConversion(in nsIMsgIdentity identity, out string fallbackCharset);
 
-  /* the message send object */
-  readonly attribute nsIMsgSend messageSend;
+  /* The message send object. This is created by default to be the SMTP server
+   * in sendMsgToServer, but if that method is overridden, set the actual
+   * value used here.
+   */
+  attribute nsIMsgSend messageSend;
 
   /*
    * Clear the messageSend object to break any circular references
@@ -210,6 +226,10 @@ interface nsIMsgCompose : nsIMsgSendListener {
   */
   attribute boolean bodyModified;
 
+  /* The body string is stored as a byte string in comp fields, but is converted to
+   * UTF16 when fetched by GetBody(). Fetch the body without conversion.
+   */
+  readonly attribute ACString bodyRaw;
 
   /**
    *  Init the editor THIS USED TO BE [noscript]
@@ -282,10 +302,13 @@ interface nsIMsgCompose : nsIMsgSendListener {
   /* for easier use of nsIMsgSendListener */
   void removeMsgSendListener(in nsIMsgSendListener sendListener);
 
+  // Access during mail-set-sender observer if needed, see nsIMsgCompDeliverMode.
+  readonly attribute MSG_DeliverMode deliverMode;
+
 };
 
 /* send listener interface */
-[uuid(ACC72780-2CEA-11D5-9DAA-BACDEAC1EEFC)]
+[scriptable, uuid(ad6ee068-b225-47f9-a50e-8e48440282ca)]
 interface nsIMsgComposeSendListener : nsISupports {
 
   void setMsgCompose(in nsIMsgCompose msgCompose);

@@ -14,6 +14,7 @@
 #include "nsIFileStreams.h"
 #include "nsIStreamConverter.h"
 #include "nsAutoPtr.h"
+#include "nsIMsgAttachmentHandler.h"
 
 #ifdef XP_MACOSX
 
@@ -61,12 +62,14 @@ class MimeEncoder;
 // This is a class that deals with processing remote attachments. It implements
 // an nsIStreamListener interface to deal with incoming data
 //
-class nsMsgAttachmentHandler
+class nsMsgAttachmentHandler : public nsIMsgAttachmentHandler
 {
-  NS_INLINE_DECL_THREADSAFE_REFCOUNTING(nsMsgAttachmentHandler)
 
   typedef mozilla::mailnews::MimeEncoder MimeEncoder;
 public:
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSIMSGATTACHMENTHANDLER
+
   nsMsgAttachmentHandler();
 public:
   nsresult              SnarfAttachment(nsMsgCompFields *compFields);
@@ -85,7 +88,7 @@ public:
   void                  CleanupTempFile();
 
 private:
-  ~nsMsgAttachmentHandler();
+  virtual ~nsMsgAttachmentHandler();
 
   // use when a message (e.g. original message in a reply) is attached as a rfc822 attachment.
   nsresult              SnarfMsgAttachment(nsMsgCompFields *compFields);

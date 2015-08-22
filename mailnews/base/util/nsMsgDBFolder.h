@@ -85,12 +85,6 @@ public:
 protected:
   virtual ~nsMsgDBFolder();
   
-  // this is a little helper function that is not part of the public interface. 
-  // we use it to get the IID of the incoming server for the derived folder.
-  // w/out a function like this we would have to implement GetServer in each
-  // derived folder class.
-  virtual void GetIncomingServerType(nsCString& serverType) = 0;
-
   virtual nsresult CreateBaseMessageURI(const nsACString& aURI);
 
   void compressQuotesInMsgSnippet(const nsString& aMessageText, nsAString& aCompressedQuotesStr);

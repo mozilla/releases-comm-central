@@ -322,6 +322,8 @@ public:
   */
   NS_IMETHOD GetOfflineMsgFolder(nsMsgKey msgKey, nsIMsgFolder **aMsgFolder) override;
 
+  NS_IMETHOD GetIncomingServerType(nsACString& serverType) override;
+
   nsresult AddSubfolderWithPath(nsAString& name, nsIFile *dbPath, nsIMsgFolder **child, bool brandNew = false);
   nsresult MoveIncorporatedMessage(nsIMsgDBHdr *mailHdr,
                                   nsIMsgDatabase *sourceDB,
@@ -395,7 +397,6 @@ protected:
   nsresult AddDirectorySeparator(nsIFile *path);
   nsresult CreateSubFolders(nsIFile *path);
   nsresult GetDatabase() override;
-  virtual void GetIncomingServerType(nsCString& serverType) override { serverType.AssignLiteral("imap");}
 
   nsresult        GetFolderOwnerUserName(nsACString& userName);
   nsIMAPNamespace *GetNamespaceForFolder();

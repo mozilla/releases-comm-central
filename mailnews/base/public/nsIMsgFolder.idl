@@ -30,7 +30,7 @@ typedef long nsMsgBiffState;
 // enumerated type for determining if a message has been replied to, forwarded, etc.
 typedef long nsMsgDispositionState;
 
-[scriptable, uuid(E6CC0770-D0D8-4E67-8A2E-02C82C32C99A)]
+[scriptable, uuid(5d253ba2-42aa-43a7-b584-0059855ababf)]
 interface nsIMsgFolder : nsISupports {
 
   const nsMsgBiffState nsMsgBiffState_NewMail = 0; // User has new mail waiting.
@@ -831,4 +831,10 @@ interface nsIMsgFolder : nsISupports {
    * as the pluggable store for the server.
    */
   readonly attribute nsIMsgPluggableStore msgStore;
+
+  /**
+   * Protocol type, i.e. "pop3", "imap", "nntp", "none", etc
+   * used to construct URLs for this account type.
+   */
+  readonly attribute ACString incomingServerType;
 };

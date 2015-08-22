@@ -3084,24 +3084,24 @@ NS_IMETHODIMP nsMsgLocalMailFolder::NotifyDelete()
 // this method will go away.
 // sometimes this gets called when we don't have the server yet, so
 // that's why we're not calling GetServer()
-void
-nsMsgLocalMailFolder::GetIncomingServerType(nsCString& aServerType)
+NS_IMETHODIMP
+nsMsgLocalMailFolder::GetIncomingServerType(nsACString& aServerType)
 {
   nsresult rv;
   if (mType.IsEmpty())
   {
     nsCOMPtr<nsIURL> url = do_CreateInstance(NS_STANDARDURL_CONTRACTID, &rv);
     if (NS_FAILED(rv))
-      return;
+      return rv;
 
     rv = url->SetSpec(mURI);
     if (NS_FAILED(rv))
-      return;
+      return rv;
 
     nsCOMPtr<nsIMsgAccountManager> accountManager =
              do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
     if (NS_FAILED(rv))
-      return;
+      return rv;
 
     nsCOMPtr<nsIMsgIncomingServer> server;
     // try "none" first
@@ -3137,6 +3137,7 @@ nsMsgLocalMailFolder::GetIncomingServerType(nsCString& aServerType)
     }
   }
   aServerType = mType;
+  return NS_OK;
 }
 
 nsresult nsMsgLocalMailFolder::CreateBaseMessageURI(const nsACString& aURI)

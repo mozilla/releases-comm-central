@@ -9816,6 +9816,12 @@ NS_IMETHODIMP nsImapMailFolder::GetOfflineFileStream(nsMsgKey msgKey, int64_t *o
   return NS_OK;
 }
 
+NS_IMETHODIMP nsImapMailFolder::GetIncomingServerType(nsACString& serverType)
+{
+  serverType.AssignLiteral("imap");
+  return NS_OK;
+}
+
 void nsImapMailFolder::DeleteStoreMessages(nsIArray* aMessages)
 {
   // Delete messages for pluggable stores that do not support compaction.
