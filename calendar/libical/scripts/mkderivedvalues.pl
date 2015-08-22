@@ -63,7 +63,7 @@ if($opt_h){
   print "typedef enum icalvalue_kind {\n";
   print "   ICAL_ANY_VALUE=$idx,\n";
 
-  foreach $value  (keys %h) {
+  foreach $value  (sort keys %h) {
     
     $idx++;
     my $ucv = join("",map {uc(lc($_));}  split(/-/,$value));
@@ -132,7 +132,7 @@ if($opt_c){
   my $count = scalar(keys %h) + 1;
   print "static const struct icalvalue_kind_map value_map[$count]={\n"; 
 
-  foreach $value  (keys %h) {
+  foreach $value  (sort keys %h) {
 
     $idx++;
     my $ucv = join("",map {uc(lc($_));}  split(/-/,$value));
@@ -148,7 +148,7 @@ if($opt_c){
 }
 
 
-foreach $value  (keys %h) {
+foreach $value  (sort keys %h) {
 
   my $autogen = $h{$value}->{C}->[0];
   my $type = $h{$value}->{C}->[1];
