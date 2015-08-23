@@ -73,6 +73,7 @@ var gMsgAttachmentElement;
 var gMsgHeadersToolbarElement;
 var gManualAttachmentReminder;
 var gComposeType;
+var gLanguageObserver;
 
 // i18n globals
 var gCharsetConvertManager;
@@ -124,6 +125,7 @@ function InitializeGlobalVariables()
   gCharsetConvertManager = Components.classes['@mozilla.org/charset-converter-manager;1'].getService(Components.interfaces.nsICharsetConverterManager);
   gHideMenus = false;
   gManualAttachmentReminder = false;
+  gLanguageObserver = null;
 
   gLastWindowToHaveFocus = null;
   gReceiptOptionChanged = false;
@@ -186,6 +188,10 @@ var gComposeRecyclingListener = {
 
     // Do not listen to changes to spell check dictionary.
     document.removeEventListener("spellcheck-changed", updateDocumentLanguage);
+
+    // Disconnect the observer, we'll attach a new one when recycling the
+    // window.
+    gLanguageObserver.disconnect();
 
     // Stop gSpellChecker so personal dictionary is saved.
     // We need to do this before disabling the editor.
@@ -697,6 +703,21 @@ var defaultController = {
       },
       doCommand: function() {
         ZoomManager.reset();
+      }
+    },
+
+    cmd_spelling: {
+      isEnabled: function() {
+        return true;
+      },
+      doCommand: function() {
+        window.cancelSendMessage = false;
+        var skipBlockQuotes =
+          (window.document.documentElement.getAttribute("windowtype") ==
+          "msgcompose");
+        window.openDialog("chrome://editor/content/EdSpellCheck.xul", "_blank",
+                          "dialog,close,titlebar,modal,resizable",
+                          false, skipBlockQuotes, true);
       }
     },
 
@@ -2102,6 +2123,16 @@ function ComposeStartup(recycled, aParams)
     document.documentElement.setAttribute("screenY", screen.availTop);
   }
 
+  // Observe the language attribute so we can update the language button label.
+  gLanguageObserver = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.type == "attributes" && mutation.attributeName == "lang") {
+        updateLanguageInStatusBar();
+      }
+    });
+  });
+  gLanguageObserver.observe(document.documentElement, { attributes: true });
+
   // Set document language to the preference as early as possible.
   let languageToSet = getValidSpellcheckerDictionary();
   document.documentElement.setAttribute("lang", languageToSet);
@@ -3153,9 +3184,44 @@ function OnShowDictionaryMenu(aTarget)
   InitLanguageMenu();
   let spellChecker = gSpellChecker.mInlineSpellChecker.spellChecker;
   let curLang = spellChecker.GetCurrentDictionary();
+  if (!curLang || curLang != document.documentElement.getAttribute("lang")) {
+    // Looks like the active dictionary got removed, or something is
+    // inconsistent. In this case do not check anything, so the user can select
+    // another dictionary.
+    return;
+  }
   let language = aTarget.querySelector('[value="' + curLang + '"]');
   if (language)
     language.setAttribute("checked", true);
+}
+
+function updateLanguageInStatusBar()
+{
+  InitLanguageMenu();
+  let languageMenuList = document.getElementById("languageMenuList");
+  let statusLanguageText = document.getElementById("statusLanguageText");
+  if (!languageMenuList || !statusLanguageText) {
+    return;
+  }
+
+  let language = document.documentElement.getAttribute("lang");
+  let item = languageMenuList.firstChild;
+
+  // No status display, if there is only one or no spelling dictionary available.
+  if (item == languageMenuList.lastChild) {
+    statusLanguageText.collapsed = true;
+    statusLanguageText.label = "";
+    return;
+  }
+
+  statusLanguageText.collapsed = false;
+  while (item) {
+    if (item.getAttribute("value") == language) {
+      statusLanguageText.label = item.getAttribute("label");
+      break;
+    }
+    item = item.nextSibling;
+  }
 }
 
 function ChangeLanguage(event)

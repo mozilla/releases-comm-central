@@ -215,6 +215,7 @@
 <!ENTITY addressButton.tooltip "Select a recipient from an Address Book">
 <!ENTITY attachButton.tooltip "Include an attachment">
 <!ENTITY spellingButton.tooltip "Check spelling of selection or entire message">
+<!ENTITY statusLanguageText.tooltip "Spell checking language">
 <!ENTITY saveButton.tooltip "Save this message">
 <!ENTITY cutButton.tooltip              "Cut">
 <!ENTITY copyButton.tooltip             "Copy">
