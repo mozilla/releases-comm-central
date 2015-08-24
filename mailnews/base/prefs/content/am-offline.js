@@ -328,3 +328,23 @@ function restoreOfflineFolders(offlineFolderMap)
         folder.clearFlag(Components.interfaces.nsMsgFolderFlags.Offline);
     }
 }
+
+/**
+ * Checks if the user selected a permanent removal of messages from server and
+ * warns about it.
+ *
+ * @param aRadio  The radiogroup element containing the retention options.
+ */
+function warnServerRemove(aRadio)
+{
+  if (aRadio.value != 1) {
+    let prefBundle = document.getElementById("bundle_prefs");
+    let title = prefBundle.getString("removeFromServerTitle");
+    let question = prefBundle.getString("removeFromServer");
+    if (!Services.prompt.confirm(window, title, question)) {
+      // If the user doesn't agree, fall back to not deleting anything.
+      aRadio.value = 1;
+      onCheckKeepMsg();
+    }
+  }
+}

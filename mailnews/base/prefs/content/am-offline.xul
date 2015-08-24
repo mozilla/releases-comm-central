@@ -119,7 +119,8 @@
     <label id="retentionDescriptionImap" hidefor="movemail,pop3,nntp,none,rss" class="desc" control="retention.keepMsg">&retentionCleanupImap.label;</label>
     <label id="retentionDescriptionPop" hidefor="movemail,imap,nntp,none,rss" class="desc" control="retention.keepMsg">&retentionCleanupPop.label;</label>
 
-    <radiogroup wsm_persist="true" hidefor="" id="retention.keepMsg" class="indent">
+    <radiogroup wsm_persist="true" hidefor="" id="retention.keepMsg" class="indent"
+                oncommand="warnServerRemove(this);">
         <radio wsm_persist="true" id="retention.keepAllMsg" value="1" accesskey="&retentionKeepAll.accesskey;"
             label="&retentionKeepAll.label;" oncommand="onCheckKeepMsg();"/>
         <hbox flex="1" align="center">
