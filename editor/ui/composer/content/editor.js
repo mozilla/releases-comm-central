@@ -492,6 +492,7 @@ function EditorResetFontAndColorAttributes()
     // clears the typing state to discontinue all inline styles
     editor.removeAllInlineProperties();
     document.getElementById("cmd_fontFace").setAttribute("state", "");
+    ClearUsedFonts();
     gColorObj.LastTextColor = "";
     gColorObj.LastBackgroundColor = "";
     gColorObj.LastHighlightColor = "";
@@ -675,6 +676,13 @@ function onParagraphFormatChange(paraMenuList, commandID)
   }
 }
 
+/**
+ * Selects the current font face in the menulist.
+ *
+ * @param fontFaceMenuList  The menulist element containing the list of fonts.
+ * @param commandID         The commandID which holds the current font name
+ *                          in its "state" attribute.
+ */
 function onFontFaceChange(fontFaceMenuList, commandID)
 {
   var commandNode = document.getElementById(commandID);
@@ -698,22 +706,72 @@ function onFontFaceChange(fontFaceMenuList, commandID)
     fontFaceMenuList.selectedIndex = 1;
     break;
   default:
-    var menuPopup = document.getElementById("FontFacePopup");
-    var menuItems = menuPopup.childNodes;
+    let menuPopup = fontFaceMenuList.menupopup;
+    let menuItems = menuPopup.childNodes;
 
     // Bug 1139524: Normalise before we compare: Make it lower case
     // and replace ", " with "," so that entries like
     // "Helvetica, Arial, sans-serif" are always recognised correctly
-    var stateToLower = state.toLowerCase().replace(/, /g, ",");
+    let stateToLower = state.toLowerCase().replace(/, /g, ",");
+    let foundFont = false;
+    let notUsedFont = false;
+    let usedFontsSep = menuPopup.querySelector("menuseparator.fontFaceMenuAfterUsedFonts");
 
-    for (var i=0; i < menuItems.length; i++)
+    for (let i = 0; i < menuItems.length; i++)
     {
-      var menuItem = menuItems.item(i);
-      if (menuItem.getAttribute("label") && ("value" in menuItem &&
-          menuItem.value.toLowerCase().replace(/, /g, ",") == stateToLower))
-      {
-        fontFaceMenuList.selectedItem = menuItem;
-        break;
+      let menuItem = menuItems.item(i);
+      if (menuItem.hasAttribute("label") && ("value" in menuItem)) {
+        // The element seems to represent a font <menuitem>.
+        if (menuItem.getAttribute("value_parsed") == stateToLower) {
+          // This menuitem contains the font we are looking for.
+          if (notUsedFont) {
+            // Copy it into the group of used fonts if it isn't there already.
+            let defaultFontsSep = menuPopup.querySelector("menuseparator.fontFaceMenuAfterDefaultFonts");
+            let copyItem = menuItem.cloneNode(true);
+            menuPopup.insertBefore(copyItem, defaultFontsSep.nextSibling);
+            usedFontsSep.hidden = false;
+            menuItem = copyItem;
+          }
+          fontFaceMenuList.selectedItem = menuItem;
+          foundFont = true;
+          break;
+        }
+      } else {
+        // Some other element type.
+        if (menuItem == usedFontsSep)
+          notUsedFont = true;
+      }
+    }
+
+    if (!foundFont) {
+      // The text editor encountered a font that is not installed on this system,
+      // so add it to the font menu now.
+      let fontLabel = GetFormattedString("NotInstalled", state);
+      let menuItem = createFontFaceMenuitem(fontLabel, state, menuPopup);
+      usedFontsSep.hidden = false;
+      menuPopup.insertBefore(menuItem, usedFontsSep);
+      fontFaceMenuList.selectedItem = menuItem;
+    }
+  }
+}
+
+/**
+ * Clears the used fonts list from all the font face menulists.
+ */
+function ClearUsedFonts()
+{
+  let userFontSeps = document.querySelectorAll("menuseparator.fontFaceMenuAfterDefaultFonts");
+  for (let userFontSep of userFontSeps) {
+    let parentList = userFontSep.parentNode;
+    while (true) {
+      let nextNode = userFontSep.nextSibling;
+      if (nextNode.tagName != "menuseparator") {
+        nextNode.remove();
+      } else {
+        if (nextNode.classList.contains("fontFaceMenuAfterUsedFonts")) {
+          nextNode.hidden = true;
+          break;
+        }
       }
     }
   }
@@ -841,7 +899,7 @@ function initFontFaceMenu(menuPopup)
   }
 }
 
-const kFixedFontFaceMenuItems = 7; // number of fixed font face menuitems
+const kFixedFontFaceMenuItems = 8; // number of fixed font face menuitems
 
 function initLocalFontFaceMenu(menuPopup)
 {
@@ -857,14 +915,16 @@ function initLocalFontFaceMenu(menuPopup)
     }
     catch(e) { }
   }
-  
-  var useRadioMenuitems = (menuPopup.parentNode.localName == "menu"); // don't do this for menulists  
-  if (menuPopup.childNodes.length == kFixedFontFaceMenuItems) 
+
+  // Don't use radios for menulists.
+  let useRadioMenuitems = (menuPopup.parentNode.localName == "menu");
+  menuPopup.setAttribute("useRadios", useRadioMenuitems);
+  if (menuPopup.childNodes.length == kFixedFontFaceMenuItems)
   {
     if (gLocalFonts.length == 0) {
-      menuPopup.childNodes[kFixedFontFaceMenuItems - 1].hidden = true;
+      menuPopup.querySelector(".fontFaceMenuAfterDefaultFonts").hidden = true;
     }
-    for (var i = 0; i < gLocalFonts.length; ++i)
+    for (let i = 0; i < gLocalFonts.length; ++i)
     {
       // Remove Linux system generic fonts that collide with CSS generic fonts.
       if (gLocalFonts[i] != "" &&
@@ -872,20 +932,35 @@ function initLocalFontFaceMenu(menuPopup)
           gLocalFonts[i] != "sans-serif" &&
           gLocalFonts[i] != "monospace")
       {
-        var itemNode = document.createElementNS(XUL_NS, "menuitem");
-        itemNode.setAttribute("label", gLocalFonts[i]);
-        itemNode.setAttribute("value", gLocalFonts[i]);
-        if (useRadioMenuitems) {
-          itemNode.setAttribute("type", "radio");
-          itemNode.setAttribute("name", "2");
-          itemNode.setAttribute("observes", "cmd_renderedHTMLEnabler");
-        }
+        let itemNode = createFontFaceMenuitem(gLocalFonts[i], gLocalFonts[i], menuPopup);
         menuPopup.appendChild(itemNode);
       }
     }
   }
 }
- 
+
+/**
+ * Creates a menuitem element for the font faces menulist. Returns the menuitem
+ * but does not add it automatically to the menupopup.
+ *
+ * @param aFontLabel  Label to be displayed for the item
+ * @param aFontName   The font face value to be used for the item.
+ *                    Will be used in <font face="value"> in the edited document.
+ * @param aMenuPopup  The menupopup for which this menuitem is created.
+ */
+function createFontFaceMenuitem(aFontLabel, aFontName, aMenuPopup)
+{
+  let itemNode = document.createElementNS(XUL_NS, "menuitem");
+  itemNode.setAttribute("label", aFontLabel);
+  itemNode.setAttribute("value", aFontName);
+  itemNode.setAttribute("value_parsed", aFontName.toLowerCase().replace(/, /g, ","));
+  if (aMenuPopup.getAttribute("useRadios") == "true") {
+    itemNode.setAttribute("type", "radio");
+    itemNode.setAttribute("name", "2");
+    itemNode.setAttribute("observes", "cmd_renderedHTMLEnabler");
+  }
+  return itemNode;
+}
 
 function initFontSizeMenu(menuPopup)
 {

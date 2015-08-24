@@ -416,7 +416,7 @@
                   type="radio"
                   name="1"
                   observes="cmd_renderedHTMLEnabler"/>
-        <menuseparator id="fontFaceMenuAfterFixedWidthSeparator"/>
+        <menuseparator id="fontFaceMenuAfterGenericFontsSeparator"/>
         <menuitem id="menu_fontFaceHelvetica"
                   label="&fontHelvetica.label;"
                   accesskey="&fontHelvetica.accesskey;"
@@ -438,7 +438,11 @@
                   type="radio"
                   name="2"
                   observes="cmd_renderedHTMLEnabler"/>
-        <menuseparator id="fontFaceMenuAfterCourierSeparator"/>
+        <menuseparator id="fontFaceMenuAfterDefaultFontsSeparator"
+                       class="fontFaceMenuAfterDefaultFonts"/>
+        <menuseparator id="fontFaceMenuAfterUsedFontsSeparator"
+                       class="fontFaceMenuAfterUsedFonts"
+                       collapsed="true"/>
           <!-- Local font face items added here by initLocalFontFaceMenu() -->
       </menupopup>
     </menu>
@@ -1073,14 +1077,19 @@
     <menupopup id="FontFacePopup" oncommand="doStatefulCommand('cmd_fontFace', event.target.value)">
       <menuitem id="toolbarmenu_fontVarWidth" label="&fontVarWidth.label;" value=""/>
       <menuitem id="toolbarmenu_fontFixedWidth" label="&fontFixedWidth.label;" value="tt"/>
-      <menuseparator id="toolbarmenuAfterFontFaceFontFixedWidthSeparator"/>
+      <menuseparator id="toolbarmenuAfterGenericFontsSeparator"/>
       <menuitem id="toolbarmenu_fontHelvetica" label="&fontHelvetica.label;"
                 value="Helvetica, Arial, sans-serif"/>
       <menuitem id="toolbarmenu_fontTimes" label="&fontTimes.label;"
                 value="Times New Roman, Times, serif"/>
       <menuitem id="toolbarmenu_fontCourier" label="&fontCourier.label;"
                 value="Courier New, Courier, monospace"/>
-      <menuseparator id="toolbarmenuAfterFontFaceCourierSeparator"/>
+      <menuseparator id="toolbarmenuAfterDefaultFontsSeparator"
+                     class="fontFaceMenuAfterDefaultFonts"/>
+      <menuseparator id="toolbarmenuAfterUsedFontsSeparator"
+                     class="fontFaceMenuAfterUsedFonts"
+                     hidden="true"/>
+      <!-- Local font face items added here by initLocalFontFaceMenu() -->
     </menupopup>
   </menulist>
 </toolbaritem>
