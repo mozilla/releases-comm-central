@@ -1094,18 +1094,6 @@ nsresult nsMsgSearchDBView::ProcessRequestsInAllFolders(nsIMsgWindow *window)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgSearchDBView::SetCurCustomColumn(const nsAString& aColID)
-{
-  m_curCustomColumn = aColID;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgSearchDBView::GetCurCustomColumn(nsAString &result)
-{
-  result = m_curCustomColumn;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgSearchDBView::Sort(nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder)
 {
     int32_t rowCountBeforeSort = GetSize();

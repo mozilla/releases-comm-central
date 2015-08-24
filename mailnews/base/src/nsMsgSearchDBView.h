@@ -65,8 +65,6 @@ public:
   virtual nsCOMArray<nsIMsgFolder>* GetFolders() override;
   virtual nsresult GetFolderFromMsgURI(const char *aMsgURI, nsIMsgFolder **aFolder) override;
 
-  NS_IMETHOD SetCurCustomColumn(const nsAString& aColID);
-  NS_IMETHOD GetCurCustomColumn(nsAString &result);
   NS_IMETHOD GetThreadContainingMsgHdr(nsIMsgDBHdr *msgHdr, nsIMsgThread **pThread) override;
 
 protected:
@@ -110,7 +108,6 @@ protected:
   nsCOMArray<nsIMsgDatabase> m_dbToUseList;
   nsMsgViewCommandTypeValue mCommand;
   nsCOMPtr <nsIMsgFolder> mDestFolder;
-  nsString m_curCustomColumn;
   nsWeakPtr m_searchSession;
 
   nsresult ProcessRequestsInOneFolder(nsIMsgWindow *window);

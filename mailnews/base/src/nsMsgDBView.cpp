@@ -1872,38 +1872,29 @@ NS_IMETHODIMP nsMsgDBView::RemoveColumnHandler(const nsAString& aColID)
 //TODO: NS_ENSURE_SUCCESS
 nsIMsgCustomColumnHandler* nsMsgDBView::GetCurColumnHandlerFromDBInfo()
 {
-
-  nsAutoString colID;
-  GetCurCustomColumn(colID);
-  return GetColumnHandler(colID.get());
+  return GetColumnHandler(m_curCustomColumn.get());
 }
 
 NS_IMETHODIMP nsMsgDBView::SetCurCustomColumn(const nsAString& aColID)
 {
-  if (!m_db)
-    return NS_ERROR_FAILURE;
+  m_curCustomColumn = aColID;
 
-  nsCOMPtr<nsIDBFolderInfo>  dbInfo;
-  m_db->GetDBFolderInfo(getter_AddRefs(dbInfo));
+  if (m_viewFolder)
+  {
+    nsCOMPtr <nsIMsgDatabase> db;
+    nsCOMPtr <nsIDBFolderInfo> folderInfo;
+    nsresult rv = m_viewFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
+    NS_ENSURE_SUCCESS(rv,rv);
+    folderInfo->SetProperty("customSortCol", aColID);
+  }
 
-  if (!dbInfo)
-    return NS_ERROR_FAILURE;
-
-  return dbInfo->SetProperty("customSortCol", aColID);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBView::GetCurCustomColumn(nsAString &result)
 {
-  if (!m_db)
-    return NS_ERROR_FAILURE;
-
-  nsCOMPtr<nsIDBFolderInfo>  dbInfo;
-  m_db->GetDBFolderInfo(getter_AddRefs(dbInfo));
-
-  if (!dbInfo)
-    return NS_ERROR_FAILURE;
-
-  return dbInfo->GetProperty("customSortCol", result);
+  result = m_curCustomColumn;
+  return NS_OK;
 }
 
 nsIMsgCustomColumnHandler* nsMsgDBView::GetColumnHandler(const char16_t *colID)
@@ -2205,6 +2196,8 @@ NS_IMETHODIMP nsMsgDBView::Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sor
     nsString sortColumnsString;
     folderInfo->GetProperty("sortColumns", sortColumnsString);
     DecodeColumnSort(sortColumnsString);
+    // Restore curCustomColumn from db.
+    folderInfo->GetProperty("customSortCol", m_curCustomColumn);
     // determine if we are in a news folder or not.
     // if yes, we'll show lines instead of size, and special icons in the thread pane
     nsCOMPtr <nsIMsgIncomingServer> server;
@@ -7660,6 +7653,7 @@ nsresult nsMsgDBView::CopyDBView(nsMsgDBView *aNewMsgDBView, nsIMessenger *aMess
   aNewMsgDBView->m_viewFlags = m_viewFlags;
   aNewMsgDBView->m_sortOrder = m_sortOrder;
   aNewMsgDBView->m_sortType = m_sortType;
+  aNewMsgDBView->m_curCustomColumn = m_curCustomColumn;
   aNewMsgDBView->m_db = m_db;
   aNewMsgDBView->mDateFormatter = mDateFormatter;
   if (m_db)

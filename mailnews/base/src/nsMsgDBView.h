@@ -410,6 +410,7 @@ protected:
   nsMsgViewSortTypeValue m_secondarySort;
   nsMsgViewSortOrderValue m_secondarySortOrder;
   nsMsgViewFlagsTypeValue m_viewFlags;
+  nsString m_curCustomColumn;
 
   // I18N date formatter service which we'll want to cache locally.
   nsCOMPtr<nsIDateTimeFormat> mDateFormatter;
