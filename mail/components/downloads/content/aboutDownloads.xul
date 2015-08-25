@@ -23,17 +23,6 @@
   <script type="application/javascript"
           src="chrome://messenger/content/downloads/aboutDownloads.js"/>
 
-  <stack flex="1">
-    <richlistbox id="msgDownloadsRichListBox"
-                 flex="1"
-                 seltype="multiple"
-                 context="msgDownloadsContextMenu"
-                 oncontextmenu="DownloadsView.onDownloadContextMenu(event);"/>
-    <description id="msgDownloadsListEmptyDescription"
-                 value="&aboutDownloads.empty;"
-                 mousethrough="always"/>
-  </stack>
-
   <commandset id="msgDownloadCommands"
               commandupdater="true"
               events="focus,select,contextmenu">
@@ -45,7 +34,42 @@
              oncommand="goDoCommand('msgDownloadsCmd_remove')"/>
     <command id="msgDownloadsCmd_clearDownloads"
              oncommand="goDoCommand('msgDownloadsCmd_clearDownloads')"/>
+    <command id="msgDownloadsCmd_searchDownloads"
+             oncommand="goDoCommand('msgDownloadsCmd_searchDownloads')"/>
   </commandset>
+
+  <keyset id="downloadKeys">
+    <key keycode="&cmd.searchDownloads.key;" modifiers="accel"
+         oncommand="document.getElementById('searchBox').focus();"/>
+  </keyset>
+
+  <hbox align="center">
+    <button id="clearDownloads"
+            command="msgDownloadsCmd_clearDownloads"
+            label="&cmd.clearList.label;"
+            accesskey="&cmd.clearList.accesskey;"
+            tooltiptext="&cmd.clearList.tooltip;"/>
+
+    <spacer flex="1"/>
+    <textbox id="searchBox"
+             type="search"
+             command="msgDownloadsCmd_searchDownloads"
+             placeholder="&cmd.searchDownloads.label;"/>
+  </hbox>
+
+  <separator class="thin"/>
+
+  <stack flex="1">
+    <richlistbox id="msgDownloadsRichListBox"
+                 flex="1"
+                 seltype="multiple"
+                 context="msgDownloadsContextMenu"
+                 oncontextmenu="DownloadsView.onDownloadContextMenu();"/>
+    <description id="msgDownloadsListEmptyDescription"
+                 value="&aboutDownloads.empty;"
+                 mousethrough="always"/>
+  </stack>
+
 
   <menupopup id="msgDownloadsContextMenu">
     <menuitem command="msgDownloadsCmd_remove"
@@ -66,7 +90,8 @@
 #endif
               />
     <menuitem command="msgDownloadsCmd_clearDownloads"
-              label="&cmd.clearDownloads.label;"
-              accesskey="&cmd.clearDownloads.accesskey;"/>
+              label="&cmd.clearList.label;"
+              accesskey="&cmd.clearList.accesskey;"
+              tooltiptext="&cmd.clearList.tooltip;"/>
   </menupopup>
 </window>

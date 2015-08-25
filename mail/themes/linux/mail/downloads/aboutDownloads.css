@@ -25,6 +25,15 @@
 #msgDownloadsRichListBox > richlistitem.download {
   height: 5em;
   padding: 5px 8px;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+#clearDownloads {
+  margin-inline-start: 0;
+}
+
+#searchBox {
+  margin-inline-end: 0;
 }
 
 .fileTypeIcon {
