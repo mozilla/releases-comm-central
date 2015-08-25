@@ -184,7 +184,7 @@ function subtest_get_an_account(w) {
   // Click on the first address. This reveals the button with the price.
   let address = w.window.document.querySelector(".address:first-child");
   w.click(new elib.Elem(address));
-  w.waitFor(() => w.window.document.querySelectorAll("button.create:not([hidden=true])").length > 0);
+  w.waitFor(() => w.window.document.querySelectorAll('button.create:not([disabled="true"])').length > 0);
 
   // Pick the email address green@example.com
   plan_for_content_tab_load();
@@ -904,12 +904,14 @@ function sub_get_to_order_form(aController, aAddress) {
   aController.click(aController.eid("searchSubmit"));
   wait_for_search_results(aController);
 
-  // Click on the first address. This reveals the button with the price.
-  let address = aController.window.document.querySelector(".address:first-child");
+  // Click on the requested address. This reveals the button with the price.
+  let addressElts = [...aController.window.document.querySelectorAll(".address")];
+  let address = addressElts.filter(a => a.textContent == aAddress).shift();
+  assert_true(!!address, "Couldn't find the requested address " + aAddress);
   aController.click(new elib.Elem(address));
-  aController.waitFor(() => aController.window.document.querySelectorAll("button.create:not([hidden=true])").length > 0);
+  aController.waitFor(() => aController.window.document.querySelectorAll('button.create:not([disabled="true"])').length > 0);
 
-  // Pick the email address green@example.com
+  // Pick the email address.
   plan_for_content_tab_load();
 
   // Clicking this button should close the modal dialog.
@@ -1306,10 +1308,10 @@ function subtest_per_address_prices(w) {
 
   // Click on the multi provider. This reveals the buttons with the prices.
   mc.click(new elib.Elem(multi));
-  mc.waitFor(() => w.window.document.querySelectorAll("button.create:not([hidden=true])").length > 0);
+  mc.waitFor(() => w.window.document.querySelectorAll('button.create:not([disabled="true"])').length > 0);
 
   // For each button, make sure it has the correct price.
-  let buttons = w.window.document.querySelectorAll("button.create:not([hidden=true])");
+  let buttons = w.window.document.querySelectorAll('button.create:not([disabled="true"])');
   let index = 0;
   for (let button of buttons) {
     // Emulate jquery's :visible selector
