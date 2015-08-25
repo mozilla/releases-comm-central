@@ -224,6 +224,7 @@ classic.jar:
   skin/classic/messenger/icons/flag-col-XP.png                (mail/icons/flag-col-XP.png)
   skin/classic/messenger/icons/flag-col.svg                   (mail/icons/flag-col.svg)
   skin/classic/messenger/icons/flag.png                       (mail/icons/flag.png)
+  skin/classic/messenger/icons/flag-XP.png                    (mail/icons/flag-XP.png)
   skin/classic/messenger/icons/flag-empty.png                 (mail/icons/flag-empty.png)
   skin/classic/messenger/icons/server.png                     (mail/icons/server.png)
   skin/classic/messenger/icons/server-XP.png                  (mail/icons/server-XP.png)
