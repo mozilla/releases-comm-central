@@ -181,6 +181,9 @@ pref("app.update.showInstalledUI", false);
 //     versions.
 pref("app.update.incompatible.mode", 0);
 
+// base URL for web-based support pages (used by toolkit)
+pref("app.support.baseURL", "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/");
+
 // Dictionary download preference
 pref("browser.dictionaries.download.url", "https://add-ons.instantbird.org/%LOCALE%/%APP%/%VERSION%/dictionaries/");
 
