@@ -1495,7 +1495,7 @@ const XMPPAccountPrototype = {
         let from = receivedStanza.attributes["from"];
         if (aStanza.attributes["type"] != "result" || !query ||
             query.uri != Stanza.NS.disco_info) {
-          this.WARN("Could not get features for this service: " + from);
+          this.LOG("Could not get features for this service: " + from);
           return true;
         }
         let features = query.getElements(["feature"])
