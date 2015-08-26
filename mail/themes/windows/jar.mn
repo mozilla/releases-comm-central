@@ -143,6 +143,7 @@ classic.jar:
   skin/classic/messenger/preferences/application.png          (mail/preferences/application.png)
   skin/classic/messenger/preferences/applications.css         (mail/preferences/applications.css)
   skin/classic/messenger/preferences/attachments.png          (mail/preferences/attachments.png)
+  skin/classic/messenger/preferences/attachments-XP.png       (mail/preferences/attachments-XP.png)
   skin/classic/messenger/preferences/auth-error.png           (mail/preferences/auth-error.png)
   skin/classic/messenger/preferences/background.png           (mail/preferences/background.png)
   skin/classic/messenger/preferences/chat.png                 (mail/preferences/chat.png)
