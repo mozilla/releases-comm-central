@@ -407,10 +407,11 @@ protected:
   nsTArray <MsgViewSortColumnInfo> m_sortColumns;
   nsMsgViewSortTypeValue  m_sortType;
   nsMsgViewSortOrderValue m_sortOrder;
+  nsString m_curCustomColumn;
   nsMsgViewSortTypeValue m_secondarySort;
   nsMsgViewSortOrderValue m_secondarySortOrder;
+  nsString m_secondaryCustomColumn;
   nsMsgViewFlagsTypeValue m_viewFlags;
-  nsString m_curCustomColumn;
 
   // I18N date formatter service which we'll want to cache locally.
   nsCOMPtr<nsIDateTimeFormat> mDateFormatter;

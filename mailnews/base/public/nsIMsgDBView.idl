@@ -214,7 +214,7 @@ interface nsMsgNavigationType
 };
 
 
-[scriptable, uuid(9fca0eab-7498-4915-8260-3fcd995bbdd8)]
+[scriptable, uuid(fe8a2326-4dd0-11e5-8b8a-206a8aa7a25c)]
 interface nsIMsgDBView : nsISupports
 {
   void open(in nsIMsgFolder folder, in nsMsgViewSortTypeValue sortType, in nsMsgViewSortOrderValue sortOrder, in nsMsgViewFlagsTypeValue viewFlags, out long count);
@@ -472,6 +472,14 @@ interface nsIMsgDBView : nsISupports
    *  nsMsgViewSortType.byCustom.)
    */
   attribute AString curCustomColumn;
+
+  /**
+   * The custom column used for a secondary sort, blank if secondarySort is
+   * not byCustom. The secondary sort design is such that the desired secondary
+   * is sorted first, followed by sort by desired primary. The secondary is
+   * read only, as it is set internally according to this design.
+   */
+  readonly attribute AString secondaryCustomColumn;
   /**
    * Scriptable accessor for the cell text for a column
    *
