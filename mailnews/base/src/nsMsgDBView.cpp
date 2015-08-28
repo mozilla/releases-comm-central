@@ -2090,6 +2090,12 @@ NS_IMETHODIMP nsMsgDBView::CycleCell(int32_t row, nsITreeColumn* col)
     return NS_OK;
   }
 
+  // The cyclers below don't work for the grouped header dummy row, currently.
+  // A future implementation should consider both collapsed and expanded state.
+  if (m_viewFlags & nsMsgViewFlagsType::kGroupBySort &&
+      m_flags[row] & MSG_VIEW_FLAG_DUMMY)
+    return NS_OK;
+
   switch (colID[0])
   {
   case 'u': // unreadButtonColHeader
