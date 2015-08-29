@@ -37,8 +37,8 @@
       <row align="center">
         <label id="MisspelledWordLabel" value="&misspelledWord.label;"/>
         <label class="bold" id="MisspelledWord" crop="end"/>
-        <button class="spell-check" label="&recheckButton.label;" oncommand="Recheck();"
-                accesskey="&recheckButton.accessKey;"/>
+        <button class="spell-check" label="&recheckButton2.label;" oncommand="Recheck();"
+                accesskey="&recheckButton2.accessKey;"/>
       </row>
       <row align="center">
         <label id="ReplaceWordLabel" value="&wordEditField.label;"
