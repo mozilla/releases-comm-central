@@ -1883,7 +1883,7 @@ NS_IMETHODIMP nsMsgDBView::RemoveColumnHandler(const nsAString& aColID)
 }
 
 //TODO: NS_ENSURE_SUCCESS
-nsIMsgCustomColumnHandler* nsMsgDBView::GetCurColumnHandlerFromDBInfo()
+nsIMsgCustomColumnHandler* nsMsgDBView::GetCurColumnHandler()
 {
   return GetColumnHandler(m_curCustomColumn.get());
 }
@@ -3952,7 +3952,7 @@ nsresult nsMsgDBView::GetFieldTypeAndLenForSort(nsMsgViewSortTypeValue sortType,
             break;
         case nsMsgViewSortType::byCustom:
         {
-          nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandlerFromDBInfo();
+          nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
 
           if (colHandler != nullptr)
           {
@@ -4484,7 +4484,7 @@ int32_t  nsMsgDBView::SecondarySort(nsMsgKey key1, nsISupports *supports1, nsMsg
   //check if a custom column handler exists. If it does then grab it and pass it in
   //to either GetCollationKey or GetLongField - we need the custom column handler for
   // the previous sort, if any.
-  nsIMsgCustomColumnHandler* colHandler = nullptr; // GetCurColumnHandlerFromDBInfo();
+  nsIMsgCustomColumnHandler* colHandler = nullptr; // GetCurColumnHandler();
   if (sortType == nsMsgViewSortType::byCustom &&
       comparisonContext->view->m_sortColumns.Length() > 1)
     colHandler = comparisonContext->view->m_sortColumns[1].mColHandler;
@@ -4589,7 +4589,7 @@ NS_IMETHODIMP nsMsgDBView::Sort(nsMsgViewSortTypeValue sortType,
     if (sortType == nsMsgViewSortType::byCustom)
     {
       GetCurCustomColumn(sortColumnInfo.mCustomColumnName);
-      sortColumnInfo.mColHandler = GetCurColumnHandlerFromDBInfo();
+      sortColumnInfo.mColHandler = GetCurColumnHandler();
     }
 
     PushSort(sortColumnInfo);
@@ -4677,7 +4677,7 @@ NS_IMETHODIMP nsMsgDBView::Sort(nsMsgViewSortTypeValue sortType,
 
     //check if a custom column handler exists. If it does then grab it and pass it in
     //to either GetCollationKey or GetLongField
-    nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandlerFromDBInfo();
+    nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
 
     // could be a problem here if the ones that appear here are different than the ones already in the array
     uint32_t actualFieldLen = 0;
@@ -5330,7 +5330,7 @@ nsMsgDBView::GetIndexForThread(nsIMsgDBHdr *msgHdr)
   EntryInfo1.folder->Release();
   //check if a custom column handler exists. If it does then grab it and pass it in
   //to either GetCollationKey or GetLongField
-  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandlerFromDBInfo();
+  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
 
   viewSortInfo comparisonContext;
   comparisonContext.view = this;
@@ -5452,7 +5452,7 @@ nsMsgViewIndex nsMsgDBView::GetInsertIndexHelper(nsIMsgDBHdr *msgHdr, nsTArray<n
   EntryInfo1.folder->Release();
   //check if a custom column handler exists. If it does then grab it and pass it in
   //to either GetCollationKey or GetLongField
-  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandlerFromDBInfo();
+  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
 
   viewSortInfo comparisonContext;
   comparisonContext.view = this;
@@ -5929,7 +5929,7 @@ nsMsgDBView::GetThreadRootIndex(nsIMsgDBHdr *msgHdr)
   EntryInfo1.folder->Release();
   //check if a custom column handler exists. If it does then grab it and pass it in
   //to either GetCollationKey or GetLongField
-  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandlerFromDBInfo();
+  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
 
   viewSortInfo comparisonContext;
   comparisonContext.view = this;
@@ -6059,7 +6059,7 @@ void nsMsgDBView::InitEntryInfoForIndex(nsMsgViewIndex i, IdKeyPtr &EntryInfo)
   EntryInfo.folder->Release();
   //check if a custom column handler exists. If it does then grab it and pass it in
   //to either GetCollationKey or GetLongField
-  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandlerFromDBInfo();
+  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
 
   nsCOMPtr<nsIMsgDatabase> hdrDB;
   EntryInfo.folder->GetMsgDatabase(getter_AddRefs(hdrDB));

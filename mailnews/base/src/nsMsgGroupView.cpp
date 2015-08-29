@@ -236,7 +236,7 @@ nsresult nsMsgGroupView::HashHdr(nsIMsgDBHdr *msgHdr, nsString& aHashKey)
     }
     case nsMsgViewSortType::byCustom:
     {
-      nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandlerFromDBInfo();
+      nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
       if (colHandler)
         rv = colHandler->GetSortStringForRow(msgHdr, aHashKey);
       break;
@@ -393,7 +393,7 @@ NS_IMETHODIMP nsMsgGroupView::OpenWithHdrs(nsISimpleEnumerator *aHeaders, nsMsgV
     // it hasn't been registered yet; after the custom column observer is
     // notified with MsgCreateDBView and registers the handler, it will come
     // back and build the view.
-    nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandlerFromDBInfo();
+    nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
     if (!colHandler)
       return rv;
   }
@@ -880,8 +880,7 @@ NS_IMETHODIMP nsMsgGroupView::CellTextForColumn(int32_t aRow,
           break;
         case nsMsgViewSortType::byCustom:
         {
-          nsIMsgCustomColumnHandler* colHandler =
-            GetCurColumnHandlerFromDBInfo();
+          nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
           if (colHandler)
             rv = colHandler->GetSortStringForRow(msgHdr.get(), aValue);
           if (aValue.IsEmpty())
