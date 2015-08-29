@@ -132,7 +132,7 @@
   #task-text-filter-field {
     -moz-appearance: none;
     background-clip: padding-box;
-    border: 1px solid ThreeDDarkShadow;
+    border: 1px solid ThreeDShadow;
   }
 
   #view-task-edit-field,
@@ -172,42 +172,45 @@
   #view-task-edit-field,
   #task-text-filter-field {
     border-radius: 2px;
-    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
-                  hsla(210, 54%, 20%, .3);
-    box-shadow: 0 1px hsla(0, 0%, 0%, .01) inset,
-                0 1px hsla(0, 0%, 100%, .1);
-  }
-
-  #view-task-edit-field:not([focused]):hover,
-  #task-text-filter-field:not([focused]):hover {
-    border-color: hsla(210, 54%, 20%, .35) hsla(210, 54%, 20%, .37)
-                  hsla(210, 54%, 20%, .4);
-  }
-
-  #view-task-edit-field[focused],
-  #task-text-filter-field[focused] {
-    border-color: hsla(206, 100%, 60%, .65) hsla(206, 100%, 55%, .65)
-                  hsla(206, 100%, 50%, .65);
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
-  #view-task-edit-field:not(:-moz-lwtheme),
-  #task-text-filter-field:not(:-moz-lwtheme) {
-    background-color: hsla(0, 0%, 100%, .9);
-    border: 1px solid transparent;
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+  #view-task-edit-field,
+  #task-text-filter-field {
     border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
                   hsla(210, 54%, 20%, .3);
     box-shadow: 0 1px 0 hsla(0, 0%, 0%, .01) inset,
                 0 1px 0 hsla(0, 0%, 100%, .1);
-    transition-property: border-color, background-color;
-    transition-duration: 200ms;
   }
 
-  #view-task-edit-field:not(:-moz-lwtheme)[focused],
-  #task-text-filter-field:not(:-moz-lwtheme)[focused] {
-    background-color: hsla(0, 0%, 100%, 1);
-    border-color: #4595e5;
+  #view-task-edit-field:not(:-moz-lwtheme):hover,
+  #task-text-filter-field:not(:-moz-lwtheme):hover {
+    border-color: hsla(210, 54%, 20%, .35) hsla(210, 54%, 20%, .37)
+                  hsla(210, 54%, 20%, .4);
+  }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  #view-task-edit-field,
+  #task-text-filter-field {
+    min-height: 28px;
+    border-color: hsl(0, 0%, 90%);
+    border-radius: 1px;
+    transition-property: border-color;
+    transition-duration: .1s;
+  }
+
+  #view-task-edit-field:not([focused="true"]):hover,
+  #task-text-filter-field:not([focused="true"]):hover {
+    border-color: hsl(0, 0%, 80%);
+  }
+
+  #view-task-edit-field[focused],
+  #task-text-filter-field[focused] {
+    border-color: Highlight;
+    box-shadow: 0 0 0 1px Highlight inset;
   }
 }

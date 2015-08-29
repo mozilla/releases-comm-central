@@ -112,9 +112,9 @@ menulist.folderMenuItem menu:not(.folderMenuItem) {
   color: black;
 }
 
-#searchInput:-moz-lwtheme:hover:not([focused="true"]),
-#IMSearchInput:-moz-lwtheme:hover:not([focused="true"]),
-.remote-gloda-search:-moz-lwtheme:hover:not([focused="true"]) {
+#searchInput:-moz-lwtheme:hover,
+#IMSearchInput:-moz-lwtheme:hover,
+.remote-gloda-search:-moz-lwtheme:hover {
   background-color: rgba(255,255,255,.9);
 }
 
@@ -122,6 +122,17 @@ menulist.folderMenuItem menu:not(.folderMenuItem) {
 #IMSearchInput:-moz-lwtheme[focused="true"],
 .remote-gloda-search:-moz-lwtheme[focused="true"] {
   background-color: white;
+}
+
+#PopupGlodaAutocomplete {
+  -moz-appearance: none;
+  margin-top: -1px;
+  border-width: 1px;
+  -moz-border-top-colors: ThreeDShadow;
+  -moz-border-right-colors: ThreeDShadow;
+  -moz-border-bottom-colors: ThreeDShadow;
+  -moz-border-left-colors: ThreeDShadow;
+  background-color: -moz-Field;
 }
 
 #status-bar:-moz-lwtheme {
@@ -261,24 +272,76 @@ button[type="menu-button"] > button {
   #IMSearchInput,
   .remote-gloda-search {
     border-radius: 2px;
+  }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+  #searchInput:not(:-moz-lwtheme),
+  #IMSearchInput:not(:-moz-lwtheme),
+  .remote-gloda-search:not(:-moz-lwtheme) {
     border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
                   hsla(210, 54%, 20%, .3);
-    box-shadow: 0 1px hsla(0, 0%, 0%, .01) inset,
-                0 1px hsla(0, 0%, 100%, .1);
+    box-shadow: 0 1px 0 hsla(0, 0%, 0%, .01) inset,
+                0 1px 0 hsla(0, 0%, 100%, .1);
   }
 
-  #searchInput:not(:-moz-lwtheme):not([focused]):hover,
-  #IMSearchInput:not(:-moz-lwtheme):not([focused]):hover,
-  .remote-gloda-search:not(:-moz-lwtheme):not([focused]):hover {
+  #searchInput:not(:-moz-lwtheme):hover,
+  #IMSearchInput:not(:-moz-lwtheme):hover,
+  .remote-gloda-search:not(:-moz-lwtheme):hover {
     border-color: hsla(210, 54%, 20%, .35) hsla(210, 54%, 20%, .37)
                   hsla(210, 54%, 20%, .4);
+  }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  #viewPicker,
+  #locationFolders {
+    min-height: 28px;
+  }
+
+  #searchInput,
+  #IMSearchInput,
+  .remote-gloda-search {
+    min-height: 28px;
+    border-radius: 1px;
+  }
+
+  #searchInput:not(:-moz-lwtheme),
+  #IMSearchInput:not(:-moz-lwtheme),
+  .remote-gloda-search:not(:-moz-lwtheme) {
+    border-color: hsl(0, 0%, 90%);
+    transition-property: border-color;
+    transition-duration: .1s;
+  }
+
+  #searchInput:not(:-moz-lwtheme):not([focused="true"]):hover,
+  #IMSearchInput:not(:-moz-lwtheme):not([focused="true"]):hover,
+  .remote-gloda-search:not(:-moz-lwtheme):not([focused="true"]):hover {
+    border-color: hsl(0, 0%, 80%);
   }
 
   #searchInput:not(:-moz-lwtheme)[focused],
   #IMSearchInput:not(:-moz-lwtheme)[focused],
   .remote-gloda-search:not(:-moz-lwtheme)[focused] {
-    border-color: hsla(206, 100%, 60%, .65) hsla(206, 100%, 55%, .65)
-                  hsla(206, 100%, 50%, .65);
+    border-color: Highlight;
+    box-shadow: 0 0 0 1px Highlight inset;
+  }
+
+  #PopupGlodaAutocomplete:not(:-moz-lwtheme) {
+    margin-top: -2px;
+  }
+}
+
+@media (-moz-windows-glass) {
+  #tabbar-toolbar #searchInput:not(:-moz-lwtheme):not([focused]) {
+    background-color: rgba(255, 255, 255, .725);
+    border-color: rgba(0, 0, 0, .32);
+  }
+
+  #tabbar-toolbar #searchInput:not(:-moz-lwtheme):not([focused]):hover {
+    background-color: rgba(255, 255, 255, .9);
   }
 }
 
@@ -291,42 +354,5 @@ button[type="menu-button"] > button {
   #task-addition-box {
     border-top: none;
     background-color: -moz-dialog;
-  }
-
-  #tabbar-toolbar #searchInput:not(:-moz-lwtheme) {
-    background-color: rgba(255, 255, 255, .725);
-    border-color: rgba(0, 0, 0, .32);
-    color: black;
-  }
-
-  #tabbar-toolbar #searchInput:not(:-moz-lwtheme):hover {
-    background-color: rgba(255, 255, 255, .898);
-  }
-
-  #tabbar-toolbar #searchInput:not(:-moz-lwtheme)[focused="true"] {
-    background-color: white;
-  }
-}
-
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
-  #searchInput:not(:-moz-lwtheme),
-  #IMSearchInput:not(:-moz-lwtheme),
-  .remote-gloda-search:not(:-moz-lwtheme) {
-    background-color: hsla(0, 0%, 100%, .9);
-    border: 1px solid transparent;
-    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
-                  hsla(210, 54%, 20%, .3);
-    box-shadow: 0 1px 0 hsla(0, 0%, 0%, .01) inset,
-                0 1px 0 hsla(0, 0%, 100%, .1);
-    transition-property: border-color, background-color;
-    transition-duration: 200ms;
-  }
-
-  #searchInput:not(:-moz-lwtheme)[focused],
-  #IMSearchInput:not(:-moz-lwtheme)[focused],
-  .remote-gloda-search:not(:-moz-lwtheme)[focused] {
-    background-color: hsla(0, 0%, 100%, 1);
-    border-color: #4595e5;
   }
 }

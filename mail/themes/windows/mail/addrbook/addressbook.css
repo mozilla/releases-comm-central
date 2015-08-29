@@ -495,6 +495,19 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
     padding: 3px 2px;
   }
 
+  #peopleSearchInput:-moz-lwtheme {
+    border-color: rgba(0, 0, 0, .32);
+    color: black;
+  }
+
+  #peopleSearchInput:-moz-lwtheme:hover {
+    background-color: rgba(255,255,255,.9);
+  }
+
+  #peopleSearchInput:-moz-lwtheme[focused="true"] {
+    background-color: white;
+  }
+
   /* ::::: directory pane adjustments ::::: */
 
   /* Don't use the listbox appearance as that gives us a blue-grey top border
@@ -649,20 +662,6 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
 
   #peopleSearchInput {
     border-radius: 2px;
-    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
-                  hsla(210, 54%, 20%, .3);
-    box-shadow: 0 1px hsla(0, 0%, 0%, .01) inset,
-                0 1px hsla(0, 0%, 100%, .1);
-  }
-
-  #peopleSearchInput:not([focused]):hover {
-    border-color: hsla(210, 54%, 20%, .35) hsla(210, 54%, 20%, .37)
-                  hsla(210, 54%, 20%, .4);
-  }
-
-  #peopleSearchInput[focused] {
-    border-color: hsla(206, 100%, 60%, .65) hsla(206, 100%, 55%, .65)
-                  hsla(206, 100%, 50%, .65);
   }
 
   #dirTree {
@@ -677,7 +676,43 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   }
 }
 
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+  #peopleSearchInput:not(:-moz-lwtheme) {
+    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
+                  hsla(210, 54%, 20%, .3);
+    box-shadow: 0 1px 0 hsla(0, 0%, 0%, .01) inset,
+                0 1px 0 hsla(0, 0%, 100%, .1);
+  }
+
+  #peopleSearchInput:not(:-moz-lwtheme):hover {
+    border-color: hsla(210, 54%, 20%, .35) hsla(210, 54%, 20%, .37)
+                  hsla(210, 54%, 20%, .4);
+  }
+}
+
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  #peopleSearchInput {
+    min-height: 28px;
+    border-radius: 1px;
+  }
+
+  #peopleSearchInput:not(:-moz-lwtheme) {
+    border-color: hsl(0, 0%, 90%);
+    transition-property: border-color;
+    transition-duration: .1s;
+  }
+
+  #peopleSearchInput:not(:-moz-lwtheme):not([focused="true"]):hover {
+    border-color: hsl(0, 0%, 80%);
+  }
+
+  #peopleSearchInput:not(:-moz-lwtheme)[focused] {
+    border-color: Highlight;
+    box-shadow: 0 0 0 1px Highlight inset;
+  }
+
   #dirTree {
     background-color: #fafafa;
   }
@@ -733,21 +768,5 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   .toolbarbutton-1[checked=true]:not(:active):hover {
     background-color: rgba(90%, 90%, 90%, .4);
     transition: background-color .4s;
-  }
-
-  #peopleSearchInput:not(:-moz-lwtheme) {
-    background-color: hsla(0, 0%, 100%, .9);
-    border: 1px solid transparent;
-    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
-                  hsla(210, 54%, 20%, .3);
-    box-shadow: 0 1px 0 hsla(0, 0%, 0%, .01) inset,
-                0 1px 0 hsla(0, 0%, 100%, .1);
-    transition-property: border-color, background-color;
-    transition-duration: 200ms;
-  }
-
-  #peopleSearchInput:not(:-moz-lwtheme)[focused] {
-    background-color: hsla(0, 0%, 100%, 1);
-    border-color: #4595e5;
   }
 }

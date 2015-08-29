@@ -31,11 +31,21 @@
   }
 }
 
-@media not all and (-moz-os-version: windows-xp) {
+@media (-moz-os-version: windows-vista),
+       (-moz-os-version: windows-win7),
+       (-moz-os-version: windows-win8) {
   .mail-toolbox:not([mode="full"]) > toolbar:only-of-type,
   .mail-toolbox[mode="full"][labelalign="end"] > toolbar:only-of-type {
     margin-top: 7px;
     margin-bottom: 7px;
+  }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  .mail-toolbox:not([mode="full"]) > toolbar:only-of-type,
+  .mail-toolbox[mode="full"][labelalign="end"] > toolbar:only-of-type {
+    margin-top: 5px;
+    margin-bottom: 5px;
   }
 }
 
