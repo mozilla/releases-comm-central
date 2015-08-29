@@ -249,6 +249,17 @@ const XMPPMUCConversationPrototype = {
     let codes = x.getElements(["status"]).map(elt => elt.attributes["code"]);
     let item = x.getElement(["item"]);
 
+    // Changes the nickname of a participant for this muc.
+    let changeNick = () => {
+      if (!item  || !item.attributes["nick"]) {
+        this.WARN("Received a MUC presence code 303 or 210 stanza without an " +
+                  "item element or a nick attribute.");
+        return;
+      }
+      let newNick = item.attributes["nick"];
+      this.updateNick(nick, newNick, nick == this.nick);
+    };
+
     if (aStanza.attributes["type"] == "unavailable") {
       if (!this._participants.has(nick)) {
         this.WARN("received unavailable presence for an unknown MUC participant: " +
@@ -258,13 +269,7 @@ const XMPPMUCConversationPrototype = {
       if (codes.indexOf("303") != -1) {
         // XEP-0045 (7.6): Changing Nickname.
         // Service Updates Nick for user.
-        if (!item  || !item.attributes["nick"]) {
-          this.WARN("Received a MUC presence code 303 stanza without an item " +
-                    "element or a nick attribute.");
-          return;
-        }
-        let participant = this._participants.get(nick);
-        participant.name = item.attributes["nick"];
+        changeNick();
         return;
       }
       if (item && item.attributes["role"] == "none") {
@@ -350,6 +355,13 @@ const XMPPMUCConversationPrototype = {
         return true;
       });
     }
+    else if (codes.indexOf("210") != -1) {
+      // XEP-0045 (7.6): Changing Nickname.
+      // Service modifies this user's nickname in accordance with local service
+      // policies.
+      changeNick();
+      return;
+    }
     else if (codes.indexOf("110") != -1) {
       // XEP-0045: Room exists and joined successfully.
       this.left = false;
@@ -412,33 +424,6 @@ const XMPPMUCConversationPrototype = {
 
   getNormalizedChatBuddyName: function(aNick) {
     return this._account.normalizeFullJid(this.name + "/" + aNick);
-  },
-
-  // Removes a participant from MUC conversation.
-  removeParticipant: function(aNick) {
-    if (!this._participants.has(aNick))
-      return;
-
-    this._participants.delete(aNick);
-    let nickString = Cc["@mozilla.org/supports-string;1"]
-                       .createInstance(Ci.nsISupportsString);
-    nickString.data = aNick;
-    this.notifyObservers(new nsSimpleEnumerator([nickString]),
-                         "chat-buddy-remove");
-  },
-
-  // Removes all participant in MUC conversation.
-  removeAllParticipants: function() {
-    let stringNicknames = [];
-    this._participants.forEach(function(aParticipant) {
-      let stringNickname = Cc["@mozilla.org/supports-string;1"]
-                              .createInstance(Ci.nsISupportsString);
-      stringNickname.data = aParticipant.name;
-      stringNicknames.push(stringNickname);
-    });
-    this.notifyObservers(new nsSimpleEnumerator(stringNicknames),
-                         "chat-buddy-remove");
-    this._participants.clear();
   },
 
   // Leaves MUC conversation.

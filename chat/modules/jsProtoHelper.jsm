@@ -626,6 +626,66 @@ const GenericConvChatPrototype = {
   },
   getNormalizedChatBuddyName: aChatBuddyName => aChatBuddyName,
 
+  // Updates the nick of a participant in conversation to a new one.
+  updateNick: function(aOldNick, aNewNick, isOwnNick) {
+    let message;
+    let isParticipant = this._participants.has(aOldNick);
+    if (isOwnNick) {
+      // If this is the user's nick, change it.
+      this.nick = aNewNick;
+      message = _("nickSet.you", aNewNick);
+
+      // If the account was disconnected, it's OK the user is not a participant.
+      if (!isParticipant)
+        return;
+    }
+    else if (!isParticipant) {
+      this.ERROR("Trying to rename nick that doesn't exist! " + aOldNick +
+                 " to " + aNewNick);
+      return;
+    }
+    else
+      message = _("nickSet", aOldNick, aNewNick);
+
+    // Get the original participant and then remove it.
+    let participant = this._participants.get(aOldNick);
+    this._participants.delete(aOldNick);
+
+    // Update the nickname and add it under the new nick.
+    participant.name = aNewNick;
+    this._participants.set(aNewNick, participant);
+
+    this.notifyObservers(participant, "chat-buddy-update", aOldNick);
+    this.writeMessage(aOldNick, message, {system: true});
+  },
+
+  // Removes a participant from conversation.
+  removeParticipant: function(aNick) {
+    if (!this._participants.has(aNick))
+      return;
+
+    let stringNickname = Cc["@mozilla.org/supports-string;1"]
+                           .createInstance(Ci.nsISupportsString);
+    stringNickname.data = aNick;
+    this.notifyObservers(new nsSimpleEnumerator([stringNickname]),
+                         "chat-buddy-remove");
+    this._participants.delete(aNick);
+  },
+
+  // Removes all participant in conversation.
+  removeAllParticipants: function() {
+    let stringNicknames = [];
+    this._participants.forEach(function(aParticipant) {
+      let stringNickname = Cc["@mozilla.org/supports-string;1"]
+                              .createInstance(Ci.nsISupportsString);
+      stringNickname.data = aParticipant.name;
+      stringNicknames.push(stringNickname);
+    });
+    this.notifyObservers(new nsSimpleEnumerator(stringNicknames),
+                         "chat-buddy-remove");
+    this._participants.clear();
+  },
+
   writeMessage: function (aWho, aText, aProperties) {
     aProperties.containsNick =
       "incoming" in aProperties && this._pingRegexp.test(aText);
@@ -637,7 +697,8 @@ const GenericConvChatBuddyPrototype = {
   __proto__: ClassInfo("prplIConvChatBuddy", "generic ConvChatBuddy object"),
 
   _name: "",
-  get name() { return this._name; },
+  get name() this._name,
+  set name(aName) this._name = aName,
   alias: "",
   buddy: false,
 

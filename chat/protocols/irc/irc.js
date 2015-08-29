@@ -375,56 +375,6 @@ ircChannel.prototype = {
     }
     return participant;
   },
-  updateNick: function(aOldNick, aNewNick) {
-    let isParticipant = this._participants.has(aOldNick);
-    if (this.normalizeNick(aOldNick) == this.normalizeNick(this.nick)) {
-      // If this is the user's nick, change it.
-      this.nick = aNewNick;
-      // If the account was disconnected, it's OK the user is not a participant.
-      if (!isParticipant)
-        return;
-    }
-    else if (!isParticipant) {
-      this.ERROR("Trying to rename nick that doesn't exist! " + aOldNick +
-                 " to " + aNewNick);
-      return;
-    }
-
-    // Get the original ircParticipant and then remove it.
-    let participant = this.getParticipant(aOldNick);
-    this._participants.delete(aOldNick);
-
-    // Update the nickname and add it under the new nick.
-    participant._name = aNewNick;
-    this._participants.set(aNewNick, participant);
-
-    this.notifyObservers(participant, "chat-buddy-update", aOldNick);
-  },
-  removeParticipant: function(aNick) {
-    if (!this._participants.has(aNick))
-      return;
-
-    let stringNickname = Cc["@mozilla.org/supports-string;1"]
-                           .createInstance(Ci.nsISupportsString);
-    stringNickname.data = aNick;
-    this.notifyObservers(new nsSimpleEnumerator([stringNickname]),
-                         "chat-buddy-remove");
-    this._participants.delete(aNick);
-  },
-  // Use this before joining to avoid errors of trying to re-add an existing
-  // participant
-  removeAllParticipants: function() {
-    let stringNicknames = [];
-    this._participants.forEach(function(aParticipant) {
-      let stringNickname = Cc["@mozilla.org/supports-string;1"]
-                              .createInstance(Ci.nsISupportsString);
-      stringNickname.data = aParticipant.name;
-      stringNicknames.push(stringNickname);
-    });
-    this.notifyObservers(new nsSimpleEnumerator(stringNicknames),
-                         "chat-buddy-remove");
-    this._participants.clear();
-  },
 
   /*
    * Add/remove modes from this channel.
@@ -1285,25 +1235,24 @@ ircAccount.prototype = {
     return buddy;
   },
   changeBuddyNick: function(aOldNick, aNewNick) {
-    let msg;
     if (this.normalizeNick(aOldNick) == this.normalizeNick(this._nickname)) {
       // Your nickname changed!
       this._nickname = aNewNick;
-      msg = _("message.nick.you", aNewNick);
       this.conversations.forEach(conversation => {
         // Update the nick for chats, and inform the user in every conversation.
         if (conversation.isChat)
-          conversation.updateNick(aOldNick, aNewNick);
-        conversation.writeMessage(aOldNick, msg, {system: true});
+          conversation.updateNick(aOldNick, aNewNick, true);
+        else {
+          conversation.writeMessage(aOldNick, _conv("nickSet.you", aNewNick),
+                                    {system: true});
+        }
       });
     }
     else {
-      msg = _("message.nick", aOldNick, aNewNick);
       this.conversations.forEach(conversation => {
         if (conversation.isChat && conversation._participants.has(aOldNick)) {
           // Update the nick in every chat conversation it is in.
-          conversation.updateNick(aOldNick, aNewNick);
-          conversation.writeMessage(aOldNick, msg, {system: true});
+          conversation.updateNick(aOldNick, aNewNick, false);
         }
       });
     }
