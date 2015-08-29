@@ -64,12 +64,8 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
 /* ::::: thread decoration ::::: */
 
 treechildren::-moz-tree-row(dummy)  {
-  background-color:  #F0F0F0;
+  background-color: var(--row-grouped-header-bg-color);
   -moz-padding-start: 2px;
-}
-
-treechildren::-moz-tree-row(dummy, selected) {
-  background-color: -moz-Dialog;
 }
 
 treechildren::-moz-tree-row(dummy, selected, focus)  {
@@ -361,6 +357,10 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
 #threadTree > treechildren::-moz-tree-row(odd) {
   background-color: transparent;
+}
+
+#threadTree > treechildren::-moz-tree-row(dummy, odd) {
+  background-color: var(--row-grouped-header-bg-color);
 }
 
 #threadTree > treechildren::-moz-tree-row(selected) {

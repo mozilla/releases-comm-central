@@ -6,6 +6,10 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+:root {
+  --row-grouped-header-bg-color: -moz-dialog;
+}
+
 #tabmail:-moz-lwtheme {
   text-shadow: none;
 }
@@ -38,16 +42,14 @@ treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
   text-decoration: underline;
 }
 
-/* ..... read column ..... */
+/* ..... do not show icons on grouped by sort dummy header rows ..... */
 
+treechildren::-moz-tree-image(subjectCol, dummy),
+treechildren::-moz-tree-image(flaggedCol, dummy),
+treechildren::-moz-tree-image(junkStatusCol, dummy) ,
+treechildren::-moz-tree-image(correspondentCol, dummy),
 treechildren::-moz-tree-image(unreadButtonColHeader, dummy) {
-  list-style-image: none;
-}
-
-/* ..... flag column ..... */
-
-treechildren::-moz-tree-image(flaggedCol, dummy) {
-  list-style-image: none;
+  list-style-image: none !important;
 }
 
 /* ..... junkStatus column ..... */
@@ -56,15 +58,7 @@ treechildren::-moz-tree-image(flaggedCol, dummy) {
   -moz-padding-end: 3px;
 }
 
-treechildren::-moz-tree-image(junkStatusCol, dummy) {
-  list-style-image: none;
-}
-
 /* ..... subject column ..... */
-
-treechildren::-moz-tree-image(subjectCol, dummy) {
-  list-style-image: none;
-}
 
 treechildren::-moz-tree-cell-text(subjectCol) {
   -moz-padding-start: 0;
