@@ -723,14 +723,36 @@ NS_IMETHODIMP nsMsgGroupView::GetRowProperties(int32_t aRow, nsAString& aPropert
   return nsMsgDBView::GetRowProperties(aRow, aProperties);
 }
 
-NS_IMETHODIMP nsMsgGroupView::GetCellProperties(int32_t aRow, nsITreeColumn *aCol, nsAString& aProperties)
+NS_IMETHODIMP nsMsgGroupView::GetCellProperties(int32_t aRow,
+                                                nsITreeColumn *aCol,
+                                                nsAString& aProperties)
 {
   if (!IsValidIndex(aRow))
     return NS_MSG_INVALID_DBVIEW_INDEX;
 
   if (m_flags[aRow] & MSG_VIEW_FLAG_DUMMY)
   {
-    aProperties.AssignLiteral("dummy");
+    aProperties.AssignLiteral("dummy read");
+
+    if (!(m_flags[aRow] & nsMsgMessageFlags::Elided))
+      return NS_OK;
+
+    // Set unread property if a collapsed group thread has unread.
+    nsCOMPtr <nsIMsgDBHdr> msgHdr;
+    nsresult rv = GetMsgHdrForViewIndex(aRow, getter_AddRefs(msgHdr));
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsString hashKey;
+    rv = HashHdr(msgHdr, hashKey);
+    if (NS_FAILED(rv))
+      return NS_OK;
+    nsCOMPtr<nsIMsgThread> msgThread;
+    m_groupsTable.Get(hashKey, getter_AddRefs(msgThread));
+    nsMsgGroupThread *groupThread = static_cast<nsMsgGroupThread *>(msgThread.get());
+    uint32_t numUnrMsg = 0;
+    groupThread->GetNumUnreadChildren(&numUnrMsg);
+    if (numUnrMsg > 0)
+      aProperties.AppendLiteral(" hasUnread");
+
     return NS_OK;
   }
 
