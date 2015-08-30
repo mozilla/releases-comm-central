@@ -71,6 +71,7 @@
 treechildren::-moz-tree-row(dummy)  {
   background-color: var(--row-grouped-header-bg-color);
   -moz-padding-start: 2px;
+  margin-bottom: 1px;
 }
 
 treechildren::-moz-tree-row(dummy, selected, focus)  {
