@@ -38,6 +38,16 @@ function contactsListOnClick(event)
   }
 }
 
+function contactsListOnKeyPress(aEvent)
+{
+  switch (aEvent.key) {
+    case "Enter":
+      if (aEvent.altKey) {
+        goDoCommand("cmd_properties");
+      }
+  }
+}
+
 function addSelectedAddresses(recipientType)
 {
   var cards = GetSelectedAbCards();

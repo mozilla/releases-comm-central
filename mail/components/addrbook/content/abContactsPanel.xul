@@ -43,6 +43,7 @@
   <!-- These keys do not really run any command, but they are used to show
        the hotkeys at the corresponding menuitems -->
   <key id="key_delete" keycode="VK_DELETE"/>
+  <key id="key_properties" modifiers="alt" keycode="VK_RETURN"/>
 
   <menupopup id="cardProperties">
     <menuitem label="&deleteAddrBookCard.label;"
@@ -51,6 +52,7 @@
               command="cmd_delete"/>
     <menuitem label="&addrBookCardProperties.label;"
               accesskey="&addrBookCardProperties.accesskey;"
+              key="key_properties"
               command="cmd_properties"/>
     <menuseparator/>
     <menuitem label="&addtoToFieldMenu.label;"
@@ -89,7 +91,8 @@
 
     <tree id="abResultsTree" flex="1" context="cardProperties" class="plain" sortCol="GeneratedName" persist="sortCol"
           onclick="contactsListOnClick(event);"
-          onselect="this.view.selectionChanged(); document.commandDispatcher.updateCommands('addrbook-select');">
+          onselect="this.view.selectionChanged(); document.commandDispatcher.updateCommands('addrbook-select');"
+          onkeypress="contactsListOnKeyPress(event);">
       <treecols>
         <!-- these column ids must match up to the mork column names, see nsIAddrDatabase.idl -->
         <treecol id="GeneratedName"
