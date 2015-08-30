@@ -62,7 +62,9 @@
 #ifndef S_ISDIR
 #define S_ISDIR(m) (((m) & _S_IFMT) == _S_IFDIR)
 #endif
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
 #define snprintf _snprintf
+#endif
 #define strcasecmp      stricmp
 #endif
 

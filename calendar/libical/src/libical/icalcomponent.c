@@ -49,7 +49,9 @@
 
 #ifdef WIN32
 #define strncasecmp      strnicmp
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
 #define snprintf _snprintf
+#endif
 #endif
 
 struct icalcomponent_impl 
