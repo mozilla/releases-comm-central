@@ -1417,13 +1417,27 @@ const XMPPAccountPrototype = {
       }
     }
     else if (type == "get") {
+      let id = aStanza.attributes["id"];
+      let from = aStanza.attributes["from"];
+
       // XEP-0199: XMPP server-to-client ping (XEP-0199)
       let ping = aStanza.getElement(["ping"]);
       if (ping && ping.uri == Stanza.NS.ping) {
-        if (aStanza.attributes["from"] == this._jid.domain) {
-          this.sendStanza(Stanza.iq("result", aStanza.attributes["id"],
-                          this._jid.domain));
-        }
+        if (from == this._jid.domain)
+          this.sendStanza(Stanza.iq("result", id, this._jid.domain));
+        return;
+      }
+
+      let query = aStanza.getElement(["query"]);
+      if (query && query.uri == Stanza.NS.version) {
+        // XEP-0092: Software Version.
+        let children = [];
+        children.push(Stanza.node("name", null, null, Services.appinfo.name));
+        children.push(Stanza.node("version", null, null,
+                                  Services.appinfo.version));
+        let versionQuery = Stanza.node("query", Stanza.NS.version, null,
+                                       children);
+        this.sendStanza(Stanza.iq("result", id, from, versionQuery));
         return;
       }
     }

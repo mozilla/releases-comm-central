@@ -67,6 +67,7 @@ const NS = {
   nick_notify               : "http://jabber.org/protocol/nick+notify",
   activity                  : "http://jabber.org/protocol/activity",
   last                      : "jabber:iq:last",
+  version                   : "jabber:iq:version",
   avatar_data               : "urn:xmpp:avatar:data",
   avatar_data_notify        : "urn:xmpp:avatar:data+notify",
   avatar_metadata           : "urn:xmpp:avatar:metadata",
