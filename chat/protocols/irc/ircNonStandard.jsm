@@ -52,7 +52,7 @@ var ircNonStandard = {
       // serverPassword preference was not set by the user. Attempt to log into
       // ZNC using the account password.
       if (target == "auth" &&
-          aMessage.params[1] == "*** You need to send your password. Try /quote PASS <username>:<password>") {
+          aMessage.params[1].startsWith("*** You need to send your password.")) {
         if (this.imAccount.password) {
           // Send the password now, if it is available.
           this.shouldAuthenticate = false;

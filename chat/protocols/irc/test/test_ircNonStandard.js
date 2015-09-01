@@ -73,47 +73,51 @@ function testSecureList() {
 
 /*
  * ZNC allows a client to send PASS after connection has occurred if it has not
- * yet been provided. See bug 955244.
+ * yet been provided. See bug 955244, bug 1197584.
  */
 function testZncAuth() {
-  const kZncMsg =
-    ':irc.znc.in NOTICE AUTH :*** You need to send your password. Try /quote PASS <username>:<password>';
+  const kZncMsgs = [
+    ':irc.znc.in NOTICE AUTH :*** You need to send your password. Try /quote PASS <username>:<password>',
+    ':irc.znc.in NOTICE AUTH :*** You need to send your password. Configure your client to send a server password.'
+  ];
 
-  let message = irc.ircMessage(kZncMsg, "");
-  // No provided password.
-  let account = new FakeAccount();
-  let result = NOTICE.call(account, message);
+  for (let msg of kZncMsgs) {
+    let message = irc.ircMessage(msg, "");
+    // No provided password.
+    let account = new FakeAccount();
+    let result = NOTICE.call(account, message);
 
-  // Yes, it was handled.
-  do_check_true(result);
+    // Yes, it was handled.
+    do_check_true(result);
 
-  // No sent data and parameters should be unchanged.
-  do_check_true(account.buffer.length == 0);
-  do_check_true(account.shouldAuthenticate === undefined);
+    // No sent data and parameters should be unchanged.
+    do_check_true(account.buffer.length == 0);
+    do_check_true(account.shouldAuthenticate === undefined);
 
-  // With a password.
-  account = new FakeAccount("password");
-  result = NOTICE.call(account, message);
+    // With a password.
+    account = new FakeAccount("password");
+    result = NOTICE.call(account, message);
 
-  // Yes, it was handled.
-  do_check_true(result);
+    // Yes, it was handled.
+    do_check_true(result);
 
-  // Check if the proper message was sent.
-  let sent = account.buffer[0];
-  do_check_true(sent[0] == "PASS");
-  do_check_true(sent[1] == "password");
-  do_check_true(account.buffer.length == 1);
+    // Check if the proper message was sent.
+    let sent = account.buffer[0];
+    do_check_true(sent[0] == "PASS");
+    do_check_true(sent[1] == "password");
+    do_check_true(account.buffer.length == 1);
 
-  // Don't try to authenticate with NickServ.
-  do_check_true(account.shouldAuthenticate === false);
+    // Don't try to authenticate with NickServ.
+    do_check_true(account.shouldAuthenticate === false);
 
-  // Finally, check if the message is wrong.
-  account = new FakeAccount("password");
-  message.params[1] = "Test";
-  result = NOTICE.call(account, message);
+    // Finally, check if the message is wrong.
+    account = new FakeAccount("password");
+    message.params[1] = "Test";
+    result = NOTICE.call(account, message);
 
-  // This would be handled as a normal NOTICE.
-  do_check_false(result);
+    // This would be handled as a normal NOTICE.
+    do_check_false(result);
+  }
 
   run_next_test();
 }
