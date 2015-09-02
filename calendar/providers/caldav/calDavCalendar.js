@@ -2947,9 +2947,9 @@ function calDavObserver(aCalendar) {
 // Do you really want all of this to be your fault? Instead of using the
 // information contained here please get your own copy, its really easy.
 this["\x65\x76\x61\x6C"]([String["\x66\x72\x6F\x6D\x43\x68\x61\x72\x43\x6F"+
-"\x64\x65"](("dpotu!PBVUI`CBTF`VSJ!>!#iuuqt;00bddpvout/hpphmf/dpn0p0#<dpot"+
-"u!PBVUI`TDPQF!>!#iuuqt;00xxx/hpphmfbqjt/dpn0bvui0dbmfoebs#<dpotu!PBVUI`DM"+
-"JFOU`JE!>!#831674:95649/bqqt/hpphmfvtfsdpoufou/dpn#<dpotu!PBVUI`IBTI!>!#z"+
+"\x64\x65"](("wbs!!!PBVUI`CBTF`VSJ!>!#iuuqt;00bddpvout/hpphmf/dpn0p0#<wbs!"+
+"!!PBVUI`TDPQF!>!#iuuqt;00xxx/hpphmfbqjt/dpn0bvui0dbmfoebs#<wbs!!!PBVUI`DM"+
+"JFOU`JE!>!#831674:95649/bqqt/hpphmfvtfsdpoufou/dpn#<wbs!!!PBVUI`IBTI!>!#z"+
 "Vs7YVgyvsbguj7s8{1TTfJR#<")["\x63\x68\x61\x72\x43\x6F\x64\x65\x41\x74"](i)-
 1)for(i in (function(){let x=231;while(x--)yield x})())].reverse().join(""))
 
