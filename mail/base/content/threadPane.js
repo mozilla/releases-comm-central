@@ -8,53 +8,69 @@ var gThreadPaneCommandUpdater = null;
 
 function ThreadPaneOnClick(event)
 {
-    // we only care about button 0 (left click) events
-    if (event.button != 0) return;
+  // We only care about button 0 (left click) events.
+  if (event.button != 0)
+    return;
 
-    // we are already handling marking as read and flagging
-    // in nsMsgDBView.cpp
-    // so all we need to worry about here is double clicks
-    // and column header.
-    //
-    // we get in here for clicks on the "treecol" (headers)
-    // and the "scrollbarbutton" (scrollbar buttons)
-    // we don't want those events to cause a "double click"
+  // We already handle marking as read/flagged/junk cyclers in nsMsgDBView.cpp
+  // so all we need to worry about here is doubleclicks and column header. We
+  // get here for clicks on the "treecol" (headers) and the "scrollbarbutton"
+  // (scrollbar buttons) and don't want those events to cause a doubleclick.
 
-    var t = event.originalTarget;
+  let t = event.originalTarget;
 
-    if (t.localName == "treecol") {
-       HandleColumnClick(t.id);
-    }
-    else if (t.localName == "treechildren") {
-      var row = new Object;
-      var col = new Object;
-      var childElt = new Object;
+  if (t.localName == "treecol") {
+    HandleColumnClick(t.id);
+    return;
+  }
 
-      var tree = GetThreadTree();
-      // figure out what cell the click was in
-      tree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col, childElt);
-      if (row.value == -1)
-       return;
+  if (t.localName != "treechildren")
+    return;
 
-      // if the cell is in a "cycler" column
-      // or if the user double clicked on the twisty,
-      // don't open the message in a new window
-      if (event.detail == 2 && !col.value.cycler && (childElt.value != "twisty")) {
-        ThreadPaneDoubleClick();
-        // double clicking should not toggle the open / close state of the
-        // thread.  this will happen if we don't prevent the event from
-        // bubbling to the default handler in tree.xml
-        event.stopPropagation();
-      }
-      else if (col.value.id == "junkStatusCol") {
-        MsgJunkMailInfo(true);
-      }
-      else if (col.value.id == "threadCol" && !event.shiftKey &&
-          (event.ctrlKey || event.metaKey)) {
-        gDBView.ExpandAndSelectThreadByIndex(row.value, true);
-        event.stopPropagation();
-      }
-    }
+  let row = {};
+  let col = {};
+  let elt = {};
+  let tree = GetThreadTree();
+
+  // Figure out what cell the click was in.
+  tree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col, elt);
+  if (row.value == -1)
+   return;
+
+  // Grouped By Sort dummy header row non cycler column doubleclick toggles the
+  // thread's open/close state; tree.xml handles it. Cyclers are not currently
+  // implemented in group header rows, a click/doubleclick there should
+  // select/toggle thread state.
+  if (gFolderDisplay.view.isGroupedByHeaderAtIndex(row.value)) {
+    if (!col.value.cycler)
+      return;
+
+    if (event.detail == 1)
+      gFolderDisplay.selectViewIndex(row.value);
+    if (event.detail == 2)
+      gFolderDisplay.view.dbView.toggleOpenState(row.value);
+
+    event.stopPropagation();
+    return;
+  }
+
+  // If the cell is in a cycler column or if the user doubleclicked on the
+  // twisty, don't open the message in a new window.
+  if (event.detail == 2 && !col.value.cycler && elt.value != "twisty") {
+    ThreadPaneDoubleClick();
+    // Doubleclicking should not toggle the open/close state of the thread.
+    // This will happen if we don't prevent the event from bubbling to the
+    // default handler in tree.xml.
+    event.stopPropagation();
+  }
+  else if (col.value.id == "junkStatusCol") {
+    MsgJunkMailInfo(true);
+  }
+  else if (col.value.id == "threadCol" && !event.shiftKey &&
+           (event.ctrlKey || event.metaKey)) {
+    gDBView.ExpandAndSelectThreadByIndex(row.value, true);
+    event.stopPropagation();
+  }
 }
 
 function HandleColumnClick(columnID)

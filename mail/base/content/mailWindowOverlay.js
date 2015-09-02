@@ -2141,6 +2141,14 @@ function MsgOpenNewTabForFolder(aBackground)
 
 function MsgOpenSelectedMessages()
 {
+  // Grouped By Sort dummy header row <enter> toggles the thread's open/close
+  // state. Let tree.xml handle it.
+  if (gFolderDisplay.view.showGroupedBySort &&
+      gFolderDisplay.treeSelection && gFolderDisplay.treeSelection.count == 1 &&
+      gFolderDisplay.view.isGroupedByHeaderAtIndex(gFolderDisplay.treeSelection.currentIndex)) {
+    return;
+  }
+
   // Toggle message body (feed summary) and content-base url in message pane or
   // load in browser, per pref, otherwise open summary or web page in new window
   // or tab, per that pref.
