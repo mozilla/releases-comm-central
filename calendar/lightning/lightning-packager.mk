@@ -55,7 +55,10 @@ ifdef EN_US_BINARY_URL
 ensure-stage-dir: wget-en-US unpack
 else
 # If not, use the existing lightning from xpi-stage, or warn that the var is not set.
-ensure-stage-dir: $(if $(wildcard $(XPI_STAGE_PATH)/$(XPI_NAME)/),,$(error You must set EN_US_BINARY_URL))
+ensure-stage-dir:
+ifeq (,$(wildcard $(XPI_STAGE_PATH)/$(XPI_NAME)/))
+	$(error You must set EN_US_BINARY_URL)
+endif
 endif
 
 $(XPI_STAGE_PATH):
