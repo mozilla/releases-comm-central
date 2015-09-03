@@ -59,6 +59,14 @@ function fillMailContextMenu(event)
   if (event.target != event.currentTarget)
     return true;
 
+  // No menu on grouped header row currently, any command would be an implied
+  // multiselect.
+  let row = GetThreadTree().treeBoxObject.getRowAt(event.clientX, event.clientY);
+  if (gFolderDisplay.view.isGroupedByHeaderAtIndex(row)) {
+    RestoreSelectionWithoutContentLoad(GetThreadTree());
+    return false;
+  }
+
   goUpdateCommand('cmd_printpreview');
   goUpdateCommand('cmd_print');
 

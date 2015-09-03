@@ -306,7 +306,7 @@ var DefaultController =
                gFolderDisplay.selectedMessage.folder &&
                gFolderDisplay.selectedMessage.folder.server.canHaveFilters;
       case "cmd_openConversation":
-        return gFolderDisplay.selectedCount == 1 &&
+        return gFolderDisplay.selectedMessages.length == 1 &&
                gConversationOpener.isSelectedMessageIndexed();
       case "cmd_saveAsFile":
         return GetNumSelectedMessages() > 0;

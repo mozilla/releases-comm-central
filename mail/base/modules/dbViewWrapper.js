@@ -1846,6 +1846,17 @@ DBViewWrapper.prototype = {
   },
 
   /**
+   * @return true if the row at the given index is a grouped view dummy header
+   *     row, false if anything else.
+   */
+  isGroupedByHeaderAtIndex: function(aViewIndex) {
+    if (aViewIndex < 0 || aViewIndex >= this.dbView.rowCount ||
+        !this.showGroupedBySort)
+      return false;
+    return Boolean(this.dbView.getFlagsAt(aViewIndex) & MSG_VIEW_FLAG_DUMMY);
+  },
+
+  /**
    * Perform application-level behaviors related to leaving a folder that have
    *  nothing to do with our abstraction.
    *
