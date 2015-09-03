@@ -624,17 +624,17 @@ var buddyList = {
     }
 
     let video = document.getElementById("webcamVideo");
-    video.mozSrcObject = aStream;
-    video.play();
+    video.srcObject = aStream;
     video.onplaying = function() { document.getElementById("captureButton")
                                            .removeAttribute("disabled"); }
+    video.play();
   },
 
   takePictureButton: function bl_takePictureButton() {
     document.getElementById("userIconPanel").selectedIndex = 1;
-    navigator.mozGetUserMedia({audio: false, video: true},
-                              this.webcamSuccessCallback.bind(this),
-                              Cu.reportError);
+    navigator.mediaDevices.getUserMedia({audio: false, video: true})
+             .then(aStream => this.webcamSuccessCallback(aStream),
+                   Cu.reportError);
   },
 
   takePicture: function bl_takePicture() {
@@ -695,26 +695,20 @@ var buddyList = {
     let icon = Services.core.globalUserStatus.getUserIcon();
     document.getElementById("userIconPanelImage").src = icon ? icon.spec : "";
 
-    // FIXME: This is a workaround for the Bug 1011878.
-    // mozGetUserMediaDevices is currently only working after having called
-    // mozGetUserMedia at least once.
-    // Calling mozGetuserMedia with any parameters works.
-    navigator.mozGetUserMedia({audio: false, video: false},
-                              function() {}, function() {});
-
     let webcamButton = document.getElementById("takePictureButton");
     webcamButton.disabled = true;
-    navigator.mozGetUserMediaDevices({video: true},
-                                     devices => { webcamButton.disabled = !devices.length; },
-                                     Cu.reportError);
+    navigator.mediaDevices.enumerateDevices().then(aDevices => {
+      webcamButton.disabled =
+        !aDevices.some(aDevice => aDevice.kind == "videoinput");
+    }, Cu.reportError);
   },
 
   stopWebcamStream: function bl_stopWebcamStream() {
     let webcamVideo = document.getElementById("webcamVideo");
-    let webcamStream = webcamVideo.mozSrcObject;
+    let webcamStream = webcamVideo.srcObject;
     if (webcamStream) {
       webcamStream.stop();
-      webcamVideo.mozSrcObject = null;
+      webcamVideo.srcObject = null;
     }
 
     document.getElementById("captureButton").disabled = true;
