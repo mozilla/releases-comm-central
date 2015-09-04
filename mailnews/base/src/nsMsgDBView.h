@@ -245,6 +245,7 @@ protected:
   void ReverseSort();
   void ReverseThreads();
   nsresult SaveSortInfo(nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder);
+  nsresult RestoreSortInfo();
   nsresult PersistFolderInfo(nsIDBFolderInfo **dbFolderInfo);
   void     SetMRUTimeForFolder(nsIMsgFolder *folder);
 

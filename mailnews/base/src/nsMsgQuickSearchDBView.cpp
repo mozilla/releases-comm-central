@@ -564,6 +564,11 @@ nsresult nsMsgQuickSearchDBView::SortThreads(nsMsgViewSortTypeValue sortType, ns
       }
     }
   }
+
+  // The thread state is left expanded (despite viewFlags) so at least reflect
+  // the correct state.
+  m_viewFlags |= nsMsgViewFlagsType::kExpandAll;
+
   return NS_OK;
 }
 

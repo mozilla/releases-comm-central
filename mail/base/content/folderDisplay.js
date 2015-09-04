@@ -354,6 +354,22 @@ FolderDisplayWidget.prototype = {
 
     return this.selectedCount != 0;
   },
+
+  /**
+   * Restore the last expandAll/collapseAll state, for both grouped and threaded
+   * views. Not all views respect viewFlags, ie single folder non-virtual.
+   */
+  restoreThreadState: function() {
+    if (!this._active)
+      return;
+
+    if (this.view._threadExpandAll &&
+        !(this.view.dbView.viewFlags & nsMsgViewFlagsType.kExpandAll))
+      this.view.dbView.doCommand(Components.interfaces.nsMsgViewCommandType.expandAll);
+    if (!this.view._threadExpandAll &&
+        this.view.dbView.viewFlags & nsMsgViewFlagsType.kExpandAll)
+      this.view.dbView.doCommand(Components.interfaces.nsMsgViewCommandType.collapseAll);
+  },
   //@}
 
   /**
@@ -1080,6 +1096,9 @@ FolderDisplayWidget.prototype = {
     // - if a selectMessage's coming up, get out of here
     if (this._aboutToSelectMessage)
       return;
+
+    // - restore user's last expand/collapse choice.
+    this.restoreThreadState();
 
     // - restore selection
     // Attempt to restore the selection (if we saved it because the view was

@@ -2200,16 +2200,17 @@ NS_IMETHODIMP nsMsgDBView::Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sor
     NS_ENSURE_SUCCESS(rv, rv);
     msgDBService->RegisterPendingListener(folder, this);
     m_folder = folder;
-    m_viewFolder = folder;
 
-    SetMRUTimeForFolder(m_folder);
+    if (!m_viewFolder)
+      // There is never a viewFolder already set except for the single folder
+      // saved search case, where the backing folder m_folder is different from
+      // the m_viewFolder with its own dbFolderInfo state.
+      m_viewFolder = folder;
 
-    // restore m_sortColumns from db
-    nsString sortColumnsString;
-    folderInfo->GetProperty("sortColumns", sortColumnsString);
-    DecodeColumnSort(sortColumnsString);
-    // Restore curCustomColumn from db.
-    folderInfo->GetProperty("customSortCol", m_curCustomColumn);
+    SetMRUTimeForFolder(m_viewFolder);
+
+    RestoreSortInfo();
+
     // determine if we are in a news folder or not.
     // if yes, we'll show lines instead of size, and special icons in the thread pane
     nsCOMPtr <nsIMsgIncomingServer> server;
@@ -4347,6 +4348,28 @@ nsresult nsMsgDBView::SaveSortInfo(nsMsgViewSortTypeValue sortType, nsMsgViewSor
       folderInfo->SetProperty("sortColumns", sortColumnsString);
     }
   }
+  return NS_OK;
+}
+
+nsresult nsMsgDBView::RestoreSortInfo()
+{
+  if (!m_viewFolder)
+    return NS_OK;
+
+  nsCOMPtr <nsIDBFolderInfo> folderInfo;
+  nsCOMPtr <nsIMsgDatabase> db;
+  nsresult rv = m_viewFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
+  if (NS_SUCCEEDED(rv) && folderInfo)
+  {
+    // Restore m_sortColumns from db.
+    nsString sortColumnsString;
+    folderInfo->GetProperty("sortColumns", sortColumnsString);
+    DecodeColumnSort(sortColumnsString);
+
+    // Restore curCustomColumn from db.
+    folderInfo->GetProperty("customSortCol", m_curCustomColumn);
+  }
+
   return NS_OK;
 }
 

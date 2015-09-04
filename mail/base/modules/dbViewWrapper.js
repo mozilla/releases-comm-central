@@ -507,6 +507,13 @@ function DBViewWrapper(aListener) {
   // see the _viewFlags getter and setter for info on our use of __viewFlags.
   this.__viewFlags = null;
 
+  /**
+   * It's possible to support grouped view thread expand/collapse, and also sort
+   * by thread despite the back end (see nsMsgQuickSearchDBView::SortThreads).
+   * Also, nsMsgQuickSearchDBView does not respect the kExpandAll flag, fix that.
+   */
+  this._threadExpandAll = true,
+
   this.dbView = null;
   this.search = null;
 
@@ -913,11 +920,18 @@ DBViewWrapper.prototype = {
 
     // - retrieve persisted display settings
     this.__viewFlags = dbFolderInfo.viewFlags;
+    // - retrieve persisted thread last expanded state.
+    this._threadExpandAll = Boolean(this.__viewFlags & nsMsgViewFlagsType.kExpandAll);
+
     // Make sure the threaded bit is set if group-by-sort is set.  The views
     //  encode 3 states in 2-bits, and we want to avoid that odd-man-out
     //  state.
+    // The expand flag must be set when opening a single virtual folder
+    //  (quicksearch) in grouped view. The user's last set expand/collapse state
+    //  for grouped/threaded in this use case is restored later.
     if (this.__viewFlags & nsMsgViewFlagsType.kGroupBySort) {
       this.__viewFlags |= nsMsgViewFlagsType.kThreadedDisplay;
+      this.__viewFlags |= nsMsgViewFlagsType.kExpandAll;
       this._ensureValidSort();
     }
 
@@ -1044,8 +1058,18 @@ DBViewWrapper.prototype = {
     // when the underlying folder is a single real folder (virtual or no), we
     //  tell the view about the underlying folder.
     if (this.isSingleFolder) {
+      // If the folder is virtual, m_viewFolder needs to be set before the
+      //  folder is opened, otherwise persisted sort info will not be restored
+      //  from the right dbFolderInfo. The use case is for a single folder
+      //  backed saved search. Currently, sort etc. changes in quick filter are
+      //  persisted (gloda list and quick filter in gloda list are not involved).
+      if (this.isVirtual)
+        dbView.viewFolder = this.displayedFolder;
+
+      // Open the folder.
       dbView.open(this._underlyingFolders[0], sortType, sortOrder, viewFlags,
                   outCount);
+
       // If there are any search terms, we need to tell the db view about the
       //  the display (/virtual) folder so it can store all the view-specific
       //  data there (things like the active mail view and such that go in
