@@ -111,6 +111,7 @@ var isupportWATCH = {
 
       // Clear our watchlist in case there is garbage in it.
       this.sendMessage("WATCH", "C");
+      this.watchLength = 0;
 
       // Kill the ISON polling loop.
       clearTimeout(this._isOnTimer);
@@ -284,6 +285,7 @@ var isupportMONITOR = {
 
       // Clear our monitor list in case there is garbage in it.
       this.sendMessage("MONITOR", "C");
+      this.monitorLength = 0;
 
       // Kill the ISON polling loop.
       clearTimeout(this._isOnTimer);
