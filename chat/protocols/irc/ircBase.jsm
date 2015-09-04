@@ -161,8 +161,8 @@ var ircBase = {
       if (!this.disconnecting) {
         // We received an ERROR message when we weren't expecting it, this is
         // probably the server giving us a ping timeout.
-        this.ERROR("Received unexpected ERROR response:\n" +
-                   aMessage.params[0]);
+        this.WARN("Received unexpected ERROR response:\n" +
+                  aMessage.params[0]);
         this.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR,
                              _("connection.error.lost"));
       }

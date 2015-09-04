@@ -761,23 +761,23 @@ ircSocket.prototype = {
       this._account.gotDisconnected();
     }
     else {
-      this.ERROR(msg);
+      this.WARN(msg);
       this._account.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR,
                                     _("connection.error.lost"));
     }
   },
   onConnectionReset: function() {
-    this.ERROR("Connection reset.");
+    this.WARN("Connection reset.");
     this._account.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR,
                                   _("connection.error.lost"));
   },
   onConnectionTimedOut: function() {
-    this.ERROR("Connection timed out.");
+    this.WARN("Connection timed out.");
     this._account.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR,
                                   _("connection.error.timeOut"));
   },
   onBadCertificate: function(aIsSslError, aNSSErrorMessage) {
-    this.ERROR("Bad certificate or SSL connection for " + this._account.name +
+    this.WARN("Bad certificate or SSL connection for " + this._account.name +
                ":\n" + aNSSErrorMessage);
     let error = this._account.handleBadCertificate(this, aIsSslError);
     this._account.gotDisconnected(error, aNSSErrorMessage);
