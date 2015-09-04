@@ -73,6 +73,7 @@ private:
   nsString m_kLastWeekString;
   nsString m_kTwoWeeksAgoString;
   nsString m_kOldMailString;
+  nsString m_kFutureDateString;
 };
 
 #endif

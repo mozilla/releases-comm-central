@@ -155,6 +155,11 @@ nsresult nsMsgGroupView::GetAgeBucketValue(nsIMsgDBHdr *aMsgHdr, uint32_t * aAge
       *aAgeBucket = (dateOfMsg >= lastTwoWeeks) ? 4 : 5;
     }
   }
+  else
+  {
+    // All that remains is a future date.
+    *aAgeBucket = 6;
+  }
   return NS_OK;
 }
 
@@ -793,7 +798,10 @@ NS_IMETHODIMP nsMsgGroupView::CellTextForColumn(int32_t aRow,
             aValue.Assign(m_kOldMailString);
             break;
           default:
-            NS_ASSERTION(false, "bad age thread");
+            // Future date, error/spoofed.
+            if (m_kFutureDateString.IsEmpty())
+              m_kFutureDateString.Adopt(GetString(MOZ_UTF16("futureDate")));
+            aValue.Assign(m_kFutureDateString);
             break;
           }
           break;
