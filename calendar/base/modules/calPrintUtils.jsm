@@ -160,16 +160,21 @@ cal.print = {
      */
     getItemIntervalString: function getItemIntervalString(aItem, aBoxDate) {
         // omit time label for all-day items
-        let defaultTz = cal.calendarDefaultTimezone();
-        let startDate = aItem[cal.calGetStartDateProp(aItem)].getInTimezone(defaultTz);
-        let endDate = aItem[cal.calGetEndDateProp(aItem)].getInTimezone(defaultTz);
+        let startDate = aItem[cal.calGetStartDateProp(aItem)];
+        let endDate = aItem[cal.calGetEndDateProp(aItem)];
         if ((startDate && startDate.isDate) || (endDate && endDate.isDate)) {
             return "";
         }
 
+        // check for tasks without start and/or due date
+        if (!startDate || !endDate) {
+            return cal.getDateFormatter().formatItemTimeInterval(aItem);
+        }
+
         let dateFormatter = cal.getDateFormatter();
-        let start = startDate.clone();
-        let end = endDate.clone();
+        let defaultTimezone = cal.calendarDefaultTimezone();
+        let start = startDate.getInTimezone(defaultTimezone).clone();
+        let end = endDate.getInTimezone(defaultTimezone).clone();
         start.isDate = true;
         end.isDate = true;
         if (start.compare(end) == 0) {
