@@ -265,11 +265,21 @@ var Core = {
       this.showAccounts();
   },
 
+  _pendingShowAccountManager: null,
   observe: function(aSubject, aTopic, aData) {
     if (aTopic == "account-disconnected") {
+      if (this._pendingShowAccountManager)
+        return;
       let account = aSubject.QueryInterface(Ci.imIAccount);
-      if (!account.reconnectAttempt)
+      if (account.reconnectAttempt)
+        return;
+      // Automatic reconnections (e.g. if the computer just woke up from
+      // sleep) might not have been triggered yet, wait 300ms for these
+      // before attempting to show the account manager.
+      this._pendingShowAccountManager = setTimeout(() => {
         this._showAccountManagerIfNeeded(false);
+        delete this._pendingShowAccountManager;
+      }, 300);
       return;
     }
 
@@ -295,8 +305,9 @@ var Core = {
 
     if (aTopic == "quit-application-granted") {
       // Don't try to pop up the account manager during shutdown
-      // (it would fail anyway).
-      this._showAccountManagerIfNeeded = () => {};
+      // when the accounts disconnect (it would fail anyway).
+      clearTimeout(this._pendingShowAccountManager);
+      this._pendingShowAccountManager = true;
       return;
     }
   },
