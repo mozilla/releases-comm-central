@@ -1849,6 +1849,10 @@ ircAccount.prototype = {
     clearTimeout(this._isOnTimer);
     delete this._isOnTimer;
 
+    // No need to call gotDisconnected a second time.
+    clearTimeout(this._quitTimer);
+    delete this._quitTimer;
+
     // MOTD will be resent.
     delete this._motd;
     clearTimeout(this._motdTimer)

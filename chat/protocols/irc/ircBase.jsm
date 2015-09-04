@@ -168,10 +168,7 @@ var ircBase = {
       }
       else {
         // We received an ERROR message when expecting it (i.e. we've sent a
-        // QUIT command).
-        clearTimeout(this._quitTimer);
-        delete this._quitTimer;
-        // Notify account manager.
+        // QUIT command). Notify account manager.
         this.gotDisconnected();
       }
       return true;
