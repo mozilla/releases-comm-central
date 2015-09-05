@@ -369,7 +369,7 @@ cal.itip = {
         // First check the recipient list
         let toList = MailServices.headerParser.makeFromDisplayAddress(aMsgHdr.recipients);
         for (let recipient of toList) {
-            if (recipient.name.toLowerCase() in emailMap) {
+            if (recipient.email.toLowerCase() in emailMap) {
                 // Return the first found recipient
                 return recipient;
             }
@@ -378,7 +378,7 @@ cal.itip = {
         // Maybe we are in the CC list?
         let ccList = MailServices.headerParser.makeFromDisplayAddress(aMsgHdr.ccList);
         for (let recipient of ccList) {
-            if (recipient.name.toLowerCase() in emailMap) {
+            if (recipient.email.toLowerCase() in emailMap) {
                 // Return the first found recipient
                 return recipient;
             }
