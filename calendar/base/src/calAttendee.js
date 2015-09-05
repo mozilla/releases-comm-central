@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -166,7 +167,8 @@ calAttendee.prototype = {
     set id(aId) {
         this.modify();
         // RFC 1738 para 2.1 says we should be using lowercase mailto: urls
-        return (this.mId = (aId ? aId.replace(/^mailto:/i, "mailto:") : null));
+        // we enforce prepending the mailto prefix for email type ids as migration code bug 1199942
+        return (this.mId = (aId ? cal.prependMailTo(aId) : null));
     },
 
     toString: function calAttendee_toString() {
