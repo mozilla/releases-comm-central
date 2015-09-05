@@ -57,7 +57,11 @@ function smimeInitializeFields()
     // as the new identity is going to have a different mail address.
 
     gEncryptionCertName.value = "";
+    gEncryptionCertName.nickname = "";
+    gEncryptionCertName.dbKey = "";
     gSignCertName.value = "";
+    gSignCertName.nickname = "";
+    gSignCertName.dbKey = "";
 
     gEncryptAlways.setAttribute("disabled", true);
     gNeverEncrypt.setAttribute("disabled", true);
@@ -67,7 +71,21 @@ function smimeInitializeFields()
     gEncryptionChoices.value = 0;
   }
   else {
+    var certdb = Components.classes[nsX509CertDBContractID].getService(nsIX509CertDB);
+    var x509cert = null;
+
     gEncryptionCertName.value = gIdentity.getUnicharAttribute("encryption_cert_name");
+    gEncryptionCertName.dbKey = gIdentity.getCharAttribute("encryption_cert_dbkey");
+    // If we succeed in looking up the certificate by the dbkey pref, then
+    // append the serial number " [...]" to the display value, and remember the
+    // nickname in a separate property.
+    try {
+        if (certdb && gEncryptionCertName.dbKey &&
+            (x509cert = certdb.findCertByDBKey(gEncryptionCertName.dbKey, null))) {
+            gEncryptionCertName.value = x509cert.nickname + " [" + x509cert.serialNumber + "]";
+            gEncryptionCertName.nickname = x509cert.nickname;
+        }
+    } catch(e) {}
 
     gEncryptionChoices.value = gIdentity.getIntAttribute("encryptionpolicy");
 
@@ -80,6 +98,17 @@ function smimeInitializeFields()
     }
 
     gSignCertName.value = gIdentity.getUnicharAttribute("signing_cert_name");
+    gSignCertName.dbKey = gIdentity.getCharAttribute("signing_cert_dbkey");
+    x509cert = null;
+    // same procedure as with gEncryptionCertName (see above)
+    try {
+        if (certdb && gSignCertName.dbKey &&
+            (x509cert = certdb.findCertByDBKey(gSignCertName.dbKey, null))) {
+            gSignCertName.value = x509cert.nickname + " [" + x509cert.serialNumber + "]";
+            gSignCertName.nickname = x509cert.nickname;
+        }
+    } catch(e) {}
+
     gSignMessages.checked = gIdentity.getBoolAttribute("sign_mail");
     if (!gSignCertName.value)
     {
@@ -116,10 +145,14 @@ function smimeSave()
   var newValue = gEncryptionChoices.value;
   gHiddenEncryptionPolicy.setAttribute('value', newValue);
   gIdentity.setIntAttribute("encryptionpolicy", newValue);
-  gIdentity.setUnicharAttribute("encryption_cert_name", gEncryptionCertName.value);
+  gIdentity.setUnicharAttribute("encryption_cert_name",
+                                gEncryptionCertName.nickname || gEncryptionCertName.value);
+  gIdentity.setCharAttribute("encryption_cert_dbkey", gEncryptionCertName.dbKey);
 
   gIdentity.setBoolAttribute("sign_mail", gSignMessages.checked);
-  gIdentity.setUnicharAttribute("signing_cert_name", gSignCertName.value);
+  gIdentity.setUnicharAttribute("signing_cert_name",
+                                gSignCertName.nickname || gSignCertName.value);
+  gIdentity.setCharAttribute("signing_cert_dbkey", gSignCertName.dbKey);
 }
 
 function smimeOnAcceptEditor()
@@ -215,13 +248,13 @@ function askUser(message)
   return (button == 0);
 }
 
-function checkOtherCert(nickname, pref, usage, msgNeedCertWantSame, msgWantSame, msgNeedCertWantToSelect, enabler)
+function checkOtherCert(cert, pref, usage, msgNeedCertWantSame, msgWantSame, msgNeedCertWantToSelect, enabler)
 {
   var otherCertInfo = document.getElementById(pref);
   if (!otherCertInfo)
     return;
 
-  if (otherCertInfo.value == nickname)
+  if (otherCertInfo.dbKey == cert.dbKey)
     // all is fine, same cert is now selected for both purposes
     return;
 
@@ -230,10 +263,10 @@ function checkOtherCert(nickname, pref, usage, msgNeedCertWantSame, msgWantSame,
     return;
   
   if (email_recipient_cert_usage == usage) {
-    matchingOtherCert = certdb.findEmailEncryptionCert(nickname);
+    matchingOtherCert = certdb.findEmailEncryptionCert(cert.nickname);
   }
   else if (email_signing_cert_usage == usage) {
-    matchingOtherCert = certdb.findEmailSigningCert(nickname);
+    matchingOtherCert = certdb.findEmailSigningCert(cert.nickname);
   }
   else
     return;
@@ -241,7 +274,7 @@ function checkOtherCert(nickname, pref, usage, msgNeedCertWantSame, msgWantSame,
   var userWantsSameCert = false;
 
   if (!otherCertInfo.value.length) {
-    if (matchingOtherCert) {
+    if (matchingOtherCert && (matchingOtherCert.dbKey == cert.dbKey)) {
       userWantsSameCert = askUser(gBundle.getString(msgNeedCertWantSame));
     }
     else {
@@ -251,13 +284,15 @@ function checkOtherCert(nickname, pref, usage, msgNeedCertWantSame, msgWantSame,
     }
   }
   else {
-    if (matchingOtherCert) {
+    if (matchingOtherCert && (matchingOtherCert.dbKey == cert.dbKey)) {
       userWantsSameCert = askUser(gBundle.getString(msgWantSame));
     }
   }
 
   if (userWantsSameCert) {
-    otherCertInfo.value = nickname;
+    otherCertInfo.value = cert.nickname + " [" + cert.serialNumber + "]";
+    otherCertInfo.nickname = cert.nickname;
+    otherCertInfo.dbKey = cert.dbKey;
     enabler(true);
   }
 }
@@ -287,7 +322,9 @@ function smimeSelectCert(smime_cert)
     x509cert = picker.pickByUsage(window,
       certInfo.value,
       certUsage, // this is from enum SECCertUsage
-      false, false, canceled);
+      false, true,
+      gIdentity.email,
+      canceled);
   } catch(e) {
     canceled.value = false;
     x509cert = null;
@@ -295,23 +332,26 @@ function smimeSelectCert(smime_cert)
 
   if (!canceled.value) {
     if (!x509cert) {
-      var errorString;
-      if (selectEncryptionCert) {
-        errorString = "NoEncryptionCert";
+      if (gIdentity.email) {
+        alertUser(gBundle.getFormattedString(selectEncryptionCert ?
+                                             "NoEncryptionCertForThisAddress" :
+                                             "NoSigningCertForThisAddress",
+                                             [ gIdentity.email ]));
+      } else {
+        alertUser(gBundle.getString(selectEncryptionCert ?
+                                    "NoEncryptionCert" : "NoSigningCert"));
       }
-      else {
-        errorString = "NoSigningCert";
-      }
-      alertUser(gBundle.getString(errorString));
     }
     else {
       certInfo.removeAttribute("disabled");
-      certInfo.value = x509cert.nickname;
+      certInfo.value = x509cert.nickname + " [" + x509cert.serialNumber + "]";
+      certInfo.nickname = x509cert.nickname;
+      certInfo.dbKey = x509cert.dbKey;
 
       if (selectEncryptionCert) {
         enableEncryptionControls(true);
 
-        checkOtherCert(certInfo.value,
+        checkOtherCert(x509cert,
           kSigningCertPref, email_signing_cert_usage, 
           "signing_needCertWantSame", 
           "signing_wantSame", 
@@ -320,7 +360,7 @@ function smimeSelectCert(smime_cert)
       } else {
         enableSigningControls(true);
 
-        checkOtherCert(certInfo.value,
+        checkOtherCert(x509cert,
           kEncryptionCertPref, email_recipient_cert_usage, 
           "encryption_needCertWantSame", 
           "encryption_wantSame", 
@@ -341,10 +381,12 @@ function enableEncryptionControls(do_enable)
   if (do_enable) {
     gEncryptAlways.removeAttribute("disabled");
     gNeverEncrypt.removeAttribute("disabled");
+    gEncryptionCertName.removeAttribute("disabled");
   }
   else {
     gEncryptAlways.setAttribute("disabled", "true");
     gNeverEncrypt.setAttribute("disabled", "true");
+    gEncryptionCertName.setAttribute("disabled", "true");
     gEncryptionChoices.value = 0;
   }
 }
@@ -356,9 +398,11 @@ function enableSigningControls(do_enable)
 
   if (do_enable) {
     gSignMessages.removeAttribute("disabled");
+    gSignCertName.removeAttribute("disabled");
   }
   else {
     gSignMessages.setAttribute("disabled", "true");
+    gSignCertName.setAttribute("disabled", "true");
     gSignMessages.checked = false;
   }
 }
@@ -388,6 +432,8 @@ function smimeClearCert(smime_cert)
 
   certInfo.setAttribute("disabled", "true");
   certInfo.value = "";
+  certInfo.nickname = "";
+  certInfo.dbKey = "";
 
   if (smime_cert == kEncryptionCertPref) {
     enableEncryptionControls(false);

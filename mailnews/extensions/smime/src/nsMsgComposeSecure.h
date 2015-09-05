@@ -64,7 +64,7 @@ private:
   nsresult MimeInitEncryption(bool aSign, nsIMsgSendReport *sendReport);
   nsresult MimeFinishMultipartSigned (bool aOuter, nsIMsgSendReport *sendReport);
   nsresult MimeFinishEncryption (bool aSign, nsIMsgSendReport *sendReport);
-  nsresult MimeCryptoHackCerts(const char *aRecipients, nsIMsgSendReport *sendReport, bool aEncrypt, bool aSign);
+  nsresult MimeCryptoHackCerts(const char *aRecipients, nsIMsgSendReport *sendReport, bool aEncrypt, bool aSign, nsIMsgIdentity *aIdentity);
   bool InitializeSMIMEBundle();
   nsresult GetSMIMEBundleString(const char16_t *name,
 				char16_t **outString);
@@ -81,8 +81,10 @@ private:
   nsAutoPtr<MimeEncoder> mSigEncoder;
   char *mMultipartSignedBoundary;
   nsString mSigningCertName;
+  nsAutoCString mSigningCertDBKey;
   nsCOMPtr<nsIX509Cert> mSelfSigningCert;
   nsString mEncryptionCertName;
+  nsAutoCString mEncryptionCertDBKey;
   nsCOMPtr<nsIX509Cert> mSelfEncryptionCert;
   nsCOMPtr<nsIMutableArray> mCerts;
   nsCOMPtr<nsICMSMessage> mEncryptionCinfo;

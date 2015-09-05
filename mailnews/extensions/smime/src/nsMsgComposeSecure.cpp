@@ -20,6 +20,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsMemory.h"
 #include "nsAlgorithm.h"
+#include "nsNSSComponent.h"
 #include "mozilla/RefPtr.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeEncoder.h"
@@ -30,6 +31,7 @@
 
 using namespace mozilla::mailnews;
 using namespace mozilla;
+using namespace mozilla::psm;
 
 #define MK_MIME_ERROR_WRITING_FILE -1
 
@@ -425,9 +427,11 @@ NS_IMETHODIMP nsMsgComposeSecure::BeginCryptoEncapsulation(nsIOutputStream * aSt
     PR_ASSERT(0);
 
   aIdentity->GetUnicharAttribute("signing_cert_name", mSigningCertName);
+  aIdentity->GetCharAttribute("signing_cert_dbkey", mSigningCertDBKey);
   aIdentity->GetUnicharAttribute("encryption_cert_name", mEncryptionCertName);
+  aIdentity->GetCharAttribute("encryption_cert_dbkey", mEncryptionCertDBKey);
 
-  rv = MimeCryptoHackCerts(aRecipients, sendReport, encryptMessages, signMessage);
+  rv = MimeCryptoHackCerts(aRecipients, sendReport, encryptMessages, signMessage, aIdentity);
   if (NS_FAILED(rv)) {
     goto FAIL;
   }
@@ -864,7 +868,8 @@ nsresult nsMsgComposeSecure::MimeFinishEncryption (bool aSign, nsIMsgSendReport 
 nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
                                                  nsIMsgSendReport *sendReport,
                                                  bool aEncrypt,
-                                                 bool aSign)
+                                                 bool aSign,
+                                                 nsIMsgIdentity *aIdentity)
 {
   nsCOMPtr<nsIX509CertDB> certdb = do_GetService(NS_X509CERTDB_CONTRACTID);
   nsresult res;
@@ -875,16 +880,71 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
   }
 
   PR_ASSERT(aEncrypt || aSign);
-  certdb->FindEmailEncryptionCert(mEncryptionCertName, getter_AddRefs(mSelfEncryptionCert));
-  certdb->FindEmailSigningCert(mSigningCertName, getter_AddRefs(mSelfSigningCert));
+
+  /*
+   Signing and encryption certs use the following (per-identity) preferences:
+   - "signing_cert_name"/"encryption_cert_name": a string specifying the
+     nickname of the certificate
+   - "signing_cert_dbkey"/"encryption_cert_dbkey": a Base64 encoded blob
+     specifying an nsIX509Cert dbKey (represents serial number
+     and issuer DN, which is considered to be unique for X.509 certificates)
+
+   When retrieving the prefs, we try (in this order):
+   1) *_cert_dbkey, if available
+   2) *_cert_name (for maintaining backwards compatibility with preference
+      attributes written by earlier versions)
+  */
+
+  RefPtr<SharedCertVerifier> certVerifier(GetDefaultCertVerifier());
+  NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
+
+  if (!mEncryptionCertDBKey.IsEmpty()) {
+    certdb->FindCertByDBKey(mEncryptionCertDBKey.get(), nullptr,
+                            getter_AddRefs(mSelfEncryptionCert));
+    if (mSelfEncryptionCert &&
+        (certVerifier->VerifyCert(mSelfEncryptionCert->GetCert(),
+                                  certificateUsageEmailRecipient,
+                                  mozilla::pkix::Now(),
+                                  nullptr, nullptr) != SECSuccess)) {
+      // not suitable for encryption, so unset cert and clear pref
+      mSelfEncryptionCert = nullptr;
+      mEncryptionCertDBKey.Truncate();
+      aIdentity->SetCharAttribute("encryption_cert_dbkey",
+                                   mEncryptionCertDBKey);
+    }
+  }
+  if (!mSelfEncryptionCert) {
+    certdb->FindEmailEncryptionCert(mEncryptionCertName,
+                                    getter_AddRefs(mSelfEncryptionCert));
+  }
+
+  // same procedure for the signing cert
+  if (!mSigningCertDBKey.IsEmpty()) {
+    certdb->FindCertByDBKey(mSigningCertDBKey.get(), nullptr,
+                            getter_AddRefs(mSelfSigningCert));
+    if (mSelfSigningCert &&
+        (certVerifier->VerifyCert(mSelfSigningCert->GetCert(),
+                                  certificateUsageEmailSigner,
+                                  mozilla::pkix::Now(),
+                                  nullptr, nullptr) != SECSuccess)) {
+      // not suitable for signing, so unset cert and clear pref
+      mSelfSigningCert = nullptr;
+      mSigningCertDBKey.Truncate();
+      aIdentity->SetCharAttribute("signing_cert_dbkey", mSigningCertDBKey);
+    }
+  }
+  if (!mSelfSigningCert) {
+    certdb->FindEmailSigningCert(mSigningCertName,
+                                 getter_AddRefs(mSelfSigningCert));
+  }
 
   // must have both the signing and encryption certs to sign
-  if ((mSelfSigningCert == nullptr) && aSign) {
+  if (!mSelfSigningCert && aSign) {
     SetError(sendReport, MOZ_UTF16("NoSenderSigningCert"));
     return NS_ERROR_FAILURE;
   }
 
-  if ((mSelfEncryptionCert == nullptr) && aEncrypt) {
+  if (!mSelfEncryptionCert && aEncrypt) {
     SetError(sendReport, MOZ_UTF16("NoSenderEncryptionCert"));
     return NS_ERROR_FAILURE;
   }
