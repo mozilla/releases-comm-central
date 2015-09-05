@@ -960,9 +960,9 @@ var AugmentEverybodyWith = {
       if (aRootPopup.state == "closed")
         aRootPopup.openPopup(null, "", 0, 0, true, true);
       if (aRootPopup.state != "open") { // handle "showing"
-        utils.waitFor(function() { return aRootPopup.state == "open"; },
+        utils.waitFor(() => aRootPopup.state == "open",
                       "Popup never opened! id=" + aRootPopup.id +
-                      ", state=" + aRootPopup.state, 5000, 50);
+                      ", state=" + aRootPopup.state);
       }
       // These popups sadly do not close themselves, so we need to keep track
       // of them so we can make sure they end up closed.
