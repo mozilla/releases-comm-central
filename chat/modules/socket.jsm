@@ -477,6 +477,10 @@ const Socket = {
    */
   // Signifies the beginning of an async request
   onStartRequest: function(aRequest, aContext) {
+    if (this.disconnected) {
+      // Ignore this if we're already disconnected.
+      return;
+    }
     this.DEBUG("onStartRequest");
   },
   // Called to signify the end of an asynchronous request.
