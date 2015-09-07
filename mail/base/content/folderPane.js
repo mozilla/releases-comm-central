@@ -2415,8 +2415,10 @@ let gFolderTreeController = {
       if (folder.supportsOffline) {
         // Remove the offline store, if any.
         let offlineStore = folder.filePath;
+        // XXX todo: figure out how to delete a maildir directory async. This
+        // delete causes main thread lockup for large maildir folders.
         if (offlineStore.exists())
-          offlineStore.remove(false);
+          offlineStore.remove(true);
       }
       gFolderDisplay.view.close();
 
