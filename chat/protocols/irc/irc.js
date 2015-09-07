@@ -996,7 +996,7 @@ ircAccount.prototype = {
   _commandBuffers: new Map(),
   _handleCommandBuffer: function(aCommand) {
     let buffer = this._commandBuffers.get(aCommand);
-    if (!buffer.size)
+    if (!buffer || !buffer.size)
       return;
     // This short delay should usually not affect commands triggered by
     // user action, but helps gather commands together which are sent
