@@ -203,6 +203,10 @@ NS_IMETHODIMP nsMsgMaildirStore::CreateFolder(nsIMsgFolder *aParent,
   NS_MsgHashIfNecessary(safeFolderName);
 
   path->Append(safeFolderName);
+  bool exists;
+  path->Exists(&exists);
+  if (exists) //check this because localized names are different from disk names
+    return NS_MSG_FOLDER_EXISTS;
 
   rv = CreateMaildir(path);
   NS_ENSURE_SUCCESS(rv, rv);
