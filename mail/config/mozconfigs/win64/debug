@@ -14,6 +14,11 @@ export MOZILLA_OFFICIAL=1
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
 
+# Disable checking that add-ons are signed by the trusted root
+MOZ_ADDON_SIGNING=0
+# Disable enforcing that add-ons are signed by the trusted root
+MOZ_REQUIRE_ADDON_SIGNING=0
+
 . $topsrcdir/build/win64/mozconfig.vs2013
 
 # Set up mapi includes (must be done after visual studio setup)

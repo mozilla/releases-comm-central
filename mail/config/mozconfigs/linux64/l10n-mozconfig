@@ -14,6 +14,11 @@ export MOZILLA_OFFICIAL=1
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
 
+# Disable checking that add-ons are signed by the trusted root
+MOZ_ADDON_SIGNING=0
+# Disable enforcing that add-ons are signed by the trusted root
+MOZ_REQUIRE_ADDON_SIGNING=0
+
 ac_add_options --disable-stdcxx-compat
 
 # Run client.py

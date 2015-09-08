@@ -17,6 +17,11 @@ export MOZ_DEBUG_SYMBOLS=1
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
 
+# Disable checking that add-ons are signed by the trusted root
+MOZ_ADDON_SIGNING=0
+# Disable enforcing that add-ons are signed by the trusted root
+MOZ_REQUIRE_ADDON_SIGNING=0
+
 # Run client.py
 mk_add_options CLIENT_PY_ARGS="$([ -f $topsrcdir/build/client.py-args ] && cat $topsrcdir/build/client.py-args)"
 mk_add_options ALWAYS_RUN_CLIENT_PY=1
