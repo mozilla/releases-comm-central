@@ -22,6 +22,24 @@ function getAccount(aConv) {
   return getConv(aConv)._account;
 }
 
+// Trims the string and splits it in two parts on the first space
+// if there is one. Returns the non-empty parts in an array.
+function splitInput(aString) {
+  let params = aString.trim();
+  if (!params)
+    return [];
+
+  let splitParams = [];
+  let offset = params.indexOf(" ");
+  if (offset != -1) {
+    splitParams.push(params.slice(0, offset));
+    splitParams.push(params.slice(offset + 1));
+  }
+  else
+    splitParams.push(params);
+  return splitParams;
+}
+
 var commands = [
   {
     name: "join",
@@ -75,6 +93,36 @@ var commands = [
       let conv = getConv(aConv);
       if (!conv.left)
         conv.topic = aMsg;
+      return true;
+    }
+  },
+  {
+    name: "ban",
+    get helpString() _("command.ban", "ban"),
+    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    run: function(aMsg, aConv) {
+      let params = splitInput(aMsg);
+      if (!params.length)
+        return false;
+
+      let conv = getConv(aConv);
+      if (!conv.left)
+        conv.ban(params[0], params[1]);
+      return true;
+    }
+  },
+  {
+    name: "kick",
+    get helpString() _("command.kick", "kick"),
+    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    run: function(aMsg, aConv) {
+      let params = splitInput(aMsg);
+      if (!params.length)
+        return false;
+
+      let conv = getConv(aConv);
+      if (!conv.left)
+        conv.ban(params[0], params[1]);
       return true;
     }
   }

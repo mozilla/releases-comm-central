@@ -434,6 +434,65 @@ const XMPPMUCConversationPrototype = {
     delete this.chatRoomFields;
   },
 
+  // Bans a participant from MUC conversation.
+  ban: function(aNickName, aMsg = null) {
+    // XEP-0045 (9.1): Banning a User.
+    let participant = this._participants.get(aNickName);
+    if (!participant) {
+      this.writeMessage(this.name,
+                        _("conversation.error.nickNotInRoom", aNickName),
+                        {system: true});
+      return;
+    }
+    if (!participant.accountJid) {
+      this.writeMessage(this.name,
+                        _("conversation.error.banCommandAnonymousRoom"),
+                        {system: true});
+      return;
+    }
+
+    let attributes = {affiliation: "outcast", jid: participant.accountJid};
+    let item = Stanza.node("item", null, attributes,
+      aMsg ? Stanza.node("reason", null, null, aMsg) : null);
+    let s = Stanza.iq("set", null, this.name,
+                      Stanza.node("query", Stanza.NS.muc_admin, null, item));
+    this._account.sendStanza(s, this._banKickHandler, this);
+  },
+
+  // Kicks a participant from MUC conversation.
+  kick: function(aNickName, aMsg = null) {
+    // XEP-0045 (8.2): Kicking an Occupant.
+    let attributes = {role: "none", nick: aNickName};
+    let item = Stanza.node("item", null, attributes,
+      aMsg ? Stanza.node("reason", null, null, aMsg) : null);
+    let s = Stanza.iq("set", null, this.name,
+                      Stanza.node("query", Stanza.NS.muc_admin, null, item));
+    this._account.sendStanza(s, this._banKickHandler, this);
+  },
+
+  // Callback for ban and kick commands.
+  _banKickHandler: function(aStanza) {
+    if (aStanza.attributes["type"] == "error") {
+      let error = this._account.parseError(aStanza);
+      let message;
+      switch (error.condition) {
+        case "not-allowed":
+          message = _("conversation.error.banKickCommandNotAllowed");
+          break;
+        case "conflict":
+          message = _("conversation.error.banKickCommandConflict");
+          break;
+        default:
+          return false;
+      }
+      this.writeMessage(this.name, message, {system: true});
+      return true;
+    }
+    else if (aStanza.attributes["type"] == "result")
+      return true;
+    return false;
+  },
+
   /* Called when the user closed the conversation */
   close: function() {
     if (!this.left)

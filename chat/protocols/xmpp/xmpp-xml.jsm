@@ -46,6 +46,7 @@ const NS = {
 
   muc_user                  : "http://jabber.org/protocol/muc#user",
   muc_owner                 : "http://jabber.org/protocol/muc#owner",
+  muc_admin                 : "http://jabber.org/protocol/muc#admin",
   conference                : "jabber:x:conference",
   muc                       : "http://jabber.org/protocol/muc",
   register                  : "jabber:iq:register",
