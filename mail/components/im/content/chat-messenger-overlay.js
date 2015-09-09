@@ -404,9 +404,42 @@ var chatHandler = {
     if (aSearchTerm)
       this._pendingSearchTerm = aSearchTerm;
     Services.obs.addObserver(this, "conversation-loaded", false);
+
     // Conversation title may not be set yet if this is a search result.
     let cti = document.getElementById("conv-top-info");
     cti.setAttribute("displayName", aConversation.title);
+
+    // Find and display the contact for this log.
+    let accounts = imServices.accounts.getAccounts();
+    while (accounts.hasMoreElements()) {
+      let account = accounts.getNext();
+      if (account.normalizedName == aConversation.account.normalizedName &&
+          account.protocol.normalizedName == aConversation.account.protocol.name) {
+        if (aConversation.isChat) {
+          // Display information for MUCs.
+          let proto = account.protocol;
+          cti.setAttribute("status", "chat");
+          cti.setAttribute("prplIcon", proto.iconBaseURI + "icon.png");
+          return;
+        }
+        // Display information for contacts.
+        let accountBuddy =
+          imServices.contacts
+                    .getAccountBuddyByNameAndAccount(aConversation.normalizedName,
+                                                     account);
+        if (!accountBuddy)
+          return;
+        let contact = accountBuddy.buddy.contact;
+        if (!contact)
+          return;
+        if (this.observedContact &&
+            this.observedContact.id == contact.id)
+          return;
+        this.showContactInfo(contact);
+        this.observedContact = contact;
+        return;
+      }
+    }
   },
   _makeFriendlyDate: function(aDate) {
     let dts = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
@@ -602,6 +635,7 @@ var chatHandler = {
       document.getElementById("contextPane").removeAttribute("chat");
       let cti = document.getElementById("conv-top-info");
       cti.removeAttribute("userIcon");
+      cti.removeAttribute("prplIcon");
       cti.removeAttribute("statusMessageWithDash");
       cti.removeAttribute("statusMessage");
       cti.removeAttribute("status");
