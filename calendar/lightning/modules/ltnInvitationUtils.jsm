@@ -90,10 +90,13 @@ ltn.invitation = {
                 let content = doc.getElementById("imipHtml-" + aField + "-content");
                 doc.getElementById("imipHtml-" + aField + "-row").hidden = false;
                 if (aConvert) {
-                    let mode = Components.interfaces.mozITXTToHTMLConv.kStructPhrase +
-                               Components.interfaces.mozITXTToHTMLConv.kGlyphSubstitution +
-                               Components.interfaces.mozITXTToHTMLConv.kURLs;
-                    content.innerHTML = linkConverter.scanHTML(aContentText, mode);
+                    // we convert special characters first to not mix up html conversion
+                    let mode = Components.interfaces.mozITXTToHTMLConv.kEntities;
+                    let contentText = linkConverter.scanTXT(aContentText, mode);
+                    mode = Components.interfaces.mozITXTToHTMLConv.kStructPhrase +
+                           Components.interfaces.mozITXTToHTMLConv.kGlyphSubstitution +
+                           Components.interfaces.mozITXTToHTMLConv.kURLs;
+                    content.innerHTML = linkConverter.scanHTML(contentText, mode);
                 } else {
                     content.textContent = aContentText;
                 }
