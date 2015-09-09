@@ -340,28 +340,44 @@ def do_hg_pull(dir, repository, hg, rev, hgtool=None, hgtool1=None):
         # We need to strip the trailing slash from the repository url so that
         # the hg tool gets a url that's consistent with the rest of the build
         # automation.
+        repo = repository.rstrip('/')
+
+        # Make sure to unset the PROPERTIES_FILE variable, otherwise hgtool
+        # might use this for the revisions and branches.
+        hgtoolenv = os.environ.copy()
+        if 'PROPERTIES_FILE' in hgtoolenv:
+            del hgtoolenv['PROPERTIES_FILE']
+
+        # Set up the tool options, most importantly the revision
+        hgtoolopts = ['-r', rev]
+        if options.verbose:
+            hgtoolopts.append('-v')
+
         check_call_noisy(['python'] + hgtoolcmd +
-                         [repository.rstrip('/'), fulldir],
-                         retryMax=options.retries)
-    elif not os.path.exists(fulldir):
-        fulldir = os.path.join(topsrcdir, dir)
-        check_call_noisy([hg, 'clone'] + hgcloneopts + hgopts +
-                         [repository, fulldir],
+                         hgtoolopts +
+                         [repo, fulldir],
+                         env=hgtoolenv,
                          retryMax=options.retries)
     else:
-        cmd = [hg, 'pull', '-R', fulldir] + hgopts
-        if repository is not None:
-            cmd.append(repository)
-        check_call_noisy(cmd, retryMax=options.retries)
+        if not os.path.exists(fulldir):
+            fulldir = os.path.join(topsrcdir, dir)
+            check_call_noisy([hg, 'clone'] + hgcloneopts + hgopts +
+                             [repository, fulldir],
+                             retryMax=options.retries)
+        else:
+            cmd = [hg, 'pull', '-R', fulldir] + hgopts
+            if repository is not None:
+                cmd.append(repository)
+            check_call_noisy(cmd, retryMax=options.retries)
 
-    # update to specific revision
-    cmd = [hg, 'update', '-r', rev, '-R', fulldir] + hgopts
-    if options.verbose:
-        cmd.append('-v')
-    # Explicitly never retry 'hg update': otherwise any merge failures are
-    # ignored.
-    # This command is local: a failure can't be caused by a network error.
-    check_call_noisy(cmd, retryMax=0)
+        # update to specific revision
+        cmd = [hg, 'update', '-r', rev, '-R', fulldir] + hgopts
+        if options.verbose:
+            cmd.append('-v')
+        # Explicitly never retry 'hg update': otherwise any merge failures are
+        # ignored.
+        # This command is local: a failure can't be caused by a network error.
+        check_call_noisy(cmd, retryMax=0)
 
     check_call([hg, 'parent', '-R', fulldir,
                 '--template=Updated to revision {node}.\n'])
