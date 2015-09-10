@@ -182,6 +182,7 @@ upload-%: LTN_UPLOAD_CMD := $(patsubst $(THUNDERBIRD_VERSION)%,$(LIGHTNING_VERSI
 upload-%: stage_upload
 	POST_UPLOAD_CMD="$(LTN_UPLOAD_CMD)" \
 	  $(PYTHON) $(MOZILLA_DIR)/build/upload.py --base-path $(DIST) \
+	  --properties-file $(DIST)/$(XPI_NAME)_build_properties.json \
 	  "$(DIST)/$(MOZ_PKG_PLATFORM)/$(XPI_PKGNAME).xpi"
 
 stage_upload:
