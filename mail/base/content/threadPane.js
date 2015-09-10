@@ -9,8 +9,10 @@ var gThreadPaneCommandUpdater = null;
 function ThreadPaneOnClick(event)
 {
   // We only care about button 0 (left click) events.
-  if (event.button != 0)
+  if (event.button != 0) {
+    event.stopPropagation();
     return;
+  }
 
   // We already handle marking as read/flagged/junk cyclers in nsMsgDBView.cpp
   // so all we need to worry about here is doubleclicks and column header. We
@@ -162,8 +164,22 @@ function ThreadPaneDoubleClick()
 
 function ThreadPaneKeyDown(event)
 {
-  if (event.keyCode == KeyEvent.DOM_VK_RETURN)
-    ThreadPaneDoubleClick();
+  if (event.keyCode != KeyEvent.DOM_VK_RETURN)
+    return;
+
+  // Grouped By Sort dummy header row <enter> toggles the thread's open/close
+  // state. Let tree.xml handle it.
+  if (gFolderDisplay.view.showGroupedBySort &&
+      gFolderDisplay.treeSelection && gFolderDisplay.treeSelection.count == 1 &&
+      gFolderDisplay.view.isGroupedByHeaderAtIndex(gFolderDisplay.treeSelection.currentIndex)) {
+    return;
+  }
+
+  // Prevent any thread that happens to be last selected (currentIndex) in a
+  // single or multi selection from toggling in tree.xml.
+  event.stopImmediatePropagation();
+
+  ThreadPaneDoubleClick();
 }
 
 function MsgSortByThread()
