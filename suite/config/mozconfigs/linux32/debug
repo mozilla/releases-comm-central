@@ -1,9 +1,4 @@
 no_tooltool=1
-if [[ $topsrcdir == *"mozilla"* ]]; then
-  oldtopsrcdir=$topsrcdir
-  topsrcdir=$(dirname $topsrcdir)
-fi
-
 . "$topsrcdir/build/unix/mozconfig.linux32"
 
 ac_add_options --enable-application=suite
@@ -25,14 +20,3 @@ export MOZILLA_OFFICIAL=1
 
 #Use ccache
 ac_add_options --with-ccache=/usr/bin/ccache
-
-. "$topsrcdir/suite/config/mozconfigs/mozconfig.linux.common"
-
-export PKG_CONFIG_LIBDIR=/usr/lib/pkgconfig:/usr/share/pkgconfig
-. "$topsrcdir/build/unix/mozconfig.gtk"
-
-if [ ! -z "$oldtopsrcdir" ]; then
-  topsrcdir=$oldtopsrcdir
-  oldtopsrcdir=""
-fi
-
