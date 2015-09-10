@@ -48,3 +48,13 @@ if [ ! -z "$oldtopsrcdir" ]; then
   topsrcdir=$oldtopsrcdir
   oldtopsrcdir=""
 fi
+
+. "$topsrcdir/suite/config/mozconfigs/mozconfig.linux.common"
+
+export PKG_CONFIG_LIBDIR=/usr/lib64/pkgconfig:/usr/share/pkgconfig
+. "$topsrcdir/build/unix/mozconfig.gtk"
+
+if [ ! -z "$oldtopsrcdir" ]; then
+  topsrcdir=$oldtopsrcdir
+  oldtopsrcdir=""
+fi
