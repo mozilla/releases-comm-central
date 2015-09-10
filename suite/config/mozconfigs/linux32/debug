@@ -36,5 +36,3 @@ if [ ! -z "$oldtopsrcdir" ]; then
   oldtopsrcdir=""
 fi
 
-
-. "$topsrcdir/suite/config/mozconfigs/mozconfig.linux.common"
