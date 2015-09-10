@@ -50,7 +50,6 @@
 @RESPATH@/chrome/@AB_CD@@JAREXT@
 @RESPATH@/chrome/@AB_CD@.manifest
 @RESPATH@/@PREF_DIR@/all-l10n.js
-@RESPATH@/searchplugins/*
 @RESPATH@/dictionaries/*
 @RESPATH@/hyphenation/*
 #ifdef HAVE_MAKENSISU
