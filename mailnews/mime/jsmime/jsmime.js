@@ -257,13 +257,19 @@ structuredDecoders.set("Content-Transfer-Encoding", function (values) {
 structuredEncoders.set("Content-Transfer-Encoding", writeUnstructured);
 
 // Some clients like outlook.com send non-compliant References headers that
-// separate values using commas. Temporarily replace commas with spaces until
-// full references header parsing is implemted. See bug 1154521.
-function replaceCommasWithSpaces(values) {
-  return values[0].replace(/,/g, " ");
+// separate values using commas. Also, some clients don't separate References
+// with spaces, since these are optional accordint to RFC2822. So here we
+// preprocess these headers (see bug 1154521 and bug 1197686).
+function preprocessMessageIDs(values) {
+  let msgId = /<[^>]*>/g;
+  let match, ids = [];
+  while ((match = msgId.exec(values)) !== null) {
+    ids.push(match[0]);
+  }
+  return ids.join(' ');
 }
-structuredDecoders.set("References", replaceCommasWithSpaces);
-structuredDecoders.set("In-Reply-To", replaceCommasWithSpaces);
+structuredDecoders.set("References", preprocessMessageIDs);
+structuredDecoders.set("In-Reply-To", preprocessMessageIDs);
 
 return Object.freeze({
   decoders: structuredDecoders,

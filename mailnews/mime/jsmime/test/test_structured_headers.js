@@ -145,6 +145,8 @@ suite('Structured headers', function () {
 
     // This test is needed for clients sending non-compliant headers, see bug 1154521
     ["<asd@asd.com>,<asdf@asdf.com>,<asdfg@asdfg.com>", "<asd@asd.com> <asdf@asdf.com> <asdfg@asdfg.com>"],
+    // Test for bug 1197686
+    ["<asd@asd.com><asdf@asdf.com><asdfg@asdfg.com>", "<asd@asd.com> <asdf@asdf.com> <asdfg@asdfg.com>"],
   ];
   multiple_unstructured_headers.forEach(function (header) {
     testHeader(header, multiple_unstructured_tests);
