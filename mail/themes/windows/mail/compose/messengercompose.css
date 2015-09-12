@@ -1585,7 +1585,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   }
 
   .ab-closebutton {
-    list-style-image: url("chrome://global/skin/icons/close.png");
+    list-style-image: url("chrome://global/skin/icons/close-XPVista7.png");
   }
 }
 
