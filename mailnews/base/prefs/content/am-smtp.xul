@@ -25,12 +25,11 @@
     <label control="smtpList">&smtpDescription.label;</label>
     <separator class="thin"/>
 
-    <hbox>
+    <hbox flex="1">
       <listbox id="smtpList"
                onselect="gSmtpServerListWindow.onSelectionChanged(event);"
                ondblclick="gSmtpServerListWindow.onEditServer(event);"
-               flex="1"
-               style="height: 0px;"/>
+               flex="1"/>
 
       <vbox>
         <button id="addButton"
@@ -41,6 +40,7 @@
                 oncommand="gSmtpServerListWindow.onEditServer(event);"
                 label="&smtpListEdit.label;"
                 accesskey="&smtpListEdit.accesskey;"/>
+        <separator/>
         <button id="deleteButton" disabled="true"
                 oncommand="gSmtpServerListWindow.onDeleteServer(event);"
                 label="&smtpListDelete.label;"
@@ -54,6 +54,7 @@
 
     <separator/>
 
+    <label class="header">&serverDetails.label;</label>
     <hbox id="smtpServerInfoBox">
       <stack flex="1" class="inset">
         <spacer id="backgroundBox"/>
@@ -91,7 +92,7 @@
             </row>
             <row align="center">
               <hbox pack="end">
-                <label value="&authMethod.label;" control="authMethodValue"/>
+                <label id="authMethodLabel" value="&authMethod.label;" control="authMethodValue"/>
               </hbox>
               <textbox id="authMethodValue" readonly="true" class="plain"/>
             </row>
@@ -106,5 +107,6 @@
         </grid>
       </stack>
     </hbox>
+    <separator flex="1"/>
   </vbox>
 </page>

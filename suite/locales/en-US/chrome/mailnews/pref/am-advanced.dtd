@@ -16,6 +16,7 @@
 <!ENTITY smtpListSetDefault.label "Set Default">
 <!ENTITY smtpListSetDefault.accesskey "t">
 
+<!ENTITY serverDetails.label "Details of selected server:">
 <!ENTITY serverDescription.label "Description: ">
 <!ENTITY serverName.label "Server Name: ">
 <!ENTITY serverPort.label "Port: ">
