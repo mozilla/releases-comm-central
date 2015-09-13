@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="0 0 112 48" width="112" height="48">
+
+    <!-- definitions -->
+    <style>
+        .req {
+            fill: #ffcc00;
+            stroke: #000000;
+            stroke-width: 0.5;
+        }
+        .opt {
+            fill: #cccccc;
+            stroke: #000000;
+            stroke-width: 0.5;
+        }
+        .non {
+            fill: #ffffff;
+            stroke: #000000;
+            stroke-width: 0.5;
+        }
+        .status {
+            fill:#ffffff;
+            stroke:#ffffff;
+            stroke-width:0.5;
+        }
+    </style>
+    <clipPath id="cut-off-bottom">
+        <rect x="0" y="0" width="16" height="16" />
+    </clipPath>
+    <symbol id="chairsymbol" clip-path="url(#cut-off-bottom)">
+        <ellipse cx="6" cy="16" rx="5.5" ry="8" fill="#000000" />
+        <circle cx="6" cy="6.25" r="4" fill="#ffffff"/>
+        <ellipse cx="10" cy="16" rx="5.5" ry="8" fill="#000000" />
+        <circle cx="10" cy="6.25" r="4" fill="#ffffff"/>
+        <ellipse cx="8" cy="16" rx="6.5" ry="9" fill="#ffcc00" />
+        <circle cx="8" cy="4.5" r="4" fill="#ffcc00"/>
+        <line x1="0.5" y1="15.75" x2="15.5" y2="15.75" />
+    </symbol>
+    <symbol id="individual" clip-path="url(#cut-off-bottom)">
+        <ellipse cx="8" cy="16" rx="7.5" ry="8.5" />
+        <circle cx="8" cy="5" r="4.5"/>
+        <line x1="0.5" y1="15.75" x2="15.5" y2="15.75" />
+    </symbol>
+    <symbol id="group" clip-path="url(#cut-off-bottom)">
+        <ellipse cx="5.75" cy="16" rx="5.5" ry="8" />
+        <circle cx="5.75" cy="6.5" r="4"/>
+        <ellipse cx="7.5" cy="16" rx="6.0" ry="8.5" />
+        <circle cx="7.5" cy="5.5" r="4"/>
+        <ellipse cx="9.25" cy="16" rx="6.25" ry="9" />
+        <circle cx="9.25" cy="4.5" r="4"/>
+        <line x1="0.25" y1="15.75" x2="15.55" y2="15.75" />
+    </symbol>
+    <symbol id="ressource">
+        <rect x="5.25" y="0.5" rx="1" ry="1" width="10.25" height="12" />
+        <rect x="0.25" y="7" rx="1" ry="1" width="13" height="8" />
+        <circle cx="4.25" cy="11" r="2.5" style="fill:#ffffff" />
+        <line x1="8.25" y1="9" x2="12" y2="9" />
+        <line x1="8.25" y1="11" x2="12" y2="11" />
+        <line x1="8.25" y1="13" x2="12" y2="13" />
+        <rect x="1.25" y="15" width="4" height="1" style="fill:#000000; stroke-width:0" />
+        <rect x="8" y="15" width="4" height="1" style="fill:#000000; stroke-width:0" />
+    </symbol>
+    <symbol id="room">
+        <rect x="4" y="0.5" rx="0.25" ry="0.25" width="3" height="2" />
+        <rect x="8.5" y="0.5" rx="0.25" ry="0.25" width="3" height="2" />
+        <rect x="0.25" y="4.5" rx="0.25" ry="0.25" width="2" height="3" />
+        <rect x="0.25" y="8.5" rx="0.25" ry="0.25" width="2" height="3" />
+        <rect x="3.5" y="4" rx="1" ry="1" width="8.75" height="8" />
+        <rect x="13.5" y="4.5" rx="0.25" ry="0.25" width="2" height="3" />
+        <rect x="13.5" y="8.5" rx="0.25" ry="0.25" width="2" height="3" />
+        <rect x="4" y="13.5" rx="0.25" ry="0.25" width="3" height="2" />
+        <rect x="8.5" y="13.5" rx="0.25" ry="0.25" width="3" height="2" />
+    </symbol>
+    <symbol id="unknown">
+        <path d="m 7.8339844,11.558594 -2.4902344,0 q -0.00977,-0.53711 -0.00977,-0.654297 0,-1.2109376 0.4003906,-1.9921876 Q 6.1347656,8.1308594 7.3359375,7.1542969 8.5371094,6.1777344 8.7714844,5.875 9.1328125,5.3964844 9.1328125,4.8203125 q 0,-0.8007813 -0.6445312,-1.3671875 -0.6347657,-0.5761719 -1.7187501,-0.5761719 -1.0449218,0 -1.7480468,0.5957032 -0.703125,0.5957031 -0.9667969,1.8164062 l -2.5195313,-0.3125 Q 1.6425781,3.2285156 3.0195313,2.0078125 4.40625,0.78710937 6.6523437,0.78710937 q 2.3632813,0 3.7597653,1.24023443 1.396485,1.2304687 1.396485,2.8710937 0,0.9082031 -0.517578,1.71875 Q 10.783203,7.4277344 9.1035156,8.8242188 8.234375,9.546875 8.0195313,9.9863281 7.8144531,10.425781 7.8339844,11.558594 Z M 5.34375,15.25 l 0,-2.744141 2.7441406,0 0,2.744141 -2.7441406,0 z" />
+    </symbol>
+    <symbol id="status" style="stroke-width:0.25;">
+        <circle cx="11.5" cy="11.5" r="4.5" style="fill:#000000; stroke:#ffffff" />
+        <circle cx="11.5" cy="11.5" r="4.25" style="stroke:#000000" />
+    </symbol>
+
+    <!-- status icons -->
+    <g id="accepted" class="status">
+        <use style="fill:#00a000;" xlink:href="#status" x="0" y="0" />
+        <rect x="9" y="11" width="5" height="1" />
+        <rect x="11" y="9" width="1" height="5" />
+    </g>
+    <g id="tentative" class="status">
+        <use style="fill:#0000ff;" xlink:href="#status" x="16" y="0" />
+        <path d="m 27.933594,13 -0.996094,0 q -0.0039,-0.214844 -0.0039,-0.261719 0,-0.484375 0.160156,-0.796875 0.160156,-0.3125 0.640625,-0.703125 0.480469,-0.390625 0.574219,-0.511719 0.144531,-0.191406 0.144531,-0.421875 0,-0.3203125 -0.257813,-0.546875 -0.253906,-0.2304687 -0.6875,-0.2304687 -0.417968,0 -0.699218,0.2382812 -0.28125,0.2382813 -0.386719,0.7265625 l -1.007813,-0.125 q 0.04297,-0.6992187 0.59375,-1.1875 0.554688,-0.4882812 1.453125,-0.4882812 0.945313,0 1.503907,0.4960937 0.558593,0.4921875 0.558593,1.1484375 0,0.363281 -0.207031,0.6875 -0.203125,0.324219 -0.875,0.882813 -0.347656,0.289062 -0.433594,0.464843 -0.08203,0.175782 -0.07422,0.628907 z M 26.9375,14.25 l 0,-1.097656 1.097656,0 0,1.097656 -1.097656,0 z" />
+    </g>
+    <g id="declined" class="status">
+        <use style="fill:#ee0000;" xlink:href="#status" x="0" y="16" />
+        <rect x="9.5" y="26.75" width="4.25" height="1.5" />
+    </g>
+    <use id="needs-action" style="stroke-width:0.5; fill:#f4f444;" xlink:href="#status" x="16" y="16" />
+    <g id="delegated" class="status">
+        <use style="fill:#444444;" xlink:href="#status" x="0" y="32" />
+        <rect x="9" y="43" width="2.5" height="1" />
+        <polygon points="11.5,41, 11.5,46, 14.5,43.5" />
+    </g>
+
+    <!-- role/partstat icons -->
+    <use id="chair" class="req" xlink:href="#chairsymbol" x="16" y="32" />
+    <use id="individual-reqparticipant" class="req" xlink:href="#individual" x="32" y="0" />
+    <use id="group-reqparticipant" class="req" xlink:href="#group" x="48" y="0" />
+    <use id="ressource-reqparticipant" class="req" xlink:href="#ressource" x="64" y="0" />
+    <use id="room-reqparticipant" class="req" xlink:href="#room" x="80" y="0" />
+    <use id="unknown-reqparticipant" class="req" xlink:href="#unknown" x="96" y="0" />
+    <use id="individual-optparticipant" class="opt" xlink:href="#individual" x="32" y="16" />
+    <use id="group-optparticipant" class="opt" xlink:href="#group" x="48" y="16" />
+    <use id="ressource-optparticipant" class="opt" xlink:href="#ressource" x="64" y="16" />
+    <use id="room-optparticipant" class="opt" xlink:href="#room" x="80" y="16" />
+    <use id="unknown-optparticipant" class="opt" xlink:href="#unknown" x="96" y="16" />
+    <use id="individual-nonparticipant" class="non" xlink:href="#individual" x="32" y="32" />
+    <use id="group-nonparticipant" class="non" xlink:href="#group" x="48" y="32" />
+    <use id="ressource-nonparticipant" class="non" xlink:href="#ressource" x="64" y="32" />
+    <use id="room-nonparticipant" class="non" xlink:href="#room" x="80" y="32" />
+    <use id="unknown-nonparticipant" class="non" xlink:href="#unknown" x="96" y="32" />
+</svg> 
