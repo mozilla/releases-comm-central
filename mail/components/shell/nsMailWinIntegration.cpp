@@ -244,7 +244,7 @@ nsWindowsShellService::ShortcutMaintenance()
 
 nsresult nsWindowsShellService::Init()
 {
-  char16_t appPath[MAX_BUF];
+  WCHAR appPath[MAX_BUF];
   if (!::GetModuleFileNameW(0, appPath, MAX_BUF))
     return NS_ERROR_FAILURE;
 

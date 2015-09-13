@@ -522,7 +522,7 @@ LPSPropValue CWAB::GetUserProperty(LPMAILUSER pUser, ULONG tag)
 void CWAB::CStrToUnicode(const char *pStr, nsString& result)
 {
   result.Truncate();
-  int wLen = MultiByteToWideChar(CP_ACP, 0, pStr, -1, m_pUniBuff, 0);
+  int wLen = MultiByteToWideChar(CP_ACP, 0, pStr, -1, wwc(m_pUniBuff), 0);
   if (wLen >= m_uniBuffLen) {
     if (m_pUniBuff)
       delete [] m_pUniBuff;
@@ -530,7 +530,7 @@ void CWAB::CStrToUnicode(const char *pStr, nsString& result)
     m_uniBuffLen = wLen + 64;
   }
   if (wLen) {
-    MultiByteToWideChar(CP_ACP, 0, pStr, -1, m_pUniBuff, m_uniBuffLen);
+    MultiByteToWideChar(CP_ACP, 0, pStr, -1, wwc(m_pUniBuff), m_uniBuffLen);
     result = m_pUniBuff;
   }
 }

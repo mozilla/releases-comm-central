@@ -517,7 +517,7 @@ BOOL nsAbWinHelper::SetPropertyUString(const nsMapiEntry& aObject, ULONG aProper
 
     value.ulPropTag = aPropertyTag ;
     if (PROP_TYPE(aPropertyTag) == PT_UNICODE) {
-        value.Value.lpszW = const_cast<WCHAR *>(aValue) ;
+        value.Value.lpszW = wwc(const_cast<char16_t *>(aValue)) ;
     }
     else if (PROP_TYPE(aPropertyTag) == PT_STRING8) {
         alternativeValue = NS_LossyConvertUTF16toASCII(aValue);
@@ -545,7 +545,8 @@ BOOL nsAbWinHelper::SetPropertiesUString(const nsMapiEntry& aObject, const ULONG
     for (i = 0 ; i < aNbProperties ; ++ i) {
         values [currentValue].ulPropTag = aPropertiesTag [i] ;
         if (PROP_TYPE(aPropertiesTag [i]) == PT_UNICODE) {
-            values [currentValue ++].Value.lpszW = const_cast<WCHAR *>(aValues [i].get()) ;
+            const wchar_t *value = aValues [i].get() ;
+            values [currentValue ++].Value.lpszW = const_cast<wchar_t *>(value) ;
         }
         else if (PROP_TYPE(aPropertiesTag [i]) == PT_STRING8) {
             LossyCopyUTF16toASCII(aValues [i], alternativeValue);
@@ -634,7 +635,8 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent, nsMapiEntry& aNewEnt
     displayName.ulPropTag = PR_DISPLAY_NAME_W ;
     tempName.AssignLiteral("__MailUser__") ;
     tempName.AppendInt(mEntryCounter ++) ;
-    displayName.Value.lpszW = const_cast<WCHAR *>(tempName.get()) ;
+    const wchar_t *tempNameValue = tempName.get();
+    displayName.Value.lpszW = const_cast<wchar_t *>(tempNameValue) ;
     mLastError = newEntry->SetProps(1, &displayName, &problems) ;
     if (HR_FAILED(mLastError)) {
         PRINTF(("Cannot set temporary name %08x.\n", mLastError)) ;
@@ -697,7 +699,8 @@ BOOL nsAbWinHelper::CreateDistList(const nsMapiEntry& aParent, nsMapiEntry& aNew
     displayName.ulPropTag = PR_DISPLAY_NAME_W ;
     tempName.AssignLiteral("__MailList__") ;
     tempName.AppendInt(mEntryCounter ++) ;
-    displayName.Value.lpszW = const_cast<WCHAR *>(tempName.get()) ;
+    const wchar_t *tempNameValue = tempName.get() ;
+    displayName.Value.lpszW = const_cast<wchar_t *>(tempNameValue) ;
     mLastError = newEntry->SetProps(1, &displayName, &problems) ;
     if (HR_FAILED(mLastError)) {
         PRINTF(("Cannot set temporary name %08x.\n", mLastError)) ;

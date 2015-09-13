@@ -659,7 +659,7 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
 
 // this is used to populate the docs as attachments in the Comp fields for Send Documents
 nsresult nsMapiHook::PopulateCompFieldsForSendDocs(nsIMsgCompFields * aCompFields, ULONG aFlags,
-                            char16_t * aDelimChar, char16_t * aFilePaths)
+                                                   LPTSTR aDelimChar, LPTSTR aFilePaths)
 {
   nsAutoString strDelimChars ;
   nsString strFilePaths;

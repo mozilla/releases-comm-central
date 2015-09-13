@@ -112,7 +112,7 @@ nsresult nsMsgI18NConvertToUnicode(const char* aCharset,
     if (MsgIsUTF8(inString)) {
       nsAutoString tmp;
       CopyUTF8toUTF16(inString, tmp);
-      if (!tmp.IsEmpty() && tmp.get()[0] == char16_t(0xFEFF))
+      if (!tmp.IsEmpty() && tmp.First() == char16_t(0xFEFF))
         tmp.Cut(0, 1);
       outString.Assign(tmp);
       return NS_OK;

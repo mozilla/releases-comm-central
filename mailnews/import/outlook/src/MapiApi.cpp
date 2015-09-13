@@ -296,7 +296,7 @@ CMapiApi::~CMapiApi()
 void CMapiApi::CStrToUnicode(const char *pStr, nsString& result)
 {
   result.Truncate();
-  int wLen = MultiByteToWideChar(CP_ACP, 0, pStr, -1, m_pUniBuff, 0);
+  int wLen = MultiByteToWideChar(CP_ACP, 0, pStr, -1, wwc(m_pUniBuff), 0);
   if (wLen >= m_uniBuffLen) {
     if (m_pUniBuff)
       delete [] m_pUniBuff;
@@ -304,7 +304,7 @@ void CMapiApi::CStrToUnicode(const char *pStr, nsString& result)
     m_uniBuffLen = wLen + 64;
   }
   if (wLen) {
-    MultiByteToWideChar(CP_ACP, 0, pStr, -1, m_pUniBuff, m_uniBuffLen);
+    MultiByteToWideChar(CP_ACP, 0, pStr, -1, wwc(m_pUniBuff), m_uniBuffLen);
     result = m_pUniBuff;
   }
 }
@@ -994,7 +994,7 @@ BOOL CMapiApi::IterateStores(CMapiFolderList& stores)
           lpTable->Release();
           return FALSE;
         }
-        ::MultiByteToWideChar(CP_ACP, 0, lpStr, strlen(lpStr) + 1, pwszStr, (strLen + 1) * sizeof(WCHAR));
+        ::MultiByteToWideChar(CP_ACP, 0, lpStr, strlen(lpStr) + 1, wwc(pwszStr), (strLen + 1) * sizeof(WCHAR));
         CMapiFolder *pFolder = new CMapiFolder(pwszStr, cbEID, lpEID, 0, MAPI_STORE);
         free(pwszStr);
 

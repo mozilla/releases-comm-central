@@ -303,7 +303,8 @@ static uint32_t StringHash(const char *ubuf, int32_t len = -1)
 
 inline uint32_t StringHash(const nsAutoString& str)
 {
-    return StringHash(reinterpret_cast<const char*>(str.get()),
+    const char16_t *strbuf = str.get();
+    return StringHash(reinterpret_cast<const char*>(strbuf),
                       str.Length() * 2);
 }
 

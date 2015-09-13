@@ -1306,7 +1306,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::ModifyCard(nsIAbCard *aModifiedCard)
   // MAPI doesn't allow that, so we fall back on an optional
   // name, and when all fails, on the email address.
   aModifiedCard->GetDisplayName(properties[index_DisplayName]);
-  if (*properties[index_DisplayName].get() == 0) {
+  if (properties[index_DisplayName].IsEmpty()) {
     nsresult rv;
     nsCOMPtr<nsIPrefBranch> prefBranch =
       do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
@@ -1320,7 +1320,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::ModifyCard(nsIAbCard *aModifiedCard)
                                      properties[index_DisplayName]);
     NS_ENSURE_SUCCESS(rv,rv);
 
-    if (*properties[index_DisplayName].get() == 0) {
+    if (properties[index_DisplayName].IsEmpty()) {
       aModifiedCard->GetPrimaryEmail(properties[index_DisplayName]);
     }
   }

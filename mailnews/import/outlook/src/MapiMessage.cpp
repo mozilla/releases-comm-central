@@ -588,9 +588,9 @@ bool CMapiMessage::CheckBodyInCharsetRange(const char* charset)
   rv = encoder->SetOutputErrorBehavior(nsIUnicodeEncoder::kOnError_Signal, nullptr, 0);
   NS_ENSURE_SUCCESS(rv, false);
 
-  const wchar_t *txt = m_body.get();
+  const char16_t *txt = m_body.get();
   int32_t txtLen = m_body.Length();
-  const wchar_t *currentSrcPtr = txt;
+  const char16_t *currentSrcPtr = txt;
   int srcLength;
   int dstLength;
   char localbuf[512];
@@ -647,7 +647,9 @@ void ExtractMetaCharset(const wchar_t* body, int bodySz, /*out*/nsCString& chars
   const wchar_t* chset_end = std::find_first_of(chset_pos, eohd_pos, term,
                                                 term_end);
   if (chset_end != eohd_pos)
-    LossyCopyUTF16toASCII(Substring(chset_pos, chset_end), charset);
+    LossyCopyUTF16toASCII(Substring(wwc(const_cast<wchar_t *>(chset_pos)),
+                                    wwc(const_cast<wchar_t *>(chset_end))),
+                                    charset);
 }
 
 bool CMapiMessage::FetchBody(void)
