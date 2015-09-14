@@ -8,13 +8,8 @@ ac_add_options --enable-update-packaging
 ac_add_options --disable-debug
 ac_add_options --enable-tests
 
-export LDFLAGS="-DYUV_DISABLE_ASM=1"
-export CFLAGS="-gdwarf-2 -DYUV_DISABLE_ASM=1"
-export CXXFLAGS="-gdwarf-2 -DYUV_DISABLE_ASM=1"
-
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
-ac_add_options --enable-debug-symbols="-gdwarf-2"
 mk_add_options PROFILE_GEN_SCRIPT='$(PYTHON) @MOZ_OBJDIR@/_profile/pgo/profileserver.py'
 
 # Needed to enable breakpad in application.ini

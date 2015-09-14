@@ -8,12 +8,9 @@ ac_add_options --enable-update-packaging
 
 export LDFLAGS="-static-libstdc++"
 export HOST_LDFLAGS="-static-libstdc++"
-export CFLAGS="-gdwarf-2"
-export CXXFLAGS="-gdwarf-2"
 
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
-ac_add_options --enable-debug-symbols="-gdwarf-2"
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
