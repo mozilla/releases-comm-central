@@ -31,30 +31,3 @@ postflight_all:
 # actually does a universal staging with both OBJDIR_ARCH_1 and OBJDIR_ARCH_2.
 	$(MAKE) -C $(OBJDIR_ARCH_1)/$(subst ../,,$(MOZ_BUILD_APP))/installer \
 	   PKG_SKIP_STRIP=1 stage-package
-ifdef ENABLE_TESTS
-# Now, repeat the process for the test package.
-	$(MAKE) -C $(OBJDIR_ARCH_1) UNIVERSAL_BINARY= CHROME_JAR= package-tests
-	$(MAKE) -C $(OBJDIR_ARCH_2) UNIVERSAL_BINARY= CHROME_JAR= package-tests
-	rm -rf $(DIST_UNI)/test-stage
-# automation.py differs because it hardcodes a path to
-# dist/bin. It doesn't matter which one we use.
-	if test -d $(DIST_ARCH_1)/test-stage -a                 \
-                -d $(DIST_ARCH_2)/test-stage; then              \
-           cp $(DIST_ARCH_1)/test-stage/mochitest/automation.py \
-             $(DIST_ARCH_2)/test-stage/mochitest/;              \
-           cp $(DIST_ARCH_1)/test-stage/xpcshell/automation.py   \
-             $(DIST_ARCH_2)/test-stage/xpcshell/;                \
-           cp $(DIST_ARCH_1)/test-stage/reftest/automation.py   \
-             $(DIST_ARCH_2)/test-stage/reftest/;                \
-           if test -e $(DIST_ARCH_1)/test-stage/mozmill/automation.py; then \
-             cp $(DIST_ARCH_1)/test-stage/mozmill/automation.py \
-               $(DIST_ARCH_2)/test-stage/mozmill/;              \
-           fi; \
-	  $(TOPSRCDIR)/mozilla/build/macosx/universal/unify \
-	      --unify-with-sort "\.manifest$$" \
-	      --unify-with-sort "all-test-dirs\.list$$" \
-	      $(DIST_ARCH_1)/test-stage                         \
-	      $(DIST_ARCH_2)/test-stage                         \
-	      $(DIST_UNI)/test-stage; \
-	fi
-endif
