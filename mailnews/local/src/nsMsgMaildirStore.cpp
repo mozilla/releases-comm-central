@@ -1044,7 +1044,7 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
     srcHdr->GetMessageKey(&srcKey);
     msgTxn->AddSrcKey(srcKey);
     nsAutoCString fileName;
-    msgHdr->GetStringProperty("storeToken", getter_Copies(fileName));
+    srcHdr->GetStringProperty("storeToken", getter_Copies(fileName));
     if (fileName.IsEmpty())
     {
       MOZ_LOG(MailDirLog, mozilla::LogLevel::Info,
