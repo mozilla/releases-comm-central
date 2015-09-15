@@ -2801,7 +2801,6 @@
               if (this.lastChild != appmenuPopup) {
                 this.appendChild(appmenuPopup);
               }
-              this.open = true;
           }
         ]]></body>
       </method>
@@ -2810,8 +2809,13 @@
       <!-- While it would seem we could do this by handling oncommand, we can't
            because any external oncommand handlers might get called before ours,
            and then they would see the incorrect value of checked. Additionally
-           a command attribute would redirect the command events anyway.-->
-      <handler event="click" button="0" action="this._setupAppmenu(event);"/>
+           a command attribute would redirect the command events anyway.
+           Also, the appmenu-popup needs to be appended to the target 'Hamburger
+           button' dynamically at every button click (as opposed to appended
+           once in the binding's constructor) otherwise only one of the four
+           Hamburger buttons (on the Mail, Calendar, Tasks and Chat tabs) will
+           get the popup menu (namely, Mail). See Bug 890332. -->
+      <handler event="mousedown" button="0" action="this._setupAppmenu(event);"/>
       <handler event="keypress" key=" " action="this._setupAppmenu(event);"/>
     </handlers>
   </binding>
