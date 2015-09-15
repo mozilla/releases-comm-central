@@ -98,7 +98,7 @@ var commands = [
   },
   {
     name: "ban",
-    get helpString() _("command.ban", "ban"),
+    get helpString() { return _("command.ban", "ban"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: function(aMsg, aConv) {
       let params = splitInput(aMsg);
@@ -113,7 +113,7 @@ var commands = [
   },
   {
     name: "kick",
-    get helpString() _("command.kick", "kick"),
+    get helpString() { return _("command.kick", "kick"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: function(aMsg, aConv) {
       let params = splitInput(aMsg);
@@ -123,6 +123,52 @@ var commands = [
       let conv = getConv(aConv);
       if (!conv.left)
         conv.ban(params[0], params[1]);
+      return true;
+    }
+  },
+  {
+    name: "nick",
+    get helpString() { return _("command.nick", "nick"); },
+    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    run: function(aMsg, aConv) {
+      let params = aMsg.trim().split(/\s+/);
+      if (!params[0])
+        return false;
+
+      let conv = getConv(aConv);
+      if (!conv.left)
+        conv.setNick(params[0]);
+      return true;
+    }
+  },
+  {
+    name: "msg",
+    get helpString() { return _("command.msg", "msg"); },
+    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    run: function(aMsg, aConv, aReturnedConv) {
+      let params = splitInput(aMsg);
+      if (params.length != 2)
+        return false;
+      let [nickName, msg] = params;
+
+      let conv = getConv(aConv);
+      if (conv.left)
+        return true;
+
+      if (!conv._participants.has(nickName)) {
+        conv.writeMessage(conv.name,
+                          _("conversation.error.nickNotInRoom", nickName),
+                          {system: true});
+        return true;
+      }
+      let account = getAccount(aConv);
+      let privateConv = account.createConversation(conv.name + "/" + nickName);
+      if (!privateConv)
+        return true;
+      privateConv.sendMsg(msg.trim());
+
+      if (aReturnedConv)
+        aReturnedConv.value = privateConv;
       return true;
     }
   }

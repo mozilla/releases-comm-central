@@ -493,6 +493,32 @@ const XMPPMUCConversationPrototype = {
     return false;
   },
 
+  // Changes nick in MUC conversation to a new one.
+  setNick: function(aNewNick) {
+    let notAcceptable = (aError) => {
+      // XEP-0045 (7.6): Changing Nickname (example 53).
+      let message = _("conversation.error.changeNickFailedNotAcceptable",
+                      aNewNick);
+      this.writeMessage(this.name, message, {system: true, error: true});
+      // TODO: We should then discover user's reserved nickname (it could be
+      // discovered before joining a room).
+      // XEP-0045 (7.12): Discovering Reserved Room Nickname.
+      return true;
+    };
+    let conflict = (aError) => {
+      // XEP-0045 (7.2.9): Nickname Conflict.
+      let message = _("conversation.error.changeNickFailedConflict", aNewNick);
+      this.writeMessage(this.name, message, {system: true, error: true});
+      return true;
+    };
+    let errorHandler = this._account.handleErrors({notAcceptable: notAcceptable,
+                                                   conflict: conflict});
+
+    // XEP-0045 (7.6): Changing Nickname.
+    let s = Stanza.presence({to: this.name + "/" + aNewNick}, null);
+    this._account.sendStanza(s, errorHandler);
+  },
+
   /* Called when the user closed the conversation */
   close: function() {
     if (!this.left)
