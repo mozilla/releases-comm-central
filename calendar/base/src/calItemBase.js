@@ -556,10 +556,23 @@ calItemBase.prototype = {
 
     // void addAttendee(in calIAttendee attendee);
     addAttendee: function cIB_addAttendee(attendee) {
-        this.modify();
-        this.mAttendees = this.getAttendees({});
-        this.mAttendees.push(attendee);
-        // XXX ensure that the attendee isn't already there?
+        // the duplicate check is migration code for bug 1204255
+        let exists = this.getAttendeeById(attendee.id);
+        if (exists) {
+            cal.LOG("Ignoring attendee duplicate for item " + this.id +
+                    " (" + this.title + "): " + exists.id);
+            if (exists.participationStatus == "NEEDS-ACTION" ||
+                attendee.participationStatus == "DECLINED") {
+                this.removeAttendee(exists);
+            } else {
+                attendee = null;
+            }
+        }
+        if (attendee) {
+            this.modify();
+            this.mAttendees = this.getAttendees({});
+            this.mAttendees.push(attendee);
+        }
     },
 
     // void getAttachments(out PRUint32 count,
