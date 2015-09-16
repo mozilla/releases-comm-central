@@ -22,6 +22,7 @@ XPIDL_SOURCES += [
     'nsIMsgAccountManager.idl',
     'nsIMsgAsyncPrompter.idl',
     'nsIMsgBiffManager.idl',
+    'nsIMsgContentPolicy.idl',
     'nsIMsgCopyService.idl',
     'nsIMsgCopyServiceListener.idl',
     'nsIMsgCustomColumnHandler.idl',

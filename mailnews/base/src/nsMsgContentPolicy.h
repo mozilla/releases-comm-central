@@ -22,6 +22,8 @@
 #include "nsIMsgCompose.h"
 #include "nsIDocShell.h"
 #include "nsIPermissionManager.h"
+#include "nsIMsgContentPolicy.h"
+#include "nsTArray.h"
 
 /* DBFCFDF0-4489-4faa-8122-190FD1EFA16C */
 #define NS_MSGCONTENTPOLICY_CID \
@@ -35,6 +37,7 @@ class nsIDocShell;
 class nsMsgContentPolicy : public nsIContentPolicy,
                            public nsIObserver,
                            public nsIWebProgressListener,
+                           public nsIMsgContentPolicy,
                            public nsSupportsWeakReference
 {
 public:
@@ -46,6 +49,7 @@ public:
   NS_DECL_NSICONTENTPOLICY
   NS_DECL_NSIOBSERVER
   NS_DECL_NSIWEBPROGRESSLISTENER
+  NS_DECL_NSIMSGCONTENTPOLICY
   
 protected:
   virtual ~nsMsgContentPolicy();
@@ -79,6 +83,8 @@ protected:
                                        nsIURI **aURI);
   nsresult SetDisableItemsOnMailNewsUrlDocshells(nsIURI *aContentLocation,
                                                  nsISupports *aRequestingContext);
+
+  nsTArray<nsCString> mCustomExposedProtocols;
 };
 
 #endif // _nsMsgContentPolicy_H_

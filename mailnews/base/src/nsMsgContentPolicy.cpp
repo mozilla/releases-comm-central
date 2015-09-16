@@ -33,18 +33,19 @@ static const char kTrustedDomains[] =  "mail.trusteddomains";
 using namespace mozilla::mailnews;
 
 // Per message headder flags to keep track of whether the user is allowing remote
-// content for a particular message. 
+// content for a particular message.
 // if you change or add more values to these constants, be sure to modify
 // the corresponding definitions in mailWindowOverlay.js
 #define kNoRemoteContentPolicy 0
 #define kBlockRemoteContent 1
 #define kAllowRemoteContent 2
 
-NS_IMPL_ISUPPORTS(nsMsgContentPolicy, 
-                   nsIContentPolicy,
-                   nsIWebProgressListener,
-                   nsIObserver,
-                   nsISupportsWeakReference)
+NS_IMPL_ISUPPORTS(nsMsgContentPolicy,
+                  nsIContentPolicy,
+                  nsIWebProgressListener,
+                  nsIMsgContentPolicy,
+                  nsIObserver,
+                  nsISupportsWeakReference)
 
 nsMsgContentPolicy::nsMsgContentPolicy()
 {
@@ -87,7 +88,7 @@ nsresult nsMsgContentPolicy::Init()
   return NS_OK;
 }
 
-/** 
+/**
  * @returns true if the sender referenced by aMsgHdr is explicitly allowed to
  *          load remote images according to the PermissionManager
  */
@@ -102,7 +103,7 @@ nsMsgContentPolicy::ShouldAcceptRemoteContentForSender(nsIMsgDBHdr *aMsgHdr)
   nsresult rv = aMsgHdr->GetAuthor(getter_Copies(author));
   NS_ENSURE_SUCCESS(rv, false);
 
-  nsCString emailAddress; 
+  nsCString emailAddress;
   ExtractEmail(EncodedHeader(author), emailAddress);
   if (emailAddress.IsEmpty())
     return false;
@@ -134,7 +135,7 @@ bool nsMsgContentPolicy::IsTrustedDomain(nsIURI * aContentLocation)
   nsAutoCString host;
   nsresult rv = aContentLocation->GetHost(host);
 
-  if (NS_SUCCEEDED(rv) && !mTrustedMailDomains.IsEmpty()) 
+  if (NS_SUCCEEDED(rv) && !mTrustedMailDomains.IsEmpty())
     trustedDomain = MsgHostDomainIsTrusted(host, mTrustedMailDomains);
 
   return trustedDomain;
@@ -193,14 +194,14 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
   case nsIContentPolicy::TYPE_DOCUMENT:
     // At this point, we have no intention of supporting a different JS
     // setting on a subdocument, so we don't worry about TYPE_SUBDOCUMENT here.
-   
+
     // If the timing were right, we'd enable JavaScript on the docshell
     // for non mailnews URIs here.  However, at this point, the
-    // old document may still be around, so we can't do any enabling just yet.  
-    // Instead, we apply the policy in nsIWebProgressListener::OnLocationChange. 
+    // old document may still be around, so we can't do any enabling just yet.
+    // Instead, we apply the policy in nsIWebProgressListener::OnLocationChange.
     // For now, we explicitly disable JavaScript in order to be safe rather than
     // sorry, because OnLocationChange isn't guaranteed to necessarily be called
-    // soon enough to disable it in time (though bz says it _should_ be called 
+    // soon enough to disable it in time (though bz says it _should_ be called
     // soon enough "in all sane cases").
     rv = SetDisableItemsOnMailNewsUrlDocshells(aContentLocation,
                                                aRequestingContext);
@@ -221,7 +222,7 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
   default:
     break;
   }
-  
+
   // NOTE: Not using NS_ENSURE_ARG_POINTER because this is a legitimate case
   // that can happen.  Also keep in mind that the default policy used for a
   // failure code is ACCEPT.
@@ -237,7 +238,7 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
   if (IsSafeRequestingLocation(aRequestingLocation))
     return rv;
 
-  // Now default to reject so early returns via NS_ENSURE_SUCCESS 
+  // Now default to reject so early returns via NS_ENSURE_SUCCESS
   // cause content to be rejected.
   *aDecision = nsIContentPolicy::REJECT_REQUEST;
 
@@ -250,7 +251,7 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
     return NS_OK;
   }
 
-  // never load unexposed protocols except for http, https and file. 
+  // never load unexposed protocols except for http, https and file.
   // Protocols like ftp are always blocked.
   if (ShouldBlockUnexposedProtocol(aContentLocation))
     return NS_OK;
@@ -390,6 +391,10 @@ nsMsgContentPolicy::IsExposedProtocol(nsIURI *aContentLocation)
       MsgLowerCaseEqualsLiteral(contentScheme, "about"))
     return true;
 
+  // check if customized exposed scheme
+  if (mCustomExposedProtocols.Contains(contentScheme))
+    return true;
+
   bool isData;
   bool isChrome;
   bool isRes;
@@ -468,7 +473,7 @@ nsMsgContentPolicy::ShouldAcceptRemoteContentForMsgHdr(nsIMsgDBHdr *aMsgHdr,
   // kNoRemoteContentPolicy means we have never set a value on the message
   if (result == nsIContentPolicy::REJECT_REQUEST && !remoteContentPolicy)
     aMsgHdr->SetUint32Property("remoteContentPolicy", kBlockRemoteContent);
-  
+
   return result;
 }
 
@@ -498,7 +503,7 @@ private:
   nsCOMPtr<nsIURI> mContentURI;
 };
 
-/** 
+/**
  * This function is used to determine if we allow content for a remote message.
  * If we reject loading remote content, then we'll inform the message window
  * that this message has remote content (and hence we are not loading it).
@@ -548,7 +553,7 @@ nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(nsIURI *aOriginatorLocati
   if (*aDecision == nsIContentPolicy::REJECT_REQUEST)
   {
     nsCOMPtr<nsIMsgWindow> msgWindow;
-    (void)mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow)); 
+    (void)mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow));
     if (msgWindow)
     {
       nsCOMPtr<nsIRunnable> event =
@@ -561,9 +566,9 @@ nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(nsIURI *aOriginatorLocati
   }
 }
 
-/** 
+/**
  * Content policy logic for compose windows
- * 
+ *
  */
 void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose *aMsgCompose,
                                            nsISupports *aRequestingContext,
@@ -601,7 +606,7 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose *aMsgCompose,
     // images that are a part of the quoted content to load. Fortunately, after
     // the quoted message has been inserted into the document, mail compose
     // flags remote content elements that came from the original message with a
-    // moz-do-not-send attribute. 
+    // moz-do-not-send attribute.
     if (*aDecision == nsIContentPolicy::REJECT_REQUEST)
     {
       bool insertingQuotedContent = true;
@@ -613,7 +618,7 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose *aMsgCompose,
         if (element)
         {
           bool doNotSendAttrib;
-          if (NS_SUCCEEDED(element->HasAttribute(NS_LITERAL_STRING("moz-do-not-send"), &doNotSendAttrib)) && 
+          if (NS_SUCCEEDED(element->HasAttribute(NS_LITERAL_STRING("moz-do-not-send"), &doNotSendAttrib)) &&
               !doNotSendAttrib)
             *aDecision = nsIContentPolicy::ACCEPT;
         }
@@ -655,8 +660,8 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
   // ShouldProcess, and if it's possible for this to be null when called from
   // ShouldLoad, but not in the corresponding ShouldProcess call,
   // we need to re-think the assumptions underlying this code.
-  
-  // If there's no docshell to get to, there's nowhere for the JavaScript to 
+
+  // If there's no docshell to get to, there's nowhere for the JavaScript to
   // run, so we're already safe and don't need to disable anything.
   if (!aRequestingContext) {
     return NS_OK;
@@ -681,7 +686,7 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
   rv = flOwner->GetFrameLoader(getter_AddRefs(frameLoader));
   NS_ENSURE_SUCCESS(rv, rv);
   NS_ENSURE_TRUE(frameLoader, NS_ERROR_INVALID_POINTER);
-  
+
   nsCOMPtr<nsIDocShell> docShell;
   rv = frameLoader->GetDocShell(getter_AddRefs(docShell));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -749,7 +754,7 @@ nsMsgContentPolicy::GetRootDocShellForContext(nsISupports *aRequestingContext,
  * Navigates up the docshell tree from aRequestingContext and finds the
  * highest parent with the same type docshell as aRequestingContext, then
  * returns the URI associated with that docshell.
- */ 
+ */
 nsresult
 nsMsgContentPolicy::GetOriginatingURIForContext(nsISupports *aRequestingContext,
                                                 nsIURI **aURI)
@@ -783,7 +788,7 @@ nsMsgContentPolicy::ShouldProcess(uint32_t          aContentType,
 {
   // XXX Returning ACCEPT is presumably only a reasonable thing to do if we
   // think that ShouldLoad is going to catch all possible cases (i.e. that
-  // everything we use to make decisions is going to be available at 
+  // everything we use to make decisions is going to be available at
   // ShouldLoad time, and not only become available in time for ShouldProcess).
   // Do we think that's actually the case?
   *aDecision = nsIContentPolicy::ACCEPT;
@@ -792,7 +797,7 @@ nsMsgContentPolicy::ShouldProcess(uint32_t          aContentType,
 
 NS_IMETHODIMP nsMsgContentPolicy::Observe(nsISupports *aSubject, const char *aTopic, const char16_t *aData)
 {
-  if (!strcmp(NS_PREFBRANCH_PREFCHANGE_TOPIC_ID, aTopic)) 
+  if (!strcmp(NS_PREFBRANCH_PREFCHANGE_TOPIC_ID, aTopic))
   {
     NS_LossyConvertUTF16toASCII pref(aData);
 
@@ -810,11 +815,11 @@ NS_IMETHODIMP nsMsgContentPolicy::Observe(nsISupports *aSubject, const char *aTo
   return NS_OK;
 }
 
-/** 
+/**
  * We implement the nsIWebProgressListener interface in order to enforce
  * settings at onLocationChange time.
  */
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsMsgContentPolicy::OnStateChange(nsIWebProgress *aWebProgress,
                                   nsIRequest *aRequest, uint32_t aStateFlags,
                                   nsresult aStatus)
@@ -833,7 +838,7 @@ nsMsgContentPolicy::OnProgressChange(nsIWebProgress *aWebProgress,
   return NS_OK;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsMsgContentPolicy::OnLocationChange(nsIWebProgress *aWebProgress,
                                      nsIRequest *aRequest, nsIURI *aLocation,
                                      uint32_t aFlags)
@@ -841,11 +846,11 @@ nsMsgContentPolicy::OnLocationChange(nsIWebProgress *aWebProgress,
   nsresult rv;
 
   // If anything goes wrong and/or there's no docshell associated with this
-  // request, just give up.  The behavior ends up being "don't consider 
+  // request, just give up.  The behavior ends up being "don't consider
   // re-enabling JS on the docshell", which is the safe thing to do (and if
-  // the problem was that there's no docshell, that means that there was 
+  // the problem was that there's no docshell, that means that there was
   // nowhere for any JavaScript to run, so we're already safe
-  
+
   nsCOMPtr<nsIDocShell> docShell = do_QueryInterface(aWebProgress, &rv);
   if (NS_FAILED(rv)) {
     return NS_OK;
@@ -860,7 +865,7 @@ nsMsgContentPolicy::OnLocationChange(nsIWebProgress *aWebProgress,
                                         " do not point to the same docshell");
   }
 #endif
-  
+
   nsCOMPtr<nsIMsgMessageUrl> messageUrl = do_QueryInterface(aLocation, &rv);
 
   if (NS_SUCCEEDED(rv)) {
@@ -900,3 +905,27 @@ nsMsgContentPolicy::OnSecurityChange(nsIWebProgress *aWebProgress,
 {
   return NS_OK;
 }
+
+/**
+ * Implementation of nsIMsgContentPolicy
+ *
+ */
+NS_IMETHODIMP
+nsMsgContentPolicy::AddExposedProtocol(const nsACString &aScheme)
+{
+  if (mCustomExposedProtocols.Contains(nsCString(aScheme)))
+    return NS_OK;
+
+  mCustomExposedProtocols.AppendElement(aScheme);
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgContentPolicy::RemoveExposedProtocol(const nsACString &aScheme)
+{
+  mCustomExposedProtocols.RemoveElement(nsCString(aScheme));
+
+  return NS_OK;
+}
+

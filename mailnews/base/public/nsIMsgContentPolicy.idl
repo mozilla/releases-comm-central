@@ -1,0 +1,36 @@
+/* -*- mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(c29b2fd3-64d0-4083-a096-c20a9b847a99)]
+
+/**
+ * This interface provide functions which help extension developers
+ * add their customized schema to the exposed protocls of nsMsgContentPolicy.
+ * By default, a list of existing protocols (such as imap and nntp)
+ * are allowed to process urls locally, while non-matching urls are required
+ * to be processed as external.
+ * This interface allows additional protocols to be added to
+ * the list of protocols that are processed locally.
+ * Typically this would be used in cases where a new messaging protocol
+ * is being added by an extension.
+ */
+interface nsIMsgContentPolicy : nsISupports {
+  /**
+   * Add the specific aScheme to nsMsgContentPolicy's exposed protocols.
+   *
+   * @param aScheme scheme who will be added to nsMsgContentPolicy's exposed protocols
+   */
+  void addExposedProtocol(in ACString aScheme);
+
+  /**
+   * Remove the specific aScheme from nsMsgContentPolicy's exposed protocols.
+   *
+   * @param aScheme scheme who will be removed from nsMsgContentPolicy's exposed protocols
+   */
+  void removeExposedProtocol(in ACString aScheme);
+};
+
