@@ -134,10 +134,10 @@ inline BaseToken* TokenEnumeration::nextToken()
 
 // member variables
 static const PLDHashTableOps gTokenTableOps = {
-    PL_DHashStringKey,
-    PL_DHashMatchStringKey,
-    PL_DHashMoveEntryStub,
-    PL_DHashClearEntryStub
+    PLDHashTable::HashStringKey,
+    PLDHashTable::MatchStringKey,
+    PLDHashTable::MoveEntryStub,
+    PLDHashTable::ClearEntryStub
 };
 
 TokenHash::TokenHash(uint32_t aEntrySize)
@@ -173,7 +173,7 @@ char* TokenHash::copyWord(const char* word, uint32_t len)
 
 inline BaseToken* TokenHash::get(const char* word)
 {
-    PLDHashEntryHdr* entry = PL_DHashTableSearch(&mTokenTable, word);
+    PLDHashEntryHdr* entry = mTokenTable.Search(word);
     if (entry)
         return static_cast<BaseToken*>(entry);
     return NULL;
@@ -189,7 +189,7 @@ BaseToken* TokenHash::add(const char* word)
 
     MOZ_LOG(BayesianFilterLogModule, LogLevel::Debug, ("add word: %s", word));
 
-    PLDHashEntryHdr* entry = PL_DHashTableAdd(&mTokenTable, word, mozilla::fallible);
+    PLDHashEntryHdr* entry = mTokenTable.Add(word, mozilla::fallible);
     BaseToken* token = static_cast<BaseToken*>(entry);
     if (token) {
         if (token->mWord == NULL) {
@@ -201,7 +201,7 @@ BaseToken* TokenHash::add(const char* word)
             NS_ASSERTION(token->mWord, "copyWord failed");
             if (!token->mWord) {
                 MOZ_LOG(BayesianFilterLogModule, LogLevel::Error, ("copyWord failed: %s (%d)", word, len));
-                PL_DHashTableRawRemove(&mTokenTable, entry);
+                mTokenTable.RawRemove(entry);
                 return NULL;
             }
         }

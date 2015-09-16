@@ -496,7 +496,7 @@ nsresult nsMsgDatabase::AddHdrToCache(nsIMsgDBHdr *hdr, nsMsgKey key) // do we w
         hdr->GetMessageKey(&key);
       if (m_cachedHeaders->EntryCount() > m_cacheSize)
         ClearHdrCache(true);
-      PLDHashEntryHdr *entry = PL_DHashTableAdd(m_cachedHeaders, (void *)(uintptr_t) key, mozilla::fallible);
+      PLDHashEntryHdr *entry = m_cachedHeaders->Add((void *)(uintptr_t) key, mozilla::fallible);
       if (!entry)
         return NS_ERROR_OUT_OF_MEMORY; // XXX out of memory
 
@@ -662,10 +662,10 @@ nsresult nsMsgDatabase::RemoveHdrFromCache(nsIMsgDBHdr *hdr, nsMsgKey key)
       hdr->GetMessageKey(&key);
 
     PLDHashEntryHdr *entry =
-      PL_DHashTableSearch(m_cachedHeaders, (const void *)(uintptr_t) key);
+      m_cachedHeaders->Search((const void *)(uintptr_t) key);
     if (entry)
     {
-      PL_DHashTableRemove(m_cachedHeaders, (void *)(uintptr_t) key);
+      m_cachedHeaders->Remove((void *)(uintptr_t) key);
       NS_RELEASE(hdr); // get rid of extra ref the cache was holding.
     }
 
@@ -686,7 +686,7 @@ nsresult nsMsgDatabase::GetHdrFromUseCache(nsMsgKey key, nsIMsgDBHdr* *result)
   if (m_headersInUse)
   {
     PLDHashEntryHdr *entry =
-      PL_DHashTableSearch(m_headersInUse, (const void *)(uintptr_t) key);
+      m_headersInUse->Search((const void *)(uintptr_t) key);
     if (entry)
     {
       MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(entry);
@@ -756,7 +756,7 @@ nsresult nsMsgDatabase::AddHdrToUseCache(nsIMsgDBHdr *hdr, nsMsgKey key)
   {
     if (key == nsMsgKey_None)
       hdr->GetMessageKey(&key);
-    PLDHashEntryHdr *entry = PL_DHashTableAdd(m_headersInUse, (void *)(uintptr_t) key, mozilla::fallible);
+    PLDHashEntryHdr *entry = m_headersInUse->Add((void *)(uintptr_t) key, mozilla::fallible);
     if (!entry)
       return NS_ERROR_OUT_OF_MEMORY; // XXX out of memory
 
@@ -801,7 +801,7 @@ nsresult nsMsgDatabase::RemoveHdrFromUseCache(nsIMsgDBHdr *hdr, nsMsgKey key)
     if (key == nsMsgKey_None)
       hdr->GetMessageKey(&key);
 
-    PL_DHashTableRemove(m_headersInUse, (void *)(uintptr_t) key);
+    m_headersInUse->Remove((void *)(uintptr_t) key);
   }
   return NS_OK;
 }
@@ -4085,14 +4085,14 @@ msg_DHashFreeStringKey(PLDHashTable* aTable, PLDHashEntryHdr* aEntry)
 {
   const PLDHashEntryStub* stub = (const PLDHashEntryStub*)aEntry;
   free((void*)stub->key);
-  PL_DHashClearEntryStub(aTable, aEntry);
+  PLDHashTable::ClearEntryStub(aTable, aEntry);
 }
 
 PLDHashTableOps nsMsgDatabase::gRefHashTableOps =
 {
-  PL_DHashStringKey,
-  PL_DHashMatchStringKey,
-  PL_DHashMoveEntryStub,
+  PLDHashTable::HashStringKey,
+  PLDHashTable::MatchStringKey,
+  PLDHashTable::MoveEntryStub,
   msg_DHashFreeStringKey,
   nullptr
 };
@@ -4109,7 +4109,7 @@ nsresult nsMsgDatabase::GetRefFromHash(nsCString &reference, nsMsgKey *threadId)
 
   // Find reference from the hash
   PLDHashEntryHdr *entry =
-    PL_DHashTableSearch(m_msgReferences, (const void *) reference.get());
+    m_msgReferences->Search((const void *) reference.get());
   if (entry)
   {
     RefHashElement *element = static_cast<RefHashElement *>(entry);
@@ -4124,14 +4124,14 @@ nsresult nsMsgDatabase::AddRefToHash(nsCString &reference, nsMsgKey threadId)
 {
   if (m_msgReferences)
   {
-    PLDHashEntryHdr *entry = PL_DHashTableAdd(m_msgReferences, (void *) reference.get(), mozilla::fallible);
+    PLDHashEntryHdr *entry = m_msgReferences->Add((void *) reference.get(), mozilla::fallible);
     if (!entry)
       return NS_ERROR_OUT_OF_MEMORY; // XXX out of memory
 
     RefHashElement *element = static_cast<RefHashElement *>(entry);
     if (!element->mRef)
     {
-      element->mRef = ToNewCString(reference);  // Will be freed in PL_DHashFreeStringKey()
+      element->mRef = ToNewCString(reference);  // Will be freed in msg_DHashFreeStringKey()
       element->mThreadId = threadId;
       element->mCount = 1;
     }
@@ -4172,12 +4172,12 @@ nsresult nsMsgDatabase::RemoveRefFromHash(nsCString &reference)
   if (m_msgReferences)
   {
     PLDHashEntryHdr *entry =
-     PL_DHashTableSearch(m_msgReferences, (const void *) reference.get());
+     m_msgReferences->Search((const void *) reference.get());
     if (entry)
     {
       RefHashElement *element = static_cast<RefHashElement *>(entry);
       if (--element->mCount == 0)
-        PL_DHashTableRemove(m_msgReferences, (void *) reference.get());
+        m_msgReferences->Remove((void *) reference.get());
     }
   }
   return NS_OK;
