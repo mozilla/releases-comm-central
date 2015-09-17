@@ -50,6 +50,7 @@ caption > label {
 .paneSelector {
   -moz-appearance: none;
   background-color: #424e5a;
+  background-image: none;
   border-bottom: none;
   padding: 39px 0 0;
   margin: 0;
@@ -73,6 +74,7 @@ radio[pane] {
 radio[pane]:hover {
   color: #c1c1c1;
   background-color: #5e6972;
+  background-image: none;
 }
 
 radio[pane][selected] {
