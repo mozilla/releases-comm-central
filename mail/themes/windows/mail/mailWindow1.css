@@ -539,7 +539,11 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
     @media (-moz-windows-default-theme) {
       #messengerWindow {
-        background-color: hsl(0, 0%, 82%);
+        background-color: #a8cbdb;
+      }
+
+      #messengerWindow:-moz-window-inactive {
+        background-color: #d1d1d1;
       }
     }
 
