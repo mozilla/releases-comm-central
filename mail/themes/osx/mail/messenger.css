@@ -262,3 +262,14 @@ notification[value="addon-install-complete"] > button:active:hover {
 #messengerWindow[sizemode="fullscreen"] .titlebar-placeholder[type="caption-buttons"] {
   display: none;
 }
+
+button[type="menu-button"] > button {
+  margin-top: -1px;
+  margin-bottom: -3px;
+  -moz-margin-start: -7px;
+  -moz-margin-end: 0;
+}
+
+button[type="menu-button"] > dropmarker {
+  -moz-margin-end: -2px;
+}
