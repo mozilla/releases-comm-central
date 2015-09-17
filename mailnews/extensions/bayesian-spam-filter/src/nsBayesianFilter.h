@@ -10,7 +10,7 @@
 #include "nsCOMPtr.h"
 #include "nsIMsgFilterPlugin.h"
 #include "nsISemanticUnitScanner.h"
-#include "pldhash.h"
+#include "PLDHashTable.h"
 #include "nsITimer.h"
 #include "nsTArray.h"
 #include "nsStringGlue.h"

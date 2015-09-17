@@ -23,7 +23,7 @@
 #include "nsIMimeConverter.h"
 #include "nsCOMPtr.h"
 #include "nsCOMArray.h"
-#include "pldhash.h"
+#include "PLDHashTable.h"
 #include "nsTArray.h"
 #include "nsTObserverArray.h"
 class ListContext;
@@ -181,7 +181,7 @@ public:
   nsresult              GetCollationKeyGenerator();
   nsIMimeConverter *    GetMimeConverter();
 
-  nsresult GetTableCreateIfMissing(const char *scope, const char *kind, nsIMdbTable **table, 
+  nsresult GetTableCreateIfMissing(const char *scope, const char *kind, nsIMdbTable **table,
                                    mdb_token &scopeToken, mdb_token &kindToken);
 
   //helper function to fill in nsStrings from hdr row cell contents.
@@ -205,13 +205,13 @@ public:
   nsresult        GetUint32Property(nsIMdbRow *row, const char *propertyName, uint32_t *result, uint32_t defaultValue = 0);
   nsresult        SetUint32Property(nsIMdbRow *row, const char *propertyName, uint32_t propertyVal);
   nsresult        SetUint64Property(nsIMdbRow *row, const char *propertyName, uint64_t propertyVal);
-  nsresult        GetBooleanProperty(nsIMdbRow *row, const char *propertyName, 
+  nsresult        GetBooleanProperty(nsIMdbRow *row, const char *propertyName,
                                      bool *result, bool defaultValue = false);
-  nsresult        SetBooleanProperty(nsIMdbRow *row, const char *propertyName, 
+  nsresult        SetBooleanProperty(nsIMdbRow *row, const char *propertyName,
                                     bool propertyVal);
   // helper function for once we have the token.
   nsresult        SetNSStringPropertyWithToken(nsIMdbRow *row, mdb_token aProperty, const nsAString &propertyStr);
-  
+
   // helper functions to put values in cells for the passed-in row
   nsresult        UInt32ToRowCellColumn(nsIMdbRow *row, mdb_token columnToken, uint32_t value);
   nsresult        CharPtrToRowCellColumn(nsIMdbRow *row, mdb_token columnToken, const char *charPtr);
@@ -232,7 +232,7 @@ public:
   nsresult DumpThread(nsMsgKey threadId);
   nsresult DumpMsgChildren(nsIMsgDBHdr *msgHdr);
 #endif
-  
+
   friend class nsMsgHdr;  // use this to get access to cached tokens for hdr fields
   friend class nsMsgThread;  // use this to get access to cached tokens for hdr fields
   friend class nsMsgDBEnumerator;
@@ -270,14 +270,14 @@ protected:
   // Flag handling routines
   virtual nsresult SetKeyFlag(nsMsgKey key, bool set, uint32_t flag,
                               nsIDBChangeListener *instigator = NULL);
-  virtual nsresult SetMsgHdrFlag(nsIMsgDBHdr *msgHdr, bool set, uint32_t flag, 
+  virtual nsresult SetMsgHdrFlag(nsIMsgDBHdr *msgHdr, bool set, uint32_t flag,
                                  nsIDBChangeListener *instigator);
-  
+
   virtual bool    SetHdrFlag(nsIMsgDBHdr *, bool bSet, nsMsgMessageFlagType flag);
   virtual bool    SetHdrReadFlag(nsIMsgDBHdr *, bool pRead);
   virtual uint32_t GetStatusFlags(nsIMsgDBHdr *msgHdr, uint32_t origFlags);
   // helper function which doesn't involve thread object
-  
+
   virtual nsresult RemoveHeaderFromDB(nsMsgHdr *msgHdr);
   virtual nsresult RemoveHeaderFromThread(nsMsgHdr *msgHdr);
   virtual nsresult AdjustExpungedBytesOnDelete(nsIMsgDBHdr *msgHdr);
@@ -295,7 +295,7 @@ protected:
                                bool keepUnreadMessagesOnly,
                                bool applyToFlaggedMessages,
                                nsIMutableArray *hdrsToDelete);
-  
+
   // mdb bookkeeping stuff
   virtual nsresult      InitExistingDB();
   virtual nsresult      InitNewDB();
@@ -351,7 +351,7 @@ protected:
   mdb_token     m_threadNewestMsgDateColumnToken;
   mdb_token     m_offlineMsgOffsetColumnToken;
   mdb_token     m_offlineMessageSizeColumnToken;
-  
+
   // header caching stuff - MRU headers, keeps them around in memory
   nsresult      AddHdrToCache(nsIMsgDBHdr *hdr, nsMsgKey key);
   nsresult      ClearHdrCache(bool reInit);
@@ -359,7 +359,7 @@ protected:
   // all headers currently instantiated, doesn't hold refs
   // these get added when msg hdrs get constructed, and removed when they get destroyed.
   nsresult      GetHdrFromUseCache(nsMsgKey key, nsIMsgDBHdr* *result);
-  nsresult      AddHdrToUseCache(nsIMsgDBHdr *hdr, nsMsgKey key); 
+  nsresult      AddHdrToUseCache(nsIMsgDBHdr *hdr, nsMsgKey key);
   nsresult      ClearUseHdrCache();
   nsresult      RemoveHdrFromUseCache(nsIMsgDBHdr *hdr, nsMsgKey key);
 
@@ -376,7 +376,7 @@ protected:
 
   void          ClearCachedObjects(bool dbGoingAway);
   void          ClearEnumerators();
-  // all instantiated headers, but doesn't hold refs. 
+  // all instantiated headers, but doesn't hold refs.
   PLDHashTable  *m_headersInUse;
   static PLDHashNumber HashKey(PLDHashTable* aTable, const void* aKey);
   static bool MatchEntry(PLDHashTable* aTable, const PLDHashEntryHdr* aEntry, const void* aKey);
