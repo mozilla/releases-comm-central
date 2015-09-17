@@ -1096,6 +1096,9 @@ nsresult nsMsgSearchDBView::ProcessRequestsInAllFolders(nsIMsgWindow *window)
 
 NS_IMETHODIMP nsMsgSearchDBView::Sort(nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder)
 {
+    if (!m_checkedCustomColumns && CustomColumnsInSortAndNotRegistered())
+      return NS_OK;
+
     int32_t rowCountBeforeSort = GetSize();
 
     if (!rowCountBeforeSort)

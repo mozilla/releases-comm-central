@@ -106,6 +106,7 @@ nsMsgDBView::nsMsgDBView()
 {
   /* member initializers and constructor code */
   m_sortValid = false;
+  m_checkedCustomColumns = false;
   m_sortOrder = nsMsgViewSortOrder::none;
   m_viewFlags = nsMsgViewFlagsType::kNone;
   m_secondarySort = nsMsgViewSortType::byId;
@@ -1811,7 +1812,7 @@ bool nsMsgDBView::WasHdrRecentlyDeleted(nsIMsgDBHdr *msgHdr)
 //add a custom column handler
 NS_IMETHODIMP nsMsgDBView::AddColumnHandler(const nsAString& column, nsIMsgCustomColumnHandler* handler)
 {
-
+  bool custColInSort = false;
   size_t index = m_customColumnHandlerIDs.IndexOf(column);
 
   nsAutoString strColID(column);
@@ -1835,9 +1836,21 @@ NS_IMETHODIMP nsMsgDBView::AddColumnHandler(const nsAString& column, nsIMsgCusto
   {
     MsgViewSortColumnInfo &sortInfo = m_sortColumns[i];
     if (sortInfo.mSortType == nsMsgViewSortType::byCustom &&
-          sortInfo.mCustomColumnName.Equals(column))
+        sortInfo.mCustomColumnName.Equals(column))
+    {
+      custColInSort = true;
       sortInfo.mColHandler = handler;
+    }
   }
+
+  if (m_viewFlags & nsMsgViewFlagsType::kGroupBySort)
+    // Grouped view has its own ways.
+    return NS_OK;
+
+  // This cust col is in sort columns, and all are now registered, so sort.
+  if (custColInSort && !CustomColumnsInSortAndNotRegistered())
+    Sort(m_sortType, m_sortOrder);
+
   return NS_OK;
 }
 
@@ -1916,6 +1929,33 @@ NS_IMETHODIMP nsMsgDBView::GetColumnHandler(const nsAString& aColID, nsIMsgCusto
   nsAutoString column(aColID);
   NS_IF_ADDREF(*aHandler = GetColumnHandler(column.get()));
   return (*aHandler) ? NS_OK : NS_ERROR_FAILURE;
+}
+
+// Check if any active sort columns are custom. If none are custom, return false
+// and go on as always. If any are custom, and all are not registered yet,
+// return true (so that the caller can postpone sort). When the custom column
+// observer is notified with MsgCreateDBView and registers the handler,
+// AddColumnHandler will sort once all required handlers are set.
+bool nsMsgDBView::CustomColumnsInSortAndNotRegistered()
+{
+  // The initial sort on view open has been started, subsequent user initiated
+  // sort callers can ignore verifying cust col registration.
+  m_checkedCustomColumns = true;
+
+  // DecodeColumnSort must have already created m_sortColumns, otherwise we
+  // can't know, but go on anyway.
+  if (!m_sortColumns.Length())
+    return false;
+
+  bool custColNotRegistered = false;
+  for (uint32_t i = 0; i < m_sortColumns.Length() && !custColNotRegistered; i++)
+  {
+    if (m_sortColumns[i].mSortType == nsMsgViewSortType::byCustom &&
+        m_sortColumns[i].mColHandler == nullptr)
+      custColNotRegistered = true;
+  }
+
+  return custColNotRegistered;
 }
 
 NS_IMETHODIMP nsMsgDBView::GetCellText(int32_t aRow, nsITreeColumn* aCol, nsAString& aValue)
@@ -4365,12 +4405,42 @@ nsresult nsMsgDBView::RestoreSortInfo()
     nsString sortColumnsString;
     folderInfo->GetProperty("sortColumns", sortColumnsString);
     DecodeColumnSort(sortColumnsString);
+    if (m_sortColumns.Length() > 1)
+    {
+      m_secondarySort = m_sortColumns[1].mSortType;
+      m_secondarySortOrder = m_sortColumns[1].mSortOrder;
+      m_secondaryCustomColumn = m_sortColumns[1].mCustomColumnName;
+    }
 
     // Restore curCustomColumn from db.
     folderInfo->GetProperty("customSortCol", m_curCustomColumn);
   }
 
   return NS_OK;
+}
+
+// Called by msgDBView::Sort, at which point any persisted active custom
+// columns must be registered. If not, reset their m_sortColumns entries
+// to byDate; Sort will fill in values if necessary based on new user sort.
+void nsMsgDBView::EnsureCustomColumnsValid()
+{
+  if (!m_sortColumns.Length())
+    return;
+
+  for (uint32_t i = 0; i < m_sortColumns.Length(); i++)
+  {
+    if (m_sortColumns[i].mSortType == nsMsgViewSortType::byCustom &&
+        m_sortColumns[i].mColHandler == nullptr)
+    {
+      m_sortColumns[i].mSortType = nsMsgViewSortType::byDate;
+      m_sortColumns[i].mCustomColumnName.Truncate();
+      // There are only two...
+      if (i == 0 && m_sortType != nsMsgViewSortType::byCustom)
+        SetCurCustomColumn(EmptyString());
+      if (i == 1)
+        m_secondaryCustomColumn.Truncate();
+    }
+  }
 }
 
 int32_t  nsMsgDBView::SecondarySort(nsMsgKey key1, nsISupports *supports1, nsMsgKey key2, nsISupports *supports2, viewSortInfo *comparisonContext)
@@ -4465,7 +4535,8 @@ int32_t  nsMsgDBView::SecondarySort(nsMsgKey key1, nsISupports *supports1, nsMsg
 NS_IMETHODIMP nsMsgDBView::Sort(nsMsgViewSortTypeValue sortType,
                                 nsMsgViewSortOrderValue sortOrder)
 {
-  nsresult rv;
+  EnsureCustomColumnsValid();
+
   // If we're doing a stable sort, we can't just reverse the messages.
   // Check also that the custom column we're sorting on hasn't changed.
   // Otherwise, to be on the safe side, resort.
@@ -4543,7 +4614,7 @@ NS_IMETHODIMP nsMsgDBView::Sort(nsMsgViewSortTypeValue sortType,
 
   // If we did not obtain proper fieldType, it needs to be checked
   // because the subsequent code does not handle it very well.
-  rv = GetFieldTypeAndLenForSort(sortType, &maxLen, &fieldType);
+  nsresult rv = GetFieldTypeAndLenForSort(sortType, &maxLen, &fieldType);
 
   // Don't sort if the field type is not supported: Bug 901948
   if (NS_FAILED(rv))

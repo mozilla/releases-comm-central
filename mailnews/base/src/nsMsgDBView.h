@@ -396,6 +396,7 @@ protected:
   bool mShowSizeInLines;    // for news we show lines instead of size when true
   bool mSortThreadsByRoot;  // as opposed to by the newest message
   bool m_sortValid;
+  bool m_checkedCustomColumns;
   bool mSelectionSummarized;
   // we asked the front end to summarize the selection and it did not.
   bool mSummarizeFailed;
@@ -457,6 +458,8 @@ protected:
   
   nsIMsgCustomColumnHandler* GetColumnHandler(const char16_t*);
   nsIMsgCustomColumnHandler* GetCurColumnHandlerFromDBInfo();
+  bool CustomColumnsInSortAndNotRegistered();
+  void EnsureCustomColumnsValid();
 
 #ifdef DEBUG_David_Bienvenu
 void InitEntryInfoForIndex(nsMsgViewIndex i, IdKeyPtr &EntryInfo);

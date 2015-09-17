@@ -1001,7 +1001,8 @@ NS_IMETHODIMP nsMsgGroupView::AddColumnHandler(const nsAString& column,
 
   // If the sortType is byCustom and the desired custom column is the one just
   // registered, build the view.
-  if (m_sortType == nsMsgViewSortType::byCustom)
+  if (m_viewFlags & nsMsgViewFlagsType::kGroupBySort &&
+      m_sortType == nsMsgViewSortType::byCustom)
   {
     nsAutoString curCustomColumn;
     GetCurCustomColumn(curCustomColumn);

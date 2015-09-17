@@ -265,6 +265,9 @@ NS_IMETHODIMP nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType, nsMsgVi
     return NS_OK;
   }
 
+  if (!m_checkedCustomColumns && CustomColumnsInSortAndNotRegistered())
+    return NS_OK;
+
   // sort threads by sort order
   bool sortThreads = m_viewFlags & (nsMsgViewFlagsType::kThreadedDisplay | nsMsgViewFlagsType::kGroupBySort);
   
