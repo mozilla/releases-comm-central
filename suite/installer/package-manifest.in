@@ -39,7 +39,7 @@
 @APPNAME@/Contents/Info.plist
 @APPNAME@/Contents/PkgInfo
 @RESPATH@/seamonkey.icns
-@RESPATH@/@AB@.lproj/*
+@RESPATH@/@LPROJ_ROOT@.lproj/*
 #endif
 
 [@AB_CD@]
