@@ -36,9 +36,9 @@
   <vbox flex="1" style="overflow: auto; width: 30em; height: 5em;">
     <description id="output"/>
   </vbox>
-  <tabbox id="tabboxInsertSymbol">
+  <tabbox id="tabboxInsertLaTeXCommand">
     <tabs/>
-    <tabpanels oncommand="insertSymbol(event.target.label);"/>
+    <tabpanels oncommand="insertLaTeXCommand(event.target);"/>
   </tabbox>
   <spacer class="spacer"/>
   <groupbox>
