@@ -45,6 +45,7 @@ classic.jar:
   skin/classic/communicator/icons/geolocation-16.png                    (mac/communicator/icons/geolocation-16.png)
   skin/classic/communicator/icons/geolocation-64.png                    (mac/communicator/icons/geolocation-64.png)
   skin/classic/communicator/icons/item.png                              (mac/communicator/icons/item.png)
+  skin/classic/communicator/icons/warning-24.png                        (mac/communicator/icons/warning-24.png)
   skin/classic/communicator/toolbar/toolbar-gradient22.png              (mac/communicator/toolbar/toolbar-gradient22.png)
   skin/classic/communicator/toolbar/toolbar-gradient34.png              (mac/communicator/toolbar/toolbar-gradient34.png)
 #else
@@ -81,7 +82,10 @@ classic.jar:
   skin/classic/communicator/icons/communicatoricons-small.png           (communicator/icons/communicatoricons-small.png)
   skin/classic/communicator/icons/geolocation-16.png                    (communicator/icons/geolocation-16.png)
   skin/classic/communicator/icons/geolocation-64.png                    (communicator/icons/geolocation-64.png)
+  skin/classic/communicator/icons/information-48.png                    (communicator/icons/information-48.png)
   skin/classic/communicator/icons/loading.gif                           (communicator/icons/loading.gif)
+  skin/classic/communicator/icons/question-48.png                       (communicator/icons/question-48.png)
+  skin/classic/communicator/icons/warning-24.png                        (communicator/icons/warning-24.png)
 #endif
   skin/classic/communicator/brand.css                                   (communicator/brand.css)
   skin/classic/communicator/blockedSite.css                             (communicator/blockedSite.css)

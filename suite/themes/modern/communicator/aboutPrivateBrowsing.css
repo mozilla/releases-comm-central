@@ -4,14 +4,51 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-/* Pick the desired icons depending on the window's context */
-
-#warningBox.private {
-  background-image: url("chrome://global/skin/icons/information-48.png");
+#warningScreen {
+  background-color: #FFF;
 }
 
-#warningBox.normal {
-  background-image: url("chrome://global/skin/icons/question-48.png");
+#warningBox {
+  background-color: #C7D0D9;
+  color: #22262F;
+  border: 1px solid #494F5D;
+  border-radius: 10px;
+  padding: 3em;
+  -moz-padding-start: 30px;
+  margin: 0 1em;
+}
+
+#warningInnerBox {
+  max-width: 50em;
+}
+
+#warningTitle {
+  font-weight: bold;
+  margin: 0 0 .6em;
+  font-size: 160%;
+  border-bottom: 1px solid #7A8490;
+}
+
+#warningText
+{
+  font-size: 110%;
+  -moz-margin-start: 0;
+}
+
+/* Pick the desired icons depending on the window's context */
+
+#warningBox.private > #warningBoxIcon {
+  list-style-image: url("chrome://global/skin/icons/information-48.png");
+  width: 48px;
+  height: 48px;
+  -moz-margin-end: 3em;
+}
+
+#warningBox.normal > #warningBoxIcon {
+  list-style-image: url("chrome://global/skin/icons/question-48.png");
+  width: 48px;
+  height: 48px;
+  -moz-margin-end: 3em;
 }
 
 #trackWarnBox {
@@ -28,14 +65,6 @@
 
 /* Define additional styles to look similar to the netError/certError pages */
 
-#privateTitle,
-#normalTitle {
-  -moz-padding-start: 0px;
-  margin: 0 0 .6em;
-  font-size: 160%;
-  font-weight: bold;
-}
-
 #warningStatus {
   margin: 0.4em 0 1.2em 0;
   padding-bottom: 1.2em;
@@ -43,17 +72,8 @@
   font-size: 135%;
 }
 
-#warningInnerBox
-{
-  max-width: 50em;
-}
-
 #warningInnerBox > button {
   margin: 0.8em 0 1em 0;
-}
-
-#warningOuterBox {
-  -moz-padding-start: 3em;
 }
 
 #warningOuterBox > vbox > label,
