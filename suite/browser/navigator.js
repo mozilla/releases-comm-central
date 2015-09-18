@@ -697,6 +697,34 @@ function UpdateNavBar()
     if (!previous || !previous.classList.contains("nav-bar-class"))
       element.classList.add("nav-bar-first");
   }
+  UpdateUrlbarSearchSplitterState();
+}
+
+function UpdateUrlbarSearchSplitterState()
+{
+  var splitter = document.getElementById("urlbar-search-splitter");
+  var urlbar = document.getElementById("nav-bar-inner");
+  var searchbar = document.getElementById("search-container");
+
+  var ibefore = null;
+  if (isElementVisible(urlbar) && isElementVisible(searchbar)) {
+    if (searchbar.matches("#nav-bar-inner ~ #search-container"))
+      ibefore = searchbar;
+    else if (urlbar.matches("#search-container ~ #nav-bar-inner"))
+      ibefore = searchbar.nextSibling;
+  }
+
+  if (ibefore) {
+    splitter = document.createElement("splitter");
+    splitter.id = "urlbar-search-splitter";
+    splitter.setAttribute("resizebefore", "flex");
+    splitter.setAttribute("resizeafter", "flex");
+    splitter.setAttribute("skipintoolbarset", "true");
+    splitter.setAttribute("overflows", "false");
+    splitter.classList.add("chromeclass-toolbar-additional",
+                           "nav-bar-class");
+    ibefore.parentNode.insertBefore(splitter, ibefore);
+  }
 }
 
 function updateWindowState()
@@ -2598,6 +2626,10 @@ function BrowserToolboxCustomizeInit()
   SetPageProxyState("invalid", null);
   toolboxCustomizeInit("main-menubar");
   PlacesToolbarHelper.customizeStart();
+
+  var splitter = document.getElementById("urlbar-search-splitter");
+  if (splitter)
+    splitter.remove();
 }
 
 function BrowserToolboxCustomizeDone(aToolboxChanged)

@@ -233,6 +233,14 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
   display: none;
 }
 
+#urlbar-search-splitter {
+  min-width: 8px;
+  margin: 0 -4px;
+  background-image: none;
+  position: relative;
+  height: 22px;
+}
+
 /* ::::: notification popups ::::: */
 
 .popup-notification-icon {

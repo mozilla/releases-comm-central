@@ -475,6 +475,13 @@ toolbar[mode="icons"] #search-button > .button-box > .button-text {
   box-shadow: none;
 }
 
+#urlbar-search-splitter {
+  min-width: 6px;
+  margin: 0 -3px;
+  border: none;
+  background-color: transparent;
+}
+
 /* ::::: notification popups ::::: */
 
 .popup-notification-icon {

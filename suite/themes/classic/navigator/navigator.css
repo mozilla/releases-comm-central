@@ -267,6 +267,14 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
   display: none;
 }
 
+#urlbar-search-splitter {
+  -moz-appearance: none;
+  min-width: 6px;
+  margin: 0 -3px;
+  border: none;
+  background-color: transparent;
+}
+
 /* ::::: notification popups ::::: */
 
 .popup-notification-icon {
