@@ -531,15 +531,20 @@ def fixup_comm_repo_options(options):
         print "Error: the -m option is required for the initial checkout!"
         sys.exit(2)
 
-    if options.comm_rev is None:
-        # If we weren't passed an explicit rev, try to find it from the
-        # environment. If that doesn't exist or is empty, grab the default.
-        envRev = os.environ.get("COMM_REV")
-        if envRev:
-            print "Using COMM_REV from environment (%s)" % envRev
-            options.comm_rev = envRev
+    # If COMM_REV is passed via environment, prefer that over the passed
+    # option so that automation can pass tagged versions while still defaulting
+    # to a certain revision via client.py-args.
+    envRev = os.environ.get("COMM_REV")
+    if envRev:
+        if options.comm_rev and options.comm_rev != envRev:
+            print "Warning: Preferring COMM_REV (%s) over passed revision (%s)" % (envRev, options.comm_rev)
         else:
-            options.comm_rev = get_DEFAULT_tag("COMM_REV")
+            print "Using COMM_REV from environment (%s)" % envRev
+        options.comm_rev = envRev
+
+    # If no version was set before, use the default comm revision.
+    if options.comm_rev is None:
+        options.comm_rev = get_DEFAULT_tag("COMM_REV")
 
 
 def fixup_mozilla_repo_options(options):
@@ -563,15 +568,20 @@ def fixup_mozilla_repo_options(options):
 
             options.mozilla_repo = config.get('paths', 'default')
 
-    if options.mozilla_rev is None:
-        # If we weren't passed an explicit rev, try to find it from the
-        # environment. If that doesn't exist or is empty, grab the default.
-        envRev = os.environ.get("MOZILLA_REV")
-        if envRev:
-            print "Using MOZILLA_REV from environment (%s)" % envRev
-            options.mozilla_rev = envRev
+    # If MOZILLA_REV is passed via environment, prefer that over the passed
+    # option so that automation can pass tagged versions while still defaulting
+    # to a certain revision via client.py-args.
+    envRev = os.environ.get("MOZILLA_REV")
+    if envRev:
+        if options.mozilla_rev and options.mozilla_rev != envRev:
+            print "Warning: Preferring MOZILLA_REV (%s) over passed revision (%s)" % (envRev, options.mozilla_rev)
         else:
-            options.mozilla_rev = get_DEFAULT_tag("MOZILLA_REV")
+            print "Using MOZILLA_REV from environment (%s)" % envRev
+        options.mozilla_rev = envRev
+
+    # If no version was set before, use the default mozilla revision.
+    if options.mozilla_rev is None:
+        options.mozilla_rev = get_DEFAULT_tag("MOZILLA_REV")
 
 
 def fixup_chatzilla_repo_options(options):
