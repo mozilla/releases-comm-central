@@ -336,6 +336,7 @@ SuiteGlue.prototype = {
   _onProfileStartup: function()
   {
     this._updatePrefs();
+    this._migrateDownloadPrefs();
     migrateMailnews(); // mailnewsMigrator.js
 
     Sanitizer.checkSettings();
@@ -947,6 +948,26 @@ SuiteGlue.prototype = {
       }
     } catch (ex) {}
 
+    // Ensure that this preference is set to a valid dictionary.
+    var prefName = "spellchecker.dictionary";
+    var prefValue = Services.prefs.getCharPref(prefName);
+    if (/_/.test(prefValue)) {
+      prefValue = prefValue.replace(/_/g, "-");
+      Services.prefs.setCharPref(prefName, prefValue);
+    }
+    var spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
+                                 .getService(Components.interfaces.mozISpellCheckingEngine);
+    var o1 = {};
+    spellChecker.getDictionaryList(o1, {});
+    var dictList = o1.value;
+    // If the preference contains an invalid dictionary, set it to a valid
+    // dictionary, any dictionary will do.
+    if (dictList.length && dictList.indexOf(prefValue) < 0)
+      Services.prefs.setCharPref(prefName, dictList[0]);
+  },
+
+  _migrateDownloadPrefs: function()
+  {
     // Migration of download-manager preferences
     if (Services.prefs.getPrefType("browser.download.dir") == Services.prefs.PREF_INVALID ||
         Services.prefs.getPrefType("browser.download.lastDir") != Services.prefs.PREF_INVALID)
