@@ -473,14 +473,14 @@ nsresult nsWindowsShellService::Init()
   if (!::GetModuleFileNameW(0, appPath, MAX_BUF))
     return NS_ERROR_FAILURE;
 
-  mAppLongPath = appPath;
+  mAppLongPath.Assign(appPath);
 
   // Support short path to the exe so if it is already set the user is not
   // prompted to set the default mail client again.
   if (!::GetShortPathNameW(appPath, appPath, MAX_BUF))
     return NS_ERROR_FAILURE;
 
-  mAppShortPath = appPath;
+  mAppShortPath.Assign(appPath);
 
   return NS_OK;
 }
