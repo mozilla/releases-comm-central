@@ -242,7 +242,7 @@ calItipEmailTransport.prototype = {
                                                   .createInstance(Components.interfaces.nsIMsgCompFields);
                     composeFields.characterSet = "UTF-8";
                     composeFields.to = toList;
-                    let mailfrom = (!identity.fullName.length) ? identity.mail : identity.fullName + " <" + identity.mail + ">";
+                    let mailfrom = (!identity.fullName.length) ? identity.email : identity.fullName + " <" + identity.email + ">";
                     composeFields.from = (cal.validateRecipientList(mailfrom) == mailfrom)
                                          ? mailfrom : identity.email;
                     composeFields.replyTo = identity.replyTo;
@@ -302,11 +302,11 @@ calItipEmailTransport.prototype = {
         function encodeUTF8(text) {
             return convertFromUnicode("UTF-8", text).replace(/(\r\n)|\n/g, "\r\n");
         }
-        function encodeMimeHeader(header) {
-            let fieldNameLen = (header.indexOf(": ") + 2);
+        function encodeMimeHeader(aHeader, aIsEmail = false) {
+            let fieldNameLen = (aHeader.indexOf(": ") + 2);
             return MailServices.mimeConverter
-                               .encodeMimePartIIStr_UTF8(header,
-                                                         false,
+                               .encodeMimePartIIStr_UTF8(aHeader,
+                                                         aIsEmail,
                                                          "UTF-8",
                                                          fieldNameLen,
                                                          Components.interfaces
@@ -332,25 +332,25 @@ calItipEmailTransport.prototype = {
             // like multipart/alternative with enclosed text/calendar and text/plain.
             let mailText = ("MIME-version: 1.0\r\n" +
                             (aIdentity.replyTo
-                             ? "Return-path: " + aIdentity.replyTo + "\r\n" : "") +
-                            "From: " + (fullFrom || aIdentity.email) + "\r\n" +
+                             ? "Return-path: " + encodeMimeHeader(aIdentity.replyTo, true) + "\r\n" : "") +
+                            "From: " + encodeMimeHeader(fullFrom || aIdentity.email, true) + "\r\n" +
                             (aIdentity.organization
-                             ? "Organization: " + aIdentity.organization + "\r\n" : "") +
+                             ? "Organization: " + encodeMimeHeader(aIdentity.organization) + "\r\n" : "") +
                             "Message-ID: " + aMessageId + "\r\n" +
-                            "To: " + aToList + "\r\n" +
+                            "To: " + encodeMimeHeader(aToList, true) + "\r\n" +
                             "Date: " + (new Date()).toUTCString() + "\r\n" +
                             "Subject: " + encodeMimeHeader(aSubject.replace(/(\n|\r\n)/, "|")) + "\r\n");
             let validRecipients;
             if (aIdentity.doCc) {
                 validRecipients = cal.validateRecipientList(aIdentity.doCcList);
                 if (validRecipients != "") {
-                    mailText += ("Cc: " + validRecipients + "\r\n");
+                    mailText += ("Cc: " + encodeMimeHeader(validRecipients, true) + "\r\n");
                 }
             }
             if (aIdentity.doBcc) {
                 validRecipients = cal.validateRecipientList(aIdentity.doBccList);
                 if (validRecipients != "") {
-                    mailText += ("Bcc: " + validRecipients + "\r\n");
+                    mailText += ("Bcc: " + encodeMimeHeader(validRecipients, true) + "\r\n");
                 }
             }
             switch (compatMode) {
