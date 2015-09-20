@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
 
 // Returns the load context for the current window
@@ -11,6 +12,34 @@ function getLoadContext() {
                .getInterface(Components.interfaces.nsIWebNavigation)
                .QueryInterface(Components.interfaces.nsILoadContext);
 }
+
+var abFlavorDataProvider = {
+  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIFlavorDataProvider]),
+
+  getFlavorData: function(aTransferable, aFlavor, aData, aDataLen)
+  {
+    if (aFlavor == "application/x-moz-file-promise")
+    {
+      var primitive = {};
+      aTransferable.getTransferData("text/vcard", primitive, {});
+      var vCard = primitive.value.QueryInterface(Components.interfaces.nsISupportsString).data;
+      aTransferable.getTransferData("application/x-moz-file-promise-dest-filename", primitive, {});
+      var leafName = primitive.value.QueryInterface(Components.interfaces.nsISupportsString).data;
+      aTransferable.getTransferData("application/x-moz-file-promise-dir", primitive, {});
+      var localFile = primitive.value.QueryInterface(Components.interfaces.nsIFile).clone();
+      localFile.append(leafName);
+
+      var ofStream = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance(Components.interfaces.nsIFileOutputStream);
+      ofStream.init(localFile, -1, -1, 0);
+      var converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].createInstance(Components.interfaces.nsIConverterOutputStream);
+      converter.init(ofStream, null, 0, 0);
+      converter.writeString(vCard);
+      converter.close();
+
+      aData.value = localFile;
+    }
+  }
+};
 
 var abResultsPaneObserver = {
   onDragStart: function (aEvent, aXferData, aDragAction)
@@ -40,6 +69,15 @@ var abResultsPaneObserver = {
         // Only allow copy from read-only directories.
         aDragAction.action = Components.interfaces.
                              nsIDragService.DRAGDROP_ACTION_COPY;
+
+      var card = GetSelectedCard();
+      if (card && card.displayName) {
+        var vCard = card.translateTo("vcard");
+        aXferData.data.addDataForFlavour("text/vcard", decodeURIComponent(vCard));
+        aXferData.data.addDataForFlavour("application/x-moz-file-promise-dest-filename", card.displayName + ".vcf");
+        aXferData.data.addDataForFlavour("application/x-moz-file-promise-url", "data:text/vcard," + vCard);
+        aXferData.data.addDataForFlavour("application/x-moz-file-promise", abFlavorDataProvider);
+      }
     },
 
   onDrop: function (aEvent, aXferData, aDragSession)
