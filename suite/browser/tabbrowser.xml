@@ -2884,6 +2884,19 @@
           event.preventDefault();
         ]]>
       </handler>
+
+      <handler event="DOMWebNotificationClicked" phase="capturing">
+        <![CDATA[
+          if (!event.isTrusted)
+            return;
+
+          // The user clicked a desktop notification; make sure its
+          // tab is brought to the front and then raise the window.
+          this.selectedTab = this._getTabForContentWindow(event.target.top);
+          window.focus();
+        ]]>
+      </handler>
+
       <handler event="DOMWillOpenModalDialog" phase="capturing">
         <![CDATA[
           if (!event.isTrusted)
