@@ -238,7 +238,18 @@ nsresult nsMsgGroupView::HashHdr(nsIMsgDBHdr *msgHdr, nsString& aHashKey)
     {
       nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
       if (colHandler)
-        rv = colHandler->GetSortStringForRow(msgHdr, aHashKey);
+      {
+        bool isString;
+        colHandler->IsString(&isString);
+        if (isString)
+          rv = colHandler->GetSortStringForRow(msgHdr, aHashKey);
+        else
+        {
+          uint32_t intKey;
+          rv = colHandler->GetSortLongForRow(msgHdr, &intKey);
+          aHashKey.AppendInt(intKey);
+        }
+      }
       break;
     }
     case nsMsgViewSortType::byCorrespondent:
@@ -882,7 +893,18 @@ NS_IMETHODIMP nsMsgGroupView::CellTextForColumn(int32_t aRow,
         {
           nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
           if (colHandler)
-            rv = colHandler->GetSortStringForRow(msgHdr.get(), aValue);
+          {
+            bool isString;
+            colHandler->IsString(&isString);
+            if (isString)
+              rv = colHandler->GetSortStringForRow(msgHdr.get(), aValue);
+            else
+            {
+              uint32_t intKey;
+              rv = colHandler->GetSortLongForRow(msgHdr.get(), &intKey);
+              aValue.AppendInt(intKey);
+            }
+          }
           if (aValue.IsEmpty())
             aValue.AssignLiteral("*");
           break;

@@ -322,11 +322,20 @@ protected:
   bool JunkControlsEnabled(nsMsgViewIndex aViewIndex);
 
   // for sorting
-  nsresult GetFieldTypeAndLenForSort(nsMsgViewSortTypeValue sortType, uint16_t *pMaxLen, eFieldType *pFieldType);
-  nsresult GetCollationKey(nsIMsgDBHdr *msgHdr, nsMsgViewSortTypeValue sortType, uint8_t **result, 
-                          uint32_t *len, nsIMsgCustomColumnHandler* colHandler = nullptr);
-  nsresult GetLongField(nsIMsgDBHdr *msgHdr, nsMsgViewSortTypeValue sortType, uint32_t *result, 
+  nsresult GetFieldTypeAndLenForSort(nsMsgViewSortTypeValue sortType,
+                                        uint16_t *pMaxLen,
+                                        eFieldType *pFieldType,
+                                        nsIMsgCustomColumnHandler* colHandler = nullptr);
+  nsresult GetCollationKey(nsIMsgDBHdr *msgHdr,
+                             nsMsgViewSortTypeValue sortType,
+                             uint8_t **result,
+                             uint32_t *len,
+                             nsIMsgCustomColumnHandler* colHandler = nullptr);
+  nsresult GetLongField(nsIMsgDBHdr *msgHdr,
+                          nsMsgViewSortTypeValue sortType,
+                          uint32_t *result,
                           nsIMsgCustomColumnHandler* colHandler = nullptr);
+
   static int FnSortIdKey(const void *pItem1, const void *pItem2, void *privateData);
   static int FnSortIdKeyPtr(const void *pItem1, const void *pItem2, void *privateData);
   static int FnSortIdUint32(const void *pItem1, const void *pItem2, void *privateData);

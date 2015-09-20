@@ -3910,7 +3910,10 @@ const int kMaxRecipientKey = 80;
 // colHandler below is null, but is very unlikely).
 // The latter case used to return NS_OK, which was incorrect.
 //
-nsresult nsMsgDBView::GetFieldTypeAndLenForSort(nsMsgViewSortTypeValue sortType, uint16_t *pMaxLen, eFieldType *pFieldType)
+nsresult nsMsgDBView::GetFieldTypeAndLenForSort(nsMsgViewSortTypeValue sortType,
+                                                uint16_t *pMaxLen,
+                                                eFieldType *pFieldType,
+                                                nsIMsgCustomColumnHandler* colHandler)
 {
     NS_ENSURE_ARG_POINTER(pMaxLen);
     NS_ENSURE_ARG_POINTER(pFieldType);
@@ -3952,28 +3955,24 @@ nsresult nsMsgDBView::GetFieldTypeAndLenForSort(nsMsgViewSortTypeValue sortType,
             break;
         case nsMsgViewSortType::byCustom:
         {
-          nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
-
-          if (colHandler != nullptr)
-          {
-            bool isString;
-            colHandler->IsString(&isString);
-
-            if (isString)
-            {
-              *pFieldType = kCollationKey;
-              *pMaxLen = kMaxRecipientKey; //80 - do we need a seperate k?
-            }
-            else
-            {
-              *pFieldType = kU32;
-              *pMaxLen = 0;
-            }
-          }
-          else
+          if (colHandler == nullptr)
           {
             NS_WARNING("colHandler is null. *pFieldType is not set.");
             return NS_ERROR_NULL_POINTER;
+          }
+
+          bool isString;
+          colHandler->IsString(&isString);
+
+          if (isString)
+          {
+            *pFieldType = kCollationKey;
+            *pMaxLen = kMaxRecipientKey; //80 - do we need a seperate k?
+          }
+          else
+          {
+            *pFieldType = kU32;
+            *pMaxLen = 0;
           }
           break;
         }
@@ -4443,11 +4442,12 @@ void nsMsgDBView::EnsureCustomColumnsValid()
   }
 }
 
-int32_t  nsMsgDBView::SecondarySort(nsMsgKey key1, nsISupports *supports1, nsMsgKey key2, nsISupports *supports2, viewSortInfo *comparisonContext)
+int32_t  nsMsgDBView::SecondarySort(nsMsgKey key1, nsISupports *supports1,
+                                    nsMsgKey key2, nsISupports *supports2,
+                                    viewSortInfo *comparisonContext)
 {
-
-  // we need to make sure that in the case of the secondary sort field also matching,
-  // we don't recurse
+  // We need to make sure that in the case of the secondary sort field also
+  // matching, we don't recurse.
   if (comparisonContext->isSecondarySort)
     return key1 > key2;
 
@@ -4467,11 +4467,20 @@ int32_t  nsMsgDBView::SecondarySort(nsMsgKey key1, nsISupports *supports1, nsMsg
   eFieldType fieldType;
   nsMsgViewSortTypeValue sortType = comparisonContext->view->m_secondarySort;
   nsMsgViewSortOrderValue sortOrder = comparisonContext->view->m_secondarySortOrder;
+
+  // Get the custom column handler for the *secondary* sort and pass it first
+  // to GetFieldTypeAndLenForSort to get the fieldType and then either
+  // GetCollationKey or GetLongField.
+  nsIMsgCustomColumnHandler* colHandler = nullptr;
+  if (sortType == nsMsgViewSortType::byCustom &&
+      comparisonContext->view->m_sortColumns.Length() > 1)
+    colHandler = comparisonContext->view->m_sortColumns[1].mColHandler;
+
   // The following may leave fieldType undefined.
   // In this case, we can return 0 right away since
   // it is the value returned in the default case of
   // switch (fieldType) statement below.
-  rv = GetFieldTypeAndLenForSort(sortType, &maxLen, &fieldType);
+  rv = GetFieldTypeAndLenForSort(sortType, &maxLen, &fieldType, colHandler);
   NS_ENSURE_SUCCESS(rv, 0);
 
   const void *pValue1 = &EntryInfo1, *pValue2 = &EntryInfo2;
@@ -4480,15 +4489,6 @@ int32_t  nsMsgDBView::SecondarySort(nsMsgKey key1, nsISupports *supports1, nsMsg
   int retStatus = 0;
   hdr1->GetMessageKey(&EntryInfo1.id);
   hdr2->GetMessageKey(&EntryInfo2.id);
-
-  //check if a custom column handler exists. If it does then grab it and pass it in
-  //to either GetCollationKey or GetLongField - we need the custom column handler for
-  // the previous sort, if any.
-  nsIMsgCustomColumnHandler* colHandler = nullptr; // GetCurColumnHandler();
-  if (sortType == nsMsgViewSortType::byCustom &&
-      comparisonContext->view->m_sortColumns.Length() > 1)
-    colHandler = comparisonContext->view->m_sortColumns[1].mColHandler;
-
 
   switch (fieldType)
   {
@@ -4612,9 +4612,14 @@ NS_IMETHODIMP nsMsgDBView::Sort(nsMsgViewSortTypeValue sortType,
   uint16_t maxLen;
   eFieldType fieldType;
 
+  // Get the custom column handler for the primary sort and pass it first
+  // to GetFieldTypeAndLenForSort to get the fieldType and then either
+  // GetCollationKey or GetLongField.
+  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
+
   // If we did not obtain proper fieldType, it needs to be checked
   // because the subsequent code does not handle it very well.
-  nsresult rv = GetFieldTypeAndLenForSort(sortType, &maxLen, &fieldType);
+  nsresult rv = GetFieldTypeAndLenForSort(sortType, &maxLen, &fieldType, colHandler);
 
   // Don't sort if the field type is not supported: Bug 901948
   if (NS_FAILED(rv))
@@ -4675,11 +4680,8 @@ NS_IMETHODIMP nsMsgDBView::Sort(nsMsgViewSortTypeValue sortType,
       msgHdr = nullptr;
     }
 
-    //check if a custom column handler exists. If it does then grab it and pass it in
-    //to either GetCollationKey or GetLongField
-    nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
-
-    // could be a problem here if the ones that appear here are different than the ones already in the array
+    // Could be a problem here if the ones that appear here are different than
+    // the ones already in the array.
     uint32_t actualFieldLen = 0;
 
     if (fieldType == kCollationKey)
@@ -5315,11 +5317,17 @@ nsMsgDBView::GetIndexForThread(nsIMsgDBHdr *msgHdr)
   nsresult rv;
   uint16_t  maxLen;
   eFieldType fieldType;
+
+  // Get the custom column handler for the primary sort and pass it first
+  // to GetFieldTypeAndLenForSort to get the fieldType and then either
+  // GetCollationKey or GetLongField.
+  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
+
   // The following may leave fieldType undefined.
   // In this case, we can return highIndex right away since
   // it is the value returned in the default case of
   // switch (fieldType) statement below.
-  rv = GetFieldTypeAndLenForSort(m_sortType, &maxLen, &fieldType);
+  rv = GetFieldTypeAndLenForSort(m_sortType, &maxLen, &fieldType, colHandler);
   NS_ENSURE_SUCCESS(rv, highIndex);
 
   const void *pValue1 = &EntryInfo1, *pValue2 = &EntryInfo2;
@@ -5328,9 +5336,6 @@ nsMsgDBView::GetIndexForThread(nsIMsgDBHdr *msgHdr)
   msgHdr->GetMessageKey(&EntryInfo1.id);
   msgHdr->GetFolder(&EntryInfo1.folder);
   EntryInfo1.folder->Release();
-  //check if a custom column handler exists. If it does then grab it and pass it in
-  //to either GetCollationKey or GetLongField
-  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
 
   viewSortInfo comparisonContext;
   comparisonContext.view = this;
@@ -5436,11 +5441,17 @@ nsMsgViewIndex nsMsgDBView::GetInsertIndexHelper(nsIMsgDBHdr *msgHdr, nsTArray<n
   nsresult rv;
   uint16_t  maxLen;
   eFieldType fieldType;
+
+  // Get the custom column handler for the primary sort and pass it first
+  // to GetFieldTypeAndLenForSort to get the fieldType and then either
+  // GetCollationKey or GetLongField.
+  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
+
   // The following may leave fieldType undefined.
   // In this case, we can return highIndex right away since
   // it is the value returned in the default case of
   // switch (fieldType) statement below.
-  rv = GetFieldTypeAndLenForSort(sortType, &maxLen, &fieldType);
+  rv = GetFieldTypeAndLenForSort(sortType, &maxLen, &fieldType, colHandler);
   NS_ENSURE_SUCCESS(rv, highIndex);
 
   const void *pValue1 = &EntryInfo1, *pValue2 = &EntryInfo2;
@@ -5450,9 +5461,6 @@ nsMsgViewIndex nsMsgDBView::GetInsertIndexHelper(nsIMsgDBHdr *msgHdr, nsTArray<n
   msgHdr->GetMessageKey(&EntryInfo1.id);
   msgHdr->GetFolder(&EntryInfo1.folder);
   EntryInfo1.folder->Release();
-  //check if a custom column handler exists. If it does then grab it and pass it in
-  //to either GetCollationKey or GetLongField
-  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
 
   viewSortInfo comparisonContext;
   comparisonContext.view = this;
@@ -5914,11 +5922,17 @@ nsMsgDBView::GetThreadRootIndex(nsIMsgDBHdr *msgHdr)
   nsresult rv;
   uint16_t maxLen;
   eFieldType fieldType;
+
+  // Get the custom column handler for the primary sort and pass it first
+  // to GetFieldTypeAndLenForSort to get the fieldType and then either
+  // GetCollationKey or GetLongField.
+  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
+
   // The following may leave fieldType undefined.
   // In this case, we can return highIndex right away since
   // it is the value returned in the default case of
   // switch (fieldType) statement below.
-  rv = GetFieldTypeAndLenForSort(m_sortType, &maxLen, &fieldType);
+  rv = GetFieldTypeAndLenForSort(m_sortType, &maxLen, &fieldType, colHandler);
   NS_ENSURE_SUCCESS(rv, highIndex);
 
   const void *pValue1 = &EntryInfo1, *pValue2 = &EntryInfo2;
@@ -5927,9 +5941,6 @@ nsMsgDBView::GetThreadRootIndex(nsIMsgDBHdr *msgHdr)
   msgHdr->GetMessageKey(&EntryInfo1.id);
   msgHdr->GetFolder(&EntryInfo1.folder);
   EntryInfo1.folder->Release();
-  //check if a custom column handler exists. If it does then grab it and pass it in
-  //to either GetCollationKey or GetLongField
-  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
 
   viewSortInfo comparisonContext;
   comparisonContext.view = this;
@@ -6047,8 +6058,14 @@ void nsMsgDBView::InitEntryInfoForIndex(nsMsgViewIndex i, IdKeyPtr &EntryInfo)
   nsresult rv;
   uint16_t maxLen;
   eFieldType fieldType;
+
+  // Get the custom column handler for the primary sort and pass it first
+  // to GetFieldTypeAndLenForSort to get the fieldType and then either
+  // GetCollationKey or GetLongField.
+  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
+
   // The following may leave fieldType undefined.
-  rv = GetFieldTypeAndLenForSort(m_sortType, &maxLen, &fieldType);
+  rv = GetFieldTypeAndLenForSort(m_sortType, &maxLen, &fieldType, colHandler);
   NS_ASSERTION(NS_SUCCEEDED(rv),"failed to obtain fieldType");
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
@@ -6057,9 +6074,6 @@ void nsMsgDBView::InitEntryInfoForIndex(nsMsgViewIndex i, IdKeyPtr &EntryInfo)
   msgHdr->GetMessageKey(&EntryInfo.id);
   msgHdr->GetFolder(&EntryInfo.folder);
   EntryInfo.folder->Release();
-  //check if a custom column handler exists. If it does then grab it and pass it in
-  //to either GetCollationKey or GetLongField
-  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
 
   nsCOMPtr<nsIMsgDatabase> hdrDB;
   EntryInfo.folder->GetMsgDatabase(getter_AddRefs(hdrDB));
@@ -6088,12 +6102,18 @@ void nsMsgDBView::ValidateSort()
 
   uint16_t  maxLen;
   eFieldType fieldType;
+
+  // Get the custom column handler for the primary sort and pass it first
+  // to GetFieldTypeAndLenForSort to get the fieldType and then either
+  // GetCollationKey or GetLongField.
+  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
+
   // It is not entirely clear what we should do since,
   // if fieldType is not available, there is no way to know
   // how to compare the field to check for sorting.
   // So we bomb out here. It is OK since this is debug code
   // inside  #ifdef DEBUG_David_Bienvenu
-  rv = GetFieldTypeAndLenForSort(m_sortType, &maxLen, &fieldType);
+  rv = GetFieldTypeAndLenForSort(m_sortType, &maxLen, &fieldType, colHandler);
   NS_ASSERTION(NS_SUCCEEDED(rv),"failed to obtain fieldType");
 
   viewSortInfo comparisonContext;
