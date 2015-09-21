@@ -67,6 +67,8 @@ test_file_type (const char *filename, void *stream_closure)
   return strdup("text/html");
   else if (!PL_strcasecmp(suf, "gif"))
   return strdup("image/gif");
+  else if (!PL_strcasecmp(suf, "svg"))
+  return strdup("image/svg+xml");
   else if (!PL_strcasecmp(suf, "jpg") ||
        !PL_strcasecmp(suf, "jpeg"))
   return strdup("image/jpeg");
