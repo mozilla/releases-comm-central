@@ -96,14 +96,17 @@ function test_buttons_collapse_and_expand() {
   logState("entry");
 
   // -- GIANT!
-  resize_to(1200, 600);
+  resize_to(1260, 600);
   // Right, so resizeTo caps us at the display size limit, so we may end up
   // smaller than we want.  So let's turn off the folder pane too.
   collapse_panes(mc.e("folderpane_splitter"), true);
+
   // spin the event loop once
-  mc.sleep(0);
+  mc.sleep(50);
   logState("giant");
-  assertExpanded(1200);
+  assertExpanded(1260);
+  // NOTE! 1260 is actually not much above what's needed to get the
+  // expanded qfb.
 
   // -- tiny.
   collapse_panes(mc.e("folderpane_splitter"), false);
@@ -114,12 +117,12 @@ function test_buttons_collapse_and_expand() {
   assertCollapsed(600);
 
   // -- GIANT again!
-  resize_to(1200, 600);
+  resize_to(1260, 600);
   collapse_panes(mc.e("folderpane_splitter"), true);
   // spin the event loop once
-  mc.sleep(0);
+  mc.sleep(50);
   logState("giant again!");
-  assertExpanded(1200);
+  assertExpanded(1260);
 }
 
 function test_buttons_collapse_and_expand_on_spawn_in_vertical_mode() {
