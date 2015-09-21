@@ -360,7 +360,7 @@ FolderDisplayWidget.prototype = {
    * views. Not all views respect viewFlags, ie single folder non-virtual.
    */
   restoreThreadState: function() {
-    if (!this._active)
+    if (!this._active || !this.tree)
       return;
 
     if (this.view._threadExpandAll &&
