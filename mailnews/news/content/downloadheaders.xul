@@ -33,7 +33,7 @@
         <textbox id="number"
                  size="7"
                  type="number"
-                 min="0"
+                 min="1"
                  increment="10"
                  aria-labelledby="some number headers"/>
         <label value="&headers.label;" accesskey="&headers.accesskey;"
