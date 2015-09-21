@@ -518,10 +518,6 @@
 #ifdef MOZ_SERVICES_SYNC
 @RESPATH@/components/SyncComponents.manifest
 #endif
-@RESPATH@/components/TCPServerSocket.js
-@RESPATH@/components/TCPSocket.js
-@RESPATH@/components/TCPSocket.manifest
-@RESPATH@/components/TCPSocketParentIntermediary.js
 @RESPATH@/components/txEXSLTRegExFunctions.js
 @RESPATH@/components/txEXSLTRegExFunctions.manifest
 @RESPATH@/components/UnifiedComplete.manifest
