@@ -2,6 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+function findChromeWindowByURI(aURI) {
+  let windows = Services.wm.getEnumerator(null);
+  while (windows.hasMoreElements()) {
+    let win = windows.getNext();
+    if (win.location.href == aURI)
+      return win;
+  }
+  return null;
+}
+
 function getTestPlugin(aName) {
   var pluginName = aName || "Test Plug-in";
   var ph = Components.classes["@mozilla.org/plugin/host;1"]
