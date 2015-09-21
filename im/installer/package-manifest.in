@@ -419,10 +419,6 @@
 @RESPATH@/components/nsTaggingService.js
 @RESPATH@/components/PlacesCategoriesStarter.js
 @RESPATH@/components/servicesComponents.manifest
-@RESPATH@/components/TCPSocket.js
-@RESPATH@/components/TCPServerSocket.js
-@RESPATH@/components/TCPSocketParentIntermediary.js
-@RESPATH@/components/TCPSocket.manifest
 #ifdef MOZ_WEBRTC
 @RESPATH@/components/PeerConnection.js
 @RESPATH@/components/PeerConnection.manifest
