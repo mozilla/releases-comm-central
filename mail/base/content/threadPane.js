@@ -98,21 +98,24 @@ function HandleColumnClick(columnID)
 
 
   var sortType;
+  var curCustomColumn = gDBView.curCustomColumn;
   if (columnID in columnMap) {
     sortType = columnMap[columnID];
-  } else {
-    // If the column isn't in the map, check and see if it's a custom column
+  }
+  else {
+    // If the column isn't in the map, check if it's a custom column.
     try {
-      // try to grab the columnHandler (an error is thrown if it does not exist)
+      // Test for the columnHandler (an error is thrown if it does not exist).
       gDBView.getColumnHandler(columnID);
 
-      // it exists - set it to be the current custom column
+      // Handler is registered - set column to be the current custom column.
       gDBView.curCustomColumn = columnID;
-
       sortType = "byCustom";
-    } catch(err) {
-        dump("unsupported sort column: " + columnID + " - no custom handler installed. (Error was: " + err + ")\n");
-        return; // bail out
+    }
+    catch (ex) {
+      dump("HandleColumnClick: No custom column handler registered for " +
+           "columnID: " + columnID + " - " + ex + "\n");
+      return;
     }
   }
 
@@ -123,6 +126,7 @@ function HandleColumnClick(columnID)
   }
   catch (ex) {
   }
+
   if (sortType == "byThread") {
     if (simpleColumns)
       MsgToggleThreaded();
@@ -130,18 +134,23 @@ function HandleColumnClick(columnID)
       MsgReverseSortThreadPane();
     else
       MsgSortByThread();
+
+    return;
+  }
+
+  if (!simpleColumns && viewWrapper.showThreaded) {
+    viewWrapper.showUnthreaded = true;
+    MsgSortThreadPane(sortType);
+    return;
+  }
+
+  if (viewWrapper.primarySortType == nsMsgViewSortType[sortType] &&
+      (viewWrapper.primarySortType != nsMsgViewSortType.byCustom ||
+       curCustomColumn == columnID)) {
+    MsgReverseSortThreadPane();
   }
   else {
-    if (!simpleColumns && viewWrapper.showThreaded) {
-      viewWrapper.showUnthreaded = true;
-      MsgSortThreadPane(sortType);
-    }
-    else if (viewWrapper.primarySortType == nsMsgViewSortType[sortType]) {
-      MsgReverseSortThreadPane();
-    }
-    else {
-      MsgSortThreadPane(sortType);
-    }
+    MsgSortThreadPane(sortType);
   }
 }
 
@@ -190,19 +199,79 @@ function MsgSortByThread()
 
 function MsgSortThreadPane(sortName)
 {
-  var sortType = nsMsgViewSortType[sortName];
+  let sortType = nsMsgViewSortType[sortName];
+  let grouped = gFolderDisplay.view.showGroupedBySort;
+  gFolderDisplay.view._threadExpandAll =
+    Boolean(gFolderDisplay.view._viewFlags & nsMsgViewFlagsType.kExpandAll);
+
+  if (!grouped) {
+    gFolderDisplay.view.sort(sortType, nsMsgViewSortOrder.ascending);
+    // Respect user's last expandAll/collapseAll choice, post sort direction change.
+    gFolderDisplay.restoreThreadState();
+    return;
+  }
+
   // legacy behavior dictates we un-group-by-sort if we were.  this probably
   //  deserves a UX call...
+
+  // For non virtual folders, do not ungroup (which sorts by the going away
+  // sort) and then sort, as it's a double sort.
+  // For virtual folders, which are rebuilt in the backend in a grouped
+  // change, create a new view upfront rather than applying viewFlags. There
+  // are oddities just applying viewFlags, for example changing out of a
+  // custom column grouped xfvf view with the threads collapsed works (doesn't)
+  // differently than other variations.
+  // So, first set the desired sortType and sortOrder, then set viewFlags in
+  // batch mode, then apply it all (open a new view) with endViewUpdate().
+  gFolderDisplay.view.beginViewUpdate();
+  gFolderDisplay.view._sort = [[sortType, nsMsgViewSortOrder.ascending]];
   gFolderDisplay.view.showGroupedBySort = false;
-  gFolderDisplay.view.sort(sortType, nsMsgViewSortOrder.ascending)
+  gFolderDisplay.view.endViewUpdate();
+
+  // Virtual folders don't persist viewFlags well in the back end,
+  // due to a virtual folder being either 'real' or synthetic, so make
+  // sure it's done here.
+  if (gFolderDisplay.view.isVirtual)
+    gFolderDisplay.view.dbView.viewFlags = gFolderDisplay.view.viewFlags;
 }
 
 function MsgReverseSortThreadPane()
 {
+  let grouped = gFolderDisplay.view.showGroupedBySort;
+  gFolderDisplay.view._threadExpandAll =
+    Boolean(gFolderDisplay.view._viewFlags & nsMsgViewFlagsType.kExpandAll);
+
+  // Grouped By view is special for column click sort direction changes.
+  if (grouped) {
+    if (gDBView.selection.count)
+      gFolderDisplay._saveSelection();
+
+    if (gFolderDisplay.view.isSingleFolder) {
+      if (gFolderDisplay.view.isVirtual)
+        gFolderDisplay.view.showGroupedBySort = false;
+      else
+       // Must ensure rows are collapsed and kExpandAll is unset.
+       gFolderDisplay.doCommand(nsMsgViewCommandType.collapseAll);
+    }
+  }
+
   if (gFolderDisplay.view.isSortedAscending)
     gFolderDisplay.view.sortDescending();
   else
     gFolderDisplay.view.sortAscending();
+
+  // Restore Grouped By state post sort direction change.
+  if (grouped) {
+    if (gFolderDisplay.view.isVirtual && gFolderDisplay.view.isSingleFolder)
+      MsgGroupBySort();
+
+    // Restore Grouped By selection post sort direction change.
+    gFolderDisplay._restoreSelection();
+  }
+
+  // Respect user's last expandAll/collapseAll choice, for both threaded and grouped
+  // views, post sort direction change.
+  gFolderDisplay.restoreThreadState();
 }
 
 function MsgToggleThreaded()
@@ -230,11 +299,25 @@ function MsgSortUnthreaded()
 
 function MsgSortAscending()
 {
+  if (gFolderDisplay.view.showGroupedBySort && gFolderDisplay.view.isSingleFolder) {
+    if (gFolderDisplay.view.isSortedDescending)
+       MsgReverseSortThreadPane();
+
+    return;
+  }
+
   gFolderDisplay.view.sortAscending();
 }
 
 function MsgSortDescending()
 {
+  if (gFolderDisplay.view.showGroupedBySort && gFolderDisplay.view.isSingleFolder) {
+    if (gFolderDisplay.view.isSortedAscending)
+       MsgReverseSortThreadPane();
+
+    return;
+  }
+
   gFolderDisplay.view.sortDescending();
 }
 
