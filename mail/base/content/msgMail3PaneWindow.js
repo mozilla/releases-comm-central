@@ -298,8 +298,7 @@ function UpdateMailPaneConfig(aMsgWindowInitialized) {
     {
       messenger.setWindow(null, null);
       messenger.setWindow(window, msgWindow);
-      if (gDBView && GetNumSelectedMessages() == 1)
-        gDBView.reloadMessage();
+      ReloadMessage();
     }
 
     // The quick filter bar gets badly lied to due to standard XUL/XBL problems,

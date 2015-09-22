@@ -1313,7 +1313,7 @@ function UpdateDeleteToolbarButton()
   // Never show "Undelete" in the 3-pane for folders, when delete would
   // apply to the selected folder.
   if (gFolderDisplay.focusedPane == document.getElementById("folderTree") &&
-      GetNumSelectedMessages() == 0)
+      gFolderDisplay.selectedCount == 0)
     deleteButtonDeck.selectedIndex = 0;
   else
     deleteButtonDeck.selectedIndex = SelectedMessagesAreDeleted() ? 1 : 0;
@@ -1323,7 +1323,7 @@ function UpdateDeleteCommand()
   var value = "value";
   if (SelectedMessagesAreDeleted())
     value += "IMAPDeleted";
-  if (GetNumSelectedMessages() < 2)
+  if (gFolderDisplay.selectedCount < 2)
     value += "Message";
   else
     value += "Messages";
@@ -2081,7 +2081,7 @@ function MsgSaveAsFile()
 
 function MsgSaveAsTemplate()
 {
-  if (GetNumSelectedMessages() == 1)
+  if (gFolderDisplay.selectedCount == 1)
     SaveAsTemplate(gFolderDisplay.selectedMessageUris[0]);
 }
 
@@ -2881,8 +2881,8 @@ function HandleJunkStatusChanged(folder)
 
   // If multiple message are selected and we change the junk status
   // we don't want to show the junk bar (since the message pane is blank).
-  let msgHdr = (GetNumSelectedMessages() == 1) ?
-    gMessageDisplay.displayedMessage : null;
+  let msgHdr = gFolderDisplay.selectedCount == 1 ?
+                 gMessageDisplay.displayedMessage : null;
   let junkBarWasDisplayed = gMessageNotificationBar.isShowingJunkNotification();
   gMessageNotificationBar.setJunkMsg(msgHdr);
 

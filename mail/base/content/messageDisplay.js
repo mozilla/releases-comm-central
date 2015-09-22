@@ -333,7 +333,9 @@ MessageDisplayWidget.prototype = {
                  this);
 
     if (this.folderDisplay.selectedCount == 0) {
-      // If there's no messages selected, show the folder summary.
+      // If there are no messages selected, show the folder summary. Gloda will
+      // break if passed empty selectedMessages, so do not use any tree row
+      // count value to indicate messages (dummy rows are not messages).
       summarizeFolder(this);
     }
     else {

@@ -104,7 +104,7 @@ function UpdateStatusMessageCounts(folder)
   var totalElement = document.getElementById("totalMessageCount");
   if (folder && !folder.isServer && unreadElement && totalElement)
   {
-    var numSelected = GetNumSelectedMessages();
+    var numSelected = gFolderDisplay.selectedCount;
     var bundle = document.getElementById("bundle_messenger");
 
     var numUnread = (numSelected > 1) ?

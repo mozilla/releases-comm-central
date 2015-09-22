@@ -2044,9 +2044,7 @@ FolderDisplayWidget.prototype = {
    *  conceptually have all of the messages in that thread selected.
    */
   get selectedCount() {
-    if (!this.view.dbView)
-      return 0;
-    return this.view.dbView.numSelected;
+    return this.selectedMessages.length;
   },
 
   /**

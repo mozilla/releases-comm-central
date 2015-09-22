@@ -60,14 +60,14 @@ var nsSearchResultsController =
 
         switch (command) {
           case "open_in_folder_button":
-            if (GetNumSelectedMessages() != 1)
+            if (gFolderDisplay.selectedCount != 1)
               enabled = false;
             break;
           case "cmd_delete":
           case "cmd_shiftDelete":
           case "button_delete":
             // this assumes that advanced searches don't cross accounts
-            if (GetNumSelectedMessages() <= 0)
+            if (gFolderDisplay.selectedCount <= 0)
               enabled = false;
             break;
           case "saveas_vf_button":
@@ -76,7 +76,7 @@ var nsSearchResultsController =
           case "cmd_selectAll":
             return true;
           default:
-            if (GetNumSelectedMessages() <= 0)
+            if (gFolderDisplay.selectedCount <= 0)
               enabled = false;
             break;
         }
@@ -547,12 +547,6 @@ function onSearchButton(event)
         onSearch();
     else
         onSearchStop();
-}
-
-// threadPane.js will be needing this, too
-function GetNumSelectedMessages()
-{
-  return gFolderDisplay.treeSelection.count;
 }
 
 function MsgDeleteSelectedMessages(aCommandType)

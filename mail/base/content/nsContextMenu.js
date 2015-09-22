@@ -588,7 +588,7 @@ nsContextMenu.prototype = {
     this.messagepaneIsBlank = (document.getElementById("messagepane")
       .contentWindow.location.href == "about:blank");
 
-    this.numSelectedMessages = GetNumSelectedMessages();
+    this.numSelectedMessages = gFolderDisplay.selectedCount;
     this.isNewsgroup = gFolderDisplay.selectedMessageIsNews;
     // Don't show mail items for links/images, just show related items.
     this.hideMailItems = !this.inThreadPane &&

@@ -27,7 +27,7 @@ var FolderPaneController =
         // we have a selected message, but do a message delete instead.
         // Return false here supportsCommand and let the command fall back
         // to the DefaultController.
-        if (GetNumSelectedMessages() != 0)
+        if (gFolderDisplay.selectedCount != 0)
           return false;
         // else fall through
       case "cmd_cut":
@@ -297,7 +297,7 @@ var DefaultController =
         return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.junk);
       case "cmd_killThread":
       case "cmd_killSubthread":
-        return (GetNumSelectedMessages() > 0);
+        return gFolderDisplay.selectedCount > 0;
       case "cmd_watchThread":
         return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.toggleThreadWatched);
       case "cmd_createFilterFromPopup":
@@ -306,12 +306,12 @@ var DefaultController =
                gFolderDisplay.selectedMessage.folder &&
                gFolderDisplay.selectedMessage.folder.server.canHaveFilters;
       case "cmd_openConversation":
-        return gFolderDisplay.selectedMessages.length == 1 &&
+        return gFolderDisplay.selectedCount == 1 &&
                gConversationOpener.isSelectedMessageIndexed();
       case "cmd_saveAsFile":
-        return GetNumSelectedMessages() > 0;
+        return gFolderDisplay.selectedCount > 0;
       case "cmd_saveAsTemplate":
-        if (GetNumSelectedMessages() > 1)
+        if (gFolderDisplay.selectedCount > 1)
           return false;   // else fall thru
       case "cmd_reply":
       case "button_reply":
@@ -333,7 +333,7 @@ var DefaultController =
       case "cmd_viewPageSource":
       case "cmd_reload":
       case "cmd_applyFiltersToSelection":
-        let numSelected = GetNumSelectedMessages();
+        let numSelected = gFolderDisplay.selectedCount;
         if (command == "cmd_applyFiltersToSelection")
         {
           var whichText = "valueMessage";
@@ -365,7 +365,7 @@ var DefaultController =
         }
         return false;
       case "cmd_printpreview":
-        if (GetNumSelectedMessages() == 1)
+        if (gFolderDisplay.selectedCount == 1)
           return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.cmdRequiringMsgBody);
         return false;
       case "cmd_newMessage":
@@ -376,7 +376,7 @@ var DefaultController =
         return true;
       case "cmd_markAsFlagged":
       case "button_file":
-        return GetNumSelectedMessages() > 0;
+        return gFolderDisplay.selectedCount > 0;
       case "cmd_archive":
       case "button_archive":
         return gFolderDisplay.canArchiveSelectedMessages;
@@ -414,7 +414,7 @@ var DefaultController =
       case "cmd_tag9":
       case "cmd_toggleRead":
       case "cmd_markThreadAsRead":
-        return GetNumSelectedMessages() > 0;
+        return gFolderDisplay.selectedCount > 0;
       case "cmd_markAsRead":
         return CanMarkMsgAsRead(true);
       case "cmd_markAsUnread":
@@ -456,7 +456,7 @@ var DefaultController =
 
         // Otherwise, only allow searching if we're showing the message pane
         // and have more than one message selected.
-        return (!IsMessagePaneCollapsed() && (GetNumSelectedMessages() == 1));
+        return (!IsMessagePaneCollapsed() && gFolderDisplay.selectedCount == 1);
       case "cmd_search":
         return MailServices.accounts.accounts.length > 0;
       case "cmd_selectAll":
@@ -464,7 +464,8 @@ var DefaultController =
         return !!gDBView;
       // these are enabled on when we are in threaded mode
       case "cmd_selectThread":
-        if (GetNumSelectedMessages() <= 0) return false;
+        if (gFolderDisplay.selectedCount <= 0)
+          return false;
       case "cmd_expandAllThreads":
       case "cmd_collapseAllThreads":
         return gFolderDisplay.view.showThreaded;
@@ -539,7 +540,7 @@ var DefaultController =
       case "cmd_downloadFlagged":
         return(IsFolderSelected() && MailOfflineMgr.isOnline());
       case "cmd_downloadSelected":
-        return (IsFolderSelected() && MailOfflineMgr.isOnline() && GetNumSelectedMessages() > 0);
+        return (IsFolderSelected() && MailOfflineMgr.isOnline() && gFolderDisplay.selectedCount > 0);
       case "cmd_synchronizeOffline":
         return MailOfflineMgr.isOnline();
       case "cmd_settingsOffline":
@@ -559,7 +560,7 @@ var DefaultController =
         let targetFolder = MailUtils.getFolderForURI(targetURI);
         // If parent is null, folder doesn't exist.
         return targetFolder && targetFolder.parent &&
-               GetNumSelectedMessages() > 0;
+               gFolderDisplay.selectedCount > 0;
       case "cmd_fullZoomReduce":
       case "cmd_fullZoomEnlarge":
       case "cmd_fullZoomReset":
@@ -1100,7 +1101,8 @@ function CloseTabOrWindow()
 
 function GetNumSelectedMessages()
 {
-  return gDBView ? gDBView.numSelected : 0;
+  // This global function is only for mailnews/ compatibility.
+  return gFolderDisplay.selectedCount;
 }
 
 var gLastFocusedElement=null;
