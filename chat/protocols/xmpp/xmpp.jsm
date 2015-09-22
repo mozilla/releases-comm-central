@@ -170,39 +170,28 @@ const XMPPMUCConversationPrototype = {
 
   get topic() this._topic,
   set topic(aTopic) {
-    let notAuthorized = (aError) => {
-      // XEP-0045 (8.1): Unauthorized subject change.
-      let message = _("conversation.error.changeTopicFailedNotAuthorized");
-      this.writeMessage(this.name, message, {system: true, error: true});
-      return true;
-    };
-    let errorHandler = this._account.handleErrors({forbidden: notAuthorized,
-                                                   notAcceptable: notAuthorized,
-                                                   itemNotFound: notAuthorized});
-
     // XEP-0045 (8.1): Modifying the room subject.
     let subject = Stanza.node("subject", null, null, aTopic.trim());
     let s = Stanza.message(this.name, null, null,{type: "groupchat"}, subject);
-    this._account.sendStanza(s, errorHandler);
+    let notAuthorized = _("conversation.error.changeTopicFailedNotAuthorized");
+    this._account.sendStanza(s, this._account.handleErrors({
+      forbidden: notAuthorized,
+      notAcceptable: notAuthorized,
+      itemNotFound: notAuthorized
+    }, this));
   },
   get topicSettable() true,
 
   /* Called when the user enters a chat message */
   sendMsg: function (aMsg) {
-    let notInRoom = (aError) => {
-      // If the sender is not in the room.
-      let from = aError.stanza.attributes["from"];
-      let message = _("conversation.error.sendFailedAsNotInRoom",
-                      this._account.normalize(from), aMsg);
-      this.writeMessage(from, message, {system: true, error: true});
-      return true;
-    };
-    let errorHandler = this._account.handleErrors({itemNotFound: notInRoom,
-                                                   notAcceptable: notInRoom});
-
     // XEP-0045 (7.4): Sending a message to all occupants in a room.
     let s = Stanza.message(this.name, aMsg, null, {type: "groupchat"});
-    this._account.sendStanza(s, errorHandler);
+    let notInRoom = _("conversation.error.sendFailedAsNotInRoom",
+                      this.name, aMsg);
+    this._account.sendStanza(s, this._account.handleErrors({
+      itemNotFound: notInRoom,
+      notAcceptable: notInRoom
+    }, this));
   },
 
   /* Called by the account when a presence stanza is received for this muc */
@@ -472,51 +461,28 @@ const XMPPMUCConversationPrototype = {
 
   // Callback for ban and kick commands.
   _banKickHandler: function(aStanza) {
-    if (aStanza.attributes["type"] == "error") {
-      let error = this._account.parseError(aStanza);
-      let message;
-      switch (error.condition) {
-        case "not-allowed":
-          message = _("conversation.error.banKickCommandNotAllowed");
-          break;
-        case "conflict":
-          message = _("conversation.error.banKickCommandConflict");
-          break;
-        default:
-          return false;
-      }
-      this.writeMessage(this.name, message, {system: true});
+    if (aStanza.attributes["type"] == "result")
       return true;
-    }
-    else if (aStanza.attributes["type"] == "result")
-      return true;
-    return false;
+    let errorHandler = this._account.handleErrors({
+      notAllowed: _("conversation.error.banKickCommandNotAllowed"),
+      conflict: _("conversation.error.banKickCommandConflict")
+    }, this);
+    return errorHandler(aStanza);
   },
 
   // Changes nick in MUC conversation to a new one.
   setNick: function(aNewNick) {
-    let notAcceptable = (aError) => {
-      // XEP-0045 (7.6): Changing Nickname (example 53).
-      let message = _("conversation.error.changeNickFailedNotAcceptable",
-                      aNewNick);
-      this.writeMessage(this.name, message, {system: true, error: true});
-      // TODO: We should then discover user's reserved nickname (it could be
-      // discovered before joining a room).
-      // XEP-0045 (7.12): Discovering Reserved Room Nickname.
-      return true;
-    };
-    let conflict = (aError) => {
-      // XEP-0045 (7.2.9): Nickname Conflict.
-      let message = _("conversation.error.changeNickFailedConflict", aNewNick);
-      this.writeMessage(this.name, message, {system: true, error: true});
-      return true;
-    };
-    let errorHandler = this._account.handleErrors({notAcceptable: notAcceptable,
-                                                   conflict: conflict});
-
     // XEP-0045 (7.6): Changing Nickname.
     let s = Stanza.presence({to: this.name + "/" + aNewNick}, null);
-    this._account.sendStanza(s, errorHandler);
+    this._account.sendStanza(s, this._account.handleErrors({
+      // XEP-0045 (7.6): Changing Nickname (example 53).
+      // TODO: We should discover if the user has a reserved nickname (maybe
+      // before joining a room), cf. XEP-0045 (7.12).
+      notAcceptable: _("conversation.error.changeNickFailedNotAcceptable",
+                       aNewNick),
+      // XEP-0045 (7.2.9): Nickname Conflict.
+      conflict: _("conversation.error.changeNickFailedConflict", aNewNick)
+    }, this));
   },
 
   /* Called when the user closed the conversation */
@@ -1411,16 +1377,21 @@ const XMPPAccountPrototype = {
   },
 
   // Returns an error-handling callback for use with sendStanza generated
-  // from aHandlers, an object containing the error handlers.
-  // If the stanza passed to the callback is an error stanza, and
-  // aHandlers contains a method with the name of the defined condition
-  // of the error, that method is called. It should return true if the
-  // error was handled.
+  // from aHandlers, an object defining the error handlers.
+  // If the stanza passed to the callback is an error stanza, it checks if
+  // aHandlers contains a property with the name of the defined condition
+  // of the error.
+  // * If the property is a function, it is called with the parsed error
+  //   as its argument, bound to aThis (if provided).
+  //   It should return true if the error was handled.
+  // * If the property is a string, it is displayed as a system message
+  //   in the conversation given by aThis.
   handleErrors(aHandlers, aThis) {
     return (aStanza) => {
       let error = this.parseError(aStanza);
       if (!error)
         return false;
+
       let toCamelCase = aStr => {
         // Turn defined condition string into a valid camelcase
         // JS property name.
@@ -1429,9 +1400,31 @@ const XMPPAccountPrototype = {
         return uncapitalize(aStr.split("-").map(capitalize).join(""));
       }
       let condition = toCamelCase(error.condition);
+      // Check if we have a handler property for this kind of error.
       if (!(condition in aHandlers))
         return false;
-      return aHandlers[condition].call(aThis, error);
+
+      let handler = aHandlers[condition];
+      if (typeof handler == "string") {
+        // The string is an error message to be displayed in the conversation.
+        if (!aThis || !aThis.writeMessage) {
+          this.ERROR("HandleErrors was passed an error message string, but " +
+            "no conversation to display it in:\n" + handler);
+          return true;
+        }
+        aThis.writeMessage(aThis.name, handler, {system: true, error: true});
+        return true;
+      }
+      else if (typeof handler == "function") {
+        // If we're given a function, call this error handler.
+        return handler.call(aThis, error);
+      }
+      else {
+        // If this happens, there's a bug somewhere.
+        this.ERROR("HandleErrors was passed a handler for '" + condition +
+          "'' which is neither a function nor a string.");
+        return false;
+      }
     };
   },
 
