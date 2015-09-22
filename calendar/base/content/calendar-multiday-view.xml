@@ -3258,7 +3258,7 @@
               workday.makeImmutable();
               if (this.mDisplayDaysOff) {
                   computedDateList.push(workday);
-              } else if (this.mDaysOffArray.indexOf(startDate.weekday) == -1) {
+              } else if (!this.mDaysOffArray.includes(startDate.weekday)) {
                   computedDateList.push(workday);
               }
               startDate.day += 1;

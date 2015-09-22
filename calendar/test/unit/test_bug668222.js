@@ -18,5 +18,5 @@ function run_test() {
     // Also make sure there are no promoted properties set. This does not
     // technically belong to this bug, but I almost caused this error while
     // writing the patch.
-    ok(attendee.icalProperty.icalString.indexOf("RSVP") < 0);
+    ok(!attendee.icalProperty.icalString.includes("RSVP"));
 }

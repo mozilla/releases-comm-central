@@ -611,7 +611,7 @@ function calWcapCalendar_tunnelXProps(destItem, srcItem) {
         try {
             var prop = enumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
             var name = prop.name;
-            if (name.indexOf("X-MOZ-") == 0) {
+            if (name.startsWith("X-MOZ-")) {
                 switch (name) {
                     // keep snooze stamps for occurrences only and if alarm is still set:
                     case "X-MOZ-SNOOZE-TIME":

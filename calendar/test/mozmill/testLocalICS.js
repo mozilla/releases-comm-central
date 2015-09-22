@@ -93,7 +93,7 @@ var testLocalICS = function () {
   cstream.readString(-1, str);
   cstream.close();
 
-  controller.assertJS(str.value.indexOf("SUMMARY:" + title) != -1);
+  controller.assertJS(str.value.includes("SUMMARY:" + title));
 }
 
 var teardownTest = function(module) {

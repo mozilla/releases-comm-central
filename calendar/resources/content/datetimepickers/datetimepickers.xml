@@ -160,14 +160,14 @@
            // Remove commas
            val = val.replace(',', '');
 
-           if (val.indexOf(' ') == -1) {
+           if (!val.includes(' ')) {
              // Just a single word, or a single date.
              return getDateForDay(val);
            }
 
            // Replace month names with numbers
            for (var i in this.mMonthLongNames) {
-             if (val.indexOf(this.mMonthLongNames[i]) != -1) {
+             if (val.includes(this.mMonthLongNames[i])) {
                var newVal = val.replace(this.mMonthLongNames[i], Number(i)+1);
                newVal = newVal.replace(' ', '/');
                return this.parseDateTime(newVal);
@@ -176,7 +176,7 @@
 
           // Same for short month names
            for (var i in this.mMonthShortNames) {
-             if (val.indexOf(this.mMonthShortNames[i]) != -1) {
+             if (val.includes(this.mMonthShortNames[i])) {
                var newVal = val.replace(this.mMonthShortNames[i], Number(i)+1);
                newVal = newVal.replace(' ', '/');
                return this.parseDateTime(newVal);
@@ -1929,7 +1929,7 @@
             this.amRegExp = new RegExp("^(?:"+amExpr+")$");
             this.pmRegExp = new RegExp("^(?:"+pmExpr+")$");
             // build time display format that mimics "%x" format without seconds
-            var ampmSep = (pmProbeString.indexOf(' ') != -1? " " : "");
+            var ampmSep = (pmProbeString.includes(' ') ? " " : "");
 	          if (this.ampmIndex == PRE_INDEX)
               this.kTimeFormatString = "%p" + ampmSep + "%I:%M";
             else if (this.ampmIndex == POST_INDEX)

@@ -158,7 +158,7 @@ function test_audio_alarm() {
     let addedAttachments = alarm.getAttachments({});
     equal(addedAttachments.length, 1);
     equal(addedAttachments[0], sound);
-    ok(alarm.icalString.indexOf("ATTACH:file:///sound.wav") > -1);
+    ok(alarm.icalString.includes("ATTACH:file:///sound.wav"));
 
     // Adding twice shouldn't change anything
     alarm.addAttachment(sound);
@@ -310,10 +310,10 @@ function test_xprop() {
     alarm.description = "test";
     alarm.related = Ci.calIAlarm.ALARM_RELATED_START
     alarm.offset = createDuration("-PT5M");
-    ok(alarm.icalComponent.serializeToICS().indexOf(dt.icalString) > -1);
+    ok(alarm.icalComponent.serializeToICS().includes(dt.icalString));
 
     alarm.deleteProperty("X-MOZ-LASTACK");
-    ok(!alarm.icalComponent.serializeToICS().indexOf(dt.icalString) > -1);
+    ok(!alarm.icalComponent.serializeToICS().includes(dt.icalString));
     dump("Done\n");
 }
 

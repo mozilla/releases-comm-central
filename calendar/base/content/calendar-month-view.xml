@@ -928,7 +928,7 @@
           let headerkids = document.getAnonymousElementByAttribute(this, "anonid", "labeldaybox").childNodes;
           for (var i in columns) {
             var dayForColumn = (Number(i) + this.mWeekStartOffset) % 7;
-            var dayOff = (this.mDaysOffArray.indexOf(dayForColumn) != -1);
+            var dayOff = this.mDaysOffArray.includes(dayForColumn);
             columns[i].collapsed = dayOff && !this.mDisplayDaysOff;
             headerkids[i].collapsed = dayOff && !this.mDisplayDaysOff;
           }

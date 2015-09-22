@@ -423,7 +423,7 @@ function setData(controller, data) {
     + 'anon({"anonid":"input"})');
   let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
                               .getService(Components.interfaces.nsIScriptableDateFormat);
-  let mac = utils.appInfo.os.toLowerCase().indexOf("darwin") != -1;
+  let mac = utils.appInfo.os.toLowerCase().includes("darwin");
   // wait for input elements' values to be populated
   controller.sleep(sleep);
   

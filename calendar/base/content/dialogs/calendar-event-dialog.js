@@ -1612,7 +1612,7 @@ function updatePrivacy() {
 
                     // Hide the toolbar if the value is unsupported or is for a
                     // specific provider and doesn't belong to the current provider.
-                    if (privacyValues.indexOf(currentPrivacyValue) < 0 ||
+                    if (!privacyValues.includes(currentPrivacyValue) ||
                         (currentProvider && currentProvider != calendar.type)) {
                         node.setAttribute("collapsed", "true");
                     } else {
@@ -1641,7 +1641,7 @@ function updatePrivacy() {
 
                 // Hide the menu if the value is unsupported or is for a
                 // specific provider and doesn't belong to the current provider.
-                if (privacyValues.indexOf(currentPrivacyValue) < 0 ||
+                if (!privacyValues.includes(currentPrivacyValue) ||
                     (currentProvider && currentProvider != calendar.type)) {
                     node.setAttribute("collapsed", "true");
                 } else {
@@ -1670,7 +1670,7 @@ function updatePrivacy() {
                 // Hide the panel if the value is unsupported or is for a
                 // specific provider and doesn't belong to the current provider,
                 // or is not the items privacy value
-                if (privacyValues.indexOf(currentPrivacyValue) < 0 ||
+                if (!privacyValues.includes(currentPrivacyValue) ||
                     (currentProvider && currentProvider != calendar.type) ||
                     gPrivacy != currentPrivacyValue) {
                     node.setAttribute("collapsed", "true");

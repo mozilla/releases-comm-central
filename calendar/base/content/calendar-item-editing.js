@@ -111,7 +111,7 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
             }
 
             let units = Preferences.get("calendar.task.defaultstartoffsetunits", "minutes");
-            if (["days", "hours", "minutes"].indexOf(units) < 0) {
+            if (!["days", "hours", "minutes"].includes(units)) {
                 units = "minutes";
             }
             let startOffset = cal.createDuration();
@@ -156,7 +156,7 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
             let defaultDue = Preferences.get("calendar.task.defaultdue", "none");
 
             let units = Preferences.get("calendar.task.defaultdueoffsetunits", "minutes");
-            if (["days", "hours", "minutes"].indexOf(units) < 0) {
+            if (!["days", "hours", "minutes"].includes(units)) {
                 units = "minutes";
             }
             let dueOffset = cal.createDuration();

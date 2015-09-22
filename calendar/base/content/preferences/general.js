@@ -70,9 +70,9 @@ var gCalendarGeneralPane = {
         let offsetValues = ["offsetcurrent", "offsetnexthour"];
 
         document.getElementById("default_task_due_offset")
-                .style.visibility = offsetValues.indexOf(defaultDue) > -1 ? "" : "hidden";
+                .style.visibility = offsetValues.includes(defaultDue) ? "" : "hidden";
         document.getElementById("default_task_start_offset")
-                .style.visibility = offsetValues.indexOf(defaultStart) > -1 ? "" : "hidden";
+                .style.visibility = offsetValues.includes(defaultStart) ? "" : "hidden";
 
         updateMenuLabelsPlural("default_task_start_offset_text", "default_task_start_offset_units");
         updateMenuLabelsPlural("default_task_due_offset_text", "default_task_due_offset_units");

@@ -545,8 +545,7 @@ webDavSyncHandler.prototype = {
 
                 if ((!r.getcontenttype || r.getcontenttype == "text/plain")  &&
                     r.href &&
-                    r.href.length >= 4 &&
-                    r.href.substr(r.href.length - 4,4) == ".ics") {
+                    r.href.endsWith(".ics")) {
                   // If there is no content-type (iCloud) or text/plain was passed
                   // (iCal Server) for the resource but its name ends with ".ics"
                   // assume the content type to be text/calendar. Apple
@@ -585,7 +584,7 @@ webDavSyncHandler.prototype = {
                         this.itemsNeedFetching.push(r.href);
                     }
                 } else if (r.status &&
-                            r.status.indexOf(" 507") > -1) {
+                           r.status.includes(" 507")) {
                     // webdav-sync says that if a 507 is encountered and the
                     // url matches the request, the current token should be
                     // saved and another request should be made. We don't
@@ -604,9 +603,9 @@ webDavSyncHandler.prototype = {
                     // want to make sure these are not counted as unhandled
                     // errors in the next block
                 } else if ((r.getcontenttype &&
-                            r.getcontenttype.substr(0,13) == "text/calendar") ||
+                            r.getcontenttype.startsWith("text/calendar") ||
                            (r.status &&
-                            r.status.indexOf(" 404") == -1)) {
+                            !r.status.includes(" 404"))) {
                     // If the response element is still not handled, log an
                     // error only if the content-type is text/calendar or the
                     // response status is different than 404 not found.  We

@@ -184,7 +184,7 @@ calTimezoneService.prototype = {
             cal.ERROR("Unknown timezone requested\n" + cal.STACK(10));
             return null;
         }
-        if (tzid.indexOf("/mozilla.org/") == 0) {
+        if (tzid.startsWith("/mozilla.org/")) {
             // We know that our former tzids look like "/mozilla.org/<dtstamp>/continent/..."
             // The ending of the mozilla prefix is the index of that slash before the
             // continent. Therefore, we start looking for the prefix-ending slash

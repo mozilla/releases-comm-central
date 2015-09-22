@@ -21,12 +21,12 @@ function test_values() {
 
         // Check if all expected attendees are found
         for (let i = 0; i < expectedAttendees.length; i++) {
-            notEqual(allAttendees.indexOf(expectedAttendees[i]), -1);
+            ok(allAttendees.includes(expectedAttendees[i]));
         }
 
         // Check if all found attendees are expected
         for (let i = 0; i < allAttendees.length; i++) {
-            notEqual(expectedAttendees.indexOf(allAttendees[i]), -1);
+            ok(expectedAttendees.includes(allAttendees[i]));
         }
     }
     function findById(event, id, a) {

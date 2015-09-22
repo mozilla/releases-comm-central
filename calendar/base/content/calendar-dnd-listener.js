@@ -233,7 +233,7 @@ calDNDBaseObserver.prototype = {
         }
 
         // Treat unicode data with VEVENT in it as text/calendar
-        if (bestFlavor.value == "text/unicode" && data.toString().indexOf("VEVENT") != -1) {
+        if (bestFlavor.value == "text/unicode" && data.toString().includes("VEVENT")) {
             bestFlavor.value = "text/calendar";
         }
 

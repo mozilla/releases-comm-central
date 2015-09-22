@@ -254,8 +254,8 @@ function checkTooltip(monthView, row, col, date, startTime, endTime){
   let dateTime = new elementslib.Lookup(controller.window.document,
     '/id("messengerWindow")/id("calendar-popupset")/id("itemTooltip")/'
     + '{"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/[1]/[2]/[1]').getNode().textContent + '';
-  controller.assertJS(dateTime.indexOf(date) != -1 && dateTime.indexOf(startTime) != -1
-    && dateTime.indexOf(endTime) != -1);
+  controller.assertJS(dateTime.includes(date) && dateTime.includes(startTime)
+    && dateTime.includes(endTime));
 }
 
 var teardownTest = function(module) {

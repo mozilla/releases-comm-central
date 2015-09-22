@@ -338,7 +338,7 @@ function getDefaultAlarmType() {
     let calendar = getCurrentCalendar();
     let alarmCaps = calendar.getProperty("capabilities.alarms.actionValues") ||
                     ["DISPLAY"];
-    return (alarmCaps.indexOf("DISPLAY") < 0 ? alarmCaps[0] : "DISPLAY");
+    return (alarmCaps.includes("DISPLAY") ? "DISPLAY" : alarmCaps[0]);
 }
 
 /**

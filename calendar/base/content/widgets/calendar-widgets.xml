@@ -342,8 +342,7 @@
                 return false;
             }
             var collapsedModes = this.getAttribute("collapsedinmodes").split(",");
-            var modeIndex = collapsedModes.indexOf(lMode);
-            return (modeIndex == -1);
+            return (!collapsedModes.includes(lMode));
         ]]></body>
       </method>
 
@@ -445,7 +444,7 @@
                 lModes = modeString.split(",");
             }
             if (lModes && lModes.length > 0) {
-                display = lModes.indexOf(lMode) > -1;
+                display = lModes.includes(lMode);
             }
             return display;
         ]]></body>

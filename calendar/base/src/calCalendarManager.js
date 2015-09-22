@@ -150,7 +150,7 @@ calCalendarManager.prototype = {
                     // the "cal" namespace defined
                     let ua = httpChannel.getRequestHeader("User-Agent");
                     let calUAString = Preferences.get("calendar.useragent.extra");
-                    if (calUAString && ua.indexOf(calUAString) < 0) {
+                    if (calUAString && !ua.includes(calUAString)) {
                         // User-Agent is not a mergeable header. We need to
                         // merge the user agent ourselves.
                         httpChannel.setRequestHeader("User-Agent",

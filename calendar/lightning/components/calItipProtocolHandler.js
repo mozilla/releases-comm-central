@@ -111,7 +111,7 @@ ItipContentHandler.prototype = {
     handleContent: function (contentType, windowTarget, request) {
         let channel = request.QueryInterface(CI.nsIChannel);
         let uri = channel.URI.spec;
-        if (uri.indexOf(ITIP_HANDLER_PROTOCOL + ":") != 0) {
+        if (!uri.startsWith(ITIP_HANDLER_PROTOCOL + ":")) {
             cal.ERROR("Unexpected iTIP uri: " + uri + "\n");
             return Components.results.NS_ERROR_FAILURE;
         }

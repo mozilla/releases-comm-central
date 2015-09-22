@@ -22,7 +22,7 @@ cal.alarms = {
             let units = Preferences.get("calendar.alarms." + type + "alarmunit", "minutes");
 
             // Make sure the alarm pref is valid, default to minutes otherwise
-            if (["weeks", "days", "hours", "minutes", "seconds"].indexOf(units) < 0) {
+            if (!["weeks", "days", "hours", "minutes", "seconds"].includes(units)) {
                 units = "minutes";
             }
 
@@ -42,7 +42,7 @@ cal.alarms = {
                                  aItem.calendar.getProperty("capabilities.alarms.actionValues")) ||
                                 ["DISPLAY"]);
 
-            alarm.action = (actionValues.indexOf("DISPLAY") < 0 ? actionValues[0] : "DISPLAY");
+            alarm.action = (actionValues.includes("DISPLAY") ? "DISPLAY" : actionValues[0]);
             aItem.addAlarm(alarm);
         }
     },

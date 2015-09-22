@@ -355,15 +355,15 @@ calFilter.prototype = {
         }
 
         //XXX TODO: Support specifying which fields to search on
-        for each (let field in ["SUMMARY", "DESCRIPTION", "LOCATION", "URL"]) {
+        for (let field of ["SUMMARY", "DESCRIPTION", "LOCATION", "URL"]) {
             let val = aItem.getProperty(field);
-            if (val && val.toLowerCase().indexOf(searchText) != -1) {
+            if (val && val.toLowerCase().includes(searchText)) {
                 return true;
             }
         }
 
         return aItem.getCategories({}).some(function(cat) {
-            return (cat.toLowerCase().indexOf(searchText) != -1);
+            return cat.toLowerCase().includes(searchText);
         });
     },
 
@@ -421,7 +421,7 @@ calFilter.prototype = {
                 cats = props.category;
             }
             result = cats.some(function(cat) {
-                return aItem.getCategories({}).indexOf(cat) > -1;
+                return aItem.getCategories({}).includes(cat);
             });
         }
 

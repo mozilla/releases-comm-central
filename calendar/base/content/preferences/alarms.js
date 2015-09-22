@@ -49,7 +49,7 @@ var gAlarmsPane = {
     readSoundLocation: function gAP_readSoundLocation() {
         var soundUrl = document.getElementById("alarmSoundFileField");
         soundUrl.value = document.getElementById("calendar.alarms.soundURL").value;
-        if (soundUrl.value.indexOf("file://") == 0) {
+        if (soundUrl.value.startsWith("file://")) {
             soundUrl.label = this.convertURLToLocalFile(soundUrl.value).leafName;
         } else {
             soundUrl.label = soundUrl.value;

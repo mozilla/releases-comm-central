@@ -620,7 +620,7 @@
         <parameter name="aPreference"/>
         <body><![CDATA[
            // refresh view if categories seem to have changed
-           if (aPreference.indexOf("calendar.category.color") == 0) {
+           if (aPreference.startsWith("calendar.category.color")) {
                this.refreshView();
                return;
            }

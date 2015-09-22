@@ -279,7 +279,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
                                  .getService(Components.interfaces.calIExporter);
 
         let filePath = fp.file.path;
-        if (filePath.indexOf(".") == -1) {
+        if (!filePath.includes(".")) {
             filePath += "."+exporter.getFileTypes({})[0].defaultExtension;
         }
 

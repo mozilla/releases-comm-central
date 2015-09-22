@@ -542,13 +542,13 @@ function test_interface() {
 
     // deleteRecurrenceItem
     rinfo.deleteRecurrenceItem(ritems[0]);
-    ok(item.icalString.indexOf("RRULE") < 0);
+    ok(!item.icalString.includes("RRULE"));
 
     // deleteRecurrenceItemAt
     rinfo.deleteRecurrenceItemAt(1);
     itemString = item.icalString;
-    ok(itemString.indexOf("EXDATE") < 0);
-    ok(!(itemString.indexOf("RDATE") < 0));
+    ok(!itemString.includes("EXDATE"));
+    ok(itemString.includes("RDATE"));
 
     // insertRecurrenceItemAt with exdate
     rinfo.insertRecurrenceItemAt(ritems[1], 1);
@@ -572,9 +572,9 @@ function test_interface() {
     let occDate1 = cal.createDateTime("20020403T114500Z");
     let occDate2 = cal.createDateTime("20020404T114500Z");
     rinfo.removeOccurrenceAt(occDate1);
-    ok(!(item.icalString.indexOf("EXDATE") < 0));
+    ok(item.icalString.includes("EXDATE"));
     rinfo.restoreOccurrenceAt(occDate1)
-    ok(item.icalString.indexOf("EXDATE") < 0);
+    ok(!item.icalString.includes("EXDATE"));
 
     // modifyException / getExceptionFor
     let occ1 = rinfo.getOccurrenceFor(occDate1);
@@ -843,10 +843,10 @@ function test_rrule_icalstring() {
     recRule.type = "YEARLY";
     recRule.setComponent("BYMONTH", 1, [1]);
     recRule.setComponent("BYMONTHDAY", 1, [3]);
-    notEqual(-1, [
+    ok([
         "RRULE:FREQ=YEARLY;BYMONTHDAY=3;BYMONTH=1\r\n",
         "RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=3\r\n"
-    ].indexOf(recRule.icalString));
+    ].includes(recRule.icalString));
     deepEqual(recRule.getComponent("BYMONTH", {}), [1]);
     deepEqual(recRule.getComponent("BYMONTHDAY", {}), [3]);
 
@@ -854,10 +854,10 @@ function test_rrule_icalstring() {
     recRule.type = "YEARLY";
     recRule.setComponent("BYMONTH", 1, [4]);
     recRule.setComponent("BYDAY", 1, [3]);
-    notEqual(-1, [
+    ok([
         "RRULE:FREQ=YEARLY;BYDAY=TU;BYMONTH=4\r\n",
         "RRULE:FREQ=YEARLY;BYMONTH=4;BYDAY=TU\r\n"
-    ].indexOf(recRule.icalString));
+    ].includes(recRule.icalString));
     deepEqual(recRule.getComponent("BYMONTH", {}), [4]);
     deepEqual(recRule.getComponent("BYDAY", {}), [3]);
 
@@ -865,10 +865,10 @@ function test_rrule_icalstring() {
     recRule.type = "YEARLY";
     recRule.setComponent("BYMONTH", 1, [4]);
     recRule.setComponent("BYDAY", 1, [10]);
-    notEqual(-1, [
+    ok([
         "RRULE:FREQ=YEARLY;BYDAY=1MO;BYMONTH=4\r\n",
         "RRULE:FREQ=YEARLY;BYMONTH=4;BYDAY=1MO\r\n"
-    ].indexOf(recRule.icalString));
+    ].includes(recRule.icalString));
     deepEqual(recRule.getComponent("BYMONTH", {}), [4]);
     deepEqual(recRule.getComponent("BYDAY", {}), [10]);
 
@@ -876,10 +876,10 @@ function test_rrule_icalstring() {
     recRule.type = "YEARLY";
     recRule.setComponent("BYMONTH", 1, [4]);
     recRule.setComponent("BYDAY", 1, [-22]);
-    notEqual(-1, [
+    ok([
         "RRULE:FREQ=YEARLY;BYDAY=-2FR;BYMONTH=4\r\n",
         "RRULE:FREQ=YEARLY;BYMONTH=4;BYDAY=-2FR\r\n"
-    ].indexOf(recRule.icalString));
+    ].includes(recRule.icalString));
     deepEqual(recRule.getComponent("BYMONTH", {}), [4]);
     deepEqual(recRule.getComponent("BYDAY", {}), [-22]);
 }

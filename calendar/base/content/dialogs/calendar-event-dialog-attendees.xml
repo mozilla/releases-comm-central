@@ -514,7 +514,7 @@
               let thisId = abCard.primaryEmail;
               if (abCard.displayName.length > 0) {
                   let rCn = abCard.displayName;
-                  if (rCn.indexOf(",") >= 0) {
+                  if (rCn.includes(",")) {
                       rCn = '"' + rCn + '"';
                   }
                   thisId = rCn + " <" + thisId + ">";

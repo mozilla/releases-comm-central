@@ -565,9 +565,9 @@ calDavCalendar.prototype = {
                 } // else use outbound email-based iTIP (from cal.ProviderBase)
                 break;
             case "capabilities.tasks.supported":
-                return (this.supportedItemTypes.indexOf("VTODO") > -1);
+                return (this.supportedItemTypes.includes("VTODO"));
             case "capabilities.events.supported":
-                return (this.supportedItemTypes.indexOf("VEVENT") > -1);
+                return (this.supportedItemTypes.includes("VEVENT"));
             case "capabilities.autoschedule.supported":
                 return this.hasAutoScheduling;
         }
@@ -1843,7 +1843,7 @@ calDavCalendar.prototype = {
             if (supportedComponents && supportedComponents.length) {
                 thisCalendar.mSupportedItemTypes = [ compName
                     for each (compName in supportedComponents)
-                    if (thisCalendar.mGenerallySupportedItemTypes.indexOf(compName) >= 0)
+                    if (thisCalendar.mGenerallySupportedItemTypes.includes(compName))
                 ];
                 cal.LOG("Adding supported items: " + thisCalendar.mSupportedItemTypes.join(",") + " for calendar: " + thisCalendar.name);
             }
@@ -1968,14 +1968,14 @@ calDavCalendar.prototype = {
                 // URL but a) doesn't use it and b) 405s on etag queries to it
                 thisCalendar.mShouldPollInbox = false;
             }
-            if (dav && dav.indexOf("calendar-auto-schedule") != -1) {
+            if (dav && dav.includes("calendar-auto-schedule")) {
                 if (thisCalendar.verboseLogging()) {
                     cal.LOG("CalDAV: Calendar " + thisCalendar.name +
                             " supports calendar-auto-schedule");
                 }
                 thisCalendar.hasAutoScheduling = true;
                 // leave outbound inbox/outbox scheduling off
-            } else if (dav && dav.indexOf("calendar-schedule") != -1) {
+            } else if (dav && dav.includes("calendar-schedule")) {
                 if (thisCalendar.verboseLogging()) {
                     cal.LOG("CalDAV: Calendar " + thisCalendar.name +
                             " generally supports calendar-schedule");
@@ -1983,7 +1983,7 @@ calDavCalendar.prototype = {
                 thisCalendar.hasScheduling = true;
             }
 
-            if (thisCalendar.hasAutoScheduling || (dav && dav.indexOf("calendar-schedule") != -1)) {
+            if (thisCalendar.hasAutoScheduling || (dav && dav.includes("calendar-schedule"))) {
                 // XXX - we really shouldn't register with the fb service
                 // if another calendar with the same principal-URL has already
                 // done so. We also shouldn't register with the fb service if we
@@ -2611,7 +2611,7 @@ calDavCalendar.prototype = {
         // value and not null!
         return ((this.hasScheduling || this.hasAutoScheduling) &&
                 (this.mInboxUrl != null) &&
-                aString.indexOf(this.mInboxUrl.spec) == 0);
+                aString.startsWith(this.mInboxUrl.spec));
     },
 
     /**

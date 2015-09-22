@@ -49,12 +49,12 @@ function checkRelations(event, expRel) {
 
     // check if all expacted relations are found
     for (let i = 0; i < expRel.length; i++) {
-        notEqual(allRel.indexOf(expRel[i]), -1);
+        ok(allRel.includes(expRel[i]));
     }
 
     // Check if all found relations are expected
     for (let i = 0; i < allRel.length; i++) {
-        notEqual(expRel.indexOf(allRel[i]), -1);
+        ok(expRel.includes(allRel[i]));
     }
 }
 

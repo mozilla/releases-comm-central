@@ -666,9 +666,7 @@ calICSCalendar.prototype = {
         function purgeBackupsByType(files, type) {
             // filter out backups of the type we care about.
             var filteredFiles = files.filter(
-                function f(v) {
-                    return (v.name.indexOf("calBackupData_"+pseudoID+"_"+type) != -1)
-                });
+                v => v.name.includes("calBackupData_"+pseudoID+"_"+type));
             // Sort by lastmodifed
             filteredFiles.sort(
                 function s(a,b) {

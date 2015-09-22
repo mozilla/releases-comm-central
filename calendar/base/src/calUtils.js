@@ -128,7 +128,7 @@ function saveRecentTimezone(aTzid) {
     const MAX_RECENT_TIMEZONES = 5; // We don't need a pref for *everything*.
 
     if (aTzid != calendarDefaultTimezone().tzid &&
-        recentTimezones.indexOf(aTzid) < 0) {
+        !recentTimezones.includes(aTzid)) {
         // Add the timezone if its not already the default timezone
         recentTimezones.unshift(aTzid);
         recentTimezones.splice(MAX_RECENT_TIMEZONES);
