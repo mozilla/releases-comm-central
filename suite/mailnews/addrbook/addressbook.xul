@@ -587,10 +587,12 @@
                     </vbox>
                     <vbox id="cvbHomeMapItBox" pack="end">
                       <button id="cvHomeMapIt"
-                              url=""
                               label="&mapItButton.label;"
-                              oncommand="MapIt('cvHomeMapIt');"
-                              tooltiptext="&mapIt.tooltip;"/>
+                              type="menu-button"
+                              oncommand="openLinkWithUrl(this.firstChild.mapURL);"
+                              tooltiptext="&mapIt.tooltip;">
+                        <menupopup class="map-list"/>
+                      </button>
                     </vbox>
                   </hbox>
                   <description class="CardViewLink" id="cvHomeWebPageBox">
@@ -649,10 +651,12 @@
                     </vbox>
                     <vbox id="cvbWorkMapItBox" pack="end">
                       <button id="cvWorkMapIt"
-                              url=""
                               label="&mapItButton.label;"
-                              oncommand="MapIt('cvWorkMapIt');"
-                              tooltiptext="&mapIt.tooltip;"/>
+                              type="menu-button"
+                              oncommand="openLinkWithUrl(this.firstChild.mapURL);"
+                              tooltiptext="&mapIt.tooltip;">
+                        <menupopup class="map-list"/>
+                      </button>
                     </vbox>
                   </hbox>
                   <description class="CardViewLink" id="cvWorkWebPageBox">

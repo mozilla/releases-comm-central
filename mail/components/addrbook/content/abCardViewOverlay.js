@@ -9,10 +9,6 @@ Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 var gProfileDirURL;
-
-var gMapItURLFormat = Services.prefs.getComplexValue("mail.addr_book.mapit_url.format",
-  Components.interfaces.nsIPrefLocalizedString).data;
-
 var gFileHandler = Services.io.getProtocolHandler("file")
   .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
 var gPhotoDisplayHandlers = {};
@@ -247,22 +243,12 @@ function DisplayCardViewPane(realCard)
                                card.getProperty("HomeZipCode")) || visible;
    visible = cvSetNode(data.cvHomeCountry, card.getProperty("HomeCountry")) ||
              visible;
-   if (visible) {
-     var homeMapItUrl = CreateMapItURL(card.getProperty("HomeAddress"),
-                                       card.getProperty("HomeAddress2"),
-                                       card.getProperty("HomeCity"),
-                                       card.getProperty("HomeState"),
-                                       card.getProperty("HomeZipCode"),
-                                       card.getProperty("HomeCountry"));
-    if (homeMapItUrl) {
-       cvSetVisible(data.cvbHomeMapItBox, true);
-       data.cvHomeMapIt.setAttribute('url', homeMapItUrl);
-    } else {
-       cvSetVisible(data.cvbHomeMapItBox, false);
-    }
-  } else {
-    cvSetVisible(data.cvbHomeMapItBox, false);
-  }
+
+  let mapURLList = data.cvHomeMapIt.firstChild;
+  if (visible)
+    mapURLList.initMapAddressFromCard(card, "Home");
+
+  cvSetVisible(data.cvbHomeMapItBox, !!mapURLList.mapURL);
 
   visible = HandleLink(data.cvHomeWebPage, "", card.getProperty("WebPage2"),
                        data.cvHomeWebPageBox, card.getProperty("WebPage2")) ||
@@ -391,25 +377,11 @@ function DisplayCardViewPane(realCard)
   addressVisible = cvSetNode(data.cvWorkCountry,
                              card.getProperty("WorkCountry")) || addressVisible;
 
-        if (addressVisible) {
-          var workMapItUrl = CreateMapItURL(card.getProperty("WorkAddress"),
-                                            card.getProperty("WorkAddress2"),
-                                            card.getProperty("WorkCity"),
-                                            card.getProperty("WorkState"),
-                                            card.getProperty("WorkZipCode"),
-                                            card.getProperty("WorkCountry"));
-          data.cvWorkMapIt.setAttribute('url', workMapItUrl);
-          if (workMapItUrl) {
-      cvSetVisible(data.cvbWorkMapItBox, true);
-            data.cvWorkMapIt.setAttribute('url', workMapItUrl);
-          }
-          else {
-      cvSetVisible(data.cvbWorkMapItBox, false);
-          }
-        }
-        else {
-    cvSetVisible(data.cvbWorkMapItBox, false);
-        }
+  mapURLList = data.cvWorkMapIt.firstChild;
+  if (addressVisible)
+    mapURLList.initMapAddressFromCard(card, "Work");
+
+  cvSetVisible(data.cvbWorkMapItBox, !!mapURLList.mapURL);
 
         visible = HandleLink(data.cvWorkWebPage, "",
                              card.getProperty("WebPage1"),
@@ -578,29 +550,18 @@ function OpenURLWithHistory(url)
   } catch (ex) {}
 }
 
-function CreateMapItURL(address1, address2, city, state, zip, country)
-{
-  if (!gMapItURLFormat)
-    return null;
-
-  var urlFormat = gMapItURLFormat.replace("@A1", encodeURIComponent(address1));
-  urlFormat = urlFormat.replace("@A2", encodeURIComponent(address2));
-  urlFormat = urlFormat.replace("@CO", encodeURIComponent(country));
-  urlFormat = urlFormat.replace("@CI", encodeURIComponent(city));
-  urlFormat = urlFormat.replace("@ST", encodeURIComponent(state));
-  urlFormat = urlFormat.replace("@ZI", encodeURIComponent(zip));
-
-  return urlFormat;
-}
-
-function MapIt(id)
-{
-  OpenURLWithHistory(document.getElementById(id).getAttribute('url'));
-}
-
 function openLink(id)
 {
   OpenURLWithHistory(document.getElementById(id).getAttribute("href"));
+
+  // return false, so we don't load the href in the addressbook window
+  return false;
+}
+
+function openLinkWithUrl(aUrl)
+{
+  if (aUrl)
+    OpenURLWithHistory(aUrl);
 
   // return false, so we don't load the href in the addressbook window
   return false;

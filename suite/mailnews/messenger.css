@@ -67,6 +67,10 @@ menupopup[type="folder"] {
   -moz-binding: url("chrome://messenger/content/addressbook/addrbookWidgets.xml#addrbooks-menupopup");
 }
 
+.map-list {
+  -moz-binding: url("chrome://messenger/content/addressbook/addrbookWidgets.xml#map-list");
+}
+
 #searchTermList > listitem {
   -moz-binding: url("chrome://messenger/content/searchWidgets.xml#listitem");
 }

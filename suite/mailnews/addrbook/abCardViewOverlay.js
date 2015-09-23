@@ -213,19 +213,12 @@ function DisplayCardViewPane(realCard)
 	visible = cvSetNode(data.cvHomeAddress2, card.getProperty("HomeAddress2")) || visible;
 	visible = cvSetCityStateZip(data.cvHomeCityStZip, card.getProperty("HomeCity"), card.getProperty("HomeState"), card.getProperty("HomeZipCode")) || visible;
 	visible = cvSetNode(data.cvHomeCountry, card.getProperty("HomeCountry")) || visible;
-        if (visible) {
-          var homeMapItUrl = CreateMapItURL(card.getProperty("HomeAddress"), card.getProperty("HomeAddress2"), card.getProperty("HomeCity"), card.getProperty("HomeState"), card.getProperty("HomeZipCode"), card.getProperty("HomeCountry"));
-          if (homeMapItUrl) {
-	    cvSetVisible(data.cvbHomeMapItBox, true);
-            data.cvHomeMapIt.setAttribute('url', homeMapItUrl);
-          }
-          else {
-	    cvSetVisible(data.cvbHomeMapItBox, false);
-          }
-        }
-        else {
-	  cvSetVisible(data.cvbHomeMapItBox, false);
-        }
+
+  mapURLList = data.cvHomeMapIt.firstChild;
+  if (addressVisible)
+    mapURLList.initMapAddressFromCard(card, "Home");
+
+  cvSetVisible(data.cvbHomeMapItBox, !!mapURLList.mapURL);
 
   visible = HandleLink(data.cvHomeWebPage, "", card.getProperty("WebPage2"), data.cvHomeWebPageBox, card.getProperty("WebPage2")) || visible;
 
@@ -309,20 +302,11 @@ function DisplayCardViewPane(realCard)
 	addressVisible = cvSetCityStateZip(data.cvWorkCityStZip, card.getProperty("WorkCity"), card.getProperty("WorkState"), card.getProperty("WorkZipCode")) || addressVisible;
 	addressVisible = cvSetNode(data.cvWorkCountry, card.getProperty("WorkCountry")) || addressVisible;
 
-        if (addressVisible) {
-          var workMapItUrl = CreateMapItURL(card.getProperty("WorkAddress"), card.getProperty("WorkAddress2"), card.getProperty("WorkCity"), card.getProperty("WorkState"), card.getProperty("WorkZipCode"), card.getProperty("WorkCountry"));
-          data.cvWorkMapIt.setAttribute('url', workMapItUrl);
-          if (workMapItUrl) {
-	    cvSetVisible(data.cvbWorkMapItBox, true);
-            data.cvWorkMapIt.setAttribute('url', workMapItUrl);
-          }
-          else {
-	    cvSetVisible(data.cvbWorkMapItBox, false);
-          }
-        }
-        else {
-	  cvSetVisible(data.cvbWorkMapItBox, false);
-        }
+  mapURLList = data.cvWorkMapIt.firstChild;
+  if (addressVisible)
+    mapURLList.initMapAddressFromCard(card, "Work");
+
+  cvSetVisible(data.cvbWorkMapItBox, !!mapURLList.mapURL);
 
         visible = HandleLink(data.cvWorkWebPage, "", card.getProperty("WebPage1"), data.cvWorkWebPageBox, card.getProperty("WebPage1")) || addressVisible || visible;
 
@@ -483,30 +467,17 @@ function HandleLink(node, label, value, box, link)
   return visible;
 }
 
-function MapIt(id)
-{
-  var button = document.getElementById(id);
-  openTopWin(button.getAttribute('url'));
-}
-
-function CreateMapItURL(address1, address2, city, state, zip, country)
-{
-  if (!gMapItURLFormat)
-    return null;
-
-  var urlFormat = gMapItURLFormat.replace("@A1", encodeURIComponent(address1));
-  urlFormat = urlFormat.replace("@A2", encodeURIComponent(address2));
-  urlFormat = urlFormat.replace("@CO", encodeURIComponent(country));
-  urlFormat = urlFormat.replace("@CI", encodeURIComponent(city));
-  urlFormat = urlFormat.replace("@ST", encodeURIComponent(state));
-  urlFormat = urlFormat.replace("@ZI", encodeURIComponent(zip));
-  
-  return urlFormat;
-}
-
 function openLink(aEvent)
 {
   openAsExternal(aEvent.target.getAttribute("href"));
+  // return false, so we don't load the href in the addressbook window
+  return false;
+}
+
+function openLinkWithUrl(aUrl)
+{
+  if (aUrl)
+    openAsExternal(aUrl);
   // return false, so we don't load the href in the addressbook window
   return false;
 }

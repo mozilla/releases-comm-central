@@ -205,4 +205,235 @@
       </method>
     </implementation>
   </binding>
+
+  <binding id="map-list"
+           extends="chrome://global/content/bindings/popup.xml#popup">
+    <implementation>
+      <property name="mapURL" readonly="true">
+        <getter><![CDATA[
+          return this._createMapItURL();
+        ]]></getter>
+      </property>
+
+      <constructor>
+        <![CDATA[
+          this._setWidgetDisabled(true);
+        ]]>
+      </constructor>
+
+      <!--
+        Initializes the necessary address data from an addressbook card.
+        @param aCard        A nsIAbCard to get the address data from.
+        @param aAddrPrefix  A prefix of the card properties to use. Use "Home" or "Work".
+        -->
+      <method name="initMapAddressFromCard">
+        <parameter name="aCard"/>
+        <parameter name="aAddrPrefix"/>
+        <body><![CDATA[
+          let mapItURLFormat = this._getMapURLPref(0);
+          let doNotShowMap = !mapItURLFormat || !aAddrPrefix || !aCard;
+          this._setWidgetDisabled(doNotShowMap);
+          if (doNotShowMap)
+            return;
+
+          this.setAttribute("map_address1", aCard.getProperty(aAddrPrefix + "Address"));
+          this.setAttribute("map_address2", aCard.getProperty(aAddrPrefix + "Address2"));
+          this.setAttribute("map_city"    , aCard.getProperty(aAddrPrefix + "City"));
+          this.setAttribute("map_state"   , aCard.getProperty(aAddrPrefix + "State"));
+          this.setAttribute("map_zip"     , aCard.getProperty(aAddrPrefix + "ZipCode"));
+          this.setAttribute("map_country" , aCard.getProperty(aAddrPrefix + "Country"));
+        ]]></body>
+      </method>
+
+      <!--
+        Initializes the necessary address data from passed in values.
+        -->
+      <method name="initMapAddress">
+        <parameter name="aAddr1"/>
+        <parameter name="aAddr2"/>
+        <parameter name="aCity"/>
+        <parameter name="aState"/>
+        <parameter name="aZip"/>
+        <parameter name="aCountry"/>
+        <body><![CDATA[
+          let mapItURLFormat = this._getMapURLPref(0);
+          let doNotShowMap = !mapItURLFormat || !(aAddr1 + aAddr2 + aCity + aState + aZip + aCountry);
+          this._setWidgetDisabled(doNotShowMap);
+          if (doNotShowMap)
+            return;
+
+          this.setAttribute("map_address1", aAddr1);
+          this.setAttribute("map_address2", aAddr2);
+          this.setAttribute("map_city"    , aCity);
+          this.setAttribute("map_state"   , aState);
+          this.setAttribute("map_zip"     , aZip);
+          this.setAttribute("map_country" , aCountry);
+        ]]></body>
+      </method>
+
+      <!--
+        Sets the disabled/enabled state of the parent widget (e.g. a button).
+        -->
+      <method name="_setWidgetDisabled">
+        <parameter name="aDisabled"/>
+        <body><![CDATA[
+          this.parentNode.disabled = aDisabled;
+        ]]></body>
+      </method>
+
+      <!--
+        Returns the Map service URL from localized pref. Returns null if there
+        is none at the given index.
+        @param aIndex  The index of the service to return. 0 is the default service.
+        -->
+      <method name="_getMapURLPref">
+        <parameter name="aIndex"/>
+        <body><![CDATA[
+          let url = null;
+          if (!aIndex) {
+            url = Services.prefs.getComplexValue("mail.addr_book.mapit_url.format",
+                                                 Components.interfaces.nsIPrefLocalizedString).data;
+          } else {
+            try {
+              url = Services.prefs.getComplexValue("mail.addr_book.mapit_url." + aIndex + ".format",
+                                                   Components.interfaces.nsIPrefLocalizedString).data;
+            } catch (e) { }
+          }
+
+          return url;
+        ]]></body>
+      </method>
+
+      <!--
+        Builds menuitem elements representing map services defined in prefs
+        and attaches them to the specified button.
+        -->
+      <method name="_listMapServices">
+        <body><![CDATA[
+          let index = 1;
+          let itemFound = true;
+          let defaultFound = false;
+          const kUserIndex = 100;
+          let aMapList = this;
+          while (aMapList.hasChildNodes()) {
+            aMapList.lastChild.remove();
+          }
+
+          let defaultUrl = this._getMapURLPref(0);
+
+          // Creates the menuitem with supplied data.
+          function addMapService(aUrl, aName) {
+            let item = document.createElement("menuitem");
+            item.setAttribute("url", aUrl);
+            item.setAttribute("label", aName);
+            item.setAttribute("type", "radio");
+            item.setAttribute("name", "mapit_service");
+            if (aUrl == defaultUrl)
+              item.setAttribute("checked", "true");
+            aMapList.appendChild(item);
+          }
+
+          // Generates a useful generic name by cutting out only the host address.
+          function generateName(aUrl) {
+            return new URL(aUrl).hostname;
+          }
+
+          // Add all defined map services as menuitems.
+          while (itemFound) {
+            let urlName;
+            let urlTemplate = this._getMapURLPref(index);
+            if (!urlTemplate) {
+              itemFound = false;
+            } else {
+              // Name is not mandatory, generate one if not found.
+              try {
+                urlName = Services.prefs.getComplexValue("mail.addr_book.mapit_url." + index + ".name",
+                                                         Components.interfaces.nsIPrefLocalizedString).data;
+              } catch (e) {
+                urlName = generateName(urlTemplate);
+              }
+            }
+            if (itemFound) {
+              addMapService(urlTemplate, urlName);
+              index++;
+              if (urlTemplate == defaultUrl)
+                defaultFound = true;
+            } else if (index < kUserIndex) {
+              // After iterating the base region provided urls, check for user defined ones.
+              index = kUserIndex;
+              itemFound = true;
+            }
+          }
+          if (!defaultFound) {
+            // If user had put a customized map URL into mail.addr_book.mapit_url.format
+            // preserve it as a new map service named with the URL.
+            // 'index' now points to the first unused entry in prefs.
+            let defaultName = generateName(defaultUrl);
+            addMapService(defaultUrl, defaultName);
+            Services.prefs.setCharPref("mail.addr_book.mapit_url." + index + ".format",
+                                        defaultUrl);
+            Services.prefs.setCharPref("mail.addr_book.mapit_url." + index + ".name",
+                                        defaultName);
+          }
+        ]]></body>
+      </method>
+
+      <!--
+        Save user selected mapping service.
+        @param aItem  The chosen menuitem with map service.
+        -->
+      <method name="_chooseMapService">
+        <parameter name="aItem"/>
+        <body><![CDATA[
+          // Save selected URL as the default.
+          let defaultUrl = Components.classes["@mozilla.org/pref-localizedstring;1"]
+                                     .createInstance(Components.interfaces.nsIPrefLocalizedString);
+          defaultUrl.data = aItem.getAttribute("url");
+          Services.prefs.setComplexValue("mail.addr_book.mapit_url.format",
+                                         Components.interfaces.nsIPrefLocalizedString, defaultUrl);
+        ]]></body>
+      </method>
+
+      <!--
+        Generate map URL in the href attribute.
+        -->
+      <method name="_createMapItURL">
+        <body><![CDATA[
+          let urlFormat = this._getMapURLPref(0);
+          if (!urlFormat)
+            return null;
+
+          let address1 = this.getAttribute("map_address1");
+          let address2 = this.getAttribute("map_address2");
+          let city     = this.getAttribute("map_city");
+          let state    = this.getAttribute("map_state");
+          let zip      = this.getAttribute("map_zip");
+          let country  = this.getAttribute("map_country");
+
+          urlFormat = urlFormat.replace("@A1", encodeURIComponent(address1));
+          urlFormat = urlFormat.replace("@A2", encodeURIComponent(address2));
+          urlFormat = urlFormat.replace("@CI", encodeURIComponent(city));
+          urlFormat = urlFormat.replace("@ST", encodeURIComponent(state));
+          urlFormat = urlFormat.replace("@ZI", encodeURIComponent(zip));
+          urlFormat = urlFormat.replace("@CO", encodeURIComponent(country));
+
+          return urlFormat;
+        ]]></body>
+      </method>
+    </implementation>
+
+    <handlers>
+      <handler event="command">
+        <![CDATA[
+          this._chooseMapService(event.target);
+          event.stopPropagation();
+        ]]>
+      </handler>
+      <handler event="popupshowing">
+        <![CDATA[
+          this._listMapServices();
+        ]]>
+      </handler>
+    </handlers>
+  </binding>
 </bindings>
