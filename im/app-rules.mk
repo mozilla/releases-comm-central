@@ -4,8 +4,8 @@
 
 # This is defined here instead of in build.mk to override values from
 # upload-files.mk which is loaded by moz-automation.mk after our build.mk
-UPLOAD_FILES = $(wildcard $(foreach file,\
-	                     $(foreach AB_CD,$(AB_CD) $(SHIPPED_LOCALES),\
-                                       $(PACKAGE) $(INSTALLER_PACKAGE))\
-                             $(PKG_BASENAME).txt $(PKG_UPDATE_PATH)*.mar,\
-                            $(DIST)/$(file)))
+PKG_INST_PATH =
+UPLOAD_FILES = $(wildcard $(foreach AB_CD,$(AB_CD) $(SHIPPED_LOCALES),\
+                                          $(DIST)/$(PACKAGE) $(INSTALLER_PACKAGE))\
+                          $(DIST)/$(PKG_BASENAME).txt\
+                          $(DIST)/$(PKG_UPDATE_PATH)*.mar)
