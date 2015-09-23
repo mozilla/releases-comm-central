@@ -509,9 +509,14 @@ function openIMAccountWizard()
 function openSavedFilesWnd()
 {
   let tabmail = document.getElementById("tabmail");
-  tabmail.openTab("chromeTab",
-                  { chromePage: "about:downloads",
-                    clickHandler: "specialTabs.aboutClickHandler(event);" });
+  let downloadsBrowser = tabmail.getBrowserForDocumentId("aboutDownloads");
+  if (downloadsBrowser)
+    tabmail.switchToTab(downloadsBrowser);
+  else {
+    gDownloadsTab = tabmail.openTab("chromeTab",
+                      { chromePage: "about:downloads",
+                        clickHandler: "specialTabs.aboutClickHandler(event);" });
+  }
 }
 
 function SetBusyCursor(window, enable)

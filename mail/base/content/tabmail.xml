@@ -1080,10 +1080,29 @@
             let browserFunc = this.tabInfo[i].mode.getBrowser ||
                               this.tabInfo[i].mode.tabType.getBrowser;
             if (browserFunc) {
-              var possBrowser = browserFunc.call(this.tabInfo[i].mode.tabType,
+              let possBrowser = browserFunc.call(this.tabInfo[i].mode.tabType,
                                                  this.tabInfo[i]);
               if (possBrowser &&
                   possBrowser.contentWindow == aDocument)
+                return this.tabInfo[i];
+            }
+          }
+          return null;
+        ]]></body>
+      </method>
+      <!-- getBrowserForDocumentId is used to find the browser for a specific
+           document via its id attribute -->
+      <method name="getBrowserForDocumentId">
+        <parameter name="aDocumentId"/>
+        <body><![CDATA[
+          for (let i = 0; i < this.tabInfo.length; ++i) {
+            let browserFunc = this.tabInfo[i].mode.getBrowser ||
+                              this.tabInfo[i].mode.tabType.getBrowser;
+            if (browserFunc) {
+              let possBrowser = browserFunc.call(this.tabInfo[i].mode.tabType,
+                                                 this.tabInfo[i]);
+              if (possBrowser &&
+                  possBrowser.contentDocument.documentElement.id == aDocumentId)
                 return this.tabInfo[i];
             }
           }
