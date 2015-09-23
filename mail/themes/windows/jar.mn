@@ -277,8 +277,6 @@ classic.jar:
   skin/classic/messenger/tabs/overflow-indicator.png          (mail/tabs/overflow-indicator.png)
   skin/classic/messenger/tabs/selected-end.svg                (mail/tabs/selected-end.svg)
   skin/classic/messenger/tabs/selected-start.svg              (mail/tabs/selected-start.svg)
-  skin/classic/messenger/tabs/separator.png                   (mail/tabs/separator.png)
-  skin/classic/messenger/tabs/separator-XP.png                (mail/tabs/separator-XP.png)
   skin/classic/messenger/tabs/stroke-end.png                  (mail/tabs/stroke-end.png)
   skin/classic/messenger/tabs/stroke-end@2x.png               (mail/tabs/stroke-end@2x.png)
   skin/classic/messenger/tabs/stroke-start.png                (mail/tabs/stroke-start.png)

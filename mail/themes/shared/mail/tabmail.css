@@ -14,15 +14,10 @@
                         url("chrome://messenger/skin/tabs/background-middle.png"),
                         url("chrome://messenger/skin/tabs/background-end.png");
   --tab-stroke-background-size: auto 100%;
-  --tab-separator-image: url(chrome://messenger/skin/tabs/separator.png);
-  --tab-separator-size: 3px 100%;
-  --tab-separator-opacity: 1;
+  --tab-separator-opacity: 0.2;
 }
 
 #tabs-toolbar[brighttext] {
-  --tab-separator-image: linear-gradient(transparent 0%, transparent 15%,
-                         currentColor 15%, currentColor 90%, transparent 90%);
-  --tab-separator-size: 1px 100%;
   --tab-separator-opacity: 0.4;
 }
 
@@ -227,20 +222,23 @@
   pointer-events: auto;
 }
 
-/* Background tab separators (3px wide). */
-.tabmail-tab:not([selected]):not(:hover) +
-.tabmail-tab:not([selected]):not(:hover)::before {
-  -moz-margin-start: -1.5px;
-  -moz-margin-end: -1.5px;
-  background-image: var(--tab-separator-image);
-  background-position: left bottom;
-  background-repeat: no-repeat;
-  background-size: var(--tab-separator-size);
-  opacity: var(--tab-separator-opacity);
+/* Tab separators */
+.tabmail-tab::before {
+  width: 1px;
+  margin-inline-start: -1px;
+  background-image: linear-gradient(transparent 5px,
+                                    currentColor 5px,
+                                    currentColor calc(100% - 4px),
+                                    transparent calc(100% - 4px));
+  opacity: 0;
   content: '';
   display: -moz-box;
-  margin-bottom: 1px;
-  width: 3px;
+}
+
+.tabmail-tab:not([selected]):not(:hover) +
+.tabmail-tab:not([selected]):not(:hover)::before {
+  opacity: var(--tab-separator-opacity);
+  transition: opacity 100ms ease;
 }
 
 /* Tab Overflow */

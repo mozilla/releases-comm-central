@@ -114,11 +114,6 @@
     background-color: transparent;
     background-image: none;
   }
-
-  .tabmail-tab:not([selected]):not(:hover) +
-  .tabmail-tab:not([selected]):not(:hover)::before {
-    background-image: url("chrome://messenger/skin/tabs/separator-XP.png");
-  }
 }
 
 @media (-moz-os-version: windows-win10) {
@@ -393,13 +388,6 @@ tabpanels {
 
 @media (-moz-os-version: windows-win8),
        (-moz-os-version: windows-win10) {
-  #tabs-toolbar:not([brighttext]) {
-    --tab-separator-image: linear-gradient(transparent 0%, transparent 15%,
-                           currentColor 15%, currentColor 90%, transparent 90%);
-    --tab-separator-size: 1px 100%;
-    --tab-separator-opacity: 0.2;
-  }
-
   .tabs-alltabs-button {
     list-style-image: url(icons/dropmarker.svg#win8);
   }

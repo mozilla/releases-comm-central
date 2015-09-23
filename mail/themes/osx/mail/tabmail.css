@@ -73,11 +73,6 @@
     background-image: url(tabs/stroke-end@2x.png);
   }
 
-  /* Background tab separators */
-  #tabs-toolbar:not([brighttext]) {
-    --tab-separator-image: url(chrome://browser/skin/tabbrowser/tab-separator@2x.png);
-  }
-
   .tab-throbber {
     list-style-image: url("chrome://messenger/skin/icons/loading@2x.png") !important;
   }
