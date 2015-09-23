@@ -49,8 +49,10 @@ menu:not(:-moz-lwtheme):-moz-window-inactive {
 }
 
 @media (-moz-os-version: windows-win10) {
-  #tabs-toolbar {
-    background-image: none;
+  @media (-moz-windows-default-theme) and (-moz-windows-default-theme) {
+    #tabs-toolbar {
+      background-image: none;
+    }
   }
 }
 
@@ -1177,6 +1179,15 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
     background-position: 1px -1px, 0 -1px;
     background-size: calc(100% - 1px) 100%, 1px 100%;
     background-repeat: no-repeat;
+  }
+
+  @media not all and (-moz-windows-default-theme) {
+    #tabbar-toolbar .toolbarbutton-1,
+    #tabbar-toolbar .toolbarbutton-menubutton-button,
+    #tabbar-toolbar .toolbarbutton-menubutton-dropmarker {
+      -moz-appearance: none;
+      margin-bottom: 1px;
+    }
   }
 
   #tabbar-toolbar
