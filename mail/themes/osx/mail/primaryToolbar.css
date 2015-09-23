@@ -29,8 +29,7 @@
      is enough. */
   background-repeat: repeat-x, no-repeat;
   background-position: 0 1px, 0 0;
-  box-shadow: inset 0 1px 0 hsla(0, 0%, 100%, .4),
-              0 -1px 0 hsl(0, 0%, 60%) inset;
+  box-shadow: inset 0 1px 0 hsla(0, 0%, 100%, .4);
 }
 
 @media (min-resolution: 2dppx) {
@@ -49,6 +48,14 @@
 .mail-toolbox:not(:-moz-lwtheme):-moz-window-inactive,
 .contentTabToolbox:not(:-moz-lwtheme):-moz-window-inactive {
   background-color: -moz-mac-chrome-inactive;
+}
+
+.mail-toolbox::after,
+.contentTabToolbox::after {
+  content: "";
+  display: -moz-box;
+  height: 1px;
+  background-color: hsl(0, 0%, 60%);
 }
 
 .mail-bar3 {

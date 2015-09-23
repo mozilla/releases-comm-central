@@ -147,8 +147,15 @@ menu:not(:-moz-lwtheme):-moz-window-inactive {
   border-top: none;
   background-image: linear-gradient(rgba(253, 253, 253, 0.45),
                                     rgba(255, 255, 255, 0));
-  box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset,
-              0 -1px 0 ThreeDShadow inset;
+  box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
+}
+
+.mail-toolbox::after,
+.contentTabToolbox::after {
+  content: "";
+  display: -moz-box;
+  height: 1px;
+  background-color: ThreeDShadow;
 }
 
 .mail-toolbox > toolbar:-moz-lwtheme,
@@ -1763,10 +1770,9 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 @media (-moz-windows-glass) {
-  .mail-toolbox:not(:-moz-lwtheme),
-  .contentTabToolbox:not(:-moz-lwtheme) {
-    box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset,
-                0 -1px 0 #AABCCF inset;
+  .mail-toolbox::after,
+  .contentTabToolbox::after {
+    background-color: #aabccf;
   }
 
   #navigation-toolbox > #mail-toolbar-menubar2:not(:-moz-lwtheme) {
@@ -1937,9 +1943,9 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
-  .mail-toolbox,
-  .contentTabToolbox {
-    box-shadow: 0 -1px 0 #c2c2c2 inset;
+  .mail-toolbox::after,
+  .contentTabToolbox::after {
+    background-color: #c2c2c2;
   }
 
   .findbar-button,
