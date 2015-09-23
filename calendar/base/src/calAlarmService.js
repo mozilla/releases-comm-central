@@ -484,6 +484,8 @@ calAlarmService.prototype = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             alarmService: this,
             addRemovePromise: PromiseUtils.defer(),
+            batchCount: 0,
+            results: false,
             onOperationComplete: function cAS_fA_onOperationComplete(aCalendar,
                                                                      aStatus,
                                                                      aOperationType,
@@ -495,9 +497,16 @@ calAlarmService.prototype = {
 
                     // notify observers that the alarms for the calendar have been loaded
                     this.alarmService.mObservers.notify("onAlarmsLoaded", [aCalendar]);
-                }, function onReject(aReason) {
+                }, (aReason) => {
                     Components.utils.reportError("Promise was rejected: " + aReason);
+                    this.alarmService.mLoadedCalendars[aCalendar.id] = true;
+                    this.alarmService.mObservers.notify("onAlarmsLoaded", [aCalendar]);
                 });
+
+                // if no results were returned we still need to resolve the promise
+                if (!this.results) {
+                    this.addRemovePromise.resolve();
+                }
             },
             onGetResult: function cAS_fA_onGetResult(aCalendar,
                                                      aStatus,
@@ -506,6 +515,9 @@ calAlarmService.prototype = {
                                                      aCount,
                                                      aItems) {
                 let promise = this.addRemovePromise;
+                this.batchCount++;
+                this.results = true;
+
                 cal.forEach(aItems, (item) => {
                     try {
                         this.alarmService.removeAlarmsForItem(item);
@@ -513,8 +525,10 @@ calAlarmService.prototype = {
                     } catch (ex) {
                         promise.reject(ex);
                     }
-                }, function completed() {
-                    promise.resolve();
+                }, () => {
+                    if (--this.batchCount <= 0) {
+                        promise.resolve();
+                    }
                 });
             }
         };
@@ -528,17 +542,24 @@ calAlarmService.prototype = {
             // assuming that suppressAlarms does not change anymore until refresh:
             if (!calendar.getProperty("suppressAlarms") &&
                 !calendar.getProperty("disabled")) {
+                this.mLoadedCalendars[calendar.id] = false;
                 calendar.getItems(filter, 0, aStart, aUntil, getListener);
+            } else {
+                this.mLoadedCalendars[calendar.id] = true;
+                this.mObservers.notify("onAlarmsLoaded", [calendar]);
             }
         }
     },
 
     initAlarms: function cAS_initAlarms(aCalendars) {
-        // Purge out all alarm timers belonging to the refreshed/loaded calendar:
+        // Purge out all alarm timers belonging to the refreshed/loaded calendars
         this.disposeCalendarTimers(aCalendars);
 
-        // Purge out all alarms from dialog belonging to the refreshed/loaded calendar:
-        this.mObservers.notify("onRemoveAlarmsByCalendar", aCalendars);
+        // Purge out all alarms from dialog belonging to the refreshed/loaded calendars
+        for (let calendar of aCalendars) {
+            this.mLoadedCalendars[calendar.id] = false;
+            this.mObservers.notify("onRemoveAlarmsByCalendar", [calendar]);
+        }
 
         // Total refresh similar to startup.  We're going to look for
         // alarms +/- 1 month from now.  If someone sets an alarm more than
@@ -557,5 +578,12 @@ calAlarmService.prototype = {
             aItem.getProperty("STATUS") != "CANCELLED") {
             this.mObservers.notify("onAlarm", [aItem, aAlarm]);
         }
+    },
+
+    get isLoading() {
+        for (let calId in this.mLoadedCalendars) {
+            if (!this.mLoadedCalendars[calId]) return true;
+        }
+        return false;
     }
 };

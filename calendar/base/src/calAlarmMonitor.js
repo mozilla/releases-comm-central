@@ -170,5 +170,11 @@ calAlarmMonitor.prototype = {
         });
     },
 
-    onAlarmsLoaded: function cAM_onAlarmsLoaded(aCalendar) {}
+    onAlarmsLoaded: function cAM_onAlarmsLoaded(aCalendar) {
+        // the alarm dialog won't close while alarms are loading, check again now
+        let calAlarmWindow = peekAlarmWindow();
+        if (calAlarmWindow) {
+            calAlarmWindow.closeIfEmpty();
+        }
+    }
 };

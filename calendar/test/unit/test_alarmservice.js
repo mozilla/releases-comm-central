@@ -28,14 +28,19 @@ let alarmObserver = {
         }
     },
 
+    onRemoveAlarmsByCalendar: function() {},
+
     onAlarmsLoaded: function obs_onAlarmsLoaded(aCalendar) {
+        this.checkLoadStatus();
         if (aCalendar.id in this.pendingOps) {
             this.pendingOps[aCalendar.id].call();
         }
     },
 
     doOnAlarmsLoaded: function obs_doOnAlarmsLoaded(aCalendar, aOperation) {
-        if (aCalendar.id in this.service.mLoadedCalendars) {
+        this.checkLoadStatus();
+        if (aCalendar.id in this.service.mLoadedCalendars &&
+            this.service.mLoadedCalendars[aCalendar.id]) {
             // the calendar's alarms have already been loaded, do the callback now
             aOperation.call();
         } else {
@@ -85,6 +90,17 @@ let alarmObserver = {
         }
     },
 
+    checkLoadStatus: function obs_checkLoadStatus() {
+        for (let calId in this.service.mLoadedCalendars) {
+            if (!this.service.mLoadedCalendars[calId]) {
+                // at least one calendar hasn't finished loading alarms
+                ok(this.service.isLoading);
+                return;
+            }
+        }
+        ok(!this.service.isLoading);
+    },
+
     clear: function obs_clear() {
         this.firedMap = {};
         this.pendingOps = {};
@@ -95,16 +111,21 @@ let alarmObserver = {
 function run_test() {
     do_get_profile();
 
+    add_test(() => {
+        // initialization needs to be done within the first test in order for
+        // the subsequent tests to run properly
+        initializeAlarmService();
+        cal.getCalendarManager().startup({onResult: function() {
+            cal.getTimezoneService().startup({onResult: function() {
+                run_next_test();
+            }});
+        }});
+    });
     add_test(test_addItems);
     add_test(test_loadCalendar);
     add_test(test_modifyItems);
 
-    initializeAlarmService();
-    cal.getCalendarManager().startup({onResult: function() {
-        cal.getTimezoneService().startup({onResult: function() {
-            run_next_test();
-        }});
-    }});
+    run_next_test();
 }
 
 function initializeAlarmService() {

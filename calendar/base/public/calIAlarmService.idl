@@ -41,7 +41,7 @@ interface calIAlarmServiceObserver : nsISupports
   void onAlarmsLoaded(in calICalendar calendar);
 };
 
-[scriptable,uuid(03669cf3-bf4f-4692-97a1-cca891964a1d)]
+[scriptable,uuid(42cfa9ce-49d6-11e5-b88c-5b90eedc1c47)]
 interface calIAlarmService : nsISupports
 {
   /**
@@ -49,6 +49,11 @@ interface calIAlarmService : nsISupports
    * determine when their alarms should fire.
    */
   attribute calITimezone timezone;
+
+  /**
+   * Will return true while the alarm service is in the process of loading alarms
+   */
+  attribute boolean isLoading;
 
   /**
    * Cause the alarm service to start up, create a list of upcoming
