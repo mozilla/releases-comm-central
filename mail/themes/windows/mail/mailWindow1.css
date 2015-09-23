@@ -517,9 +517,12 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
     #messengerWindow[sizemode="maximized"] #titlebar-buttonbox {
       -moz-margin-end: 3px;
     }
+  }
 
-    /* Artificially draw window borders that are covered by lwtheme,
-       see bug 591930. */
+  /* Artificially draw window borders that are covered by lwtheme,
+     see bug 591930. Vista/win7 are using different colors than win8 */
+  @media (-moz-os-version: windows-vista),
+         (-moz-os-version: windows-win7) {
     #messengerWindow[sizemode="normal"] > #titlebar >
     #titlebar-content:-moz-lwtheme {
       border-top: 2px solid;
@@ -529,6 +532,13 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
     #messengerWindow[sizemode="normal"] > #titlebar >
     #titlebar-content:-moz-lwtheme:-moz-window-inactive {
       -moz-border-top-colors: rgb(102, 102, 102) rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  @media (-moz-os-version: windows-win8) {
+    #messengerWindow[sizemode="normal"] > #titlebar >
+    #titlebar-content:-moz-lwtheme {
+      border-top: 1px solid hsla(209, 67%, 12%, 0.35);
     }
   }
 
