@@ -193,6 +193,14 @@
        <parameter name="aObservedName"/>
        <body>
        <![CDATA[
+         // Libpurple prpls don't necessarily return data in response to
+         // requestBuddyInfo that is suitable for displaying inside a
+         // tooltip (e.g. too many objects, or <img> and <a> tags),
+         // so we only use it for JS prpls.
+         // This is a terrible, terrible hack to work around the fact that
+         // ClassInfo.implementationLanguage has gone.
+         if (!aAccount.prplAccount.wrappedJSObject)
+           return;
          this.observedUserInfo = aObservedName;
          Services.obs.addObserver(this, "user-info-received", false);
          aAccount.requestBuddyInfo(aObservedName);
@@ -223,15 +231,7 @@
 
          this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
 
-         // Technically there is no reason to restrict this. But there is
-         // currently no filtering mechanism in place to select which of the
-         // returned fields are to be added to the tooltip for the other
-         // protocols (libpurple in particular).
-         let forcePurple = Services.prefs.getCharPref("chat.prpls.forcePurple");
-         let protocolId = account.protocol.id;
-         if (protocolId == "prpl-irc" ||
-             (!forcePurple.includes("prpl-jabber") && protocolId == "prpl-jabber"))
-           this.requestBuddyInfo(account, aBuddy.normalizedName);
+         this.requestBuddyInfo(account, aBuddy.normalizedName);
 
          var tooltipInfo = aBuddy.getTooltipInfo();
          if (tooltipInfo)
