@@ -68,7 +68,7 @@ function GetAttachmentKeywords(mailData,keywordsInCsv)
             // We can have several *different* matches for one dot-keyword.
             // E.g. foo.pdf and bar.pdf would both match for .pdf.
             var m = matching[j].trim();
-            if (keywordsFound.indexOf(m) == -1)
+            if (!keywordsFound.includes(m))
               keywordsFound.push(m);
           }
         }

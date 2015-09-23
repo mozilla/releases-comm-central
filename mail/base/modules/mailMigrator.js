@@ -136,7 +136,7 @@ var MailMigrator = {
           "mail-bar3" : "mail-toolbar-menubar2";
         let cs = xulStore.getValue(MESSENGER_DOCURL, mailBarId, "currentset");
 
-        if (cs && cs.indexOf("throbber-box") != -1) {
+        if (cs && cs.includes("throbber-box")) {
           cs = cs.replace(/(^|,)throbber-box($|,)/, "$1$2");
           xulStore.setValue(MESSENGER_DOCURL, mailBarId, "currentset", cs);
         }
@@ -146,14 +146,14 @@ var MailMigrator = {
       // to the mail toolbar.
       if (currentUIVersion < 3) {
         let cs = xulStore.getValue(MESSENGER_DOCURL, "tabbar-toolbar", "currentset");
-        if (cs && cs.indexOf("qfb-show-filter-bar") != -1) {
+        if (cs && cs.includes("qfb-show-filter-bar")) {
           cs = cs.replace(/(^|,)qfb-show-filter-bar($|,)/, "$1$2");
           xulStore.setValue(MESSENGER_DOCURL, "tabbar-toolbar", "currentset", cs);
         }
 
         let cs3 = xulStore.getValue(MESSENGER_DOCURL, "mail-bar3", "currentset");
-        if (cs3 && cs3.indexOf("qfb-show-filter-bar") == -1) {
-          if (cs3.indexOf("gloda-search") != -1) {
+        if (cs3 && !cs3.includes("qfb-show-filter-bar")) {
+          if (cs3.includes("gloda-search")) {
             // Put the QFB toggle before the gloda-search and any of
             // spring / spacer / separator.
             cs3 = cs3.replace(/(^|,)([spring,|spacer,|separator,]*)gloda-search($|,)/,
@@ -169,12 +169,12 @@ var MailMigrator = {
       // In UI version 4, we add the chat button to the mail toolbar.
       if (currentUIVersion < 4) {
         let cs = xulStore.getValue(MESSENGER_DOCURL, "mail-bar3", "currentset");
-        if (cs && cs.indexOf("button-chat") == -1) {
-          if (cs.indexOf("button-newmsg") != -1) {
+        if (cs && !cs.includes("button-chat")) {
+          if (cs.includes("button-newmsg")) {
             // Put the chat button after the newmsg button.
             cs = cs.replace(/(^|,)button-newmsg($|,)/,
                             "$1button-newmsg,button-chat$2");
-          } else if (cs.indexOf("button-address") != -1) {
+          } else if (cs.includes("button-address")) {
             // If there's no newmsg button, put the chat button before the address book button.
             cs = cs.replace(/(^|,)button-address($|,)/,
                             "$1button-chat,button-address$2");
@@ -202,7 +202,7 @@ var MailMigrator = {
          */
         let addButtonToEnd = function(aToolbarID, aButtonID) {
           let cs = xulStore.getValue(MESSENGER_DOCURL, aToolbarID, "currentset");
-          if (cs && cs.indexOf(aButtonID) == -1) {
+          if (cs && !cs.includes(aButtonID)) {
             // Put the AppMenu button at the end.
             cs += "," + aButtonID;
             xulStore.setValue(MESSENGER_DOCURL, aToolbarID, "currentset", cs);
@@ -222,7 +222,7 @@ var MailMigrator = {
       // header-view-toolbar.
       if (currentUIVersion < 6) {
         let cs = xulStore.getValue(MESSENGER_DOCURL, "header-view-toolbar", "currentset");
-        if (cs && cs.indexOf("otherActionsButton") == -1) {
+        if (cs && !cs.includes("otherActionsButton")) {
           // Put the otherActionsButton button at the end.
           cs = cs + "," + "otherActionsButton";
           xulStore.setValue(MESSENGER_DOCURL, "header-view-toolbar", "currentset", cs);

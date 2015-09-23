@@ -1283,7 +1283,7 @@ let gFolderTreeView = {
     let mode = this.mode;
     // Remove any saved state of modes where open state should not be persisted.
     // This is mostly for migration from older profiles that may have the info stored.
-    if (this._notPersistedModes.indexOf(mode) != -1) {
+    if (this._notPersistedModes.includes(mode)) {
       delete this._persistOpenMap[mode];
     }
 
@@ -1301,7 +1301,7 @@ let gFolderTreeView = {
           continue;
 
         // The initial state of all rows is closed, so toggle those we want open.
-        if (!map || map.indexOf(row.id) != -1) {
+        if (!map || map.includes(row.id)) {
           tree._toggleRow(i, false);
           goOn = true;
         }
@@ -1323,7 +1323,7 @@ let gFolderTreeView = {
    */
   _persistItemClosed: function ftv_unpersistItem(aItemId) {
     let mode = this.mode;
-    if (this._notPersistedModes.indexOf(mode) != -1)
+    if (this._notPersistedModes.includes(mode))
       return;
 
     // If the whole mode is not in the map yet,
@@ -1344,13 +1344,13 @@ let gFolderTreeView = {
    */
   _persistItemOpen: function ftv_persistItem(aItemId) {
     let mode = this.mode;
-    if (this._notPersistedModes.indexOf(mode) != -1)
+    if (this._notPersistedModes.includes(mode))
       return;
 
     if (!this._persistOpenMap[mode])
       this._persistOpenMap[mode] = [];
 
-    if (this._persistOpenMap[mode].indexOf(aItemId) == -1)
+    if (!this._persistOpenMap[mode].includes(aItemId))
       this._persistOpenMap[mode].push(aItemId);
   },
 

@@ -21,7 +21,7 @@ ObservationRecorder.prototype = {
    * Called by the Observer Service when an event is fired.
    */
   observe: function OR_observe(aSubject, aTopic, aData) {
-    if (this._topics.indexOf(aTopic) != -1) {
+    if (this._topics.includes(aTopic)) {
       if (!(aTopic in this.saw))
         this.saw[aTopic] = 0;
 
@@ -109,7 +109,7 @@ ObservationRecorder.prototype = {
       aTopics = [aTopics];
 
     this._topics = this._topics.filter(
-      topic => aTopics.indexOf(topic) == -1
+      topic => !aTopics.includes(topic)
     );
   },
 

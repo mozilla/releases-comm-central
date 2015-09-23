@@ -127,7 +127,7 @@ function test_modified_pref_on_whitelist() {
   Services.prefs.setBoolPref(prefName, true);
   let tab = open_about_support();
   // Check that the prefix is actually in the whitelist.
-  if (tab.browser.contentWindow.PREFS_WHITELIST.indexOf(PREFIX) == -1)
+  if (!tab.browser.contentWindow.PREFS_WHITELIST.includes(PREFIX))
     mark_failure(["The prefs whitelist doesn't contain " + PREFIX]);
 
   assert_content_tab_text_present(tab, prefName);

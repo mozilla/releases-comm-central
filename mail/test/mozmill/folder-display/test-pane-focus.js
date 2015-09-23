@@ -34,14 +34,14 @@ function setupModule(module) {
  * @return the focused pane
  */
 function get_focused_pane() {
-  let panes = [mc.e(id) for each (id in [
+  let panes = [mc.e(id) for (id of [
     "threadTree", "folderTree", "messagepane", "multimessage"
   ])];
 
   let currentNode = mc.window.top.document.activeElement;
 
   while (currentNode) {
-    if (panes.indexOf(currentNode) != -1)
+    if (panes.includes(currentNode))
       return currentNode;
 
     currentNode = currentNode.parentNode;

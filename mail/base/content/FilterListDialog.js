@@ -646,7 +646,7 @@ function rebuildFilterList()
     enabledCell.setAttribute("enabled", filter.enabled);
     listitem._filter = filter;
 
-    if (selectedNames.indexOf(filter.filterName) != -1)
+    if (selectedNames.includes(filter.filterName))
       gFilterListbox.addItemToSelection(listitem);
 
     listitemIndex++;

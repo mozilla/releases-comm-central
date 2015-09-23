@@ -1464,7 +1464,7 @@
 
             // custom attribute to style the unavailable menulist item
             menulist.setAttribute("unavailable",
-              (this.valueIds.indexOf(typedValue) < 0) ? "true" : null);
+              (!this.valueIds.includes(typedValue)) ? "true" : null);
 
             // add a hidden menulist item if value is missing
             let menuitem = menulist.querySelector('[value="' + this.value + '"]');

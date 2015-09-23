@@ -244,14 +244,14 @@ FolderDisplayWidget.prototype = {
    * @return the focused pane
    */
   get focusedPane() {
-    let panes = [document.getElementById(id) for each (id in [
+    let panes = [document.getElementById(id) for (id of [
       "threadTree", "folderTree", "messagepanebox"
     ])];
 
     let currentNode = top.document.activeElement;
 
     while (currentNode) {
-      if (panes.indexOf(currentNode) != -1)
+      if (panes.includes(currentNode))
         return currentNode;
 
       currentNode = currentNode.parentNode;
@@ -1538,7 +1538,7 @@ FolderDisplayWidget.prototype = {
       aNotificationFunc.call(this);
     }
     else {
-      if (this._notificationsPendingActivation.indexOf(aNotificationFunc) == -1)
+      if (!this._notificationsPendingActivation.includes(aNotificationFunc))
         this._notificationsPendingActivation.push(aNotificationFunc);
     }
   },

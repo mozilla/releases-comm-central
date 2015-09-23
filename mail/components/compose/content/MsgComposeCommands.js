@@ -2053,7 +2053,7 @@ function getValidSpellcheckerDictionary() {
   }
 
   // Make sure preference contains a valid value.
-  if (dictList.indexOf(prefValue) >= 0) {
+  if (dictList.includes(prefValue)) {
     return prefValue;
   }
 

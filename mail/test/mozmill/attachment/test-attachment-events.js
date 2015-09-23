@@ -132,7 +132,7 @@ function test_attachments_added_on_multiple() {
   assert_equals(2, subjects.length);
 
   for (let attachment in fixIterator(subjects, Ci.nsIMsgAttachment)) {
-    assert_true(attachmentUrls.indexOf(attachment.url) != -1);
+    assert_true(attachmentUrls.includes(attachment.url));
   }
 
   // Close the compose window - let's try again with 3 attachments.
@@ -156,7 +156,7 @@ function test_attachments_added_on_multiple() {
   assert_equals(3, subjects.length);
 
   for (let attachment in fixIterator(subjects, Ci.nsIMsgAttachment)) {
-    assert_true(attachmentUrls.indexOf(attachment.url) != -1);
+    assert_true(attachmentUrls.includes(attachment.url));
   }
 
   // Make sure we don't fire the event again if we try to attach the same
@@ -264,7 +264,7 @@ function test_attachments_removed_on_multiple() {
   assert_equals(3, subjects.length);
 
   for (let attachment in fixIterator(subjects, Ci.nsIMsgAttachment)) {
-    assert_true(removedAttachmentUrls.indexOf(attachment.url) != -1);
+    assert_true(removedAttachmentUrls.includes(attachment.url));
   }
 
   // Ok, let's attach and remove some again to ensure that we still see the event.

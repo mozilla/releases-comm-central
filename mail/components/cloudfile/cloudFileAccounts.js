@@ -58,7 +58,7 @@ var cloudFileAccounts = {
     let existingKeys = this._accountKeys;
     for (let n = 1; ; n++) {
 
-      if (existingKeys.indexOf("account" + n) == -1)
+      if (!existingKeys.includes("account" + n))
         return "account" + n;
     }
   },

@@ -38,7 +38,7 @@ function teardownModule(module) {
 function check_address_types_state(aItemsEnabled) {
   let addr_types = cwc.e("addressingWidget").querySelectorAll("menuitem[value]");
   for (let item of addr_types)
-    assert_true(item.collapsed == (aItemsEnabled.indexOf(item.getAttribute("value")) == -1));
+    assert_true(item.collapsed != aItemsEnabled.includes(item.getAttribute("value")));
 
   // Even if the currently selected type is collaped,
   // the containing menulist should never be collapsed.

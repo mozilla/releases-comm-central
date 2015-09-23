@@ -111,7 +111,7 @@ var FolderNotificationHelper = {
   stalkFolders: function FolderNotificationHelper_stalkFolders(
       aFolders, aNotherFolder, aViewWrapper) {
     let folders = aFolders ? aFolders.concat() : [];
-    if (aNotherFolder && folders.indexOf(aNotherFolder) == -1)
+    if (aNotherFolder && !folders.includes(aNotherFolder))
       folders.push(aNotherFolder);
     for each (let [, folder] in Iterator(folders)) {
       let wrappers = this._interestedWrappers[folder.URI];

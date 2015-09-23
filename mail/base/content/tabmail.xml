@@ -375,14 +375,14 @@
       <method name="registerTabMonitor">
         <parameter name="aTabMonitor"/>
         <body><![CDATA[
-          if (this.tabMonitors.indexOf(aTabMonitor) == -1)
+          if (!this.tabMonitors.includes(aTabMonitor))
             this.tabMonitors.push(aTabMonitor);
         ]]></body>
       </method>
       <method name="unregisterTabMonitor">
         <parameter name="aTabMonitor"/>
         <body><![CDATA[
-          if (this.tabMonitors.indexOf(aTabMonitor) >= 0)
+          if (this.tabMonitors.includes(aTabMonitor))
             this.tabMonitors.splice(this.tabMonitors.indexOf(aTabMonitor), 1);
         ]]></body>
       </method>

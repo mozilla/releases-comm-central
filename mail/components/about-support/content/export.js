@@ -175,7 +175,7 @@ var gElementsToReplace = {
 function generateTextForElement(elem, aHidePrivateData, indent,
                                 textFragmentAccumulator) {
   // Add a little extra spacing around most elements.
-  if (["td", "th", "span", "a"].indexOf(elem.tagName) == -1)
+  if (!["td", "th", "span", "a"].includes(elem.tagName))
     textFragmentAccumulator.push("\n");
 
   // If this element is one of our elements to replace with text, do it.

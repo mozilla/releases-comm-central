@@ -266,7 +266,7 @@ MockHightailItemIdRegistry.prototype = {
     if (oldItemId)
       delete this._itemIdMap[oldItemId]
 
-    if (this._itemIds.indexOf(aItemId) != -1) {
+    if (this._itemIds.includes(aItemId)) {
       this._itemIdMap[aItemId] = aFilename;
     }
   },

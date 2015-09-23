@@ -319,7 +319,7 @@ HandlerInfoWrapper.prototype = {
   handledOnlyByPlugin: undefined,
 
   get isDisabledPluginType() {
-    return this._getDisabledPluginTypes().indexOf(this.type) != -1;
+    return this._getDisabledPluginTypes().includes(this.type);
   },
 
   _getDisabledPluginTypes: function() {
@@ -336,7 +336,7 @@ HandlerInfoWrapper.prototype = {
   disablePluginType: function() {
     var disabledPluginTypes = this._getDisabledPluginTypes();
 
-    if (disabledPluginTypes.indexOf(this.type) == -1)
+    if (!disabledPluginTypes.includes(this.type))
       disabledPluginTypes.push(this.type);
 
     Services.prefs.setCharPref(PREF_DISABLED_PLUGIN_TYPES,
@@ -1175,7 +1175,7 @@ var gApplicationsPane = {
       let extIter = aHandlerInfo.wrappedHandlerInfo.getFileExtensions();
       while(extIter.hasMore()) {
         let ext = "."+extIter.getNext();
-        if (exts.indexOf(ext) == -1)
+        if (!exts.includes(ext))
           exts.push(ext);
       }
     }

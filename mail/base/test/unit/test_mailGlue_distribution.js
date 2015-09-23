@@ -113,7 +113,7 @@ function run_test()
   keys = testIni.getKeys(s);
   while (keys.hasMore()) {
     let key = keys.getNext();
-    if (overrides.indexOf(key) == -1) {
+    if (!overrides.includes(key)) {
       let value = eval(testIni.getString(s, key));
       value =  value.replace(/%LOCALE%/g, "en-US");
       value = "data:text/plain," + key + "=" + value;

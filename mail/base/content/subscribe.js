@@ -330,7 +330,7 @@ function ReverseStateFromRow(aRow)
   // we are subscribed.
   let col = gSearchTree.columns["subscribedColumn2"];
   let properties = gSearchView.getCellProperties(aRow, col);
-  let isSubscribed = (properties.split(" ").indexOf("subscribed") != -1);
+  let isSubscribed = properties.split(" ").includes("subscribed");
   SetStateFromRow(aRow, !isSubscribed);
 }
 

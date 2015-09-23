@@ -96,7 +96,7 @@ function checkToAddresses(replyWinController, expectedFields) {
     let obtained = obtainedFields[type];
 
     for (let i = 0; i < expected.length; i++) {
-      if (!obtained || obtained.indexOf(expected[i]) == -1) {
+      if (!obtained || !obtained.includes(expected[i])) {
         throw new Error(expected[i] + " is not in " + type + " fields; " +
                         "obtained=" + obtained);
       }

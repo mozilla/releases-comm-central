@@ -88,7 +88,7 @@ function subtest_check_whitelist_load_and_clear(amc) {
                   "Should have been checked");
     // Also ensure that the address book URI was properly saved in the
     // prefs
-    assert_not_equals(-1, whiteListURIs.indexOf(abNode.getAttribute("value")));
+    assert_true(whiteListURIs.includes(abNode.getAttribute("value")));
     // Now un-check that address book
     amc.click(new elib.Elem(abNode));
   }
@@ -123,7 +123,7 @@ function subtest_check_whitelist_load_cleared(amc) {
                   "Should not have been checked");
     // Also ensure that the address book URI was properly cleared in the
     // prefs
-    assert_equals(-1, whiteListURIs.indexOf(abNode.getAttribute("value")));
+    assert_false(whiteListURIs.includes(abNode.getAttribute("value")));
   }
 
   // And close the dialog

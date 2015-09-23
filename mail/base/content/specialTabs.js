@@ -171,7 +171,7 @@ const DOMLinkHandler = {
     if (!link || !link.ownerDocument || !rel || !link.href)
       return;
 
-    if (rel.split(/\s+/).indexOf("icon") != -1) {
+    if (rel.split(/\s+/).includes("icon")) {
       if (!Services.prefs.getBoolPref("browser.chrome.site_icons"))
         return;
 
@@ -296,7 +296,7 @@ var contentTabBaseType = {
   },
 
   hideChromeForLocation: function hideChromeForLocation(aLocation) {
-    return this.inContentWhitelist.indexOf(aLocation) != -1;
+    return this.inContentWhitelist.includes(aLocation);
   },
 
   /* _setUpLoadListener attaches a load listener to the tab browser that
@@ -725,7 +725,7 @@ var specialTabs = {
     }
 
     let actions = update.getProperty("actions");
-    if (actions && actions.indexOf("silent") != -1)
+    if (actions && actions.includes("silent"))
       return;
 
     openWhatsNew();

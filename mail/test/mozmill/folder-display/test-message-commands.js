@@ -497,7 +497,7 @@ function test_disabled_archive() {
 
 function check_tag_in_message(message, tag, isSet) {
   let tagSet = message.getStringProperty("keywords").split(" ")
-                      .indexOf(tag.key) != -1;
+                      .includes(tag.key);
   if (isSet)
     assert_true(tagSet, "Tag '" + tag.name + "' expected on message!");
   else

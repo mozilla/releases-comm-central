@@ -154,7 +154,7 @@ function test_font_name_not_present() {
       throw new Error("The first font in " + listPref + " should be " + fakeFont +
                       ", but is actually " + fonts[0] + ".");
 
-    if (gRealFontLists[fontType].indexOf(fonts[1]) == -1)
+    if (!gRealFontLists[fontType].includes(fonts[1]))
       throw new Error("The second font in " + listPref + " (" + fonts[1] +
                       ") should be present on this computer, but isn't.");
     expected[fontType] = fonts[1];

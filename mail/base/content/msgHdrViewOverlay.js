@@ -795,7 +795,7 @@ function SetTagHeader()
   var label = msgHdr.label;
   if (label) {
     let labelKey = "$label" + label;
-    if (msgKeyArray.indexOf(labelKey) < 0)
+    if (!msgKeyArray.includes(labelKey))
       msgKeyArray.unshift(labelKey);
   }
 

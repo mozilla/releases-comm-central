@@ -1057,12 +1057,12 @@ function ShowIgnoredMessageNotification(aMsgs, aSubthreadOnly) {
     }
   ];
 
-  let threadIds = [];
+  let threadIds = new Set();
   aMsgs.forEach(function(msg) {
-    if (threadIds.indexOf(msg.threadId) == -1)
-      threadIds.push(msg.threadId);
+    if (!threadIds.has(msg.threadId))
+      threadIds.add(msg.threadId);
   });
-  let nbrOfThreads = threadIds.length;
+  let nbrOfThreads = threadIds.size;
 
   if (nbrOfThreads == 1) {
     let ignoredThreadText = bundle.get(!aSubthreadOnly ?

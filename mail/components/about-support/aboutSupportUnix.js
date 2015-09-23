@@ -107,7 +107,7 @@ var AboutSupportPlatform = {
         glibFileInfo, G_FILE_ATTRIBUTE_FILESYSTEM_TYPE);
       if (fsType.isNull())
         return "unknown";
-      else if (kNetworkFilesystems.indexOf(fsType.readString()) != -1)
+      else if (kNetworkFilesystems.includes(fsType.readString()))
         return "network";
       else
         return "local";

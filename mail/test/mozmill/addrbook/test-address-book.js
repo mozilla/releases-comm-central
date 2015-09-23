@@ -355,8 +355,8 @@ function test_writing_to_mailing_list() {
   let to = composeWin.window.gMsgCompose.compFields.to;
 
   // Make sure we're writing to all contacts in the mailing list.
-  for each (contact in contacts) {
-    assert_not_equals(-1, to.indexOf(contact.primaryEmail));
-    assert_not_equals(-1, to.indexOf(contact.displayName));
+  for (let contact of contacts) {
+    assert_true(to.includes(contact.primaryEmail));
+    assert_true(to.includes(contact.displayName));
   }
 }

@@ -143,7 +143,7 @@ function test_get_file_system_type() {
     do_check_eq(fsType, null);
   else
     // Windows and Linux should return a string
-    do_check_true(["local", "network", "unknown"].indexOf(fsType) != -1);
+    do_check_true(["local", "network", "unknown"].includes(fsType));
 }
 
 /**

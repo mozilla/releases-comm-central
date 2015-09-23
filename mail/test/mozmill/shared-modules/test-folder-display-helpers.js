@@ -1687,7 +1687,7 @@ var FolderListener = {
       aFolder, aEvent) {
     if (!this.watchingFor)
       return;
-    if (this.watchingFor.indexOf(aEvent.toString()) != -1) {
+    if (this.watchingFor.includes(aEvent.toString())) {
       this.watchingFor = null;
       this.sawEvents = true;
     }
@@ -2229,7 +2229,7 @@ function add_to_toolbar(aToolbarElement, aElementId) {
               ["adding", aElementId,
                "current set", aToolbarElement.currentSet]);
   let currentSet = aToolbarElement.currentSet.split(",");
-  if (currentSet.indexOf(aElementId) == -1) {
+  if (!currentSet.includes(aElementId)) {
     currentSet.unshift(aElementId);
     aToolbarElement.currentSet = currentSet.join(",");
   }
@@ -2249,7 +2249,7 @@ function remove_from_toolbar(aToolbarElement, aElementId) {
               ["removing", aElementId,
                "current set", aToolbarElement.currentSet]);
   let currentSet = aToolbarElement.currentSet.split(",");
-  if (currentSet.indexOf(aElementId) != -1) {
+  if (currentSet.includes(aElementId)) {
     currentSet.splice(currentSet.indexOf(aElementId), 1);
     aToolbarElement.currentSet = currentSet.join(",");
   }
@@ -2327,7 +2327,7 @@ function _get_currently_focused_thing() {
   let focusedElement = mc.window.document.commandDispatcher.focusedElement;
   let elementsToMatch = [mc.e(elem)
                          for each ([, elem] in Iterator(RECOGNIZED_ELEMENTS))];
-  while (focusedElement && elementsToMatch.indexOf(focusedElement) == -1)
+  while (focusedElement && !elementsToMatch.includes(focusedElement))
     focusedElement = focusedElement.parentNode;
 
   return focusedElement ? focusedElement.id : null;

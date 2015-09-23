@@ -26,7 +26,7 @@ function setupModule(module) {
  */
 function assert_button_at_end_of_toolbar(aToolbarID, aButtonID) {
   let currentSet = mc.e(aToolbarID).currentSet;
-  assert_not_equals(-1, currentSet.indexOf(aButtonID),
+  assert_true(currentSet.includes(aButtonID),
                    "We didn't find the button with ID " + aButtonID +
                    "where we should have for the toolbar with ID " +
                    aToolbarID);

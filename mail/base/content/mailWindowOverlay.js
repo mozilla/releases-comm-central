@@ -834,7 +834,7 @@ function ToggleMessageTagKey(keyNumber)
   let curKeys = msgHdr.getStringProperty("keywords").split(" ");
   if (msgHdr.label)
     curKeys.push("$label" + msgHdr.label);
-  let addKey = curKeys.indexOf(key) < 0;
+  let addKey = !curKeys.includes(key);
 
   ToggleMessageTag(key, addKey);
 }
@@ -2611,7 +2611,7 @@ function SpaceHit(event)
     // These elements should always take priority over scrolling.
     const importantElements = ["otherActionsButton", "attachmentToggle"];
     contentWindow = window.content;
-    if (focusedElement && importantElements.indexOf(focusedElement.id) != -1)
+    if (focusedElement && importantElements.includes(focusedElement.id))
       return;
   }
   else if (focusedElement && !hRefForClickEvent(event))
@@ -3026,7 +3026,7 @@ var gMessageNotificationBar =
     // The popup value is a space separated list of all the blocked hosts.
     let popup = document.getElementById("remoteContentOptions");
     let hosts = popup.value ? popup.value.split(" ") : [];
-    if (hosts.indexOf(aContentURI.host) == -1)
+    if (!hosts.includes(aContentURI.host))
       hosts.push(aContentURI.host);
     popup.value = hosts.join(" ");
   },

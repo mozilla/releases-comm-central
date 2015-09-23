@@ -106,7 +106,7 @@ let gMockExtProtSvc = {
   },
 
   urlLoaded: function(aURL) {
-    return this._loadedURLs.indexOf(aURL) != -1;
+    return this._loadedURLs.includes(aURL);
   },
 }
 
