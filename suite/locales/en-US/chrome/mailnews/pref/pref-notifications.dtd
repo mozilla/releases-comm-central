@@ -21,6 +21,10 @@
 <!ENTITY showAlertSubject.accesskey       "u">
 <!ENTITY showAlertSender.label            "Show the sender">
 <!ENTITY showAlertSender.accesskey        "n">
+<!ENTITY useSystemAlert.label             "Use the operating system&apos;s desktop notifications">
+<!ENTITY useSystemAlert.accesskey         "d">
+<!ENTITY useBuiltInAlert.label            "Use &brandShortName;&apos;s own notification windows">
+<!ENTITY useBuiltInAlert.accesskey        "w">
 
 <!ENTITY showTrayIcon.label               "Show a tray icon">
 <!ENTITY showTrayIcon.accesskey           "t">

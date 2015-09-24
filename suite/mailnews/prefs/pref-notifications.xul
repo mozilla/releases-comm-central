@@ -6,7 +6,12 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/prefPanels.css" type="text/css"?>
 
-<!DOCTYPE overlay SYSTEM "chrome://messenger/locale/pref-notifications.dtd">
+<!DOCTYPE overlay [
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+%brandDTD;
+<!ENTITY % prefNotificationsDTD SYSTEM "chrome://messenger/locale/pref-notifications.dtd">
+%prefNotificationsDTD;
+]>
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <prefpane id="notifications_pane"
@@ -29,6 +34,9 @@
                   type="bool"/>
       <preference id="mail.biff.alert.show_sender"
                   name="mail.biff.alert.show_sender"
+                  type="bool"/>
+      <preference id="mail.biff.use_system_alert"
+                  name="mail.biff.use_system_alert"
                   type="bool"/>
       <preference id="mail.biff.show_tray_icon"
                   name="mail.biff.show_tray_icon"
@@ -79,23 +87,38 @@
                       attribute="disabled"/>
           </label>
         </hbox>
-        <checkbox id="showAlertPreviewText"
-                  class="indent"
-                  label="&showAlertPreviewText.label;"
-                  accesskey="&showAlertPreviewText.accesskey;"
-                  preference="mail.biff.alert.show_preview"/>
-        <checkbox id="showAlertSubject"
-                  class="indent"
-                  label="&showAlertSubject.label;"
-                  accesskey="&showAlertSubject.accesskey;"
-                  preference="mail.biff.alert.show_subject"/>
-        <checkbox id="showAlertSender"
-                  class="indent"
-                  label="&showAlertSender.label;"
-                  accesskey="&showAlertSender.accesskey;"
-                  preference="mail.biff.alert.show_sender"/>
-        <separator id="newMailNotificationAlertSeparator"
-                   class="thin"/>
+        <vbox id="showAlertOptionsBox"
+              class="indent">
+          <checkbox id="showAlertPreviewText"
+                    label="&showAlertPreviewText.label;"
+                    accesskey="&showAlertPreviewText.accesskey;"
+                    preference="mail.biff.alert.show_preview"/>
+          <checkbox id="showAlertSubject"
+                    label="&showAlertSubject.label;"
+                    accesskey="&showAlertSubject.accesskey;"
+                    preference="mail.biff.alert.show_subject"/>
+          <checkbox id="showAlertSender"
+                    label="&showAlertSender.label;"
+                    accesskey="&showAlertSender.accesskey;"
+                    preference="mail.biff.alert.show_sender"/>
+          <separator id="newMailNotificationAlertSeparator"
+                     class="thin"/>
+          <vbox id="useSystemAlertBox">
+            <radiogroup id="useSystemAlertRadio"
+                        preference="mail.biff.use_system_alert">
+              <radio id="useSystemAlert"
+                     value="true"
+                     label="&useSystemAlert.label;"
+                     accesskey="&useSystemAlert.accesskey;"/>
+              <radio id="useBuiltInAlert"
+                     value="false"
+                     label="&useBuiltInAlert.label;"
+                     accesskey="&useBuiltInAlert.accesskey;"/>
+            </radiogroup>
+            <separator id="useSystemAlertSeparator"
+                       class="thin"/>
+          </vbox>
+        </vbox>
       </vbox>
       <vbox id="newMailNotificationTrayIconBox">
         <checkbox id="newMailNotificationTrayIcon"

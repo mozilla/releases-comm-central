@@ -29,6 +29,10 @@ function Startup()
   var newMailNotificationTrayIconPref = document.getElementById("newMailNotificationTrayIconBox");
   newMailNotificationTrayIconPref.hidden = !navigator.platform.startsWith("Win");
 
+  // use system alert option currently available for Linux only
+  var useSystemAlertPref = document.getElementById("useSystemAlertBox");
+  useSystemAlertPref.hidden = !navigator.platform.startsWith("Linux");
+
   EnableAlert(document.getElementById("mail.biff.show_alert").value, false);
   EnableTrayIcon(document.getElementById("mail.biff.show_tray_icon").value);
 
@@ -39,8 +43,8 @@ function Startup()
 
 function EnableAlert(aEnable, aFocus)
 {
-  // switch off the balloon if the user wants regular alerts
-  if (aEnable)
+  // switch off the balloon on Windows if the user wants regular alerts
+  if (aEnable && navigator.platform.startsWith("Win"))
   {
     let balloonAlert = document.getElementById("mail.biff.show_balloon");
     if (!balloonAlert.locked)
@@ -51,6 +55,7 @@ function EnableAlert(aEnable, aFocus)
   EnableElementById("showAlertPreviewText", aEnable, false);
   EnableElementById("showAlertSubject", aEnable, false);
   EnableElementById("showAlertSender", aEnable, false);
+  EnableElementById("useSystemAlertRadio", aEnable, false);
 }
 
 function EnableTrayIcon(aEnable)
@@ -61,7 +66,7 @@ function EnableTrayIcon(aEnable)
 function ClearAlert(aEnable)
 {
   // switch off the regular alerts if the user wants the balloon
-  if (aEnable)
+  if (aEnable && navigator.platform.startsWith("Win"))
   {
     let showAlert = document.getElementById("mail.biff.show_alert");
     if (!showAlert.locked)
