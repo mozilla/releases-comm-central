@@ -1158,10 +1158,16 @@
             else if (buddy.voiced)
               image = "voice";
           }
-          if (image)
+          if (image) {
             aItem.setAttribute("image", "chrome://instantbird/skin/" + image + ".png");
-          else
+            aItem.setAttribute("aria-label",
+              this.bundle.formatStringFromName("participant." + image,
+                [aItem.getAttribute("label")], 1));
+          }
+          else {
             aItem.removeAttribute("image");
+            aItem.removeAttribute("aria-label");
+          }
         ]]>
         </body>
       </method>
