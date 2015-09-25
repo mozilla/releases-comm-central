@@ -352,6 +352,11 @@ function fillFolderPaneContextMenu(aEvent)
   function checkCanSubscribeToFolder(folder) {
     if (checkIsVirtualFolder(folder))
       return false;
+
+    // We only want the subscribe item on the account nodes.
+    if (!folder.isServer)
+      return false;
+
     return folder.server.type == "nntp" ||
            folder.server.type == "imap" ||
            folder.server.type == "rss";
