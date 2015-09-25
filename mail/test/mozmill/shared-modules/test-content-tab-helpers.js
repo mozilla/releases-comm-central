@@ -129,8 +129,8 @@ let NotificationWatcher = {
   },
   waitForNotification: function(aController) {
     if (!this.alerted) {
-      aController.waitFor(function () this.alerted, "Timeout waiting for alert",
-                          ALERT_TIMEOUT, 100, this);
+      aController.waitFor(() => this.alerted, "Timeout waiting for alert",
+                          ALERT_TIMEOUT, 100);
     }
     // Double check the notification box has finished animating.
     let notificationBox =

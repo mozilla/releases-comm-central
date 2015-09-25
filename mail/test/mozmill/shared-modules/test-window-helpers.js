@@ -244,13 +244,12 @@ var WindowWatcher = {
    */
   waitForWindowOpen: function WindowWatcher_waitForWindowOpen(aWindowType) {
     this.waitingForOpen = aWindowType;
-    utils.waitFor(function () this.monitorizeOpen(),
+    utils.waitFor(() => this.monitorizeOpen(),
                   "Timed out waiting for window open!",
                   this._firstWindowOpened ? WINDOW_OPEN_TIMEOUT_MS
                     : FIRST_WINDOW_EVER_TIMEOUT_MS,
                   this._firstWindowOpened ? WINDOW_OPEN_CHECK_INTERVAL_MS
-                    : FIRST_WINDOW_CHECK_INTERVAL_MS,
-                  this);
+                    : FIRST_WINDOW_CHECK_INTERVAL_MS);
 
     this.waitingForOpen = null;
     let xulWindow = this.waitingList.get(aWindowType);
@@ -397,9 +396,10 @@ var WindowWatcher = {
    */
   waitingForClose: null,
   waitForWindowClose: function WindowWatcher_waitForWindowClose() {
-    utils.waitFor(function () this.monitorizeClose(),
+    utils.waitFor(() => this.monitorizeClose(),
                   "Timeout waiting for window to close!",
-      WINDOW_CLOSE_TIMEOUT_MS, WINDOW_CLOSE_CHECK_INTERVAL_MS, this);
+                  WINDOW_CLOSE_TIMEOUT_MS,
+                  WINDOW_CLOSE_CHECK_INTERVAL_MS);
     let didDisappear = (this.waitingList.get(this.waitingForClose) == null);
     let windowType = this.waitingForClose;
     this.waitingList.delete(windowType);
@@ -1848,7 +1848,7 @@ function captureWindowStatesForErrorReporting(normalizeForJsonFunc) {
       Array.prototype.slice.call(
           win.document.documentElement.getElementsByTagName("menupopup"))
         .filter(x => x.state != "closed")
-        .map(function (x) normalizeForJsonFunc(x));
+        .map(x => normalizeForJsonFunc(x));
 
     let ignoredFocusedWindow = {};
     let winfo = {

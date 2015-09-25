@@ -56,7 +56,7 @@ function open_about_support() {
                                         "about:support");
   // We have one variable that's asynchronously populated -- wait for it to be
   // populated.
-  mc.waitFor(function () tab.browser.contentWindow.gExtensions !== undefined,
+  mc.waitFor(() => (tab.browser.contentWindow.gExtensions !== undefined),
              "Timeout waiting for about:support's gExtensions to populate.");
   return tab;
 }
@@ -156,7 +156,7 @@ function test_modified_pref_on_blacklist() {
   let tab = open_about_support();
   // Check that the prefix is in the blacklist.
   if (!tab.browser.contentWindow.PREFS_BLACKLIST.some(
-        function(regex) regex.test(PREFIX))) {
+        regex => regex.test(PREFIX))) {
     mark_failure(["The prefs blacklist doesn't include " + PREFIX]);
   }
   assert_content_tab_text_absent(tab, prefName);

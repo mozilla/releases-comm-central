@@ -127,8 +127,8 @@ let PluginCrashObserver = {
 
   waitForCrash: function(aController) {
     if (!this._sawCrash)
-      aController.waitFor(function() this._sawCrash, "Timeout waiting for crash",
-                          5000, 100, this);
+      aController.waitFor(() => this._sawCrash, "Timeout waiting for crash",
+                          5000, 100);
 
     Services.obs.removeObserver(this, "plugin-crashed");
   },

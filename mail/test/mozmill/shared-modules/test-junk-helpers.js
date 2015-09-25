@@ -131,7 +131,7 @@ function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
     // fine, because we already have all sorts of events when messages are
     // deleted). The only assumption is that deleteJunkInFolder is synchronous
     // if no messages are deleted.
-    utils.waitFor(function () numMessagesDeleted != null,
+    utils.waitFor(() => numMessagesDeleted != null,
                   "Timeout waiting for numMessagesDeleted to turn " +
                   "non-null. This either means that deleteJunkInFolder " +
                   "didn't get called or that it didn't return a value.");
