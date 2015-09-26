@@ -53,6 +53,14 @@ radio[pane=paneLightning] {
   color: DarkBlue;
 }
 
+#calendar-status-todaypane-button > .toolbarbutton-icon-end {
+  list-style-image: url(chrome://global/skin/icons/collapse.png);
+}
+
+#calendar-status-todaypane-button[checked="true"] > .toolbarbutton-icon-end {
+  list-style-image: url(chrome://global/skin/icons/expand.png);
+}
+
 /* shift the today pane button label up by one pixel to center it */
 #calendar-status-todaypane-button > .toolbarbutton-text {
   margin: 0 0 1px !important;
@@ -95,14 +103,6 @@ radio[pane=paneLightning] {
   #calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {
     list-style-image: url(chrome://calendar/skin/toolbar-small.png);
     -moz-image-region: rect(0 336px 16px 320px);
-  }
-
-  #calendar-status-todaypane-button > .toolbarbutton-icon-end {
-    list-style-image: url(chrome://global/skin/icons/collapse.png);
-  }
-
-  #calendar-status-todaypane-button[checked="true"] > .toolbarbutton-icon-end {
-    list-style-image: url(chrome://global/skin/icons/expand.png);
   }
 
   /* ::: new tab buttons ::: */
