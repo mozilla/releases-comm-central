@@ -1,3 +1,4 @@
+no_tooltool=1
 . "$topsrcdir/build/unix/mozconfig.linux32"
 
 ac_add_options --enable-application=suite
@@ -8,6 +9,10 @@ ac_add_options --disable-debug
 ac_add_options --enable-tests
 ac_add_options --disable-elf-hack
 ac_add_options --enable-profiling
+
+# Temp patch to enable Linux32 to build
+# Bug 1187222
+ac_add_options --enable-default-toolkit=cairo-gtk2
 
 export CFLAGS="-gdwarf-2"
 export CXXFLAGS="-gdwarf-2"
