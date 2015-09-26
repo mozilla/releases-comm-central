@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1441833117000">
+<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1443217898000">
   <emItems>
       <emItem  blockID="i58" id="webmaster@buzzzzvideos.info">
                         <versionRange  minVersion="0" maxVersion="*">
@@ -1485,6 +1485,12 @@
                     <prefs>
               </prefs>
     </emItem>
+      <emItem  blockID="i1012" id="wxtui502n2xce9j@no14">
+                        <versionRange  minVersion="0" maxVersion="*" severity="3">
+                    </versionRange>
+                    <prefs>
+              </prefs>
+    </emItem>
       <emItem  blockID="i692" id="/^(j003-lqgrmgpcekslhg|SupraSavings|j003-dkqonnnthqjnkq|j003-kaggrpmirxjpzh)@jetpack$/">
                         <versionRange  minVersion="0" maxVersion="*" severity="1">
                     </versionRange>
@@ -1755,6 +1761,12 @@
                     <prefs>
                   <pref>browser.startup.homepage</pref>
                   <pref>browser.search.defaultenginename</pref>
+              </prefs>
+    </emItem>
+      <emItem  blockID="i1018" id="grjkntbhr@hgergerherg.com">
+                        <versionRange  minVersion="0" maxVersion="*" severity="3">
+                    </versionRange>
+                    <prefs>
               </prefs>
     </emItem>
       <emItem  blockID="i780" id="{b6ef1336-69bb-45b6-8cba-e578fc0e4433}">
@@ -2363,6 +2375,12 @@
                     <prefs>
               </prefs>
     </emItem>
+      <emItem  blockID="i1016" id="jid1-uabu5A9hduqzCw@jetpack">
+                        <versionRange  minVersion="0" maxVersion="*" severity="3">
+                    </versionRange>
+                    <prefs>
+              </prefs>
+    </emItem>
       <emItem  blockID="i226" id="{462be121-2b54-4218-bf00-b9bf8135b23f}">
                         <versionRange  minVersion="0" maxVersion="*" severity="1">
                     </versionRange>
@@ -2654,6 +2672,10 @@
       <pluginItem  blockID="p1004">
             <match name="description" exp="^($|Unity Web Player version 5.0(\.([0-2]|3f1))?[^0-9.])" />      <match name="filename" exp="Unity Web Player\.plugin" />                      <versionRange  severity="0" vulnerabilitystatus="1"></versionRange>
                         </pluginItem>
+      <pluginItem  blockID="p1020">
+                  <match name="filename" exp="(NPSWF32.*\.dll)|(NPSWF64.*\.dll)|(Flash\ Player\.plugin)" />                      <versionRange  minVersion="13.0" maxVersion="13.*" severity="0" vulnerabilitystatus="1"></versionRange>
+                            <infoURL>https://get.adobe.com/flashplayer/</infoURL>
+          </pluginItem>
     </pluginItems>
 
   <gfxItems>
@@ -2768,6 +2790,9 @@
     </certItem>
         <certItem issuerName="MDcxJDAiBgNVBAMTG1JDUyBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTEPMA0GA1UEChMGSFQgc3Js">
       <serialNumber>AN9bfYOvlR1t</serialNumber>
+    </certItem>
+        <certItem issuerName="MEQxCzAJBgNVBAYTAlVTMRUwEwYDVQQKEwx0aGF3dGUsIEluYy4xHjAcBgNVBAMTFXRoYXd0ZSBFViBTU0wgQ0EgLSBHMw==">
+      <serialNumber>CrTHPEE6AZSfI3jysin2bA==</serialNumber>
     </certItem>
       </certItems>
 
