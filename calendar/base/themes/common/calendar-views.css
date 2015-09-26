@@ -20,7 +20,7 @@ window {
     --viewWeekendBackground: #f7ffe3;
     --viewHeaderSelectedBackground: #fffcd8;
     --viewDayBoxSelectedBackground: #fffcd8;
-    --viewDayBoxOffSelectedBackground: #fffcd8;
+    --viewDayBoxOffSelectedBackground: #f2edb2;
     --viewDayBoxOtherSelectedBackground: #fffcd8;
     --viewMonthCurrentBackground: #f7f7f7;
     --viewMonthOtherBackground: #f3f3f3;
@@ -628,7 +628,7 @@ calendar-month-day-box {
 }
 
 .calendar-month-day-box-day-off[selected="true"] {
-    background-color: var(--viewDayBoxOffSelectedBackground);
+    background-color: var(--viewDayBoxSelectedBackground);
 }
 
 .calendar-month-day-box-other-month[selected="true"] {
