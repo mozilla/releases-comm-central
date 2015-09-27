@@ -360,7 +360,7 @@ function SaveAsFile(uris)
 
       let nameBase = GenerateFilenameFromMsgHdr(msgHdr);
       let name = GenerateValidFilename(nameBase, ".eml");
-      
+
       let number = 2;
       while (filenames.includes(name)) { // should be unlikely
         name = GenerateValidFilename(nameBase + "-" + number, ".eml");
