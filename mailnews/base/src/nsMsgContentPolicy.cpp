@@ -111,7 +111,7 @@ nsMsgContentPolicy::ShouldAcceptRemoteContentForSender(nsIMsgDBHdr *aMsgHdr)
   nsCOMPtr<nsIIOService> ios = do_GetService("@mozilla.org/network/io-service;1", &rv);
   NS_ENSURE_SUCCESS(rv, false);
   nsCOMPtr<nsIURI> mailURI;
-  emailAddress.Insert("mailto:", 0);
+  emailAddress.Insert("chrome://messenger/content/?email=", 0);
   rv = ios->NewURI(emailAddress, nullptr, nullptr, getter_AddRefs(mailURI));
   NS_ENSURE_SUCCESS(rv, false);
 

@@ -3023,12 +3023,14 @@ var gMessageNotificationBar =
         buttons);
     }
 
-    // The popup value is a space separated list of all the blocked hosts.
+    // The popup value is a space separated list of all the blocked origins.
     let popup = document.getElementById("remoteContentOptions");
-    let hosts = popup.value ? popup.value.split(" ") : [];
-    if (!hosts.includes(aContentURI.host))
-      hosts.push(aContentURI.host);
-    popup.value = hosts.join(" ");
+    let principal = Services.scriptSecurityManager
+      .createCodebasePrincipal(aContentURI, {});
+    let origins = popup.value ? popup.value.split(" ") : [];
+    if (!origins.includes(principal.origin))
+      origins.push(principal.origin);
+    popup.value = origins.join(" ");
   },
 
   isShowingRemoteContentNotification: function() {
@@ -3157,16 +3159,18 @@ function LoadMsgWithRemoteContent()
  * Populate the remote content options for the current message.
  */
 function onRemoteContentOptionsShowing(aEvent) {
-  let hosts = aEvent.target.value ? aEvent.target.value.split(" ") : [];
+  let origins = aEvent.target.value ? aEvent.target.value.split(" ") : [];
 
   let addresses = {};
   MailServices.headerParser.parseHeadersWithArray(
     gMessageDisplay.displayedMessage.author, addresses, {}, {});
   let authorEmailAddress = addresses.value[0];
-  // Needs bug 457296 policy patch to actually work, but I don't want to
-  // keep this bug hostage for that, so just if-false it for now.
-  if (authorEmailAddress)
-    hosts.splice(0, 0, authorEmailAddress);
+  let authorEmailAddressURI = Services.io.newURI(
+    "chrome://messenger/content/?email=" + authorEmailAddress, null, null);
+  let mailPrincipal = Services.scriptSecurityManager
+    .createCodebasePrincipal(authorEmailAddressURI, {});
+  // Put author email first in the menu.
+  origins.splice(0, 0, mailPrincipal.origin);
 
   let messengerBundle = document.getElementById("bundle_messenger");
 
@@ -3178,14 +3182,12 @@ function onRemoteContentOptionsShowing(aEvent) {
   }
 
   // ... and in with the new.
-  for (let host of hosts) {
-    let uri = Services.io.newURI(
-      host.includes("@") ? "mailto:" + host : "http://" + host, null, null);
-
+  for (let origin of origins) {
     let menuitem = document.createElement("menuitem");
     menuitem.setAttribute("label",
-      messengerBundle.getFormattedString("remoteAllow", [host]));
-    menuitem.setAttribute("value", uri.spec);
+      messengerBundle.getFormattedString("remoteAllow",
+        [origin.replace("chrome://messenger/content/?email=", "")]));
+    menuitem.setAttribute("value", origin);
     menuitem.setAttribute("class", "allow-remote-uri");
     menuitem.setAttribute("oncommand", "allowRemoteContentForURI(this.value);");
     aEvent.target.appendChild(menuitem);

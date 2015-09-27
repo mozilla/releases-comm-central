@@ -272,7 +272,7 @@ function checkAllowForSenderWithPerms(test) {
   MailServices.headerParser.parseHeadersWithArray(msgDbHdr.author, addresses, {}, {});
   let authorEmailAddress = addresses.value[0];
 
-  let uri = Services.io.newURI("mailto:" + authorEmailAddress, null, null);
+  let uri = Services.io.newURI("chrome://messenger/content/?email=" + authorEmailAddress, null, null);
   Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
   assert_true(Services.perms.testPermission(uri, "image") ==
               Services.perms.ALLOW_ACTION);
@@ -290,7 +290,7 @@ function checkAllowForSenderWithPerms(test) {
                     authorEmailAddress);
 
   // Clean up after ourselves, and make sure that worked as expected.
-  Services.perms.remove(authorEmailAddress, "image");
+  Services.perms.remove(uri, "image");
   assert_true(Services.perms.testPermission(uri, "image") ==
               Services.perms.UNKNOWN_ACTION);
 
@@ -334,7 +334,7 @@ function checkAllowForHostsWithPerms(test) {
                     uri.spec);
 
   // Clean up after ourselves, and make sure that worked as expected.
-  Services.perms.remove(uri.host, "image");
+  Services.perms.remove(uri, "image");
   assert_true(Services.perms.testPermission(uri, "image") ==
               Services.perms.UNKNOWN_ACTION);
 
