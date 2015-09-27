@@ -358,11 +358,12 @@ function SaveAsFile(uris)
       let msgHdr = messenger.messageServiceFromURI(uris[i])
                             .messageURIToMsgHdr(uris[i]);
 
-      let name = GenerateFilenameFromMsgHdr(msgHdr);
-      name = GenerateValidFilename(name, ".eml");
+      let nameBase = GenerateFilenameFromMsgHdr(msgHdr);
+      let name = GenerateValidFilename(nameBase, ".eml");
+      
       let number = 2;
       while (filenames.includes(name)) { // should be unlikely
-        name = name.substring(0, name.length - 4) + "-" + number + ".eml";
+        name = GenerateValidFilename(nameBase + "-" + number, ".eml");
         number++;
       }
       filenames.push(name);
