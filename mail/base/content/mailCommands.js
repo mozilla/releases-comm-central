@@ -447,9 +447,9 @@ function ViewPageSource(messages)
     return false;
   }
 
-  try {
-    var mailCharacterSet = "charset=" + msgWindow.mailCharacterSet;
+  var browser = getBrowser();
 
+  try {
     for (var i = 0; i < numMessages; i++)
     {
       // Now, we need to get a URL from a URI
@@ -459,8 +459,9 @@ function ViewPageSource(messages)
       // display the message source, not the processed HTML.
       url = url.replace(/type=application\/x-message-display&/, "");
       window.openDialog("chrome://global/content/viewSource.xul",
-                        "_blank", "all,dialog=no", url,
-                        mailCharacterSet);
+                        "_blank", "all,dialog=no",
+                        {URL: url, browser: browser,
+                         outerWindowID: browser.outerWindowID});
     }
     return true;
   } catch (e) {
