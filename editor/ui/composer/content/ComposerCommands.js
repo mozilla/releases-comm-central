@@ -2197,7 +2197,8 @@ var nsPrintCommand =
     // In editor.js
     SetEditMode(gPreviousNonSourceDisplayMode);
     try {
-      PrintUtils.print();
+      let browser = GetCurrentEditorElement();
+      PrintUtils.printWindow(browser.outerWindowID, browser);
     } catch (e) {}
   }
 };

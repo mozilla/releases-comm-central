@@ -835,7 +835,8 @@ nsContextMenu.prototype = {
   },
 
   printFrame: function() {
-    PrintUtils.print(this.target.ownerDocument.defaultView);
+    PrintUtils.printWindow(gContextMenuContentData.frameOuterWindowID,
+                           this.browser);
   },
 
   // Open clicked-in frame in the same window

@@ -454,7 +454,10 @@ var defaultController =
       case "cmd_sendLater"          : if (defaultController.isCommandEnabled(command)) SendMessageLater();     break;
       case "cmd_printSetup"         : PrintUtils.showPageSetup(); break;
       case "cmd_printpreview"       : PrintUtils.printPreview(PrintPreviewListener); break;
-      case "cmd_print"              : PrintUtils.print(); break;
+      case "cmd_print"              :
+        let browser = GetCurrentEditorElement();
+        PrintUtils.printWindow(browser.outerWindowID, browser);
+        break;
 
       //Edit Menu
       case "cmd_account"            :
