@@ -66,13 +66,10 @@ AUTOCONF = $(shell which fink >/dev/null 2>&1 && echo `which fink`/../../lib/aut
 endif
 
 ifeq (,$(strip $(AUTOCONF)))
-AUTOCONF=$(error Couldn't find autoconf 2.13)
+AUTOCONF=$(error Could not find autoconf 2.13)
 endif
 
 SH := /bin/sh
-ifndef MAKE
-MAKE := gmake
-endif
 PERL ?= perl
 PYTHON ?= $(shell which python2.7 > /dev/null 2>&1 && echo python2.7 || echo python)
 
@@ -85,12 +82,15 @@ endif
 ####################################
 # Sanity checks
 
+# Windows checks.
 ifneq (,$(findstring mingw,$(CONFIG_GUESS)))
+
 # check for CRLF line endings
 ifneq (0,$(shell $(PERL) -e 'binmode(STDIN); while (<STDIN>) { if (/\r/) { print "1"; exit } } print "0"' < $(TOPSRCDIR)/client.mk))
 $(error This source tree appears to have Windows-style line endings. To \
-convert it to Unix-style line endings, run \
-"python mozilla/build/win32/mozilla-dos2unix.py")
+convert it to Unix-style line endings, check \
+"https://developer.mozilla.org/en-US/docs/Developer_Guide/Mozilla_build_FAQ\#Win32-specific_questions" \
+for a workaround of this issue.)
 endif
 endif
 
