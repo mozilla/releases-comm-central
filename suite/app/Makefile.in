@@ -92,9 +92,14 @@ fi
 
 endef # do not remove the blank line!
 
+# GUIDs
+# {972ce4c6-7e08-4474-a285-3208198ce6fd} Default theme
+# {e2fda1a4-762b-4020-b5ad-a41df1933103} Lightning
+DONOTPACK = {972ce4c6% {e2fda1a4%
+
 pack-ext: $(STAGEDIST)
 	@echo "Packaging extensions..."
-	$(foreach dir,$(subst $(STAGEDIST)/,,$(wildcard $(STAGEDIST)/*)),$(_PACKAGE_EXTENSIONS))
+	$(foreach dir,$(filter-out $(DONOTPACK),$(subst $(STAGEDIST)/,,$(wildcard $(STAGEDIST)/*))),$(_PACKAGE_EXTENSIONS))
 
 tools::
 	@$(MAKE) pack-ext STAGEDIST="$(DIST)/bin/extensions"

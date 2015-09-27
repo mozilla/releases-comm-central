@@ -545,14 +545,10 @@
 ; classic theme
 @RESPATH@/chrome/classic@JAREXT@
 @RESPATH@/chrome/classic.manifest
-#ifdef MOZ_OMNIJAR
-@RESPATH@/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}.xpi
-#else
 @RESPATH@/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/chrome.manifest
 @RESPATH@/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/icon.png
 @RESPATH@/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/install.rdf
 @RESPATH@/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/preview.png
-#endif
 
 ; modern theme
 #ifdef MOZ_OMNIJAR
