@@ -21,6 +21,18 @@ var FullScreen =
     var controls = document.getElementsByAttribute("fullscreencontrol", "true");
     for (let i = 0; i < controls.length; ++i)
       controls[i].hidden = show;
+
+    controls = document.getElementsByAttribute("domfullscreenhidden", "true");
+    if (document.mozFullScreen) {
+      for (let i = 0; i < controls.length; ++i)
+        controls[i].setAttribute("moz-collapsed", "true");
+      getBrowser().mStrip.setAttribute("moz-collapsed", "true");
+    } else {
+      for (let i = 0; i < controls.length; ++i)
+        controls[i].removeAttribute("moz-collapsed");
+      getBrowser().mStrip.removeAttribute("moz-collapsed");
+    }
+    getBrowser().getNotificationBox().notificationsHidden = document.mozFullScreen;
   },
 
   showXULChrome: function(aTag, aShow)
@@ -31,7 +43,8 @@ var FullScreen =
     var i;
     for (i = 0; i < els.length; ++i) {
       // XXX don't interfere with previously collapsed toolbars
-      if (els[i].getAttribute("fullscreentoolbar") == "true") {
+      if (els[i].getAttribute("fullscreentoolbar") == "true" &&
+          !document.mozFullScreen) {
         if (!aShow) {
           var toolbarMode = els[i].getAttribute("mode");
           if (toolbarMode != "text") {
@@ -59,6 +72,7 @@ var FullScreen =
           this.restoreAttribute(els[i], "context"); // XXX see above
 
           els[i].removeAttribute("inFullscreen");
+          els[i].removeAttribute("moz-collapsed");
         }
       } else if (els[i].getAttribute("type") == "menubar") {
         if (aShow) {

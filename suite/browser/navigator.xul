@@ -477,11 +477,11 @@
   </toolbox>
 
   <hbox flex="1">
-    <vbox id="sidebar-box" class="chromeclass-extrachrome"/>
-    <splitter id="sidebar-splitter" class="chromeclass-extrachrome" />
+    <vbox id="sidebar-box" class="chromeclass-extrachrome" domfullscreenhidden="true"/>
+    <splitter id="sidebar-splitter" class="chromeclass-extrachrome" domfullscreenhidden="true"/>
 
     <vbox id="appcontent" flex="1">
-      <findbar id="FindToolbar" browserid="content"/>
+      <findbar id="FindToolbar" browserid="content" domfullscreenhidden="true"/>
 
       <!-- this box is temporary, pending XBLified <browser> -->
       <hbox id="browser" flex="1">
