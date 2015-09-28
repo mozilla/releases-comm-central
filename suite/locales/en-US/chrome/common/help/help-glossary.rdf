@@ -73,12 +73,14 @@
         <rdf:li> <rdf:Description nc:name="JavaScript" nc:link="glossary.xhtml#javascript"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="Kerberos" nc:link="glossary.xhtml#kerberos"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="key" nc:link="glossary.xhtml#key"/> </rdf:li>
+        <rdf:li> <rdf:Description nc:name="LaTeX" nc:link="glossary.xhtml#latex"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="LDAP" nc:link="glossary.xhtml#ldap"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="language pack" nc:link="glossary.xhtml#language_pack"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="Location Bar" nc:link="glossary.xhtml#location_bar"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="Malware" nc:link="glossary.xhtml#malware"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="master key" nc:link="glossary.xhtml#master_key"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="master password" nc:link="glossary.xhtml#master_password"/> </rdf:li>
+        <rdf:li> <rdf:Description nc:name="MathML" nc:link="glossary.xhtml#mathml"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="misrepresentation" nc:link="glossary.xhtml#misrepresentation"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="Navigation Toolbar" nc:link="glossary.xhtml#navigation_toolbar"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="nonrepudiation" nc:link="glossary.xhtml#nonrepudiation"/> </rdf:li>

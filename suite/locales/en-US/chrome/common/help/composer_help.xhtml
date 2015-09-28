@@ -46,6 +46,8 @@
       Page</a></li>
     <li><a href="#adding_images_to_your_web_page">Adding Pictures (Images) to
       Your Web Page</a></li>
+    <li><a href="#adding_mathematical_formulas_to_your_web_page">Adding
+        Mathematical Formulas to Your Web Page</a></li>
     <li><a href="#setting_page_properties">Setting Page Properties</a></li>
     <li><a href="#creating_links_in_composer">Creating Links in
       Composer</a></li>
@@ -1247,6 +1249,136 @@
 
 <p>[<a href="#adding_images_to_your_web_page">Return to beginning of
   section</a>]</p>
+
+<h1 id="adding_mathematical_formulas_to_your_web_page">Adding Mathematical
+  Formulas to Your Web Page</h1>
+
+<h2 id="inserting_a_mathematical_formula_into_your_page">Inserting a
+  Mathematical Formula into Your Web Page</h2>
+
+<p>&brandShortName; Composer allows you to write mathematical formulas, encoded
+  in your web page as <a href="glossary.xhtml#mathml">MathML</a> and
+  generated from a convenient
+  <a href="glossary.xhtml#latex">LaTeX</a>-like syntax.</p>
+
+<p>To insert a formula:</p>
+
+<ol>
+  <li>Click to place the insertion point where you want the formula to
+    appear.</li>
+  <li>Open the Insert menu and choose Math. You see the Math Insert dialog
+    box.</li>
+  <li>Enter your LaTeX source code, for example <tt>\frac{\sqrt{\pi}}{3}</tt>
+    to write
+    <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><msqrt><mi>π</mi></msqrt><mn>3</mn></mfrac><annotation encoding="TeX">\frac{\sqrt{\pi}}{3}</annotation></semantics></math>.
+    In order to help you, a preview of the formula as well as a panel of
+    predefined constructions are available. For details, see
+    <a href="#editing_the_latex_source">Editing the LaTeX source</a>.
+  </li>
+  <li>Choose the style for your formula:
+    <ul>
+      <li><strong>Inline mode</strong>: If selected, the formula is inserted
+        inside the current paragraph of text and rendered in a way that
+        minimizes its height as much as possible. This mode is typically used
+        for small expressions. For example this is an expression in inline mode:
+        <math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>∫</mo><mi>D</mi></msub><mi>x</mi><mi>d</mi><mi>x</mi></mrow><annotation encoding="TeX">\int_D x dx</annotation></semantics></math>.</li>
+      <li><strong>Display mode</strong>: If selected, the formula is inserted
+        in its own block and uses the standard rendering. This mode is typically
+        used for large expressions. For example this is an expression in display
+        mode:
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∫</mo><mi>a</mi><mi>b</mi></msubsup><mrow><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></mrow><mspace width="thinmathspace"/><mi>d</mi><mi>x</mi></mrow><annotation encoding="TeX">\int_a^b {f(x)}\, dx</annotation></semantics></math></li>
+    </ul>
+  </li>
+  <li>Choose the overall direction of your formula:
+    <ul>
+      <li><strong>Left-to-right direction</strong>: If selected, the formula
+        will be laid out from left to right, e.g. <math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mi>x</mi></msqrt><annotation encoding="TeX">\sqrt{x}</annotation></semantics></math>.
+        This is the standard orientation in most countries.</li>
+      <li><strong>Right-to-left direction</strong>: If selected, the formula
+        will be laid out from right to left, e.g.
+        <math xmlns="http://www.w3.org/1998/Math/MathML" dir="rtl"><semantics><msqrt><mi>ج</mi></msqrt><annotation encoding="TeX">\sqrt{ج}</annotation></semantics></math>.
+        This is the standard orientation in some Arabic countries.</li>
+    </ul>
+  </li>
+  <li>Verify that the LaTeX source does not contain any syntax error and click
+    Insert to create your new formula.</li>
+</ol>
+
+<p>To modify a mathematical formula, move the insertion point inside it.
+  Then open the context menu and choose Advanced Properties to
+  <a href="#editing_the_latex_source">edit the LaTeX source</a> again.
+  Alternatively, you can open the Insert menu and choose Math.
+</p>
+
+<p><strong>Note</strong>: &brandShortName; Composer attaches the LaTeX source to
+  the generated MathML expressions so that they can be edited again. In
+  general it is currently not possible to edit an arbitrary MathML expression
+  unless it has a LaTeX expression associated that is supported by
+  &brandShortName; Composer.
+</p>
+
+<h2 id="editing_the_latex_source">Editing the LaTeX Source</h2>
+
+<p>The Insert Math box contains a text field where you can enter mathematical
+  expressions using a <a href="glossary.xhtml#latex">LaTeX</a>-like syntax.
+  If you are not familiar with LaTeX, here are the basics:
+</p>
+
+<ul>
+  <li>Use standard plain text notations for simple expressions:
+    <tt>x_1 + 2^y</tt> generates
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><msup><mn>2</mn><mi>y</mi></msup></mrow><annotation encoding="TeX">x_1 + 2^y</annotation></semantics></math>.
+  </li>
+  <li>Use braces to define groups: <tt>2^x+y</tt> generates
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>x</mi></msup><mo>+</mo><mi>y</mi></mrow><annotation encoding="TeX">2^x+y</annotation></semantics></math>
+    while <tt>2^{x+y}</tt> generates
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>x</mi><mo>+</mo><mi>y</mi></mrow></msup><annotation encoding="TeX">2^{x+y}</annotation></semantics></math>
+  </li>
+  <li>Use LaTeX commands of the form
+    <tt>\commandname[option1,option2,...] argument1 argument2 ...</tt> to define
+    complex expressions: <tt>\gamma</tt>, <tt>\frac a b</tt>, <tt>\sqrt x</tt>
+    and <tt>\sqrt[3]x</tt> generate
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="TeX">\gamma</annotation></semantics></math>,
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mi>a</mi><mi>b</mi></mfrac><annotation encoding="TeX">\frac a b</annotation></semantics></math>,
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mi>x</mi></msqrt><annotation encoding="TeX">\sqrt x</annotation></semantics></math> and
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mroot><mi>x</mi><mn>3</mn></mroot><annotation encoding="TeX">\sqrt[3] x</annotation></semantics></math> respectively.
+  </li>
+  <li>Use LaTeX environments
+    of the form <tt>\begin{environmentname}  ... \end{environmentname}</tt>
+    to define blocks with a special syntax. This is typically used for arrays:
+    <tt>\begin{matrix} a &amp; b &amp; c \\ d &amp; e &amp; f \end{matrix}</tt>
+    generates
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable displaystyle="false" rowspacing="0.5ex"><mtr><mtd><mi>a</mi></mtd><mtd><mi>b</mi></mtd><mtd><mi>c</mi></mtd></mtr><mtr><mtd><mi>d</mi></mtd><mtd><mi>e</mi></mtd><mtd><mi>f</mi></mtd></mtr></mtable><annotation encoding="TeX">\begin{matrix}a &amp; b &amp; c \\ d &amp; e &amp; f \end{matrix}</annotation></semantics></math>.
+  </li>
+  <li>Use special commands to escape characters:
+    <tt>\backslash \&amp; \{ \}</tt> generates
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>\</mo><mi>&amp;</mi><mo stretchy="false">{</mo><mo stretchy="false">}</mo></mrow><annotation encoding="TeX">\backslash \&amp; \{ \}</annotation></semantics></math>.
+  </li>
+</ul>
+
+<p>There exists a large collection of LaTeX commands and there is not any
+  finite and well-defined list of them. &brandShortName; Composer only supports
+  the <a href="https://github.com/fred-wang/TeXZilla/wiki/TeXZilla-Commands">TeXZilla commands</a>
+  which are themselves based on the <a href="https://golem.ph.utexas.edu/~distler/blog/itex2MMLcommands.html">itex2MML commands</a>
+  and should cover the most popular constructions. One of the nice features of
+  TeXZilla is that it accepts arbitrary characters as input so that
+  <tt>\left⌊α^2\right⌋</tt> is equivalent to the more verbose
+  <tt>\left\lfloor\alpha^2\right\rfloor</tt> and generates
+  <math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⌊</mo><msup><mi>α</mi><mn>2</mn></msup><mo>⌋</mo></mrow><annotation encoding="TeX">\left⌊α^2\right⌋</annotation></semantics></math>.</p>
+
+<p>You do not need to know all the LaTeX commands to edit formulas. Instead, a
+  panel of predefined expressions is available. Click any of the panel buttons
+  to insert the corresponding LaTeX expression. Arguments in LaTeX expressions
+  are represented by ellipses. You can just edit the LaTeX source to
+  replace them with the actual content you want.</p>
+
+<p><strong>Tip</strong>: If you select a subexpression in the LaTeX source field
+  and use the construction panel to insert a LaTeX expression with at least one
+  argument, that subexpression will be used as the first argument of the
+  new expression.</p>
+
+<p>[<a href="#adding_mathematical_formulas_to_your_web_page">Return to
+  beginning of section</a>]</p>
 
 <h1 id="setting_page_properties">Setting Page Properties</h1>
 

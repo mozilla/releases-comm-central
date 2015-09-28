@@ -524,6 +524,7 @@
         <rdf:li> <rdf:Description ID="page_change" nc:name="Formatting Your Web Pages"  nc:link="composer_help.xhtml#formatting_your_web_pages"/> </rdf:li>
         <rdf:li> <rdf:Description ID="comp-doc-table" nc:name="Adding Tables to Your Web Page"  nc:link="composer_help.xhtml#adding_tables_to_your_web_page"/> </rdf:li>
         <rdf:li> <rdf:Description ID="comp-doc-image" nc:name="Adding Images to Your Web Page"  nc:link="composer_help.xhtml#adding_images_to_your_web_page"/> </rdf:li>
+        <rdf:li> <rdf:Description ID="comp-doc-math" nc:name="Adding Mathematical Formulas to Your Web Page"  nc:link="composer_help.xhtml#adding_mathematical_formulas_to_your_web_page"/> </rdf:li>
         <rdf:li> <rdf:Description ID="comp-doc-page" nc:name="Setting Page Properties"  nc:link="composer_help.xhtml#setting_page_properties"/> </rdf:li>
         <rdf:li> <rdf:Description ID="link_properties" nc:name="Creating Links"  nc:link="composer_help.xhtml#creating_links_in_composer"/> </rdf:li>
         <rdf:li> <rdf:Description ID="comp-doc-publish" nc:name="Publishing Your Pages"  nc:link="composer_help.xhtml#publishing_your_pages_on_the_web"/> </rdf:li>
@@ -600,6 +601,15 @@
       <rdf:Seq>
         <rdf:li> <rdf:Description ID="comp-doc-image-insert" nc:name="Inserting an Image into Your Page"  nc:link="composer_help.xhtml#inserting_an_image_into_your_page"/> </rdf:li>
         <rdf:li> <rdf:Description ID="image_properties" nc:name="Editing Image Properties"  nc:link="composer_help.xhtml#editing_image_properties"/> </rdf:li>
+      </rdf:Seq>
+    </nc:subheadings>
+  </rdf:Description>
+
+  <rdf:Description about="#comp-doc-math">
+    <nc:subheadings>
+      <rdf:Seq>
+        <rdf:li> <rdf:Description ID="comp-doc-math-insert" nc:name="Inserting a Mathematical Formula into Your Page"  nc:link="composer_help.xhtml#inserting_a_mathematical_formula_into_your_page"/> </rdf:li>
+        <rdf:li> <rdf:Description ID="comp-doc-math-latex-dialog" nc:name="Editing the LaTeX Source" nc:link="composer_help.xhtml#editing_the_latex_source"/> </rdf:li>
       </rdf:Seq>
     </nc:subheadings>
   </rdf:Description>
