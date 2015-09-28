@@ -666,20 +666,10 @@ nsresult nsMapiHook::PopulateCompFieldsForSendDocs(nsIMsgCompFields * aCompField
   nsresult rv = NS_OK ;
   bool bExist ;
 
-  if (aFlags & MAPI_UNICODE)
-  {
-    if (aDelimChar)
-      strDelimChars.Assign (aDelimChar);
-    if (aFilePaths)
-      strFilePaths.Assign (aFilePaths);
-  }
-  else
-  {
-    if (aDelimChar)
-      strDelimChars.Assign(aDelimChar);
-    if (aFilePaths)
-      strFilePaths.Assign ( aFilePaths);
-  }
+  if (aDelimChar)
+    strDelimChars.Assign(aDelimChar);
+  if (aFilePaths)
+    strFilePaths.Assign(aFilePaths);
 
   // check for comma in filename
   if (strDelimChars.FindChar(',') == kNotFound)  // if comma is not in the delimiter specified by user
