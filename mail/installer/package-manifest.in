@@ -630,6 +630,8 @@
 @RESPATH@/components/FormAutofillStartup.js
 @RESPATH@/components/contentAreaDropListener.manifest
 @RESPATH@/components/contentAreaDropListener.js
+@RESPATH@/components/PackagedAppUtils.manifest
+@RESPATH@/components/PackagedAppUtils.js
 ; GNOME hooks
 #ifdef MOZ_ENABLE_GNOME_COMPONENT
 @RESPATH@/components/@DLL_PREFIX@mozgnome@DLL_SUFFIX@
