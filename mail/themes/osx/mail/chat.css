@@ -103,16 +103,32 @@
   opacity: .9;
 }
 
-#button-add-buddy {
-  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#add");
+@media not all and (-moz-mac-yosemite-theme) {
+  #button-add-buddy {
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#add");
+  }
+
+  #button-join-chat {
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#join");
+  }
+
+  #button-chat-accounts {
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#accounts");
+  }
 }
 
-#button-join-chat {
-  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#join");
-}
+@media (-moz-mac-yosemite-theme) {
+  #button-add-buddy {
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#add-flat");
+  }
 
-#button-chat-accounts {
-  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#accounts");
+  #button-join-chat {
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#join-flat");
+  }
+
+  #button-chat-accounts {
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#accounts-flat");
+  }
 }
 
 toolbar[brighttext] #button-add-buddy {
@@ -282,10 +298,18 @@ richlistitem[state="disconnected"] .accountStateIcon {
   }
 }
 
-.tabmail-tab[type="chat"],
-.alltabs-item[type="chat"] {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#chat");
-  -moz-image-region: auto;
+@media not all and (-moz-mac-yosemite-theme) {
+  .tabmail-tab[type="chat"],
+  .alltabs-item[type="chat"] {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#chat");
+  }
+}
+
+@media (-moz-mac-yosemite-theme) {
+  .tabmail-tab[type="chat"],
+  .alltabs-item[type="chat"] {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#chat-flat");
+  }
 }
 
 .tabmail-tab[type="chat"] > .tab-stack > .tab-content > .tab-icon-image {

@@ -18,42 +18,78 @@
  *   Event dialog toolbar buttons
  *-------------------------------------------------------------------*/
 
-#button-save {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save);
+@media not all and (-moz-mac-yosemite-theme) {
+  #button-save {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save);
+  }
+
+  #button-attendees {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#address);
+  }
+
+  #button-privacy {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#security);
+  }
+
+  #button-url {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#attach);
+  }
+
+  #button-priority {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority);
+  }
+
+  #button-status {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#status);
+  }
+
+  #button-freebusy {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#freebusy);
+  }
+
+  #button-timezones {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#timezones);
+  }
 }
 
-#button-attendees {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#address);
-}
+@media (-moz-mac-yosemite-theme) {
+  #button-save {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save-flat);
+  }
 
-#button-privacy {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#security);
-}
+  #button-attendees {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#address-flat);
+  }
 
-#button-url {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#attach);
+  #button-privacy {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#security-flat);
+  }
+
+  #button-url {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#attach);
+  }
+
+  #button-priority {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority-flat);
+  }
+
+  #button-status {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#status-flat);
+  }
+
+  #button-freebusy {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#freebusy-flat);
+  }
+
+  #button-timezones {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#timezones-flat);
+  }
 }
 
 #button-delete.cal-event-toolbarbutton {
-    /* !important to override the SM #button-delete states */
+  /* !important to override the SM #button-delete states */
   list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete) !important;
   -moz-image-region: auto !important;
-}
-
-#button-priority {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority);
-}
-
-#button-status {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#status);
-}
-
-#button-freebusy {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#freebusy);
-}
-
-#button-timezones {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#timezones);
 }
 
 toolbar[brighttext] #button-save {
@@ -88,6 +124,6 @@ toolbar[brighttext] #button-freebusy {
   list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#freebusy-inverted);
 }
 
-toolbar[brighttext] #button-timezones {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#timezones-inverted);
-}
+  toolbar[brighttext] #button-timezones {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#timezones-inverted);
+  }

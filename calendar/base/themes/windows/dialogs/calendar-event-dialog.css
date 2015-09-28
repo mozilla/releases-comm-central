@@ -267,6 +267,37 @@
   }
 }
 
+@media (-moz-windows-default-theme) and (-moz-os-version: windows8),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  #button-save {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save-flat);
+  }
+
+  #button-attendees {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#address-flat);
+  }
+
+  #button-privacy {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#security-flat);
+  }
+
+  #button-priority {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority-flat);
+  }
+
+  #button-status {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#status-flat);
+  }
+
+  #button-freebusy {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#freebusy-flat);
+  }
+
+  #button-timezones {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#timezones-flat);
+  }
+}
+
 @media (-moz-windows-glass) {
   #event-toolbox {
     border-bottom-color: #AABCCF;

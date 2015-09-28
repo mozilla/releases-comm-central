@@ -193,6 +193,25 @@
   }
 }
 
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  #task-actions-category {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#category-flat);
+  }
+
+  #task-actions-markcompleted {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#complete-flat);
+  }
+
+  #task-actions-priority {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority-flat);
+  }
+
+  #calendar-add-task-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newtask-flat);
+  }
+}
+
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
   #view-task-edit-field,
   #task-text-filter-field {

@@ -302,49 +302,98 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
   counter-reset: smallicons;
 }
 
-#button-send {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#send");
+@media not all and (-moz-mac-yosemite-theme) {
+  #button-send {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#send");
+  }
+
+  #button-contacts {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#contacts");
+    -moz-image-region: auto !important;
+  }
+
+  #spellingButton {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#spelling");
+  }
+
+  #button-attach {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#attach");
+  }
+
+  #button-security {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#security");
+  }
+
+  #button-save {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#save");
+  }
+
+  #quoteButton {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#quote");
+  }
+
+  #cut-button {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#cut");
+  }
+
+  #copy-button {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#copy");
+  }
+
+  #paste-button {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#paste");
+  }
+
+  #button-print {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#print");
+  }
 }
 
-#button-contacts {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#contacts");
-  -moz-image-region: auto !important;
-}
+@media (-moz-mac-yosemite-theme) {
+  #button-send {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#send-flat");
+  }
 
-#spellingButton {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#spelling");
-}
+  #button-contacts {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#contacts-flat");
+    -moz-image-region: auto !important;
+  }
 
-#button-attach {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#attach");
-}
+  #spellingButton {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#spelling");
+  }
 
-#button-security {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#security");
-}
+  #button-attach {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#attach-flat");
+  }
 
-#button-save {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#save");
-}
+  #button-security {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#security-flat");
+  }
 
-#quoteButton {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#quote");
-}
+  #button-save {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#save-flat");
+  }
 
-#cut-button {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#cut");
-}
+  #quoteButton {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#quote-flat");
+  }
 
-#copy-button {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#copy");
-}
+  #cut-button {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#cut-flat");
+  }
 
-#paste-button {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#paste");
-}
+  #copy-button {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#copy-flat");
+  }
 
-#button-print {
-  list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#print");
+  #paste-button {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#paste-flat");
+  }
+
+  #button-print {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#print-flat");
+  }
 }
 
 toolbar[brighttext] #button-send {

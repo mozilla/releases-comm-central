@@ -2,58 +2,116 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Lightning "Calendar" Toolbarbutton */
-#lightning-button-calendar {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab);
+@media not all and (-moz-mac-yosemite-theme) {
+  /* Lightning "Calendar" Toolbarbutton */
+  #lightning-button-calendar {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab);
+  }
+
+  /* Lightning "Tasks" Toolbarbutton */
+  #lightning-button-tasks {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab);
+  }
+
+  /* Toolbar buttons */
+
+  #calendar-synchronize-button,
+  #task-synchronize-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize);
+  }
+
+  #extractEventButton,
+  #task-newevent-button,
+  #hdrExtractEventButton,
+  #calendar-newevent-button {
+      list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
+  }
+
+  #extractTaskButton,
+  #task-newtask-button,
+  #hdrExtractTaskButton,
+  #calendar-newtask-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newtask);
+  }
+
+  #calendar-edit-button,
+  #task-edit-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#edit);
+  }
+
+  #calendar-delete-button,
+  #task-delete-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete);
+  }
+
+  #calendar-goto-today-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#today);
+  }
+
+  #calendar-print-button,
+  #task-print-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#print);
+  }
+
+  #calendar-unifinder-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#find);
+  }
 }
 
-/* Lightning "Tasks" Toolbarbutton */
-#lightning-button-tasks {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab);
-}
+@media (-moz-mac-yosemite-theme) {
+  /* Lightning "Calendar" Toolbarbutton */
+  #lightning-button-calendar {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab-flat);
+  }
 
-/* Toolbar buttons */
+  /* Lightning "Tasks" Toolbarbutton */
+  #lightning-button-tasks {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab-flat);
+  }
 
-#calendar-synchronize-button,
-#task-synchronize-button {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize);
-}
+  /* Toolbar buttons */
 
-#extractEventButton,
-#task-newevent-button,
-#hdrExtractEventButton,
-#calendar-newevent-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
-}
+  #calendar-synchronize-button,
+  #task-synchronize-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize-flat);
+  }
 
-#extractTaskButton,
-#task-newtask-button,
-#hdrExtractTaskButton,
-#calendar-newtask-button {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newtask);
-}
+  #extractEventButton,
+  #task-newevent-button,
+  #hdrExtractEventButton,
+  #calendar-newevent-button {
+      list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent-flat);
+  }
 
-#calendar-edit-button,
-#task-edit-button {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#edit);
-}
+  #extractTaskButton,
+  #task-newtask-button,
+  #hdrExtractTaskButton,
+  #calendar-newtask-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newtask-flat);
+  }
 
-#calendar-delete-button,
-#task-delete-button {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete);
-}
+  #calendar-edit-button,
+  #task-edit-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#edit-flat);
+  }
 
-#calendar-goto-today-button {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#today);
-}
+  #calendar-delete-button,
+  #task-delete-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete);
+  }
 
-#calendar-print-button,
-#task-print-button {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#print);
-}
+  #calendar-goto-today-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#today-flat);
+  }
 
-#calendar-unifinder-button {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#find);
+  #calendar-print-button,
+  #task-print-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#print-flat);
+  }
+
+  #calendar-unifinder-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#find-flat);
+  }
 }
 
 toolbar[brighttext] #lightning-button-calendar {

@@ -110,3 +110,10 @@
     -moz-image-region: rect(0 60px 20px 40px);
   }
 }
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  #todaypane-new-event-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent-flat);
+  }
+}

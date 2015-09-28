@@ -312,3 +312,51 @@
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#find-inverted);
   }
 }
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  #lightning-button-calendar {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab);
+  }
+
+  #lightning-button-tasks {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab);
+  }
+
+  #calendar-synchronize-button,
+  #task-synchronize-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize-flat);
+  }
+
+  #extractEventButton,
+  #task-newevent-button,
+  #hdrExtractEventButton,
+  #calendar-newevent-button {
+      list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent-flat);
+  }
+
+  #extractTaskButton,
+  #task-newtask-button,
+  #hdrExtractTaskButton,
+  #calendar-newtask-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newtask-flat);
+  }
+
+  #calendar-edit-button,
+  #task-edit-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#edit-flat);
+  }
+
+  #calendar-goto-today-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#today-flat);
+  }
+
+  #calendar-print-button,
+  #task-print-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#print-flat);
+  }
+
+  #calendar-unifinder-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#find-flat);
+  }
+}

@@ -817,4 +817,40 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
     background-color: hsla(210, 4%, 10%, .1);
     border-color: hsla(210, 4%, 10%, .2);
   }
+
+  .hdrReplyToSenderButton,
+  .hdrDummyReplyButton,
+  .hdrReplyButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#reply-flat");
+  }
+
+  .hdrReplyAllButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replyall-flat");
+  }
+
+  .hdrReplyListButton,
+  .hdrFollowupButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replylist-flat");
+  }
+
+  .hdrForwardButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#forward-flat");
+  }
+
+  .hdrArchiveButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive-flat");
+  }
+
+  .hdrJunkButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#junk-flat");
+  }
+
+  .hdrTagButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag-flat");
+  }
+
+  #attachmentSaveAllSingle,
+  #attachmentSaveAllMultiple {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file-flat");
+  }
 }

@@ -38,20 +38,50 @@
     min-height: 14px !important;
 }
 
-#task-actions-category {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#category);
+@media not all and (-moz-mac-yosemite-theme) {
+  #task-actions-category {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#category);
+  }
+
+  #task-actions-markcompleted {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#complete);
+  }
+
+  #task-actions-priority {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority);
+  }
+
+  #calendar-delete-task-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete);
+  }
+
+  #calendar-add-task-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newtask);
+      -moz-image-region: rect(0 18px 18px 0);
+  }
 }
 
-#task-actions-markcompleted {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#complete);
-}
+@media (-moz-mac-yosemite-theme) {
+  #task-actions-category {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#category-flat);
+  }
 
-#task-actions-priority {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority);
-}
+  #task-actions-markcompleted {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#complete-flat);
+  }
 
-#calendar-delete-task-button {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete);
+  #task-actions-priority {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority-flat);
+  }
+
+  #calendar-delete-task-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete);
+  }
+
+  #calendar-add-task-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newtask-flat);
+      -moz-image-region: rect(0 18px 18px 0);
+  }
 }
 
 #task-actions-toolbar[brighttext] > #task-actions-category {
@@ -69,11 +99,6 @@
 
 #task-actions-toolbar[brighttext] > #calendar-delete-task-button {
   list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete-inverted);
-}
-
-#calendar-add-task-button {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newtask);
-    -moz-image-region: rect(0 18px 18px 0);
 }
 
 #calendar-add-task-button > .toolbarbutton-icon {

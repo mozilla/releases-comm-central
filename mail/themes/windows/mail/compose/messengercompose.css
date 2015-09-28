@@ -1808,6 +1808,47 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
     transition: background-color .4s;
   }
 
+  #button-send {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#send-flat");
+  }
+
+  #button-contacts {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#contacts-flat");
+    -moz-image-region: auto !important;
+  }
+
+  #button-attach {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#attach-flat");
+  }
+
+  #button-security {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#security-flat");
+  }
+
+  #button-save {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#save-flat");
+  }
+
+  #quoteButton {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#quote-flat");
+  }
+
+  #cut-button {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#cut-flat");
+  }
+
+  #copy-button {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#copy-flat");
+  }
+
+  #paste-button {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#paste-flat");
+  }
+
+  #button-print {
+    list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#print-flat");
+  }
+
   .aw-menulist {
     margin: 1px;
     -moz-margin-end: 4px;

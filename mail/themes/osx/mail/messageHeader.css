@@ -221,44 +221,88 @@ toolbar[mode="text"] .msgHeaderView-button .toolbarbutton-text {
   -moz-margin-end: 2px;
 }
 
-.hdrReplyToSenderButton,
-.hdrDummyReplyButton,
-.hdrReplyButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#reply");
+@media not all and (-moz-mac-yosemite-theme) {
+  .hdrReplyToSenderButton,
+  .hdrDummyReplyButton,
+  .hdrReplyButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#reply");
+  }
+
+  .hdrReplyAllButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replyall");
+  }
+
+  .hdrReplyListButton,
+  .hdrFollowupButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replylist");
+  }
+
+  .hdrForwardButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#forward");
+  }
+
+  .hdrArchiveButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive");
+  }
+
+  .hdrJunkButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#junk");
+  }
+
+  .hdrTrashButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#delete");
+  }
+
+  .hdrTagButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag");
+  }
+
+  #attachmentSaveAllSingle,
+  #attachmentSaveAllMultiple {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file");
+  }
 }
 
-.hdrReplyAllButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replyall");
-}
+@media (-moz-mac-yosemite-theme) {
+  .hdrReplyToSenderButton,
+  .hdrDummyReplyButton,
+  .hdrReplyButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#reply-flat");
+  }
 
-.hdrReplyListButton,
-.hdrFollowupButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replylist");
-}
+  .hdrReplyAllButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replyall-flat");
+  }
 
-.hdrForwardButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#forward");
-}
+  .hdrReplyListButton,
+  .hdrFollowupButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replylist-flat");
+  }
 
-.hdrArchiveButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive");
-}
+  .hdrForwardButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#forward-flat");
+  }
 
-.hdrJunkButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#junk");
-}
+  .hdrArchiveButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive-flat");
+  }
 
-.hdrTrashButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#delete");
-}
+  .hdrJunkButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#junk-flat");
+  }
 
-.hdrTagButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag");
-}
+  .hdrTrashButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#delete");
+  }
 
-#attachmentSaveAllSingle,
-#attachmentSaveAllMultiple {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file");
+  .hdrTagButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag-flat");
+  }
+
+  #attachmentSaveAllSingle,
+  #attachmentSaveAllMultiple {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file-flat");
+  }
 }
 
 toolbar[brighttext] .hdrReplyToSenderButton,
