@@ -603,7 +603,7 @@ webDavSyncHandler.prototype = {
                     // want to make sure these are not counted as unhandled
                     // errors in the next block
                 } else if ((r.getcontenttype &&
-                            r.getcontenttype.startsWith("text/calendar") ||
+                            r.getcontenttype.startsWith("text/calendar")) ||
                            (r.status &&
                             !r.status.includes(" 404"))) {
                     // If the response element is still not handled, log an
