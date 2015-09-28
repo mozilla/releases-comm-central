@@ -22,6 +22,17 @@ function getAccount(aConv) {
   return getConv(aConv)._account;
 }
 
+function getMUC(aConv) {
+  let conv = getConv(aConv);
+  if (conv.left) {
+    conv.writeMessage(conv.name,
+                      _("conversation.error.commandFailedNotInRoom"),
+                      {system: true});
+    return null;
+  }
+  return conv;
+}
+
 // Trims the string and splits it in two parts on the first space
 // if there is one. Returns the non-empty parts in an array.
 function splitInput(aString) {
@@ -33,7 +44,7 @@ function splitInput(aString) {
   let offset = params.indexOf(" ");
   if (offset != -1) {
     splitParams.push(params.slice(0, offset));
-    splitParams.push(params.slice(offset + 1));
+    splitParams.push(params.slice(offset + 1).trimLeft());
   }
   else
     splitParams.push(params);
@@ -90,9 +101,10 @@ var commands = [
     get helpString() { return _("command.topic", "topic"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: function(aMsg, aConv) {
-      let conv = getConv(aConv);
-      if (!conv.left)
-        conv.topic = aMsg;
+      let conv = getMUC(aConv);
+      if (!conv)
+        return true;
+      conv.topic = aMsg;
       return true;
     }
   },
@@ -105,9 +117,9 @@ var commands = [
       if (!params.length)
         return false;
 
-      let conv = getConv(aConv);
-      if (!conv.left)
-        conv.ban(params[0], params[1]);
+      let conv = getMUC(aConv);
+      if (conv)
+        conv.ban(...params);
       return true;
     }
   },
@@ -120,9 +132,53 @@ var commands = [
       if (!params.length)
         return false;
 
+      let conv = getMUC(aConv);
+      if (conv)
+        conv.kick(...params);
+      return true;
+    }
+  },
+  {
+    name: "invite",
+    get helpString() { return _("command.invite", "invite"); },
+    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    run: function(aMsg, aConv) {
+      let params = splitInput(aMsg);
+      if (!params.length)
+        return false;
+
+      let conv = getMUC(aConv);
+      if (!conv)
+        return true;
+
+      // Check user's jid is valid.
+      let account = getAccount(aConv);
+      let jid = account._parseJID(params[0]);
+      if (!jid) {
+        conv.writeMessage(conv.name,
+                          _("conversation.error.invalidJID", params[0]),
+                          {system: true});
+        return true;
+      }
+      conv.invite(...params);
+      return true;
+    }
+  },
+  {
+    name: "me",
+    get helpString() { return _("command.me", "me"); },
+    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    run: function(aMsg, aConv) {
+      let params = aMsg.trim();
+      if (!params)
+        return false;
+
+      // XEP-0245: The /me Command.
+      // We need to append "/me " in the first four characters of the message
+      // body.
       let conv = getConv(aConv);
-      if (!conv.left)
-        conv.ban(params[0], params[1]);
+      conv.sendMsg("/me " + params);
+
       return true;
     }
   },
@@ -135,8 +191,8 @@ var commands = [
       if (!params[0])
         return false;
 
-      let conv = getConv(aConv);
-      if (!conv.left)
+      let conv = getMUC(aConv);
+      if (conv)
         conv.setNick(params[0]);
       return true;
     }
@@ -151,8 +207,8 @@ var commands = [
         return false;
       let [nickName, msg] = params;
 
-      let conv = getConv(aConv);
-      if (conv.left)
+      let conv = getMUC(aConv);
+      if (!conv)
         return true;
 
       if (!conv._participants.has(nickName)) {

@@ -423,6 +423,24 @@ const XMPPMUCConversationPrototype = {
     delete this.chatRoomFields;
   },
 
+  // Invites a user to MUC conversation.
+  invite: function(aJID, aMsg = null) {
+    // XEP-0045 (7.8): Inviting Another User to a Room.
+    // XEP-0045 (7.8.2): Mediated Invitation.
+    let invite = Stanza.node("invite", null, {to: aJID},
+      aMsg ? Stanza.node("reason", null, null, aMsg) : null);
+    let x = Stanza.node("x", Stanza.NS.muc_user, null, invite);
+    let s = Stanza.node("message", null, {to: this.name}, x);
+    this._account.sendStanza(s, this._account.handleErrors({
+      forbidden: _("conversation.error.inviteFailedForbidden"),
+      // ejabberd uses error not-allowed to indicate that this account does not
+      // have the required privileges to invite users instead of forbidden error,
+      // and this is not mentioned in the spec (XEP-0045).
+      notAllowed: _("conversation.error.inviteFailedForbidden"),
+      itemNotFound: _("conversation.error.failedJIDNotFound", aJID)
+    }, this));
+  },
+
   // Bans a participant from MUC conversation.
   ban: function(aNickName, aMsg = null) {
     // XEP-0045 (9.1): Banning a User.
@@ -483,6 +501,29 @@ const XMPPMUCConversationPrototype = {
       // XEP-0045 (7.2.9): Nickname Conflict.
       conflict: _("conversation.error.changeNickFailedConflict", aNewNick)
     }, this));
+  },
+
+  // Called by the account when a message stanza is received for this muc and
+  // needs to be handled.
+  onMessageStanza: function(aStanza) {
+    let x = aStanza.getElement(["x"]);
+    let decline = x.getElement(["decline"]);
+    if (decline) {
+      // XEP-0045 (7.8): Inviting Another User to a Room.
+      // XEP-0045 (7.8.2): Mediated Invitation.
+      let invitee = decline.attributes["jid"];
+      let reasonNode = decline.getElement(["reason"]);
+      let reason = reasonNode ? reasonNode.innerText : "";
+      let msg;
+      if (reason)
+        msg = _("conversation.message.invitationDeclined.reason", invitee, reason);
+      else
+        msg = _("conversation.message.invitationDeclined", invitee);
+
+      this.writeMessage(this.name, msg, {system: true});
+    }
+    else
+      this.WARN("Unhandled message stanza.");
   },
 
   /* Called when the user closed the conversation */
@@ -1647,6 +1688,7 @@ const XMPPAccountPrototype = {
     let norm = this.normalize(from);
 
     let type = aStanza.attributes["type"];
+    let x = aStanza.getElement(["x"]);
     let body;
     let b = aStanza.getElement(["body"]);
     if (b) {
@@ -1734,6 +1776,15 @@ const XMPPAccountPrototype = {
       let conv = this.createConversation(from);
       if (conv)
         conv.incomingMessage(null, aStanza);
+    }
+    else if (x && x.uri == Stanza.NS.muc_user) {
+      let muc = this._mucs.get(norm);
+      if (!muc) {
+        this.WARN("Received a groupchat message for unknown MUC " + norm);
+        return;
+      }
+      muc.onMessageStanza(aStanza);
+      return;
     }
 
     // Don't create a conversation to only display the typing notifications.
