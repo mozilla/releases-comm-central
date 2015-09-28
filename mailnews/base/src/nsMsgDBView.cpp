@@ -3057,7 +3057,7 @@ nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command, nsMsgViewI
 
     }
     // Provide junk-related batch notifications
-    if ((command == nsMsgViewCommandType::junk) &&
+    if ((command == nsMsgViewCommandType::junk) ||
         (command == nsMsgViewCommandType::unjunk)) {
       nsCOMPtr<nsIMsgFolderNotificationService>
         notifier(do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
