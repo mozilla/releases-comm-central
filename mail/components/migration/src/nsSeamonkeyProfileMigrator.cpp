@@ -465,8 +465,6 @@ nsSeamonkeyProfileMigrator::CopyMailFolders(PBStructArray &aMailServers,
   // (1) Fix up the directory path for the new profile
   // (2) copy the mail folder data from the source directory pref to the destination directory pref
 
-  nsresult rv = NS_OK;
-
   uint32_t count = aMailServers.Length();
   for (uint32_t i = 0; i < count; ++i)
   {
@@ -536,7 +534,7 @@ nsSeamonkeyProfileMigrator::CopyMailFolders(PBStructArray &aMailServers,
         // has multiple servers with the same host name.
         targetMailFolder->CreateUnique(nsIFile::DIRECTORY_TYPE, 0777);
 
-        rv = RecursiveCopy(sourceMailFolder, targetMailFolder);
+        (void) RecursiveCopy(sourceMailFolder, targetMailFolder);
         // now we want to make sure the actual directory pref that gets
         // transformed into the new profile's pref.js has the right file
         // location.
@@ -676,8 +674,6 @@ nsSeamonkeyProfileMigrator::WriteBranch(const char *branchName,
                                         nsIPrefService* aPrefService,
                                         PBStructArray &aPrefs)
 {
-  nsresult rv;
-
   // Enumerate the branch
   nsCOMPtr<nsIPrefBranch> branch;
   aPrefService->GetBranch(branchName, getter_AddRefs(branch));
@@ -687,15 +683,15 @@ nsSeamonkeyProfileMigrator::WriteBranch(const char *branchName,
     PrefBranchStruct* pref = aPrefs.ElementAt(i);
     switch (pref->type) {
     case nsIPrefBranch::PREF_STRING:
-      rv = branch->SetCharPref(pref->prefName, pref->stringValue);
+      (void) branch->SetCharPref(pref->prefName, pref->stringValue);
       NS_Free(pref->stringValue);
       pref->stringValue = nullptr;
       break;
     case nsIPrefBranch::PREF_BOOL:
-      rv = branch->SetBoolPref(pref->prefName, pref->boolValue);
+      (void) branch->SetBoolPref(pref->prefName, pref->boolValue);
       break;
     case nsIPrefBranch::PREF_INT:
-      rv = branch->SetIntPref(pref->prefName, pref->intValue);
+      (void) branch->SetIntPref(pref->prefName, pref->intValue);
       break;
     default:
       NS_WARNING("Invalid Pref Type in "
@@ -725,7 +721,7 @@ nsSeamonkeyProfileMigrator::CopyJunkTraining(bool aReplace)
 nsresult
 nsSeamonkeyProfileMigrator::CopyPasswords(bool aReplace)
 {
-  nsresult rv;
+  nsresult rv = NS_OK;
 
   nsCString signonsFileName;
   GetSignonFileName(aReplace, getter_Copies(signonsFileName));

@@ -177,8 +177,6 @@ DirectoryProvider::GetFiles(const char *aKey, nsISimpleEnumerator* *aResult)
    *   - app search plugin location (shipped engines)
    */
 
-  nsresult rv;
-
   if (!strcmp(aKey, NS_APP_DISTRIBUTION_SEARCH_DIR_LIST)) {
     nsCOMPtr<nsIProperties> dirSvc
       (do_GetService(NS_DIRECTORY_SERVICE_CONTRACTID));
