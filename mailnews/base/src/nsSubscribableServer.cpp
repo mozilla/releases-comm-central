@@ -50,12 +50,8 @@ nsSubscribableServer::Init()
 
 nsSubscribableServer::~nsSubscribableServer(void)
 {
-    nsresult rv = NS_OK;
-#ifdef DEBUG_seth
-    printf("free subscribe tree\n");
-#endif
-    rv = FreeSubtree(mTreeRoot);
-    NS_ASSERTION(NS_SUCCEEDED(rv),"failed to free tree");
+  mozilla::DebugOnly<nsresult> rv = FreeSubtree(mTreeRoot);
+  NS_ASSERTION(NS_SUCCEEDED(rv),"failed to free tree");
 }
 
 NS_IMPL_ISUPPORTS(nsSubscribableServer, nsISubscribableServer)

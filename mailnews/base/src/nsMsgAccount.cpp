@@ -62,7 +62,7 @@ nsMsgAccount::GetIncomingServer(nsIMsgIncomingServer **aIncomingServer)
   if (!mTriedToGetServer && !m_incomingServer) {
     mTriedToGetServer = true;
     // ignore the error (and return null), but it's still bad so warn
-    nsresult rv = createIncomingServer();
+    mozilla::DebugOnly<nsresult> rv = createIncomingServer();
     NS_WARN_IF_FALSE(NS_SUCCEEDED(rv), "couldn't lazily create the server\n");
   }
 

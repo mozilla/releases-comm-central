@@ -1027,7 +1027,7 @@ NS_IMETHODIMP nsMsgMdnGenerator::Process(EDisposeType type,
     m_headers = headers;
     m_key = key;
 
-    nsresult rv = InitAndProcess(_retval);
+    mozilla::DebugOnly<nsresult> rv = InitAndProcess(_retval);
     NS_ASSERTION(NS_SUCCEEDED(rv), "InitAndProcess failed");
     return NS_OK;
 }

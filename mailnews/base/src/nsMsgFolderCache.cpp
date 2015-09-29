@@ -81,10 +81,9 @@ nsresult nsMsgFolderCache::InitNewDB()
   {
     nsIMdbStore *store = GetStore();
     // create the unique table for the dbFolderInfo.
-    nsresult mdberr;
     // TODO: this error assignment is suspicious and never checked.
-    mdberr = store->NewTable(GetEnv(), m_folderRowScopeToken,
-    m_folderTableKindToken, false, nullptr, &m_mdbAllFoldersTable);
+    (void) store->NewTable(GetEnv(), m_folderRowScopeToken, m_folderTableKindToken,
+                           false, nullptr, &m_mdbAllFoldersTable);
   }
   return err;
 }

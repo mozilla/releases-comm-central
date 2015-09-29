@@ -1650,7 +1650,8 @@ nsresult nsSmtpProtocol::SendRecipientResponse()
                                  m_addresses[m_addressesLeft - 1].get());
     }
 
-    NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain SMTP error");
+    if (!NS_SUCCEEDED(rv))
+      NS_ASSERTION(false, "failed to explain SMTP error");
 
     m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
     return(NS_ERROR_SENDING_RCPT_COMMAND);
@@ -1699,9 +1700,9 @@ nsresult nsSmtpProtocol::SendDataResponse()
 
   if (m_responseCode != 354)
   {
-    nsresult rv = nsExplainErrorDetails(m_runningURL,
-                                        NS_ERROR_SENDING_DATA_COMMAND,
-                                        m_responseText.get());
+    mozilla::DebugOnly<nsresult> rv = nsExplainErrorDetails(m_runningURL,
+                                                            NS_ERROR_SENDING_DATA_COMMAND,
+                                                            m_responseText.get());
     NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain SMTP error");
 
     m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
@@ -1772,9 +1773,9 @@ nsresult nsSmtpProtocol::SendMessageResponse()
 {
   if((m_responseCode/10 != 25))
   {
-    nsresult rv = nsExplainErrorDetails(m_runningURL,
-                                        NS_ERROR_SENDING_MESSAGE,
-                                        m_responseText.get());
+    mozilla::DebugOnly<nsresult> rv = nsExplainErrorDetails(m_runningURL,
+                                                            NS_ERROR_SENDING_MESSAGE,
+                                                            m_responseText.get());
     NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain SMTP error");
 
     m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;

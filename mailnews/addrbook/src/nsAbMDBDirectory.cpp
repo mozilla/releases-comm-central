@@ -28,6 +28,7 @@
 #include "nsMemory.h"
 #include "nsArrayUtils.h"
 #include "nsUnicharUtils.h"
+#include "mozilla/DebugOnly.h"
 
 nsAbMDBDirectory::nsAbMDBDirectory(void):
      nsAbMDBDirProperty(),
@@ -271,8 +272,7 @@ NS_IMETHODIMP nsAbMDBDirectory::RemoveElementsFromAddressList()
   if (m_AddressList)
   {
     uint32_t count;
-    nsresult rv;
-    rv = m_AddressList->GetLength(&count);
+    mozilla::DebugOnly<nsresult> rv = m_AddressList->GetLength(&count);
     NS_ASSERTION(NS_SUCCEEDED(rv), "Count failed");
     int32_t i;
     for (i = count - 1; i >= 0; i--)

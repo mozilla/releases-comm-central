@@ -744,8 +744,8 @@ mime_generate_attachment_headers (const char *type,
     int32_t pref_content_disposition = 0;
 
     if (prefs) {
-      nsresult rv = prefs->GetIntPref("mail.content_disposition_type",
-                                      &pref_content_disposition);
+      mozilla::DebugOnly<nsresult> rv = prefs->GetIntPref("mail.content_disposition_type",
+                                                          &pref_content_disposition);
       NS_ASSERTION(NS_SUCCEEDED(rv), "failed to get mail.content_disposition_type");
     }
 

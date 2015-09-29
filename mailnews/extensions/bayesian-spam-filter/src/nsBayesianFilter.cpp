@@ -1526,7 +1526,7 @@ void nsBayesianFilter::classifyMessage(
         double distance = std::abs(prob - 0.5);
         if (distance >= .1)
         {
-          nsresult rv = setAnalysis(token, traitIndex, distance, prob);
+          mozilla::DebugOnly<nsresult> rv = setAnalysis(token, traitIndex, distance, prob);
           NS_ASSERTION(NS_SUCCEEDED(rv), "Problem in setAnalysis");
         }
       }
