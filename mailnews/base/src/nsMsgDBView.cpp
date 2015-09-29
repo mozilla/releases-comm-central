@@ -396,7 +396,7 @@ nsresult nsMsgDBView::FetchAuthor(nsIMsgDBHdr * aHdr, nsAString &aSenderString)
   }
 
   nsCString author;
-  nsresult rv = aHdr->GetAuthor(getter_Copies(author));
+  (void) aHdr->GetAuthor(getter_Copies(author));
 
   nsCString headerCharset;
   aHdr->GetEffectiveCharset(headerCharset);
@@ -3827,17 +3827,17 @@ int
 nsMsgDBView::FnSortIdKey(const void *pItem1, const void *pItem2, void *privateData)
 {
     int32_t retVal = 0;
-    nsresult rv;
-    viewSortInfo* sortInfo = (viewSortInfo *) privateData;
 
     IdKey** p1 = (IdKey**)pItem1;
     IdKey** p2 = (IdKey**)pItem2;
+    viewSortInfo* sortInfo = (viewSortInfo *) privateData;
 
     nsIMsgDatabase *db = sortInfo->db;
 
-    rv = db->CompareCollationKeys((*p1)->dword, (*p1)->key, (*p2)->dword,
-                                  (*p2)->key, &retVal);
-    NS_ASSERTION(NS_SUCCEEDED(rv),"compare failed");
+    mozilla::DebugOnly<nsresult> rv = db->CompareCollationKeys((*p1)->dword, (*p1)->key,
+                                                               (*p2)->dword, (*p2)->key,
+                                                               &retVal);
+    NS_ASSERTION(NS_SUCCEEDED(rv), "compare failed");
 
     if (retVal)
       return sortInfo->ascendingSort ? retVal : -retVal;
@@ -3853,7 +3853,6 @@ int
 nsMsgDBView::FnSortIdKeyPtr(const void *pItem1, const void *pItem2, void *privateData)
 {
   int32_t retVal = 0;
-  nsresult rv;
 
   IdKeyPtr** p1 = (IdKeyPtr**)pItem1;
   IdKeyPtr** p2 = (IdKeyPtr**)pItem2;
@@ -3861,9 +3860,10 @@ nsMsgDBView::FnSortIdKeyPtr(const void *pItem1, const void *pItem2, void *privat
 
   nsIMsgDatabase *db = sortInfo->db;
 
-  rv = db->CompareCollationKeys((*p1)->dword, (*p1)->key, (*p2)->dword,
-                                (*p2)->key, &retVal);
-  NS_ASSERTION(NS_SUCCEEDED(rv),"compare failed");
+  mozilla::DebugOnly<nsresult> rv = db->CompareCollationKeys((*p1)->dword, (*p1)->key,
+                                                             (*p2)->dword, (*p2)->key,
+                                                             &retVal);
+  NS_ASSERTION(NS_SUCCEEDED(rv), "compare failed");
 
   if (retVal)
     return sortInfo->ascendingSort ? retVal : -retVal;
@@ -6501,10 +6501,6 @@ nsresult nsMsgDBView::MarkThreadOfMsgRead(nsMsgKey msgId, nsMsgViewIndex msgInde
 
 nsresult nsMsgDBView::MarkThreadRead(nsIMsgThread *threadHdr, nsMsgViewIndex threadIndex, nsTArray<nsMsgKey> &idsMarkedRead, bool bRead)
 {
-    bool threadElided = true;
-    if (threadIndex != nsMsgViewIndex_None)
-        threadElided = (m_flags[threadIndex] & nsMsgMessageFlags::Elided);
-
     uint32_t numChildren;
     threadHdr->GetNumChildren(&numChildren);
     idsMarkedRead.SetCapacity(numChildren);

@@ -129,7 +129,7 @@ nsresult nsMsgXFViewThread::AddHdr(nsIMsgDBHdr *newHdr,
   uint16_t numReferences;
   newHdr->GetNumReferences(&numReferences);
   nsCOMPtr<nsIMsgDBHdr> parent;
-  int32_t parentIndex;
+  int32_t parentIndex = -1;
 
   for (int32_t i = numReferences - 1; i >= 0;  i--)
   {

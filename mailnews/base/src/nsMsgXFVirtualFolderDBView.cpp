@@ -430,7 +430,7 @@ nsMsgXFVirtualFolderDBView::OnNewSearch()
           cachedHits->HasMoreElements(&hasMore);
           if (hasMore)
           {
-            nsMsgKey prevKey = nsMsgKey_None;
+            mozilla::DebugOnly<nsMsgKey> prevKey = nsMsgKey_None;
             while (hasMore)
             {
               nsCOMPtr <nsISupports> supports;
@@ -441,8 +441,11 @@ nsMsgXFVirtualFolderDBView::OnNewSearch()
               {
                 nsMsgKey msgKey;
                 pHeader->GetMessageKey(&msgKey);
-                NS_ASSERTION(prevKey == nsMsgKey_None || msgKey > prevKey, "cached Hits not sorted");
+                NS_ASSERTION(prevKey == nsMsgKey_None || msgKey > prevKey,
+                             "cached Hits not sorted");
+#ifdef DEBUG
                 prevKey = msgKey;
+#endif
                 AddHdrFromFolder(pHeader, searchFolder);
               }
               else

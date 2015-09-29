@@ -1621,7 +1621,6 @@ nsresult nsMsgDatabase::InitNewDB()
       dbFolderInfo->SetBooleanProperty(kFixedBadRefThreadingProp, true);
       nsIMdbStore *store = GetStore();
       // create the unique table for the dbFolderInfo.
-      nsresult mdberr;
       struct mdbOid allMsgHdrsTableOID;
       struct mdbOid allThreadsTableOID;
       if (!store)
@@ -1633,7 +1632,7 @@ nsresult nsMsgDatabase::InitNewDB()
       allThreadsTableOID.mOid_Id = kAllThreadsTableKey;
 
       // TODO: check this error value?
-      mdberr  = store->NewTableWithOid(GetEnv(), &allMsgHdrsTableOID, m_hdrTableKindToken,
+      (void) store->NewTableWithOid(GetEnv(), &allMsgHdrsTableOID, m_hdrTableKindToken,
         false, nullptr, &m_mdbAllMsgHeadersTable);
 
       // error here is not fatal.
@@ -5702,7 +5701,7 @@ NS_IMETHODIMP
 nsMsgDatabase::GetCachedHits(const char *aSearchFolderUri, nsISimpleEnumerator **aEnumerator)
 {
   nsCOMPtr <nsIMdbTable> table;
-  nsresult err = GetSearchResultsTable(aSearchFolderUri, false, getter_AddRefs(table));
+  (void) GetSearchResultsTable(aSearchFolderUri, false, getter_AddRefs(table));
   if (!table)
     return NS_ERROR_FAILURE; // expected result for no cached hits
   nsMsgDBEnumerator* e = new nsMsgDBEnumerator(this, table, nullptr, nullptr);
