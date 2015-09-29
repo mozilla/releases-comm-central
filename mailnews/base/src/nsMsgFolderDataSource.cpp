@@ -2453,7 +2453,7 @@ nsresult nsMsgRecentFoldersDataSource::NotifyPropertyChanged(nsIRDFResource *res
     {
       bool hasNewMessages;
       folder->GetHasNewMessages(&hasNewMessages);
-      if (hasNewMessages > 0)
+      if (hasNewMessages)
       {
         if (!m_folders.Contains(folder))
         {
