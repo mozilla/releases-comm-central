@@ -502,7 +502,7 @@ nsresult FormatFileSize(int64_t size, bool useKB, nsAString &formattedSize)
                                getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  float unitSize = size < 0 ? 0.0 : size;
+  double unitSize = size < 0 ? 0.0 : size;
   uint32_t unitIndex = 0;
 
   if (useKB) {
