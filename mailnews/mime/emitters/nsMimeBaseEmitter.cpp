@@ -1045,7 +1045,7 @@ nsMimeBaseEmitter::Complete()
   if (mOutListener)
   {
     uint64_t bytesInStream = 0;
-    nsresult rv2 = mInputStream->Available(&bytesInStream);
+    mozilla::DebugOnly<nsresult> rv2 = mInputStream->Available(&bytesInStream);
     NS_ASSERTION(NS_SUCCEEDED(rv2), "Available failed");
     if (bytesInStream)
     {

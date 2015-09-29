@@ -5318,7 +5318,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
             m_copyState->m_msgWindow->GetTransactionManager(getter_AddRefs(txnMgr));
             if (txnMgr)
             {
-              nsresult rv2 = txnMgr->DoTransaction(m_copyState->m_undoMsgTxn);
+              mozilla::DebugOnly<nsresult> rv2 = txnMgr->DoTransaction(m_copyState->m_undoMsgTxn);
               NS_ASSERTION(NS_SUCCEEDED(rv2), "doing transaction failed");
             }
           }
@@ -5936,7 +5936,7 @@ nsImapMailFolder::FillInFolderProps(nsIMsgImapFolderProps *aFolderProps)
 {
   NS_ENSURE_ARG(aFolderProps);
   const char* folderTypeStringID;
-  const char* folderTypeDescStringID;
+  const char* folderTypeDescStringID = nullptr;
   const char* folderQuotaStatusStringID;
   nsString folderType;
   nsString folderTypeDesc;
@@ -9648,7 +9648,7 @@ void nsImapMailFolder::PlaybackTimerCallback(nsITimer *aTimer, void *aClosure)
   nsRefPtr<nsImapOfflineSync> offlineSync = new nsImapOfflineSync(request->MsgWindow, nullptr, request->SrcFolder, true);
   if (offlineSync)
   {
-    nsresult rv = offlineSync->ProcessNextOperation();
+    mozilla::DebugOnly<nsresult> rv = offlineSync->ProcessNextOperation();
     NS_ASSERTION(NS_SUCCEEDED(rv), "pseudo-offline playback is not successful");
   }
   

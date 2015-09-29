@@ -274,8 +274,6 @@ static int GenerateVCardData(MimeObject * aMimeObj, VObject* aVcard)
 
 static int OutputBasicVcard(MimeObject *aMimeObj, VObject *aVcard, nsACString& vCardOutput)
 {
-  int status = 0;
-
   VObject *prop = NULL;
   nsAutoCString urlstring;
   nsAutoCString namestring;
@@ -337,7 +335,7 @@ static int OutputBasicVcard(MimeObject *aMimeObj, VObject *aVcard, nsACString& v
   // now each basic property goes on its own line
 
   // title
-  status = OutputVcardAttribute (aMimeObj, aVcard, VCTitleProp, vCardOutput);
+  (void) OutputVcardAttribute (aMimeObj, aVcard, VCTitleProp, vCardOutput);
 
   // org name and company name
   prop = vCardService->IsAPropertyOf(aVcard, VCOrgProp);

@@ -226,7 +226,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::IsSummaryFileValid(nsIMsgFolder *aFolder,
   uint32_t actualFolderTimeStamp = 0;
   GetMailboxModProperties(aFolder, &fileSize, &actualFolderTimeStamp);
 
-  if (folderSize == fileSize && numUnreadMessages >= 0)
+  if ((int64_t)folderSize == fileSize && numUnreadMessages >= 0)
   {
     if (!folderSize)
     {

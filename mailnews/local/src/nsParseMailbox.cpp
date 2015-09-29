@@ -1940,15 +1940,13 @@ void nsParseNewMailState::ApplyFilters(bool *pMoved, nsIMsgWindow *msgWindow, ui
         downloadFolder->GetURI(m_inboxUri);
       char * headers = m_headers.GetBuffer();
       uint32_t headersSize = m_headers.GetBufferPos();
-      nsresult matchTermStatus;
       if (m_filterList)
-        matchTermStatus =
-          m_filterList->ApplyFiltersToHdr(nsMsgFilterType::InboxRule, msgHdr,
-                                          downloadFolder, m_mailDB, headers,
-                                          headersSize, this, msgWindow);
+        (void) m_filterList->
+          ApplyFiltersToHdr(nsMsgFilterType::InboxRule, msgHdr, downloadFolder,
+                            m_mailDB, headers, headersSize, this, msgWindow);
       if (!m_msgMovedByFilter && m_deferredToServerFilterList)
       {
-        matchTermStatus = m_deferredToServerFilterList->
+        (void) m_deferredToServerFilterList->
           ApplyFiltersToHdr(nsMsgFilterType::InboxRule, msgHdr, downloadFolder,
                             m_mailDB, headers, headersSize, this, msgWindow);
       }

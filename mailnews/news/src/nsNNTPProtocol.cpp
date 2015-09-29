@@ -2023,7 +2023,6 @@ nsresult nsNNTPProtocol::SendGroupForArticle()
 nsresult
 nsNNTPProtocol::SetCurrentGroup()
 {
-  nsresult rv;
   nsCString groupname;
   NS_ASSERTION(m_newsFolder, "no news folder");
   if (!m_newsFolder) {
@@ -2031,7 +2030,7 @@ nsNNTPProtocol::SetCurrentGroup()
     return NS_ERROR_UNEXPECTED;
   }
 
-  rv = m_newsFolder->GetRawName(groupname);
+  mozilla::DebugOnly<nsresult> rv = m_newsFolder->GetRawName(groupname);
   NS_ASSERTION(NS_SUCCEEDED(rv) && !groupname.IsEmpty(), "no group name");
   MOZ_LOG(NNTP, LogLevel::Info,("(%p) SetCurrentGroup to %s",this, groupname.get()));
   m_currentGroup = groupname;
@@ -2083,9 +2082,8 @@ nsresult nsNNTPProtocol::BeginArticle()
   // write must not block!! (see bug 190988)
   //
   if (m_channelListener) {
-      nsresult rv;
       nsCOMPtr<nsIPipe> pipe = do_CreateInstance("@mozilla.org/pipe;1");
-      rv = pipe->Init(false, false, 4096, PR_UINT32_MAX);
+      mozilla::DebugOnly<nsresult> rv = pipe->Init(false, false, 4096, PR_UINT32_MAX);
       NS_ASSERTION(NS_SUCCEEDED(rv), "failed to create pipe");
       // TODO: return on failure?
 
@@ -2544,7 +2542,7 @@ nsresult nsNNTPProtocol::BeginNewsgroups()
 
 nsresult nsNNTPProtocol::ProcessNewsgroups(nsIInputStream * inputStream, uint32_t length)
 {
-  char *line, *lineToFree, *s, *s1=NULL, *s2=NULL, *flag=NULL;
+  char *line, *lineToFree, *s, *s1=NULL, *s2=NULL;
   uint32_t status = 0;
   nsresult rv = NS_OK;
 
@@ -2617,7 +2615,6 @@ nsresult nsNNTPProtocol::ProcessNewsgroups(nsIInputStream * inputStream, uint32_
       if (s)
       {
         *s = 0;
-        flag = s+1;
       }
     }
   }
@@ -4139,7 +4136,7 @@ nsresult nsNNTPProtocol::SendListGroupResponse(nsIInputStream * inputStream, uin
 
   if (line)
   {
-    nsresult rv;
+    mozilla::DebugOnly<nsresult> rv;
     if (line[0] != '.')
     {
       nsMsgKey found_id = nsMsgKey_None;

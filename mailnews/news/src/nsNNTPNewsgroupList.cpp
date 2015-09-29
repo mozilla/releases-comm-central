@@ -746,7 +746,6 @@ nsNNTPNewsgroupList::ProcessXOVERLINE(const char *line, uint32_t *status)
 {
   uint32_t message_number=0;
   //  int32_t lines;
-  bool read_p = false;
   nsresult rv = NS_OK;
 
   NS_ASSERTION(line, "null ptr");
@@ -799,7 +798,7 @@ nsNNTPNewsgroupList::ProcessXOVERLINE(const char *line, uint32_t *status)
     m_firstMsgNumber = message_number;
 
   if (m_set) {
-    read_p = m_set->IsMember(message_number);
+    (void) m_set->IsMember(message_number);
   }
 
   /* Update the progress meter with a percentage of articles retrieved */

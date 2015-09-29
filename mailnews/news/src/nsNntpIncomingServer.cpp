@@ -117,7 +117,7 @@ nsNntpIncomingServer::nsNntpIncomingServer()
 
 nsNntpIncomingServer::~nsNntpIncomingServer()
 {
-    nsresult rv;
+    mozilla::DebugOnly<nsresult> rv;
 
     if (mNewsrcSaveTimer) {
         mNewsrcSaveTimer->Cancel();

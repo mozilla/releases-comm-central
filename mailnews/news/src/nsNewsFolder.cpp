@@ -678,8 +678,6 @@ nsMsgNewsFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo **folderInfo, nsIMsgDataba
 NS_IMETHODIMP
 nsMsgNewsFolder::UpdateSummaryFromNNTPInfo(int32_t oldest, int32_t youngest, int32_t total)
 {
-  bool newsrcHasChanged = false;
-
   /* First, mark all of the articles now known to be expired as read. */
   if (oldest > 1)
   {
@@ -688,8 +686,6 @@ nsMsgNewsFolder::UpdateSummaryFromNNTPInfo(int32_t oldest, int32_t youngest, int
     mReadSet->Output(getter_Copies(oldSet));
     mReadSet->AddRange(1, oldest - 1);
     mReadSet->Output(getter_Copies(newSet));
-    if (!oldSet.Equals(newSet))
-      newsrcHasChanged = true;
   }
 
   /* Now search the newsrc line and figure out how many of these messages are marked as unread. */

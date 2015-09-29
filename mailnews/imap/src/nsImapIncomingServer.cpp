@@ -78,7 +78,7 @@ nsImapIncomingServer::nsImapIncomingServer()
 
 nsImapIncomingServer::~nsImapIncomingServer()
 {
-  nsresult rv = ClearInner();
+  mozilla::DebugOnly<nsresult> rv = ClearInner();
   NS_ASSERTION(NS_SUCCEEDED(rv), "ClearInner failed");
   CloseCachedConnections();
 }

@@ -91,10 +91,11 @@ static void PgpMimeGetNeedsAddonString(nsCString &aResult)
 static int
 MimeEncryptedPgpClassInitialize(MimeEncryptedPgpClass *clazz)
 {
-  MimeObjectClass    *oclass = (MimeObjectClass *)    clazz;
+  mozilla::DebugOnly<MimeObjectClass *> oclass = (MimeObjectClass *) clazz;
+  NS_ASSERTION(!oclass->class_initialized, "oclass is not initialized");
+
   MimeEncryptedClass *eclass = (MimeEncryptedClass *) clazz;
 
-  NS_ASSERTION(!oclass->class_initialized, "oclass is not initialized");
   eclass->crypto_init          = MimePgpe_init;
   eclass->crypto_write         = MimePgpe_write;
   eclass->crypto_eof           = MimePgpe_eof;

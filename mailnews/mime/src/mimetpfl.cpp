@@ -120,8 +120,8 @@ MimeInlineTextPlainFlowed_parse_begin (MimeObject *obj)
     prefBranch->GetIntPref("mail.quoted_style", &(text->mQuotedStyleSetting));
     prefBranch->GetCharPref("mail.citation_color", &(text->mCitationColor));
     prefBranch->GetBoolPref("mail.strip_sig_on_reply", &(text->mStripSig));
-    nsresult rv = prefBranch->GetBoolPref("mail.fixed_width_messages",
-                                          &(exdata->fixedwidthfont));
+    mozilla::DebugOnly<nsresult> rv =
+      prefBranch->GetBoolPref("mail.fixed_width_messages", &(exdata->fixedwidthfont));
     NS_ASSERTION(NS_SUCCEEDED(rv), "failed to get pref");
          // Check at least the success of one
   }

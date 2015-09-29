@@ -644,9 +644,10 @@ void nsPop3Protocol::UpdateStatusWithString(const char16_t *aStatusString)
 {
     if (mProgressEventSink)
     {
-        nsresult rv = mProgressEventSink->OnStatus(this, m_channelContext,
-                                                   NS_OK, aStatusString);      // XXX i18n message
-        NS_ASSERTION(NS_SUCCEEDED(rv), "dropping error result");
+      mozilla::DebugOnly<nsresult> rv =
+        mProgressEventSink->OnStatus(this, m_channelContext,
+                                     NS_OK, aStatusString); // XXX i18n message
+      NS_ASSERTION(NS_SUCCEEDED(rv), "dropping error result");
     }
 }
 
@@ -3164,11 +3165,11 @@ nsPop3Protocol::SendRetr()
     else
     {
       nsString finalString;
-      nsresult rv = FormatCounterString(NS_LITERAL_STRING("receivingMessages"),
-                          m_pop3ConData->real_new_counter,
-                          m_pop3ConData->really_new_messages,
-                          finalString);
-
+      mozilla::DebugOnly<nsresult> rv =
+        FormatCounterString(NS_LITERAL_STRING("receivingMessages"),
+                            m_pop3ConData->real_new_counter,
+                            m_pop3ConData->really_new_messages,
+                            finalString);
       NS_ASSERTION(NS_SUCCEEDED(rv), "couldn't format string");
       if (mProgressEventSink) {
         rv = mProgressEventSink->OnStatus(this, m_channelContext, NS_OK,
@@ -3623,7 +3624,8 @@ nsPop3Protocol::CommitState(bool remove_last_entry)
         Pop3MsgInfo* info = m_pop3ConData->msg_info + m_pop3ConData->last_accessed_msg;
         if (info && info->uidl)
         {
-          bool val = PL_HashTableRemove(m_pop3ConData->newuidl, info->uidl);
+          mozilla::DebugOnly<bool> val = PL_HashTableRemove(m_pop3ConData->newuidl,
+                                                            info->uidl);
           NS_ASSERTION(val, "uidl not in hash table");
         }
       }

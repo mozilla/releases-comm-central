@@ -42,7 +42,7 @@ NS_IMETHODIMP nsImapFlagAndUidState::GetMessageFlags(int32_t zeroBasedIndex, uin
 
 NS_IMETHODIMP nsImapFlagAndUidState::SetMessageFlags(int32_t zeroBasedIndex, unsigned short flags)
 {
-  if (zeroBasedIndex < fUids.Length())
+  if (zeroBasedIndex < (int32_t)fUids.Length())
     fFlags[zeroBasedIndex] = flags;
   return NS_OK;
 }
