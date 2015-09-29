@@ -58,7 +58,6 @@ static int
 MimeInlineImage_parse_begin (MimeObject *obj)
 {
   MimeInlineImage *img = (MimeInlineImage *) obj;
-  MimeInlineImageClass *clazz;
 
   int status;
 
@@ -72,8 +71,6 @@ MimeInlineImage_parse_begin (MimeObject *obj)
       //  gunking the body up.
       obj->options->write_pure_bodies)
     return 0;
-
-  clazz = (MimeInlineImageClass *) obj->clazz;
 
   if (obj->options &&
     obj->options->image_begin &&

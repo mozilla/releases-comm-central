@@ -142,7 +142,7 @@ nsresult nsMsgPurgeService::PerformPurge()
     MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("%d servers", numServers));
     nsCOMPtr<nsIMsgFolder> folderToPurge;
     PRIntervalTime startTime = PR_IntervalNow();
-    int32_t purgeIntervalToUse;
+    int32_t purgeIntervalToUse = 0;
     PRTime oldestPurgeTime = 0; // we're going to pick the least-recently purged folder
 
     // apply retention settings to folders that haven't had retention settings
@@ -335,7 +335,7 @@ nsresult nsMsgPurgeService::PerformPurge()
         }
       }
     }
-    if (folderToPurge)
+    if (folderToPurge && purgeIntervalToUse != 0)
       rv = SearchFolderToPurge(folderToPurge, purgeIntervalToUse);
   }
 
