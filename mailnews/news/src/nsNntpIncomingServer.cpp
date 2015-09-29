@@ -1657,7 +1657,7 @@ nsNntpIncomingServer::SetSearchValue(const nsAString &aSearchValue)
 
   if (mTree) {
     mTree->BeginUpdateBatch();
-    mTree->RowCountChanged(0, -mSubscribeSearchResult.Length());
+    mTree->RowCountChanged(0, -static_cast<int32_t>(mSubscribeSearchResult.Length()));
   }
 
   nsTArray<nsCString> searchStringParts;
