@@ -193,6 +193,9 @@ var gComposeRecyclingListener = {
     // window.
     gLanguageObserver.disconnect();
 
+    // Stop observing dictionary removals.
+    Services.obs.removeObserver(dictionaryRemovalObserver, "spellcheck-dictionary-remove");
+
     // Stop gSpellChecker so personal dictionary is saved.
     // We need to do this before disabling the editor.
     enableInlineSpellCheck(false);
@@ -2062,6 +2065,39 @@ function getValidSpellcheckerDictionary() {
   return dictList[0];
 }
 
+var dictionaryRemovalObserver =
+{
+  observe: function(aSubject, aTopic, aData) {
+    if (aTopic != "spellcheck-dictionary-remove") {
+      return;
+    }
+    let language = document.documentElement.getAttribute("lang");
+    let spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
+                                 .getService(mozISpellCheckingEngine);
+    let o1 = {};
+    let o2 = {};
+    spellChecker.getDictionaryList(o1, o2);
+    let dictList = o1.value;
+    let count    = o2.value;
+
+    if (count > 0 && dictList.includes(language)) {
+      // There still is a dictionary for the language of the document.
+      return;
+    }
+
+    // Set a valid language from the preference.
+    let prefValue = Services.prefs.getCharPref("spellchecker.dictionary");
+    if (count == 0 || dictList.includes(prefValue)) {
+      language = prefValue;
+    } else {
+      language = dictList[0];
+      // Fix the preference while we're here. We know it's invalid.
+      Services.prefs.setCharPref("spellchecker.dictionary", language);
+    }
+    document.documentElement.setAttribute("lang", language);
+  }
+}
+
 function ComposeStartup(recycled, aParams)
 {
   // Findbar overlay
@@ -2132,6 +2168,9 @@ function ComposeStartup(recycled, aParams)
     });
   });
   gLanguageObserver.observe(document.documentElement, { attributes: true });
+
+  // Observe dictionary removals.
+  Services.obs.addObserver(dictionaryRemovalObserver, "spellcheck-dictionary-remove", false);
 
   // Set document language to the preference as early as possible.
   let languageToSet = getValidSpellcheckerDictionary();
