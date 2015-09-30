@@ -353,13 +353,17 @@ function fillFolderPaneContextMenu(aEvent)
     if (checkIsVirtualFolder(folder))
       return false;
 
+    // All feed account folders, besides Trash, are subscribable.
+    if (folder.server.type == "rss" &&
+        !(folder.flags & nsMsgFolderFlags.Trash))
+      return true;
+
     // We only want the subscribe item on the account nodes.
     if (!folder.isServer)
       return false;
 
     return folder.server.type == "nntp" ||
-           folder.server.type == "imap" ||
-           folder.server.type == "rss";
+           folder.server.type == "imap";
   }
   var haveOnlySubscribableFolders = folders.every(checkCanSubscribeToFolder);
 
