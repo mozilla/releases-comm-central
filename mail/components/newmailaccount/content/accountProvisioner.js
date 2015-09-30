@@ -110,23 +110,16 @@ var EmailAccountProvisioner = {
    * A helper function to enable or disable the Search button.
    */
   searchButtonEnabled: function EAP_searchButtonEnabled(aVal) {
-    if (aVal) {
-      $("#searchSubmit").removeAttr("disabled");
-    } else {
-      $("#searchSubmit").attr("disabled", "true");
-    }
+    document.getElementById("searchSubmit").disabled = !aVal;
   },
 
   /**
    * A setter for enabling / disabling the search fields.
    */
   searchEnabled: function EAP_searchEnabled(aVal) {
-    if (aVal) {
-      $("#name").removeAttr("disabled");
-      $(".providerCheckbox").removeAttr("disabled");
-    } else {
-      $("#name").attr("disabled", "true");
-      $(".providerCheckbox").attr("disabled", "true");
+    document.getElementById("name").disabled = !aVal;
+    for (let node of document.querySelectorAll(".providerCheckbox")) {
+      node.disabled = !aVal;
     }
     this.searchButtonEnabled(aVal);
   },
@@ -135,10 +128,9 @@ var EmailAccountProvisioner = {
    * If aVal is true, show the spinner, else hide.
    */
   spinning: function EAP_spinning(aVal) {
-    if (aVal) {
-      $("#notifications .spinner").css('display', 'block');
-    } else {
-      $("#notifications .spinner").css('display', 'none');
+    let display = aVal ? "block" : "none";
+    for (let node of document.querySelectorAll("#notifications .spinner")) {
+      node.style.display = display;
     }
   },
 
@@ -153,33 +145,36 @@ var EmailAccountProvisioner = {
 
     if (engine && Services.search.defaultEngine != engine) {
       // Expose the search engine checkbox
-      $("#search_engine_wrap").show()
-                              .click(function(event) {
-        $("#search_engine_check").click();
+      let searchEngineWrap = document.getElementById("search_engine_wrap");
+      let searchEngineCheck = document.getElementById("search_engine_check");
+      searchEngineWrap.style.display = "block";
+      searchEngineWrap.addEventListener("click", function() {
+        searchEngineCheck.click();
         return false;
       });
 
-      $("#search_engine_check").click(function(event) {
+      searchEngineCheck.addEventListener("click", function(event) {
         event.stopPropagation();
       });
 
       // Set up the fields...
-      $("#search_engine_check").prop("checked", true);
-      $("#search_engine_desc").html(stringBundle.get("searchDesc", [engine.name]));
+      searchEngineCheck.checked = true;
+      document.getElementById("search_engine_desc").innerHTML =
+        stringBundle.get("searchDesc", [engine.name]);
     }
 
-    $("#success-compose").click(function() {
+    document.getElementById("success-compose").addEventListener("click", function() {
       MailServices.compose.OpenComposeWindow(null, null, null,
                                              Ci.nsIMsgCompType.New,
                                              Ci.nsIMsgCompFormat.Default,
                                              account.defaultIdentity, null);
     });
 
-    $("#success-addons").click(function() {
+    document.getElementById("success-addons").addEventListener("click", function() {
       EmailAccountProvisioner.openAddonsMgr();
     });
 
-    $("#success-signature").click(function() {
+    document.getElementById("success-signature").addEventListener("click", function() {
       var existingAccountManager =
         Services.wm.getMostRecentWindow("mailnews:accountmanager");
 
@@ -191,8 +186,8 @@ var EmailAccountProvisioner = {
                           {server: account.incomingServer});
     });
 
-    $("#window").hide();
-    $("#successful_account").show();
+    document.getElementById("window").style.display = "none";
+    document.getElementById("successful_account").style.display = "block";
   },
 
   /**
@@ -200,15 +195,14 @@ var EmailAccountProvisioner = {
    * reconstitute it on respawn later.
    */
   saveName: function EAP_saveName() {
-    var name = String.trim($("#name").val());
+    let name = document.getElementById("name").value.trim();
     this.storage.setItem("name", name);
   },
 
   onSearchInputOrProvidersChanged: function EAP_onSearchInputOrProvidersChanged(event) {
-    let emptyName = $("#name").val() == "";
-    EmailAccountProvisioner.searchButtonEnabled(!emptyName
-                                                && EmailAccountProvisioner
-                                                   .someProvidersChecked);
+    let emptyName = document.getElementById("name").value == "";
+    EmailAccountProvisioner.searchButtonEnabled(!emptyName &&
+      EmailAccountProvisioner.someProvidersChecked);
   },
 
   /**
@@ -229,27 +223,36 @@ var EmailAccountProvisioner = {
     // window itself, we open up the link in the default browser.
     let opener = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
                            .getService(Ci.nsIExternalProtocolService);
-    $("a.external").live("click", function (e) {
-      e.preventDefault();
-      opener.loadUrl(Services.io.newURI($(e.target).attr("href"), "UTF-8", null));
+    document.addEventListener("click", function(e) {
+      if (e.target.tagName == "a" &&
+          e.target.classList.contains("external")) {
+        e.preventDefault();
+        let uri = e.target.getAttribute("href");
+        opener.loadUrl(Services.io.newURI(uri, "UTF-8", null));
+      }
     });
 
     // Throw the disclaimer into the window.  In the future, this should probably
     // be done in the actual XHTML page, instead of injected via JS.
-    let commentary = $(".commentary")
-      .append($("<span>" + stringBundle.get("disclaimer",
-      ["https://www.mozilla.org/thunderbird/legal/privacy/"]) + "</span>"));
+    let commentary = document.querySelector(".commentary");
+    commentary.innerHTML =
+      commentary.innerHTML +
+      "<span>" +
+      stringBundle.get("disclaimer", ["https://www.mozilla.org/thunderbird/legal/privacy/"]) +
+      "</span>";
 
     EmailAccountProvisioner.tryToPopulateProviderList();
 
     // Link the keypress function to the name field so that we can enable and
     // disable the search button.
-    $("#name").keyup(EmailAccountProvisioner.onSearchInputOrProvidersChanged);
+    let nameElement = document.getElementById("name");
+    nameElement.addEventListener("keyup",
+      EmailAccountProvisioner.onSearchInputOrProvidersChanged);
 
     // If we have a name stored in local storage from an earlier session,
     // populate the search field with it.
     let name = EmailAccountProvisioner.storage.getItem("name") ||
-               $("#name").text();
+               nameElement.value;
     if (!name) {
       try {
         let userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
@@ -259,16 +262,16 @@ var EmailAccountProvisioner = {
         // not be avaialble even if it is.
       }
     }
-    $("#name").val(name);
+    nameElement.value = name;
     EmailAccountProvisioner.saveName();
 
     // Pretend like we've typed something into the search input to set the
     // initial enabled/disabled state of the search button.
     EmailAccountProvisioner.onSearchInputOrProvidersChanged();
 
-    $("#window").css("height", window.innerHeight - 1);
+    document.getElementById("window").style.height = window.innerHeight - 1;
 
-    $("button.existing").click(function() {
+    document.querySelector("button.existing").addEventListener("click", function() {
       EmailAccountProvisioner.saveName();
       EmailAccountProvisioner.NewMailAccount(EmailAccountProvisioner.msgWindow,
                                              null,
@@ -277,51 +280,108 @@ var EmailAccountProvisioner = {
     });
 
     // Handle Ctrl-W and Esc
-    $(window).keypress(function(event) {
+    window.addEventListener("keypress", function(event) {
       if ((event.which == "119" && isAccel(event))
           || event.keyCode == 27) {
         window.close();
       }
     });
 
-    $("#search").submit(EmailAccountProvisioner.onSearchSubmit);
+    document.getElementById("search").addEventListener("submit",
+      EmailAccountProvisioner.onSearchSubmit);
 
-    $("#notifications").delegate("button.create", "click",
-                                 EmailAccountProvisioner.onAddressSelected);
+    let notifications = document.getElementById("notifications");
+    notifications.addEventListener("click", function(event) {
+      if (event.target.tagName == "button" &&
+          event.target.classList.contains("create")) {
+        EmailAccountProvisioner.onAddressSelected(event.target);
+      }
+    });
 
     // Handle clicking on both email address suggestions, as well
     // as the headers for the providers of those suggestions.
-    $("#results").delegate("div.selection", "click", function() {
-      let self = $(this);
-      let resultsGroup = self.closest(".resultsGroup");
+    let results = document.getElementById("results");
+    results.addEventListener("click", event => {
+      // Find the resultsGroup this click was in.
+      let resultsGroup = event.target;
+      while (resultsGroup) {
+        if (resultsGroup.classList.contains("resultsGroup")) {
+          break;
+        }
+        resultsGroup = resultsGroup.parentElement;
+      }
+      if (!resultsGroup)
+        throw("Unexpected error finding resultsGroup.");
 
       // Return if we're already expanded
-      if (resultsGroup.hasClass("expanded"))
+      if (resultsGroup.classList.contains("expanded"))
         return;
 
-      resultsGroup.siblings().removeClass("expanded");
-      resultsGroup.addClass("expanded");
-
-      // Hide the other boxes.
-      resultsGroup.siblings().children(".extra").slideUp();
-      resultsGroup.siblings().find(".more").show();
-      resultsGroup.siblings().find(".pricing").fadeOut("fast");
-      resultsGroup.siblings().find(".price").fadeIn("fast");
-
-      // And show this box.
-      resultsGroup.find(".more").hide();
-      resultsGroup.children().find(".pricing").fadeIn("fast");
-      resultsGroup.children().find(".price").fadeOut("fast");
-      self.siblings(".extra").slideDown();
+      for (let child of resultsGroup.parentElement.children) {
+        if (child != resultsGroup) {
+          child.classList.remove("expanded");
+          // Hide the other boxes.
+          for (let node of child.querySelectorAll(".extra")) {
+            node.classList.add("slideUp");
+            for (let address of node.querySelectorAll(".address")) {
+              address.classList.remove("showWithFade");
+              address.classList.add("hideWithFade");
+            }
+          }
+          let more = child.querySelector(".more");
+          let makeListener = (aNode, aMore) => {
+            let listener = () => {
+              if (aMore)
+                aMore.style.display = "block";
+              aNode.querySelector("button").disabled = true;
+              aNode.removeEventListener("transitionend", listener);
+            };
+            return listener;
+          };
+          for (let node of child.querySelectorAll(".pricing")) {
+            node.classList.remove("showWithFade");
+            // Disable the pricing button and show the "more" text
+            // after the transition is complete.
+            node.addEventListener("transitionend", makeListener(node, more));
+            node.classList.add("hideWithFade");
+          }
+          for (let node of child.querySelectorAll(".price")) {
+            node.classList.remove("hideWithFade");
+            node.classList.add("showWithFade");
+          }
+        } else {
+          child.classList.add("expanded");
+          // And show this box.
+          let more = child.querySelector(".more");
+          if (more)
+            more.style.display = "none";
+          for (let node of child.querySelectorAll(".pricing")) {
+            node.classList.remove("hideWithFade");
+            node.classList.add("showWithFade");
+            node.querySelector("button").disabled = false;
+          }
+          for (let node of child.querySelectorAll(".price")) {
+            node.classList.remove("showWithFade");
+            node.classList.add("hideWithFade");
+          }
+          for (let node of child.querySelectorAll(".extra")) {
+            node.classList.remove("slideUp");
+            for (let address of node.querySelectorAll(".address")) {
+              address.classList.remove("hideWithFade");
+              address.classList.add("showWithFade");
+            }
+          }
+        }
+      }
     });
 
-    $("button.close").click(function() {
-      window.close();
-    });
+    for (let node of document.querySelectorAll("button.close")) {
+      node.addEventListener("click", () => window.close());
+    }
 
-    $(window).unload(function() {
-      if (window.arguments[0].search_engine
-          && $("#search_engine_check").prop("checked")) {
+    window.addEventListener("unload", function() {
+      let searchEngineCheck = document.getElementById("search_engine_check");
+      if (window.arguments[0].search_engine && searchEngineCheck.checked) {
         let engine = Services.search.getEngineByName(window.arguments[0].search_engine);
         Services.search.currentEngine = engine;
       }
@@ -334,8 +394,8 @@ var EmailAccountProvisioner = {
       EmailAccountProvisioner.showSuccessPage();
     } else {
       // The default mode, where we display the search input, providers, etc
-      $("#window").show();
-      $("#successful_account").hide();
+      document.getElementById("window").style.display = "block";
+      document.getElementById("successful_account").style.display = "none";
     }
 
     gLog.info("Email Account Provisioner init complete.");
@@ -348,40 +408,65 @@ var EmailAccountProvisioner = {
    * name to the suggestFromName service.
    */
   onSearchSubmit: function EAP_onSearchSubmit() {
-    $("#notifications").children().hide();
-    $("#instructions").fadeOut();
+    for (let node of document.getElementById("notifications").children) {
+      node.style.display = "none";
+    }
+    document.getElementById("instructions").classList.add("hide");
     EmailAccountProvisioner.saveName();
+
     // Here's where we do some kind of hack-y client-side sanitization.
     // Believe it or not, this is how you sanitize stuff to HTML elements
     // via jQuery.
-    let name = String.trim($("<div></div>").text($("#name").val()).html());
-    if (name.length <= 0) {
-      $("#name").select().focus();
+    // let name = String.trim($("<div></div>").text($("#name").val()).html());
+    // Not quite sure what this was for, but here's the hack converted
+    // to vanilla JS.
+    let nameElement = document.getElementById("name");
+    let div = document.createElement("div");
+    div.textContent = nameElement.value;
+    let name = div.innerHTML.trim();
+    if (!name) {
+      nameElement.select();
+      nameElement.focus();
       return;
     }
 
     EmailAccountProvisioner.searchEnabled(false);
     EmailAccountProvisioner.spinning(true);
     let [firstname, lastname] = splitName(name);
-    let providerList = $(".provider input:checked").map(function() {
-      return $(this).val();
-    }).get().join(',');
+    let selectedProviderList =
+      [...document.querySelectorAll(".provider input:checked")];
+    let providerList = selectedProviderList.map(node => node.value).join(',');
 
-    $.ajax({
-      url: EmailAccountProvisioner.suggestFromName,
-      dataType: 'json',
-      data: {"first_name": firstname,
-             "last_name": lastname,
-             "providers": providerList,
-             "version": 2},
-      timeout: CONNECTION_TIMEOUT,
-      success: EmailAccountProvisioner.onSearchResults})
-      .error(EmailAccountProvisioner.showSearchError)
-      .complete(function() {
-        $("#FirstAndLastName").html(String.trim(firstname + " " + lastname));
-        EmailAccountProvisioner.searchEnabled(true);
-        EmailAccountProvisioner.spinning(false);
-      });
+    let request = new XMLHttpRequest();
+    request.open("GET", EmailAccountProvisioner.suggestFromName +
+      "?first_name=" + encodeURIComponent(firstname) +
+      "&last_name=" + encodeURIComponent(lastname) +
+      "&providers=" + encodeURIComponent(providerList) +
+      "&version=2");
+    request.onload = function () {
+      let data;
+      try {
+        data = JSON.parse(request.responseText);
+      } catch(e) {};
+      EmailAccountProvisioner.onSearchResults(data);
+    };
+    request.onerror = () => {
+      gLog.info("Error response of XMLHttpRequest fetching address data.");
+      EmailAccountProvisioner.showSearchError();
+    };
+    request.ontimeout = () => {
+      gLog.info("Timeout of XMLHttpRequest fetching address data.");
+      EmailAccountProvisioner.showSearchError();
+    }
+    request.onloadend = function() {
+      // Also called if we timeout.
+      let firstAndLastName = document.getElementById("FirstAndLastName");
+      firstAndLastName.innerHTML = String.trim(firstname + " " + lastname);
+      EmailAccountProvisioner.searchEnabled(true);
+      EmailAccountProvisioner.spinning(false);
+    };
+    request.timeout = CONNECTION_TIMEOUT;
+    request.send(null);
   },
 
   /**
@@ -390,14 +475,14 @@ var EmailAccountProvisioner = {
    * tab for the address order form, and then closes the Account Provisioner
    * window.
    */
-  onAddressSelected: function EAP_onAddressSelected() {
+  onAddressSelected: function EAP_onAddressSelected(aTarget) {
     gLog.info("An address was selected by the user.");
-    let provider = EmailAccountProvisioner.providers[$(this).data("provider")];
+    let provider = EmailAccountProvisioner.providers[aTarget.dataset["provider"]];
 
     // Replace the variables in the url.
     let url = provider.api;
-    let [firstName, lastName] = splitName(String.trim($("#name").val()));
-    let email = $(this).attr("address");
+    let [firstName, lastName] = splitName(document.getElementById("name").value.trim());
+    let email = aTarget.getAttribute("address");
     url = url.replace("{firstname}", firstName);
     url = url.replace("{lastname}", lastName);
     url = url.replace("{email}", email);
@@ -413,7 +498,6 @@ var EmailAccountProvisioner = {
     gLog.info("Opening up a contentTab with the order form.");
     // Then open a content tab.
     let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
-
     let tabmail = mail3Pane.document.getElementById("tabmail");
     tabmail.openTab("accountProvisionerTab", {
       contentPage: url,
@@ -428,7 +512,9 @@ var EmailAccountProvisioner = {
     // Wait for the handler to close us.
     EmailAccountProvisioner.spinning(true);
     EmailAccountProvisioner.searchEnabled(false);
-    $("#notifications").children().not(".spinner").hide();
+    for (let node of document.querySelectorAll("#notifications > :not(.spinner)")) {
+      node.style.display = "none";
+    }
   },
 
   /**
@@ -449,35 +535,43 @@ var EmailAccountProvisioner = {
       this._loadProviderRetryId = null;
     }
 
-    var self = this;
-
-    self.searchEnabled(false);
-    self.spinning(true);
+    this.searchEnabled(false);
+    this.spinning(true);
 
     let providerListUrl = Services.prefs.getCharPref("mail.provider.providerList");
 
-    $.ajax({
-      url: providerListUrl,
-      dataType: 'json',
-      data: '',
-      timeout: CONNECTION_TIMEOUT,
-      success: EmailAccountProvisioner.populateProviderList,
-      }).error(function() {
-        // Ugh, we couldn't get the JSON file.  Maybe we're not online.  Or maybe
-        // the server is down, or the file isn't being served.  Regardless, if
-        // we get here, none of this stuff is going to work.
-        EmailAccountProvisioner._loadProviderRetryId = window.setTimeout(EmailAccountProvisioner.tryToPopulateProviderList
-                                                                                                .bind(self),
-                                                                         RETRY_TIMEOUT);
-        EmailAccountProvisioner._loadingProviders = false;
-        EmailAccountProvisioner.beOffline();
-        gLog.error("Something went wrong loading the provider list JSON file. "
-                   + "Going into offline mode.");
-      }).complete(function() {
-        EmailAccountProvisioner._loadingProviders = false;
-        EmailAccountProvisioner.spinning(false);
-        gLog.info("Got provider list JSON.");
-      });
+    let request = new XMLHttpRequest();
+    request.open("GET", providerListUrl);
+    request.onload = function() {
+      let data;
+      try {
+        data = JSON.parse(request.responseText);
+      } catch(e) {};
+      EmailAccountProvisioner.populateProviderList(data);
+    };
+    request.onerror = () => {
+      // Ugh, we couldn't get the JSON file. Maybe we're not online. Or maybe
+      // the server is down, or the file isn't being served. Regardless, if
+      // we get here, none of this stuff is going to work.
+      EmailAccountProvisioner._loadProviderRetryId =
+        window.setTimeout(() => EmailAccountProvisioner.tryToPopulateProviderList(),
+                          RETRY_TIMEOUT);
+      EmailAccountProvisioner._loadingProviders = false;
+      EmailAccountProvisioner.beOffline();
+      gLog.error("Something went wrong loading the provider list JSON file. " +
+                 "Going into offline mode.");
+    };
+    request.onloadend = function() {
+      EmailAccountProvisioner._loadingProviders = false;
+      EmailAccountProvisioner.spinning(false);
+      gLog.info("Got provider list JSON.");
+    };
+    request.timeout = CONNECTION_TIMEOUT;
+    request.ontimeout = () => {
+      glog.info("Timeout of XMLHttpRequest fetching provider list.");
+      request.onError();
+    };
+    request.send(null);
 
     EmailAccountProvisioner._loadingProviders = true;
     gLog.info("We've kicked off a request for the provider list JSON file...");
@@ -514,13 +608,12 @@ var EmailAccountProvisioner = {
       return;
     }
 
-    let providerList = $("#providerList");
+    let providerList = document.getElementById("providerList");
     let otherLangProviders = [];
 
     EmailAccountProvisioner.providers = {};
 
     data.forEach(function(provider) {
-
       if (!(EmailAccountProvisioner.providerHasCorrectFields(provider))) {
         gLog.error("A provider had incorrect fields, and has been skipped");
         return;
@@ -531,58 +624,68 @@ var EmailAccountProvisioner = {
       // Let's go through the array of languages for this provider, and
       // check to see if at least one of them matches general.useragent.locale.
       // If so, we'll show / select this provider by default.
-      let supportsSomeUserLang = provider
-                                 .languages
-                                 .some(function (x) {
-                                   return x == "*" ||
-                                          x == EmailAccountProvisioner.userLanguage
-                                 });
+      let supportsSomeUserLang = provider.languages.some(function (x) {
+        return x == "*" || x == EmailAccountProvisioner.userLanguage;
+      });
 
       let checkboxId = provider.id + "-check";
 
-      let providerCheckbox = $('<input type="checkbox" />')
-                             .val(provider.id)
-                             .addClass("providerCheckbox")
-                             .attr("id", checkboxId);
+      let providerCheckbox = document.createElement("input");
+      providerCheckbox.setAttribute("type", "checkbox");
+      providerCheckbox.setAttribute("value", provider.id);
+      providerCheckbox.className = "providerCheckbox";
+      providerCheckbox.setAttribute("id", checkboxId);
 
-      let providerEntry = $('<li class="provider" />')
-                          .append(providerCheckbox);
+      let providerEntry = document.createElement("li");
+      providerEntry.className = "provider";
+      providerEntry.appendChild(providerCheckbox);
 
-      let labelSpan = $('<label class="providerLabel" />')
-                      .append(provider.label)
-                      .appendTo(providerEntry)
-                      .attr("for", checkboxId);
+      let icon = document.createElement("img");
+      icon.className = "icon";
+      // We add this even if there is no icon, so that the alignment with
+      // providers without icons isn't broken.
+      providerEntry.appendChild(icon);
+      if (provider.icon) {
+        // Note this favicon must be fetched, which takes a noticeable
+        // time the first time it happens.
+        icon.setAttribute("src", provider.icon);
+      }
 
-      if (provider.icon)
-        providerCheckbox.after('<img class="icon" src="' + provider.icon + '"/>');
+      let labelSpan = document.createElement("label");
+      labelSpan.className = "providerLabel";
+      labelSpan.setAttribute("for", checkboxId);
+      labelSpan.innerHTML = provider.label;
+      providerEntry.appendChild(labelSpan);
 
-      providerCheckbox.change(function() {
-        EmailAccountProvisioner.populateTermsAndPrivacyLinks();
-      });
+      providerCheckbox.addEventListener("change",
+        EmailAccountProvisioner.populateTermsAndPrivacyLinks);
 
       if (supportsSomeUserLang) {
-        providerCheckbox.attr('checked', 'checked');
-        providerEntry.css('display', 'inline-block');
-        providerList.append(providerEntry);
+        providerCheckbox.setAttribute("checked", "true");
+        providerEntry.style.display = "inline-block";
+        providerList.appendChild(providerEntry);
       }
       else {
-        providerEntry.addClass("otherLanguage");
+        providerEntry.classList.add("otherLanguage");
         otherLangProviders.push(providerEntry);
       }
     });
 
-    for (let provider of otherLangProviders) {
-      providerList.append(provider);
-    }
-
     if (otherLangProviders.length) {
+      for (let provider of otherLangProviders) {
+        providerList.appendChild(provider);
+      }
+
       let otherLangDesc = document.getElementById("otherLangDesc");
       otherLangDesc.classList.remove("fadeOut");
       otherLangDesc.classList.add("fadeIn");
-      $("#otherLangDesc").click(function() {
+      otherLangDesc.addEventListener("click", function() {
         otherLangDesc.classList.remove("fadeIn");
         otherLangDesc.classList.add("fadeOut");
-        $(".otherLanguage").fadeIn().css("display", "inline-block");
+        for (let node of document.querySelectorAll(".otherLanguage")) {
+          node.style.display = "inline-block";
+          node.classList.add("showWithFade");
+        }
       });
     }
 
@@ -599,71 +702,47 @@ var EmailAccountProvisioner = {
   populateTermsAndPrivacyLinks: function EAP_populateTOSandPrivacyLinks() {
     gLog.info("Refreshing terms and privacy links");
     // Empty the Terms of Service and Privacy links placeholder.
-    let commentary = $(".commentary");
-    let placeholder = commentary.find(".placeholder");
-    placeholder.empty();
+    let placeholder = document.querySelector(".commentary .placeholder");
+    placeholder.innerHTML = "";
 
-    let selectedProviders = $(".provider input:checked");
+    let selectedProviders =
+      [...document.querySelectorAll(".provider input:checked")];
+    let len = selectedProviders.length;
 
-    EmailAccountProvisioner.someProvidersChecked = selectedProviders.length > 0;
-
-    let termsAndPrivacyLinks = [];
-    selectedProviders.each(function(i, checkbox) {
-      let providerId = $(checkbox).val();
-      let provider = EmailAccountProvisioner.providers[providerId];
-      let providerLinks = $("<span />").text(provider.label + " (")
-        .append($("<a />")
-          .attr("href", provider.privacy_url)
-          .text(stringBundle.get("privacyPolicy"))
-          .addClass("privacy").addClass("external").addClass(provider.id)
-        )
-        .append($("<span />").text(stringBundle.get("sepComma")))
-        .append($("<a />")
-          .attr("href", provider.tos_url)
-          .text(stringBundle.get("tos"))
-          .addClass("tos").addClass("external").addClass(provider.id)
-        ).append($("<span />").text(")"));
-      termsAndPrivacyLinks.push(providerLinks);
-    });
-
-    if (termsAndPrivacyLinks.length <= 0) {
+    EmailAccountProvisioner.someProvidersChecked = len > 0;
+    if (!len) {
       // Something went really wrong - we shouldn't have gotten here. Bail out.
       return;
-    } else if (termsAndPrivacyLinks.length == 1) {
-      placeholder.append(termsAndPrivacyLinks[0]);
-      return;
-    } else {
-      // Pop off the last terms and privacy links...
-      let lastTermsAndPrivacyLink = termsAndPrivacyLinks.pop();
-      // Join the remaining terms and privacy links with the comma separator...
-      $(termsAndPrivacyLinks).each(function(i, termsAndPrivacyLink) {
-        placeholder.append(termsAndPrivacyLink);
-        if (i < termsAndPrivacyLinks.length - 1)
-          placeholder.append($("<span />").text(stringBundle.get("sepComma")));
-      });
-      placeholder.append($("<span />").text(stringBundle.get("sepAnd")));
-      placeholder.append(lastTermsAndPrivacyLink);
     }
-  },
 
-  /**
-   * Make the search pane a little bit taller, and the existing account
-   * pane a little bit shorter.
-   */
-  expandSearchPane: function() {
-    // Don't expand twice.
-    if ($("#existing").data("expanded"))
-      return;
+    let innerHTML = "";
+    selectedProviders.forEach((checkbox, i) => {
+      let providerId = checkbox.value;
+      let provider = EmailAccountProvisioner.providers[providerId];
 
-    $("#existing").animate({"height": "50px",
-                            "font-size": "10pt"}, "fast",
-      function() {
-        $("#providers").fadeIn();
-        $("#content .description").fadeIn();
-        $("#existing .header").hide();
-        $(".tinyheader .title").css({"opacity": "1.0"}).fadeIn("fast");
-        $("#existing").data("expanded", true);
-      });
+      innerHTML += '<span>' + provider.label + ' (</span>';
+      innerHTML += '<a href="' + provider.privacy_url + '" ';
+      innerHTML += 'class="privary external ' + provider.id + '">';
+      innerHTML += stringBundle.get("privacyPolicy") + '</a>';
+
+      innerHTML += '<span>' + stringBundle.get("sepComma") + '</span>';
+
+      innerHTML += '<a href="' + provider.tos_url + '" ';
+      innerHTML += 'class="tos external ' + provider.id + '">';
+      innerHTML += stringBundle.get('tos') + '</a>';
+
+      innerHTML += '<span>)</span>';
+
+      if (len != 1) {
+        if (i < len - 2) {
+          innerHTML += '<span>' + stringBundle.get("sepComma") + '</span>';
+        } else if (i == len - 2) {
+          innerHTML += '<span>' + stringBundle.get("sepAnd") + '</span>';
+        }
+      }
+    });
+
+    placeholder.innerHTML = innerHTML;
   },
 
   /**
@@ -671,8 +750,14 @@ var EmailAccountProvisioner = {
    * we might want to show something a bit more descriptive.
    */
   showSearchError: function() {
-    $("#notifications").children().hide();
-    $("#notifications .error").fadeIn();
+    for (let node of document.getElementById("notifications").children) {
+      node.style.display = "none";
+    }
+    for (let node of document.querySelectorAll("#notifications .error")) {
+      node.style.display = "block"
+      node.getBoundingClientRect();
+      node.classList.add("showWithFade");
+    }
   },
 
   /**
@@ -681,11 +766,10 @@ var EmailAccountProvisioner = {
    */
   onSearchResults: function(data) {
     gLog.info("Got back search results");
-    // Expand the search pane if it hasn't been expanded yet.
-    EmailAccountProvisioner.expandSearchPane();
 
     // Empty any old results.
-    let results = $("#results").empty();
+    let results = document.getElementById("results");
+    results.innerHTML = "";
 
     if (!data || !data.length) {
       // If we've gotten back nonsense, display the generic
@@ -698,9 +782,10 @@ var EmailAccountProvisioner = {
     // Get a list of the providers that the user checked - we'll
     // check against these to make sure the server didn't send any
     // back from a provider that the user did not select.
-    let selectedProviders = $(".provider input:checked").map(function() {
-      return $(this).val();
-    });
+    let selectedProviderList =
+      [...document.querySelectorAll(".provider input:checked")];
+    let selectedProviders = selectedProviderList.map(node => node.value);
+    gLog.info(selectedProviders.length + " selected providers.");
 
     // Filter out any results that don't match our requirements...
     let returnedProviders = data.filter(function(aResult) {
@@ -713,7 +798,7 @@ var EmailAccountProvisioner = {
         gLog.error("Got a result back for a provider that was not "
                    + "in the original providerList: " + aResult.provider);
 
-      let providerSelected = $.inArray(aResult.provider, selectedProviders) != -1;
+      let providerSelected = selectedProviders.indexOf(aResult.provider) != -1;
 
       if (!providerSelected)
         gLog.error("Got a result back for a provider that the user did "
@@ -733,21 +818,25 @@ var EmailAccountProvisioner = {
     }
 
     for (let provider of returnedProviders) {
-      let group = $("<div class='resultsGroup'></div>");
-      let header = $("#resultsHeader")
-                   .clone()
-                   .removeClass("displayNone")
-                   .addClass("selection");
+      let group = document.createElement("div");
+      group.className = "resultsGroup";
 
-      header.children(".provider")
-            .text(EmailAccountProvisioner.providers[provider.provider].label);
+      let header = document.getElementById("resultsHeader").cloneNode(true);
+      header.classList.remove("displayNone");
+      header.classList.add("selection");
 
+      let providerLabel =
+        document.createTextNode(EmailAccountProvisioner.providers[provider.provider].label);
+      header.querySelector(".provider").appendChild(providerLabel);
+
+      let providerPrice;
       if (provider.price && provider.price != "0")
-        header.children(".price").text(provider.price);
+        providerPrice = document.createTextNode(provider.price);
       else
-        header.children(".price").text(stringBundle.get("free"));
+        providerPrice = document.createTextNode(stringBundle.get("free"));
+      header.querySelector(".price").appendChild(providerPrice);
 
-      group.append(header);
+      group.appendChild(header);
 
       let renderedAddresses = 0;
       let addrIndex = 0;
@@ -777,30 +866,46 @@ var EmailAccountProvisioner = {
                                    address.address ? address.address : address)
                           .replace(/\${priceStr}/g, priceStr);
 
-        group.append(result);
+        group.appendChild(result);
         // Keep a count of the rendered addresses for the "More" buttons, etc.
         renderedAddresses++;
 
-        if (addrIndex >= MAX_SMALL_ADDRESSES) {
+        if (addrIndex > MAX_SMALL_ADDRESSES) {
           result.classList.add("extra");
-          result.style.display = "none";
+          for (let address of result.querySelectorAll(".address")) {
+            address.classList.add("hideWithFade");
+          }
+          result.classList.add("slideUp");
         }
       }
+      gLog.info("Added " + renderedAddresses + " addresses, showing at most " +
+        MAX_SMALL_ADDRESSES + ".");
 
       if (renderedAddresses > MAX_SMALL_ADDRESSES) {
         let more = renderedAddresses - MAX_SMALL_ADDRESSES;
         let moreStr = PluralForm.get(more, stringBundle.get("moreOptions")).replace("#1", more);
-        let last = group.children(".row:nth-child(" + (MAX_SMALL_ADDRESSES + 1) + ")");
-        last.append('<div class="more">' + moreStr + '</div>');
+        let last = group.querySelector(".row:nth-child(" + (MAX_SMALL_ADDRESSES + 1) + ")");
+        last.innerHTML += '<div class="more">' + moreStr + '</div>';
       }
-      group.find("button.create").data("provider", provider.provider);
-      group.append($("#resultsFooter").clone().removeClass("displayNone"));
-      results.append(group);
+      for (let node of group.querySelectorAll("button.create")) {
+        node.dataset.provider = provider.provider;
+      }
+
+      // There doesn't seem to be a #resultsFooter anywhere.
+      // let footer = document.getElementById("resultsFooter").cloneNode(true);
+      // footer.classList.remove("displayNone");
+      // group.append(footer);
+
+      results.appendChild(group);
     }
 
-    $("#notifications").children().hide();
-    $("#notifications .success").show();
-
+    for (let node of document.getElementById("notifications").children) {
+      if (node.classList.contains("success")) {
+        node.style.display = "block";
+      } else {
+        node.style.display = "none";
+      }
+    }
     for (let provider of data) {
       delete provider.succeeded;
       delete provider.addresses;
@@ -815,7 +920,10 @@ var EmailAccountProvisioner = {
    */
   beOffline: function EAP_beOffline() {
     let offlineMsg = stringBundle.get("cannotConnect");
-    $('#cannotConnectMessage').text(offlineMsg).show();
+    let element = document.getElementById("cannotConnectMessage");
+    element.appendChild(document.createTextNode(offlineMsg));
+    element.style.display = "block";
+    element.style.opacity = 1;
     this.searchEnabled(false);
     gLog.info("Email Account Provisioner is in offline mode.");
   },
@@ -825,7 +933,9 @@ var EmailAccountProvisioner = {
    * error message and re-enable the search fields.
    */
   beOnline: function EAP_beOnline() {
-    $('#cannotConnectMessage').hide().text('');
+    let element = document.getElementById("cannotConnectMessage");
+    element.style.display = "none";
+    element.innerHTML = "";
     this.searchEnabled(true);
     gLog.info("Email Account Provisioner is in online mode.");
   }
@@ -839,4 +949,5 @@ XPCOMUtils.defineLazyGetter(EmailAccountProvisioner, "storage", function() {
 window.addEventListener("online",
                         EmailAccountProvisioner.tryToPopulateProviderList);
 
-$(EmailAccountProvisioner.init);
+document.addEventListener("DOMContentLoaded",
+                          EmailAccountProvisioner.init);

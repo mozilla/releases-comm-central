@@ -71,6 +71,15 @@ input[type="submit"][disabled="true"], input[type="submit"][disabled="true"]:hov
   color: #444;
   margin-bottom: 19px;
   margin-top: 6px;
+  max-height: 80px;
+  transition: all 0.4s;
+}
+
+#instructions.hide {
+  max-height: 0;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 #content .description {
@@ -92,6 +101,9 @@ input[type="submit"][disabled="true"], input[type="submit"][disabled="true"]:hov
 #providers .icon {
   margin-left: 5px;
   margin-right: 5px;
+  min-width: 16px;
+  max-width: 16px;
+  max-height: 16px;
   vertical-align: middle;
 }
 
@@ -101,7 +113,7 @@ input[type="submit"][disabled="true"], input[type="submit"][disabled="true"]:hov
 
 #providers .providerLabel {
   vertical-align: top;
-  width: 240px;
+  width: 240px; /* as #providers.provider, minus space for icon and checkbox */
   display: inline-block;
   word-wrap: break-word;
 }
@@ -120,6 +132,10 @@ input[type="submit"][disabled="true"], input[type="submit"][disabled="true"]:hov
   cursor: pointer;
   font-size: x-small;
   margin-top: 9px;
+}
+
+.otherLanguage {
+  opacity: 0;
 }
 
 /* External things are links that open in a browser, so underline them. */
@@ -207,8 +223,8 @@ input[type="submit"].search {
 }
 
 .error {
+  opacity: 0;
   color: red;
-  display: block;
 }
 
 .success .title {
@@ -239,9 +255,12 @@ input[type="submit"].search {
   width: 100%;
   padding: 7px;
   background-color: #fff;
-  -moz-box-align: center;
-  -moz-box-pack: center;
   border-bottom: 1px solid #ccc;
+  align-content: center;
+  align-items: center;
+  max-height: 100px;
+  overflow-y: hidden;
+  transition: all 0.4s;
 }
 
 #results :-moz-any(div.selection) {
@@ -262,10 +281,6 @@ input[type="submit"].search {
 
 #results .row.th {
   background-color: #f2f2f2;
-}
-
-#results .row.more {
-  text-align: right;
 }
 
 #results:not(.showAll) .noUserLang {
@@ -292,11 +307,15 @@ input[type="submit"].search {
 .row .pricing {
   text-align: right;
   min-width: 200px;
-  display: none;
 }
 
 .pricing button.create {
   border-radius: 12px;
+  transition: min-height 0.2s;
+}
+
+.pricing button:disabled.create {
+  min-height: 0px;
 }
 
 .pricing span.create {
@@ -312,7 +331,7 @@ input[type="submit"].search {
 }
 
 #existing .header {
-    text-align: left;
+  text-align: left;
 }
 
 .contentPadded {
@@ -370,19 +389,8 @@ input[type="submit"].search {
 /* hbox and vbox classes for Mozilla only */
 
 .hbox {
-  display: -moz-box;
-  -moz-box-orient: horizontal;
-  -moz-box-align: stretch;
-
-  /*display: box;*/
-  /*box-orient: horizontal;*/
-  /*box-align: stretch;*/
-}
-
-.hbox > * {
-  -moz-box-flex: 0;
-  /*box-flex: 0;*/
-  display: block;
+  display: flex;
+  flex-direction: row;
 }
 
 .vbox {
@@ -415,7 +423,11 @@ input[type="submit"].search {
   /*box-flex: 0;*/
 }
 
-.boxFlex1, .boxFlex {
+.boxFlex {
+  flex: 1 1 auto;
+}
+
+.boxFlex1 /*, .boxFlex*/ {
   -moz-box-flex: 1;
   /*box-flex: 1;*/
 }
@@ -526,4 +538,21 @@ input[type="submit"].search {
     opacity: 0.0;
     display: none;
   }
+}
+
+.hideWithFade {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.showWithFade {
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+#results .slideUp {
+  max-height: 0;
+  border: none;
+  padding-top: 0;
+  padding-bottom: 0;
 }

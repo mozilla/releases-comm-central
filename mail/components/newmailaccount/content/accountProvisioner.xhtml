@@ -21,12 +21,6 @@
         href="chrome://messenger/skin/newmailaccount/accountProvisioner.css" />
 
   <script type="text/javascript;version=1.8"
-          src="chrome://messenger/content/jquery.js">
-  </script>
-  <script type="text/javascript;version=1.8"
-          src="chrome://messenger/content/jquery-ui.js">
-  </script>
-  <script type="text/javascript;version=1.8"
           src="chrome://messenger/content/accountcreation/util.js">
   </script>
   <script type="text/javascript;version=1.8"
@@ -155,8 +149,8 @@
   <template id="result_tmpl">
     <div class="hbox row selection">
       <div class="boxFlex address">${address}</div>
-      <div class="pricing">
-        <button class="create"
+      <div class="pricing hideWithFade">
+        <button class="create" disabled="true"
           address="${address}">${priceStr}</button>
         <span class="create"
           address="${address}">${priceStr}</span>

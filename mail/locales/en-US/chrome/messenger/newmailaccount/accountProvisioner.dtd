@@ -6,7 +6,7 @@
 <!ENTITY header2.label "Would you like a new email address?">
 <!ENTITY other.languages "We are only displaying the providers offering addresses in your area.  Click here to show all providers.">
 <!ENTITY error.line1 "Sorry, we could not find any suggested email addresses.">
-<!ENTITY error.line2 "You try can search for nicknames or any other term to find more emails">
+<!ENTITY error.line2 "You can try to search for nicknames or any other term to find more emails.">
 
 <!-- LOCALIZATION NOTE(error.suggest.before, error.suggest.middle, error.suggest.after):
      error.suggest.before, error.suggest.middle, and error.suggest.after all go into
