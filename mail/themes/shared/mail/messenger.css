@@ -74,10 +74,6 @@ notification[value="addon-install-complete"] .notification-inner {
   border: none;
 }
 
-notification[value="addon-install-failed"] .messageCloseButton {
-  list-style-image: url("chrome://messenger/skin/icons/close-inverted.png");
-}
-
 /* ::::: searchTermOverlay ::::: */
 
 #searchTermList > listitem[highlight = "true"] {

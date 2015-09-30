@@ -152,9 +152,13 @@ notification[value="addon-install-complete"] > button:active:hover {
   border-color: rgba(60, 73, 97, 0.7);
 }
 
+notification[type="critical"] .messageCloseButton:not(:hover) {
+  -moz-image-region: rect(0, 64px, 16px, 48px);
+}
+
 @media (min-resolution: 2dppx) {
-  notification[value="addon-install-failed"] .messageCloseButton {
-    list-style-image: url("chrome://messenger/skin/icons/close-inverted@2x.png");
+  notification[type="critical"] .messageCloseButton:not(:hover) {
+    -moz-image-region: rect(0, 128px, 32px, 96px);
   }
 }
 

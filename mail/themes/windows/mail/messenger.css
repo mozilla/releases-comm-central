@@ -157,12 +157,8 @@ treechildren::-moz-tree-cell-text {
 
 /* ::::: Notifications ::::: */
 
-notification[value="addon-install-failed"] .messageCloseButton {
-  list-style-image: url("chrome://messenger/skin/icons/closeTab.png");
-}
-
-notification[type="critical"] .messageCloseButton:not(:hover):not(:active) {
-  -moz-image-region: rect(0, 64px, 16px, 48px);
+notification[type="critical"] .messageCloseButton {
+  list-style-image: url("chrome://global/skin/icons/close-inverted.png");
 }
 
 menulist.folderMenuItem > .menulist-label-box > .menulist-label {

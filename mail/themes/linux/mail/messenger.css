@@ -349,15 +349,6 @@ treechildren::-moz-tree-cell-text {
 
 /* ::::: Notifications ::::: */
 
-notification[value="addon-install-failed"] .messageCloseButton {
-  -moz-appearance: none;
-  -moz-image-region: rect(0, 16px, 16px, 0);
-}
-
-notification[value="addon-install-failed"] .messageCloseButton:hover {
-  -moz-image-region: rect(0, 32px, 16px, 16px);
-}
-
-notification[value="addon-install-failed"] .messageCloseButton:hover:active {
-  -moz-image-region: rect(0, 48px, 16px, 32px);
+notification[type="critical"] .messageCloseButton:not(:hover):not(:active) {
+  background-image: -moz-image-rect(url("chrome://global/skin/icons/close.svg"), 0, 64, 16, 48);
 }
