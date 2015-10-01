@@ -26,6 +26,11 @@ const fakeAccount2 = {
   protocol: {id: kPrplId2}
 };
 
+const fakeConversation = {
+  account: fakeAccount,
+  isChat: true
+};
+
 function fakeCommand(aName, aUsageContext) {
   this.name = aName;
   if (aUsageContext)
@@ -57,6 +62,9 @@ function run_test() {
   // Name starts with another command name.
   cmdserv.registerCommand(new fakeCommand("helpme"), kPrplId);
 
+  // Command name contains numbers.
+  cmdserv.registerCommand(new fakeCommand("r9kbeta"), kPrplId);
+
   // Array of (possibly partial) command names as entered by the user.
   let testCmds = ["x", "b", "ba", "bal", "back", "hel", "help", "off", "offline"];
 
@@ -79,7 +87,7 @@ function run_test() {
       conv: {
         account: fakeDisconnectedAccount
       },
-      cmdlist: "away, back, busy, dnd, help, helpme, offline, offline, raw, say",
+      cmdlist: "away, back, busy, dnd, help, helpme, offline, offline, r9kbeta, raw, say",
       results: [[], [], ["back"], [], ["back"], ["help"], ["help"], ["offline"], ["offline"]]
     },
     {
@@ -87,7 +95,7 @@ function run_test() {
       conv: {
         account: fakeAccount
       },
-      cmdlist: "away, back, busy, dnd, help, helpme, offline, offline, raw, say",
+      cmdlist: "away, back, busy, dnd, help, helpme, offline, offline, r9kbeta, raw, say",
       results: [[], [], ["back"], [], ["back"], [], ["help"], ["offline"], ["offline"]]
     },
     {
@@ -96,7 +104,7 @@ function run_test() {
         account: fakeAccount,
         isChat: true
       },
-      cmdlist: "away, back, balderdash, busy, dnd, help, helpme, offline, offline, raw, say",
+      cmdlist: "away, back, balderdash, busy, dnd, help, helpme, offline, offline, r9kbeta, raw, say",
       results: [[], [], [], ["balderdash", true], ["back"], [], ["help"], ["offline"], ["offline"]]
     },
     {
@@ -139,6 +147,36 @@ function run_test() {
                     !!expectedResult[1]);
       }
     }
+  }
+
+  // Array of messages to test command execution of.
+  let testMessages = [
+    {
+      message: "/r9kbeta",
+      result: true,
+    },
+    {
+      message: "/helpme 2 arguments",
+      result: true
+    },
+    {
+      message: "nocommand",
+      result: false
+    },
+    {
+      message: "/-a",
+      result: false
+    },
+    {
+      message: "/notregistered",
+      result: false
+    }
+  ];
+
+  // Test command execution.
+  for (let executionTest of testMessages) {
+    do_print("Testing command execution for '" + executionTest.message + "'");
+    do_check_eq(cmdserv.executeCommand(executionTest.message, fakeConversation), executionTest.result);
   }
 
   cmdserv.unInitCommands();

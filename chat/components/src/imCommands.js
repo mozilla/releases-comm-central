@@ -230,7 +230,7 @@ CommandsService.prototype = {
 
     let matchResult;
     if (aMessage[0] != "/" ||
-        !(matchResult = /^\/([a-z]+)(?: |$)([\s\S]*)/.exec(aMessage)))
+        !(matchResult = /^\/([a-z0-9]+)(?: |$)([\s\S]*)/.exec(aMessage)))
       return false;
 
     let [, name, args] = matchResult;
