@@ -379,6 +379,39 @@ FolderDisplayWidget.prototype = {
   //@{
 
   /**
+   * The map of all stock sortable columns and their sortType. The key must
+   * match the column's xul <treecol> id.
+   */
+  COLUMNS_MAP: new Map([
+    ["accountCol",       "byAccount"],
+    ["attachmentCol",    "byAttachments"],
+    ["senderCol",        "byAuthor"],
+    ["correspondentCol", "byCorrespondent"],
+    ["dateCol",          "byDate"],
+    ["flaggedCol",       "byFlagged"],
+    ["idCol",            "byId"],
+    ["junkStatusCol",    "byJunkStatus"],
+    ["locationCol",      "byLocation"],
+    ["priorityCol",      "byPriority"],
+    ["receivedCol",      "byReceived"],
+    ["recipientCol",     "byRecipient"],
+    ["sizeCol",          "bySize"],
+    ["statusCol",        "byStatus"],
+    ["subjectCol",       "bySubject"],
+    ["tagsCol",          "byTags"],
+    ["threadCol",        "byThread"],
+    ["unreadButtonColHeader", "byUnread"]
+  ]),
+
+  /**
+   * The map of stock non-sortable columns. The key must match the column's
+   *  xul <treecol> id.
+   */
+  COLUMNS_MAP_NOSORT: new Set([
+    "totalCol", "unreadCol"
+  ]),
+
+  /**
    * The set of potential default columns in their default display order.  Each
    *  column in this list is checked against |COLUMN_DEFAULT_TESTERS| to see if
    *  it is actually an appropriate default for the folder type.

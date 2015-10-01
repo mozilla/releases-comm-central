@@ -77,32 +77,12 @@ function ThreadPaneOnClick(event)
 
 function HandleColumnClick(columnID)
 {
-  const columnMap = {dateCol: 'byDate',
-                     receivedCol: 'byReceived',
-                     senderCol: 'byAuthor',
-                     recipientCol: 'byRecipient',
-                     subjectCol: 'bySubject',
-                     locationCol: 'byLocation',
-                     accountCol: 'byAccount',
-                     unreadButtonColHeader: 'byUnread',
-                     statusCol: 'byStatus',
-                     sizeCol: 'bySize',
-                     priorityCol: 'byPriority',
-                     flaggedCol: 'byFlagged',
-                     threadCol: 'byThread',
-                     tagsCol: 'byTags',
-                     junkStatusCol: 'byJunkStatus',
-                     idCol: 'byId',
-                     attachmentCol: 'byAttachments',
-                     correspondentCol: 'byCorrespondent'};
+  if (gFolderDisplay.COLUMNS_MAP_NOSORT.has(columnID))
+    return;
 
-
-  var sortType;
-  var curCustomColumn = gDBView.curCustomColumn;
-  if (columnID in columnMap) {
-    sortType = columnMap[columnID];
-  }
-  else {
+  let sortType = gFolderDisplay.COLUMNS_MAP.get(columnID);
+  let curCustomColumn = gDBView.curCustomColumn;
+  if (!sortType) {
     // If the column isn't in the map, check if it's a custom column.
     try {
       // Test for the columnHandler (an error is thrown if it does not exist).
@@ -120,7 +100,7 @@ function HandleColumnClick(columnID)
   }
 
   let viewWrapper = gFolderDisplay.view;
-  var simpleColumns = false;
+  let simpleColumns = false;
   try {
     simpleColumns = !Services.prefs.getBoolPref("mailnews.thread_pane_column_unthreads");
   }
