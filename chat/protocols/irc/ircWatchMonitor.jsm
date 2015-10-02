@@ -27,7 +27,7 @@ function setStatus(aAccount, aNick, aStatus) {
 
   if (aStatus == "AWAY") {
     // We need to request the away message.
-    aAccount.requestBuddyInfo(aNick);
+    aAccount.requestCurrentWhois(aNick);
   }
   else {
     // Clear the WHOIS information.

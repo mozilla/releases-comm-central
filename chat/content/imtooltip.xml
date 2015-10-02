@@ -156,19 +156,29 @@
        <parameter name="aValue"/>
        <body>
        <![CDATA[
-         const XULNS =
-           "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-
-         var row = document.createElementNS(XULNS, "row");
-         var label = document.createElementNS(XULNS, "label");
-         label.className = "header";
-         label.setAttribute("value", aLabel);
-         row.appendChild(label);
-         label = document.createElementNS(XULNS, "description");
-         label.textContent = aValue;
-         row.appendChild(label);
-         row.setAttribute("align", "baseline");
-         this.rows.appendChild(row);
+         let description;
+         let row = [...this.rows.querySelectorAll("row")].find(row => {
+           return row.querySelector("label").getAttribute("value") == aLabel;
+         });
+         if (!row) {
+           // Create a new row for this label.
+           const XULNS =
+             "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+           row = document.createElementNS(XULNS, "row");
+           let label = document.createElementNS(XULNS, "label");
+           label.className = "header";
+           label.setAttribute("value", aLabel);
+           row.appendChild(label);
+           description = document.createElementNS(XULNS, "description");
+           row.appendChild(description);
+           row.setAttribute("align", "baseline");
+           this.rows.appendChild(row);
+         }
+         else {
+           // Row with this label already exists - just update.
+           description = row.querySelector("description");
+         }
+         description.textContent = aValue;
        ]]>
        </body>
      </method>
@@ -235,13 +245,13 @@
 
          var tooltipInfo = aBuddy.getTooltipInfo();
          if (tooltipInfo)
-           this.appendTooltipInfo(tooltipInfo);
+           this.updateTooltipInfo(tooltipInfo);
          return true;
        ]]>
        </body>
      </method>
 
-     <method name="appendTooltipInfo">
+     <method name="updateTooltipInfo">
        <parameter name="aTooltipInfo"/>
        <body>
        <![CDATA[
@@ -388,9 +398,7 @@
          }
          else if (aTopic == "user-info-received" &&
                   aData == this.observedUserInfo) {
-           this.appendTooltipInfo(aSubject.QueryInterface(Ci.nsISimpleEnumerator));
-           Services.obs.removeObserver(this, "user-info-received");
-           delete this.observedUserInfo;
+           this.updateTooltipInfo(aSubject.QueryInterface(Ci.nsISimpleEnumerator));
          }
        ]]>
        </body>

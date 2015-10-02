@@ -105,10 +105,12 @@ interface prplIAccount: nsISupports {
   prplIAccountBuddy loadBuddy(in imIBuddy aBuddy, in imITag aTag);
 
   /* Request more info on a buddy (typically a chat buddy).
-   * The result (if any) will be provided by a user-info-received
-   * notification dispatched through the observer service:
+   * The result (if any) will be provided by user-info-received
+   * notifications dispatched through the observer service:
    *  - aSubject will be an nsISimpleEnumerator of prplITooltipInfo.
    *  - aData will be aBuddyName.
+   * If multiple user-info-received are sent, subsequent notifications
+   * will update any previous data.
    */
   void requestBuddyInfo(in AUTF8String aBuddyName);
 

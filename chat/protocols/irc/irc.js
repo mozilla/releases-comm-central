@@ -236,11 +236,11 @@ const GenericIRCConversation = {
     return this.getMaxMessageLength() - longestLineLength;
   },
 
-  requestBuddyInfo: function(aNick) {
+  requestCurrentWhois: function(aNick) {
     if (!this._observedNicks.length)
       Services.obs.addObserver(this, "user-info-received", false);
     this._observedNicks.push(this.normalizeNick(aNick));
-    this._account.requestBuddyInfo(aNick);
+    this._account.requestCurrentWhois(aNick);
   },
 
   observe: function(aSubject, aTopic, aData) {
@@ -594,7 +594,7 @@ function ircConversation(aAccount, aName) {
   // Fetch correctly capitalized name.
   // Always request the info as it may be out of date.
   this._waitingForNick = true;
-  this.requestBuddyInfo(aName);
+  this.requestCurrentWhois(aName);
 }
 ircConversation.prototype = {
   __proto__: GenericConvIMPrototype,
@@ -1081,13 +1081,30 @@ ircAccount.prototype = {
   // to value.
   whoisInformation: null,
   // Request WHOIS information on a buddy when the user requests more
-  // information.
+  // information. If we already have some WHOIS information stored for this
+  // nick, a notification with this (potentially out-of-date) information
+  // is sent out immediately. It is followed by another notification when
+  // the current WHOIS data is returned by the server.
+  // If you are only interested in the current WHOIS, requestCurrentWhois
+  // should be used instead.
   requestBuddyInfo: function(aBuddyName) {
     if (!this.connected)
       return;
 
-    this.removeBuddyInfo(aBuddyName);
-    this.sendBufferedCommand("WHOIS", aBuddyName);
+    // Return what we have stored immediately.
+    if (this.whoisInformation.has(aBuddyName))
+      this.notifyWhois(aBuddyName);
+
+    // Request the current whois and update.
+    this.requestCurrentWhois(aBuddyName);
+  },
+  // Request fresh WHOIS information on a nick.
+  requestCurrentWhois: function(aNick) {
+    if (!this.connected)
+      return;
+
+    this.removeBuddyInfo(aNick);
+    this.sendBufferedCommand("WHOIS", aNick);
   },
   notifyWhois: function(aNick) {
     Services.obs.notifyObservers(this.getBuddyInfo(aNick), "user-info-received",

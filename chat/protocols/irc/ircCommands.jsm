@@ -508,7 +508,7 @@ var commands = [
           return false;
         aMsg = aConv.name;
       }
-      getConv(aConv).requestBuddyInfo(aMsg);
+      getConv(aConv).requestCurrentWhois(aMsg);
       return true;
     }
   }

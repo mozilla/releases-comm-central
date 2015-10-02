@@ -1282,6 +1282,8 @@ const XMPPAccountPrototype = {
         }
       }
     }
+    Services.obs.notifyObservers(new nsSimpleEnumerator(tooltipInfo),
+                                 "user-info-received", aJid);
 
     let iq = Stanza.iq("get", null, aJid, Stanza.node("vCard", Stanza.NS.vcard));
     this.sendStanza(iq, aStanza => {
@@ -1304,6 +1306,7 @@ const XMPPAccountPrototype = {
                               "organization", "email", "birthday", "locality",
                               "country"];
 
+      let tooltipInfo = [];
       for (let field of kTooltipFields) {
         if (vCardInfo.hasOwnProperty(field))
           tooltipInfo.push(new TooltipInfo(_("tooltip." + field), vCardInfo[field]));

@@ -374,7 +374,7 @@ var ircBase = {
         this.changeBuddyNick(this._nickname, aMessage.params[0]);
 
       // Request our own whois entry so we can set the prefix.
-      this.requestBuddyInfo(this._nickname);
+      this.requestCurrentWhois(this._nickname);
 
       // If our status is Unavailable, tell the server.
       if (this.imAccount.statusInfo.statusType < Ci.imIStatusInfo.STATUS_AVAILABLE)
