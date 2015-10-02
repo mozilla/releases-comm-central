@@ -79,32 +79,6 @@ nsresult nsMailboxProtocol::OpenMultipleMsgTransport(uint64_t offset, int32_t si
   return rv;
 }
 
-nsresult nsMailboxProtocol::OpenFileSocketForReuse(nsIURI * aURL, uint64_t aStartPosition, int32_t aReadCount)
-{
-  NS_ENSURE_ARG_POINTER(aURL);
-
-  nsresult rv = NS_OK;
-  m_readCount = aReadCount;
-
-  nsCOMPtr <nsIFile> file;
-
-  rv = GetFileFromURL(aURL, getter_AddRefs(file));
-  NS_ENSURE_SUCCESS(rv, rv);
-    
-  nsCOMPtr<nsIFileInputStream> fileStream = do_CreateInstance(NS_LOCALFILEINPUTSTREAM_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  m_multipleMsgMoveCopyStream = do_QueryInterface(fileStream, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  fileStream->Init(file,  PR_RDONLY, 0664, false);  //just have to read the messages
-
-  rv = OpenMultipleMsgTransport(aStartPosition, aReadCount);
-
-  m_socketIsOpen = false;
-  return rv;
-}
-
-
 nsresult nsMailboxProtocol::Initialize(nsIURI * aURL)
 {
   NS_PRECONDITION(aURL, "invalid URL passed into MAILBOX Protocol");
@@ -152,32 +126,21 @@ nsresult nsMailboxProtocol::Initialize(nsIURI * aURL)
 
         if (RunningMultipleMsgUrl())
         {
-          rv = OpenFileSocketForReuse(aURL, m_msgOffset, aMsgSize);
           // if we're running multiple msg url, we clear the event sink because the multiple
           // msg urls will handle setting the progress.
           mProgressEventSink = nullptr;
         }
-        else
-        {
-          nsCOMPtr<nsIMsgIncomingServer> server;
-          nsCOMPtr<nsIMsgDBHdr> msgHdr;
-          nsCOMPtr<nsIMsgFolder> folder;
-          nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(m_runningUrl, &rv);
-          NS_ENSURE_SUCCESS(rv,rv);
-          rv = msgUrl->GetMessageHeader(getter_AddRefs(msgHdr));
-          if (msgHdr)
-          {
-            msgHdr->GetFolder(getter_AddRefs(folder));
-            if (folder)
-              folder->GetServer(getter_AddRefs(server));
-          }
-          if (server)
-          {
-            nsCOMPtr<nsIMsgPluggableStore> msgStore;
-            rv = server->GetMsgStore(getter_AddRefs(msgStore));
-            NS_ENSURE_SUCCESS(rv, rv);
 
-            if (NS_SUCCEEDED(rv) && msgHdr)
+        nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(m_runningUrl, &rv);
+        if (NS_SUCCEEDED(rv))
+        {
+          nsCOMPtr<nsIMsgFolder> folder;
+          nsCOMPtr<nsIMsgDBHdr> msgHdr;
+          rv = msgUrl->GetMessageHeader(getter_AddRefs(msgHdr));
+          if (NS_SUCCEEDED(rv) && msgHdr)
+          {
+            rv = msgHdr->GetFolder(getter_AddRefs(folder));
+            if (NS_SUCCEEDED(rv) && folder)
             {
               nsCOMPtr<nsIInputStream> stream;
               int64_t offset = 0;
@@ -193,15 +156,19 @@ nsresult nsMailboxProtocol::Initialize(nsIURI * aURL)
                   do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);
               if (NS_FAILED(rv)) return rv;
               m_readCount = aMsgSize;
+              // Save the stream for reuse, but only for multiple URLs.
+              if (reusable && RunningMultipleMsgUrl())
+                m_multipleMsgMoveCopyStream = stream;
+              else
+                reusable = false;
               rv = sts->CreateInputTransport(stream, offset,
-                                             int64_t(aMsgSize), true,
+                                             int64_t(aMsgSize), !reusable,
                                              getter_AddRefs(m_transport));
 
               m_socketIsOpen = false;
-             
             }
           }
-          else // must be a .eml file
+          if (!folder) // must be a .eml file
             rv = OpenFileSocket(aURL, 0, aMsgSize);
         }
         NS_ASSERTION(NS_SUCCEEDED(rv), "oops....i messed something up");
@@ -312,7 +279,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
               {
                 msgUrl->SetOriginalSpec(uri.get());
                 msgUrl->SetUri(uri.get());
-                
+
                 uint64_t msgOffset;
                 nextMsg->GetMessageOffset(&msgOffset);
                 nextMsg->GetMessageSize(&msgSize);
@@ -323,17 +290,44 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
                 //
                 // put us in a state where we are always notified of incoming data
                 //
-                
+
                 m_transport = 0; // open new stream transport
                 m_inputStream = 0;
                 m_outputStream = 0;
-                
-                rv = OpenMultipleMsgTransport(msgOffset, msgSize);
+
+                if (m_multipleMsgMoveCopyStream)
+                {
+                  rv = OpenMultipleMsgTransport(msgOffset, msgSize);
+                }
+                else
+                {
+                  nsCOMPtr<nsIInputStream> stream;
+                  bool reusable = false;
+                  rv = msgFolder->GetMsgInputStream(nextMsg, &reusable,
+                                                    getter_AddRefs(stream));
+                  NS_ASSERTION(!reusable, "We thought streams were not reusable!");
+
+                  if (NS_SUCCEEDED(rv))
+                  {
+                    // create input stream transport
+                    nsCOMPtr<nsIStreamTransportService> sts =
+                        do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);
+
+                    if (NS_SUCCEEDED(rv))
+                    {
+                      m_readCount = msgSize;
+                      rv = sts->CreateInputTransport(stream, msgOffset,
+                                                     int64_t(msgSize), true,
+                                                     getter_AddRefs(m_transport));
+                    }
+                  }
+                }
+
                 if (NS_SUCCEEDED(rv))
                 {
                   if (!m_inputStream)
                     rv = m_transport->OpenInputStream(0, 0, 0, getter_AddRefs(m_inputStream));
-                  
+
                   if (NS_SUCCEEDED(rv))
                   {
                     nsCOMPtr<nsIInputStreamPump> pump;
@@ -345,7 +339,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
                     }
                   }
                 }
-                
+
                 NS_ASSERTION(NS_SUCCEEDED(rv), "AsyncRead failed");
                 if (m_loadGroup)
                   m_loadGroup->RemoveRequest(static_cast<nsIRequest *>(this), nullptr, aStatus);

@@ -97,7 +97,6 @@ private:
 
   nsresult SetupMessageExtraction();
   nsresult OpenMultipleMsgTransport(uint64_t offset, int32_t size);
-  nsresult OpenFileSocketForReuse(nsIURI * aURL, uint64_t aStartPosition, int32_t aReadCount);
   bool RunningMultipleMsgUrl();
 
   ////////////////////////////////////////////////////////////////////////////////////////
