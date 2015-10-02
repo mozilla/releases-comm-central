@@ -155,11 +155,16 @@ function test_content_tab_onbeforeunload() {
     event.returnValue = "Green llama in your car";
   }, false);
 
+  const interactionPref = "dom.require_user_interaction_for_beforeunload";
+  Services.prefs.setBoolPref(interactionPref, false);
+
   plan_for_modal_dialog("commonDialog", function (controller) {
     controller.window.document.documentElement.getButton("accept").doCommand();
   });
   mc.tabmail.closeTab(tab);
   wait_for_modal_dialog();
+
+  Services.prefs.clearUserPref(interactionPref);
 }
 
 // XXX todo
