@@ -172,17 +172,16 @@ treechildren::-moz-tree-image(flaggedCol, flagged) {
 /* "unknown" now looks like "not junk".  see bug #182386 */
 treechildren::-moz-tree-image(junkStatusCol) {
   list-style-image: url("chrome://messenger/skin/icons/message-list.png");
-  -moz-image-region: rect(0px 16px 16px 0px); /* message-read.png */
-  -moz-padding-start: 0px;
+  -moz-image-region: rect(48px 16px 64px 0);
+  padding-inline-start: 0;
 }
 
 treechildren::-moz-tree-image(junkStatusCol, junk) {
-  -moz-image-region: rect(32px 16px 48px 0px); /* message-junk.png */
+  -moz-image-region: rect(32px 16px 48px 0);
 }
 
 treechildren::-moz-tree-image(junkStatusCol, notjunk) {
-  -moz-image-region: rect(0px 16px 16px 0px); /* message-read.png */
-  -moz-padding-start: 0px;
+  -moz-image-region: rect(48px 16px 64px 0);
 }
 
 /* ..... correspondent column ..... */
@@ -212,7 +211,7 @@ treechildren::-moz-tree-image(correspondentCol, outgoing) {
 treechildren::-moz-tree-image(subjectCol) {
   -moz-margin-end: 2px;
   list-style-image: url("chrome://messenger/skin/icons/message-list.png");
-  -moz-image-region: rect(48px 16px 64px 0px); /* message-blank.png */
+  -moz-image-region: rect(176px 16px 192px 0);
 }
 
 treechildren::-moz-tree-image(subjectCol, forwarded) {

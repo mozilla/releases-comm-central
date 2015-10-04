@@ -187,14 +187,27 @@ treechildren::-moz-tree-image(flaggedCol) {
 
 /* ..... junkStatus column ..... */
 
+@media (-moz-os-version: windows-xp) {
+  treechildren::-moz-tree-image(junkStatusCol) {
+    list-style-image: url("chrome://messenger/skin/icons/folder-XP.png");
+  }
+}
+
+@media not all and (-moz-os-version: windows-xp) {
+  treechildren::-moz-tree-image(junkStatusCol) {
+    margin-inline-start: -3px;
+    list-style-image: url("chrome://messenger/skin/icons/folder.png");
+  }
+}
+
 .junkStatusHeader {
   list-style-image: url("chrome://messenger/skin/icons/junk-col.svg");
 }
 
 /* "unknown" now looks like "not junk".  see bug #182386 */
 treechildren::-moz-tree-image(junkStatusCol) {
-  list-style-image: url("chrome://messenger/skin/icons/readmail.png");
-  -moz-padding-start: 0px;
+  -moz-image-region: rect(16px 128px 32px 112px);
+  padding-inline-start: 0;
 }
 
 treechildren::-moz-tree-image(junkStatusCol, junk) {
@@ -202,8 +215,7 @@ treechildren::-moz-tree-image(junkStatusCol, junk) {
 }
 
 treechildren::-moz-tree-image(junkStatusCol, notjunk) {
-  list-style-image: url("chrome://messenger/skin/icons/readmail.png");
-  -moz-padding-start: 0px;
+  -moz-image-region: rect(16px 128px 32px 112px);
 }
 
 /* ..... correspondent column ..... */
@@ -375,10 +387,6 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
   #threadTree treechildren::-moz-tree-row(dummy, odd) {
     background-image: none;
-  }
-
-  treechildren::-moz-tree-image(junkStatusCol, junk) {
-    list-style-image: url("chrome://messenger/skin/icons/folder-XP.png");
   }
 
   .tabmail-tab[type="message"] {
@@ -852,14 +860,6 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
   treechildren::-moz-tree-image(attachmentCol, attach) {
     -moz-margin-start: 0px;
-  }
-
-  treechildren::-moz-tree-image(junkStatusCol) {
-    -moz-margin-start: -3px;
-  }
-
-  treechildren::-moz-tree-image(junkStatusCol, junk) {
-    list-style-image: url("chrome://messenger/skin/icons/folder.png");
   }
 
   .tabmail-tab[type="message"] {

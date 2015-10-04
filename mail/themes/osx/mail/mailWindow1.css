@@ -262,25 +262,15 @@ treechildren::-moz-tree-image(flaggedCol, flagged, focus, selected) {
 /* "unknown" now looks like "not junk".  see bug #182386 */
 treechildren::-moz-tree-image(junkStatusCol) {
   list-style-image: url("chrome://messenger/skin/icons/threadpane-col.png");
-  -moz-image-region: rect(0px 48px 16px 32px);
-  -moz-margin-start: 1px;
+  -moz-image-region: rect(0 96px 16px 80px);
+  margin-inline-start: 1px;
 }
 
 treechildren::-moz-tree-image(junkStatusCol, notjunk) {
-  -moz-image-region: rect(0px 48px 16px 32px);
-}
-
-treechildren::-moz-tree-image(junkStatusCol, focus, selected),
-treechildren::-moz-tree-image(junkStatusCol, notjunk, focus, selected) {
-  -moz-image-region: rect(16px 48px 32px 32px);
+  -moz-image-region: rect(0 96px 16px 80px);
 }
 
 treechildren::-moz-tree-image(junkStatusCol, junk) {
-  -moz-image-region: rect(0px 96px 16px 80px);
-  -moz-margin-start: 0px;
-}
-
-treechildren::-moz-tree-image(junkStatusCol, junk, focus, selected) {
   -moz-image-region: rect(16px 96px 32px 80px);
 }
 
@@ -446,23 +436,14 @@ treechildren::-moz-tree-image(threadCol, ignoreSubthread) {
 
   treechildren::-moz-tree-image(junkStatusCol) {
     list-style-image: url("chrome://messenger/skin/icons/threadpane-col@2x.png");
-    -moz-image-region: rect(0px 96px 32px 64px);
+    -moz-image-region: rect(0 192px 32px 160px);
   }
 
   treechildren::-moz-tree-image(junkStatusCol, notjunk) {
-    -moz-image-region: rect(0px 96px 32px 64px);
-  }
-
-  treechildren::-moz-tree-image(junkStatusCol, focus, selected),
-  treechildren::-moz-tree-image(junkStatusCol, notjunk, focus, selected) {
-    -moz-image-region: rect(32px 96px 64px 64px);
+    -moz-image-region: rect(0 192px 32px 160px);
   }
 
   treechildren::-moz-tree-image(junkStatusCol, junk) {
-    -moz-image-region: rect(0px 192px 32px 160px);
-  }
-
-  treechildren::-moz-tree-image(junkStatusCol, junk, focus, selected) {
     -moz-image-region: rect(32px 192px 64px 160px);
   }
 
