@@ -25,6 +25,10 @@ textbox.header {
   -moz-margin-start: 0;
 }
 
+textbox.meta-properties {
+  margin-top: 1px;
+}
+
 .iframe {
   margin: .5em;
   background: white;

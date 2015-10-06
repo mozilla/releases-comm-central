@@ -42,32 +42,32 @@
         <row id="link-url">
           <separator orient="vertical"/>
           <label value="&link-url.label; " control="link-url-text"/>
-          <textbox readonly="true" id="link-url-text"/>
+          <textbox readonly="true" id="link-url-text" class="meta-properties"/>
         </row>
         <row id="link-target">
           <separator orient="vertical"/>
           <label value="&link-target.label; " control="link-target-text"/>
-          <textbox readonly="true" id="link-target-text"/>
+          <textbox readonly="true" id="link-target-text" class="meta-properties"/>
         </row>
         <row id="link-type">
           <separator orient="vertical"/>
           <label value="&link-type.label; " control="link-type-text"/>
-          <textbox readonly="true" id="link-type-text"/>
+          <textbox readonly="true" id="link-type-text" class="meta-properties"/>
         </row>
         <row id="link-lang">
           <separator orient="vertical"/>
           <label value="&link-lang.label; " control="link-lang-text"/>
-          <textbox readonly="true" id="link-lang-text"/>
+          <textbox readonly="true" id="link-lang-text" class="meta-properties"/>
         </row>
         <row id="link-rel">
           <separator orient="vertical"/>
           <label value="&link-rel.label; " control="link-rel-text"/>
-          <textbox readonly="true" id="link-rel-text"/>
+          <textbox readonly="true" id="link-rel-text" class="meta-properties"/>
         </row>
         <row id="link-rev">
           <separator orient="vertical"/>
           <label value="&link-rev.label; " control="link-rev-text"/>
-          <textbox readonly="true" id="link-rev-text"/>
+          <textbox readonly="true" id="link-rev-text" class="meta-properties"/>
         </row>
       </rows>
     </grid>
@@ -86,32 +86,32 @@
         <row id="image-url">
           <separator orient="vertical"/>
           <label value="&image-url.label; " control="image-url-text"/>
-          <textbox readonly="true" id="image-url-text"/>
+          <textbox readonly="true" id="image-url-text" class="meta-properties"/>
         </row>
         <row id="image-width">
           <separator orient="vertical"/>
           <label value="&image-width.label; " control="image-width-text"/>
-          <textbox readonly="true" id="image-width-text"/>
+          <textbox readonly="true" id="image-width-text" class="meta-properties"/>
         </row>
         <row id="image-height">
           <separator orient="vertical"/>
           <label value="&image-height.label; " control="image-height-text"/>
-          <textbox readonly="true" id="image-height-text"/>
+          <textbox readonly="true" id="image-height-text" class="meta-properties"/>
         </row>
 	<row id="image-filesize">
           <separator orient="vertical"/>
           <label value="&image-filesize.label; " control="image-filesize-text"/>
-          <textbox readonly="true" id="image-filesize-text" value="&image-filesize.value;"/>
+          <textbox readonly="true" id="image-filesize-text" value="&image-filesize.value;" class="meta-properties"/>
 	</row>
         <row id="image-alt">
           <separator orient="vertical"/>
           <label value="&image-alt.label; " control="image-alt-text"/>
-          <textbox readonly="true" id="image-alt-text"/>
+          <textbox readonly="true" id="image-alt-text" class="meta-properties"/>
         </row>
         <row id="image-desc">
           <separator orient="vertical"/>
           <label value="&image-desc.label; " control="image-desc-text"/>
-          <textbox readonly="true" id="image-desc-text"/>
+          <textbox readonly="true" id="image-desc-text" class="meta-properties"/>
         </row>
       </rows>
     </grid>
@@ -130,12 +130,12 @@
         <row id="insdel-cite">
           <separator orient="vertical"/>
           <label value="&insdel-cite.label; " control="insdel-cite-text"/>
-          <textbox readonly="true" id="insdel-cite-text"/>
+          <textbox readonly="true" id="insdel-cite-text" class="meta-properties"/>
         </row>
         <row id="insdel-date">
           <separator orient="vertical"/>
           <label value="&insdel-date.label; " control="insdel-date-text"/>
-          <textbox readonly="true" id="insdel-date-text"/>
+          <textbox readonly="true" id="insdel-date-text" class="meta-properties"/>
         </row>
       </rows>
     </grid>
@@ -154,7 +154,7 @@
         <row id="quote-cite">
           <separator orient="vertical"/>
           <label value="&quote-cite.label; " control="quote-cite-text"/>
-          <textbox readonly="true" id="quote-cite-text"/>
+          <textbox readonly="true" id="quote-cite-text" class="meta-properties"/>
         </row>
       </rows>
     </grid>
@@ -173,17 +173,17 @@
         <row id="misc-lang">
           <separator orient="vertical"/>
           <label value="&misc-lang.label; " control="misc-lang-text"/>
-          <textbox readonly="true" id="misc-lang-text"/>
+          <textbox readonly="true" id="misc-lang-text" class="meta-properties"/>
         </row>
         <row id="misc-title">
           <separator orient="vertical"/>
           <label value="&misc-title.label; " control="misc-title-text"/>
-          <textbox readonly="true" id="misc-title-text"/>
+          <textbox readonly="true" id="misc-title-text" class="meta-properties"/>
         </row>
         <row id="misc-tblsummary">
           <separator orient="vertical"/>
           <label value="&misc-tblsummary.label; " control="misc-tblsummary-text"/>
-          <textbox readonly="true" id="misc-tblsummary-text"/>
+          <textbox readonly="true" id="misc-tblsummary-text" class="meta-properties"/>
         </row>
       </rows>
     </grid>
