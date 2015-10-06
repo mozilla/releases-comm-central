@@ -662,8 +662,8 @@ void MsgMapiListContext::ConvertRecipientsToMapiFormat(
   ExtractAllAddresses(recipients, UTF16ArrayAdapter<>(names),
     UTF16ArrayAdapter<>(addresses));
   
-  uint32_t numAddresses = names.Length();
-  for (int i = 0; i < numAddresses; i++)
+  size_t numAddresses = names.Length();
+  for (size_t i = 0; i < numAddresses; i++)
   {
     if (!names[i].IsEmpty())
     {
@@ -685,7 +685,6 @@ void MsgMapiListContext::ConvertRecipientsToMapiFormat(
 char *MsgMapiListContext::ConvertBodyToMapiFormat (nsIMsgDBHdr *hdr)
 {
   const int kBufLen = 64000; // I guess we only return the first 64K of a message.
-  int bytesUsed = 0;
 #define EMPTY_MESSAGE_LINE(buf) (buf[0] == '\r' || buf[0] == '\n' || buf[0] == '\0')
 
   nsCOMPtr <nsIMsgFolder> folder;
@@ -718,7 +717,6 @@ char *MsgMapiListContext::ConvertBodyToMapiFormat (nsIMsgDBHdr *hdr)
     seekableStream->Seek(PR_SEEK_SET, messageOffset);
     bool hasMore = true;
     nsAutoCString curLine;
-    bool inMessageBody = false;
     nsresult rv = NS_OK;
     while (hasMore) // advance past message headers
     {

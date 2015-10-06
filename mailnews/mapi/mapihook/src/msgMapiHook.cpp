@@ -458,7 +458,6 @@ nsresult nsMapiHook::HandleAttachments (nsIMsgCompFields * aCompFields, int32_t 
 
     for (int i=0 ; i < aFileCount ; i++)
     {
-        bool bTempFile = false ;
         if (aFiles[i].lpszPathName)
         {
             // check if attachment exists
@@ -717,7 +716,7 @@ nsresult nsMapiHook::PopulateCompFieldsForSendDocs(nsIMsgCompFields * aCompField
       if (offset != kNotFound)
       {
         RemainingPaths.SetLength (offset) ;
-        if ((offset + strDelimChars.Length()) < FilePathsLen)
+        if ((offset + (int32_t)strDelimChars.Length()) < FilePathsLen)
           newFilePaths += offset + strDelimChars.Length() ;
         else
           offset = kNotFound;

@@ -641,7 +641,7 @@ nsresult nsOutlookMail::CreateList(const char16_t * pName,
 
   LPENTRYID    lpEid;
   ULONG        cbEid;
-  int32_t        idx;
+  ULONG          idx;
   LPMESSAGE        lpMsg;
   nsCString        type;
   LPSPropValue    pVal;
@@ -680,7 +680,6 @@ nsresult nsOutlookMail::CreateList(const char16_t * pName,
         pDb->InitCardFromRow(userCard,newRow);
 
         //add card to db
-        bool bl=false;
         pDb->FindRowByCard(userCard,getter_AddRefs(oldRow));
         if (oldRow)
           newRow = oldRow;
