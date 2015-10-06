@@ -74,8 +74,8 @@ function GetIdentityForHeader(aMsgHdr, aType)
     let deliveredTos = new Array();
     let index = 0;
     let header = "";
-    while (header = currentHeaderData[key]) {
-      deliveredTos.push(header.headerValue.toLowerCase().trim());
+    while (currentHeaderData[key]) {
+      deliveredTos.push(currentHeaderData[key].headerValue.toLowerCase().trim());
       key = "delivered-to" + index++;
     }
 
