@@ -202,7 +202,7 @@ NS_IMETHODIMP nsNntpMockChannel::GetContentType(nsACString &aContentType)
 NS_IMETHODIMP nsNntpMockChannel::SetContentType(const nsACString &aContentType)
 {
   FORWARD_CALL(SetContentType, aContentType)
-  return NS_ParseContentType(aContentType, m_contentType, m_contentCharset);
+  return NS_ParseResponseContentType(aContentType, m_contentType, m_contentCharset);
 }
 
 NS_IMETHODIMP nsNntpMockChannel::GetContentCharset(nsACString &aCharset)
