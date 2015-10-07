@@ -171,6 +171,10 @@ tabpanels {
   margin: 0 6px 6px;
 }
 
+.bold {
+  font-weight: bold;
+}
+
 /* override the color style for tag items when they
    have selection */
 #tagList listitem[selected="true"] {

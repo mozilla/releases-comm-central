@@ -13,6 +13,8 @@
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
             title="&dockOptionsDialog.title;" dlgbuttons="accept,cancel"
             style="width: &window.macWidth;">
+  <script type="application/javascript"
+          src="chrome://communicator/content/utilityOverlay.js"/>
   <prefpane id="DockOptionsDialogPane">
     <preferences>
       <preference id="mail.biff.animate_dock_icon"
@@ -26,8 +28,10 @@
                 label="&bounceSystemDockIcon.label;"
                 preference="mail.biff.animate_dock_icon"
                 accesskey="&bounceSystemDockIcon.accesskey;"/>
+      <separator class="thin"/>
       <groupbox flex="1">
         <caption label="&dockIconBadge.label;"/>
+        <separator class="thin"/>
         <label value="&dockIconShow.label;"/>
         <radiogroup id="dockCount"
                     preference="mail.biff.use_new_count_in_mac_dock"
@@ -40,9 +44,8 @@
                  accesskey="&newMessagesCountDock.label;"/>
         </radiogroup>
       </groupbox>
-      <caption label="&directNotificationSettings.label;"/>
+      <separator/>
+      <description class="bold">&directNotificationSettings.label;</description>
     </hbox>
   </prefpane>
-  <script type="application/javascript"
-          src="chrome://communicator/content/utilityOverlay.js"/>
 </prefwindow>
