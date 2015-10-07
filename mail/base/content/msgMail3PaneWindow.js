@@ -490,7 +490,7 @@ function OnLoadMessenger()
   let tabmail = document.getElementById('tabmail');
   if (tabmail)
   {
-    // mailTabType is defined in mailWindowOverlay.js
+    // mailTabType is defined in mailTabs.js
     tabmail.registerTabType(mailTabType);
     // glodaFacetTab* in glodaFacetTab.js
     tabmail.registerTabType(glodaFacetTabType);
@@ -516,6 +516,7 @@ function OnLoadMessenger()
   // This also registers the contentTabType ("contentTab")
   specialTabs.openSpecialTabsOnStartup();
   preferencesTabType.initialize();
+  // accountProvisionerTabType is defined in accountProvisionerTab.js
   tabmail.registerTabType(accountProvisionerTabType);
 
   // verifyAccounts returns true if the callback won't be called

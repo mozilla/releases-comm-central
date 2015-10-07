@@ -349,7 +349,12 @@
             if (modeDetails.isDefault)
               this.defaultTabMode = modeDetails;
           }
-          aTabType.panel = document.getElementById(aTabType.panelId);
+          if (aTabType.panelId)
+            aTabType.panel = document.getElementById(aTabType.panelId);
+          else if (!aTabType.perTabPanel) {
+            throw("Trying to register a tab type with neither panelId " +
+                  "nor perTabPanel attributes.")
+          }
         ]]></body>
       </method>
       <method name="unregisterTabType">
