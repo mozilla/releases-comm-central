@@ -513,9 +513,9 @@ function openSavedFilesWnd()
   if (downloadsBrowser)
     tabmail.switchToTab(downloadsBrowser);
   else {
-    gDownloadsTab = tabmail.openTab("chromeTab",
-                      { chromePage: "about:downloads",
-                        clickHandler: "specialTabs.aboutClickHandler(event);" });
+    tabmail.openTab("chromeTab",
+                    { chromePage: "about:downloads",
+                      clickHandler: "specialTabs.aboutClickHandler(event);" });
   }
 }
 
