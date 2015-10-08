@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-const EXPORTED_SYMBOLS = ["twttr"];
+this.EXPORTED_SYMBOLS = ["twttr"];
 
 var window = {};
 

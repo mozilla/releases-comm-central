@@ -8,7 +8,7 @@
  *   https://github.com/ircv3/ircv3-specifications/blob/master/extensions/sasl-3.1
  */
 
-const EXPORTED_SYMBOLS = ["ircSASL", "capSASL"];
+this.EXPORTED_SYMBOLS = ["ircSASL", "capSASL"];
 
 const Cu = Components.utils;
 

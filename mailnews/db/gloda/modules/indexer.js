@@ -10,7 +10,7 @@
  *  benefit readability/size as well.
  */
 
-const EXPORTED_SYMBOLS = ['GlodaIndexer', 'IndexingJob'];
+this.EXPORTED_SYMBOLS = ['GlodaIndexer', 'IndexingJob'];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;

@@ -7,7 +7,7 @@
  * for inspiration and idioms (and also a name :).
  */
 
-const EXPORTED_SYMBOLS = ["GlodaDatastore"];
+this.EXPORTED_SYMBOLS = ["GlodaDatastore"];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;

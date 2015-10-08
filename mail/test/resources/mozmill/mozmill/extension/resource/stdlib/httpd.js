@@ -10,7 +10,7 @@
  * httpd.js.
  */
 
-const EXPORTED_SYMBOLS = [
+this.EXPORTED_SYMBOLS = [
   "HTTP_400",
   "HTTP_401",
   "HTTP_402",

@@ -14,7 +14,7 @@
  * include example parameters.
  */
 
-const EXPORTED_SYMBOLS = ["ircCAP"];
+this.EXPORTED_SYMBOLS = ["ircCAP"];
 
 const Cu = Components.utils;
 

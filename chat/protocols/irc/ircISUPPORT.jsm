@@ -12,7 +12,7 @@
  *     http://tools.ietf.org/html/draft-hardy-irc-isupport-00
  */
 
-const EXPORTED_SYMBOLS = ["ircISUPPORT", "isupportBase"];
+this.EXPORTED_SYMBOLS = ["ircISUPPORT", "isupportBase"];
 
 const Cu = Components.utils;
 

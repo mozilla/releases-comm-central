@@ -7,7 +7,7 @@
  * exception objects, dumping DOM nodes, Events, and generic object dumps.
  */
 
-const EXPORTED_SYMBOLS = ["logObject", "logException", "logElement", "logEvent",
+this.EXPORTED_SYMBOLS = ["logObject", "logException", "logElement", "logEvent",
                           "errorWithDebug"];
 
 /**

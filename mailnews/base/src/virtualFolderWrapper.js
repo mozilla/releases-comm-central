@@ -6,7 +6,7 @@
  * Wrap everything about virtual folders.
  */
 
-const EXPORTED_SYMBOLS = ['VirtualFolderHelper'];
+this.EXPORTED_SYMBOLS = ['VirtualFolderHelper'];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;

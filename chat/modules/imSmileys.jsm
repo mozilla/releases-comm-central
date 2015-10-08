@@ -4,7 +4,7 @@
 
 Components.utils.import("resource:///modules/imServices.jsm");
 
-const EXPORTED_SYMBOLS = [
+this.EXPORTED_SYMBOLS = [
   "smileImMarkup", // used to add smile:// img tags into IM markup.
   "smileTextNode", // used to add smile:// img tags to the content of a textnode
   "smileString", // used to add smile:// img tags into a string without parsing it as HTML. Be sure the string doesn't contain HTML tags.

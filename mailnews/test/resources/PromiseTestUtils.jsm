@@ -7,7 +7,7 @@
  * with mailnews tests.
  */
 
-const EXPORTED_SYMBOLS = ['PromiseTestUtils'];
+this.EXPORTED_SYMBOLS = ['PromiseTestUtils'];
 
 var Cc = Components.classes;
 var Ci = Components.interfaces;

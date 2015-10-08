@@ -1,4 +1,4 @@
-const EXPORTED_SYMBOLS = ["MockFactory"];
+this.EXPORTED_SYMBOLS = ["MockFactory"];
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 

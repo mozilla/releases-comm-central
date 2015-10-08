@@ -10,7 +10,7 @@
  * or was never used in the old version.
  */
 
-const EXPORTED_SYMBOLS = [ "migrateMailnews" ];
+this.EXPORTED_SYMBOLS = [ "migrateMailnews" ];
 
 Components.utils.import("resource:///modules/errUtils.js");
 Components.utils.import("resource://gre/modules/Services.jsm");

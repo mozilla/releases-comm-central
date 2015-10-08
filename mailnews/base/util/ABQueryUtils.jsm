@@ -6,7 +6,7 @@
  * This file contains helper methods for dealing with addressbook search URIs.
  */
 
-const EXPORTED_SYMBOLS = ["getSearchTokens", "generateQueryURI", "encodeABTermValue"];
+this.EXPORTED_SYMBOLS = ["getSearchTokens", "generateQueryURI", "encodeABTermValue"];
 
 /**
  * Parse the multiword search string to extract individual search terms

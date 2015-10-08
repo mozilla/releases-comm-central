@@ -4,7 +4,7 @@
 
 // This is to be exported directly onto the IRC prplIProtocol object, directly
 // implementing the commands field before we register them.
-const EXPORTED_SYMBOLS = ["commands"];
+this.EXPORTED_SYMBOLS = ["commands"];
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 

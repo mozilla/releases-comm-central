@@ -8,7 +8,7 @@
 
 /* :::::::: Constants and Helpers ::::::::::::::: */
 
-const EXPORTED_SYMBOLS = ["mailInstrumentationManager"];
+this.EXPORTED_SYMBOLS = ["mailInstrumentationManager"];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;

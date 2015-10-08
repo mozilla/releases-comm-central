@@ -12,7 +12,7 @@
  *  https://github.com/atheme/charybdis/blob/master/include/numeric.h
  *  http://hg.unrealircd.com/hg/unreal/raw-file/tip/include/numeric.h
  */
-const EXPORTED_SYMBOLS = ["ircNonStandard"];
+this.EXPORTED_SYMBOLS = ["ircNonStandard"];
 
 const {interfaces: Ci, utils: Cu} = Components;
 

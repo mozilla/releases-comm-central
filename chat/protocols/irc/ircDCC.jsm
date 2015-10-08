@@ -9,7 +9,7 @@
  *     http://www.irchelp.org/irchelp/rfc/dccspec.html
  */
 
-const EXPORTED_SYMBOLS = ["ctcpDCC"/*, "dccBase"*/];
+this.EXPORTED_SYMBOLS = ["ctcpDCC"/*, "dccBase"*/];
 
 const Cu = Components.utils;
 

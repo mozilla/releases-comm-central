@@ -15,7 +15,7 @@
  *   http://ircv3.atheme.org/extensions/multi-prefix-3.1
  */
 
-const EXPORTED_SYMBOLS = ["isupportNAMESX", "capMultiPrefix"];
+this.EXPORTED_SYMBOLS = ["isupportNAMESX", "capMultiPrefix"];
 
 Components.utils.import("resource:///modules/ircHandlers.jsm");
 

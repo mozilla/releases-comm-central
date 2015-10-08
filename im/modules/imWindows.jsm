@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const CONVERSATION_WINDOW_URI = "chrome://instantbird/content/instantbird.xul";
-const EXPORTED_SYMBOLS = ["Conversations"];
+this.EXPORTED_SYMBOLS = ["Conversations"];
 
 Components.utils.import("resource:///modules/imServices.jsm");
 Components.utils.import("resource:///modules/ibInterruptions.jsm");

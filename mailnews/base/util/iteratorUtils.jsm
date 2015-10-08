@@ -7,7 +7,7 @@
  * and enumerators) in JS-friendly ways.
  */
 
-const EXPORTED_SYMBOLS = ["fixIterator", "toXPCOMArray", "toArray"];
+this.EXPORTED_SYMBOLS = ["fixIterator", "toXPCOMArray", "toArray"];
 
 Components.utils.import("resource://gre/modules/Deprecated.jsm");
 

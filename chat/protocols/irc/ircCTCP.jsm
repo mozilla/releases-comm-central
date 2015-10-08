@@ -8,7 +8,7 @@
  *     http://www.alien.net.au/irc/ctcp.txt
  */
 
-const EXPORTED_SYMBOLS = ["ircCTCP", "ctcpBase"];
+this.EXPORTED_SYMBOLS = ["ircCTCP", "ctcpBase"];
 
 const Cu = Components.utils;
 

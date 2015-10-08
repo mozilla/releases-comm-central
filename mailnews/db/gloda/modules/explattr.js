@@ -9,7 +9,7 @@
  *  read/unread, etc.
  */
 
-const EXPORTED_SYMBOLS = ['GlodaExplicitAttr'];
+this.EXPORTED_SYMBOLS = ['GlodaExplicitAttr'];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;

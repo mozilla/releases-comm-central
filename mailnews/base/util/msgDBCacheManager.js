@@ -8,7 +8,7 @@
 
 /* :::::::: Constants and Helpers ::::::::::::::: */
 
-const EXPORTED_SYMBOLS = ["msgDBCacheManager"];
+this.EXPORTED_SYMBOLS = ["msgDBCacheManager"];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;

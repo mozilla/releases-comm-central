@@ -7,7 +7,7 @@
  * provided by this module.
  */
 
-const EXPORTED_SYMBOLS = ["copyBytes", "ArrayBufferToBytes",
+this.EXPORTED_SYMBOLS = ["copyBytes", "ArrayBufferToBytes",
   "BytesToArrayBuffer", "StringToBytes", "StringToArrayBuffer",
   "ArrayBufferToString", "ArrayBufferToHexString"];
 

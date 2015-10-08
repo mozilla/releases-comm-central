@@ -12,7 +12,7 @@
  *     http://www.stack.nl/~jilles/cgi-bin/hgwebdir.cgi/irc-documentation-jilles/raw-file/tip/reference/draft-meglio-irc-watch-00.txt
  */
 
-const EXPORTED_SYMBOLS = ["ircWATCH", "isupportWATCH", "ircMONITOR",
+this.EXPORTED_SYMBOLS = ["ircWATCH", "isupportWATCH", "ircMONITOR",
                           "isupportMONITOR"];
 
 const {interfaces: Ci, utils: Cu} = Components;

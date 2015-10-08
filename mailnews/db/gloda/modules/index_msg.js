@@ -12,7 +12,7 @@
  *  benefit readability/size as well.
  */
 
-const EXPORTED_SYMBOLS = ['GlodaMsgIndexer'];
+this.EXPORTED_SYMBOLS = ['GlodaMsgIndexer'];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;

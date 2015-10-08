@@ -6,7 +6,7 @@
 // This module is designed to be a central place to initialise activity related
 // modules.
 
-const EXPORTED_SYMBOLS = [];
+this.EXPORTED_SYMBOLS = [];
 
 Components.utils.import("resource:///modules/activity/sendLater.js");
 sendLaterModule.init();

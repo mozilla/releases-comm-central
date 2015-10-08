@@ -17,7 +17,7 @@
  *   RFC 1459: Internet Relay Chat Protocol
  *     http://tools.ietf.org/html/rfc1459
  */
-const EXPORTED_SYMBOLS = ["ircBase"];
+this.EXPORTED_SYMBOLS = ["ircBase"];
 
 const {interfaces: Ci, utils: Cu} = Components;
 

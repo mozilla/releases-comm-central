@@ -27,7 +27,7 @@
 
 "use strict";
 
-const EXPORTED_SYMBOLS = ["bigInt"];
+this.EXPORTED_SYMBOLS = ["bigInt"];
 
 var bigInt = (function () {
     var base = 10000000, logBase = 7;

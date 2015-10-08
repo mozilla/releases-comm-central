@@ -8,7 +8,7 @@
 
 /* :::::::: Constants and Helpers ::::::::::::::: */
 
-const EXPORTED_SYMBOLS = ["sessionStoreManager"];
+this.EXPORTED_SYMBOLS = ["sessionStoreManager"];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;

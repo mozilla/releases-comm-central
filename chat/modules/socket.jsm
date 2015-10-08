@@ -75,7 +75,7 @@
  *     desired flood time?).
  */
 
-const EXPORTED_SYMBOLS = ["Socket"];
+this.EXPORTED_SYMBOLS = ["Socket"];
 
 const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
