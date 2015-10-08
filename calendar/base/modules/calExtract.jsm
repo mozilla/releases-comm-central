@@ -1065,7 +1065,7 @@ Extractor.prototype = {
                 let pattern = vals[val];
                 let cnt = 1;
                 for (let replaceable in replaceables) {
-                    pattern = pattern.split("%" + cnt + "$S").join(replaceables[cnt - 1]);
+                    pattern = pattern.split("#" + cnt).join(replaceables[cnt - 1]);
                     cnt++;
                 }
                 patterns.push(pattern);
@@ -1088,7 +1088,7 @@ Extractor.prototype = {
 
     getPositionsFor: function getPositionsFor(s, name, count) {
         let positions = new Array();
-        let re = /\%(\d)\$S/g;
+        let re = /#(\d)/g;
         let match;
         let i = 0;
         while ((match = re.exec(s))) {
@@ -1100,7 +1100,7 @@ Extractor.prototype = {
         for (i = 1; i <= count; i++) {
             if (positions[i] === undefined) {
                 Components.utils.reportError("[calExtract] Faulty extraction pattern " + name +
-                                             ", missing parameter %" + i + "$S");
+                                             ", missing parameter #" + i);
             }
         }
         return positions;
@@ -1276,8 +1276,7 @@ Extractor.prototype = {
 };
 
 String.prototype.sanitize = function() {
-    return this.replace(/[-[\]{}()*+?.,\\^#]/g, "\\$&")
-               .replace(/([^\d])([$])/g, "$1\\$2");
+    return this.replace(/[-[\]{}()*+?.,\\^$]/g, "\\$&");
 }
 
 String.prototype.unescape = function() {

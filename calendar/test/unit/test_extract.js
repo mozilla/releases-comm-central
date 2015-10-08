@@ -177,7 +177,7 @@ function test_overrides() {
 
     // recognize a custom "tomorrow" and hour.minutes pattern
     let overrides = {"from.hour.minutes":
-                      {"add": "%2$S:%1$S", "remove": "%1$S:%2$S"},
+                      {"add": "#2:#1", "remove": "#1:#2"},
                      "from.tomorrow":
                       {"add": "worromot"}};
     Preferences.set("calendar.patterns.override", JSON.stringify(overrides));
