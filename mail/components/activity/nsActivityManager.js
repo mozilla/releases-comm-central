@@ -177,5 +177,5 @@ nsActivityManager.prototype = {
 ////////////////////////////////////////////////////////////////////////////////
 //// Module
 
-let components = [nsActivityManager];
+var components = [nsActivityManager];
 const NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

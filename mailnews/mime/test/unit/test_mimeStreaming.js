@@ -19,7 +19,7 @@ var gMsgEnumerator;
 var gMessenger = Cc["@mozilla.org/messenger;1"].
                    createInstance(Ci.nsIMessenger);
 
-let gUrlListener = {
+var gUrlListener = {
   OnStartRunningUrl: function (aUrl) {
   },
   OnStopRunningUrl: function (aUrl, aExitCode) {

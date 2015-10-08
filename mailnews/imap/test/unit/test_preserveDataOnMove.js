@@ -27,7 +27,7 @@ var tests = [
   endTest
 ]
 
-let gSubfolder;
+var gSubfolder;
 function createSubfolder()
 {
   IMAPPump.incomingServer.rootFolder.createSubfolder("Subfolder", null);
@@ -102,7 +102,7 @@ function endTest()
 
 // listeners
 
-let mfnListener =
+var mfnListener =
 {
   folderAdded: function folderAdded(aFolder)
   {

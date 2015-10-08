@@ -9,7 +9,7 @@
  */
 
 // Default focus on a button and have it kill itself on blur
-let testPage = 'data:text/html,<body><button onblur="this.remove();"><script>document.body.firstChild.focus();</script></body>';
+var testPage = 'data:text/html,<body><button onblur="this.remove();"><script>document.body.firstChild.focus();</script></body>';
 
 function test() {
   waitForExplicitFinish();

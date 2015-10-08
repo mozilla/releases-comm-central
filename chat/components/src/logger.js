@@ -23,7 +23,7 @@ const kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
  * This is so that a file can be read after a pending write operation completes
  * and vice versa (opening a file multiple times concurrently may fail on Windows).
  */
-let gFilePromises = new Map();
+var gFilePromises = new Map();
 
 // Uses above map to queue operations on a file.
 function queueFileOperation(aPath, aOperation) {
@@ -308,7 +308,7 @@ const dummyLogWriter = {
 };
 
 
-let gLogWritersById = new Map();
+var gLogWritersById = new Map();
 function getLogWriter(aConversation) {
   let id = aConversation.id;
   if (!gLogWritersById.has(id)) {
@@ -364,7 +364,7 @@ const dummySystemLogWriter = {
 };
 
 
-let gSystemLogWritersById = new Map();
+var gSystemLogWritersById = new Map();
 function getSystemLogWriter(aAccount, aCreate) {
   let id = aAccount.id;
   if (aCreate) {

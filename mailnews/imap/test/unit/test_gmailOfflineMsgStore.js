@@ -240,7 +240,7 @@ var streamListener =
   }
 };
 
-let gStreamListener = {
+var gStreamListener = {
   QueryInterface : XPCOMUtils.generateQI([Ci.nsIStreamListener]),
   _stream : null,
   _data : null,

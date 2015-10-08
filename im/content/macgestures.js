@@ -5,7 +5,7 @@
 
 // Shamelessly taken from the implementation in browser/base/content/browser.js
 
-let gGestureSupport = {
+var gGestureSupport = {
   _tabs: null,
   _lastSelectedTab: null,
 

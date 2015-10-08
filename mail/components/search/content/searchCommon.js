@@ -29,7 +29,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 const PERM_DIRECTORY = parseInt("0755", 8);
 const PERM_FILE = parseInt("0644", 8);
 
-let SearchSupport =
+var SearchSupport =
 {
   /**
    * URI of last folder indexed. Kept in sync with the pref

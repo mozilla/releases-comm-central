@@ -11,12 +11,12 @@ Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource://gre/modules/osfile.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 
-let gLogger = {};
+var gLogger = {};
 Services.scriptloader.loadSubScript("resource:///components/logger.js", gLogger);
 
-let logDirPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
+var logDirPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
 
-let dummyAccount = {
+var dummyAccount = {
   name: "dummy-account",
   normalizedName: "dummyaccount",
   protocol: {
@@ -25,7 +25,7 @@ let dummyAccount = {
   }
 };
 
-let dummyTwitterAccount = {
+var dummyTwitterAccount = {
   name: "dummy-twitter",
   normalizedName: "dummytwitter",
   protocol: {
@@ -34,9 +34,9 @@ let dummyTwitterAccount = {
   }
 };
 
-let test_accounts = [dummyAccount, dummyTwitterAccount];
+var test_accounts = [dummyAccount, dummyTwitterAccount];
 
-let dummyConv = {
+var dummyConv = {
   account: dummyAccount,
   id: 0,
   title: "dummy conv",
@@ -47,7 +47,7 @@ let dummyConv = {
 };
 
 // A day after the first one.
-let dummyConv2 = {
+var dummyConv2 = {
   account: dummyAccount,
   id: 0,
   title: "dummy conv",
@@ -57,7 +57,7 @@ let dummyConv2 = {
   isChat: false
 };
 
-let dummyMUC = {
+var dummyMUC = {
   account: dummyAccount,
   id: 1,
   title: "Dummy MUC",
@@ -67,7 +67,7 @@ let dummyMUC = {
   isChat: true
 };
 
-let dummyTwitterConv = {
+var dummyTwitterConv = {
   account: dummyTwitterAccount,
   id: 2,
   title: "Dummy Twitter Conv",
@@ -77,9 +77,9 @@ let dummyTwitterConv = {
   isChat: true
 };
 
-let test_convs = [dummyConv, dummyMUC, dummyTwitterConv];
+var test_convs = [dummyConv, dummyMUC, dummyTwitterConv];
 
-let encodeName_input = [
+var encodeName_input = [
   "CON",
   "PRN",
   "AUX",
@@ -126,7 +126,7 @@ let encodeName_input = [
   "\\fi?*&%le<>"
 ];
 
-let encodeName_output = [
+var encodeName_output = [
   "%CON",
   "%PRN",
   "%AUX",
@@ -173,7 +173,7 @@ let encodeName_output = [
   "%5c" + "fi" + "%3f%2a%26%25" + "le" + "%3c%3e"
 ];
 
-let test_queueFileOperation = function* () {
+var test_queueFileOperation = function* () {
   let dummyOperation = function() {};
 
   let dummyRejectedOperation = () => Promise.reject("Rejected!");
@@ -212,14 +212,14 @@ let test_queueFileOperation = function* () {
   yield test_queueOrder(dummyRejectedOperation);
 }
 
-let test_getLogFolderPathForAccount = function* () {
+var test_getLogFolderPathForAccount = function* () {
   let path = gLogger.getLogFolderPathForAccount(dummyAccount);
   equal(OS.Path.join(logDirPath, dummyAccount.protocol.normalizedName,
                      gLogger.encodeName(dummyAccount.normalizedName)), path);
 }
 
 // Tests the global function getLogFilePathForConversation in logger.js.
-let test_getLogFilePathForConversation = function* () {
+var test_getLogFilePathForConversation = function* () {
   let path = gLogger.getLogFilePathForConversation(dummyConv, "format");
   let expectedPath = OS.Path.join(logDirPath, dummyAccount.protocol.normalizedName,
                                   gLogger.encodeName(dummyAccount.normalizedName));
@@ -230,7 +230,7 @@ let test_getLogFilePathForConversation = function* () {
   equal(path, expectedPath);
 }
 
-let test_getLogFilePathForMUC = function* () {
+var test_getLogFilePathForMUC = function* () {
   let path = gLogger.getLogFilePathForConversation(dummyMUC, "format");
   let expectedPath = OS.Path.join(logDirPath, dummyAccount.protocol.normalizedName,
                                   gLogger.encodeName(dummyAccount.normalizedName));
@@ -241,7 +241,7 @@ let test_getLogFilePathForMUC = function* () {
   equal(path, expectedPath);
 }
 
-let test_getLogFilePathForTwitterConv = function* () {
+var test_getLogFilePathForTwitterConv = function* () {
   let path = gLogger.getLogFilePathForConversation(dummyTwitterConv, "format");
   let expectedPath =
     OS.Path.join(logDirPath, dummyTwitterAccount.protocol.normalizedName,
@@ -254,7 +254,7 @@ let test_getLogFilePathForTwitterConv = function* () {
   equal(path, expectedPath);
 }
 
-let test_appendToFile = function* () {
+var test_appendToFile = function* () {
   const kStringToWrite = "Hello, world!";
   let path = OS.Path.join(OS.Constants.Path.profileDir, "testFile.txt");
   let encoder = new TextEncoder();
@@ -270,7 +270,7 @@ let test_appendToFile = function* () {
 }
 
 // Tests the getLogPathsForConversation API defined in the imILogger interface.
-let test_getLogPathsForConversation = function* () {
+var test_getLogPathsForConversation = function* () {
   let logger = new gLogger.Logger();
   let paths = yield logger.getLogPathsForConversation(dummyConv);
   // The path should be null since a LogWriter hasn't been created yet.
@@ -285,7 +285,7 @@ let test_getLogPathsForConversation = function* () {
   gLogger.closeLogWriter(dummyConv);
 }
 
-let test_logging = function* () {
+var test_logging = function* () {
   let logger = new gLogger.Logger();
   let oneSec = 1000000; // Microseconds.
 
@@ -423,7 +423,7 @@ let test_logging = function* () {
   yield OS.File.removeEmptyDir(logFolder, {ignoreAbsent: false});
 }
 
-let test_logFileSplitting = function* () {
+var test_logFileSplitting = function* () {
   // Start clean, remove the log directory.
   let logFolderPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
   yield OS.File.removeDir(logFolderPath, {ignoreAbsent: true});

@@ -7,13 +7,13 @@
  * property from the folderPaneBox, but that we still persist width.
  */
 
-let MODULE_NAME = "test-migrate-to-rdf-ui-3";
-let RELATIVE_ROOT = "../shared-modules";
-let MODULE_REQUIRES = ["folder-display-helpers"];
+var MODULE_NAME = "test-migrate-to-rdf-ui-3";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
-let Cc = Components.classes;
-let Ci = Components.interfaces;
-let Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
 Cu.import("resource://gre/modules/Services.jsm");
 

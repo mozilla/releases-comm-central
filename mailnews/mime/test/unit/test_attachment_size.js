@@ -20,7 +20,7 @@ updateAppInfo();
 // Register the mime types provider we need for this test.
 mailTestUtils.registerUMimTypProvider();
 
-let gMessenger = Cc["@mozilla.org/messenger;1"]
+var gMessenger = Cc["@mozilla.org/messenger;1"]
                    .createInstance(Ci.nsIMessenger);
 
 // Create a message generator
@@ -88,8 +88,8 @@ const partHtml = new SyntheticPartLeaf(
   }
 );
 
-let attachedMessage1 = msgGen.makeMessage({ body: { body: textAttachment } });
-let attachedMessage2 = msgGen.makeMessage({
+var attachedMessage1 = msgGen.makeMessage({ body: { body: textAttachment } });
+var attachedMessage2 = msgGen.makeMessage({
   body: { body: textAttachment },
   attachments: [{ body: imageAttachment,
                   contentType: 'application/x-ubik',
@@ -115,7 +115,7 @@ function get_message_size(message) {
 }
 
 // create some messages that have various types of attachments
-let messages = [
+var messages = [
   // text attachment
   { attachments: [{ body: textAttachment,
                     filename: 'ubik.txt',
@@ -181,7 +181,7 @@ let messages = [
 ];
 
 
-let gStreamListener = {
+var gStreamListener = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener]),
 
   // nsIRequestObserver part
@@ -214,7 +214,7 @@ let gStreamListener = {
   },
 };
 
-let gMessageHeaderSink = {
+var gMessageHeaderSink = {
   handleAttachment: function(aContentType, aUrl, aDisplayName, aUri,
                              aIsExternalAttachment) {
   },
@@ -238,7 +238,7 @@ let gMessageHeaderSink = {
   resetProperties: function () {}
 };
 
-let msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
+var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                   .createInstance(Ci.nsIMsgWindow);
 msgWindow.msgHeaderSink = gMessageHeaderSink;
 
@@ -266,11 +266,11 @@ function test_message_attachments(info) {
 
 /* ===== Driver ===== */
 
-let tests = [
+var tests = [
   parameterizeTest(test_message_attachments, messages),
 ];
 
-let gInbox;
+var gInbox;
 
 function run_test() {
   // use mbox injection because the fake server chokes sometimes right now

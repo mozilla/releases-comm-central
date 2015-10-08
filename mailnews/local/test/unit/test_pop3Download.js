@@ -11,7 +11,7 @@ var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
 
 var gMsgHdrs = [];
 var gHdrIndex = 0;
-let gFiles = ["../../../data/bugmail1",
+var gFiles = ["../../../data/bugmail1",
               "../../../data/draft1",
               "../../../data/bugmail19"];
 

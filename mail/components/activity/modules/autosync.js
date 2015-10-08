@@ -32,7 +32,7 @@ const nsIAutoSyncMgrListener = Components.interfaces.nsIAutoSyncMgrListener;
  * rather than generating one event per folder sync.
  */
 
-let autosyncModule =
+var autosyncModule =
 {
 
   _inQFolderList : [],

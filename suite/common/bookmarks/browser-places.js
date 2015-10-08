@@ -828,7 +828,7 @@ var PlacesStarButton = {
 // This object handles the initialization and uninitialization of the bookmarks
 // toolbar.  updateState is called when the browser window is opened and
 // after closing the toolbar customization dialog.
-let PlacesToolbarHelper = {
+var PlacesToolbarHelper = {
   _place: "place:folder=TOOLBAR",
   get _viewElt() {
     return document.getElementById("PlacesToolbar");
@@ -863,7 +863,7 @@ let PlacesToolbarHelper = {
 
 
 // Handles the bookmarks menu popup
-let BookmarksMenu = {
+var BookmarksMenu = {
   _popupInitialized: {},
   onPopupShowing: function BM_onPopupShowing(aEvent, aPrefix) {
     if (!(aPrefix in this._popupInitialized)) {

@@ -13,7 +13,7 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
-let gMessenger = Cc["@mozilla.org/messenger;1"]
+var gMessenger = Cc["@mozilla.org/messenger;1"]
                    .createInstance(Ci.nsIMessenger);
 
 // Create a message generator
@@ -23,7 +23,7 @@ const textAttachment =
   "inline text attachment";
 
 // create a message with a text attachment
-let messages = [
+var messages = [
   // unnamed email attachment
   { attachments: [{ body: textAttachment,
                     filename: 'test.txt',
@@ -60,7 +60,7 @@ let messages = [
 ];
 
 
-let gStreamListener = {
+var gStreamListener = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener]),
 
   index: 0, // The index of the message we're currently looking at.
@@ -97,7 +97,7 @@ let gStreamListener = {
   },
 };
 
-let gMessageHeaderSink = {
+var gMessageHeaderSink = {
   handleAttachment: function(aContentType, aUrl, aDisplayName, aUri,
                              aIsExternalAttachment) {},
   addAttachmentField: function(aName, aValue) {},
@@ -116,7 +116,7 @@ let gMessageHeaderSink = {
   resetProperties: function () {}
 };
 
-let msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
+var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                   .createInstance(Ci.nsIMsgWindow);
 msgWindow.msgHeaderSink = gMessageHeaderSink;
 
@@ -142,11 +142,11 @@ function test_message_attachments(info) {
 
 /* ===== Driver ===== */
 
-let tests = [
+var tests = [
   parameterizeTest(test_message_attachments, messages),
 ];
 
-let gInbox;
+var gInbox;
 
 function run_test() {
   gInbox = configure_message_injection({mode: "local"});

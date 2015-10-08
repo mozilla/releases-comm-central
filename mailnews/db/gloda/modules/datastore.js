@@ -27,7 +27,7 @@ const MIN_CACHE_SIZE = 8 * 1048576;
 const MAX_CACHE_SIZE = 64 * 1048576;
 const MEMSIZE_FALLBACK_BYTES = 256 * 1048576;
 
-let PCH_LOG = Log4Moz.repository.getLogger("gloda.ds.pch");
+var PCH_LOG = Log4Moz.repository.getLogger("gloda.ds.pch");
 
 /**
  * Commit async handler; hands off the notification to
@@ -72,7 +72,7 @@ PostCommitHandler.prototype = {
   }
 };
 
-let QFQ_LOG = Log4Moz.repository.getLogger("gloda.ds.qfq");
+var QFQ_LOG = Log4Moz.repository.getLogger("gloda.ds.qfq");
 
 /**
  * Singleton collection listener used by |QueryFromQueryCallback| to assist in
@@ -86,7 +86,7 @@ let QFQ_LOG = Log4Moz.repository.getLogger("gloda.ds.qfq");
  *  also deals with caching so that our identity invariant is maintained: user
  *  code should only ever see one distinct instance of a thing at a time.
  */
-let QueryFromQueryResolver = {
+var QueryFromQueryResolver = {
   onItemsAdded: function(aIgnoredItems, aCollection, aFake) {
     let originColl = aCollection.dataStack ? aCollection.dataStack.pop()
                                            : aCollection.data;

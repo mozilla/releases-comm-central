@@ -12,7 +12,7 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 var os = {};
 Cu.import('resource://mozmill/stdlib/os.js', os);
 
-let Cr = Components.results;
+var Cr = Components.results;
 
 const kMockContractIDPrefix = "@mozilla.org/mail/mockCloudFile;1?id=";
 

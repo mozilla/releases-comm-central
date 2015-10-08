@@ -219,8 +219,8 @@ function nextTest() {
   }
 }
 
-let toolbar = document.getElementById("PersonalToolbar");
-let wasCollapsed = toolbar.collapsed;
+var toolbar = document.getElementById("PersonalToolbar");
+var wasCollapsed = toolbar.collapsed;
 
 function test() {
   // Uncollapse the personal toolbar if needed.

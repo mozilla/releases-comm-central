@@ -49,7 +49,7 @@ var tests = [
   endTest
 ]
 
-let gTargetFolder;
+var gTargetFolder;
 function createTargetFolder()
 {
   IMAPPump.daemon.copySleep = 5000;

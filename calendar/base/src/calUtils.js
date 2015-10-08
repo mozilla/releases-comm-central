@@ -22,25 +22,25 @@ function _calIcalCreator(cid, iid) {
     };
 }
 
-let createEvent = _calIcalCreator("@mozilla.org/calendar/event;1",
+var createEvent = _calIcalCreator("@mozilla.org/calendar/event;1",
                                   Components.interfaces.calIEvent);
-let createTodo = _calIcalCreator("@mozilla.org/calendar/todo;1",
+var createTodo = _calIcalCreator("@mozilla.org/calendar/todo;1",
                                  Components.interfaces.calITodo);
-let createDateTime  = _calIcalCreator("@mozilla.org/calendar/datetime;1",
+var createDateTime  = _calIcalCreator("@mozilla.org/calendar/datetime;1",
                                       Components.interfaces.calIDateTime);
-let createDuration = _calIcalCreator("@mozilla.org/calendar/duration;1",
+var createDuration = _calIcalCreator("@mozilla.org/calendar/duration;1",
                                      Components.interfaces.calIDuration);
-let createAttendee = _calIcalCreator("@mozilla.org/calendar/attendee;1",
+var createAttendee = _calIcalCreator("@mozilla.org/calendar/attendee;1",
                                      Components.interfaces.calIAttendee);
-let createAttachment = _calIcalCreator("@mozilla.org/calendar/attachment;1",
+var createAttachment = _calIcalCreator("@mozilla.org/calendar/attachment;1",
                                        Components.interfaces.calIAttachment);
-let createAlarm = _calIcalCreator("@mozilla.org/calendar/alarm;1",
+var createAlarm = _calIcalCreator("@mozilla.org/calendar/alarm;1",
                                   Components.interfaces.calIAlarm);
-let createRelation = _calIcalCreator("@mozilla.org/calendar/relation;1",
+var createRelation = _calIcalCreator("@mozilla.org/calendar/relation;1",
                                      Components.interfaces.calIRelation);
-let createRecurrenceDate = _calIcalCreator("@mozilla.org/calendar/recurrence-date;1",
+var createRecurrenceDate = _calIcalCreator("@mozilla.org/calendar/recurrence-date;1",
                                            Components.interfaces.calIRecurrenceDate);
-let createRecurrenceRule = _calIcalCreator("@mozilla.org/calendar/recurrence-rule;1",
+var createRecurrenceRule = _calIcalCreator("@mozilla.org/calendar/recurrence-rule;1",
                                            Components.interfaces.calIRecurrenceRule);
 
 /* Returns a clean new calIRecurrenceInfo */

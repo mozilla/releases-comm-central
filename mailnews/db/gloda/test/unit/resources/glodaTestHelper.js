@@ -78,7 +78,7 @@ const ENVIRON_MAPPINGS = [
 ];
 
 // -- Propagate environment variables to prefs as appropriate:
-let environ = Cc["@mozilla.org/process/environment;1"]
+var environ = Cc["@mozilla.org/process/environment;1"]
                 .getService(Ci.nsIEnvironment);
 for each (let [, {envVar, prefName}] in Iterator(ENVIRON_MAPPINGS)) {
  if (environ.exists(envVar)) {
@@ -99,7 +99,7 @@ Components.utils.import("resource:///modules/gloda/mimemsg.js");
 
 // -- Add a logger listener that throws when we give it a warning/error.
 Components.utils.import("resource:///modules/gloda/log4moz.js");
-let throwingAppender = new Log4Moz.ThrowingAppender(do_throw);
+var throwingAppender = new Log4Moz.ThrowingAppender(do_throw);
 throwingAppender.level = Log4Moz.Level.Warn;
 Log4Moz.repository.rootLogger.addAppender(throwingAppender);
 
@@ -1095,8 +1095,8 @@ function wait_for_gloda_db_flush() {
   return false;
 }
 
-let _gloda_simulate_hang_data = null;
-let _gloda_simulate_hang_waiting_for_hang = false;
+var _gloda_simulate_hang_data = null;
+var _gloda_simulate_hang_waiting_for_hang = false;
 
 function _simulate_hang_on_MsgHdrToMimeMessage() {
   _gloda_simulate_hang_data = [MsgHdrToMimeMessage, null, arguments];

@@ -11,8 +11,8 @@ const Cu = Components.utils;
 Cu.import("resource://gre/modules/Services.jsm");
 
 // Import common head.
-let commonFile = do_get_file("../../../../../toolkit/components/places/tests/head_common.js", false);
-let uri = Services.io.newFileURI(commonFile);
+var commonFile = do_get_file("../../../../../toolkit/components/places/tests/head_common.js", false);
+var uri = Services.io.newFileURI(commonFile);
 Services.scriptloader.loadSubScript(uri.spec, this);
 
 // Put any other stuff relative to this test folder below.
@@ -29,7 +29,7 @@ const ORGANIZER_QUERY_ANNO = "PlacesOrganizer/OrganizerQuery";
 
 
 // Needed by some test that relies on having an app  registered.
-let XULAppInfo = {
+var XULAppInfo = {
   vendor: "Mozilla",
   name: "PlacesTest",
   ID: "{230de50e-4cd1-11dc-8314-0800200c9a66}",
@@ -47,14 +47,14 @@ let XULAppInfo = {
     Ci.nsIXULRuntime,
   ])
 };
-let XULAppInfoFactory = {
+var XULAppInfoFactory = {
   createInstance: function (outer, iid) {
   if (outer != null)
     throw Cr.NS_ERROR_NO_AGGREGATION;
   return XULAppInfo.QueryInterface(iid);
   }
 };
-let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+var registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
 registrar.registerFactory(Components.ID("{fbfae60b-64a4-44ef-a911-08ceb70b9f31}"),
                           "XULAppInfo", "@mozilla.org/xre/app-info;1",
                           XULAppInfoFactory);

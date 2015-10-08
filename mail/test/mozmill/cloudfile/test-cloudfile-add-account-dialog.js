@@ -25,7 +25,7 @@ const kDialogId = 'addCloudFileAccount';
 const kRootURL = collector.addHttpResource('../cloudfile/html', '');
 const kSettingsWithForm = kRootURL + 'settings-with-form.xhtml';
 
-let gOldProviders = {};
+var gOldProviders = {};
 XPCOMUtils.defineLazyServiceGetter(this, 'gCategoryMan',
                                    '@mozilla.org/categorymanager;1',
                                    'nsICategoryManager');

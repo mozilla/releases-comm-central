@@ -30,7 +30,7 @@ var tests = [
   endTest
 ];
 
-let gDraftsFolder;
+var gDraftsFolder;
 
 function createDraftsFolder()
 {

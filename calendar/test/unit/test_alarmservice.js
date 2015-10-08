@@ -11,7 +11,7 @@ const EXPECT_TIMER = 2;
 
 function do_check_xor(a, b) { return ok((a && !b) || (!a && b)); }
 
-let alarmObserver = {
+var alarmObserver = {
     service: null,
     firedMap: {},
     expectedMap: {},

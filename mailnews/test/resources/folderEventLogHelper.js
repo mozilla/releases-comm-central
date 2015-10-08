@@ -38,7 +38,7 @@ function registerFolderEventLogHelper() {
  * nsIMsgFolderListener implementation to logHelper events that gloda cares
  *  about.
  */
-let _folderEventLogHelper_msgFolderListener = {
+var _folderEventLogHelper_msgFolderListener = {
   msgAdded: function felh_msgAdded(aMsg) {
     mark_action("msgEvent", "msgAdded", [aMsg]);
   },
@@ -115,7 +115,7 @@ let _folderEventLogHelper_msgFolderListener = {
 /**
  * nsIFolderListener implementation to logHelper stuff that gloda cares about.
  */
-let _folderEventLogHelper_folderListener = {
+var _folderEventLogHelper_folderListener = {
   OnItemAdded: function felh_OnItemAdded(aParentItem, aItem) {
   },
   OnItemRemoved: function felh_OnItemRemoved(aParentItem, aItem) {

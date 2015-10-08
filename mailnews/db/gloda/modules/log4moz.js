@@ -30,7 +30,7 @@ const CDATA_START = "<![CDATA[";
 const CDATA_END = "]]>";
 const CDATA_ESCAPED_END = CDATA_END + "]]&gt;" + CDATA_START;
 
-let Log4Moz = {
+var Log4Moz = {
   Level: {
     Fatal:  70,
     Error:  60,

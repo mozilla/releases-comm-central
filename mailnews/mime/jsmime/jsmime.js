@@ -2847,7 +2847,7 @@ HeaderEmitter.prototype.addPhrase = function (text, qchars, mayBreakAfter) {
 };
 
 /// A regular expression for characters that need to be encoded.
-let nonAsciiRe = /[^\x20-\x7e]/;
+var nonAsciiRe = /[^\x20-\x7e]/;
 
 /// The beginnings of RFC 2047 encoded-word
 const b64Prelude = "=?UTF-8?B?", qpPrelude = "=?UTF-8?Q?";

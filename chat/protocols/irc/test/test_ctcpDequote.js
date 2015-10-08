@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
-let ircCTCP = {};
+var ircCTCP = {};
 Services.scriptloader.loadSubScript("resource:///modules/ircCTCP.jsm", ircCTCP);
 
 const input = [

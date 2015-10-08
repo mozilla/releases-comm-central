@@ -36,7 +36,7 @@ var Files =
   "../../../data/bugmail3"
 ]
 
-let hdrs = [];
+var hdrs = [];
 
 function run_test()
 {

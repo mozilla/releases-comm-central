@@ -6,12 +6,12 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource:///modules/errUtils.js");
 
-let gPrefTab = null;
+var gPrefTab = null;
 
 /**
  * A tab to show Preferences.
  */
-let preferencesTabType = {
+var preferencesTabType = {
   __proto__: contentTabBaseType,
   name: "preferencesTab",
   perTabPanel: "vbox",

@@ -15,7 +15,7 @@ Components.utils.import("resource:///modules/searchSpec.js");
  *  changes and directing modifications to and reflecting the state of the
  *  actual filterer objects.
  */
-let QuickFilterBarMuxer = {
+var QuickFilterBarMuxer = {
   /**
    * This gets called by OnLoadMessenger in order to ensure that the monitor
    *  gets registered prior to the first tab being opened.  This avoids

@@ -18,7 +18,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
 
 
 var folder;
-let msgHdrsInFolder = [];
+var msgHdrsInFolder = [];
 
 // The number of messages in folder.
 const NUM_MESSAGES_IN_FOLDER = 15;

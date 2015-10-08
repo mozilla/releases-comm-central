@@ -7,7 +7,7 @@
  *  raw JSON file.  It is trying to be one right now, but it obviously is not.
  */
 
-let EXPORTED_SYMBOLS = ['MimeCategoryMapping'];
+var EXPORTED_SYMBOLS = ['MimeCategoryMapping'];
 
 /**
  * Input data structure to allow us to build a fast mapping from mime type to
@@ -27,7 +27,7 @@ let EXPORTED_SYMBOLS = ['MimeCategoryMapping'];
  *  that.  Everything is a straight string lookup.  Given "foo/bar" we look for
  *  "foo/bar", then "foo/*", and finally "*".
  */
-let MimeCategoryMapping = {
+var MimeCategoryMapping = {
   archives: [
     "application/java-archive",
     "application/x-java-archive",

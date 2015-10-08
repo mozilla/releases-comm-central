@@ -6,7 +6,7 @@
  * This file provides faceting logic.
  */
 
-let EXPORTED_SYMBOLS = ["FacetDriver", "FacetUtils"];
+var EXPORTED_SYMBOLS = ["FacetDriver", "FacetUtils"];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;

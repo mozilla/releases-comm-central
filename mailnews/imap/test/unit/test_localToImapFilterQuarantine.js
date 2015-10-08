@@ -153,7 +153,7 @@ function endTest()
 
 // listeners
 
-let mfnListener =
+var mfnListener =
 {
   folderAdded: function folderAdded(aFolder)
   {

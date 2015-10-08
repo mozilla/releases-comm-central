@@ -44,7 +44,7 @@ createAccountObserver.prototype = {
   },
 }
 
-let addAccountDialog = {
+var addAccountDialog = {
   _settings: null,
   _settingsWrap: null,
   _accountType: null,

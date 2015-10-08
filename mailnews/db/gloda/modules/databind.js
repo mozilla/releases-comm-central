@@ -11,7 +11,7 @@ const Cu = Components.utils;
 
 Cu.import("resource:///modules/gloda/log4moz.js");
 
-let DBC_LOG = Log4Moz.repository.getLogger("gloda.ds.dbc");
+var DBC_LOG = Log4Moz.repository.getLogger("gloda.ds.dbc");
 
 function GlodaDatabind(aNounDef, aDatastore) {
   this._nounDef = aNounDef;

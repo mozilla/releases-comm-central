@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource:///modules/imServices.jsm");
-let irc = {};
+var irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 
 function FakeAccount() {
@@ -19,7 +19,7 @@ FakeAccount.prototype = {
   }
 }
 
-let account = new FakeAccount();
+var account = new FakeAccount();
 
 function run_test() {
   test_parameterCollect();

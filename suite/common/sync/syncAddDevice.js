@@ -15,7 +15,7 @@ const ADD_DEVICE_PAGE       = 0;
 const SYNC_KEY_PAGE         = 1;
 const DEVICE_CONNECTED_PAGE = 2;
 
-let gSyncAddDevice = {
+var gSyncAddDevice = {
   init: function init() {
     this.nextFocusEl = { pin1: this.pin2,
                          pin2: this.pin3,

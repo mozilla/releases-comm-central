@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let stateBackup = ss.getBrowserState();
+var stateBackup = ss.getBrowserState();
 
 function test() {
   /** Test for Bug 597315 - Frameset history does not work properly when restoring a tab **/

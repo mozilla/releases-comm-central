@@ -67,7 +67,7 @@ const gRegKeys =
 /**
  * @namespace Windows Search-specific desktop search integration functionality
  */
-let SearchIntegration =
+var SearchIntegration =
 {
   __proto__: SearchSupport,
 

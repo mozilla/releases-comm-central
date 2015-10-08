@@ -555,7 +555,7 @@ function test_attachments_correctness () {
 var bogusMessage = msgGen.makeMessage({ body: { body: "whatever" } });
 bogusMessage._contentType = "woooooo"; // Breaking abstraction boundaries. Bad.
 
-let weirdMessageInfos = [
+var weirdMessageInfos = [
   // This message has an unnamed part as an attachment (with
   // Content-Disposition: inline and which is displayable inline). Previously,
   // libmime would emit notifications for this to be treated as an attachment,

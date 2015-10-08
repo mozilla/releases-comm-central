@@ -8,7 +8,7 @@ const RELATIVE_ROOT = "../shared-modules";
 const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
                          "account-manager-helpers"];
 
-let imapAccount, nntpAccount, originalAccountCount;
+var imapAccount, nntpAccount, originalAccountCount;
 
 function setupModule(module) {
   collector.getModule("window-helpers").installInto(module);

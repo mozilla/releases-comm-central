@@ -4,7 +4,7 @@
 Components.utils.import("resource:///modules/ArrayBufferUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/yahoo-session.jsm");
-let yahoo = {};
+var yahoo = {};
 Services.scriptloader.loadSubScript("resource:///modules/yahoo-session.jsm", yahoo);
 
 const kPacketIdBytes = StringToBytes(yahoo.kPacketIdentfier);

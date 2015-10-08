@@ -9,8 +9,8 @@ load("../../../resources/messageGenerator.js");
 Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
                            "@mozilla.org/msgstore/berkeleystore;1");
 
-let gTargetFolder;
-let gUuid;
+var gTargetFolder;
+var gUuid;
 
 // Allow certain xpcom errors.
 logHelperAllowedErrors.push(Cr.NS_ERROR_FILE_IS_LOCKED);

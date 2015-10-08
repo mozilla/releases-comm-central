@@ -16,7 +16,7 @@ var SortOrder = Components.interfaces.nsMsgViewSortOrder;
 // elements: the first element is the argument into a simple message generator,
 // and the second element is a map of column names to expected values when
 // requesting the cell text for a given column name.
-let tests = [
+var tests = [
   [{from: "John Doe <db@tinderbox.invalid>"}, {sender: "John Doe"}],
   [{from: "\"Doe, John\" <db@tinderbox.invalid>"}, {sender: "Doe, John"}],
   [{from: "John Doe <db@tinderbox.invalid>, Sally Ann <db@null.invalid>"},

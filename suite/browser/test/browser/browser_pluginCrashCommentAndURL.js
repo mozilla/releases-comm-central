@@ -42,7 +42,7 @@ function test() {
   doNextRun();
 }
 
-let runs = [
+var runs = [
   {
     shouldSubmissionUIBeVisible: true,
     comment: "",
@@ -60,7 +60,7 @@ let runs = [
   },
 ];
 
-let currentRun = null;
+var currentRun = null;
 
 function doNextRun() {
   try {

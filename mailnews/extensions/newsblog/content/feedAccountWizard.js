@@ -6,7 +6,7 @@
 Components.utils.import("resource:///modules/FeedUtils.jsm");
 
 /* Feed account standalone wizard functions */
-let FeedAccountWizard = {
+var FeedAccountWizard = {
   accountName: "",
 
   accountSetupPageInit: function() {

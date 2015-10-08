@@ -8,9 +8,9 @@
  * to false.
  */
 
-let MODULE_NAME = "test-override-main-menu-collapse";
-let RELATIVE_ROOT = "../shared-modules";
-let MODULE_REQUIRES = ["folder-display-helpers",
+var MODULE_NAME = "test-override-main-menu-collapse";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers",
                        "window-helpers"];
 
 Cu.import("resource://gre/modules/Services.jsm");

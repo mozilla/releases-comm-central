@@ -9,7 +9,7 @@ load("../../../resources/alertTestUtils.js");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-let dummyMsgWindow = {
+var dummyMsgWindow = {
   get statusFeedback() {
     return {
       startMeteors: function () {},
@@ -27,7 +27,7 @@ let dummyMsgWindow = {
 };
 var daemon, localserver, server;
 
-let tests = [
+var tests = [
   test_newMsgs,
   test_cancel,
   test_fetchMessage,

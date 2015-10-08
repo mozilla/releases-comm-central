@@ -117,7 +117,7 @@ function teardownTest() {
  * IMPORTANT:  Calls to planForCrash must be followed by waitForCrash in
  * order to remove PluginCrashObserver from the nsIObserverService.
  */
-let PluginCrashObserver = {
+var PluginCrashObserver = {
   _sawCrash: false,
 
   planForCrash: function(aController) {

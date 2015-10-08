@@ -148,7 +148,7 @@ function test_count_pass() {
   yield spin_folder_indexer(folder, 2);
 }
 
-let tests = [
+var tests = [
   test_propagate_filthy_from_folder_to_messages,
   test_count_pass,
 ];

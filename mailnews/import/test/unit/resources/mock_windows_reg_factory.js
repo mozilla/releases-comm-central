@@ -1,6 +1,6 @@
 Components.utils.import("resource://testing-common/mailnews/MockFactory.js");
 
-let gUuid;
+var gUuid;
 
 function MockWindowsRegKey(registryData) {
   this._registryData = registryData;

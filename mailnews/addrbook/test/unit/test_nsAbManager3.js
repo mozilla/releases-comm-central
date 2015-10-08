@@ -6,7 +6,7 @@
  * Tests that an address book, once renamed, is not deleted when a sibling address book is deleted.
  */
 
-let gAbListener;
+var gAbListener;
 
 function abListener() {
 }

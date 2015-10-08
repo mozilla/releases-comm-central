@@ -64,7 +64,7 @@ CountingAppender.prototype = {
 };
 
 
-let countingAppender = new CountingAppender();
+var countingAppender = new CountingAppender();
 Log4Moz.repository.rootLogger.addAppender(countingAppender);
 
 /**

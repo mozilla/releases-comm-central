@@ -33,7 +33,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
  *     global value.
  *
  */
-let mailTabType = {
+var mailTabType = {
   name: "mail",
   panelId: "mailContent",
   modes: {

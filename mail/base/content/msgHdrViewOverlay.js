@@ -12,7 +12,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/displayNameUtils.js");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/gloda/utils.js");
-let {Status: statusUtils} =
+var {Status: statusUtils} =
   Components.utils.import("resource:///modules/imStatusUtils.jsm");
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -2118,7 +2118,7 @@ var AttachmentListController =
   {}
 };
 
-let AttachmentMenuController = {
+var AttachmentMenuController = {
   commands: {
     cmd_openAllAttachments: {
       isEnabled: function() {

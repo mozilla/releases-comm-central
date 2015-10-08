@@ -575,7 +575,7 @@ ConversationStats.prototype = {
   }
 }
 
-let PossibleConversation = {
+var PossibleConversation = {
   get displayName() { return this._displayName; },
   get lowerCaseName() {
     return this._lowerCaseName || (this._lowerCaseName = this._displayName.toLowerCase());

@@ -347,5 +347,5 @@ nsActivityWarning.prototype = {
 ///////////////////////////////////////////////////////////////////////////////
 //// Module
 
-let components = [nsActivityProcess, nsActivityEvent, nsActivityWarning];
+var components = [nsActivityProcess, nsActivityEvent, nsActivityWarning];
 const NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

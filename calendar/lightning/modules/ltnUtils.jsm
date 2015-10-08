@@ -5,7 +5,7 @@
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
 this.EXPORTED_SYMBOLS = ["ltn"];
-let ltn = {
+var ltn = {
     /**
      * Gets the value of a string in a .properties file from the lightning bundle
      *

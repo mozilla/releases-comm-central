@@ -22,7 +22,7 @@ var nsMsgMessageFlags = Components.interfaces.nsMsgMessageFlags;
  * We are not just a global list so that we can add brains about efficiently
  *  building lists, provide try-wrapper convenience, etc.
  */
-let FolderDisplayListenerManager = {
+var FolderDisplayListenerManager = {
   _listeners: [],
 
   /**

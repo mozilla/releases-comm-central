@@ -99,7 +99,7 @@ Services.prefs.setBoolPref("mail.strict_threading", true);
 const NNTP_PORT = 1024+119;
 
 var _server = null;
-let _account = null;
+var _account = null;
 
 function subscribeServer(incomingServer) {
   // Subscribe to newsgroups

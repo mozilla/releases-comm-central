@@ -3,7 +3,7 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 var localserver;
-let tests = [
+var tests = [
   // news://host/-based URIs
   { uri: "news://localhost/?newgroups",
     get server() { return localserver; },
@@ -130,7 +130,7 @@ let tests = [
   },
 ];
 
-let invalid_uris = [
+var invalid_uris = [
   "news-message://localhost/test.simple.subscribe#hello",
   "nntp://localhost/",
   "nntp://localhost/a.group/hello",

@@ -8,7 +8,7 @@ Components.utils.import("resource://gre/modules/PluralForm.jsm");
 /**
  * The calendar to modify, is retrieved from window.arguments[0].calendar
  */
-let gCalendar;
+var gCalendar;
 
 /**
  * This function gets called when the calendar properties dialog gets opened. To

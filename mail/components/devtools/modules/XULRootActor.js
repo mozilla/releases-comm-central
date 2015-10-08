@@ -9,13 +9,13 @@
  * extension. Please don't introduce any Thunderbird-specific code
  */
 
-let { Ci, Cu } = require("chrome");
-let Services = require("Services");
-let DevToolsUtils = require("devtools/toolkit/DevToolsUtils");
-let { RootActor } = require("devtools/server/actors/root");
-let { DebuggerServer } = require("devtools/server/main");
-let { Promise } = Cu.import("resource://gre/modules/Promise.jsm", {});
-let { BrowserTabList, BrowserTabActor, BrowserAddonList } = require("devtools/server/actors/webbrowser");
+var { Ci, Cu } = require("chrome");
+var Services = require("Services");
+var DevToolsUtils = require("devtools/toolkit/DevToolsUtils");
+var { RootActor } = require("devtools/server/actors/root");
+var { DebuggerServer } = require("devtools/server/main");
+var { Promise } = Cu.import("resource://gre/modules/Promise.jsm", {});
+var { BrowserTabList, BrowserTabActor, BrowserAddonList } = require("devtools/server/actors/webbrowser");
 
 /**
  * Create the root actor for this XUL application.

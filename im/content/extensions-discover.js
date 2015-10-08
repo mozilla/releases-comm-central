@@ -6,7 +6,7 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource://gre/modules/Services.jsm");
 
-let defaultOpen = window.open;
+var defaultOpen = window.open;
 window.open = function(aUrl) {
   let uri = Services.io.newURI(aUrl, null, null);
 

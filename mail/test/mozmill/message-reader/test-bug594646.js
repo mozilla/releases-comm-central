@@ -17,7 +17,7 @@ const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 var os = {};
 Cu.import('resource://mozmill/stdlib/os.js', os);
 
-let gReferenceTextContent;
+var gReferenceTextContent;
 
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);

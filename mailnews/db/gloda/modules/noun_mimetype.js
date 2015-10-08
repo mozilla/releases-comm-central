@@ -16,7 +16,7 @@ const LOG = Log4Moz.repository.getLogger("gloda.noun.mimetype");
 
 Cu.import("resource:///modules/gloda/gloda.js");
 
-let CategoryStringMap = {};
+var CategoryStringMap = {};
 
 /**
  * Mime type abstraction that exists primarily so we can map mime types to

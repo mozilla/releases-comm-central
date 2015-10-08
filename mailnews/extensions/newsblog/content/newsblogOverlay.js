@@ -8,9 +8,9 @@ Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 // This global is for SeaMonkey compatibility.
-let gShowFeedSummary;
+var gShowFeedSummary;
 
-let FeedMessageHandler = {
+var FeedMessageHandler = {
   gShowSummary: true,
   gToggle: false,
   kSelectOverrideWebPage:   0,

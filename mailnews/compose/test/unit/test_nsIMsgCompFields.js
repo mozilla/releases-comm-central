@@ -4,9 +4,9 @@
 
 /// Test that nsIMsgCompFields works properly
 
-let Ci = Components.interfaces;
+var Ci = Components.interfaces;
 
-let nsMsgCompFields = Components.Constructor(
+var nsMsgCompFields = Components.Constructor(
   "@mozilla.org/messengercompose/composefields;1",
   Ci.nsIMsgCompFields);
 

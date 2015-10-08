@@ -18,7 +18,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 // This module provides a link between the send later service and the activity
 // manager.
-let alertHook =
+var alertHook =
 {
   get activityMgr() {
     delete this.activityMgr;

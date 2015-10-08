@@ -85,7 +85,7 @@ const jsMsgBody = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN
 '</body>\n' +
 '</html>\n';
 
-let gMsgNo = 0;
+var gMsgNo = 0;
 
 function checkJsInMail() {
   let msgDbHdr = addToFolder("JS test message " + gMsgNo, jsMsgBody, folder);

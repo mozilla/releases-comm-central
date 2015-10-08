@@ -132,4 +132,4 @@ ProfileMigrator.prototype = {
   classID: Components.ID("{d5148b7c-ba4e-4f7a-a80b-1ae48b90b910}"),
 };
 
-let NSGetFactory = XPCOMUtils.generateNSGetFactory([ProfileMigrator]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([ProfileMigrator]);

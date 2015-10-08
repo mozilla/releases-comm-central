@@ -32,7 +32,7 @@ function test_gloda_offline_startup() {
   yield wait_for_gloda_indexer(msgSet);
 }
 
-let tests = [
+var tests = [
   test_gloda_offline_startup,
 ];
 

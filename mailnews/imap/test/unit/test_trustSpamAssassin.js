@@ -35,7 +35,7 @@ var tests = [
   endTest,
 ]
 
-let gJunkFolder;
+var gJunkFolder;
 function createJunkFolder()
 {
   IMAPPump.incomingServer.rootFolder.createSubfolder("Junk", null);
@@ -158,7 +158,7 @@ function run_test()
   async_run_tests(tests);
 }
 
-let mfnListener =
+var mfnListener =
 {
   msgsMoveCopyCompleted: function (aMove, aSrcMsgs, aDestFolder, aDestMsgs)
   {

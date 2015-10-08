@@ -21,7 +21,7 @@ function checkPopupMessage(doc)
      "The panel should show the message from validationMessage");
 }
 
-let gObserver = {
+var gObserver = {
   QueryInterface : XPCOMUtils.generateQI([Ci.nsIFormSubmitObserver]),
 
   notifyInvalidSubmit : function (aFormElement, aInvalidElements)

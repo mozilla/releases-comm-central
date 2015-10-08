@@ -7,7 +7,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
 Components.utils.import("resource:///modules/MailUtils.js");
 
-let gDeferredToAccount = "";
+var gDeferredToAccount = "";
 
 function onInit(aPageId, aServerId)
 {

@@ -9,7 +9,7 @@ Cu.import("resource:///modules/PlacesUIUtils.jsm");
 Cu.import("resource://gre/modules/PlacesUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 
-let RemoteTabViewer = {
+var RemoteTabViewer = {
   _tabsList: null,
 
   init: function () {
@@ -244,7 +244,7 @@ let RemoteTabViewer = {
   }
 };
 
-let EventDirector = {
+var EventDirector = {
   handleEvent: function(event) {
     switch (event.type) {
       case "click":

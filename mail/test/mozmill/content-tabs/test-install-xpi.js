@@ -26,7 +26,7 @@ var gNotificationBox;
 
 const ALERT_TIMEOUT = 10000;
 
-let AlertWatcher = {
+var AlertWatcher = {
   planForAlert: function(aController) {
     this.alerted = false;
     aController.window.document.addEventListener("AlertActive",

@@ -6,7 +6,7 @@ Components.utils.import("resource:///modules/IOUtils.js");
 
 const MSG_LINEBREAK = "\r\n";
 const dot = do_get_file("data/dot");
-let saveFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+var saveFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
 saveFile.append(dot.leafName + ".eml");
 saveFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
 

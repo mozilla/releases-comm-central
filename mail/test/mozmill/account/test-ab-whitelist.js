@@ -18,7 +18,7 @@ Components.utils.import("resource://mozmill/modules/elementslib.js", elib);
 var gOldWhiteList = null;
 var gKeyString = null;
 
-let gAccount = null;
+var gAccount = null;
 
 function setupModule(module) {
   let wh = collector.getModule("window-helpers");

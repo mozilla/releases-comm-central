@@ -14,7 +14,7 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
 );
 
 const imIStatusInfo = Ci.imIStatusInfo;
-let statusAttributes = {};
+var statusAttributes = {};
 statusAttributes[imIStatusInfo.STATUS_UNKNOWN] = "unknown";
 statusAttributes[imIStatusInfo.STATUS_OFFLINE] = "offline";
 statusAttributes[imIStatusInfo.STATUS_INVISIBLE] = "invisible";

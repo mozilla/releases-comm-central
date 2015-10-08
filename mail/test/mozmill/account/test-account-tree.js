@@ -12,7 +12,7 @@ const RELATIVE_ROOT = "../shared-modules";
 const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
                          "account-manager-helpers"];
 
-let gPopAccount, gOriginalAccountCount;
+var gPopAccount, gOriginalAccountCount;
 
 function setupModule(module) {
   collector.getModule("window-helpers").installInto(module);

@@ -28,7 +28,7 @@ Components.utils.import("resource:///modules/gloda/log4moz.js");
  * progress listener easily to get the state of messages being sent, so we'll
  * just have to do it here.
  */
-let sendMsgProgressListener = {
+var sendMsgProgressListener = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgStatusFeedback,
                                          Ci.nsISupportsWeakReference]),
 
@@ -49,7 +49,7 @@ let sendMsgProgressListener = {
 
 // This module provides a link between the send later service and the activity
 // manager.
-let sendLaterModule =
+var sendLaterModule =
 {
   _sendProcess: null,
   _copyProcess: null,

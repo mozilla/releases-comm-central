@@ -10,19 +10,19 @@
  */
 
 // Initialize nsSuiteGlue after Places.
-let bg = Cc["@mozilla.org/suite/suiteglue;1"].
+var bg = Cc["@mozilla.org/suite/suiteglue;1"].
          getService(Ci.nsISuiteGlue);
 
 // Initialize Places through Bookmarks Service.
-let bs = PlacesUtils.bookmarks;
+var bs = PlacesUtils.bookmarks;
 
 // Get other services.
-let ps = Services.prefs;
-let os = Services.obs;
+var ps = Services.prefs;
+var os = Services.obs;
 
 const PREF_AUTO_EXPORT_HTML = "browser.bookmarks.autoExportHTML";
 
-let tests = [];
+var tests = [];
 
 //------------------------------------------------------------------------------
 

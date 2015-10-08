@@ -4,7 +4,7 @@
 
 const MODULE_NAME = "mock-object-helpers";
 
-let Cm = Components.manager;
+var Cm = Components.manager;
 
 function installInto(module) {
   module.MockObjectReplacer = MockObjectReplacer;

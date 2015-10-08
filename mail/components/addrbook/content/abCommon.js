@@ -29,7 +29,7 @@ const kPersonalAddressbookURI = "moz-abmdbdirectory://abook.mab";
 const kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";
 // The default, generic contact image is displayed via CSS when the photoURI is
 // blank.
-let defaultPhotoURI = "";
+var defaultPhotoURI = "";
 
 const PERMS_DIRECTORY = parseInt("0755", 8);
 

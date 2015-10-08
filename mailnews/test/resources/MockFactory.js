@@ -7,7 +7,7 @@ const Ci = Components.interfaces;
 const Cr = Components.results;
 const Cm = Components.manager;
 
-let MockFactory = {
+var MockFactory = {
   _registeredComponents: {},
   /**
    * Register a mock to override target interfaces.

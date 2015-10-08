@@ -16,7 +16,7 @@ Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.classes["@mozilla.org/calendar/backend-loader;1"].getService();
 
 this.EXPORTED_SYMBOLS = ["cal"];
-let cal = {
+var cal = {
     // new code should land here,
     // and more code should be moved from calUtils.js into this object to avoid
     // clashes with other extensions

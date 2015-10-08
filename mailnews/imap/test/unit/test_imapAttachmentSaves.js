@@ -129,7 +129,7 @@ SaveAttachmentCallback.prototype = {
     async_driver();
   }
 }
-let gCallbackObject = new SaveAttachmentCallback();
+var gCallbackObject = new SaveAttachmentCallback();
 
 function run_test()
 {

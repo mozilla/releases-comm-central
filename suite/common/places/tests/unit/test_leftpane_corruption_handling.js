@@ -9,16 +9,16 @@
  */
 
 // Used to store the original leftPaneFolderId getter.
-let gLeftPaneFolderIdGetter;
-let gAllBookmarksFolderIdGetter;
+var gLeftPaneFolderIdGetter;
+var gAllBookmarksFolderIdGetter;
 // Used to store the original left Pane status as a JSON string.
-let gReferenceJSON;
-let gLeftPaneFolderId;
+var gReferenceJSON;
+var gLeftPaneFolderId;
 // Third party annotated folder.
-let gFolderId;
+var gFolderId;
 
 // Corruption cases.
-let gTests = [
+var gTests = [
 
   function test1() {
     print("1. Do nothing, checks test calibration.");

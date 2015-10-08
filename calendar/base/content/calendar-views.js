@@ -667,7 +667,7 @@ function selectAllEvents() {
     composite.getItems(filter, 0, currentView().startDay, end, listener);
 }
 
-let cal = cal || {};
+var cal = cal || {};
 cal.navigationBar = {
     setDateRange: function setDateRange(aStartDate, aEndDate) {
         let docTitle = "";

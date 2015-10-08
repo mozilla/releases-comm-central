@@ -3875,7 +3875,7 @@ SessionStoreService.prototype = {
   }
 };
 
-let XPathHelper = {
+var XPathHelper = {
   // these two hashes should be kept in sync
   namespaceURIs:     { "xhtml": "http://www.w3.org/1999/xhtml" },
   namespacePrefixes: { "http://www.w3.org/1999/xhtml": "xhtml" },
@@ -3970,7 +3970,7 @@ let XPathHelper = {
 // A map storing a closed window's state data until it goes aways (is GC'ed).
 // This ensures that API clients can still read (but not write) states of
 // windows they still hold a reference to but we don't.
-let DyingWindowCache = {
+var DyingWindowCache = {
   _data: new WeakMap(),
 
   has: function (window) {
@@ -3992,7 +3992,7 @@ let DyingWindowCache = {
 
 // A weak set of dirty windows. We use it to determine which windows we need to
 // recollect data for when getCurrentState() is called.
-let DirtyWindows = {
+var DirtyWindows = {
   _data: new WeakMap(),
 
   has: function (window) {
@@ -4015,7 +4015,7 @@ let DirtyWindows = {
 // This is used to help meter the number of restoring tabs. This is the control
 // point for telling the next tab to restore. It gets attached to each gBrowser
 // via gBrowser.addTabsProgressListener
-let gRestoreTabsProgressListener = {
+var gRestoreTabsProgressListener = {
   ss: null,
   onStateChange: function (aBrowser, aWebProgress, aRequest, aStateFlags, aStatus) {
     // Ignore state changes on browsers that we've already restored and state

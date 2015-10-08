@@ -5,7 +5,7 @@
 Components.utils.import("resource://calendar/modules/calExtract.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-let extractor = new Extractor("en-US", 8);
+var extractor = new Extractor("en-US", 8);
 
 function run_test() {
     // Sanity check to make sure the base url is still right. If this fails,

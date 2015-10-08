@@ -27,7 +27,7 @@ function run_test()
   async_run_tests(tests);
 }
 
-let gHdr;
+var gHdr;
 function loadMessages()
 {
   gPOP3Pump.files = ["../../../data/draft1"];

@@ -52,7 +52,7 @@ var GenericIndexer = {
 };
 GlodaIndexer.registerIndexer(GenericIndexer);
 
-let indexingInProgress = false;
+var indexingInProgress = false;
 function genericIndexerCallback(aStatus) {
   // If indexingInProgress is false, we've received the synthetic
   // notification, so ignore it

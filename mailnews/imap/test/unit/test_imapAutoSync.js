@@ -48,7 +48,7 @@ var tests = [
   endTest
 ]
 
-let gTargetFolder;
+var gTargetFolder;
 
 function test_createTargetFolder()
 {

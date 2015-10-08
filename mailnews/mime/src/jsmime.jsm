@@ -54,7 +54,7 @@ FakeTextDecoder.prototype = {
   },
 };
 
-let RealTextDecoder = TextDecoder;
+var RealTextDecoder = TextDecoder;
 function FallbackTextDecoder(charset, options) {
   try {
     return new RealTextDecoder(charset, options);
@@ -77,10 +77,10 @@ Services.obs.addObserver(function (subject, topic, data) {
   }
 }, "xpcom-category-entry-added", false);
 
-let catman = Components.classes["@mozilla.org/categorymanager;1"]
+var catman = Components.classes["@mozilla.org/categorymanager;1"]
                        .getService(Components.interfaces.nsICategoryManager);
 
-let entries = catman.enumerateCategory(CATEGORY_NAME);
+var entries = catman.enumerateCategory(CATEGORY_NAME);
 while (entries.hasMoreElements()) {
   let string = entries.getNext()
                       .QueryInterface(Components.interfaces.nsISupportsCString)

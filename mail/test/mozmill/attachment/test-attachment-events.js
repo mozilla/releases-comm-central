@@ -13,11 +13,11 @@ const MODULE_REQUIRES = ['folder-display-helpers', 'compose-helpers',
                          'window-helpers', 'attachment-helpers',
                          'prompt-helpers'];
 
-let elib = {};
+var elib = {};
 Cu.import('resource://mozmill/modules/elementslib.js', elib);
-let EventUtils = {};
+var EventUtils = {};
 Cu.import('resource://mozmill/stdlib/EventUtils.js', EventUtils);
-let os = {};
+var os = {};
 Cu.import('resource://mozmill/stdlib/os.js', os);
 
 Cu.import('resource://gre/modules/Services.jsm');
@@ -27,7 +27,7 @@ const kAttachmentsAdded = "attachments-added";
 const kAttachmentsRemoved = "attachments-removed";
 const kAttachmentRenamed = "attachment-renamed";
 
-let gPath;
+var gPath;
 
 function setupModule(module) {
   let fdh = collector.getModule('folder-display-helpers');

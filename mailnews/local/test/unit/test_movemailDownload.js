@@ -22,7 +22,7 @@ var gHdrIndex = 0;
 // the movemail spool dir file is these three files
 // concatenated together.
 
-let gFiles = ["../../../data/bugmail1",
+var gFiles = ["../../../data/bugmail1",
               "../../../data/draft1",
               "../../../data/bugmail19"];
 
@@ -81,7 +81,7 @@ function run_test()
   run_next_test();
 }
 
-let streamNextMessage = Task.async(function* (aMsgHdr) {
+var streamNextMessage = Task.async(function* (aMsgHdr) {
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
   let msgURI = aMsgHdr.folder.getUriForMsg(aMsgHdr);
   dump("streaming msg " + msgURI + " store token = " +

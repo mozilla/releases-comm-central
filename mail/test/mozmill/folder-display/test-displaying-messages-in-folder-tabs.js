@@ -21,7 +21,7 @@ var folderC;
 
 var folderTab;
 
-let msgHdrsInFolderA = [], msgHdrsInFolderB = [];
+var msgHdrsInFolderA = [], msgHdrsInFolderB = [];
 
 // The number of messages in folderA/folderB.
 const NUM_MESSAGES_IN_FOLDER = 10;

@@ -8,9 +8,9 @@ var gMessenger = Cc["@mozilla.org/messenger;1"].
 
 localAccountUtils.loadLocalMailAccount();
 
-let localAccount = MailServices.accounts
+var localAccount = MailServices.accounts
                                .FindAccountForServer(localAccountUtils.incomingServer);
-let identity = MailServices.accounts.createIdentity();
+var identity = MailServices.accounts.createIdentity();
 identity.email = "bob@t2.example.net";
 localAccount.addIdentity(identity);
 localAccount.defaultIdentity = identity;

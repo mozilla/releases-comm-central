@@ -766,8 +766,8 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
 }
 
 
-let observationWaitFuncs = {};
-let observationSaw = {};
+var observationWaitFuncs = {};
+var observationSaw = {};
 /**
  * Plan for a notification to be sent via the observer service.
  *

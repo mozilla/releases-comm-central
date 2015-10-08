@@ -17,7 +17,7 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/mailServices.js");
 
-let abController = null;
+var abController = null;
 var addrBook1, addrBook2, addrBook3, addrBook4;
 var mListA, mListB, mListC, mListD, mListE;
 var windowHelper;

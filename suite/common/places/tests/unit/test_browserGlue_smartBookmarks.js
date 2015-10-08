@@ -38,7 +38,7 @@ function rebuildSmartBookmarks() {
 }
 
 
-let tests = [];
+var tests = [];
 //------------------------------------------------------------------------------
 
 tests.push({

@@ -4,13 +4,13 @@
 const TAB_STATE_NEEDS_RESTORE = 1;
 const TAB_STATE_RESTORING = 2;
 
-let stateBackup = ss.getBrowserState();
+var stateBackup = ss.getBrowserState();
 
-let statePinned = {windows:[{tabs:[
+var statePinned = {windows:[{tabs:[
   {entries:[{url:"http://example.com#1"}], pinned: true}
 ]}]};
 
-let state = {windows:[{tabs:[
+var state = {windows:[{tabs:[
   {entries:[{url:"http://example.com#1"}]},
   {entries:[{url:"http://example.com#2"}]},
   {entries:[{url:"http://example.com#3"}]},
@@ -74,7 +74,7 @@ function countTabs() {
   return [needsRestore, isRestoring];
 }
 
-let TabsProgressListener = {
+var TabsProgressListener = {
   init: function () {
     getBrowser().addTabsProgressListener(this);
   },

@@ -5,7 +5,7 @@
  // Tests that an about:blank tab with no history will not be saved into
  // session store and thus, it will not show up in Recently Closed Tabs.
 
-let tab;
+var tab;
 function test() {
   waitForExplicitFinish();
 

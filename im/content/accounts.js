@@ -578,7 +578,7 @@ var gAccountManager = {
 };
 
 
-let gAMDragAndDrop = {
+var gAMDragAndDrop = {
   ACCOUNT_MIME_TYPE: "application/x-moz-richlistitem",
   // Size of the scroll zone on the top and on the bottom of the account list
   MAGIC_SCROLL_HEIGHT: 20,

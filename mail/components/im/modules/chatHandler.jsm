@@ -8,10 +8,10 @@ Components.utils.import("resource:///modules/imServices.jsm");
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 
-let allContacts = {};
-let onlineContacts = {};
+var allContacts = {};
+var onlineContacts = {};
 
-let ChatCore = {
+var ChatCore = {
   initialized: false,
   _initializing: false,
   init: function() {

@@ -35,7 +35,7 @@ const LIST_TYPE = {
  * Exports
  */
 
-let EXPORTED_SYMBOLS = [
+this.EXPORTED_SYMBOLS = [
   "WinTaskbarJumpList",
 ];
 

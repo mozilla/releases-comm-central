@@ -13,7 +13,7 @@
  * Actually, we do very little at all right now.  This will fill out as needs
  *  arise.
  */
-let asyncCallbackHandle = {
+var asyncCallbackHandle = {
   pushAndGo: function asyncCallbackHandle_push(aIterator, aContext) {
     asyncGeneratorStack.push([
       _asyncCallbackHandle_glodaWorkerAdapter(aIterator),

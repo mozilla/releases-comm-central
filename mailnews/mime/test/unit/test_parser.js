@@ -82,7 +82,7 @@ function make_body_test(test, file, opts, partspec) {
 
 /// This is the expected part specifier for the multipart-complex1 test file,
 /// specified here because it is used in several cases.
-let mpart_complex1 = [['1', 8, 10], ['2', 14, 16], ['3.1', 22, 24],
+var mpart_complex1 = [['1', 8, 10], ['2', 14, 16], ['3.1', 22, 24],
     ['4', 29, 31], ['5', 33, 35]];
 
 // Format of tests:
@@ -95,7 +95,7 @@ let mpart_complex1 = [['1', 8, 10], ['2', 14, 16], ['3.1', 22, 24],
 //            (the partnums refer to the expected part numbers of the MIME test)
 // Note that for body tests, unless you're testing decoding, it is preferable to
 // use make_body_test instead of writing the array yourself.
-let parser_tests = [
+var parser_tests = [
   // Body tests from data
   // (Note: line numbers are 1-based. Also, to capture trailing EOF, add 2 to
   // the last line number of the file).
@@ -203,7 +203,7 @@ const ATTACH = MimeParser.HEADER_PARAMETER;
 // entry[0] = header
 // entry[1] = flags
 // entry[2] = result to match
-let header_tests = [
+var header_tests = [
   // Parameter passing
   ["multipart/related", MimeParser.HEADER_PARAMETER, ["multipart/related", {}]],
   ["a ; b=v", MimeParser.HEADER_PARAMETER, ["a", {"b": "v"}]],

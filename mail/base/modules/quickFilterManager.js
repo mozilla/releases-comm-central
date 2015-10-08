@@ -298,7 +298,7 @@ QuickFilterSearchListener.prototype = {
  * will want to do is register a normal filter and collapse the normal text
  * filter text-box.  You add your own text box, etc.
  */
-let QuickFilterManager = {
+var QuickFilterManager = {
   /**
    * List of filter definitions, potentially prioritized.
    */
@@ -627,7 +627,7 @@ QuickFilterManager.defineFilter({
  *    meaning don't constraint, true meaning yes should be present, false
  *    meaning no, don't be present
  */
-let TagFacetingFilter = {
+var TagFacetingFilter = {
   name: "tags",
   domId: "qfb-tags",
 
@@ -939,7 +939,7 @@ QuickFilterManager.defineFilter({
  * Our state looks like {text: "", states: {a: true, b: false}} where a and b
  * are text filters.
  */
-let MessageTextFilter = {
+var MessageTextFilter = {
   name: "text",
   domId: "qfb-qs-textbox",
   /**

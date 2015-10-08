@@ -24,7 +24,7 @@ Components.utils.import("resource:///modules/gloda/log4moz.js");
 
 // This module provides a link between the pop3 service code and the activity
 // manager.
-let pop3DownloadModule =
+var pop3DownloadModule =
 {
   // hash table of most recent download items per folder
   _mostRecentActivityForFolder: {},

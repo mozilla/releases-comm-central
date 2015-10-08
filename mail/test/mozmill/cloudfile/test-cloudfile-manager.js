@@ -7,14 +7,14 @@
  * services
  */
 
-let Cu = Components.utils;
-let Cc = Components.classes;
-let Ci = Components.interfaces;
+var Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
 
-let MODULE_NAME = 'test-cloudfile-manager';
+var MODULE_NAME = 'test-cloudfile-manager';
 
-let RELATIVE_ROOT = '../shared-modules';
-let MODULE_REQUIRES = ['folder-display-helpers',
+var RELATIVE_ROOT = '../shared-modules';
+var MODULE_REQUIRES = ['folder-display-helpers',
                        'pref-window-helpers',
                        'window-helpers'];
 

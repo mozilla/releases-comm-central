@@ -19,7 +19,7 @@ const LOG = Log4Moz.repository.getLogger("gloda.datamodel");
 Cu.import("resource:///modules/gloda/utils.js");
 
 // Make it lazy.
-let gMessenger;
+var gMessenger;
 function getMessenger () {
   if (!gMessenger)
     gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
@@ -117,7 +117,7 @@ GlodaAttributeDBDef.prototype = {
   }
 };
 
-let GlodaHasAttributesMixIn = {
+var GlodaHasAttributesMixIn = {
   enumerateAttributes: function gloda_attrix_enumerateAttributes() {
     let nounDef = this.NOUN_DEF;
     for each (let [key, value] in Iterator(this)) {

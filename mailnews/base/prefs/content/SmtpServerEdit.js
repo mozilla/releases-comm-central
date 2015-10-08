@@ -7,7 +7,7 @@ Components.utils.import("resource:///modules/hostnameUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 
-let gSmtpServer;
+var gSmtpServer;
 
 function onLoad(event)
 {

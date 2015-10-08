@@ -10,7 +10,7 @@ const MODULE_REQUIRES = ["mock-object-helpers"];
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
-let gMockFilePickReg;
+var gMockFilePickReg;
 
 function setupModule(module) {
   let moh = collector.getModule('mock-object-helpers');
@@ -35,7 +35,7 @@ function MockFilePickerConstructor() {
   return gMockFilePicker;
 };
 
-let gMockFilePicker = {
+var gMockFilePicker = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIFilePicker]),
   defaultExtension: "",
   filterIndex: null,

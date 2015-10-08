@@ -360,7 +360,7 @@ function test_dates() {
     dump("Done\n");
 }
 
-let propMap = { "related": Ci.calIAlarm.ALARM_RELATED_START,
+var propMap = { "related": Ci.calIAlarm.ALARM_RELATED_START,
                 "repeat": 1,
                 "action": "X-TEST",
                 "description": "description",
@@ -368,7 +368,7 @@ let propMap = { "related": Ci.calIAlarm.ALARM_RELATED_START,
                 "offset": createDuration("PT4M"),
                 "repeatOffset": createDuration("PT1M")
 };
-let clonePropMap = { "related": Ci.calIAlarm.ALARM_RELATED_END,
+var clonePropMap = { "related": Ci.calIAlarm.ALARM_RELATED_END,
                      "repeat": 2,
                      "action": "X-CHANGED",
                      "description": "description-changed",

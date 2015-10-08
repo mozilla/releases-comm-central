@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 Components.utils.import("resource:///modules/imServices.jsm");
-let irc = {};
+var irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 Services.conversations.initConversations();
 

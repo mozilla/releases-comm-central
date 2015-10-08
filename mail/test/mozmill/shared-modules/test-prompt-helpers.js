@@ -15,7 +15,7 @@ const kMockPromptServiceName = "Mock Prompt Service";
 const kPromptServiceContractID = "@mozilla.org/embedcomp/prompt-service;1";
 const kPromptServiceName = "Prompt Service";
 
-let gMockAuthPromptReg;
+var gMockAuthPromptReg;
 
 function setupModule() {
   let moh = collector.getModule('mock-object-helpers');

@@ -13,16 +13,16 @@
  * Test is disabled due to random failures and timeouts, see run_test.
  * This is commented out to avoid leaks.
 // Initialize SuiteGlue.
-let bg = Cc["@mozilla.org/suite/suiteglue;1"].
+var bg = Cc["@mozilla.org/suite/suiteglue;1"].
          getService(Ci.nsISuiteGlue);
 */
 
 // Initialize Places through Bookmarks Service.
-let bs = Cc["@mozilla.org/browser/nav-bookmarks-service;1"].
+var bs = Cc["@mozilla.org/browser/nav-bookmarks-service;1"].
          getService(Ci.nsINavBookmarksService);
 
 // Get other services.
-let os = Cc["@mozilla.org/observer-service;1"].
+var os = Cc["@mozilla.org/observer-service;1"].
          getService(Ci.nsIObserverService);
 
 const PREF_IMPORT_BOOKMARKS_HTML = "browser.places.importBookmarksHTML";
@@ -40,7 +40,7 @@ function waitForImportAndSmartBookmarks(aCallback) {
   }, "bookmarks-restore-success", false);
 }
 
-let tests = [];
+var tests = [];
 //------------------------------------------------------------------------------
 
 tests.push({

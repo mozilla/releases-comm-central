@@ -12,14 +12,14 @@ const RELATIVE_ROOT = '../shared-modules';
 const MODULE_REQUIRES = ['folder-display-helpers',
                          'content-tab-helpers',]
 
-let iteratorUtils = {};
+var iteratorUtils = {};
 Cu.import('resource:///modules/iteratorUtils.jsm', iteratorUtils);
 
 const kWhatsNewPref = 'mailnews.start_page.override_url';
 
-let gUrl = collector.addHttpResource('../utils/html', '');
-let gCollectionsUrl = gUrl + "collections.html";
-let gOriginalWhatsNew, gTab;
+var gUrl = collector.addHttpResource('../utils/html', '');
+var gCollectionsUrl = gUrl + "collections.html";
+var gOriginalWhatsNew, gTab;
 
 function setupModule(module) {
   collector.getModule('folder-display-helpers').installInto(module);

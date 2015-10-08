@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
-let yahoo = {};
+var yahoo = {};
 Services.scriptloader.loadSubScript("resource:///components/yahoo.js", yahoo);
 
 function run_test()

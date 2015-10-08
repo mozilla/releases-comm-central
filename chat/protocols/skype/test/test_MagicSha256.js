@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
-let skype = {};
+var skype = {};
 Services.scriptloader.loadSubScript("resource:///components/skype.js", skype);
 
 const data = {

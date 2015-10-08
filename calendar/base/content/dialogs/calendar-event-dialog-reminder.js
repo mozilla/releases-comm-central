@@ -7,7 +7,7 @@ Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-let allowedActionsMap = {}; 
+var allowedActionsMap = {}; 
 
 /**
  * Sets up the reminder dialog.

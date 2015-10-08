@@ -43,8 +43,8 @@ add_task(function* downloadOffline() {
   yield promiseUrlListener.promise;
 });
 
-let folderName1 = "sub1";
-let folderName2 = "sub2";
+var folderName1 = "sub1";
+var folderName2 = "sub2";
 
 // use a folder method to add a subfolder
 add_task(function* addSubfolder() {

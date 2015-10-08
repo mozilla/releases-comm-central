@@ -31,7 +31,7 @@ var nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
  * register this mode with |gFolderTreeView|, see
  * |gFolderTreeView.registerFolderTreeMode|.
  */
-let IFolderTreeMode = {
+var IFolderTreeMode = {
   /**
    * Generates the folder map for this mode.
    *
@@ -117,7 +117,7 @@ let IFolderTreeMode = {
  * This is our controller for the folder-tree. It includes our nsITreeView
  * implementation, as well as other control functions.
  */
-let gFolderTreeView = {
+var gFolderTreeView = {
   messengerBundle: null,
 
   /**
@@ -2335,7 +2335,7 @@ ftvItem.prototype = {
  * This handles the invocation of most commmands dealing with folders, based off
  * of the current selection, or a passed in folder.
  */
-let gFolderTreeController = {
+var gFolderTreeController = {
   /**
    * Opens the dialog to create a new sub-folder, and creates it if the user
    * accepts

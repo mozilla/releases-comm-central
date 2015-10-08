@@ -7,7 +7,7 @@
 // constructing data for a tab which is loading.
 
 // The newly created tab which we load a URL into and try closing/undoing.
-let tab;
+var tab;
 
 // This test steps through the following parts:
 //  1. Tab has been created is loading URI_TO_LOAD.
@@ -45,7 +45,7 @@ function firstOnLoad(aEvent) {
   tab.linkedBrowser.loadURI(URI_TO_LOAD);
 }
 
-let tabsListener = {
+var tabsListener = {
   onLocationChange: function onLocationChange(aBrowser) {
     getBrowser().removeTabsProgressListener(tabsListener);
 

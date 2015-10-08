@@ -25,7 +25,7 @@ var gPreviousDirTreeIndex = -1;
 var msgWindow = Components.classes["@mozilla.org/messenger/msgwindow;1"]
                           .createInstance(Components.interfaces.nsIMsgWindow);
 
-let chatHandler = {};
+var chatHandler = {};
 Components.utils.import("resource:///modules/chatHandler.jsm", chatHandler);
 
 // Constants that correspond to choices
@@ -800,7 +800,7 @@ function AbShowHideOSXAddressBook()
   }
 }
 
-let abResultsController = {
+var abResultsController = {
   commands: {
     cmd_chatWithCard: {
       isEnabled: function() {

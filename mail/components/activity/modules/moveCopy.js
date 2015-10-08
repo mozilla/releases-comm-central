@@ -25,7 +25,7 @@ Components.utils.import("resource:///modules/gloda/log4moz.js");
 
 // This module provides a link between the move/copy code and the activity
 // manager.
-let moveCopyModule =
+var moveCopyModule =
 {
   lastMessage: {},
   lastFolder: {},

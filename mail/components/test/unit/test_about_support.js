@@ -8,7 +8,7 @@ Components.utils.import("resource://testing-common/mailnews/localAccountUtils.js
  * Test the about:support module.
  */
 
-let gAccountList = [{
+var gAccountList = [{
   type: "pop3",
   port: 1234,
   user: "pop3user",
@@ -56,15 +56,15 @@ let gAccountList = [{
 }];
 
 /// A map of account keys to servers. Populated by setup_accounts.
-let gAccountMap = {};
+var gAccountMap = {};
 /// A map of SMTP server names to SMTP servers. Populated by setup_accounts.
-let gSMTPMap = {};
+var gSMTPMap = {};
 
 /**
  * A list of sensitive data: it shouldn't be present in the account
  * details. Populated by setup_accounts.
  */
-let gSensitiveData = [];
+var gSensitiveData = [];
 
 /**
  * Set up accounts based on the given data.

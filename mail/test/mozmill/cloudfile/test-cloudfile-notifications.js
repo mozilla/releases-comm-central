@@ -6,25 +6,25 @@
  * Tests that the cloudfile notifications work as they should.
  */
 
-let MODULE_NAME = 'test-cloudfile-notifications';
+var MODULE_NAME = 'test-cloudfile-notifications';
 
-let RELATIVE_ROOT = '../shared-modules';
-let MODULE_REQUIRES = ['folder-display-helpers',
+var RELATIVE_ROOT = '../shared-modules';
+var MODULE_REQUIRES = ['folder-display-helpers',
                        'compose-helpers',
                        'cloudfile-helpers',
                        'attachment-helpers',
                        'prompt-helpers',
                        'notificationbox-helpers'];
 
-let controller = {};
-let mozmill = {};
-let elib = {};
+var controller = {};
+var mozmill = {};
+var elib = {};
 Cu.import('resource://mozmill/modules/controller.js', controller);
 Cu.import('resource://mozmill/modules/mozmill.js', mozmill);
 Cu.import('resource://mozmill/modules/elementslib.js', elib);
 Cu.import('resource://gre/modules/Services.jsm');
 
-let maxSize, cfh, ah, oldInsertNotificationPref;
+var maxSize, cfh, ah, oldInsertNotificationPref;
 
 const kOfferThreshold = "mail.compose.big_attachments.threshold_kb";
 const kInsertNotificationPref = "mail.compose.big_attachments.insert_notification";

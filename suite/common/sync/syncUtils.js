@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Weave should always exist before before this file gets included.
-let gSyncUtils = {
+var gSyncUtils = {
   _openLink: function (url) {
     if (document.documentElement.id == "change-dialog")
       Services.wm.getMostRecentWindow("navigator:browser")

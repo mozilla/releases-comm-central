@@ -108,7 +108,7 @@ OE5Registry.prototype = {
   }
 };
 
-let expectedPop3Account = {
+var expectedPop3Account = {
   incomingServer: {
     type: 'pop3',
     hostName: 'pop.invalid.host',
@@ -139,7 +139,7 @@ let expectedPop3Account = {
   }
 };
 
-let expectedImapAccount = {
+var expectedImapAccount = {
   incomingServer: {
     type: 'imap',
     hostName: 'imap.invalid.host',
@@ -166,7 +166,7 @@ let expectedImapAccount = {
   }
 };
 
-let expectedNntpAccount = {
+var expectedNntpAccount = {
   incomingServer: {
     type: 'nntp',
     hostName: 'nntp.invalid.host',

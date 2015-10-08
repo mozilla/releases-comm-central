@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let Cu = Components.utils;
-let Cc = Components.classes;
-let Ci = Components.interfaces;
+var Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
 
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -16,10 +16,10 @@ Cu.import("resource:///modules/gloda/log4moz.js");
 
 // Get a configured logger for this component.
 // To debug, set mail.provider.logging.dump (or .console)="All"
-let gLog = Log4Moz.getConfiguredLogger("mail.provider");
-let stringBundle = new StringBundle("chrome://messenger/locale/newmailaccount/accountProvisioner.properties");
+var gLog = Log4Moz.getConfiguredLogger("mail.provider");
+var stringBundle = new StringBundle("chrome://messenger/locale/newmailaccount/accountProvisioner.properties");
 
-let isOSX = (Services.appinfo.OS == 'Darwin');
+var isOSX = (Services.appinfo.OS == 'Darwin');
 
 const RETRY_TIMEOUT = 5000; // 5 seconds
 const CONNECTION_TIMEOUT = 15000; // 15 seconds

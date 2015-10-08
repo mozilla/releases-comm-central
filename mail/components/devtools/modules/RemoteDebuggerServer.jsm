@@ -11,7 +11,7 @@ this.EXPORTED_SYMBOLS = ["RemoteDebuggerServer"];
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 /** Load the debugger module, if its available. */
-let debugServerSupported = (function() {
+var debugServerSupported = (function() {
   try {
     Components.utils.import("resource://gre/modules/devtools/dbg-server.jsm");
     return true;
@@ -53,7 +53,7 @@ function isMainWindow(aWindow) {
  * The Frontend for the remote debugger, starts, stops and initializes the
  * actors.
  */
-let RemoteDebuggerServer = {
+var RemoteDebuggerServer = {
   /** @return true if the debugger server is running */
   get listening() { return DebuggerServer && DebuggerServer._listener != null; },
 

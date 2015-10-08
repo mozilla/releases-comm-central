@@ -27,7 +27,7 @@ Cu.import("resource:///modules/gloda/indexer.js");
 /**
  * Gloda message indexer feedback.
  */
-let glodaIndexerActivity =
+var glodaIndexerActivity =
 {
   get log() {
     delete this.log;

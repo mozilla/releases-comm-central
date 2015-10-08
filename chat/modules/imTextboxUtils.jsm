@@ -11,7 +11,7 @@ this.EXPORTED_SYMBOLS = [
 Components.utils.import("resource:///modules/imServices.jsm");
 const Ci = Components.interfaces;
 
-let MessageFormat = {
+var MessageFormat = {
   _observedPrefs: [],
 
   getValues: function mf_getValues() {
@@ -107,7 +107,7 @@ let MessageFormat = {
   }
 };
 
-let TextboxSize = {
+var TextboxSize = {
   _textboxAutoResizePrefName: "messenger.conversations.textbox.autoResize",
   get autoResize() {
     delete this.autoResize;
@@ -121,7 +121,7 @@ let TextboxSize = {
   }
 };
 
-let TextboxSpellChecker = {
+var TextboxSpellChecker = {
 #ifndef MOZ_THUNDERBIRD
   _spellCheckPrefName: "layout.spellcheckDefault",
 #else

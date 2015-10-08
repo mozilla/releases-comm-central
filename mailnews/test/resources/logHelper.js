@@ -41,7 +41,7 @@ function logHelperHasInterestedListeners() {
  *
  * This is based on my (asuth') exmmad extension.
  */
-let _errorConsoleTunnel = {
+var _errorConsoleTunnel = {
   initialize: function () {
     Services.console.registerListener(this);
 
@@ -286,7 +286,7 @@ function _explode_flags(aFlagWord, aFlagDefs) {
   return flagList;
 }
 
-let _registered_json_normalizers = [];
+var _registered_json_normalizers = [];
 
 /**
  * Copy natives or objects, deferring to _normalize_for_json for objects.

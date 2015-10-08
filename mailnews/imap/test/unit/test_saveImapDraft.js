@@ -28,7 +28,7 @@ var tests = [
   endTest
 ];
 
-let gDraftsFolder;
+var gDraftsFolder;
 function createDraftsFolder()
 {
   IMAPPump.incomingServer.rootFolder.createSubfolder("Drafts", null);

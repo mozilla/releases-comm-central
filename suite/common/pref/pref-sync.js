@@ -8,7 +8,7 @@ const PAGE_NO_ACCOUNT = 0;
 const PAGE_HAS_ACCOUNT = 1;
 const PAGE_NEEDS_UPDATE = 2;
 
-let gSyncPane = {
+var gSyncPane = {
   get page() {
     return document.getElementById("weavePrefsDeck").selectedIndex;
   },

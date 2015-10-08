@@ -6,7 +6,7 @@ Components.utils.import("resource://calendar/modules/calExtract.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-let calendarExtract = {
+var calendarExtract = {
     onShowLocaleMenu: function onShowLocaleMenu(target) {
         let localeList = document.getElementById(target.id);
         let langs = new Array();

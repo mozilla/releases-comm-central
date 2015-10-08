@@ -4,7 +4,7 @@
 
 load("resources/mock_windows_reg_factory.js");
 
-let expectedPop3TestTestAccount = {
+var expectedPop3TestTestAccount = {
   incomingServer: {
     type: 'pop3',
     hostName: 'pop3.test.test',
@@ -35,7 +35,7 @@ let expectedPop3TestTestAccount = {
   }
 };
 
-let expectedNewsMozillaOrgAccount = {
+var expectedNewsMozillaOrgAccount = {
   incomingServer: {
     type: 'nntp',
     hostName: 'testnews.mozilla.org',
@@ -54,7 +54,7 @@ let expectedNewsMozillaOrgAccount = {
   },
 };
 
-let expectedMicrosoftCommunitiesAccount = {
+var expectedMicrosoftCommunitiesAccount = {
   incomingServer: {
     type: 'nntp',
     hostName: 'testmsnews.microsoft.invalid',
@@ -72,7 +72,7 @@ let expectedMicrosoftCommunitiesAccount = {
   },
 };
 
-let expectedDonHallNntpAccount = {
+var expectedDonHallNntpAccount = {
   incomingServer: {
     type: 'nntp',
     hostName: 'news.wingtiptoys.invalid',
@@ -93,7 +93,7 @@ let expectedDonHallNntpAccount = {
   },
 };
 
-let expectedDonHallImapAccount = {
+var expectedDonHallImapAccount = {
   incomingServer: {
     type: 'imap',
     hostName: 'mail.wingtiptoys.invalid',
@@ -121,7 +121,7 @@ let expectedDonHallImapAccount = {
   }
 };
 
-let expectedAccounts = [expectedPop3TestTestAccount,
+var expectedAccounts = [expectedPop3TestTestAccount,
                         expectedNewsMozillaOrgAccount,
                         expectedMicrosoftCommunitiesAccount,
                         expectedDonHallNntpAccount,

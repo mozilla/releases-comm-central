@@ -110,7 +110,7 @@ var folderListener = {
 /*
  * Listen for Lightweight Theme styling changes and update the theme accordingly.
  */
-let LightweightThemeListener = {
+var LightweightThemeListener = {
   _modifiedStyles: [],
 
   init: function () {
@@ -1709,7 +1709,7 @@ function InitPageMenu(menuPopup, event) {
     event.preventDefault();
 }
 
-let TabsInTitlebar = {
+var TabsInTitlebar = {
   init: function () {
 #ifdef CAN_DRAW_IN_TITLEBAR
     // Don't trust the initial value of the sizemode attribute; wait for the

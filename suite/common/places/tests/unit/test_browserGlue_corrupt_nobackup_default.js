@@ -18,7 +18,7 @@ XPCOMUtils.defineLazyServiceGetter(this, "anno",
                                    "@mozilla.org/browser/annotation-service;1",
                                    "nsIAnnotationService");
 
-let bookmarksObserver = {
+var bookmarksObserver = {
   onBeginUpdateBatch: function() {},
   onEndUpdateBatch: function() {
     let itemId = bs.getIdForItemAt(bs.toolbarFolder, 0);

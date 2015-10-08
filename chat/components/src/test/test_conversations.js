@@ -5,13 +5,13 @@ const {interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
 
-let imConversations = {};
+var imConversations = {};
 Services.scriptloader.loadSubScript(
   "resource:///components/imConversations.js", imConversations
 );
 
 // Fake prplConversation
-let _id = 0;
+var _id = 0;
 function Conversation(aName) {
   this._name = aName;
   this._observers = [];
@@ -39,7 +39,7 @@ Conversation.prototype = {
 // Ensure that when iMsg.message is set to a message (including the empty
 // string), it returns that message. If not, it should return the original
 // message. This prevents regressions due to JS coercions.
-let test_null_message = function() {
+var test_null_message = function() {
   let originalMessage = "Hi!";
   let pMsg = new Message("buddy", originalMessage, {
     outgoing: true, _alias: "buddy", time: Date.now()
@@ -81,7 +81,7 @@ function rot13(aString) {
 //   -> UIConv notifyObservers `new-text`
 //
 // The test walks the sending path, which covers both.
-let test_message_transformation = function() {
+var test_message_transformation = function() {
   let conv = new Conversation();
   conv.sendMsg = function(aMsg) {
     this.writeMessage("user", aMsg, {outgoing: true});
@@ -126,7 +126,7 @@ let test_message_transformation = function() {
 };
 
 // A test that cancels a message before it can be sent.
-let test_cancel_send_message = function() {
+var test_cancel_send_message = function() {
   let conv = new Conversation();
   conv.sendMsg = function(aMsg) {
     ok(false, "The message should have been halted in the conversation service.");
@@ -154,7 +154,7 @@ let test_cancel_send_message = function() {
 };
 
 // A test that cancels a message before it gets displayed.
-let test_cancel_display_message = function() {
+var test_cancel_display_message = function() {
   let conv = new Conversation();
   conv.sendMsg = function(aMsg) {
     this.writeMessage("user", aMsg, {outgoing: true});
@@ -183,7 +183,7 @@ let test_cancel_display_message = function() {
 
 // A test that ensures protocols get a chance to prepare a message before
 // sending and displaying.
-let test_prpl_message_prep = function() {
+var test_prpl_message_prep = function() {
   let conv = new Conversation();
   conv.sendMsg = function(aMsg) {
     this.writeMessage("user", aMsg, {outgoing: true});
@@ -223,7 +223,7 @@ let test_prpl_message_prep = function() {
 };
 
 // A test that ensures protocols can split messages before they are sent.
-let test_split_message_before_sending = function() {
+var test_split_message_before_sending = function() {
   let msgCount = 0;
   let prepared = false;
 

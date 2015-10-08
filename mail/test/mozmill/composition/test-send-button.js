@@ -12,7 +12,7 @@ const RELATIVE_ROOT = "../shared-modules";
 const MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
                          "window-helpers", "address-book-helpers"];
 
-let elib = {};
+var elib = {};
 Components.utils.import("resource://mozmill/modules/elementslib.js", elib);
 
 var account = null;

@@ -127,7 +127,7 @@ function test_reindex_on_dirty_clear_dirty_on_fail() {
   do_check_eq(msgHdr.getUint32Property("gloda-dirty"), 0);
 }
 
-let tests = [
+var tests = [
   parameterizeTest(test_illegal_message, illegalMessageTemplates),
   test_streaming_failure,
   test_recovery_and_no_second_attempts,

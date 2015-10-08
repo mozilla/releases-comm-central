@@ -2145,7 +2145,7 @@ function assert_messages_summarized(aController, aSelectedMessages) {
  * Assert that there is nothing selected and, assuming we are in a folder, that
  *  the folder summary is displayed.
  */
-let assert_nothing_selected = assert_selected_and_displayed;
+var assert_nothing_selected = assert_selected_and_displayed;
 
 /**
  * Assert that the given view index or message is visible in the thread pane.
@@ -2469,7 +2469,7 @@ function assert_folders_selected() {
   return [troller, desiredFolders];
 }
 
-let assert_folder_selected = assert_folders_selected;
+var assert_folder_selected = assert_folders_selected;
 
 /**
  * Assert that the given folder is displayed, but not necessarily selected.
@@ -2521,8 +2521,8 @@ function assert_folders_selected_and_displayed() {
   }
 }
 
-let assert_no_folders_selected = assert_folders_selected_and_displayed;
-let assert_folder_selected_and_displayed =
+var assert_no_folders_selected = assert_folders_selected_and_displayed;
+var assert_folder_selected_and_displayed =
     assert_folders_selected_and_displayed;
 
 /**

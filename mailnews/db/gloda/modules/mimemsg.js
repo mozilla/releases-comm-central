@@ -21,7 +21,7 @@ const EMITTER_MIME_CODE = "application/x-js-mime-message";
  * The URL listener is surplus because the CallbackStreamListener ends up
  *  getting the same set of events, effectively.
  */
-let dumbUrlListener = {
+var dumbUrlListener = {
   OnStartRunningUrl: function (aUrl) {
   },
   OnStopRunningUrl: function (aUrl, aExitCode) {
@@ -34,9 +34,9 @@ let dumbUrlListener = {
  *  from C++ after the various XPConnect contexts have already begun their
  *  teardown process.
  */
-let activeStreamListeners = {};
+var activeStreamListeners = {};
 
-let shutdownCleanupObserver = {
+var shutdownCleanupObserver = {
   _initialized: false,
   ensureInitialized: function mimemsg_shutdownCleanupObserver_init() {
     if (this._initialized)
@@ -131,7 +131,7 @@ CallbackStreamListener.prototype = {
   },
 };
 
-let gMessenger = Cc["@mozilla.org/messenger;1"].
+var gMessenger = Cc["@mozilla.org/messenger;1"].
                    createInstance(Ci.nsIMessenger);
 
 function stripEncryptedParts(aPart) {
@@ -277,7 +277,7 @@ MsgHdrToMimeMessage.RESULT_RENDEVOUZ = {};
  */
 MsgHdrToMimeMessage.OPTION_TUNNEL = null;
 
-let HeaderHandlerBase = {
+var HeaderHandlerBase = {
   /**
    * Look-up a header that should be present at most once.
    *

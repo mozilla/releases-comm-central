@@ -6,7 +6,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/mimeParser.jsm");
 
-let CompFields = CC("@mozilla.org/messengercompose/composefields;1",
+var CompFields = CC("@mozilla.org/messengercompose/composefields;1",
                     Ci.nsIMsgCompFields);
 
 function makeAttachment(opts = {}) {

@@ -561,7 +561,7 @@ function make_new_sets_in_folders(aMsgFolders, aSynSetDefs, aDoNotForceUpdate) {
   return messageSets;
 }
 /** singular folder alias for single-folder users' readability */
-let make_new_sets_in_folder = make_new_sets_in_folders;
+var make_new_sets_in_folder = make_new_sets_in_folders;
 
 /**
  * An iterator that generates an infinite sequence of its argument.  So
@@ -818,7 +818,7 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
   return true;
 };
 /** singular function name for understandability of single-folder users */
-let add_sets_to_folder = add_sets_to_folders;
+var add_sets_to_folder = add_sets_to_folders;
 
 /**
  * Return the nsIMsgFolder associated with a folder handle.  If the folder has

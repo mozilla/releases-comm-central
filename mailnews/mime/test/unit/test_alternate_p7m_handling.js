@@ -7,7 +7,7 @@ load("../../../resources/messageInjection.js");
 
 Components.utils.import("resource:///modules/gloda/mimemsg.js");
 
-let gMessenger = Cc["@mozilla.org/messenger;1"]
+var gMessenger = Cc["@mozilla.org/messenger;1"]
                    .createInstance(Ci.nsIMessenger);
 
 // Create a message generator
@@ -16,7 +16,7 @@ const msgGen = gMessageGenerator = new MessageGenerator();
 const p7mAttachment = "dGhpcyBpcyBub3QgYSByZWFsIHMvbWltZSBwN20gZW50aXR5";
 
 // create a message with a p7m attachment
-let messages = [{
+var messages = [{
   attachments: [{ 
     body: p7mAttachment,
     filename: 'test.txt.p7m',
@@ -26,7 +26,7 @@ let messages = [{
   }]
 }];
 
-let msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
+var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                   .createInstance(Ci.nsIMsgWindow);
 
 function thunderbird_default(info) {
@@ -97,13 +97,13 @@ function set_preference_to_false(info) {
 
 /* ===== Driver ===== */
 
-let tests = [
+var tests = [
   parameterizeTest(thunderbird_default, messages),
   parameterizeTest(set_preference_to_true, messages),
   parameterizeTest(set_preference_to_false, messages)
 ];
 
-let gInbox;
+var gInbox;
 
 function run_test() {
   gInbox = configure_message_injection({mode: "local"});

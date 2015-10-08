@@ -77,7 +77,7 @@ function run_test() {
 }
 
 // custom action to test offline status
-let actionTestOffline =
+var actionTestOffline =
 {
   id: "mailnews@mozilla.org#testOffline",
   name: "test if offline",

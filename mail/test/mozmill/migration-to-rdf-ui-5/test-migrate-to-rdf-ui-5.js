@@ -7,9 +7,9 @@
  * button to the mail toolbar, and that we've collapsed the main menu.
  */
 
-let MODULE_NAME = "test-migrate-to-rdf-ui-5";
-let RELATIVE_ROOT = "../shared-modules";
-let MODULE_REQUIRES = ["folder-display-helpers"];
+var MODULE_NAME = "test-migrate-to-rdf-ui-5";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 const kAppMenuButton = "button-appmenu";
 

@@ -6,10 +6,10 @@
  * Tests Filelink URL insertion behaviours in compose windows.
  */
 
-let MODULE_NAME = 'test-cloudfile-attachment-urls';
+var MODULE_NAME = 'test-cloudfile-attachment-urls';
 
-let RELATIVE_ROOT = '../shared-modules';
-let MODULE_REQUIRES = ['folder-display-helpers',
+var RELATIVE_ROOT = '../shared-modules';
+var MODULE_REQUIRES = ['folder-display-helpers',
                        'compose-helpers',
                        'cloudfile-helpers',
                        'attachment-helpers',

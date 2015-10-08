@@ -51,7 +51,7 @@ function get_cached_gloda_identity_for_email(aEmailAddress) {
 const EMAIL_ADDRESS = "all.over@the.world.invalid";
 const DISPLAY_NAME = "every day";
 
-let identityCollection;
+var identityCollection;
 
 /**
  * Create an e-mail so the identity can exist.
@@ -106,7 +106,7 @@ function test_remove_card_cache_indication() {
 }
 
 
-let tests = [
+var tests = [
   // - events update identity._hasAddressBookCard correctly
   setup_create_identity,
   test_add_card_cache_indication,

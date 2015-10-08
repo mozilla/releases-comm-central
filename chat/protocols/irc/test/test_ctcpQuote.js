@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
-let irc = {};
+var irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 
 const input = [
@@ -45,7 +45,7 @@ const expectedOutputParams = [
   "ACTION \\\\\\\\atest"
 ];
 
-let outputParams = [];
+var outputParams = [];
 
 irc.ircAccount.prototype.sendMessage = function(aCommand, aParams) {
   do_check_eq(expectedOutputCommand, aCommand);

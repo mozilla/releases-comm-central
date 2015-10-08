@@ -6,15 +6,15 @@
  * Tests Filelink attachment item behaviour.
  */
 
-let MODULE_NAME = 'test-cloudfile-attachment-item';
+var MODULE_NAME = 'test-cloudfile-attachment-item';
 
-let RELATIVE_ROOT = '../shared-modules';
-let MODULE_REQUIRES = ['folder-display-helpers',
+var RELATIVE_ROOT = '../shared-modules';
+var MODULE_REQUIRES = ['folder-display-helpers',
                        'compose-helpers',
                        'cloudfile-helpers',
                        'attachment-helpers']
 
-let elib = {};
+var elib = {};
 Cu.import('resource://mozmill/modules/elementslib.js', elib);
 
 const kAttachmentItemContextID = "msgComposeAttachmentItemContext";

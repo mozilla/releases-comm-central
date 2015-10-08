@@ -11,7 +11,7 @@ const calICalendar = Components.interfaces.calICalendar;
 const cICL = Components.interfaces.calIChangeLog;
 const cIOL = Components.interfaces.calIOperationListener;
 
-let gNoOpListener = {
+var gNoOpListener = {
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
     onGetResult: function(calendar, status, itemType, detail, count, items) {
     },

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let stateBackup = ss.getBrowserState();
+var stateBackup = ss.getBrowserState();
 
 const TAB_STATE_NEEDS_RESTORE = 1;
 const TAB_STATE_RESTORING = 2;
@@ -19,7 +19,7 @@ function test() {
 // test_reloadCascade, test_reloadReload are generated tests that are run out
 // of cycle (since they depend on current state). They're listed in [tests] here
 // so that it is obvious when they run in respect to the other tests.
-let tests = [test_cascade, test_select, test_multiWindowState,
+var tests = [test_cascade, test_select, test_multiWindowState,
              test_setWindowStateNoOverwrite, test_setWindowStateOverwrite,
              test_setBrowserStateInterrupted, test_reload,
              /* test_reloadReload, */ test_reloadCascadeSetup,

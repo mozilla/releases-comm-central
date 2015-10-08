@@ -10,7 +10,7 @@ const Cu = Components.utils;
 Cu.import("resource://services-sync/main.js");
 Cu.import("resource://gre/modules/DownloadUtils.jsm");
 
-let gSyncQuota = {
+var gSyncQuota = {
 
   init: function init() {
     this.bundle = document.getElementById("quotaStrings");
@@ -81,7 +81,7 @@ let gSyncQuota = {
 
 };
 
-let gUsageTreeView = {
+var gUsageTreeView = {
 
   _ignored: {keys: true,
              meta: true,

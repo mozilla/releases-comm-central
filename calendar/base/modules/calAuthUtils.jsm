@@ -335,7 +335,7 @@ cal.auth.Prompt.prototype = {
 // listener is called without further information. If the password is not
 // saved, there is no way to retrieve it. We use ref counting to avoid keeping
 // the password in memory longer than needed.
-let gAuthCache = {
+var gAuthCache = {
     _authInfoCache: new Map(),
     planForAuthInfo: function(hostKey) {
         let authInfo = this._authInfoCache.get(hostKey);

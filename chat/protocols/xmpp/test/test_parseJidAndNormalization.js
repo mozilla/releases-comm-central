@@ -3,7 +3,7 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-let xmpp = {};
+var xmpp = {};
 Services.scriptloader.loadSubScript("resource:///components/xmpp.js", xmpp);
 
 const TEST_DATA = {

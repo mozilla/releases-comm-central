@@ -7,7 +7,7 @@
 
 Components.utils.import("resource:///modules/jsmime.jsm");
 
-let tests = [
+var tests = [
   ["=?UTF-7?Q?+AKM-1?=", "\u00A31"],
   ["=?UTF-7?Q?+AK?= =?UTF-7?Q?M-1?=", "\u00A31"],
   ["=?UTF-8?Q?=C2?=", ""],

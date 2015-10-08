@@ -30,7 +30,7 @@ var _originalBlocklistURL = null;
 
 // logHelper (and therefore folderDisplayHelper) exports
 var mark_failure;
-let gMockExtProtocolSvcReg;
+var gMockExtProtocolSvcReg;
 
 function setupModule() {
   folderDisplayHelper = collector.getModule('folder-display-helpers');
@@ -76,7 +76,7 @@ function installInto(module) {
  * gMockExtProtocolSvc allows us to capture (most if not all) attempts to
  * open links in the default browser.
  */
-let gMockExtProtSvc = {
+var gMockExtProtSvc = {
   _loadedURLs: [],
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIExternalProtocolService]),
 
@@ -121,7 +121,7 @@ function MockExtProtConstructor() {
  */
 const ALERT_TIMEOUT = 10000;
 
-let NotificationWatcher = {
+var NotificationWatcher = {
   planForNotification: function(aController) {
     this.alerted = false;
     aController.window.document.addEventListener("AlertActive",

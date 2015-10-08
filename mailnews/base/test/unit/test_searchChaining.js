@@ -79,7 +79,7 @@ var searchListener =
   }
 };
 
-let tests = [
+var tests = [
   setupIMAPPump,
   setupFolder,
   searchTest,
