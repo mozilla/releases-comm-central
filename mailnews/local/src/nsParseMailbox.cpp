@@ -1393,6 +1393,11 @@ nsresult nsParseMailMessageState::FinalizeHeaders()
       ret = m_backupMailDB->GetMsgHdrForMessageID(
               rawMsgId.get(), getter_AddRefs(oldHeader));
 
+    // m_envelope_pos is set in nsImapMailFolder::ParseAdoptedHeaderLine to be
+    // the UID of the message, so that the key can get created as UID. That of
+    // course is extremely confusing, and we really need to clean that up. We
+    // really should not conflate the meaning of envelope position, key, and
+    // UID.
     if (NS_SUCCEEDED(ret) && oldHeader)
         ret = m_mailDB->CopyHdrFromExistingHdr(m_envelope_pos,
                 oldHeader, false, getter_AddRefs(m_newMsgHdr));

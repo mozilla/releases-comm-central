@@ -652,12 +652,23 @@ nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder *aFolder,
   }
   int64_t filePos;
   seekable->Tell(&filePos);
+
   if (db && !*aNewMsgHdr)
   {
-    // if mbox is close to 4GB, auto-assign the msg key.
-    nsMsgKey key = filePos > 0xFFFFFF00 ? nsMsgKey_None : (nsMsgKey) filePos;
+    nsMsgKey key = nsMsgKey_None;
+    // The key should not need to be the filePos anymore, but out of caution
+    // we will continue setting key to filePos for mboxes smaller than 0xFF000000.
+    if (filePos <= 0xFF000000)
+    {
+      // After compact, we can have duplicated keys (see bug 1202105) so only
+      // set key to filePos if there is no collision.
+      bool hasKey = true;
+      if (NS_SUCCEEDED(db->ContainsKey((nsMsgKey) filePos, &hasKey)) && !hasKey)
+        key = (nsMsgKey) filePos;
+    }
     db->CreateNewHdr(key, aNewMsgHdr);
   }
+
   if (*aNewMsgHdr)
   {
     char storeToken[100];
