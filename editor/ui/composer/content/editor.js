@@ -859,37 +859,41 @@ function initFontFaceMenu(menuPopup)
     var children = menuPopup.childNodes;
     if (!children) return;
 
-    var firstHas = { value: false };
-    var anyHas = { value: false };
-    var allHas = { value: false };
+    var mixed = { value: false };
+    var state = GetCurrentEditor().getFontFaceState(mixed);
+    if (!mixed.value)
+    {
+      switch (state)
+      {
+      case "":
+      case "serif":
+      case "sans-serif":
+        // Generic variable width.
+        state = "";
+        break;
+      case "tt":
+      case "monospace":
+        // Generic fixed width.
+        state = "tt";
+        break;
+      default:
+        state = state.toLowerCase().replace(/, /g, ","); // bug 1139524
+      }
+    }
 
-    // we need to set or clear the checkmark for each menu item since the selection
-    // may be in a new location from where it was when the menu was previously opened
-
-    // Fixed width (second menu item) is special case: old TT ("teletype") attribute
-    EditorGetTextProperty("tt", "", "", firstHas, anyHas, allHas);
-    children[1].setAttribute("checked", allHas.value);
-
-    if (!anyHas.value)
-      EditorGetTextProperty("font", "face", "", firstHas, anyHas, allHas);
-
-    children[0].setAttribute("checked", !anyHas.value);
-
-    // Skip over default, TT, and separator
-    for (var i = 3; i < children.length; i++)
+    for (var i = 0; i < children.length; i++)
     {
       var menuItem = children[i];
-      var faceType = menuItem.getAttribute("value");
-
-      if (faceType)
+      if (menuItem.localName == "menuitem")
       {
-        EditorGetTextProperty("font", "face", faceType, firstHas, anyHas, allHas);
-
-        // Check the menuitem only if all of selection has the face
-        if (allHas.value)
+        if (!mixed.value)
         {
-          menuItem.setAttribute("checked", "true");
-          break;
+          var faceType = menuItem.getAttribute("value").toLowerCase().replace(/, /g, ",");
+          if (faceType == state)
+          {
+            menuItem.setAttribute("checked", "true");
+            break;
+          }
         }
 
         // in case none match, make sure we've cleared the checkmark
@@ -956,7 +960,6 @@ function createFontFaceMenuitem(aFontLabel, aFontName, aMenuPopup)
   itemNode.setAttribute("value_parsed", aFontName.toLowerCase().replace(/, /g, ","));
   if (aMenuPopup.getAttribute("useRadios") == "true") {
     itemNode.setAttribute("type", "radio");
-    itemNode.setAttribute("name", "2");
     itemNode.setAttribute("observes", "cmd_renderedHTMLEnabler");
   }
   return itemNode;
