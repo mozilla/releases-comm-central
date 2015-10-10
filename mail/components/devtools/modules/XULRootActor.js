@@ -11,7 +11,7 @@
 
 var { Ci, Cu } = require("chrome");
 var Services = require("Services");
-var DevToolsUtils = require("devtools/toolkit/DevToolsUtils");
+var DevToolsUtils = require("devtools/shared/DevToolsUtils");
 var { RootActor } = require("devtools/server/actors/root");
 var { DebuggerServer } = require("devtools/server/main");
 var { Promise } = Cu.import("resource://gre/modules/Promise.jsm", {});
