@@ -10,10 +10,10 @@ var frame = {};      Components.utils.import('resource://mozmill/modules/frame.j
 
 var modalDialog = require("test-window-helpers");
 
-const sleep = 500;
-const EVENT_BOX = 0; // Use when you need an event box
-const CANVAS_BOX = 1; // Use when you need a calendar canvas box
-const ALLDAY = 2; // Use when you need an allday canvas or event box
+var sleep = 500;
+var EVENT_BOX = 0; // Use when you need an event box
+var CANVAS_BOX = 1; // Use when you need a calendar canvas box
+var ALLDAY = 2; // Use when you need an allday canvas or event box
 
 /**
  *  Accept to send notification email with event to attendees

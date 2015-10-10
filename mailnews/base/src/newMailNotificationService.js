@@ -12,9 +12,9 @@
  * "mail.notification.logging.dump" (for stderr) to the string indicating the level you want.
  */
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
 Cu.import("resource:///modules/gloda/log4moz.js");
 Cu.import("resource:///modules/iteratorUtils.jsm");
@@ -22,11 +22,11 @@ Cu.import("resource:///modules/mailServices.js");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const NMNS = Ci.mozINewMailNotificationService;
+var NMNS = Ci.mozINewMailNotificationService;
 
-const countInboxesPref = "mail.notification.count.inbox_only";
+var countInboxesPref = "mail.notification.count.inbox_only";
 // Old name for pref
-const countNewMessagesPref = "mail.biff.use_new_count_in_mac_dock";
+var countNewMessagesPref = "mail.biff.use_new_count_in_mac_dock";
 // When we go cross-platform we should migrate to
 // const countNewMessagesPref = "mail.notification.count.new";
 
@@ -374,4 +374,4 @@ NewMailNotificationService.prototype = {
   }
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([NewMailNotificationService]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([NewMailNotificationService]);

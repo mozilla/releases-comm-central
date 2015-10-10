@@ -12,28 +12,28 @@ load("../../../resources/abSetup.js");
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const ABUri = kPABData.URI;
+var ABUri = kPABData.URI;
 
-const nsMsgSearchScope = Ci.nsMsgSearchScope;
-const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-const nsMsgSearchOp = Ci.nsMsgSearchOp;
+var nsMsgSearchScope = Ci.nsMsgSearchScope;
+var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
+var nsMsgSearchOp = Ci.nsMsgSearchOp;
 
-const IsntInAB = nsMsgSearchOp.IsntInAB;
-const IsInAB = nsMsgSearchOp.IsInAB;
-const IsBefore = nsMsgSearchOp.IsBefore; // control entry that is not enabled
+var IsntInAB = nsMsgSearchOp.IsntInAB;
+var IsInAB = nsMsgSearchOp.IsInAB;
+var IsBefore = nsMsgSearchOp.IsBefore; // control entry that is not enabled
 
-const offlineMail = nsMsgSearchScope.offlineMail;
-const onlineMail = nsMsgSearchScope.onlineMail;
-const offlineMailFilter = nsMsgSearchScope.offlineMailFilter;
-const onlineMailFilter = nsMsgSearchScope.onlineMailFilter;
-const news = nsMsgSearchScope.news; // control entry that is not enabled
+var offlineMail = nsMsgSearchScope.offlineMail;
+var onlineMail = nsMsgSearchScope.onlineMail;
+var offlineMailFilter = nsMsgSearchScope.offlineMailFilter;
+var onlineMailFilter = nsMsgSearchScope.onlineMailFilter;
+var news = nsMsgSearchScope.news; // control entry that is not enabled
 
-const Sender = nsMsgSearchAttrib.Sender;
-const To = nsMsgSearchAttrib.To;
-const CCopy = nsMsgSearchAttrib.CC;
-const ToOrCC = nsMsgSearchAttrib.ToOrCC;
-const AllAddresses = nsMsgSearchAttrib.AllAddresses;
-const Keywords = nsMsgSearchAttrib.Keywords; // control entry that is not enabled
+var Sender = nsMsgSearchAttrib.Sender;
+var To = nsMsgSearchAttrib.To;
+var CCopy = nsMsgSearchAttrib.CC;
+var ToOrCC = nsMsgSearchAttrib.ToOrCC;
+var AllAddresses = nsMsgSearchAttrib.AllAddresses;
+var Keywords = nsMsgSearchAttrib.Keywords; // control entry that is not enabled
 
 /*
  * The address available in the test address book is "PrimaryEmail1@test.invalid"

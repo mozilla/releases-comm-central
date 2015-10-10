@@ -10,20 +10,20 @@ Components.utils.import("resource://gre/modules/Preferences.jsm");
 //
 
 // constants:
-const NS_OK = Components.results.NS_OK;
-const NS_ERROR_UNEXPECTED = Components.results.NS_ERROR_UNEXPECTED;
-const nsIException = Components.interfaces.nsIException;
-const nsISupports = Components.interfaces.nsISupports;
-const calIWcapSession = Components.interfaces.calIWcapSession;
-const calIWcapCalendar = Components.interfaces.calIWcapCalendar;
-const calIWcapErrors = Components.interfaces.calIWcapErrors;
-const calICalendar = Components.interfaces.calICalendar;
-const calIItemBase = Components.interfaces.calIItemBase;
-const calIOperationListener = Components.interfaces.calIOperationListener;
-const calIFreeBusyProvider = Components.interfaces.calIFreeBusyProvider;
-const calIFreeBusyInterval = Components.interfaces.calIFreeBusyInterval;
-const calICalendarSearchProvider = Components.interfaces.calICalendarSearchProvider;
-const calIErrors = Components.interfaces.calIErrors;
+var NS_OK = Components.results.NS_OK;
+var NS_ERROR_UNEXPECTED = Components.results.NS_ERROR_UNEXPECTED;
+var nsIException = Components.interfaces.nsIException;
+var nsISupports = Components.interfaces.nsISupports;
+var calIWcapSession = Components.interfaces.calIWcapSession;
+var calIWcapCalendar = Components.interfaces.calIWcapCalendar;
+var calIWcapErrors = Components.interfaces.calIWcapErrors;
+var calICalendar = Components.interfaces.calICalendar;
+var calIItemBase = Components.interfaces.calIItemBase;
+var calIOperationListener = Components.interfaces.calIOperationListener;
+var calIFreeBusyProvider = Components.interfaces.calIFreeBusyProvider;
+var calIFreeBusyInterval = Components.interfaces.calIFreeBusyInterval;
+var calICalendarSearchProvider = Components.interfaces.calICalendarSearchProvider;
+var calIErrors = Components.interfaces.calIErrors;
 
 // some string resources:
 var g_privateItemTitle;
@@ -59,7 +59,7 @@ function initWcapProvider() {
 }
 
 /** Module Registration */
-const scriptLoadOrder = [
+var scriptLoadOrder = [
     "calUtils.js",
     "calWcapUtils.js",
     "calWcapErrors.js",

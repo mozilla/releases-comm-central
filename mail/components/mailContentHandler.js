@@ -4,12 +4,12 @@
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const Ci = Components.interfaces;
-const Cc = Components.classes;
-const Cr = Components.results;
+var Ci = Components.interfaces;
+var Cc = Components.classes;
+var Cr = Components.results;
 
 // defined in nsIContentHandler.idl.
-const NS_ERROR_WONT_HANDLE_CONTENT = 0x805d0001;
+var NS_ERROR_WONT_HANDLE_CONTENT = 0x805d0001;
 
 function mailContentHandler() {
 }
@@ -73,4 +73,4 @@ mailContentHandler.prototype = {
 };
 var gMailContentHandler = new mailContentHandler();
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([mailContentHandler]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([mailContentHandler]);

@@ -15,9 +15,9 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-const nsIX509CertDB = Components.interfaces.nsIX509CertDB;
-const nsX509CertDB = "@mozilla.org/security/x509certdb;1";
-const CertAttribute = "usercertificate;binary";
+var nsIX509CertDB = Components.interfaces.nsIX509CertDB;
+var nsX509CertDB = "@mozilla.org/security/x509certdb;1";
+var CertAttribute = "usercertificate;binary";
 
 var gEmailAddresses;
 var gDirectoryPref;

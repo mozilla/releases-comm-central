@@ -4,8 +4,8 @@
 
 Components.utils.import("resource://gre/modules/AddonManager.jsm");
 
-const PREF_EXTENSIONS_GETMOREMESSAGESTYLESURL = "extensions.getMoreMessageStylesURL";
-const PREF_EXTENSIONS_GETMOREEMOTICONSURL     = "extensions.getMoreEmoticonsURL";
+var PREF_EXTENSIONS_GETMOREMESSAGESTYLESURL = "extensions.getMoreMessageStylesURL";
+var PREF_EXTENSIONS_GETMOREEMOTICONSURL     = "extensions.getMoreEmoticonsURL";
 
 var gThemePane = {
   init: function (){

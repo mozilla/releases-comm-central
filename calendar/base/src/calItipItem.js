@@ -14,8 +14,8 @@ function calItipItem() {
     this.wrappedJSObject = this;
     this.mCurrentItemIndex = 0;
 }
-const calItipItemClassID = Components.ID("{f41392ab-dcad-4bad-818f-b3d1631c4d93}");
-const calItipItemInterfaces = [Components.interfaces.calIItipItem];
+var calItipItemClassID = Components.ID("{f41392ab-dcad-4bad-818f-b3d1631c4d93}");
+var calItipItemInterfaces = [Components.interfaces.calIItipItem];
 calItipItem.prototype = {
     mIsInitialized: false,
 

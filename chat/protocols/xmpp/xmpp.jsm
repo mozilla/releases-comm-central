@@ -9,7 +9,7 @@ this.EXPORTED_SYMBOLS = [
   "XMPPAccountPrototype"
 ];
 
-const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imStatusUtils.jsm");
@@ -87,7 +87,7 @@ function parseStatus(aStanza) {
  *          admin     -> op
  *          owner     -> founder
  */
-const kRoles = ["outcast", "visitor", "participant", "member", "moderator",
+var kRoles = ["outcast", "visitor", "participant", "member", "moderator",
                 "admin", "owner"];
 
 function MUCParticipant(aNick, aJid, aPresenceStanza)
@@ -149,7 +149,7 @@ MUCParticipant.prototype = {
 };
 
 // MUC (Multi-User Chat)
-const XMPPMUCConversationPrototype = {
+var XMPPMUCConversationPrototype = {
   __proto__: GenericConvChatPrototype,
   // By default users are not in a MUC.
   _left: true,
@@ -544,7 +544,7 @@ function XMPPMUCConversation(aAccount, aJID, aNick)
 XMPPMUCConversation.prototype = XMPPMUCConversationPrototype;
 
 /* Helper class for buddy conversations */
-const XMPPConversationPrototype = {
+var XMPPConversationPrototype = {
   __proto__: GenericConvIMPrototype,
 
   _typingTimer: null,
@@ -735,7 +735,7 @@ function XMPPConversation(aAccount, aNormalizedName, aMucParticipant)
 XMPPConversation.prototype = XMPPConversationPrototype;
 
 /* Helper class for buddies */
-const XMPPAccountBuddyPrototype = {
+var XMPPAccountBuddyPrototype = {
   __proto__: GenericAccountBuddyPrototype,
 
   subscription: "none",
@@ -1032,7 +1032,7 @@ function XMPPAccountBuddy(aAccount, aBuddy, aTag, aUserName)
 XMPPAccountBuddy.prototype = XMPPAccountBuddyPrototype;
 
 /* Helper class for account */
-const XMPPAccountPrototype = {
+var XMPPAccountPrototype = {
   __proto__: GenericAccountPrototype,
 
   _jid: null, // parsed Jabber ID: node, domain, resource

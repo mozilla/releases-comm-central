@@ -43,7 +43,7 @@ var EXPORTED_SYMBOLS = ["openFile", "saveFile", "saveAsFile", "genBoiler",
                         "tempfile", "getMethodInWindows", "getPreference", "setPreference",
                         "sleep", "assert", "unwrapNode", "TimeoutError", "waitFor", "waitForEval"];
 
-const Ci = Components.interfaces;
+var Ci = Components.interfaces;
 
 
 var hwindow = Components.classes["@mozilla.org/appshell/appShellService;1"]

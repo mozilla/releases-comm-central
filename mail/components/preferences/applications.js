@@ -8,34 +8,34 @@
 //****************************************************************************//
 // Constants & Enumeration Values
 
-const PREF_DISABLED_PLUGIN_TYPES = "plugin.disable_full_page_plugin_for_types";
+var PREF_DISABLED_PLUGIN_TYPES = "plugin.disable_full_page_plugin_for_types";
 
 // Preferences that affect which entries to show in the list.
-const PREF_SHOW_PLUGINS_IN_LIST = "browser.download.show_plugins_in_list";
-const PREF_HIDE_PLUGINS_WITHOUT_EXTENSIONS =
+var PREF_SHOW_PLUGINS_IN_LIST = "browser.download.show_plugins_in_list";
+var PREF_HIDE_PLUGINS_WITHOUT_EXTENSIONS =
   "browser.download.hide_plugins_without_extensions";
 
 // The nsHandlerInfoAction enumeration values in nsIHandlerInfo identify
 // the actions the application can take with content of various types.
 // But since nsIHandlerInfo doesn't support plugins, there's no value
 // identifying the "use plugin" action, so we use this constant instead.
-const kActionUsePlugin = 5;
+var kActionUsePlugin = 5;
 
 /*
 #ifdef MOZ_WIDGET_GTK
 */
-const ICON_URL_APP      = "moz-icon://dummy.exe?size=16";
+var ICON_URL_APP      = "moz-icon://dummy.exe?size=16";
 /*
 #else
 */
-const ICON_URL_APP      = "chrome://messenger/skin/preferences/application.png";
+var ICON_URL_APP      = "chrome://messenger/skin/preferences/application.png";
 /*
 #endif
 */
 
 // For CSS. Can be one of "ask", "save", "plugin" or "feed". If absent, the icon URL
 // was set by us to a custom handler icon and CSS should not try to override it.
-const APP_ICON_ATTR_NAME = "appHandlerIcon";
+var APP_ICON_ATTR_NAME = "appHandlerIcon";
 
 // CloudFile account tools used by gCloudFileTab.
 Components.utils.import("resource://gre/modules/Services.jsm");

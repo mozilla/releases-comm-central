@@ -24,8 +24,8 @@ var gCurTestNum;
 var gMsgHdrs = new Array();
 var gRootFolder;
 
-const nsIMFNService = Ci.nsIMsgFolderNotificationService;
-const nsIMFListener = Ci.nsIMsgFolderListener;
+var nsIMFNService = Ci.nsIMsgFolderNotificationService;
+var nsIMFListener = Ci.nsIMsgFolderListener;
 
 // nsIMsgCopyServiceListener implementation
 var copyListener = 
@@ -85,7 +85,7 @@ function deleteMessages(srcFolder, items)
  */
 
 // Beware before commenting out a test -- later tests might just depend on earlier ones
-const gTestArray =
+var gTestArray =
 [
   // Copying message from file
   function testCopyFileMessage1() {

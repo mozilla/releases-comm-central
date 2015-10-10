@@ -21,4 +21,4 @@ MDNService.prototype = {
 };
 
 var components = [MDNService];
-const NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

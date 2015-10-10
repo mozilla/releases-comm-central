@@ -9,7 +9,7 @@ Components.utils.import("resource:///modules/MailUtils.js");
 Components.utils.import("resource:///modules/IOUtils.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-const kDefaultMode = "all";
+var kDefaultMode = "all";
 
 var nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
 

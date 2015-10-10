@@ -12,7 +12,7 @@ var folder;
 /**
  * The number of messages in the thread we use to test.
  */
-const NUM_MESSAGES_IN_THREAD = 6;
+var NUM_MESSAGES_IN_THREAD = 6;
 
 function setupModule(module) {
   let fdh = collector.getModule('folder-display-helpers');

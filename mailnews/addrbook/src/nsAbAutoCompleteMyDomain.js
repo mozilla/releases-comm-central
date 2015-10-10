@@ -55,4 +55,4 @@ nsAbAutoCompleteMyDomain.prototype = {
 };
 
 var components = [nsAbAutoCompleteMyDomain];
-const NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

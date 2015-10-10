@@ -3,11 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const FILEACTION_SAVE_TO_DISK     = 1;
-const FILEACTION_OPEN_INTERNALLY  = 2;
-const FILEACTION_OPEN_DEFAULT     = 3;
-const FILEACTION_OPEN_CUSTOM      = 4;
-const FILEACTION_OPEN_PLUGIN      = 5;
+var FILEACTION_SAVE_TO_DISK     = 1;
+var FILEACTION_OPEN_INTERNALLY  = 2;
+var FILEACTION_OPEN_DEFAULT     = 3;
+var FILEACTION_OPEN_CUSTOM      = 4;
+var FILEACTION_OPEN_PLUGIN      = 5;
 function FileAction ()
 {
 }

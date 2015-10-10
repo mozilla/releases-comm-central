@@ -16,8 +16,8 @@ function calRelation() {
     this.wrappedJSObject = this;
     this.mProperties = new calPropertyBag();
 }
-const calRelationClassID = Components.ID("{76810fae-abad-4019-917a-08e95d5bbd68}");
-const calRelationInterfaces = [Components.interfaces.calIRelation];
+var calRelationClassID = Components.ID("{76810fae-abad-4019-917a-08e95d5bbd68}");
+var calRelationInterfaces = [Components.interfaces.calIRelation];
 calRelation.prototype = {
     mType: null,
     mId: null,

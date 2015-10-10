@@ -236,4 +236,4 @@ function _init()
 }
 
 var components = [nsMsgTraitService];
-const NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

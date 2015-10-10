@@ -11,9 +11,9 @@ Components.utils.import("resource://calendar/modules/calProviderUtils.jsm");
 Components.utils.import("resource://calendar/modules/calStorageUpgrade.jsm");
 Components.utils.import("resource://calendar/modules/calStorageHelpers.jsm");
 
-const USECS_PER_SECOND = 1000000;
-const kCalICalendar = Components.interfaces.calICalendar;
-const cICL = Components.interfaces.calIChangeLog;
+var USECS_PER_SECOND = 1000000;
+var kCalICalendar = Components.interfaces.calICalendar;
+var cICL = Components.interfaces.calIChangeLog;
 
 //
 // calStorageCalendar
@@ -25,8 +25,8 @@ function calStorageCalendar() {
     this.mRecEventCache = {};
     this.mRecTodoCache = {};
 }
-const calStorageCalendarClassID = Components.ID("{b3eaa1c4-5dfe-4c0a-b62a-b3a514218461}");
-const calStorageCalendarInterfaces = [
+var calStorageCalendarClassID = Components.ID("{b3eaa1c4-5dfe-4c0a-b62a-b3a514218461}");
+var calStorageCalendarInterfaces = [
     Components.interfaces.calICalendar,
     Components.interfaces.calICalendarProvider,
     Components.interfaces.calIOfflineStorage,
@@ -2444,7 +2444,7 @@ calStorageCalendar.prototype = {
 };
 
 /** Module Registration */
-const scriptLoadOrder = [
+var scriptLoadOrder = [
     "calUtils.js",
 ];
 

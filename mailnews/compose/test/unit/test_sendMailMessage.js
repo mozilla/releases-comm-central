@@ -11,10 +11,10 @@ Components.utils.import("resource:///modules/mailServices.js");
 var test = null;
 var server;
 
-const kSender = "from@foo.invalid";
-const kTo = "to@foo.invalid";
-const kUsername = "testsmtp";
-const kPassword = "smtptest";
+var kSender = "from@foo.invalid";
+var kTo = "to@foo.invalid";
+var kUsername = "testsmtp";
+var kPassword = "smtptest";
 
 function test_RFC2821() {
 

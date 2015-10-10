@@ -18,7 +18,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 // Globals
 
 // Messages to load must have CRLF line endings, that is Windows style
-const gMessageFileName = "bugmail10"; // message file used as the test message
+var gMessageFileName = "bugmail10"; // message file used as the test message
 var gMessage, gExpectedLength;
 
 var gCustomList = ['Custom1', 'Custom2', 'Custom3'];

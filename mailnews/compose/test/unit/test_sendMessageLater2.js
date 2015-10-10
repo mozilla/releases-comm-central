@@ -39,8 +39,8 @@ var gLastSentMessage = 0;
 // 2 = sendUnsentMessages has exited.
 var gMessageSendStatus = 0;
 
-const kSender = "from@foo.invalid";
-const kTo = "to@foo.invalid";
+var kSender = "from@foo.invalid";
+var kTo = "to@foo.invalid";
 
 var msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"]
                      .getService(Ci.nsIMsgSendLater);

@@ -69,7 +69,7 @@ function _spin_folder_indexer_gen(aFolderHandle, aExpectedJobGoal) {
  * The value itself does not matter; it just needs to be present and be in a
  *  certain range for our logic testing.
  */
-const arbitraryGlodaId = 4096;
+var arbitraryGlodaId = 4096;
 
 /**
  * When we enter a filthy folder we should be marking all the messages as filthy

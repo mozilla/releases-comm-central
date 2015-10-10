@@ -4,9 +4,9 @@
  * when offline and that we don't crash.
  */
 
-const kLDAPDirectory = 0; // defined in nsDirPrefs.h
-const kLDAPUriPrefix = "moz-abldapdirectory://";
-const kLDAPTestSpec = "ldap://invalidhost//dc=intranet??sub?(objectclass=*)";
+var kLDAPDirectory = 0; // defined in nsDirPrefs.h
+var kLDAPUriPrefix = "moz-abldapdirectory://";
+var kLDAPTestSpec = "ldap://invalidhost//dc=intranet??sub?(objectclass=*)";
 
 // Main function for the this test so we can check both personal and
 // collected books work correctly in an easy manner.

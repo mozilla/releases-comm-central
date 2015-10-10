@@ -6,7 +6,7 @@ var calUtils = require("../shared-modules/calendar-utils");
 var modalDialog = require("../shared-modules/modal-dialog");
 var prefs = require("../shared-modules/prefs");
 
-const sleep = 500;
+var sleep = 500;
 var calendar = "Mozmill";
 var title = "Title";
 var location = "Location";

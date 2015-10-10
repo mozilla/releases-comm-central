@@ -21,4 +21,4 @@ DSNService.prototype = {
 };
 
 var components = [DSNService];
-const NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

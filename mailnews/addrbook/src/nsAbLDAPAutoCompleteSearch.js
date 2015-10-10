@@ -7,9 +7,9 @@ Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const ACR = Components.interfaces.nsIAutoCompleteResult;
-const nsIAbAutoCompleteResult = Components.interfaces.nsIAbAutoCompleteResult;
-const nsIAbDirectoryQueryResultListener =
+var ACR = Components.interfaces.nsIAutoCompleteResult;
+var nsIAbAutoCompleteResult = Components.interfaces.nsIAbAutoCompleteResult;
+var nsIAbDirectoryQueryResultListener =
   Components.interfaces.nsIAbDirectoryQueryResultListener;
 
 // nsAbLDAPAutoCompleteResult
@@ -322,4 +322,4 @@ nsAbLDAPAutoCompleteSearch.prototype = {
 
 // Module
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([nsAbLDAPAutoCompleteSearch]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsAbLDAPAutoCompleteSearch]);

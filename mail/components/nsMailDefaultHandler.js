@@ -8,21 +8,21 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 
-const nsISupports              = Components.interfaces.nsISupports;
+var nsISupports              = Components.interfaces.nsISupports;
 
-const nsICommandLine           = Components.interfaces.nsICommandLine;
-const nsICommandLineHandler    = Components.interfaces.nsICommandLineHandler;
-const nsICommandLineValidator  = Components.interfaces.nsICommandLineValidator;
-const nsIDOMWindow             = Components.interfaces.nsIDOMWindow;
-const nsIFactory               = Components.interfaces.nsIFactory;
-const nsIFileURL               = Components.interfaces.nsIFileURL;
-const nsINetUtil               = Components.interfaces.nsINetUtil;
-const nsISupportsString        = Components.interfaces.nsISupportsString;
-const nsIURILoader             = Components.interfaces.nsIURILoader;
+var nsICommandLine           = Components.interfaces.nsICommandLine;
+var nsICommandLineHandler    = Components.interfaces.nsICommandLineHandler;
+var nsICommandLineValidator  = Components.interfaces.nsICommandLineValidator;
+var nsIDOMWindow             = Components.interfaces.nsIDOMWindow;
+var nsIFactory               = Components.interfaces.nsIFactory;
+var nsIFileURL               = Components.interfaces.nsIFileURL;
+var nsINetUtil               = Components.interfaces.nsINetUtil;
+var nsISupportsString        = Components.interfaces.nsISupportsString;
+var nsIURILoader             = Components.interfaces.nsIURILoader;
 
-const NS_ERROR_ABORT = Components.results.NS_ERROR_ABORT;
+var NS_ERROR_ABORT = Components.results.NS_ERROR_ABORT;
 
-const URI_INHERITS_SECURITY_CONTEXT = Components.interfaces.nsIProtocolHandler
+var URI_INHERITS_SECURITY_CONTEXT = Components.interfaces.nsIProtocolHandler
                                         .URI_INHERITS_SECURITY_CONTEXT;
 
 function resolveURIInternal(aCmdLine, aArgument) {
@@ -479,4 +479,4 @@ mailDefaultCommandLineHandler.prototype = {
   _xpcom_factory: nsMailDefaultHandler
 }
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([mailDefaultCommandLineHandler]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([mailDefaultCommandLineHandler]);

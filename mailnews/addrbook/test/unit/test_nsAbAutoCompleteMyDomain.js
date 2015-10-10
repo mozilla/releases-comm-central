@@ -3,7 +3,7 @@
  * Test suite for nsAbAutoCompleteSearch
  */
 
-const ACR = Components.interfaces.nsIAutoCompleteResult;
+var ACR = Components.interfaces.nsIAutoCompleteResult;
 
 function acObserver() {}
 

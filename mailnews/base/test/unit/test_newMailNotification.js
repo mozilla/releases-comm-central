@@ -8,7 +8,7 @@
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const iNMNS = Ci.mozINewMailNotificationService;
+var iNMNS = Ci.mozINewMailNotificationService;
 
 /*
  * Register listener for a particular event, make sure it shows up in the right lists
@@ -64,7 +64,7 @@ add_test(function testMultiListeners() {
   run_next_test();
 });
 
-const countInboxesPref = "mail.notification.count.inbox_only";
+var countInboxesPref = "mail.notification.count.inbox_only";
 
 /* Make sure we get a notification call when the unread count changes on an Inbox */
 add_test(function testNotifyInbox() {

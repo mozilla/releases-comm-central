@@ -9,15 +9,15 @@
 
 // make SOLO_TEST=composition/test-drafts.js mozmill-one
 
-const MODULE_NAME = "test-drafts";
+var MODULE_NAME = "test-drafts";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
 
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/mailServices.js");
 
-const kBoxId = "msgNotificationBar";
+var kBoxId = "msgNotificationBar";
 var draftsFolder;
 
 function setupModule(module) {

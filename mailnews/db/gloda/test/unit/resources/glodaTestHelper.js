@@ -40,9 +40,9 @@ registerFolderEventLogHelper();
 
 
 // Create a message generator
-const msgGen = gMessageGenerator = new MessageGenerator();
+var msgGen = gMessageGenerator = new MessageGenerator();
 // Create a message scenario generator using that message generator
-const scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
+var scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
 
 Components.utils.import("resource:///modules/errUtils.js");
 
@@ -70,7 +70,7 @@ Services.prefs.setBoolPref("mailnews.database.global.indexer.perform_initial_swe
 // yes to debug output
 Services.prefs.setBoolPref("mailnews.database.global.logging.dump", true);
 
-const ENVIRON_MAPPINGS = [
+var ENVIRON_MAPPINGS = [
   {
     envVar: "GLODA_DATASTORE_EXPLAIN_TO_PATH",
     prefName: "mailnews.database.global.datastore.explainToPath"
@@ -106,7 +106,7 @@ Log4Moz.repository.rootLogger.addAppender(throwingAppender);
 var LOG = Log4Moz.repository.getLogger("gloda.test");
 
 // index_msg does not export this, so we need to provide it.
-const GLODA_BAD_MESSAGE_ID = 2,
+var GLODA_BAD_MESSAGE_ID = 2,
       GLODA_OLD_BAD_MESSAGE_ID = 1;
 
 // -- Add a hook that makes folders not filthy when we first see them.
@@ -247,7 +247,7 @@ if (logHelperHasInterestedListeners) {
   }
 }
 
-const _wait_for_gloda_indexer_defaults = {
+var _wait_for_gloda_indexer_defaults = {
   verifier: null,
   augment: false,
   deleted: null,

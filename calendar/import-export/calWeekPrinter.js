@@ -16,8 +16,8 @@ function calWeekPrinter() {
     this.wrappedJSObject = this;
 }
 
-const calWeekPrinterClassID = Components.ID("{2d6ec97b-9109-4b92-89c5-d4b4806619ce}");
-const calWeekPrinterInterfaces = [Components.interfaces.calIPrintFormatter];
+var calWeekPrinterClassID = Components.ID("{2d6ec97b-9109-4b92-89c5-d4b4806619ce}");
+var calWeekPrinterInterfaces = [Components.interfaces.calIPrintFormatter];
 calWeekPrinter.prototype = {
     classID: calWeekPrinterClassID,
     QueryInterface: XPCOMUtils.generateQI(calWeekPrinterInterfaces),

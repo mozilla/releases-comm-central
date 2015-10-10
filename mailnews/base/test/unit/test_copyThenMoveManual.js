@@ -10,12 +10,12 @@ load("../../../resources/POP3pump.js");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
-const gFiles = ["../../../data/bugmail1"];
+var gFiles = ["../../../data/bugmail1"];
 var gCopyFolder;
 var gMoveFolder;
 var gFilter; // the test filter
 var gFilterList;
-const gTestArray =
+var gTestArray =
 [
   function createFilters() {
     // setup manual copy then move mail filters on the inbox

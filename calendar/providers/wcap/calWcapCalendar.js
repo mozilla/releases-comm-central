@@ -10,8 +10,8 @@ function calWcapCalendar(/*optional*/session, /*optional*/calProps) {
     this.m_session = session;
     this.m_calProps = calProps;
 }
-const calWcapCalendarClassID = Components.ID("{cf4d93e5-af79-451a-95f3-109055b32ef0}");
-const calWcapCalendarInterfaces = [
+var calWcapCalendarClassID = Components.ID("{cf4d93e5-af79-451a-95f3-109055b32ef0}");
+var calWcapCalendarInterfaces = [
     calIWcapCalendar,
     calICalendar,
     Components.interfaces.calISchedulingSupport,

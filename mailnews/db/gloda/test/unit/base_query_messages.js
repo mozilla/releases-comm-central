@@ -92,11 +92,11 @@ function uniqueTermGenerator(aNum) {
   return s;
 }
 
-const UNIQUE_OFFSET_CONV = 0;
-const UNIQUE_OFFSET_AUTHOR = 26;
-const UNIQUE_OFFSET_BODY = 0;
-const UNIQUE_OFFSET_SUBJECT = 26 * 26;
-const UNIQUE_OFFSET_ATTACHMENT = 26 * 26 * 26;
+var UNIQUE_OFFSET_CONV = 0;
+var UNIQUE_OFFSET_AUTHOR = 26;
+var UNIQUE_OFFSET_BODY = 0;
+var UNIQUE_OFFSET_SUBJECT = 26 * 26;
+var UNIQUE_OFFSET_ATTACHMENT = 26 * 26 * 26;
 
 /**
  * Categorize a synthetic message by conversation/folder/people in the 'world'

@@ -7,10 +7,10 @@
  * folder-display/test-message-pane-visibility.js.
  */
 
-const MODULE_NAME = "test-session-store";
+var MODULE_NAME = "test-session-store";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var controller = {};
 Cu.import("resource://mozmill/modules/controller.js", controller);
@@ -24,7 +24,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 var folderA, folderB;
 
 // With async file writes, use a delay larger than the session autosave timer.
-const asyncFileWriteDelayMS = 1000;
+var asyncFileWriteDelayMS = 1000;
 
 /* ........ Helper Functions ................*/
 

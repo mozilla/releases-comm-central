@@ -5,8 +5,8 @@
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const nsIFolderListener = Components.interfaces.nsIFolderListener;
-const numListenerFunctions = 8;
+var nsIFolderListener = Components.interfaces.nsIFolderListener;
+var numListenerFunctions = 8;
 
 var gMailSessionNotifier = MailServices.mailSession.QueryInterface(nsIFolderListener);
 

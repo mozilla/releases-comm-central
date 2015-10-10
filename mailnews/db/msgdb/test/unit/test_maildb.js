@@ -8,9 +8,9 @@ load("../../../../resources/messageGenerator.js");
 var dbService;
 var gTestFolder;
 var gCurTestNum = 0;
-const kNumTestMessages = 10;
+var kNumTestMessages = 10;
 
-const gTestArray =
+var gTestArray =
 [
   function test_db_open() {
     dbService = Components.classes["@mozilla.org/msgDatabase/msgDBService;1"]

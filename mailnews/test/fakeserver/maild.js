@@ -25,25 +25,25 @@ var CC = Components.Constructor;
  */
 var gThreadManager = Services.tm;
 
-const fsDebugNone = 0;
-const fsDebugRecv = 1;
-const fsDebugRecvSend = 2;
-const fsDebugAll = 3;
+var fsDebugNone = 0;
+var fsDebugRecv = 1;
+var fsDebugRecvSend = 2;
+var fsDebugAll = 3;
 
 /**
  * JavaScript constructors for commonly-used classes; precreating these is a
  * speedup over doing the same from base principles.  See the docs at
  * http://developer.mozilla.org/en/Components.Constructor for details.
  */
-const ServerSocket = CC("@mozilla.org/network/server-socket;1",
+var ServerSocket = CC("@mozilla.org/network/server-socket;1",
                         "nsIServerSocket",
                         "init");
-const BinaryInputStream = CC("@mozilla.org/binaryinputstream;1",
+var BinaryInputStream = CC("@mozilla.org/binaryinputstream;1",
                              "nsIBinaryInputStream",
                              "setInputStream");
 
 // Time out after 3 minutes
-const TIMEOUT = 3*60*1000;
+var TIMEOUT = 3*60*1000;
 
 /******************************************************************************
  * The main server handling class. A fake server consists of three parts, this

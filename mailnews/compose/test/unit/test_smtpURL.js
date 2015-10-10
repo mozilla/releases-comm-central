@@ -4,7 +4,7 @@
  * XXX this test needs extending as we fix up nsSmtpUrl.
  */
 
-const smtpURLs =
+var smtpURLs =
   [ { url: "smtp://user@localhost/",
       spec: "smtp://user@localhost/",
       username: "user"

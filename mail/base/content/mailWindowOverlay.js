@@ -11,12 +11,12 @@ Components.utils.import("resource:///modules/MailUtils.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
 
-const ADDR_DB_LARGE_COMMIT       = 1;
+var ADDR_DB_LARGE_COMMIT       = 1;
 
-const kClassicMailLayout = 0;
-const kWideMailLayout = 1;
-const kVerticalMailLayout = 2;
-const kMailLayoutCommandMap =
+var kClassicMailLayout = 0;
+var kWideMailLayout = 1;
+var kVerticalMailLayout = 2;
+var kMailLayoutCommandMap =
 {
   "cmd_viewClassicMailLayout": kClassicMailLayout,
   "cmd_viewWideMailLayout": kWideMailLayout,
@@ -27,9 +27,9 @@ const kMailLayoutCommandMap =
 // content for a particular message.
 // if you change or add more values to these constants, be sure to modify
 // the corresponding definitions in nsMsgContentPolicy.cpp
-const kNoRemoteContentPolicy = 0;
-const kBlockRemoteContent = 1;
-const kAllowRemoteContent = 2;
+var kNoRemoteContentPolicy = 0;
+var kBlockRemoteContent = 1;
+var kAllowRemoteContent = 2;
 
 // Timer to mark read, if the user has configured the app to mark a message as
 // read if it is viewed for more than n seconds.

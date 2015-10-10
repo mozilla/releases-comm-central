@@ -14,7 +14,7 @@
  */
 this.EXPORTED_SYMBOLS = ["ircNonStandard"];
 
-const {interfaces: Ci, utils: Cu} = Components;
+var {interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/ircHandlers.jsm");
 Cu.import("resource:///modules/ircUtils.jsm");

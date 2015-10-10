@@ -60,8 +60,8 @@ LimitIterator.prototype = {
   },
 };
 
-const JS_HAS_SYMBOLS = typeof Symbol === "function";
-const ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
+var JS_HAS_SYMBOLS = typeof Symbol === "function";
+var ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
 
 /**
  * Iterate over the array until we hit the end or the maximum length,

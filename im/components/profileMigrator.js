@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
 
 function InstantbirdProfileMigrator() { }
 
@@ -61,5 +61,5 @@ InstantbirdProfileMigrator.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIProfileMigrator])
 };
 
-const NSGetFactory =
+var NSGetFactory =
   XPCOMUtils.generateNSGetFactory([InstantbirdProfileMigrator]);

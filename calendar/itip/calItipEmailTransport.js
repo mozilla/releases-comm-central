@@ -22,8 +22,8 @@ function calItipEmailTransport() {
     this.wrappedJSObject = this;
     this._initEmailTransport();
 }
-const calItipEmailTransportClassID = Components.ID("{d4d7b59e-c9e0-4a7a-b5e8-5958f85515f0}");
-const calItipEmailTransportInterfaces = [Components.interfaces.calIItipTransport];
+var calItipEmailTransportClassID = Components.ID("{d4d7b59e-c9e0-4a7a-b5e8-5958f85515f0}");
+var calItipEmailTransportInterfaces = [Components.interfaces.calIItipTransport];
 calItipEmailTransport.prototype = {
     classID: calItipEmailTransportClassID,
     QueryInterface: XPCOMUtils.generateQI(calItipEmailTransportInterfaces),

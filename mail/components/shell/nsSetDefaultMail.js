@@ -10,8 +10,8 @@
  * by making the current executable the "default mail app."
  */
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -35,4 +35,4 @@ nsSetDefaultMail.prototype = {
   classID: Components.ID("{ED117D0A-F6C2-47d8-8A71-0E15BABD2554}")
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([nsSetDefaultMail]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsSetDefaultMail]);

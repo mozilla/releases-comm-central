@@ -12,10 +12,10 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
  */
 
 this.EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, import needs this
-const cIOL = Components.interfaces.calIOperationListener;
-const cIC = Components.interfaces.calICalendar;
+var cIOL = Components.interfaces.calIOperationListener;
+var cIC = Components.interfaces.calICalendar;
 
-const promisifyProxyHandler = {
+var promisifyProxyHandler = {
     promiseOperation: function(target, name, args) {
         let deferred = PromiseUtils.defer();
         let listener = cal.async.promiseOperationListener(deferred);

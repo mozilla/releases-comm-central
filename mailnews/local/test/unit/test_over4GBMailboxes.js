@@ -30,9 +30,9 @@ Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
 // If we're running out of memory parsing the folder, lowering the
 // block size might help, though it will slow the test down and consume
 // more disk space.
-const kSparseBlockSize = 102400000;
-const kSizeLimit = 0x100000000; // 4GiB
-const kNearLimit = kSizeLimit - 0x1000000; // -16MiB
+var kSparseBlockSize = 102400000;
+var kSizeLimit = 0x100000000; // 4GiB
+var kNearLimit = kSizeLimit - 0x1000000; // -16MiB
 
 var gGotAlert = false;
 var gInboxFile = null;         // The mbox file storing the Inbox folder

@@ -3,13 +3,13 @@
  * Test suite for getting mailbox urls via the protocol handler.
  */
 
-const defaultProtocolFlags =
+var defaultProtocolFlags =
   Ci.nsIProtocolHandler.URI_DANGEROUS_TO_LOAD |
   Ci.nsIProtocolHandler.URI_STD |
   Ci.nsIProtocolHandler.URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT |
   Ci.nsIProtocolHandler.URI_FORBIDS_COOKIE_ACCESS;
 
-const protocols =
+var protocols =
   [ { protocol: "mailbox",
       urlSpec: "mailbox://user@localhost/",
       // mailbox protocol doesn't use a port

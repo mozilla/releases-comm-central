@@ -236,7 +236,7 @@ function setup_test_noun_and_attributes() {
 
 /* ===== Tests ===== */
 
-const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
+var ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 function test_lots_of_string_constraints() {
   let stringConstraints = [];
   for (let i = 0; i < 2049; i++) {
@@ -364,17 +364,17 @@ function test_empty_set_logic() {
  *  Gloda and storage like to store things as PRTime and so we do it too,
  *  even though milliseconds are the actual granularity of JS Date instances.
  */
-const SCORE_TIMESTAMP_FACTOR = 1000 * 1000 * 60 * 60 * 24 * 7;
+var SCORE_TIMESTAMP_FACTOR = 1000 * 1000 * 60 * 60 * 24 * 7;
 
 /**
  * How many score points for each fulltext match?
  */
-const SCORE_FOR_FULLTEXT_MATCH = 1;
+var SCORE_FOR_FULLTEXT_MATCH = 1;
 
 /**
  * Roughly how many characters are in each offset match.
  */
-const OFFSET_CHARS_PER_FULLTEXT_MATCH = 8;
+var OFFSET_CHARS_PER_FULLTEXT_MATCH = 8;
 
 var fooWidgets = null;
 var barBazWidgets = null;
@@ -411,17 +411,17 @@ function setup_search_ranking_idiom() {
 }
 
 // add one because the last snippet shouldn't have a trailing space
-const OFFSET_SCORE_SQL_SNIPPET =
+var OFFSET_SCORE_SQL_SNIPPET =
   "(((length(osets) + 1) / " + OFFSET_CHARS_PER_FULLTEXT_MATCH + ") * " +
   SCORE_FOR_FULLTEXT_MATCH + ")";
 
-const SCORE_SQL_SNIPPET =
+var SCORE_SQL_SNIPPET =
   "(" + OFFSET_SCORE_SQL_SNIPPET + " + notabilityCol)";
 
-const DASCORE_SQL_SNIPPET =
+var DASCORE_SQL_SNIPPET =
   "((" + SCORE_SQL_SNIPPET + " * " + SCORE_TIMESTAMP_FACTOR + ") + dateCol)";
 
-const WIDGET_FULLTEXT_QUERY_EXPLICIT_SQL =
+var WIDGET_FULLTEXT_QUERY_EXPLICIT_SQL =
   "SELECT ext_widget.*, offsets(ext_widgetText) AS osets " +
     "FROM ext_widget, ext_widgetText WHERE ext_widgetText MATCH ?" +
     " AND ext_widget.id == ext_widgetText.docid";

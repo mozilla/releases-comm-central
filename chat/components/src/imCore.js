@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
+var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 
@@ -10,18 +10,18 @@ XPCOMUtils.defineLazyServiceGetter(this, "categoryManager",
                                    "@mozilla.org/categorymanager;1",
                                    "nsICategoryManager");
 
-const kQuitApplicationGranted = "quit-application-granted";
-const kProtocolPluginCategory = "im-protocol-plugin";
+var kQuitApplicationGranted = "quit-application-granted";
+var kProtocolPluginCategory = "im-protocol-plugin";
 
-const kPrefReportIdle =        "messenger.status.reportIdle";
-const kPrefUserIconFilename =  "messenger.status.userIconFileName";
-const kPrefUserDisplayname =   "messenger.status.userDisplayName";
-const kPrefTimeBeforeIdle =    "messenger.status.timeBeforeIdle";
-const kPrefAwayWhenIdle =      "messenger.status.awayWhenIdle";
-const kPrefDefaultMessage =    "messenger.status.defaultIdleAwayMessage";
+var kPrefReportIdle =        "messenger.status.reportIdle";
+var kPrefUserIconFilename =  "messenger.status.userIconFileName";
+var kPrefUserDisplayname =   "messenger.status.userDisplayName";
+var kPrefTimeBeforeIdle =    "messenger.status.timeBeforeIdle";
+var kPrefAwayWhenIdle =      "messenger.status.awayWhenIdle";
+var kPrefDefaultMessage =    "messenger.status.defaultIdleAwayMessage";
 
-const NS_IOSERVICE_GOING_OFFLINE_TOPIC = "network:offline-about-to-go-offline";
-const NS_IOSERVICE_OFFLINE_STATUS_TOPIC = "network:offline-status-changed";
+var NS_IOSERVICE_GOING_OFFLINE_TOPIC = "network:offline-about-to-go-offline";
+var NS_IOSERVICE_OFFLINE_STATUS_TOPIC = "network:offline-status-changed";
 
 function UserStatus()
 {
@@ -369,4 +369,4 @@ CoreService.prototype = {
   contractID: "@mozilla.org/chat/core-service;1"
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([CoreService]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([CoreService]);

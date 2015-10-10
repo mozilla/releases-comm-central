@@ -9,11 +9,11 @@ load("../../../resources/passwordStorage.js");
 
 var server;
 
-const kSender = "from@foo.invalid";
-const kTo = "to@foo.invalid";
-const kUsername = "testsmtp";
+var kSender = "from@foo.invalid";
+var kTo = "to@foo.invalid";
+var kUsername = "testsmtp";
 // This is the same as in the signons file.
-const kPassword = "smtptest";
+var kPassword = "smtptest";
 
 add_task(function *() {
   function createHandler(d) {

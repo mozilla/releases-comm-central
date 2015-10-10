@@ -5,16 +5,16 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-const kDefaultFontType          = "font.default.%LANG%";
-const kFontNameFmtSerif         = "font.name.serif.%LANG%";
-const kFontNameFmtSansSerif     = "font.name.sans-serif.%LANG%";
-const kFontNameFmtMonospace     = "font.name.monospace.%LANG%";
-const kFontNameListFmtSerif     = "font.name-list.serif.%LANG%";
-const kFontNameListFmtSansSerif = "font.name-list.sans-serif.%LANG%";
-const kFontNameListFmtMonospace = "font.name-list.monospace.%LANG%";
-const kFontSizeFmtVariable      = "font.size.variable.%LANG%";
-const kFontSizeFmtFixed         = "font.size.fixed.%LANG%";
-const kFontMinSizeFmt           = "font.minimum-size.%LANG%";
+var kDefaultFontType          = "font.default.%LANG%";
+var kFontNameFmtSerif         = "font.name.serif.%LANG%";
+var kFontNameFmtSansSerif     = "font.name.sans-serif.%LANG%";
+var kFontNameFmtMonospace     = "font.name.monospace.%LANG%";
+var kFontNameListFmtSerif     = "font.name-list.serif.%LANG%";
+var kFontNameListFmtSansSerif = "font.name-list.sans-serif.%LANG%";
+var kFontNameListFmtMonospace = "font.name-list.monospace.%LANG%";
+var kFontSizeFmtVariable      = "font.size.variable.%LANG%";
+var kFontSizeFmtFixed         = "font.size.fixed.%LANG%";
+var kFontMinSizeFmt           = "font.minimum-size.%LANG%";
 
 var gFontsDialog = {
   _selectLanguageGroup: function (aLanguageGroup)

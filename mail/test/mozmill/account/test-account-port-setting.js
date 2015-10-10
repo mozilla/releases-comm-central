@@ -15,7 +15,7 @@ Components.utils.import("resource://mozmill/modules/controller.js", controller);
 var elib = {};
 Components.utils.import("resource://mozmill/modules/elementslib.js", elib);
 
-const PORT_NUMBERS_TO_TEST =
+var PORT_NUMBERS_TO_TEST =
   [
     "110", // The original port number. We don't input this though.
     "456", // Random port number.

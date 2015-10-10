@@ -9,7 +9,7 @@
 load("../../../../mailnews/resources/logHelper.js");
 load("../../../../mailnews/resources/asyncTestUtils.js");
 
-const gStringBundle = Services.strings.createBundle(
+var gStringBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties");
 
 var gMessenger = Cc["@mozilla.org/messenger;1"]

@@ -40,13 +40,13 @@ this.EXPORTED_SYMBOLS = [
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-const Cu = Components.utils;
-const CC = Components.Constructor;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
+var Cu = Components.utils;
+var CC = Components.Constructor;
 
-const PR_UINT32_MAX = Math.pow(2, 32) - 1;
+var PR_UINT32_MAX = Math.pow(2, 32) - 1;
 
 /** True if debugging output is enabled, false otherwise. */
 var DEBUG = false; // non-const *only* so tweakable in server tests
@@ -94,30 +94,30 @@ HttpError.prototype =
 /**
  * Errors thrown to trigger specific HTTP server responses.
  */
-const HTTP_400 = new HttpError(400, "Bad Request");
-const HTTP_401 = new HttpError(401, "Unauthorized");
-const HTTP_402 = new HttpError(402, "Payment Required");
-const HTTP_403 = new HttpError(403, "Forbidden");
-const HTTP_404 = new HttpError(404, "Not Found");
-const HTTP_405 = new HttpError(405, "Method Not Allowed");
-const HTTP_406 = new HttpError(406, "Not Acceptable");
-const HTTP_407 = new HttpError(407, "Proxy Authentication Required");
-const HTTP_408 = new HttpError(408, "Request Timeout");
-const HTTP_409 = new HttpError(409, "Conflict");
-const HTTP_410 = new HttpError(410, "Gone");
-const HTTP_411 = new HttpError(411, "Length Required");
-const HTTP_412 = new HttpError(412, "Precondition Failed");
-const HTTP_413 = new HttpError(413, "Request Entity Too Large");
-const HTTP_414 = new HttpError(414, "Request-URI Too Long");
-const HTTP_415 = new HttpError(415, "Unsupported Media Type");
-const HTTP_417 = new HttpError(417, "Expectation Failed");
+var HTTP_400 = new HttpError(400, "Bad Request");
+var HTTP_401 = new HttpError(401, "Unauthorized");
+var HTTP_402 = new HttpError(402, "Payment Required");
+var HTTP_403 = new HttpError(403, "Forbidden");
+var HTTP_404 = new HttpError(404, "Not Found");
+var HTTP_405 = new HttpError(405, "Method Not Allowed");
+var HTTP_406 = new HttpError(406, "Not Acceptable");
+var HTTP_407 = new HttpError(407, "Proxy Authentication Required");
+var HTTP_408 = new HttpError(408, "Request Timeout");
+var HTTP_409 = new HttpError(409, "Conflict");
+var HTTP_410 = new HttpError(410, "Gone");
+var HTTP_411 = new HttpError(411, "Length Required");
+var HTTP_412 = new HttpError(412, "Precondition Failed");
+var HTTP_413 = new HttpError(413, "Request Entity Too Large");
+var HTTP_414 = new HttpError(414, "Request-URI Too Long");
+var HTTP_415 = new HttpError(415, "Unsupported Media Type");
+var HTTP_417 = new HttpError(417, "Expectation Failed");
 
-const HTTP_500 = new HttpError(500, "Internal Server Error");
-const HTTP_501 = new HttpError(501, "Not Implemented");
-const HTTP_502 = new HttpError(502, "Bad Gateway");
-const HTTP_503 = new HttpError(503, "Service Unavailable");
-const HTTP_504 = new HttpError(504, "Gateway Timeout");
-const HTTP_505 = new HttpError(505, "HTTP Version Not Supported");
+var HTTP_500 = new HttpError(500, "Internal Server Error");
+var HTTP_501 = new HttpError(501, "Not Implemented");
+var HTTP_502 = new HttpError(502, "Bad Gateway");
+var HTTP_503 = new HttpError(503, "Service Unavailable");
+var HTTP_504 = new HttpError(504, "Gateway Timeout");
+var HTTP_505 = new HttpError(505, "HTTP Version Not Supported");
 
 /** Creates a hash with fields corresponding to the values in arr. */
 function array2obj(arr)
@@ -138,7 +138,7 @@ function range(x, y)
 }
 
 /** An object (hash) whose fields are the numbers of all HTTP error codes. */
-const HTTP_ERROR_CODES = array2obj(range(400, 417).concat(range(500, 505)));
+var HTTP_ERROR_CODES = array2obj(range(400, 417).concat(range(500, 505)));
 
 
 /**
@@ -150,16 +150,16 @@ const HTTP_ERROR_CODES = array2obj(range(400, 417).concat(range(500, 505)));
  * file.  Therefore, any file whose name ends with exactly one of the character
  * is "hidden" and available for use by the server.
  */
-const HIDDEN_CHAR = "^";
+var HIDDEN_CHAR = "^";
 
 /**
  * The file name suffix indicating the file containing overridden headers for
  * a requested file.
  */
-const HEADERS_SUFFIX = HIDDEN_CHAR + "headers" + HIDDEN_CHAR;
+var HEADERS_SUFFIX = HIDDEN_CHAR + "headers" + HIDDEN_CHAR;
 
 /** Type used to denote SJS scripts for CGI-like functionality. */
-const SJS_TYPE = "sjs";
+var SJS_TYPE = "sjs";
 
 /** Base for relative timestamps produced by dumpn(). */
 var firstStamp = 0;
@@ -218,24 +218,24 @@ function getRootPrefBranch()
  * speedup over doing the same from base principles.  See the docs at
  * http://developer.mozilla.org/en/docs/Components.Constructor for details.
  */
-const ServerSocket = CC("@mozilla.org/network/server-socket;1",
+var ServerSocket = CC("@mozilla.org/network/server-socket;1",
                         "nsIServerSocket",
                         "init");
-const ScriptableInputStream = CC("@mozilla.org/scriptableinputstream;1",
+var ScriptableInputStream = CC("@mozilla.org/scriptableinputstream;1",
                                  "nsIScriptableInputStream",
                                  "init");
-const Pipe = CC("@mozilla.org/pipe;1",
+var Pipe = CC("@mozilla.org/pipe;1",
                 "nsIPipe",
                 "init");
-const FileInputStream = CC("@mozilla.org/network/file-input-stream;1",
+var FileInputStream = CC("@mozilla.org/network/file-input-stream;1",
                            "nsIFileInputStream",
                            "init");
-const ConverterInputStream = CC("@mozilla.org/intl/converter-input-stream;1",
+var ConverterInputStream = CC("@mozilla.org/intl/converter-input-stream;1",
                                 "nsIConverterInputStream",
                                 "init");
-const WritablePropertyBag = CC("@mozilla.org/hash-property-bag;1",
+var WritablePropertyBag = CC("@mozilla.org/hash-property-bag;1",
                                "nsIWritablePropertyBag2");
-const SupportsString = CC("@mozilla.org/supports-string;1",
+var SupportsString = CC("@mozilla.org/supports-string;1",
                           "nsISupportsString");
 
 /* These two are non-const only so a test can overwrite them. */
@@ -816,7 +816,7 @@ var HttpServer = nsHttpServer;
 // IPv4address = 1*digit "." 1*digit "." 1*digit "." 1*digit
 //
 
-const HOST_REGEX =
+var HOST_REGEX =
   new RegExp("^(?:" +
                // *( domainlabel "." )
                "(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)*" +
@@ -1209,10 +1209,10 @@ function readBytes(inputStream, count)
 
 
 /** Request reader processing states; see RequestReader for details. */
-const READER_IN_REQUEST_LINE = 0;
-const READER_IN_HEADERS      = 1;
-const READER_IN_BODY         = 2;
-const READER_FINISHED        = 3;
+var READER_IN_REQUEST_LINE = 0;
+var READER_IN_HEADERS      = 1;
+var READER_IN_BODY         = 2;
+var READER_FINISHED        = 3;
 
 
 /**
@@ -1856,7 +1856,7 @@ RequestReader.prototype =
 
 
 /** The character codes for CR and LF. */
-const CR = 0x0D, LF = 0x0A;
+var CR = 0x0D, LF = 0x0A;
 
 /**
  * Calculates the number of characters before the first CRLF pair in array, or
@@ -3423,7 +3423,7 @@ FileMap.prototype =
 //             | "," | ";" | ":" | "\" | <">
 //             | "/" | "[" | "]" | "?" | "="
 //             | "{" | "}" | SP  | HT
-const IS_TOKEN_ARRAY =
+var IS_TOKEN_ARRAY =
   [0, 0, 0, 0, 0, 0, 0, 0, //   0
    0, 0, 0, 0, 0, 0, 0, 0, //   8
    0, 0, 0, 0, 0, 0, 0, 0, //  16
@@ -4692,7 +4692,7 @@ WriteThroughCopier.prototype =
 /**
  * A container for utility functions used with HTTP headers.
  */
-const headerUtils =
+var headerUtils =
 {
   /**
    * Normalizes fieldName (by converting it to lowercase) and ensures it is a

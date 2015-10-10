@@ -17,10 +17,10 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 // Globals
 
 // Messages to load must have CRLF line endings, that is Windows style
-const gMessage = "bugmail10"; // message file used as the test message
+var gMessage = "bugmail10"; // message file used as the test message
 
-const gCustomValue = "Custom";
-const gCustomList = ["Custom1", "Custom2", "Custom3"];
+var gCustomValue = "Custom";
+var gCustomList = ["Custom1", "Custom2", "Custom3"];
 
 var gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
   .createInstance(Ci.nsIMsgWindow);

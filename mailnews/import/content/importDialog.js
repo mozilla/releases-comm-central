@@ -19,7 +19,7 @@ var selectedModuleName = null;
 var addInterface = null ;
 var newFeedAcctCreated = false;
 
-const nsISupportsString = Components.interfaces.nsISupportsString;
+var nsISupportsString = Components.interfaces.nsISupportsString;
 
 function OnLoadImportDialog()
 {

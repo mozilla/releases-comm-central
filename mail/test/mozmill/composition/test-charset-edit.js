@@ -9,10 +9,10 @@
 
 // make SOLO_TEST=composition/test-charset-edit.js mozmill-one
 
-const MODULE_NAME = "test-charset-upgrade";
+var MODULE_NAME = "test-charset-upgrade";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-helpers"];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-helpers"];
 
 var os = {};
 Cu.import("resource://mozmill/stdlib/os.js", os);

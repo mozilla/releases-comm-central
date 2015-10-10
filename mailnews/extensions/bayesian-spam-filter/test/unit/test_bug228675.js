@@ -14,9 +14,9 @@ Components.utils.import("resource:///modules/mailServices.js");
 Services.prefs.setIntPref("mailnews.bayesian_spam_filter.junk_maxtokens", 75);
 
 // local constants
-const kUnclassified = MailServices.junk.UNCLASSIFIED;
-const kJunk = MailServices.junk.JUNK;
-const kGood = MailServices.junk.GOOD;
+var kUnclassified = MailServices.junk.UNCLASSIFIED;
+var kJunk = MailServices.junk.JUNK;
+var kGood = MailServices.junk.GOOD;
 
 var emails =          [ "ham1.eml",  "ham2.eml",  "spam1.eml",
                         "spam2.eml", "spam3.eml", "spam4.eml" ];

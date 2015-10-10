@@ -10,7 +10,7 @@ var gSearchTermSession; // really an in memory temporary filter we use to read i
 var gSearchFolderURIs = "";
 var gMessengerBundle = null;
 
-const nsMsgSearchScope = Components.interfaces.nsMsgSearchScope;
+var nsMsgSearchScope = Components.interfaces.nsMsgSearchScope;
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/PluralForm.jsm");

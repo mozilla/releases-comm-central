@@ -9,7 +9,7 @@ this.EXPORTED_SYMBOLS = [
 ];
 
 Components.utils.import("resource:///modules/imServices.jsm");
-const Ci = Components.interfaces;
+var Ci = Components.interfaces;
 
 var MessageFormat = {
   _observedPrefs: [],

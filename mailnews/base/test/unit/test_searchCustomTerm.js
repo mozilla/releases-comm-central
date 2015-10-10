@@ -10,7 +10,7 @@ load("../../../resources/searchTestUtils.js");
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const kCustomId = "xpcomtest@mozilla.org#test";
+var kCustomId = "xpcomtest@mozilla.org#test";
 var gHdr;
 
 var Tests =

@@ -11,10 +11,10 @@ this.EXPORTED_SYMBOLS = ["fixIterator", "toXPCOMArray", "toArray"];
 
 Components.utils.import("resource://gre/modules/Deprecated.jsm");
 
-const Ci = Components.interfaces;
+var Ci = Components.interfaces;
 
-const JS_HAS_SYMBOLS = typeof Symbol === "function";
-const ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
+var JS_HAS_SYMBOLS = typeof Symbol === "function";
+var ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
 
 /**
  * This function will take a number of objects and convert them to an array.

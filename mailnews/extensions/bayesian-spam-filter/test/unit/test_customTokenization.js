@@ -7,13 +7,13 @@
 Components.utils.import("resource:///modules/mailServices.js");
 
 // command functions for test data
-const kTrain = 0;  // train a file
-const kTest = 1;   // test headers returned from detail
-const kSetup = 2;  // run a setup function
+var kTrain = 0;  // train a file
+var kTest = 1;   // test headers returned from detail
+var kSetup = 2;  // run a setup function
 
 // trait ids
-const kProArray = [3];
-const kAntiArray = [4];
+var kProArray = [3];
+var kAntiArray = [4];
 
 var gTest; // currently active test
 

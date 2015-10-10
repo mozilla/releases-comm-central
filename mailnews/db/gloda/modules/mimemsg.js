@@ -7,15 +7,15 @@ this.EXPORTED_SYMBOLS = ['MsgHdrToMimeMessage',
                           'MimeBody', 'MimeUnknown',
                           'MimeMessageAttachment'];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
+var Cu = Components.utils;
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const EMITTER_MIME_CODE = "application/x-js-mime-message";
+var EMITTER_MIME_CODE = "application/x-js-mime-message";
 
 /**
  * The URL listener is surplus because the CallbackStreamListener ends up

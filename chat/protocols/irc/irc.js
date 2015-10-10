@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
@@ -154,7 +154,7 @@ function _setMode(aAddNewMode, aNewModes) {
 }
 
 // Properties / methods shared by both ircChannel and ircConversation.
-const GenericIRCConversation = {
+var GenericIRCConversation = {
   _observedNicks: [],
   // This is set to true after a message is sent to notify the 401
   // ERR_NOSUCHNICK handler to write an error message to the conversation.
@@ -1954,4 +1954,4 @@ ircProtocol.prototype = {
   classID: Components.ID("{607b2c0b-9504-483f-ad62-41de09238aec}")
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([ircProtocol]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([ircProtocol]);

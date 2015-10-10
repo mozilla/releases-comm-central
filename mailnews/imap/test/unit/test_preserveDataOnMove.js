@@ -14,7 +14,7 @@ load("../../../resources/asyncTestUtils.js");
 // Globals
 Components.utils.import("resource:///modules/mailServices.js");
 
-const gMessage = "bugmail10"; // message file used as the test message
+var gMessage = "bugmail10"; // message file used as the test message
 
 setupIMAPPump();
 

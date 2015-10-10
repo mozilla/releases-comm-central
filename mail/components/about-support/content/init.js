@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
 
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
 Components.utils.import("resource://gre/modules/AddonManager.jsm");
@@ -18,15 +18,15 @@ Components.utils.import("resource:///modules/aboutSupport.js");
 
 // Any nodes marked with this class will be considered part of the UI only,
 // and therefore will not be copied.
-const CLASS_DATA_UIONLY = "data-uionly";
+var CLASS_DATA_UIONLY = "data-uionly";
 
 // Any nodes marked with this class will be considered private and will be
 // hidden if the user requests only public data to be shown or copied.
-const CLASS_DATA_PRIVATE = "data-private";
+var CLASS_DATA_PRIVATE = "data-private";
 
 // Any nodes marked with this class will only be displayed when the user chooses
 // to not display private data.
-const CLASS_DATA_PUBLIC = "data-public";
+var CLASS_DATA_PUBLIC = "data-public";
 
 window.onload = function () {
   // Get the support URL.

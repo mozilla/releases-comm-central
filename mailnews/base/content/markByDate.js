@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const MILLISECONDS_PER_HOUR   = 60 * 60 * 1000;
-const MICROSECONDS_PER_DAY    = 1000 * MILLISECONDS_PER_HOUR * 24;
+var MILLISECONDS_PER_HOUR   = 60 * 60 * 1000;
+var MICROSECONDS_PER_DAY    = 1000 * MILLISECONDS_PER_HOUR * 24;
 
 function onLoad()
 {

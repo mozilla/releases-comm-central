@@ -10,14 +10,14 @@
 
 // make SOLO_TEST=composition/test-save-changes-on-quit.js mozmill-one
 
-const MODULE_NAME = "test-save-changes-on-close";
+var MODULE_NAME = "test-save-changes-on-close";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
                          "prompt-helpers", "window-helpers"];
-const SAVE = 0
-const CANCEL = 1
-const DONT_SAVE = 2;
+var SAVE = 0
+var CANCEL = 1
+var DONT_SAVE = 2;
 
 var jumlib = {};
 Components.utils.import("resource://mozmill/modules/jum.js", jumlib);

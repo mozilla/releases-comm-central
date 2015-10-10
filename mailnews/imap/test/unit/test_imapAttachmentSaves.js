@@ -17,7 +17,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 
 // IMAP pump
 
-const kAttachFileName = 'bob.txt';
+var kAttachFileName = 'bob.txt';
 
 setupIMAPPump();
 

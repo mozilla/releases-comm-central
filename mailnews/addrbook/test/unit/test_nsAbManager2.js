@@ -4,9 +4,9 @@
  * getting the list of directories..
  */
 
-const nsIAbDirectory = Components.interfaces.nsIAbDirectory;
-const nsIAbListener = Components.interfaces.nsIAbListener;
-const numListenerOptions = 4;
+var nsIAbDirectory = Components.interfaces.nsIAbDirectory;
+var nsIAbListener = Components.interfaces.nsIAbListener;
+var numListenerOptions = 4;
 
 var gAblAll;
 var gAblSingle = new Array(numListenerOptions);

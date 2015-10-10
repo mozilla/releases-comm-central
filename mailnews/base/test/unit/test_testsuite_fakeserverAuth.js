@@ -9,8 +9,8 @@
 
 Components.utils.import("resource://testing-common/mailnews/auth.js");
 
-const kUsername = "fred1";
-const kPassword = "wilma2";
+var kUsername = "fred1";
+var kPassword = "wilma2";
 
 function run_test()
 {

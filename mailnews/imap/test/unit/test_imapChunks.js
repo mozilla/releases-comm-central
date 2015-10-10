@@ -7,11 +7,11 @@ Components.utils.import("resource:///modules/IOUtils.js");
 
 var gIMAPDaemon, gServer, gIMAPIncomingServer, gSavedMsgFile;
 
-const gIMAPService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
+var gIMAPService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
                        .getService(Ci.nsIMsgMessageService);
 
-const gFileName = "bug92111";
-const gMsgFile = do_get_file("../../../data/" + gFileName);
+var gFileName = "bug92111";
+var gMsgFile = do_get_file("../../../data/" + gFileName);
                      
 function run_test()
 {

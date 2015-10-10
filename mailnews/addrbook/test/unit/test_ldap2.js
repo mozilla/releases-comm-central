@@ -4,9 +4,9 @@
  * letters doesn't work.
  */
 
-const kLDAPDirectory = 0; // defined in nsDirPrefs.h
-const kLDAPUriPrefix = "moz-abldapdirectory://";
-const kLDAPTestSpec = "ldap://invalidhost//dc=intranet??sub?(objectclass=*)";
+var kLDAPDirectory = 0; // defined in nsDirPrefs.h
+var kLDAPUriPrefix = "moz-abldapdirectory://";
+var kLDAPTestSpec = "ldap://invalidhost//dc=intranet??sub?(objectclass=*)";
 
 function run_test() {
   // If nsIAbLDAPDirectory doesn't exist in our build options, someone has

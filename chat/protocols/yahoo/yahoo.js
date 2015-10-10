@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
@@ -14,8 +14,8 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
 );
 
 // These timeouts are in milliseconds.
-const kKeepAliveTimeout = 60 * 1000; // One minute.
-const kPingTimeout = 3600 * 1000; // One hour.
+var kKeepAliveTimeout = 60 * 1000; // One minute.
+var kPingTimeout = 3600 * 1000; // One hour.
 
 function YahooConversation(aAccount, aName)
 {
@@ -575,4 +575,4 @@ YahooProtocol.prototype = {
   classID: Components.ID("{50ea817e-5d79-4657-91ae-aa0a52bdb98c}")
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([YahooProtocol]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([YahooProtocol]);

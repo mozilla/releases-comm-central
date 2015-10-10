@@ -12,11 +12,11 @@
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const nsIMFNService = Ci.nsIMsgFolderNotificationService;
-const nsIMFListener = Ci.nsIMsgFolderListener;
+var nsIMFNService = Ci.nsIMsgFolderNotificationService;
+var nsIMFListener = Ci.nsIMsgFolderListener;
 
 
-const gIndividualFlags =
+var gIndividualFlags =
 [
   nsIMFNService.msgAdded,
   nsIMFNService.msgsClassified,

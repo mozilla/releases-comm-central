@@ -8,10 +8,10 @@
  * can be toggled properly.
  */
 
-const MODULE_NAME = "test-unread-folders";
+var MODULE_NAME = "test-unread-folders";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var rootFolder;
 var inboxFolder;

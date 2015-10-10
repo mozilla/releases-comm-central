@@ -15,8 +15,8 @@ var identity = null;
 var testFile1 = do_get_file("data/429891_testcase.eml");
 var testFile2 = do_get_file("data/message1.eml");
 
-const kSender = "from@foo.invalid";
-const kTo = "to@foo.invalid";
+var kSender = "from@foo.invalid";
+var kTo = "to@foo.invalid";
 
 var gMsgSendLater;
 

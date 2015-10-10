@@ -12,7 +12,7 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-const kXMLFile = "example.com.xml";
+var kXMLFile = "example.com.xml";
 var fetchConfigAbortable;
 var copyLocation;
 

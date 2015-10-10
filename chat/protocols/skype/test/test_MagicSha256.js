@@ -5,7 +5,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 var skype = {};
 Services.scriptloader.loadSubScript("resource:///components/skype.js", skype);
 
-const data = {
+var data = {
   "1416264993": "3a33ac47fe2ec1a33d569f4be5c69ddc",
   "1416387358": "eca9716e1eedcbe93320ba794cea3388",
   "1416392361": "2ed6fc80c3303caa137ae3fd4fcc7d80"

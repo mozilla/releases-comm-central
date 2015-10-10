@@ -4,15 +4,15 @@
  */
 
 // Intersperse these with UTF-8 values to check we handle them correctly.
-const kFNValue = "testFirst\u00D0";
-const kLNValue = "testLast";
-const kDNValue = "testDisplay\u00D1";
-const kEmailValue = "testEmail\u00D2@foo.invalid";
-const kEmailValueLC = "testemail\u00D2@foo.invalid";
-const kEmailValue2 = "test@test.foo.invalid";
+var kFNValue = "testFirst\u00D0";
+var kLNValue = "testLast";
+var kDNValue = "testDisplay\u00D1";
+var kEmailValue = "testEmail\u00D2@foo.invalid";
+var kEmailValueLC = "testemail\u00D2@foo.invalid";
+var kEmailValue2 = "test@test.foo.invalid";
 // Email without the @ or anything after it.
-const kEmailReducedValue = "testEmail\u00D2";
-const kCompanyValue = "Test\u00D0 Company";
+var kEmailReducedValue = "testEmail\u00D2";
+var kCompanyValue = "Test\u00D0 Company";
 
 function run_test() {
   // Create a new card

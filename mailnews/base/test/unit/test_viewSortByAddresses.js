@@ -22,7 +22,7 @@ Services.prefs.setBoolPref("mail.showCondensedAddresses", true);
 var gTestFolder;
 
 // Setup the display name to be opposite of alphabetic order of e-mail address.
-const cards = [
+var cards = [
   { email: "aaa@b.invalid", displayName: "4" },
   { email: "ccc@d.invalid", displayName: "3" },
   { email: "eee@f.invalid", displayName: "2" },

@@ -3,15 +3,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
 Cu.import("resource:///modules/mailServices.js");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const kACR = Ci.nsIAutoCompleteResult;
-const kSupportedTypes = new Set(["addr_newsgroups", "addr_followup"]);
+var kACR = Ci.nsIAutoCompleteResult;
+var kSupportedTypes = new Set(["addr_newsgroups", "addr_followup"]);
 
 function nsNewsAutoCompleteResult(aSearchString) {
   // Can't create this in the prototype as we'd get the same array for

@@ -6,7 +6,7 @@ Components.utils.import("resource://gre/modules/PluralForm.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 
-const mailtolength = 7;
+var mailtolength = 7;
 
 /**
  * Function to change the highlighted row back to the row that is currently

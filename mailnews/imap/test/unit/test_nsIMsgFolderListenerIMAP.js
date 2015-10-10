@@ -23,18 +23,18 @@ Components.utils.import("resource:///modules/mailServices.js");
 var gRootFolder;
 var gIMAPInbox, gIMAPFolder2, gIMAPFolder3, gIMAPTrashFolder;
 var gIMAPDaemon, gServer, gIMAPIncomingServer;
-const gMsgFile1 = do_get_file("../../../data/bugmail10");
-const gMsgFile2 = do_get_file("../../../data/bugmail11");
-const gMsgFile3 = do_get_file("../../../data/draft1");
-const gMsgFile4 = do_get_file("../../../data/bugmail7");
-const gMsgFile5 = do_get_file("../../../data/bugmail6");
+var gMsgFile1 = do_get_file("../../../data/bugmail10");
+var gMsgFile2 = do_get_file("../../../data/bugmail11");
+var gMsgFile3 = do_get_file("../../../data/draft1");
+var gMsgFile4 = do_get_file("../../../data/bugmail7");
+var gMsgFile5 = do_get_file("../../../data/bugmail6");
 
 // Copied straight from the example files
-const gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
-const gMsgId2 = "200804111417.m3BEHTk4030129@mrapp51.mozilla.org";
-const gMsgId3 = "4849BF7B.2030800@example.com";
-const gMsgId4 = "bugmail7.m47LtAEf007542@mrapp51.mozilla.org";
-const gMsgId5 = "bugmail6.m47LtAEf007542@mrapp51.mozilla.org";
+var gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
+var gMsgId2 = "200804111417.m3BEHTk4030129@mrapp51.mozilla.org";
+var gMsgId3 = "4849BF7B.2030800@example.com";
+var gMsgId4 = "bugmail7.m47LtAEf007542@mrapp51.mozilla.org";
+var gMsgId5 = "bugmail6.m47LtAEf007542@mrapp51.mozilla.org";
 var gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                   .createInstance(Components.interfaces.nsIMsgWindow);
 
@@ -155,7 +155,7 @@ function copyMessages(messages, isMove, srcFolder, destFolder)
     resetStatusAndProceed();
 }
 
-const gTestArray =
+var gTestArray =
 [
   // Adding folders
   // Create another folder to move and copy messages around, and force initialization.

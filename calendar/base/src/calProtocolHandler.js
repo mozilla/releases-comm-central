@@ -68,8 +68,8 @@ calProtocolHandler.prototype = {
     allowPort: function cph_allowPort(aPort, aScheme) { return false; }
 };
 
-const calProtocolHandlerWebcalClassID = Components.ID("{1153c73a-39be-46aa-9ba9-656d188865ca}");
-const calProtocolHandlerWebcalInterfaces = [Components.interfaces.nsIProtocolHandler];
+var calProtocolHandlerWebcalClassID = Components.ID("{1153c73a-39be-46aa-9ba9-656d188865ca}");
+var calProtocolHandlerWebcalInterfaces = [Components.interfaces.nsIProtocolHandler];
 calProtocolHandlerWebcal.prototype = {
     __proto__: calProtocolHandler.prototype,
     classID: calProtocolHandlerWebcalClassID,
@@ -82,8 +82,8 @@ calProtocolHandlerWebcal.prototype = {
     }),
 };
 
-const calProtocolHandlerWebcalsClassID = Components.ID("{bdf71224-365d-4493-856a-a7e74026f766}");
-const calProtocolHandlerWebcalsInterfaces = [Components.interfaces.nsIProtocolHandler];
+var calProtocolHandlerWebcalsClassID = Components.ID("{bdf71224-365d-4493-856a-a7e74026f766}");
+var calProtocolHandlerWebcalsInterfaces = [Components.interfaces.nsIProtocolHandler];
 calProtocolHandlerWebcals.prototype = {
     __proto__: calProtocolHandler.prototype,
     classID: calProtocolHandlerWebcalsClassID,

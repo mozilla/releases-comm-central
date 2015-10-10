@@ -20,7 +20,7 @@ var MODULE_REQUIRES = ['folder-display-helpers',
 
 Cu.import("resource://gre/modules/Services.jsm");
 
-const kTestAccountType = "mock";
+var kTestAccountType = "mock";
 
 var cfh;
 

@@ -12,8 +12,8 @@ function calDefaultACLManager() {
     this.mCalendarEntries = {};
 }
 
-const calDefaultACLManagerClassID = Components.ID("{7463258c-6ef3-40a2-89a9-bb349596e927}");
-const calDefaultACLManagerInterfaces = [Components.interfaces.calICalendarACLManager];
+var calDefaultACLManagerClassID = Components.ID("{7463258c-6ef3-40a2-89a9-bb349596e927}");
+var calDefaultACLManagerInterfaces = [Components.interfaces.calICalendarACLManager];
 calDefaultACLManager.prototype = {
     mCalendarEntries: null,
 

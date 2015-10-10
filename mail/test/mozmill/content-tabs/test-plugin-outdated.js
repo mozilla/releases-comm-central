@@ -12,14 +12,14 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 var gOldStartUrl = null;
 var gOldPluginUpdateUrl = null;
 
-const kStartPagePref = "mailnews.start_page.override_url";
-const kPluginsUpdatePref = "plugins.update.url";
+var kStartPagePref = "mailnews.start_page.override_url";
+var kPluginsUpdatePref = "plugins.update.url";
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
-const kUrl = collector.addHttpResource('../content-tabs/html', '');
-const kPluginUrl = kUrl + "plugin.html";
-const kPluginUpdateUrl = kUrl + "plugin_update.html";
-const kPluginBlocklistUrl = kUrl + "blocklist.xml";
+var kUrl = collector.addHttpResource('../content-tabs/html', '');
+var kPluginUrl = kUrl + "plugin.html";
+var kPluginUpdateUrl = kUrl + "plugin_update.html";
+var kPluginBlocklistUrl = kUrl + "blocklist.xml";
 
 var testDone = false;
 

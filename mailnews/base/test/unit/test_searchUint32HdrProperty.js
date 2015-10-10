@@ -10,15 +10,15 @@ load("../../../resources/searchTestUtils.js");
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-const nsMsgSearchOp = Ci.nsMsgSearchOp;
+var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
+var nsMsgSearchOp = Ci.nsMsgSearchOp;
 
-const Isnt = nsMsgSearchOp.Isnt;
-const Is = nsMsgSearchOp.Is;
-const IsGreaterThan = nsMsgSearchOp.IsGreaterThan;
-const IsLessThan = nsMsgSearchOp.IsLessThan;
+var Isnt = nsMsgSearchOp.Isnt;
+var Is = nsMsgSearchOp.Is;
+var IsGreaterThan = nsMsgSearchOp.IsGreaterThan;
+var IsLessThan = nsMsgSearchOp.IsLessThan;
 
-const Uint32HdrProperty = nsMsgSearchAttrib.Uint32HdrProperty;
+var Uint32HdrProperty = nsMsgSearchAttrib.Uint32HdrProperty;
 
 var Tests =
 [

@@ -6,8 +6,8 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const calSleepMonitorClassID = Components.ID("9b987a8d-c2ef-4cb9-9602-1261b4b2f6fa");
-const calSleepMonitorInterfaces = [Components.interfaces.nsIObserver];
+var calSleepMonitorClassID = Components.ID("9b987a8d-c2ef-4cb9-9602-1261b4b2f6fa");
+var calSleepMonitorInterfaces = [Components.interfaces.nsIObserver];
 
 function calSleepMonitor() {
 }

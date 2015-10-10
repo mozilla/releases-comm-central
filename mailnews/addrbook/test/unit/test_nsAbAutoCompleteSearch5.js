@@ -4,9 +4,9 @@
  * indexes on a 
  */
 
-const ACR = Components.interfaces.nsIAutoCompleteResult;
+var ACR = Components.interfaces.nsIAutoCompleteResult;
 
-const results = [ { email: "d <ema@test.invalid>", dirName: kPABData.dirName },
+var results = [ { email: "d <ema@test.invalid>", dirName: kPABData.dirName },
                   { email: "di <emai@test.invalid>", dirName: kPABData.dirName },
                   { email: "dis <email@test.invalid>", dirName: kPABData.dirName },
                   { email: "disp <e@test.invalid>", dirName: kPABData.dirName },
@@ -17,19 +17,19 @@ const results = [ { email: "d <ema@test.invalid>", dirName: kPABData.dirName },
                    // this contact has a nickname of "abcdef"
                   { email: "test <l>", dirName: kPABData.dirName } ];
 
-const firstNames = [ { search: "f",      expected: [4, 0, 1, 2, 3, 8] },
+var firstNames = [ { search: "f",      expected: [4, 0, 1, 2, 3, 8] },
                      { search: "fi",     expected: [4, 0, 1, 3] },
                      { search: "fir",    expected: [4, 0, 1] },
                      { search: "firs",   expected: [0, 1] },
                      { search: "first",  expected: [1] } ];
 
-const lastNames = [ { search: "l",      expected: [5, 6, 7, 8, 4, 0, 1, 2, 3] },
+var lastNames = [ { search: "l",      expected: [5, 6, 7, 8, 4, 0, 1, 2, 3] },
                     { search: "la",     expected: [4, 0, 2, 3] },
                     { search: "las",    expected: [4, 0, 3] },
                     { search: "last",   expected: [4, 0] },
                     { search: "lastn",  expected: [0] } ];
 
-const inputs = [ firstNames, lastNames];
+var inputs = [ firstNames, lastNames];
 
 function acObserver() {}
 

@@ -5,7 +5,7 @@
 // Services = object with smart getters for common XPCOM services
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-const PREF_EM_HOTFIX_ID = "extensions.hotfix.id";
+var PREF_EM_HOTFIX_ID = "extensions.hotfix.id";
 
 function init(aEvent)
 {

@@ -21,15 +21,15 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 /* This is where functions related to the 3 pane window are kept */
 
 // from MailNewsTypes.h
-const nsMsgKey_None = 0xFFFFFFFF;
-const nsMsgViewIndex_None = 0xFFFFFFFF;
-const kMailCheckOncePrefName = "mail.startup.enabledMailCheckOnce";
+var nsMsgKey_None = 0xFFFFFFFF;
+var nsMsgViewIndex_None = 0xFFFFFFFF;
+var kMailCheckOncePrefName = "mail.startup.enabledMailCheckOnce";
 
-const kStandardPaneConfig = 0;
-const kWidePaneConfig = 1;
-const kVerticalPaneConfig = 2;
+var kStandardPaneConfig = 0;
+var kWidePaneConfig = 1;
+var kVerticalPaneConfig = 2;
 
-const kNumFolderViews = 4; // total number of folder views
+var kNumFolderViews = 4; // total number of folder views
 
 /** widget with id=messagepanebox, initialized by GetMessagePane() */
 var gMessagePane;
@@ -342,7 +342,7 @@ function UpdateMailPaneConfig(aMsgWindowInitialized) {
   }
 }
 
-const MailPrefObserver = {
+var MailPrefObserver = {
   observe: function(subject, topic, prefName) {
     // verify that we're changing the mail pane config pref
     if (topic == "nsPref:changed")

@@ -1,4 +1,4 @@
-const LOCATIONS = [
+var LOCATIONS = [
   // Normal pages
   {url : "http://www.google.de", type: "id", value : "logo"},
   {url : "https://addons.mozilla.org/en-US/firefox/?browse=featured", type: "id", value : "search-q"},

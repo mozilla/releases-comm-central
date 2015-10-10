@@ -9,9 +9,9 @@
 
 var EXPORTED_SYMBOLS = ["MsgHdrSyntheticView"];
 
-const Ci = Components.interfaces;
-const Cr = Components.results;
-const Cu = Components.utils;
+var Ci = Components.interfaces;
+var Cr = Components.results;
+var Cu = Components.utils;
 
 /**
  * Create a synthetic view suitable for passing to |FolderDisplayWidget.show|.

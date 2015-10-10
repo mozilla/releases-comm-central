@@ -20,7 +20,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 
 var folder;
 
-const textAttachment =
+var textAttachment =
   "One of these days... people like me will rise up and overthrow you, and " +
   "the end of tyranny by the homeostatic machine will have arrived. The day " +
   "of human values and compassion and simple warmth will return, and when " +
@@ -29,7 +29,7 @@ const textAttachment =
   "he has to function will get the hot coffee whether he happens to have a " +
   "poscred readily available or not.";
 
-const binaryAttachment = textAttachment;
+var binaryAttachment = textAttachment;
 
 var setupModule = function (module) {
   let fdh = collector.getModule('folder-display-helpers');

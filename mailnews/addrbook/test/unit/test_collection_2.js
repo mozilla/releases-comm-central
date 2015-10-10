@@ -6,7 +6,7 @@
  * in other address books.
  */
 
-const nsIAbPMF = Components.interfaces.nsIAbPreferMailFormat;
+var nsIAbPMF = Components.interfaces.nsIAbPreferMailFormat;
 
 function run_test()
 {

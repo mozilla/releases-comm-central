@@ -15,28 +15,28 @@ var epsilon;
 var os = {};
 Components.utils.import('resource://mozmill/stdlib/os.js', os);
 
-const textAttachment =
+var textAttachment =
   "Can't make the frug contest, Helen; stomach's upset. I'll fix you, " +
   "Ubik! Ubik drops you back in the thick of things fast. Taken as " +
   "directed, Ubik speeds relief to head and stomach. Remember: Ubik is " +
   "only seconds away. Avoid prolonged use.";
 
-const binaryAttachment = textAttachment;
+var binaryAttachment = textAttachment;
 
-const imageAttachment =
+var imageAttachment =
   'iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABHNCSVQICAgIfAhkiAAAAAlwS' +
   'FlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA' +
   'A5SURBVCiRY/z//z8DKYCJJNXkaGBgYGD4D8NQ5zUgiTVAxeBqSLaBkVRPM0KtIhrQ3km0jwe' +
   'SNQAAlmAY+71EgFoAAAAASUVORK5CYII=';
-const imageSize = 188;
+var imageSize = 188;
 
-const vcardAttachment =
+var vcardAttachment =
   'YmVnaW46dmNhcmQNCmZuOkppbSBCb2INCm46Qm9iO0ppbQ0KZW1haWw7aW50ZXJuZXQ6Zm9v' +
   'QGJhci5jb20NCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K';
 
-const detachedName = './attachment.txt';
-const missingName = './nonexistent.txt';
-const deletedName = 'deleted.txt';
+var detachedName = './attachment.txt';
+var missingName = './nonexistent.txt';
+var deletedName = 'deleted.txt';
 
 // create some messages that have various types of attachments
 var messages = [

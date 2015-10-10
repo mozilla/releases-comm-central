@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 
 Cu.import("resource://gre/modules/Http.jsm");
 Cu.import("resource:///modules/ArrayBufferUtils.jsm");
@@ -13,18 +13,18 @@ Cu.import("resource:///modules/jsProtoHelper.jsm");
 
 // Constants used by the login process. This emulates a captured session using
 // official means.
-const kLockAndKeyAppId = "msmsgs@msnmsgr.com";
-const kLockAndKeySecret = "Q1P7W2E4J9R8U3S5";
-const kClientId = "578134";
-const kClientInfo = "os=Windows; osVer=8.1; proc=Win32; lcid=en-us; " +
+var kLockAndKeyAppId = "msmsgs@msnmsgr.com";
+var kLockAndKeySecret = "Q1P7W2E4J9R8U3S5";
+var kClientId = "578134";
+var kClientInfo = "os=Windows; osVer=8.1; proc=Win32; lcid=en-us; " +
   "deviceType=1; country=n/a; clientName=swx-skype.com; clientVer=908/1.0.0.20";
 
-const kLoginHost = "login.skype.com";
-const kContactsHost = "api.skype.com";
-const kMessagesHost = "client-s.gateway.messenger.live.com";
+var kLoginHost = "login.skype.com";
+var kContactsHost = "api.skype.com";
+var kMessagesHost = "client-s.gateway.messenger.live.com";
 
 // Map from strings returned by the SkypeWeb API to statuses.
-const kStatusMap = {
+var kStatusMap = {
   "Online": "AVAILABLE",
   "Offline": "OFFLINE",
   "Idle": "IDLE",
@@ -849,4 +849,4 @@ SkypeProtocol.prototype = {
   classID: Components.ID("{8446c0f6-9f59-4710-844e-eaa6c1f49d35}")
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([SkypeProtocol]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([SkypeProtocol]);

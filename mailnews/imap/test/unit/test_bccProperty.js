@@ -10,8 +10,8 @@
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
-const gFileName = "draft1";
-const gMsgFile = do_get_file("../../../data/" + gFileName);
+var gFileName = "draft1";
+var gMsgFile = do_get_file("../../../data/" + gFileName);
 
 var tests = [
   setup,

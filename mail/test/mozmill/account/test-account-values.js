@@ -7,10 +7,10 @@
  * when certain special or invalid values are entered into the fields.
  */
 
-const MODULE_NAME = "test-account-values";
+var MODULE_NAME = "test-account-values";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
                          "account-manager-helpers"];
 
 var elib = {};

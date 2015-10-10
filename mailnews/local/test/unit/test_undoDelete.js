@@ -19,7 +19,7 @@ load("../../../resources/messageModifier.js");
 load("../../../resources/messageGenerator.js");
 load("../../../resources/messageInjection.js");
 
-const gTestArray =
+var gTestArray =
 [
   function deleteMessage() {
     let msgToDelete = mailTestUtils.firstMsgHdr(gTestFolder);

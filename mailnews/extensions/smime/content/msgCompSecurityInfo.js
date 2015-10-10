@@ -18,8 +18,8 @@ var gCount;
 var gSMimeContractID = "@mozilla.org/messenger-smime/smimejshelper;1";
 var gISMimeJSHelper = Components.interfaces.nsISMimeJSHelper;
 var gIX509Cert = Components.interfaces.nsIX509Cert;
-const nsICertificateDialogs = Components.interfaces.nsICertificateDialogs;
-const nsCertificateDialogs = "@mozilla.org/nsCertificateDialogs;1"
+var nsICertificateDialogs = Components.interfaces.nsICertificateDialogs;
+var nsCertificateDialogs = "@mozilla.org/nsCertificateDialogs;1"
 
 function getStatusExplanation(value)
 {

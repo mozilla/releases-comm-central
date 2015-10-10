@@ -8,10 +8,10 @@
  * there don't influence the results here.
  */
 
-const MODULE_NAME = 'test-folder-pane';
+var MODULE_NAME = 'test-folder-pane';
 
-const RELATIVE_ROOT = '../shared-modules';
-const MODULE_REQUIRES = ['folder-display-helpers'];
+var RELATIVE_ROOT = '../shared-modules';
+var MODULE_REQUIRES = ['folder-display-helpers'];
 
 Cu.import("resource:///modules/mailServices.js");
 

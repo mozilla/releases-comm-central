@@ -11,9 +11,9 @@ Components.utils.import("resource:///modules/activity/activityModules.js");
 Components.utils.import("resource:///modules/ABQueryUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 
-const nsIAbListener = Components.interfaces.nsIAbListener;
-const kPrefMailAddrBookLastNameFirst = "mail.addr_book.lastnamefirst";
-const kPersistCollapseMapStorage = "directoryTree.json";
+var nsIAbListener = Components.interfaces.nsIAbListener;
+var kPrefMailAddrBookLastNameFirst = "mail.addr_book.lastnamefirst";
+var kPersistCollapseMapStorage = "directoryTree.json";
 
 var gSearchTimer = null;
 var gStatusText = null;
@@ -30,17 +30,17 @@ Components.utils.import("resource:///modules/chatHandler.jsm", chatHandler);
 
 // Constants that correspond to choices
 // in Address Book->View -->Show Name as
-const kDisplayName = 0;
-const kLastNameFirst = 1;
-const kFirstNameFirst = 2;
-const kLDAPDirectory = 0; // defined in nsDirPrefs.h
-const kPABDirectory  = 2; // defined in nsDirPrefs.h
+var kDisplayName = 0;
+var kLastNameFirst = 1;
+var kFirstNameFirst = 2;
+var kLDAPDirectory = 0; // defined in nsDirPrefs.h
+var kPABDirectory  = 2; // defined in nsDirPrefs.h
 
 // These chat properties are the ones that our IM component supports. If a
 // contact has a value for one of these properties, we can communicate with
 // that contact (assuming that the user has added that value to their list
 // of IM contacts).
-const kChatProperties = ["_GoogleTalk", "_JabberId"];
+var kChatProperties = ["_GoogleTalk", "_JabberId"];
 
 // Note: We need to keep this listener as it does not just handle dir
 // pane deletes but also deletes of address books and lists from places like
@@ -764,8 +764,8 @@ function getMailToolbox()
   return document.getElementById("ab-toolbox");
 }
 
-const kOSXDirectoryURI = "moz-abosxdirectory:///";
-const kOSXPrefBase = "ldap_2.servers.osx";
+var kOSXDirectoryURI = "moz-abosxdirectory:///";
+var kOSXPrefBase = "ldap_2.servers.osx";
 
 function AbOSXAddressBookExists()
 {

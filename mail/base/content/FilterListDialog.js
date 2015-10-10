@@ -26,7 +26,7 @@ var gRunFiltersButton = null;
 
 var gFilterBundle = null;
 
-const msgMoveMotion = {
+var msgMoveMotion = {
   Up     : 0,
   Down   : 1,
   Top    : 2,

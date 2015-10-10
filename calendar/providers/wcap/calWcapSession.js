@@ -102,8 +102,8 @@ function calWcapSession(contextId) {
     Services.obs.addObserver(this, "quit-application", false /* don't hold weakly */);
     cal.getCalendarManager().addObserver(this);
 }
-const calWcapSessionClassID = Components.ID("{cbf803fd-4469-4999-ae39-367af1c7b077}");
-const calWcapSessionInterfaces = [
+var calWcapSessionClassID = Components.ID("{cbf803fd-4469-4999-ae39-367af1c7b077}");
+var calWcapSessionInterfaces = [
     calIWcapSession,
     calIFreeBusyProvider,
     calICalendarSearchProvider,

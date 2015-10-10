@@ -11,10 +11,10 @@ var nsIJunkMailPlugin =
     .createInstance(Ci.nsIJunkMailPlugin);
 
 // command functions for test data
-const kTrain = 0;  // train a file as a trait
-const kClass = 1;  // classify files with traits
-const kReset = 2;  // reload plugin, reading in data from disk
-const kDetail = 3; // test details
+var kTrain = 0;  // train a file as a trait
+var kClass = 1;  // classify files with traits
+var kReset = 2;  // reload plugin, reading in data from disk
+var kDetail = 3; // test details
 
 var gTest; // currently active test
 

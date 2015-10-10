@@ -18,11 +18,11 @@ var gMessenger = Cc["@mozilla.org/messenger;1"]
                    .createInstance(Ci.nsIMessenger);
 
 // Create a message generator
-const msgGen = gMessageGenerator = new MessageGenerator();
+var msgGen = gMessageGenerator = new MessageGenerator();
 // Create a message scenario generator using that message generator
-const scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
+var scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
 
-const imageAttachment =
+var imageAttachment =
   'iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABHNCSVQICAgIfAhkiAAAAAlwS' +
   'FlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA' +
   'A5SURBVCiRY/z//z8DKYCJJNXkaGBgYGD4D8NQ5zUgiTVAxeBqSLaBkVRPM0KtIhrQ3km0jwe' +

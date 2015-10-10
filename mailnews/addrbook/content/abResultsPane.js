@@ -21,11 +21,11 @@
  */
 
 // List/card selections in the results pane.
-const kNothingSelected = 0;
-const kListsAndCards = 1;
-const kMultipleListsOnly = 2;
-const kSingleListOnly = 3;
-const kCardsOnly = 4;
+var kNothingSelected = 0;
+var kListsAndCards = 1;
+var kMultipleListsOnly = 2;
+var kSingleListOnly = 3;
+var kCardsOnly = 4;
 
 // Global Variables
 

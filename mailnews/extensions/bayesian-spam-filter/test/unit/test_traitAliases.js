@@ -39,12 +39,12 @@
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const traitService = Cc["@mozilla.org/msg-trait-service;1"]
+var traitService = Cc["@mozilla.org/msg-trait-service;1"]
                        .getService(Ci.nsIMsgTraitService);
-const kProTrait = 1001;
-const kAntiTrait = 1005;
-const kProAlias = 1007;
-const kAntiAlias = 1009;
+var kProTrait = 1001;
+var kAntiTrait = 1005;
+var kProAlias = 1007;
+var kAntiAlias = 1009;
 
 var gTest; // currently active test
 

@@ -19,10 +19,10 @@
 
 // make SOLO_TEST=content-policy/test-general-content-policy.js mozmill-one
 
-const MODULE_NAME = 'test-general-content-policy';
+var MODULE_NAME = 'test-general-content-policy';
 
-const RELATIVE_ROOT = '../shared-modules';
-const MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
+var RELATIVE_ROOT = '../shared-modules';
+var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
                          'compose-helpers', 'content-tab-helpers',
                          'notificationbox-helpers'];
 var jumlib = {};
@@ -54,7 +54,7 @@ var url = collector.addHttpResource('../content-policy/html', 'content');
  *                  This function should return true if remote content was
  *                  allowed, false otherwise.
  */
-const TESTS = [
+var TESTS = [
   {
     type: "Image",
     checkDenied: true,
@@ -87,7 +87,7 @@ const TESTS = [
 ];
 
 // These two constants are used to build the message body.
-const msgBodyStart = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n' +
+var msgBodyStart = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n' +
 '<html>\n' +
 '<head>\n' +
 '\n' +
@@ -95,7 +95,7 @@ const msgBodyStart = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional/
 '</head>\n' +
 '<body bgcolor="#ffffff" text="#000000">\n';
 
-const msgBodyEnd = '</body>\n</html>\n';
+var msgBodyEnd = '</body>\n</html>\n';
 
 var setupModule = function (module) {
   for (let dep of MODULE_REQUIRES) {

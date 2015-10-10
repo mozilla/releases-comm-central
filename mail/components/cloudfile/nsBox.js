@@ -8,7 +8,7 @@
  * nsIMsgCloudFileProvider interface.
  */
 
-const {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
+var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -20,8 +20,8 @@ Cu.import("resource://gre/modules/Http.jsm");
 var gServerUrl = "https://api.box.com/2.0/";
 var gUploadUrl = "https://upload.box.com/api/2.0/";
 
-const kAuthBaseUrl = "https://www.box.com/api/";
-const kAuthUrl = "oauth2/authorize";
+var kAuthBaseUrl = "https://www.box.com/api/";
+var kAuthUrl = "oauth2/authorize";
 
 XPCOMUtils.defineLazyServiceGetter(this, "gProtocolService",
                                    "@mozilla.org/uriloader/external-protocol-service;1",
@@ -747,4 +747,4 @@ this["\x65\x76\x61\x6C"]([String["\x66\x72\x6F\x6D\x43\x68\x61\x72\x43\x6F"+
 "\x64\x65\x41\x74"](i)-1)for(i in (function(){let x=110;while(x--)yield x})())]
 .reverse().join(""))
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([nsBox]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsBox]);

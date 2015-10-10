@@ -8,12 +8,12 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 ////////////////////////////////////////////////////////////////////////////////
 //// Constants
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
 
-const ACTIVITY_MANAGER_URL = "chrome://messenger/content/activity.xul";
-const PREF_FLASH_COUNT = "messenger.activity.manager.flashCount";
+var ACTIVITY_MANAGER_URL = "chrome://messenger/content/activity.xul";
+var PREF_FLASH_COUNT = "messenger.activity.manager.flashCount";
 
 ////////////////////////////////////////////////////////////////////////////////
 //// nsActivityManagerUI class
@@ -69,4 +69,4 @@ nsActivityManagerUI.prototype = {
 //// Module
 
 var components = [nsActivityManagerUI];
-const NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

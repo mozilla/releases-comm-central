@@ -15,7 +15,7 @@ this.EXPORTED_SYMBOLS = [
   "TooltipInfo"
 ];
 
-const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
@@ -24,7 +24,7 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/conversations.properties")
 );
 
-const GenericAccountPrototype = {
+var GenericAccountPrototype = {
   __proto__: ClassInfo("prplIAccount", "generic account object"),
   get wrappedJSObject() { return this; },
   _init: function _init(aProtocol, aImAccount) {
@@ -245,7 +245,7 @@ const GenericAccountPrototype = {
 };
 
 
-const GenericAccountBuddyPrototype = {
+var GenericAccountBuddyPrototype = {
   __proto__: ClassInfo("prplIAccountBuddy", "generic account buddy object"),
   get DEBUG() { return this._account.DEBUG; },
   get LOG() { return this._account.LOG; },
@@ -379,7 +379,7 @@ function AccountBuddy(aAccount, aBuddy, aTag, aUserName) {
 }
 AccountBuddy.prototype = GenericAccountBuddyPrototype;
 
-const GenericMessagePrototype = {
+var GenericMessagePrototype = {
   __proto__: ClassInfo("prplIMessage", "generic message object"),
 
   _lastId: 0,
@@ -443,7 +443,7 @@ function Message(aWho, aMessage, aObject) {
 Message.prototype = GenericMessagePrototype;
 
 
-const GenericConversationPrototype = {
+var GenericConversationPrototype = {
   __proto__: ClassInfo("prplIConversation", "generic conversation object"),
   get wrappedJSObject() { return this; },
 
@@ -517,7 +517,7 @@ const GenericConversationPrototype = {
   get startDate() { return this._date; }
 };
 
-const GenericConvIMPrototype = {
+var GenericConvIMPrototype = {
   __proto__: GenericConversationPrototype,
   _interfaces: [Ci.prplIConversation, Ci.prplIConvIM],
   classDescription: "generic ConvIM object",
@@ -538,7 +538,7 @@ const GenericConvIMPrototype = {
   typingState: Ci.prplIConvIM.NOT_TYPING
 };
 
-const GenericConvChatPrototype = {
+var GenericConvChatPrototype = {
   __proto__: GenericConversationPrototype,
   _interfaces: [Ci.prplIConversation, Ci.prplIConvChat],
   classDescription: "generic ConvChat object",
@@ -693,7 +693,7 @@ const GenericConvChatPrototype = {
   }
 };
 
-const GenericConvChatBuddyPrototype = {
+var GenericConvChatBuddyPrototype = {
   __proto__: ClassInfo("prplIConvChatBuddy", "generic ConvChatBuddy object"),
 
   _name: "",
@@ -845,7 +845,7 @@ ChatRoomFieldValues.prototype = {
 
 // the name getter and the getAccount method need to be implemented by
 // protocol plugins.
-const GenericProtocolPrototype = {
+var GenericProtocolPrototype = {
   __proto__: ClassInfo("prplIProtocol", "Generic protocol object"),
 
   init: function(aId) {

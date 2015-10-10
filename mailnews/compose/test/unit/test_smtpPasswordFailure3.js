@@ -18,12 +18,12 @@ load("../../../resources/passwordStorage.js");
 var server;
 var attempt = 0;
 
-const kSender = "from@foo.invalid";
-const kTo = "to@foo.invalid";
-const kUsername = "testsmtp";
+var kSender = "from@foo.invalid";
+var kTo = "to@foo.invalid";
+var kUsername = "testsmtp";
 // This is the same as in the signons file.
-const kInvalidPassword = "smtptest";
-const kValidPassword = "smtptest1";
+var kInvalidPassword = "smtptest";
+var kValidPassword = "smtptest1";
 
 function alert(aDialogText, aText)
 {

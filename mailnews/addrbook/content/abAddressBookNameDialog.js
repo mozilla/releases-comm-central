@@ -8,10 +8,10 @@ var gOkButton;
 var gNameInput;
 var gDirectory = null;
 
-const kPersonalAddressbookURI = "moz-abmdbdirectory://abook.mab";
-const kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";
-const kAllDirectoryRoot = "moz-abdirectory://";
-const kPABDirectory = 2; // defined in nsDirPrefs.h
+var kPersonalAddressbookURI = "moz-abmdbdirectory://abook.mab";
+var kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";
+var kAllDirectoryRoot = "moz-abdirectory://";
+var kPABDirectory = 2; // defined in nsDirPrefs.h
 
 function abNameOnLoad()
 {

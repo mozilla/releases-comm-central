@@ -11,7 +11,7 @@ load("resources/glodaTestHelper.js");
 
 var gInbox;
 
-const illegalMessageTemplates = [
+var illegalMessageTemplates = [
   // -- authors
   {
     name: "no author",

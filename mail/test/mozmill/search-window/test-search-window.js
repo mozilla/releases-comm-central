@@ -24,7 +24,7 @@ function setupModule(module) {
 var folder, setFoo, setBar, setFooBar;
 
 // Number of messages to open for multi-message tests
-const NUM_MESSAGES_TO_OPEN = 5;
+var NUM_MESSAGES_TO_OPEN = 5;
 
 /**
  * Create some messages that our constraint below will satisfy

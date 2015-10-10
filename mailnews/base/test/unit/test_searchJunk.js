@@ -8,24 +8,24 @@ load("../../../resources/searchTestUtils.js");
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const nsMsgSearchScope = Ci.nsMsgSearchScope;
-const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-const nsMsgSearchOp = Ci.nsMsgSearchOp;
+var nsMsgSearchScope = Ci.nsMsgSearchScope;
+var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
+var nsMsgSearchOp = Ci.nsMsgSearchOp;
 
-const IsGreaterThan = nsMsgSearchOp.IsGreaterThan;
-const IsLessThan = nsMsgSearchOp.IsLessThan;
-const Is = nsMsgSearchOp.Is;
-const Isnt = nsMsgSearchOp.Isnt;
-const IsEmpty = nsMsgSearchOp.IsEmpty;
-const IsntEmpty = nsMsgSearchOp.IsntEmpty;
+var IsGreaterThan = nsMsgSearchOp.IsGreaterThan;
+var IsLessThan = nsMsgSearchOp.IsLessThan;
+var Is = nsMsgSearchOp.Is;
+var Isnt = nsMsgSearchOp.Isnt;
+var IsEmpty = nsMsgSearchOp.IsEmpty;
+var IsntEmpty = nsMsgSearchOp.IsntEmpty;
 
-const offlineMail = nsMsgSearchScope.offlineMail;
+var offlineMail = nsMsgSearchScope.offlineMail;
 
-const JunkScoreOrigin = nsMsgSearchAttrib.JunkScoreOrigin;
-const JunkPercent = nsMsgSearchAttrib.JunkPercent;
-const JunkStatus = nsMsgSearchAttrib.JunkStatus;
+var JunkScoreOrigin = nsMsgSearchAttrib.JunkScoreOrigin;
+var JunkPercent = nsMsgSearchAttrib.JunkPercent;
+var JunkStatus = nsMsgSearchAttrib.JunkStatus;
 
-const fileName = "../../../data/bugmail1";
+var fileName = "../../../data/bugmail1";
 
 /*
  * The search for junkpercent is defined as the effective value,

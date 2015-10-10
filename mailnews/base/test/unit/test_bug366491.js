@@ -12,9 +12,9 @@
 Components.utils.import("resource:///modules/mailServices.js");
 
 // local constants
-const kUnclassified = MailServices.junk.UNCLASSIFIED;
-const kJunk = MailServices.junk.JUNK;
-const kGood = MailServices.junk.GOOD;
+var kUnclassified = MailServices.junk.UNCLASSIFIED;
+var kJunk = MailServices.junk.JUNK;
+var kGood = MailServices.junk.GOOD;
 
 /*
  * This test is not intended to check the spam calculations,

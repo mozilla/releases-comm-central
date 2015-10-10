@@ -10,9 +10,9 @@
 
 this.EXPORTED_SYMBOLS = ["sessionStoreManager"];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
 Cu.import("resource://gre/modules/AsyncShutdown.jsm");
 Cu.import("resource://gre/modules/NetUtil.jsm");
@@ -24,7 +24,7 @@ Cu.import("resource://gre/modules/Services.jsm");
  * processor usage, and recency of state in the face of the impossibility of
  * our crashing; he also worded this.
  */
-const SESSION_AUTO_SAVE_DEFAULT_MS = 300000; // 5 minutes
+var SESSION_AUTO_SAVE_DEFAULT_MS = 300000; // 5 minutes
 
 /* :::::::: The Module ::::::::::::::: */
 

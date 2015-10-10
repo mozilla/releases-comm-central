@@ -7,10 +7,10 @@
  */
 var EXPORTED_SYMBOLS = ["OAuth2Providers"];
 
-const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 
 // map of hostnames to [issuer, scope]
-const kHostnames = new Map([
+var kHostnames = new Map([
   ["imap.googlemail.com", ["accounts.google.com", "https://mail.google.com/"]],
   ["smtp.googlemail.com", ["accounts.google.com", "https://mail.google.com/"]],
   ["imap.gmail.com", ["accounts.google.com", "https://mail.google.com/"]],
@@ -24,7 +24,7 @@ const kHostnames = new Map([
 // own application--register it yourself. This code (and possibly even the
 // registration itself) will disappear when this is switched to dynamic
 // client registration.
-const kIssuers = new Map ([
+var kIssuers = new Map ([
   ["accounts.google.com", [
     '406964657835-aq8lmia8j95dhl1a2bvharmfk3t1hgqj.apps.googleusercontent.com',
     'kSmqreRr0qwBWJgbf5Y-PjSU',

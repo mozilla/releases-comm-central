@@ -12,7 +12,7 @@
 
 this.EXPORTED_SYMBOLS = ["XMPPAuthMechanisms"];
 
-const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/xmpp-xml.jsm");
 

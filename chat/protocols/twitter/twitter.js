@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 
 Cu.import("resource://gre/modules/Http.jsm");
 Cu.import("resource:///modules/imServices.jsm");
@@ -10,8 +10,8 @@ Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
 Cu.import("resource:///modules/twitter-text.jsm");
 
-const NS_PREFBRANCH_PREFCHANGE_TOPIC_ID = "nsPref:changed";
-const kMaxMessageLength = 140;
+var NS_PREFBRANCH_PREFCHANGE_TOPIC_ID = "nsPref:changed";
+var kMaxMessageLength = 140;
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/twitter.properties")
@@ -1132,4 +1132,4 @@ TwitterProtocol.prototype = {
   classID: Components.ID("{31082ff6-1de8-422b-ab60-ca0ac0b2af13}")
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([TwitterProtocol]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([TwitterProtocol]);

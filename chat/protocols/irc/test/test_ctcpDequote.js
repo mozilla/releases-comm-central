@@ -5,7 +5,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 var ircCTCP = {};
 Services.scriptloader.loadSubScript("resource:///modules/ircCTCP.jsm", ircCTCP);
 
-const input = [
+var input = [
   "ACTION",
   "ACTION test",
   "ACTION \x5Ctest",
@@ -24,9 +24,9 @@ const input = [
   "ACTION \x5C\x5Catest"
 ];
 
-const expectedOutputCommand = "ACTION";
+var expectedOutputCommand = "ACTION";
 
-const expectedOutputParam = [
+var expectedOutputParam = [
   "",
   "test",
   "test",

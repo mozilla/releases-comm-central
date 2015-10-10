@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
+var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource://gre/modules/osfile.jsm");
 
-const kNotificationsToObserve =
+var kNotificationsToObserve =
   ["contact-added", "contact-removed","contact-status-changed",
    "contact-display-name-changed", "contact-no-longer-dummy",
    "contact-preferred-buddy-changed", "contact-moved",
@@ -16,7 +16,7 @@ const kNotificationsToObserve =
 
 // This is incremented when changes to the log sweeping code warrant rebuilding
 // the stats cache file.
-const gStatsCacheVersion = 2;
+var gStatsCacheVersion = 2;
 
 XPCOMUtils.defineLazyGetter(this, "_newtab", () =>
   l10nHelper("chrome://instantbird/locale/newtab.properties")
@@ -759,4 +759,4 @@ ExistingConversation.prototype = {
   createConversation: function() { return this.uiConv.target; }
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([ConvStatsService]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([ConvStatsService]);

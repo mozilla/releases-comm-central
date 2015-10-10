@@ -1,7 +1,7 @@
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
 
 function TestMailImpoter() {
 };
@@ -128,4 +128,4 @@ TestMailImpoter.prototype = {
 
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([TestMailImpoter]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([TestMailImpoter]);

@@ -5,7 +5,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 var irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 
-const messages = {
+var messages = {
   // Exactly 51 characters.
   "This is a test.": ["This is a test."],
   // Too long.

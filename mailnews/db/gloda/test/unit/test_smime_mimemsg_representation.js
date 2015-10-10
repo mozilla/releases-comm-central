@@ -13,7 +13,7 @@ load("../../../../resources/messageGenerator.js");
 load("../../../../resources/messageModifier.js");
 load("../../../../resources/messageInjection.js");
 
-const msgGen = gMessageGenerator = new MessageGenerator();
+var msgGen = gMessageGenerator = new MessageGenerator();
 
 Components.utils.import("resource:///modules/FileUtils.jsm");
 Components.utils.import("resource:///modules/gloda/mimemsg.js");

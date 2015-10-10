@@ -5,7 +5,7 @@
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://calendar/modules/calProviderUtils.jsm");
 
-const cIFI = Components.interfaces.calIFreeBusyInterval;
+var cIFI = Components.interfaces.calIFreeBusyInterval;
 var freebusy = Components.classes["@mozilla.org/calendar/freebusy-service;1"]
                          .getService(Components.interfaces.calIFreeBusyService);
 

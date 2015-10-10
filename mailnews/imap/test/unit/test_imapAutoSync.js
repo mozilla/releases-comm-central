@@ -30,8 +30,8 @@ Components.utils.import("resource:///modules/mailServices.js");
 
 setupIMAPPump();
 
-const msgFlagOffline = Ci.nsMsgMessageFlags.Offline;
-const nsIAutoSyncMgrListener = Ci.nsIAutoSyncMgrListener;
+var msgFlagOffline = Ci.nsMsgMessageFlags.Offline;
+var nsIAutoSyncMgrListener = Ci.nsIAutoSyncMgrListener;
 
 var gGotAlert;
 

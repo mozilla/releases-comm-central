@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
+var Cu = Components.utils;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource:///modules/errUtils.js");
@@ -167,7 +167,7 @@ nsAutoCompleteGlodaResult.prototype = {
   }
 };
 
-const MAX_POPULAR_CONTACTS = 200;
+var MAX_POPULAR_CONTACTS = 200;
 
 /**
  * Complete contacts/identities based on name/email.  Instant phase is based on
@@ -534,4 +534,4 @@ nsAutoCompleteGloda.prototype = {
 };
 
 var components = [nsAutoCompleteGloda];
-const NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

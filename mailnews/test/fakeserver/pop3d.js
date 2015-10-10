@@ -17,8 +17,8 @@ Components.utils.import("resource:///modules/IOUtils.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://testing-common/mailnews/auth.js");
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
 
 // Since we don't really need to worry about peristence, we can just
 // use a UIDL counter.
@@ -115,9 +115,9 @@ pop3Daemon.prototype = {
 ///////////////////////////////////////////////////////////////////////////////
 
 
-const kStateAuthNeeded = 1; // Not authenticated yet, need username and password
-const kStateAuthPASS = 2; // got command USER, expecting command PASS
-const kStateTransaction = 3; // Authenticated, can fetch and delete mail
+var kStateAuthNeeded = 1; // Not authenticated yet, need username and password
+var kStateAuthPASS = 2; // got command USER, expecting command PASS
+var kStateTransaction = 3; // Authenticated, can fetch and delete mail
 
 /**
  * This handler implements the bare minimum required by RFC 1939.

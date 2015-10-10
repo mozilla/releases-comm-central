@@ -12,7 +12,7 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 /**
  * Calendar specific utility functions
  */
-const calIOperationListener = Components.interfaces.calIOperationListener;
+var calIOperationListener = Components.interfaces.calIOperationListener;
 
 function calCompositeCalendarObserverHelper (compCalendar) {
     this.compCalendar = compCalendar;
@@ -81,8 +81,8 @@ function calCompositeCalendar () {
     this.mStatusObserver = null;
 }
 
-const calCompositeCalendarClassID = Components.ID("{aeff788d-63b0-4996-91fb-40a7654c6224}");
-const calCompositeCalendarInterfaces = [
+var calCompositeCalendarClassID = Components.ID("{aeff788d-63b0-4996-91fb-40a7654c6224}");
+var calCompositeCalendarInterfaces = [
     Components.interfaces.calICalendarProvider,
     Components.interfaces.calICalendar,
     Components.interfaces.calICompositeCalendar,

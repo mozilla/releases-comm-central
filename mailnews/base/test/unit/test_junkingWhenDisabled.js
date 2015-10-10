@@ -16,7 +16,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const nsIMFNService = Ci.nsIMsgFolderNotificationService;
+var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 
 // fake objects needed to get nsMsgDBView to operate on selected messages.
 // Warning: these are partial implementations. If someone adds additional

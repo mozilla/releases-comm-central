@@ -28,7 +28,7 @@ var gMsgNo = 0;
 var gMsgHdr = null;
 
 // These two constants are used to build the message body.
-const msgBody = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n' +
+var msgBody = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n' +
 '<html>\n' +
 '<head>\n' +
 '\n' +

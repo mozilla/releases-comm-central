@@ -37,8 +37,8 @@ var gCurTestNum;
 
 var gMsgHdrs = new Array();
 
-const PERSISTED_COLUMN_PROPERTY_NAME = "columnStates";
-const columnJSON = '{"threadCol":{"visible":true,"ordinal":"1"},"flaggedCol":{"visible":true,"ordinal":"4"},"attachmentCol":{"visible":true,"ordinal":"5"},"subjectCol":{"visible":true,"ordinal":"7"},"unreadButtonColHeader":{"visible":true,"ordinal":"9"},"senderCol":{"visible":true,"ordinal":"11"},"recipientCol":{"visible":false,"ordinal":"13"},"junkStatusCol":{"visible":true,"ordinal":"15"},"receivedCol":{"visible":true,"ordinal":"17"},"dateCol":{"visible":true,"ordinal":"19"},"statusCol":{"visible":false,"ordinal":"21"},"sizeCol":{"visible":true,"ordinal":"23"},"tagsCol":{"visible":false,"ordinal":"25"},"accountCol":{"visible":false,"ordinal":"27"},"priorityCol":{"visible":false,"ordinal":"29"},"unreadCol":{"visible":false,"ordinal":"31"},"totalCol":{"visible":false,"ordinal":"33"},"locationCol":{"visible":false,"ordinal":"35"},"idCol":{"visible":false,"ordinal":"37"}}';
+var PERSISTED_COLUMN_PROPERTY_NAME = "columnStates";
+var columnJSON = '{"threadCol":{"visible":true,"ordinal":"1"},"flaggedCol":{"visible":true,"ordinal":"4"},"attachmentCol":{"visible":true,"ordinal":"5"},"subjectCol":{"visible":true,"ordinal":"7"},"unreadButtonColHeader":{"visible":true,"ordinal":"9"},"senderCol":{"visible":true,"ordinal":"11"},"recipientCol":{"visible":false,"ordinal":"13"},"junkStatusCol":{"visible":true,"ordinal":"15"},"receivedCol":{"visible":true,"ordinal":"17"},"dateCol":{"visible":true,"ordinal":"19"},"statusCol":{"visible":false,"ordinal":"21"},"sizeCol":{"visible":true,"ordinal":"23"},"tagsCol":{"visible":false,"ordinal":"25"},"accountCol":{"visible":false,"ordinal":"27"},"priorityCol":{"visible":false,"ordinal":"29"},"unreadCol":{"visible":false,"ordinal":"31"},"totalCol":{"visible":false,"ordinal":"33"},"locationCol":{"visible":false,"ordinal":"35"},"idCol":{"visible":false,"ordinal":"37"}}';
 
 function setColumnStates(folder) {
   let msgDatabase = folder.msgDatabase;
@@ -119,7 +119,7 @@ function deleteMessages(srcFolder, items)
  */
 
 // Beware before commenting out a test -- later tests might just depend on earlier ones
-const gTestArray =
+var gTestArray =
 [
   // Copying messages from files
   function testCopyFileMessage1() { copyFileMessage(gMsgFile1, gLocalFolder2, false); },

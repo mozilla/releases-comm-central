@@ -157,7 +157,7 @@ tabProgressListener.prototype =
                                          Components.interfaces.nsISupportsWeakReference])
 };
 
-const DOMLinkHandler = {
+var DOMLinkHandler = {
   handleEvent: function (event) {
     switch (event.type) {
     case "DOMLinkAdded":
@@ -238,12 +238,12 @@ const DOMLinkHandler = {
   }
 };
 
-const kTelemetryPrompted    = "toolkit.telemetry.prompted";
-const kTelemetryEnabled     = "toolkit.telemetry.enabled";
-const kTelemetryRejected    = "toolkit.telemetry.rejected";
-const kTelemetryServerOwner = "toolkit.telemetry.server_owner";
+var kTelemetryPrompted    = "toolkit.telemetry.prompted";
+var kTelemetryEnabled     = "toolkit.telemetry.enabled";
+var kTelemetryRejected    = "toolkit.telemetry.rejected";
+var kTelemetryServerOwner = "toolkit.telemetry.server_owner";
 // This is used to reprompt/renotify users when privacy message changes
-const kTelemetryPromptRev   = 2;
+var kTelemetryPromptRev   = 2;
 
 var contentTabBaseType = {
   inContentWhitelist: ['about:addons', 'about:preferences'],

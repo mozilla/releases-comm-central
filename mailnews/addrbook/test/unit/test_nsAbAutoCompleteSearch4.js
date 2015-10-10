@@ -2,9 +2,9 @@
  * Fourth Test suite for nsAbAutoCompleteSearch - test for second email address.
  */
 
-const ACR = Components.interfaces.nsIAutoCompleteResult;
+var ACR = Components.interfaces.nsIAutoCompleteResult;
 
-const cards = [
+var cards = [
   // Basic tests for primary and secondary emails.
   { email: "primary@test.invalid", secondEmail: "second@test.invalid",
     firstName: "" },
@@ -38,10 +38,10 @@ const cards = [
 ];
 
 // These are for the initial search
-const searches = [ "primary", "second", "firstName", "thename", "sortbasic",
+var searches = [ "primary", "second", "firstName", "thename", "sortbasic",
                    "testsort", "2testsort", "3testsort" ];
 
-const expectedResults = [ [ "primary@test.invalid",
+var expectedResults = [ [ "primary@test.invalid",
                             "second@test.invalid"], // searching for primary/second returns
                           [ "second@test.invalid",  // both the emails as the new search query
                             "primary@test.invalid" ], // looks in both the fields.
@@ -73,9 +73,9 @@ const expectedResults = [ [ "primary@test.invalid",
                             "3testsort <f@test.invalid>" ] ];
 
 // These are for subsequent searches - reducing the number of results.
-const reductionSearches = [ "b", "bo", "boo2" ];
+var reductionSearches = [ "b", "bo", "boo2" ];
 
-const reductionExpectedResults = [ [ "bar1@test.invalid",
+var reductionExpectedResults = [ [ "bar1@test.invalid",
                                      "bar2@test.invalid",
                                      "boo1@test.invalid",
                                      "boo2@test.invalid",

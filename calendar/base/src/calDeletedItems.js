@@ -23,8 +23,8 @@ function calDeletedItems() {
     };
 }
 
-const calDeletedItemsClassID = Components.ID("{8e6799af-e7e9-4e6c-9a82-a2413e86d8c3}");
-const calDeletedItemsInterfaces = [
+var calDeletedItemsClassID = Components.ID("{8e6799af-e7e9-4e6c-9a82-a2413e86d8c3}");
+var calDeletedItemsInterfaces = [
     Components.interfaces.calIDeletedItems,
     Components.interfaces.nsIObserver,
     Components.interfaces.calIObserver

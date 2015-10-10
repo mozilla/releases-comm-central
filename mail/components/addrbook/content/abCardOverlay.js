@@ -6,16 +6,16 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 
-const kNonVcardFields =
+var kNonVcardFields =
         ["NickNameContainer", "SecondaryEmailContainer", "ScreenNameContainer",
          "customFields", "preferDisplayName"];
 
-const kPhoneticFields =
+var kPhoneticFields =
         ["PhoneticLastName", "PhoneticLabel1", "PhoneticSpacer1",
          "PhoneticFirstName", "PhoneticLabel2", "PhoneticSpacer2"];
 
 // Item is |[dialogField, cardProperty]|.
-const kVcardFields =
+var kVcardFields =
         [ // Contact > Name
          ["FirstName", "FirstName"],
          ["LastName", "LastName"],
@@ -869,7 +869,7 @@ function modifyDatepicker(aDatepicker) {
   }
 }
 
-const chatNameFieldIds =
+var chatNameFieldIds =
   ["Gtalk", "AIM", "Yahoo", "Skype", "QQ", "MSN", "ICQ", "XMPP", "IRC"];
 
 /**

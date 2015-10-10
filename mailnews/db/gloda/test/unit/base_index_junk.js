@@ -14,8 +14,8 @@ load("resources/glodaTestHelper.js");
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const SPAM_BODY = {body: "superspam superspam superspam eevil eevil eevil"};
-const HAM_BODY = {body: "ham ham ham nice nice nice happy happy happy"};
+var SPAM_BODY = {body: "superspam superspam superspam eevil eevil eevil"};
+var HAM_BODY = {body: "ham ham ham nice nice nice happy happy happy"};
 
 /**
  * Make SPAM_BODY be known as spammy and HAM_BODY be known as hammy.

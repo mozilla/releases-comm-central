@@ -13,7 +13,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "address-book-helpers"];
 
 var folder;
 
-const messages = [
+var messages = [
   // Basic From header tests
   { name: "from_display_name_unquoted",
     headers: { From: "Carter Burke <cburke@wyutani.invalid>" },
@@ -139,7 +139,7 @@ const messages = [
   },
 ];
 
-const contacts = [
+var contacts = [
   { email: "aapone@uscmc.invalid", name: "Sarge", pdn: true },
   { email: "rjorden@hadleys-hope.invalid", name: "Newt", pdn: false },
 ];

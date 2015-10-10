@@ -6,9 +6,9 @@ Components.utils.import("resource://gre/modules/PluralForm.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const ALARM_RELATED_ABSOLUTE = Components.interfaces.calIAlarm.ALARM_RELATED_ABSOLUTE;
-const ALARM_RELATED_START = Components.interfaces.calIAlarm.ALARM_RELATED_START;
-const ALARM_RELATED_END = Components.interfaces.calIAlarm.ALARM_RELATED_END;
+var ALARM_RELATED_ABSOLUTE = Components.interfaces.calIAlarm.ALARM_RELATED_ABSOLUTE;
+var ALARM_RELATED_START = Components.interfaces.calIAlarm.ALARM_RELATED_START;
+var ALARM_RELATED_END = Components.interfaces.calIAlarm.ALARM_RELATED_END;
 
 function calAlarm() {
     this.wrappedJSObject = this;
@@ -18,8 +18,8 @@ function calAlarm() {
     this.mAttachments = [];
 }
 
-const calAlarmClassID = Components.ID("{b8db7c7f-c168-4e11-becb-f26c1c4f5f8f}");
-const calAlarmInterfaces = [Components.interfaces.calIAlarm];
+var calAlarmClassID = Components.ID("{b8db7c7f-c168-4e11-becb-f26c1c4f5f8f}");
+var calAlarmInterfaces = [Components.interfaces.calIAlarm];
 calAlarm.prototype = {
 
     mProperties: null,

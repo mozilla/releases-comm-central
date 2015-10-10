@@ -21,8 +21,8 @@ var stringBundle = new StringBundle("chrome://messenger/locale/newmailaccount/ac
 
 var isOSX = (Services.appinfo.OS == 'Darwin');
 
-const RETRY_TIMEOUT = 5000; // 5 seconds
-const CONNECTION_TIMEOUT = 15000; // 15 seconds
+var RETRY_TIMEOUT = 5000; // 5 seconds
+var CONNECTION_TIMEOUT = 15000; // 15 seconds
 
 function isAccel (event) { return isOSX && event.metaKey || event.ctrlKey; }
 
@@ -43,7 +43,7 @@ function getLocalStorage(page) {
   return Services.domStorageManager.getLocalStorageForPrincipal(principal, url);
 }
 
-const MAX_SMALL_ADDRESSES = 2;
+var MAX_SMALL_ADDRESSES = 2;
 
 var storedData = {};
 

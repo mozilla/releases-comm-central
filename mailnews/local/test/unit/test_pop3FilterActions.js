@@ -14,7 +14,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
-const gFiles = ["../../../data/bugmail10", "../../../data/bugmail11"];
+var gFiles = ["../../../data/bugmail10", "../../../data/bugmail11"];
 
 Services.prefs.setBoolPref("mail.server.default.leave_on_server", true);
 
@@ -32,7 +32,7 @@ var previews = {
 
 var gFilter; // the test filter
 var gFilterList;
-const gTestArray =
+var gTestArray =
 [
   function createFilters() {
     gFilterList = gPOP3Pump.fakeServer.getFilterList(null);

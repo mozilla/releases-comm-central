@@ -38,8 +38,8 @@ function calTimezoneService() {
 
     ICAL.TimezoneService = this.wrappedJSObject;
 }
-const calTimezoneServiceClassID = Components.ID("{e736f2bd-7640-4715-ab35-887dc866c587}");
-const calTimezoneServiceInterfaces = [
+var calTimezoneServiceClassID = Components.ID("{e736f2bd-7640-4715-ab35-887dc866c587}");
+var calTimezoneServiceInterfaces = [
     Components.interfaces.calITimezoneService,
     Components.interfaces.calITimezoneProvider,
     Components.interfaces.calIStartupService

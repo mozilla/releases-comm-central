@@ -12,7 +12,7 @@ load("../../../resources/messageGenerator.js");
 var gSecondFolder, gThirdFolder;
 var gSynthMessage1, gSynthMessage2;
 // the message id of bugmail10
-const gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
+var gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
 var gOfflineManager;
 
 var tests = [

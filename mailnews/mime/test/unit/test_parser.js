@@ -198,7 +198,7 @@ function test_parser(message, opts, results) {
     do_check_eq(dataCalls, results.length);
 }
 
-const ATTACH = MimeParser.HEADER_PARAMETER;
+var ATTACH = MimeParser.HEADER_PARAMETER;
 // Format of tests:
 // entry[0] = header
 // entry[1] = flags

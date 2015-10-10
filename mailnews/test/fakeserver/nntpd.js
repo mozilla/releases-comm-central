@@ -126,9 +126,9 @@ function wildmat2regex(wildmat) {
 }
 
 // NNTP FLAGS
-const NNTP_POSTABLE = 0x0001;
+var NNTP_POSTABLE = 0x0001;
 
-const NNTP_REAL_LENGTH = 0x0100;
+var NNTP_REAL_LENGTH = 0x0100;
 
 function hasFlag(flags, flag) {
   return (flags & flag) == flag;

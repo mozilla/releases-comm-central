@@ -3,9 +3,9 @@
  */
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-const nsIMailtoUrl = Components.interfaces.nsIMailtoUrl;
-const COMPOSE_HTML = Components.interfaces.nsIMsgCompFormat.HTML;
-const COMPOSE_DEFAULT = Components.interfaces.nsIMsgCompFormat.Default;
+var nsIMailtoUrl = Components.interfaces.nsIMailtoUrl;
+var COMPOSE_HTML = Components.interfaces.nsIMsgCompFormat.HTML;
+var COMPOSE_DEFAULT = Components.interfaces.nsIMsgCompFormat.Default;
 
 function run_test() {
 
@@ -48,7 +48,7 @@ function run_test() {
   do_check_eq(to.value, tests[0].to);
 };
 
-const tests = [
+var tests = [
   {
     url: "mailto:one@example.com",
     to: "one@example.com",

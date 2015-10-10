@@ -20,7 +20,7 @@ load("../../../resources/asyncTestUtils.js");
 // Globals
 Components.utils.import("resource:///modules/mailServices.js");
 
-const gMessage = "SpamAssassinYes"; // message file used as the test message
+var gMessage = "SpamAssassinYes"; // message file used as the test message
 
 setupIMAPPump();
 

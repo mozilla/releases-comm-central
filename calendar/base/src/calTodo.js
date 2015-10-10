@@ -20,8 +20,8 @@ function calTodo() {
     };
 }
 
-const calTodoClassID = Components.ID("{7af51168-6abe-4a31-984d-6f8a3989212d}");
-const calTodoInterfaces = [
+var calTodoClassID = Components.ID("{7af51168-6abe-4a31-984d-6f8a3989212d}");
+var calTodoInterfaces = [
     Components.interfaces.calIItemBase,
     Components.interfaces.calITodo,
     Components.interfaces.calIInternalShallowCopy

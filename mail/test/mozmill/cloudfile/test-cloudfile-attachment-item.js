@@ -17,7 +17,7 @@ var MODULE_REQUIRES = ['folder-display-helpers',
 var elib = {};
 Cu.import('resource://mozmill/modules/elementslib.js', elib);
 
-const kAttachmentItemContextID = "msgComposeAttachmentItemContext";
+var kAttachmentItemContextID = "msgComposeAttachmentItemContext";
 
 var ah, cfh;
 

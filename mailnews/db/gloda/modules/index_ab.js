@@ -4,10 +4,10 @@
 
 this.EXPORTED_SYMBOLS = ['GlodaABIndexer', 'GlodaABAttrs'];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
+var Cu = Components.utils;
 
 Cu.import("resource:///modules/gloda/collection.js");
 Cu.import("resource:///modules/gloda/datastore.js");

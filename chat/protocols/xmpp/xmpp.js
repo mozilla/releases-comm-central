@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Cu = Components.utils;
+var Cu = Components.utils;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
@@ -57,4 +57,4 @@ XMPPProtocol.prototype = {
   classID: Components.ID("{dde786d1-6f59-43d0-9bc8-b505a757fb30}")
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([XMPPProtocol]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([XMPPProtocol]);

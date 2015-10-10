@@ -9,10 +9,10 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaDatastore"];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
+var Cu = Components.utils;
 
 Cu.import("resource:///modules/IOUtils.js");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -23,9 +23,9 @@ Cu.import("resource:///modules/gloda/datamodel.js");
 Cu.import("resource:///modules/gloda/databind.js");
 Cu.import("resource:///modules/gloda/collection.js");
 
-const MIN_CACHE_SIZE = 8 * 1048576;
-const MAX_CACHE_SIZE = 64 * 1048576;
-const MEMSIZE_FALLBACK_BYTES = 256 * 1048576;
+var MIN_CACHE_SIZE = 8 * 1048576;
+var MAX_CACHE_SIZE = 64 * 1048576;
+var MEMSIZE_FALLBACK_BYTES = 256 * 1048576;
 
 var PCH_LOG = Log4Moz.repository.getLogger("gloda.ds.pch");
 
@@ -572,7 +572,7 @@ ExplainedStatementProcessor.prototype = {
 };
 
 // See the documentation on GlodaDatastore._schemaVersion to understand these:
-const DB_SCHEMA_ACCEPT_LEAVE_LOW = 31,
+var DB_SCHEMA_ACCEPT_LEAVE_LOW = 31,
       DB_SCHEMA_ACCEPT_LEAVE_HIGH = 34,
       DB_SCHEMA_ACCEPT_DOWNGRADE_LOW = 35,
       DB_SCHEMA_ACCEPT_DOWNGRADE_HIGH = 39,

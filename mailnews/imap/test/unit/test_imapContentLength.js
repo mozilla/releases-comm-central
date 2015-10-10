@@ -19,7 +19,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 var gMsgHdr = null;
 
 // Take a multipart message as we're testing attachment URLs as well
-const gFile = do_get_file("../../../data/multipart-complex2");
+var gFile = do_get_file("../../../data/multipart-complex2");
                    
 var tests = [
   setup,

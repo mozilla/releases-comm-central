@@ -23,8 +23,8 @@ function calRecurrenceInfo() {
     this.wrappedJSObject = this;
 }
 
-const calRecurrenceInfoClassID = Components.ID("{04027036-5884-4a30-b4af-f2cad79f6edf}");
-const calRecurrenceInfoInterfaces = [Components.interfaces.calIRecurrenceInfo];
+var calRecurrenceInfoClassID = Components.ID("{04027036-5884-4a30-b4af-f2cad79f6edf}");
+var calRecurrenceInfoInterfaces = [Components.interfaces.calIRecurrenceInfo];
 calRecurrenceInfo.prototype = {
     mImmutable: false,
     mBaseItem: null,

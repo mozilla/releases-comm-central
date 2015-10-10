@@ -7,9 +7,9 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-const kPhishingNotSuspicious = 0;
-const kPhishingWithIPAddress = 1;
-const kPhishingWithMismatchedHosts = 2;
+var kPhishingNotSuspicious = 0;
+var kPhishingWithIPAddress = 1;
+var kPhishingWithMismatchedHosts = 2;
 
 
 var gPhishingDetector = {

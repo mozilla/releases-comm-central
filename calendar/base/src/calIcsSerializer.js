@@ -11,8 +11,8 @@ function calIcsSerializer() {
     this.mProperties = [];
     this.mComponents = [];
 }
-const calIcsSerializerClassID = Components.ID("{207a6682-8ff1-4203-9160-729ec28c8766}");
-const calIcsSerializerInterfaces = [Components.interfaces.calIIcsSerializer];
+var calIcsSerializerClassID = Components.ID("{207a6682-8ff1-4203-9160-729ec28c8766}");
+var calIcsSerializerInterfaces = [Components.interfaces.calIIcsSerializer];
 calIcsSerializer.prototype = {
     classID: calIcsSerializerClassID,
     QueryInterface: XPCOMUtils.generateQI(calIcsSerializerInterfaces),

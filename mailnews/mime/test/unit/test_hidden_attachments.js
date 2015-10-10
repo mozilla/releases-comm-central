@@ -17,9 +17,9 @@ var gMessenger = Cc["@mozilla.org/messenger;1"]
                    .createInstance(Ci.nsIMessenger);
 
 // Create a message generator
-const msgGen = gMessageGenerator = new MessageGenerator();
+var msgGen = gMessageGenerator = new MessageGenerator();
 // Create a message scenario generator using that message generator
-const scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
+var scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
 
 // create some messages that have various types of attachments
 var messages = [

@@ -21,7 +21,7 @@ var inboxSubfolder, subfolderA, subfolderB;
 var smartInboxFolder;
 var smartFolderA;
 
-const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
+var nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
 
 /**
  * create two smart folder types and two real folders, one for each

@@ -7,7 +7,7 @@
  *  reversible names.  To keep things easily reversible, if you add names, make
  *  sure they have no spaces in them!
  */
-const FIRST_NAMES = [
+var FIRST_NAMES = [
   "Andy", "Bob", "Chris", "David", "Emily", "Felix",
   "Gillian", "Helen", "Idina", "Johnny", "Kate", "Lilia",
   "Martin", "Neil", "Olof", "Pete", "Quinn", "Rasmus",
@@ -20,7 +20,7 @@ const FIRST_NAMES = [
  *  reversible names.  To keep things easily reversible, if you add names, make
  *  sure they have no spaces in them!
  */
-const LAST_NAMES = [
+var LAST_NAMES = [
   "Anway", "Bell", "Clarke", "Davol", "Ekberg", "Flowers",
   "Gilbert", "Hook", "Ivarsson", "Jones", "Kurtz", "Lowe",
   "Morris", "Nagel", "Orzabal", "Price", "Quinn", "Rolinski",
@@ -34,7 +34,7 @@ const LAST_NAMES = [
  *  make sure they have no spaces in them!  Also, make sure your additions
  *  don't break the secret Monty Python reference!
  */
-const SUBJECT_ADJECTIVES = [
+var SUBJECT_ADJECTIVES = [
   "Big", "Small", "Huge", "Tiny",
   "Red", "Green", "Blue", "My",
   "Happy", "Sad", "Grumpy", "Angry",
@@ -47,7 +47,7 @@ const SUBJECT_ADJECTIVES = [
  *  make sure they have no spaces in them!  Also, make sure your additions
  *  don't break the secret Monty Python reference!
  */
-const SUBJECT_NOUNS = [
+var SUBJECT_NOUNS = [
   "Meeting", "Party", "Shindig", "Wedding",
   "Document", "Report", "Spreadsheet", "Hovercraft",
   "Aardvark", "Giraffe", "Llama", "Velociraptor",
@@ -59,7 +59,7 @@ const SUBJECT_NOUNS = [
  *  by MessageGenerator.  These can (clearly) have spaces in them.  Make sure
  *  your additions don't break the secret Monty Python reference!
  */
-const SUBJECT_SUFFIXES = [
+var SUBJECT_SUFFIXES = [
   "Today", "Tomorrow", "Yesterday", "In a Fortnight",
   "Needs Attention", "Very Important", "Highest Priority", "Full Of Eels",
   "In The Lobby", "On Your Desk", "In Your Car", "Hiding Behind The Door",
@@ -284,7 +284,7 @@ SyntheticPartMultiRelated.prototype = {
   _contentType: 'multipart/related',
 };
 
-const PKCS_SIGNATURE_MIME_TYPE = 'application/x-pkcs7-signature';
+var PKCS_SIGNATURE_MIME_TYPE = 'application/x-pkcs7-signature';
 /**
  * Multipart signed (multipart/signed) SMIME part.  This is helperish and makes
  *  up a gibberish signature.  We wrap the provided parts in the standard
@@ -312,7 +312,7 @@ SyntheticPartMultiSignedSMIME.prototype = {
   },
 };
 
-const PGP_SIGNATURE_MIME_TYPE = 'application/pgp-signature';
+var PGP_SIGNATURE_MIME_TYPE = 'application/pgp-signature';
 /**
  * Multipart signed (multipart/signed) PGP part.  This is helperish and makes
  *  up a gibberish signature.  We wrap the provided parts in the standard
@@ -340,7 +340,7 @@ SyntheticPartMultiSignedPGP.prototype = {
 };
 
 
-const _DEFAULT_META_STATES = {
+var _DEFAULT_META_STATES = {
   junk: false,
   read: false,
 };

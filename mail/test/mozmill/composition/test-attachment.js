@@ -28,18 +28,18 @@ var filePrefix;
 var os = {};
 Components.utils.import('resource://mozmill/stdlib/os.js', os);
 
-const rawAttachment =
+var rawAttachment =
   "Can't make the frug contest, Helen; stomach's upset. I'll fix you, " +
   "Ubik! Ubik drops you back in the thick of things fast. Taken as " +
   "directed, Ubik speeds relief to head and stomach. Remember: Ubik is " +
   "only seconds away. Avoid prolonged use.";
 
-const b64Attachment =
+var b64Attachment =
   'iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABHNCSVQICAgIfAhkiAAAAAlwS' +
   'FlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA' +
   'A5SURBVCiRY/z//z8DKYCJJNXkaGBgYGD4D8NQ5zUgiTVAxeBqSLaBkVRPM0KtIhrQ3km0jwe' +
   'SNQAAlmAY+71EgFoAAAAASUVORK5CYII=';
-const b64Size = 188;
+var b64Size = 188;
 
 function setupModule(module) {
   let fdh = collector.getModule('folder-display-helpers');

@@ -11,8 +11,8 @@ function calIcalProperty(innerObject) {
     this.wrappedJSObject = this;
 }
 
-const calIcalPropertyInterfaces = [Components.interfaces.calIIcalProperty];
-const calIcalPropertyClassID = Components.ID("{423ac3f0-f612-48b3-953f-47f7f8fd705b}");
+var calIcalPropertyInterfaces = [Components.interfaces.calIIcalProperty];
+var calIcalPropertyClassID = Components.ID("{423ac3f0-f612-48b3-953f-47f7f8fd705b}");
 calIcalProperty.prototype = {
     QueryInterface: XPCOMUtils.generateQI(calIcalPropertyInterfaces),
     classID: calIcalPropertyClassID,
@@ -206,8 +206,8 @@ function calIcalComponent(innerObject) {
     this.mReferencedZones = {};
 }
 
-const calIcalComponentInterfaces = [Components.interfaces.calIIcalComponent];
-const calIcalComponentClassID = Components.ID("{51ac96fd-1279-4439-a85b-6947b37f4cea}");
+var calIcalComponentInterfaces = [Components.interfaces.calIIcalComponent];
+var calIcalComponentClassID = Components.ID("{51ac96fd-1279-4439-a85b-6947b37f4cea}");
 calIcalComponent.prototype = {
     QueryInterface: XPCOMUtils.generateQI(calIcalComponentInterfaces),
     classID: calIcalComponentClassID,
@@ -440,8 +440,8 @@ function calICSService() {
     this.wrappedJSObject = this;
 }
 
-const calICSServiceInterfaces = [Components.interfaces.calIICSService];
-const calICSServiceClassID = Components.ID("{c61cb903-4408-41b3-bc22-da0b27efdfe1}");
+var calICSServiceInterfaces = [Components.interfaces.calIICSService];
+var calICSServiceClassID = Components.ID("{c61cb903-4408-41b3-bc22-da0b27efdfe1}");
 calICSService.prototype = {
     QueryInterface: XPCOMUtils.generateQI(calICSServiceInterfaces),
     classID: calICSServiceClassID,

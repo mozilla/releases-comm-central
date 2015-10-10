@@ -9,16 +9,16 @@ load("../../../resources/searchTestUtils.js");
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const nsMsgSearchScope = Ci.nsMsgSearchScope;
-const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-const nsMsgSearchOp = Ci.nsMsgSearchOp;
+var nsMsgSearchScope = Ci.nsMsgSearchScope;
+var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
+var nsMsgSearchOp = Ci.nsMsgSearchOp;
 
-const Contains = nsMsgSearchOp.Contains;
+var Contains = nsMsgSearchOp.Contains;
 
-const offlineMail = nsMsgSearchScope.offlineMail;
-const offlineMailFilter = nsMsgSearchScope.offlineMailFilter;
+var offlineMail = nsMsgSearchScope.offlineMail;
+var offlineMailFilter = nsMsgSearchScope.offlineMailFilter;
 
-const Body = nsMsgSearchAttrib.Body;
+var Body = nsMsgSearchAttrib.Body;
 
 var Files = 
 [

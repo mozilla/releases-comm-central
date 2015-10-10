@@ -37,10 +37,10 @@ var gActionListOrdered = null;
 
 var gFilterEditorMsgWindow = null;
 
-const nsMsgFilterAction = Components.interfaces.nsMsgFilterAction;
-const nsMsgFilterType   = Components.interfaces.nsMsgFilterType;
-const nsIMsgRuleAction  = Components.interfaces.nsIMsgRuleAction;
-const nsMsgSearchScope  = Components.interfaces.nsMsgSearchScope;
+var nsMsgFilterAction = Components.interfaces.nsMsgFilterAction;
+var nsMsgFilterType   = Components.interfaces.nsMsgFilterType;
+var nsIMsgRuleAction  = Components.interfaces.nsIMsgRuleAction;
+var nsMsgSearchScope  = Components.interfaces.nsMsgSearchScope;
 
 function filterEditorOnLoad()
 {

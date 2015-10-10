@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const MODULE_NAME = "customization-helpers";
+var MODULE_NAME = "customization-helpers";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 Cu.import("resource://gre/modules/Services.jsm");
 var elib = {};
 Cu.import('resource://mozmill/modules/elementslib.js', elib);
 
-const USE_SHEET_PREF = "toolbar.customization.usesheet";
+var USE_SHEET_PREF = "toolbar.customization.usesheet";
 
 var wh, fdh;
 

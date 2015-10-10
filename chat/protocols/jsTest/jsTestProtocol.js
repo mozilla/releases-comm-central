@@ -92,4 +92,4 @@ jsTestProtocol.prototype = {
   classID: Components.ID("{a0774c5a-4aea-458b-9fbc-8d3cbf1a4630}"),
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([jsTestProtocol]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([jsTestProtocol]);

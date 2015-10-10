@@ -14,23 +14,23 @@ this.EXPORTED_SYMBOLS = [
   "serializeSelection"
 ];
 
-const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource://gre/modules/DownloadUtils.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const kMessagesStylePrefBranch = "messenger.options.messagesStyle.";
-const kThemePref = "theme";
-const kVariantPref = "variant";
-const kShowHeaderPref = "showHeader";
-const kCombineConsecutivePref = "combineConsecutive";
-const kCombineConsecutiveIntervalPref = "combineConsecutiveInterval";
+var kMessagesStylePrefBranch = "messenger.options.messagesStyle.";
+var kThemePref = "theme";
+var kVariantPref = "variant";
+var kShowHeaderPref = "showHeader";
+var kCombineConsecutivePref = "combineConsecutive";
+var kCombineConsecutiveIntervalPref = "combineConsecutiveInterval";
 
-const DEFAULT_THEME = "bubbles";
-const DEFAULT_THEMES = ["bubbles", "dark", "papersheets", "simple"];
+var DEFAULT_THEME = "bubbles";
+var DEFAULT_THEMES = ["bubbles", "dark", "papersheets", "simple"];
 
-const kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
+var kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
 
 XPCOMUtils.defineLazyGetter(this, "gPrefBranch", () =>
   Services.prefs.getBranch(kMessagesStylePrefBranch)
@@ -324,7 +324,7 @@ function getStatusIconFromBuddy(aBuddy)
   return "chrome://chat/skin/" + status + "-16.png";
 }
 
-const headerFooterReplacements = {
+var headerFooterReplacements = {
   chatName: aConv => TXTToHTML(aConv.title),
   sourceName: aConv => TXTToHTML(aConv.account.alias || aConv.account.name),
   destinationName: aConv => TXTToHTML(aConv.name),
@@ -350,7 +350,7 @@ function formatAutoResponce(aTxt) {
                  .formatStringFromName("autoReply", [aTxt], 1);
 }
 
-const statusMessageReplacements = {
+var statusMessageReplacements = {
   message: aMsg => "<span class=\"ib-msg-txt\">" +
                    (aMsg.autoResponse ? formatAutoResponce(aMsg.message) : aMsg.message) +
                    "</span>",
@@ -400,7 +400,7 @@ const statusMessageReplacements = {
 function formatSender(aName) {
   return "<span class=\"ib-sender\">" + TXTToHTML(aName) + "</span>";
 }
-const messageReplacements = {
+var messageReplacements = {
   userIconPath: function (aMsg) {
     // If the protocol plugin provides an icon for the message, use it.
     let iconURL = aMsg.iconURL;
@@ -430,7 +430,7 @@ const messageReplacements = {
   __proto__: statusMessageReplacements
 };
 
-const statusReplacements = {
+var statusReplacements = {
   status: aMsg => "", //FIXME
   statusIcon: function(aMsg) {
     let conv = aMsg.conversation;
@@ -442,7 +442,7 @@ const statusReplacements = {
   __proto__: statusMessageReplacements
 };
 
-const kReplacementRegExp = /%([a-zA-Z]*)(\{([^\}]*)\})?%/g;
+var kReplacementRegExp = /%([a-zA-Z]*)(\{([^\}]*)\})?%/g;
 
 function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg)
 {

@@ -19,8 +19,8 @@ var EXPORTED_SYMBOLS = [
   "AuthCRAM"
 ];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
 
 /**
  * Implements AUTH PLAIN

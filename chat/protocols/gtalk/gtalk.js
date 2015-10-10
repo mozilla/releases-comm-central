@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Cu = Components.utils;
+var Cu = Components.utils;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
@@ -102,4 +102,4 @@ GTalkProtocol.prototype = {
   classID: Components.ID("{38a224c1-6748-49a9-8ab2-efc362b1000d}")
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([GTalkProtocol]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([GTalkProtocol]);

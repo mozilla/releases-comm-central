@@ -164,7 +164,7 @@ function compactFolder(folder)
  */
 
 // Beware before commenting out a test -- later tests might just depend on earlier ones
-const gTestArray =
+var gTestArray =
 [
   // Adding folders
   // Create another folder to move and copy messages around, and force initialization.

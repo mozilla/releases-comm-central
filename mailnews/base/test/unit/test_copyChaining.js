@@ -17,7 +17,7 @@ var gCurTestNum = 1;
 
 var hdrs = [];
 
-const gTestArray =
+var gTestArray =
 [
   function copyMsg1() {
     gMsgEnumerator = gCopySource.msgDatabase.EnumerateMessages();

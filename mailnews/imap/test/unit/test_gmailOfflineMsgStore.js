@@ -26,21 +26,21 @@ load("../../../resources/asyncTestUtils.js");
 
 // Messages to load must have CRLF line endings, that is Windows style
 
-const gMessage1 = "bugmail10"; // message file used as the test message for Inbox and fooFolder
-const gXGmMsgid1 = "1278455344230334865";
-const gXGmThrid1 = "1266894439832287888";
+var gMessage1 = "bugmail10"; // message file used as the test message for Inbox and fooFolder
+var gXGmMsgid1 = "1278455344230334865";
+var gXGmThrid1 = "1266894439832287888";
 // We need to have different X-GM-LABELS for different folders. I am doing it here manually, but this issue will be tackled in Bug 781443.
-const gXGmLabels11 = '( \"\\\\Sent\" foo bar)'; // for message in Inbox
-const gXGmLabels12 = '(\"\\\\Inbox\" \"\\\\Sent\" bar)'; // for message in fooFolder
-const gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
+var gXGmLabels11 = '( \"\\\\Sent\" foo bar)'; // for message in Inbox
+var gXGmLabels12 = '(\"\\\\Inbox\" \"\\\\Sent\" bar)'; // for message in fooFolder
+var gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
 
-const gMessage2 = "bugmail11"; // message file used as the test message for fooFolder
-const gMsgId2 = "200804111417.m3BEHTk4030129@mrapp51.mozilla.org";
-const gXGmMsgid2 = "1278455345230334555";
-const gXGmThrid2 = "1266894639832287111";
-const gXGmLabels2 = '(\"\\\\Sent\")';
+var gMessage2 = "bugmail11"; // message file used as the test message for fooFolder
+var gMsgId2 = "200804111417.m3BEHTk4030129@mrapp51.mozilla.org";
+var gXGmMsgid2 = "1278455345230334555";
+var gXGmThrid2 = "1266894639832287111";
+var gXGmLabels2 = '(\"\\\\Sent\")';
 
-const nsMsgMessageFlags = Ci.nsMsgMessageFlags;
+var nsMsgMessageFlags = Ci.nsMsgMessageFlags;
 
 var fooBox;
 var fooFolder;

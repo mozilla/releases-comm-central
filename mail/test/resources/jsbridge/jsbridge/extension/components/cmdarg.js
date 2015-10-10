@@ -1,28 +1,28 @@
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const nsIAppShellService    = Components.interfaces.nsIAppShellService;
-const nsISupports           = Components.interfaces.nsISupports;
-const nsICategoryManager    = Components.interfaces.nsICategoryManager;
-const nsIComponentRegistrar = Components.interfaces.nsIComponentRegistrar;
-const nsICommandLine        = Components.interfaces.nsICommandLine;
-const nsICommandLineHandler = Components.interfaces.nsICommandLineHandler;
-const nsIFactory            = Components.interfaces.nsIFactory;
-const nsIModule             = Components.interfaces.nsIModule;
-const nsIWindowWatcher      = Components.interfaces.nsIWindowWatcher;
+var nsIAppShellService    = Components.interfaces.nsIAppShellService;
+var nsISupports           = Components.interfaces.nsISupports;
+var nsICategoryManager    = Components.interfaces.nsICategoryManager;
+var nsIComponentRegistrar = Components.interfaces.nsIComponentRegistrar;
+var nsICommandLine        = Components.interfaces.nsICommandLine;
+var nsICommandLineHandler = Components.interfaces.nsICommandLineHandler;
+var nsIFactory            = Components.interfaces.nsIFactory;
+var nsIModule             = Components.interfaces.nsIModule;
+var nsIWindowWatcher      = Components.interfaces.nsIWindowWatcher;
 
 // CHANGEME: to the chrome URI of your extension or application
-const CHROME_URI = "chrome://jsbridge/content/";
+var CHROME_URI = "chrome://jsbridge/content/";
 
 // CHANGEME: change the contract id, CID, and category to be unique
 // to your application.
-const clh_contractID = "@mozilla.org/commandlinehandler/general-startup;1?type=jsbridge";
+var clh_contractID = "@mozilla.org/commandlinehandler/general-startup;1?type=jsbridge";
 
 // use uuidgen to generate a unique ID
-const clh_CID = Components.ID("{2872d428-14f6-11de-ac86-001f5bd9235c}");
+var clh_CID = Components.ID("{2872d428-14f6-11de-ac86-001f5bd9235c}");
 
 // category names are sorted alphabetically. Typical command-line handlers use a
 // category that begins with the letter "m".
-const clh_category = "jsbridge";
+var clh_category = "jsbridge";
 
 var aConsoleService = Components.classes["@mozilla.org/consoleservice;1"].
      getService(Components.interfaces.nsIConsoleService);
@@ -118,7 +118,7 @@ jsbridgeHandler.prototype = {
  * XPCOMUtils.generateNSGetFactory was introduced in Mozilla 2 (Firefox 4).
  * XPCOMUtils.generateNSGetModule is for Mozilla 1.9.1 (Firefox 3.5).
  */
-const NSGetFactory = XPCOMUtils.generateNSGetFactory ? XPCOMUtils.generateNSGetFactory([jsbridgeHandler])
+var NSGetFactory = XPCOMUtils.generateNSGetFactory ? XPCOMUtils.generateNSGetFactory([jsbridgeHandler])
                                                      : undefined;
-const NSGetModule = !XPCOMUtils.generateNSGetFactory ? XPCOMUtils.generateNSGetModule([jsbridgeHandler])
+var NSGetModule = !XPCOMUtils.generateNSGetFactory ? XPCOMUtils.generateNSGetModule([jsbridgeHandler])
                                                      : undefined;

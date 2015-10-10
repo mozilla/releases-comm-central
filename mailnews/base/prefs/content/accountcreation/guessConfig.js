@@ -6,7 +6,7 @@
 Cu.import("resource:///modules/gloda/log4moz.js");
 Cu.import("resource://gre/modules/Services.jsm");
 
-const TIMEOUT = 10; // in seconds
+var TIMEOUT = 10; // in seconds
 
 // This is a bit ugly - we set outgoingDone to false
 // when emailWizard.js cancels the outgoing probe because the user picked
@@ -285,10 +285,10 @@ GuessAbortable.prototype.cancel = function(ex)
 // Objects, functions and constants that follow are not to be used outside
 // this file.
 
-const kNotTried = 0;
-const kOngoing = 1;
-const kFailed = 2;
-const kSuccess = 3;
+var kNotTried = 0;
+var kOngoing = 1;
+var kFailed = 2;
+var kSuccess = 3;
 
 /**
  * Internal object holding one server that we should try or did try.
@@ -708,32 +708,32 @@ OutgoingHostDetector.prototype =
 // Encode protocol ports and order of preference
 
 // Protocol Types
-const UNKNOWN = -1;
-const IMAP = 0;
-const POP = 1;
-const SMTP = 2;
+var UNKNOWN = -1;
+var IMAP = 0;
+var POP = 1;
+var SMTP = 2;
 // Security Types
-const NONE = 0; // no encryption
+var NONE = 0; // no encryption
 //1 would be "TLS if available"
-const TLS = 2; // STARTTLS
-const SSL = 3; // SSL / TLS
+var TLS = 2; // STARTTLS
+var SSL = 3; // SSL / TLS
 
-const IMAP_PORTS = {}
+var IMAP_PORTS = {}
 IMAP_PORTS[NONE] = 143;
 IMAP_PORTS[TLS] = 143;
 IMAP_PORTS[SSL] = 993;
 
-const POP_PORTS = {}
+var POP_PORTS = {}
 POP_PORTS[NONE] = 110;
 POP_PORTS[TLS] = 110;
 POP_PORTS[SSL] = 995;
 
-const SMTP_PORTS = {}
+var SMTP_PORTS = {}
 SMTP_PORTS[NONE] = 587;
 SMTP_PORTS[TLS] = 587;
 SMTP_PORTS[SSL] = 465;
 
-const CMDS = {}
+var CMDS = {}
 CMDS[IMAP] = ["1 CAPABILITY\r\n", "2 LOGOUT\r\n"];
 CMDS[POP] = ["CAPA\r\n", "QUIT\r\n"];
 CMDS[SMTP] = ["EHLO we-guess.mozilla.org\r\n", "QUIT\r\n"];

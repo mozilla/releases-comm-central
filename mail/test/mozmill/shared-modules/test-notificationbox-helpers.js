@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const MODULE_NAME = "notificationbox-helpers";
+var MODULE_NAME = "notificationbox-helpers";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = [];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = [];
 
 function installInto(module) {
   module.check_notification_displayed = check_notification_displayed;

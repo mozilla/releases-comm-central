@@ -7,7 +7,7 @@ Components.utils.import("resource://gre/modules/CrashReports.jsm");
 /**
  * Get list of crashes and show 5 most recent.*/
 
-const kCrashesMaxCount = 5;
+var kCrashesMaxCount = 5;
 
 function populateCrashesSection() {
   let reportURL;

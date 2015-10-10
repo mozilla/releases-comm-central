@@ -7,7 +7,7 @@
  */
 Components.utils.import("resource:///modules/mailServices.js");
 
-const kRootURI = "mailbox://nobody@Local%20Folders";
+var kRootURI = "mailbox://nobody@Local%20Folders";
 
 function run_test() {
   let fls = Components.classes["@mozilla.org/mail/folder-lookup;1"]

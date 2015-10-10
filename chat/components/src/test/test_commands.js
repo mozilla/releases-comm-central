@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {interfaces: Ci, utils: Cu} = Components;
+var {interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imServices.jsm");
 // We don't load the command service via Services as we want to access
@@ -10,23 +10,23 @@ Cu.import("resource:///modules/imServices.jsm");
 var imCommands = {};
 Services.scriptloader.loadSubScript("resource:///components/imCommands.js", imCommands);
 
-const kPrplId = "green";
-const kPrplId2 = "red";
+var kPrplId = "green";
+var kPrplId2 = "red";
 
-const fakeAccount = {
+var fakeAccount = {
   connected: true,
   protocol: {id: kPrplId}
 };
-const fakeDisconnectedAccount = {
+var fakeDisconnectedAccount = {
   connected: false,
   protocol: {id: kPrplId}
 };
-const fakeAccount2 = {
+var fakeAccount2 = {
   connected: true,
   protocol: {id: kPrplId2}
 };
 
-const fakeConversation = {
+var fakeConversation = {
   account: fakeAccount,
   isChat: true
 };

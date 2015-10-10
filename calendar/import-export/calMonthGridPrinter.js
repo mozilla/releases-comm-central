@@ -16,8 +16,8 @@ function calMonthPrinter() {
     this.wrappedJSObject = this;
 }
 
-const calMonthPrinterClassID = Components.ID("{f42d5132-92c4-487b-b5c8-38bf292d74c1}");
-const calMonthPrinterInterfaces = [Components.interfaces.calIPrintFormatter];
+var calMonthPrinterClassID = Components.ID("{f42d5132-92c4-487b-b5c8-38bf292d74c1}");
+var calMonthPrinterInterfaces = [Components.interfaces.calIPrintFormatter];
 calMonthPrinter.prototype = {
     classID: calMonthPrinterClassID,
     QueryInterface: XPCOMUtils.generateQI(calMonthPrinterInterfaces),

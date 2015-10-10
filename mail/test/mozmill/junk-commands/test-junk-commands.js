@@ -26,7 +26,7 @@ function setupModule(module) {
 /**
  * The number of messages to mark as junk and expect to be deleted.
  */
-const NUM_MESSAGES_TO_JUNK = 8;
+var NUM_MESSAGES_TO_JUNK = 8;
 
 /**
  * Helper to check whether a folder has the right number of messages.

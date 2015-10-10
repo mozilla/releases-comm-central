@@ -8,10 +8,10 @@
 
 // make SOLO_TEST=composition/test-attachment-reminder.js mozmill-one
 
-const MODULE_NAME = "test-attachment-reminder";
+var MODULE_NAME = "test-attachment-reminder";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers",
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers",
                          "compose-helpers",
                          "window-helpers",
                          "notificationbox-helpers",
@@ -20,9 +20,9 @@ const MODULE_REQUIRES = ["folder-display-helpers",
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/mailServices.js");
 
-const kBoxId = "attachmentNotificationBox";
-const kNotificationId = "attachmentReminder";
-const kReminderPref = "mail.compose.attachment_reminder";
+var kBoxId = "attachmentNotificationBox";
+var kNotificationId = "attachmentReminder";
+var kReminderPref = "mail.compose.attachment_reminder";
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {

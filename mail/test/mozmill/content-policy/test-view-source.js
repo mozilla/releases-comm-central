@@ -8,12 +8,12 @@
 
 // make SOLO_TEST=content-policy/test-view-source.js mozmill-one
 
-const MODULE_NAME = "test-view-source";
+var MODULE_NAME = "test-view-source";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-const elib = {};
+var elib = {};
 Components.utils.import("resource://mozmill/modules/elementslib.js", elib);
 
 Components.utils.import("resource://gre/modules/Services.jsm");

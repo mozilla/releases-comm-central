@@ -6,7 +6,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-const nsIScriptableDateFormat = Components.interfaces.nsIScriptableDateFormat;
+var nsIScriptableDateFormat = Components.interfaces.nsIScriptableDateFormat;
 
 function calDateTimeFormatter() {
     this.wrappedJSObject = this;
@@ -65,8 +65,8 @@ function calDateTimeFormatter() {
         this.mUseLongDateService = false;
     }
 }
-const calDateTimeFormatterClassID = Components.ID("{4123da9a-f047-42da-a7d0-cc4175b9f36a}");
-const calDateTimeFormatterInterfaces = [Components.interfaces.calIDateTimeFormatter];
+var calDateTimeFormatterClassID = Components.ID("{4123da9a-f047-42da-a7d0-cc4175b9f36a}");
+var calDateTimeFormatterInterfaces = [Components.interfaces.calIDateTimeFormatter];
 calDateTimeFormatter.prototype = {
     classID: calDateTimeFormatterClassID,
     QueryInterface: XPCOMUtils.generateQI(calDateTimeFormatterInterfaces),

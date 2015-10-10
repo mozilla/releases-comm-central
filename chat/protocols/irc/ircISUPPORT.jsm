@@ -14,7 +14,7 @@
 
 this.EXPORTED_SYMBOLS = ["ircISUPPORT", "isupportBase"];
 
-const Cu = Components.utils;
+var Cu = Components.utils;
 
 Cu.import("resource:///modules/ircHandlers.jsm");
 Cu.import("resource:///modules/ircUtils.jsm");

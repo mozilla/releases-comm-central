@@ -10,13 +10,13 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
 Components.utils.import("resource:///modules/gloda/log4moz.js");
 
-const nsActProcess = Components.Constructor("@mozilla.org/activity-process;1",
+var nsActProcess = Components.Constructor("@mozilla.org/activity-process;1",
                                             "nsIActivityProcess", "init");
-const nsActEvent = Components.Constructor("@mozilla.org/activity-event;1",
+var nsActEvent = Components.Constructor("@mozilla.org/activity-event;1",
                                           "nsIActivityEvent", "init");
-const nsActWarning = Components.Constructor("@mozilla.org/activity-warning;1",
+var nsActWarning = Components.Constructor("@mozilla.org/activity-warning;1",
                                             "nsIActivityWarning", "init");
-const ACTIVITY_LIMIT = 250;
+var ACTIVITY_LIMIT = 250;
 
 var activityObject =
 {

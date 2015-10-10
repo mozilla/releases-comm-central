@@ -6,15 +6,15 @@ this.EXPORTED_SYMBOLS = ["GlodaAttributeDBDef", "GlodaAccount",
                     "GlodaConversation", "GlodaFolder", "GlodaMessage",
                     "GlodaContact", "GlodaIdentity", "GlodaAttachment"];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
+var Cu = Components.utils;
 
 Cu.import("resource:///modules/mailServices.js");
 
 Cu.import("resource:///modules/gloda/log4moz.js");
-const LOG = Log4Moz.repository.getLogger("gloda.datamodel");
+var LOG = Log4Moz.repository.getLogger("gloda.datamodel");
 
 Cu.import("resource:///modules/gloda/utils.js");
 

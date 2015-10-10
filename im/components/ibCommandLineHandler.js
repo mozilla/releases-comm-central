@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/ibCore.jsm");
@@ -58,4 +58,4 @@ ibCommandLineHandler.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsICommandLineHandler])
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([ibCommandLineHandler]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([ibCommandLineHandler]);

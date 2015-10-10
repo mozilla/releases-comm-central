@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["XULAppInfo"];
 
-const Ci = Components.interfaces;
+var Ci = Components.interfaces;
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 

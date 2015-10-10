@@ -23,7 +23,7 @@ function setupModule(module) {
 }
 
 // Provided by the extension in test-extension
-const kTestModeID = "testmode";
+var kTestModeID = "testmode";
 
 /**
  * Switch to the mode and verify that it displays correctly.

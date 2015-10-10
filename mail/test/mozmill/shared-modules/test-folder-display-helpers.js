@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const MODULE_NAME = "folder-display-helpers";
+var MODULE_NAME = "folder-display-helpers";
 
-const RELATIVE_ROOT = "../shared-modules";
+var RELATIVE_ROOT = "../shared-modules";
 // we need window-helpers for augment_controller
-const MODULE_REQUIRES = ["window-helpers"];
+var MODULE_REQUIRES = ["window-helpers"];
 
 var EventUtils = {};
 Cu.import('resource://mozmill/stdlib/EventUtils.js', EventUtils);
@@ -21,14 +21,14 @@ Cu.import('resource://mozmill/modules/utils.js', utils);
 
 Cu.import("resource:///modules/gloda/log4moz.js");
 
-const nsMsgViewIndex_None = 0xffffffff;
+var nsMsgViewIndex_None = 0xffffffff;
 Cu.import('resource:///modules/MailConsts.js');
 Cu.import("resource:///modules/mailServices.js");
 Cu.import('resource:///modules/MailUtils.js');
 Cu.import('resource:///modules/mailViewManager.js');
 Cu.import("resource://gre/modules/Services.jsm");
 
-const FILE_LOAD_PATHS = [
+var FILE_LOAD_PATHS = [
   "../resources",
   "../../../../mailnews/test/resources",
   "../../../../mail/base/test/unit/resources",
@@ -38,13 +38,13 @@ const FILE_LOAD_PATHS = [
 /**
  * Server hostname as set in runtest.py
  */
-const FAKE_SERVER_HOSTNAME = 'tinderbox123';
+var FAKE_SERVER_HOSTNAME = 'tinderbox123';
 
 /**
  * List of keys not to export via installInto; values do not matter, we just
  *  use true.
  */
-const DO_NOT_EXPORT = {
+var DO_NOT_EXPORT = {
   // magic globals
   MODULE_NAME: true, DO_NOT_EXPORT: true, installInto: true,
   // imported modules
@@ -64,7 +64,7 @@ const DO_NOT_EXPORT = {
   windowHelper: true,
 };
 
-const EXPORT_VIA_GETTER_SETTER = {
+var EXPORT_VIA_GETTER_SETTER = {
   // These should be getters and setters instead of direct property accesses so
   // that setting them reflects across scopes.
   mc: true,
@@ -2762,9 +2762,9 @@ function throw_and_dump_view_state(aMessage, aController) {
  * Copy constants from mailWindowOverlay.js
  */
 
-const kClassicMailLayout = 0;
-const kWideMailLayout = 1;
-const kVerticalMailLayout = 2;
+var kClassicMailLayout = 0;
+var kWideMailLayout = 1;
+var kVerticalMailLayout = 2;
 
 /**
  * Assert that the current mail pane layout is shown

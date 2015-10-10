@@ -5,9 +5,9 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const NS_ABLDAPATTRIBUTEMAP_CID = Components.ID(
+var NS_ABLDAPATTRIBUTEMAP_CID = Components.ID(
   "{127b341a-bdda-4270-85e1-edff569a9b85}");
-const NS_ABLDAPATTRIBUTEMAPSERVICE_CID = Components.ID(
+var NS_ABLDAPATTRIBUTEMAPSERVICE_CID = Components.ID(
   "{4ed7d5e1-8800-40da-9e78-c4f509d7ac5e}");
 
 function nsAbLDAPAttributeMap() {
@@ -242,5 +242,5 @@ nsAbLDAPAttributeMapService.prototype = {
     .generateQI([Components.interfaces.nsIAbLDAPAttributeMapService])
 }
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([nsAbLDAPAttributeMap, nsAbLDAPAttributeMapService]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsAbLDAPAttributeMap, nsAbLDAPAttributeMapService]);
 

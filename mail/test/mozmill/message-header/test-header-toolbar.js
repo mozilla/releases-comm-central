@@ -19,7 +19,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 var folder;
 var gCDHelper ;
 var originalPaneLayout;
-const kPaneLayout = "mail.pane_config.dynamic";
+var kPaneLayout = "mail.pane_config.dynamic";
 
 function setupModule(module) {
   let fdh = collector.getModule('folder-display-helpers');

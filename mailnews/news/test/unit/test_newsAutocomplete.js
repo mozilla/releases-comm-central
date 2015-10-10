@@ -11,7 +11,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 // The basic daemon to use for testing nntpd.js implementations
 var gDaemon = setupNNTPDaemon();
 
-const ACR = Components.interfaces.nsIAutoCompleteResult;
+var ACR = Components.interfaces.nsIAutoCompleteResult;
 
 function acObserver() {}
 

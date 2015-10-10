@@ -6,7 +6,7 @@ var calUtils = require("../shared-modules/calendar-utils");
 var modalDialog = require("../shared-modules/modal-dialog");
 var utils = require("../shared-modules/utils");
 
-const sleep = 500;
+var sleep = 500;
 var calendar = "Mozmill";
 var hour = 8;
 var eventPath = '/{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';

@@ -6,7 +6,7 @@
 // implementing the commands field before we register them.
 this.EXPORTED_SYMBOLS = ["commands"];
 
-const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/ircUtils.jsm");

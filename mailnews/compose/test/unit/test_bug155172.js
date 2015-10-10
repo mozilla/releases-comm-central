@@ -24,13 +24,13 @@ function promptPasswordPS(aParent, aDialogTitle, aText, aPassword,
 
 var server;
 
-const kSender = "from@foo.invalid";
-const kTo = "to@foo.invalid";
-const kUsername = "test.smtp@fakeserver";
+var kSender = "from@foo.invalid";
+var kTo = "to@foo.invalid";
+var kUsername = "test.smtp@fakeserver";
 // kPassword 2 is the one defined in signons-mailnews1.8.txt, the other one
 // is intentionally wrong.
-const kPassword1 = "wrong";
-const kPassword2 = "smtptest";
+var kPassword1 = "wrong";
+var kPassword2 = "smtptest";
 
 add_task(function *() {
   registerAlertTestUtils();

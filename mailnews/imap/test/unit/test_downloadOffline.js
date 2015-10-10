@@ -7,8 +7,8 @@
 load("../../../resources/logHelper.js");
 load("../../../resources/messageGenerator.js");
 
-const gFileName = "bug460636";
-const gMsgFile = do_get_file("../../../data/" + gFileName);
+var gFileName = "bug460636";
+var gMsgFile = do_get_file("../../../data/" + gFileName);
 
 var tests = [
   setup,

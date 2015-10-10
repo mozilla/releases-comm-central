@@ -6,15 +6,15 @@ Components.utils.import("resource://calendar/modules/ical.js");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const UNIX_TIME_TO_PRTIME = 1000000;
+var UNIX_TIME_TO_PRTIME = 1000000;
 
 function calDateTime(innerObject) {
     this.wrappedJSObject = this;
     this.innerObject = innerObject || ICAL.Time.epochTime.clone();
 }
 
-const calDateTimeInterfaces = [Components.interfaces.calIDateTime];
-const calDateTimeClassID = Components.ID("{36783242-ec94-4d8a-9248-d2679edd55b9}");
+var calDateTimeInterfaces = [Components.interfaces.calIDateTime];
+var calDateTimeClassID = Components.ID("{36783242-ec94-4d8a-9248-d2679edd55b9}");
 calDateTime.prototype = {
     QueryInterface: XPCOMUtils.generateQI(calDateTimeInterfaces),
     classID: calDateTimeClassID,

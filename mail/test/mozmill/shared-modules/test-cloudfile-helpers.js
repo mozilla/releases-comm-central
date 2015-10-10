@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
   * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const MODULE_NAME = "cloudfile-helpers";
+var MODULE_NAME = "cloudfile-helpers";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers", "mock-object-helpers"];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "mock-object-helpers"];
 
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -14,9 +14,9 @@ Cu.import('resource://mozmill/stdlib/os.js', os);
 
 var Cr = Components.results;
 
-const kMockContractIDPrefix = "@mozilla.org/mail/mockCloudFile;1?id=";
+var kMockContractIDPrefix = "@mozilla.org/mail/mockCloudFile;1?id=";
 
-const kDefaults = {
+var kDefaults = {
   iconClass: "chrome://messenger/skin/icons/dropbox.png",
   accountKey: null,
   settingsURL: "",

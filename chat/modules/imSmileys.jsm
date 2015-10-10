@@ -12,8 +12,8 @@ this.EXPORTED_SYMBOLS = [
   "getSmileyList" // used to display a list of smileys in the UI
 ];
 
-const kEmoticonsThemePref = "messenger.options.emoticonsTheme";
-const kThemeFile = "theme.js";
+var kEmoticonsThemePref = "messenger.options.emoticonsTheme";
+var kThemeFile = "theme.js";
 
 __defineGetter__("gTheme", function() {
   delete this.gTheme;

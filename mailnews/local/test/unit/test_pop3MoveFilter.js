@@ -12,7 +12,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
-const gFiles = ["../../../data/bugmail10", "../../../data/bugmail11"];
+var gFiles = ["../../../data/bugmail10", "../../../data/bugmail11"];
 
 // make sure limiting download size doesn't causes issues with move filters.
 Services.prefs.setBoolPref("mail.server.default.limit_offline_message_size", true);
@@ -32,7 +32,7 @@ var previews = {
 var gMoveFolder;
 var gFilter; // the test filter
 var gFilterList;
-const gTestArray =
+var gTestArray =
 [
   function createFilters() {
     gFilterList = gPOP3Pump.fakeServer.getFilterList(null);

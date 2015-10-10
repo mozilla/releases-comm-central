@@ -30,7 +30,7 @@ var gSubfolder;
 
 // tests
 
-const quarantineTests = [
+var quarantineTests = [
   createSubfolder,
   getLocalMessages,
   updateSubfolderAndTest,

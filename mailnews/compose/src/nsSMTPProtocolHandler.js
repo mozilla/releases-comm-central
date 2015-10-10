@@ -4,8 +4,8 @@
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const kNetworkProtocolCIDPrefix = "@mozilla.org/network/protocol;1?name=";
-const nsIProtocolHandler = Components.interfaces.nsIProtocolHandler;
+var kNetworkProtocolCIDPrefix = "@mozilla.org/network/protocol;1?name=";
+var nsIProtocolHandler = Components.interfaces.nsIProtocolHandler;
 
 function makeProtocolHandler(aProtocol, aDefaultPort, aClassID) {
   return {
@@ -59,4 +59,4 @@ nsSMTPSProtocolHandler.prototype =
                       "057d0997-9e3a-411e-b4ee-2602f53fe05f");
 
 var components = [nsSMTPProtocolHandler, nsSMTPSProtocolHandler];
-const NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

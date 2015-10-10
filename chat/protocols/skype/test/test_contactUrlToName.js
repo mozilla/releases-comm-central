@@ -5,7 +5,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 var skype = {};
 Services.scriptloader.loadSubScript("resource:///components/skype.js", skype);
 
-const data = {
+var data = {
   "https://bay-client-s.gateway.messenger.live.com/v1/users/ME/contacts/8:clokep":
     "clokep",
   "https://bay-client-s.gateway.messenger.live.com/v1/users/8:clokep/presenceDocs/messagingService":

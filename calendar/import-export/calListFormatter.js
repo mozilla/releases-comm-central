@@ -12,8 +12,8 @@ function calListFormatter() {
     this.wrappedJSObject = this;
 }
 
-const calListFormatterClassID = Components.ID("{9ae04413-fee3-45b9-8bbb-1eb39a4cbd1b}");
-const calListFormatterInterfaces = [Components.interfaces.calIPrintFormatter];
+var calListFormatterClassID = Components.ID("{9ae04413-fee3-45b9-8bbb-1eb39a4cbd1b}");
+var calListFormatterInterfaces = [Components.interfaces.calIPrintFormatter];
 calListFormatter.prototype = {
     classID: calListFormatterClassID,
     QueryInterface: XPCOMUtils.generateQI(calListFormatterInterfaces),

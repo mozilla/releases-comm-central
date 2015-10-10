@@ -21,7 +21,7 @@ var folder = null;
 var msgHdrsInFolder = null;
 
 // Number of messages to open for multi-message tests
-const NUM_MESSAGES_TO_OPEN = 5;
+var NUM_MESSAGES_TO_OPEN = 5;
 
 var setupModule = function (module) {
   let fdh = collector.getModule('folder-display-helpers');

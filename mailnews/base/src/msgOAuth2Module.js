@@ -4,9 +4,9 @@
 
 "use strict";
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
 
 Components.utils.import("resource://gre/modules/OAuth2.jsm");
 Components.utils.import("resource://gre/modules/OAuth2Providers.jsm");

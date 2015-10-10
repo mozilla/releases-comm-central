@@ -28,9 +28,9 @@ Components.utils.import("resource:///modules/mailServices.js");
 var server;
 var daemon;
 var incomingServer;
-const test = "Server which advertises CRAM-MD5, but closes the connection when it's tried";
+var test = "Server which advertises CRAM-MD5, but closes the connection when it's tried";
 // that's how it currently looks like (we fail to log in):
-const expectedTransaction = [ "AUTH", "CAPA", "AUTH CRAM-MD5" ];
+var expectedTransaction = [ "AUTH", "CAPA", "AUTH CRAM-MD5" ];
 // TODO that's how it should look like (we start a new connection and try another scheme):
 //const expectedTransaction = [ "AUTH", "CAPA", "AUTH CRAM-MD5", "CAPA", "AUTH PLAIN", "STAT" ];
 

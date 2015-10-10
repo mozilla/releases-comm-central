@@ -6,14 +6,14 @@ var EXPORTED_SYMBOLS = ["AboutSupportPlatform"];
 
 // JS ctypes are needed to get at the data we need
 Components.utils.import("resource://gre/modules/ctypes.jsm");
-const GFile = ctypes.StructType("GFile");
-const GFileInfo = ctypes.StructType("GFileInfo");
-const GError = ctypes.StructType("GError");
-const GCancellable = ctypes.StructType("GCancellable");
+var GFile = ctypes.StructType("GFile");
+var GFileInfo = ctypes.StructType("GFileInfo");
+var GError = ctypes.StructType("GError");
+var GCancellable = ctypes.StructType("GCancellable");
 
-const G_FILE_ATTRIBUTE_FILESYSTEM_TYPE = "filesystem::type";
+var G_FILE_ATTRIBUTE_FILESYSTEM_TYPE = "filesystem::type";
 
-const kNetworkFilesystems = ["afs", "cifs", "nfs", "smb"];
+var kNetworkFilesystems = ["afs", "cifs", "nfs", "smb"];
 
 // These libraries might not be available on all systems.
 var gLibsExist = false;

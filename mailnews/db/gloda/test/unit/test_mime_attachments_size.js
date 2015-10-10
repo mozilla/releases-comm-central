@@ -22,9 +22,9 @@ load("../../../../resources/messageInjection.js");
 Components.utils.import("resource://gre/modules/NetUtil.jsm");
 
 // Create a message generator
-const msgGen = gMessageGenerator = new MessageGenerator();
+var msgGen = gMessageGenerator = new MessageGenerator();
 // Create a message scenario generator using that message generator
-const scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
+var scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
 
 Components.utils.import("resource:///modules/gloda/mimemsg.js");
 

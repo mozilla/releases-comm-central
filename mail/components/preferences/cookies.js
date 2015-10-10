@@ -5,7 +5,7 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-const nsICookie = Components.interfaces.nsICookie;
+var nsICookie = Components.interfaces.nsICookie;
 
 var gCookiesWindow = {
   _ds               : Components.classes["@mozilla.org/intl/scriptabledateformat;1"]

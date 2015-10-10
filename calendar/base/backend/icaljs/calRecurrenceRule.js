@@ -11,8 +11,8 @@ function calRecurrenceRule(innerObject) {
     this.wrappedJSObject = this;
 }
 
-const calRecurrenceRuleInterfaces = [Components.interfaces.calIRecurrenceRule];
-const calRecurrenceRuleClassID = Components.ID("{df19281a-5389-4146-b941-798cb93a7f0d}");
+var calRecurrenceRuleInterfaces = [Components.interfaces.calIRecurrenceRule];
+var calRecurrenceRuleClassID = Components.ID("{df19281a-5389-4146-b941-798cb93a7f0d}");
 calRecurrenceRule.prototype = {
     QueryInterface: XPCOMUtils.generateQI(calRecurrenceRuleInterfaces),
     classID: calRecurrenceRuleClassID,

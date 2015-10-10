@@ -14,8 +14,8 @@ function calHtmlExporter() {
     this.wrappedJSObject = this;
 }
 
-const calHtmlExporterClassID = Components.ID("{72d9ab35-9b1b-442a-8cd0-ae49f00b159b}");
-const calHtmlExporterInterfaces = [Components.interfaces.calIExporter];
+var calHtmlExporterClassID = Components.ID("{72d9ab35-9b1b-442a-8cd0-ae49f00b159b}");
+var calHtmlExporterInterfaces = [Components.interfaces.calIExporter];
 calHtmlExporter.prototype = {
     classID: calHtmlExporterClassID,
     QueryInterface: XPCOMUtils.generateQI(calHtmlExporterInterfaces),

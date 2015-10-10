@@ -19,19 +19,19 @@ var MODULE_REQUIRES = ['folder-display-helpers',
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource:///modules/mailServices.js');
 
-const kUploadedFile = "attachment-uploaded";
-const kHtmlPrefKey = "mail.identity.default.compose_html";
-const kReplyOnTopKey = "mail.identity.default.reply_on_top";
-const kReplyOnTop = 1;
-const kReplyOnBottom = 0;
-const kTextNodeType = 3;
-const kSigPrefKey = "mail.identity.id1.htmlSigText";
-const kSigOnReplyKey = "mail.identity.default.sig_on_reply";
-const kSigOnForwardKey = "mail.identity.default.sig_on_fwd";
-const kDefaultSigKey = "mail.identity.id1.htmlSigText";
-const kDefaultSig = "This is my signature.\n\nCheck out my website sometime!";
-const kFiles = ['./data/testFile1', './data/testFile2'];
-const kLines = ["This is a line of text", "and here's another!"];
+var kUploadedFile = "attachment-uploaded";
+var kHtmlPrefKey = "mail.identity.default.compose_html";
+var kReplyOnTopKey = "mail.identity.default.reply_on_top";
+var kReplyOnTop = 1;
+var kReplyOnBottom = 0;
+var kTextNodeType = 3;
+var kSigPrefKey = "mail.identity.id1.htmlSigText";
+var kSigOnReplyKey = "mail.identity.default.sig_on_reply";
+var kSigOnForwardKey = "mail.identity.default.sig_on_fwd";
+var kDefaultSigKey = "mail.identity.id1.htmlSigText";
+var kDefaultSig = "This is my signature.\n\nCheck out my website sometime!";
+var kFiles = ['./data/testFile1', './data/testFile2'];
+var kLines = ["This is a line of text", "and here's another!"];
 
 var ah, cfh, gFolder, gOldHtmlPref, gOldSigPref;
 

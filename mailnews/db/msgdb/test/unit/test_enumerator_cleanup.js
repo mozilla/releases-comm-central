@@ -4,7 +4,7 @@
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const anyOldMessage = do_get_file("../../../../data/bugmail1");
+var anyOldMessage = do_get_file("../../../../data/bugmail1");
 
 /**
  * Test closing a db with an outstanding enumerator.

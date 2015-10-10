@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const MODULE_NAME = "compose-helpers";
+var MODULE_NAME = "compose-helpers";
 
-const RELATIVE_ROOT = "../shared-modules";
+var RELATIVE_ROOT = "../shared-modules";
 // we need this for the main controller
-const MODULE_REQUIRES = ["folder-display-helpers",
+var MODULE_REQUIRES = ["folder-display-helpers",
                          "window-helpers",
                          "dom-helpers"];
 
@@ -15,7 +15,7 @@ Cu.import('resource://mozmill/modules/elementslib.js', elib);
 var utils = {};
 Cu.import('resource://mozmill/modules/utils.js', utils);
 
-const kTextNodeType = 3;
+var kTextNodeType = 3;
 
 var folderDisplayHelper;
 var mc;

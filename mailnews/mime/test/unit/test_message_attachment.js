@@ -17,9 +17,9 @@ var gMessenger = Cc["@mozilla.org/messenger;1"]
                    .createInstance(Ci.nsIMessenger);
 
 // Create a message generator
-const msgGen = gMessageGenerator = new MessageGenerator();
+var msgGen = gMessageGenerator = new MessageGenerator();
 
-const textAttachment =
+var textAttachment =
   "inline text attachment";
 
 // create a message with a text attachment

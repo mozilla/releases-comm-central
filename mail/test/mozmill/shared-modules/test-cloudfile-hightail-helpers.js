@@ -2,41 +2,41 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const MODULE_NAME = "cloudfile-hightail-helpers";
+var MODULE_NAME = "cloudfile-hightail-helpers";
 
 Cu.import('resource://mozmill/stdlib/httpd.js');
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource:///modules/cloudFileAccounts.js');
 
-const kDefaultServerPort = 4444;
-const kServerRoot = "http://localhost:" + kDefaultServerPort;
-const kServerPath = "";
-const kServerURL = kServerRoot + kServerPath;
-const kAuthPath = "/dpi/v1/auth";
-const kUserInfoPath = "/dpi/v2/user";
-const kFolderPath = "/dpi/v1/folder/";
-const kFolderInitUploadPath = kFolderPath + "file/initUpload";
-const kFolderCommitUploadPath = kFolderPath + "file/commitUpload";
-const kDeletePath = kFolderPath + "file";
-const kDefaultFileUploadPath = "/uploads";
-const kDownloadURLPrefix = "http://www.example.com/downloads";
+var kDefaultServerPort = 4444;
+var kServerRoot = "http://localhost:" + kDefaultServerPort;
+var kServerPath = "";
+var kServerURL = kServerRoot + kServerPath;
+var kAuthPath = "/dpi/v1/auth";
+var kUserInfoPath = "/dpi/v2/user";
+var kFolderPath = "/dpi/v1/folder/";
+var kFolderInitUploadPath = kFolderPath + "file/initUpload";
+var kFolderCommitUploadPath = kFolderPath + "file/commitUpload";
+var kDeletePath = kFolderPath + "file";
+var kDefaultFileUploadPath = "/uploads";
+var kDownloadURLPrefix = "http://www.example.com/downloads";
 
-const kAuthResult = {
+var kAuthResult = {
   authToken: "someAuthToken",
   errorStatus: null,
 }
 
-const kDefaultConfig = {
+var kDefaultConfig = {
   port: kDefaultServerPort
 }
 
-const kDefaultReturnHeader = {
+var kDefaultReturnHeader = {
   statusCode: 200,
   statusString: "OK",
   contentType: "text/plain",
 }
 
-const kDefaultUser = {
+var kDefaultUser = {
   key: null,
   id: null,
   type: "BAS",
@@ -70,7 +70,7 @@ const kDefaultUser = {
   errorStatus: null,
 };
 
-const kDefaultFilePrepare = {
+var kDefaultFilePrepare = {
   fileId: "",
   uploadUrl: [
   ],
@@ -78,7 +78,7 @@ const kDefaultFilePrepare = {
   errorStatus: null,
 }
 
-const kDefaultCommitReturn = {
+var kDefaultCommitReturn = {
   clickableDownloadUrl: "",
   errorStatus: null,
 }

@@ -21,4 +21,4 @@ SMIMEService.prototype = {
 };
 
 var components = [SMIMEService];
-const NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

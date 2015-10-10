@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {interfaces: Ci, utils: Cu} = Components;
+var {interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
@@ -55,4 +55,4 @@ FacebookProtocol.prototype = {
   classID: Components.ID("{1d1d0bc5-610c-472f-b2cb-4b89857d80dc}")
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([FacebookProtocol]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([FacebookProtocol]);

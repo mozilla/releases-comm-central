@@ -3,12 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const nsIPKIParamBlock = Components.interfaces.nsIPKIParamBlock;
-const nsIDialogParamBlock = Components.interfaces.nsIDialogParamBlock;
-const nsIX509Cert = Components.interfaces.nsIX509Cert;
-const nsICMSMessageErrors = Components.interfaces.nsICMSMessageErrors;
-const nsICertificateDialogs = Components.interfaces.nsICertificateDialogs;
-const nsCertificateDialogs = "@mozilla.org/nsCertificateDialogs;1"
+var nsIPKIParamBlock = Components.interfaces.nsIPKIParamBlock;
+var nsIDialogParamBlock = Components.interfaces.nsIDialogParamBlock;
+var nsIX509Cert = Components.interfaces.nsIX509Cert;
+var nsICMSMessageErrors = Components.interfaces.nsICMSMessageErrors;
+var nsICertificateDialogs = Components.interfaces.nsICertificateDialogs;
+var nsCertificateDialogs = "@mozilla.org/nsCertificateDialogs;1"
 
 var gSignerCert = null;
 var gEncryptionCert = null;

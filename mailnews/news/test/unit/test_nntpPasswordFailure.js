@@ -27,9 +27,9 @@ var attempt = 0;
 var count = {};
 var logins;
 
-const kUserName = "testnews";
-const kInvalidPassword = "newstest";
-const kValidPassword = "notallama";
+var kUserName = "testnews";
+var kInvalidPassword = "newstest";
+var kValidPassword = "notallama";
 
 function alert(aDialogText, aText)
 {

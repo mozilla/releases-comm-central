@@ -7,7 +7,7 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-const localeEn = {
+var localeEn = {
     headTitle       : "Subject",
     headStartDate   : "Start Date",
     headStartTime   : "Start Time",
@@ -41,7 +41,7 @@ const localeEn = {
     timeFormat      : "%I:%M:%S %p"
 };
 
-const localeNl = {
+var localeNl = {
     headTitle       : "Onderwerp",
     headStartDate   : "Begindatum",
     headStartTime   : "Begintijd",
@@ -72,10 +72,10 @@ const localeNl = {
     timeFormat      : "%H:%M:%S"
 };
 
-const locales = [localeEn, localeNl];
+var locales = [localeEn, localeNl];
 
 // Windows line endings, CSV files with LF only can't be read by Outlook.
-const exportLineEnding = "\r\n";
+var exportLineEnding = "\r\n";
 
 // Shared functions
 function getOutlookCsvFileTypes(aCount) {
@@ -91,8 +91,8 @@ function getOutlookCsvFileTypes(aCount) {
 function calOutlookCSVImporter() {
     this.wrappedJSObject = this;
 }
-const calOutlookCSVImporterClassID = Components.ID("{64a5d17a-0497-48c5-b54f-72b15c9e9a14}");
-const calOutlookCSVImporterInterfaces = [Components.interfaces.calIImporter];
+var calOutlookCSVImporterClassID = Components.ID("{64a5d17a-0497-48c5-b54f-72b15c9e9a14}");
+var calOutlookCSVImporterInterfaces = [Components.interfaces.calIImporter];
 calOutlookCSVImporter.prototype = {
     classID: calOutlookCSVImporterClassID,
     QueryInterface: XPCOMUtils.generateQI(calOutlookCSVImporterInterfaces),
@@ -420,8 +420,8 @@ calOutlookCSVImporter.prototype = {
 // Exporter
 function calOutlookCSVExporter() {
 }
-const calOutlookCSVExporterClassID = Components.ID("{48e6d3a6-b41b-4052-9ed2-40b27800bd4b}");
-const calOutlookCSVExporterInterfaces = [Components.interfaces.calIExporter];
+var calOutlookCSVExporterClassID = Components.ID("{48e6d3a6-b41b-4052-9ed2-40b27800bd4b}");
+var calOutlookCSVExporterInterfaces = [Components.interfaces.calIExporter];
 calOutlookCSVExporter.prototype = {
     classID: calOutlookCSVExporterClassID,
     QueryInterface: XPCOMUtils.generateQI(calOutlookCSVExporterInterfaces),

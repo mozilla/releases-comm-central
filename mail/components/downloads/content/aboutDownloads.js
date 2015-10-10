@@ -6,9 +6,9 @@
 
 "use strict";
 
-const Cu = Components.utils;
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -16,7 +16,7 @@ XPCOMUtils.defineLazyModuleGetter(this, "Downloads", "resource://gre/modules/Dow
 XPCOMUtils.defineLazyModuleGetter(this, "DownloadUtils", "resource://gre/modules/DownloadUtils.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 
-const DownloadsView = {
+var DownloadsView = {
   init() {
     window.controllers.insertControllerAt(0, this);
     this.listElement = document.getElementById("msgDownloadsRichListBox");
@@ -187,7 +187,7 @@ function DownloadItem(aDownload) {
   this._filePath = aDownload.target.path;
 }
 
-const kDownloadStatePropertyNames = [
+var kDownloadStatePropertyNames = [
   "stopped",
   "succeeded",
   "canceled",

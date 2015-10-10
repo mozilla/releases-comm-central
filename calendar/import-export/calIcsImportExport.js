@@ -25,8 +25,8 @@ function calIcsImporter() {
     this.wrappedJSObject = this;
 }
 
-const calIcsImporterClassID = Components.ID("{1e3e33dc-445a-49de-b2b6-15b2a050bb9d}");
-const calIcsImporterInterfaces = [Components.interfaces.calIImporter];
+var calIcsImporterClassID = Components.ID("{1e3e33dc-445a-49de-b2b6-15b2a050bb9d}");
+var calIcsImporterInterfaces = [Components.interfaces.calIImporter];
 calIcsImporter.prototype = {
     classID: calIcsImporterClassID,
     QueryInterface: XPCOMUtils.generateQI(calIcsImporterInterfaces),
@@ -52,8 +52,8 @@ function calIcsExporter() {
     this.wrappedJSObject = this;
 }
 
-const calIcsExporterClassID = Components.ID("{a6a524ce-adff-4a0f-bb7d-d1aaad4adc60}");
-const calIcsExporterInterfaces = [Components.interfaces.calIExporter];
+var calIcsExporterClassID = Components.ID("{a6a524ce-adff-4a0f-bb7d-d1aaad4adc60}");
+var calIcsExporterInterfaces = [Components.interfaces.calIExporter];
 calIcsExporter.prototype = {
     classID: calIcsExporterClassID,
     QueryInterface: XPCOMUtils.generateQI(calIcsExporterInterfaces),

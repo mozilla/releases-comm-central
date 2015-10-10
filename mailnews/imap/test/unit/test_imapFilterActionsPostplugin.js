@@ -10,13 +10,13 @@ Components.utils.import("resource:///modules/iteratorUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/Task.jsm");
 
-const nsMsgSearchScope = Ci.nsMsgSearchScope;
-const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-const nsMsgSearchOp = Ci.nsMsgSearchOp;
-const Is = nsMsgSearchOp.Is;
-const Contains = nsMsgSearchOp.Contains;
-const Subject = nsMsgSearchAttrib.Subject;
-const Body = nsMsgSearchAttrib.Body;
+var nsMsgSearchScope = Ci.nsMsgSearchScope;
+var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
+var nsMsgSearchOp = Ci.nsMsgSearchOp;
+var Is = nsMsgSearchOp.Is;
+var Contains = nsMsgSearchOp.Contains;
+var Subject = nsMsgSearchAttrib.Subject;
+var Body = nsMsgSearchAttrib.Body;
 
 // Globals
 var gSubfolder; // a local message folder used as a target for moves and copies
@@ -29,25 +29,25 @@ var gChecks; // the function that will be used to check the results of the filte
 var gInboxCount; // the previous number of messages in the Inbox
 var gSubfolderCount; // the previous number of messages in the subfolder
 var gMoveCallbackCount; // the number of callbacks from the move listener
-const gMessage = "draft1"; // message file used as the test message
+var gMessage = "draft1"; // message file used as the test message
 
 // subject of the test message
-const gMessageSubject = "Hello, did you receive my bugmail?";
+var gMessageSubject = "Hello, did you receive my bugmail?";
 
 // a string in the body of the test message
-const gMessageInBody = "an HTML message";
+var gMessageInBody = "an HTML message";
 
 // various object references
-const gDbService = Components.classes["@mozilla.org/msgDatabase/msgDBService;1"]
+var gDbService = Components.classes["@mozilla.org/msgDatabase/msgDBService;1"]
                              .getService(Components.interfaces.nsIMsgDBService);
-const kDeleteOrMoveMsgCompleted = Cc["@mozilla.org/atom-service;1"]
+var kDeleteOrMoveMsgCompleted = Cc["@mozilla.org/atom-service;1"]
                                     .getService(Ci.nsIAtomService)
                                     .getAtom("DeleteOrMoveMsgCompleted");
 
 // Definition of tests. The test function name is the filter action
 // being tested, with "Body" appended to tests that use delayed
 // application of filters due to a body search
-const gTestArray =
+var gTestArray =
 [
   setupIMAPPump,
   setupFilters,

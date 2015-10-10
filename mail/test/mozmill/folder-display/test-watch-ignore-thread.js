@@ -8,10 +8,10 @@
 
 // make SOLO_TEST=folder-display/test-watch-ignore-thread.js mozmill-one
 
-const MODULE_NAME = "test-watch-ignore-thread";
+var MODULE_NAME = "test-watch-ignore-thread";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers"];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var folder;
 var thread1, thread2, thread3;

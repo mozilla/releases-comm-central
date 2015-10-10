@@ -24,8 +24,8 @@ function calAlarmMonitor() {
                             .createInstance(Components.interfaces.nsISound);
 }
 
-const calAlarmMonitorClassID = Components.ID("{4b7ae030-ed79-11d9-8cd6-0800200c9a66}");
-const calAlarmMonitorInterfaces = [
+var calAlarmMonitorClassID = Components.ID("{4b7ae030-ed79-11d9-8cd6-0800200c9a66}");
+var calAlarmMonitorInterfaces = [
     Components.interfaces.nsIObserver,
     Components.interfaces.calIAlarmServiceObserver
 ];

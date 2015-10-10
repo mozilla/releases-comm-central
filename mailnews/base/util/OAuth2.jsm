@@ -7,7 +7,7 @@
  */
 var EXPORTED_SYMBOLS = ["OAuth2"];
 
-const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 
 Cu.import("resource://gre/modules/Http.jsm");
 Cu.import("resource://gre/modules/Services.jsm");

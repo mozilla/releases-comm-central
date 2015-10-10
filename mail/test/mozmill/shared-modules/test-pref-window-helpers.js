@@ -7,10 +7,10 @@
  * Helpers to deal with the preferences window.
  */
 
-const MODULE_NAME = "pref-window-helpers";
+var MODULE_NAME = "pref-window-helpers";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var utils = {};
 Cu.import("resource://mozmill/modules/utils.js", utils);

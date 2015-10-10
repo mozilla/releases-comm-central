@@ -20,14 +20,14 @@ load("../../../resources/messageInjection.js");
 var gMessageGenerator = new MessageGenerator();
 var gScenarioFactory = new MessageScenarioFactory(gMessageGenerator);
 
-const nsMsgMessageFlags = Ci.nsMsgMessageFlags;
+var nsMsgMessageFlags = Ci.nsMsgMessageFlags;
 
 var gMsgFile1 = do_get_file("../../../data/bugmail10");
-const gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
+var gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
 var gMsgFile2 = do_get_file("../../../data/image-attach-test");
-const gMsgId2 = "4A947F73.5030709@example.com";
+var gMsgId2 = "4A947F73.5030709@example.com";
 var gMsgFile3 = do_get_file("../../../data/external-attach-test");
-const gMsgId3 = "876TY.5030709@example.com";
+var gMsgId3 = "876TY.5030709@example.com";
 
 var gFirstNewMsg;
 var gFirstMsgSize;

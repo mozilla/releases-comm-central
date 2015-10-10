@@ -15,9 +15,9 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 load("../../../resources/alertTestUtils.js");
 load("../../../resources/passwordStorage.js");
 
-const kUserName = "user";
-const kInvalidPassword = "imaptest";
-const kValidPassword = "password";
+var kUserName = "user";
+var kInvalidPassword = "imaptest";
+var kValidPassword = "password";
 
 var incomingServer, server;
 var attempt = 0;

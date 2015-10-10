@@ -10,8 +10,8 @@ function calPeriod(innerObject) {
     this.wrappedJSObject = this;
 }
 
-const calPeriodInterfaces = [Components.interfaces.calIPeriod];
-const calPeriodClassID = Components.ID("{394a281f-7299-45f7-8b1f-cce21258972f}");
+var calPeriodInterfaces = [Components.interfaces.calIPeriod];
+var calPeriodClassID = Components.ID("{394a281f-7299-45f7-8b1f-cce21258972f}");
 calPeriod.prototype = {
     QueryInterface: XPCOMUtils.generateQI(calPeriodInterfaces),
     classID: calPeriodClassID,

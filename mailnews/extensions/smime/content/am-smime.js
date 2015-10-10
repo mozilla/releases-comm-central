@@ -5,12 +5,12 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-const nsIX509CertDB = Components.interfaces.nsIX509CertDB;
-const nsX509CertDBContractID = "@mozilla.org/security/x509certdb;1";
-const nsIX509Cert = Components.interfaces.nsIX509Cert;
+var nsIX509CertDB = Components.interfaces.nsIX509CertDB;
+var nsX509CertDBContractID = "@mozilla.org/security/x509certdb;1";
+var nsIX509Cert = Components.interfaces.nsIX509Cert;
 
-const email_recipient_cert_usage = 5;
-const email_signing_cert_usage = 4;
+var email_recipient_cert_usage = 5;
+var email_signing_cert_usage = 4;
 
 var gIdentity;
 var gPref = null;
@@ -26,8 +26,8 @@ var gBrandBundle;
 var gSmimePrefbranch;
 var gEncryptionChoicesLocked;
 var gSigningChoicesLocked;
-const kEncryptionCertPref = "identity.encryption_cert_name";
-const kSigningCertPref = "identity.signing_cert_name";
+var kEncryptionCertPref = "identity.encryption_cert_name";
+var kSigningCertPref = "identity.signing_cert_name";
 
 function onInit() 
 {

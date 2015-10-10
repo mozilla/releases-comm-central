@@ -6,10 +6,10 @@
  * Ensures that attachment events are fired properly
  */
 
-const MODULE_NAME = 'test-attachment-events';
+var MODULE_NAME = 'test-attachment-events';
 
-const RELATIVE_ROOT = '../shared-modules';
-const MODULE_REQUIRES = ['folder-display-helpers', 'compose-helpers',
+var RELATIVE_ROOT = '../shared-modules';
+var MODULE_REQUIRES = ['folder-display-helpers', 'compose-helpers',
                          'window-helpers', 'attachment-helpers',
                          'prompt-helpers'];
 
@@ -23,9 +23,9 @@ Cu.import('resource://mozmill/stdlib/os.js', os);
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource:///modules/iteratorUtils.jsm');
 
-const kAttachmentsAdded = "attachments-added";
-const kAttachmentsRemoved = "attachments-removed";
-const kAttachmentRenamed = "attachment-renamed";
+var kAttachmentsAdded = "attachments-added";
+var kAttachmentsRemoved = "attachments-removed";
+var kAttachmentRenamed = "attachment-renamed";
 
 var gPath;
 

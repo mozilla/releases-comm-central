@@ -18,7 +18,7 @@ var gIMAPTrashFolder;
 var gEmptyLocal1, gEmptyLocal2;
 var gLastKey;
 var gMessages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-const gFiles = ["../../../data/bugmail1",
+var gFiles = ["../../../data/bugmail1",
                 "../../../data/draft1"];
 
 var tests = [

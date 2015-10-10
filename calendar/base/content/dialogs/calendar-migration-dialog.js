@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const SUNBIRD_UID = "{718e30fb-e89b-41dd-9da7-e25a45638b28}";
-const FIREFOX_UID = "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}";
+var SUNBIRD_UID = "{718e30fb-e89b-41dd-9da7-e25a45638b28}";
+var FIREFOX_UID = "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}";
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");

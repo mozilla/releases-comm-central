@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const MODULE_NAME = "nntp-helpers";
+var MODULE_NAME = "nntp-helpers";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULES_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULES_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/mailServices.js");
 
-const kSimpleNewsArticle =
+var kSimpleNewsArticle =
   "From: John Doe <john.doe@example.com>\n"+
   "Date: Sat, 24 Mar 1990 10:59:24 -0500\n"+
   "Newsgroups: test.subscribe.simple\n"+
@@ -103,7 +103,7 @@ Services.prefs.setBoolPref("mail.strict_threading", true);
 
 // Make sure we don't try to use a protected port. I like adding 1024 to the
 // default port when doing so...
-const NNTP_PORT = 1024+119;
+var NNTP_PORT = 1024+119;
 
 var _server = null;
 
@@ -141,7 +141,7 @@ function setupLocalServer(port) {
   return server;
 }
 
-const URLCreator = MailServices.nntp.QueryInterface(Ci.nsIProtocolHandler);
+var URLCreator = MailServices.nntp.QueryInterface(Ci.nsIProtocolHandler);
 
 function create_post(baseURL, file) {
   var url = URLCreator.newURI(baseURL, null, null);

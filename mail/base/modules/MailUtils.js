@@ -4,8 +4,8 @@
 
 var EXPORTED_SYMBOLS = ["MailUtils"];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
 
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
 Components.utils.import("resource:///modules/MailConsts.js");
@@ -13,7 +13,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
 
-const MC = MailConsts;
+var MC = MailConsts;
 
 /**
  * This module has several utility functions for use by both core and

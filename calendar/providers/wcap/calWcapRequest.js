@@ -192,8 +192,8 @@ function calWcapNetworkRequest(url, respFunc, bLogging) {
     this.m_respFunc = respFunc;
     this.m_bLogging = (bLogging === undefined ? true : bLogging);
 }
-const calWcapNetworkRequestClassID = Components.ID("{e3c62b37-83cf-41ec-9872-0af9f952430a}");
-const calWcapNetworkRequestInterfaces = [
+var calWcapNetworkRequestClassID = Components.ID("{e3c62b37-83cf-41ec-9872-0af9f952430a}");
+var calWcapNetworkRequestInterfaces = [
     Components.interfaces.nsIUnicharStreamLoaderObserver,
     Components.interfaces.nsIInterfaceRequestor,
     Components.interfaces.nsIChannelEventSink,

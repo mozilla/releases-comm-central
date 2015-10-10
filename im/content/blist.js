@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Cu = Components.utils;
+var Cu = Components.utils;
 
 Cu.import("resource:///modules/imStatusUtils.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 
-const events = ["buddy-authorization-request",
+var events = ["buddy-authorization-request",
                 "buddy-authorization-request-canceled",
                 "contact-availability-changed",
                 "contact-added",
@@ -23,7 +23,7 @@ const events = ["buddy-authorization-request",
                 "user-icon-changed",
                 "prpl-quit"];
 
-const showOfflineBuddiesPref = "messenger.buddies.showOffline";
+var showOfflineBuddiesPref = "messenger.buddies.showOffline";
 
 var gBuddyListContextMenu = null;
 

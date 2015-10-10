@@ -61,7 +61,7 @@ var gDefaultAccount;
 var gCurrentAccountData;
 
 // default picker mode for copies and folders
-const gDefaultSpecialFolderPickerMode = "0";
+var gDefaultSpecialFolderPickerMode = "0";
 
 // event handlers
 function onAccountWizardLoad() {

@@ -91,7 +91,7 @@ var gExpandedHeaderList = [
  * These are all the items that use a mail-multi-emailHeaderField widget and
  * therefore may require updating if the address book changes.
  */
-const gEmailAddressHeaderNames = ["from", "reply-to",
+var gEmailAddressHeaderNames = ["from", "reply-to",
                                   "to", "cc", "bcc", "toCcBcc"];
 
 /**
@@ -117,9 +117,9 @@ var currentHeaderData = {};
  */
 var currentAttachments = new Array();
 
-const nsIAbDirectory = Components.interfaces.nsIAbDirectory;
-const nsIAbListener = Components.interfaces.nsIAbListener;
-const nsIAbCard = Components.interfaces.nsIAbCard;
+var nsIAbDirectory = Components.interfaces.nsIAbDirectory;
+var nsIAbListener = Components.interfaces.nsIAbListener;
+var nsIAbCard = Components.interfaces.nsIAbCard;
 
 /**
  * Our constructor method which creates a header Entry based on an entry
@@ -345,7 +345,7 @@ function OnUnloadMsgHeaderPane()
     { bubbles: false, cancelable: true }));
 }
 
-const MsgHdrViewObserver =
+var MsgHdrViewObserver =
 {
   observe: function(subject, topic, prefName)
   {

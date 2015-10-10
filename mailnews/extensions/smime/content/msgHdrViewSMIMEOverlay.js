@@ -18,7 +18,7 @@ var gSMIMEBundle = null;
 
 // manipulates some globals from msgReadSMIMEOverlay.js
 
-const nsICMSMessageErrors = Components.interfaces.nsICMSMessageErrors;
+var nsICMSMessageErrors = Components.interfaces.nsICMSMessageErrors;
 
 var smimeHeaderSink = 
 { 

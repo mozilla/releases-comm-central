@@ -8,9 +8,9 @@ Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://testing-common/AppInfo.jsm");
 updateAppInfo();
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
 
 (function load_lightning_manifest() {
   let bindir = Services.dirsvc.get("CurProcD", Components.interfaces.nsIFile);

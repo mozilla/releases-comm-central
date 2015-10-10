@@ -8,10 +8,10 @@
 
 // make SOLO_TEST=message-header/test-phishing-bar.js mozmill-one
 
-const MODULE_NAME = "test-phishing-bar";
+var MODULE_NAME = "test-phishing-bar";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers",
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers",
                          "window-helpers", "notificationbox-helpers"];
 
 var os = {};
@@ -19,8 +19,8 @@ Components.utils.import('resource://mozmill/stdlib/os.js', os);
 
 var folder;
 
-const kBoxId = "msgNotificationBar";
-const kNotificationValue = "maybeScam";
+var kBoxId = "msgNotificationBar";
+var kNotificationValue = "maybeScam";
 
 function setupModule(module) {
   for (let dep of MODULE_REQUIRES) {

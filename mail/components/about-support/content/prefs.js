@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const ELLIPSIS = Services.prefs.getComplexValue("intl.ellipsis",
+var ELLIPSIS = Services.prefs.getComplexValue("intl.ellipsis",
                                                 Ci.nsIPrefLocalizedString).data;
 
 // We use a preferences whitelist to make sure we only show preferences that
 // are useful for support and won't compromise the user's privacy.  Note that
 // entries are *prefixes*: for example, "accessibility." applies to all prefs
 // under the "accessibility.*" branch.
-const PREFS_WHITELIST = [
+var PREFS_WHITELIST = [
   // core prefs
   "accessibility.",
   "browser.cache.",
@@ -66,7 +66,7 @@ const PREFS_WHITELIST = [
 ];
 
 // The blacklist, unlike the whitelist, is a list of regular expressions.
-const PREFS_BLACKLIST = [
+var PREFS_BLACKLIST = [
   /^network[.]proxy[.]/,
   /[.]print_to_filename$/,
   /[.]lastFolderIndexedUri/,

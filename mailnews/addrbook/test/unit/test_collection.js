@@ -10,7 +10,7 @@
 
 // make xpcshell-tests TEST_PATH=mailnews/addrbook/test/unit/test_collection.js
 
-const nsIAbPMF = Components.interfaces.nsIAbPreferMailFormat;
+var nsIAbPMF = Components.interfaces.nsIAbPreferMailFormat;
 
 // Source fields (emailHeader/mailFormat) and expected results for use for
 // testing the addition of new addresses to the database.

@@ -14,7 +14,7 @@
  * Does not currently test: quoted-printable, stripping quotes, UTF-8, small values of
  * bytesToRead.
  */
-const kDataRoot = "../../../data/"
+var kDataRoot = "../../../data/"
 
 function create(fileName, bytes, compressQuotes, stripHTML, outContentType)
 {
@@ -22,7 +22,7 @@ function create(fileName, bytes, compressQuotes, stripHTML, outContentType)
           contentType: outContentType};
 }
 
-const gTestFiles =
+var gTestFiles =
 [
   create("basic1", 1024, false, false, "text/plain"), // Simple plain text
   create("basic1", 1024, false, true, "text/plain"), // should be same as above

@@ -23,11 +23,11 @@ load("../../../resources/asyncTestUtils.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 // Messages to load must have CRLF line endings, that is Windows style
-const gMessage = "bugmail10"; // message file used as the test message
+var gMessage = "bugmail10"; // message file used as the test message
 
-const gXGmMsgid = "1278455344230334865";
-const gXGmThrid = "1266894439832287888";
-const gXGmLabels = '(\\Inbox \\Sent Important "Muy Importante" foo)';
+var gXGmMsgid = "1278455344230334865";
+var gXGmThrid = "1266894439832287888";
+var gXGmLabels = '(\\Inbox \\Sent Important "Muy Importante" foo)';
 
 setupIMAPPump("GMail");
 

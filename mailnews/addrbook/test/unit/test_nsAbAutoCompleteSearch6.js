@@ -3,9 +3,9 @@
  * Tests for for nsAbAutoCompleteSearch scoring.
  */
 
-const ACR = Components.interfaces.nsIAutoCompleteResult;
+var ACR = Components.interfaces.nsIAutoCompleteResult;
 
-const cards = [
+var cards = [
   { // 0
     email: "jd.who@example.com", displayName: "John Doe (:xx)",
     popularityIndex: 0, firstName: "John", value: "John Doe (:xx) <jd.who@example.com>"
@@ -97,7 +97,7 @@ const cards = [
   }
 ];
 
-const inputs = [
+var inputs = [
   { search: "john", expected: [0, 9] },
   { search: "doe", expected: [1, 0] },
   { search: "jd", expected: [0, 4] },

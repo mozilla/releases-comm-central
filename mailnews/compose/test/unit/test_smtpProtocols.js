@@ -3,14 +3,14 @@
  * Test suite for getting smtp urls via the protocol handler.
  */
 
-const defaultProtocolFlags =
+var defaultProtocolFlags =
   Ci.nsIProtocolHandler.URI_NORELATIVE |
   Ci.nsIProtocolHandler.URI_DANGEROUS_TO_LOAD |
   Ci.nsIProtocolHandler.URI_NON_PERSISTABLE |
   Ci.nsIProtocolHandler.ALLOWS_PROXY |
   Ci.nsIProtocolHandler.URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT;
 
-const protocols =
+var protocols =
   [ { protocol: "smtp",
       urlSpec: "smtp://user@localhost/",
       defaultPort: Ci.nsISmtpUrl.DEFAULT_SMTP_PORT

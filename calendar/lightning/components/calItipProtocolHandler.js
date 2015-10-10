@@ -5,10 +5,10 @@
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
-const CI = Components.interfaces;
+var CI = Components.interfaces;
 
-const ITIP_HANDLER_MIMETYPE = "application/x-itip-internal";
-const ITIP_HANDLER_PROTOCOL = "moz-cal-handle-itip";
+var ITIP_HANDLER_MIMETYPE = "application/x-itip-internal";
+var ITIP_HANDLER_PROTOCOL = "moz-cal-handle-itip";
 
 
 function NYI() {
@@ -18,8 +18,8 @@ function NYI() {
 function ItipChannel(URI) {
    this.URI = this.originalURI = URI;
 }
-const ItipChannelClassID = Components.ID("{643e0328-36f6-411d-a107-16238dff9cd7}");
-const ItipChannelInterfaces = [
+var ItipChannelClassID = Components.ID("{643e0328-36f6-411d-a107-16238dff9cd7}");
+var ItipChannelInterfaces = [
     Components.interfaces.nsIChannel,
     Components.interfaces.nsIRequest
 ];
@@ -59,8 +59,8 @@ ItipChannel.prototype = {
 function ItipProtocolHandler() {
     this.wrappedJSObject = this;
 }
-const ItipProtocolHandlerClassID = Components.ID("{6e957006-b4ce-11d9-b053-001124736B74}");
-const ItipProtocolHandlerInterfaces = [Components.interfaces.nsIProtocolHandler];
+var ItipProtocolHandlerClassID = Components.ID("{6e957006-b4ce-11d9-b053-001124736B74}");
+var ItipProtocolHandlerInterfaces = [Components.interfaces.nsIProtocolHandler];
 ItipProtocolHandler.prototype = {
     classID: ItipProtocolHandlerClassID,
     QueryInterface: XPCOMUtils.generateQI(ItipProtocolHandlerInterfaces),
@@ -96,8 +96,8 @@ ItipProtocolHandler.prototype = {
 function ItipContentHandler() {
     this.wrappedJSObject = this;
 }
-const ItipContentHandlerClassID = Components.ID("{47c31f2b-b4de-11d9-bfe6-001124736B74}");
-const ItipContentHandlerInterfaces = [Components.interfaces.nsIContentHandler];
+var ItipContentHandlerClassID = Components.ID("{47c31f2b-b4de-11d9-bfe6-001124736B74}");
+var ItipContentHandlerInterfaces = [Components.interfaces.nsIContentHandler];
 ItipContentHandler.prototype = {
     classID: ItipContentHandlerClassID,
     QueryInterface: XPCOMUtils.generateQI(ItipContentHandlerInterfaces),

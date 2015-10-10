@@ -30,8 +30,8 @@ function calStartupService() {
     this.setupObservers();
 }
 
-const calStartupServiceInterfaces = [Components.interfaces.nsIObserver];
-const calStartupServiceClassID = Components.ID("{2547331f-34c0-4a4b-b93c-b503538ba6d6}");
+var calStartupServiceInterfaces = [Components.interfaces.nsIObserver];
+var calStartupServiceClassID = Components.ID("{2547331f-34c0-4a4b-b93c-b503538ba6d6}");
 calStartupService.prototype = {
     QueryInterface: XPCOMUtils.generateQI(calStartupServiceInterfaces),
     classID: calStartupServiceClassID,

@@ -4,7 +4,7 @@
  * Currently only tests nsIMsgCompFields::SplitRecipients
  */
 
-const splitRecipientsTests =
+var splitRecipientsTests =
   [ { recipients: "me@foo.invalid",
       emailAddressOnly: false,
       count: 1,

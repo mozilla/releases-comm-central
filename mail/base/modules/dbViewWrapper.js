@@ -4,26 +4,26 @@
 
 this.EXPORTED_SYMBOLS = ['DBViewWrapper', 'IDBViewWrapperListener'];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
+var Cu = Components.utils;
 
 Cu.import("resource:///modules/mailServices.js");
 Cu.import("resource:///modules/mailViewManager.js");
 Cu.import("resource:///modules/searchSpec.js");
 Cu.import("resource:///modules/virtualFolderWrapper.js");
 
-const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
-const nsMsgViewType = Ci.nsMsgViewType;
-const nsMsgViewFlagsType = Ci.nsMsgViewFlagsType;
-const nsMsgViewSortType = Ci.nsMsgViewSortType;
-const nsMsgViewSortOrder = Ci.nsMsgViewSortOrder;
-const nsMsgMessageFlags = Ci.nsMsgMessageFlags;
+var nsMsgFolderFlags = Ci.nsMsgFolderFlags;
+var nsMsgViewType = Ci.nsMsgViewType;
+var nsMsgViewFlagsType = Ci.nsMsgViewFlagsType;
+var nsMsgViewSortType = Ci.nsMsgViewSortType;
+var nsMsgViewSortOrder = Ci.nsMsgViewSortOrder;
+var nsMsgMessageFlags = Ci.nsMsgMessageFlags;
 
-const MSG_VIEW_FLAG_DUMMY = 0x20000000;
+var MSG_VIEW_FLAG_DUMMY = 0x20000000;
 
-const nsMsgViewIndex_None = 0xffffffff;
+var nsMsgViewIndex_None = 0xffffffff;
 
 /**
  * Helper singleton for DBViewWrapper that tells instances when something

@@ -6,13 +6,13 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const kDebug              = false;
-const kOfflineStartupPref = "offline.startup_state";
-const kRememberLastState  = 0;
-const kAskForOnlineState  = 1;
-const kAlwaysOnline       = 2;
-const kAlwaysOffline      = 3;
-const kAutomatic          = 4;
+var kDebug              = false;
+var kOfflineStartupPref = "offline.startup_state";
+var kRememberLastState  = 0;
+var kAskForOnlineState  = 1;
+var kAlwaysOnline       = 2;
+var kAlwaysOffline      = 3;
+var kAutomatic          = 4;
 var   gStartingUp         = true;
 var   gOfflineStartupMode; //0 = remember last state, 1 = ask me, 2 == online, 3 == offline, 4 = automatic
 
@@ -167,4 +167,4 @@ else
   debug = function(m) {dump("\t *** nsOfflineStartup: " + m + "\n");};
 
 var components = [nsOfflineStartupModule];
-const NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

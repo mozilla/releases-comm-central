@@ -6,10 +6,10 @@
  * Tests proper enabling of addressing widgets.
  */
 
-const MODULE_NAME = "test-address-widgets";
+var MODULE_NAME = "test-address-widgets";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
                          "window-helpers"];
 
 var cwc = null; // compose window controller

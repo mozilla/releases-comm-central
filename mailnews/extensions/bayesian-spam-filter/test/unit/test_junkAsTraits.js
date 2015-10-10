@@ -11,22 +11,22 @@
 Components.utils.import("resource:///modules/mailServices.js");
 
 // local constants
-const kUnclassified = MailServices.junk.UNCLASSIFIED;
-const kJunk = MailServices.junk.JUNK;
-const kGood = MailServices.junk.GOOD;
-const kJunkTrait = MailServices.junk.JUNK_TRAIT;
-const kGoodTrait = MailServices.junk.GOOD_TRAIT;
-const kIsHamScore = MailServices.junk.IS_HAM_SCORE;
-const kIsSpamScore = MailServices.junk.IS_SPAM_SCORE;
+var kUnclassified = MailServices.junk.UNCLASSIFIED;
+var kJunk = MailServices.junk.JUNK;
+var kGood = MailServices.junk.GOOD;
+var kJunkTrait = MailServices.junk.JUNK_TRAIT;
+var kGoodTrait = MailServices.junk.GOOD_TRAIT;
+var kIsHamScore = MailServices.junk.IS_HAM_SCORE;
+var kIsSpamScore = MailServices.junk.IS_SPAM_SCORE;
 
 // command functions for test data
-const kTrainJ = 0;  // train using junk method
-const kTrainT = 1;  // train using trait method
-const kClassJ = 2;  // classify using junk method
-const kClassT = 3;  // classify using trait method
-const kForgetJ = 4; // forget training using junk method
-const kForgetT = 5; // forget training using trait method
-const kCounts = 6;  // test token and message counts
+var kTrainJ = 0;  // train using junk method
+var kTrainT = 1;  // train using trait method
+var kClassJ = 2;  // classify using junk method
+var kClassT = 3;  // classify using trait method
+var kForgetJ = 4; // forget training using junk method
+var kForgetT = 5; // forget training using trait method
+var kCounts = 6;  // test token and message counts
 
 var gProArray = [], gAntiArray = []; // traits arrays, pro is junk, anti is good
 var gTest; // currently active test

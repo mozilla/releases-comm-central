@@ -14,8 +14,8 @@ function calAttachment() {
     this.mProperties = new cal.calPropertyBag();
 }
 
-const calAttachmentClassID = Components.ID("{5f76b352-ab75-4c2b-82c9-9206dbbf8571}");
-const calAttachmentInterfaces = [Components.interfaces.calIAttachment];
+var calAttachmentClassID = Components.ID("{5f76b352-ab75-4c2b-82c9-9206dbbf8571}");
+var calAttachmentInterfaces = [Components.interfaces.calIAttachment];
 calAttachment.prototype = {
     mData: null,
     mHashId: null,

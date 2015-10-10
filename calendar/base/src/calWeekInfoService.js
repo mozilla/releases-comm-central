@@ -9,8 +9,8 @@ Components.utils.import("resource://gre/modules/Preferences.jsm");
 function calWeekInfoService() {
     this.wrappedJSObject = this;
 }
-const calWeekInfoServiceClassID = Components.ID("{6877bbdd-f336-46f5-98ce-fe86d0285cc1}");
-const calWeekInfoServiceInterfaces = [Components.interfaces.calIWeekInfoService];
+var calWeekInfoServiceClassID = Components.ID("{6877bbdd-f336-46f5-98ce-fe86d0285cc1}");
+var calWeekInfoServiceInterfaces = [Components.interfaces.calIWeekInfoService];
 calWeekInfoService.prototype = {
     classID: calWeekInfoServiceClassID,
     QueryInterface: XPCOMUtils.generateQI(calWeekInfoServiceInterfaces),

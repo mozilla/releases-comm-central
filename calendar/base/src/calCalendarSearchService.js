@@ -48,8 +48,8 @@ function calCalendarSearchService() {
     this.wrappedJSObject = this;
     this.mProviders = new calInterfaceBag(Components.interfaces.calICalendarSearchProvider);
 }
-const calCalendarSearchServiceClassID = Components.ID("{f5f743cd-8997-428e-bc1b-644e73f61203}");
-const calCalendarSearchServiceInterfaces = [
+var calCalendarSearchServiceClassID = Components.ID("{f5f743cd-8997-428e-bc1b-644e73f61203}");
+var calCalendarSearchServiceInterfaces = [
     Components.interfaces.calICalendarSearchProvider,
     Components.interfaces.calICalendarSearchService
 ];

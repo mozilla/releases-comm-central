@@ -430,10 +430,10 @@ function ltnFinish() {
 }
 
 // == invitations link
-const FIRST_DELAY_STARTUP = 100;
-const FIRST_DELAY_RESCHEDULE = 100;
-const FIRST_DELAY_REGISTER = 10000;
-const FIRST_DELAY_UNREGISTER = 0;
+var FIRST_DELAY_STARTUP = 100;
+var FIRST_DELAY_RESCHEDULE = 100;
+var FIRST_DELAY_REGISTER = 10000;
+var FIRST_DELAY_UNREGISTER = 0;
 
 var gInvitationsOperationListener = {
     mCount: 0,
@@ -570,7 +570,7 @@ function ltnSwitch2Task() {
   }
 }
 
-const gCalSetupMailContext = {
+var gCalSetupMailContext = {
     popup: function gCalSetupMailContext_popup() {
         let hasSelection = (gFolderDisplay.selectedMessage != null);
         // Disable the convert menu altogether.

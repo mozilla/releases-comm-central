@@ -5,14 +5,14 @@
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 // File constants copied from file-utils.js
-const MODE_RDONLY   = 0x01;
-const MODE_WRONLY   = 0x02;
-const MODE_RDWR     = 0x04;
-const MODE_CREATE   = 0x08;
-const MODE_APPEND   = 0x10;
-const MODE_TRUNCATE = 0x20;
-const MODE_SYNC     = 0x40;
-const MODE_EXCL     = 0x80;
+var MODE_RDONLY   = 0x01;
+var MODE_WRONLY   = 0x02;
+var MODE_RDWR     = 0x04;
+var MODE_CREATE   = 0x08;
+var MODE_APPEND   = 0x10;
+var MODE_TRUNCATE = 0x20;
+var MODE_SYNC     = 0x40;
+var MODE_EXCL     = 0x80;
 
 /**
  * Shows a file dialog, reads the selected file(s) and tries to parse events from it.

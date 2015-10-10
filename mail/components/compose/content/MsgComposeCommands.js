@@ -23,15 +23,15 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 /**
  * interfaces
  */
-const nsIMsgCompDeliverMode = Components.interfaces.nsIMsgCompDeliverMode;
-const nsIMsgCompSendFormat = Components.interfaces.nsIMsgCompSendFormat;
-const nsIMsgCompConvertible = Components.interfaces.nsIMsgCompConvertible;
-const nsIMsgCompType = Components.interfaces.nsIMsgCompType;
-const nsIMsgCompFormat = Components.interfaces.nsIMsgCompFormat;
-const nsIAbPreferMailFormat = Components.interfaces.nsIAbPreferMailFormat;
-const nsIPlaintextEditorMail = Components.interfaces.nsIPlaintextEditor;
-const nsISupportsString = Components.interfaces.nsISupportsString;
-const mozISpellCheckingEngine = Components.interfaces.mozISpellCheckingEngine;
+var nsIMsgCompDeliverMode = Components.interfaces.nsIMsgCompDeliverMode;
+var nsIMsgCompSendFormat = Components.interfaces.nsIMsgCompSendFormat;
+var nsIMsgCompConvertible = Components.interfaces.nsIMsgCompConvertible;
+var nsIMsgCompType = Components.interfaces.nsIMsgCompType;
+var nsIMsgCompFormat = Components.interfaces.nsIMsgCompFormat;
+var nsIAbPreferMailFormat = Components.interfaces.nsIAbPreferMailFormat;
+var nsIPlaintextEditorMail = Components.interfaces.nsIPlaintextEditor;
+var nsISupportsString = Components.interfaces.nsISupportsString;
+var mozISpellCheckingEngine = Components.interfaces.mozISpellCheckingEngine;
 
 var sDictCount = 0;
 
@@ -103,7 +103,7 @@ var gEditingDraft;
 var gAttachmentsSize;
 var gNumUploadingAttachments;
 
-const kComposeAttachDirPrefName = "mail.compose.attach.dir";
+var kComposeAttachDirPrefName = "mail.compose.attach.dir";
 
 function InitializeGlobalVariables()
 {
@@ -4621,7 +4621,7 @@ function AutoSave()
 /**
  * Periodically check for keywords in the message.
  */
-const gAttachmentNotifier =
+var gAttachmentNotifier =
 {
   _obs: null,
 

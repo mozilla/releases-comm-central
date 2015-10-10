@@ -6,7 +6,7 @@
  * Helpers to deal with message (nsIMsgDBHdr) parsing.
  */
 
-const MODULE_NAME = "message-helpers";
+var MODULE_NAME = "message-helpers";
 
 var frame = {};
 Cu.import('resource://mozmill/modules/frame.js', frame);

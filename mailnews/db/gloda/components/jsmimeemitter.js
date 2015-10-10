@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
+var Cu = Components.utils;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const kStateUnknown = 0;
-const kStateInHeaders = 1;
-const kStateInBody = 2;
-const kStateInAttachment = 3;
+var kStateUnknown = 0;
+var kStateInHeaders = 1;
+var kStateInBody = 2;
+var kStateInAttachment = 3;
 
 /**
  * When the saneBodySize flag is active, limit body parts to at most this many
@@ -23,7 +23,7 @@ const kStateInAttachment = 3;
  *  off.  I chose 20 because things had tapered off pretty firmly by 16, so
  *  20 gave it some space and it was also the end of a mini-plateau.
  */
-const MAX_SANE_BODY_PART_SIZE = 20 * 1024;
+var MAX_SANE_BODY_PART_SIZE = 20 * 1024;
 
 /**
  * Custom nsIMimeEmitter to build a sub-optimal javascript representation of a
@@ -70,7 +70,7 @@ function MimeMessageEmitter() {
   this._writeBody = false;
 }
 
-const deathToNewlines = /\n/g;
+var deathToNewlines = /\n/g;
 
 MimeMessageEmitter.prototype = {
   classID: Components.ID("{8cddbbbc-7ced-46b0-a936-8cddd1928c24}"),
@@ -480,4 +480,4 @@ MimeMessageEmitter.prototype = {
 };
 
 var components = [MimeMessageEmitter];
-const NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

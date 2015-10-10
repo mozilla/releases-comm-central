@@ -3,13 +3,13 @@
  * Test suite for nsMsgCompose functions relating to send listeners.
  */
 
-const MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
-const nsIMsgCompose = Components.interfaces.nsIMsgCompose;
+var MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
+var nsIMsgCompose = Components.interfaces.nsIMsgCompose;
 
 var gMsgCompose = Components.classes[MsgComposeContractID]
                             .createInstance(nsIMsgCompose);
 
-const numSendListenerFunctions = 6;
+var numSendListenerFunctions = 6;
 
 var gSLAll = new Array(numSendListenerFunctions + 1);
 

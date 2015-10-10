@@ -8,18 +8,18 @@ var yahoo = {};
 Services.scriptloader.loadSubScript("resource:///modules/yahoo-session.jsm", yahoo);
 
 // Preset test values.
-const kUsername = "testUser";
-const kPassword = "instantbird";
-const kPagerIp = "123.456.78.9";
-const kCrumb = "MG-Z/jNG+Q==";
-const kChallengeString = "AEF08DBAC33F9EEDABCFEA==";
-const kYCookie = "OTJmMTQyOTU1ZGQ4MDA3Y2I2ODljMTU5";
-const kTCookie = "NTdlZmIzY2Q4ODI3ZTc3NTIxYTk1MDhm";
-const kToken = "MThmMzg3OWM3ODcxMW";
+var kUsername = "testUser";
+var kPassword = "instantbird";
+var kPagerIp = "123.456.78.9";
+var kCrumb = "MG-Z/jNG+Q==";
+var kChallengeString = "AEF08DBAC33F9EEDABCFEA==";
+var kYCookie = "OTJmMTQyOTU1ZGQ4MDA3Y2I2ODljMTU5";
+var kTCookie = "NTdlZmIzY2Q4ODI3ZTc3NTIxYTk1MDhm";
+var kToken = "MThmMzg3OWM3ODcxMW";
 
-const kPagerAddressResponse = "COLO_CAPACITY=1\r\nCS_IP_ADDRESS=" + kPagerIp;
-const kTokenResponse = "0\r\n" + kToken + "\r\npartnerid=dummyValue";
-const kCookieResponse = "0\r\ncrumb=" + kCrumb + "\r\nY=" + kYCookie +
+var kPagerAddressResponse = "COLO_CAPACITY=1\r\nCS_IP_ADDRESS=" + kPagerIp;
+var kTokenResponse = "0\r\n" + kToken + "\r\npartnerid=dummyValue";
+var kCookieResponse = "0\r\ncrumb=" + kCrumb + "\r\nY=" + kYCookie +
                         "\r\nT=" + kTCookie + "\r\ncookievalidfor=86400";
 
 /* In each test, we override the function that would normally be called next in

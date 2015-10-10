@@ -241,7 +241,7 @@ function parameterizeTest(aTestFunc, aParameters) {
 // This time is 60 seconds less than the tinderbox timeout default of 300
 // seconds and will hopefully cause tests to give us their logs before that
 // timeout.
-const DEFAULT_LONGEST_TEST_RUN_CONCEIVABLE_SECS = 240;
+var DEFAULT_LONGEST_TEST_RUN_CONCEIVABLE_SECS = 240;
 function async_run_tests(aTests, aLongestTestRunTimeConceivableInSecs) {
   if (aLongestTestRunTimeConceivableInSecs == null)
     aLongestTestRunTimeConceivableInSecs =

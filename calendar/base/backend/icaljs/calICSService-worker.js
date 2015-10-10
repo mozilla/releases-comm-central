@@ -6,9 +6,9 @@
  * ChromeWorker for parseICSAsync method in calICSService.js
  */
 
-const NS_OK = 0;
-const NS_ERROR_FAILURE = 2147500037;
-const ICS_ERROR_BASE = 2152333568;
+var NS_OK = 0;
+var NS_ERROR_FAILURE = 2147500037;
+var ICS_ERROR_BASE = 2152333568;
 
 importScripts("resource://calendar/modules/ical.js");
 

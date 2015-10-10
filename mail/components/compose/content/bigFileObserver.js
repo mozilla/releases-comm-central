@@ -5,8 +5,8 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/cloudFileAccounts.js");
 
-const kUploadNotificationValue = "bigAttachmentUploading";
-const kPrivacyWarningNotificationValue = "bigAttachmentPrivacyWarning";
+var kUploadNotificationValue = "bigAttachmentUploading";
+var kPrivacyWarningNotificationValue = "bigAttachmentPrivacyWarning";
 
 var gBigFileObserver = {
   bigFiles: [],

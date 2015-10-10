@@ -4,22 +4,22 @@
 
 this.EXPORTED_SYMBOLS = ['SearchSpec'];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
+var Cu = Components.utils;
 
 Cu.import("resource:///modules/iteratorUtils.jsm");
 Cu.import("resource:///modules/mailServices.js");
 Cu.import("resource://gre/modules/Services.jsm");
 
-const nsMsgSearchScope = Ci.nsMsgSearchScope;
-const nsIMsgSearchTerm = Ci.nsIMsgSearchTerm;
-const nsIMsgLocalMailFolder = Ci.nsIMsgLocalMailFolder;
-const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
-const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
+var nsMsgSearchScope = Ci.nsMsgSearchScope;
+var nsIMsgSearchTerm = Ci.nsIMsgSearchTerm;
+var nsIMsgLocalMailFolder = Ci.nsIMsgLocalMailFolder;
+var nsMsgFolderFlags = Ci.nsMsgFolderFlags;
+var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
 
-const NS_MSG_SEARCH_INTERRUPTED = 0x00550002;
+var NS_MSG_SEARCH_INTERRUPTED = 0x00550002;
 
 /**
  * Wrapper abstraction around a view's search session.  This is basically a

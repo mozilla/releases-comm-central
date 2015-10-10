@@ -4,12 +4,12 @@
  * Tests nsMsgCompose expandMailingLists.
  */
 
-const MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
-const MsgComposeParamsContractID = "@mozilla.org/messengercompose/composeparams;1";
-const MsgComposeFieldsContractID = "@mozilla.org/messengercompose/composefields;1";
-const nsIMsgCompose = Components.interfaces.nsIMsgCompose;
-const nsIMsgComposeParams = Components.interfaces.nsIMsgComposeParams;
-const nsIMsgCompFields = Components.interfaces.nsIMsgCompFields;
+var MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
+var MsgComposeParamsContractID = "@mozilla.org/messengercompose/composeparams;1";
+var MsgComposeFieldsContractID = "@mozilla.org/messengercompose/composefields;1";
+var nsIMsgCompose = Components.interfaces.nsIMsgCompose;
+var nsIMsgComposeParams = Components.interfaces.nsIMsgComposeParams;
+var nsIMsgCompFields = Components.interfaces.nsIMsgCompFields;
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 

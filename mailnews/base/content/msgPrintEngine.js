@@ -14,7 +14,7 @@ var printEngine;
 var printSettings = null;
 var printOpener = null;
 
-const kMsgBundle = "chrome://messenger/locale/messenger.properties";
+var kMsgBundle = "chrome://messenger/locale/messenger.properties";
 
 /* Functions related to startup */
 function OnLoadPrintEngine()
@@ -102,7 +102,7 @@ function setPPTitle(aTitle)
 }
 
 // Pref listener constants
-const gStartupPPObserver =
+var gStartupPPObserver =
 {
   observe: function(subject, topic, prefName)
   {

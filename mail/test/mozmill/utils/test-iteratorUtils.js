@@ -6,16 +6,16 @@
  * Tests iteratorUtils with items pulled from content into chrome.
  */
 
-const MODULE_NAME = 'test-cloudfile-attachment-item';
+var MODULE_NAME = 'test-cloudfile-attachment-item';
 
-const RELATIVE_ROOT = '../shared-modules';
-const MODULE_REQUIRES = ['folder-display-helpers',
+var RELATIVE_ROOT = '../shared-modules';
+var MODULE_REQUIRES = ['folder-display-helpers',
                          'content-tab-helpers',]
 
 var iteratorUtils = {};
 Cu.import('resource:///modules/iteratorUtils.jsm', iteratorUtils);
 
-const kWhatsNewPref = 'mailnews.start_page.override_url';
+var kWhatsNewPref = 'mailnews.start_page.override_url';
 
 var gUrl = collector.addHttpResource('../utils/html', '');
 var gCollectionsUrl = gUrl + "collections.html";

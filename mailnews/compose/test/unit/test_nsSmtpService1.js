@@ -3,8 +3,8 @@
  * Test suite for nsSmtpService
  */
 
-const SmtpServiceContractID = "@mozilla.org/messengercompose/smtp;1";
-const nsISmtpService = Components.interfaces.nsISmtpService;
+var SmtpServiceContractID = "@mozilla.org/messengercompose/smtp;1";
+var nsISmtpService = Components.interfaces.nsISmtpService;
 
 function run_test() {
   var smtpService = Components.classes[SmtpServiceContractID]

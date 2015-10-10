@@ -4,8 +4,8 @@
 
 var EXPORTED_SYMBOLS = ["AboutSupport"];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
 
 // Platform-specific includes
 if ("@mozilla.org/windows-registry-key;1" in Components.classes)

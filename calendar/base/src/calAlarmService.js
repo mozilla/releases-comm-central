@@ -10,9 +10,9 @@ Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://gre/modules/Promise.jsm");
 Components.utils.import("resource://gre/modules/PromiseUtils.jsm");
 
-const kHoursBetweenUpdates = 6;
-const kSleepMonitorInterval = 60000;
-const kSleepMonitorTolerance = 1000;
+var kHoursBetweenUpdates = 6;
+var kSleepMonitorInterval = 60000;
+var kSleepMonitorTolerance = 1000;
 
 function nowUTC() {
     return cal.jsDateToDateTime(new Date()).getInTimezone(cal.UTC());
@@ -101,8 +101,8 @@ function calAlarmService() {
     };
 }
 
-const calAlarmServiceClassID = Components.ID("{7a9200dd-6a64-4fff-a798-c5802186e2cc}");
-const calAlarmServiceInterfaces = [
+var calAlarmServiceClassID = Components.ID("{7a9200dd-6a64-4fff-a798-c5802186e2cc}");
+var calAlarmServiceInterfaces = [
     Components.interfaces.calIAlarmService,
     Components.interfaces.nsIObserver
 ];

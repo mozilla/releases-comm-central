@@ -19,9 +19,9 @@ smtpDaemon.prototype = {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-const kStateAuthNeeded = 0;
-const kStateAuthOptional = 2;
-const kStateAuthenticated = 3;
+var kStateAuthNeeded = 0;
+var kStateAuthOptional = 2;
+var kStateAuthenticated = 3;
 
 /**
  * This handler implements the bare minimum required by RFC 2821.

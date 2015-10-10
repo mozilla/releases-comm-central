@@ -8,10 +8,10 @@
  * markings on the messages are stored in the msgStore, not only in the database.
  * For now, it checks for bug 840418.
  */
-const MODULE_NAME = "test-message-commands-on-msgstore";
+var MODULE_NAME = "test-message-commands-on-msgstore";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers",
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers",
                          "compose-helpers",
                          "window-helpers"];
 
@@ -19,8 +19,8 @@ Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/mailServices.js");
 Cu.import("resource:///modules/IOUtils.js");
 
-const statusHeader = "X-Mozilla-Status: ";
-const nsMsgMessageFlags = Ci.nsMsgMessageFlags;
+var statusHeader = "X-Mozilla-Status: ";
+var nsMsgMessageFlags = Ci.nsMsgMessageFlags;
 
 var gInbox;
 var gOutbox;

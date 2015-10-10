@@ -4,7 +4,7 @@
 
 Components.utils.import("resource:///modules/IOUtils.js");
 
-const MSG_LINEBREAK = "\r\n";
+var MSG_LINEBREAK = "\r\n";
 
 function run_test() {
   localAccountUtils.loadLocalMailAccount();

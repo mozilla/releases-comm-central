@@ -7,10 +7,10 @@
  * set properly when forwarding messages.
  */
 
-const MODULE_NAME = "test-forward-headers";
+var MODULE_NAME = "test-forward-headers";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers",
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers",
                          "message-helpers"];
 var jumlib = {};
 Components.utils.import("resource://mozmill/modules/jum.js", jumlib);

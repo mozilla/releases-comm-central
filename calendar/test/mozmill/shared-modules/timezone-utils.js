@@ -5,7 +5,7 @@
 var calUtils = require("calendar-utils");
 var prefs = require("prefs");
 
-const sleep = 500;
+var sleep = 500;
 
 function switchAppTimezone(timezone) {
   // change directly as Mac has different Lookup & XPath than Windows & Linux, bug 536605

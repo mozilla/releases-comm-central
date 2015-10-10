@@ -7,16 +7,16 @@
  * called from the context of an open composer.
  */
 
-const MODULE_NAME = "test-newmsg-compose-identity";
+var MODULE_NAME = "test-newmsg-compose-identity";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers",
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers",
                          "window-helpers", "compose-helpers"];
 
 var account;
 
-const identity1Email = "x@example.com";
-const identity2Email = "y@example.com";
+var identity1Email = "x@example.com";
+var identity2Email = "y@example.com";
 
 Components.utils.import("resource:///modules/mailServices.js");
 

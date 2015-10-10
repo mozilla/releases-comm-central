@@ -5,7 +5,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 var irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 
-const fakeProto = {
+var fakeProto = {
   id: "fake-proto",
   options: {alternateNicks: ""},
   _getOptionDefault: function(aOption) { return this.options[aOption]; }

@@ -344,7 +344,7 @@ function __simple_obj_copy(aObj, aDepthAllowed) {
   return oot;
 }
 
-const _INTERESTING_MESSAGE_HEADER_PROPERTIES = {
+var _INTERESTING_MESSAGE_HEADER_PROPERTIES = {
   "gloda-id": 0,
   "gloda-dirty": 0,
   "junkscore": "",

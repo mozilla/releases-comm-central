@@ -16,14 +16,14 @@
 
 this.EXPORTED_SYMBOLS = ["ircCAP"];
 
-const Cu = Components.utils;
+var Cu = Components.utils;
 
 Cu.import("resource:///modules/ircHandlers.jsm");
 Cu.import("resource:///modules/ircUtils.jsm");
 
 // This matches a modifier, followed by the name spaces (network specific or
 // standardized), followed by the capability name.
-const capParameterExp = /^([\-=~])?((?:(?:[A-Z][A-Z0-9\-]*\.)*[A-Z][A-Z0-9\-]*\/)?[A-Z][A-Z0-9\-]*)$/i;
+var capParameterExp = /^([\-=~])?((?:(?:[A-Z][A-Z0-9\-]*\.)*[A-Z][A-Z0-9\-]*\/)?[A-Z][A-Z0-9\-]*)$/i;
 
 /*
  * Parses a CAP message of the form:

@@ -42,19 +42,19 @@ this.EXPORTED_SYMBOLS = [
  *  See the 3 examples of rulesets below.
  */
 
-const kAllowedURLs = aValue => /^(https?|ftp|mailto):/.test(aValue);
-const kAllowedMozClasses =
+var kAllowedURLs = aValue => /^(https?|ftp|mailto):/.test(aValue);
+var kAllowedMozClasses =
   aClassName => aClassName == "moz-txt-underscore" ||
                 aClassName == "moz-txt-tag";
 
 /* Tags whose content should be fully removed, and reported in the Error Console. */
-const kForbiddenTags = {
+var kForbiddenTags = {
   script: true,
   style: true
 };
 
 // in strict mode, remove all formatings. Keep only links and line breaks.
-const kStrictMode = {
+var kStrictMode = {
   attrs: { },
 
   tags: {
@@ -70,7 +70,7 @@ const kStrictMode = {
 };
 
 // standard mode allows basic formattings (bold, italic, underlined)
-const kStandardMode = {
+var kStandardMode = {
   attrs: {
     'style': true
   },
@@ -107,7 +107,7 @@ const kStandardMode = {
 };
 
 // permissive mode allows about anything that isn't going to mess up the chat window
-const kPermissiveMode = {
+var kPermissiveMode = {
   attrs: {
     'style': true
   },
@@ -156,8 +156,8 @@ const kPermissiveMode = {
   }
 };
 
-const kModePref = "messenger.options.filterMode";
-const kModes = [kStrictMode, kStandardMode, kPermissiveMode];
+var kModePref = "messenger.options.filterMode";
+var kModes = [kStrictMode, kStandardMode, kPermissiveMode];
 
 var gGlobalRuleset = null;
 

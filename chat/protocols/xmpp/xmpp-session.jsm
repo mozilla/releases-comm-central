@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["XMPPSession", "XMPPDefaultResource"];
 
-const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/socket.jsm");

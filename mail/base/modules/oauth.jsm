@@ -8,7 +8,7 @@
  * need to be made to support differences in OAuth usage.
  */
 
-const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 
 var EXPORTED_SYMBOLS = ["OAuth"];
 

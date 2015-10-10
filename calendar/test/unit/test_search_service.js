@@ -4,7 +4,7 @@
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const HINT_EXACT_MATCH = Components.interfaces.calICalendarSearchProvider.HINT_EXACT_MATCH;
+var HINT_EXACT_MATCH = Components.interfaces.calICalendarSearchProvider.HINT_EXACT_MATCH;
 var search = Components.classes["@mozilla.org/calendar/calendarsearch-service;1"]
                        .getService(Components.interfaces.calICalendarSearchService);
 

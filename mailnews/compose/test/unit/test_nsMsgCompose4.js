@@ -2,14 +2,14 @@
  * Tests nsMsgCompose determineHTMLAction.
  */
 
-const MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
-const MsgComposeParamsContractID = "@mozilla.org/messengercompose/composeparams;1";
-const MsgComposeFieldsContractID = "@mozilla.org/messengercompose/composefields;1";
-const nsIMsgCompose = Components.interfaces.nsIMsgCompose;
-const nsIMsgComposeParams = Components.interfaces.nsIMsgComposeParams;
-const nsIMsgCompConvertible = Components.interfaces.nsIMsgCompConvertible;
-const nsIMsgCompFields = Components.interfaces.nsIMsgCompFields;
-const SendFormat = Components.interfaces.nsIMsgCompSendFormat;
+var MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
+var MsgComposeParamsContractID = "@mozilla.org/messengercompose/composeparams;1";
+var MsgComposeFieldsContractID = "@mozilla.org/messengercompose/composefields;1";
+var nsIMsgCompose = Components.interfaces.nsIMsgCompose;
+var nsIMsgComposeParams = Components.interfaces.nsIMsgComposeParams;
+var nsIMsgCompConvertible = Components.interfaces.nsIMsgCompConvertible;
+var nsIMsgCompFields = Components.interfaces.nsIMsgCompFields;
+var SendFormat = Components.interfaces.nsIMsgCompSendFormat;
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 

@@ -11,7 +11,7 @@ var MODULE_NAME = "test-migrate-to-rdf-ui-5";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
-const kAppMenuButton = "button-appmenu";
+var kAppMenuButton = "button-appmenu";
 
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);

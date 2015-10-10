@@ -24,7 +24,7 @@ var siteRegExp = new RegExp("^" + url);
 var gNewTab;
 var gNotificationBox;
 
-const ALERT_TIMEOUT = 10000;
+var ALERT_TIMEOUT = 10000;
 
 var AlertWatcher = {
   planForAlert: function(aController) {

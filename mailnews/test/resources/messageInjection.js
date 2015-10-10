@@ -194,7 +194,7 @@ function _cleanup_message_injection() {
     delete mis[key];
 }
 
-const _messageInjectionSetup = {
+var _messageInjectionSetup = {
   _nextUniqueFolderId: 0,
 
   injectionConfig: {
@@ -255,7 +255,7 @@ function _synthMessagesToFakeRep(aSynthMessages) {
 }
 
 
-const SEARCH_TERM_MAP_HELPER = {
+var SEARCH_TERM_MAP_HELPER = {
   subject: Components.interfaces.nsMsgSearchAttrib.Subject,
   body: Components.interfaces.nsMsgSearchAttrib.Body,
   from: Components.interfaces.nsMsgSearchAttrib.Sender,

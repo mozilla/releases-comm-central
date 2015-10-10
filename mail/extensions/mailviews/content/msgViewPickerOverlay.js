@@ -7,19 +7,19 @@ Components.utils.import("resource:///modules/mailViewManager.js");
 
 // these constants are now authoritatively defined in mailViewManager.js (above)
 // tag views have kViewTagMarker + their key as value
-const kViewItemAll         = MailViewConstants.kViewItemAll;
-const kViewItemUnread      = MailViewConstants.kViewItemUnread;
-const kViewItemTags        = MailViewConstants.kViewItemTags; // former labels used values 2-6
-const kViewItemNotDeleted  = MailViewConstants.kViewItemNotDeleted;
+var kViewItemAll         = MailViewConstants.kViewItemAll;
+var kViewItemUnread      = MailViewConstants.kViewItemUnread;
+var kViewItemTags        = MailViewConstants.kViewItemTags; // former labels used values 2-6
+var kViewItemNotDeleted  = MailViewConstants.kViewItemNotDeleted;
 // not a real view! a sentinel value to pop up a dialog
-const kViewItemVirtual     = MailViewConstants.kViewItemVirtual;
+var kViewItemVirtual     = MailViewConstants.kViewItemVirtual;
 // not a real view! a sentinel value to pop up a dialog
-const kViewItemCustomize   = MailViewConstants.kViewItemCustomize;
-const kViewItemFirstCustom = MailViewConstants.kViewItemFirstCustom;
+var kViewItemCustomize   = MailViewConstants.kViewItemCustomize;
+var kViewItemFirstCustom = MailViewConstants.kViewItemFirstCustom;
 
-const kViewCurrent    = MailViewConstants.kViewCurrent;
-const kViewCurrentTag = MailViewConstants.kViewCurrentTag;
-const kViewTagMarker  = MailViewConstants.kViewTagMarker;
+var kViewCurrent    = MailViewConstants.kViewCurrent;
+var kViewCurrentTag = MailViewConstants.kViewCurrentTag;
+var kViewTagMarker  = MailViewConstants.kViewTagMarker;
 
 /**
  * A reference to the nsIMsgMailViewList service that tracks custom mail views.

@@ -6,14 +6,14 @@
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const nsMsgSearchScope = Ci.nsMsgSearchScope;
-const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-const nsMsgSearchOp = Ci.nsMsgSearchOp;
-const Contains = nsMsgSearchOp.Contains;
-const offlineMail = nsMsgSearchScope.offlineMail;
-const gArrayHdrs = ["X-Bugzilla-Who", "Sender"];
-const gFirstHeader = nsMsgSearchAttrib.OtherHeader + 1;
-const fileName = "../../../data/SenderHeader";
+var nsMsgSearchScope = Ci.nsMsgSearchScope;
+var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
+var nsMsgSearchOp = Ci.nsMsgSearchOp;
+var Contains = nsMsgSearchOp.Contains;
+var offlineMail = nsMsgSearchScope.offlineMail;
+var gArrayHdrs = ["X-Bugzilla-Who", "Sender"];
+var gFirstHeader = nsMsgSearchAttrib.OtherHeader + 1;
+var fileName = "../../../data/SenderHeader";
 
 var Tests =
 [

@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const APPLICATION_CID = Components.ID("f265021a-7f1d-4b4b-bdc6-9aedca4d8f13");
-const APPLICATION_CONTRACTID = "@mozilla.org/steel/application;1";
+var APPLICATION_CID = Components.ID("f265021a-7f1d-4b4b-bdc6-9aedca4d8f13");
+var APPLICATION_CONTRACTID = "@mozilla.org/steel/application;1";
 
 //=================================================
 // Factory - Treat Application as a singleton
@@ -66,5 +66,5 @@ Application.prototype = {
   platformIsWindows: "@mozilla.org/windows-registry-key;1" in Cc
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([Application]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([Application]);
 

@@ -7,15 +7,15 @@
  * under various circumstances.
  */
 
-const MODULE_NAME = 'test-signature-init';
-const RELATIVE_ROOT = '../shared-modules';
-const MODULE_REQUIRES = ['compose-helpers',
+var MODULE_NAME = 'test-signature-init';
+var RELATIVE_ROOT = '../shared-modules';
+var MODULE_REQUIRES = ['compose-helpers',
                          'folder-display-helpers'];
 
-const kHtmlPref = 'mail.identity.default.compose_html';
-const kReplyOnTopPref = 'mail.identity.default.reply_on_top';
-const kReplyOnTop = 1;
-const kSigBottomPref = 'mail.identity.default.sig_bottom';
+var kHtmlPref = 'mail.identity.default.compose_html';
+var kReplyOnTopPref = 'mail.identity.default.reply_on_top';
+var kReplyOnTop = 1;
+var kSigBottomPref = 'mail.identity.default.sig_bottom';
 
 Cu.import('resource://gre/modules/Services.jsm');
 

@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const MODULE_NAME = "prompt-helpers";
+var MODULE_NAME = "prompt-helpers";
 
-const RELATIVE_ROOT = "../shared-modules";
+var RELATIVE_ROOT = "../shared-modules";
 // we need this for the main controller
-const MODULE_REQUIRES = ["mock-object-helpers"];
+var MODULE_REQUIRES = ["mock-object-helpers"];
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 
-const kMockPromptServiceName = "Mock Prompt Service";
-const kPromptServiceContractID = "@mozilla.org/embedcomp/prompt-service;1";
-const kPromptServiceName = "Prompt Service";
+var kMockPromptServiceName = "Mock Prompt Service";
+var kPromptServiceContractID = "@mozilla.org/embedcomp/prompt-service;1";
+var kPromptServiceName = "Prompt Service";
 
 var gMockAuthPromptReg;
 

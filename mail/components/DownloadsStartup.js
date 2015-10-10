@@ -15,8 +15,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 //// Globals
 
-const Ci = Components.interfaces;
-const Cu = Components.utils;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "DownloadIntegration",
@@ -25,8 +25,8 @@ XPCOMUtils.defineLazyModuleGetter(this, "DownloadIntegration",
 /**
  * CID and Contract ID of the JavaScript implementation of nsITransfer.
  */
-const kTransferCid = Components.ID("{1b4c85df-cbdd-4bb6-b04e-613caece083c}");
-const kTransferContractId = "@mozilla.org/transfer;1";
+var kTransferCid = Components.ID("{1b4c85df-cbdd-4bb6-b04e-613caece083c}");
+var kTransferContractId = "@mozilla.org/transfer;1";
 
 ////////////////////////////////////////////////////////////////////////////////
 //// DownloadsStartup

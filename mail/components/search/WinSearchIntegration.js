@@ -9,24 +9,24 @@ var EXPORTED_SYMBOLS = ["SearchIntegration"];
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-const MSG_DB_LARGE_COMMIT = 1;
-const CRLF="\r\n";
+var MSG_DB_LARGE_COMMIT = 1;
+var CRLF="\r\n";
 
 /**
  * Required to access the 64-bit registry, even though we're probably a 32-bit
  * program
  */
-const ACCESS_WOW64_64KEY = 0x0100;
+var ACCESS_WOW64_64KEY = 0x0100;
 
 /**
  * The contract ID for the helper service.
  */
-const WINSEARCHHELPER_CONTRACTID = "@mozilla.org/mail/windows-search-helper;1";
+var WINSEARCHHELPER_CONTRACTID = "@mozilla.org/mail/windows-search-helper;1";
 
 /**
  * All the registry keys required for integration
  */
-const gRegKeys =
+var gRegKeys =
 [
   // This is the property handler
   {

@@ -4,10 +4,10 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-const kIMig = Components.interfaces.nsIMailProfileMigrator;
-const kIPStartup = Components.interfaces.nsIProfileStartup;
-const kProfileMigratorContractIDPrefix = "@mozilla.org/profile/migrator;1?app=mail&type=";
-const nsISupportsString = Components.interfaces.nsISupportsString;
+var kIMig = Components.interfaces.nsIMailProfileMigrator;
+var kIPStartup = Components.interfaces.nsIProfileStartup;
+var kProfileMigratorContractIDPrefix = "@mozilla.org/profile/migrator;1?app=mail&type=";
+var nsISupportsString = Components.interfaces.nsISupportsString;
 
 var MigrationWizard = {
   _source: "",                  // Source Profile Migrator ContractID suffix

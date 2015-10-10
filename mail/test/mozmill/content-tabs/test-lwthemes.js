@@ -30,7 +30,7 @@ var setupModule = function (module) {
   cth.installInto(module);
 };
 
-const ALERT_TIMEOUT = 10000;
+var ALERT_TIMEOUT = 10000;
 
 function check_and_click_notification_box_action_in_current_tab(totalButtons,
                                                                 selectButton) {

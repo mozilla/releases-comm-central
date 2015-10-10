@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["Core"];
 
-const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imWindows.jsm");
 Cu.import("resource:///modules/ibNotifications.jsm");

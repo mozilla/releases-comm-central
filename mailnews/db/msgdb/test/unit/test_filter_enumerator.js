@@ -1,14 +1,14 @@
 load("../../../../resources/messageGenerator.js");
 
 var gMessages = [];
-const nsMsgSearchScope  = Ci.nsMsgSearchScope;
-const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-const nsMsgSearchOp     = Ci.nsMsgSearchOp;
-const nsMsgMessageFlags = Ci.nsMsgMessageFlags;
-const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
+var nsMsgSearchScope  = Ci.nsMsgSearchScope;
+var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
+var nsMsgSearchOp     = Ci.nsMsgSearchOp;
+var nsMsgMessageFlags = Ci.nsMsgMessageFlags;
+var nsMsgFolderFlags = Ci.nsMsgFolderFlags;
 
-const kSetCount = 13;
-const kNumExpectedMatches = 10;
+var kSetCount = 13;
+var kNumExpectedMatches = 10;
 
 function setupGlobals()
 {

@@ -1,4 +1,4 @@
-const localTestFolder = collector.addHttpResource('./files/');
+var localTestFolder = collector.addHttpResource('./files/');
 
 var setupTest = function() {
   controller = mozmill.getBrowserController();

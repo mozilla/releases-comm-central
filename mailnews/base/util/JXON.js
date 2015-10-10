@@ -7,7 +7,7 @@
 
 var EXPORTED_SYMBOLS = ["JXON"];
 
-const JXON = new (function() {
+var JXON = new (function() {
   const sValueProp = "value"; /* you can customize these values */
   const sAttributesProp = "attr";
   const sAttrPref = "@";

@@ -21,7 +21,7 @@ var gDEPTH = "../../../../";
 Components.utils.import("resource://testing-common/mailnews/maild.js");
 Components.utils.import("resource://testing-common/mailnews/nntpd.js");
 
-const kSimpleNewsArticle =
+var kSimpleNewsArticle =
   "From: John Doe <john.doe@example.com>\n"+
   "Date: Sat, 24 Mar 1990 10:59:24 -0500\n"+
   "Newsgroups: test.subscribe.simple\n"+
@@ -96,7 +96,7 @@ Services.prefs.setBoolPref("mail.strict_threading", true);
 
 // Make sure we don't try to use a protected port. I like adding 1024 to the
 // default port when doing so...
-const NNTP_PORT = 1024+119;
+var NNTP_PORT = 1024+119;
 
 var _server = null;
 var _account = null;
@@ -127,7 +127,7 @@ function setupLocalServer(port) {
   return server;
 }
 
-const URLCreator = MailServices.nntp.QueryInterface(Ci.nsIProtocolHandler);
+var URLCreator = MailServices.nntp.QueryInterface(Ci.nsIProtocolHandler);
 
 // Sets up a protocol object and prepares to run the test for the news url
 function setupProtocolTest(port, newsUrl, incomingServer) {

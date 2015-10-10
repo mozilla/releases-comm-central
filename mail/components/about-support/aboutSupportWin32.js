@@ -7,9 +7,9 @@ var EXPORTED_SYMBOLS = ["AboutSupportPlatform"];
 // JS ctypes are needed to get at the data we need
 Components.utils.import("resource://gre/modules/ctypes.jsm");
 
-const BOOL = ctypes.int32_t;
-const DRIVE_UNKNOWN = 0;
-const DRIVE_NETWORK = 4;
+var BOOL = ctypes.int32_t;
+var DRIVE_UNKNOWN = 0;
+var DRIVE_NETWORK = 4;
 
 var AboutSupportPlatform = {
   /**

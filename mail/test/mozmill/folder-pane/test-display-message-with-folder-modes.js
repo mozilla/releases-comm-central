@@ -12,10 +12,10 @@
  *   mode
  */
 
-const MODULE_NAME = "test-display-message-with-folder-modes";
+var MODULE_NAME = "test-display-message-with-folder-modes";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers"];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var folder;
 var dummyFolder;

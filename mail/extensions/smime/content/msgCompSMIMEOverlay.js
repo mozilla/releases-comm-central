@@ -10,7 +10,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 // const kEncryptionPolicy_Never = 0;
 // 'IfPossible' was used by ns4.
 // const kEncryptionPolicy_IfPossible = 1;
-const kEncryptionPolicy_Always = 2;
+var kEncryptionPolicy_Always = 2;
 
 var gEncryptedURIService =
         Components.classes["@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"]

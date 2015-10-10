@@ -17,8 +17,8 @@ function calEvent() {
         __proto__: this.itemBasePromotedProps
     }
 }
-const calEventClassID = Components.ID("{974339d5-ab86-4491-aaaf-2b2ca177c12b}");
-const calEventInterfaces = [
+var calEventClassID = Components.ID("{974339d5-ab86-4491-aaaf-2b2ca177c12b}");
+var calEventInterfaces = [
     Components.interfaces.calIItemBase,
     Components.interfaces.calIEvent,
     Components.interfaces.calIInternalShallowCopy

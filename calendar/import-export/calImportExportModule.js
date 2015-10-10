@@ -4,7 +4,7 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
-const scriptLoadOrder = [
+var scriptLoadOrder = [
     "calIcsImportExport.js",
     "calHtmlExport.js",
     "calOutlookCSVImportExport.js",

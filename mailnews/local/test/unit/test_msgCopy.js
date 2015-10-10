@@ -4,7 +4,7 @@
 
 // Test of setting keywords with CopyFileMessage
 
-const bugmail11 = do_get_file("../../../data/bugmail11");
+var bugmail11 = do_get_file("../../../data/bugmail11");
                      
 // main test
 

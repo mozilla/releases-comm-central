@@ -17,7 +17,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
  * |verifier|. |makeVerifier| expects all the prefs to be passed in, while
  * |verifier| doesn't require any.
  */
-const kNamesToVerify = ["serif", "sans", "monospace"];
+var kNamesToVerify = ["serif", "sans", "monospace"];
 
 /**
  * A list of font sizes to verify using |makeVerifier| and
@@ -27,7 +27,7 @@ const kNamesToVerify = ["serif", "sans", "monospace"];
  * appending either |Migrated| or |NonMigrated| to the property name,
  * respectively).
  */
-const kSizesToVerify = ["variableSize", "fixedSize"];
+var kSizesToVerify = ["variableSize", "fixedSize"];
 
 /**
  * A higher order function which returns a function that verifies fonts based on
@@ -94,7 +94,7 @@ var gCTVerifier = makeVerifier({
  * Windows versions to pretend we're running this on. Each value of this
  * dictionary is a pair: [Windows version, verifier for this version].
  */
-const kWindowsVersions = {
+var kWindowsVersions = {
   // Windows XP
   "xp": [5.1, gNonCTVerifier],
   // Windows Vista
@@ -110,12 +110,12 @@ function set_windows_version(aVersion) {
 /**
  * Encodings to worry about while clearing prefs.
  */
-const kEncodingsToClear = ["x-unicode", "x-western", "x-cyrillic", "el"];
+var kEncodingsToClear = ["x-unicode", "x-western", "x-cyrillic", "el"];
 
 /**
  * Pref branches to worry about while clearing prefs.
  */
-const kPrefBranchesToClear = [
+var kPrefBranchesToClear = [
   "font.name.serif.",
   "font.name.sans-serif.",
   "font.name.monospace.",

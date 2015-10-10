@@ -4,10 +4,10 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaMsgSearcher"];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
+var Cu = Components.utils;
 
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/gloda/public.js");
@@ -18,12 +18,12 @@ Cu.import("resource:///modules/gloda/public.js");
  *  Note that gloda stores timestamps as PRTimes for no exceedingly good
  *  reason.
  */
-const FUZZSCORE_TIMESTAMP_FACTOR = 1000 * 1000 * 60 * 60 * 24 * 7;
+var FUZZSCORE_TIMESTAMP_FACTOR = 1000 * 1000 * 60 * 60 * 24 * 7;
 
-const RANK_USAGE =
+var RANK_USAGE =
   "glodaRank(matchinfo(messagesText), 1.0, 2.0, 2.0, 1.5, 1.5)";
 
-const DASCORE =
+var DASCORE =
   "(((" + RANK_USAGE + " + messages.notability) * " +
     FUZZSCORE_TIMESTAMP_FACTOR +
    ") + messages.date)";
@@ -73,7 +73,7 @@ const DASCORE =
  *    LIMIT.)  Since offsets() also needs to retrieve the row from messagesText
  *    there is a nice synergy there.
  */
-const NUEVO_FULLTEXT_SQL =
+var NUEVO_FULLTEXT_SQL =
   "SELECT messages.*, messagesText.*, offsets(messagesText) AS osets " +
   "FROM messagesText, messages " +
   "WHERE" +
@@ -119,12 +119,12 @@ function reduceSum(accum, curValue) {
  *  display name on the address book card associated with the e-mail adress)
  *  a contact is going to bias towards matching multiple times.
  */
-const COLUMN_ALL_MATCH_SCORES = [4, 20, 20, 16, 12];
+var COLUMN_ALL_MATCH_SCORES = [4, 20, 20, 16, 12];
 /**
  * Score for each distinct term that matches in the column.  This is capped
  *  by COLUMN_ALL_SCORES.
  */
-const COLUMN_PARTIAL_PER_MATCH_SCORES = [1, 4, 4, 4, 3];
+var COLUMN_PARTIAL_PER_MATCH_SCORES = [1, 4, 4, 4, 3];
 /**
  * If a term matches multiple times, what is the marginal score for each
  *  additional match.  We count the total number of matches beyond the
@@ -134,8 +134,8 @@ const COLUMN_PARTIAL_PER_MATCH_SCORES = [1, 4, 4, 4, 3];
  *  and the value in COLUMN_MULTIPLE_MATCH_LIMIT and multiply by the value in
  *  COLUMN_MULTIPLE_MATCH_SCORES.
  */
-const COLUMN_MULTIPLE_MATCH_SCORES = [1, 0, 0, 0, 0];
-const COLUMN_MULTIPLE_MATCH_LIMIT = [10, 0, 0, 0, 0];
+var COLUMN_MULTIPLE_MATCH_SCORES = [1, 0, 0, 0, 0];
+var COLUMN_MULTIPLE_MATCH_LIMIT = [10, 0, 0, 0, 0];
 
 /**
  * Score the message on its offsets (from stashedColumns).

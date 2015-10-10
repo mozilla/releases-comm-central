@@ -31,7 +31,7 @@ function teardownTest(module) {
  * Strings found in the about:support HTML or text that should clearly mark the
  * data as being from about:support.
  */
-const ABOUT_SUPPORT_STRINGS = ["Application Basics", "Mail and News Accounts",
+var ABOUT_SUPPORT_STRINGS = ["Application Basics", "Mail and News Accounts",
                                "Extensions", "Modified Preferences", "Graphics",
                                "JavaScript", "Accessibility", "Library Versions"];
 
@@ -39,7 +39,7 @@ const ABOUT_SUPPORT_STRINGS = ["Application Basics", "Mail and News Accounts",
  * Strings that if found in the about:support text or HTML usually indicate an
  * error.
  */
-const ABOUT_SUPPORT_ERROR_STRINGS = ["undefined", "null"];
+var ABOUT_SUPPORT_ERROR_STRINGS = ["undefined", "null"];
 
 
 /*
@@ -115,7 +115,7 @@ function test_accounts_in_order() {
   close_tab(tab);
 }
 
-const UNIQUE_ID = "3a9e1694-7115-4237-8b1e-1cabe6e35073";
+var UNIQUE_ID = "3a9e1694-7115-4237-8b1e-1cabe6e35073";
 
 /**
  * Test that a modified preference on the whitelist but not on the blacklist

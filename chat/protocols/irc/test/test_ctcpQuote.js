@@ -5,7 +5,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 var irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 
-const input = [
+var input = [
   undefined,
   "test",
   "\\test",
@@ -24,9 +24,9 @@ const input = [
   "\\\\atest"
 ];
 
-const expectedOutputCommand = "PRIVMSG";
+var expectedOutputCommand = "PRIVMSG";
 
-const expectedOutputParams = [
+var expectedOutputParams = [
   "ACTION",
   "ACTION test",
   "ACTION \\\\test",

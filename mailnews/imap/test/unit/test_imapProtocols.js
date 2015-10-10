@@ -3,14 +3,14 @@
  * Test suite for IMAP nsIProtocolHandler implementations.
  */
 
-const defaultProtocolFlags =
+var defaultProtocolFlags =
   Ci.nsIProtocolHandler.URI_STD |
   Ci.nsIProtocolHandler.URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT |
   Ci.nsIProtocolHandler.URI_DANGEROUS_TO_LOAD |
   Ci.nsIProtocolHandler.ALLOWS_PROXY |
   Ci.nsIProtocolHandler.URI_FORBIDS_COOKIE_ACCESS;
 
-const protocols =
+var protocols =
   [ { protocol: "imap",
       urlSpec: "imap://user@localhost/",
       defaultPort: Ci.nsIImapUrl.DEFAULT_IMAP_PORT

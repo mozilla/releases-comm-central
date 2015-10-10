@@ -3,9 +3,9 @@
  * Third Test suite for nsAbAutoCompleteSearch - test for duplicate elimination
  */
 
-const ACR = Components.interfaces.nsIAutoCompleteResult;
+var ACR = Components.interfaces.nsIAutoCompleteResult;
 
-const cards = [
+var cards = [
   { email: "test@foo.invalid", displayName: "",
     popularityIndex: 0, firstName: "test0", value: "test@foo.invalid" },
   { email: "test@foo.invalid", displayName: "",
@@ -29,7 +29,7 @@ const cards = [
     popularityIndex: 1 }
 ];
 
-const duplicates = [
+var duplicates = [
   { search: "test", expected: [1, 2] },
   { search: "first", expected: [6, 5, 3] },
   { search: "(bracket)", expected: [7, 8] }

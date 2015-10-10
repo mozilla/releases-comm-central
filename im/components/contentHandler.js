@@ -4,12 +4,12 @@
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const Ci = Components.interfaces;
-const Cc = Components.classes;
-const Cr = Components.results;
+var Ci = Components.interfaces;
+var Cc = Components.classes;
+var Cr = Components.results;
 
 // defined in nsIContentHandler.idl.
-const NS_ERROR_WONT_HANDLE_CONTENT = 0x805d0001;
+var NS_ERROR_WONT_HANDLE_CONTENT = 0x805d0001;
 
 function contentHandler() {
 }
@@ -67,4 +67,4 @@ contentHandler.prototype = {
 };
 var gContentHandler = new contentHandler();
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([contentHandler]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([contentHandler]);

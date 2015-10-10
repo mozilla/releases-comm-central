@@ -6,11 +6,11 @@
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
-const MsgComposeParamsContractID = "@mozilla.org/messengercompose/composeparams;1";
-const MsgComposeFieldsContractID = "@mozilla.org/messengercompose/composefields;1";
+var MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
+var MsgComposeParamsContractID = "@mozilla.org/messengercompose/composeparams;1";
+var MsgComposeFieldsContractID = "@mozilla.org/messengercompose/composefields;1";
 
-const TESTS = [
+var TESTS = [
   {
     email: "em@test.invalid",
     // TB 2 stored popularity as hex, so we need to check correct handling.

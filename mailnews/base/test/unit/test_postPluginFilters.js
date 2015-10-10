@@ -10,21 +10,21 @@ load("../../../resources/POP3pump.js");
 
 // Globals
 
-const gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
+var gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
                      .getService(Ci.nsIMsgDBService);
 
 // command functions for test data
-const kTrain = 0;  // train a file as a trait
-const kClass = 1;  // classify files with traits
+var kTrain = 0;  // train a file as a trait
+var kClass = 1;  // classify files with traits
 
 var gTest; // currently active test
 var gMsgHdr; // current message header
 
-const kJunkFile = "../../../data/bugmail1";
-const kGoodFile = "../../../data/draft1";
+var kJunkFile = "../../../data/bugmail1";
+var kGoodFile = "../../../data/draft1";
 
-const kPriorityLow = 3;
-const kPriorityHigh = 5;
+var kPriorityLow = 3;
+var kPriorityHigh = 5;
 var gInboxListener; // database listener object
 
 var gTests =

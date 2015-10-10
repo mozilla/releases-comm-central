@@ -5,13 +5,13 @@
  * according to scores.
  */
 
-const ACR = Components.interfaces.nsIAutoCompleteResult;
+var ACR = Components.interfaces.nsIAutoCompleteResult;
 
 // Input and results arrays for the autocomplete tests.
 
 // Note the expected arrays are in expected sort order as well.
 
-const results =  [
+var results =  [
   { email: "Tomas Doe <tomez.doe@foo.invalid>" }, // 0
   { email: "Tomas Doe <tomez.doe@foo2.invalid>" }, // 1
   { email: "Tomas Doe <tomez.doe@b.example.com>" }, // 2
@@ -19,7 +19,7 @@ const results =  [
   { email: "Tomek Smith <tomek@example.com>" } // 4
 ]
 
-const inputs = [
+var inputs = [
   [
     { search: "t",            expected: [2, 3, 0, 1, 4] },
     { search: "tom",          expected: [0, 1, 2, 3, 4] },
@@ -39,7 +39,7 @@ acObserver.prototype = {
   }
 };
 
-const PAB_CARD_DATA = [
+var PAB_CARD_DATA = [
   {
     "FirstName": "Tomas",
     "LastName": "Doe",
@@ -69,7 +69,7 @@ const PAB_CARD_DATA = [
   }
 ];
 
-const ABMDB_PREFIX = "moz-abmdbdirectory://";
+var ABMDB_PREFIX = "moz-abmdbdirectory://";
 
 function setupAddressBookData(aDirURI, aCardData, aMailListData) {
   let ab = MailServices.ab.getDirectory(aDirURI);

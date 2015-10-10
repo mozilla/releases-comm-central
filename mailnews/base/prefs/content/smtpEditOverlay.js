@@ -18,7 +18,7 @@ var gSmtpAuthMethod;
 var gSmtpSocketType;
 var gPort;
 var gDefaultPort;
-const Ci = Components.interfaces;
+var Ci = Components.interfaces;
 
 function initSmtpSettings(server) {
     gSmtpUsername = document.getElementById("smtp.username");

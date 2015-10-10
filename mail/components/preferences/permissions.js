@@ -4,16 +4,16 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
-const nsICookiePermission = Components.interfaces.nsICookiePermission;
+var nsIPermissionManager = Components.interfaces.nsIPermissionManager;
+var nsICookiePermission = Components.interfaces.nsICookiePermission;
 
-const NOTIFICATION_FLUSH_PERMISSIONS = "flush-pending-permissions";
+var NOTIFICATION_FLUSH_PERMISSIONS = "flush-pending-permissions";
 
 /**
  * Magic URI base used so the permission manager can store
  * remote content permissions for a given email address.
  */
-const MAILURI_BASE = "chrome://messenger/content/?email=";
+var MAILURI_BASE = "chrome://messenger/content/?email=";
 
 function Permission(principal, type, capability)
 {

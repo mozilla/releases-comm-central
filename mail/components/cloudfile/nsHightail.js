@@ -8,7 +8,7 @@
  * nsIMsgCloudFileProvider interface.
  */
 
-const {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
+var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -18,14 +18,14 @@ Cu.import("resource:///modules/cloudFileAccounts.js");
 var gServerUrl = "https://dpi.yousendit.com"; // Production url
 // test url var gServerUrl = "https://test2-api.yousendit.com";
 
-const kApiKey = "7spvjdt7m4kycr7jyhywrdn2";
-const kAuthPath = "/dpi/v1/auth";
-const kUserInfoPath = "/dpi/v2/user";
-const kFolderPath = "/dpi/v1/folder/";
-const kFolderFilePath = "/dpi/v1/folder/file/";
-const kFolderInitUploadPath = kFolderPath + "file/initUpload";
-const kFolderCommitUploadPath = kFolderPath + "file/commitUpload";
-const kUrlTail = "s=4001583&cid=pm-4001583";
+var kApiKey = "7spvjdt7m4kycr7jyhywrdn2";
+var kAuthPath = "/dpi/v1/auth";
+var kUserInfoPath = "/dpi/v2/user";
+var kFolderPath = "/dpi/v1/folder/";
+var kFolderFilePath = "/dpi/v1/folder/file/";
+var kFolderInitUploadPath = kFolderPath + "file/initUpload";
+var kFolderCommitUploadPath = kFolderPath + "file/commitUpload";
+var kUrlTail = "s=4001583&cid=pm-4001583";
 
 function nsHightail() {
   this.log = Log4Moz.getConfiguredLogger("Hightail");
@@ -1217,4 +1217,4 @@ nsHightailFileUploader.prototype = {
   },
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([nsHightail]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsHightail]);

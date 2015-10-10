@@ -4,7 +4,7 @@
 
 var calUtils = require("../shared-modules/calendar-utils");
 
-const sleep = 500;
+var sleep = 500;
 var calendar = "Mozmill";
 var startYear = 1950;
 var epoch = 1970;

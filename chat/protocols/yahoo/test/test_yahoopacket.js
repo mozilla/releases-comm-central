@@ -7,17 +7,17 @@ Components.utils.import("resource:///modules/yahoo-session.jsm");
 var yahoo = {};
 Services.scriptloader.loadSubScript("resource:///modules/yahoo-session.jsm", yahoo);
 
-const kPacketIdBytes = StringToBytes(yahoo.kPacketIdentfier);
-const kHelloKey = 1;
-const kHelloValue = "Hello";
-const kWorldKey = 20;
-const kWorldValue = "World";
-const kNumberKey = 4;
-const kNumberValue = 32;
-const kParamsKey = 60;
-const kParam1Value = "param1";
-const kParam2Value = "param2";
-const kPacketDataString = "1\xC0\x80Hello\xC0\x8020\xC0\x80World\xC0\x80" +
+var kPacketIdBytes = StringToBytes(yahoo.kPacketIdentfier);
+var kHelloKey = 1;
+var kHelloValue = "Hello";
+var kWorldKey = 20;
+var kWorldValue = "World";
+var kNumberKey = 4;
+var kNumberValue = 32;
+var kParamsKey = 60;
+var kParam1Value = "param1";
+var kParam2Value = "param2";
+var kPacketDataString = "1\xC0\x80Hello\xC0\x8020\xC0\x80World\xC0\x80" +
                           "4\xC0\x8032\xC0\x8060\xC0\x80param1\xC0\x80" +
                           "60\xC0\x80param2\xC0\x80";
 

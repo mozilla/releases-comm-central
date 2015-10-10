@@ -3,7 +3,7 @@
  * Test suite for attachment file name.
  */
 
-const input0 = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"+
+var input0 = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"+
     "`abcdefghijklmnopqrstuvwxyz{|}~"+
     "\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf"+
     "\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf"+
@@ -13,10 +13,10 @@ const input0 = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]
     "\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff.txt"
 
 // ascii only
-const input1 = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"+
+var input1 = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"+
     "`abcdefghijklmnopqrstuvwxyz{|}~.txt"
 
-const expectedCD0 = ["Content-Disposition: attachment;",
+var expectedCD0 = ["Content-Disposition: attachment;",
   " filename*0*=UTF-8''%20%21%22%23%24%25%26%27%28%29%2A%2B%2C%2D%2E%2F%30%31;",
   " filename*1*=%32%33%34%35%36%37%38%39%3A%3B%3C%3D%3E%3F%40%41%42%43%44%45;",
   " filename*2*=%46%47%48%49%4A%4B%4C%4D%4E%4F%50%51%52%53%54%55%56%57%58%59;",
@@ -34,17 +34,17 @@ const expectedCD0 = ["Content-Disposition: attachment;",
   " filename*14*=%B9%C3%BA%C3%BB%C3%BC%C3%BD%C3%BE%C3%BF%2E%74%78%74",
   ""].join("\r\n");
 
-const expectedCD1 = "Content-Disposition: attachment;\r\n"+
+var expectedCD1 = "Content-Disposition: attachment;\r\n"+
     ' filename*0=" !\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";\r\n'+
     ' filename*1="[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.txt"\r\n';
 
-const ParamFoldingPref = {
+var ParamFoldingPref = {
   RFC2047: 0,
   RFC2047WithCRLF: 1,
   RFC2231: 2
 }
 
-const expectedCTList0 = {
+var expectedCTList0 = {
   RFC2047: 'Content-Type: text/plain; charset=US-ASCII;\r\n'+
            ' name="=?UTF-8?Q?_!=22#$%&\'=28=29*+=2c-./0123456789:;<=3d>=3f@ABCDEFGHIJKLM?='+
            '=?UTF-8?Q?NOPQRSTUVWXYZ[\\\\]^=5f`abcdefghijklmnopqrstuvwxyz{|}~=c2=a0?='+
@@ -66,7 +66,7 @@ const expectedCTList0 = {
   RFC2231: 'Content-Type: text/plain; charset=US-ASCII\r\n'
 }
 
-const expectedCTList1 = {
+var expectedCTList1 = {
   RFC2047: 'Content-Type: text/plain; charset=US-ASCII;\r\n'+
            ' name="!\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.txt"\r\n',
 

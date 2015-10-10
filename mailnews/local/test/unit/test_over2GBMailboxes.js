@@ -3,7 +3,7 @@
 /* Test of accessing over 2 GiB local folder. */
 
 load("../../../resources/messageGenerator.js");
-const bugmail10 = do_get_file("../../../data/bugmail10");
+var bugmail10 = do_get_file("../../../data/bugmail10");
 
 Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
                            "@mozilla.org/msgstore/berkeleystore;1");

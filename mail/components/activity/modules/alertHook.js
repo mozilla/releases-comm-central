@@ -5,11 +5,11 @@
 
 this.EXPORTED_SYMBOLS = ['alertHook'];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
 
-const nsActWarning = Components.Constructor("@mozilla.org/activity-warning;1",
+var nsActWarning = Components.Constructor("@mozilla.org/activity-warning;1",
                                             "nsIActivityWarning", "init");
 
 Components.utils.import("resource://gre/modules/Services.jsm");

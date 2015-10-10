@@ -17,8 +17,8 @@ this.EXPORTED_SYMBOLS = [ "isLegalHostNameOrIP",
                            "kMinPort",
                            "kMaxPort" ];
 
-const kMinPort = 1;
-const kMaxPort = 65535;
+var kMinPort = 1;
+var kMaxPort = 65535;
 
 /**
  * Check if aHostName is an IP address or a valid hostname.

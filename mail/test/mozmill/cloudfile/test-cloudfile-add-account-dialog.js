@@ -6,10 +6,10 @@
  * Tests the 'Set up a Filelink Account' dialog
  */
 
-const MODULE_NAME = 'test-cloudfile-add-account-dialog';
+var MODULE_NAME = 'test-cloudfile-add-account-dialog';
 
-const RELATIVE_ROOT = '../shared-modules';
-const MODULE_REQUIRES = ['cloudfile-helpers',
+var RELATIVE_ROOT = '../shared-modules';
+var MODULE_REQUIRES = ['cloudfile-helpers',
                          'dom-helpers',
                          'folder-display-helpers',
                          'keyboard-helpers',
@@ -20,10 +20,10 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('resource:///modules/cloudFileAccounts.js');
 Cu.import('resource:///modules/iteratorUtils.jsm');
 
-const kCategory = 'cloud-files';
-const kDialogId = 'addCloudFileAccount';
-const kRootURL = collector.addHttpResource('../cloudfile/html', '');
-const kSettingsWithForm = kRootURL + 'settings-with-form.xhtml';
+var kCategory = 'cloud-files';
+var kDialogId = 'addCloudFileAccount';
+var kRootURL = collector.addHttpResource('../cloudfile/html', '');
+var kSettingsWithForm = kRootURL + 'settings-with-form.xhtml';
 
 var gOldProviders = {};
 XPCOMUtils.defineLazyServiceGetter(this, 'gCategoryMan',

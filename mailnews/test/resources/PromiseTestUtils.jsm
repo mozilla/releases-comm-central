@@ -163,7 +163,7 @@ PromiseTestUtils.PromiseStreamListener.prototype = {
  * @return         promise that resolves when the event occurs
  */
 
-const nsIMFNService = Ci.nsIMsgFolderNotificationService;
+var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 PromiseTestUtils.promiseFolderEvent = function promiseFolderEvent(folder, event) {
   return new Promise( (resolve, reject) => {
     let eventAtom = Cc["@mozilla.org/atom-service;1"]

@@ -13,8 +13,8 @@ function ltnMimeConverter() {
     this.wrappedJSObject = this;
 }
 
-const ltnMimeConverterClassID = Components.ID("{c70acb08-464e-4e55-899d-b2c84c5409fa}");
-const ltnMimeConverterInterfaces = [Components.interfaces.nsISimpleMimeConverter];
+var ltnMimeConverterClassID = Components.ID("{c70acb08-464e-4e55-899d-b2c84c5409fa}");
+var ltnMimeConverterInterfaces = [Components.interfaces.nsISimpleMimeConverter];
 ltnMimeConverter.prototype = {
     classID: ltnMimeConverterClassID,
     QueryInterface: XPCOMUtils.generateQI(ltnMimeConverterInterfaces),

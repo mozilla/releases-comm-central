@@ -1,13 +1,13 @@
 Components.utils.import("resource:///modules/mailServices.js");
 
-const nsIMsgDBHdr = Ci.nsIMsgDBHdr;
-const nsIArray = Ci.nsIArray;
-const nsIMsgFolder = Ci.nsIMsgFolder;
+var nsIMsgDBHdr = Ci.nsIMsgDBHdr;
+var nsIArray = Ci.nsIArray;
+var nsIMsgFolder = Ci.nsIMsgFolder;
 
-const gMFNService = Cc["@mozilla.org/messenger/msgnotificationservice;1"]
+var gMFNService = Cc["@mozilla.org/messenger/msgnotificationservice;1"]
                       .getService(Ci.nsIMsgFolderNotificationService);
 
-const allTestedEvents =
+var allTestedEvents =
   gMFNService.msgAdded |
   gMFNService.msgsClassified |
   gMFNService.msgsDeleted |
@@ -19,7 +19,7 @@ const allTestedEvents =
   gMFNService.folderRenamed |
   gMFNService.itemEvent;
 
-const gCopyService = MailServices.copy;
+var gCopyService = MailServices.copy;
 
 // Current test being executed
 var gTest = 1;
@@ -29,7 +29,7 @@ var gExpectedEvents;
 
 // The current status (what all has been done)
 var gCurrStatus = 0;
-const kStatus =
+var kStatus =
 {
   notificationsDone: 0x1,
   onStopCopyDone: 0x2,

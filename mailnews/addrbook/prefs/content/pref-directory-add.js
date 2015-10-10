@@ -18,10 +18,10 @@ var gProgressText;
 var gProgressMeter;
 var gDownloadInProgress = false;
 
-const kDefaultMaxHits = 100;
-const kDefaultLDAPPort = 389;
-const kDefaultSecureLDAPPort = 636;
-const kLDAPDirectory = 0;  // defined in nsDirPrefs.h
+var kDefaultMaxHits = 100;
+var kDefaultLDAPPort = 389;
+var kDefaultSecureLDAPPort = 636;
+var kLDAPDirectory = 0;  // defined in nsDirPrefs.h
 
 var ldapOfflineObserver = {
   observe: function(subject, topic, state)

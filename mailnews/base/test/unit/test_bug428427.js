@@ -6,9 +6,9 @@
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=" + "quicksearch";
-const dbView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
-const bugmail1 = do_get_file("../../../data/bugmail1");
+var dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=" + "quicksearch";
+var dbView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
+var bugmail1 = do_get_file("../../../data/bugmail1");
 // main test
 
 // the headers for the test messages. All messages are identical, but

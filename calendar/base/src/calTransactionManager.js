@@ -14,8 +14,8 @@ function calTransactionManager() {
     }
 }
 
-const calTransactionManagerClassID = Components.ID("{40a1ccf4-5f54-4815-b842-abf06f84dbfd}");
-const calTransactionManagerInterfaces = [Components.interfaces.calITransactionManager];
+var calTransactionManagerClassID = Components.ID("{40a1ccf4-5f54-4815-b842-abf06f84dbfd}");
+var calTransactionManagerInterfaces = [Components.interfaces.calITransactionManager];
 calTransactionManager.prototype = {
 
     classID: calTransactionManagerClassID,
@@ -89,8 +89,8 @@ function calTransaction(aAction, aItem, aCalendar, aOldItem, aListener) {
     this.mListener = aListener;
 }
 
-const calTransactionClassID = Components.ID("{fcb54c82-2fb9-42cb-bf44-1e197a55e520}");
-const calTransactionInterfaces = [
+var calTransactionClassID = Components.ID("{fcb54c82-2fb9-42cb-bf44-1e197a55e520}");
+var calTransactionInterfaces = [
     Components.interfaces.nsITransaction,
     Components.interfaces.calIOperationListener
 ];

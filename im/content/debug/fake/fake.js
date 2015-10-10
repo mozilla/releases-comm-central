@@ -7,11 +7,11 @@
 Components.utils.import("resource:///modules/imXPCOMUtils.jsm");
 Components.utils.import("resource:///modules/jsProtoHelper.jsm");
 
-const away = Ci.imIStatusInfo.STATUS_AWAY;
-const idle = Ci.imIStatusInfo.STATUS_IDLE;
-const mobile = Ci.imIStatusInfo.STATUS_MOBILE;
+var away = Ci.imIStatusInfo.STATUS_AWAY;
+var idle = Ci.imIStatusInfo.STATUS_IDLE;
+var mobile = Ci.imIStatusInfo.STATUS_MOBILE;
 
-const flo_img_url = 'data:image/jpeg;base64,' +
+var flo_img_url = 'data:image/jpeg;base64,' +
   '/9j/4AAQSkZJRgABAQAAAQABAAD//gA7Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBF' +
   'RyB2NjIpLCBxdWFsaXR5ID0gOTUK/9sAQwACAQEBAQECAQEBAgICAgIEAwICAgIFBAQDBAYFBgYGBQYG' +
   'BgcJCAYHCQcGBggLCAkKCgoKCgYICwwLCgwJCgoK/9sAQwECAgICAgIFAwMFCgcGBwoKCgoKCgoKCgoK' +
@@ -56,7 +56,7 @@ const flo_img_url = 'data:image/jpeg;base64,' +
   'eJdfvdRvFvJUW7vrp5pQqyYUBnJOAOAM8UUV+icD/wDIxl6Hm8Uf7kj0K0dzaxEuf9Wvf2ooor9gWx+Z' +
   'dT//2Q==';
 
-const ib_icon_url = 'data:image/png;base64,' +
+var ib_icon_url = 'data:image/png;base64,' +
   'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAC' +
   '9AAAAvQBgK2sVQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAABzCSURBVHic5Zt5' +
   'lFXF1fZ/dc65c8/QI3Q3Q9MNNINMigIKiERNUDQYjWMwxjfLKZo4JfGLcYrRT6PGaIzmRaMmryZRHAIa' +

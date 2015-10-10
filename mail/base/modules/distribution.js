@@ -4,14 +4,14 @@
 
 this.EXPORTED_SYMBOLS = ["TBDistCustomizer"];
 
-const Ci = Components.interfaces;
-const Cc = Components.classes;
-const Cu = Components.utils;
+var Ci = Components.interfaces;
+var Cc = Components.classes;
+var Cu = Components.utils;
 
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const DISTRIBUTION_CUSTOMIZATION_COMPLETE_TOPIC =
+var DISTRIBUTION_CUSTOMIZATION_COMPLETE_TOPIC =
   "distribution-customization-complete";
 
 var TBDistCustomizer = {

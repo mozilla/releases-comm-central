@@ -17,21 +17,21 @@ var gAddressBookBundle;
 // sidebar in compose window.
 var gShowAbColumnInComposeSidebar = false;
 
-const kDefaultSortColumn = "GeneratedName";
-const kDefaultAscending = "ascending";
-const kDefaultDescending = "descending";
+var kDefaultSortColumn = "GeneratedName";
+var kDefaultAscending = "ascending";
+var kDefaultDescending = "descending";
 // kDefaultYear will be used in birthday calculations when no year is given;
 // this is a leap year so that Feb 29th works.
-const kDefaultYear = 2000;
-const kAllDirectoryRoot = "moz-abdirectory://";
-const kLdapUrlPrefix = "moz-abldapdirectory://";
-const kPersonalAddressbookURI = "moz-abmdbdirectory://abook.mab";
-const kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";
+var kDefaultYear = 2000;
+var kAllDirectoryRoot = "moz-abdirectory://";
+var kLdapUrlPrefix = "moz-abldapdirectory://";
+var kPersonalAddressbookURI = "moz-abmdbdirectory://abook.mab";
+var kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";
 // The default, generic contact image is displayed via CSS when the photoURI is
 // blank.
 var defaultPhotoURI = "";
 
-const PERMS_DIRECTORY = parseInt("0755", 8);
+var PERMS_DIRECTORY = parseInt("0755", 8);
 
 // Controller object for Dir Pane
 var DirPaneController =

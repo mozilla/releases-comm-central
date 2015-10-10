@@ -2,10 +2,10 @@ this.EXPORTED_SYMBOLS = ["MockFactory"];
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-const Cm = Components.manager;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
+var Cm = Components.manager;
 
 var MockFactory = {
   _registeredComponents: {},

@@ -5,7 +5,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 var irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 
-const testData = [
+var testData = [
   // First off, let's test the messages from RFC 2812.
   "PASS secretpasswordhere",
   "NICK Wiz",

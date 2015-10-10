@@ -11,18 +11,18 @@
 /*
 #ifdef MOZ_WIDGET_GTK
 */
-const ICON_URL_APP      = "moz-icon://dummy.exe?size=16";
+var ICON_URL_APP      = "moz-icon://dummy.exe?size=16";
 /*
 #else
 */
-const ICON_URL_APP      = "chrome://instantbird/skin/preferences/application.png";
+var ICON_URL_APP      = "chrome://instantbird/skin/preferences/application.png";
 /*
 #endif
 */
 
 // For CSS. Can be one of "ask" or "save". If absent, the icon URL
 // was set by us to a custom handler icon and CSS should not try to override it.
-const APP_ICON_ATTR_NAME = "appHandlerIcon";
+var APP_ICON_ATTR_NAME = "appHandlerIcon";
 
 //****************************************************************************//
 // Utilities

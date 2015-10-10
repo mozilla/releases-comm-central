@@ -9,8 +9,8 @@ function calRecurrenceDate() {
     this.wrappedJSObject = this;
 }
 
-const calRecurrenceDateClassID = Components.ID("{806b6423-3aaa-4b26-afa3-de60563e9cec}");
-const calRecurrenceDateInterfaces = [Components.interfaces.calIRecurrenceDate];
+var calRecurrenceDateClassID = Components.ID("{806b6423-3aaa-4b26-afa3-de60563e9cec}");
+var calRecurrenceDateInterfaces = [Components.interfaces.calIRecurrenceDate];
 calRecurrenceDate.prototype = {
     isMutable: true,
 

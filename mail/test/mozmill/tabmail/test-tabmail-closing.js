@@ -14,7 +14,7 @@ var MODULE_REQUIRES = ["folder-display-helpers",
 
 var gFolder;
 
-const MSGS_PER_THREAD = 3;
+var MSGS_PER_THREAD = 3;
 
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);

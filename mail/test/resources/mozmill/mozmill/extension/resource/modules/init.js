@@ -39,9 +39,9 @@
 
 var EXPORTED_SYMBOLS = ["mozmill"];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
 var controller = Cu.import('resource://mozmill/modules/controller.js');
 var mozmill = Cu.import('resource://mozmill/modules/mozmill.js');

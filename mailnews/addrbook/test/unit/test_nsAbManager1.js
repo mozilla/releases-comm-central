@@ -3,8 +3,8 @@
  * Test suite for nsAbManager functions relating to listeners.
  */
 
-const nsIAbListener = Components.interfaces.nsIAbListener;
-const numListenerOptions = 4;
+var nsIAbListener = Components.interfaces.nsIAbListener;
+var numListenerOptions = 4;
 
 var gAblAll;
 var gAblSingle = new Array(numListenerOptions);

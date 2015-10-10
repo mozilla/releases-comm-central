@@ -11,10 +11,10 @@
 
 this.EXPORTED_SYMBOLS = ['GlodaExplicitAttr'];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
+var Cu = Components.utils;
 
 Cu.import("resource:///modules/gloda/log4moz.js");
 Cu.import("resource:///modules/StringBundle.js");
@@ -25,10 +25,10 @@ Cu.import("resource:///modules/gloda/noun_tag.js");
 Cu.import("resource:///modules/mailServices.js");
 
 
-const nsMsgMessageFlags_Replied = Ci.nsMsgMessageFlags.Replied;
-const nsMsgMessageFlags_Forwarded = Ci.nsMsgMessageFlags.Forwarded;
+var nsMsgMessageFlags_Replied = Ci.nsMsgMessageFlags.Replied;
+var nsMsgMessageFlags_Forwarded = Ci.nsMsgMessageFlags.Forwarded;
 
-const EXT_BUILTIN = "built-in";
+var EXT_BUILTIN = "built-in";
 
 /**
  * @namespace Explicit attribute provider.  Indexes/defines attributes that are

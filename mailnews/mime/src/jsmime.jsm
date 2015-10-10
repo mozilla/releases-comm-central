@@ -67,7 +67,7 @@ TextDecoder = FallbackTextDecoder;
 
 
 // The following code loads custom MIME encoders.
-const CATEGORY_NAME = "custom-mime-encoder";
+var CATEGORY_NAME = "custom-mime-encoder";
 Services.obs.addObserver(function (subject, topic, data) {
   subject = subject.QueryInterface(Components.interfaces.nsISupportsCString)
                    .data;

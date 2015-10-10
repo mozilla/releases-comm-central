@@ -4,10 +4,10 @@
 
 /* Test that the subscribe window for news servers has working autocomplete. */
 
-const MODULE_NAME = "test-subscribe-news-filter";
+var MODULE_NAME = "test-subscribe-news-filter";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers", "nntp-helpers",
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "nntp-helpers",
                          "subscribe-window-helpers"];
 
 function setupModule(module) {

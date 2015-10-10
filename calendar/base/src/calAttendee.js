@@ -11,8 +11,8 @@ function calAttendee() {
     this.mProperties = new calPropertyBag();
 }
 
-const calAttendeeClassID = Components.ID("{5c8dcaa3-170c-4a73-8142-d531156f664d}");
-const calAttendeeInterfaces = [Components.interfaces.calIAttendee];
+var calAttendeeClassID = Components.ID("{5c8dcaa3-170c-4a73-8142-d531156f664d}");
+var calAttendeeInterfaces = [Components.interfaces.calIAttendee];
 calAttendee.prototype = {
     classID: calAttendeeClassID,
     QueryInterface: XPCOMUtils.generateQI(calAttendeeInterfaces),

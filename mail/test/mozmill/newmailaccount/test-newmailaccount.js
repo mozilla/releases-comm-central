@@ -10,10 +10,10 @@ var Cu = Components.utils;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 
-const MODULE_NAME = 'test-newmailaccount';
+var MODULE_NAME = 'test-newmailaccount';
 
-const RELATIVE_ROOT = '../shared-modules';
-const MODULE_REQUIRES = ['folder-display-helpers',
+var RELATIVE_ROOT = '../shared-modules';
+var MODULE_REQUIRES = ['folder-display-helpers',
                          'content-tab-helpers',
                          'window-helpers',
                          'newmailaccount-helpers',
@@ -34,20 +34,20 @@ Cu.import('resource://mozmill/stdlib/httpd.js');
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
 var url = collector.addHttpResource('../newmailaccount/html', '');
-const kProvisionerUrl = "chrome://messenger/content/newmailaccount/accountProvisioner.xhtml";
-const kProvisionerEnabledPref = "mail.provider.enabled";
-const kSuggestFromNamePref = "mail.provider.suggestFromName";
-const kProviderListPref = "mail.provider.providerList";
-const kAcceptedLanguage = "general.useragent.locale";
-const kDefaultServerPort = 4444;
-const kDefaultServerRoot = "http://localhost:" + kDefaultServerPort;
+var kProvisionerUrl = "chrome://messenger/content/newmailaccount/accountProvisioner.xhtml";
+var kProvisionerEnabledPref = "mail.provider.enabled";
+var kSuggestFromNamePref = "mail.provider.suggestFromName";
+var kProviderListPref = "mail.provider.providerList";
+var kAcceptedLanguage = "general.useragent.locale";
+var kDefaultServerPort = 4444;
+var kDefaultServerRoot = "http://localhost:" + kDefaultServerPort;
 
 Services.prefs.setCharPref(kProviderListPref, url + "providerList");
 Services.prefs.setCharPref(kSuggestFromNamePref, url + "suggestFromName");
 
 // Here's a name that we'll type in later on.  It's a global const because
 // we'll be using it in several distinct modal dialog event loops.
-const NAME = "Leonard Shelby";
+var NAME = "Leonard Shelby";
 
 // Record what the original value of the mail.provider.enabled pref is so
 // that we can put it back once the tests are done.

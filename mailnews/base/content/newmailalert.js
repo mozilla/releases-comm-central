@@ -6,9 +6,9 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
 
 // Copied from nsILookAndFeel.h, see comments on eMetric_AlertNotificationOrigin
-const NS_ALERT_HORIZONTAL = 1;
-const NS_ALERT_LEFT = 2;
-const NS_ALERT_TOP = 4;
+var NS_ALERT_HORIZONTAL = 1;
+var NS_ALERT_LEFT = 2;
+var NS_ALERT_TOP = 4;
 
 var gNumNewMsgsToShowInAlert = 4; // the more messages we show in the alert, the larger it will be
 var gOpenTime = 4000; // total time the alert should stay up once we are done animating.

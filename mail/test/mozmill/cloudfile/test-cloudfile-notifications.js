@@ -26,10 +26,10 @@ Cu.import('resource://gre/modules/Services.jsm');
 
 var maxSize, cfh, ah, oldInsertNotificationPref;
 
-const kOfferThreshold = "mail.compose.big_attachments.threshold_kb";
-const kInsertNotificationPref = "mail.compose.big_attachments.insert_notification";
+var kOfferThreshold = "mail.compose.big_attachments.threshold_kb";
+var kInsertNotificationPref = "mail.compose.big_attachments.insert_notification";
 
-const kBoxId = "attachmentNotificationBox";
+var kBoxId = "attachmentNotificationBox";
 
 function setupModule(module) {
   collector.getModule('folder-display-helpers').installInto(module);

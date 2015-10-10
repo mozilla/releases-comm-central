@@ -18,14 +18,14 @@ var gTabDoc = null;
 var gOldStartPage = null;
 var gOldCrashReporterEnabled = null;
 var crashReporter = null;
-const kPluginId = "test-plugin";
-const kStartPagePref = "mailnews.start_page.override_url";
-const kPluginCrashDocPref = "plugins.crash.supportUrl";
+var kPluginId = "test-plugin";
+var kStartPagePref = "mailnews.start_page.override_url";
+var kPluginCrashDocPref = "plugins.crash.supportUrl";
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
-const kUrl = collector.addHttpResource('../content-tabs/html', '');
-const kPluginUrl = kUrl + "plugin.html";
-const kPluginCrashDocUrl = kUrl + "plugin_crashed_help.html";
+var kUrl = collector.addHttpResource('../content-tabs/html', '');
+var kPluginUrl = kUrl + "plugin.html";
+var kPluginCrashDocUrl = kUrl + "plugin_crashed_help.html";
 
 function setupModule(module) {
   let fdh = collector.getModule('folder-display-helpers');

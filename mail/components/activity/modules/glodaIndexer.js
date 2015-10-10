@@ -5,16 +5,16 @@
 
 this.EXPORTED_SYMBOLS = ["glodaIndexerActivity"];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
+var Cu = Components.utils;
 
-const nsActProcess = Components.Constructor("@mozilla.org/activity-process;1",
+var nsActProcess = Components.Constructor("@mozilla.org/activity-process;1",
                                             "nsIActivityProcess", "init");
-const nsActEvent   = Components.Constructor("@mozilla.org/activity-event;1",
+var nsActEvent   = Components.Constructor("@mozilla.org/activity-event;1",
                                             "nsIActivityEvent", "init");
-const nsActWarning = Components.Constructor("@mozilla.org/activity-warning;1",
+var nsActWarning = Components.Constructor("@mozilla.org/activity-warning;1",
                                             "nsIActivityWarning", "init");
 
 Cu.import("resource://gre/modules/Services.jsm");

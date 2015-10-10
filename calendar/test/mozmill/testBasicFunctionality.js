@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const MODULE_NAME = "testBasicFunctionality";
-const RELATIVE_ROOT = "./shared-modules";
-const MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
+var MODULE_NAME = "testBasicFunctionality";
+var RELATIVE_ROOT = "./shared-modules";
+var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
 
 var calUtils = require("shared-modules/calendar-utils");
-const TIMEOUT_MODAL_DIALOG = 30000;
+var TIMEOUT_MODAL_DIALOG = 30000;
 
 var modalDialog;
 var setupModule = function(module) {

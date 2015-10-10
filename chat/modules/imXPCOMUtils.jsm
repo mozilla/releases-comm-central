@@ -14,12 +14,12 @@ this.EXPORTED_SYMBOLS = [
   "initLogModule"
 ];
 
-const {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
+var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
 
-const kLogLevelPref = "purple.debug.loglevel";
+var kLogLevelPref = "purple.debug.loglevel";
 
 /**
  * Creates an nsIScriptError instance and logs it.
@@ -242,7 +242,7 @@ nsSimpleEnumerator.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])
 };
 
-const EmptyEnumerator = {
+var EmptyEnumerator = {
   hasMoreElements: () => false,
   getNext: function() { throw Cr.NS_ERROR_NOT_AVAILABLE; },
   QueryInterface: XPCOMUtils.generateQI([Ci.nsISimpleEnumerator])

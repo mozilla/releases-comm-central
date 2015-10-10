@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const kAutomatic         = 4;
-const kRememberLastState = 0;
+var kAutomatic         = 4;
+var kRememberLastState = 0;
 
 var gOfflineDialog = {
   dialogSetup: function() {

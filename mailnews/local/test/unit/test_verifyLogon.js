@@ -17,9 +17,9 @@ var incomingServer;
 var pop3Service;
 var attempt = 0;
 
-const kUserName = "testpop3";
-const kInvalidPassword = "pop3test";
-const kValidPassword = "testpop3";
+var kUserName = "testpop3";
+var kInvalidPassword = "pop3test";
+var kValidPassword = "testpop3";
 
 function verifyPop3Logon(validPassword) {
   incomingServer.password = (validPassword) ? kValidPassword : kInvalidPassword;

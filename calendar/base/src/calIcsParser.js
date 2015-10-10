@@ -13,8 +13,8 @@ function calIcsParser() {
     this.mComponents = new Array();
     this.mProperties = new Array();
 }
-const calIcsParserClassID = Components.ID("{6fe88047-75b6-4874-80e8-5f5800f14984}");
-const calIcsParserInterfaces = [Components.interfaces.calIIcsParser];
+var calIcsParserClassID = Components.ID("{6fe88047-75b6-4874-80e8-5f5800f14984}");
+var calIcsParserInterfaces = [Components.interfaces.calIIcsParser];
 calIcsParser.prototype = {
     classID: calIcsParserClassID,
     QueryInterface: XPCOMUtils.generateQI(calIcsParserInterfaces),

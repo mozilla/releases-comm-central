@@ -12,8 +12,8 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource:///modules/MsgHdrSyntheticView.js");
 
 // from MailNewsTypes.h
-const nsMsgKey_None = 0xFFFFFFFF;
-const nsMsgViewIndex_None = 0xFFFFFFFF;
+var nsMsgKey_None = 0xFFFFFFFF;
+var nsMsgViewIndex_None = 0xFFFFFFFF;
 
 /* globals for a particular window */
 

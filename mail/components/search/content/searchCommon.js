@@ -16,9 +16,9 @@
  */
 #endif
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
 Cu.import("resource:///modules/gloda/log4moz.js");
 Cu.import("resource:///modules/iteratorUtils.jsm");
@@ -26,8 +26,8 @@ Cu.import("resource:///modules/mailServices.js");
 Cu.import("resource:///modules/MailUtils.js");
 Cu.import("resource://gre/modules/Services.jsm");
 
-const PERM_DIRECTORY = parseInt("0755", 8);
-const PERM_FILE = parseInt("0644", 8);
+var PERM_DIRECTORY = parseInt("0755", 8);
+var PERM_FILE = parseInt("0644", 8);
 
 var SearchSupport =
 {

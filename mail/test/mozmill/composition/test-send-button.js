@@ -6,10 +6,10 @@
  * Tests proper enabling of send buttons depending on addresses input.
  */
 
-const MODULE_NAME = "test-send-button";
+var MODULE_NAME = "test-send-button";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
                          "window-helpers", "address-book-helpers"];
 
 var elib = {};

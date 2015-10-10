@@ -151,7 +151,7 @@ function verifyMsgOffsets(folder)
  */
 
 // Beware before commenting out a test -- later tests might just depend on earlier ones
-const gTestArray =
+var gTestArray =
 [
   // Copying messages from files
   function testCopyFileMessage1() {

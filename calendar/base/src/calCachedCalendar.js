@@ -7,9 +7,9 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-const calICalendar = Components.interfaces.calICalendar;
-const cICL = Components.interfaces.calIChangeLog;
-const cIOL = Components.interfaces.calIOperationListener;
+var calICalendar = Components.interfaces.calICalendar;
+var cICL = Components.interfaces.calIChangeLog;
+var cIOL = Components.interfaces.calIOperationListener;
 
 var gNoOpListener = {
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),

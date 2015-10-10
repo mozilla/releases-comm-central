@@ -28,9 +28,9 @@ var attempt = 0;
 var count = {};
 var logins;
 
-const kUserName = "testpop3";
-const kInvalidPassword = "pop3test";
-const kValidPassword = "testpop3";
+var kUserName = "testpop3";
+var kInvalidPassword = "pop3test";
+var kValidPassword = "testpop3";
 
 function alert(aDialogText, aText)
 {

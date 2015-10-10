@@ -67,8 +67,8 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/mimeParser.jsm");
 Components.utils.import("resource://testing-common/mailnews/auth.js");
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
 
 function imapDaemon(flags, syncFunc) {
   this._flags = flags;
@@ -441,7 +441,7 @@ imapMessage.prototype = {
 /**
  * This flag represents whether or not the daemon is case-insensitive.
  */
-const IMAP_FLAG_CASE_INSENSITIVE = 1;
+var IMAP_FLAG_CASE_INSENSITIVE = 1;
 /**
  * This flag represents whether or not CREATE hierarchies need a delimiter.
  *
@@ -449,21 +449,21 @@ const IMAP_FLAG_CASE_INSENSITIVE = 1;
  * <tt>CREATE a/<br />CREATE a/b</tt> would succeed (assuming the delimiter is
  * '/').
  */
-const IMAP_FLAG_NEEDS_DELIMITER = 2;
+var IMAP_FLAG_NEEDS_DELIMITER = 2;
 
 function hasFlag(flags, flag) {
   return (flags & flag) == flag;
 }
 
 // IMAP Namespaces
-const IMAP_NAMESPACE_PERSONAL = 0;
-const IMAP_NAMESPACE_OTHER_USERS = 1;
-const IMAP_NAMESPACE_SHARED = 2;
+var IMAP_NAMESPACE_PERSONAL = 0;
+var IMAP_NAMESPACE_OTHER_USERS = 1;
+var IMAP_NAMESPACE_SHARED = 2;
 
 // IMAP server helpers
-const IMAP_STATE_NOT_AUTHED = 0;
-const IMAP_STATE_AUTHED = 1;
-const IMAP_STATE_SELECTED = 2;
+var IMAP_STATE_NOT_AUTHED = 0;
+var IMAP_STATE_AUTHED = 1;
+var IMAP_STATE_SELECTED = 2;
 
 function parseCommand(text, partial) {
   if (partial) {

@@ -4,7 +4,7 @@
 
 Components.utils.import("resource:///modules/imWindows.jsm");
 
-const autoJoinPref = "autoJoin";
+var autoJoinPref = "autoJoin";
 
 var joinChat = {
   onload: function jc_onload() {

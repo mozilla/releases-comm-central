@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {classes: Cc, interfaces: Ci, utils: Cu, Constructor: CC} = Components;
+var {classes: Cc, interfaces: Ci, utils: Cu, Constructor: CC} = Components;
 
 Cu.import("resource:///modules/hiddenWindow.jsm");
 Cu.import("resource:///modules/imServices.jsm");
@@ -16,7 +16,7 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/logger.properties")
 );
 
-const kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
+var kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
 
 /*
  * Maps file paths to promises returned by ongoing OS.File operations on them.
@@ -301,7 +301,7 @@ LogWriter.prototype = {
   }
 };
 
-const dummyLogWriter = {
+var dummyLogWriter = {
   paths: null,
   currentPath: null,
   logMessage: function() {}
@@ -358,7 +358,7 @@ SystemLogWriter.prototype = {
   }
 };
 
-const dummySystemLogWriter = {
+var dummySystemLogWriter = {
   path: null,
   logEvent: function() {}
 };
@@ -917,4 +917,4 @@ Logger.prototype = {
   contractID: "@mozilla.org/chat/logger;1"
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([Logger]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([Logger]);

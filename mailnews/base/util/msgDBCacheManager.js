@@ -10,9 +10,9 @@
 
 this.EXPORTED_SYMBOLS = ["msgDBCacheManager"];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
 Cu.import("resource:///modules/mailServices.js");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -21,7 +21,7 @@ var log = Log4Moz.getConfiguredLogger("mailnews.database.dbcache");
 
 /**
  */
-const DBCACHE_INTERVAL_DEFAULT_MS = 60000; // 1 minute
+var DBCACHE_INTERVAL_DEFAULT_MS = 60000; // 1 minute
 
 /* :::::::: The Module ::::::::::::::: */
 

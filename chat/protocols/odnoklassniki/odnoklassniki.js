@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {interfaces: Ci, utils: Cu} = Components;
+var {interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
@@ -53,4 +53,4 @@ OdnoklassnikiProtocol.prototype = {
   classID: Components.ID("{29b09a83-81c1-2032-11e2-6d9bc4f8e969}")
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([OdnoklassnikiProtocol]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([OdnoklassnikiProtocol]);

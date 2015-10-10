@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const NS_ERROR_INVALID_ARG = Components.results.NS_ERROR_INVALID_ARG;
+var NS_ERROR_INVALID_ARG = Components.results.NS_ERROR_INVALID_ARG;
 
 //
 // Common netwerk errors:
 //
-const NS_ERROR_MODULE_BASE_OFFSET = 0x45;
-const NS_ERROR_MODULE_NETWORK = 6;
+var NS_ERROR_MODULE_BASE_OFFSET = 0x45;
+var NS_ERROR_MODULE_NETWORK = 6;
 
 function generateFailure(module, code) {
     // 1<<31 generates negative number, so use literal, don't use logical operators:
@@ -49,17 +49,17 @@ function checkErrorCode(err, rcBits, maskBits) {
 
 // The requested action could not be completed while the networking
 // is in the offline state.
-const NS_ERROR_OFFLINE = generateNetFailure(16);
+var NS_ERROR_OFFLINE = generateNetFailure(16);
 
 // The async request completed successfully.
-const NS_BINDING_SUCCEEDED = NS_OK;
+var NS_BINDING_SUCCEEDED = NS_OK;
 
-const NS_BINDING_FAILED = generateNetFailure(1);
-const NS_BINDING_ABORTED = generateNetFailure(2);
-const NS_BINDING_REDIRECTED = generateNetFailure(3);
-const NS_BINDING_RETARGETED = generateNetFailure(4);
+var NS_BINDING_FAILED = generateNetFailure(1);
+var NS_BINDING_ABORTED = generateNetFailure(2);
+var NS_BINDING_REDIRECTED = generateNetFailure(3);
+var NS_BINDING_RETARGETED = generateNetFailure(4);
 
-const g_nsNetErrorCodes = [
+var g_nsNetErrorCodes = [
     NS_BINDING_FAILED,
     "The async request failed for some unknown reason.",
     NS_BINDING_ABORTED,
@@ -121,7 +121,7 @@ function netErrorToString(rc) {
 // WCAP error handling helpers
 //
 
-const g_wcapErrorCodes = [
+var g_wcapErrorCodes = [
     /* -1 */ NS_OK, "Logout successful.",
     /*  0 */ NS_OK, "Command successful.",
     /*  1 */ calIWcapErrors.WCAP_LOGIN_FAILED, calGetString("wcap", "loginFailed.text"),

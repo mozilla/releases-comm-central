@@ -4,19 +4,19 @@
 
 this.EXPORTED_SYMBOLS = ["cloudFileAccounts"];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cu = Components.utils;
-const Cr = Components.results;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
+var Cr = Components.results;
 
-const CATEGORY = "cloud-files";
-const PREF_ROOT = "mail.cloud_files.";
-const ACCOUNT_ROOT = PREF_ROOT + "accounts.";
+var CATEGORY = "cloud-files";
+var PREF_ROOT = "mail.cloud_files.";
+var ACCOUNT_ROOT = PREF_ROOT + "accounts.";
 
 // The following constants are used to query and insert entries
 // into the nsILoginManager.
-const PWDMGR_HOST = "chrome://messenger/cloudfile";
-const PWDMGR_REALM = "BigFiles Auth Token";
+var PWDMGR_HOST = "chrome://messenger/cloudfile";
+var PWDMGR_REALM = "BigFiles Auth Token";
 
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");

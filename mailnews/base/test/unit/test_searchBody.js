@@ -9,25 +9,25 @@ load("../../../resources/searchTestUtils.js");
 
 Components.utils.import("resource:///modules/mailServices.js");
 
-const nsMsgSearchScope = Ci.nsMsgSearchScope;
-const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-const nsMsgSearchOp = Ci.nsMsgSearchOp;
+var nsMsgSearchScope = Ci.nsMsgSearchScope;
+var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
+var nsMsgSearchOp = Ci.nsMsgSearchOp;
 
-const Isnt = nsMsgSearchOp.Isnt;
-const Is = nsMsgSearchOp.Is;
-const IsEmpty = nsMsgSearchOp.IsEmpty;
-const IsntEmpty = nsMsgSearchOp.IsntEmpty;
-const Contains = nsMsgSearchOp.Contains;
-const DoesntContain = nsMsgSearchOp.DoesntContain;
-const IsBefore = nsMsgSearchOp.IsBefore; // control entry not enabled
+var Isnt = nsMsgSearchOp.Isnt;
+var Is = nsMsgSearchOp.Is;
+var IsEmpty = nsMsgSearchOp.IsEmpty;
+var IsntEmpty = nsMsgSearchOp.IsntEmpty;
+var Contains = nsMsgSearchOp.Contains;
+var DoesntContain = nsMsgSearchOp.DoesntContain;
+var IsBefore = nsMsgSearchOp.IsBefore; // control entry not enabled
 
-const offlineMail = nsMsgSearchScope.offlineMail;
-const onlineMail = nsMsgSearchScope.onlineMail;
-const offlineMailFilter = nsMsgSearchScope.offlineMailFilter;
-const onlineMailFilter = nsMsgSearchScope.onlineMailFilter;
-const news = nsMsgSearchScope.news; // control entry not enabled
+var offlineMail = nsMsgSearchScope.offlineMail;
+var onlineMail = nsMsgSearchScope.onlineMail;
+var offlineMailFilter = nsMsgSearchScope.offlineMailFilter;
+var onlineMailFilter = nsMsgSearchScope.onlineMailFilter;
+var news = nsMsgSearchScope.news; // control entry not enabled
 
-const Body = nsMsgSearchAttrib.Body;
+var Body = nsMsgSearchAttrib.Body;
 
 var Files =
 [

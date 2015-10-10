@@ -29,8 +29,8 @@ Services.prefs.setBoolPref("mailnews.database.global.logging.dump", true);
 
 // We'll start with this datastore ID, and make sure it gets overwritten
 // when the index is rebuilt.
-const kDatastoreIDPref = "mailnews.database.global.datastore.id";
-const kOriginalDatastoreID = "47e4bad6-fedc-4931-bf3f-d2f4146ac63e";
+var kDatastoreIDPref = "mailnews.database.global.datastore.id";
+var kOriginalDatastoreID = "47e4bad6-fedc-4931-bf3f-d2f4146ac63e";
 Services.prefs.setCharPref(kDatastoreIDPref, kOriginalDatastoreID);
 
 // -- Add a logger listener that throws when we give it a warning/error.

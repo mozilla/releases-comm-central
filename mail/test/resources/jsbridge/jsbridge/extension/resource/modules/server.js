@@ -39,11 +39,11 @@
 var EXPORTED_SYMBOLS = ["Server", "server", "AsyncRead", "Session", "sessions", "globalRegistry", "startServer"];
 
 var events = {}; Components.utils.import("resource://jsbridge/modules/events.js", events);
-const DEBUG_ON = false;
-const BUFFER_SIZE = 1024;
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const loader = Cc['@mozilla.org/moz/jssubscript-loader;1']
+var DEBUG_ON = false;
+var BUFFER_SIZE = 1024;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var loader = Cc['@mozilla.org/moz/jssubscript-loader;1']
     .getService(Ci.mozIJSSubScriptLoader);
 
 var hwindow = Components.classes["@mozilla.org/appshell/appShellService;1"]

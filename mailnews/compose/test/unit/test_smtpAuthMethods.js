@@ -13,13 +13,13 @@ var smtpServer;
 var testFile;
 var identity;
 
-const kUsername = "fred";
-const kPassword = "wilma";
-const kSender = "from@foo.invalid";
-const kTo = "to@foo.invalid";
-const MAILFROM = "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=155";
-const RCPTTO = "RCPT TO:<" + kTo + ">";
-const AUTHPLAIN = "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword);
+var kUsername = "fred";
+var kPassword = "wilma";
+var kSender = "from@foo.invalid";
+var kTo = "to@foo.invalid";
+var MAILFROM = "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=155";
+var RCPTTO = "RCPT TO:<" + kTo + ">";
+var AUTHPLAIN = "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword);
 
 var tests = [
   { title: "Cleartext password, with server supporting AUTH PLAIN, LOGIN, and CRAM",

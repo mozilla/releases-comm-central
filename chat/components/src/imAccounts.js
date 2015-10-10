@@ -2,25 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
+var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
 
-const kPrefAutologinPending = "messenger.accounts.autoLoginPending";
-const kPrefMessengerAccounts = "messenger.accounts";
-const kPrefAccountPrefix = "messenger.account.";
-const kAccountKeyPrefix = "account";
-const kAccountOptionPrefPrefix = "options.";
-const kPrefAccountName = "name";
-const kPrefAccountPrpl = "prpl";
-const kPrefAccountAutoLogin = "autoLogin";
-const kPrefAccountAutoJoin = "autoJoin";
-const kPrefAccountAlias = "alias";
-const kPrefAccountFirstConnectionState = "firstConnectionState";
+var kPrefAutologinPending = "messenger.accounts.autoLoginPending";
+var kPrefMessengerAccounts = "messenger.accounts";
+var kPrefAccountPrefix = "messenger.account.";
+var kAccountKeyPrefix = "account";
+var kAccountOptionPrefPrefix = "options.";
+var kPrefAccountName = "name";
+var kPrefAccountPrpl = "prpl";
+var kPrefAccountAutoLogin = "autoLogin";
+var kPrefAccountAutoJoin = "autoJoin";
+var kPrefAccountAlias = "alias";
+var kPrefAccountFirstConnectionState = "firstConnectionState";
 
-const kPrefConvertOldPasswords = "messenger.accounts.convertOldPasswords";
-const kPrefAccountPassword = "password";
+var kPrefConvertOldPasswords = "messenger.accounts.convertOldPasswords";
+var kPrefAccountPassword = "password";
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/accounts.properties")
@@ -1091,4 +1091,4 @@ AccountsService.prototype = {
   contractID: "@mozilla.org/chat/accounts-service;1"
 };
 
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([AccountsService]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([AccountsService]);

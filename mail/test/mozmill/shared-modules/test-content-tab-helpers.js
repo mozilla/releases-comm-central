@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const MODULE_NAME = "content-tab-helpers";
+var MODULE_NAME = "content-tab-helpers";
 
-const RELATIVE_ROOT = "../shared-modules";
+var RELATIVE_ROOT = "../shared-modules";
 // we need this for the main controller
-const MODULE_REQUIRES = ["folder-display-helpers",
+var MODULE_REQUIRES = ["folder-display-helpers",
                          "window-helpers",
                          "mock-object-helpers"];
 
@@ -17,10 +17,10 @@ Cu.import('resource://mozmill/modules/utils.js', utils);
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-const NORMAL_TIMEOUT = 6000;
-const FAST_TIMEOUT = 1000;
-const FAST_INTERVAL = 100;
-const EXT_PROTOCOL_SVC_CID = "@mozilla.org/uriloader/external-protocol-service;1";
+var NORMAL_TIMEOUT = 6000;
+var FAST_TIMEOUT = 1000;
+var FAST_INTERVAL = 100;
+var EXT_PROTOCOL_SVC_CID = "@mozilla.org/uriloader/external-protocol-service;1";
 
 var folderDisplayHelper;
 var mc;
@@ -119,7 +119,7 @@ function MockExtProtConstructor() {
  * content tabs, for example: plugin crash notifications, theme
  * install notifications.
  */
-const ALERT_TIMEOUT = 10000;
+var ALERT_TIMEOUT = 10000;
 
 var NotificationWatcher = {
   planForNotification: function(aController) {

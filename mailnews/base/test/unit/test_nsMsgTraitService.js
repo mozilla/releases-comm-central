@@ -2,20 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const ts = Cc["@mozilla.org/msg-trait-service;1"]
+var ts = Cc["@mozilla.org/msg-trait-service;1"]
              .getService(Ci.nsIMsgTraitService);
 
 // junk-related traits set by default
-const kJunkId = "mailnews@mozilla.org#junk";
-const kGoodId = "mailnews@mozilla.org#good";
-const kGoodIndex = Ci.nsIJunkMailPlugin.GOOD_TRAIT;
-const kJunkIndex = Ci.nsIJunkMailPlugin.JUNK_TRAIT;
+var kJunkId = "mailnews@mozilla.org#junk";
+var kGoodId = "mailnews@mozilla.org#good";
+var kGoodIndex = Ci.nsIJunkMailPlugin.GOOD_TRAIT;
+var kJunkIndex = Ci.nsIJunkMailPlugin.JUNK_TRAIT;
 
 // a dummy set of traits
-const proId = "TheProTrait";
-const proName = "ProName";
-const antiId = "TheAntiTrait";
-const antiName = "AntiName";
+var proId = "TheProTrait";
+var proName = "ProName";
+var antiId = "TheAntiTrait";
+var antiName = "AntiName";
 
 function run_test()
 {

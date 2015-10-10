@@ -12,7 +12,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/IOUtils.js");
 
 // Tree Sort helper methods.
-const AB_ORDER = ["aab", "pab", "mork", "ldap", "mapi+other", "anyab", "cab"];
+var AB_ORDER = ["aab", "pab", "mork", "ldap", "mapi+other", "anyab", "cab"];
 
 function getDirectoryValue(aDir, aKey) {
   const Ci = Components.interfaces;
@@ -47,8 +47,8 @@ function abTypeCompare(a, b) {
   return (AB_ORDER.indexOf(a) - AB_ORDER.indexOf(b));
 }
 
-const SORT_PRIORITY = ["ab_type", "ab_name"];
-const SORT_FUNCS = [abTypeCompare, abNameCompare];
+var SORT_PRIORITY = ["ab_type", "ab_name"];
+var SORT_FUNCS = [abTypeCompare, abNameCompare];
 
 function abSort(a, b) {
   for (let i = 0; i < SORT_FUNCS.length; i++) {

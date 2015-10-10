@@ -165,7 +165,7 @@ function test_toArray_builtin_iterator() {
   do_check_true(thrown);
 }
 
-const Symbol_iterator = typeof Symbol === "function" && Symbol.iterator ?
+var Symbol_iterator = typeof Symbol === "function" && Symbol.iterator ?
   Symbol.iterator : "@@iterator";
 
 /**

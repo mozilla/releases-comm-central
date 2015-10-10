@@ -6,15 +6,15 @@
  
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-const gValidityManager = Cc['@mozilla.org/mail/search/validityManager;1']
+var gValidityManager = Cc['@mozilla.org/mail/search/validityManager;1']
                            .getService(Ci.nsIMsgSearchValidityManager);
 
-const gStringBundle = Services.strings
+var gStringBundle = Services.strings
                               .createBundle("chrome://messenger/locale/search-attributes.properties");
 
 // The following table of valid table scopes matches the allowable table
 // scopes in nsMsgSearchValidityManager::GetTable
-const kValidScopes =
+var kValidScopes =
 [
   Ci.nsMsgSearchScope.offlineMail,
   Ci.nsMsgSearchScope.offlineMailFilter,

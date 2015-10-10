@@ -3,14 +3,14 @@
  * Test suite for getting news urls via the protocol handler.
  */
 
-const defaultProtocolFlags =
+var defaultProtocolFlags =
   Ci.nsIProtocolHandler.URI_NORELATIVE |
   Ci.nsIProtocolHandler.URI_LOADABLE_BY_ANYONE |
   Ci.nsIProtocolHandler.ALLOWS_PROXY |
   Ci.nsIProtocolHandler.URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT |
   Ci.nsIProtocolHandler.URI_FORBIDS_COOKIE_ACCESS;
 
-const protocols =
+var protocols =
   [ { protocol: "news",
       urlSpec: "news://user@localhost/",
       defaultPort: Ci.nsINntpUrl.DEFAULT_NNTP_PORT

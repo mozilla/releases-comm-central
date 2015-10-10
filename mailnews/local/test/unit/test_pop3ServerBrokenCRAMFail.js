@@ -8,8 +8,8 @@ Components.utils.import("resource:///modules/mailServices.js");
 var server;
 var daemon;
 var incomingServer;
-const test = "Server which advertises CRAM-MD5, but fails when it's tried";
-const expectedTransaction = [ "AUTH", "CAPA", "AUTH CRAM-MD5", "AUTH PLAIN", "STAT" ];
+var test = "Server which advertises CRAM-MD5, but fails when it's tried";
+var expectedTransaction = [ "AUTH", "CAPA", "AUTH CRAM-MD5", "AUTH PLAIN", "STAT" ];
 
 var urlListener =
 {

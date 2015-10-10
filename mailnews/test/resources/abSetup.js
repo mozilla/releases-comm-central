@@ -44,5 +44,5 @@ Services.prefs.deleteBranch("ldap_2.servers.oe.");
 Services.prefs.deleteBranch("ldap_2.servers.osx.");
 
 // This currently applies to all address books of local type.
-const kNormalPropertiesURI =
+var kNormalPropertiesURI =
   "chrome://messenger/content/addressbook/abAddressBookNameDialog.xul";

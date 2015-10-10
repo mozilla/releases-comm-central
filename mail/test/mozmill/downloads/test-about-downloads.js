@@ -30,7 +30,7 @@ var attachmentFileNames = [
   "Attachment#3.txt",
 ];
 
-const downloadsView = {
+var downloadsView = {
   init() {
     this.items = new Map();
     this.removedItems = [];

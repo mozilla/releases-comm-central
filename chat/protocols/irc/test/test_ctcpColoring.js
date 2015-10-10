@@ -3,7 +3,7 @@
 
 Components.utils.import("resource:///modules/ircUtils.jsm");
 
-const input = [
+var input = [
   // From http://www.mirc.com/colors.html
   "\x035,12colored text and background\x03",
   "\x035colored text\x03",

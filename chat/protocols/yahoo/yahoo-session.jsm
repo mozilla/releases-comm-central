@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["YahooSession"];
 
-const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/Http.jsm");
@@ -21,20 +21,20 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
 XPCOMUtils.defineLazyServiceGetter(this, "imgTools",
                                    "@mozilla.org/image/tools;1", "imgITools");
 
-const kProtocolVersion = 16;
-const kVendorId = 0;
+var kProtocolVersion = 16;
+var kVendorId = 0;
 
-const kPacketDataDelimiter = "\xC0\x80";
-const kPacketIdentifier = "YMSG";
-const kPacketHeaderSize = 20;
-const kProfileIconWidth = 96;
+var kPacketDataDelimiter = "\xC0\x80";
+var kPacketIdentifier = "YMSG";
+var kPacketHeaderSize = 20;
+var kProfileIconWidth = 96;
 
 // These constants are used by the icon uploading code since the Yahoo! file
 // transfer server is used for user icon uploads.
-const kFileTransferHost = "filetransfer.msg.yahoo.com";
-const kFileTransferPort = 80;
+var kFileTransferHost = "filetransfer.msg.yahoo.com";
+var kFileTransferPort = 80;
 
-const kPacketType = {
+var kPacketType = {
   // Sent by a client when logging off of the Yahoo! network.
   Logoff:         0x02,
   // Sent by a client when a message is sent to a buddy.
@@ -83,7 +83,7 @@ const kPacketType = {
   MessageAck:     0xfb
 };
 
-const kPacketStatuses = {
+var kPacketStatuses = {
   ServerAck: 0x1,
   Typing: 0x16
 };
@@ -92,7 +92,7 @@ const kPacketStatuses = {
 // contains the last part of the name of its localized string. This is appended
 // to "login.error." to obtain the string. The second element is the
 // Instantbird error that is given to the error handler.
-const kLoginStatusErrors = {
+var kLoginStatusErrors = {
   "1212" : ["badCredentials",
             Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED],
   "1213" : ["accountLockedFailed",
@@ -106,7 +106,7 @@ const kLoginStatusErrors = {
 };
 
 // These are the status codes that buddies can send us.
-const kBuddyStatuses = {
+var kBuddyStatuses = {
   // Available.
   "0"   : Ci.imIStatusInfo.STATUS_AVAILABLE,
   // Be right back.
@@ -856,7 +856,7 @@ YahooPacket.extractPackets = function(aData, aOnNetworkError) {
  *
  * Keep in mind too that "this" in each function will be bound to a
  * YahooAccount object, since they are all invoked using call(). */
-const YahooPacketHandler = {
+var YahooPacketHandler = {
   // Buddy logoff.
   0x02: function(aPacket) {
     let name = aPacket.getValue(7);

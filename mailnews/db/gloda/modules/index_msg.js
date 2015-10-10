@@ -14,10 +14,10 @@
 
 this.EXPORTED_SYMBOLS = ['GlodaMsgIndexer'];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
+var Cu = Components.utils;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource:///modules/iteratorUtils.jsm");
@@ -38,15 +38,15 @@ Cu.import("resource:///modules/gloda/indexer.js");
 Cu.import("resource:///modules/gloda/mimemsg.js");
 
 // Components.results does not have mailnews error codes!
-const NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE = 0x80550005;
+var NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE = 0x80550005;
 
-const GLODA_MESSAGE_ID_PROPERTY = "gloda-id";
+var GLODA_MESSAGE_ID_PROPERTY = "gloda-id";
 /**
  * Message header property to track dirty status; one of
  *  |GlodaIndexer.kMessageClean|, |GlodaIndexer.kMessageDirty|,
  *  |GlodaIndexer.kMessageFilthy|.
  */
-const GLODA_DIRTY_PROPERTY = "gloda-dirty";
+var GLODA_DIRTY_PROPERTY = "gloda-dirty";
 
 /**
  * The sentinel GLODA_MESSAGE_ID_PROPERTY value indicating that a message fails
@@ -59,7 +59,7 @@ const GLODA_DIRTY_PROPERTY = "gloda-dirty";
  *
  * When flipping this, be sure to update glodaTestHelper.js's copy.
  */
-const GLODA_BAD_MESSAGE_ID = 2;
+var GLODA_BAD_MESSAGE_ID = 2;
 /**
  * The gloda id we used to use to mark messages as bad, but now should be
  *  treated as eligible for indexing.  This is only ever used for consideration
@@ -68,28 +68,28 @@ const GLODA_BAD_MESSAGE_ID = 2;
  *  event-driven indexing will still treat such messages as unindexed (and
  *  unindexable) until an indexing sweep picks them up.
  */
-const GLODA_OLD_BAD_MESSAGE_ID = 1;
-const GLODA_FIRST_VALID_MESSAGE_ID = 32;
+var GLODA_OLD_BAD_MESSAGE_ID = 1;
+var GLODA_FIRST_VALID_MESSAGE_ID = 32;
 
-const JUNK_SCORE_PROPERTY = "junkscore";
-const JUNK_SPAM_SCORE_STR = Ci.nsIJunkMailPlugin.IS_SPAM_SCORE.toString();
-const JUNK_HAM_SCORE_STR = Ci.nsIJunkMailPlugin.IS_HAM_SCORE.toString();
+var JUNK_SCORE_PROPERTY = "junkscore";
+var JUNK_SPAM_SCORE_STR = Ci.nsIJunkMailPlugin.IS_SPAM_SCORE.toString();
+var JUNK_HAM_SCORE_STR = Ci.nsIJunkMailPlugin.IS_HAM_SCORE.toString();
 
-const nsIArray = Ci.nsIArray;
-const nsIMsgFolder = Ci.nsIMsgFolder;
-const nsIMsgLocalMailFolder = Ci.nsIMsgLocalMailFolder;
-const nsIMsgImapMailFolder = Ci.nsIMsgImapMailFolder;
-const nsIMsgDBHdr = Ci.nsIMsgDBHdr;
-const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
-const nsMsgMessageFlags = Ci.nsMsgMessageFlags;
-const nsMsgProcessingFlags = Ci.nsMsgProcessingFlags;
+var nsIArray = Ci.nsIArray;
+var nsIMsgFolder = Ci.nsIMsgFolder;
+var nsIMsgLocalMailFolder = Ci.nsIMsgLocalMailFolder;
+var nsIMsgImapMailFolder = Ci.nsIMsgImapMailFolder;
+var nsIMsgDBHdr = Ci.nsIMsgDBHdr;
+var nsMsgFolderFlags = Ci.nsMsgFolderFlags;
+var nsMsgMessageFlags = Ci.nsMsgMessageFlags;
+var nsMsgProcessingFlags = Ci.nsMsgProcessingFlags;
 
 /**
  * The processing flags that tell us that a message header has not yet been
  *  reported to us via msgsClassified.  If it has one of these flags, it is
  *  still being processed.
  */
-const NOT_YET_REPORTED_PROCESSING_FLAGS =
+var NOT_YET_REPORTED_PROCESSING_FLAGS =
   nsMsgProcessingFlags.NotReportedClassified |
   nsMsgProcessingFlags.ClassifyJunk;
 

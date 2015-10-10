@@ -5,9 +5,9 @@
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
 Components.utils.import("resource:///modules/imServices.jsm");
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const autoJoinPref = "autoJoin";
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var autoJoinPref = "autoJoin";
 
 var joinChat = {
   onload: function jc_onload() {

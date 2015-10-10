@@ -3,8 +3,8 @@
  * attachment test using non-ascii character
  */
 
-const nonAsciiUrl = "http://\u65e5\u672c\u8a9e.jp";
-const prettyResult = "\u65e5\u672c\u8a9e.jp";
+var nonAsciiUrl = "http://\u65e5\u672c\u8a9e.jp";
+var prettyResult = "\u65e5\u672c\u8a9e.jp";
 
 function doAttachmentUrlTest() {
   // handles non-ascii url in nsIMsgAttachment

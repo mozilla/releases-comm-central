@@ -11,7 +11,7 @@
 
 var MODULE_NAME = 'test-filter-logic';
 
-const RELATIVE_ROOT = '../shared-modules';
+var RELATIVE_ROOT = '../shared-modules';
 
 var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
                        'quick-filter-bar-helper'];

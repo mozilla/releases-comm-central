@@ -10,7 +10,7 @@ function run_test() {
     test_serialize();
 }
 
-const test_data = [
+var test_data = [
     {
       expectedDateProps: {
           month: 10,

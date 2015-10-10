@@ -77,40 +77,40 @@
 
 this.EXPORTED_SYMBOLS = ["Socket"];
 
-const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
+var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/ArrayBufferUtils.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 
 // Network errors see: xpcom/base/nsError.h
-const NS_ERROR_MODULE_NETWORK = 2152398848;
-const NS_ERROR_CONNECTION_REFUSED = NS_ERROR_MODULE_NETWORK + 13;
-const NS_ERROR_NET_TIMEOUT = NS_ERROR_MODULE_NETWORK + 14;
-const NS_ERROR_NET_RESET = NS_ERROR_MODULE_NETWORK + 20;
-const NS_ERROR_UNKNOWN_HOST = NS_ERROR_MODULE_NETWORK + 30;
-const NS_ERROR_UNKNOWN_PROXY_HOST = NS_ERROR_MODULE_NETWORK + 42;
-const NS_ERROR_PROXY_CONNECTION_REFUSED = NS_ERROR_MODULE_NETWORK + 72;
+var NS_ERROR_MODULE_NETWORK = 2152398848;
+var NS_ERROR_CONNECTION_REFUSED = NS_ERROR_MODULE_NETWORK + 13;
+var NS_ERROR_NET_TIMEOUT = NS_ERROR_MODULE_NETWORK + 14;
+var NS_ERROR_NET_RESET = NS_ERROR_MODULE_NETWORK + 20;
+var NS_ERROR_UNKNOWN_HOST = NS_ERROR_MODULE_NETWORK + 30;
+var NS_ERROR_UNKNOWN_PROXY_HOST = NS_ERROR_MODULE_NETWORK + 42;
+var NS_ERROR_PROXY_CONNECTION_REFUSED = NS_ERROR_MODULE_NETWORK + 72;
 
-const BinaryInputStream =
+var BinaryInputStream =
   Components.Constructor("@mozilla.org/binaryinputstream;1",
                          "nsIBinaryInputStream", "setInputStream");
-const BinaryOutputStream =
+var BinaryOutputStream =
   Components.Constructor("@mozilla.org/binaryoutputstream;1",
                          "nsIBinaryOutputStream", "setOutputStream");
-const ScriptableInputStream =
+var ScriptableInputStream =
   Components.Constructor("@mozilla.org/scriptableinputstream;1",
                          "nsIScriptableInputStream", "init");
-const ServerSocket =
+var ServerSocket =
   Components.Constructor("@mozilla.org/network/server-socket;1",
                          "nsIServerSocket", "init");
-const InputStreamPump =
+var InputStreamPump =
   Components.Constructor("@mozilla.org/network/input-stream-pump;1",
                          "nsIInputStreamPump", "init");
-const ScriptableUnicodeConverter =
+var ScriptableUnicodeConverter =
   Components.Constructor("@mozilla.org/intl/scriptableunicodeconverter",
                          "nsIScriptableUnicodeConverter");
 
-const Socket = {
+var Socket = {
   // Use this to use binary mode for the
   binaryMode: false,
 

@@ -14,10 +14,10 @@
 // mail.identity.id2.htmlSigFormat = true
 // mail.identity.id2.htmlSigText   = "Tinderboxpushlog is the new <b>hotness!</b>"
 
-const MODULE_NAME = "test-signature-updating";
+var MODULE_NAME = "test-signature-updating";
 
-const RELATIVE_ROOT = "../shared-modules";
-const MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
 var jumlib = {};
 Components.utils.import("resource://mozmill/modules/jum.js", jumlib);
 var elib = {};

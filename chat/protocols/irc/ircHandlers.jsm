@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["ircHandlers"];
 
-const Cu = Components.utils;
+var Cu = Components.utils;
 
 Cu.import("resource:///modules/ircUtils.jsm");
 

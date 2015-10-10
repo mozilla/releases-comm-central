@@ -10,7 +10,7 @@
  */
 Components.utils.import("resource:///modules/mailServices.js");
 
-const bugmail1 = do_get_file("../../../data/bugmail1");
+var bugmail1 = do_get_file("../../../data/bugmail1");
 var gHdr; // header of test message in local folder
 
 localAccountUtils.loadLocalMailAccount();

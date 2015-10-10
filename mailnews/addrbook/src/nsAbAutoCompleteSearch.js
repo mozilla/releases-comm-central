@@ -7,8 +7,8 @@ Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/ABQueryUtils.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const ACR = Components.interfaces.nsIAutoCompleteResult;
-const nsIAbAutoCompleteResult = Components.interfaces.nsIAbAutoCompleteResult;
+var ACR = Components.interfaces.nsIAutoCompleteResult;
+var nsIAbAutoCompleteResult = Components.interfaces.nsIAbAutoCompleteResult;
 
 function nsAbAutoCompleteResult(aSearchString) {
   // Can't create this in the prototype as we'd get the same array for
@@ -443,4 +443,4 @@ nsAbAutoCompleteSearch.prototype = {
 // Module
 
 var components = [nsAbAutoCompleteSearch];
-const NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

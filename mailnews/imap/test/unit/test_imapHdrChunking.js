@@ -18,7 +18,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 
 setupIMAPPump();
 
-const kBiffStateAtom = Cc["@mozilla.org/atom-service;1"]
+var kBiffStateAtom = Cc["@mozilla.org/atom-service;1"]
                          .getService(Ci.nsIAtomService)
                          .getAtom("BiffState");
 // Dummy message window so we can say the inbox is open in a window.

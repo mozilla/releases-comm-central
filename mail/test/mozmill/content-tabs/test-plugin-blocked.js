@@ -15,17 +15,17 @@ var gOldPluginUpdateUrl = null;
 
 var testDone = false;
 
-const kPluginId = "test-plugin";
-const kStartPagePref = "mailnews.start_page.override_url";
-const kBlDetailsPagePref = "extensions.blocklist.detailsURL";
-const kPluginsUpdatePref = "plugins.update.url";
+var kPluginId = "test-plugin";
+var kStartPagePref = "mailnews.start_page.override_url";
+var kBlDetailsPagePref = "extensions.blocklist.detailsURL";
+var kPluginsUpdatePref = "plugins.update.url";
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
-const kUrl = collector.addHttpResource('../content-tabs/html', '');
-const kPluginUrl = kUrl + "plugin.html";
-const kPluginBlocklistUrl = kUrl + "blocklistHard.xml";
-const kBlDetailsUrl = kUrl + "blocklist_details.html";
-const kPluginUpdateUrl = kUrl + "plugin_update.html";
+var kUrl = collector.addHttpResource('../content-tabs/html', '');
+var kPluginUrl = kUrl + "plugin.html";
+var kPluginBlocklistUrl = kUrl + "blocklistHard.xml";
+var kBlDetailsUrl = kUrl + "blocklist_details.html";
+var kPluginUpdateUrl = kUrl + "plugin_update.html";
 
 function setupModule(module) {
   let fdh = collector.getModule('folder-display-helpers');

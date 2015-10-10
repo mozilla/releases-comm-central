@@ -5,7 +5,7 @@
 this.EXPORTED_SYMBOLS = ["_", "_conv", "ctcpFormatToText", "ctcpFormatToHTML",
                           "conversationErrorMessage", "kListRefreshInterval"];
 
-const {classes: Cc, interfaces: Ci} = Components;
+var {classes: Cc, interfaces: Ci} = Components;
 
 Components.utils.import("resource:///modules/imXPCOMUtils.jsm");
 
@@ -23,7 +23,7 @@ XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
 });
 
 // The timespan after which we consider LIST roomInfo to be stale.
-const kListRefreshInterval = 12 * 60 * 60 * 1000; // 12 hours.
+var kListRefreshInterval = 12 * 60 * 60 * 1000; // 12 hours.
 
 /*
  * The supported formatting control characters, as described in
@@ -39,7 +39,7 @@ const kListRefreshInterval = 12 * 60 * 60 * 1000; // 12 hours.
  *  The number of characters (from the start of the input string) that the
  *  function handled.
  */
-const CTCP_TAGS = {"\x02": "b", // \002, ^B, Bold
+var CTCP_TAGS = {"\x02": "b", // \002, ^B, Bold
                    "\x16": "i", // \026, ^V, Reverse or Inverse (Italics)
                    "\x1D": "i", // \035, ^], Italics (mIRC)
                    "\x1F": "u", // \037, ^_, Underline
@@ -47,7 +47,7 @@ const CTCP_TAGS = {"\x02": "b", // \002, ^B, Bold
                    "\x0F": null}; // \017, ^O, Clear all formatting
 
 // Generate an expression that will search for any of the control characters.
-const CTCP_TAGS_EXP = new RegExp("[" + Object.keys(CTCP_TAGS).join("") + "]");
+var CTCP_TAGS_EXP = new RegExp("[" + Object.keys(CTCP_TAGS).join("") + "]");
 
 // Remove all CTCP formatting characters.
 function ctcpFormatToText(aString) {
@@ -139,8 +139,8 @@ function ctcpFormatToHTML(aString) {
 
 // mIRC colors are defined at http://www.mirc.com/colors.html.
 // This expression matches \003<one or two digits>[,<one or two digits>].
-const M_IRC_COLORS_EXP = /^\x03(?:(\d\d?)(?:,(\d\d?))?)?/;
-const M_IRC_COLOR_MAP = {
+var M_IRC_COLORS_EXP = /^\x03(?:(\d\d?)(?:,(\d\d?))?)?/;
+var M_IRC_COLOR_MAP = {
   "0": "white",
   "1": "black",
   "2": "navy", // blue (navy)

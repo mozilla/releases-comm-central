@@ -8,7 +8,7 @@
  
 Components.utils.import("resource:///modules/mailServices.js");
 
-const gSearchSession = Cc["@mozilla.org/messenger/searchSession;1"]
+var gSearchSession = Cc["@mozilla.org/messenger/searchSession;1"]
                         .createInstance(Ci.nsIMsgSearchSession);
 
 var gHdr; // the message header for the one mailbox message

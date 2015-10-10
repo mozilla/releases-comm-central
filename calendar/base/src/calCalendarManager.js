@@ -8,10 +8,10 @@ Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calProviderUtils.jsm");
 
-const REGISTRY_BRANCH = "calendar.registry.";
-const DB_SCHEMA_VERSION = 10;
-const MAX_INT = Math.pow(2, 31) - 1;
-const MIN_INT = -MAX_INT;
+var REGISTRY_BRANCH = "calendar.registry.";
+var DB_SCHEMA_VERSION = 10;
+var MAX_INT = Math.pow(2, 31) - 1;
+var MIN_INT = -MAX_INT;
 
 function calCalendarManager() {
     this.wrappedJSObject = this;
@@ -19,8 +19,8 @@ function calCalendarManager() {
     this.mCalendarObservers = new calListenerBag(Components.interfaces.calIObserver);
 }
 
-const calCalendarManagerClassID = Components.ID("{f42585e7-e736-4600-985d-9624c1c51992}");
-const calCalendarManagerInterfaces = [
+var calCalendarManagerClassID = Components.ID("{f42585e7-e736-4600-985d-9624c1c51992}");
+var calCalendarManagerInterfaces = [
     Components.interfaces.calICalendarManager,
     Components.interfaces.calIStartupService,
     Components.interfaces.nsIObserver,

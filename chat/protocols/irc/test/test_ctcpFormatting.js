@@ -5,7 +5,7 @@ Components.utils.import("resource:///modules/ircUtils.jsm");
 
 //TODO add a test for special JS characters (|, etc...)
 
-const input = [
+var input = [
   "The quick brown fox \x02jumps\x02 over the lazy dog.",
   "The quick brown fox \x02jumps\x0F over the lazy dog.",
   "The quick brown \x16fox jumps\x16 over the lazy dog.",

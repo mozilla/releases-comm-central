@@ -13,16 +13,16 @@ Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
 // calMemoryCalendar.js
 //
 
-const calCalendarManagerContractID = "@mozilla.org/calendar/manager;1";
-const calICalendarManager = Components.interfaces.calICalendarManager;
-const cICL = Components.interfaces.calIChangeLog;
+var calCalendarManagerContractID = "@mozilla.org/calendar/manager;1";
+var calICalendarManager = Components.interfaces.calICalendarManager;
+var cICL = Components.interfaces.calIChangeLog;
 
 function calMemoryCalendar() {
     this.initProviderBase();
     this.initMemoryCalendar();
 }
-const calMemoryCalendarClassID = Components.ID("{bda0dd7f-0a2f-4fcf-ba08-5517e6fbf133}");
-const calMemoryCalendarInterfaces = [
+var calMemoryCalendarClassID = Components.ID("{bda0dd7f-0a2f-4fcf-ba08-5517e6fbf133}");
+var calMemoryCalendarInterfaces = [
     Components.interfaces.calICalendar,
     Components.interfaces.calISchedulingSupport,
     Components.interfaces.calIOfflineStorage,

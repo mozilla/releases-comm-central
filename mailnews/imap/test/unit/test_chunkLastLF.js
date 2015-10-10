@@ -15,7 +15,7 @@
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
-const gFile = do_get_file("../../../data/bug92111b");
+var gFile = do_get_file("../../../data/bug92111b");
 var gIMAPDaemon, gIMAPServer, gIMAPIncomingServer;
 
 // Adds some messages directly to a mailbox (eg new mail)

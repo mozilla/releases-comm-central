@@ -11,8 +11,8 @@ Components.utils.import("resource:///modules/mailServices.js");
 var test = null;
 var server;
 
-const kSender = "from@foo.invalid";
-const kTo = "to@foo.invalid";
+var kSender = "from@foo.invalid";
+var kTo = "to@foo.invalid";
 
 // aStrictMime: Test if mail.strictly_mime omits the BODY=8BITMIME attribute.
 // aServer8bit: Test if BODY=8BITMIME is only sent if advertised by the server.

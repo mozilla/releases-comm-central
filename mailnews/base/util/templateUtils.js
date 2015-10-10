@@ -4,10 +4,10 @@
 
 var EXPORTED_SYMBOLS = ["PluralStringFormatter", "makeFriendlyDateAgo"];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
-const Cu = Components.utils;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cr = Components.results;
+var Cu = Components.utils;
 
 Cu.import("resource://gre/modules/PluralForm.jsm");
 Cu.import("resource:///modules/StringBundle.js");
@@ -30,7 +30,7 @@ PluralStringFormatter.prototype = {
 };
 
 
-const gTemplateUtilsStrings = new PluralStringFormatter(
+var gTemplateUtilsStrings = new PluralStringFormatter(
   "chrome://messenger/locale/templateUtils.properties"
 );
 

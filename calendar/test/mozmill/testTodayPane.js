@@ -7,8 +7,8 @@ var MODULE_NAME = "testTodayPane";
 var RELATIVE_ROOT = "./shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
-const WAIT_FOR_WINDOW_TIMEOUT = 500;
-const MOZMILL_CALENDAR = "Mozmill";
+var WAIT_FOR_WINDOW_TIMEOUT = 500;
+var MOZMILL_CALENDAR = "Mozmill";
 
 var calUtils = require("./shared-modules/calendar-utils");
 

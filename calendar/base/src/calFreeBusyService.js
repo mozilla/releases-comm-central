@@ -55,8 +55,8 @@ function calFreeBusyService() {
     this.wrappedJSObject = this;
     this.mProviders = new calInterfaceBag(Components.interfaces.calIFreeBusyProvider);
 }
-const calFreeBusyServiceClassID = Components.ID("{29c56cd5-d36e-453a-acde-0083bd4fe6d3}");
-const calFreeBusyServiceInterfaces = [
+var calFreeBusyServiceClassID = Components.ID("{29c56cd5-d36e-453a-acde-0083bd4fe6d3}");
+var calFreeBusyServiceInterfaces = [
     Components.interfaces.calIFreeBusyProvider,
     Components.interfaces.calIFreeBusyService
 ];

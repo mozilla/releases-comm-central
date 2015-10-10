@@ -24,9 +24,9 @@ var gMessenger = Cc["@mozilla.org/messenger;1"]
                    .createInstance(Ci.nsIMessenger);
 
 // Create a message generator
-const msgGen = gMessageGenerator = new MessageGenerator();
+var msgGen = gMessageGenerator = new MessageGenerator();
 // Create a message scenario generator using that message generator
-const scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
+var scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
 
 /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow
  * counts the trailing newline for an attachment MIME part. Most of the time,
@@ -35,24 +35,24 @@ const scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
  * holds. However, on Windows, if the attachment is not encoded (that is, is
  * inline text), libmime will return N + 2 bytes.
  */
-const epsilon = ('@mozilla.org/windows-registry-key;1' in Components.classes) ? 4 : 2;
+var epsilon = ('@mozilla.org/windows-registry-key;1' in Components.classes) ? 4 : 2;
 
-const textAttachment =
+var textAttachment =
   "Can't make the frug contest, Helen; stomach's upset. I'll fix you, " +
   "Ubik! Ubik drops you back in the thick of things fast. Taken as " +
   "directed, Ubik speeds relief to head and stomach. Remember: Ubik is " +
   "only seconds away. Avoid prolonged use.";
 
-const binaryAttachment = textAttachment;
+var binaryAttachment = textAttachment;
 
-const imageAttachment =
+var imageAttachment =
   'iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABHNCSVQICAgIfAhkiAAAAAlwS' +
   'FlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA' +
   'A5SURBVCiRY/z//z8DKYCJJNXkaGBgYGD4D8NQ5zUgiTVAxeBqSLaBkVRPM0KtIhrQ3km0jwe' +
   'SNQAAlmAY+71EgFoAAAAASUVORK5CYII=';
-const imageSize = 188;
+var imageSize = 188;
 
-const uuAttachment =
+var uuAttachment =
   'begin 644 /home/jvporter/Desktop/out.txt\n' +
   'M0V%N)W0@;6%K92!T:&4@9G)U9R!C;VYT97-T+"!(96QE;CL@<W1O;6%C:"=S\n' +
   'M(\'5P<V5T+B!))VQL(&9I>"!Y;W4L(%5B:6LA(%5B:6L@9\')O<\',@>6]U(&)A\n' +
@@ -63,7 +63,7 @@ const uuAttachment =
   '`\n' +
   'end';
 
-const yencText =
+var yencText =
   "Hello there --\n"+
   "=ybegin line=128 size=174 name=jane\n"+
   "\x76\x99\x98\x91\x9e\x8f\x97\x9a\x9d\x56\x4a\x94\x8f\x4a\x97\x8f"+
@@ -79,9 +79,9 @@ const yencText =
   "\x74\x8f\x4a\x97\x51\x8f\x98\x8e\x99\x9c\x9d\x58\x4a\xec\xe5\x34"+
   "\x0d\x0a"+
   "=yend size=174 crc32=7efccd8e\n";
-const yencSize = 174;
+var yencSize = 174;
 
-const partHtml = new SyntheticPartLeaf(
+var partHtml = new SyntheticPartLeaf(
   "<html><head></head><body>I am HTML! Woo! </body></html>",
   {
     contentType: "text/html"
