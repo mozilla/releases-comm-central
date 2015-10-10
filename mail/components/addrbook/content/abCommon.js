@@ -266,8 +266,6 @@ function InitCommonJS()
   if (abList) {
     abList.insertItemAt(0, gAddressBookBundle.getString("allAddressBooks"),
                         kAllDirectoryRoot + "?");
-    // Select the newly added entry.
-    abList.selectedIndex = 0;
   }
 }
 
