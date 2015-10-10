@@ -1450,12 +1450,8 @@ var gFolderTreeView = {
       generateMap: function ftv_unread_generateMap(ftv) {
         let filterUnread = function filterUnread(aFolder) {
           let currentFolder = gFolderTreeView.getSelectedFolders()[0];
-          const outFolderFlagMask = nsMsgFolderFlags.SentMail |
-            nsMsgFolderFlags.Drafts | nsMsgFolderFlags.Queue |
-            nsMsgFolderFlags.Templates;
-          return (!aFolder.isSpecialFolder(outFolderFlagMask, true) &&
-                  ((aFolder.getNumUnread(true) > 0) ||
-                   (aFolder == currentFolder)))
+          return ((aFolder.getNumUnread(true) > 0) ||
+                  (aFolder == currentFolder));
         }
 
         let accounts = gFolderTreeView._sortedAccounts();
@@ -1495,12 +1491,8 @@ var gFolderTreeView = {
       generateMap: function(ftv) {
         let map = [];
         let currentFolder = gFolderTreeView.getSelectedFolders()[0];
-        const outFolderFlagMask = nsMsgFolderFlags.SentMail |
-          nsMsgFolderFlags.Drafts | nsMsgFolderFlags.Queue |
-          nsMsgFolderFlags.Templates;
         for (let folder of ftv._enumerateFolders) {
-          if (!folder.isSpecialFolder(outFolderFlagMask, true) &&
-              (!folder.isServer && folder.getNumUnread(false) > 0) ||
+          if ((!folder.isServer && folder.getNumUnread(false) > 0) ||
               (folder == currentFolder))
             map.push(new ftvItem(folder));
         }
