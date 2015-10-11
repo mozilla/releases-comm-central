@@ -98,6 +98,7 @@ cal.alarms = {
      * @return          The alarm offset.
      */
     calculateAlarmOffset: function cal_alarms_calculateAlarmOffset(aItem, aAlarm, aRelated) {
+        let offset = aAlarm.offset;
         if (aAlarm.related == aAlarm.ALARM_RELATED_ABSOLUTE) {
             let returnDate;
             if (aRelated === undefined || aRelated == aAlarm.ALARM_RELATED_START) {
@@ -105,14 +106,12 @@ cal.alarms = {
             } else if (aRelated == aAlarm.ALARM_RELATED_END) {
                 returnDate = aItem[cal.calGetEndDateProp(aItem)];
             }
+
             if (returnDate && aAlarm.alarmDate) {
-                return returnDate.subtractDate(aAlarm.alarmDate);
+                offset = aAlarm.alarmDate.subtractDate(returnDate);
             }
-                
-            return offset;
-        } else {
-            return aAlarm.offset;
         }
+        return offset;
     },
 
     /**
