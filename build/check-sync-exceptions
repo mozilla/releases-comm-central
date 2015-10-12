@@ -4,6 +4,7 @@ merge-installrdf.py
 pymake
 client.py-args
 client.py-l10n-args
+configobj.py
 
 # Ignore detritus left lying around by editing tools.
 *~
