@@ -20,6 +20,7 @@
         buttondisabledaccept="true"
         onload="return addAccountDialog.onInit();"
         ondialogaccept="return addAccountDialog.onOK();"
+        ondialogcancel="return addAccountDialog.onUnInit();"
         title="&addAccountDialog.title;"
         style="&addAccountDialog.style;"
         persist="screenX screenY">
@@ -33,7 +34,7 @@
   <description id="createAccountText">&addAccountDialog.createAccountText2;</description>
   <description id="noAccountText" hidden="true">&addAccountDialog.noAccountText;</description>
 
-  <menulist id="accountType" class="indent" onselect="return addAccountDialog.accountTypeSelected();">
+  <menulist id="accountType" class="indent">
     <menupopup>
       <menuitem label="&addAccountDialog.menuTitle;" value=""/>
     </menupopup>

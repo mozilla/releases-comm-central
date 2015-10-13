@@ -16,6 +16,7 @@ Cu.import("resource:///modules/cloudFileAccounts.js");
 function createAccountObserver() {};
 
 createAccountObserver.prototype = {
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIRequestObserver]),
   onStartRequest: function(aRequest, aContext) {},
   onStopRequest: function(aRequest, aContext, aStatusCode) {
     if (aStatusCode == Cr.NS_OK
@@ -71,13 +72,14 @@ var addAccountDialog = {
     this.addAccountTypes();
 
     // Hook up our onInput event handler
-    this._settings.addEventListener("DOMContentLoaded",
-                                    this.onIFrameLoaded.bind(this),
-                                    false);
+    this._settings.addEventListener("DOMContentLoaded", this, false);
 
-    this._settings.addEventListener("overflow", function(e) {
-      addAccountDialog.fitIFrame();
-    });
+    this._settings.addEventListener("overflow", this);
+
+    // Hook up the selection handler.
+    this._accountType.addEventListener("select", this);
+    // Also call it to run it for the default selection.
+    addAccountDialog.accountTypeSelected();
 
     // Hook up the default "Learn More..." link to the appropriate link.
     let learnMore = this._settings
@@ -92,6 +94,32 @@ var addAccountDialog = {
     this.onIFrameLoaded(null);
 
     addAccountDialog.fitIFrame();
+  },
+
+  onUnInit: function() {
+    // Clean-up the event listeners.
+    this._settings.removeEventListener("DOMContentLoaded", this, false);
+    this._settings.removeEventListener("overflow", this);
+    this._accountType.removeEventListener("select", this);
+
+    return false;
+  },
+
+  handleEvent: function(aEvent) {
+    switch (aEvent.type) {
+      case "DOMContentLoaded": {
+        this.onIFrameLoaded();
+        break;
+      }
+      case "overflow": {
+        this.fitIFrame();
+        break;
+      }
+      case "select": {
+        this.accountTypeSelected();
+        break;
+      }
+    }
   },
 
   onIFrameLoaded: function AAD_onIFrameLoaded(aEvent) {
@@ -185,7 +213,8 @@ var addAccountDialog = {
 
     this._messages.selectedPanel = this._authSpinner;
 
-    return false;
+    // Uninitialize the dialog before closing.
+    return this.onUnInit()
   },
 
   getExtraArgs: function AAD_getExtraArgs() {
