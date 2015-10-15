@@ -1534,6 +1534,8 @@ DBViewWrapper.prototype = {
    *  on the underlying db view!  If you do not, make sure to fight us every
    *   step of the way, because we will keep clobbering your manually applied
    *   sort.
+   * For secondary and multiple custom column support, a byCustom aSortType and
+   *  aSecondaryType must be the column name string.
    */
   sort: function DBViewWrapper_sort(aSortType, aSortOrder,
                                     aSecondaryType, aSecondaryOrder) {
@@ -1551,7 +1553,9 @@ DBViewWrapper.prototype = {
     if ((this._viewUpdateDepth == 0) && this.dbView) {
       for (let iSort = this._sort.length - 1; iSort >=0; iSort--) {
         // apply them in the reverse order
-        let [sortType, sortOrder] = this._sort[iSort];
+        let [sortType, sortOrder, sortCustomCol] = this._getSortDetails(iSort);
+        if (sortCustomCol)
+          this.dbView.curCustomColumn = sortCustomCol;
         this.dbView.sort(sortType, sortOrder);
       }
       // (only generate the event since we're not in a update batch)
@@ -1585,6 +1589,8 @@ DBViewWrapper.prototype = {
    * Because we are lazy, we actually just poke the view's sort method and save
    *  the apparent secondary sort.  This also allows perfect compliance with the
    *  way this used to be implemented!
+   * For secondary and multiple custom column support, a byCustom aSortType must
+   *  be the column name string.
    */
   magicSort: function DBViewWrapper_magicSort(aSortType, aSortOrder) {
     if (this.dbView) {
@@ -1597,12 +1603,18 @@ DBViewWrapper.prototype = {
       this._sort = [[aSortType, aSortOrder]];
       // (make sure it is valid...)
       this._ensureValidSort();
+      // get sort details, handle custom column as string sortType
+      let [sortType, sortOrder, sortCustomCol] = this._getSortDetails(0);
+      if (sortCustomCol)
+        this.dbView.curCustomColumn = sortCustomCol;
       // apply the sort to see what happens secondary-wise
-      this.dbView.sort(this._sort[0][0], this._sort[0][1]);
+      this.dbView.sort(sortType, sortOrder);
       // there is only a secondary sort if it's not none and not the same.
       if (this.dbView.secondarySortType != nsMsgViewSortType.byNone &&
-          this.dbView.secondarySortType != this._sort[0][0])
-        this._sort.push([this.dbView.secondarySortType,
+          (this.dbView.secondarySortType != sortType ||
+           (this.dbView.secondarySortType == nsMsgViewSortType.byCustom &&
+            this.dbView.secondaryCustomColumn != sortCustomCol)))
+        this._sort.push([this.dbView.secondaryCustomColumn || this.dbView.secondarySortType,
                          this.dbView.secondarySortOrder]);
       // only tell our listener if we're not in a view update batch
       if (this._viewUpdateDepth == 0)
