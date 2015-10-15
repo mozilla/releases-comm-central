@@ -213,7 +213,8 @@ var authorFirstLetterCustomColumn = {
     return msgHdr.mime2DecodedAuthor.charAt(0).toUpperCase() || "?";
   },
   getSortStringForRow: function(msgHdr) {
-    return msgHdr.mime2DecodedAuthor.charAt(0).toUpperCase() || "?";
+    // charAt(0) is a quote, charAt(1) is the first letter!
+    return msgHdr.mime2DecodedAuthor.charAt(1).toUpperCase() || "?";
   },
   isString: function() {
     return true;
@@ -255,6 +256,7 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
                SortType.byDate,
                aViewType != "search" ? SortOrder.ascending : SortOrder.descending,
                aViewFlags, outCount);
+  // outCount is 0 if byCustom; view is built by addColumnHandler()
   dump("  View Out Count: " + outCount.value + "\n");
 
   // we need to cram messages into the search via nsIMsgSearchNotify interface
@@ -276,6 +278,33 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
   // XXX this sets the custom column to use for sorting by the custom column.
   // It has been argued (and is generally accepted) that this should not be
   // so limited.
+  gDBView.curCustomColumn = "authorFirstLetterCol";
+
+  gTreeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
+  let selection = new JSTreeSelection(null);
+  selection.view = gTreeView;
+  gTreeView.selection = selection;
+}
+
+function setup_group_view(aSortType, aSortOrder, aTestFolder) {
+  let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=group";
+
+  if (aTestFolder == null)
+    aTestFolder = gTestFolder;
+
+  // grouped view uses these flags
+  let viewFlags = ViewFlags.kGroupBySort |
+                  ViewFlags.kExpandAll |
+                  ViewFlags.kThreadedDisplay;
+
+  gDBView = Components.classes[dbviewContractId]
+                      .createInstance(Components.interfaces.nsIMsgDBView);
+  gDBView.init(null, null, gCommandUpdater);
+  var outCount = {};
+  gDBView.open(aTestFolder, aSortType, aSortOrder, viewFlags, outCount);
+
+  gDBView.addColumnHandler("authorFirstLetterCol",
+                           authorFirstLetterCustomColumn);
   gDBView.curCustomColumn = "authorFirstLetterCol";
 
   gTreeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
@@ -649,6 +678,89 @@ function test_qs_results() {
   test_threading_levels();
 }
 
+function test_group_sort_collapseAll_expandAll_threading() {
+  // - start with an empty folder
+  let save_gTestFolder = gTestFolder;
+  gTestFolder = make_empty_folder();
+
+  // - create a normal unthreaded view
+  setup_view("threaded", 0);
+
+  // - ensure it's empty
+  assert_view_empty();
+
+  // - add 3 messages:
+  // msg1: from A, custom column val A, to be starred
+  // msg2: from A, custom column val A
+  // msg3: from B, custom column val B
+  let [smsg1, synSet1] = make_and_add_message({from: ["A", "A@a.invalid"]});
+  let [smsg2, synSet2] = make_and_add_message({from: ["A", "A@a.invalid"]});
+  let [smsg3, synSet3] = make_and_add_message({from: ["B", "B@b.invalid"]});
+
+  assert_view_row_count(3);
+  gDBView.getMsgHdrAt(0).markFlagged(true);
+  if (!gDBView.getMsgHdrAt(0).isFlagged)
+    view_throw("Expected smsg1 to be flagged");
+
+  // - create grouped view; open folder in byFlagged AZ sort
+  setup_group_view(SortType.byFlagged, SortOrder.ascending, gTestFolder);
+  // - make sure there are 5 rows; index 0 and 2 are dummy, 1 is flagged message,
+  //   3-4 are messages
+  assert_view_row_count(5);
+  assert_view_index_is_dummy(0);
+  assert_view_index_is_not_dummy(1);
+  assert_view_message_at_indices(smsg1, 1);
+  if (!gDBView.getMsgHdrAt(1).isFlagged)
+    view_throw("Expected grouped smsg1 to be flagged");
+  assert_view_index_is_dummy(2);
+  assert_view_index_is_not_dummy(3);
+  assert_view_index_is_not_dummy(4);
+
+  // - collapse the grouped threads; there should be 2 dummy rows
+  gDBView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+  assert_view_row_count(2);
+  assert_view_index_is_dummy(0);
+  assert_view_index_is_dummy(1);
+
+  // - expand the grouped threads; there should be 5 rows
+  gDBView.doCommand(Ci.nsMsgViewCommandType.expandAll);
+  assert_view_row_count(5);
+  assert_view_index_is_dummy(0);
+  assert_view_index_is_dummy(2);
+
+  // - reverse sort; create grouped view; open folder in byFlagged ZA sort
+  setup_group_view(SortType.byFlagged, SortOrder.descending, gTestFolder);
+  // - make sure there are 5 rows; index 0 and 3 are dummy, 1-2 are messages,
+  //   4 is flagged message
+  assert_view_row_count(5);
+  assert_view_index_is_dummy(0);
+  assert_view_index_is_not_dummy(1);
+  assert_view_index_is_not_dummy(2);
+  assert_view_index_is_dummy(3);
+  assert_view_index_is_not_dummy(4);
+  assert_view_message_at_indices(smsg1, 4);
+  if (!gDBView.getMsgHdrAt(4).isFlagged)
+    view_throw("Expected reverse sorted grouped smsg1 to be flagged");
+
+  // - test grouped by custom column; the custCol is first letter of author
+  // - create grouped view; open folder in byCustom ZA sort
+  setup_group_view(SortType.byCustom, SortOrder.descending, gTestFolder);
+
+  // - make sure there are 5 rows; index 0 and 2 are dummy, 1 is B value message,
+  //   3-4 are messages with A value
+  assert_view_row_count(5);
+  assert_view_index_is_dummy(0);
+  assert_view_index_is_not_dummy(1);
+  assert_view_message_at_indices(smsg3, 1);
+  if (authorFirstLetterCustomColumn.getSortStringForRow(gDBView.getMsgHdrAt(1)) != "B")
+    view_throw("Expected grouped by custom column, ZA sortOrder smsg3 value to be B");
+  assert_view_index_is_dummy(2);
+  assert_view_index_is_not_dummy(3);
+  assert_view_index_is_not_dummy(4);
+  if (authorFirstLetterCustomColumn.getSortStringForRow(gDBView.getMsgHdrAt(4)) != "A")
+    view_throw("Expected grouped by custom column, ZA sortOrder smsg2 value to be A");
+}
+
 function test_group_dummies_under_mutation_by_date() {
   // - start with an empty folder
   let save_gTestFolder = gTestFolder;
@@ -831,6 +943,7 @@ var tests_for_all_views = [
 
 var tests_for_specific_views = {
   group: [
+    test_group_sort_collapseAll_expandAll_threading,
     test_group_dummies_under_mutation_by_date
   ],
   threaded: [
