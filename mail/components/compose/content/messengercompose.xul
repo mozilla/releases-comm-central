@@ -1015,7 +1015,6 @@
         <toolbarbutton id="smileButtonMenu"
                        class="formatting-button"
                        tooltiptext="&SmileButton.tooltip;"
-                       padwithspace="true"
                        type="menu"
                        observes="cmd_smiley">
           <menupopup id="smilyPopup">

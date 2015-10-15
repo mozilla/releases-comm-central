@@ -3027,11 +3027,6 @@ var nsSetSmiley =
       if (!intElement)
         return;
 
-      //just for mailnews, because of the way it removes HTML
-      var smileButMenu = document.getElementById('smileButtonMenu');
-      if (smileButMenu.getAttribute("padwithspace"))
-         smileyCode = " " + smileyCode + " ";
-
       var txtElement =  editor.document.createTextNode(smileyCode);
       if (!txtElement)
         return;

@@ -611,7 +611,7 @@
       <toolbarseparator class="toolbarseparator-standard"/>
       <toolbarbutton id="AlignPopupButton"/>
       <toolbarbutton id="InsertPopupButton"/>
-      <toolbarbutton id="smileButtonMenu" padwithspace="true"/>
+      <toolbarbutton id="smileButtonMenu"/>
       <spacer flex="1"/>
     </toolbar>
 
