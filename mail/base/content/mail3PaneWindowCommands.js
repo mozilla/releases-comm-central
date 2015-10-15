@@ -468,7 +468,8 @@ var DefaultController =
           return false;
       case "cmd_expandAllThreads":
       case "cmd_collapseAllThreads":
-        return gFolderDisplay.view.showThreaded;
+        return gFolderDisplay.view.showThreaded ||
+               gFolderDisplay.view.showGroupedBySort;
       case "cmd_nextFlaggedMsg":
       case "cmd_previousFlaggedMsg":
         return IsViewNavigationItemEnabled();

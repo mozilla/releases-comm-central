@@ -325,13 +325,7 @@ function InitViewSortByMenu()
   setSortByMenuItemCheckState("sortByCorrespondentMenuitem", (sortType == nsMsgViewSortType.byCorrespondent));
 
   var sortOrder = gFolderDisplay.view.primarySortOrder;
-  var sortTypeSupportsGrouping = (sortType == nsMsgViewSortType.byAuthor ||
-      sortType == nsMsgViewSortType.byDate || sortType == nsMsgViewSortType.byReceived ||
-      sortType == nsMsgViewSortType.byPriority ||
-      sortType == nsMsgViewSortType.bySubject || sortType == nsMsgViewSortType.byTags ||
-      sortType == nsMsgViewSortType.byRecipient || sortType == nsMsgViewSortType.byAccount ||
-      sortType == nsMsgViewSortType.byStatus || sortType == nsMsgViewSortType.byFlagged ||
-      sortType == nsMsgViewSortType.byAttachments || sortType == nsMsgViewSortType.byCorrespondent);
+  var sortTypeSupportsGrouping = isSortTypeValidForGrouping(sortType);
 
   setSortByMenuItemCheckState("sortAscending", (sortOrder == nsMsgViewSortOrder.ascending));
   setSortByMenuItemCheckState("sortDescending", (sortOrder == nsMsgViewSortOrder.descending));
@@ -370,18 +364,7 @@ function InitAppViewSortByMenu()
   setSortByMenuItemCheckState("appmenu_sortByAttachmentsMenuitem", (sortType == nsMsgViewSortType.byAttachments));
 
   let sortOrder = gFolderDisplay.view.primarySortOrder;
-  let sortTypeSupportsGrouping = (sortType == nsMsgViewSortType.byAuthor ||
-                                  sortType == nsMsgViewSortType.byDate ||
-                                  sortType == nsMsgViewSortType.byReceived ||
-                                  sortType == nsMsgViewSortType.byPriority ||
-                                  sortType == nsMsgViewSortType.bySubject ||
-                                  sortType == nsMsgViewSortType.byTags ||
-                                  sortType == nsMsgViewSortType.byRecipient ||
-                                  sortType == nsMsgViewSortType.byAccount ||
-                                  sortType == nsMsgViewSortType.byStatus ||
-                                  sortType == nsMsgViewSortType.byFlagged ||
-                                  sortType == nsMsgViewSortType.byAttachments ||
-                                  sortType == nsMsgViewSortType.byCorrespondent);
+  let sortTypeSupportsGrouping = isSortTypeValidForGrouping(sortType);
 
   setSortByMenuItemCheckState("appmenu_sortAscending", (sortOrder == nsMsgViewSortOrder.ascending));
   setSortByMenuItemCheckState("appmenu_sortDescending", (sortOrder == nsMsgViewSortOrder.descending));
@@ -398,6 +381,24 @@ function InitAppViewSortByMenu()
 
   groupBySortOrderMenuItem.setAttribute("disabled", !sortTypeSupportsGrouping);
   groupBySortOrderMenuItem.setAttribute("checked", grouped);
+}
+
+function isSortTypeValidForGrouping(sortType)
+{
+  return Boolean(sortType == nsMsgViewSortType.byAccount ||
+                 sortType == nsMsgViewSortType.byAttachments ||
+                 sortType == nsMsgViewSortType.byAuthor ||
+                 sortType == nsMsgViewSortType.byCorrespondent ||
+                 sortType == nsMsgViewSortType.byDate ||
+                 sortType == nsMsgViewSortType.byFlagged ||
+                 sortType == nsMsgViewSortType.byLocation ||
+                 sortType == nsMsgViewSortType.byPriority ||
+                 sortType == nsMsgViewSortType.byReceived ||
+                 sortType == nsMsgViewSortType.byRecipient ||
+                 sortType == nsMsgViewSortType.byStatus ||
+                 sortType == nsMsgViewSortType.bySubject ||
+                 sortType == nsMsgViewSortType.byTags ||
+                 sortType == nsMsgViewSortType.byCustom);
 }
 
 function InitViewMessagesMenu()

@@ -1298,6 +1298,9 @@ DBViewWrapper.prototype = {
    *  the view gets (re)built.  If we have a view, depending on what's happening
    *  we may re-create the view or just set the bits.  The rules/reasons are:
    * - XFVF views can handle the flag changes, just set the flags.
+   * - XFVF threaded/unthreaded change must re-sort, the backend forgot.
+   * - Single-folder virtual folders (quicksearch) can handle viewFlag changes,
+   *    to/from grouped included, so set it.
    * - Single-folder threaded/unthreaded can handle a change to/from unthreaded/
    *    threaded, so set it.
    * - Single-folder can _not_ handle a change between grouped and not-grouped,
@@ -1305,26 +1308,50 @@ DBViewWrapper.prototype = {
    *    kUnreadOnly or kShowIgnored.
    */
   set _viewFlags(aViewFlags) {
-    if (this._viewUpdateDepth || !this.dbView)
+    // For viewFlag changes, do not make a random selection if there is not
+    // actually anything selected; some views do this (looking at xfvf).
+    if (this.dbView.selection && this.dbView.selection.count == 0)
+      this.dbView.selection.currentIndex = -1;
+
+    if (this._viewUpdateDepth || !this.dbView) {
       this.__viewFlags = aViewFlags;
-    else {
-      let oldFlags = this.dbView.viewFlags;
-      let changedFlags = oldFlags ^ aViewFlags;
-      if ((this.isVirtual && this.isMultiFolder) ||
-          (this.isSingleFolder &&
-           !(changedFlags & (nsMsgViewFlagsType.kGroupBySort |
-                             nsMsgViewFlagsType.kUnreadOnly |
-                             nsMsgViewFlagsType.kShowIgnored)))) {
-        this.dbView.viewFlags = aViewFlags;
+      return;
+    }
+
+    let setViewFlags = true;
+    let reSort = false;
+    let oldFlags = this.dbView.viewFlags;
+    let changedFlags = oldFlags ^ aViewFlags;
+
+    if (this.isVirtual) {
+      if (this.isMultiFolder &&
+          (changedFlags & nsMsgViewFlagsType.kThreadedDisplay &&
+           !(changedFlags & nsMsgViewFlagsType.kGroupBySort)))
+        reSort = true;
+      if (this.isSingleFolder)
         // ugh, and the single folder case needs us to re-apply his sort...
-        if (this.isSingleFolder)
-          this.dbView.sort(this.dbView.sortType, this.dbView.sortOrder);
-        this.listener.onSortChanged();
+        reSort = true;
+    }
+    else {
+      // The regular single folder case.
+      if (changedFlags & (nsMsgViewFlagsType.kGroupBySort |
+                          nsMsgViewFlagsType.kUnreadOnly |
+                          nsMsgViewFlagsType.kShowIgnored)) {
+        setViewFlags = false;
       }
-      else {
-        this.__viewFlags = aViewFlags;
-        this._applyViewChanges();
-      }
+      // ugh, and the single folder case needs us to re-apply his sort...
+      reSort = true;
+    }
+
+    if (setViewFlags) {
+      this.dbView.viewFlags = aViewFlags;
+      if (reSort)
+        this.dbView.sort(this.dbView.sortType, this.dbView.sortOrder);
+      this.listener.onSortChanged();
+    }
+    else {
+      this.__viewFlags = aViewFlags;
+      this._applyViewChanges();
     }
   },
 
@@ -1510,6 +1537,11 @@ DBViewWrapper.prototype = {
    */
   sort: function DBViewWrapper_sort(aSortType, aSortOrder,
                                     aSecondaryType, aSecondaryOrder) {
+    // For sort changes, do not make a random selection if there is not
+    // actually anything selected; some views do this (looking at xfvf).
+    if (this.dbView.selection && this.dbView.selection.count == 0)
+      this.dbView.selection.currentIndex = -1;
+
     this._sort = [[aSortType, aSortOrder]];
     if (aSecondaryType != null && aSecondaryOrder != null)
       this._sort.push([aSecondaryType, aSecondaryOrder]);
@@ -1556,6 +1588,11 @@ DBViewWrapper.prototype = {
    */
   magicSort: function DBViewWrapper_magicSort(aSortType, aSortOrder) {
     if (this.dbView) {
+      // For sort changes, do not make a random selection if there is not
+      // actually anything selected; some views do this (looking at xfvf).
+      if (this.dbView.selection && this.dbView.selection.count == 0)
+        this.dbView.selection.currentIndex = -1;
+
       // so, the thing we just set obviously will be there
       this._sort = [[aSortType, aSortOrder]];
       // (make sure it is valid...)
@@ -1616,10 +1653,12 @@ DBViewWrapper.prototype = {
   set showGroupedBySort(aShowGroupBySort) {
     if (this.showGroupedBySort != aShowGroupBySort) {
       if (aShowGroupBySort) {
-        // do not apply the flag change until we have made the sort safe
+        // For virtual single folders, the kExpandAll flag must be set.
+        // Do not apply the flag change until we have made the sort safe.
         let viewFlags = this._viewFlags |
                         nsMsgViewFlagsType.kGroupBySort |
-                         nsMsgViewFlagsType.kThreadedDisplay;
+                        nsMsgViewFlagsType.kExpandAll |
+                        nsMsgViewFlagsType.kThreadedDisplay;
         this._ensureValidSort(viewFlags);
         this._viewFlags = viewFlags;
       }
