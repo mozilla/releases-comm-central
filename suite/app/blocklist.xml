@@ -325,7 +325,7 @@
                     <prefs>
               </prefs>
     </emItem>
-      <emItem  blockID="i376" id="{9e09ac65-43c0-4b9d-970f-11e2e9616c55}">
+      <emItem  blockID="i856" id="/^({94d62e35-4b43-494c-bf52-ba5935df36ef}|firefox@advanceelite\.com|{bb7b7a60-f574-47c2-8a0b-4c56f2da9802})$/">
                         <versionRange  minVersion="0" maxVersion="*" severity="3">
                     </versionRange>
                     <prefs>
@@ -685,12 +685,6 @@
                     <prefs>
               </prefs>
     </emItem>
-      <emItem  blockID="i890" id="551f2920-3c19-11e1-b86c-0800200c9a66@jetpack">
-                        <versionRange  minVersion="2.3" maxVersion="*" severity="3">
-                    </versionRange>
-                    <prefs>
-              </prefs>
-    </emItem>
       <emItem  blockID="i688" id="firefox-extension@mozilla.org">
                         <versionRange  minVersion="0" maxVersion="*" severity="3">
                     </versionRange>
@@ -894,7 +888,7 @@
                     <prefs>
               </prefs>
     </emItem>
-      <emItem  blockID="i856" id="/^({94d62e35-4b43-494c-bf52-ba5935df36ef}|firefox@advanceelite\.com|{bb7b7a60-f574-47c2-8a0b-4c56f2da9802})$/">
+      <emItem  blockID="i376" id="{9e09ac65-43c0-4b9d-970f-11e2e9616c55}">
                         <versionRange  minVersion="0" maxVersion="*" severity="3">
                     </versionRange>
                     <prefs>
