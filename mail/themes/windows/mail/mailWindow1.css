@@ -768,34 +768,33 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
   #folderpane_splitter,
   #threadpane-splitter:not([orient="vertical"]) {
     border: none;
-    border-left: 1px solid #A9B7C9;
     min-width: 0;
     width: 5px;
     background-color: transparent;
     margin-top: 0;
-    -moz-margin-end: -4px;
     position: relative;
     z-index: 10;
     transition: border-width .3s ease-in;
   }
 
-  /* Until Bug 621351 is fixed we need border-right and border-left in
-   * combination with -moz-locale-dir instead of -moz-border-end and
-   * -moz-border-start for transition
-   */
-
-  #folderpane_splitter:-moz-locale-dir(rtl),
-  #threadpane-splitter:not([orient="vertical"]):-moz-locale-dir(rtl) {
-    border-right: 1px solid #A9B7C9;
-    border-left: none;
+  #folderpane_splitter {
+    border-inline-start: 1px solid #a9b7c9;
+    /* make only the splitter border visible */
+    margin-inline-end: -4px;
   }
 
-  #folderpane_splitter[state="collapsed"]:hover:-moz-locale-dir(ltr) {
-    border-left: 4px solid highlight;
+  #folderpane_splitter[state="collapsed"]:hover {
+    border-inline-start: 4px solid highlight;
   }
 
-  #folderpane_splitter[state="collapsed"]:hover:-moz-locale-dir(rtl) {
-    border-right: 4px solid highlight;
+  #threadpane-splitter:not([orient="vertical"]) {
+    border-inline-end: 1px solid #a9b7c9;
+    /* make only the splitter border visible */
+    margin-inline-start: -4px;
+  }
+
+  #threadpane-splitter[state="collapsed"]:not([orient="vertical"]):hover {
+    border-inline-end: 4px solid highlight;
   }
 
   #mailContent[layout="wide"] #folderpane_splitter {

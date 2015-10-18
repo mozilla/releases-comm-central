@@ -7,16 +7,33 @@
 /* Adaptation of #folderpane_splitter -> #listSplitter, #threadpane-splitter -> #contextSplitter */
 #listSplitter, #contextSplitter {
   -moz-appearance: none;
-  -moz-border-start: 1px solid ThreeDShadow;
   /* splitter grip area */
   width: 5px;
   margin-top: 0;
-  /* make only the splitter border visible */
-  -moz-margin-end: -5px;
   /* because of the negative margin needed to make the splitter visible */
   position: relative;
   z-index: 10;
   transition: border-width .3s ease-in;
+}
+
+#listSplitter {
+  border-inline-start: 1px solid ThreeDShadow;
+  /* make only the splitter border visible */
+  margin-inline-end: -5px;
+}
+
+#listSplitter[state="collapsed"]:hover {
+  border-inline-start: 4px solid highlight;
+}
+
+#contextSplitter {
+  border-inline-end: 1px solid ThreeDShadow;
+  /* make only the splitter border visible */
+  margin-inline-start: -5px;
+}
+
+#contextSplitter[state="collapsed"]:hover {
+  border-inline-end: 4px solid highlight;
 }
 
 /* Adaptation from #folderTree */

@@ -38,25 +38,36 @@
 }
 
 /* Adaptation of #folderpane_splitter */
-#listSplitter {
-  background-image: none;
-  width: 1px;
-  min-width: 1px;
-  -moz-border-start: solid 1px #8B8B8B;
-}
-
+#listSplitter,
 #contextSplitter {
-  border: none;
-  -moz-border-end: 1px solid #8B8B8B;
-  background: none;
-  min-width: 0;
+  background-image: none;
   /* splitter grip area */
   width: 5px;
-  /* make only the splitter border visible */
-  -moz-margin-start: -4px;
+  min-width: 5px;
   /* because of the negative margin needed to make the splitter visible */
   position: relative;
   z-index: 10;
+  transition: border-width .3s ease-in;
+}
+
+#listSplitter {
+  border-inline-start: 1px solid #bdbdbd;
+  /* make only the splitter border visible */
+  margin-inline-end: -4px;
+}
+
+#listSplitter[state="collapsed"]:hover {
+  border-inline-start: 4px solid highlight;
+}
+
+#contextSplitter {
+  border-inline-end: 1px solid #bdbdbd;
+  /* make only the splitter border visible */
+  margin-inline-start: -4px;
+}
+
+#contextSplitter[state="collapsed"]:hover {
+  border-inline-end: 4px solid highlight;
 }
 
 .conv-status-container {

@@ -52,11 +52,6 @@ treechildren::-moz-tree-twisty {
   text-shadow: none;
 }
 
-#folderPaneBox {
-  -moz-border-end: 1px solid #BDBDBD;
-  -moz-margin-end: -3px !important;
-}
-
 #folderTree {
   -moz-appearance: -moz-mac-vibrancy-light;
 }
@@ -593,10 +588,37 @@ splitter {
   -moz-border-end: 0;
 }
 
-#folderpane_splitter {
+#folderpane_splitter,
+#threadpane-splitter:not([orient="vertical"]) {
   background-image: none;
-  width: 3px;
-  min-width: 3px;
+  /* splitter grip area */
+  width: 5px;
+  min-width: 5px;
+  /* because of the negative margin needed to make the splitter visible */
+  position: relative;
+  z-index: 10;
+  transition: border-width .3s ease-in;
+}
+
+#folderpane_splitter {
+  border-inline-start: 1px solid #bdbdbd;
+  /* make only the splitter border visible */
+  margin-inline-end: -4px;
+}
+
+#folderpane_splitter[state="collapsed"]:hover {
+  border-inline-start: 4px solid highlight;
+}
+
+#threadpane-splitter:not([orient="vertical"]) {
+  border-inline-start-style: none;
+  border-inline-end: 1px solid #bdbdbd;
+  /* make only the splitter border visible */
+  margin-inline-start: -4px;
+}
+
+#threadpane-splitter[state="collapsed"]:not([orient="vertical"]):hover {
+  border-inline-end: 4px solid highlight;
 }
 
 /* ..... status bar adjustments ..... */

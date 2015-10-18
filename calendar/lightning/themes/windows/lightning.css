@@ -278,38 +278,35 @@ radio[pane=paneLightning] {
     margin: -1px;
   }
 
-  #calsidebar_splitter {
+  #calsidebar_splitter,
+  #today-splitter {
     border: none;
-    -moz-border-start: 1px solid #a9b7c9;
     min-width: 0;
     width: 5px;
     background-color: transparent;
     margin-top: 0;
-    -moz-margin-end: -5px;
     position: relative;
     z-index: 10;
     transition: border-width .3s ease-in;
+  }
+
+  #calsidebar_splitter {
+    border-inline-start: 1px solid #a9b7c9;
+    margin-inline-end: -5px;
   }
 
   #calsidebar_splitter[state="collapsed"] {
-    -moz-border-start: 1px solid transparent;
+    border-inline-start: 1px solid transparent;
   }
 
   #calsidebar_splitter[state="collapsed"]:hover {
-    -moz-border-start: 4px solid highlight;
+    border-inline-start: 4px solid highlight;
   }
 
   #today-splitter {
-    border: none;
-    -moz-border-end: 1px solid #a9b7c9;
-    min-width: 0;
-    width: 5px;
-    background-color: transparent;
-    margin-top: 0;
-    -moz-margin-start: -5px;
+    border-inline-end: 1px solid #a9b7c9;
+    margin-inline-start: -5px;
     position: relative;
-    z-index: 10;
-    transition: border-width .3s ease-in;
   }
 
   #today-splitter.calendar-sidebar-splitter:-moz-lwtheme {

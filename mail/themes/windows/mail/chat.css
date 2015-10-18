@@ -102,12 +102,12 @@
 
   /* Make the listSplitter, contextSplitter and splitter appear unified */
   #listSplitter {
-    -moz-border-end: none;
+    border-inline-end: none;
     min-width: 4px;
   }
 
   #contextSplitter {
-    -moz-border-start: none;
+    border-inline-start: none;
     min-width: 4px;
   }
 
@@ -119,8 +119,8 @@
   .conv-top,
   .conv-bottom,
   #logDisplay {
-    -moz-border-start: 2px solid;
-    -moz-border-end: 2px solid;
+    border-left: 2px solid;
+    border-right: 2px solid;
     -moz-border-right-colors: ThreeDHighlight ThreeDShadow;
     -moz-border-left-colors: ThreeDFace ThreeDDarkShadow;
   }
@@ -265,24 +265,34 @@
   #listSplitter,
   #contextSplitter {
     border: none;
-    -moz-border-start: 1px solid ThreeDShadow;
     background-color: transparent;
     min-width: 0;
     /* splitter grip area */
     width: 5px;
     margin-top: 0;
-    /* make only the splitter border visible */
-    -moz-margin-end: -5px;
     /* because of the negative margin needed to make the splitter visible */
     position: relative;
     z-index: 10;
   }
 
+  #listSplitter {
+    border-inline-start: 1px solid #a9b7c9;
+    /* make only the splitter border visible */
+    margin-inline-end: -5px;
+  }
+
+  #listSplitter[state="collapsed"]:hover {
+    border-inline-start: 4px solid highlight;
+  }
+
   #contextSplitter {
-    -moz-border-start: none;
-    -moz-border-end: 1px solid ThreeDShadow;
-    -moz-margin-start: -5px;
-    -moz-margin-end: 0;
+    border-inline-end: 1px solid #a9b7c9;
+    /* make only the splitter border visible */
+    margin-inline-start: -5px;
+  }
+
+  #contextSplitter[state="collapsed"]:hover {
+    border-inline-end: 4px solid highlight;
   }
 
   .splitter,
@@ -295,7 +305,7 @@
     background-color: transparent;
     /* make only the splitter border visible */
     margin-top: -5px;
-    -moz-margin-start: 0;
+    margin-inline-start: 0;
     /* because of the negative margin needed to make the splitter visible */
     position: relative;
     z-index: 10;
@@ -339,11 +349,11 @@
     }
 
     #listSplitter {
-      -moz-border-start: 1px solid #A9B7C9;
+      border-inline-start: 1px solid #A9B7C9;
     }
 
     #contextSplitter {
-      -moz-border-end: 1px solid #A9B7C9;
+      border-inline-end: 1px solid #A9B7C9;
     }
 
     .splitter,
