@@ -1448,7 +1448,7 @@ nsresult nsMsgDBFolder::AddMarkAllReadUndoAction(nsIMsgWindow *msgWindow,
                                                  nsMsgKey *thoseMarked,
                                                  uint32_t numMarked)
 {
-  nsRefPtr<nsMsgReadStateTxn> readStateTxn = new nsMsgReadStateTxn();
+  RefPtr<nsMsgReadStateTxn> readStateTxn = new nsMsgReadStateTxn();
   if (!readStateTxn)
     return NS_ERROR_OUT_OF_MEMORY;
 
@@ -1821,7 +1821,7 @@ public:
 
 private:
   nsCOMPtr<nsIMsgWindow> mMsgWindow;
-  nsRefPtr<nsMsgDBFolder> mFolder;
+  RefPtr<nsMsgDBFolder> mFolder;
 };
 
 nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow)

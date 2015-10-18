@@ -85,7 +85,7 @@ private:
   bool mLocked;
   nsCString mSpoolName;
   bool mUsingLockFile;
-  nsRefPtr<nsMovemailService> mOwningService;
+  RefPtr<nsMovemailService> mOwningService;
   nsCOMPtr<nsIMsgIncomingServer> mServer;
 
   bool ObtainSpoolLock(unsigned int aSeconds);
@@ -468,7 +468,7 @@ nsMovemailService::GetNewMail(nsIMsgWindow *aMsgWindow,
   NS_ENSURE_SUCCESS(rv, rv);
 
   // create a new mail parser
-  nsRefPtr<nsParseNewMailState> newMailParser = new nsParseNewMailState;
+  RefPtr<nsParseNewMailState> newMailParser = new nsParseNewMailState;
 
   // Try and obtain the lock for the spool file.
   SpoolLock lock(&spoolPath, 5, *this, in_server);

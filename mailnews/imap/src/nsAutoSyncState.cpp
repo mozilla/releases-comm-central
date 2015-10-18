@@ -342,7 +342,7 @@ NS_IMETHODIMP nsAutoSyncState::ProcessExistingHeaders(uint32_t aNumOfHdrsToProce
   // create a queue to process existing headers for the first time
   if (mExistingHeadersQ.IsEmpty())
   {
-    nsRefPtr<nsMsgKeyArray> keys = new nsMsgKeyArray;
+    RefPtr<nsMsgKeyArray> keys = new nsMsgKeyArray;
     rv = database->ListAllKeys(keys);
     NS_ENSURE_SUCCESS(rv, rv);
     keys->Sort();

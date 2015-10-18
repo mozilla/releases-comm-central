@@ -45,7 +45,7 @@ nsNNTPArticleList::Initialize(nsIMsgNewsFolder *newsFolder)
     NS_ENSURE_SUCCESS(rv,rv);
     if (!m_newsDB) return NS_ERROR_UNEXPECTED;
 
-    nsRefPtr<nsMsgKeyArray> keys = new nsMsgKeyArray;
+    RefPtr<nsMsgKeyArray> keys = new nsMsgKeyArray;
     rv = m_newsDB->ListAllKeys(keys);
     NS_ENSURE_SUCCESS(rv,rv);
     keys->Sort();

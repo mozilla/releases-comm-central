@@ -257,7 +257,7 @@ nsLDAPOperation::SaslStep(const char *token, uint32_t tokenLen)
 NS_IMETHODIMP
 nsLDAPOperation::SimpleBind(const nsACString& passwd)
 {
-    nsRefPtr<nsLDAPConnection> connection = mConnection;
+    RefPtr<nsLDAPConnection> connection = mConnection;
     // There is a possibilty that mConnection can be cleared by another
     // thread. Grabbing a local reference to mConnection may avoid this.
     // See https://bugzilla.mozilla.org/show_bug.cgi?id=557928#c1
@@ -286,7 +286,7 @@ nsLDAPOperation::SimpleBind(const nsACString& passwd)
 
     // this (nsLDAPOperation) may be released by RemovePendingOperation()
     // See https://bugzilla.mozilla.org/show_bug.cgi?id=1063829.
-    nsRefPtr<nsLDAPOperation> kungFuDeathGrip = this;
+    RefPtr<nsLDAPOperation> kungFuDeathGrip = this;
 
     // If this is a second try at binding, remove the operation from pending ops
     // because msg id has changed...

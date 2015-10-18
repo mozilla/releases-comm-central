@@ -1086,7 +1086,7 @@ nsresult nsMsgCompose::_SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity *ide
       if (deliverMode == nsIMsgCompDeliverMode::AutoSaveAsDraft)
         deliverMode = nsIMsgCompDeliverMode::SaveAsDraft;
 
-      nsRefPtr<nsIMsgCompose> msgCompose(this);
+      RefPtr<nsIMsgCompose> msgCompose(this);
       composeSendListener->SetMsgCompose(msgCompose);
       composeSendListener->SetDeliverMode(deliverMode);
 

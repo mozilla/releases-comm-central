@@ -27,7 +27,7 @@ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGTHREAD
 
-  nsRefPtr<nsMsgDatabase> m_mdbDB;
+  RefPtr<nsMsgDatabase> m_mdbDB;
 
 protected:
   virtual ~nsMsgThread();

@@ -1646,7 +1646,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder, nsIArray*
   // undo stuff
   if (allowUndo)    //no undo for folder move/copy or or move/copy from search window
   {
-    nsRefPtr<nsLocalMoveCopyMsgTxn> msgTxn = new nsLocalMoveCopyMsgTxn;
+    RefPtr<nsLocalMoveCopyMsgTxn> msgTxn = new nsLocalMoveCopyMsgTxn;
     if (msgTxn && NS_SUCCEEDED(msgTxn->Init(srcFolder, this, isMove)))
     {
       msgTxn->SetMsgWindow(msgWindow);
@@ -2341,7 +2341,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded)
 
   bool multipleCopiesFinished = (mCopyState->m_curCopyIndex >= mCopyState->m_totalMsgCount);
 
-  nsRefPtr<nsLocalMoveCopyMsgTxn> localUndoTxn = mCopyState->m_undoMsgTxn;
+  RefPtr<nsLocalMoveCopyMsgTxn> localUndoTxn = mCopyState->m_undoMsgTxn;
 
   NS_ASSERTION(mCopyState->m_leftOver == 0, "whoops, something wrong with previous copy");
   mCopyState->m_leftOver = 0; // reset to 0.
@@ -2674,7 +2674,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key)
 {
   NS_ENSURE_ARG_POINTER(mCopyState);
 
-  nsRefPtr<nsLocalMoveCopyMsgTxn> localUndoTxn = mCopyState->m_undoMsgTxn;
+  RefPtr<nsLocalMoveCopyMsgTxn> localUndoTxn = mCopyState->m_undoMsgTxn;
   nsCOMPtr<nsIMsgWindow> msgWindow;
   nsresult rv;
 
@@ -3684,7 +3684,7 @@ nsMsgLocalMailFolder::AddMessageBatch(uint32_t aMessageCount,
     NS_ENSURE_SUCCESS(rv, rv);
     for (uint32_t i = 0; i < aMessageCount; i++)
     {
-      nsRefPtr<nsParseNewMailState> newMailParser = new nsParseNewMailState;
+      RefPtr<nsParseNewMailState> newMailParser = new nsParseNewMailState;
       NS_ENSURE_TRUE(newMailParser, NS_ERROR_OUT_OF_MEMORY);
       if (!mGettingNewMessages)
         newMailParser->DisableFilters();

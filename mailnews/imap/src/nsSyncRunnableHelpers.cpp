@@ -282,7 +282,7 @@ DispatchSyncRunnable(SyncRunnableBase* r)
 
 #define NS_SYNCRUNNABLEMETHOD0(iface, method)                       \
   NS_IMETHODIMP iface##Proxy::method() {                     \
-    nsRefPtr<SyncRunnableBase> r =                                  \
+    RefPtr<SyncRunnableBase> r =                                  \
       new SyncRunnable0<nsI##iface>                           \
       (mReceiver, &nsI##iface::method);                         \
     return DispatchSyncRunnable(r);                                 \
@@ -292,7 +292,7 @@ DispatchSyncRunnable(SyncRunnableBase* r)
 #define NS_SYNCRUNNABLEMETHOD1(iface, method,                       \
                                arg1)                                \
   NS_IMETHODIMP iface##Proxy::method(arg1 a1) {                     \
-    nsRefPtr<SyncRunnableBase> r =                                  \
+    RefPtr<SyncRunnableBase> r =                                  \
       new SyncRunnable1<nsI##iface, arg1>                           \
       (mReceiver, &nsI##iface::method, a1);                         \
     return DispatchSyncRunnable(r);                                 \
@@ -301,7 +301,7 @@ DispatchSyncRunnable(SyncRunnableBase* r)
 #define NS_SYNCRUNNABLEMETHOD2(iface, method,                       \
                                arg1, arg2)                          \
   NS_IMETHODIMP iface##Proxy::method(arg1 a1, arg2 a2) {            \
-    nsRefPtr<SyncRunnableBase> r =                                  \
+    RefPtr<SyncRunnableBase> r =                                  \
       new SyncRunnable2<nsI##iface, arg1, arg2>                     \
       (mReceiver, &nsI##iface::method, a1, a2);                     \
     return DispatchSyncRunnable(r);                                 \
@@ -310,7 +310,7 @@ DispatchSyncRunnable(SyncRunnableBase* r)
 #define NS_SYNCRUNNABLEMETHOD3(iface, method,                       \
                                arg1, arg2, arg3)                    \
   NS_IMETHODIMP iface##Proxy::method(arg1 a1, arg2 a2, arg3 a3) {   \
-    nsRefPtr<SyncRunnableBase> r =                                  \
+    RefPtr<SyncRunnableBase> r =                                  \
       new SyncRunnable3<nsI##iface, arg1, arg2, arg3>               \
       (mReceiver, &nsI##iface::method,                              \
        a1, a2, a3);                                                 \
@@ -320,7 +320,7 @@ DispatchSyncRunnable(SyncRunnableBase* r)
 #define NS_SYNCRUNNABLEMETHOD4(iface, method,                       \
                                arg1, arg2, arg3, arg4)              \
   NS_IMETHODIMP iface##Proxy::method(arg1 a1, arg2 a2, arg3 a3, arg4 a4) { \
-    nsRefPtr<SyncRunnableBase> r =                                  \
+    RefPtr<SyncRunnableBase> r =                                  \
       new SyncRunnable4<nsI##iface, arg1, arg2, arg3, arg4>         \
       (mReceiver, &nsI##iface::method,                              \
        a1, a2, a3, a4);                                             \
@@ -330,7 +330,7 @@ DispatchSyncRunnable(SyncRunnableBase* r)
 #define NS_SYNCRUNNABLEMETHOD5(iface, method,                       \
                                arg1, arg2, arg3, arg4, arg5)        \
   NS_IMETHODIMP iface##Proxy::method(arg1 a1, arg2 a2, arg3 a3, arg4 a4, arg5 a5) {   \
-    nsRefPtr<SyncRunnableBase> r =                                  \
+    RefPtr<SyncRunnableBase> r =                                  \
       new SyncRunnable5<nsI##iface, arg1, arg2, arg3, arg4, arg5>   \
       (mReceiver, &nsI##iface::method,                              \
        a1, a2, a3, a4, a5);                                         \
@@ -340,13 +340,13 @@ DispatchSyncRunnable(SyncRunnableBase* r)
 #define NS_SYNCRUNNABLEATTRIBUTE(iface, attribute,                       \
                                  type)                                \
 NS_IMETHODIMP iface##Proxy::Get##attribute(type *a1) {                     \
-    nsRefPtr<SyncRunnableBase> r =                                  \
+    RefPtr<SyncRunnableBase> r =                                  \
       new SyncRunnable1<nsI##iface, type *>                           \
       (mReceiver, &nsI##iface::Get##attribute, a1);                         \
     return DispatchSyncRunnable(r);                                 \
   } \
 NS_IMETHODIMP iface##Proxy::Set##attribute(type a1) {                     \
-    nsRefPtr<SyncRunnableBase> r =                                  \
+    RefPtr<SyncRunnableBase> r =                                  \
       new SyncRunnable1<nsI##iface, type>                           \
       (mReceiver, &nsI##iface::Set##attribute, a1);                         \
     return DispatchSyncRunnable(r);                                 \

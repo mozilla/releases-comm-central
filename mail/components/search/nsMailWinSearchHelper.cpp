@@ -58,17 +58,17 @@ NS_IMETHODIMP nsMailWinSearchHelper::GetFoldersInCrawlScope(bool* aResult)
     return rv;
 
   // We need to do this every time so that we have the latest data
-  nsRefPtr<ISearchManager> searchManager;
+  RefPtr<ISearchManager> searchManager;
   HRESULT hr = CoCreateInstance(CLSID_CSearchManager, NULL, CLSCTX_ALL, IID_ISearchManager, getter_AddRefs(searchManager));
   if (FAILED(hr))
     return NS_ERROR_FAILURE;
 
-  nsRefPtr<ISearchCatalogManager> catalogManager;
+  RefPtr<ISearchCatalogManager> catalogManager;
   hr = searchManager->GetCatalog(L"SystemIndex", getter_AddRefs(catalogManager));
   if (FAILED(hr))
     return NS_ERROR_FAILURE;
 
-  nsRefPtr<ISearchCrawlScopeManager> crawlScopeManager;
+  RefPtr<ISearchCrawlScopeManager> crawlScopeManager;
   hr = catalogManager->GetCrawlScopeManager(getter_AddRefs(crawlScopeManager));
   if (FAILED(hr))
     return NS_ERROR_FAILURE;
@@ -191,7 +191,7 @@ NS_IMETHODIMP nsMailWinSearchHelper::GetIsFileAssociationSet(bool *aResult)
   *aResult = false;
 
   // We'll use the Vista method here
-  nsRefPtr<IApplicationAssociationRegistration> pAAR;
+  RefPtr<IApplicationAssociationRegistration> pAAR;
   HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration,
                                 NULL,
                                 CLSCTX_INPROC,
@@ -208,7 +208,7 @@ NS_IMETHODIMP nsMailWinSearchHelper::GetIsFileAssociationSet(bool *aResult)
 
 NS_IMETHODIMP nsMailWinSearchHelper::SetFileAssociation()
 {
-  nsRefPtr<IApplicationAssociationRegistration> pAAR;
+  RefPtr<IApplicationAssociationRegistration> pAAR;
   HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration,
                                 NULL,
                                 CLSCTX_INPROC,

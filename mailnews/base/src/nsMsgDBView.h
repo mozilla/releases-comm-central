@@ -493,7 +493,7 @@ private:
     // nsMsgThreadEnumerator methods:
     nsMsgViewHdrEnumerator(nsMsgDBView *view);
 
-    nsRefPtr <nsMsgDBView> m_view;
+    RefPtr<nsMsgDBView> m_view;
     nsMsgViewIndex m_curHdrIndex;
 
   private:

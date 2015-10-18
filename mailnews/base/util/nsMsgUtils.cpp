@@ -2118,7 +2118,7 @@ MsgExamineForProxy(nsIChannel *channel, nsIProxyInfo **proxyInfo)
   // XXX: This "interface" ID is exposed, but it's not hooked up to the QI.
   // Until it is, use a static_cast for now.
 #if 0
-  nsRefPtr<nsProtocolProxyService> rawProxyService = do_QueryObject(proxyService, &rv);
+  RefPtr<nsProtocolProxyService> rawProxyService = do_QueryObject(proxyService, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 #else
   nsProtocolProxyService *rawProxyService = static_cast<nsProtocolProxyService*>(proxyService.get());
@@ -2373,7 +2373,7 @@ MsgDetectCharsetFromFile(nsIFile *aFile, nsACString &aCharset)
   if (detector) {
     nsAutoCString buffer;
 
-    nsRefPtr<CharsetDetectionObserver> observer = new CharsetDetectionObserver();
+    RefPtr<CharsetDetectionObserver> observer = new CharsetDetectionObserver();
 
     rv = detector->Init(observer);
     NS_ENSURE_SUCCESS(rv, rv);

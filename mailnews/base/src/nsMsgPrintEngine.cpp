@@ -659,7 +659,7 @@ public:
   }
 
 private:
-  nsRefPtr<nsMsgPrintEngine> mMsgPrintEngine;
+  RefPtr<nsMsgPrintEngine> mMsgPrintEngine;
 };
 
 //-----------------------------------------------------------
@@ -678,7 +678,7 @@ public:
   }
 
 private:
-  nsRefPtr<nsMsgPrintEngine> mMsgPrintEngine;
+  RefPtr<nsMsgPrintEngine> mMsgPrintEngine;
 };
 
 //-----------------------------------------------------------

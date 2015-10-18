@@ -1455,7 +1455,7 @@ nsMsgComposeAndSend::GetMultipartRelatedCount(bool forceToBeCalculated /*=false*
       // preallocate space for part numbers
       m_partNumbers.SetLength(count);
       // Let parse the list to count the number of valid objects. BTW, we can remove the others from the list
-      nsRefPtr<nsMsgAttachmentData> attachment(new nsMsgAttachmentData);
+      RefPtr<nsMsgAttachmentData> attachment(new nsMsgAttachmentData);
 
       int32_t i;
       nsCOMPtr<nsIDOMNode> node;
@@ -1766,7 +1766,7 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
    if (!mEmbeddedObjectList)
     return NS_ERROR_MIME_MPART_ATTACHMENT_ERROR;
 
-  nsRefPtr<nsMsgAttachmentData> attachment(new nsMsgAttachmentData);
+  RefPtr<nsMsgAttachmentData> attachment(new nsMsgAttachmentData);
   int32_t               locCount = -1;
 
   if (multipartCount > 0)
@@ -2352,7 +2352,7 @@ nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
   uint32_t i; // counter for location in attachment array...
   // Now create the array of attachment handlers...
   for (i = 0; i < m_attachment_count; i++) {
-    nsRefPtr<nsMsgAttachmentHandler> handler = new nsMsgAttachmentHandler;
+    RefPtr<nsMsgAttachmentHandler> handler = new nsMsgAttachmentHandler;
     m_attachments.AppendElement(handler);
   }
 
@@ -4810,7 +4810,7 @@ NS_IMETHODIMP nsMsgComposeAndSend::GetProcessAttachmentsSynchronously(bool *_ret
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgComposeAndSend::GetAttachmentHandlers(nsTArray<nsRefPtr<nsMsgAttachmentHandler>> **_retval)
+NS_IMETHODIMP nsMsgComposeAndSend::GetAttachmentHandlers(nsTArray<RefPtr<nsMsgAttachmentHandler>> **_retval)
 {
   NS_ENSURE_ARG(_retval);
   *_retval = &m_attachments;

@@ -57,7 +57,7 @@ public:
 
     nsCOMPtr<nsISupports> m_srcSupport; // source file spec or folder
     nsCOMPtr<nsIArray> m_messages; // array of source messages
-    nsRefPtr<nsImapMoveCopyMsgTxn> m_undoMsgTxn; // undo object with this copy operation
+    RefPtr<nsImapMoveCopyMsgTxn> m_undoMsgTxn; // undo object with this copy operation
     nsCOMPtr<nsIMsgDBHdr> m_message; // current message to be copied
     nsCOMPtr<nsIMsgCopyServiceListener> m_listener; // listener of this copy
                                                     // operation
@@ -481,8 +481,8 @@ protected:
   bool m_urlRunning;
 
   // undo move/copy transaction support
-  nsRefPtr<nsMsgTxn> m_pendingUndoTxn;
-  nsRefPtr<nsImapMailCopyState> m_copyState;
+  RefPtr<nsMsgTxn> m_pendingUndoTxn;
+  RefPtr<nsImapMailCopyState> m_copyState;
   char m_hierarchyDelimiter;
   int32_t m_boxFlags;
   nsCString m_onlineFolderName;
@@ -517,7 +517,7 @@ protected:
   bool m_filterListRequiresBody;
 
   // auto-sync (automatic message download) support
-  nsRefPtr<nsAutoSyncState> m_autoSyncStateObj;
+  RefPtr<nsAutoSyncState> m_autoSyncStateObj;
 
   // Quota support
   nsCString m_folderQuotaRoot;
@@ -527,7 +527,7 @@ protected:
   // Pseudo-Offline Playback support
   nsPlaybackRequest *m_pendingPlaybackReq;
   nsCOMPtr<nsITimer> m_playbackTimer;
-  nsTArray<nsRefPtr<nsImapMoveCopyMsgTxn> > m_pendingOfflineMoves;
+  nsTArray<RefPtr<nsImapMoveCopyMsgTxn> > m_pendingOfflineMoves;
   // hash table of mapping between messageids and message keys
   // for pseudo hdrs.
   nsDataHashtable<nsCStringHashKey, nsMsgKey> m_pseudoHdrs;

@@ -255,7 +255,7 @@ nsresult nsPop3Service::RunPopUrl(nsIMsgIncomingServer *aServer, nsIURI *aUrlToR
   NS_ENSURE_SUCCESS(rv, rv);
   if (!serverBusy)
   {
-    nsRefPtr<nsPop3Protocol> protocol = new nsPop3Protocol(aUrlToRun);
+    RefPtr<nsPop3Protocol> protocol = new nsPop3Protocol(aUrlToRun);
     if (protocol)
     {
       // the protocol stores the unescaped username, so there is no need to escape it.
@@ -509,7 +509,7 @@ NS_IMETHODIMP nsPop3Service::NewChannel2(nsIURI *aURI,
     }
   }
 
-  nsRefPtr<nsPop3Protocol> protocol = new nsPop3Protocol(aURI);
+  RefPtr<nsPop3Protocol> protocol = new nsPop3Protocol(aURI);
   NS_ENSURE_TRUE(protocol, NS_ERROR_OUT_OF_MEMORY);
 
   rv = protocol->Initialize(aURI);

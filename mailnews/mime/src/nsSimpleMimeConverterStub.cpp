@@ -199,7 +199,7 @@ nsresult
 MIME_NewSimpleMimeConverterStub(const char *aContentType,
                                 nsIMimeContentTypeHandler **aResult)
 {
-    nsRefPtr<nsSimpleMimeConverterStub> inst = new nsSimpleMimeConverterStub(aContentType);
+    RefPtr<nsSimpleMimeConverterStub> inst = new nsSimpleMimeConverterStub(aContentType);
     NS_ENSURE_TRUE(inst, NS_ERROR_OUT_OF_MEMORY);
 
     return CallQueryInterface(inst.get(), aResult);

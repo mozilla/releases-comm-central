@@ -316,7 +316,7 @@ NS_IMETHODIMP TrayServiceImpl::CreateIcon(nsIDOMWindow *aWindow, bool aCloseOnRe
     return NS_OK;
   }
 
-  nsRefPtr<TrayIconImpl> icon = new TrayIconImpl(this);
+  RefPtr<TrayIconImpl> icon = new TrayIconImpl(this);
   rv = icon->Init(aWindow, aCloseOnRestore);
   if (NS_SUCCEEDED(rv)) {
     mIcons.AppendObject(icon);

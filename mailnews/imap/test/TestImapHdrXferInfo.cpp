@@ -96,7 +96,7 @@ int main(int argc, char** argv)
   if (xpcom.failed())
     return 1;
 
-  nsRefPtr<nsMsgImapHdrXferInfo> hdrInfo = new nsMsgImapHdrXferInfo();
+  RefPtr<nsMsgImapHdrXferInfo> hdrInfo = new nsMsgImapHdrXferInfo();
   // Purposely not reference counted to ensure we get the same pointers the
   // second time round MainChecks.
   nsIImapHeaderInfo* hdrArray[kNumHdrsToXfer] = { nullptr };

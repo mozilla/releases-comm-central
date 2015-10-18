@@ -1012,7 +1012,7 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
 
   nsCOMPtr<nsIMsgDatabase> srcDB;
   srcFolder->GetMsgDatabase(getter_AddRefs(srcDB));
-  nsRefPtr<nsLocalMoveCopyMsgTxn> msgTxn = new nsLocalMoveCopyMsgTxn;
+  RefPtr<nsLocalMoveCopyMsgTxn> msgTxn = new nsLocalMoveCopyMsgTxn;
   NS_ENSURE_TRUE(msgTxn, NS_ERROR_OUT_OF_MEMORY);
   if (NS_SUCCEEDED(msgTxn->Init(srcFolder, aDstFolder, aIsMove)))
   {

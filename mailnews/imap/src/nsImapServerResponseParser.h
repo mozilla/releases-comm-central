@@ -257,7 +257,7 @@ private:
   bool fLastChunk;
 
   // points to the current body shell, if any
-  nsRefPtr<nsIMAPBodyShell> m_shell;
+  RefPtr<nsIMAPBodyShell> m_shell;
 
   // The connection object
   nsImapProtocol &fServerConnection;

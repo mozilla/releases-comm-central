@@ -83,7 +83,7 @@ protected:
                                     nsIURI *url, nsIMsgWindow *window);
     bool ConnectionTimeOut(nsINNTPProtocol* aNntpConnection);
     nsCOMArray<nsINNTPProtocol> mConnectionCache;
-    nsTArray<nsRefPtr<nsNntpMockChannel> > m_queuedChannels;
+    nsTArray<RefPtr<nsNntpMockChannel> > m_queuedChannels;
 
     /**
      * Downloads the newsgroup headers.

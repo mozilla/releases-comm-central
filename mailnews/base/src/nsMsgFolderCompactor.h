@@ -60,7 +60,7 @@ protected:
   nsCOMPtr <nsIFile> m_file; // new mailbox for the compact folder
   nsCOMPtr <nsIOutputStream> m_fileStream; // output file stream for writing
   // all message keys that need to be copied over
-  nsRefPtr<nsMsgKeyArray> m_keyArray;
+  RefPtr<nsMsgKeyArray> m_keyArray;
   uint32_t m_size;
 
    // sum of the sizes of the messages, accumulated as we visit each msg.

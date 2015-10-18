@@ -2511,7 +2511,7 @@ public:
     void Clear();
 protected:
     virtual ~nsAddrDBEnumerator();
-    nsRefPtr<nsAddrDatabase> mDb;
+    RefPtr<nsAddrDatabase> mDb;
     nsIMdbTable *mDbTable;
     nsCOMPtr<nsIMdbTableRowCursor> mRowCursor;
     nsCOMPtr<nsIMdbRow> mCurrentRow;
@@ -2677,7 +2677,7 @@ public:
 
 protected:
     ~nsListAddressEnumerator() {}
-    nsRefPtr<nsAddrDatabase> mDb;
+    RefPtr<nsAddrDatabase> mDb;
     nsIMdbTable *mDbTable;
     nsCOMPtr<nsIMdbRow> mListRow;
     mdb_id mListRowID;

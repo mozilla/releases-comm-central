@@ -41,10 +41,10 @@ struct nsLocalMailCopyState
   nsCOMPtr<nsIArray> m_messages;
   /// Destination nsIMsgDBHdr instances.
   nsCOMPtr<nsIMutableArray> m_destMessages;
-  nsRefPtr<nsLocalMoveCopyMsgTxn> m_undoMsgTxn;
+  RefPtr<nsLocalMoveCopyMsgTxn> m_undoMsgTxn;
   nsCOMPtr<nsIMsgDBHdr> m_message; // current copy message
   nsMsgMessageFlagType m_flags; // current copy message flags
-  nsRefPtr<nsParseMailMessageState> m_parseMsgState;
+  RefPtr<nsParseMailMessageState> m_parseMsgState;
   nsCOMPtr<nsIMsgCopyServiceListener> m_listener;
   nsCOMPtr<nsIMsgWindow> m_msgWindow;
   nsCOMPtr<nsIMsgDatabase> m_destDB;

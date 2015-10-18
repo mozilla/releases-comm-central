@@ -1253,7 +1253,7 @@ bool nsIMAPBodyShellCache::AddShellToCache(nsIMAPBodyShell *shell)
   // First, for safety sake, remove any entry with the given UID,
   // just in case we have a collision between two messages in different
   // folders with the same UID.
-  nsRefPtr<nsIMAPBodyShell> foundShell;
+  RefPtr<nsIMAPBodyShell> foundShell;
   m_shellHash.Get(shell->GetUID(), getter_AddRefs(foundShell));
   if (foundShell)
   {
@@ -1279,7 +1279,7 @@ bool nsIMAPBodyShellCache::AddShellToCache(nsIMAPBodyShell *shell)
 nsIMAPBodyShell *nsIMAPBodyShellCache::FindShellForUID(nsCString &UID, const char *mailboxName,
                                                        IMAP_ContentModifiedType modType)
 {
-  nsRefPtr<nsIMAPBodyShell> foundShell;
+  RefPtr<nsIMAPBodyShell> foundShell;
   m_shellHash.Get(UID, getter_AddRefs(foundShell));
   if (!foundShell)
     return nullptr;

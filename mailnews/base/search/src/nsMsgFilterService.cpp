@@ -106,7 +106,7 @@ NS_IMETHODIMP nsMsgFilterService::OpenFilterList(nsIFile *aFilterFile,
   NS_ENSURE_SUCCESS(rv, rv);
   NS_ENSURE_TRUE(fileStream, NS_ERROR_OUT_OF_MEMORY);
 
-  nsRefPtr<nsMsgFilterList> filterList = new nsMsgFilterList();
+  RefPtr<nsMsgFilterList> filterList = new nsMsgFilterList();
   NS_ENSURE_TRUE(filterList, NS_ERROR_OUT_OF_MEMORY);
   filterList->SetFolder(rootFolder);
 
@@ -911,7 +911,7 @@ nsMsgFilterService::ApplyFiltersToFolders(nsIMsgFilterList *aFilterList,
   NS_ENSURE_ARG_POINTER(aFilterList);
   NS_ENSURE_ARG_POINTER(aFolders);
 
-  nsRefPtr<nsMsgFilterAfterTheFact> filterExecutor =
+  RefPtr<nsMsgFilterAfterTheFact> filterExecutor =
     new nsMsgFilterAfterTheFact(aMsgWindow, aFilterList, aFolders, aCallback);
   if (filterExecutor)
     return filterExecutor->AdvanceToNextFolder();
@@ -1112,7 +1112,7 @@ NS_IMETHODIMP nsMsgFilterService::ApplyFilters(nsMsgFilterTypeType aFilterType,
 
   // Create our nsMsgApplyFiltersToMessages object which will be called when ApplyFiltersToHdr
   // finds one or more filters that hit.
-  nsRefPtr<nsMsgApplyFiltersToMessages> filterExecutor =
+  RefPtr<nsMsgApplyFiltersToMessages> filterExecutor =
     new nsMsgApplyFiltersToMessages(aMsgWindow, filterList, folderList,
                                     aMsgHdrList, aFilterType, aCallback);
 

@@ -162,9 +162,9 @@ nsMimeHtmlDisplayEmitter::GetHeaderSink(nsIMsgHeaderSink ** aHeaderSink)
 nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(nsIMsgHeaderSink * aHeaderSink, int32_t aHeaderMode, bool aFromNewsgroup)
 {
   // two string enumerators to pass out to the header sink
-  nsRefPtr<nsMimeStringEnumerator> headerNameEnumerator = new nsMimeStringEnumerator();
+  RefPtr<nsMimeStringEnumerator> headerNameEnumerator = new nsMimeStringEnumerator();
   NS_ENSURE_TRUE(headerNameEnumerator, NS_ERROR_OUT_OF_MEMORY);
-  nsRefPtr<nsMimeStringEnumerator> headerValueEnumerator = new nsMimeStringEnumerator();
+  RefPtr<nsMimeStringEnumerator> headerValueEnumerator = new nsMimeStringEnumerator();
   NS_ENSURE_TRUE(headerValueEnumerator, NS_ERROR_OUT_OF_MEMORY);
 
   nsCString extraExpandedHeaders;

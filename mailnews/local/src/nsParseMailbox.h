@@ -243,7 +243,7 @@ protected:
   nsCOMPtr<nsIOutputStream> m_outputStream;
   nsCOMArray <nsIMsgFolder> m_filterTargetFolders;
 
-  nsRefPtr<nsImapMoveCoalescer> m_moveCoalescer;
+  RefPtr<nsImapMoveCoalescer> m_moveCoalescer;
 
   bool          m_msgMovedByFilter;
   bool          m_msgCopiedByFilter;

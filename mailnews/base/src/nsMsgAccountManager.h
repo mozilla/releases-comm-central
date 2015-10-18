@@ -98,7 +98,7 @@ private:
   nsInterfaceHashtable<nsCStringHashKey, nsIMsgIncomingServer> m_incomingServers;
   nsCOMPtr<nsIMsgAccount> m_defaultAccount;
   nsCOMArray<nsIIncomingServerListener> m_incomingServerListeners;
-  nsTObserverArray<nsRefPtr<VirtualFolderChangeListener> > m_virtualFolderListeners;
+  nsTObserverArray<RefPtr<VirtualFolderChangeListener> > m_virtualFolderListeners;
   nsCOMPtr<nsIMsgFolder> m_folderDoingEmptyTrash;
   nsCOMPtr<nsIMsgFolder> m_folderDoingCleanupInbox;
   bool m_emptyTrashInProgress;

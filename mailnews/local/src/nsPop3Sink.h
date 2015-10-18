@@ -60,7 +60,7 @@ protected:
     nsCOMPtr<nsIPop3IncomingServer> m_popServer;
     //Currently the folder we want to update about biff info
     nsCOMPtr<nsIMsgFolder> m_folder;
-    nsRefPtr<nsParseNewMailState> m_newMailParser;
+    RefPtr<nsParseNewMailState> m_newMailParser;
     nsCOMPtr <nsIOutputStream> m_outFileStream; // the file we write to, which may be temporary
     nsCOMPtr<nsIMsgPluggableStore> m_msgStore;
     bool m_uidlDownload;

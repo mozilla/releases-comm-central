@@ -642,7 +642,7 @@ nsresult nsMessenger::SaveAttachment(nsIFile *aFile,
 
   // This instance will be held onto by the listeners, and will be released once 
   // the transfer has been completed.
-  nsRefPtr<nsSaveMsgListener> saveListener(new nsSaveMsgListener(aFile, this, aListener));
+  RefPtr<nsSaveMsgListener> saveListener(new nsSaveMsgListener(aFile, this, aListener));
   if (!saveListener)
     return NS_ERROR_OUT_OF_MEMORY;
 
@@ -1044,7 +1044,7 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
 
     // After saveListener goes out of scope, the listener will be owned by
     // whoever the listener is registered with, usually a URL.
-    nsRefPtr<nsSaveMsgListener> saveListener = new nsSaveMsgListener(saveAsFile, this, nullptr);
+    RefPtr<nsSaveMsgListener> saveListener = new nsSaveMsgListener(saveAsFile, this, nullptr);
     if (!saveListener) {
       rv = NS_ERROR_OUT_OF_MEMORY;
       goto done;

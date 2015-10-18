@@ -26,7 +26,7 @@
 #include "prprf.h"
 #include "nsIMsgHdr.h"
 #include "nsIFileURL.h"
-#include "mozilla/nsRefPtr.h"
+#include "mozilla/RefPtr.h"
 
 nsMailboxService::nsMailboxService()
 {
@@ -600,7 +600,7 @@ NS_IMETHODIMP nsMailboxService::NewChannel2(nsIURI *aURI,
     }
   }
 
-  nsRefPtr<nsMailboxProtocol> protocol = new nsMailboxProtocol(aURI);
+  RefPtr<nsMailboxProtocol> protocol = new nsMailboxProtocol(aURI);
   if (!protocol) {
     return NS_ERROR_OUT_OF_MEMORY;
   }

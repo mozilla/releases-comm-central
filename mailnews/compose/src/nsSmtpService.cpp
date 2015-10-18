@@ -218,7 +218,7 @@ nsresult NS_MsgLoadSmtpUrl(nsIURI * aUrl, nsISupports * aConsumer, nsIRequest **
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Create a smtp protocol instance to run the url in.
-  nsRefPtr<nsSmtpProtocol> smtpProtocol = new nsSmtpProtocol(aUrl);
+  RefPtr<nsSmtpProtocol> smtpProtocol = new nsSmtpProtocol(aUrl);
   if (!smtpProtocol)
     return NS_ERROR_OUT_OF_MEMORY;
 

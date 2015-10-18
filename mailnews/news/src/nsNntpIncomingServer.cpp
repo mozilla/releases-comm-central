@@ -620,7 +620,7 @@ nsNntpIncomingServer::PrepareForNextUrl(nsNNTPProtocol *aConnection)
   // on.
   while (m_queuedChannels.Length() > 0)
   {
-    nsRefPtr<nsNntpMockChannel> channel = m_queuedChannels[0];
+    RefPtr<nsNntpMockChannel> channel = m_queuedChannels[0];
     m_queuedChannels.RemoveElementAt(0);
     nsresult rv = channel->AttachNNTPConnection(*aConnection);
     // If this succeeded, the connection is now running the URL.

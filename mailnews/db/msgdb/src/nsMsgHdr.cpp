@@ -1007,7 +1007,7 @@ protected:
   // Hold a reference to the hdr so it will hold an xpcom reference to the
   // underlying mdb row. The row cell cursor will crash if the underlying
   // row goes away.
-  nsRefPtr<nsMsgHdr> m_hdr;
+  RefPtr<nsMsgHdr> m_hdr;
   bool mNextPrefetched;
   mdb_column mNextColumn;
 };
@@ -1016,7 +1016,7 @@ nsMsgPropertyEnumerator::nsMsgPropertyEnumerator(nsMsgHdr* aHdr)
   :  mNextPrefetched(false),
      mNextColumn(NULL_MORK_COLUMN)
 {
-  nsRefPtr<nsMsgDatabase> mdb;
+  RefPtr<nsMsgDatabase> mdb;
   nsCOMPtr<nsIMdbRow> mdbRow;
 
   if (aHdr &&

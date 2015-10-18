@@ -367,10 +367,10 @@ private:
   bool        m_nextUrlReadyToRun;
   nsWeakPtr   m_server;
 
-  nsRefPtr<ImapMailFolderSinkProxy> m_imapMailFolderSink;
-  nsRefPtr<ImapMessageSinkProxy>    m_imapMessageSink;
-  nsRefPtr<ImapServerSinkProxy>     m_imapServerSink;
-  nsRefPtr<ImapProtocolSinkProxy>   m_imapProtocolSink;
+  RefPtr<ImapMailFolderSinkProxy> m_imapMailFolderSink;
+  RefPtr<ImapMessageSinkProxy>    m_imapMessageSink;
+  RefPtr<ImapServerSinkProxy>     m_imapServerSink;
+  RefPtr<ImapProtocolSinkProxy>   m_imapProtocolSink;
 
   // helper function to setup imap sink interface proxies
   void SetupSinkProxy();
@@ -603,8 +603,8 @@ private:
   int32_t m_socketType;
   int32_t m_chunkSize;
   int32_t m_chunkThreshold;
-  nsRefPtr <nsMsgImapLineDownloadCache> m_downloadLineCache;
-  nsRefPtr <nsMsgImapHdrXferInfo> m_hdrDownloadCache;
+  RefPtr<nsMsgImapLineDownloadCache> m_downloadLineCache;
+  RefPtr<nsMsgImapHdrXferInfo> m_hdrDownloadCache;
   nsCOMPtr <nsIImapHeaderInfo> m_curHdrInfo;
   // mapping between mailboxes and the corresponding folder flags
   nsDataHashtable<nsCStringHashKey, int32_t> m_standardListMailboxes;
@@ -672,7 +672,7 @@ private:
 
   nsString m_emptyMimePartString;
 
-  nsRefPtr<mozilla::mailnews::OAuth2ThreadHelper> mOAuth2Support;
+  RefPtr<mozilla::mailnews::OAuth2ThreadHelper> mOAuth2Support;
 };
 
 // This small class is a "mock" channel because it is a mockery of the imap channel's implementation...

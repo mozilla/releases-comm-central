@@ -88,7 +88,7 @@ public:
 
     nsresult                        GetRowCursor();
     virtual nsresult                PrefetchNext();
-    nsRefPtr<nsMsgDatabase>         mDB;
+    RefPtr<nsMsgDatabase>         mDB;
     nsCOMPtr<nsIMdbTableRowCursor>  mRowCursor;
     mdb_pos                         mRowPos;
     nsCOMPtr<nsIMsgDBHdr>           mResultHdr;
@@ -424,7 +424,7 @@ public:
   }
 private:
   uint32_t m_cacheSize;
-  nsRefPtr<mozilla::mailnews::MsgDBReporter> mMemReporter;
+  RefPtr<mozilla::mailnews::MsgDBReporter> mMemReporter;
 };
 
 class nsMsgRetentionSettings : public nsIMsgRetentionSettings

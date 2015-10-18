@@ -267,7 +267,7 @@ public:
   nsMsgKey                  m_messageKey;        // jt -- Draft/Template support; newly created key
   nsCOMPtr<nsIMsgIdentity>  mUserIdentity;
   nsCString                 mAccountKey;
-  nsRefPtr<nsMsgCompFields> mCompFields;         // All needed composition fields (header, etc...)
+  RefPtr<nsMsgCompFields> mCompFields;         // All needed composition fields (header, etc...)
   nsCOMPtr<nsIFile>         mTempFile;           // our temporary file
 
   nsCOMPtr<nsIOutputStream> mOutputFile;         // the actual output file stream
@@ -303,7 +303,7 @@ public:
   //
   nsCOMPtr<nsIFile>         mCopyFile;
   nsCOMPtr<nsIFile>         mCopyFile2;
-  nsRefPtr<nsMsgCopy>       mCopyObj;
+  RefPtr<nsMsgCopy>       mCopyObj;
   bool                      mNeedToPerformSecondFCC;
   bool                      mPerformingSecondFCC;
 
@@ -321,7 +321,7 @@ public:
   char                    *mOriginalHTMLBody;
 
   // The plaintext form of the first attachment, if needed.
-  nsRefPtr<nsMsgAttachmentHandler>  m_plaintext;
+  RefPtr<nsMsgAttachmentHandler>  m_plaintext;
 
   // The multipart/related save object for HTML text.
   nsMsgSendPart           *m_related_part;
@@ -332,7 +332,7 @@ public:
   //
   uint32_t                m_attachment_count;
   uint32_t                m_attachment_pending_count;
-  nsTArray< nsRefPtr<nsMsgAttachmentHandler> >  m_attachments;
+  nsTArray< RefPtr<nsMsgAttachmentHandler> >  m_attachments;
   nsresult                m_status; // in case some attachments fail but not all
 
   uint32_t                mPreloadedAttachmentCount;

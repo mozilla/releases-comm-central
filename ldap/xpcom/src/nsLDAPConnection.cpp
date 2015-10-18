@@ -394,7 +394,7 @@ public:
   {}
   NS_DECL_NSIRUNNABLE
 private:
-  nsRefPtr<nsLDAPMessage> m_msg;
+  RefPtr<nsLDAPMessage> m_msg;
   bool m_clear;
 };
 
@@ -445,7 +445,7 @@ nsLDAPConnection::InvokeMessageCallback(LDAPMessage *aMsgHandle,
   msg->mOperation = operation;
 
   // proxy the listener callback to the ui thread.
-  nsRefPtr<nsOnLDAPMessageRunnable> runnable =
+  RefPtr<nsOnLDAPMessageRunnable> runnable =
     new nsOnLDAPMessageRunnable(msg, aRemoveOpFromConnQ);
   // invoke the callback
   NS_DispatchToMainThread(runnable);
@@ -636,7 +636,7 @@ NS_IMETHODIMP nsLDAPConnectionRunnable::Run()
 
   LDAPMessage *msgHandle;
   bool operationFinished = true;
-  nsRefPtr<nsLDAPMessage> msg;
+  RefPtr<nsLDAPMessage> msg;
 
   struct timeval timeout = { 0, 0 };
 

@@ -120,7 +120,7 @@ public:
   NS_DECL_NSIRUNNABLE
 
   int32_t mOperationID;
-  nsRefPtr<nsLDAPConnection> mConnection;
+  RefPtr<nsLDAPConnection> mConnection;
 
 private:
   virtual ~nsLDAPConnectionRunnable();

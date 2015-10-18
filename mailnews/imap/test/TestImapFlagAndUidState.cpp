@@ -90,7 +90,7 @@ int main(int argc, char** argv)
   {17, kImapMsgSeenFlag, 3},
   {18, kImapMsgSeenFlag, 4}};
 
-  nsRefPtr<nsImapFlagAndUidState> flagState = new nsImapFlagAndUidState(10);
+  RefPtr<nsImapFlagAndUidState> flagState = new nsImapFlagAndUidState(10);
   int32_t numMsgs = sizeof(msgState1) / sizeof(msgState1[0]);
   for (int32_t i = 0; i < numMsgs; i++)
         flagState->AddUidFlagPair(msgState1[i].uid, msgState1[i].flag,

@@ -47,7 +47,7 @@ protected:
   void EnableFolderNotifications(bool aEnable);
   void ReleaseFolderDBRef();
 
-  nsTArray<nsRefPtr<nsMsgSearchScopeTerm>> m_scopeList;
+  nsTArray<RefPtr<nsMsgSearchScopeTerm>> m_scopeList;
   nsCOMPtr <nsISupportsArray> m_termList;
 
   nsTArray<nsCOMPtr<nsIMsgSearchNotify> > m_listenerList;

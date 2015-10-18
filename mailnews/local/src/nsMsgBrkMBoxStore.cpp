@@ -816,7 +816,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::RebuildIndex(nsIMsgFolder *aFolder,
     do_GetService(NS_MAILBOXSERVICE_CONTRACTID1, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsRefPtr<nsMsgMailboxParser> parser = new nsMsgMailboxParser(aFolder);
+  RefPtr<nsMsgMailboxParser> parser = new nsMsgMailboxParser(aFolder);
   NS_ENSURE_TRUE(parser, NS_ERROR_OUT_OF_MEMORY);
   rv = parser->Init();
   NS_ENSURE_SUCCESS(rv, rv);

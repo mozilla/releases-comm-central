@@ -813,7 +813,7 @@ nsPgpMimeMimeContentTypeHandlerConstructor(nsISupports *aOuter,
   NS_ENSURE_FALSE(aOuter, NS_ERROR_NO_AGGREGATION);
   *aResult = nullptr;
 
-  nsRefPtr<nsMimeContentTypeHandler> inst(
+  RefPtr<nsMimeContentTypeHandler> inst(
     new nsMimeContentTypeHandler("mulitpart/encrypted",
                                  &MIME_PgpMimeCreateContentTypeHandlerClass));
 

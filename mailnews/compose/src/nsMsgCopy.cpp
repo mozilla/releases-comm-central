@@ -243,7 +243,7 @@ nsMsgCopy::DoCopy(nsIFile *aDiskFile, nsIMsgFolder *dstFolder,
   //Call copyservice with dstFolder, disk file, and txnManager
   if(NS_SUCCEEDED(rv))
   {
-    nsRefPtr<CopyListener> copyListener = new CopyListener();
+    RefPtr<CopyListener> copyListener = new CopyListener();
     if (!copyListener)
       return NS_ERROR_OUT_OF_MEMORY;
 

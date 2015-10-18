@@ -533,7 +533,7 @@ nsresult nsMsgSearchSession::NotifyListenersDone(nsresult aStatus)
 {
   // need to stabilize "this" in case one of the listeners releases the last
   // reference to us.
-  nsRefPtr<nsIMsgSearchSession> kungFuDeathGrip(this);
+  RefPtr<nsIMsgSearchSession> kungFuDeathGrip(this);
 
   nsCOMPtr<nsIMsgSearchNotify> listener;
   m_iListener = 0;

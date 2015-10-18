@@ -274,7 +274,7 @@ nsresult ProxySignedStatus(const nsMainThreadPtrHandle<nsIMsgSMIMEHeaderSink> &a
                            int32_t aSignatureStatus,
                            nsIX509Cert *aSignerCert)
 {
-  nsRefPtr<SignedStatusRunnable> signedStatus =
+  RefPtr<SignedStatusRunnable> signedStatus =
     new SignedStatusRunnable(aSink, aNestingLevel, aSignatureStatus, aSignerCert);
   return NS_DispatchToMainThread(signedStatus, NS_DISPATCH_SYNC);
 }
@@ -573,7 +573,7 @@ void MimeCMSRequestAsyncSignatureVerification(nsICMSMessage *aCMSMsg,
   if (!msg2)
     return;
   
-  nsRefPtr<nsSMimeVerificationListener> listener = 
+  RefPtr<nsSMimeVerificationListener> listener = 
     new nsSMimeVerificationListener(aFromAddr, aFromName, aSenderAddr, aSenderName,
                                     aHeaderSink, aMimeNestingLevel);
   if (!listener)

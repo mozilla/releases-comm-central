@@ -187,7 +187,7 @@ NS_IMETHODIMP nsAddbookUrl::Clone(nsIURI **_retval)
 {
   NS_ENSURE_ARG_POINTER(_retval);
 
-  nsRefPtr<nsAddbookUrl> clone = new nsAddbookUrl();
+  RefPtr<nsAddbookUrl> clone = new nsAddbookUrl();
 
   if (!clone)
     return NS_ERROR_OUT_OF_MEMORY;
@@ -233,7 +233,7 @@ nsAddbookUrl::CloneIgnoringRef(nsIURI** _retval)
 {
   NS_ENSURE_ARG_POINTER(_retval);
 
-  nsRefPtr<nsAddbookUrl> clone = new nsAddbookUrl();
+  RefPtr<nsAddbookUrl> clone = new nsAddbookUrl();
 
   if (!clone)
     return NS_ERROR_OUT_OF_MEMORY;

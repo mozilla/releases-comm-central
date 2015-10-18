@@ -362,7 +362,7 @@ nsImportService::CreateRFC822Message(nsIMsgIdentity *aIdentity,
                                      nsIArray *aEmbeddedAttachments,
                                      nsIMsgSendListener *aListener)
 {
-    nsRefPtr<nsProxySendRunnable> runnable =
+    RefPtr<nsProxySendRunnable> runnable =
       new nsProxySendRunnable(aIdentity,
                               aMsgFields,
                               aBodyType,

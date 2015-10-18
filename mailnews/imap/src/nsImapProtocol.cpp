@@ -1831,7 +1831,7 @@ bool nsImapProtocol::ProcessCurrentURL()
   if (suspendUrl)
     m_imapServerSink->SuspendUrl(m_runningUrl);
   // save the imap folder sink since we need it to do the CopyNextStreamMessage
-  nsRefPtr<ImapMailFolderSinkProxy> imapMailFolderSink = m_imapMailFolderSink;
+  RefPtr<ImapMailFolderSinkProxy> imapMailFolderSink = m_imapMailFolderSink;
   // release the url as we are done with it...
   ReleaseUrlState(false);
   ResetProgressInfo();
@@ -2579,7 +2579,7 @@ void nsImapProtocol::ProcessSelectedStateURL()
                   IMAP_CONTENT_MODIFIED_VIEW_INLINE :
                   IMAP_CONTENT_MODIFIED_VIEW_AS_LINKS ;
 
-                nsRefPtr<nsIMAPBodyShell> foundShell;
+                RefPtr<nsIMAPBodyShell> foundShell;
                 res = m_hostSessionList->FindShellInCacheForHost(GetImapServerKey(),
                   GetServerStateParser().GetSelectedMailboxName(),
                   messageIdString.get(), modType, getter_AddRefs(foundShell));
@@ -2650,7 +2650,7 @@ void nsImapProtocol::ProcessSelectedStateURL()
 
                 // Before fetching the bodystructure, let's check our body shell cache to see if
                 // we already have it around.
-                nsRefPtr<nsIMAPBodyShell> foundShell;
+                RefPtr<nsIMAPBodyShell> foundShell;
                 IMAP_ContentModifiedType modType = GetShowAttachmentsInline() ?
                   IMAP_CONTENT_MODIFIED_VIEW_INLINE :
                   IMAP_CONTENT_MODIFIED_VIEW_AS_LINKS ;
@@ -5431,7 +5431,7 @@ nsresult nsImapProtocol::BeginCompressing()
 {
   // wrap the streams in compression layers that compress or decompress
   // all traffic.
-  nsRefPtr<nsMsgCompressIStream> new_in = new nsMsgCompressIStream();
+  RefPtr<nsMsgCompressIStream> new_in = new nsMsgCompressIStream();
   if (!new_in)
     return NS_ERROR_OUT_OF_MEMORY;
 
@@ -5440,7 +5440,7 @@ nsresult nsImapProtocol::BeginCompressing()
 
   m_inputStream = new_in;
 
-  nsRefPtr<nsMsgCompressOStream> new_out = new nsMsgCompressOStream();
+  RefPtr<nsMsgCompressOStream> new_out = new nsMsgCompressOStream();
   if (!new_out)
     return NS_ERROR_OUT_OF_MEMORY;
 

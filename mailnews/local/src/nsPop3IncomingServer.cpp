@@ -165,7 +165,7 @@ NS_IMETHODIMP nsPop3IncomingServer::GetDeferredToAccount(nsACString& aRetVal)
                 {
                   // Copy any messages in this sub-folder of the hidden
                   // account to the corresponding folder in Local Folders.
-                  nsRefPtr<nsMsgKeyArray> keys = new nsMsgKeyArray;
+                  RefPtr<nsMsgKeyArray> keys = new nsMsgKeyArray;
                   rv = subFolderDB->ListAllKeys(keys);
                   nsCOMPtr<nsIMutableArray> hdrsToCopy(do_CreateInstance(NS_ARRAY_CONTRACTID));
                   MsgGetHeadersFromKeys(subFolderDB, keys->m_keys, hdrsToCopy);

@@ -89,7 +89,7 @@ class nsLDAPOperation : public nsILDAPOperation
 
     nsCOMPtr<nsILDAPMessageListener> mMessageListener; // results go here
     nsCOMPtr<nsISupports> mClosure;  // private parameter (anything caller desires)
-    nsRefPtr<nsLDAPConnection> mConnection; // connection this op is on
+    RefPtr<nsLDAPConnection> mConnection; // connection this op is on
 
     LDAP *mConnectionHandle; // cache connection handle
     nsCString mSavePassword;

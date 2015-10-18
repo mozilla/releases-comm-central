@@ -519,7 +519,7 @@ NS_IMETHODIMP nsMailtoUrl::Clone(nsIURI **_retval)
 {
   NS_ENSURE_ARG_POINTER(_retval);
 
-  nsRefPtr<nsMailtoUrl> clone = new nsMailtoUrl();
+  RefPtr<nsMailtoUrl> clone = new nsMailtoUrl();
 
   NS_ENSURE_TRUE(clone, NS_ERROR_OUT_OF_MEMORY);
 
