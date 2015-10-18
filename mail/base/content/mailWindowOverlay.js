@@ -3164,13 +3164,16 @@ function onRemoteContentOptionsShowing(aEvent) {
   let addresses = {};
   MailServices.headerParser.parseHeadersWithArray(
     gMessageDisplay.displayedMessage.author, addresses, {}, {});
-  let authorEmailAddress = addresses.value[0];
-  let authorEmailAddressURI = Services.io.newURI(
-    "chrome://messenger/content/?email=" + authorEmailAddress, null, null);
-  let mailPrincipal = Services.scriptSecurityManager
-    .createCodebasePrincipal(authorEmailAddressURI, {});
-  // Put author email first in the menu.
-  origins.splice(0, 0, mailPrincipal.origin);
+  let adrCount = addresses.value[0] ? 1 : 0;
+  // If there is an author's email, put it also in the menu.
+  if (adrCount > 0) {
+    let authorEmailAddress = addresses.value[0];
+    let authorEmailAddressURI = Services.io.newURI(
+      "chrome://messenger/content/?email=" + authorEmailAddress, null, null);
+    let mailPrincipal = Services.scriptSecurityManager
+      .createCodebasePrincipal(authorEmailAddressURI, {});
+    origins.push(mailPrincipal.origin);
+  }
 
   let messengerBundle = document.getElementById("bundle_messenger");
 
@@ -3181,26 +3184,58 @@ function onRemoteContentOptionsShowing(aEvent) {
       childNodes[i].remove();
   }
 
+
+  let urlSepar = document.getElementById("remoteContentAllMenuSeparator");
+
   // ... and in with the new.
   for (let origin of origins) {
     let menuitem = document.createElement("menuitem");
     menuitem.setAttribute("label",
-      messengerBundle.getFormattedString("remoteAllow",
+      messengerBundle.getFormattedString("remoteAllowResource",
         [origin.replace("chrome://messenger/content/?email=", "")]));
     menuitem.setAttribute("value", origin);
     menuitem.setAttribute("class", "allow-remote-uri");
     menuitem.setAttribute("oncommand", "allowRemoteContentForURI(this.value);");
-    aEvent.target.appendChild(menuitem);
+    if (origin.startsWith("chrome://messenger/content/?email="))
+      aEvent.target.appendChild(menuitem);
+    else
+      aEvent.target.insertBefore(menuitem, urlSepar);
   }
+
+  let URLcount = origins.length - adrCount;
+  let allowAllItem = document.getElementById("remoteContentOptionAllowAll");
+  let allURLLabel = messengerBundle.getString("remoteAllowAll");
+  allowAllItem.label = PluralForm.get(URLcount, allURLLabel).replace("#1", URLcount);
+
+  allowAllItem.collapsed = (URLcount < 2);
+  document.getElementById("remoteContentOriginsMenuSeparator").collapsed =
+    urlSepar.collapsed = allowAllItem.collapsed && (adrCount == 0);
 }
 
 /**
  * Add privileges to display remote content for the given uri.
+ *
  * @param aUriSpec |String| uri for the site to add permissions for.
+ * @param aReload  Reload the message display after allowing the URI.
  */
-function allowRemoteContentForURI(aUriSpec) {
+function allowRemoteContentForURI(aUriSpec, aReload = true) {
   let uri = Services.io.newURI(aUriSpec, null, null);
   Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
+  if (aReload)
+    ReloadMessage();
+}
+
+/**
+ * Add privileges to display remote content for the given uri.
+ *
+ * @param aListNode  The menulist element containing the URIs to allow.
+ */
+function allowRemoteContentForAll(aListNode) {
+  let uriNodes = aListNode.querySelectorAll(".allow-remote-uri");
+  for (let uriNode of uriNodes) {
+    if (!uriNode.value.startsWith("chrome://messenger/content/?email="))
+      allowRemoteContentForURI(uriNode.value, false);
+  }
   ReloadMessage();
 }
 

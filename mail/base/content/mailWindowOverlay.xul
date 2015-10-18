@@ -1015,6 +1015,10 @@
               accesskey="&editRemoteContentSettingsUnix.accesskey;"
 #endif
               oncommand="editRemoteContentSettings();"/>
+    <menuseparator id="remoteContentOriginsMenuSeparator"/>
+    <menuseparator id="remoteContentAllMenuSeparator"/>
+    <menuitem id="remoteContentOptionAllowAll"
+              oncommand="allowRemoteContentForAll(this.parentNode);"/>
   </menupopup>
 
   <menupopup id="phishingOptions">
