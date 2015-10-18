@@ -22,7 +22,7 @@
         <toolbar id="dummycontenttoolbar" class="contentTabToolbar">
         </toolbar>
       </toolbox>
-      <notificationbox flex="1">
+      <notificationbox flex="1" notificationside="top">
         <browser id="dummycontentbrowser" type="content-targetable" flex="1"
                  disablehistory="true" autocompletepopup="PopupAutoComplete"
                  context="mailContext"/>
@@ -36,7 +36,7 @@
       <toolbox id="dummychrometoolbox" class="contentTabToolbox">
         <toolbar id="dummychrometoolbar" class="contentTabToolbar"></toolbar>
       </toolbox>
-      <notificationbox flex="1">
+      <notificationbox flex="1" notificationside="top">
         <browser id="dummychromebrowser" flex="1"
                  disablesecurity="true" disablehistory="true"
                  autocompletepopup="PopupAutoComplete"/>

@@ -146,7 +146,7 @@
       <hbox id="msgHeaderView"/>
       <!-- The msgNotificationBar appears on top of the message and displays
            information like: junk, mdn, remote content and phishing warnings -->
-      <notificationbox id="msgNotificationBar"/>
+      <notificationbox id="msgNotificationBar" notificationside="top"/>
 
       <!-- message view -->
       <browser id="messagepane" context="mailContext" tooltip="aHTMLTooltip"

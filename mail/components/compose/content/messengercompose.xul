@@ -1082,7 +1082,9 @@
   </panel>
 
   <hbox>
-    <notificationbox id="attachmentNotificationBox" flex="1" />
+    <notificationbox id="attachmentNotificationBox"
+                     flex="1"
+                     notificationside="bottom"/>
   </hbox>
 
   <statusbar id="status-bar" class="chromeclass-status">

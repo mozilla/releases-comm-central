@@ -173,12 +173,6 @@ toolbar[brighttext] #button-print {
 
 /* ::::: attachment reminder ::::: */
 
-#attachmentNotificationBox > notification > .notification-inner {
-  border: none;
-  border-top: 1px solid ThreeDShadow;
-  border-bottom: 1px solid ThreeDShadow;
-}
-
 #attachmentNotificationBox > notification .messageImage {
   width: 22px;
   height: 22px;

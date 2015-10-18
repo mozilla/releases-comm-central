@@ -68,12 +68,6 @@ notification[value="addon-install-failed"] {
   background-image: linear-gradient(rgb(255, 100, 100), rgb(204, 85, 85));
 }
 
-notification[value="addon-install-blocked"] .notification-inner,
-notification[value="addon-install-failed"] .notification-inner,
-notification[value="addon-install-complete"] .notification-inner {
-  border: none;
-}
-
 /* ::::: searchTermOverlay ::::: */
 
 #searchTermList > listitem[highlight = "true"] {
