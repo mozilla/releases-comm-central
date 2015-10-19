@@ -149,12 +149,31 @@ pref("mail.accountwizard.deferstorage", false);
 pref("mail.showCondensedAddresses", false);
 #endif
 
-// the format for "mail.addr_book.quicksearchquery.format" is:
-// @V == the escaped value typed in the quick search bar in the addressbook
+// mail.addr_book.quicksearchquery.format is the model query used for:
+// * TB: AB Quick Search and composition's Contact Side Bar
+// * SM: AB Quick Search and composition's Select Addresses dialogue
 //
-// note, changing this might require a change to SearchNameOrEmail.label in
-// messenger.dtd or searchNameAndEmail.emptytext in abMainWindow.dtd
-pref("mail.addr_book.quicksearchquery.format", "chrome://messenger/locale/messenger.properties");
+// The format for "mail.addr_book.quicksearchquery.format" is:
+// @V == the escaped value typed in the quick search bar in the address book
+// c  == contains | bw == beginsWith | ...
+//
+// Note, changing the fields searched might require changing labels:
+// SearchNameOrEmail.label in messenger.dtd,
+// searchNameAndEmail.emptytext in abMainWindow.dtd, etc.
+//
+// mail.addr_book.quicksearchquery.format will be used if mail.addr_book.show_phonetic_fields is "false"
+pref("mail.addr_book.quicksearchquery.format", "(or(DisplayName,c,@V)(FirstName,c,@V)(LastName,c,@V)(NickName,c,@V)(PrimaryEmail,c,@V)(SecondEmail,c,@V)(and(IsMailList,=,TRUE)(Notes,c,@V))(Company,c,@V)(Department,c,@V)(JobTitle,c,@V)(WebPage1,c,@V)(WebPage2,c,@V))");
+// mail.addr_book.quicksearchquery.format.phonetic will be used if mail.addr_book.show_phonetic_fields is "true"
+pref("mail.addr_book.quicksearchquery.format.phonetic", "(or(DisplayName,c,@V)(FirstName,c,@V)(LastName,c,@V)(NickName,c,@V)(PrimaryEmail,c,@V)(SecondEmail,c,@V)(and(IsMailList,=,TRUE)(Notes,c,@V))(Company,c,@V)(Department,c,@V)(JobTitle,c,@V)(WebPage1,c,@V)(WebPage2,c,@V)(PhoneticFirstName,c,@V)(PhoneticLastName,c,@V))");
+
+// mail.addr_book.autocompletequery.format is the model query used for:
+// * TB: Recipient Autocomplete (composition, mailing list properties dialogue)
+// * SM: Recipient Autocomplete (composition, mailing list properties dialogue)
+//
+// mail.addr_book.autocompletequery.format will be used if mail.addr_book.show_phonetic_fields is "false"
+pref("mail.addr_book.autocompletequery.format", "(or(DisplayName,c,@V)(FirstName,c,@V)(LastName,c,@V)(NickName,c,@V)(PrimaryEmail,c,@V)(SecondEmail,c,@V)(and(IsMailList,=,TRUE)(Notes,c,@V)))");
+// mail.addr_book.autocompletequery.format.phonetic will be used if mail.addr_book.show_phonetic_fields is "true"
+pref("mail.addr_book.autocompletequery.format.phonetic", "(or(DisplayName,c,@V)(FirstName,c,@V)(LastName,c,@V)(NickName,c,@V)(PrimaryEmail,c,@V)(SecondEmail,c,@V)(and(IsMailList,=,TRUE)(Notes,c,@V))(PhoneticFirstName,c,@V)(PhoneticLastName,c,@V))");
 
 // values for "mail.addr_book.lastnamefirst" are:
 //0=displayname, 1=lastname first, 2=firstname first

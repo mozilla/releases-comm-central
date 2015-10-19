@@ -185,11 +185,9 @@ function CommandUpdate_AddressBook()
 function onEnterInSearchBar()
 {
   if (!gQueryURIFormat) {
-    gQueryURIFormat = Services.prefs.getComplexValue("mail.addr_book.quicksearchquery.format",
-      Components.interfaces.nsIPrefLocalizedString).data;
-
-    // Remove the preceeding '?' as we have to prefix "?and" to this format.
-    gQueryURIFormat = gQueryURIFormat.slice(1);
+    // Get model query from pref. We don't want the query starting with "?"
+    // as we have to prefix "?and" to this format.
+    gQueryURIFormat = getModelQuery("mail.addr_book.quicksearchquery.format");
   }
 
   var searchURI = GetSelectedDirectory();

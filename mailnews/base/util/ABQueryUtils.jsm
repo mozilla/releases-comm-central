@@ -6,7 +6,10 @@
  * This file contains helper methods for dealing with addressbook search URIs.
  */
 
-this.EXPORTED_SYMBOLS = ["getSearchTokens", "generateQueryURI", "encodeABTermValue"];
+this.EXPORTED_SYMBOLS = ["getSearchTokens", "getModelQuery",
+                         "modelQueryHasUserValue", "generateQueryURI",
+                         "encodeABTermValue"];
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Parse the multiword search string to extract individual search terms
@@ -49,6 +52,46 @@ function getSearchTokens(aSearchString) {
   }
 
   return searchWords;
+}
+
+/**
+ * For AB quicksearch or recipient autocomplete, get the normal or phonetic model
+ * query URL part from prefs, allowing users to customize these searches.
+ * @param aBasePrefName  the full pref name of default, non-phonetic model query,
+ *                       e.g. mail.addr_book.quicksearchquery.format
+ *                       If phonetic search is used, corresponding pref must exist:
+ *                       e.g. mail.addr_book.quicksearchquery.format.phonetic
+ * @return               depending on mail.addr_book.show_phonetic_fields pref,
+ *                       the value of aBasePrefName or aBasePrefName + ".phonetic"
+ */
+function getModelQuery(aBasePrefName) {
+  let modelQuery = "";
+  if (Services.prefs.getComplexValue("mail.addr_book.show_phonetic_fields",
+      Components.interfaces.nsIPrefLocalizedString).data == "true") {
+    modelQuery = Services.prefs.getCharPref(aBasePrefName + ".phonetic");
+  } else {
+    modelQuery = Services.prefs.getCharPref(aBasePrefName);
+  }
+  // remove leading "?" to migrate existing customized values for mail.addr_book.quicksearchquery.format
+  // todo: could this be done in a once-off migration at install time to avoid repetitive calls?
+  if (modelQuery.startsWith("?"))
+    modelQuery = modelQuery.slice(1);
+  return modelQuery;
+}
+
+/**
+ * Check if the currently used pref with the model query was customized by user.
+ * @param aBasePrefName  the full pref name of default, non-phonetic model query,
+ *                       e.g. mail.addr_book.quicksearchquery.format
+ *                       If phonetic search is used, corresponding pref must exist:
+ *                       e.g. mail.addr_book.quicksearchquery.format.phonetic
+ * @return               true or false
+ */
+function modelQueryHasUserValue(aBasePrefName) {
+  if (Services.prefs.getComplexValue("mail.addr_book.show_phonetic_fields",
+      Components.interfaces.nsIPrefLocalizedString).data == "true")
+    return Services.prefs.prefHasUserValue(aBasePrefName + ".phonetic");
+  return Services.prefs.prefHasUserValue(aBasePrefName);
 }
 
 /*

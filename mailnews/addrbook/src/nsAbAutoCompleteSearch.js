@@ -16,6 +16,11 @@ function nsAbAutoCompleteResult(aSearchString) {
   this._searchResults = []; // final results
   this.searchString = aSearchString;
   this._collectedValues = new Map();  // temporary unsorted results
+  // Get model query from pref; this will return mail.addr_book.autocompletequery.format.phonetic
+  // if mail.addr_book.show_phonetic_fields == true
+  this._modelQuery = getModelQuery("mail.addr_book.autocompletequery.format");
+  // check if the currently active model query has been modified by user
+  this._modelQueryHasUserValue = modelQueryHasUserValue("mail.addr_book.autocompletequery.format");
 }
 
 nsAbAutoCompleteResult.prototype = {
@@ -211,8 +216,9 @@ nsAbAutoCompleteSearch.prototype = {
   },
 
   /**
-   * Checks a card against the search parameters to see if it should be
-   * included in the result.
+   * Checks the parent card and email address of an autocomplete results entry
+   * from a previous result against the search parameters to see if that entry
+   * should still be included in the narrowed-down result.
    *
    * @param aCard        The card to check.
    * @param aEmailToUse  The email address to check against.
@@ -225,6 +231,11 @@ nsAbAutoCompleteSearch.prototype = {
     // search query can be fired on all of them at once. Separating them
     // using spaces so that field1=> "abc" and field2=> "def" on joining
     // shouldn't return true on search for "bcd".
+    // Note: This should be constructed from model query pref using
+    // getModelQuery("mail.addr_book.autocompletequery.format")
+    // but for now we hard-code the default value equivalent of the pref here
+    // or else bail out before and reconstruct the full c++ query if the pref
+    // has been customized (modelQueryHasUserValue), so that we won't get here.
     let cumulativeFieldText = aCard.displayName + " " +
                               aCard.firstName + " " +
                               aCard.lastName + " " +
@@ -354,9 +365,20 @@ nsAbAutoCompleteSearch.prototype = {
 
     if (aPreviousResult instanceof nsIAbAutoCompleteResult &&
         aSearchString.startsWith(aPreviousResult.searchString) &&
-        aPreviousResult.searchResult == ACR.RESULT_SUCCESS) {
-      // We have successful previous matches, therefore iterate through the
-      // list and reduce as appropriate
+        aPreviousResult.searchResult == ACR.RESULT_SUCCESS &&
+        !result._modelQueryHasUserValue &&
+        result._modelQuery == aPreviousResult._modelQuery) {
+      // We have successful previous matches, and model query has not changed since
+      // previous search, therefore just iterate through the list of previous result
+      // entries and reduce as appropriate (via _checkEntry function).
+      // Test for model query change is required: when reverting back from custom to
+      // default query, result._modelQueryHasUserValue==false, but we must bail out.
+      // Todo: However, if autocomplete model query has been customized, we fall
+      // back to using the full query again instead of reducing result list in js;
+      // The full query might be less performant as it's fired against entire AB,
+      // so we should try morphing the query for js. We can't use the _checkEntry
+      // js query yet because it is hardcoded (mimic default model query).
+      // At least we now allow users to customize their autocomplete model query...
       for (let i = 0; i < aPreviousResult.matchCount; ++i) {
         let card = aPreviousResult.getCardAt(i);
         let email = aPreviousResult.getEmailToUse(i);
@@ -378,20 +400,17 @@ nsAbAutoCompleteSearch.prototype = {
     }
     else
     {
-      // Construct the search query; using a query means we can optimise
-      // on running the search through c++ which is better for string
+      // Construct the search query from pref; using a query means we can
+      // optimise on running the search through c++ which is better for string
       // comparisons (_checkEntry is relatively slow).
       // When user's fullstring search expression is a multiword query, search
       // for each word separately so that each result contains all the words
       // from the fullstring in the fields of the addressbook card
       // (see bug 558931 for explanations).
-      let modelQuery = "(or(DisplayName,c,@V)(FirstName,c,@V)(LastName,c,@V)" +
-                       "(NickName,c,@V)(PrimaryEmail,c,@V)(SecondEmail,c,@V)" +
-                       "(and(IsMailList,=,TRUE)(Notes,c,@V)))";
       // Use helper method to split up search query to multi-word search
       // query against multiple fields.
       let searchWords = getSearchTokens(fullString);
-      let searchQuery = generateQueryURI(modelQuery, searchWords);
+      let searchQuery = generateQueryURI(result._modelQuery, searchWords);
 
       // Now do the searching
       let allABs = this._abManager.directories;
