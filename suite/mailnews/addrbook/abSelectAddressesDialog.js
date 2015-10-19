@@ -360,7 +360,8 @@ function onEnterInSearchBar()
     return;
 
   if (!gQueryURIFormat) {
-    gQueryURIFormat = GetLocalizedStringPref("mail.addr_book.quicksearchquery.format");
+    // Get model query from pref, without preceding "?", so we need to add it again
+    gQueryURIFormat = "?" + getModelQuery("mail.addr_book.quicksearchquery.format");
   }
   
   var searchURI = selectedNode.value;

@@ -353,9 +353,10 @@ function onEnterInSearchBar()
 {
   ClearCardViewPane();  
 
-  if (!gQueryURIFormat)
-    gQueryURIFormat = GetLocalizedStringPref("mail.addr_book.quicksearchquery.format");
-
+  if (!gQueryURIFormat) {
+    // Get model query from pref, without preceding "?", so we need to add it again
+    gQueryURIFormat = "?" + getModelQuery("mail.addr_book.quicksearchquery.format");
+  }
   var searchURI = GetSelectedDirectory();
   if (!searchURI) return;
 
