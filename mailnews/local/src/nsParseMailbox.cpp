@@ -2591,6 +2591,19 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr *mailHdr,
   (void) localFolder->RefreshSizeOnDisk();
   destIFolder->SetFlag(nsMsgFolderFlags::GotNew);
 
+  // Notify the message was moved.
+  if (notifier) {
+    nsCOMPtr<nsIMsgFolder> folder;
+    nsresult rv = mailHdr->GetFolder(getter_AddRefs(folder));
+    if (NS_SUCCEEDED(rv)) {
+      notifier->NotifyItemEvent(folder,
+                                NS_LITERAL_CSTRING("UnincorporatedMessageMoved"),
+                                newHdr);
+    } else {
+      NS_WARNING("Can't get folder for message that was moved.");
+    }
+  }
+
   nsCOMPtr<nsIMsgPluggableStore> store;
   rv = m_downloadFolder->GetMsgStore(getter_AddRefs(store));
   if (store)

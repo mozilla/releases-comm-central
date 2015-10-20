@@ -201,6 +201,9 @@ interface nsIMsgFolderListener : nsISupports {
    *    messages, aData is either a "junk" or "notjunk" atom if all of the
    *    messages have the same state.
    *
+   * - UnincorporatedMessageMoved: A messages received via POP was moved
+   *    by a "before junk" rule.
+   *
    * @param aItem The item the event takes place on
    * @param aEvent String describing the event
    * @param aData Data relevant to the event
