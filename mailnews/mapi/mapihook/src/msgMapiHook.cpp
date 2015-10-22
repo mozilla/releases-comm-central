@@ -436,9 +436,6 @@ nsresult nsMapiHook::PopulateCompFields(lpnsMapiMessage aMessage,
       if (Body.Last() != '\n')
         Body.AppendLiteral(CRLF);
 
-      if (Body.Find("<html>") == kNotFound)
-        aCompFields->SetForcePlainText(true);
-
       rv = aCompFields->SetBody(Body) ;
   }
   return rv ;
@@ -640,9 +637,6 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
     if (NS_FAILED(rv)) return rv ;
     if (Body.Last() != '\n')
       Body.AppendLiteral(CRLF);
-
-    if (Body.Find("<html>") == kNotFound)
-      aCompFields->SetForcePlainText(true);
 
     rv = aCompFields->SetBody(Body) ;
   }
