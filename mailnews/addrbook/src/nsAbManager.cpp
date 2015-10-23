@@ -522,10 +522,12 @@ NS_IMETHODIMP nsAbManager::MailListNameExists(const char16_t *name, bool *exist)
 
 enum ADDRESSBOOK_EXPORT_FILE_TYPE
 {
- LDIF_EXPORT_TYPE =  0,
- CSV_EXPORT_TYPE =   1,
- TAB_EXPORT_TYPE =   2,
- VCF_EXPORT_TYPE =   3,
+ CSV_EXPORT_TYPE      = 0,
+ CSV_EXPORT_TYPE_UTF8 = 1,
+ TAB_EXPORT_TYPE      = 2,
+ TAB_EXPORT_TYPE_UTF8 = 3,
+ VCF_EXPORT_TYPE      = 4,
+ LDIF_EXPORT_TYPE     = 5,
 };
 
 NS_IMETHODIMP nsAbManager::ExportAddressBook(nsIDOMWindow *aParentWin, nsIAbDirectory *aDirectory)
@@ -551,28 +553,35 @@ NS_IMETHODIMP nsAbManager::ExportAddressBook(nsIDOMWindow *aParentWin, nsIAbDire
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString filterString;
-  rv = bundle->GetStringFromName(MOZ_UTF16("LDIFFiles"), getter_Copies(filterString));
-  NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.ldi; *.ldif"));
+  // CSV: System charset and UTF-8.
+  rv = bundle->GetStringFromName(MOZ_UTF16("CSVFilesSysCharset"), getter_Copies(filterString));
   NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = bundle->GetStringFromName(MOZ_UTF16("CSVFiles"), getter_Copies(filterString));
+  rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.csv"));
   NS_ENSURE_SUCCESS(rv, rv);
-
+  rv = bundle->GetStringFromName(MOZ_UTF16("CSVFilesUTF8"), getter_Copies(filterString));
+  NS_ENSURE_SUCCESS(rv, rv);
   rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.csv"));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = bundle->GetStringFromName(MOZ_UTF16("TABFiles"), getter_Copies(filterString));
+  // Tab separated: System charset and UTF-8.
+  rv = bundle->GetStringFromName(MOZ_UTF16("TABFilesSysCharset"), getter_Copies(filterString));
   NS_ENSURE_SUCCESS(rv, rv);
-
+  rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.tab; *.txt"));
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = bundle->GetStringFromName(MOZ_UTF16("TABFilesUTF8"), getter_Copies(filterString));
+  NS_ENSURE_SUCCESS(rv, rv);
   rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.tab; *.txt"));
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = bundle->GetStringFromName(MOZ_UTF16("VCFFiles"), getter_Copies(filterString));
   NS_ENSURE_SUCCESS(rv, rv);
-
   rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.vcf"));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = bundle->GetStringFromName(MOZ_UTF16("LDIFFiles"), getter_Copies(filterString));
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.ldi; *.ldif"));
   NS_ENSURE_SUCCESS(rv, rv);
 
   int16_t dialogResult;
@@ -621,6 +630,7 @@ NS_IMETHODIMP nsAbManager::ExportAddressBook(nsIDOMWindow *aParentWin, nsIAbDire
       break;
 
     case CSV_EXPORT_TYPE: // csv
+    case CSV_EXPORT_TYPE_UTF8:
       // If filename does not have the correct ext, add one.
       if (MsgFind(fileName, CSV_FILE_EXTENSION, true, fileName.Length() - strlen(CSV_FILE_EXTENSION)) == -1) {
 
@@ -628,10 +638,12 @@ NS_IMETHODIMP nsAbManager::ExportAddressBook(nsIDOMWindow *aParentWin, nsIAbDire
         fileName.AppendLiteral(CSV_FILE_EXTENSION);
         localFile->SetLeafName(fileName);
       }
-      rv = ExportDirectoryToDelimitedText(aDirectory, CSV_DELIM, CSV_DELIM_LEN, localFile);
+      rv = ExportDirectoryToDelimitedText(aDirectory, CSV_DELIM, CSV_DELIM_LEN, localFile,
+                                          exportType==CSV_EXPORT_TYPE_UTF8);
       break;
 
     case TAB_EXPORT_TYPE: // tab & text
+    case TAB_EXPORT_TYPE_UTF8:
       // If filename does not have the correct ext, add one.
       if ((MsgFind(fileName, TXT_FILE_EXTENSION, true, fileName.Length() - strlen(TXT_FILE_EXTENSION)) == -1) &&
           (MsgFind(fileName, TAB_FILE_EXTENSION, true, fileName.Length() - strlen(TAB_FILE_EXTENSION)) == -1)) {
@@ -640,7 +652,8 @@ NS_IMETHODIMP nsAbManager::ExportAddressBook(nsIDOMWindow *aParentWin, nsIAbDire
         fileName.AppendLiteral(TXT_FILE_EXTENSION);
         localFile->SetLeafName(fileName);
       }
-      rv = ExportDirectoryToDelimitedText(aDirectory, TAB_DELIM, TAB_DELIM_LEN, localFile);
+      rv = ExportDirectoryToDelimitedText(aDirectory, TAB_DELIM, TAB_DELIM_LEN, localFile,
+                                          exportType==TAB_EXPORT_TYPE_UTF8);
       break;
 
     case VCF_EXPORT_TYPE: // vCard
@@ -659,7 +672,11 @@ NS_IMETHODIMP nsAbManager::ExportAddressBook(nsIDOMWindow *aParentWin, nsIAbDire
 }
 
 nsresult
-nsAbManager::ExportDirectoryToDelimitedText(nsIAbDirectory *aDirectory, const char *aDelim, uint32_t aDelimLen, nsIFile *aLocalFile)
+nsAbManager::ExportDirectoryToDelimitedText(nsIAbDirectory *aDirectory,
+                                            const char *aDelim,
+                                            uint32_t aDelimLen,
+                                            nsIFile *aLocalFile,
+                                            bool useUTF8)
 {
   nsCOMPtr <nsISimpleEnumerator> cardsEnumerator;
   nsCOMPtr <nsIAbCard> card;
@@ -699,7 +716,7 @@ nsAbManager::ExportDirectoryToDelimitedText(nsIAbDirectory *aDirectory, const ch
       if (NS_FAILED(bundle->GetStringFromID(EXPORT_ATTRIBUTES_TABLE[i].plainTextStringID, getter_Copies(columnName))))
         columnName.AppendInt(EXPORT_ATTRIBUTES_TABLE[i].plainTextStringID);
 
-      rv = nsMsgI18NConvertFromUnicode(nsMsgI18NFileSystemCharset(),
+      rv = nsMsgI18NConvertFromUnicode(useUTF8 ? "UTF-8" : nsMsgI18NFileSystemCharset(),
                                        columnName, revisedName);
       NS_ENSURE_SUCCESS(rv,rv);
 
@@ -790,7 +807,7 @@ nsAbManager::ExportDirectoryToDelimitedText(nsIAbDirectory *aDirectory, const ch
                 newValue.AppendLiteral("\"");
               }
 
-              rv = nsMsgI18NConvertFromUnicode(nsMsgI18NFileSystemCharset(),
+              rv = nsMsgI18NConvertFromUnicode(useUTF8 ? "UTF-8" : nsMsgI18NFileSystemCharset(),
                                                newValue, valueCStr);
               NS_ENSURE_SUCCESS(rv,rv);
 
