@@ -181,6 +181,8 @@ tabpanels {
 
 /* Invert the unhovered close tab icons on bright-text tabs */
 @media not all and (min-resolution: 1.1dppx) {
+  .tab-close-button:-moz-lwtheme-brighttext,
+  .tabs-closebutton:-moz-lwtheme-brighttext,
   #tabs-toolbar[brighttext] .tabs-closebutton,
   #tabs-toolbar[brighttext] .tab-close-button:not([selected=true]) {
     list-style-image: url("chrome://global/skin/icons/close-inverted.png");
@@ -188,6 +190,8 @@ tabpanels {
 }
 
 @media (min-resolution: 1.1dppx) {
+  .tab-close-button:-moz-lwtheme-brighttext,
+  .tabs-closebutton:-moz-lwtheme-brighttext,
   #tabs-toolbar[brighttext] .tabs-closebutton,
   #tabs-toolbar[brighttext] .tab-close-button:not([selected=true]) {
     list-style-image: url("chrome://global/skin/icons/close-inverted@2x.png");

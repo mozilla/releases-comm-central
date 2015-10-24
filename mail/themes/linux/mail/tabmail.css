@@ -95,8 +95,10 @@ tabpanels {
   background-image: -moz-image-rect(url("chrome://global/skin/icons/close.svg"), 0, 64, 16, 48);
 }
 
-#tabs-toolbar[brighttext] .tabs-closebutton:not([selected]):not(:hover),
-#tabs-toolbar[brighttext] .tab-close-button:not([selected]):not(:hover) {
+.tabs-closebutton:not(:hover):-moz-lwtheme-brighttext,
+.tab-close-button:not(:hover):-moz-lwtheme-brighttext,
+#tabs-toolbar[brighttext] .tabs-closebutton:not(:hover),
+#tabs-toolbar[brighttext] .tab-close-button:not(:hover) {
   background-image: -moz-image-rect(url("chrome://global/skin/icons/close.svg"), 0, 80, 16, 64);
 }
 
