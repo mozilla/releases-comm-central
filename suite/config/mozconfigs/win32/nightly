@@ -7,10 +7,6 @@ ac_add_options --enable-jemalloc
 ac_add_options --enable-tests
 ac_add_options --enable-profiling
 
-# Bug 1155007 temporary workaround. Needs to be
-# backed out once we get a Socorro token generated.
-unset SOCORRO_SYMBOL_UPLOAD_TOKEN_FILE
-
 # Windows 8 SDK is required for gamepad support
 # bug 1005630
 ac_add_options --disable-gamepad

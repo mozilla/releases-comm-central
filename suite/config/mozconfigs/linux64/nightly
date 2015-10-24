@@ -9,10 +9,6 @@ ac_add_options --enable-tests
 ac_add_options --disable-elf-hack
 ac_add_options --enable-profiling
 
-# Bug 1155007 temporary workaround. Needs to be
-# backed out once we get a Socorro token generated.
-unset SOCORRO_SYMBOL_UPLOAD_TOKEN_FILE
-
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
 mk_add_options PROFILE_GEN_SCRIPT='$(PYTHON) @MOZ_OBJDIR@/_profile/pgo/profileserver.py'
