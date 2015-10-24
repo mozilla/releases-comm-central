@@ -23,7 +23,6 @@ if CONFIG['MOZ_CALENDAR']:
     ]
 
 DIRS += [
-    '/devtools',
     '/xpfe/components/autocomplete',
     '/suite',
 ]
