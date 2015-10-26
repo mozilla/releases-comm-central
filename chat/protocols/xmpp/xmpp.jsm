@@ -1274,15 +1274,22 @@ var XMPPAccountPrototype = {
     let tooltipInfo = [];
     let jid = this._parseJID(aJid);
     let muc = this._mucs.get(jid.node + "@" + jid.domain);
+    let participant;
     if (muc) {
-      let participant = muc._participants.get(jid.resource);
+      participant = muc._participants.get(jid.resource);
       if (participant) {
         if (participant.accountJid)
           userName = participant.accountJid;
         if (!muc.left) {
           let statusType = participant.statusType;
           let statusText = participant.statusText;
-          tooltipInfo.push(new TooltipInfo(statusType, statusText, true));
+          tooltipInfo.push(new TooltipInfo(statusType, statusText,
+                                           Ci.prplITooltipInfo.status));
+
+          if (participant.buddyIconFilename) {
+            tooltipInfo.push(new TooltipInfo(null, participant.buddyIconFilename,
+                                             Ci.prplITooltipInfo.icon));
+          }
         }
       }
     }
@@ -1315,9 +1322,32 @@ var XMPPAccountPrototype = {
         if (vCardInfo.hasOwnProperty(field))
           tooltipInfo.push(new TooltipInfo(_("tooltip." + field), vCardInfo[field]));
       }
+      if (vCardInfo.photo) {
+        let dataURI = this._getPhotoURI(vCardInfo.photo);
+
+        // Store the photo URI for this participant.
+        if (participant)
+          participant.buddyIconFilename = dataURI;
+
+        tooltipInfo.push(new TooltipInfo(null, dataURI, Ci.prplITooltipInfo.icon));
+      }
       Services.obs.notifyObservers(new nsSimpleEnumerator(tooltipInfo),
                                    "user-info-received", aJid);
     });
+  },
+
+  // Parses the photo node of a received vCard if exists and returns string of
+  // data URI, otherwise returns null.
+  _getPhotoURI: function(aPhotoNode) {
+    if (!aPhotoNode)
+      return null;
+
+    let type = aPhotoNode.getElement(["TYPE"]);
+    let value = aPhotoNode.getElement(["BINVAL"]);
+    if (!type || !value)
+      return null;
+
+    return "data:" + type.innerText + ";base64," + value.innerText;
   },
 
   // Parses the vCard into the properties of the returned object.

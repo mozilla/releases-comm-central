@@ -618,6 +618,9 @@ var GenericConvChatPrototype = {
     this.notifyObservers(null, "update-conv-chatjoining");
   },
 
+  getParticipant: function(aName) {
+    return this._participants.has(aName) ? this._participants.get(aName) : null;
+  },
   getParticipants: function() {
     // Convert the values of the Map into a nsSimpleEnumerator.
     return new nsSimpleEnumerator(
@@ -697,10 +700,11 @@ var GenericConvChatBuddyPrototype = {
   __proto__: ClassInfo("prplIConvChatBuddy", "generic ConvChatBuddy object"),
 
   _name: "",
-  get name() this._name,
-  set name(aName) this._name = aName,
+  get name() { return this._name; },
+  set name(aName) { this._name = aName; },
   alias: "",
   buddy: false,
+  buddyIconFilename: "",
 
   get noFlags() {
     return !(this.voiced || this.halfOp || this.op ||
@@ -713,23 +717,22 @@ var GenericConvChatBuddyPrototype = {
   typing: false
 };
 
-function TooltipInfo(aLabel, aValue, aIsStatus)
-{
-  if (aIsStatus) {
-    this.type = Ci.prplITooltipInfo.status;
+function TooltipInfo(aLabel, aValue, aType = Ci.prplITooltipInfo.pair) {
+  this.type = aType;
+  if (aType == Ci.prplITooltipInfo.status) {
     this.label = aLabel.toString();
     this.value = aValue || "";
   }
-  else if (aLabel === undefined)
+  else if (aType == Ci.prplITooltipInfo.icon)
+    this.value = aValue;
+  else if (aLabel === undefined || aType == Ci.prplITooltipInfo.sectionBreak)
     this.type = Ci.prplITooltipInfo.sectionBreak;
   else {
     this.label = aLabel;
     if (aValue === undefined)
       this.type = Ci.prplITooltipInfo.sectionHeader;
-    else {
-      this.type = Ci.prplITooltipInfo.pair;
+    else
       this.value = aValue;
-    }
   }
 }
 TooltipInfo.prototype = ClassInfo("prplITooltipInfo", "generic tooltip info");

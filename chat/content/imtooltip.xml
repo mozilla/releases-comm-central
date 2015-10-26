@@ -271,6 +271,9 @@
                this.setAttribute("status", Status.toAttribute(statusType));
                this.setMessage(Status.toLabel(statusType, elt.value));
                break;
+             case Ci.prplITooltipInfo.icon:
+               this.setBuddyIcon(elt.value);
+               break;
            }
          }
        ]]>
@@ -345,10 +348,13 @@
      <method name="updateTooltipFromParticipant">
        <parameter name="aNick"/>
        <parameter name="aConv"/>
+       <parameter name="aParticipant"/>
        <body>
        <![CDATA[
          if (!aConv.target)
            return false;     // We're viewing a log.
+         if (!aParticipant)
+           aParticipant = aConv.target.getParticipant(aNick);
 
          let account = aConv.account;
          let normalizedNick = aConv.target.getNormalizedChatBuddyName(aNick);
@@ -369,7 +375,7 @@
                            account.protocol.iconBaseURI + "icon.png");
          this.setAttribute("status", "unknown");
          this.setMessage(Status.toLabel("unknown"));
-         this.setBuddyIcon(null);
+         this.setBuddyIcon(aParticipant ? aParticipant.buddyIconFilename : null);
          this.addRow(this.bundle.GetStringFromName("buddy.account"),
                      account.name);
          this.requestBuddyInfo(account, normalizedNick);
@@ -433,7 +439,8 @@
          if (localName == "listitem") {
            let contactlistbox = document.getElementById("contactlistbox");
            let conv = contactlistbox.selectedItem.conv;
-           return updateTooltipFromParticipant(elt.chatBuddy.name, conv);
+           return updateTooltipFromParticipant(elt.chatBuddy.name, conv,
+                                               elt.chatBuddy);
          }
 #else
          if (localName == "tab") {
@@ -453,7 +460,8 @@
 
          if (localName == "listitem") {
            let conv = document.getBindingParent(elt).conv;
-           return updateTooltipFromParticipant(elt.chatBuddy.name, conv);
+           return updateTooltipFromParticipant(elt.chatBuddy.name, conv,
+                                               elt.chatBuddy);
          }
 #endif
 

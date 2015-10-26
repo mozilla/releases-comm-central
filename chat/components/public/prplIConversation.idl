@@ -100,8 +100,37 @@ interface prplIConvIM: prplIConversation {
   readonly attribute short typingState;
 };
 
-[scriptable, uuid(47b42861-364a-477d-88a1-4616a7060df2)]
+/* This represents a participant in a chat room */
+[scriptable, uuid(b0e9177b-40f6-420b-9918-04bbbb9ce44f)]
+interface prplIConvChatBuddy: nsISupports {
+
+  /* The name of the buddy */
+  readonly attribute AUTF8String name;
+
+  /* The alias (FIXME: can this be non-null if buddy is null?) */
+  readonly attribute AUTF8String alias;
+
+  /* Indicates if this chat buddy corresponds to a buddy in our buddy list */
+  readonly attribute boolean buddy;
+
+  /* URI of the user icon for the buddy */
+  readonly attribute AUTF8String buddyIconFilename;
+
+  /* PurpleConvChatBuddyFlags flags; (ops, voice etc.) */
+  readonly attribute boolean noFlags;
+  readonly attribute boolean voiced;
+  readonly attribute boolean halfOp;
+  readonly attribute boolean op;
+  readonly attribute boolean founder;
+  readonly attribute boolean typing;
+};
+
+[scriptable, uuid(72c17398-639f-4141-a19c-78cbdeb39fba)]
 interface prplIConvChat: prplIConversation {
+
+  /* Get the prplIConvChatBuddy if a participant with name aName (the
+     participant's nick in the conversation) exists, otherwise return null */
+  prplIConvChatBuddy getParticipant(in AUTF8String aName);
 
   /* Get an nsISimpleEnumerator of prplIConvChatBuddy objects:
      The list of people participating in this chat */
@@ -149,26 +178,4 @@ interface prplIConvChat: prplIConversation {
      aData will contain the old nick for chat-buddy-update if the name
      has changed.
    */
-};
-
-/* This represents a participant in a chat room */
-[scriptable, uuid(33f6ef81-1d23-484e-b4e0-14fffa0c4392)]
-interface prplIConvChatBuddy: nsISupports {
-
-  /* The name of the buddy */
-  readonly attribute AUTF8String name;
-
-  /* The alias (FIXME: can this be non-null if buddy is null?) */
-  readonly attribute AUTF8String alias;
-
-  /* Indicates if this chat buddy corresponds to a buddy in our buddy list */
-  readonly attribute boolean buddy;
-
-  /* PurpleConvChatBuddyFlags flags; (ops, voice etc.) */
-  readonly attribute boolean noFlags;
-  readonly attribute boolean voiced;
-  readonly attribute boolean halfOp;
-  readonly attribute boolean op;
-  readonly attribute boolean founder;
-  readonly attribute boolean typing;
 };

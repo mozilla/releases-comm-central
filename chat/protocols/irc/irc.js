@@ -1190,7 +1190,8 @@ ircAccount.prototype = {
     else if ("lastActivity" in whoisInformation &&
              whoisInformation["lastActivity"] > kSetIdleStatusAfterSeconds)
       statusType = Ci.imIStatusInfo.STATUS_IDLE;
-    tooltipInfo.push(new TooltipInfo(statusType, statusText, true));
+    tooltipInfo.push(new TooltipInfo(statusType, statusText,
+                                     Ci.prplITooltipInfo.status));
 
     return new nsSimpleEnumerator(tooltipInfo);
   },
