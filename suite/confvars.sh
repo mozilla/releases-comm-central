@@ -46,3 +46,6 @@ MOZ_UA_BUILDID=20100101
 MOZ_APP_ID={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 MOZ_PROFILE_MIGRATOR=1
 MOZ_APP_STATIC_INI=1
+
+# Include the DevTools client, not just the server (which is the default)
+MOZ_DEVTOOLS=all

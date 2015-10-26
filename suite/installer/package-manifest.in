@@ -186,6 +186,7 @@
 @RESPATH@/components/content_html.xpt
 @RESPATH@/components/content_xslt.xpt
 @RESPATH@/components/cookie.xpt
+@RESPATH@/components/devtools_security.xpt
 @RESPATH@/components/directory.xpt
 @RESPATH@/components/docshell.xpt
 @RESPATH@/components/dom.xpt
@@ -541,6 +542,11 @@
 @RESPATH@/chrome/recording/*
 @RESPATH@/chrome/toolkit@JAREXT@
 @RESPATH@/chrome/toolkit.manifest
+
+; DevTools
+@RESPATH@/chrome/devtools@JAREXT@
+@RESPATH@/chrome/devtools.manifest
+@RESPATH@/@PREF_DIR@/devtools.js
 
 ; classic theme
 @RESPATH@/chrome/classic@JAREXT@
