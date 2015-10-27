@@ -11,6 +11,7 @@
 #include "nsNullPrincipal.h"
 #include "nsISupportsPrimitives.h"
 #include "plstr.h"
+#include "nsPIDOMWindow.h"
 #include "nsIDOMWindow.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgVCardService.h"
@@ -66,7 +67,8 @@ nsAbContentHandler::HandleContent(const char *aContentType,
             if (!aWindowContext)
                 return NS_ERROR_FAILURE;
 
-            nsCOMPtr<nsIDOMWindow> parentWindow = do_GetInterface(aWindowContext);
+            nsCOMPtr<nsIDOMWindow> domWindow = do_GetInterface(aWindowContext);
+            nsCOMPtr<nsPIDOMWindow> parentWindow = do_QueryInterface(domWindow);
             if (!parentWindow)
                 return NS_ERROR_FAILURE;
 
@@ -163,7 +165,8 @@ nsAbContentHandler::OnStreamComplete(nsIStreamLoader *aLoader,
                                     getter_AddRefs(cardFromVCard));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      nsCOMPtr<nsIDOMWindow> parentWindow = do_GetInterface(aContext);
+      nsCOMPtr<nsIDOMWindow> domWindow = do_GetInterface(aContext);
+      nsCOMPtr<nsPIDOMWindow> parentWindow = do_QueryInterface(domWindow);
       NS_ENSURE_TRUE(parentWindow, NS_ERROR_FAILURE);
 
       nsCOMPtr<nsIDOMWindow> dialogWindow;

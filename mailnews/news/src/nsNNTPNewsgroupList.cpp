@@ -18,6 +18,7 @@
 #include "nsINewsDatabase.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsCOMPtr.h"
+#include "nsPIDOMWindow.h"
 #include "nsIDOMWindow.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgAccountManager.h"
@@ -225,7 +226,8 @@ openWindow(nsIMsgWindow *aMsgWindow, const char *chromeURL,
   if (NS_FAILED(rv))
       return rv;
 
-  nsCOMPtr<nsIDOMWindow> parentWindow(do_GetInterface(docShell));
+  nsCOMPtr<nsIDOMWindow> domWindow(do_GetInterface(docShell));
+  nsCOMPtr<nsPIDOMWindow> parentWindow(do_QueryInterface(domWindow));
   NS_ENSURE_TRUE(parentWindow, NS_ERROR_FAILURE);
 
   nsCOMPtr<nsISupportsInterfacePointer> ifptr = do_CreateInstance(NS_SUPPORTS_INTERFACE_POINTER_CONTRACTID, &rv);

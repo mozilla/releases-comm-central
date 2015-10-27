@@ -219,15 +219,13 @@ nsMsgPrintEngine::SetWindow(nsIDOMWindow *aWin)
 		return NS_OK;
   }
 
-  mWindow = aWin;
+  mWindow = do_QueryInterface(aWin);
+  NS_ENSURE_TRUE(mWindow, NS_ERROR_FAILURE);
 
-  nsCOMPtr<nsPIDOMWindow> win( do_QueryInterface(aWin) );
-  NS_ENSURE_TRUE(win, NS_ERROR_FAILURE);
-
-  win->GetDocShell()->SetAppType(nsIDocShell::APP_TYPE_MAIL);
+  mWindow->GetDocShell()->SetAppType(nsIDocShell::APP_TYPE_MAIL);
 
   nsCOMPtr<nsIDocShellTreeItem> docShellAsItem =
-    do_QueryInterface(win->GetDocShell());
+    do_QueryInterface(mWindow->GetDocShell());
   NS_ENSURE_TRUE(docShellAsItem, NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIDocShellTreeItem> rootAsItem;
@@ -261,12 +259,8 @@ nsMsgPrintEngine::ShowWindow(bool aShow)
 
   NS_ENSURE_TRUE(mWindow, NS_ERROR_NOT_INITIALIZED);
 
-  nsCOMPtr <nsPIDOMWindow> win = do_QueryInterface(mWindow, &rv);
-
-  NS_ENSURE_SUCCESS(rv,rv);
-
   nsCOMPtr <nsIDocShellTreeItem> treeItem =
-    do_QueryInterface(win->GetDocShell(), &rv);
+    do_QueryInterface(mWindow->GetDocShell(), &rv);
   NS_ENSURE_SUCCESS(rv,rv);
 
   nsCOMPtr <nsIDocShellTreeOwner> treeOwner;

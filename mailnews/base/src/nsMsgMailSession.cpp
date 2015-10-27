@@ -14,6 +14,7 @@
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsPIDOMWindow.h"
 #include "nsIDocShell.h"
+#include "nsIDocument.h"
 #include "nsIDOMDocument.h"
 #include "nsIDOMElement.h"
 #include "nsIObserverService.h"
@@ -295,7 +296,7 @@ nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow **aMsgWindow)
       NS_ENSURE_SUCCESS(rv, rv);
       NS_ENSURE_TRUE(topMostWindow, NS_ERROR_FAILURE);
 
-      rv = topMostWindow->GetDocument(getter_AddRefs(domDocument));
+      domDocument = do_QueryInterface(topMostWindow->GetDoc());
       NS_ENSURE_SUCCESS(rv, rv);
       NS_ENSURE_TRUE(domDocument, NS_ERROR_FAILURE);
 

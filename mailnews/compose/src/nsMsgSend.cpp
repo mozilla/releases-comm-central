@@ -4052,7 +4052,7 @@ nsMsgComposeAndSend::CreateAndSendMessage(
   mSendReport->Reset();
   mSendReport->SetDeliveryMode(mode);
 
-  mParentWindow = parentWindow;
+  mParentWindow = do_QueryInterface(parentWindow);
   mSendProgress = progress;
   mListener = aListener;
 

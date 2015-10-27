@@ -12,6 +12,7 @@
 #include "nsIComponentManager.h"
 #include "nsError.h"
 #include "nsIWindowWatcher.h"
+#include "nsPIDOMWindow.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
@@ -34,7 +35,7 @@ nsMsgProgress::~nsMsgProgress()
   (void)ReleaseListeners();
 }
 
-NS_IMETHODIMP nsMsgProgress::OpenProgressDialog(nsIDOMWindow *parent, 
+NS_IMETHODIMP nsMsgProgress::OpenProgressDialog(nsIDOMWindow *parentDOMWindow, 
                                                 nsIMsgWindow *aMsgWindow, 
                                                 const char *dialogURL, 
                                                 bool inDisplayModal, 
@@ -49,6 +50,7 @@ NS_IMETHODIMP nsMsgProgress::OpenProgressDialog(nsIDOMWindow *parent,
   }
 
   NS_ENSURE_ARG_POINTER(dialogURL);
+  nsCOMPtr<nsPIDOMWindow> parent(do_QueryInterface(parentDOMWindow));
   NS_ENSURE_ARG_POINTER(parent);
 
   // Set up window.arguments[0]...

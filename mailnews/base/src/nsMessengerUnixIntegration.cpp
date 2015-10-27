@@ -84,7 +84,8 @@ static void openMailWindow(const nsACString& aFolderUri)
 
     nsCOMPtr<nsIDOMWindow> domWindow;
     topMostMsgWindow->GetDomWindow(getter_AddRefs(domWindow));
-    domWindow->Focus();
+    nsCOMPtr<nsPIDOMWindow> privateWindow(do_QueryInterface(domWindow));
+    privateWindow->Focus();
   }
   else
   {

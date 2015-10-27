@@ -65,7 +65,7 @@ protected:
   nsresult    ShowProgressDialog(bool aIsForPrinting, bool& aDoNotify);
 
   nsCOMPtr<nsIDocShell>       mDocShell;
-  nsCOMPtr<nsIDOMWindow>      mWindow;
+  nsCOMPtr<nsPIDOMWindow>     mWindow;
   nsCOMPtr<nsIDOMWindow>      mParentWindow;
   int32_t                     mURICount;
   nsTArray<nsString>          mURIArray;

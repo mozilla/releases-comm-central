@@ -12,7 +12,9 @@
 #include "plstr.h"
 #include "nsServiceManagerUtils.h"
 #include "nsCOMPtr.h"
+#include "nsPIDOMWindow.h"
 #include "nsIDOMWindow.h"
+#include "nsIDocument.h"
 #include "nsIDOMDocument.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsIInterfaceRequestorUtils.h"
@@ -44,14 +46,13 @@ nsresult nsMsgComposeContentHandler::GetBestIdentity(
 {
   nsresult rv;
 
-  nsCOMPtr<nsIDOMWindow> window = do_GetInterface(aWindowContext);
+  nsCOMPtr<nsIDOMWindow> domWindow = do_GetInterface(aWindowContext);
+  nsCOMPtr<nsPIDOMWindow> window = do_QueryInterface(domWindow);
   if (!window)
     return NS_ERROR_FAILURE;
 
-  nsCOMPtr<nsIDOMDocument> document;
-  window->GetDocument(getter_AddRefs(document));
   nsAutoString documentURIString;
-  document->GetDocumentURI(documentURIString);
+  window->GetDoc()->GetDocumentURI(documentURIString);
 
   nsCOMPtr<nsIURI> documentURI;
   rv = NS_NewURI(getter_AddRefs(documentURI), documentURIString);

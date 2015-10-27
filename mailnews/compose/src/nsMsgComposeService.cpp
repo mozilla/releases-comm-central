@@ -420,9 +420,10 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type, nsIMsgWindow *
 
   nsCOMPtr<nsIDOMWindow> domWindow(do_GetInterface(childAsItem, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsISelection> sel;
-  rv = domWindow->GetSelection(getter_AddRefs(sel));
+  nsCOMPtr<nsPIDOMWindow> privateWindow(do_QueryInterface(domWindow, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsISelection> sel = privateWindow->GetSelection();
+  NS_ENSURE_TRUE(sel, NS_ERROR_FAILURE);
 
   bool requireMultipleWords = true;
   nsAutoCString charsOnlyIf;
