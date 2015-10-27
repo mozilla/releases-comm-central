@@ -23,9 +23,6 @@ DEFINES += \
   -DGRE_BUILDID=$(GRE_BUILDID) \
    $(NULL)
 
-ifdef LIBXUL_SDK
-include $(topsrcdir)/config/rules.mk
-else
 # Build a binary bootstrapping with XRE_main
 
 ifndef MOZ_WINCONSOLE
@@ -83,8 +80,6 @@ libs::
 GARBAGE += $(addprefix $(DIST)/bin/defaults/pref/, all.js all-thunderbird.js mailnews.js)
 endif # ! WinNT
 
-endif # LIBXUL_SDK
-
 ifneq (,$(filter windows,$(MOZ_WIDGET_TOOLKIT)))
 ICON_SUFFIX=.ico
 
@@ -117,12 +112,10 @@ endif
 libs:: $(srcdir)/profile/prefs.js
 	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/defaults/profile
 
-ifndef LIBXUL_SDK
 # channel-prefs.js is handled separate from other prefs due to bug 756325
 libs:: $(srcdir)/profile/channel-prefs.js
 	$(NSINSTALL) -D $(DIST)/bin/defaults/pref
 	$(call py_action,preprocessor,-Fsubstitution $(PREF_PPFLAGS) $(ACDEFINES) $^ -o $(DIST)/bin/defaults/pref/channel-prefs.js)
-endif
 
 libs:: $(srcdir)/blocklist.xml
 	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin
@@ -158,34 +151,13 @@ tools repackage:: $(PROGRAM)
 	sed -e 's/%MAC_APP_NAME%/$(MAC_APP_NAME)/' $(srcdir)/macbuild/Contents/Resources/English.lproj/InfoPlist.strings.in | iconv -f UTF-8 -t UTF-16 > $(DIST)/$(MOZ_MACBUNDLE_NAME)/$(LPROJ)/InfoPlist.strings
 	rsync -a --exclude-from='$(srcdir)/macbuild/Contents/MacOS-files.in' $(DIST)/bin/ $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources
 	rsync -a --include-from='$(srcdir)/macbuild/Contents/MacOS-files.in' --exclude '*' $(DIST)/bin/ $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS
-ifdef LIBXUL_SDK
-	cp $(LIBXUL_DIST)/bin/$(XR_STUB_NAME) $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS/thunderbird
-else
 	$(RM) $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS/$(PROGRAM)
 	rsync -aL $(PROGRAM) $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS
-endif
 	$(MKDIR) -p $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Library/Spotlight
 	rsync -a --copy-unsafe-links $(DIST)/package/thunderbird.mdimporter $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Library/Spotlight
 	cp -RL $(DIST)/branding/thunderbird.icns $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/thunderbird.icns
 	printf APPLMOZM > $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/PkgInfo
-else
-ifdef LIBXUL_SDK
-libs::
-	cp $(LIBXUL_DIST)/bin/$(XULRUNNER_STUB_NAME)$(BIN_SUFFIX) $(DIST)/bin/thunderbird$(BIN_SUFFIX)
 endif
-endif
-
-ifdef LIBXUL_SDK
-ifndef SKIP_COPY_XULRUNNER
-libs::
-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-	rsync -a --copy-unsafe-links $(LIBXUL_DIST)/XUL.framework $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Frameworks
-else
-	$(NSINSTALL) -D $(DIST)/bin/xulrunner
-	(cd $(LIBXUL_SDK)/bin && tar $(TAR_CREATE_FLAGS) - .) | (cd $(DIST)/bin/xulrunner && tar -xf -)
-endif # cocoa
-endif # SKIP_COPY_XULRUNNER
-endif # LIBXUL_SDK
 
 # Note that anything you do to dist/ down here isn't going to make it into the
 # Mac build, since it's already been copied over to the .app, above.

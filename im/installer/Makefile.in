@@ -111,9 +111,7 @@ endif
 
 NON_OMNIJAR_FILES =
 
-ifndef LIBXUL_SDK
 INSTALL_SDK = 1
-endif
 
 GENERATE_CACHE=1
 

@@ -5,8 +5,7 @@
 
 include('/mailnews/mailnews.mozbuild')
 
-if not CONFIG['LIBXUL_SDK']:
-    include('/toolkit/toolkit.mozbuild')
+include('/toolkit/toolkit.mozbuild')
 
 if CONFIG['MOZ_EXTENSIONS']:
     DIRS += ['/extensions']

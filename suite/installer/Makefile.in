@@ -32,10 +32,6 @@ ifdef ENABLE_TESTS
 DEFINES += -DENABLE_TESTS=1
 endif
 
-ifdef LIBXUL_SDK
-DEFINES += -DLIBXUL_SDK=1
-endif
-
 ifdef MOZ_ANGLE_RENDERER
 DEFINES += -DMOZ_ANGLE_RENDERER=$(MOZ_ANGLE_RENDERER)
 ifdef MOZ_D3DCOMPILER_VISTA_DLL
@@ -145,9 +141,7 @@ NON_OMNIJAR_FILES = \
 	defaults/profile/chrome/userContent-example.css \
 	$(NULL)
 
-ifndef LIBXUL_SDK
 INSTALL_SDK = 1
-endif
  
 include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/packager.mk
 
