@@ -123,8 +123,11 @@ static void activateWindow( nsIDOMWindow *win )
       ::ShowWindow( hwnd, SW_RESTORE );
     // Use the OS call, if possible.
     ::SetForegroundWindow( hwnd );
-  } else // Use internal method.
-    win->Focus();
+  } else {
+    // Use internal method.
+    nsCOMPtr<nsPIDOMWindow> privateWindow(do_QueryInterface(win));
+    privateWindow->Focus();
+  }
 }
 // end shameless copying from nsNativeAppWinSupport.cpp
 
@@ -487,7 +490,7 @@ nsresult nsMessengerWinIntegration::ShowNewAlertNotification(bool aUserInitiated
 
   // check if we are allowed to show a notification
   if (showAlert && mSHQueryUserNotificationState) {
-    MOZ_QUERY_USER_NOTIFICATION_STATE qstate;    
+    MOZ_QUERY_USER_NOTIFICATION_STATE qstate;
     if (SUCCEEDED(mSHQueryUserNotificationState(&qstate))) {
       if (qstate != QUNS_ACCEPTS_NOTIFICATIONS) {
         showAlert = false;
