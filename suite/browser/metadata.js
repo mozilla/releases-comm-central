@@ -167,10 +167,14 @@ function checkForImage(elem, htmllocalname)
         var imgURL = imgType == "object" ? img.data : img.src;
         setInfo("image-url", imgURL);
 
+        const LoadContextInfo = Components.classes["@mozilla.org/load-context-info-factory;1"]
+                                          .getService(Components.interfaces.nsILoadContextInfoFactory);
+        var loadContextInfo = opener.gPrivate ? LoadContextInfo.private :
+                                                LoadContextInfo.default;
         Components.utils.import("resource://gre/modules/NetUtil.jsm");
         Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
                   .getService(Components.interfaces.nsICacheStorageService)
-                  .diskCacheStorage({ isPrivate: opener.gPrivate }, false)
+                  .diskCacheStorage(loadContextInfo, false)
                   .asyncOpenURI(NetUtil.newURI(imgURL), null,
                                 OPEN_READONLY, cacheListener);
 

@@ -6,6 +6,7 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0. */
 
+const nsICookiePermission  = Components.interfaces.nsICookiePermission;
 const ALLOW = Services.perms.ALLOW_ACTION;         // 1
 const BLOCK = Services.perms.DENY_ACTION;          // 2
 const SESSION = nsICookiePermission.ACCESS_SESSION;// 8

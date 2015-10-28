@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
  
 Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 function Startup()
 {
@@ -60,9 +61,8 @@ function UpdateActualCacheSize()
     }
   };
 
-  Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
-            .getService(Components.interfaces.nsICacheStorageService)
-            .appCacheStorage({}, null).asyncVisitStorage(visitor, false);
+  Services.cache2.appCacheStorage(Services.loadContextInfo.default, null)
+                 .asyncVisitStorage(visitor, false);
 }
 
 /**
@@ -78,9 +78,8 @@ var callback = {
 function ClearOfflineAppCache()
 {
   try {
-    Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
-              .getService(Components.interfaces.nsICacheStorageService)
-              .appCacheStorage({}, null).asyncEvictStorage(callback);
+    Services.cache2.appCacheStorage(Services.loadContextInfo.default, null)
+                   .asyncEvictStorage(callback);
   } catch(ex) {}
 }
 

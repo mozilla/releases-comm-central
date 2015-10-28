@@ -223,12 +223,15 @@ const STRING_CONTRACTID         = "@mozilla.org/supports-string;1";
 // a number of services I'll need later
 // the cache services
 const OPEN_READONLY = Components.interfaces.nsICacheStorage.OPEN_READONLY;
+const ENTRY_WANTED = Components.interfaces.nsICacheEntryOpenCallback.ENTRY_WANTED;
+const LoadContextInfo = Components.classes["@mozilla.org/load-context-info-factory;1"]
+                                  .getService(Components.interfaces.nsILoadContextInfoFactory);
+var loadContextInfo = opener.gPrivate ? LoadContextInfo.private :
+                                        LoadContextInfo.default;
 const diskCacheStorage =
     Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
               .getService(Components.interfaces.nsICacheStorageService)
-              .diskCacheStorage({ isPrivate: opener.gPrivate }, false);
-
-const nsICookiePermission  = Components.interfaces.nsICookiePermission;
+              .diskCacheStorage(loadContextInfo, false);
 
 const nsICertificateDialogs = Components.interfaces.nsICertificateDialogs;
 const CERTIFICATEDIALOGS_CONTRACTID = "@mozilla.org/nsCertificateDialogs;1"
@@ -451,7 +454,7 @@ var cacheListener = {
     }
   },
   onCacheEntryCheck: function onCacheEntryCheck() {
-    return Components.interfaces.nsICacheEntryOpenCallback.ENTRY_WANTED;
+    return ENTRY_WANTED;
   }
 };
 
@@ -616,7 +619,7 @@ function onCacheEntryAvailable(cacheEntryDescriptor) {
 
 imgCacheListener.prototype.onCacheEntryCheck =
 function onCacheEntryCheck() {
-  return Components.interfaces.nsICacheEntryOpenCallback.ENTRY_WANTED;
+  return ENTRY_WANTED;
 };
 
 function addImage(url, type, alt, elem, isBg)
