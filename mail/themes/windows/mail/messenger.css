@@ -161,6 +161,14 @@ notification[type="critical"] .messageCloseButton {
   list-style-image: url("chrome://global/skin/icons/close-inverted.png");
 }
 
+@media not all and (-moz-os-version: windows-xp) {
+ @media (min-resolution: 1.1dppx) {
+    notification[type="critical"] .messageCloseButton {
+      list-style-image: url("chrome://global/skin/icons/close-inverted@2x.png");
+    }
+  }
+}
+
 menulist.folderMenuItem > .menulist-label-box > .menulist-label {
   -moz-margin-start: 2px !important;
 }
