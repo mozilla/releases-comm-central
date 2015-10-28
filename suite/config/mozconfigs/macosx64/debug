@@ -4,7 +4,6 @@ ac_add_options --enable-debug
 
 ac_add_options --enable-application=suite
 ac_add_options --enable-tests
-ac_add_options --disable-startupcache
 
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1

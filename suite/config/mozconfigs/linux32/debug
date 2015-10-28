@@ -5,7 +5,6 @@ ac_add_options --enable-application=suite
 ac_add_options --enable-debug
 
 ac_add_options --enable-tests
-ac_add_options --disable-startupcache
 
 export CFLAGS="-gdwarf-2"
 export CXXFLAGS="-gdwarf-2"
