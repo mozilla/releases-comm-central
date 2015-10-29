@@ -798,7 +798,7 @@ nsContextMenu.prototype = {
   if (aBlock)
     Services.perms.add(uri, "image", Services.perms.DENY_ACTION);
   else
-    Services.perms.remove(uri.host, "image");
+    Services.perms.remove(uri, "image");
   },
 
   // Open linked-to URL in a new tab.

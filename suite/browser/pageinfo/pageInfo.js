@@ -944,7 +944,7 @@ function onBlockImage(aChecked)
   if (aChecked)
     Services.perms.add(uri, "image", Services.perms.DENY_ACTION);
   else
-    Services.perms.remove(uri.host, "image");
+    Services.perms.remove(uri, "image");
 }
 
 function onImageSelect()
@@ -1215,7 +1215,7 @@ var imagePermissionObserver = {
         var row = imageTree.currentIndex;
         var item = gImageView.data[row][COL_IMAGE_NODE];
         var url = gImageView.data[row][COL_IMAGE_ADDRESS];
-        if (makeURI(url).host == permission.host)
+        if (permission.matchesURI(makeURI(url), true))
           makeBlockImage(url);
       }
     }

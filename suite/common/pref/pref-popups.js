@@ -27,7 +27,7 @@ function SetLists()
   if (pref.value)
   {
     var enumerator = permissionManager.enumerator;
-    var hosts = [];
+    var uris = [];
 
     while (enumerator.hasMoreElements())
     {                
@@ -36,12 +36,12 @@ function SetLists()
       {
         if ((permission.type == kPopupType) &&
             (permission.capability == nsIPermissionManager.DENY_ACTION))
-          hosts.push(permission.host);
+          uris.push(permission.principal.URI);
       }
     }
 
-    for (var i in hosts)
-      permissionManager.remove(hosts[i], kPopupType);
+    for (var i in uris)
+      permissionManager.remove(uris[i], kPopupType);
 
     pref.value = false;
   }

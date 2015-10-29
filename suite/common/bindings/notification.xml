@@ -518,16 +518,7 @@
                 if (permission.type != "popup" || aData != "added" || !this.popupCount)
                   return;
 
-                try {
-                  var hostport = this.activeBrowser.currentURI.hostPort;
-                } catch (ex) {
-                  // we can't do much without a hostport here
-                  return;
-                }
-                var host = '.' + permission.host;
-                hostport = '.' + hostport;
-
-                if (host == hostport.slice(-host.length)) {
+                if (permission.matchesURI(this.activeBrowser.currentURI, false)) {
                   var popupNotification = this.getNotificationWithValue("popup-blocked");
                   if (popupNotification)
                     this.removeNotification(popupNotification);
