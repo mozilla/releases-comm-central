@@ -304,7 +304,7 @@ var BookmarkPropertiesPanel = {
         acceptButton.disabled = this._readOnly;
         break;
       case ACTION_ADD:
-        this._fillAddProperties();
+        this._createNewItem().then(() => this._fillAddProperties());
         // if this is an uri related dialog disable accept button until
         // the user fills an uri value.
         if (this._itemType == BOOKMARK_ITEM)
@@ -403,7 +403,6 @@ var BookmarkPropertiesPanel = {
   },
 
   _fillAddProperties: function BPP__fillAddProperties() {
-    this._createNewItem();
     // Edit the new item
     gEditItemOverlay.initPanel(this._itemId,
                                { hiddenRows: this._hiddenRows });
@@ -413,6 +412,9 @@ var BookmarkPropertiesPanel = {
     var locationField = this._element("locationField");
     if (locationField.value == "about:blank")
       locationField.value = "";
+    if (this._itemType == BOOKMARK_ITEM)
+      acceptButton.disabled = !this._inputIsValid();
+    window.sizeToContent();
   },
 
   // nsISupports
@@ -626,6 +628,13 @@ var BookmarkPropertiesPanel = {
     }
 
     PlacesUtils.transactionManager.doTransaction(txn);
-    this._itemId = PlacesUtils.bookmarks.getIdForItemAt(container, index);
+    var promise = txn._promise || {
+      then: function(callback) {
+        callback();
+        return this;
+      }
+    };
+    return promise.then(() =>
+      this._itemId = PlacesUtils.bookmarks.getIdForItemAt(container, index));
   }
 };
