@@ -9,7 +9,9 @@
 #include "nsStringAPI.h"
 #include "nsServiceManagerUtils.h"
 
+#include "nsPIDOMWindow.h"
 #include "nsIDOMWindow.h"
+#include "nsIDocument.h"
 #include "nsIDOMDocument.h"
 
 #include "nsIDOMEvent.h"
@@ -83,9 +85,14 @@ NS_IMETHODIMP DispatchTrustedEvent(nsIDOMWindow *aWindow, const nsAString& aEven
 
   nsresult rv;
 
-  nsCOMPtr<nsIDOMDocument> domDocument;
-  rv = aWindow->GetDocument(getter_AddRefs(domDocument));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsPIDOMWindow> window(do_QueryInterface(aWindow));
+  NS_ENSURE_STATE(window);
+
+  nsCOMPtr<nsIDocument> doc = window->GetExtantDoc();
+  NS_ENSURE_STATE(doc);
+
+  nsCOMPtr<nsIDOMDocument> domDocument(do_QueryInterface(doc));
+  NS_ENSURE_STATE(domDocument);
 
   nsCOMPtr<nsIDOMEventTarget> target(do_QueryInterface(domDocument));
   NS_ENSURE_TRUE(target, NS_ERROR_INVALID_ARG);
@@ -226,9 +233,14 @@ NS_IMETHODIMP TrayIconImpl::DispatchMouseEvent(const nsAString& aEventName, PRUi
 {
   nsresult rv;
 
-  nsCOMPtr<nsIDOMDocument> domDocument;
-  rv = mWindow->GetDocument(getter_AddRefs(domDocument));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsPIDOMWindow> window(do_QueryInterface(mWindow));
+  NS_ENSURE_TRUE(window, NS_ERROR_INVALID_ARG);
+
+  nsCOMPtr<nsIDocument> doc = window->GetExtantDoc();
+  NS_ENSURE_STATE(doc);
+
+  nsCOMPtr<nsIDOMDocument> domDocument(do_QueryInterface(doc));
+  NS_ENSURE_STATE(domDocument);
 
   nsCOMPtr<nsIDOMEventTarget> target(do_QueryInterface(domDocument));
   NS_ENSURE_TRUE(target, NS_ERROR_INVALID_ARG);
