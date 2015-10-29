@@ -45,7 +45,8 @@ this.EXPORTED_SYMBOLS = [
 var kAllowedURLs = aValue => /^(https?|ftp|mailto):/.test(aValue);
 var kAllowedMozClasses =
   aClassName => aClassName == "moz-txt-underscore" ||
-                aClassName == "moz-txt-tag";
+                aClassName == "moz-txt-tag" ||
+                aClassName == "ib-person";
 
 /* Tags whose content should be fully removed, and reported in the Error Console. */
 var kForbiddenTags = {

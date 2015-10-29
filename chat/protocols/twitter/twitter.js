@@ -313,6 +313,7 @@ Conversation.prototype = {
           start: um.indices[0],
           end: um.indices[1],
           str: "@" + um.screen_name,
+          text: '@<span class="ib-person">' + um.screen_name + "</span>",
           title: um.name,
           href: "https://twitter.com/" + um.screen_name})));
       }

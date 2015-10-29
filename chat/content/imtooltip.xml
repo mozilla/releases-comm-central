@@ -467,7 +467,8 @@
 
          let classList = elt.classList;
          if (classList.contains("ib-nick") ||
-             classList.contains("ib-sender")) {
+             classList.contains("ib-sender") ||
+             classList.contains("ib-person")) {
            let conv = getBrowser()._conv;
            if (conv.isChat)
              return updateTooltipFromParticipant(elt.textContent, conv);
