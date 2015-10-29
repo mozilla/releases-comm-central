@@ -244,7 +244,17 @@ var BookmarkPropertiesPanel = {
 
         case "folder":
           this._itemType = BOOKMARK_FOLDER;
-          PlacesUtils.livemarks.getLivemark({ id: this._itemId }, this);
+          PlacesUtils.livemarks.getLivemark({ id: this._itemId })
+                               .then(aLivemark => {
+            this._itemType = LIVEMARK_CONTAINER;
+            this._feedURI = aLivemark.feedURI;
+            this._siteURI = aLivemark.siteURI;
+            this._fillEditProperties();
+
+            document.documentElement
+                    .getButton("accept").disabled = !this._inputIsValid();
+            window.outerHeight += this._element("nameRow").boxObject.height * 2;
+          }, () => undefined);
       }
 
       // Description
@@ -370,20 +380,6 @@ var BookmarkPropertiesPanel = {
     }
   },
 
-  // mozILivemarkCallback
-  onCompletion: function BPP_onCompletion(aStatus, aLivemark) {
-    if (Components.isSuccessCode(aStatus)) {
-      this._itemType = LIVEMARK_CONTAINER;
-      this._feedURI = aLivemark.feedURI;
-      this._siteURI = aLivemark.siteURI;
-      this._fillEditProperties();
-
-      document.documentElement
-              .getButton("accept").disabled = !this._inputIsValid();
-      window.outerHeight += this._element("nameRow").boxObject.height * 2;
-    }
-  },
-
   _beginBatch: function BPP__beginBatch() {
     if (this._batching)
       return;
@@ -422,7 +418,6 @@ var BookmarkPropertiesPanel = {
   // nsISupports
   QueryInterface: function BPP_QueryInterface(aIID) {
     if (aIID.equals(Components.interfaces.nsIDOMEventListener) ||
-        aIID.equals(Components.interfaces.mozILivemarkCallback) ||
         aIID.equals(Components.interfaces.nsISupports))
       return this;
 

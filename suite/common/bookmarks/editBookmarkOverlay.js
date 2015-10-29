@@ -145,7 +145,14 @@ var gEditItemOverlay = {
       else {
         this._uri = null;
         this._isLivemark = false;
-        PlacesUtils.livemarks.getLivemark({ id: this._itemId }, this);
+        PlacesUtils.livemarks.getLivemark({ id: this._itemId })
+                             .then(aLivemark => {
+          this._isLivemark = true;
+          this._initTextField("feedLocationField", aLivemark.feedURI.spec, true);
+          this._initTextField("siteLocationField",
+                              aLivemark.siteURI ? aLivemark.siteURI.spec : "", true);
+          this._showHideRows();
+        }, () => undefined);
       }
 
       // folder picker
@@ -326,7 +333,6 @@ var gEditItemOverlay = {
 
   QueryInterface: function EIO_QueryInterface(aIID) {
     if (aIID.equals(Components.interfaces.nsIDOMEventListener) ||
-        aIID.equals(Components.interfaces.mozILivemarkCallback) ||
         aIID.equals(Components.interfaces.nsINavBookmarkObserver) ||
         aIID.equals(Components.interfaces.nsISupports))
       return this;
@@ -837,17 +843,6 @@ var gEditItemOverlay = {
     case "unload":
       this.uninitPanel(false);
       break;
-    }
-  },
-
-  // mozILivemarkCallback
-  onCompletion: function EIO_onCompletion(aStatus, aLivemark) {
-    if (Components.isSuccessCode(aStatus)) {
-      this._isLivemark = true;
-      this._initTextField("feedLocationField", aLivemark.feedURI.spec, true);
-      this._initTextField("siteLocationField",
-                          aLivemark.siteURI ? aLivemark.siteURI.spec : "", true);
-      this._showHideRows();
     }
   },
 
