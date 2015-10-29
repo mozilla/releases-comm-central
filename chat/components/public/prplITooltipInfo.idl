@@ -22,7 +22,7 @@ interface prplITooltipInfo: nsISupports {
   /*
    * When type == status, the label holds the statusType (a short
    * converted to a string), while the value holds the statusText.
-   * When type == icon, the value holds the data URI.
+   * When type == icon, the value holds the user icon URI.
    */
   readonly attribute AUTF8String label;
   readonly attribute AUTF8String value;
