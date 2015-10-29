@@ -366,8 +366,9 @@ var permissionsTreeView = {
  };
 var permissionsTree;
 
-function Permission(id, host, rawHost, type, capability) {
+function Permission(id, principal, host, rawHost, type, capability) {
   this.id = id;
+  this.principal = principal;
   this.host = host;
   this.rawHost = rawHost;
   this.type = type;
@@ -384,7 +385,7 @@ function loadPermissions() {
     var nextPermission = enumerator.getNext();
     nextPermission = nextPermission.QueryInterface(Components.interfaces.nsIPermission);
     if (nextPermission.type == "cookie") {
-      var host = nextPermission.host;
+      var host = nextPermission.principal.URI.host;
       var capability;
       switch (nextPermission.capability) {
         case nsIPermissionManager.ALLOW_ACTION:
@@ -399,7 +400,9 @@ function loadPermissions() {
         default:
           continue;
       }
-      permissions.push(new Permission(permissions.length, host,
+      permissions.push(new Permission(permissions.length,
+                                      nextPermission.principal,
+                                      host,
                                       host.replace(/^\./, ""),
                                       nextPermission.type, capability));
     }
@@ -495,7 +498,7 @@ function FinalizePermissionDeletions() {
 
   gUpdatingBatch = "perm-changed";
   for (var p = 0; p < deletedPermissions.length; ++p)
-    permissionmanager.remove(deletedPermissions[p].host, deletedPermissions[p].type);
+    permissionmanager.removeFromPrincipal(deletedPermissions[p].principal, deletedPermissions[p].type);
   deletedPermissions.length = 0;
   gUpdatingBatch = "";
 }

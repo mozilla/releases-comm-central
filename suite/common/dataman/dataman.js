@@ -285,7 +285,7 @@ var gDomains = {
       let enumerator = Services.perms.enumerator;
       while (enumerator.hasMoreElements()) {
         let nextPermission = enumerator.getNext().QueryInterface(Components.interfaces.nsIPermission);
-        gDomains.addDomainOrFlag(nextPermission.host.replace(/^\./, ""), "hasPermissions");
+        gDomains.addDomainOrFlag(nextPermission.principal.URI.host.replace(/^\./, ""), "hasPermissions");
       }
       gDomains.ignoreUpdate = false;
       gDomains.search(gDomains.searchfield.value);
@@ -1230,11 +1230,11 @@ var gPerms = {
     while (enumerator.hasMoreElements()) {
       let nextPermission = enumerator.getNext();
       nextPermission = nextPermission.QueryInterface(Components.interfaces.nsIPermission);
-      let rawHost = nextPermission.host.replace(/^\./, "");
+      let rawHost = nextPermission.principal.URI.host.replace(/^\./, "");
       if (gDomains.hostMatchesSelected(rawHost)) {
         let permElem = document.createElement("richlistitem");
         permElem.setAttribute("type", nextPermission.type);
-        permElem.setAttribute("host", nextPermission.host);
+        permElem.setAttribute("host", nextPermission.principal.URI.host);
         permElem.setAttribute("rawHost", rawHost);
         permElem.setAttribute("displayHost",
                               gLocSvc.idn.convertToDisplayIDN(rawHost, {}));
@@ -1407,7 +1407,7 @@ var gPerms = {
           while (enumerator.hasMoreElements()) {
             let nextPermission = enumerator.getNext();
             nextPermission = nextPermission.QueryInterface(Components.interfaces.nsIPermission);
-            if (domain == gDomains.getDomainFromHost(nextPermission.host.replace(/^\./, "")))
+            if (domain == gDomains.getDomainFromHost(nextPermission.principal.URI.host.replace(/^\./, "")))
               haveDomainPerms = true;
           }
           let rejectHosts = Services.logins.getAllDisabledHosts();
@@ -1454,7 +1454,7 @@ var gPerms = {
         return;
       }
       aSubject.QueryInterface(Components.interfaces.nsIPermission);
-      let rawHost = aSubject.host.replace(/^\./, "");
+      let rawHost = aSubject.principal.URI.host.replace(/^\./, "");
       let domain = gDomains.getDomainFromHost(rawHost);
       // Does change affect possibly loaded Preferences pane?
       let affectsLoaded = this.list && this.list.childElementCount &&
@@ -1479,7 +1479,7 @@ var gPerms = {
           while (enumerator.hasMoreElements()) {
             let nextPermission = enumerator.getNext();
             nextPermission = nextPermission.QueryInterface(Components.interfaces.nsIPermission);
-            if (domain == gDomains.getDomainFromHost(nextPermission.host.replace(/^\./, "")))
+            if (domain == gDomains.getDomainFromHost(nextPermission.principal.URI.host.replace(/^\./, "")))
               haveDomainPerms = true;
           }
           let rejectHosts = Services.logins.getAllDisabledHosts();
@@ -1523,14 +1523,14 @@ var gPerms = {
     while (enumerator.hasMoreElements()) {
       let nextPermission = enumerator.getNext();
       nextPermission = nextPermission.QueryInterface(Components.interfaces.nsIPermission);
-      let host = nextPermission.host;
+      let host = nextPermission.principal.URI.host;
       if (gDomains.hostMatchesSelected(host.replace(/^\./, ""))) {
-        delPerms.push({host: host, type: nextPermission.type});
+      delPerms.push({principal: nextPermission.principal, type: nextPermission.type});
       }
     }
     // Loop backwards so later indexes in the list don't change.
     for (let i = delPerms.length - 1; i >= 0; i--) {
-      Services.perms.remove(delPerms[i].host, delPerms[i].type);
+      Services.perms.removeFromPrincipal(delPerms[i].principal, delPerms[i].type);
     }
     // Also remove all password rejects.
     let rejectHosts = Services.logins.getAllDisabledHosts();
