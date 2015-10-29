@@ -21,10 +21,23 @@ XPCOMUtils.defineLazyGetter(this, "_lang", () =>
 );
 initLogModule("twitter", this);
 
-function ChatBuddy(aName) {
+function ChatBuddy(aName, aAccount) {
   this._name = aName;
+  this._account = aAccount;
 }
-ChatBuddy.prototype = GenericConvChatBuddyPrototype;
+ChatBuddy.prototype = {
+  __proto__: GenericConvChatBuddyPrototype,
+  get buddyIconFilename() {
+    let userInfo = this._account._userInfo.get(this.name);
+    if (userInfo)
+      return userInfo.profile_image_url;
+    return undefined;
+  },
+  set buddyIconFilename(aName) {
+    // Prevent accidental removal of the getter.
+    throw("Don't set chatBuddy.buddyIconFilename directly for Twitter.");
+  }
+}
 
 function Tweet(aTweet, aWho, aMessage, aObject)
 {
@@ -346,7 +359,7 @@ Conversation.prototype = {
     if (this._participants.has(aNick))
       return;
 
-    let chatBuddy = new ChatBuddy(aNick);
+    let chatBuddy = new ChatBuddy(aNick, this._account);
     this._participants.set(aNick, chatBuddy);
     this.notifyObservers(new nsSimpleEnumerator([chatBuddy]),
                          "chat-buddy-add");
@@ -1058,6 +1071,8 @@ Account.prototype = {
         tooltipInfo.push(new TooltipInfo(_("tooltip." + field), value));
       }
     }
+    tooltipInfo.push(new TooltipInfo(null, userInfo.profile_image_url,
+                                     Ci.prplITooltipInfo.icon));
 
     Services.obs.notifyObservers(new nsSimpleEnumerator(tooltipInfo),
                                  "user-info-received", aBuddyName);
