@@ -162,8 +162,13 @@ radio[pane=paneLightning] {
 }
 
 #calendar-status-todaypane-button > stack > .toolbarbutton-day-text {
-  -moz-margin-end: 4px;
+  margin-top: 5px;
+  margin-inline-end: 0;
   color: #0969B2;
+}
+
+#calendar-status-todaypane-button:-moz-lwtheme-brighttext > stack > .toolbarbutton-day-text {
+  color: inherit;
 }
 
 /* shift the today pane button label up by one pixel to center it */

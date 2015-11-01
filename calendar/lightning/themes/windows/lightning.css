@@ -50,7 +50,7 @@ radio[pane=paneLightning] {
 }
 
 #calendar-status-todaypane-button > stack > .toolbarbutton-day-text {
-  color: DarkBlue;
+  margin-top: 4px;
 }
 
 #calendar-status-todaypane-button > .toolbarbutton-icon-end {
