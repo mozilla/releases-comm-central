@@ -169,7 +169,11 @@ pref("mail.html_compose",                   true);
 pref("mail.compose.other.header", "");
 pref("mail.compose.autosave", true);
 pref("mail.compose.autosaveinterval", 5); // in minutes
-
+// true:  If the message has practically no HTML formatting, bypass recipient-centric
+//        auto-detection of delivery format; auto-downgrade and silently send as plain text.
+// false: Don't auto-downgrade; use recipient-centric auto-detection of best delivery format,
+//        including send options.
+pref("mailnews.sendformat.auto_downgrade", true);
 pref("mail.default_html_action", 0);          // 0=ask, 1=plain, 2=html, 3=both
 
 pref("mail.mdn.report.not_in_to_cc", 2);               // 0: Never 1: Always 2: Ask me

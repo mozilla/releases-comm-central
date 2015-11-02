@@ -4,6 +4,8 @@
 
 <!ENTITY dialog.title                 "Send Options">
 <!ENTITY sendMail.title               "Text Format">
+<!ENTITY autoDowngrade.label          "Send messages as plain text if possible">
+<!ENTITY autoDowngrade.accesskey      "t">
 <!ENTITY sendMaildesc.label           "When sending messages in HTML format and one or more recipients are not listed as being able to receive HTML:">
 <!ENTITY askMe.label                  "Ask me what to do">
 <!ENTITY askMe.accesskey              "k">

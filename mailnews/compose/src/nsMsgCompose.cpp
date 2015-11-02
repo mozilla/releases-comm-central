@@ -4868,34 +4868,64 @@ nsMsgCompose::ExpandMailingLists()
   return NS_OK;
 }
 
+/**
+ * This function implements the decision logic for delivery format 'Auto-Detect',
+ * including optional 'Auto-Downgrade' behaviour for HTML messages considered
+ * convertible (silent, "lossless" conversion to plain text).
+ * @param aConvertible  the result of analysing message body convertibility:
+ *                      nsIMsgCompConvertible::Plain | Yes | Altering | No
+ * @return              nsIMsgCompSendFormat::AskUser | PlainText | HTML | Both
+ */
 NS_IMETHODIMP
 nsMsgCompose::DetermineHTMLAction(int32_t aConvertible, int32_t *result)
 {
   NS_ENSURE_ARG_POINTER(result);
+  nsresult rv;
+
+  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // *** Message-centric Auto-Downgrade ***
+  // If the message has practically no HTML formatting,
+  // AND if user accepts auto-downgrading (send options pref),
+  // bypass auto-detection of recipients' preferences and just
+  // send the message as plain text (silent, "lossless" conversion);
+  // which will also avoid asking for newsgroups for this typical scenario.
+  bool autoDowngrade = true;
+  rv = prefBranch->GetBoolPref("mailnews.sendformat.auto_downgrade", &autoDowngrade);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (autoDowngrade && (aConvertible == nsIMsgCompConvertible::Plain))
+  {
+    *result = nsIMsgCompSendFormat::PlainText;
+    return NS_OK;
+  }
+
+  // *** Newsgroups ***
+  // Right now, we don't have logic for newsgroups for intelligent send
+  // preferences. Therefore, bail out early and save us a lot of work if there
+  // are newsgroups.
 
   nsAutoString newsgroups;
   m_compFields->GetNewsgroups(newsgroups);
 
-  // Right now, we don't have logic for newsgroups for intelligent send
-  // preferences. Therefore, bail out early and save us a lot of work if there
-  // are newsgroups.
   if (!newsgroups.IsEmpty())
   {
     *result = nsIMsgCompSendFormat::AskUser;
     return NS_OK;
   }
 
+  // *** Recipient-Centric Auto-Detect ***
+
   RecipientsArray recipientsList;
-  nsresult rv = LookupAddressBook(recipientsList);
+  rv = LookupAddressBook(recipientsList);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Finally return the list of non HTML recipient if requested and/or rebuilt
+  // Finally return the list of non-HTML recipients if requested and/or rebuilt
   // the recipient field. Also, check for domain preference when preferFormat
-  // is unknown
+  // is unknown.
   nsString plaintextDomains;
   nsString htmlDomains;
 
-  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
   if (prefBranch)
   {
     NS_GetUnicharPreferenceWithDefault(prefBranch, "mailnews.plaintext_domains",
@@ -4904,9 +4934,14 @@ nsMsgCompose::DetermineHTMLAction(int32_t aConvertible, int32_t *result)
                                        EmptyString(), htmlDomains);
   }
 
-  // If allHtml is true, then everyone has specifically requested to receive
-  // HTML according to the address book.
+  // allHTML and allPlain are summary recipient scopes of format preference
+  // according to address book and send options for recipient-centric Auto-Detect,
+  // used by Auto-Detect to determine the appropriate message delivery format.
+
+  // allHtml: All recipients prefer HTML.
   bool allHtml = true;
+
+  // allPlain: All recipients prefer Plain Text.
   bool allPlain = true;
 
   // Exit the loop early if allHtml and allPlain both decay to false to save us
@@ -4941,6 +4976,8 @@ nsMsgCompose::DetermineHTMLAction(int32_t aConvertible, int32_t *result)
           preferFormat = nsIAbPreferMailFormat::html;
       }
 
+      // Determine the delivery format preference of this recipient and adjust
+      // the summary recipient scopes of the message accordingly.
       switch (preferFormat)
       {
       case nsIAbPreferMailFormat::html:
@@ -4959,32 +4996,38 @@ nsMsgCompose::DetermineHTMLAction(int32_t aConvertible, int32_t *result)
     }
   }
 
-  // If everyone supports HTML, then return HTML.
+  // Here's the final part of recipient-centric Auto-Detect logic where we set
+  // the actual send format (aka delivery format) after analysing recipients'
+  // format preferences above.
+
+  // If all recipients prefer HTML, then return HTML.
   if (allHtml)
   {
     *result = nsIMsgCompSendFormat::HTML;
     return NS_OK;
   }
 
-  // If we can guarantee that converting to plaintext is not lossy, send the
-  // email as plaintext. Also send it if everyone prefers plaintext.
-  if (aConvertible == nsIMsgCompConvertible::Plain || allPlain)
+  // If all recipients prefer plaintext, silently strip *all* HTML formatting,
+  // regardless of (non-)convertibility, and send the message as plaintext.
+  // **ToDo: UX-error-prevention, UX-wysiwyg: warn against dataloss potential.**
+  if (allPlain)
   {
     *result = nsIMsgCompSendFormat::PlainText;
     return NS_OK;
   }
 
   // Otherwise, check the preference to see what action we should default to.
-  nsCOMPtr<nsIPrefBranch> prefService(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  // This pref covers all recipient scopes involving prefers-plain (except allplain)
+  // and prefers-unknown. So we are mixing format conflict resolution options for
+  // prefers-plain with default format setting for prefers-unknown; not ideal.
   int32_t action = nsIMsgCompSendFormat::AskUser;
-  rv = prefService->GetIntPref("mail.default_html_action", &action);
+  rv = prefBranch->GetIntPref("mail.default_html_action", &action);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // If the action is a known action, return that value. Otherwise, ask the
-  // user. Note that the preference defaults to 0, which is not a valid value
-  // for the enum.
+  // If the action is a known send format, return the value to send in that format.
+  // Otherwise, ask the user.
+  // Note that the preference may default to 0 (Ask), which is not a valid value
+  // for the following enum.
   if (action == nsIMsgCompSendFormat::PlainText ||
       action == nsIMsgCompSendFormat::HTML ||
       action == nsIMsgCompSendFormat::Both)
