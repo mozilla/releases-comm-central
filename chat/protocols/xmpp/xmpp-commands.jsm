@@ -51,6 +51,39 @@ function splitInput(aString) {
   return splitParams;
 }
 
+// Trims the string and splits it in two parts (The first part is a nickname
+// and the second part is the rest of string) based on nicknames of current
+// participants. Returns the non-empty parts in an array.
+function splitByNick(aString, aConv) {
+  let params = aString.trim();
+  if (!params)
+    return [];
+
+  // Match trimmed-string with the longest prefix of participant's nickname.
+  let nickName = "";
+  for (let participant of aConv._participants.keys()) {
+    if (params.startsWith(participant + " ") &&
+        participant.length > nickName.length)
+      nickName = participant;
+  }
+  if (!nickName) {
+    let offset = params.indexOf(" ");
+    let expectedNickName = offset != -1 ? params.slice(0, offset) : params;
+    aConv.writeMessage(aConv.name,
+                      _("conversation.error.nickNotInRoom", expectedNickName),
+                      {system: true});
+    return [];
+  }
+
+  let splitParams = [];
+  splitParams.push(nickName);
+
+  let msg = params.substring(nickName.length);
+  if (msg)
+    splitParams.push(msg.trimLeft());
+  return splitParams;
+}
+
 var commands = [
   {
     name: "join",
@@ -128,13 +161,14 @@ var commands = [
     get helpString() { return _("command.kick", "kick"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: function(aMsg, aConv) {
-      let params = splitInput(aMsg);
+      let conv = getMUC(aConv);
+      if (!conv)
+        return true;
+
+      let params = splitByNick(aMsg, conv);
       if (!params.length)
         return false;
-
-      let conv = getMUC(aConv);
-      if (conv)
-        conv.kick(...params);
+      conv.kick(...params);
       return true;
     }
   },
@@ -202,21 +236,15 @@ var commands = [
     get helpString() { return _("command.msg", "msg"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: function(aMsg, aConv, aReturnedConv) {
-      let params = splitInput(aMsg);
-      if (params.length != 2)
-        return false;
-      let [nickName, msg] = params;
-
       let conv = getMUC(aConv);
       if (!conv)
         return true;
 
-      if (!conv._participants.has(nickName)) {
-        conv.writeMessage(conv.name,
-                          _("conversation.error.nickNotInRoom", nickName),
-                          {system: true});
-        return true;
-      }
+      let params = splitByNick(aMsg, conv);
+      if (params.length != 2)
+        return false;
+      let [nickName, msg] = params;
+
       let account = getAccount(aConv);
       let privateConv = account.createConversation(conv.name + "/" + nickName);
       if (!privateConv)
