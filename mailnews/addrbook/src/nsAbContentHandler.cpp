@@ -125,8 +125,7 @@ nsAbContentHandler::HandleContent(const char *aContentType,
                             this,
                             nullPrincipal,
                             nsILoadInfo::SEC_NORMAL,
-                            nsIContentPolicy::TYPE_OTHER,
-                            aWindowContext);
+                            nsIContentPolicy::TYPE_OTHER);
     NS_ENSURE_SUCCESS(rv, rv);
 
   }
