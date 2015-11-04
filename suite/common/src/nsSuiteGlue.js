@@ -35,8 +35,11 @@ XPCOMUtils.defineLazyModuleGetter(this, "BookmarkJSONUtils",
 XPCOMUtils.defineLazyModuleGetter(this, "Task",
                                   "resource://gre/modules/Task.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "DebuggerServer",
-                                  "resource://gre/modules/devtools/dbg-server.jsm");
+XPCOMUtils.defineLazyGetter(this, "DebuggerServer", () => {
+  var tmp = {};
+  Components.utils.import("resource://devtools/shared/Loader.jsm", tmp);
+  return tmp.require("devtools/server/main").DebuggerServer;
+});
 
 // We try to backup bookmarks at idle times, to avoid doing that at shutdown.
 // Number of idle seconds before trying to backup bookmarks.  15 minutes.
