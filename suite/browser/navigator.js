@@ -1079,7 +1079,7 @@ function BrowserHome(aEvent)
   openUILinkArrayIn(homePage, where);
 }
 
-const BrowserSearch = {
+var BrowserSearch = {
   handleEvent: function (event) { // "DOMLinkAdded" event
     var link = event.originalTarget;
 
