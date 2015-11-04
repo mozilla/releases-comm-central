@@ -23,6 +23,25 @@
   -moz-window-dragging: drag;
 }
 
+#titlebar-spacer {
+  pointer-events: none;
+}
+
+/* On OS X, window controls are always at the left side of the window */
+#titlebar-buttonbox-container:-moz-locale-dir(ltr) {
+  -moz-box-ordinal-group: 0;
+  -moz-box-align: start;
+}
+
+#titlebar-buttonbox-container:-moz-lwtheme {
+  margin-top: 3px;
+}
+
+#titlebar-buttonbox {
+  -moz-appearance: -moz-window-button-box;
+  margin-left: 7px;
+}
+
 /* ::::: toolbar-primary ::::: */
 
 .toolbar-primary {

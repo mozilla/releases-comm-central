@@ -134,4 +134,14 @@
     <menuseparator position="3"/>
   </menupopup>
 
+  <!-- Title bar elements -->
+  <vbox id="titlebar">
+    <hbox id="titlebar-content">
+      <spacer id="titlebar-spacer" flex="1"/>
+      <hbox id="titlebar-buttonbox-container">
+        <hbox id="titlebar-buttonbox"/>
+      </hbox>
+    </hbox>
+  </vbox>
+
 </overlay>    
