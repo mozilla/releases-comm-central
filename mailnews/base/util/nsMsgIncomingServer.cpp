@@ -2197,16 +2197,6 @@ NS_IMETHODIMP nsMsgIncomingServer::GetIsDeferredTo(bool *aIsDeferredTo)
 
 const long kMaxDownloadTableSize = 500;
 
-// aClosure is the server, from that we get the cutoff point, below which we evict
-// aData is the arrival index of the msg.
-/* static */PLDHashOperator nsMsgIncomingServer::evictOldEntries(nsCStringHashKey::KeyType aKey, int32_t &aData, void *aClosure)
-{
-  nsMsgIncomingServer *server = (nsMsgIncomingServer *) aClosure;
-  if (aData < server->m_numMsgsDownloaded - kMaxDownloadTableSize/2)
-    return PL_DHASH_REMOVE;
-  return server->m_downloadedHdrs.Count() > kMaxDownloadTableSize/2 ? PL_DHASH_NEXT : PL_DHASH_STOP;
-}
-
 // hash the concatenation of the message-id and subject as the hash table key,
 // and store the arrival index as the value. To limit the size of the hash table,
 // we just throw out ones with a lower ordinal value than the cut-off point.
@@ -2244,8 +2234,15 @@ NS_IMETHODIMP nsMsgIncomingServer::IsNewHdrDuplicate(nsIMsgDBHdr *aNewHdr, bool 
     // Check if hash table is larger than some reasonable size
     // and if is it, iterate over hash table deleting messages
     // with an arrival index < number of msgs downloaded - half the reasonable size.
-    if (m_downloadedHdrs.Count() >= kMaxDownloadTableSize)
-      m_downloadedHdrs.Enumerate(evictOldEntries, this);
+    if (m_downloadedHdrs.Count() >= kMaxDownloadTableSize) {
+      for (auto iter = m_downloadedHdrs.Iter(); !iter.Done(); iter.Next()) {
+        if (iter.Data() < m_numMsgsDownloaded - kMaxDownloadTableSize/2) {
+          iter.Remove();
+        } else if (m_downloadedHdrs.Count() <= kMaxDownloadTableSize/2) {
+          break;
+        }
+      }
+    }
   }
   return NS_OK;
 }

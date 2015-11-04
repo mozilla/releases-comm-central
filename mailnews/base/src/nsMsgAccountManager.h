@@ -171,11 +171,6 @@ private:
   // ("element" is always a server)
   //
 
-  // find the server given by {username, hostname, port, type}
-  static PLDHashOperator findServerUrl(nsCStringHashKey::KeyType aKey,
-                                       nsCOMPtr<nsIMsgIncomingServer>& aServer,
-                                       void *data);
-
   // save the server's saved searches to virtualFolders.dat
   static PLDHashOperator saveVirtualFolders(nsCStringHashKey::KeyType aKey,
                                        nsCOMPtr<nsIMsgIncomingServer>& aServer,

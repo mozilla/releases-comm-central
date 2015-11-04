@@ -83,7 +83,7 @@ protected:
   // these allow us to handle duplicate incoming messages, e.g. delete them.
   nsDataHashtable<nsCStringHashKey,int32_t> m_downloadedHdrs;
   int32_t  m_numMsgsDownloaded;
-static PLDHashOperator evictOldEntries(nsCStringHashKey::KeyType aKey, int32_t &aData, void *aClosure);
+
 private:
   uint32_t m_biffState;
   bool m_serverBusy;
