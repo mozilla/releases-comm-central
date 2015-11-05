@@ -1187,7 +1187,7 @@ NS_IMETHODIMP nsMsgDBView::SelectionChanged()
 
   mSelectionSummarized = selectionSummarized;
   // if only one item is selected then we want to display a message
-  if (numSelected == 1 && !selectionSummarized)
+  if (mTreeSelection && numSelected == 1 && !selectionSummarized)
   {
     int32_t startRange;
     int32_t endRange;
