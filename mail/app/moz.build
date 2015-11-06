@@ -5,14 +5,11 @@
 
 DIRS += ['profile']
 
-GENERATED_INCLUDES += [
-    '/build',
-]
-
 GeckoProgram(CONFIG['MOZ_APP_NAME'], msvcrt='static')
 USE_LIBS += ['mozglue']
 SOURCES += ['nsMailApp.cpp']
 LOCAL_INCLUDES += [
+    '!/build',
     '/mozilla/toolkit/xre',
     '/mozilla/xpcom/base',
     '/mozilla/xpcom/build',
