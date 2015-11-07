@@ -7,11 +7,11 @@ GeckoProgram(CONFIG['MOZ_APP_NAME'], msvcrt='static')
 USE_LIBS += ['mozglue']
 SOURCES += ['nsSuiteApp.cpp']
 LOCAL_INCLUDES += [
-    '!/build',
     '/mozilla/toolkit/xre',
     '/mozilla/xpcom/base',
     '/mozilla/xpcom/build',
 ]
+GENERATED_INCLUDES += ['/build']
 
 if CONFIG['OS_ARCH'] == 'WINNT':
     RCINCLUDE = 'splash.rc'
