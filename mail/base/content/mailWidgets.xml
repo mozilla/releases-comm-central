@@ -25,8 +25,9 @@
       <constructor><![CDATA[
         let children = Array.slice(this._childNodes);
 
+        let selectedItems = [... this.selectedItems];
         children.filter(aChild => aChild.getAttribute("selected") == "true")
-                .forEach(this.selectedItems.push, this.selectedItems);
+                .forEach(this.selectedItems.append, this.selectedItems);
 
         children.filter(aChild => !aChild.hasAttribute("context"))
                 .forEach(aChild => aChild.setAttribute("context",
