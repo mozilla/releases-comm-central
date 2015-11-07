@@ -1723,6 +1723,7 @@ var XMPPAccountPrototype = {
   onMessageStanza: function(aStanza) {
     let from = aStanza.attributes["from"];
     let norm = this.normalize(from);
+    let isMuc = this._mucs.has(norm);
 
     let type = aStanza.attributes["type"];
     let x = aStanza.getElement(["x"]);
@@ -1743,7 +1744,11 @@ var XMPPAccountPrototype = {
     }
 
     let subject = aStanza.getElement(["subject"]);
-    if (subject) {
+    // Ignore subject when !isMuc. We're being permissive about subject changes
+    // in the comment below, so we need to be careful about where that makes
+    // sense. Psi+'s OTR plugin includes a subject and body in its message
+    // stanzas.
+    if (subject && isMuc) {
       // XEP-0045 (7.2.16): Check for a subject element in the stanza and update
       // the topic if it exists.
       // We are breaking the spec because only a message that contains a
@@ -1768,8 +1773,8 @@ var XMPPAccountPrototype = {
       if (date && isNaN(date))
         date = undefined;
       if (type == "groupchat" ||
-          (type == "error" && this._mucs.has(norm) && !this._conv.has(from))) {
-        if (!this._mucs.has(norm)) {
+          (type == "error" && isMuc && !this._conv.has(from))) {
+        if (!isMuc) {
           this.WARN("Received a groupchat message for unknown MUC " + norm);
           return;
         }
@@ -1845,7 +1850,7 @@ var XMPPAccountPrototype = {
         typingState = Ci.prplIConvIM.TYPED;
     }
     let convName = norm;
-    if (this._mucs.has(norm))
+    if (isMuc)
       convName = from;
     let conv = this._conv.get(convName);
     if (!conv)
