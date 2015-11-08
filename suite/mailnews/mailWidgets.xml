@@ -19,7 +19,7 @@
     <implementation>
       <constructor><![CDATA[
           this.children.filter(aChild => aChild.getAttribute("selected") == "true")
-                       .forEach(this.selectedItems.push, this.selectedItems);
+                       .forEach(this.selectedItems.append, this.selectedItems);
       ]]></constructor>
 
       <!-- ///////////////// public members ///////////////// -->

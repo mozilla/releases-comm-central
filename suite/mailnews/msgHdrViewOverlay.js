@@ -1461,7 +1461,7 @@ function onShowAttachmentContextMenu()
 {
   // if no attachments are selected, disable the Open and Save...
   var attachmentList = document.getElementById('attachmentList');
-  var selectedAttachments = attachmentList.selectedItems;
+  var selectedAttachments = [...attachmentList.selectedItems];
   var openMenu = document.getElementById('context-openAttachment');
   var viewMenu = document.getElementById('context-viewAttachment');
   var saveMenu = document.getElementById('context-saveAttachment');
@@ -1546,7 +1546,7 @@ function attachmentListClick(event)
 function handleAttachmentSelection(commandPrefix)
 {
   var attachmentList = document.getElementById('attachmentList');
-  var selectedAttachments = attachmentList.selectedItems;
+  var selectedAttachments = [...attachmentList.selectedItems];
   if (selectedAttachments.length > 1)
     HandleMultipleAttachments(commandPrefix, selectedAttachments);
   else
