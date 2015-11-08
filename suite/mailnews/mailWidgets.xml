@@ -1235,9 +1235,9 @@
             }
 
               // if it's not sender, to, cc, alladdresses, or toorcc, we don't care
-              if (this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.Sender && 
-                this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.To && 
-                this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.ToOrCC && 
+              if (this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.Sender &&
+                this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.To &&
+                this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.ToOrCC &&
                 this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.AllAddresses &&
                 this.searchAttribute != Components.interfaces.nsMsgSearchAttrib.CC ) {
               this.internalOperator = val;
@@ -1367,7 +1367,7 @@
             children[0].value = val.age;
           else if (attrib == nsMsgSearchAttrib.Date)
             children[3].value = convertPRTimeToString(val.date);
-          else if (attrib == nsMsgSearchAttrib.Sender || 
+          else if (attrib == nsMsgSearchAttrib.Sender ||
                    attrib == nsMsgSearchAttrib.To ||
                    attrib == nsMsgSearchAttrib.CC ||
                    attrib == nsMsgSearchAttrib.AllAddresses ||

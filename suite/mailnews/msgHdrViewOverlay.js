@@ -179,7 +179,7 @@ function initializeHeaderViewTables()
   // for each one. These header entries are then stored in the appropriate header table
   for (let index = 0; index < gCollapsedHeaderList.length; index++)
   {
-    gCollapsedHeaderView[gCollapsedHeaderList[index].name] = 
+    gCollapsedHeaderView[gCollapsedHeaderList[index].name] =
       new createHeaderEntry('collapsed', gCollapsedHeaderList[index]);
   }
 
@@ -248,7 +248,7 @@ function OnLoadMsgHeaderPane()
   var toggleHeaderView = GetHeaderPane();
   var initialCollapsedSetting = toggleHeaderView.getAttribute("state");
   if (initialCollapsedSetting == "true")
-    gCollapsedHeaderViewMode = true;   
+    gCollapsedHeaderViewMode = true;
 
   // dispatch an event letting any listeners know that we have loaded the message pane
   toggleHeaderView.dispatchEvent(new Event('messagepane-loaded',
@@ -472,7 +472,7 @@ var messageHeaderSink = {
               var createCard = (gCollectIncoming && !dontCollectAddress) || (gCollectNewsgroup && dontCollectAddress);
               if (createCard || gCollectOutgoing)
               {
-                // collect, add card if doesn't exist and gCollectOutgoing is set, 
+                // collect, add card if doesn't exist and gCollectOutgoing is set,
                 // otherwise only update existing cards, unknown preferred send format
                 gCollectAddressTimer = setTimeout(collectAddresses,
                                                   2000,
@@ -729,7 +729,7 @@ function collectAddresses(aAddresses, aCreateCard)
 }
 
 // Public method called by the tag front end code when the tags for the selected
-// message has changed. 
+// message has changed.
 function OnTagsChange()
 {
   // rebuild the tag headers
@@ -823,7 +823,7 @@ function ToggleHeaderView()
     hideHeaderView(gCollapsedHeaderView);
     // update the current view
     UpdateMessageHeaders();
-    
+
     // now uncollapse / collapse the right views
     expandedNode.collapsed = false;
     collapsedNode.collapsed = true;
@@ -835,11 +835,11 @@ function ToggleHeaderView()
     hideHeaderView(gExpandedHeaderView);
     // update the current view
     UpdateMessageHeaders();
-    
+
     // now uncollapse / collapse the right views
     collapsedNode.collapsed = false;
     expandedNode.collapsed = true;
-  }  
+  }
 
   var toggleHeaderView = GetHeaderPane();
   if (gCollapsedHeaderViewMode)
@@ -922,9 +922,9 @@ function UpdateMessageHeaders()
         }
       } catch (ex) {}
     }
-    
+
     if (gCollapsedHeaderViewMode && !gBuiltCollapsedView)
-    { 
+    {
       if (headerName in gCollapsedHeaderView)
         headerEntry = gCollapsedHeaderView[headerName];
     }
@@ -960,7 +960,7 @@ function UpdateMessageHeaders()
       {
         // hide references header if view all headers mode isn't selected, the pref show references is
         // deactivated and the currently displayed message isn't a newsgroup posting
-        headerEntry.valid = false;   
+        headerEntry.valid = false;
       }
       else
       {
@@ -997,7 +997,7 @@ function ShowMessageHeaderPane()
 {
   var node;
   if (gCollapsedHeaderViewMode)
-  {          
+  {
     node = document.getElementById("collapsedHeaderView");
     if (node)
       node.collapsed = false;
@@ -1010,11 +1010,11 @@ function ShowMessageHeaderPane()
   }
 
   /* workaround for 39655 */
-  if (gFolderJustSwitched) 
+  if (gFolderJustSwitched)
   {
     let el = GetHeaderPane();
     el.setAttribute("style", el.getAttribute("style"));
-    gFolderJustSwitched = false;    
+    gFolderJustSwitched = false;
   }
 
   document.commandDispatcher.updateCommands("message-header-pane");
@@ -1098,7 +1098,7 @@ function OutputEmailAddresses(headerEntry, emailAddresses)
 
       index++;
     }
-    
+
     if (headerEntry.useToggle)
       headerEntry.enclosingBox.buildViews();
   } // if msgheader parser
@@ -1541,7 +1541,7 @@ function attachmentListClick(event)
 }
 
 // on command handlers for the attachment list context menu...
-// commandPrefix matches one of our existing functions 
+// commandPrefix matches one of our existing functions
 // (openAttachment, saveAttachment, etc.)
 function handleAttachmentSelection(commandPrefix)
 {
@@ -1581,7 +1581,7 @@ function displayAttachmentsForExpandedView()
         nameAndSize += " (" + messenger.formatFileSize(attachment.size) + ")";
       let item = attachmentList.appendItem(nameAndSize, "");
       item.setAttribute("crop", "center");
-      item.setAttribute("class", "listitem-iconic attachment-item"); 
+      item.setAttribute("class", "listitem-iconic attachment-item");
       item.setAttribute("tooltiptext", attachment.displayName);
       item.attachment = attachment;
       item.setAttribute("attachmentUrl", attachment.url);
@@ -1592,11 +1592,11 @@ function displayAttachmentsForExpandedView()
         item.setAttribute('disabled', 'true');
       else
         setApplicationIconForAttachment(attachment, item);
-    } // for each attachment   
+    } // for each attachment
 
     gBuildAttachmentsForCurrentMsg = true;
   }
-   
+
   var expandedAttachmentBox = document.getElementById('expandedAttachmentBox');
   expandedAttachmentBox.collapsed = numAttachments <= 0;
 }
@@ -1710,7 +1710,7 @@ function FillAttachmentItemPopup(event)
   openpopup.removeEventListener('popupshowing', FillAttachmentItemPopup, false);
 
   var menuitementry = document.getElementById("context-openAttachment").cloneNode(false);
-  menuitementry.setAttribute('oncommand', 'this.parentNode.attachment.openAttachment();'); 
+  menuitementry.setAttribute('oncommand', 'this.parentNode.attachment.openAttachment();');
   menuitementry = openpopup.appendChild(menuitementry);
 
   menuitementry = document.getElementById("context-viewAttachment").cloneNode(false);
@@ -1718,23 +1718,23 @@ function FillAttachmentItemPopup(event)
   menuitementry = openpopup.appendChild(menuitementry);
 
   menuitementry = document.getElementById("context-saveAttachment").cloneNode(false);
-  menuitementry.setAttribute('oncommand', 'this.parentNode.attachment.saveAttachment()'); 
+  menuitementry.setAttribute('oncommand', 'this.parentNode.attachment.saveAttachment()');
   menuitementry = openpopup.appendChild(menuitementry);
 
   openpopup.appendChild(document.createElement("menuseparator"));
 
   menuitementry = document.getElementById("context-detachAttachment").cloneNode(false);
-  menuitementry.setAttribute('oncommand', 'this.parentNode.attachment.detachAttachment()'); 
+  menuitementry.setAttribute('oncommand', 'this.parentNode.attachment.detachAttachment()');
   if (!canDetach)
     menuitementry.setAttribute('disabled', 'true');
   menuitementry = openpopup.appendChild(menuitementry);
 
   menuitementry = document.getElementById("context-deleteAttachment").cloneNode(false);
-  menuitementry.setAttribute('oncommand', 'this.attachment.deleteAttachment()'); 
+  menuitementry.setAttribute('oncommand', 'this.attachment.deleteAttachment()');
   if (!canDetach)
     menuitementry.setAttribute('disabled', 'true');
   menuitementry = openpopup.appendChild(menuitementry);
-} 
+}
 
 function HandleMultipleAttachments(commandPrefix, selectedAttachments)
 {
@@ -1975,7 +1975,7 @@ nsDummyMsgHeader.prototype =
   recipients : null,
   from : null,
   subject : "",
-  get mime2DecodedSubject() { return this.subject; },  
+  get mime2DecodedSubject() { return this.subject; },
   ccList : null,
   messageId : null,
   listPost : null,
