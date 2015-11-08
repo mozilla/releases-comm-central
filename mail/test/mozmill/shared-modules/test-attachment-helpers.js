@@ -194,7 +194,7 @@ function select_attachments(aController, aIndexStart, aIndexEnd) {
   }
 
   bucket.focus();
-  return bucket.selectedItems;
+  return [...bucket.selectedItems];
 }
 
 

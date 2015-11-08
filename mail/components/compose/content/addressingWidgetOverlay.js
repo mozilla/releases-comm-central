@@ -828,7 +828,6 @@ function awKeyDown(event, listboxElement)
   case KeyEvent.DOM_VK_DELETE:
   case KeyEvent.DOM_VK_BACK_SPACE:
     /* Warning, the listboxElement.selectedItems will change everytime we delete a row */
-    var selItems = listboxElement.selectedItems;
     var length = listboxElement.selectedItems.length;
     for (var i = 1; i <= length; i++) {
       var inputs = listboxElement.selectedItems[0].getElementsByTagName(awInputElementName());

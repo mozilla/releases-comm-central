@@ -1603,7 +1603,7 @@ function SendMailToNode(addressNode, aEvent)
 
   // If aEvent is passed, check if Shift key was pressed for composition in
   // non-default format (HTML vs. plaintext).
-  params.format = (aEvent && aEvent.shiftKey) ? 
+  params.format = (aEvent && aEvent.shiftKey) ?
     Components.interfaces.nsIMsgCompFormat.OppositeOfDefault :
     Components.interfaces.nsIMsgCompFormat.Default;
 
@@ -1963,9 +1963,10 @@ function onShowAttachmentItemContextMenu()
     if (contextMenu.triggerNode == attachmentName)
       attachmentName.setAttribute("selected", true);
   }
-  else
-    selectedAttachments = [item.attachment for each([, item] in
-                           Iterator(attachmentList.selectedItems))];
+  else {
+    selectedAttachments =
+      [...attachmentList.selectedItems].map(item => item.attachment);
+  }
   contextMenu.attachments = selectedAttachments;
 
   var allSelectedDetached = selectedAttachments.every(function(attachment) {
@@ -2570,8 +2571,9 @@ function HandleSelectedAttachments(action)
 {
   let attachmentList = document.getElementById("attachmentList");
   let selectedAttachments = [];
-  for (let i in attachmentList.selectedItems)
-    selectedAttachments.push(attachmentList.selectedItems[i].attachment);
+  for (let item of attachmentList.selectedItems) {
+    selectedAttachments.push(item.attachment);
+  }
 
   HandleMultipleAttachments(selectedAttachments, action);
 }
@@ -2592,7 +2594,7 @@ function HandleMultipleAttachments(attachments, action)
 
   // populate these arrays..
   var actionIndex = 0;
-  for each(let [, attachment] in Iterator(attachments)) {
+  for (let attachment of attachments) {
     // Exclude attachment which are 1) deleted, or 2) detached with missing
     // external files.
     if (!attachment.hasFile)
@@ -2678,7 +2680,7 @@ function ClearAttachmentList()
 
   // clear selection
   var list = document.getElementById("attachmentList");
-  list.selectedItems.length = 0;
+  list.clearSelection();
 
   while (list.hasChildNodes())
     list.lastChild.remove();

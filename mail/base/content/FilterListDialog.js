@@ -542,7 +542,7 @@ function runSelectedFilters()
   filterList.loggingEnabled = gCurrentFilterList.loggingEnabled;
 
   let index = 0;
-  for each (let item in gFilterListbox.selectedItems) {
+  for (let item of gFilterListbox.selectedItems) {
     filterList.insertFilterAt(index++, item._filter);
   }
 
@@ -819,7 +819,7 @@ function onFilterListKeyPress(aEvent)
   else if (!aEvent.ctrlKey && !aEvent.altKey && !aEvent.metaKey) {
     switch (aEvent.charCode) {
       case KeyEvent.DOM_VK_SPACE:
-        for each (let item in gFilterListbox.selectedItems) {
+        for (let item of gFilterListbox.selectedItems) {
           toggleFilter(item);
         }
         break;

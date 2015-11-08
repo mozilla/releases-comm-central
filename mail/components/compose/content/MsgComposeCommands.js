@@ -815,7 +815,7 @@ var attachmentBucketController = {
           return false;
 
         let bucket = document.getElementById("attachmentBucket");
-        for (let [,item] in Iterator(bucket.selectedItems)) {
+        for (let item of bucket.selectedItems) {
           if (item.uploading)
             return false;
         }
@@ -833,7 +833,7 @@ var attachmentBucketController = {
           return false;
 
         let bucket = document.getElementById("attachmentBucket");
-        for (let [,item] in Iterator(bucket.selectedItems)) {
+        for (let item of bucket.selectedItems) {
           if (item.uploading)
             return false;
         }
@@ -855,7 +855,7 @@ var attachmentBucketController = {
         }
 
         let bucket = document.getElementById("attachmentBucket");
-        for (let [,item] in Iterator(bucket.selectedItems)) {
+        for (let item of bucket.selectedItems) {
           if (item && item.uploading) {
             cmd.hidden = false;
             return true;
@@ -874,7 +874,7 @@ var attachmentBucketController = {
                                   .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
 
         let bucket = document.getElementById("attachmentBucket");
-        for (let [,item] in Iterator(bucket.selectedItems)) {
+        for (let item of bucket.selectedItems) {
           if (item && item.uploading) {
             let file = fileHandler.getFileFromURLSpec(item.attachment.url);
             item.cloudProvider.cancelFileUpload(file);
@@ -1449,7 +1449,7 @@ function convertListItemsToCloudAttachment(aItems, aProvider)
   let convertedAttachments = Components.classes["@mozilla.org/array;1"]
                                        .createInstance(Components.interfaces.nsIMutableArray);
 
-  for (let [,item] in Iterator(aItems)) {
+  for (let item of aItems) {
     let url = item.attachment.url;
 
     if (item.attachment.sendViaCloud) {
@@ -1491,7 +1491,7 @@ function convertListItemsToCloudAttachment(aItems, aProvider)
 function convertSelectedToCloudAttachment(aProvider)
 {
   let bucket = document.getElementById("attachmentBucket");
-  convertListItemsToCloudAttachment(bucket.selectedItems, aProvider);
+  convertListItemsToCloudAttachment([...bucket.selectedItems], aProvider);
 }
 
 /**
@@ -1504,7 +1504,7 @@ function convertToCloudAttachment(aAttachments, aProvider)
 {
   let bucket = document.getElementById("attachmentBucket");
   let items = [];
-  for (let [,attachment] in Iterator(aAttachments)) {
+  for (let attachment of aAttachments) {
     let item = bucket.findItemForAttachment(attachment);
     if (item)
       items.push(item);
@@ -1526,7 +1526,7 @@ function convertListItemsToRegularAttachment(aItems)
   let convertedAttachments = Components.classes["@mozilla.org/array;1"]
                                        .createInstance(Components.interfaces.nsIMutableArray);
 
-  for (let [,item] in Iterator(aItems)) {
+  for (let item of aItems) {
     if (!item.attachment.sendViaCloud || !item.cloudProvider)
       continue;
 
@@ -1568,7 +1568,7 @@ function convertListItemsToRegularAttachment(aItems)
 function convertSelectedToRegularAttachment()
 {
   let bucket = document.getElementById("attachmentBucket");
-  convertListItemsToRegularAttachment(bucket.selectedItems);
+  convertListItemsToRegularAttachment([...bucket.selectedItems]);
 }
 
 /**
