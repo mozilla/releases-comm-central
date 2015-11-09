@@ -376,8 +376,6 @@
          this.setAttribute("status", "unknown");
          this.setMessage(Status.toLabel("unknown"));
          this.setBuddyIcon(aParticipant ? aParticipant.buddyIconFilename : null);
-         this.addRow(this.bundle.GetStringFromName("buddy.account"),
-                     account.name);
          this.requestBuddyInfo(account, normalizedNick);
          return true;
        ]]>
