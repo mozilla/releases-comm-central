@@ -33,6 +33,8 @@
 #include "mozilla/Services.h"
 #include "nsIMIMEInfo.h"
 #include "nsIMsgHeaderParser.h"
+#include "nsIRandomGenerator.h"
+#include "nsID.h"
 
 NS_IMPL_ISUPPORTS(nsMsgCompUtils, nsIMsgCompUtils)
 
@@ -515,8 +517,19 @@ nsresult mime_generate_headers(nsIMsgCompFields *fields,
 static void
 GenerateGlobalRandomBytes(unsigned char *buf, int32_t len)
 {
-  static bool      firstTime = true;
-
+  // Attempt to generate bytes from system entropy-based RNG.
+  nsCOMPtr<nsIRandomGenerator> randomGenerator(do_GetService("@mozilla.org/security/random-generator;1"));
+  MOZ_ASSERT(randomGenerator, "nsIRandomGenerator service not retrievable");
+  uint8_t *tempBuffer;
+  nsresult rv = randomGenerator->GenerateRandomBytes(len, &tempBuffer);
+  if (NS_SUCCEEDED(rv))
+  {
+    memcpy(buf, tempBuffer, len);
+    free(tempBuffer);
+    return;
+  }
+  // nsIRandomGenerator failed -- fall back to low entropy PRNG.
+  static bool firstTime = true;
   if (firstTime)
   {
     // Seed the random-number generator with current time so that
@@ -526,7 +539,7 @@ GenerateGlobalRandomBytes(unsigned char *buf, int32_t len)
   }
 
   for( int32_t i = 0; i < len; i++ )
-    buf[i] = rand() % 10;
+    buf[i] = rand() % 256;
 }
 
 char
@@ -899,9 +912,6 @@ static bool isValidHost( const char* host )
 char *
 msg_generate_message_id (nsIMsgIdentity *identity)
 {
-  uint32_t now = (uint32_t)(PR_Now() / PR_USEC_PER_SEC);
-
-  uint32_t salt = 0;
   const char *host = 0;
 
   nsCString forcedFQDN;
@@ -930,9 +940,15 @@ msg_generate_message_id (nsIMsgIdentity *identity)
      valid message ID, so bail, and let NNTP and SMTP generate them. */
     return 0;
 
-  GenerateGlobalRandomBytes((unsigned char *) &salt, sizeof(salt));
-  return PR_smprintf("<%lX.%lX@%s>",
-           (unsigned long) now, (unsigned long) salt, host);
+  // Generate 128-bit UUID for the local part. We use the high-entropy
+  // GenerateGlobalRandomBytes to make tracking more difficult.
+  nsID uuid;
+  GenerateGlobalRandomBytes((unsigned char*) &uuid, sizeof(nsID));
+  char uuidString[NSID_LENGTH];
+  uuid.ToProvidedString(uuidString);
+  // Drop first and last characters (curly braces).
+  uuidString[NSID_LENGTH - 2] = 0;
+  return PR_smprintf("<%s@%s>", uuidString + 1, host);
 }
 
 
@@ -1426,10 +1442,16 @@ msg_pick_real_name (nsMsgAttachmentHandler *attachment, const char16_t *proposed
         nsCString filename;
         nsCString extension;
         mimeInfo->GetPrimaryExtension(extension);
-        unsigned char filePrefix[10];
-        GenerateGlobalRandomBytes(filePrefix, 8);
+        unsigned char filePrefixBytes[8];
+        GenerateGlobalRandomBytes(filePrefixBytes, 8);
+        // Create a filename prefix with 16 lowercase letters,
+        // representing 8 bytes.
         for (int32_t i = 0; i < 8; i++)
-          filename.Append(filePrefix[i] + 'a');
+        {
+          // A pair of letters, each any of (a-p).
+          filename.Append((filePrefixBytes[i] & 0xF) + 'a');
+          filename.Append((filePrefixBytes[i] >> 4) + 'a');
+        }
         filename.Append('.');
         filename.Append(extension);
         attachment->m_realName = filename;
