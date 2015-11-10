@@ -10,10 +10,10 @@ endif
 # included to get $(BUILDID), which needs $(MOZILLA_DIR)
 include $(topsrcdir)/toolkit/mozapps/installer/package-name.mk
 
-BUILD_YEAR := $(shell echo $(BUILDID) | cut -c 1-4)
-BUILD_MONTH := $(shell echo $(BUILDID) | cut -c 5-6)
-BUILD_DAY := $(shell echo $(BUILDID) | cut -c 7-8)
-BUILD_HOUR := $(shell echo $(BUILDID) | cut -c 9-10)
+BUILD_YEAR = $(shell echo $(BUILDID) | cut -c 1-4)
+BUILD_MONTH = $(shell echo $(BUILDID) | cut -c 5-6)
+BUILD_DAY = $(shell echo $(BUILDID) | cut -c 7-8)
+BUILD_HOUR = $(shell echo $(BUILDID) | cut -c 9-10)
 
 ifndef PKG_SUFFIX
 ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
