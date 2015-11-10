@@ -32,6 +32,13 @@ label.label {
     min-width: 12em;
 }
 
+@media not all and (-moz-os-version: windows-xp) {
+  .cal-event-toolbarbutton .toolbarbutton-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
 /*--------------------------------------------------------------------
  *   Event dialog keep duration button
  *-------------------------------------------------------------------*/
@@ -442,7 +449,7 @@ freebusy-day > box {
     height: 400px;
 }
 
-.attendees-list-listbox > listboxbody { 
+.attendees-list-listbox > listboxbody {
     overflow-y: hidden !important;
 }
 

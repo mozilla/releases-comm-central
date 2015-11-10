@@ -30,3 +30,14 @@
 .imipMoreButton >.toolbarbutton-icon {
   display: none;
 }
+
+@media not all and (-moz-os-version: windows-xp) {
+  #task-tab-button .toolbarbutton-icon,
+  #calendar-tab-button .toolbarbutton-icon,
+  .calbar-toolbarbutton-1 .toolbarbutton-icon,
+  toolbarpaletteitem > .msgHeaderView-button .toolbarbutton-icon,
+  #task-actions-toolbar > .msgHeaderView-button .toolbarbutton-icon {
+    width: 18px;
+    height: 18px;
+  }
+}

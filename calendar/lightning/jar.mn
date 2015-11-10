@@ -65,6 +65,8 @@ lightning.jar:
 % skin lightning-common classic/1.0 chrome/skin/lightning-common/
 % style chrome://global/content/customizeToolbar.xul chrome://lightning/skin/lightning-toolbar.css
 % style chrome://calendar/content/calendar-event-dialog.xul chrome://communicator/skin/communicator.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
+% style chrome://global/content/customizeToolbar.xul chrome://lightning-common/skin/lightning.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
+% style chrome://global/content/customizeToolbar.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
     ../skin/lightning-common/mode-switch-icons.png            (themes/common/images/mode-switch-icons.png)
 
 # Linux theme files
