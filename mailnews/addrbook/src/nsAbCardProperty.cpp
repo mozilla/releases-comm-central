@@ -21,6 +21,7 @@
 #include "mozITXTToHTMLConv.h"
 #include "nsIAbManager.h"
 
+#include "nsVariant.h"
 #include "nsIProperty.h"
 #include "nsCOMArray.h"
 #include "nsArrayEnumerator.h"
@@ -301,7 +302,7 @@ NS_IMETHODIMP nsAbCardProperty::SetPropertyAsAString(const char *name, const nsA
 {
   NS_ENSURE_ARG_POINTER(name);
 
-  nsCOMPtr<nsIWritableVariant> variant = do_CreateInstance(NS_VARIANT_CONTRACTID);
+  nsCOMPtr<nsIWritableVariant> variant = new nsVariant();
   variant->SetAsAString(value);
   m_properties.Put(nsDependentCString(name), variant);
   return NS_OK;
@@ -311,7 +312,7 @@ NS_IMETHODIMP nsAbCardProperty::SetPropertyAsAUTF8String(const char *name, const
 {
   NS_ENSURE_ARG_POINTER(name);
 
-  nsCOMPtr<nsIWritableVariant> variant = do_CreateInstance(NS_VARIANT_CONTRACTID);
+  nsCOMPtr<nsIWritableVariant> variant = new nsVariant();
   variant->SetAsAUTF8String(value);
   m_properties.Put(nsDependentCString(name), variant);
   return NS_OK;
@@ -321,7 +322,7 @@ NS_IMETHODIMP nsAbCardProperty::SetPropertyAsUint32(const char *name, uint32_t v
 {
   NS_ENSURE_ARG_POINTER(name);
 
-  nsCOMPtr<nsIWritableVariant> variant = do_CreateInstance(NS_VARIANT_CONTRACTID);
+  nsCOMPtr<nsIWritableVariant> variant = new nsVariant();
   variant->SetAsUint32(value);
   m_properties.Put(nsDependentCString(name), variant);
   return NS_OK;
@@ -331,7 +332,7 @@ NS_IMETHODIMP nsAbCardProperty::SetPropertyAsBool(const char *name, bool value)
 {
   NS_ENSURE_ARG_POINTER(name);
 
-  nsCOMPtr<nsIWritableVariant> variant = do_CreateInstance(NS_VARIANT_CONTRACTID);
+  nsCOMPtr<nsIWritableVariant> variant = new nsVariant();
   variant->SetAsBool(value);
   m_properties.Put(nsDependentCString(name), variant);
   return NS_OK;

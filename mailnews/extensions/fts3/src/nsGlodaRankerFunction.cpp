@@ -40,7 +40,7 @@
 #include "sqlite3.h"
 
 #include "nsCOMPtr.h"
-#include "nsIVariant.h"
+#include "nsVariant.h"
 #include "nsComponentManagerUtils.h"
 
 #ifndef SQLITE_VERSION_NUMBER
@@ -135,9 +135,7 @@ nsGlodaRankerFunction::OnFunctionCall(mozIStorageValueArray *aArguments,
   }
 #endif
 
-  nsCOMPtr<nsIWritableVariant> result =
-    do_CreateInstance("@mozilla.org/variant;1");
-  NS_ENSURE_TRUE(result, NS_ERROR_OUT_OF_MEMORY);
+  nsCOMPtr<nsIWritableVariant> result = new nsVariant();
    
   rv = result->SetAsDouble(score);
   NS_ENSURE_SUCCESS(rv, rv);
