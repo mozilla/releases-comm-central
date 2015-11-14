@@ -78,8 +78,6 @@ classic.jar:
   skin/classic/messenger/addressbook/icons/contact-generic-tiny@2x.png     (mail/addrbook/contact-generic-tiny@2x.png)
   skin/classic/messenger/addressbook/icons/addressbook-toolbar.svg         (../shared/mail/icons/addressbook-toolbar.svg)
   skin/classic/messenger/addressbook/icons/addressbook@2x.png    (mail/addrbook/addressbook@2x.png)
-  skin/classic/messenger/addressbook/icons/abcard.png            (mail/addrbook/abcard.png)
-  skin/classic/messenger/addressbook/icons/ablist.png            (mail/addrbook/ablist.png)
   skin/classic/messenger/addressbook/icons/addrbook.png          (mail/addrbook/addrbook.png)
   skin/classic/messenger/addressbook/icons/remote-addrbook-error.png      (mail/addrbook/remote-addrbook-error.png)
   skin/classic/messenger/addressbook/icons/remote-addrbook.png   (mail/addrbook/remote-addrbook.png)
