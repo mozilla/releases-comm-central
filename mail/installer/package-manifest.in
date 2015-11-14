@@ -557,6 +557,7 @@
 @RESPATH@/components/FeedProcessor.js
 @RESPATH@/components/Downloads.manifest
 @RESPATH@/components/DownloadLegacy.js
+@RESPATH@/components/BrowserPageThumbs.manifest
 @RESPATH@/components/crashmonitor.manifest
 @RESPATH@/components/nsCrashMonitor.js
 @RESPATH@/components/SiteSpecificUserAgent.js
