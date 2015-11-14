@@ -75,12 +75,20 @@ NS_MSG_BASE void nsMsgI18NTextFileCharset(nsACString& aCharset);
  * @param charset     [IN] Charset name.
  * @param inString    [IN] Unicode string to convert.
  * @param outString   [OUT] Converted output string.
+ * @param aIsCharsetCanonical  [IN] Whether the charset is canonical or not.
+ * @param aReportUencNoMapping [IN] Set encoder to report (instead of using
+ *                                  replacement char on errors). Set to true
+ *                                  to receive NS_ERROR_UENC_NOMAPPING when
+ *                                  that happens. Note that
+ *                                  NS_ERROR_UENC_NOMAPPING is a success code!
  * @return            nsresult.
  */
 NS_MSG_BASE nsresult nsMsgI18NConvertFromUnicode(const char* aCharset,
                                                  const nsString& inString,
                                                  nsACString& outString,
                                                  bool aIsCharsetCanonical =
+                                                        false,
+                                                 bool reportUencNoMapping =
                                                         false);
 /**
  * Convert from charset to unicode.
@@ -102,26 +110,6 @@ NS_MSG_BASE nsresult nsMsgI18NConvertToUnicode(const char* aCharset,
  * @return            A charset name or empty string if not found.
  */
 NS_MSG_BASE const char *nsMsgI18NParseMetaCharset(nsIFile* file);
-
-/**
- * Convert from charset to unicode. Also does substitution for unconverted characters (e.g. entity, '?').
- *
- * @param contentType [IN] text/plain or text/html.
- * @param charset     [IN] Charset name to convert.
- * @param inString    [IN] Input unicode string to convert.
- * @param outString   [OUT] Allocated and converted output C string. Need PR_FREE.
- * @param fallbackCharset [OUT]
- *                         null if fallback charset is not needed.
- *                         Otherwise, a fallback charset name may be set if that was used for the conversion. 
- *                         Caller is responsible for freeing the memory.
- * @param isAsciiOnly [OUT]
- *                         null if non ASCII info is not needed.
- *                         Otherwise, true is set if the input data is ASCII only false otherwise. 
- * @return            nsresult.
- */
-NS_MSG_BASE nsresult nsMsgI18NSaveAsCharset(const char* contentType, const char* charset, 
-                                            const char16_t* inString, char** outString, 
-                                            char **fallbackCharset=nullptr, bool *isAsciiOnly=nullptr);
 
 /**
  * Shrink the aStr to aMaxLength bytes. Note that this doesn't check whether

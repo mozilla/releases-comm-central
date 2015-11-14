@@ -1567,57 +1567,35 @@ nsMsgComposeAndSend::GetBodyFromEditor()
 
   if (aCharset && *aCharset)
   {
-    bool isAsciiOnly;
-    rv = nsMsgI18NSaveAsCharset(mCompFields->GetForcePlainText() ? TEXT_PLAIN : TEXT_HTML,
-                                aCharset, bodyText, getter_Copies(outCString), nullptr, &isAsciiOnly);
-
+    rv = nsMsgI18NConvertFromUnicode(aCharset, bodyStr, outCString, false, true);
+    bool isAsciiOnly = NS_IsAscii(outCString.get());
     if (mCompFields->GetForceMsgEncoding())
       isAsciiOnly = false;
-
     mCompFields->SetBodyIsAsciiOnly(isAsciiOnly);
 
     // If the body contains characters outside the current mail charset,
     // convert to UTF-8.
-    if (NS_ERROR_UENC_NOMAPPING == rv) {
-      // if nbsp then replace it by sp and try again
-      char16_t *bodyTextPtr = bodyText;
-      while (*bodyTextPtr) {
-        if (0x00A0 == *bodyTextPtr)
-          *bodyTextPtr = 0x0020;
-        bodyTextPtr++;
-      }
-
-      nsCString fallbackCharset;
-      rv = nsMsgI18NSaveAsCharset(mCompFields->GetForcePlainText() ? TEXT_PLAIN : TEXT_HTML,
-                                 aCharset, bodyText, getter_Copies(outCString),
-                                 getter_Copies(fallbackCharset));
-      if (NS_ERROR_UENC_NOMAPPING == rv)
+    if (NS_ERROR_UENC_NOMAPPING == rv)
+    {
+      bool needToCheckCharset;
+      mCompFields->GetNeedToCheckCharset(&needToCheckCharset);
+      if (needToCheckCharset)
       {
-        bool needToCheckCharset;
-        mCompFields->GetNeedToCheckCharset(&needToCheckCharset);
-        if (needToCheckCharset)
+        // Just use UTF-8 and be done with it
+        // unless disable_fallback_to_utf8 is set for this charset.
+        bool disableFallback = false;
+        nsCOMPtr<nsIPrefBranch> prefBranch (do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+        if (prefBranch)
         {
-          // Just use UTF-8 and be done with it
-          // unless disable_fallback_to_utf8 is set for this charset.
-          bool disableFallback = false;
-          nsCOMPtr<nsIPrefBranch> prefBranch (do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-          if (prefBranch)
-          {
-            nsCString prefName("mailnews.disable_fallback_to_utf8.");
-            prefName.Append(aCharset);
-            prefBranch->GetBoolPref(prefName.get(), &disableFallback);
-          }
-          if (!disableFallback)
-          {
-            CopyUTF16toUTF8(nsDependentString(bodyText), outCString);
-            mCompFields->SetCharacterSet("UTF-8");
-          }
+          nsCString prefName("mailnews.disable_fallback_to_utf8.");
+          prefName.Append(aCharset);
+          prefBranch->GetBoolPref(prefName.get(), &disableFallback);
         }
-      }
-      else if (!fallbackCharset.IsEmpty())
-      {
-        // re-label to the fallback charset
-        mCompFields->SetCharacterSet(fallbackCharset.get());
+        if (!disableFallback)
+        {
+          CopyUTF16toUTF8(nsDependentString(bodyText), outCString);
+          mCompFields->SetCharacterSet("UTF-8");
+        }
       }
     }
 
@@ -1629,28 +1607,22 @@ nsMsgComposeAndSend::GetBodyFromEditor()
     // this we need to do the charset conversion on this part separately
     if (origHTMLBody)
     {
-      char      *newBody = nullptr;
-      rv = nsMsgI18NSaveAsCharset(mCompFields->GetUseMultipartAlternative() ? TEXT_PLAIN : TEXT_HTML,
-                                  aCharset, origHTMLBody, &newBody);
+      nsCString newBody;
+      rv = nsMsgI18NConvertFromUnicode(aCharset,
+        nsDependentString(origHTMLBody), newBody, false, true);
       if (NS_SUCCEEDED(rv))
       {
-        PR_FREEIF(origHTMLBody);
-        origHTMLBody = (char16_t *)newBody;
+        mOriginalHTMLBody = ToNewCString(newBody);
       }
+    }
+    else {
+      mOriginalHTMLBody = ToNewCString(attachment1_body);
     }
 
     NS_Free(bodyText);    //Don't need it anymore
   }
   else
     return NS_ERROR_FAILURE;
-
-  // If our holder for the original body text is STILL null, then just
-  // just copy what we have as the original body text.
-
-  if (!origHTMLBody)
-    mOriginalHTMLBody = ToNewCString(attachment1_body);
-  else
-    mOriginalHTMLBody = (char *)origHTMLBody; // Whoa, origHTMLBody is declared as a char16_t *, what's going on here?
 
   rv = SnarfAndCopyBody(attachment1_body, TEXT_HTML);
 

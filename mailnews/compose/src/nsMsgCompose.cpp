@@ -1173,13 +1173,9 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
   {
     // Convert body to mail charset
     nsCString outCString;
-    nsCString fallbackCharset;
-    bool isAsciiOnly;
-    // Check if the body text is covered by the current charset.
-    rv = nsMsgI18NSaveAsCharset(NS_ConvertUTF16toUTF8(contentType).get(),
-                                m_compFields->GetCharacterSet(),
-                                msgBody.get(), getter_Copies(outCString),
-                                getter_Copies(fallbackCharset), &isAsciiOnly);
+    rv = nsMsgI18NConvertFromUnicode(m_compFields->GetCharacterSet(),
+      msgBody, outCString, false, true);
+    bool isAsciiOnly = NS_IsAscii(outCString.get());
     if (m_compFields->GetForceMsgEncoding())
       isAsciiOnly = false;
     if (NS_SUCCEEDED(rv) && !outCString.IsEmpty())
@@ -1208,12 +1204,6 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
             SetDocumentCharset("UTF-8");
           }
         }
-      }
-      else if (!fallbackCharset.IsEmpty())
-      {
-        // re-label to the fallback charset
-        m_compFields->SetCharacterSet(fallbackCharset.get());
-        SetDocumentCharset(fallbackCharset.get());
       }
       m_compFields->SetBodyIsAsciiOnly(isAsciiOnly);
       m_compFields->SetBody(outCString.get());

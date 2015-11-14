@@ -1832,34 +1832,26 @@ nsSaveMsgListener::OnStopRequest(nsIRequest* request, nsISupports* aSupport,
   
   // rhp: If we are doing the charset conversion magic, this is different
   // processing, otherwise, its just business as usual.
-  //
-  if ( (m_doCharsetConversion) && (m_outputStream) )
+  // If we need text/plain, then we need to convert the HTML and then convert
+  // to the systems charset.
+  if (m_doCharsetConversion && m_outputStream)
   {
-    char        *conBuf = nullptr;
-    uint32_t    conLength = 0;
-    
-    // If we need text/plain, then we need to convert the HTML and then convert
-    // to the systems charset
-    //
-    if (m_outputFormat == ePlainText)
+    // For HTML, code is emitted immediately in OnDataAvailable.
+    MOZ_ASSERT(m_outputFormat == ePlainText,
+      "For HTML, m_doCharsetConversion shouldn't be set");
+    NS_ConvertUTF8toUTF16 utf16Buffer(m_msgBuffer);
+    ConvertBufToPlainText(utf16Buffer, false, false);
+
+    nsCString outCString;
+    rv = nsMsgI18NConvertFromUnicode(nsMsgI18NFileSystemCharset(),
+      utf16Buffer, outCString, false, true);
+    if (NS_SUCCEEDED(rv))
     {
-      NS_ConvertUTF8toUTF16 utf16Buffer(m_msgBuffer);
-      ConvertBufToPlainText(utf16Buffer, false, false);
-      rv = nsMsgI18NSaveAsCharset(TEXT_PLAIN, nsMsgI18NFileSystemCharset(),
-                                  utf16Buffer.get(), &conBuf);
-      if ( NS_SUCCEEDED(rv) && (conBuf) )
-        conLength = strlen(conBuf);
-    }
-    
-    if ( (NS_SUCCEEDED(rv)) && (conBuf) )
-    {
-      uint32_t      writeCount;
-      rv = m_outputStream->Write(conBuf, conLength, &writeCount);
-      if (conLength != writeCount)
+      uint32_t writeCount;
+      rv = m_outputStream->Write(outCString.get(), outCString.Length(), &writeCount);
+      if (outCString.Length() != writeCount)
         rv = NS_ERROR_FAILURE;
     }
-    
-    NS_Free(conBuf);
   }
  
   if (m_outputStream)
