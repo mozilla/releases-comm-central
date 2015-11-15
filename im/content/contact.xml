@@ -584,7 +584,7 @@
         let className, tooltip;
         if (!this.hasAttribute("open")) {
           let buddies = this.contact.getBuddies();
-          for each (let buddy in buddies) {
+          for (let buddy of buddies) {
             let buddyElt = document.createElement("buddy");
             this.appendChild(buddyElt);
             buddyElt.build(buddy, this);

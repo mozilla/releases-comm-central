@@ -57,7 +57,7 @@ var Sounds = {
   },
 
   init: function() {
-    for each (let topic in this.soundEvents)
+    for (let topic of this.soundEvents)
       Services.obs.addObserver(this, topic, false);
   }
 };

@@ -136,7 +136,7 @@ nsContextMenu.prototype = {
 
     // Display action menu items.
     let before = document.getElementById("context-sep-messageactions");
-    for each (let action in actions) {
+    for (let action of actions) {
       let menuitem = document.createElement("menuitem");
       menuitem.setAttribute("label", action.label);
       menuitem.setAttribute("oncommand", "this.action.run();");

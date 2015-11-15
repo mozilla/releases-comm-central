@@ -30,7 +30,7 @@ var smileysPreview = {
     }
 
     if (this.smileyList) {
-      for each (let smiley in this.smileyList) {
+      for (let smiley of this.smileyList) {
         let item = document.createElement("smiley");
         item.setAttribute("smileyImage", smiley.src);
         item.setAttribute("smileyTextCodes", smiley.textCodes.join(" "));

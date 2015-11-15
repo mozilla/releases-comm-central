@@ -75,7 +75,7 @@ var WinJumpList = {
 
     let items = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
 
-    for each (let currentItem in this.jumplistEntries) {
+    for (let currentItem of this.jumplistEntries) {
       let item;
       if (currentItem.type == "separator")
         item = this._getSeparatorItem();

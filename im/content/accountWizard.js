@@ -13,7 +13,7 @@ var accountWizard = {
     let bundle = document.getElementById("topProtocolsBundle");
     let topProtocols = bundle.getString("topProtocol.list").split(",");
 
-    for each (let topProto in topProtocols) {
+    for (let topProto of topProtocols) {
       let proto = Services.core.getProtocolById(topProto);
       if (proto == null)
         continue;

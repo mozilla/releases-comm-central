@@ -39,7 +39,7 @@ var gGestureSupport = {
     let addRemove = aAddListener ? window.addEventListener :
       window.removeEventListener;
 
-    for each (let event in gestureEvents)
+    for (let event of gestureEvents)
       addRemove("Moz" + event, this, true);
   },
 
@@ -206,7 +206,7 @@ var gGestureSupport = {
    */
   onSwipe: function GS_onSwipe(aEvent) {
     // Figure out which one (and only one) direction was triggered
-    for each (let dir in ["UP", "RIGHT", "DOWN", "LEFT"]) {
+    for (let dir of ["UP", "RIGHT", "DOWN", "LEFT"]) {
       if (aEvent.direction == aEvent["DIRECTION_" + dir]) {
         this._doAction(aEvent, ["swipe", dir.toLowerCase()]);
         return;

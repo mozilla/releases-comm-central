@@ -211,7 +211,7 @@ var fake = {
                                  "prpl-jabber"),
                      new Account("tom.smith@yahoo.com", "prpl-yahoo"),
                      new Account("tom@irc.mozilla.org", "prpl-irc")];
-    for each (let account in this.accounts)
+    for (let account of this.accounts)
       Services.obs.notifyObservers(account, "account-added", null);
 
     var win = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -241,7 +241,7 @@ var fake = {
       new AccountBuddy("Elizabeth", this.accounts[1], this.groups[2]),
       new AccountBuddy("William", this.accounts[2], this.groups[2])
     ];
-    for each (let buddy in this.buddies)
+    for (let buddy of this.buddies)
       Services.contacts.accountBuddyAdded(buddy);
 
     this.convs = [

@@ -158,7 +158,8 @@ ConvStatsService.prototype = {
           gLogParser.sweep(this);
           return;
         }
-        for each (let stats in allStats) {
+        for (let key in allStats) {
+          let stats = allStats[key];
           gStatsByConvId[stats.id] =
             new ConversationStats(stats.id, stats.lastDate,
                                   stats.incomingCount, stats.outgoingCount);
@@ -413,7 +414,7 @@ ConvStatsService.prototype = {
   },
 
   _notifyObservers: function(aTopic, aData) {
-    for each (let observer in this._observers) {
+    for (let observer of this._observers) {
       if ("observe" in observer) // Avoid failing on destructed XBL bindings.
         observer.observe(this, "stats-service-" + aTopic, aData);
     }

@@ -117,7 +117,7 @@
          if (!this._selectListener) {
            this._selectListener = (function() {
              let remaining = [];
-             for each (let contactElt in this._pendingReorders) {
+             for (let contactElt of this._pendingReorders) {
                if (!contactElt.hasAttribute("selected") &&
                    !contactElt.hasAttribute("open"))
                  this.observe(contactElt.contact, "contact-display-name-changed");
@@ -172,7 +172,7 @@
          if (aTopic == "tag-hidden") {
            this.setAttribute("collapsing", "true");
            this.addEventListener("transitionend", this._transitionEnd, true);
-           for each (let contact in this.contacts) {
+           for (let contact of this.contacts) {
              contact.state = "collapsing";
              contact.destroy();
            }
@@ -333,7 +333,7 @@
       <parameter name="aClosed"/>
       <body>
       <![CDATA[
-        for each (let contact in this.contacts)
+        for (let contact of this.contacts)
           contact.collapsed = aClosed;
       ]]>
       </body>

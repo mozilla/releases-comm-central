@@ -28,7 +28,7 @@ var Conversations = {
       // method can recreate it.
       let notifications = this._pendingConversations;
       this._pendingConversations = null;
-      for each (let conv in notifications)
+      for (let conv of notifications)
         this.showConversation(conv);
     }
   },
@@ -191,7 +191,7 @@ var Conversations = {
     Services.obs.notifyObservers(aConv, "showing-ui-conversation", null);
     // The conversation is not displayed anywhere yet.
     // First, check if an existing conversation window can accept it.
-    for each (let win in this._windows)
+    for (let win of this._windows)
       if (win.document.getElementById("conversations").addConversation(aConv))
         return;
 

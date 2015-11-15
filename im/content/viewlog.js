@@ -184,7 +184,7 @@ var logWindow = {
 function chatLogTreeGroupItem(aTitle, aLogItems) {
   this._title = aTitle;
   this._children = aLogItems;
-  for each (let child in this._children)
+  for (let child of this._children)
     child._parent = this;
   this._open = false;
 }
@@ -277,7 +277,7 @@ chatLogTreeView.prototype = {
 
     // Build a chatLogTreeLogItem for each log, and put it in the right group.
     let groups = {};
-    for each (let log in getIter(this._logs)) {
+    for (let log of getIter(this._logs)) {
       let logDate = new Date(log.time * 1000);
       // Calculate elapsed time between the log and 00:00:00 today.
       let timeFromToday = todayDate - logDate;
@@ -335,7 +335,8 @@ chatLogTreeView.prototype = {
     let groupIDs = Object.keys(groups).sort().reverse();
 
     // Add firstgroups to groups and groupIDs.
-    for each (let [groupID, group] in Iterator(firstgroups)) {
+    for (let groupID in firstgroups) {
+      let group = firstgroups[groupID];
       if (!group.length)
         continue;
       groupIDs.unshift(groupID);

@@ -850,7 +850,7 @@ var buddyList = {
         Components.utils.import("resource:///modules/imWindows.jsm");
       convs.sort((a, b) =>
         a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
-      for each (let conv in convs) {
+      for (let conv of convs) {
         if (!Conversations.isUIConversationDisplayed(conv)) {
           let convElt = document.createElement("conv");
           buddyList.convBox.appendChild(convElt);
@@ -863,7 +863,7 @@ var buddyList = {
       .observe(buddyList.convBox, {childList: true});
 
     prefBranch.addObserver(showOfflineBuddiesPref, buddyList, false);
-    for each (let event in events)
+    for (let event of events)
       Services.obs.addObserver(buddyList, event, false);
 
     this.addEventListener("unload", buddyList.unload);
@@ -922,7 +922,7 @@ var buddyList = {
     document.getElementById("buddylistbox").clearSelection();
   },
   unload: function bl_unload() {
-    for each (let event in events)
+    for (let event of events)
       Services.obs.removeObserver(buddyList, event);
     Services.prefs.removeObserver(showOfflineBuddiesPref, buddyList);
    },
