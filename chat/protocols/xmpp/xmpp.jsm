@@ -168,7 +168,7 @@ var XMPPMUCConversationPrototype = {
   // True while we are rejoining a room previously parted by the user.
   _rejoined: false,
 
-  get topic() this._topic,
+  get topic() { return this._topic; },
   set topic(aTopic) {
     // XEP-0045 (8.1): Modifying the room subject.
     let subject = Stanza.node("subject", null, null, aTopic.trim());
@@ -180,7 +180,7 @@ var XMPPMUCConversationPrototype = {
       itemNotFound: notAuthorized
     }, this));
   },
-  get topicSettable() true,
+  get topicSettable() { return true; },
 
   /* Called when the user enters a chat message */
   sendMsg: function (aMsg) {

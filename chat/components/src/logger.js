@@ -159,7 +159,7 @@ LogWriter.prototype = {
   // All log file paths used by this LogWriter.
   paths: [],
   // Path of the log file that is currently being written to.
-  get currentPath() this.paths[this.paths.length - 1],
+  get currentPath() { return this.paths[this.paths.length - 1]; },
   // Constructor sets this to a promise that will resolve when the log header
   // has been written.
   _initialized: null,
