@@ -404,10 +404,8 @@
                       }
                       attendee.id = cal.prependMailTo(aAddress.email);
                       if (aAddress.name.length > 0) {
-                          if (aAddress.name.startsWith('"') && aAddress.name.endsWith('"')) {
-                              aAddress.name.slice(1, -1);
-                          }
-                          attendee.commonName = aAddress.name;
+                          // we remove any double quotes within CN due to bug 1209399
+                          attendee.commonName = aAddress.name.replace(/(?:[\\]"|")/, "");
                       }
                       attendees.push(attendee);
                       j++;

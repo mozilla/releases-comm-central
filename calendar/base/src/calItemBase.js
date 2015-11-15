@@ -569,6 +569,14 @@ calItemBase.prototype = {
             }
         }
         if (attendee) {
+            if (attendee.commonName) {
+                // migration code for bug 1209399 to remove leading/training double quotes in
+                attendee.commonName = attendee.commonName
+                                              .replace(/^["]*([^"]*)["]*$/, "$1");
+                if (attendee.commonName.length == 0) {
+                    attendee.commonName = null;
+                }
+            }
             this.modify();
             this.mAttendees = this.getAttendees({});
             this.mAttendees.push(attendee);
