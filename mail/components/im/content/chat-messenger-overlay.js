@@ -136,7 +136,7 @@ var chatTabType = {
       chatHandler._onTabDeactivated();
   },
   openTab: function(aTab, aArgs) {
-    if (!this.hasBeenOpened) {
+    if (!this.hasBeenOpened && imServices.core.initialized) {
       let convs = imServices.conversations.getUIConversations();
       if (convs.length != 0) {
         convs.sort((a, b) =>
@@ -179,6 +179,12 @@ var chatTabType = {
     tabmail.unregisterTabMonitor(this.tabMonitor);
     window.removeEventListener("deactivate", chatTabType._onWindowDeactivated);
     window.removeEventListener("activate", chatTabType._onWindowActivated);
+  },
+  persistTab: function(aTab) {
+    return {};
+  },
+  restoreTab: function(aTabmail, aPersistedState) {
+    aTabmail.openTab("chat", {});
   },
 
   supportsCommand: function ct_supportsCommand(aCommand, aTab) {
