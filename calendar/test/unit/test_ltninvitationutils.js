@@ -531,3 +531,49 @@ add_task(function* encodeMimeHeader_test() {
               "(test #" + i + ")");
     }
 });
+
+add_task(function* getRfc5322FormattedDate_test() {
+    let data = {
+        input: [{
+            dt: null,
+            dtz: "America/New_York"
+        }, {
+            dt: "Sat, 24 Jan 2015 09:24:49 +0100",
+            dtz: "America/New_York"
+        }, {
+            dt: "Sat, 24 Jan 2015 09:24:49 GMT+0100",
+            dtz: "America/New_York"
+        }, {
+            dt: "Sat, 24 Jan 2015 09:24:49 GMT",
+            dtz: "America/New_York"
+        }, {
+            dt: "Sat, 24 Jan 2015 09:24:49",
+            dtz: "America/New_York"
+        }, {
+            dt: "Sat, 24 Jan 2015 09:24:49",
+            dtz: null
+        }, {
+            dt: "Sat, 24 Jan 2015 09:24:49",
+            dtz: "UTC"
+        }, {
+            dt: "Sat, 24 Jan 2015 09:24:49",
+            dtz: "floating"
+        }],
+        expected: /^\w{3}, \d{2} \w{3} \d{4} \d{2}\:\d{2}\:\d{2} [+-]\d{4}$/
+    };
+
+    let i = 0;
+    let dtz = Preferences.get("calendar.timezone.local", null);
+    for (let test of data.input) {
+        i++;
+        if (test.dtz) {
+            Preferences.set("calendar.timezone.local", test.dtz);
+        } else {
+            Preferences.reset("calendar.timezone.local");
+        }
+        let dt = test.dt ? new Date(test.dt) : null;
+        let r = new RegExp(data.expected);
+        ok(r.test(ltn.invitation.getRfc5322FormattedDate(dt)), "(test #" + i + ")");
+    }
+    Preferences.set("calendar.timezone.local", dtz);
+});

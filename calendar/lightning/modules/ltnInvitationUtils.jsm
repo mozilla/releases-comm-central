@@ -374,7 +374,7 @@ ltn.invitation = {
                                                 "\r\n" : "") +
                       "Message-ID: " + aMessageId + "\r\n" +
                       "To: " + ltn.invitation.encodeMimeHeader(aToList, true) + "\r\n" +
-                      "Date: " + (new Date()).toUTCString() + "\r\n" +
+                      "Date: " + ltn.invitation.getRfc5322FormattedDate() + "\r\n" +
                       "Subject: " + ltn.invitation
                                        .encodeMimeHeader(aSubject.replace(/(\n|\r\n)/, "|")) + "\r\n");
         let validRecipients;
@@ -391,6 +391,26 @@ ltn.invitation = {
             }
         }
         return header;
+    },
+
+    /**
+     * Returns a datetime string according to section 3.3 of RfC5322
+     * @param  {Date}   [optional] Js Date object to format; if not provided current DateTime is used
+     * @return {String}            Datetime string with a modified tz-offset notation compared to
+     *                             Date.toString() like "Fri, 20 Nov 2015 09:45:36 +0100"
+     */
+    getRfc5322FormattedDate: function (aDate = null) {
+        let date = aDate || new Date();
+        let str = date.toString()
+                      .replace(/^(\w{3}) (\w{3}) (\d{2}) (\d{4}) ([0-9:]{8}) GMT([+-])(\d{4}).*$/,
+                               "$1, $3 $2 $4 $5 $6$7");
+        // according to section 3.3 of RfC5322, +0000 should be used for defined timezones using
+        // UTC time, while -0000 should indicate a floating time instead
+        let tz = cal.calendarDefaultTimezone();
+        if(tz && tz.isFloating) {
+            str.replace(/\+0000$/, "-0000");
+        }
+        return str;
     },
 
     /**
