@@ -45,7 +45,7 @@ ifdef DOWNLOAD_HOST
 # we have
 BUILD_NR=$(shell echo $(POST_UPLOAD_CMD) | sed -n -e 's/.*-n \([0-9]*\).*/\1/p')
 CANDIDATE_NR=$(if $(LIGHTNING_VERSION),$(LIGHTNING_VERSION),$(XPI_VERSION))
-EN_US_BINARY_URL=http://$(DOWNLOAD_HOST)/pub/mozilla.org/calendar/lightning/candidates/$(CANDIDATE_NR)-candidates/build$(BUILD_NR)/$(MOZ_PKG_PLATFORM)
+EN_US_BINARY_URL=http://$(DOWNLOAD_HOST)/pub/calendar/lightning/candidates/$(CANDIDATE_NR)-candidates/build$(BUILD_NR)/$(MOZ_PKG_PLATFORM)
 endif
 endif
 
