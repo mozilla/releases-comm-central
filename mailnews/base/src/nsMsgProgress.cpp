@@ -52,6 +52,8 @@ NS_IMETHODIMP nsMsgProgress::OpenProgressDialog(nsIDOMWindow *parentDOMWindow,
   NS_ENSURE_ARG_POINTER(dialogURL);
   nsCOMPtr<nsPIDOMWindow> parent(do_QueryInterface(parentDOMWindow));
   NS_ENSURE_ARG_POINTER(parent);
+  parent = parent->GetOuterWindow();
+  NS_ENSURE_ARG_POINTER(parent);
 
   // Set up window.arguments[0]...
   nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
