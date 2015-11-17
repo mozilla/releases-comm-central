@@ -229,6 +229,8 @@ openWindow(nsIMsgWindow *aMsgWindow, const char *chromeURL,
   nsCOMPtr<nsIDOMWindow> domWindow(do_GetInterface(docShell));
   nsCOMPtr<nsPIDOMWindow> parentWindow(do_QueryInterface(domWindow));
   NS_ENSURE_TRUE(parentWindow, NS_ERROR_FAILURE);
+  parentWindow = parentWindow->GetOuterWindow();
+  NS_ENSURE_ARG_POINTER(parentWindow);
 
   nsCOMPtr<nsISupportsInterfacePointer> ifptr = do_CreateInstance(NS_SUPPORTS_INTERFACE_POINTER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);

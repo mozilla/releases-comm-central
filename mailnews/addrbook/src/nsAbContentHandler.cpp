@@ -71,6 +71,8 @@ nsAbContentHandler::HandleContent(const char *aContentType,
             nsCOMPtr<nsPIDOMWindow> parentWindow = do_QueryInterface(domWindow);
             if (!parentWindow)
                 return NS_ERROR_FAILURE;
+            parentWindow = parentWindow->GetOuterWindow();
+            NS_ENSURE_ARG_POINTER(parentWindow);
 
             nsCOMPtr<nsIAbManager> ab =
               do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
@@ -167,6 +169,8 @@ nsAbContentHandler::OnStreamComplete(nsIStreamLoader *aLoader,
       nsCOMPtr<nsIDOMWindow> domWindow = do_GetInterface(aContext);
       nsCOMPtr<nsPIDOMWindow> parentWindow = do_QueryInterface(domWindow);
       NS_ENSURE_TRUE(parentWindow, NS_ERROR_FAILURE);
+      parentWindow = parentWindow->GetOuterWindow();
+      NS_ENSURE_ARG_POINTER(parentWindow);
 
       nsCOMPtr<nsIDOMWindow> dialogWindow;
       rv = parentWindow->OpenDialog(
