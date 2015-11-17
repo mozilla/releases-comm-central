@@ -158,6 +158,12 @@ var ircNonStandard = {
       return this.setWhois(aMessage.params[1], {host: host, ip: ip});
     },
 
+    "379": function(aMessage) { // RPL_WHOISMODES (Unreal, Inspircd)
+      // <nick> :is using modes <modes>
+      // Sent in response to a WHOIS on the user.
+      return true;
+    },
+
     "396": function(aMessage) {
       // RPL_HOSTHIDDEN (Charybdis, Hybrid, ircu, etc.)
       // RPL_VISIBLEHOST (Plexus)
