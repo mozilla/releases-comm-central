@@ -7,6 +7,7 @@ Components.utils.import("resource://calendar/modules/calXMLUtils.jsm");
 Components.utils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://calendar/modules/ltnUtils.jsm");
+Components.utils.import("resource:///modules/mailServices.js");
 
 this.EXPORTED_SYMBOLS = ["ltn"]; // even though it's defined in ltnUtils.jsm, import needs this
 ltn.invitation = {
@@ -323,14 +324,16 @@ ltn.invitation = {
                         for (let att of Object.keys(oldAttendees)) {
                             // if att is the user his/herself, who accepted an invitation he/she was
                             // not invited to, we must exclude him/her here
-                            if (!(att in attendees) && !att.includes(excludeAddress)) {
+                            if (!(att in attendees) &&
+                                (excludeAddress == "" || !att.includes(excludeAddress))) {
                                 _content2Child(oldAttendees[att], 'removed', att);
                                 content.appendChild(oldAttendees[att].parentNode.cloneNode(true));
                             }
                         }
                         // highlight partstat changes (excluding the user)
                         for (let att of Object.keys(oldAttendees)) {
-                            if ((att in attendees) && !att.includes(excludeAddress)) {
+                            if ((att in attendees) &&
+                                (excludeAddress == "" || !att.includes(excludeAddress))) {
                                 let oldPS = oldAttendees[att].parentNode.childNodes[1].childNodes[0];
                                 let newPS = attendees[att].parentNode.childNodes[1].childNodes[0];
                                 if (oldPS.attributes[1].value != newPS.attributes[1].value) {
@@ -349,5 +352,85 @@ ltn.invitation = {
         ['summary', 'location', 'when', 'canceledOccurrences',
          'modifiedOccurrences', 'organizer', 'attendee'].forEach(_compareElement);
         return cal.xml.serializeDOM(doc);
+    },
+
+    /**
+     * Returns the header section for an invitation email.
+     * @param   {String}         aMessageId  the message id to use for that email
+     * @param   {nsIMsgIdentity} aIdentity   the identity to use for that email
+     * @returns {String}                     the source code of the header section of the email
+     */
+    getHeaderSection: function (aMessageId, aIdentity, aToList, aSubject) {
+        let from = !aIdentity.fullName.length ? aIdentity.email :
+                                                cal.validateRecipientList(aIdentity.fullName +
+                                                                          " <" + aIdentity.email + ">");
+        let header = ("MIME-version: 1.0\r\n" +
+                      (aIdentity.replyTo ? "Return-path: " +
+                                           ltn.invitation.encodeMimeHeader(aIdentity.replyTo, true) +
+                                           "\r\n" : "") +
+                      "From: " + ltn.invitation.encodeMimeHeader(from, true) + "\r\n" +
+                      (aIdentity.organization ? "Organization: " +
+                                                ltn.invitation.encodeMimeHeader(aIdentity.organization) +
+                                                "\r\n" : "") +
+                      "Message-ID: " + aMessageId + "\r\n" +
+                      "To: " + ltn.invitation.encodeMimeHeader(aToList, true) + "\r\n" +
+                      "Date: " + (new Date()).toUTCString() + "\r\n" +
+                      "Subject: " + ltn.invitation
+                                       .encodeMimeHeader(aSubject.replace(/(\n|\r\n)/, "|")) + "\r\n");
+        let validRecipients;
+        if (aIdentity.doCc) {
+            validRecipients = cal.validateRecipientList(aIdentity.doCcList);
+            if (validRecipients != "") {
+                header += ("Cc: " + ltn.invitation.encodeMimeHeader(validRecipients, true) + "\r\n");
+            }
+        }
+        if (aIdentity.doBcc) {
+            validRecipients = cal.validateRecipientList(aIdentity.doBccList);
+            if (validRecipients != "") {
+                header += ("Bcc: " + ltn.invitation.encodeMimeHeader(validRecipients, true) + "\r\n");
+            }
+        }
+        return header;
+    },
+
+    /**
+     * Converts a given unicode text to utf-8 and normalizes line-breaks to \r\n
+     * @param  {String} aText   a unicode encoded string
+     * @return {String}         the converted uft-8 encoded string
+     */
+    encodeUTF8: function (aText) {
+        return ltn.invitation.convertFromUnicode("UTF-8", aText).replace(/(\r\n)|\n/g, "\r\n");
+    },
+
+    /**
+     * Converts a given unicode text
+     * @param  {String} aCharset   target character set
+     * @param  {String} aSrc       unicode text to convert
+     * @return {String}            the converted string
+     */
+    convertFromUnicode: function (aCharset, aSrc) {
+        let unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
+                                         .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+        unicodeConverter.charset = aCharset;
+        return unicodeConverter.ConvertFromUnicode(aSrc);
+    },
+
+    /**
+     * Converts a header to a mime encoded header
+     * @param  {String}  aHeader   a header to encode
+     * @param  {boolean} aIsEmail  if enabled, only the CN but not the email address gets
+     *                             converted - default value is false
+     * @return {String}            the encoded string
+     */
+    encodeMimeHeader: function (aHeader, aIsEmail = false) {
+        let fieldNameLen = (aHeader.indexOf(": ") + 2);
+        return MailServices.mimeConverter
+                           .encodeMimePartIIStr_UTF8(aHeader,
+                                                     aIsEmail,
+                                                     "UTF-8",
+                                                     fieldNameLen,
+                                                     Components.interfaces
+                                                               .nsIMimeConverter
+                                                               .MIME_ENCODED_WORD_SIZE);
     }
 };
