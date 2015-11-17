@@ -56,49 +56,51 @@ var ircHandlers = {
   },
 
   _unregisterHandler: function(aArray, aHandler) {
-    aArray = aArray.filter(h => h.name != aHandler.name);
+    return aArray.filter(h => h.name != aHandler.name);
   },
 
   registerHandler: function(aHandler) {
     return this._registerHandler(this._ircHandlers, aHandler);
   },
   unregisterHandler: function(aHandler) {
-    return this._unregisterHandler(this._ircHandlers, aHandler);
+    this._ircHandlers = this._unregisterHandler(this._ircHandlers, aHandler);
   },
 
   registerISUPPORTHandler: function(aHandler) {
     return this._registerHandler(this._isupportHandlers, aHandler);
   },
   unregisterISUPPORTHandler: function(aHandler) {
-    return this._unregisterHandler(this._isupportHandlers, aHandler);
+    this._isupportHandlers = this._unregisterHandler(this._isupportHandlers,
+                                                     aHandler);
   },
 
   registerCAPHandler: function(aHandler) {
     return this._registerHandler(this._capHandlers, aHandler);
   },
   unregisterCAPHandler: function(aHandler) {
-    return this._unregisterHandler(this._capHandlers, aHandler);
+    this._capHandlers = this._unregisterHandler(this._capHandlers, aHandler);
   },
 
   registerCTCPHandler: function(aHandler) {
     return this._registerHandler(this._ctcpHandlers, aHandler);
   },
   unregisterCTCPHandler: function(aHandler) {
-    return this._unregisterHandler(this._ctcpHandlers, aHandler);
+    this._ctcpHandlers = this._unregisterHandler(this._ctcpHandlers, aHandler);
   },
 
   registerDCCHandler: function(aHandler) {
     return this._registerHandler(this._dccHandlers, aHandler);
   },
   unregisterDCCHandler: function(aHandler) {
-    return this._unregisterHandler(this._dccHandlers, aHandler);
+    this._dccHandlers = this._unregisterHandler(this._dccHandlers, aHandler);
   },
 
   registerServicesHandler: function(aHandler) {
     return this._registerHandler(this._servicesHandlers, aHandler);
   },
   unregisterServicesHandler: function(aHandler) {
-    return this._unregisterHandler(this._servicesHandlers, aHandler);
+    this._servicesHandlers = this._unregisterHandler(this._servicesHandlers,
+                                                     aHandler);
   },
 
   // Handle a message based on a set of handlers.
