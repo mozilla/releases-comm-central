@@ -19,7 +19,7 @@
         fill: #797c80;
         fill-opacity: 1;
         stroke: #797c80;
-        stroke-width: 0;
+        stroke-opacity: 0;
       }
     }
     @media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
@@ -49,7 +49,7 @@
       .normal {
         fill: #4d4d4d;
         fill-opacity: 1;
-        stroke: none;
+        stroke-opacity: 0;
       }
     }
     .inverted {

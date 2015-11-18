@@ -316,11 +316,11 @@
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
   #lightning-button-calendar {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab-flat);
   }
 
   #lightning-button-tasks {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab-flat);
   }
 
   #calendar-synchronize-button,
