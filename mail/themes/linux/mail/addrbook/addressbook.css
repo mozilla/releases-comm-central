@@ -16,32 +16,6 @@
 
 /* ::::: primary toolbar buttons ::::: */
 
-.toolbarbutton-1 {
-  -moz-box-orient: vertical;
-  min-width: 0px;
-}
-
-toolbox[labelalign="end"] .toolbarbutton-1 {
-  -moz-box-orient: horizontal;
-}
-
-toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1 .toolbarbutton-text {
-  -moz-padding-start: 2px;
-}
-
-.toolbarbutton-1[disabled=true] .toolbarbutton-icon,
-.toolbarbutton-1[disabled=true] .toolbarbutton-menu-dropmarker,
-.toolbarbutton-1[disabled=true] > .toolbarbutton-menubutton-dropmarker,
-.toolbarbutton-1[disabled=true] > .toolbarbutton-menubutton-button >
-.toolbarbutton-icon {
-  opacity: .4;
-}
-.toolbarbutton-menubutton-button > .toolbarbutton-icon,
-.toolbarbutton-1 .toolbarbutton-icon {
-  width: 18px;
-  height: 18px;
-}
-
 #button-newcard {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newcard");
 }

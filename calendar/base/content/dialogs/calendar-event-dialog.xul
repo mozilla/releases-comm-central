@@ -11,6 +11,7 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/datetimepickers/datetimepickers.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/primaryToolbar.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 
 <!DOCTYPE dialog [
     <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
@@ -57,6 +58,8 @@
             src="chrome://global/content/printUtils.js"/>
     <script type="application/javascript"
             src="chrome://calendar/content/calendar-statusbar.js"/>
+    <script type="application/javascript"
+            src="chrome://messenger/content/toolbarIconColor.js"/>
     <script type="application/javascript"
             src="chrome://messenger/content/toolbarIconColor.js"/>
 
@@ -1211,7 +1214,7 @@
             </row>
 
             <separator id="event-grid-link-separator"
-                       class="groove" 
+                       class="groove"
                        hidden="true"/>
             <row id="event-grid-link-row"
                  align="center"

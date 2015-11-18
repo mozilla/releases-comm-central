@@ -10,6 +10,48 @@
 @import url("chrome://messenger/content/messenger.css");
 @import url("chrome://messenger/skin/shared/messenger.css");
 
+:root {
+  --toolbarbutton-text-color: #222;
+  --toolbarbutton-hover-background: rgba(255, 255, 255, .5) linear-gradient(rgba(255, 255, 255, .5), transparent);
+  --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .25);
+  --toolbarbutton-hover-boxshadow: none;
+
+  --toolbarbutton-active-background: rgba(154, 154, 154, .5) linear-gradient(rgba(255, 255, 255, .7), rgba(255, 255, 255, .4));
+  --toolbarbutton-active-bordercolor: rgba(0, 0, 0, .3);
+  --toolbarbutton-active-boxshadow: 0 1px 1px rgba(0, 0, 0, .1) inset, 0 0 1px rgba(0, 0, 0, .3) inset;
+
+  --toolbarbutton-checkedhover-backgroundcolor: rgba(200, 200, 200, .5);
+}
+
+#ab-toolbox > toolbar[brighttext],
+#mail-toolbox > toolbar[brighttext],
+#event-toolbox > toolbar[brighttext],
+#compose-toolbox > toolbar[brighttext] {
+  --toolbarbutton-text-color: #fff;
+  --toolbarbutton-hover-background: rgba(255, 255, 255, .25);
+  --toolbarbutton-hover-bordercolor: rgba(255, 255, 255, .5);
+
+  --toolbarbutton-active-background: rgba(255, 255, 255, .4);
+  --toolbarbutton-active-bordercolor: rgba(255, 255, 255, .7);
+  --toolbarbutton-active-boxshadow: 0 0 0 1px rgba(255, 255, 255, .4) inset;
+
+  --toolbarbutton-checkedhover-backgroundcolor: rgba(255, 255, 255, .5);
+}
+
+#ab-toolbox > toolbar:-moz-lwtheme,
+#mail-toolbox > toolbar:-moz-lwtheme,
+#compose-toolbox > toolbar:-moz-lwtheme {
+  --toolbarbutton-text-color: currentColor;
+  --toolbarbutton-hover-background: rgba(255, 255, 255, .25);
+  --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .2);
+
+  --toolbarbutton-active-background: rgba(70%, 70%, 70%, .25);
+  --toolbarbutton-active-bordercolor: rgba(0, 0, 0, .3);
+  --toolbarbutton-active-boxshadow: 0 0 2px rgba(0, 0, 0, .6) inset;
+
+  --toolbarbutton-checkedhover-backgroundcolor: rgba(85%, 85%, 85%, .25);
+}
+
 toolbar:not(.inline-toolbar):not(:-moz-lwtheme) {
   -moz-appearance: menubar;
   color: -moz-menubartext;
@@ -52,55 +94,141 @@ menulist > menupopup > menu > .menu-iconic-left {
 
 /* ::::: toolbarbutton ::::: */
 
+.toolbarbutton-1 {
+  -moz-box-orient: vertical;
+}
+
+.toolbarbutton-1:-moz-lwtheme,
+.toolbarbutton-menubutton-button:-moz-lwtheme {
+  color: inherit;
+}
+
+toolbox[labelalign="end"] .toolbarbutton-1,
+toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
+  > .toolbarbutton-menubutton-button {
+  -moz-box-orient: horizontal;
+}
+
+toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1 .toolbarbutton-text {
+  -moz-padding-start: 2px;
+}
+
+toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
+  text-align: start;
+}
+
+.toolbarbutton-1[type="menu"] {
+  -moz-binding: url("chrome://global/content/bindings/toolbarbutton.xml#menu-vertical");
+}
+
+toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
+  -moz-binding: url("chrome://global/content/bindings/toolbarbutton.xml#menu");
+}
+
 .toolbarbutton-1,
 .toolbarbutton-menubutton-button {
-  padding-top: 5px;
-  padding-bottom: 6px;
-  -moz-padding-start: 4px;
-  -moz-padding-end: 5px;
+  -moz-appearance: none;
+  min-height: 30px;
+  min-width: 32px;
+  margin: 1px;
+  padding: 2px 6px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  transition-property: background-color, border-color;
+  transition-duration: 150ms;
 }
 
-toolbar:not(.inline-toolbar) toolbarbutton:not(:-moz-lwtheme) {
-  color: -moz-menubartext;
+.toolbarbutton-menubutton-button {
+  min-height: 0;
+  margin: 0;
+  border-top-style: none;
+  border-inline-start-style: none;
+  border-bottom-style: none;
 }
 
-toolbar:not(.inline-toolbar) toolbarbutton[disabled="true"]:not(:-moz-lwtheme) {
-  color: GrayText;
+.findbar-button:not(:-moz-any([checked="true"],[disabled="true"])):hover,
+.toolbarbutton-1:not([disabled=true]):hover,
+.toolbarbutton-1[open]:not([disabled=true]) > .toolbarbutton-menubutton-button,
+.toolbarbutton-1:not([disabled=true]):not([open]):hover > .toolbarbutton-menubutton-button,
+.toolbarbutton-1:not([disabled=true]):not([open]):hover > .toolbarbutton-menubutton-dropmarker {
+  background: var(--toolbarbutton-hover-background);
+  background-clip: padding-box;
+  border-color: var(--toolbarbutton-hover-bordercolor);
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
 }
 
-toolbarbutton:hover:not([disabled]):not(:-moz-lwtheme) .toolbarbutton-text {
-  color: -moz-buttonhovertext;
+.toolbarbutton-1:hover > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon,
+.toolbarbutton-1[open] > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
 
-toolbarbutton:hover:active:not([disabled]):not(:-moz-lwtheme) .toolbarbutton-text,
-toolbarbutton[open="true"]:not(:-moz-lwtheme) {
-  color: ButtonText;
+.findbar-button:not([disabled=true]):-moz-any([checked="true"],:hover:active),
+.toolbarbutton-1:not([disabled=true]):-moz-any([open],[checked="true"],:hover:active),
+.toolbarbutton-1 > .toolbarbutton-menubutton-button:not([disabled=true]):-moz-any(:hover:active, [open="true"]),
+.toolbarbutton-1[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled="true"]) {
+  background: var(--toolbarbutton-active-background);
+  background-clip: padding-box;
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  transition-duration: 10ms;
 }
 
-.toolbarbutton-1:hover:active:not([disabled]),
-.toolbarbutton-1[open="true"],
-.toolbarbutton-menubutton-button:hover:active:not([disabled]),
-.toolbarbutton-menubutton-button[open="true"] {
-  padding-top: 6px;
-  padding-bottom: 5px;
-  -moz-padding-start: 5px;
-  -moz-padding-end: 4px;
+.toolbarbutton-1[checked="true"]:not(:active):hover {
+  background-color: var(--toolbarbutton-checkedhover-backgroundcolor);
+  transition: background-color 150ms;
 }
 
-.toolbarbutton-1[checked="true"] {
-  padding-top: 6px !important;
-  padding-bottom: 5px !important;
-  -moz-padding-start: 5px !important;
-  -moz-padding-end: 4px !important;
+.toolbarbutton-1:not(:hover):not(:active):not([open]) > .toolbarbutton-menubutton-dropmarker::before {
+  content: "";
+  display: -moz-box;
+  width: 1px;
+  height: 18px;
+  margin-inline-start: -2px;
+  background-image: linear-gradient(currentColor 0, currentColor 100%);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 1px 18px;
+  opacity: .2;
+}
+
+toolbar[brighttext] .toolbarbutton-1:not(:hover):not(:active):not([open]) > .toolbarbutton-menubutton-dropmarker::before {
+  opacity: .3;
+}
+
+.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
+  margin-inline-start: 2px;
+  margin-top: 3px;
+  margin-bottom: 3px;
 }
 
 .toolbarbutton-1 .toolbarbutton-icon,
 .formatting-button .toolbarbutton-icon {
-  -moz-margin-end: 0px;
+  margin-inline-end: 0;
 }
 
-.toolbarbutton-menu-dropmarker {
-  -moz-padding-start: 3px;
+.toolbarbutton-1:not(:-moz-lwtheme) .toolbarbutton-text {
+  color: var(--toolbarbutton-text-color);
+}
+
+toolbar:not(.inline-toolbar):not(:-moz-lwtheme)
+.toolbarbutton-1 .toolbarbutton-text {
+  color: -moz-menubartext;
+}
+
+.toolbarbutton-1[disabled=true] .toolbarbutton-icon,
+.toolbarbutton-1[disabled=true] .toolbarbutton-text,
+.toolbarbutton-1[disabled=true] .toolbarbutton-menu-dropmarker,
+.toolbarbutton-1[disabled=true] > .toolbarbutton-menubutton-dropmarker,
+.toolbarbutton-1[disabled=true] > .toolbarbutton-menubutton-button >
+.toolbarbutton-icon {
+  opacity: .4;
+}
+
+.toolbarbutton-menubutton-button > .toolbarbutton-icon,
+.toolbarbutton-1 .toolbarbutton-icon {
+  width: 18px;
+  height: 18px;
 }
 
 toolbar[mode="full"] .toolbarbutton-1 {

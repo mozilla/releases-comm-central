@@ -126,38 +126,35 @@
 }
 
 .msgHeaderView-button {
-  -moz-appearance: button;
   min-height: 26px;
   margin: 0 0.1em;
   vertical-align: middle;
-  /* important required to override messenger.css rule */
-  min-width: 1em !important;
-  padding: 0 !important;
+  min-width: 28px;
+  padding-top: 0;
+  padding-bottom: 0;
   list-style-image: none; /* overrides the rule from primaryToolbar.css */
 }
 
-.msgHeaderView-button[type="menu-button"] {
-  /* important required to override -moz-appearance from msgHdrView-button */
-  -moz-appearance: dualbutton !important;
+.toolbarbutton-1.msgHeaderView-button,
+.toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
+.toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
+  background-color: var(--toolbarbutton-hover-background);
+  border-color: var(--toolbarbutton-hover-bordercolor);
 }
 
-.msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-button {
-  -moz-appearance: button;
-  min-width: 1em;
-  min-height: 1ex;
-  margin: 0;
-  /* important required to override messenger.css rule */
-  padding: 0 !important;
+.toolbarbutton-1.msgHeaderView-button:not([disabled=true]):-moz-any(:hover,[open]) >
+.toolbarbutton-menubutton-button,
+.toolbarbutton-1.msgHeaderView-button:not([disabled=true]):-moz-any(:hover,[open]) >
+.toolbarbutton-menubutton-dropmarker,
+.toolbarbutton-1.msgHeaderView-button:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover,
+.toolbarbutton-1.msgHeaderView-button:not([buttonover]):not([open]):not(:active):hover >
+.toolbarbutton-menubutton-dropmarker:not([disabled]) {
+  background-color: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
 }
 
-.msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-dropmarker {
-  -moz-margin-start: 2px;
-  -moz-margin-end: 2px;
-}
-
-.msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-dropmarker[open="true"] {
-  margin-top: 0px;
-  -moz-margin-end: 2px;
+.toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker::before {
+  display: none !important;
 }
 
 /* toolbar[mode="text"] is necessary so that we end up with more specificity
