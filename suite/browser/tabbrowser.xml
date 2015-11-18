@@ -1762,7 +1762,7 @@
               // browser was to the left of the current browser
               this.mTabBox.selectedPanel = this.selectedTab.linkedBrowser.parentNode;
               return;
-            } 
+            }
 
             // preserve a pointer to the browser for undoing the close
             // 1. save a copy of the session history (oldSH)
@@ -1942,6 +1942,19 @@
         </body>
       </method>
 
+      <method name="getTabForBrowser">
+        <parameter name="aBrowser"/>
+        <body>
+        <![CDATA[
+            for (var tab of this.tabs)
+              if (tab.linkedBrowser == aBrowser)
+                return tab;
+
+            return null;
+        ]]>
+        </body>
+      </method>
+
       <method name="getBrowserForTab">
         <parameter name="aTab"/>
         <body>
@@ -1949,6 +1962,19 @@
             if (aTab.localName != "tab")
               return null;
             return aTab.linkedBrowser;
+          ]]>
+        </body>
+      </method>
+
+      <method name="getBrowserForOuterWindowID">
+        <parameter name="aID"/>
+        <body>
+          <![CDATA[
+            for (var browser of this.browsers)
+              if (browser.outerWindowID == aID)
+                return browser;
+
+            return null;
           ]]>
         </body>
       </method>
