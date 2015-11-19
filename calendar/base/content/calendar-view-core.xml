@@ -356,7 +356,7 @@
             onMouseOverItem(event);
         }
       ]]></handler>
-      <handler event="draggesture"><![CDATA[
+      <handler event="dragstart"><![CDATA[
         if( event.target.localName == "calendar-event-box") {
             return;
         }

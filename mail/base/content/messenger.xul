@@ -336,7 +336,7 @@
                     keepcurrentinview="true"
                     context="folderPaneContext"
                     disableKeyNavigation="true"
-                    ondraggesture="gFolderTreeView._onDragStart(event);"
+                    ondragstart="gFolderTreeView._onDragStart(event);"
                     ondragover="gFolderTreeView._onDragOver(event);"
                     ondblclick="gFolderTreeView.onDoubleClick(event);"
                     onselect="FolderPaneSelectionChange();">
@@ -493,7 +493,7 @@
                         <treecol id="idCol" persist="width" flex="1" hidden="true"
                                  label="&idColumn.label;" tooltiptext="&idColumn2.tooltip;"/>
                       </treecols>
-                    <treechildren ondraggesture="ThreadPaneOnDragStart(event);"
+                    <treechildren ondragstart="ThreadPaneOnDragStart(event);"
                                   ondragover="ThreadPaneOnDragOver(event);"
                                   ondrop="ThreadPaneOnDrop(event);"/>
                   </tree>

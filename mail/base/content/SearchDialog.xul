@@ -178,7 +178,7 @@
             <treecol id="idCol" persist="hidden ordinal width" flex="1" hidden="true"
                      label="&idColumn.label;" tooltiptext="&idColumn2.tooltip;"/>
           </treecols>
-          <treechildren ondraggesture="ThreadPaneOnDragStart(event);"/>
+          <treechildren ondragstart="ThreadPaneOnDragStart(event);"/>
         </tree>
       </vbox>
       <hbox align="start">

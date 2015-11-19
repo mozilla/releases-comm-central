@@ -677,7 +677,7 @@
           },
 
           // Specifies if there is currently a sort on any column.
-          // Used mostly by dragdrop to affect drop feedback.
+          // Used mostly by drag'n'drop to affect drop feedback.
           isSorted: function mTV_isSorted(aRow) {
               return false;
           },
@@ -1132,7 +1132,7 @@
       <handler event="mousedown"><![CDATA[
         this.mTreeView.onMouseDown(event);
       ]]></handler>
-      <handler event="draggesture"><![CDATA[
+      <handler event="dragstart"><![CDATA[
         if (event.originalTarget.localName != "treechildren") {
             // We should only drag treechildren, not for example the scrollbar.
             return;
