@@ -164,15 +164,15 @@ repack-process-extrafiles:
 
 # When repackaging Lightning from the builder, platform.ini is not yet created.
 # Recreate it from the app.ini bundled with the downloaded xpi.
-$(LIBXUL_DIST)/bin/platform.ini:
+$(DIST)/bin/platform.ini:
 	mkdir -p $(@D)
-	echo "[Build]" >> $(LIBXUL_DIST)/bin/platform.ini
-	echo "Milestone=$(call print_ltnconfig,Gecko,MaxVersion)" >> $(LIBXUL_DIST)/bin/platform.ini
-	echo "SourceStamp=$(call print_ltnconfig,Build,SourceStamp)" >> $(LIBXUL_DIST)/bin/platform.ini
-	echo "SourceRepository=$(call print_ltnconfig,Build,SourceRepository)" >> $(LIBXUL_DIST)/bin/platform.ini
-	echo "BuildID=$(call print_ltnconfig,App,BuildID)" >> $(LIBXUL_DIST)/bin/platform.ini
+	echo "[Build]" >> $(DIST)/bin/platform.ini
+	echo "Milestone=$(call print_ltnconfig,Gecko,MaxVersion)" >> $(DIST)/bin/platform.ini
+	echo "SourceStamp=$(call print_ltnconfig,Build,SourceStamp)" >> $(DIST)/bin/platform.ini
+	echo "SourceRepository=$(call print_ltnconfig,Build,SourceRepository)" >> $(DIST)/bin/platform.ini
+	echo "BuildID=$(call print_ltnconfig,App,BuildID)" >> $(DIST)/bin/platform.ini
 
-recreate-platformini: $(LIBXUL_DIST)/bin/platform.ini
+recreate-platformini: $(DIST)/bin/platform.ini
 
 
 # Lightning uses Thunderbird's build machinery, so we need to hack the post

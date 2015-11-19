@@ -41,7 +41,7 @@ DEFINES += -DLIGHTNING_UPDATE_LOCATION=https://calendar.mozilla.org/update.php
 endif
 
 # Gecko milestone
-GRE_MILESTONE = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(LIBXUL_DIST)/bin/platform.ini Build Milestone)
+GRE_MILESTONE = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build Milestone)
 ifdef GRE_MILESTONE
 DEFINES += -DGRE_MILESTONE=$(GRE_MILESTONE)
 endif
@@ -87,7 +87,7 @@ DEFINES += -DTHUNDERBIRD_VERSION=$(THUNDERBIRD_VERSION) \
            -DXPI_EM_ID="$(XPI_EM_ID)" \
            $(NULL)
 
-GRE_BUILDID = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(LIBXUL_DIST)/bin/application.ini App BuildID)
+GRE_BUILDID = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(DIST)/bin/application.ini App BuildID)
 DEFINES += -DGRE_BUILDID=$(GRE_BUILDID)
 
 include $(topsrcdir)/config/rules.mk

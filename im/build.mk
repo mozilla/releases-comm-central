@@ -94,7 +94,7 @@ ifdef LIST_PREVIOUS_MAR_CMD
 		mkdir -p $(PREVIOUS_MAR_DIR)/$(buildid) ; \
 	        $(DOWNLOAD_MAR_CMD) ; \
 		echo "$(MAR_FILE_DEST),$(DIST)/$(COMPLETE_MAR),$(DIST)/$(PKG_UPDATE_PATH)$(PKG_UPDATE_BASENAME).partial.from-$(buildid).mar,$(FORCE_UPDATE)" >> $(PATCH_FILE) ;))))
-	PATH="$(realpath $(LIBXUL_DIST)/host/bin):$(PATH)" $(PYTHON) $(topsrcdir)/tools/update-packaging/make_incremental_updates.py -f $(PATCH_FILE)
+	PATH="$(realpath $(DIST)/host/bin):$(PATH)" $(PYTHON) $(topsrcdir)/tools/update-packaging/make_incremental_updates.py -f $(PATCH_FILE)
 endif
 endif
 ifdef SYMBOL_SERVER_HOST
