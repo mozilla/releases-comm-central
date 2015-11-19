@@ -61,7 +61,7 @@
                     <!--  Due to bug 128066, dropping urls here doesn't trigger
                           events. To work around, we use the dragexit handler,
                           which is triggered. Unfortunately, the more logical
-                          choice of dragdrop doesn't work here either.-->
+                          choice of drag'n'drop doesn't work here either.-->
                     <textbox id="calendar-uri"
                              required="true"
                              type="search"

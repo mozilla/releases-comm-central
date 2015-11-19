@@ -122,5 +122,7 @@ comm.jar:
    content/communicator/utilityOverlay.js           (content/utilityOverlay.js)
 
 toolkit.jar:
+# toolkit dropped nsDragAndDrop.js in bug 1162050. ship a copy until we can remove it.
+ content/global/nsDragAndDrop.js                    (content/nsDragAndDrop.js)
 % overlay chrome://global/content/customizeToolbar.xul chrome://messenger/content/customizeToolbarOverlay.xul
 % overlay chrome://mozapps/content/downloads/downloads.xul chrome://messenger/content/downloadsOverlay.xul

@@ -169,7 +169,7 @@
       </method>
     </implementation>
     <handlers>
-      <handler event="draggesture" phase="capturing"><![CDATA[
+      <handler event="dragstart" phase="capturing"><![CDATA[
         invokeEventDragSession(this.mAllDayItem.occurrence.clone(), this);
         event.stopPropagation();
         event.preventDefault();
@@ -281,7 +281,7 @@
       </method>
     </implementation>
     <handlers>
-      <handler event="draggesture"><![CDATA[
+      <handler event="dragstart"><![CDATA[
         invokeEventDragSession(this.mOccurrence.clone(), this);
       ]]></handler>
     </handlers>
