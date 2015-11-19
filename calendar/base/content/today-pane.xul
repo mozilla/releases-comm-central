@@ -189,9 +189,9 @@
                            onfocus="agendaListbox.onFocus();"
                            onkeypress="agendaListbox.onKeyPress(event);"
                            ondblclick="agendaListbox.createNewEvent(event);"
-                           ondragstart="nsDragAndDrop.startDrag(event, calendarCalendarButtonDNDObserver);"
+                           ondraggesture="nsDragAndDrop.startDrag(event, calendarCalendarButtonDNDObserver);"
                            ondragover="nsDragAndDrop.dragOver(event, calendarCalendarButtonDNDObserver);"
-                           ondrop="nsDragAndDrop.drop(event, calendarCalendarButtonDNDObserver);">
+                           ondragdrop="nsDragAndDrop.drop(event, calendarCalendarButtonDNDObserver);">
                 <menupopup id="agenda-menupopup" onpopupshowing="return agendaListbox.setupContextMenu(event.target)">
                   <menuitem label="&calendar.context.modifyorviewitem.label;"
                            accesskey="&calendar.context.modifyorviewitem.accesskey;"
@@ -282,9 +282,9 @@
                   collapsedinmodes="mail,task"
                   broadcaster="modeBroadcaster"
                   persist="height collapsedinmodes"
-                  ondragstart="nsDragAndDrop.startDrag(event, calendarTaskButtonDNDObserver);"
+                  ondraggesture="nsDragAndDrop.startDrag(event, calendarTaskButtonDNDObserver);"
                   ondragover="nsDragAndDrop.dragOver(event, calendarTaskButtonDNDObserver);"
-                  ondrop="nsDragAndDrop.drop(event, calendarTaskButtonDNDObserver);"/>
+                  ondragdrop="nsDragAndDrop.drop(event, calendarTaskButtonDNDObserver);"/>
     </vbox>
   </modevbox>
 

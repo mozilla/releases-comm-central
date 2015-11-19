@@ -140,7 +140,7 @@
   <hbox id="messagepaneboxwrapper" flex="1">
     <vbox id="messagepanebox" flex="3"
           ondragover="nsDragAndDrop.dragOver(event, messagepaneObserver);"
-          ondrop="nsDragAndDrop.drop(event, messagepaneObserver);"
+          ondragdrop="nsDragAndDrop.drop(event, messagepaneObserver);"
           ondragexit="nsDragAndDrop.dragExit(event, messagepaneObserver);">
 
       <hbox id="msgHeaderView"/>

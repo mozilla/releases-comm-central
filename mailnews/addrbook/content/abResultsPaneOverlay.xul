@@ -85,7 +85,7 @@
      -->
 
   </treecols>
-  <treechildren ondragstart="nsDragAndDrop.startDrag(event, abResultsPaneObserver);"/>
+  <treechildren ondraggesture="nsDragAndDrop.startDrag(event, abResultsPaneObserver);"/>
 </tree>
 
 </overlay>

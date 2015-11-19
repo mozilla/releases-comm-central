@@ -574,7 +574,7 @@
       <label id="attachmentName" crop="center" flex="1"
              tooltiptext="&openAttachment.tooltip;"
              onclick="OpenAttachmentFromBar(event);"
-             ondragstart="nsDragAndDrop.startDrag(event,attachmentNameDNDObserver);"/>
+             ondraggesture="nsDragAndDrop.startDrag(event,attachmentNameDNDObserver);"/>
       <label id="attachmentSize"/>
     </hbox>
     <!-- Use a very large flex value here so that attachmentCount doesn't take
@@ -659,7 +659,7 @@
   <attachmentlist orient="horizontal" id="attachmentList" flex="1"
                   seltype="multiple" context="attachmentListContext"
                   itemcontext="attachmentItemContext"
-                  ondragstart="nsDragAndDrop.startDrag(event,attachmentListDNDObserver);"
+                  ondraggesture="nsDragAndDrop.startDrag(event,attachmentListDNDObserver);"
                   ondragover="nsDragAndDrop.dragOver(event, attachmentListDNDObserver);"/>
 </vbox>
 

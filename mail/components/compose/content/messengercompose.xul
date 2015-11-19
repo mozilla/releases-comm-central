@@ -749,7 +749,7 @@
                tooltiptext="&attachButton.tooltip;"
                command="cmd_attachFile"
                ondragover="nsDragAndDrop.dragOver(event, envelopeDragObserver);"
-               ondrop="nsDragAndDrop.drop(event, envelopeDragObserver);"
+               ondragdrop="nsDragAndDrop.drop(event, envelopeDragObserver);"
                ondragexit="nsDragAndDrop.dragExit(event, envelopeDragObserver);">
       <menupopup id="button-attachPopup" onpopupshowing="updateAttachmentItems();">
         <menuitem id="button-attachPopup_attachFileItem"
@@ -905,7 +905,7 @@
     <toolbar id="MsgHeadersToolbar" persist="collapsed" flex="1"
              customizable="true" nowindowdrag="true"
              ondragover="nsDragAndDrop.dragOver(event, envelopeDragObserver);"
-             ondrop="nsDragAndDrop.drop(event, envelopeDragObserver);"
+             ondragdrop="nsDragAndDrop.drop(event, envelopeDragObserver);"
              ondragexit="nsDragAndDrop.dragExit(event, envelopeDragObserver);">
       <hbox id="msgheaderstoolbar-box" flex="1">
         <vbox flex="1" id="addresses-box">
@@ -985,7 +985,7 @@
                           itemcontext="msgComposeAttachmentItemContext"
                           onclick="AttachmentBucketClicked(event);"
                           onselect="updateAttachmentItems();"
-                          ondragstart="nsDragAndDrop.startDrag(event, attachmentBucketDNDObserver);"/>
+                          ondraggesture="nsDragAndDrop.startDrag(event, attachmentBucketDNDObserver);"/>
         </vbox>
       </hbox>
     </toolbar>

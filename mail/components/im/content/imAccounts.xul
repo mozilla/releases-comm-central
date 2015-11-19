@@ -145,7 +145,7 @@
                   ondragstart="nsDragAndDrop.startDrag(event, gAMDragAndDrop);"
                   ondragover="nsDragAndDrop.dragOver(event, gAMDragAndDrop);"
                   ondragend="gAMDragAndDrop.cleanBorders(true);"
-                  ondrop="nsDragAndDrop.drop(event, gAMDragAndDrop);"/>
+                  ondragdrop="nsDragAndDrop.drop(event, gAMDragAndDrop);"/>
    </notificationbox>
  </deck>
  <windowdragbox id="bottombuttons" align="center">

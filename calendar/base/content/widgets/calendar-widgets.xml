@@ -659,7 +659,7 @@
        }
       ]]></handler>
 
-      <handler event="drop"><![CDATA[
+      <handler event="dragdrop"><![CDATA[
          let session = cal.getDragService().getCurrentSession();
          if (!session || !session.sourceNode || !session.sourceNode.sourceObject) {
             // No source node? Not our drag.
