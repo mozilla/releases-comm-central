@@ -351,7 +351,9 @@ Conversation.prototype = {
     flags._iconURL = aTweet.user.profile_image_url;
     if (aTweet.delayed)
       flags.delayed = true;
-    if (text.includes("@" + this.nick))
+    if (aTweet.entities && aTweet.entities.user_mentions &&
+        Array.isArray(aTweet.entities.user_mentions) &&
+        aTweet.entities.user_mentions.some(mention => mention.screen_name == this.nick))
       flags.containsNick = true;
 
     (new Tweet(aTweet, name, text, flags)).conversation = this;
