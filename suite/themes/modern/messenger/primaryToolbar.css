@@ -341,6 +341,23 @@ toolbar[iconsize="small"] > #sync-button[status=active] {
   list-style-image: url("chrome://communicator/skin/sync/sync-16-throbber.png");
 }
 
+/* ::::: Lightning icon sizes ::::: */
+
+#lightning-button-calendar > .toolbarbutton-icon,
+#lightning-button-tasks > .toolbarbutton-icon,
+#extractEventButton .toolbarbutton-icon,
+#extractTaskButton .toolbarbutton-icon {
+  width: 33px;
+  height: 33px;
+}
+
+#lightning-button-calendar[disabled="true"] > .toolbarbutton-icon,
+#lightning-button-tasks[disabled="true"] > .toolbarbutton-icon,
+#extractEventButton[disabled="true"] .toolbarbutton-icon,
+#extractTaskButton[disabled="true"] .toolbarbutton-icon {
+  opacity: 0.3;
+}
+
 /* ::::: message notification bar style rules ::::: */
 
 .msgNotificationBar {

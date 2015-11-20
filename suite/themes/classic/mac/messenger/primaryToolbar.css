@@ -426,6 +426,33 @@ toolbar[iconsize="small"] > #sync-button[status=active] {
   list-style-image: url("chrome://communicator/skin/sync/sync-16-throbber.png");
 }
 
+/* ::::: Lightning icon sizes ::::: */
+
+#lightning-button-calendar > .toolbarbutton-icon,
+#lightning-button-tasks > .toolbarbutton-icon,
+#extractEventButton > .toolbarbutton-icon,
+#extractTaskButton > .toolbarbutton-icon,
+#extractEventButton > .box-inherit > .toolbarbutton-icon,
+#extractTaskButton > .box-inherit > .toolbarbutton-icon {
+  width: 29px;
+  height: 29px;
+}
+
+toolbar[iconsize="small"] > #lightning-button-calendar > .toolbarbutton-icon,
+toolbar[iconsize="small"] > #lightning-button-tasks > .toolbarbutton-icon,
+toolbar[iconsize="small"] > #extractEventButton > .box-inherit > .toolbarbutton-icon,
+toolbar[iconsize="small"] > #extractTaskButton > .box-inherit > .toolbarbutton-icon {
+  width: 19px;
+  height: 19px;
+}
+
+#lightning-button-calendar[disabled="true"] > .toolbarbutton-icon,
+#lightning-button-tasks[disabled="true"] > .toolbarbutton-icon,
+#extractEventButton[disabled="true"] > .box-inherit > .toolbarbutton-icon,
+#extractTaskButton[disabled="true"] > .box-inherit > .toolbarbutton-icon {
+  opacity: 0.3;
+}
+
 /* ::::: message notification bar style rules ::::: */
 
 .msgNotificationBar {
