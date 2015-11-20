@@ -3278,8 +3278,17 @@ function ChangeLanguage(event)
     document.documentElement.setAttribute("lang", event.target.value);
 
     // now check the document over again with the new dictionary
-    if (gSpellChecker.enabled)
+    if (gSpellChecker.enabled) {
       gSpellChecker.mInlineSpellChecker.spellCheckRange(null);
+
+      // Also force a recheck of the subject. If for some reason the spell
+      // checker isn't ready yet, don't auto-create it, hence pass 'false'.
+      var inlineSpellChecker =
+        GetMsgSubjectElement().editor.getInlineSpellChecker(false);
+      if (inlineSpellChecker) {
+        inlineSpellChecker.spellCheckRange(null);
+      }
+    }
   }
   event.stopPropagation();
 }
