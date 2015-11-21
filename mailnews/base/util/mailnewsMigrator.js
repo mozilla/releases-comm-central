@@ -19,7 +19,7 @@ var Ci = Components.interfaces;
 var kServerPrefVersion = 1;
 var kSmtpPrefVersion = 1;
 var kABRemoteContentPrefVersion = 1;
-var kDefaultCharsetsPrefVersion = 1;
+var kDefaultCharsetsPrefVersion = 2;
 
 function migrateMailnews()
 {
@@ -172,7 +172,8 @@ function MigrateABRemoteContentSettings()
  */
 function MigrateDefaultCharsets()
 {
-  if (Services.prefs.prefHasUserValue("mail.default_charsets.migrated"))
+  if (Services.prefs.prefHasUserValue("mail.default_charsets.migrated") &&
+      Services.prefs.getIntPref("mail.default_charsets.migrated") == kDefaultCharsetsPrefVersion)
     return;
 
   let charsetConvertManager = Components.classes['@mozilla.org/charset-converter-manager;1']
