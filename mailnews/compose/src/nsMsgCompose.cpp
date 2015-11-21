@@ -1175,7 +1175,8 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
     nsCString outCString;
     rv = nsMsgI18NConvertFromUnicode(m_compFields->GetCharacterSet(),
       msgBody, outCString, false, true);
-    bool isAsciiOnly = NS_IsAscii(outCString.get());
+    bool isAsciiOnly = NS_IsAscii(outCString.get()) &&
+      !nsMsgI18Nstateful_charset(m_compFields->GetCharacterSet());
     if (m_compFields->GetForceMsgEncoding())
       isAsciiOnly = false;
     if (NS_SUCCEEDED(rv) && !outCString.IsEmpty())
@@ -1183,7 +1184,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
       // If the body contains characters outside the repertoire of the current
       // charset, just convert to UTF-8 and be done with it
       // unless disable_fallback_to_utf8 is set for this charset.
-      if (NS_ERROR_UENC_NOMAPPING == rv && m_editor)
+      if (NS_ERROR_UENC_NOMAPPING == rv)
       {
         bool needToCheckCharset;
         m_compFields->GetNeedToCheckCharset(&needToCheckCharset);
@@ -1210,9 +1211,9 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
     }
     else
     {
-      m_compFields->SetBody(NS_LossyConvertUTF16toASCII(msgBody).get());
-      m_compFields->SetCharacterSet("US-ASCII");
-      SetDocumentCharset("US-ASCII");
+      m_compFields->SetBody(NS_ConvertUTF16toUTF8(msgBody).get());
+      m_compFields->SetCharacterSet("UTF-8");
+      SetDocumentCharset("UTF-8");
     }
   }
 
