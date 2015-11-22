@@ -224,30 +224,12 @@ tabpanels {
 
 .tabmail-arrowscrollbox > .scrollbutton-up,
 .tabmail-arrowscrollbox > stack > .scrollbutton-down {
-  list-style-image: url(tabs/arrow-left.png);
+  list-style-image: url(tabs/arrow-left.svg);
 }
 
 #tabs-toolbar[brighttext] .tabmail-arrowscrollbox > .scrollbutton-up,
 #tabs-toolbar[brighttext] .tabmail-arrowscrollbox > stack > .scrollbutton-down {
-  list-style-image: url(tabs/arrow-left-inverted.png);
-}
-
-
-@media (min-resolution: 1.1dppx) {
-  .tabmail-arrowscrollbox > .scrollbutton-up,
-  .tabmail-arrowscrollbox > stack > .scrollbutton-down {
-    list-style-image: url(tabs/arrow-left@2x.png);
-  }
-
-  .tabmail-arrowscrollbox > .scrollbutton-up > .toolbarbutton-icon,
-  .tabmail-arrowscrollbox > stack > .scrollbutton-down > .toolbarbutton-icon {
-    width: 15px;
-  }
-
-  #tabs-toolbar[brighttext] .tabmail-arrowscrollbox > .scrollbutton-up,
-  #tabs-toolbar[brighttext] .tabmail-arrowscrollbox > stack > .scrollbutton-down {
-    list-style-image: url(tabs/arrow-left-inverted@2x.png);
-  }
+  list-style-image: url(tabs/arrow-left-inverted.svg);
 }
 
 .tabmail-arrowscrollbox > .scrollbutton-up[disabled],
@@ -305,7 +287,6 @@ tabpanels {
   .tabmail-arrowscrollbox > stack > .scrollbutton-down {
     margin: 0;
     -moz-margin-end: 1px;
-    list-style-image: url(tabs/arrow-left.png);
     border-radius: 0;
   }
 
