@@ -57,6 +57,7 @@ accountProvisionerTabType.closeTab = function(aTab) {
   this._log.info("Performing account provisioner cleanup");
   this._log.info("Removing httpRequestObserver");
   Services.obs.removeObserver(this._observer, "http-on-examine-response");
+  Services.obs.removeObserver(this._observer, "http-on-examine-cached-response");
   Services.obs.removeObserver(this.quitObserver, "mail-unloading-messenger", false);
   delete this._observer;
   this._log.info("Account provisioner cleanup is done.");
@@ -105,7 +106,8 @@ accountProvisionerTabType._setMonitoring = function(aBrowser, aRealName,
   });
 
   // Register our observer
-  Services.obs.addObserver(this._observer, "http-on-examine-response",
+  Services.obs.addObserver(this._observer, "http-on-examine-response", false);
+  Services.obs.addObserver(this._observer, "http-on-examine-cached-response",
                            false);
   Services.obs.addObserver(this.quitObserver, "mail-unloading-messenger", false);
 

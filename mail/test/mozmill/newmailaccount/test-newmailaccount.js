@@ -14,11 +14,11 @@ var MODULE_NAME = 'test-newmailaccount';
 
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers',
-                         'content-tab-helpers',
-                         'window-helpers',
-                         'newmailaccount-helpers',
-                         'keyboard-helpers',
-                         'dom-helpers'];
+                       'content-tab-helpers',
+                       'window-helpers',
+                       'newmailaccount-helpers',
+                       'keyboard-helpers',
+                       'dom-helpers'];
 
 var controller = {};
 var mozmill = {};

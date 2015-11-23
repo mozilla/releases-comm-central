@@ -40,7 +40,8 @@ function httpRequestObserver(aBrowser, aParams) {
 
 httpRequestObserver.prototype = {
   observe: function(aSubject, aTopic, aData) {
-    if (aTopic != "http-on-examine-response")
+    if (aTopic != "http-on-examine-response" &&
+        aTopic != "http-on-examine-cached-response")
       return;
 
     if (!(aSubject instanceof Ci.nsIHttpChannel)) {
