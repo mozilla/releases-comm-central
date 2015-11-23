@@ -176,6 +176,7 @@ var DefaultController =
       case "cmd_collapseAllThreads":
       case "cmd_renameFolder":
       case "cmd_sendUnsentMsgs":
+      case "cmd_subscribe":
       case "cmd_openMessage":
       case "cmd_openConversation":
       case "button_print":
@@ -501,6 +502,8 @@ var DefaultController =
       }
       case "cmd_sendUnsentMsgs":
         return IsSendUnsentMsgsEnabled(null);
+      case "cmd_subscribe":
+        return IsSubscribeEnabled();
       case "cmd_properties":
         return IsPropertiesEnabled(command);
       case "button_getNewMessages":
@@ -788,6 +791,9 @@ var DefaultController =
           SendUnsentMessages();
         else
           MailOfflineMgr.goOnlineToSendMessages(msgWindow);
+        return;
+      case "cmd_subscribe":
+        MsgSubscribe();
         return;
       case "cmd_openMessage":
         MsgOpenSelectedMessages();
@@ -1189,6 +1195,29 @@ function IsSendUnsentMsgsEnabled(unsentMsgsFolder)
     identity = MailServices.accounts.defaultAccount.defaultIdentity;
 
   return msgSendlater.hasUnsentMessages(identity);
+}
+
+/**
+ * Determine whether there exists any server for which to show the Subscribe dialog.
+ */
+function IsSubscribeEnabled()
+{
+  // If there are any IMAP or News servers, we can show the dialog any time and
+  // it will properly show those.
+  let servers = MailServices.accounts.allServers;
+  for (let server of fixIterator(servers,
+                                 Components.interfaces.nsIMsgIncomingServer)) {
+    if (server.type == "imap" || server.type == "nntp")
+      return true;
+  }
+
+  // RSS accounts use a separate Subscribe dialog that we can only show when
+  // such an account is selected.
+  let preselectedFolder = GetFirstSelectedMsgFolder();
+  if (preselectedFolder && preselectedFolder.server.type == "rss")
+    return true;
+
+  return false;
 }
 
 function IsFolderCharsetEnabled()
