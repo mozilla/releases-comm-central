@@ -181,6 +181,11 @@
       <field name="_MAXRECENT">15</field>
 
       <!--
+         - Is this list containing only servers (accounts) and no real folders?
+        -->
+      <field name="_serversOnly">true</field>
+
+      <!--
          - Our listener to let us know when folders change/appear/disappear so
          - we can know to rebuild ourselves.
         -->
@@ -474,9 +479,12 @@
           // We need to call this, or hasSubFolders will always return false.
           // Remove this workaround when Bug 502900 is fixed.
           this.MailUtils.discoverFolders();
+          this._serversOnly = true;
 
           for (let folder of folders) {
             let node;
+            if (!folder.isServer)
+              this._serversOnly = false;
 
             // If we're going to add subFolders, we need to make menus, not
             // menuitems.
@@ -488,6 +496,7 @@
               node.setAttribute("generated", "true");
               this.appendChild(node);
             } else {
+              this._serversOnly = false;
               //xxx this is slightly problematic in that we haven't confirmed
               //    whether any of the subfolders will pass the filter
               node = document.createElement("menu");
@@ -717,7 +726,8 @@
               aMenulist.setAttribute("label", menupopup.getDisplayName(aFolder));
             } else {
               aMenulist.setAttribute("label", menupopup._stringBundle.getString(
-                aNoFolders ? "noFolders" : "chooseFolder"));
+                aNoFolders ? "noFolders" :
+                             (menupopup._serversOnly ? "chooseAccount" : "chooseFolder")));
             }
             aMenulist.setAttribute("value",
               aFolder ? aFolder.URI : "");
@@ -731,7 +741,7 @@
               aFolder ? menupopup.getSpecialFolderString(aFolder) : "none");
             aMenulist.setAttribute("IsFeedFolder", Boolean(
               aFolder && menupopup.FeedUtils.getFeedUrlsInFolder(aFolder)));
-            }
+          }
 
           let folder;
           if (aFolder) {

@@ -106,7 +106,7 @@
 
     <!-- POP3 Panel -->
     <vbox id="pop3Panel">
-      <label flex="1" control="folderStorage">&pop3Desc.label;</label>
+      <label flex="1" control="folderStorage">&pop3DeferringDesc.label;</label>
       <hbox align="center">
         <radiogroup id="folderStorage"
                     orient="horizontal"
@@ -116,10 +116,12 @@
             <row>
               <radio id="deferToCurrentAccount"
                      value="currentAccount"
-                     label="&accountDirectory.label;"
-                     accesskey="&accountDirectory.accesskey;"/>
+                     label="&accountInbox.label;"
+                     accesskey="&accountInbox.accesskey;"/>
             </row>
             <row>
+              <vbox>
+              <hbox>
               <radio id="deferToOtherAccount"
                      value="otherAccount"
                      label="&deferToServer.label;"
@@ -134,15 +136,15 @@
                            mode="deferred"
                            oncommand="this.selectFolder(event.target._folder);"/>
               </menulist>
+              </hbox>
+              <checkbox amsa_persist="true" id="deferGetNewMail"
+                        label="&deferGetNewMail.label;" class="indent"
+                        accesskey="&deferGetNewMail.accesskey;"/>
+              </vbox>
             </row>
           </rows>
         </radiogroup>
       </hbox>
 
-      <separator class="thin"/>
-
-      <checkbox amsa_persist="true" id="deferGetNewMail"
-              label="&deferGetNewMail.label;"
-              accesskey="&deferGetNewMail.accesskey;"/>
     </vbox>
 </dialog>

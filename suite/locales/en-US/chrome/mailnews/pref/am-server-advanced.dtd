@@ -24,10 +24,10 @@
 <!ENTITY otherUsersNamespace.accesskey "O">
 <!ENTITY overrideNamespaces.label "Allow server to override these namespaces">
 <!ENTITY overrideNamespaces.accesskey "A">
-<!ENTITY pop3Desc.label "When downloading pop mail for this server, use the following folder for new mail:" >
-<!ENTITY accountDirectory.label "Inbox for this server's account">
-<!ENTITY accountDirectory.accesskey "S">
+<!ENTITY pop3DeferringDesc.label "When downloading mail from this account's server, use the following folder to store new messages:" >
+<!ENTITY accountInbox.label "Inbox for this account">
+<!ENTITY accountInbox.accesskey "s">
 <!ENTITY deferToServer.label "Inbox for different account">
-<!ENTITY deferToServer.accesskey "D">
+<!ENTITY deferToServer.accesskey "d">
 <!ENTITY deferGetNewMail.label "Include this server when getting new mail">
 <!ENTITY deferGetNewMail.accesskey "I">
