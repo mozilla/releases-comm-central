@@ -17,10 +17,6 @@
   #tabs-toolbar {
     margin-bottom: -1px;
   }
-
-  #messengerWindow[tabsintitlebar="true"] #tabs-toolbar:not(:-moz-lwtheme) {
-    -moz-appearance: -moz-mac-vibrancy-light !important;
-  }
 }
 
 .tabmail-arrowscrollbox {
@@ -79,6 +75,52 @@
 
   .tabmail-tab[type="glodaSearch"] {
     list-style-image: url("chrome://messenger/skin/icons/search-tab@2x.png");
+  }
+}
+
+@media (-moz-mac-yosemite-theme) {
+  .tab-background-middle[selected=true]:-moz-window-inactive {
+    background-image: url(tabs/active-middle-yosemite-inactive.png),
+                      var(--fgTabTexture),
+                      none;
+  }
+
+  .tab-background-start[selected=true]:-moz-window-inactive:-moz-locale-dir(ltr):not(:-moz-lwtheme)::before,
+  .tab-background-end[selected=true]:-moz-window-inactive:-moz-locale-dir(rtl):not(:-moz-lwtheme)::before {
+    background-image: url("chrome://messenger/skin/tabs/selected-start-yosemite-inactive.svg");
+  }
+
+  .tab-background-end[selected=true]:-moz-window-inactive:-moz-locale-dir(ltr):not(:-moz-lwtheme)::before,
+  .tab-background-start[selected=true]:-moz-window-inactive:-moz-locale-dir(rtl):not(:-moz-lwtheme)::before {
+    background-image: url("chrome://messenger/skin/tabs/selected-end-yosemite-inactive.svg");
+  }
+
+  .tab-background-start[selected=true]:-moz-window-inactive:-moz-locale-dir(ltr)::after,
+  .tab-background-end[selected=true]:-moz-window-inactive:-moz-locale-dir(rtl)::after {
+    background-image: url(tabs/stroke-start-yosemite-inactive.png);
+  }
+
+  .tab-background-end[selected=true]:-moz-window-inactive:-moz-locale-dir(ltr)::after,
+  .tab-background-start[selected=true]:-moz-window-inactive:-moz-locale-dir(rtl)::after {
+    background-image: url(tabs/stroke-end-yosemite-inactive.png);
+  }
+
+  @media (min-resolution: 2dppx) {
+    .tab-background-middle[selected=true]:-moz-window-inactive {
+      background-image: url(tabs/active-middle-yosemite-inactive@2x.png),
+                        var(--fgTabTexture),
+                        none;
+    }
+
+    .tab-background-start[selected=true]:-moz-window-inactive:-moz-locale-dir(ltr)::after,
+    .tab-background-end[selected=true]:-moz-window-inactive:-moz-locale-dir(rtl)::after {
+      background-image: url(tabs/stroke-start-yosemite-inactive@2x.png);
+    }
+
+    .tab-background-end[selected=true]:-moz-window-inactive:-moz-locale-dir(ltr)::after,
+    .tab-background-start[selected=true]:-moz-window-inactive:-moz-locale-dir(rtl)::after {
+      background-image: url(tabs/stroke-end-yosemite-inactive@2x.png);
+    }
   }
 }
 

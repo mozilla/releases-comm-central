@@ -8,3 +8,9 @@
   --fgTabTextureLWT: linear-gradient(transparent 2px, rgba(254, 254, 254, .72) 2px, var(--toolbarColorLWT));
   --fgTabBackgroundColor: transparent;
 }
+
+@media (-moz-mac-yosemite-theme) {
+  :root:-moz-window-inactive {
+    --fgTabTexture: linear-gradient(transparent 2px, hsl(0, 0%, 99%) 2px, hsl(0, 0%, 97%));
+  }
+}

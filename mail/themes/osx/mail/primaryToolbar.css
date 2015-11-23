@@ -58,6 +58,24 @@
   background-color: hsl(0, 0%, 60%);
 }
 
+@media (-moz-mac-yosemite-theme) {
+  .mail-toolbox,
+  .contentTabToolbox {
+    /* remove noise texture on Yosemite */
+    background: linear-gradient(hsl(0, 0%, 93%), hsl(0, 0%, 83%));
+  }
+
+  .mail-toolbox:-moz-window-inactive:not(:-moz-lwtheme),
+  .contentTabToolbox:-moz-window-inactive:not(:-moz-lwtheme) {
+    background: linear-gradient(hsl(0, 0%, 97%), hsl(0, 0%, 95%));
+  }
+
+  .mail-toolbox:-moz-window-inactive::after,
+  .contentTabToolbox:-moz-window-inactive::after {
+    background-color: hsl(0, 0%, 85%);
+  }
+}
+
 .mail-bar3 {
   padding: 4px 4px 0;
 }
