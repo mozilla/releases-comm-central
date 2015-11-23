@@ -54,10 +54,13 @@
                   wsm_persist="true" genericattr="true" iscontrolcontainer="true"
                   preftype="bool" prefstring="mail.identity.%identitykey%.request_return_receipt_on"/>
 
+        <separator/>
+
         <vbox id="receiptArrive">
           <label id="receiptArriveLabel" control="server.incorporate_return_receipt">&receiptArrive.label;</label>
           <radiogroup id="server.incorporate_return_receipt" wsm_persist="true" genericattr="true"
-                      preftype="int" prefstring="mail.server.%serverkey%.incorporate_return_receipt">
+                      preftype="int" prefstring="mail.server.%serverkey%.incorporate_return_receipt"
+                      class="indent">
             <radio id="leave_in_inbox" value="0" label="&leaveIt.label;"
                    accesskey="&leaveIt.accesskey;"/>
             <radio id="move_to_sent" value="1" label="&moveToSent.label;"
@@ -65,18 +68,20 @@
           </radiogroup>
         </vbox>
 
+        <separator/>
+
         <vbox id="receiptRequest">
           <label id="receiptRequestLabel" control="server.mdn_report_enabled">&requestMDN.label;</label>
           <radiogroup id="server.mdn_report_enabled" wsm_persist="true" genericattr="true"
                       preftype="bool" prefstring="mail.server.%serverkey%.mdn_report_enabled"
-                      oncommand="EnableDisableAllowedReceipts();">
+                      oncommand="EnableDisableAllowedReceipts();"
+                      class="indent">
             <radio id="never_return" value="false" label="&never.label;"
                    accesskey="&never.accesskey;"/>
             <radio id="return_some" value="true" label="&returnSome.label;"
                    accesskey="&returnSome.accesskey;"/>
-          </radiogroup>
 
-          <hbox id="receiptSendIf" class="indent">
+            <hbox id="receiptSendIf" class="indent">
             <grid>
               <columns><column/><column/></columns>
               <rows>
@@ -118,7 +123,8 @@
                 </row>
               </rows>
             </grid>
-          </hbox>
+            </hbox>
+          </radiogroup>
 
         </vbox>
 

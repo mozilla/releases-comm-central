@@ -44,9 +44,12 @@
                   accesskey="&requestReceipt.accesskey;"
                   preference="mail.receipt.request_return_receipt_on"/>
 
+        <separator/>
+
         <vbox id="receiptArrive">
           <label control="receiptFolder">&receiptArrive.label;</label>
           <radiogroup id="receiptFolder"
+                      class="indent"
                       preference="mail.incorporate.return_receipt">
             <radio value="0"
                    label="&leaveIt.label;"
@@ -57,9 +60,12 @@
           </radiogroup>
         </vbox>
 
+        <separator/>
+
         <vbox id="receiptRequest">
           <label control="receiptSend">&requestMDN.label;</label>
           <radiogroup id="receiptSend"
+                      class="indent"
                       preference="mail.mdn.report.enabled">
             <radio value="false"
                    label="&never.label;"
@@ -67,9 +73,8 @@
             <radio value="true"
                    label="&returnSome.label;"
                    accesskey="&returnSome.accesskey;"/>
-          </radiogroup>
 
-          <hbox id="receiptSendIf" class="indent">
+            <hbox id="receiptSendIf" class="indent">
             <grid>
               <columns>
                 <column/>
@@ -129,7 +134,8 @@
                 </row>
               </rows>
             </grid>
-          </hbox>
+            </hbox>
+          </radiogroup>
 
         </vbox>
 
