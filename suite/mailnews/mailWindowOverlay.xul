@@ -105,6 +105,7 @@
     <command id="cmd_getNextNMessages" oncommand="goDoCommand('cmd_getNextNMessages')" disabled="true"/>
     <command id="cmd_renameFolder" oncommand="goDoCommand('cmd_renameFolder')" />
     <command id="cmd_sendUnsentMsgs" oncommand="goDoCommand('cmd_sendUnsentMsgs')" />
+    <command id="cmd_subscribe" oncommand="goDoCommand('cmd_subscribe')" disabled="true"/>
     <command id="cmd_synchronizeOffline" oncommand="goDoCommand('cmd_synchronizeOffline');" disabled="true"/>
     <command id="cmd_settingsOffline" oncommand="goDoCommand('cmd_settingsOffline');" disabled="true"/>
 </commandset>
@@ -1001,8 +1002,8 @@
        accesskey="&sendUnsentCmd.accesskey;"
        command="cmd_sendUnsentMsgs"/>
       <menuitem label="&subscribeCmd.label;"
-       accesskey="&subscribeCmd.accesskey;"
-       oncommand="MsgSubscribe();"/>
+                accesskey="&subscribeCmd.accesskey;"
+                command="cmd_subscribe"/>
       <menuseparator id="fileMenuAfterSubscribeSeparator"/>
       <menuitem id="menu_renameFolder" label="&renameFolder.label;"
                 accesskey="&renameFolder.accesskey;"
