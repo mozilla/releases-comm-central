@@ -471,15 +471,6 @@ NS_IMETHODIMP nsMsgGroupView::GetViewType(nsMsgViewTypeValue *aViewType)
     return NS_OK;
 }
 
-PLDHashOperator
-nsMsgGroupView::GroupTableCloner(const nsAString &aKey, nsIMsgThread* aGroupThread, void* aArg)
-{
-  nsMsgGroupView* view = static_cast<nsMsgGroupView*>(aArg);
-  view->m_groupsTable.Put(aKey, aGroupThread);
-  return PL_DHASH_NEXT;
-}
-
-
 NS_IMETHODIMP
 nsMsgGroupView::CopyDBView(nsMsgDBView *aNewMsgDBView, nsIMessenger *aMessengerInstance, 
                                        nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCmdUpdater)
@@ -488,8 +479,11 @@ nsMsgGroupView::CopyDBView(nsMsgDBView *aNewMsgDBView, nsIMessenger *aMessengerI
   nsMsgGroupView* newMsgDBView = (nsMsgGroupView *) aNewMsgDBView;
 
   // If grouped, we need to clone the group thread hash table.
-  if (m_viewFlags & nsMsgViewFlagsType::kGroupBySort)
-    m_groupsTable.EnumerateRead(GroupTableCloner, newMsgDBView);
+  if (m_viewFlags & nsMsgViewFlagsType::kGroupBySort) {
+    for (auto iter = m_groupsTable.Iter(); !iter.Done(); iter.Next()) {
+      newMsgDBView->m_groupsTable.Put(iter.Key(), iter.UserData());
+    }
+  }
   return NS_OK;
 }
 

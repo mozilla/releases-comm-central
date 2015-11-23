@@ -6334,14 +6334,6 @@ bool nsMsgIMAPFolderACL::SetFolderRightsForUser(const nsACString& userName, cons
   return true;
 }
 
-static PLDHashOperator fillArrayWithKeys(const nsACString& key,
-        const nsCString data, void* userArg)
-{
-  nsTArray<nsCString>* array = static_cast<nsTArray<nsCString>*>(userArg);
-  array->AppendElement(key);
-  return PL_DHASH_NEXT;
-}
-
 NS_IMETHODIMP nsImapMailFolder::GetOtherUsersWithAccess(
         nsIUTF8StringEnumerator** aResult)
 {
@@ -6390,8 +6382,9 @@ AdoptUTF8StringEnumerator::GetNext(nsACString& aResult)
 nsresult nsMsgIMAPFolderACL::GetOtherUsers(nsIUTF8StringEnumerator** aResult)
 {
   nsTArray<nsCString>* resultArray = new nsTArray<nsCString>;
-  // Note: make cast in fillArrayWithKeys() match
-  m_rightsHash.EnumerateRead(fillArrayWithKeys, resultArray);
+  for (auto iter = m_rightsHash.Iter(); !iter.Done(); iter.Next()) {
+    resultArray->AppendElement(iter.Key());
+  }
 
   // enumerator will free resultArray
   *aResult = new AdoptUTF8StringEnumerator(resultArray);

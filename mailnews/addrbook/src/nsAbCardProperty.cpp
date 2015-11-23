@@ -232,18 +232,13 @@ nsAbSimpleProperty::GetValue(nsIVariant* *aValue)
     return NS_OK;
 }
 
-static PLDHashOperator
-PropertyHashToArrayFunc (const nsACString &aKey, nsIVariant* aData, void *userArg)
-{
-  nsCOMArray<nsIProperty>* propertyArray = static_cast<nsCOMArray<nsIProperty> *>(userArg);
-  propertyArray->AppendObject(new nsAbSimpleProperty(aKey, aData));
-  return PL_DHASH_NEXT;
-}
-
 NS_IMETHODIMP nsAbCardProperty::GetProperties(nsISimpleEnumerator **props)
 {
   nsCOMArray<nsIProperty> propertyArray(m_properties.Count());
-  m_properties.EnumerateRead(PropertyHashToArrayFunc, &propertyArray);
+  for (auto iter = m_properties.Iter(); !iter.Done(); iter.Next()) {
+    propertyArray.AppendObject(new nsAbSimpleProperty(iter.Key(),
+                                                      iter.UserData()));
+  }
   return NS_NewArrayEnumerator(props, propertyArray);
 }
 

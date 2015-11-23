@@ -59,9 +59,6 @@ protected:
   bool GroupViewUsesDummyRow();
   nsresult RebuildView(nsMsgViewFlagsTypeValue viewFlags);
   virtual nsMsgGroupThread *CreateGroupThread(nsIMsgDatabase *db);
-  PR_STATIC_CALLBACK(PLDHashOperator) GroupTableCloner(const nsAString &aKey,
-                                                       nsIMsgThread* aGroupThread,
-                                                       void* aArg);
 
   nsInterfaceHashtable <nsStringHashKey, nsIMsgThread> m_groupsTable;
   PRExplodedTime m_lastCurExplodedTime;

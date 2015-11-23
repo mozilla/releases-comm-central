@@ -227,27 +227,6 @@ NS_IMETHODIMP nsAbBSDirectory::CreateDirectoryByURI(const nsAString &aDisplayNam
 	return rv;
 }
 
-struct GetDirectories
-{
-  GetDirectories(DIR_Server* aServer) : mServer(aServer) { }
-
-  nsCOMArray<nsIAbDirectory> directories;
-  DIR_Server* mServer;
-};
-
-static PLDHashOperator
-GetDirectories_getDirectory(nsISupports *aKey, DIR_Server* aData, void* aClosure)
-{
-  GetDirectories* getDirectories = (GetDirectories*)aClosure;
-
-  if (aData == getDirectories->mServer) {
-    nsCOMPtr<nsIAbDirectory> abDir = do_QueryInterface(aKey);
-    getDirectories->directories.AppendObject(abDir);
-  }
-
-  return PL_DHASH_NEXT;
-}
-
 NS_IMETHODIMP nsAbBSDirectory::DeleteDirectory(nsIAbDirectory *directory)
 {
   NS_ENSURE_ARG_POINTER(directory);
@@ -261,9 +240,20 @@ NS_IMETHODIMP nsAbBSDirectory::DeleteDirectory(nsIAbDirectory *directory)
   if (!server)
     return NS_ERROR_FAILURE;
 
+  struct GetDirectories
+  {
+    GetDirectories(DIR_Server* aServer) : mServer(aServer) { }
+
+    nsCOMArray<nsIAbDirectory> directories;
+    DIR_Server* mServer;
+  };
   GetDirectories getDirectories(server);
-  mServers.EnumerateRead(GetDirectories_getDirectory,
-                         (void*)&getDirectories);
+  for (auto iter = mServers.Iter(); !iter.Done(); iter.Next()) {
+    if (iter.UserData() == getDirectories.mServer) {
+      nsCOMPtr<nsIAbDirectory> abDir = do_QueryInterface(iter.Key());
+      getDirectories.directories.AppendObject(abDir);
+    }
+  }
 
   DIR_DeleteServerFromList(server);
 

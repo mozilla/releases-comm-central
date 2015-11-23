@@ -110,22 +110,14 @@ NS_IMETHODIMP nsMailSimpleProperty::GetValue(nsIVariant* *aValue)
 
 // end nsMailSimpleProperty
 
-static PLDHashOperator
-PropertyHashToArrayFunc (const nsAString &aKey,
-                         nsIVariant* aData,
-                         void *userArg)
-{
-  nsCOMArray<nsIProperty> *propertyArray =
-      static_cast<nsCOMArray<nsIProperty> *>(userArg);
-  nsMailSimpleProperty *sprop = new nsMailSimpleProperty(aKey, aData);
-  propertyArray->AppendObject(sprop);
-  return PL_DHASH_NEXT;
-}
-
 NS_IMETHODIMP nsMsgTxn::GetEnumerator(nsISimpleEnumerator* *_retval)
 {
   nsCOMArray<nsIProperty> propertyArray;
-  mPropertyHash.EnumerateRead(PropertyHashToArrayFunc, &propertyArray);
+  for (auto iter = mPropertyHash.Iter(); !iter.Done(); iter.Next()) {
+    nsMailSimpleProperty *sprop = new nsMailSimpleProperty(iter.Key(),
+                                                           iter.Data());
+    propertyArray.AppendObject(sprop);
+  }
   return NS_NewArrayEnumerator(_retval, propertyArray);
 }
 
