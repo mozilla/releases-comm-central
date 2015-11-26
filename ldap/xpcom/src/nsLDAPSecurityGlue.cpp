@@ -174,7 +174,7 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
     //
     rv = tlsSocketProvider->AddToSocket(PR_AF_INET,
                                         sessionClosure->hostname, defport,
-                                        nullptr, 0, 0, socketInfo.soinfo_prfd,
+                                        nullptr, 0, socketInfo.soinfo_prfd,
                                         getter_AddRefs(securityInfo));
     if (NS_FAILED(rv)) {
 	NS_ERROR("nsLDAPSSLConnect(): unable to add SSL layer to socket");
