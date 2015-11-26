@@ -106,7 +106,7 @@ var FeedUtils = {
 
 /**
  * Get all rss account servers rootFolders.
- * 
+ *
  * @return array of nsIMsgIncomingServer (empty array if none).
  */
   getAllRssServerRootFolders: function() {
@@ -128,7 +128,7 @@ var FeedUtils = {
 
 /**
  * Create rss account.
- * 
+ *
  * @param  string [aName] - optional account name to override default.
  * @return nsIMsgAccount.
  */
@@ -184,7 +184,7 @@ var FeedUtils = {
  * Helper routine that checks our subscriptions list array and returns
  * true if the url is already in our list.  This is used to prevent the
  * user from subscribing to the same feed multiple times for the same server.
- * 
+ *
  * @param  string aUrl                  - the url.
  * @param  nsIMsgIncomingServer aServer - account server.
  * @return boolean                      - true if exists else false.
@@ -675,7 +675,8 @@ var FeedUtils = {
     try {
       // Valid urls with an icon image gecko cannot render will cause a throw.
       FeedUtils.mFaviconService.setAndFetchFaviconForPage(
-        uri, iconUri, false, FeedUtils.mFaviconService.FAVICON_LOAD_NON_PRIVATE);
+        uri, iconUri, false, FeedUtils.mFaviconService.FAVICON_LOAD_NON_PRIVATE,
+        null, Services.scriptSecurityManager.getSystemPrincipal());
     }
     catch (ex) {}
 
@@ -736,7 +737,8 @@ var FeedUtils = {
         }
 
         FeedUtils.mFaviconService.setAndFetchFaviconForPage(
-          uri, iconUri, false, FeedUtils.mFaviconService.FAVICON_LOAD_NON_PRIVATE);
+          uri, iconUri, false, FeedUtils.mFaviconService.FAVICON_LOAD_NON_PRIVATE,
+          null, Services.scriptSecurityManager.getSystemPrincipal());
         if (aCallback)
           aCallback(iconUri.spec, responseDomain, aArg);
       }
@@ -1193,7 +1195,7 @@ var FeedUtils = {
  * Dragging something from somewhere.  It may be a nice x-moz-url or from a
  * browser or app that provides a less nice dataTransfer object in the event.
  * Extract the url and if it passes the scheme test, try to subscribe.
- * 
+ *
  * @param  nsIDOMDataTransfer aDataTransfer  - the dnd event's dataTransfer.
  * @return nsIURI uri                        - a uri if valid, null if none.
  */
@@ -1240,10 +1242,10 @@ var FeedUtils = {
 
     return validUri ? uri : null;
   },
- 
+
 /**
  * Returns if a uri/url is valid to subscribe.
- * 
+ *
  * @param  nsIURI aUri or string aUrl  - the Uri/Url.
  * @return boolean                     - true if a valid scheme, false if not.
  */
@@ -1263,7 +1265,7 @@ var FeedUtils = {
 
 /**
  * Is a folder Trash or in Trash.
- * 
+ *
  * @param  nsIMsgFolder aFolder   - the folder.
  * @return boolean                - true if folder is Trash else false.
  */
@@ -1279,7 +1281,7 @@ var FeedUtils = {
 /**
  * Return a folder path string constructed from individual folder UTF8 names
  * stored as properties (not possible hashes used to construct disk foldername).
- * 
+ *
  * @param  nsIMsgFolder aFolder     - the folder.
  * @return string prettyName | null - name or null if not a disk folder.
  */
@@ -1516,7 +1518,7 @@ var FeedUtils = {
       // yet and the avg progress we've already received for existing feeds.
       // Fortunately the progressmeter is on a timer and only updates every so
       // often.  For the most part all of our request have initial progress
-      // before the UI actually picks up a progress value. 
+      // before the UI actually picks up a progress value.
       if (this.mStatusFeedback)
       {
         let progress = (currentProgress * 100) / maxProgress;
