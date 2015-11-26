@@ -18,7 +18,7 @@ DEFINES += -DMOZ_SOURCE_REPO="$(SOURCE_REPO)"
 endif
 
 DEFINES += \
-  -DTHUNDERBIRD_ICO='"$(DIST)/branding/thunderbird.ico"'
+  -DTHUNDERBIRD_ICO='"$(DIST)/branding/thunderbird.ico"' \
    $(NULL)
 
 # Build a binary bootstrapping with XRE_main
