@@ -19,7 +19,6 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
 var url = collector.addHttpResource('../content-tabs/html', 'content-tabs');
-var siteRegExp = new RegExp("^" + url);
 
 var gNewTab;
 var gNotificationBox;
@@ -89,7 +88,7 @@ function click_install_link_and_wait_for_alert(link) {
 function test_setup() {
   gNewTab =
     open_content_tab_with_url(url + "installxpi.html",
-                              "specialTabs.siteClickHandler(event, siteRegExp);");
+      "specialTabs.siteClickHandler(event, new RegExp('^" + url + "'));");
 
   // make the animation only take one frame
   gNotificationBox =
