@@ -444,9 +444,14 @@ function GetAddressesForCards(cards)
 
 function SelectFirstAddressBook()
 {
-  gDirTree.view.selection.select(0);
-
-  ChangeDirectoryByURI(GetSelectedDirectory());
+  if (gDirTree.view.selection.currentIndex != 0) {
+    gDirTree.view.selection.select(0);
+    // If gPreviousDirTreeIndex == 0 then DirPaneSelectionChange() and
+    // ChangeDirectoryByURI() have already been run
+    // (e.g. by the onselect event on the tree) so skip the call.
+    if (gPreviousDirTreeIndex != 0)
+      ChangeDirectoryByURI(GetSelectedDirectory());
+  }
   gAbResultsTree.focus();
 }
 
@@ -483,7 +488,7 @@ function DirPaneSelectionChange()
 {
   let uri = GetSelectedDirectory();
   // clear out the search box when changing folders...
-  onAbClearSearch();
+  onAbClearSearch(false);
   if (gDirTree && gDirTree.view.selection && gDirTree.view.selection.count == 1) {
     gPreviousDirTreeIndex = gDirTree.currentIndex;
     ChangeDirectoryByURI(uri);
@@ -501,7 +506,8 @@ function ChangeDirectoryByURI(uri = kPersonalAddressbookURI)
 {
   SetAbView(uri);
 
-  // Actively de-selecting if there are any pre-existing selections.
+  // Actively de-selecting if there are any pre-existing selections
+  // in the results list.
   if (gAbView && gAbView.getCardFromRow(0))
     gAbView.selection.clearSelection();
   else
@@ -642,13 +648,22 @@ function GetSelectedDirectory()
   }
 }
 
-function onAbClearSearch()
+/**
+ * Clears the contents of the search input field,
+ * possibly causing refresh of results.
+ *
+ * @param aRefresh  Set to false if the refresh isn't needed,
+ *                  e.g. window/AB is going away so user will not see anything.
+ */
+function onAbClearSearch(aRefresh = true)
 {
-  var searchInput = document.getElementById("peopleSearchInput");
-  if (searchInput)
-    searchInput.value = "";
+  let searchInput = document.getElementById("peopleSearchInput");
+  if (!searchInput || !searchInput.value)
+    return;
 
-  onEnterInSearchBar();
+  searchInput.value = "";
+  if (aRefresh)
+    onEnterInSearchBar();
 }
 
 // sets focus into the quick search box

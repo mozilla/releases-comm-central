@@ -88,7 +88,7 @@ function AddressBookMenuListChange()
 function AbPanelOnComposerClose()
 {
   CloseAbView();
-  onAbClearSearch();
+  onAbClearSearch(false);
 }
 
 function AbPanelOnComposerReOpen()
