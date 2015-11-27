@@ -375,8 +375,6 @@ private:
   virtual ~nsMsgComposeAndSend();
   nsresult FilterSentMessage();
   nsresult MaybePerformSecondFCC(nsresult aStatus);
-  // will set m_attachment1_body & m_attachment1_body_length;
-  nsresult EnsureLineBreaks(const nsCString &aBody);
 
   // generates a message id for our message, if necessary
   void GenerateMessageId( );

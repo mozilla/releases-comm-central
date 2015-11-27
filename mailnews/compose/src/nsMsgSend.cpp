@@ -430,6 +430,7 @@ nsMsgComposeAndSend::GatherMimeAttachments()
   char *buffer = 0;
   nsString msg;
   bool body_is_us_ascii = true;
+  bool isUsingQP = false;
 
   nsMsgSendPart* toppart = nullptr;      // The very top most container of the message
                       // that we are going to send.
@@ -594,22 +595,44 @@ nsMsgComposeAndSend::GatherMimeAttachments()
   if (NS_FAILED(status))
     goto FAIL;
 
-  /*
-    Determine the encoding of the main message body before we free it.
-    The proper way to do this should be to test whatever text is in mainbody
-    just before writing it out, but that will require a fix that is less safe
-    and takes more memory. */
+  // Determine the encoding of the main message body before we free it.
   PR_FREEIF(m_attachment1_encoding);
   if (m_attachment1_body)
     mCompFields->GetBodyIsAsciiOnly(&body_is_us_ascii);
 
   if (!mCompFields->GetForceMsgEncoding() && (body_is_us_ascii ||
-      nsMsgI18Nstateful_charset(mCompFields->GetCharacterSet())))
+      nsMsgI18Nstateful_charset(mCompFields->GetCharacterSet()))) {
     m_attachment1_encoding = PL_strdup (ENCODING_7BIT);
-  else if (mime_use_quoted_printable_p)
+  } else if (mime_use_quoted_printable_p) {
     m_attachment1_encoding = PL_strdup (ENCODING_QUOTED_PRINTABLE);
-  else
+    isUsingQP = true;
+  } else {
     m_attachment1_encoding = PL_strdup (ENCODING_8BIT);
+  }
+
+  // Make sure the lines don't get to long.
+  if (m_attachment1_body) {
+    uint32_t max_column = 0;
+    uint32_t cur_column = 0;
+    for (char* c = m_attachment1_body; *c; c++) {
+      if (*c == '\n') {
+        if (cur_column > max_column)
+          max_column = cur_column;
+        cur_column = 0;
+      } else if (*c != '\r') {
+        cur_column++;
+      }
+    }
+    // Check one last time for the last line.
+    if (cur_column > max_column)
+      max_column = cur_column;
+    if (max_column > 900 && !isUsingQP) {
+      // To encode "long lines" use a CTE that will transmit shorter lines.
+      // Switch to base64 if we are not already using "quoted printable".
+      PR_FREEIF(m_attachment1_encoding);
+      m_attachment1_encoding = PL_strdup (ENCODING_BASE64);
+    }
+  }
   PR_FREEIF (m_attachment1_body);
 
   maincontainer = mainbody;
@@ -722,7 +745,8 @@ nsMsgComposeAndSend::GatherMimeAttachments()
       if (!m_attachment1_type)
         goto FAILMEM;
 
-      /* Override attachment1_encoding here. */
+      // Override attachment1_encoding here. We do this blindly since we are
+      // sending plaintext only at this point.
       PR_FREEIF(m_attachment1_encoding);
       m_attachment1_encoding = ToNewCString(m_plaintext->m_encoding);
     }
@@ -1630,91 +1654,6 @@ nsMsgComposeAndSend::GetBodyFromEditor()
   rv = SnarfAndCopyBody(attachment1_body, TEXT_HTML);
 
   return rv;
-}
-
-// for SMTP, 16k
-// for our internal protocol buffers, 4k
-// for news < 1000
-// so we choose the minimum, because we could be sending and posting this message.
-// Use the exact value, because preceding steps might have trimmed the length
-// close to it, and here e.g. we run the risk of breaking UTF-8 pairs in half.
-// See #684508
-#define LINE_BREAK_MAX (1000 - MSG_LINEBREAK_LEN)
-
-// EnsureLineBreaks() will set m_attachment1_body and m_attachment1_body_length
-nsresult
-nsMsgComposeAndSend::EnsureLineBreaks(const nsCString &aBody)
-{
-  const char *body = aBody.get();
-  uint32_t bodyLen = aBody.Length();
-
-  uint32_t i;
-  uint32_t charsSinceLineBreak = 0;
-  uint32_t lastPos = 0;
-
-
-  char *newBody = nullptr;
-  char *newBodyPos = nullptr;
-
-  // the most common way to get into the state where we have to insert
-  // linebreaks is when we do HTML reply and we quote large <pre> blocks.
-  // see #83381 and #84261
-  //
-  // until #67334 is fixed, we'll be replacing newlines with <br>, which can lead
-  // to large quoted <pre> blocks without linebreaks.
-  // this hack makes it so we can at least save (as draft or template) and send or post
-  // the message.
-  //
-  // XXX TODO
-  // march backwards and determine the "best" place for the linebreak
-  // for example, we don't want <a hrLINEBREAKref=""> or <bLINEBREAKr>
-  // or "MississLINEBREAKippi"
-  for (i = 0; i < bodyLen-1; i++) {
-    if (strncmp(body+i, MSG_LINEBREAK, MSG_LINEBREAK_LEN)) {
-      charsSinceLineBreak++;
-      if (charsSinceLineBreak == LINE_BREAK_MAX) {
-        if (!newBody) {
-          // in the worse case, the body will be solid, no linebreaks.
-          // that will require us to insert a line break every LINE_BREAK_MAX bytes
-          uint32_t worstCaseLen = bodyLen+((bodyLen/LINE_BREAK_MAX)*MSG_LINEBREAK_LEN)+1;
-          newBody = (char *) PR_Calloc(1, worstCaseLen);
-          if (!newBody) return NS_ERROR_OUT_OF_MEMORY;
-          newBodyPos = newBody;
-        }
-
-        PL_strncpy(newBodyPos, body+lastPos, i - lastPos + 1);
-        newBodyPos += i - lastPos + 1;
-        PL_strncpy(newBodyPos, MSG_LINEBREAK, MSG_LINEBREAK_LEN);
-        newBodyPos += MSG_LINEBREAK_LEN;
-
-        lastPos = i+1;
-        charsSinceLineBreak = 0;
-      }
-    }
-    else {
-      // found a linebreak
-      charsSinceLineBreak = 0;
-    }
-  }
-
-  // if newBody is non-null is non-zero, we inserted a linebreak
-  if (newBody) {
-      // don't forget about part after the last linebreak we inserted
-     PL_strncpy(newBodyPos, body+lastPos, bodyLen - lastPos);
-
-     m_attachment1_body = newBody;
-     m_attachment1_body_length = PL_strlen(newBody);  // not worstCaseLen
-  }
-  else {
-     // body did not require any additional linebreaks, so just use it
-     // body will not have any null bytes, so we can use PL_strdup
-     m_attachment1_body = PL_strdup(body);
-     if (!m_attachment1_body) {
-      return NS_ERROR_OUT_OF_MEMORY;
-     }
-     m_attachment1_body_length = bodyLen;
-  }
-  return NS_OK;
 }
 
 //
@@ -2995,9 +2934,11 @@ nsMsgComposeAndSend::SnarfAndCopyBody(const nsACString &attachment1_body,
 
   if (body.Length() > 0)
   {
-    // will set m_attachment1_body and m_attachment1_body_length
-    nsresult rv = EnsureLineBreaks(body);
-    NS_ENSURE_SUCCESS(rv, rv);
+    m_attachment1_body = ToNewCString(body);
+    if (!m_attachment1_body) {
+      return NS_ERROR_OUT_OF_MEMORY;
+    }
+    m_attachment1_body_length = body.Length();
   }
 
   PR_FREEIF(m_attachment1_type);
