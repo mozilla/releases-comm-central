@@ -3079,6 +3079,7 @@ nsMsgComposeAndSend::Init(
   if (!mEditor)
   {
     SnarfAndCopyBody(attachment1_body, attachment1_type);
+    mOriginalHTMLBody = ToNewCString(attachment1_body);
   }
   else if (GetMultipartRelatedCount() == 0) // Only do this if there are not embedded objects
   {
