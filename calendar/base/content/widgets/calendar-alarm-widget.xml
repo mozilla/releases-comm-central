@@ -341,7 +341,7 @@
                                                   [unitPlural]);
           okButton.setAttribute("aria-label", accessibleString);
 
-          let items = unitPopup.getElementsByTagName("xul:menuitem");
+          let items = unitPopup.getElementsByTagName("menuitem");
           for (let menuItem of items) {
               pluralString = cal.calGetString("calendar", unitName(menuItem));
               menuItem.label = PluralForm.get(unitValue.value, pluralString)
