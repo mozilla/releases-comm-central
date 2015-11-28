@@ -217,7 +217,7 @@
         <button id="close"
                 label="&button.close.label;"
                 icon="close"
-                oncommand="window.close();"/>
+                oncommand="if (FeedSubscriptions.onClose()) window.close();"/>
       </hbox>
     </hbox>
   </vbox>

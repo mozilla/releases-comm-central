@@ -1832,13 +1832,9 @@ var FeedSubscriptions = {
   // Listener for folder pane changes.
   FolderListener: {
     get feedWindow() {
-      if (this._feedWindow)
-        return this._feedWindow;
       let subscriptionsWindow =
         Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
-      if (subscriptionsWindow)
-        return this._feedWindow = subscriptionsWindow.FeedSubscriptions;
-      return null;
+      return subscriptionsWindow ? subscriptionsWindow.FeedSubscriptions : null;
     },
 
     get currentSelectedIndex() {
@@ -1858,11 +1854,11 @@ var FeedSubscriptions = {
       let parentFolder = aFolder.isServer ? aFolder : aFolder.parent;
       FeedUtils.log.debug("folderAdded: folder:parent - " + aFolder.name + ":" +
                           (parentFolder ? parentFolder.filePath.path : "(null)"));
-      let feedWindow = this.feedWindow;
 
-      if (!parentFolder)
+      if (!parentFolder || !this.feedWindow))
         return;
 
+      let feedWindow = this.feedWindow;
       let curSelIndex = this.currentSelectedIndex;
       let curSelItem = this.currentSelectedItem;
       let firstVisRow = feedWindow.mView.treeBox.getFirstVisibleRow();
@@ -1919,6 +1915,9 @@ var FeedSubscriptions = {
         return;
 
       FeedUtils.log.debug("folderDeleted: folder - " + aFolder.name);
+      if (!this.feedWindow)
+        return;
+
       let feedWindow = this.feedWindow;
       let curSelIndex = this.currentSelectedIndex;
       let indexInView = feedWindow.mView.getItemInViewIndex(aFolder);
@@ -1944,6 +1943,9 @@ var FeedSubscriptions = {
 
       FeedUtils.log.debug("folderRenamed: old:new - " +
                           aOrigFolder.name + ":" + aNewFolder.name);
+      if (!this.feedWindow)
+        return;
+
       let feedWindow = this.feedWindow;
       let curSelIndex = this.currentSelectedIndex;
       let curSelItem = this.currentSelectedItem;
@@ -1991,6 +1993,9 @@ var FeedSubscriptions = {
 
       FeedUtils.log.debug("folderMoveCopyCompleted: move:src:dest - " +
                           aMove + ":" + aSrcFolder.name + ":" + aDestFolder.name);
+      if (!this.feedWindow)
+        return;
+
       let feedWindow = this.feedWindow;
       let curSelIndex = this.currentSelectedIndex;
       let curSelItem = this.currentSelectedItem;
