@@ -62,7 +62,7 @@
                      timeout="200"
                      maxlength="192"
                      placeholder=""
-                     emptytextbase="&search.label.base;"
+                     emptytextbase="&search.label.base1;"
                      keyLabelNonMac="&search.keyLabel.nonmac;"
                      keyLabelMac="&search.keyLabel.mac;">
               <hbox>

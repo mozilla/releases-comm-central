@@ -187,6 +187,8 @@ classic.jar:
   skin/classic/messenger/icons/toolbarbutton-dropmarker-lion@2x.png (mail/icons/toolbarbutton-dropmarker-lion@2x.png)
   skin/classic/messenger/icons/readcol.png                       (mail/icons/readcol.png)
   skin/classic/messenger/icons/readmail.png                      (mail/icons/readmail.png)
+  skin/classic/messenger/icons/search-indicator.png              (mail/icons/search-indicator.png)
+  skin/classic/messenger/icons/search-indicator@2x.png           (mail/icons/search-indicator@2x.png)
   skin/classic/messenger/icons/secure.png                        (mail/icons/secure.png)
   skin/classic/messenger/icons/server.png                        (mail/icons/server.png)
   skin/classic/messenger/icons/server@2x.png                     (mail/icons/server@2x.png)

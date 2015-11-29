@@ -5,29 +5,94 @@
 */
 
 .quick-search-button-image {
-  padding: 0px;
+  padding: 0;
 }
 
-/* it looks like appearance: searchfield gets us our search icon... */
 #searchInput,
 .remote-gloda-search {
-  margin: 3px 4px 4px !important;
-  -moz-appearance: searchfield;
+  margin-top: 3px;
+  -moz-appearance: none;
   font: icon;
-  height: 22px !important;
+  height: 24px;
+  box-shadow: 0 1px rgba(255, 255, 255, 0.2), inset 0 1px hsla(0, 0%, 0%, 0.05);
+  padding: 1px;
+  border: 1px solid;
+  border-color: #626262 #787878 #8c8c8c;
+  border-radius: 10000px;
+  background-clip: padding-box;
 }
 
-#searchInput > .textbox-input-box,
-.remote-gloda-search > .textbox-input-box {
-  border: none;
-  padding-top: 1px;
-  height: 21px !important;
-  margin: 0 !important;
+@media (-moz-mac-lion-theme) {
+  #searchInput,
+  .remote-gloda-search {
+    background-image: linear-gradient(hsl(0, 0%, 97%), hsl(0, 0%, 100%));
+    border-color: hsla(0, 0%, 0%, 0.35) hsla(0, 0%, 0%, 0.25) hsla(0, 0%, 0%, 0.15);
+    box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.2),
+                inset 0 0 1px hsla(0, 0%, 0%, 0.05),
+                inset 0 1px 2px hsla(0, 0%, 0%, 0.1);
+  }
+}
+
+@media not all and (-moz-mac-lion-theme) {
+  #searchInput:-moz-window-inactive,
+  .remote-gloda-search:-moz-window-inactive {
+    border-color: rgba(146, 146, 146, 0.84);
+  }
+}
+
+@media (-moz-mac-yosemite-theme) {
+  #searchInput,
+  .remote-gloda-search {
+    border-color: #fff;
+    border-radius: 3px;
+    box-shadow: 0 0.5px 0 0 rgba(0, 0, 0, 0.2);
+    background-image: none;
+  }
+
+  .remote-gloda-search:-moz-window-inactive,
+  #searchInput:-moz-window-inactive {
+    box-shadow: none;
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+#searchInput[focused="true"],
+.remote-gloda-search[focused="true"] {
+  border-color: -moz-mac-focusring;
+  box-shadow: 0 0 1px -moz-mac-focusring inset, 0 0 4px 1px -moz-mac-focusring,
+              0 0 1.5px 1px -moz-mac-focusring;
 }
 
 #searchInput:-moz-lwtheme:not([focused="true"]),
 .remote-gloda-search:-moz-lwtheme:not([focused="true"]) {
   opacity: .9;
+}
+
+#searchInput > .autocomplete-textbox-container > .textbox-input-box:before,
+.remote-gloda-search > .autocomplete-textbox-container > .textbox-input-box:before {
+  /* Because of bug 853415, we need to ordinal this to the first position: */
+  -moz-box-ordinal-group: 0;
+  content: '';
+  display: block;
+  -moz-box-align: center;
+  width: 16px;
+  height: 20px;
+  margin-inline-end: 4px;
+  background-image: url("chrome://messenger/skin/icons/search-indicator.png");
+  background-size: 16px 20px;
+}
+
+@media (min-resolution: 2dppx) {
+  #searchInput > .autocomplete-textbox-container > .textbox-input-box:before,
+  .remote-gloda-search > .autocomplete-textbox-container > .textbox-input-box:before {
+    background-image: url("chrome://messenger/skin/icons/search-indicator@2x.png");
+    background-size: 16px 20px;
+  }
+}
+
+#searchInput:-moz-locale-dir(rtl) > .autocomplete-textbox-container > .textbox-input-box:before,
+.remote-gloda-search:-moz-locale-dir(rtl) > .autocomplete-textbox-container > .textbox-input-box:before {
+  transform: scaleX(-1);
 }
 
 .remote-gloda-search-container {
