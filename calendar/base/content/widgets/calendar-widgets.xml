@@ -601,7 +601,7 @@
     </implementation>
 
     <handlers>
-      <handler event="dragstart"><![CDATA[
+      <handler event="dragstart" phase="capturing"><![CDATA[
          let draggedDOMNode = event.target;
          if (!draggedDOMNode || draggedDOMNode.parentNode != this) {
              return;
