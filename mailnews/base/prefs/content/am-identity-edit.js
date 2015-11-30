@@ -15,6 +15,16 @@ function onLoadIdentityProperties()
   gIdentity = window.arguments[0].identity;
   gAccount = window.arguments[0].account;
 
+  // Make the dialog the same width as the main Account manager page
+  // so that the identity/copies & folders are the same width as
+  // the user set them by resizing the AM dialog.
+  let accountDialog = Services.wm.getMostRecentWindow("mailnews:accountmanager")
+                              .document;
+  if (accountDialog.documentElement.getAttribute("sizemode") == "normal") {
+    document.getElementById("identityTabsPanels").style.width =
+      accountDialog.getElementById("contentFrame").clientWidth + "px";
+  }
+
   loadSMTPServerList();
 
   initIdentityValues(gIdentity);
