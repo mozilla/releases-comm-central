@@ -42,6 +42,7 @@
 #include "nsMsgMessageFlags.h"
 #include "nsMsgBaseCID.h"
 #include "nsIProxyInfo.h"
+#include "nsCRT.h"
 #include "mozilla/Services.h"
 #include "mozilla/Logging.h"
 
@@ -651,11 +652,10 @@ void nsPop3Protocol::UpdateStatusWithString(const char16_t *aStatusString)
     }
 }
 
-void nsPop3Protocol::UpdateProgressPercent (uint32_t totalDone, uint32_t total)
+void nsPop3Protocol::UpdateProgressPercent(int64_t totalDone, int64_t total)
 {
-  // XXX 64-bit
   if (mProgressEventSink)
-    mProgressEventSink->OnProgress(this, m_channelContext, uint64_t(totalDone), uint64_t(total));
+    mProgressEventSink->OnProgress(this, m_channelContext, totalDone, total);
 }
 
 // note:  SetUsername() expects an unescaped string
@@ -2305,7 +2305,7 @@ nsPop3Protocol::GetStat()
     num = NS_strtok(" ", &newStr);
     m_commandResponse = newStr;
     if (num)
-      m_totalFolderSize = (int32_t) atol(num);  //we always initialize m_totalFolderSize to 0
+      m_totalFolderSize = nsCRT::atoll(num);  //we always initialize m_totalFolderSize to 0
   }
   else
     m_pop3ConData->number_of_messages = 0;
@@ -3194,9 +3194,6 @@ nsPop3Protocol::RetrResponse(nsIInputStream* inputStream,
     int32_t flags = 0;
     char *uidl = NULL;
     nsresult rv;
-#if 0
-    int32_t old_bytes_received = m_totalBytesReceived;
-#endif
     uint32_t status = 0;
 
     if(m_pop3ConData->cur_msg_size == -1)
@@ -3401,8 +3398,8 @@ nsPop3Protocol::RetrResponse(nsIInputStream* inputStream,
         /* if we didn't get the whole message add the bytes that we didn't get
            to the bytes received part so that the progress percent stays sane.
            */
-        if(m_bytesInMsgReceived < m_pop3ConData->cur_msg_size)
-            m_totalBytesReceived += (m_pop3ConData->cur_msg_size -
+        if (m_bytesInMsgReceived < m_pop3ConData->cur_msg_size)
+          m_totalBytesReceived += (m_pop3ConData->cur_msg_size -
                                    m_bytesInMsgReceived);
     }
 

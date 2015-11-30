@@ -293,7 +293,7 @@ private:
   nsCString m_passwordResult;
 
   // progress state information
-  void UpdateProgressPercent (uint32_t totalDone, uint32_t total);
+  void UpdateProgressPercent(int64_t totalDone, int64_t total);
   void UpdateStatus(const char16_t *aStatusName);
   void UpdateStatusWithString(const char16_t *aString);
   nsresult FormatCounterString(const nsString &stringName,
@@ -301,12 +301,12 @@ private:
                                uint32_t count2,
                                nsString &resultString);
 
-  int32_t  m_bytesInMsgReceived;
-  int32_t  m_totalFolderSize;
-  int32_t  m_totalDownloadSize; /* Number of bytes we're going to
-                                    download.  Might be much less
-                                    than the total_folder_size. */
-  int32_t m_totalBytesReceived; // total # bytes received for the connection
+  int32_t m_bytesInMsgReceived;
+  int64_t m_totalFolderSize;
+  int64_t m_totalDownloadSize;  /* Number of bytes we're going to
+                                   download.  Might be much less
+                                   than the total_folder_size. */
+  int64_t m_totalBytesReceived; // total # bytes received for the connection
 
   virtual nsresult ProcessProtocolState(nsIURI * url, nsIInputStream * inputStream,
                                         uint64_t sourceOffset, uint32_t length) override;
