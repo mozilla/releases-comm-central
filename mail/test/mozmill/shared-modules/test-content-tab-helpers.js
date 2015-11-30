@@ -235,10 +235,11 @@ function plan_for_content_tab_load(aTab) {
  * Note that you cannot call |plan_for_content_tab_load| if you're opening a new
  * tab. That is fine, because pageLoaded is initially false.
  *
- * @param [aTab] optional tab, defaulting to the current tab.
- * @param aURL The URL being loaded in the tab.
+ * @param [aTab]      Optional tab, defaulting to the current tab.
+ * @param aURL        The URL being loaded in the tab.
+ * @param [aTimeout]  Optional time to wait for the load.
  */
-function wait_for_content_tab_load(aTab, aURL) {
+function wait_for_content_tab_load(aTab, aURL, aTimeout) {
   if (aTab === undefined)
     aTab = mc.tabmail.currentTabInfo;
 
@@ -251,9 +252,9 @@ function wait_for_content_tab_load(aTab, aURL) {
   }
 
   utils.waitFor(isLoadedChecker,
-                "Timeout waiting for the content tab page to load.");
-  // the above may return immediately, meaning the event queue might not get a
-  //  chance.  give it a chance now.
+                "Timeout waiting for the content tab page to load.", aTimeout);
+  // The above may return immediately, meaning the event queue might not get a
+  // chance. Give it a chance now.
   mc.sleep(0);
   // Finally, require that the tab's browser thinks that no page is being loaded.
   wh.wait_for_browser_load(aTab.browser, aURL);
