@@ -506,14 +506,6 @@ calIcalComponent::AddTimezoneReference(calITimezone *aTimezone)
     return NS_OK;
 }
 
-static PLDHashOperator
-TimezoneHashToTimezoneArray(nsACString const& /*tzid*/, calITimezone * tz, void * arg)
-{
-    calITimezone *** const arrayPtr = static_cast<calITimezone ***>(arg);
-    NS_ADDREF(**arrayPtr = tz);
-    ++(*arrayPtr);
-    return PL_DHASH_NEXT;
-}
 
 NS_IMETHODIMP
 calIcalComponent::GetReferencedTimezones(uint32_t * aCount, calITimezone *** aTimezones)
@@ -533,7 +525,10 @@ calIcalComponent::GetReferencedTimezones(uint32_t * aCount, calITimezone *** aTi
     CAL_ENSURE_MEMORY(timezones);
     // tzptr will get used as an iterator by the enumerator function
     calITimezone ** tzptr = timezones;
-    mReferencedTimezones.EnumerateRead(TimezoneHashToTimezoneArray, &tzptr);
+    for (auto iter = mReferencedTimezones.ConstIter(); !iter.Done(); iter.Next() ) {
+        NS_ADDREF(*tzptr = iter.Data());
+        ++tzptr;
+    }
 
     *aTimezones = timezones;
     *aCount = count;
@@ -977,17 +972,6 @@ void calIcalComponent::ClearAllProperties(icalproperty_kind kind)
     }
 }
 
-static PLDHashOperator
-AddTimezoneComponentToIcal(nsACString const& /*tzid*/, calITimezone * tz, void * arg)
-{
-    icalcomponent * const comp = static_cast<icalcomponent *>(arg);
-    icaltimezone * icaltz = cal::getIcalTimezone(tz);
-    if (icaltz) {
-        icalcomponent * const tzcomp = icalcomponent_new_clone(icaltimezone_get_component(icaltz));
-        icalcomponent_add_component(comp, tzcomp);
-    }
-    return PL_DHASH_NEXT;
-}
 
 NS_IMETHODIMP
 calIcalComponent::SerializeToICS(nsACString &serialized)
@@ -1037,7 +1021,13 @@ calIcalComponent::Serialize(char **icalstr)
 
     // add the timezone bits
     if (icalcomponent_isa(mComponent) == ICAL_VCALENDAR_COMPONENT && mReferencedTimezones.Count() > 0) {
-        mReferencedTimezones.EnumerateRead(AddTimezoneComponentToIcal, mComponent);
+        for (auto iter = mReferencedTimezones.ConstIter(); !iter.Done(); iter.Next() ) {
+            icaltimezone * icaltz = cal::getIcalTimezone(iter.Data());
+            if (icaltz) {
+                icalcomponent * const tzcomp = icalcomponent_new_clone(icaltimezone_get_component(icaltz));
+                icalcomponent_add_component(mComponent, tzcomp);
+            }
+        }
     }
 
     *icalstr = icalcomponent_as_ical_string(mComponent);
