@@ -3,7 +3,6 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .today-subpane {
-  border-color: ThreeDShadow;
   border-style: solid;
   border-width: 1px 0;
   margin-bottom: 3px;
@@ -41,12 +40,6 @@
   background-color: -moz-Dialog;
 }
 
-#mini-day-image {
-  background-image: linear-gradient(transparent, transparent 48%,
-                    rgba(0, 0, 0, .02) 52%, rgba(0, 0, 0, .1));
-}
-
-#mini-day-box,
 #today-minimonth-box {
   background-color: -moz-field;
 }
@@ -59,13 +52,13 @@
 }
 
 .monthlabel {
-  -moz-margin-end: 0px;
+  margin-inline-end: 0;
 }
 
 .dateValue {
   font-family: Arial, Helvetica, Trebuchet MS, Lucida Grande, sans-serif;
-  margin-top: 0px;
-  padding-top: 0px;
+  margin-top: initial;
+  margin-bottom: initial;
   font-size: 36px;
   font-weight: bold;
   width: 1em;

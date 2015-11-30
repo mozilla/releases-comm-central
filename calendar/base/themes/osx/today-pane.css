@@ -27,6 +27,18 @@
    display: none;
 }
 
+.today-subpane {
+  border-color: #b8b8b8;
+}
+
+.monthlabel {
+  margin-bottom: 1px;
+}
+
+#mini-day-image {
+  background: linear-gradient(hsl(0, 0%, 93%), hsl(0, 0%, 83%));
+}
+
 #agenda-toolbar {
   background-color: -moz-dialog;
   color: -moz-dialogtext;
@@ -39,6 +51,23 @@
 }
 
 @media (-moz-mac-yosemite-theme) {
+  #today-pane-panel {
+    border-top: solid 1px rgba(0, 0, 0, 0.37);
+  }
+
+  #today-pane-panel:-moz-window-inactive {
+    border-top-color: rgba(0, 0, 0, 0.2);
+    background-color: hsl(0, 0%, 97%);
+  }
+
+  #mini-day-image:-moz-window-inactive {
+    background: linear-gradient(hsl(0, 0%, 97%), hsl(0, 0%, 95%));
+  }
+
+  #agenda-toolbar:-moz-window-inactive {
+    background-color: hsl(0, 0%, 97%);
+  }
+
   #todaypane-new-event-button {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent-flat);
   }

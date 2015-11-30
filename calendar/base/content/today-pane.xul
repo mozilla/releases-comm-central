@@ -84,7 +84,8 @@
                   <image id="mini-day-image" flex="1"/>
                   <hbox flex="1">
                     <stack id="dateContainer">
-                      <hbox pack="center">
+                      <hbox pack="center"
+                            align="center">
                         <label id="datevalue-label" class="dateValue"
                                ondblclick="TodayPane.onDoubleClick(event);"
                                onmousedown="TodayPane.onMousedown(event);"/>
