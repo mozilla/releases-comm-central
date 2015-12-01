@@ -19,7 +19,7 @@ TEST_DIRS += ['../test']
 XPI_NAME = 'lightning'
 export('XPI_NAME')
 
-DIST_FILES += [
+FINAL_TARGET_PP_FILES += [
     'app.ini',
     'install.rdf',
 ]
