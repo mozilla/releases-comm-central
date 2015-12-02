@@ -210,16 +210,6 @@ nsLDAPConnection::Close()
   mInitListener = 0;
 
 }
-/** Get list of pending operation and store pointers to array
-  * \param userArg pointer to nsTArray<nsILDAPOperation*>
-  */
-PLDHashOperator
-GetListOfPendingOperations(const uint32_t &key, nsILDAPOperation *op, void *userArg)
-{
-  nsTArray<nsILDAPOperation*>* pending_operations = static_cast<nsTArray<nsILDAPOperation*>* >(userArg);
-  pending_operations->AppendElement(op);
-  return PL_DHASH_NEXT;
-}
 
 NS_IMETHODIMP
 nsLDAPConnection::Observe(nsISupports *aSubject, const char *aTopic,
@@ -235,7 +225,9 @@ nsLDAPConnection::Observe(nsISupports *aSubject, const char *aTopic,
     nsTArray<nsILDAPOperation*> pending_operations;
     {
       MutexAutoLock lock(mPendingOperationsMutex);
-      mPendingOperations.EnumerateRead(GetListOfPendingOperations, (void *) (&pending_operations));
+      for (auto iter = mPendingOperations.Iter(); !iter.Done(); iter.Next()) {
+        pending_operations.AppendElement(iter.UserData());
+      }
     }
     for (uint32_t i = 0; i < pending_operations.Length(); i++) {
       pending_operations[i]->AbandonExt();
