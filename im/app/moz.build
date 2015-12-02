@@ -49,7 +49,7 @@ if CONFIG['MOZILLA_OFFICIAL']:
 
 DISABLE_STL_WRAPPING = True
 
-JS_PREFERENCE_FILES += [
+JS_PREFERENCE_PP_FILES += [
     'profile/all-instantbird.js',
     'profile/channel-prefs.js',
 ]
