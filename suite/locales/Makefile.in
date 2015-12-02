@@ -62,6 +62,9 @@ SEARCH_PLUGINS_PATH := $(FINAL_TARGET)/searchplugins
 .PHONY: searchplugins
 SEARCH_PLUGINS_TARGET := libs searchplugins
 SEARCH_PLUGINS := $(foreach plugin,$(addsuffix .xml,$(SEARCH_PLUGINS_NAMES)),$(or $(wildcard $(call MERGE_FILE,searchplugins/$(plugin))),$(info Missing searchplugin: $(plugin))))
+# Some locale-specific search plugins may have preprocessor directives, but the
+# default en-US ones do not.
+SEARCH_PLUGINS_FLAGS := --silence-missing-directive-warnings 
 PP_TARGETS += SEARCH_PLUGINS
 
 include $(topsrcdir)/config/rules.mk
