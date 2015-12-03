@@ -305,11 +305,15 @@ NS_MSG_BASE nsresult MsgDetectCharsetFromFile(nsIFile *aFile, nsACString &aChars
  * or may not work with certain end charsets which is why we
  * need that as an argument to the function. If charset is
  * unknown or deemed of no importance NULL could be passed.
- * @param[in/out] aConBuf      Variable with the text to convert
- * @param         formatFlowed Use format flowed?
- * @param         formatOutput Reformat the output?
+ * @param[in/out] aConBuf        Variable with the text to convert
+ * @param         formatFlowed   Use format flowed?
+ * @param         delsp          Use delsp=yes when flowed
+ * @param         formatOutput   Reformat the output?
+ & @param         disallowBreaks Disallow breaks when formatting
  */
-NS_MSG_BASE nsresult ConvertBufToPlainText(nsString &aConBuf, bool formatFlowed, bool formatOutput);
+NS_MSG_BASE nsresult
+ConvertBufToPlainText(nsString &aConBuf, bool formatFlowed, bool delsp,
+                                         bool formatOutput, bool disallowBreaks);
 
 /**
  * The following definitons exist for compatibility between the internal and

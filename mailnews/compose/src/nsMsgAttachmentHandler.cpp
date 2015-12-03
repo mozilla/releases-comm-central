@@ -1119,7 +1119,10 @@ nsMsgAttachmentHandler::UrlExit(nsresult status, const char16_t* aMsg)
 
     if (NS_SUCCEEDED(LoadDataFromFile(mTmpFile, conData, true)))
     {
-      if (NS_SUCCEEDED(ConvertBufToPlainText(conData, UseFormatFlowed(m_charset.get()), true)))
+      bool flowed, delsp, formatted, disallowBreaks;
+      GetSerialiserFlags(m_charset.get(), &flowed, &delsp, &formatted, &disallowBreaks);
+
+      if (NS_SUCCEEDED(ConvertBufToPlainText(conData, flowed, delsp, formatted, disallowBreaks)))
       {
         if (mDeleteFile)
           mTmpFile->Remove(false);

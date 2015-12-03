@@ -1157,11 +1157,25 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
     m_compFields->SetBody((const char *)nullptr);
 
     const char *charset = m_compFields->GetCharacterSet();
-    uint32_t flags = nsIDocumentEncoder::OutputFormatted |
-                     nsIDocumentEncoder::OutputCRLineBreak |
+
+    uint32_t flags = nsIDocumentEncoder::OutputCRLineBreak |
                      nsIDocumentEncoder::OutputLFLineBreak;
-    if (UseFormatFlowed(charset))
+
+    if (m_composeHTML) {
+      flags |= nsIDocumentEncoder::OutputFormatted |
+               nsIDocumentEncoder::OutputDisallowLineBreaking;
+    } else {
+      bool flowed, delsp, formatted, disallowBreaks;
+      GetSerialiserFlags(charset, &flowed, &delsp, &formatted, &disallowBreaks);
+      if (flowed)
         flags |= nsIDocumentEncoder::OutputFormatFlowed;
+      if (delsp)
+        flags |= nsIDocumentEncoder::OutputFormatDelSp;
+      if (formatted)
+        flags |= nsIDocumentEncoder::OutputFormatted;
+      if (disallowBreaks)
+        flags |= nsIDocumentEncoder::OutputDisallowLineBreaking;
+    }
     rv = m_editor->OutputToString(contentType, flags, msgBody);
     NS_ENSURE_SUCCESS(rv, rv);
   }
@@ -2306,11 +2320,20 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(const char * originalMs
  * disturbing the plain text.
  */
 nsresult
-QuotingOutputStreamListener::ConvertToPlainText(bool formatflowed /* = false */)
+QuotingOutputStreamListener::ConvertToPlainText(bool formatflowed,
+                                                bool delsp,
+                                                bool formatted,
+                                                bool disallowBreaks)
 {
-  nsresult rv = ConvertBufToPlainText(mMsgBody, formatflowed, true);
+  nsresult rv = ConvertBufToPlainText(mMsgBody, formatflowed,
+                                                delsp,
+                                                formatted,
+                                                disallowBreaks);
   NS_ENSURE_SUCCESS (rv, rv);
-  return ConvertBufToPlainText(mSignature, formatflowed, true);
+  return ConvertBufToPlainText(mSignature, formatflowed,
+                                           delsp,
+                                           formatted,
+                                           disallowBreaks);
 }
 
 NS_IMETHODIMP QuotingOutputStreamListener::OnStartRequest(nsIRequest *request, nsISupports * /* ctxt */)
@@ -2788,9 +2811,9 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
   {
     // Downsampling. The charset should only consist of ascii.
 
-    bool formatflowed =
-      UseFormatFlowed(NS_LossyConvertUTF16toASCII(aCharset).get());
-    ConvertToPlainText(formatflowed);
+    bool flowed, delsp, formatted, disallowBreaks;
+    GetSerialiserFlags(NS_LossyConvertUTF16toASCII(aCharset).get(), &flowed, &delsp, &formatted, &disallowBreaks);
+    ConvertToPlainText(flowed, delsp, formatted, disallowBreaks);
   }
 
   compose->ProcessSignature(mIdentity, true, &mSignature);
@@ -3956,7 +3979,7 @@ nsMsgCompose::ConvertHTMLToText(nsIFile *aSigFile, nsString &aSigData)
   nsresult rv = LoadDataFromFile(aSigFile, origBuf);
   NS_ENSURE_SUCCESS (rv, rv);
 
-  ConvertBufToPlainText(origBuf, false, true);
+  ConvertBufToPlainText(origBuf, false, false, true, true);
   aSigData = origBuf;
   return NS_OK;
 }
@@ -4244,7 +4267,7 @@ nsMsgCompose::ProcessSignature(nsIMsgIdentity *identity, bool aQuoted, nsString 
     if (!m_composeHTML)
     {
       if (htmlSig)
-        ConvertBufToPlainText(prefSigText, false, true);
+        ConvertBufToPlainText(prefSigText, false, false, true, true);
       sigData.Append(prefSigText);
     }
     else

@@ -2450,7 +2450,8 @@ MsgDetectCharsetFromFile(nsIFile *aFile, nsACString &aCharset)
  * unknown or deemed of no importance NULL could be passed.
  */
 NS_MSG_BASE nsresult
-ConvertBufToPlainText(nsString &aConBuf, bool formatFlowed /* = false */, bool formatOutput)
+ConvertBufToPlainText(nsString &aConBuf, bool formatFlowed, bool delsp,
+                                         bool formatOutput, bool disallowBreaks)
 {
   if (aConBuf.IsEmpty())
     return NS_OK;
@@ -2469,10 +2470,14 @@ ConvertBufToPlainText(nsString &aConBuf, bool formatFlowed /* = false */, bool f
   }
 
   uint32_t converterFlags = 0;
-  if (formatOutput)
-    converterFlags = nsIDocumentEncoder::OutputFormatted;
   if (formatFlowed)
     converterFlags |= nsIDocumentEncoder::OutputFormatFlowed;
+  if (delsp)
+    converterFlags |= nsIDocumentEncoder::OutputFormatDelSp;
+  if (formatOutput)
+    converterFlags |= nsIDocumentEncoder::OutputFormatted;
+  if (disallowBreaks)
+    converterFlags |= nsIDocumentEncoder::OutputDisallowLineBreaking;
 
   nsCOMPtr<nsIParserUtils> utils =
     do_GetService(NS_PARSERUTILS_CONTRACTID);

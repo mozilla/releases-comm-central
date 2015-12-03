@@ -597,7 +597,9 @@ NS_IMETHODIMP nsMsgCompFields::ConvertBodyToPlainText()
     rv = GetBody(body);
     if (NS_SUCCEEDED(rv))
     {
-      rv = ConvertBufToPlainText(body, UseFormatFlowed(GetCharacterSet()), true);
+      bool flowed, delsp, formatted, disallowBreaks;
+      GetSerialiserFlags(GetCharacterSet(), &flowed, &delsp, &formatted, &disallowBreaks);
+      rv = ConvertBufToPlainText(body, flowed, delsp, formatted, disallowBreaks);
       if (NS_SUCCEEDED(rv))
         rv = SetBody(body);
     }

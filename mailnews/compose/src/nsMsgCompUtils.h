@@ -133,7 +133,7 @@ char        *GenerateFileNameFromURI(nsIURI *aURL);
 void GetFolderURIFromUserPrefs(nsMsgDeliverMode   aMode, nsIMsgIdentity *identity, nsCString& uri);
 
 // Check if we should use format=flowed
-bool UseFormatFlowed(const char *charset);
+void GetSerialiserFlags(const char *charset, bool *flowed, bool *delsp, bool *formatted, bool *disallowBreaks);
 
 
 PR_END_EXTERN_C

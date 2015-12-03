@@ -672,8 +672,12 @@ mime_generate_attachment_headers (const char *type,
     // Add format=flowed as in RFC 2646 if we are using that
     if(type && !PL_strcasecmp(type, "text/plain"))
     {
-      if(UseFormatFlowed(bodyCharset))
+      bool flowed, delsp, formatted, disallowBreaks;
+      GetSerialiserFlags(bodyCharset, &flowed, &delsp, &formatted, &disallowBreaks);
+      if(flowed)
         buf.Append("; format=flowed");
+      if (delsp)
+        buf.Append("; delsp=yes");
       // else
       // {
       // Don't add a markup. Could use
@@ -1739,42 +1743,31 @@ GetFolderURIFromUserPrefs(nsMsgDeliverMode aMode, nsIMsgIdentity* identity, nsCS
 
 /**
  * Check if we should use format=flowed (RFC 2646) for a mail.
- *
- * We will use format=flowed unless prefs tells us not to do
- * or if a charset which are known to have problems with
- * format=flowed is specified. (See bug 26734 in Bugzilla)
+ * We will use format=flowed unless the preference tells us not to do so.
+ * In this function we set all the serialiser flags.
+ * 'formatted' is always 'true'.
  */
-bool UseFormatFlowed(const char *charset)
+void GetSerialiserFlags(const char* charset, bool* flowed, bool* delsp, bool* formatted, bool* disallowBreaks)
 {
-  // Add format=flowed as in RFC 2646 unless asked to not do that.
-  bool sendFlowed = true;
-  bool disableForCertainCharsets = true;
+  *flowed = false;
+  *delsp = false;
+  *formatted = true;
+  *disallowBreaks = true;
+
+  // Set format=flowed as in RFC 2646 according to the preference.
   nsresult rv;
-
   nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  if (NS_FAILED(rv))
-    return false;
+  if (NS_SUCCEEDED(rv)) {
+    prefs->GetBoolPref("mailnews.send_plaintext_flowed", flowed);
+  }
 
-  rv = prefs->GetBoolPref("mailnews.send_plaintext_flowed", &sendFlowed);
-  if (NS_SUCCEEDED(rv) && !sendFlowed)
-    return false;
-
-  // If we shouldn't care about charset, then we are finished
-  // checking and can go on using format=flowed
-  if(!charset)
-    return true;
-  rv = prefs->GetBoolPref("mailnews.disable_format_flowed_for_cjk",
-                          &disableForCertainCharsets);
-  if (NS_SUCCEEDED(rv) && !disableForCertainCharsets)
-    return true;
-
-  // Just the check for charset left.
-
-  // This is a raw check and might include charsets which could
-  // use format=flowed and might exclude charsets which couldn't
-  // use format=flowed.
-  //
-  // The problem is the SPACE format=flowed inserts at the end of
-  // the line. Not all charsets like that.
-  return !(PL_strcasecmp(charset, "UTF-8") && nsMsgI18Nmultibyte_charset(charset));
+  // We could test statefulCharset(charset) here, but since ISO-2022-JP is the
+  // only one left we support, we might as well check for it directly.
+  if (PL_strcasecmp(charset, "ISO-2022-JP") == 0) {
+    // Make sure we honour RFC 1468. For encoding in ISO-2022-JP we need to
+    // send short lines to allow 7bit transfer encoding.
+    *disallowBreaks = false;
+    if (*flowed)
+      *delsp = true;
+  }
 }

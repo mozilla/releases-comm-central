@@ -1504,7 +1504,9 @@ nsMsgComposeAndSend::GetBodyFromEditor()
   //
   // Query the editor, get the body of HTML!
   //
-  uint32_t  flags = nsIDocumentEncoder::OutputFormatted  | nsIDocumentEncoder::OutputNoFormattingInPre;
+  uint32_t flags = nsIDocumentEncoder::OutputFormatted |
+                   nsIDocumentEncoder::OutputNoFormattingInPre |
+                   nsIDocumentEncoder::OutputDisallowLineBreaking;
   nsAutoString bodyStr;
   char16_t* bodyText = nullptr;
   nsresult rv;

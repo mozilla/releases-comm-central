@@ -1840,7 +1840,7 @@ nsSaveMsgListener::OnStopRequest(nsIRequest* request, nsISupports* aSupport,
     MOZ_ASSERT(m_outputFormat == ePlainText,
       "For HTML, m_doCharsetConversion shouldn't be set");
     NS_ConvertUTF8toUTF16 utf16Buffer(m_msgBuffer);
-    ConvertBufToPlainText(utf16Buffer, false, false);
+    ConvertBufToPlainText(utf16Buffer, false, false, false, false);
 
     nsCString outCString;
     rv = nsMsgI18NConvertFromUnicode(nsMsgI18NFileSystemCharset(),
