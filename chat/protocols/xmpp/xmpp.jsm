@@ -1924,7 +1924,9 @@ var XMPPAccountPrototype = {
 
   // XEP-0029 (Section 2) and RFC 6122 (Section 2): The node and domain are
   // lowercase, while resources are case sensitive and can contain spaces.
-  normalizeFullJid: function(aJID) this._parseJID(aJID.trim()).jid,
+  normalizeFullJid: function(aJID) {
+    return this._parseJID(aJID.trim()).jid;
+  },
 
   // Standard normalization for XMPP removes the resource part of jids.
   normalize: function(aJID) {
