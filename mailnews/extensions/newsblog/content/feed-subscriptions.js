@@ -1855,7 +1855,7 @@ var FeedSubscriptions = {
       FeedUtils.log.debug("folderAdded: folder:parent - " + aFolder.name + ":" +
                           (parentFolder ? parentFolder.filePath.path : "(null)"));
 
-      if (!parentFolder || !this.feedWindow))
+      if (!parentFolder || !this.feedWindow)
         return;
 
       let feedWindow = this.feedWindow;
