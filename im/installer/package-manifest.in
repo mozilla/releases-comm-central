@@ -542,6 +542,8 @@
 #endif
 @RESPATH@/components/nsUpdateTimerManager.js
 @RESPATH@/components/nsUpdateTimerManager.manifest
+@RESPATH@/components/utils.manifest
+@RESPATH@/components/simpleServices.js
 @RESPATH@/components/extensions.xpt
 @RESPATH@/components/extensions.manifest
 @RESPATH@/components/update.xpt
