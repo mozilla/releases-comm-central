@@ -27,7 +27,7 @@
   .mail-toolbox[iconsize="large"][mode="full"][labelalign="end"] >
   toolbar:only-of-type {
     margin-top: 2px;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
   }
 }
 
@@ -44,8 +44,8 @@
 @media (-moz-os-version: windows-win10) {
   .mail-toolbox:not([mode="full"]) > toolbar:only-of-type,
   .mail-toolbox[mode="full"][labelalign="end"] > toolbar:only-of-type {
-    margin-top: 5px;
-    margin-bottom: 5px;
+    margin-top: 6px;
+    margin-bottom: 6px;
   }
 }
 

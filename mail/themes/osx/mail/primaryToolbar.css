@@ -54,8 +54,10 @@
 .contentTabToolbox::after {
   content: "";
   display: -moz-box;
-  height: 1px;
-  background-color: hsl(0, 0%, 60%);
+  margin-top: -1px;
+  height: 2px;
+  background-color: hsla(0, 0%, 100%, 0.15);
+  border-bottom: 1px solid hsl(0, 0%, 60%);
 }
 
 @media (-moz-mac-yosemite-theme) {
@@ -70,9 +72,14 @@
     background: linear-gradient(hsl(0, 0%, 97%), hsl(0, 0%, 95%));
   }
 
+  .mail-toolbox::after,
+  .contentTabToolbox::after {
+    border-bottom-color: hsl(0, 0%, 68%);
+  }
+
   .mail-toolbox:-moz-window-inactive::after,
   .contentTabToolbox:-moz-window-inactive::after {
-    background-color: hsl(0, 0%, 85%);
+    border-bottom-color: hsl(0, 0%, 85%);
   }
 }
 
@@ -459,17 +466,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   -moz-border-right-colors: -moz-mac-menushadow ThreeDLightShadow !important;
   -moz-border-bottom-colors: -moz-mac-menushadow -moz-mac-menushadow ThreeDShadow !important;
   -moz-border-left-colors: ThreeDLightShadow ThreeDHighlight !important;
-}
-
-/* Lightweight themes support */
-
-/* This prevent jumping of the toolbar when going between Default and Persona*/
-#mail-bar3 {
-  padding-bottom: 1px;
-}
-
-#mail-bar3:-moz-lwtheme {
-  padding-bottom: 0px;
 }
 
 /* AppMenu styling */
