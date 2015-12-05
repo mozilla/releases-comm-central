@@ -110,7 +110,11 @@ function wait_for_notification_to_show(aController, aBoxId, aValue) {
   let nb = aController.window.document.getElementById(aBoxId);
   if (!nb)
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
-  aController.waitFor(() => nb.getNotificationWithValue(aValue) != null,
+
+  function nbReady() {
+    return (nb.getNotificationWithValue(aValue) != null) && !nb._animating;
+  }
+  aController.waitFor(nbReady,
                       "Timed out waiting for notification with value " +
                       aValue + " to show.");
 }
