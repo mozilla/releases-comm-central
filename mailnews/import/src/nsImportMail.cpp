@@ -1006,7 +1006,8 @@ GetSubFoldersRunnable::GetSubFoldersRunnable(nsIMsgFolder *aFolder) :
 
 NS_IMETHODIMP GetSubFoldersRunnable::Run()
 {
-  return m_folder->GetSubFolders(nullptr);
+  nsCOMPtr<nsISimpleEnumerator> dummy;
+  return m_folder->GetSubFolders(getter_AddRefs(dummy));
 }
 
 

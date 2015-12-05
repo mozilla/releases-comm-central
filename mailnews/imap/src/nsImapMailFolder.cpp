@@ -581,8 +581,9 @@ NS_IMETHODIMP nsImapMailFolder::GetSubFolders(nsISimpleEnumerator **aResult)
     }
 
     int32_t count = mSubFolders.Count();
+    nsCOMPtr<nsISimpleEnumerator> dummy;
     for (int32_t i = 0; i < count; i++)
-      mSubFolders[i]->GetSubFolders(nullptr);
+      mSubFolders[i]->GetSubFolders(getter_AddRefs(dummy));
 
     UpdateSummaryTotals(false);
     if (NS_FAILED(rv)) return rv;

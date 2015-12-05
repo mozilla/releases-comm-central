@@ -931,7 +931,8 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsAString& aNewName, nsIMsgWind
         newFolder->RenameSubFolders(msgWindow, this);
 
       // Discover the subfolders inside this folder (this is recursive)
-      newFolder->GetSubFolders(nullptr);
+      nsCOMPtr<nsISimpleEnumerator> dummy;
+      newFolder->GetSubFolders(getter_AddRefs(dummy));
 
       // the newFolder should have the same flags
       newFolder->SetFlags(mFlags);
