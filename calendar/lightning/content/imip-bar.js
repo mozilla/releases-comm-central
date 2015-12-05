@@ -203,6 +203,16 @@ var ltnImipBar = {
             ltnImipBar.foundItems = foundItems;
         }
 
+        // we override the bar label for sent out invitations and in case the event does not exist
+        // anymore, we also clear the buttons if any to avoid e.g. accept/decline buttons
+        if (gMessageDisplay.displayedMessage.folder.flags & nsMsgFolderFlags.SentMail) {
+            if (ltnImipBar.foundItems[0]) {
+                data.label = ltn.getString("lightning", "imipBarSentText");
+            } else {
+                data = {label: ltn.getString("lightning", "imipBarSentButRemovedText")};
+            }
+        }
+
         imipBar.setAttribute("label", data.label);
         // let's reset all buttons first
         ltnImipBar.resetButtons();
@@ -212,27 +222,37 @@ var ltnImipBar = {
         data.buttons.forEach(aElementId => showElement(document.getElementById(aElementId)));
         // adjust button style if necessary
         ltnImipBar.conformButtonType();
-        if (Preferences.get('calendar.itip.displayInvitationChanges', false)) {
-            // display event modifications if any
-            ltnImipBar.displayModifications();
-        } else if (msgWindow && ltnImipBar.msgOverlay) {
-            msgWindow.displayHTMLInMessagePane('', ltnImipBar.msgOverlay, false);
-        }
+        ltnImipBar.displayModifications();
     },
 
     /**
      * Displays changes in case of invitation updates in invitation overlay
      */
     displayModifications: function () {
-        if (!ltnImipBar.foundItems.length || !ltnImipBar.itipItem || !ltnImipBar.msgOverlay || !msgWindow) {
+        if (!ltnImipBar.msgOverlay || !msgWindow || !ltnImipBar.foundItems[0] || !ltnImipBar.itipItem) {
             return;
         }
-        let oldOverlay = ltn.invitation.createInvitationOverlay(ltnImipBar.foundItems[0],
-                                                                ltnImipBar.itipItem);
-        let organizerId = ltnImipBar.itipItem.targetCalendar.getProperty("organizerId");
-        let msgOverlay = ltn.invitation.compareInvitationOverlay(cal.xml.serializeDOM(oldOverlay),
-                                                                 ltnImipBar.msgOverlay,
-                                                                 organizerId);
+
+        let msgOverlay = ltnImipBar.msgOverlay;
+        let diff = cal.itip.compare(ltnImipBar.itipItem.getItemList({})[0], ltnImipBar.foundItems[0]);
+        // displaying chnages is only needed if that is enabled, an item already exists and there are
+        // differences
+        if (diff != 0 && Preferences.get('calendar.itip.displayInvitationChanges', false)) {
+            let foundOverlay = ltn.invitation.createInvitationOverlay(ltnImipBar.foundItems[0],
+                                                                      ltnImipBar.itipItem);
+            let serializedOverlay = cal.xml.serializeDOM(foundOverlay);
+            let organizerId = ltnImipBar.itipItem.targetCalendar.getProperty("organizerId");
+            if (diff == 1) {
+                // this is an update to previously accepted invitation
+                msgOverlay = ltn.invitation.compareInvitationOverlay(serializedOverlay, msgOverlay,
+                                                                     organizerId);
+            } else {
+                // this is a copy of a previously sent out invitation or a previous revision of a
+                // meanwhile accepted invitation, so we flip comparison order
+                msgOverlay = ltn.invitation.compareInvitationOverlay(msgOverlay, serializedOverlay,
+                                                                     organizerId);
+            }
+        }
         msgWindow.displayHTMLInMessagePane('', msgOverlay, false);
     },
 
