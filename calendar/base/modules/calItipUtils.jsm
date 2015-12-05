@@ -582,6 +582,7 @@ cal.itip = {
 
         let invitedAttendee = cal.isInvitation(aItem) && cal.getInvitedAttendee(aItem);
         if (invitedAttendee) { // actually is an invitation copy, fix attendee list to send REPLY
+            invitedAttendee = invitedAttendee.clone();
             /* We check if the attendee id matches one of of the
              * userAddresses. If they aren't equal, it means that
              * someone is accepting invitations on behalf of an other user. */
@@ -589,7 +590,6 @@ cal.itip = {
                 let userAddresses = aItem.calendar.aclEntry.getUserAddresses({});
                 if (userAddresses.length > 0
                     && !cal.attendeeMatchesAddresses(invitedAttendee, userAddresses)) {
-                    invitedAttendee = invitedAttendee.clone();
                     invitedAttendee.setProperty("SENT-BY", "mailto:" + userAddresses[0]);
                 }
             }
@@ -600,7 +600,6 @@ cal.itip = {
                 if (aOpType == Components.interfaces.calIOperationListener.DELETE) {
                     // in case the attendee has just deleted the item, we want to send out a DECLINED REPLY:
                     origInvitedAttendee = invitedAttendee;
-                    invitedAttendee = invitedAttendee.clone();
                     invitedAttendee.participationStatus = "DECLINED";
                 }
 

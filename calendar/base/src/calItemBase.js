@@ -571,10 +571,17 @@ calItemBase.prototype = {
         if (attendee) {
             if (attendee.commonName) {
                 // migration code for bug 1209399 to remove leading/training double quotes in
-                attendee.commonName = attendee.commonName
-                                              .replace(/^["]*([^"]*)["]*$/, "$1");
-                if (attendee.commonName.length == 0) {
-                    attendee.commonName = null;
+                let cn = attendee.commonName.replace(/^["]*([^"]*)["]*$/, "$1");
+                if (cn.length == 0) {
+                    cn = null;
+                }
+                if (cn != attendee.commonName) {
+                    if (attendee.isMutable) {
+                        attendee.commonName = cn;
+                    } else {
+                        cal.LOG("Failed to cleanup malformed commonName for immutable attendee " +
+                                attendee.toString() + "\n" + cal.STACK(20));
+                    }
                 }
             }
             this.modify();
