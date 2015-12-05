@@ -138,8 +138,8 @@ var mailInstrumentationManager =
   },
   // Convert each hashed byte into 2-hex strings, then combine them.
   _bytesAsHex: function minst_bytesAsHex(bytes) {
-    return [("0" + byte.charCodeAt().toString(16)).slice(-2)
-            for each (byte in bytes)].join("");
+    return Array.from(bytes).
+      map(byte => ("0" + byte.charCodeAt().toString(16)).slice(-2)).join("");
   },
   /**
    * Return sha-256 hash of the passed in e-mail address

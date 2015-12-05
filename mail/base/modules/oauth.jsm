@@ -139,7 +139,7 @@ OAuth.prototype = {
       hmac.init(hmac.SHA1,
                 keyFactory.keyFromString(Ci.nsIKeyObject.HMAC, signatureKey));
       // No UTF-8 encoding, special chars are already escaped.
-      let bytes = [b.charCodeAt() for each (b in signatureBase)];
+      let bytes = Array.from(signatureBase).map(b => b.charCodeAt(0));
       hmac.update(bytes, bytes.length);
       signature = encodeURIComponent(hmac.finish(true));
     }
