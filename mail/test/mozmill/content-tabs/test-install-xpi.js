@@ -23,7 +23,7 @@ var url = collector.addHttpResource('../content-tabs/html', 'content-tabs');
 var gNewTab;
 var gNotificationBox;
 
-var ALERT_TIMEOUT = 10000;
+var ALERT_TIMEOUT = 50000;
 
 var AlertWatcher = {
   planForAlert: function(aController) {
@@ -82,7 +82,7 @@ function click_install_link_and_wait_for_alert(link) {
   AlertWatcher.waitForAlert(mc);
 
   // Just give other events time to clear
-  mc.sleep(55);
+  mc.sleep(1000);
 }
 
 function test_setup() {
@@ -121,7 +121,7 @@ function test_install_xpi_offer() {
   // which we want to click on!
   plan_for_modal_dialog("Addons:Install", close_xpinstall_dialog);
   click_notification_box_action_in_current_tab();
-  wait_for_modal_dialog("Addons:Install");
+  wait_for_modal_dialog("Addons:Install", 50000);
 
   // After closing the dialog we need to give just a little extra time
   // before we do things.
@@ -147,7 +147,7 @@ function test_xpinstall_actually_install() {
   // and this time we get an alert as well.
   AlertWatcher.planForAlert(mc);
   click_notification_box_action_in_current_tab();
-  wait_for_modal_dialog("Addons:Install");
+  wait_for_modal_dialog("Addons:Install", 50000);
 
   AlertWatcher.waitForAlert(mc);
   close_notification_box();
