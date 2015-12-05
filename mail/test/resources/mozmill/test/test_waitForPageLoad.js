@@ -23,7 +23,7 @@ var testWaitForPageLoad = function() {
   /**
    * PART I - Check different types of pages
    */
-  for each (var location in LOCATIONS) {
+  for (var location of LOCATIONS) {
     controller.open(location.url);
     controller.waitForPageLoad();
 

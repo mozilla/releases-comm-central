@@ -171,8 +171,7 @@
        if (rootPaths) {
          if (rootPaths.constructor.name != "Array")
            rootPaths = [rootPaths];
-         var fses = [new exports.LocalFileSystem(path)
-                     for each (path in rootPaths)];
+         var fses = rootPaths.map(path => new exports.LocalFileSystem(path));
          options.fs = new exports.CompositeFileSystem(fses);
        } else
          options.fs = new exports.LocalFileSystem();

@@ -34,7 +34,8 @@ nsActivityManager.prototype = {
 
   get processCount() {
     let count = 0;
-    for each(let [, value] in Iterator(this._activities)) {
+    for (let id in this._activities) {
+      let value = this._activities;
       if (value instanceof Ci.nsIActivityProcess)
         count++;
     }
@@ -44,7 +45,8 @@ nsActivityManager.prototype = {
 
   getProcessesByContext: function(aContextType, aContextObj, aCount) {
     let list = [];
-    for each (let [, activity] in Iterator(this._activities)) {
+    for (let id in this._activities) {
+      let value = this._activities;
       if (activity instanceof Ci.nsIActivityProcess &&
           activity.contextType == aContextType &&
           activity.contextObj == aContextObj) {
@@ -74,7 +76,7 @@ nsActivityManager.prototype = {
       // add activity into the activities table
       this._activities[id] = aActivity;
       // notify all the listeners
-      for each (let [, value] in Iterator(this._listeners)) {
+      for (let value of this._listeners) {
         try {
           value.onAddedActivity(id, aActivity);
         }
@@ -106,7 +108,7 @@ nsActivityManager.prototype = {
     delete this._activities[aID];
 
     // notify all the listeners
-    for each (let [, value] in Iterator(this._listeners)) {
+    for (let value of this._listeners) {
       try {
         value.onRemovedActivity(aID);
       }
@@ -148,8 +150,10 @@ nsActivityManager.prototype = {
 
   getActivities: function(aCount) {
     let list = [];
-    for each (let [, value] in Iterator(this._activities))
+    for (let id in this._activities) {
+      let value = this._activities;
       list.push(value);
+    }
 
     aCount.value = list.length;
     return list;

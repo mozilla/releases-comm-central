@@ -74,7 +74,7 @@
             let processes = activityManager
                                   .getProcessesByContext(this.contextType,
                                                          this.contextObj, {});
-            for each (let [, process] in Iterator(processes)) {
+            for (let process of processes) {
               if (process.retryHandler)
                 process.retryHandler.retry(process);
             }

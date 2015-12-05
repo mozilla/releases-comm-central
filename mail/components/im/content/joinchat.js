@@ -91,7 +91,7 @@ var joinChat = {
 
   join: function jc_join() {
     let values = joinChat._values;
-    for each (let field in joinChat._fields) {
+    for (let field of joinChat._fields) {
       let val = field.textbox.value.trim();
       if (!val && field.field.required) {
         field.textbox.focus();

@@ -43,7 +43,7 @@
         let criteriaText = glodaFacetStrings.get(
           "glodaFacetView.constraints.query.fulltext." +
           (aMsgSearcher.andTerms ? "and" : "or") + "JoinWord");
-        for each (let [iTerm, term] in Iterator(aMsgSearcher.fulltextTerms)) {
+        for (let [iTerm, term] of aMsgSearcher.fulltextTerms.entries()) {
           if (iTerm)
             spanify(criteriaText, "explanation-fulltext-criteria");
           spanify(term, "explanation-fulltext-term");

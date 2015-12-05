@@ -141,7 +141,7 @@ var chatTabType = {
       if (convs.length != 0) {
         convs.sort((a, b) =>
                    a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
-        for each (let conv in convs)
+        for (let conv of convs)
           chatHandler._addConversation(conv);
       }
 
@@ -339,7 +339,7 @@ var chatHandler = {
     let convs = imServices.conversations.getUIConversations();
     let unreadTargettedCount = 0;
     let unreadTotalCount = 0;
-    for each (let conv in convs) {
+    for (let conv of convs) {
       unreadTargettedCount += conv.unreadTargetedMessageCount;
       unreadTotalCount += conv.unreadIncomingMessageCount;
     }
@@ -827,19 +827,19 @@ var chatHandler = {
       this._placeHolderButtonId =
         hasAccount ? "openIMAccountManagerButton" : "openIMAccountWizardButton";
     }
-    for each (let id in ["statusTypeIcon", "statusMessage", "button-chat-accounts"]) {
+    for (let id of ["statusTypeIcon", "statusMessage", "button-chat-accounts"]) {
       let elt = document.getElementById(id);
       if (elt)
         elt.disabled = !hasAccount;
     }
-    for each (let id in ["button-add-buddy", "newIMContactMenuItem",
-                         "appmenu_newIMContactMenuItem"]) {
+    for (let id of ["button-add-buddy", "newIMContactMenuItem",
+                    "appmenu_newIMContactMenuItem"]) {
       let elt = document.getElementById(id);
       if (elt)
         elt.disabled = !connected;
     }
-    for each (let id in ["button-join-chat", "joinChatMenuItem",
-                         "appmenu_joinChatMenuItem"]) {
+    for (let id of ["button-join-chat", "joinChatMenuItem",
+                    "appmenu_joinChatMenuItem"]) {
       let elt = document.getElementById(id);
       if (elt)
         elt.disabled = !canJoinChat;
@@ -897,7 +897,7 @@ var chatHandler = {
 
     // Select the first visible group header.
     let groupIds = ["conversations", "onlinecontacts", "offlinecontacts"];
-    for each (let id in groupIds) {
+    for (let id of groupIds) {
       let item = document.getElementById(id + "Group");
       if (item.collapsed)
         continue;
@@ -942,7 +942,7 @@ var chatHandler = {
       if (aSubject != browser)
         return;
 
-      for each (let msg in browser._conv.getMessages()) {
+      for (let msg of browser._conv.getMessages()) {
         if (!msg.system)
           msg.color = "color: hsl(" + this._computeColor(msg.who) + ", 100%, 40%);";
         browser.appendMessage(msg);
@@ -1071,7 +1071,8 @@ var chatHandler = {
     let onGroup = document.getElementById("onlinecontactsGroup");
     let offGroup = document.getElementById("offlinecontactsGroup");
 
-    for each (let contact in chatHandler.allContacts) {
+    for (let name in chatHandler.allContacts) {
+      let contact = chatHandler.allContacts[name];
       let group = contact.online ? onGroup : offGroup;
       group.addContact(contact);
     }
@@ -1095,7 +1096,7 @@ var chatHandler = {
     chatHandler._observedTopics.push(aTopic);
   },
   _removeObservers: function() {
-    for each (let topic in this._observedTopics)
+    for (let topic of this._observedTopics)
       imServices.obs.removeObserver(this, topic);
   },
   init: function() {
@@ -1166,7 +1167,7 @@ var chatHandler = {
 function chatLogTreeGroupItem(aTitle, aLogItems) {
   this._title = aTitle;
   this._children = aLogItems;
-  for each (let child in this._children)
+  for (let child of this._children)
     child._parent = this;
   this._open = false;
 }
@@ -1318,7 +1319,8 @@ chatLogTreeView.prototype = {
     let groupIDs = Object.keys(groups).sort().reverse();
 
     // Add firstgroups to groups and groupIDs.
-    for each (let [groupID, group] in Iterator(firstgroups)) {
+    for (let groupID in firstgroups) {
+      let group = firstgroups[groupID];
       if (!group.length)
         continue;
       groupIDs.unshift(groupID);

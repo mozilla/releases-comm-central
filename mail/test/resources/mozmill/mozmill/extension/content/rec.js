@@ -50,7 +50,7 @@ var currentRecorderArray = [];
 
 var getEventSet = function (eArray) {
   var inSet = function (a, c) {
-    for each(x in a) {
+    for (var x of a) {
       if (x.evt.timeStamp == c.evt.timeStamp && c.evt.type == x.evt.type) {
         return true;
       }
@@ -59,7 +59,7 @@ var getEventSet = function (eArray) {
   }
 
   var returnArray = [];
-  for each(e in eArray) {
+  for (var e of eArray) {
     // recorderLogger.info('ts '+e.evt.timeStamp+' '+inSet(returnArray, e))
     if (!inSet(returnArray, e)) {
       returnArray.push(e);
@@ -90,7 +90,7 @@ var recorderMethodCases = {
 
 var cleanupEventsArray = function (recorder_array) {
   var indexesForRemoval = [];
-  var type_indexes = [x['evt'].type for each(x in recorder_array)];
+  var type_indexes = recorder_array.map(x => x['evt'].type);
 
   // Convert a set of keypress events to a single type event
   if (arrays.inArray(type_indexes, 'change')) {
@@ -164,7 +164,7 @@ var getRecordedScript = function (recorder_array) {
 
   var recorder_array = cleanupEventsArray(getEventSet(recorder_array));
 
-  for each(x in recorder_array) {
+  for (var x of recorder_array) {
     var inspected = x['inspected'];
     if (!setup[inspected.controllerText]) {
       if (objects.getLength(setup) > 0) {
@@ -192,7 +192,7 @@ var getRecordedScript = function (recorder_array) {
   rscript.push('}')
   rscript.push('')
   rscript.push('var testRecorded = function () {')
-  for each(t in test){
+  for (var t of test){
     rscript.push('  '+t);
   }
   rscript.push('}')
@@ -270,7 +270,7 @@ RecorderConnector.prototype.on = function() {
 
   newFile();
 
-  for each(win in utils.getWindows()) {
+  for (var win of utils.getWindows()) {
     if (win.document.title != "MozMill IDE"){
       this.bindListeners(win);
     }
@@ -300,7 +300,7 @@ RecorderConnector.prototype.off = function() {
   $("#recordToggle").removeClass("ui-priority-primary");
 
 
-  for each(win in utils.getWindows()) {
+  for (var win of utils.getWindows()) {
     this.unbindListeners(win);
   }
   var r = getRecordedScript(currentRecorderArray);

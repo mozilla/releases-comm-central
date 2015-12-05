@@ -301,7 +301,7 @@ OAuth.prototype = {
   cleanUp: function() {
     this.finishAuthorizationRequest();
     if (this._pendingRequests.length != 0) {
-      for each (let request in this._pendingRequests)
+      for (let request of this._pendingRequests)
         request.abort();
       delete this._pendingRequests;
     }

@@ -378,7 +378,7 @@ function help_test_attachment_menus(index) {
 }
 
 // Generate a test for each message in |messages|.
-for each (let [i, message] in Iterator(messages)) {
+for (let [i, message] of messages.entries()) {
   let index = i; // make a copy to avoid passing a reference to i
   this["test_" + message.name] = function() {
     help_test_attachment_menus(index);

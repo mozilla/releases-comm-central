@@ -62,7 +62,7 @@ function abspath (rel, file) {
   if (relSplit[0] == '..' && !file.isDirectory()) {
     file = file.parent;
   }
-  for each(p in relSplit) {
+  for (var p of relSplit) {
     if (p == '..') {
       file = file.parent;
     } else if (p == '.'){

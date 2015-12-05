@@ -112,7 +112,7 @@ waitForEvents.prototype = {
     node.firedEvents = {};
     this.registry = {};
 
-    for each(e in events) {
+    for (var e of events) {
       var listener = function(event) {
         this.firedEvents[event.type] = true;
       }
@@ -305,8 +305,10 @@ Menu.prototype = {
  */
 var MenuTree = function(aWindow, aMenu) {
   var items = aMenu ? aMenu.childNodes : null;
-
-  for each (var node in items) {
+  if (!items) {
+    return;
+  }
+  for (var node of items) {
     var entry = null;
 
     switch (node.tagName) {

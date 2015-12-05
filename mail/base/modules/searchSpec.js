@@ -408,7 +408,7 @@ SearchSpec.prototype = {
     let filtering = this._userTerms != null || this._viewTerms != null;
     let validityManager = Cc['@mozilla.org/mail/search/validityManager;1']
                             .getService(Ci.nsIMsgSearchValidityManager);
-    for each (let [, folder] in Iterator(this.owner._underlyingFolders)) {
+    for (let folder of this.owner._underlyingFolders) {
       // we do not need to check isServer here because _underlyingFolders
       //  filtered it out when it was initialized.
 
@@ -491,7 +491,7 @@ SearchSpec.prototype = {
     s += '    User Terms:\n';
     s += this.prettyStringOfSearchTerms(this._userTerms);
     s += '    Scope (Folders):\n';
-    for each (let [, folder] in Iterator(this.owner._underlyingFolders)) {
+    for (let folder of this.owner._underlyingFolders) {
       s += '      ' + folder.prettyName + '\n';
     }
     return s;

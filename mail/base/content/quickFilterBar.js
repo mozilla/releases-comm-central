@@ -129,7 +129,7 @@ var QuickFilterBarMuxer = {
 
     // - postFilterProcess everyone who cares
     // This may need to be converted into an asynchronous process at some point.
-    for each (let [, filterDef] in Iterator(QuickFilterManager.filterDefs)) {
+    for (let filterDef of QuickFilterManager.filterDefs) {
       if ("postFilterProcess" in filterDef) {
         let preState = (filterDef.name in filterer.filterValues) ?
           filterer.filterValues[filterDef.name] : null;
@@ -180,7 +180,7 @@ var QuickFilterBarMuxer = {
    * - reflect filter state
    */
   _bindUI: function QFBM__bindUI() {
-    for each (let [, filterDef] in Iterator(QuickFilterManager.filterDefs)) {
+    for (let filterDef of QuickFilterManager.filterDefs) {
       let domNode = document.getElementById(filterDef.domId);
       // the loop let binding does not latch, at least in 1.9.2
       let latchedFilterDef = filterDef;
@@ -232,8 +232,7 @@ var QuickFilterBarMuxer = {
     // If we aren't visible then there is no need to update the widgets.
     if (aFilterer.visible) {
       let filterValues = aFilterer.filterValues;
-      for each (let [, filterDef] in
-                Iterator(QuickFilterManager.filterDefs)) {
+      for (let filterDef of QuickFilterManager.filterDefs) {
         // If we only need to update one state, check and skip as appropriate.
         if (aFilterName && filterDef.name != aFilterName)
           continue;
@@ -588,7 +587,7 @@ var QuickFilterBarMuxer = {
     let [terms, listeners] =
       filterer.createSearchTerms(tab.folderDisplay.view.search.session);
 
-    for each (let [, [listener, filterDef]] in Iterator(listeners)) {
+    for (let [listener, filterDef] of listeners) {
       // it registers itself with the search session.
       new QuickFilterSearchListener(
         tab.folderDisplay, filterer, filterDef,

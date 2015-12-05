@@ -880,7 +880,7 @@ function showChat()
 {
   document.getElementById('abTabPanels').parentNode.selectedTab =
     document.getElementById('chatTabButton');
-  for each (let id in chatNameFieldIds) {
+  for (let id of chatNameFieldIds) {
     let elt = document.getElementById(id);
     if (elt.value) {
       elt.focus();
@@ -897,7 +897,7 @@ function showChat()
 function updateChatName()
 {
   let value = "";
-  for each (let id in chatNameFieldIds) {
+  for (let id of chatNameFieldIds) {
     let val = document.getElementById(id).value;
     if (val) {
       value = val;

@@ -63,7 +63,7 @@ var FolderDisplayListenerManager = {
    * For use by FolderDisplayWidget to trigger listener invocation.
    */
   _fireListeners: function FDBLM__fireListeners(aEventName, aArgs) {
-    for each (let [, listener] in Iterator(this._listeners)) {
+    for (let listener of this._listeners) {
       if (aEventName in listener) {
         try {
           listener[aEventName].apply(listener, aArgs);
@@ -313,10 +313,10 @@ FolderDisplayWidget.prototype = {
    *  restore), but is also the most reliable option for this use case.
    */
   _saveSelection: function FolderDisplayWidget_saveSelection() {
-    this._savedSelection = {messages:
-                            [{messageId: msgHdr.messageId} for each
-                             ([, msgHdr] in Iterator(this.selectedMessages))],
-                            forceSelect: false};
+    this._savedSelection = {
+      messages: this.selectedMessages.map(msgHdr => ({messageId: msgHdr.messageId})),
+      forceSelect: false
+    };
   },
 
   /**
@@ -345,9 +345,9 @@ FolderDisplayWidget.prototype = {
     // which ends up being O(sn)
     var msgHdr;
     let messages =
-      [msgHdr for each
-        ([, savedInfo] in Iterator(this._savedSelection.messages)) if
-        ((msgHdr = this.view.getMsgHdrForMessageID(savedInfo.messageId)))];
+      this._savedSelection.messages.
+      map(savedInfo => this.view.getMsgHdrForMessageID(savedInfo.messageId)).
+      filter(msgHdr => !!msgHdr);
 
     this.selectMessages(messages, this._savedSelection.forceSelect, true);
     this._savedSelection = null;
@@ -1589,7 +1589,7 @@ FolderDisplayWidget.prototype = {
 
     let pendingNotifications = this._notificationsPendingActivation;
     this._notificationsPendingActivation = [];
-    for each (let [, notif] in Iterator(pendingNotifications)) {
+    for (let notif of pendingNotifications) {
       notif.call(this);
     }
   },
@@ -2299,7 +2299,7 @@ FolderDisplayWidget.prototype = {
       treeSelection.selectEventsSuppressed = true;
       treeSelection.clearSelection();
 
-      for each (let [, msgHdr] in Iterator(aMessages)) {
+      for (let msgHdr of aMessages) {
         let viewIndex = this.view.getViewIndexForMsgHdr(msgHdr, aForceSelect);
 
         if (viewIndex != nsMsgViewIndex_None) {
@@ -2335,10 +2335,10 @@ FolderDisplayWidget.prototype = {
     // 2. The tree selection is there, and we needed to find all messages, but
     //    we didn't.
     if (!treeSelection || (!aDoNotNeedToFindAll && !foundAll)) {
-      this._savedSelection = {messages:
-                              [{messageId: msgHdr.messageId} for each
-                              ([, msgHdr] in Iterator(aMessages))],
-                              forceSelect: aForceSelect};
+      this._savedSelection = {
+        messages: aMessages.map(msgHdr => ({messageId: msgHdr.messageId})),
+        forceSelect: aForceSelect
+      };
       if (!this.active)
         this._notifyWhenActive(this._restoreSelection);
     }
@@ -2431,7 +2431,7 @@ FolderDisplayWidget.prototype = {
     let selectedIndices = this.selectedIndices;
     let newSelectedMessages = [];
     let dbView = this.view.dbView;
-    for each (let [, index] in Iterator(selectedIndices)) {
+    for (let index of selectedIndices) {
       let thread = dbView.getThreadContainingIndex(index);
       // We use getChildHdrAt instead of getRootHdr because getRootHdr has
       //  a useless out-param and just calls getChildHdrAt anyways.

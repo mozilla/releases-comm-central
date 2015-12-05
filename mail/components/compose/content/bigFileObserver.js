@@ -55,7 +55,7 @@ var gBigFileObserver = {
     let removeValues = [kUploadNotificationValue,
                         kPrivacyWarningNotificationValue];
 
-    for each (let [, value] in Iterator(removeValues)) {
+    for (let value of removeValues) {
       let notification = nb.getNotificationWithValue(value);
       if (notification) {
         nb.removeNotification(notification);
@@ -215,7 +215,7 @@ var gBigFileObserver = {
     }
     else if(accounts.length > 1) {
       let selection = {};
-      let names = [cloudFileAccounts.getDisplayName(i) for each (i in accounts)];
+      let names = accounts.map(i => cloudFileAccounts.getDisplayName(i));
       if (Services.prompt.select(window,
                                  this.formatString("bigFileChooseAccount.title"),
                                  this.formatString("bigFileChooseAccount.text"),

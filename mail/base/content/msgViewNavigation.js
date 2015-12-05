@@ -121,7 +121,7 @@ function GetRootFoldersInFolderPaneOrder()
   let accounts = allAccountsSorted(false);
 
   let serversMsgFolders = [];
-  for each (let account in accounts)
+  for (let account of accounts)
     serversMsgFolders.push(account.incomingServer.rootMsgFolder);
 
   return serversMsgFolders;

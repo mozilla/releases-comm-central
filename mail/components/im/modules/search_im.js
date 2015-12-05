@@ -139,7 +139,7 @@ var COLUMN_MULTIPLE_MATCH_LIMIT = [10, 0, 0, 0, 0];
 function scoreOffsets(aMessage, aContext) {
   let score = 0;
 
-  let termTemplate = [0 for each (term in Iterator(aContext.terms, true))];
+  let termTemplate = aContext.terms.map(_ => 0);
   // for each column, a list of the incidence of each term
   let columnTermIncidence = [termTemplate.concat(),
                              termTemplate.concat(),
@@ -150,7 +150,7 @@ function scoreOffsets(aMessage, aContext) {
   // we need a friendlyParseInt because otherwise the radix stuff happens
   //  because of the extra arguments map parses.  curse you, map!
   let offsetNums =
-    [parseInt(x) for each (x in aContext.stashedColumns[aMessage.id][0].split(" "))];
+    aContext.stashedColumns[aMessage.id][0].split(" ").map(x => parseInt(x));
   for (let i=0; i < offsetNums.length; i += 4) {
     let columnIndex = offsetNums[i];
     let termIndex = offsetNums[i+1];
@@ -264,7 +264,7 @@ GlodaIMSearcher.prototype = {
 
     let fulltextQueryString = "";
 
-    for each (let [iTerm, term] in Iterator(this.fulltextTerms)) {
+    for (let [iTerm, term] of this.fulltextTerms.entries()) {
       if (iTerm)
         fulltextQueryString += this.andTerms ? " " : " OR ";
 

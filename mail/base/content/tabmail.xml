@@ -448,7 +448,7 @@
             tabOpenFirstFunc.call(firstTab.mode.tabType, firstTab);
             this.setTabTitle(null);
 
-            for each (let [i, tabMonitor] in Iterator(this.tabMonitors)) {
+            for (let [i, tabMonitor] of this.tabMonitors.entries()) {
               if ("onTabOpened" in tabMonitor)
                 tabMonitor.onTabOpened(firstTab, true);
               tabMonitor.onTabSwitched(firstTab, null);
@@ -564,7 +564,7 @@
           tabOpenFunc.apply(tab.mode.tabType, [tab, aArgs]);
 
           let restoreState = this._restoringTabState;
-          for each (let [i, tabMonitor] in Iterator(this.tabMonitors)) {
+          for (let [i, tabMonitor] of this.tabMonitors.entries()) {
             if (("onTabRestored" in tabMonitor) && restoreState &&
                 (tabMonitor.monitorName in restoreState.ext))
               tabMonitor.onTabRestored(tab,
@@ -708,7 +708,7 @@
             if (tryCloseFunc && !tryCloseFunc.call(tab.mode.tabType, tab))
               return;
 
-            for each (let [i, tabMonitor] in Iterator(this.tabMonitors)) {
+            for (let [i, tabMonitor] of this.tabMonitors.entries()) {
               if ("onTabClosing" in tabMonitor)
                 tabMonitor.onTabClosing(tab);
             }
@@ -921,7 +921,7 @@
 
            let ext = {};
 
-           for each (let [i, tabMonitor] in Iterator(this.tabMonitors)) {
+           for (let [i, tabMonitor] of this.tabMonitors.entries()) {
              if ("onTabPersist" in tabMonitor) {
                let monState = tabMonitor.onTabPersist(tab);
                if (monState !== null)
@@ -955,7 +955,7 @@
 
           let tabs = state.tabs = [];
 
-          for each (let [iTab, tab] in Iterator(this.tabInfo)) {
+          for (let [iTab, tab] of this.tabInfo.entries()) {
 
             let persistTab = this.persistTab(tab);
 
@@ -1010,7 +1010,7 @@
            */
           let tabs = aPersistedState.tabs;
           let indexToSelect = null;
-          for each (let [iTab, tabState] in Iterator(tabs)) {
+          for (let [iTab, tabState] of tabs.entries()) {
 
             if (tabState.state.firstTab && aDontRestoreFirstTab)
               tabState.state.dontRestoreFirstTab = aDontRestoreFirstTab;
@@ -1155,7 +1155,7 @@
               let showTabFunc = tab.mode.showTab || tab.mode.tabType.showTab;
               showTabFunc.call(tab.mode.tabType, tab);
 
-              for each (let [i, tabMonitor] in Iterator(this.tabMonitors))
+              for (let [i, tabMonitor] of this.tabMonitors.entries())
                 tabMonitor.onTabSwitched(tab, oldTab);
 
               // always update the cursor status when we switch tabs
@@ -1224,7 +1224,7 @@
               if (titleChangeFunc)
                 titleChangeFunc.call(tab.mode.tabType, tab, tabNode);
 
-              for each (let [, tabMonitor] in Iterator(this.tabMonitors))
+              for (let tabMonitor of this.tabMonitors)
                 tabMonitor.onTabTitleChanged(tab);
 
               // If the displayed tab is the one at the moment of creation
@@ -1404,7 +1404,7 @@
             if (!tab)
               return false;
 
-            for each (let [, tabMonitor] in Iterator(this.tabMonitors)) {
+            for (let tabMonitor of this.tabMonitors) {
               if ("supportsCommand" in tabMonitor) {
                 let result = tabMonitor.supportsCommand(aCommand, tab);
                 if (result !== null)
@@ -1432,7 +1432,7 @@
             if (!tab)
               return false;
 
-            for each (let [, tabMonitor] in Iterator(this.tabMonitors)) {
+            for (let tabMonitor of this.tabMonitors) {
               if ("isCommandEnabled" in tabMonitor) {
                 let result = tabMonitor.isCommandEnabled(aCommand, tab);
                 if (result !== null)
@@ -1460,7 +1460,7 @@
             if (!tab)
               return;
 
-            for each (let [, tabMonitor] in Iterator(this.tabMonitors)) {
+            for (let tabMonitor of this.tabMonitors) {
               if ("doCommand" in tabMonitor) {
                 let result = tabMonitor.doCommand(aCommand, tab);
                 if (result === true)

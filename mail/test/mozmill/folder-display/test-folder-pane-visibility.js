@@ -231,7 +231,7 @@ function test_folder_pane_persistence_generally_works() {
     [0, 1, 1, 0, 0]
   ];
 
-  for each (let [, config] in Iterator(configs)) {
+  for (let config of configs) {
     openTabs(config);
     verifyTabs(config); // make sure openTabs did its job right
     let state = mc.tabmail.persistTabs();

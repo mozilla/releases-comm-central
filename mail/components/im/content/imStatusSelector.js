@@ -271,7 +271,7 @@ var statusSelector = {
     if (statusMessage)
       statusMessage.addEventListener("keypress", this.statusMessageKeyPress);
 
-    for each (let event in events)
+    for (let event of events)
       Services.obs.addObserver(statusSelector, event, false);
     statusSelector._events = events;
 
@@ -279,7 +279,7 @@ var statusSelector = {
   },
 
   unload: function ss_unload() {
-    for each (let event in statusSelector._events)
+    for (let event of statusSelector._events)
       Services.obs.removeObserver(statusSelector, event);
    }
 };

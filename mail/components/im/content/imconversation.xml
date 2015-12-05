@@ -570,7 +570,7 @@
           // Check if we are completing a command.
           let completingCommand = isFirstWord && word[0] == "/";
           if (completingCommand) {
-            for each (let cmd in Services.cmd.listCommandsForConversation(this._conv)) {
+            for (let cmd of Services.cmd.listCommandsForConversation(this._conv)) {
               // It's possible to have a global and a protocol specific command
               // with the same name. Avoid duplicates in the |completions| array.
               let name = "/" + cmd.name;
@@ -640,7 +640,7 @@
           // If the cursor is in the middle of a word, and the word is a nick,
           // there is no need to complete - just jump to the end of the nick.
           let wholeWord = text.substring(inputBox.selectionStart - word.length);
-          for each (let completion in matchingCompletions) {
+          for (let completion of matchingCompletions) {
             if (wholeWord.lastIndexOf(completion, 0) == 0) {
               let moveCursor = completion.length - word.length;
               inputBox.selectionStart += moveCursor;

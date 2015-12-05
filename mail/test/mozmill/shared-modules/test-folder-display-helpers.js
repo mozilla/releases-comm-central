@@ -271,7 +271,8 @@ function installInto(module) {
   // now copy everything into the module they provided to us...
   let us = collector.getModule('folder-display-helpers');
   let self = this;
-  for each (let [key, value] in Iterator(us)) {
+  for (let key in us) {
+    let value = us[key];
     if (key in EXPORT_VIA_GETTER_SETTER) {
       // The value of |key| changes between iterations, so it's important to
       // capture the right key in a local variable.
@@ -1739,7 +1740,7 @@ function assert_messages_not_in_view(aMessages, aController) {
     aController = mc;
   if (aMessages instanceof Ci.nsIMsgDBHdr)
     aMessages = [aMessages];
-  for each (let [, msgHdr] in Iterator(aMessages)) {
+  for (let msgHdr of aMessages) {
     if (mc.dbView.findIndexOfMsgHdr(msgHdr, true) != nsMsgViewIndex_None)
       mark_failure(["Message header is present in view but should not be:",
                     msgHdr, "index:",
@@ -1879,7 +1880,7 @@ function _process_row_message_arguments() {
     }
     // SyntheticMessageSet
     else if (arg.synMessages) {
-      for each (let msgHdr in arg.msgHdrs) {
+      for (let msgHdr of arg.msgHdrs) {
         let viewIndex = troller.dbView.findIndexOfMsgHdr(msgHdr, false);
         if (viewIndex == nsMsgViewIndex_None)
           throw_and_dump_view_state(
@@ -2035,8 +2036,7 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
 
     // and _now_ make sure that we actually summarized what we wanted to
     //  summarize.
-    let desiredMessages = [mc.dbView.getMsgHdrAt(vi) for each
-                            ([, vi] in Iterator(desiredIndices))];
+    let desiredMessages = desiredIndices.map(vi => mc.dbView.getMsgHdrAt(vi));
     assert_messages_summarized(troller, desiredMessages);
   }
 }
@@ -2122,7 +2122,7 @@ function assert_messages_summarized(aController, aSelectedMessages) {
     aSelectedMessages = aController.folderDisplay.selectedMessages;
   // if it's a synthetic message set, we want the headers...
   if (aSelectedMessages.synMessages)
-    aSelectedMessages = [msgHdr for each (msgHdr in aSelectedMessages.msgHdrs)];
+    aSelectedMessages = Array.from(aSelectedMessages.msgHdrs);
 
   let summaryFrame = aController.window.gSummaryFrameManager.iframe;
   let summary = summaryFrame.contentWindow.gMessageSummary;
@@ -2186,7 +2186,7 @@ function _assert_elided_helper(aShouldBeElided, aArgs) {
     _process_row_message_arguments.apply(this, aArgs);
 
   let dbView = troller.dbView;
-  for each (let [, viewIndex] in Iterator(viewIndices)) {
+  for (let viewIndex of viewIndices) {
     let flags = dbView.getFlagsAt(viewIndex);
     if (Boolean(flags & Ci.nsMsgMessageFlags.Elided) != aShouldBeElided)
       throw new Error("Message at view index " + viewIndex +
@@ -2311,7 +2311,7 @@ function _get_currently_focused_thing() {
   // If the message pane or multimessage is focused, return that
   let focusedWindow = mc.window.document.commandDispatcher.focusedWindow;
   if (focusedWindow) {
-    for each (let [, windowId] in Iterator(RECOGNIZED_WINDOWS)) {
+    for (let windowId of RECOGNIZED_WINDOWS) {
       let elem = mc.e(windowId);
       if (elem && focusedWindow == elem.contentWindow)
         return windowId;
@@ -2325,8 +2325,7 @@ function _get_currently_focused_thing() {
     return null;
 
   let focusedElement = mc.window.document.commandDispatcher.focusedElement;
-  let elementsToMatch = [mc.e(elem)
-                         for each ([, elem] in Iterator(RECOGNIZED_ELEMENTS))];
+  let elementsToMatch = RECOGNIZED_ELEMENTS.map(elem => mc.e(elem));
   while (focusedElement && !elementsToMatch.includes(focusedElement))
     focusedElement = focusedElement.parentNode;
 

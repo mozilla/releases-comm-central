@@ -325,7 +325,7 @@ function get_compose_body(aController) {
 function type_in_composer(aController, aText) {
   // If we have any typing to do, let's do it.
   let frame = aController.eid("content-frame");
-  for each (let [i, aLine] in Iterator(aText)) {
+  for (let [i, aLine] of aText.entries()) {
     aController.type(frame, aLine);
     if (i < aText.length - 1)
       aController.keypress(frame, "VK_RETURN", {});

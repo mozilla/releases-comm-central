@@ -95,7 +95,8 @@ function toggle_quick_filter_bar() {
  * that the search constraints are in effect.  Check that elsewhere.
  */
 function assert_constraints_expressed(aConstraints) {
-  for each (let [name, domId] in Iterator(nameToBarDomId)) {
+  for (let name in nameToBarDomId) {
+    let domId = nameToBarDomId[name];
     let expectedValue = (name in aConstraints) ? aConstraints[name] : false;
     let domNode = mc.e(domId);
     if (domNode.checked !== expectedValue) {

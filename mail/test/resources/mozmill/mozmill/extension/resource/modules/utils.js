@@ -89,7 +89,7 @@ function getWindows(type) {
 }
 
 function getMethodInWindows (methodName) {
-  for each(w in getWindows()) {
+  for (var w of getWindows()) {
     if (w[methodName] != undefined) {
       return w[methodName];
     }
@@ -98,7 +98,7 @@ function getMethodInWindows (methodName) {
 }
 
 function getWindowByTitle(title) {
-  for each(w in getWindows()) {
+  for (var w of getWindows()) {
     if (w.document.title && w.document.title == title) {
       return w;
     }

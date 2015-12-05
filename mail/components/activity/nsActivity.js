@@ -58,7 +58,7 @@ nsActivity.prototype = {
 
   getSubjects: function(aCount) {
     let list = [];
-    for each (let [, value] in Iterator(this._subjects))
+    for (let value of this._subjects)
       list.push(value);
 
     aCount.value = list.length;
@@ -149,7 +149,7 @@ nsActivityProcess.prototype = {
 
     // let the listeners know about the change
     this.log.debug("Notifying onStateChanged listeners");
-    for each (let [, value] in Iterator(this._listeners)) {
+    for (let value of this._listeners) {
       try {
         value.onStateChanged(this, oldState);
       }
@@ -173,7 +173,7 @@ nsActivityProcess.prototype = {
     this.lastStatusText = aStatusText;
 
     // notify listeners
-    for each (let [, value] in Iterator(this._listeners)) {
+    for (let value of this._listeners) {
       try {
         value.onProgressChanged(this, aStatusText, aWorkUnitsComplete,
                                 aTotalWorkUnits);
@@ -193,7 +193,7 @@ nsActivityProcess.prototype = {
 
     // let the listeners know about the change
     this.log.debug("Notifying onHandlerChanged listeners");
-    for each (let [, value] in Iterator(this._listeners)) {
+    for (let value of this._listeners) {
       try {
         value.onHandlerChanged(this);
       }
@@ -212,7 +212,7 @@ nsActivityProcess.prototype = {
 
     // let the listeners know about the change
     this.log.debug("Notifying onHandlerChanged listeners");
-    for each (let [, value] in Iterator(this._listeners)) {
+    for (let value of this._listeners) {
       value.onHandlerChanged(this);
     }
   },
@@ -226,7 +226,7 @@ nsActivityProcess.prototype = {
 
     // let the listeners know about the change
     this.log.debug("Notifying onHandlerChanged listeners");
-    for each (let [, value] in Iterator(this._listeners)) {
+    for (let value of this._listeners) {
       value.onHandlerChanged(this);
     }
   },
@@ -281,7 +281,7 @@ nsActivityEvent.prototype = {
 
     // let the listeners know about the change
     this.log.debug("Notifying onHandlerChanged listeners");
-    for each (let [, value] in Iterator(this._listeners)) {
+    for (let value of this._listeners) {
       value.onHandlerChanged(this);
     }
   },
@@ -329,7 +329,7 @@ nsActivityWarning.prototype = {
 
     // let the listeners know about the change
     this.log.debug("Notifying onHandlerChanged listeners");
-    for each (let [, value] in Iterator(this._listeners)) {
+    for (let value of this._listeners) {
       value.onHandlerChanged(this);
     }
   },

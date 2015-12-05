@@ -165,16 +165,15 @@ var cloudFileAccounts = {
     // Destroy any secret tokens for this accountKey.
     let logins = Services.logins
                          .findLogins({}, PWDMGR_HOST, null, "");
-    for each (let login in logins) {
+    for (let login of logins) {
       if (login.username == key)
         Services.logins.removeLogin(login);
     }
   },
 
   get accounts() {
-    return [this.getAccount(key)
-            for each (key in this._accountKeys)
-            if (this.getAccount(key) != null)];
+    return this._accountKeys.filter(key => this.getAccount(key) != null).
+      map(key => this.getAccount(key));
   },
 
   getAccountsForType: function CFA_getAccountsForType(aType) {
@@ -286,7 +285,7 @@ var cloudFileAccounts = {
   _getLoginInfoForKey: function(aKey, aRealm) {
     let logins = Services.logins
                          .findLogins({}, PWDMGR_HOST, null, aRealm);
-    for each (let login in logins) {
+    for (let login of logins) {
       if (login.username == aKey)
         return login;
     }

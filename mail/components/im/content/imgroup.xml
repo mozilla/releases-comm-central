@@ -139,7 +139,7 @@
       <parameter name="aClosed"/>
       <body>
       <![CDATA[
-        for each (let contact in this.contacts)
+        for (let contact of this.contacts)
           contact.collapsed = aClosed;
       ]]>
       </body>

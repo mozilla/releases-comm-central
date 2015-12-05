@@ -225,7 +225,7 @@ var mailTabType = {
             let tabmail = document.getElementById("tabmail");
             let restoreState = tabmail._restoringTabState;
             let tab = tabmail.tabInfo[0];
-            for each (let [, tabMonitor] in Iterator(tabmail.tabMonitors)) {
+            for (let tabMonitor of tabmail.tabMonitors) {
               if (("onTabRestored" in tabMonitor) &&
                   (tabMonitor.monitorName in restoreState.ext)) {
                 tabMonitor.onTabRestored(tab,

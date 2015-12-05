@@ -193,9 +193,8 @@ var getLookupForElem = function (_document, elem) {
     }
 
     // At this point there is either no identifier or it returns multiple
-    var parse = [n for each (n in elem.parentNode.childNodes) if
-                 (n.getAttribute && n != elem)
-                 ];
+    var parse = Array.from(elem.parentNode.childNodes).
+      filter(n => n.getAttribute && n != elem);
     parse.unshift(dom.getAttributes(elem));
     var uniqueAttributes = parse.reduce(getUniqueAttributesReduction);
 
@@ -221,9 +220,8 @@ var getLookupForElem = function (_document, elem) {
 
   } else {
     // Handle Anonymous Nodes
-    var parse = [n for each (n in _document.getAnonymousNodes(elem.parentNode)) if
-                 (n.getAttribute && n != elem)
-                 ];
+    var parse = Array.from(_document.getAnonymousNodes(elem.parentNode)).
+      filter(n => n.getAttribute && n != elem);
     parse.unshift(dom.getAttributes(elem));
     var uniqueAttributes = parse.reduce(getUniqueAttributesReduction);
     if (uniqueAttributes.anonid && typeof(elementslib._byAnonAttrib(_document,

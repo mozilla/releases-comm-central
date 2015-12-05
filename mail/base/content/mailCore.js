@@ -745,7 +745,7 @@ nsFlavorDataProvider.prototype =
       // cheat and scan through them
 
       var attachment = null;
-      for each (let index in Iterator(currentAttachments, true))
+      for (let index of currentAttachments.keys())
       {
         attachment = currentAttachments[index];
         if (attachment.url == srcUrlPrimitive)

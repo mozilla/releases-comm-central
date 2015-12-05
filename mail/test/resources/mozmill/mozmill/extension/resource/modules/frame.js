@@ -235,7 +235,7 @@ events.pass = function (obj) {
   if (events.currentTest) {
     events.currentTest.__passes__.push(obj);
   }
-  for each(var timer in timers) {
+  for (var timer of timers) {
     timer.actions.push(
       {"currentTest":events.currentModule.__file__+"::"+events.currentTest.__name__, "obj":obj,
        "result":"pass"}
@@ -259,7 +259,7 @@ events.fail = function (obj) {
   if (events.currentTest) {
     events.currentTest.__fails__.push(obj);
   }
-  for each(var time in timers) {
+  for (var time of timers) {
     timer.actions.push(
       {"currentTest":events.currentModule.__file__+"::"+events.currentTest.__name__, "obj":obj,
        "result":"fail"}
@@ -270,7 +270,7 @@ events.fail = function (obj) {
 events.skip = function (reason) {
   events.currentTest.skipped = true;
   events.currentTest.skipped_reason = reason;
-  for each(var timer in timers) {
+  for (var timer of timers) {
     timer.actions.push(
       {"currentTest":events.currentModule.__file__+"::"+events.currentTest.__name__, "obj":reason,
        "result":"skip"}
@@ -287,7 +287,7 @@ events.fireEvent = function (name, obj) {
       this.listeners[name][i](obj);
     }
   }
-  for each(var listener in this.globalListeners) {
+  for (var listener of this.globalListeners) {
     listener(name, obj);
   }
 }
@@ -451,7 +451,7 @@ Collector.prototype.initTestModule = function (filename) {
   }
 
   if (test_module.MODULE_REQUIRES != undefined && test_module.RELATIVE_ROOT == undefined) {
-    for each(var t in test_module.__tests__) {
+    for (var t of test_module.__tests__) {
       t.__force_skip__ = "RELATIVE ROOT is not defined and test requires another module.";
     }
   }
@@ -609,7 +609,7 @@ Runner.prototype.wrapper = function (func, arg) {
 
 Runner.prototype._runTestModule = function (module) {
   if (module.__requirements__ != undefined && module.__force_skip__ == undefined) {
-    for each(var req in module.__requirements__) {
+    for (var req of module.__requirements__) {
       module[req] = this.collector.getModule(req);
     }
   }
@@ -665,7 +665,7 @@ Runner.prototype._runTestModule = function (module) {
       events.endTest(test)
     }
   } else {
-    for each(var test in module.__tests__) {
+    for (var test of module.__tests__) {
       events.setTest(test);
       events.skip("setupModule failed.");
       events.endTest(test);

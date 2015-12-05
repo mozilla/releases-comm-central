@@ -836,8 +836,7 @@ var AugmentEverybodyWith = {
           let elems = Array.prototype.slice.call(
                         elem.getElementsByTagName(aQuery.tagName));
           if (aQuery.label)
-            elems = [elem for each (elem in elems)
-                          if (elem.label == aQuery.label)];
+            elems = elems.filter(elem => elem.label == aQuery.label);
           elem = elems[0];
         }
       }
@@ -969,7 +968,7 @@ var AugmentEverybodyWith = {
       let closeStack = [aRootPopup];
 
       let curPopup = aRootPopup;
-      for each (let [iAction, actionObj] in Iterator(aActions)) {
+      for (let [iAction, actionObj] of aActions.entries()) {
         /**
          * Check if aNode attributes match all those given in actionObj.
          * Nodes that are obvious containers are skipped, and their children
@@ -988,7 +987,8 @@ var AugmentEverybodyWith = {
           }
 
           let matchedAll = true;
-          for each (let [name, value] in Iterator(actionObj)) {
+          for (let name in actionObj) {
+            let value = actionObj[name];
             if (!aNode.hasAttribute(name) ||
                 aNode.getAttribute(name) != value) {
               matchedAll = false;
@@ -1310,25 +1310,27 @@ var PerWindowTypeAugmentations = {
 
 function _augment_helper(aController, aAugmentDef) {
   if (aAugmentDef.elementsToExpose) {
-    for each (let [key, value] in Iterator(aAugmentDef.elementsToExpose)) {
+    for (let key in aAugmentDef.elementsToExpose) {
+      let value = aAugmentDef.elementsToExpose[key];
       aController[key] = aController.window.document.getElementById(value);
     }
   }
   if (aAugmentDef.elementsIDsToExpose) {
-    for each (let [key, value] in Iterator(aAugmentDef.elementIDsToExpose)) {
+    for (let key in aAugmentDef.elementIDsToExpose) {
+      let value = aAugmentDef.elementIDsToExpose[key];
       aController[key] = new elib.ID(
                            aController.window.document, value);
     }
   }
   if (aAugmentDef.globalsToExposeAtStartup) {
-    for each (let [key, value] in
-              Iterator(aAugmentDef.globalsToExposeAtStartup)) {
+    for (let key in aAugmentDef.globalsToExposeAtStartup) {
+      let value = aAugmentDef.globalsToExposeAtStartup[key];
       aController[key] = aController.window[value];
     }
   }
   if (aAugmentDef.globalsToExposeViaGetters) {
-    for each (let [key, value] in
-              Iterator(aAugmentDef.globalsToExposeViaGetters)) {
+    for (let key in aAugmentDef.globalsToExposeViaGetters) {
+      let value = aAugmentDef.globalsToExposeViaGetters[key];
       let globalName = value;
       aController.__defineGetter__(key, function() {
           return this.window[globalName];
@@ -1336,19 +1338,21 @@ function _augment_helper(aController, aAugmentDef) {
     }
   }
   if (aAugmentDef.getters) {
-    for each (let [key, value] in Iterator(aAugmentDef.getters)) {
+    for (let key in aAugmentDef.getters) {
+      let value = aAugmentDef.getters[key];
       aController.__defineGetter__(key, value);
     }
   }
   if (aAugmentDef.methods) {
-    for each (let [key, value] in Iterator(aAugmentDef.methods)) {
+    for (let key in aAugmentDef.methods) {
+      let value = aAugmentDef.methods[key];
       aController[key] = value;
     }
   }
 
   if (aAugmentDef.debugTrace) {
     let win = aController.window;
-    for each (let [, traceDef] in Iterator(aAugmentDef.debugTrace)) {
+    for (let traceDef of aAugmentDef.debugTrace) {
       let baseObj, useThis;
       // - Get the object that actually has the method to wrap
       if (traceDef.hasOwnProperty("onGlobal")) {

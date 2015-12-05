@@ -249,7 +249,7 @@ function view_init()
                             "bodyFeedGlobalSummary",
                             "bodyFeedPerFolderPref"];
   let checked = FeedMessageHandler.onSelectPref;
-  for each (let [index, id] in Iterator(viewRssMenuItemIds)) {
+  for (let [index, id] of viewRssMenuItemIds.entries()) {
     document.getElementById(id)
             .setAttribute("checked", index == checked);
   }
@@ -765,7 +765,7 @@ function SetGetMsgButtonTooltip()
   var listSeparator = bundle.getString("getMsgButtonTooltip.listSeparator");
 
   // Push the usernames through a Set() to remove duplicates.
-  var names = new Set([v.server.prettyName for each (v in folders)]);
+  var names = new Set(folders.map(v => v.server.prettyName));
   var tooltipNames = Array.from(names).join(listSeparator);
   msgButton.tooltipText = bundle.getFormattedString("getMsgButtonTooltip",
                                                     [ tooltipNames ]);

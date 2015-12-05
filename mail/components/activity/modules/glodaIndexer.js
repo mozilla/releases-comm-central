@@ -216,7 +216,7 @@ var glodaIndexerActivity =
 
       // Transfer subjects.
       let subjects = this.currentJob.process.getSubjects({});
-      for each (let [, subject] in Iterator(subjects))
+      for (let subject of subjects)
         event.addSubject(subject);
 
       this.activityMgr.addActivity(event);

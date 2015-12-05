@@ -658,7 +658,7 @@ var messageHeaderSink = {
     {
       displayAttachmentsForExpandedView();
 
-      for each (let [, listener] in Iterator(gMessageListeners)) {
+      for (let listener of gMessageListeners) {
         if ("onEndAttachments" in listener)
           listener.onEndAttachments();
       }
@@ -694,7 +694,7 @@ var messageHeaderSink = {
           this.mSaveHdr && gFolderDisplay.selectedMessageIsFeed &&
           browser && browser.contentDocument && browser.contentDocument.body) {
         for (let img of browser.contentDocument.body.getElementsByClassName("moz-attached-image")) {
-          for each (let [, attachment] in Iterator(currentAttachments)) {
+          for (let attachment of currentAttachments) {
             let partID = img.src.split("&part=")[1];
             partID = partID ? partID.split("&")[0] : null;
             if (attachment.partID && partID == attachment.partID) {
@@ -784,7 +784,7 @@ function SetTagHeader()
   // get the list of known tags
   var tagArray = MailServices.tags.getAllTags({});
   var tagKeys = {};
-  for each (var tagInfo in tagArray)
+  for (var tagInfo of tagArray)
     if (tagInfo.tag)
       tagKeys[tagInfo.key] = true;
 
@@ -853,7 +853,8 @@ function OnTagsChange()
  */
 function ClearHeaderView(aHeaderTable)
 {
-  for each (let [, headerEntry] in Iterator(aHeaderTable)) {
+  for (let name in aHeaderTable) {
+    let headerEntry = aHeaderTable[name];
     if (headerEntry.enclosingBox.clearHeaderValues)
       headerEntry.enclosingBox.clearHeaderValues();
 
@@ -868,8 +869,10 @@ function ClearHeaderView(aHeaderTable)
  */
 function hideHeaderView(aHeaderTable)
 {
-  for each (let [, headerEntry] in Iterator(aHeaderTable))
+  for (let name in aHeaderTable) {
+    let headerEntry = aHeaderTable[name];
     headerEntry.enclosingRow.collapsed = true;
+  }
 }
 
 /**
@@ -879,7 +882,8 @@ function hideHeaderView(aHeaderTable)
  */
 function showHeaderView(aHeaderTable)
 {
-  for each (let [, headerEntry] in Iterator(aHeaderTable)) {
+  for (let name in aHeaderTable) {
+    let headerEntry = aHeaderTable[name];
     if (headerEntry.valid) {
       headerEntry.enclosingRow.collapsed = false;
     } else {
@@ -900,7 +904,8 @@ function EnsureMinimumNumberOfHeaders (headerTable)
     return;
 
   var numVisibleHeaders = 0;
-  for each (let [, headerEntry] in Iterator(headerTable)) {
+  for (let name in headerTable) {
+    let headerEntry = headerTable[name];
     if (headerEntry.valid)
       numVisibleHeaders ++;
   }
@@ -911,7 +916,8 @@ function EnsureMinimumNumberOfHeaders (headerTable)
 
     // We may have already dynamically created our empty rows and we just need
     // to make them visible.
-    for each (let [index, headerEntry] in Iterator(headerTable)) {
+    for (let index in headerTable) {
+      let headerEntry = headerTable[index];
       if (index.startsWith("Dummy-Header") && numEmptyHeaders) {
         headerEntry.valid = true;
         numEmptyHeaders--;
@@ -1052,7 +1058,8 @@ function HeaderView(headerName, label)
  */
 function RemoveNewHeaderViews(aHeaderTable)
 {
-  for each (let [, headerEntry] in Iterator(aHeaderTable)) {
+  for (let name in aHeaderTable) {
+    let headerEntry = aHeaderTable[name];
     if (headerEntry.isNewHeader)
       headerEntry.enclosingRow.remove();
   }
@@ -1287,7 +1294,7 @@ function UpdateEmailNodeDetails(aEmailAddress, aDocumentNode, aCardDetails) {
     Components.utils.import("resource:///modules/chatHandler.jsm", chatHandler);
   }
   let onlineContacts = chatHandler.onlineContacts;
-  for each (let chatAddress in chatAddresses) {
+  for (let chatAddress of chatAddresses) {
     if (Object.prototype.hasOwnProperty.call(onlineContacts, chatAddresses)) {
       chatContact = onlineContacts[chatAddress];
       break;
@@ -2234,7 +2241,7 @@ function displayAttachmentsForExpandedView()
 
     var lastPartID;
     var unknownSize = false;
-    for each (let [, attachment] in Iterator(currentAttachments)) {
+    for (let attachment of currentAttachments) {
       // Create a new attachment widget
       var displayName = SanitizeAttachmentDisplayName(attachment);
       var item = attachmentList.appendItem(attachment, displayName);
@@ -2397,7 +2404,7 @@ function FillAttachmentListPopup(aEvent, aPopup)
   // First clear out the old view...
   ClearAttachmentMenu(aPopup);
 
-  for each (let [attachmentIndex, attachment] in Iterator(currentAttachments))
+  for (let [attachmentIndex, attachment] of currentAttachments.entries())
     addAttachmentToPopup(aPopup, attachment, attachmentIndex);
 
   goUpdateAttachmentCommands();

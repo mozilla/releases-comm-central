@@ -269,7 +269,7 @@ var gCloudAttachmentLinkManager = {
    * @param aIDs an array of id strings.
    */
   _resetNodeIDs: function(aDocument, aIDs) {
-    for each (let [, id] in Iterator(aIDs)) {
+    for (let id of aIDs) {
       let node = aDocument.getElementById(id);
       if (node)
         node.id = "";
@@ -493,7 +493,7 @@ var gCloudAttachmentLinkManager = {
                     "cloudAttachmentListHeader"];
       let mailDoc = document.getElementById("content-frame").contentDocument;
 
-      for each (let [, id] in Iterator(kIDs)) {
+      for (let id of kIDs) {
         let element = mailDoc.getElementById(id);
         if (element)
           element.removeAttribute("id");

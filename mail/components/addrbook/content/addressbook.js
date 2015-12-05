@@ -702,7 +702,7 @@ function AbIMSelected()
   let online = [];
   let offline = [];
 
-  for each (let [, chatProperty] in Iterator(kChatProperties)) {
+  for (let chatProperty of kChatProperties) {
     let chatID = card.getProperty(chatProperty, "");
 
     if (chatID && (chatID in chatHandler.allContacts)) {

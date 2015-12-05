@@ -77,7 +77,7 @@ function test_simple_case() {
   gServer.planForGetFileURL("testFile1", {url: kExpectedUrl});
 
   let obs = new ObservationRecorder();
-  for each (let [, topic] in Iterator(kTopics)) {
+  for (let topic of kTopics) {
     obs.planFor(topic);
     Services.obs.addObserver(obs, topic, false);
   }
@@ -105,7 +105,7 @@ function test_simple_case() {
   assert_equals(2, obs.numSightings(kUploadFile));
   assert_equals(2, obs.numSightings(kGetFileURL));
 
-  for each (let [, topic] in Iterator(kTopics)) {
+  for (let topic of kTopics) {
     Services.obs.removeObserver(obs, topic);
   }
 }
@@ -115,14 +115,14 @@ function test_chained_uploads() {
   const kTopics = [kUploadFile, kGetFileURL];
   const kFilenames = ["testFile1", "testFile2", "testFile3"];
 
-  for each (let [, filename] in Iterator(kFilenames)) {
+  for (let filename of kFilenames) {
     let expectedUrl = kExpectedUrlRoot + filename;
     gServer.planForUploadFile(filename);
     gServer.planForGetFileURL(filename, {url: expectedUrl});
   }
 
   let obs = new ObservationRecorder();
-  for each (let [, topic] in Iterator(kTopics)) {
+  for (let topic of kTopics) {
     obs.planFor(topic);
     Services.obs.addObserver(obs, topic, false);
   }
@@ -155,7 +155,7 @@ function test_chained_uploads() {
 
   assert_equals(kFilenames.length, obs.numSightings(kGetFileURL));
 
-  for each (let [, topic] in Iterator(kTopics)) {
+  for (let topic of kTopics) {
     Services.obs.removeObserver(obs, topic);
   }
 }
@@ -207,7 +207,7 @@ function test_can_cancel_uploads() {
   const kFiles = ["testFile2", "testFile3", "testFile4"];
   let provider = gServer.getPreparedBackend("anAccount");
   let files = [];
-  for each (let [, filename] in Iterator(kFiles)) {
+  for (let filename of kFiles) {
     gServer.planForUploadFile(filename, 2000);
     files.push(getFile("./data/" + filename, __file__));
   }

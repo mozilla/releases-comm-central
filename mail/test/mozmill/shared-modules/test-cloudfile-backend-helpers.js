@@ -47,7 +47,7 @@ SimpleRequestObserverManager.prototype = {
   },
 
   check: function() {
-    for each (let [, observer] in Iterator(this._observers)) {
+    for (let observer of this._observers) {
       if (!observer.success)
         throw new Error("An observer named " + observer.name + " was leftover, "
                         + "with its success attribute set to: "
@@ -92,7 +92,7 @@ function assert_can_cancel_uploads(aController, aProvider, aFiles) {
   let fileListenerMap = [];
   wh.plan_for_observable_event("cloudfile:uploadStarted");
 
-  for each (let [, file] in Iterator(aFiles)) {
+  for (let file of aFiles) {
     let mapping = {};
     mapping.listener = {
       onStartRequest: function(aRequest, aContext) {

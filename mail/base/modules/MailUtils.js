@@ -189,7 +189,7 @@ var MailUtils =
                                "openTabWarningConfirmation",
                                "mailnews.open_tab_warning"))
           return;
-        for each (let [i, msgHdr] in Iterator(aMsgHdrs))
+        for (let [i, msgHdr] of aMsgHdrs.entries())
           // Open all the tabs in the background, except for the last one
           aTabmail.openTab("message", {msgHdr: msgHdr,
               viewWrapperToClone: aViewWrapperToClone,
@@ -262,7 +262,7 @@ var MailUtils =
                            "mailnews.open_window_warning"))
       return;
 
-    for each (let [, msgHdr] in Iterator(aMsgHdrs))
+    for (let msgHdr of aMsgHdrs)
       this.openMessageInNewWindow(msgHdr, aViewWrapperToClone);
   },
 

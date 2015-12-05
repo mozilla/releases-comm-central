@@ -1046,7 +1046,7 @@ function updateAllItems(aDisable)
   commandItemCollections.push(document.getElementsByTagName("toolbarbutton"));
   commandItemCollections.push(document.querySelectorAll('[command]'));
   commandItemCollections.push(document.querySelectorAll('[oncommand]'));
-  for each (let itemCollection in commandItemCollections) {
+  for (let itemCollection of commandItemCollections) {
     for (let item = 0; item < itemCollection.length; item++) {
       let commandItem = itemCollection[item];
       if (aDisable) {
@@ -1411,7 +1411,7 @@ function attachToCloud(aProvider)
 
     let files = [f for (f in fixIterator(fp.files,
                                          Components.interfaces.nsILocalFile))];
-    let attachments = [FileToAttachment(f) for each (f in files)];
+    let attachments = files.map(f => FileToAttachment(f));
 
     let i = 0;
     let items = AddAttachments(attachments, function(aItem) {

@@ -175,7 +175,7 @@ function make_gradually_newer_sets_in_folder(aFolder, aArgs)
 {
   gMsgMinutes -= 1;
   if (!aArgs.age) {
-    for each (let arg in aArgs)
+    for (let arg of aArgs)
       arg.age = {minutes: gMsgMinutes};
   }
   make_new_sets_in_folder(aFolder, aArgs);

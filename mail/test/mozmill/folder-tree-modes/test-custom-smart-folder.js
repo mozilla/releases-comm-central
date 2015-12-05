@@ -101,7 +101,7 @@ function test_custom_folder_exists() {
 }
 
 function FTVItemHasChild(parentFTVItem, childFolder, recurse) {
-  for each(let child in parentFTVItem.children) {
+  for (let child of parentFTVItem.children) {
     if (child._folder.URI == childFolder.URI ||
         recurse && FTVItemHasChild(child, childFolder, recurse))
       return true;

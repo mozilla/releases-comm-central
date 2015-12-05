@@ -51,7 +51,8 @@ var ChatCore = {
           delete accountsById[incomingServer.wrappedJSObject.imAccount.numericId];
         }
         // Let's recreate each of them...
-        for each (let account in accountsById) {
+        for (let id in accountsById) {
+          let account = accountsById[id];
           let inServer = mgr.createIncomingServer(account.name,
                                                   account.protocol.id, // hostname
                                                   "im");

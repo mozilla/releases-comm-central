@@ -45,7 +45,7 @@ var gAccountManager = {
         if (!defaultID && acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED)
           defaultID = acc.id;
       }
-      for each (let event in events)
+      for (let event of events)
         Services.obs.addObserver(this, event, false);
       if (!this.accountList.getRowCount())
         // This is horrible, but it works. Otherwise (at least on mac)
@@ -74,7 +74,7 @@ var gAccountManager = {
   },
   unload: function am_unload() {
     clearInterval(this._connectedLabelInterval);
-    for each (let event in events)
+    for (let event of events)
       Services.obs.removeObserver(this, event);
   },
   _updateAccountList: function am__updateAccountList() {
@@ -352,13 +352,13 @@ var gAccountManager = {
        (account.disconnected &&
         account.connectionErrorReason == Ci.imIAccount.ERROR_UNKNOWN_PRPL));
 
-    let disabledItems = {
-      connect: isCommandDisabled,
-      disconnect: isCommandDisabled,
-      moveup: accountList.selectedIndex == 0,
-      movedown: accountList.selectedIndex == accountList.itemCount - 1
-    };
-    for each (let [name, state] in Iterator(disabledItems)) {
+    let disabledItems = [
+      ["connect", isCommandDisabled],
+      ["disconnect", isCommandDisabled],
+      ["moveup", accountList.selectedIndex == 0],
+      ["movedown", accountList.selectedIndex == accountList.itemCount - 1],
+    ];
+    for (let [name, state] of disabledItems) {
       let elt = document.getElementById("cmd_" + name);
       if (state)
         elt.setAttribute("disabled", "true");

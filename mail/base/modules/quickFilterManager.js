@@ -36,8 +36,8 @@ Cu.import("resource:///modules/gloda/msg_search.js");
  */
 function shallowObjCopy(obj) {
   let newObj = {};
-  for each (let [key, value] in Iterator(obj)) {
-    newObj[key] = value;
+  for (let key in obj) {
+    newObj[key] = obj[key];
   }
   return newObj;
 }
@@ -423,7 +423,7 @@ var QuickFilterManager = {
     let values = {};
     let sticky = ("sticky" in aTemplValues) ? aTemplValues.sticky : false;
 
-    for each (let [, filterDef] in Iterator(this.filterDefs)) {
+    for (let filterDef of this.filterDefs) {
       if ("propagateState" in filterDef) {
         let curValue = (filterDef.name in aTemplValues) ?
                          aTemplValues[filterDef.name] : undefined;
@@ -447,7 +447,7 @@ var QuickFilterManager = {
    */
   getDefaultValues: function MFM_getDefaultValues() {
     let values = {};
-    for each (let [, filterDef] in Iterator(this.filterDefs)) {
+    for (let filterDef of this.filterDefs) {
       if ("getDefaults" in filterDef) {
         let newValue = filterDef.getDefaults();
         if (newValue != null)
@@ -492,7 +492,7 @@ var QuickFilterManager = {
    */
   clearAllFilterValues: function MFM_clearFilterValues(aFilterValues) {
     let didClearSomething = false;
-    for each (let [, filterDef] in Iterator(this.filterDefs)) {
+    for (let filterDef of this.filterDefs) {
       if (this.clearFilterValue(filterDef.name, aFilterValues))
         didClearSomething = true;
     }
@@ -508,7 +508,8 @@ var QuickFilterManager = {
   createSearchTerms: function MFM_createSearchTerms(aFilterValues,
                                                     aTermCreator) {
     let searchTerms = [], listeners = [];
-    for each (let [filterName, filterValue] in Iterator(aFilterValues)) {
+    for (let filterName in aFilterValues) {
+      let filterValue = aFilterValues[filterName];
       let filterDef = this.filterDefsByName[filterName];
       try {
         let listener =
@@ -641,7 +642,8 @@ var TagFacetingFilter = {
       return true;
     // but also if the object contains no non-null values
     let simpleCase = true;
-    for each (let [key, value] in Iterator(aFilterValue.tags)) {
+    for (let key in aFilterValue.tags) {
+      let value = aFilterValue.tags[key];
       if (value !== null) {
         simpleCase = false;
         break;
@@ -688,7 +690,8 @@ var TagFacetingFilter = {
       let excludeTerms = [];
 
       let mode = aFilterValue.mode;
-      for each (let [key, shouldFilter] in Iterator(aFilterValue.tags)) {
+      for (let key in aFilterValue.tags) {
+        let shouldFilter = aFilterValue.tags[key];
         if (shouldFilter !== null) {
           term = aTermCreator.createTerm();
           term.attrib = Components.interfaces.nsMsgSearchAttrib.Keywords;
@@ -1036,8 +1039,8 @@ var MessageTextFilter = {
   },
   getDefaults: function() {
     let states = {};
-    for each (let [name, value] in Iterator(this._defaultStates)) {
-      states[name] = value;
+    for (let name in this._defaultStates) {
+      states[name] = this._defaultStates[name];
     }
     return {
       text: null,
@@ -1106,7 +1109,8 @@ var MessageTextFilter = {
       aMuxer.updateSearch();
     }
 
-    for each (let [, textFilter] in Iterator(this.textFilterDefs)) {
+    for (let name in this.textFilterDefs) {
+      let textFilter  = this.textFilterDefs[name];
       aDocument.getElementById(textFilter.domId).addEventListener(
         "command", commandHandler, false);
     }
@@ -1171,7 +1175,8 @@ var MessageTextFilter = {
 
     // Update our expando buttons
     let states = aFilterValue.states;
-    for each (let [, textFilter] in Iterator(this.textFilterDefs)) {
+    for (let name in this.textFilterDefs) {
+      let textFilter  = this.textFilterDefs[name];
       aDocument.getElementById(textFilter.domId).checked =
         states[textFilter.name];
     }

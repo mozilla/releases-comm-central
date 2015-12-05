@@ -113,7 +113,7 @@ var FolderNotificationHelper = {
     let folders = aFolders ? aFolders.concat() : [];
     if (aNotherFolder && !folders.includes(aNotherFolder))
       folders.push(aNotherFolder);
-    for each (let [, folder] in Iterator(folders)) {
+    for (let folder of folders) {
       let wrappers = this._interestedWrappers[folder.URI];
       if (wrappers == null)
         wrappers = this._interestedWrappers[folder.URI] = [];
@@ -158,7 +158,7 @@ var FolderNotificationHelper = {
       this._curiousWrappers.splice(this._curiousWrappers.indexOf(aViewWrapper), 1);
       return;
     }
-    for each (let [, folder] in Iterator(aFolders)) {
+    for (let folder of aFolders) {
       this._removeWrapperFromListener(
         this._interestedWrappers, folder, aViewWrapper);
       this._removeWrapperFromListener(
@@ -172,12 +172,12 @@ var FolderNotificationHelper = {
    *     person/code.
    */
   haveListeners: function FolderNotificationHelper_haveListeners() {
-    for each (let [folderURI, wrappers] in
-              Iterator(this._pendingFolderUriToViewWrapperLists)) {
+    for (let folderURI in this._pendingFolderUriToViewWrapperLists) {
+      let wrappers = this._pendingFolderUriToViewWrapperLists[folderURI];
       return true;
     }
-    for each (let [folderURI, wrappers] in
-              Iterator(this._interestedWrappers)) {
+    for (let folderURI in this._interestedWrappers) {
+      let wrappers = this._interestedWrappers[folderURI];
       return true;
     }
     return this._curiousWrappers.length != 0;
@@ -189,11 +189,11 @@ var FolderNotificationHelper = {
     let wrappers = this._interestedWrappers[aFolder.URI];
     if (wrappers) {
       // clone the list to avoid confusing mutation by listeners
-      for each (let [, wrapper] in Iterator(wrappers.concat())) {
+      for (let wrapper of wrappers.concat()) {
         wrapper[aHandlerName](aFolder);
       }
     }
-    for each (let wrapper in this._curiousWrappers)
+    for (let wrapper of this._curiousWrappers)
       wrapper[aHandlerName](aFolder);
   },
 
@@ -204,7 +204,7 @@ var FolderNotificationHelper = {
       let folderURI = aFolder.URI;
       let widgets = this._pendingFolderUriToViewWrapperLists[folderURI];
       if (widgets) {
-        for each (let [, widget] in Iterator(widgets)) {
+        for (let widget of widgets) {
           // we are friends, this is an explicit relationship.
           // (we don't use a generic callback mechanism because the 'this' stuff
           //  gets ugly and no one else should be hooking in at this level.)
@@ -262,7 +262,7 @@ var FolderNotificationHelper = {
     let wrappers = this._interestedWrappers[newURI];
     if (wrappers) {
       // clone the list to avoid confusing mutation by listeners
-      for each (let [, wrapper] in Iterator(wrappers.concat())) {
+      for (let wrapper of wrappers.concat()) {
         wrapper._folderMoved(aOldFolder, aNewFolder);
       }
     }
@@ -290,7 +290,7 @@ var FolderNotificationHelper = {
     let wrappers = this._interestedWrappers[aFolder.URI];
     if (wrappers) {
       // clone the list to avoid confusing mutation by listeners
-      for each (let [, wrapper] in Iterator(wrappers.concat())) {
+      for (let wrapper of wrappers.concat()) {
         wrapper._folderDeleted(aFolder);
       }
       // if the folder is deleted, it's not going to ever do anything again
@@ -584,11 +584,7 @@ DBViewWrapper.prototype = {
    *  against the displayedFolder attribute.
    */
   isUnderlyingFolder: function DBViewWrapper_isUnderlyingFolder(aFolder) {
-    for each (let [i,underlyingFolder] in Iterator(this._underlyingFolders)) {
-      if (aFolder == underlyingFolder)
-        return true;
-    }
-    return false;
+    return this._underlyingFolders.some(underlyingFolder => aFolder == underlyingFolder);
   },
 
   /**
@@ -715,7 +711,7 @@ DBViewWrapper.prototype = {
                                                  this);
     if (this._underlyingFolders) {
       // (potentially) zero out the underlying msgDatabase references
-      for each (let [, folder] in Iterator(this._underlyingFolders))
+      for (let folder of this._underlyingFolders)
         this._releaseFolderDatabase(folder);
     }
 
@@ -951,8 +947,7 @@ DBViewWrapper.prototype = {
       let virtFolder = VirtualFolderHelper.wrapVirtualFolder(aFolder);
       // Filter out the server roots; they only exist for UI reasons.
       this._underlyingFolders =
-        [folder for each ([, folder] in Iterator(virtFolder.searchFolders))
-                if (!folder.isServer)];
+        virtFolder.searchFolders.filter(folder => !folder.isServer);
       this._underlyingData = (this._underlyingFolders.length > 1) ?
                              this.kUnderlyingMultipleFolder :
                              this.kUnderlyingRealFolder;
@@ -1160,7 +1155,7 @@ DBViewWrapper.prototype = {
       this.displayedFolder = aNewFolder;
 
     // indexOf doesn't work for this (reliably)
-    for each (let [i,underlyingFolder] in Iterator(this._underlyingFolders)) {
+    for (let [i, underlyingFolder] of this._underlyingFolders.entries()) {
       if (aOldFolder == underlyingFolder) {
         this._underlyingFolders[i] = aNewFolder;
         break;
@@ -1196,7 +1191,7 @@ DBViewWrapper.prototype = {
     }
 
     // indexOf doesn't work for this (reliably)
-    for each (let [i,underlyingFolder] in Iterator(this._underlyingFolders)) {
+    for (let [i, underlyingFolder] of this._underlyingFolders.entries()) {
       if (aFolder == underlyingFolder) {
         this._underlyingFolders.splice(i,1);
         break;
@@ -1635,7 +1630,7 @@ DBViewWrapper.prototype = {
         nsMsgViewFlagsType.kGroupBySort) {
       // We cannot be sorting by thread, id, none, or size.  If we are, switch
       //  to sorting by date.
-      for each (let [, sortPair] in Iterator(this._sort)) {
+      for (let sortPair of this._sort) {
         let sortType = sortPair[0];
         if (sortType == nsMsgViewSortType.byThread ||
             sortType == nsMsgViewSortType.byId ||

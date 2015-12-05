@@ -226,7 +226,7 @@ var activityObject =
     let activityManager = Components.classes["@mozilla.org/activity-manager;1"]
       .getService(Components.interfaces.nsIActivityManager);
     let activities = activityManager.getActivities({});
-    for each (let [, activity] in Iterator(activities))
+    for (let activity of activities)
       this.addActivityBinding(activity.id, activity);
   },
 

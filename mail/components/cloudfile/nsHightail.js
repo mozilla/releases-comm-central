@@ -759,7 +759,7 @@ nsHightail.prototype = {
 
     let passwordURI = gServerUrl;
     let logins = Services.logins.findLogins({}, passwordURI, null, passwordURI);
-    for each (let loginInfo in logins) {
+    for (let loginInfo of logins) {
       if (loginInfo.username == aUsername)
         return loginInfo.password;
     }
@@ -796,7 +796,7 @@ nsHightail.prototype = {
    */
   clearPassword: function() {
     let logins = Services.logins.findLogins({}, gServerUrl, null, gServerUrl);
-    for each (let loginInfo in logins)
+    for (let loginInfo of logins)
       if (loginInfo.username == this._userName)
         Services.logins.removeLogin(loginInfo);
   },

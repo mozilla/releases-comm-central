@@ -399,7 +399,7 @@ function _middle_click_on_expanded_thread_root_helper(aBackground) {
  */
 function _generate_background_foreground_tests(aTests) {
   let self = this;
-  for each (let [, test] in Iterator(aTests)) {
+  for (let test of aTests) {
     let helperFunc = this["_" + test + "_helper"];
     this["test_" + test + "_background"] = function() {
       set_context_menu_background_tabs(true);

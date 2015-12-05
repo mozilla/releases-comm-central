@@ -531,7 +531,7 @@ var gFolderTreeView = {
    *       anscetors is collapsed), this function returns null.
    */
   getIndexOfFolder: function ftv_getIndexOfFolder(aFolder) {
-    for each (let [iRow, row] in Iterator(this._rowMap)) {
+    for (let [iRow, row] of this._rowMap.entries()) {
       if (row.id == aFolder.URI)
         return iRow;
     }
@@ -1078,7 +1078,7 @@ var gFolderTreeView = {
   _allFoldersWithStringProperty: function ftv_getAllFoldersWithProperty(accounts, aFolderName, deep)
   {
     let folders = [];
-    for each (let acct in accounts) {
+    for (let acct of accounts) {
       let folder = acct.incomingServer.rootFolder;
       this._subFoldersWithStringProperty(folder, folders, aFolderName, deep);
     }
@@ -1088,7 +1088,7 @@ var gFolderTreeView = {
   _allFoldersWithFlag: function ftv_getAllFolders(accounts, aFolderFlag, deep)
   {
     let folders = [];
-    for each (let acct in accounts) {
+    for (let acct of accounts) {
       let foldersWithFlag = acct.incomingServer.rootFolder.getFoldersWithFlags(aFolderFlag);
       if (foldersWithFlag.length > 0) {
         for (let folderWithFlag in fixIterator(foldersWithFlag,
@@ -1153,7 +1153,7 @@ var gFolderTreeView = {
     if (!smartFolder) {
       let searchFolders = gFolderTreeView._allSmartFolders(accounts, flag, folderName, true);
       let searchFolderURIs = "";
-      for each (let searchFolder in searchFolders) {
+      for (let searchFolder of searchFolders) {
         if (searchFolderURIs.length)
           searchFolderURIs += '|';
         searchFolderURIs +=  searchFolder.URI;
@@ -1173,11 +1173,11 @@ var gFolderTreeView = {
     // Add the actual special folders as sub-folders of the saved search.
     // By setting _children directly, we bypass the normal calculation
     // of subfolders.
-    smartFolderItem._children = [new ftvItem(f) for each (f in subFolders)];
+    smartFolderItem._children = subFolders.map(f => new ftvItem(f));
 
     let prevChild = null;
     // Each child is a level one below the smartFolder
-    for each (let child in smartFolderItem._children) {
+    for (let child of smartFolderItem._children) {
       child._level = smartFolderItem._level + 1;
       child._parent = smartFolderItem;
       // don't show sub-folders of the inbox, but I think Archives/Sent, etc
@@ -1432,8 +1432,7 @@ var gFolderTreeView = {
         // force each root folder to do its local subfolder discovery.
         MailUtils.discoverFolders();
 
-        return [new ftvItem(acct.incomingServer.rootFolder)
-                for each (acct in accounts)];
+        return accounts.map(acct => new ftvItem(acct.incomingServer.rootFolder));
       }
     },
 
@@ -1802,12 +1801,12 @@ var gFolderTreeView = {
         }
 
         sortFolderItems(smartChildren);
-        for each (let smartChild in smartChildren)
+        for (let smartChild of smartChildren)
           map.push(smartChild);
 
         MailUtils.discoverFolders();
 
-        for each (let acct in accounts)
+        for (let acct of accounts)
           map.push(new ftv_SmartItem(acct.incomingServer.rootFolder));
 
         return map;
@@ -2057,7 +2056,7 @@ var gFolderTreeView = {
     // array just now, in which case the added item will already exist
     let children = parent.children;
     var newChild;
-    for each (let child in children) {
+    for (let child of children) {
       if (child._folder == aItem) {
         newChild = child;
         break;
@@ -2732,7 +2731,7 @@ ftv_SmartItem.prototype = {
       }
       sortFolderItems(this._children);
       // Each child is a level one below us
-      for each (let child in this._children) {
+      for (let child of this._children) {
         child._level = this._level + 1;
         child._parent = this;
       }

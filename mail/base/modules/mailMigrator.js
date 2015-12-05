@@ -27,7 +27,7 @@ var MailMigrator = {
    */
   _switchDefaultFonts: function MailMigrator__switchDefaultFonts(aFonts,
                                                                  aEncodings) {
-    for each (let [, encoding] in Iterator(aEncodings)) {
+    for (let encoding of aEncodings) {
       let serifPref = "font.name.serif." + encoding;
       let sansPref = "font.name.sans-serif." + encoding;
       let variableSizePref = "font.size.variable." + encoding;

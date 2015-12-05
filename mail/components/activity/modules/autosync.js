@@ -131,7 +131,7 @@ var autosyncModule =
       // transfer all subjects.
       // same as above, not mandatory
       let subjects = process.getSubjects({});
-      for each (let [, subject] in Iterator(subjects))
+      for (let subject of subjects)
         event.addSubject(subject);
 
       return event;
@@ -226,8 +226,9 @@ var autosyncModule =
         // if this is the last folder of this server in the queue
         // create a sync event and clean the sync start time
         let found = false;
-        for each(let [key, value] in Iterator(this._syncInfoPerFolder))
+        for (let key in this._syncInfoPerFolder)
         {
+          let value = this._syncInfoPerFolder[key];
           if (value.syncFolder.server == folder.server)
           {
             found = true;

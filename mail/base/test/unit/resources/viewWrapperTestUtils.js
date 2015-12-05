@@ -136,15 +136,13 @@ var VWTU_testHelper = {
       let msg = "FolderNotificationHelper has listeners, but should not.";
       dump("*** " + msg + "\n");
       dump("Pending URIs:\n");
-      for each (let [folderURI, wrappers] in
-                Iterator(IDBViewWrapperListener.prototype._FNH
-                           ._pendingFolderUriToViewWrapperLists)) {
+      for (let folderURI in IDBViewWrapperListener.prototype._FNH
+                              ._pendingFolderUriToViewWrapperLists) {
         dump("  " + folderURI + "\n");
       }
       dump("Interested wrappers:\n");
-      for each (let [folderURI, wrappers] in
-                Iterator(IDBViewWrapperListener.prototype._FNH
-                           ._interestedWrappers)) {
+      for (let folderURI in IDBViewWrapperListener.prototype._FNH
+                              ._interestedWrappers) {
         dump("  " + folderURI + "\n");
       }
       dump("***\n");
@@ -167,13 +165,13 @@ var VWTU_testHelper = {
   onTimeout: function () {
     dump("-----------------------------------------------------------\n");
     dump("Active things at time of timeout:\n");
-    for each (let [, folder] in Iterator(this.active_real_folders)) {
+    for (let folder of this.active_real_folders) {
       dump("Real folder: " + folder.prettyName + "\n");
     }
-    for each (let [, virtFolder] in Iterator(this.active_virtual_folders)) {
+    for (let virtFolder of this.active_virtual_folders) {
       dump("Virtual folder: " + virtFolder.prettyName + "\n");
     }
-    for each (let [i, viewWrapper] in Iterator(this.active_view_wrappers)) {
+    for (let [i, viewWrapper] of this.active_view_wrappers.entries()) {
       dump("-----------------------------------\n");
       dump("Active view wrapper " + i + "\n");
       dump_view_state(viewWrapper);
@@ -331,7 +329,8 @@ function dump_view_contents(aViewWrapper) {
 }
 
 function _lookupValueNameInInterface(aValue, aInterface) {
-  for each (let [key, value] in Iterator(aInterface)) {
+  for (let key in aInterface) {
+    let value = aInterface[key];
     if (value == aValue)
       return key;
   }
@@ -386,8 +385,8 @@ function verify_messages_in_view(aSynSets, aViewWrapper) {
   // - Iterate over all the message sets, retrieving the message header.  Use
   //  this to construct a URI to populate a dictionary mapping.
   let synMessageURIs = {}; // map URI to message header
-  for each (let [, messageSet] in Iterator(aSynSets)) {
-    for each (let msgHdr in Iterator(messageSet.msgHdrs)) {
+  for (let messageSet of aSynSets) {
+    for (let msgHdr of messageSet.msgHdrs) {
       synMessageURIs[msgHdr.folder.getUriForMsg(msgHdr)] = msgHdr;
     }
   }
@@ -419,7 +418,8 @@ function verify_messages_in_view(aSynSets, aViewWrapper) {
   }
 
   // - Iterate over our URI set and make sure every message got nulled out.
-  for each (let [, msgHdr] in Iterator(synMessageURIs)) {
+  for (let uri in synMessageURIs) {
+    let msgHdr = synMessageURIs[uri];
     if (msgHdr != null) {
       dump("************************\n");
       dump("The view should have included the following message header but" +

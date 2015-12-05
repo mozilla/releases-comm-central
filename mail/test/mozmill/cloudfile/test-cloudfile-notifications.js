@@ -292,8 +292,8 @@ function test_offer_then_upload_notifications() {
   // We're going to add attachments to the attachmentbucket, and we'll
   // use the add_attachments helper function to do it.  First, retrieve
   // some file URIs...
-  let fileURIs = [Services.io.newFileURI(file).spec
-                  for each (file in collectFiles(kFiles, __file__))];
+  let fileURIs = collectFiles(kFiles, __file__).
+    map(file => Services.io.newFileURI(file).spec);
 
   // Create our mock provider
   let provider = new MockCloudfileAccount();

@@ -69,8 +69,7 @@ function getFile(aFilename, aRoot) {
  *                          __file__);
  */
 function collectFiles(aFiles, aFileRoot) {
-  return [getFile(filename, aFileRoot)
-          for each (filename in aFiles)]
+  return aFiles.map(filename => getFile(filename, aFileRoot));
 }
 
 function MockCloudfileAccount() {

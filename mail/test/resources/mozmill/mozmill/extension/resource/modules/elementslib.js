@@ -312,7 +312,7 @@ var _returnResult = function (results) {
 }
 var _forChildren = function (element, name, value) {
   var results = [];
-  var nodes = [e for each (e in element.childNodes) if (e)]
+  var nodes = Array.from(element.childNodes).filter(e => e);
   for (var i in nodes) {
     var n = nodes[i];
     if (n[name] == value) {
@@ -323,7 +323,7 @@ var _forChildren = function (element, name, value) {
 }
 var _forAnonChildren = function (_document, element, name, value) {
   var results = [];
-  var nodes = [e for each (e in _document.getAnoymousNodes(element)) if (e)];
+  var nodes = Array.from(_document.getAnoymousNodes(element)).filter(e => e);
   for (var i in nodes ) {
     var n = nodes[i];
     if (n[name] == value) {
@@ -375,7 +375,7 @@ var _byAnonAttrib = function (_document, parent, attributes) {
 
     }
   }
-  var nodes = [n for each (n in _document.getAnonymousNodes(parent)) if (n.getAttribute)];
+  var nodes = Array.from(_document.getAnonymousNodes(parent)).filter(n => n.getAttribute);
   function resultsForNodes (nodes) {
     for (var i in nodes) {
       var n = nodes[i];
@@ -394,7 +394,7 @@ var _byAnonAttrib = function (_document, parent, attributes) {
   }
   resultsForNodes(nodes)
   if (results.length == 0) {
-    resultsForNodes([n for each (n in parent.childNodes) if (n != undefined && n.getAttribute)])
+    resultsForNodes(Array.from(parent.childNodes).filter(n => n != undefined && n.getAttribute));
   }
   return _returnResult(results)
 }
@@ -426,7 +426,7 @@ Lookup.prototype.exists = function () {
   return false;
 }
 Lookup.prototype.getNode = function () {
-  var expSplit = [e for each (e in smartSplit(this.expression) ) if (e != '')];
+  var expSplit = smartSplit(this.expression).filter(e => e != '');
   expSplit.unshift(this._view.document)
   _document = this._view.document;
   var nCases = {'id':_byID, 'name':_byName, 'attrib':_byAttrib, 'index':_byIndex};
