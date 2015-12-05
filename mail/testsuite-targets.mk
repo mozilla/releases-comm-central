@@ -49,13 +49,11 @@ mozmill-one:
 	$(MOZMILL_EXTRA)
 
 # We need to add the mozmill tests to the package for tests.
-ifndef UNIVERSAL_BINARY
 # If Lightning is enabled, also stage the lightning extension
 ifdef MOZ_CALENDAR
 package-tests: stage-mozmill stage-calendar
 else
 package-tests: stage-mozmill
-endif
 endif
 
 stage-mozmill: make-stage-dir
