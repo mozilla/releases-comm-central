@@ -239,23 +239,6 @@ sidebarheader .toolbarbutton-text:not([value]) {
   display: none;
 }
 
-#searchInput,
-#IMSearchInput,
-.remote-gloda-search {
-  padding: 2px;
-}
-
-#searchInput:-moz-lwtheme:not([focused="true"]),
-#IMSearchInput:-moz-lwtheme:not([focused="true"]),
-.remote-gloda-search:-moz-lwtheme:not([focused="true"]) {
-  opacity: .85;
-}
-
-.remote-gloda-search-container {
-  padding-top: 3px;
-  padding-bottom: 2px;
-}
-
 /* Stock icons for the menu bar items */
 menuitem:not([type]) {
   -moz-binding: url("chrome://global/content/bindings/menu.xml#menuitem-iconic");

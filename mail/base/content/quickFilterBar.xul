@@ -152,9 +152,10 @@
                noresultsstring="&quickFilterBar.resultsLabel.none;"
                />
         <textbox id="qfb-qs-textbox" flex="3"
+                 class="searchBox"
                  type="search"
                  placeholder=""
-                 emptytextbase="&quickFilterBar.textbox.emptyText.base;"
+                 emptytextbase="&quickFilterBar.textbox.emptyText.base1;"
                  keyLabelNonMac="&quickFilterBar.textbox.emptyText.keyLabel2.nonmac;"
                  keyLabelMac="&quickFilterBar.textbox.emptyText.keyLabel2.mac;"
                  timeout="500"

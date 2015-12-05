@@ -41,7 +41,10 @@
                    onkeypress="taskEdit.onKeyPress(event)"/>
         </box>
         <box align="center" flex="1">
-          <textbox id="task-text-filter-field" type="search" flex="1"
+          <textbox id="task-text-filter-field"
+                   class="searchBox"
+                   type="search"
+                   flex="1"
                    placeholder=""
                    emptytextbase="&calendar.task.text-filter.textbox.emptytext.base1;"
                    keyLabelNonMac="&calendar.task.text-filter.textbox.emptytext.keylabel.nonmac;"

@@ -33,3 +33,42 @@
   display: -moz-box;
   -moz-binding: url("chrome://global/content/bindings/autocomplete.xml#history-dropmarker");
 }
+
+.remote-gloda-search-container {
+  padding-top: 3px;
+  padding-bottom: 2px;
+}
+
+.searchBox,
+#view-task-edit-field,
+#unifinder-task-edit-field  {
+  -moz-appearance: none;
+  padding: 3px;
+  border: 1px solid ThreeDShadow;
+  border-radius: 2px;
+  background-clip: padding-box;
+  margin: 0 3px;
+}
+
+.searchBox[focused],
+#view-task-edit-field[focused],
+#unifinder-task-edit-field[focused]  {
+  border-color: Highlight;
+}
+
+/* special treatment because this boxes are on the main toolbars */
+#searchInput:-moz-lwtheme,
+#IMSearchInput:-moz-lwtheme,
+#peopleSearchInput:-moz-lwtheme,
+.remote-gloda-search:-moz-lwtheme {
+  background-color: rgba(255, 255, 255, 0.8);
+  color: black;
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+#searchInput:-moz-lwtheme[focused],
+#IMSearchInput:-moz-lwtheme[focused],
+#peopleSearchInput:-moz-lwtheme[focused],
+.remote-gloda-search:-moz-lwtheme[focused] {
+  background-color: white;
+}

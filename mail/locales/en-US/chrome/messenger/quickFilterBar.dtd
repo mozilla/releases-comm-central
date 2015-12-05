@@ -150,7 +150,7 @@
 <!ENTITY quickFilterBar.resultsLabel.minWidth
          "100">
 
-<!-- LOCALIZATION NOTE (quickFilterBar.textbox.emptyText.base):
+<!-- LOCALIZATION NOTE (quickFilterBar.textbox.emptyText.base1):
      This is the base of the empty text for the text search box.  We replace
      #1 with the contents of the appropriate
      quickFilterBar.textbox.emptyText.keyLabel.* value for the platform.
@@ -158,8 +158,8 @@
      the messages and that there is a hotkey they can press to get to the
      box faster.
      -->
-<!ENTITY quickFilterBar.textbox.emptyText.base
-         "Filter these messages... #1">
+<!ENTITY quickFilterBar.textbox.emptyText.base1
+         "Filter these messages #1">
 
 <!-- LOCALIZATION NOTE (quickFilterBar.show.key2):
      This is the key used to show the quick filter bar. -->

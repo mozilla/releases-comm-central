@@ -130,13 +130,6 @@
 
   #view-task-edit-field,
   #task-text-filter-field {
-    -moz-appearance: none;
-    background-clip: padding-box;
-    border: 1px solid ThreeDShadow;
-  }
-
-  #view-task-edit-field,
-  #task-text-filter-field {
     width: 15em;
   }
 
@@ -164,32 +157,6 @@
     #task-addition-box {
       background-color: #f8f8f8;
     }
-  }
-}
-
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
-  #view-task-edit-field,
-  #task-text-filter-field {
-    border-radius: 2px;
-  }
-}
-
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
-  #view-task-edit-field,
-  #task-text-filter-field {
-    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
-                  hsla(210, 54%, 20%, .3);
-    box-shadow: 0 1px 0 hsla(0, 0%, 0%, .01) inset,
-                0 1px 0 hsla(0, 0%, 100%, .1);
-  }
-
-  #view-task-edit-field:not(:-moz-lwtheme):hover,
-  #task-text-filter-field:not(:-moz-lwtheme):hover {
-    border-color: hsla(210, 54%, 20%, .35) hsla(210, 54%, 20%, .37)
-                  hsla(210, 54%, 20%, .4);
   }
 }
 

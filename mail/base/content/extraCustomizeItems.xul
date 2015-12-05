@@ -30,6 +30,7 @@
                  flex="1"
                  class="chromeclass-toolbar-additional">
         <textbox id="searchInput"
+                 class="searchBox"
                  flex="1"
                  type="glodacomplete"
                  searchbutton="true"

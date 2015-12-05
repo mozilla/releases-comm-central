@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="chrome://global/skin/"?>
+<?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/downloads/aboutDownloads.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/downloads/aboutDownloads.css" type="text/css"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
@@ -43,7 +44,8 @@
          oncommand="document.getElementById('searchBox').focus();"/>
   </keyset>
 
-  <hbox align="center">
+  <hbox id="downloadTopBox"
+        align="center">
     <button id="clearDownloads"
             command="msgDownloadsCmd_clearDownloads"
             label="&cmd.clearList.label;"
@@ -52,6 +54,7 @@
 
     <spacer flex="1"/>
     <textbox id="searchBox"
+             class="searchBox"
              type="search"
              command="msgDownloadsCmd_searchDownloads"
              placeholder="&cmd.searchDownloads.label;"/>

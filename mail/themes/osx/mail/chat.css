@@ -94,26 +94,6 @@
   background-color: #FFFFFF;
 }
 
-/* Adaptation of #searchInput from osx/mail/searchBox.css */
-/* it looks like appearance: searchfield gets us our search icon... */
-#IMSearchInput {
-  margin: 3px 4px 4px !important;
-  -moz-appearance: searchfield;
-  font: icon;
-  height: 22px !important;
-}
-
-#IMSearchInput > .textbox-input-box {
-  border: none;
-  padding-top: 1px;
-  height: 21px !important;
-  margin: 0 !important;
-}
-
-#IMSearchInput:-moz-lwtheme:not([focused="true"]) {
-  opacity: .9;
-}
-
 @media not all and (-moz-mac-yosemite-theme) {
   #button-add-buddy {
     list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#add");

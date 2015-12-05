@@ -96,34 +96,6 @@ menulist.folderMenuItem menu:not(.folderMenuItem) {
   padding-bottom: 3px;
 }
 
-#searchInput,
-#IMSearchInput,
-.remote-gloda-search {
-  -moz-appearance: none;
-  border: 1px solid ThreeDShadow;
-  -moz-padding-end: 2px;
-  -moz-padding-start: 2px;
-}
-
-#searchInput:-moz-lwtheme,
-#IMSearchInput:-moz-lwtheme,
-.remote-gloda-search:-moz-lwtheme {
-  border-color: rgba(0, 0, 0, .32);
-  color: black;
-}
-
-#searchInput:-moz-lwtheme:hover,
-#IMSearchInput:-moz-lwtheme:hover,
-.remote-gloda-search:-moz-lwtheme:hover {
-  background-color: rgba(255,255,255,.9);
-}
-
-#searchInput:-moz-lwtheme[focused="true"],
-#IMSearchInput:-moz-lwtheme[focused="true"],
-.remote-gloda-search:-moz-lwtheme[focused="true"] {
-  background-color: white;
-}
-
 #PopupGlodaAutocomplete {
   -moz-appearance: none;
   margin-top: -1px;
@@ -136,11 +108,6 @@ menulist.folderMenuItem menu:not(.folderMenuItem) {
 }
 
 #status-bar:-moz-lwtheme {
-  padding-bottom: 1px;
-}
-
-.remote-gloda-search-container {
-  padding-top: 1px;
   padding-bottom: 1px;
 }
 
@@ -210,17 +177,6 @@ button[type="menu-button"] > button {
     padding-bottom: 2px;
   }
 
-  #searchInput,
-  #IMSearchInput,
-  .remote-gloda-search {
-    min-height: 22px;
-  }
-
-  .remote-gloda-search-container {
-    padding-top: 6px;
-    padding-bottom: 5px;
-  }
-
   #tabmail-buttons > toolbarbutton {
     margin-top: 1px;
     margin-bottom: 1px;
@@ -234,16 +190,6 @@ button[type="menu-button"] > button {
 
   .toolbarbutton-menu-dropmarker {
     margin-top: 0;
-  }
-
-  #searchInput,
-  #IMSearchInput,
-  .remote-gloda-search {
-    background-clip: padding-box;
-    min-height: 24px;
-    margin-top: 1px;
-    margin-bottom: 1px;
-    width: 25em;
   }
 
   @media not all and (-moz-windows-default-theme) {
@@ -270,82 +216,14 @@ button[type="menu-button"] > button {
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
-  #searchInput,
-  #IMSearchInput,
-  .remote-gloda-search {
-    border-radius: 2px;
-  }
-}
-
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
-  #searchInput:not(:-moz-lwtheme),
-  #IMSearchInput:not(:-moz-lwtheme),
-  .remote-gloda-search:not(:-moz-lwtheme) {
-    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
-                  hsla(210, 54%, 20%, .3);
-    box-shadow: 0 1px 0 hsla(0, 0%, 0%, .01) inset,
-                0 1px 0 hsla(0, 0%, 100%, .1);
-  }
-
-  #searchInput:not(:-moz-lwtheme):hover,
-  #IMSearchInput:not(:-moz-lwtheme):hover,
-  .remote-gloda-search:not(:-moz-lwtheme):hover {
-    border-color: hsla(210, 54%, 20%, .35) hsla(210, 54%, 20%, .37)
-                  hsla(210, 54%, 20%, .4);
-  }
-}
-
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
   #viewPicker,
   #locationFolders {
     min-height: 28px;
   }
 
-  #searchInput,
-  #IMSearchInput,
-  .remote-gloda-search {
-    min-height: 28px;
-    border-radius: 1px;
-  }
-
-  #searchInput:not(:-moz-lwtheme),
-  #IMSearchInput:not(:-moz-lwtheme),
-  .remote-gloda-search:not(:-moz-lwtheme) {
-    border-color: hsl(0, 0%, 90%);
-    transition-property: border-color;
-    transition-duration: .1s;
-  }
-
-  #searchInput:not(:-moz-lwtheme):not([focused="true"]):hover,
-  #IMSearchInput:not(:-moz-lwtheme):not([focused="true"]):hover,
-  .remote-gloda-search:not(:-moz-lwtheme):not([focused="true"]):hover {
-    border-color: hsl(0, 0%, 80%);
-  }
-
-  #searchInput:not(:-moz-lwtheme)[focused],
-  #IMSearchInput:not(:-moz-lwtheme)[focused],
-  .remote-gloda-search:not(:-moz-lwtheme)[focused] {
-    border-color: Highlight;
-    box-shadow: 0 0 0 1px Highlight inset;
-  }
-
   #PopupGlodaAutocomplete:not(:-moz-lwtheme) {
     margin-top: -2px;
-  }
-}
-
-@media (-moz-windows-glass) {
-  #tabbar-toolbar #searchInput:not(:-moz-lwtheme):not([focused]) {
-    background-color: rgba(255, 255, 255, .725);
-    border-color: rgba(0, 0, 0, .32);
-  }
-
-  #tabbar-toolbar #searchInput:not(:-moz-lwtheme):not([focused]):hover {
-    background-color: rgba(255, 255, 255, .9);
   }
 }
 

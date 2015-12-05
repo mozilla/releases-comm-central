@@ -486,26 +486,10 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   /* ::::: Search Textbox ::::: */
 
   #peopleSearchInput {
-    -moz-appearance: none;
-    background-clip: padding-box;
-    border: 1px solid ThreeDShadow;
     width: 20em;
-    margin-top: 1px;
-    margin-bottom: 1px;
-    padding: 3px 2px;
-  }
-
-  #peopleSearchInput:-moz-lwtheme {
-    border-color: rgba(0, 0, 0, .32);
-    color: black;
-  }
-
-  #peopleSearchInput:-moz-lwtheme:hover {
-    background-color: rgba(255,255,255,.9);
-  }
-
-  #peopleSearchInput:-moz-lwtheme[focused="true"] {
-    background-color: white;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-inline-start: 5px;
   }
 
   /* ::::: directory pane adjustments ::::: */
@@ -660,10 +644,6 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
     transition: background-color .4s;
   }
 
-  #peopleSearchInput {
-    border-radius: 2px;
-  }
-
   #dirTree {
     background-color: #eef3fa;
   }
@@ -676,43 +656,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
-  #peopleSearchInput:not(:-moz-lwtheme) {
-    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
-                  hsla(210, 54%, 20%, .3);
-    box-shadow: 0 1px 0 hsla(0, 0%, 0%, .01) inset,
-                0 1px 0 hsla(0, 0%, 100%, .1);
-  }
-
-  #peopleSearchInput:not(:-moz-lwtheme):hover {
-    border-color: hsla(210, 54%, 20%, .35) hsla(210, 54%, 20%, .37)
-                  hsla(210, 54%, 20%, .4);
-  }
-}
-
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
-  #peopleSearchInput {
-    min-height: 28px;
-    border-radius: 1px;
-  }
-
-  #peopleSearchInput:not(:-moz-lwtheme) {
-    border-color: hsl(0, 0%, 90%);
-    transition-property: border-color;
-    transition-duration: .1s;
-  }
-
-  #peopleSearchInput:not(:-moz-lwtheme):not([focused="true"]):hover {
-    border-color: hsl(0, 0%, 80%);
-  }
-
-  #peopleSearchInput:not(:-moz-lwtheme)[focused] {
-    border-color: Highlight;
-    box-shadow: 0 0 0 1px Highlight inset;
-  }
-
   #dirTree {
     background-color: #fafafa;
   }

@@ -22,65 +22,10 @@
 }
 
 @media not all and (-moz-os-version: windows-xp) {
-  #unifinder-search-field,
-  #unifinder-task-edit-field {
-    -moz-appearance: none;
-    background-clip: padding-box;
-    border: 1px solid ThreeDShadow;
-  }
-
   @media (-moz-windows-default-theme) {
     #unifinder-searchBox {
       background-color: #f8f8f8;
     }
-  }
-}
-
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
-  #unifinder-search-field,
-  #unifinder-task-edit-field {
-    border-radius: 2px;
-  }
-}
-
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
-  #unifinder-search-field,
-  #unifinder-task-edit-field {
-    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
-                  hsla(210, 54%, 20%, .3);
-    box-shadow: 0 1px 0 hsla(0, 0%, 0%, .01) inset,
-                0 1px 0 hsla(0, 0%, 100%, .1);
-  }
-
-  #unifinder-search-field:not(:-moz-lwtheme):hover,
-  #unifinder-task-edit-field:not(:-moz-lwtheme):hover {
-    border-color: hsla(210, 54%, 20%, .35) hsla(210, 54%, 20%, .37)
-                  hsla(210, 54%, 20%, .4);
-  }
-}
-
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
-  #unifinder-search-field,
-  #unifinder-task-edit-field {
-    min-height: 28px;
-    border-color: hsl(0, 0%, 90%);
-    border-radius: 1px;
-    transition-property: border-color;
-    transition-duration: .1s;
-  }
-
-  #unifinder-search-field:not([focused="true"]):hover,
-  #unifinder-task-edit-field:not([focused="true"]):hover {
-    border-color: hsl(0, 0%, 80%);
-  }
-
-  #unifinder-search-field[focused],
-  #unifinder-task-edit-field[focused] {
-    border-color: Highlight;
-    box-shadow: 0 0 0 1px Highlight inset;
   }
 }
 

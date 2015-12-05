@@ -51,7 +51,7 @@
           <spacer flex="1" />
           <spacer flex="1" />
           <hbox flex="1" class="remote-gloda-search-container">
-            <textbox class="remote-gloda-search"
+            <textbox class="remote-gloda-search searchBox"
                      flex="1"
                      type="glodacomplete"
                      searchbutton="true"

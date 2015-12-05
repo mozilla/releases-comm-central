@@ -33,6 +33,7 @@
 
 #searchBox {
   margin-inline-end: 0;
+  padding-inline-start: 5px;
 }
 
 @media (-moz-os-version: windows-xp) {
