@@ -2674,9 +2674,9 @@
       <property name="contentWindow"
                 readonly="true"
                 onget="return this.mCurrentBrowser.contentWindow"/>
-				
-	  <property name="contentWindowAsCPOW"
-				readonly="true"
+
+      <property name="contentWindowAsCPOW"
+                readonly="true"
                 onget="return this.mCurrentBrowser.contentWindowAsCPOW"/>
 
       <property name="sessionHistory"
