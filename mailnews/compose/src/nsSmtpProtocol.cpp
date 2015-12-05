@@ -1696,7 +1696,6 @@ nsresult nsSmtpProtocol::SendData(const char *dataBuffer, bool aSuppressLogging)
 nsresult nsSmtpProtocol::SendDataResponse()
 {
   nsresult status = NS_OK;
-  char *command = nullptr;
 
   if (m_responseCode != 354)
   {
@@ -1708,8 +1707,6 @@ nsresult nsSmtpProtocol::SendDataResponse()
     m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
     return(NS_ERROR_SENDING_DATA_COMMAND);
   }
-
-  PR_FREEIF(command);
 
   m_nextState = SMTP_SEND_POST_DATA;
   ClearFlag(SMTP_PAUSE_FOR_READ);   /* send data directly */
