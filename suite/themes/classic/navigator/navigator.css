@@ -260,6 +260,12 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
   color: #000000;
 }
 
+@media (-moz-windows-theme: aero) {
+  #urlbar {
+    padding: 1px;
+  }
+}
+
 #wrapper-nav-bar-inner[place="palette"] > #nav-bar-inner
   > .button-toolbar,
 #wrapper-nav-bar-inner[place="palette"] > #nav-bar-inner
