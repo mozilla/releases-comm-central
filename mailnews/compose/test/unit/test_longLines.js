@@ -85,6 +85,16 @@ let longMultibyteLineCJK = "안".repeat(400);
 let longMultibyteLineJapanese = "語".repeat(400);
 
 function* testBodyWithLongLine() {
+  let newline;
+  // Windows uses CR+LF, the other platforms just LF.
+  // Note: Services.appinfo.OS returns "XPCShell" in the test, so we
+  // use this hacky condition to separate Windows from the others.
+  if ("@mozilla.org/windows-registry-key;1" in Components.classes) {
+    newline = "\r\n";
+  } else {
+    newline = "\n";
+  }
+
   let fields = new CompFields();
   let identity = getSmtpIdentity("from@tinderbox.invalid",
     getBasicSmtpServer());
@@ -94,7 +104,7 @@ function* testBodyWithLongLine() {
   fields.to = "Nobody <nobody@tinderbox.invalid>";
   fields.subject = "Message with 1200 byte line in body";
   fields.characterSet = "UTF-8";
-  let htmlMessage = "<htmt><head>" +
+  let htmlMessage = "<html><head>" +
     "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">" +
     "</head><body>" + longMultibyteLine + "</body></html>";
   fields.body = htmlMessage;
@@ -116,12 +126,12 @@ function* testBodyWithLongLine() {
       "Content-Type": "text/plain; charset=UTF-8; format=flowed",
       "Content-Transfer-Encoding": "base64"
     },
-    longMultibyteLine + "\r\n" // Expected body: The message without the tags.
+    longMultibyteLine + newline // Expected body: The message without the tags.
   );
 
   // Now CJK.
   fields.forcePlainText = false;
-  htmlMessage = "<htmt><head>" +
+  htmlMessage = "<html><head>" +
     "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">" +
     "</head><body>" + longMultibyteLineCJK + "</body></html>";
   fields.body = htmlMessage;
@@ -143,14 +153,14 @@ function* testBodyWithLongLine() {
       "Content-Type": "text/plain; charset=UTF-8; format=flowed",
       "Content-Transfer-Encoding": "base64"
     },
-    longMultibyteLineCJK + "\r\n" // Expected body: The message without the tags.
+    longMultibyteLineCJK + newline // Expected body: The message without the tags.
   );
 
   // Now a special test for ISO-2022-JP.
   fields.characterSet = "ISO-2022-JP";
 
   fields.forcePlainText = false;
-  htmlMessage = "<htmt><head>" +
+  htmlMessage = "<html><head>" +
     "<meta http-equiv=\"content-type\" content=\"text/html; charset=ISO-2022-JP\">" +
     "</head><body>" + longMultibyteLineJapanese + "</body></html>";
   fields.body = htmlMessage;
