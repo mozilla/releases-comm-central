@@ -479,8 +479,11 @@ nsMsgPrintEngine::FireThatLoadOperation(const nsString& uri)
     rv = GetMessageServiceFromURI(uriCStr, getter_AddRefs(messageService));
   }
 
-  if (NS_SUCCEEDED(rv) && messageService)
-    rv = messageService->DisplayMessageForPrinting(uriCStr.get(), mDocShell, nullptr, nullptr, nullptr);
+  if (NS_SUCCEEDED(rv) && messageService) {
+    nsCOMPtr<nsIURI> dummyNull;
+    rv = messageService->DisplayMessageForPrinting(uriCStr.get(), mDocShell, nullptr, nullptr,
+                                                   getter_AddRefs(dummyNull));
+  }
   //If it's not something we know about, then just load try loading it directly.
   else
   {

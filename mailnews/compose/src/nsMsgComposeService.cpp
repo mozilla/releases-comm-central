@@ -1617,8 +1617,10 @@ nsMsgComposeService::RunMessageThroughMimeDraft(
 
   // Now, just plug the two together and get the hell out of the way!
   nsCOMPtr<nsIStreamListener> streamListener = do_QueryInterface(mimeConverter);
+  nsCOMPtr<nsIURI> dummyNull;
   return messageService->DisplayMessage(PromiseFlatCString(aMsgURI).get(), streamListener,
-                                        aMsgWindow, nullptr, mailCharset.get(), nullptr);;
+                                        aMsgWindow, nullptr, mailCharset.get(),
+                                        getter_AddRefs(dummyNull));
 }
 
 NS_IMETHODIMP

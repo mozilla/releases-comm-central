@@ -2795,11 +2795,12 @@ nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsIArray *messages, nsTArray<nsMsg
     nsCOMPtr <nsIMsgLocalMailFolder> srcLocalFolder = do_QueryInterface(srcFolder);
     if (srcLocalFolder)
       StartMessage();
+    nsCOMPtr<nsIURI> dummyNull;
     rv = mCopyState->m_messageService->CopyMessages(keyArray.Length(),
                                                     keyArray.Elements(),
                                                     srcFolder, streamListener,
                                                     isMove, nullptr, aMsgWindow,
-                                                    nullptr);
+                                                    getter_AddRefs(dummyNull));
   }
   return rv;
 }
@@ -2840,7 +2841,9 @@ nsresult nsMsgLocalMailFolder::CopyMessageTo(nsISupports *message,
   {
     nsCOMPtr<nsIStreamListener> streamListener(do_QueryInterface(copyStreamListener, &rv));
     NS_ENSURE_SUCCESS(rv, NS_ERROR_NO_INTERFACE);
-    rv = mCopyState->m_messageService->CopyMessage(uri.get(), streamListener, isMove, nullptr, aMsgWindow, nullptr);
+    nsCOMPtr<nsIURI> dummyNull;
+    rv = mCopyState->m_messageService->CopyMessage(uri.get(), streamListener, isMove, nullptr, aMsgWindow,
+                                                   getter_AddRefs(dummyNull));
   }
   return rv;
 }

@@ -582,7 +582,9 @@ nsMsgAttachmentHandler::SnarfMsgAttachment(nsMsgCompFields *compFields)
       if (NS_FAILED(rv))
         goto done;
 
-      rv = messageService->DisplayMessage(uri.get(), convertedListener, nullptr, nullptr, nullptr, nullptr);
+      nsCOMPtr<nsIURI> dummyNull;
+      rv = messageService->DisplayMessage(uri.get(), convertedListener, nullptr, nullptr, nullptr,
+                                          getter_AddRefs(dummyNull));
     }
   }
 done:

@@ -8210,8 +8210,10 @@ nsImapMailFolder::CopyStreamMessage(nsIMsgDBHdr* message,
           statusFeedback->ShowProgress(percent);
       }
     }
+    nsCOMPtr<nsIURI> dummyNull;
     rv = m_copyState->m_msgService->CopyMessage(uri.get(), streamListener,
-                                                isMove && !m_copyState->m_isCrossServerOp, nullptr, aMsgWindow, nullptr);
+                                                isMove && !m_copyState->m_isCrossServerOp, nullptr, aMsgWindow,
+                                                getter_AddRefs(dummyNull));
     if (NS_FAILED(rv))
       MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("CopyMessage failed: uri %s\n", uri.get()));
   } 

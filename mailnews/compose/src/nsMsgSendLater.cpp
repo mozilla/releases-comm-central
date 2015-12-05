@@ -676,9 +676,11 @@ nsMsgSendLater::StartNextMailFileSend(nsresult prevStatus)
   // operation
   AddRef();
 
+  nsCOMPtr<nsIURI> dummyNull;
   rv = messageService->DisplayMessage(messageURI.get(),
                                       static_cast<nsIStreamListener*>(this),
-                                      nullptr, nullptr, nullptr, nullptr);
+                                      nullptr, nullptr, nullptr,
+                                      getter_AddRefs(dummyNull));
 
   Release();
 
