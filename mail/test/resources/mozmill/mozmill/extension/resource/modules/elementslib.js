@@ -323,7 +323,7 @@ var _forChildren = function (element, name, value) {
 }
 var _forAnonChildren = function (_document, element, name, value) {
   var results = [];
-  var nodes = Array.from(_document.getAnoymousNodes(element)).filter(e => e);
+  var nodes = Array.from(_document.getAnonymousNodes(element) || []).filter(e => e);
   for (var i in nodes ) {
     var n = nodes[i];
     if (n[name] == value) {
@@ -375,7 +375,7 @@ var _byAnonAttrib = function (_document, parent, attributes) {
 
     }
   }
-  var nodes = Array.from(_document.getAnonymousNodes(parent)).filter(n => n.getAttribute);
+  var nodes = Array.from(_document.getAnonymousNodes(parent) || []).filter(n => n.getAttribute);
   function resultsForNodes (nodes) {
     for (var i in nodes) {
       var n = nodes[i];

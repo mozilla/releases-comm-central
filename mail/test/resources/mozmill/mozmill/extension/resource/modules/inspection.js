@@ -220,7 +220,7 @@ var getLookupForElem = function (_document, elem) {
 
   } else {
     // Handle Anonymous Nodes
-    var parse = Array.from(_document.getAnonymousNodes(elem.parentNode)).
+    var parse = Array.from(_document.getAnonymousNodes(elem.parentNode) || []).
       filter(n => n.getAttribute && n != elem);
     parse.unshift(dom.getAttributes(elem));
     var uniqueAttributes = parse.reduce(getUniqueAttributesReduction);
