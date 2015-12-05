@@ -52,8 +52,8 @@ var shutdownCleanupObserver = {
     if (aTopic == "quit-application") {
       Services.obs.removeObserver(this, "quit-application");
 
-      for each (let [, streamListener] in
-                Iterator(activeStreamListeners)) {
+      for (let uri in activeStreamListeners) {
+        let streamListener = activeStreamListeners[uri];
         if (streamListener._request)
           streamListener._request.cancel(Cr.NS_BINDING_ABORTED);
       }
@@ -328,7 +328,8 @@ var HeaderHandlerBase = {
     if (aIndent === undefined)
       aIndent = "";
     let s = "";
-    for each (let [header, values] in Iterator(this.headers)) {
+    for (let header in this.headers) {
+      let values = this.headers[header];
       s += "\n        " + aIndent + header + ": " + values;
     }
     return s;
@@ -384,7 +385,7 @@ MimeMessage.prototype = {
       return [this];
     else
       // Why is there no flatten method for arrays?
-      return [child.allUserAttachments for each ([, child] in Iterator(this.parts))]
+      return this.parts.map(child => child.allUserAttachments)
         .reduce((a, b) => a.concat(b), []);
   },
 
@@ -392,7 +393,7 @@ MimeMessage.prototype = {
    * @return the total size of this message, that is, the size of all subparts
    */
   get size () {
-    return [child.size for each ([, child] in Iterator(this.parts))]
+    return this.parts.map(child => child.size)
       .reduce((a, b) => a + Math.max(b, 0), 0);
   },
 
@@ -421,7 +422,7 @@ MimeMessage.prototype = {
   coerceBodyToPlaintext:
       function MimeMessage_coerceBodyToPlaintext(aMsgFolder) {
     let bodies = [];
-    for each (let [, part] in Iterator(this.parts)) {
+    for (let part of this.parts) {
       // an undefined value for something not having the method is fine
       let body = part.coerceBodyToPlaintext &&
                  part.coerceBodyToPlaintext(aMsgFolder);
@@ -490,11 +491,11 @@ MimeContainer.prototype = {
     return results;
   },
   get allUserAttachments () {
-    return [child.allUserAttachments for each ([, child] in Iterator(this.parts))]
+    return this.parts.map(child => child.allUserAttachments)
       .reduce((a, b) => a.concat(b), []);
   },
   get size () {
-    return [child.size for each ([, child] in Iterator(this.parts))]
+    return this.parts.map(child => child.size)
       .reduce((a, b) => a + Math.max(b, 0), 0);
   },
   set size (whatever) {
@@ -505,7 +506,7 @@ MimeContainer.prototype = {
     if (this.contentType == "multipart/alternative") {
       let htmlPart;
       // pick the text/plain if we can find one, otherwise remember the HTML one
-      for each (let [, part] in Iterator(this.parts)) {
+      for (let part of this.parts) {
         if (part.contentType == "text/plain")
           return part.body;
         if (part.contentType == "text/html")
@@ -630,15 +631,15 @@ function MimeUnknown(aContentType) {
 MimeUnknown.prototype = {
   __proto__: HeaderHandlerBase,
   get allAttachments() {
-    return [child.allAttachments for each ([, child] in Iterator(this.parts))]
+    return this.parts.map(child => child.allAttachments)
       .reduce((a, b) => a.concat(b), []);
   },
   get allUserAttachments() {
-    return [child.allUserAttachments for each ([, child] in Iterator(this.parts))]
+    return this.parts.map(child => child.allUserAttachments)
       .reduce((a, b) => a.concat(b), []);
   },
   get size() {
-    return this._size + [child.size for each ([, child] in Iterator(this.parts))]
+    return this._size + this.parts.map(child => child.size)
       .reduce((a, b) => a + Math.max(b, 0), 0);
   },
   set size(aSize) {

@@ -146,9 +146,10 @@ var PendingCommitTracker = {
     let foldersByURI = {};
     let lastFolder = null;
 
-    for each (let [glodaId, [msgHdr, dirtyState]] in
-              Iterator(
-                PendingCommitTracker._indexedMessagesPendingCommitByGlodaId)) {
+    for (let glodaId in
+         PendingCommitTracker._indexedMessagesPendingCommitByGlodaId) {
+     let [msgHdr, dirtyState] =
+       PendingCommitTracker._indexedMessagesPendingCommitByGlodaId[glodaId];
       // Mark this message as indexed.
       // It's conceivable the database could have gotten blown away, in which
       //  case the message headers are going to throw exceptions when we try
@@ -180,7 +181,8 @@ var PendingCommitTracker = {
     }
 
     // it is vitally important to do this before we forget about the headers!
-    for each (let [, folder] in Iterator(foldersByURI)) {
+    for (let uri in foldersByURI) {
+      let folder = foldersByURI[uri];
       // This will not cause a parse.  The database is in-memory since we have
       //  a header that belongs to it.  This just causes the folder to
       //  re-acquire a reference from the database manager.
@@ -345,7 +347,7 @@ MessagesByMessageIdCallback.prototype = {
       return;
 
     this._log.debug("getting results...");
-    for each (let [, message] in Iterator(aItems)) {
+    for (let message of aItems) {
       this.results[this.msgIDToIndex[message.headerMessageID]].push(message);
     }
   },
@@ -1654,7 +1656,7 @@ var GlodaMsgIndexer = {
     yield this.kWorkAsync;
 
     while (deletedCollection.items.length) {
-      for each (let [, message] in Iterator(deletedCollection.items)) {
+      for (let message of deletedCollection.items) {
         // If it turns out our count is wrong (because some new deletions
         //  happened since we entered this worker), let's issue a new count
         //  and use that to accurately update our goal.
@@ -1944,8 +1946,8 @@ var GlodaMsgIndexer = {
    */
   indexMessages: function gloda_index_indexMessages(aFoldersAndMessages) {
     let job = new IndexingJob("message", null);
-    job.items = [[GlodaDatastore._mapFolder(fm[0]).id, fm[1]] for each
-                 ([i, fm] in Iterator(aFoldersAndMessages))];
+    job.items = aFoldersAndMessages.
+      map(fm => [GlodaDatastore._mapFolder(fm[0]).id, fm[1]]);
     GlodaIndexer.indexJob(job);
   },
 
@@ -1962,8 +1964,8 @@ var GlodaMsgIndexer = {
   dirtyAllKnownFolders: function gloda_index_msg_dirtyAllKnownFolders() {
     // Just iterate over the datastore's folder map and tell each folder to
     //  be dirty if its priority is not disabled.
-    for each (let [folderID, glodaFolder] in
-              Iterator(GlodaDatastore._folderByID)) {
+    for (let folderID in GlodaDatastore._folderByID) {
+      let glodaFolder = GlodaDatastore._folderByID[folderID];
       if (glodaFolder.indexingPriority !== glodaFolder.kIndexingNeverPriority)
         glodaFolder._ensureFolderDirty();
     }
@@ -2989,8 +2991,8 @@ var GlodaMsgIndexer = {
 
     // - See if any of the ancestors exist and have a conversationID...
     // (references are ordered from old [0] to new [n-1])
-    let references = [aMsgHdr.getStringReference(i) for each
-                      (i in range(0, aMsgHdr.numReferences))];
+    let references = Array.from(range(0, aMsgHdr.numReferences)).
+      map(i => aMsgHdr.getStringReference(i));
     // also see if we already know about the message...
     references.push(aMsgHdr.messageId);
 
@@ -3125,9 +3127,8 @@ var GlodaMsgIndexer = {
 
     let attachmentNames = null;
     if (aMimeMsg) {
-      attachmentNames = [att.name for each
-                         ([i, att] in Iterator(aMimeMsg.allAttachments))
-                         if (att.isRealAttachment)];
+      attachmentNames = aMimeMsg.allAttachments.
+        filter(att => att.isRealAttachment).map(att => att.name);
     }
 
     let isConceptuallyNew, isRecordNew, insertFulltext;
@@ -3253,7 +3254,7 @@ var GlodaMsgIndexer = {
     //  the last message alive.
     let ghostCount = 0;
     let twinMessageExists = false;
-    for each (let [, convMsg] in Iterator(conversationMsgs)) {
+    for (let convMsg of conversationMsgs) {
       // ignore our own message
       if (convMsg.id == aMessage.id)
         continue;
@@ -3273,7 +3274,7 @@ var GlodaMsgIndexer = {
     //  hit this case if they are all deleted.)
     if ((conversationMsgs.length - 1) == ghostCount) {
       // - Obliterate each message
-      for each (let [, msg] in Iterator(conversationMsgs)) {
+      for (let msg of conversationMsgs) {
         GlodaDatastore.deleteMessageByID(msg.id);
       }
       // - Obliterate the conversation

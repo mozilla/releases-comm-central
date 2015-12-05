@@ -183,7 +183,7 @@ function resetFolder(folder) {
 
   var db = folder.msgDatabase;
   db.dBFolderInfo.knownArtsSet = "";
-  for each (var header in headers) {
+  for (var header of headers) {
     db.DeleteHeader(header, null, true, false);
   }
   dump("resetting folder\n");

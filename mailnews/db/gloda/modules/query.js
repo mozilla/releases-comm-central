@@ -188,7 +188,7 @@ GlodaQueryClass.prototype = {
             //  empty indicator.)
             if (testValues.length == 0 && attrDef.emptySetIsSignificant) {
               let foundEmptySetSignifier = false;
-              for each (let [,constraintValue] in Iterator(constraintValues)) {
+              for (let constraintValue of constraintValues) {
                 if (constraintValue == null) {
                   foundEmptySetSignifier = true;
                   break;
@@ -199,8 +199,8 @@ GlodaQueryClass.prototype = {
             }
 
             let foundMatch = false;
-            for each (let [,testValue] in Iterator(testValues)) {
-              for each (let [,value] in Iterator(constraintValues)) {
+            for (let testValue of testValues) {
+              for (let value of constraintValues) {
                 if (objectNounDef.equals(testValue, value)) {
                   foundMatch = true;
                   break;
@@ -238,7 +238,7 @@ GlodaQueryClass.prototype = {
             //  empty indicator.)
             if (testValues.length == 0 && attrDef.emptySetIsSignificant) {
               let foundEmptySetSignifier = false;
-              for each (let [,constraintValue] in Iterator(constraintValues)) {
+              for (let constraintValue of constraintValues) {
                 if (constraintValue == null) {
                   foundEmptySetSignifier = true;
                   break;
@@ -249,9 +249,9 @@ GlodaQueryClass.prototype = {
             }
 
             let foundMatch = false;
-            for each (let [,testValue] in Iterator(testValues)) {
+            for (let testValue of testValues) {
               let [aParam, aValue] = objectNounDef.toParamAndValue(testValue);
-              for each (let [,value] in Iterator(constraintValues)) {
+              for (let value of constraintValues) {
                 // skip empty set check sentinel values
                 if (value == null && attrDef.emptySetIsSignificant)
                   continue;
@@ -283,9 +283,9 @@ GlodaQueryClass.prototype = {
             testValues = aObj[boundName];
 
           let foundMatch = false;
-          for each (let [,testValue] in Iterator(testValues)) {
+          for (let testValue of testValues) {
             let [tParam, tValue] = objectNounDef.toParamAndValue(testValue);
-            for each (let [,rangeTuple] in Iterator(constraintValues)) {
+            for (let rangeTuple of constraintValues) {
               let [lowerRValue, upperRValue] = rangeTuple;
               if (lowerRValue == null) {
                 let [upperParam, upperValue] =
@@ -328,7 +328,7 @@ GlodaQueryClass.prototype = {
           let curIndex = 0;
           let value = (boundName in aObj) ? aObj[boundName] : "";
           // the attribute must be singular, we don't support arrays of strings.
-          for each (let [iValuePart, valuePart] in Iterator(constraintValues)) {
+          for (let valuePart of constraintValues) {
             if (typeof valuePart == "string") {
               let index = value.indexOf(valuePart);
               // if curIndex is null, we just need any match

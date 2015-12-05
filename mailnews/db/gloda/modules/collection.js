@@ -89,8 +89,7 @@ var GlodaCollectionManager = {
     if (aDoCache === false)
       cache = null;
 
-    for each (let [iCollection, collection] in
-              Iterator(this.getCollectionsForNounID(aNounID))) {
+    for (let collection of this.getCollectionsForNounID(aNounID)) {
       if (aID in collection._idMap) {
         let item = collection._idMap[aID];
         if (cache)
@@ -144,8 +143,7 @@ var GlodaCollectionManager = {
     if (aDoCache === false)
       cache = null;
 
-    for each (let [iCollection, collection] in
-              Iterator(this.getCollectionsForNounID(aNounID))) {
+    for (let collection of this.getCollectionsForNounID(aNounID)) {
       for (let key in notFound) {
         let collValue = collection._idMap[key];
         if (collValue !== undefined) {
@@ -171,7 +169,7 @@ var GlodaCollectionManager = {
    */
   cacheLookupManyList: function gloda_colm_cacheLookupManyList(aNounID, aIds) {
     let checkMap = {}, targetMap = {};
-    for each (let [, id] in Iterator(aIds)) {
+    for (let id of aIds) {
       checkMap[id] = null;
     }
     // do not promote found items into the cache
@@ -199,8 +197,7 @@ var GlodaCollectionManager = {
     if (aDoCache === false)
       cache = null;
 
-    for each (let [iCollection, collection] in
-              Iterator(this.getCollectionsForNounID(aNounID))) {
+    for (let collection of this.getCollectionsForNounID(aNounID)) {
       if (aUniqueValue in collection._uniqueValueMap) {
         let item = collection._uniqueValueMap[aUniqueValue];
         if (cache)
@@ -275,8 +272,7 @@ var GlodaCollectionManager = {
 
     let needToCache = [];
     // next, let's fall back to our collections
-    for each (let [iCollection, collection] in
-              Iterator(this.getCollectionsForNounID(aNounID))) {
+    for (let collection of this.getCollectionsForNounID(aNounID)) {
       for (let [iItem, item] in Iterator(unresolvedIndexToItem)) {
         if (item.id in collection._idMap) {
           let realItem = collection._idMap[item.id];
@@ -296,15 +292,16 @@ var GlodaCollectionManager = {
     // anything left in unresolvedIndexToItem should be added to the cache
     //  unless !aCacheIfMissing.  plus, we already have 'needToCache'
     if (cache && aCacheIfMissing) {
-      cache.add(needToCache.concat([val for each
-                                    (val in unresolvedIndexToItem)]));
+      cache.add(needToCache.concat(Object.keys(unresolvedIndexToItem).
+                                   map(key => unresolvedIndexToItem[key])));
     }
 
     return aItems;
   },
 
   cacheCommitDirty: function glod_colm_cacheCommitDirty() {
-    for each (let cache in this._cachesByNoun) {
+    for (let id in this._cachesByNoun) {
+      let cache = this._cachesByNoun[id];
       cache.commitDirty();
     }
   },
@@ -344,10 +341,8 @@ var GlodaCollectionManager = {
       cache.add(aItems);
     }
 
-    for each (let [iCollection, collection] in
-              Iterator(this.getCollectionsForNounID(aNounID))) {
-      let addItems = [item for each ([i, item] in Iterator(aItems))
-                      if (collection.query.test(item))];
+    for (let collection of this.getCollectionsForNounID(aNounID)) {
+      let addItems = aItems.filter(item => collection.query.test(item));
       if (addItems.length)
         collection._onItemsAdded(addItems);
     }
@@ -364,10 +359,9 @@ var GlodaCollectionManager = {
    *  generate onItemsModified events.
    */
   itemsModified: function gloda_colm_itemsModified(aNounID, aItems) {
-    for each (let [iCollection, collection] in
-              Iterator(this.getCollectionsForNounID(aNounID))) {
+    for (let collection of this.getCollectionsForNounID(aNounID)) {
       let added = [], modified = [], removed = [];
-      for each (let [iItem, item] in Iterator(aItems)) {
+      for (let item of aItems) {
         if (item.id in collection._idMap) {
           // currently in... but should it still be there?
           if (collection.query.test(item))
@@ -405,18 +399,16 @@ var GlodaCollectionManager = {
     // cache
     let cache = this._cachesByNoun[aNounID];
     if (cache) {
-      for each (let [, itemId] in Iterator(aItemIds)) {
+      for (let itemId of aItemIds) {
         if (itemId in cache._idMap)
           cache.deleted(cache._idMap[itemId]);
       }
     }
 
     // collections
-    for each (let [iCollection, collection] in
-              Iterator(this.getCollectionsForNounID(aNounID))) {
-      let removeItems = [collection._idMap[itemId]
-                         for each ([, itemId] in Iterator(aItemIds))
-                         if (itemId in collection._idMap)];
+    for (let collection of this.getCollectionsForNounID(aNounID)) {
+      let removeItems = aItemIds.filter(itemId => itemId in collection._idMap).
+        map(itemId => collection._idMap[itemId]);
       if (removeItems.length)
         collection._onItemsRemoved(removeItems);
     }
@@ -443,18 +435,16 @@ var GlodaCollectionManager = {
     // cache
     let cache = this._cachesByNoun[aNounID];
     if (cache) {
-      for each (let [, item] in Iterator(cache._idMap)) {
+      for (let id in cache._idMap) {
+        let item = cache._idMap[id];
         if (aFilter(item))
           cache.deleted(item);
       }
     }
 
     // collections
-    for each (let [, collection] in
-              Iterator(this.getCollectionsForNounID(aNounID))) {
-      let removeItems = [item
-                         for each ([, item] in Iterator(collection.items))
-                         if (aFilter(item))];
+    for (let collection of this.getCollectionsForNounID(aNounID)) {
+      let removeItems = collection.items.filter(aFilter);
       if (removeItems.length)
         collection._onItemsRemoved(removeItems);
     }
@@ -564,13 +554,13 @@ GlodaCollection.prototype = {
   _onItemsAdded: function gloda_coll_onItemsAdded(aItems) {
     this.items.push.apply(this.items, aItems);
     if (this._uniqueValueMap) {
-      for each (let [iItem, item] in Iterator(this.items)) {
+      for (let item of this.items) {
         this._idMap[item.id] = item;
         this._uniqueValueMap[item.uniqueValue] = item;
       }
     }
     else {
-      for each (let [iItem, item] in Iterator(this.items)) {
+      for (let item of this.items) {
         this._idMap[item.id] = item;
       }
     }
@@ -608,7 +598,7 @@ GlodaCollection.prototype = {
     //  should never be a real problem.
     let deleteMap = {};
     // build the delete map while also nuking from our id map/unique value map
-    for each (let [iItem, item] in Iterator(aItems)) {
+    for (let item of aItems) {
       deleteMap[item.id] = true;
       delete this._idMap[item.id];
       if (this._uniqueValueMap)
@@ -666,7 +656,7 @@ function GlodaLRUCacheCollection(aNounDef, aCacheSize) {
  */
 GlodaLRUCacheCollection.prototype = new GlodaCollection;
 GlodaLRUCacheCollection.prototype.add = function cache_add(aItems) {
-  for each (let [iItem, item] in Iterator(aItems)) {
+  for (let item of aItems) {
     if (item.id in this._idMap) {
       // DEBUGME so, we're dealing with this, but it shouldn't happen.  need
       //  trace-debuggage.
@@ -771,7 +761,7 @@ GlodaLRUCacheCollection.prototype.commitDirty = function cache_commitDirty() {
   if (!this._nounDef.objUpdate)
     return;
 
-  for each (let [iItem, item] in Iterator(this._idMap)) {
+  for (let item of this._idMap) {
     if (item.dirty) {
       LOG.debug("flushing dirty: " + item);
       this._nounDef.objUpdate.call(this._nounDef.datastore, item);

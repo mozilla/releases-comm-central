@@ -663,7 +663,7 @@
 
           // Now set the biffState
           let biffStates = ["NewMail", "NoMail", "UnknownMail"];
-          for each (let state in biffStates) {
+          for (let state of biffStates) {
             if (aFolder.biffState ==
                 Components.interfaces.nsIMsgFolder["nsMsgBiffState_" + state]) {
               aMenuNode.setAttribute("BiffState", state);

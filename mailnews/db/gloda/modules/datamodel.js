@@ -93,7 +93,7 @@ GlodaAttributeDBDef.prototype = {
     let nounDef = this.attrDef.objectNounDef;
     let dbAttributes = [];
     if (nounDef.usesParameter) {
-      for each (let [, instanceValue] in Iterator(aInstanceValues)) {
+      for (let instanceValue of aInstanceValues) {
         let [param, dbValue] = nounDef.toParamAndValue(instanceValue);
         dbAttributes.push([this.bindParameter(param), dbValue]);
       }
@@ -103,7 +103,7 @@ GlodaAttributeDBDef.prototype = {
       // just an informative property on the Gloda Message and has no real
       // indexing purposes.
       if ("toParamAndValue" in nounDef) {
-        for each (let [, instanceValue] in Iterator(aInstanceValues)) {
+        for (let instanceValue of aInstanceValues) {
           dbAttributes.push([this._id,
                              nounDef.toParamAndValue(instanceValue)[1]]);
         }
@@ -120,7 +120,8 @@ GlodaAttributeDBDef.prototype = {
 var GlodaHasAttributesMixIn = {
   enumerateAttributes: function gloda_attrix_enumerateAttributes() {
     let nounDef = this.NOUN_DEF;
-    for each (let [key, value] in Iterator(this)) {
+    for (let key in this) {
+      let value = this[key];
       let attrDef = nounDef.attribsByBoundName[key];
       // we expect to not have attributes for underscore prefixed values (those
       //  are managed by the instance's logic.  we also want to not explode
@@ -143,8 +144,8 @@ var GlodaHasAttributesMixIn = {
 
   domContribute: function gloda_attrix_domContribute(aDomNode) {
     let nounDef = this.NOUN_DEF;
-    for each (let [attrName, attr] in
-        Iterator(nounDef.domExposeAttribsByBoundName)) {
+    for (let attrName in nounDef.domExposeAttribsByBoundName) {
+      let attr = nounDef.domExposeAttribsByBoundName[attrName];
       if (this[attrName])
         aDomNode.setAttribute(attr.domExpose, this[attrName]);
     }

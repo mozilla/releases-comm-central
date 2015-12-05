@@ -143,7 +143,7 @@ function run_test() {
   localserver = setupLocalServer(119);
   let nntpService = Cc["@mozilla.org/messenger/nntpservice;1"]
                       .getService(Components.interfaces.nsIProtocolHandler);
-  for each (let test in tests) {
+  for (let test of tests) {
     dump("Checking URL " + test.uri + "\n");
     let url = nntpService.newURI(test.uri, null, null);
     url.QueryInterface(Ci.nsIMsgMailNewsUrl);
@@ -155,7 +155,7 @@ function run_test() {
     }
   }
 
-  for each (let fail in invalid_uris) {
+  for (let fail of invalid_uris) {
     try {
       dump("Checking URL " + fail + " for failure\n");
       nntpService.newURI(fail, null, null);

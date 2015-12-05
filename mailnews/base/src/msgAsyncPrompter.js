@@ -33,7 +33,7 @@ runnablePrompter.prototype = {
 
     delete this._asyncPrompter._pendingPrompts[this._hashKey];
 
-    for each (var consumer in prompter.consumers) {
+    for (var consumer of prompter.consumers) {
       try {
         if (ok)
           consumer.onPromptAuthAvailable();

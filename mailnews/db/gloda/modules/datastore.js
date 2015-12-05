@@ -52,7 +52,7 @@ PostCommitHandler.prototype = {
       return;
 
     if (aReason == Ci.mozIStorageStatementCallback.REASON_FINISHED) {
-      for each (let [iCallback, callback] in Iterator(this.callbacks)) {
+      for (let callback of this.callbacks) {
         try {
           callback();
         }
@@ -282,7 +282,8 @@ QueryFromQueryCallback.prototype = {
         //QFQ_LOG.debug("handleCompletion: " + this.collection._nounDef.name);
 
         if (this.needsLoads) {
-          for each (let [nounID, references] in Iterator(this.referencesByNounID)) {
+          for (let nounID in this.referencesByNounID) {
+            let references = this.referencesByNounID[nounID];
             if (nounID == this.nounDef.id)
               continue;
             let nounDef = GlodaDatastore._nounIDToDef[nounID];
@@ -316,7 +317,8 @@ QueryFromQueryCallback.prototype = {
                 inverseReferences =
                   this.masterInverseReferencesByNounID[nounDef.id] = {};
 
-              for each (let item in outReferences) {
+              for (let key in outReferences) {
+                let item = outReferences[key];
                 masterReferences[item.id] = item;
                 let parentID = item[nounDef.parentColumnAttr.idStorageAttributeName];
                 let childrenList = inverseReferences[parentID];
@@ -345,8 +347,8 @@ QueryFromQueryCallback.prototype = {
             }
           }
 
-          for each (let [nounID, inverseReferences] in
-              Iterator(this.inverseReferencesByNounID)) {
+          for (let nounID in this.inverseReferencesByNounID) {
+            let inverseReferences = this.inverseReferencesByNounID[nounID];
             this.collection.deferredCount++;
             let nounDef = GlodaDatastore._nounIDToDef[nounID];
 
@@ -1342,24 +1344,28 @@ var GlodaDatastore = {
       aTableName, aTableDef) {
     // - Create the table
     this._log.info("Creating table: " + aTableName);
-    aDBConnection.createTable(aTableName,
-      [(coldef[0] + " " + coldef[1]) for each
-       ([i, coldef] in Iterator(aTableDef.columns))].join(", "));
+    let columnDefs = [];
+    for (let [column, type] of aTableDef.columns) {
+      columnDefs.push(column + " " + type);
+    }
+    aDBConnection.createTable(aTableName, columnDefs.join(", "));
 
     // - Create the fulltext table if applicable
     if (aTableDef.fulltextColumns) {
+      let columnDefs = [];
+      for (let [column, type] of aTableDef.fulltextColumns) {
+        columnDefs.push(column + " " + type);
+      }
       let createFulltextSQL = "CREATE VIRTUAL TABLE " + aTableName + "Text" +
-        " USING fts3(tokenize mozporter, " +
-        [(coldef[0] + " " + coldef[1]) for each
-         ([i, coldef] in Iterator(aTableDef.fulltextColumns))].join(", ") +
-        ")";
+        " USING fts3(tokenize mozporter, " + columnDefs.join(", ") + ")";
       this._log.info("Creating fulltext table: " + createFulltextSQL);
       aDBConnection.executeSimpleSQL(createFulltextSQL);
     }
 
     // - Create its indices
     if (aTableDef.indices) {
-      for each (let [indexName, indexColumns] in Iterator(aTableDef.indices)) {
+      for (let indexName in aTableDef.indices) {
+        let indexColumns = aTableDef.indices[indexName];
         aDBConnection.executeSimpleSQL(
           "CREATE INDEX " + indexName + " ON " + aTableName +
           "(" + indexColumns.join(", ") + ")");
@@ -1392,7 +1398,8 @@ var GlodaDatastore = {
    */
   _createSchema: function gloda_ds_createSchema(aDBConnection) {
     // -- For each table...
-    for each (let [tableName, tableDef] in Iterator(this._schema.tables)) {
+    for (let tableName in this._schema.tables) {
+      let tableDef = this._schema.tables[tableName];
       this._createTableSchema(aDBConnection, tableName, tableDef);
     }
 
@@ -1582,8 +1589,7 @@ var GlodaDatastore = {
   },
 
   _cleanupAsyncStatements: function gloda_ds_cleanupAsyncStatements() {
-    [stmt.finalize() for each
-     ([i, stmt] in Iterator(this._outstandingAsyncStatements))];
+    this._outstandingAsyncStatements.forEach(stmt => stmt.finalize());
   },
 
   _outstandingSyncStatements: [],
@@ -1607,8 +1613,7 @@ var GlodaDatastore = {
   },
 
   _cleanupSyncStatements: function gloda_ds_cleanupSyncStatements() {
-    [stmt.finalize() for each
-     ([i, stmt] in Iterator(this._outstandingSyncStatements))];
+    this._outstandingSyncStatements.forEach(stmt => stmt.finalize());
   },
 
   /**
@@ -2262,7 +2267,8 @@ var GlodaDatastore = {
     // we only need to keep going if there is at least one folder in the table
     //  that is still alive after this pass.
     let keepGoing = false;
-    for each (let glodaFolder in GlodaDatastore._liveGlodaFolders) {
+    for (let id in GlodaDatastore._liveGlodaFolders) {
+      let glodaFolder = GlodaDatastore._liveGlodaFolders[id];
       // returns true if it is now 'dead' and doesn't need this heartbeat check
       if (glodaFolder.forgetFolderIfUnused())
         delete GlodaDatastore._liveGlodaFolders[glodaFolder.id];
@@ -2683,7 +2689,8 @@ var GlodaDatastore = {
                                            cacheLookupMap,
                                            inMemoryItems,
                                            /* do not cache */ false);
-    for each (let [glodaId, glodaMsg] in Iterator(inMemoryItems)) {
+    for (let glodaId in inMemoryItems) {
+      let glodaMsg = inMemoryItems[glodaId];
       glodaMsg._folderID = destFolderID;
       glodaMsg._messageKey = cacheLookupMap[glodaId];
       modifiedItems.push(glodaMsg);
@@ -2733,7 +2740,8 @@ var GlodaDatastore = {
                                            cacheLookupMap,
                                            inMemoryItems,
                                            /* do not cache */ false);
-    for each (let [glodaId, glodaMsg] in Iterator(inMemoryItems)) {
+    for (let glodaId in inMemoryItems) {
+      let glodaMsg = inMemoryItems[glodaId];
       glodaMsg._messageKey = cacheLookupMap[glodaId];
     }
   },
@@ -2762,7 +2770,8 @@ var GlodaDatastore = {
     let cached =
       GlodaCollectionManager.cacheLookupManyList(GlodaMessage.prototype.NOUN_ID,
                                                  aGlodaIds);
-    for each (let [, glodaMsg] in Iterator(cached)) {
+    for (let id in cached) {
+      let glodaMsg = cached[id];
       glodaMsg._folderID = destFolderID;
       glodaMsg._messageKey = null;
     }
@@ -3357,7 +3366,7 @@ var GlodaDatastore = {
         // @testpoint gloda.datastore.sqlgen.kConstraintIn
         else if (constraintType === this.kConstraintIn) {
           let clauses = [];
-          for each (let [attrID, values] in
+          for (let [attrID, values] of
               this._convertToDBValuesAndGroupByAttributeID(attrDef,
                                                            constraintValues)) {
             let clausePart;
@@ -3373,8 +3382,8 @@ var GlodaDatastore = {
               //  feels wrong to do it. (just double the quote character...)
               if (attrDef.special == this.kSpecialString)
                 clausePart += valueColumnName + " IN (" +
-                  [("'" + v.replace(/\'/g, "''") + "'") for each
-                   ([, v] in Iterator(values))].join(",") + "))";
+                  values.map(v => "'" + v.replace(/\'/g, "''") + "'").
+                  join(",") + "))";
               else
                 clausePart += valueColumnName + " IN (" + values.join(",") +
                               "))";
@@ -3388,7 +3397,7 @@ var GlodaDatastore = {
         // @testpoint gloda.datastore.sqlgen.kConstraintRanges
         else if (constraintType === this.kConstraintRanges) {
           let clauses = [];
-          for each (let [attrID, dbStrings] in
+          for (let [attrID, dbStrings] of
               this._convertRangesToDBStringsAndGroupByAttributeID(attrDef,
                               constraintValues, valueColumnName)) {
             if (attrID !== undefined)
@@ -3402,16 +3411,16 @@ var GlodaDatastore = {
         // @testpoint gloda.datastore.sqlgen.kConstraintEquals
         else if (constraintType === this.kConstraintEquals) {
           let clauses = [];
-          for each (let [attrID, values] in
+          for (let [attrID, values] of
               this._convertToDBValuesAndGroupByAttributeID(attrDef,
                                                            constraintValues)) {
             if (attrID !== undefined)
               clauses.push("(attributeID = " + attrID +
-                  " AND (" + [valueColumnName + " = ?" for each
-                  (value in values)].join(" OR ") + "))");
+                  " AND (" + values.map(_ => valueColumnName + " = ?").
+                  join(" OR ") + "))");
             else
-              clauses.push("(" + [valueColumnName + " = ?" for each
-                  (value in values)].join(" OR ") + ")");
+              clauses.push("(" + values.map(_ => valueColumnName + " = ?").
+                           join(" OR ") + ")");
             boundArgs.push.apply(boundArgs, values);
           }
           test = clauses.join(" OR ");
@@ -3419,7 +3428,7 @@ var GlodaDatastore = {
         // @testpoint gloda.datastore.sqlgen.kConstraintStringLike
         else if (constraintType === this.kConstraintStringLike) {
           let likePayload = '';
-          for each (let [iValuePart, valuePart] in Iterator(constraintValues)) {
+          for (let valuePart of constraintValues) {
             if (typeof valuePart == "string")
               likePayload += this._escapeLikeStatement.escapeStringForLIKE(
                 valuePart, "/");
@@ -3563,7 +3572,7 @@ var GlodaDatastore = {
     //this._log.debug("  hadDeps: " + hadDeps + " deps: " +
     //    Log4Moz.enumerateProperties(deps).join(","));
 
-    for each (let [, attrib] in Iterator(aItem.NOUN_DEF.specialLoadAttribs)) {
+    for (let attrib of aItem.NOUN_DEF.specialLoadAttribs) {
       let objectNounDef = attrib.objectNounDef;
 
       if (attrib.special === this.kSpecialColumnChildren) {
@@ -3614,7 +3623,8 @@ var GlodaDatastore = {
     delete aItem._jsonText;
 
     // Iterate over the attributes on the item
-    for each (let [attribId, jsonValue] in Iterator(jsonDict)) {
+    for (let attribId in jsonDict) {
+      let jsonValue = jsonDict[attribId];
       // It is technically impossible for attribute ids to go away at this
       //  point in time.  This would require someone to monkey around with
       //  our schema.  But we will introduce this functionality one day, so
@@ -3651,7 +3661,8 @@ var GlodaDatastore = {
             references[jsonValue] = null;
         }
         else {
-          for each (let [, anID] in Iterator(jsonValue)) {
+          for (let key in jsonValue) {
+            let anID = jsonValue[key];
             if (!(anID in references))
             references[anID] = null;
           }
@@ -3683,7 +3694,8 @@ var GlodaDatastore = {
           // Convert all the entries in the list filtering out any undefined
           //  values. (TagNoun will do this if the tag is now dead.)
           let outList = [];
-          for each (let [, val] in Iterator(jsonValue)) {
+          for (let key in jsonValue) {
+            let val = jsonValue[key];
             let deserialized = objectNounDef.fromJSON(val, aItem);
             if (deserialized !== undefined)
               outList.push(deserialized);
@@ -3742,8 +3754,8 @@ var GlodaDatastore = {
         if (attrib.singular)
           aItem[attrib.boundName] = references[jsonValue];
         else
-          aItem[attrib.boundName] = [references[val] for each
-                                     ([, val] in Iterator(jsonValue))];
+          aItem[attrib.boundName] = Object.keys(jsonValue).
+            map(key => references[jsonValue[key]]);
       }
       else if (objectNounDef.contributeObjDependencies) {
         aItem[attrib.boundName] =

@@ -87,7 +87,7 @@ GlodaSyntheticView.prototype = {
   },
 
   reportResults: function(aItems) {
-    for each (let [, item] in Iterator(aItems)) {
+    for (let item of aItems) {
       let hdr = item.folderMessage;
       if (hdr)
         this.searchListener.onSearchHit(hdr, hdr.folder);
@@ -99,7 +99,7 @@ GlodaSyntheticView.prototype = {
    *  are no actual backing folders for it to check.
    */
   getMsgHdrForMessageID: function(aMessageId) {
-    for each (let [, item] in Iterator(this.collection.items)) {
+    for (let item of this.collection.items) {
       if (item.headerMessageID == aMessageId) {
         let hdr = item.folderMessage;
         if (hdr)

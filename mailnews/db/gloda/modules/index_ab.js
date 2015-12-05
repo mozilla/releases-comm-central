@@ -274,7 +274,7 @@ var GlodaABAttrs = {
       this._log.error("Problem accessing property: " + ex);
     }
     if (tags) {
-      for each (let [iTagName, tagName] in Iterator(tags.split(","))) {
+      for (let tagName of tags.split(",")) {
         tagName = tagName.trim();
         if (tagName) {
           aContact.freeTags.push(FreeTagNoun.getFreeTag(tagName));

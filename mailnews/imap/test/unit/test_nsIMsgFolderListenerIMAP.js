@@ -106,7 +106,7 @@ function addMessagesToServer(messages, mailbox, localFolder)
     gExpectedEvents.push([gMFNService.msgAdded, {expectedMessageId: message.messageId}]);
   });
   gExpectedEvents.push([gMFNService.msgsClassified,
-                        [hdr.messageId for each (hdr in messages)],
+                        messages.map(hdr => hdr.messageId),
                         false, false]);
 
   // Create the imapMessages and store them on the mailbox
@@ -142,7 +142,7 @@ function copyMessages(messages, isMove, srcFolder, destFolder)
                           {expectedMessageId: message.messageId}]);
   });
   gExpectedEvents.push([gMFNService.msgsClassified,
-                        [hdr.messageId for each (hdr in messages)],
+                        messages.map(hdr => hdr.messageId),
                         false, false]);
   gCopyService.CopyMessages(srcFolder, array, destFolder, isMove, copyListener, gMsgWindow, true);
   gCurrStatus |= kStatus.functionCallDone;

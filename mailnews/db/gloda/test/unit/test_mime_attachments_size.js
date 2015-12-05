@@ -208,7 +208,7 @@ function check_attachments(aMimeMsg, epsilon, checkTotalSize) {
 
   let totalSize = htmlText.length;
 
-  for each (let [i, att] in Iterator(aMimeMsg.allUserAttachments)) {
+  for (let att of aMimeMsg.allUserAttachments) {
     dump("*** Attachment now is " + att.name + " " + att.size + "\n");
     do_check_true(Math.abs(att.size - originalTextByteCount) <= epsilon);
     totalSize += att.size;
@@ -292,8 +292,10 @@ function check_bogus_parts(aMimeMsg, { epsilon, checkSize }) {
     let partSize = 0;
     // The attachment, although a MimeUnknown part, is actually plain/text that
     // contains the whole attached message, including headers. Count them.
-    for each (let [k, v] in Iterator(bogusMessage.headers))
+    for (let k in bogusMessage.headers) {
+      let v = bogusMessage.headers[k];
       partSize += (k + ": " + v + sep).length;
+    }
     // That's the newline between the headers and the message body.
     partSize += sep.length;
     // That's the message body.

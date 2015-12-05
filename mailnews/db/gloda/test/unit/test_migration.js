@@ -65,7 +65,7 @@ function test_fix_missing_contacts_and_fallout() {
 
   // - Manually mark the messages involving the inAB people with the _old_ bad
   //    id marker so that our scan will see them.
-  for each (let msgHdr in yesMsgSet.msgHdrs) {
+  for (let msgHdr of yesMsgSet.msgHdrs) {
     msgHdr.setUint32Property("gloda-id", GLODA_OLD_BAD_MESSAGE_ID);
   }
 

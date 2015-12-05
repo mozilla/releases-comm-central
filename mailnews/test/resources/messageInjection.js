@@ -190,7 +190,7 @@ function _cleanup_message_injection() {
 
   // Clean out mis; we don't just null the global because it's conceivable we
   //  might still have some closures floating about.
-  for each (let key in Iterator(mis, true))
+  for (let key in mis)
     delete mis[key];
 }
 
@@ -202,7 +202,7 @@ var _messageInjectionSetup = {
   },
   listeners: [],
   notifyListeners: function(aHandlerName, aArgs) {
-    for each (let [, listener] in Iterator(this.listeners)) {
+    for (let listener of this.listeners) {
       if (aHandlerName in listener)
         listener[aHandlerName].apply(listener, aArgs);
     }
@@ -250,8 +250,8 @@ function register_message_injection_listener(aListener) {
  *  POP3 fakeserver.
  */
 function _synthMessagesToFakeRep(aSynthMessages) {
-  return [{fileData: msg.toMessageString(), size: -1} for each
-          (msg in aSynthMessages)];
+  return aSynthMessages.
+    map(msg => ({fileData: msg.toMessageString(), size: -1}));
 }
 
 
@@ -295,7 +295,7 @@ function make_empty_folder(aFolderName, aSpecialFlags) {
     // it seems dumb that we have to set this.
     testFolder.setFlag(Ci.nsMsgFolderFlags.Mail);
     if (aSpecialFlags) {
-      for each (let [, flag] in Iterator(aSpecialFlags)) {
+      for (let flag of aSpecialFlags) {
         testFolder.setFlag(flag);
       }
     }
@@ -323,7 +323,7 @@ function make_empty_folder(aFolderName, aSpecialFlags) {
         msgFolder.setFlag(Ci.nsMsgFolderFlags.ImapPersonal);
 
         if (aSpecialFlags) {
-          for each (let [, flag] in Iterator(aSpecialFlags)) {
+          for (let flag of aSpecialFlags) {
             msgFolder.setFlag(flag);
           }
         }
@@ -428,7 +428,8 @@ function make_virtual_folder(aFolders, aSearchDef, aBooleanAnd, aName) {
   let terms = [];
   let termCreator = Components.classes["@mozilla.org/messenger/searchSession;1"]
                               .createInstance(Ci.nsIMsgSearchSession);
-  for each (let [key, val] in Iterator(aSearchDef)) {
+  for (let key in aSearchDef) {
+    let val = aSearchDef[key];
     let term = termCreator.createTerm();
     let value = term.value;
     value.str = val;
@@ -550,7 +551,7 @@ function make_new_sets_in_folders(aMsgFolders, aSynSetDefs, aDoNotForceUpdate) {
 
   // - create the synthetic message sets
   let messageSets = [];
-  for each (let [, synSetDef] in Iterator(aSynSetDefs)) {
+  for (let synSetDef of aSynSetDefs) {
     let messages = gMessageGenerator.makeMessages(synSetDef);
     messageSets.push(new SyntheticMessageSet(messages));
   }
@@ -626,7 +627,7 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
 
   // -- Pre-loop
   if (mis.injectionConfig.mode == "local") {
-    for each (let [, folder] in Iterator(aMsgFolders)) {
+    for (let folder of aMsgFolders) {
       if (!(folder instanceof Components.interfaces.nsIMsgLocalMailFolder))
         throw Exception("All folders in aMsgFolders must be local folders!");
     }
@@ -638,7 +639,7 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
     folderList = aMsgFolders;
   }
   else if (mis.injectionConfig.mode == "pop") {
-    for each (let [, folder] in Iterator(aMsgFolders)) {
+    for (let folder of aMsgFolders) {
       if (folder.URI != mis.inboxFolder.URI)
         throw new Exception("We only support the Inbox for POP injection");
     }
@@ -740,7 +741,7 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
       let didSomething;
       do {
         didSomething = false;
-        for each (let [, messageSet] in Iterator(aMessageSets)) {
+        for (let messageSet of aMessageSets) {
           if (iPerSet < messageSet.synMessages.length) {
             didSomething = true;
 
@@ -797,7 +798,7 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
     do {
       didSomething = false;
       // for each message set, if it is not out of messages, add the message
-      for each (let [, messageSet] in Iterator(aMessageSets)) {
+      for (let messageSet of aMessageSets) {
         if (iPerSet < messageSet.synMessages.length) {
           popMessages.push(messageSet._trackMessageAddition(folder, iPerSet));
           didSomething = true;

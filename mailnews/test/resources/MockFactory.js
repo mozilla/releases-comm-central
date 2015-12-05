@@ -92,7 +92,7 @@ var MockFactory = {
   },
 
   unregisterAll: function() {
-    for each (let id in this._registeredComponents)
-      this.unregister(id);
+    for (let uuid in this._registeredComponents)
+      this.unregister(uuid);
   }
 };

@@ -82,7 +82,7 @@ function test_propagate_filthy_from_folder_to_messages() {
   glodaFolder._dirtyStatus = glodaFolder.kFolderFilthy;
 
   // mark each header with a gloda-id so they can get marked filthy
-  for each (let msgHdr in msgSet.msgHdrs) {
+  for (let msgHdr of msgSet.msgHdrs) {
     msgHdr.setUint32Property("gloda-id", arbitraryGlodaId);
   }
 
@@ -105,7 +105,7 @@ function test_propagate_filthy_from_folder_to_messages() {
 
   // The messages should be filthy per the headers (we force a commit of the
   //  database.)
-  for each (let msgHdr in msgSet.msgHdrs) {
+  for (let msgHdr of msgSet.msgHdrs) {
     do_check_eq(msgHdr.getUint32Property("gloda-dirty"),
                 GlodaMsgIndexer.kMessageFilthy);
   }

@@ -206,14 +206,14 @@ function async_test_runner_register_final_cleanup_helper(aHelper) {
 }
 
 function _async_test_runner_postTest() {
-  for each (let [, helper] in Iterator(ASYNC_TEST_RUNNER_HELPERS)) {
+  for (let helper of ASYNC_TEST_RUNNER_HELPERS) {
     if (helper.postTest)
       helper.postTest();
   }
 }
 
 function _async_test_runner_timeout() {
-  for each (let [, helper] in Iterator(ASYNC_TEST_RUNNER_HELPERS)) {
+  for (let helper of ASYNC_TEST_RUNNER_HELPERS) {
     try {
       if (helper.onTimeout)
         helper.onTimeout();
@@ -255,11 +255,11 @@ function async_run_tests(aTests, aLongestTestRunTimeConceivableInSecs) {
 }
 
 function _async_test_runner(aTests) {
-  for each (let [, test] in Iterator(aTests)) {
+  for (let test of aTests) {
     // parameterized?
     if (test.length) {
       let [testFunc, parameters] = test;
-      for each (let [, parameter] in Iterator(parameters)) {
+      for (let parameter of parameters) {
         let paramDesc, args;
         if (typeof(parameter) == "object") {
           if (parameter.length) {
@@ -292,8 +292,7 @@ function _async_test_runner(aTests) {
 
   dump("=== (Done With Tests)\n");
 
-  for each (let [, cleanupHelper] in
-            Iterator(ASYNC_TEST_RUNNER_FINAL_CLEANUP_HELPERS)) {
+  for (let cleanupHelper of ASYNC_TEST_RUNNER_FINAL_CLEANUP_HELPERS) {
     try {
       cleanupHelper();
     }

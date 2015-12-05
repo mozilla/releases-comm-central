@@ -100,11 +100,9 @@ var messageInfos = [
 /* ===== Tests ===== */
 
 function setup_create_message(info) {
-  info.body = {body: [tupe[1] for each
-                      ([, tupe] in Iterator(info.bode))].join("\r\n")};
-  info.expected = [tupe[1] for each
-                   ([, tupe] in Iterator(info.bode)) if
-                   (tupe[0])].join("\n");
+  info.body = {body: info.bode.map(tupe => tupe[1]).join("\r\n")};
+  info.expected = info.bode.filter(tupe => tupe[0]).map(tupe => tupe[1]).
+    join("\n");
 
   info._synMsg = msgGen.makeMessage(info);
 }
@@ -127,8 +125,7 @@ function glodaInfoStasher(aSynthMessage, aGlodaMessage) {
  * Actually inject all the messages we created above.
  */
 function setup_inject_messages() {
-  let msgSet = new SyntheticMessageSet(
-                 [info._synMsg for each ([, info] in Iterator(messageInfos))]);
+  let msgSet = new SyntheticMessageSet(messageInfos.map(info => info._synMsg));
   let folder = make_empty_folder();
   yield add_sets_to_folders(folder, [msgSet]);
   yield wait_for_gloda_indexer(msgSet, {verifier: glodaInfoStasher});

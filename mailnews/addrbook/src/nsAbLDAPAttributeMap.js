@@ -58,7 +58,7 @@ nsAbLDAPAttributeMap.prototype = {
     // check to make sure this call won't allow multiple mappings to be
     // created, if requested
     if (!aAllowInconsistencies) {
-      for each (var attr in attrs) {
+      for (var attr of attrs) {
         if (attr in this.mAttrMap && this.mAttrMap[attr] != aProperty) {
           throw Components.results.NS_ERROR_FAILURE;
         }
@@ -67,13 +67,13 @@ nsAbLDAPAttributeMap.prototype = {
 
     // delete any attr mappings created by the existing property map entry
     if (aProperty in this.mPropertyMap) {
-      for each (attr in this.mPropertyMap[aProperty]) {
+      for (attr of this.mPropertyMap[aProperty]) {
         delete this.mAttrMap[attr];
       }
     }
 
     // add these attrs to the attrmap
-    for each (attr in attrs) {
+    for (attr of attrs) {
       this.mAttrMap[attr] = aProperty;
     }
 
@@ -92,7 +92,8 @@ nsAbLDAPAttributeMap.prototype = {
 
   getAllCardAttributes: function getAllCardAttributes() {
     var attrs = [];
-    for each (var attrArray in this.mPropertyMap) {
+    for (var prop in this.mPropertyMap) {
+      let attrArray = this.mPropertyMap[prop];
       attrs = attrs.concat(attrArray);
     }
 
@@ -123,7 +124,7 @@ nsAbLDAPAttributeMap.prototype = {
     var children = branch.getChildList("", childCount);
 
     // do the actual sets
-    for each (var child in children) {
+    for (var child of children) {
       this.setAttributeList(child, branch.getCharPref(child), true);
     }
 
@@ -147,7 +148,7 @@ nsAbLDAPAttributeMap.prototype = {
     for (var prop in this.mPropertyMap) {
 
       // go through the list of possible attrs in precedence order
-      for each (var attr in this.mPropertyMap[prop]) {
+      for (var attr of this.mPropertyMap[prop]) {
 
         attr = attr.toLowerCase();
 
@@ -184,9 +185,9 @@ nsAbLDAPAttributeMap.prototype = {
 
     var attrsSeen = [];
 
-    for each (var attrArray in this.mPropertyMap) {
-
-      for each (var attr in attrArray) {
+    for (var prop in this.mPropertyMap) {
+      let attrArray = this.mPropertyMap[prop];
+      for (var attr of attrArray) {
 
         // multiple attributes that mapped to the empty string are permitted
         if (!attr.length) {

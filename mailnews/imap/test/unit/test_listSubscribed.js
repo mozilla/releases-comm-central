@@ -135,7 +135,7 @@ function specForFileName(aFileName)
 
 function recursiveDeleteMailboxes(aMailbox)
 {
-  for each (var child in aMailbox.allChildren) {
+  for (var child of aMailbox.allChildren) {
     recursiveDeleteMailboxes(child);
   }
   IMAPPump.daemon.deleteMailbox(aMailbox);

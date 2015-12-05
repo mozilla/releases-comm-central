@@ -27,7 +27,7 @@ function continueTest()
 {
   dump("temp file path = " + gExpectedFiles[0].path + "\n");
   dump("temp file path = " + gExpectedFiles[1].path + "\n");
-  for each (let expectedFile in gExpectedFiles)
+  for (let expectedFile of gExpectedFiles)
     do_check_false(expectedFile.exists());
 
   // get message headers for the inbox folder
@@ -55,7 +55,7 @@ function createExpectedTemporaryFiles(numFiles) {
   for (i = 0; i < numFiles; i++)
     expectedFiles.push(createTemporaryFile());
 
-  for each (let expectedFile in expectedFiles)
+  for (let expectedFile of expectedFiles)
     expectedFile.remove(false);
 
   return expectedFiles;

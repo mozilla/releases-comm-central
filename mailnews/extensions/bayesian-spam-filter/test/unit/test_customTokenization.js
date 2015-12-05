@@ -105,14 +105,14 @@ var listener =
       print("Token " + aTokenString[i]);
 
     // we should have these tokens
-    for each (var value in gTest.tokens)
+    for (var value of gTest.tokens)
     {
       print("We should have '" + value + "'? ");
       do_check_true(aTokenString.indexOf(value) >= 0);
     }
 
     // should not have these tokens
-    for each (var value in gTest.nottokens)
+    for (var value of gTest.nottokens)
     {
       print("We should not have '" + value + "'? ");
       do_check_true(aTokenString.indexOf(value) < 0);

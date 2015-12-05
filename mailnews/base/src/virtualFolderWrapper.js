@@ -122,7 +122,7 @@ VirtualFolderWrapper.prototype = {
     let virtualFolderUris =
       this.dbFolderInfo.getCharProperty("searchFolderUri").split("|");
     let folders = [];
-    for each (let [, folderURI] in Iterator(virtualFolderUris)) {
+    for (let folderURI of virtualFolderUris) {
       if (folderURI)
         folders.push(rdfService.GetResource(folderURI)
                                .QueryInterface(Ci.nsIMsgFolder));

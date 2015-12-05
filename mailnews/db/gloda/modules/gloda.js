@@ -324,7 +324,8 @@ var Gloda = {
     let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
     let clause;
     // build a query, using a separate union clause for each folder.
-    for each (let [folderURI, headersForFolder] in Iterator(headersByFolder)) {
+    for (let folderURI in headersByFolder) {
+      let headersForFolder = headersByFolder[folderURI];
       let folder = this.getFolderForFolder(headersForFolder[0].folder);
       // if this is the first or clause, just use the query itself
       if (!clause)
@@ -333,7 +334,7 @@ var Gloda = {
         clause = query.or();
 
       clause.folder(folder);
-      let messageKeys = [hdr.messageKey for each (hdr in headersForFolder)];
+      let messageKeys = headersForFolder.map(hdr => hdr.messageKey);
       clause.messageKey.apply(clause, messageKeys);
     }
 
@@ -416,7 +417,7 @@ var Gloda = {
     yield this.kWorkAsync;
 
     // put the identities in the appropriate result lists
-    for each (let [, identity] in Iterator(collection.items)) {
+    for (let identity of collection.items) {
       let nameAndResultLists = addresses[identity.value];
       this._log.debug(" found identity for '" + nameAndResultLists[0] + "' (" +
                       identity.value + ")");
@@ -428,7 +429,8 @@ var Gloda = {
     }
 
     // create the identities that did not exist yet
-    for each (let [address, nameAndResultLists] in Iterator(addresses)) {
+    for (let address in addresses) {
+      let nameAndResultLists = addresses[address];
       let name = nameAndResultLists[0];
 
       this._log.debug(" creating contact for '" + name + "' (" + address + ")");
@@ -559,7 +561,7 @@ var Gloda = {
     }
 
     // we need to establish the identity.contact portions of the relationship
-    for each (let [,identity] in Iterator(existingIdentities)) {
+    for (let identity of existingIdentities) {
       identity._contact = GlodaDatastore.getContactByID(identity.contactID);
     }
 
@@ -598,7 +600,8 @@ var Gloda = {
 
     this.myContact = myContact;
     this.myIdentities = myIdentities;
-    myContact._identities = [identity for each (identity in myIdentities)];
+    myContact._identities = Object.keys(myIdentities).
+      map(id => myIdentities[id]);
 
     // we need contacts to make these objects reachable via the collection
     //  manager.
@@ -1029,8 +1032,8 @@ var Gloda = {
     let nounDef = this._nounIDToDef[aNounID];
     if (!nounDef)
       return [];
-    return [action for each ([i, action] in Iterator(nounDef.actions))
-            if (!aActionType || (action.actionType == aActionType))];
+    return nounDef.actions.
+      filter(action => !aActionType || (action.actionType == aActionType));
   },
 
   /** Attribute providers in the sequence to process them. */
@@ -1418,7 +1421,7 @@ var Gloda = {
       },
       computeDelta: function(aCurValues, aOldValues) {
         let oldMap = {};
-        for each (let [, tupe] in Iterator(aOldValues)) {
+        for (let tupe of aOldValues) {
           let [originIdentity, targetIdentity] = tupe;
           let targets = oldMap[originIdentity];
           if (targets === undefined)
@@ -1427,7 +1430,7 @@ var Gloda = {
         }
 
         let added = [], removed = [];
-        for each (let [, tupe] in Iterator(aCurValues)) {
+        for (let tupe of aCurValues) {
           let [originIdentity, targetIdentity] = tupe;
           let targets = oldMap[originIdentity];
           if ((targets === undefined) || !(targetIdentity in targets))
@@ -1436,7 +1439,8 @@ var Gloda = {
             delete targets[targetIdentity];
         }
 
-        for each (let [originIdentity, targets] in Iterator(oldMap)) {
+        for (let originIdentity in oldMap) {
+          let targets = oldMap[originIdentity];
           for (let targetIdentity in targets) {
             removed.push([originIdentity, targetIdentity]);
           }
@@ -1455,7 +1459,7 @@ var Gloda = {
         if (references === undefined)
           references = aReferencesByNounID[nounIdentityDef.id] = {};
 
-        for each (let [, tupe] in Iterator(aJsonValues)) {
+        for (let tupe of aJsonValues) {
           let [originIdentityID, targetIdentityID] = tupe;
           if (!(originIdentityID in references))
             references[originIdentityID] = null;
@@ -1471,7 +1475,7 @@ var Gloda = {
           aReferencesByNounID[Gloda.NOUN_IDENTITY];
 
         let results = [];
-        for each (let [, tupe] in Iterator(aJsonValues)) {
+        for (let tupe of aJsonValues) {
           let [originIdentityID, targetIdentityID] = tupe;
           results.push([references[originIdentityID],
                         references[targetIdentityID]]);
@@ -1578,7 +1582,8 @@ var Gloda = {
 
       // - Custom helpers provided by the noun type...
       if ("queryHelpers" in objectNounDef) {
-        for each (let [name, helper] in Iterator(objectNounDef.queryHelpers)) {
+        for (let name in objectNounDef.queryHelpers) {
+          let helper = objectNounDef.queryHelpers[name];
           // we need a new closure...
           let helperFunc = helper;
           aSubjectNounDef.queryClass.prototype[aAttrDef.boundName + name] =
@@ -1751,14 +1756,14 @@ var Gloda = {
       }
     }
     if ("extraFacets" in aAttrDef) {
-      for each (let [, facetDef] in Iterator(aAttrDef.extraFacets)) {
+      for (let facetDef of aAttrDef.extraFacets) {
         normalizeFacetDef(facetDef);
       }
     }
 
     function gatherLocalizedStrings(aBundle, aPropRoot, aStickIn) {
-      for each (let [propName, attrName] in
-                Iterator(Gloda._ATTR_LOCALIZED_STRINGS)) {
+      for (let propName in Gloda._ATTR_LOCALIZED_STRINGS) {
+        let attrName = Gloda._ATTR_LOCALIZED_STRINGS[propName];
         try {
           aStickIn[attrName] = aBundle.get(aPropRoot + propName);
         }
@@ -1789,7 +1794,7 @@ var Gloda = {
 
       // -- alias strings for synthetic facets
       if ("extraFacets" in aAttrDef) {
-        for each (let [, facetDef] in Iterator(aAttrDef.extraFacets)) {
+        for (let facetDef of aAttrDef.extraFacets) {
           facetDef.strings = {};
           let aliasPropRoot = "gloda." + canonicalSubject.name + ".attr." +
                                 facetDef.alias + ".";
@@ -2021,7 +2026,8 @@ var Gloda = {
     this._log.info(" ** done with providers.");
 
     // Iterate over the attributes on the item
-    for each (let [key, value] in Iterator(aItem)) {
+    for (let key of Object.keys(aItem)) {
+      let value = aItem[key];
       // ignore keys that start with underscores, they are private and not
       //  persisted by our attribute mechanism.  (they are directly handled by
       //  the object implementation.)
@@ -2048,7 +2054,7 @@ var Gloda = {
       else {
         if (objectNounDef.toJSON) {
           let toJSON = objectNounDef.toJSON;
-          jsonDict[attrib.id] = [toJSON(subValue) for each
+          jsonDict[attrib.id] = [toJSON(subValue) for
                            ([, subValue] in Iterator(value))] ;
         }
         else
@@ -2106,21 +2112,22 @@ var Gloda = {
           //  we see them so that we will know what old values are no longer
           //  present in the current set of values.
           let oldValueMap = {};
-          for each (let [, anOldValue] in Iterator(oldValue)) {
+          for (let anOldValue of oldValue) {
             // remember, the key is just the toString'ed value, so we need to
             //  store and use the actual value as the value!
             oldValueMap[anOldValue] = anOldValue;
           }
           // traverse the current values...
           let valuesAdded = [];
-          for each (let [, curValue] in Iterator(value)) {
+          for (let curValue of value) {
             if (curValue in oldValueMap)
               delete oldValueMap[curValue];
             else
               valuesAdded.push(curValue);
           }
           // anything still on oldValueMap was removed.
-          let valuesRemoved = [val for each (val in oldValueMap)];
+          let valuesRemoved = Object.keys(oldValueMap).
+            map(key => oldValueMap[key]);
           // convert the values to database-style attribute rows
           addDBAttribs.push.apply(addDBAttribs,
             attribDB.convertValuesToDBAttributes(valuesAdded));
@@ -2152,7 +2159,8 @@ var Gloda = {
     }
 
     // Iterate over any remaining values in old items for purge purposes.
-    for each (let [key, value] in Iterator(aOldItem)) {
+    for (let key of Object.keys(aOldItem)) {
+      let value = aOldItem[key];
       // ignore keys that start with underscores, they are private and not
       //  persisted by our attribute mechanism.  (they are directly handled by
       //  the object implementation.)
@@ -2244,7 +2252,7 @@ var Gloda = {
     if (aExtraScoreFuncs == null)
       aExtraScoreFuncs = [];
 
-    for each (let [, item] in Iterator(aItems)) {
+    for (let item of aItems) {
       let score = 0;
       let attrProviders = this._attrProviderOrderByNoun[itemNounDef.id];
       for (let iProvider = 0; iProvider < attrProviders.length; iProvider++) {

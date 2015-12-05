@@ -73,8 +73,8 @@ function test_index(aPhrase) {
   // create a synthetic message for each of the delightful encoding types
   let messages = [];
   aPhrase.resultList = [];
-  for each (let [charset, encodings] in Iterator(aPhrase.encodings)) {
-    let [quoted, bodyEncoded] = encodings;
+  for (let charset in aPhrase.encodings) {
+    let [quoted, bodyEncoded] = aPhrase.encodings[charset];
 
     let smsg = gMessageGenerator.makeMessage({
       subject: quoted,
@@ -137,7 +137,7 @@ function test_token_count() {
  */
 function test_fulltextsearch(aPhrase)
 {
-  for each (let [, searchPhrase] in Iterator(aPhrase.searchPhrases)) {
+  for (let searchPhrase of aPhrase.searchPhrases) {
     let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
     query.bodyMatches(searchPhrase.body);
     queryExpect(query, searchPhrase.match ? aPhrase.resultList : []);

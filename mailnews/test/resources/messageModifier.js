@@ -21,7 +21,7 @@ Components.utils.import("resource:///modules/mailServices.js");
  *  and aFolderIndices values.  (They are primarily intended for reasons of
  *  slicing, but people who know what they are doing can also use them.)
  *
- * @param aSynMessage The synthetic messages that should belong to this set.
+ * @param aSynMessages The synthetic messages that should belong to this set.
  * @param aMsgFolders Optional nsIMsgDBFolder or list of folders.
  * @param aFolderIndices Optional list where each value is an index into the
  *     msgFolders attribute, specifying what folder the message can be found
@@ -39,7 +39,7 @@ function SyntheticMessageSet(aSynMessages, aMsgFolders, aFolderIndices) {
     this.msgFolders = aMsgFolders;
 
   if (aFolderIndices == null)
-    this.folderIndices = [null for each (blah in Iterator(aSynMessages))];
+    this.folderIndices = aSynMessages.map(_ => null);
   else
     this.folderIndices = aFolderIndices;
 }
@@ -80,7 +80,7 @@ SyntheticMessageSet.prototype = {
     let indices = this.folderIndices.concat();
 
     let folderUrisToIndices = {};
-    for each (let [iFolder, folder] in Iterator(this.msgFolders)) {
+    for (let [iFolder, folder] of this.msgFolders.entries()) {
       folderUrisToIndices[folder.URI] = iFolder;
     }
 
@@ -126,8 +126,7 @@ SyntheticMessageSet.prototype = {
    */
   get msgHdrs() {
     // get the databases
-    let msgDatabases = [folder.msgDatabase for each
-                        ([, folder] in Iterator(this.msgFolders))];
+    let msgDatabases = this.msgFolders.map(folder => folder.msgDatabase);
     for (let [iMsg, synMsg] in Iterator(this.synMessages)) {
       let folderIndex = this.folderIndices[iMsg];
       if (folderIndex != null)
@@ -139,7 +138,7 @@ SyntheticMessageSet.prototype = {
    *     folder.
    */
   get msgHdrList() {
-    return [msgHdr for each (msgHdr in this.msgHdrs)];
+    return Array.from(this.msgHdrs);
   },
   /**
    * @return an nsIMutableArray of the message headers for all messages inserted
@@ -155,8 +154,7 @@ SyntheticMessageSet.prototype = {
    *     for the synthetic messages in the set inserted into that folder.
    */
   get foldersWithMsgHdrs() {
-    let results = [[folder, []] for each
-                   ([, folder] in Iterator(this.msgFolders))];
+    let results = this.msgFolders.map(folder => [folder, []]);
     for (let [iMsg, synMsg] in Iterator(this.synMessages)) {
       let folderIndex = this.folderIndices[iMsg];
       if (folderIndex != null) {
@@ -190,7 +188,7 @@ SyntheticMessageSet.prototype = {
     }
   },
   setStarred: function(aStarred) {
-    for each (let msgHdr in this.msgHdrs) {
+    for (let msgHdr of this.msgHdrs) {
       msgHdr.markFlagged(aStarred);
     }
   },

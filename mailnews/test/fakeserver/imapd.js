@@ -91,13 +91,13 @@ imapDaemon.prototype = {
     if (this.syncFunc)
       this.syncFunc.call(null, this);
     if (update) {
-      for each (var message in mailbox._messages) {
+      for (var message of mailbox._messages) {
         message.recent = false;
       }
     }
   },
   getNamespace : function (name) {
-    for each (var namespace in this.namespaces) {
+    for (var namespace of this.namespaces) {
       if (name.indexOf(namespace.name) == 0 &&
           name[namespace.name.length] == namespace.delimiter)
         return namespace;
@@ -119,7 +119,7 @@ imapDaemon.prototype = {
     // name starting with '#', so that's how we'll work it out.
     if (name.startsWith('#')) {
       var root = null;
-      for each (var mailbox in this.root._children) {
+      for (var mailbox of this.root._children) {
         if (mailbox.name.indexOf(name) == 0 &&
             name[mailbox.name.length] == mailbox.delimiter) {
           root = mailbox;
@@ -132,7 +132,7 @@ imapDaemon.prototype = {
       // Now we continue like normal
       var names = name.split(mailbox.delimiter);
       names.splice(0, 1);
-      for each (var part in names) {
+      for (var part of names) {
         mailbox = mailbox.getChild(part);
         if (!mailbox || mailbox.nonExistent)
           return null;
@@ -143,7 +143,7 @@ imapDaemon.prototype = {
       var names = name.split(this.inbox.delimiter);
       var mailbox = this.root;
 
-      for each (var part in names) {
+      for (var part of names) {
         mailbox = mailbox.getChild(part);
         if (!mailbox || mailbox.nonExistent)
           return null;
@@ -161,7 +161,7 @@ imapDaemon.prototype = {
     else
       var subName = prefixes.splice(prefixes.length - 1, 1)[0];
     var box = namespace;
-    for each (var component in prefixes) {
+    for (var component of prefixes) {
       box = box.getChild(component);
       // Yes, we won't autocreate intermediary boxes
       if (box == null || box.flags.indexOf('\\NoInferiors') != -1)
@@ -255,7 +255,7 @@ imapMailbox.prototype = {
   },
   getChild : function (name) {
     var equal;
-    for each (var mailbox in this._children) {
+    for (var mailbox of this._children) {
       if (name == mailbox.name)
         return mailbox;
     }
@@ -267,7 +267,7 @@ imapMailbox.prototype = {
 
     var portions = pattern.split(this.delimiter);
     var matching = [this];
-    for each (var folder in portions) {
+    for (var folder of portions) {
       if (folder.length == 0)
         continue;
 
@@ -286,7 +286,7 @@ imapMailbox.prototype = {
       });
       matching = possible.filter(function (mailbox) {
         let index = 0, name = mailbox.fullName;
-        for each (var part in parts) {
+        for (var part of parts) {
           index = name.indexOf(part, index);
           if (index == -1)
             return false;
@@ -331,7 +331,7 @@ imapMailbox.prototype = {
     if ("__highestuid" in this)
       return this.__highestuid;
     var highest = 0;
-    for each (var message in this._messages)
+    for (var message of this._messages)
       if (message.uid > highest)
         highest = message.uid;
     this.__highestuid = highest;
@@ -838,7 +838,7 @@ IMAP_RFC3501_handler.prototype = {
 
     // Add status updates
     if (this._selectedMailbox) {
-      for each (var update in this._selectedMailbox._updates) {
+      for (var update of this._selectedMailbox._updates) {
         var line;
         switch (update) {
         case "EXISTS":
@@ -851,7 +851,7 @@ IMAP_RFC3501_handler.prototype = {
 
     var lines = response.split(/\u0000/);
     response = "";
-    for each (var line in lines) {
+    for (var line of lines) {
       if (!line.startsWith('+') && !line.startsWith('*'))
         response += this._tag + " ";
       response += line + "\r\n";
@@ -1067,7 +1067,7 @@ IMAP_RFC3501_handler.prototype = {
       let selectionOptions = args.shift();
       selectionOptions = selectionOptions.toString().split(' ');
       selectionOptions.sort();
-      for each (let option in selectionOptions) {
+      for (let option of selectionOptions) {
         listFunctionName += "_" + option.replace(/-/g, "_");
       }
     }
@@ -1082,7 +1082,7 @@ IMAP_RFC3501_handler.prototype = {
         returnOptions.push("CHILDREN");
       }
       returnOptions.sort();
-      for each (let option in returnOptions) {
+      for (let option of returnOptions) {
         listFunctionName += "_" + option.replace(/-/g, "_");
       }
     }
@@ -1101,9 +1101,9 @@ IMAP_RFC3501_handler.prototype = {
       requestedBoxes = [ args[1] ];
     }
     let response = "";
-    for each (let requestedBox in requestedBoxes) {
+    for (let requestedBox of requestedBoxes) {
       let people = base.matchKids(requestedBox);
-      for each (let box in people) {
+      for (let box of people) {
         response += this[listFunctionName](box);
       }
     }
@@ -1123,7 +1123,7 @@ IMAP_RFC3501_handler.prototype = {
       return "NO no such mailbox";
     var people = base.matchKids(args[1]);
     var response = "";
-    for each (var box in people) {
+    for (var box of people) {
       if (box.subscribed)
         response += '* LSUB () "' + box.delimiter +
                     '" "' + box.displayName + '"\0';
@@ -1138,7 +1138,7 @@ IMAP_RFC3501_handler.prototype = {
       if (box.flags[i] == "\\Noselect")
         return "NO STATUS not allowed on Noselect folder";
     var parts = [];
-    for each (var status in args[1]) {
+    for (var status of args[1]) {
       var line = status + " ";
       switch (status) {
       case "MESSAGES":
@@ -1245,7 +1245,7 @@ IMAP_RFC3501_handler.prototype = {
 
     // Step 2.1: Preprocess the item fetch stack
     var items = [], prefix = undefined;
-    for each (var item in args[1]) {
+    for (var item of args[1]) {
       if (item.indexOf('[') > 0 && item.indexOf(']') == -1) {
         // We want to append everything into an item until we find a ']'
         prefix = item + ' ';
@@ -1272,7 +1272,7 @@ IMAP_RFC3501_handler.prototype = {
     for (var i = 0; i < messages.length; i++) {
       response += "* " + ids[i] + " FETCH (";
       var parts = [];
-      for each (var item in items) {
+      for (var item of items) {
 
         // Brief explanation: an item like BODY[]<> can't be hardcoded easily,
         // so we go for the initial alphanumeric substring, passing in the
@@ -1313,11 +1313,11 @@ IMAP_RFC3501_handler.prototype = {
         message.flags = args[2];
         break;
       case "+FLAGS":
-        for each (var flag in args[2])
+        for (var flag of args[2])
           message.setFlag(flag);
         break;
       case "-FLAGS":
-        for each (var flag in args[2]) {
+        for (var flag of args[2]) {
           var index;
           if ((index = message.flags.indexOf(flag)) != -1)
             message.flags.splice(index, 1);
@@ -1341,7 +1341,7 @@ IMAP_RFC3501_handler.prototype = {
     if (!dest)
       return "NO [TRYCREATE] what mailbox?";
 
-    for each (var message in messages) {
+    for (var message of messages) {
       let newMessage = new imapMessage(message._URI, dest.uidnext++,
                                        message.flags);
       newMessage.recent = false;
@@ -1430,7 +1430,7 @@ IMAP_RFC3501_handler.prototype = {
 
     var elements = set.split(/,/);
     set = [];
-    for each (var part in elements) {
+    for (var part of elements) {
       if (!part.includes(':')) {
         set.push(part2num(part));
       } else {
@@ -1463,7 +1463,7 @@ IMAP_RFC3501_handler.prototype = {
       });
     } else {
       var messages = [];
-      for each (var id in set) {
+      for (var id of set) {
         if (id - 1 in this._selectedMailbox._messages) {
           ids.push(id);
           messages.push(this._selectedMailbox._messages[id - 1]);
@@ -1792,7 +1792,7 @@ var IMAP_MOVE_extension = {
     if (!dest)
       return "NO [TRYCREATE] what mailbox?";
 
-    for each (var message in messages) {
+    for (var message of messages) {
       let newMessage = new imapMessage(message._URI, dest.uidnext++,
                                        message.flags);
       newMessage.recent = false;
@@ -1910,13 +1910,13 @@ var IMAP_CUSTOM_extension = {
 var IMAP_RFC2197_extension = {
   ID : function (args) {
     let clientID = "(";
-    for each (let i in args)
+    for (let i of args)
       clientID += "\"" + i + "\"";
 
     clientID += ")";
     let clientStrings = clientID.split(",");
     clientID = "";
-    for each (let i in clientStrings)
+    for (let i of clientStrings)
       clientID += "\"" + i + "\" "
     clientID = clientID.slice(1, clientID.length - 3);
     clientID += ")";
@@ -1932,17 +1932,17 @@ var IMAP_RFC2197_extension = {
 var IMAP_RFC2342_extension = {
   NAMESPACE : function (args) {
     var namespaces = [[], [], []];
-    for each (var namespace in this._daemon.namespaces)
+    for (var namespace of this._daemon.namespaces)
       namespaces[namespace.type].push(namespace);
 
     var response = "* NAMESPACE";
-    for each (var type in namespaces) {
+    for (var type of namespaces) {
       if (type.length == 0) {
         response += " NIL";
         continue;
       }
       response += " (";
-      for each (var namespace in type) {
+      for (var namespace of type) {
         response += "(\"";
         response += namespace.displayName;
         response += "\" \"";

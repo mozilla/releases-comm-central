@@ -206,8 +206,10 @@ SyntheticPartMulti.prototype = {
       if (part.hasContentId)
         s += 'Content-ID: ' + part.contentIdHeaderValue + '\r\n';
       if (part.hasExtraHeaders)
-        for each (let [k, v] in Iterator(part.extraHeaders))
+        for (let k in part.extraHeaders) {
+          let v = part.extraHeaders[k];
           s += k + ': ' + v + '\r\n';
+        }
       s += '\r\n';
       s += part.toMessageString() + '\r\n\r\n';
     }
@@ -365,7 +367,8 @@ function SyntheticMessage(aHeaders, aBodyPart, aMetaState) {
   this.headers = aHeaders || {};
   this.bodyPart = aBodyPart || new SyntheticPartLeaf("");
   this.metaState = aMetaState || {};
-  for each (let [key, value] in Iterator(_DEFAULT_META_STATES)) {
+  for (let key in _DEFAULT_META_STATES) {
+    let value = _DEFAULT_META_STATES[key];
     if (!(key in this.metaState))
       this.metaState[key] = value;
   }
@@ -516,9 +519,8 @@ SyntheticMessage.prototype = {
       return;
     }
     this._to = aNameAndAddresses;
-    this.headers["To"] = this._commaize(
-                           [this._formatMailFromNameAndAddress(nameAndAddr)
-                            for each (nameAndAddr in aNameAndAddresses)]);
+    this.headers["To"] = this._commaize(aNameAndAddresses.
+      map(nameAndAddr => this._formatMailFromNameAndAddress(nameAndAddr)));
   },
   /** @returns The display name of the first intended recipient. */
   get toName() { return this._to[0][0]; },
@@ -551,9 +553,8 @@ SyntheticMessage.prototype = {
       return;
     }
     this._cc = aNameAndAddresses;
-    this.headers["Cc"] = this._commaize(
-                           [this._formatMailFromNameAndAddress(nameAndAddr)
-                            for each (nameAndAddr in aNameAndAddresses)]);
+    this.headers["Cc"] = this._commaize(aNameAndAddresses.
+      map(nameAndAddr => this._formatMailFromNameAndAddress(nameAndAddr)));
   },
 
   get bodyPart() {
@@ -612,8 +613,9 @@ SyntheticMessage.prototype = {
    * @returns this messages in rfc822 format, or something close enough.
    */
   toMessageString: function() {
-    let lines = [headerKey + ": " + this._formatHeaderValues(headerValues)
-                 for each ([headerKey, headerValues] in Iterator(this.headers))];
+    let lines = Object.keys(this.headers).
+      map(headerKey =>
+          headerKey + ": " + this._formatHeaderValues(this.headers[headerKey]));
 
     return lines.join("\r\n") + "\r\n\r\n" + this.bodyPart.toMessageString() +
       "\r\n";
@@ -922,7 +924,8 @@ MessageGenerator.prototype = {
     }
 
     if ("clobberHeaders" in aArgs) {
-      for each (let [key, value] in Iterator(aArgs.clobberHeaders)) {
+      for (let key in aArgs.clobberHeaders) {
+        let value = aArgs.clobberHeaders[key];
         if (value === null)
           delete msg.headers[key];
         else
@@ -954,7 +957,7 @@ MessageGenerator.prototype = {
     //  have it be the parent of the existing body and all the attachments
     if (aArgs.attachments) {
       let parts = [bodyPart];
-      for each (let [,attachDesc] in Iterator(aArgs.attachments))
+      for (let attachDesc of aArgs.attachments)
         parts.push(new SyntheticPartLeaf(attachDesc.body, attachDesc));
       bodyPart = new SyntheticPartMultiMixed(parts);
     }
@@ -1027,7 +1030,7 @@ MessageGenerator.prototype = {
         args.age[unit] = value;
     }
     // just copy over any attributes found from MAKE_MESSAGES_PROPAGATE
-    for each (let [, propAttrName] in Iterator(this.MAKE_MESSAGES_PROPAGATE)) {
+    for (let propAttrName of this.MAKE_MESSAGES_PROPAGATE) {
       if (aSetDef[propAttrName])
         args[propAttrName] = aSetDef[propAttrName];
     }

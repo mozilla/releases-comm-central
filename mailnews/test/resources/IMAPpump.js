@@ -54,7 +54,7 @@ function setupIMAPPump(extensions)
         infoString = "RFC2195";
 
       var parts = infoString.split(/ *, */);
-      for each (var part in parts) {
+      for (var part of parts) {
         mixinExtension(handler, eval("IMAP_" + part + "_extension"));
       }
       return handler;

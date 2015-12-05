@@ -100,8 +100,8 @@ var gStreamListener = {
   onStartRequest: function (aRequest, aContext) {
   },
   onStopRequest: function (aRequest, aContext, aStatusCode) {
-    let expectedAttachments = [i.filename for each (i in this.allAttachments)
-                               if (i.shouldShow)];
+    let expectedAttachments = this.allAttachments.filter(i => i.shouldShow).
+      map(i => i.filename);
     do_check_eq(expectedAttachments.length,
                 gMessageHeaderSink.attachments.length);
 

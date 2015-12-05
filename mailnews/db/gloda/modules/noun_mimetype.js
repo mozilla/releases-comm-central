@@ -141,7 +141,8 @@ var MimeTypeNoun = {
     let mimeTypeToCategory = this._mimeTypeToCategory;
 
     function procMapObj(aSubTree, aCategories) {
-      for each (let [key, value] in Iterator(aSubTree)) {
+      for (let key in aSubTree) {
+        let value = aSubTree[key];
         // Add this category to our nested categories list.  Use concat since
         //  the list will be long-lived and each list needs to be distinct.
         let categories = aCategories.concat();
@@ -155,7 +156,7 @@ var MimeTypeNoun = {
 
         // Is it an array? If so, just process this depth
         if (Array.isArray(value)) {
-          for each (let [, mimeTypeStr] in Iterator(value)) {
+          for (let mimeTypeStr of value) {
             mimeTypeToCategory[mimeTypeStr] = categories;
           }
         }
@@ -233,7 +234,7 @@ var MimeTypeNoun = {
   },
 
   _processMimeTypes: function MimeTypeNoun__processMimeTypes(aMimeTypes) {
-    for each (let [, mimeType] in Iterator(aMimeTypes)) {
+    for (let mimeType of aMimeTypes) {
       if (mimeType.id > this._highID)
         this._highID = mimeType.id;
       this._mimeTypes[mimeType] = mimeType;

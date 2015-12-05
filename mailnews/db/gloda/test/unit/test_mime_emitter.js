@@ -504,7 +504,7 @@ var expectedAttachmentsInfo = [
 ];
 
 function test_attachments_correctness () {
-  for each (let [i, params] in Iterator(attMessagesParams)) {
+  for (let [i, params] of attMessagesParams.entries()) {
     let synMsg = gMessageGenerator.makeMessage(params);
     let synSet = new SyntheticMessageSet([synMsg]);
     yield add_sets_to_folder(gInbox, [synSet]);
@@ -523,15 +523,15 @@ function test_attachments_correctness () {
         }
 
         do_check_eq(aMimeMsg.allAttachments.length, expected.allAttachmentsContentTypes.length);
-        for each (let [j, att] in Iterator(aMimeMsg.allAttachments))
+        for (let [j, att] of aMimeMsg.allAttachments.entries())
           do_check_eq(att.contentType, expected.allAttachmentsContentTypes[j]);
 
         do_check_eq(aMimeMsg.allUserAttachments.length, expected.allUserAttachmentsContentTypes.length);
-        for each (let [j, att] in Iterator(aMimeMsg.allUserAttachments))
+        for (let [j, att] of aMimeMsg.allUserAttachments.entries())
           do_check_eq(att.contentType, expected.allUserAttachmentsContentTypes[j]);
 
         // Test
-        for each (let [, att] in Iterator(aMimeMsg.allUserAttachments)) {
+        for (let att of aMimeMsg.allUserAttachments) {
           let uri = aMsgHdr.folder.getUriForMsg(aMsgHdr);
           let glodaAttachment =
             GlodaFundAttr.glodaAttFromMimeAtt({ folderMessageURI: uri }, att);

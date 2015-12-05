@@ -425,7 +425,12 @@ function test_attributes_fundamental() {
 function verify_attributes_fundamental(smsg, gmsg) {
   // save off the message id for test_attributes_fundamental_from_disk
   fundamentalGlodaMessageId = gmsg.id;
-  fundamentalGlodaMsgAttachmentUrls = [att.url for each (att in gmsg.attachmentInfos)];
+  if (gmsg.attachmentInfos) {
+    fundamentalGlodaMsgAttachmentUrls =
+      gmsg.attachmentInfos.map(att => att.url);
+  } else {
+    fundamentalGlodaMsgAttachmentUrls = [];
+  }
 
   do_check_eq(gmsg.folderURI,
               get_real_injection_folder(fundamentalFolderHandle).URI);
@@ -466,7 +471,7 @@ function verify_attributes_fundamental(smsg, gmsg) {
     ];
     let expectedSize = 14;
     do_check_eq(gmsg.attachmentInfos.length, 2);
-    for each (let [i, attInfos] in Iterator(gmsg.attachmentInfos)) {
+    for (let [i, attInfos] of gmsg.attachmentInfos.entries()) {
       for (let k in expectedInfos[i])
         do_check_eq(attInfos[k], expectedInfos[i][k]);
       // because it's unreliable and depends on the platform
@@ -518,7 +523,7 @@ function test_moved_message_attributes() {
       // verify we still have the same number of attachments
       do_check_eq(fundamentalGlodaMsgAttachmentUrls.length,
         newGlodaMsg.attachmentInfos.length);
-      for each (let [i, attInfos] in Iterator(newGlodaMsg.attachmentInfos)) {
+      for (let [i, attInfos] of newGlodaMsg.attachmentInfos.entries()) {
         // verify the url has changed
         do_check_neq(fundamentalGlodaMsgAttachmentUrls[i], attInfos.url);
         // and verify that the new url is still valid
@@ -1137,8 +1142,8 @@ function test_message_moving() {
   do_check_neq(gmsg.messageKey, oldMessageKey);
 
   // - make sure the indexer's _keyChangedBatchInfo dict is empty
-  for each (let [evilKey, evilValue] in
-              Iterator(GlodaMsgIndexer._keyChangedBatchInfo)) {
+  for (let evilKey in GlodaMsgIndexer._keyChangedBatchInfo) {
+    let evilValue = GlodaMsgIndexer._keyChangedBatchInfo[evilKey];
     mark_failure(["GlodaMsgIndexer._keyChangedBatchInfo should be empty but",
                   "has key:",  evilKey, "and value:", evilValue, "."]);
   }

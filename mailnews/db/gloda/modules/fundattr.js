@@ -539,7 +539,7 @@ var GlodaFundAttr = {
       // that out, so now is a good place to clear the flag if needed.
       let foundRealAttachment = false;
       let attachmentTypes = [];
-      for each (let [, attachment] in Iterator(aMimeMsg.allAttachments)) {
+      for (let attachment of aMimeMsg.allAttachments) {
         // We don't care about would-be attachments that are not user-intended
         //  attachments but rather artifacts of the message content.
         // We also want to avoid dealing with obviously bogus mime types.
@@ -573,7 +573,7 @@ var GlodaFundAttr = {
       // visualization on top of it. We still reject bogus mime types, which
       // means yencode won't be supported. Oh, I feel really bad.
       let attachmentInfos = [];
-      for each (let [, att] in Iterator(aMimeMsg.allUserAttachments)) {
+      for (let att of aMimeMsg.allUserAttachments) {
         attachmentInfos.push(this.glodaAttFromMimeAtt(aRawReps.trueGlodaRep,
                                                       att));
       }
@@ -655,7 +655,7 @@ var GlodaFundAttr = {
 
     let involvedAddrBookCount = 0;
 
-    for each (let [,toIdentity] in Iterator(aGlodaMessage.to)) {
+    for (let toIdentity of aGlodaMessage.to) {
       if (!(toIdentity.id in involvesIdentities)) {
         involves.push(toIdentity);
         recipients.push(toIdentity);
@@ -682,7 +682,7 @@ var GlodaFundAttr = {
           toIdentity.contact.popularity += this.POPULARITY_FROM_ME_TO;
       }
     }
-    for each (let [,ccIdentity] in Iterator(aGlodaMessage.cc)) {
+    for (let ccIdentity of aGlodaMessage.cc) {
       if (!(ccIdentity.id in involvesIdentities)) {
         involves.push(ccIdentity);
         recipients.push(ccIdentity);
@@ -710,7 +710,7 @@ var GlodaFundAttr = {
     }
     // just treat bcc like cc; the intent is the same although the exact
     //  semantics differ.
-    for each (let [,bccIdentity] in Iterator(aGlodaMessage.bcc)) {
+    for (let bccIdentity of aGlodaMessage.bcc) {
       if (!(bccIdentity.id in involvesIdentities)) {
         involves.push(bccIdentity);
         recipients.push(bccIdentity);
@@ -840,7 +840,7 @@ var GlodaFundAttr = {
     //  next step, but things work for now.
     let rangeStart = 0, lastNonBlankLine = null, prevLastNonBlankLine = null;
     let inQuoteDepth = 0;
-    for each (let [iLine, line] in Iterator(bodyLines)) {
+    for (let [iLine, line] of bodyLines.entries()) {
       if (!line || (line == "\xa0")) /* unicode non breaking space */
         continue;
 

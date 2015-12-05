@@ -48,7 +48,8 @@ Widget.prototype = {
     clonus._id = this._id;
     clonus._iAmAClone = true;
 
-    for each (let [key, value] in Iterator(this)) {
+    for (let key of Object.keys(this)) {
+      let value = this[key];
       if (key.startsWith("_"))
         continue;
       clonus[key] = value;
@@ -61,7 +62,8 @@ Widget.prototype = {
   },
   _stash: function() {
     this._indexStash = {};
-    for each (let [key, value] in Iterator(this)) {
+    for (let key of Object.keys(this)) {
+      let value = this[key];
       if (key[0].startsWith("_"))
         continue;
       this._indexStash[key] = value;

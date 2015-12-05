@@ -83,7 +83,7 @@ function check_directory(directory) {
 
   // We need to iterate over the array of cards to avoid any problems if someone
   // makes the childCards enumerator reflect changes to directory...
-  for each (var card in cards) {
+  for (var card of cards) {
     // Question 5.1: Does deleting a card properly set the uids?
     var localId = card.localId;
     array.clear();

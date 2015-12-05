@@ -57,7 +57,8 @@ FacetDriver.prototype = {
       }
     }
 
-    for each (let [, attrDef] in Iterator(this.nounDef.attribsByBoundName)) {
+    for (let key in this.nounDef.attribsByBoundName) {
+      let attrDef = this.nounDef.attribsByBoundName[key];
       // ignore attributes that do not want to be faceted
       if (!attrDef.facet)
         continue;
@@ -65,7 +66,7 @@ FacetDriver.prototype = {
       makeFaceter(attrDef, attrDef.facet);
 
       if ("extraFacets" in attrDef) {
-        for each (let [, facetDef] in Iterator(attrDef.extraFacets)) {
+        for (let facetDef of attrDef.extraFacets) {
           makeFaceter(attrDef, facetDef);
         }
       }
@@ -181,7 +182,7 @@ DiscreteFaceter.prototype = {
     let groups = this.groups = {};
     this.groupCount = 0;
 
-    for each (let [, item] in Iterator(aItems)) {
+    for (let item of aItems) {
       let val = (attrKey in item) ? item[attrKey] : null;
       if (val === Gloda.IGNORE_FACET)
         continue;
@@ -201,8 +202,8 @@ DiscreteFaceter.prototype = {
       }
     }
 
-    let orderedGroups = [[valStrToVal[key], items] for each
-                         ([key, items] in Iterator(groups))];
+    let orderedGroups = Object.keys(groups).
+      map(key => [valStrToVal[key], groups[key]]);
     let comparator = this.facetDef.groupComparator;
     function comparatorHelper(a, b) {
       return comparator(a[0], b[0]);
@@ -225,7 +226,7 @@ DiscreteFaceter.prototype = {
     let groupMap = this.groupMap = {};
     this.groupCount = 0;
 
-    for each (let [, item] in Iterator(aItems)) {
+    for (let item of aItems) {
       let val = (attrKey in item) ? item[attrKey] : null;
       if (val === Gloda.IGNORE_FACET)
         continue;
@@ -249,8 +250,8 @@ DiscreteFaceter.prototype = {
       }
     }
 
-    let orderedGroups = [[groupMap[key], items] for each
-                         ([key, items] in Iterator(groups))];
+    let orderedGroups = Object.keys(groups).
+      map(key => [groupMap[key], groups[key]]);
     let comparator = this.facetDef.groupComparator;
     function comparatorHelper(a, b) {
       return comparator(a[0], b[0]);
@@ -296,7 +297,7 @@ DiscreteSetFaceter.prototype = {
     let valStrToVal = {};
     this.groupCount = 0;
 
-    for each (let [, item] in Iterator(aItems)) {
+    for (let item of aItems) {
       let vals = (attrKey in item) ? item[attrKey] : null;
       if (vals === Gloda.IGNORE_FACET)
         continue;
@@ -304,7 +305,7 @@ DiscreteSetFaceter.prototype = {
       if (vals == null || vals.length == 0) {
         vals = [null];
       }
-      for each (let [, val] in Iterator(vals)) {
+      for (let val of vals) {
         // skip items the filter tells us to ignore
         if (filter && !filter(val))
           continue;
@@ -322,8 +323,8 @@ DiscreteSetFaceter.prototype = {
       }
     }
 
-    let orderedGroups = [[valStrToVal[key], items] for each
-                         ([key, items] in Iterator(groups))];
+    let orderedGroups = Object.keys(groups).
+      map(key => [valStrToVal[key], groups[key]]);
     let comparator = this.facetDef.groupComparator;
     function comparatorHelper(a, b) {
       return comparator(a[0], b[0]);
@@ -346,7 +347,7 @@ DiscreteSetFaceter.prototype = {
     let groupMap = this.groupMap = {};
     this.groupCount = 0;
 
-    for each (let [, item] in Iterator(aItems)) {
+    for (let item of aItems) {
       let vals = (attrKey in item) ? item[attrKey] : null;
       if (vals === Gloda.IGNORE_FACET)
         continue;
@@ -354,7 +355,7 @@ DiscreteSetFaceter.prototype = {
       if (vals == null || vals.length == 0) {
         vals = [null];
       }
-      for each (let [, val] in Iterator(vals)) {
+      for (let val of vals) {
         // skip items the filter tells us to ignore
         if (filter && !filter(val))
           continue;
@@ -374,8 +375,8 @@ DiscreteSetFaceter.prototype = {
       }
     }
 
-    let orderedGroups = [[groupMap[key], items] for each
-                         ([key, items] in Iterator(groups))];
+    let orderedGroups = Object.keys(groups).
+      map(key => [groupMap[key], groups[key]]);
     let comparator = this.facetDef.groupComparator;
     function comparatorHelper(a, b) {
       return comparator(a[0], b[0]);
@@ -408,7 +409,7 @@ NonEmptySetFaceter.prototype = {
     let groups = this.groups = {};
     this.groupCount = 0;
 
-    for each (let [, item] in Iterator(aItems)) {
+    for (let item of aItems) {
       let vals = (attrKey in item) ? item[attrKey] : null;
       if (vals == null || vals.length == 0)
         falseValues.push(item);
@@ -490,7 +491,7 @@ DateFaceter.prototype = {
     // 3 days from now
     let tooNew = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
 
-    for each (let [, item] in Iterator(aItems)) {
+    for (let item of aItems) {
       let val = (attrKey in item) ? item[attrKey] : null;
       // -- missing
       if (val == null) {
@@ -559,7 +560,8 @@ DateFaceter.prototype = {
 
   _unionMonth: function(aMonthObj) {
     let dayItemLists = [];
-    for each (let [key, dayItemList] in Iterator(aMonthObj)) {
+    for (let key in aMonthObj) {
+      let dayItemList = aMonthObj[key];
       if (typeof(key) == "string" && key.startsWith('_'))
         continue;
       dayItemLists.push(dayItemList);
@@ -569,7 +571,8 @@ DateFaceter.prototype = {
 
   _unionYear: function(aYearObj) {
     let monthItemLists = [];
-    for each (let [key, monthObj] in Iterator(aYearObj)) {
+    for (let key in aYearObj) {
+      let monthObj = aYearObj[key];
       if (typeof(key) == "string" && key.startsWith('_'))
         continue;
       monthItemLists.push(this._unionMonth(monthObj));

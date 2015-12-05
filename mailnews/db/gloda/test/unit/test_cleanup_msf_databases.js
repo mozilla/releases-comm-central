@@ -17,7 +17,7 @@ load("resources/glodaTestHelper.js");
  *     GlodaDatastore._liveGlodaFolders.
  */
 function getLiveFolderCount() {
-  return [key for each (key in GlodaDatastore._liveGlodaFolders)].length;
+  return Object.keys(GlodaDatastore._liveGlodaFolders).length;
 }
 
 /**

@@ -45,7 +45,7 @@ Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
  */
 function verify_message_keys(aSynSet) {
   let iMsg = 0;
-  for each (let msgHdr in aSynSet.msgHdrs) {
+  for (let msgHdr of aSynSet.msgHdrs) {
     let glodaMsg = aSynSet.glodaMessages[iMsg++];
     if (msgHdr.messageKey != glodaMsg.messageKey)
       mark_failure(["Message header", msgHdr,

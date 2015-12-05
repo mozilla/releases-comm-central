@@ -46,7 +46,7 @@ var FreeTagNoun = {
   },
 
   populateKnownFreeTags: function() {
-    for each (let [,attr] in Iterator(this.objectNounOfAttributes)) {
+    for (let attr of this.objectNounOfAttributes) {
       let attrDB = attr.dbDef;
       for (let param in attrDB.parameterBindings) {
         this.getFreeTag(param);
@@ -59,7 +59,7 @@ var FreeTagNoun = {
     let tag = this.knownFreeTags[aTagName];
     if (!tag) {
       tag = this.knownFreeTags[aTagName] = new FreeTag(aTagName);
-      for each (let [iListener, listener] in Iterator(this._listeners))
+      for (let listener of this._listeners)
         listener.onFreeTagAdded(tag);
     }
     return tag;

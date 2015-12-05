@@ -30,7 +30,7 @@ function mimeMsgToContentAndMeta(aMimeMsg, folder) {
   let meta = {subject: aMimeMsg.get("subject")};
   let bodyLines = aMimeMsg.coerceBodyToPlaintext(folder).split(/\r?\n/);
 
-  for each (let [, whittler] in Iterator(whittlerRegistry.getWhittlers()))
+  for (let whittler of whittlerRegistry.getWhittlers())
     whittler.contentWhittle(meta, bodyLines, content);
 
   return [content, meta];
@@ -131,7 +131,7 @@ GlodaContent.prototype = {
 
   getContentString: function gloda_content_getContent(aIndexingPurposes) {
     let data = "";
-    for each (let [, hunk] in Iterator(this._hunks)) {
+    for (let hunk of this._hunks) {
       if (hunk.hunkType == this.kHunkContent) {
         if (data)
           data += "\n" + hunk.data;
@@ -144,10 +144,10 @@ GlodaContent.prototype = {
       // append the values for indexing.  we assume the keywords are cruft.
       // this may be crazy, but things that aren't a science aren't an exact
       // science.
-      for each (let [, kv] in Iterator(this._keysAndValues)) {
+      for (let kv of this._keysAndValues) {
         data += "\n" + kv[1];
       }
-      for each (let [, kon] in Iterator(this._keysAndValues)) {
+      for (let kon of this._keysAndValues) {
         data += "\n" + kon[1] + "\n" + kon[2];
       }
     }

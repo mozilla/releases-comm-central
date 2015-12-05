@@ -273,7 +273,7 @@ function verify_nonMatches(aQueries, aCollections) {
     let nonmatches =
       aCollections[(i+1) % aCollections.length].items;
 
-    for each (let [, item] in Iterator(nonmatches)) {
+    for (let item of nonmatches) {
       if (testQuery.test(item)) {
         logObject(item, "item");
         logObject(testQuery._constraints, "constraints");
@@ -347,8 +347,8 @@ function test_get_message_for_header() {
   // pick an arbitrary message
   let glodaMessage = ts_convCollections[1].items[0];
   // find the synthetic message that matches (ordering must not be assumed)
-  let synthMessage = [sm for each (sm in world.conversationLists[1])
-                      if (sm.messageId == glodaMessage.headerMessageID)][0];
+  let synthMessage = world.conversationLists[1].
+    find(sm => sm.messageId == glodaMessage.headerMessageID);
   queryExpect({queryFunc: Gloda.getMessageCollectionForHeader,
                queryThis: Gloda,
                args: [glodaMessage.folderMessage], nounId: Gloda.NOUN_MESSAGE},
@@ -361,7 +361,7 @@ function test_get_message_for_header() {
  */
 function test_get_messages_for_headers() {
   let messageCollection = ts_convCollections[0];
-  let headers = [m.folderMessage for each (m in messageCollection.items)];
+  let headers = messageCollection.items.map(m => m.folderMessage);
   queryExpect({queryFunc: Gloda.getMessageCollectionForHeaders,
                queryThis: Gloda,
                args: [headers], nounId: Gloda.NOUN_MESSAGE},
@@ -604,7 +604,7 @@ var peoplesIdentityCollection;
 function test_query_identities_for_peoples() {
   peoplesIdentityQuery = Gloda.newQuery(Gloda.NOUN_IDENTITY);
   peoplesIdentityQuery.kind("email");
-  let peopleAddrs = [nameAndAddr[1] for each (nameAndAddr in world.peoples)];
+  let peopleAddrs = world.peoples.map(nameAndAddr => nameAndAddr[1]);
   peoplesIdentityQuery.value.apply(peoplesIdentityQuery, peopleAddrs);
   peoplesIdentityCollection = queryExpect(peoplesIdentityQuery, peopleAddrs);
   return false; // async pend on queryExpect

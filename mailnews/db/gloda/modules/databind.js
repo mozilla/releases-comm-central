@@ -21,7 +21,7 @@ function GlodaDatabind(aNounDef, aDatastore) {
   this._log = Log4Moz.repository.getLogger("gloda.databind." + this._tableName);
 
   // process the column definitions and make sure they have an attribute mapping
-  for each (let [iColDef, coldef] in Iterator(this._tableDef.columns)) {
+  for (let [iColDef, coldef] of this._tableDef.columns.entries()) {
     // default to the other dude's thing.
     if (coldef.length < 3)
       coldef[2] = coldef[0];
@@ -48,50 +48,59 @@ function GlodaDatabind(aNounDef, aDatastore) {
   }
   stmt.finalize();
 
+  let insertColumns = [];
+  let insertValues = [];
+  let updateItems = [];
+  for (let [iColDef, coldef] of this._tableDef.columns.entries()) {
+    let column = coldef[0];
+    let placeholder = "?" + (iColDef + 1);
+    insertColumns.push(column);
+    insertValues.push(placeholder);
+    if (column != "id") {
+      updateItems.push(column + " = " + placeholder);
+    }
+  }
+
   let insertSql = "INSERT INTO " + this._tableName + " (" +
-    [coldef[0] for each
-     ([, coldef] in Iterator(this._tableDef.columns))].join(", ") +
-    ") VALUES (" +
-    [("?" + (iColDef + 1)) for each
-     ([iColDef, coldef] in Iterator(this._tableDef.columns))].join(", ") +
-    ")";
+    insertColumns.join(", ") + ") VALUES (" + insertValues.join(", ") + ")";
 
   // For the update, we want the 'id' to be a constraint and not a value
   //  that gets set...
   let updateSql = "UPDATE " + this._tableName + " SET " +
-    [(coldef[0] + " = ?" + (iColDef + 1)) for each
-     ([iColDef, coldef] in Iterator(this._tableDef.columns)) if
-     (coldef[0] != "id")].join(", ") +
-    " WHERE id = ?1";
+    updateItems.join(", ") + " WHERE id = ?1";
   this._insertStmt = aDatastore._createAsyncStatement(insertSql);
   this._updateStmt = aDatastore._createAsyncStatement(updateSql);
 
   if (this._tableDef.fulltextColumns) {
-    for each (let [iColDef, coldef] in
-              Iterator(this._tableDef.fulltextColumns)) {
+    for (let [iColDef, coldef] of this._tableDef.fulltextColumns.entries()) {
       if (coldef.length < 3)
         coldef[2] = coldef[0];
       // colDef[3] is the index of us in our SQL bindings, storage-numbering
       coldef[3] = iColDef + 1;
     }
 
-    let insertFulltextSql = "INSERT INTO " + this._tableName + "Text (docid," +
-      [coldef[0] for each
-       ([, coldef] in Iterator(this._tableDef.fulltextColumns))].join(", ") +
-      ") VALUES (?1," +
+    let insertColumns = [];
+    let insertValues = [];
+    let updateItems = [];
+    for (var [iColDef, coldef] of this._tableDef.fulltextColumns.entries()) {
+      let column = coldef[0];
       // +2 instead of +1 because docid is implied
-      [("?" + (i + 2)) for each
-       ([i, coldef] in Iterator(this._tableDef.fulltextColumns))].join(", ") +
+      let placeholder = "?" + (iColDef + 2);
+      insertColumns.push(column);
+      insertValues.push(placeholder);
+      if (column != "id") {
+        updateItems.push(column + " = " + placeholder);
+      }
+    }
+
+    let insertFulltextSql = "INSERT INTO " + this._tableName + "Text (docid," +
+      insertColumns.join(", ") + ") VALUES (?1," + insertValues.join(", ") +
       ")";
 
     // For the update, we want the 'id' to be a constraint and not a value
     //  that gets set...
     let updateFulltextSql = "UPDATE " + this._tableName + "Text SET " +
-      // +2 instead of +1 because docid is implied
-      [(coldef[0] + "= ?" + (iColDef + 2)) for each
-       ([iColDef, coldef] in Iterator(this._tableDef.fulltextColumns)) if
-       (coldef[0] != "id")].join(", ") +
-      " WHERE docid = ?1";
+      updateItems.join(", ") + " WHERE docid = ?1";
 
     this._insertFulltextStmt =
       aDatastore._createAsyncStatement(insertFulltextSql);
@@ -121,7 +130,7 @@ GlodaDatabind.prototype = {
   objFromRow: function(aRow) {
     let getVariant = this._datastore._getVariant;
     let obj = new this._nounDef.class();
-    for each (let [iCol, colDef] in Iterator(this._tableDef.columns)) {
+    for (let [iCol, colDef] of this._tableDef.columns.entries()) {
       obj[colDef[2]] = getVariant(aRow, iCol);
     }
     return obj;
@@ -133,7 +142,7 @@ GlodaDatabind.prototype = {
       aThing[this._idAttr] = this._nextId++;
 
     let stmt = this._insertStmt;
-    for each (let [iColDef, colDef] in Iterator(this._tableDef.columns)) {
+    for (let colDef of this._tableDef.columns) {
       bindByType(stmt, colDef, aThing[colDef[2]]);
     }
 
@@ -142,8 +151,7 @@ GlodaDatabind.prototype = {
     if (this._insertFulltextStmt) {
       stmt = this._insertFulltextStmt;
       stmt.bindInt64Parameter(0, aThing[this._idAttr]);
-      for each (let [iColDef, colDef] in
-                Iterator(this._tableDef.fulltextColumns)) {
+      for (let colDef of this._tableDef.fulltextColumns) {
         bindByType(stmt, colDef, aThing[colDef[2]]);
       }
       stmt.executeAsync(this._datastore.trackAsync());
@@ -155,7 +163,7 @@ GlodaDatabind.prototype = {
     let stmt = this._updateStmt;
     // note, we specially bound the location of 'id' for the insert, but since
     //  we're using named bindings, there is nothing special about setting it
-    for each (let [iColDef, colDef] in Iterator(this._tableDef.columns)) {
+    for (let colDef of this._tableDef.columns) {
       bindByType(stmt, colDef, aThing[colDef[2]]);
     }
     stmt.executeAsync(this._datastore.trackAsync());
@@ -164,8 +172,7 @@ GlodaDatabind.prototype = {
       stmt = this._updateFulltextStmt;
       // fulltextColumns doesn't include id/docid, need to explicitly set it
       stmt.bindInt64Parameter(0, aThing[this._idAttr]);
-      for each (let [iColDef, colDef] in
-                Iterator(this._tableDef.fulltextColumns)) {
+      for (let colDef of this._tableDef.fulltextColumns) {
         bindByType(stmt, colDef, aThing[colDef[2]]);
       }
       stmt.executeAsync(this._datastore.trackAsync());

@@ -499,9 +499,7 @@ BasicFormatter.prototype = {
     let date = new Date(message.time);
     // The trick below prevents errors further down because mo is null or
     //  undefined.
-    let messageString = [
-      ("" + mo) for each
-      ([,mo] in Iterator(message.messageObjects))].join(" ");
+    let messageString = message.messageObjects.map(mo => "" + mo).join(" ");
     return date.toLocaleFormat(this.dateFormat) + "\t" +
       message.loggerName + "\t" + message.levelDesc + "\t" +
       messageString + "\n";
@@ -523,8 +521,8 @@ XMLFormatter.prototype = {
 
   format: function XF_format(message) {
     let cdataEscapedMessage =
-      [((typeof(mo) == "object") ? mo.toString() : mo) for each
-       ([,mo] in Iterator(message.messageObjects))]
+      message.messageObjects
+        .map(mo => (typeof(mo) == "object") ? mo.toString() : mo)
         .join(" ")
         .split(CDATA_END).join(CDATA_ESCAPED_END);
     return "<log4j:event logger='" + message.loggerName + "' " +
@@ -550,7 +548,7 @@ JSONFormatter.prototype = {
     let origMessageObjects = message.messageObjects;
     message.messageObjects = [];
     let reProto = [];
-    for each (let [, messageObject] in Iterator(origMessageObjects)) {
+    for (let messageObject of origMessageObjects) {
       if (messageObject)
         if (messageObject._jsonMe) {
           message.messageObjects.push(messageObject);
@@ -567,7 +565,7 @@ JSONFormatter.prototype = {
     }
     let encoded = JSON.stringify(message) + "\r\n";
     message.msgObjects = origMessageObjects;
-//    for each (let [,objectAndProtoPair] in Iterator (reProto)) {
+//    for (let objectAndProtoPair of reProto) {
 //      objectAndProtoPair[0].__proto__ = objectAndProtoPair[1];
 //    }
     return encoded;

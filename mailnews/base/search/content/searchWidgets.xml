@@ -232,7 +232,7 @@
             let templateFound = false;
             let foldersScanned = [];
 
-            for each (let identity in identities) {
+            for (let identity of identities) {
               let enumerator = null;
               let msgFolder;
               try {

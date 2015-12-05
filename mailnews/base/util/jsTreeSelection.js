@@ -112,7 +112,7 @@ JSTreeSelection.prototype = {
 
   _updateCount: function JSTreeSelection__updateCount() {
     this._count = 0;
-    for each (let [, [low, high]] in Iterator(this._ranges)) {
+    for (let [low, high] of this._ranges) {
       this._count += high - low + 1;
     }
   },
@@ -122,7 +122,7 @@ JSTreeSelection.prototype = {
   },
 
   isSelected: function JSTreeSelection_isSelected(aViewIndex) {
-    for each (let [,[low, high]] in Iterator(this._ranges)) {
+    for (let [low, high] of this._ranges) {
       if (aViewIndex >= low && aViewIndex <= high)
         return true;
     }
@@ -160,7 +160,7 @@ JSTreeSelection.prototype = {
       this._count = 1;
       this._ranges = [[aIndex, aIndex]];
     }
-    else for each (let [iTupe, [low, high]] in Iterator(this._ranges)) {
+    else for (let [iTupe, [low, high]] of this._ranges.entries()) {
       // below the range? add it to the existing range or create a new one
       if (aIndex < low) {
         this._count++;
@@ -261,7 +261,7 @@ JSTreeSelection.prototype = {
     let lowOverlap, lowNuke, highNuke, highOverlap;
     // in case there is no overlap, also figure an insertionPoint
     let insertionPoint = this._ranges.length; // default to the end
-    for each (let [iTupe, [low, high]] in Iterator(this._ranges)) {
+    for (let [iTupe, [low, high]] of this._ranges.entries()) {
       // If it's completely include the range, it should be nuked
       if (aRangeStart <= low && aRangeEnd >= high) {
         if (lowNuke == null) // only the first one we see is the low one
@@ -314,7 +314,7 @@ JSTreeSelection.prototype = {
     //  variables are for blocks that get spliced out.  For our purposes, all
     //  overlap blocks are also nuke blocks.
     let lowOverlap, lowNuke, highNuke, highOverlap;
-    for each (let [iTupe, [low, high]] in Iterator(this._ranges)) {
+    for (let [iTupe, [low, high]] of this._ranges.entries()) {
       // If we completely include the range, it should be nuked
       if (aRangeStart <= low && aRangeEnd >= high) {
         if (lowNuke == null) // only the first one we see is the low one
@@ -446,7 +446,7 @@ JSTreeSelection.prototype = {
    */
   _findRangeContainingRow:
       function JSTreeSelection__findRangeContainingRow(aIndex) {
-    for each (let [iTupe, [low, high]] in Iterator(this._ranges)) {
+    for (let [iTupe, [low, high]] of this._ranges.entries()) {
       if (aIndex >= low && aIndex <= high)
         return [iTupe, iTupe];
       if (aIndex < low)
@@ -486,7 +486,7 @@ JSTreeSelection.prototype = {
       //  to generate an event each time otherwise, and better 1 event than
       //  many.
       aSelection.selectEventsSuppressed = true;
-      for each (let [, [index, count]] in Iterator(this._adjustSelectionLog)) {
+      for (let [index, count] of this._adjustSelectionLog) {
         aSelection.adjustSelection(index, count);
       }
       aSelection.selectEventsSuppressed = false;
@@ -644,7 +644,7 @@ JSTreeSelection.prototype = {
   duplicateSelection: function JSTreeSelection_duplicateSelection(aSelection) {
     aSelection.selectEventsSuppressed = true;
     aSelection.clearSelection();
-    for each (let [iTupe, [low, high]] in Iterator(this._ranges))
+    for (let [iTupe, [low, high]] of this._ranges.entries())
       aSelection.rangedSelect(low, high, iTupe > 0);
 
     aSelection.currentIndex = this.currentIndex;

@@ -57,7 +57,7 @@ var DebugTraceHelper = {
     let color = aSettings.color || "cyan";
     aSettings.introCode = BRIGHT_COLORS[color];
     aSettings.outroCode = DARK_COLORS[color];
-    for each (let key in Iterator(aObj, true)) {
+    for (let key in aObj) {
       if (aPat.test(key)) {
         // ignore properties!
         if (aObj.__lookupGetter__(key) || aObj.__lookupSetter__(key))
