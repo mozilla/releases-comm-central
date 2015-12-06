@@ -252,6 +252,7 @@ toolbar[iconsize="small"] > #sync-button[status=active] {
 #window-controls > toolbarbutton {
   list-style-image: url("chrome://navigator/skin/icons/windowcontrols.png");
   min-width: 0;
+  border: none;
 }
 
 toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
