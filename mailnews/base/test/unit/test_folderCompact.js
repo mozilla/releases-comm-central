@@ -16,6 +16,7 @@
   */
 
 Components.utils.import("resource:///modules/mailServices.js");
+Components.utils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
                            "@mozilla.org/msgstore/berkeleystore;1");
@@ -38,32 +39,22 @@ var gExpectedFolder3Size;
 var gMsgKeys = [];
 
 // nsIMsgCopyServiceListener implementation
-var copyListener = 
+var copyListenerWrap = 
 {
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
   SetMessageKey: function(aKey)
   {
     let hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     gMsgHdrs.push({hdr: hdr, ID: hdr.messageId});
   },
-  SetMessageId: function(aMessageId) {},
   OnStopCopy: function(aStatus)
   {
     // Check: message successfully copied.
     do_check_eq(aStatus, 0);
-    // Ugly hack: make sure we don't get stuck in a JS->C++->JS->C++... call stack
-    // This can happen with a bunch of synchronous functions grouped together, and
-    // can even cause tests to fail because they're still waiting for the listener
-    // to return
-    do_timeout(0, function(){doTest(++gCurTestNum);});
   }
 };
 
-var urlListener =
+var urlListenerWrap =
 {
-  OnStartRunningUrl: function (aUrl) {
-  },
   OnStopRunningUrl: function (aUrl, aExitCode) {
     // Check: message successfully copied.
     do_check_eq(aExitCode, 0);
@@ -80,26 +71,25 @@ var urlListener =
       do_check_false(folderMsgs.hasMoreElements());
       gMsgKeys.length = 0;
     }
-    // Ugly hack: make sure we don't get stuck in a JS->C++->JS->C++... call stack
-    // This can happen with a bunch of synchronous functions grouped together, and
-    // can even cause tests to fail because they're still waiting for the listener
-    // to return
-    do_timeout(0, function(){doTest(++gCurTestNum);});
   }
 };
 
 function copyFileMessage(file, destFolder, isDraftOrTemplate)
 {
-  MailServices.copy.CopyFileMessage(file, destFolder, null, isDraftOrTemplate, 0, "", copyListener, null);
+  let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
+  MailServices.copy.CopyFileMessage(file, destFolder, null, isDraftOrTemplate, 0, "", listener, null);
+  return listener.promise;
 }
 
 function copyMessages(items, isMove, srcFolder, destFolder)
 {
+  let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
   var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   items.forEach(function (item) {
     array.appendElement(item, false);
   });
-  MailServices.copy.CopyMessages(srcFolder, array, destFolder, isMove, copyListener, null, true);
+  MailServices.copy.CopyMessages(srcFolder, array, destFolder, isMove, listener, null, true);
+  return listener.promise;
 }
 
 function deleteMessages(srcFolder, items)
@@ -109,7 +99,9 @@ function deleteMessages(srcFolder, items)
     array.appendElement(item, false);
   });
   
-  srcFolder.deleteMessages(array, null, false, true, copyListener, true);
+  let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
+  srcFolder.deleteMessages(array, null, false, true, listener, true);
+  return listener.promise;
 }
 
 function calculateFolderSize(folder)
@@ -154,29 +146,29 @@ function verifyMsgOffsets(folder)
 var gTestArray =
 [
   // Copying messages from files
-  function testCopyFileMessage1() {
-    copyFileMessage(gMsgFile1, localAccountUtils.inboxFolder, false);
+  function* testCopyFileMessage1() {
+    yield copyFileMessage(gMsgFile1, localAccountUtils.inboxFolder, false);
   },
-  function testCopyFileMessage2() {
-    copyFileMessage(gMsgFile2, localAccountUtils.inboxFolder, false);
+  function* testCopyFileMessage2() {
+    yield copyFileMessage(gMsgFile2, localAccountUtils.inboxFolder, false);
   },
-  function testCopyFileMessage3() {
-    copyFileMessage(gMsgFile3, localAccountUtils.inboxFolder, true);
+  function* testCopyFileMessage3() {
+    yield copyFileMessage(gMsgFile3, localAccountUtils.inboxFolder, true);
   },
 
   // Moving/copying messages
-  function testCopyMessages1() {
-    copyMessages([gMsgHdrs[0].hdr], false, localAccountUtils.inboxFolder, gLocalFolder2);
+  function* testCopyMessages1() {
+    yield copyMessages([gMsgHdrs[0].hdr], false, localAccountUtils.inboxFolder, gLocalFolder2);
   },
-  function testCopyMessages2() {
-    copyMessages([gMsgHdrs[1].hdr, gMsgHdrs[2].hdr], false, localAccountUtils.inboxFolder, gLocalFolder2);
+  function* testCopyMessages2() {
+    yield copyMessages([gMsgHdrs[1].hdr, gMsgHdrs[2].hdr], false, localAccountUtils.inboxFolder, gLocalFolder2);
   },
-  function testMoveMessages1() {
-    copyMessages([gMsgHdrs[0].hdr, gMsgHdrs[1].hdr], true, localAccountUtils.inboxFolder, gLocalFolder3);
+  function* testMoveMessages1() {
+    yield copyMessages([gMsgHdrs[0].hdr, gMsgHdrs[1].hdr], true, localAccountUtils.inboxFolder, gLocalFolder3);
   },
 
   // Deleting messages
-  function testDeleteMessages1() { // delete to trash
+  function* testDeleteMessages1() { // delete to trash
     // Let's take a moment to re-initialize stuff that got moved
     var folder3DB = gLocalFolder3.msgDatabase;
     gMsgHdrs[0].hdr = folder3DB.getMsgHdrForMessageID(gMsgHdrs[0].ID);
@@ -190,15 +182,17 @@ var gTestArray =
     }
 
     // Now delete the message
-    deleteMessages(gLocalFolder3, [gMsgHdrs[0].hdr], false, false);
+    yield deleteMessages(gLocalFolder3, [gMsgHdrs[0].hdr], false, false);
   },
-  function compactFolder()
+  function* compactFolder()
   {
     gExpectedFolderSize = calculateFolderSize(gLocalFolder3);
     do_check_neq(gLocalFolder3.expungedBytes, 0);
-    gLocalFolder3.compact(urlListener, null);
+    let listener = new PromiseTestUtils.PromiseUrlListener(urlListenerWrap);
+    gLocalFolder3.compact(listener, null);
+    yield listener.promise;
   },
-  function testDeleteMessages2() {
+  function* testDeleteMessages2() {
     do_check_eq(gExpectedFolderSize, gLocalFolder3.filePath.fileSize);
     verifyMsgOffsets(gLocalFolder3);
     var folder2DB = gLocalFolder2.msgDatabase;
@@ -213,9 +207,9 @@ var gTestArray =
     }
 
     // Now delete the message
-    deleteMessages(gLocalFolder2, [gMsgHdrs[0].hdr], false, false);
+    yield deleteMessages(gLocalFolder2, [gMsgHdrs[0].hdr], false, false);
   },
-  function compactAllFolders()
+  function* compactAllFolders()
   {
     gExpectedInboxSize = calculateFolderSize(localAccountUtils.inboxFolder);
     gExpectedFolder2Size = calculateFolderSize(gLocalFolder2);
@@ -230,7 +224,9 @@ var gTestArray =
     let dbPath = gLocalFolder2.filePath;
     dbPath.leafName = dbPath.leafName + ".msf";
     dbPath.remove(false);
-    localAccountUtils.inboxFolder.compactAll(urlListener, null, true);
+    let listener = new PromiseTestUtils.PromiseUrlListener(urlListenerWrap);
+    localAccountUtils.inboxFolder.compactAll(listener, null, true);
+    yield listener.promise;
   },
   function lastTestCheck()
   {
@@ -240,7 +236,7 @@ var gTestArray =
     verifyMsgOffsets(gLocalFolder2);
     verifyMsgOffsets(gLocalFolder3);
     verifyMsgOffsets(localAccountUtils.inboxFolder);
-    urlListener.OnStopRunningUrl(null, 0);
+    urlListenerWrap.OnStopRunningUrl(null, 0);
   }
 ];
 
@@ -259,32 +255,6 @@ function run_test()
   gLocalFolder3 = localAccountUtils.rootFolder.createLocalSubfolder("folder3");
   folderName = gLocalFolder3.prettiestName;
 
-  // "Master" do_test_pending(), paired with a do_test_finished() at the end of all the operations.
-  do_test_pending();
-
-//  do_test_finished();
-  // Do the test.
-  doTest(1);
-}
-
-function doTest(test)
-{
-  if (test <= gTestArray.length)
-  {
-    gCurTestNum = test;
-    var testFn = gTestArray[test-1];
-    // Set a limit of 10 seconds; if the notifications haven't arrived by
-    // then, there's a problem.
-    do_timeout(10000, function() {
-      if (gCurTestNum == test)
-        do_throw("Notifications not received in 10000 ms for operation " + testFn.name);
-    });
-    try {
-    testFn();
-    } catch(ex) {dump(ex);}
-  }
-  else
-  {
-    do_test_finished(); // for the one in run_test()
-  }
+  gTestArray.forEach(add_task);
+  run_next_test();
 }
