@@ -29,7 +29,7 @@ Cu.import("resource:///modules/mailServices.js");
 var PromiseTestUtils = {};
 
 PromiseTestUtils.PromiseUrlListener = function(aWrapped) {
-  this.wrapped = aWrapped ? aWrapped.QueryInterface(Ci.nsIUrlListener) : null;
+  this.wrapped = aWrapped;
   this._promise = new Promise((resolve, reject) => {
     this._resolve = resolve;
     this._reject = reject;
@@ -40,11 +40,11 @@ PromiseTestUtils.PromiseUrlListener.prototype = {
   QueryInterface:   XPCOMUtils.generateQI([Ci.nsIUrlListener]),
 
   OnStartRunningUrl: function(aUrl) {
-    if (this.wrapped)
+    if (this.wrapped && this.wrapped.OnStartRunningUrl)
       this.wrapped.OnStartRunningUrl(aUrl);
   },
   OnStopRunningUrl: function(aUrl, aExitCode) {
-    if (this.wrapped)
+    if (this.wrapped && this.wrapped.OnStopRunningUrl)
       this.wrapped.OnStopRunningUrl(aUrl, aExitCode);
     if (aExitCode == Cr.NS_OK)
       this._resolve();
@@ -62,7 +62,7 @@ PromiseTestUtils.PromiseUrlListener.prototype = {
  *     This gets called prior to the callback (or async resumption).
  */
 PromiseTestUtils.PromiseCopyListener = function(aWrapped) {
-  this.wrapped = aWrapped ? aWrapped.QueryInterface(Ci.nsIMsgCopyServiceListener) : null;
+  this.wrapped = aWrapped;
   this._promise = new Promise((resolve, reject) => {
     this._resolve = resolve;
     this._reject = reject;
@@ -73,27 +73,27 @@ PromiseTestUtils.PromiseCopyListener = function(aWrapped) {
 PromiseTestUtils.PromiseCopyListener.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgCopyServiceListener]),
   OnStartCopy: function() {
-    if (this.wrapped)
+    if (this.wrapped && this.wrapped.OnStartCopy)
       this.wrapped.OnStartCopy();
   },
   OnProgress: function(aProgress, aProgressMax) {
-    if (this.wrapped)
+    if (this.wrapped && this.wrapped.OnProgress)
       this.wrapped.OnProgress(aProgress, aProgressMax);
   },
   SetMessageKey: function(aKey) {
-    if (this.wrapped)
+    if (this.wrapped && this.wrapped.SetMessageKey)
       this.wrapped.SetMessageKey(aKey);
 
     this._result.messageKeys.push(aKey);
   },
   SetMessageId: function(aMessageId) {
-    if (this.wrapped)
+    if (this.wrapped && this.wrapped.SetMessageId)
       this.wrapped.SetMessageId(aMessageId);
 
     this._result.messageIds.push(aMessageId);
   },
   OnStopCopy: function(aStatus) {
-    if (this.wrapped)
+    if (this.wrapped && this.wrapped.OnStopCopy)
       this.wrapped.OnStopCopy(aStatus);
 
     if (aStatus == Cr.NS_OK)
@@ -111,8 +111,7 @@ PromiseTestUtils.PromiseCopyListener.prototype = {
  *     This gets called prior to the callback (or async resumption).
  */
 PromiseTestUtils.PromiseStreamListener = function(aWrapped) {
-  this.wrapped = aWrapped ? aWrapped.QueryInterface(Ci.nsIStreamListener) :
-                 null;
+  this.wrapped = aWrapped;
   this._promise = new Promise((resolve, reject) => {
     this._resolve = resolve;
     this._reject = reject;
@@ -125,14 +124,14 @@ PromiseTestUtils.PromiseStreamListener.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener]),
 
   onStartRequest : function (aRequest, aContext) {
-    if (this.wrapped)
+    if (this.wrapped && this.wrapped.onStartRequest)
       this.wrapped.onStartRequest(aRequest, aContext);
     this._data = "";
     this._stream = null;
   },
 
   onStopRequest : function (aRequest, aContext, aStatusCode) {
-    if (this.wrapped)
+    if (this.wrapped && this.wrapped.onStopRequest)
       this.wrapped.onStopRequest(aRequest, aContext, aStatusCode);
     if (aStatusCode == Cr.NS_OK)
       this._resolve(this._data);
@@ -141,7 +140,7 @@ PromiseTestUtils.PromiseStreamListener.prototype = {
   },
 
   onDataAvailable : function (aRequest, aContext, aInputStream, aOff, aCount) {
-    if (this.wrapped)
+    if (this.wrapped && this.wrapped.onDataAvailable)
       this.wrapped.onDataAvailable(aRequest, aContext, aInputStream, aOff, aCount);
     if (!this._stream) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"]
@@ -268,7 +267,7 @@ PromiseTestUtils.promiseDelay = function promiseDelay(aDelay)
 PromiseTestUtils.PromiseSearchNotify = function(aSearchSession, aWrapped) {
   this._searchSession = aSearchSession;
   this._searchSession.registerListener(this);
-  this.wrapped = aWrapped ? aWrapped.QueryInterface(Ci.nsIMsgSearchNotify) : null;
+  this.wrapped = aWrapped;
   this._promise = new Promise((resolve, reject) => {
     this._resolve = resolve;
     this._reject = reject;
