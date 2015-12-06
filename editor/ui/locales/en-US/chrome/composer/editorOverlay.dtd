@@ -82,20 +82,18 @@
 
 <!ENTITY fontSizeMenu.label "Size">
 <!ENTITY fontSizeMenu.accesskey "z">
-<!ENTITY size-xx-smallCmd.label "xx-small">
-<!ENTITY size-xx-smallCmd.accesskey "a">
-<!ENTITY size-x-smallCmd.label "x-small">
-<!ENTITY size-x-smallCmd.accesskey "m">
-<!ENTITY size-smallCmd.label "small">
-<!ENTITY size-smallCmd.accesskey "s">
-<!ENTITY size-mediumCmd.label "medium">
-<!ENTITY size-mediumCmd.accesskey "d">
-<!ENTITY size-largeCmd.label "large">
-<!ENTITY size-largeCmd.accesskey "l">
-<!ENTITY size-x-largeCmd.label "x-large">
-<!ENTITY size-x-largeCmd.accesskey "x">
-<!ENTITY size-xx-largeCmd.label "xx-large">
-<!ENTITY size-xx-largeCmd.accesskey "e">
+<!ENTITY size-tinyCmd.label "Tiny">
+<!ENTITY size-tinyCmd.accesskey "T">
+<!ENTITY size-smallCmd.label "Small">
+<!ENTITY size-smallCmd.accesskey "S">
+<!ENTITY size-mediumCmd.label "Medium">
+<!ENTITY size-mediumCmd.accesskey "M">
+<!ENTITY size-largeCmd.label "Large">
+<!ENTITY size-largeCmd.accesskey "L">
+<!ENTITY size-extraLargeCmd.label "Extra Large">
+<!ENTITY size-extraLargeCmd.accesskey "x">
+<!ENTITY size-hugeCmd.label "Huge">
+<!ENTITY size-hugeCmd.accesskey "H">
 
 <!-- Font Style SubMenu -->
 <!ENTITY fontStyleMenu.label "Text Style">
@@ -312,6 +310,7 @@
 <!ENTITY HighlightColorButton.tooltip "Choose highlight color for text">
 
 <!-- Editor toolbar -->
+<!ENTITY absoluteFontSizeToolbarCmd.tooltip "Set font size">
 <!ENTITY decreaseFontSizeToolbarCmd.tooltip "Smaller font size">
 <!ENTITY increaseFontSizeToolbarCmd.tooltip "Larger font size">
 <!ENTITY boldToolbarCmd.tooltip "Bold">

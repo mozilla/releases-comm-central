@@ -603,8 +603,8 @@ function updateComposeItems()
     if (gMsgCompose && gMsgCompose.composeHTML)
     {
       goUpdateCommand("cmd_renderedHTMLEnabler");
-      goUpdateCommand("cmd_decreaseFont");
-      goUpdateCommand("cmd_increaseFont");
+      goUpdateCommand("cmd_decreaseFontStep");
+      goUpdateCommand("cmd_increaseFontStep");
       goUpdateCommand("cmd_bold");
       goUpdateCommand("cmd_italic");
       goUpdateCommand("cmd_underline");

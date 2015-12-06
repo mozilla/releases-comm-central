@@ -94,17 +94,17 @@
          modifiers="accel, shift"/>
     <key id="decreasefontsizekb"
          key="&decrementFontSize.key;"
-         command="cmd_decreaseFont"
+         command="cmd_decreaseFontStep"
          modifiers="accel"/>
     <key id="increasefontsizekb"
          key="&incrementFontSize.key;"
-         command="cmd_increaseFont"
+         command="cmd_increaseFontStep"
          modifiers="accel"/>
     <key key="&incrementFontSize.key;"
-         command="cmd_increaseFont"
+         command="cmd_increaseFontStep"
          modifiers="accel,shift"/>
     <key key="&incrementFontSize.key2;"
-         command="cmd_increaseFont"
+         command="cmd_increaseFontStep"
          modifiers="accel"/>
 
     <key id="insertlinkkb"
@@ -228,8 +228,8 @@
     <command id="cmd_increaseZIndex"  state=""        oncommand="goDoCommand('cmd_increaseZIndex')"/>
     <command id="cmd_decreaseZIndex"  state=""        oncommand="goDoCommand('cmd_decreaseZIndex')"/>
     <command id="cmd_advancedProperties"              oncommand="goDoCommand('cmd_advancedProperties')"/>
-    <command id="cmd_increaseFont"                    oncommand="goDoCommand('cmd_increaseFont')"/>
-    <command id="cmd_decreaseFont"                    oncommand="goDoCommand('cmd_decreaseFont')"/>
+    <command id="cmd_increaseFontStep"                oncommand="goDoCommand('cmd_increaseFontStep')"/>
+    <command id="cmd_decreaseFontStep"                oncommand="goDoCommand('cmd_decreaseFontStep')"/>
     <command id="cmd_removeStyles"                    oncommand="goDoCommand('cmd_removeStyles')"/>
     <command id="cmd_removeLinks"                     oncommand="goDoCommand('cmd_removeLinks')"/>
     <command id="cmd_removeNamedAnchors"              oncommand="goDoCommand('cmd_removeNamedAnchors')"/>
@@ -446,63 +446,60 @@
     <menu id="fontSizeMenu" label="&fontSizeMenu.label;"
           accesskey="&fontSizeMenu.accesskey;"
           position="2">
-      <menupopup id="fontSizeMenuPopup" onpopupshowing="initFontSizeMenu(this)">
+      <menupopup id="fontSizeMenuPopup" onpopupshowing="initFontSizeMenu(this, true)">
       <menuitem id="menu_decreaseFontSize"
                 label="&decreaseFontSize.label;"
                 accesskey="&decreaseFontSize.accesskey;"
-                command="cmd_decreaseFont"
-                type="radio"
-                name="1"
+                command="cmd_decreaseFontStep"
+                type="radio" name="1" autocheck="false"
                 key="decreasefontsizekb"/>
       <menuitem id="menu_increaseFontSize"
                 label="&increaseFontSize.label;"
                 accesskey="&increaseFontSize.accesskey;"
-                command="cmd_increaseFont"
-                type="radio"
-                name="1" key="increasefontsizekb"/>
+                command="cmd_increaseFontStep"
+                type="radio" name="1" autocheck="false"
+                key="increasefontsizekb"/>
         <menuseparator id="fontSizeMenuAfterIncreaseFontSizeSeparator"/>
         <menuitem id="menu_x-small"
-                  label="&size-x-smallCmd.label;"
-                  accesskey="&size-x-smallCmd.accesskey;"
+                  label="&size-tinyCmd.label;"
+                  accesskey="&size-tinyCmd.accesskey;"
                   oncommand="EditorSetFontSize('x-small')"
-                  type="radio"
-                  name="2"
+                  type="radio" name="1"
                   observes="cmd_renderedHTMLEnabler"/>
         <menuitem id="menu_size-small"
                   label="&size-smallCmd.label;"
                   accesskey="&size-smallCmd.accesskey;"
                   oncommand="EditorSetFontSize('small')"
-                  type="radio"
-                  name="2"
+                  type="radio" name="1"
                   observes="cmd_renderedHTMLEnabler"/>
         <menuitem id="menu_size-medium"
                   label="&size-mediumCmd.label;"
                   accesskey="&size-mediumCmd.accesskey;"
                   oncommand="EditorSetFontSize('medium')"
-                  type="radio"
-                  name="2"
+                  type="radio" name="1"
                   observes="cmd_renderedHTMLEnabler"/>
         <menuitem id="menu_size-large"
                   label="&size-largeCmd.label;"
                   accesskey="&size-largeCmd.accesskey;"
                   oncommand="EditorSetFontSize('large')"
-                  type="radio"
-                  name="2"
+                  type="radio" name="1"
                   observes="cmd_renderedHTMLEnabler"/>
         <menuitem id="menu_size-x-large"
-                  label="&size-x-largeCmd.label;"
-                  accesskey="&size-x-largeCmd.accesskey;"
+                  label="&size-extraLargeCmd.label;"
+                  accesskey="&size-extraLargeCmd.accesskey;"
                   oncommand="EditorSetFontSize('x-large')"
-                  type="radio"
-                  name="2"
+                  type="radio" name="1"
                   observes="cmd_renderedHTMLEnabler"/>
         <menuitem id="menu_size-xx-large"
-                  label="&size-xx-largeCmd.label;"
-                  accesskey="&size-xx-largeCmd.accesskey;"
+                  label="&size-hugeCmd.label;"
+                  accesskey="&size-hugeCmd.accesskey;"
                   oncommand="EditorSetFontSize('xx-large')"
-                  type="radio"
-                  name="2"
+                  type="radio" name="1"
                   observes="cmd_renderedHTMLEnabler"/>
+        <!-- Enable if required for SeaMonkey.
+        <menuitem id="fontSizeMenu_smallBigInfo"
+                  type="checkbox" name="2" disabled="true" hidden="true"/>
+        -->
       </menupopup>
     </menu>
 
@@ -1099,13 +1096,12 @@
     <observes element="font-size-select-container" attribute="disabled"/>
     <observes element="cmd_fontSize" attribute="state" onbroadcast="onFontSizeChange(this.parentNode, 'cmd_fontSize')"/>
     <menupopup id="FontSizePopup">
-      <menuitem id="toobarmenu_fontSize_xx-small" label="&size-xx-smallCmd.label;"/>
-      <menuitem id="toobarmenu_fontSize_x-small" label="&size-x-smallCmd.label;"/>
+      <menuitem id="toobarmenu_fontSize_x-small" label="&size-tinyCmd.label;"/>
       <menuitem id="toobarmenu_fontSize_small" label="&size-smallCmd.label;"/>
       <menuitem id="toobarmenu_fontSize_medium" label="&size-mediumCmd.label;"/>
       <menuitem id="toobarmenu_fontSize_large" label="&size-largeCmd.label;"/>
-      <menuitem id="toobarmenu_fontSize_x-large" label="&size-x-largeCmd.label;"/>
-      <menuitem id="toobarmenu_fontSize_xx-large" label="&size-xx-largeCmd.label;"/>
+      <menuitem id="toobarmenu_fontSize_x-large" label="&size-extraLargeCmd.label;"/>
+      <menuitem id="toobarmenu_fontSize_xx-large" label="&size-hugeCmd.label;"/>
     </menupopup>
   </menulist>
 </toolbaritem>
@@ -1132,14 +1128,51 @@
     <observes element="cmd_highlight" attribute="collapsed"/>
   </toolbarbutton>
 
+  <toolbarbutton id="AbsoluteFontSizeButton"
+                 class="formatting-button"
+                 tooltiptext="&absoluteFontSizeToolbarCmd.tooltip;"
+                 type="menu"
+                 observes="cmd_renderedHTMLEnabler">
+    <menupopup id="AbsoluteFontSizeButtonPopup"
+               onpopupshowing="initFontSizeMenu(this, false);">
+      <menuitem id="toobarmenu_fontSize_x-small"
+                label="&size-tinyCmd.label;"
+                type="radio" name="1"
+                oncommand="EditorSetFontSize('x-small')"/>
+      <menuitem id="toobarmenu_fontSize_small"
+                label="&size-smallCmd.label;"
+                type="radio" name="1"
+                oncommand="EditorSetFontSize('small')"/>
+      <menuitem id="toobarmenu_fontSize_medium"
+                label="&size-mediumCmd.label;"
+                type="radio" name="1"
+                oncommand="EditorSetFontSize('medium')"/>
+      <menuitem id="toobarmenu_fontSize_large"
+                label="&size-largeCmd.label;"
+                type="radio" name="1"
+                oncommand="EditorSetFontSize('large')"/>
+      <menuitem id="toobarmenu_fontSize_x-large"
+                label="&size-extraLargeCmd.label;"
+                type="radio" name="1"
+                oncommand="EditorSetFontSize('x-large')"/>
+      <menuitem id="toobarmenu_fontSize_xx-large"
+                label="&size-hugeCmd.label;"
+                type="radio" name="1"
+                oncommand="EditorSetFontSize('xx-large')"/>
+      <!-- Enable if required for SeaMonkey.
+      <menuitem id="toobarmenu_fontSize_smallBigInfo"
+                type="checkbox" name="2" disabled="true" hidden="true"/>
+      -->
+    </menupopup>
+  </toolbarbutton>
   <toolbarbutton id="DecreaseFontSizeButton"
                  class="formatting-button"
                  tooltiptext="&decreaseFontSizeToolbarCmd.tooltip;"
-                 command="cmd_decreaseFont"/>
+                 command="cmd_decreaseFontStep"/>
   <toolbarbutton id="IncreaseFontSizeButton"
                  class="formatting-button"
                  tooltiptext="&increaseFontSizeToolbarCmd.tooltip;"
-                 command="cmd_increaseFont"/>
+                 command="cmd_increaseFontStep"/>
   <toolbarbutton id="boldButton"
                  class="formatting-button"
                  tooltiptext="&boldToolbarCmd.tooltip;"

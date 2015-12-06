@@ -406,6 +406,13 @@ toolbarbutton.formatting-button {
   display: none;
 }
 
+#AbsoluteFontSizeButton {
+  -moz-image-region: rect(272px 16px 288px 0px);
+}
+#AbsoluteFontSizeButton[disabled="true"] {
+  -moz-image-region: rect(256px 16px 272px 0px);
+}
+
 #DecreaseFontSizeButton {
   -moz-image-region: rect(208px 16px 224px 0px);
 }

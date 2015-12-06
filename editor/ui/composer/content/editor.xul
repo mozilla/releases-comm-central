@@ -270,6 +270,9 @@
 
     <toolbarseparator class="toolbarseparator-standard"/>
 
+    <!-- Enable if required for SeaMonkey.
+    <toolbarbutton id="AbsoluteFontSizeButton"/>
+    -->
     <toolbarbutton id="DecreaseFontSizeButton"/>
     <toolbarbutton id="IncreaseFontSizeButton"/>
 

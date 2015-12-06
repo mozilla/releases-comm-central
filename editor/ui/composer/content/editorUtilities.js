@@ -351,8 +351,8 @@ function EditorGetTextProperty(property, attribute, value, firstHas, anyHas, all
     if (!gAtomService) GetAtomService();
     var propAtom = gAtomService.getAtom(property);
 
-    GetCurrentEditor().getInlineProperty(propAtom, attribute, value,
-                                         firstHas, anyHas, allHas);
+    return GetCurrentEditor().getInlinePropertyWithAttrValue(propAtom,
+                                attribute, value, firstHas, anyHas, allHas);
   }
   catch(e) {}
 }

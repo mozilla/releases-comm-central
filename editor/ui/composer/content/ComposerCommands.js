@@ -27,6 +27,8 @@ function SetupHTMLEditorCommands()
   commandTable.registerCommand("cmd_listProperties",  nsListPropertiesCommand);
   commandTable.registerCommand("cmd_pageProperties",  nsPagePropertiesCommand);
   commandTable.registerCommand("cmd_colorProperties", nsColorPropertiesCommand);
+  commandTable.registerCommand("cmd_increaseFontStep", nsIncreaseFontCommand);
+  commandTable.registerCommand("cmd_decreaseFontStep", nsDecreaseFontCommand);
   commandTable.registerCommand("cmd_advancedProperties", nsAdvancedPropertiesCommand);
   commandTable.registerCommand("cmd_objectProperties",   nsObjectPropertiesCommand);
   commandTable.registerCommand("cmd_removeNamedAnchors", nsRemoveNamedAnchorsCommand);
@@ -263,6 +265,8 @@ function goUpdateCommandState(command)
       case "cmd_outdent":
       case "cmd_increaseFont":
       case "cmd_decreaseFont":
+      case "cmd_increaseFontStep":
+      case "cmd_decreaseFontStep":
       case "cmd_removeStyles":
       case "cmd_smiley":
         break;
@@ -3092,6 +3096,54 @@ var nsColorPropertiesCommand =
   {
     window.openDialog("chrome://editor/content/EdColorProps.xul","_blank", "chrome,close,titlebar,modal", "");
     UpdateDefaultColors();
+  }
+};
+
+//-----------------------------------------------------------------------------------
+var nsIncreaseFontCommand =
+{
+  isCommandEnabled: function(aCommand, dummy)
+  {
+    if (!(IsDocumentEditable() && IsEditingRenderedHTML()))
+      return false;
+    var setIndex = getFontSizeIndex();
+    return (setIndex >= 0 && setIndex < 5);
+  },
+
+  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
+  doCommandParams: function(aCommand, aParams, aRefCon) {},
+
+  doCommand: function(aCommand)
+  {
+    var setIndex = getFontSizeIndex();
+    if (setIndex < 0 || setIndex >= 5)
+      return;
+    var sizes = ['x-small', 'small', 'medium', 'large', 'x-large', 'xx-large' ];
+    EditorSetFontSize(sizes[setIndex+1]);
+  }
+};
+
+//-----------------------------------------------------------------------------------
+var nsDecreaseFontCommand =
+{
+  isCommandEnabled: function(aCommand, dummy)
+  {
+    if (!(IsDocumentEditable() && IsEditingRenderedHTML()))
+      return false;
+    var setIndex = getFontSizeIndex();
+    return (setIndex > 0);
+  },
+
+  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
+  doCommandParams: function(aCommand, aParams, aRefCon) {},
+
+  doCommand: function(aCommand)
+  {
+    var setIndex = getFontSizeIndex();
+    if (setIndex <= 0)
+      return;
+    var sizes = ['x-small', 'small', 'medium', 'large', 'x-large', 'xx-large' ];
+    EditorSetFontSize(sizes[setIndex-1]);
   }
 };
 

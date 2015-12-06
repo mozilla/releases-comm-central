@@ -965,69 +965,120 @@ function createFontFaceMenuitem(aFontLabel, aFontName, aMenuPopup)
   return itemNode;
 }
 
-function initFontSizeMenu(menuPopup)
+/**
+ * Helper function
+ */
+function getFontSizeIndex()
+{
+  var firstHas = { value: false };
+  var anyHas = { value: false };
+  var allHas = { value: false };
+
+  var fontSize = EditorGetTextProperty("font", "size", null, firstHas, anyHas, allHas);
+
+  // If the element has no size attribute and no size was found at all,
+  // we assume "medium" size. This is highly problematic since
+  // CSS sizes are not recognised and will show as "medium" as well.
+  // Currently we can't distinguish between "no attribute" which
+  // can imply "medium" and "CSS attribute present" which should not
+  // imply "medium".
+  if (!anyHas.value)
+    return 2;
+
+  // Mixed selection.
+  if (!allHas.value)
+    return -1;
+
+  switch (fontSize)
+  {
+    case "-3":
+    case "-2":
+    case "0":
+    case "1":
+      // x-small.
+      return 0;
+    case "-1":
+    case "2":
+      // small.
+      return 1;
+    case "3":
+      // medium.
+      return 2;
+    case "+1":
+    case "4":
+      // large.
+      return 3;
+    case "+2":
+    case "5":
+      // x-large.
+      return 4;
+    case "+3":
+    case "+4":
+    case "6":
+    case "7":
+      // xx-large.
+      return 5;
+  }
+
+  // We shouldn't get here. All the selection has a value we don't understand.
+  return -1;
+}
+
+function initFontSizeMenu(menuPopup, fullMenu)
 {
   if (menuPopup)
   {
     var children = menuPopup.childNodes;
-    if (!children) return;
+    if (!children)
+      return;
 
+    // Fixed size items start after menu separator depending on whether it is
+    // a full menu.
+    var menuIndex = fullMenu ? 3 : 0;
+
+    var setIndex = getFontSizeIndex();
+    if (setIndex >= 0)
+    {
+      children[menuIndex + setIndex].setAttribute("checked", true);
+    }
+    else
+    {
+      // In case of mixed, clear all items.
+      for (var i = menuIndex; i < children.length; i++) {
+        children[i].setAttribute("checked", false);
+      }
+    }
+
+    // Some configurations might not have the "small/big" indicator as
+    // last item. If there is no indicator, we are done.
+    if (!menuPopup.lastChild.id.includes("smallBigInfo"))
+      return;
+
+    // While it would be better to show the number of levels,
+    // at least this tells user if either of them are set.
     var firstHas = { value: false };
     var anyHas = { value: false };
     var allHas = { value: false };
 
-    var sizeWasFound = false;
+    // Show "small"/"big" indicator.
+    var htmlInfo = "";
+    EditorGetTextProperty("small", "", "", firstHas, anyHas, allHas);
+    if (anyHas.value)
+      htmlInfo = "<small>";
+    EditorGetTextProperty("big", "", "", firstHas, anyHas, allHas);
+    if (anyHas.value)
+      htmlInfo += "<big>";
 
-    // we need to set or clear the checkmark for each menu item since the selection
-    // may be in a new location from where it was when the menu was previously opened
-
-    // First 2 items add <small> and <big> tags
-    // While it would be better to show the number of levels,
-    //  at least this tells user if either of them are set
-    var menuItem = children[0];
-    if (menuItem)
+    if (htmlInfo)
     {
-      EditorGetTextProperty("small", "", "", firstHas, anyHas, allHas);
-      menuItem.setAttribute("checked", allHas.value);
-      sizeWasFound = anyHas.value;
+      menuPopup.lastChild.hidden = false;
+      menuPopup.lastChild.setAttribute("label", "HTML: " + htmlInfo);
+      menuPopup.lastChild.setAttribute("checked", true);
     }
-
-    menuItem = children[1];
-    if (menuItem)
+    else
     {
-      EditorGetTextProperty("big", "", "", firstHas, anyHas, allHas);
-      menuItem.setAttribute("checked", allHas.value);
-      sizeWasFound |= anyHas.value;
+      menuPopup.lastChild.hidden = true;
     }
-
-    // Fixed size items start after menu separator
-    var menuIndex = 3;
-    // Index of the medium (default) item
-    var mediumIndex = 5;
-
-    // Scan through all supported "font size" attribute values
-    for (var i = -2; i <= 3; i++)
-    {
-      menuItem = children[menuIndex];
-
-      // Skip over medium since it'll be set below.
-      // If font size=0 is actually set, we'll toggle it off below if
-      // we enter this loop in this case.
-      if (menuItem && (i != 0))
-      {
-        var sizeString = (i <= 0) ? String(i) : ("+" + String(i));
-        EditorGetTextProperty("font", "size", sizeString, firstHas, anyHas, allHas);
-        // Check the item only if all of selection has the size...
-        menuItem.setAttribute("checked", allHas.value);
-        // ...but remember if ANY of of selection had size set
-        sizeWasFound |= anyHas.value;
-      }
-      menuIndex++;
-    }
-
-    // if no size was found, then check default (medium)
-    // note that no item is checked in the case of "mixed" selection
-    children[mediumIndex].setAttribute("checked", !sizeWasFound);
   }
 }
 

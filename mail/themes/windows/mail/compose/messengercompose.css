@@ -256,6 +256,13 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   display: none;
 }
 
+#AbsoluteFontSizeButton {
+  -moz-image-region: rect(0px 320px 16px 304px);
+}
+#AbsoluteFontSizeButton[disabled="true"] {
+  -moz-image-region: rect(16px 320px 32px 304px) !important;
+}
+
 #DecreaseFontSizeButton {
   -moz-image-region: rect(0px 16px 16px 0px);
 }

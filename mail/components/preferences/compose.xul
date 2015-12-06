@@ -132,12 +132,12 @@
               <label control="fontSizeSelect" value="&size.label;" accesskey="&size.accesskey;"/>
               <menulist id="fontSizeSelect" preference="msgcompose.font_size">
                 <menupopup>
-                  <menuitem value="x-small" label="&size-x-smallCmd.label;"/>
+                  <menuitem value="x-small" label="&size-tinyCmd.label;"/>
                   <menuitem value="small"   label="&size-smallCmd.label;"/>
                   <menuitem value="medium"  label="&size-mediumCmd.label;"/>
                   <menuitem value="large"   label="&size-largeCmd.label;"/>
-                  <menuitem value="x-large" label="&size-x-largeCmd.label;"/>
-                  <menuitem value="xx-large" label="&size-xx-largeCmd.label;"/>
+                  <menuitem value="x-large" label="&size-extraLargeCmd.label;"/>
+                  <menuitem value="xx-large" label="&size-hugeCmd.label;"/>
                 </menupopup>
               </menulist>
             </hbox>
