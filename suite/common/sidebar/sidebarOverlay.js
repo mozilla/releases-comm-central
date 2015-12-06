@@ -1659,7 +1659,7 @@ function SidebarBroadcastersToRDF()
     // If the item doesn't already exist, create it.
     if (!curtitleLit && !cururlLit) {
       ds.Assert(panelRes, titleRes, titleLit, true);
-      ds.Assert(panelRes, urlRes, titleLit, true);
+      ds.Assert(panelRes, urlRes, urlLit, true);
       masterSeq.AppendElement(panelRes);
       if (currentSeq.IndexOf(panelRes) == -1)
         currentSeq.AppendElement(panelRes);
