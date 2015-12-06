@@ -118,7 +118,8 @@ calAlarmMonitor.prototype = {
         }
 
         let calAlarmWindow = peekAlarmWindow();
-        if (!calAlarmWindow  && !this.mWindowOpening) {
+        if (!calAlarmWindow  && (!this.mWindowOpening ||
+                                  this.mWindowOpening.closed)) {
             this.mWindowOpening = Services.ww.openWindow(
                 null,
                 "chrome://calendar/content/calendar-alarm-dialog.xul",
@@ -173,7 +174,7 @@ calAlarmMonitor.prototype = {
     onAlarmsLoaded: function cAM_onAlarmsLoaded(aCalendar) {
         // the alarm dialog won't close while alarms are loading, check again now
         let calAlarmWindow = peekAlarmWindow();
-        if (calAlarmWindow) {
+        if (calAlarmWindow && this.mAlarms.length == 0) {
             calAlarmWindow.closeIfEmpty();
         }
     }
