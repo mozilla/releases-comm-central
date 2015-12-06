@@ -68,7 +68,7 @@
                                      tabbrowser.reloadAllTabs();"/>
           </xul:menupopup>
 
-          <xul:tabs class="tabbrowser-tabs" closebutton="true" flex="1"
+          <xul:tabs class="tabbrowser-tabs" flex="1"
                     anonid="tabcontainer"
                     tooltiptextnew="&newTabButton.tooltip;"
                     tooltiptextclose="&closeTabButton.tooltip;"
