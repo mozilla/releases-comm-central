@@ -20,6 +20,9 @@
       <preference id="mailnews.plaintext_domains"
                   name="mailnews.plaintext_domains"
                   type="string"/>
+      <preference id="mailnews.sendformat.auto_downgrade"
+                  name="mailnews.sendformat.auto_downgrade"
+                  type="bool"/>
     </preferences>
 
     <data id="formatting_error_msg"
@@ -34,17 +37,15 @@
              label="&askMe.label;"
              accesskey="&askMe.accesskey;"/>
       <radio value="1"
-             label="&convertPlain.label;"
-             accesskey="&convertPlain.accesskey;"/>
+             label="&convertPlain2.label;"
+             accesskey="&convertPlain2.accesskey;"/>
       <radio value="2"
-             label="&sendHTML.label;"
-             accesskey="&sendHTML.accesskey;"/>
+             label="&sendHTML2.label;"
+             accesskey="&sendHTML2.accesskey;"/>
       <radio value="3"
-             label="&sendBoth.label;"
-             accesskey="&sendBoth.accesskey;"/>
+             label="&sendBoth2.label;"
+             accesskey="&sendBoth2.accesskey;"/>
     </radiogroup>
-
-    <description>&override.label;</description>
 
     <groupbox flex="1">
       <caption label="&domain.title;"/>
@@ -110,5 +111,10 @@
         </vbox>
       </hbox>
     </groupbox>
+
+    <checkbox id="autoDowngrade"
+              label="&autoDowngrade.label;"
+              accesskey="&autoDowngrade.accesskey;"
+              preference="mailnews.sendformat.auto_downgrade"/>
   </prefpane>
 </overlay>

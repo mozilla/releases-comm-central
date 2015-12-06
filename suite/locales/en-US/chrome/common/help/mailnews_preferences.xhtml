@@ -429,25 +429,48 @@
     the list.)</li>
 </ol>
 
+<p>Formatted messages (composed in HTML) can be sent as HTML, plain text, or
+  both (those composed in plain text will always be sent as plain text only).
+</p>
+
+<p>If any of the recipients isn&apos;t explicitly listed to receive HTML,
+  based on his or her address-book entry or on a domain-based setting as
+  explained below, the following options apply:</p>
 <ul>
   <li><strong>Ask me what to do</strong>: This option requires Mail &amp;
     Newsgroups to prompt you to choose a format before you send the
     message.</li>
-  <li><strong>Convert the message to plain text</strong>: This option may
-    cause your message to lose formatting such as bold text.</li>
-  <li><strong>Send the message in HTML anyway</strong>: If you select this
+  <li><strong>Convert the message to plain text</strong>: This option sends
+    the message as plain text only, thus it will cause your message to lose
+    formatting such as custom colors or bold text. It will also remove all
+    images which are within the message itself (but not attachments).</li>
+  <li><strong>Send the message as HTML only</strong>: If you select this
     option, keep in mind that some mail programs may have trouble displaying
-    the message.</li>
-  <li><strong>Send the message in both plain text and HTML</strong>: This
-    option uses more disk space.
+    the message as no separate plain-text representation is sent.</li>
+  <li><strong>Send the message as both plain text and HTML</strong>: This
+    option is the best trade-off between compatibility and retaining applied
+    formatting and embedded images, but increases the message size.</li>
+</ul>
 
-    <p>You can always override these preferences for an individual message by
-      using the Options menu in the Mail Compose window.</p>
-  </li>
-  <li><strong>HTML and Plain Text Domains</strong>: Use the Add button to add
+<p>Settings for entire domains:</p>
+<ul>
+  <li><strong>HTML and Plain Text Domains</strong>: These options explicitly set
+    HTML or plain-text preference for all users in the given domains (i.e., the
+    part of an e-mail address after the <q>@</q>). Use the Add button to add
     the domain names that you typically send mail to, if you know which domains
     can display HTML-formatted mail messages, and which domains can only
     display plain text.</li>
+</ul>
+
+<p>Settings depending on the message content:</p>
+<ul>
+  <li><strong>Automatically send the message as plain text if no significant
+    formatting is present</strong>: Use this option to convert messages which
+    were composed in HTML to plain text to reduce the size of the message if
+    no or non-significant formatting has been applied. <q>Significant</q> in
+    this case includes bold or italic fonts, underlining, custom colors, etc.
+    This test is performed <em>before</em> the address book or domain settings
+    are consulted to determine the send format.</li>
 </ul>
 
 <p>For example, if you typically send mail to multiple recipients that have the
@@ -455,12 +478,21 @@
   end in <q>netscape.net</q>), and you know that this domain name is capable of
   displaying HTML messages, then you can add the netscape.net domain to the
   list of HTML Domains so that Mail &amp; Newsgroups will automatically send
-  messages in HTML format to these recipients.</p>
+  messages in HTML format to these recipients (note that no plain-text part is
+  sent in this case).</p>
 
 <p>Similarly, if you typically send mail to recipients at a domain that you
   know can only receive Plain Text messages, you can add that domain name to
   the list of Plain Text domains, so that Mail &amp; Newsgroups automatically
-  sends messages to that domain in plain-text format.</p>
+  sends messages to that domain in plain-text format (no HTML part is sent).</p>
+
+<p>Whenever you add a person or address card to your address book, you can
+  specify whether that addressee can receive HTML-formatted messages. However,
+  when this information is unknown, you can set Send Format preferences for how
+  Mail &amp; Newsgroups formats these messages.</p>
+
+<p>You can always override these preferences for an individual message by
+  using the Options menu in the Mail Compose window.</p>
 
 <p><strong>Note</strong>: If you regularly compose HTML (formatted) mail
   messages, keep in mind that sometimes not all recipients use mail programs
@@ -470,11 +502,6 @@
   them only as HTML, or format them as both HTML and plain text. These
   preferences apply to all your mail accounts, but only to mail messages and
   not to newsgroup messages.</p>
-
-<p>Whenever you add a person or address card to your address book, you can
-  specify whether that addressee can receive HTML-formatted messages. However,
-  when this information is unknown, you can set Send Format preferences for how
-  Mail &amp; Newsgroups formats these messages.</p>
 
 <p>[<a href="#mail_and_newsgroup_preferences">Return to beginning of
   section</a>]</p>

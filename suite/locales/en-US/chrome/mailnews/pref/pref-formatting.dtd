@@ -6,13 +6,12 @@
 <!ENTITY sendMaildesc.label           "When sending formatted (HTML) messages and one or more recipients are not listed as being able to receive HTML:">
 <!ENTITY askMe.label                  "Ask me what to do (Mail prompts you to choose a format)">
 <!ENTITY askMe.accesskey              "k">
-<!ENTITY convertPlain.label           "Convert the message to plain text (some formatting may be lost)">
-<!ENTITY convertPlain.accesskey       "C">
-<!ENTITY sendHTML.label               "Send the message as formatted text (HTML) anyway (some mail programs may not be able to display it)">
-<!ENTITY sendHTML.accesskey           "S">
-<!ENTITY sendBoth.label               "Send the message in both plain text and HTML (larger message size)">
-<!ENTITY sendBoth.accesskey           "n">
-<!ENTITY override.label               "You can override these settings for individual messages by using the Options menu while composing a message.">
+<!ENTITY convertPlain2.label          "Convert the message to plain text (formatting may be lost)">
+<!ENTITY convertPlain2.accesskey      "C">
+<!ENTITY sendHTML2.label              "Send the message as HTML only (may cause display problems)">
+<!ENTITY sendHTML2.accesskey          "S">
+<!ENTITY sendBoth2.label              "Send the message as both plain text and HTML (larger size)">
+<!ENTITY sendBoth2.accesskey          "n">
 
 <!-- Html and Plain Text Domains  -->
 <!ENTITY domain.title                 "HTML and Plain Text Domains">
@@ -37,3 +36,7 @@
 <!ENTITY domainnameError.title        "Domain Name Error">
 <!-- LOCALIZATION NOTE: do not translate @string@ -->
 <!ENTITY invalidEntryError.label      "The domain name @string@ is invalid and will be ignored. Valid domain names must include at least one '.' and characters on either side of it.">
+
+<!-- Global auto-detect switch -->
+<!ENTITY autoDowngrade.label          "Automatically send the message as plain text if no significant formatting is present (overrides other options)">
+<!ENTITY autoDowngrade.accesskey      "o">
