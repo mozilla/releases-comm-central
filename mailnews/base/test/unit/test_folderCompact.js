@@ -23,6 +23,9 @@ Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
 
 // Globals
 var gMsgFile1, gMsgFile2, gMsgFile3;
+var gMsg1ID = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
+var gMsg2ID = "200804111417.m3BEHTk4030129@mrapp51.mozilla.org";
+var gMsg3ID = "4849BF7B.2030800@example.com";
 var gLocalFolder2;
 var gLocalFolder3;
 var gLocalTrashFolder;
@@ -154,6 +157,7 @@ var gTestArray =
   },
   function* testCopyFileMessage3() {
     yield copyFileMessage(gMsgFile3, localAccountUtils.inboxFolder, true);
+    showMessages(localAccountUtils.inboxFolder, "after initial 3 messages copy to inbox");
   },
 
   // Moving/copying messages
@@ -162,9 +166,13 @@ var gTestArray =
   },
   function* testCopyMessages2() {
     yield copyMessages([gMsgHdrs[1].hdr, gMsgHdrs[2].hdr], false, localAccountUtils.inboxFolder, gLocalFolder2);
+    showMessages(gLocalFolder2, "after copying 3 messages");
   },
   function* testMoveMessages1() {
     yield copyMessages([gMsgHdrs[0].hdr, gMsgHdrs[1].hdr], true, localAccountUtils.inboxFolder, gLocalFolder3);
+
+    showMessages(localAccountUtils.inboxFolder, "after moving 2 messages");
+    showMessages(gLocalFolder3, "after moving 2 messages");
   },
 
   // Deleting messages
@@ -183,6 +191,8 @@ var gTestArray =
 
     // Now delete the message
     yield deleteMessages(gLocalFolder3, [gMsgHdrs[0].hdr], false, false);
+
+    showMessages(gLocalFolder3, "after deleting 1 message to trash");
   },
   function* compactFolder()
   {
@@ -191,6 +201,8 @@ var gTestArray =
     let listener = new PromiseTestUtils.PromiseUrlListener(urlListenerWrap);
     gLocalFolder3.compact(listener, null);
     yield listener.promise;
+
+    showMessages(gLocalFolder3, "after compact");
   },
   function* testDeleteMessages2() {
     do_check_eq(gExpectedFolderSize, gLocalFolder3.filePath.fileSize);
@@ -208,12 +220,20 @@ var gTestArray =
 
     // Now delete the message
     yield deleteMessages(gLocalFolder2, [gMsgHdrs[0].hdr], false, false);
+
+    showMessages(gLocalFolder2, "after deleting 1 message");
   },
   function* compactAllFolders()
   {
     gExpectedInboxSize = calculateFolderSize(localAccountUtils.inboxFolder);
     gExpectedFolder2Size = calculateFolderSize(gLocalFolder2);
     gExpectedFolder3Size = calculateFolderSize(gLocalFolder3);
+
+    // Save the first message key, which will change after compact with
+    // rebuild.
+    let f2m2Key =
+      gLocalFolder2.msgDatabase.getMsgHdrForMessageID(gMsg2ID).messageKey;
+
     // force expunged bytes count to get cached.
     let localFolder2ExpungedBytes = gLocalFolder2.expungedBytes;
     // mark localFolder2 as having an invalid db, and remove it
@@ -224,9 +244,46 @@ var gTestArray =
     let dbPath = gLocalFolder2.filePath;
     dbPath.leafName = dbPath.leafName + ".msf";
     dbPath.remove(false);
-    let listener = new PromiseTestUtils.PromiseUrlListener(urlListenerWrap);
+
+    showMessages(localAccountUtils.inboxFolder, "before compactAll");
+    // Save the key for the inbox message, we'll check after compact that it
+    // did not change.
+    let preInboxMsg3Key = localAccountUtils.inboxFolder.msgDatabase
+                                           .getMsgHdrForMessageID(gMsg3ID)
+                                           .messageKey;
+
+    // We used to check here that the keys did not change during rebuild.
+    // But that is no true in general, it was only conicidental since the
+    // checked folder had never been compacted, so the key equaled the offset.
+    // We do not in guarantee that, indeed after rebuild we expect the keys
+    // to change.
+    let checkResult = {
+      OnStopRunningUrl: function (aUrl, aExitCode) {
+      // Check: message successfully compacted.
+      do_check_eq(aExitCode, 0);
+      }
+    };
+    let listener = new PromiseTestUtils.PromiseUrlListener(checkResult);
     localAccountUtils.inboxFolder.compactAll(listener, null, true);
     yield listener.promise;
+
+    showMessages(localAccountUtils.inboxFolder, "after compactAll");
+    showMessages(gLocalFolder2, "after compactAll");
+
+    // For the inbox, which was compacted but not rebuild, key is unchanged.
+    let postInboxMsg3Key = localAccountUtils.inboxFolder.msgDatabase
+                                            .getMsgHdrForMessageID(gMsg3ID)
+                                            .messageKey;
+    do_check_eq(preInboxMsg3Key, postInboxMsg3Key);
+
+    // For folder2, which was rebuilt, keys change but all messages should exist.
+    let message2 = gLocalFolder2.msgDatabase.getMsgHdrForMessageID(gMsg2ID);
+    do_check_true(message2);
+    do_check_true(gLocalFolder2.msgDatabase.getMsgHdrForMessageID(gMsg3ID));
+
+    // In folder2, gMsg2ID is the first message. After compact with database
+    // rebuild, that key has now changed.
+    do_check_neq(message2.messageKey, f2m2Key);
   },
   function lastTestCheck()
   {
@@ -236,7 +293,6 @@ var gTestArray =
     verifyMsgOffsets(gLocalFolder2);
     verifyMsgOffsets(gLocalFolder3);
     verifyMsgOffsets(localAccountUtils.inboxFolder);
-    urlListenerWrap.OnStopRunningUrl(null, 0);
   }
 ];
 
@@ -257,4 +313,18 @@ function run_test()
 
   gTestArray.forEach(add_task);
   run_next_test();
+}
+
+// debug utility to show the key/offset/ID relationship of messages in a folder
+function showMessages(folder, text)
+{
+  dump("Show messages for folder <" + folder.name + "> " + text + "\n");
+  let folderMsgs = folder.messages;
+  while (folderMsgs.hasMoreElements()) {
+    let header = folderMsgs.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+    dump("key: " + header.messageKey +
+          " offset: " + header.messageOffset +
+          " ID: " + header.messageId +
+          "\n");
+  }
 }

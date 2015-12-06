@@ -513,6 +513,7 @@ NS_IMPL_ISUPPORTS(nsParseMailMessageState, nsIMsgParseMailMsgState, nsIDBChangeL
 nsParseMailMessageState::nsParseMailMessageState()
 {
   m_position = 0;
+  m_new_key = nsMsgKey_None;
   m_IgnoreXMozillaStatus = false;
   m_state = nsIMsgParseMailMsgState::ParseBodyState;
 
@@ -598,6 +599,7 @@ NS_IMETHODIMP nsParseMailMessageState::Clear()
   m_body_lines = 0;
   m_newMsgHdr = nullptr;
   m_envelope_pos = 0;
+  m_new_key = nsMsgKey_None;
   ClearAggregateHeader (m_toList);
   ClearAggregateHeader (m_ccList);
   m_headers.ResetWritePos();
@@ -709,6 +711,12 @@ NS_IMETHODIMP nsParseMailMessageState::SetBackupMailDB(nsIMsgDatabase *aBackupMa
   m_backupMailDB = aBackupMailDB;
   if (m_backupMailDB)
     m_backupMailDB->AddListener(this);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsParseMailMessageState::SetNewKey(nsMsgKey aKey)
+{
+  m_new_key = aKey;
   return NS_OK;
 }
 
@@ -1393,18 +1401,18 @@ nsresult nsParseMailMessageState::FinalizeHeaders()
       ret = m_backupMailDB->GetMsgHdrForMessageID(
               rawMsgId.get(), getter_AddRefs(oldHeader));
 
-    // m_envelope_pos is set in nsImapMailFolder::ParseAdoptedHeaderLine to be
+    // m_new_key is set in nsImapMailFolder::ParseAdoptedHeaderLine to be
     // the UID of the message, so that the key can get created as UID. That of
     // course is extremely confusing, and we really need to clean that up. We
     // really should not conflate the meaning of envelope position, key, and
     // UID.
     if (NS_SUCCEEDED(ret) && oldHeader)
-        ret = m_mailDB->CopyHdrFromExistingHdr(m_envelope_pos,
+        ret = m_mailDB->CopyHdrFromExistingHdr(m_new_key,
                 oldHeader, false, getter_AddRefs(m_newMsgHdr));
     else if (!m_newMsgHdr)
     {
       // Should assert that this is not a local message
-      ret = m_mailDB->CreateNewHdr(m_envelope_pos, getter_AddRefs(m_newMsgHdr));
+      ret = m_mailDB->CreateNewHdr(m_new_key, getter_AddRefs(m_newMsgHdr));
     }
 
     if (NS_SUCCEEDED(ret) && m_newMsgHdr)
@@ -2535,7 +2543,7 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr *mailHdr,
   nsCOMPtr<nsIMsgDBHdr> newHdr;
 
   if (destMailDB)
-    rv = destMailDB->CopyHdrFromExistingHdr(nsMsgKey_None, mailHdr, true,
+    rv = destMailDB->CopyHdrFromExistingHdr(m_new_key, mailHdr, true,
                                             getter_AddRefs(newHdr));
   if (NS_SUCCEEDED(rv) && !newHdr)
     rv = NS_ERROR_UNEXPECTED;

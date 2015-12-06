@@ -519,18 +519,7 @@ nsPop3Sink::IncorporateBegin(const char* uidlString,
     m_newMailParser = nullptr;
     rv = NS_OK;
   }
-  else
-  {
-    if (m_downloadingToTempFile)
-    {
-      // Tell the parser to use the offset that will be in the dest folder,
-      // not the temp folder, so that the msg hdr will start off with
-      // the correct mdb oid
-      int64_t fileSize;
-      path->GetFileSize(&fileSize);
-      m_newMailParser->SetEnvelopePos((uint32_t) fileSize);
-    }
-  }
+
     if (closure)
         *closure = (void*) this;
 

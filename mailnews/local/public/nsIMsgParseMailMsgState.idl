@@ -4,13 +4,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
+#include "MailNewsTypes2.idl"  // for nsMsgKey typedef
 
 interface nsIMsgDatabase;
 interface nsIMsgDBHdr;
 
 typedef long nsMailboxParseState;
 
-[scriptable, uuid(abf6a8e2-955e-4952-a295-b71d45f770cf)]
+[scriptable, uuid(FF6EC749-9ABF-4cfa-A96C-AD6C8E91774B)]
 interface nsIMsgParseMailMsgState : nsISupports {
 
     attribute unsigned long envelopePos;
@@ -36,5 +37,13 @@ interface nsIMsgParseMailMsgState : nsISupports {
     const long ParseEnvelopeState=0;
     const long ParseHeadersState=1;
     const long ParseBodyState=2;
+
+    /**
+     * Set the key to be used for the new message header.
+     *
+     * @param aNewKey  the new db key
+     *
+     */
+    void setNewKey(in nsMsgKey aKey);
 };
 

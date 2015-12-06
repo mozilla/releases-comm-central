@@ -61,7 +61,7 @@ function test_ignore_thread() {
   assert_selected_and_displayed(t2root);
 
   // The ignored thread should still be visible (with an ignored icon).
-  assert_visible(thread1.msgHdrList);
+  assert_visible(t1root);
 
   // Go to another folde then back. Ignored messages should now be hidden.
   be_in_folder(inboxFolder);

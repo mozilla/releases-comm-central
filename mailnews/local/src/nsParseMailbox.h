@@ -73,6 +73,7 @@ public:
   int64_t              m_position;
   uint64_t              m_envelope_pos;
   uint64_t              m_headerstartpos;
+  nsMsgKey              m_new_key;    // DB key for the new header.
 
   nsByteArray           m_headers;
 

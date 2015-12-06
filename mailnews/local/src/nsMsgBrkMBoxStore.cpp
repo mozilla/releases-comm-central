@@ -655,18 +655,7 @@ nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder *aFolder,
 
   if (db && !*aNewMsgHdr)
   {
-    nsMsgKey key = nsMsgKey_None;
-    // The key should not need to be the filePos anymore, but out of caution
-    // we will continue setting key to filePos for mboxes smaller than 0xFF000000.
-    if (filePos <= 0xFF000000)
-    {
-      // After compact, we can have duplicated keys (see bug 1202105) so only
-      // set key to filePos if there is no collision.
-      bool hasKey = true;
-      if (NS_SUCCEEDED(db->ContainsKey((nsMsgKey) filePos, &hasKey)) && !hasKey)
-        key = (nsMsgKey) filePos;
-    }
-    db->CreateNewHdr(key, aNewMsgHdr);
+    db->CreateNewHdr(nsMsgKey_None, aNewMsgHdr);
   }
 
   if (*aNewMsgHdr)

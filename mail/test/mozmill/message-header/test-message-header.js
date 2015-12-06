@@ -1029,10 +1029,14 @@ if ("nsIAccessibleRole" in Ci) {
   function test_a11y_attrs() {
     be_in_folder(folder);
 
-    // select and open the interesting message
+    // Convert the SyntheticMessage gInterestingMessage into an actual
+    // nsIMsgDBHdr XPCOM message.
+    let hdr = folder.msgDatabase
+                    .getMsgHdrForMessageID(gInterestingMessage.messageId);
 
-    let curMessage = select_click_row(mc.dbView.findIndexOfMsgHdr(
-                                        gInterestingMessage, false));
+    // select and open the interesting message
+    let curMessage = select_click_row(mc.dbView
+                                        .findIndexOfMsgHdr(hdr, false));
 
     // make sure it loads
     assert_selected_and_displayed(mc, curMessage);

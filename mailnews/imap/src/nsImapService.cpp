@@ -2064,8 +2064,8 @@ nsresult nsImapService::OfflineAppendFromFile(nsIFile *aFile,
 //        if (NS_SUCCEEDED(rv) && bytesRead > 0)
           msgParser->SetState(nsIMsgParseMailMsgState::ParseHeadersState);
           msgParser->SetNewMsgHdr(newMsgHdr);
-          // set the env pos to fake key so the msg hdr will have that for a key
-          msgParser->SetEnvelopePos(fakeKey);
+          // set the new key to fake key so the msg hdr will have that for a key
+          msgParser->SetNewKey(fakeKey);
           bool needMoreData = false;
           char * newLine = nullptr;
           uint32_t numBytesInLine = 0;
