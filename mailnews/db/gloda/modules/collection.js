@@ -761,7 +761,8 @@ GlodaLRUCacheCollection.prototype.commitDirty = function cache_commitDirty() {
   if (!this._nounDef.objUpdate)
     return;
 
-  for (let item of this._idMap) {
+  for (let iItem in this._idMap) {
+    let item = this._idMap[iItem];
     if (item.dirty) {
       LOG.debug("flushing dirty: " + item);
       this._nounDef.objUpdate.call(this._nounDef.datastore, item);
