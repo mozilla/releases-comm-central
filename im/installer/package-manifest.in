@@ -726,8 +726,3 @@
 @BINPATH@/breakpadinjector.dll
 #endif
 #endif
-
-; GNOME hooks
-#ifdef MOZ_ENABLE_GNOME_COMPONENT
-@RESPATH@/components/@DLL_PREFIX@mozgnome@DLL_SUFFIX@
-#endif
