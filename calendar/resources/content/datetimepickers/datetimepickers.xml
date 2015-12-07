@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
@@ -13,12 +13,12 @@
     It relies on <minimonth/> for the date picker's drop down.
     You can be notified of change event as follows:
       <datepicker id="my-date-picker" onchange="myDatePick( this );"/>
-    May get/set value in javascript with 
+    May get/set value in javascript with
       document.getElementById("my-date-picker").value = new Date();
     May disable/enable in javascript with
       document.getElementById("my-date-picker").disabled = true;
     May also disable/enable a datetimepicker's component
-      datepicker or timepicker individually with 
+      datepicker or timepicker individually with
       document.getElementById("my-datetimepicker").datepickerdisabled = true;
       document.getElementById("my-datetimepicker").timepickerdisabled = true;
 
@@ -30,7 +30,7 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <binding id="datetextpicker"
-           extends="chrome://calendar/content/datetimepickers/datetimepickers.xml#datetimepicker-base">               
+           extends="chrome://calendar/content/datetimepickers/datetimepickers.xml#datetimepicker-base">
     <content>
       <xul:hbox flex="1">
         <xul:textbox anonid="date-textbox" flex="1"
@@ -71,7 +71,7 @@
             {word:calGetString("calendar", "last1"), offset: -1},
             {word:calGetString("calendar", "last2"), offset: -1},
             {word:calGetString("calendar", "next1"), offset: 0},
-            {word:calGetString("calendar", "next2"), offset: 0}];        
+            {word:calGetString("calendar", "next2"), offset: 0}];
 
         // Set the value to today
         var text = document.getAnonymousElementByAttribute(this, "anonid", "date-textbox");
@@ -101,7 +101,7 @@
           if (date) {
             // format fails if year <= 1600 on win2k, so try format first.
             var prettyDate;
-            try { 
+            try {
               prettyDate = this.formatDate(date);
             } catch (ex) {} // fall thru
           }
@@ -213,8 +213,8 @@
 
   <binding id="datepicker" extends="chrome://calendar/content/datetimepickers/datetimepickers.xml#datetimepicker-base">
     <!-- ::::::::::::::::: CONTENT ::::::::::::::::::::::::: -->
-    <!-- Desired behavior: when user is done editing the date field 
-         and either leaves the field (onblur) or closes the dialog 
+    <!-- Desired behavior: when user is done editing the date field
+         and either leaves the field (onblur) or closes the dialog
          (13 is enter/return key), parse the date and redisplay it
          in the date field using the current format to verify
          whether the date was parsed correctly.
@@ -227,7 +227,7 @@
          xul:Textbox contains an xul:hbox which contains html:input.
          Onkeypress and onblur are not documented attributes of xul:textbox,
          but become attributes of the html:input.
-         Not clear how to navigate from the textbox to the input, otherwise 
+         Not clear how to navigate from the textbox to the input, otherwise
          could put kDatePicker property on the input element.
          [document.getAnonymousNodes(textBox) fails as of Moz1.7b]).
          So navigate parents to textbox in order to call parseTextBoxDate.
@@ -235,7 +235,7 @@
          node that interferes with navigation to interior nodes.] -->
     <resources>
       <stylesheet src="chrome://calendar/content/widgets/calendar-widget-bindings.css"/>
-    </resources>               
+    </resources>
     <content>
       <xul:hbox flex="1" id="hbox" class="datepicker-box-class">
         <xul:menulist editable="true" sizetopopup="false"
@@ -529,8 +529,8 @@
 
   <binding id="timepicker" extends="chrome://calendar/content/datetimepickers/datetimepickers.xml#datetimepicker-base">
     <!-- ::::::::::::::::: CONTENT ::::::::::::::::::::::::: -->
-    <!-- Desired behavior: when user is done editing the time field 
-         and either leaves the field (onblur) or closes the dialog 
+    <!-- Desired behavior: when user is done editing the time field
+         and either leaves the field (onblur) or closes the dialog
          (13 is enter/return key), parse the time and redisplay it
          in the time field using the current format to verify
          whether the time was parsed correctly.
@@ -543,7 +543,7 @@
          xul:Textbox contains an xul:hbox which contains html:input.
          Onkeypress and onblur are not documented attributes of xul:textbox,
          but become attributes of the html:input.
-         Not clear how to navigate from the textbox to the input, otherwise 
+         Not clear how to navigate from the textbox to the input, otherwise
          could put kTimePicker property on the input element.
          [document.getAnonymousNodes(textBox) fails as of Moz1.7b]).
          So navigate parents to textbox in order to call parseTextBoxTime.
@@ -644,7 +644,7 @@
           <![CDATA[
             // select all to remove cursor since can't type while popped-up
             this.select();
-            var timePickerGrid = aPopup.childNodes[0]; 
+            var timePickerGrid = aPopup.childNodes[0];
             timePickerGrid.onPopupShowing(this, aPopup);
           ]]>
         </body>
@@ -692,7 +692,7 @@
                 ondblclick="doubleClickHour(this.parentNode, this.parentNode.getAttribute('value'))">
         <xul:box>
           <xul:label class="time-picker-hour-label" anonid="hourlabel" xbl:inherits="value=label,selected"/>
-        </xul:box> 
+        </xul:box>
         <xul:spacer flex="1"/>
       </xul:vbox>
       <xul:spacer flex="1"/>
@@ -786,9 +786,9 @@
 
   <binding id="timepicker-grids" extends="xul:box">
     <resources>
-      <stylesheet src="chrome://calendar/skin/datetimepickers/datetimepickers.css"/>
+      <stylesheet src="chrome://lightning-common/datetimepickers.css"/>
     </resources>
-    
+
     <!-- ::::::::::::::::: CONTENT ::::::::::::::::::::::::: -->
     <content>
       <!-- Box to hold time picker internals -->
@@ -831,7 +831,7 @@
                                anonid="time-picker-hour-box-7"    label="7"/>
               <timepicker-hour class="time-picker-hour-box-class" value="8"
                                anonid="time-picker-hour-box-8"    label="8"/>
-              <timepicker-hour class="time-picker-hour-box-class" value="9" 
+              <timepicker-hour class="time-picker-hour-box-class" value="9"
                                anonid="time-picker-hour-box-9"    label="9"/>
               <timepicker-hour class="time-picker-hour-box-class" value="10"
                                anonid="time-picker-hour-box-10"   label="10"/>
@@ -1093,7 +1093,7 @@
           this.mPopup = null;
 
           // The currently selected time
-          this.mSelectedTime = new Date(); 
+          this.mSelectedTime = new Date();
           // The selected hour and selected minute items
           this.mSelectedHourItem = null;
           this.mSelectedMinuteItem = null;
@@ -1112,7 +1112,7 @@
             this.mPicker = aPicker;
             this.mPopup = aPopup;
 
-            // if there is a Date object in the popup item's 
+            // if there is a Date object in the popup item's
             // value attribute, use it, otherwise use Now.
             var inputTime = this.mPicker.value;
             if (inputTime) {
@@ -1127,7 +1127,7 @@
             var hourItem = document.getAnonymousElementByAttribute(this, "anonid", hourItemId);
             this.selectHourItem( hourItem );
 
-            // Show the five minute view if we are an even five minutes, 
+            // Show the five minute view if we are an even five minutes,
             // otherwise one minute view
             var minutesByFive = this.calcNearestFiveMinutes( this.mSelectedTime );
 
@@ -1172,9 +1172,9 @@
             // switch to five minute view
             this.switchMinuteView( this.kMINUTE_VIEW_FIVE );
 
-            // select closest five minute box, 
+            // select closest five minute box,
             // BUT leave the selected time at what may NOT be an even five minutes
-            // So that If they click more again the proper non-even-five minute 
+            // So that If they click more again the proper non-even-five minute
             // box will be selected
             var minutesByFive = this.calcNearestFiveMinutes(this.mSelectedTime);
             var fiveMinuteItemId = "time-picker-five-minute-box-"+minutesByFive;
@@ -1193,7 +1193,7 @@
             // select the item
             this.selectHourItem( hourItem );
 
-            // Change the hour in the selected time. 
+            // Change the hour in the selected time.
             this.mSelectedTime.setHours( hourNumber );
 
             this.hasChanged = true;
@@ -1210,14 +1210,14 @@
           <![CDATA[
             // set the minutes to :00
             this.mSelectedTime.setMinutes(0);
-            
+
             // remove the popup grid
             this.mPopup.hidePopup();
           ]]>
         </body>
       </method>
-  
-      <!-- Called when one of the minute boxes is clicked, 
+
+      <!-- Called when one of the minute boxes is clicked,
            Calls the client's onchange and Closes the popup -->
       <method name="clickMinute">
         <parameter name="minuteItem"/>
@@ -1234,7 +1234,7 @@
         </body>
       </method>
 
-      <!-- Called by clickMinute when one of the minute boxes is clicked, 
+      <!-- Called by clickMinute when one of the minute boxes is clicked,
            Sets the value property and calls the client's onchange. -->
       <method name="timeSelected">
         <body>
@@ -1415,7 +1415,7 @@
     </handlers>
 
   </binding>
-  
+
   <binding id="datetimepicker" extends="chrome://calendar/content/datetimepickers/datetimepickers.xml#datetimepicker-base"
            inherits="value,onchange,disabled,datepickerdisabled,timepickerdisabled">
     <!-- ::::::::::::::::: CONTENT ::::::::::::::::::::::::: -->
@@ -1423,10 +1423,10 @@
          so had to add navigation by parents. -->
     <content>
       <xul:hbox flex="1" anonid="hbox">
-        <xul:datepicker anonid="date-picker" 
+        <xul:datepicker anonid="date-picker"
                         onchange="this.parentNode.parentNode.onDatePick();"
                         xbl:inherits="value,disabled,disabled=datepickerdisabled"/>
-        <xul:timepicker anonid="time-picker" 
+        <xul:timepicker anonid="time-picker"
                         onchange="this.parentNode.parentNode.onTimePick();"
                         xbl:inherits="value,disabled,disabled=timepickerdisabled"/>
       </xul:hbox>
@@ -1434,7 +1434,7 @@
 
     <!-- ::::::::::::::::: INTERFACE ::::::::::::::::::::::::: -->
     <implementation>
-      <property name="datepickerdisabled" 
+      <property name="datepickerdisabled"
                 onset="if (val) this.kDatePicker.setAttribute('disabled', 'true');
                        else this.kDatePicker.removeAttribute('disabled');"
                 onget="return this.kDatePicker.getAttribute('disabled')=='true';"/>
@@ -1463,7 +1463,7 @@
         <parameter name="aRefresh"/>
         <body>
           <![CDATA[
-            if (aValue != null) {         
+            if (aValue != null) {
               this.mValue = aValue;
             }
             // set textBox.value property, not attribute
@@ -1529,7 +1529,7 @@
   <binding id="datetimepicker-base" extends="chrome://global/content/bindings/general.xml#basecontrol"
            inherits="value,onchange">
     <resources>
-      <stylesheet src="chrome://calendar/skin/datetimepickers/datetimepickers.css"/>
+      <stylesheet src="chrome://lightning-common/datetimepickers.css"/>
     </resources>
     <implementation>
       <constructor>
@@ -1539,11 +1539,11 @@
         ]]>
       </constructor>
 
-      <property name="value" 
+      <property name="value"
                 onget="return this.mValue"
                 onset="this.update(val, false)"/>
 
-      <property name="lastDateParseIncludedTime" 
+      <property name="lastDateParseIncludedTime"
                 onget="return this.mLastDateParseIncludedTime;"
                 onset="this.mLastDateParseIncludedTime = val;" />
 
@@ -1552,7 +1552,7 @@
         <parameter name="aRefresh"/>
         <body>
           <![CDATA[
-            if (aValue != null) {         
+            if (aValue != null) {
               this.mValue = aValue;
             }
           ]]>
@@ -1573,7 +1573,7 @@
       </method>
 
       <!-- Parameter aValue may be a date or a date time. Dates are
-           read according to locale/OS setting (d-m-y or m-d-y or ...). 
+           read according to locale/OS setting (d-m-y or m-d-y or ...).
            (see initDateFormat). Uses parseTime() for times.
       -->
       <method name="parseDateTime">
@@ -1606,7 +1606,7 @@
               // Allows Dec 31, 1999 (comma and space between parts)
               // (Only accepts ASCII month names; JavaScript RegExp does not have an
               // easy way to describe unicode letters short of a HUGE character range
-              // regexp derived from the Alphabetic ranges in 
+              // regexp derived from the Alphabetic ranges in
               // http://www.unicode.org/Public/UNIDATA/DerivedCoreProperties.txt)
               // (.*)? binds to null if no suffix.
               var parseAlphShortDateRegex = /^\s*(\d+|[^\d\W]+)\W{0,2}(\d+|[^\d\W]+)\W{0,2}(\d+|[^\d\W]+)(.*)?$/;
@@ -1656,7 +1656,7 @@
           ]]>
         </body>
       </method>
-      
+
       <!-- Parse a variety of time formats so that cut and paste is likely to work.
            separator:            ':'         '.'        ' '        symbol        none
                                  "12:34:56"  "12.34.56" "12 34 56" "12h34m56s"   "123456"
@@ -1739,7 +1739,7 @@
                 if (hours == 12)
                   hours = 0;
               } else if (ampmCode == "PM") {
-                if (hours < 12) 
+                if (hours < 12)
                   hours += 12;
               }
               time = new Date(0, 0, 0, hours, minutes, seconds, 0);
@@ -1748,11 +1748,11 @@
           ]]>
         </body>
       </method>
-      
+
       <method name="initDateFormat">
         <body>
           <![CDATA[
-            // probe the dateformat  
+            // probe the dateformat
             this.yearIndex = -1;
             this.monthIndex = -1;
             this.dayIndex = -1;
@@ -1768,9 +1768,9 @@
             var probeDate = new Date(2002,3-1,4); // month is 0-based
             var probeString = this.formatDate(probeDate);
             var probeArray = this.parseShortDateRegex.exec(probeString);
-            if (probeArray != null) { 
+            if (probeArray != null) {
               // Numeric month format
-              for (var i = 1; i <= 3; i++) { 
+              for (var i = 1; i <= 3; i++) {
                 switch (Number(probeArray[i])) {
                   case 2:    this.twoDigitYear = true; // fall thru
                   case 2002: this.yearIndex = i;       break;
@@ -1787,12 +1787,12 @@
               // Allows Dec 31, 1999 (comma and space between parts)
               // (Only accepts ASCII month names; JavaScript RegExp does not have an
               // easy way to describe unicode letters short of a HUGE character range
-              // regexp derived from the Alphabetic ranges in 
+              // regexp derived from the Alphabetic ranges in
               // http://www.unicode.org/Public/UNIDATA/DerivedCoreProperties.txt)
               this.parseShortDateRegex = /^\s*(\d+|[^\d\W]+)\W{0,2}(\d+|[^\d\W]+)\W{0,2}(\d+|[^\d\W]+)\s*$/;
               probeArray = this.parseShortDateRegex.exec(probeString);
               if (probeArray != null) {
-                for (var j = 1; j <= 3; j++) { 
+                for (var j = 1; j <= 3; j++) {
                   switch (Number(probeArray[j])) {
                     case 2:    this.twoDigitYear = true; // fall thru
                     case 2002: this.yearIndex = j;       break;
@@ -1808,7 +1808,7 @@
                     probeDate.setMonth(m);
                     probeString = this.formatDate(probeDate);
                     probeArray = this.parseShortDateRegex.exec(probeString);
-                    if (probeArray != null) 
+                    if (probeArray != null)
                       this.alphaMonths[m] = probeArray[this.monthIndex].toUpperCase();
                     else
                       this.probeSucceeded = false;
@@ -1821,7 +1821,7 @@
           ]]>
         </body>
       </method>
-      
+
       <!-- Time format in 24-hour format or 12-hour format with am/pm string.
            Should match formats
                 HH:mm,       H:mm,       HH:mm:ss,       H:mm:ss
@@ -1839,12 +1839,12 @@
         <body>
           <![CDATA[
             // probe the Time format
-            this.ampmIndex = null;  
+            this.ampmIndex = null;
             // Digits         HR       sep      MIN     sep      SEC     sep
-            //   Index:       2        3        4       5        6       7    
+            //   Index:       2        3        4       5        6       7
             var digitsExpr = "(\\d?\\d)(\\D)?(?:(\\d\\d)(\\D)?(?:(\\d\\d)(\\D)?)?)?";
             // any letters or '.': non-digit alphanumeric, period (a.m.), or space (P M)
-            var anyAmPmExpr = "(?:[^\\d\\W]|[. ])+"; 
+            var anyAmPmExpr = "(?:[^\\d\\W]|[. ])+";
             // digitsExpr has 6 captures, so index of first ampmExpr is 1, of last is 8.
             var probeTimeRegExp =
               new RegExp("^("+anyAmPmExpr+")?\\s?"+digitsExpr+"("+anyAmPmExpr+")?\\s*$");
@@ -1868,7 +1868,7 @@
                     // check if need to append previous character,
                     // captured by the optional separator pattern after seconds digits,
                     // or after minutes if no seconds, or after hours if no minutes.
-                    for (var k = SEC_INDEX; k >= HR_INDEX; k -= 2) { 
+                    for (var k = SEC_INDEX; k >= HR_INDEX; k -= 2) {
                       var nextSepI = k + 1;
                       var nextDigitsI = k + 2;
                       if ((k == SEC_INDEX ||
@@ -1901,7 +1901,7 @@
                   amFormatExpr = makeFormatRegExp(amProbeArray[this.ampmIndex]);
                   pmFormatExpr = makeFormatRegExp(pmProbeArray[this.ampmIndex]);
                 }
-              } 
+              }
             }
             // International formats ([roman, cyrillic]|arabic|chinese/kanji characters)
             // covering languages of U.N. (en,fr,sp,ru,ar,zh) and G8 (en,fr,de,it,ru,ja).
@@ -1971,6 +1971,6 @@
       </method>
     </implementation>
   </binding>
-  
+
 </bindings>
 

@@ -5,8 +5,8 @@
 -->
 
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
-<?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-alarms.css"?>
-<?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-attendees.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/calendar-alarms.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/calendar-attendees.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/common/dialogs/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/datetimepickers/datetimepickers.css"?>
@@ -21,7 +21,7 @@
   %calendarDTD;
   %dialogDTD;
   %brandDTD;
-]>     
+]>
 
 <!-- Dialog id is changed during excution to allow different Window-icons
      on this dialog. document.loadOverlay() will not work on this one. -->

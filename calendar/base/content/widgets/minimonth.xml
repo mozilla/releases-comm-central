@@ -28,7 +28,7 @@
          Use onmonthchange to reshow parent popop (hidePopup, openPopup).
 */
 -->
-<!DOCTYPE bindings 
+<!DOCTYPE bindings
 [
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
     <!ENTITY % dtd2 SYSTEM "chrome://global/locale/global.dtd" > %dtd2;
@@ -314,7 +314,7 @@
 
   <binding id="minimonth" extends="xul:box">
     <resources>
-      <stylesheet src="chrome://calendar/skin/widgets/minimonth.css"/>
+      <stylesheet src="chrome://calendar-common/skin/widgets/minimonth.css"/>
     </resources>
     <content orient="vertical" xbl:inherits="onchange,onmonthchange,onpopuplisthidden,readonly">
         <xul:minimonth-header anonid="minimonth-header" xbl:inherits="readonly,month,year"/>

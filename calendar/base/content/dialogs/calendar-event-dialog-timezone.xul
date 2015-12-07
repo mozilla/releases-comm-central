@@ -6,7 +6,7 @@
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/datetimepickers/datetimepickers.css"?>
-<?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-timezone-highlighter.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/calendar-timezone-highlighter.css"?>
 
 <!DOCTYPE dialog [
   <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;

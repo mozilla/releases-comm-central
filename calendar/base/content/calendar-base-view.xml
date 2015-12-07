@@ -12,7 +12,7 @@
 
   <binding id="calendar-base-view">
     <resources>
-      <stylesheet src="chrome://calendar/skin/calendar-alarms.css"/>
+      <stylesheet src="chrome://calendar-common/skin/calendar-alarms.css"/>
     </resources>
     <implementation>
       <field name="mWeekStartOffset">0</field>
@@ -706,7 +706,7 @@
       <property name="selectedDay"
                 onget="return this.startDate"
                 onset="return this.startDate"/>
-       
+
       <method name="getSelectedItems">
         <parameter name="aCount"/>
         <body><![CDATA[

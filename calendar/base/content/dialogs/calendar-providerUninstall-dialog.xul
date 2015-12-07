@@ -4,7 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
-<?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-providerUninstall-dialog.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/calendar-providerUninstall-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/widgets/calendar-widget-bindings.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-management.css"?>
 

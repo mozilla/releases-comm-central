@@ -33,7 +33,7 @@ lightning.jar:
 % overlay chrome://lightning/content/lightning-standalone.xul chrome://lightning/content/messenger-overlay-sidebar.xul
 % overlay chrome://calendar/content/calendarCreation.xul chrome://lightning/content/lightning-calendar-creation.xul
 % overlay chrome://calendar/content/calendar-properties-dialog.xul chrome://lightning/content/lightning-calendar-properties.xul
-% override chrome://lightning/skin/accountCentral.css chrome://lightning/skin/suite-accountCentral.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
+% override chrome://lightning/skin/accountCentral.css chrome://lightning-common/skin/suite-accountCentral.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % content lightning %content/lightning/
     content/lightning/imip-bar.js                          (content/imip-bar.js)
     content/lightning/imip-bar-overlay.xul                 (content/imip-bar-overlay.xul)
@@ -68,6 +68,7 @@ lightning.jar:
 % style chrome://global/content/customizeToolbar.xul chrome://lightning-common/skin/lightning.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % style chrome://global/content/customizeToolbar.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
     ../skin/lightning-common/mode-switch-icons.png            (themes/common/images/mode-switch-icons.png)
+    ../skin/lightning-common/suite-accountCentral.css         (themes/common/suite-accountCentral.css)
 
 # Linux theme files
     ../skin/linux/lightning/accountCentral.css                (themes/linux/accountCentral.css)
@@ -76,7 +77,6 @@ lightning.jar:
     ../skin/linux/lightning/lightning.css                     (themes/linux/lightning.css)
     ../skin/linux/lightning/lightning-toolbar.css             (themes/linux/lightning-toolbar.css)
     ../skin/linux/lightning/lightning-widgets.css             (themes/linux/lightning-widgets.css)
-    ../skin/linux/lightning/suite-accountCentral.css          (themes/common/suite-accountCentral.css)
 
 # OS X theme files
     ../skin/osx/lightning/accountCentral.css                  (themes/osx/accountCentral.css)
@@ -85,7 +85,6 @@ lightning.jar:
     ../skin/osx/lightning/lightning.css                       (themes/osx/lightning.css)
     ../skin/osx/lightning/lightning-toolbar.css               (themes/osx/lightning-toolbar.css)
     ../skin/osx/lightning/lightning-widgets.css               (themes/osx/lightning-widgets.css)
-    ../skin/osx/lightning/suite-accountCentral.css            (themes/common/suite-accountCentral.css)
 
 # Windows theme files
     ../skin/windows/lightning/accountCentral.css              (themes/windows/accountCentral.css)
@@ -97,7 +96,6 @@ lightning.jar:
     ../skin/windows/lightning/imip-aero.png                   (themes/windows/images/imip-aero.png)
     ../skin/windows/lightning/mode-switch-icons-aero.png      (themes/windows/images/mode-switch-icons-aero.png)
     ../skin/windows/lightning/mode-switch-icons-inverted.png  (themes/windows/images/mode-switch-icons-inverted.png)
-    ../skin/windows/lightning/suite-accountCentral.css        (themes/common/suite-accountCentral.css)
 
 
 calendar.jar:
@@ -110,9 +108,8 @@ calendar.jar:
     content/calendar/publishDialog.js                      (/calendar/resources/content/publishDialog.js)
     content/calendar/publishDialog.xul                     (/calendar/resources/content/publishDialog.xul)
     content/calendar/sound.wav                             (/calendar/resources/content/sound.wav)
+    ../skin/lightning-common/datetimepickers.css           (/calendar/resources/skin/datetimepickers.css)
+    ../skin/lightning-common/dialogOverlay.css             (/calendar/resources/skin/dialogOverlay.css)
     ../skin/lightning-common/imip.css                      (themes/common/imip.css)
     ../skin/lightning-common/lightning.css                 (themes/common/lightning.css)
     ../skin/lightning-common/lightning-toolbar.css         (themes/common/lightning-toolbar.css)
-    ../skin/linux/calendar/datetimepickers/datetimepickers.css    (/calendar/resources/skin/classic/datetimepickers/datetimepickers.css)
-    ../skin/osx/calendar/datetimepickers/datetimepickers.css      (/calendar/resources/skin/classic/datetimepickers/datetimepickers.css)
-    ../skin/windows/calendar/datetimepickers/datetimepickers.css  (/calendar/resources/skin/classic/datetimepickers/datetimepickers.css)
