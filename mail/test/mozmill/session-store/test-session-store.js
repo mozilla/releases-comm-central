@@ -296,6 +296,8 @@ function test_message_pane_width_persistence() {
     "To really perform a test the new message pane width should be " +
     "should be different from the old one but they are the same: " + newWidth);
 
+  // We move the threadpane-splitter and not the folderpane_splitter because
+  // we are in vertical layout.
   _move_splitter(mc.e("threadpane-splitter"), diffWidth, 0);
   // Check that the moving of the folderpane_splitter resulted in the correct width.
   let actualWidth = mc.e("messagepaneboxwrapper").boxObject.width;
@@ -482,14 +484,16 @@ function test_clean_shutdown_session_persistence_simple() {
  */
 
 function _move_splitter(aSplitter, aDiffX, aDiffY) {
-
   // catch the splitter in the middle
-  EventUtils.synthesizeMouse(aSplitter, 1, 0, {type:"mousedown"}, mc.window);
-  EventUtils.synthesizeMouse(aSplitter, aDiffX, aDiffY, {type:"mousemove"},
+  let rect = aSplitter.getBoundingClientRect();
+  let middleX = Math.round(rect.width/2);
+  let middleY = Math.round(rect.height/2);
+  EventUtils.synthesizeMouse(aSplitter, middleX, middleY, {type:"mousedown"},
                              mc.window);
-  // release the splitter in the middle
+  EventUtils.synthesizeMouse(aSplitter, aDiffX + middleX, aDiffY + middleY,
+                             {type:"mousemove"}, mc.window);
+  // release the splitter
   EventUtils.synthesizeMouse(aSplitter, 0, 0, {type:"mouseup"}, mc.window);
-
 }
 
 /**
