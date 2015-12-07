@@ -1628,12 +1628,15 @@ function SendMailToNode(addressNode, aEvent)
  *
  * @param addressNode  a node which has an "emailAddress" or "newsgroup"
  *                     attribute
+ * @param aIncludeName when true, also copy the name onto the clipboard,
+ *                     otherwise only the email address
  */
-function CopyEmailNewsAddress(addressNode)
+function CopyEmailNewsAddress(addressNode, aIncludeName = false)
 {
   let clipboard = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
                             .getService(Components.interfaces.nsIClipboardHelper);
-  let address = addressNode.getAttribute("emailAddress") ||
+  let address = addressNode.getAttribute(aIncludeName ? "fullAddress"
+                                                      : "emailAddress") ||
                 addressNode.getAttribute("newsgroup");
   clipboard.copyString(address);
 }

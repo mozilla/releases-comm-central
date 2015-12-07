@@ -2161,6 +2161,9 @@
     <menuitem id="copyEmailAddressItem" label="&CopyEmailAddress.label;"
               accesskey="&CopyEmailAddress.accesskey;"
               oncommand="CopyEmailNewsAddress(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"/>
+    <menuitem id="copyNameAndEmailAddressItem" label="&CopyNameAndEmailAddress.label;"
+              accesskey="&CopyNameAndEmailAddress.accesskey;"
+              oncommand="CopyEmailNewsAddress(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'), true)"/>
     <menuseparator/>
     <menuitem id="createFilterFromItem" label="&CreateFilterFrom.label;"
               accesskey="&CreateFilterFrom.accesskey;"
