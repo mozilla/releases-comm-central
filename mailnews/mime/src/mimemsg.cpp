@@ -171,19 +171,21 @@ MimeMessage_parse_line (const char *aLine, int32_t aLength, MimeObject *obj)
     nl = (length > 0 && (line[length-1] == '\r' || line[length-1] == '\n'));
 
 #ifdef MIME_DRAFTS
-    if ( !mime_typep (kid, (MimeObjectClass*) &mimeMessageClass) &&
-       obj->options &&
-       obj->options->decompose_file_p &&
-       ! obj->options->is_multipart_msg &&
-       obj->options->decompose_file_output_fn )
+    if (!mime_typep (kid, (MimeObjectClass*) &mimeMessageClass) &&
+        obj->options &&
+        obj->options->decompose_file_p &&
+        !obj->options->is_multipart_msg &&
+        obj->options->decompose_file_output_fn &&
+        !obj->options->decrypt_p)
     {
-      if (!obj->options->decrypt_p) {
-        //if we are processing a flowed plain text line, we need to remove any stuffed space
-        if (length > 0 && ' ' == *line && mime_typep(kid, (MimeObjectClass *)&mimeInlineTextPlainFlowedClass))
-        {
-          line ++;
-          length --;
-        }
+      // If we are processing a flowed plain text line, we need to parse the
+      // line in mimeInlineTextPlainFlowedClass.
+      if (mime_typep(kid, (MimeObjectClass *)&mimeInlineTextPlainFlowedClass))
+      {
+        return kid->clazz->parse_line (line, length, kid);
+      }
+      else
+      {
         status = obj->options->decompose_file_output_fn (line,
                                  length,
                            obj->options->stream_closure);
