@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 modern.jar:
+% override chrome://mozapps/skin/places/defaultFavicon.png chrome://communicator/skin/bookmarks/bookmark-item.png
 % skin communicator modern/1.0 %skin/modern/communicator/
 % skin editor modern/1.0 %skin/modern/editor/
 % skin global modern/1.0 %skin/modern/global/
