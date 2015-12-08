@@ -209,6 +209,10 @@
             accesskey="&newIM.accesskey;"
             command="cmd_chatWithCard"/>
   <menuseparator/>
+  <menuitem id="abResultsTreeContext-print"
+            label="&printButton.label;"
+            accesskey="&printButton.accesskey;"
+            command="cmd_printcard"/>
   <menuitem id="abResultsTreeContext-delete"
             label="&deleteButton2.label;"
             accesskey="&deleteButton2.accesskey;"

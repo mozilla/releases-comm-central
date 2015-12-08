@@ -139,6 +139,8 @@ because displayed names don't have the comma in between. -->
 <!ENTITY newmsgButton.accesskey                         "W">
 <!ENTITY newIM.label                                    "Instant Message">
 <!ENTITY newIM.accesskey                                "I">
+<!ENTITY printButton.label                              "Print…">
+<!ENTITY printButton.accesskey                          "r">
 <!ENTITY deleteButton2.label                            "Delete">
 <!ENTITY deleteButton2.accesskey                        "D">
 

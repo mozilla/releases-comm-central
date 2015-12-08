@@ -218,6 +218,7 @@
 }
 
 #printMenuItem,
-#printAddressBook {
+#printAddressBook,
+#abResultsTreeContext-print {
   list-style-image: url("moz-icon://stock/gtk-print?size=menu");
 }
