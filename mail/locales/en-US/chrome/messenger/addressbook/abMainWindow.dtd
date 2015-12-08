@@ -7,7 +7,7 @@
 <!ENTITY localResultsOnlyMessage.label                  "Contacts from remote address books are not shown until you search">
 <!-- File Menu -->
 <!ENTITY fileMenu.label                                 "File">
-<!ENTITY fileMenu.accesskey                             "f">
+<!ENTITY fileMenu.accesskey                             "F">
 <!ENTITY newMenu.label                                  "New">
 <!ENTITY newMenu.accesskey                              "N">
 <!ENTITY newContact.label                               "Address Book Contact…">
@@ -21,13 +21,13 @@
 <!ENTITY newLDAPDirectoryCmd.accesskey                  "D">
 <!ENTITY newMessageCmd.label                            "Message">
 <!ENTITY newMessageCmd.key                              "M">
-<!ENTITY newMessageCmd.accesskey                        "m">
+<!ENTITY newMessageCmd.accesskey                        "M">
 <!-- LOCALIZATION NOTE (osxAddressBook) : These entities are only used on Mac -->
 <!ENTITY osxAddressBook.label                           "Use Mac OS X Address Book">
 <!ENTITY osxAddressBook.accesskey                       "O">
 <!ENTITY closeCmd.label                                 "Close">
 <!ENTITY closeCmd.key                                   "W">
-<!ENTITY closeCmd.accesskey                             "c">
+<!ENTITY closeCmd.accesskey                             "C">
 <!ENTITY printSetupCmd.label                            "Page Setup…">
 <!ENTITY printSetupCmd.accesskey                        "u">
 <!ENTITY printPreviewContactCmd.label                   "Print Preview Contact">
@@ -42,24 +42,24 @@
 
 <!-- Edit Menu -->
 <!ENTITY editMenu.label                                 "Edit">
-<!ENTITY editMenu.accesskey                             "e">
+<!ENTITY editMenu.accesskey                             "E">
 <!ENTITY undoCmd.label                                  "Undo">
 <!ENTITY undoCmd.key                                    "Z">
-<!ENTITY undoCmd.accesskey                              "u">
+<!ENTITY undoCmd.accesskey                              "U">
 <!ENTITY redoCmd.label                                  "Redo">
 <!ENTITY redoCmd.key                                    "Y">
-<!ENTITY redoCmd.accesskey                              "r">
+<!ENTITY redoCmd.accesskey                              "R">
 <!ENTITY cutCmd.label                                   "Cut">
 <!ENTITY cutCmd.key                                     "X">
 <!ENTITY cutCmd.accesskey                               "t">
 <!ENTITY copyCmd.label                                  "Copy">
 <!ENTITY copyCmd.key                                    "C">
-<!ENTITY copyCmd.accesskey                              "c">
+<!ENTITY copyCmd.accesskey                              "C">
 <!ENTITY pasteCmd.label                                 "Paste">
 <!ENTITY pasteCmd.key                                   "V">
-<!ENTITY pasteCmd.accesskey                             "p">
+<!ENTITY pasteCmd.accesskey                             "P">
 <!ENTITY deleteCmd.label                                "Delete">
-<!ENTITY deleteCmd.accesskey                            "d">
+<!ENTITY deleteCmd.accesskey                            "D">
 <!ENTITY deleteAbCmd.label                              "Delete Address Book">
 <!ENTITY deleteContactCmd.label                         "Delete Contact">
 <!ENTITY deleteContactsCmd.label                        "Delete Contacts">
@@ -69,7 +69,7 @@
 <!ENTITY selectAllCmd.label                             "Select All">
 <!ENTITY selectAllCmd.key                               "A">
 <!ENTITY searchAddressesCmd.key                         "f">
-<!ENTITY selectAllCmd.accesskey                         "a">
+<!ENTITY selectAllCmd.accesskey                         "A">
 <!ENTITY swapFirstNameLastNameCmd.label                 "Swap First/Last Name">
 <!ENTITY swapFirstNameLastNameCmd.accesskey             "w">
 <!-- LOCALIZATION NOTE (hideSwapFnLnUI) : DONT_TRANSLATE -->
@@ -81,9 +81,9 @@
 
 <!-- View Menu -->
 <!ENTITY viewMenu.label                                 "View">
-<!ENTITY viewMenu.accesskey                             "v">
+<!ENTITY viewMenu.accesskey                             "V">
 <!ENTITY viewToolbarsMenu.label                         "Toolbars">
-<!ENTITY viewToolbarsMenu.accesskey                     "T"> 
+<!ENTITY viewToolbarsMenu.accesskey                     "T">
 <!ENTITY menubarCmd.label                               "Menu Bar">
 <!ENTITY menubarCmd.accesskey                           "M">
 <!ENTITY showAbToolbarCmd.label                         "Address Book Toolbar">
@@ -99,15 +99,15 @@
 <!ENTITY showContactPane2.label                         "Contact Pane">
 <!ENTITY showContactPane2.accesskey                     "C">
 <!ENTITY menu_ShowNameAs.label                          "Show Name As">
-<!ENTITY menu_ShowNameAs.accesskey                      "n"> 
+<!ENTITY menu_ShowNameAs.accesskey                      "N">
 <!-- LOCALIZATION NOTE (firstLastCmd2.label): We're not including a comma here
 because displayed names don't have the comma in between. -->
 <!ENTITY firstLastCmd2.label                            "First Last">
-<!ENTITY firstLastCmd2.accesskey                        "f"> 
+<!ENTITY firstLastCmd2.accesskey                        "F">
 <!ENTITY lastFirstCmd.label                             "Last, First">
-<!ENTITY lastFirstCmd.accesskey                         "l">
+<!ENTITY lastFirstCmd.accesskey                         "L">
 <!ENTITY displayNameCmd.label                           "Display Name">
-<!ENTITY displayNameCmd.accesskey                       "d">
+<!ENTITY displayNameCmd.accesskey                       "D">
 <!ENTITY sortMenu.label                                 "Sort by">
 <!ENTITY sortMenu.accesskey                             "S">
 
@@ -115,7 +115,7 @@ because displayed names don't have the comma in between. -->
 <!ENTITY tasksMenu.label                                "Tools">
 <!ENTITY tasksMenu.accesskey                            "T">
 <!ENTITY messengerCmd.label                             "Mail &amp; Newsgroups">
-<!ENTITY messengerCmd.accesskey                         "m">
+<!ENTITY messengerCmd.accesskey                         "M">
 <!ENTITY messengerCmd.commandkey                        "1">
 <!ENTITY searchAddressesCmd.label                       "Search Addresses…">
 <!ENTITY searchAddressesCmd.accesskey                   "S">
@@ -128,7 +128,7 @@ because displayed names don't have the comma in between. -->
 <!ENTITY preferencesCmdUnix.label                       "Preferences">
 <!ENTITY preferencesCmdUnix.accesskey                   "n">
 
-<!-- Address Book Toolbar and Context Menus -->  
+<!-- Address Book Toolbar and Context Menus -->
 <!ENTITY newContactButton.label                         "New Contact">
 <!ENTITY newContactButton.accesskey                     "C">
 <!ENTITY newlistButton.label                            "New List">
@@ -148,7 +148,7 @@ because displayed names don't have the comma in between. -->
 <!ENTITY editButton2.tooltip                            "Edit the selected item">
 <!ENTITY newmsgButton.tooltip                           "Send a mail message">
 <!ENTITY newIM.tooltip                                  "Send an instant message or chat">
-<!ENTITY deleteButton2.tooltip                           "Delete selected item">
+<!ENTITY deleteButton2.tooltip                          "Delete selected item">
 
 <!-- Dir Tree header -->
 <!ENTITY dirTreeHeader.label                            "Address Books">
@@ -212,11 +212,11 @@ because displayed names don't have the comma in between. -->
 <!ENTITY mapIt.tooltip                                  "Display a map of this address from the Web">
 
 <!-- Status Bar -->
-<!ENTITY statusText.label "">
+<!ENTITY statusText.label                               "">
 
 <!--  Mac OS X Window Menu -->
-<!ENTITY windowMenu.label "Window">
-<!ENTITY minimizeWindow.label "Minimize">
-<!ENTITY minimizeWindow.key "m">
-<!ENTITY bringAllToFront.label "Bring All to Front">
-<!ENTITY zoomWindow.label "Zoom">
+<!ENTITY windowMenu.label                               "Window">
+<!ENTITY minimizeWindow.label                           "Minimize">
+<!ENTITY minimizeWindow.key                             "m">
+<!ENTITY bringAllToFront.label                          "Bring All to Front">
+<!ENTITY zoomWindow.label                               "Zoom">
