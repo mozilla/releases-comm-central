@@ -210,7 +210,7 @@ function test_remove_file() {
   mc.waitFor(() => downloadsView.count == 2,
              "Timeout waiting for removing a saved attachment file.");
 
-  child = list.firstChild;
+  let child = list.firstChild;
   while (child) {
     assert_not_equals(removingFileName, child.getAttribute("displayName"));
     child = child.nextSibling;
@@ -244,9 +244,9 @@ function test_remove_multiple_files() {
   mc.waitFor(() => downloadsView.count == 1,
              "Timeout waiting for removing two saved attachment files.");
 
-  child = list.firstChild;
+  let child = list.firstChild;
   while (child) {
-    for (let [, name] in Iterator(removingFileNames)) {
+    for (let name of removingFileNames) {
       assert_not_equals(name, child.getAttribute("displayName"));
     }
     child = child.nextSibling;
