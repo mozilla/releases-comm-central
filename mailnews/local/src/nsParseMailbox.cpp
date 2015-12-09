@@ -117,7 +117,7 @@ NS_IMETHODIMP nsMsgMailboxParser::OnStartRequest(nsIRequest *request, nsISupport
           int64_t fileSize;
           path->GetFileSize(&fileSize);
             // the size of the mailbox file is our total base line for measuring progress
-            m_graph_progress_total = (uint32_t) fileSize;
+            m_graph_progress_total = fileSize;
             UpdateStatusText("buildingSummary");
             nsCOMPtr<nsIMsgDBService> msgDBService = do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
             if (msgDBService)
@@ -304,8 +304,8 @@ void nsMsgMailboxParser::UpdateProgressPercent ()
   if (m_statusFeedback && m_graph_progress_total != 0)
   {
     // prevent overflow by dividing both by 100
-    uint32_t progressTotal = m_graph_progress_total / 100;
-    uint32_t progressReceived = m_graph_progress_received / 100;
+    int64_t progressTotal = m_graph_progress_total / 100;
+    int64_t progressReceived = m_graph_progress_received / 100;
     if (progressTotal > 0)
       m_statusFeedback->ShowProgress((100 *(progressReceived))  / progressTotal);
   }
@@ -564,7 +564,7 @@ nsParseMailMessageState::~nsParseMailMessageState()
   delete [] m_customDBHeaderValues;
 }
 
-void nsParseMailMessageState::Init(uint32_t fileposition)
+void nsParseMailMessageState::Init(uint64_t fileposition)
 {
   m_state = nsIMsgParseMailMsgState::ParseBodyState;
   m_position = fileposition;
@@ -628,15 +628,15 @@ NS_IMETHODIMP nsParseMailMessageState::GetState(nsMailboxParseState *aState)
 }
 
 NS_IMETHODIMP
-nsParseMailMessageState::GetEnvelopePos(uint32_t *aEnvelopePos)
+nsParseMailMessageState::GetEnvelopePos(uint64_t *aEnvelopePos)
 {
-    if (!aEnvelopePos)
-        return NS_ERROR_NULL_POINTER;
-    *aEnvelopePos = m_envelope_pos;
-    return NS_OK;
+  NS_ENSURE_ARG_POINTER(aEnvelopePos);
+
+  *aEnvelopePos = m_envelope_pos;
+  return NS_OK;
 }
 
-NS_IMETHODIMP nsParseMailMessageState::SetEnvelopePos(uint32_t aEnvelopePos)
+NS_IMETHODIMP nsParseMailMessageState::SetEnvelopePos(uint64_t aEnvelopePos)
 {
   m_envelope_pos = aEnvelopePos;
   m_position = m_envelope_pos;
@@ -1934,7 +1934,7 @@ nsresult nsParseNewMailState::GetTrashFolder(nsIMsgFolder **pTrashFolder)
   return rv;
 }
 
-void nsParseNewMailState::ApplyFilters(bool *pMoved, nsIMsgWindow *msgWindow, uint32_t msgOffset)
+void nsParseNewMailState::ApplyFilters(bool *pMoved, nsIMsgWindow *msgWindow, uint64_t msgOffset)
 {
   m_msgMovedByFilter = m_msgCopiedByFilter = false;
   m_curHdrOffset = msgOffset;

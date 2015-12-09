@@ -8384,8 +8384,7 @@ nsImapMailFolder::CopyFileToOfflineStore(nsIFile *srcFile, nsMsgKey msgKey)
     //   not the temp file.
     fakeHdr->GetMessageOffset(&offset);
   }
-  // This will fail for > 4GB mbox folders, see bug 793865
-  msgParser->SetEnvelopePos((uint32_t) offset);
+  msgParser->SetEnvelopePos(offset);
 
   rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), srcFile);
   if (NS_SUCCEEDED(rv) && inputStream)

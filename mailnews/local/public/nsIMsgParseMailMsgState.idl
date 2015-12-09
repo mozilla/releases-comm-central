@@ -11,10 +11,9 @@ interface nsIMsgDBHdr;
 
 typedef long nsMailboxParseState;
 
-[scriptable, uuid(FF6EC749-9ABF-4cfa-A96C-AD6C8E91774B)]
+[scriptable, uuid(0d44646c-0759-43a2-954d-dc2a9a9660ec)]
 interface nsIMsgParseMailMsgState : nsISupports {
-
-    attribute unsigned long envelopePos;
+    attribute unsigned long long envelopePos;
     void SetMailDB(in nsIMsgDatabase aDatabase);
     /*
      * Set a backup mail database, whose data will be read during parsing to
@@ -32,7 +31,7 @@ interface nsIMsgParseMailMsgState : nsISupports {
 
     long GetAllHeaders(out string headers);
     readonly attribute string headers;
-  attribute nsMailboxParseState state;
+    attribute nsMailboxParseState state;
     /* these are nsMailboxParseState */
     const long ParseEnvelopeState=0;
     const long ParseHeadersState=1;
