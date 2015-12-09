@@ -26,6 +26,8 @@
 <!ENTITY bgColor.accesskey                    "B">
 <!ENTITY restoreHTMLDefaults.label            "Restore Defaults">
 <!ENTITY restoreHTMLDefaults.accesskey        "R">
+<!ENTITY enterKeyCreatesNewParagraph.label    "When using paragraph format, the enter key creates a new paragraph">
+<!ENTITY enterKeyCreatesNewParagraph.accesskey "p">
 
 <!ENTITY spellCheck.label                     "Check spelling before sending">
 <!ENTITY spellCheck.accesskey                 "C">

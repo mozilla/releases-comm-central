@@ -4850,6 +4850,10 @@ function InitEditor()
   editor.flags |= eEditorMailMask;
   GetMsgSubjectElement().editor.flags |= eEditorMailMask;
 
+  // Control insertion of line breaks.
+  editor.returnInParagraphCreatesNewParagraph =
+    Services.prefs.getBoolPref("editor.CR_creates_new_p");
+
   editor.QueryInterface(nsIEditorStyleSheets);
   // We use addOverrideStyleSheet rather than addStyleSheet so that we get
   // a synchronous load, rather than having a late-finishing async load

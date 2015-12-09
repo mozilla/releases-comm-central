@@ -35,11 +35,114 @@ var gCloudAttachmentLinkManager = {
   NotifyComposeFieldsReady: function() {},
 
   NotifyComposeBodyReady: function() {
-    // If we're doing an inline-forward, let's take all of the current
-    // message text, and wrap it up into its own DIV.
-    if (gComposeType != Components.interfaces.nsIMsgCompType.ForwardInline)
+
+    // Look all the possible compose typed (nsIMsgComposeParams.idl):
+    switch (gComposeType) {
+
+    case Components.interfaces.nsIMsgCompType.New:
+      this.NotifyComposeBodyReadyNew();
       return;
 
+    case Components.interfaces.nsIMsgCompType.Reply:
+    case Components.interfaces.nsIMsgCompType.ReplyAll:
+    case Components.interfaces.nsIMsgCompType.ReplyToSender:
+    case Components.interfaces.nsIMsgCompType.ReplyToGroup:
+    case Components.interfaces.nsIMsgCompType.ReplyToSenderAndGroup:
+    case Components.interfaces.nsIMsgCompType.ReplyWithTemplate:
+    case Components.interfaces.nsIMsgCompType.ReplyToList:
+      this.NotifyComposeBodyReadyReply();
+      return;
+
+    case Components.interfaces.nsIMsgCompType.ForwardInline:
+      this.NotifyComposeBodyReadyForwardInline();
+      return;
+
+    case Components.interfaces.nsIMsgCompType.ForwardAsAttachment:
+    case Components.interfaces.nsIMsgCompType.Draft:
+    case Components.interfaces.nsIMsgCompType.Template:
+    case Components.interfaces.nsIMsgCompType.MailToUrl:
+    case Components.interfaces.nsIMsgCompType.Redirect:
+      return;
+    default:
+      dump("Unexpected nsIMsgCompType in NotifyComposeBodyReady (" +
+           gComposeType + ")\n");
+      return;
+    }
+  },
+
+  NotifyComposeBodyReadyNew: function() {
+    // Control insertion of line breaks.
+    let useParagraph = Services.prefs.getBoolPref("editor.CR_creates_new_p");
+    if (gMsgCompose.composeHTML && useParagraph) {
+      let editor = GetCurrentEditor();
+      editor.enableUndo(false);
+
+      let pElement = editor.createElementWithDefaults("p");
+      let brElement = editor.createElementWithDefaults("br");
+      pElement.appendChild(brElement);
+      editor.insertElementAtSelection(pElement,true);
+
+      document.getElementById("cmd_paragraphState").setAttribute("state", "p");
+
+      editor.beginningOfDocument();
+      editor.enableUndo(true);
+      editor.resetModificationCount();
+    } else {
+      document.getElementById("cmd_paragraphState").setAttribute("state", "");
+    }
+  },
+
+  NotifyComposeBodyReadyReply: function() {
+    // Control insertion of line breaks.
+    let useParagraph = Services.prefs.getBoolPref("editor.CR_creates_new_p");
+    if (gMsgCompose.composeHTML && useParagraph) {
+
+      let mailDoc = document.getElementById("content-frame").contentDocument;
+      let mailBody = mailDoc.querySelector("body");
+      let editor = GetCurrentEditor();
+      let selection = editor.selection;
+      let range = selection.getRangeAt(0);
+      let start = range.startOffset;
+
+      if (start != range.endOffset) {
+        // The selection is not collapsed, most likely due to the
+        // "select the quote" option. In this case we do nothing.
+        return;
+      }
+
+      if (range.startContainer != mailBody) {
+        dump("Unexpected selection in NotifyComposeBodyReadyReply\n");
+        return;
+      }
+
+      // Delete a <br> if we see one.
+      let currentNode = mailBody.childNodes[start];
+      if (currentNode.nodeName == "BR") {
+        mailBody.removeChild(currentNode);
+      }
+
+      let pElement = editor.createElementWithDefaults("p");
+      let brElement = editor.createElementWithDefaults("br");
+      pElement.appendChild(brElement);
+      editor.insertElementAtSelection(pElement,true);
+
+      // Position into the paragraph.
+      selection.collapse(pElement, 0);
+
+      document.getElementById("cmd_paragraphState").setAttribute("state", "p");
+
+      editor.enableUndo(true);
+      editor.resetModificationCount();
+    } else {
+      document.getElementById("cmd_paragraphState").setAttribute("state", "");
+    }
+  },
+
+  NotifyComposeBodyReadyForwardInline: function() {
+    // If we're doing an inline-forward, let's take all of the current
+    // message text, and wrap it up into its own DIV.
+    // This is kind of mad, since an added signature will also be wrapped
+    // into the DIV.
     let mailDoc = document.getElementById("content-frame").contentDocument;
     let mailBody = mailDoc.querySelector("body");
     let editor = GetCurrentEditor();
@@ -53,15 +156,29 @@ var gCloudAttachmentLinkManager = {
     while (mailBody.hasChildNodes()) {
       container.appendChild(mailBody.removeChild(mailBody.firstChild));
     }
-    editor.insertLineBreak();
+
+    // Control insertion of line breaks.
+    selection.collapse(mailBody, 0);
+    let useParagraph = Services.prefs.getBoolPref("editor.CR_creates_new_p");
+    if (gMsgCompose.composeHTML && useParagraph) {
+      let pElement = editor.createElementWithDefaults("p");
+      let brElement = editor.createElementWithDefaults("br");
+      pElement.appendChild(brElement);
+      editor.insertElementAtSelection(pElement,true);
+      document.getElementById("cmd_paragraphState").setAttribute("state", "p");
+    } else {
+      editor.insertLineBreak();
+      document.getElementById("cmd_paragraphState").setAttribute("state", "");
+    }
+
     selection.collapse(mailBody, 1);
     editor.insertElementAtSelection(container, false);
-    editor.insertLineBreak();
     editor.beginningOfDocument();
 
     editor.enableUndo(true);
     editor.resetModificationCount();
   },
+
   ComposeProcessDone: function() {},
   SaveInFolderDone: function() {},
 

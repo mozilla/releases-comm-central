@@ -51,6 +51,9 @@
       <preference id="mail.compose.attachment_reminder"
                   name="mail.compose.attachment_reminder"
                   type="bool"/>
+      <preference id="editor.CR_creates_new_p"
+                  name="editor.CR_creates_new_p"
+                  type="bool"/>
     </preferences>
 
     <commandset id="compositionGeneralCommandSet">
@@ -153,6 +156,15 @@
               <spacer flex="1"/>
               <button label="&restoreHTMLDefaults.label;" accesskey="&restoreHTMLDefaults.accesskey;"
                       oncommand="gComposePane.restoreHTMLDefaults();"/>
+            </hbox>
+
+            <separator class="thin"/>
+
+            <hbox align="center">
+              <checkbox id="enterKeyCreatesNewParagraph"
+                        label="&enterKeyCreatesNewParagraph.label;"
+                        accesskey="&enterKeyCreatesNewParagraph.accesskey;"
+                        preference="editor.CR_creates_new_p"/>
             </hbox>
           </groupbox>
 
