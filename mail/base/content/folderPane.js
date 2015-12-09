@@ -2215,31 +2215,46 @@ ftvItem.prototype = {
         if (!document.getElementById("folderUnreadCol").hidden)
           return text;
 
-        let unread = this._folder.getNumUnread(gFolderStatsHelpers.sumSubfolders);
-        if (unread > 0)
+        let unread = this._folder.getNumUnread(false);
+        let totalUnread = gFolderStatsHelpers.sumSubfolders ?
+                          this._folder.getNumUnread(true) : unread;
+        if (totalUnread > 0)
           text = gFolderTreeView.messengerBundle
             .getFormattedString("folderWithUnreadMsgs",
-                                [text, gFolderStatsHelpers.addSummarizedPrefix(unread)]);
+                                [text, gFolderStatsHelpers.addSummarizedPrefix(totalUnread,
+                                       unread != totalUnread)]);
         return text;
 
       case "folderUnreadCol":
+        let folderUnread = this._folder.getNumUnread(false);
+        let subfoldersUnread = gFolderStatsHelpers.sumSubfolders ?
+                               this._folder.getNumUnread(true) : folderUnread;
         return gFolderStatsHelpers
-                 .fixNum(this._folder.getNumUnread(gFolderStatsHelpers.sumSubfolders));
+                 .fixNum(subfoldersUnread, folderUnread != subfoldersUnread);
 
       case "folderTotalCol":
+        let folderTotal = this._folder.getTotalMessages(false);
+        let subfoldersTotal = gFolderStatsHelpers.sumSubfolders ?
+                              this._folder.getTotalMessages(true) : folderTotal;
         return gFolderStatsHelpers
-                 .fixNum(this._folder.getTotalMessages(gFolderStatsHelpers.sumSubfolders));
+                 .fixNum(subfoldersTotal, folderTotal != subfoldersTotal);
 
       case "folderSizeCol":
-        let size = gFolderStatsHelpers.getFolderSize(this._folder);
-        if (size == 0)
+        let thisFolderSize = gFolderStatsHelpers.getFolderSize(this._folder);
+        let totalSize = gFolderStatsHelpers.sumSubfolders ?
+                        gFolderStatsHelpers.getSubfoldersSize(this._folder) : 0;
+
+        if (totalSize == gFolderStatsHelpers.kUnknownSize ||
+            thisFolderSize == gFolderStatsHelpers.kUnknownSize)
+          return gFolderStatsHelpers.kUnknownSize;
+
+        totalSize += thisFolderSize;
+        if (totalSize == 0)
           return "";
-        if (size == gFolderStatsHelpers.kUnknownSize)
-          return size;
 
         // If size is non-zero try to show it in a unit that fits in 3 digits,
         // but if user specified a fixed unit, use that.
-        size = Math.round(size / 1024);
+        let size = Math.round(totalSize / 1024);
         let units = gFolderStatsHelpers.kiloUnit;
         if (gFolderStatsHelpers.sizeUnits != "KB" &&
             (size > 999 || gFolderStatsHelpers.sizeUnits == "MB")) {
@@ -2250,9 +2265,10 @@ ftvItem.prototype = {
         // This needs to be updated if the "%.*f" placeholder string
         // in "*ByteAbbreviation2" in messenger.properties changes.
         return gFolderStatsHelpers
-                 .addSummarizedPrefix(units.replace("%.*f", size).replace(" ",""));
+                 .addSummarizedPrefix(units.replace("%.*f", size).replace(" ",""),
+                                      totalSize != thisFolderSize);
 
-        default:
+      default:
         return "";
     }
   },
@@ -2784,9 +2800,16 @@ var gFolderStatsHelpers = {
      * folders when they are shown expanded (due to rounding to a unit).
      * E.g. folder1 600bytes -> 1KB, folder2 700bytes -> 1KB
      * summarized at parent folder: 1300bytes -> 1KB
+     *
+     * @param aValue                  The value to be displayed.
+     * @param aSubfoldersContributed  Boolean indicating whether subfolders
+     *                                contributed to the accumulated total value.
      */
-    addSummarizedPrefix: function(aValue) {
+    addSummarizedPrefix: function(aValue, aSubfoldersContributed) {
       if (!this.sumSubfolders)
+        return aValue;
+
+      if (!aSubfoldersContributed)
         return aValue;
 
       return gFolderTreeView.messengerBundle
@@ -2797,27 +2820,44 @@ var gFolderStatsHelpers = {
      * nsIMsgFolder uses -1 as a magic number to mean "I don't know". In those
      * cases we indicate it to the user. The user has to open the folder
      * so that the property is initialized from the DB.
+     *
+     * @param aNumber                 The number to translate for the user.
+     * @param aSubfoldersContributed  Boolean indicating whether subfolders
+     *                                contributed to the accumulated total value.
      */
-    fixNum: function(aNumber) {
+    fixNum: function(aNumber, aSubfoldersContributed) {
       if (aNumber < 0)
         return this.kUnknownSize;
 
-      return (aNumber == 0 ? "" : this.addSummarizedPrefix(aNumber));
+      return (aNumber == 0 ? "" : this.addSummarizedPrefix(aNumber,
+                                                           aSubfoldersContributed));
     },
 
     /**
-     * Recursively get the size of specified folder and all its subfolders.
+     * Get the size of the specified folder.
+     *
+     * @param aFolder  The nsIMsgFolder to analyze.
      */
     getFolderSize: function(aFolder) {
-      let size = 0;
+      let folderSize = 0;
       try {
-        size = aFolder.sizeOnDisk;
-        if (size < 0)
+        folderSize = aFolder.sizeOnDisk;
+        if (folderSize < 0)
           return this.kUnknownSize;
       } catch(ex) {
         return this.kUnknownSize;
       }
-      if (this.sumSubfolders && aFolder.hasSubFolders) {
+      return folderSize;
+    },
+
+    /**
+     * Get the total size of all subfolders of the specified folder.
+     *
+     * @param aFolder  The nsIMsgFolder to analyze.
+     */
+    getSubfoldersSize: function(aFolder) {
+      let folderSize = 0;
+      if (aFolder.hasSubFolders) {
         let subFolders = aFolder.subFolders;
         while (subFolders.hasMoreElements()) {
           let subFolder = subFolders.getNext()
@@ -2826,9 +2866,9 @@ var gFolderStatsHelpers = {
           if (subSize == this.kUnknownSize)
             return subSize;
 
-          size += subSize;
+          folderSize += subSize;
         }
       }
-      return size;
+      return folderSize;
     }
 };
