@@ -2809,11 +2809,19 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
   compose->GetComposeHTML(&composeHTML);
   if (!composeHTML)
   {
-    // Downsampling. The charset should only consist of ascii.
+    // Downsampling.
 
-    bool flowed, delsp, formatted, disallowBreaks;
-    GetSerialiserFlags(NS_LossyConvertUTF16toASCII(aCharset).get(), &flowed, &delsp, &formatted, &disallowBreaks);
-    ConvertToPlainText(flowed, delsp, formatted, disallowBreaks);
+    // In plain text quotes we always allow line breaking to not end up with
+    // long lines. The quote is inserted into a span with style
+    // "white-space: pre;" which isn't be wrapped.
+    // Note that the body of the plain text message is wrapped since it uses
+    // "white-space: pre-wrap; width: 72ch;".
+    // Look at it in the DOM Inspector to see it.
+    //
+    // Also, delsp makes no sense in this context. Equally flowing (that means adding
+    // adding a space at the end) makes no sense in a quote, since the quote
+    // will never be re-assembled to a long line. All we need is formatted output.
+    ConvertToPlainText(false, false, true, false);
   }
 
   compose->ProcessSignature(mIdentity, true, &mSignature);
