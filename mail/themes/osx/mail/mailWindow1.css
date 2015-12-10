@@ -116,10 +116,11 @@ treecolpicker {
   background-color: #e1e1e1;
 }
 
-/* ::::: message column icons ::::: */
-
-treecol[hideheader="true"] {
+treechildren::-moz-tree-cell-text(imapdeleted) {
+  text-decoration: line-through;
 }
+
+/* ::::: message column icons ::::: */
 
 /* ..... thread column ..... */
 
