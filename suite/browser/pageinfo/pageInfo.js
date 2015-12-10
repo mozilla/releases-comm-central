@@ -1367,7 +1367,7 @@ function doCopy(isLinkMode)
 
   Components.classes["@mozilla.org/widget/clipboardhelper;1"]
             .getService(Components.interfaces.nsIClipboardHelper)
-            .copyString(text.join("\n"), gDocument);
+            .copyString(text.join("\n"));
 }
 
 function doSelectAll()

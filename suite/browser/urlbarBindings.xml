@@ -295,7 +295,7 @@
 
                 Components.classes["@mozilla.org/widget/clipboardhelper;1"]
                           .getService(Components.interfaces.nsIClipboardHelper)
-                          .copyString(val, document);
+                          .copyString(val);
 
                 if (aCommand == "cmd_cut")
                   goDoCommand("cmd_delete");

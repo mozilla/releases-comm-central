@@ -350,7 +350,7 @@ function AbCopyAddress()
 
   Components.classes["@mozilla.org/widget/clipboardhelper;1"]
             .getService(Components.interfaces.nsIClipboardHelper)
-            .copyString(addresses, document);
+            .copyString(addresses);
 }
 
 /**

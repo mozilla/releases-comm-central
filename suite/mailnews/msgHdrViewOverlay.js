@@ -1840,7 +1840,7 @@ function CopyWebsiteAddress(websiteAddressNode)
     var contractid = "@mozilla.org/widget/clipboardhelper;1";
     var iid = Components.interfaces.nsIClipboardHelper;
     var clipboard = Components.classes[contractid].getService(iid);
-    clipboard.copyString(websiteAddress, document);
+    clipboard.copyString(websiteAddress);
   }
 }
 

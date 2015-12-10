@@ -2379,7 +2379,7 @@ var gPasswords = {
     // Copy selected signon's password to clipboard.
     let row = this.tree.currentIndex;
     let password = gPasswords.displayedSignons[row].password;
-    gLocSvc.clipboard.copyString(password, document);
+    gLocSvc.clipboard.copyString(password);
   },
 
   copyPassword: function passwords_copyPassword() {
