@@ -888,14 +888,33 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
     menulist {
       -moz-appearance: none;
+      min-height: 24px;
+      color: inherit;
       margin: 1px 4px;
       padding: 1px 5px !important;
       border: 1px solid;
+      background: var(--toolbarbutton-hover-background);
+      border-color: var(--toolbarbutton-hover-bordercolor);
+      box-shadow: var(--toolbarbutton-hover-boxshadow);
+      transition-property: background-color, border-color, box-shadow;
+      transition-duration: 150ms;
+    }
+
+    menulist:not([disabled="true"]):not([open="true"]):hover {
+      background: var(--toolbarbutton-active-background);
+      border-color: var(--toolbarbutton-active-bordercolor);
+    }
+
+    menulist[open="true"] {
+      background: var(--toolbarbutton-active-background);
+      border-color: var(--toolbarbutton-active-bordercolor);
+      box-shadow: var(--toolbarbutton-active-boxshadow);
     }
 
     menulist[disabled="true"] {
       opacity: .6;
     }
+
     #folderPaneHeader {
       -moz-appearance: none;
       background-color: #f8f8f8;
@@ -955,73 +974,16 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
   menulist {
-    color: inherit;
     border-radius: 2px;
-    background-image: linear-gradient(hsla(0, 0%, 100%, .6),
-                      hsla(0, 0%, 100%, .1));
-    background-color: hsla(210, 32%, 93%, .2);
-    border-color: hsla(210, 54%, 20%, .15) hsla(210, 54%, 20%, .2)
-                  hsla(210, 54%, 20%, .25);
-    box-shadow: 0 1px hsla(0, 0%, 100%, .3) inset,
-                0 1px hsla(210, 54%, 20%, .03),
-                0 0 2px hsla(210, 54%, 20%, .1);
-    transition-property: background-color, border-color, box-shadow;
-    transition-duration: 150ms;
-  }
-
-  menulist:not([disabled="true"]):not([open="true"]):hover {
-    color: -moz-DialogText;
-    border-color: hsla(210, 54%, 20%, .3) hsla(210, 54%, 20%, .35)
-                  hsla(210, 54%, 20%, .4);
-    background-color: hsla(210, 48%, 96%, .75);
-    box-shadow: 0 0 1px hsla(210, 54%, 20%, .03),
-                0 0 2px hsla(210, 54%, 20%, .1);
   }
 
   menulist[open="true"] {
-    background-image: linear-gradient(hsla(0, 0%, 100%, .6),
-                      hsla(0, 0%, 100%, .1));
-    background-color: hsla(210, 54%, 20%, .15);
-    border-color: hsla(210, 54%, 20%, .3) hsla(210, 54%, 20%, .35)
-                  hsla(210, 54%, 20%, .4);
-    box-shadow: 0 1px 1px hsla(210, 54%, 20%, .1) inset,
-                0 0 1px hsla(210, 54%, 20%, .2) inset,
-                0 1px 0 hsla(210, 54%, 20%, 0),
-                0 0 2px hsla(210, 54%, 20%, 0);
     text-shadow: none;
     transition: none;
   }
 
   #status-bar {
     background-color: hsl(210, 75%, 92%);
-  }
-}
-
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
-  menulist {
-    color: inherit;
-    background-color: hsla(210, 4%, 10%, .08);
-    border-color: hsla(210, 4%, 10%, .1);
-    transition-property: background-color, border-color;
-    transition-duration: 150ms;
-  }
-
-  menulist:not([disabled="true"]):not([open="true"]):hover {
-    color: -moz-DialogText;
-    background-color: hsla(210, 4%, 10%, .1);
-    border-color: hsla(210, 4%, 10%, .2);
-  }
-
-  menulist[open="true"] {
-    background-color: hsla(210, 4%, 10%, .12);
-    border-color: hsla(210, 4%, 10%, .2);
-    box-shadow: 0 1px 1px hsla(210, 4%, 10%, .1) inset,
-                0 0 1px hsla(210, 4%, 10%, .2) inset,
-                0 1px 0 hsla(210, 4%, 10%, 0),
-                0 0 2px hsla(210, 4%, 10%, 0);
-    text-shadow: none;
-    transition: none;
   }
 }
 

@@ -575,6 +575,24 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
       -moz-padding-start: 3px !important;
       -moz-padding-end: 3px !important;
     }
+
+    .toolbarbutton-1.msgHeaderView-button,
+    .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
+    .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
+      background: var(--toolbarbutton-hover-background);
+      border-color: var(--toolbarbutton-hover-bordercolor);
+    }
+
+    .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):-moz-any(:hover,[open]) >
+    .toolbarbutton-menubutton-button,
+    .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):-moz-any(:hover,[open]) >
+    .toolbarbutton-menubutton-dropmarker,
+    .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover,
+    .toolbarbutton-1.msgHeaderView-button:not([buttonover]):not([open]):not(:active):hover >
+    .toolbarbutton-menubutton-dropmarker:not([disabled]) {
+      background: var(--toolbarbutton-active-background);
+      border-color: var(--toolbarbutton-active-bordercolor);
+    }
   }
 
   .msgHeaderView-button > .toolbarbutton-icon,
@@ -779,20 +797,12 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   .toolbarbutton-1.msgHeaderView-button,
   .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
   .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
-    background-image: linear-gradient(hsla(0, 0%, 100%, .6),
-                      hsla(0, 0%, 100%, .1));
-    background-color: hsla(210, 32%, 93%, .2);
-    border-color: hsla(210, 54%, 20%, .2) hsla(210, 54%, 20%, .25)
-                  hsla(210, 54%, 20%, .3);
     box-shadow: 0 1px hsla(0, 0%, 100%, .3) inset,
                 0 1px hsla(210, 54%, 20%, .03),
                 0 0 2px hsla(210, 54%, 20%, .1);
   }
 
   .msgHeaderView-button:not([type="menu-button"]):not([disabled="true"]):not([checked="true"]):not([open="true"]):not(:active):hover {
-    border-color: hsla(210, 54%, 20%, .4) hsla(210, 54%, 20%, .45)
-                  hsla(210, 54%, 20%, .5);
-    background-color: hsla(210, 48%, 96%, .75);
     box-shadow: 0 0 1px hsla(210, 54%, 20%, .1),
                 0 0 2px hsla(210, 54%, 20%, .1);
   }
@@ -800,24 +810,6 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
 
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
-  .toolbarbutton-1.msgHeaderView-button,
-  .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
-  .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
-    background-color: hsla(210, 4%, 10%, .08);
-    border-color: hsla(210, 4%, 10%, .1);
-  }
-
-  .toolbarbutton-1:not([disabled=true]):-moz-any(:hover,[open]) >
-  .toolbarbutton-menubutton-button,
-  .toolbarbutton-1:not([disabled=true]):-moz-any(:hover,[open]) >
-  .toolbarbutton-menubutton-dropmarker,
-  .toolbarbutton-1:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover,
-  .toolbarbutton-1:not([buttonover]):not([open]):not(:active):hover >
-  .toolbarbutton-menubutton-dropmarker:not([disabled]) {
-    background-color: hsla(210, 4%, 10%, .1);
-    border-color: hsla(210, 4%, 10%, .2);
-  }
-
   .hdrReplyToSenderButton,
   .hdrDummyReplyButton,
   .hdrReplyButton {

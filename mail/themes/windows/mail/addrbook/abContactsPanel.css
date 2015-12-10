@@ -34,6 +34,29 @@
       padding: 1px 5px !important;
       border: 1px solid;
     }
+
+    button,
+    #addressbookList {
+      background: var(--toolbarbutton-hover-background);
+      border-color: var(--toolbarbutton-hover-bordercolor);
+      box-shadow: var(--toolbarbutton-hover-boxshadow);
+      transition-property: background-color, border-color, box-shadow;
+      transition-duration: 150ms;
+    }
+
+    button:hover,
+    #addressbookList:not([open="true"]):hover {
+      background: var(--toolbarbutton-active-background);
+      border-color: var(--toolbarbutton-active-bordercolor);
+    }
+
+    button:hover:active,
+    #addressbookList[open="true"] {
+      background: var(--toolbarbutton-active-background);
+      border-color: var(--toolbarbutton-active-bordercolor);
+      box-shadow: var(--toolbarbutton-active-boxshadow);
+      transition: none;
+    }
   }
 }
 
@@ -54,66 +77,5 @@
   button,
   #addressbookList {
     border-radius: 2px;
-    background-image: linear-gradient(hsla(0, 0%, 100%, .6),
-                      hsla(0, 0%, 100%, .1));
-    background-color: hsla(210, 32%, 93%, .2);
-    border-color: hsla(210, 54%, 20%, .15) hsla(210, 54%, 20%, .2)
-                  hsla(210, 54%, 20%, .25);
-    box-shadow: 0 1px hsla(0, 0%, 100%, .3) inset,
-                0 1px hsla(210, 54%, 20%, .03),
-                0 0 2px hsla(210, 54%, 20%, .1);
-    transition-property: background-color, border-color, box-shadow;
-    transition-duration: 150ms;
-  }
-
-  button:hover,
-  #addressbookList:not([open="true"]):hover {
-    border-color: hsla(210, 54%, 20%, .3) hsla(210, 54%, 20%, .35)
-                  hsla(210, 54%, 20%, .4);
-    background-color: hsla(210, 48%, 96%, .75);
-    box-shadow: 0 0 1px hsla(210, 54%, 20%, .03),
-                0 0 2px hsla(210, 54%, 20%, .1);
-  }
-
-  button:hover:active,
-  #addressbookList[open="true"] {
-    background-image: linear-gradient(hsla(0, 0%, 100%, .6),
-                      hsla(0, 0%, 100%, .1));
-    background-color: hsla(210, 54%, 20%, .15);
-    border-color: hsla(210, 54%, 20%, .3) hsla(210, 54%, 20%, .35)
-                  hsla(210, 54%, 20%, .4);
-    box-shadow: 0 1px 1px hsla(210, 54%, 20%, .1) inset,
-                0 0 1px hsla(210, 54%, 20%, .2) inset,
-                0 1px 0 hsla(210, 54%, 20%, 0),
-                0 0 2px hsla(210, 54%, 20%, 0);
-    transition: none;
-  }
-}
-
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
-  button,
-  #addressbookList {
-    background-color: hsla(210, 4%, 10%, .08);
-    border-color: hsla(210, 4%, 10%, .1);
-    transition-property: background-color, border-color;
-    transition-duration: 150ms;
-  }
-
-  button:hover,
-  #addressbookList:not([open="true"]):hover {
-    background-color: hsla(210, 4%, 10%, .1);
-    border-color: hsla(210, 4%, 10%, .2);
-  }
-
-  button:hover:active,
-  #addressbookList[open="true"] {
-    background-color: hsla(210, 4%, 10%, .12);
-    border-color: hsla(210, 4%, 10%, .2);
-    box-shadow: 0 1px 1px hsla(210, 4%, 10%, .1) inset,
-                0 0 1px hsla(210, 4%, 10%, .2) inset,
-                0 1px 0 hsla(210, 4%, 10%, 0),
-                0 0 2px hsla(210, 4%, 10%, 0);
-    transition: none;
   }
 }
