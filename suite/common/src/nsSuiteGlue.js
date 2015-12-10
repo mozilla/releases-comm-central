@@ -254,6 +254,12 @@ SuiteGlue.prototype = {
         else
           ss.currentEngine = ss.defaultEngine;
         break;
+      case "notifications-open-settings":
+        // Since this is a web notification, there's probably a browser window.
+        var mostRecentBrowserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+        if (mostRecentBrowserWindow)
+          mostRecentBrowserWindow.toDataManager("|permissions");
+        break;
       case "timer-callback":
         // Load the Login Manager data from disk off the main thread, some time
         // after startup.  If the data is required before the timeout, for example
@@ -319,6 +325,7 @@ SuiteGlue.prototype = {
     Services.obs.addObserver(this, "places-database-locked", true);
     Services.obs.addObserver(this, "places-shutdown", true);
     Services.obs.addObserver(this, "browser-search-engine-modified", true);
+    Services.obs.addObserver(this, "notifications-open-settings", true);
     Services.prefs.addObserver("devtools.debugger.", this, true);
     Components.classes['@mozilla.org/docloaderservice;1']
               .getService(Components.interfaces.nsIWebProgress)
