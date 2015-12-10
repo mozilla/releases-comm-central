@@ -61,6 +61,9 @@ function setupModule(module) {
   str.data = "windows-1252";
   Services.prefs.setComplexValue("mailnews.send_default_charset",
                                  Components.interfaces.nsIPrefLocalizedString, str);
+
+  // Don't create paragraphs in the test.
+  Services.prefs.setBoolPref("editor.CR_creates_new_p", false);
 }
 
 /**

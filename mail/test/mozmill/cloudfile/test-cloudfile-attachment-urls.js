@@ -66,6 +66,9 @@ function setupModule(module) {
   Services.prefs.setBoolPref(kHtmlPrefKey, true);
   // Same goes for the default signature.
   gOldSigPref = Services.prefs.getCharPref(kDefaultSigKey);
+
+  // Don't create paragraphs in the test.
+  Services.prefs.setBoolPref("editor.CR_creates_new_p", false);
 }
 
 function teardownModule(module) {

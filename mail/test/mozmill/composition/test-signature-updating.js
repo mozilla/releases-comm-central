@@ -40,6 +40,9 @@ var setupModule = function (module) {
   let server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
   let inbox = server.rootFolder.getChildNamed("Inbox");
   be_in_folder(inbox);
+
+  // Don't create paragraphs in the test.
+  Services.prefs.setBoolPref("editor.CR_creates_new_p", false);
 };
 
 function setupComposeWin(toAddr, subj, body) {
