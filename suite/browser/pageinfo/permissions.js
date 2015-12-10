@@ -10,7 +10,7 @@ const nsICookiePermission  = Components.interfaces.nsICookiePermission;
 const ALLOW = Services.perms.ALLOW_ACTION;         // 1
 const BLOCK = Services.perms.DENY_ACTION;          // 2
 const SESSION = nsICookiePermission.ACCESS_SESSION;// 8
-var gPermURI;
+var gPermPrincipal;
 
 var gPermObj = {
   image: function getImageDefaultPermission()
@@ -59,8 +59,7 @@ var permissionObserver = {
   {
     if (aTopic == "perm-changed") {
       var permission = aSubject.QueryInterface(Components.interfaces.nsIPermission);
-      if (/^https?/.test(gPermURI.scheme) && permission.type in gPermObj &&
-          permission.matchesURI(gPermURI, true))
+      if (permission.type in gPermObj && permission.matches(gPermPrincipal, true))
         initRow(permission.type);
     }
   }
@@ -74,10 +73,10 @@ function initPermission()
 
 function onLoadPermission()
 {
-  gPermURI = gDocument.documentURIObject;
-  if (/^https?/.test(gPermURI.scheme)) {
+  gPermPrincipal = gDocument.nodePrincipal;
+  if (!gPermPrincipal.isSystemPrincipal) {
     var hostText = document.getElementById("hostText");
-    hostText.value = gPermURI.host;
+    hostText.value = gPermPrincipal.origin;
     Services.obs.addObserver(permissionObserver, "perm-changed", false);
   }
   for (var i in gPermObj)
@@ -86,7 +85,7 @@ function onLoadPermission()
 
 function onUnloadPermission()
 {
-  if (/^https?/.test(gPermURI.scheme)) {
+  if (!gPermPrincipal.isSystemPrincipal) {
     Services.obs.removeObserver(permissionObserver, "perm-changed");
   }
 }
@@ -95,7 +94,7 @@ function initRow(aPartId)
 {
   var checkbox = document.getElementById(aPartId + "Def");
   var command  = document.getElementById("cmd_" + aPartId + "Toggle");
-  if (!/^https?/.test(gPermURI.scheme)) {
+  if (gPermPrincipal.isSystemPrincipal) {
     checkbox.checked = false;
     checkbox.setAttribute("disabled", "true");
     command.setAttribute("disabled", "true");
@@ -104,8 +103,8 @@ function initRow(aPartId)
   }
   checkbox.removeAttribute("disabled");
   var pm = Services.perms;
-  var perm = aPartId == "geo" ? pm.testExactPermission(gPermURI, aPartId) :
-                                pm.testPermission(gPermURI, aPartId);
+  var perm = aPartId == "geo" ? pm.testExactPermissionFromPrincipal(gPermPrincipal, aPartId) :
+                                pm.testPermissionFromPrincipal(gPermPrincipal, aPartId);
  
   if (perm) {
     checkbox.checked = false;
@@ -124,7 +123,7 @@ function onCheckboxClick(aPartId)
   var command  = document.getElementById("cmd_" + aPartId + "Toggle");
   var checkbox = document.getElementById(aPartId + "Def");
   if (checkbox.checked) {
-    Services.perms.remove(gPermURI, aPartId);
+    Services.perms.removeFromPrincipal(gPermPrincipal, aPartId);
     command.setAttribute("disabled", "true");
     var perm = gPermObj[aPartId]();
     setRadioState(aPartId, perm);
@@ -140,7 +139,7 @@ function onRadioClick(aPartId)
   var radioGroup = document.getElementById(aPartId + "RadioGroup");
   var id = radioGroup.selectedItem.id;
   var permission = id.replace(/.*-/, "");
-  Services.perms.add(gPermURI, aPartId, permission);
+  Services.perms.addFromPrincipal(gPermPrincipal, aPartId, permission);
 }
 
 function setRadioState(aPartId, aValue)

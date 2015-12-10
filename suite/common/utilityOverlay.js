@@ -1226,12 +1226,11 @@ function popupNotificationMenuShowing(event)
   //  Only offer this menu item for the top window.
   //  See bug 280536 for problems with frames and iframes.
   try {
-    // uri.host generates an exception on nsISimpleURIs, but we also
-    // don't want to show this menu item when there is no host.
-    allowPopupsForSite.hidden = !uri.host;
-    var allowString = gUtilityBundle.getFormattedString("popupAllow", [uri.host]);
+    // uri.host generates an exception on nsISimpleURIs.
+    var allowString = gUtilityBundle.getFormattedString("popupAllow", [uri.host || uri.spec]);
     allowPopupsForSite.setAttribute("label", allowString);
     showPopupManager.hostport = uri.hostPort;
+    allowPopupsForSite.hidden = gPrivate;
   } catch (ex) {
     allowPopupsForSite.hidden = true;
     showPopupManager.hostport = "";
