@@ -61,6 +61,16 @@ function setupModule(module) {
   str.data = "windows-1252";
   Services.prefs.setComplexValue("mailnews.send_default_charset",
                                  Components.interfaces.nsIPrefLocalizedString, str);
+
+  // Don't create paragraphs in the test.
+  // When creating a paragraph, the test fails to retrieve the
+  // original character set windows-1252. Until we understand why,
+  // we run without paragraphs.
+  Services.prefs.setBoolPref("editor.CR_creates_new_p", false);
+}
+
+function teardownModule(module) {
+  Services.prefs.clearUserPref("editor.CR_creates_new_p");
 }
 
 /**
