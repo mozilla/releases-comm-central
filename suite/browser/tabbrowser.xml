@@ -962,7 +962,7 @@
         <parameter name="aPopupMenu"/>
         <body>
           <![CDATA[
-            this.mContextTab = document.popupNode;
+            this.mContextTab = aPopupMenu.triggerNode;
             // The user might right-click on a tab or an empty part of the tabbar.
             var isTab = this.mContextTab.localName == "tab";
             var isMultiple = this.tabs.length > 1;
