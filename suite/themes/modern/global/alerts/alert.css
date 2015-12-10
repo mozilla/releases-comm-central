@@ -11,24 +11,39 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 .alertBox {
-  border: 1px solid #7B969C;
-  border-radius: 3px;
   background-color: #C7D0D9;
 }
 
-.alertImageBox {
-  padding: 8px;
+#alertBox[hasBodyText] > #alertTitleBox,
+#alertBox[hasOrigin] > #alertTitleBox {
+  border-bottom: 1px solid #7B969C;
+}
+
+#alertBox[animate][clicked],
+#alertBox[animate][closing] {
+  animation-duration: 0.75s;
+}
+
+alertBox[hasImage] > box > .alertImageBox {
+  padding: 4px;
   width: 64px;
 }
 
 .alertTextBox {
-  padding: 8px;
+  padding: 4px;
   width: 255px;
 }
 
 .alertTitle {
   font-weight: bold;
   font-size: 110%;
+  padding: 4px;
+  -moz-box-flex: 1;
+}
+
+.alertSource {
+  color: #8C99AB;
+  -moz-box-flex: 1;
 }
 
 #alertImage {
@@ -75,7 +90,23 @@ label {
 
 .alertCloseButton {
   list-style-image: url("chrome://global/skin/icons/closebox.gif");
-  -moz-appearance: none;
-  padding: 2px 0px 0px;
+  padding: 4px;
   border: none;
+}
+
+#alertFooter {
+  -moz-box-align: end;
+}
+
+#alertSettings {
+  min-width: 0px;
+  list-style-image: url("chrome://mozapps/skin/extensions/utilities.png");
+  margin: 0px;
+  border: none;
+  background-color: transparent;
+}
+
+.button-menu-dropmarker,
+.button-text {
+  display: none;
 }
