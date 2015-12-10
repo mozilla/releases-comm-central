@@ -128,10 +128,10 @@
       <!-- Unfortunately we use the same panel for task and calendar tabs, so
            we need to differ which toolbar is being shown. The actual toolbar
            content will be added via a further overlay -->
-      <modevbox id="calendar-toolbox-container" mode="calendar" broadcaster="modeBroadcaster" flex="1">
+      <modevbox id="calendar-toolbox-container" mode="calendar" broadcaster="modeBroadcaster">
         <toolbox id="calendar-toolbox"/>
       </modevbox>
-      <modevbox id="task-toolbox-container" mode="task" broadcaster="modeBroadcaster" flex="1">
+      <modevbox id="task-toolbox-container" mode="task" broadcaster="modeBroadcaster">
         <toolbox id="task-toolbox"/>
       </modevbox>
       <hbox id="calendarContent" flex="1">
