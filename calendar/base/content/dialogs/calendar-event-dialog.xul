@@ -60,8 +60,6 @@
             src="chrome://calendar/content/calendar-statusbar.js"/>
     <script type="application/javascript"
             src="chrome://messenger/content/toolbarIconColor.js"/>
-    <script type="application/javascript"
-            src="chrome://messenger/content/toolbarIconColor.js"/>
 
     <!-- Command updater -->
     <commandset id="globalEditMenuItems"

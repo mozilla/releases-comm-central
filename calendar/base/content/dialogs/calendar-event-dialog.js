@@ -299,7 +299,9 @@ function onLoad() {
 
     opener.setCursor("auto");
 
-    ToolbarIconColor.init();
+    if (typeof ToolbarIconColor !== 'undefined') {
+        ToolbarIconColor.init();
+    }
 
     document.getElementById("item-title").focus();
     document.getElementById("item-title").select();
@@ -319,7 +321,9 @@ function onLoad() {
 }
 
 function onEventDialogUnload() {
-    ToolbarIconColor.uninit();
+    if (typeof ToolbarIconColor !== 'undefined') {
+        ToolbarIconColor.uninit();
+    }
     Services.obs.removeObserver(eventDialogQuitObserver,
                                 "quit-application-requested");
     eventDialogCalendarObserver.cancel();
