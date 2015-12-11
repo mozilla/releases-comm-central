@@ -5,7 +5,7 @@
 @import url(chrome://calendar-common/skin/widgets/calendar-widgets.css);
 
 treenode-checkbox[checked="true"] > .checkbox-check {
-  background-image: url(chrome://global/skin/tree/twisty-open.png);
+  background-image: url(chrome://global/skin/tree/twisty.svg#open);
 }
 
 treenode-checkbox > .checkbox-check {
@@ -14,7 +14,7 @@ treenode-checkbox > .checkbox-check {
   border: none;
   width: 9px; /* The image's width is 9 pixels */
   height: 9px;
-  background-image: url(chrome://global/skin/tree/twisty-clsd.png);
+  background-image: url(chrome://global/skin/tree/twisty.svg#clsd);
 }
 
 #task-tree-filtergroup {

@@ -531,11 +531,11 @@ imgroup .twisty {
   height: 9px;
   -moz-margin-end: 3px;
   -moz-margin-start: 3px;
-  background: url("chrome://global/skin/tree/twisty-open.png") no-repeat center;
+  background: url("chrome://global/skin/tree/twisty.svg#open") no-repeat center;
 }
 
 imgroup[closed] .twisty {
-  background: url("chrome://global/skin/tree/twisty-clsd.png") no-repeat center;
+  background: url("chrome://global/skin/tree/twisty.svg#clsd") no-repeat center;
 }
 %else
 %ifdef XP_MACOSX

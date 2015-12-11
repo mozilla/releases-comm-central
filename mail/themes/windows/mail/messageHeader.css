@@ -52,11 +52,11 @@
   border: 0;
   background-color: transparent;
   -moz-user-focus: normal;
-  list-style-image: url("chrome://global/skin/tree/twisty-clsd.png");
+  list-style-image: url("chrome://global/skin/tree/twisty.svg#clsd");
 }
 
 #attachmentToggle[checked="true"] {
-  list-style-image: url("chrome://global/skin/tree/twisty-open.png");
+  list-style-image: url("chrome://global/skin/tree/twisty.svg#open");
 }
 
 #attachmentIcon {
@@ -270,7 +270,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
 /* ::::: view expand and collapse twisties  ::::: */
 
 .expandHeaderViewButton {
-  list-style-image: url("chrome://global/skin/tree/twisty-open.png");
+  list-style-image: url("chrome://global/skin/tree/twisty.svg#open");
 }
 
 #header-view-toolbox {
@@ -511,27 +511,27 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   }
 
   #attachmentToggle:hover {
-    list-style-image: url("chrome://global/skin/tree/twisty-clsd-hover.png");
+    list-style-image: url("chrome://global/skin/tree/twisty.svg#clsd-hover");
   }
 
   #attachmentToggle[checked="true"]:hover {
-    list-style-image: url("chrome://global/skin/tree/twisty-open-hover.png");
+    list-style-image: url("chrome://global/skin/tree/twisty.svg#open-hover");
   }
 
   #attachmentToggle:-moz-locale-dir(rtl) {
-    list-style-image: url("chrome://global/skin/tree/twisty-clsd-rtl.png");
+    list-style-image: url("chrome://global/skin/tree/twisty.svg#clsd-rtl");
   }
 
   #attachmentToggle[checked="true"]:-moz-locale-dir(rtl) {
-    list-style-image: url("chrome://global/skin/tree/twisty-open-rtl.png");
+    list-style-image: url("chrome://global/skin/tree/twisty.svg#open-rtl");
   }
 
   #attachmentToggle:hover:-moz-locale-dir(rtl) {
-    list-style-image: url("chrome://global/skin/tree/twisty-clsd-hover-rtl.png");
+    list-style-image: url("chrome://global/skin/tree/twisty.svg#clsd-hover-rtl");
   }
 
   #attachmentToggle[checked="true"]:hover:-moz-locale-dir(rtl) {
-    list-style-image: url("chrome://global/skin/tree/twisty-open-hover-rtl.png");
+    list-style-image: url("chrome://global/skin/tree/twisty.svg#open-hover-rtl");
   }
 
   #attachmentSize {

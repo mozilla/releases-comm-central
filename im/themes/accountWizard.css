@@ -84,12 +84,20 @@ groupbox.collapsable caption .caption-icon {
   background-position: center;
   -moz-margin-start: 1px;
   -moz-margin-end: 3px;
+%ifdef XP_WIN
+  background-image: url("chrome://global/skin/tree/twisty.svg#open");
+%else
   background-image: url("chrome://global/skin/tree/twisty-open.png");
+%endif
 }
 
 
 groupbox.collapsable[closed="true"] caption .caption-icon {
+%ifdef XP_WIN
+  background-image: url("chrome://global/skin/tree/twisty.svg#clsd");
+%else
   background-image: url("chrome://global/skin/tree/twisty-clsd.png");
+%endif
 }
 %endif
 
