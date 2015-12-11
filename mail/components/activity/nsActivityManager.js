@@ -35,7 +35,7 @@ nsActivityManager.prototype = {
   get processCount() {
     let count = 0;
     for (let id in this._activities) {
-      let value = this._activities;
+      let value = this._activities[id];
       if (value instanceof Ci.nsIActivityProcess)
         count++;
     }
@@ -46,7 +46,7 @@ nsActivityManager.prototype = {
   getProcessesByContext: function(aContextType, aContextObj, aCount) {
     let list = [];
     for (let id in this._activities) {
-      let value = this._activities;
+      let value = this._activities[id];
       if (activity instanceof Ci.nsIActivityProcess &&
           activity.contextType == aContextType &&
           activity.contextObj == aContextObj) {
@@ -151,7 +151,7 @@ nsActivityManager.prototype = {
   getActivities: function(aCount) {
     let list = [];
     for (let id in this._activities) {
-      let value = this._activities;
+      let value = this._activities[id];
       list.push(value);
     }
 
