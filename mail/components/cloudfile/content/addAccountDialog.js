@@ -102,7 +102,7 @@ var addAccountDialog = {
     this._settings.removeEventListener("overflow", this);
     this._accountType.removeEventListener("select", this);
 
-    return false;
+    return true;
   },
 
   handleEvent: function(aEvent) {
@@ -214,7 +214,8 @@ var addAccountDialog = {
     this._messages.selectedPanel = this._authSpinner;
 
     // Uninitialize the dialog before closing.
-    return this.onUnInit()
+    this.onUnInit();
+    return false;
   },
 
   getExtraArgs: function AAD_getExtraArgs() {
