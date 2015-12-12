@@ -2,49 +2,55 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Now this sucks. We have to replicate the rules using background propreties,
-   since html elements don't work with list-style-image and -moz-image-region. */
-.status-icon {
-    background-image: url(chrome://messagebody/skin/calendar-event-dialog-attendees.png);
-    width: 12px;
-    height: 14px;
-    background-position: -36px 0;
+.itip-icon {
+    --itip-icon-partstat: -16px -16px; /* default: NEEDS-ACTION */
+    --itip-icon-role: 0px; /* default: REQ-PARTICIPANT */
+    --itip-icon-usertype: -32px; /* default: INDIVIDUAL */
+    width: 16px;
+    height: 16px;
+    background-image: url(chrome://calendar-common/skin/calendar-itip-icons.svg),
+                      url(chrome://calendar-common/skin/calendar-itip-icons.svg);
+    background-position: var(--itip-icon-partstat), var(--itip-icon-usertype) var(--itip-icon-role);
 }
-
-.status-icon[disabled="true"] {
-    background-position: -36px -14px;
+.itip-icon[partstat="ACCEPTED"] {
+    --itip-icon-partstat: 0px 0px;
 }
-
-.status-icon[status="ACCEPTED"] {
-    background-position: 0 0;
+.itip-icon[partstat="DECLINED"] {
+    --itip-icon-partstat: 0px -16px;
 }
-
-.status-icon[status="ACCEPTED"][disabled="true"] {
-    background-position: 0 -14px;
+.itip-icon[partstat="DELEGATED"] {
+    --itip-icon-partstat: 0px -32px;
 }
-
-.status-icon[status="DECLINED"] {
-    background-position: -12px 0;
+.itip-icon[partstat="TENTATIVE"] {
+    --itip-icon-partstat: -16px 0px;
 }
-
-.status-icon[status="DECLINED"][disabled="true"] {
-    background-position: -12px -14px;
+.itip-icon[usertype="INDIVIDUAL"] {
+    --itip-icon-usertype: -32px;
 }
-
-.status-icon[status="NEEDS-ACTION"] {
-    background-position: -24px 0;
+.itip-icon[usertype="GROUP"] {
+    --itip-icon-usertype: -48px;
 }
-
-.status-icon[status="NEEDS-ACTION"][disabled="true"] {
-    background-position: -24px -14px;
+.itip-icon[usertype="RESSOURCE"] {
+    --itip-icon-usertype: -64px;
 }
-
-.status-icon[status="TENTATIVE"] {
-    background-position: -36px 0;
+.itip-icon[usertype="ROOM"] {
+    --itip-icon-usertype: -80px;
 }
-
-.status-icon[status="TENTATIVE"][disabled="true"] {
-    background-position: -36px -14px;
+.itip-icon[usertype="UNKNOWN"] {
+    --itip-icon-usertype: -96px;
+}
+.itip-icon[role="REQ-PARTICIPANT"] {
+    --itip-icon-role: 0px;
+}
+.itip-icon[role="OPT-PARTICIPANT"] {
+    --itip-icon-role: -16px;
+}
+.itip-icon[role="NON-PARTICIPANT"] {
+    --itip-icon-role: -32px;
+}
+.itip-icon[role="CHAIR"] {
+    --itip-icon-role: -32px;
+    --itip-icon-usertype: -16px;
 }
 
 #imipHtml-attendees-row > .content,

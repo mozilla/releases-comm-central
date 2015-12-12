@@ -197,13 +197,31 @@ ltn.invitation = {
         doc.getElementById("imipHtml-attendees-row").hidden = (attendees.length < 1);
         doc.getElementById("imipHtml-organizer-row").hidden = !aEvent.organizer;
 
-        let setupAttendee = function (attendee) {
+        let setupAttendee = function (aAttendee) {
             let row = attendeeTemplate.cloneNode(true);
             row.removeAttribute("id");
             row.removeAttribute("hidden");
-            row.getElementsByClassName("status-icon")[0].setAttribute("status",
-                                                                      attendee.participationStatus);
-            row.getElementsByClassName("attendee-name")[0].textContent = attendee.toString();
+
+            // display itip icon
+            let role = aAttendee.role || "REQ-PARTICIPANT";
+            let ps = aAttendee.participationStatus || "NEEDS-ACTION";
+            let ut = aAttendee.userType || "INDIVIDUAL";
+            let itipIcon = row.getElementsByClassName("itip-icon")[0];
+            itipIcon.setAttribute("role", role);
+            itipIcon.setAttribute("usertype", ut);
+            itipIcon.setAttribute("partstat", ps);
+            // this distinction will be removed with bug 1225779
+            if (ps == "DELEGATED") {
+                ps = "DELEGATED_NODETAILS";
+            }
+            let itipTooltip = ltn.getString("lightning", "imipHtml.attendeeRole." + role, [
+                                  ltn.getString("lightning", "imipHtml.attendeeUserType." + ut,
+                                                [aAttendee.toString()]),
+                                  ltn.getString("lightning", "imipHtml.attendeePartStat." + ps)
+                              ]);
+            row.setAttribute("title", itipTooltip);
+            // display attendee
+            row.getElementsByClassName("attendee-name")[0].textContent = aAttendee.toString();
             return row;
         };
 
@@ -320,23 +338,29 @@ ltn.invitation = {
                                 _content2Child(attendees[att], 'added', att);
                             }
                         }
-                        // decorate removed attendees
                         for (let att of Object.keys(oldAttendees)) {
                             // if att is the user his/herself, who accepted an invitation he/she was
-                            // not invited to, we must exclude him/her here
-                            if (!(att in attendees) &&
-                                (excludeAddress == "" || !att.includes(excludeAddress))) {
+                            // not invited to, we exclude him/her from decoration
+                            let notExcluded = (excludeAddress == "" ||
+                                               !att.includes(excludeAddress));
+                            // decorate removed attendees
+                            if (!(att in attendees) && notExcluded) {
                                 _content2Child(oldAttendees[att], 'removed', att);
                                 content.appendChild(oldAttendees[att].parentNode.cloneNode(true));
                             }
-                        }
-                        // highlight partstat changes (excluding the user)
-                        for (let att of Object.keys(oldAttendees)) {
-                            if ((att in attendees) &&
-                                (excludeAddress == "" || !att.includes(excludeAddress))) {
-                                let oldPS = oldAttendees[att].parentNode.childNodes[1].childNodes[0];
-                                let newPS = attendees[att].parentNode.childNodes[1].childNodes[0];
-                                if (oldPS.attributes[1].value != newPS.attributes[1].value) {
+                            // highlight partstat, role or usertype changes
+                            else if ((att in attendees) && notExcluded) {
+                                let oldAtts = oldAttendees[att].parentNode
+                                                               .getElementsByClassName("itip-icon")[0]
+                                                               .attributes;
+                                let newAtts = attendees[att].parentNode
+                                                            .getElementsByClassName("itip-icon")[0]
+                                                            .attributes;
+                                let hasChanged = function (name) {
+                                    return oldAtts.getNamedItem(name).value !=
+                                           newAtts.getNamedItem(name).value;
+                                };
+                                if (["role", "partstat", "usertype"].some(hasChanged)) {
                                     _content2Child(attendees[att], 'modified', att);
                                 }
                             }

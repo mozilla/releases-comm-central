@@ -83,7 +83,7 @@ add_task(function* getItipHeader_test() {
             attendee: "ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=TENTATIVE;" +
                       "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net"},
         expected: "Attendee1 <attendee1@example.net> has accepted your event invitation."
-    }, {      
+    }, {
         input: {
             method: "METHOD:REPLY\r\n",
             attendee: "ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=DECLINED;" +
@@ -162,13 +162,99 @@ add_task(function* createInvitationOverlay_test() {
             node: "imipHtml-description-content",
             value: "It's up to you <span xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-smile" +
                    "y-s3\" title=\";-)\"><span>;-)</span></span>"}
+    }, {
+        input: {
+            attendee: "ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;ROLE=OPT-PARTICIPANT;CUTYPE=INDIV" +
+                      "IDUAL;CN=\"Attendee 1\":mailto:attendee1@example.net\r\n" +
+
+                      "ATTENDEE;RSVP=TRUE;PARTSTAT=ACCEPTED;ROLE=NON-PARTICIPANT;CUTYPE=GROUP:mai" +
+                      "lto:attendee2@example.net\r\n" +
+
+                      "ATTENDEE;RSVP=TRUE;PARTSTAT=TENTATIVE;ROLE=REQ-PARTICIPANT;CUTYPE=RESOURCE" +
+                      ":mailto:attendee3@example.net\r\n" +
+
+                      "ATTENDEE;RSVP=TRUE;PARTSTAT=DECLINED;ROLE=OPT-PARTICIPANT;DELEGATED-FROM=" +
+                      "\"mailto:attendee5@example.net\";CUTYPE=ROOM:mailto:attendee4@example." +
+                      "net\r\n" +
+
+                      "ATTENDEE;RSVP=TRUE;PARTSTAT=DELEGATED;ROLE=OPT-PARTICIPANT;DELEGATED-TO=\"" +
+                      "mailto:attendee4@example.net\";CUTYPE=UNKNOWN:mailto:attendee5@example.net" +
+                      "\r\n" +
+
+                      "ATTENDEE;RSVP=TRUE:mailto:attendee6@example.net\r\n" +
+
+                      "ATTENDEE:mailto:attendee7@example.net\r\n"},
+        expected: {
+            node: "attendee-table",
+            value: "<tr xmlns=\"http://www.w3.org/1999/xhtml\" hidden=\"true\" id=\"attendee-temp" +
+                   "late\"><td><p class=\"itip-icon\"/></td><td class=\"attendee-name\"/></tr>" +
+
+                   "<tr xmlns=\"http://www.w3.org/1999/xhtml\" title=\"Attendee 1 &lt;attendee1@e" +
+                   "xample.net&gt; is an optional participant and still needs to decide whether t" +
+                   "o attend.\"><td><p class=\"itip-icon\" role=\"OPT-PARTICIPANT\" usertype=\"IN" +
+                   "DIVIDUAL\" partstat=\"NEEDS-ACTION\"/></td><td class=\"attendee-name\">Attend" +
+                   "ee 1 &lt;attendee1@example.net&gt;</td></tr>" +
+
+                   "<tr xmlns=\"http://www.w3.org/1999/xhtml\" title=\"Group attendee2@example.ne" +
+                   "t is a non participant and has confirmed to attend.\"><td><p class=\"itip-ico" +
+                   "n\" role=\"NON-PARTICIPANT\" usertype=\"GROUP\" partstat=\"ACCEPTED\"/></td><" +
+                   "td class=\"attendee-name\">attendee2@example.net</td></tr>" +
+
+                   "<tr xmlns=\"http://www.w3.org/1999/xhtml\" title=\"Resource attendee3@example" +
+                   ".net is a required participant and has tentatively confirmed to attend.\"><td" +
+                   "><p class=\"itip-icon\" role=\"REQ-PARTICIPANT\" usertype=\"RESOURCE\" partst" +
+                   "at=\"TENTATIVE\"/></td><td class=\"attendee-name\">attendee3@example.net</td>" +
+                   "</tr>" +
+
+                   "<tr xmlns=\"http://www.w3.org/1999/xhtml\" title=\"Room attendee4@example.net" +
+                   " is an optional participant and has confirmed to not attend.\"><td><p class=" +
+                   "\"itip-icon\" role=\"OPT-PARTICIPANT\" usertype=\"ROOM\" partstat=\"DECLINED" +
+                   "\"/></td><td class=\"attendee-name\">attendee4@example.net</td></tr>" +
+
+                   "<tr xmlns=\"http://www.w3.org/1999/xhtml\" title=\"attendee5@example.net is a" +
+                   "n optional participant and has delegated the attendance.\"><td><p class=\"iti" +
+                   "p-icon\" role=\"OPT-PARTICIPANT\" usertype=\"UNKNOWN\" partstat=\"DELEGATED\"" +
+                   "/></td><td class=\"attendee-name\">attendee5@example.net</td></tr>" +
+
+                   "<tr xmlns=\"http://www.w3.org/1999/xhtml\" title=\"attendee6@example.net is a" +
+                   " required participant and still needs to decide whether to attend.\"><td><p c" +
+                   "lass=\"itip-icon\" role=\"REQ-PARTICIPANT\" usertype=\"INDIVIDUAL\" partstat=" +
+                   "\"NEEDS-ACTION\"/></td><td class=\"attendee-name\">attendee6@example.net</td>" +
+                   "</tr>" +
+
+                   "<tr xmlns=\"http://www.w3.org/1999/xhtml\" title=\"attendee7@example.net is a" +
+                   " required participant and still needs to decide whether to attend.\"><td><p c" +
+                   "lass=\"itip-icon\" role=\"REQ-PARTICIPANT\" usertype=\"INDIVIDUAL\" partstat=" +
+                   "\"NEEDS-ACTION\"/></td><td class=\"attendee-name\">attendee7@example.net</td>" +
+                   "</tr>"}
+    }, {
+        input: {
+            organizer: "ORGANIZER;PARTSTAT=ACCEPTED;ROLE=CHAIR;CUTYPE=\"INDIVIDUAL\";CN=\"The Org" +
+                       "anizer\":mailto:organizer@example.net\r\n"},
+        expected: {
+            node: "organizer-table",
+            value: "<tr xmlns=\"http://www.w3.org/1999/xhtml\" title=\"The Organizer &lt;organize" +
+                   "r@example.net&gt; chairs the event and has confirmed to attend.\"><td><p clas" +
+                   "s=\"itip-icon\" role=\"CHAIR\" usertype=\"INDIVIDUAL\" partstat=\"ACCEPTED\"" +
+                   "/></td><td class=\"attendee-name\">The Organizer &lt;organizer@example.net&gt" +
+                   ";</td></tr>"}
     }];
     let i = 0;
     for (let test of data) {
         i++;
         let item = getIcs();
-        if (test.input.description || test.input.description == "") {
-            item = item.replace(/DESCRIPTION:[^\r]+\r\n/, test.input.description);
+        for (let attribute of Object.keys(test.input)) {
+            switch (attribute) {
+                case "description":
+                    item = item.replace(/DESCRIPTION:[^\r]+\r\n/, test.input.description);
+                    break;
+                case "attendee":
+                    item = item.replace(/ATTENDEE;[^\r]+\r\n/, test.input.attendee);
+                    break;
+                case "organizer":
+                    item = item.replace(/ORGANIZER;[^\r]+\r\n/, test.input.organizer);
+                    break;
+            }
         }
         let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
                                  .createInstance(Components.interfaces.calIItipItem);
@@ -177,8 +263,13 @@ add_task(function* createInvitationOverlay_test() {
                                .createInstance(Components.interfaces.calIIcsParser);
         parser.parseString(item);
         let dom = ltn.invitation.createInvitationOverlay(parser.getItems({})[0], itipItem);
-        equal(dom.getElementById(test.expected.node).innerHTML, test.expected.value,
-              "(test #" + i + ")");
+        let observed = dom.getElementById(test.expected.node).innerHTML;
+        // we remove line-breaks and leading white spaces here so we can keep expected test results
+        // above more comprehensive
+        if (test.expected.node.endsWith("-table")) {
+            observed = observed.replace(/(?:\n|\r\n|\r)[ ]{2,}/g, "");
+        }
+        equal(observed, test.expected.value, "(test #" + i + ")");
     }
 });
 
@@ -364,7 +455,7 @@ add_task(function* getHeaderSection_test() {
                   "Return-path: no-reply@example.net\r\n" +
                   "From: Invitation sender <sender@example.net>\r\n" +
                   "Organization: Example Net\r\n" +
-                  "To: recipient@example.net\r\n" + 
+                  "To: recipient@example.net\r\n" +
                   "Subject: Invitation: test subject\r\n" +
                   "Cc: cc@example.net\r\n" +
                   "Bcc: bcc@example.net\r\n"
@@ -384,7 +475,7 @@ add_task(function* getHeaderSection_test() {
                   "Return-path: no-reply@example.net\r\n" +
                   "From: \"invitation, sender\" <sender@example.net>\r\n" +
                   "Organization: Example Net\r\n" +
-                  "To: rec1@example.net, Recipient 2 <rec2@example.net>,\r\n \"Rec, 3\" <rec3@example.net>\r\n" + 
+                  "To: rec1@example.net, Recipient 2 <rec2@example.net>,\r\n \"Rec, 3\" <rec3@example.net>\r\n" +
                   "Subject: Invitation: test subject\r\n" +
                   "Cc: cc1@example.net, Cc 2 <cc2@example.net>, \"Cc, 3\" <cc3@example.net>\r\n" +
                   "Bcc: bcc1@example.net, BCc 2 <bcc2@example.net>, \"Bcc, 3\"\r\n <bcc3@example.net>\r\n"
@@ -397,7 +488,7 @@ add_task(function* getHeaderSection_test() {
                 email: "sender@example.net"}},
         expected: "MIME-version: 1.0\r\n" +
                   "From: sender@example.net\r\n" +
-                  "To: recipient@example.net\r\n" + 
+                  "To: recipient@example.net\r\n" +
                   "Subject: Invitation: test subject\r\n"
     }, {
         input: {
@@ -414,7 +505,7 @@ add_task(function* getHeaderSection_test() {
                   "Return-path: =?UTF-8?Q?Max_&_Ren=c3=a9?= <no-reply@example.net>\r\n" +
                   "From: =?UTF-8?B?UmVuw6k=?= <sender@example.net>\r\n" +
                   "Organization: =?UTF-8?Q?Max_&_Ren=c3=a9?=\r\n" +
-                  "To: =?UTF-8?Q?Max_M=c3=bcller?= <mueller@example.net>\r\n" + 
+                  "To: =?UTF-8?Q?Max_M=c3=bcller?= <mueller@example.net>\r\n" +
                   "Subject: =?UTF-8?Q?Invitation:_Diacritis_check_=28=c3=bc=c3=a4?=\r\n =?UTF-8?B" +
                   "?w6kp?=\r\n" +
                   "Cc: =?UTF-8?B?UmVuw6k=?= <cc@example.net>\r\n" +
