@@ -2,6 +2,99 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+
+/* this is for attendee and organizer decoration in summary and event dialog */
+
+#item-attendees-box {
+    margin: 0px 4px;
+    border: solid ThreeDShadow 1px;
+    background-color: -moz-field;
+    overflow-y: auto;
+    min-height: 18px; /*at least one row*/
+}
+
+#calendar-summary-dialog #item-attendees-box {
+    max-height: 72px; /* displays up to four rows of attendees*/
+    margin: 0px 10px;
+}
+
+.item-attendees-row {
+    margin: 0px 3px;
+    padding: 0px 3px;
+    max-height: 18px;
+}
+
+.item-attendees-cell {
+    padding: 3px 0px;
+}
+
+.item-attendees-cell-label {
+    border: 0px;
+    margin: 0px 3px;
+    padding: 0px;
+}
+
+.item-organizer-cell {
+    padding: 0px;
+    margin-left: 6px;
+}
+
+/* this is for the itip icon setup in calendar */
+
+.itip-icon {
+    --itip-icon-partstat: -16px -16px; /* default: NEEDS-ACTION */
+    --itip-icon-role: 0px; /* default: REQ-PARTICIPANT */
+    --itip-icon-usertype: -32px; /* default: INDIVIDUAL */
+    width: 16px;
+    height: 16px;
+    max-height: 16px;
+    background-image: url(chrome://calendar-common/skin/calendar-itip-icons.svg),
+                      url(chrome://calendar-common/skin/calendar-itip-icons.svg);
+    background-position: var(--itip-icon-partstat), var(--itip-icon-usertype) var(--itip-icon-role);
+}
+.itip-icon[partstat="ACCEPTED"] {
+    --itip-icon-partstat: 0px 0px;
+}
+.itip-icon[partstat="DECLINED"] {
+    --itip-icon-partstat: 0px -16px;
+}
+.itip-icon[partstat="DELEGATED"] {
+    --itip-icon-partstat: 0px -32px;
+}
+.itip-icon[partstat="TENTATIVE"] {
+    --itip-icon-partstat: -16px 0px;
+}
+.itip-icon[usertype="INDIVIDUAL"] {
+    --itip-icon-usertype: -32px;
+}
+.itip-icon[usertype="GROUP"] {
+    --itip-icon-usertype: -48px;
+}
+.itip-icon[usertype="RESSOURCE"] {
+    --itip-icon-usertype: -64px;
+}
+.itip-icon[usertype="ROOM"] {
+    --itip-icon-usertype: -80px;
+}
+.itip-icon[usertype="UNKNOWN"] {
+    --itip-icon-usertype: -96px;
+}
+.itip-icon[role="REQ-PARTICIPANT"] {
+    --itip-icon-role: 0px;
+}
+.itip-icon[role="OPT-PARTICIPANT"] {
+    --itip-icon-role: -16px;
+}
+.itip-icon[role="NON-PARTICIPANT"] {
+    --itip-icon-role: -32px;
+}
+.itip-icon[role="CHAIR"] {
+    --itip-icon-role: -32px;
+    --itip-icon-usertype: -16px;
+}
+
+/* the following will get obsolete once porting to new itip icons is complete */
+
 .status-icon > .menu-iconic-left,
 .role-icon > .menu-iconic-left,
 .usertype-icon > .menu-iconic-left {

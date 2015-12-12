@@ -30,7 +30,7 @@
         onload="onLoad()"
         ondialogaccept="return onAccept();"
         ondialogcancel="return onCancel();"
-        onresize="fixAttendeesListbox()"
+        onresize="rearrangeAttendees();"
         persist="screenX screenY width height"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
@@ -89,11 +89,12 @@
             <label value="&read.only.category.label;" class="headline"/>
             <label id="item-category"/>
           </row>
-          <row id="organizer-row" align="top" hidden="true">
+          <row id="organizer-row" align="top" hidden="true" class="item-attendees-row">
             <label value="&read.only.organizer.label;" class="headline"/>
-            <hbox>
+            <hbox class="item-organizer-cell">
+              <img class="itip-icon"/>
               <label id="item-organizer"
-                     class="text-link"
+                     class="text-link item-attendees-cell-label"
                      crop="right"
                      onclick="sendMailToOrganizer()"/>
               <spacer flex="1"/>
@@ -233,24 +234,25 @@
     </box>
   </box>
 
+  <!-- attendee box template -->
+  <vbox id="item-attendees-box-template">
+    <hbox flex="1" class="item-attendees-row" equalsize="always" hidden="true">
+      <box class="item-attendees-cell" hidden="true" flex="1">
+        <img class="itip-icon"/>
+        <label class="item-attendees-cell-label" crop="end" flex="1"/>
+      </box>
+      <box hidden="true" flex="1"/>
+    </hbox>
+  </vbox>
+
   <!-- Attendees -->
-  <box id="item-attendees" hidden="true" orient="vertical">
+  <box id="item-attendees" orient="vertical" hidden="true">
     <spacer class="default-spacer"/>
     <calendar-caption label="&read.only.attendees.label;"
-                      control="item-attendee-listbox"/>
-    <box orient="horizontal">
+                      control="item-attendees-box"/>
+    <vbox id="item-attendees-box" dialogtype="summary">
       <spacer class="default-spacer"/>
-      <listbox id="item-attendee-listbox" rows="6" flex="1" disabled="true">
-        <listcols>
-          <listcol id="item-attendee-left-col" flex="1"/>
-          <listcol id="item-attendee-right-col" flex="1"/>
-        </listcols>
-        <listitem>
-          <listcell class="listcell-iconic status-icon" crop="end" hidden="true"/>
-          <listcell class="listcell-iconic status-icon" crop="end" hidden="true"/>
-        </listitem>
-      </listbox>
-    </box>
+    </vbox>
   </box>
 
   <!-- Description -->

@@ -58,6 +58,7 @@ function onLoad() {
                                 && item.calendar.isInvitation(item)
                                 && userCanRespondToInvitation(item))));
     if (!window.readOnly && calendar) {
+        window.attendees = item.getAttendees({});
         var attendee = calendar.getInvitedAttendee(item);
         if (attendee) {
             // if this is an unresponded invitation, preset our default alarm values:
@@ -118,13 +119,25 @@ function onLoad() {
     var organizer = item.organizer;
     if (organizer && organizer.id) {
         document.getElementById("organizer-row").removeAttribute("hidden");
+        let cell = document.getElementsByClassName("item-organizer-cell")[0];
+        let text = cell.getElementsByTagName("label")[0];
+        let icon = cell.getElementsByTagName("img")[0];
 
-        if (organizer.commonName && organizer.commonName.length) {
-            document.getElementById("item-organizer").value = organizer.commonName;
-            document.getElementById("item-organizer").setAttribute("tooltiptext", organizer.toString());
-        } else if (organizer.id && organizer.id.length) {
-            document.getElementById("item-organizer").value = organizer.toString();
-        }
+        let role = organizer.role || "REQ-PARTICIPANT";
+        let ut = organizer.userType || "INDIVIDUAL";
+        let ps = organizer.participationStatus || "NEEDS-ACTION";
+        let tt = cal.calGetString("calendar", "dialog.tooltip.attendeeRole." + role, [
+                                  cal.calGetString("calendar", "dialog.tooltip.attendeeUserType." + ut,
+                                                   [organizer.toString()]),
+                                  cal.calGetString("calendar", "dialog.tooltip.attendeePartStat." + ps)
+                 ]);
+
+        text.setAttribute("value", (organizer.commonName && organizer.commonName.length) ?
+                                   organizer.commonName : organizer.toString());
+        cell.setAttribute("tooltiptext", tt);
+        icon.setAttribute("partstat", ps);
+        icon.setAttribute("usertype", ut);
+        icon.setAttribute("role", role);
     }
 
     var status = item.getProperty("STATUS");
@@ -298,39 +311,9 @@ function updateRepeatDetails() {
  * window's item.
  */
 function updateAttendees() {
-    var args = window.arguments[0];
-    var item = args.calendarEvent;
-    var attendees = item.getAttendees({});
-    if (attendees && attendees.length) {
+    if (window.attendees && window.attendees.length) {
         document.getElementById("item-attendees").removeAttribute("hidden");
-        var listbox = document.getElementById("item-attendee-listbox");
-        var itemNode = listbox.getElementsByTagName("listitem")[0];
-        var num_items = Math.ceil(attendees.length/2)-1;
-        while (num_items--) {
-            var newNode = itemNode.cloneNode(true);
-            listbox.appendChild(newNode);
-        }
-        var list = listbox.getElementsByTagName("listitem");
-        var page = 0;
-        var line = 0;
-        for each (var attendee in attendees) {
-            var itemNode = list[line];
-            var listcell = itemNode.getElementsByTagName("listcell")[page];
-            if (attendee.commonName && attendee.commonName.length) {
-                listcell.setAttribute("label", attendee.commonName);
-            } else {
-                listcell.setAttribute("label",  attendee.toString());
-            }
-            listcell.setAttribute("tooltiptext", attendee.toString());
-            listcell.setAttribute("status", attendee.participationStatus);
-            listcell.removeAttribute("hidden");
-
-            page++;
-            if (page > 1) {
-              page = 0;
-              line++;
-            }
-        }
+        setupAttendees();
     }
 }
 
@@ -366,22 +349,4 @@ function sendMailToOrganizer() {
     let emailSubject = cal.calGetString("calendar-event-dialog", "emailSubjectReply", [item.title]);
     let identity = item.calendar.getProperty("imip.identity");
     sendMailTo(email, emailSubject, null, identity);
-}
-
-/**
- * This hack allows the attendees listbox to remain cropping when resized.
- * To check if its still needed, remove the hack, open the summary dialog with
- * at least two attendees with long names, then make the dialog wider and shrink
- * it again. If the labels crop again, then go ahead and remove it.
- * See bug 632355
- */
-function fixAttendeesListbox() {
-    let left = document.getElementById("item-attendee-left-col");
-    let right = document.getElementById("item-attendee-right-col");
-
-    left.removeAttribute("flex");
-    right.removeAttribute("flex");
-
-    left.setAttribute("flex", "1");
-    right.setAttribute("flex", "1");
 }

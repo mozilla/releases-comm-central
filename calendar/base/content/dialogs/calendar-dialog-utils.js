@@ -506,3 +506,132 @@ function updateLink() {
         }, 0);
     }
 }
+
+/*
+ * setup attendees in event and summary dialog
+ */
+function setupAttendees() {
+
+    if (window.attendees && window.attendees.length > 0) {
+        let attBox = document.getElementById("item-attendees-box");
+
+        // cloning of the template nodes
+        let selector = "#item-attendees-box-template .item-attendees-row";
+        let clonedRow = document.querySelector(selector).cloneNode(false);
+        selector = "#item-attendees-box-template .item-attendees-row box:nth-of-type(1)";
+        let clonedCell = document.querySelector(selector).cloneNode(true);
+        selector = "#item-attendees-box-template .item-attendees-row box:nth-of-type(2)";
+        let clonedSpacer = document.querySelector(selector).cloneNode(false);
+
+        // determining of attendee box setup
+        let inRow = window.attendeesInRow || -1;
+        if (inRow == -1) {
+            inRow = determineAttendeesInRow();
+            window.attendeesInRow = inRow;
+        } else {
+            let attBoxRows = attBox.getElementsByClassName("item-attendees-row");
+            let prevInRow = attBoxRows[0].childNodes.length;
+            if (prevInRow != window.attendeesInRow) {
+                while(attBoxRows.length > 0) {
+                    attBox.removeChild(attBoxRows[0]);
+                }
+            } else {
+                // no update needed
+                return;
+            }
+        }
+
+        // set up of the required nodes
+        let maxRows = Math.ceil(window.attendees.length / inRow);
+        let inLastRow = window.attendees.length - ((maxRows - 1) * inRow);
+        let attCount = 0;
+        while (attBox.getElementsByClassName("item-attendees-row").length < maxRows) {
+            let newRow = clonedRow.cloneNode(false);
+            let row = attBox.appendChild(newRow);
+            row.removeAttribute("hidden");
+            let rowCount = attBox.getElementsByClassName("item-attendees-row").length;
+            let reqAtt = rowCount == maxRows ? inLastRow : inRow;
+            // we add as many attendee cells as required
+            while (row.childNodes.length < reqAtt) {
+                let newCell = clonedCell.cloneNode(true);
+                let cell = row.appendChild(newCell);
+                let icon = cell.getElementsByTagName("img")[0];
+                let text = cell.getElementsByTagName("label")[0];
+                let attendee = window.attendees[attCount];
+
+                let label = (attendee.commonName && attendee.commonName.length)
+                            ? attendee.commonName : attendee.toString();
+                let ut = attendee.userType || "INDIVIDUAL";
+                let role = attendee.role || "REQ-PARTICIPANT";
+                let ps = attendee.participationStatus || "NEEDS-ACTION";
+
+                text.setAttribute("value", label);
+                icon.setAttribute("partstat", ps);
+                icon.setAttribute("usertype", ut);
+                icon.setAttribute("role", role);
+                cell.setAttribute("attendeeid", attendee.id);
+                cell.removeAttribute("hidden");
+
+                // this distinction will be removed with bug 1225779
+                if (ps == "DELEGATED") {
+                    ps = "DELEGATED_NODETAILS";
+                }
+                let tooltip = cal.calGetString("calendar", "dialog.tooltip.attendeeRole." + role, [
+                                  cal.calGetString("calendar",
+                                                   "dialog.tooltip.attendeeUserType." + ut,
+                                                   [attendee.toString()]),
+                                  cal.calGetString("calendar",
+                                                   "dialog.tooltip.attendeePartStat." + ps)
+                              ]);
+                cell.setAttribute("tooltiptext", tooltip);
+
+                attCount++;
+            }
+            // we fill the row with placeholders if required
+            if (attBox.getElementsByClassName("item-attendees-row").length > 1 && inRow > 1) {
+                while (row.childNodes.length < inRow) {
+                    let newSpacer = clonedSpacer.cloneNode(true);
+                    newSpacer.removeAttribute("hidden");
+                    row.appendChild(newSpacer);
+                }
+            }
+        }
+
+        // determining of the max width of an attendee label - this needs to
+        // be done only once and is obsolete in case of resizing
+        if (!window.maxLabelWidth) {
+            let maxWidth = 0;
+            for (let cell of attBox.getElementsByClassName("item-attendees-cell")) {
+                cell = cell.cloneNode(true);
+                cell.removeAttribute("flex");
+                cell.getElementsByTagName("label")[0].removeAttribute("flex");
+                maxWidth = cell.clientWidth > maxWidth ? cell.clientWidth : maxWidth;
+            }
+            window.maxLabelWidth = maxWidth;
+        }
+    }
+}
+
+/**
+ * Re-arranges the attendees on dialog resizing in event and summary dialog
+ */
+function rearrangeAttendees() {
+    if (window.attendees && window.attendees.length > 0 && window.attendeesInRow) {
+        let inRow = determineAttendeesInRow();
+        if (inRow != window.attendeesInRow) {
+            window.attendeesInRow = inRow;
+            setupAttendees();
+        }
+    }
+}
+
+/**
+ * Calculates the number of columns to distribute attendees for event and summary dialog
+ */
+function determineAttendeesInRow() {
+    // as default value a reasonable high value is appropriate
+    // it will be recalculated anyway.
+    let minWidth = window.maxLabelWidth || 200;
+    let inRow = Math.floor(document.width / minWidth);
+    return inRow > 1 ? inRow : 1;
+}
