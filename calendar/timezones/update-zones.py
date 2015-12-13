@@ -160,6 +160,28 @@ class TimezoneUpdater(object):
         return aliases
 
     @staticmethod
+    def update_timezones_properties(tzprops_file, version, newzones, aliases):
+        TZ_LINE = re.compile(r'^(?P<name>pref.timezone.[^=]+)=(?P<value>.*)$')
+        outlines = []
+        zoneprops = {}
+
+        with open(tzprops_file) as fp:
+            for line in fp.readlines():
+                match = TZ_LINE.match(line.rstrip("\n"))
+                if match:
+                    zoneprops[match.group('name')] = match.group('value')
+
+        for zone in newzones:
+            propname = 'pref.timezone.' + zone.replace('/', '.')
+            if propname not in zoneprops:
+                outlines.append(propname + "=" + zone.replace("_", " "))
+
+        if len(outlines):
+            with open(tzprops_file, 'a') as fp:
+                fp.write("\n#added with %s\n" % version)
+                fp.write("\n".join(outlines) + "\n")
+
+    @staticmethod
     def write_output(version, aliases, zones, filename):
         """Write the data to zones.json."""
         data = OrderedDict()
@@ -171,7 +193,7 @@ class TimezoneUpdater(object):
             json.dump(data, jsonfile, indent=2, separators=(",", ": "))
             jsonfile.write("\n")
 
-    def run(self, zones_json_file, vzic_path):
+    def run(self, zones_json_file, tzprops_file, vzic_path):
         """Run the timezone updater, with a zones.json file and the path to vzic"""
         need_download_tzdata = self.tzdata_path is None
         if need_download_tzdata:
@@ -198,6 +220,8 @@ class TimezoneUpdater(object):
         newaliases = self.link_removed_zones(zonesjson['zones'], newzones, links)
         zonesjson["aliases"].update(newaliases)
 
+        self.update_timezones_properties(tzprops_file, version, newzones, zonesjson["aliases"])
+
         self.write_output(version, zonesjson["aliases"], newzones, zones_json_file)
 
         if need_download_tzdata:
@@ -220,11 +244,14 @@ def main():
     """Run the timezone updater from command-line args"""
     args = parse_args()
     json_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "zones.json")
+    tzprops_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                "..", "locales", "en-US", "chrome", "calendar",
+                                "timezones.properties")
     zoneinfo_path = tempfile.mkdtemp(prefix="zones")
     zoneinfo_pure_path = tempfile.mkdtemp(prefix="zones")
 
     updater = TimezoneUpdater(args.tzdata_path, zoneinfo_path, zoneinfo_pure_path)
-    updater.run(json_file, args.vzic_path)
+    updater.run(json_file, tzprops_file, args.vzic_path)
 
     # Clean up.
     shutil.rmtree(zoneinfo_path)
