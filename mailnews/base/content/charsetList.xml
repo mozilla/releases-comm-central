@@ -17,12 +17,12 @@
         let charsetValues = "";
 
         if (this.getAttribute("subset") == "sending")
-          charsetValues = ["UTF-8", "EUC-KR", "gb18030", "ISO-2022-JP",
+          charsetValues = ["UTF-8", "EUC-KR", "gbk", "gb18030", "ISO-2022-JP",
                            "ISO-8859-1", "ISO-8859-7", "windows-1252"];
 
         else if (!this.getAttribute("subset")
                  || this.getAttribute("subset") == "viewing")
-          charsetValues = ["UTF-8", "Big5", "EUC-KR", "gb18030", "ISO-2022-JP",
+          charsetValues = ["UTF-8", "Big5", "EUC-KR", "gbk", "ISO-2022-JP",
                            "ISO-8859-1", "ISO-8859-2", "ISO-8859-7",
                            "windows-874", "windows-1250", "windows-1251",
                            "windows-1252", "windows-1255", "windows-1256",
