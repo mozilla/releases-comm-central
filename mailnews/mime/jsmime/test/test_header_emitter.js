@@ -60,6 +60,11 @@ suite('headeremitter', function () {
                                 {name: "", email: "b@b.c"}]}],
         "Group: a@a.c, b@b.c;"],
       [[{name: "No email address", email: ""}], "No email address"],
+      [[{name: "]user[ domain", email: "user@d.com"}],
+        "\"]user[ domain\" <user@d.com>"],
+      [[{name: "Group", group: [{name: "]u[ d", email: "a@a.c"},
+                                {name: "]u[ c", email: "b@b.c"}]}],
+        "Group: \"]u[ d\" <a@a.c>,\r\n \"]u[ c\" <b@b.c>;"],
     ];
     header_tests.forEach(function (data) {
       arrayTest(data, function () {

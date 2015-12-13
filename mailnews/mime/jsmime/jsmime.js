@@ -258,7 +258,7 @@ structuredEncoders.set("Content-Transfer-Encoding", writeUnstructured);
 
 // Some clients like outlook.com send non-compliant References headers that
 // separate values using commas. Also, some clients don't separate References
-// with spaces, since these are optional accordint to RFC2822. So here we
+// with spaces, since these are optional according to RFC2822. So here we
 // preprocess these headers (see bug 1154521 and bug 1197686).
 function preprocessMessageIDs(values) {
   let msgId = /<[^>]*>/g;
@@ -3021,7 +3021,7 @@ HeaderEmitter.prototype.addAddress = function (addr) {
   if (addr.name) {
     // This is a simple estimate that keeps names on one line if possible.
     this._reserveTokenSpace(addr.name.length + addr.email.length + 3);
-    this.addPhrase(addr.name, ",()<>:;.\"", true);
+    this.addPhrase(addr.name, ",()<>[]:;.\"", true);
 
     // If we don't have an email address, don't write out the angle brackets for
     // the address. It's already an abnormal situation should this appear, and
@@ -3076,7 +3076,7 @@ HeaderEmitter.prototype.addAddresses = function (addresses) {
     } else {
       // A group has format name: member, member;
       // Note that we still add a comma after the group is completed.
-      this.addPhrase(addr.name, ",()<>:;.\"", false);
+      this.addPhrase(addr.name, ",()<>[]:;.\"", false);
       this.addText(":", true);
 
       this.addAddresses(addr.group);

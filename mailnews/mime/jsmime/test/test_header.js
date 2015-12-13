@@ -385,27 +385,27 @@ suite('headerparser', function () {
       ["\"=?UTF-8?Q?Jazzy_Fern=C3=A1ndez_Nunoz?= jazzy.f.nunoz@example.com " +
         "[BCN-FC]\" <Barcelona-Freecycle-noreply@yahoogroups.com>",
         [{name: "Jazzy Fern\u00E1ndez Nunoz jazzy.f.nunoz@example.com [BCN-FC]",
-      email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
+          email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
       ["\"=?UTF-8?B?TWlyaWFtIEJlcm5hYsOpIFBlcmVsbMOz?= miriam@example.com "+
         "[BCN-FC]\" <Barcelona-Freecycle-noreply@yahoogroups.com>",
         [{name: "Miriam Bernab\u00E9 Perell\u00F3 miriam@example.com [BCN-FC]",
-      email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
+          email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
       ["\"=?iso-8859-1?Q?First_Mar=EDa_Furi=F3_Gancho?= mail@yahoo.es "+
         "[BCN-FC]\" <Barcelona-Freecycle-noreply@yahoogroups.com>",
         [{name: "First Mar\u00EDa Furi\u00F3 Gancho mail@yahoo.es [BCN-FC]",
-      email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
+          email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
       ["\"=?iso-8859-1?B?U29maWEgQ2FzdGVsbPMgUm9tZXJv?= sonia@example.com "+
         "[BCN-FC]\" <Barcelona-Freecycle-noreply@yahoogroups.com>",
         [{name: "Sofia Castell\u00F3 Romero sonia@example.com [BCN-FC]",
-      email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
+          email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
       ["=?iso-8859-1?Q?Klaus_Eisschl=E4ger_=28k=2Eeisschlaeger=40t-onli?=" +
         "=?iso-8859-1?Q?ne=2Ede=29?= <k.eisschlaeger@t-online.de>",
-      [{name: "Klaus Eisschläger (k.eisschlaeger@t-online.de)",
-        email: "k.eisschlaeger@t-online.de"}]],
+        [{name: "Klaus Eisschläger (k.eisschlaeger@t-online.de)",
+          email: "k.eisschlaeger@t-online.de"}]],
       ["\"=?UTF-8?Q?=22Claudia_R=C3=B6hschicht=22?= Claudia_Roehschicht@web.de [freecycle-berlin]\" " +
         "<freecycle-berlin-noreply@yahoogroups.de>",
-      [{name: "\"Claudia Röhschicht\" Claudia_Roehschicht@web.de [freecycle-berlin]",
-        email: "freecycle-berlin-noreply@yahoogroups.de"}]],
+        [{name: "\"Claudia Röhschicht\" Claudia_Roehschicht@web.de [freecycle-berlin]",
+          email: "freecycle-berlin-noreply@yahoogroups.de"}]],
     ];
     header_tests.forEach(function (data) {
       arrayTest(data, function () {
