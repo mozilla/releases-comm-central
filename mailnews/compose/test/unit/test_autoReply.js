@@ -17,50 +17,86 @@ load("../../../resources/logHelper.js"); // watch for errors in the error consol
 const kSender = "from@foo.invalid";
 
 var gIncomingMailFile = do_get_file("../../../data/bugmail10"); // mail to reply to
+// reply-filter-testmail: mail to reply to (but not really)
+var gIncomingMailFile2 = do_get_file("../../../data/reply-filter-testmail");
 var gTemplateMailFile = do_get_file("../../../data/draft1"); // template
 var gTemplateFolder;
+
+var gServer;
 
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
   gTemplateFolder = localAccountUtils.rootFolder
                                      .createLocalSubfolder("Templates");
+
+  gServer = setupServerDaemon();
+  gServer.start();
+
   run_next_test();
 }
 
-add_task(function* copySourceMessage() {
+add_task(function* copy_gIncomingMailFile() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
-  // Get the message to reply to into the inbox.
+  // Copy gIncomingMailFile into the Inbox.
   MailServices.copy.CopyFileMessage(gIncomingMailFile,
     localAccountUtils.inboxFolder, null, false, 0, "",
     promiseCopyListener, null);
   yield promiseCopyListener.promise;
 });
 
-add_task(function* copyTemplateMessage() {
+add_task(function* copy_gIncomingMailFile2() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
-  // Get a template message into the Templates folder.
+  // Copy gIncomingMailFile2 into the Inbox.
+  MailServices.copy.CopyFileMessage(gIncomingMailFile2,
+    localAccountUtils.inboxFolder, null, false, 0, "",
+    promiseCopyListener, null);
+  yield promiseCopyListener.promise;
+});
+
+add_task(function* copy_gTemplateMailFile() {
+  let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
+  // Copy gTemplateMailFile into the Templates folder.
   MailServices.copy.CopyFileMessage(gTemplateMailFile,
     gTemplateFolder, null, true, 0, "",
     promiseCopyListener, null);
   yield promiseCopyListener.promise;
 });
 
-add_task(function testReplyWithTemplate() {
-  testReply();
+/// Test that a reply is NOT sent when the message is not addressed to "me".
+add_task(function testReplyingToUnadressedFails() {
+  try {
+    testReply(0); // mail 0 is not to us!
+    do_throw("Replied to a message not addressed to us!");
+  }
+  catch (e) {
+    if (e.result != Components.results.NS_ERROR_ABORT)
+      throw e;
+    // Ok! We didn't reply to the message not specifically addressed to
+    // us (from@foo.invalid).
+  }
+});
+
+/// Test that a reply is sent when the message is addressed to "me".
+add_task(function testReplyingToAdressedWorks() {
+  try {
+    testReply(1); // mail 1 is adressed to us
+  }
+  catch (e) {
+    do_throw("Didn't reply to a message addressed to us! "  + e);
+  }
 });
 
 /// Test reply with template.
-function testReply() {
-  // fake smtp server setup
-  let server = setupServerDaemon();
+function testReply(aHrdIdx) {
   let smtpServer = getBasicSmtpServer();
-  server.start();
-  smtpServer.port = server.port;
+  smtpServer.port = gServer.port;
 
   let identity = getSmtpIdentity(kSender, smtpServer);
   localAccountUtils.msgAccount.addIdentity(identity);
 
-  let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
+  let msgHdr = mailTestUtils.getMsgHdrN(localAccountUtils.inboxFolder, aHrdIdx);
+  do_print("Sender: " + kSender + ", msg #" + aHrdIdx + " recipients: " +
+           msgHdr.recipients);
   let templateHdr = mailTestUtils.getMsgHdrN(gTemplateFolder, 0);
 
   // See <method name="getTemplates"> in searchWidgets.xml
@@ -69,18 +105,16 @@ function testReply() {
                        "&subject=" + templateHdr.mime2DecodedSubject;
   MailServices.compose.replyWithTemplate(msgHdr, msgTemplateUri, null,
     localAccountUtils.incomingServer);
-  server.performTest();
-  let headers = MimeParser.extractHeaders(server._daemon.post);
+  gServer.performTest();
+  let headers = MimeParser.extractHeaders(gServer._daemon.post);
   do_check_true(headers.get("Subject").startsWith("Auto: "));
-  do_check_eq(headers.get("Auto-submitted"), "auto-replied");;
+  do_check_eq(headers.get("Auto-submitted"), "auto-replied");
 
-  // fake server cleanup
-  server.stop();
-
-  let thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents()) {
-    thread.processNextEvent(true);
-  }
-  do_test_finished();
+  gServer.resetTest();
 }
+
+add_task(function teardown() {
+  // fake server cleanup
+  gServer.stop();
+});
 
