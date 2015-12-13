@@ -23,6 +23,8 @@
 <!ENTITY biffStart.label "Check for new messages every ">
 <!ENTITY biffStart.accesskey "y">
 <!ENTITY biffEnd.label "minutes">
+<!ENTITY useIdleNotifications.label "Allow immediate server notifications when new messages arrive">
+<!ENTITY useIdleNotifications.accesskey "A">
 <!ENTITY connectionSecurity.label "Connection security:">
 <!ENTITY connectionSecurity.accesskey "u">
 <!ENTITY connectionSecurityType-0.label "None">

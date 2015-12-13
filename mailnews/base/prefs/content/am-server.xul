@@ -158,20 +158,38 @@
                 accesskey="&loginAtStartup.accesskey;"
                 prefattribute="value"
                 prefstring="mail.server.%serverkey%.login_at_startup"/>
-    </vbox>
-    <hbox align="center">
-      <checkbox wsm_persist="true" id="server.doBiff" label="&biffStart.label;"
-                accesskey="&biffStart.accesskey;"
-                oncommand="onCheckItem('server.biffMinutes', [this.id]);"
-                prefattribute="value"
-                prefstring="mail.server.%serverkey%.check_new_mail"/>
-      <textbox wsm_persist="true" id="server.biffMinutes"
-               type="number" size="3" min="1" increment="1"
-               aria-labelledby="server.doBiff server.biffMinutes biffEnd"
-               preftype="int"
-               prefstring="mail.server.%serverkey%.check_time"/>
-      <label id="biffEnd" control="server.biffMinutes" value="&biffEnd.label;"/>
-    </hbox>
+      </vbox>
+      <hbox align="center">
+        <checkbox wsm_persist="true"
+                  id="server.doBiff"
+                  label="&biffStart.label;"
+                  accesskey="&biffStart.accesskey;"
+                  oncommand="onCheckItem('server.biffMinutes', [this.id]);"
+                  prefattribute="value"
+                  prefstring="mail.server.%serverkey%.check_new_mail"/>
+        <textbox wsm_persist="true"
+                 id="server.biffMinutes"
+                 type="number"
+                 size="3"
+                 min="1"
+                 increment="1"
+                 aria-labelledby="server.doBiff server.biffMinutes biffEnd"
+                 preftype="int"
+                 prefstring="mail.server.%serverkey%.check_time"/>
+        <label id="biffEnd"
+               control="server.biffMinutes"
+               value="&biffEnd.label;"/>
+      </hbox>
+      <vbox align="start">
+        <checkbox wsm_persist="true"
+                  id="imap.useIdle"
+                  hidefor="pop3,nntp,movemail"
+                  label="&useIdleNotifications.label;"
+                  accesskey="&useIdleNotifications.accesskey;"
+                  prefattribute="value"
+                  prefstring="mail.server.%serverkey%.use_idle"/>
+      </vbox>
+
     <!-- Necessary for POP3 and Movemail (Bug 480945) -->
     <!-- https://bugzilla.mozilla.org/show_bug.cgi?id=480945 -->
     <vbox align="start" hidefor="imap,nntp">
@@ -302,9 +320,6 @@
       <checkbox hidden="true" wsm_persist="true" id="imap.usingSubscription"
                 prefattribute="value"
                 prefstring="mail.server.%serverkey%.using_subscription"/>
-      <checkbox hidden="true" wsm_persist="true" id="imap.useIdle"
-                prefattribute="value"
-                prefstring="mail.server.%serverkey%.use_idle"/>
       <label hidden="true" wsm_persist="true" id="imap.maximumConnectionsNumber"/>
       <label hidden="true" wsm_persist="true" id="imap.personalNamespace"/>
       <label hidden="true" wsm_persist="true" id="imap.publicNamespace"/>
