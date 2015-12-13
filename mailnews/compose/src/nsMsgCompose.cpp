@@ -4425,7 +4425,7 @@ nsMsgCompose::BuildBodyMessageAndSignature()
   // by removing the end of line char(s).
   int32_t wrapping_enabled = 0;
   GetWrapLength(&wrapping_enabled);
-  if (!m_composeHTML && !addSignature && wrapping_enabled)
+  if (!m_composeHTML && wrapping_enabled)
   {
     bool quote = false;
     for (uint32_t i = 0; i < body.Length(); i ++)
