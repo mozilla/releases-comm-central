@@ -236,6 +236,11 @@ folderSummaryLocation
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#folderSummary-location");
 }
 
+folderSummarySubfoldersSummary
+{
+  -moz-binding: url("chrome://messenger/content/mailWidgets.xml#folderSummary-subfoldersSummary");
+}
+
 tabmail {
   -moz-binding: url("chrome://messenger/content/tabmail.xml#tabmail");
 }

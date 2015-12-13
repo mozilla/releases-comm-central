@@ -961,6 +961,9 @@ var gFolderTreeView = {
   isContainerOpen: function ftv_isContainerOpen(aIndex) {
     return this._rowMap[aIndex].open;
   },
+  getSummarizedCounts: function(aIndex, aColName) {
+    return this._rowMap[aIndex]._summarizedCounts.get(aColName);
+  },
   isEditable: function ftv_isEditable(aRow, aCol) {
     // We don't support editing rows in the tree yet.  We may want to later as
     // an easier way to rename folders.
@@ -2177,6 +2180,10 @@ function ftvItem(aFolder, aFolderFilter) {
   this._parent = null;
   this._folderFilter = aFolderFilter;
   this._favicon = null;
+  // The map contains message counts for each folder column.
+  // Each key is a column name (ID) from the folder tree.
+  // Value is an array of the format "[value_for_folder, value_for_all_its_subfolders]".
+  this._summarizedCounts = new Map();
 }
 
 ftvItem.prototype = {
@@ -2198,6 +2205,7 @@ ftvItem.prototype = {
                           (gFolderTreeView.mode == kDefaultMode) &&
                           this._folder.hasSubFolders && !this.open;
 
+    this._summarizedCounts.delete(aColName);
     switch (aColName) {
       case "folderNameCol":
         let text;
@@ -2218,17 +2226,21 @@ ftvItem.prototype = {
         let unread = this._folder.getNumUnread(false);
         let totalUnread = gFolderStatsHelpers.sumSubfolders ?
                           this._folder.getNumUnread(true) : unread;
-        if (totalUnread > 0)
+        this._summarizedCounts.set(aColName, [unread, totalUnread - unread]);
+        if (totalUnread > 0) {
           text = gFolderTreeView.messengerBundle
             .getFormattedString("folderWithUnreadMsgs",
                                 [text, gFolderStatsHelpers.addSummarizedPrefix(totalUnread,
                                        unread != totalUnread)]);
+        }
         return text;
 
       case "folderUnreadCol":
         let folderUnread = this._folder.getNumUnread(false);
         let subfoldersUnread = gFolderStatsHelpers.sumSubfolders ?
                                this._folder.getNumUnread(true) : folderUnread;
+        this._summarizedCounts.set(aColName, [folderUnread,
+                                              subfoldersUnread - folderUnread]);
         return gFolderStatsHelpers
                  .fixNum(subfoldersUnread, folderUnread != subfoldersUnread);
 
@@ -2236,37 +2248,32 @@ ftvItem.prototype = {
         let folderTotal = this._folder.getTotalMessages(false);
         let subfoldersTotal = gFolderStatsHelpers.sumSubfolders ?
                               this._folder.getTotalMessages(true) : folderTotal;
+        this._summarizedCounts.set(aColName, [folderTotal,
+                                              subfoldersTotal - folderTotal]);
         return gFolderStatsHelpers
                  .fixNum(subfoldersTotal, folderTotal != subfoldersTotal);
 
       case "folderSizeCol":
         let thisFolderSize = gFolderStatsHelpers.getFolderSize(this._folder);
-        let totalSize = gFolderStatsHelpers.sumSubfolders ?
-                        gFolderStatsHelpers.getSubfoldersSize(this._folder) : 0;
+        let subfoldersSize = gFolderStatsHelpers.sumSubfolders ?
+                             gFolderStatsHelpers.getSubfoldersSize(this._folder) : 0;
 
-        if (totalSize == gFolderStatsHelpers.kUnknownSize ||
+        if (subfoldersSize == gFolderStatsHelpers.kUnknownSize ||
             thisFolderSize == gFolderStatsHelpers.kUnknownSize)
           return gFolderStatsHelpers.kUnknownSize;
 
-        totalSize += thisFolderSize;
+        let totalSize = thisFolderSize + subfoldersSize;
         if (totalSize == 0)
           return "";
 
-        // If size is non-zero try to show it in a unit that fits in 3 digits,
-        // but if user specified a fixed unit, use that.
-        let size = Math.round(totalSize / 1024);
-        let units = gFolderStatsHelpers.kiloUnit;
-        if (gFolderStatsHelpers.sizeUnits != "KB" &&
-            (size > 999 || gFolderStatsHelpers.sizeUnits == "MB")) {
-          size = Math.round(size / 1024);
-          units = gFolderStatsHelpers.megaUnit;
-        }
-
-        // This needs to be updated if the "%.*f" placeholder string
-        // in "*ByteAbbreviation2" in messenger.properties changes.
+        let [totalText, folderUnit] = gFolderStatsHelpers.formatFolderSize(totalSize);
+        let folderText = (subfoldersSize == 0) ? totalText :
+                         gFolderStatsHelpers.formatFolderSize(thisFolderSize, folderUnit)[0];
+        let subfoldersText = (subfoldersSize == 0) ? "" :
+                             gFolderStatsHelpers.formatFolderSize(subfoldersSize, folderUnit)[0];
+        this._summarizedCounts.set(aColName, [folderText, subfoldersText]);
         return gFolderStatsHelpers
-                 .addSummarizedPrefix(units.replace("%.*f", size).replace(" ",""),
-                                      totalSize != thisFolderSize);
+                 .addSummarizedPrefix(totalText, totalSize != thisFolderSize);
 
       default:
         return "";
@@ -2813,7 +2820,7 @@ var gFolderStatsHelpers = {
         return aValue;
 
       return gFolderTreeView.messengerBundle
-        .getFormattedString("folderSummarizedValue", [aValue]);
+        .getFormattedString("folderSummarizedSymbolValue", [aValue]);
     },
 
     /**
@@ -2863,12 +2870,37 @@ var gFolderStatsHelpers = {
           let subFolder = subFolders.getNext()
             .QueryInterface(Components.interfaces.nsIMsgFolder);
           let subSize = this.getFolderSize(subFolder);
-          if (subSize == this.kUnknownSize)
+          let subSubSize = this.getSubfoldersSize(subFolder);
+          if (subSize == this.kUnknownSize || subSubSize == this.kUnknownSize)
             return subSize;
 
-          folderSize += subSize;
+          folderSize += subSize + subSubSize;
         }
       }
       return folderSize;
+    },
+
+    /**
+     * Format the given folder size into a string with an appropriate unit.
+     *
+     * @param aSize  The size in bytes to format.
+     * @param aUnit  Optional unit to use for the format.
+     *               Possible values are "KB" or "MB".
+     * @return       An array with 2 values. First is the resulting formatted strings.
+     *               The second one is the final unit used to format the string.
+     */
+    formatFolderSize: function(aSize, aUnit = gFolderStatsHelpers.sizeUnits) {
+      let size = Math.round(aSize / 1024);
+      let unit = gFolderStatsHelpers.kiloUnit;
+      // If size is non-zero try to show it in a unit that fits in 3 digits,
+      // but if user specified a fixed unit, use that.
+      if (aUnit != "KB" && (size > 999 || aUnit == "MB")) {
+        size = Math.round(size / 1024);
+        unit = gFolderStatsHelpers.megaUnit;
+        aUnit = "MB";
+      }
+      // This needs to be updated if the "%.*f" placeholder string
+      // in "*ByteAbbreviation2" in messenger.properties changes.
+      return [unit.replace("%.*f", size).replace(" ",""), aUnit];
     }
 };

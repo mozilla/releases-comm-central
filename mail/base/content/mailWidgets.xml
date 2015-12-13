@@ -2417,9 +2417,17 @@
 
           let row = {}, col = {};
           gFolderTreeView._tree.getCellAt(event.clientX, event.clientY, row, col, {});
-          let cropped = gFolderTreeView._tree.isCellCropped(row.value, col.value);
-          if (tooltipnode.addLocationInfo(msgFolder, cropped))
-            return true;
+          if (col.value.id == "folderNameCol") {
+            let cropped = gFolderTreeView._tree.isCellCropped(row.value, col.value);
+            if (tooltipnode.addLocationInfo(msgFolder, cropped))
+              return true;
+          }
+
+          let counts = gFolderTreeView.getSummarizedCounts(row.value, col.value.id);
+          if (counts) {
+            if (tooltipnode.addSummarizeExplain(counts))
+              return true;
+          }
 
           return false;
         ]]>
@@ -2612,6 +2620,22 @@
         </body>
       </method>
 
+      <method name="addSummarizeExplain">
+        <parameter name="aCounts"/>
+        <body>
+          <![CDATA[
+            if (!aCounts || !aCounts[1])
+              return false;
+            let expl = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "folderSummarySubfoldersSummary");
+            let sumString = document.getElementById("bundle_messenger")
+                                    .getFormattedString("subfoldersExplanation", [aCounts[0], aCounts[1]], 2);
+            expl.setAttribute("subfolders", sumString);
+            document.getAnonymousNodes(this)[0].appendChild(expl);
+            return true;
+          ]]>
+        </body>
+      </method>
+
       <method name="clear">
         <body>
           <![CDATA[
@@ -2634,6 +2658,14 @@
     <content>
       <xul:hbox>
         <xul:label anonid="location" xbl:inherits="value=location"/>
+      </xul:hbox>
+    </content>
+  </binding>
+
+  <binding id="folderSummary-subfoldersSummary">
+    <content>
+      <xul:hbox>
+        <xul:label anonid="subfolders" xbl:inherits="value=subfolders"/>
       </xul:hbox>
     </content>
   </binding>
