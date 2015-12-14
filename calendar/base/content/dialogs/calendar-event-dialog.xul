@@ -33,6 +33,7 @@
         onunload="onEventDialogUnload();"
         ondialogaccept="return onAccept();"
         ondialogcancel="return onCancel();"
+        onresize="rearrangeAttendees();"
         persist="screenX screenY width height"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
@@ -432,7 +433,7 @@
                   accesskey="&event.menu.options.accesskey;">
                 <menupopup id="options-menupopup"
                            onpopupshowing="onPopupShowing(this)">
-                  <menuitem id="options-attendess-menuitem"
+                  <menuitem id="options-attendees-menuitem"
                             label="&event.menu.options.attendees.label;"
                             accesskey="&event.menu.options.attendees.accesskey;"
                             command="cmd_attendees"
@@ -806,32 +807,6 @@
                 </hbox>
             </row>
 
-            <!-- Attendees -->
-            <row id="event-grid-attendee-row" align="center">
-                <label value="&event.attendees.label;"
-                       accesskey="&event.attendees.accesskey;"
-                       control="attendee-list"
-                       disable-on-readonly="true"/>
-                <label id="attendee-list"
-                       class="text-link"
-                       crop="right"
-                       tooltiptext=""
-                       onclick="showAttendeePopup(event)"/>
-            </row>
-            <row id="event-grid-attendee-row-2">
-                <spacer/>
-                <hbox id="notify-options-box" align="center">
-                <checkbox id="notify-attendees-checkbox"
-                          label="&event.attendees.notify.label;"
-                          oncommand="changeUndiscloseCheckboxStatus();"
-                          pack="start"/>
-                <checkbox id="undisclose-attendees-checkbox"
-                          label="&event.attendees.notifyundisclosed.label;"
-                          tooltiptext="&event.attendees.notifyundisclosed.tooltip;"
-                          pack="start"/>
-                </hbox>
-            </row>
-
             <separator class="groove" id="event-grid-basic-separator"/>
 
             <!-- All-Day -->
@@ -1178,38 +1153,80 @@
                </hbox>
             </row>
 
-            <separator id="event-grid-description-separator"
+            <separator id="event-grid-tabbox-separator"
                        class="groove"/>
 
-            <!-- Description -->
-            <row id="event-grid-description-row" flex="1">
-                <label value="&event.description.label;"
-                       accesskey="&event.description.accesskey;"
-                       control="item-description"
-                       disable-on-readonly="true"/>
-                <textbox id="item-description"
-                         disable-on-readonly="true"
-                         flex="1"
-                         multiline="true"
-                         rows="12"/>
-            </row>
-
-            <separator class="groove" id="event-grid-attachment-separator"/>
-
-            <!-- Attachment -->
-            <row id="event-grid-attachment-row"
-                 flex="1"
-                 collapsed="true">
-                <label value="&event.attachments.label;"
-                    accesskey="&event.attachments.accesskey;"
-                       control="attachment-link"
-                       disable-on-readonly="true"/>
-                 <listbox id="attachment-link"
-                          context="attachment-popup"
-                          rows="3"
-                          onkeypress="attachmentLinkKeyPress(event)"
-                          onclick="attachmentLinkClicked(event);"/>
-            </row>
+            <!-- Multi purpose tab box -->
+            <tabbox id="event-grid-tabbox"
+                    selectedIndex="0"
+                    flex="1">
+              <tabs id="event-grid-tabs">
+                <tab id="event-grid-tab-description"
+                     label="&event.description.label;"
+                     accesskey="&event.description.accesskey;"/>
+                <tab id="event-grid-tab-attachments"
+                     label="&event.attachments.label;"
+                      accesskey="&event.attachments.accesskey;"/>
+                <tab id="event-grid-tab-attendees"
+                     label="&event.attendees.label;"
+                     accesskey="&event.attendees.accesskey;"
+                     collapsed="true"/>
+              </tabs>
+              <tabpanels id="event-grid-tabpanels"
+                         flex="1">
+                <tabpanel id="event-grid-tabpanel-description">
+                  <textbox id="item-description"
+                           disable-on-readonly="true"
+                           flex="1"
+                           multiline="true"
+                           rows="12"/>
+                </tabpanel>
+                <tabpanel id="event-grid-tabpanel-attachements">
+                    <vbox flex="1">
+                      <listbox id="attachment-link"
+                               context="attachment-popup"
+                               rows="3"
+                               flex="1"
+                               disable-on-readonly="true"
+                               onkeypress="attachmentLinkKeyPress(event)"
+                               ondblclick="attachmentLinkDblClicked(event);"/>
+                    </vbox>
+                </tabpanel>
+                <tabpanel id="event-grid-tabpanel-attendees"
+                          collapsed="true">
+                  <vbox flex="1">
+                    <hbox id="item-organizer-row"
+                          collapsed="true"
+                          align="top"
+                          class="item-attendees-row">
+                      <label value="&read.only.organizer.label;"/>
+                      <hbox class="item-organizer-cell">
+                        <img class="itip-icon"/>
+                        <label id="item-organizer"
+                               class="item-attendees-cell-label"
+                               crop="right"/>
+                      </hbox>
+                    </hbox>
+                    <hbox flex="1">
+                      <vbox id="item-attendees-box"
+                            dialog-type="event"
+                            flex="1"
+                            disable-on-readonly="true"/>
+                    </hbox>
+                    <hbox id="notify-options" align="center">
+                      <checkbox id="notify-attendees-checkbox"
+                                label="&event.attendees.notify.label;"
+                                oncommand="changeUndiscloseCheckboxStatus();"
+                                pack="start"/>
+                      <checkbox id="undisclose-attendees-checkbox"
+                                label="&event.attendees.notifyundisclosed.label;"
+                                tooltiptext="&event.attendees.notifyundisclosed.tooltip;"
+                                pack="start"/>
+                    </hbox>
+                  </vbox>
+                </tabpanel>
+              </tabpanels>
+            </tabbox>
 
             <separator id="event-grid-link-separator"
                        class="groove"
@@ -1304,6 +1321,16 @@
                   accesskey="&event.invite.attendees.accesskey;"
                   command="cmd_attendees"
                   disable-on-readonly="true"/>
+        <menuitem id="attendee-popup-removeallattendees-menuitem"
+                  label="&event.remove.attendees.label;"
+                  accesskey="&event.remove.attendees.accesskey;"
+                  oncommand="removeAllAttendees()"
+                  disable-on-readonly="true"
+                  crop="end"/>
+        <menuitem id="attendee-popup-removeattendee-menuitem"
+                  label="&event.remove.attendee.label;"
+                  oncommand="removeAttendee(event.target.attendee)"
+                  crop="end"/>
         <menuseparator id="attendees-popup-menuseparator"/>
         <menuitem id="attendee-popup-sendemail-menuitem"
                   label="&event.email.attendees.label;"
@@ -1314,7 +1341,9 @@
                   accesskey="&event.email.tentative.attendees.accesskey;"
                   command="cmd_email_undecided"/>
         <menuseparator id="attendee-popup-separator"/>
-        <menuitem class="status-icon menuitem-iconic" oncommand="sendMailToAttendees([event.target.attendee])" crop="end"/>
+        <menuitem id="attendee-popup-emailattendee-menuitem"
+                  oncommand="sendMailToAttendees([event.target.attendee])"
+                  crop="end"/>
       </menupopup>
       <menupopup id="attachment-popup">
             <menuitem id="attachment-popup-open"
@@ -1348,4 +1377,22 @@
                   oncommand="this.parentNode.editTimezone()"/>
       </menupopup>
     </popupset>
+
+    <!-- attendee box template -->
+    <vbox id="item-attendees-box-template"
+          hidden="true">
+      <hbox flex="1" class="item-attendees-row" equalsize="always" hidden="true">
+        <box class="item-attendees-cell"
+             hidden="true"
+             flex="1"
+             context="attendee-popup"
+             onclick="showAttendeePopup(event)">
+          <img class="itip-icon"/>
+          <label class="item-attendees-cell-label"
+                 crop="end"
+                 flex="1"/>
+        </box>
+        <box hidden="true" flex="1"/>
+      </hbox>
+    </vbox>
 </dialog>

@@ -133,11 +133,14 @@
 <!ENTITY  event.menu.options.show.time.free.accesskey         "F">
 
 <!ENTITY event.invite.attendees.label                     "Invite Attendees…">
-<!ENTITY event.invite.attendees.accesskey                 "I">
+<!ENTITY event.invite.attendees.accesskey                 "Q">
 <!ENTITY event.email.attendees.label                      "Compose E-Mail to All Attendees…">
 <!ENTITY event.email.attendees.accesskey                  "A">
 <!ENTITY event.email.tentative.attendees.label            "Compose E-Mail to Undecided Attendees…">
 <!ENTITY event.email.tentative.attendees.accesskey        "U">
+<!ENTITY event.remove.attendees.label                     "Remove all attendees...">
+<!ENTITY event.remove.attendees.accesskey                 "q">
+<!ENTITY event.remove.attendee.label                      "Remove attendee">
 
 <!-- Toolbar -->
 <!ENTITY  event.toolbar.save.label                        "Save and Close">
@@ -158,14 +161,14 @@
 <!ENTITY event.title.textbox.label                        "Title:" >
 <!ENTITY event.title.textbox.accesskey                    "I">
 <!ENTITY event.location.label                             "Location:" >
-<!ENTITY event.location.accesskey                         "L">
+<!ENTITY event.location.accesskey                         "c">
 <!ENTITY event.categories.label                           "Category:">
 <!ENTITY event.categories.accesskey                       "y">
 <!ENTITY event.categories.textbox.label                   "Add a new category" >
 <!ENTITY event.calendar.label                             "Calendar:" >
 <!ENTITY event.calendar.accesskey                         "C">
 <!ENTITY event.attendees.label                            "Attendees:" >
-<!ENTITY event.attendees.accesskey                        "I" >
+<!ENTITY event.attendees.accesskey                        "s" >
 <!ENTITY event.alldayevent.label                          "All day Event" >
 <!ENTITY event.alldayevent.accesskey                      "d">
 <!ENTITY event.from.label                                 "Start:" >
@@ -173,7 +176,7 @@
 <!ENTITY task.from.label                                  "Start:" >
 <!ENTITY task.from.accesskey                              "B">
 <!ENTITY event.to.label                                   "End:" >
-<!ENTITY event.to.accesskey                               "n">
+<!ENTITY event.to.accesskey                               "x">
 <!ENTITY task.to.label                                    "Due Date:" >
 <!ENTITY task.to.accesskey                                "u">
 <!ENTITY task.status.label                                "Status:" >
@@ -199,7 +202,7 @@
 <!ENTITY event.attachments.popup.removeAll.label          "Remove All" >
 <!ENTITY event.attachments.popup.removeAll.accesskey      "A" >
 <!ENTITY event.attachments.popup.attachPage.label         "Attach Webpage…" >
-<!ENTITY event.attachments.popup.attachPage.accesskey     "W" >
+<!ENTITY event.attachments.popup.attachPage.accesskey     "g" >
 <!ENTITY event.url.label                                  "Related Link:" >
 <!ENTITY event.priority2.label                            "Priority:">
 
@@ -348,6 +351,7 @@
 <!ENTITY event.attendee.usertype.group          "Group">
 <!ENTITY event.attendee.usertype.resource       "Resource">
 <!ENTITY event.attendee.usertype.room           "Room">
+<!ENTITY event.attendee.usertype.unknown        "Unknown">
 
 <!-- Timezone dialog -->
 <!ENTITY timezone.title.label            "Please Specify the Timezone">

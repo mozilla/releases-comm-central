@@ -10,22 +10,30 @@
     border: solid ThreeDShadow 1px;
     background-color: -moz-field;
     overflow-y: auto;
-    min-height: 18px; /*at least one row*/
+    min-height: 23px; /*at least two rows - otherwise a scrollbar (if required) wouldn't appear*/
 }
 
 #calendar-summary-dialog #item-attendees-box {
-    max-height: 72px; /* displays up to four rows of attendees*/
+    max-height: 92px; /* displays up to four rows of attendees*/
     margin: 0px 10px;
 }
 
 .item-attendees-row {
     margin: 0px 3px;
     padding: 0px 3px;
-    max-height: 18px;
 }
 
 .item-attendees-cell {
     padding: 3px 0px;
+}
+
+#calendar-event-dialog .item-attendees-cell {
+    -moz-user-focus: normal;
+}
+
+#calendar-event-dialog .item-attendees-cell:focus {
+    background-color: Highlight;
+    color: Highlighttext;
 }
 
 .item-attendees-cell-label {

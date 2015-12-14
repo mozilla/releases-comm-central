@@ -512,8 +512,9 @@ function updateLink() {
  */
 function setupAttendees() {
 
+    let attBox = document.getElementById("item-attendees-box");
+    let attBoxRows = attBox.getElementsByClassName("item-attendees-row");
     if (window.attendees && window.attendees.length > 0) {
-        let attBox = document.getElementById("item-attendees-box");
 
         // cloning of the template nodes
         let selector = "#item-attendees-box-template .item-attendees-row";
@@ -529,15 +530,8 @@ function setupAttendees() {
             inRow = determineAttendeesInRow();
             window.attendeesInRow = inRow;
         } else {
-            let attBoxRows = attBox.getElementsByClassName("item-attendees-row");
-            let prevInRow = attBoxRows[0].childNodes.length;
-            if (prevInRow != window.attendeesInRow) {
-                while(attBoxRows.length > 0) {
-                    attBox.removeChild(attBoxRows[0]);
-                }
-            } else {
-                // no update needed
-                return;
+            while(attBoxRows.length > 0) {
+                attBox.removeChild(attBoxRows[0]);
             }
         }
 
@@ -608,6 +602,10 @@ function setupAttendees() {
                 maxWidth = cell.clientWidth > maxWidth ? cell.clientWidth : maxWidth;
             }
             window.maxLabelWidth = maxWidth;
+        }
+    } else {
+        while(attBoxRows.length > 0) {
+            attBox.removeChild(attBoxRows[0]);
         }
     }
 }
