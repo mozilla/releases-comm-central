@@ -12,7 +12,8 @@
 var MODULE_NAME = "test-drafts";
 
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
+                       "window-helpers", "notificationbox-helpers"];
 
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/mailServices.js");
@@ -21,9 +22,9 @@ var kBoxId = "msgNotificationBar";
 var draftsFolder;
 
 function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("compose-helpers").installInto(module);
-  collector.getModule("window-helpers").installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   if (!MailServices.accounts
                    .localFoldersServer
@@ -44,6 +45,9 @@ function test_open_draft_again() {
   make_new_sets_in_folder(draftsFolder, [{count: 1}]);
   be_in_folder(draftsFolder);
   let draftMsg = select_click_row(0);
+
+  // Wait for the notification with the Edit button.
+  wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
   mc.click(mc.eid(kBoxId, {tagName: "button", label: "Edit"}));
