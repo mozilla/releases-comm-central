@@ -5,12 +5,107 @@
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
 function run_test() {
+    getAttendeeEmail_test();
+    getRecipientList_test();
     removeMailTo_test();
     prependMailTo_test();
     resolveDelegation_test();
 }
 
 // tests for calUtils.jsm
+
+function getAttendeeEmail_test() {
+    let data = [{
+        input: {id: "mailto:first.last@example.net", cn: "Last, First", email: null, useCn: true},
+        expected: "\"Last, First\" <first.last@example.net>"
+    }, {
+        input: {id: "mailto:first.last@example.net", cn: "Last; First", email: null, useCn: true},
+        expected: "\"Last; First\" <first.last@example.net>"
+    }, {
+        input: {id: "mailto:first.last@example.net", cn: "First Last", email: null, useCn: true},
+        expected: "First Last <first.last@example.net>"
+    }, {
+        input: {id: "mailto:first.last@example.net", cn: "Last, First", email: null, useCn: false},
+        expected: "first.last@example.net"
+    }, {
+        input: {id: "mailto:first.last@example.net", cn: null, email: null, useCn: true},
+        expected: "first.last@example.net"
+    }, {
+        input: {id: "urn:uuid:first.last.example.net", cn: null, email: "first.last@example.net",
+                useCn: false},
+        expected: "first.last@example.net"
+    }, {
+        input: {id: "urn:uuid:first.last.example.net", cn: null, email: "first.last@example.net",
+                useCn: true},
+        expected: "first.last@example.net"
+    }, {
+        input: {id: "urn:uuid:first.last.example.net", cn: "First Last", email: "first.last@example.net",
+                useCn: true},
+        expected: "First Last <first.last@example.net>"
+    }, {
+        input: {id: "urn:uuid:first.last.example.net", cn: null, email: null, useCn: false},
+        expected: ""
+    }];
+    let i = 0;
+    for (let test of data) {
+        i++;
+        let attendee = cal.createAttendee();
+        attendee.id = test.input.id;
+        if (test.input.cn) {
+            attendee.commonName = test.input.cn;
+        }
+        if (test.input.email) {
+            attendee.setProperty("EMAIL", test.input.email);
+        }
+        equal(cal.getAttendeeEmail(attendee, test.input.useCn), test.expected, "(test #" + i + ")");
+    }
+};
+
+function getRecipientList_test() {
+    let data = [{
+        input: [{id: "mailto:first@example.net", cn: null},
+                {id: "mailto:second@example.net", cn: null},
+                {id: "mailto:third@example.net", cn: null}],
+        expected: "first@example.net, second@example.net, third@example.net"
+    }, {
+        input: [{id: "mailto:first@example.net", cn: "first example"},
+                {id: "mailto:second@example.net", cn: "second example"},
+                {id: "mailto:third@example.net", cn: "third example"}],
+        expected: "first example <first@example.net>, second example <second@example.net>, " +
+                  "third example <third@example.net>"
+    }, {
+        input: [{id: "mailto:first@example.net", cn: "example, first"},
+                {id: "mailto:second@example.net", cn: "example, second"},
+                {id: "mailto:third@example.net", cn: "example, third"}],
+        expected: "\"example, first\" <first@example.net>, \"example, second\" <second@example.net>, " +
+                  "\"example, third\" <third@example.net>"
+    }, {
+        input: [{id: "mailto:first@example.net", cn: null},
+                {id: "urn:uuid:second.example.net", cn: null},
+                {id: "mailto:third@example.net", cn: null}],
+        expected: "first@example.net, third@example.net"
+    }, {
+        input: [{id: "mailto:first@example.net", cn: "first"},
+                {id: "urn:uuid:second.example.net", cn: "second"},
+                {id: "mailto:third@example.net", cn: "third"}],
+        expected: "first <first@example.net>, third <third@example.net>"
+    }];
+
+    let i = 0;
+    for (let test of data) {
+        i++;
+        let attendees = new Array();
+        for (let att of test.input) {
+            let attendee = cal.createAttendee();
+            attendee.id = att.id;
+            if (att.cn) {
+                attendee.commonName = att.cn;
+            }
+            attendees.push(attendee);
+        }
+        equal(cal.getRecipientList(attendees), test.expected, "(test #" + i + ")");
+    }
+};
 
 function removeMailTo_test() {
     let data = [{input: "mailto:first.last@example.net", expected: "first.last@example.net"},
