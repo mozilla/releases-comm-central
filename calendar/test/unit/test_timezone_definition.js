@@ -51,7 +51,6 @@ add_task(function alias_test() {
     while (aliases.hasMore()) {
         foundAlias = true;
         resolveAlias(aliases.getNext());
-        aliases.getNext();
     }
 
     ok(foundAlias, "There is at least one alias");

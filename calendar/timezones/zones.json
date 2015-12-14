@@ -335,7 +335,7 @@
       "aliasTo": "UTC"
     },
     "US Eastern Standard Time": {
-      "aliasTo": "America/Indianapolis"
+      "aliasTo": "America/Indiana/Indianapolis"
     },
     "US Mountain Standard Time": {
       "aliasTo": "America/Phoenix"
