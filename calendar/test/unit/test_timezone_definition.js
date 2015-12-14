@@ -33,7 +33,6 @@ add_task(function* zone_test() {
     while (zones.hasMore()) {
         foundZone = true;
         resolveZone(zones.getNext());
-        zones.getNext();
     }
 
     ok(foundZone, "There is at least one timezone");
