@@ -362,32 +362,6 @@ treechildren::-moz-tree-image(subscribed-news) {
   padding-top: 3px;
 }
 
-#msgIdentity {
-  -moz-appearance: none;
-  margin-right: 5px;
-  margin-bottom: 0;
-  padding-top: 1px;
-  padding-bottom: 1px;
-  -moz-padding-start: 2px;
-  -moz-padding-end: 30px;
-  background: transparent;
-  height: 22px;
-  line-height: 1;
-  border: 2px solid transparent;
-  -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
-  background: url("chrome://global/skin/arrow/arrow-dn.gif") no-repeat;
-  background-position: 99%;
-  transition: border .2s, background-color .2s;
-}
-
-#msgIdentity:hover {
-  background-color: -moz-field;
-  -moz-border-top-colors: ThreeDShadow ThreeDHighlight;
-  -moz-border-right-colors: ThreeDShadow ThreeDHighlight;
-  -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
-  -moz-border-left-colors: ThreeDShadow ThreeDHighlight;
-}
-
 /* ::::: format toolbar ::::: */
 
 #FormatToolbar {

@@ -185,6 +185,12 @@ var gComposeRecyclingListener = {
     // We need to clear the identity popup menu in case the user will change them.
     // It will be rebuilt later in ComposeStartup
     ClearIdentityListPopup(document.getElementById("msgIdentityPopup"));
+    var identityElement = document.getElementById("msgIdentity");
+    identityElement.editable = false;
+    identityElement.setAttribute("type", "description");
+    var customizeMenuitem = document.getElementById("cmd_customizeFromAddress");
+    customizeMenuitem.removeAttribute("disabled");
+    customizeMenuitem.setAttribute("checked", "false");
 
     // Do not listen to changes to spell check dictionary.
     document.removeEventListener("spellcheck-changed", updateDocumentLanguage);
@@ -2267,6 +2273,15 @@ function ComposeStartup(recycled, aParams)
 
   identityList.selectedItem =
     identityList.getElementsByAttribute("identitykey", params.identity.key)[0];
+  if (params.composeFields.from)
+  {
+    let from = MailServices.headerParser.parseDecodedHeader(params.composeFields.from).join(", ");
+    if (from != identityList.value)
+    {
+      MakeFromFieldEditable(true);
+      identityList.value = from;
+    }
+  }
   LoadIdentity(true);
 
   // Get the <editor> element to startup an editor
@@ -2562,7 +2577,7 @@ function GenericSendMessage(msgType)
   Recipients2CompFields(msgCompFields);
   let addresses = MailServices.headerParser
                               .makeFromDisplayAddress(GetMsgIdentityElement().value);
-  msgCompFields.from = MailServices.headerParser.makeMimeHeader(addresses, 1);
+  msgCompFields.from = MailServices.headerParser.makeMimeHeader(addresses, addresses.length);
   var subject = GetMsgSubjectElement().value;
   msgCompFields.subject = subject;
   Attachments2CompFields(msgCompFields);
@@ -3395,6 +3410,10 @@ function FillIdentityList(menulist)
       }
     }
   }
+
+  menulist.menupopup.appendChild(document.createElement("menuseparator"));
+  menulist.menupopup.appendChild(document.createElement("menuitem"))
+          .setAttribute("command", "cmd_customizeFromAddress");
 }
 
 function getCurrentAccountKey()
@@ -4218,8 +4237,44 @@ function LoadIdentity(startup)
             document.getElementById('addressCol2#1').highlightNonMatches = true;
 
           addRecipientsToIgnoreList(gCurrentIdentity.identityName);  // only do this if we aren't starting up....it gets done as part of startup already
+          // If the From field is editable, reset the address from the identity.
+          if (identityElement.editable)
+          {
+            identityElement.value = identityElement.selectedItem.value;
+            identityElement.inputField.placeholder = getComposeBundle().getFormattedString("msgIdentityPlaceholder", [identityElement.selectedItem.value]);
+          }
       }
     }
+}
+
+function MakeFromFieldEditable(ignoreWarning)
+{
+  if (!ignoreWarning && !getPref("mail.compose.warned_about_customize_from"))
+  {
+    var check = { value: false };
+    if (Services.prompt.confirmEx(window,
+          getComposeBundle().getString("customizeFromAddressTitle"),
+          getComposeBundle().getString("customizeFromAddressWarning"),
+          Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_OK +
+          Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL +
+          Services.prompt.BUTTON_POS_1_DEFAULT,
+          null, null, null,
+          getComposeBundle().getString("customizeFromAddressIgnore"),
+          check) != 0)
+      return;
+    Services.prefs.setBoolPref("mail.compose.warned_about_customize_from", check.value);
+  }
+
+  var customizeMenuitem = document.getElementById("cmd_customizeFromAddress");
+  customizeMenuitem.setAttribute("disabled", "true");
+  customizeMenuitem.setAttribute("checked", "true");
+  var identityElement = document.getElementById("msgIdentity");
+  identityElement.removeAttribute("type");
+  identityElement.editable = true;
+  identityElement.focus();
+  identityElement.value = identityElement.selectedItem.value;
+  identityElement.select();
+  identityElement.inputField.placeholder = getComposeBundle().getFormattedString("msgIdentityPlaceholder", [identityElement.selectedItem.value]);
 }
 
 function setupAutocomplete()
@@ -4242,6 +4297,12 @@ function setupAutocomplete()
       // if we can't get this pref, then don't show the columns (which is
       // what the XUL defaults to)
   }
+}
+
+function fromKeyPress(event)
+{
+  if (event.keyCode == KeyEvent.DOM_VK_RETURN)
+    awSetFocus(1, awGetInputElement(1));
 }
 
 function subjectKeyPress(event)

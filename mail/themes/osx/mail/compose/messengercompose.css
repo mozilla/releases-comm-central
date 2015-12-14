@@ -230,24 +230,6 @@ toolbar[brighttext] #button-print {
   border-bottom: 0px solid;
 }
 
-#msgIdentity {
-   margin: 0px;
-   -moz-padding-start: 3px;
-   background: transparent;
-   line-height: 1;
-   border: 1px solid transparent;
-   border-bottom: 1px solid #C6C6C6;
-   border-radius: 0;
-   -moz-appearance: none;
-   background: url("chrome://global/skin/arrow/arrow-dn.gif") no-repeat right;
-   transition: border .2s, background-color .2s;
-}
-
-#msgIdentity:hover {
-  background-color: white;
-  border: 1px solid #C6C6C6;
-}
-
 #addresses-box {
   margin: 4px 6px;
 }

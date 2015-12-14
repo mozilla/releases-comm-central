@@ -172,6 +172,8 @@
   <command id="cmd_convertCloud" oncommand="convertSelectedToCloudAttachment(event.target.cloudProvider); event.stopPropagation();"/>
   <command id="cmd_convertAttachment" oncommand="goDoCommand('cmd_convertAttachment')"/>
   <command id="cmd_cancelUpload" oncommand="goDoCommand('cmd_cancelUpload')"/>
+  <command id="cmd_customizeFromAddress" oncommand="MakeFromFieldEditable();"
+           checked="false" label="&customizeFromAddress.label;"/>
 </commandset>
 
 <broadcasterset id="composeBroadcasters">
@@ -684,6 +686,9 @@
             <menupopup id="fccMenuPopup" type="folder" mode="filing" showFileHereLabel="true"
                        fileHereLabel="&fileHereMenu.label;"/>
           </menu>
+          <menuseparator/>
+          <menuitem type="checkbox" command="cmd_customizeFromAddress"
+                    accesskey="&customizeFromAddress.accesskey;"/>
         </menupopup>
       </menu>
 
@@ -915,6 +920,7 @@
                      accesskey="&fromAddr.accesskey;" control="msgIdentity"/>
             </hbox>
             <menulist id="msgIdentity" type="description" flex="1"
+                      disableautoselect="true" onkeypress="fromKeyPress(event);"
                       oncommand="LoadIdentity(false);" disableonsend="true">
               <menupopup id="msgIdentityPopup"/>
             </menulist>
