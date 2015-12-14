@@ -308,6 +308,44 @@ var cal = {
     },
 
     /**
+     * Resolves delegated-to/delegated-from calusers for a given attendee to also include the
+     * respective CNs if available in a given set of attendees
+     *
+     * @param aAttendee  {calIAttendee}  The attendee to resolve the delegation information for
+     * @param aAttendees {Array}         An array of calIAttendee objects to look up
+     * @return           {Object}        An object with string attributes for delegators and delegatees
+     */
+    resolveDelegation: function (aAttendee, aAttendees) {
+        let attendees = aAttendees || [aAttendee];
+
+        // this will be replaced by a direct property getter in calIAttendee
+        let delegators = [];
+        let delegatees = [];
+        let delegatorProp = aAttendee.getProperty("DELEGATED-FROM");
+        if (delegatorProp) {
+            delegators = typeof delegatorProp == "string" ? [delegatorProp] : delegatorProp;
+        }
+        let delegateeProp = aAttendee.getProperty("DELEGATED-TO");
+        if (delegateeProp) {
+            delegatees = typeof delegateeProp == "string" ? [delegateeProp] : delegateeProp;
+        }
+
+        for (let att of attendees) {
+            let resolveDelegation = function (e, i, a) {
+                if (e == att.id) {
+                    a[i] = att.toString();
+                }
+            };
+            delegators.forEach(resolveDelegation);
+            delegatees.forEach(resolveDelegation);
+        }
+        return {
+            delegatees: delegatees.join(", "),
+            delegators: delegators.join(", ")
+        };
+    },
+
+    /**
      * Shortcut function to get the invited attendee of an item.
      */
     getInvitedAttendee: function cal_getInvitedAttendee(aItem, aCalendar) {

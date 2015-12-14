@@ -559,17 +559,12 @@ function setupAttendees() {
                 let role = attendee.role || "REQ-PARTICIPANT";
                 let ps = attendee.participationStatus || "NEEDS-ACTION";
 
-                text.setAttribute("value", label);
                 icon.setAttribute("partstat", ps);
                 icon.setAttribute("usertype", ut);
                 icon.setAttribute("role", role);
                 cell.setAttribute("attendeeid", attendee.id);
                 cell.removeAttribute("hidden");
 
-                // this distinction will be removed with bug 1225779
-                if (ps == "DELEGATED") {
-                    ps = "DELEGATED_NODETAILS";
-                }
                 let tooltip = cal.calGetString("calendar", "dialog.tooltip.attendeeRole." + role, [
                                   cal.calGetString("calendar",
                                                    "dialog.tooltip.attendeeUserType." + ut,
@@ -577,8 +572,22 @@ function setupAttendees() {
                                   cal.calGetString("calendar",
                                                    "dialog.tooltip.attendeePartStat." + ps)
                               ]);
-                cell.setAttribute("tooltiptext", tooltip);
 
+                let del = cal.resolveDelegation(attendee, window.attendees);
+                if (del.delegators != "") {
+                    del.delegators = cal.calGetString("dialog.attendee.append.delegatedFrom",
+                                                      del.delegators);
+                    label += " " + del.delegators;
+                    tooltip += " " + del.delegators;
+                }
+                if (del.delegatees != "") {
+                    del.delegatees = cal.calGetString("dialog.attendee.append.delegatedTo",
+                                                      del.delegatees);
+                    tooltip += " " + del.delegators;
+                }
+
+                text.setAttribute("value", label);
+                cell.setAttribute("tooltiptext", tooltip);
                 attCount++;
             }
             // we fill the row with placeholders if required

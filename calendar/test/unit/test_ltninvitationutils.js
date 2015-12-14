@@ -209,12 +209,14 @@ add_task(function* createInvitationOverlay_test() {
                    "<tr xmlns=\"http://www.w3.org/1999/xhtml\" title=\"Room attendee4@example.net" +
                    " is an optional participant and has confirmed to not attend.\"><td><p class=" +
                    "\"itip-icon\" role=\"OPT-PARTICIPANT\" usertype=\"ROOM\" partstat=\"DECLINED" +
-                   "\"/></td><td class=\"attendee-name\">attendee4@example.net</td></tr>" +
+                   "\"/></td><td class=\"attendee-name\">attendee4@example.net (delegated from at" +
+                   "tendee5@example.net)</td></tr>" +
 
                    "<tr xmlns=\"http://www.w3.org/1999/xhtml\" title=\"attendee5@example.net is a" +
-                   "n optional participant and has delegated the attendance.\"><td><p class=\"iti" +
-                   "p-icon\" role=\"OPT-PARTICIPANT\" usertype=\"UNKNOWN\" partstat=\"DELEGATED\"" +
-                   "/></td><td class=\"attendee-name\">attendee5@example.net</td></tr>" +
+                   "n optional participant and has delegated the attendance to attendee4@example." +
+                   "net.\"><td><p class=\"itip-icon\" role=\"OPT-PARTICIPANT\" usertype=\"UNKNOWN" +
+                   "\" partstat=\"DELEGATED\"/></td><td class=\"attendee-name\">attendee5@example" +
+                   ".net</td></tr>" +
 
                    "<tr xmlns=\"http://www.w3.org/1999/xhtml\" title=\"attendee6@example.net is a" +
                    " required participant and still needs to decide whether to attend.\"><td><p c" +

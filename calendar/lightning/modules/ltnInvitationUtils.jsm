@@ -202,6 +202,13 @@ ltn.invitation = {
             row.removeAttribute("id");
             row.removeAttribute("hidden");
 
+            // resolve delegatees/delegators to display also the CN
+            let del = cal.resolveDelegation(aAttendee, attendees);
+            if (del.delegators != "") {
+                del.delegators = " " + ltn.getString("lightning", "imipHtml.attendeeDelegatedFrom",
+                                                     [del.delegators]);
+            }
+
             // display itip icon
             let role = aAttendee.role || "REQ-PARTICIPANT";
             let ps = aAttendee.participationStatus || "NEEDS-ACTION";
@@ -210,18 +217,16 @@ ltn.invitation = {
             itipIcon.setAttribute("role", role);
             itipIcon.setAttribute("usertype", ut);
             itipIcon.setAttribute("partstat", ps);
-            // this distinction will be removed with bug 1225779
-            if (ps == "DELEGATED") {
-                ps = "DELEGATED_NODETAILS";
-            }
             let itipTooltip = ltn.getString("lightning", "imipHtml.attendeeRole." + role, [
                                   ltn.getString("lightning", "imipHtml.attendeeUserType." + ut,
                                                 [aAttendee.toString()]),
-                                  ltn.getString("lightning", "imipHtml.attendeePartStat." + ps)
+                                  ltn.getString("lightning", "imipHtml.attendeePartStat." + ps,
+                                                [del.delegatees])
                               ]);
             row.setAttribute("title", itipTooltip);
             // display attendee
-            row.getElementsByClassName("attendee-name")[0].textContent = aAttendee.toString();
+            row.getElementsByClassName("attendee-name")[0].textContent = aAttendee.toString() +
+                                                                         del.delegators;
             return row;
         };
 

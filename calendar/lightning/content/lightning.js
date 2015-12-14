@@ -75,6 +75,9 @@ pref("calendar.itip.updateInvitationForNewAttendeesOnly", false);
 //whether changes in email invitation updates should be displayed
 pref("calendar.itip.displayInvitationChanges", true);
 
+//whether for delegated invitations a delegatee's replies will be send also to delegator(s)
+pref("calendar.itip.notifyDelegatorOnReply", true);
+
 // whether CalDAV (experimental) scheduling is enabled or not.
 pref("calendar.caldav.sched.enabled", false);
 
