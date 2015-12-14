@@ -15,6 +15,9 @@ var kHostnames = new Map([
   ["smtp.googlemail.com", ["accounts.google.com", "https://mail.google.com/"]],
   ["imap.gmail.com", ["accounts.google.com", "https://mail.google.com/"]],
   ["smtp.gmail.com", ["accounts.google.com", "https://mail.google.com/"]],
+
+  ["imap.mail.ru", ["o2.mail.ru", "mail.imap"]],
+  ["smtp.mail.ru", ["o2.mail.ru", "mail.imap"]],
 ]);
 
 // map of issuers to appKey, appSecret, authURI, tokenURI
@@ -30,6 +33,12 @@ var kIssuers = new Map ([
     'kSmqreRr0qwBWJgbf5Y-PjSU',
     'https://accounts.google.com/o/oauth2/auth',
     'https://www.googleapis.com/oauth2/v3/token'
+  ]],
+  ["o2.mail.ru", [
+    'thunderbird',
+    'I0dCAXrcaNFujaaY',
+    'https://o2.mail.ru/login',
+    'https://o2.mail.ru/token'
   ]],
 ]);
 
