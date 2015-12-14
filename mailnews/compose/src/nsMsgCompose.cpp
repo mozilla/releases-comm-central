@@ -679,7 +679,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
     if (!aBuf.IsEmpty() && mailEditor)
     {
       // This leaves the caret at the right place to insert a bottom signature.
-      if (aHTMLEditor && !mCiteReference.IsEmpty())
+      if (aHTMLEditor)
         mailEditor->InsertAsCitedQuotation(aBuf,
                                            mCiteReference,
                                            true,
