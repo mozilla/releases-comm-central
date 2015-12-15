@@ -324,8 +324,10 @@ function test_manual_attachment_reminder() {
                            .getFolderWithFlags(Ci.nsMsgFolderFlags.Drafts);
   be_in_folder(drafts);
 
-  // Edit it again...
   select_click_row(0);
+  // Wait for the notification with the Edit button.
+  wait_for_notification_to_show(mc, "msgNotificationBar", "draftMsgContent");
+  // Edit the draft again...
   plan_for_new_window("msgcompose");
   // ... by clicking Edit in the draft message notification bar.
   mc.click(mc.eid("msgNotificationBar", {tagName: "button", label: "Edit"}));
