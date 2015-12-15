@@ -414,7 +414,7 @@ var unifinderTreeView = {
     set selectedColumn(aCol) {
         let tree = document.getElementById("unifinder-search-results-tree");
         let treecols = tree.getElementsByTagName("treecol");
-        for each (let col in Array.slice(treecols)) {
+        for (let col of treecols) {
             if (col.getAttribute("sortActive")) {
                   col.removeAttribute("sortActive");
                   col.removeAttribute("sortDirection");
@@ -464,7 +464,7 @@ var unifinderTreeView = {
         // remove the wrong indexes. We don't want to just invalidate the map,
         // since this will cause O(n^2) behavior. Instead, we keep a sorted
         // array of the indexes to remove:
-        for each (let item in aItemArray) {
+        for (let item of aItemArray) {
             let row = this.getItemRow(item);
             if (row > -1) {
                 if (!indexesToRemove.length || row <= indexesToRemove[0]) {
@@ -633,7 +633,7 @@ var unifinderTreeView = {
             }
         } else if (aItemArray && aItemArray.length > 1) {
             // If there is more than one item, just select them all.
-            for each (let item in aItemArray) {
+            for (let item of aItemArray) {
                 let row = this.getItemRow(item);
                 this.tree.view.selection.rangedSelect(row, row, true);
             }
@@ -926,8 +926,7 @@ function addItemsFromCalendar(aCalendar, aAddItemsInternalFunc) {
 
 function deleteItemsFromCalendar(aCalendar) {
     let filter = unifinderTreeView.mFilter;
-    let items = [ item for each (item in unifinderTreeView.eventArray)
-                    if (item.calendar.id == aCalendar.id) ];
+    let items = unifinderTreeView.eventArray.filter(item => item.calendar.id == aCalendar.id);
 
     unifinderTreeView.removeItems(items.filter(filter.isItemInFilters, filter));
 }

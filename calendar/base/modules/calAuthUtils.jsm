@@ -124,7 +124,7 @@ cal.auth = {
             }
 
             let logins = Services.logins.findLogins({}, aHostName, null, aRealm);
-            for each (let loginInfo in logins) {
+            for (let loginInfo of logins) {
                 if (loginInfo.username == aUsername) {
                     aPassword.value = loginInfo.password;
                     return true;
@@ -149,7 +149,7 @@ cal.auth = {
 
         try {
             let logins = Services.logins.findLogins({}, aHostName, null, aRealm);
-            for each (let loginInfo in logins) {
+            for (let loginInfo of logins) {
                 if (loginInfo.username == aUsername) {
                     Services.logins.removeLogin(loginInfo);
                     return true;

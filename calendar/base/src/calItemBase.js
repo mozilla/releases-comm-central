@@ -197,12 +197,12 @@ calItemBase.prototype = {
         if (this.mOrganizer)
             this.mOrganizer.makeImmutable();
         if (this.mAttendees) {
-            for each (let att in this.mAttendees) {
+            for (let att of this.mAttendees) {
                 att.makeImmutable();
             }
         }
 
-        for each (let [propKey, propValue] in this.mProperties) {
+        for (let [propKey, propValue] of this.mProperties) {
             if (propValue instanceof Components.interfaces.calIDateTime &&
                 propValue.isMutable) {
                 propValue.makeImmutable();
@@ -210,7 +210,7 @@ calItemBase.prototype = {
         }
 
         if (this.mAlarms) {
-            for each (let alarm in this.mAlarms) {
+            for (let alarm of this.mAlarms) {
                 alarm.makeImmutable();
             }
         }
@@ -262,12 +262,12 @@ calItemBase.prototype = {
         m.mOrganizer = org;
 
         m.mAttendees = [];
-        for each (let att in this.getAttendees({})) {
+        for (let att of this.getAttendees({})) {
             m.mAttendees.push(att.clone());
         }
 
         m.mProperties = new calPropertyBag();
-        for each (let [name, value] in this.mProperties) {
+        for (let [name, value] of this.mProperties) {
             if (value instanceof Components.interfaces.calIDateTime) {
                 value = value.clone();
             }
@@ -285,19 +285,19 @@ calItemBase.prototype = {
         }
 
         m.mAttachments = [];
-        for each (let att in this.getAttachments({})) {
+        for (let att of this.getAttachments({})) {
             m.mAttachments.push(att.clone());
         }
 
         m.mRelations = [];
-        for each (let rel in this.getRelations({})) {
+        for (let rel of this.getRelations({})) {
             m.mRelations.push(rel.clone());
         }
 
         m.mCategories = this.getCategories({});
 
         m.mAlarms = [];
-        for each (let alarm in this.getAlarms({})) {
+        for (let alarm of this.getAlarms({})) {
             // Clone alarms into new item, assume the alarms from the old item
             // are valid and don't need validation.
             m.mAlarms.push(alarm.clone());
@@ -519,7 +519,7 @@ calItemBase.prototype = {
     getAttendeeById: function cIB_getAttendeeById(id) {
         var attendees = this.getAttendees({});
         var lowerCaseId = id.toLowerCase();
-        for each (var attendee in attendees) {
+        for (var attendee of attendees) {
             // This match must be case insensitive to deal with differing
             // cases of things like MAILTO:
             if (attendee.id.toLowerCase() == lowerCaseId) {
@@ -919,7 +919,7 @@ calItemBase.prototype = {
             let propName = prop.propertyName;
             if (!promoted[propName]) {
                 this.setProperty(propName, prop.value);
-                for each (let [paramName, paramValue] in cal.ical.paramIterator(prop)) {
+                for (let [paramName, paramValue] of cal.ical.paramIterator(prop)) {
                     if (!(propName in this.mPropertyParams)) {
                         this.mPropertyParams[propName] = {};
                     }
@@ -967,32 +967,34 @@ calItemBase.prototype = {
             icalcomp.addProperty(org.icalProperty);
         }
 
-        for each (let attendee in this.getAttendees({})) {
+        for (let attendee of this.getAttendees({})) {
             icalcomp.addProperty(attendee.icalProperty);
         }
 
-        for each (let attachment in this.getAttachments({})) {
+        for (let attachment of this.getAttachments({})) {
             icalcomp.addProperty(attachment.icalProperty);
         }
 
-        for each (let relation in this.getRelations({})) {
+        for (let relation of this.getRelations({})) {
             icalcomp.addProperty(relation.icalProperty);
         }
 
         if (this.mRecurrenceInfo) {
-            for each (let ritem in this.mRecurrenceInfo.getRecurrenceItems({})) {
+            for (let ritem of this.mRecurrenceInfo.getRecurrenceItems({})) {
                 icalcomp.addProperty(ritem.icalProperty);
             }
         }
 
-        for each (let cat in this.getCategories({})) {
+        for (let cat of this.getCategories({})) {
             let catprop = icssvc.createIcalProperty("CATEGORIES");
             catprop.value = cat;
             icalcomp.addProperty(catprop);
         }
 
-        for each (let alarm in this.mAlarms) {
-            icalcomp.addSubcomponent(alarm.icalComponent);
+        if (this.mAlarms) {
+            for (let alarm of this.mAlarms) {
+                icalcomp.addSubcomponent(alarm.icalComponent);
+            }
         }
 
         let alarmLastAck = this.alarmLastAck;

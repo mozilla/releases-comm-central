@@ -69,7 +69,7 @@ calAlarm.prototype = {
                                "mOffset",
                                "mDuration",
                                "mLastAck"];
-        for each (let member in objectMembers) {
+        for (let member of objectMembers) {
             if (this[member] && this[member].isMutable) {
                 this[member].makeImmutable();
             }
@@ -109,19 +109,19 @@ calAlarm.prototype = {
                                "mDuration",
                                "mLastAck"];
 
-        for each (let member in simpleMembers) {
+        for (let member of simpleMembers) {
             m[member] = this[member];
         }
 
-        for each (let member in arrayMembers) {
+        for (let member of arrayMembers) {
             let newArray = [];
-            for each (let oldElem in this[member]) {
+            for (let oldElem of this[member]) {
                 newArray.push(oldElem.clone());
             }
             m[member] = newArray;
         }
 
-        for each (let member in objectMembers) {
+        for (let member of objectMembers) {
             if (this[member] && this[member].clone) {
                 m[member] = this[member].clone();
             } else {
@@ -131,7 +131,7 @@ calAlarm.prototype = {
 
         // X-Props
         m.mProperties = new calPropertyBag();
-        for each (let [name, value] in this.mProperties) {
+        for (let [name, value] of this.mProperties) {
             if (value instanceof Components.interfaces.calIDateTime) {
                 value = value.clone();
             }
@@ -423,7 +423,7 @@ calAlarm.prototype = {
         if (this.action == "EMAIL" && !this.getAttendees({}).length) {
             throw Components.results.NS_ERROR_NOT_INITIALIZED;
         } */
-        for each (let attendee in this.getAttendees({})) {
+        for (let attendee of this.getAttendees({})) {
             comp.addProperty(attendee.icalProperty);
         }
 
@@ -432,7 +432,7 @@ calAlarm.prototype = {
             throw Components.results.NS_ERROR_NOT_INITIALIZED;
         } */
 
-        for each (let attachment in this.getAttachments({})) {
+        for (let attachment of this.getAttachments({})) {
             comp.addProperty(attachment.icalProperty);
         }
 
@@ -464,7 +464,7 @@ calAlarm.prototype = {
         }
 
         // Set up X-Props. mProperties contains only non-promoted props
-        for (let propName in this.mProperties) {
+        for (let [propName, ] of this.mProperties) {
             let icalprop = icssvc.createIcalProperty(propName);
             icalprop.value = this.mProperties.getProperty(propName);
 

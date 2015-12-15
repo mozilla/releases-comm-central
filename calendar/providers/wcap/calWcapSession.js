@@ -58,7 +58,7 @@ function getWcapSessionFor(calendar, uri) {
 
         let defaultCal = null;
         let registeredCalendars = session.getRegisteredCalendars();
-        for each (let regCal in registeredCalendars) {
+        for (let regCal of registeredCalendars) {
             if (regCal.isDefaultCalendar) {
                 defaultCal = regCal;
                 break;
@@ -73,7 +73,7 @@ function getWcapSessionFor(calendar, uri) {
             log("default calendar found.", defaultCal);
 
             // check and fix changing urls (autoconf) of subscribed calendars here:
-            for each (let regCal in registeredCalendars) {
+            for (let regCal of registeredCalendars) {
                 if (!regCal.isDefaultCalendar) {
                     let [spec, params] = splitUriParams(regCal.uri);
                     if (spec != defaultSpec) {
@@ -504,10 +504,10 @@ calWcapSession.prototype = {
                         var hasSubscriptions = false;
                         // post register subscribed calendars:
                         var list = this_.getUserPreferences("X-NSCP-WCAP-PREF-icsSubscribed");
-                        for each (var item in list) {
+                        for (var item of list) {
                             var ar = item.split(',');
                             // ',', '$' are not encoded. ',' can be handled here. WTF.
-                            for each (var a in ar) {
+                            for (var a of ar) {
                                 var dollar = a.indexOf('$');
                                 if (dollar >= 0) {
                                     var calId = a.substring(0, dollar);
@@ -628,7 +628,7 @@ calWcapSession.prototype = {
                             if (result.length < 1) {
                                 throw Components.results.NS_ERROR_UNEXPECTED;
                             }
-                            for each (let calendar in result) {
+                            for (let calendar of result) {
                                 // user may have dangling users referred in his subscription list, so
                                 // retrieve each by each, don't break:
                                 try {
@@ -796,7 +796,7 @@ calWcapSession.prototype = {
     get defaultCalId() {
         var list = this.getUserPreferences("X-NSCP-WCAP-PREF-icsCalendar");
         var id = null;
-        for each (var item in list) {
+        for (var item of list) {
             if (item.length > 0) {
                 id = item;
                 break;
@@ -827,7 +827,7 @@ calWcapSession.prototype = {
     getRegisteredCalendars: function calWcapSession_getRegisteredCalendars(asAssocObj) {
         let registeredCalendars = (asAssocObj ? {} : []);
         let cals = cal.getCalendarManager().getCalendars({});
-        for each (let calendar in cals) {
+        for (let calendar of cals) {
             calendar = this.belongsTo(calendar);
             if (calendar) {
                 if (asAssocObj) {
@@ -861,7 +861,7 @@ calWcapSession.prototype = {
         var ret = [];
         var ar = this.getUserPreferences("X-NSCP-WCAP-PREF-ceDefaultAlarmEmail");
         if (ar.length > 0 && ar[0].length > 0) {
-            for each (var i in ar) {
+            for (var i of ar) {
                 ret = ret.concat(i.split(/[;,]/).map(String.trim));
             }
         }
@@ -1102,7 +1102,7 @@ calWcapSession.prototype = {
                 getFreeBusyService().removeProvider(this);
                 getCalendarSearchService().removeProvider(this);
                 var registeredCalendars = this.getRegisteredCalendars();
-                for each (var regCal in registeredCalendars) {
+                for (var regCal of registeredCalendars) {
                     try {
                         if (!regCal.isDefaultCalendar) {
                             cal.getCalendarManager().unregisterCalendar(regCal);
@@ -1128,7 +1128,7 @@ function confirmInsecureLogin(uri)
         confirmInsecureLogin.m_confirmedHttpLogins = {};
         var confirmedHttpLogins = getPref("calendar.wcap.confirmed_http_logins", "");
         var tuples = confirmedHttpLogins.split(',');
-        for each (var tuple in tuples) {
+        for (var tuple of tuples) {
             var ar = tuple.split(':');
             confirmInsecureLogin.m_confirmedHttpLogins[ar[0]] = ar[1];
         }

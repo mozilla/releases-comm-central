@@ -63,7 +63,7 @@ calIcsParser.prototype = {
         state.join(function() {
             let fakedParents = {};
             // tag "exceptions", i.e. items with rid:
-            for each (let item in state.excItems) {
+            for (let item of state.excItems) {
                 let parent = state.uid2parent[item.id];
 
                 if (!parent) { // a parentless one, fake a master and override it's occurrence

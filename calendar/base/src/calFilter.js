@@ -876,7 +876,7 @@ calFilter.prototype = {
                     // get parent items returned here, so we need to let the getOccurrences
                     // function handle occurrence expansion.
                     items = [];
-                    for each (let item in aItems) {
+                    for (let item of aItems) {
                         items = items.concat(self.getOccurrences(item));
                     }
                 } else {

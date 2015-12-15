@@ -97,7 +97,7 @@ function onSearch() {
     richListBox.clear();
 
     var registeredCals = {};
-    for each (var calendar in getCalendarManager().getCalendars({})) {
+    for (var calendar of getCalendarManager().getCalendars({})) {
         registeredCals[calendar.id] = true;
     }
 
@@ -105,7 +105,7 @@ function onSearch() {
         onResult: function search_onResult(op, result) {
             var richListBox = document.getElementById("subscriptions-listbox");
             if (result) {
-                for each (var calendar in result) {
+                for (var calendar of result) {
                     richListBox.addCalendar(calendar, registeredCals[calendar.id]);
                 }
             }

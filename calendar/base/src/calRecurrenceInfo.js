@@ -59,7 +59,7 @@ calRecurrenceInfo.prototype = {
         if (!this.mPositiveRules || !this.mNegativeRules) {
             this.mPositiveRules = [];
             this.mNegativeRules = [];
-            for each (var ritem in this.mRecurrenceItems) {
+            for (var ritem of this.mRecurrenceItems) {
                 if (ritem.isNegative) {
                     this.mNegativeRules.push(ritem);
                 } else {
@@ -80,13 +80,14 @@ calRecurrenceInfo.prototype = {
             return;
         }
 
-        for each (let ritem in this.mRecurrenceItems) {
+        for (let ritem of this.mRecurrenceItems) {
             if (ritem.isMutable) {
                 ritem.makeImmutable();
             }
         }
 
-        for each (let item in this.mExceptionMap) {
+        for (let ex in this.mExceptionMap) {
+            let item = this.mExceptionMap[ex];
             if (item.isMutable) {
                 item.makeImmutable();
             }
@@ -100,7 +101,7 @@ calRecurrenceInfo.prototype = {
         cloned.mBaseItem = this.mBaseItem;
 
         var clonedItems = [];
-        for each (var ritem in this.mRecurrenceItems) {
+        for (var ritem of this.mRecurrenceItems) {
             clonedItems.push(ritem.clone());
         }
         cloned.mRecurrenceItems = clonedItems;
@@ -126,7 +127,8 @@ calRecurrenceInfo.prototype = {
         value = calTryWrappedJSObject(value);
         this.mBaseItem = value;
         // patch exception's parentItem:
-        for each (let exitem in this.mExceptionMap) {
+        for (let ex in this.mExceptionMap) {
+            let exitem = this.mExceptionMap[ex];
             exitem.parentItem = value;
         }
     },
@@ -134,7 +136,7 @@ calRecurrenceInfo.prototype = {
     get isFinite() {
         this.ensureBaseItem();
 
-        for each (let ritem in this.mRecurrenceItems) {
+        for (let ritem of this.mRecurrenceItems) {
             if (!ritem.isFinite) {
                 return false;
             }
@@ -266,7 +268,7 @@ calRecurrenceInfo.prototype = {
 
         // Go through all negative rules to create a map of occurrences that
         // should be skipped when going through occurrences.
-        for each (var ritem in this.mNegativeRules) {
+        for (var ritem of this.mNegativeRules) {
             // TODO Infinite rules (i.e EXRULE) are not taken into account,
             // because its very performance hungry and could potentially
             // lead to a deadlock (i.e RRULE is canceled out by an EXRULE).
@@ -282,7 +284,7 @@ calRecurrenceInfo.prototype = {
                                                   0,
                                                   {});
                 // Map all negative dates.
-                for each (var r in rdates) {
+                for (var r of rdates) {
                     negMap[getRidKey(r)] = true;
                 }
             } else {
@@ -381,7 +383,8 @@ calRecurrenceInfo.prototype = {
 
         // Scan exceptions for any dates earlier than the above found
         // minOccDate, but still after aTime.
-        for each (var exc in this.mExceptionMap) {
+        for (var ex in this.mExceptionMap) {
+            let exc = this.mExceptionMap[ex];
             var start = exc.recurrenceStartDate;
             if (start.compare(aTime) > 0 &&
                 (!minOccDate || start.compare(minOccDate) <= 0)) {
@@ -488,7 +491,7 @@ calRecurrenceInfo.prototype = {
         }
 
         // Apply positive rules
-        for each (let ritem in this.mPositiveRules) {
+        for (let ritem of this.mPositiveRules) {
             var cur_dates = ritem.getOccurrences(startDate,
                                                  searchStart,
                                                  rangeEnd,
@@ -529,7 +532,7 @@ calRecurrenceInfo.prototype = {
         }
 
         // Apply negative rules
-        for each (let ritem in this.mNegativeRules) {
+        for (let ritem of this.mNegativeRules) {
             var cur_dates = ritem.getOccurrences(startDate,
                                                  searchStart,
                                                  rangeEnd,
@@ -542,7 +545,7 @@ calRecurrenceInfo.prototype = {
             // (like, you can't make a date "real" by defining an RECURRENCE-ID which
             // is an EXDATE, and then giving it a real DTSTART) -- so we don't
             // check exceptions here
-            for each (let dateToRemove in cur_dates) {
+            for (let dateToRemove of cur_dates) {
                 let dateToRemoveKey = getRidKey(dateToRemove);
                 if (dateToRemove.isDate) {
                     // As decided in bug 734245, an EXDATE of type DATE shall also match a DTSTART of type DATE-TIME
@@ -731,7 +734,8 @@ calRecurrenceInfo.prototype = {
         this.ensureBaseItem();
 
         var ids = [];
-        for each (var item in this.mExceptionMap) {
+        for (let ex in this.mExceptionMap) {
+            let item = this.mExceptionMap[ex];
             ids.push(item.recurrenceId);
         }
 
@@ -760,7 +764,7 @@ calRecurrenceInfo.prototype = {
         // take RDATE's and EXDATE's into account.
         const kCalIRecurrenceDate = Components.interfaces.calIRecurrenceDate;
         let ritems = this.getRecurrenceItems({});
-        for each (let ritem in ritems) {
+        for (let ritem of ritems) {
             let rDateInstance = cal.wrapInstance(ritem, kCalIRecurrenceDate);
             let rRuleInstance = cal.wrapInstance(ritem, Components.interfaces.calIRecurrenceRule);
             if (rDateInstance) {
@@ -785,7 +789,7 @@ calRecurrenceInfo.prototype = {
 
         let startTimezone = aNewStartTime.timezone;
         let modifiedExceptions = [];
-        for each (let exid in this.getExceptionIds({})) {
+        for (let exid of this.getExceptionIds({})) {
             let ex = this.getExceptionFor(exid);
             if (ex) {
                 ex = ex.clone();
@@ -801,14 +805,15 @@ calRecurrenceInfo.prototype = {
                 this.removeExceptionFor(exid);
             }
         }
-        for each (let modifiedEx in modifiedExceptions) {
+        for (let modifiedEx of modifiedExceptions) {
             this.modifyException(modifiedEx, true);
         }
     },
 
     onIdChange: function cRI_onIdChange(aNewId) {
         // patch all overridden items' id:
-        for each (let item in this.mExceptionMap) {
+        for (let ex in this.mExceptionMap) {
+            let item = this.mExceptionMap[ex];
             item.id = aNewId;
         }
     }

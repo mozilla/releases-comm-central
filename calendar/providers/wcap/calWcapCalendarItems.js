@@ -42,7 +42,7 @@ function calWcapCalendar_getRecurrenceParams(item, out_rrules, out_rdates, out_e
     out_exdates.value = [];
     if (item.recurrenceInfo) {
         var rItems = item.recurrenceInfo.getRecurrenceItems({});
-        for each (var rItem in rItems) {
+        for (var rItem of rItems) {
             var isNeg = rItem.isNegative;
             let rRuleInstance = cal.wrapInstance(rItem, Components.interfaces.calIRecurrenceRule);
             let rDateInstance = cal.wrapInstance(rItem, Components.interfaces.calIRecurrenceDate);
@@ -184,7 +184,7 @@ function getCalId(att) {
 }
 
 function getAttendeeByCalId(atts, calId) {
-    for each (var att in atts) {
+    for (var att of atts) {
         if (getCalId(att) == calId) {
             return att;
         }
@@ -309,7 +309,7 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
         var attachments = item.attachments;
         if (attachments) {
             var strings = [];
-            for each (var att in attachements) {
+            for (var att of attachments) {
                 let wrappedAtt = cal.wrapInstance(att, Components.interfaces.calIAttachment);
                 if (typeof(att) == "string") {
                     strings.push(encodeURIComponent(att));
@@ -932,7 +932,7 @@ calWcapCalendar.prototype.parseItems = function calWcapCalendar_parseItems(
     }
 
     // tag "exceptions", i.e. items with rid:
-    for each (let item in excItems) {
+    for (let item of excItems) {
         let parent = uid2parent[item.id];
 
         if (!parent) { // a parentless one, fake a master and override it's occurrence
@@ -966,7 +966,7 @@ calWcapCalendar.prototype.parseItems = function calWcapCalendar_parseItems(
     }
 
     if (itemFilter & calICalendar.ITEM_FILTER_CLASS_OCCURRENCES) {
-        for each (let item in unexpandedItems) {
+        for (let item of unexpandedItems) {
             if (maxResults != 0 && items.length >= maxResults) {
                 break;
             }
@@ -976,7 +976,7 @@ calWcapCalendar.prototype.parseItems = function calWcapCalendar_parseItems(
                 recStartDate = null;
             }
             let recItems = item.recurrenceInfo.getRecurrenceItems({});
-            for each (let recItem in recItems) {
+            for (let recItem of recItems) {
                 // cs bug: workaround missing COUNT
                 let rRuleInstance = cal.wrapInstance(recItem, Components.interfaces.calIRecurrenceRule);
                 let rDateInstance = cal.wrapInstance(recItem, Components.interfaces.calIRecurrenceDate);
@@ -1006,7 +1006,7 @@ calWcapCalendar.prototype.parseItems = function calWcapCalendar_parseItems(
                 log("item: " + item.title + " has " + occurrences.length.toString() + " occurrences.", this);
                 if (LOG_LEVEL > 2) {
                     log("master item: " + item.title + "\n" + item.icalString, this);
-                    for each (let occ in occurrences) {
+                    for (let occ of occurrences) {
                         log("item: " + occ.title + "\n" + occ.icalString, this);
                     }
                 }
@@ -1021,12 +1021,12 @@ calWcapCalendar.prototype.parseItems = function calWcapCalendar_parseItems(
             unexpandedItems.length = (maxResults - items.length);
         }
         if (!bLeaveMutable) {
-            for each (let item in unexpandedItems) {
+            for (let item of unexpandedItems) {
                 item.makeImmutable();
             }
         }
         if (LOG_LEVEL > 2) {
-            for each (let item in unexpandedItems) {
+            for (let item of unexpandedItems) {
                 log("item: " + item.title + "\n" + item.icalString, this);
             }
         }
@@ -1181,7 +1181,7 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
     // or WCAP local storage caching has sufficient performance.
     // The cached results will be invalidated after 2 minutes to reflect incoming invitations.
     if (CACHE_LAST_RESULTS > 0 && this.m_cachedResults) {
-        for each (var entry in this.m_cachedResults) {
+        for (var entry of this.m_cachedResults) {
             if ((itemFilter == entry.itemFilter) &&
                 equalDatetimes(rangeStart, entry.rangeStart) &&
                 equalDatetimes(rangeEnd, entry.rangeEnd)) {
@@ -1223,7 +1223,7 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
                                         throw request.status;
                                     }
                                     var items = [];
-                                    for each (var entry in result) {
+                                    for (var entry of result) {
                                         var item = createEvent();
                                         item.id = (g_busyPhantomItemUuidPrefix + getIcalUTC(entry.interval.start));
                                         item.calendar = this_.superCalendar;
@@ -1355,7 +1355,7 @@ function calWcapCalendar_replayChangesOn(listener) {
         var request = new calWcapRequest(
             function netFinishedRespFunc(err, data) {
                 var modifiedIds = {};
-                for each (var item in request.m_modifiedItems) {
+                for (var item of request.m_modifiedItems) {
                     var dtCreated = item.getProperty("CREATED");
                     var bAdd = (!dtCreated || !dtFrom || dtCreated.compare(dtFrom) >= 0);
                     modifiedIds[item.id] = true;
@@ -1371,7 +1371,7 @@ function calWcapCalendar_replayChangesOn(listener) {
                         }
                     }
                 }
-                for each (var item in request.m_deletedItems) {
+                for (var item of request.m_deletedItems) {
                     // don't delete anything that has been touched by lastmods:
                     if (modifiedIds[item.id]) {
                         log("replayChangesOn(): skipping deletion of " + item.id, this_);

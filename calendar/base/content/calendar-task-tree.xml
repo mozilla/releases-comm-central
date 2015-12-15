@@ -408,7 +408,7 @@
               let modItems = idiff.modifiedItems;
 
               // find the indexes of the old items that need to be removed
-              for each (let item in delItems.mArray) {
+              for (let item of delItems.mArray) {
                   if (item.hashId in this.binding.mHash2Index) {
                       // the old item needs to be removed
                       remIndexes.push(this.binding.mHash2Index[item.hashId]);
@@ -417,7 +417,7 @@
               }
 
               // modified items need to be updated
-              for each (let item in modItems.mArray) {
+              for (let item of modItems.mArray) {
                   if (item.hashId in this.binding.mHash2Index) {
                       // make sure we're using the new version of a modified item
                       this.binding.mTaskArray[this.binding.mHash2Index[item.hashId]] = item;
@@ -431,7 +431,7 @@
               }, this);
 
               // add the new items
-              for each (let item in addItems.mArray) {
+              for (let item of addItems.mArray) {
                   if (!(item.hashId in this.binding.mHash2Index)) {
                       let index = this.binding.mTaskArray.length;
                       this.binding.mTaskArray.push(item);
@@ -575,7 +575,7 @@
               this.binding.sortItems();
               if (selectedItems != undefined) {
                   this.tree.view.selection.clearSelection();
-                  for each (let item in selectedItems){
+                  for (let item of selectedItems){
                       let index = this.binding.mHash2Index[item.hashId];
                       this.tree.view.selection.toggleSelect(index);
                   }
@@ -981,7 +981,7 @@
         <parameter name="aFilter"/>
         <body><![CDATA[
           let cals = getCompositeCalendar().getCalendars({}) || [];
-          for each (let calendar in cals) {
+          for (let calendar of cals) {
               if (!calendar.getProperty("disabled")) {
                   this.refreshFromCalendar(calendar, aFilter);
               }

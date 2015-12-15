@@ -319,7 +319,7 @@ function run_test() {
         var calArray = [];
         calArray.push(getStorageCal());
         calArray.push(getMemoryCal());
-        for each (let calendar in calArray) {
+        for (let calendar of calArray) {
             // implement listener
             var count = 0;
             var returnedItem = null;

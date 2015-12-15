@@ -57,7 +57,7 @@ calHtmlExporter.prototype = {
             return start_a.compare(start_b);
         });
 
-        for each (let item in aItems) {
+        for (let item of aItems) {
             let itemNode = document.getElementById("item-template").cloneNode(true);
             itemNode.removeAttribute("id");
 

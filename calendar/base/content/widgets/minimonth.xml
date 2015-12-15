@@ -479,7 +479,7 @@
             if (!Components.isSuccessCode(aStatus)) {
                 return;
             }
-            for each (var item in aItems) {
+            for (var item of aItems) {
                 this.setBusyDaysForOccurrence(item, true);
             }
         ]]></body>
@@ -495,7 +495,7 @@
               var endDate = this.lastDate;
               items = aItem.getOccurrencesBetween(startDate, endDate, {});
           }
-          for each (var item in items) {
+          for (var item of items) {
               this.setBusyDaysForOccurrence(item, aState);
           }
         ]]></body>
@@ -509,7 +509,7 @@
           let busyStr = aBox.getAttribute("busy");
           if (busyStr && busyStr.length > 0) {
               let calChunks = busyStr.split("\u001A");
-              for each (let chunk in calChunks) {
+              for (let chunk of calChunks) {
                   let expr = chunk.split("=");
                   boxBusy[expr[0]] = parseInt(expr[1]);
               }

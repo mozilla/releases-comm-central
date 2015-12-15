@@ -144,7 +144,7 @@ function pasteFromClipboard() {
             // If there are multiple items on the clipboard, the earliest
             // should be set to the selected day and the rest adjusted.
             let earliestDate = null;
-            for each (let item in items) {
+            for (let item of items) {
                 let date = null;
                 if (item.startDate) {
                     date = item.startDate.clone();
@@ -177,7 +177,7 @@ function pasteFromClipboard() {
             }
 
             startBatchTransaction();
-            for each (let item in items) {
+            for (let item of items) {
                 let newItem = item.clone();
                 // Set new UID to allow multiple paste actions of the same
                 // clipboard content.

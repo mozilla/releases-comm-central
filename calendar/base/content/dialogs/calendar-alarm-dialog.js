@@ -52,7 +52,7 @@ function onDismissAllAlarms() {
     let parentItems = {};
 
     // Make a copy of the child nodes as they get modified live
-    for each (let node in Array.slice(alarmRichlist.childNodes)) {
+    for (let node of alarmRichlist.childNodes) {
         // Check if the node is a valid alarm and is still part of DOM
         if (node.parentNode && node.item && node.alarm &&
             !(node.item.parentItem.hashId in parentItems)) {
@@ -140,7 +140,7 @@ function onFocusWindow() {
  */
 function updateRelativeDates() {
     let alarmRichlist = document.getElementById("alarm-richlist");
-    for each (let node in Array.slice(alarmRichlist.childNodes)) {
+    for (let node of alarmRichlist.childNodes) {
         if (node.item && node.alarm) {
             node.updateRelativeDateLabel();
         }
@@ -161,7 +161,7 @@ function snoozeAllItems(aDurationMinutes) {
     let parentItems = {};
 
     // Make a copy of the child nodes as they get modified live
-    for each (let node in Array.slice(alarmRichlist.childNodes)) {
+    for (let node of alarmRichlist.childNodes) {
         // Check if the node is a valid alarm and is still part of DOM
         if (node.parentNode && node.item && node.alarm &&
             !(node.item.parentItem.hashId in parentItems)) {

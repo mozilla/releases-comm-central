@@ -87,7 +87,7 @@ function onLoad() {
     // we need to enforce several layout constraints which can't be modelled
     // with plain xul and css, at least as far as i know.
     const kStylesheet = "chrome://calendar/skin/calendar-event-dialog.css";
-    for each (var stylesheet in document.styleSheets) {
+    for (var stylesheet of document.styleSheets) {
         if (stylesheet.href == kStylesheet) {
             // make the dummy-spacer #1 [top] the same height as the timebar
             var timebar = document.getElementById("timebar");

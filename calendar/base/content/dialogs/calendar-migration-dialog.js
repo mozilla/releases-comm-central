@@ -35,7 +35,7 @@ var gMigrateWizard = {
                                                       1);
 
         migLOG("migrators: " + window.arguments.length);
-        for each (var migrator in window.arguments[0]) {
+        for (var migrator of window.arguments[0]) {
             var listItem = document.createElement("listitem");
             listItem.setAttribute("type", "checkbox");
             listItem.setAttribute("checked", true);
@@ -182,9 +182,9 @@ var gDataMigrator = {
                          this.checkWindowsMail,
                          this.checkIcal];
         // XXX also define a category and an interface here for pluggability
-        for each (var migrator in migrators) {
+        for (var migrator of migrators) {
             var migs = migrator.call(this);
-            for each (var dm in migs) {
+            for (var dm of migs) {
                 DMs.push(dm);
             }
         }
@@ -249,7 +249,7 @@ var gDataMigrator = {
             // For duplicate detection
             var calManager = getCalendarManager();
             var uris = [];
-            for each (var oldCal in calManager.getCalendars({})) {
+            for (var oldCal of calManager.getCalendars({})) {
                 uris.push(oldCal.uri);
             }
 
@@ -312,7 +312,7 @@ var gDataMigrator = {
         }
 
         // Now check all of the profiles in each of these folders for data
-        for each (var prof in profiles) {
+        for (var prof of profiles) {
             var dirEnum = prof.directoryEntries;
             while (dirEnum.hasMoreElements()) {
                 var profile = dirEnum.getNext().QueryInterface(Components.interfaces.nsIFile);

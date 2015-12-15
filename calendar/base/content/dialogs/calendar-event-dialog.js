@@ -245,7 +245,7 @@ function onLoad() {
     window.attendees = [];
     var attendees = item.getAttendees({});
     if (attendees && attendees.length) {
-        for each (var attendee in attendees) {
+        for (var attendee of attendees) {
             window.attendees.push(attendee.clone());
         }
     }
@@ -442,7 +442,7 @@ function loadDialog(item) {
     var hasAttachments = capSupported("attachments");
     var attachments = item.getAttachments({});
     if (hasAttachments && attachments && attachments.length > 0) {
-        for each (var attachment in attachments) {
+        for (var attachment of attachments) {
             addAttachment(attachment);
         }
     } else {
@@ -927,7 +927,7 @@ function loadRepeat(item) {
         var ritems = recurrenceInfo.getRecurrenceItems({});
         var rules = [];
         var exceptions = [];
-        for each (var r in ritems) {
+        for (var r of ritems) {
             if (r.isNegative) {
                 exceptions.push(r);
             } else {
@@ -1100,7 +1100,8 @@ function saveDialog(item) {
     item.removeAllAttachments();
 
     // Now add back the new ones
-    for each (var att in gAttachMap) {
+    for (var hashId in gAttachMap) {
+        var att = gAttachMap[hashId];
         item.addAttachment(att);
     }
 
@@ -1218,7 +1219,7 @@ function updateTitle() {
 function updateStyle() {
     const kDialogStylesheet = "chrome://calendar/skin/calendar-event-dialog.css";
 
-    for each (let stylesheet in document.styleSheets) {
+    for (let stylesheet of document.styleSheets) {
         if (stylesheet.href == kDialogStylesheet) {
             if (cal.isEvent(window.calendarItem)) {
                 stylesheet.insertRule(".todo-only { display: none; }",
@@ -2811,7 +2812,7 @@ function saveItem() {
 
     item.removeAllAttendees();
     if (window.attendees && (window.attendees.length > 0)) {
-        for each (var attendee in window.attendees) {
+        for (var attendee of window.attendees) {
            item.addAttendee(attendee);
         }
 
@@ -3157,7 +3158,7 @@ function showTimezonePopup(event, dateTime, editFunc) {
     }
 
     // Fill in the new recent timezones
-    for each (let tz in recentTimezones) {
+    for (let tz of recentTimezones) {
         let menuItem = createXULElement("menuitem");
         menuItem.setAttribute("value", tz.tzid);
         menuItem.setAttribute("label", tz.displayName);

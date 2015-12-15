@@ -535,7 +535,7 @@ function createXULElement(el) {
 function getSummarizedStyleValues(aXULElement, aStyleProps) {
     var retValue = 0;
     var cssStyleDeclares = document.defaultView.getComputedStyle(aXULElement, null);
-    for each (var prop in aStyleProps) {
+    for (var prop of aStyleProps) {
         retValue += parseInt(cssStyleDeclares.getPropertyValue(prop), 10);
     }
     return retValue;

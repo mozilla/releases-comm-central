@@ -116,7 +116,7 @@ var calendarViewController = {
         // are readonly.
         var occurrences = aOccurrences.filter(function(item) { return isCalendarWritable(item.calendar); });
 
-        for each (var itemToDelete in occurrences) {
+        for (var itemToDelete of occurrences) {
             if (aUseParentItems) {
                 // Usually happens when ctrl-click is used. In that case we
                 // don't need to ask the user if he wants to delete an
@@ -150,7 +150,8 @@ var calendarViewController = {
 
         // Now handle recurring events. This makes sure that all occurrences
         // that have been passed are deleted.
-        for each (var ritem in recurringItems) {
+        for (var hashVal in recurringItems) {
+            let ritem = recurringItems[hashVal];
             doTransaction('modify',
                           ritem.newItem,
                           ritem.newItem.calendar,
@@ -347,7 +348,7 @@ function scheduleMidnightUpdate(aRefreshCallback) {
 function getViewStyleSheet() {
   if (!getViewStyleSheet.sheet) {
       const cssUri = "chrome://calendar/content/calendar-view-bindings.css";
-      for each (let sheet in document.styleSheets) {
+      for (let sheet of document.styleSheets) {
           if (sheet.href == cssUri) {
               getViewStyleSheet.sheet = sheet;
               break;
@@ -515,7 +516,7 @@ function toggleOrientation() {
     cmd.setAttribute("checked", newValue);
 
     var deck = getViewDeck();
-    for each (var view in deck.childNodes) {
+    for (var view of deck.childNodes) {
         view.rotated = (newValue == "true");
     }
 
@@ -534,7 +535,7 @@ function toggleWorkdaysOnly() {
     cmd.setAttribute("checked", newValue);
 
     var deck = getViewDeck();
-    for each (var view in deck.childNodes) {
+    for (var view of deck.childNodes) {
         view.workdaysOnly = (newValue == "true");
     }
 
@@ -551,7 +552,7 @@ function toggleTasksInView() {
     cmd.setAttribute("checked", newValue);
 
     var deck = getViewDeck();
-    for each (var view in deck.childNodes) {
+    for (var view of deck.childNodes) {
         view.tasksInView = (newValue == "true");
     }
 
@@ -568,7 +569,7 @@ function toggleShowCompletedInView() {
     cmd.setAttribute("checked", newValue);
 
     var deck = getViewDeck();
-    for each (var view in deck.childNodes) {
+    for (var view of deck.childNodes) {
         view.showCompleted = (newValue == "true");
     }
 
@@ -640,7 +641,7 @@ function selectAllEvents() {
         },
         onGetResult: function selectAll_ogr(aCalendar, aStatus, aItemType,
                                             aDetail, aCount, aItems) {
-            for each (var item in aItems) {
+            for (var item of aItems) {
                 items.push(item);
             }
         }

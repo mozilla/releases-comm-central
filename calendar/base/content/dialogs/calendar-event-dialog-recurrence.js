@@ -508,7 +508,7 @@ function splitRecurrenceRules(recurrenceInfo) {
     var ritems = recurrenceInfo.getRecurrenceItems({});
     var rules = [];
     var exceptions = [];
-    for each (var r in ritems) {
+    for (var r of ritems) {
         if (r.isNegative) {
             exceptions.push(r);
         } else {

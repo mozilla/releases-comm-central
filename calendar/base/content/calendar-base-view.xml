@@ -95,7 +95,7 @@
                 let occs = aItem.getOccurrencesBetween(this.calView.startDate,
                                                        this.calView.queryEndDate,
                                                        {});
-                for each (let occ in occs) {
+                for (let occ of occs) {
                     this.calView.doAddItem(occ);
                 }
                 return;
@@ -113,7 +113,7 @@
                     occs = aOldItem.getOccurrencesBetween(this.calView.startDate,
                                                           this.calView.queryEndDate,
                                                           {});
-                    for each (let occ in occs) {
+                    for (let occ of occs) {
                         this.calView.doDeleteItem(occ);
                     }
                 }
@@ -129,7 +129,7 @@
                 occs = aNewItem.getOccurrencesBetween(this.calView.startDate,
                                                       this.calView.queryEndDate,
                                                       {});
-                for each (let occ in occs) {
+                for (let occ of occs) {
                     this.calView.doAddItem(occ);
                 }
             },
@@ -151,7 +151,7 @@
                 let occs = aItem.getOccurrencesBetween(this.calView.startDate,
                                                        this.calView.queryEndDate,
                                                        {});
-                for each (let occ in occs) {
+                for (let occ of occs) {
                     this.calView.doDeleteItem(occ);
                 }
             },
@@ -193,7 +193,8 @@
 
             onRemoveAlarmsByCalendar: function onRemoveAlarmsByCalendar(aCalendar) {
                 // Stop the flashing for all items of this calendar
-                for each (let item in this.calView.mFlashingEvents) {
+                for (let key in this.calView.mFlashingEvents) {
+                    let item = this.calView.mFlashingEvents[key];
                     if (item.calendar.id == aCalendar.id) {
                         this.calView.flashAlarm(item, true);
                     }
@@ -597,7 +598,7 @@
         <body><![CDATA[
           if (this.mLongWeekdayTotalPixels <= 0) {
               let maxDayWidth = 0;
-              for each (let label in this.labeldaybox.childNodes) {
+              for (let label of this.labeldaybox.childNodes) {
                   if (label.localName && label.localName == "calendar-day-label") {
                       label.shortWeekNames = false;
                       let curPixelLength = label.getLongWeekdayPixels();

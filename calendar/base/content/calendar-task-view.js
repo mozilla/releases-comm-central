@@ -130,7 +130,7 @@ var taskDetailsView = {
             let attachments = item.getAttachments({});
             if (displayElement("calendar-task-details-attachment-row", attachments.length > 0)) {
                 displayElement("calendar-task-details-attachment-rows", true);
-                for each (let attachment in attachments) {
+                for (let attachment of attachments) {
                     let url = attachment.calIAttachment.uri.spec
                     let urlLabel = createXULElement("label");
                     urlLabel.setAttribute("value", url);
@@ -157,11 +157,11 @@ var taskDetailsView = {
         let item = document.getElementById("calendar-task-tree").currentTask;
         let categoriesMap = {};
 
-        for each (let cat in item.getCategories({})) {
+        for (let cat of item.getCategories({})) {
             categoriesMap[cat] = true;
         }
 
-        for each (let cat in panel.categories) {
+        for (let cat of panel.categories) {
             if (cat in categoriesMap) {
                 delete categoriesMap[cat];
             } else {

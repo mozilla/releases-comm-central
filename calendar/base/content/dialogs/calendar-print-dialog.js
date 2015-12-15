@@ -103,7 +103,7 @@ function getPrintSettings(receiverFunc) {
         // opening window.
         if (settings.printTasks) {
             let selectedTasks = window.opener.getSelectedTasks();
-            for each (var task in selectedTasks) {
+            for (var task of selectedTasks) {
                 settings.eventList.push(task);
             }
         }
@@ -142,7 +142,7 @@ function getPrintSettings(receiverFunc) {
                 settings.eventList = settings.eventList.concat(aItems);
                 if (!settings.printTasksWithNoDueDate) {
                     eventWithDueDate = [];
-                    for each (var item in settings.eventList) {
+                    for (var item of settings.eventList) {
                         if (item.dueDate || item.endDate) {
                             eventWithDueDate.push(item)
                         }

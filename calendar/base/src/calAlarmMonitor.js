@@ -136,7 +136,7 @@ calAlarmMonitor.prototype = {
         let calAlarmWindow = this.mWindowOpening;
         this.mWindowOpening = null;
         if (this.mAlarms.length > 0) {
-            for each (let [item, alarm] in this.mAlarms) {
+            for (let [item, alarm] of this.mAlarms) {
                 calAlarmWindow.addWidgetFor(item, alarm);
             }
         } else {

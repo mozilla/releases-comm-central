@@ -60,7 +60,7 @@ calRelation.prototype = {
             icalatt.setParameter("RELTYPE", this.mType);
         }
 
-        for each (let [key, value] in this.mProperties) {
+        for (let [key, value] of this.mProperties) {
             try {
                 icalatt.setParameter(key, value);
             } catch (e if e.result == Components.results.NS_ERROR_ILLEGAL_VALUE) {
@@ -80,7 +80,7 @@ calRelation.prototype = {
         if (attProp.value) {
             this.mId = attProp.value;
         }
-        for each (let [name, value] in cal.ical.paramIterator(attProp)) {
+        for (let [name, value] of cal.ical.paramIterator(attProp)) {
             if (name == "RELTYPE") {
                 this.mType = value;
                 continue;
@@ -119,7 +119,7 @@ calRelation.prototype = {
         let newRelation = new calRelation();
         newRelation.mId = this.mId;
         newRelation.mType = this.mType;
-        for each (let [name, value] in this.mProperties) {
+        for (let [name, value] of this.mProperties) {
             newRelation.mProperties.setProperty(name, value);
         }
         return newRelation;

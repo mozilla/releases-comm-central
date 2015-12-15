@@ -45,11 +45,11 @@ calAttendee.prototype = {
 
         const allProps = ["id", "commonName", "rsvp", "role",
                           "participationStatus", "userType"];
-        for each (let prop in allProps) {
+        for (let prop of allProps) {
             a[prop] = this[prop];
         }
 
-        for each (let [key, value] in this.mProperties) {
+        for (let [key, value] of this.mProperties) {
             a.setProperty(key, value);
         }
 
@@ -75,7 +75,7 @@ calAttendee.prototype = {
         this.mIsOrganizer = (icalatt.propertyName == "ORGANIZER");
 
         let promotedProps = { };
-        for each (let prop in this.icalAttendeePropMap) {
+        for (let prop of this.icalAttendeePropMap) {
             this[prop.cal] = icalatt.getParameter(prop.ics);
             // Don't copy these to the property bag.
             promotedProps[prop.ics] = true;
@@ -85,7 +85,7 @@ calAttendee.prototype = {
         // from the ical property.
         this.mProperties = new calPropertyBag();
 
-        for each (let [name, value] in cal.ical.paramIterator(icalatt)) {
+        for (let [name, value] of cal.ical.paramIterator(icalatt)) {
             if (!promotedProps[name]) {
                 this.setProperty(name, value);
             }
@@ -117,7 +117,7 @@ calAttendee.prototype = {
                 }
             }
         }
-        for each (let [key, value] in this.mProperties) {
+        for (let [key, value] of this.mProperties) {
             try {
                 icalatt.setParameter(key, value);
             } catch (e if e.result == Components.results.NS_ERROR_ILLEGAL_VALUE) {

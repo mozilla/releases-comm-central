@@ -42,7 +42,7 @@ function onLoad() {
             var updatingBox = document.getElementById("updating-box");
             updatingBox.setAttribute("hidden", "true");
             var richListBox = document.getElementById("invitations-listbox");
-            for each (var item in aItems) {
+            for (var item of aItems) {
                 richListBox.addCalendarItem(item);
             }
         }

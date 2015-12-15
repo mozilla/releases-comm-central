@@ -129,7 +129,7 @@ function updateReminderDetails() {
     let calendar = getCurrentCalendar();
     let actionValues = calendar.getProperty("capabilities.alarms.actionValues") || ["DISPLAY"];
     let actionMap = {};
-    for each (var action in actionValues) {
+    for (var action of actionValues) {
         actionMap[action] = true;
     }
 
@@ -197,7 +197,7 @@ function matchCustomReminderToMenuitem(reminder) {
           minutes: 60
         };
 
-        for each (let menuitem in Array.slice(reminderPopup.childNodes)) {
+        for (let menuitem of reminderPopup.childNodes) {
             if (menuitem.localName == "menuitem" &&
                 menuitem.hasAttribute("length") &&
                 menuitem.getAttribute("origin") == origin &&
@@ -257,7 +257,7 @@ function saveReminder(item) {
     // We want to compare the old alarms with the new ones. If these are not
     // the same, then clear the snooze/dismiss times
     let oldAlarmMap = {};
-    for each (let alarm in item.getAlarms({})) {
+    for (let alarm of item.getAlarms({})) {
         oldAlarmMap[alarm.icalString] = true;
     }
 
@@ -285,7 +285,7 @@ function saveReminder(item) {
         let alarmCaps = item.calendar.getProperty("capabilities.alarms.actionValues") ||
                         ["DISPLAY"];
         let alarmActions = {};
-        for each (let action in alarmCaps) {
+        for (let action of alarmCaps) {
             alarmActions[action] = true;
         }
 
@@ -295,7 +295,7 @@ function saveReminder(item) {
     }
 
     // Compare alarms to see if something changed.
-    for each (let alarm in item.getAlarms({})) {
+    for (let alarm of item.getAlarms({})) {
         let ics = alarm.icalString;
         if (ics in oldAlarmMap) {
             // The new alarm is also in the old set, remember this

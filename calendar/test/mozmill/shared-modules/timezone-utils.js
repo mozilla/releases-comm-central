@@ -67,7 +67,7 @@ function verify(controller, dates, timezones, times) {
       
       calUtils.findEventsInNode(stackNode, eventNodes);
       
-      for each (node in eventNodes) {
+      for (let node of eventNodes) {
         if (Math.abs(timeY - node.boxObject.y) < allowedDifference &&
                      timezones[tz] == node.mOccurrence.title) {
           found = true;

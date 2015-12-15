@@ -116,7 +116,7 @@ function test_roundtrip() {
 
     let icssrv = cal.getIcsService();
 
-    for each (var data in test_data) {
+    for (var data of test_data) {
         // First round, use the icalString setter which uses synchronous parsing
         dump("Checking" + data.ics + "\n");
         let event = createEventFromIcalString(data.ics);

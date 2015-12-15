@@ -672,7 +672,7 @@ function updateUndoRedoMenu() {
 function setContextPartstat(value, scope, items) {
     startBatchTransaction();
     try {
-        for each (let oldItem in items) {
+        for (let oldItem of items) {
             // Skip this item if its calendar is read only.
             if (oldItem.calendar.readOnly) {
                 continue;

@@ -553,9 +553,9 @@
         <parameter name="aSuppressEvent"/>
         <body><![CDATA[
           if (this.mSelectedItems.length) {
-              for each (var item in this.mSelectedItems) {
+              for (var item of this.mSelectedItems) {
                   let oldboxes = this.findDayBoxesForItem(item);
-                  for each (let oldbox in oldboxes) {
+                  for (let oldbox of oldboxes) {
                       oldbox.unselectItem(item);
                   }
               }
@@ -564,9 +564,9 @@
           this.mSelectedItems = aItems || [];
 
           if (this.mSelectedItems.length) {
-              for each (var item in this.mSelectedItems) {
+              for (var item of this.mSelectedItems) {
                   let newboxes = this.findDayBoxesForItem(item);
-                  for each (let newbox in newboxes) {
+                  for (let newbox of newboxes) {
                       newbox.selectItem(item);
                   }
               }
@@ -938,7 +938,10 @@
       <method name="findDayBoxForDate">
         <parameter name="aDate"/>
         <body><![CDATA[
-          for each (let box in this.mDateBoxes) {
+          if (!this.mDateBoxes) {
+            return null;
+          }
+          for (let box of this.mDateBoxes) {
             if (box.mDate.compare(aDate) == 0)
               return box;
           }
@@ -1014,7 +1017,7 @@
           if (!boxes.length)
             return;
 
-          for each (let box in boxes) {
+          for (let box of boxes) {
             box.addItem(aItem);
           }
         ]]></body>
@@ -1034,7 +1037,7 @@
           var oldLength = this.mSelectedItems.length;
           this.mSelectedItems = this.mSelectedItems.filter(isNotItem);
 
-          for each (let box in boxes) {
+          for (let box of boxes) {
             box.deleteItem(aItem);
           }
 
@@ -1049,8 +1052,12 @@
       <method name="deleteItemsFromCalendar">
         <parameter name="aCalendar"/>
         <body><![CDATA[
-          for each (let box in this.mDateBoxes) {
-            for each (let node in box.mItemHash) {
+          if (!this.mDateBoxes) {
+            return;
+          }
+          for (let box of this.mDateBoxes) {
+            for (let id in box.mItemHash) {
+              let node = box.mItemHash[id];
               let item = node.item;
               if (item.calendar.id == aCalendar.id) {
                 box.deleteItem(item);
@@ -1075,8 +1082,9 @@
           // Make sure the flashing attribute is set or reset on all visible
           // boxes.
           let boxes = this.findDayBoxesForItem(aAlarmItem);
-          for each (var box in boxes) {
-            for each (var itemData in box.mItemHash) {
+          for (var box of boxes) {
+            for (var id in box.mItemHash) {
+              let itemData = box.mItemHash[id];
               if (itemData.item.hasSameIds(aAlarmItem)) {
                 if (aStop) {
                   itemData.removeAttribute("flashing");

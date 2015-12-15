@@ -213,7 +213,7 @@ calDavCalendar.prototype = {
 
     saveCalendarProperties: function caldav_saveCalendarProperties() {
         let properties = {};
-        for each (let property in this.offlineCachedProperties) {
+        for (let property of this.offlineCachedProperties) {
             if (this[property] !== undefined) {
                 properties[property] = this[property];
             }
@@ -222,7 +222,7 @@ calDavCalendar.prototype = {
     },
     restoreCalendarProperties: function caldav_restoreCalendarProperties(data) {
         let properties = JSON.parse(data);
-        for each (let property in this.offlineCachedProperties) {
+        for (let property of this.offlineCachedProperties) {
             if (properties[property] !== undefined) {
                 this[property] = properties[property];
             }
@@ -262,7 +262,7 @@ calDavCalendar.prototype = {
         let getMetaListener = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onGetResult: function meta_onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
-                for each (let item in aItems) {
+                for (let item of aItems) {
                     if (!(item.id in self.mItemInfoCache)) {
                         let path = self.getItemLocationPath(item);
                         cal.LOG("Adding meta-data for cached item " + item.id);
@@ -1051,7 +1051,7 @@ calDavCalendar.prototype = {
         let items = parser.getItems({});
         let propertiesList = parser.getProperties({});
         let method;
-        for each (var prop in propertiesList) {
+        for (var prop of propertiesList) {
             if (prop.propertyName == "METHOD") {
                 method = prop.value;
                 break;
@@ -1842,7 +1842,7 @@ calDavCalendar.prototype = {
                 "/D:multistatus/D:response/D:propstat/D:prop/C:supported-calendar-component-set/C:comp/@*[local-name()='name']");
             if (supportedComponents && supportedComponents.length) {
                 thisCalendar.mSupportedItemTypes = [ compName
-                    for each (compName in supportedComponents)
+                    for (compName of supportedComponents)
                     if (thisCalendar.mGenerallySupportedItemTypes.includes(compName))
                 ];
                 cal.LOG("Adding supported items: " + thisCalendar.mSupportedItemTypes.join(",") + " for calendar: " + thisCalendar.name);
@@ -2219,9 +2219,11 @@ calDavCalendar.prototype = {
             // TODO with multiple address sets, we should just use the ACL manager.
             if (homeSets && (homeSets.length == 1 || homeSets.some(homeSetMatches))) {
                 let cuaSets = caldavXPath(multistatus, "/D:multistatus/D:response/D:propstat/D:prop/C:calendar-user-address-set/D:href/text()");
-                for each (let addr in cuaSets) {
-                    if (addr.match(/^mailto:/i)) {
-                        thisCalendar.mCalendarUserAddress = addr;
+                if (cuaSets) {
+                    for (let addr of cuaSets) {
+                        if (addr.match(/^mailto:/i)) {
+                            thisCalendar.mCalendarUserAddress = addr;
+                        }
                     }
                 }
 
@@ -2658,7 +2660,7 @@ calDavCalendar.prototype = {
             }
             var newItem = itemToUpdate.clone();
 
-            for each (var attendee in aItem.getAttendees({})) {
+            for (var attendee of aItem.getAttendees({})) {
                 var att = newItem.getAttendeeById(attendee.id);
                 if (att) {
                     newItem.removeAttendee(att);
@@ -2753,7 +2755,7 @@ calDavCalendar.prototype = {
             aItipItem.setAttendeeStatus(attendee.id, attendee.participationStatus);
         }
 
-        for each (var item in aItipItem.getItemList({})) {
+        for (var item of aItipItem.getItemList({})) {
 
             var serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
                                        .createInstance(Components.interfaces.calIIcsSerializer);
@@ -2803,17 +2805,19 @@ calDavCalendar.prototype = {
                     // untested code, as I don't have a caldav-sched server
                     // available. If you find someone who does, please test!
                     let responses = caldavXPath(responseXML, "/C:schedule-response/C:response");
-                    for each (let response in responses) {
-                        let recip = caldavXPathFirst(response, "C:recipient/D:href/text()");
-                        let status = caldavXPathFirst(response, "C:request-status/text()");
-                        if (status.substr(0, 1) != "2") {
-                            if (thisCalendar.verboseLogging()) {
-                                cal.LOG("CalDAV: Failed scheduling delivery to " + recip);
-                            }
-                            for each (let att in aRecipients) {
-                                if (att.id.toLowerCase() == recip.toLowerCase()) {
-                                    remainingAttendees.push(att);
-                                    break;
+                    if (responses) {
+                        for (let response of responses) {
+                            let recip = caldavXPathFirst(response, "C:recipient/D:href/text()");
+                            let status = caldavXPathFirst(response, "C:request-status/text()");
+                            if (status.substr(0, 1) != "2") {
+                                if (thisCalendar.verboseLogging()) {
+                                    cal.LOG("CalDAV: Failed scheduling delivery to " + recip);
+                                }
+                                for (let att of aRecipients) {
+                                    if (att.id.toLowerCase() == recip.toLowerCase()) {
+                                        remainingAttendees.push(att);
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -2844,7 +2848,7 @@ calDavCalendar.prototype = {
             this.sendHttpRequest(requestUri, uploadData, MIME_TEXT_CALENDAR, null, (channel) => {
                 channel.requestMethod = "POST";
                 channel.setRequestHeader("Originator", this.calendarUserAddress, false);
-                for each (var recipient in aRecipients) {
+                for (var recipient of aRecipients) {
                     channel.setRequestHeader("Recipient", recipient.id, true);
                 }
                 return streamListener;

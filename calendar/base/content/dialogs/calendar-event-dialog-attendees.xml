@@ -160,7 +160,7 @@
 
           var numRowsAdded = 0;
           if (attendees.length > 0) {
-              for each (var attendee in attendees) {
+              for (var attendee of attendees) {
                   this.appendAttendee(attendee, listbox, template, false);
                   numRowsAdded++;
               }
@@ -601,7 +601,7 @@
                           entries.shift();
                           let nextNode = template.parentNode.childNodes[currentIndex+1];
                           currentIndex++;
-                          for each (let entry in entries) {
+                          for (let entry of entries) {
                               currentNode = template.cloneNode(true);
                               template.parentNode.insertBefore(currentNode, nextNode);
                               this._fillListItemWithEntry(currentNode, entry, currentIndex);

@@ -18,11 +18,11 @@ cal.itemIterator = function cal_itemIterator(items) {
     return {
         __iterator__: function itemIterator(aWantKeys) {
             cal.ASSERT(aWantKeys, "Please use for() on the item iterator");
-            for each (let item in items) {
+            for (let item of items) {
                 yield item;
                 let rec = item.recurrenceInfo;
                 if (rec) {
-                    for each (let exid in rec.getExceptionIds({})) {
+                    for (let exid of rec.getExceptionIds({})) {
                         yield rec.getExceptionFor(exid);
                     }
                 }
@@ -44,7 +44,8 @@ cal.itemIterator = function cal_itemIterator(items) {
  * before the iteration is complete. If you need to run actions after the real
  * for each loop, use the optional completed() function.
  *
- * @param iter          The Iterator to go through in this loop.
+ * @param iter          The Iterator or the plain Object to go through in this
+ *                      loop.
  * @param body          The function called for each iteration. Its parameter is
  *                          the single item from the iterator.
  * @param completed     [optional] The function called after the loop completes.
@@ -56,9 +57,16 @@ cal.forEach = function cal_forEach(iter, body, completed) {
 
     let ourIter = iter;
     if (!(iter instanceof Iterator)) {
-        // If its not an iterator, we need to use a generator expression to make
-        // sure calling this function feels right.
-        ourIter = (i for each (i in iter));
+        // If its not an iterator, we need to use a generator to make sure
+        // calling this function feels right.
+        // FIXME: Dispatcher needs StopIteration, so we use legacy generator
+        // here for now.  Should be replaced with ES6 generator in the future,
+        // when removing Iterator from caller.
+        ourIter = (function() {
+            for (let key in iter) {
+              yield iter[key];
+            }
+        })();
     }
 
     let currentThread = Services.tm.currentThread;
@@ -197,7 +205,7 @@ cal.ical = {
      * This iterator behaves similar to the object iterator. Possible uses:
      *   for (let paramName in cal.ical.paramIterator(prop)) { ... }
      * or:
-     *   for each (let [paramName, paramValue] in cal.ical.paramIterator(prop)) { ... }
+     *   for (let [paramName, paramValue] of cal.ical.paramIterator(prop)) { ... }
      *
      * @param aProperty         The property to iterate.
      * @return                  An iterator object to iterate the properties.
@@ -211,8 +219,15 @@ cal.ical = {
                     yield (aWantKeys ? paramName :
                            [paramName, aProperty.getParameter(paramName)]);
                 }
+            },
+            [Symbol.iterator]: function* icalParamIterator() {
+                for (let paramName = aProperty.getFirstParameterName();
+                     paramName;
+                     paramName = aProperty.getNextParameterName()) {
+                    yield [paramName, aProperty.getParameter(paramName)];
+                }
             }
-        }
+        };
     }
 };
 

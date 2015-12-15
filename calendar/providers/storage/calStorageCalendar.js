@@ -72,21 +72,25 @@ calStorageCalendar.prototype = {
     deleteCalendar: function cSC_deleteCalendar(aCalendar, listener) {
         aCalendar = aCalendar.wrappedJSObject;
 
-        for each (let stmt in this.mDeleteEventExtras) {
-            try {
-                this.prepareStatement(stmt);
-                stmt.executeStep();
-            } finally {
+        if (this.mDeleteEventExtras) {
+            for (let stmt of this.mDeleteEventExtras) {
+                try {
+                    this.prepareStatement(stmt);
+                    stmt.executeStep();
+                } finally {
                 stmt.reset();
+                }
             }
         }
 
-        for each (let stmt in this.mDeleteTodoExtras) {
-            try {
-                this.prepareStatement(stmt);
-                stmt.executeStep();
-            } finally {
-                stmt.reset();
+        if (this.mDeleteTodoExtras) {
+            for (let stmt of this.mDeleteTodoExtras) {
+                try {
+                    this.prepareStatement(stmt);
+                    stmt.executeStep();
+                } finally {
+                    stmt.reset();
+                }
             }
         }
 
@@ -279,11 +283,11 @@ calStorageCalendar.prototype = {
                  * @param oldCalId  The old calendar id to look for
                  */
                 let migrateTables = function(db, newCalId, oldCalId) {
-                    for each (let tbl in ["cal_alarms", "cal_attachments",
-                                          "cal_attendees", "cal_events",
-                                          "cal_metadata", "cal_properties",
-                                          "cal_recurrence", "cal_relations",
-                                          "cal_todos"]) {
+                    for (let tbl of ["cal_alarms", "cal_attachments",
+                                     "cal_attendees", "cal_events",
+                                     "cal_metadata", "cal_properties",
+                                     "cal_recurrence", "cal_relations",
+                                     "cal_todos"]) {
                         let stmt;
                         try {
                             stmt = db.createStatement("UPDATE " + tbl +
@@ -837,7 +841,7 @@ calStorageCalendar.prototype = {
             }
 
             // Process the non-recurring events:
-            for each (var evitem in resultItems) {
+            for (var evitem of resultItems) {
                 count += handleResultItem(evitem, Components.interfaces.calIEvent);
                 if (checkCount()) {
                     return;
@@ -845,7 +849,8 @@ calStorageCalendar.prototype = {
             }
 
             // Process the recurring events from the cache
-            for each (let evitem in this.mRecEventCache) {
+            for (let id in this.mRecEventCache) {
+                let evitem = this.mRecEventCache[id];
                 let offline_journal_flag = this.mRecEventCacheOfflineFlags[evitem.id] || null;
                 // No need to return flagged unless asked i.e. sp.offline_journal == offline_journal_flag
                 // Return created and modified offline records if sp.offline_journal is null alongwith events that have no flag
@@ -888,7 +893,7 @@ calStorageCalendar.prototype = {
             }
 
             // process the non-recurring todos:
-            for each (var todoitem in resultItems) {
+            for (var todoitem of resultItems) {
                 count += handleResultItem(todoitem, Components.interfaces.calITodo, checkCompleted);
                 if (checkCount()) {
                     return;
@@ -900,7 +905,8 @@ calStorageCalendar.prototype = {
             //       Moreover item.todo_complete etc seems to be a leftover...
 
             // process the recurring todos from the cache
-            for each (let todoitem in this.mRecTodoCache) {
+            for (let id in this.mRecTodoCache) {
+                let todoitem = this.mRecTodoCache[id];
                 let offline_journal_flag = this.mRecTodoCacheOfflineFlags[todoitem.id] || null;
                 if ((sp.offline_journal == null &&
                      (offline_journal_flag == cICL.OFFLINE_FLAG_MODIFIED_RECORD ||
@@ -1469,10 +1475,10 @@ calStorageCalendar.prototype = {
             if (this.mSelectTodoExceptions) { this.mSelectTodoExceptions.finalize(); }
             if (this.mSelectTodosWithRecurrence) { this.mSelectTodosWithRecurrence.finalize(); }
             if (this.mDeleteEventExtras) {
-                for each (let stmt in this.mDeleteEventExtras) { stmt.finalize(); }
+                for (let stmt of this.mDeleteEventExtras) { stmt.finalize(); }
             }
             if (this.mDeleteTodoExtras) {
-                for each (let stmt in this.mDeleteTodoExtras) { stmt.finalize(); }
+                for (let stmt of this.mDeleteTodoExtras) { stmt.finalize(); }
             }
 
             if (this.mDB) { this.mDB.asyncClose(); this.mDB = null; }
@@ -2080,7 +2086,7 @@ calStorageCalendar.prototype = {
             attendees.push(item.organizer);
         }
         if (attendees.length > 0) {
-            for each (var att in attendees) {
+            for (var att of attendees) {
                 var ap = this.mInsertAttendee.params;
                 ap.item_id = item.id;
                 try {
@@ -2154,7 +2160,7 @@ calStorageCalendar.prototype = {
         if (rec) {
             flags = CAL_ITEM_FLAG.HAS_RECURRENCE;
             let ritems = rec.getRecurrenceItems({});
-            for each (let ritem in ritems) {
+            for (let ritem of ritems) {
                 let ap = this.mInsertRecurrence.params;
                 try {
                     this.prepareStatement(this.mInsertRecurrence);
@@ -2173,7 +2179,7 @@ calStorageCalendar.prototype = {
                 // we need to serialize each exid as a separate
                 // event/todo; setupItemBase will handle
                 // writing the recurrenceId for us
-                for each (let exid in exceptions) {
+                for (let exid of exceptions) {
                     let ex = rec.getExceptionFor(exid);
                     if (!ex)
                         throw Components.results.NS_ERROR_UNEXPECTED;
@@ -2190,7 +2196,7 @@ calStorageCalendar.prototype = {
     writeAttachments: function cSC_writeAttachments(item, olditem) {
         let attachments = item.getAttachments({});
         if (attachments && attachments.length > 0) {
-            for each (let att in attachments) {
+            for (let att of attachments) {
                 let ap = this.mInsertAttachment.params;
                 try {
                     this.prepareStatement(this.mInsertAttachment);
@@ -2211,7 +2217,7 @@ calStorageCalendar.prototype = {
     writeRelations: function cSC_writeRelations(item, olditem) {
         let relations = item.getRelations({});
         if (relations && relations.length > 0) {
-            for each (var rel in relations) {
+            for (var rel of relations) {
                 let rp = this.mInsertRelation.params;
                 try {
                     this.prepareStatement(this.mInsertRelation);
@@ -2235,7 +2241,7 @@ calStorageCalendar.prototype = {
             return 0;
         }
 
-        for each (let alarm in alarms) {
+        for (let alarm of alarms) {
             let pp = this.mInsertAlarm.params;
             try {
                 this.prepareStatement(this.mInsertAlarm);
@@ -2430,7 +2436,7 @@ calStorageCalendar.prototype = {
         if (rec) {
             var exceptions = rec.getExceptionIds ({});
             if (exceptions.length > 0) {
-                for each (exid in exceptions) {
+                for (exid of exceptions) {
                     let ex = rec.getExceptionFor(exid);
                     if (newSequence) {
                         ex.setProperty("SEQUENCE", newSequence);

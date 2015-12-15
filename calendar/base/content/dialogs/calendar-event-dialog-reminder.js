@@ -39,14 +39,14 @@ function onLoad() {
     // Set up the action map
     let supportedActions = calendar.getProperty("capabilities.alarms.actionValues") ||
                            ["DISPLAY" /* TODO email support, "EMAIL" */];
-    for each (let action in supportedActions) {
+    for (let action of supportedActions) {
         allowedActionsMap[action] = true;
     }
 
     // Hide all actions that are not supported by this provider
     let firstAvailableItem;
     let actionNodes = document.getElementById("reminder-actions-menupopup").childNodes;
-    for each (let actionNode in Array.slice(actionNodes)) {
+    for (let actionNode of actionNodes) {
         let shouldHide = (!(actionNode.value in allowedActionsMap) ||
                           (actionNode.hasAttribute("provider") &&
                            actionNode.getAttribute("provider") != calendar.type));
@@ -422,8 +422,7 @@ function onRemoveReminder() {
  */
 function onAccept() {
     let listbox = document.getElementById("reminder-listbox");
-    let reminders = [ node.reminder 
-                      for each (node in Array.slice(listbox.childNodes)) ];
+    let reminders = Array.from(listbox.childNodes).map(node => node.reminder);
     if (window.arguments[0].onOk) {
         window.arguments[0].onOk(reminders);
     }

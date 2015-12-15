@@ -56,7 +56,7 @@ calMonthPrinter.prototype = {
             }
         }
 
-        for each (let item in aItems) {
+        for (let item of aItems) {
             let itemStartDate = item[cal.calGetStartDateProp(item)] || item[cal.calGetEndDateProp(item)];
             let itemEndDate = item[cal.calGetEndDateProp(item)] || item[cal.calGetStartDateProp(item)];
 

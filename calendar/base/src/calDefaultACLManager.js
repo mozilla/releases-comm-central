@@ -81,7 +81,7 @@ calDefaultCalendarACLEntry.prototype = {
 
     getUserAddresses: function calDefaultCalendarACLEntry_getUserAddresses(aCount) {
         let identities = this.getUserIdentities(aCount);
-        let addresses = [ id.email for each (id in identities) ];
+        let addresses = identities.map(id => id.email);
         return addresses;
     },
 

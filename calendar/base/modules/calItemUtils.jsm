@@ -68,7 +68,7 @@ itemDiff.prototype = {
     load: function load(items) {
         this._expectState(this.STATE_INITIAL | this.STATE_LOADING);
 
-        for each (let item in items) {
+        for (let item of items) {
             this.mInitialItems[item.hashId] = item;
         }
 
@@ -97,7 +97,7 @@ itemDiff.prototype = {
         this.mModifiedItems.startBatch();
         this.mAddedItems.startBatch();
 
-        for each (let item in items) {
+        for (let item of items) {
             if (item.hashId in this.mInitialItems) {
                 let oldItem = this.mInitialItems[item.hashId];
                 this.mModifiedOldItems.addItem(oldItem);
@@ -124,7 +124,8 @@ itemDiff.prototype = {
 
         this.mDeletedItems.startBatch();
 
-        for each (let item in this.mInitialItems) {
+        for (let hashId in this.mInitialItems) {
+            let item = this.mInitialItems[hashId];
             this.mDeletedItems.addItem(item);
         }
 

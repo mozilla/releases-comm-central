@@ -32,7 +32,7 @@ cal.print = {
         let sheet = document.getElementById("sheet");
         sheet.insertedCategoryRules = sheet.insertedCategoryRules || {};
 
-        for each (let category in categories) {
+        for (let category of categories) {
             let prefName = cal.formatStringForCSSRule(category);
             let color = Preferences.get("calendar.category.color." + prefName) || "transparent";
             if (!(prefName in sheet.insertedCategoryRules)) {

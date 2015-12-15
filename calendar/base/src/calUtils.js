@@ -305,7 +305,7 @@ function attendeeMatchesAddresses(anAttendee, addresses) {
     }
 
     attId = attId.toLowerCase().replace(/^mailto:/, "");
-    for each (let address in addresses) {
+    for (let address of addresses) {
         if (attId == address.toLowerCase().replace(/^mailto:/, "")) {
             return true;
         }
@@ -565,7 +565,7 @@ function setupDefaultCategories() {
 
     // Now, initialize the category default colors
     let categoryArray = categoriesStringToArray(categories);
-    for each (let category in categoryArray) {
+    for (let category of categoryArray) {
         let prefName = formatStringForCSSRule(category);
         Preferences.set("calendar.category.color." + prefName,
                         hashColor(category));
@@ -804,9 +804,11 @@ function doQueryInterface(aSelf, aProto, aIID, aList, aClassInfo) {
         }
     }
 
-    for each (var iid in aList) {
-        if (aIID.equals(iid)) {
-            return aSelf;
+    if (aList) {
+        for (var iid of aList) {
+            if (aIID.equals(iid)) {
+                return aSelf;
+            }
         }
     }
 
@@ -1597,8 +1599,10 @@ calPropertyBag.prototype = {
     get enumerator() {
         return new calPropertyBagEnumerator(this);
     },
-    __iterator__: function cpb_iterator(aWantKeys) {
-        return Iterator(this.mData, aWantKeys);
+    [Symbol.iterator]: function* cpb_iterator() {
+        for (let name of Object.keys(this.mData)) {
+            yield [name, this.mData[name]];
+        }
     }
 };
 // implementation part of calPropertyBag
@@ -1689,7 +1693,7 @@ function compareItemContent(aFirstItem, aSecondItem, aIgnoreProps, aIgnoreParams
 
     function arr2hash(arr) {
         let hash = {};
-        for each (let x in arr) {
+        for (let x of arr) {
             hash[x] = true;
         }
         return hash;
@@ -1713,12 +1717,11 @@ function compareItemContent(aFirstItem, aSecondItem, aIgnoreProps, aIgnoreParams
     }
 
     function normalizeProperty(prop) {
-        let params = [
-            k + "=" + v
-            for each ([k,v] in cal.ical.paramIterator(prop))
-            if (!(prop.propertyName in ignoreParams) ||
-            !(k in ignoreParams[prop.propertyName]))
-        ].sort();
+        let params = [...cal.ical.paramIterator(prop)].
+            filter(([k, v]) => !(prop.propertyName in ignoreParams) ||
+                   !(k in ignoreParams[prop.propertyName])).
+            map(([k, v]) => k + "=" + v).
+            sort();
 
         return prop.propertyName + ";" +
                params.join(";") + ":" +

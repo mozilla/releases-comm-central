@@ -192,7 +192,7 @@ function test_icalcomponent() {
        ["recurrenceId", cal.createDateTime("20120101T010108")]
     ];
 
-    for each (let prop in props) {
+    for (let prop of props) {
         check_getset.apply(null, prop);
     }
 }

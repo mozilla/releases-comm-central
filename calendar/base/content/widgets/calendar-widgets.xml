@@ -179,7 +179,7 @@
 
           removeChildren(categoryListbox);
 
-          for each (let cat in categoryList) {
+          for (let cat of categoryList) {
               // First insert all categories from the prefs
               let item = categoryListbox.appendItem(cat, cat);
               item.setAttribute("type", "checkbox");
@@ -190,7 +190,7 @@
               let compare = localeCollator.compareString.bind(localeCollator, 0);
 
               // Ensure the item's categories are in the list and they are checked.
-              for each (let cat in aItem.getCategories({})) {
+              for (let cat of aItem.getCategories({})) {
                 this.insertCategory(cat, categoryList, categoryListbox, compare);
               }
           }
@@ -567,8 +567,10 @@
       <method name="removeDropShadows">
         <body><![CDATA[
             // method that may be overwritten by derived bindings...
-            for each (let shadow in this.calendarView.mDropShadows) {
-                cal.removeChildElementsByAttribute(shadow, "class", "dropshadow");
+            if (this.calendarView.mDropShadows) {
+                for (let shadow of this.calendarView.mDropShadows) {
+                    cal.removeChildElementsByAttribute(shadow, "class", "dropshadow");
+                }
             }
             this.calendarView.mDropShadows = null;
         ]]></body>

@@ -145,7 +145,7 @@ calItipItem.prototype = {
         // method is (using user feedback, prefs, etc.) for the given
         // receivedMethod.  The RFC tells us to treat items without a METHOD
         // as if they were METHOD:REQUEST.
-        for each (let prop in parser.getProperties({})) {
+        for (let prop of parser.getProperties({})) {
             if (prop.propertyName == "METHOD") {
                 this.mReceivedMethod = prop.value;
                 this.mResponseMethod = prop.value;
@@ -192,7 +192,7 @@ calItipItem.prototype = {
             aAttendeeId = ("mailto:" + aAttendeeId);
         }
 
-        for each (let item in this.mItemList) {
+        for (let item of this.mItemList) {
             let attendee = item.getAttendeeById(aAttendeeId);
             if (attendee) {
                 // Replies should not have the RSVP property.

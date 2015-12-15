@@ -163,7 +163,7 @@ calWcapCalendar.prototype = {
                 if (this.isDefaultCalendar) {
                     // disabling/enabling the default calendar will enable/disable all calendars
                     // belonging to the same session:
-                    for each (let calendar in this.session.getRegisteredCalendars()) {
+                    for (let calendar of this.session.getRegisteredCalendars()) {
                         if (!calendar.isDefaultCalendar) {
                             calendar.setProperty("disabled", aValue);
                         }

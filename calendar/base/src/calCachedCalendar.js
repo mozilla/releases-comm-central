@@ -228,7 +228,7 @@ calCachedCalendar.prototype = {
         let getListener = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onGetResult: function cCC_oOC_cL_onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
-                for each (let item in aItems) {
+                for (let item of aItems) {
                     this_.offlineCachedItems[item.hashId] = item;
                     this_.offlineCachedItemFlags[item.hashId] = cICL.OFFLINE_FLAG_CREATED_RECORD;
                 }
@@ -247,7 +247,7 @@ calCachedCalendar.prototype = {
         let getListener = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onGetResult: function cCC_oOC_cL_onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
-                for each (let item in aItems) {
+                for (let item of aItems) {
                     this_.offlineCachedItems[item.hashId] = item;
                     this_.offlineCachedItemFlags[item.hashId] = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
                 }
@@ -266,7 +266,7 @@ calCachedCalendar.prototype = {
         let getListener = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onGetResult: function cCC_oOC_cL_onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
-                for each (let item in aItems) {
+                for (let item of aItems) {
                     this_.offlineCachedItems[item.hashId] = item;
                     this_.offlineCachedItemFlags[item.hashId] = cICL.OFFLINE_FLAG_DELETED_RECORD;
                 }

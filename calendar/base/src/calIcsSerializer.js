@@ -67,10 +67,10 @@ calIcsSerializer.prototype = {
         // xxx todo: think about that the below code doesn't clone the properties/components,
         //           thus ownership is moved to returned VCALENDAR...
 
-        for each (let prop in this.mProperties) {
+        for (let prop of this.mProperties) {
             calComp.addProperty(prop);
         }
-        for each (let comp in this.mComponents) {
+        for (let comp of this.mComponents) {
             calComp.addSubcomponent(comp);
         }
 

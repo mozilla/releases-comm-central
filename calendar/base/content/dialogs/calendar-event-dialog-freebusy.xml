@@ -773,7 +773,7 @@
               let numHours = this.numHours;
 
               // Iterate all incoming freebusy entries
-              for each (let entry in aEntries) {
+              for (let entry of aEntries) {
                   let rangeStart = entry.interval.start.getInTimezone(kDefaultTimezone);
                   let rangeEnd = entry.interval.end.getInTimezone(kDefaultTimezone);
 
@@ -912,7 +912,7 @@
           var kDefaultTimezone = calendarDefaultTimezone();
 
           if (this.mEntries) {
-              for each (var entry in this.mEntries) {
+              for (var entry of this.mEntries) {
                 var rangeStart =
                     entry.interval.start.getInTimezone(kDefaultTimezone);
                 var rangeEnd =
@@ -1133,7 +1133,7 @@
       <method name="onUnload">
         <body><![CDATA[
           // Cancel pending free/busy requests
-          for each (var request in this.mPendingRequests) {
+          for (var request of this.mPendingRequests) {
               request.cancel(null);
           }
 

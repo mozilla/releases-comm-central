@@ -37,7 +37,7 @@ var cal = {
             baseDir.append("calendar-js");
         }
 
-        for each (let script in scriptNames) {
+        for (let script of scriptNames) {
             if (!script) {
                 // If the array element is null, then just skip this script.
                 continue;
@@ -120,7 +120,7 @@ var cal = {
                 break;
         }
 
-        for each (let method in methods) {
+        for (let method of methods) {
             if (!(method in template)) {
                 adapter[method] = function() {};
             }
@@ -887,7 +887,7 @@ function shutdownCleanup(obj, prop) {
     if (!shutdownCleanup.mEntries) {
         shutdownCleanup.mEntries = [];
         cal.addShutdownObserver(function() {
-                for each (let entry in shutdownCleanup.mEntries) {
+                for (let entry of shutdownCleanup.mEntries) {
                     if (entry.mProp) {
                         delete entry.mObj[entry.mProp];
                     } else {

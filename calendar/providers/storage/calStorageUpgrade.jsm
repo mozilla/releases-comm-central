@@ -405,7 +405,7 @@ function ensureUpdatedTimezones(db) {
 
         beginTransaction(db);
         try {
-            for each (let update in zonesToUpdate) {
+            for (let update of zonesToUpdate) {
                 executeSimpleSQL(db,
                     "UPDATE cal_attendees    SET recurrence_id_tz = '" + update.newTzId + "' WHERE recurrence_id_tz = '" + update.oldTzId + "'; " +
                     "UPDATE cal_events       SET recurrence_id_tz = '" + update.newTzId + "' WHERE recurrence_id_tz = '" + update.oldTzId + "'; " +
@@ -459,7 +459,7 @@ function addColumn(tblData, tblName, colName, colType, db) {
  * @param db            (optional) The database to apply the operation on
  */
 function deleteColumns(tblData, tblName, colNameArray, db) {
-    for each (let colName in colNameArray) {
+    for (let colName of colNameArray) {
         delete tblData[tblName][colName];
     }
 
@@ -511,7 +511,7 @@ function copyTable(tblData, tblName, newTblName, db, condition, selectOptions) {
  * @param db            (optional) The database to apply the operation on
  */
 function alterTypes(tblData, tblName, colNameArray, newType, db) {
-    for each (let colName in colNameArray) {
+    for (let colName of colNameArray) {
         tblData[tblName][colName] = newType;
     }
 
@@ -809,7 +809,7 @@ upgrade.v4 = function upgrade_v4(db, version) {
 
     beginTransaction(db);
     try {
-        for each (let tblid in ["events", "todos", "attendees", "properties"]) {
+        for (let tblid of ["events", "todos", "attendees", "properties"]) {
             addColumn(tbl, "cal_" + tblid, "recurrence_id", "INTEGER", db);
             addColumn(tbl, "cal_" + tblid, "recurrence_id_tz", "VARCHAR", db);
         }
@@ -832,7 +832,7 @@ upgrade.v5 = function upgrade_v5(db, version) {
 
     beginTransaction(db);
     try {
-        for each (let tblid in ["events", "todos"]) {
+        for (let tblid of ["events", "todos"]) {
             addColumn(tbl, "cal_" + tblid, "alarm_offset", "INTEGER", db);
             addColumn(tbl, "cal_" + tblid, "alarm_related", "INTEGER", db);
             addColumn(tbl, "cal_" + tblid, "alarm_last_ack", "INTEGER", db);
@@ -1003,7 +1003,7 @@ upgrade.v13 = function upgrade_v13(db, version) {
 
         let calIds = {};
         if (db) {
-            for each (let itemTable in ["events", "todos"]) {
+            for (let itemTable of ["events", "todos"]) {
                 let stmt = createStatement(db,
                                            "SELECT id, cal_id FROM cal_" + itemTable);
                 try {
@@ -1017,8 +1017,8 @@ upgrade.v13 = function upgrade_v13(db, version) {
             }
         }
 
-        for each (let tblid in ["attendees", "recurrence", "properties",
-                                "attachments"]) {
+        for (let tblid of ["attendees", "recurrence", "properties",
+                           "attachments"]) {
             addColumn(tbl, "cal_" + tblid, "cal_id", "INTEGER", db);
 
             for (let itemId in calIds) {
@@ -1185,7 +1185,7 @@ upgrade.v16 = function upgrade_v16(db, version) {
                     "alarm_time_tz",
                     "alarm_offset",
                     "alarm_related"];
-        for each (let tblid in ["events", "todos"]) {
+        for (let tblid of ["events", "todos"]) {
             deleteColumns(tbl, "cal_" + tblid, cols, db);
         }
 
@@ -1212,7 +1212,7 @@ upgrade.v17 = function upgrade_v17(db, version) {
     LOGdb(db, "Storage: Upgrading to v17");
     beginTransaction(db);
     try {
-        for each (let tblName in ["alarms", "relations", "attachments"]) {
+        for (let tblName of ["alarms", "relations", "attachments"]) {
             let hasColumns = true;
             let stmt;
             try {
@@ -1284,12 +1284,12 @@ upgrade.v18 = function upgrade_v18(db, version) {
         let allIds = simpleIds.concat(["recurrence_id", "recurrence_id_tz"]);
 
         // Alarms, Attachments, Attendees, Relations
-        for each (let tblName in ["alarms", "attachments", "attendees", "relations"]) {
+        for (let tblName of ["alarms", "attachments", "attendees", "relations"]) {
             createIndex(tbl, "cal_" + tblName, allIds, db);
         }
 
         // Events and Tasks
-        for each (let tblName in ["events", "todos"]) {
+        for (let tblName of ["events", "todos"]) {
             createIndex(tbl, "cal_" + tblName, ["flags", "cal_id", "recurrence_id"], db);
             createIndex(tbl, "cal_" + tblName, ["id", "cal_id", "recurrence_id"], db);
         }
@@ -1324,11 +1324,11 @@ upgrade.v19 = function upgrade_v19(db, version) {
     beginTransaction(db);
     try {
         // Change types of column to TEXT.
-        for each (let tblName in ["cal_alarms", "cal_attachments",
-                                  "cal_attendees", "cal_events",
-                                  "cal_metadata", "cal_properties",
-                                  "cal_recurrence", "cal_relations",
-                                  "cal_todos"]) {
+        for (let tblName of ["cal_alarms", "cal_attachments",
+                             "cal_attendees", "cal_events",
+                             "cal_metadata", "cal_properties",
+                             "cal_recurrence", "cal_relations",
+                             "cal_todos"]) {
             alterTypes(tbl, tblName, ["cal_id"], "TEXT", db);
         }
         setDbVersionAndCommit(db, 19);
@@ -1350,7 +1350,7 @@ upgrade.v20 = function upgrade_v20(db, version) {
     beginTransaction(db);
     try {
         //Adding a offline_journal column
-        for each (let tblName in ["cal_events", "cal_todos"]) {
+        for (let tblName of ["cal_events", "cal_todos"]) {
             addColumn(tbl, tblName, ["offline_journal"], "INTEGER", db);
         }
         setDbVersionAndCommit(db, 20);
@@ -1504,7 +1504,7 @@ upgrade.v22 = function upgrade_v22(db, version) {
                     attendee.userType = aType;
                     attendee.isOrganizer = !!aIsOrganizer;
                     if (aProperties) {
-                        for each (let pair in aProperties.split(",")) {
+                        for (let pair of aProperties.split(",")) {
                             let [key, value] = pair.split(":");
                             attendee.setProperty(decodeURIComponent(key),
                                                  decodeURIComponent(value));

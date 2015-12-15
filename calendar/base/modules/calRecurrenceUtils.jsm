@@ -377,7 +377,7 @@ function splitRecurrenceRules(recurrenceInfo) {
     var ritems = recurrenceInfo.getRecurrenceItems({});
     var rules = [];
     var exceptions = [];
-    for each (var r in ritems) {
+    for (var r of ritems) {
         if (r.isNegative) {
             exceptions.push(r);
         } else {
@@ -396,7 +396,7 @@ function splitRecurrenceRules(recurrenceInfo) {
  * @return                  Returns true if the rule is valid.
  */
 function checkRecurrenceRule(aRule, aArray) {
-    for each (var comp in aArray) {
+    for (var comp of aArray) {
         var ruleComp = aRule.getComponent(comp, {});
         if (ruleComp && ruleComp.length > 0) {
             return true;

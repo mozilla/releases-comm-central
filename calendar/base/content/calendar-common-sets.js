@@ -454,7 +454,7 @@ var calendarController = {
         let selected_events_invitation = 0;
 
         if (selLength > 0) {
-            for each (var item in selectedItems) {
+            for (var item of selectedItems) {
                 if (item.calendar.readOnly) {
                     selected_events_readonly++;
                 }
@@ -547,7 +547,7 @@ var calendarController = {
     get has_cached_calendars() {
         let calMgr = getCalendarManager();
         let calendars = calMgr.getCalendars({});
-        for each (let calendar in calendars) {
+        for (let calendar of calendars) {
             if (calendar.getProperty("cache.enabled") || calendar.getProperty("cache.always")) {
                 return true;
             }
@@ -570,7 +570,7 @@ var calendarController = {
         // calendar manager.
         var calendars = getCalendarManager().getCalendars({});
         var count = calendars.length;
-        for each (var calendar in calendars) {
+        for (var calendar of calendars) {
             if (!isCalendarWritable(calendar)) {
                 count--;
             }
@@ -602,7 +602,7 @@ var calendarController = {
         let selectedTasks = getSelectedTasks();
         let selected_tasks_invitation = 0;
 
-        for each (let item in selectedTasks) {
+        for (let item of selectedTasks) {
             if (cal.isInvitation(item)) {
                 selected_tasks_invitation++;
             } else if (item.organizer) {
@@ -624,7 +624,7 @@ var calendarController = {
      */
     get todo_items_writable() {
         var selectedTasks = getSelectedTasks();
-        for each (var task in selectedTasks) {
+        for (var task of selectedTasks) {
             if (isCalendarWritable(task.calendar)) {
                 return true;
             }
@@ -907,7 +907,7 @@ function calendarUpdateDeleteCommand(selectedItems) {
     CalendarDeleteCommandEnabled = (selectedItems.length > 0);
 
     /* we must disable "delete" when at least one item cannot be deleted */
-    for each (let item in selectedItems) {
+    for (let item of selectedItems) {
         if (!userCanDeleteItemsFromCalendar(item.calendar)) {
             CalendarDeleteCommandEnabled = false;
             break;
@@ -920,7 +920,7 @@ function calendarUpdateDeleteCommand(selectedItems) {
                         "calendar_delete_focused_item_command",
                         "button_delete",
                         "cmd_delete"];
-        for each (let command in commands) {
+        for (let command of commands) {
             goUpdateCommand(command);
         }
     }

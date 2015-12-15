@@ -100,7 +100,7 @@ calAttachment.prototype = {
     get icalProperty() {
         let icalatt = cal.getIcsService().createIcalProperty("ATTACH");
 
-        for each (let [key, value] in this.mProperties) {
+        for (let [key, value] of this.mProperties) {
             try {
                 icalatt.setParameter(key, value);
             } catch (e if e.result == Components.results.NS_ERROR_ILLEGAL_VALUE) {
@@ -122,7 +122,7 @@ calAttachment.prototype = {
         this.mProperties = new cal.calPropertyBag();
         this.setData(attProp.value);
 
-        for each (let [name, value] in cal.ical.paramIterator(attProp)) {
+        for (let [name, value] of cal.ical.paramIterator(attProp)) {
             this.setParameter(name, value);
         }
     },
@@ -160,7 +160,7 @@ calAttachment.prototype = {
         let newAttachment = new calAttachment();
         newAttachment.mData = this.mData;
         newAttachment.mHashId = this.mHashId;
-        for each (let [name, value] in this.mProperties) {
+        for (let [name, value] of this.mProperties) {
             newAttachment.mProperties.setProperty(name, value);
         }
         return newAttachment;

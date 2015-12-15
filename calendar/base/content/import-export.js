@@ -50,7 +50,7 @@ function loadEventsFromFile(aCalendar) {
             continue;
         }
         let types = importer.getFileTypes({});
-        for each (let type in types) {
+        for (let type of types) {
             fp.appendFilter(type.description, type.extensionFilter);
             if (type.extensionFilter=="*." + fp.defaultExtension) {
                 fp.filterIndex = currentListLength;
@@ -177,7 +177,7 @@ function putItemsIntoCal(destCal, aItems, aFilePath) {
         }
     }
 
-    for each (let item in aItems) {
+    for (let item of aItems) {
         // XXX prompt when finding a duplicate.
         try {
             destCal.addItem(item, listener);
@@ -248,7 +248,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
             continue;
         }
         let types = exporter.getFileTypes({});
-        for each (let type in types) {
+        for (let type of types) {
             fp.appendFilter(type.description, type.extensionFilter);
             if (type.extensionFilter=="*." + fp.defaultExtension) {
                 fp.filterIndex = currentListLength;
@@ -328,7 +328,7 @@ function exportEntireCalendar(aCalendar) {
         },
         onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems)
         {
-            for each (let item in aItems) {
+            for (let item of aItems) {
                 itemArray.push(item);
             }
         }

@@ -696,7 +696,7 @@ function guessSystemTimezone() {
         const bundleTZString =
             calProperties.GetStringFromName("likelyTimezone");
         const bundleTZIds = bundleTZString.split(/\s*,\s*/);
-        for each (var bareTZId in bundleTZIds) {
+        for (var bareTZId of bundleTZIds) {
             var tzId = bareTZId;
             try {
                 var score = checkTZ(tzId);

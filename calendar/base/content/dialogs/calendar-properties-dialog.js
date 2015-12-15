@@ -149,7 +149,7 @@ function initRefreshInterval() {
         let foundValue = false;
         let separator = document.getElementById("calendar-refreshInterval-manual-separator");
         let menulist = document.getElementById("calendar-refreshInterval-menulist");
-        for each (let min in [1, 5, 15, 30, 60]) {
+        for (let min of [1, 5, 15, 30, 60]) {
             let menuitem = createMenuItem(min);
 
             separator.parentNode.insertBefore(menuitem, separator);

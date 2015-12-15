@@ -549,7 +549,7 @@ cal.itip = {
                 // check whether the two differ only in EXDATEs
                 let clonedItem = aItem.clone();
                 let exdates = [];
-                for each (let ritem in clonedItem.recurrenceInfo.getRecurrenceItems({})) {
+                for (let ritem of clonedItem.recurrenceInfo.getRecurrenceItems({})) {
 
                     let wrappedRItem = cal.wrapInstance(ritem, Components.interfaces.calIRecurrenceDate);
                     if (ritem.isNegative &&
@@ -680,11 +680,11 @@ cal.itip = {
 
         if (itemAtt.length > 0 || originalAtt.length > 0) {
             let attMap = {};
-            for each (let att in originalAtt) {
+            for (let att of originalAtt) {
                 attMap[att.id.toLowerCase()] = att;
             }
 
-            for each (let att in itemAtt) {
+            for (let att of itemAtt) {
                 if (att.id.toLowerCase() in attMap) {
                     // Attendee was in original item.
                     delete attMap[att.id.toLowerCase()];
@@ -694,7 +694,8 @@ cal.itip = {
                 }
             }
 
-            for each (let cancAtt in attMap) {
+            for (let id in attMap) {
+                let cancAtt = attMap[id];
                 canceledAttendees.push(cancAtt);
             }
         }
@@ -722,7 +723,7 @@ cal.itip = {
                 if (!isMinorUpdate) {
                     requestItem.removeAllAttendees();
                 }
-                for each (let attendee in itemAtt) {
+                for (let attendee of itemAtt) {
                     if (!isMinorUpdate) {
                         attendee = attendee.clone();
                         if (!attendee.role) {
@@ -757,7 +758,7 @@ cal.itip = {
         if (canceledAttendees.length > 0) {
             let cancelItem = aOriginalItem.clone();
             cancelItem.removeAllAttendees();
-            for each (let att in canceledAttendees) {
+            for (let att of canceledAttendees) {
                 cancelItem.addAttendee(att);
             }
             if (sendOut) {
@@ -912,7 +913,7 @@ function updateItem(item, itipItemItem) {
         // preserve user settings:
         newItem.generation = item.generation;
         newItem.clearAlarms();
-        for each (let alarm in item.getAlarms({})) {
+        for (let alarm of item.getAlarms({})) {
             newItem.addAlarm(alarm);
         }
         newItem.alarmLastAck = item.alarmLastAck;
@@ -928,7 +929,7 @@ function updateItem(item, itipItemItem) {
     let recInfo = itipItemItem.recurrenceInfo;
     if (recInfo) {
         // keep care of installing all overridden items, and mind existing alarms, categories:
-        for each (let rid in recInfo.getExceptionIds({})) {
+        for (let rid of recInfo.getExceptionIds({})) {
             let excItem = recInfo.getExceptionFor(rid).clone();
             cal.ASSERT(excItem, "unexpected!");
             let newExc = newItem.recurrenceInfo.getOccurrenceFor(rid).clone();
@@ -956,7 +957,7 @@ function updateItem(item, itipItemItem) {
 function copyProviderProperties(itipItem, itipItemItem, item) {
     // Copy over itip properties to the item if requested by the provider
     let copyProps = item.calendar.getProperty("itip.copyProperties") || [];
-    for each (let prop in copyProps) {
+    for (let prop of copyProps) {
         if (prop == "METHOD") {
             // Special case, this copies over the received method
             item.setProperty("METHOD", itipItem.receivedMethod.toUpperCase());
@@ -1038,7 +1039,7 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
        aMethod != "REPLY" &&
        aMethod != "REFRESH" &&
        aMethod != "COUNTER") {
-        for each( aRecipient in aRecipientsList) {
+        for (let aRecipient of aRecipientsList) {
             // create a list with a single recipient
             let sendToList = [aRecipient];
             // remove other recipients from vevent attendee list
@@ -1270,8 +1271,8 @@ ItipItemFinder.prototype = {
                 case "PUBLISH":
                 case "REQUEST":
                 case "REPLY":
-                    for each (let itipItemItem in this.mItipItem.getItemList({})) {
-                        for each (let item in this.mFoundItems) {
+                    for (let itipItemItem of this.mItipItem.getItemList({})) {
+                        for (let item of this.mFoundItems) {
                             let rid = itipItemItem.recurrenceId; //  XXX todo support multiple
                             if (rid) { // actually applies to individual occurrence(s)
                                 if (item.recurrenceInfo) {
@@ -1412,8 +1413,8 @@ ItipItemFinder.prototype = {
                     break;
                 case "CANCEL": {
                     let modifiedItems = {};
-                    for each (let itipItemItem in this.mItipItem.getItemList({})) {
-                        for each (let item in this.mFoundItems) {
+                    for (let itipItemItem of this.mItipItem.getItemList({})) {
+                        for (let item of this.mFoundItems) {
                             let rid = itipItemItem.recurrenceId; //  XXX todo support multiple
                             if (rid) { // actually a CANCEL of occurrence(s)
                                 if (item.recurrenceInfo) {
@@ -1461,7 +1462,7 @@ ItipItemFinder.prototype = {
             // if an item was added or removed
             this._observeChanges(this.mItipItem.targetCalendar);
 
-            for each (let itipItemItem in this.mItipItem.getItemList({})) {
+            for (let itipItemItem of this.mItipItem.getItemList({})) {
                 switch (method) {
                     case "REQUEST":
                     case "PUBLISH": {
@@ -1514,7 +1515,7 @@ ItipItemFinder.prototype = {
         let actionFunc = null;
         if (operations.length > 0) {
             actionFunc = function execOperations(opListener, partStat) {
-                for each (let op in operations) {
+                for (let op of operations) {
                     try {
                         op(opListener, partStat);
                     } catch (exc) {

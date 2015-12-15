@@ -82,7 +82,7 @@ calWcapRequest.prototype = {
                    " (" + this.m_logContext + ")");
         if (LOG_LEVEL > 2 && this.m_attachedRequests.length > 0) {
             ret += "\nattached requests:";
-            for each (var req in this.m_attachedRequests) {
+            for (var req of this.m_attachedRequests) {
                 ret += ("\n#" + req.id + "\t" + req);
             }
         }

@@ -274,7 +274,7 @@ calICSCalendar.prototype = {
         let listener = { // calIIcsParsingListener
             onParsingComplete: function ics_onParsingComplete(rc, parser_) {
                 try {
-                    for each (let item in parser_.getItems({})) {
+                    for (let item of parser_.getItems({})) {
                         this_.mMemoryCalendar.adoptItem(item, null);
                     }
                     this_.unmappedComponents = parser_.getComponents({});
@@ -381,10 +381,10 @@ calICSCalendar.prototype = {
         };
         listener.serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"].
                                          createInstance(Components.interfaces.calIIcsSerializer);
-        for each (let comp in this.unmappedComponents) {
+        for (let comp of this.unmappedComponents) {
             listener.serializer.addComponent(comp);
         }
-        for each (let prop in this.unmappedProperties) {
+        for (let prop of this.unmappedProperties) {
             switch (prop.propertyName) {
                 // we always set the current name and timezone:
                 case "X-WR-CALNAME":

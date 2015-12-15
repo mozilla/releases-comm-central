@@ -443,7 +443,7 @@
       <method name="findChunkForOccurrence">
         <parameter name="aOccurrence"/>
         <body><![CDATA[
-          for each (var chunk in this.mEventBoxes) {
+          for (var chunk of this.mEventBoxes) {
               if (chunk.occurrence.hashId == aOccurrence.hashId) {
                   return chunk;
               }
@@ -509,7 +509,7 @@
 
       <method name="recalculateStartEndMinutes">
         <body><![CDATA[
-          for each (var chunk in this.mEventInfos) {
+          for (var chunk of this.mEventInfos) {
               var mins = this.getStartEndMinutesForOccurrence(chunk.event);
               chunk.startMinute = mins.start;
               chunk.endMinute = mins.end;
@@ -620,7 +620,7 @@
           while (this.topbox && this.topbox.hasChildNodes()) {
               this.topbox.lastChild.remove();
           }
-          for each (let handler in this.mHandlersToRemove) {
+          for (let handler of this.mHandlersToRemove) {
               this.calendarView.viewBroadcaster.removeEventListener(this.calendarView.getAttribute("type") + "viewresized", handler, true);
           }
           this.mHandlersToRemove = [];
@@ -716,7 +716,7 @@
           let columnCount = 1;
           let spanTotal = 0;
 
-          for each (let layer in this.mEventMap) {
+          for (let layer of this.mEventMap) {
 
               // The event-map (this.mEventMap) contains an array of layers.
               // For each layer we create a box below the stack just created above.
@@ -737,7 +737,7 @@
 
               // Each layer contains a list of the columns that
               // need to be created for a span.
-              for each (let column in layer) {
+              for (let column of layer) {
                   let innerColumn = createXULElement("box");
                   innerColumn.setAttribute("orient", orient);
 
@@ -752,7 +752,7 @@
 
                   xulColumn.appendChild(innerColumn);
                   let curTime = 0;
-                  for each (let chunk in column) {
+                  for (let chunk of column) {
                       var duration = chunk.duration;
                       if (!duration) {
                           continue;
@@ -1111,12 +1111,12 @@
 
           // When we start a new blob, move to a new set of layers
           var layerOffset = 0;
-          for each (var glob in aBlobs) {
+          for (var glob of aBlobs) {
 
               var layerArray = [];
               var layerCounter = 1;
 
-              for each (var data in glob.blob) {
+              for (var data of glob.blob) {
 
                   // from the item at hand we need to figure out on which
                   // layer and on which column it should go.
@@ -2111,7 +2111,7 @@
       <method name="findBoxForItem">
         <parameter name="aItem"/>
         <body><![CDATA[
-          for each (var item in this.mItemBoxes) {
+          for (var item of this.mItemBoxes) {
               if (aItem && item.occurrence.hasSameIds(aItem)) {
                   // We can return directly, since there will only be one box per
                   // item in the header.
@@ -2174,7 +2174,7 @@
       <method name="selectOccurrence">
         <parameter name="aItem"/>
         <body><![CDATA[
-          for each (let itemBox in this.mItemBoxes) {
+          for (let itemBox of this.mItemBoxes) {
             if (aItem && (itemBox.occurrence.hashId == aItem.hashId)) {
               itemBox.selected = true;
             }
@@ -2185,7 +2185,7 @@
       <method name="unselectOccurrence">
         <parameter name="aItem"/>
         <body><![CDATA[
-          for each (let itemBox in this.mItemBoxes) {
+          for (let itemBox of this.mItemBoxes) {
             if (aItem && (itemBox.occurrence.hashId == aItem.hashId)) {
               itemBox.selected = false;
             }
@@ -2757,7 +2757,7 @@
           // Make sure the flashing attribute is set or reset on all visible
           // boxes.
           var columns = this.findColumnsForItem(aAlarmItem);
-          for each (var col in columns) {
+          for (var col of columns) {
             var box = col.column.findChunkForOccurrence(aAlarmItem);
             if (box && box.eventbox) {
               setFlashingAttribute(box.eventbox);
@@ -2813,7 +2813,7 @@
                   this.mEndDate.compare(targetDate) >= 0)
                   return;
           } else if (this.mDateList) {
-              for each (var d in this.mDateList) {
+              for (var d of this.mDateList) {
                   // if date is already visible, nothing to do
                   if (d.compare(targetDate) == 0)
                       return;
@@ -2899,7 +2899,7 @@
                    d.day += 1;
                }
            } else if (this.mDateList) {
-               for each (var d in this.mDateList)
+               for (var d of this.mDateList)
                    dates.push(d.clone());
            }
 
@@ -2973,23 +2973,25 @@
         <parameter name="aItems"/>
         <parameter name="aSuppressEvent"/>
         <body><![CDATA[
-          for each (var item in this.mSelectedItems) {
-              for each (var occ in this.getItemOccurrencesInView(item)) {
-                  var cols = this.findColumnsForItem(occ);
-                  for each (let col in cols) {
-                      col.header.unselectOccurrence(occ);
-                      col.column.unselectOccurrence(occ);
+          if (this.mSelectedItems) {
+              for (var item of this.mSelectedItems) {
+                  for (var occ of this.getItemOccurrencesInView(item)) {
+                      var cols = this.findColumnsForItem(occ);
+                      for (let col of cols) {
+                          col.header.unselectOccurrence(occ);
+                          col.column.unselectOccurrence(occ);
+                      }
                   }
               }
           }
           this.mSelectedItems = aItems || [];
 
-          for each (var item in this.mSelectedItems) {
-              for each (var occ in this.getItemOccurrencesInView(item)) {
+          for (var item of this.mSelectedItems) {
+              for (var occ of this.getItemOccurrencesInView(item)) {
                   let cols = this.findColumnsForItem(occ);
                   if (cols.length > 0) {
                       let start = item.startDate || item.entryDate || item.dueDate;
-                      for each (let col in cols) {
+                      for (let col of cols) {
                           if (start.isDate) {
                               col.header.selectOccurrence(occ);
                           } else {
@@ -3026,7 +3028,7 @@
           var lowMinute = 24 * 60;
           var highMinute = 0;
 
-          for each (var item in this.mSelectedItems) {
+          for (var item of this.mSelectedItems) {
               var startDateProperty = calGetStartDateProp(item);
               var endDateProperty = calGetEndDateProp(item);
 
@@ -3038,7 +3040,7 @@
                   occs = [item];
               }
 
-              for each (var occ in occs) {
+              for (var occ of occs) {
                   var occStart = occ[startDateProperty];
                   var occEnd = occ[endDateProperty];
                   // must have at least one of start or end
@@ -3117,7 +3119,10 @@
           let timebar = document.getAnonymousElementByAttribute(this, "anonid", "timebar");
           timebar.pixelsPerMinute = val;
 
-          for each (let col in this.mDateColumns) {
+          if (!this.mDateColumns) {
+              return;
+          }
+          for (let col of this.mDateColumns) {
               col.column.pixelsPerMinute = val;
           }
           return val;
@@ -3204,10 +3209,10 @@
           var otherelems = ['labelbox', 'labeldaybox', 'headertimespacer',
                             'headerbox', 'headerdaybox', 'scrollbox', 'daybox'];
 
-          for each (var id in normalelems) {
+          for (var id of normalelems) {
               document.getAnonymousElementByAttribute(this, "anonid", id).setAttribute("orient", orient);
           }
-          for each (var id in otherelems) {
+          for (var id of otherelems) {
               document.getAnonymousElementByAttribute(this, "anonid", id).setAttribute("orient", otherorient);
           }
 
@@ -3229,7 +3234,7 @@
           }
 
           var boxes = ["daybox", "headerdaybox"];
-          for each (var boxname in boxes) {
+          for (var boxname of boxes) {
               var box = document.getAnonymousElementByAttribute(this, "anonid", boxname);
               setAttributeToChildren(box, "orient", orient);
           }
@@ -3308,7 +3313,7 @@
           let labelboxkids = this.labeldaybox.childNodes;
           let updateTimeIndicator = false;
 
-          for each (var d in computedDateList) {
+          for (var d of computedDateList) {
               var dayEventsBox;
               if (counter < dayboxkids.length) {
                   dayEventsBox = dayboxkids[counter];
@@ -3414,8 +3419,10 @@
 
           // fix pixels-per-minute
           this.onResize();
-          for each (let col in this.mDateColumns) {
-               col.column.endLayoutBatchChange();
+          if (this.mDateColumns) {
+              for (let col of this.mDateColumns) {
+                  col.column.endLayoutBatchChange();
+              }
           }
 
           // Adjust scrollbar spacers
@@ -3446,7 +3453,10 @@
       <method name="findColumnForDate">
         <parameter name="aDate"/>
         <body><![CDATA[
-          for each (var col in this.mDateColumns) {
+          if (!this.mDateColumns) {
+              return;
+          }
+          for (var col of this.mDateColumns) {
               if (col.date.compare(aDate) == 0)
                   return col;
           }
@@ -3485,7 +3495,7 @@
           }
 
           var occMap = {};
-          for each (var occ in aOccurrences) {
+          for (var occ of aOccurrences) {
               var startDate = occ[calGetStartDateProp(occ)]
                               .getInTimezone(this.mStartDate.timezone);
               var endDate = occ[calGetEndDateProp(occ)]
@@ -3561,7 +3571,10 @@
         <parameter name="aClientX"/>
         <parameter name="aClientY"/>
         <body><![CDATA[
-          for each (var col in this.mDateColumns) {
+          if (!this.mDateColumns) {
+              return null;
+          }
+          for (var col of this.mDateColumns) {
               let bo = document.getAnonymousElementByAttribute(col.column, "anonid", "boxstack").boxObject;
               if ((aClientX >= bo.screenX) && (aClientX <= (bo.screenX + bo.width)) &&
                   (aClientY >= bo.screenY) && (aClientY <= (bo.screenY + bo.height)))
@@ -3594,7 +3607,7 @@
           if (!cols.length)
               return;
 
-          for each (let col in cols) {
+          for (let col of cols) {
               let column = col.column;
               let header = col.header;
 
@@ -3622,7 +3635,7 @@
               return item.hashId != aEvent.hashId;
           });
 
-          for each (let col in cols) {
+          for (let col of cols) {
               let column = col.column;
               let header = col.header;
 
@@ -3647,12 +3660,15 @@
       <method name="deleteItemsFromCalendar">
         <parameter name="aCalendar"/>
         <body><![CDATA[
-          for each (let col in this.mDateColumns) {
+          if (!this.mDateColumns) {
+              return;
+          }
+          for (let col of this.mDateColumns) {
               // get all-day events in column header and events within the column
-              let colEvents = [ box.occurrence for each (box in col.header.mItemBoxes) ]
-                              .concat([ info.event for each (info in col.column.mEventInfos) ]);
+              let colEvents = col.header.mItemBoxes.map(box => box.occurrence)
+                .concat(col.column.mEventInfos.map(info => info.event));
 
-              for each (let event in colEvents) {
+              for (let event of colEvents) {
                   if (event.calendar.id == aCalendar.id) {
                       this.doDeleteItem(event);
                   }

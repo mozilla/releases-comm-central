@@ -179,7 +179,7 @@ calIcalProperty.prototype = {
             }
 
             let paramNames = Object.keys(innerObject.jCal[1] || {});
-            for each (let name in paramNames) {
+            for (let name of paramNames) {
                 yield name.toUpperCase();
             }
         })();
@@ -236,8 +236,10 @@ calIcalComponent.prototype = {
         let innerObject = this.innerObject;
         this.componentIterator = (function() {
             let comps = innerObject.getAllSubcomponents(kind);
-            for each (let comp in comps) {
-                yield new calIcalComponent(comp);
+            if (comps) {
+                for (let comp of comps) {
+                    yield new calIcalComponent(comp);
+                }
             }
         })();
         return this.getNextSubcomponent(kind)
@@ -354,12 +356,15 @@ calIcalComponent.prototype = {
         let innerObject = this.innerObject;
         this.propertyIterator = (function() {
             let props = innerObject.getAllProperties(kind);
-            for each (var prop in props) {
+            if (!props) {
+                return;
+            }
+            for (var prop of props) {
                 let hell = prop.getValues();
                 if (hell.length > 1) {
                     // Uh oh, multiple property values. Our code expects each as one
                     // property. I hate API incompatibility!
-                    for each (var devil in hell) {
+                    for (var devil of hell) {
                         var thisprop = new ICAL.Property(prop.toJSON(),
                                                          prop.parent);
                         thisprop.removeAllValues();
@@ -423,7 +428,7 @@ calIcalComponent.prototype = {
     },
 
     getReferencedTimezones: function(aCount) {
-        let vals = [ tz for each (tz in this.mReferencedZones) ];
+        let vals = Object.keys(this.mReferencedZones).map(tz => this.mReferencedZones[tz]);
         aCount.value = vals.length;
         return vals;
     },

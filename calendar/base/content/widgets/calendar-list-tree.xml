@@ -238,7 +238,7 @@
       <destructor><![CDATA[
         // Clean up the calendar manager observers. Do not use removeCalendar
         // here since that will remove the calendar from the composite calendar.
-        for each (let calendar in this.mCalendarList) {
+        for (let calendar of this.mCalendarList) {
             calendar.removeObserver(this.calObserver);
         }
 
@@ -328,7 +328,7 @@
       <property name="sheet" readonly="true">
         <getter><![CDATA[
           if (!this.mCachedSheet) {
-              for each (let sheet in document.styleSheets) {
+              for (let sheet of document.styleSheets) {
                   if (sheet.href == "chrome://calendar/skin/calendar-management.css") {
                       this.mCachedSheet = sheet;
                       break;

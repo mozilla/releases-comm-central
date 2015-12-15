@@ -64,7 +64,8 @@ calCalendarManager.prototype = {
     },
 
     shutdown: function ccm_shutdown(aCompleteListener) {
-        for each (var calendar in this.mCache) {
+        for (let id in this.mCache) {
+            let calendar = this.mCache[id];
             calendar.removeObserver(this.mCalObservers[calendar.id]);
         }
 
@@ -98,14 +99,15 @@ calCalendarManager.prototype = {
             case "timer-callback":
                 // Refresh all the calendars that can be refreshed.
                 var cals = this.getCalendars({});
-                for each (var calendar in cals) {
+                for (var calendar of cals) {
                     if (!calendar.getProperty("disabled") && calendar.canRefresh) {
                         calendar.refresh();
                     }
                 }
                 break;
             case "network:offline-status-changed":
-                for each (var calendar in this.mCache) {
+                for (var id in this.mCache) {
+                    let calendar = this.mCache[id];
                     if (calendar instanceof calCachedCalendar) {
                         calendar.onOfflineStatusChanged(aData == "offline");
                     }
@@ -299,7 +301,8 @@ calCalendarManager.prototype = {
             }
 
             let sortOrderAr = [];
-            for each (let s in sortOrder) {
+            for (let id in sortOrder) {
+                let s = sortOrder[id];
                 sortOrderAr.push(s);
             }
             Preferences.set("calendar.list.sortOrder", sortOrderAr.join(" "));
@@ -644,7 +647,8 @@ calCalendarManager.prototype = {
     getCalendars: function cmgr_getCalendars(count) {
         this.assureCache();
         var calendars = [];
-        for each (var calendar in this.mCache) {
+        for (var id in this.mCache) {
+            let calendar = this.mCache[id];
             calendars.push(calendar);
         }
         count.value = calendars.length;
@@ -657,7 +661,7 @@ calCalendarManager.prototype = {
             this.mCalObservers = {};
 
             let allCals = {};
-            for each (let key in Services.prefs.getChildList(REGISTRY_BRANCH)) { // merge down all keys
+            for (let key of Services.prefs.getChildList(REGISTRY_BRANCH)) { // merge down all keys
                 allCals[key.substring(0, key.indexOf(".", REGISTRY_BRANCH.length))] = true;
             }
 
@@ -705,7 +709,8 @@ calCalendarManager.prototype = {
 
             // do refreshing in a second step, when *all* calendars are already available
             // via getCalendars():
-            for each (let calendar in this.mCache) {
+            for (let id in this.mCache) {
+                let calendar = this.mCache[id];
                 if (!calendar.getProperty("disabled") && calendar.canRefresh) {
                     calendar.refresh();
                 }
@@ -874,7 +879,7 @@ calMgrCalendarObserver.prototype = {
                                 "calendar-main-default",
                                 "readOnly",
                                 "imip.identity.key"];
-            for each (let prop in propsToCopy ) {
+            for (let prop of propsToCopy) {
               newCal.setProperty(prop,
                                  aCalendar.getProperty(prop));
             }
@@ -1069,8 +1074,7 @@ var gCalendarManagerAddonListener = {
         const features = "chrome,titlebar,resizable,modal";
         let calMgr = cal.getCalendarManager();
         let affectedCalendars =
-            [ calendar for each (calendar in calMgr.getCalendars({}))
-              if (calendar.providerID == aAddon.id) ];
+            calMgr.getCalendars({}).filter(calendar => calendar.providerID == aAddon.id);
         if (!affectedCalendars.length) {
             // If no calendars are affected, then everything is fine.
             return true;

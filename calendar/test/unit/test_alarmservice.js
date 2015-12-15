@@ -67,7 +67,7 @@ var alarmObserver = {
         let dt = aItem.startDate.clone();
         dt.second -= 1;
 
-        for each (let expected in aExpectedArray) {
+        for (let expected of aExpectedArray) {
             let occ = aItem.recurrenceInfo.getNextOccurrence(dt);
             dt = occ.startDate;
             this.expectResult(aCalendar, occ, aAlarm, expected);
@@ -138,7 +138,7 @@ function initializeAlarmService() {
     ok(alarmObserver.service.mStarted);
 
     // we need to replace the existing observers with our observer
-    for each (let obs in alarmObserver.service.mObservers.mInterfaces) {
+    for (let obs of alarmObserver.service.mObservers.mInterfaces) {
         alarmObserver.service.removeObserver(obs);
     }
     alarmObserver.service.addObserver(alarmObserver);

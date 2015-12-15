@@ -127,7 +127,7 @@
            }
            var val = aValue.toLowerCase();
            // Look for the easy ones like today, tomorrow, etc
-           for each (var rel in this.mRelativeDates) {
+           for (var rel of this.mRelativeDates) {
              if (val == rel.word) {
                var now = new Date();
                now.setDate(now.getDate()+rel.offset);
@@ -186,8 +186,8 @@
           // Now for the cool 'next' and 'last'
           var words = val.split(' ');
           var offset, day;
-          for each (let word in words) {
-            for each (let rel in this.mRelationWords) {
+          for (let word of words) {
+            for (let rel of this.mRelationWords) {
               if (word == rel.word) {
                 offset = rel.offset;
                 break;

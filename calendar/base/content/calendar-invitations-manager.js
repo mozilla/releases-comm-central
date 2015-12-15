@@ -29,7 +29,8 @@ var gInvitationsRequestManager = {
      * Cancel all pending requests
      */
     cancelPendingRequests: function IRM_cancelPendingRequests() {
-        for each (var request in this.mRequestStatusList) {
+        for (var id in this.mRequestStatusList) {
+            let request = this.mRequestStatusList[id];
             if (request && request.isPending) {
                 request.cancel(null);
             }
@@ -148,7 +149,7 @@ InvitationsManager.prototype = {
                         function (a, b) {
                             return a.startDate.compare(b.startDate);
                         });
-                    for each (var listener in listeners) {
+                    for (var listener of listeners) {
                         try {
                             if (this.mInvitationsManager.mItemList.length) {
                                 // Only call if there are actually items
@@ -178,7 +179,7 @@ InvitationsManager.prototype = {
                                   aCount,
                                   aItems) {
                 if (Components.isSuccessCode(aStatus)) {
-                    for each (var item in aItems) {
+                    for (var item of aItems) {
                         // we need to retrieve by occurrence to properly filter exceptions,
                         // should be fixed with bug 416975
                         item = item.parentItem;
@@ -192,7 +193,7 @@ InvitationsManager.prototype = {
             }
         };
 
-        for each (var calendar in cals) {
+        for (var calendar of cals) {
             if (!isCalendarWritable(calendar) || calendar.getProperty("disabled")) {
                 opListener.onOperationComplete();
                 continue;
@@ -349,7 +350,7 @@ InvitationsManager.prototype = {
         if (recInfo && !cal.isOpenInvitation(item)) {
             // scan exceptions:
             var ids = recInfo.getExceptionIds({});
-            for each (var id in ids) {
+            for (var id of ids) {
                 var ex = recInfo.getExceptionFor(id);
                 if (ex && this.validateItem(ex) && !this.hasItem(ex)) {
                     this.mItemList.push(ex);

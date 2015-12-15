@@ -61,13 +61,13 @@ var itemConversion = {
         const copyProps = ["SUMMARY", "LOCATION", "DESCRIPTION",
                            "URL", "CLASS", "PRIORITY"];
 
-        for each (var prop in copyProps) {
+        for (var prop of copyProps) {
             aTarget.setProperty(prop, aItem.getProperty(prop));
         }
 
         // Attendees
         var attendees = aItem.getAttendees({});
-        for each (var attendee in attendees) {
+        for (var attendee of attendees) {
             aTarget.addAttendee(attendee.clone());
         }
 
@@ -107,7 +107,7 @@ var itemConversion = {
             item.dueDate = aEvent.endDate.clone();
 
             // Alarms
-            for each (let alarm in aEvent.getAlarms({})) {
+            for (let alarm of aEvent.getAlarms({})) {
                 item.addAlarm(alarm.clone());
             }
             item.alarmLastAck = (aEvent.alarmLastAck ?
@@ -160,7 +160,7 @@ var itemConversion = {
         }
 
         // Alarms
-        for each (let alarm in aTask.getAlarms({})) {
+        for (let alarm of aTask.getAlarms({})) {
             item.addAlarm(alarm.clone());
         }
         item.alarmLastAck = (aTask.alarmLastAck ?
@@ -382,7 +382,7 @@ calViewDNDObserver.prototype = {
         var destCal = getSelectedCalendar();
         startBatchTransaction();
         try {
-            for each (var item in aItems) {
+            for (var item of aItems) {
                 doTransaction('add', item, destCal, null, null);
             }
         }
@@ -458,7 +458,7 @@ calCalendarButtonDNDObserver.prototype = {
      * @param aItems        An array of items to handle.
      */
     onDropItems: function(aItems) {
-        for each (var item in aItems) {
+        for (var item of aItems) {
             var newItem = item;
             if (isToDo(item)) {
                 newItem = itemConversion.eventFromTask(item);
@@ -507,7 +507,7 @@ calTaskButtonDNDObserver.prototype = {
      * @param aItems        An array of items to handle.
      */
     onDropItems: function(aItems) {
-        for each (var item in aItems) {
+        for (var item of aItems) {
             var newItem = item;
             if (isEvent(item)) {
                 newItem = itemConversion.taskFromEvent(item);

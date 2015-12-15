@@ -225,7 +225,7 @@ calAlarmService.prototype = {
 
         getCalendarManager().addObserver(this.calendarManagerObserver);
 
-        for each (let calendar in getCalendarManager().getCalendars({})) {
+        for (let calendar of getCalendarManager().getCalendars({})) {
             this.observeCalendar(calendar);
         }
 
@@ -285,7 +285,7 @@ calAlarmService.prototype = {
         calmgr.removeObserver(this.calendarManagerObserver);
 
         // Stop observing all calendars. This will also clear the timers.
-        for each (let calendar in calmgr.getCalendars({})) {
+        for (let calendar of calmgr.getCalendars({})) {
             this.unobserveCalendar(calendar);
         }
 
@@ -317,7 +317,7 @@ calAlarmService.prototype = {
         let showMissed = Preferences.get("calendar.alarms.showmissed", true);
 
         let alarms = aItem.getAlarms({});
-        for each (let alarm in alarms) {
+        for (let alarm of alarms) {
             let alarmDate = cal.alarms.calculateAlarmDate(aItem, alarm);
 
             if (!alarmDate || alarm.action != "DISPLAY") {
@@ -391,7 +391,7 @@ calAlarmService.prototype = {
         // make sure already fired alarms are purged out of the alarm window:
         this.mObservers.notify("onRemoveAlarmsByItem", [aItem]);
         // Purge alarms specifically for this item (i.e exception)
-        for each (let alarm in aItem.getAlarms({})) {
+        for (let alarm of aItem.getAlarms({})) {
             this.removeTimer(aItem, alarm);
         }
     },
@@ -467,10 +467,12 @@ calAlarmService.prototype = {
     },
 
     disposeCalendarTimers: function cAS_removeCalendarTimers(aCalendars) {
-        for each (let calendar in aCalendars) {
+        for (let calendar of aCalendars) {
             if (calendar.id in this.mTimerMap) {
-                for each (let itemTimerMap in this.mTimerMap[calendar.id]) {
-                    for each (let timer in itemTimerMap) {
+                for (let hashId in this.mTimerMap[calendar.id]) {
+                    let itemTimerMap = this.mTimerMap[calendar.id][hashId];
+                    for (let icalString in itemTimerMap) {
+                        let timer = itemTimerMap[icalString];
                         timer.cancel();
                     }
                 }
@@ -538,7 +540,7 @@ calAlarmService.prototype = {
                      calICalendar.ITEM_FILTER_CLASS_OCCURRENCES |
                      calICalendar.ITEM_FILTER_TYPE_ALL;
 
-        for each (let calendar in aCalendars) {
+        for (let calendar of aCalendars) {
             // assuming that suppressAlarms does not change anymore until refresh:
             if (!calendar.getProperty("suppressAlarms") &&
                 !calendar.getProperty("disabled")) {

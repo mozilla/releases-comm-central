@@ -130,7 +130,7 @@ calCompositeCalendar.prototype = {
 
     set prefPrefix (aPrefPrefix) {
         if (this.mPrefPrefix) {
-            for each (let calendar in this.mCalendars) {
+            for (let calendar of this.mCalendars) {
                 this.removeCalendar(calendar);
             }
         }
@@ -190,7 +190,7 @@ calCompositeCalendar.prototype = {
     },
 
     getCalendarById: function cCC_getCalendarById(aId) {
-        for each (let calendar in this.mCalendars) {
+        for (let calendar of this.mCalendars) {
             if (calendar.id == aId) {
                 return calendar;
             }
@@ -320,7 +320,7 @@ calCompositeCalendar.prototype = {
         if (this.mStatusObserver) {
             this.mStatusObserver.startMeteors(Components.interfaces.calIStatusObserver.DETERMINED_PROGRESS, this.mCalendars.length);
         }
-        for each (let calendar in this.enabledCalendars) {
+        for (let calendar of this.enabledCalendars) {
             try {
                 if (calendar.canRefresh) {
                     this.mObserverHelper.pendingLoads[calendar.id] = true;
@@ -363,7 +363,7 @@ calCompositeCalendar.prototype = {
     getItem: function (aId, aListener) {
         let enabledCalendars = this.enabledCalendars;
         let cmpListener = new calCompositeGetListenerHelper(this, aListener);
-        for each (let calendar in enabledCalendars) {
+        for (let calendar of enabledCalendars) {
             try {
                 cmpListener.opGroup.add(calendar.getItem(aId, cmpListener));
             } catch (exc) {
@@ -394,7 +394,7 @@ calCompositeCalendar.prototype = {
         }
         let cmpListener = new calCompositeGetListenerHelper(this, aListener, aCount);
 
-        for each (let calendar in enabledCalendars) {
+        for (let calendar of enabledCalendars) {
             try {
                 cmpListener.opGroup.add(calendar.getItems(aItemFilter,
                                                           aCount,
