@@ -3,8 +3,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DIRS += ['locales']
-
 XPI_NAME = 'calendar-timezones'
 export('XPI_NAME')
 
@@ -16,7 +14,11 @@ USE_EXTENSION_MANIFEST = True
 export('USE_EXTENSION_MANIFEST')
 
 JS_PREFERENCE_FILES += [
-    'defaults/preferences.js',
+    'preferences.js',
+]
+
+FINAL_TARGET_FILES += [
+    'icon.png'
 ]
 
 FINAL_TARGET_FILES.timezones += [

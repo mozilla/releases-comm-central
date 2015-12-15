@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
-calendar-timezones.jar:
+locale.jar:
+% locale calendar-timezones @AB_CD@ chrome/locale/@AB_CD@/
+    @AB_CD@/timezones.properties (../locales/@AB_CD@/chrome/calendar/timezones.properties)
 % resource calendar-timezones .
-% skin calendar-timezones classic/1.0 %skin/
-    skin/addon-icon32.png                                   (addon-icon32.png)
