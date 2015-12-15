@@ -698,9 +698,10 @@ function calculateAge(aEvent, aElement) {
   // if the datepicker was updated, update the year element
   if (aElement == datepicker && !(datepicker.year == kDefaultYear && !yearElem.value))
     yearElem.value = datepicker.year;
+
   var year = yearElem.value;
   // if the year element's value is invalid set the year and age elements to null
-  if (isNaN(year) || year < 1 || year > 9999) {
+  if (isNaN(year) || year < kMinYear || year > kMaxYear) {
     yearElem.value = null;
     ageElem.value = null;
     datepicker.year = kDefaultYear;
@@ -739,10 +740,10 @@ function calculateYear(aEvent, aElement) {
   if (aEvent)
     aElement = this;
   if (aElement.id == "Age") {
-    yearElem = document.getElementById("BirthYear");
     datepicker = document.getElementById("Birthday");
+    yearElem = document.getElementById("BirthYear");
   }
-  if (!yearElem || !datepicker)
+  if (!datepicker || !yearElem)
     return;
 
   // if the age is null, remove the year from the year element, and set the
@@ -766,7 +767,9 @@ function calculateYear(aEvent, aElement) {
     datepicker.year = kDefaultYear;
     // if there was an error (like invalid year) set the year and age to null
     yearElem.value = null;
-    ageElem.value = null;
+    let ageElem = document.getElementById("Age");
+    if (ageElem)
+      ageElem.value = null;
   }
 }
 
@@ -816,7 +819,7 @@ function modifyDatepicker(aDatepicker) {
       var dt = new Date(this.year, currentMonth, aValue);
       return dt.getMonth() != currentMonth ? 1 : aValue;
     }
-    var max = (aField == this.monthField) ? 11 : 9999;
+    var max = (aField == this.monthField) ? 11 : kMaxYear;
     // make sure the value isn't too high
     if (aValue > max)
       return aNoWrap ? max : min;
@@ -825,7 +828,7 @@ function modifyDatepicker(aDatepicker) {
   // sets the specified field to the given value, but allows blank fields
   // from: mozilla/toolkit/content/widgets/datetimepicker.xml#698
   aDatepicker._setFieldValue = function setValue(aField, aValue) {
-    if (aField == this.yearField && aValue > 0 && aValue < 10000) {
+    if (aField == this.yearField && aValue >= kMinYear && aValue <= kMaxYear) {
       var oldDate = this._dateValue;
       this._dateValue.setFullYear(aValue);
       if (oldDate != this._dateValue) {

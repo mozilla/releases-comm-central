@@ -22,7 +22,9 @@ var kDefaultAscending = "ascending";
 var kDefaultDescending = "descending";
 // kDefaultYear will be used in birthday calculations when no year is given;
 // this is a leap year so that Feb 29th works.
-var kDefaultYear = 2000;
+const kDefaultYear = nearestLeap(new Date().getFullYear());
+const kMaxYear = 9999;
+const kMinYear = 1;
 var kAllDirectoryRoot = "moz-abdirectory://";
 var kLdapUrlPrefix = "moz-abldapdirectory://";
 var kPersonalAddressbookURI = "moz-abmdbdirectory://abook.mab";
@@ -798,5 +800,17 @@ function makePhotoFile(aDir, aExtension) {
  * This ensures that month/day calculations still work.
  */
 function saneBirthYear(aYear) {
-  return aYear && aYear < 10000 && aYear > 0 ? aYear : kDefaultYear;
+  return aYear && (aYear <= kMaxYear) && (aYear >= kMinYear) ? aYear : kDefaultYear;
+}
+
+/**
+ * Returns the nearest leap year before aYear.
+ */
+function nearestLeap(aYear) {
+  for (let year = aYear; year > 0; year--) {
+    if (new Date(year, 1, 29).getMonth() == 1)
+      return year;
+  }
+
+  return 2000;
 }
