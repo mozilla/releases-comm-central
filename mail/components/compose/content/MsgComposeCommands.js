@@ -2275,7 +2275,7 @@ function ComposeStartup(recycled, aParams)
     identityList.getElementsByAttribute("identitykey", params.identity.key)[0];
   if (params.composeFields.from)
   {
-    let from = MailServices.headerParser.parseDecodedHeader(params.composeFields.from).join(", ");
+    let from = MailServices.headerParser.parseEncodedHeader(params.composeFields.from, null).join(", ");
     if (from != identityList.value)
     {
       MakeFromFieldEditable(true);
