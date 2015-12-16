@@ -124,6 +124,8 @@
 .button-appmenu {
   list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#appButton");
   min-width: 35px !important;
+  margin-right: 4px;
+  margin-left: 4px;
 }
 
 toolbar[brighttext] #button-getmsg {

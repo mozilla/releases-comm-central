@@ -203,6 +203,12 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   font-size: 90%;
 }
 
+.button-appmenu {
+  min-width: 35px !important;
+  margin-right: 4px;
+  margin-left: 4px;
+}
+
 /* AppMenu styling */
 
 .splitmenu-menuitem {
@@ -670,7 +676,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   .button-appmenu {
     list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.png");
     -moz-image-region: rect(0px 600px 24px 576px);
-    min-width: 35px !important;
   }
 
   .button-appmenu:hover {
@@ -1338,10 +1343,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
   toolbar > #button-chat[unreadMessages="true"] {
     list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#chat-unread");
-  }
-
-  .button-appmenu {
-    min-width: 35px !important;
   }
 
   toolbar:not([mode="text"]) > #button-chat > stack,
