@@ -674,7 +674,7 @@
 @RESPATH@/components/ContactManager.manifest
 @RESPATH@/components/Push.js
 @RESPATH@/components/Push.manifest
-@RESPATH@/components/PushNotificationService.js
+@RESPATH@/components/PushComponents.js
 #ifdef MOZ_WEBRTC
 @RESPATH@/components/PeerConnection.js
 @RESPATH@/components/PeerConnection.manifest

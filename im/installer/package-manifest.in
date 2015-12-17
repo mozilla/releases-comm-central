@@ -610,7 +610,7 @@
 @RESPATH@/components/ContactManager.manifest
 @RESPATH@/components/Push.js
 @RESPATH@/components/Push.manifest
-@RESPATH@/components/PushNotificationService.js
+@RESPATH@/components/PushComponents.js
 @RESPATH@/components/contentAreaDropListener.js
 @RESPATH@/components/contentAreaDropListener.manifest
 @RESPATH@/components/PackagedAppUtils.manifest
