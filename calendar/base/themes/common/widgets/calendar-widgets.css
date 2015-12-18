@@ -36,8 +36,8 @@ treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > .checkbox
   opacity: .3;
 }
 
-.view-navigation-button:-moz-locale-dir(ltr)[type="prev"],
-.view-navigation-button:-moz-locale-dir(rtl)[type="next"] {
+.view-navigation-button:-moz-locale-dir(ltr)[type="prev"] > .toolbarbutton-icon,
+.view-navigation-button:-moz-locale-dir(rtl)[type="next"] > .toolbarbutton-icon {
   transform: scaleX(-1);
 }
 
