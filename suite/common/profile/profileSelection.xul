@@ -14,8 +14,6 @@
 %brandDTD;
 <!ENTITY % profileDTD SYSTEM "chrome://communicator/locale/profile/profileSelection.dtd">
 %profileDTD;
-<!ENTITY % mozappsDTD SYSTEM "chrome://mozapps/locale/profile/profileSelection.dtd">
-%mozappsDTD;
 ]>
 
 <dialog id="profileWindow"
@@ -34,8 +32,6 @@
         ondialogextra2="SwitchProfileManagerMode();"
         onload="StartUp();">
 
-  <stringbundle id="bundle_mozapps"
-                src="chrome://mozapps/locale/profile/profileSelection.properties"/>
   <stringbundle id="bundle_profile"
                 src="chrome://communicator/locale/profile/profileSelection.properties"/>
   <stringbundle id="bundle_brand"
