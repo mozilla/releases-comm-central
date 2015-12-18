@@ -19,6 +19,11 @@ dialog[systemcolors] {
     padding: 0px;
 }
 
+#calendar-event-dialog .todo-only,
+#calendar-task-dialog  .event-only {
+    display: none;
+}
+
 #yearly-period-of-label,
 label.label {
     text-align: right;

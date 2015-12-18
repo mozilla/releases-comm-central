@@ -516,9 +516,6 @@ function loadDialog(item) {
     // load reminder details
     loadReminders(item.getAlarms({}));
 
-    // hide rows based on if this is an event or todo
-    updateStyle();
-
     // Synchronize link-top-image with keep-duration-button status
     let keepAttribute = document.getElementById("keepduration-button").getAttribute("keep") == "true";
     setBooleanAttribute("link-image-top", "keep", keepAttribute);
@@ -1204,33 +1201,6 @@ function updateTitle() {
     }
     document.title = cal.calGetString("calendar", strName) + ": " +
                         getElementValue("item-title");
-}
-
-/**
- * Updates the stylesheet to add rules to hide certain aspects (i.e task only
- * elements when editing an event).
- *
- * TODO We can use general rules here, i.e
- *      dialog[itemType="task"] .event-only,
- *      dialog[itemType="event"] .task-only {
- *          display: none;
- *      }
-*/
-function updateStyle() {
-    const kDialogStylesheet = "chrome://calendar/skin/calendar-event-dialog.css";
-
-    for (let stylesheet of document.styleSheets) {
-        if (stylesheet.href == kDialogStylesheet) {
-            if (cal.isEvent(window.calendarItem)) {
-                stylesheet.insertRule(".todo-only { display: none; }",
-                                      stylesheet.cssRules.length);
-            } else if (cal.isToDo(window.calendarItem)) {
-                stylesheet.insertRule(".event-only { display: none; }",
-                                      stylesheet.cssRules.length);
-            }
-            return;
-        }
-    }
 }
 
 /**
