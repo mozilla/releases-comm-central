@@ -447,7 +447,7 @@ Extractor.prototype = {
 
                     if (this.isValidDay(day)) {
                         for (let i = 0; i < 12; i++) {
-                            let ms = this.months[i].unescape().split("|");
+                            let ms = this.unescape(this.months[i]).split("|");
                             if (ms.includes(month.toLowerCase())) {
                                 let date = {year: this.now.getFullYear(), month: i + 1, day: day};
                                 if (this.isPastDate(date, this.now)) {
@@ -1110,7 +1110,7 @@ Extractor.prototype = {
         // remove whitespace around | if present
         let value = pattern.replace(/\s*\|\s*/g, "|");
         // allow matching for patterns with missing or excessive whitespace
-        return value.sanitize().replace(/\s+/g, "\\s*");
+        return this.sanitize(value).replace(/\s+/g, "\\s*");
     },
 
     checkForFaultyPatterns: function checkForFaultyPatterns(pattern, name) {
@@ -1272,14 +1272,13 @@ Extractor.prototype = {
             guess.relation = "notadatetime";
         }
         this.collected.push(guess);
+    },
+
+    sanitize: function(str) {
+        return str.replace(/[-[\]{}()*+?.,\\^$]/g, "\\$&");
+    },
+
+    unescape: function(str) {
+        return str.replace(/\\([\.])/g, "$1");
     }
 };
-
-String.prototype.sanitize = function() {
-    return this.replace(/[-[\]{}()*+?.,\\^$]/g, "\\$&");
-}
-
-String.prototype.unescape = function() {
-    let res = this.replace(/\\([\.])/g, "$1");
-    return res;
-}
