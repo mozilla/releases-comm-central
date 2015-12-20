@@ -6,9 +6,8 @@
 /* this is for attendee and organizer decoration in summary and event dialog */
 
 #item-attendees-box {
-    margin: 0px 4px;
-    border: solid ThreeDShadow 1px;
-    background-color: -moz-field;
+    -moz-appearance: listbox;
+    margin: 2px 4px 0;
     overflow-y: auto;
     min-height: 23px; /*at least two rows - otherwise a scrollbar (if required) wouldn't appear*/
 }
@@ -18,17 +17,14 @@
     margin: 0px 10px;
 }
 
-.item-attendees-row {
-    margin: 0px 3px;
-    padding: 0px 3px;
-}
-
 .item-attendees-cell {
     padding: 3px 0px;
 }
 
 #calendar-event-dialog .item-attendees-cell {
     -moz-user-focus: normal;
+    margin-bottom: 1px;
+    margin-inline-end: 1px;
 }
 
 #calendar-event-dialog .item-attendees-cell:focus {
@@ -215,4 +211,54 @@
 }
 .usertype-icon[cutype="ROOM"][disabled="true"] {
     -moz-image-region: rect(16px 64px 32px 48px);
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+    #calendar-event-dialog .item-attendees-cell {
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        --attendees-currentColor: rgb(125, 162, 206);
+    }
+
+    #calendar-event-dialog .item-attendees-cell:focus {
+        color: -moz-FieldText;
+        background-color: transparent;
+        -moz-border-top-colors: var(--attendees-focusBorder);
+        -moz-border-right-colors: var(--attendees-focusBorder);
+        -moz-border-left-colors: var(--attendees-focusBorder);
+        -moz-border-bottom-colors: var(--attendees-focusBottomBorder);
+        background-image: var(--attendees-focusImage);
+    }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+    .item-attendees-cell {
+        border: 2px solid transparent;
+        border-radius: 3px;
+        --attendees-2ndBorderColor: rgba(255, 255, 255, .4);
+        --attendees-2ndBottomBorderColor: rgba(255, 255, 255, .6);
+        --attendees-focusBorder: var(--attendees-currentColor)
+                                 var(--attendees-2ndBorderColor);
+        --attendees-focusBottomBorder: var(--attendees-currentColor)
+                                       var(--attendees-2ndBottomBorderColor);
+        --attendees-focusImage: linear-gradient(rgba(131, 183, 249, .28),
+                                                rgba(131, 183, 249, .5));
+    }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+    #calendar-event-dialog .item-attendees-cell {
+        padding: 1px;
+        border: 1px solid transparent;
+        --attendees-focusColor: rgb(123, 195, 255);
+        --attendees-focusBorder: var(--attendees-focusColor);
+        --attendees-focusBottomBorder: var(--attendees-focusColor);
+        --attendees-focusImage: linear-gradient(rgb(205, 232, 255),
+                                                rgb(205, 232, 255));
+    }
 }

@@ -47,16 +47,6 @@ label.label {
     margin: 5px 0px;
 }
 
-#event-grid-tabpanels {
-    -moz-appearance: none;
-    background-color: -moz-dialog;
-    border: 1px solid ThreeDShadow;
-}
-
-#attachment-link {
-    border: 1px solid ThreeDShadow;
-}
-
 /*--------------------------------------------------------------------
  *   Event dialog keep duration button
  *-------------------------------------------------------------------*/
