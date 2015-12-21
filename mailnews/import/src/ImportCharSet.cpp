@@ -40,19 +40,19 @@ UInitMaps::UInitMaps()
   ImportCharSet::m_Ascii[ImportCharSet::cLinefeedChar] |= ImportCharSet::cWhiteSpaceChar;
   ImportCharSet::m_Ascii[ImportCharSet::cSpaceChar] |= ImportCharSet::cWhiteSpaceChar;
 
-  ImportCharSet::m_Ascii['('] |= ImportCharSet::c822SpecialChar;
-  ImportCharSet::m_Ascii[')'] |= ImportCharSet::c822SpecialChar;
-  ImportCharSet::m_Ascii['<'] |= ImportCharSet::c822SpecialChar;
-  ImportCharSet::m_Ascii['>'] |= ImportCharSet::c822SpecialChar;
-  ImportCharSet::m_Ascii['@'] |= ImportCharSet::c822SpecialChar;
-  ImportCharSet::m_Ascii[','] |= ImportCharSet::c822SpecialChar;
-  ImportCharSet::m_Ascii[';'] |= ImportCharSet::c822SpecialChar;
-  ImportCharSet::m_Ascii[':'] |= ImportCharSet::c822SpecialChar;
-  ImportCharSet::m_Ascii['\\'] |= ImportCharSet::c822SpecialChar;
-  ImportCharSet::m_Ascii['"'] |= ImportCharSet::c822SpecialChar;
-  ImportCharSet::m_Ascii['.'] |= ImportCharSet::c822SpecialChar;
-  ImportCharSet::m_Ascii['['] |= ImportCharSet::c822SpecialChar;
-  ImportCharSet::m_Ascii[']'] |= ImportCharSet::c822SpecialChar;
+  ImportCharSet::m_Ascii[uint8_t('(')] |= ImportCharSet::c822SpecialChar;
+  ImportCharSet::m_Ascii[uint8_t(')')] |= ImportCharSet::c822SpecialChar;
+  ImportCharSet::m_Ascii[uint8_t('<')] |= ImportCharSet::c822SpecialChar;
+  ImportCharSet::m_Ascii[uint8_t('>')] |= ImportCharSet::c822SpecialChar;
+  ImportCharSet::m_Ascii[uint8_t('@')] |= ImportCharSet::c822SpecialChar;
+  ImportCharSet::m_Ascii[uint8_t(',')] |= ImportCharSet::c822SpecialChar;
+  ImportCharSet::m_Ascii[uint8_t(';')] |= ImportCharSet::c822SpecialChar;
+  ImportCharSet::m_Ascii[uint8_t(':')] |= ImportCharSet::c822SpecialChar;
+  ImportCharSet::m_Ascii[uint8_t('\\')] |= ImportCharSet::c822SpecialChar;
+  ImportCharSet::m_Ascii[uint8_t('"')] |= ImportCharSet::c822SpecialChar;
+  ImportCharSet::m_Ascii[uint8_t('.')] |= ImportCharSet::c822SpecialChar;
+  ImportCharSet::m_Ascii[uint8_t('[')] |= ImportCharSet::c822SpecialChar;
+  ImportCharSet::m_Ascii[uint8_t(']')] |= ImportCharSet::c822SpecialChar;
 
 
 }
