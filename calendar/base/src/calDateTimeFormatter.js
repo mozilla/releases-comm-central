@@ -103,7 +103,7 @@ calDateTimeFormatter.prototype = {
             // probably a minority language without OS support, so we should fall back to compose
             // longDate on our own. May be not needed anymore once bug 441167 is fixed.
             if (!longDate.includes(this.dayName(aDate.weekday)) &&
-                !longDate.includes(this.longDayName(aDate.weekday))) {
+                !longDate.includes(this.shortDayName(aDate.weekday))) {
                 longDate = null;
                 this.mUseLongDateService = false;
             }
