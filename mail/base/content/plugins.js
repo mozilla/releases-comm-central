@@ -383,7 +383,7 @@ var gPluginHandler = {
     let notifications = {
       PluginBlocklisted : {
         barID: "blocked-plugins",
-        iconURL: "chrome://mozapps/skin/plugins/notifyPluginBlocked.png",
+        iconURL: "chrome://mozapps/skin/plugins/pluginGeneric-16.png",
         message: messengerBundle.getString("blockedpluginsMessage.title"),
         buttons: [{
           label: messengerBundle.getString("blockedpluginsMessage.infoButton.label"),
@@ -400,7 +400,7 @@ var gPluginHandler = {
       },
       PluginOutdated: {
         barID: "outdated-plugins",
-        iconURL: "chrome://mozapps/skin/plugins/notifyPluginOutdated.png",
+        iconURL: "chrome://mozapps/skin/plugins/pluginGeneric-16.png",
         message: messengerBundle.getString("outdatedpluginsMessage.title"),
         buttons: [{
           label: messengerBundle.getString("outdatedpluginsMessage.updateButton.label"),
@@ -412,7 +412,7 @@ var gPluginHandler = {
 #ifdef XP_MACOSX
       "npapi-carbon-event-model-failure": {
         barID: "carbon-failure-plugins",
-        iconURL: "chrome://mozapps/skin/plugins/notifyPluginGeneric.png",
+        iconURL: "chrome://mozapps/skin/plugins/pluginGeneric-16.png",
         message: messengerBundle.getString("carbonFailurePluginsMessage.message"),
         buttons: [{
           label: messengerBundle.getString("carbonFailurePluginsMessage.restartButton.label"),
@@ -640,7 +640,7 @@ var gPluginHandler = {
 
       // Configure the notification bar
       let priority = notificationBox.PRIORITY_WARNING_MEDIUM;
-      let iconURL = "chrome://mozapps/skin/plugins/notifyPluginCrashed.png";
+      let iconURL = "chrome://mozapps/skin/plugins/pluginGeneric-16.png";
       let reloadLabel = messengerBundle.getString("crashedpluginsMessage.reloadButton.label");
       let reloadKey   = messengerBundle.getString("crashedpluginsMessage.reloadButton.accesskey");
       let submitLabel = messengerBundle.getString("crashedpluginsMessage.submitButton.label");
