@@ -402,7 +402,10 @@ treechildren::-moz-tree-image(subscribed-news) {
 
 #msgIdentity > .menulist-editable-box {
   -moz-appearance: none;
+  padding-top: 0;
+  padding-bottom: 0;
   padding-inline-start: 3px;
+  height: 1.4em;
 }
 
 #msgIdentity > .menulist-dropmarker {

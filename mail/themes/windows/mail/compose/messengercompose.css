@@ -1153,6 +1153,11 @@
     background-image: none;
   }
 
+  #msgIdentity > .menulist-editable-box {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
   #msgIdentity > .menulist-dropmarker {
     -moz-appearance: none;
     margin-top: 0;
