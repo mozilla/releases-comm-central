@@ -150,7 +150,6 @@ classic.jar:
   skin/classic/messenger/icons/cancel.png                     (mail/icons/cancel.png)
   skin/classic/messenger/icons/mail-toolbar.svg               (../shared/mail/icons/mail-toolbar.svg)
   skin/classic/messenger/icons/folder-pane.png                (mail/icons/folder-pane.png)
-  skin/classic/messenger/icons/folder-blank.png               (mail/icons/folder-blank.png)
   skin/classic/messenger/icons/folder-new-star.png            (mail/icons/folder-new-star.png)
   skin/classic/messenger/icons/message-list.png               (mail/icons/message-list.png)
   skin/classic/messenger/icons/message.png                    (mail/icons/message.png)

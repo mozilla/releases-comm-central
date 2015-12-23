@@ -35,26 +35,15 @@ treechildren::-moz-tree-cell-text(nameColumn, Subscribable-false) {
 
 /* IMAP Folders*/
 treechildren::-moz-tree-image(nameColumn) {
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-color: transparent;
-  background-attachment: scroll;
-  background-clip: border-box;
-  -moz-background-inline-policy: continuous;
-  -moz-background-origin: border;
-  background-image: url("moz-icon://stock/gtk-directory?size=menu");
-  list-style-image: url("chrome://messenger/skin/icons/folder-blank.png");
-
-  -moz-margin-end: 2px;
+  list-style-image: url("moz-icon://stock/gtk-directory?size=menu");
+  margin-inline-end: 2px;
 }
 
 /* Newsgroups */
 treechildren::-moz-tree-image(nameColumn, ServerType-nntp),
 treechildren::-moz-tree-image(nameColumn2, nntp) {
-  background-image: url("chrome://messenger/skin/icons/folder-pane.png");
-  background-position: left -208px;
-  list-style-image: url("chrome://messenger/skin/icons/folder-blank.png");
-
-  -moz-margin-end: 2px;
+  list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
+  -moz-image-region: rect(208px 16px 224px 0px);
+  margin-inline-end: 2px;
 }
 
