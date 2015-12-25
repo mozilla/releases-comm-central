@@ -203,6 +203,11 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
   height: 18px;
 }
 
+.toolbarbutton-1[disabled=true]:-moz-lwtheme,
+.toolbarbutton-menubutton-button[disabled=true]:-moz-lwtheme {
+  color: inherit !important;
+}
+
 .toolbarbutton-1[disabled="true"] .toolbarbutton-text,
 .toolbarbutton-1[disabled="true"] .toolbarbutton-icon,
 .toolbarbutton-1[type="menu-button"] > .toolbarbutton-menubutton-button[disabled="true"]

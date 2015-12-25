@@ -77,6 +77,16 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
   padding: 1px 5px !important;
 }
 
+.toolbarbutton-1[disabled=true]:-moz-lwtheme,
+.toolbarbutton-menubutton-button[disabled=true]:-moz-lwtheme {
+  color: inherit;
+  text-shadow: inherit;
+}
+
+.toolbarbutton-1[disabled=true]:-moz-lwtheme .toolbarbutton-text {
+  opacity: .4;
+}
+
 toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1 .toolbarbutton-text {
   padding-inline-start: 2px;
 }

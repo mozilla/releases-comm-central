@@ -231,6 +231,11 @@ toolbar:not(.inline-toolbar):not(:-moz-lwtheme)
   height: 18px;
 }
 
+.toolbarbutton-1[disabled=true]:-moz-lwtheme,
+.toolbarbutton-menubutton-button[disabled=true]:-moz-lwtheme {
+  color: inherit;
+}
+
 toolbar[mode="full"] .toolbarbutton-1 {
   min-width: 55px;
 }
