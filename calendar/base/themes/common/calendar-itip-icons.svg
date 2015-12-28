@@ -51,7 +51,7 @@
         <circle cx="9.25" cy="4.5" r="4"/>
         <line x1="0.25" y1="15.75" x2="15.55" y2="15.75" />
     </symbol>
-    <symbol id="ressource">
+    <symbol id="resource">
         <rect x="5.25" y="0.5" rx="1" ry="1" width="10.25" height="12" />
         <rect x="0.25" y="7" rx="1" ry="1" width="13" height="8" />
         <circle cx="4.25" cy="11" r="2.5" style="fill:#ffffff" />
@@ -105,17 +105,17 @@
     <use id="chair" class="req" xlink:href="#chairsymbol" x="16" y="32" />
     <use id="individual-reqparticipant" class="req" xlink:href="#individual" x="32" y="0" />
     <use id="group-reqparticipant" class="req" xlink:href="#group" x="48" y="0" />
-    <use id="ressource-reqparticipant" class="req" xlink:href="#ressource" x="64" y="0" />
+    <use id="resource-reqparticipant" class="req" xlink:href="#resource" x="64" y="0" />
     <use id="room-reqparticipant" class="req" xlink:href="#room" x="80" y="0" />
     <use id="unknown-reqparticipant" class="req" xlink:href="#unknown" x="96" y="0" />
     <use id="individual-optparticipant" class="opt" xlink:href="#individual" x="32" y="16" />
     <use id="group-optparticipant" class="opt" xlink:href="#group" x="48" y="16" />
-    <use id="ressource-optparticipant" class="opt" xlink:href="#ressource" x="64" y="16" />
+    <use id="resource-optparticipant" class="opt" xlink:href="#resource" x="64" y="16" />
     <use id="room-optparticipant" class="opt" xlink:href="#room" x="80" y="16" />
     <use id="unknown-optparticipant" class="opt" xlink:href="#unknown" x="96" y="16" />
     <use id="individual-nonparticipant" class="non" xlink:href="#individual" x="32" y="32" />
     <use id="group-nonparticipant" class="non" xlink:href="#group" x="48" y="32" />
-    <use id="ressource-nonparticipant" class="non" xlink:href="#ressource" x="64" y="32" />
+    <use id="resource-nonparticipant" class="non" xlink:href="#resource" x="64" y="32" />
     <use id="room-nonparticipant" class="non" xlink:href="#room" x="80" y="32" />
     <use id="unknown-nonparticipant" class="non" xlink:href="#unknown" x="96" y="32" />
 </svg> 

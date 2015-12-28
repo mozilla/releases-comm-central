@@ -30,7 +30,7 @@
 .itip-icon[usertype="GROUP"] {
     --itip-icon-usertype: -48px;
 }
-.itip-icon[usertype="RESSOURCE"] {
+.itip-icon[usertype="RESOURCE"] {
     --itip-icon-usertype: -64px;
 }
 .itip-icon[usertype="ROOM"] {
