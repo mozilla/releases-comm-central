@@ -32,6 +32,7 @@ alertBox[hasImage] > box > .alertImageBox {
 .alertTextBox {
   padding: 4px;
   width: 255px;
+  -moz-box-flex: 1;
 }
 
 .alertTitle {
