@@ -2260,11 +2260,11 @@ function copyAttachment() {
 /**
  * Handler function to handle pressing keys in the attachment listbox.
  *
- * @param event     The DOM event caused by the key press.
+ * @param aEvent     The DOM event caused by the key press.
  */
-function attachmentLinkKeyPress(event) {
+function attachmentLinkKeyPress(aEvent) {
     const kKE = Components.interfaces.nsIDOMKeyEvent;
-    switch (event.keyCode) {
+    switch (aEvent.keyCode) {
         case kKE.DOM_VK_BACK_SPACE:
         case kKE.DOM_VK_DELETE:
             deleteAttachment();
@@ -2276,13 +2276,31 @@ function attachmentLinkKeyPress(event) {
 }
 
 /**
- * Handler function to take care of clicking on an attachment
+ * Handler function to take care of double clicking on an attachment
  *
- * @param event     The DOM event caused by the clicking.
+ * @param aEvent     The DOM event caused by the clicking.
  */
-function attachmentLinkDblClicked(event) {
-    if (event.originalTarget.localName == "listitem") {
+function attachmentDblClick(aEvent) {
+    // left double click on a list item
+    if (aEvent.originalTarget.localName == "listitem" && aEvent.button == 0) {
         openAttachment();
+    }
+}
+
+/**
+ * Handler function to take care of right clicking on an attachment or the attachment list
+ *
+ * @param aEvent     The DOM event caused by the clicking.
+ */
+function attachmentClick(aEvent) {
+    // we take only care about right clicks
+    if (aEvent.button != 2) {
+        return;
+    }
+    let attachmentPopup = document.getElementById("attachment-popup");
+    for (let node of attachmentPopup.childNodes) {
+        (aEvent.originalTarget.localName == "listitem" ||
+         node.id == "attachment-popup-attachPage") ? showElement(node) : hideElement(node);
     }
 }
 
@@ -3537,53 +3555,60 @@ function isAttendeeUndecided(aAttendee) {
 }
 
 /**
+ * Event handler for dblclick on attendee items.
+ *
+ * @param aEvent         The popupshowing event
+ */
+function attendeeDblClick(aEvent) {
+    // left mouse button
+    if (aEvent.button == 0) {
+        editAttendees();
+    }
+    return;
+}
+
+/**
  * Event handler to set up the attendee-popup. This builds the popup menuitems.
  *
- * @param event         The popupshowing event
+ * @param aEvent         The popupshowing event
  */
-function showAttendeePopup(event) {
-    function countUndecided(aAttendee) {
-        // Count attendees that have done something.
-        if (!isAttendeeUndecided(aAttendee)) {
-            responsiveAttendees++;
-        }
-    }
-
-    if (event.button != 2) {
-        // open attendee dialog on double click
-        if (event.button == 0 && event.detail == 2) {
-            editAttendees();
-        }
+function attendeeClick(aEvent) {
+    // we need to handle right clicks only to display the context menu
+    if (aEvent.button != 2) {
         return;
     }
 
-    // determine whether there are attendees without decision
-    let responsiveAttendees = 0;
-    window.attendees.forEach(countUndecided);
-
-    let popup = document.getElementById("attendee-popup");
-    let mailto = document.getElementById("attendee-popup-emailattendee-menuitem");
-    let remove = document.getElementById("attendee-popup-removeattendee-menuitem");
-    let attId = event.target.parentNode.getAttribute("attendeeid");
-    let attendee = window.attendees.find(aAtt => aAtt.id == attId);
-    if (attendee) {
-        mailto.setAttribute("label", attendee.toString());
-        mailto.attendee = attendee;
-        remove.attendee = attendee;
-    }
-
-    // set up the unanswered attendees item.
-    if (responsiveAttendees == window.attendees.length) {
-        document.getElementById("cmd_email_undecided")
-                .setAttribute("disabled", "true");
+    if (window.attendees.length == 0) {
+        // we just need the option to open the attendee dialog in this case
+        let popup = document.getElementById("attendee-popup");
+        let invite = document.getElementById("attendee-popup-invite-menuitem");
+        for (let node of popup.childNodes) {
+            (node == invite) ? showElement(node) : hideElement(node);
+        }
     } else {
-        document.getElementById("cmd_email_undecided")
-                .removeAttribute("disabled");
-    }
+        // setup attendee specific menu items if appropriate otherwise hide respective  menu items
+        let mailto = document.getElementById("attendee-popup-emailattendee-menuitem");
+        let remove = document.getElementById("attendee-popup-removeattendee-menuitem");
+        let separator = document.getElementById("attendee-popup-second-separator");
+        let attId = aEvent.target.parentNode.getAttribute("attendeeid");
+        let attendee = window.attendees.find(aAtt => aAtt.id == attId);
+        if (attendee) {
+            [mailto, remove, separator].forEach(showElement);
+            mailto.setAttribute("label", attendee.toString());
+            mailto.attendee = attendee;
+            remove.attendee = attendee;
+        } else {
+            [mailto, remove, separator].forEach(hideElement);
+        }
 
-    // Show the popup.
-    var attendeeList = document.getElementById("attendee-list");
-    popup.openPopup(attendeeList, "after_start", event.clientX, event.clientY, true);
+        if (window.attendees.some(isAttendeeUndecided)) {
+            document.getElementById("cmd_email_undecided")
+                    .removeAttribute("disabled");
+        } else {
+            document.getElementById("cmd_email_undecided")
+                    .setAttribute("disabled", "true");
+        }
+    }
 }
 
 /**

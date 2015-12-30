@@ -1189,7 +1189,8 @@
                                flex="1"
                                disable-on-readonly="true"
                                onkeypress="attachmentLinkKeyPress(event)"
-                               ondblclick="attachmentLinkDblClicked(event);"/>
+                               onclick="attachmentClick(event);"
+                               ondblclick="attachmentDblClick(event);"/>
                     </vbox>
                 </tabpanel>
                 <tabpanel id="event-grid-tabpanel-attendees"
@@ -1211,6 +1212,8 @@
                       <vbox id="item-attendees-box"
                             dialog-type="event"
                             flex="1"
+                            context="attendee-popup"
+                            onclick="attendeeClick(event)"
                             disable-on-readonly="true"/>
                     </hbox>
                     <hbox id="notify-options" align="center">
@@ -1315,7 +1318,7 @@
     </statusbar>
 
     <popupset id="event-dialog-popupset">
-      <menupopup id="attendee-popup" position="after_start">
+      <menupopup id="attendee-popup">
         <menuitem id="attendee-popup-invite-menuitem"
                   label="&event.invite.attendees.label;"
                   accesskey="&event.invite.attendees.accesskey;"
@@ -1331,7 +1334,7 @@
                   label="&event.remove.attendee.label;"
                   oncommand="removeAttendee(event.target.attendee)"
                   crop="end"/>
-        <menuseparator id="attendees-popup-menuseparator"/>
+        <menuseparator id="attendee-popup-first-separator"/>
         <menuitem id="attendee-popup-sendemail-menuitem"
                   label="&event.email.attendees.label;"
                   accesskey="&event.email.attendees.accesskey;"
@@ -1340,7 +1343,7 @@
                   label="&event.email.tentative.attendees.label;"
                   accesskey="&event.email.tentative.attendees.accesskey;"
                   command="cmd_email_undecided"/>
-        <menuseparator id="attendee-popup-separator"/>
+        <menuseparator id="attendee-popup-second-separator"/>
         <menuitem id="attendee-popup-emailattendee-menuitem"
                   oncommand="sendMailToAttendees([event.target.attendee])"
                   crop="end"/>
@@ -1386,7 +1389,8 @@
              hidden="true"
              flex="1"
              context="attendee-popup"
-             onclick="showAttendeePopup(event)">
+             ondblclick="attendeeDblClick(event)"
+             onclick="attendeeClick(event)">
           <img class="itip-icon"/>
           <label class="item-attendees-cell-label"
                  crop="end"
