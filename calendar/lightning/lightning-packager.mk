@@ -30,9 +30,8 @@ else
 UNIVERSAL_PATH=
 endif
 
-_ABS_DIST := $(abspath $(DIST))
 XPI_STAGE_PATH = $(DIST)/$(UNIVERSAL_PATH)xpi-stage
-_ABS_XPI_STAGE_PATH = $(_ABS_DIST)/$(UNIVERSAL_PATH)xpi-stage
+_ABS_XPI_STAGE_PATH = $(ABS_DIST)/$(UNIVERSAL_PATH)xpi-stage
 ENUS_PKGNAME=$(subst .$(AB_CD).,.en-US.,$(XPI_PKGNAME))
 XPI_ZIP_IN=$(_ABS_XPI_STAGE_PATH)/$(ENUS_PKGNAME).xpi
 
@@ -153,9 +152,9 @@ repack-stage:
 libs-%: FINAL_XPI_NAME=$(if $(L10N_XPI_NAME),$(L10N_XPI_NAME),$(XPI_NAME))
 libs-%: FINAL_XPI_PKGNAME=$(if $(L10N_XPI_PKGNAME),$(L10N_XPI_PKGNAME),$(XPI_PKGNAME))
 libs-%:
-	$(MAKE) -C locales libs AB_CD=$* FINAL_TARGET=$(_ABS_DIST)/$(UNIVERSAL_PATH)xpi-stage/$(FINAL_XPI_NAME) \
+	$(MAKE) -C locales libs AB_CD=$* FINAL_TARGET=$(ABS_DIST)/$(UNIVERSAL_PATH)xpi-stage/$(FINAL_XPI_NAME) \
 	  XPI_NAME=$(FINAL_XPI_NAME) XPI_PKGNAME=$(FINAL_XPI_PKGNAME) USE_EXTENSION_MANIFEST=1
-	$(MAKE) -C locales tools AB_CD=$* FINAL_TARGET=$(_ABS_DIST)/$(UNIVERSAL_PATH)xpi-stage/$(FINAL_XPI_NAME) \
+	$(MAKE) -C locales tools AB_CD=$* FINAL_TARGET=$(ABS_DIST)/$(UNIVERSAL_PATH)xpi-stage/$(FINAL_XPI_NAME) \
 	  XPI_NAME=$(FINAL_XPI_NAME) XPI_PKGNAME=$(FINAL_XPI_PKGNAME) USE_EXTENSION_MANIFEST=1
 
 # The calling makefile might need to process some extra files. Provide an empty

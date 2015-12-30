@@ -16,10 +16,10 @@ APP_NAME = $(MOZ_APP_DISPLAYNAME)
 ifdef MOZ_DEBUG
 APP_NAME := $(APP_NAME)Debug
 endif
-MOZMILLPROGRAM = $(abspath $(DIST)/$(APP_NAME).app/)
+MOZMILLPROGRAM = $(ABS_DIST)/$(APP_NAME).app/
 else
 # Non-mac options
-MOZMILLPROGRAM = $(abspath $(DIST)/bin/thunderbird$(BIN_SUFFIX))
+MOZMILLPROGRAM = $(ABS_DIST)/bin/thunderbird$(BIN_SUFFIX)
 endif
 
 check-no-solo = $(foreach solo,SOLO_TEST SOLO_FILE,$(if $($(solo)),$(error $(subst SOLOVAR,$(solo),$(1)))))
@@ -46,8 +46,8 @@ mozmill: mozmill-stage
 	$(MOZMILLPYTHON) runtestlist.py --list=$(srcdir)/mozmilltests.list \
 	--binary=$(MOZMILLPROGRAM) \
 	--dir=$(abspath $(MOZMILLDIR))/stage \
-	--symbols-path=$(abspath $(DIST)/crashreporter-symbols) \
-	--plugins-path=$(abspath $(DIST)/plugins) \
+	--symbols-path=$(ABS_DIST)/crashreporter-symbols \
+	--plugins-path=$(ABS_DIST)/plugins \
 	$(MOZMILL_EXTRA)
 
 mozmill-one: solo-test = $(find-solo-test)
@@ -56,7 +56,7 @@ mozmill-one: mozmill-stage
 	$(MOZMILLPYTHON) runtest.py \
 	--test=$(abspath $(MOZMILLDIR))/stage/$(solo-test) \
 	--binary=$(MOZMILLPROGRAM) \
-	--symbols-path=$(abspath $(DIST)/crashreporter-symbols) \
-	--plugins-path=$(abspath $(DIST)/plugins) \
+	--symbols-path=$(ABS_DIST)/crashreporter-symbols \
+	--plugins-path=$(ABS_DIST)/plugins \
 	$(MOZMILL_EXTRA)
 
