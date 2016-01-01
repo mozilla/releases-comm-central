@@ -679,8 +679,22 @@ function Startup()
     setTimeout(InitSessionStoreCallback, 0);
   }
 
+  window.addEventListener("MozAfterPaint", DelayedStartup, false);
+}
+
+// Minimal gBrowserInit shim to keep the Addon-SDK happy.
+var gBrowserInit = {
+  delayedStartupFinished: false,
+}
+
+function DelayedStartup() {
+  window.removeEventListener("MozAfterPaint", DelayedStartup);
+
   // Bug 778855 - Perf regression if we do this here. To be addressed in bug 779008.
   setTimeout(function() { SafeBrowsing.init(); }, 2000);
+
+  gBrowserInit.delayedStartupFinished = true;
+  Services.obs.notifyObservers(window, "browser-delayed-startup-finished", "");
 }
 
 function UpdateNavBar()
