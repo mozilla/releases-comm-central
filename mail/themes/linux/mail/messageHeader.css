@@ -126,7 +126,6 @@
 }
 
 .msgHeaderView-button {
-  min-height: 26px;
   margin: 0 0.1em;
   vertical-align: middle;
   min-width: 28px;
@@ -260,8 +259,8 @@ toolbar[brighttext] #attachmentSaveAllMultiple {
   list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file-inverted");
 }
 
-#otherActionsButton > .toolbarbutton-icon {
-  display: none;
+toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker {
+  margin-inline-start: 0;
 }
 
 /* show a icon in customize window */

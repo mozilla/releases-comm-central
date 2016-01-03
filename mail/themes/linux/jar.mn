@@ -183,6 +183,8 @@ classic.jar:
   skin/classic/messenger/icons/dropmarker-hover.svg           (mail/icons/dropmarker-hover.svg)
   skin/classic/messenger/icons/filterbar.png                  (mail/icons/filterbar.png)
   skin/classic/messenger/icons/red_pin.png                    (mail/icons/red_pin.png)
+  skin/classic/messenger/icons/toolbarbutton-arrow.png        (mail/icons/toolbarbutton-arrow.png)
+  skin/classic/messenger/icons/toolbarbutton-arrow-inverted.png (mail/icons/toolbarbutton-arrow-inverted.png)
   skin/classic/messenger/tabs/active-middle.png               (mail/tabs/active-middle.png)
   skin/classic/messenger/tabs/background-end.png              (mail/tabs/background-end.png)
   skin/classic/messenger/tabs/background-middle.png           (mail/tabs/background-middle.png)
