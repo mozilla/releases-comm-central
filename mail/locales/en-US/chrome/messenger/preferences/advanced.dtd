@@ -103,7 +103,7 @@
 <!ENTITY enableOCSP.label                "Query OCSP responder servers to confirm the current validity of certificates">
 <!ENTITY enableOCSP.accesskey            "Q">
 
-<!ENTITY viewCertificates.label         "View Certificates">
-<!ENTITY viewCertificates.accesskey     "C">
-<!ENTITY viewSecurityDevices.label      "Security Devices">
-<!ENTITY viewSecurityDevices.accesskey  "D">
+<!ENTITY manageCertificates.label "Manage Certificates">
+<!ENTITY manageCertificates.accesskey "M">
+<!ENTITY viewSecurityDevices.label "Security Devices">
+<!ENTITY viewSecurityDevices.accesskey "D">

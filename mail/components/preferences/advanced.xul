@@ -419,9 +419,9 @@ type="int"/>
             <separator/>
 
           <hbox>
-            <button id="viewCertificatesButton"
-                    label="&viewCertificates.label;"
-                    accesskey="&viewCertificates.accesskey;"
+            <button id="manageCertificatesButton"
+                    label="&manageCertificates.label;"
+                    accesskey="&manageCertificates.accesskey;"
                     oncommand="gAdvancedPane.showCertificates();"
                     preference="security.disable_button.openCertManager"/>
             <button id="viewSecurityDevicesButton"
