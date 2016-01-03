@@ -75,14 +75,14 @@ ifdef MOZ_OMNIJAR
 # NOTE: This is a hack to run this at the end of compilation, would be nicer
 # if this was done right away for built-in extensions in omnijar mode.
 
-ABS_DIST = $(abspath $(STAGEDIST))
+ABS_STAGE = $(abspath $(STAGEDIST))
 
 define _PACKAGE_EXTENSIONS
 @echo "Packaging $(dir).xpi..."
-if test -d "$(ABS_DIST)/$(dir)"; then \
-cd $(ABS_DIST)/$(dir)/; \
+if test -d "$(ABS_STAGE)/$(dir)"; then \
+cd $(ABS_STAGE)/$(dir)/; \
 $(ZIP) -r9mX ../$(dir).xpi * -x \*/.mkdir.done; \
-cd ..; rm -rf $(ABS_DIST)/$(dir); \
+cd ..; rm -rf $(ABS_STAGE)/$(dir); \
 fi
 
 endef # do not remove the blank line!
