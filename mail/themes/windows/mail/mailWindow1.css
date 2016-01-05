@@ -296,24 +296,27 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 /* ..... folder pane adjustments ..... */
 
 #folderpane-title {
-  -moz-padding-start: 12px;
-  -moz-padding-end: 8px;
+  padding-inline-start: 12px;
+  padding-inline-end: 8px;
 }
 
 @media (-moz-os-version: windows-xp) {
   .folderview-cycler {
-    -moz-padding-end: 0px;
+    padding-inline-end: 0;
   }
 }
 
-.folderview-cycler[dir="prev"],
-.folderview-cycler[dir="next"]:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://messenger/skin/icons/arrow/foldercycler-arrow-left.png");
+.folderview-cycler {
+  list-style-image: url("chrome://messenger/skin/icons/arrow/foldercycler-arrow.svg#normal");
 }
 
-.folderview-cycler[dir="next"],
-.folderview-cycler[dir="prev"]:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://messenger/skin/icons/arrow/foldercycler-arrow-right.png");
+.folderview-cycler:-moz-lwtheme-brighttext {
+  list-style-image: url("chrome://messenger/skin/icons/arrow/foldercycler-arrow.svg#inverted");
+}
+
+.folderview-cycler[dir="prev"]:-moz-locale-dir(ltr) > .toolbarbutton-icon,
+.folderview-cycler[dir="next"]:-moz-locale-dir(rtl) > .toolbarbutton-icon {
+  transform: scaleX(-1);
 }
 
 /* ..... splitter adjustments ..... */
@@ -839,8 +842,8 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
   }
 
   .folderview-cycler {
-    -moz-padding-start: 5px;
-    -moz-padding-end: 5px;
+    padding-inline-start: 5px;
+    padding-inline-end: 5px;
   }
 
   .treecol-image image {

@@ -230,22 +230,25 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 /* ..... folder pane adjustments ..... */
 
 #folderpane-title {
-  -moz-padding-start: 12px;
-  -moz-padding-end: 8px;
+  padding-inline-start: 12px;
+  padding-inline-end: 8px;
 }
 
 .folderview-cycler {
-  -moz-padding-end: 0px !important;
+  padding-inline-end: 0 !important;
 }
 
-.folderview-cycler[dir="prev"],
-.folderview-cycler[dir="next"]:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://messenger/skin/icons/arrow/foldercycler-arrow-left.png");
+.folderview-cycler {
+  list-style-image: url("chrome://messenger/skin/icons/arrow/foldercycler-arrow.svg#normal");
 }
 
-.folderview-cycler[dir="next"],
-.folderview-cycler[dir="prev"]:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://messenger/skin/icons/arrow/foldercycler-arrow-right.png");
+.folderview-cycler:-moz-lwtheme-brighttext {
+  list-style-image: url("chrome://messenger/skin/icons/arrow/foldercycler-arrow.svg#inverted");
+}
+
+.folderview-cycler[dir="prev"]:-moz-locale-dir(ltr) > .toolbarbutton-icon,
+.folderview-cycler[dir="next"]:-moz-locale-dir(rtl) > .toolbarbutton-icon {
+  transform: scaleX(-1);
 }
 
 /* ..... splitter adjustments ..... */
