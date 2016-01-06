@@ -340,6 +340,21 @@
     "US Mountain Standard Time": {
       "aliasTo": "America/Phoenix"
     },
+    "US/Central": {
+      "aliasTo": "America/Chicago"
+    },
+    "US/Eastern": {
+      "aliasTo": "America/New_York"
+    },
+    "US/Mountain": {
+      "aliasTo": "America/Denver"
+    },
+    "US/Pacific": {
+      "aliasTo": "America/Los_Angeles"
+    },
+    "US/Pacific-New": {
+      "aliasTo": "America/Los_Angeles"
+    },
     "Ulaanbaatar Standard Time": {
       "aliasTo": "Asia/Ulaanbaatar"
     },
