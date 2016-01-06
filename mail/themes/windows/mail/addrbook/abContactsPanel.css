@@ -16,6 +16,10 @@
   background-color: -moz-Dialog;
 }
 
+#peopleSearchInput {
+  min-height: 24px;
+}
+
 #results_box {
   background-color: transparent;
 }

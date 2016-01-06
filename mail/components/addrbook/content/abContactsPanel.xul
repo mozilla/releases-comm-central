@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 
-<!--  -*- Mode: xml; indent-tabs-mode: nil; -*-
-   - This Source Code Form is subject to the terms of the Mozilla Public
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/abContactsPanel.css" type="text/css"?>
 
 <!DOCTYPE page [
@@ -80,10 +80,16 @@
     <separator class="thin"/>
 
     <vbox>
-      <label value="&searchInput.label;" accesskey="&searchInput.accesskey;"
+      <label value="&searchInput.label;"
+             accesskey="&searchInput.accesskey;"
              control="peopleSearchInput"/>
-      <textbox id="peopleSearchInput" flex="1" type="search" timeout="800"
-               placeholder="&SearchNameOrEmail.label;" clickSelectsAll="true"
+      <textbox type="search"
+               id="peopleSearchInput"
+               class="searchBox"
+               flex="1"
+               timeout="800"
+               placeholder="&SearchNameOrEmail.label;"
+               clickSelectsAll="true"
                oncommand="onEnterInSearchBar();"/>
     </vbox>
 

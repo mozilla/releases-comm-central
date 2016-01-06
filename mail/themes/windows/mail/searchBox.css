@@ -164,6 +164,7 @@
   .searchBox[focused],
   #view-task-edit-field[focused],
   #unifinder-task-edit-field[focused] {
+    border-color: Highlight;
     box-shadow: 0 0 0 1px Highlight inset;
   }
 }
