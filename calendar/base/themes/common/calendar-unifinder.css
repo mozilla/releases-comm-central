@@ -21,15 +21,8 @@
     min-height: 92px;
     border: 0;
     -moz-border-bottom-colors: ThreeDHighlight ThreeDLightShadow;
-    -moz-border-top-colors: ThreeDShadow ThreeDDarkShadow;
     border-bottom: 1px solid;
-    border-top: 1px solid;
     margin: 0;
-}
-
-/* added for new id ..... search box ..... */
-#unifinder-searchBox {
-    height: 30px;
 }
 
 .unifinder-closebutton {

@@ -148,7 +148,6 @@
   .searchBox,
   #view-task-edit-field,
   #unifinder-task-edit-field {
-    min-height: 28px;
     border-radius: 1px;
     border-color: hsl(0, 0%, 90%);
     transition-property: border-color;
@@ -170,6 +169,13 @@
 }
 
 /* special treatment because this boxes are on the main toolbars */
+#searchInput,
+#IMSearchInput,
+#peopleSearchInput,
+.remote-gloda-search {
+  min-height: 28px;
+}
+
 #searchInput:-moz-lwtheme,
 #IMSearchInput:-moz-lwtheme,
 #peopleSearchInput:-moz-lwtheme,

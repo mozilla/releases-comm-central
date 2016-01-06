@@ -12,6 +12,21 @@
   color: GrayText;
 }
 
+@media (-moz-os-version: windows-win7) {
+  #qfb-qs-textbox {
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+}
+
+@media (-moz-os-version: windows-win8),
+       (-moz-os-version: windows-win10) {
+  #qfb-qs-textbox {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+}
+
 @media (-moz-os-version: windows-xp) {
   /* :::: Filter Tab Bar Button :::: */
 

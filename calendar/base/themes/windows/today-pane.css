@@ -4,6 +4,14 @@
 
 @import url(chrome://calendar-common/skin/today-pane.css);
 
+@media (-moz-os-version: windows-xp),
+       (-moz-os-version: windows-vista),
+       (-moz-os-version: windows-win7) {
+  #today-pane-panel:-moz-lwtheme {
+    box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
+  }
+}
+
 #today-pane-panel:-moz-lwtheme > sidebarheader {
   background-image: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 19px);
 }
@@ -20,6 +28,13 @@
        (-moz-os-version: windows-win10) {
   #mini-day-image {
     background-image: none;
+  }
+}
+
+@media (-moz-os-version: windows-win8) {
+  #mini-day-box {
+    padding-top: 1px;
+    padding-bottom: 1px;
   }
 }
 
@@ -41,6 +56,10 @@
   -moz-appearance: none;
   border: none !important;
   padding: 2px;
+}
+
+.today-closebutton:not([selected]):not(:hover):-moz-lwtheme-brighttext {
+  list-style-image: url("chrome://global/skin/icons/close-inverted.png");
 }
 
 .today-closebutton > .toolbarbutton-icon {
@@ -91,6 +110,7 @@
       background-color: rgba(255, 255, 255, 0.3);
       background-image: linear-gradient(rgba(255, 255, 255, 0.5),
                         rgba(255, 255, 255, 0) 28px);
+      border-top: 1px solid rgba(253, 253, 253, 0.45);
     }
 
     sidebarheader > spacer {

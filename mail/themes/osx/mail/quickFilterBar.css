@@ -243,9 +243,11 @@
   color: #f66;
 }
 
-#qfb-qs-textbox {
-  margin-top: 3px;
-  margin-bottom: 3px;
+@media (-moz-mac-yosemite-theme) {
+  #qfb-qs-textbox {
+    margin-top: 3px;
+    margin-bottom: 2px;
+  }
 }
 
 #qfb-qs-label {

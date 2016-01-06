@@ -10,11 +10,12 @@
 }
 
 #other-actions-box {
-    -moz-margin-end: 3px;
+    margin-inline-end: 3px;
 }
 
 #task-addition-box {
     background: linear-gradient(#eaeaea, #d1d1d1);
+    border-bottom-color: #bebebe
 }
 
 .task-details-name {
@@ -29,8 +30,9 @@
     color: black;
 }
 
-#task-text-filter-field {
-    margin: 4px 5px;
+#view-task-edit-field {
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 #task-actions-toolbar {

@@ -4,6 +4,11 @@
 
 @import url(chrome://lightning-common/skin/lightning.css);
 
+#calendarContent:-moz-lwtheme {
+  color: -moz-dialogText;
+  text-shadow: none;
+}
+
 /* Calendar list rules */
 #calendar-panel {
     padding-bottom: 5px;
@@ -41,6 +46,14 @@ radio[pane=paneLightning] {
   #task-tab-button {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab-flat);
   }
+}
+
+toolbar[bighttext] #calendar-tab-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab-inverted);
+}
+
+toolbar[bighttext] #task-tab-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab-inverted);
 }
 
 /* ::: tab icons ::: */

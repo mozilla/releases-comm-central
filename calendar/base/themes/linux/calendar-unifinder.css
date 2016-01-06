@@ -24,6 +24,8 @@
 /* added for new id ..... search box ..... */
 #unifinder-searchBox {
     background-color: transparent;
+    border-bottom: 1px solid ThreeDShadow;
+    height: 37px;
 }
 
 .unifinder-closebutton {

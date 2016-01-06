@@ -5,19 +5,24 @@
 @import url(chrome://calendar-common/skin/calendar-unifinder.css);
 
 #bottom-events-box {
-    -moz-border-start: 1px solid ThreeDShadow;
+  border-inline-start: 1px solid ThreeDShadow;
+}
+
+#unifinder-searchBox {
+  border-bottom: 1px solid ThreeDShadow;
 }
 
 .unifinder-closebutton {
-    -moz-appearance: none;
-    border: none;
-    padding: 2px;
-    background: transparent;
+  -moz-appearance: none;
+  border: none;
+  padding: 2px;
+  background: transparent;
 }
 
 @media (-moz-os-version: windows-xp) {
   #unifinder-searchBox {
-      background-color: transparent;
+    background-color: transparent;
+    height: 30px;
   }
 }
 
@@ -25,12 +30,17 @@
   @media (-moz-windows-default-theme) {
     #unifinder-searchBox {
       background-color: #f8f8f8;
+      height: 33px;
     }
   }
 }
 
 @media (-moz-os-version: windows-win8),
        (-moz-os-version: windows-win10) {
+  #unifinder-searchBox {
+    height: 35px;
+  }
+
   .unifinder-closebutton {
     -moz-image-region: rect(0 20px 20px 0);
   }

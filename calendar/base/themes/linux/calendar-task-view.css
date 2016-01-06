@@ -16,6 +16,10 @@
     z-index: 10;
 }
 
+#task-addition-box {
+    height: 37px;
+}
+
 #calendar-task-details-container {
     padding-top: 1px;
 }

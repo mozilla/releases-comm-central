@@ -20,7 +20,11 @@
 }
 
 .today-closebutton {
-  list-style-image: url("chrome://global/skin/icons/close.png") !important;
+  list-style-image: url("chrome://global/skin/icons/close.png");
+}
+
+.today-closebutton:not([selected]):not(:hover):-moz-lwtheme-brighttext {
+  -moz-image-region: rect(0 64px 16px 48px);
 }
 
 .today-closebutton > .toolbarbutton-text {
@@ -44,6 +48,10 @@
   color: -moz-dialogtext;
 }
 
+#today-pane-panel:-moz-lwtheme {
+  box-shadow: inset 0 1px 0 hsla(0, 0%, 100%, .4);
+}
+
 @media not all and (-moz-mac-yosemite-theme) {
   #todaypane-new-event-button {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
@@ -55,7 +63,7 @@
     border-top: solid 1px rgba(0, 0, 0, 0.37);
   }
 
-  #today-pane-panel:-moz-window-inactive {
+  #today-pane-panel:not(:-moz-lwtheme):-moz-window-inactive {
     border-top-color: rgba(0, 0, 0, 0.2);
     background-color: hsl(0, 0%, 97%);
   }

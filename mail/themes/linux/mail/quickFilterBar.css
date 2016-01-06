@@ -6,8 +6,17 @@
 
 /* :::: Filter Bar :::: */
 
+#quick-filter-bar {
+  background-color: -moz-dialog;
+  border-bottom: 1px solid ThreeDShadow;
+}
+
 #quick-filter-bar-main-bar {
   -moz-padding-start: 4px;
+}
+
+#qfb-qs-textbox {
+  margin: 5px;
 }
 
 #quick-filter-bar-expando {

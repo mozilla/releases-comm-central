@@ -36,7 +36,8 @@
 }
 
 #task-text-filter-field {
-    margin: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 #task-text-filter-field .textbox-search-icons {
@@ -55,6 +56,21 @@
 }
 
 @media (-moz-os-version: windows-xp) {
+  #task-addition-box {
+    -moz-border-start: 1px solid ThreeDShadow;
+  }
+
+  #calendar-task-tree {
+    border-inline-start: 1px solid ThreeDShadow;
+    border-bottom: 1px solid ThreeDHighlight;
+  }
+
+  #view-task-edit-field,
+  #task-text-filter-field {
+    margin-top: 4px;
+    margin-bottom: 3px;
+  }
+
   #task-actions-category {
       list-style-image: url(chrome://calendar/skin/tasks-actions.png);
       -moz-image-region: rect(0 16px 16px 0);
@@ -156,7 +172,17 @@
   @media (-moz-windows-default-theme) {
     #task-addition-box {
       background-color: #f8f8f8;
+      height: 32px;
     }
+  }
+}
+
+@media (-moz-os-version: windows-vista),
+       (-moz-os-version: windows-win7) {
+  #view-task-edit-field,
+  #task-text-filter-field {
+    margin-top: 4px;
+    margin-bottom: 4px;
   }
 }
 
@@ -176,27 +202,5 @@
 
   #calendar-add-task-button {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newtask-flat);
-  }
-}
-
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
-  #view-task-edit-field,
-  #task-text-filter-field {
-    min-height: 28px;
-    border-color: hsl(0, 0%, 90%);
-    border-radius: 1px;
-    transition-property: border-color;
-    transition-duration: .1s;
-  }
-
-  #view-task-edit-field:not([focused="true"]):hover,
-  #task-text-filter-field:not([focused="true"]):hover {
-    border-color: hsl(0, 0%, 80%);
-  }
-
-  #view-task-edit-field[focused],
-  #task-text-filter-field[focused] {
-    border-color: Highlight;
-    box-shadow: 0 0 0 1px Highlight inset;
   }
 }
