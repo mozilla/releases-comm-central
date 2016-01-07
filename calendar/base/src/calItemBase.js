@@ -484,7 +484,7 @@ calItemBase.prototype = {
         }
         let parameters = this.mPropertyParams[propName];
         return { // nsISimpleEnumerator
-            mParamNames: [ key for (key in parameters) ],
+            mParamNames: Object.keys(parameters),
             hasMoreElements: function cIB_gPE_hasMoreElements() {
                 return (this.mParamNames.length > 0);
             },
@@ -855,7 +855,10 @@ calItemBase.prototype = {
         }
         this.mOrganizer = org;
 
-        this.mCategories = [ catprop.value for (catprop in cal.ical.propertyIterator(icalcomp, "CATEGORIES")) ];
+        this.mCategories = [];
+        for (let catprop in cal.ical.propertyIterator(icalcomp, "CATEGORIES")) {
+            this.mCategories.push(catprop.value);
+        }
 
         // find recurrence properties
         let rec = null;

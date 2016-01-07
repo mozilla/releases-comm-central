@@ -221,15 +221,23 @@ calTimezoneService.prototype = {
     },
 
     get timezoneIds() {
-        return new calStringEnumerator([
-            k for ([k, v] of this.mZones.entries()) if (!v.aliasTo && k != "UTC" && k != "floating")
-        ]);
+        let zones = [];
+        for (let [k, v] of this.mZones.entries()) {
+            if (!v.aliasTo && k != "UTC" && k != "floating") {
+                zones.push(k);
+            }
+        }
+        return new calStringEnumerator(zones);
     },
 
     get aliasIds() {
-        return new calStringEnumerator([
-            k for ([k, v] of this.mZones.entries()) if (v.aliasTo && k != "UTC" && k != "floating")
-        ]);
+        let zones = [];
+        for (let [k, v] of this.mZones.entries()) {
+            if (v.aliasTo && k != "UTC" && k != "floating") {
+                zones.push(k);
+            }
+        }
+        return new calStringEnumerator(zones);
     },
 
     get version() {

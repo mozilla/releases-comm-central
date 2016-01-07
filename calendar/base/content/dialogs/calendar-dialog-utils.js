@@ -311,16 +311,16 @@ function saveReminder(item) {
     // If the alarms differ, clear the snooze/dismiss properties
     if (Object.keys(oldAlarmMap).length > 0) {
         let cmp = "X-MOZ-SNOOZE-TIME";
-        let cmpLength = cmp.length;
 
         // Recurring item alarms potentially have more snooze props, remove them
         // all.
         let propIterator = fixIterator(item.propertyEnumerator, Components.interfaces.nsIProperty);
-        let propsToDelete = [
-            prop.name
-            for (prop in propIterator)
-            if (prop.name.substr(0, cmpLength) == cmp)
-        ];
+        let propsToDelete = [];
+        for (let prop in propIterator) {
+            if (prop.name.startsWith(cmp)) {
+                propsToDelete.push(prop.name);
+            }
+        }
 
         item.alarmLastAck = null;
         propsToDelete.forEach(item.deleteProperty, item);

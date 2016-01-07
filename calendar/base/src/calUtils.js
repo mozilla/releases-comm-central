@@ -1609,7 +1609,7 @@ calPropertyBag.prototype = {
 function calPropertyBagEnumerator(bag) {
     this.mIndex = 0;
     this.mBag = bag;
-    this.mKeys = [ key for (key in bag.mData) ];
+    this.mKeys = Object.keys(bag.mData);
 }
 calPropertyBagEnumerator.prototype = {
     mIndex: 0,
@@ -1702,16 +1702,19 @@ function compareItemContent(aFirstItem, aSecondItem, aIgnoreProps, aIgnoreParams
     // This doesn't have to be super correct rfc5545, it just needs to be
     // in the same order
     function normalizeComponent(comp) {
-        let props = [
-            normalizeProperty(prop)
-            for (prop in cal.ical.propertyIterator(comp))
-            if (!(prop.propertyName in ignoreProps))
-        ].sort();
+        let props = [];
+        for (let prop in cal.ical.propertyIterator(comp)) {
+            if (!(prop.propertyName in ignoreProps)) {
+                props.push(normalizeProperty(prop));
+            }
+        }
+        props = props.sort();
 
-        let comps = [
-            normalizeComponent(subcomp)
-            for (subcomp in cal.ical.subcomponentIterator(comp))
-        ].sort();
+        let comps = [];
+        for (let subcomp in cal.ical.subcomponentIterator(comp)) {
+            comps.push(normalizeComponent(subcomp));
+        }
+        comps = comps.sort();
 
         return comp.componentType + props.join("\r\n") + comps.join("\r\n");
     }

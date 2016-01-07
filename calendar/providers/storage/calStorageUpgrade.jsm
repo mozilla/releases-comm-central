@@ -463,7 +463,7 @@ function deleteColumns(tblData, tblName, colNameArray, db) {
         delete tblData[tblName][colName];
     }
 
-    let columns = [ k for (k in tblData[tblName]) ];
+    let columns = Object.keys(tblData[tblName]);
     executeSimpleSQL(db, getSql(tblName, tblData, tblName + "_temp"));
     executeSimpleSQL(db, "INSERT INTO " + tblName + "_temp" +
                          "  (" + columns.join(",") + ") " +
@@ -491,7 +491,7 @@ function copyTable(tblData, tblName, newTblName, db, condition, selectOptions) {
 
     tblData[newTblName] = objcopy(tblData[tblName]);
 
-    let columns = [ k for (k in tblData[newTblName]) ];
+    let columns = Object.keys(tblData[newTblName]);
     executeSimpleSQL(db, getSql(newTblName, tblData));
     executeSimpleSQL(db, "INSERT INTO " + newTblName +
                          "  (" + columns.join(",") + ") " +
@@ -515,7 +515,7 @@ function alterTypes(tblData, tblName, colNameArray, newType, db) {
         tblData[tblName][colName] = newType;
     }
 
-    let columns = [ k for (k in tblData[tblName]) ];
+    let columns = Object.keys(tblData[tblName]);
     executeSimpleSQL(db, getSql(tblName, tblData, tblName + "_temp"));
     executeSimpleSQL(db, "INSERT INTO " + tblName + "_temp" +
                          "  (" + columns.join(",") + ") " +
