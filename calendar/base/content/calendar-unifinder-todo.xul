@@ -8,7 +8,6 @@
   <!ENTITY % dtd3 SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd"> %dtd3;
 ]>
 
-<?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-bindings.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-task-view.css"?>
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">

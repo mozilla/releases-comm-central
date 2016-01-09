@@ -12,7 +12,6 @@
    - Nor can it depend on files which may conflict.
   -->
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xul-overlay href="chrome://global/content/dialogOverlay.xul"?>
 
 <!-- DTD File with all strings specific to the file -->

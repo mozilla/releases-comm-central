@@ -16,12 +16,7 @@
 <?xml-stylesheet href="chrome://lightning/skin/lightning.css" type="text/css"?>
 
 <?xml-stylesheet href="chrome://calendar/content/calendar-view-bindings.css" type="text/css"?>
-<?xml-stylesheet href="chrome://calendar/skin/calendar-views.css" type="text/css"?>
-<?xml-stylesheet href="chrome://calendar/content/calendar-bindings.css" type="text/css"?>
-<?xml-stylesheet href="chrome://calendar-common/skin/widgets/minimonth.css" type="text/css"?>
-<?xml-stylesheet href="chrome://calendar/content/widgets/calendar-widget-bindings.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/content/datetimepickers/datetimepickers.css" type="text/css"?>
-<?xml-stylesheet href="chrome://calendar/skin/today-pane.css" type="text/css"?>
 
 <?xul-overlay href="chrome://calendar/content/calendar-calendars-list.xul"?>
 <?xul-overlay href="chrome://calendar/content/calendar-common-sets.xul"?>

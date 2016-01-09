@@ -11,9 +11,6 @@
 
   <binding id="agenda-base-richlist-item"
            extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
-    <resources>
-      <stylesheet src="chrome://calendar/skin/widgets/calendar-widgets.css"/>
-    </resources>
     <implementation>
       <field name="mOccurrence">null</field>;
       <property name="occurrence" readonly="true">
@@ -102,7 +99,7 @@
                      crop="end" xbl:inherits="selected" hidden="true"/>
           <xul:hbox flex="1" align="start">
             <xul:image anonid="agenda-multiDayEvent-image" class="agenda-multiDayEvent-image"/>
-            <xul:calendar-month-day-box-item anonid="allday-item" 
+            <xul:calendar-month-day-box-item anonid="allday-item"
                                              flex="1"
                                              flat="true"/>
           </xul:hbox>
@@ -274,7 +271,7 @@
             var calcolor = ((this.mOccurrence &&
                              this.mOccurrence.calendar.getProperty("color")) ||
                             "#a8c2e1");
-  
+
             var imagebox = document.getAnonymousElementByAttribute(this, "anonid", "agenda-calendar-image");
             imagebox.setAttribute("style", "background-color: " + calcolor + ";");
         ]]></body>

@@ -4,7 +4,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://calendar/skin/calendar-management.css" type="text/css"?>
-<?xml-stylesheet href="chrome://calendar/content/widgets/calendar-widget-bindings.css" type="text/css"?>
 
 <!DOCTYPE overlay SYSTEM "chrome://calendar/locale/calendar.dtd">
 
