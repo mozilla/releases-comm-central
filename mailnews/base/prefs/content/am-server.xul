@@ -180,10 +180,10 @@
                control="server.biffMinutes"
                value="&biffEnd.label;"/>
       </hbox>
-      <vbox align="start">
+      <vbox align="start"
+            hidefor="pop3,nntp,movemail">
         <checkbox wsm_persist="true"
                   id="imap.useIdle"
-                  hidefor="pop3,nntp,movemail"
                   label="&useIdleNotifications.label;"
                   accesskey="&useIdleNotifications.accesskey;"
                   prefattribute="value"
