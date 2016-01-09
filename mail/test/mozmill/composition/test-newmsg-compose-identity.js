@@ -136,6 +136,11 @@ function test_editing_identity() {
 
   compWin.type(compWin.e("msgIdentityPopup").value, identityCustom);
 
+  checkCompIdentity(compWin, account.defaultIdentity.key, identityCustom, identityCustom);
+  close_compose_window(compWin);
+
+  /* Temporarily disabled due to intermittent failure, bug 1237565.
+     TODO: To be reeabled in bug 1238264.
   // Save message with this changed identity.
   compWin.window.SaveAsDraft();
 
@@ -155,6 +160,7 @@ function test_editing_identity() {
   assert_equals(curMessage.author, identityCustom);
   // Remove the saved draft.
   press_delete(mc);
+  */
   Services.prefs.setBoolPref("mail.compose.warned_about_customize_from", false);
 }
 
