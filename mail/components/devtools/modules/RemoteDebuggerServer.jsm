@@ -11,13 +11,13 @@ this.EXPORTED_SYMBOLS = ["RemoteDebuggerServer"];
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 /** Load the debugger module, if its available. */
-var debugServerSupported = (function() {
+var DebuggerServer = (function() {
   try {
-    Components.utils.import("resource://gre/modules/devtools/dbg-server.jsm");
-    return true;
-  } catch (e) {
-    return false;
-  }
+    var { require } = Components.utils.import("resource://devtools/shared/Loader.jsm", {});
+    return require("devtools/server/main").DebuggerServer;
+  } catch (e) {}
+
+  return null;
 })();
 
 /** @return the list of main windows, see isMainWindow */
@@ -61,7 +61,7 @@ var RemoteDebuggerServer = {
   get connections() { return DebuggerServer ? Object.keys(DebuggerServer._connections).length : 0; },
 
   /** @return true if the debugger server could be loaded */
-  get supported() { return debugServerSupported; },
+  get supported() { return !!DebuggerServer; },
 
   /**
    * Get all windows that should be checked by the actors. The first one
