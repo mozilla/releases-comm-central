@@ -18,7 +18,7 @@ function nsAbAutoCompleteResult(aSearchString) {
   this._collectedValues = new Map();  // temporary unsorted results
   // Get model query from pref; this will return mail.addr_book.autocompletequery.format.phonetic
   // if mail.addr_book.show_phonetic_fields == true
-  this._modelQuery = getModelQuery("mail.addr_book.autocompletequery.format");
+  this.modelQuery = getModelQuery("mail.addr_book.autocompletequery.format");
   // check if the currently active model query has been modified by user
   this._modelQueryHasUserValue = modelQueryHasUserValue("mail.addr_book.autocompletequery.format");
 }
@@ -28,6 +28,7 @@ nsAbAutoCompleteResult.prototype = {
 
   // nsIAutoCompleteResult
 
+  modelQuery: null,
   searchString: null,
   searchResult: ACR.RESULT_NOMATCH,
   defaultIndex: -1,
@@ -367,7 +368,7 @@ nsAbAutoCompleteSearch.prototype = {
         aSearchString.startsWith(aPreviousResult.searchString) &&
         aPreviousResult.searchResult == ACR.RESULT_SUCCESS &&
         !result._modelQueryHasUserValue &&
-        result._modelQuery == aPreviousResult._modelQuery) {
+        result.modelQuery == aPreviousResult.modelQuery) {
       // We have successful previous matches, and model query has not changed since
       // previous search, therefore just iterate through the list of previous result
       // entries and reduce as appropriate (via _checkEntry function).
@@ -410,7 +411,7 @@ nsAbAutoCompleteSearch.prototype = {
       // Use helper method to split up search query to multi-word search
       // query against multiple fields.
       let searchWords = getSearchTokens(fullString);
-      let searchQuery = generateQueryURI(result._modelQuery, searchWords);
+      let searchQuery = generateQueryURI(result.modelQuery, searchWords);
 
       // Now do the searching
       let allABs = this._abManager.directories;

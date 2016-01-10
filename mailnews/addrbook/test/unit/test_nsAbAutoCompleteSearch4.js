@@ -133,7 +133,7 @@ function run_test()
 
   function checkSearch(element, index, array) {
     print("Search #" + index + ": search=" + element);
-    acs.startSearch(element, JSON.stringify({ type: "addr_to"  }), null, obs);
+    acs.startSearch(element, JSON.stringify({ type: "addr_to", idKey: "" }), null, obs);
 
     for (var i = 0; i < obs._result.matchCount; i++) {
       print("... got " + i + ": " + obs._result.getValueAt(i));
@@ -162,7 +162,7 @@ function run_test()
   var lastResult = null;
 
   function checkReductionSearch(element, index, array) {
-    acs.startSearch(element, JSON.stringify({ type: "addr_to"  }), lastResult, obs);
+    acs.startSearch(element, JSON.stringify({ type: "addr_to", idKey: "" }), lastResult, obs);
 
     do_check_eq(obs._search, acs);
     do_check_eq(obs._result.searchString, element);

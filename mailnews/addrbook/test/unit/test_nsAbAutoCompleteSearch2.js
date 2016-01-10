@@ -8,6 +8,8 @@
  * books.
  */
 
+Components.utils.import("resource:///modules/ABQueryUtils.jsm");
+
 // taken from nsAbAutoCompleteSearch.js
 var ACR = Components.interfaces.nsIAutoCompleteResult;
 var nsIAbAutoCompleteResult = Components.interfaces.nsIAbAutoCompleteResult;
@@ -15,8 +17,9 @@ var nsIAbAutoCompleteResult = Components.interfaces.nsIAbAutoCompleteResult;
 function nsAbAutoCompleteResult(aSearchString) {
   // Can't create this in the prototype as we'd get the same array for
   // all instances
-  this._searchResults = new Array();
+  this._searchResults = [];
   this.searchString = aSearchString;
+  this.modelQuery = getModelQuery("mail.addr_book.autocompletequery.format");
 }
 
 nsAbAutoCompleteResult.prototype = {
@@ -24,6 +27,7 @@ nsAbAutoCompleteResult.prototype = {
 
   // nsIAutoCompleteResult
 
+  modelQuery: null,
   searchString: null,
   searchResult: ACR.RESULT_NOMATCH,
   defaultIndex: -1,
@@ -175,7 +179,7 @@ function run_test() {
 
   // Now check multiple matches
   function checkInputItem(element, index, array) {
-    acs.startSearch(element.search, JSON.stringify({ type: "addr_to"  }), lastResult, obs);
+    acs.startSearch(element.search, JSON.stringify({ type: "addr_to", idKey: "" }), lastResult, obs);
 
     do_check_eq(obs._search, acs);
     do_check_eq(obs._result.searchString, element.search);

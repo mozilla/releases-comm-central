@@ -12,7 +12,7 @@ interface nsIAbCard;
  * provide extra facilities for obtaining more details of the results of
  * an address book search.
  */
-[scriptable, uuid(66fb7d23-a87c-4a0a-8dd7-b8b052d4cfac)]
+[scriptable, uuid(c0d35623-f719-4e43-ae24-573e393f87f9)]
 interface nsIAbAutoCompleteResult : nsIAutoCompleteResult {
   /**
    * Get the card from the result at the given index
@@ -28,4 +28,9 @@ interface nsIAbAutoCompleteResult : nsIAutoCompleteResult {
    * @result       The email address to use from the card.
    */
   AString getEmailToUse(in long index);
+
+  /**
+   * The template used to build the query for this search. Optional.
+   */
+  attribute AString modelQuery;
 };
