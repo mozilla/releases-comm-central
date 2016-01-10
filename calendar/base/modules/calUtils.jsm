@@ -254,23 +254,57 @@ var cal = {
     validateRecipientList: function (aRecipients) {
         let compFields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
                                    .createInstance(Components.interfaces.nsIMsgCompFields);
-        // Resolve the list considering also configured display names
-        let result = compFields.splitRecipients(aRecipients, false, {});
-        // Malformed e-mail addresses with display name in list will result in "Display name <>".
-        // So, we need an additional check on the e-mail address itself and sort out malformed
-        // entries from the previous list (both objects have always the same length)
-        if (result.length > 0) {
-            let resultAddress = compFields.splitRecipients(aRecipients, true, {});
-            result = result.filter((v, idx) => !!resultAddress[idx]);
+        // Resolve the list considering also configured common names
+        let members = compFields.splitRecipients(aRecipients, false, {});
+        let list = [];
+        let prefix = "";
+        for (let member of members) {
+            if (prefix != "") {
+                // the previous member had no email address - this happens if a recipients CN
+                // contains a ',' or ';' (splitRecipients(..) behaves wrongly here and produces an
+                // additional member with only the first CN part of that recipient and no email
+                // address while the next has the second part of the CN and the according email
+                // address) - we still need to identify the original delimiter to append it to the
+                // prefix
+                let memberCnPart = member.match(/(.*) <.*>/);
+                if (memberCnPart) {
+                    let pattern = new RegExp(prefix + "([;,] *)" + memberCnPart[1]);
+                    let delimiter = aRecipients.match(pattern);
+                    if (delimiter) {
+                        prefix = prefix + delimiter[1];
+                    }
+                }
+            }
+            let parts = (prefix + member).match(/(.*)( <.*>)/);
+            if (parts) {
+                if (parts[2] == " <>") {
+                    // CN but no email address - we keep the CN part to prefix the next member's CN
+                    prefix = parts[1];
+                } else {
+                    // CN with email address
+                    let cn = parts[1].trim();
+                    // in case of any special characters in the CN string, we make sure to enclose
+                    // it with dquotes - simple spaces don't require dquotes
+                    if (cn.match(/[\-\[\]{}()*+?.,;\\\^$|#\f\n\r\t\v]/)) {
+                        cn = '"' + cn.replace(/\\"|"/, "").trim() + '"';
+                    }
+                    list.push(cn + parts[2]);
+                    prefix = "";
+                }
+            } else if (member.length) {
+                // email address only
+                list.push(member);
+                prefix = "";
+            }
         }
-        return result.join(",");
+        return list.join(", ");
     },
 
     /**
      * Shortcut function to check whether an item is an invitation copy and
      * has a participation status of either NEEDS-ACTION or TENTATIVE.
      *
-     * @param aItem either calIAttendee or calIItemBase 
+     * @param aItem either calIAttendee or calIItemBase
      */
     isOpenInvitation: function cal_isOpenInvitation(aItem) {
         let wrappedItem = cal.wrapInstance(aItem, Components.interfaces.calIAttendee);
@@ -364,7 +398,7 @@ var cal = {
      * Returns a wellformed email string like 'attendee@example.net',
      * 'Common Name <attendee@example.net>' or '"Name, Common" <attendee@example.net>'
      *
-     * @param  {calIAttendee}  aAttendee - the attendee to check 
+     * @param  {calIAttendee}  aAttendee - the attendee to check
      * @param  {boolean}       aIncludeCn - whether or not to return also the CN if available
      * @return {string}        valid email string or an empty string in case of error
      */

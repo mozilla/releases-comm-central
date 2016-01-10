@@ -7,9 +7,10 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 function run_test() {
     getAttendeeEmail_test();
     getRecipientList_test();
-    removeMailTo_test();
     prependMailTo_test();
+    removeMailTo_test();
     resolveDelegation_test();
+    validateRecipientList_test();
 }
 
 // tests for calUtils.jsm
@@ -107,23 +108,27 @@ function getRecipientList_test() {
     }
 };
 
-function removeMailTo_test() {
-    let data = [{input: "mailto:first.last@example.net", expected: "first.last@example.net"},
-                {input: "MAILTO:first.last@example.net", expected: "first.last@example.net"},
-                {input: "first.last@example.net", expected: "first.last@example.net"},
-                {input: "first.last.example.net", expected: "first.last.example.net"}];
-    for (let test of data) {
-        equal(cal.removeMailTo(test.input), test.expected)
-    }
-};
-
 function prependMailTo_test() {
     let data = [{input: "mailto:first.last@example.net", expected: "mailto:first.last@example.net"},
                 {input: "MAILTO:first.last@example.net", expected: "mailto:first.last@example.net"},
                 {input: "first.last@example.net", expected: "mailto:first.last@example.net"},
                 {input: "first.last.example.net", expected: "first.last.example.net"}];
+    let i = 0;
     for (let test of data) {
-        equal(cal.prependMailTo(test.input), test.expected)
+        i++;
+        equal(cal.prependMailTo(test.input), test.expected, "(test #" + i + ")");
+    }
+};
+
+function removeMailTo_test() {
+    let data = [{input: "mailto:first.last@example.net", expected: "first.last@example.net"},
+                {input: "MAILTO:first.last@example.net", expected: "first.last@example.net"},
+                {input: "first.last@example.net", expected: "first.last@example.net"},
+                {input: "first.last.example.net", expected: "first.last.example.net"}];
+    let i = 0;
+    for (let test of data) {
+        i++;
+        equal(cal.removeMailTo(test.input), test.expected, "(test #" + i + ")");
     }
 };
 
@@ -226,3 +231,49 @@ function resolveDelegation_test() {
         equal(result.delegators, test.expected.delegators, "(test #" + i + " - delegators)");
     }
 }
+
+function validateRecipientList_test() {
+    let data = [{
+        input: "first.last@example.net",
+        expected: "first.last@example.net"
+    }, {
+        input: "first last <first.last@example.net>",
+        expected: "first last <first.last@example.net>"
+    }, {
+        input: "\"last, first\" <first.last@example.net>",
+        expected: "\"last, first\" <first.last@example.net>"
+    }, {
+        input: "last, first <first.last@example.net>",
+        expected: "\"last, first\" <first.last@example.net>"
+    }, {
+        input: "\"last; first\" <first.last@example.net>",
+        expected: "\"last; first\" <first.last@example.net>"
+    }, {
+        input: "first1.last1@example.net,first2.last2@example.net,first3.last2@example.net",
+        expected: "first1.last1@example.net, first2.last2@example.net, first3.last2@example.net"
+    }, {
+        input: "first1.last1@example.net, first2.last2@example.net, first3.last2@example.net",
+        expected: "first1.last1@example.net, first2.last2@example.net, first3.last2@example.net"
+    }, {
+        input: "first1.last1@example.net, first2 last2 <first2.last2@example.net>, \"last3, first" +
+               "3\" <first3.last2@example.net>",
+        expected: "first1.last1@example.net, first2 last2 <first2.last2@example.net>, \"last3, fi" +
+               "rst3\" <first3.last2@example.net>"
+    }, {
+        input: "first1.last1@example.net, last2; first2 <first2.last2@example.net>, \"last3; first" +
+               "3\" <first3.last2@example.net>",
+        expected: "first1.last1@example.net, \"last2; first2\" <first2.last2@example.net>, \"last" +
+               "3; first3\" <first3.last2@example.net>"
+    }, {
+        input: "first1 last2 <first1.last1@example.net>, last2, first2 <first2.last2@example.net>" +
+               ", \"last3, first3\" <first3.last2@example.net>",
+        expected: "first1 last2 <first1.last1@example.net>, \"last2, first2\" <first2.last2@examp" +
+                  "le.net>, \"last3, first3\" <first3.last2@example.net>"
+    }];
+    let i = 0;
+    for (let test of data) {
+        i++;
+        equal(cal.validateRecipientList(test.input), test.expected,
+              "(test #" + i + ")");
+    }
+};
