@@ -12,9 +12,9 @@ typedef int (*MimeDecodeCallbackFun)(const char *buf, int32_t buf_size, void *ou
 #define NS_PGPMIMEPROXY_CONTRACTID "@mozilla.org/mime/pgp-mime-decrypt;1"
 
 #define NS_PGPMIMEPROXY_CID                     \
-{ /* da0a2b4c-cef3-4631-9371-a23f15a1aba6 */      \
-   0xda0a2b4c, 0xcef3, 0x4631,                    \
-{0x93, 0x71, 0xa2, 0x3f, 0x15, 0xa1, 0xab, 0xa6 } }
+{ /* 6b7e094f-536b-40dc-b3a4-e3d729205ce1 */      \
+   0x6b7e094f, 0x536b, 0x40dc,                    \
+{0xb3, 0xa4, 0xe3, 0xd7, 0x29, 0x20, 0x5c, 0xe1 } }
 %}
 
 native MimeDecodeCallbackFun(MimeDecodeCallbackFun);
@@ -23,7 +23,7 @@ native MimeDecodeCallbackFun(MimeDecodeCallbackFun);
  * nsIPgpMimeProxy is a proxy for a (JS-)addon for OpenPGP/MIME decryption
  */
 
-[scriptable, uuid(da0a2b4c-cef3-4631-9371-a23f15a1aba6)]
+[scriptable, uuid(6b7e094f-536b-40dc-b3a4-e3d729205ce1)]
 interface nsIPgpMimeProxy : nsIStreamListener
 {
   /**
@@ -55,6 +55,14 @@ interface nsIPgpMimeProxy : nsIStreamListener
   attribute nsIStreamListener     decryptor;
 
   attribute ACString              contentType;
+
+  /**
+   * The particular part number of the multipart object we are working on. The
+   * numbering is the same as in URLs that use the form "...?part=1.1.2".
+   *
+   * The value stored in mimePart is only the number, e.g. "1" or "1.1.2"
+   */
+  attribute ACString mimePart;
 };
 
 

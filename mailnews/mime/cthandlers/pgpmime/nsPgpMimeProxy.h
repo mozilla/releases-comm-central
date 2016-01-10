@@ -58,6 +58,7 @@ protected:
   uint32_t                      mStreamOffset;
   nsCString                     mByteBuf;
   nsCString                     mContentType;
+  nsCString                     mMimePart;
 
   nsresult Finalize();
 };
