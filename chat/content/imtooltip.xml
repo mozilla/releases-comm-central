@@ -304,6 +304,7 @@
          for each (let buddy in buddies) {
            let buddyElt = document.createElement("buddy");
            buddiesElt.appendChild(buddyElt);
+           buddyElt.getBoundingClientRect(); // force binding attachment
            buddyElt.build(buddy, this);
          }
 
