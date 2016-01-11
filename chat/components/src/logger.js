@@ -508,7 +508,7 @@ function Log(aEntries) {
   // Sort our list of entries for this day in increasing order.
   aEntries.sort((aLeft, aRight) => aLeft.time - aRight.time);
 
-  this._entryPaths = [entry.path for (entry of aEntries)];
+  this._entryPaths = aEntries.map(entry => entry.path);
   // Calculate the timestamp for the first entry down to the day.
   let timestamp = new Date(aEntries[0].time);
   timestamp.setHours(0);

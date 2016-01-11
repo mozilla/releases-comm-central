@@ -129,7 +129,11 @@ function Conversation(aAccount)
   this._ensureParticipantExists(aAccount.name);
   // We need the screen names for the IDs in _friends, but _userInfo is
   // indexed by name, so we build an ID -> name map.
-  let names = new Map([userInfo.id_str, name] for ([name, userInfo] of aAccount._userInfo));
+  let entries = [];
+  for (let [name, userInfo] of aAccount._userInfo) {
+    entries.push([userInfo.id_str, name]);
+  }
+  let names = new Map(entries);
   for (let id_str of aAccount._friends)
     this._ensureParticipantExists(names.get(id_str));
 
@@ -512,7 +516,7 @@ Account.prototype = {
     hmac.init(hmac.SHA1,
               keyFactory.keyFromString(Ci.nsIKeyObject.HMAC, signatureKey));
     // No UTF-8 encoding, special chars are already escaped.
-    let bytes = [b.charCodeAt() for each (b in signatureBase)];
+    let bytes = [...signatureBase].map(b => b.charCodeAt());
     hmac.update(bytes, bytes.length);
     let signature = hmac.finish(true);
 

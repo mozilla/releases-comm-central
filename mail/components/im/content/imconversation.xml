@@ -495,7 +495,7 @@
             const suffix = ": ";
             if (pos > suffix.length &&
                 text.substring(pos - suffix.length, pos) == suffix) {
-              let completions = [b for (b of this.buddies.keys())];
+              let completions = Array.from(this.buddies.keys());
               // Check if the preceding words are a sequence of nick completions.
               let preceding = text.substring(0, pos - suffix.length).split(", ");
               if (preceding.every(n => completions.indexOf(n) != -1)) {
@@ -585,7 +585,7 @@
 
             firstWordSuffix = ": ";
 
-            completions = [b for (b of this.buddies.keys())];
+            completions = Array.from(this.buddies.keys());
 
 /*
             // Add recently parted nicks.

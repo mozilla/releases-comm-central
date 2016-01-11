@@ -36,7 +36,11 @@ function BytesToArrayBuffer(aBytes = []) {
 }
 
 function StringToBytes(aString) {
-  return [aString.charCodeAt(i) for (i in aString)];
+  let bytes = [];
+  for (let i in aString) {
+    bytes.push(aString.charCodeAt(i));
+  }
+  return bytes;
 }
 
 function StringToArrayBuffer(aString) {
@@ -44,9 +48,9 @@ function StringToArrayBuffer(aString) {
 }
 
 function ArrayBufferToString(aData) {
-  return [for (b of new Uint8Array(aData)) String.fromCharCode(b)].join("");
+  return Array.from(new Uint8Array(aData)).map(b => String.fromCharCode(b)).join("");
 }
 
 function ArrayBufferToHexString(aData) {
-  return "0x" + [for (b of new Uint8Array(aData)) ("0" + b.toString(16)).slice(-2)].join(" ");
+  return "0x" + Array.from(new Uint8Array(aData)).map(b => ("0" + b.toString(16)).slice(-2)).join(" ");
 }

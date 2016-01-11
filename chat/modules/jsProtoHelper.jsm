@@ -624,7 +624,7 @@ var GenericConvChatPrototype = {
   getParticipants: function() {
     // Convert the values of the Map into a nsSimpleEnumerator.
     return new nsSimpleEnumerator(
-      [participant for (participant of this._participants.values())]
+      Array.from(this._participants.values())
     );
   },
   getNormalizedChatBuddyName: aChatBuddyName => aChatBuddyName,

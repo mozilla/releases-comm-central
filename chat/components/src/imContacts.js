@@ -251,7 +251,7 @@ var otherContactsTag = {
   _contactsInitialized: false,
   _saveHiddenTagsPref: function() {
     Services.prefs.setCharPref(this.hiddenTagsPref,
-                               [id for (id in this._hiddenTags)].join(","));
+                               Object.keys(this._hiddenTags).join(","));
   },
   showTag: function(aTag) {
     let id = aTag.id;
@@ -332,7 +332,7 @@ var otherContactsTag = {
   get name() { return "__others__"; },
   set name(aNewName) { throw Cr.NS_ERROR_NOT_AVAILABLE; },
   getContacts: function(aContactCount) {
-    let contacts = [contact for each (contact in this._contacts)];
+    let contacts = [...this._contacts];
     if (aContactCount)
       aContactCount.value = contacts.length;
     return contacts;
@@ -1320,7 +1320,9 @@ ContactsService.prototype = {
   getContactById: aId => ContactsById[aId],
   // Get an array of all existing contacts.
   getContacts: function(aContactCount) {
-    let contacts = [ContactsById[id] for (id in ContactsById) if (!ContactsById[id]._empty)];
+    let contacts = Object.keys(ContactsById)
+                         .filter(id => !ContactsById[id]._empty)
+                         .map(id => ContactsById[id]);
     if (aContactCount)
       aContactCount.value = contacts.length;
     return contacts;

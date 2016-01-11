@@ -489,7 +489,7 @@ XMPPSession.prototype = {
         let hash = ch.finish(false);
         let toHexString =
           charCode => ("0" + charCode.toString(16)).slice(-2);
-        let digest = [toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
+        let digest = Object.keys(hash).map(i => toHexString(hash.charCodeAt(i))).join("");
 
         children.push(Stanza.node("digest", null, null, digest));
         logString =

@@ -928,7 +928,7 @@ ircAccount.prototype = {
     if (this._showServerTab) {
       let msg;
       if (aDisplayFullMode)
-        msg = _("message.yourmode", [mode for (mode of this._modes)].join(""));
+        msg = _("message.yourmode", Array.from(this._modes).join(""));
       else {
         msg = _("message.usermode", aNewModes, aNick,
                 aSetter || this._currentServerName);

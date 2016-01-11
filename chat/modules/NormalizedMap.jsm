@@ -24,7 +24,8 @@ function NormalizedMap(aNormalize, aIterable = []) {
   this._normalize = aNormalize;
   // Create the wrapped Map; use the provided iterable after normalizing the
   // keys.
-  this._map = new Map([[aNormalize(key), val] for ([key, val] of aIterable)]);
+  let entries = [...aIterable].map(([key, val]) => [aNormalize(key), val]);
+  this._map = new Map(entries);
 }
 NormalizedMap.prototype = {
   _map: null,

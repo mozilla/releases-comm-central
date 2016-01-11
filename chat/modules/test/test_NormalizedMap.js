@@ -11,11 +11,11 @@ function test_setter_getter() {
   do_check_eq(m.has("BaZ"), true);
   do_check_eq(m.get("FOO"), "bar");
 
-  let keys = [v for (v of m.keys())];
+  let keys = Array.from(m.keys());
   do_check_eq(keys[0], "foo");
   do_check_eq(keys[1], "baz");
 
-  let values = [v for (v of m.values())];
+  let values = Array.from(m.values());
   do_check_eq(values[0], "bar");
   do_check_eq(values[1], "blah");
 

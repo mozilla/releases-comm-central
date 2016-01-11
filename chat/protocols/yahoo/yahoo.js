@@ -121,7 +121,7 @@ YahooConference.prototype = {
                       {system: true});
   },
 
-  getParticipantNames: function() { return [for (p of this._participants.values()) p.name]; }
+  getParticipantNames: function() { return Array.from(this._participants.values()).map(p => p.name); }
 };
 
 function YahooConferenceBuddy(aName, aConference)

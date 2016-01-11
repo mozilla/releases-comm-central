@@ -622,7 +622,7 @@ PossibleConvFromContact.prototype = {
   get lowerCaseName() {
     if (!this._lowerCaseName) {
       let buddies = this.contact.getBuddies();
-      let names = [b.displayName for (b of buddies)].join(" ");
+      let names = buddies.map(b => b.displayName).join(" ");
       this._lowerCaseName = names.toLowerCase();
     }
     return this._lowerCaseName;

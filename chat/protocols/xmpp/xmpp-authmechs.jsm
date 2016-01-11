@@ -50,8 +50,9 @@ function md5(aString, aUTF8) {
     converter.charset = "UTF-8";
     data = converter.convertToByteArray(aString);
   }
-  else
-    data = [aString.charCodeAt(i) for (i in aString)];
+  else {
+    data = Object.keys(aString).map(i => aString.charCodeAt(i));
+  }
 
   ch.update(data, data.length);
   return ch.finish(false);
@@ -59,7 +60,7 @@ function md5(aString, aUTF8) {
 function md5hex(aString) {
   let hash = md5(aString);
   function toHexString(charCode) { return ("0" + charCode.toString(16)).slice(-2); }
-  return [toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
+  return Object.keys(hash).map(i => toHexString(hash.charCodeAt(i))).join("");
 }
 
 function digestMD5(aName, aRealm, aPassword, aNonce, aCnonce, aDigestUri) {

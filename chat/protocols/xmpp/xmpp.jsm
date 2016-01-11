@@ -903,11 +903,11 @@ var XMPPAccountBuddyPrototype = {
     // Store a sha1 hash of the photo we have just received.
     let ch = Cc["@mozilla.org/security/hash;1"].createInstance(Ci.nsICryptoHash);
     ch.init(ch.SHA1);
-    let dataArray = [content.charCodeAt(i) for (i in content)];
+    let dataArray = Object.keys(content).map(i => content.charCodeAt(i));
     ch.update(dataArray, dataArray.length);
     let hash = ch.finish(false);
     function toHexString(charCode) { return ("0" + charCode.toString(16)).slice(-2); }
-    this._photoHash = [toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
+    this._photoHash = Object.keys(hash).map(i => toHexString(hash.charCodeAt(i))).join("");
 
     let istream = Cc["@mozilla.org/io/string-input-stream;1"]
                   .createInstance(Ci.nsIStringInputStream);
