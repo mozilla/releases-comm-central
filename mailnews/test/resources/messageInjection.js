@@ -658,8 +658,8 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
     //  approach.  In the first pass we just allocate messages to the folder
     //  we are going to insert them into.  In the second pass we insert the
     //  messages into folders in batches and perform any mutations.
-    let folderBatches = [{folder: folder, messages: []} for
-                         (folder of aMsgFolders)];
+    let folderBatches = aMsgFolders.map(folder =>
+                         new Object({folder: folder, messages: []}));
     iterFolders = _looperator(folderBatches);
     let iPerSet = 0, folderBatch = iterFolders.next();
 
@@ -690,8 +690,8 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
 
       let folder = folderBatch.folder;
       folder.gettingNewMessages = true;
-      let messageStrings = [message.synMsg.toMboxString() for
-                            (message of folderBatch.messages)];
+      let messageStrings = folderBatch.messages.map(message =>
+                             message.synMsg.toMboxString());
       folder.addMessageBatch(messageStrings.length, messageStrings);
 
       for (let message of folderBatch.messages) {

@@ -7,8 +7,8 @@ var headerparser = require('jsmime').headerparser;
 function smartDeepEqual(actual, expected) {
   assert.deepEqual(actual, expected);
   if (actual instanceof Map && expected instanceof Map) {
-    assert.deepEqual([x for (x of actual.entries())],
-      [y for (y of expected.entries())]);
+    assert.deepEqual(Array.from(actual.entries()),
+      Array.from(expected.entries()));
   }
 }
 

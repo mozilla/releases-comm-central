@@ -77,7 +77,8 @@ var GlodaUtils = {
     }
 
     // convert the binary hash data to a hex string.
-    return [toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
+    let hex = Object.keys(hash).map(i => toHexString(hash.charCodeAt(i)));
+    return hex.join("");
   },
 
   getCardForEmail: function gloda_utils_getCardForEmail(aAddress) {

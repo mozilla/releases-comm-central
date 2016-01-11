@@ -75,7 +75,7 @@ function read_file(file, start, end) {
  *                 of the file from [line start, line end) [1-based lines]
  */
 function make_body_test(test, file, opts, partspec) {
-  var results = [[p[0], read_file(file, p[1], p[2])] for (p of partspec)];
+  var results = partspec.map(p => [p[0], read_file(file, p[1], p[2])]);
   var msgcontents = read_file(file);
   return [test, msgcontents, opts, results];
 }

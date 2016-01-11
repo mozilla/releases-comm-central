@@ -1214,7 +1214,7 @@ var kKnownTZs = {
  *                        above.
  */
 function parseDateHeader(header) {
-  let tokens = [for (x of getHeaderTokens(header, ",:", {})) x.toString()];
+  let tokens = getHeaderTokens(header, ",:", {}).map(x => x.toString());
   // What does a Date header look like? In practice, most date headers devolve
   // into Date: [dow ,] dom mon year hh:mm:ss tzoff [(abbrev)], with the day of
   // week mostly present and the timezone abbreviation mostly absent.

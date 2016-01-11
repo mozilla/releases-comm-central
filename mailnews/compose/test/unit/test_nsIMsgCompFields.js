@@ -11,7 +11,7 @@ var nsMsgCompFields = Components.Constructor(
   Ci.nsIMsgCompFields);
 
 function check_headers(enumerator, container) {
-  let checkValues = new Set([for (header of container) header.toLowerCase()]);
+  let checkValues = new Set(container.map(header => header.toLowerCase()));
   while (enumerator.hasMore()) {
     let value = enumerator.getNext().toLowerCase();
     do_check_true(checkValues.has(value));

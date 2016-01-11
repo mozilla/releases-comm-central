@@ -141,8 +141,8 @@ VirtualFolderWrapper.prototype = {
       this.dbFolderInfo.setCharProperty("searchFolderUri", aFolders);
     }
     else {
-      let uris = [folder.URI for (folder in fixIterator(aFolders,
-                                                             Ci.nsIMsgFolder))];
+      let uris = Array.from(fixIterator(aFolders, Ci.nsIMsgFolder))
+                      .map(folder => folder.URI);
       this.dbFolderInfo.setCharProperty("searchFolderUri", uris.join("|"));
     }
   },

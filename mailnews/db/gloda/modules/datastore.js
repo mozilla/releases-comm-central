@@ -335,7 +335,7 @@ QueryFromQueryCallback.prototype = {
             else {
               this.collection.deferredCount++;
               let query = new nounDef.queryClass();
-              query.id.apply(query, [id for (id in notFound)]);
+              query.id.apply(query, Object.keys(notFound));
 
               this.collection.masterCollection.subCollections[nounDef.id] =
                 GlodaDatastore.queryFromQuery(query, QueryFromQueryResolver,
@@ -357,7 +357,7 @@ QueryFromQueryCallback.prototype = {
             let query = new nounDef.queryClass();
             // we want to constrain using the parent column
             let queryConstrainer = query[nounDef.parentColumnAttr.boundName];
-            queryConstrainer.apply(query, [pid for (pid in inverseReferences)]);
+            queryConstrainer.apply(query, Object.keys(inverseReferences));
             this.collection.masterCollection.subCollections[nounDef.id] =
               GlodaDatastore.queryFromQuery(query, QueryFromQueryResolver,
                 this.collection,

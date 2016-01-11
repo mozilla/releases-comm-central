@@ -215,7 +215,7 @@ var Mailbox = {
 
 var EmailGroup = {
   toString: function () {
-    return this.name + ": " + [x.toString() for (x of this.group)].join(", ");
+    return this.name + ": " + this.group.map(x => x.toString()).join(", ");
   }
 };
 
@@ -404,17 +404,17 @@ MimeAddressParser.prototype = {
   },
 
   extractHeaderAddressMailboxes: function (aLine) {
-    return [addr.email for (addr of this.parseDecodedHeader(aLine))].join(", ");
+    return this.parseDecodedHeader(aLine).map(addr => addr.email).join(", ");
   },
 
   extractHeaderAddressNames: function (aLine) {
-    return [addr.name || addr.email for
-      (addr of this.parseDecodedHeader(aLine))].join(", ");
+    return this.parseDecodedHeader(aLine).map(addr => addr.name || addr.email)
+                                         .join(", ");
   },
 
   extractHeaderAddressName: function (aLine) {
-    let addrs = [addr.name || addr.email for
-      (addr of this.parseDecodedHeader(aLine))];
+    let addrs = this.parseDecodedHeader(aLine).map(addr =>
+                 addr.name || addr.email);
     return addrs.length == 0 ? "" : addrs[0];
   },
 

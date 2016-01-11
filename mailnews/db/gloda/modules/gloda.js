@@ -403,7 +403,7 @@ var Gloda = {
       }
     }
 
-    let addressList = [address for (address in addresses)];
+    let addressList = Object.keys(addresses);
     if (addressList.length == 0) {
       yield aCallbackHandle.doneWithResult(resultLists);
       // we should be stopped before we reach this point, but safety first.
@@ -969,8 +969,7 @@ var Gloda = {
 
     throw Error("Unable to locate noun with name '" + aNounName + "', but I " +
                 "do know about: " +
-                [propName for
-                 (propName in this._nounNameToNounID)].join(", "));
+                Object.keys(this._nounNameToNounID).join(", "));
   },
 
   /**
@@ -2054,8 +2053,10 @@ var Gloda = {
       else {
         if (objectNounDef.toJSON) {
           let toJSON = objectNounDef.toJSON;
-          jsonDict[attrib.id] = [toJSON(subValue) for
-                           ([, subValue] in Iterator(value))] ;
+          jsonDict[attrib.id] = [];
+          for (let [, subValue] in Iterator(value)) {
+            jsonDict[attrib.id].push(toJSON(subValue));
+          }
         }
         else
           jsonDict[attrib.id] = value;

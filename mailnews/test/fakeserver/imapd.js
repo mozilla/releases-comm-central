@@ -1546,8 +1546,8 @@ IMAP_RFC3501_handler.prototype = {
       for (let header of queryArgs) {
         header = header.toLowerCase();
         if (headers.has(header))
-          joinList.push([header + ": " + value
-                         for (value of headers.getRawHeader(header))].join('\r\n'));
+          joinList.push(headers.getRawHeader(header).map(value =>
+                         `${header}: ${value}`).join('\r\n'));
       }
       data += joinList.join('\r\n') + "\r\n";
       break;
@@ -1556,8 +1556,8 @@ IMAP_RFC3501_handler.prototype = {
       var headers = message.getPartHeaders(partNum);
       for (let header of headers) {
         if (!(header in queryArgs))
-          joinList.push([header + ": " + value
-                         for (value of headers.getRawHeader(header))].join('\r\n'));
+          joinList.push(headers.getRawHeader(header).map(value =>
+                         `${header}: ${value}`).join('\r\n'));
       }
       data += joinList.join('\r\n') + "\r\n";
       break;
@@ -2175,7 +2175,7 @@ function bodystructure(msg, extension) {
     },
     deliverPartData: function bodystructure_deliverPartData(partNum, data) {
       this.length += data.length;
-      this.numLines += [x for (x of data) if (x == '\n')].length;
+      this.numLines += Array.from(data).filter(x => x == '\n').length;
     },
     endPart: function bodystructure_endPart(partNum) {
       // Grab the headers from before

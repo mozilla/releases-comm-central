@@ -1052,7 +1052,7 @@ function test_folder_deletion_nested() {
   yield move_folder(folder1, trash);
 
   let descendentFolders = get_nsIMsgFolder(trash).descendants;
-  let folders = [folder for (folder in fixIterator(descendentFolders, Ci.nsIMsgFolder))];
+  let folders = Array.from(fixIterator(descendentFolders, Ci.nsIMsgFolder));
   do_check_eq(folders.length, 2);
   let [newFolder1, newFolder2] = folders;
 
