@@ -2091,8 +2091,8 @@ function _verify_summarized_message_set(aSummarizedKeys, aSelectedMessages) {
   let summarizedKeys = aSummarizedKeys.slice();
   summarizedKeys.sort();
   // We use the same key-generation as in multimessageview.js.
-  let selectedKeys = [msgHdr.messageKey + msgHdr.folder.URI
-                      for (msgHdr of aSelectedMessages)];
+  let selectedKeys = aSelectedMessages.map(msgHdr =>
+                      msgHdr.messageKey + msgHdr.folder.URI);
   selectedKeys.sort();
 
   // Stringified versions should now be equal...

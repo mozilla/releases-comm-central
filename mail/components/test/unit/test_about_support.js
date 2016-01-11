@@ -111,8 +111,8 @@ function verify_account_details(aDetails) {
   do_check_eq(aDetails.socketType, expectedDetails.socketType);
   do_check_eq(aDetails.authMethod, expectedDetails.authMethod);
 
-  let smtpToSee = [("localhost:" + smtpDetails.port)
-                   for ([, smtpDetails] in Iterator(expectedDetails.smtpServers))];
+  let smtpToSee = expectedDetails.smtpServers.map(smtpDetails =>
+                    "localhost:" + smtpDetails.port);
 
   for (let [, smtpDetails] in Iterator(aDetails.smtpServers)) {
     // Check that we're expecting to see this server
@@ -153,7 +153,7 @@ function test_get_account_details() {
   let accountDetails = AboutSupport.getAccountDetails();
   let accountDetailsText = uneval(accountDetails);
   // The list of accounts we are looking for
-  let accountsToSee = [key for (key in Iterator(gAccountMap, true))];
+  let accountsToSee = Object.keys(gAccountMap);
 
   // Our first check is to see that no sensitive data has crept in
   for (let [, data] in Iterator(gSensitiveData))

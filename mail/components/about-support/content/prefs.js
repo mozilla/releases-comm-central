@@ -111,10 +111,10 @@ function getModifiedPrefs() {
   // much, much slower.  Application.prefs.all also gets slower each
   // time it's called.  See bug 517312.
   let prefNames = getWhitelistedPrefNames();
-  let prefs = [Application.prefs.get(prefName)
-                      for (prefName of prefNames)
-                          if (Services.prefs.prefHasUserValue(prefName)
-                            && !isBlacklisted(prefName))];
+  let prefs = prefNames.filter(prefName =>
+                               Services.prefs.prefHasUserValue(prefName)
+                               && !isBlacklisted(prefName))
+                       .map(prefName => Application.prefs.get(prefName));
   return prefs;
 }
 

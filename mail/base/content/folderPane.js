@@ -1643,7 +1643,7 @@ var gFolderTreeView = {
           return folderNameCompare(aLabel, bLabel);
         });
 
-        let items = [new ftvItem(f) for (f of recentFolders)];
+        let items = recentFolders.map(f => new ftvItem(f));
 
         // There are no children in this view!
         // And we want to display the account name to distinguish folders w/
@@ -2585,8 +2585,7 @@ var gFolderTreeController = {
       folder.propagateDelete(iter.getNext(), true, msgWindow);
 
     // Now delete the messages
-    iter = fixIterator(folder.messages);
-    let messages = [m for (m in iter)];
+    let messages = Array.from(fixIterator(folder.messages));
     let children = toXPCOMArray(messages, Ci.nsIMutableArray);
     folder.deleteMessages(children, msgWindow, true, false, null, false);
   },

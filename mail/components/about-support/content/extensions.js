@@ -31,8 +31,8 @@ function populateExtensionsSection() {
     let trExtensions = [];
     for (let i = 0; i < extensions.length; i++) {
       let extension = extensions[i];
-      let extensionTDs = [createElement("td", extension[prop])
-                          for (prop of gExtensionDetails)];
+      let extensionTDs = gExtensionDetails.map(prop =>
+                          createElement("td", extension[prop]));
       let tr = createParentElement("tr", extensionTDs);
       trExtensions.push(tr);
     }
@@ -47,8 +47,7 @@ function getExtensionsText(aHidePrivateData, aIndent) {
   let extensionData = [];
   for (let extension of gExtensions) {
     extensionData.push(aIndent +
-                       [extension[prop]
-                        for (prop of gExtensionDetails)].join(", "));
+                       gExtensionDetails.map(prop => extension[prop]).join(", "));
   }
   return extensionData.join("\n");
 }

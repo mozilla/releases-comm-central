@@ -150,11 +150,10 @@ function Recipients2CompFields(msgCompFields)
           case "addr_reply" :
             try {
               let headerParser = MailServices.headerParser;
-              recipient = [headerParser.makeMimeAddress(fullValue.name,
-                                                        fullValue.email) for
-                  (fullValue of
-                    headerParser.makeFromDisplayAddress(fieldValue, {}))]
-                .join(", ");
+              recipient =
+                headerParser.makeFromDisplayAddress(fieldValue, {}).map(fullValue =>
+                  headerParser.makeMimeAddress(fullValue.name, fullValue.email)
+              ).join(", ");
             } catch (ex) {recipient = fieldValue;}
             break;
         }

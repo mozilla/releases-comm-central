@@ -1415,8 +1415,8 @@ function attachToCloud(aProvider)
     if (!fp.files)
       return;
 
-    let files = [f for (f in fixIterator(fp.files,
-                                         Components.interfaces.nsILocalFile))];
+    let files = Array.from(fixIterator(fp.files,
+                             Components.interfaces.nsILocalFile))
     let attachments = files.map(f => FileToAttachment(f));
 
     let i = 0;

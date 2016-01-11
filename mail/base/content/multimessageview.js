@@ -505,7 +505,12 @@ ThreadSummarizer.prototype = {
     let messageList = document.getElementById("message_list");
 
     // Remove all ignored messages from summarization.
-    let summarizedMessages = [msg for (msg of aMessages) if (!msg.isKilled)];
+    let summarizedMessages = [];
+    for (let message of aMessages) {
+      if (!message.isKilled) {
+        summarizedMessages.push(message);
+      }
+    }
     let ignoredCount = aMessages.trueLength - summarizedMessages.length;
 
     // Summarize the selected messages.

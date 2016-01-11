@@ -156,8 +156,8 @@ var WinTaskbarJumpList = {
 
   _buildTasks: function WTBJL__buildTasks() {
     if (this._tasks.length > 0) {
-      let items = toXPCOMArray([this._createHandlerAppItem(task)
-                                for ([, task] in Iterator(this._tasks))],
+      let items = toXPCOMArray(this._tasks.map(task =>
+                                 this._createHandlerAppItem(task)),
                                Ci.nsIMutableArray);
       this._builder.addListToBuild(this._builder.JUMPLIST_CATEGORY_TASKS, items);
     }

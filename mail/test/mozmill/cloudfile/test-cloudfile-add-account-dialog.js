@@ -65,8 +65,7 @@ function teardownModule(module) {
  * @param aNum the number of expected registered Filelink service providers.
  */
 function assert_num_providers(aNum) {
-  let providers = [provider for
-                   (provider in cloudFileAccounts.enumerateProviders())];
+  let providers = Array.from(cloudFileAccounts.enumerateProviders());
   assert_equals(aNum, providers.length,
                 'Expected ' + aNum + ' providers to be available, but ' +
                 'found ' + providers.length + ' instead.');

@@ -117,8 +117,8 @@ function test_font_name_displayed() {
     expected[fontType] = standardFamily;
   }
 
-  _verify_fonts_displayed.apply(null, [expected[k]
-                                       for ([, k] in Iterator(kFontTypes))]);
+  let fontTypes = kFontTypes.map(fontType => expected[fontType]);
+  _verify_fonts_displayed.apply(null, fontTypes);
 }
 
 // Fonts definitely not present on a computer -- we simply use UUIDs. These
@@ -145,7 +145,7 @@ function test_font_name_not_present() {
     // fake one, and that the second one is present on the user's computer.
     let listPref = "font.name-list." + fontType + "." + kLanguage;
     let fontList = Services.prefs.getCharPref(listPref);
-    let fonts = [s.trim() for ([, s] in Iterator(fontList.split(",")))];
+    let fonts = fontList.split(",").map(font => font.trim());
     if (fonts.length != 2)
       throw new Error(listPref + " should have exactly two fonts, but it is " +
                       fontList + ".");
@@ -164,6 +164,6 @@ function test_font_name_not_present() {
     Services.prefs.setCharPref("font.name." + fontType + "." + kLanguage, fakeFont);
   }
 
-  _verify_fonts_displayed.apply(null, [expected[k]
-                                       for ([, k] in Iterator(kFontTypes))]);
+  let fontTypes = kFontTypes.map(fontType => expected[fontType]);
+  _verify_fonts_displayed.apply(null, fontTypes);
 }

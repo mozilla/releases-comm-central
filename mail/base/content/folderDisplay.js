@@ -244,9 +244,8 @@ FolderDisplayWidget.prototype = {
    * @return the focused pane
    */
   get focusedPane() {
-    let panes = [document.getElementById(id) for (id of [
-      "threadTree", "folderTree", "messagepanebox"
-    ])];
+    let panes = ["threadTree", "folderTree", "messagepanebox"].map(id =>
+        document.getElementById(id));
 
     let currentNode = top.document.activeElement;
 

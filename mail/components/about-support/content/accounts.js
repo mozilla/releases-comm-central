@@ -69,13 +69,13 @@ function populateAccountsSection() {
     // We want a minimum rowspan of 1
     let rowSpan = account.smtpServers.length || 1;
     // incomingTDs is an array of TDs
-    let incomingTDs = [createTD(fn(account[prop]), rowSpan)
-                       for ([prop, fn] of gIncomingDetails)];
+    let incomingTDs = gIncomingDetails.map(([prop, fn]) =>
+                        createTD(fn(account[prop]), rowSpan));
     // outgoingTDs is an array of arrays of TDs
     let outgoingTDs = [];
     for (let smtp of account.smtpServers) {
-      outgoingTDs.push([createTD(fn(smtp[prop]), 1)
-                       for ([prop, fn] of gOutgoingDetails)]);
+      outgoingTDs.push(gOutgoingDetails.map(([prop, fn]) =>
+                        createTD(fn(smtp[prop]), 1)));
     }
 
     // If there are no SMTP servers, add a dummy element to make life easier below
@@ -112,15 +112,15 @@ function getAccountsText(aHidePrivateData, aIndent) {
   for (let account of gAccountDetails) {
     accumulator.push(aIndent + account.key + ":");
     // incomingData is an array of strings
-    let incomingData = [neutralizer(fn(account[prop]))
-                        for ([prop, fn] of gIncomingDetails)];
+    let incomingData = gIncomingDetails.map(([prop, fn]) =>
+                        neutralizer(fn(account[prop])));
     accumulator.push(aIndent + "  INCOMING: " + incomingData.join(", "));
 
     // outgoingData is an array of arrays of strings
     let outgoingData = [];
     for (let smtp of account.smtpServers) {
-      outgoingData.push([neutralizer(fn(smtp[prop]))
-                        for ([prop, fn] of gOutgoingDetails)]);
+      outgoingData.push(gOutgoingDetails.map(([prop, fn]) =>
+                        neutralizer(fn(smtp[prop]))));
     }
 
     for (let data of outgoingData)
