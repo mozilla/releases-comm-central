@@ -786,7 +786,7 @@
 
   <binding id="timepicker-grids" extends="xul:box">
     <resources>
-      <stylesheet src="chrome://lightning-common/datetimepickers.css"/>
+      <stylesheet src="chrome://lightning-common/skin/datetimepickers.css"/>
     </resources>
 
     <!-- ::::::::::::::::: CONTENT ::::::::::::::::::::::::: -->
@@ -1529,7 +1529,7 @@
   <binding id="datetimepicker-base" extends="chrome://global/content/bindings/general.xml#basecontrol"
            inherits="value,onchange">
     <resources>
-      <stylesheet src="chrome://lightning-common/datetimepickers.css"/>
+      <stylesheet src="chrome://lightning-common/skin/datetimepickers.css"/>
     </resources>
     <implementation>
       <constructor>
