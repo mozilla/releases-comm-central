@@ -647,10 +647,6 @@
 @RESPATH@/components/nsINIProcessor.js
 @RESPATH@/components/nsPrompter.manifest
 @RESPATH@/components/nsPrompter.js
-#ifdef MOZ_DATA_REPORTING
-@RESPATH@/components/DataReporting.manifest
-@RESPATH@/components/DataReportingService.js
-#endif
 @RESPATH@/components/CaptivePortalDetectComponents.manifest
 @RESPATH@/components/captivedetect.js
 @RESPATH@/components/servicesComponents.manifest
