@@ -22,9 +22,6 @@
       <preference id="network.cookie.lifetime.days"
                   name="network.cookie.lifetime.days"
                   type="int"/>
-      <preference id="network.cookie.alwaysAcceptSessionCookies"
-                  name="network.cookie.alwaysAcceptSessionCookies"
-                  type="bool"/>
       <preference id="pref.advanced.cookies.disable_button.view_cookies"
                   name="pref.advanced.cookies.disable_button.view_cookies"
                   type="bool"/>
@@ -74,17 +71,6 @@
                    aria-labelledby="acceptForNDays lifetimeDays daysLabel"/>
           <label id="daysLabel"
                  value="&days.label;"/>
-        </hbox>
-        <hbox>
-          <radio id="warnAboutCookies"
-                 value="1"
-                 label="&warnAboutCookies.label;"
-                 accesskey="&warnAboutCookies.accesskey;"/>
-          <checkbox id="alwaysAcceptSession"
-                    label="&forCurrentSession.label;"
-                    accesskey="&forCurrentSession.accesskey;"
-                    preference="network.cookie.alwaysAcceptSessionCookies"
-                    aria-labelledby="warnAboutCookies alwaysAcceptSession"/>
         </hbox>
       </radiogroup>
     </groupbox>
