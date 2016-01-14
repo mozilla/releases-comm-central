@@ -958,13 +958,20 @@ SuiteGlue.prototype = {
       }
     } catch (ex) {}
 
-    // Ensure that this preference is set to a valid dictionary.
+    // try to get dictionary preference and initialize with blank if not set
     var prefName = "spellchecker.dictionary";
-    var prefValue = Services.prefs.getCharPref(prefName);
+    var prefValue = "";
+
+    try {
+      prefValue = Services.prefs.getCharPref(prefName);
+    } catch (ex) {}
+
+    // replace underscore with dash if found in language
     if (/_/.test(prefValue)) {
       prefValue = prefValue.replace(/_/g, "-");
       Services.prefs.setCharPref(prefName, prefValue);
     }
+
     var spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
                                  .getService(Components.interfaces.mozISpellCheckingEngine);
     var o1 = {};
