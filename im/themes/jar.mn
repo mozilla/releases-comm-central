@@ -343,6 +343,10 @@ instantbird.jar:
 	skin/classic/instantbird/messages/simple/Variants/Normal.css   (messages/simple/Variants/Normal.css)
 	skin/classic/instantbird/messages/simple/Variants/Dark.css     (messages/simple/Variants/Dark.css)
 
+#ifdef XP_UNIX
 #ifdef XP_MACOSX
 % override chrome://instantbird/skin/tabbrowser/alltabs-box-bkgnd-icon.png     chrome://instantbird/skin/lion/tabbrowser/alltabs-box-bkgnd-icon.png        os=Darwin osversion>=10.7
+#else
+% override chrome://global/skin/icons/close.png  chrome://global/skin/icons/close.svg
+#endif
 #endif

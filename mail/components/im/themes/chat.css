@@ -109,9 +109,6 @@ imcontact[aliasing] .contactDisplayName {
 .closeConversationButton {
   -moz-margin-end: 0;
   -moz-stack-sizing: ignore;
-%ifdef UNIX_BUT_NOT_MAC
-  list-style-image: url("moz-icon://stock/gtk-close?size=menu");
-%else
 %ifdef XP_WIN
   list-style-image: url("chrome://global/skin/icons/close-XPVista7.png");
 %else
@@ -124,7 +121,6 @@ imcontact[aliasing] .contactDisplayName {
 }
 .closeConversationButton:hover:active {
   -moz-image-region: rect(0, 48px, 16px, 32px);
-%endif
 }
 
 
