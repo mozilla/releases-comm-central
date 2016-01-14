@@ -2521,6 +2521,15 @@ function ComposeUnload()
   gAttachmentNotifier.shutdown();
   ToolbarIconColor.uninit();
 
+  // Stop observing dictionary removals.
+  if (Services.obs.enumerateObservers("spellcheck-dictionary-remove")
+                                     .hasMoreElements()) {
+    // Don't try to remove the observer when at shutdown the recycled window
+    // gets unloaded, its observer was already removed at recycle time.
+    Services.obs.removeObserver(dictionaryRemovalObserver,
+                                "spellcheck-dictionary-remove");
+  }
+
   if (gMsgCompose)
     gMsgCompose.UnregisterStateListener(stateListener);
   if (gAutoSaveTimeout)
