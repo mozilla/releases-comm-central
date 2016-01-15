@@ -1219,10 +1219,12 @@
                     <hbox id="notify-options" align="center">
                       <checkbox id="notify-attendees-checkbox"
                                 label="&event.attendees.notify.label;"
+                                accesskey="&event.attendees.notify.accesskey;"
                                 oncommand="changeUndiscloseCheckboxStatus();"
                                 pack="start"/>
                       <checkbox id="undisclose-attendees-checkbox"
                                 label="&event.attendees.notifyundisclosed.label;"
+                                accesskey="&event.attendees.notifyundisclosed.accesskey;"
                                 tooltiptext="&event.attendees.notifyundisclosed.tooltip;"
                                 pack="start"/>
                     </hbox>
@@ -1332,6 +1334,7 @@
                   crop="end"/>
         <menuitem id="attendee-popup-removeattendee-menuitem"
                   label="&event.remove.attendee.label;"
+                  accesskey="&event.remove.attendee.accesskey;"
                   oncommand="removeAttendee(event.target.attendee)"
                   crop="end"/>
         <menuseparator id="attendee-popup-first-separator"/>

@@ -33,7 +33,9 @@
    - These two labels are displayed side by side in the event dialog, make sure
    - they still fit in. -->
 <!ENTITY event.attendees.notify.label               "Notify attendees">
+<!ENTITY event.attendees.notify.accesskey           "f">
 <!ENTITY event.attendees.notifyundisclosed.label    "Separate invitation per attendee">
+<!ENTITY event.attendees.notifyundisclosed.accesskey  "x">
 <!ENTITY event.attendees.notifyundisclosed.tooltip  "This option sends one invitation email per attendee. Each invitation only contains the recipient attendee so that other attendee identities are not disclosed.">
 
 <!-- Keyboard Shortcuts -->
@@ -133,14 +135,15 @@
 <!ENTITY  event.menu.options.show.time.free.accesskey         "F">
 
 <!ENTITY event.invite.attendees.label                     "Invite Attendees…">
-<!ENTITY event.invite.attendees.accesskey                 "Q">
+<!ENTITY event.invite.attendees.accesskey                 "I">
 <!ENTITY event.email.attendees.label                      "Compose E-Mail to All Attendees…">
 <!ENTITY event.email.attendees.accesskey                  "A">
 <!ENTITY event.email.tentative.attendees.label            "Compose E-Mail to Undecided Attendees…">
 <!ENTITY event.email.tentative.attendees.accesskey        "U">
 <!ENTITY event.remove.attendees.label                     "Remove all attendees...">
-<!ENTITY event.remove.attendees.accesskey                 "q">
+<!ENTITY event.remove.attendees.accesskey                 "r">
 <!ENTITY event.remove.attendee.label                      "Remove attendee">
+<!ENTITY event.remove.attendee.accesskey                  "e">
 
 <!-- Toolbar -->
 <!ENTITY  event.toolbar.save.label                        "Save and Close">
@@ -161,22 +164,22 @@
 <!ENTITY event.title.textbox.label                        "Title:" >
 <!ENTITY event.title.textbox.accesskey                    "I">
 <!ENTITY event.location.label                             "Location:" >
-<!ENTITY event.location.accesskey                         "c">
+<!ENTITY event.location.accesskey                         "L">
 <!ENTITY event.categories.label                           "Category:">
 <!ENTITY event.categories.accesskey                       "y">
 <!ENTITY event.categories.textbox.label                   "Add a new category" >
 <!ENTITY event.calendar.label                             "Calendar:" >
 <!ENTITY event.calendar.accesskey                         "C">
 <!ENTITY event.attendees.label                            "Attendees:" >
-<!ENTITY event.attendees.accesskey                        "s" >
+<!ENTITY event.attendees.accesskey                        "n">
 <!ENTITY event.alldayevent.label                          "All day Event" >
 <!ENTITY event.alldayevent.accesskey                      "d">
 <!ENTITY event.from.label                                 "Start:" >
 <!ENTITY event.from.accesskey                             "S">
 <!ENTITY task.from.label                                  "Start:" >
-<!ENTITY task.from.accesskey                              "B">
+<!ENTITY task.from.accesskey                              "S">
 <!ENTITY event.to.label                                   "End:" >
-<!ENTITY event.to.accesskey                               "x">
+<!ENTITY event.to.accesskey                               "u">
 <!ENTITY task.to.label                                    "Due Date:" >
 <!ENTITY task.to.accesskey                                "u">
 <!ENTITY task.status.label                                "Status:" >
@@ -184,7 +187,7 @@
 <!ENTITY event.repeat.label                               "Repeat:" >
 <!ENTITY event.repeat.accesskey                           "R">
 <!ENTITY event.until.label                                "Until:">
-<!ENTITY event.until.accesskey                            "i">
+<!ENTITY event.until.accesskey                            "B">
 <!ENTITY event.reminder.label                             "Reminder:" >
 <!ENTITY event.reminder.accesskey                         "m">
 <!ENTITY event.description.label                          "Description:" >
