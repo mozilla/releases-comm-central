@@ -187,7 +187,7 @@ var gUsageTreeView = {
       return;
     }
 
-    toremove = [this._byname[coll].title for each (coll in toremove)];
+    toremove = toremove.map(coll => this._byname[coll].title);
     toremove = toremove.join(gSyncQuota.bundle.getString("quota.list.separator"));
     caption.textContent = gSyncQuota.bundle.getFormattedString(
       "quota.removal.label", [toremove]);
@@ -202,7 +202,7 @@ var gUsageTreeView = {
    * disabled.
    */
   getEnginesToDisable: function getEnginesToDisable() {
-    return [coll.name for each (coll in this._collections) if (!coll.enabled)];
+    return this._collections.filter(coll => !coll.enabled).map(coll => coll.name);
   },
 
   // nsITreeView
