@@ -78,3 +78,8 @@ groupbox description {
   min-width: 750px;
   min-height: 500px;
 }
+
+#cookieInfoBox {
+  margin-right: 0;
+  margin-left: 0;
+}
