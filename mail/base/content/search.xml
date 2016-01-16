@@ -31,9 +31,6 @@
     -->
   <binding id="glodaSearch"
            extends="chrome://global/content/bindings/autocomplete.xml#autocomplete">
-    <resources>
-      <stylesheet src="chrome://messenger/skin/searchBox.css"/>
-    </resources>
 
     <handlers>
       <handler event="drop" phase="capturing"><![CDATA[

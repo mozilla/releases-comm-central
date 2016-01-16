@@ -8,11 +8,6 @@
     %lightningDTD;
 ]>
 
-<!-- Use the Thunderbird Notification bar style for our iMIP warning -->
-<?xml-stylesheet href="chrome://messenger/skin/primaryToolbar.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/messageHeader.css" type="text/css"?>
-
-<?xml-stylesheet href="chrome://lightning/skin/lightning.css" type="text/css"?>
 <?xml-stylesheet href="chrome://lightning/content/lightning-widgets.css" type="text/css"?>
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">

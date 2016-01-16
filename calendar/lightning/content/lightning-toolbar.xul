@@ -13,7 +13,6 @@
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" > %brandDTD;
 ]>
 
-<?xml-stylesheet href="chrome://lightning/skin/lightning.css" type="text/css"?>
 <?xml-stylesheet href="chrome://lightning/skin/lightning-toolbar.css" type="text/css"?>
 
 <overlay id="ltnToolbarOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">

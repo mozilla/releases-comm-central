@@ -6,8 +6,6 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-task-view.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-bindings.css"?>
 
-<?xml-stylesheet type="text/css" href="chrome://messenger/skin/messageHeader.css"?>
-
 <!DOCTYPE overlay [
   <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd1;
   <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd" > %dtd2;

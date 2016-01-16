@@ -15,9 +15,6 @@
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="conversation">
-    <resources>
-      <stylesheet src="chrome://messenger/skin/chat.css"/>
-    </resources>
     <content>
       <xul:vbox class="convBox" flex="1">
         <xul:hbox class="conv-top" flex="1" anonid="conv-top">
