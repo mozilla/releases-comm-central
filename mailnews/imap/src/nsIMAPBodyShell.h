@@ -333,29 +333,28 @@ protected:
 class nsIMAPMessagePartID
 {
 public:
-	nsIMAPMessagePartID(nsIMAPeFetchFields fields, const char *partNumberString);
-	nsIMAPeFetchFields		GetFields() { return m_fields; }
-	const char		*GetPartNumberString() { return m_partNumberString; }
-
+  nsIMAPMessagePartID(nsIMAPeFetchFields fields, const char *partNumberString);
+  nsIMAPeFetchFields GetFields() { return m_fields; }
+  const char *GetPartNumberString() { return m_partNumberString; }
 
 protected:
-	const char *m_partNumberString;
-	nsIMAPeFetchFields m_fields;
+  const char *m_partNumberString;
+  nsIMAPeFetchFields m_fields;
 };
 
 
 class nsIMAPMessagePartIDArray : public nsTArray<nsIMAPMessagePartID*> {
 public:
-	nsIMAPMessagePartIDArray();
-	~nsIMAPMessagePartIDArray();
+  nsIMAPMessagePartIDArray();
+  ~nsIMAPMessagePartIDArray();
 
-	void				RemoveAndFreeAll();
-	int					GetNumParts() {return Length();}
-	nsIMAPMessagePartID	*GetPart(int i) 
-	{
-		NS_ASSERTION(i >= 0 && i < Length(), "invalid message part #");
-		return ElementAt(i);
-	}
+  void RemoveAndFreeAll();
+  uint32_t GetNumParts() { return Length(); }
+  nsIMAPMessagePartID *GetPart(uint32_t i)
+  {
+    NS_ASSERTION(i < Length(), "invalid message part #");
+    return ElementAt(i);
+  }
 };
 
 

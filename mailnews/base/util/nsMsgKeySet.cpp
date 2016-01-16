@@ -1399,24 +1399,24 @@ nsMsgKeySet::test_member(bool with_cache)
   nsMsgKeySet *set;
   char *s;
 
-  s = "1-70,72-99,105,107,110-111,117-200";
-  printf ("\n\nTesting %s (with%s cache)\n", s, with_cache ? "" : "out");
-  if (!(set = Create(s))) {
-  abort ();
+  const char *st1 = "1-70,72-99,105,107,110-111,117-200";
+  printf ("\n\nTesting %s (with%s cache)\n", st1, with_cache ? "" : "out");
+  if (!(set = Create(st1))) {
+    abort();
   }
 
   TEST(-1);
   TEST(0);
   TEST(1);
   TEST(20);
-  
+
   delete set;
-  s = "0-70,72-99,105,107,110-111,117-200";
-  printf ("\n\nTesting %s (with%s cache)\n", s, with_cache ? "" : "out");
-  if (!(set = Create(s))) {
-  abort ();
+  const char *st2 = "0-70,72-99,105,107,110-111,117-200";
+  printf ("\n\nTesting %s (with%s cache)\n", st2, with_cache ? "" : "out");
+  if (!(set = Create(st2))) {
+    abort();
   }
-  
+
   TEST(-1);
   TEST(0);
   TEST(1);

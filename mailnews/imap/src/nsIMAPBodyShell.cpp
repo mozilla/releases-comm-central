@@ -1307,9 +1307,9 @@ nsIMAPBodyShell *nsIMAPBodyShellCache::FindShellForUID(nsCString &UID, const cha
 
 
 nsIMAPMessagePartID::nsIMAPMessagePartID(nsIMAPeFetchFields fields, const char *partNumberString)
+: m_partNumberString(partNumberString),
+  m_fields(fields)
 {
-	m_fields = fields;
-	m_partNumberString = partNumberString;
 }
 
 nsIMAPMessagePartIDArray::nsIMAPMessagePartIDArray()
@@ -1318,16 +1318,16 @@ nsIMAPMessagePartIDArray::nsIMAPMessagePartIDArray()
 
 nsIMAPMessagePartIDArray::~nsIMAPMessagePartIDArray()
 {
-	RemoveAndFreeAll();
+  RemoveAndFreeAll();
 }
 
 void nsIMAPMessagePartIDArray::RemoveAndFreeAll()
 {
-    int n = Length();
-	for (int i = 0; i < n; i++)
-	{
-		nsIMAPMessagePartID *part = GetPart(i);
-		delete part;
-	}
-    Clear();
+  uint32_t n = Length();
+  for (uint32_t i = 0; i < n; i++)
+  {
+     nsIMAPMessagePartID *part = GetPart(i);
+     delete part;
+  }
+  Clear();
 }

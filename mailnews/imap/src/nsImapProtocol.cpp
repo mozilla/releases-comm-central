@@ -3212,7 +3212,7 @@ void nsImapProtocol::PipelinedFetchMessageParts(const char *uid, nsIMAPMessagePa
 
   // build up a string to fetch
   nsCString stringToFetch, what;
-  int32_t currentPartNum = 0;
+  uint32_t currentPartNum = 0;
   while ((parts->GetNumParts() > currentPartNum) && !DeathSignalReceived())
   {
     nsIMAPMessagePartID *currentPart = parts->GetPart(currentPartNum);
@@ -3639,7 +3639,7 @@ void nsImapProtocol::PipelinedFetchMessageParts(nsCString &uid, nsIMAPMessagePar
   nsCString stringToFetch;
   nsCString what;
 
-  int32_t currentPartNum = 0;
+  uint32_t currentPartNum = 0;
   while ((parts->GetNumParts() > currentPartNum) && !DeathSignalReceived())
   {
     nsIMAPMessagePartID *currentPart = parts->GetPart(currentPartNum);
