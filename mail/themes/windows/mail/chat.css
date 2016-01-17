@@ -25,7 +25,7 @@
 }
 
 #conversationsDeck {
-  background: -moz-field;
+  background: -moz-Dialog;
 }
 
 .conv-messages {
@@ -340,14 +340,6 @@
       background-color: -moz-field;
     }
 
-    .convBox {
-      background-color: rgb(233,239,245);
-    }
-
-    #conversationsDeck {
-      background-color: rgb(233,239,245);
-    }
-
     #listSplitter {
       border-inline-start: 1px solid #A9B7C9;
     }
@@ -504,6 +496,10 @@
     background-color: rgb(238, 243, 250);
   }
 
+  #conversationsDeck {
+    background-color: rgb(233, 239, 245);
+  }
+
   .conv-nicklist-header,
   .conv-logs-header-label {
     background-color: rgb(233, 239, 245);
@@ -542,7 +538,7 @@
 
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
   #listPaneBox,
-  .im-placeholder-screen  {
+  .im-placeholder-screen {
     background-color: #fafafa;
   }
 }
