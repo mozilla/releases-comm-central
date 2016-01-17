@@ -565,13 +565,14 @@ function setupAttendees() {
                 cell.setAttribute("attendeeid", attendee.id);
                 cell.removeAttribute("hidden");
 
-                let tooltip = cal.calGetString("calendar", "dialog.tooltip.attendeeRole." + role, [
-                                  cal.calGetString("calendar",
-                                                   "dialog.tooltip.attendeeUserType." + ut,
-                                                   [attendee.toString()]),
-                                  cal.calGetString("calendar",
-                                                   "dialog.tooltip.attendeePartStat." + ps)
-                              ]);
+                let utString = cal.calGetString("calendar", "dialog.tooltip.attendeeUserType2." + ut,
+                                                [attendee.toString()]);
+                let roleString = cal.calGetString("calendar", "dialog.tooltip.attendeeRole2." + role,
+                                                  [utString]);
+                let psString = cal.calGetString("calendar", "dialog.tooltip.attendeePartStat2." + ps,
+                                                [label]);
+                let tooltip = cal.calGetString("calendar", "dialog.tooltip.attendee.combined",
+                                               [roleString, psString]);
 
                 let del = cal.resolveDelegation(attendee, window.attendees);
                 if (del.delegators != "") {

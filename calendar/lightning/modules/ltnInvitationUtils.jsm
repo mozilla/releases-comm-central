@@ -217,12 +217,16 @@ ltn.invitation = {
             itipIcon.setAttribute("role", role);
             itipIcon.setAttribute("usertype", ut);
             itipIcon.setAttribute("partstat", ps);
-            let itipTooltip = ltn.getString("lightning", "imipHtml.attendeeRole." + role, [
-                                  ltn.getString("lightning", "imipHtml.attendeeUserType." + ut,
-                                                [aAttendee.toString()]),
-                                  ltn.getString("lightning", "imipHtml.attendeePartStat." + ps,
-                                                [del.delegatees])
-                              ]);
+            let attName = (aAttendee.commonName && aAttendee.commonName.length)
+                          ? aAttendee.commonName : aAttendee.toString();
+            let utString = ltn.getString("lightning", "imipHtml.attendeeUserType2." + ut,
+                                         [aAttendee.toString()]);
+            let roleString = ltn.getString("lightning", "imipHtml.attendeeRole2." + role,
+                                           [utString]);
+            let psString = ltn.getString("lightning", "imipHtml.attendeePartStat2." + ps,
+                                         [attName, del.delegatees]);
+            let itipTooltip = ltn.getString("lightning", "imipHtml.attendee.combined",
+                                            [roleString, psString]);
             row.setAttribute("title", itipTooltip);
             // display attendee
             row.getElementsByClassName("attendee-name")[0].textContent = aAttendee.toString() +
