@@ -122,7 +122,7 @@ var sendLaterModule =
 
     let event = new nsActEvent(this._displayTextForHeader("sentMessage",
                                                           this._subject),
-                               this.activityMgr, null, aProcess.startTime,
+                               this.activityMgr, "", aProcess.startTime,
                                new Date());
 
     event.iconClass = "sendMail";
