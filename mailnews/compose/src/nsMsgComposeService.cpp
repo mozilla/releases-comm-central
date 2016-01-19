@@ -1132,6 +1132,13 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(nsIMsgDBHdr *aMsgHdr, const
   helper->mMsgWindow = aMsgWindow;
   helper->mIdentity = identity;
 
+  nsAutoCString replyTo;
+  aMsgHdr->GetStringProperty("replyTo", getter_Copies(replyTo));
+  if (replyTo.IsEmpty())
+    aMsgHdr->GetAuthor(getter_Copies(replyTo));
+  if (replyTo.IsEmpty())
+    return NS_ERROR_FAILURE; // nowhere to send the reply
+
   nsCOMPtr <nsIMsgFolder> templateFolder;
   nsCOMPtr <nsIMsgDatabase> templateDB;
   nsCString templateMsgHdrUri;

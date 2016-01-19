@@ -19,6 +19,8 @@ const kSender = "from@foo.invalid";
 var gIncomingMailFile = do_get_file("../../../data/bugmail10"); // mail to reply to
 // reply-filter-testmail: mail to reply to (but not really)
 var gIncomingMailFile2 = do_get_file("../../../data/reply-filter-testmail");
+// mail to reply to (but not really, no from)
+var gIncomingMailFile3 = do_get_file("../../../data/mail-without-from");
 var gTemplateMailFile = do_get_file("../../../data/draft1"); // template
 var gTemplateFolder;
 
@@ -48,6 +50,15 @@ add_task(function* copy_gIncomingMailFile2() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gIncomingMailFile2 into the Inbox.
   MailServices.copy.CopyFileMessage(gIncomingMailFile2,
+    localAccountUtils.inboxFolder, null, false, 0, "",
+    promiseCopyListener, null);
+  yield promiseCopyListener.promise;
+});
+
+add_task(function* copy_gIncomingMailFile3() {
+  let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
+  // Copy gIncomingMailFile3 into the Inbox.
+  MailServices.copy.CopyFileMessage(gIncomingMailFile3,
     localAccountUtils.inboxFolder, null, false, 0, "",
     promiseCopyListener, null);
   yield promiseCopyListener.promise;
@@ -86,6 +97,19 @@ add_task(function testReplyingToAdressedWorks() {
   }
 });
 
+/// Test that a reply is NOT even tried when the message has no From.
+add_task(function testReplyingToMailWithNoFrom() {
+  try {
+    testReply(2); // mail 2 has no From
+    do_throw("Shouldn't even have tried to reply reply to the message " +
+             "with no From and no Reply-To");
+  }
+  catch (e) {
+    if (e.result != Components.results.NS_ERROR_FAILURE)
+      throw e;
+  }
+});
+
 /// Test reply with template.
 function testReply(aHrdIdx) {
   let smtpServer = getBasicSmtpServer();
@@ -95,7 +119,7 @@ function testReply(aHrdIdx) {
   localAccountUtils.msgAccount.addIdentity(identity);
 
   let msgHdr = mailTestUtils.getMsgHdrN(localAccountUtils.inboxFolder, aHrdIdx);
-  do_print("Sender: " + kSender + ", msg #" + aHrdIdx + " recipients: " +
+  do_print("Msg#" + aHrdIdx +  " author=" + msgHdr.author + ", recipients=" +
            msgHdr.recipients);
   let templateHdr = mailTestUtils.getMsgHdrN(gTemplateFolder, 0);
 
