@@ -78,7 +78,6 @@
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsISelection.h"
 #include "nsJSEnvironment.h"
-#include "nsIObserverService.h"
 
 using namespace mozilla::mailnews;
 
@@ -1039,9 +1038,8 @@ NS_IMETHODIMP nsMsgCompose::RemoveMsgSendListener( nsIMsgSendListener *aMsgSendL
   return mExternalSendListeners.RemoveElement(aMsgSendListener) ? NS_OK : NS_ERROR_FAILURE;
 }
 
-NS_IMETHODIMP
-nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode, nsIMsgIdentity *identity,
-                              const char *accountKey)
+nsresult nsMsgCompose::_SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity *identity,
+                                const char *accountKey)
 {
   nsresult rv = NS_OK;
 
@@ -1071,24 +1069,7 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode, nsIMsgIdentity *ident
     }
 
     m_compFields->SetOrganization(organization);
-
-    // We need an nsIMsgSend instance to send the message. Allow extensions
-    // to override the default SMTP sender by observing mail-set-sender.
-    mMsgSend = nullptr;
-    mDeliverMode = deliverMode;  // save for possible access by observer;
-
-    nsCOMPtr<nsIObserverService> observerService =
-      mozilla::services::GetObserverService();
-    if (observerService)
-    {
-      observerService->NotifyObservers(
-        NS_ISUPPORTS_CAST(nsIMsgCompose*, this),
-        "mail-set-sender",
-        NS_ConvertUTF8toUTF16(nsDependentCString(accountKey)).get());
-    }
-    if (!mMsgSend)
-      mMsgSend = do_CreateInstance(NS_MSGSEND_CONTRACTID);
-
+    mMsgSend = do_CreateInstance(NS_MSGSEND_CONTRACTID);
     if (mMsgSend)
     {
       nsCString bodyString(m_compFields->GetBody());
@@ -1339,7 +1320,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
   // Save the identity being sent for later use.
   m_identity = identity;
 
-  rv = SendMsgToServer(deliverMode, identity, accountKey);
+  rv = _SendMsg(deliverMode, identity, accountKey);
   if (NS_FAILED(rv))
   {
     nsCOMPtr<nsIMsgSendReport> sendReport;
@@ -1584,12 +1565,6 @@ NS_IMETHODIMP nsMsgCompose::InitEditor(nsIEditor* aEditor, nsIDOMWindow* aConten
     NotifyStateListeners(nsIMsgComposeNotificationType::ComposeBodyReady, NS_OK);
     return rv;
   }
-}
-
-NS_IMETHODIMP nsMsgCompose::GetBodyRaw(nsACString& aBodyRaw)
-{
-  aBodyRaw.Assign((char *)m_compFields->GetBody());
-  return NS_OK;
 }
 
 nsresult nsMsgCompose::GetBodyModified(bool * modified)
@@ -2137,12 +2112,6 @@ NS_IMETHODIMP nsMsgCompose::GetMessageSend(nsIMsgSend **_retval)
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = mMsgSend;
   NS_IF_ADDREF(*_retval);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgCompose::SetMessageSend(nsIMsgSend* aMsgSend)
-{
-  mMsgSend = aMsgSend;
   return NS_OK;
 }
 
@@ -5502,13 +5471,6 @@ NS_IMETHODIMP nsMsgCompose::CheckCharsetConversion(nsIMsgIdentity *identity, cha
   if (fallbackCharset)
     *fallbackCharset = nullptr;
   *_retval = true;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgCompose::GetDeliverMode(MSG_DeliverMode* aDeliverMode)
-{
-  NS_ENSURE_ARG_POINTER(aDeliverMode);
-  *aDeliverMode = mDeliverMode;
   return NS_OK;
 }
 

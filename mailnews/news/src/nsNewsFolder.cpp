@@ -1889,11 +1889,3 @@ nsMsgNewsFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
   m_downloadingMultipleMessages = false;
   return nsMsgDBFolder::OnStopRunningUrl(aUrl, aExitCode);
 }
-
-NS_IMETHODIMP
-nsMsgNewsFolder::GetIncomingServerType(nsACString& serverType)
-{
-  serverType.AssignLiteral("nntp");
-  return NS_OK;
-}
-

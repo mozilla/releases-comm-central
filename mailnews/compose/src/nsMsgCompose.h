@@ -45,7 +45,7 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference
   /* nsIMsgSendListener interface */
   NS_DECL_NSIMSGSENDLISTENER
 
-protected:
+private:
 	virtual ~nsMsgCompose();
 
  // Deal with quoting issues...
@@ -76,7 +76,8 @@ protected:
   void InsertDivWrappedTextAtSelection(const nsAString &aText,
                                        const nsAString &classStr);
 
- protected:
+ private:
+  nsresult _SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity *identity, const char *accountKey);
   nsresult CreateMessage(const char * originalMsgURI, MSG_ComposeType type, nsIMsgCompFields* compFields);
   void CleanUpRecipients(nsString& recipients);
   nsresult GetABDirectories(const nsACString& aDirUri,
@@ -131,8 +132,7 @@ protected:
   nsTObserverArray<nsCOMPtr<nsIMsgSendListener> > mExternalSendListeners;
     
   bool                                      mInsertingQuotedContent;
-  MSG_DeliverMode                           mDeliverMode;  // nsIMsgCompDeliverMode long.
-
+    
   friend class QuotingOutputStreamListener;
 	friend class nsMsgComposeSendListener;
 };

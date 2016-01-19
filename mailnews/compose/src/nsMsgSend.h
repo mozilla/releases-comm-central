@@ -166,8 +166,7 @@ class MimeEncoder;
 }
 
 class nsMsgComposeAndSend : public nsIMsgSend,
-                            public nsIMsgOperationListener,
-                            public nsSupportsWeakReference
+                            public nsIMsgOperationListener
 {
   typedef mozilla::mailnews::MimeEncoder MimeEncoder;
 public:
@@ -372,7 +371,7 @@ public:
 protected:
   nsCOMPtr<nsIStringBundle> mComposeBundle;
   nsresult GetNotificationCallbacks(nsIInterfaceRequestor** aCallbacks);
-
+private:
   virtual ~nsMsgComposeAndSend();
   nsresult FilterSentMessage();
   nsresult MaybePerformSecondFCC(nsresult aStatus);
