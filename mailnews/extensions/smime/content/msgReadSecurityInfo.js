@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var nsIPKIParamBlock = Components.interfaces.nsIPKIParamBlock;
 var nsIDialogParamBlock = Components.interfaces.nsIDialogParamBlock;
 var nsIX509Cert = Components.interfaces.nsIX509Cert;
 var nsICMSMessageErrors = Components.interfaces.nsICMSMessageErrors;
@@ -15,8 +14,6 @@ var gEncryptionCert = null;
 
 var gSignatureStatus = -1;
 var gEncryptionStatus = -1;
-
-var params = null;
 
 function setText(id, value) {
   var element = document.getElementById(id);
@@ -30,20 +27,17 @@ function setText(id, value) {
 
 function onLoad()
 {
-  var pkiParams = window.arguments[0].QueryInterface(nsIPKIParamBlock);
-  var isupport = pkiParams.getISupportAtIndex(1);
-  if (isupport) {
-    gSignerCert = isupport.QueryInterface(nsIX509Cert);
-  }
-  isupport = pkiParams.getISupportAtIndex(2);
-  if (isupport) {
-    gEncryptionCert = isupport.QueryInterface(nsIX509Cert);
-  }
+  var paramBlock = window.arguments[0].QueryInterface(nsIDialogParamBlock);
+  paramBlock.objects.QueryInterface(Components.interfaces.nsIMutableArray);
+  try {
+    gSignerCert = paramBlock.objects.queryElementAt(0, nsIX509Cert);
+  } catch(e) { } // maybe null
+  try {
+    gEncryptionCert = paramBlock.objects.queryElementAt(1, nsIX509Cert);
+  } catch(e) { } // maybe null
 
-  params = pkiParams.QueryInterface(nsIDialogParamBlock);
-
-  gSignatureStatus = params.GetInt(1);
-  gEncryptionStatus = params.GetInt(2);
+  gSignatureStatus = paramBlock.GetInt(1);
+  gEncryptionStatus = paramBlock.GetInt(2);
 
   var bundle = document.getElementById("bundle_smime_read_info");
 
@@ -113,8 +107,10 @@ function onLoad()
         sigInfoHeader = "SIInvalidHeader";
         sigInfo_clueless = true;
         break;
+      default:
+        Components.utils.reportError("Unexpected gSignatureStatus: " +
+                                     gSignatureStatus);
     }
-
 
     document.getElementById("signatureLabel").value = 
       bundle.getString(sigInfoLabel);
@@ -134,7 +130,6 @@ function onLoad()
       str = bundle.getString("SIClueless") + " (" + gSignatureStatus + ")";
     }
     setText("signatureExplanation", str);
-    
 
     var encInfoLabel = null;
     var encInfoHeader = null;
@@ -162,8 +157,10 @@ function onLoad()
         encInfoHeader = "EIInvalidHeader";
         encInfo_clueless = 1;
         break;
+      default:
+        Components.utils.reportError("Unexpected gEncryptionStatus: " +
+                                     gEncryptionStatus);
     }
-
 
     document.getElementById("encryptionLabel").value = 
       bundle.getString(encInfoLabel);

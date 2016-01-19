@@ -51,20 +51,20 @@ function showMessageReadSecurityInfo()
     return;
   }
 
-  let pkiParams = Components.classes["@mozilla.org/security/pkiparamblock;1"]
-                            .createInstance(Components.interfaces.nsIPKIParamBlock);
+  let params = Components.classes["@mozilla.org/embedcomp/dialogparam;1"]
+    .createInstance(Components.interfaces.nsIDialogParamBlock);
+  params.objects = Components.classes["@mozilla.org/array;1"]
+    .createInstance(Components.interfaces.nsIMutableArray);
+  // Append even if null... the receiver must handle that.
+  params.objects.appendElement(gSignerCert, false);
+  params.objects.appendElement(gEncryptionCert, false);
 
-  // isupport array starts with index 1
-  pkiParams.setISupportAtIndex(1, gSignerCert);
-  pkiParams.setISupportAtIndex(2, gEncryptionCert);
-
-  var params = pkiParams.QueryInterface(Components.interfaces.nsIDialogParamBlock);
   // int array starts with index 0, but that is used for window exit status
   params.SetInt(1, gSignatureStatus);
   params.SetInt(2, gEncryptionStatus);
 
   window.openDialog("chrome://messenger-smime/content/msgReadSecurityInfo.xul",
-                    "", "chrome,resizable=1,modal=1,dialog=1", pkiParams);
+                    "", "chrome,resizable,modal,dialog,centerscreen", params);
 }
 
 var SecurityController =
