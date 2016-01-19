@@ -147,7 +147,8 @@
                                  flex="1" primary="true" label="..."
                                  sort="?LeafName"/>
                         <splitter class="tree-splitter"/>
-                        <treecol id="subscribedColumn" persist="hidden type="checkbox"
+                        <treecol id="subscribedColumn" persist="hidden"
+                                 type="checkbox"
                                  cycler="true" label="&subscribedHeader.label;"
                                  sort="?Subscribed"/>
                         <!-- commenting out until bug 38906 is fixed 
