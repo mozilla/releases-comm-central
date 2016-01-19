@@ -34,6 +34,7 @@ interface nsIMsgStatusFeedback;
 interface nsIEditor;
 interface nsIArray;
 interface nsISupportsArray;
+interface nsIMsgAttachmentHandler;
 
 typedef long nsMsgDeliverMode;
 
@@ -151,7 +152,7 @@ class nsMsgAttachmentHandler;
 [ptr] native nsMsgAttachedFile(nsMsgAttachedFile);
 [ptr] native nsMsgAttachmentHandlerArray(nsTArray<RefPtr<nsMsgAttachmentHandler>>);
 
-[scriptable, uuid(3fa45021-8174-478f-8c69-f3a8dc3f49fc)]
+[scriptable, uuid(adcea7be-0585-4f43-ab97-f2436ea5e002)]
 interface nsIMsgSend : nsISupports
 {
   //
@@ -369,4 +370,36 @@ interface nsIMsgSend : nsISupports
     attribute nsresult status;
 
     attribute nsIMsgComposeSecure cryptoclosure;
+
+    /// Access the local copy of the composition fields.
+    readonly attribute nsIMsgCompFields sendCompFields;
+
+    /// The message body.
+    readonly attribute AString sendBody;
+
+    /// The type of the message body (typically text/plain or text/html).
+    readonly attribute ACString sendBodyType;
+
+    /// The identity to use to send the message.
+    readonly attribute nsIMsgIdentity identity;
+
+    /**
+     * Get a handler for an attachment by its index.
+     * The lifetime of the attachment is dependent on the existence
+     * of the underlying send object, so do not hold onto these
+     * attachment handlers.
+     *
+     * @param index  Index used to specify a particular attachment.
+     *
+     * @return       Attachment handler with information about the attachment.
+     */
+    nsIMsgAttachmentHandler getAttachment(in unsigned long index);
+
+    /// The folder name to which the message will be saved,
+    /// used by error reporting.
+    attribute AString savedToFolderName;
+
+    /// Should we deliver this message (versus saving as a file)?
+    attribute boolean dontDeliver;
+
 };

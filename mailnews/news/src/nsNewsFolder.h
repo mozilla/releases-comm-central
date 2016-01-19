@@ -90,6 +90,7 @@ public:
   NS_IMETHOD SetFilterList(nsIMsgFilterList *aFilterList) override;
   NS_IMETHOD SetEditableFilterList(nsIMsgFilterList *aFilterList) override;
   NS_IMETHOD ApplyRetentionSettings() override;
+  NS_IMETHOD GetIncomingServerType(nsACString& serverType) override;
 
 protected:
   virtual ~nsMsgNewsFolder();
@@ -109,10 +110,6 @@ protected:
   nsresult GetNewsMessages(nsIMsgWindow *aMsgWindow, bool getOld, nsIUrlListener *aListener);
 
   int32_t HandleNewsrcLine(const char * line, uint32_t line_size);
-  virtual void GetIncomingServerType(nsCString& serverType) override
-  {
-    serverType.AssignLiteral("nntp");
-  }
   virtual nsresult CreateBaseMessageURI(const nsACString& aURI) override;
 
 protected:

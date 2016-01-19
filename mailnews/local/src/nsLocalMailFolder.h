@@ -175,6 +175,7 @@ public:
                                                  bool *aAsyncResults) override;
   NS_IMETHOD AddKeywordsToMessages(nsIArray *aMessages, const nsACString& aKeywords) override;
   NS_IMETHOD RemoveKeywordsFromMessages(nsIArray *aMessages, const nsACString& aKeywords) override;
+  NS_IMETHOD GetIncomingServerType(nsACString& serverType) override;
 
 protected:
   virtual ~nsMsgLocalMailFolder();
@@ -222,7 +223,6 @@ protected:
                                        nsIMsgWindow *aMsgWindow,
                                        nsIMsgFolder *dstFolder,
                                        bool isMove);
-  virtual void GetIncomingServerType(nsCString& serverType) override;
   nsresult InitCopyState(nsISupports* aSupport, nsIArray* messages,
                          bool isMove, nsIMsgCopyServiceListener* listener, nsIMsgWindow *msgWindow, bool isMoveFolder, bool allowUndo);
   nsresult InitCopyMsgHdrAndFileStream();

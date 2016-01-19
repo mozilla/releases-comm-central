@@ -79,6 +79,7 @@
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsIMutableArray.h"
 #include "nsIMsgFilterService.h"
+#include "nsIMsgProtocolInfo.h"
 
 using namespace mozilla::mailnews;
 
@@ -203,10 +204,10 @@ class MsgDeliveryListener : public nsIUrlListener
 {
 public:
   MsgDeliveryListener(nsIMsgSend *aMsgSend, bool inIsNewsDelivery);
-  
+
   NS_DECL_ISUPPORTS
   NS_DECL_NSIURLLISTENER
-    
+
 private:
   virtual ~MsgDeliveryListener();
   nsCOMPtr<nsIMsgSend> mMsgSend;
@@ -229,12 +230,12 @@ NS_IMETHODIMP MsgDeliveryListener::OnStartRunningUrl(nsIURI *url)
 {
   if (mMsgSend)
     mMsgSend->NotifyListenerOnStartSending(nullptr, 0);
-  
+
   return NS_OK;
 }
 
 NS_IMETHODIMP MsgDeliveryListener::OnStopRunningUrl(nsIURI *url, nsresult aExitCode)
-{  
+{
   if (url)
   {
     nsCOMPtr<nsIMsgMailNewsUrl> mailUrl = do_QueryInterface(url);
@@ -246,13 +247,14 @@ NS_IMETHODIMP MsgDeliveryListener::OnStopRunningUrl(nsIURI *url, nsresult aExitC
   // the messages than we do.
   if (mMsgSend)
     mMsgSend->SendDeliveryCallback(url, mIsNewsDelivery, aExitCode);
-      
+
   return NS_OK;
 }
 
 
 /* the following macro actually implement addref, release and query interface for our component. */
-NS_IMPL_ISUPPORTS(nsMsgComposeAndSend, nsIMsgSend, nsIMsgOperationListener)
+NS_IMPL_ISUPPORTS(nsMsgComposeAndSend, nsIMsgSend, nsIMsgOperationListener,
+                  nsISupportsWeakReference)
 
 nsMsgComposeAndSend::nsMsgComposeAndSend() :
     m_messageKey(nsMsgKey_None)
@@ -1790,11 +1792,29 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
         nsIURI *uri = m_attachments[i]->mURL;
         bool match = false;
         if ((NS_SUCCEEDED(uri->SchemeIs("mailbox", &match)) && match) ||
-           (NS_SUCCEEDED(uri->SchemeIs("imap", &match)) && match))
+            (NS_SUCCEEDED(uri->SchemeIs("imap", &match)) && match))
           (*aMailboxCount)++;
         else if ((NS_SUCCEEDED(uri->SchemeIs("news", &match)) && match) ||
-                (NS_SUCCEEDED(uri->SchemeIs("snews", &match)) && match))
+                 (NS_SUCCEEDED(uri->SchemeIs("snews", &match)) && match))
           (*aNewsCount)++;
+        else
+        {
+          // Additional account types need a mechanism to report that they are
+          // message protocols. If there is an nsIMsgProtocolInfo component
+          // registered for this scheme, we'll consider it a mailbox
+          // attachment.
+          nsAutoCString contractID;
+          contractID.Assign(
+            NS_LITERAL_CSTRING("@mozilla.org/messenger/protocol/info;1"));
+          nsAutoCString scheme;
+          uri->GetScheme(scheme);
+          contractID.Append(scheme);
+          nsCOMPtr<nsIMsgProtocolInfo> msgProtocolInfo =
+            do_CreateInstance(contractID.get());
+          if (msgProtocolInfo)
+            (*aMailboxCount)++;
+        }
+
       }
     }
     else
@@ -2180,9 +2200,14 @@ nsMsgComposeAndSend::AddCompFieldRemoteAttachments(uint32_t   aStartLocation,
         // the right thing.
         if (! nsMsgIsLocalFile(url.get()))
         {
-          bool isAMessageAttachment = !PL_strncasecmp(url.get(), "mailbox-message://", 18) ||
-              !PL_strncasecmp(url.get(), "imap-message://", 15) ||
-              !PL_strncasecmp(url.get(), "news-message://", 15);
+          // Check for message attachment, see nsMsgMailNewsUrl::GetIsMessageUri.
+          nsCOMPtr<nsIURI> nsiuri = do_CreateInstance(NS_STANDARDURL_CONTRACTID);
+          NS_ENSURE_STATE(nsiuri);
+          nsiuri->SetSpec(url);
+          nsAutoCString scheme;
+          nsiuri->GetScheme(scheme);
+          bool isAMessageAttachment =
+            StringEndsWith(scheme, NS_LITERAL_CSTRING("-message"));
 
           m_attachments[newLoc]->mDeleteFile = true;
           m_attachments[newLoc]->m_done = false;
@@ -2410,19 +2435,35 @@ nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
 
       /* Count up attachments which are going to come from mail folders
       and from NNTP servers. */
-    if (m_attachments[i]->mURL)
-    {
-    nsIURI *uri = m_attachments[i]->mURL;
-    bool match = false;
-    if ((NS_SUCCEEDED(uri->SchemeIs("mailbox", &match)) && match) ||
-      (NS_SUCCEEDED(uri->SchemeIs("imap", &match)) && match))
-      mailbox_count++;
-    else if ((NS_SUCCEEDED(uri->SchemeIs("news", &match)) && match) ||
-           (NS_SUCCEEDED(uri->SchemeIs("snews", &match)) && match))
-        news_count++;
-
-      if (uri)
-        msg_pick_real_name(m_attachments[i], nullptr, mCompFields->GetCharacterSet());
+      if (m_attachments[i]->mURL)
+      {
+        nsIURI *uri = m_attachments[i]->mURL;
+        bool match = false;
+        if ((NS_SUCCEEDED(uri->SchemeIs("mailbox", &match)) && match) ||
+            (NS_SUCCEEDED(uri->SchemeIs("imap", &match)) && match))
+          mailbox_count++;
+        else if ((NS_SUCCEEDED(uri->SchemeIs("news", &match)) && match) ||
+                 (NS_SUCCEEDED(uri->SchemeIs("snews", &match)) && match))
+            news_count++;
+        else
+        {
+          // Additional account types need a mechanism to report that they are
+          // message protocols. If there is an nsIMsgProtocolInfo component
+          // registered for this scheme, we'll consider it a mailbox
+          // attachment.
+          nsAutoCString contractID;
+          contractID.Assign(
+            NS_LITERAL_CSTRING("@mozilla.org/messenger/protocol/info;1"));
+          nsAutoCString scheme;
+          uri->GetScheme(scheme);
+          contractID.Append(scheme);
+          nsCOMPtr<nsIMsgProtocolInfo> msgProtocolInfo =
+            do_CreateInstance(contractID.get());
+          if (msgProtocolInfo)
+            mailbox_count++;
+        }
+        if (uri)
+          msg_pick_real_name(m_attachments[i], nullptr, mCompFields->GetCharacterSet());
       }
     }
   }
@@ -3135,7 +3176,7 @@ NS_IMETHODIMP nsMsgComposeAndSend::SendDeliveryCallback(nsIURI *aUrl, bool inIsN
     }
     DeliverAsMailExit(aUrl, aExitCode);
   }
-  
+
   return aExitCode;
 }
 
@@ -3232,7 +3273,7 @@ nsMsgComposeAndSend::DeliverFileAsMail()
     NotifyListenerOnStopSending(nullptr, NS_ERROR_OUT_OF_MEMORY, nullptr, nullptr);
     return NS_ERROR_OUT_OF_MEMORY;
   }
-  
+
   bool collectOutgoingAddresses = true;
   nsCOMPtr<nsIPrefBranch> pPrefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
   if (pPrefBranch)
@@ -3277,21 +3318,21 @@ nsMsgComposeAndSend::DeliverFileAsMail()
   {
     PL_strcat (buf2, mCompFields->GetTo());
     if (addressCollector)
-      addressCollector->CollectAddress(nsCString(mCompFields->GetTo()), 
+      addressCollector->CollectAddress(nsCString(mCompFields->GetTo()),
             collectAddresses /* create card if one doesn't exist */, sendFormat);
   }
   if (mCompFields->GetCc() && *mCompFields->GetCc()) {
     if (*buf2) PL_strcat (buf2, ",");
       PL_strcat (buf2, mCompFields->GetCc());
     if (addressCollector)
-      addressCollector->CollectAddress(nsCString(mCompFields->GetCc()), 
+      addressCollector->CollectAddress(nsCString(mCompFields->GetCc()),
             collectAddresses /* create card if one doesn't exist */, sendFormat);
   }
   if (mCompFields->GetBcc() && *mCompFields->GetBcc()) {
     if (*buf2) PL_strcat (buf2, ",");
       PL_strcat (buf2, mCompFields->GetBcc());
     if (addressCollector)
-      addressCollector->CollectAddress(nsCString(mCompFields->GetBcc()), 
+      addressCollector->CollectAddress(nsCString(mCompFields->GetBcc()),
             collectAddresses /* create card if one doesn't exist */, sendFormat);
   }
 
@@ -4811,6 +4852,82 @@ NS_IMETHODIMP nsMsgComposeAndSend::GetCryptoclosure(nsIMsgComposeSecure ** aCryp
 NS_IMETHODIMP nsMsgComposeAndSend::SetCryptoclosure(nsIMsgComposeSecure * aCryptoclosure)
 {
   m_crypto_closure = aCryptoclosure;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgComposeAndSend::GetSendCompFields(nsIMsgCompFields** aCompFields)
+{
+  NS_ENSURE_ARG_POINTER(aCompFields);
+  nsCOMPtr<nsIMsgCompFields> qiCompFields(mCompFields);
+  NS_ENSURE_STATE(qiCompFields);
+  qiCompFields.forget(aCompFields);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgComposeAndSend::GetSendBody(nsAString& aBody)
+{
+  nsCString charSet;
+  if (mCompFields)
+    mCompFields->GetCharacterSet(getter_Copies(charSet));
+  return ConvertToUnicode(charSet.get(), m_attachment1_body, aBody);
+}
+
+NS_IMETHODIMP
+nsMsgComposeAndSend::GetSendBodyType(nsACString& aBodyType)
+{
+  if (m_attachment1_type && *m_attachment1_type)
+    aBodyType.Assign(nsDependentCString(m_attachment1_type));
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgComposeAndSend::GetIdentity(nsIMsgIdentity **aIdentity)
+{
+  NS_ENSURE_ARG_POINTER(aIdentity);
+  *aIdentity = mUserIdentity;
+  NS_IF_ADDREF(*aIdentity);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgComposeAndSend::GetAttachment(uint32_t aIndex,
+                                   nsIMsgAttachmentHandler **aAttachment)
+{
+  NS_ENSURE_ARG_POINTER(aAttachment);
+  if (aIndex >= m_attachment_count)
+    return NS_ERROR_ILLEGAL_VALUE;
+  *aAttachment = m_attachments[aIndex];
+  NS_IF_ADDREF(*aAttachment);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgComposeAndSend::SetSavedToFolderName(const nsAString& aName)
+{
+  mSavedToFolderName.Assign(aName);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgComposeAndSend::GetSavedToFolderName(nsAString& aName)
+{
+  aName.Assign(mSavedToFolderName);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgComposeAndSend::SetDontDeliver(bool aDontDeliver)
+{
+  m_dont_deliver_p = aDontDeliver;
+  return NS_OK;
+}
+NS_IMETHODIMP
+nsMsgComposeAndSend::GetDontDeliver(bool *aDontDeliver)
+{
+  NS_ENSURE_ARG_POINTER(aDontDeliver);
+  *aDontDeliver = m_dont_deliver_p;
   return NS_OK;
 }
 
