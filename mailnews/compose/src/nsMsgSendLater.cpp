@@ -516,57 +516,34 @@ nsMsgSendLater::CompleteMailFileSend()
   if (!created)
     return NS_ERROR_FAILURE;
 
-  // Get the recipients...
-  nsCString recips;
-  nsCString ccList;
-  if (NS_FAILED(mMessage->GetRecipients(getter_Copies(recips))))
-    return NS_ERROR_UNEXPECTED;
-  else
-    mMessage->GetCcList(getter_Copies(ccList));
-
   nsCOMPtr<nsIMsgCompFields> compFields = do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
 
   nsCOMPtr<nsIMsgSend> pMsgSend = do_CreateInstance(NS_MSGSEND_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
 
-  nsCOMPtr<nsIMimeConverter> mimeConverter = do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   // Since we have already parsed all of the headers, we are simply going to
   // set the composition fields and move on.
-  //
   nsCString author;
   mMessage->GetAuthor(getter_Copies(author));
 
   nsMsgCompFields * fields = (nsMsgCompFields *)compFields.get();
 
-  nsCString decodedString;
-  // decoded string is null if the input is not MIME encoded
-  mimeConverter->DecodeMimeHeaderToUTF8(author, nullptr, false, true,
-                                        decodedString);
-
-  fields->SetFrom(decodedString.IsEmpty() ? author.get() : decodedString.get());
+  fields->SetFrom(author.get());
 
   if (m_to)
   {
-    mimeConverter->DecodeMimeHeaderToUTF8(nsDependentCString(m_to), nullptr,
-                                          false, true, decodedString);
-    fields->SetTo(decodedString.IsEmpty() ? m_to : decodedString.get());
+    fields->SetTo(m_to);
   }
 
   if (m_bcc)
   {
-    mimeConverter->DecodeMimeHeaderToUTF8(nsDependentCString(m_bcc), nullptr,
-                                          false, true, decodedString);
-    fields->SetBcc(decodedString.IsEmpty() ? m_bcc : decodedString.get());
+    fields->SetBcc(m_bcc);
   }
 
   if (m_fcc)
   {
-    mimeConverter->DecodeMimeHeaderToUTF8(nsDependentCString(m_fcc), nullptr,
-                                          false, true, decodedString);
-    fields->SetFcc(decodedString.IsEmpty() ? m_fcc : decodedString.get());
+    fields->SetFcc(m_fcc);
   }
 
   if (m_newsgroups)
