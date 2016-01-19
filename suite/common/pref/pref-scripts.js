@@ -13,7 +13,6 @@ function setDisableState(id, state) {
 function changeDisabledState(state) {
   //Set the states of the groupbox children state based on the "javascript enabled" checkbox value
   setDisableState("allowWindowMoveResize", state);
-  setDisableState("allowImageSrcChange", state);
   setDisableState("allowWindowStatusChange", state);
   setDisableState("allowWindowFlip", state);
   setDisableState("allowHideStatusBar", state);

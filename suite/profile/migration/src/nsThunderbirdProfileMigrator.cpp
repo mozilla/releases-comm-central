@@ -240,7 +240,6 @@ nsThunderbirdProfileMigrator::PrefTransform gTransforms[] = {
   MAKESAMETYPEPREFTRANSFORM("browser.visited_color",                   String),
 
   MAKESAMETYPEPREFTRANSFORM("dom.disable_open_during_load",            Bool),
-  MAKESAMETYPEPREFTRANSFORM("dom.disable_image_src_set",               Bool),
   MAKESAMETYPEPREFTRANSFORM("dom.disable_window_move_resize",          Bool),
   MAKESAMETYPEPREFTRANSFORM("dom.disable_window_flip",                 Bool),
   MAKESAMETYPEPREFTRANSFORM("dom.disable_window_open_feature.status",  Bool),
