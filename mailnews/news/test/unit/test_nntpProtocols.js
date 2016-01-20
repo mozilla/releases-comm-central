@@ -8,7 +8,8 @@ var defaultProtocolFlags =
   Ci.nsIProtocolHandler.URI_LOADABLE_BY_ANYONE |
   Ci.nsIProtocolHandler.ALLOWS_PROXY |
   Ci.nsIProtocolHandler.URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT |
-  Ci.nsIProtocolHandler.URI_FORBIDS_COOKIE_ACCESS;
+  Ci.nsIProtocolHandler.URI_FORBIDS_COOKIE_ACCESS |
+  Ci.nsIProtocolHandler.ORIGIN_IS_FULL_SPEC;
 
 var protocols =
   [ { protocol: "news",

@@ -8,7 +8,8 @@ var defaultProtocolFlags =
   Ci.nsIProtocolHandler.URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT |
   Ci.nsIProtocolHandler.URI_DANGEROUS_TO_LOAD |
   Ci.nsIProtocolHandler.ALLOWS_PROXY |
-  Ci.nsIProtocolHandler.URI_FORBIDS_COOKIE_ACCESS;
+  Ci.nsIProtocolHandler.URI_FORBIDS_COOKIE_ACCESS |
+  Ci.nsIProtocolHandler.ORIGIN_IS_FULL_SPEC;
 
 var protocols =
   [ { protocol: "imap",
