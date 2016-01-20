@@ -99,7 +99,7 @@ instantbird.jar:
 	content/instantbird/preferences/smiley.css		(preferences/smiley.css)
 	content/instantbird/preferences/smiley.xml		(preferences/smiley.xml)
 # override the toolkit license.html file
-*+	content/instantbird/license.html			(/mozilla/toolkit/content/license.html)
+* 	content/instantbird/license.html                        (/mozilla/toolkit/content/license.html)
 % override chrome://global/content/license.html chrome://instantbird/content/license.html
 
 #ifdef DEBUG

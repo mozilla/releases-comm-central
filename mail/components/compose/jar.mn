@@ -14,4 +14,4 @@ messenger.jar:
     content/messenger/messengercompose/addressingWidgetOverlay.js  (content/addressingWidgetOverlay.js)
 
 comm.jar:
-+   content/editor/editorOverlay.xul                               (content/editorOverlay.xul) 
+    content/editor/editorOverlay.xul                               (content/editorOverlay.xul)
