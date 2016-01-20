@@ -24,6 +24,4 @@ MOZ_OFFICIAL_BRANDING_DIRECTORY=other-licenses/branding/instantbird
 MOZ_APP_ID={33cb9019-c295-46dd-be21-8c4936574bee}
 # Enable generational GC on desktop.
 JSGC_GENERATIONAL=1
-if test "$OS_TARGET" = "WINNT"; then
-  NSS_EXTRA_SYMBOLS_FILE=../../../../chat/nss-purple.def
-fi
+NSS_EXTRA_SYMBOLS_FILE=../../../../chat/nss-purple.symbols
