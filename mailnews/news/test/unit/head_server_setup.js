@@ -113,11 +113,12 @@ function subscribeServer(incomingServer) {
 }
 
 // Sets up the client-side portion of fakeserver
-function setupLocalServer(port) {
+function setupLocalServer(port, host="localhost") {
   if (_server != null)
     return _server;
   let serverAndAccount =
-    localAccountUtils.create_incoming_server_and_account("nntp", port, null, null);
+    localAccountUtils.create_incoming_server_and_account("nntp", port, null,
+      null, host);
   let server = serverAndAccount.server;
   subscribeServer(server);
 

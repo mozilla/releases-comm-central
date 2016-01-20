@@ -74,6 +74,7 @@ TESTING_JS_MODULES.mailnews += [
     'test/resources/localAccountUtils.js',
     'test/resources/mailTestUtils.js',
     'test/resources/MockFactory.js',
+    'test/resources/NetworkTestUtils.jsm',
     'test/resources/PromiseTestUtils.jsm',
 ]
 

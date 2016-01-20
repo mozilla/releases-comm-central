@@ -77,11 +77,14 @@ var localAccountUtils = {
    * @param aPort The port the server is on.
    * @param aUsername The username for the server.
    * @param aPassword The password for the server.
+   * @param aHostname The hostname for the server (defaults to localhost).
    * @return The newly-created nsIMsgIncomingServer.
    */
-  create_incoming_server: function(aType, aPort, aUsername, aPassword) {
+  create_incoming_server(aType, aPort, aUsername, aPassword,
+                         aHostname="localhost") {
     let serverAndAccount = localAccountUtils.
-      create_incoming_server_and_account(aType, aPort, aUsername, aPassword);
+      create_incoming_server_and_account(aType, aPort, aUsername, aPassword,
+                                         aHostname);
     return serverAndAccount.server;
   },
 
@@ -92,12 +95,15 @@ var localAccountUtils = {
    * @param aPort The port the server is on.
    * @param aUsername The username for the server.
    * @param aPassword The password for the server.
+   * @param aHostname The hostname for the server (defaults to localhost).
    * @return An object with the newly-created nsIMsgIncomingServer as the
              "server" property and the newly-created nsIMsgAccount as the
              "account" property.
    */
-  create_incoming_server_and_account: function (aType, aPort, aUsername, aPassword) {
-    let server = MailServices.accounts.createIncomingServer(aUsername, "localhost",
+  create_incoming_server_and_account(aType, aPort, aUsername, aPassword,
+                                     aHostname="localhost") {
+    let server = MailServices.accounts.createIncomingServer(aUsername,
+                                                            aHostname,
                                                             aType);
     server.port = aPort;
     if (aUsername != null)
@@ -127,11 +133,12 @@ var localAccountUtils = {
    * @param aPort The port the server is on.
    * @param aUsername The username for the server
    * @param aPassword The password for the server
+   * @param aHostname The hostname for the server (defaults to localhost).
    * @return The newly-created nsISmtpServer.
    */
-  create_outgoing_server: function(aPort, aUsername, aPassword) {
+  create_outgoing_server(aPort, aUsername, aPassword, aHostname="localhost") {
     let server = MailServices.smtp.createServer();
-    server.hostname = "localhost";
+    server.hostname = aHostname;
     server.port = aPort;
     server.authMethod = Ci.nsMsgAuthMethod.none;
     return server;

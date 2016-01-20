@@ -43,10 +43,10 @@ function setupServerDaemon(debugOption) {
   return [daemon, server, extraProps];
 }
 
-function createPop3ServerAndLocalFolders(port) {
+function createPop3ServerAndLocalFolders(port, hostname="localhost") {
   localAccountUtils.loadLocalMailAccount();
   let server = localAccountUtils.create_incoming_server("pop3", port,
-							"fred", "wilma");
+    "fred", "wilma", hostname);
   return server;
 }
 
