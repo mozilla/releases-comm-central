@@ -1075,9 +1075,34 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode, nsIMsgIdentity *ident
     // We need an nsIMsgSend instance to send the message. Allow extensions
     // to override the default SMTP sender by observing mail-set-sender.
     mMsgSend = nullptr;
-    mDeliverMode = deliverMode;  // save for possible access by observer;
+    mDeliverMode = deliverMode;  // save for possible access by observer.
 
-    // TODO: Add observer to allow manipulation of mMsgSend, bug 1240823.
+    // Allow extensions to specify an outgoing server.
+    nsCOMPtr<nsIObserverService> observerService =
+      mozilla::services::GetObserverService();
+    NS_ENSURE_STATE(observerService);
+
+    // Assemble a string with sending parameters.
+    nsAutoString sendParms;
+
+    // First parameter: account key. This may be null.
+    sendParms.AppendASCII(accountKey && *accountKey ? accountKey : "");
+    sendParms.AppendLiteral(",");
+
+    // Second parameter: deliverMode.
+    sendParms.AppendInt(deliverMode);
+    sendParms.AppendLiteral(",");
+
+    // Third parameter: identity (as identity key).
+    nsAutoCString identityKey;
+    identity->GetKey(identityKey);
+    sendParms.AppendASCII(identityKey.get());
+
+    observerService->NotifyObservers(
+      NS_ISUPPORTS_CAST(nsIMsgCompose*, this),
+      "mail-set-sender",
+      sendParms.get());
+
     if (!mMsgSend)
       mMsgSend = do_CreateInstance(NS_MSGSEND_CONTRACTID);
 

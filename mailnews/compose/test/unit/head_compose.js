@@ -148,7 +148,8 @@ function createMessage(aAttachment) {
   return richCreateMessage(fields, attachments);
 }
 
-function richCreateMessage(fields, attachments=[], identity=null) {
+function richCreateMessage(fields, attachments=[], identity=null,
+                           account=null) {
   let params = Cc["@mozilla.org/messengercompose/composeparams;1"]
                  .createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = fields;
@@ -186,7 +187,8 @@ function richCreateMessage(fields, attachments=[], identity=null) {
     progressListener.reject = reject;
   });
   progress.registerListener(progressListener);
-  msgCompose.SendMsg(Ci.nsIMsgSend.nsMsgSaveAsDraft, identity, "", null,
+  msgCompose.SendMsg(Ci.nsIMsgSend.nsMsgSaveAsDraft, identity,
+                     account ? account.key : "", null,
                      progress);
   return promise;
 }
