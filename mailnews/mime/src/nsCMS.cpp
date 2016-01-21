@@ -280,10 +280,12 @@ nsresult nsCMSMessage::CommonVerifySignature(unsigned char* aDigestData, uint32_
   NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
 
   {
+    ScopedCERTCertList builtChain;
     SECStatus srv = certVerifier->VerifyCert(si->cert,
                                              certificateUsageEmailSigner,
                                              Now(), nullptr /*XXX pinarg*/,
-                                             nullptr /*hostname*/);
+                                             nullptr /*hostname*/,
+                                             builtChain);
     if (srv != SECSuccess) {
       MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
              ("nsCMSMessage::CommonVerifySignature - signing cert not trusted now\n"));

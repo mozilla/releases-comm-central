@@ -898,6 +898,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
   RefPtr<SharedCertVerifier> certVerifier(GetDefaultCertVerifier());
   NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
 
+  ScopedCERTCertList builtChain;
   if (!mEncryptionCertDBKey.IsEmpty()) {
     certdb->FindCertByDBKey(mEncryptionCertDBKey.get(), nullptr,
                             getter_AddRefs(mSelfEncryptionCert));
@@ -905,7 +906,8 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
         (certVerifier->VerifyCert(mSelfEncryptionCert->GetCert(),
                                   certificateUsageEmailRecipient,
                                   mozilla::pkix::Now(),
-                                  nullptr, nullptr) != SECSuccess)) {
+                                  nullptr, nullptr,
+                                  builtChain) != SECSuccess)) {
       // not suitable for encryption, so unset cert and clear pref
       mSelfEncryptionCert = nullptr;
       mEncryptionCertDBKey.Truncate();
@@ -926,7 +928,8 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
         (certVerifier->VerifyCert(mSelfSigningCert->GetCert(),
                                   certificateUsageEmailSigner,
                                   mozilla::pkix::Now(),
-                                  nullptr, nullptr) != SECSuccess)) {
+                                  nullptr, nullptr,
+                                  builtChain) != SECSuccess)) {
       // not suitable for signing, so unset cert and clear pref
       mSelfSigningCert = nullptr;
       mSigningCertDBKey.Truncate();
