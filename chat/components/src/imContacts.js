@@ -332,7 +332,7 @@ var otherContactsTag = {
   get name() { return "__others__"; },
   set name(aNewName) { throw Cr.NS_ERROR_NOT_AVAILABLE; },
   getContacts: function(aContactCount) {
-    let contacts = [...this._contacts];
+    let contacts = Object.keys(this._contacts).map(id => this._contacts[id]);
     if (aContactCount)
       aContactCount.value = contacts.length;
     return contacts;
