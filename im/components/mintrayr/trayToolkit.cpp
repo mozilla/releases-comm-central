@@ -270,7 +270,7 @@ NS_IMETHODIMP TrayIconImpl::DispatchMouseEvent(const nsAString& aEventName, PRUi
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool dummy;
-  return target->DispatchEvent(mouseEvent, &dummy);
+  return target->DispatchEvent(mouseEvent->AsEvent(), &dummy);
 }
 
 /* TrayServiceImpl */
