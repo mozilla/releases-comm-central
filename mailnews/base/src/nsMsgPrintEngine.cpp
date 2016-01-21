@@ -452,7 +452,7 @@ nsMsgPrintEngine::FireThatLoadOperationStartup(const nsString& uri)
 nsresult
 nsMsgPrintEngine::FireThatLoadOperation(const nsString& uri)
 {
-  nsresult rv;
+  nsresult rv = NS_ERROR_FAILURE;
   
   nsCString uriCStr;
   LossyCopyUTF16toASCII(uri, uriCStr);
