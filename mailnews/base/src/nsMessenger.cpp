@@ -2030,6 +2030,8 @@ nsMessenger::GetString(const nsString& aStringName, nsString& aValue)
 
   if (mStringBundle)
     rv = mStringBundle->GetStringFromName(aStringName.get(), getter_Copies(aValue));
+  else
+    rv = NS_ERROR_FAILURE;
 
   if (NS_FAILED(rv) || aValue.IsEmpty())
     aValue = aStringName;
