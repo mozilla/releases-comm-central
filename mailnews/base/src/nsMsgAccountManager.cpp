@@ -1878,8 +1878,6 @@ nsMsgAccountManager::findServerInternal(const nsACString& username,
     return NS_OK;
   }
 
-  nsIMsgIncomingServer *foundServer;
-
   for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
     // Find matching server by user+host+type+port.
     nsCOMPtr<nsIMsgIncomingServer>& server = iter.Data();
@@ -2339,9 +2337,8 @@ nsresult nsMsgAccountManager::GetLocalFoldersPrettyName(nsString &localFoldersNa
     mozilla::services::GetStringBundleService();
   NS_ENSURE_TRUE(sBundleService, NS_ERROR_UNEXPECTED);
 
-  if (sBundleService)
-    rv = sBundleService->CreateBundle("chrome://messenger/locale/messenger.properties",
-                                      getter_AddRefs(bundle));
+  rv = sBundleService->CreateBundle("chrome://messenger/locale/messenger.properties",
+                                    getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
   return bundle->GetStringFromName(MOZ_UTF16("localFolders"), getter_Copies(localFoldersName));
