@@ -13,6 +13,7 @@
   buttons= "accept,cancel"
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   onload = "parent.onPanelLoaded('am-im.xul');">
+  <script type="application/javascript" src="chrome://chat/content/imAccountOptionsHelper.js"/>
   <script type="application/javascript" src="chrome://messenger/content/am-im.js"/>
 
   <hbox>

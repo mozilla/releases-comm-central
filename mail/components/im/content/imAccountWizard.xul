@@ -20,6 +20,7 @@
         onload="accountWizard.onload();"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
+  <script type="application/javascript" src="chrome://chat/content/imAccountOptionsHelper.js"/>
   <script type="application/javascript" src="chrome://messenger/content/chat/imAccountWizard.js"/>
   <stringbundle id="accountsBundle" src="chrome://messenger/locale/imAccounts.properties"/>
 
