@@ -500,8 +500,8 @@ function OpenInboxForServer(server)
 
 /** Update state of zoom type (text vs. full) menu item. */
 function UpdateFullZoomMenu() {
-  var menuItem = document.getElementById("menu_fullZoomToggle");
-  menuItem.setAttribute("checked", !ZoomManager.useFullZoom);
+  let cmdItem = document.getElementById("cmd_fullZoomToggle");
+  cmdItem.setAttribute("checked", !ZoomManager.useFullZoom);
 }
 
 /**

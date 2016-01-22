@@ -153,7 +153,8 @@
      <command id="cmd_fullZoomReset"
               oncommand="goDoCommand('cmd_fullZoomReset');"/>
      <command id="cmd_fullZoomToggle"
-              oncommand="goDoCommand('cmd_fullZoomToggle');"/>
+              oncommand="goDoCommand('cmd_fullZoomToggle');"
+              checked="false"/>
    </commandset>
 </commandset>
 
