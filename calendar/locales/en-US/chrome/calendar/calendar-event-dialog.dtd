@@ -140,7 +140,7 @@
 <!ENTITY event.email.attendees.accesskey                  "A">
 <!ENTITY event.email.tentative.attendees.label            "Compose E-Mail to Undecided Attendees…">
 <!ENTITY event.email.tentative.attendees.accesskey        "U">
-<!ENTITY event.remove.attendees.label                     "Remove all attendees...">
+<!ENTITY event.remove.attendees.label2                    "Remove all attendees">
 <!ENTITY event.remove.attendees.accesskey                 "r">
 <!ENTITY event.remove.attendee.label                      "Remove attendee">
 <!ENTITY event.remove.attendee.accesskey                  "e">

@@ -3588,6 +3588,10 @@ function attendeeClick(aEvent) {
             (node == invite) ? showElement(node) : hideElement(node);
         }
     } else {
+        if (window.attendees.length > 1) {
+            let removeall = document.getElementById("attendee-popup-removeallattendees-menuitem");
+            showElement(removeall);
+        }
         // setup attendee specific menu items if appropriate otherwise hide respective  menu items
         let mailto = document.getElementById("attendee-popup-emailattendee-menuitem");
         let remove = document.getElementById("attendee-popup-removeattendee-menuitem");

@@ -1327,7 +1327,7 @@
                   command="cmd_attendees"
                   disable-on-readonly="true"/>
         <menuitem id="attendee-popup-removeallattendees-menuitem"
-                  label="&event.remove.attendees.label;"
+                  label="&event.remove.attendees.label2;"
                   accesskey="&event.remove.attendees.accesskey;"
                   oncommand="removeAllAttendees()"
                   disable-on-readonly="true"
