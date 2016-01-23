@@ -172,7 +172,7 @@ XulTabList.prototype = {
     this._mustNotify = true;
     this._checkListening();
 
-    return Promise.resolve(this._actorByBrowser.forEach(([_, actor]) => actor));
+    return Promise.resolve([...this._actorByBrowser.values()]);
   },
 
   onOpenWindow: DevToolsUtils.makeInfallible(function(aWindow) {
