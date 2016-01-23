@@ -173,7 +173,7 @@ var GenericAccountPrototype = {
     if (!this._pendingBuddyRequests)
       return;
 
-    for each (let request in this._pendingBuddyRequests)
+    for (let request of this._pendingBuddyRequests)
       request.cancel();
     delete this._pendingBuddyRequests;
   },
@@ -476,7 +476,7 @@ var GenericConversationPrototype = {
     this._observers = this._observers.filter(o => o !== aObserver);
   },
   notifyObservers: function(aSubject, aTopic, aData) {
-    for each (let observer in this._observers) {
+    for (let observer of this._observers) {
       try {
         observer.observe(aSubject, aTopic, aData);
       } catch(e) {

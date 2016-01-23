@@ -441,7 +441,7 @@ YahooSession.prototype = {
       return 0;
     }
 
-    for each (let packet in packets) {
+    for (let packet of packets) {
       this._account.LOG("Received Packet:\n" + packet.toString());
       if (YahooPacketHandler.hasOwnProperty(packet.service)) {
         try {
@@ -699,7 +699,7 @@ YahooPacket.prototype = {
   // Add multiple key/value pairs with the same key but different values
   // stored in an array.
   addValues: function(aKey, aValues) {
-    for each (let value in aValues)
+    for (let value of aValues)
       this.addValue(aKey, value);
   },
 
@@ -819,7 +819,7 @@ YahooPacket.prototype = {
     if (this.keyValuePairs.length) {
       // Add two preceding newlines for space to make reading easier.
       s += "\n\nPacket Key-Value Data:\n";
-      for each (let pair in this.keyValuePairs)
+      for (let pair of this.keyValuePairs)
         s += pair.key + ":\t" + pair.value + "\n";
     }
     return s;
@@ -968,7 +968,7 @@ var YahooPacketHandler = {
     let onlineBuddies = this.getOnlineBuddies();
     // Send a notification to each online buddy that your icon has changed.
     // Those offline will automatically pick up the change when they log in.
-    for each (let buddy in onlineBuddies) {
+    for (let buddy of onlineBuddies) {
       let packet = new YahooPacket(kPacketType.AvatarUpdate, 0,
                                    this._session.sessionId);
       packet.addValue(3, buddy.userName);
@@ -1069,7 +1069,7 @@ var YahooPacketHandler = {
   // Friends and groups list.
   0xf1: function(aPacket) {
     let tagName = "";
-    for each (let pair in aPacket.keyValuePairs) {
+    for (let pair of aPacket.keyValuePairs) {
       if (pair.key == "65")
         tagName = pair.value;
       else if (pair.key == "7") {

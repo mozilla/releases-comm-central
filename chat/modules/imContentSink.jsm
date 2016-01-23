@@ -316,7 +316,7 @@ function cleanupNode(aNode, aRules, aTextModifiers)
       // are created, the next text modifier functions have more nodes
       // to process.
       let textNodeCount = 1;
-      for each (let modifier in aTextModifiers)
+      for (let modifier of aTextModifiers)
         for (let n = 0; n < textNodeCount; ++n) {
           let textNode = aNode.childNodes[i + n];
 

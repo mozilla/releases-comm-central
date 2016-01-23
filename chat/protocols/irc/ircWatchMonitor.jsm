@@ -71,7 +71,7 @@ function trackBuddyWatch(aNicks) {
     params.push("A");
   let maxLength = this.maxMessageLength - 2 -
                   this.countBytes(this.buildMessage("WATCH", params));
-  for each (let nick in nicks) {
+  for (let nick of nicks) {
     if (this.countBytes(params + " " + nick) >= maxLength) {
       // If the message would be too long, first send this message.
       this.sendMessage("WATCH", params);
@@ -322,7 +322,7 @@ function trackBuddyMonitor(aNicks) {
   let params = [];
   let maxLength = this.maxMessageLength - 2 -
                   this.countBytes(this.buildMessage("MONITOR", "+"));
-  for each (let nick in nicks) {
+  for (let nick of nicks) {
     if (this.countBytes(params + " " + nick) >= maxLength) {
       // If the message would be too long, first send this message.
       this.sendMessage("MONITOR", ["+", params.join(",")]);

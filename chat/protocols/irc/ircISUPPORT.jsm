@@ -126,7 +126,7 @@ var isupportBase = {
       this.maxChannels = {};
 
       let pairs = aMessage.isupport.value.split(",");
-      for each (let pair in pairs) {
+      for (let pair of pairs) {
         let [prefix, num] = pair.split(":");
         this.maxChannels[prefix] = num;
       }

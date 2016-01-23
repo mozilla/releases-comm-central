@@ -233,7 +233,7 @@ YahooAccount.prototype = {
   },
 
   remove: function() {
-    for each(let conv in this._conversations)
+    for (let conv of this._conversations.values())
       conv.close();
     delete this._conversations;
     for (let buddy of this._buddies)
@@ -265,7 +265,7 @@ YahooAccount.prototype = {
     let conf = new YahooConference(this, aRoom, aOwner);
     this._conferences.set(aRoom, conf);
 
-    for each (let participant in aParticipants)
+    for (let participant of aParticipants)
       conf.addParticipant(participant);
 
     // Add ourselves to the conference room as well.

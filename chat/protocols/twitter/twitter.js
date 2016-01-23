@@ -323,7 +323,7 @@ Conversation.prototype = {
       }
       entArray.sort((a, b) => a.start - b.start);
       let offset = 0;
-      for each (let entity in entArray) {
+      for (let entity of entArray) {
         let str = text.substring(offset + entity.start, offset + entity.end);
         if (str[0] == "\uFF20") // ＠ - unicode character similar to @
           str = "@" + str.substring(1);
@@ -623,7 +623,7 @@ Account.prototype = {
   get timeline() { return this._timeline || (this._timeline = new Conversation(this)); },
   displayMessages: function(aMessages) {
     let lastMsgId = this._lastMsgId;
-    for each (let tweet in aMessages) {
+    for (let tweet of aMessages) {
       if (!("user" in tweet) || !("text" in tweet) || !("id_str" in tweet) ||
           this._knownMessageIds.has(tweet.id_str))
         continue;
@@ -742,7 +742,7 @@ Account.prototype = {
     this.DEBUG("Received data: " + newText);
     let messages = newText.split(/\r\n?/);
     this._pendingData = messages.pop();
-    for each (let message in messages) {
+    for (let message of messages) {
       if (!message.trim())
         continue;
       let msg;
@@ -758,7 +758,7 @@ Account.prototype = {
         // Filter out the IDs that info has already been received from (e.g. a
         // tweet has been received as part of the timeline request).
         let userInfoIds = new Set();
-        for each (let userInfo in this._userInfo)
+        for (let userInfo of this._userInfo.values())
           userInfoIds.add(userInfo.id_str);
         let ids = msg.friends.filter(
           aId => !userInfoIds.has(aId.toString()));
@@ -952,7 +952,7 @@ Account.prototype = {
   cleanUp: function() {
     this.finishAuthorizationRequest();
     if (this._pendingRequests.length != 0) {
-      for each (let request in this._pendingRequests)
+      for (let request of this._pendingRequests)
         request.abort();
       delete this._pendingRequests;
     }
@@ -1089,7 +1089,7 @@ Account.prototype = {
   // create the participant.
   onLookupReceived: function(aData) {
     let users = JSON.parse(aData);
-    for each (let user in users) {
+    for (let user of users) {
       this.setUserInfo(user);
       this.timeline._ensureParticipantExists(user.screen_name);
     }

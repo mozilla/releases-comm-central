@@ -229,7 +229,7 @@ Tag.prototype = {
     this._observers = this._observers.filter(o => o !== aObserver);
   },
   notifyObservers: function(aSubject, aTopic, aData) {
-    for each (let observer in this._observers)
+    for (let observer of this._observers)
       observer.observe(aSubject, aTopic, aData);
   },
 
@@ -256,7 +256,7 @@ var otherContactsTag = {
   showTag: function(aTag) {
     let id = aTag.id;
     delete this._hiddenTags[id];
-    for each (let contact in this._contacts)
+    for (let contact of this._contacts)
       if (contact.getTags().some(t => t.id == id))
         this._removeContact(contact);
 
@@ -277,7 +277,7 @@ var otherContactsTag = {
     this._saveHiddenTagsPref();
   },
   _hideTag: function(aTag) {
-    for each (let contact in aTag.getContacts())
+    for (let contact of aTag.getContacts())
       if (!(contact.id in this._contacts) &&
           contact.getTags().every(t => t.id in this._hiddenTags))
         this._addContact(contact);
@@ -301,7 +301,7 @@ var otherContactsTag = {
     let pref = Services.prefs.getCharPref(this.hiddenTagsPref);
     if (!pref)
       return;
-    for each (let tagId in pref.split(","))
+    for (let tagId of pref.split(","))
       this._hiddenTags[tagId] = TagsById[tagId];
   },
   _initContacts: function() {
@@ -319,8 +319,9 @@ var otherContactsTag = {
     };
     this._contacts = {};
     this._contactsInitialized = true;
-    for each (let tag in this._hiddenTags)
-      this._hideTag(tag);
+    for (let id in this._hiddenTags) {
+      let tag = this._hiddenTags[id];
+    }
     Services.obs.addObserver(this, "contact-tag-added", false);
     Services.obs.addObserver(this, "contact-tag-removed", false);
     Services.obs.addObserver(this, "contact-added", false);
@@ -340,7 +341,7 @@ var otherContactsTag = {
   _addContact: function(aContact) {
     this._contacts[aContact.id] = aContact;
     this.notifyObservers(aContact, "contact-moved-in");
-    for each (let observer in ContactsById[aContact.id]._observers)
+    for (let observer of ContactsById[aContact.id]._observers)
       observer.observe(this, "contact-moved-in", null);
     aContact.addObserver(this._observer);
   },
@@ -348,7 +349,7 @@ var otherContactsTag = {
     delete this._contacts[aContact.id];
     aContact.removeObserver(this._observer);
     this.notifyObservers(aContact, "contact-moved-out");
-    for each (let observer in ContactsById[aContact.id]._observers)
+    for (let observer of ContactsById[aContact.id]._observers)
       observer.observe(this, "contact-moved-out", null);
   },
 
@@ -360,7 +361,7 @@ var otherContactsTag = {
     this._observers = this._observers.filter(o => o !== aObserver);
   },
   notifyObservers: function(aSubject, aTopic, aData) {
-    for each (let observer in this._observers)
+    for (let observer of this._observers)
       observer.observe(aSubject, aTopic, aData);
   },
 
@@ -403,9 +404,10 @@ Contact.prototype = {
     let oldDisplayName = this.displayName;
     this._alias = aNewAlias;
     this._notifyObservers("display-name-changed", oldDisplayName);
-    for each (let buddy in this._buddies)
-      for each (let accountBuddy in buddy._accounts)
+    for (let buddy of this._buddies) {
+      for (let accountBuddy of buddy._accounts)
         accountBuddy.serverAlias = aNewAlias;
+    }
     return aNewAlias;
   },
   _ensureNotDummy: function() {
@@ -455,7 +457,7 @@ Contact.prototype = {
     aTag._addContact(this);
 
     aTag.notifyObservers(this, "contact-moved-in");
-    for each (let observer in this._observers)
+    for (let observer of this._observers)
       observer.observe(aTag, "contact-moved-in", null);
     Services.obs.notifyObservers(this, "contact-tag-added", aTag.id);
   },
@@ -471,7 +473,7 @@ Contact.prototype = {
     aTag._removeContact(this);
 
     aTag.notifyObservers(this, "contact-moved-out");
-    for each (let observer in this._observers)
+    for (let observer of this._observers)
       observer.observe(aTag, "contact-moved-out", null);
     Services.obs.notifyObservers(this, "contact-tag-removed", aTag.id);
   },
@@ -529,10 +531,11 @@ Contact.prototype = {
     }
   },
   _isTagInherited: function(aTag) {
-    for each (let buddy in this._buddies)
-      for each (let accountBuddy in buddy._accounts)
+    for (let buddy of this._buddies) {
+      for (let accountBuddy of buddy._accounts)
         if (accountBuddy.tag.id == aTag.id)
           return true;
+    }
     return false;
   },
   _moved: function(aOldTag, aNewTag) {
@@ -566,13 +569,13 @@ Contact.prototype = {
     // Finally, notify of the changes.
     if (shouldRemove) {
       aOldTag.notifyObservers(this, "contact-moved-out");
-      for each (let observer in this._observers)
+      for (let observer of this._observers)
         observer.observe(aOldTag, "contact-moved-out", null);
       Services.obs.notifyObservers(this, "contact-tag-removed", aOldTag.id);
     }
     if (shouldAdd) {
       aNewTag.notifyObservers(this, "contact-moved-in");
-      for each (let observer in this._observers)
+      for (let observer of this._observers)
         observer.observe(aNewTag, "contact-moved-in", null);
       Services.obs.notifyObservers(this, "contact-tag-added", aNewTag.id);
     }
@@ -599,12 +602,12 @@ Contact.prototype = {
     let contact = ContactsById[aContact.id]; // remove XPConnect wrapper
 
     // Copy all the contact-only tags first, otherwise they would be lost.
-    for each (let tag in contact.getTags())
+    for (let tag of contact.getTags())
       if (!contact._isTagInherited(tag))
         this.addTag(tag);
 
     // Adopt each buddy. Removing the last one will delete the contact.
-    for each (let buddy in contact.getBuddies())
+    for (let buddy of contact.getBuddies())
       buddy.contact = this;
     this._updatePreferredBuddy();
   },
@@ -650,7 +653,7 @@ Contact.prototype = {
       this._notifyObservers("removed");
       delete ContactsById[this._id];
 
-      for each (let tag in this._tags)
+      for (let tag of this._tags)
         tag._removeContact(this);
       let statement =
         DBConn.createStatement("DELETE FROM contact_tag WHERE contact_id = :id");
@@ -715,14 +718,14 @@ Contact.prototype = {
 
     // The first tag was inherited during the contact setter.
     // This will copy the remaining tags.
-    for each (let tag in tags)
+    for (let tag of tags)
       buddy.contact.addTag(tag);
 
     return buddy.contact;
   },
   remove: function() {
     this._massRemove = true;
-    for each (let buddy in this._buddies)
+    for (let buddy of this._buddies)
       buddy.remove();
   },
 
@@ -783,7 +786,7 @@ Contact.prototype = {
     let preferred;
     // |this._buddies| is ordered by user preference, so in case of
     // equal availability, keep the current value of |preferred|.
-    for each (let buddy in this._buddies) {
+    for (let buddy of this._buddies) {
       if (!preferred || preferred.statusType < buddy.statusType ||
           (preferred.statusType == buddy.statusType &&
            preferred.availabilityDetails < buddy.availabilityDetails))
@@ -853,10 +856,10 @@ Contact.prototype = {
   },
   // internal calls + calls from add-ons
   notifyObservers: function(aSubject, aTopic, aData) {
-    for each (let observer in this._observers)
+    for (let observer of this._observers)
       if ("observe" in observer) // avoid failing on destructed XBL bindings...
         observer.observe(aSubject, aTopic, aData);
-    for each (let tag in this._tags)
+    for (let tag of this._tags)
       tag.notifyObservers(aSubject, aTopic, aData);
     Services.obs.notifyObservers(aSubject, aTopic, aData);
   },
@@ -931,7 +934,7 @@ function Buddy(aId, aKey, aName, aSrvAlias, aContactId) {
 Buddy.prototype = {
   get id() { return this._id; },
   destroy: function() {
-    for each (let ab in this._accounts)
+    for (let ab of this._accounts)
       ab.unInit();
     delete this._accounts;
     delete this._observers;
@@ -954,7 +957,7 @@ Buddy.prototype = {
     this._contact._buddies.push(this);
 
     // Ensure all the inherited tags are in the new contact.
-    for each (let accountBuddy in this._accounts)
+    for (let accountBuddy of this._accounts)
       this._contact.addTag(TagsById[accountBuddy.tag.id], true);
 
     let statement =
@@ -970,7 +973,7 @@ Buddy.prototype = {
     return aContact;
   },
   _hasAccountBuddy: function(aAccountId, aTagId) {
-    for each (let ab in this._accounts) {
+    for (let ab of this._accounts) {
       if (ab.account.numericId == aAccountId && ab.tag.id == aTagId)
         return true;
     }
@@ -996,7 +999,7 @@ Buddy.prototype = {
   get _empty() { return this._accounts.length == 0; },
 
   remove: function() {
-    for each (let account in this._accounts)
+    for (let account of this._accounts)
       account.remove();
   },
 
@@ -1054,7 +1057,7 @@ Buddy.prototype = {
 
     let preferred;
     //TODO take into account the order of the account-manager list.
-    for each (let account in this._accounts) {
+    for (let account of this._accounts) {
       if (!preferred || preferred.statusType < account.statusType ||
           (preferred.statusType == account.statusType &&
            preferred.availabilityDetails < account.availabilityDetails))
@@ -1128,7 +1131,7 @@ Buddy.prototype = {
   // internal calls + calls from add-ons
   notifyObservers: function(aSubject, aTopic, aData) {
     try {
-      for each (let observer in this._observers)
+      for (let observer of this._observers)
         observer.observe(aSubject, aTopic, aData);
       this._contact._observe(aSubject, aTopic, aData);
     } catch (e) {
@@ -1311,8 +1314,10 @@ ContactsService.prototype = {
     TagsById = { };
     // Avoid shutdown leaks caused by references to native components
     // implementing prplIAccountBuddy.
-    for each (let buddy in BuddiesById)
+    for (let buddyId in BuddiesById) {
+      let buddy = BuddiesById[buddyId];
       buddy.destroy();
+    }
     BuddiesById = { };
     ContactsById = { };
   },

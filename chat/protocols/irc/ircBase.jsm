@@ -69,11 +69,11 @@ function leftRoom(aAccount, aNicks, aChannels, aSource, aReason, aKicked) {
     return _(msgId2, aNick, reason);
   }
 
-  for each (let channelName in aChannels) {
+  for (let channelName of aChannels) {
     if (!aAccount.conversations.has(channelName))
       continue; // Handle when we closed the window
     let conversation = aAccount.getConversation(channelName);
-    for each (let nick in aNicks) {
+    for (let nick of aNicks) {
       let msg;
       if (aAccount.normalize(nick) == aAccount.normalize(aAccount._nickname)) {
         msg = __(nick, true);
@@ -697,7 +697,7 @@ var ircBase = {
         receivedBuddyNames = aMessage.params[1].trim().split(" ");
 
       // This was received in response to the last ISON message sent.
-      for each (let buddyName in this.pendingIsOnQueue) {
+      for (let buddyName of this.pendingIsOnQueue) {
         // If the buddy name is in the list returned from the server, they're
         // online.
         let status = (receivedBuddyNames.indexOf(buddyName) == -1) ?

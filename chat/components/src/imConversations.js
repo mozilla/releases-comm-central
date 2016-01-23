@@ -193,7 +193,7 @@ UIConversation.prototype = {
       return;
 
     this._lastNotifiedUnreadCount = this._unreadIncomingMessageCount;
-    for each (let observer in this._observers)
+    for (let observer of this._observers)
       observer.observe(this, "unread-message-count-changed",
                        this._unreadIncomingMessageCount.toString());
   },
@@ -382,8 +382,10 @@ UIConversation.prototype = {
     }
   },
   unInit: function() {
-    for each (let conv in this._prplConv)
+    for (let id in this._prplConv) {
+      let conv = this._prplConv[id];
       gConversationsService.forgetConversation(conv);
+    }
     if (this._observedContact) {
       this._observedContact.removeObserver(this);
       delete this._observedContact;
@@ -393,8 +395,10 @@ UIConversation.prototype = {
     this.notifyObservers(this, "ui-conversation-destroyed");
   },
   close: function() {
-    for each (let conv in this._prplConv)
+    for (let id in this._prplConv) {
+      let conv = this._prplConv[id];
       conv.close();
+    }
     if (!this.hasOwnProperty("_currentTargetId"))
       return;
     delete this._currentTargetId;
@@ -425,7 +429,7 @@ UIConversation.prototype = {
       }
     }
 
-    for each (let observer in this._observers) {
+    for (let observer of this._observers) {
       if (!observer.observe && this._observers.indexOf(observer) == -1)
         continue; // observer removed by a previous call to another observer.
       observer.observe(aSubject, aTopic, aData);
@@ -486,7 +490,7 @@ ConversationsService.prototype = {
     delete this._uiConv;
     delete this._uiConvByContactId;
     // This should already be empty, but just to be sure...
-    for each (let prplConv in this._prplConversations)
+    for (let prplConv of this._prplConversations)
       prplConv.unInit();
     delete this._prplConversations;
     Services.obs.removeObserver(this, "account-disconnecting");
@@ -497,13 +501,15 @@ ConversationsService.prototype = {
 
   observe: function(aSubject, aTopic, aData) {
     if (aTopic == "account-connected") {
-      for each (let conv in this._uiConv) {
+      for (let id in this._uiConv) {
+        let conv = this._uiConv[id];
         if (conv.account.id == aSubject.id)
           conv.connected();
       }
     }
     else if (aTopic == "account-disconnecting") {
-      for each (let conv in this._uiConv) {
+      for (let id in this._uiConv) {
+        let conv = this._uiConv[id];
         if (conv.account.id == aSubject.id)
           conv.disconnecting();
       }
@@ -634,7 +640,7 @@ ConversationsService.prototype = {
 
   getConversations: function() { return new nsSimpleEnumerator(this._prplConversations); },
   getConversationById: function(aId) {
-    for each (let conv in this._prplConversations)
+    for (let conv of this._prplConversations)
       if (conv.id == aId)
         return conv;
     return null;

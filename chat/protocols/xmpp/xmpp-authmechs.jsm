@@ -89,7 +89,7 @@ DigestMD5Auth.prototype = {
     let decoded = atob(aStanza.innerText.replace(/[^A-Za-z0-9\+\/\=]/g, ""));
     let data = {realm: ""};
 
-    for each (let elem in decoded.split(/, */)) {
+    for (let elem of decoded.split(/, */)) {
       // Find the first = and use that to split the nonce from the value.
       let index = elem.indexOf("=");
       if (index == -1)

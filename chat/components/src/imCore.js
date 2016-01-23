@@ -234,7 +234,7 @@ UserStatus.prototype = {
     this._observers = this._observers.filter(o => o !== aObserver);
   },
   _notifyObservers: function(aTopic, aData) {
-    for each (let observer in this._observers)
+    for (let observer of this._observers)
       observer.observe(this, aTopic, aData);
   }
 };

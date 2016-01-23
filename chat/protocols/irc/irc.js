@@ -142,7 +142,7 @@ function ircMessage(aData, aOrigin) {
 //   aNewModes is an array of mode characters.
 function _setMode(aAddNewMode, aNewModes) {
   // Check each mode being added/removed.
-  for each (let newMode in aNewModes) {
+  for (let newMode of aNewModes) {
     let hasMode = this._modes.has(newMode);
     // If the mode is in the list of modes and we want to remove it.
     if (hasMode && !aAddNewMode)
@@ -515,8 +515,10 @@ ircChannel.prototype = {
 
   setModesFromRestriction: function(aRestriction) {
     // First remove all types from the list of modes.
-    for each (let mode in this._account.channelRestrictionToModeMap)
+    for (let key in this._account.channelRestrictionToModeMap) {
+      let mode = this._account.channelRestrictionToModeMap[key];
       this._modes.delete(mode);
+    }
 
     // Add the new mode onto the list.
     if (aRestriction in this._account.channelRestrictionToModeMap) {

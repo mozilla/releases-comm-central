@@ -118,7 +118,7 @@ XPCOMUtils.defineLazyGetter(Cu.getGlobalForObject({}), "gLogLevels", function() 
   Services.prefs.addObserver(kLogLevelPref, logLevels, true /* weak */);
 
   // Initialize with existing log level prefs.
-  for each (let pref in Services.prefs.getChildList(kLogLevelPref)) {
+  for (let pref of Services.prefs.getChildList(kLogLevelPref)) {
     if (Services.prefs.getPrefType(pref) == Services.prefs.PREF_INT)
       logLevels["level" + pref.substr(kLogLevelPref.length)] = Services.prefs.getIntPref(pref);
   }
@@ -171,7 +171,7 @@ function ClassInfo(aInterfaces, aDescription = "JS Proto Object")
   if (!Array.isArray(aInterfaces))
     aInterfaces = [aInterfaces];
 
-  for each (let i in aInterfaces)
+  for (let i of aInterfaces)
     if (typeof i == "string" && !(i in Ci))
       Services.console.logStringMessage("ClassInfo: unknown interface " + i);
 

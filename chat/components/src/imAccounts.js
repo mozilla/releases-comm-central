@@ -241,7 +241,7 @@ imAccount.prototype = {
         let autojoin = this.prefBranch.getComplexValue(
           kPrefAccountAutoJoin, Ci.nsISupportsString).data;
         if (autojoin) {
-          for each (let room in autojoin.trim().split(/,\s*/)) {
+          for (let room of autojoin.trim().split(/,\s*/)) {
             if (room)
               this.joinChat(this.getChatRoomDefaultFieldValues(room));
           }
@@ -517,7 +517,7 @@ imAccount.prototype = {
       return "";
     }
     let normalizedName = this.normalizedName;
-    for each (let login in logins) {
+    for (let login of logins) {
       if (login.username == normalizedName) {
         this._password = login.password;
         if (this._connectionErrorReason == Ci.imIAccount.ERROR_MISSING_PASSWORD) {
@@ -555,7 +555,7 @@ imAccount.prototype = {
     try {
       let logins = Services.logins.findLogins({}, passwordURI, null, passwordURI);
       let saved = false;
-      for each (let login in logins) {
+      for (let login of logins) {
         if (newLogin.matches(login, true)) {
           if (aPassword)
             Services.logins.modifyLogin(login, newLogin);
@@ -633,7 +633,7 @@ imAccount.prototype = {
     // protocol plugin is missing.
     login.init(passwordURI, null, passwordURI, this.normalizedName, "", "", "");
     let logins = Services.logins.findLogins({}, passwordURI, null, passwordURI);
-    for each (let l in logins) {
+    for (let l of logins) {
       if (login.matches(l, true)) {
         Services.logins.removeLogin(l);
         break;
@@ -843,7 +843,7 @@ AccountsService.prototype = {
     gConvertingOldPasswords =
       Services.prefs.getBoolPref(kPrefConvertOldPasswords);
     let accountList = this._accountList;
-    for each (let account in (accountList ? accountList.split(",") : [])) {
+    for (let account of (accountList ? accountList.split(",") : [])) {
       try {
         account.trim();
         if (!account)
@@ -889,7 +889,7 @@ AccountsService.prototype = {
   },
 
   unInitAccounts: function() {
-    for each (let account in this._accounts)
+    for (let account of this._accounts)
       account.unInit();
     gAccountsService = null;
     delete this._accounts;
@@ -988,7 +988,7 @@ AccountsService.prototype = {
   },
 
   processAutoLogin: function() {
-    for each (let account in this._accounts)
+    for (let account of this._accounts)
       account.checkAutoLogin();
 
     // Make sure autologin is now enabled, so that we don't display a
@@ -1008,7 +1008,7 @@ AccountsService.prototype = {
       return;
 
     this._checkingIfPasswordStillMissing = true;
-    for each (let account in this._accounts)
+    for (let account of this._accounts)
       account._checkIfPasswordStillMissing();
     delete this._checkingIfPasswordStillMissing;
   },

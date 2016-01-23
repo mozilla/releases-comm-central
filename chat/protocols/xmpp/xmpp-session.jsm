@@ -459,7 +459,7 @@ XMPPSession.prototype = {
 
       let query = aStanza.getElement(["query"]);
       let values = {};
-      for each (let c in query.children)
+      for (let c of query.children)
         values[c.qName] = c.innerText;
 
       if (!("username" in values) || !("resource" in values)) {

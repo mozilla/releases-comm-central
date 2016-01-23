@@ -129,7 +129,7 @@ function run_test() {
  * Test round tripping parsing and then rebuilding the messages from RFC 2812.
  */
 function testRFC2812Messages() {
-  for each (let expectedStringMessage in testData) {
+  for (let expectedStringMessage of testData) {
     // Pass in an empty default origin in order to check this below.
     let message = irc.ircMessage(expectedStringMessage, "");
 

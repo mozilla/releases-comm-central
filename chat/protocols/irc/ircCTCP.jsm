@@ -93,7 +93,7 @@ function ctcpHandleMessage(aMessage) {
   }
 
   // Loop over each raw CTCP message.
-  for each (let message in ctcpMessages) {
+  for (let message of ctcpMessages) {
     if (!ircHandlers.handleCTCPMessage(this, message)) {
       this.WARN("Unhandled CTCP message: " + message.ctcp.rawMessage +
                 "\nin IRC message: " + message.rawMessage);

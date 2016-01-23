@@ -235,7 +235,7 @@ XMLNode.prototype = {
     let c = this.getChildren(aQuery[0]);
     let nq = aQuery.slice(1);
     let res = [];
-    for each (let child in c) {
+    for (let child of c) {
       let n = child.getElements(nq);
       res = res.concat(n);
     }
@@ -261,7 +261,7 @@ XMLNode.prototype = {
     let s =
       aIndent + "<" + this.qName + this._getXmlns() + this._getAttributeText();
     let content = "";
-    for each (let child in this.children)
+    for (let child of this.children)
       content += child.convertToString(aIndent + " ");
     return s + (content ? ">\n" + content + aIndent + "</" + this.qName : "/") + ">\n";
   },

@@ -31,7 +31,7 @@ function test_cleanUsername()
   };
   let fakeImAccount = {};
 
-  for each(let domain in domains) {
+  for (let domain of domains) {
     fakeImAccount.name = userId + "@" + domain;
     let yahooAccount = new yahoo.YahooAccount(fakeProtocol, fakeImAccount);
     do_check_eq(userId, yahooAccount.cleanUsername);
@@ -89,7 +89,7 @@ function test_fixFontSize()
 
   let yahooAccount = new yahoo.YahooAccount(fakeProtocol, fakeImAccount);
   yahooAccount._conversations.set("test-user", fakeConversation);
-  for each(let pair in testMessages) {
+  for (let pair of testMessages) {
     messagePair = pair;
     // Send in the badly formed message.
     yahooAccount.receiveMessage("test-user", messagePair[0]);

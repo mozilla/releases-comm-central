@@ -1999,7 +1999,7 @@ var XMPPAccountPrototype = {
     }
     else {
       let tag;
-      for each (let group in aItem.getChildren("group")) {
+      for (let group of aItem.getChildren("group")) {
         let name = group.innerText;
         if (name) {
           tag = Services.tags.createTag(name);
@@ -2050,13 +2050,13 @@ var XMPPAccountPrototype = {
   /* When the roster is received */
   onRoster: function(aStanza) {
     // For the first element that is a roster stanza.
-    for each (let qe in aStanza.getChildren("query")) {
+    for (let qe of aStanza.getChildren("query")) {
       if (qe.uri != Stanza.NS.roster)
         continue;
 
       // Find all the roster items in the new message.
       let newRoster = new Set();
-      for each (let item in qe.getChildren("item")) {
+      for (let item of qe.getChildren("item")) {
         let jid = this._onRosterItem(item);
         if (jid)
           newRoster.add(jid);

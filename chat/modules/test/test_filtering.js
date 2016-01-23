@@ -30,7 +30,7 @@ function test_plainText() {
     "  foo", // preserve leading indent
     "&lt;html&gt;&amp;" // keep escaped characters
   ];
-  for each (let string in strings)
+  for (let string of strings)
     do_check_eq(string, cleanupImMarkup(string));
 }
 
@@ -40,18 +40,18 @@ function test_paragraphs() {
     "<p>foo<br>bar</p>",
     "foo<br>bar"
   ];
-  for each (let string in strings)
+  for (let string of strings)
     do_check_eq(string, cleanupImMarkup(string));
 }
 
 function test_stripScripts() {
-  const strings = {
-    "<script>alert('hey')</script>": "",
-    "foo <script>alert('hey')</script>": "foo ",
-    "<p onclick=\"alert('hey')\">foo</p>": "<p>foo</p>",
-    "<p onmouseover=\"alert('hey')\">foo</p>": "<p>foo</p>"
-  };
-  for each (let [input, expectedOutput] in Iterator(strings))
+  const strings = [
+    ["<script>alert('hey')</script>", ""],
+    ["foo <script>alert('hey')</script>", "foo "],
+    ["<p onclick=\"alert('hey')\">foo</p>", "<p>foo</p>"],
+    ["<p onmouseover=\"alert('hey')\">foo</p>", "<p>foo</p>"],
+  ];
+  for (let [input, expectedOutput] of strings)
     do_check_eq(expectedOutput, cleanupImMarkup(input));
 }
 
@@ -63,7 +63,7 @@ function test_links() {
     "ftp://example.com/",
     "mailto:foo@example.com"
   ];
-  for each (let string in ok) {
+  for (let string of ok) {
     string = "<a href=\"" + string + "\">foo</a>";
     do_check_eq(string, cleanupImMarkup(string));
   }
@@ -76,7 +76,7 @@ function test_links() {
     "foo://bar/",
     ""
   ];
-  for each (let string in bad) {
+  for (let string of bad) {
     do_check_eq("<a>foo</a>",
                 cleanupImMarkup("<a href=\"" + string + "\">foo</a>"));
   }
@@ -100,8 +100,8 @@ function test_strictMode() {
   test_allModes();
 
   // check that basic formatting is stipped in strict mode.
-  for each (let tag in ["div", "em", "strong", "b", "i", "u", "span", "code",
-                        "ul", "li", "ol", "cite", "blockquote"])
+  for (let tag of ["div", "em", "strong", "b", "i", "u", "span", "code",
+                   "ul", "li", "ol", "cite", "blockquote"])
     do_check_eq("foo", cleanupImMarkup("<" + tag + ">foo</" + tag + ">"));
 
   // check that font settings are removed.
@@ -121,14 +121,14 @@ function test_standardMode() {
   test_allModes();
 
   // check that basic formatting is kept in standard mode.
-  for each (let tag in ["div", "em", "strong", "b", "i", "u", "span", "code",
-                        "ul", "li", "ol", "cite", "blockquote"]) {
+  for (let tag of ["div", "em", "strong", "b", "i", "u", "span", "code",
+                   "ul", "li", "ol", "cite", "blockquote"]) {
     let string = "<" + tag + ">foo</" + tag + ">";
     do_check_eq(string, cleanupImMarkup(string));
   }
 
   // Keep special allowed classes.
-  for each (let className in ["moz-txt-underscore", "moz-txt-tag"]) {
+  for (let className of ["moz-txt-underscore", "moz-txt-tag"]) {
     let string = "<span class=\"" + className + "\">foo</span>";
     do_check_eq(string, cleanupImMarkup(string));
   }
@@ -144,7 +144,7 @@ function test_standardMode() {
     "font-style: italic",
     "font-weight: bold"
   ];
-  for each (let css in okCSS) {
+  for (let css of okCSS) {
     let string = "<span style=\"" + css + "\">foo</span>";
     do_check_eq(string, cleanupImMarkup(string));
   }
@@ -160,7 +160,7 @@ function test_standardMode() {
     "display: none",
     "visibility: hidden"
   ];
-  for each (let css in badCSS) {
+  for (let css of badCSS) {
     do_check_eq("<span style=\"\">foo</span>",
                 cleanupImMarkup("<span style=\"" + css + "\">foo</span>"));
   }
@@ -177,14 +177,14 @@ function test_permissiveMode() {
   test_allModes();
 
   // Check that all formatting is kept in permissive mode.
-  for each (let tag in ["div", "em", "strong", "b", "i", "u", "span", "code",
-                        "ul", "li", "ol", "cite", "blockquote"]) {
+  for (let tag of ["div", "em", "strong", "b", "i", "u", "span", "code",
+                   "ul", "li", "ol", "cite", "blockquote"]) {
     let string = "<" + tag + ">foo</" + tag + ">";
     do_check_eq(string, cleanupImMarkup(string));
   }
 
   // Keep special allowed classes.
-  for each (let className in ["moz-txt-underscore", "moz-txt-tag"]) {
+  for (let className of ["moz-txt-underscore", "moz-txt-tag"]) {
     let string = "<span class=\"" + className + "\">foo</span>";
     do_check_eq(string, cleanupImMarkup(string));
   }
@@ -195,7 +195,7 @@ function test_permissiveMode() {
     "color=\"pink\"",
     "size=\"3\""
   ];
-  for each (let fontAttribute in fontAttributes) {
+  for (let fontAttribute of fontAttributes) {
     let string = "<font " + fontAttribute + ">foo</font>";
     do_check_eq(string, cleanupImMarkup(string));
   }
@@ -213,7 +213,7 @@ function test_permissiveMode() {
     "font-family: Times",
     "font-size: larger"
   ];
-  for each (let css in okCSS) {
+  for (let css of okCSS) {
     let string = "<span style=\"" + css + "\">foo</span>";
     do_check_eq(string, cleanupImMarkup(string));
   }
@@ -229,7 +229,7 @@ function test_permissiveMode() {
     "display: none",
     "visibility: hidden"
   ];
-  for each (let css in badCSS) {
+  for (let css of badCSS) {
     do_check_eq("<span style=\"\">foo</span>",
                 cleanupImMarkup("<span style=\"" + css + "\">foo</span>"));
   }

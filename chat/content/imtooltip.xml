@@ -301,7 +301,7 @@
          sep.setAttribute("class", "groove tooltipSeparator");
          buddiesElt.appendChild(sep);
 
-         for each (let buddy in buddies) {
+         for (let buddy of buddies) {
            let buddyElt = document.createElement("buddy");
            buddiesElt.appendChild(buddyElt);
            buddyElt.getBoundingClientRect(); // force binding attachment
