@@ -115,6 +115,49 @@ var account = {
     document.getElementById("proxyDescription").textContent = result;
   },
 
+  createTextbox: function account_createTextbox(aType, aValue, aLabel, aName) {
+    let row = document.createElement("row");
+    row.setAttribute("align", "center");
+
+    var label = document.createElement("label");
+    label.textContent = aLabel;
+    label.setAttribute("control", aName);
+    row.appendChild(label);
+
+    var textbox = document.createElement("textbox");
+    if (aType)
+      textbox.setAttribute("type", aType);
+    textbox.setAttribute("value", aValue);
+    textbox.setAttribute("id", aName);
+
+    row.appendChild(textbox);
+    return row;
+  },
+
+  createMenulist: function account_createMenulist(aList, aLabel, aName) {
+    let vbox = document.createElement("vbox");
+    vbox.setAttribute("flex", "1");
+
+    var label = document.createElement("label");
+    label.setAttribute("value", aLabel);
+    label.setAttribute("control", aName);
+    vbox.appendChild(label);
+
+    aList.QueryInterface(Ci.nsISimpleEnumerator);
+    var menulist = document.createElement("menulist");
+    menulist.setAttribute("id", aName);
+    var popup = menulist.appendChild(document.createElement("menupopup"));
+    while (aList.hasMoreElements()) {
+      let elt = aList.getNext();
+      let item = document.createElement("menuitem");
+      item.setAttribute("label", elt.name);
+      item.setAttribute("value", elt.value);
+      popup.appendChild(item);
+    }
+    vbox.appendChild(menulist);
+    return vbox;
+  },
+
   getBool: function account_getBool(aOpt) {
     if (this.prefs.prefHasUserValue(aOpt.name))
       return this.prefs.getBoolPref(aOpt.name);
@@ -144,9 +187,38 @@ var account = {
   },
 
   populateProtoSpecificBox: function account_populate() {
-    let haveOptions =
-      accountOptionsHelper.addOptions(this.proto.id + "-", this.getProtoOptions());
-    document.getElementById("advancedTab").hidden = !haveOptions;
+    let rows = document.getElementById("protoSpecific");
+    var id = this.proto.id;
+    for (let opt in this.getProtoOptions()) {
+      var text = opt.label;
+      var name = id + "-" + opt.name;
+      switch (opt.type) {
+      case opt.typeBool:
+        var chk = document.createElement("checkbox");
+        if (this.getBool(opt))
+          chk.setAttribute("checked", "true");
+        chk.setAttribute("label", text);
+        chk.setAttribute("id", name);
+        rows.appendChild(chk);
+        break;
+      case opt.typeInt:
+        rows.appendChild(this.createTextbox("number", this.getInt(opt),
+                                            text, name));
+        break;
+      case opt.typeString:
+        rows.appendChild(this.createTextbox(null, this.getString(opt),
+                                            text, name));
+        break;
+      case opt.typeList:
+        rows.appendChild(this.createMenulist(opt.getList(), text, name));
+        document.getElementById(name).value = this.getListValue(opt);
+        break;
+      default:
+        throw "unknown preference type " + opt.type;
+      }
+    }
+    if (!rows.firstChild)
+      document.getElementById("advancedTab").hidden = true;
   },
 
   getValue: function account_getValue(aId) {

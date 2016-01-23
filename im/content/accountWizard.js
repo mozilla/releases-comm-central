@@ -228,11 +228,87 @@ var accountWizard = {
     document.getElementById("proxyDescription").textContent = result;
   },
 
+  createTextbox: function aw_createTextbox(aType, aValue, aLabel, aName) {
+    let row = document.createElement("row");
+    row.setAttribute("align", "center");
+
+    let label = document.createElement("label");
+    label.textContent = aLabel;
+    label.setAttribute("control", aName);
+    row.appendChild(label);
+
+    let textbox = document.createElement("textbox");
+    if (aType)
+      textbox.setAttribute("type", aType);
+    textbox.setAttribute("value", aValue);
+    textbox.setAttribute("id", aName);
+    textbox.setAttribute("flex", "1");
+
+    row.appendChild(textbox);
+    return row;
+  },
+
+  createMenulist: function aw_createMenulist(aList, aLabel, aName) {
+    let vbox = document.createElement("vbox");
+    vbox.setAttribute("flex", "1");
+
+    let label = document.createElement("label");
+    label.setAttribute("value", aLabel);
+    label.setAttribute("control", aName);
+    vbox.appendChild(label);
+
+    aList.QueryInterface(Ci.nsISimpleEnumerator);
+    let menulist = document.createElement("menulist");
+    menulist.setAttribute("id", aName);
+    let popup = menulist.appendChild(document.createElement("menupopup"));
+    while (aList.hasMoreElements()) {
+      let elt = aList.getNext();
+      let item = document.createElement("menuitem");
+      item.setAttribute("label", elt.name);
+      item.setAttribute("value", elt.value);
+      popup.appendChild(item);
+    }
+    vbox.appendChild(menulist);
+    return vbox;
+  },
+
   populateProtoSpecificBox: function aw_populate() {
-    let haveOptions =
-      accountOptionsHelper.addOptions(this.proto.id + "-", this.getProtoOptions());
-    document.getElementById("protoSpecificGroupbox").hidden = !haveOptions;
-    if (haveOptions) {
+    let id = this.proto.id;
+    let rows = document.getElementById("protoSpecific");
+    let child;
+    while (rows.hasChildNodes())
+      rows.lastChild.remove();
+    let visible = false;
+    for (let opt in this.getProtoOptions()) {
+      let text = opt.label;
+      let name = id + "-" + opt.name;
+      switch (opt.type) {
+      case opt.typeBool:
+        let chk = document.createElement("checkbox");
+        chk.setAttribute("label", text);
+        chk.setAttribute("id", name);
+        if (opt.getBool())
+          chk.setAttribute("checked", "true");
+        rows.appendChild(chk);
+        break;
+      case opt.typeInt:
+        rows.appendChild(this.createTextbox("number", opt.getInt(),
+                                            text, name));
+        break;
+      case opt.typeString:
+        rows.appendChild(this.createTextbox(null, opt.getString(), text, name));
+        break;
+      case opt.typeList:
+        rows.appendChild(this.createMenulist(opt.getList(), text, name));
+        document.getElementById(name).value = opt.getListDefault();
+        break;
+      default:
+        throw "unknown preference type " + opt.type;
+      }
+      visible = true;
+    }
+    document.getElementById("protoSpecificGroupbox").hidden = !visible;
+    if (visible) {
       let bundle = document.getElementById("accountsBundle");
       document.getElementById("protoSpecificCaption").label =
         bundle.getFormattedString("protoOptions", [this.proto.name]);
