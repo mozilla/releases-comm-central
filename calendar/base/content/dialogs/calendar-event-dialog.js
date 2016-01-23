@@ -795,7 +795,8 @@ function dateTimeControls2State(aStartDatepicker) {
 
     // calculate the new duration of start/end-time.
     // don't allow for negative durations.
-    var warning = false;
+    let warning = false;
+    let stringWarning = "";
     if (!aStartDatepicker && gStartTime && gEndTime) {
         if (gEndTime.compare(gStartTime) >= 0) {
             gItemDuration = gEndTime.subtractDate(gStartTime);
@@ -803,6 +804,35 @@ function dateTimeControls2State(aStartDatepicker) {
             gStartTime = saveStartTime;
             gEndTime = saveEndTime;
             warning = true;
+            stringWarning = cal.calGetString("calendar", "warningEndBeforeStart");
+        }
+    }
+
+    // Sort out and verify the until date if the start date has changed.
+    if (gUntilDate && gStartTime.compare(saveStartTime)) {
+        // Make the time part of the until date equal to the time of start date.
+        updateUntildateRecRule();
+
+        // Don't allow for until date earlier than the start date.
+        if (gUntilDate.compare(gStartTime) < 0) {
+            // We have to restore valid dates. Since the user has intentionally
+            // changed the start date, it looks reasonable to restore a valid
+            // until date equal to the start date.
+            gUntilDate = gStartTime.clone();
+            // Update the rule.
+            let rrules = splitRecurrenceRules(window.recurrenceInfo);
+            recRule = rrules[0][0];
+            recRule.untilDate = gUntilDate.clone();
+            // Update the until-date-picker. In case of "custom" rule, the
+            // recurrence string is going to be changed by updateDateTime() below.
+            let notCustomRule = document.getElementById("repeat-deck").selectedIndex == 0;
+            if (notCustomRule) {
+                setElementValue("repeat-until-datepicker",
+                                cal.dateTimeToJsDate(gUntilDate.getInTimezone(cal.floating())));
+            }
+
+            warning = true;
+            stringWarning = cal.calGetString("calendar", "warningUntilDateBeforeStart");
         }
     }
 
@@ -816,9 +846,7 @@ function dateTimeControls2State(aStartDatepicker) {
         enableAcceptCommand(false);
         gWarning = true;
         let callback = function func() {
-            Services.prompt.alert(null,
-                                  document.title,
-                                  cal.calGetString("calendar", "warningEndBeforeStart"));
+            Services.prompt.alert(null, document.title, stringWarning);
             gWarning = false;
             updateAccept();
         };
@@ -1040,9 +1068,11 @@ function loadRepeat(item) {
 function updateUntilControls(rule) {
     let untilDate = "forever";
     if (!rule.isByCount) {
-        gUntilDate = rule.untilDate;
-        if (gUntilDate) {
+        if (rule.isFinite) {
+            gUntilDate = rule.untilDate.clone().getInTimezone(cal.calendarDefaultTimezone());
             untilDate = cal.dateTimeToJsDate(gUntilDate.getInTimezone(cal.floating()));
+        } else {
+            gUntilDate = null;
         }
     }
     document.getElementById("repeat-deck").selectedIndex = 0;
@@ -1158,6 +1188,10 @@ function saveDialog(item) {
  */
 function saveDateTime(item) {
     var kDefaultTimezone = calendarDefaultTimezone();
+
+    // Changes to the start date don't have to change the until date.
+    untilDateCompensation(item);
+
     if (isEvent(item)) {
         var startTime = gStartTime.getInTimezone(gStartTimezone);
         var endTime = gEndTime.getInTimezone(gEndTimezone);
@@ -1182,6 +1216,32 @@ function saveDateTime(item) {
         var endTime = gEndTime && gEndTime.getInTimezone(gEndTimezone);
         setItemProperty(item, "entryDate", startTime);
         setItemProperty(item, "dueDate", endTime);
+    }
+}
+
+/**
+ * Changes the until date in the rule in order to compensate the automatic
+ * correction caused by the function onStartDateChange() when saving the
+ * item.
+ * It allows to keep the until date set in the dialog irrespective of the
+ * changes that the user has done to the start date.
+ */
+function untilDateCompensation(aItem) {
+    // The current start date in the item is always the date that we get
+    // when opening the dialog or after the last save.
+    let startDate = aItem[calGetStartDateProp(aItem)];
+
+    if (aItem.recurrenceInfo) {
+        let rrules = splitRecurrenceRules(aItem.recurrenceInfo);
+        let rule = rrules[0][0];
+        if (!rule.isByCount && rule.isFinite && startDate) {
+            let untilDateCompensation = startDate.subtractDate(gStartTime);
+            if (untilDateCompensation != "PT0S") {
+                let untilDate = rule.untilDate.clone();
+                untilDate.addDuration(untilDateCompensation);
+                rule.untilDate = untilDate;
+            }
+        }
     }
 }
 
@@ -1396,6 +1456,7 @@ function onUpdateAllDay() {
     gItemDuration = gEndTime.subtractDate(gStartTime);
 
     updateDateTime();
+    updateUntildateRecRule();
     updateRepeatDetails();
     updateAccept();
 }
@@ -2551,6 +2612,17 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
             editRepeat();
         }
 
+        // Assign gUntilDate on the first run or when returning from the
+        // edit recurrence dialog.
+        if (window.recurrenceInfo) {
+            let rrules = splitRecurrenceRules(window.recurrenceInfo);
+            let rule = rrules[0][0];
+            gUntilDate = null;
+            if (!rule.isByCount && rule.isFinite) {
+                gUntilDate = rule.untilDate.clone().getInTimezone(calendarDefaultTimezone());
+            }
+        }
+
         // we need to address two separate cases here.
         // 1)- We need to revoke the selection of the repeat
         //     drop down list in case the user didn't specify
@@ -2644,23 +2716,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
         }
 
         setUpEntrydateForTask(item);
-        let repeatUntilDate = getElementValue("repeat-until-datepicker");
-
-        if (repeatUntilDate != "forever") {
-            let untilDate = cal.jsDateToDateTime(repeatUntilDate, gStartTime.timezone);
-            untilDate.isDate = gStartTime.isDate; // enforce same value type as DTSTART
-            if (!gStartTime.isDate) {
-                untilDate.hour = gStartTime.hour;
-                untilDate.minute = gStartTime.minute;
-                untilDate.second = gStartTime.second;
-            }
-            recRule.untilDate = untilDate;
-            gUntilDate = untilDate;
-        } else {
-            // Rule that recurs forever.
-            recRule.count = -1;
-            gUntilDate = null;
-        }
+        updateUntildateRecRule(recRule);
 
         recurrenceInfo.insertRecurrenceItemAt(recRule, 0);
         window.recurrenceInfo = recurrenceInfo;
@@ -2680,6 +2736,52 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
     updateEntryDate();
     updateDueDate();
     updateAccept();
+}
+
+/**
+ * Update the until date in the recurrence rule in order to set
+ * the same time of the start date.
+ *
+ * @param recRule           (optional) The recurrence rule
+ */
+function updateUntildateRecRule(recRule) {
+    if (!recRule) {
+        let recurrenceInfo = window.recurrenceInfo;
+        if (!recurrenceInfo) {
+            return;
+        }
+        let rrules = splitRecurrenceRules(recurrenceInfo);
+        recRule = rrules[0][0];
+    }
+    let defaultTimezone = cal.calendarDefaultTimezone();
+    let repeatUntilDate = null;
+
+    let itemRepeat = document.getElementById("item-repeat").selectedItem.value;
+    if (itemRepeat == "none") {
+        return;
+    } else if (itemRepeat == "custom") {
+        repeatUntilDate = gUntilDate;
+    } else {
+        let untilDatepickerDate = getElementValue("repeat-until-datepicker");
+        if (untilDatepickerDate != "forever") {
+            repeatUntilDate = cal.jsDateToDateTime(untilDatepickerDate, defaultTimezone);
+        }
+    }
+
+    if (repeatUntilDate) {
+        repeatUntilDate.isDate = gStartTime.isDate; // Enforce same value type as DTSTART
+        if (!gStartTime.isDate) {
+            repeatUntilDate.hour = gStartTime.hour;
+            repeatUntilDate.minute = gStartTime.minute;
+            repeatUntilDate.second = gStartTime.second;
+        }
+        recRule.untilDate = repeatUntilDate.clone();
+        gUntilDate = repeatUntilDate.clone().getInTimezone(defaultTimezone);
+    } else {
+        // Rule that recurs forever.
+        recRule.count = -1;
+        gUntilDate = null;
+    }
 }
 
 /**
@@ -3732,14 +3834,13 @@ function checkUntilDate() {
         return;
     }
 
-    // The "time" part of the until date will be correctly assigned in the
-    // updateRepeat() function, but here we need to check only the date.
+    // Check whether the date is valid. Set the correct time just in this case.
     let untilDate = cal.jsDateToDateTime(repeatUntilDate, gStartTime.timezone);
     let startDate = gStartTime.clone();
     startDate.isDate = true;
     if (untilDate.compare(startDate) < 0) {
-        // Restore the previous date. Since we are checking an until date,
-        // a null value for gUntilDate means repeat "forever".
+        // Invalid date: restore the previous date. Since we are checking an
+        // until date, a null value for gUntilDate means repeat "forever".
         setElementValue("repeat-until-datepicker",
                         gUntilDate ? cal.dateTimeToJsDate(gUntilDate.getInTimezone(cal.floating()))
                                    : "forever");
@@ -3752,13 +3853,14 @@ function checkUntilDate() {
             Services.prompt.alert(
                 null,
                 document.title,
-                calGetString("calendar", "warningUntilBeforeStart"));
+                cal.calGetString("calendar", "warningUntilDateBeforeStart"));
             enableAcceptCommand(true);
             gWarning = false;
         };
         setTimeout(callback, 1);
     } else {
+        // Valid date: set the time equal to start date time.
         gUntilDate = untilDate;
-        updateRepeat();
+        updateUntildateRecRule();
     }
 }
