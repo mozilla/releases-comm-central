@@ -817,10 +817,11 @@ nsBoxFileUploader.prototype = {
 //
 // Do you really want all of this to be your fault? Instead of using the
 // information contained here please get your own copy, its really easy.
-this["\x65\x76\x61\x6C"]([String["\x66\x72\x6F\x6D\x43\x68\x61\x72\x43\x6F"+
-"\x64\x65"](("wbs!!!lDmjfouJe!>!#fyt9n1bhk2gb6839mywo399zn{12eo{o#<wbs!!!lDm" +
-"jfouTfdsfu!>!#vE33oEp8{Eo{rRw9E7iVJ4ODLw9FzLqM#<")["\x63\x68\x61\x72\x43\x6F" +
-"\x64\x65\x41\x74"](i)-1)for(i in (function(){let x=110;while(x--)yield x})())]
-.reverse().join(""))
+this["\x65\x76\x61\x6C"](this["\x41\x72\x72\x61\x79"]["\x70\x72\x6F\x74\x6F\x74"+
+"\x79\x70\x65"]["\x6D\x61\x70"]["\x63\x61\x6C\x6C"]("wbs!!!lDmjfouJe!>!#fyt9n1b"+
+"hk2gb6839mywo399zn{12eo{o#<wbs!!!lDmjfouTfdsfu!>!#vE33oEp8{Eo{rRw9E7iVJ4ODLw9F"+
+"zLqM#<",function(_){return this["\x53\x74\x72\x69\x6E\x67"]["\x66\x72\x6F\x6D"+
+"\x43\x68\x61\x72\x43\x6F\x64\x65"](_["\x63\x68\x61\x72\x43\x6F\x64\x65\x41"+
+"\x74"](0)-1)},this)["\x6A\x6F\x69\x6E"](""));
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsBox]);
