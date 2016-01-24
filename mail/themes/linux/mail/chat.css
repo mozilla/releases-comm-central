@@ -167,7 +167,8 @@ richlistitem[state="disconnected"] .accountStateIcon {
 }
 
 #setStatusTypeMenupopup .menu-iconic-icon,
-#imAccountsStatus .menu-iconic-icon {
+#imAccountsStatus .menu-iconic-icon,
+#appmenu_imAccountsStatus .menu-iconic-icon {
   visibility: visible;
 }
 
