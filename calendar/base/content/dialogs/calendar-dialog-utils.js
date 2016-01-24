@@ -32,6 +32,7 @@ function dispose() {
 function setDialogId(aDialog, aNewId) {
     aDialog.setAttribute("originalId", aDialog.getAttribute("id"));
     aDialog.setAttribute("id", aNewId);
+    applyPersitedProperties(aDialog);
 }
 
 /**
@@ -46,6 +47,30 @@ function resetDialogId(aDialog) {
         aDialog.setAttribute("id", id);
     }
     aDialog.removeAttribute("originalId");
+}
+
+/**
+ * Apply the persisted properties from xulstore.json on a dialog based on the current dialog id.
+ * This needs to be invoked after changing a dialog id while loading to apply the values for the
+ * new dialog id.
+ *
+ * @param aDialog               The Dialog to apply the property values for
+ */
+function applyPersitedProperties(aDialog) {
+    let xulStore = Components.classes["@mozilla.org/xul/xulstore;1"]
+                             .getService(Components.interfaces.nsIXULStore);
+    // first we need to detect which properties are persisted
+    let persistedProps = aDialog.getAttribute("persist") || "";
+    if (persistedProps == "") {
+        return;
+    }
+    let propNames = persistedProps.split(" ");
+    // now let's apply persisted values if applicable
+    for (let propName of propNames) {
+        if (xulStore.hasValue(aDialog.baseURI, aDialog.id, propName)) {
+            aDialog.setAttribute(propName, xulStore.getValue(aDialog.baseURI, aDialog.id, propName));
+        }
+    }
 }
 
 /**
