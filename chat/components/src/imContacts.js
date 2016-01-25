@@ -321,6 +321,7 @@ var otherContactsTag = {
     this._contactsInitialized = true;
     for (let id in this._hiddenTags) {
       let tag = this._hiddenTags[id];
+      this._hideTag(tag);
     }
     Services.obs.addObserver(this, "contact-tag-added", false);
     Services.obs.addObserver(this, "contact-tag-removed", false);
