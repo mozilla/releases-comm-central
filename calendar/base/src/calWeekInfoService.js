@@ -71,15 +71,13 @@ calWeekInfoService.prototype = {
         // The yearday number of the Thursday this week.
         var thisWeeksThursday = aDateTime.yearday - sinceStartOfWeek + startToThursday;
 
-        // For the first few days of the year, we might still be in week 52 or 53.
         if (thisWeeksThursday < 1) {
+            // For the first few days of the year, we still are in week 52 or 53.
             var lastYearDate = aDateTime.clone();
             lastYearDate.year -= 1;
             thisWeeksThursday += lastYearDate.endOfYear.yearday;
-        }
-
-        // For the last few days of the year, we might already be in week 1. 
-        if (thisWeeksThursday > aDateTime.endOfYear.yearday) {
+        } else if (thisWeeksThursday > aDateTime.endOfYear.yearday) {
+            // For the last few days of the year, we already are in week 1.
             thisWeeksThursday -= aDateTime.endOfYear.yearday;
         }
 
