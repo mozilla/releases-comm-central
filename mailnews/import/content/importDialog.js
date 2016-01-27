@@ -188,7 +188,7 @@ function ImportDialogOKButton()
               progressTitleEl.setAttribute("label", meterText);
 
               deck.selectedIndex = 2;
-              gPogressInfo.progressWindow = window;
+              gProgressInfo.progressWindow = window;
               gProgressInfo.intervalState = setInterval(ContinueImportCallback, 100);
               return true;
             }
