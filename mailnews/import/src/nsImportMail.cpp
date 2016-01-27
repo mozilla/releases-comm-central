@@ -945,6 +945,7 @@ class GetSubFoldersRunnable : public mozilla::Runnable
 public:
   GetSubFoldersRunnable(nsIMsgFolder *aFolder);
   NS_DECL_NSIRUNNABLE
+  nsresult mResult;
 private:
   nsCOMPtr<nsIMsgFolder> m_folder;
 };
@@ -957,7 +958,8 @@ GetSubFoldersRunnable::GetSubFoldersRunnable(nsIMsgFolder *aFolder) :
 NS_IMETHODIMP GetSubFoldersRunnable::Run()
 {
   nsCOMPtr<nsISimpleEnumerator> dummy;
-  return m_folder->GetSubFolders(getter_AddRefs(dummy));
+  mResult = m_folder->GetSubFolders(getter_AddRefs(dummy));
+  return NS_OK;  // Sync runnable must return OK.
 }
 
 
@@ -965,7 +967,9 @@ nsresult ProxyGetSubFolders(nsIMsgFolder *aFolder)
 {
   RefPtr<GetSubFoldersRunnable> getSubFolders =
     new GetSubFoldersRunnable(aFolder);
-  return NS_DispatchToMainThread(getSubFolders, NS_DISPATCH_SYNC);
+  nsresult rv = NS_DispatchToMainThread(getSubFolders, NS_DISPATCH_SYNC);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return getSubFolders->mResult;
 }
 
 class GetChildNamedRunnable : public mozilla::Runnable
@@ -973,6 +977,7 @@ class GetChildNamedRunnable : public mozilla::Runnable
 public:
   GetChildNamedRunnable(nsIMsgFolder *aFolder, const nsAString& aName, nsIMsgFolder **aChild);
   NS_DECL_NSIRUNNABLE
+  nsresult mResult;
 protected:
   nsCOMPtr<nsIMsgFolder> m_folder;
   nsString m_name;
@@ -989,7 +994,8 @@ GetChildNamedRunnable::GetChildNamedRunnable(nsIMsgFolder *aFolder,
 
 NS_IMETHODIMP GetChildNamedRunnable::Run()
 {
-  return m_folder->GetChildNamed(m_name, m_child);
+  mResult = m_folder->GetChildNamed(m_name, m_child);
+  return NS_OK;  // Sync runnable must return OK.
 }
 
 
@@ -998,7 +1004,9 @@ nsresult ProxyGetChildNamed(nsIMsgFolder *aFolder, const nsAString & aName,
 {
   RefPtr<GetChildNamedRunnable> getChildNamed =
     new GetChildNamedRunnable(aFolder, aName, aChild);
-  return NS_DispatchToMainThread(getChildNamed, NS_DISPATCH_SYNC);
+  nsresult rv = NS_DispatchToMainThread(getChildNamed, NS_DISPATCH_SYNC);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return getChildNamed->mResult;
 }
 
 class GetParentRunnable : public mozilla::Runnable
@@ -1006,6 +1014,7 @@ class GetParentRunnable : public mozilla::Runnable
 public:
   GetParentRunnable(nsIMsgFolder *aFolder, nsIMsgFolder **aParent);
   NS_DECL_NSIRUNNABLE
+  nsresult mResult;
 protected:
   nsCOMPtr<nsIMsgFolder> m_folder;
   nsIMsgFolder **m_parent;
@@ -1018,7 +1027,8 @@ GetParentRunnable::GetParentRunnable(nsIMsgFolder *aFolder, nsIMsgFolder **aPare
 
 NS_IMETHODIMP GetParentRunnable::Run()
 {
-  return m_folder->GetParent(m_parent);
+  mResult = m_folder->GetParent(m_parent);
+  return NS_OK;  // Sync runnable must return OK.
 }
 
 
@@ -1026,7 +1036,9 @@ nsresult ProxyGetParent(nsIMsgFolder *aFolder, nsIMsgFolder **aParent)
 {
   RefPtr<GetParentRunnable> getParent =
     new GetParentRunnable(aFolder, aParent);
-  return NS_DispatchToMainThread(getParent, NS_DISPATCH_SYNC);
+  nsresult rv = NS_DispatchToMainThread(getParent, NS_DISPATCH_SYNC);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return getParent->mResult;
 }
 
 class ContainsChildNamedRunnable : public mozilla::Runnable
@@ -1034,6 +1046,7 @@ class ContainsChildNamedRunnable : public mozilla::Runnable
 public:
   ContainsChildNamedRunnable(nsIMsgFolder *aFolder, const nsAString& aName, bool *aResult);
   NS_DECL_NSIRUNNABLE
+  nsresult mResult;
 protected:
   nsCOMPtr<nsIMsgFolder> m_folder;
   nsString m_name;
@@ -1050,7 +1063,8 @@ ContainsChildNamedRunnable::ContainsChildNamedRunnable(nsIMsgFolder *aFolder,
 
 NS_IMETHODIMP ContainsChildNamedRunnable::Run()
 {
-  return m_folder->ContainsChildNamed(m_name, m_result);
+  mResult = m_folder->ContainsChildNamed(m_name, m_result);
+  return NS_OK;  // Sync runnable must return OK.
 }
 
 
@@ -1059,9 +1073,10 @@ nsresult ProxyContainsChildNamed(nsIMsgFolder *aFolder, const nsAString &aName,
 {
   RefPtr<ContainsChildNamedRunnable> containsChildNamed =
     new ContainsChildNamedRunnable(aFolder, aName, aResult);
-  return NS_DispatchToMainThread(containsChildNamed, NS_DISPATCH_SYNC);
+  nsresult rv = NS_DispatchToMainThread(containsChildNamed, NS_DISPATCH_SYNC);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return containsChildNamed->mResult;
 }
-
 
 class GenerateUniqueSubfolderNameRunnable : public mozilla::Runnable
 {
@@ -1071,6 +1086,7 @@ public:
                                       nsIMsgFolder *otherFolder,
                                       nsAString& name);
   NS_DECL_NSIRUNNABLE
+  nsresult mResult;
 protected:
   nsCOMPtr<nsIMsgFolder> m_folder;
   nsString m_prefix;
@@ -1088,7 +1104,8 @@ GenerateUniqueSubfolderNameRunnable::GenerateUniqueSubfolderNameRunnable(
 
 NS_IMETHODIMP GenerateUniqueSubfolderNameRunnable::Run()
 {
-  return m_folder->GenerateUniqueSubfolderName(m_prefix, m_otherFolder, m_name);
+  mResult = m_folder->GenerateUniqueSubfolderName(m_prefix, m_otherFolder, m_name);
+  return NS_OK;  // Sync runnable must return OK.
 }
 
 
@@ -1100,7 +1117,9 @@ nsresult ProxyGenerateUniqueSubfolderName(nsIMsgFolder *aFolder,
 {
   RefPtr<GenerateUniqueSubfolderNameRunnable> generateUniqueSubfolderName =
     new GenerateUniqueSubfolderNameRunnable(aFolder, aPrefix, aOtherFolder, aName);
-  return NS_DispatchToMainThread(generateUniqueSubfolderName, NS_DISPATCH_SYNC);
+  nsresult rv = NS_DispatchToMainThread(generateUniqueSubfolderName, NS_DISPATCH_SYNC);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return generateUniqueSubfolderName->mResult;
 }
 
 class CreateSubfolderRunnable : public mozilla::Runnable
@@ -1108,6 +1127,7 @@ class CreateSubfolderRunnable : public mozilla::Runnable
 public:
   CreateSubfolderRunnable(nsIMsgFolder *aFolder, const nsAString& aName);
   NS_DECL_NSIRUNNABLE
+  nsresult mResult;
 protected:
   nsCOMPtr<nsIMsgFolder> m_folder;
   nsString m_name;
@@ -1121,7 +1141,8 @@ CreateSubfolderRunnable::CreateSubfolderRunnable(nsIMsgFolder *aFolder,
 
 NS_IMETHODIMP CreateSubfolderRunnable::Run()
 {
-  return m_folder->CreateSubfolder(m_name, nullptr);
+  mResult = m_folder->CreateSubfolder(m_name, nullptr);
+  return NS_OK;  // Sync runnable must return OK.
 }
 
 
@@ -1129,7 +1150,9 @@ nsresult ProxyCreateSubfolder(nsIMsgFolder *aFolder, const nsAString &aName)
 {
   RefPtr<CreateSubfolderRunnable> createSubfolder =
     new CreateSubfolderRunnable(aFolder, aName);
-  return NS_DispatchToMainThread(createSubfolder, NS_DISPATCH_SYNC);
+  nsresult rv = NS_DispatchToMainThread(createSubfolder, NS_DISPATCH_SYNC);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return createSubfolder->mResult;
 }
 
 class ForceDBClosedRunnable : public mozilla::Runnable
@@ -1137,6 +1160,7 @@ class ForceDBClosedRunnable : public mozilla::Runnable
 public:
   ForceDBClosedRunnable(nsIMsgFolder *aFolder);
   NS_DECL_NSIRUNNABLE
+  nsresult mResult;
 protected:
   nsCOMPtr<nsIMsgFolder> m_folder;
 };
@@ -1148,14 +1172,15 @@ ForceDBClosedRunnable::ForceDBClosedRunnable(nsIMsgFolder *aFolder) :
 
 NS_IMETHODIMP ForceDBClosedRunnable::Run()
 {
-  return m_folder->ForceDBClosed();
+  mResult = m_folder->ForceDBClosed();
+  return NS_OK;  // Sync runnable must return OK.
 }
 
 nsresult ProxyForceDBClosed(nsIMsgFolder *aFolder)
 {
   RefPtr<ForceDBClosedRunnable> forceDBClosed =
     new ForceDBClosedRunnable(aFolder);
-  return NS_DispatchToMainThread(forceDBClosed, NS_DISPATCH_SYNC);
+  nsresult rv = NS_DispatchToMainThread(forceDBClosed, NS_DISPATCH_SYNC);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return forceDBClosed->mResult;
 }
-
-

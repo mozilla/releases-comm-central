@@ -405,15 +405,7 @@ function AddModuleToList(moduleName, index)
 
   var item = document.createElement('listitem');
   item.setAttribute('label', moduleName);
-
-  // Temporarily skip Outlook Import which are busted (Bug 1175055).
-  if (moduleName == "Outlook") {
-    item.setAttribute('list-index', -1);
-    item.setAttribute('disabled', true);
-    item.setAttribute('tooltiptext', "Currently disabled due to bug 1175055");
-  } else {
-    item.setAttribute('list-index', index);
-  }
+  item.setAttribute('list-index', index);
   body.appendChild(item);
 }
 

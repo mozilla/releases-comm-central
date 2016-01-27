@@ -850,7 +850,7 @@ bool CMapiMessage::CopyMsgAttachToFile(LPATTACH lpAttach, /*out*/ nsIFile **tmp_
   nsCOMPtr<nsIOutputStream> destOutputStream;
   nsresult rv = MsgNewBufferedFileOutputStream(getter_AddRefs(destOutputStream), *tmp_file, -1, 0600);
   if (NS_SUCCEEDED(rv))
-    rv = nsOutlookMail::ImportMessage(lpMsg, destOutputStream, nsIMsgSend::nsMsgSaveAsDraft);
+    rv = ImportMailboxRunnable::ImportMessage(lpMsg, destOutputStream, nsIMsgSend::nsMsgSaveAsDraft);
 
   if (NS_FAILED(rv)) {
     (*tmp_file)->Remove(false);

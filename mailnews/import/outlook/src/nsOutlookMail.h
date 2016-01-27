@@ -13,6 +13,7 @@
 #include "MapiApi.h"
 #include "MapiMessage.h"
 #include "nsIAddrDatabase.h"
+#include "nsThreadUtils.h"
 
 class nsIAddrDatabase;
 class nsIImportFieldMap;
@@ -27,12 +28,11 @@ public:
   nsresult ImportMailbox(uint32_t *pDoneSoFar, bool *pAbort, int32_t index,
                          const char16_t *pName, nsIMsgFolder *pDest,
                          int32_t *pMsgCount);
-  static nsresult ImportMessage(LPMESSAGE lpMsg, nsIOutputStream *destOutputStream, nsMsgDeliverMode mode);
   nsresult ImportAddresses(uint32_t *pCount, uint32_t *pTotal, const char16_t *pName, uint32_t id, nsIAddrDatabase *pDb, nsString& errors);
-private:
   void  OpenMessageStore(CMapiFolder *pNextFolder);
   static BOOL  WriteData(nsIOutputStream *pDest, const char *pData, int32_t len);
-  
+
+private:
   bool      IsAddressBookNameUnique(nsString& name, nsString& list);
   void      MakeAddressBookNameUnique(nsString& name, nsString& list);
   void      SanitizeValue(nsString& val);
@@ -44,11 +44,37 @@ private:
   bool              m_gotFolders;
   bool              m_gotAddresses;
   bool              m_haveMapi;
-  CMapiApi          m_mapi;
-  CMapiFolderList   m_folderList;
   CMapiFolderList   m_addressList;
   CMapiFolderList   m_storeList;
+
+public:
+  // Needed for the proxy class.
+  CMapiApi          m_mapi;
+  CMapiFolderList   m_folderList;
   LPMDB             m_lpMdb;
+};
+
+class ImportMailboxRunnable: public mozilla::Runnable
+{
+public:
+  ImportMailboxRunnable(uint32_t *pDoneSoFar, bool *pAbort,
+                        int32_t index, const char16_t *pName,
+                        nsIMsgFolder *dstFolder,
+                        int32_t *pMsgCount,
+                        nsOutlookMail *aCaller);
+  NS_DECL_NSIRUNNABLE
+  static nsresult ImportMessage(LPMESSAGE lpMsg, nsIOutputStream *pDest, nsMsgDeliverMode mode);
+  nsresult          mResult;
+
+private:
+  nsOutlookMail     *mCaller;
+  uint32_t          *mDoneSoFar;
+  bool              *mAbort;
+  int32_t           mIndex;
+  const char16_t    *mName;
+  nsCOMPtr<nsIFile> mMessageFile;
+  nsCOMPtr<nsIMsgFolder> mDstFolder;
+  int32_t           *mMsgCount;
 };
 
 #endif /* nsOutlookMail_h___ */

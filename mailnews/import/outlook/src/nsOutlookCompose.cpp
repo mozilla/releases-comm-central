@@ -39,6 +39,8 @@
 #include "nsMsgUtils.h"
 
 #include "nsAutoPtr.h"
+#include "nsIThread.h"
+#include "nsThreadUtils.h"
 
 #include "nsMsgMessageFlags.h"
 #include "nsMsgLocalFolderHdrs.h"
@@ -47,11 +49,6 @@
 
 static NS_DEFINE_CID(kMsgSendCID, NS_MSGSEND_CID);
 static NS_DEFINE_CID(kMsgCompFieldsCID, NS_MSGCOMPFIELDS_CID);
-
-// We need to do some calculations to set these numbers to something reasonable!
-// Unless of course, CreateAndSendMessage will NEVER EVER leave us in the lurch
-#define kHungCount 100000
-#define kHungAbortCount 1000
 
 #ifdef IMPORT_DEBUG
 static const char *p_test_headers =
@@ -309,6 +306,7 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode, CMapiMessage
   nsCOMPtr<nsIImportService> impService(do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // nsIImportService::CreateRFC822Message creates a runnable and dispatches to the main thread.
   rv = impService->CreateRFC822Message(
                         m_pIdentity,                  // dummy identity
                         m_pMsgFields,                 // message fields
@@ -324,23 +322,10 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode, CMapiMessage
     IMPORT_LOG1("*** Error, CreateAndSendMessage FAILED: 0x%lx\n", rv);
   }
   else {
-    // wait for the listener to get done!
-    int32_t abortCnt = 0;
-    int32_t cnt = 0;
-    int32_t sleepCnt = 1;
-    while (!pListen->m_done && (abortCnt < kHungAbortCount)) {
-      PR_Sleep(sleepCnt);
-      cnt++;
-      if (cnt > kHungCount) {
-        abortCnt++;
-        sleepCnt *= 2;
-        cnt = 0;
-      }
-    }
-
-    if (abortCnt >= kHungAbortCount) {
-      IMPORT_LOG0("**** Create and send message hung\n");
-      rv = NS_ERROR_FAILURE;
+    // Wait for the listener to get done.
+    nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
+    while (!pListen->m_done) {
+      NS_ProcessPendingEvents(thread);
     }
   }
 
