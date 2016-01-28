@@ -171,86 +171,11 @@ var accountWizard = {
     alias.focus();
   },
 
-  createTextbox: function aw_createTextbox(aType, aValue, aLabel, aName) {
-    var row = document.createElement("row");
-    row.setAttribute("align", "center");
-
-    var label = document.createElement("label");
-    label.textContent = aLabel;
-    label.setAttribute("control", aName);
-    row.appendChild(label);
-
-    var textbox = document.createElement("textbox");
-    if (aType)
-      textbox.setAttribute("type", aType);
-    textbox.setAttribute("value", aValue);
-    textbox.setAttribute("id", aName);
-    textbox.setAttribute("flex", "1");
-
-    row.appendChild(textbox);
-    return row;
-  },
-
-  createMenulist: function aw_createMenulist(aList, aLabel, aName) {
-    var vbox = document.createElement("vbox");
-    vbox.setAttribute("flex", "1");
-
-    var label = document.createElement("label");
-    label.setAttribute("value", aLabel);
-    label.setAttribute("control", aName);
-    vbox.appendChild(label);
-
-    aList.QueryInterface(Ci.nsISimpleEnumerator);
-    var menulist = document.createElement("menulist");
-    menulist.setAttribute("id", aName);
-    var popup = menulist.appendChild(document.createElement("menupopup"));
-    while (aList.hasMoreElements()) {
-      let elt = aList.getNext();
-      let item = document.createElement("menuitem");
-      item.setAttribute("label", elt.name);
-      item.setAttribute("value", elt.value);
-      popup.appendChild(item);
-    }
-    vbox.appendChild(menulist);
-    return vbox;
-  },
-
   populateProtoSpecificBox: function aw_populate() {
-    var id = this.proto.id;
-    var rows = document.getElementById("protoSpecific");
-    while (rows.hasChildNodes())
-      rows.lastChild.remove();
-    var visible = false;
-    for (let opt in this.getProtoOptions()) {
-      var text = opt.label;
-      var name = id + "-" + opt.name;
-      switch (opt.type) {
-      case opt.typeBool:
-        var chk = document.createElement("checkbox");
-        chk.setAttribute("label", text);
-        chk.setAttribute("id", name);
-        if (opt.getBool())
-          chk.setAttribute("checked", "true");
-        rows.appendChild(chk);
-        break;
-      case opt.typeInt:
-        rows.appendChild(this.createTextbox("number", opt.getInt(),
-                                           text, name));
-        break;
-      case opt.typeString:
-        rows.appendChild(this.createTextbox(null, opt.getString(), text, name));
-        break;
-      case opt.typeList:
-        rows.appendChild(this.createMenulist(opt.getList(), text, name));
-        document.getElementById(name).value = opt.getListDefault();
-        break;
-      default:
-        throw "unknown preference type " + opt.type;
-      }
-      visible = true;
-    }
-    document.getElementById("protoSpecificGroupbox").hidden = !visible;
-    if (visible) {
+    let haveOptions =
+      accountOptionsHelper.addOptions(this.proto.id + "-", this.getProtoOptions());
+    document.getElementById("protoSpecificGroupbox").hidden = !haveOptions;
+    if (haveOptions) {
       var bundle = document.getElementById("accountsBundle");
       document.getElementById("protoSpecificCaption").label =
         bundle.getFormattedString("protoOptions", [this.proto.name]);

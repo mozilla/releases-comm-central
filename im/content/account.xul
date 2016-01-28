@@ -16,6 +16,7 @@
   xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   onload = "account.onload()"
   ondialogaccept="account.save()">
+  <script type="application/javascript" src="chrome://chat/content/imAccountOptionsHelper.js"/>
   <script type="application/javascript" src="chrome://instantbird/content/account.js"/>
 
   <stringbundle id="proxiesBundle" src="chrome://instantbird/locale/proxies.properties"/>

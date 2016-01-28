@@ -115,49 +115,6 @@ var account = {
     document.getElementById("proxyDescription").textContent = result;
   },
 
-  createTextbox: function account_createTextbox(aType, aValue, aLabel, aName) {
-    let row = document.createElement("row");
-    row.setAttribute("align", "center");
-
-    var label = document.createElement("label");
-    label.textContent = aLabel;
-    label.setAttribute("control", aName);
-    row.appendChild(label);
-
-    var textbox = document.createElement("textbox");
-    if (aType)
-      textbox.setAttribute("type", aType);
-    textbox.setAttribute("value", aValue);
-    textbox.setAttribute("id", aName);
-
-    row.appendChild(textbox);
-    return row;
-  },
-
-  createMenulist: function account_createMenulist(aList, aLabel, aName) {
-    let vbox = document.createElement("vbox");
-    vbox.setAttribute("flex", "1");
-
-    var label = document.createElement("label");
-    label.setAttribute("value", aLabel);
-    label.setAttribute("control", aName);
-    vbox.appendChild(label);
-
-    aList.QueryInterface(Ci.nsISimpleEnumerator);
-    var menulist = document.createElement("menulist");
-    menulist.setAttribute("id", aName);
-    var popup = menulist.appendChild(document.createElement("menupopup"));
-    while (aList.hasMoreElements()) {
-      let elt = aList.getNext();
-      let item = document.createElement("menuitem");
-      item.setAttribute("label", elt.name);
-      item.setAttribute("value", elt.value);
-      popup.appendChild(item);
-    }
-    vbox.appendChild(menulist);
-    return vbox;
-  },
-
   getBool: function account_getBool(aOpt) {
     if (this.prefs.prefHasUserValue(aOpt.name))
       return this.prefs.getBoolPref(aOpt.name);
@@ -187,38 +144,10 @@ var account = {
   },
 
   populateProtoSpecificBox: function account_populate() {
-    let rows = document.getElementById("protoSpecific");
-    var id = this.proto.id;
-    for (let opt in this.getProtoOptions()) {
-      var text = opt.label;
-      var name = id + "-" + opt.name;
-      switch (opt.type) {
-      case opt.typeBool:
-        var chk = document.createElement("checkbox");
-        if (this.getBool(opt))
-          chk.setAttribute("checked", "true");
-        chk.setAttribute("label", text);
-        chk.setAttribute("id", name);
-        rows.appendChild(chk);
-        break;
-      case opt.typeInt:
-        rows.appendChild(this.createTextbox("number", this.getInt(opt),
-                                            text, name));
-        break;
-      case opt.typeString:
-        rows.appendChild(this.createTextbox(null, this.getString(opt),
-                                            text, name));
-        break;
-      case opt.typeList:
-        rows.appendChild(this.createMenulist(opt.getList(), text, name));
-        document.getElementById(name).value = this.getListValue(opt);
-        break;
-      default:
-        throw "unknown preference type " + opt.type;
-      }
-    }
-    if (!rows.firstChild)
-      document.getElementById("advancedTab").hidden = true;
+    let haveOptions =
+      accountOptionsHelper.addOptions(this.proto.id + "-", this.getProtoOptions(),
+                                      null, this.prefs);
+    document.getElementById("advancedTab").hidden = !haveOptions;
   },
 
   getValue: function account_getValue(aId) {
@@ -262,20 +191,20 @@ var account = {
       var name = this.proto.id + "-" + opt.name;
       var val = this.getValue(name);
       switch (opt.type) {
-      case opt.typeBool:
-        if (val != this.getBool(opt))
+      case Ci.prplIPref.typeBool:
+        if (val != opt.getBool())
           this.account.setBool(opt.name, val);
         break;
-      case opt.typeInt:
-        if (val != this.getInt(opt))
+      case Ci.prplIPref.typeInt:
+        if (val != opt.getInt())
           this.account.setInt(opt.name, val);
         break;
-      case opt.typeString:
-        if (val != this.getString(opt))
+      case Ci.prplIPref.typeString:
+        if (val != opt.getString())
           this.account.setString(opt.name, val);
         break;
-      case opt.typeList:
-        if (val != this.getListValue(opt))
+      case Ci.prplIPref.typeList:
+        if (val != opt.getListDefault())
           this.account.setString(opt.name, val);
         break;
       default:
@@ -286,8 +215,25 @@ var account = {
 
   getProtoOptions: function account_getProtoOptions() {
     let options = this.proto.getOptions();
-    while (options.hasMoreElements())
-      yield options.getNext();
+    while (options.hasMoreElements()) {
+      let opt = options.getNext();
+      let returnOpt = {
+        get name() { return opt.name; },
+        get label() { return opt.label; },
+        get type() { return opt.type; },
+        get masked() { return opt.masked; },
+
+        // Override these to use user's preference values instead of
+        // the default value where available.
+        getBool: () => this.getBool(opt),
+        getInt: () => this.getInt(opt),
+        getString: () => this.getString(opt),
+        getListDefault: () => this.getListValue(opt),
+
+        getList: () => opt.getList()
+      };
+      yield returnOpt;
+    }
   },
 
   openProxySettings: function account_openProxySettings() {

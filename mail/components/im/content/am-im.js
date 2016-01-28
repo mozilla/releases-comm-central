@@ -58,96 +58,41 @@ var account = {
     this.populateProtoSpecificBox();
   },
 
-  createTextbox: function account_createTextbox(aType, aLabel, aName) {
-    var box = document.createElement("vbox");
-
-    var label = document.createElement("label");
-    label.setAttribute("value", aLabel);
-    label.setAttribute("control", aName);
-    box.appendChild(label);
-
-    var textbox = document.createElement("textbox");
-    if (aType)
-      textbox.setAttribute("type", aType);
-    textbox.setAttribute("preftype", aType == "number" ? "int" : "wstring");
-    textbox.setAttribute("id", aName);
-    textbox.setAttribute("wsm_persist", "true");
-    textbox.setAttribute("genericattr", "true");
-
-    box.appendChild(textbox);
-    return box;
-  },
-
-  createMenulist: function account_createMenulist(aList, aLabel, aName) {
-    var box = document.createElement("vbox");
-
-    var label = document.createElement("label");
-    label.setAttribute("value", aLabel);
-    label.setAttribute("control", aName);
-    box.appendChild(label);
-
-    aList.QueryInterface(Ci.nsISimpleEnumerator);
-    var menulist = document.createElement("menulist");
-    menulist.setAttribute("id", aName);
-    menulist.setAttribute("wsm_persist", "true");
-    menulist.setAttribute("preftype", "wstring");
-    menulist.setAttribute("genericattr", "true");
-    var popup = menulist.appendChild(document.createElement("menupopup"));
-    while (aList.hasMoreElements()) {
-      let elt = aList.getNext();
-      let item = document.createElement("menuitem");
-      item.setAttribute("label", elt.name);
-      item.setAttribute("value", elt.value);
-      popup.appendChild(item);
-    }
-    box.appendChild(menulist);
-    return box;
+  getProtoOptions: function account_getProtoOptions() {
+    let options = this.proto.getOptions();
+    while (options.hasMoreElements())
+      yield options.getNext();
   },
 
   populateProtoSpecificBox: function account_populate() {
-    var gbox = document.getElementById("protoSpecific");
-    while (gbox.hasChildNodes())
-      gbox.lastChild.remove();
-
-    let options = this.proto.getOptions();
-    while (options.hasMoreElements()) {
-      let opt = options.getNext();
-      var text = opt.label;
-      var name = "server." + opt.name;
-      switch (opt.type) {
-      case opt.typeBool:
-        var chk = document.createElement("checkbox");
-        chk.setAttribute("label", text);
-        chk.setAttribute("id", name);
-        chk.setAttribute("wsm_persist", "true");
-        chk.setAttribute("preftype", "bool");
-        chk.setAttribute("genericattr", "true");
-
-        gbox.appendChild(chk);
-        break;
-      case opt.typeInt:
-        gbox.appendChild(this.createTextbox("number", text, name));
-        break;
-      case opt.typeString:
-        gbox.appendChild(this.createTextbox(null, text, name));
-        break;
-      case opt.typeList:
-        gbox.appendChild(this.createMenulist(opt.getList(), text, name));
-        break;
-      default:
-        throw "unknown preference type " + opt.type;
-      }
-    }
-
+    let attributes = {};
+    attributes[Ci.prplIPref.typeBool] = [
+      {name: "wsm_persist", value: "true"},
+      {name: "preftype", value: "bool"},
+      {name: "genericattr", value: "true"}
+    ];
+    attributes[Ci.prplIPref.typeInt] = [
+      {name: "wsm_persist", value: "true"},
+      {name: "preftype", value: "int"},
+      {name: "genericattr", value: "true"}
+    ];
+    attributes[Ci.prplIPref.typeString] = attributes[Ci.prplIPref.typeList] = [
+      {name: "wsm_persist", value: "true"},
+      {name: "preftype", value: "wstring"},
+      {name: "genericattr", value: "true"}
+    ];
+    let haveOptions =
+      accountOptionsHelper.addOptions("server.", this.getProtoOptions(),
+                                      attributes, null, "vbox");
     let advanced = document.getElementById("advanced");
-    if (advanced.hidden && gbox.firstChild) {
+    if (advanced.hidden && haveOptions) {
       advanced.hidden = false;
       // Force textbox XBL binding attachment by forcing layout,
       // otherwise setFormElementValue from AccountManager.js sets
       // properties that don't exist when restoring values.
       gbox.getBoundingClientRect();
     }
-    else if (!gbox.firstChild)
+    else if (!haveOptions)
       advanced.hidden = true;
   }
 };
