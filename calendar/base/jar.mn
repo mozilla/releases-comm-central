@@ -149,6 +149,7 @@ calendar.jar:
     ../skin/common/today-pane.css                     (themes/common/today-pane.css)
     ../skin/common/dialogs/calendar-alarm-dialog.css  (themes/common/dialogs/calendar-alarm-dialog.css)
     ../skin/common/dialogs/calendar-event-dialog.css  (themes/common/dialogs/calendar-event-dialog.css)
+    ../skin/common/dialogs/calendar-invitations-dialog.css (themes/common/dialogs/calendar-invitations-dialog.css)
     ../skin/common/calendar-properties-dialog.css     (themes/common/dialogs/calendar-properties-dialog.css)
     ../skin/common/calendar-subscriptions-dialog.css  (themes/common/dialogs/calendar-subscriptions-dialog.css)
     ../skin/common/calendar-timezone-highlighter.css  (themes/common/dialogs/calendar-timezone-highlighter.css)

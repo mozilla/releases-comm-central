@@ -175,7 +175,6 @@ agenda-allday-richlist-item {
 .agenda-container-box[selected="true"][current="true"],
 .agenda-allday-container-box[selected="true"][current="true"],
 .agenda-checkbox[selected="true"][current="true"] {
-  background-image: url("chrome://mozapps/skin/extensions/itemEnabledFader.png");
   background-color: #FDF5A0;
   color: #000000;
 }
@@ -186,14 +185,12 @@ agenda-allday-richlist-item {
 .agenda-container-box[selected="true"][current="true"][disabled="true"],
 .agenda-allday-container-box[selected="true"][current="true"][disabled="true"],
 .agenda-checkbox[selected="true"][current="true"][disabled="true"] {
-  background-image: url("chrome://mozapps/skin/extensions/itemEnabledFader.png");
   background-color: #DFEAF4;
 }
 
 .agenda-container-box[selected="true"][disabled="true"],
 .agenda-allday-container-box[selected="true"][disabled="true"],
 .agenda-checkbox[selected="true"][disabled="true"] {
-  background-image: none;
   color: -moz-dialogText;
   background-color: -moz-dialog;
 }

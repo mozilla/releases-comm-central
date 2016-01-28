@@ -28,7 +28,6 @@ calendar-invitations-richlistitem {
 }
 
 calendar-invitations-richlistitem[selected="true"] {
-  background-image: url("chrome://mozapps/skin/extensions/itemEnabledFader.png");
   background-color: Highlight;
   color: HighlightText;
   border-bottom: 1px dotted #7F9DB9;
