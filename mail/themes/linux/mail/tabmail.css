@@ -61,12 +61,10 @@ tabpanels {
 
 .tabmail-tab:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-text {
   color: -moz-MenuBarText;
-  opacity: .6;
 }
 
 .tabmail-tab[selected]:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-text {
   color: -moz-DialogText;
-  opacity: 1;
 }
 
 .tabmail-tab[selected]:focus > .tab-stack > .tab-content > .tab-text {
@@ -90,7 +88,7 @@ tabpanels {
   list-style-image: none;
 }
 
-.tabs-closebutton:not([selected]):not(:hover),
+.tabs-closebutton:not(:hover),
 .tab-close-button:not([selected]):not(:hover) {
   background-image: -moz-image-rect(url("chrome://global/skin/icons/close.svg"), 0, 64, 16, 48);
 }
@@ -98,11 +96,11 @@ tabpanels {
 .tabs-closebutton:not(:hover):-moz-lwtheme-brighttext,
 .tab-close-button:not(:hover):-moz-lwtheme-brighttext,
 #tabs-toolbar[brighttext] .tabs-closebutton:not(:hover),
-#tabs-toolbar[brighttext] .tab-close-button:not(:hover) {
+#tabs-toolbar[brighttext] .tab-close-button:not([selected]):not(:hover) {
   background-image: -moz-image-rect(url("chrome://global/skin/icons/close.svg"), 0, 80, 16, 64);
 }
 
-.tabs-closebutton:not([selected]):not(:hover):-moz-lwtheme-darktext,
+.tabs-closebutton:not(:hover):-moz-lwtheme-darktext,
 .tab-close-button:not([selected]):not(:hover):-moz-lwtheme-darktext {
   background-image: -moz-image-rect(url("chrome://global/skin/icons/close.svg"), 0, 96, 16, 80);
 }
