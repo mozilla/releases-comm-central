@@ -12,6 +12,9 @@ Cu.import("resource:///modules/xmpp-session.jsm");
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/facebook.properties")
 );
+XPCOMUtils.defineLazyGetter(this, "_irc", () =>
+  l10nHelper("chrome://chat/locale/irc.properties")
+);
 
 function FacebookAccount(aProtoInstance, aImAccount) {
   this._init(aProtoInstance, aImAccount);
@@ -20,27 +23,11 @@ FacebookAccount.prototype = {
   __proto__: XMPPAccountPrototype,
   get canJoinChat() { return false; },
   connect: function() {
-    if (!this.name.includes("@")) {
-      let jid = this.name + "@chat.facebook.com/" + XMPPDefaultResource;
-      this._jid = this._parseJID(jid);
-    }
-    else {
-      this._jid = this._parseJID(this.name);
-      if (this._jid.domain != "chat.facebook.com") {
-        // We can't use this.onError because this._connection doesn't exist.
-        this.reportDisconnecting(Ci.prplIAccount.ERROR_INVALID_USERNAME,
-                                 _("connection.error.useUsernameNotEmailAddress"));
-        this.reportDisconnected();
-        return;
-      }
-    }
-
-    let server = "chat.facebook.com";
-    if (this.prefs.prefHasUserValue("server"))
-      server = this.getString("server");
-    this._connection = new XMPPSession(server, 5222, "require_tls",
-                                       this._jid, this.imAccount.password,
-                                       this);
+    this.WARN("As Facebook deprecated its XMPP gateway, it is currently not " +
+              "possible to connect to Facebook Chat. See bug 1141674.");
+    this.reportDisconnecting(Ci.prplIAccount.ERROR_OTHER_ERROR,
+                             _irc("error.unavailable", _("facebook.chat.name")));
+    this.reportDisconnected();
   }
 };
 

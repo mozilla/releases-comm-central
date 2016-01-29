@@ -18,6 +18,13 @@ var accountWizard = {
       if (proto == null)
         continue;
 
+      // If the preference is set to disable this prpl, don't show it in the
+      // full list of protocols.
+      let pref = "chat.prpls." + topProto + ".disable";
+      if (Services.prefs.getPrefType(pref) == Services.prefs.PREF_BOOL &&
+          Services.prefs.getBoolPref(pref))
+        continue;
+
       let item = document.createElement("richlistitem");
       item.className = "top-protocol";
       topProtoList.insertBefore(item, document.getElementById("otherListItem"));

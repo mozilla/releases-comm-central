@@ -82,6 +82,8 @@ pref("chat.irc.defaultQuitMessage", "");
 pref("chat.irc.automaticList", true);
 // Disable Skype until it can be tested further.
 pref("chat.prpls.prpl-skype.disable", true);
+// Disable Facebook as the XMPP gateway no longer exists.
+pref("chat.prpls.prpl-facebook.disable", true);
 
 // loglevel is the minimum severity level that a libpurple message
 // must have to be reported in the Error Console.
