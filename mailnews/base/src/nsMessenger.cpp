@@ -565,6 +565,7 @@ nsMessenger::LoadURL(nsIDOMWindow *aWin, const nsACString& aURL)
   loadInfo->SetLoadType(nsIDocShellLoadInfo::loadNormal);
   AddMsgUrlToNavigateHistory(aURL);
   mNavigatingToUri.Truncate();
+  mLastDisplayURI = aURL; // Remember the last uri we displayed.
   return mDocShell->LoadURI(uri, loadInfo, 0, true);
 }
 
