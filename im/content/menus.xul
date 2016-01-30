@@ -43,7 +43,7 @@
   </keyset>
 
   <menubar id="blistMenubar">
-    <menu label="&file.menu;" id="fileMenu" accesskey="&file.accesskey;">
+    <menu label="&file.menu;" id="fileMenu" accesskey="&file.accesskey;" insertbefore="menu_edit">
       <menupopup id="fileMenuPopup" onpopupshowing="menus.updateFileMenuitems();">
         <menuitem id="addBuddyMenuItem" label="&addContact;" command="cmd_addbuddy" key="addBuddykey" accesskey="&addContact.accesskey;"/>
         <menuitem id="newTabMenuItem" label="&newtab;" command="cmd_newtab" key="newtabkey" accesskey="&newtab.accesskey;"/>
