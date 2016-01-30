@@ -265,6 +265,13 @@ function view_init()
     viewAttachmentInlineMenu.setAttribute("checked", viewAttachmentInline);
 
   document.commandDispatcher.updateCommands('create-menu-view');
+
+  // Disable the charset item if there's nothing to enable
+  document.getElementById("charsetMenu")
+          .setAttribute("disabled", !gMessageDisplay.displayedMessage);
+  let appmenuCharset = document.getElementById("appmenu_charsetMenu");
+  if (appmenuCharset)
+    appmenuCharset.setAttribute("disabled", !gMessageDisplay.displayedMessage);
 }
 
 function InitViewLayoutStyleMenu(event)
