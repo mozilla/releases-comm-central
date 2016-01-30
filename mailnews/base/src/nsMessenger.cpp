@@ -14,7 +14,6 @@
 #include "nsIFile.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsQuickSort.h"
-#include "nsAutoPtr.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsIMutableArray.h"
 #include "mozilla/Services.h"
@@ -151,7 +150,7 @@ public:
 
   nsCOMPtr<nsIFile> m_file;
   nsCOMPtr<nsIOutputStream> m_outputStream;
-  nsAutoPtr<char> m_dataBuffer;
+  char m_dataBuffer[FOUR_K];
   nsCOMPtr<nsIChannel> m_channel;
   nsCString m_templateUri;
   nsMessenger *m_messenger; // not ref counted
@@ -1639,7 +1638,6 @@ nsSaveMsgListener::nsSaveMsgListener(nsIFile* aFile, nsMessenger *aMessenger, ns
   mCanceled = false;
   m_outputFormat = eUnknown;
   mInitialized = false;
-  m_dataBuffer = new char[FOUR_K];
 }
 
 nsSaveMsgListener::~nsSaveMsgListener()
@@ -1967,7 +1965,7 @@ nsSaveMsgListener::OnDataAvailable(nsIRequest* request,
   if (!mInitialized)
     InitializeDownload(request);
 
-  if (m_dataBuffer && m_outputStream)
+  if (m_outputStream)
   {
     mProgress += count;
     uint64_t available;
