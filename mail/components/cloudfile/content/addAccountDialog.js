@@ -127,7 +127,7 @@ var addAccountDialog = {
 
     let links = doc.getElementsByTagName("a");
 
-    for (let [, link] in Iterator(links))
+    for (let link of links)
       link.addEventListener("click", this.onClickLink);
 
     let form = doc.getElementById(kFormId);

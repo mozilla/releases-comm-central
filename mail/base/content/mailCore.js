@@ -271,7 +271,7 @@ function onViewToolbarsPopupShowing(aEvent, toolboxIds, aInsertPoint)
   // point is defined.
   let firstMenuItem = aInsertPoint || popup.firstChild;
 
-  for (let [, toolboxId] in Iterator(toolboxIds)) {
+  for (let toolboxId of toolboxIds) {
     let toolbox = document.getElementById(toolboxId);
 
     // We'll consider either childnodes that have a toolbarname attribute,

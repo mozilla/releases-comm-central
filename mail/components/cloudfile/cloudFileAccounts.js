@@ -31,7 +31,7 @@ var cloudFileAccounts = {
     let accountKeySet = {};
     let branch = Services.prefs.getBranch(ACCOUNT_ROOT);
     let children = branch.getChildList("", {});
-    for (let [,child] in Iterator(children)) {
+    for (let child of children) {
       let subbranch = child.substr(0, child.indexOf("."));
       accountKeySet[subbranch] = 1;
     }
@@ -179,9 +179,8 @@ var cloudFileAccounts = {
   getAccountsForType: function CFA_getAccountsForType(aType) {
     let result = [];
 
-    for (let [, accountKey] in Iterator(this._accountKeys)) {
-      let type = Services.prefs.getCharPref(ACCOUNT_ROOT + accountKey
-                                            + ".type");
+    for (let accountKey of this._accountKeys) {
+      let type = Services.prefs.getCharPref(ACCOUNT_ROOT + accountKey + ".type");
       if (type === aType)
         result.push(this.getAccount(accountKey));
     }

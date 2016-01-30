@@ -481,7 +481,7 @@ var gCloudAttachmentLinkManager = {
     selection.collapse(originalAnchor, originalOffset);
 
     // Restore the selection ranges.
-    for (let [,range] in Iterator(ranges))
+    for (let range of ranges)
       selection.addRange(range);
   },
 

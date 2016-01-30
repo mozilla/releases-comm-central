@@ -583,7 +583,7 @@ var EmailAccountProvisioner = {
     let required = ["id", "label", "paid", "languages", "api", "tos_url",
                     "privacy_url"];
 
-    for (let [index, aField] in Iterator(required)) {
+    for (let aField of required) {
       let fieldExists = (aField in provider);
       result &= fieldExists;
 

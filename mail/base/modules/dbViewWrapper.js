@@ -2035,7 +2035,7 @@ DBViewWrapper.prototype = {
       return this._syntheticView.getMsgHdrForMessageID(aMessageId);
     if (!this._underlyingFolders)
       return null;
-    for (let [, folder] in Iterator(this._underlyingFolders)) {
+    for (let folder of this._underlyingFolders) {
       let msgHdr = folder.msgDatabase.getMsgHdrForMessageID(aMessageId);
       if (msgHdr)
         return msgHdr;

@@ -620,7 +620,7 @@ var gCloudFileTab = {
 
     accounts.sort(sortAccounts);
 
-    for (let [, account] in Iterator(accounts)) {
+    for (let account of accounts) {
       let rli = this.makeRichListItemForAccount(account);
       this._list.appendChild(rli);
       if (!(account.accountKey in this._accountCache))
@@ -760,7 +760,7 @@ var gCloudFileTab = {
         let doc = e.originalTarget;
         let links = doc.getElementsByTagName("a");
 
-        for (let [, link] in Iterator(links))
+        for (let link of links)
           link.addEventListener("click", gCloudFileTab._onClickLink);
       }, false);
 

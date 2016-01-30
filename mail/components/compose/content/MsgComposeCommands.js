@@ -1164,7 +1164,7 @@ function addAttachCloudMenuItems(aParentMenu)
   while (aParentMenu.hasChildNodes())
     aParentMenu.lastChild.remove();
 
-  for (let [,cloudProvider] in Iterator(cloudFileAccounts.accounts)) {
+  for (let cloudProvider of cloudFileAccounts.accounts) {
     let item = document.createElement("menuitem");
     let iconClass = cloudProvider.iconClass;
     item.cloudProvider = cloudProvider;
@@ -1190,7 +1190,7 @@ function addConvertCloudMenuItems(aParentMenu, aAfterNodeId, aRadioGroup)
     item.setAttribute("checked", "true");
   }
 
-  for (let [,cloudProvider] in Iterator(cloudFileAccounts.accounts)) {
+  for (let cloudProvider of cloudFileAccounts.accounts) {
     let item = document.createElement("menuitem");
     let iconClass = cloudProvider.iconClass;
     item.cloudProvider = cloudProvider;
@@ -1564,7 +1564,7 @@ function convertListItemsToRegularAttachment(aItems)
 
   // We leave the content location in for the notifications because
   // it may be needed to identify the attachment. But clear it out now.
-  for (let [,item] in Iterator(aItems))
+  for (let item of aItems)
     delete item.attachment.contentLocation;
 }
 
@@ -1586,7 +1586,7 @@ function convertToRegularAttachment(aAttachments)
 {
   let bucket = document.getElementById("attachmentBucket");
   let items = [];
-  for (let [,attachment] in Iterator(aAttachments)) {
+  for (let attachment of aAttachments) {
     let item = bucket.findItemForAttachment(attachment);
     if (item)
       items.push(item);
@@ -2222,7 +2222,7 @@ function ComposeStartup(recycled, aParams)
         let attachmentList = args.attachment.split(",");
         let commandLine = Components.classes["@mozilla.org/toolkit/command-line;1"]
                                     .createInstance();
-        for (let [,attachmentName] in Iterator(attachmentList))
+        for (let attachmentName of attachmentList)
         {
           // resolveURI does all the magic around working out what the
           // attachment is, including web pages, and generating the correct uri.

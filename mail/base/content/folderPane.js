@@ -1396,7 +1396,7 @@ var gFolderTreeView = {
     }
     this._restoreOpenStates();
     // restore selection.
-    for (let [, folder] in Iterator(selectedFolders)) {
+    for (let folder of selectedFolders) {
       if (folder) {
         let index = this.getIndexOfFolder(folder);
         if (index != null)

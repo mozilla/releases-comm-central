@@ -154,7 +154,7 @@ var gDisplayPane = {
 
     let fontNames = listPref.value.split(",");
 
-    for (let [, fontName] in Iterator(fontNames)) {
+    for (let fontName of fontNames) {
       let fontItem = element.querySelector('[value="' + fontName.trim() + '"]');
       if (fontItem)
         return fontItem.getAttribute("value");
