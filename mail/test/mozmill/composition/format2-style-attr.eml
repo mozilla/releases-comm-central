@@ -1,0 +1,37 @@
+Message-ID: <22222222.2222222@example.invalid>
+Date: Sun, 17 Jun 2012 09:42:45 +0200
+From: John Doe
+MIME-Version: 1.0
+Subject: Testcase - style attribute
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html;
+      charset=ISO-8859-1">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    *** This text is "Variable Width" ***<br>
+    <br>
+    <a title="Get the best mailer now! (Caveat: neglected bird with lots
+      of bugs)" style="float: right; background-color: blue; font-size:
+      18px; text-decoration: none; color: white; padding-top: 90px;
+      padding-bottom: 90px; padding-right: 50px; padding-left: 50px;"
+      href="http://www.getthunderbird.com">http://www.getthunderbird.com</a><a
+      title="Get the best browser now!" style="float: right;
+      background-color: orangered; font-size: 18px; text-decoration:
+      none; color: white; padding-top: 90px; padding-bottom: 90px;
+      padding-right: 50px; padding-left: 50px;"
+      href="http://www.getfirefox.com">http://www.getfirefox.com</a>Lorem
+      ipsum
+    dolor sit amet, consectetur adipiscing elit. Vestibulum
+    velit purus, egestas eu commodo ac, imperdiet pretium sem. Nulla
+    pulvinar commodo rutrum. Duis feugiat facilisis libero, id fermentum
+    neque molestie vel. Praesent vel nisi metus, a aliquam tellus. Cras
+    in
+    <pre style="color:blue;background-color:yellow;text-align:center;">
+    Vivamus accumsan bibendum arcu nec egestas. Suspendisse potenti.
+    </pre>
+  </body>
+</html>

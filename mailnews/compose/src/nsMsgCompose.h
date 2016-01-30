@@ -83,8 +83,8 @@ protected:
                             nsCOMArray<nsIAbDirectory> &aDirArray);
   nsresult BuildMailListArray(nsIAbDirectory* parentDir,
                               nsTArray<nsMsgMailList>& array);
-  nsresult TagConvertible(nsIDOMNode *node,  int32_t *_retval);
-  nsresult _BodyConvertible(nsIDOMNode *node, int32_t *_retval);
+  nsresult TagConvertible(nsIDOMElement *node,  int32_t *_retval);
+  nsresult _NodeTreeConvertible(nsIDOMElement *node, int32_t *_retval);
 
 // 3 = To, Cc, Bcc
 #define MAX_OF_RECIPIENT_ARRAY 3

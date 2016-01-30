@@ -174,9 +174,12 @@ interface nsIMsgCompose : nsIMsgSendListener {
    */
   long determineHTMLAction(in long aConvertible);
 
-  /* bodyConvertible: The level of "convertibility" to plaintext
+  /**
+   * The level of "convertibility" of the message body (whole HTML document)
+   * to plaintext.
+   *
    * @return a value from nsIMsgCompConvertible.
-  */
+   */
   long bodyConvertible();
 
   /**

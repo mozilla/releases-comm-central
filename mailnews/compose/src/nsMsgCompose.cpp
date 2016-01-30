@@ -5123,7 +5123,7 @@ nsMsgCompose::DetermineHTMLAction(int32_t aConvertible, int32_t *result)
 /* Decides which tags trigger which convertible mode, i.e. here is the logic
    for BodyConvertible */
 // Helper function. Parameters are not checked.
-nsresult nsMsgCompose::TagConvertible(nsIDOMNode *node,  int32_t *_retval)
+nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
 {
     nsresult rv;
 
@@ -5140,14 +5140,42 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMNode *node,  int32_t *_retval)
       return rv;
 
     nsCOMPtr<nsIDOMNode> pItem;
-    if      (
-              nodeType == nsIDOMNode::TEXT_NODE ||
+
+    // style attribute on any element can change layout in any way, so that is not convertible.
+    nsAutoString attribValue;
+    if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("style"), attribValue)) &&
+        !attribValue.IsEmpty())
+    {
+      *_retval = nsIMsgCompConvertible::No;
+      return NS_OK;
+    }
+    // moz-txt classes are used internally by the editor, those can be discarded.
+    // But any other ones are unconvertible. Style can be attached to them or any
+    // other context (e.g. in microformats).
+    if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("class"), attribValue)) &&
+        !attribValue.IsEmpty() &&
+        !StringBeginsWith(attribValue, NS_LITERAL_STRING("moz-txt"), nsCaseInsensitiveStringComparator()) &&
+        !StringBeginsWith(attribValue, NS_LITERAL_STRING("moz-cite"), nsCaseInsensitiveStringComparator()))
+    {
+      *_retval = nsIMsgCompConvertible::No;
+      return NS_OK;
+    }
+    // ID attributes can contain attached style/context or be target of links
+    // so we should preserve them.
+    if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("id"), attribValue)) &&
+        !attribValue.IsEmpty())
+    {
+      *_retval = nsIMsgCompConvertible::No;
+      return NS_OK;
+    }
+    if      ( // some "simple" elements without "style" attribute
               element.LowerCaseEqualsLiteral("br") ||
               element.LowerCaseEqualsLiteral("p") ||
               element.LowerCaseEqualsLiteral("pre") ||
               element.LowerCaseEqualsLiteral("tt") ||
               element.LowerCaseEqualsLiteral("html") ||
               element.LowerCaseEqualsLiteral("head") ||
+              element.LowerCaseEqualsLiteral("meta") ||
               element.LowerCaseEqualsLiteral("title")
             )
     {
@@ -5194,46 +5222,38 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMNode *node,  int32_t *_retval)
     {
       *_retval = nsIMsgCompConvertible::Plain;
 
-      nsCOMPtr<nsIDOMElement> domElement = do_QueryInterface(node);
-      if (domElement)
-      {
         bool hasAttribute;
         nsAutoString color;
-        if (NS_SUCCEEDED(domElement->HasAttribute(NS_LITERAL_STRING("background"), &hasAttribute))
+        if (NS_SUCCEEDED(node->HasAttribute(NS_LITERAL_STRING("background"), &hasAttribute))
             && hasAttribute)  // There is a background image
           *_retval = nsIMsgCompConvertible::No;
-        else if (NS_SUCCEEDED(domElement->HasAttribute(NS_LITERAL_STRING("text"), &hasAttribute)) &&
+        else if (NS_SUCCEEDED(node->HasAttribute(NS_LITERAL_STRING("text"), &hasAttribute)) &&
                  hasAttribute &&
-                 NS_SUCCEEDED(domElement->GetAttribute(NS_LITERAL_STRING("text"), color)) &&
+                 NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("text"), color)) &&
                  !color.EqualsLiteral("#000000")) {
           *_retval = nsIMsgCompConvertible::Altering;
         }
-        else if (NS_SUCCEEDED(domElement->HasAttribute(NS_LITERAL_STRING("bgcolor"), &hasAttribute)) &&
+        else if (NS_SUCCEEDED(node->HasAttribute(NS_LITERAL_STRING("bgcolor"), &hasAttribute)) &&
                  hasAttribute &&
-                 NS_SUCCEEDED(domElement->GetAttribute(NS_LITERAL_STRING("bgcolor"), color)) &&
+                 NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("bgcolor"), color)) &&
                  !color.LowerCaseEqualsLiteral("#ffffff")) {
           *_retval = nsIMsgCompConvertible::Altering;
         }
-        else if (NS_SUCCEEDED(domElement->HasAttribute(NS_LITERAL_STRING("dir"), &hasAttribute))
+        else if (NS_SUCCEEDED(node->HasAttribute(NS_LITERAL_STRING("dir"), &hasAttribute))
             && hasAttribute)  // dir=rtl attributes should not downconvert
           *_retval = nsIMsgCompConvertible::No;
 
         //ignore special color setting for link, vlink and alink at this point.
-      }
-
     }
     else if (element.LowerCaseEqualsLiteral("blockquote"))
     {
       // Skip <blockquote type="cite">
       *_retval = nsIMsgCompConvertible::Yes;
 
-      nsCOMPtr<nsIDOMElement> domElement = do_QueryInterface(node);
-      if (domElement)
+      if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("type"), attribValue)) &&
+          attribValue.LowerCaseEqualsLiteral("cite"))
       {
-        nsString typeValue;
-        if (NS_SUCCEEDED(domElement->GetAttribute(NS_LITERAL_STRING("type"), typeValue)) &&
-            typeValue.LowerCaseEqualsLiteral("cite"))
-          *_retval = nsIMsgCompConvertible::Plain;
+        *_retval = nsIMsgCompConvertible::Plain;
       }
     }
     else if (
@@ -5244,17 +5264,6 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMNode *node,  int32_t *_retval)
     {
       /* Do some special checks for these tags. They are inside this |else if|
          for performance reasons */
-      nsCOMPtr<nsIDOMElement> domElement = do_QueryInterface(node);
-      if (domElement)
-      {
-        nsString classValue;
-        if (NS_SUCCEEDED(domElement->GetAttribute(NS_LITERAL_STRING("class"), classValue)) &&
-            StringBeginsWith(classValue, NS_LITERAL_STRING("moz-txt"), nsCaseInsensitiveStringComparator()))
-        {
-          *_retval = nsIMsgCompConvertible::Plain;
-          return rv;  // Inconsistent :-(
-        }
-      }
 
       // Maybe, it's an <a> element inserted by another recognizer (e.g. 4.x')
       if (element.LowerCaseEqualsLiteral("a"))
@@ -5263,12 +5272,9 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMNode *node,  int32_t *_retval)
            (as inserted by recognizers) */
         *_retval = nsIMsgCompConvertible::Altering;
 
-        nsCOMPtr<nsIDOMElement> domElement = do_QueryInterface(node);
-        if (domElement)
-        {
-          nsString hrefValue;
+          nsAutoString hrefValue;
           bool hasChild;
-          if (NS_SUCCEEDED(domElement->GetAttribute(NS_LITERAL_STRING("href"), hrefValue)) &&
+          if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("href"), hrefValue)) &&
               NS_SUCCEEDED(node->HasChildNodes(&hasChild)) && hasChild)
           {
             nsCOMPtr<nsIDOMNodeList> children;
@@ -5283,7 +5289,6 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMNode *node,  int32_t *_retval)
                 *_retval = nsIMsgCompConvertible::Plain;
             }
           }
-        }
       }
 
       // Lastly, test, if it is just a "simple" <div> or <span>
@@ -5292,24 +5297,14 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMNode *node,  int32_t *_retval)
                 element.LowerCaseEqualsLiteral("span")
               )
       {
-        /* skip only if no style attribute */
         *_retval = nsIMsgCompConvertible::Plain;
-
-        nsCOMPtr<nsIDOMElement> domElement = do_QueryInterface(node);
-        if (domElement)
-        {
-          nsAutoString styleValue;
-          if (NS_SUCCEEDED(domElement->GetAttribute(NS_LITERAL_STRING("style"), styleValue)) &&
-              !styleValue.IsEmpty())
-            *_retval = nsIMsgCompConvertible::No;
-        }
       }
     }
 
     return rv;
 }
 
-nsresult nsMsgCompose::_BodyConvertible(nsIDOMNode *node, int32_t *_retval)
+nsresult nsMsgCompose::_NodeTreeConvertible(nsIDOMElement *node, int32_t *_retval)
 {
     NS_ENSURE_TRUE(node && _retval, NS_ERROR_NULL_POINTER);
 
@@ -5337,10 +5332,16 @@ nsresult nsMsgCompose::_BodyConvertible(nsIDOMNode *node, int32_t *_retval)
           if (NS_SUCCEEDED(children->Item(i, getter_AddRefs(pItem)))
               && pItem)
           {
-            int32_t curresult;
-            rv = _BodyConvertible(pItem, &curresult);
-            if (NS_SUCCEEDED(rv) && curresult > result)
-              result = curresult;
+            // We assume all nodes that are not elements are convertible,
+            // so only test elements.
+            nsCOMPtr<nsIDOMElement> domElement = do_QueryInterface(pItem);
+            if (domElement) {
+              int32_t curresult;
+              rv = _NodeTreeConvertible(domElement, &curresult);
+
+              if (NS_SUCCEEDED(rv) && curresult > result)
+                result = curresult;
+            }
           }
         }
       }
@@ -5350,25 +5351,24 @@ nsresult nsMsgCompose::_BodyConvertible(nsIDOMNode *node, int32_t *_retval)
     return rv;
 }
 
-nsresult nsMsgCompose::BodyConvertible(int32_t *_retval)
+NS_IMETHODIMP
+nsMsgCompose::BodyConvertible(int32_t *_retval)
 {
-    NS_ENSURE_TRUE(_retval, NS_ERROR_NULL_POINTER);
+    NS_ENSURE_ARG_POINTER(_retval);
+    NS_ENSURE_STATE(m_editor);
 
-    nsresult rv;
-
-    if (!m_editor)
-      return NS_ERROR_FAILURE;
-
-    nsCOMPtr<nsIDOMElement> rootElement;
-    rv = m_editor->GetRootElement(getter_AddRefs(rootElement));
-    if (NS_FAILED(rv) || nullptr == rootElement)
+    nsCOMPtr<nsIDOMDocument> rootDocument;
+    nsresult rv = m_editor->GetDocument(getter_AddRefs(rootDocument));
+    if (NS_FAILED(rv) || !rootDocument)
       return rv;
 
-    nsCOMPtr<nsIDOMNode> node = do_QueryInterface(rootElement);
-    if (nullptr == node)
-      return NS_ERROR_FAILURE;
+    // get the top level element, which contains <html>
+    nsCOMPtr<nsIDOMElement> rootElement;
+    rv = rootDocument->GetDocumentElement(getter_AddRefs(rootElement));
+    if (NS_FAILED(rv) || !rootElement)
+      return rv;
 
-    return _BodyConvertible(node, _retval);
+    return _NodeTreeConvertible(rootElement, _retval);
 }
 
 NS_IMETHODIMP
