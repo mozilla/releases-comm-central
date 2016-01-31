@@ -276,6 +276,9 @@ function view_init()
 
 function InitViewLayoutStyleMenu(event)
 {
+  // Prevent submenus from unnecessarily triggering onViewToolbarsPopupShowing
+  // via bubbling of events.
+  event.stopImmediatePropagation();
   var paneConfig = Services.prefs.getIntPref("mail.pane_config.dynamic");
   var layoutStyleMenuitem = event.target.childNodes[paneConfig];
   if (layoutStyleMenuitem)
