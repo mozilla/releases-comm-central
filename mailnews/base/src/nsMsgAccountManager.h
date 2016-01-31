@@ -152,8 +152,6 @@ private:
   // fires notifications to the appropriate root folders
   nsresult notifyDefaultServerChange(nsIMsgAccount *aOldAccount,
                                      nsIMsgAccount *aNewAccount);
-    
-  static PLDHashOperator hashUnloadServer(nsCStringHashKey::KeyType aKey, nsCOMPtr<nsIMsgIncomingServer>& aServer, void* aClosure);
 
   //
   // account enumerators
@@ -170,11 +168,6 @@ private:
   // server enumerators
   // ("element" is always a server)
   //
-
-  // save the server's saved searches to virtualFolders.dat
-  static PLDHashOperator saveVirtualFolders(nsCStringHashKey::KeyType aKey,
-                                       nsCOMPtr<nsIMsgIncomingServer>& aServer,
-                                       void *outputStream);
 
   nsresult findServerInternal(const nsACString& username,
                               const nsACString& hostname,

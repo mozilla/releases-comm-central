@@ -869,27 +869,6 @@ nsMsgAccountManager::setDefaultAccountPref(nsIMsgAccount* aDefaultAccount)
   return NS_OK;
 }
 
-// enumaration for sending unload notifications
-PLDHashOperator
-nsMsgAccountManager::hashUnloadServer(nsCStringHashKey::KeyType aKey, nsCOMPtr<nsIMsgIncomingServer>& aServer, void* aClosure)
-{
-  if (!aServer)
-    return PL_DHASH_NEXT;
-  nsresult rv;
-  nsMsgAccountManager *accountManager = (nsMsgAccountManager*) aClosure;
-  accountManager->NotifyServerUnloaded(aServer);
-
-  nsCOMPtr<nsIMsgFolder> rootFolder;
-  rv = aServer->GetRootFolder(getter_AddRefs(rootFolder));
-  if (NS_SUCCEEDED(rv)) {
-    accountManager->removeListenersFromFolder(rootFolder);
-
-    rootFolder->Shutdown(true);
-  }
-
-  return PL_DHASH_NEXT;
-}
-
 void nsMsgAccountManager::LogoutOfServer(nsIMsgIncomingServer *aServer)
 {
   if (!aServer)
@@ -1531,7 +1510,21 @@ nsMsgAccountManager::UnloadAccounts()
   mFolderFlagAtom = nullptr;
 
   m_defaultAccount=nullptr;
-  m_incomingServers.Enumerate(hashUnloadServer, this);
+  for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
+    nsCOMPtr<nsIMsgIncomingServer>& server = iter.Data();
+    if (!server)
+      continue;
+    nsresult rv;
+    NotifyServerUnloaded(server);
+
+    nsCOMPtr<nsIMsgFolder> rootFolder;
+    rv = server->GetRootFolder(getter_AddRefs(rootFolder));
+    if (NS_SUCCEEDED(rv)) {
+      removeListenersFromFolder(rootFolder);
+
+      rootFolder->Shutdown(true);
+    }
+  }
 
   m_accounts.Clear();          // will release all elements
   m_identities.Clear();
@@ -2203,38 +2196,19 @@ nsMsgAccountManager::GetServersForIdentity(nsIMsgIdentity *aIdentity,
   return NS_OK;
 }
 
-static PLDHashOperator
-hashAddListener(nsCStringHashKey::KeyType aKey, nsCOMPtr<nsIMsgIncomingServer>& aServer, void* aClosure)
-{
-  nsIFolderListener* listener = (nsIFolderListener *) aClosure;
-  nsresult rv;
-  nsCOMPtr<nsIMsgFolder> rootFolder;
-  rv = aServer->GetRootFolder(getter_AddRefs(rootFolder));
-  NS_ENSURE_SUCCESS(rv, PL_DHASH_NEXT);
-  rv = rootFolder->AddFolderListener(listener);
-  return PL_DHASH_NEXT;
-}
-
-static PLDHashOperator
-hashRemoveListener(nsCStringHashKey::KeyType aKey, nsCOMPtr<nsIMsgIncomingServer>& aServer, void* aClosure)
-{
-  nsIFolderListener* listener = (nsIFolderListener *) aClosure;
-
-  nsresult rv;
-  nsCOMPtr<nsIMsgFolder> rootFolder;
-  rv = aServer->GetRootFolder(getter_AddRefs(rootFolder));
-  NS_ENSURE_SUCCESS(rv, PL_DHASH_NEXT);
-
-  rv = rootFolder->RemoveFolderListener(listener);
-  return PL_DHASH_NEXT;
-}
-
 NS_IMETHODIMP
 nsMsgAccountManager::AddRootFolderListener(nsIFolderListener *aListener)
 {
   NS_ENSURE_TRUE(aListener, NS_OK);
   mFolderListeners.AppendElement(aListener);
-  m_incomingServers.Enumerate(hashAddListener, (void *)aListener);
+  for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
+    nsCOMPtr<nsIMsgFolder> rootFolder;
+    nsresult rv = iter.Data()->GetRootFolder(getter_AddRefs(rootFolder));
+    if (NS_FAILED(rv)) {
+      continue;
+    }
+    rv = rootFolder->AddFolderListener(aListener);
+  }
   return NS_OK;
 }
 
@@ -2243,7 +2217,15 @@ nsMsgAccountManager::RemoveRootFolderListener(nsIFolderListener *aListener)
 {
   NS_ENSURE_TRUE(aListener, NS_OK);
   mFolderListeners.RemoveElement(aListener);
-  m_incomingServers.Enumerate(hashRemoveListener, (void *)aListener);
+  for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
+    nsCOMPtr<nsIMsgFolder> rootFolder;
+    nsresult rv = iter.Data()->GetRootFolder(getter_AddRefs(rootFolder));
+    if (NS_FAILED(rv)) {
+      continue;
+    }
+    rv = rootFolder->RemoveFolderListener(aListener);
+  }
+
   return NS_OK;
 }
 
@@ -3090,7 +3072,58 @@ NS_IMETHODIMP nsMsgAccountManager::SaveVirtualFolders()
   NS_ENSURE_SUCCESS(rv, rv);
 
   WriteLineToOutputStream("version=", "1", outStream);
-  m_incomingServers.Enumerate(saveVirtualFolders, &outStream);
+  for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
+    nsCOMPtr<nsIMsgIncomingServer>& server = iter.Data();
+    if (server)
+    {
+      nsCOMPtr <nsIMsgFolder> rootFolder;
+      server->GetRootFolder(getter_AddRefs(rootFolder));
+      if (rootFolder)
+      {
+        nsCOMPtr <nsIArray> virtualFolders;
+        nsresult rv = rootFolder->GetFoldersWithFlags(nsMsgFolderFlags::Virtual,
+                                             getter_AddRefs(virtualFolders));
+        if (NS_FAILED(rv)) {
+          continue;
+        }
+        uint32_t vfCount;
+        virtualFolders->GetLength(&vfCount);
+        for (uint32_t folderIndex = 0; folderIndex < vfCount; folderIndex++)
+        {
+          nsCOMPtr <nsIRDFResource> folderRes (do_QueryElementAt(virtualFolders, folderIndex));
+          nsCOMPtr <nsIMsgFolder> msgFolder = do_QueryInterface(folderRes);
+          const char *uri;
+          nsCOMPtr <nsIMsgDatabase> db;
+          nsCOMPtr <nsIDBFolderInfo> dbFolderInfo;
+          rv = msgFolder->GetDBFolderInfoAndDB(getter_AddRefs(dbFolderInfo), getter_AddRefs(db)); // force db to get created.
+          if (dbFolderInfo)
+          {
+            nsCString srchFolderUri;
+            nsCString searchTerms;
+            nsCString regexScope;
+            nsCString vfFolderFlag;
+            bool searchOnline = false;
+            dbFolderInfo->GetBooleanProperty("searchOnline", false, &searchOnline);
+            dbFolderInfo->GetCharProperty(kSearchFolderUriProp, srchFolderUri);
+            dbFolderInfo->GetCharProperty("searchStr", searchTerms);
+            // logically searchFolderFlag is an int, but since we want to
+            // write out a string, get it as a string.
+            dbFolderInfo->GetCharProperty(SEARCH_FOLDER_FLAG, vfFolderFlag);
+            folderRes->GetValueConst(&uri);
+            if (!srchFolderUri.IsEmpty() && !searchTerms.IsEmpty())
+            {
+              WriteLineToOutputStream("uri=", uri, outStream);
+              if (!vfFolderFlag.IsEmpty())
+                WriteLineToOutputStream(SEARCH_FOLDER_FLAG"=", vfFolderFlag.get(), outStream);
+              WriteLineToOutputStream("scope=", srchFolderUri.get(), outStream);
+              WriteLineToOutputStream("terms=", searchTerms.get(), outStream);
+              WriteLineToOutputStream("searchOnline=", searchOnline ? "true" : "false", outStream);
+            }
+          }
+        }
+      }
+    }
+  }
 
   nsCOMPtr<nsISafeOutputStream> safeStream = do_QueryInterface(outStream, &rv);
   NS_ASSERTION(safeStream, "expected a safe output stream!");
@@ -3101,62 +3134,6 @@ NS_IMETHODIMP nsMsgAccountManager::SaveVirtualFolders()
     }
   }
   return rv;
-}
-
-PLDHashOperator
-nsMsgAccountManager::saveVirtualFolders(nsCStringHashKey::KeyType key,
-                                        nsCOMPtr<nsIMsgIncomingServer>& server,
-                                        void *data)
-{
-  if (server)
-  {
-    nsCOMPtr <nsIMsgFolder> rootFolder;
-    server->GetRootFolder(getter_AddRefs(rootFolder));
-    if (rootFolder)
-    {
-      nsCOMPtr <nsIArray> virtualFolders;
-      nsresult rv = rootFolder->GetFoldersWithFlags(nsMsgFolderFlags::Virtual,
-                                           getter_AddRefs(virtualFolders));
-      NS_ENSURE_SUCCESS(rv, PL_DHASH_NEXT);
-      uint32_t vfCount;
-      virtualFolders->GetLength(&vfCount);
-      nsIOutputStream *outputStream = * (nsIOutputStream **) data;
-      for (uint32_t folderIndex = 0; folderIndex < vfCount; folderIndex++)
-      {
-        nsCOMPtr <nsIRDFResource> folderRes (do_QueryElementAt(virtualFolders, folderIndex));
-        nsCOMPtr <nsIMsgFolder> msgFolder = do_QueryInterface(folderRes);
-        const char *uri;
-        nsCOMPtr <nsIMsgDatabase> db;
-        nsCOMPtr <nsIDBFolderInfo> dbFolderInfo;
-        rv = msgFolder->GetDBFolderInfoAndDB(getter_AddRefs(dbFolderInfo), getter_AddRefs(db)); // force db to get created.
-        if (dbFolderInfo)
-        {
-          nsCString srchFolderUri;
-          nsCString searchTerms;
-          nsCString regexScope;
-          nsCString vfFolderFlag;
-          bool searchOnline = false;
-          dbFolderInfo->GetBooleanProperty("searchOnline", false, &searchOnline);
-          dbFolderInfo->GetCharProperty(kSearchFolderUriProp, srchFolderUri);
-          dbFolderInfo->GetCharProperty("searchStr", searchTerms);
-          // logically searchFolderFlag is an int, but since we want to
-          // write out a string, get it as a string.
-          dbFolderInfo->GetCharProperty(SEARCH_FOLDER_FLAG, vfFolderFlag);
-          folderRes->GetValueConst(&uri);
-          if (!srchFolderUri.IsEmpty() && !searchTerms.IsEmpty())
-          {
-            WriteLineToOutputStream("uri=", uri, outputStream);
-            if (!vfFolderFlag.IsEmpty())
-              WriteLineToOutputStream(SEARCH_FOLDER_FLAG"=", vfFolderFlag.get(), outputStream);
-            WriteLineToOutputStream("scope=", srchFolderUri.get(), outputStream);
-            WriteLineToOutputStream("terms=", searchTerms.get(), outputStream);
-            WriteLineToOutputStream("searchOnline=", searchOnline ? "true" : "false", outputStream);
-          }
-        }
-      }
-    }
-  }
-  return PL_DHASH_NEXT;
 }
 
 nsresult nsMsgAccountManager::WriteLineToOutputStream(const char *prefix, const char * line, nsIOutputStream *outputStream)
