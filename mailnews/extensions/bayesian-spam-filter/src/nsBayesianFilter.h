@@ -35,8 +35,8 @@ struct CorpusToken;
 /**
  * Helper class to enumerate Token objects in a PLDHashTable
  * safely and without copying (see bugzilla #174859). The
- * enumeration is safe to use until a PL_DHASH_ADD
- * or PL_DHASH_REMOVE is performed on the table.
+ * enumeration is safe to use until an Add()
+ * or Remove() is performed on the table.
  */
 class TokenEnumeration {
 public:

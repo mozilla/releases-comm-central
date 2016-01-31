@@ -126,12 +126,6 @@ protected:
   nsInterfaceHashtable <nsCStringHashKey, nsIMsgDBHdr> m_hdrsTable;
   uint32_t m_totalMessagesInView;
 
-  PR_STATIC_CALLBACK(PLDHashOperator) ThreadTableCloner(const nsACString &aKey, 
-                                                        nsIMsgThread* aThread, 
-                                                        void* aArg);
-  PR_STATIC_CALLBACK(PLDHashOperator) MsgHdrTableCloner(const nsACString &aKey, 
-                                                        nsIMsgDBHdr* aMsgHdr, 
-                                                        void* aArg);
   virtual nsMsgGroupThread *CreateGroupThread(nsIMsgDatabase *db) override;
   nsresult GetXFThreadFromMsgHdr(nsIMsgDBHdr *msgHdr, nsIMsgThread **pThread,
                                  bool *foundByMessageId = nullptr);

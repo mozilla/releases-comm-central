@@ -37,7 +37,6 @@ public:
 private:
   virtual ~nsImapFlagAndUidState();
 
-  static PLDHashOperator FreeCustomFlags(const uint32_t &aKey, char *aData, void *closure);
     nsTArray<nsMsgKey>      fUids;
     nsTArray<imapMessageFlagsType> fFlags;
     // Hash table, mapping uids to extra flags
