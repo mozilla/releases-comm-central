@@ -93,10 +93,6 @@ const char *kSearchFolderUriProp = "searchFolderUri";
 bool nsMsgAccountManager::m_haveShutdown = false;
 bool nsMsgAccountManager::m_shutdownInProgress = false;
 
-static PLDHashOperator
-hashCleanupDeferral(nsCStringHashKey::KeyType aKey,
-                    nsCOMPtr<nsIMsgIncomingServer>& aServer, void* aClosure);
-
 NS_IMPL_ISUPPORTS(nsMsgAccountManager,
                               nsIMsgAccountManager,
                               nsIObserver,
@@ -925,30 +921,6 @@ NS_IMETHODIMP nsMsgAccountManager::GetFolderCache(nsIMsgFolderCache* *aFolderCac
   return rv;
 }
 
-static PLDHashOperator
-hashWriteFolderCache(nsCStringHashKey::KeyType aKey, nsCOMPtr<nsIMsgIncomingServer>& aServer, void* aClosure)
-{
-  nsIMsgFolderCache *folderCache = (nsIMsgFolderCache *) aClosure;
-  aServer->WriteToFolderCache(folderCache);
-  return PL_DHASH_NEXT;
-}
-
-static PLDHashOperator
-hashCloseCachedConnections(nsCStringHashKey::KeyType aKey, nsCOMPtr<nsIMsgIncomingServer>& aServer, void* aClosure)
-{
-  if (aServer)
-    aServer->CloseCachedConnections();
-  return PL_DHASH_NEXT;
-}
-
-static PLDHashOperator
-hashShutdown(nsCStringHashKey::KeyType aKey, nsCOMPtr<nsIMsgIncomingServer>& aServer, void* aClosure)
-{
-  if (aServer)
-    aServer->Shutdown();
-  return PL_DHASH_NEXT;
-}
-
 NS_IMETHODIMP
 nsMsgAccountManager::GetAccounts(nsIArray **_retval)
 {
@@ -1322,7 +1294,95 @@ nsMsgAccountManager::LoadAccounts()
   for (int32_t i = 0; i < cnt; i++)
   {
     dupAccount = dupAccounts[i];
-    m_incomingServers.Enumerate(hashCleanupDeferral, (void *) dupAccount.get());
+    for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
+      /*
+       * This loop gets run for every incoming server, and is passed a
+       * duplicate account. It checks that the server is not deferred to the
+       * duplicate account. If it is, then it looks up the information for the
+       * duplicate account's server (username, hostName, type), and finds an
+       * account with a server with the same username, hostname, and type, and
+       * if it finds one, defers to that account instead. Generally, this will
+       * be a Local Folders account, since 2.0 has a bug where duplicate Local
+       * Folders accounts are created.
+       */
+      nsCOMPtr<nsIMsgIncomingServer>& server = iter.Data();    // njn: rename
+      nsCString type;
+      server->GetType(type);
+      if (type.EqualsLiteral("pop3"))
+      {
+        nsCString deferredToAccount;
+        // Get the pref directly, because the GetDeferredToAccount accessor
+        // attempts to fix broken deferrals, but we know more about what the
+        // deferred to account was.
+        server->GetCharValue("deferred_to_account", deferredToAccount);
+        if (!deferredToAccount.IsEmpty())
+        {
+          nsCString dupAccountKey;
+          dupAccount->GetKey(dupAccountKey);
+          if (deferredToAccount.Equals(dupAccountKey))
+          {
+            nsresult rv;
+            nsCString accountPref("mail.account.");
+            nsCString dupAccountServerKey;
+            accountPref.Append(dupAccountKey);
+            accountPref.Append(".server");
+            nsCOMPtr<nsIPrefService> prefservice(
+              do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+            if (NS_FAILED(rv)) {
+              continue;
+            }
+            nsCOMPtr<nsIPrefBranch> prefBranch(
+              do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+            if (NS_FAILED(rv)) {
+              continue;
+            }
+            rv = prefBranch->GetCharPref(accountPref.get(),
+                                         getter_Copies(dupAccountServerKey));
+            if (NS_FAILED(rv)) {
+              continue;
+            }
+            nsCOMPtr<nsIPrefBranch> serverPrefBranch;
+            nsCString serverKeyPref(PREF_MAIL_SERVER_PREFIX);
+            serverKeyPref.Append(dupAccountServerKey);
+            serverKeyPref.Append(".");
+            rv = prefservice->GetBranch(serverKeyPref.get(),
+                                        getter_AddRefs(serverPrefBranch));
+            if (NS_FAILED(rv)) {
+              continue;
+            }
+            nsCString userName;
+            nsCString hostName;
+            nsCString type;
+            serverPrefBranch->GetCharPref("userName", getter_Copies(userName));
+            serverPrefBranch->GetCharPref("hostname", getter_Copies(hostName));
+            serverPrefBranch->GetCharPref("type", getter_Copies(type));
+            // Find a server with the same info.
+            nsCOMPtr<nsIMsgAccountManager> accountManager =
+                     do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+            if (NS_FAILED(rv)) {
+              continue;
+            }
+            nsCOMPtr<nsIMsgIncomingServer> server;
+            accountManager->FindServer(userName, hostName, type,
+                                       getter_AddRefs(server));
+            if (server)
+            {
+              nsCOMPtr<nsIMsgAccount> replacement;
+              accountManager->FindAccountForServer(server,
+                                                   getter_AddRefs(replacement));
+              if (replacement)
+              {
+                nsCString accountKey;
+                replacement->GetKey(accountKey);
+                if (!accountKey.IsEmpty())
+                  server->SetCharValue("deferred_to_account", accountKey);
+              }
+            }
+          }
+        }
+      }
+    }
+
     nsAutoCString accountKeyPref("mail.account.");
     nsCString dupAccountKey;
     dupAccount->GetKey(dupAccountKey);
@@ -1494,14 +1554,22 @@ nsMsgAccountManager::UnloadAccounts()
 NS_IMETHODIMP
 nsMsgAccountManager::ShutdownServers()
 {
-  m_incomingServers.Enumerate(hashShutdown, nullptr);
+  for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
+    nsCOMPtr<nsIMsgIncomingServer>& server = iter.Data();
+    if (server)
+      server->Shutdown();
+  }
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMsgAccountManager::CloseCachedConnections()
 {
-  m_incomingServers.Enumerate(hashCloseCachedConnections, nullptr);
+  for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
+    nsCOMPtr<nsIMsgIncomingServer>& server = iter.Data();
+    if (server)
+      server->CloseCachedConnections();
+  }
   return NS_OK;
 }
 
@@ -1650,7 +1718,9 @@ nsMsgAccountManager::CleanupOnExit()
 NS_IMETHODIMP
 nsMsgAccountManager::WriteToFolderCache(nsIMsgFolderCache *folderCache)
 {
-  m_incomingServers.Enumerate(hashWriteFolderCache, folderCache);
+  for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
+    iter.Data()->WriteToFolderCache(folderCache);
+  }
   return folderCache ? folderCache->Close() : NS_ERROR_FAILURE;
 }
 
@@ -2156,96 +2226,6 @@ hashRemoveListener(nsCStringHashKey::KeyType aKey, nsCOMPtr<nsIMsgIncomingServer
   NS_ENSURE_SUCCESS(rv, PL_DHASH_NEXT);
 
   rv = rootFolder->RemoveFolderListener(listener);
-  return PL_DHASH_NEXT;
-}
-
-/**
- * This method gets called for every incoming server, and is passed a duplicate
- * account. It checks that the server is not deferred to the duplicate account.
- * If it is, then it looks up the information for the duplicate account's
- * server (username, hostName, type), and finds an account with a server with
- * the same username, hostname, and type, and if it finds one, defers to that
- * account instead. Generally, this will be a Local Folders account, since
- * 2.0 has a bug where duplicate Local Folders accounts are created.
- *
- * @param aKey serverKey.
- * @param aServer server object
- * @param aClosure duplicate account (nsIMsgAccount)
- *
- * @returns PL_DHASH_NEXT to keep iterating over servers.
- */
-static PLDHashOperator
-hashCleanupDeferral(nsCStringHashKey::KeyType aKey,
-                    nsCOMPtr<nsIMsgIncomingServer>& aServer, void* aClosure)
-{
-  nsIMsgAccount *dupAccount = (nsIMsgAccount *) aClosure;
-
-  nsCString type;
-  aServer->GetType(type);
-  if (type.EqualsLiteral("pop3"))
-  {
-    nsCString deferredToAccount;
-    // Get the pref directly, because the GetDeferredToAccount accessor
-    // attempts to fix broken deferrals, but we know more about what the
-    // deferred to account was.
-    aServer->GetCharValue("deferred_to_account", deferredToAccount);
-    if (!deferredToAccount.IsEmpty())
-    {
-      nsCString dupAccountKey;
-      dupAccount->GetKey(dupAccountKey);
-      if (deferredToAccount.Equals(dupAccountKey))
-      {
-        nsresult rv;
-        nsCString accountPref("mail.account.");
-        nsCString dupAccountServerKey;
-        accountPref.Append(dupAccountKey);
-        accountPref.Append(".server");
-        nsCOMPtr<nsIPrefService> prefservice(
-          do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-        NS_ENSURE_SUCCESS(rv, PL_DHASH_NEXT);
-        nsCOMPtr<nsIPrefBranch> prefBranch(
-          do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-        NS_ENSURE_SUCCESS(rv, PL_DHASH_NEXT);
-        rv = prefBranch->GetCharPref(accountPref.get(),
-                                     getter_Copies(dupAccountServerKey));
-        NS_ENSURE_SUCCESS(rv, PL_DHASH_NEXT);
-        nsCOMPtr<nsIPrefBranch> serverPrefBranch;
-        NS_ENSURE_SUCCESS(rv, PL_DHASH_NEXT);
-        nsCString serverKeyPref(PREF_MAIL_SERVER_PREFIX);
-        serverKeyPref.Append(dupAccountServerKey);
-        serverKeyPref.Append(".");
-        rv = prefservice->GetBranch(serverKeyPref.get(),
-                                    getter_AddRefs(serverPrefBranch));
-        NS_ENSURE_SUCCESS(rv, PL_DHASH_NEXT);
-        nsCString userName;
-        nsCString hostName;
-        nsCString type;
-        serverPrefBranch->GetCharPref("userName", getter_Copies(userName));
-        serverPrefBranch->GetCharPref("hostname", getter_Copies(hostName));
-        serverPrefBranch->GetCharPref("type", getter_Copies(type));
-        // Find a server with the same info.
-        nsCOMPtr<nsIMsgAccountManager> accountManager =
-                 do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
-        NS_ENSURE_SUCCESS(rv, PL_DHASH_NEXT);
-        nsCOMPtr<nsIMsgIncomingServer> server;
-        accountManager->FindServer(userName, hostName, type,
-                                   getter_AddRefs(server));
-        if (server)
-        {
-          nsCOMPtr<nsIMsgAccount> replacement;
-          accountManager->FindAccountForServer(server,
-                                               getter_AddRefs(replacement));
-          if (replacement)
-          {
-            nsCString accountKey;
-            replacement->GetKey(accountKey);
-            if (!accountKey.IsEmpty())
-              aServer->SetCharValue("deferred_to_account", accountKey);
-          }
-        }
-      }
-    }
-  }
   return PL_DHASH_NEXT;
 }
 
