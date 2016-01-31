@@ -101,3 +101,7 @@
   list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
   -moz-image-region: rect(32px 16px 48px 0px);
 }
+
+.folderMenuItem .menu-iconic-left {
+  visibility: visible;
+}
