@@ -380,15 +380,6 @@ NS_IMETHODIMP nsAbMDBDirectory::GetChildNodes(nsISimpleEnumerator* *aResult)
   return NS_NewArrayEnumerator(aResult, mSubDirectories);
 }
 
-static PLDHashOperator 
-enumerateSearchCache(nsISupports *aKey, nsCOMPtr<nsIAbCard> &aData, void* aClosure)
-{
-  nsIMutableArray* array = static_cast<nsIMutableArray*>(aClosure);
-
-  array->AppendElement(aData, false);
-  return PL_DHASH_NEXT;
-}
-
 NS_IMETHODIMP nsAbMDBDirectory::GetChildCards(nsISimpleEnumerator* *result)
 {
   nsresult rv;
@@ -402,7 +393,9 @@ NS_IMETHODIMP nsAbMDBDirectory::GetChildCards(nsISimpleEnumerator* *result)
     // Search is synchronous so need to return
     // results after search is complete
     nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID));
-    mSearchCache.Enumerate(enumerateSearchCache, (void*)array);
+    for (auto iter = mSearchCache.Iter(); !iter.Done(); iter.Next()) {
+      array->AppendElement(iter.Data(), false);
+    }
     return NS_NewArrayEnumerator(result, array);
   }
 

@@ -1037,29 +1037,6 @@ nsMsgAccountManager::GetAllIdentities(nsIArray **_retval)
   return rv;
 }
 
-static PLDHashOperator
-hashGetNonHiddenServersToArray(nsCStringHashKey::KeyType aKey,
-                               nsCOMPtr<nsIMsgIncomingServer>& aServer,
-                               void* aClosure)
-{
-  if (!aServer)
-    return PL_DHASH_NEXT;
-  bool hidden = false;
-  aServer->GetHidden(&hidden);
-  if (hidden)
-    return PL_DHASH_NEXT;
-
-  nsCString type;
-  NS_ENSURE_SUCCESS(aServer->GetType(type), PL_DHASH_NEXT);
-
-  if (!type.EqualsLiteral("im"))
-  {
-    nsIMutableArray *array = static_cast<nsIMutableArray*>(aClosure);
-    array->AppendElement(aServer, false);
-  }
-  return PL_DHASH_NEXT;
-}
-
 NS_IMETHODIMP
 nsMsgAccountManager::GetAllServers(nsIArray **_retval)
 {
@@ -1069,8 +1046,27 @@ nsMsgAccountManager::GetAllServers(nsIArray **_retval)
   nsCOMPtr<nsIMutableArray> servers(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  m_incomingServers.Enumerate(hashGetNonHiddenServersToArray,
-                              (void *)servers);
+  for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
+    nsCOMPtr<nsIMsgIncomingServer>& server = iter.Data();
+    if (!server)
+      continue;
+
+    bool hidden = false;
+    server->GetHidden(&hidden);
+    if (hidden)
+      continue;
+
+    nsCString type;
+    if (NS_FAILED(server->GetType(type))) {
+      NS_WARNING("server->GetType() failed");
+      continue;
+    }
+
+    if (!type.EqualsLiteral("im")) {
+      servers->AppendElement(server, false);
+    }
+  }
+
   servers.forget(_retval);
   return rv;
 }
