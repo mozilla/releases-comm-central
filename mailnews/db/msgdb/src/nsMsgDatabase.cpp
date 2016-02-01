@@ -1245,9 +1245,9 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
     {
       if (!newFile && summaryFileExists)
       {
-        bool valid;
-        GetSummaryValid(&valid);
-        if (!valid)
+        bool valid = false;
+        nsresult rv = GetSummaryValid(&valid);
+        if (NS_FAILED(rv) || !valid)
           err = NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
       }
       // compare current version of db versus filed out version info.
