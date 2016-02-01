@@ -151,8 +151,52 @@ toolbar[brighttext] #button-print {
   list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#print-inverted");
 }
 
-#priority-button:not(:-moz-lwtheme) > label {
-  color: MenuText;
+/* ::::: menulists on toolbar ::::: */
+
+menulist {
+  -moz-appearance: none;
+  min-height: 24px;
+  color: inherit;
+  margin: 1px 4px;
+  padding: 1px 6px;
+  border: 1px solid;
+  background: var(--toolbarbutton-hover-background);
+  border-color: var(--toolbarbutton-hover-bordercolor);
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
+  transition: background-color 150ms;
+}
+
+menulist:not([disabled="true"]):not([open="true"]):hover {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+}
+
+menulist[open="true"] {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+}
+
+menulist[disabled="true"] {
+  opacity: .6;
+}
+
+.menulist-dropmarker {
+  -moz-appearance: none;
+  display:-moz-box;
+  list-style-image: none;
+}
+
+menulist > .menulist-dropmarker > .dropmarker-icon {
+  width: 9px;
+  max-height: 7px;
+  margin: 7px 5px;
+  margin-inline-end: 0;
+  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");
+}
+
+toolbar[brighttext] menulist > .menulist-dropmarker > .dropmarker-icon {
+  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted.png");
 }
 
 /* ::::: special toolbar colors ::::: */
