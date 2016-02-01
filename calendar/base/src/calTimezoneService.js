@@ -568,7 +568,7 @@ function guessSystemTimezone() {
     function weekday(icsDate, tz) {
         let calDate = cal.createDateTime(icsDate);
         calDate.timezone = tz;
-        return calDate.jsDate.toLocaleFormat("%a");
+        return cal.dateTimeToJsDate(calDate).toLocaleFormat("%a");
     }
 
     // Try to find a tz that matches OS/JSDate timezone.  If no name match,
