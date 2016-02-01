@@ -7755,12 +7755,12 @@ NS_IMETHODIMP nsMsgDBView::SelectMsgByKey(nsMsgKey aKey)
   // but pass in a different key array so that we'll
   // select (and load) the desired message
 
-  nsAutoTArray<nsMsgKey, 1> preservedSelection;
+  AutoTArray<nsMsgKey, 1> preservedSelection;
   nsresult rv = SaveAndClearSelection(nullptr, preservedSelection);
   NS_ENSURE_SUCCESS(rv,rv);
 
   // now, restore our desired selection
-  nsAutoTArray<nsMsgKey, 1> keyArray;
+  AutoTArray<nsMsgKey, 1> keyArray;
   keyArray.AppendElement(aKey);
 
   // if the key was not found

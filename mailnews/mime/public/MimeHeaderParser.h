@@ -53,7 +53,7 @@ public:
   operator nsTArray<nsString>&() { return mUTF16Array; }
 private:
   nsTArray<nsCString> &mUTF8Array;
-  nsAutoTArray<nsString, N> mUTF16Array;
+  AutoTArray<nsString, N> mUTF16Array;
 };
 
 /**

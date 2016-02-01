@@ -542,7 +542,7 @@ void nsMsgSearchDBView::MoveThreadAt(nsMsgViewIndex threadIndex)
   bool threadIsExpanded = !(saveFlags & nsMsgMessageFlags::Elided);
   int32_t childCount = 0;
   nsMsgKey preservedKey;
-  nsAutoTArray<nsMsgKey, 1> preservedSelection;
+  AutoTArray<nsMsgKey, 1> preservedSelection;
   int32_t selectionCount;
   int32_t currentIndex;
   bool hasSelection = mTree && mTreeSelection &&
@@ -1102,7 +1102,7 @@ NS_IMETHODIMP nsMsgSearchDBView::Sort(nsMsgViewSortTypeValue sortType, nsMsgView
     }
 
     nsMsgKey preservedKey;
-    nsAutoTArray<nsMsgKey, 1> preservedSelection;
+    AutoTArray<nsMsgKey, 1> preservedSelection;
     SaveAndClearSelection(&preservedKey, preservedSelection);
 
     nsresult rv = nsMsgDBView::Sort(sortType,sortOrder);

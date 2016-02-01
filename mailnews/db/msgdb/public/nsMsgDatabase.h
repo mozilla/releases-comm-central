@@ -68,7 +68,7 @@ protected:
 
   nsCOMArray <nsIMsgFolder> m_foldersPendingListeners;
   nsCOMArray <nsIDBChangeListener> m_pendingListeners;
-  nsAutoTArray<nsMsgDatabase*, kInitialMsgDBCacheSize> m_dbCache;
+  AutoTArray<nsMsgDatabase*, kInitialMsgDBCacheSize> m_dbCache;
 };
 
 class nsMsgDBEnumerator : public nsISimpleEnumerator {

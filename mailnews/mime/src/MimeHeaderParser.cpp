@@ -155,8 +155,8 @@ void ExtractEmails(const nsCOMArray<msgIAddressObject> &aHeader,
 void ExtractEmail(const nsCOMArray<msgIAddressObject> &aHeader,
                   nsACString &email)
 {
-  nsAutoTArray<nsString, 1> names;
-  nsAutoTArray<nsString, 1> emails;
+  AutoTArray<nsString, 1> names;
+  AutoTArray<nsString, 1> emails;
   ExtractAllAddresses(aHeader, names, emails);
 
   if (emails.Length() > 0)
@@ -168,7 +168,7 @@ void ExtractEmail(const nsCOMArray<msgIAddressObject> &aHeader,
 void ExtractFirstAddress(const nsCOMArray<msgIAddressObject> &aHeader,
                          nsACString &name, nsACString &email)
 {
-  nsAutoTArray<nsString, 1> names, emails;
+  AutoTArray<nsString, 1> names, emails;
   ExtractAllAddresses(aHeader, names, emails);
   if (names.Length() > 0)
   {
@@ -185,7 +185,7 @@ void ExtractFirstAddress(const nsCOMArray<msgIAddressObject> &aHeader,
 void ExtractFirstAddress(const nsCOMArray<msgIAddressObject> &aHeader,
                          nsAString &name, nsACString &email)
 {
-  nsAutoTArray<nsString, 1> names, emails;
+  AutoTArray<nsString, 1> names, emails;
   ExtractAllAddresses(aHeader, names, emails);
   if (names.Length() > 0)
   {
@@ -209,8 +209,8 @@ void ExtractName(const nsCOMArray<msgIAddressObject> &aHeader, nsACString &name)
 
 void ExtractName(const nsCOMArray<msgIAddressObject> &aHeader, nsAString &name)
 {
-  nsAutoTArray<nsString, 1> names;
-  nsAutoTArray<nsString, 1> emails;
+  AutoTArray<nsString, 1> names;
+  AutoTArray<nsString, 1> emails;
   ExtractAllAddresses(aHeader, names, emails);
   if (names.Length() > 0)
   {

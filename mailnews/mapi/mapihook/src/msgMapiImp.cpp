@@ -845,7 +845,7 @@ MsgMapiListContext::DeleteMessage(nsMsgKey key)
 #if 0 
   else if ( m_folder->GetIMAPFolderInfoMail() )
   {
-    nsAutoTArray<nsMsgKey, 1> messageKeys;
+    AutoTArray<nsMsgKey, 1> messageKeys;
     messageKeys.AppendElement(key);
 
     (m_folder->GetIMAPFolderInfoMail())->DeleteSpecifiedMessages(pane, messageKeys, nsMsgKey_None);

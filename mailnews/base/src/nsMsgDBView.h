@@ -35,7 +35,7 @@
 #include "nsIWeakReferenceUtils.h"
 #define MESSENGER_STRING_URL       "chrome://messenger/locale/messenger.properties"
 
-typedef nsAutoTArray<nsMsgViewIndex, 1> nsMsgViewIndexArray;
+typedef AutoTArray<nsMsgViewIndex, 1> nsMsgViewIndexArray;
 static_assert(nsMsgViewIndex(nsMsgViewIndexArray::NoIndex) ==
   nsMsgViewIndex_None, "These need to be the same value.");
 

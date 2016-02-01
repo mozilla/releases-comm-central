@@ -500,7 +500,7 @@ nsresult nsMsgGroupView::RebuildView(nsMsgViewFlagsTypeValue newFlags)
   {
     int32_t count;
     m_dayChanged = false;
-    nsAutoTArray<nsMsgKey, 1> preservedSelection;
+    AutoTArray<nsMsgKey, 1> preservedSelection;
     nsMsgKey curSelectedKey;
     SaveAndClearSelection(&curSelectedKey, preservedSelection);
     InternalClose();
@@ -524,7 +524,7 @@ nsresult nsMsgGroupView::RebuildView(nsMsgViewFlagsTypeValue newFlags)
     NS_ENSURE_SUCCESS(rv,rv);
 
     // now, restore our desired selection
-    nsAutoTArray<nsMsgKey, 1> keyArray;
+    AutoTArray<nsMsgKey, 1> keyArray;
     keyArray.AppendElement(curSelectedKey);
 
     return RestoreSelection(curSelectedKey, keyArray);

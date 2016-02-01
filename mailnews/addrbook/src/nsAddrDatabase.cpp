@@ -210,7 +210,7 @@ nsTArray<nsAddrDatabase*>*
 nsAddrDatabase::GetDBCache()
 {
   if (!m_dbCache)
-    m_dbCache = new nsAutoTArray<nsAddrDatabase*, kInitialAddrDBCacheSize>;
+    m_dbCache = new AutoTArray<nsAddrDatabase*, kInitialAddrDBCacheSize>;
 
   return m_dbCache;
 }

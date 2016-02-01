@@ -276,7 +276,7 @@ NS_IMETHODIMP nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType, nsMsgVi
     sortType = nsMsgViewSortType::byId;
 
   nsMsgKey preservedKey;
-  nsAutoTArray<nsMsgKey, 1> preservedSelection;
+  AutoTArray<nsMsgKey, 1> preservedSelection;
   SaveAndClearSelection(&preservedKey, preservedSelection);
   // if the client wants us to forget our cached id arrays, they
   // should build a new view. If this isn't good enough, we
@@ -739,7 +739,7 @@ void nsMsgThreadedDBView::MoveThreadAt(nsMsgViewIndex threadIndex)
   int32_t childCount = 0;
 
   nsMsgKey preservedKey;
-  nsAutoTArray<nsMsgKey, 1> preservedSelection;
+  AutoTArray<nsMsgKey, 1> preservedSelection;
   int32_t selectionCount;
   int32_t currentIndex;
   bool hasSelection = mTree && mTreeSelection &&
