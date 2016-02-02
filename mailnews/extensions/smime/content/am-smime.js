@@ -81,7 +81,7 @@ function smimeInitializeFields()
     // nickname in a separate property.
     try {
         if (certdb && gEncryptionCertName.dbKey &&
-            (x509cert = certdb.findCertByDBKey(gEncryptionCertName.dbKey, null))) {
+            (x509cert = certdb.findCertByDBKey(gEncryptionCertName.dbKey))) {
             gEncryptionCertName.value = x509cert.nickname + " [" + x509cert.serialNumber + "]";
             gEncryptionCertName.nickname = x509cert.nickname;
         }
@@ -103,7 +103,7 @@ function smimeInitializeFields()
     // same procedure as with gEncryptionCertName (see above)
     try {
         if (certdb && gSignCertName.dbKey &&
-            (x509cert = certdb.findCertByDBKey(gSignCertName.dbKey, null))) {
+            (x509cert = certdb.findCertByDBKey(gSignCertName.dbKey))) {
             gSignCertName.value = x509cert.nickname + " [" + x509cert.serialNumber + "]";
             gSignCertName.nickname = x509cert.nickname;
         }
