@@ -3,13 +3,12 @@
 ; file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 LIBRARY         mozMapi32.dll
-DESCRIPTION     'Mozilla Simple MAPI Support'
 
 EXPORTS
         MAPILogon
         MAPILogoff
-	MAPISendMail
-	MAPISendDocuments
+        MAPISendMail
+        MAPISendDocuments
         MAPIFindNext
         MAPIReadMail
         MAPISaveMail
