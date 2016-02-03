@@ -2,3 +2,10 @@
 # our script for generating it. This allows us to run configure without any
 # extra dependencies on specific toolchains, e.g. gtk3.
 ac_add_options --disable-compile-environment
+
+ac_add_options --enable-application=mail
+ac_add_options --enable-calendar
+
+# Run client.py (needed so that mozilla-* is included in the source tarball)
+mk_add_options CLIENT_PY_ARGS="$([ -f $topsrcdir/build/client.py-args ] && cat $topsrcdir/build/client.py-args)"
+mk_add_options ALWAYS_RUN_CLIENT_PY=1
