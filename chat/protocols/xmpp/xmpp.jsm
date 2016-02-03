@@ -679,11 +679,18 @@ var XMPPConversationPrototype = {
       let muc = this._account._mucs.get(norm);
 
       if (!aMsg) {
-        // Failed outgoing message unknown.
-        if (error.condition == "remote-server-not-found")
-          aMsg = _("conversation.error.remoteServerNotFound");
-        else
-          aMsg = _("conversation.error.unknownError");
+        // Failed outgoing message.
+        switch (error.condition) {
+          case "remote-server-not-found":
+            aMsg = _("conversation.error.remoteServerNotFound");
+            break;
+          case "service-unavailable":
+            aMsg = _("conversation.error.sendServiceUnavailable", this.shortName);
+            break;
+          default:
+            aMsg = _("conversation.error.unknownSendError");
+            break;
+        }
       }
       else if (this._isMucParticipant && muc && !muc.left &&
                error.condition == "item-not-found") {
