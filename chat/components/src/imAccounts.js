@@ -988,6 +988,9 @@ AccountsService.prototype = {
   },
 
   processAutoLogin: function() {
+    if (!this._accounts)  // if we're already shutting down
+      return;
+
     for (let account of this._accounts)
       account.checkAutoLogin();
 
