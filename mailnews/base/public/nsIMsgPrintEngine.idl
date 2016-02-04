@@ -6,11 +6,11 @@
 #include "nsrootidl.idl"
 #include "nsIMsgStatusFeedback.idl"
 
-interface nsIDOMWindow;
+interface mozIDOMWindowProxy;
 interface nsIPrintSettings;
 interface nsIObserver;
 
-[scriptable, uuid(e5f5e4a2-9d74-46b3-ade7-25e1a1ddf54e)]
+[scriptable, uuid(9bdd0812-dd48-4f04-87a9-74dcfc3abadc)]
 interface nsIMsgPrintEngine : nsISupports {
     /**
      * Print/PrintPreview Msg Type
@@ -24,8 +24,8 @@ interface nsIMsgPrintEngine : nsISupports {
     const short MNAB_PRINTPREVIEW_ADDRBOOK = 5;
     const short MNAB_END                   = 6;
 
-    void setWindow(in nsIDOMWindow ptr);
-    void setParentWindow(in nsIDOMWindow ptr);
+    void setWindow(in mozIDOMWindowProxy ptr);
+    void setParentWindow(in mozIDOMWindowProxy ptr);
     void showWindow(in boolean aShow);
     void setStatusFeedback(in nsIMsgStatusFeedback feedback);
     void setPrintURICount(in int32_t aCount);

@@ -226,7 +226,7 @@ nsMessenger::~nsMessenger()
 
 NS_IMPL_ISUPPORTS(nsMessenger, nsIMessenger, nsISupportsWeakReference, nsIFolderListener)
 
-NS_IMETHODIMP nsMessenger::SetWindow(nsIDOMWindow *aWin, nsIMsgWindow *aMsgWindow)
+NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy *aWin, nsIMsgWindow *aMsgWindow)
 {
   nsresult rv;
 
@@ -242,8 +242,8 @@ NS_IMETHODIMP nsMessenger::SetWindow(nsIDOMWindow *aWin, nsIMsgWindow *aMsgWindo
     rv = mailSession->AddFolderListener(this, nsIFolderListener::removed);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsPIDOMWindow> win( do_QueryInterface(aWin) );
-    NS_ENSURE_TRUE(win, NS_ERROR_FAILURE);
+    NS_ENSURE_TRUE(aWin, NS_ERROR_FAILURE);
+    nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(aWin);
 
     nsIDocShell *docShell = win->GetDocShell();
     nsCOMPtr<nsIDocShellTreeItem> docShellAsItem(do_QueryInterface(docShell));
@@ -470,7 +470,7 @@ NS_IMETHODIMP nsMessenger::LaunchExternalURL(const nsACString& aURL)
 }
 
 NS_IMETHODIMP
-nsMessenger::LoadURL(nsIDOMWindow *aWin, const nsACString& aURL)
+nsMessenger::LoadURL(mozIDOMWindowProxy *aWin, const nsACString& aURL)
 {
   nsresult rv;
 

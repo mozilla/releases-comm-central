@@ -284,7 +284,7 @@ public:
   nsString mSavedToFolderName; // Name of folder we're saving to, used when
                                // displaying error on save.
   // These are needed for callbacks to the FE...
-  nsCOMPtr<nsPIDOMWindow>         mParentWindow;
+  nsCOMPtr<nsPIDOMWindowOuter>    mParentWindow;
   nsCOMPtr<nsIMsgProgress>        mSendProgress;
   nsCOMPtr<nsIMsgSendListener>    mListener;
   nsCOMPtr<nsIMsgStatusFeedback>  mStatusFeedback;

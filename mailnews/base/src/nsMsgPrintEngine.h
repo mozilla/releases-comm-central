@@ -65,8 +65,8 @@ protected:
   nsresult    ShowProgressDialog(bool aIsForPrinting, bool& aDoNotify);
 
   nsCOMPtr<nsIDocShell>       mDocShell;
-  nsCOMPtr<nsPIDOMWindow>     mWindow;
-  nsCOMPtr<nsIDOMWindow>      mParentWindow;
+  nsCOMPtr<mozIDOMWindowProxy> mWindow;
+  nsCOMPtr<mozIDOMWindowProxy> mParentWindow;
   int32_t                     mURICount;
   nsTArray<nsString>          mURIArray;
   int32_t                     mCurrentlyPrintingURI;
@@ -76,7 +76,7 @@ protected:
   nsCOMPtr<nsIMsgStatusFeedback> mFeedback;     // Tell the user something why don't ya'
   nsCOMPtr<nsIWebBrowserPrint> mWebBrowserPrint;
   nsCOMPtr<nsIPrintSettings>   mPrintSettings;
-  nsCOMPtr<nsIDOMWindow>       mMsgDOMWin;
+  nsCOMPtr<mozIDOMWindowProxy> mMsgDOMWin;
   bool                         mIsDoingPrintPreview;
   nsCOMPtr<nsIObserver>        mStartupPPObs;
   int32_t                      mMsgInx;

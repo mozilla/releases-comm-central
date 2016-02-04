@@ -19,7 +19,7 @@
 #include "nsIMsgStatusFeedback.h"
 #include "nsCOMPtr.h"
 #include "nsPIDOMWindow.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgIncomingServer.h"
@@ -226,9 +226,9 @@ openWindow(nsIMsgWindow *aMsgWindow, const char *chromeURL,
   if (NS_FAILED(rv))
       return rv;
 
-  nsCOMPtr<nsIDOMWindow> domWindow(do_GetInterface(docShell));
-  nsCOMPtr<nsPIDOMWindow> parentWindow(do_QueryInterface(domWindow));
-  NS_ENSURE_TRUE(parentWindow, NS_ERROR_FAILURE);
+  nsCOMPtr<mozIDOMWindowProxy> domWindow(do_GetInterface(docShell));
+  NS_ENSURE_TRUE(domWindow, NS_ERROR_FAILURE);
+  nsCOMPtr<nsPIDOMWindowOuter> parentWindow = nsPIDOMWindowOuter::From(domWindow);
   parentWindow = parentWindow->GetOuterWindow();
   NS_ENSURE_ARG_POINTER(parentWindow);
 
@@ -238,7 +238,7 @@ openWindow(nsIMsgWindow *aMsgWindow, const char *chromeURL,
   ifptr->SetData(param);
   ifptr->SetDataIID(&NS_GET_IID(nsINewsDownloadDialogArgs));
 
-  nsCOMPtr<nsIDOMWindow> dialogWindow;
+  nsCOMPtr<nsPIDOMWindowOuter> dialogWindow;
   rv = parentWindow->OpenDialog(NS_ConvertASCIItoUTF16(chromeURL),
                                 NS_LITERAL_STRING("_blank"),
                                 NS_LITERAL_STRING("centerscreen,chrome,modal,titlebar"),

@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsIFile.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsIProfileMigrator.h"
 #include "nsIPrefService.h"
 #include "nsIServiceManager.h"
@@ -53,7 +53,7 @@ nsProfileMigrator::Migrate(nsIProfileStartup* aStartup, const nsACString& aKey)
   params->AppendElement(mailMigrator, false);
   params->AppendElement(aStartup, false);
 
-  nsCOMPtr<nsIDOMWindow> migrateWizard;
+  nsCOMPtr<mozIDOMWindowProxy> migrateWizard;
   return ww->OpenWindow(nullptr,
                         MIGRATION_WIZARD_FE_URL,
                         "_blank",

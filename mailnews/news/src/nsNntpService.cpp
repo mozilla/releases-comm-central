@@ -30,7 +30,7 @@
 #include "nsIDocShellLoadInfo.h"
 #include "nsIMessengerWindowService.h"
 #include "nsIWindowMediator.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsIMsgSearchSession.h"
 #include "nsMailDirServiceDefs.h"
 #include "nsIWebNavigation.h"
@@ -1620,7 +1620,7 @@ nsNntpService::Handle(nsICommandLine* aCmdLine)
     nsCOMPtr<nsIWindowWatcher> wwatch (do_GetService(NS_WINDOWWATCHER_CONTRACTID));
     NS_ENSURE_TRUE(wwatch, NS_ERROR_FAILURE);
 
-    nsCOMPtr<nsIDOMWindow> opened;
+    nsCOMPtr<mozIDOMWindowProxy> opened;
     wwatch->OpenWindow(nullptr, "chrome://messenger/content/", "_blank",
                        "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
                        nullptr, getter_AddRefs(opened));
@@ -1694,7 +1694,7 @@ nsNntpService::HandleContent(const char * aContentType, nsIInterfaceRequestor* a
             do_CreateInstance(NS_SUPPORTS_CSTRING_CONTRACTID);
           arg->SetData(folderURL);
 
-          nsCOMPtr<nsIDOMWindow> newWindow;
+          nsCOMPtr<mozIDOMWindowProxy> newWindow;
           rv = wwatcher->OpenWindow(nullptr, "chrome://messenger/content/",
             "_blank", "chome,all,dialog=no", arg, getter_AddRefs(newWindow));
           NS_ENSURE_SUCCESS(rv, rv);

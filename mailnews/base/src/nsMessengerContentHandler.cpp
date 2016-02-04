@@ -74,7 +74,7 @@ nsresult nsMessengerContentHandler::OpenWindow(nsIURI* aURI)
   if (!wwatch)
     return NS_ERROR_FAILURE;
 
-  nsCOMPtr<nsIDOMWindow> newWindow;
+  nsCOMPtr<mozIDOMWindowProxy> newWindow;
   return wwatch->OpenWindow(0, "chrome://messenger/content/messageWindow.xul",
                  "_blank", "all,chrome,dialog=no,status,toolbar", aURI,
                  getter_AddRefs(newWindow));

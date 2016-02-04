@@ -10,12 +10,13 @@
 
 interface nsIMsgDBHdr;
 interface nsIDOMWindow;
+interface mozIDOMWindowProxy;
 interface nsITransactionManager;
 interface nsIMsgMessageService;
 interface nsIFile;
 interface nsIUrlListener;
 
-[scriptable, uuid(4e36968b-b476-4f3e-b170-c19fe3d48d0b)]
+[scriptable, uuid(01b967c8-b289-4e32-ad46-6eb7c89d4106)]
 interface nsIMessenger : nsISupports {
 
     const long eUnknown = 0;
@@ -28,14 +29,14 @@ interface nsIMessenger : nsISupports {
 
     readonly attribute nsITransactionManager transactionManager;
 
-    void setWindow(in nsIDOMWindow ptr, in nsIMsgWindow msgWindow);
+    void setWindow(in mozIDOMWindowProxy ptr, in nsIMsgWindow msgWindow);
 
     void addMsgUrlToNavigateHistory(in ACString aURL);
     void openURL(in ACString aURL);
 
     /** load a custom message by url, e.g load a attachment as a email
       */
-    void loadURL(in nsIDOMWindow ptr, in ACString aURL); 
+    void loadURL(in mozIDOMWindowProxy ptr, in ACString aURL);
 
     void launchExternalURL(in ACString aURL);
 

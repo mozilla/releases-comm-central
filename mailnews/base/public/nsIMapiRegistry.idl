@@ -4,7 +4,7 @@
 
 #include "nsISupports.idl"
 
-interface nsIDOMWindow;
+interface mozIDOMWindowProxy;
 
 /**
  * This interface provides support for registering Mozilla as the default
@@ -13,7 +13,7 @@ interface nsIDOMWindow;
  * 
  */
 
-[scriptable, uuid(B0342CA7-CB85-4d13-AD18-BD431F2086EA)]
+[scriptable, uuid(47D707C3-4369-46A6-A053-5118E12579D6)]
 interface nsIMapiRegistry: nsISupports {
 
    /** This is set to TRUE if Mozilla is the default mail application
@@ -34,7 +34,7 @@ interface nsIMapiRegistry: nsISupports {
     * Mozilla as default Mail Client.
     * Call this only if Mozilla is not the default Mail client
     */
-   void showMailIntegrationDialog(in nsIDOMWindow parentWindow);
+   void showMailIntegrationDialog(in mozIDOMWindowProxy parentWindow);
 
    /* After being installed, when we first launch, make sure we add the correct
     OS registry entries to make us show up as regsitered mail and news client

@@ -16,6 +16,7 @@
 #include "nsIURI.h"
 
 #include "nsPIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsIContentViewer.h"
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"
@@ -92,7 +93,7 @@ nsMsgPrintEngine::OnStateChange(nsIWebProgress* aWebProgress,
         // The mail msg doc is the last one to receive the STATE_STOP notification
         nsCOMPtr<nsISupports> container;
         docLoader->GetContainer(getter_AddRefs(container));
-        nsCOMPtr<nsIDOMWindow> domWindow(do_GetInterface(container));
+        nsCOMPtr<mozIDOMWindowProxy> domWindow(do_GetInterface(container));
         if (domWindow.get() != mMsgDOMWin.get()) {
           return NS_OK;
         }
@@ -160,7 +161,9 @@ nsMsgPrintEngine::OnStateChange(nsIWebProgress* aWebProgress,
       } 
       else 
       {
-        mWindow->Close();
+        if (mWindow) {
+          nsPIDOMWindowOuter::From(mWindow)->Close();
+        }
       }
     }
   }
@@ -210,22 +213,24 @@ nsMsgPrintEngine::OnSecurityChange(nsIWebProgress *aWebProgress,
 }
 
 NS_IMETHODIMP    
-nsMsgPrintEngine::SetWindow(nsIDOMWindow *aWin)
+nsMsgPrintEngine::SetWindow(mozIDOMWindowProxy *aWin)
 {
-	if (!aWin)
+  if (!aWin)
   {
     // It isn't an error to pass in null for aWin, in fact it means we are shutting
     // down and we should start cleaning things up...
-		return NS_OK;
+    return NS_OK;
   }
 
-  mWindow = do_QueryInterface(aWin);
-  NS_ENSURE_TRUE(mWindow, NS_ERROR_FAILURE);
+  mWindow = aWin;
 
-  mWindow->GetDocShell()->SetAppType(nsIDocShell::APP_TYPE_MAIL);
+  NS_ENSURE_TRUE(mWindow, NS_ERROR_FAILURE);
+  nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(mWindow);
+
+  window->GetDocShell()->SetAppType(nsIDocShell::APP_TYPE_MAIL);
 
   nsCOMPtr<nsIDocShellTreeItem> docShellAsItem =
-    do_QueryInterface(mWindow->GetDocShell());
+    do_QueryInterface(window->GetDocShell());
   NS_ENSURE_TRUE(docShellAsItem, NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIDocShellTreeItem> rootAsItem;
@@ -244,8 +249,8 @@ nsMsgPrintEngine::SetWindow(nsIDOMWindow *aWin)
   return NS_OK;
 }
 
-/* void setParentWindow (in nsIDOMWindow ptr); */
-NS_IMETHODIMP nsMsgPrintEngine::SetParentWindow(nsIDOMWindow *ptr)
+/* void setParentWindow (in mozIDOMWindowProxy ptr); */
+NS_IMETHODIMP nsMsgPrintEngine::SetParentWindow(mozIDOMWindowProxy *ptr)
 {
   mParentWindow = ptr;
   return NS_OK;
@@ -259,8 +264,9 @@ nsMsgPrintEngine::ShowWindow(bool aShow)
 
   NS_ENSURE_TRUE(mWindow, NS_ERROR_NOT_INITIALIZED);
 
+  nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(mWindow);
   nsCOMPtr <nsIDocShellTreeItem> treeItem =
-    do_QueryInterface(mWindow->GetDocShell(), &rv);
+    do_QueryInterface(window->GetDocShell(), &rv);
   NS_ENSURE_SUCCESS(rv,rv);
 
   nsCOMPtr <nsIDocShellTreeOwner> treeOwner;
@@ -350,7 +356,7 @@ nsMsgPrintEngine::ShowProgressDialog(bool aIsForPrinting, bool& aDoNotify)
     }
     if (mPrintPromptService) 
     {
-      nsCOMPtr<nsIDOMWindow> domWin(do_QueryInterface(mParentWindow));
+      nsCOMPtr<mozIDOMWindowProxy> domWin(do_QueryInterface(mParentWindow));
       if (!domWin) 
       {
         domWin = mWindow;
@@ -400,7 +406,8 @@ nsMsgPrintEngine::StartNextPrintOperation()
   if (mCurrentlyPrintingURI >= (int32_t)mURIArray.Length())
   {
     // This is the end...dum, dum, dum....my only friend...the end
-    mWindow->Close();
+    NS_ENSURE_TRUE(mWindow, NS_ERROR_FAILURE);
+    nsPIDOMWindowOuter::From(mWindow)->Close();
 
     // Tell the user we are done...
     nsString msg;
@@ -622,7 +629,9 @@ nsMsgPrintEngine::PrintMsgWindow()
         } 
         else 
         {
-          mWindow->Close();
+          if (mWindow) {
+            nsPIDOMWindowOuter::From(mWindow)->Close();
+          }
         }
       }
       else

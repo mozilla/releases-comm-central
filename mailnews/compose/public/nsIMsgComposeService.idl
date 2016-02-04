@@ -15,7 +15,7 @@ interface nsIMsgIdentity;
 interface nsIMsgIncomingServer;
 interface nsIMsgDBHdr;
 
-[scriptable, uuid(8de65170-a452-11e0-8264-0800200c9a66)]
+[scriptable, uuid(041782bf-e523-444b-a268-d90868fd2b50)]
 interface nsIMsgComposeService : nsISupports {
 
   /* we need a msg window because when we forward inline we may need progress */
@@ -56,7 +56,7 @@ interface nsIMsgComposeService : nsISupports {
    *                  for composing.
    */
   nsIMsgCompose initCompose(in nsIMsgComposeParams aParams,
-                            [optional] in nsIDOMWindow aWindow, 
+                            [optional] in mozIDOMWindowProxy aWindow,
                             [optional] in nsIDocShell aDocShell);
 
   /**
@@ -73,8 +73,8 @@ interface nsIMsgComposeService : nsISupports {
   readonly attribute boolean logComposePerformance;
 
   [noscript] boolean determineComposeHTML(in nsIMsgIdentity aIdentity, in MSG_ComposeFormat aFormat);
-  [noscript] void cacheWindow(in nsIDOMWindow aWindow, in boolean aComposeHTML, in nsIMsgComposeRecyclingListener listener);
-  boolean isCachedWindow(in nsIDOMWindow aWindow);
+  [noscript] void cacheWindow(in mozIDOMWindowProxy aWindow, in boolean aComposeHTML, in nsIMsgComposeRecyclingListener listener);
+  boolean isCachedWindow(in mozIDOMWindowProxy aWindow);
 
   /** 
    * given a mailto url, parse the attributes and turn them into a nsIMsgComposeParams object

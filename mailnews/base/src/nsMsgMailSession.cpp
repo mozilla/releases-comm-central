@@ -278,7 +278,7 @@ nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow **aMsgWindow)
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsISupports> windowSupports;
-    nsCOMPtr<nsPIDOMWindow> topMostWindow;
+    nsCOMPtr<nsPIDOMWindowOuter> topMostWindow;
     nsCOMPtr<nsIDOMDocument> domDocument;
     nsCOMPtr<nsIDOMElement> domElement;
     nsAutoString windowType;
@@ -660,7 +660,7 @@ NS_IMETHODIMP nsMsgShutdownService::Observe(nsISupports *aSubject,
     nsCOMPtr<nsIMsgWindow> topMsgWindow;
     mailSession->GetTopmostMsgWindow(getter_AddRefs(topMsgWindow));
     
-    nsCOMPtr<nsIDOMWindow> internalDomWin;
+    nsCOMPtr<mozIDOMWindowProxy> internalDomWin;
     if (topMsgWindow)
       topMsgWindow->GetDomWindow(getter_AddRefs(internalDomWin));
     

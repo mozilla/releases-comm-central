@@ -13,7 +13,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsCOMPtr.h"
 #include "nsPIDOMWindow.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsIDocument.h"
 #include "nsIDOMDocument.h"
 #include "nsIInterfaceRequestor.h"
@@ -46,10 +46,9 @@ nsresult nsMsgComposeContentHandler::GetBestIdentity(
 {
   nsresult rv;
 
-  nsCOMPtr<nsIDOMWindow> domWindow = do_GetInterface(aWindowContext);
-  nsCOMPtr<nsPIDOMWindow> window = do_QueryInterface(domWindow);
-  if (!window)
-    return NS_ERROR_FAILURE;
+  nsCOMPtr<mozIDOMWindowProxy> domWindow = do_GetInterface(aWindowContext);
+  NS_ENSURE_TRUE(domWindow, NS_ERROR_FAILURE);
+  nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(domWindow);
 
   nsAutoString documentURIString;
   window->GetDoc()->GetDocumentURI(documentURIString);

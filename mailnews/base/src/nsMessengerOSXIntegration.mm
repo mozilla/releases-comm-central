@@ -20,7 +20,7 @@
 #include "MailNewsTypes.h"
 #include "nsIWindowMediator.h"
 #include "nsIDOMChromeWindow.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsPIDOMWindow.h"
 #include "nsIDocShell.h"
 #include "nsIBaseWindow.h"
@@ -108,7 +108,7 @@ static void openMailWindow(const nsCString& aUri)
         // supports message headers. This should be simplified/removed when
         // bug 507593 is implemented.
 #ifdef MOZ_SUITE
-        nsCOMPtr<nsIDOMWindow> newWindow;
+        nsCOMPtr<mozIDOMWindowProxy> newWindow;
         wwatch->OpenWindow(0, "chrome://messenger/content/messageWindow.xul",
                            "_blank", "all,chrome,dialog=no,status,toolbar", msgUri,
                            getter_AddRefs(newWindow));
@@ -121,7 +121,7 @@ static void openMailWindow(const nsCString& aUri)
         messenger->MsgHdrFromURI(aUri, getter_AddRefs(msgHdr));
         if (msgHdr)
         {
-          nsCOMPtr<nsIDOMWindow> newWindow;
+          nsCOMPtr<mozIDOMWindowProxy> newWindow;
           wwatch->OpenWindow(0, "chrome://messenger/content/messageWindow.xul",
                              "_blank", "all,chrome,dialog=no,status,toolbar", msgHdr,
                              getter_AddRefs(newWindow));
@@ -138,11 +138,12 @@ static void openMailWindow(const nsCString& aUri)
     }
 
     FocusAppNative();
-    nsCOMPtr<nsIDOMWindow> domWindow;
+    nsCOMPtr<mozIDOMWindowProxy> domWindow;
     topMostMsgWindow->GetDomWindow(getter_AddRefs(domWindow));
-    nsCOMPtr<nsPIDOMWindow> privateWindow(do_QueryInterface(domWindow));
-    if (privateWindow)
+    if (domWindow) {
+      nsCOMPtr<nsPIDOMWindowOuter> privateWindow = nsPIDOMWindowOuter::From(domWindow);
       privateWindow->Focus();
+    }
   }
   else
   {
@@ -494,7 +495,7 @@ nsMessengerOSXIntegration::BounceDockIcon()
   nsCOMPtr<nsIWindowMediator> mediator(do_GetService(NS_WINDOWMEDIATOR_CONTRACTID));
   if (mediator)
   {
-    nsCOMPtr<nsIDOMWindow> domWindow;
+    nsCOMPtr<mozIDOMWindowProxy> domWindow;
     mediator->GetMostRecentWindow(MOZ_UTF16("mail:3pane"), getter_AddRefs(domWindow));
     if (domWindow)
     {

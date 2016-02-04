@@ -15,7 +15,7 @@
 #include "nsIStringBundle.h"
 #include "nsIFile.h"
 #include "nsWeakReference.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsTArray.h"
 #include "nsIFolderListener.h"
 
@@ -77,9 +77,9 @@ private:
   nsCOMPtr<nsITransactionManager> mTxnMgr;
 
   /* rhp - need this to drive message display */
-  nsCOMPtr<nsIDOMWindow>    mWindow;
-  nsCOMPtr<nsIMsgWindow>    mMsgWindow;
-  nsCOMPtr<nsIDocShell>     mDocShell;
+  nsCOMPtr<mozIDOMWindowProxy> mWindow;
+  nsCOMPtr<nsIMsgWindow>       mMsgWindow;
+  nsCOMPtr<nsIDocShell>        mDocShell;
 
   // String bundles...
   nsCOMPtr<nsIStringBundle>   mStringBundle;

@@ -12,6 +12,7 @@
 #include "nsIDOMHTMLLinkElement.h"
 #include "nsIDOMHTMLAnchorElement.h"
 #include "nsPIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsISelectionController.h"
 #include "nsMsgI18N.h"
 #include "nsMsgCompCID.h"
@@ -889,7 +890,7 @@ nsMsgCompose::GetQuotingToFollow(bool* quotingToFollow)
 
 NS_IMETHODIMP
 nsMsgCompose::Initialize(nsIMsgComposeParams *aParams,
-                         nsIDOMWindow *aWindow,
+                         mozIDOMWindowProxy *aWindow,
                          nsIDocShell *aDocShell)
 {
   NS_ENSURE_ARG_POINTER(aParams);
@@ -900,11 +901,10 @@ nsMsgCompose::Initialize(nsIMsgComposeParams *aParams,
   if (aWindow)
   {
     m_window = aWindow;
-    nsCOMPtr<nsPIDOMWindow> window(do_QueryInterface(aWindow));
-    if (!window)
-      return NS_ERROR_FAILURE;
+    nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(aWindow);
+    NS_ENSURE_TRUE(window, NS_ERROR_FAILURE);
 
-    nsCOMPtr<nsIDocShellTreeItem>  treeItem =
+    nsCOMPtr<nsIDocShellTreeItem> treeItem =
       do_QueryInterface(window->GetDocShell());
     nsCOMPtr<nsIDocShellTreeOwner> treeOwner;
     rv = treeItem->GetTreeOwner(getter_AddRefs(treeOwner));
@@ -1177,9 +1177,10 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
   nsCOMPtr<nsIPrompt> prompt;
 
   // i'm assuming the compose window is still up at this point...
-  nsCOMPtr<nsPIDOMWindow> window(do_QueryInterface(m_window));
-  if (window)
+  if (m_window) {
+    nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(m_window);
     window->GetPrompter(getter_AddRefs(prompt));
+  }
 
   // Set content type based on which type of compose window we had.
   nsString contentType = (m_composeHTML) ? NS_LITERAL_STRING("text/html"):
@@ -1565,7 +1566,7 @@ NS_IMETHODIMP nsMsgCompose::SetEditor(nsIEditor *aEditor)
 //  (it did the loadUrl that triggered editor creation)
 // It is called from JS after editor creation
 //  (loadUrl is done in JS)
-NS_IMETHODIMP nsMsgCompose::InitEditor(nsIEditor* aEditor, nsIDOMWindow* aContentWindow)
+NS_IMETHODIMP nsMsgCompose::InitEditor(nsIEditor* aEditor, mozIDOMWindowProxy* aContentWindow)
 {
   NS_ENSURE_ARG_POINTER(aEditor);
   NS_ENSURE_ARG_POINTER(aContentWindow);
@@ -1576,7 +1577,7 @@ NS_IMETHODIMP nsMsgCompose::InitEditor(nsIEditor* aEditor, nsIDOMWindow* aConten
   const nsDependentCString msgCharSet(m_compFields->GetCharacterSet());
   m_editor->SetDocumentCharacterSet(msgCharSet);
 
-  nsCOMPtr<nsPIDOMWindow> window = do_QueryInterface(aContentWindow);
+  nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(aContentWindow);
 
   nsIDocShell *docShell = window->GetDocShell();
   NS_ENSURE_TRUE(docShell, NS_ERROR_UNEXPECTED);
@@ -1649,7 +1650,7 @@ nsresult nsMsgCompose::SetBodyModified(bool modified)
 }
 
 NS_IMETHODIMP
-nsMsgCompose::GetDomWindow(nsIDOMWindow * *aDomWindow)
+nsMsgCompose::GetDomWindow(mozIDOMWindowProxy * *aDomWindow)
 {
   NS_IF_ADDREF(*aDomWindow = m_window);
   return NS_OK;
@@ -2718,10 +2719,11 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
         // Handle "followup-to: poster" magic keyword here
         if (followUpTo.EqualsLiteral("poster"))
         {
-          nsCOMPtr<nsIDOMWindow> domWindow;
+          nsCOMPtr<mozIDOMWindowProxy> domWindow;
           nsCOMPtr<nsIPrompt> prompt;
           compose->GetDomWindow(getter_AddRefs(domWindow));
-          nsCOMPtr<nsPIDOMWindow> composeWindow(do_QueryInterface(domWindow));
+          NS_ENSURE_TRUE(domWindow, NS_ERROR_FAILURE);
+          nsCOMPtr<nsPIDOMWindowOuter> composeWindow = nsPIDOMWindowOuter::From(domWindow);
           if (composeWindow)
             composeWindow->GetPrompter(getter_AddRefs(prompt));
           nsMsgDisplayMessageByName(prompt, MOZ_UTF16("followupToSenderMessage"));
@@ -3626,7 +3628,7 @@ nsresult nsMsgComposeSendListener::OnStopSending(const char *aMsgID, nsresult aS
 
       // See if there is a composer window
       bool hasDomWindow = true;
-      nsCOMPtr<nsIDOMWindow> domWindow;
+      nsCOMPtr<mozIDOMWindowProxy> domWindow;
       rv = msgCompose->GetDomWindow(getter_AddRefs(domWindow));
       if (NS_FAILED(rv) || !domWindow)
         hasDomWindow = false;

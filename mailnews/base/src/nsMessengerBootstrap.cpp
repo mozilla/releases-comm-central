@@ -11,7 +11,7 @@
 #include "nsIWindowWatcher.h"
 #include "nsMsgUtils.h"
 #include "nsISupportsPrimitives.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 
@@ -76,7 +76,7 @@ NS_IMETHODIMP nsMessengerBootstrap::OpenMessengerWindowWithUri(const char *windo
 
   // we need to use the "mailnews.reuse_thread_window2" pref
   // to determine if we should open a new window, or use an existing one.
-  nsCOMPtr<nsIDOMWindow> newWindow;
+  nsCOMPtr<mozIDOMWindowProxy> newWindow;
   return wwatch->OpenWindow(0, chromeUrl.get(), "_blank",
                             "chrome,all,dialog=no", argsArray,
                              getter_AddRefs(newWindow));

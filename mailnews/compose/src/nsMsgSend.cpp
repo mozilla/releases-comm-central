@@ -80,6 +80,7 @@
 #include "nsIMutableArray.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgProtocolInfo.h"
+#include "mozIDOMWindow.h"
 
 using namespace mozilla::mailnews;
 
@@ -3997,7 +3998,7 @@ nsMsgComposeAndSend::CreateAndSendMessage(
               const nsACString                  &attachment1_body,
               nsIArray *attachments,
               nsIArray *preloaded_attachments,
-              nsIDOMWindow                      *parentWindow,
+              mozIDOMWindowProxy                *parentWindow,
               nsIMsgProgress                    *progress,
               nsIMsgSendListener                *aListener,
               const char                        *password,

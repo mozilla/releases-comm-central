@@ -9,7 +9,7 @@
 #include "nsIDocShell.h"
 #include "nsIDocShellTreeItem.h"
 #include "nsIDOMElement.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsTransactionManagerCID.h"
 #include "nsIComponentManager.h"
 #include "nsILoadGroup.h"
@@ -306,7 +306,7 @@ NS_IMETHODIMP nsMsgWindow::SetCharsetOverride(bool aCharsetOverride)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetDomWindow(nsIDOMWindow **aWindow)
+NS_IMETHODIMP nsMsgWindow::GetDomWindow(mozIDOMWindowProxy **aWindow)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
   if (mDomWindow)
@@ -316,12 +316,12 @@ NS_IMETHODIMP nsMsgWindow::GetDomWindow(nsIDOMWindow **aWindow)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetDomWindow(nsIDOMWindow * aWindow)
+NS_IMETHODIMP nsMsgWindow::SetDomWindow(mozIDOMWindowProxy * aWindow)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
   mDomWindow = do_GetWeakReference(aWindow);
 
-  nsCOMPtr<nsPIDOMWindow> win(do_QueryInterface(aWindow));
+  nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(aWindow);
   nsIDocShell *docShell = nullptr;
   if (win)
     docShell = win->GetDocShell();

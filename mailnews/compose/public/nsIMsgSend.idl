@@ -35,6 +35,7 @@ interface nsIEditor;
 interface nsIArray;
 interface nsISupportsArray;
 interface nsIMsgAttachmentHandler;
+interface mozIDOMWindowProxy;
 
 typedef long nsMsgDeliverMode;
 
@@ -152,7 +153,7 @@ class nsMsgAttachmentHandler;
 [ptr] native nsMsgAttachedFile(nsMsgAttachedFile);
 [ptr] native nsMsgAttachmentHandlerArray(nsTArray<RefPtr<nsMsgAttachmentHandler>>);
 
-[scriptable, uuid(adcea7be-0585-4f43-ab97-f2436ea5e002)]
+[scriptable, uuid(747fdfa2-1754-4282-ab26-1e55fd8de13c)]
 interface nsIMsgSend : nsISupports
 {
   //
@@ -216,7 +217,7 @@ interface nsIMsgSend : nsISupports
                               in ACString aBody,
                               in nsIArray aAttachments,
                               in nsIArray aPreloadedAttachments,
-                              in nsIDOMWindow aParentWindow,
+                              in mozIDOMWindowProxy aParentWindow,
                               in nsIMsgProgress aProgress,
                               in nsIMsgSendListener aListener,
                               in string aPassword,

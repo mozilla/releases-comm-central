@@ -16,7 +16,7 @@
 #include "nsXPCOM.h"
 #include "nsISupportsPrimitives.h"
 #include "nsIWindowWatcher.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsIContentViewer.h"
 #include "nsIMsgWindow.h"
 #include "nsIDocShell.h"
@@ -253,7 +253,7 @@ nsMsgComposeService::OpenComposeWindowWithParams(const char *chrome,
           /* We need to save the window pointer as OnReopen will call nsMsgComposeService::InitCompose which will
              clear the cache entry if everything goes well
           */
-          nsCOMPtr<nsIDOMWindow> domWindow(mCachedWindows[i].window);
+          nsCOMPtr<mozIDOMWindowProxy> domWindow(mCachedWindows[i].window);
           nsCOMPtr<nsIXULWindow> xulWindow(mCachedWindows[i].xulWindow);
           rv = ShowCachedComposeWindow(domWindow, xulWindow, true);
           if (NS_SUCCEEDED(rv))
@@ -278,7 +278,7 @@ nsMsgComposeService::OpenComposeWindowWithParams(const char *chrome,
   msgParamsWrapper->SetData(params);
   msgParamsWrapper->SetDataIID(&NS_GET_IID(nsIMsgComposeParams));
 
-  nsCOMPtr<nsIDOMWindow> newWindow;
+  nsCOMPtr<mozIDOMWindowProxy> newWindow;
   rv = wwatch->OpenWindow(0, chrome && *chrome ? chrome : DEFAULT_CHROME,
                  "_blank", "all,chrome,dialog=no,status,toolbar", msgParamsWrapper,
                  getter_AddRefs(newWindow));
@@ -286,14 +286,14 @@ nsMsgComposeService::OpenComposeWindowWithParams(const char *chrome,
   return rv;
 }
 
-void nsMsgComposeService::CloseHiddenCachedWindow(nsIDOMWindow *domWindow)
+void nsMsgComposeService::CloseHiddenCachedWindow(mozIDOMWindowProxy *domWindow)
 {
   if (domWindow)
   {
     nsCOMPtr<nsIDocShell> docshell;
-    nsCOMPtr<nsPIDOMWindow> window(do_QueryInterface(domWindow));
-    if (window)
+    if (domWindow)
     {
+      nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(domWindow);
       nsCOMPtr<nsIDocShellTreeItem> treeItem =
         do_QueryInterface(window->GetDocShell());
 
@@ -420,10 +420,9 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type, nsIMsgWindow *
   nsCOMPtr<nsIDocShell> docShell(do_QueryInterface(childAsItem, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIDOMWindow> domWindow(do_GetInterface(childAsItem, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsPIDOMWindow> privateWindow(do_QueryInterface(domWindow, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<mozIDOMWindow> domWindow(do_GetInterface(childAsItem));
+  NS_ENSURE_TRUE(domWindow, NS_ERROR_FAILURE);
+  nsCOMPtr<nsPIDOMWindowInner> privateWindow = nsPIDOMWindowInner::From(domWindow);
   nsCOMPtr<nsISelection> sel = privateWindow->GetSelection();
   NS_ENSURE_TRUE(sel, NS_ERROR_FAILURE);
 
@@ -711,7 +710,7 @@ NS_IMETHODIMP nsMsgComposeService::OpenComposeWindowWithURI(const char * aMsgCom
 }
 
 NS_IMETHODIMP nsMsgComposeService::InitCompose(nsIMsgComposeParams *aParams,
-                                               nsIDOMWindow *aWindow,
+                                               mozIDOMWindowProxy *aWindow,
                                                nsIDocShell *aDocShell,
                                                nsIMsgCompose **_retval)
 {
@@ -792,7 +791,7 @@ NS_IMETHODIMP nsMsgComposeService::TimeStamp(const char * label, bool resetTime)
 }
 
 NS_IMETHODIMP
-nsMsgComposeService::IsCachedWindow(nsIDOMWindow *aCachedWindow, bool *aIsCachedWindow)
+nsMsgComposeService::IsCachedWindow(mozIDOMWindowProxy *aCachedWindow, bool *aIsCachedWindow)
 {
   NS_ENSURE_ARG_POINTER(aCachedWindow);
   NS_ENSURE_ARG_POINTER(aIsCachedWindow);
@@ -810,14 +809,13 @@ nsMsgComposeService::IsCachedWindow(nsIDOMWindow *aCachedWindow, bool *aIsCached
 }
 
 NS_IMETHODIMP
-nsMsgComposeService::CacheWindow(nsIDOMWindow *aWindow, bool aComposeHTML, nsIMsgComposeRecyclingListener * aListener)
+nsMsgComposeService::CacheWindow(mozIDOMWindowProxy *aWindow, bool aComposeHTML, nsIMsgComposeRecyclingListener * aListener)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
   NS_ENSURE_ARG_POINTER(aListener);
 
   nsresult rv;
-  nsCOMPtr<nsPIDOMWindow> window(do_QueryInterface(aWindow, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(aWindow);
 
   nsCOMPtr<nsIDocShellTreeItem> treeItem(do_QueryInterface(window->GetDocShell(), &rv));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -923,7 +921,7 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI *aUrl, nsresult 
 {
   NS_ENSURE_SUCCESS(aExitCode, aExitCode);
   nsresult rv;
-  nsCOMPtr<nsIDOMWindow> parentWindow;
+  nsCOMPtr<nsPIDOMWindowOuter> parentWindow;
   if (mMsgWindow)
   {
     nsCOMPtr<nsIDocShell> docShell;
@@ -1252,7 +1250,7 @@ nsMsgComposeService::ForwardMessage(const nsAString &forwardTo,
                                       true, forwardTo,
                                       false, aMsgWindow);
 
-  nsCOMPtr<nsIDOMWindow> parentWindow;
+  nsCOMPtr<mozIDOMWindowProxy> parentWindow;
   if (aMsgWindow)
   {
     nsCOMPtr<nsIDocShell> docShell;
@@ -1292,7 +1290,7 @@ nsMsgComposeService::ForwardMessage(const nsAString &forwardTo,
   return folder->AddMessageDispositionState(aMsgHdr, nsIMsgFolder::nsMsgDispositionState_Forwarded);
 }
 
-nsresult nsMsgComposeService::ShowCachedComposeWindow(nsIDOMWindow *aComposeWindow, nsIXULWindow *aXULWindow, bool aShow)
+nsresult nsMsgComposeService::ShowCachedComposeWindow(mozIDOMWindowProxy *aComposeWindow, nsIXULWindow *aXULWindow, bool aShow)
 {
   nsresult rv = NS_OK;
 
@@ -1300,9 +1298,8 @@ nsresult nsMsgComposeService::ShowCachedComposeWindow(nsIDOMWindow *aComposeWind
     mozilla::services::GetObserverService();
   NS_ENSURE_TRUE(obs, NS_ERROR_UNEXPECTED);
 
-  nsCOMPtr <nsPIDOMWindow> window = do_QueryInterface(aComposeWindow, &rv);
-
-  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ENSURE_TRUE(aComposeWindow, NS_ERROR_FAILURE);
+  nsCOMPtr <nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(aComposeWindow);
 
   nsIDocShell *docShell = window->GetDocShell();
 
@@ -1735,7 +1732,7 @@ nsMsgComposeService::Handle(nsICommandLine* aCmdLine)
     if (arg)
       arg->SetData(uristr);
 
-    nsCOMPtr<nsIDOMWindow> opened;
+    nsCOMPtr<mozIDOMWindowProxy> opened;
     wwatch->OpenWindow(nullptr, DEFAULT_CHROME, "_blank",
                        "chrome,dialog=no,all", arg, getter_AddRefs(opened));
 

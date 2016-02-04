@@ -29,7 +29,7 @@
 #include "nsIInterfaceRequestor.h"
 #include "nsIInterfaceRequestorUtils.h"
 #include "nsIDocShell.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsEmbedCID.h"
 #include "nsMsgUtils.h"
 #include "nsMsgBaseCID.h"
@@ -684,7 +684,7 @@ nsresult nsPop3Sink::HandleTempDownloadFailed(nsIMsgWindow *msgWindow)
   bundle->FormatStringFromName(
     MOZ_UTF16("pop3TmpDownloadError"),
     params, 2, getter_Copies(confirmString));
-  nsCOMPtr<nsIDOMWindow> parentWindow;
+  nsCOMPtr<mozIDOMWindowProxy> parentWindow;
   nsCOMPtr<nsIPromptService> promptService = do_GetService(NS_PROMPTSERVICE_CONTRACTID);
   nsCOMPtr<nsIDocShell> docShell;
   if (msgWindow)

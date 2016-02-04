@@ -7,7 +7,7 @@
 
 #include "nsIMsgComposeService.h"
 #include "nsCOMPtr.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsIXULWindow.h"
 #include "nsIObserver.h"
 #include "nsWeakReference.h"
@@ -20,7 +20,7 @@
 class nsMsgCachedWindowInfo
 {
 public:
-  void Initialize(nsIDOMWindow *aWindow, nsIXULWindow *aXULWindow, nsIMsgComposeRecyclingListener *aListener, bool aHtmlCompose)
+  void Initialize(mozIDOMWindowProxy *aWindow, nsIXULWindow *aXULWindow, nsIMsgComposeRecyclingListener *aListener, bool aHtmlCompose)
   {
     window = aWindow;
     xulWindow = aXULWindow;
@@ -34,7 +34,7 @@ public:
     listener = nullptr;
   }
   
-  nsCOMPtr<nsIDOMWindow>                    window;
+  nsCOMPtr<mozIDOMWindowProxy>              window;
   nsCOMPtr<nsIXULWindow>                    xulWindow;
   nsCOMPtr<nsIMsgComposeRecyclingListener>  listener;
   bool                                      htmlCompose;
@@ -66,7 +66,7 @@ private:
   int32_t mMaxRecycledWindows;
   nsMsgCachedWindowInfo *mCachedWindows;
   
-  void CloseHiddenCachedWindow(nsIDOMWindow *domWindow);
+  void CloseHiddenCachedWindow(mozIDOMWindowProxy *domWindow);
 
   nsresult LoadDraftOrTemplate(const nsACString& aMsgURI, nsMimeOutputType aOutType, 
                                nsIMsgIdentity * aIdentity, const char * aOriginalMsgURI, 
@@ -84,7 +84,7 @@ private:
                                       bool overrideComposeFormat,
                                       nsIMsgWindow *aMsgWindow);
 
-  nsresult ShowCachedComposeWindow(nsIDOMWindow *aComposeWindow, nsIXULWindow *aXULWindow, bool aShow);
+  nsresult ShowCachedComposeWindow(mozIDOMWindowProxy *aComposeWindow, nsIXULWindow *aXULWindow, bool aShow);
 
   // hash table mapping dom windows to nsIMsgCompose objects
   nsInterfaceHashtable<nsISupportsHashKey, nsIWeakReference> mOpenComposeWindows;

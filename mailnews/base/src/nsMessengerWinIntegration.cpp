@@ -22,7 +22,7 @@
 #include "nsIDirectoryService.h"
 #include "nsIWindowWatcher.h"
 #include "nsIWindowMediator.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsPIDOMWindow.h"
 #include "nsIDocShell.h"
 #include "nsIBaseWindow.h"
@@ -96,15 +96,17 @@
 using namespace mozilla;
 
 // begin shameless copying from nsNativeAppSupportWin
-HWND hwndForDOMWindow( nsISupports *window )
+HWND hwndForDOMWindow( mozIDOMWindowProxy *window )
 {
-  nsCOMPtr<nsPIDOMWindow> win( do_QueryInterface(window) );
-  if ( !win )
-      return 0;
+  if ( !window ) {
+    return 0;
+  }
+  nsCOMPtr<nsPIDOMWindowOuter> pidomwindow = nsPIDOMWindowOuter::From(window);
 
   nsCOMPtr<nsIBaseWindow> ppBaseWindow =
-      do_QueryInterface( win->GetDocShell() );
-  if (!ppBaseWindow) return 0;
+    do_QueryInterface( pidomwindow->GetDocShell() );
+  if (!ppBaseWindow)
+    return 0;
 
   nsCOMPtr<nsIWidget> ppWidget;
   ppBaseWindow->GetMainWidget( getter_AddRefs( ppWidget ) );
@@ -112,7 +114,7 @@ HWND hwndForDOMWindow( nsISupports *window )
   return (HWND)( ppWidget->GetNativeData( NS_NATIVE_WIDGET ) );
 }
 
-static void activateWindow( nsIDOMWindow *win )
+static void activateWindow( mozIDOMWindowProxy *win )
 {
   // Try to get native window handle.
   HWND hwnd = hwndForDOMWindow( win );
@@ -125,7 +127,7 @@ static void activateWindow( nsIDOMWindow *win )
     ::SetForegroundWindow( hwnd );
   } else {
     // Use internal method.
-    nsCOMPtr<nsPIDOMWindow> privateWindow(do_QueryInterface(win));
+    nsCOMPtr<nsPIDOMWindowOuter> privateWindow = nsPIDOMWindowOuter::From(win);
     privateWindow->Focus();
   }
 }
@@ -142,7 +144,7 @@ static void openMailWindow(const nsACString& aFolderUri)
   rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(topMostMsgWindow));
   if (topMostMsgWindow)
   {
-    nsCOMPtr<nsIDOMWindow> domWindow;
+    nsCOMPtr<mozIDOMWindowProxy> domWindow;
     topMostMsgWindow->GetDomWindow(getter_AddRefs(domWindow));
     if (domWindow)
     {
@@ -577,7 +579,7 @@ nsresult nsMessengerWinIntegration::ShowNewAlertNotification(bool aUserInitiated
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIWindowWatcher> wwatch(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
-    nsCOMPtr<nsIDOMWindow> newWindow;
+    nsCOMPtr<mozIDOMWindowProxy> newWindow;
     rv = wwatch->OpenWindow(0, ALERT_CHROME_URL, "_blank",
                 "chrome,dialog=yes,titlebar=no,popup=yes", argsArray,
                  getter_AddRefs(newWindow));
@@ -623,7 +625,7 @@ nsresult nsMessengerWinIntegration::AlertClicked()
   rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(topMostMsgWindow));
   if (topMostMsgWindow)
   {
-    nsCOMPtr<nsIDOMWindow> domWindow;
+    nsCOMPtr<mozIDOMWindowProxy> domWindow;
     topMostMsgWindow->GetDomWindow(getter_AddRefs(domWindow));
     if (domWindow)
     {

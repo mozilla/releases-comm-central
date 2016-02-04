@@ -16,7 +16,7 @@
 #include "plstr.h"
 #include "prmem.h"
 #include "nsIServiceManager.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsIFilePicker.h"
 #include "plbase64.h"
 #include "nsIWindowWatcher.h"
@@ -530,7 +530,7 @@ enum ADDRESSBOOK_EXPORT_FILE_TYPE
  LDIF_EXPORT_TYPE     = 5,
 };
 
-NS_IMETHODIMP nsAbManager::ExportAddressBook(nsIDOMWindow *aParentWin, nsIAbDirectory *aDirectory)
+NS_IMETHODIMP nsAbManager::ExportAddressBook(mozIDOMWindowProxy *aParentWin, nsIAbDirectory *aDirectory)
 {
   NS_ENSURE_ARG_POINTER(aParentWin);
 
@@ -1384,9 +1384,12 @@ nsAbManager::Handle(nsICommandLine* aCmdLine)
   nsCOMPtr<nsIWindowWatcher> wwatch (do_GetService(NS_WINDOWWATCHER_CONTRACTID));
   NS_ENSURE_TRUE(wwatch, NS_ERROR_FAILURE);
 
-  nsCOMPtr<nsIDOMWindow> opened;
-  wwatch->OpenWindow(nullptr, "chrome://messenger/content/addressbook/addressbook.xul",
-                     "_blank", "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar", nullptr, getter_AddRefs(opened));
+  nsCOMPtr<mozIDOMWindowProxy> opened;
+  wwatch->OpenWindow(nullptr,
+                     "chrome://messenger/content/addressbook/addressbook.xul",
+                     "_blank",
+                     "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
+                     nullptr, getter_AddRefs(opened));
   aCmdLine->SetPreventDefault(true);
   return NS_OK;
 }

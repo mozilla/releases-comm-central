@@ -19,7 +19,7 @@
 #include "nsIDirectoryService.h"
 #include "nsIWindowWatcher.h"
 #include "nsIWindowMediator.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsPIDOMWindow.h"
 #include "nsIDocShell.h"
 #include "nsIBaseWindow.h"
@@ -82,10 +82,12 @@ static void openMailWindow(const nsACString& aFolderUri)
         windowCommands->SelectFolder(aFolderUri);
     }
 
-    nsCOMPtr<nsIDOMWindow> domWindow;
+    nsCOMPtr<mozIDOMWindowProxy> domWindow;
     topMostMsgWindow->GetDomWindow(getter_AddRefs(domWindow));
-    nsCOMPtr<nsPIDOMWindow> privateWindow(do_QueryInterface(domWindow));
-    privateWindow->Focus();
+    if (domWindow) {
+      nsCOMPtr<nsPIDOMWindowOuter> privateWindow = nsPIDOMWindowOuter::From(domWindow);
+      privateWindow->Focus();
+    }
   }
   else
   {
@@ -399,7 +401,7 @@ nsresult nsMessengerUnixIntegration::ShowNewAlertNotification(bool aUserInitiate
   argsArray->AppendElement(scriptableUserInitiated, false);
 
   nsCOMPtr<nsIWindowWatcher> wwatch(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
-  nsCOMPtr<nsIDOMWindow> newWindow;
+  nsCOMPtr<mozIDOMWindowProxy> newWindow;
 
   mAlertInProgress = true;
   rv = wwatch->OpenWindow(0, ALERT_CHROME_URL, "_blank",

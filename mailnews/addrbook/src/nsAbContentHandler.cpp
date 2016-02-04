@@ -12,7 +12,7 @@
 #include "nsISupportsPrimitives.h"
 #include "plstr.h"
 #include "nsPIDOMWindow.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgVCardService.h"
 #include "nsIAbCard.h"
@@ -67,10 +67,9 @@ nsAbContentHandler::HandleContent(const char *aContentType,
             if (!aWindowContext)
                 return NS_ERROR_FAILURE;
 
-            nsCOMPtr<nsIDOMWindow> domWindow = do_GetInterface(aWindowContext);
-            nsCOMPtr<nsPIDOMWindow> parentWindow = do_QueryInterface(domWindow);
-            if (!parentWindow)
-                return NS_ERROR_FAILURE;
+            nsCOMPtr<mozIDOMWindowProxy> domWindow = do_GetInterface(aWindowContext);
+            NS_ENSURE_TRUE(domWindow, NS_ERROR_FAILURE);
+            nsCOMPtr<nsPIDOMWindowOuter> parentWindow = nsPIDOMWindowOuter::From(domWindow);
             parentWindow = parentWindow->GetOuterWindow();
             NS_ENSURE_ARG_POINTER(parentWindow);
 
@@ -90,7 +89,7 @@ nsAbContentHandler::HandleContent(const char *aContentType,
             ifptr->SetData(cardFromVCard);
             ifptr->SetDataIID(&NS_GET_IID(nsIAbCard));
 
-            nsCOMPtr<nsIDOMWindow> dialogWindow;
+            nsCOMPtr<nsPIDOMWindowOuter> dialogWindow;
 
             rv = parentWindow->OpenDialog(
                 NS_LITERAL_STRING("chrome://messenger/content/addressbook/abNewCardDialog.xul"),
@@ -166,13 +165,13 @@ nsAbContentHandler::OnStreamComplete(nsIStreamLoader *aLoader,
                                     getter_AddRefs(cardFromVCard));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      nsCOMPtr<nsIDOMWindow> domWindow = do_GetInterface(aContext);
-      nsCOMPtr<nsPIDOMWindow> parentWindow = do_QueryInterface(domWindow);
-      NS_ENSURE_TRUE(parentWindow, NS_ERROR_FAILURE);
+      nsCOMPtr<mozIDOMWindowProxy> domWindow = do_GetInterface(aContext);
+      NS_ENSURE_TRUE(domWindow, NS_ERROR_FAILURE);
+      nsCOMPtr<nsPIDOMWindowOuter> parentWindow = nsPIDOMWindowOuter::From(domWindow);
       parentWindow = parentWindow->GetOuterWindow();
       NS_ENSURE_ARG_POINTER(parentWindow);
 
-      nsCOMPtr<nsIDOMWindow> dialogWindow;
+      nsCOMPtr<nsPIDOMWindowOuter> dialogWindow;
       rv = parentWindow->OpenDialog(
            NS_LITERAL_STRING("chrome://messenger/content/addressbook/abNewCardDialog.xul"),
            EmptyString(),

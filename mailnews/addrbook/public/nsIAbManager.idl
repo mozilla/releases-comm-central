@@ -6,7 +6,7 @@
 #include "nsISupports.idl"
 #include "nsIAbListener.idl"
 
-interface nsIDOMWindow;
+interface mozIDOMWindowProxy;
 interface nsIAbDirectory;
 interface nsIAbCard;
 interface nsIAbDirectoryProperties;
@@ -21,7 +21,7 @@ interface nsIAbBooleanExpression;
  * It contains the main functions to create and delete address books as well
  * as some helper functions.
  */
-[scriptable, uuid(4271daa0-de0b-48ed-9c2b-934dc895383d)]
+[scriptable, uuid(ea0d8b3d-a549-4874-82d8-3a82cee2a3f1)]
 interface nsIAbManager : nsISupports 
 {
   /**
@@ -75,7 +75,7 @@ interface nsIAbManager : nsISupports
    * @param  aParentWin Parent Window for the file save dialog to use.
    * @param  aDirectory The directory to export.
    */
-  void exportAddressBook(in nsIDOMWindow aParentWin, in nsIAbDirectory aDirectory);
+  void exportAddressBook(in mozIDOMWindowProxy aParentWin, in nsIAbDirectory aDirectory);
 
   /**
    * Adds a nsIAbListener to receive notifications of address book updates

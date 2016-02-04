@@ -9,7 +9,7 @@ interface nsIMsgStatusFeedback;
 interface nsIMsgFolder;
 interface nsITransactionManager;
 interface nsIDocShell;
-interface nsIDOMWindow;
+interface mozIDOMWindowProxy;
 interface nsIMsgHeaderSink;
 interface nsIPrompt;
 interface nsIInterfaceRequestor;
@@ -22,7 +22,7 @@ interface nsIMsgWindowCommands : nsISupports {
   void clearMsgPane();
 };
 
-[scriptable, uuid(8ad06f07-2230-4917-968c-2269588dbf7d)]
+[scriptable, uuid(a846fe48-4022-4296-a1c4-1dcd7eaecfe5)]
 interface nsIMsgWindow : nsISupports {
   attribute nsIMsgStatusFeedback statusFeedback;
   attribute nsIMsgWindowCommands windowCommands;
@@ -74,7 +74,7 @@ interface nsIMsgWindow : nsISupports {
   */
   attribute boolean stopped;
 
-  attribute nsIDOMWindow domWindow;
+  attribute mozIDOMWindowProxy domWindow;
 
   void StopUrls();
 

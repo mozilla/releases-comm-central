@@ -6,7 +6,7 @@
 #include "nsAbLDAPListenerBase.h"
 #include "nsIWindowWatcher.h"
 #include "nsIWindowMediator.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsIAuthPrompt.h"
 #include "nsIStringBundle.h"
 #include "nsILDAPMessage.h"
@@ -161,9 +161,9 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     // get the addressbook window, as it will be used to parent the auth
     // prompter dialog
     //
-    nsCOMPtr<nsIDOMWindow> window;
+    nsCOMPtr<mozIDOMWindowProxy> window;
     rv = windowMediator->GetMostRecentWindow(nullptr,
-                                               getter_AddRefs(window));
+                                             getter_AddRefs(window));
     if (NS_FAILED(rv))
     {
       NS_ERROR("nsAbLDAPListenerBase::OnLDAPInit():"
