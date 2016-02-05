@@ -309,6 +309,11 @@ splitmenu {
   display: none;
 }
 
+#titlebar {
+  -moz-binding: url("chrome://global/content/bindings/general.xml#windowdragbox");
+  -moz-window-dragging: drag;
+}
+
 #messengerWindow:not([chromemargin]) > #titlebar {
   display: none;
 }

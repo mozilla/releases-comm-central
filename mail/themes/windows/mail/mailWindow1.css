@@ -452,20 +452,12 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
   z-index: 1;
 }
 
-#titlebar {
-  -moz-binding: url("chrome://global/content/bindings/general.xml#windowdragbox");
-}
-
 #messengerWindow:not([tabsintitlebar]) #titlebar {
   visibility: collapse;
 }
 
 #titlebar-spacer {
   pointer-events: none;
-}
-
-#tabs-toolbar {
-  -moz-binding: url("chrome://global/content/bindings/toolbar.xml#toolbar-drag");
 }
 
 #titlebar-buttonbox {
