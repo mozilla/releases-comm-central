@@ -1,6 +1,6 @@
 messenger.jar:
 % content messagebody %content/messagebody/ contentaccessible=yes
-% content messenger %content/messenger/
+% content messenger %content/messenger/ contentaccessible=yes
 % override chrome://global/content/nsDragAndDrop.js chrome://messenger/content/nsDragAndDrop.js
 % override chrome://messagebody/skin/messageBody.css chrome://messenger/skin/messageBody.css
 % overlay chrome://global/content/viewSource.xul chrome://messenger/content/viewSourceOverlay.xul
