@@ -2101,7 +2101,7 @@ var XMPPAccountPrototype = {
 
     // Checking that the aName can be parsed and is not broken.
     let jid = this._parseJID(convName);
-    if (!jid || !jid.node || (isMucParticipant && !jid.resource)) {
+    if (!jid || !jid.domain || (isMucParticipant && (!jid.node || !jid.resource))) {
       this.ERROR("Could not create conversation as jid is broken: " + convName);
       throw "Invalid JID";
     }
