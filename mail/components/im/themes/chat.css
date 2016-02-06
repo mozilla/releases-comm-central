@@ -19,7 +19,11 @@
   margin-right: 1em;
 }
 .im-placeholder-image {
+%ifdef XP_MACOSX
   list-style-image: url("chrome://global/skin/icons/information-64.png");
+%else
+  list-style-image: url("chrome://global/skin/icons/information-32.png");
+%endif
   -moz-margin-end: 1.2em;
 }
 .im-placeholder-innerbox {

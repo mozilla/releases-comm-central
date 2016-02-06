@@ -7,14 +7,14 @@
 
 /* Global Styles */
 #BrowserPreferences radio[pane] {
-  list-style-image: url("chrome://instantbird/skin/preferences/Options.png"); 
+  list-style-image: url("chrome://instantbird/skin/preferences/Options.png");
   padding: 5px 3px 1px;
 }
 
 radio[pane=paneMain] {
 	-moz-image-region: rect(0px, 32px,  32px, 0px)
 }
-radio[pane=paneMain]:hover, 
+radio[pane=paneMain]:hover,
 radio[pane=paneMain][selected="true"]  {
 	-moz-image-region: rect(32px, 32px,  64px, 0px)
 }
@@ -22,7 +22,7 @@ radio[pane=paneMain][selected="true"]  {
 radio[pane=paneTabs] {
 	-moz-image-region: rect(0px, 64px, 32px, 32px)
 }
-radio[pane=paneTabs]:hover, 
+radio[pane=paneTabs]:hover,
 radio[pane=paneTabs][selected="true"] {
 	-moz-image-region: rect(32px, 64px, 64px, 32px)
 }
@@ -30,7 +30,7 @@ radio[pane=paneTabs][selected="true"] {
 radio[pane=paneContent] {
 	-moz-image-region: rect(0px, 96px,  32px, 64px)
 }
-radio[pane=paneContent]:hover, 
+radio[pane=paneContent]:hover,
 radio[pane=paneContent][selected="true"]  {
 	-moz-image-region: rect(32px, 96px,  64px, 64px)
 }
@@ -38,7 +38,7 @@ radio[pane=paneContent][selected="true"]  {
 radio[pane=paneApplications] {
 	-moz-image-region: rect(0px, 128px,  32px, 96px)
 }
-radio[pane=paneApplications]:hover, 
+radio[pane=paneApplications]:hover,
 radio[pane=paneApplications][selected="true"]  {
 	-moz-image-region: rect(32px, 128px,  64px, 96px)
 }
@@ -46,7 +46,7 @@ radio[pane=paneApplications][selected="true"]  {
 radio[pane=panePrivacy] {
 	-moz-image-region: rect(0px, 160px,  32px, 128px)
 }
-radio[pane=panePrivacy]:hover, 
+radio[pane=panePrivacy]:hover,
 radio[pane=panePrivacy][selected="true"]  {
 	-moz-image-region: rect(32px, 160px,  64px, 128px)
 }
@@ -54,7 +54,7 @@ radio[pane=panePrivacy][selected="true"]  {
 radio[pane=paneThemes] {
 	-moz-image-region: rect(0px, 192px,  32px, 160px)
 }
-radio[pane=paneThemes]:hover, 
+radio[pane=paneThemes]:hover,
 radio[pane=paneThemes][selected="true"]  {
 	-moz-image-region: rect(32px, 192px,  64px, 160px)
 }
@@ -62,7 +62,7 @@ radio[pane=paneThemes][selected="true"]  {
 radio[pane=paneAdvanced] {
 	-moz-image-region: rect(0px, 224px, 32px, 192px)
 }
-radio[pane=paneAdvanced]:hover, 
+radio[pane=paneAdvanced]:hover,
 radio[pane=paneAdvanced][selected="true"] {
 	-moz-image-region: rect(32px, 224px, 64px, 192px)
 }
@@ -176,7 +176,7 @@ radio[pane=paneAdvanced][selected="true"] {
   margin-right: 1em;
 }
 #noPreviewImage {
-  list-style-image: url("chrome://global/skin/icons/information-64.png");
+  list-style-image: url("chrome://global/skin/icons/information-32.png");
   -moz-margin-end: 1.2em;
 }
 #noPreviewInnerBox {

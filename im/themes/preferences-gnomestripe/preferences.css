@@ -7,7 +7,7 @@
 
 /* Global Styles */
 #BrowserPreferences radio[pane] {
-  list-style-image: url("chrome://instantbird/skin/preferences/Options.png"); 
+  list-style-image: url("chrome://instantbird/skin/preferences/Options.png");
 }
 
 radio[pane=paneMain] {
@@ -67,7 +67,7 @@ radio[pane=paneAdvanced] {
   color: -moz-nativehyperlinktext;
   text-decoration: underline;
 }
-  
+
 .inline-link:not(:focus) {
   outline: 1px dotted transparent;
 }
@@ -96,9 +96,9 @@ radio[pane=paneAdvanced] {
 
 #paneApplications {
   margin-left: 4px;
-  margin-right: 4px; 
+  margin-right: 4px;
   padding-left: 0;
-  padding-right: 0; 
+  padding-right: 0;
 }
 
 #linksOpenInBox {
@@ -110,7 +110,7 @@ radio[pane=paneAdvanced] {
 }
 #advancedPrefs {
   margin-left: 0;
-  margin-right: 0; 
+  margin-right: 0;
 }
 
 #cookiesChildren::-moz-tree-image(domainCol, container) {
@@ -161,7 +161,7 @@ radio[pane=paneAdvanced] {
   margin-right: 1em;
 }
 #noPreviewImage {
-  list-style-image: url("chrome://global/skin/icons/information-64.png");
+  list-style-image: url("chrome://global/skin/icons/information-32.png");
   -moz-margin-end: 1.2em;
 }
 #noPreviewInnerBox {
