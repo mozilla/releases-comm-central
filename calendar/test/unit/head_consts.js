@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
+Components.utils.import("resource://gre/modules/FileUtils.jsm");
 
 Components.utils.import("resource://testing-common/AppInfo.jsm");
 updateAppInfo();
@@ -185,4 +186,22 @@ function compareItemsSpecific(aLeftItem, aRightItem, aPropArray) {
  */
 function ics_unfoldline(aLine) {
   return aLine.replace(/\r?\n[ \t]/g, "");
+}
+
+/**
+ * Read a JSON file and return the JS object
+ */
+function readJSONFile(aFile) {
+    let stream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
+  try {
+      stream.init(aFile, FileUtils.MODE_RDONLY, FileUtils.PERMS_FILE, 0);
+      let json = Cc["@mozilla.org/dom/json;1"].createInstance(Components.interfaces.nsIJSON);
+      let data = json.decodeFromStream(stream, stream.available());
+      return data;
+  } catch(ex) {
+      dump("readJSONFile: Error reading JSON file: " + ex);
+  } finally {
+      stream.close();
+  }
+  return false;
 }
