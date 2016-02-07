@@ -93,6 +93,11 @@ MessageDisplayWidget.prototype = {
    * The currently displayed message's nsIMsgDBHdr.  null if there's no message.
    */
   displayedMessage: null,
+  /**
+   * The key of the message for which a charset override was last set,
+   * null if it was never set. Note that a stale value can hang around.
+   */
+  keyForCharsetOverride: null,
 
   /**
    * Indicate whether the message being displayed is a 'dummy' because it is

@@ -153,6 +153,12 @@ function GetMsgKeyFromURI(uri) {
 // type is a nsIMsgCompType and format is a nsIMsgCompFormat
 function ComposeMessage(type, format, folder, messageArray)
 {
+  if (messageArray && messageArray.length == 1) {
+    if (GetMsgKeyFromURI(messageArray[0]) != gMessageDisplay.keyForCharsetOverride) {
+      msgWindow.charsetOverride = false;
+    }
+  }
+
   // Check if the draft is already open in another window. If it is, just focus the window.
   if (type == Components.interfaces.nsIMsgCompType.Draft && messageArray.length == 1) {
     // We'll search this uri in the opened windows.
