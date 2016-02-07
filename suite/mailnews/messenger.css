@@ -192,11 +192,6 @@ dummy.usesMailWidgets {
 
 .tabs-newbutton {
   -moz-binding: url("chrome://messenger/content/tabmail.xml#tabmail-new-tab-button");
-  display: none;
-}
-
-.tabmail-tabs[closebuttons="closeatend"] .tabs-newbutton {
-  display: -moz-box;
 }
 
 .tab-close-button,
