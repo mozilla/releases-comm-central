@@ -601,15 +601,17 @@ function setupAttendees() {
 
                 let del = cal.resolveDelegation(attendee, window.attendees);
                 if (del.delegators != "") {
-                    del.delegators = cal.calGetString("dialog.attendee.append.delegatedFrom",
-                                                      del.delegators);
+                    del.delegators = cal.calGetString("calendar",
+                                                      "dialog.attendee.append.delegatedFrom",
+                                                      [del.delegators]);
                     label += " " + del.delegators;
                     tooltip += " " + del.delegators;
                 }
                 if (del.delegatees != "") {
-                    del.delegatees = cal.calGetString("dialog.attendee.append.delegatedTo",
-                                                      del.delegatees);
-                    tooltip += " " + del.delegators;
+                    del.delegatees = cal.calGetString("calendar",
+                                                      "dialog.attendee.append.delegatedTo",
+                                                      [del.delegatees]);
+                    tooltip += " " + del.delegatees;
                 }
 
                 text.setAttribute("value", label);
