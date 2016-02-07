@@ -26,6 +26,7 @@
   background-color: #B9C4D0;
   background-image: url("chrome://communicator/skin/sidebar/sbar-top.gif");
   background-repeat: no-repeat;
+  overflow-x: hidden;
 }
 
 /* ..... picker button ..... */
