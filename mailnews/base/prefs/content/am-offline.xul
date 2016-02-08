@@ -142,16 +142,10 @@
     </radiogroup>
 
     <hbox align="center" class="indent">
-      <vbox>
-        <checkbox id="retention.keepUnread" wsm_persist="true"
-                  label="&retentionKeepUnreadHidden.label;"
-                  class="keepUnreadOnly" hidden="true"
-                  checked="false"/>
-        <checkbox id="retention.applyToFlagged" wsm_persist="true"
-                  label="&retentionApplyToFlagged.label;" hidefor=""
-                  accesskey="&retentionApplyToFlagged.accesskey;"
-                  checked="true"/>
-      </vbox>
+      <checkbox id="retention.applyToFlagged" wsm_persist="true"
+                label="&retentionApplyToFlagged.label;" hidefor=""
+                accesskey="&retentionApplyToFlagged.accesskey;"
+                checked="true"/>
     </hbox>
     <hbox align="center" class="indent" hidefor="movemail,pop3,imap,none,rss">
         <checkbox wsm_persist="true" id="nntp.removeBody" accesskey="&nntpRemoveMsgBody.accesskey;"

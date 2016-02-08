@@ -4821,12 +4821,9 @@ nsresult nsMsgDBFolder::ApplyRetentionSettings(bool deleteViaFolder)
   {
     nsMsgRetainByPreference retainByPreference =
       nsIMsgRetentionSettings::nsMsgRetainAll;
-    bool keepUnreadMessagesOnly = false;
 
     retentionSettings->GetRetainByPreference(&retainByPreference);
-    retentionSettings->GetKeepUnreadMessagesOnly(&keepUnreadMessagesOnly);
-    if (keepUnreadMessagesOnly ||
-        retainByPreference != nsIMsgRetentionSettings::nsMsgRetainAll)
+    if (retainByPreference != nsIMsgRetentionSettings::nsMsgRetainAll)
     {
       rv = GetDatabase();
       NS_ENSURE_SUCCESS(rv, rv);

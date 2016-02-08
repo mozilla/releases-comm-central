@@ -270,7 +270,6 @@ function onLockPreference()
       { prefstring:"retainBy", id:"retention.keepMsg"},
       { prefstring:"daysToKeepHdrs", id:"retention.keepOldMsgMin"},
       { prefstring:"numHdrsToKeep", id:"retention.keepNewMsgMin"},
-      { prefstring:"keepUnreadOnly", id:"retention.keepUnread"},
       { prefstring:"daysToKeepBodies", id:"nntp.removeBodyMin"},
       { prefstring:"cleanupBodies", id:"nntp.removeBody" },
       { prefstring:"applyToFlagged", id:"retention.applyToFlagged"},

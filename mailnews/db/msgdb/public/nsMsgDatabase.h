@@ -288,11 +288,9 @@ protected:
   nsCOMPtr <nsIMsgDownloadSettings> m_downloadSettings;
 
   nsresult PurgeMessagesOlderThan(uint32_t daysToKeepHdrs,
-                                  bool keepUnreadMessagesOnly,
                                   bool applyToFlaggedMessages,
                                   nsIMutableArray *hdrsToDelete);
   nsresult PurgeExcessMessages(uint32_t numHeadersToKeep,
-                               bool keepUnreadMessagesOnly,
                                bool applyToFlaggedMessages,
                                nsIMutableArray *hdrsToDelete);
 
@@ -439,7 +437,6 @@ protected:
   nsMsgRetainByPreference m_retainByPreference;
   uint32_t                m_daysToKeepHdrs;
   uint32_t                m_numHeadersToKeep;
-  bool                    m_keepUnreadMessagesOnly;
   bool                    m_useServerDefaults;
   bool                    m_cleanupBodiesByDays;
   uint32_t                m_daysToKeepBodies;

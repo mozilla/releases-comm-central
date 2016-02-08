@@ -44,7 +44,7 @@ interface nsIArray;
 typedef unsigned long nsMsgRetainByPreference;
 
 
-[scriptable, uuid(0bbe00df-17f8-4e36-8917-40172c3a95fc)]
+[scriptable, uuid(fe8b7cec-eec8-4bcd-82ff-d8bb23cef3da)]
 
 interface nsIMsgRetentionSettings : nsISupports
 {
@@ -55,12 +55,8 @@ interface nsIMsgRetentionSettings : nsISupports
   attribute boolean useServerDefaults;
   attribute nsMsgRetainByPreference retainByPreference;
   attribute unsigned long daysToKeepHdrs;
-  attribute unsigned long numHeadersToKeep; 
+  attribute unsigned long numHeadersToKeep;
 
-  // this is orthogonal to retaining by age or num headers, i.e., if
-  // it's set, we'll only keep NNN unread messages only, or unread
-  // messages less than NNN days old.
-  attribute boolean keepUnreadMessagesOnly;
   // this is for keeping offline bodies.
   attribute boolean cleanupBodiesByDays;
   attribute unsigned long daysToKeepBodies;

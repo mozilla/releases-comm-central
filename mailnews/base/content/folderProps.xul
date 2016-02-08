@@ -136,16 +136,10 @@
             </radiogroup>
           </hbox>
           <hbox class="indent">
-            <vbox>
-              <checkbox id="retention.keepUnread" wsm_persist="true"
-                        label="&retentionKeepUnreadHidden.label;"
-                        class="keepUnreadOnly" hidden="true"
-                        observes="retention.keepMsg" checked="false"/>
-              <checkbox id="retention.applyToFlagged" wsm_persist="true"
-                        label="&retentionApplyToFlagged.label;"
-                        accesskey="&retentionApplyToFlagged.accesskey;"
-                        observes="retention.keepMsg" checked="true"/>
-            </vbox>
+            <checkbox id="retention.applyToFlagged" wsm_persist="true"
+                      label="&retentionApplyToFlagged.label;"
+                      accesskey="&retentionApplyToFlagged.accesskey;"
+                      observes="retention.keepMsg" checked="true"/>
           </hbox>
         </vbox>
     </vbox>

@@ -5059,7 +5059,6 @@ NS_IMETHODIMP nsMsgDatabase::SetMsgRetentionSettings(nsIMsgRetentionSettings *re
     nsMsgRetainByPreference retainByPreference;
     uint32_t daysToKeepHdrs;
     uint32_t numHeadersToKeep;
-    bool keepUnreadMessagesOnly;
     uint32_t daysToKeepBodies;
     bool cleanupBodiesByDays;
     bool useServerDefaults;
@@ -5070,8 +5069,6 @@ NS_IMETHODIMP nsMsgDatabase::SetMsgRetentionSettings(nsIMsgRetentionSettings *re
     rv = retentionSettings->GetDaysToKeepHdrs(&daysToKeepHdrs);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = retentionSettings->GetNumHeadersToKeep(&numHeadersToKeep);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = retentionSettings->GetKeepUnreadMessagesOnly(&keepUnreadMessagesOnly);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = retentionSettings->GetDaysToKeepBodies(&daysToKeepBodies);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -5084,7 +5081,6 @@ NS_IMETHODIMP nsMsgDatabase::SetMsgRetentionSettings(nsIMsgRetentionSettings *re
     m_dbFolderInfo->SetUint32Property("daysToKeepHdrs", daysToKeepHdrs);
     m_dbFolderInfo->SetUint32Property("numHdrsToKeep", numHeadersToKeep);
     m_dbFolderInfo->SetUint32Property("daysToKeepBodies", daysToKeepBodies);
-    m_dbFolderInfo->SetUint32Property("keepUnreadOnly", (keepUnreadMessagesOnly) ? 1 : 0);
     m_dbFolderInfo->SetBooleanProperty("cleanupBodies", cleanupBodiesByDays);
     m_dbFolderInfo->SetBooleanProperty("useServerDefaults", useServerDefaults);
     m_dbFolderInfo->SetBooleanProperty("applyToFlaggedMessages", applyToFlaggedMessages);
@@ -5105,8 +5101,6 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgRetentionSettings(nsIMsgRetentionSettings **r
       nsMsgRetainByPreference retainByPreference;
       uint32_t daysToKeepHdrs = 0;
       uint32_t numHeadersToKeep = 0;
-      uint32_t keepUnreadMessagesProp = 0;
-      bool keepUnreadMessagesOnly = false;
       bool useServerDefaults;
       uint32_t daysToKeepBodies = 0;
       bool cleanupBodiesByDays = false;
@@ -5116,16 +5110,13 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgRetentionSettings(nsIMsgRetentionSettings **r
       m_dbFolderInfo->GetUint32Property("daysToKeepHdrs", 0, &daysToKeepHdrs);
       m_dbFolderInfo->GetUint32Property("numHdrsToKeep", 0, &numHeadersToKeep);
       m_dbFolderInfo->GetUint32Property("daysToKeepBodies", 0, &daysToKeepBodies);
-      m_dbFolderInfo->GetUint32Property("keepUnreadOnly", 0, &keepUnreadMessagesProp);
       m_dbFolderInfo->GetBooleanProperty("useServerDefaults", true, &useServerDefaults);
       m_dbFolderInfo->GetBooleanProperty("cleanupBodies", false, &cleanupBodiesByDays);
-      keepUnreadMessagesOnly = (keepUnreadMessagesProp == 1);
       m_dbFolderInfo->GetBooleanProperty("applyToFlaggedMessages", false,
                                          &applyToFlaggedMessages);
       m_retentionSettings->SetRetainByPreference(retainByPreference);
       m_retentionSettings->SetDaysToKeepHdrs(daysToKeepHdrs);
       m_retentionSettings->SetNumHeadersToKeep(numHeadersToKeep);
-      m_retentionSettings->SetKeepUnreadMessagesOnly(keepUnreadMessagesOnly);
       m_retentionSettings->SetDaysToKeepBodies(daysToKeepBodies);
       m_retentionSettings->SetUseServerDefaults(useServerDefaults);
       m_retentionSettings->SetCleanupBodiesByDays(cleanupBodiesByDays);
@@ -5222,9 +5213,6 @@ NS_IMETHODIMP nsMsgDatabase::ApplyRetentionSettings(nsIMsgRetentionSettings *aMs
   nsMsgRetainByPreference retainByPreference;
   aMsgRetentionSettings->GetRetainByPreference(&retainByPreference);
 
-  bool keepUnreadMessagesOnly = false;
-  aMsgRetentionSettings->GetKeepUnreadMessagesOnly(&keepUnreadMessagesOnly);
-
   bool applyToFlaggedMessages = false;
   aMsgRetentionSettings->GetApplyToFlaggedMessages(&applyToFlaggedMessages);
 
@@ -5233,22 +5221,15 @@ NS_IMETHODIMP nsMsgDatabase::ApplyRetentionSettings(nsIMsgRetentionSettings *aMs
   switch (retainByPreference)
   {
   case nsIMsgRetentionSettings::nsMsgRetainAll:
-    if (keepUnreadMessagesOnly && m_mdbAllMsgHeadersTable)
-    {
-      mdb_count numHdrs = 0;
-      m_mdbAllMsgHeadersTable->GetCount(GetEnv(), &numHdrs);
-      rv = PurgeExcessMessages(numHdrs, true, applyToFlaggedMessages,
-                               msgHdrsToDelete);
-    }
     break;
   case nsIMsgRetentionSettings::nsMsgRetainByAge:
     aMsgRetentionSettings->GetDaysToKeepHdrs(&daysToKeepHdrs);
-    rv = PurgeMessagesOlderThan(daysToKeepHdrs, keepUnreadMessagesOnly,
+    rv = PurgeMessagesOlderThan(daysToKeepHdrs,
                                 applyToFlaggedMessages, msgHdrsToDelete);
     break;
   case nsIMsgRetentionSettings::nsMsgRetainByNumHeaders:
     aMsgRetentionSettings->GetNumHeadersToKeep(&numHeadersToKeep);
-    rv = PurgeExcessMessages(numHeadersToKeep, keepUnreadMessagesOnly,
+    rv = PurgeExcessMessages(numHeadersToKeep,
                              applyToFlaggedMessages, msgHdrsToDelete);
     break;
   }
@@ -5273,7 +5254,6 @@ NS_IMETHODIMP nsMsgDatabase::ApplyRetentionSettings(nsIMsgRetentionSettings *aMs
 }
 
 nsresult nsMsgDatabase::PurgeMessagesOlderThan(uint32_t daysToKeepHdrs,
-                                               bool keepUnreadMessagesOnly,
                                                bool applyToFlaggedMessages,
                                                nsIMutableArray *hdrsToDelete)
 {
@@ -5307,14 +5287,6 @@ nsresult nsMsgDatabase::PurgeMessagesOlderThan(uint32_t daysToKeepHdrs,
         continue;
     }
 
-    if (keepUnreadMessagesOnly)
-    {
-      bool isRead;
-      IsHeaderRead(pHeader, &isRead);
-      if (isRead)
-        purgeHdr = true;
-
-    }
     if (!purgeHdr)
     {
       PRTime date;
@@ -5346,7 +5318,6 @@ nsresult nsMsgDatabase::PurgeMessagesOlderThan(uint32_t daysToKeepHdrs,
 }
 
 nsresult nsMsgDatabase::PurgeExcessMessages(uint32_t numHeadersToKeep,
-                                            bool keepUnreadMessagesOnly,
                                             bool applyToFlaggedMessages,
                                             nsIMutableArray *hdrsToDelete)
 {
@@ -5381,14 +5352,6 @@ nsresult nsMsgDatabase::PurgeExcessMessages(uint32_t numHeadersToKeep,
         continue;
     }
 
-    if (keepUnreadMessagesOnly)
-    {
-      bool isRead;
-      IsHeaderRead(pHeader, &isRead);
-      if (isRead)
-        purgeHdr = true;
-
-    }
     // this isn't quite right - we want to prefer unread messages (keep all of those we can)
     if (numHdrs > numHeadersToKeep)
       purgeHdr = true;
@@ -5427,7 +5390,6 @@ nsMsgRetentionSettings::nsMsgRetentionSettings()
 : m_retainByPreference(1),
   m_daysToKeepHdrs(0),
   m_numHeadersToKeep(0),
-  m_keepUnreadMessagesOnly(false),
   m_useServerDefaults(true),
   m_cleanupBodiesByDays(false),
   m_daysToKeepBodies(0),
@@ -5490,19 +5452,6 @@ NS_IMETHODIMP nsMsgRetentionSettings::GetUseServerDefaults(bool *aUseServerDefau
 NS_IMETHODIMP nsMsgRetentionSettings::SetUseServerDefaults(bool aUseServerDefaults)
 {
   m_useServerDefaults = aUseServerDefaults;
-  return NS_OK;
-}
-
-/* attribute boolean keepUnreadMessagesOnly; */
-NS_IMETHODIMP nsMsgRetentionSettings::GetKeepUnreadMessagesOnly(bool *aKeepUnreadMessagesOnly)
-{
-  NS_ENSURE_ARG_POINTER(aKeepUnreadMessagesOnly);
-  *aKeepUnreadMessagesOnly = m_keepUnreadMessagesOnly;
-  return NS_OK;
-}
-NS_IMETHODIMP nsMsgRetentionSettings::SetKeepUnreadMessagesOnly(bool aKeepUnreadMessagesOnly)
-{
-  m_keepUnreadMessagesOnly = aKeepUnreadMessagesOnly;
   return NS_OK;
 }
 
@@ -5573,7 +5522,7 @@ NS_IMETHODIMP nsMsgDownloadSettings::SetUseServerDefaults(bool aUseServerDefault
 }
 
 
-/* attribute boolean keepUnreadMessagesOnly; */
+/* attribute boolean downloadUnreadOnly; */
 NS_IMETHODIMP nsMsgDownloadSettings::GetDownloadUnreadOnly(bool *aDownloadUnreadOnly)
 {
   NS_ENSURE_ARG_POINTER(aDownloadUnreadOnly);
@@ -5586,7 +5535,7 @@ NS_IMETHODIMP nsMsgDownloadSettings::SetDownloadUnreadOnly(bool aDownloadUnreadO
   return NS_OK;
 }
 
-/* attribute boolean keepUnreadMessagesOnly; */
+/* attribute boolean downloadByDate; */
 NS_IMETHODIMP nsMsgDownloadSettings::GetDownloadByDate(bool *aDownloadByDate)
 {
   NS_ENSURE_ARG_POINTER(aDownloadByDate);

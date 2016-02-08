@@ -30,8 +30,6 @@
 <!ENTITY retentionKeepAll.accesskey "A">
 <!ENTITY retentionKeepRecent.label "Delete all but the most recent">
 <!ENTITY retentionKeepRecent.accesskey "l">
-<!-- LOCALIZATION NOTE: Unhide with .keepUnreadOnly { display: -moz-box; } -->
-<!ENTITY retentionKeepUnreadHidden.label "Always delete read messages (overrides age settings)">
 <!ENTITY retentionApplyToFlagged.label "Always keep starred messages">
 <!ENTITY retentionApplyToFlagged.accesskey "e">
 
