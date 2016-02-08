@@ -415,13 +415,47 @@ function AbPrintPreviewAddressBook()
   AbPrintAddressBookInternal(true, Components.interfaces.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_ADDRBOOK);
 }
 
-function AbExport()
-{
-  try {
-    let selectedABURI = GetSelectedDirectory();
-    if (!selectedABURI) return;
+/**
+ * Export the currently selected addressbook.
+ */
+function AbExportSelection() {
+  let selectedABURI = GetSelectedDirectory();
+  if (!selectedABURI)
+    return;
 
-    let directory = GetDirectoryFromURI(selectedABURI);
+ if (selectedABURI == (kAllDirectoryRoot + "?"))
+   return AbExportAll();
+
+ return AbExport(selectedABURI);
+}
+
+/**
+ * Export all found addressbooks, each in a separate file.
+ */
+function AbExportAll()
+{
+  let directories = MailServices.ab.directories;
+
+  while (directories.hasMoreElements()) {
+    let directory = directories.getNext();
+    // Do not export LDAP ABs.
+    if (!directory.URI.startsWith(kLdapUrlPrefix))
+      AbExport(directory.URI);
+  }
+}
+
+/**
+ * Export the specified addressbook to a file.
+ *
+ * @param aSelectedABURI  The URI if the addressbook to export.
+ */
+function AbExport(aSelectedABURI)
+{
+  if (!aSelectedABURI)
+    return;
+
+  try {
+    let directory = GetDirectoryFromURI(aSelectedABURI);
     MailServices.ab.exportAddressBook(window, directory);
   }
   catch (ex) {

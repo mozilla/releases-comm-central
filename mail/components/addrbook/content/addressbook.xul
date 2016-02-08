@@ -552,7 +552,9 @@
             <menuseparator/>
 #endif
             <menuitem label="&importCmd.label;" accesskey="&importCmd.accesskey;" oncommand="toImport()"/>
-            <menuitem label="&exportCmd.label;" accesskey="&exportCmd.accesskey;" oncommand="AbExport()"/>
+            <menuitem label="&exportCmd.label;"
+                      accesskey="&exportCmd.accesskey;"
+                      oncommand="AbExportSelection();"/>
 
 #ifndef XP_UNIX
             <menuseparator id="prefSep"/>

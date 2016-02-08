@@ -545,8 +545,13 @@ NS_IMETHODIMP nsAbManager::ExportAddressBook(mozIDOMWindowProxy *aParentWin, nsI
   rv = bundleService->CreateBundle("chrome://messenger/locale/addressbook/addressBook.properties", getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsString dirName;
+  aDirectory->GetDirName(dirName);
+  const char16_t *formatStrings[] = { dirName.get() };
+
   nsString title;
-  rv = bundle->GetStringFromName(MOZ_UTF16("ExportAddressBookTitle"), getter_Copies(title));
+  rv = bundle->FormatStringFromName(MOZ_UTF16("ExportAddressBookNameTitle"), formatStrings,
+                                    ArrayLength(formatStrings), getter_Copies(title));
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = filePicker->Init(aParentWin, title, nsIFilePicker::modeSave);
