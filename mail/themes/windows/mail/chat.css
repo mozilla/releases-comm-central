@@ -537,8 +537,7 @@
 }
 
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
-  #listPaneBox,
-  .im-placeholder-screen {
+  #listPaneBox {
     background-color: #fafafa;
   }
 }

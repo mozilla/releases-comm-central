@@ -19,7 +19,7 @@
 radio[pane=paneGeneral],
 radio[pane=paneMain] {
 	-moz-image-region: rect(0px, 32px, 32px, 0px)
-} 
+}
 radio[pane=paneGeneral]:active,
 radio[pane=paneMain]:active:hover {
 	-moz-image-region: rect(32px, 32px, 64px, 0px)
@@ -199,7 +199,7 @@ caption {
   color: -moz-nativehyperlinktext;
   text-decoration: underline;
 }
-  
+
 .inline-link:not(:focus) {
   outline: 1px dotted transparent;
 }
@@ -232,31 +232,33 @@ caption {
  * No message theme preview message box
  */
 #noPreviewScreen {
-  background-color: -moz-Dialog;
+  color: -moz-FieldText;
+  background-color: -moz-Field;
   overflow: auto;
 }
 #noPreviewBox {
-  background-color: -moz-Field;
-  color: -moz-FieldText;
-  border: 1px solid ThreeDShadow;
-  border-radius: 10px;
-  padding: 1.1em;
-  -moz-padding-start: 20px;
-  margin-left: 1em;
-  margin-right: 1em;
-}
-#noPreviewImage {
-  list-style-image: url("chrome://global/skin/icons/information-64.png");
-  -moz-margin-end: 1.2em;
+  max-width: 30em;
+  background: url("chrome://global/skin/icons/info.svg") left 5px no-repeat;
+  background-size: 2.5em;
+  padding-right: 3.5em;
+  padding-left: 3.5em;
+  margin-left: 1.5em;
+  margin-right: 1.5em;
 }
 #noPreviewInnerBox {
-  max-width: 25em;
+  opacity: .8;
 }
 #noPreviewTitle {
-  margin: 0 1em 0.6em 0;
-  font-size: 160%;
-  border-bottom: 1px solid ThreeDLightShadow
+  font-size: 2em;
+  font-weight: lighter;
+  line-height: 1.2;
+  margin: 0;
+  margin-bottom: .3em;
+  padding-bottom: .2em;
+  border-bottom: 1px solid -moz-FieldText;
 }
 #noPreviewDesc {
   font-size: 110%;
+  margin-right: 0;
+  margin-left: 0;
 }

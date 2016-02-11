@@ -5,37 +5,71 @@
 @import url("chrome://chat/skin/status.css");
 
 .im-placeholder-screen {
-  background-color: -moz-Dialog;
-  overflow: auto;
-}
-.im-placeholder-box {
-  background-color: -moz-Field;
   color: -moz-FieldText;
-  border: 1px solid ThreeDShadow;
-  border-radius: 10px;
-  padding: 1.1em;
-  -moz-padding-start: 20px;
-  margin-left: 1em;
-  margin-right: 1em;
+  background-color: -moz-Field;
+  overflow: auto;
+  font-size: 15px;
+  font-weight: normal;
 }
-.im-placeholder-image {
-%ifdef XP_MACOSX
-  list-style-image: url("chrome://global/skin/icons/information-64.png");
-%else
-  list-style-image: url("chrome://global/skin/icons/information-32.png");
-%endif
-  -moz-margin-end: 1.2em;
+
+.im-placeholder-box {
+  max-width: calc(500px + 9em);
+  min-height: 3em;
+  background: url("chrome://global/skin/icons/info.svg") left 0 no-repeat;
+  background-size: 3em;
+  margin-right: .5em;
+  margin-left: .5em;
+  padding-right: 4.5em;
+  padding-left: 4.5em;
 }
+
 .im-placeholder-innerbox {
-  max-width: 25em;
+  opacity: .8;
 }
+
 .im-placeholder-title {
-  margin: 0 1em 0.6em 0;
-  font-size: 160%;
-  border-bottom: 1px solid ThreeDLightShadow
+  font-size: 2em;
+  font-weight: lighter;
+  line-height: 1.2;
+  margin: 0;
+  margin-bottom: .5em;
+  padding-bottom: .4em;
+  border-bottom: 1px solid -moz-FieldText;
 }
+
 .im-placeholder-desc {
-  font-size: 110%;
+  margin-right: 0;
+  margin-left: 0;
+}
+
+#noPreviousConvDesc {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.im-placeholder-button-box > button {
+  -moz-appearance: none;
+  /* override forms.css */
+  font: inherit;
+  min-height: 30px;
+  color: -moz-FieldText;
+  border: 1px solid -moz-FieldText;
+  -moz-border-top-colors: none !important;
+  -moz-border-right-colors: none !important;
+  -moz-border-bottom-colors: none !important;
+  -moz-border-left-colors: none !important;
+  border-radius: 2px;
+  background-color: -moz-Field;
+}
+
+.im-placeholder-button-box> button:hover {
+  color: -moz-ButtonHoverText;
+  background-color: -moz-ButtonHoverFace;
+}
+
+.im-placeholder-button-box > button > .button-box {
+  padding-right: 10px !important;
+  padding-left: 10px !important;
 }
 
 #contactlistbox {
