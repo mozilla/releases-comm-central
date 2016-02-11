@@ -217,10 +217,9 @@ toolbar[brighttext] menulist > .menulist-dropmarker > .dropmarker-icon {
 /* ::::: attachment reminder ::::: */
 
 #attachmentNotificationBox > notification .messageImage {
-  width: 22px;
-  height: 22px;
-  background-image: url(chrome://messenger/skin/messengercompose/compose-toolbar.png);
-  background-position: left -66px;
+  width: 18px;
+  height: 18px;
+  background-image: url(chrome://messenger/skin/messengercompose/compose-toolbar.svg#attach);
 }
 
 #attachmentReminderText {

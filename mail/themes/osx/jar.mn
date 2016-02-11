@@ -87,7 +87,6 @@ classic.jar:
   skin/classic/messenger/cloudfile/Hightail/fileExceedsLimit.css       (mail/cloudfile/Hightail/fileExceedsLimit.css)
   skin/classic/messenger/cloudfile/Hightail/check.png                  (mail/cloudfile/Hightail/check.png)
   skin/classic/messenger/messengercompose/messengercompose.css    (mail/compose/messengercompose.css)
-  skin/classic/messenger/messengercompose/attachmentnotification.png     (mail/compose/attachmentnotification.png)
   skin/classic/messenger/messengercompose/compose-toolbar.svg     (../shared/mail/icons/compose-toolbar.svg)
   skin/classic/messenger/messengercompose/emoticon_cool.png       (mail/compose/emoticon_cool.png)
   skin/classic/messenger/messengercompose/emoticon_cry.png        (mail/compose/emoticon_cry.png)

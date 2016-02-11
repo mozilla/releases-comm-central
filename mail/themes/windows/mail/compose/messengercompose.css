@@ -944,10 +944,8 @@
   }
 
   #attachmentNotificationBox > notification .messageImage {
-    width: 24px;
-    height: 24px;
-    background-image: url(chrome://messenger/skin/messengercompose/compose-toolbar.png);
-    background-position: -72px top;
+    background-image: url(chrome://messenger/skin/messengercompose/compose-toolbar-small.png);
+    background-position: -48px top;
   }
 
   #compose-toolbar-sizer {
@@ -1339,8 +1337,6 @@
   #attachmentNotificationBox > notification .messageImage {
     width: 18px;
     height: 18px;
-    background-image: url(chrome://messenger/skin/messengercompose/compose-toolbar.png);
-    background-position: -54px top;
   }
 
   #compose-toolbar-sizer {
@@ -1548,6 +1544,10 @@
   background-image: linear-gradient(rgba(255, 255, 255, .5),
                     rgba(255, 255, 255, 0));
   }
+
+  #attachmentNotificationBox > notification .messageImage {
+    background-image: url(chrome://messenger/skin/messengercompose/compose-toolbar.svg#attach);
+  }
 }
 
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
@@ -1602,6 +1602,10 @@
        (-moz-os-version: windows-win10) {
   #msgIdentity > .menulist-dropmarker > .dropmarker-icon {
     list-style-image: url("chrome://messenger/skin/icons/dropmarker.svg#win8");
+  }
+
+  #attachmentNotificationBox > notification .messageImage {
+    background-image: url(chrome://messenger/skin/messengercompose/compose-toolbar.svg#attach-flat);
   }
 }
 
