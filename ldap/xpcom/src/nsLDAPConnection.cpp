@@ -610,10 +610,7 @@ nsLDAPConnectionRunnable::nsLDAPConnectionRunnable(int32_t aOperationID,
 nsLDAPConnectionRunnable::~nsLDAPConnectionRunnable()
 {
   if (mConnection) {
-    nsCOMPtr<nsIThread> thread = do_GetMainThread();
-    nsILDAPConnection* forgettableConnection;
-    mConnection.forget(&forgettableConnection);
-    NS_ProxyRelease(thread, forgettableConnection, false);
+    NS_ReleaseOnMainThread(mConnection.forget());
   }
 }
 

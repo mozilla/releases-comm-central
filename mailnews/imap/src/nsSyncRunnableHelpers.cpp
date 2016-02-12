@@ -464,9 +464,7 @@ OAuth2ThreadHelper::~OAuth2ThreadHelper()
 {
   if (mOAuth2Support)
   {
-    nsCOMPtr<nsIThread> mainThread;
-    NS_GetMainThread(getter_AddRefs(mainThread));
-    NS_ProxyRelease(mainThread, mOAuth2Support);
+    NS_ReleaseOnMainThread(mOAuth2Support.forget());
   }
 }
 
