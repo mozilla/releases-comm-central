@@ -3122,6 +3122,7 @@
                    type="menu"
                    class="toolbarbutton-1"
                    label="&fileButton.label;"
+                   tooltiptext="&fileButton.tooltip;"
                    observes="button_file"
                    oncommand="MsgMoveMessage(event.target._folder)">
       <menupopup id="button-filePopup"
