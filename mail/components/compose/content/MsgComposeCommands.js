@@ -200,7 +200,7 @@ var gComposeRecyclingListener = {
     gLanguageObserver.disconnect();
 
     // Stop observing dictionary removals.
-    Services.obs.removeObserver(dictionaryRemovalObserver, "spellcheck-dictionary-remove");
+    dictionaryRemovalObserver.removeObserver();
 
     // Stop gSpellChecker so personal dictionary is saved.
     // We need to do this before disabling the editor.
@@ -2101,6 +2101,24 @@ var dictionaryRemovalObserver =
       Services.prefs.setCharPref("spellchecker.dictionary", language);
     }
     document.documentElement.setAttribute("lang", language);
+  },
+
+  isAdded: false,
+
+  addObserver: function() {
+    Services.obs.addObserver(this, "spellcheck-dictionary-remove", false);
+    this.isAdded = true;
+  },
+
+  removeObserver: function() {
+    // We need to protect against double removal:
+    // The window can be recycled and later destroyed (at shutdown or when the
+    // composition style changes from HTML to plain text or vice versa) or
+    // only destroyed if it was never recycled before.
+    if (this.isAdded) {
+      Services.obs.removeObserver(this, "spellcheck-dictionary-remove");
+      this.isAdded = false;
+    }
   }
 }
 
@@ -2176,7 +2194,7 @@ function ComposeStartup(recycled, aParams)
   gLanguageObserver.observe(document.documentElement, { attributes: true });
 
   // Observe dictionary removals.
-  Services.obs.addObserver(dictionaryRemovalObserver, "spellcheck-dictionary-remove", false);
+  dictionaryRemovalObserver.addObserver();
 
   // Set document language to the preference as early as possible.
   let languageToSet = getValidSpellcheckerDictionary();
@@ -2522,13 +2540,7 @@ function ComposeUnload()
   ToolbarIconColor.uninit();
 
   // Stop observing dictionary removals.
-  if (Services.obs.enumerateObservers("spellcheck-dictionary-remove")
-                                     .hasMoreElements()) {
-    // Don't try to remove the observer when at shutdown the recycled window
-    // gets unloaded, its observer was already removed at recycle time.
-    Services.obs.removeObserver(dictionaryRemovalObserver,
-                                "spellcheck-dictionary-remove");
-  }
+  dictionaryRemovalObserver.removeObserver();
 
   if (gMsgCompose)
     gMsgCompose.UnregisterStateListener(stateListener);
