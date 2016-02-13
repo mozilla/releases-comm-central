@@ -21,8 +21,6 @@ endif
 
 DEFINES += \
   -DINSTANTBIRD_ICO=\"$(DIST)/branding/instantbird.ico\" \
-  -DGRE_MILESTONE=$(GRE_MILESTONE) \
-  -DGRE_BUILDID=$(GRE_BUILDID) \
    $(NULL)
 
 # Build a binary bootstrapping with XRE_main
