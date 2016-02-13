@@ -40,15 +40,13 @@ var setupModule = function (module) {
   let server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
   let inbox = server.rootFolder.getChildNamed("Inbox");
   be_in_folder(inbox);
-
-  // Don't create paragraphs in the test.
-  // The test checks for the first DOM node and expects a text and not
-  // a paragraph.
-  Services.prefs.setBoolPref("editor.CR_creates_new_p", false);
 };
 
 function teardownModule(module) {
   Services.prefs.clearUserPref("editor.CR_creates_new_p");
+  Services.prefs.clearUserPref("mail.identity.id1.compose_html");
+  Services.prefs.clearUserPref("mail.identity.id1.suppress_signature_separator");
+  Services.prefs.clearUserPref("mail.identity.id2.suppress_signature_separator");
 }
 
 function setupComposeWin(toAddr, subj, body) {
@@ -63,11 +61,11 @@ function setupComposeWin(toAddr, subj, body) {
  */
 function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
   Services.prefs.setBoolPref("mail.identity.id1.compose_html", false);
-  cwc = composeHelper.open_compose_new_mail();
   Services.prefs.setBoolPref("mail.identity.id1.suppress_signature_separator",
                              suppressSigSep);
   Services.prefs.setBoolPref("mail.identity.id2.suppress_signature_separator",
                              suppressSigSep);
+  cwc = composeHelper.open_compose_new_mail();
 
   let contentFrame = cwc.e("content-frame");
   let mailBody = contentFrame.contentDocument.body;
@@ -151,16 +149,16 @@ function testPlaintextComposeWindowSwitchSignatures() {
   plaintextComposeWindowSwitchSignatures(false);
 }
 
-// XXX Disabled due to not correctly switching signatures with no separator
-// See bug TBD
-//function testPlaintextComposeWindowSwitchSignaturesWithSuppressedSeparator() {
-//  plaintextComposeWindowSwitchSignatures(true);
-//}
+function testPlaintextComposeWindowSwitchSignaturesWithSuppressedSeparator() {
+  plaintextComposeWindowSwitchSignatures(true);
+}
 
 /**
  * Same test, but with an HTML compose window
  */
-function HTMLComposeWindowSwitchSignatures(suppressSigSep) {
+function HTMLComposeWindowSwitchSignatures(suppressSigSep, paragraphFormat) {
+  Services.prefs.setBoolPref("editor.CR_creates_new_p", paragraphFormat);
+
   Services.prefs.setBoolPref("mail.identity.id1.compose_html", true);
   Services.prefs.setBoolPref("mail.identity.id1.suppress_signature_separator",
                              suppressSigSep);
@@ -206,7 +204,13 @@ function HTMLComposeWindowSwitchSignatures(suppressSigSep) {
   // Now check that the original signature has been removed,
   // and no blank lines got added!
   node = contentFrame.contentDocument.body.firstChild;
-  assert_equals(node.nodeValue, "Body, first line.");
+  let textNode;
+  if (paragraphFormat) {
+    textNode = node.firstChild;
+  } else {
+    textNode = node;
+  }
+  assert_equals(textNode.nodeValue, "Body, first line.");
   node = node.nextSibling;
   assert_equals(node.localName, "br");
   node = node.nextSibling;
@@ -219,9 +223,17 @@ function HTMLComposeWindowSwitchSignatures(suppressSigSep) {
 }
 
 function testHTMLComposeWindowSwitchSignatures() {
-  HTMLComposeWindowSwitchSignatures(false);
+  HTMLComposeWindowSwitchSignatures(false, false);
 }
 
 function testHTMLComposeWindowSwitchSignaturesWithSuppressedSeparator() {
-  HTMLComposeWindowSwitchSignatures(true);
+  HTMLComposeWindowSwitchSignatures(true, false);
+}
+
+function testHTMLComposeWindowSwitchSignaturesParagraphFormat() {
+  HTMLComposeWindowSwitchSignatures(false, true);
+}
+
+function testHTMLComposeWindowSwitchSignaturesWithSuppressedSeparatorParagraphFormat() {
+  HTMLComposeWindowSwitchSignatures(true, true);
 }
