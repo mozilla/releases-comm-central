@@ -43,6 +43,13 @@ MOZ_ARG_ENABLE_BOOL(incomplete-external-linkage,
 
 AC_SUBST(MOZ_INCOMPLETE_EXTERNAL_LINKAGE)
 
+dnl This is required only for libical on Windows.
+case "$host" in
+*mingw*)
+    PERL="/bin/sh ${_topsrcdir}/../mailnews/build/msys-perl-wrapper"
+    ;;
+esac
+
 dnl =========================================================
 dnl = LDAP
 dnl =========================================================
