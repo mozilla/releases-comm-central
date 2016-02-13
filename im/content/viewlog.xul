@@ -122,7 +122,6 @@
         </vbox>
         <vbox flex="1" id="corruptLogScreen" align="center" pack="center">
           <hbox id="corruptLogBox">
-            <image id="corruptLogImage"/>
             <vbox id="corruptLogInnerBox" align="center" pack="center" flex="1">
               <description id="corruptLogDesc">&logsWindow.corruptlogfile;</description>
             </vbox>

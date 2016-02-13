@@ -58,34 +58,29 @@ splitter:-moz-window-inactive {
 %endif
 
 #corruptLogScreen {
-  background-color: -moz-Dialog;
+  color: -moz-FieldText;
+  background-color: -moz-Field;
   overflow: auto;
+  font-size: 16px;
+  font-weight: normal;
 }
 
 #corruptLogBox {
-  background-color: -moz-Field;
-  color: -moz-FieldText;
-  border: 1px solid ThreeDShadow;
-  border-radius: 10px;
-  padding: 1.1em;
-  -moz-padding-start: 20px;
-  margin-left: 1em;
-  margin-right: 1em;
-}
-
-#corruptLogImage {
-%ifdef XP_MACOSX
-  list-style-image: url("chrome://global/skin/icons/error-large.png");
-%else
-  list-style-image: url("chrome://global/skin/icons/error-48.png");
-%endif
-  -moz-margin-end: 1em;
+  max-width: calc(500px + 7em);
+  min-height: 3em;
+  background: url("chrome://global/skin/icons/warning.svg") left 0 no-repeat;
+  background-size: 3em;
+  margin-right: .5em;
+  margin-left: .5em;
+  padding-right: 3.5em;
+  padding-left: 3.5em;
 }
 
 #corruptLogInnerBox {
-  max-width: 25em;
+  opacity: .8;
 }
 
 #corruptLogDesc {
-  font-size: 16px;
+  margin-right: 0;
+  margin-left: 0;
 }

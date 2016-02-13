@@ -23,33 +23,34 @@ notification > hbox {
 }
 
 #noAccountScreen {
-  background-color: -moz-Dialog;
+  color: -moz-FieldText;
+  background-color: -moz-Field;
   overflow: auto;
 }
 #noAccountBox {
-  background-color: -moz-Field;
-  color: -moz-FieldText;
-  border: 1px solid ThreeDShadow;
-  border-radius: 10px;
-  padding: 1.1em;
-  -moz-padding-start: 20px;
-  margin-left: 1em;
-  margin-right: 1em;
-}
-#noAccountImage {
-  list-style-image: url("chrome://global/skin/icons/information-64.png");
-  -moz-margin-end: 1.2em;
+  background: url("chrome://global/skin/icons/info.svg") left 5px no-repeat;
+  background-size: 2.5em;
+  padding-right: 3.5em;
+  padding-left: 3.5em;
+  margin-inline-start: 2.5em;
+  margin-inline-end: 1.5em;
 }
 #noAccountInnerBox {
-  max-width: 25em;
+  opacity: .8;
 }
 #noAccountTitle {
-  margin: 0 1em 0.6em 0;
-  font-size: 160%;
-  border-bottom: 1px solid ThreeDLightShadow
+  font-size: 2em;
+  font-weight: lighter;
+  line-height: 1.2;
+  margin: 0;
+  margin-bottom: .3em;
+  padding-bottom: .2em;
+  border-bottom: 1px solid -moz-FieldText;
 }
 #noAccountDesc {
   font-size: 110%;
+  margin-right: 0;
+  margin-left: 0;
 }
 
 #accountlist {
@@ -112,7 +113,7 @@ button:focus {
 button:active:hover:focus {
   box-shadow: @focusRingShadow@, @roundButtonPressedShadow@;
 }
- 
+
 button:hover:active:not([disabled="true"]) {
   background: @toolbarbuttonPressedBackgroundColor@;
   text-shadow: @loweredShadow@;
