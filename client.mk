@@ -266,7 +266,7 @@ profiledbuild::
 ifdef MOZ_UNIFY_BDATE
 ifndef MOZ_BUILD_DATE
 ifdef MOZ_BUILD_PROJECTS
-MOZ_BUILD_DATE = $(shell $(PYTHON) $(TOPSRCDIR)/build/variables.py buildid_header | awk '{print $$3}')
+MOZ_BUILD_DATE = $(shell $(PYTHON) $(TOPSRCDIR)/mozilla/build/variables.py buildid_header | awk '{print $$3}')
 export MOZ_BUILD_DATE
 endif
 endif
