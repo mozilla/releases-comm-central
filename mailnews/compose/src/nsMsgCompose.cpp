@@ -528,6 +528,7 @@ nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
 
   nsCOMPtr<nsIDOMElement> divElem;
   nsCOMPtr<nsIHTMLEditor> htmlEditor(do_QueryInterface(m_editor));
+  nsCOMPtr<nsIPlaintextEditor> textEditor(do_QueryInterface(m_editor));
 
   nsresult rv = htmlEditor->CreateElementWithDefaults(NS_LITERAL_STRING("div"),
                                                       getter_AddRefs(divElem));
@@ -4427,12 +4428,12 @@ nsMsgCompose::BuildBodyMessageAndSignature()
 
   /* Some time we want to add a signature and sometime we wont. Let's figure that now...*/
   bool addSignature;
-  bool isQuoted = false;
+  bool addDashes = false;
   switch (mType)
   {
     case nsIMsgCompType::ForwardInline :
       addSignature = true;
-      isQuoted = true;
+      addDashes = true;
       break;
     case nsIMsgCompType::New :
     case nsIMsgCompType::MailToUrl :    /* same as New */
@@ -4460,7 +4461,7 @@ nsMsgCompose::BuildBodyMessageAndSignature()
 
   nsAutoString tSignature;
   if (addSignature)
-    ProcessSignature(m_identity, isQuoted, &tSignature);
+    ProcessSignature(m_identity, addDashes, &tSignature);
 
   // if type is new, but we have body, this is probably a mapi send, so we need to
   // replace '\n' with <br> so that the line breaks won't be lost by html.
@@ -5380,114 +5381,6 @@ nsMsgCompose::GetIdentity(nsIMsgIdentity **aIdentity)
   return NS_OK;
 }
 
-/**
- * Position above the quote, that is either <blockquote> or
- * <div class="moz-cite-prefix"> or <div class="moz-forward-container">
- * in an inline-forwarded message.
- */
-nsresult
-nsMsgCompose::MoveToAboveQuote(void)
-{
-  nsCOMPtr<nsIDOMElement> rootElement;
-  nsresult rv = m_editor->GetRootElement(getter_AddRefs(rootElement));
-  if (NS_FAILED(rv) || !rootElement) {
-    return rv;
-  }
-
-  nsCOMPtr<nsIDOMNode> node;
-  nsAutoString attributeName;
-  nsAutoString attributeValue;
-  nsAutoString tagLocalName;
-  attributeName.AssignLiteral("class");
-
-  rv = rootElement->GetFirstChild(getter_AddRefs(node));
-  while (NS_SUCCEEDED(rv) && node) {
-    nsCOMPtr<nsIDOMElement> element = do_QueryInterface(node);
-    if (element) {
-      // First check for <blockquote>. This will most likely not trigger
-      // since well-behaved quotes are preceded by a cite prefix.
-      node->GetLocalName(tagLocalName);
-      if (tagLocalName.EqualsLiteral("blockquote")) {
-        break;
-      }
-
-      // Get the class value.
-      element->GetAttribute(attributeName, attributeValue);
-
-      // Now check for the cite prefix, so an element with
-      // class="moz-cite-prefix".
-      if (attributeValue.Find("moz-cite-prefix", true) != kNotFound) {
-        break;
-      }
-
-      // Next check for forwarded content.
-      // In HTML, the forwarded part is inside an element with
-      // class="moz-forward-container".
-      if (attributeValue.Find("moz-forward-container", true) != kNotFound) {
-        break;
-      }
-
-      rv = node->GetNextSibling(getter_AddRefs(node));
-      if (NS_FAILED(rv) || !node) {
-        // No further siblings found, so we didn't find what we were looking for.
-        rv = NS_OK;
-        node = nullptr;
-        break;
-      }
-    }
-  }
-
-  // Now position. If no quote was found, we position to the very front.
-  int32_t offset = 0;
-  if (node) {
-    rv = GetChildOffset(node, rootElement, offset);
-    if (NS_FAILED(rv)) {
-      return rv;
-    }
-  }
-  nsCOMPtr<nsISelection> selection;
-  m_editor->GetSelection(getter_AddRefs(selection));
-  if (selection)
-    rv = selection->Collapse(rootElement, offset);
-
-  return rv;
-}
-
-/**
- * M-C's nsEditor::EndOfDocument() will position to the end of the document
- * but it will position into a container. We really need to position
- * after the last container so we don't accidentally position into a
- * <blockquote>. That's why we use our own function.
- */
-nsresult
-nsMsgCompose::MoveToEndOfDocument(void)
-{
-  int32_t offset;
-  nsCOMPtr<nsIDOMElement> rootElement;
-  nsCOMPtr<nsIDOMNode> lastNode;
-  nsresult rv = m_editor->GetRootElement(getter_AddRefs(rootElement));
-  if (NS_FAILED(rv) || !rootElement) {
-    return rv;
-  }
-
-  rv = rootElement->GetLastChild(getter_AddRefs(lastNode));
-  if (NS_FAILED(rv) || !lastNode) {
-    return rv;
-  }
-
-  rv = GetChildOffset(lastNode, rootElement, offset);
-  if (NS_FAILED(rv)) {
-    return rv;
-  }
-
-  nsCOMPtr<nsISelection> selection;
-  m_editor->GetSelection(getter_AddRefs(selection));
-  if (selection)
-    rv = selection->Collapse(rootElement, offset + 1);
-
-  return rv;
-}
-
 NS_IMETHODIMP
 nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
 {
@@ -5502,7 +5395,7 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
 
   nsCOMPtr<nsIDOMElement> rootElement;
   rv = m_editor->GetRootElement(getter_AddRefs(rootElement));
-  if (NS_FAILED(rv) || !rootElement)
+  if (NS_FAILED(rv) || nullptr == rootElement)
     return rv;
 
   //First look for the current signature, if we have one
@@ -5512,7 +5405,7 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
   nsAutoString tagLocalName;
 
   rv = rootElement->GetLastChild(getter_AddRefs(lastNode));
-  if (NS_SUCCEEDED(rv) && lastNode)
+  if (NS_SUCCEEDED(rv) && nullptr != lastNode)
   {
     node = lastNode;
     // In html, the signature is inside an element with
@@ -5550,7 +5443,7 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
         return rv;
       }
 
-      // Also, remove the <br> right before the signature.
+      //Also, remove the <br> right before the signature.
       if (tempNode)
       {
         tempNode->GetLocalName(tagLocalName);
@@ -5568,21 +5461,21 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
   nsAutoString aSignature;
 
   // No delimiter needed if not a compose window
-  bool isQuoted;
+  bool noDelimiter;
   switch (mType)
   {
     case nsIMsgCompType::New :
     case nsIMsgCompType::NewsPost :
     case nsIMsgCompType::MailToUrl :
     case nsIMsgCompType::ForwardAsAttachment :
-      isQuoted = false;
+      noDelimiter = false;
       break;
     default :
-      isQuoted = true;
+      noDelimiter = true;
       break;
   }
 
-  ProcessSignature(aIdentity, isQuoted, &aSignature);
+  ProcessSignature(aIdentity, noDelimiter, &aSignature);
 
   if (!aSignature.IsEmpty())
   {
@@ -5594,23 +5487,23 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
     aIdentity->GetReplyOnTop(&reply_on_top);
     aIdentity->GetSigBottom(&sig_bottom);
     bool sigOnTop = (reply_on_top == 1 && !sig_bottom);
-    if (sigOnTop && isQuoted) {
-      rv = MoveToAboveQuote();
-    } else {
-      // Note: New messages aren't quoted so we always move to the end.
-      rv = MoveToEndOfDocument();
+    if (sigOnTop && noDelimiter)
+      m_editor->BeginningOfDocument();
+    else
+      m_editor->EndOfDocument();
+
+    nsCOMPtr<nsIHTMLEditor> htmlEditor (do_QueryInterface(m_editor));
+    nsCOMPtr<nsIPlaintextEditor> textEditor (do_QueryInterface(m_editor));
+
+    if (m_composeHTML)
+      rv = htmlEditor->InsertHTML(aSignature);
+    else {
+      rv = textEditor->InsertLineBreak();
+      InsertDivWrappedTextAtSelection(aSignature, NS_LITERAL_STRING("moz-signature"));
     }
 
-    if (NS_SUCCEEDED(rv)) {
-      if (m_composeHTML) {
-        nsCOMPtr<nsIHTMLEditor> htmlEditor (do_QueryInterface(m_editor));
-        rv = htmlEditor->InsertHTML(aSignature);
-      } else {
-        nsCOMPtr<nsIPlaintextEditor> textEditor (do_QueryInterface(m_editor));
-        rv = textEditor->InsertLineBreak();
-        InsertDivWrappedTextAtSelection(aSignature, NS_LITERAL_STRING("moz-signature"));
-      }
-    }
+    if (sigOnTop && noDelimiter)
+      m_editor->EndOfDocument();
     m_editor->EndTransaction();
   }
 
