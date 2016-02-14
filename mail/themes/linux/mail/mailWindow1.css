@@ -22,10 +22,6 @@
   margin-bottom: 7px;
 }
 
-#viewPickerLabel:not(:-moz-lwtheme) {
-  color: MenuText;
-}
-
 menu > #folderLocationPopup > menu > .menu-iconic-left,
 menu > #folderLocationPopup > menuitem > .menu-iconic-left {
   -moz-padding-start: 2px;
@@ -403,20 +399,18 @@ menulist[disabled="true"] {
   opacity: .6;
 }
 
-.menulist-dropmarker {
+menulist > .menulist-label-box {
   -moz-appearance: none;
-  display:-moz-box;
-  list-style-image: none;
-}
-
-menulist > .menulist-dropmarker > .dropmarker-icon {
-  width: 9px;
-  max-height: 7px;
-  margin: 7px 5px;
-  margin-inline-end: 0;
+  padding-inline-end: 12px;
+  background-repeat: no-repeat;
+  background-position: right;
   background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");
 }
 
-toolbar[brighttext] menulist > .menulist-dropmarker > .dropmarker-icon {
+menulist:-moz-locale-dir(rtl) > .menulist-label-box {
+  background-position: left;
+}
+
+toolbar[brighttext] menulist > .menulist-label-box {
   background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted.png");
 }

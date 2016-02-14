@@ -181,21 +181,19 @@ menulist[disabled="true"] {
   opacity: .6;
 }
 
-.menulist-dropmarker {
+menulist > .menulist-label-box {
   -moz-appearance: none;
-  display:-moz-box;
-  list-style-image: none;
-}
-
-menulist > .menulist-dropmarker > .dropmarker-icon {
-  width: 9px;
-  max-height: 7px;
-  margin: 7px 5px;
-  margin-inline-end: 0;
+  padding-inline-end: 12px;
+  background-repeat: no-repeat;
+  background-position: right;
   background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");
 }
 
-toolbar[brighttext] menulist > .menulist-dropmarker > .dropmarker-icon {
+menulist:-moz-locale-dir(rtl) > .menulist-label-box {
+  background-position: left;
+}
+
+toolbar[brighttext] menulist > .menulist-label-box {
   background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted.png");
 }
 
@@ -242,6 +240,7 @@ toolbar[brighttext] menulist > .menulist-dropmarker > .dropmarker-icon {
 }
 
 #subjectLabel {
+  margin-inline-end: 7px;
   padding-bottom: 1px;
 }
 
@@ -355,39 +354,32 @@ treechildren::-moz-tree-image(subscribed-news) {
 
 .aw-menulist {
   -moz-binding: url("chrome://messenger/content/messengercompose/menulistCompactBindings.xml#menulist-compact");
-  -moz-appearance: none;
-  -moz-box-align: center;
-  -moz-box-pack: center;
   margin: 0;
   -moz-margin-start: 5px;
   -moz-margin-end: 7px;
-  color: ButtonText;
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
-  background-color: rgba(125, 125, 125, .3);
-  border: rgba(125, 125, 125, .4) 1px solid;
-  transition: background-color .25s ease-in;
+  padding-inline-end: 0;
+  outline: 1px solid transparent;
+  outline-offset: -3px;
 }
 
 .aw-menulist:-moz-window-inactive {
   opacity: .7;
 }
 
-.aw-menulist:hover {
-  background-color: rgba(125, 125, 125, .4);
-}
-
-.aw-menulist[disabled="true"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn-dis.gif");
-}
-
 .aw-menulist > .menulist-label-box {
-  -moz-appearance: none;
   margin: -3px 1px;
-  border: 1px solid transparent;
+  padding-inline-start: 12px;
+  padding-inline-end: 0;
+  background-position: left;
 }
 
-.aw-menulist:focus > .menulist-label-box {
-  border: 1px dotted;
+.aw-menulist:-moz-locale-dir(rtl) > .menulist-label-box {
+  background-position: right;
+}
+
+.aw-menulist:focus {
+  outline-color: -moz-DialogText;
+  outline-style: dotted;
 }
 
 .aw-menulist > .menulist-label-box > .menulist-label {
