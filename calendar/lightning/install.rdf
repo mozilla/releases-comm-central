@@ -31,10 +31,10 @@
 
     <em:id>@XPI_EM_ID@</em:id>
     <em:name>Lightning</em:name>
-    <em:version>@LIGHTNING_VERSION@</em:version> <!-- BuildID=@GRE_BUILDID@ -->
+    <em:version>@LIGHTNING_VERSION@</em:version> <!-- BuildID=@MOZ_BUILDID@ -->
     <em:description>An integrated calendar for Thunderbird</em:description>
 #ifdef LIGHTNING_PRERELEASE_VERSION
-    <em:developer>Build ID: @GRE_BUILDID@</em:developer>
+    <em:developer>Build ID: @MOZ_BUILDID@</em:developer>
 #endif
     <em:creator>Mozilla Calendar Project</em:creator>
     <em:homepageURL>https://www.mozilla.org/projects/calendar/</em:homepageURL>
@@ -42,7 +42,7 @@
     <em:optionsURL>chrome://messenger/content/preferences/preferences.xul</em:optionsURL>
     <em:targetPlatform>@TARGET_PLATFORM@</em:targetPlatform>
 #ifdef LIGHTNING_UPDATE_LOCATION
-    <em:updateURL>@LIGHTNING_UPDATE_LOCATION@?buildID=@GRE_BUILDID@&amp;appABI=%APP_ABI%&amp;appOS=%APP_OS%&amp;locale=%APP_LOCALE%&amp;appVersion=%APP_VERSION%&amp;appID=%APP_ID%</em:updateURL>
+    <em:updateURL>@LIGHTNING_UPDATE_LOCATION@?buildID=@MOZ_BUILDID@&amp;appABI=%APP_ABI%&amp;appOS=%APP_OS%&amp;locale=%APP_LOCALE%&amp;appVersion=%APP_VERSION%&amp;appID=%APP_ID%</em:updateURL>
 #endif
     <em:unpack>true</em:unpack>
     <em:strictCompatibility>true</em:strictCompatibility>

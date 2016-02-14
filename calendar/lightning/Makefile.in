@@ -87,8 +87,8 @@ DEFINES += -DTHUNDERBIRD_VERSION=$(THUNDERBIRD_VERSION) \
            -DXPI_EM_ID="$(XPI_EM_ID)" \
            $(NULL)
 
-GRE_BUILDID = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(DIST)/bin/application.ini App BuildID)
-DEFINES += -DGRE_BUILDID=$(GRE_BUILDID)
+MOZ_BUILDID = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(DIST)/bin/application.ini App BuildID)
+DEFINES += -DMOZ_BUILDID=$(MOZ_BUILDID)
 
 include $(topsrcdir)/config/rules.mk
 include $(srcdir)/lightning-packager.mk
