@@ -86,6 +86,8 @@ protected:
                               nsTArray<nsMsgMailList>& array);
   nsresult TagConvertible(nsIDOMElement *node,  int32_t *_retval);
   nsresult _NodeTreeConvertible(nsIDOMElement *node, int32_t *_retval);
+  nsresult MoveToAboveQuote(void);
+  nsresult MoveToEndOfDocument(void);
 
 // 3 = To, Cc, Bcc
 #define MAX_OF_RECIPIENT_ARRAY 3
