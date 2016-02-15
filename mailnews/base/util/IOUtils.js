@@ -61,7 +61,7 @@ var IOUtils =
    *                the file name of a file under user's profile.
    * @param aData   The string to write.
    * @param aPerms  The octal file permissions for the created file. If unset
-   *                the default of 0600 is used.
+   *                the default of 0o600 is used.
    */
   saveStringToFile: function(aFile, aData, aPerms = 0o600) {
     let file;
@@ -92,7 +92,7 @@ var IOUtils =
    * @param aIStream The input stream to save.
    * @param aFile    The file to which the stream is saved.
    * @param aPerms   The octal file permissions for the created file. If unset
-   *                 the default of 0600 is used.
+   *                 the default of 0o600 is used.
    */
   saveStreamToFile: function(aIStream, aFile, aPerms = 0o600) {
     if (!(aIStream instanceof Ci.nsIInputStream))

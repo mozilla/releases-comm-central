@@ -47,7 +47,7 @@ function createExpectedTemporaryFiles(numFiles) {
   function createTemporaryFile() {
     let file = Services.dirsvc.get("TmpD", Ci.nsIFile);
     file.append("newmsg");
-    file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
+    file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
     return file;
   }
 

@@ -8,7 +8,7 @@ var MSG_LINEBREAK = "\r\n";
 var dot = do_get_file("data/dot");
 var saveFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
 saveFile.append(dot.leafName + ".eml");
-saveFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
+saveFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
 
 function run_test()
 {

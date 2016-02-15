@@ -302,7 +302,7 @@ AbImportHelper.prototype =
 
     var fis = Cc["@mozilla.org/network/file-input-stream;1"]
                .createInstance(Ci.nsIFileInputStream);
-    fis.init(file, 0x01, 0444, 0);
+    fis.init(file, 0x01, 0o444, 0);
     var istream = Cc["@mozilla.org/intl/converter-input-stream;1"]
                    .createInstance(Ci.nsIConverterInputStream);
     var replacementChar = Ci.nsIConverterInputStream
