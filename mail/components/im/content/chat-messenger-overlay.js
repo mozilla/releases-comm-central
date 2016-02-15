@@ -136,13 +136,15 @@ var chatTabType = {
       chatHandler._onTabDeactivated();
   },
   openTab: function(aTab, aArgs) {
-    if (!this.hasBeenOpened && imServices.core.initialized) {
-      let convs = imServices.conversations.getUIConversations();
-      if (convs.length != 0) {
-        convs.sort((a, b) =>
-                   a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
-        for (let conv of convs)
-          chatHandler._addConversation(conv);
+    if (!this.hasBeenOpened) {
+      if (chatHandler.ChatCore && chatHandler.ChatCore.initialized) {
+        let convs = imServices.conversations.getUIConversations();
+        if (convs.length != 0) {
+          convs.sort((a, b) =>
+                     a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
+          for (let conv of convs)
+            chatHandler._addConversation(conv);
+        }
       }
 
       // The tab monitor will inform us when a different tab is selected.
