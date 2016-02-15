@@ -192,6 +192,12 @@ pref("extensions.blocklist.url", "https://blocklist.addons.mozilla.org/blocklist
 pref("extensions.blocklist.detailsURL", "https://addons.mozilla.org/%LOCALE%/%APP%/blocked/");
 pref("extensions.blocklist.itemURL", "https://blocklist.addons.mozilla.org/%LOCALE%/%APP%/blocked/%blockID%");
 
+// Kinto blocklist preferences
+pref("services.kinto.base", "https://firefox.settings.services.mozilla.com/v1");
+pref("services.kinto.bucket", "blocklists");
+pref("services.kinto.onecrl.collection", "certificates");
+pref("services.kinto.onecrl.checked", 0);
+
 // Enables some extra Extension System Logging (can reduce performance)
 pref("extensions.logging.enabled", false);
 
