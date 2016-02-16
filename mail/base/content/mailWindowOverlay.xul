@@ -249,6 +249,7 @@
   <command id="cmd_forwardInline" oncommand="MsgForwardAsInline(event)"/>
   <command id="cmd_forwardAttachment" oncommand="MsgForwardAsAttachment(event);"/>
   <command id="cmd_editAsNew" oncommand="goDoCommand('cmd_editAsNew')"/>
+  <command id="cmd_editDraftMsg" oncommand="goDoCommand('cmd_editDraftMsg')"/>
   <command id="cmd_openMessage" oncommand="goDoCommand('cmd_openMessage')"/>
   <command id="cmd_openConversation" oncommand="goDoCommand('cmd_openConversation')"/>
   <command id="cmd_moveToFolderAgain" oncommand="goDoCommand('cmd_moveToFolderAgain')"/>
@@ -732,10 +733,16 @@
               label="&contextMultiForwardAsAttachment.label;"
               accesskey="&contextMultiForwardAsAttachment.accesskey;"
               oncommand="MsgForwardAsAttachment(event);"/>
+    <!-- The following two items are not hooked to their commands because we need
+         to enable them even in some cases there is no real selected message yet,
+         only a rightclick on a message. -->
     <menuitem id="mailContext-editAsNew"
               label="&contextEditMsgAsNew.label;"
               accesskey="&contextEditMsgAsNew.accesskey;"
-              oncommand="MsgEditMessageAsNew();"/>
+              oncommand="MsgEditMessageAsNew(event);"/>
+    <menuitem id="mailContext-editDraftMsg"
+              label="&contextEditDraftMsg.label;"
+              oncommand="MsgEditDraftMessage(event);"/>
     <menuseparator id="mailContext-sep-reply"/>
     <menu id="mailContext-tags" label="&tagMenu.label;" accesskey="&tagMenu.accesskey;">
       <menupopup id="mailContext-tagpopup"
@@ -1901,6 +1908,10 @@
                       label="&editAsNewMsgCmd.label;"
                       key="key_editAsNew"
                       command="cmd_editAsNew"/>
+            <menuitem id="appmenu_editDraftMsg"
+                      label="&editDraftMsgCmd.label;"
+                      accesskey="&editDraftMsgCmd.accesskey;"
+                      command="cmd_editDraftMsg"/>
             <menuseparator id="appmenu_messageMenuAfterCompositionCommandsSeparator"/>
             <menuitem id="appmenu_openMessageWindowMenuitem"
                       label="&openMessageWindowCmd.label;"
@@ -2764,6 +2775,10 @@
                       accesskey="&editAsNewMsgCmd.accesskey;"
                       key="key_editAsNew"
                       command="cmd_editAsNew"/>
+            <menuitem id="menu_editDraftMsg"
+                      label="&editDraftMsgCmd.label;"
+                      accesskey="&editDraftMsgCmd.accesskey;"
+                      command="cmd_editDraftMsg"/>
             <menuseparator id="messageMenuAfterCompositionCommandsSeparator"/>
             <menuitem id="openMessageWindowMenuitem" label="&openMessageWindowCmd.label;"
                       command="cmd_openMessage"

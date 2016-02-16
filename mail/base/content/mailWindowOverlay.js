@@ -479,6 +479,9 @@ function InitMessageMenu()
   // not in a folder.
   document.getElementById("tagMenu").disabled = !messageStoredInternally;
 
+  // Hide "Edit Draft Message" menus if we're not in a draft folder.
+  updateHiddenStateForEditDraftMsgCmd();
+
   // Initialize the Open Message menuitem
   var winType = document.documentElement.getAttribute('windowtype');
   if (winType == "mail:3pane")
@@ -537,6 +540,9 @@ function InitAppMessageMenu()
   // not in a folder.
   document.getElementById("appmenu_tagMenu").disabled = !messageStoredInternally;
 
+  // Hide "Edit Draft Message" menus if we're not in a draft folder.
+  updateHiddenStateForEditDraftMsgCmd();
+
   // Initialize the Open Message menuitem
   let winType = document.documentElement.getAttribute('windowtype');
   if (winType == "mail:3pane")
@@ -556,6 +562,19 @@ function InitAppMessageMenu()
   // Disable mark menu when we're not in a folder.
   document.getElementById("appmenu_markMenu").disabled = gMessageDisplay.isDummy;
   document.commandDispatcher.updateCommands('create-menu-message');
+}
+
+/**
+ * Hides the "Edit Draft Message" menuitems for messages which are not in a draft folder.
+ */
+function updateHiddenStateForEditDraftMsgCmd()
+{
+  let msg = gFolderDisplay.selectedMessage;
+  let folder = gFolderDisplay.displayedFolder;
+  let inDraftFolder = (msg &&
+                       msg.folder.isSpecialFolder(nsMsgFolderFlags.Drafts, true)) ||
+                      (folder && folder.getFlag(nsMsgFolderFlags.Drafts));
+  document.getElementById("cmd_editDraftMsg").setAttribute("hidden", !inDraftFolder);
 }
 
 /**
@@ -1938,9 +1957,14 @@ function MsgForwardAsInline(event)
   composeMsgByType(Components.interfaces.nsIMsgCompType.ForwardInline, event);
 }
 
-function MsgEditMessageAsNew()
+function MsgEditMessageAsNew(aEvent)
 {
-  composeMsgByType(Components.interfaces.nsIMsgCompType.Template);
+  composeMsgByType(Components.interfaces.nsIMsgCompType.Template, aEvent);
+}
+
+function MsgEditDraftMessage(aEvent)
+{
+  composeMsgByType(Components.interfaces.nsIMsgCompType.Draft, aEvent);
 }
 
 function MsgComposeDraftMessage()

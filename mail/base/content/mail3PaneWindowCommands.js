@@ -134,6 +134,7 @@ var DefaultController =
       case "cmd_forwardInline":
       case "cmd_forwardAttachment":
       case "cmd_editAsNew":
+      case "cmd_editDraftMsg":
       case "cmd_createFilterFromMenu":
       case "cmd_delete":
       case "cmd_cancel":
@@ -328,6 +329,7 @@ var DefaultController =
       case "cmd_forwardInline":
       case "cmd_forwardAttachment":
       case "cmd_editAsNew":
+      case "cmd_editDraftMsg":
       case "cmd_openMessage":
       case "button_print":
       case "cmd_print":
@@ -642,7 +644,10 @@ var DefaultController =
         MsgForwardAsAttachment(null);
         break;
       case "cmd_editAsNew":
-        MsgEditMessageAsNew();
+        MsgEditMessageAsNew(null);
+        break;
+      case "cmd_editDraftMsg":
+        MsgEditDraftMessage(null);
         break;
       case "cmd_createFilterFromMenu":
         MsgCreateFilter();

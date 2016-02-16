@@ -260,10 +260,10 @@ nsContextMenu.prototype = {
         "mailContext-openNewWindow", "threadPaneContext-openNewTab",
         "mailContext-openConversation", "mailContext-openContainingFolder",
         "mailContext-archive", "mailContext-replySender",
-        "mailContext-editAsNew", "mailContext-replyNewsgroup",
-        "mailContext-replyAll", "mailContext-replyList",
-        "mailContext-forward", "mailContext-forwardAsMenu",
-        "mailContext-multiForwardAsAttachment",
+        "mailContext-editAsNew", "mailContext-editDraftMsg",
+        "mailContext-replyNewsgroup", "mailContext-replyAll",
+        "mailContext-replyList", "mailContext-forward",
+        "mailContext-forwardAsMenu", "mailContext-multiForwardAsAttachment",
         "mailContext-copyMessageUrl", "mailContext-moveMenu",
         "mailContext-copyMenu", "mailContext-moveToFolderAgain",
         "mailContext-ignoreThread", "mailContext-ignoreSubthread",
@@ -295,6 +295,9 @@ nsContextMenu.prototype = {
 
     this.setSingleSelection("mailContext-replySender");
     this.setSingleSelection("mailContext-editAsNew");
+    this.setSingleSelection("mailContext-editDraftMsg",
+                            document.getElementById("cmd_editDraftMsg")
+                                    .getAttribute("hidden") != "true");
     this.setSingleSelection("mailContext-replyNewsgroup", this.isNewsgroup);
     this.setSingleSelection("mailContext-replyAll");
     this.setSingleSelection("mailContext-replyList");
@@ -732,14 +735,14 @@ nsContextMenu.prototype = {
    * Exception: playable media is selected, in which case, don't show them.
    *
    * @param aID   the id of the element to display/enable
-   * @param aHide (optional)  an additional criteria to evaluate when we
+   * @param aShow (optional)  an additional criteria to evaluate when we
    *              decide whether to display the element. If false, we'll hide
-   *              the item no matter what messages are selected
+   *              the item no matter what messages are selected.
    */
-  setSingleSelection: function CM_setSingleSelection(aID, aHide) {
-    var hide = aHide != undefined ? aHide : true;
+  setSingleSelection: function CM_setSingleSelection(aID, aShow) {
+    let show = (aShow != undefined) ? aShow : true;
     this.showItem(aID, this.numSelectedMessages == 1 && !this.hideMailItems &&
-                  hide && !this.onPlayableMedia);
+                  show && !this.onPlayableMedia);
     this.enableItem(aID, this.numSelectedMessages == 1);
   },
 
