@@ -1219,15 +1219,11 @@ nsMsgLocalMailFolder::DeleteMessages(nsIArray *messages,
         if (NS_SUCCEEDED(rv))
         {
           rv = msgStore->DeleteMessages(messages);
-          GetDatabase();
           nsCOMPtr<nsIMsgDBHdr> msgDBHdr;
-          if (mDatabase)
+          for (uint32_t i = 0; i < messageCount; ++i)
           {
-            for (uint32_t i = 0; i < messageCount; ++i)
-            {
-              msgDBHdr = do_QueryElementAt(messages, i, &rv);
-              rv = mDatabase->DeleteHeader(msgDBHdr, nullptr, false, true);
-            }
+            msgDBHdr = do_QueryElementAt(messages, i, &rv);
+            rv = msgDB->DeleteHeader(msgDBHdr, nullptr, false, true);
           }
         }
       }
