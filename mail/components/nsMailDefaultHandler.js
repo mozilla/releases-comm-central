@@ -367,20 +367,22 @@ var nsMailDefaultHandler = {
         // A VCard! Be smart and open the "add contact" dialog.
         let file = cmdLine.resolveFile(uri);
         if (file.exists() && file.fileSize > 0) {
-          NetUtil.asyncFetch(file, function(inputStream, status) {
-            if (!Components.isSuccessCode(status)) {
-              return;
-            }
+          let uriSpec = Services.io.newFileURI(file).spec;
+          NetUtil.asyncFetch({uri: uriSpec, loadUsingSystemPrincipal: true},
+            function(inputStream, status) {
+              if (!Components.isSuccessCode(status)) {
+                return;
+              }
 
-            let data = NetUtil.readInputStreamToString(
-              inputStream, inputStream.available());
-            let card = MailServices.ab.escapedVCardToAbCard(data);
-            Services.ww.openWindow(
-              null,
-              "chrome://messenger/content/addressbook/abNewCardDialog.xul",
-              "_blank",
-              "chrome,resizable=no,titlebar,modal,centerscreen",
-              card);
+              let data = NetUtil.readInputStreamToString(
+                inputStream, inputStream.available());
+              let card = MailServices.ab.escapedVCardToAbCard(data);
+              Services.ww.openWindow(
+                null,
+                "chrome://messenger/content/addressbook/abNewCardDialog.xul",
+                "_blank",
+                "chrome,resizable=no,titlebar,modal,centerscreen",
+                card);
           });
         }
       }
