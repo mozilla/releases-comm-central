@@ -133,6 +133,8 @@ function testReply(aHrdIdx) {
   let headers = MimeParser.extractHeaders(gServer._daemon.post);
   do_check_true(headers.get("Subject").startsWith("Auto: "));
   do_check_eq(headers.get("Auto-submitted"), "auto-replied");
+  do_check_eq(headers.get("In-Reply-To"), "<" + msgHdr.messageId + ">");
+  do_check_eq(headers.get("References"), "<" + msgHdr.messageId + ">");
 
   gServer.resetTest();
 }

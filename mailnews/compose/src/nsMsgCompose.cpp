@@ -1826,8 +1826,10 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
   nsCOMPtr<nsIPrefBranch> prefs (do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // If we are forwarding inline, mime did already setup the compose fields therefore we should stop now
-  if (type == nsIMsgCompType::ForwardInline )
+  // If we are forwarding inline or replying with template, mime did already
+  // setup the compose fields therefore we should stop now.
+  if (type == nsIMsgCompType::ForwardInline ||
+      type == nsIMsgCompType::ReplyWithTemplate)
   {
     bool replyInDefault = false;
     prefs->GetBoolPref("mailnews.reply_in_default_charset",
@@ -1855,14 +1857,32 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
       msgHdr->GetMessageId(getter_Copies(messageId));
 
       nsAutoCString reference;
-      reference.Append(NS_LITERAL_CSTRING("<"));
+      // When forwarding we only use the original message for "References:" -
+      // recipients don't have the other messages anyway.
+      // For reply with template we want to preserve all the references.
+      if (type == nsIMsgCompType::ReplyWithTemplate)
+      {
+        uint16_t numReferences = 0;
+        msgHdr->GetNumReferences(&numReferences);
+        for (int32_t i = 0; i < numReferences; i++)
+        {
+          nsAutoCString ref;
+          msgHdr->GetStringReference(i, ref);
+          if (!ref.IsEmpty())
+          {
+            reference.AppendLiteral("<");
+            reference.Append(ref);
+            reference.AppendLiteral("> ");
+          }
+        }
+        reference.Trim(" ", false, true);
+      }
+      msgHdr->GetMessageId(getter_Copies(messageId));
+      reference.AppendLiteral("<");
       reference.Append(messageId);
-      reference.Append(NS_LITERAL_CSTRING(">"));
-      // We're forwarding, which means we're composing a message that has no
-      // references yet, so we can set the value safely
+      reference.AppendLiteral(">");
       m_compFields->SetReferences(reference.get());
     }
-
     return NS_OK;
   }
 
