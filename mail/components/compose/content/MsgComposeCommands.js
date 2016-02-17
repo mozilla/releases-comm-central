@@ -2319,6 +2319,9 @@ function ComposeStartup(recycled, aParams)
   document.getElementById("cmd_attachVCard")
           .setAttribute("checked", gMsgCompose.compFields.attachVCard);
   toggleAttachmentReminder(gMsgCompose.compFields.attachmentReminder);
+  gSendFormat = gMsgCompose.compFields.deliveryFormat;
+  SetCompositionAsPerDeliveryFormat(gSendFormat);
+  SelectDeliveryFormatMenuOption(gSendFormat);
 
   // If recycle, editor is already created.
   if (!recycled)
@@ -3066,30 +3069,68 @@ function PriorityMenuSelect(target)
   }
 }
 
+function SetCompositionAsPerDeliveryFormat(aDeliveryFormat)
+{
+  let toolbar = document.getElementById("FormatToolbar");
+  let format_menubar = document.getElementById("formatMenu");
+  let insert_menubar = document.getElementById("insertMenu");
+  let show_menuitem = document.getElementById("menu_showFormatToolbar");
+  gHideMenus = (aDeliveryFormat == nsIMsgCompSendFormat.PlainText);
+  format_menubar.hidden = gHideMenus;
+  insert_menubar.hidden = gHideMenus;
+  show_menuitem.hidden = gHideMenus;
+  toolbar.hidden = gHideMenus ||
+    (show_menuitem.getAttribute("checked") == "false");
+}
+
+function SelectDeliveryFormatMenuOption(aDeliveryFormat)
+{
+  let deliveryFormat;
+
+  switch(aDeliveryFormat) {
+    case nsIMsgCompSendFormat.PlainText:
+      deliveryFormat = "format_plain";
+      break;
+    case nsIMsgCompSendFormat.HTML:
+      deliveryFormat = "format_html";
+      break;
+    case nsIMsgCompSendFormat.Both:
+      deliveryFormat = "format_both";
+      break;
+    case nsIMsgCompSendFormat.AskUser:
+    default:
+      deliveryFormat = "format_auto";
+  }
+
+  document.getElementById(deliveryFormat).setAttribute("checked", "true");
+}
+
 function OutputFormatMenuSelect(target)
 {
-  if (gMsgCompose)
-  {
-    var msgCompFields = gMsgCompose.compFields;
-    var toolbar = document.getElementById("FormatToolbar");
-    var format_menubar = document.getElementById("formatMenu");
-    var insert_menubar = document.getElementById("insertMenu");
-    var show_menuitem = document.getElementById("menu_showFormatToolbar");
+  let currentSendFormat = gSendFormat;
 
-    if (msgCompFields)
-      switch (target.getAttribute('id'))
-      {
-        case "format_auto":  gSendFormat = nsIMsgCompSendFormat.AskUser;     break;
-        case "format_plain": gSendFormat = nsIMsgCompSendFormat.PlainText;   break;
-        case "format_html":  gSendFormat = nsIMsgCompSendFormat.HTML;        break;
-        case "format_both":  gSendFormat = nsIMsgCompSendFormat.Both;        break;
+  if (gMsgCompose) {
+    let msgCompFields = gMsgCompose.compFields;
+    if (msgCompFields) {
+      switch (target.getAttribute("id")) {
+        case "format_plain":
+          gSendFormat = nsIMsgCompSendFormat.PlainText;
+          break;
+        case "format_html":
+          gSendFormat = nsIMsgCompSendFormat.HTML;
+          break;
+        case "format_both":
+          gSendFormat = nsIMsgCompSendFormat.Both;
+          break;
+        case "format_auto":
+        default:
+          gSendFormat = nsIMsgCompSendFormat.AskUser;
       }
-    gHideMenus = (gSendFormat == nsIMsgCompSendFormat.PlainText);
-    format_menubar.hidden = gHideMenus;
-    insert_menubar.hidden = gHideMenus;
-    show_menuitem.hidden = gHideMenus;
-    toolbar.hidden = gHideMenus ||
-      (show_menuitem.getAttribute("checked") == "false");
+    }
+
+    SetCompositionAsPerDeliveryFormat(gSendFormat);
+    gMsgCompose.compFields.deliveryFormat = gSendFormat;
+    gContentChanged = currentSendFormat != gSendFormat;
   }
 }
 

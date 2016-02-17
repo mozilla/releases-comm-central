@@ -11,7 +11,7 @@ interface nsISimpleEnumerator;
 /**
  * A collection of headers and other attributes for building a mail message.
  */
-[scriptable, uuid(4d251187-8213-467a-90f7-f8f330f59085)]
+[scriptable, uuid(10928477-4F24-4357-9397-FBD847F46F0A)]
 interface nsIMsgCompFields : msgIWritableStructuredHeaders {
 
   attribute AString from;
@@ -50,6 +50,9 @@ interface nsIMsgCompFields : msgIWritableStructuredHeaders {
   attribute boolean forceMsgEncoding;
   /// Status of manually-activated attachment reminder.
   attribute boolean attachmentReminder;
+  /// Delivery format for the mail being composed
+  /// (auto = 4, text = 1, html = 2, text and html = 3).
+  attribute long deliveryFormat;
 
   /**
    * Beware that when setting this property, your body must be properly wrapped,

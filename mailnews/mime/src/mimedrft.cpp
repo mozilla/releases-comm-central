@@ -1282,7 +1282,13 @@ mime_parse_stream_complete (nsMIMESession *stream)
       else
         fields->SetAttachmentReminder(false);
       PR_FREEIF(parm);
-
+      parm = MimeHeaders_get_parameter(draftInfo, "deliveryformat", NULL, NULL);
+      if (parm) {
+        int32_t deliveryFormat = nsIMsgCompSendFormat::AskUser;
+        sscanf(parm, "%d", &deliveryFormat);
+        fields->SetDeliveryFormat(deliveryFormat);
+      }
+      PR_FREEIF(parm);
     }
 
   // identity to prefer when opening the message in the compose window?

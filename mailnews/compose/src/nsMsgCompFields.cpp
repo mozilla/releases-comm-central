@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsMsgCompose.h"
 #include "nsMsgCompFields.h"
 #include "nsMsgI18N.h"
 #include "nsMsgCompUtils.h"
@@ -73,6 +74,7 @@ nsMsgCompFields::nsMsgCompFields()
   m_forceMsgEncoding = false;
   m_needToCheckCharset = true;
   m_attachmentReminder = false;
+  m_deliveryFormat = nsIMsgCompSendFormat::AskUser;
 
   // Get the default charset from pref, use this as a mail charset.
   nsString charset;
@@ -402,6 +404,29 @@ NS_IMETHODIMP nsMsgCompFields::GetAttachmentReminder(bool *_retval)
 NS_IMETHODIMP nsMsgCompFields::SetAttachmentReminder(bool value)
 {
   m_attachmentReminder = value;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgCompFields::SetDeliveryFormat(int32_t value)
+{
+  switch (value) {
+    case nsIMsgCompSendFormat::AskUser:
+    case nsIMsgCompSendFormat::PlainText:
+    case nsIMsgCompSendFormat::HTML:
+    case nsIMsgCompSendFormat::Both:
+      m_deliveryFormat = value;
+      break;
+    default:
+      m_deliveryFormat = nsIMsgCompSendFormat::AskUser;
+  }
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgCompFields::GetDeliveryFormat(int32_t *_retval)
+{
+  NS_ENSURE_ARG_POINTER(_retval);
+  *_retval = m_deliveryFormat;
   return NS_OK;
 }
 

@@ -2751,6 +2751,7 @@ nsMsgComposeAndSend::InitCompositionFields(nsMsgCompFields *fields,
 
   mCompFields->SetReturnReceipt(fields->GetReturnReceipt());
   mCompFields->SetAttachmentReminder(fields->GetAttachmentReminder());
+  mCompFields->SetDeliveryFormat(fields->GetDeliveryFormat());
   mCompFields->SetReceiptHeaderType(receiptType);
 
   mCompFields->SetDSN(fields->GetDSN());

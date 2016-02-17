@@ -348,6 +348,11 @@ nsresult mime_generate_headers(nsIMsgCompFields *fields,
     draftInfo.AppendLiteral("uuencode=0");
     draftInfo.AppendLiteral("; ");
     APPEND_BOOL(AttachmentReminder, "attachmentreminder");
+    draftInfo.AppendLiteral("; ");
+    int32_t deliveryFormat;
+    fields->GetDeliveryFormat(&deliveryFormat);
+    draftInfo.AppendLiteral("deliveryformat=");
+    draftInfo.AppendInt(deliveryFormat);
 
     finalHeaders->SetRawHeader(HEADER_X_MOZILLA_DRAFT_INFO, draftInfo, nullptr);
   }

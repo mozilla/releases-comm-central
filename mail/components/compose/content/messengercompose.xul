@@ -665,7 +665,7 @@
           </menu>
           <menu id="outputFormatMenu" label="&deliveryFormatMenu.label;" accesskey="&deliveryFormatMenu.accesskey;" oncommand="OutputFormatMenuSelect(event.target)">
             <menupopup id="outputFormatMenuPopup">
-              <menuitem type="radio" name="output_format" label="&autoFormatCmd.label;" accesskey="&autoFormatCmd.accesskey;" id="format_auto" checked="true"/>
+              <menuitem type="radio" name="output_format" label="&autoFormatCmd.label;" accesskey="&autoFormatCmd.accesskey;" id="format_auto"/>
               <menuitem type="radio" name="output_format" label="&plainTextFormatCmd.label;" accesskey="&plainTextFormatCmd.accesskey;" id="format_plain"/>
               <menuitem type="radio" name="output_format" label="&htmlFormatCmd.label;" accesskey="&htmlFormatCmd.accesskey;" id="format_html"/>
               <menuitem type="radio" name="output_format" label="&bothFormatCmd.label;" accesskey="&bothFormatCmd.accesskey;" id="format_both"/>

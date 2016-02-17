@@ -163,35 +163,42 @@ function* testDraftInfo() {
     "FCC": identity.fccFolder,
     "X-Identity-Key": identity.key,
     "X-Mozilla-Draft-Info": "internal/draft; " +
-      "vcard=0; receipt=0; DSN=0; uuencode=0; attachmentreminder=0",
+      "vcard=0; receipt=0; DSN=0; uuencode=0; attachmentreminder=0; deliveryformat=4",
   });
 
   fields.attachVCard = true;
   yield richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "X-Mozilla-Draft-Info": "internal/draft; " +
-      "vcard=1; receipt=0; DSN=0; uuencode=0; attachmentreminder=0",
+      "vcard=1; receipt=0; DSN=0; uuencode=0; attachmentreminder=0; deliveryformat=4",
   });
 
   fields.returnReceipt = true;
   yield richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "X-Mozilla-Draft-Info": "internal/draft; " +
-      "vcard=1; receipt=1; DSN=0; uuencode=0; attachmentreminder=0",
+      "vcard=1; receipt=1; DSN=0; uuencode=0; attachmentreminder=0; deliveryformat=4",
   });
 
   fields.DSN = true;
   yield richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "X-Mozilla-Draft-Info": "internal/draft; " +
-      "vcard=1; receipt=1; DSN=1; uuencode=0; attachmentreminder=0",
+      "vcard=1; receipt=1; DSN=1; uuencode=0; attachmentreminder=0; deliveryformat=4",
   });
 
   fields.attachmentReminder = true;
   yield richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "X-Mozilla-Draft-Info": "internal/draft; " +
-      "vcard=1; receipt=1; DSN=1; uuencode=0; attachmentreminder=1",
+      "vcard=1; receipt=1; DSN=1; uuencode=0; attachmentreminder=1; deliveryformat=4",
+  });
+
+  fields.deliveryFormat = Components.interfaces.nsIMsgCompSendFormat.Both;
+  yield richCreateMessage(fields, [], identity);
+  checkDraftHeaders({
+    "X-Mozilla-Draft-Info": "internal/draft; " +
+      "vcard=1; receipt=1; DSN=1; uuencode=0; attachmentreminder=1; deliveryformat=3",
   });
 }
 

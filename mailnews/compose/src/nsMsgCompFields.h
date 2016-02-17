@@ -130,6 +130,7 @@ public:
   bool GetDSN() {return m_DSN;}
   bool GetAttachVCard() {return m_attachVCard;}
   bool GetAttachmentReminder() {return m_attachmentReminder;}
+  int32_t GetDeliveryFormat() {return m_deliveryFormat;}
   bool GetForcePlainText() {return m_forcePlainText;}
   bool GetUseMultipartAlternative() {return m_useMultipartAlternative;}
   bool GetBodyIsAsciiOnly() {return m_bodyIsAsciiOnly;}
@@ -148,6 +149,7 @@ protected:
   nsCOMArray<nsIMsgAttachment> m_attachments;
   bool        m_attachVCard;
   bool        m_attachmentReminder;
+  int32_t     m_deliveryFormat;
   bool        m_forcePlainText;
   bool        m_useMultipartAlternative;
   bool        m_returnReceipt;
