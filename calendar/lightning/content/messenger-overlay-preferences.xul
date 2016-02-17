@@ -17,6 +17,7 @@
 
     <prefwindow id="MailPreferences">
         <prefpane id="paneLightning"
+                  insertbefore="paneAdvanced"
                   label="&lightning.preferencesLabel;"
                   onpaneload="gCalendarGeneralPane.init(); gAlarmsPane.init();
                               gCategoriesPane.init(); gViewsPane.init();
