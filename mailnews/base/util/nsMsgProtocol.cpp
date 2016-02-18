@@ -48,7 +48,7 @@ using namespace mozilla;
 NS_IMPL_ISUPPORTS(nsMsgProtocol, nsIChannel, nsIStreamListener,
   nsIRequestObserver, nsIRequest, nsITransportEventSink)
 
-static char16_t *FormatStringWithHostNameByID(int32_t stringID, nsIMsgMailNewsUrl *msgUri);
+static char16_t *FormatStringWithHostNameByName(const char16_t* stringName, nsIMsgMailNewsUrl *msgUri);
 
 
 nsMsgProtocol::nsMsgProtocol(nsIURI * aURL)
@@ -351,34 +351,34 @@ NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest *request, nsISupports *ctx
     if (!m_channelContext && NS_FAILED(aStatus) &&
         (aStatus != NS_BINDING_ABORTED))
     {
-      int32_t errorID;
+      const char16_t* errorString = nullptr;
       switch (aStatus)
       {
           case NS_ERROR_UNKNOWN_HOST:
           case NS_ERROR_UNKNOWN_PROXY_HOST:
-             errorID = UNKNOWN_HOST_ERROR;
+             errorString = MOZ_UTF16("unknownHostError");
              break;
           case NS_ERROR_CONNECTION_REFUSED:
           case NS_ERROR_PROXY_CONNECTION_REFUSED:
-             errorID = CONNECTION_REFUSED_ERROR;
+             errorString = MOZ_UTF16("connectionRefusedError");
              break;
           case NS_ERROR_NET_TIMEOUT:
-             errorID = NET_TIMEOUT_ERROR;
+             errorString = MOZ_UTF16("netTimeoutError");
              break;
           default:
-             errorID = UNKNOWN_ERROR;
+             // Leave the string as nullptr.
              break;
       }
 
-      NS_ASSERTION(errorID != UNKNOWN_ERROR, "unknown error, but don't alert user.");
-      if (errorID != UNKNOWN_ERROR)
+      NS_ASSERTION(errorString, "unknown error, but don't alert user.");
+      if (errorString)
       {
         nsString errorMsg;
-        errorMsg.Adopt(FormatStringWithHostNameByID(errorID, msgUrl));
+        errorMsg.Adopt(FormatStringWithHostNameByName(errorString, msgUrl));
         if (errorMsg.IsEmpty())
         {
           errorMsg.Assign(NS_LITERAL_STRING("[StringID "));
-          errorMsg.AppendInt(errorID);
+          errorMsg.Append(errorString);
           errorMsg.AppendLiteral("?]");
         }
 
@@ -1503,7 +1503,7 @@ nsresult nsMsgAsyncWriteProtocol::SendData(const char * dataBuffer, bool aSuppre
   return mAsyncOutStream->AsyncWait(mProvider, 0, 0, mProviderThread);
 }
 
-char16_t *FormatStringWithHostNameByID(int32_t stringID, nsIMsgMailNewsUrl *msgUri)
+char16_t *FormatStringWithHostNameByName(const char16_t* stringName, nsIMsgMailNewsUrl *msgUri)
 {
   if (!msgUri)
     return nullptr;
@@ -1529,7 +1529,7 @@ char16_t *FormatStringWithHostNameByID(int32_t stringID, nsIMsgMailNewsUrl *msgU
 
   NS_ConvertASCIItoUTF16 hostStr(hostName);
   const char16_t *params[] = { hostStr.get() };
-  rv = sBundle->FormatStringFromID(stringID, params, 1, &ptrv);
+  rv = sBundle->FormatStringFromName(stringName, params, 1, &ptrv);
   NS_ENSURE_SUCCESS(rv, nullptr);
 
   return ptrv;
