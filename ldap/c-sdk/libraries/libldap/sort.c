@@ -99,17 +99,20 @@ ldap_keysort_entries(
 	keything_t	**kt;
 	LDAPMessage	*e, *last;
 	LDAPMessage	**ep;
+	int scount;
 
 	if ( !NSLDAPI_VALID_LDAP_POINTER( ld )
 	    || chain == NULL || cmp == NULL ) {
 		return( LDAP_PARAM_ERROR );
 	}
 
-	count = ldap_count_entries( ld, *chain );
+	scount = ldap_count_entries( ld, *chain );
 
-	if (count < 0) { /* error */
+	if (scount < 0) { /* error */
 		return( LDAP_PARAM_ERROR );
 	}
+
+	count = scount;
 
 	if (count < 2) { /* nothing to sort */
 		return( 0 );
@@ -228,17 +231,20 @@ ldap_multisort_entries(
 	struct entrything	*et;
 	LDAPMessage		*e, *last;
 	LDAPMessage		**ep;
+	int scount;
 
 	if ( !NSLDAPI_VALID_LDAP_POINTER( ld )
 	    || chain == NULL || cmp == NULL ) {
 		return( LDAP_PARAM_ERROR );
 	}
 
-	count = ldap_count_entries( ld, *chain );
+	scount = ldap_count_entries( ld, *chain );
 
-	if (count < 0) { /* error, usually with bad ld or malloc */
+	if (scount < 0) { /* error, usually with bad ld or malloc */
 		return( LDAP_PARAM_ERROR );
 	}
+
+	count = scount;
 
 	if (count < 2) { /* nothing to sort */
 		return( 0 );
