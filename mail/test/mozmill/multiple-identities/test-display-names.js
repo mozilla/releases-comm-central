@@ -154,7 +154,9 @@ function test_no_header_name_in_abook() {
 function test_no_header_name_in_abook_no_pdn() {
   ensure_card_exists(friendEmail, "My Buddy");
   ensure_single_identity();
-  help_test_display_name(1, "from", "My Buddy");
+  // With address book entry but display name not preferred, we display name and
+  // e-mail address or only the e-mail address if no name exists.
+  help_test_display_name(1, "from", "carl@sagan.invalid");
 }
 
 
@@ -174,5 +176,7 @@ function test_header_name_in_abook() {
 function test_header_name_in_abook_no_pdn() {
   ensure_card_exists(friendEmail, "My Buddy");
   ensure_single_identity();
-  help_test_display_name(2, "from", "Carl Sagan");
+  // With address book entry but display name not preferred, we display name and
+  // e-mail address.
+  help_test_display_name(2, "from", "Carl Sagan <carl@sagan.invalid>");
 }
