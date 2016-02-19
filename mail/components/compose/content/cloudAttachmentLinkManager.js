@@ -139,23 +139,12 @@ var gCloudAttachmentLinkManager = {
   },
 
   NotifyComposeBodyReadyForwardInline: function() {
-    // If we're doing an inline-forward, let's take all of the current
-    // message text, and wrap it up into its own DIV.
-    // This is kind of mad, since an added signature will also be wrapped
-    // into the DIV.
     let mailDoc = document.getElementById("content-frame").contentDocument;
     let mailBody = mailDoc.querySelector("body");
     let editor = GetCurrentEditor();
     let selection = editor.selection;
 
-    let container = editor.createElementWithDefaults("div");
-    container.setAttribute("class", "moz-forward-container");
-
     editor.enableUndo(false);
-
-    while (mailBody.hasChildNodes()) {
-      container.appendChild(mailBody.removeChild(mailBody.firstChild));
-    }
 
     // Control insertion of line breaks.
     selection.collapse(mailBody, 0);
@@ -164,17 +153,17 @@ var gCloudAttachmentLinkManager = {
       let pElement = editor.createElementWithDefaults("p");
       let brElement = editor.createElementWithDefaults("br");
       pElement.appendChild(brElement);
-      editor.insertElementAtSelection(pElement,true);
+      editor.insertElementAtSelection(pElement, false);
       document.getElementById("cmd_paragraphState").setAttribute("state", "p");
     } else {
-      editor.insertLineBreak();
+      // insertLineBreak() has been observed to insert two <br> elements
+      // instead of one before a <div>, so we'll do it ourselves here.
+      let brElement = editor.createElementWithDefaults("br");
+      editor.insertElementAtSelection(brElement, false);
       document.getElementById("cmd_paragraphState").setAttribute("state", "");
     }
 
-    selection.collapse(mailBody, 1);
-    editor.insertElementAtSelection(container, false);
     editor.beginningOfDocument();
-
     editor.enableUndo(true);
     editor.resetModificationCount();
   },

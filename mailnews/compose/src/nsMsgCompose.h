@@ -87,6 +87,7 @@ protected:
   nsresult TagConvertible(nsIDOMElement *node,  int32_t *_retval);
   nsresult _NodeTreeConvertible(nsIDOMElement *node, int32_t *_retval);
   nsresult MoveToAboveQuote(void);
+  nsresult MoveToBeginningOfDocument(void);
   nsresult MoveToEndOfDocument(void);
 
 // 3 = To, Cc, Bcc

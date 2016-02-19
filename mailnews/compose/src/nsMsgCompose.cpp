@@ -77,6 +77,7 @@
 #include "nsCRT.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "nsStreamConverter.h"
 #include "nsISelection.h"
 #include "nsJSEnvironment.h"
 #include "nsIObserverService.h"
@@ -719,7 +720,23 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
     if (aHTMLEditor && htmlEditor)
     {
       mInsertingQuotedContent = true;
-      htmlEditor->RebuildDocumentFromSource(aBuf);
+      if (isForwarded && Substring(aBuf, 0, sizeof(MIME_FORWARD_HTML_PREFIX)-1)
+                         .EqualsLiteral(MIME_FORWARD_HTML_PREFIX)) {
+        // We assign the opening tag inside "<HTML><BODY><BR><BR>" before the
+        // two <br> elements.
+        // This is a bit hacky but we know that the MIME code prepares the
+        // forwarded content like this:
+        // <HTML><BODY><BR><BR> + forwarded header + header table.
+        // Note: We only do this when we prepare the message to be forwarded,
+        // a re-opened saved draft of a forwarded message does not repeat this.
+        nsString newBody(aBuf);
+        nsString divTag;
+        divTag.AssignLiteral("<div class=\"moz-forward-container\">");
+        newBody.Insert(divTag, sizeof(MIME_FORWARD_HTML_PREFIX)-1-8);
+        htmlEditor->RebuildDocumentFromSource(newBody);
+      } else {
+        htmlEditor->RebuildDocumentFromSource(aBuf);
+      }
       mInsertingQuotedContent = false;
 
       // when forwarding a message as inline, tag any embedded objects
@@ -730,10 +747,15 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
 
       if (!aSignature.IsEmpty())
       {
-        if (isForwarded && sigOnTop)
-          m_editor->BeginningOfDocument();
-        else
-          m_editor->EndOfDocument();
+        if (isForwarded && sigOnTop) {
+          // Use our own function, nsEditor::BeginningOfDocument() would position
+          // into the <div class="moz-forward-container"> we've just created.
+          MoveToBeginningOfDocument();
+        } else {
+          // Use our own function, nsEditor::EndOfDocument() would position
+          // into the <div class="moz-forward-container"> we've just created.
+          MoveToEndOfDocument();
+        }
         htmlEditor->InsertHTML(aSignature);
         if (isForwarded && sigOnTop)
           m_editor->EndOfDocument();
@@ -743,21 +765,82 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
     }
     else if (htmlEditor)
     {
+      bool sigOnTopInserted = false;
       if (isForwarded && sigOnTop && !aSignature.IsEmpty())
       {
         textEditor->InsertLineBreak();
         InsertDivWrappedTextAtSelection(aSignature,
                                         NS_LITERAL_STRING("moz-signature"));
         m_editor->EndOfDocument();
+        sigOnTopInserted = true;
       }
 
       if (!aBuf.IsEmpty())
       {
-        if (mailEditor)
-          mailEditor->InsertTextWithQuotations(aBuf);
-        else
-          textEditor->InsertText(aBuf);
-        m_editor->EndOfDocument();
+        nsresult rv;
+
+        // Create a <div> of the required class.
+        nsCOMPtr<nsIDOMElement> divElem;
+        rv = htmlEditor->CreateElementWithDefaults(NS_LITERAL_STRING("div"),
+                                                   getter_AddRefs(divElem));
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        nsAutoString attributeName;
+        nsAutoString attributeValue;
+        attributeName.AssignLiteral("class");
+        attributeValue.AssignLiteral("moz-forward-container");
+        divElem->SetAttribute(attributeName, attributeValue);
+
+        // We can't insert an empty <div>, so fill it with something.
+        nsCOMPtr<nsIDOMElement> brElem;
+        nsCOMPtr<nsIDOMNode> resultNode;
+        rv = htmlEditor->CreateElementWithDefaults(NS_LITERAL_STRING("br"),
+                                                   getter_AddRefs(brElem));
+        NS_ENSURE_SUCCESS(rv, rv);
+        rv = divElem->AppendChild(brElem, getter_AddRefs(resultNode));
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        // Insert the non-empty <div> into the DOM.
+        rv = htmlEditor->InsertElementAtSelection(divElem, false);
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        // Position into the div, so out content goes there.
+        nsCOMPtr<nsISelection> selection;
+        m_editor->GetSelection(getter_AddRefs(selection));
+        rv = selection->Collapse(divElem, 0);
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        if (mailEditor) {
+          rv = mailEditor->InsertTextWithQuotations(aBuf);
+        } else {
+          // Will we ever get here?
+          rv = textEditor->InsertText(aBuf);
+        }
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        if (sigOnTopInserted) {
+          // Sadly the M-C editor inserts a <br> between the <div> for the signature
+          // and this <div>, so remove the <br> we don't want.
+          nsCOMPtr<nsIDOMNode> brBeforeDiv;
+          nsAutoString tagLocalName;
+          rv = divElem->GetPreviousSibling(getter_AddRefs(brBeforeDiv));
+          if (NS_SUCCEEDED(rv) && brBeforeDiv) {
+            brBeforeDiv->GetLocalName(tagLocalName);
+            if (tagLocalName.EqualsLiteral("br")) {
+              rv = m_editor->DeleteNode(brBeforeDiv);
+              NS_ENSURE_SUCCESS(rv, rv);
+            }
+          }
+        }
+
+        // Clean up the <br> we inserted.
+        rv = m_editor->DeleteNode(resultNode);
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        // Use our own function instead of nsEditor::EndOfDocument() because
+        // we don't want to position at the end of the div we've just created.
+        rv = MoveToEndOfDocument();
+        NS_ENSURE_SUCCESS(rv, rv);
       }
 
       if ((!isForwarded || !sigOnTop) && !aSignature.IsEmpty()) {
@@ -5469,6 +5552,31 @@ nsMsgCompose::MoveToAboveQuote(void)
   m_editor->GetSelection(getter_AddRefs(selection));
   if (selection)
     rv = selection->Collapse(rootElement, offset);
+
+  return rv;
+}
+
+/**
+ * nsEditor::BeginningOfDocument() will position to the beginning of the document
+ * before the first editable element. It will position into a container.
+ * We need to be at the very front.
+ */
+nsresult
+nsMsgCompose::MoveToBeginningOfDocument(void)
+{
+  nsCOMPtr<nsIDOMElement> rootElement;
+  nsCOMPtr<nsIDOMNode> lastNode;
+  nsresult rv;
+
+  rv = m_editor->GetRootElement(getter_AddRefs(rootElement));
+  if (NS_FAILED(rv) || nullptr == rootElement) {
+    return rv;
+  }
+
+  nsCOMPtr<nsISelection> selection;
+  m_editor->GetSelection(getter_AddRefs(selection));
+  if (selection)
+    rv = selection->Collapse(rootElement, 0);
 
   return rv;
 }

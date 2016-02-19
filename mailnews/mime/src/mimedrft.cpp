@@ -667,7 +667,7 @@ mime_insert_all_headers(char            **body,
   MimeGetForwardHeaderDelimiter(replyHeader);
   if (htmlEdit)
   {
-    NS_MsgSACopy(&(newBody), "<HTML><BODY><BR><BR>");
+    NS_MsgSACopy(&(newBody), MIME_FORWARD_HTML_PREFIX);
     NS_MsgSACat(&newBody, replyHeader.get());
     NS_MsgSACat(&newBody, MIME_HEADER_TABLE);
   }
@@ -811,7 +811,7 @@ mime_insert_normal_headers(char             **body,
   MimeGetForwardHeaderDelimiter(replyHeader);
   if (htmlEdit)
   {
-    NS_MsgSACopy(&(newBody), "<HTML><BODY><BR><BR>");
+    NS_MsgSACopy(&(newBody), MIME_FORWARD_HTML_PREFIX);
     NS_MsgSACat(&newBody, replyHeader.get());
     NS_MsgSACat(&newBody, MIME_HEADER_TABLE);
   }
@@ -977,7 +977,7 @@ mime_insert_micro_headers(char            **body,
   MimeGetForwardHeaderDelimiter(replyHeader);
   if (htmlEdit)
   {
-    NS_MsgSACopy(&(newBody), "<HTML><BODY><BR><BR>");
+    NS_MsgSACopy(&(newBody), MIME_FORWARD_HTML_PREFIX);
     NS_MsgSACat(&newBody, replyHeader.get());
     NS_MsgSACat(&newBody, MIME_HEADER_TABLE);
   }
