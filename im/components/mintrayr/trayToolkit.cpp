@@ -9,7 +9,6 @@
 #include "nsStringAPI.h"
 #include "nsServiceManagerUtils.h"
 
-#include "nsPIDOMWindow.h"
 #include "nsIDOMWindow.h"
 #include "nsIDocument.h"
 #include "nsIDOMDocument.h"
@@ -85,7 +84,7 @@ NS_IMETHODIMP DispatchTrustedEvent(nsIDOMWindow *aWindow, const nsAString& aEven
 
   nsresult rv;
 
-  nsCOMPtr<nsPIDOMWindow> window(do_QueryInterface(aWindow));
+  nsCOMPtr<nsPIDOMWindowInner> window(do_QueryInterface(aWindow));
   NS_ENSURE_STATE(window);
 
   nsCOMPtr<nsIDocument> doc = window->GetExtantDoc();
@@ -231,7 +230,7 @@ NS_IMETHODIMP TrayIconImpl::DispatchMouseEvent(const nsAString& aEventName, PRUi
 {
   nsresult rv;
 
-  nsCOMPtr<nsPIDOMWindow> window(do_QueryInterface(mWindow));
+  nsCOMPtr<nsPIDOMWindowInner> window(do_QueryInterface(mWindow));
   NS_ENSURE_TRUE(window, NS_ERROR_INVALID_ARG);
 
   nsCOMPtr<nsIDocument> doc = window->GetExtantDoc();
