@@ -5565,11 +5565,8 @@ nsresult
 nsMsgCompose::MoveToBeginningOfDocument(void)
 {
   nsCOMPtr<nsIDOMElement> rootElement;
-  nsCOMPtr<nsIDOMNode> lastNode;
-  nsresult rv;
-
-  rv = m_editor->GetRootElement(getter_AddRefs(rootElement));
-  if (NS_FAILED(rv) || nullptr == rootElement) {
+  nsresult rv = m_editor->GetRootElement(getter_AddRefs(rootElement));
+  if (NS_FAILED(rv) || !rootElement) {
     return rv;
   }
 
