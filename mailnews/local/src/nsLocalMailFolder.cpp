@@ -3230,7 +3230,7 @@ nsMsgLocalMailFolder::OnStopRunningUrl(nsIURI * aUrl, nsresult aExitCode)
     {
       if (mDatabase && mCheckForNewMessagesAfterParsing)
       {
-        bool valid;
+        bool valid = false; // GetSummaryValid may return without setting valid.
         mDatabase->GetSummaryValid(&valid);
         if (valid && msgWindow)
           rv = GetNewMessages(msgWindow, nullptr);
