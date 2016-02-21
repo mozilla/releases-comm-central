@@ -160,6 +160,9 @@ function ReleaseGlobalVariables()
  */
 function updateEditableFields(aDisable)
 {
+  if (!gMsgCompose)
+    return;
+
   if (aDisable)
     gMsgCompose.editor.flags |= nsIPlaintextEditorMail.eEditorReadonlyMask;
   else
@@ -3539,6 +3542,10 @@ function SetComposeWindowTitle()
 // This is hooked up to the OS's window close widget (e.g., "X" for Windows)
 function ComposeCanClose()
 {
+  // No open compose window?
+  if (!gMsgCompose)
+    return true;
+
   // Do this early, so ldap sessions have a better chance to
   // cleanup after themselves.
   if (gSendOperationInProgress || gSaveOperationInProgress)
