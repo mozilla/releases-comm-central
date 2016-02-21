@@ -34,6 +34,7 @@ RequestExecutionLevel user
 Var TmpVal
 Var InstallType
 Var AddStartMenuSC
+Var AddTaskbarSC
 Var AddQuickLaunchSC
 Var AddDesktopSC
 Var InstallMaintenanceService
@@ -383,9 +384,11 @@ Section "-Application" APP_IDX
 
     ; If we are writing to HKLM and create either the desktop or start menu
     ; shortcuts set IconsVisible to 1 otherwise to 0.
+    ; Taskbar shortcuts imply having a start menu shortcut.
     StrCpy $0 "Software\Clients\Mail\${ClientsRegName}\InstallInfo"
     ${If} $AddDesktopSC == 1
     ${OrIf} $AddStartMenuSC == 1
+    ${OrIf} $AddTaskbarSC == 1
       WriteRegDWORD HKLM "$0" "IconsVisible" 1
     ${Else}
       WriteRegDWORD HKLM "$0" "IconsVisible" 0
@@ -393,10 +396,10 @@ Section "-Application" APP_IDX
   ${EndIf}
 
 !ifdef MOZ_MAINTENANCE_SERVICE
-  ; If the maintenance service page was displayed then a value was already 
-  ; explicitly selected for installing the maintenance service and 
+  ; If the maintenance service page was displayed then a value was already
+  ; explicitly selected for installing the maintenance service and
   ; and so InstallMaintenanceService will already be 0 or 1.
-  ; If the maintenance service page was not displayed then 
+  ; If the maintenance service page was not displayed then
   ; InstallMaintenanceService will be equal to "".
   ${If} $InstallMaintenanceService == ""
     Call IsUserAdmin
@@ -416,7 +419,7 @@ Section "-Application" APP_IDX
 
   ${If} $InstallMaintenanceService == "1"
     ; The user wants to install the maintenance service, so execute
-    ; the pre-packaged maintenance service installer. 
+    ; the pre-packaged maintenance service installer.
     ; This option can only be turned on if the user is an admin so there
     ; is no need to use ExecShell w/ verb runas to enforce elevated.
     nsExec::Exec "$\"$INSTDIR\maintenanceservice_installer.exe$\""
@@ -555,9 +558,6 @@ Section "-InstallEndCleanup"
 
   ; Adds a pinned Task Bar shortcut (see MigrateTaskBarShortcut for details).
   ${MigrateTaskBarShortcut}
-
-  ${GetShortcutsLogPath} $0
-  WriteIniStr "$0" "TASKBAR" "Migrated" "true"
 
   ; Refresh desktop icons
   System::Call "shell32::SHChangeNotify(i 0x08000000, i 0, i 0, i 0)"

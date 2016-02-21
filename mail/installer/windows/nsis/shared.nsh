@@ -108,17 +108,17 @@
     ; If the maintenance service is already installed, do nothing.
     ; The maintenance service will launch:
     ; maintenanceservice_installer.exe /Upgrade to upgrade the maintenance
-    ; service if necessary.   If the update was done from updater.exe without 
-    ; the service (i.e. service is failing), updater.exe will do the update of 
-    ; the service.  The reasons we do not do it here is because we don't want 
-    ; to have to prompt for limited user accounts when the service isn't used 
+    ; service if necessary.   If the update was done from updater.exe without
+    ; the service (i.e. service is failing), updater.exe will do the update of
+    ; the service.  The reasons we do not do it here is because we don't want
+    ; to have to prompt for limited user accounts when the service isn't used
     ; and we currently call the PostUpdate twice, once for the user and once
     ; for the SYSTEM account.  Also, this would stop the maintenance service
     ; and we need a return result back to the service when run that way.
     ${If} $5 == ""
       ; An install of maintenance service was never attempted.
       ; We call ExecShell (which is ShellExecute) with the verb "runas"
-      ; to ask for elevation if the user isn't already elevated.  If the user 
+      ; to ask for elevation if the user isn't already elevated.  If the user
       ; is already elevated it will just launch the program.
       ExecShell "runas" "$\"$INSTDIR\maintenanceservice_installer.exe$\""
     ${EndIf}
@@ -280,7 +280,7 @@
   ; Registration occurs as follows with the last action to occur being the one
   ; that wins:
   ; On install and software update when helper.exe runs with the /PostUpdate
-  ; argument. On setting the application as the system's default application 
+  ; argument. On setting the application as the system's default application
   ; using Window's "Set program access and defaults".
 
   !ifndef NO_LOG
@@ -288,7 +288,7 @@
   !endif
   ClearErrors
   ${RegisterDLL} "$INSTDIR\MapiProxy_InUse.dll"
-  !ifndef NO_LOG  
+  !ifndef NO_LOG
     ${If} ${Errors}
       ${LogMsg} "** ERROR Registering: $INSTDIR\MapiProxy_InUse.dll **"
     ${Else}
@@ -340,7 +340,7 @@
   ; Protocols
   StrCpy $1 "$\"$8$\" -osint -compose $\"%1$\""
   ${AddHandlerValues} "$0\Protocols\mailto" "$1" "$8,0" "${AppRegNameMail} URL" "true" ""
- 
+
   ; Vista Capabilities registry keys
   WriteRegStr HKLM "$0\Capabilities" "ApplicationDescription" "$(REG_APP_DESC)"
   WriteRegStr HKLM "$0\Capabilities" "ApplicationIcon" "$8,0"
@@ -372,7 +372,7 @@
   ; Registration occurs as follows with the last action to occur being the one
   ; that wins:
   ; On install and software update when helper.exe runs with the /PostUpdate
-  ; argument. On setting the application as the system's default application 
+  ; argument. On setting the application as the system's default application
   ; using Window's "Set program access and defaults".
 
   !ifndef NO_LOG
@@ -380,7 +380,7 @@
   !endif
   ClearErrors
   ${RegisterDLL} "$INSTDIR\MapiProxy_InUse.dll"
-  !ifndef NO_LOG  
+  !ifndef NO_LOG
     ${If} ${Errors}
       ${LogMsg} "** ERROR Registering: $INSTDIR\MapiProxy_InUse.dll **"
     ${Else}
@@ -585,7 +585,7 @@
 
     SetRegView lastused
     ClearErrors
-  ${EndIf} 
+  ${EndIf}
   ; Restore the previously used value back
   Pop $R0
 !macroend
@@ -1022,12 +1022,12 @@ Function SetAsDefaultAppUser
   ; b) is not a member of the administrators group and chooses to elevate
   ${ElevateUAC}
 
-  SetShellVarContext all  ; Set SHCTX to all users (e.g. HKLM)  
+  SetShellVarContext all  ; Set SHCTX to all users (e.g. HKLM)
   ${SetClientsMail}
   ${SetClientsNews}
 
   ${RemoveDeprecatedKeys}
-  ${PinToTaskBar}
+  ${MigrateTaskBarShortcut}
 
   ClearErrors
   ${GetParameters} $0
