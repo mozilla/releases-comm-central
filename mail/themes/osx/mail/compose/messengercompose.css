@@ -239,11 +239,12 @@ toolbar[brighttext] #button-print {
 }
 
 #identityLabel {
-  margin: 0;
+  margin: 1px 0;
   margin-inline-end: 4px;
-  padding: 2px 1px;
+  padding: 1px;
   background-color: transparent;
   border: 1px solid transparent;
+  border-radius: 2px;
   transition: background-color .25s ease-in;
 }
 
@@ -253,22 +254,27 @@ toolbar[brighttext] #button-print {
 }
 
 #msgIdentity {
-   margin: 0px;
-   padding-inline-start: 3px;
-   background: transparent;
-   line-height: 1;
-   border: 1px solid transparent;
-   border-bottom: 1px solid #C6C6C6;
-   border-radius: 0;
-   -moz-appearance: none;
-   background: url("chrome://global/skin/arrow/arrow-dn.gif") no-repeat right;
-   transition: border .2s, background-color .2s;
+  margin: 0;
+  margin-inline-end: 1px;
+  padding-inline-start: 3px;
+  background: transparent;
+  line-height: 1;
+  border: 1px solid transparent;
+  border-bottom-color: #C6C6C6;
+  border-radius: 2px;
+  -moz-appearance: none;
+  background: url("chrome://global/skin/arrow/arrow-dn.gif") no-repeat right;
+  transition: border .2s, background-color .2s;
+}
+
+#msgIdentity:-moz-locale-dir(rtl) {
+  background-position: left;
 }
 
 #msgIdentity:hover,
 #msgIdentity[focused="true"] {
   background-color: white;
-  border: 1px solid #C6C6C6;
+  border-color: #C6C6C6;
 }
 
 #msgIdentity > .menulist-editable-box {
@@ -320,28 +326,28 @@ toolbar[brighttext] #button-print {
 }
 
 #subjectLabel {
-  margin-top: 0px;
+  margin-top: 0;
   margin-bottom: 4px;
+  margin-inline-end: 6px;
 }
 
 #msgSubject {
-  margin-top: 0px;
-  -moz-margin-start: 0;
-  -moz-margin-end: 1px;
+  margin-top: 0;
+  margin-inline-start: 0;
+  margin-inline-end: 1px;
   background-color: inherit;
   -moz-appearance: none !important;
-  border-top: 1px solid transparent;
-  border-left: 1px solid transparent;
-  border-right: 1px solid transparent;
-  border-bottom: 1px solid #C6C6C6;
+  border: 1px solid transparent;
+  border-bottom-color: #C6C6C6;
   border-bottom-left-radius: 0px;
   border-top-right-radius: 0px;
   -moz-border-top-colors: none;
   -moz-border-left-colors: none;
   -moz-border-right-colors: none;
   -moz-border-bottom-colors: none;
-  padding: 2px;
-  -moz-padding-start: 5px !important;
+  border-radius: 2px;
+  padding: 1px 2px;
+  padding-inline-start: 5px !important;
   transition: border .2s, background-color .2s;
 }
 
@@ -349,10 +355,7 @@ toolbar[brighttext] #button-print {
 #msgSubject[focused="true"] {
   background-color: white;
   background-image: none;
-  border-top: 1px solid #C6C6C6;
-  border-left: 1px solid #C6C6C6;
-  border-right: 1px solid #C6C6C6;
-  border-bottom: 1px solid #C6C6C6;
+  border-color: #C6C6C6;
 }
 
 /* ::::: autocomplete icons ::::: */
@@ -438,14 +441,13 @@ treechildren::-moz-tree-image(subscribed-news) {
 
 .textbox-addressingWidget,
 .dummy-row-cell:not(:first-child) {
-  border-top: 1px solid transparent !important;
-  border-left: 1px solid transparent !important;
-  border-right: 1px solid transparent !important;
-  border-bottom: 1px solid #C6C6C6 !important;
-  border-top-right-radius: 0px;
-  border-bottom-left-radius: 0px;
-  padding: 2px !important;
-
+  border: 1px solid transparent !important;
+  border-bottom-color: #C6C6C6 !important;
+  border-top-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  margin-top: 1px !important;
+  margin-bottom: 1px !important;
+  padding: 1px 3px !important;
   transition: border .2s, background-color .2s;
 }
 
@@ -453,10 +455,7 @@ treechildren::-moz-tree-image(subscribed-news) {
 .textbox-addressingWidget:hover {
   background-color: white;
   background-image: none;
-  border-top: 1px solid #C6C6C6 !important;
-  border-left: 1px solid #C6C6C6 !important;
-  border-right: 1px solid #C6C6C6 !important;
-  border-bottom: 1px solid #C6C6C6 !important;
+  border-color: #C6C6C6 !important;
 }
 
 .aw-menulist {
@@ -464,12 +463,18 @@ treechildren::-moz-tree-image(subscribed-news) {
   -moz-appearance: none;
   -moz-box-align: center;
   -moz-box-pack: center;
-  margin: 0;
-  -moz-margin-end: 4px;
+  min-height: 18px;
+  margin: 1px;
+  margin-inline-end: 4px;
   background-color: rgba(200, 200, 200, .4) !important;
-  border: rgba(149, 165, 166, 0.3) 1px solid;
+  border: rgba(149, 165, 166, .3) 1px solid;
+  border-radius: 2px;
   background: url("chrome://global/skin/arrow/arrow-dn.gif") no-repeat left;
   transition: background-color .25s ease-in;
+}
+
+.aw-menulist:-moz-locale-dir(rtl) {
+  background-position: right;
 }
 
 .aw-menulist:-moz-window-inactive {
@@ -480,9 +485,14 @@ treechildren::-moz-tree-image(subscribed-news) {
   background-color: rgba(150, 150, 150, .4) !important;
 }
 
+.aw-menulist:focus {
+  border-color: -moz-mac-focusring;
+  box-shadow: 0 0 1.5px 1px -moz-mac-focusring;
+}
+
 .aw-menulist  > .menulist-label-box > .menulist-label {
   font: icon;
-  margin: 0 1px !important;
+  margin: 1px 1px 0 !important;
   font-size: 10px;
   text-align: end;
 }
