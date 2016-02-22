@@ -183,6 +183,9 @@ function goUpdatePasteMenuItems() {
  * dialog controls from the window's item.
  */
 function onLoad() {
+    // Set a variable to allow/prevent actions when the dialog is loading.
+    onLoad.isLoading = true;
+
     // first of all retrieve the array of
     // arguments this window has been called with.
     var args = window.arguments[0];
@@ -318,6 +321,8 @@ function onLoad() {
 
     // set up our calendar event observer
     eventDialogCalendarObserver.observe(item.calendar);
+
+    onLoad.isLoading = false;
 }
 
 function onEventDialogUnload() {
@@ -1436,7 +1441,7 @@ function onUpdateAllDay() {
  * - 'timezone-endtime'
  * the state depends on whether or not the event is configured as 'all-day' or not.
  */
- function updateAllDay() {
+function updateAllDay() {
     if (gIgnoreUpdate) {
         return;
     }
@@ -2406,7 +2411,7 @@ function removeNotification(aValue) {
 }
 
 /**
- * Update the dialog controls related related to the item's calendar.
+ * Update the dialog controls related to the item's calendar.
  */
 function updateCalendar() {
     let item = window.calendarItem;
@@ -2769,11 +2774,13 @@ function updateUntildateRecRule(recRule) {
     }
 
     if (repeatUntilDate) {
-        repeatUntilDate.isDate = gStartTime.isDate; // Enforce same value type as DTSTART
-        if (!gStartTime.isDate) {
-            repeatUntilDate.hour = gStartTime.hour;
-            repeatUntilDate.minute = gStartTime.minute;
-            repeatUntilDate.second = gStartTime.second;
+        if (!onLoad.isLoading) {
+            repeatUntilDate.isDate = gStartTime.isDate; // Enforce same value type as DTSTART
+            if (!gStartTime.isDate) {
+                repeatUntilDate.hour = gStartTime.hour;
+                repeatUntilDate.minute = gStartTime.minute;
+                repeatUntilDate.second = gStartTime.second;
+            }
         }
         recRule.untilDate = repeatUntilDate.clone();
         gUntilDate = repeatUntilDate.clone().getInTimezone(defaultTimezone);
