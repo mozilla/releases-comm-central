@@ -138,7 +138,7 @@ function onLoad()
 
     switch (gEncryptionStatus) {
       case -1:
-        encInfoLabel = "EINoneLabel";
+        encInfoLabel = "EINoneLabel2";
         encInfo = "EINone";
         break;
 
