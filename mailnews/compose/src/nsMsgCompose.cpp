@@ -778,37 +778,40 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
       if (!aBuf.IsEmpty())
       {
         nsresult rv;
-
-        // Create a <div> of the required class.
         nsCOMPtr<nsIDOMElement> divElem;
-        rv = htmlEditor->CreateElementWithDefaults(NS_LITERAL_STRING("div"),
-                                                   getter_AddRefs(divElem));
-        NS_ENSURE_SUCCESS(rv, rv);
+        nsCOMPtr<nsIDOMNode> extraBr;
 
-        nsAutoString attributeName;
-        nsAutoString attributeValue;
-        attributeName.AssignLiteral("class");
-        attributeValue.AssignLiteral("moz-forward-container");
-        divElem->SetAttribute(attributeName, attributeValue);
+        if (isForwarded) {
+          // Special treatment for forwarded messages: Part 1.
+          // Create a <div> of the required class.
+          rv = htmlEditor->CreateElementWithDefaults(NS_LITERAL_STRING("div"),
+                                                     getter_AddRefs(divElem));
+          NS_ENSURE_SUCCESS(rv, rv);
 
-        // We can't insert an empty <div>, so fill it with something.
-        nsCOMPtr<nsIDOMElement> brElem;
-        nsCOMPtr<nsIDOMNode> resultNode;
-        rv = htmlEditor->CreateElementWithDefaults(NS_LITERAL_STRING("br"),
-                                                   getter_AddRefs(brElem));
-        NS_ENSURE_SUCCESS(rv, rv);
-        rv = divElem->AppendChild(brElem, getter_AddRefs(resultNode));
-        NS_ENSURE_SUCCESS(rv, rv);
+          nsAutoString attributeName;
+          nsAutoString attributeValue;
+          attributeName.AssignLiteral("class");
+          attributeValue.AssignLiteral("moz-forward-container");
+          divElem->SetAttribute(attributeName, attributeValue);
 
-        // Insert the non-empty <div> into the DOM.
-        rv = htmlEditor->InsertElementAtSelection(divElem, false);
-        NS_ENSURE_SUCCESS(rv, rv);
+          // We can't insert an empty <div>, so fill it with something.
+          nsCOMPtr<nsIDOMElement> brElem;
+          rv = htmlEditor->CreateElementWithDefaults(NS_LITERAL_STRING("br"),
+                                                     getter_AddRefs(brElem));
+          NS_ENSURE_SUCCESS(rv, rv);
+          rv = divElem->AppendChild(brElem, getter_AddRefs(extraBr));
+          NS_ENSURE_SUCCESS(rv, rv);
 
-        // Position into the div, so out content goes there.
-        nsCOMPtr<nsISelection> selection;
-        m_editor->GetSelection(getter_AddRefs(selection));
-        rv = selection->Collapse(divElem, 0);
-        NS_ENSURE_SUCCESS(rv, rv);
+          // Insert the non-empty <div> into the DOM.
+          rv = htmlEditor->InsertElementAtSelection(divElem, false);
+          NS_ENSURE_SUCCESS(rv, rv);
+
+          // Position into the div, so out content goes there.
+          nsCOMPtr<nsISelection> selection;
+          m_editor->GetSelection(getter_AddRefs(selection));
+          rv = selection->Collapse(divElem, 0);
+          NS_ENSURE_SUCCESS(rv, rv);
+        }
 
         if (mailEditor) {
           rv = mailEditor->InsertTextWithQuotations(aBuf);
@@ -818,27 +821,32 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
         }
         NS_ENSURE_SUCCESS(rv, rv);
 
-        if (sigOnTopInserted) {
-          // Sadly the M-C editor inserts a <br> between the <div> for the signature
-          // and this <div>, so remove the <br> we don't want.
-          nsCOMPtr<nsIDOMNode> brBeforeDiv;
-          nsAutoString tagLocalName;
-          rv = divElem->GetPreviousSibling(getter_AddRefs(brBeforeDiv));
-          if (NS_SUCCEEDED(rv) && brBeforeDiv) {
-            brBeforeDiv->GetLocalName(tagLocalName);
-            if (tagLocalName.EqualsLiteral("br")) {
-              rv = m_editor->DeleteNode(brBeforeDiv);
-              NS_ENSURE_SUCCESS(rv, rv);
+        if (isForwarded) {
+          // Special treatment for forwarded messages: Part 2.
+          if (sigOnTopInserted) {
+            // Sadly the M-C editor inserts a <br> between the <div> for the signature
+            // and this <div>, so remove the <br> we don't want.
+            nsCOMPtr<nsIDOMNode> brBeforeDiv;
+            nsAutoString tagLocalName;
+            rv = divElem->GetPreviousSibling(getter_AddRefs(brBeforeDiv));
+            if (NS_SUCCEEDED(rv) && brBeforeDiv) {
+              brBeforeDiv->GetLocalName(tagLocalName);
+              if (tagLocalName.EqualsLiteral("br")) {
+                rv = m_editor->DeleteNode(brBeforeDiv);
+                NS_ENSURE_SUCCESS(rv, rv);
+              }
             }
           }
-        }
 
-        // Clean up the <br> we inserted.
-        rv = m_editor->DeleteNode(resultNode);
-        NS_ENSURE_SUCCESS(rv, rv);
+          // Clean up the <br> we inserted.
+          rv = m_editor->DeleteNode(extraBr);
+          NS_ENSURE_SUCCESS(rv, rv);
+        }
 
         // Use our own function instead of nsEditor::EndOfDocument() because
         // we don't want to position at the end of the div we've just created.
+        // It's OK to use, even if we're not forwarding and didn't create a
+        // <div>.
         rv = MoveToEndOfDocument();
         NS_ENSURE_SUCCESS(rv, rv);
       }
