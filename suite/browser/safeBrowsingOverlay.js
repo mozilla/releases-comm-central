@@ -25,21 +25,12 @@ var gSafeBrowsing = {
   /**
    * Used to report a phishing page or a false positive
    * @param   aName
-   *          A String One of "Phish", "Error", "Malware" or "MalwareError".
+   *          A String One of "Phish", "PhishMistake" or "MalwareMistake".
    * @returns A String containing the report phishing URL.
    */
   getReportURL: function getReportURL(aName) {
-    var reportUrl = SafeBrowsing.getReportURL(aName);
-
     var pageUri = getBrowser().currentURI.cloneIgnoringRef();
-
-    // Remove the query to avoid including potentially sensitive data
-    if (pageUri instanceof Components.interfaces.nsIURL)
-      pageUri.query = "";
-
-    reportUrl += "&url=" + encodeURIComponent(pageUri.asciiSpec);
-
-    return reportUrl;
+    return SafeBrowsing.getReportURL(aName, pageUri);
   },
 
   initOverlay: function initOverlay(aEvent) {
