@@ -80,7 +80,7 @@ function openIdentityEditor(identity)
                                  gIdentityListBox.itemCount;
 
   window.openDialog("am-identity-edit.xul", "",
-                    "chrome,modal,resizable=no,centerscreen", args);
+                    "chrome,modal,resizable,centerscreen", args);
 
   if (args.result)
     refreshIdentityList(indexToSelect);

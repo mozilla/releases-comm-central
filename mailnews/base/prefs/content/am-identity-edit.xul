@@ -38,7 +38,7 @@
   <description flex="1">&identityListDesc.label;</description>
   <separator class="thin"/>
 
-  <tabbox>
+  <tabbox flex="1" style="overflow: auto;">
     <tabs id="identitySettings">
       <tab label="&settingsTab.label;"/>
       <tab label="&copiesFoldersTab.label;"/>
