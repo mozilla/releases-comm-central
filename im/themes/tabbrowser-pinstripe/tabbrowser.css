@@ -208,7 +208,7 @@ statusbarpanel#statusbar-display {
 }
 
 .tabbrowser-strip {
-  -moz-appearance: -moz-mac-unified-toolbar;
+  -moz-appearance: toolbar;
   height: 26px;
   background-repeat: repeat-x;
 }
