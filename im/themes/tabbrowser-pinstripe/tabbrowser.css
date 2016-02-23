@@ -159,9 +159,7 @@ statusbarpanel#statusbar-display {
   background-image:
     url(chrome://instantbird/skin/tabbrowser/tab-top-normal-active.png),
     url(chrome://instantbird/skin/tabbrowser/tab-top-hover-active.png),
-    url(chrome://instantbird/skin/tabbrowser/tab-top-selected-active.png),
-    url(chrome://instantbird/skin/tabbrowser/tabbar-top-bg-active.png),
-    url(chrome://instantbird/skin/tabbrowser/tabbar-top-bg-inactive.png);
+    url(chrome://instantbird/skin/tabbrowser/tab-top-selected-active.png);
 }
 
 @media (min-resolution: 2dppx) {
@@ -210,29 +208,15 @@ statusbarpanel#statusbar-display {
 .tabbrowser-strip {
   -moz-appearance: toolbar;
   height: 26px;
-  background-repeat: repeat-x;
-}
-
-.tabbrowser-strip:not(:-moz-lwtheme) {
-  background-color: -moz-mac-chrome-active;
-}
-
-.tabbrowser-strip:not(:-moz-lwtheme):-moz-window-inactive {
-  background-color: -moz-mac-chrome-inactive;
 }
 
 .tabbrowser-strip:not(:-moz-lwtheme) {
   padding-bottom: 1px; /* 2px in Firefox */
   height: 25px; /* not in Firefox */
-  background-image: url(chrome://instantbird/skin/tabbrowser/tabbar-top-bg-active.png) ;
 }
 
 .tabbrowser-tabpanels:not(:-moz-lwtheme) {
   border-top: 1px solid transparent;
-}
-
-.tabbrowser-strip:not(:-moz-lwtheme):-moz-window-inactive {
-  background-image: url(chrome://instantbird/skin/tabbrowser/tabbar-top-bg-inactive.png);
 }
 
 .tabbrowser-tabs {

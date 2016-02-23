@@ -96,8 +96,6 @@ instantbird.jar:
 	skin/classic/instantbird/tabbrowser/tab-top-selected-active@2x.png (tabbrowser-pinstripe/tab-top-selected-active@2x.png)
 	skin/classic/instantbird/tabbrowser/tabDragIndicator.png	(tabbrowser-pinstripe/tabDragIndicator.png)
 	skin/classic/instantbird/tabbrowser/tabDragIndicator@2x.png	(tabbrowser-pinstripe/tabDragIndicator@2x.png)
-	skin/classic/instantbird/tabbrowser/tabbar-top-bg-active.png    (tabbrowser-pinstripe/tabbar-top-bg-active.png)
-	skin/classic/instantbird/tabbrowser/tabbar-top-bg-inactive.png  (tabbrowser-pinstripe/tabbar-top-bg-inactive.png)
 	skin/classic/instantbird/tabbrowser/alltabs-box-bkgnd-icon.png	(tabbrowser-pinstripe/alltabs-box-bkgnd-icon.png)
 	skin/classic/instantbird/lion/tabbrowser/alltabs-box-bkgnd-icon.png	(tabbrowser-pinstripe/alltabs-box-bkgnd-icon-lion.png)
 	skin/classic/instantbird/tabbrowser/alltabs-box-bkgnd-icon@2x.png	(tabbrowser-pinstripe/alltabs-box-bkgnd-icon-lion@2x.png)
