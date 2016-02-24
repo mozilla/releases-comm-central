@@ -164,6 +164,10 @@
                 onget="return this.docShell.contentViewer;"
                 readonly="true"/>
 
+      <property name="contentChatNode"
+                onget="return this.contentDocument.getElementById('Chat');"
+                readonly="true"/>
+
       <property name="fullZoom">
         <getter><![CDATA[
           return this.markupDocumentViewer.fullZoom;
@@ -280,6 +284,8 @@
             Components.utils.import("resource:///modules/imSmileys.jsm");
           if (!("getCurrentTheme" in window))
             Components.utils.import("resource:///modules/imThemes.jsm");
+
+          this.onContentElementLoad = this._onContentElementLoad.bind(this);
         ]]>
       </constructor>
 
@@ -311,6 +317,9 @@
             }
 
             this.uninitMagicCopy();
+
+            this.contentChatNode
+                .removeEventListener("load", this.onContentElementLoad, true);
           ]]>
         </body>
       </method>
@@ -486,7 +495,7 @@
               if (this._lastMessage) {
                 let ruler = doc.createElement("hr");
                 ruler.className = "sessionstart-ruler";
-                doc.getElementById("Chat").appendChild(ruler);
+                this.contentChatNode.appendChild(ruler);
                 this._sessions.push(ruler);
                 // Close any open bubble.
                 this._lastMessage = null;
@@ -597,10 +606,9 @@
           // Remove any existing ruler (occurs when the window has lost focus).
           this.removeUnreadRuler();
 
-          let doc = this.contentDocument;
-          let ruler = doc.createElement("hr");
+          let ruler = this.contentDocument.createElement("hr");
           ruler.id = "unread-ruler";
-          doc.getElementById("Chat").appendChild(ruler);
+          this.contentChatNode.appendChild(ruler);
        ]]>
         </body>
       </method>
@@ -759,6 +767,13 @@
               return;
             }
 
+            // If images higher than one line of text load they will trigger a
+            // scroll event, which shouldn't disable auto-scroll while messages
+            // are being appended without being scrolled.
+            if (this._messageDisplayPending) {
+              return;
+            }
+
             // Enable or disable auto-scroll based on the scrollbar position.
             this._updateAutoScrollEnabled();
           ]]>
@@ -772,6 +787,25 @@
             if (this._autoScrollEnabled && this._lastElement) {
               // The content area was resized and auto-scroll is enabled,
               // make sure the last inserted element is still visible
+              this._scrollToElement(this._lastElement);
+            }
+          ]]>
+        </body>
+      </method>
+
+      <!-- This field holds a bound version of _onContentElementLoad, so it can
+           be used as an event listener on the content 'Chat' node. -->
+      <field name="onContentElementLoad">null</field>
+      <method name="_onContentElementLoad">
+        <parameter name="event"/>
+        <body>
+          <![CDATA[
+            if (event.target.localName == "img" &&
+                this._autoScrollEnabled && !this._messageDisplayPending &&
+                this._lastElement) {
+              // An image loaded while auto-scroll is enabled and no further
+              // messages are currently being appended. So we need to scroll
+              // the last element fully back into view.
               this._scrollToElement(this._lastElement);
             }
           ]]>
@@ -904,6 +938,9 @@
               this._sessions = [];
               if (this.progressBar)
                 this.progressBar.hidden = true;
+
+              this.contentChatNode
+                  .addEventListener("load", this.onContentElementLoad, true);
 
               Services.obs.notifyObservers(this, "conversation-loaded", null);
             }
@@ -1197,6 +1234,10 @@
           }
 
           this.initMagicCopy();
+
+          // The listener from the other browser is gone and we need a new one.
+          this.contentChatNode
+              .addEventListener("load", this.onContentElementLoad, true);
         ]]>
         </body>
       </method>
