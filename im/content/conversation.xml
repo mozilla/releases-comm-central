@@ -1350,12 +1350,14 @@
           if (!aOldName) {
             // If aOldName is null, we are changing the flags of the buddy
             let item = this.buddies.get(name);
+            if (!item)
+              throw "Changing the flags of a chat buddy that does not exist: " + name;
             item.chatBuddy = aBuddy;
             this.setBuddyAttributes(item);
             return;
           }
 
-          // Is aOldName is not null, then we are renaming the buddy
+          // If aOldName is not null, then we are renaming the buddy
           if (!this.buddies.has(aOldName))
             throw "Updating a chat buddy that does not exist: " + aOldName;
 
