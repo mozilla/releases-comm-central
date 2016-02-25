@@ -17,7 +17,7 @@
 #include "nsIIOService.h"
 #include "nsNetCID.h"
 #include "prprf.h"
-#include "nsAutoPtr.h"
+#include "mozilla/UniquePtr.h"
 #include "prmem.h"
 #include "MailNewsTypes.h"
 #include "nsComponentManagerUtils.h"
@@ -552,10 +552,10 @@ nsresult nsMsgSearchAdapter::EncodeImapTerm (nsIMsgSearchTerm *term, bool really
         {
           const char *vptr = valueStr.get();
           // max escaped length is one extra character for every character in the cmd.
-          nsAutoArrayPtr<char> newValue(new char[2*strlen(vptr) + 1]);
+          mozilla::UniquePtr<char[]> newValue = mozilla::MakeUnique<char[]>(2*strlen(vptr) + 1);
           if (newValue)
           {
-            char *p = newValue;
+            char *p = newValue.get();
             while (1)
             {
               char ch = *vptr++;
@@ -566,7 +566,7 @@ nsresult nsMsgSearchAdapter::EncodeImapTerm (nsIMsgSearchTerm *term, bool really
               *p++ = ch;
             }
             *p = '\0';
-            value = strdup(newValue); // realloc down to smaller size
+            value = strdup(newValue.get()); // realloc down to smaller size
           }
         }
         else

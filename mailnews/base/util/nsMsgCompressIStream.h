@@ -6,7 +6,7 @@
 #include "nsIAsyncInputStream.h"
 #include "nsIInputStream.h"
 #include "nsCOMPtr.h"
-#include "nsAutoPtr.h"
+#include "mozilla/UniquePtr.h"
 #include "zlib.h"
 
 class NS_MSG_BASE nsMsgCompressIStream final : public nsIAsyncInputStream
@@ -25,8 +25,8 @@ protected:
   ~nsMsgCompressIStream();
   nsresult DoInflation();
   nsCOMPtr<nsIInputStream> m_iStream;
-  nsAutoArrayPtr<char> m_zbuf;
-  nsAutoArrayPtr<char> m_databuf;
+  mozilla::UniquePtr<char[]> m_zbuf;
+  mozilla::UniquePtr<char[]> m_databuf;
   char *m_dataptr;
   uint32_t m_dataleft;
   bool m_inflateAgain;

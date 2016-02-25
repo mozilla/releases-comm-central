@@ -27,7 +27,7 @@ nsresult nsMsgCompressOStream::InitOutputStream(nsIOutputStream *rawStream)
     return NS_ERROR_UNEXPECTED;
 
   // allocate some memory for a buffer
-  m_zbuf = new char[BUFFER_SIZE];
+  m_zbuf = mozilla::MakeUnique<char[]>(BUFFER_SIZE);
   if (!m_zbuf)
     return NS_ERROR_OUT_OF_MEMORY;
 
@@ -89,7 +89,7 @@ nsMsgCompressOStream::Write(const char *buf, uint32_t count, uint32_t *result)
       return NS_ERROR_FAILURE;
 
     uint32_t out_size = BUFFER_SIZE - m_zstream.avail_out;
-    const char *out_buf = m_zbuf;
+    const char *out_buf = m_zbuf.get();
 
     // push everything in the buffer before repeating
     while (out_size)

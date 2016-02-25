@@ -4,8 +4,8 @@
 
 #include "msgCore.h"
 #include "nsIOutputStream.h"
-#include "nsAutoPtr.h"
 #include "nsCOMPtr.h"
+#include "mozilla/UniquePtr.h"
 #include "zlib.h"
 
 class NS_MSG_BASE nsMsgCompressOStream final : public nsIOutputStream
@@ -22,7 +22,7 @@ public:
 protected:
   ~nsMsgCompressOStream();
   nsCOMPtr<nsIOutputStream> m_oStream;
-  nsAutoArrayPtr<char> m_zbuf;
+  mozilla::UniquePtr<char[]> m_zbuf;
   z_stream m_zstream;
 };
 

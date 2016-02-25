@@ -32,12 +32,12 @@ nsresult nsMsgCompressIStream::InitInputStream(nsIInputStream *rawStream)
     return NS_ERROR_UNEXPECTED;
 
   // allocate some memory for buffering
-  m_zbuf = new char[BUFFER_SIZE];
+  m_zbuf = mozilla::MakeUnique<char[]>(BUFFER_SIZE);
   if (!m_zbuf)
     return NS_ERROR_OUT_OF_MEMORY;
 
   // allocate some memory for buffering
-  m_databuf = new char[BUFFER_SIZE];
+  m_databuf = mozilla::MakeUnique<char[]>(BUFFER_SIZE);
   if (!m_databuf)
     return NS_ERROR_OUT_OF_MEMORY;
 
@@ -84,7 +84,7 @@ nsresult nsMsgCompressIStream::DoInflation()
 
   // set the pointer to the start of the buffer, and the count to how
   // based on how many bytes are left unconsumed.
-  m_dataptr = m_databuf;
+  m_dataptr = m_databuf.get();
   m_dataleft = BUFFER_SIZE - m_zstream.avail_out;
 
   return NS_OK;
@@ -177,7 +177,7 @@ NS_IMETHODIMP nsMsgCompressIStream::Read(char * aBuf, uint32_t aCount, uint32_t 
     if (!m_inflateAgain) 
     {
       uint32_t bytesRead;
-      nsresult rv = m_iStream->Read(m_zbuf, (uint32_t)BUFFER_SIZE, &bytesRead);
+      nsresult rv = m_iStream->Read(m_zbuf.get(), (uint32_t)BUFFER_SIZE, &bytesRead);
       NS_ENSURE_SUCCESS(rv, rv);
       if (!bytesRead)
         return NS_BASE_STREAM_CLOSED;

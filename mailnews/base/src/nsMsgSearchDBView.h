@@ -12,6 +12,7 @@
 #include "nsIMsgSearchNotify.h"
 #include "nsMsgXFViewThread.h"
 #include "nsCOMArray.h"
+#include "mozilla/UniquePtr.h"
 
 class nsMsgSearchDBView : public nsMsgGroupView, public nsIMsgCopyServiceListener, public nsIMsgSearchNotify
 {
@@ -90,7 +91,11 @@ protected:
                                  bool allowDummy=false) override;
   nsresult GetFoldersAndHdrsForSelection(nsMsgViewIndex *indices, int32_t numIndices);
   nsresult GroupSearchResultsByFolder();
-  nsresult PartitionSelectionByFolder(nsMsgViewIndex *indices, int32_t numIndices, nsTArray<uint32_t> **indexArrays, int32_t *numArrays);
+  nsresult PartitionSelectionByFolder(nsMsgViewIndex *indices,
+                                      int32_t numIndices,
+                                      mozilla::UniquePtr<nsTArray<uint32_t>[]> &indexArrays,
+                                      int32_t *numArrays);
+
   virtual nsresult ApplyCommandToIndicesWithFolder(nsMsgViewCommandTypeValue command, nsMsgViewIndex* indices,
                     int32_t numIndices, nsIMsgFolder *destFolder) override;
   void MoveThreadAt(nsMsgViewIndex threadIndex);

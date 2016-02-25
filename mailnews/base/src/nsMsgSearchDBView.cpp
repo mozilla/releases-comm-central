@@ -15,7 +15,6 @@
 #include "nsMsgUtils.h"
 #include "nsITreeColumns.h"
 #include "nsIMsgMessageService.h"
-#include "nsAutoPtr.h"
 #include "nsArrayUtils.h"
 #include "nsIMutableArray.h"
 #include "nsMsgGroupThread.h"
@@ -779,13 +778,13 @@ NS_IMETHODIMP nsMsgSearchDBView::DoCommand(nsMsgViewCommandTypeValue command)
   // ApplyCommandToIndices with the command and the indices in the
   // selection that are from that folder.
 
-  nsAutoArrayPtr<nsTArray<uint32_t> > indexArrays;
+  mozilla::UniquePtr<nsTArray<uint32_t>[]> indexArrays;
   int32_t numArrays;
-  rv = PartitionSelectionByFolder(indices, numIndices, getter_Transfers(indexArrays), &numArrays);
+  rv = PartitionSelectionByFolder(indices, numIndices, indexArrays, &numArrays);
   NS_ENSURE_SUCCESS(rv, rv);
   for (int32_t folderIndex = 0; folderIndex < numArrays; folderIndex++)
   {
-    rv = ApplyCommandToIndices(command, indexArrays[folderIndex].Elements(), indexArrays[folderIndex].Length());
+    rv = ApplyCommandToIndices(command, (indexArrays.get())[folderIndex].Elements(), indexArrays[folderIndex].Length());
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -882,7 +881,10 @@ nsMsgSearchDBView::CopyMessages(nsIMsgWindow *window, nsMsgViewIndex *indices, i
 }
 
 nsresult
-nsMsgSearchDBView::PartitionSelectionByFolder(nsMsgViewIndex *indices, int32_t numIndices, nsTArray<uint32_t> **indexArrays, int32_t *numArrays)
+nsMsgSearchDBView::PartitionSelectionByFolder(nsMsgViewIndex *indices,
+                                              int32_t numIndices,
+                                              mozilla::UniquePtr<nsTArray<uint32_t>[]> &indexArrays,
+                                              int32_t *numArrays)
 {
   nsMsgViewIndex i;
   int32_t folderIndex;
@@ -907,18 +909,18 @@ nsMsgSearchDBView::PartitionSelectionByFolder(nsMsgViewIndex *indices, int32_t n
   }
 
   int32_t numFolders = uniqueFoldersSelected.Count();
-  *indexArrays = new nsTArray<uint32_t>[numFolders];
+  indexArrays = mozilla::MakeUnique<nsTArray<uint32_t>[]>(numFolders);
   *numArrays = numFolders;
-  NS_ENSURE_TRUE(*indexArrays, NS_ERROR_OUT_OF_MEMORY);
+  NS_ENSURE_TRUE(indexArrays, NS_ERROR_OUT_OF_MEMORY);
   for (folderIndex = 0; folderIndex < numFolders; folderIndex++)
   {
-    (*indexArrays)[folderIndex].SetCapacity(numIndicesSelected[folderIndex]);
+    (indexArrays.get())[folderIndex].SetCapacity(numIndicesSelected[folderIndex]);
   }
   for (i = 0; i < (nsMsgViewIndex) numIndices; i++) 
   {
     nsIMsgFolder *curFolder = m_folders[indices[i]];
     int32_t folderIndex = uniqueFoldersSelected.IndexOf(curFolder);
-    (*indexArrays)[folderIndex].AppendElement(indices[i]);
+    (indexArrays.get())[folderIndex].AppendElement(indices[i]);
   }
   return NS_OK;
 }
