@@ -18,53 +18,69 @@ richlistbox {
   -moz-appearance: none;
 }
 
+
 .listboxHeader {
   margin: 0 0;
   padding: 2px 5px;
-  border-style: none;
-  -moz-appearance: none;
-%ifdef XP_MACOSX
-  background-color: -moz-mac-chrome-active;
-  background-image: -moz-linear-gradient(rgba(255,255,255,.43), rgba(255,255,255,0));
-  border-bottom: 1px solid rgba(0, 0, 0, 0.57);
 }
 
-.listboxHeader:-moz-window-inactive {
-  background-color: -moz-mac-chrome-inactive;
-  border-bottom-color: rgba(0, 0, 0, 0.32);
-%else
+%ifdef XP_MACOSX
+@media not all and (-moz-mac-yosemite-theme) {
+  .listboxHeader {
+    border-style: none;
+    -moz-appearance: none;
+    background-color: -moz-mac-chrome-active;
+    background-image: -moz-linear-gradient(rgba(255,255,255,.43), rgba(255,255,255,0));
+    border-bottom: 1px solid rgba(0, 0, 0, 0.57);
+  }
+
+  .listboxHeader:-moz-window-inactive {
+    background-color: -moz-mac-chrome-inactive;
+    border-bottom-color: rgba(0, 0, 0, 0.32);
+  }
+
+  #contactsHeader {
+    border-top: 1px solid rgb(66, 66, 66);
+  }
+
+  #contactsHeader:-moz-window-inactive {
+    border-top-color: rgb(137, 137, 137);
+  }
+}
+
+@media (-moz-mac-yosemite-theme) {
+  .listboxHeader {
+    -moz-appearance: toolbar;
+  }
+}
+%endif
+%ifndef XP_MACOSX
+.listboxHeader {
+  border-style: none;
+  -moz-appearance: none;
   background-color: -moz-Dialog;
 %ifdef XP_WIN
   background-image: -moz-linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
 %else
   background-image: -moz-linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,0));
 %endif
-%endif
 }
 
+%ifdef XP_WIN
 #contactsHeader {
-%ifdef XP_MACOSX
-  border-top: 1px solid rgb(66, 66, 66);
-}
-
-#contactsHeader:-moz-window-inactive {
-  border-top-color: rgb(137, 137, 137);
-%else
-%ifdef XP_UNIX
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-%else
   border-top: none;
-%endif
-%endif
+}
+%else
+#contactsHeader {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-%ifdef XP_UNIX
-%ifndef XP_MACOSX
 #convsHeader {
   border-top: 1px solid rgba(0, 0, 0, 0.12);
 }
 %endif
 %endif
+
 
 .convUnreadCount,
 .convUnreadTargetedCount {
