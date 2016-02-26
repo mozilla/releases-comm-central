@@ -266,7 +266,7 @@ var abDirTreeObserver = {
       }
 
       var transData = dataObj.data.split("\n");
-      var rows = transData[0].split(",");
+      var rows = transData[0].split(",").map(j => parseInt(j, 10));
       var numrows = rows.length;
 
       var result;
@@ -303,8 +303,11 @@ var abDirTreeObserver = {
       // Only move if we are not transferring to a mail list
       var actionIsMoving = (dragSession.dragAction & dragSession.DRAGDROP_ACTION_MOVE) && !directory.isMailList;
 
+      let cardsToCopy = [];
       for (let j = 0; j < numrows; j++) {
-        let card = gAbView.getCardFromRow(rows[j]);
+        cardsToCopy.push(gAbView.getCardFromRow(rows[j]));
+      }
+      for (let card of cardsToCopy) {
         if (card.isMailList) {
           // This check ensures we haven't slipped through by mistake
           if (needToCopyCard && actionIsMoving) {
