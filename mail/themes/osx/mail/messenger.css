@@ -111,14 +111,13 @@
 }
 
 .toolbarbutton-1 > .toolbarbutton-menubutton-button {
-  -moz-border-end: none;
+  border-inline-end: none;
 }
 
 .toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(ltr),
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(rtl) {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
-  -moz-border-end: none;
 }
 
 .toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(rtl),
