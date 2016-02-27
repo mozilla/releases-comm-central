@@ -37,6 +37,7 @@
 #include "nsIPop3Service.h"
 #include "nsMsgLocalCID.h"
 #include "mozilla/Services.h"
+#include "mozilla/Logging.h"
 
 extern PRLogModuleInfo *POP3LOGMODULE;
 #define POP3LOG(str) "%s sink: [this=%p] " str, POP3LOGMODULE->name, this
