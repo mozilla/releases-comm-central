@@ -50,6 +50,7 @@ classic.jar:
   skin/classic/messenger/messageBody.css                      (mail/messageBody.css)
   skin/classic/messenger/messageQuotes.css                    (mail/messageQuotes.css)
   skin/classic/messenger/messenger.css                        (mail/messenger.css)
+  skin/classic/messenger/aboutNetError.css                    (../shared/mail/aboutNetError.css)
   skin/classic/messenger/messengerLWTheme.css                 (../shared/mail/messengerLWTheme.css)
   skin/classic/messenger/attachmentList.css                   (mail/attachmentList.css)
   skin/classic/messenger/imageFilters.svg                     (mail/imageFilters.svg)
@@ -197,6 +198,8 @@ classic.jar:
   skin/classic/messenger/icons/readmail.png                   (mail/icons/readmail.png)
   skin/classic/messenger/icons/mail-toolbar.png               (mail/icons/mail-toolbar.png)
   skin/classic/messenger/icons/mail-toolbar-small.png         (mail/icons/mail-toolbar-small.png)
+  skin/classic/messenger/icons/blacklist.svg                  (../shared/mail/icons/blacklist.svg)
+  skin/classic/messenger/icons/cert-error.svg                 (../shared/mail/icons/cert-error.svg)
   skin/classic/messenger/icons/mail-toolbar.svg               (../shared/mail/icons/mail-toolbar.svg)
   skin/classic/messenger/icons/folder.png                     (mail/icons/folder.png)
   skin/classic/messenger/icons/folder-XP.png                  (mail/icons/folder-XP.png)
@@ -340,3 +343,4 @@ classic.jar:
   skin/classic/messenger/shared/tabmail.css                   (../shared/mail/tabmail.css)
   skin/classic/messenger/shared/addressbook.css               (../shared/mail/addressbook.css)
   skin/classic/messenger/shared/accountProvisioner.css        (../shared/mail/accountProvisioner.css)
+% override chrome://global/skin/netError.css chrome://messenger/skin/aboutNetError.css

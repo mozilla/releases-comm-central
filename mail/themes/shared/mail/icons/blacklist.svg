@@ -1,0 +1,7 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="#ffffff">
+  <circle cx="50" cy="50" r="44" stroke="#ffffff" stroke-width="11"/>
+  <rect x="15.6" y="40" width="68.8" height="20" fill="#772222"/>
+</svg>

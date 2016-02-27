@@ -8,6 +8,7 @@ classic.jar:
   skin/classic/messenger/multimessageview.css                    (mail/multimessageview.css)
   skin/classic/messenger/dialogs.css                             (mail/dialogs.css)
   skin/classic/messenger/messenger.css                           (mail/messenger.css)
+  skin/classic/messenger/aboutNetError.css                       (../shared/mail/aboutNetError.css)
   skin/classic/messenger/messengerLWTheme.css                    (../shared/mail/messengerLWTheme.css)
   skin/classic/messenger/primaryToolbar.css                      (mail/primaryToolbar.css)
   skin/classic/messenger/aboutSupport.css                        (../windows/mail/aboutSupport.css)
@@ -171,6 +172,8 @@ classic.jar:
   skin/classic/messenger/icons/exclude-selected.png              (mail/icons/exclude-selected.png)
   skin/classic/messenger/icons/group-background.gif              (mail/icons/group-background.gif)
   skin/classic/messenger/icons/junk-column-header.png            (mail/icons/junk-column-header.png)
+  skin/classic/messenger/icons/blacklist.svg                     (../shared/mail/icons/blacklist.svg)
+  skin/classic/messenger/icons/cert-error.svg                    (../shared/mail/icons/cert-error.svg)
   skin/classic/messenger/icons/mail-toolbar.svg                  (../shared/mail/icons/mail-toolbar.svg)
   skin/classic/messenger/icons/message-mail-attach.png           (mail/icons/message-mail-attach.png)
   skin/classic/messenger/icons/message-mail-imapdelete.png       (mail/icons/message-mail-imapdelete.png)
@@ -354,3 +357,4 @@ classic.jar:
   skin/classic/messenger/shared/tabmail.css                      (../shared/mail/tabmail.css)
   skin/classic/messenger/shared/addressbook.css                  (../shared/mail/addressbook.css)
   skin/classic/messenger/shared/accountProvisioner.css           (../shared/mail/accountProvisioner.css)
+% override chrome://global/skin/netError.css chrome://messenger/skin/aboutNetError.css

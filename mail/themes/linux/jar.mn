@@ -29,6 +29,7 @@ classic.jar:
   skin/classic/messenger/messageBody.css                      (mail/messageBody.css)
   skin/classic/messenger/messageQuotes.css                    (mail/messageQuotes.css)
   skin/classic/messenger/messenger.css                        (mail/messenger.css)
+  skin/classic/messenger/aboutNetError.css                    (../shared/mail/aboutNetError.css)
   skin/classic/messenger/messengerLWTheme.css                 (../shared/mail/messengerLWTheme.css)
   skin/classic/messenger/attachmentList.css                   (mail/attachmentList.css)
   skin/classic/messenger/imageFilters.svg                     (mail/imageFilters.svg)
@@ -147,6 +148,8 @@ classic.jar:
   skin/classic/messenger/icons/tick.png                       (mail/icons/tick.png)
   skin/classic/messenger/icons/error.png                      (mail/icons/error.png)
   skin/classic/messenger/icons/cancel.png                     (mail/icons/cancel.png)
+  skin/classic/messenger/icons/blacklist.svg                  (../shared/mail/icons/blacklist.svg)
+  skin/classic/messenger/icons/cert-error.svg                 (../shared/mail/icons/cert-error.svg)
   skin/classic/messenger/icons/mail-toolbar.svg               (../shared/mail/icons/mail-toolbar.svg)
   skin/classic/messenger/icons/folder-pane.png                (mail/icons/folder-pane.png)
   skin/classic/messenger/icons/folder-new-star.png            (mail/icons/folder-new-star.png)
@@ -267,3 +270,4 @@ classic.jar:
   skin/classic/messenger/shared/accountProvisioner.css         (../shared/mail/accountProvisioner.css)
   skin/classic/messenger/shared/addressbook.css               (../shared/mail/addressbook.css)
 % override chrome://global/skin/icons/close.png               chrome://global/skin/icons/close.svg
+% override chrome://global/skin/netError.css chrome://messenger/skin/aboutNetError.css
