@@ -110,4 +110,3 @@ calendar.jar:
     ../skin/lightning-common/dialogOverlay.css             (/calendar/resources/skin/dialogOverlay.css)
     ../skin/lightning-common/imip.css                      (themes/common/imip.css)
     ../skin/lightning-common/lightning.css                 (themes/common/lightning.css)
-    ../skin/lightning-common/lightning-toolbar.css         (themes/common/lightning-toolbar.css)
