@@ -102,11 +102,11 @@
   }
 
   #searchInput,
-  #IMSearchInput {
+  #IMSearchInput,
+  #peopleSearchInput {
     margin-top: -1px;
     margin-bottom: -1px;
   }
-
 
   .searchBox[focused],
   #view-task-edit-field[focused],

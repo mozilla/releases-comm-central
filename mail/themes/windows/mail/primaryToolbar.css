@@ -164,10 +164,6 @@ menu:not(:-moz-lwtheme):-moz-window-inactive {
   border-top: none;
 }
 
-#mail-bar3 {
-  padding: 1px 0;
-}
-
 .button-appmenu .toolbarbutton-text,
 .button-appmenu .toolbarbutton-menu-dropmarker {
   display: none;
@@ -205,8 +201,8 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 .button-appmenu {
   min-width: 35px !important;
-  margin-right: 4px;
-  margin-left: 4px;
+  margin-right: 3px;
+  margin-left: 3px;
 }
 
 /* AppMenu styling */
@@ -1063,6 +1059,10 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
     border-bottom: none;
     /* force iconsize="small" on these toolbars */
     counter-reset: smallicons;
+  }
+
+  .mail-toolbox > toolbar:not([type="menubar"]) {
+    padding: 1px;
   }
 
   .mail-toolbox > toolbar:not(:-moz-lwtheme),

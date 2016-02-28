@@ -500,11 +500,6 @@ button[type="menu-button"] > button {
 }
 
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
-  #viewPicker,
-  #locationFolders {
-    min-height: 28px;
-  }
-
   #PopupGlodaAutocomplete:not(:-moz-lwtheme) {
     margin-top: -2px;
   }

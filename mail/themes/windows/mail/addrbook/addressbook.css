@@ -309,6 +309,10 @@
     counter-reset: smallicons;
   }
 
+  #ab-toolbox > toolbar:not([type="menubar"]) {
+    padding: 2px 1px;
+  }
+
   #ab-toolbox > toolbar:not([type="menubar"]):-moz-lwtheme {
     text-shadow: none;
   }

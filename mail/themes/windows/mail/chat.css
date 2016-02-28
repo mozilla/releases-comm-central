@@ -258,10 +258,6 @@
     border-radius: 2px;
   }
 
-  #chat-toobar {
-    padding: 1px 0;
-  }
-
   #listSplitter,
   #contextSplitter {
     border: none;

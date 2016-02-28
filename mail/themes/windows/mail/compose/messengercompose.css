@@ -1141,6 +1141,10 @@
     counter-reset: smallicons;
   }
 
+  #compose-toolbox > toolbar:not([type="menubar"]) {
+    padding: 2px 1px;
+  }
+
   #compose-toolbox > toolbar:not([type="menubar"]):-moz-lwtheme {
     text-shadow: none;
   }
@@ -1427,6 +1431,7 @@
     }
 
     menulist {
+      color: inherit;
       border: 1px solid;
       background: var(--toolbarbutton-hover-background);
       border-color: var(--toolbarbutton-hover-bordercolor);
