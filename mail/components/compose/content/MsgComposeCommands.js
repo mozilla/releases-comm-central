@@ -51,7 +51,6 @@ var gSpellChecker = new InlineSpellChecker();
  * Global variables, need to be re-initialized every time mostly because
  * we need to release them when the window closes.
  */
-var gHideMenus;
 var gMsgCompose;
 var gWindowLocked;
 var gSendLocked;
@@ -123,7 +122,6 @@ function InitializeGlobalVariables()
   gSavedSendNowKey = null;
   gSendFormat = nsIMsgCompSendFormat.AskUser;
   gCharsetConvertManager = Components.classes['@mozilla.org/charset-converter-manager;1'].getService(Components.interfaces.nsICharsetConverterManager);
-  gHideMenus = false;
   gManualAttachmentReminder = false;
   gLanguageObserver = null;
 
@@ -226,16 +224,6 @@ var gComposeRecyclingListener = {
     //Reset menu options
     document.getElementById("format_auto").setAttribute("checked", "true");
     document.getElementById("priority_normal").setAttribute("checked", "true");
-
-    //Reset toolbars that could be hidden
-    if (gHideMenus) {
-      document.getElementById("formatMenu").hidden = false;
-      document.getElementById("insertMenu").hidden = false;
-      var showFormat = document.getElementById("menu_showFormatToolbar")
-      showFormat.hidden = false;
-      if (showFormat.getAttribute("checked") == "true")
-        document.getElementById("FormatToolbar").hidden = false;
-    }
 
     // Reset the Customize Toolbars panel/sheet if open.
     if (getMailToolbox().customizing && gCustomizeSheet)
@@ -2339,13 +2327,14 @@ function ComposeStartup(recycled, aParams)
     }
     else
     {
-      // Remove HTML toolbar, format and insert menus as we are editing in
-      // plain text mode.
+      // We are editing in plain text mode.
+      // The SetCompositionAsPerDeliveryFormat call above already hid
+      // the HTML toolbar, format and insert menus.
+      // Also remove the delivery format from the options menu.
+      // We only do that when the window is first created ("!recycled")
+      // as we will never need to restore it since a plain text window will
+      // never be used for a HTML composition.
       document.getElementById("outputFormatMenu").setAttribute("hidden", true);
-      document.getElementById("FormatToolbar").setAttribute("hidden", true);
-      document.getElementById("formatMenu").setAttribute("hidden", true);
-      document.getElementById("insertMenu").setAttribute("hidden", true);
-      document.getElementById("menu_showFormatToolbar").setAttribute("hidden", true);
     }
 
     // Do setup common to Message Composer and Web Composer.
@@ -3072,18 +3061,28 @@ function PriorityMenuSelect(target)
   }
 }
 
+/**
+ * Shows HTML formatting menus/toolbars if they are useful for the selected
+ * message delivery format. E.g. they are not needed for plain text format.
+ *
+ * @param aDeliveryFormat  The chosen output format from the nsIMsgCompSendFormat enum.
+ */
 function SetCompositionAsPerDeliveryFormat(aDeliveryFormat)
 {
-  let toolbar = document.getElementById("FormatToolbar");
-  let format_menubar = document.getElementById("formatMenu");
-  let insert_menubar = document.getElementById("insertMenu");
-  let show_menuitem = document.getElementById("menu_showFormatToolbar");
-  gHideMenus = (aDeliveryFormat == nsIMsgCompSendFormat.PlainText);
-  format_menubar.hidden = gHideMenus;
-  insert_menubar.hidden = gHideMenus;
-  show_menuitem.hidden = gHideMenus;
-  toolbar.hidden = gHideMenus ||
-    (show_menuitem.getAttribute("checked") == "false");
+  let format_toolbar = document.getElementById("FormatToolbar");
+  let format_menu = document.getElementById("formatMenu");
+  let insert_menu = document.getElementById("insertMenu");
+  let view_menuitem = document.getElementById("menu_showFormatToolbar");
+
+  let hideMenus = !gMsgCompose.composeHTML ||
+                  (aDeliveryFormat == nsIMsgCompSendFormat.PlainText);
+  format_menu.hidden = hideMenus;
+  insert_menu.hidden = hideMenus;
+  view_menuitem.hidden = hideMenus;
+  // Hide the HTML toolbar if the output format is plain text
+  // or the user manually hid the toolbar on the view menu.
+  format_toolbar.hidden = hideMenus ||
+    (view_menuitem.getAttribute("checked") == "false");
 }
 
 function SelectDeliveryFormatMenuOption(aDeliveryFormat)
