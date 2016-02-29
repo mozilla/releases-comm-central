@@ -31,10 +31,14 @@ function getDBConnection()
   // Grow blist db in 512KB increments.
   try {
     conn.setGrowthIncrement(512 * 1024, "");
-  } catch (e if e.result == Cr.NS_ERROR_FILE_TOO_BIG) {
-    Services.console.logStringMessage("Not setting growth increment on " +
-                                      "blist.sqlite because the available " +
-                                      "disk space is limited");
+  } catch (e) {
+    if (e.result == Cr.NS_ERROR_FILE_TOO_BIG) {
+      Services.console.logStringMessage("Not setting growth increment on " +
+                                        "blist.sqlite because the available " +
+                                        "disk space is limited");
+    } else {
+      throw e;
+    }
   }
 
   // Create tables and indexes.
