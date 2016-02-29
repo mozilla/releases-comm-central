@@ -55,6 +55,13 @@ var PlacesOrganizer = {
     // Set up the search UI.
     PlacesSearchBox.init();
 
+    // Fix for Bug 1224907 - Search box missing in Mac Menu Bar.
+    var toolbar = document.getElementById("placesToolbar");
+    if (toolbar.hasAttribute("autohide")) {
+      toolbar.removeAttribute("autohide");
+      document.persist("placesToolbar", autohide);
+    }
+
     window.addEventListener("AppCommand", this, true);
   },
 

@@ -124,7 +124,6 @@
   <toolbox id="placesToolbox">
     <toolbar id="placesToolbar"
              class="chromeclass-toolbar"
-             type="menubar"
              align="center">
       <menubar id="placesMenu">
         <menu id="menu_File">
