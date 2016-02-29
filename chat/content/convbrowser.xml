@@ -318,8 +318,11 @@
 
             this.uninitMagicCopy();
 
-            this.contentChatNode
-                .removeEventListener("load", this.onContentElementLoad, true);
+            if (this.contentChatNode) {
+              // Remove the listener only if the conversation was initialized.
+              this.contentChatNode
+                  .removeEventListener("load", this.onContentElementLoad, true);
+            }
           ]]>
         </body>
       </method>
