@@ -1667,7 +1667,7 @@ mime_decompose_file_init_fn ( void *stream_closure, MimeHeaders *headers )
     if (mdd->curAttachment)
       mdd->curAttachment->m_type.Adopt(MimeHeaders_get(headers,
                                                        HEADER_CONTENT_TYPE,
-                                                       true, false));
+                                                       false, true));
     return 0;
   }
   else
