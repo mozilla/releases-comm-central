@@ -157,12 +157,6 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
   box-shadow: var(--toolbarbutton-hover-boxshadow);
 }
 
-.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
-  width: 9px;
-  max-height: 7px;
-  margin: 5px;
-}
-
 .findbar-button:not([disabled=true]):-moz-any([checked="true"],:hover:active),
 .toolbarbutton-1:not([disabled=true]):-moz-any([open],[checked="true"],:hover:active),
 .toolbarbutton-1 > .toolbarbutton-menubutton-button:not([disabled=true]):-moz-any(:hover:active, [open="true"]),
@@ -177,6 +171,30 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
 .toolbarbutton-1[checked="true"]:not(:active):hover {
   background-color: var(--toolbarbutton-checkedhover-backgroundcolor);
   transition: background-color 150ms;
+}
+
+.toolbarbutton-1 .toolbarbutton-menu-dropmarker,
+.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
+  -moz-appearance: none !important;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.toolbarbutton-1 .toolbarbutton-menu-dropmarker > .dropmarker-icon,
+.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+  width: 9px;
+  height: 7px;
+  background: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png") no-repeat center;
+}
+
+.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+  margin-right: 6px;
+  margin-left: 6px;
+}
+
+toolbar[brighttext] .toolbarbutton-1 .toolbarbutton-menu-dropmarker > .dropmarker-icon,
+toolbar[brighttext] .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted.png");
 }
 
 .toolbarbutton-1:not(:hover):not(:active):not([open]) > .toolbarbutton-menubutton-dropmarker::before {
@@ -196,29 +214,8 @@ toolbar[brighttext] .toolbarbutton-1:not(:hover):not(:active):not([open]) > .too
   opacity: .3;
 }
 
-.toolbarbutton-1 .toolbarbutton-menu-dropmarker,
-.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-  -moz-appearance: none !important;
-  margin-inline-start: 0;
-  margin-inline-end: 0;
-  padding-top: 3px;
-  padding-bottom: 2px;
-  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");
-}
-
-toolbar[brighttext] .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
-toolbar[brighttext] .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted.png");
-}
-
 toolbox:not([labelalign="end"]) toolbar[mode="full"] .toolbarbutton-1 {
   padding-bottom: 0;
-}
-
-toolbox:not([labelalign="end"]) toolbar[mode="full"] .toolbarbutton-1 >
-.toolbarbutton-menubutton-dropmarker {
-  padding-top: 10px;
-  padding-bottom: 9px;
 }
 
 
