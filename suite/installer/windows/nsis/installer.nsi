@@ -33,6 +33,7 @@ Var TmpVal
 Var StartMenuDir
 Var InstallType
 Var AddStartMenuSC
+Var AddTaskbarSC
 Var AddQuickLaunchSC
 Var AddDesktopSC
 Var InstallMaintenanceService
@@ -257,7 +258,7 @@ SectionEnd
 Section "-Application" APP_IDX
   ${StartUninstallLog}
 
-  SetDetailsPrint both 
+  SetDetailsPrint both
   DetailPrint $(STATUS_INSTALL_APP)
   SetDetailsPrint none
 
@@ -331,6 +332,12 @@ Section "-Application" APP_IDX
     StrCpy $AddStartMenuSC "1"
   ${EndIf}
 
+; Default for creating Task Bar shortcuts
+  ; (1 = create, 0 = don't create)
+  ${If} $AddTaskbarSC == ""
+    StrCpy $AddTaskbarSC "1"
+  ${EndIf}
+
   ; Default for creating Quick Launch shortcut (1 = create, 0 = don't create)
   ${If} $AddQuickLaunchSC == ""
     StrCpy $AddQuickLaunchSC "1"
@@ -373,7 +380,7 @@ Section "-Application" APP_IDX
   ${FixClassKeys}
 
   StrCpy $1 "$\"$8$\" -requestPending -osint -url $\"%1$\""
-  StrCpy $2 "$\"%1$\",,0,0,,,," 
+  StrCpy $2 "$\"%1$\",,0,0,,,,"
   StrCpy $3 "$\"$8$\"  -url $\"%1$\""
   ${GetLongPath} "$INSTDIR\${FileMainEXE}" $8
 
@@ -398,9 +405,11 @@ Section "-Application" APP_IDX
 
     ; If we are writing to HKLM and create the quick launch and the desktop
     ; shortcuts set IconsVisible to 1 otherwise to 0.
+    ; Taskbar shortcuts imply having a start menu shortcut.
     ${StrFilter} "${FileMainEXE}" "+" "" "" $R9
     ${If} $AddQuickLaunchSC == 1
     ${OrIf} $AddDesktopSC == 1
+    ${OrIf} $AddTaskbarSC == 1
       StrCpy $0 "Software\Clients\StartMenuInternet\$R9\InstallInfo"
       WriteRegDWORD HKLM "$0" "IconsVisible" 1
       StrCpy $0 "Software\Clients\Mail\${BrandFullNameInternal}\InstallInfo"
@@ -485,9 +494,9 @@ Section "-Application" APP_IDX
   !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-Section /o "IRC Client" CZ_IDX 
+Section /o "IRC Client" CZ_IDX
   ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
-    SetDetailsPrint both 
+    SetDetailsPrint both
     DetailPrint $(STATUS_INSTALL_OPTIONAL)
     SetDetailsPrint none
 
@@ -508,9 +517,9 @@ Section /o "IRC Client" CZ_IDX
   ${EndIf}
 SectionEnd
 
-Section /o "Developer Tools" DOMI_IDX 
+Section /o "Developer Tools" DOMI_IDX
   ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\inspector@mozilla.org.xpi"
-    SetDetailsPrint both 
+    SetDetailsPrint both
     DetailPrint $(STATUS_INSTALL_OPTIONAL)
     SetDetailsPrint none
 
@@ -521,12 +530,12 @@ Section /o "Developer Tools" DOMI_IDX
     ${LogHeader} "Installing Developer Tools"
     CopyFiles /SILENT "$EXEDIR\optional\distribution\extensions\inspector@mozilla.org.xpi" \
                       "$INSTDIR\distribution\extensions\"
-  ${EndIf} 
+  ${EndIf}
 SectionEnd
 
-Section /o "Debug and QA Tools" DEBUG_IDX 
+Section /o "Debug and QA Tools" DEBUG_IDX
   ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\debugQA@mozilla.org.xpi"
-    SetDetailsPrint both 
+    SetDetailsPrint both
     DetailPrint $(STATUS_INSTALL_OPTIONAL)
     SetDetailsPrint none
 
@@ -578,8 +587,8 @@ Section "-InstallEndCleanup"
       Rename "$INSTDIR\helper.exe" "$INSTDIR\${FileMainEXE}"
     ${EndUnless}
   ${EndIf}
-SectionEnd    
-    
+SectionEnd
+
 Function CheckExistingInstall
   ; If there is a pending file copy from a previous uninstall don't allow
   ; installing until after the system has rebooted.
@@ -679,7 +688,7 @@ Function leaveOptions
   ${EndIf}
   ${MUI_INSTALLOPTIONS_READ} $R0 "options.ini" "Field 2" "State"
   StrCmp $R0 "1" +1 +2
-  StrCpy $InstallType ${INSTALLTYPE_BASIC} 
+  StrCpy $InstallType ${INSTALLTYPE_BASIC}
   ${MUI_INSTALLOPTIONS_READ} $R0 "options.ini" "Field 3" "State"
   StrCmp $R0 "1" +1 +2
   StrCpy $InstallType ${INSTALLTYPE_CUSTOM}
