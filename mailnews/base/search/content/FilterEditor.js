@@ -172,6 +172,7 @@ function onAccept()
   // this should REALLY only happen when some criteria changes that
   // are displayed in the filter dialog, like the filter name
   window.arguments[0].refresh = true;
+  window.arguments[0].newFilter = gFilter;
   return true;
 }
 

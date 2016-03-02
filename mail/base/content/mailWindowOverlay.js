@@ -2382,10 +2382,11 @@ function MsgFilters(emailAddress, folder, fieldName)
                       "chrome, modal, resizable,centerscreen,dialog=yes", args);
 
     // If the user hits ok in the filterEditor dialog we set args.refresh=true
-    // there we check this here in args to show filterList dialog.
+    // there and we check this here in args to show filterList dialog.
+    // We also received the filter created via args.newFilter.
     if ("refresh" in args && args.refresh)
     {
-      args = { refresh: true, folder: folder };
+      args = { refresh: true, folder: folder, filter: args.newFilter };
       MsgFilterList(args);
     }
   }

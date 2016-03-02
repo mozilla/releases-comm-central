@@ -154,6 +154,10 @@ function processWindowArguments(aArguments) {
     // to show potential new filters if we were called for refresh.
     rebuildFilterList();
   }
+
+  // If a specific filter was requested, try to select it.
+  if ("filter" in aArguments)
+    selectFilter(aArguments.filter);
 }
 
 /**
@@ -277,6 +281,31 @@ function selectFolder(aFolder)
 }
 
 /**
+ * Selects a specific filter in the filter list.
+ * The listbox view is scrolled to the corresponding item.
+ *
+ * @param aFilter  The nsIMsgFilter to select.
+ *
+ * @return  true/false indicating whether the filter was found and selected.
+ */
+function selectFilter(aFilter) {
+  if (currentFilter() == aFilter)
+    return true;
+
+  resetSearchBox(aFilter);
+
+  let filterCount = gCurrentFilterList.filterCount;
+  for (let i = 0; i < filterCount; i++) {
+    if (gCurrentFilterList.getFilterAt(i) == aFilter) {
+      gFilterListbox.ensureIndexIsVisible(i);
+      gFilterListbox.selectedIndex = i;
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Returns the currently selected filter. If multiple filters are selected,
  * returns the first one. If none are selected, returns null.
  */
@@ -329,11 +358,13 @@ function onNewFilter(emailAddress)
 
   if ("refresh" in args && args.refresh) {
     // On success: reset the search box if necessary!
-    resetSearchBox(gCurrentFilterList.getFilterAt(position));
+    resetSearchBox(args.newFilter);
     rebuildFilterList();
 
     // Select the new filter, it is at the position of previous selection.
     gFilterListbox.selectItem(gFilterListbox.getItemAtIndex(position));
+    if (currentFilter() != args.newFilter)
+      Components.utils.reportError("Filter created at an unexpected position!");
   }
 }
 
