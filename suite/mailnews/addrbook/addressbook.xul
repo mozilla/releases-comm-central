@@ -418,7 +418,9 @@
                       id="menu_search_addresses" 
                       oncommand="onAdvancedAbSearch();"/>
             <menuitem label="&importCmd.label;" accesskey="&importCmd.accesskey;" oncommand="toImport()"/>
-            <menuitem label="&exportCmd.label;" accesskey="&exportCmd.accesskey;" oncommand="AbExport()"/>
+            <menuitem label="&exportCmd.label;"
+                      accesskey="&exportCmd.accesskey;"
+                      oncommand="AbExportSelection();"/>
             <menuseparator/>
           </menupopup>
         </menu>
