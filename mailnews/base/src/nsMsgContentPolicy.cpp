@@ -624,16 +624,28 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose *aMsgCompose,
       bool insertingQuotedContent = true;
       aMsgCompose->GetInsertingQuotedContent(&insertingQuotedContent);
       nsCOMPtr<nsIDOMHTMLImageElement> imageElement(do_QueryInterface(aRequestingContext));
-      if (!insertingQuotedContent && imageElement)
+      if (imageElement)
       {
-        nsCOMPtr<nsIDOMElement> element(do_QueryInterface(imageElement));
-        if (element)
+        if (!insertingQuotedContent)
         {
-          bool doNotSendAttrib;
-          if (NS_SUCCEEDED(element->HasAttribute(NS_LITERAL_STRING("moz-do-not-send"), &doNotSendAttrib)) &&
-              !doNotSendAttrib)
-            *aDecision = nsIContentPolicy::ACCEPT;
+          nsCOMPtr<nsIDOMElement> element(do_QueryInterface(imageElement));
+          if (element)
+          {
+            bool doNotSendAttrib;
+            if (NS_SUCCEEDED(element->HasAttribute(NS_LITERAL_STRING("moz-do-not-send"), &doNotSendAttrib)) &&
+                !doNotSendAttrib)
+            {
+              *aDecision = nsIContentPolicy::ACCEPT;
+              return;
+            }
+          }
         }
+
+        // Test whitelist.
+        uint32_t permission;
+        mPermissionManager->TestPermission(aContentLocation, "image", &permission);
+        if (permission == nsIPermissionManager::ALLOW_ACTION)
+          *aDecision = nsIContentPolicy::ACCEPT;
       }
     }
   }

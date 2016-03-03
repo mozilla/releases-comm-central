@@ -392,6 +392,31 @@ function test_generalContentPolicy() {
       // Check denied in forward window
       checkComposeWindow(TESTS[i], false, false);
 
+      if (i == 0) {
+        // Now check that image is visible after site is whitelisted.
+        // We do the first test which is the one with the image.
+
+        // Add the site to the whitelist.
+        let src = mozmill.getMail3PaneController().window.content.document
+                         .getElementById("testelement").src;
+
+        let uri = Services.io.newURI(src, null, null);
+        Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
+        assert_true(Services.perms.testPermission(uri, "image") ==
+                    Services.perms.ALLOW_ACTION);
+
+        // Check allowed in reply window
+        checkComposeWindow(TESTS[i], true, true);
+
+        // Check allowed in forward window
+        checkComposeWindow(TESTS[i], false, true);
+
+        // Clean up after ourselves, and make sure that worked as expected.
+        Services.perms.remove(uri, "image");
+        assert_true(Services.perms.testPermission(uri, "image") ==
+                    Services.perms.UNKNOWN_ACTION);
+      }
+
       // Check denied in standalone message window
       checkStandaloneMessageWindow(TESTS[i], false);
 
