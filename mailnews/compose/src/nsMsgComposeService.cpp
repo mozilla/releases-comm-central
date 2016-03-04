@@ -959,7 +959,12 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI *aUrl, nsresult 
   compFields->SetSubject(subject);
   compFields->SetRawHeader("Auto-Submitted", NS_LITERAL_CSTRING("auto-replied"), nullptr);
 
-  CopyASCIItoUTF16(mTemplateBody, body);
+  nsCString charset;
+  rv = mTemplateHdr->GetCharset(getter_Copies(charset));
+  NS_ENSURE_SUCCESS(rv, rv);
+  compFields->SetCharacterSet(charset.get());
+  rv = nsMsgI18NConvertToUnicode(charset.get(), mTemplateBody, body);
+  NS_WARN_IF_FALSE(NS_SUCCEEDED(rv), "couldn't convert templ body to unicode");
   compFields->SetBody(body);
 
   nsCString msgUri;

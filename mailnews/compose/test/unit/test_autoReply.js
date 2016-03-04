@@ -21,7 +21,8 @@ var gIncomingMailFile = do_get_file("../../../data/bugmail10"); // mail to reply
 var gIncomingMailFile2 = do_get_file("../../../data/reply-filter-testmail");
 // mail to reply to (but not really, no from)
 var gIncomingMailFile3 = do_get_file("../../../data/mail-without-from");
-var gTemplateMailFile = do_get_file("../../../data/draft1"); // template
+var gTemplateMailFile = do_get_file("../../../data/template-latin1"); // template
+var gTemplateMailFile2 = do_get_file("../../../data/template-utf8"); // template2
 var gTemplateFolder;
 
 var gServer;
@@ -33,6 +34,9 @@ function run_test() {
 
   gServer = setupServerDaemon();
   gServer.start();
+
+  // encodeMimePartIIStr_UTF8 complains about latin1 encoding...
+  Services.prefs.setBoolPref("devtools.errorconsole.deprecation_warnings", false);
 
   run_next_test();
 }
@@ -73,8 +77,17 @@ add_task(function* copy_gTemplateMailFile() {
   yield promiseCopyListener.promise;
 });
 
+add_task(function* copy_gTemplateMailFile2() {
+  let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
+  // Copy gTemplateMailFile2 into the Templates folder.
+  MailServices.copy.CopyFileMessage(gTemplateMailFile2,
+    gTemplateFolder, null, true, 0, "",
+    promiseCopyListener, null);
+  yield promiseCopyListener.promise;
+});
+
 /// Test that a reply is NOT sent when the message is not addressed to "me".
-add_task(function testReplyingToUnadressedFails() {
+add_task(function testReplyingToUnaddressedFails() {
   try {
     testReply(0); // mail 0 is not to us!
     do_throw("Replied to a message not addressed to us!");
@@ -88,12 +101,22 @@ add_task(function testReplyingToUnadressedFails() {
 });
 
 /// Test that a reply is sent when the message is addressed to "me".
-add_task(function testReplyingToAdressedWorks() {
+add_task(function testReplyingToAdressedWorksLatin1() {
   try {
-    testReply(1); // mail 1 is adressed to us
+    testReply(1); // mail 1 is addressed to us, using template-latin1
   }
   catch (e) {
-    do_throw("Didn't reply to a message addressed to us! "  + e);
+    do_throw("Didn't reply properly to a message addressed to us! "  + e);
+  }
+});
+
+/// Test that a reply is sent when the message is addressed to "me".
+add_task(function testReplyingToAdressedWorksUTF8() {
+  try {
+    testReply(1, 1); // mail 1 is addressed to us, template-utf8
+  }
+  catch (e) {
+    do_throw("Didn't reply properly to a message addressed to us! "  + e);
   }
 });
 
@@ -111,7 +134,7 @@ add_task(function testReplyingToMailWithNoFrom() {
 });
 
 /// Test reply with template.
-function testReply(aHrdIdx) {
+function testReply(aHrdIdx, aTemplateHdrIdx = 0) {
   let smtpServer = getBasicSmtpServer();
   smtpServer.port = gServer.port;
 
@@ -121,7 +144,7 @@ function testReply(aHrdIdx) {
   let msgHdr = mailTestUtils.getMsgHdrN(localAccountUtils.inboxFolder, aHrdIdx);
   do_print("Msg#" + aHrdIdx +  " author=" + msgHdr.author + ", recipients=" +
            msgHdr.recipients);
-  let templateHdr = mailTestUtils.getMsgHdrN(gTemplateFolder, 0);
+  let templateHdr = mailTestUtils.getMsgHdrN(gTemplateFolder, aTemplateHdrIdx);
 
   // See <method name="getTemplates"> in searchWidgets.xml
   let msgTemplateUri = gTemplateFolder.URI +
@@ -130,12 +153,35 @@ function testReply(aHrdIdx) {
   MailServices.compose.replyWithTemplate(msgHdr, msgTemplateUri, null,
     localAccountUtils.incomingServer);
   gServer.performTest();
-  let headers = MimeParser.extractHeaders(gServer._daemon.post);
+
+  let headers, body;
+  [headers, body] = MimeParser.extractHeadersAndBody(gServer._daemon.post);
+  //dump("xxxmagnus gServer._daemon.post=" + gServer._daemon.post + "\n");
   do_check_true(headers.get("Subject").startsWith("Auto: "));
   do_check_eq(headers.get("Auto-submitted"), "auto-replied");
   do_check_eq(headers.get("In-Reply-To"), "<" + msgHdr.messageId + ">");
   do_check_eq(headers.get("References"), "<" + msgHdr.messageId + ">");
-
+  // XXX: something's wrong with how the fake server gets the data.
+  // The text gets converted to UTF-8 (regardless of what it is) at some point.
+  // Suspect a bug with how BinaryInputStream handles the strings.
+  if (templateHdr.Charset == "windows-1252") {
+    // XXX: should really check for "��� åäö"
+    if (!body.includes("åäö xlatin1")) { // template-latin1 contains this
+      do_throw("latin1 body didn't go through!  hdr msgid=" +
+               templateHdr.messageId + ", msgbody=" + body);
+    }
+  } else if (templateHdr.Charset == "utf-8") {
+    // XXX: should really check for "åäö xutf8"
+    if (!body.includes("Ã¥Ã¤Ã¶ xutf8")) { // template-utf8 contains this
+      do_throw("utf8 body didn't go through! hdr msgid=" +
+               templateHdr.messageId + ", msgbody=" + body);
+    }
+  } else if (templateHdr.Charset) {
+    do_throw("unexpected msg charset: " + templateHdr.Charset + ", hdr msgid=" +
+             templateHdr.messageId);
+  } else {
+    do_throw("didn't find a msg charset! hdr msgid=" + templateHdr.messageId);
+  }
   gServer.resetTest();
 }
 
