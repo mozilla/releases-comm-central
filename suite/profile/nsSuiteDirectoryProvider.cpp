@@ -100,7 +100,7 @@ nsSuiteDirectoryProvider::GetFiles(const char *aKey,
 
   nsCOMPtr<nsISimpleEnumerator> extEnum =
     new AppendingEnumerator(list, "searchplugins");
-  if (!extEnum)  
+  if (!extEnum)
     return NS_ERROR_OUT_OF_MEMORY;
 
   return NS_NewUnionEnumerator(aResult, extEnum, baseEnum);
@@ -111,15 +111,19 @@ nsSuiteDirectoryProvider::EnsureProfileFile(const nsACString& aLeafName,
                                             nsIFile* aParentDir,
                                             nsIFile* aTarget)
 {
-  nsCOMPtr<nsIFile> defaults;
-  NS_GetSpecialDirectory(NS_APP_PROFILE_DEFAULTS_50_DIR,
-                         getter_AddRefs(defaults));
-  if (!defaults)
+  nsCOMPtr<nsIFile> defaultsDir;
+
+  NS_GetSpecialDirectory(NS_APP_DEFAULTS_50_DIR,
+                        getter_AddRefs(defaultsDir));
+  if (!defaultsDir)
     return;
 
-  defaults->AppendNative(aLeafName);
+  nsresult rv = defaultsDir->AppendNative(NS_LITERAL_CSTRING("profile"));
+  NS_ENSURE_SUCCESS_VOID(rv);
 
-  defaults->CopyToNative(aParentDir, aLeafName);
+  defaultsDir->AppendNative(aLeafName);
+
+  defaultsDir->CopyToNative(aParentDir, aLeafName);
 }
 
 NS_IMPL_ISUPPORTS(nsSuiteDirectoryProvider::AppendingEnumerator,

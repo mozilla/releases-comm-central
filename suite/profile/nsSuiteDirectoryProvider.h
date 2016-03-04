@@ -19,6 +19,8 @@
 #define NS_SUITEDIRECTORYPROVIDER_CID \
   { 0x9aa21826, 0x9d1d, 0x433d, { 0x8c, 0x10, 0xf3, 0x13, 0xb2, 0x6f, 0xa9, 0xdd } }
 
+#define NS_APP_BOOKMARKS_50_FILE "BMarks"
+
 class nsSuiteDirectoryProvider final : public nsIDirectoryServiceProvider2
 {
 public:
@@ -30,7 +32,7 @@ private:
   ~nsSuiteDirectoryProvider() {}
 
   void EnsureProfileFile(const nsACString& aLeafName,
-			 nsIFile* aParentDir, nsIFile* aTarget);
+                         nsIFile* aParentDir, nsIFile* aTarget);
 
   void AppendDistroSearchDirs(nsIProperties* aDirSvc,
                               nsCOMArray<nsIFile> &array);
