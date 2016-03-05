@@ -21,9 +21,6 @@
       <preference id="browser.chrome.favicons"
                   name="browser.chrome.favicons"
                   type="bool"/>
-      <preference id="general.autoScroll"
-                  name="general.autoScroll"
-                  type="bool"/>
       <preference id="general.smoothScroll"
                   name="general.smoothScroll"
                   type="bool"/>
@@ -64,23 +61,12 @@
     </groupbox>
 
     <separator class="thin"/>
-	
-    <groupbox id="scrollingGroup" align="start">
-      <caption label="&scrolling.label;"/>
 
-      <checkbox id="useAutoScroll"
-                label="&useAutoScroll.label;"
-                accesskey="&useAutoScroll.accesskey;"
-                preference="general.autoScroll"/>
+    <vbox class="box-padded" align="start">
       <checkbox id="useSmoothScroll"
                 label="&useSmoothScroll.label;"
                 accesskey="&useSmoothScroll.accesskey;"
                 preference="general.smoothScroll"/>
-    </groupbox>
-
-	<separator class="thin"/>
-
-    <vbox class="box-padded" align="start"> 
       <checkbox id="allowHWAccel"
                 label="&allowHWAccel.label;"
                 accesskey="&allowHWAccel.accesskey;"
