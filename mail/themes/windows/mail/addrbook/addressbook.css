@@ -391,8 +391,7 @@
   /* Don't use the listbox appearance as that gives us a blue-grey top border
      that collides with the primary toolbar border */
   #dirTree {
-    background-color: -moz-Dialog;
-    -moz-border-end: 1px solid transparent;
+    border-inline-end: 1px solid transparent;
   }
 
   /* ::::: splitters ::::: */
