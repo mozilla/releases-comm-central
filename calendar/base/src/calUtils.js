@@ -890,6 +890,15 @@ function setDefaultStartEndHour(aItem, aReferenceDate) {
 /****
  **** debug code
  ****/
+function _log(message, flag) {
+    let frame = Components.stack.caller.caller;
+    let filename = frame.filename ? frame.filename.split(" -> ").pop() : null;
+    let scriptError = Components.classes["@mozilla.org/scripterror;1"]
+                                .createInstance(Components.interfaces.nsIScriptError);
+    scriptError.init(message, filename, null, frame.lineNumber, frame.columnNumber,
+                     flag, "component javascript");
+    Services.console.logMessage(scriptError);
+}
 
 /**
  * Logs a string or an object to both stderr and the js-console only in the case
@@ -920,9 +929,8 @@ function LOG(aArg) {
         string = aArg;
     }
 
-    // xxx todo consider using function debug()
     dump(string + '\n');
-    Services.console.logStringMessage(string);
+    _log(string, Components.interfaces.nsIScriptError.infoFlag);
 }
 
 /**
@@ -932,14 +940,7 @@ function LOG(aArg) {
  */
 function WARN(aMessage) {
     dump("Warning: " + aMessage + '\n');
-    let frame = Components.stack.caller;
-    let filename = frame.filename ? frame.filename.split(" -> ").pop() : null;
-    let scriptError = Components.classes["@mozilla.org/scripterror;1"]
-                                .createInstance(Components.interfaces.nsIScriptError);
-    scriptError.init(aMessage, filename, null, frame.lineNumber, frame.columnNumber,
-                     Components.interfaces.nsIScriptError.warningFlag,
-                     "component javascript");
-    Services.console.logMessage(scriptError);
+    _log(aMessage, Components.interfaces.nsIScriptError.warningFlag);
 }
 
 /**
@@ -949,14 +950,7 @@ function WARN(aMessage) {
  */
 function ERROR(aMessage) {
     dump("Error: " + aMessage + '\n');
-    let frame = Components.stack.caller;
-    let filename = frame.filename ? frame.filename.split(" -> ").pop() : null;
-    let scriptError = Components.classes["@mozilla.org/scripterror;1"]
-                                .createInstance(Components.interfaces.nsIScriptError);
-    scriptError.init(aMessage, filename, null, frame.lineNumber, frame.columnNumber,
-                     Components.interfaces.nsIScriptError.errorFlag,
-                     "component javascript");
-    Services.console.logMessage(scriptError);
+    _log(aMessage, Components.interfaces.nsIScriptError.errorFlag);
 }
 
 /**
