@@ -83,7 +83,7 @@ var account = {
     ];
     let haveOptions =
       accountOptionsHelper.addOptions("server.", this.getProtoOptions(),
-                                      attributes, null, "vbox");
+                                      attributes);
     let advanced = document.getElementById("advanced");
     if (advanced.hidden && haveOptions) {
       advanced.hidden = false;

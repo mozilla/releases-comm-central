@@ -145,8 +145,8 @@ var account = {
 
   populateProtoSpecificBox: function account_populate() {
     let haveOptions =
-      accountOptionsHelper.addOptions(this.proto.id + "-", this.getProtoOptions(),
-                                      null, this.prefs);
+      accountOptionsHelper.addOptions(this.proto.id + "-",
+                                      this.getProtoOptions(), null);
     document.getElementById("advancedTab").hidden = !haveOptions;
   },
 
