@@ -1432,8 +1432,8 @@ var ircBase = {
     },
     "501": function(aMessage) { // ERR_UMODEUNKNOWNFLAGS
       // :Unknown MODE flag
-      // TODO Display error?
-      return false;
+      return serverErrorMessage(this, aMessage,
+                                _("error.unknownMode", aMessage.params[1]));
     },
     "502": function(aMessage) { // ERR_USERSDONTMATCH
       // :Cannot change mode for other users
