@@ -4,15 +4,15 @@
 
 #include "nsISupports.idl"
 
-interface nsIDOMWindow;
+interface mozIDOMWindow;
 
-[scriptable, uuid(e17d921c-4b3a-47b2-8283-cab425cc1a0c)]
+[scriptable, uuid(4090c428-e534-11e5-91df-68b599e53270)]
 interface trayITrayIcon : nsISupports {
 
   /**
    * Associated DOM window
    */
-  readonly attribute nsIDOMWindow window;
+  readonly attribute mozIDOMWindow window;
 
   /**
    * Window is minimized to tray
@@ -40,13 +40,13 @@ interface trayITrayIcon : nsISupports {
   void close();
 };
 
-[scriptable, uuid(8fbd1a20-7abf-11dd-ad8b-0800200c9a66)]
+[scriptable, uuid(251192ae-e534-11e5-9bcb-68b599e53270)]
 interface trayITrayService : nsISupports {
 
   /**
    * Creates a tray icon for window
    */
-  trayITrayIcon createIcon(in nsIDOMWindow window,  [optional] in boolean aCloseOnRestore);
+  trayITrayIcon createIcon(in mozIDOMWindow window,  [optional] in boolean aCloseOnRestore);
 
   /**
    * Restores all windows from the tray
@@ -56,25 +56,25 @@ interface trayITrayService : nsISupports {
   /**
    * Watch a window, and if minimized send to tray
    */
-  void watchMinimize(in nsIDOMWindow window);
+  void watchMinimize(in mozIDOMWindow window);
 
   /**
    * unwatch a window again
    */
-  void unwatchMinimize(in nsIDOMWindow window);
+  void unwatchMinimize(in mozIDOMWindow window);
 
   /**
    * is the window watched
    */
-  bool isWatchedWindow(in nsIDOMWindow window);
+  bool isWatchedWindow(in mozIDOMWindow window);
 
   /**
    * minimizes a window to the tray
    */
-  void minimize(in nsIDOMWindow aWindow, [optional] in boolean aCloseOnRestore);
+  void minimize(in mozIDOMWindow aWindow, [optional] in boolean aCloseOnRestore);
 
   /**
    * Restores a window from the tray
    */
-  void restore(in nsIDOMWindow aWindow);
+  void restore(in mozIDOMWindow aWindow);
 };

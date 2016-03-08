@@ -22,7 +22,7 @@ namespace platform {
  * Helper: Gdk filter function to "watch" the window
  */
 static
-GdkFilterReturn filterWindows(XEvent *xev, GdkEvent* event, nsIDOMWindow* window)
+GdkFilterReturn filterWindows(XEvent *xev, GdkEvent* event, mozIDOMWindow* window)
 {
   XATOM(WM_DELETE_WINDOW);
 
@@ -62,12 +62,12 @@ GdkFilterReturn filterWindows(XEvent *xev, GdkEvent* event, nsIDOMWindow* window
 void Init() {}
 void Destroy() {}
 
-Icon* CreateIcon(TrayIconImpl *aOwner, nsIDOMWindow* aWindow, const nsString& aTitle)
+Icon* CreateIcon(TrayIconImpl *aOwner, mozIDOMWindow* aWindow, const nsString& aTitle)
 {
   return new gtk2::Icon(aOwner, aWindow, aTitle);
 }
 
-NS_IMETHODIMP WatchWindow(nsIDOMWindow *aWindow)
+NS_IMETHODIMP WatchWindow(mozIDOMWindow *aWindow)
 {
   nsresult rv;
 
@@ -88,7 +88,7 @@ NS_IMETHODIMP WatchWindow(nsIDOMWindow *aWindow)
 
   return NS_OK;
 }
-NS_IMETHODIMP UnwatchWindow(nsIDOMWindow *aWindow)
+NS_IMETHODIMP UnwatchWindow(mozIDOMWindow *aWindow)
 {
   nsresult rv;
 
@@ -111,12 +111,12 @@ NS_IMETHODIMP UnwatchWindow(nsIDOMWindow *aWindow)
 
 namespace gtk2 {
 
-Icon::Icon(TrayIconImpl *aIcon, nsIDOMWindow *aWindow, const nsString& aTitle)
+Icon::Icon(TrayIconImpl *aIcon, mozIDOMWindow *aWindow, const nsString& aTitle)
   : mStatusIcon(0), mGtkWindow(0), mGdkWindow(0), mIcon(aIcon)
 {
   Init(aWindow, aTitle);
 }
-NS_IMETHODIMP Icon::Init(nsIDOMWindow *aWindow, const nsString& aTitle)
+NS_IMETHODIMP Icon::Init(mozIDOMWindow *aWindow, const nsString& aTitle)
 {
   nsresult rv;
   nsCOMPtr<nsIBaseWindow> baseWindow;

@@ -9,7 +9,7 @@
 #include "nsStringAPI.h"
 #include "nsServiceManagerUtils.h"
 
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 #include "nsIDocument.h"
 #include "nsIDOMDocument.h"
 
@@ -31,7 +31,7 @@
 
 namespace mintrayr {
 
-bool DoMinimizeWindow(nsIDOMWindow *window, eMinimizeActions action)
+bool DoMinimizeWindow(mozIDOMWindow *window, eMinimizeActions action)
 {
   if (window == 0) {
     return false;
@@ -57,7 +57,7 @@ bool DoMinimizeWindow(nsIDOMWindow *window, eMinimizeActions action)
 /**
  * Helper: Get the base window for a DOM window
  */
-NS_IMETHODIMP GetBaseWindow(nsIDOMWindow *aWindow, nsIBaseWindow **aBaseWindow)
+NS_IMETHODIMP GetBaseWindow(mozIDOMWindow *aWindow, nsIBaseWindow **aBaseWindow)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
   NS_ENSURE_ARG_POINTER(aBaseWindow);
@@ -78,7 +78,7 @@ NS_IMETHODIMP GetBaseWindow(nsIDOMWindow *aWindow, nsIBaseWindow **aBaseWindow)
 /**
  * Helper: Dispatch a trusted general event
  */
-NS_IMETHODIMP DispatchTrustedEvent(nsIDOMWindow *aWindow, const nsAString& aEventName)
+NS_IMETHODIMP DispatchTrustedEvent(mozIDOMWindow *aWindow, const nsAString& aEventName)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
 
@@ -111,7 +111,7 @@ NS_IMETHODIMP DispatchTrustedEvent(nsIDOMWindow *aWindow, const nsAString& aEven
 
 NS_IMPL_ISUPPORTS(TrayIconImpl, trayITrayIcon, nsIDOMEventListener)
 
-NS_IMETHODIMP TrayIconImpl::GetWindow(nsIDOMWindow **aWindow)
+NS_IMETHODIMP TrayIconImpl::GetWindow(mozIDOMWindow **aWindow)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
   *aWindow = mWindow;
@@ -197,7 +197,7 @@ NS_IMETHODIMP TrayIconImpl::HandleEvent(nsIDOMEvent *aEvent)
 }
 
 
-NS_IMETHODIMP TrayIconImpl::Init(nsIDOMWindow *aWindow, bool aCloseOnRestore)
+NS_IMETHODIMP TrayIconImpl::Init(mozIDOMWindow *aWindow, bool aCloseOnRestore)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
 
@@ -304,7 +304,7 @@ void TrayServiceImpl::Destroy() {
   mWatches.Clear();
 }
 
-NS_IMETHODIMP TrayServiceImpl::CreateIcon(nsIDOMWindow *aWindow, bool aCloseOnRestore, trayITrayIcon **aResult)
+NS_IMETHODIMP TrayServiceImpl::CreateIcon(mozIDOMWindow *aWindow, bool aCloseOnRestore, trayITrayIcon **aResult)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
 
@@ -312,7 +312,7 @@ NS_IMETHODIMP TrayServiceImpl::CreateIcon(nsIDOMWindow *aWindow, bool aCloseOnRe
   const PRInt32 count = mIcons.Count();
 
   for (PRInt32 i = 0; i < count; ++i) {
-    nsCOMPtr<nsIDOMWindow> domWindow;
+    nsCOMPtr<mozIDOMWindow> domWindow;
     rv = mIcons[i]->GetWindow(getter_AddRefs(domWindow));
     if (NS_FAILED(rv)) {
       continue;
@@ -345,7 +345,7 @@ NS_IMETHODIMP TrayServiceImpl::RestoreAll()
   return NS_OK;
 }
 
-NS_IMETHODIMP TrayServiceImpl::WatchMinimize(nsIDOMWindow *aWindow)
+NS_IMETHODIMP TrayServiceImpl::WatchMinimize(mozIDOMWindow *aWindow)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
 
@@ -361,7 +361,7 @@ NS_IMETHODIMP TrayServiceImpl::WatchMinimize(nsIDOMWindow *aWindow)
   return NS_OK;
 }
 
-NS_IMETHODIMP TrayServiceImpl::UnwatchMinimize(nsIDOMWindow *aWindow)
+NS_IMETHODIMP TrayServiceImpl::UnwatchMinimize(mozIDOMWindow *aWindow)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
 
@@ -372,7 +372,7 @@ NS_IMETHODIMP TrayServiceImpl::UnwatchMinimize(nsIDOMWindow *aWindow)
   return NS_OK;
 }
 
-NS_IMETHODIMP TrayServiceImpl::Minimize(nsIDOMWindow *aWindow, bool aCloseOnRestore)
+NS_IMETHODIMP TrayServiceImpl::Minimize(mozIDOMWindow *aWindow, bool aCloseOnRestore)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
 
@@ -386,7 +386,7 @@ NS_IMETHODIMP TrayServiceImpl::Minimize(nsIDOMWindow *aWindow, bool aCloseOnRest
   return rv;
 }
 
-NS_IMETHODIMP TrayServiceImpl::Restore(nsIDOMWindow *aWindow)
+NS_IMETHODIMP TrayServiceImpl::Restore(mozIDOMWindow *aWindow)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
 
@@ -394,7 +394,7 @@ NS_IMETHODIMP TrayServiceImpl::Restore(nsIDOMWindow *aWindow)
   const PRInt32 count = mIcons.Count();
 
   for (PRInt32 i = 0; i < count; ++i) {
-    nsCOMPtr<nsIDOMWindow> domWindow;
+    nsCOMPtr<mozIDOMWindow> domWindow;
     rv = mIcons[i]->GetWindow(getter_AddRefs(domWindow));
     if (NS_FAILED(rv)) {
       continue;
@@ -407,7 +407,7 @@ NS_IMETHODIMP TrayServiceImpl::Restore(nsIDOMWindow *aWindow)
   return NS_ERROR_INVALID_ARG;
 }
 
-NS_IMETHODIMP TrayServiceImpl::IsWatchedWindow(nsIDOMWindow *aWindow, bool *aResult)
+NS_IMETHODIMP TrayServiceImpl::IsWatchedWindow(mozIDOMWindow *aWindow, bool *aResult)
 {
   NS_ENSURE_ARG_POINTER(aWindow);
   NS_ENSURE_ARG_POINTER(aResult);

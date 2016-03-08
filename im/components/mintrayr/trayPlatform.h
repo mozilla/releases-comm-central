@@ -15,7 +15,7 @@
 #include "nsCOMPtr.h"
 #include "nsStringAPI.h"
 
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 
 namespace mintrayr {
 
@@ -36,12 +36,12 @@ void Destroy();
 /**
  * Window should be watched
  */
-NS_IMETHODIMP WatchWindow(nsIDOMWindow *aWindow);
+NS_IMETHODIMP WatchWindow(mozIDOMWindow *aWindow);
 
 /**
  * Window should be unwatched
  */
-NS_IMETHODIMP UnwatchWindow(nsIDOMWindow *aWindow);
+NS_IMETHODIMP UnwatchWindow(mozIDOMWindow *aWindow);
 
 /**
  * Abstract helper class
@@ -57,7 +57,7 @@ public:
 /**
  * Factory
  */
-Icon* CreateIcon(TrayIconImpl *aOwner, nsIDOMWindow* aWindow, const nsString& aTitle);
+Icon* CreateIcon(TrayIconImpl *aOwner, mozIDOMWindow* aWindow, const nsString& aTitle);
 
 } // namespace platform
 } // namespace mintrayr

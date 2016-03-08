@@ -14,7 +14,7 @@
 
 #include "nsIDOMEventListener.h"
 #include "nsIBaseWindow.h"
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 
 #include "trayIToolkit.h"
 #include "trayPlatform.h"
@@ -38,17 +38,17 @@ typedef enum _eMinimizeActions {
 /**
  * Helper for watch: Minimize a window if a configured for the action
  */
-bool DoMinimizeWindow(nsIDOMWindow *window, eMinimizeActions action);
+bool DoMinimizeWindow(mozIDOMWindow *window, eMinimizeActions action);
 
 /**
  * Helper: Gets the base window
  */
-NS_IMETHODIMP GetBaseWindow(nsIDOMWindow *aWindow, nsIBaseWindow **aBaseWindow);
+NS_IMETHODIMP GetBaseWindow(mozIDOMWindow *aWindow, nsIBaseWindow **aBaseWindow);
 
 /**
  * Helper: Dispatches a trusted event (i.e. chrome only)
  */
-NS_IMETHODIMP DispatchTrustedEvent(nsIDOMWindow *aWindow, const nsAString& aEventName);
+NS_IMETHODIMP DispatchTrustedEvent(mozIDOMWindow *aWindow, const nsAString& aEventName);
 
 class TrayServiceImpl;
 
@@ -61,7 +61,7 @@ class TrayIconImpl final : public trayITrayIcon, nsIDOMEventListener {
 private:
   ~TrayIconImpl() {}
   bool mIsMinimized;
-  nsCOMPtr<nsIDOMWindow> mWindow;
+  nsCOMPtr<mozIDOMWindow> mWindow;
 
   bool mCloseOnRestore;
 
@@ -81,7 +81,7 @@ public:
     mService(aService)
     {}
 
-  NS_IMETHOD Init(nsIDOMWindow *aWindow, bool aCloseOnRestore);
+  NS_IMETHOD Init(mozIDOMWindow *aWindow, bool aCloseOnRestore);
   NS_IMETHOD DispatchMouseEvent(const nsAString& aEventName, PRUint16 aButton, nsPoint& pt, bool aCtrlKey, bool aAltKey, bool aShiftKey);
   inline bool IsClosed() const { return mClosed; }
 };
@@ -100,7 +100,7 @@ public:
 
 private:
   nsCOMArray<trayITrayIcon> mIcons;
-  nsCOMArray<nsIDOMWindow> mWatches;
+  nsCOMArray<mozIDOMWindow> mWatches;
 
 private:
   ~TrayServiceImpl();
