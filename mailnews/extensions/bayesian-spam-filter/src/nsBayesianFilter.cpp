@@ -137,7 +137,8 @@ static const PLDHashTableOps gTokenTableOps = {
     PLDHashTable::HashStringKey,
     PLDHashTable::MatchStringKey,
     PLDHashTable::MoveEntryStub,
-    PLDHashTable::ClearEntryStub
+    PLDHashTable::ClearEntryStub,
+    nullptr
 };
 
 TokenHash::TokenHash(uint32_t aEntrySize)
