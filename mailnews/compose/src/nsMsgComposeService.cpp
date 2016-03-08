@@ -420,9 +420,9 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type, nsIMsgWindow *
   nsCOMPtr<nsIDocShell> docShell(do_QueryInterface(childAsItem, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<mozIDOMWindow> domWindow(do_GetInterface(childAsItem));
+  nsCOMPtr<mozIDOMWindowProxy> domWindow(do_GetInterface(childAsItem));
   NS_ENSURE_TRUE(domWindow, NS_ERROR_FAILURE);
-  nsCOMPtr<nsPIDOMWindowInner> privateWindow = nsPIDOMWindowInner::From(domWindow);
+  nsCOMPtr<nsPIDOMWindowOuter> privateWindow = nsPIDOMWindowOuter::From(domWindow);
   nsCOMPtr<nsISelection> sel = privateWindow->GetSelection();
   NS_ENSURE_TRUE(sel, NS_ERROR_FAILURE);
 
