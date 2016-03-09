@@ -574,6 +574,7 @@ Account.prototype = {
       if (!("id_str" in user))
         return; // Unexpected response...
       this._friends.delete(user.id_str);
+      this.timeline.removeParticipant(user.screen_name);
       let date = aXHR.getResponseHeader("Date");
       this.timeline.systemMessage(_("event.unfollow", user.screen_name), false,
                                   new Date(date) / 1000);
@@ -780,9 +781,11 @@ Account.prototype = {
         switch(msg.event) {
           case "follow":
             if (msg.source.screen_name == this.name) {
-              this._friends.add(msg.target.id_str);
               user = msg.target;
               event = "follow";
+              this.setUserInfo(user);
+              this._friends.add(user.id_str);
+              this.timeline._ensureParticipantExists(user.screen_name);
             }
             else if (msg.target.screen_name == this.name) {
               user = msg.source;
