@@ -66,7 +66,7 @@ public:
  */
 static bool DoMinimizeWindowWin(HWND hwnd, eMinimizeActions action)
 {
-  nsIDOMWindow *window = reinterpret_cast<nsIDOMWindow*>(::GetPropW(hwnd, kDOMWindow));
+  mozIDOMWindow *window = reinterpret_cast<mozIDOMWindow*>(::GetPropW(hwnd, kDOMWindow));
   if (window == 0) {
     return false;
   }
@@ -268,7 +268,7 @@ WndProcEnd:
   return ::DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
 
-static void SetupWnd(HWND hwnd, nsIDOMWindow *aWindow)
+static void SetupWnd(HWND hwnd, mozIDOMWindow *aWindow)
 {
   if (::GetPropW(hwnd, kOldProc) == 0) {
     ::SetPropW(hwnd, kDOMWindow, reinterpret_cast<HANDLE>(aWindow));
@@ -296,12 +296,12 @@ void Destroy() {
   }
 }
 
-Icon* CreateIcon(TrayIconImpl *aOwner, nsIDOMWindow* aWindow, const nsString& aTitle)
+Icon* CreateIcon(TrayIconImpl *aOwner, mozIDOMWindow* aWindow, const nsString& aTitle)
 {
   return new win::Icon(aOwner, aWindow, aTitle);
 }
 
-NS_IMETHODIMP WatchWindow(nsIDOMWindow *aWindow)
+NS_IMETHODIMP WatchWindow(mozIDOMWindow *aWindow)
 {
   nsresult rv;
 
@@ -319,7 +319,7 @@ NS_IMETHODIMP WatchWindow(nsIDOMWindow *aWindow)
 
   return NS_OK;
 }
-NS_IMETHODIMP UnwatchWindow(nsIDOMWindow *aWindow)
+NS_IMETHODIMP UnwatchWindow(mozIDOMWindow *aWindow)
 {
   nsresult rv;
 
@@ -339,12 +339,12 @@ NS_IMETHODIMP UnwatchWindow(nsIDOMWindow *aWindow)
 
 namespace win {
 
-Icon::Icon(TrayIconImpl *aIcon, nsIDOMWindow *aWindow, const nsString& aTitle)
+Icon::Icon(TrayIconImpl *aIcon, mozIDOMWindow *aWindow, const nsString& aTitle)
   : mOwnerIcon(aIcon)
 {
   Init(aWindow, aTitle);
 }
-NS_IMETHODIMP Icon::Init(nsIDOMWindow *aWindow, const nsString& aTitle)
+NS_IMETHODIMP Icon::Init(mozIDOMWindow *aWindow, const nsString& aTitle)
 {
   nsresult rv;
   nsCOMPtr<nsIBaseWindow> baseWindow;

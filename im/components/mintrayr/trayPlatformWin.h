@@ -20,7 +20,7 @@
 
 #include "nsCOMPtr.h"
 
-#include "nsIDOMWindow.h"
+#include "mozIDOMWindow.h"
 
 namespace mintrayr {
 namespace platform {
@@ -37,13 +37,13 @@ public:
   NOTIFYICONDATAW mIconData;
   TrayIconImpl *mOwnerIcon;
 
-  Icon(TrayIconImpl *aOwner, nsIDOMWindow* aWindow, const nsString& aTitle);
+  Icon(TrayIconImpl *aOwner, mozIDOMWindow* aWindow, const nsString& aTitle);
   virtual ~Icon();
 
   virtual void Minimize();
   virtual void Restore();
 private:
-  NS_IMETHOD Init(nsIDOMWindow *aWindow, const nsString& aTitle);
+  NS_IMETHOD Init(mozIDOMWindow *aWindow, const nsString& aTitle);
 };
 
 }}} // namespaces
