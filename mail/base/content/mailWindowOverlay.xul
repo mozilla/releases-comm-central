@@ -2168,7 +2168,7 @@
     <menuseparator/>
     <menuitem id="createFilterFromItem" label="&CreateFilterFrom.label;"
               accesskey="&CreateFilterFrom.accesskey;"
-              oncommand="CreateFilter(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'))"
+              oncommand="CreateFilter(findEmailNodeFromPopupNode(document.popupNode, 'emailAddressPopup'), gMessageDisplay.displayedMessage)"
               observes="cmd_createFilterFromPopup"/>
   </menupopup>
 
@@ -2184,7 +2184,7 @@
                              window.getSelection().toString());"/>
     <menuitem id="createFilterFromMenuItem" label="&CreateFilterFrom.label;"
               accesskey="&CreateFilterFrom.accesskey;"
-              oncommand="CreateFilter(this.parentNode.triggerNode.parentNode)"
+              oncommand="CreateFilter(this.parentNode.triggerNode.parentNode, gMessageDisplay.displayedMessage)"
               observes="cmd_createFilterFromPopup"/>
   </menupopup>
 

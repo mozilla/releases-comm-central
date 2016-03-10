@@ -1647,13 +1647,17 @@ function CopyEmailNewsAddress(addressNode, aIncludeName = false)
  *
  * @param aHeaderNode  A node which has an "emailAddress" attribute
  *                     or a "headerName" attribute.
+ * @param aMessage     Optional nsIMsgHdr of the message from which the values
+ *                     are taken. Will be used to preselect its folder in the
+ *                     filter list.
  */
-function CreateFilter(aHeaderNode)
+function CreateFilter(aHeaderNode, aMessage)
 {
   let nodeIsAddress = aHeaderNode.hasAttribute("emailAddress");
   let nodeValue = nodeIsAddress ? aHeaderNode.getAttribute("emailAddress") :
                                   document.getAnonymousNodes(aHeaderNode)[0].textContent;
-  top.MsgFilters(nodeValue, null, aHeaderNode.getAttribute("headerName"));
+  let folder = aMessage ? aMessage.folder : null;
+  top.MsgFilters(nodeValue, folder, aHeaderNode.getAttribute("headerName"));
 }
 
 /**

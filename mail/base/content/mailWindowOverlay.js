@@ -1957,7 +1957,7 @@ function MsgCreateFilter()
   var msgHdr = gFolderDisplay.selectedMessage;
   let emailAddress = MailServices.headerParser.extractHeaderAddressMailboxes(msgHdr.author);
   if (emailAddress)
-    top.MsgFilters(emailAddress, null);
+    top.MsgFilters(emailAddress, msgHdr.folder);
 }
 
 function MsgNewFolder(callBackFunctionName)
@@ -2332,7 +2332,9 @@ function MsgMarkAllRead()
 }
 
 /**
- * Create a new filter with the passed in data prefilled.
+ * Opens the filter list.
+ * If an email address was passed, first a new filter is offered for creation
+ * with the data prefilled.
  *
  * @param emailAddress  An email address to use as value in the first search term.
  * @param folder        The filter will be created in this folder's filter list.
@@ -2358,9 +2360,6 @@ function MsgFilters(emailAddress, folder, fieldName)
       try
       {
         folder = gFolderDisplay.selectedMessage.folder;
-        // except for news, we define the filter on the account's root
-        if (!gFolderDisplay.selectedMessageIsNews)
-          folder = folder.rootFolder;
       }
       catch (ex) {}
     }
@@ -2381,7 +2380,7 @@ function MsgFilters(emailAddress, folder, fieldName)
     window.openDialog("chrome://messenger/content/FilterEditor.xul", "",
                       "chrome, modal, resizable,centerscreen,dialog=yes", args);
 
-    // If the user hits ok in the filterEditor dialog we set args.refresh=true
+    // If the user hits OK in the filterEditor dialog we set args.refresh=true
     // there and we check this here in args to show filterList dialog.
     // We also received the filter created via args.newFilter.
     if ("refresh" in args && args.refresh)
