@@ -47,7 +47,7 @@
                         oncommand="gAccountManager.autologin()"/>
         </xul:hbox>
         <xul:hbox flex="1" class="account-buttons" anonid="buttons"
-                  xbl:inherits="autologin"/>
+                  xbl:inherits="autologin,name"/>
       </xul:vbox>
     </content>
     <implementation>
@@ -328,6 +328,9 @@
         <body>
         <![CDATA[
           let focusTarget = this.activeButton;
+          let accountName = this.getAttribute("name");
+          focusTarget.setAttribute("aria-label",
+                                   focusTarget.label + " " + accountName);
           if (focusTarget.disabled)
             focusTarget = document.getElementById("accountlist");
           focusTarget.focus();
