@@ -14,39 +14,28 @@ this.EXPORTED_SYMBOLS = ["NormalizedMap"];
  *
  * Returns a Map object that will automatically run aNormalize on any operations
  * involving keys.
- *
- * This implementation should be able to be significantly simplified once bug
- * 838540 is fixed and native inheritance of a JavaScript built-in is possible.
  */
-function NormalizedMap(aNormalize, aIterable = []) {
-  if (typeof(aNormalize) != "function")
-    throw "NormalizedMap must have a normalize function!";
-  this._normalize = aNormalize;
-  // Create the wrapped Map; use the provided iterable after normalizing the
-  // keys.
-  let entries = [...aIterable].map(([key, val]) => [aNormalize(key), val]);
-  this._map = new Map(entries);
-}
-NormalizedMap.prototype = {
-  _map: null,
-  // The function to apply to all keys.
-  _normalize: null,
+class NormalizedMap extends Map {
+  constructor(aNormalize, aIterable = []) {
+    if (typeof(aNormalize) != "function")
+      throw "NormalizedMap must have a normalize function!";
+    // Create the wrapped Map; use the provided iterable after normalizing the
+    // keys.
+    let entries = [...aIterable].map(([key, val]) => [aNormalize(key), val]);
+    super(entries);
+    // Note: In derived classes, super() must be called before using 'this'.
+    this._normalize = aNormalize;
+  }
+
+  // Dummy normalize function.
+  _normalize(aKey) { return aKey; }
 
   // Anything that accepts a key as an input needs to be manually overridden.
-  delete(key) { return this._map.delete(this._normalize(key)); },
-  get(key) { return this._map.get(this._normalize(key)); },
-  has(key) { return this._map.has(this._normalize(key)); },
+  delete(key) { return super.delete(this._normalize(key)); }
+  get(key) { return super.get(this._normalize(key)); }
+  has(key) { return super.has(this._normalize(key)); }
   set(key, val) {
-    this._map.set(this._normalize(key), val);
+    super.set(this._normalize(key), val);
     return this;
-  },
-
-  // The remaining methods are unaffected. Delegate until super is available.
-  get size() { return this._map.size; },
-  [Symbol.iterator]() { return this._map[Symbol.iterator](); },
-  entries() { return this._map.entries(); },
-  keys() { return this._map.keys(); },
-  values() { return this._map.values(); },
-  clear() { this._map.clear(); },
-  forEach(aCallback, aThis) { this._map.forEach(aCallback, aThis); }
+  }
 };
