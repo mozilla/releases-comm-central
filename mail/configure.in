@@ -23,7 +23,7 @@ fi
 AC_SUBST(MOZ_MOVEMAIL)
 
 dnl Get other versions (for the calendar plugin)
-SEAMONKEY_VERSION=`cat $topsrcdir/suite/config/version.txt`
+SEAMONKEY_VERSION=`cat ${_topsrcdir}/../suite/config/version.txt`
 AC_SUBST(SEAMONKEY_VERSION)
 
 dnl =========================================================

@@ -3,22 +3,30 @@ dnl vi: set tabstop=4 shiftwidth=4 expandtab:
 dnl This Source Code Form is subject to the terms of the Mozilla Public
 dnl License, v. 2.0. If a copy of the MPL was not distributed with this
 dnl file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
-dnl Process this file with autoconf to produce a configure script.
+dnl
+dnl This is a not-really-autoconf script (which is to say, it's a shell script
+dnl that is piped through m4 first) that executes the mozilla-central python
+dnl configure, first doing a little bit of processing to handle mozconfig and
+dnl the --with-external-source-dir rules.
 dnl ========================================================
-
-AC_PREREQ(2.13)
-AC_INIT(config/config.mk)
-MOZILLA_SRCDIR=$srcdir/mozilla
+divert(0)dnl
+#!/bin/sh
+SRCDIR=$(dirname $0)
+TOPSRCDIR="$SRCDIR"
+MOZILLA_SRCDIR="${SRCDIR}/mozilla"
+export OLD_CONFIGURE="${MOZILLA_SRCDIR}"/old-configure
 
 # If MOZCONFIG isn't set, use the .mozconfig from the current directory. This
 # overrides the lookup in mozilla-central's configure, which looks in the wrong
 # directory for this file.
-if test -z "$MOZCONFIG" -a -f $(dirname $0)/.mozconfig; then
-    export MOZCONFIG=$(dirname $0)/.mozconfig
+if test -z "$MOZCONFIG" -a -f "$SRCDIR"/.mozconfig; then
+    export MOZCONFIG="$SRCDIR"/.mozconfig
 fi
 
 # Execute the mozilla configure script in the current directory, adding the
-# parameter we need to run comm-central.
-exec ${MOZILLA_SRCDIR}/configure "$@" --with-external-source-dir="$(dirname $0)"
-
+# parameter we need to run comm-central. Since the configure script is really
+# just a wrapper around invoking a python variant, execute the underlying python
+# directly. We use a copy of the underlying configure script to get paths
+# correct.
+set -- "$@" --with-external-source-dir="$TOPSRCDIR"
+which python2.7 > /dev/null && exec python2.7 "$TOPSRCDIR/configure.py" "$@" || exec python "$TOPSRCDIR/configure.py" "$@"

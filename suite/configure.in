@@ -24,7 +24,7 @@ fi
 AC_SUBST(MOZ_MOVEMAIL)
 
 dnl Get other versions (for the calendar plugin)
-THUNDERBIRD_VERSION=`cat $topsrcdir/mail/config/version.txt`
+THUNDERBIRD_VERSION=`cat ${_topsrcdir}/../mail/config/version.txt`
 AC_SUBST(THUNDERBIRD_VERSION)
 
 dnl =========================================================
