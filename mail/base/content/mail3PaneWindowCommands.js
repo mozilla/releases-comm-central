@@ -1116,6 +1116,9 @@ var gLastFocusedElement=null;
 
 function FocusRingUpdate_Mail()
 {
+  if (!gFolderDisplay)
+    return;
+
   // if the focusedElement is null, we're here on a blur.
   // nsFocusController::Blur() calls nsFocusController::SetFocusedElement(null),
   // which will update any commands listening for "focus".
