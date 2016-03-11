@@ -85,7 +85,11 @@ function test_open_draft_again() {
   assert_true(cwins2 > 0, "No compose window open!");
   assert_equals(cwins, cwins2, "The number of compose windows changed!");
 
-  close_compose_window(cwc); // close compose window
+  // Type something and save, then check that we only have one draft.
+  cwc.type(cwc.eid("content-frame"), "Hello!");
+  cwc.keypress(null, "s", {shiftKey: false, accelKey: true});
+  close_compose_window(cwc);
+  assert_equals(draftsFolder.getTotalMessages(false), 1);
 
   press_delete(mc); // clean up after ourselves
 }
@@ -162,6 +166,36 @@ function test_save_delivery_format() {
   close_compose_window(cwc);
 
   press_delete(mc); // clean up the created draft
+}
+
+/**
+ * Tests that 'Edit as New' leaves the original message in drafts folder.
+ */
+function test_edit_as_new_in_draft() {
+  make_new_sets_in_folder(draftsFolder, [{count: 1}]);
+  be_in_folder(draftsFolder);
+
+  assert_equals(draftsFolder.getTotalMessages(false), 1);
+
+  let draftMsg = select_click_row(0);
+
+  // Wait for the notification with the Edit button.
+  wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
+
+  plan_for_new_window("msgcompose");
+  mc.keypress(null, "e", {shiftKey: false, accelKey: true});
+  let cwc = wait_for_compose_window();
+
+  cwc.type(cwc.eid("content-frame"), "Hello!");
+  cwc.keypress(null, "s", {shiftKey: false, accelKey: true});
+
+  close_compose_window(cwc);
+  assert_equals(draftsFolder.getTotalMessages(false), 2);
+
+  // Clean up the created drafts and count again.
+  press_delete(mc);
+  press_delete(mc);
+  assert_equals(draftsFolder.getTotalMessages(false), 0);
 }
 
 function teardownModule() {

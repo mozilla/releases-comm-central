@@ -1454,7 +1454,6 @@ mime_parse_stream_complete (nsMIMESession *stream)
       //
       if (mdd->format_out == nsMimeOutput::nsMimeMessageEditorTemplate)
       {
-        fields->SetDraftId(mdd->url_name);
         MSG_ComposeType msgComposeType = PL_strstr(mdd->url_name,
                                                    "&redirect=true") ?
                                          nsIMsgCompType::Redirect :
