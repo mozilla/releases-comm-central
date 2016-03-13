@@ -99,6 +99,7 @@ function getMsgSource(aMsgHdr) {
   sis.init(streamListener.inputStream);
   const MAX_MESSAGE_LENGTH = 65536;
   let content = sis.read(MAX_MESSAGE_LENGTH);
+  sis.close();
 
   return Cc["@mozilla.org/intl/utf8converterservice;1"]
            .getService(Ci.nsIUTF8ConverterService)

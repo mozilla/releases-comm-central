@@ -172,7 +172,9 @@ function getContentFromMessage(aMsgHdr) {
   let sis = Cc["@mozilla.org/scriptableinputstream;1"]
               .createInstance(Ci.nsIScriptableInputStream);
   sis.init(streamListener.inputStream);
-  return sis.read(MAX_MESSAGE_LENGTH);
+  let content = sis.read(MAX_MESSAGE_LENGTH);
+  sis.close();
+  return content;
 }
 
 mfnListener =
