@@ -19,7 +19,7 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
 XPCOMUtils.defineLazyGetter(this, "_defaultResource", () =>
   l10nHelper("chrome://branding/locale/brand.properties")("brandShortName")
 );
-__defineGetter__("XMPPDefaultResource", () => _defaultResource);
+this.__defineGetter__("XMPPDefaultResource", () => _defaultResource);
 
 function XMPPSession(aHost, aPort, aSecurity, aJID, aPassword, aAccount) {
   this._host = aHost;

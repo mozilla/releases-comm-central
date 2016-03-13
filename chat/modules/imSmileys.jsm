@@ -15,7 +15,7 @@ this.EXPORTED_SYMBOLS = [
 var kEmoticonsThemePref = "messenger.options.emoticonsTheme";
 var kThemeFile = "theme.js";
 
-__defineGetter__("gTheme", function() {
+this.__defineGetter__("gTheme", function() {
   delete this.gTheme;
   gPrefObserver.init();
   return this.gTheme = getTheme();
