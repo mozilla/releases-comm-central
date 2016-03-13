@@ -629,7 +629,7 @@ nsMsgComposeAndSend::GatherMimeAttachments()
     // Check one last time for the last line.
     if (cur_column > max_column)
       max_column = cur_column;
-    if (max_column > 900 && !isUsingQP) {
+    if (max_column > LINELENGTH_ENCODING_THRESHOLD && !isUsingQP) {
       // To encode "long lines" use a CTE that will transmit shorter lines.
       // Switch to base64 if we are not already using "quoted printable".
       PR_FREEIF(m_attachment1_encoding);
@@ -1046,7 +1046,7 @@ nsMsgComposeAndSend::PreProcessPart(nsMsgAttachmentHandler  *ma,
   if (ma->m_type.IsEmpty())
     ma->m_type = UNKNOWN_CONTENT_TYPE;
 
-  ma->PickEncoding (mCompFields->GetCharacterSet(), this);
+  ma->PickEncoding(mCompFields->GetCharacterSet(), this);
   ma->PickCharset();
 
   part = new nsMsgSendPart(this);
@@ -2374,7 +2374,7 @@ nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
           !m_attachments[i]->m_encoding.LowerCaseEqualsLiteral(ENCODING_BINARY))
         m_attachments[i]->m_already_encoded_p = true;
 
-            if (m_attachments[i]->mURL)
+      if (m_attachments[i]->mURL)
         msg_pick_real_name(m_attachments[i], nullptr, mCompFields->GetCharacterSet());
     }
   }
