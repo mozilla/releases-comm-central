@@ -11,7 +11,7 @@
 #endif
 
 <!DOCTYPE window [
- <!ENTITY % accountsDTD SYSTEM "chrome://instantbird/locale/accounts.dtd">
+ <!ENTITY % accountsDTD SYSTEM "chrome://chat/locale/accounts.dtd">
  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
  %accountsDTD;
  %brandDTD;

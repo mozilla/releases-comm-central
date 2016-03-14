@@ -5,11 +5,7 @@
 
 
 <!DOCTYPE bindings [
-#ifdef MOZ_THUNDERBIRD
-  <!ENTITY % accountsDTD SYSTEM "chrome://messenger/locale/imAccounts.dtd">
-#else
-  <!ENTITY % accountsDTD SYSTEM "chrome://instantbird/locale/accounts.dtd">
-#endif
+  <!ENTITY % accountsDTD SYSTEM "chrome://chat/locale/accounts.dtd">
   <!ENTITY % certManagerDTD SYSTEM "chrome://pippki/locale/certManager.dtd">
   %accountsDTD;
   %certManagerDTD;

@@ -189,7 +189,6 @@
   locale/@AB_CD@/messenger/chat.properties                              (%chrome/messenger/chat.properties)
   locale/@AB_CD@/messenger/addbuddy.dtd                                 (%chrome/messenger/addbuddy.dtd)
   locale/@AB_CD@/messenger/joinChat.dtd                                 (%chrome/messenger/joinChat.dtd)
-  locale/@AB_CD@/messenger/imAccounts.dtd                               (%chrome/messenger/imAccounts.dtd)
   locale/@AB_CD@/messenger/imAccounts.properties                        (%chrome/messenger/imAccounts.properties)
   locale/@AB_CD@/messenger/imAccountWizard.dtd                          (%chrome/messenger/imAccountWizard.dtd)
   locale/@AB_CD@/messenger/sanitize.dtd									(%chrome/messenger/sanitize.dtd)

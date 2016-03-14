@@ -10,7 +10,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/chat.css" type="text/css"?>
 
 <!DOCTYPE window [
- <!ENTITY % accountsDTD SYSTEM "chrome://messenger/locale/imAccounts.dtd">
+ <!ENTITY % accountsDTD SYSTEM "chrome://chat/locale/accounts.dtd">
  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
  <!ENTITY % chatDTD SYSTEM "chrome://messenger/locale/chat.dtd">
  %accountsDTD;
