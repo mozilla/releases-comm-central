@@ -50,7 +50,8 @@
    - it is of a non-text type (in which case we will use base64); or
    - The "use QP" option has been selected and high-bit characters exist; or
    - any NULLs exist in the document; or
-   - any line is longer than 900 bytes.
+   - any line is longer than 990 bytes (see LINELENGTH_ENCODING_THRESHOLD below)
+     and it is not of type message/rfc822.
 
    - If we are encoding, and more than 10% of the document consists of
      non-ASCII characters, then we always use base64 instead of QP.
@@ -140,6 +141,9 @@
 #define TEN_K                 10240
 #define MIME_BUFFER_SIZE      4096 // must be greater than 1000
                                    // SMTP (RFC821) limit
+// Maximum number of bytes we allow in a line before we force
+// encoding to base64 if not already QR-encoded or of type message/rfc822.
+#define LINELENGTH_ENCODING_THRESHOLD 990
 
 //
 // Utilities for string handling
