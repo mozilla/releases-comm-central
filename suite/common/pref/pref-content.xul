@@ -27,6 +27,21 @@
       <preference id="general.smoothScroll"
                   name="general.smoothScroll"
                   type="bool"/>
+      <preference id="zoom.minPercent"
+                  name="zoom.minPercent"
+                  type="int"/>
+      <preference id="zoom.maxPercent"
+                  name="zoom.maxPercent"
+                  type="int"/>
+      <preference id="browser.zoom.full"
+                  name="browser.zoom.full"
+                  type="bool" inverted="true"/>
+      <preference id="browser.zoom.siteSpecific"
+                  name="browser.zoom.siteSpecific"
+                  type="bool"/>
+      <preference id="browser.enable_automatic_image_resizing"
+                  name="browser.enable_automatic_image_resizing"
+                  type="bool"/>
       <preference id="gfx.direct2d.disabled"
                   name="gfx.direct2d.disabled"
                   type="bool" inverted="true"/>
@@ -34,15 +49,6 @@
                   name="layers.acceleration.disabled"
                   type="bool" inverted="true"
                   onchange="updateHardwareAcceleration(this.value);"/>
-      <preference id="browser.enable_automatic_image_resizing"
-                  name="browser.enable_automatic_image_resizing"
-                  type="bool"/>
-      <preference id="browser.zoom.full"
-                  name="browser.zoom.full"
-                  type="bool" inverted="true"/>
-      <preference id="browser.zoom.siteSpecific"
-                  name="browser.zoom.siteSpecific"
-                  type="bool"/>
       <preference id="accessibility.blockautorefresh"
                   name="accessibility.blockautorefresh"
                   type="bool"/>
@@ -63,8 +69,6 @@
                 preference="browser.chrome.favicons"/>
     </groupbox>
 
-    <separator class="thin"/>
-	
     <groupbox id="scrollingGroup" align="start">
       <caption label="&scrolling.label;"/>
 
@@ -78,29 +82,56 @@
                 preference="general.smoothScroll"/>
     </groupbox>
 
-	<separator class="thin"/>
+    <groupbox id="zoomPreferences" align="start">
+      <caption label="&zoomPrefs.label;"/>
+
+      <hbox align="center">
+        <label value="&minZoom.label;"
+               accesskey="&minZoom.accesskey;"
+               control="minZoom"/>
+        <textbox id="minZoom"
+                 type="number"
+                 size="3"
+                 increment="10"
+                 preference="zoom.minPercent"
+                 oninput="DisableMinCheck(this);"
+                 onchange="AdjustMaxZoom();"/>
+        <label value="&maxZoom.label;"
+               accesskey="&maxZoom.accesskey;"
+               control="maxZoom"/>
+        <textbox id="maxZoom"
+                 type="number"
+                 size="3"
+                 increment="10"
+                 preference="zoom.maxPercent"
+                 oninput="DisableMinCheck(this);"
+                 onchange="AdjustMinZoom();"/>
+        <label value="&percent.label;"/>
+      </hbox>
+
+      <checkbox id="textZoomOnly"
+                label="&textZoomOnly.label;"
+                accesskey="&textZoomOnly.accesskey;"
+                preference="browser.zoom.full"/>
+      <checkbox id="zoomSiteSpecific"
+                label="&siteSpecific.label;"
+                accesskey="&siteSpecific.accesskey;"
+                preference="browser.zoom.siteSpecific"/>
+      <checkbox id="enableAutomaticImageResizing"
+                label="&enableAutomaticImageResizing.label;"
+                accesskey="&enableAutomaticImageResizing.accesskey;"
+                preference="browser.enable_automatic_image_resizing"/>
+    </groupbox>
 
     <vbox class="box-padded" align="start"> 
       <checkbox id="allowHWAccel"
                 label="&allowHWAccel.label;"
                 accesskey="&allowHWAccel.accesskey;"
                 preference="layers.acceleration.disabled"/>
-      <checkbox id="enableAutomaticImageResizing"
-                label="&enableAutomaticImageResizing.label;"
-                accesskey="&enableAutomaticImageResizing.accesskey;"
-                preference="browser.enable_automatic_image_resizing"/>
-      <checkbox id="textZoomOnly"
-                label="&textZoomOnly.label;"
-                accesskey="&textZoomOnly.accesskey;"
-                preference="browser.zoom.full"/>
       <checkbox id="blockAutoRefresh"
                 label="&blockAutoRefresh.label;"
                 accesskey="&blockAutoRefresh.accesskey;"
                 preference="accessibility.blockautorefresh"/>
-      <checkbox id="zoomSiteSpecific"
-                label="&siteSpecific.label;"
-                accesskey="&siteSpecific.accesskey;"
-                preference="browser.zoom.siteSpecific"/>
     </vbox>
 
   </prefpane>
