@@ -1224,14 +1224,18 @@ FeedWriter.prototype = {
                    .usePrivateBrowsing;
     var flags = isPB ? this._faviconService.FAVICON_LOAD_PRIVATE :
                        this._faviconService.FAVICON_LOAD_NON_PRIVATE;
-    this._faviconService.setAndFetchFaviconForPage(readerURI, faviconURI, false, flags,
+    var nullPrincipal = Components.classes["@mozilla.org/nullprincipal;1"]
+                                  .createInstance(Components.interfaces.nsIPrincipal);
+    this._faviconService.setAndFetchFaviconForPage(
+      readerURI, faviconURI, false, flags,
       function(aURI, aDataLen, aData, aMimeType) {
         if (aDataLen > 0) {
           let dataURL = "data:" + aMimeType + ";base64," +
                         btoa(String.fromCharCode.apply(null, aData));
           aMenuItem.setAttribute("image", dataURL);
         }
-      });
+      },
+      nullPrincipal);
   },
 
   classID: FEEDWRITER_CID,

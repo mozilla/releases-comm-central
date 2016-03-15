@@ -519,7 +519,8 @@
                   }
                 }
                 else if (this.mTabBrowser.shouldLoadFavIcon(location))
-                  this.mTabBrowser.loadFavIcon(location, "image", this.mTab);
+                  this.mTabBrowser.loadFavIcon(location, "image", this.mTab,
+                                               this.mBrowser.contentPrincipal);
                 else
                   this.mTab.removeAttribute("image");
 
@@ -547,7 +548,7 @@
               const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
               if (aWebProgress.isTopLevel) {
                 if (!(aFlags & nsIWebProgressListener.LOCATION_CHANGE_SAME_DOCUMENT)) {
-                  this.mTabBrowser.setIcon(this.mTab, "");
+                  this.mTabBrowser.setIcon(this.mTab);
                   this.mFeeds = [];
                 }
 
@@ -710,6 +711,7 @@
       <method name="setIcon">
         <parameter name="aTab"/>
         <parameter name="aURI"/>
+        <parameter name="aLoadingPrincipal"/>
         <body>
           <![CDATA[
             var browser = aTab.linkedBrowser;
@@ -725,9 +727,14 @@
               var faviconFlags = this.usePrivateBrowsing ?
                   this.mFaviconService.FAVICON_LOAD_PRIVATE :
                   this.mFaviconService.FAVICON_LOAD_NON_PRIVATE;
-              this.mFaviconService.setAndFetchFaviconForPage(browser.currentURI,
-                                                             aURI, false,
-                                                             faviconFlags);
+              var loadingPrincipal = aLoadingPrincipal ||
+                                     this.mSecMan.getSystemPrincipal();
+
+              this.mFaviconService
+                  .setAndFetchFaviconForPage(browser.currentURI,
+                                             aURI, false,
+                                             faviconFlags, null,
+                                             loadingPrincipal);
             }
 
             if (!aTab.hasAttribute("busy") && browser.mIconURL)
@@ -784,15 +791,22 @@
         <parameter name="aURI"/>
         <parameter name="aAttr"/>
         <parameter name="aElt"/>
+        <parameter name="aLoadingPrincipal"/>
         <body>
           <![CDATA[
             var iconURL = this.buildFavIconString(aURI);
             if (this.mFaviconService) {
-              let uri = this.mIOService.newURI(iconURL, null, null);
+              var iconURI = this.mIOService.newURI(iconURL, null, null);
               var faviconFlags = this.usePrivateBrowsing ?
                   this.mFaviconService.FAVICON_LOAD_PRIVATE :
                   this.mFaviconService.FAVICON_LOAD_NON_PRIVATE;
-              this.mFaviconService.setAndFetchFaviconForPage(aURI, uri, false, faviconFlags);
+              var loadingPrincipal = aLoadingPrincipal ||
+                                     this.mSecMan.getSystemPrincipal();
+
+              this.mFaviconService
+                  .setAndFetchFaviconForPage(aURI, iconURI, false,
+                                             faviconFlags, null,
+                                             loadingPrincipal);
               if (this.mFaviconService.isFailedFavicon(uri))
                 return;
             }
@@ -1110,7 +1124,8 @@
             if (isIcon) {
              var iconUri = this.getLinkIconURI(link);
              if (iconUri)
-               this.setIcon(this.tabs[index], iconUri);
+               this.setIcon(this.tabs[index], iconUri,
+                            link.nodePrincipal);
              return;
             }
 
@@ -1183,7 +1198,7 @@
             return null; // Refuse to load if we can't do a security check.
           }
 
-          if (contentPolicy.shouldLoad(nsIContentPolicy.TYPE_IMAGE,
+          if (contentPolicy.shouldLoad(nsIContentPolicy.TYPE_INTERNAL_IMAGE,
                                        uri, targetDoc.documentURIObject,
                                        aLink, aLink.type,
                                        null) != nsIContentPolicy.ACCEPT) {
