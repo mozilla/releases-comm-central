@@ -713,13 +713,13 @@ PLDHashTableOps nsMsgDatabase::gMsgDBHashTableOps =
 // HashKey is supposed to maximize entropy in the low order bits, and the key
 // as is, should do that.
 PLDHashNumber
-nsMsgDatabase::HashKey(PLDHashTable* aTable, const void* aKey)
+nsMsgDatabase::HashKey(const void* aKey)
 {
   return PLDHashNumber(NS_PTR_TO_INT32(aKey));
 }
 
 bool
-nsMsgDatabase::MatchEntry(PLDHashTable* aTable, const PLDHashEntryHdr* aEntry, const void* aKey)
+nsMsgDatabase::MatchEntry(const PLDHashEntryHdr* aEntry, const void* aKey)
 {
   const MsgHdrHashElement* hdr = static_cast<const MsgHdrHashElement*>(aEntry);
   return aKey == (const void *)(uintptr_t) hdr->mKey; // ### or get the key from the hdr...

@@ -376,8 +376,8 @@ protected:
   void          ClearEnumerators();
   // all instantiated headers, but doesn't hold refs.
   PLDHashTable  *m_headersInUse;
-  static PLDHashNumber HashKey(PLDHashTable* aTable, const void* aKey);
-  static bool MatchEntry(PLDHashTable* aTable, const PLDHashEntryHdr* aEntry, const void* aKey);
+  static PLDHashNumber HashKey(const void* aKey);
+  static bool MatchEntry(const PLDHashEntryHdr* aEntry, const void* aKey);
   static void MoveEntry(PLDHashTable* aTable, const PLDHashEntryHdr* aFrom, PLDHashEntryHdr* aTo);
   static void ClearEntry(PLDHashTable* aTable, PLDHashEntryHdr* aEntry);
   static PLDHashTableOps gMsgDBHashTableOps;
