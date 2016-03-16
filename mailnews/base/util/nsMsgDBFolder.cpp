@@ -2147,7 +2147,10 @@ nsMsgDBFolder::SetDBTransferInfo(nsIDBFolderInfo *aTransferInfo)
   {
     db->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
     if(dbFolderInfo)
+    {
       dbFolderInfo->InitFromTransferInfo(aTransferInfo);
+      dbFolderInfo->SetBooleanProperty("forceReparse", false);
+    }
     db->SetSummaryValid(true);
   }
   return NS_OK;

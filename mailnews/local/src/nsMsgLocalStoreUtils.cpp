@@ -6,6 +6,8 @@
 #include "msgCore.h"    // precompiled header...
 #include "nsMsgLocalStoreUtils.h"
 #include "nsIFile.h"
+#include "nsIDBFolderInfo.h"
+#include "nsIMsgDatabase.h"
 #include "prprf.h"
 
 #define EXTRA_SAFETY_SPACE 0x400000 // (4MiB)
@@ -319,5 +321,22 @@ nsMsgLocalStoreUtils::DiskSpaceAvailableInStore(nsIFile *aFile, uint64_t aSpaceR
     printf("Call to GetDiskSpaceAvailable FAILED! \n");
 #endif
     return true;
+  }
+}
+
+/**
+ * Resets forceReparse in the database.
+ *
+ * @param aMsgDb The database to reset.
+ */
+void
+nsMsgLocalStoreUtils::ResetForceReparse(nsIMsgDatabase *aMsgDB)
+{
+  if (aMsgDB)
+  {
+    nsCOMPtr<nsIDBFolderInfo> folderInfo;
+    aMsgDB->GetDBFolderInfo(getter_AddRefs(folderInfo));
+    if (folderInfo)
+      folderInfo->SetBooleanProperty("forceReparse", false);
   }
 }

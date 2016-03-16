@@ -1295,6 +1295,7 @@ NS_IMETHODIMP nsMsgMaildirStore::RebuildIndex(nsIMsgFolder *aFolder,
                                                           aListener);
   NS_ENSURE_TRUE(fileParser, NS_ERROR_OUT_OF_MEMORY);
   fileParser->StartTimer();
+  ResetForceReparse(aMsgDB);
   return NS_OK;
 }
 

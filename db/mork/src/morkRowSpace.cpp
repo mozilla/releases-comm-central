@@ -380,6 +380,7 @@ morkRowSpace::MakeNewTableId(morkEnv* ev)
   return outTid;
 }
 
+#define MAX_AUTO_ID (morkRow_kMinusOneRid - 2)
 mork_rid
 morkRowSpace::MakeNewRowId(morkEnv* ev)
 {
@@ -388,8 +389,9 @@ morkRowSpace::MakeNewRowId(morkEnv* ev)
   mork_num count = 9; // try up to eight times
   mdbOid oid;
   oid.mOid_Scope = this->SpaceScope();
-  
-  while ( !outRid && --count ) // still trying to find an unused row ID?
+
+  // still trying to find an unused row ID?
+  while (!outRid && --count && id <= MAX_AUTO_ID)
   {
     oid.mOid_Id = id;
     if ( !mRowSpace_Rows.GetOid(ev, &oid) )
@@ -401,7 +403,8 @@ morkRowSpace::MakeNewRowId(morkEnv* ev)
     }
   }
   
-  mRowSpace_NextRowId = id + 1;
+  if (id < MAX_AUTO_ID)
+    mRowSpace_NextRowId = id + 1;
   return outRid;
 }
 

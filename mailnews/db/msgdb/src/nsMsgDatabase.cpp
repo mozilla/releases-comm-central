@@ -63,6 +63,7 @@ static const nsMsgKey kTableKeyForThreadOne = 0xfffffffe;
 static const nsMsgKey kAllThreadsTableKey = 0xfffffffd;
 static const nsMsgKey kFirstPseudoKey = 0xfffffff0;
 static const nsMsgKey kIdStartOfFake = 0xffffff80;
+static const nsMsgKey kForceReparseKey = 0xfffffff0;
 
 static PRLogModuleInfo* DBLog;
 
@@ -810,6 +811,9 @@ nsresult nsMsgDatabase::RemoveHdrFromUseCache(nsIMsgDBHdr *hdr, nsMsgKey key)
 nsresult
 nsMsgDatabase::CreateMsgHdr(nsIMdbRow* hdrRow, nsMsgKey key, nsIMsgDBHdr* *result)
 {
+  NS_ENSURE_ARG_POINTER(hdrRow);
+  NS_ENSURE_ARG_POINTER(result);
+
   nsresult rv = GetHdrFromUseCache(key, result);
   if (NS_SUCCEEDED(rv) && *result)
   {
@@ -1255,6 +1259,17 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
       m_dbFolderInfo->GetVersion(&version);
       if (GetCurVersion() != version)
         err = NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
+
+      // Check if we should force a reparse because, for example, we have
+      // reached the key limit.
+      bool forceReparse;
+      m_dbFolderInfo->GetBooleanProperty("forceReparse", false, &forceReparse);
+      if (forceReparse)
+      {
+        NS_WARNING("Forcing a reparse presumably because key limit reached");
+        err = NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
+      }
+
     }
     if (NS_FAILED(err) && !m_leaveInvalidDB)
       deleteInvalidDB = true;
@@ -1618,6 +1633,7 @@ nsresult nsMsgDatabase::InitNewDB()
       NS_ADDREF(dbFolderInfo);
       err = dbFolderInfo->AddToNewMDB();
       dbFolderInfo->SetVersion(GetCurVersion());
+      dbFolderInfo->SetBooleanProperty("forceReparse", false);
       dbFolderInfo->SetBooleanProperty(kFixedBadRefThreadingProp, true);
       nsIMdbStore *store = GetStore();
       // create the unique table for the dbFolderInfo.
@@ -3417,7 +3433,7 @@ nsMsgDatabase::EnumerateMessagesWithFlag(nsISimpleEnumerator* *result, uint32_t 
 NS_IMETHODIMP nsMsgDatabase::CreateNewHdr(nsMsgKey key, nsIMsgDBHdr **pnewHdr)
 {
   nsresult  err = NS_OK;
-  nsIMdbRow    *hdrRow;
+  nsIMdbRow    *hdrRow = nullptr;
   struct mdbOid allMsgHdrsTableOID;
 
   if (!pnewHdr || !m_mdbAllMsgHeadersTable || !m_mdbStore)
@@ -3441,6 +3457,28 @@ NS_IMETHODIMP nsMsgDatabase::CreateNewHdr(nsMsgKey key, nsIMsgDBHdr **pnewHdr)
       struct mdbOid oid;
       hdrRow->GetOid(GetEnv(), &oid);
       key = oid.mOid_Id;
+    }
+    else
+    {
+      // We failed to create a new row. That can happen if we run out of keys,
+      // which will force a reparse.
+      RefPtr<nsMsgKeyArray> keys = new nsMsgKeyArray;
+      if (NS_SUCCEEDED(ListAllKeys(keys)))
+      {
+        uint32_t numKeys;
+        keys->GetLength(&numKeys);
+        for (uint32_t i = 0; i < numKeys; i++)
+        {
+          if (keys->m_keys[i] >= kForceReparseKey)
+          {
+            // Force a reparse.
+            if (m_dbFolderInfo)
+              m_dbFolderInfo->SetBooleanProperty("forceReparse", true);
+            break;
+          }
+        }
+      }
+      err = NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
     }
   }
   if (NS_FAILED(err))
