@@ -173,10 +173,26 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   display: -moz-box;
 }
 
+#folderPane-toolbar #locationFolders,
+#folderPane-toolbar > #folder-location-container,
+#folderPane-toolbar > #folderpane-mode-selector {
+  -moz-box-flex: 1;
+}
+
+#folderPane-toolbar > .toolbarbutton-1,
+#folderPane-toolbar > toolbaritem > menulist {
+  margin: 0;
+}
+
+#folderPane-toolbar > :-moz-any(*) + :-moz-any(*) {
+  margin-inline-start: 2px;
+}
+
 /* Force the folder location and mail view items to fit in the available width
    in the Customize Toolbar dialog. */
 #palette-box #locationFolders,
 #palette-box #folder-location-container,
+#palette-box #folderpane-mode-selector,
 #palette-box #viewPicker {
   -moz-box-flex: 1;
 }

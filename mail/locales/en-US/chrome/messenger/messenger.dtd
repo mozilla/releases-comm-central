@@ -164,6 +164,8 @@
 <!ENTITY recentFolders.accesskey "R">
 <!ENTITY compactVersion.label "Compact View">
 <!ENTITY compactVersion.accesskey "C">
+<!ENTITY folderPaneBar.label "Folder Pane Toolbar">
+<!ENTITY folderModeSelector.label "Folder Views">
 
 <!-- Sort Menu -->
 <!ENTITY sortMenu.label "Sort by">

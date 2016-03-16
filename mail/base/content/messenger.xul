@@ -318,19 +318,18 @@
 
           <box id="messengerBox" orient="horizontal" flex="1" minheight="100" height="100" persist="height">
             <vbox id="folderPaneBox" minwidth="125" width="200" persist="width">
-              <label id="folderColumnLabel" hidden="true" value="&folderNameColumn.label;"/>
-              <sidebarheader id="folderPaneHeader" hidden="true" align="center">
-                <label id="folderpane-title" crop="end" flex="1"/>
-                <toolbarbutton id="folderview-cycler-prev"
-                               dir="prev"
-                               class="folderview-cycler"
-                               onclick="gFolderTreeView.cycleMode(false);"/>
-                <toolbarbutton id="folderview-cycler-next"
-                               dir="next"
-                               class="folderview-cycler"
-                               onclick="gFolderTreeView.cycleMode(true);"/>
-              </sidebarheader>
-
+              <sidebarheader id="folderPaneHeader" hidden="true" align="center"/>
+              <toolbar id="folderPane-toolbar"
+                       class="inline-toolbar"
+                       toolboxid="mail-toolbox"
+                       toolbarname="&folderPaneBar.label;"
+                       customizable="true"
+                       align="start"
+                       mode="icons" defaultmode="icons" lockmode="true"
+                       iconsize="small" defaulticonsize="small" lockiconsize="true"
+                       context="toolbar-context-menu"
+                       defaultset="folderpane-mode-selector"
+                       collapsed="true"/>
               <tree id="folderTree" class="plain" flex="1"
                     hidecolumnpicker="true" persist="mode" mode="all"
                     keepcurrentinview="true"

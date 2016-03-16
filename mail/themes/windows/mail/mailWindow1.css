@@ -66,6 +66,11 @@
   background-color: -moz-Dialog;
 }
 
+#folderPane-toolbar {
+  border-bottom-width: 1px !important;
+  border-bottom-color: ThreeDShadow;
+}
+
 /* ::::: thread decoration ::::: */
 
 treechildren::-moz-tree-row(dummy)  {
@@ -291,32 +296,6 @@ treechildren::-moz-tree-image(subjectCol, new) {
 
 treechildren::-moz-tree-image(subjectCol, imapdeleted) {
   -moz-image-region: rect(0 80px 16px 64px);
-}
-
-/* ..... folder pane adjustments ..... */
-
-#folderpane-title {
-  padding-inline-start: 12px;
-  padding-inline-end: 8px;
-}
-
-@media (-moz-os-version: windows-xp) {
-  .folderview-cycler {
-    padding-inline-end: 0;
-  }
-}
-
-.folderview-cycler {
-  list-style-image: url("chrome://messenger/skin/icons/arrow/foldercycler-arrow.svg#normal");
-}
-
-.folderview-cycler:-moz-lwtheme-brighttext {
-  list-style-image: url("chrome://messenger/skin/icons/arrow/foldercycler-arrow.svg#inverted");
-}
-
-.folderview-cycler[dir="prev"]:-moz-locale-dir(ltr) > .toolbarbutton-icon,
-.folderview-cycler[dir="next"]:-moz-locale-dir(rtl) > .toolbarbutton-icon {
-  transform: scaleX(-1);
 }
 
 /* ..... splitter adjustments ..... */
@@ -760,6 +739,10 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
     -moz-margin-start: -2px;
   }
 
+  #folderPane-toolbar {
+    border-top-style: none;
+  }
+
   #folderpane_splitter,
   #threadpane-splitter:not([orient="vertical"]) {
     border: none;
@@ -977,7 +960,8 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
     transition: none;
   }
 
-  #status-bar {
+  #status-bar,
+  #folderPane-toolbar {
     background-color: hsl(210, 75%, 92%);
   }
 }
@@ -1067,6 +1051,13 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
   }
 }
 
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
+       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  #folderPane-toolbar {
+    border-bottom-color: #c2c2c2;
+  }
+}
+
 @media (-moz-windows-glass) {
   /* lesser transparency on Glass background */
   #tabbar-toolbar menulist:not(:-moz-lwtheme):not([open="true"]) {
@@ -1085,6 +1076,10 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
     -moz-padding-end: 5px;
     background-color: rgba(255, 255, 255, .3);
     border-radius: 4px;
+  }
+
+  #folderPane-toolbar {
+    border-bottom-color: #aabccf;
   }
 }
 

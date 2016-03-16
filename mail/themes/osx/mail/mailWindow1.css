@@ -41,6 +41,16 @@ treechildren::-moz-tree-twisty {
   text-shadow: none;
 }
 
+#folderPane-toolbar {
+  background: linear-gradient(#f3f3f3, #ebebeb);
+  border-bottom: 1px solid #bebebe;
+}
+
+#folderPane-toolbar:-moz-window-inactive {
+  background-color: -moz-mac-chrome-inactive;
+  background-image: none;
+}
+
 #folderTree {
   -moz-appearance: -moz-mac-vibrancy-light;
 }
@@ -502,43 +512,6 @@ treechildren::-moz-tree-row(dummy, focus, selected)  {
   -moz-appearance: none;
 }
 
-/* ..... folder pane adjustments ..... */
-
-#folderpane-title {
-  text-transform: uppercase;
-  color: #555;
-  font-weight: bold;
-  padding: 4px 0;
-}
-
-.folderview-cycler,
-.folderview-cycler .toolbarbutton-icon,
-.folderview-cycler .toolbarbutton-text {
-  padding: 0 !important;
-  margin: 0 !important;
-  border: none !important;
-}
-
-.folderview-cycler[dir="prev"],
-.folderview-cycler[dir="next"]:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://messenger/skin/icons/spin-buttons.png");
-  -moz-image-region: rect(0 15px 16px 0);
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-.folderview-cycler[dir="next"],
-.folderview-cycler[dir="prev"]:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://messenger/skin/icons/spin-buttons.png");
-  -moz-image-region: rect(0 31px 16px 15px);
-  padding: 0 !important;
-  margin: 0 !important;
-  -moz-margin-end: 4px !important;
-}
-
-.folderview-cycler:active {
-  list-style-image: url("chrome://messenger/skin/icons/spin-buttons-active.png") !important;
-}
 /* ..... splitter adjustments ..... */
 
 splitter {

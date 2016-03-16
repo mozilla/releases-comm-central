@@ -147,17 +147,6 @@ var gFolderTreeView = {
       // This is ok.  If we've already migrated we'll end up here
     }
 
-    if (document.getElementById('folderpane-title')) {
-      let string;
-        if (this.mode in this._modeDisplayNames)
-          string = this._modeDisplayNames[this.mode];
-        else {
-          let key = "folderPaneModeHeader_" + this.mode;
-          string = this.messengerBundle.getString(key);
-        }
-      document.getElementById('folderpane-title').value = string;
-    }
-
     if (aJSONFile) {
       // Parse our persistent-open-state json file
       let data = IOUtils.loadFileToString(aJSONFile);
@@ -174,6 +163,7 @@ var gFolderTreeView = {
 
     // Load our data
     this._updateCompactState(this.mode);
+    this._selectModeInSelector(this.mode);
     this._rebuild();
     // And actually draw the tree
     aTree.view = this;
@@ -417,15 +407,7 @@ var gFolderTreeView = {
     this._mode = aMode;
     this._updateCompactState(this._mode);
 
-    // Accept the mode and set up labels.
-    let string;
-    if (this._mode in this._modeDisplayNames)
-      string = this._modeDisplayNames[this._mode];
-    else {
-      let key = "folderPaneModeHeader_" + this._mode;
-      string = gFolderTreeView.messengerBundle.getString(key);
-    }
-    document.getElementById('folderpane-title').value = string;
+    this._selectModeInSelector(this._mode);
 
     // Store current mode and actually build the folder pane.
     this._treeElement.setAttribute("mode", this._mode);
@@ -459,6 +441,59 @@ var gFolderTreeView = {
       aCompact = aMode.endsWith("_compact");
 
     return this.baseMode(aMode) + (aCompact ? "_compact" : "");
+  },
+
+  _initFolderModeSelector: function() {
+    // Populate the mode selector menulist on the toolbar.
+    let fullModes = [];
+    let compactModes = [];
+    for (let mode of this._modeNames) {
+      let array = mode.endsWith("_compact") ? compactModes : fullModes;
+      array.push(mode);
+    }
+
+    let modeSelector = document.getElementById("folderpane-mode-selector").firstChild;
+    // Can't use modeSelector.removeAllItems() here as it would remove the menupopup too, with its attributes.
+    while (modeSelector.menupopup.hasChildNodes())
+      modeSelector.menupopup.lastChild.remove();
+
+    let currentMode = this.mode;
+    let parent = this;
+
+    function appendMode(aMode) {
+      let name;
+      if (aMode in parent._modeDisplayNames) {
+        name = parent._modeDisplayNames[aMode];
+      } else {
+        let key = "folderPaneModeHeader_" + aMode;
+        name = parent.messengerBundle.getString(key);
+      }
+      let item = modeSelector.appendItem(name, aMode);
+      item.setAttribute("type", "radio");
+      if (aMode == currentMode)
+        item.setAttribute("checked", "true");
+      else
+        item.setAttribute("checked", "false");
+    }
+
+    for (let mode of fullModes)
+      appendMode(mode);
+
+    if ((fullModes.length > 0) && (compactModes.length > 0))
+      modeSelector.menupopup.appendChild(document.createElement("menuseparator"));
+
+    for (let mode of compactModes)
+      appendMode(mode);
+  },
+
+  _selectModeInSelector: function(aMode) {
+    // Show the mode in the mode selector, if it is on a toolbar.
+    let modeSelector = document.getElementById("folderpane-mode-selector");
+    if (modeSelector) {
+      if (!modeSelector.querySelector('[value="' + aMode + '"]'))
+        this._initFolderModeSelector();
+      modeSelector.firstChild.value = aMode;
+    }
   },
 
   /**
