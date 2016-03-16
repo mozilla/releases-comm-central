@@ -3067,15 +3067,35 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(nsIImapProtocol *aProtocol
     mFolderSize += messageSize;
   m_msgMovedByFilter = false;
 
+  nsMsgKey highestUID = 0;
+  nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
+  if (mDatabase)
+    mDatabase->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
+  if (dbFolderInfo)
+    dbFolderInfo->GetUint32Property(kHighestRecordedUIDPropertyName, 0, &highestUID);
+
   // If this is the inbox, try to apply filters. Otherwise, test the inherited
   // folder property "applyIncomingFilters" (which defaults to empty). If this
   // inherited property has the string value "true", then apply filters even
   // if this is not the Inbox folder.
   if (mFlags & nsMsgFolderFlags::Inbox || m_applyIncomingFilters)
   {
+    // Use highwater to determine whether to filter?
+    bool filterOnHighwater = false;
+    nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
+    if (prefBranch)
+      prefBranch->GetBoolPref("mail.imap.filter_on_new", &filterOnHighwater);
+
     uint32_t msgFlags;
     newMsgHdr->GetFlags(&msgFlags);
-    if (!(msgFlags & (nsMsgMessageFlags::Read | nsMsgMessageFlags::IMAPDeleted))) // only fire on unread msgs that haven't been deleted
+
+    bool doFilter = filterOnHighwater ?
+      // Filter on largest UUID and not deleted.
+      m_curMsgUid > highestUID && !(msgFlags & nsMsgMessageFlags::IMAPDeleted) :
+      // Filter on unread and not deleted.
+      !(msgFlags & (nsMsgMessageFlags::Read | nsMsgMessageFlags::IMAPDeleted));
+
+    if (doFilter)
     {
       int32_t duplicateAction = nsIMsgIncomingServer::keepDups;
       if (server)
@@ -3169,16 +3189,12 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(nsIImapProtocol *aProtocol
     OrProcessingFlags(m_curMsgUid, nsMsgProcessingFlags::NotReportedClassified);
   }
   // adjust highestRecordedUID
-  if (mDatabase)
+  if (dbFolderInfo)
   {
-    nsCOMPtr <nsIDBFolderInfo> dbFolderInfo;
-    nsMsgKey highestUID;
-    mDatabase->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
-    dbFolderInfo->GetUint32Property(kHighestRecordedUIDPropertyName, 0, &highestUID);
     if (m_curMsgUid > highestUID)
       dbFolderInfo->SetUint32Property(kHighestRecordedUIDPropertyName, m_curMsgUid);
-
   }
+
   if (m_isGmailServer)
   {
     nsCOMPtr<nsIImapFlagAndUidState> flagState;
