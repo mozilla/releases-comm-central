@@ -6,7 +6,7 @@ var {interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource:///modules/imServices.jsm");
-Cu.import("resource://testing-common/appInfoUtils.jsm");
+Cu.import("resource://testing-common/AppInfo.jsm");
 
 function run_test() {
   do_get_profile();
@@ -23,7 +23,7 @@ function run_test() {
   try {
     // Having an implementation of nsIXULAppInfo is required for
     // Services.core.init to work.
-    XULAppInfo.init();
+    updateAppInfo();
     Services.core.init();
 
     let account = Services.accounts.getAccountByNumericId(1);
