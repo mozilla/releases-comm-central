@@ -2293,8 +2293,9 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(nsIArray *messages,
     {
       if (mDatabase)
       {
+        nsCOMPtr<nsIMsgDatabase> database(mDatabase);
         if (deleteModel == nsMsgImapDeleteModels::IMAPDelete)
-          MarkMessagesImapDeleted(&srcKeyArray, deleteMsgs, mDatabase);
+          MarkMessagesImapDeleted(&srcKeyArray, deleteMsgs, database);
         else
         {
           EnableNotifications(allMessageCountNotifications, false, true /*dbBatching*/);  //"remove it immediately" model
@@ -2306,7 +2307,7 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(nsIArray *messages,
               notifier->NotifyMsgsDeleted(messages);
           }
           DeleteStoreMessages(messages);
-          mDatabase->DeleteMessages(srcKeyArray.Length(), srcKeyArray.Elements(), nullptr);
+          database->DeleteMessages(srcKeyArray.Length(), srcKeyArray.Elements(), nullptr);
           EnableNotifications(allMessageCountNotifications, true, true /*dbBatching*/);
         }
         NotifyFolderEvent(mDeleteOrMoveMsgCompletedAtom);
