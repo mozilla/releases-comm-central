@@ -241,7 +241,7 @@ void nsImapServerResponseParser::ParseIMAPServerResponse(const char *aCurrentCom
       // it's possible that we ate this + while parsing certain responses (like cram data),
       // in these cases, the parsing routine for that specific command will manually set
       // fWaitingForMoreClientInput so we don't lose that information....
-      if (*fNextToken == '+' || inIdle)
+      if (fNextToken && (*fNextToken == '+') || inIdle)
       {
         fWaitingForMoreClientInput = true;
       }
