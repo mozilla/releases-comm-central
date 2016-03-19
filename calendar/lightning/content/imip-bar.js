@@ -203,13 +203,32 @@ var ltnImipBar = {
             ltnImipBar.foundItems = foundItems;
         }
 
-        // we override the bar label for sent out invitations and in case the event does not exist
+        // We need this to determine whether this is an outgoing or incoming message because
+        // Thunderbird doesn't provide a distinct flag on message level to do so. Relying on
+        // folder flags only may lead to false positives.
+        let isOutgoing = function(aMsgHdr) {
+            let author = aMsgHdr.mime2DecodedAuthor;
+            let isSentFolder = aMsgHdr.folder.flags & nsMsgFolderFlags.SentMail;
+            if (author && isSentFolder) {
+                let am = MailServices.accounts;
+                for (let identity in fixIterator(am.allIdentities,
+                                                 Components.interfaces.nsIMsgIdentity)) {
+                    if (author.includes(identity.email) && !identity.fccReplyFollowParent) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // We override the bar label for sent out invitations and in case the event does not exist
         // anymore, we also clear the buttons if any to avoid e.g. accept/decline buttons
-        if (gMessageDisplay.displayedMessage.folder.flags & nsMsgFolderFlags.SentMail) {
-            if (ltnImipBar.foundItems[0]) {
+        if (isOutgoing(gMessageDisplay.displayedMessage)) {
+            if (ltnImipBar.foundItems && ltnImipBar.foundItems[0]) {
                 data.label = ltn.getString("lightning", "imipBarSentText");
             } else {
-                data = {label: ltn.getString("lightning", "imipBarSentButRemovedText")};
+                data = {label: ltn.getString("lightning", "imipBarSentButRemovedText"),
+                        buttons: [], hideMenuItems: []};
             }
         }
 
@@ -229,7 +248,8 @@ var ltnImipBar = {
      * Displays changes in case of invitation updates in invitation overlay
      */
     displayModifications: function () {
-        if (!ltnImipBar.msgOverlay || !msgWindow || !ltnImipBar.foundItems[0] || !ltnImipBar.itipItem) {
+        if (!ltnImipBar.msgOverlay || !msgWindow || !ltnImipBar.foundItems ||
+            !ltnImipBar.foundItems[0] || !ltnImipBar.itipItem) {
             return;
         }
 
