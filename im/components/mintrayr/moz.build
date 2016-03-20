@@ -17,7 +17,7 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
     RCFILE = 'resources.rc'
     RESFILE = 'resources.res'
 
-elif CONFIG['MOZ_WIDGET_GTK']:
+elif 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
     SOURCES += ['trayPlatformGtk2.cpp']
     OS_LIBS += CONFIG['TK_LIBS']
     OS_LIBS += CONFIG['XLIBS']

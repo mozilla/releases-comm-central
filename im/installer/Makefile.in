@@ -31,9 +31,9 @@ ifdef MOZ_ENABLE_GNOME_COMPONENT
 DEFINES += -DMOZ_ENABLE_GNOME_COMPONENT=1
 endif
 
-ifdef MOZ_WIDGET_GTK
+ifneq (,$(filter gtk%,$(MOZ_WIDGET_TOOLKIT)))
 DEFINES += -DMOZ_GTK=1
-ifdef MOZ_ENABLE_GTK3
+ifeq ($(MOZ_WIDGET_TOOLKIT),gtk3)
 DEFINES += -DMOZ_GTK3=1
 endif
 endif
@@ -154,7 +154,7 @@ libs::
 	$(MAKE) -C $(DEPTH)/im/locales langpack
 
 ifeq (WINNT,$(OS_ARCH))
-PKGCOMP_FIND_OPTS = 
+PKGCOMP_FIND_OPTS =
 else
 PKGCOMP_FIND_OPTS = -L
 endif

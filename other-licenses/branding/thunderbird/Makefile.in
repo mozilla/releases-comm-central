@@ -1,6 +1,6 @@
 # Branding Makefile
 #  - jars chrome artwork
-#  - copies artwork to appropriate places in objdir for bundling into app 
+#  - copies artwork to appropriate places in objdir for bundling into app
 #    resources
 
 include $(topsrcdir)/config/rules.mk
@@ -21,7 +21,7 @@ ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
 	cp $(srcdir)/disk.icns         $(DIST)/branding/disk.icns
 	cp $(srcdir)/thunderbird.icns  $(DIST)/branding/thunderbird.icns
 endif
-ifdef MOZ_WIDGET_GTK
+ifneq (,$(filter gtk%,$(MOZ_WIDGET_TOOLKIT)))
 	cp $(srcdir)/mailicon16.png  $(DIST)/branding/default16.png
 	cp $(srcdir)/mailicon22.png  $(DIST)/branding/default22.png
 	cp $(srcdir)/mailicon24.png  $(DIST)/branding/default24.png

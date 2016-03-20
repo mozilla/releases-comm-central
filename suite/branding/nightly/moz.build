@@ -13,7 +13,7 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk2', 'gtk3'):
     else:
         icon_suffix = '.png'
 
-    if CONFIG['MOZ_WIDGET_GTK']:
+    if 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
         icon_dir = 'gtk'
     else:
         icon_dir = CONFIG['MOZ_WIDGET_TOOLKIT']

@@ -86,7 +86,7 @@ else
 ICON_SUFFIX=.png
 endif
 
-ifdef MOZ_WIDGET_GTK
+ifneq (,$(filter gtk%,$(MOZ_WIDGET_TOOLKIT)))
 ICON_DIR=gtk
 else
 ICON_DIR=$(MOZ_WIDGET_TOOLKIT)
@@ -118,7 +118,7 @@ libs:: $(addprefix $(DIST)/branding/,$(BRANDED_ICON_FILES))
 	$(INSTALL) $^ $(DIST)/bin/chrome/icons/default
 endif
 
-ifdef MOZ_WIDGET_GTK
+ifneq (,$(filter gtk%,$(MOZ_WIDGET_TOOLKIT)))
 libs::
 	$(INSTALL) $(DIST)/branding/default16.png $(DIST)/bin/chrome/icons/default
 endif
@@ -128,7 +128,7 @@ GARBAGE +=  $(MOZ_APP_NAME)
 GARBAGE += $(addprefix $(DIST)/bin/defaults/pref/, all.js all-instantbird.js channel-prefs.js)
 endif
 
-ifdef MOZ_WIDGET_GTK
+ifneq (,$(filter gtk%,$(MOZ_WIDGET_TOOLKIT)))
 ICON_FILES	= \
 		$(DIST)/branding/default16.png \
 		$(DIST)/branding/mozicon128.png \
