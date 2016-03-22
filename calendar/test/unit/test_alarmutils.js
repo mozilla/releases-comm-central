@@ -140,7 +140,7 @@ add_task(function* test_calculateAlarmDate() {
 
     let calculateAlarmDate = cal.alarms.calculateAlarmDate.bind(cal.alarms, item);
 
-    alarm = cal.createAlarm();
+    let alarm = cal.createAlarm();
     alarm.related = alarm.ALARM_RELATED_ABSOLUTE;
     alarm.alarmDate = cal.createDateTime("20150815T110000");
     equal(calculateAlarmDate(alarm).icalString, "20150815T110000");
@@ -227,7 +227,7 @@ add_task(function* test_addReminderImages() {
     let box = doc.documentElement.firstChild;
 
     let actions = ["DISPLAY"];
-    reminders = createReminders(actions);
+    let reminders = createReminders(actions);
     cal.alarms.addReminderImages(box, reminders);
     checkReminder(box, actions, "first addition");
 

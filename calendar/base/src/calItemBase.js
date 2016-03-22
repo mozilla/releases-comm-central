@@ -437,7 +437,7 @@ calItemBase.prototype = {
     getPropertyParameter: function cIB_getPropertyParameter(aPropName, aParamName) {
         let propName = aPropName.toUpperCase();
         let paramName = aParamName.toUpperCase();
-        if (propName in this.mPropertyParams) {
+        if (propName in this.mPropertyParams && paramName in this.mPropertyParams[propName]) {
             // If the property is not in mPropertyParams, then this just means
             // there are no properties set.
             return this.mPropertyParams[propName][paramName];

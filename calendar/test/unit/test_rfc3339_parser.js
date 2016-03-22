@@ -74,8 +74,8 @@ function really_run_test() {
     let timezone = getTz("America/New_York");
     let utc = cal.UTC();
     // Timezones used in tests.
-    belize = getTz("America/Belize");
-    dawson = getTz("America/Dawson");
+    let belize = getTz("America/Belize");
+    let dawson = getTz("America/Dawson");
 
     /*
      * Basic tests

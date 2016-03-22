@@ -162,7 +162,7 @@ function test_icalcomponent() {
     function check_getset(k, v) {
         dump("Checking " + k + " = " + v + "\n");
         event[k] = v;
-        vstring = v.icalString || v;
+        let vstring = v.icalString || v;
         equal(event[k].icalString || event[k], vstring);
         equal(event.serializeToICS().match(new RegExp(vstring, "g")).length, 1);
         event[k] = v;

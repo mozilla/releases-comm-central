@@ -2436,7 +2436,7 @@ calStorageCalendar.prototype = {
         if (rec) {
             var exceptions = rec.getExceptionIds ({});
             if (exceptions.length > 0) {
-                for (exid of exceptions) {
+                for (let exid of exceptions) {
                     let ex = rec.getExceptionFor(exid);
                     if (newSequence) {
                         ex.setProperty("SEQUENCE", newSequence);

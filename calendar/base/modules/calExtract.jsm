@@ -865,7 +865,7 @@ Extractor.prototype = {
         if (endTimes.length == 0 && durations.length == 0) {
             return {};
         } else {
-            for (val in endTimes) {
+            for (let val in endTimes) {
                 cal.LOG("[calExtract] End: " + JSON.stringify(endTimes[val]));
             }
 
@@ -933,7 +933,7 @@ Extractor.prototype = {
             if (guess.day == null && guess.hour == null) {
                 let duration = 0;
 
-                for (val in durations) {
+                for (let val in durations) {
                     duration += durations[val].duration;
                     cal.LOG("[calExtract] Dur: " + JSON.stringify(durations[val]));
                 }

@@ -97,7 +97,11 @@ calIcsParser.prototype = {
                                              .getService(Components.interfaces.nsIAlertsService);
                     let title = calGetString("calendar", "TimezoneErrorsAlertTitle");
                     let text = calGetString("calendar", "TimezoneErrorsSeeConsole");
-                    notifier.showAlertNotification("", title, text, false, null, null, title);
+                    try {
+                        notifier.showAlertNotification("", title, text, false, null, null, title);
+                    } catch (e) {
+                        // The notifier may not be available, e.g. on xpcshell tests
+                    }
                 }
             }
 

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
 function run_test() {
     do_test_pending();
     cal.getTimezoneService().startup({
@@ -25,6 +27,8 @@ function really_run_test() {
 
 function test_aclmanager() {
     let mockCalendar = {
+        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICalendar]),
+
         get superCalendar() { return this; },
         get aclManager() { return this; },
 
@@ -37,6 +41,7 @@ function test_aclmanager() {
     };
 
     let itemEntry = {
+        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIItemACLEntry]),
         userCanModify: true,
         userCanRespond: false,
         userCanViewAll: true,
@@ -75,6 +80,7 @@ function test_calendar() {
     let pe = cal.createEvent();
 
     let mockCalendar = {
+        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICalendar]),
         id: "one"
     };
 

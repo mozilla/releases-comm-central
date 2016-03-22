@@ -161,6 +161,7 @@ calAttendee.prototype = {
         this.mProperties.deleteProperty(aName.toUpperCase());
     },
 
+    mId: null,
     get id() {
         return this.mId;
     },
