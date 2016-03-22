@@ -23,7 +23,7 @@ calIcalProperty.prototype = {
         interfaces: calIcalPropertyInterfaces
     }),
 
-    get icalString() { return this.innerObject.toICAL() + ICAL.newLineChar; },
+    get icalString() { return this.innerObject.toICALString() + ICAL.newLineChar; },
     get icalProperty() { return this.innerObject; },
     set icalProperty(val) { this.innerObject = val; },
 
@@ -31,16 +31,14 @@ calIcalProperty.prototype = {
     toString: function() { return this.innerObject.toICAL(); },
 
     get value() {
-        // Unescaped value for properties of TEXT or X- type, escaped otherwise.
-        // In both cases, innerObject.type is "text".
+        // Unescaped value for properties of TEXT, escaped otherwise.
         if (this.innerObject.type == "text") {
             return this.innerObject.getValues().join(",")
         }
         return this.valueAsIcalString;
     },
     set value(val) {
-        // Unescaped value for properties of TEXT or X- type, escaped otherwise.
-        // In both cases, innerObject.type is "text".
+        // Unescaped value for properties of TEXT, escaped otherwise.
         if (this.innerObject.type == "text") {
             this.innerObject.setValue(val);
             return val;
@@ -49,13 +47,28 @@ calIcalProperty.prototype = {
     },
 
     get valueAsIcalString() {
+        let type = this.innerObject.type;
         return this.innerObject.getValues().map(v => {
-            return ICAL.stringify.value(v.toString(), this.innerObject.type);
+            if (type == "text") {
+                return ICAL.stringify.value(v, type, ICAL.design.icalendar);
+            } else if (typeof v == "number" || typeof v == "string") {
+                return v;
+            } else if ("toICALString" in v) {
+                return v.toICALString();
+            } else {
+                return v.toString();
+            }
         }).join(",");
     },
     set valueAsIcalString(val) {
-        var icalval = ICAL.parse._parseValue(val, this.innerObject.type);
-        this.innerObject.setValue(icalval);
+        let mockLine = this.propertyName + ":" + val;
+        let prop = ICAL.Property.fromString(mockLine, ICAL.design.icalendar);
+
+        if (this.innerObject.isMultiValue) {
+            this.innerObject.setValues(prop.getValues());
+        } else {
+            this.innerObject.setValue(prop.getFirstValue());
+        }
         return val;
     },
 
@@ -87,14 +100,11 @@ calIcalProperty.prototype = {
         // jCal it has been translated to the value type id.
         if (name == "VALUE") {
             let propname = this.innerObject.name.toLowerCase();
-            if (propname in ICAL.design.property) {
-                let details = ICAL.design.property[propname];
-                if ('defaultType' in details &&
-                    details.defaultType != this.innerObject.type) {
-                    // Default type doesn't match object type, so we have a VALUE
-                    // parameter
-                    return this.innerObject.type.toUpperCase();
-                }
+            let defaultType = this.innerObject.getDefaultType();
+            if (this.innerObject.type != defaultType) {
+                // Default type doesn't match object type, so we have a VALUE
+                // parameter
+                return this.innerObject.type.toUpperCase();
             }
         }
 
@@ -109,19 +119,21 @@ calIcalProperty.prototype = {
         if (n == "VALUE") {
             let oldValues;
             let type = this.innerObject.type;
+            let designSet = this.innerObject._designSet;
 
             let wasMultiValue = this.innerObject.isMultiValue;
             if (wasMultiValue) {
                 oldValues = this.innerObject.getValues();
             } else {
-                oldValues = [this.innerObject.getFirstValue()];
+                let oldValue = this.innerObject.getFirstValue();
+                oldValues = oldValue ? [oldValue] : [];
             }
 
             this.innerObject.resetType(v.toLowerCase());
             try {
                 oldValues = oldValues.map(oldValue => {
-                    let strvalue = ICAL.stringify.value(oldValue.toString(), type);
-                    return ICAL.parse._parseValue(strvalue, v)
+                    let strvalue = ICAL.stringify.value(oldValue.toString(), type, designSet);
+                    return ICAL.parse._parseValue(strvalue, v, designSet);
                 });
             } catch (e) {
                 // If there was an error reparsing the value, then just keep it
@@ -129,7 +141,7 @@ calIcalProperty.prototype = {
                 oldValues = null;
             }
 
-            if (oldValues) {
+            if (oldValues && oldValues.length) {
                 if (wasMultiValue && this.innerObject.isMultiValue) {
                     this.innerObject.setValues(oldValues);
                 } else {
@@ -146,8 +158,8 @@ calIcalProperty.prototype = {
         // default type and then set the value parameter to it.
         if (n == "VALUE") {
             let propname = this.innerObject.name.toLowerCase();
-            if (propname in ICAL.design.property) {
-                let details = ICAL.design.property[propname];
+            if (propname in ICAL.design.icalendar.property) {
+                let details = ICAL.design.icalendar.property[propname];
                 if ('defaultType' in details) {
                     this.setParameter("VALUE", details.defaultType);
                 }
@@ -166,16 +178,10 @@ calIcalProperty.prototype = {
     getFirstParameterName: function() {
         let innerObject = this.innerObject;
         this.paramIterator = (function() {
-
             let propname = innerObject.name.toLowerCase();
-            if (propname in ICAL.design.property) {
-                let details = ICAL.design.property[propname];
-                if ('defaultType' in details &&
-                    details.defaultType != innerObject.type) {
-                    // Default type doesn't match object type, so we have a VALUE
-                    // parameter
-                    yield "VALUE";
-                }
+            let defaultType = innerObject.getDefaultType();
+            if (defaultType != innerObject.type) {
+                yield "VALUE";
             }
 
             let paramNames = Object.keys(innerObject.jCal[1] || {});
@@ -461,18 +467,6 @@ calICSService.prototype = {
         // TODO ical.js doesn't support tz providers, but this is usually null
         // or our timezone service anyway.
         let comp = ICAL.parse(serialized);
-        return this._setupParseResult(comp);
-    },
-
-    _setupParseResult: function(comp) {
-        if (comp.length == 2) {
-            comp = comp[1];
-        } else if (comp.length > 2) {
-            comp.shift();
-            comp = ["xroot", [], comp];
-        } else {
-            throw Components.results.NS_ERROR_FAILURE;
-        }
         return new calIcalComponent(new ICAL.Component(comp));
     },
 
@@ -487,7 +481,7 @@ calICSService.prototype = {
                 let icalComp = null;
                 try {
                     rc = event.data.rc;
-                    icalComp = self._setupParseResult(event.data.data);
+                    icalComp = new calIcalComponent(new ICAL.Component(event.data.data));
                     if (!Components.isSuccessCode(rc)) {
                         cal.ERROR("[calICSService] Error in parser worker: " + data);
                     }
@@ -518,11 +512,6 @@ calICSService.prototype = {
     },
 
     createIcalPropertyFromString: function(str) {
-        if (!str.endsWith(ICAL.newLineChar)) {
-            str += ICAL.newLineChar;
-        }
-        let data = ICAL.parse("BEGIN:VCALENDAR\r\n" + str + "END:VCALENDAR");
-        let comp = new ICAL.Component(data[1]);
-        return new calIcalProperty(comp.getFirstProperty());
+        return new calIcalProperty(ICAL.Property.fromString(str.trim(), ICAL.design.icalendar));
     }
 };

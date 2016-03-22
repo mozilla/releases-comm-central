@@ -3,7 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-    testAttachRoundtrip();
+    do_test_pending();
+    cal.getTimezoneService().startup({
+        onResult: function() {
+            testAttachRoundtrip();
+            do_test_finished();
+        }
+    });
 }
 
 function testAttachRoundtrip() {
@@ -34,7 +40,7 @@ function testAttachRoundtrip() {
 
     let retrieveItem = {
         found: false,
-        onGetResult: function(c, s, t, d, c, items) {
+        onGetResult: function(ca, st, ty, de, co, items) {
             let item = items[0];
 
             // Check start date

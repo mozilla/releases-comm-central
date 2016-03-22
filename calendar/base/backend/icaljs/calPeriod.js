@@ -48,8 +48,8 @@ calPeriod.prototype = {
 
     get icalString() { return this.innerObject.toICALString(); },
     set icalString(val) {
-        let str = ICAL.parse._parseValue(val, "period");
-        this.innerObject = ICAL.Period.fromString(str);
+        let dates = ICAL.parse._parseValue(val, "period", ICAL.design.icalendar);
+        this.innerObject = ICAL.Period.fromString(dates.join("/"));
         return val;
     },
 

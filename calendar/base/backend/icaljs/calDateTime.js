@@ -120,9 +120,9 @@ calDateTime.prototype = {
     set icalString(val) {
         let jcalString;
         if (val.length > 10) {
-           jcalString = ICAL.design.value["date-time"].fromICAL(val);
+           jcalString = ICAL.design.icalendar.value["date-time"].fromICAL(val);
         } else {
-           jcalString = ICAL.design.value.date.fromICAL(val);
+           jcalString = ICAL.design.icalendar.value.date.fromICAL(val);
         }
         this.innerObject = ICAL.Time.fromString(jcalString);
     }

@@ -204,7 +204,7 @@ calTimezoneService.prototype = {
             } else {
                 if (Preferences.get("calendar.icaljs", false)) {
                     let parsedComp = ICAL.parse("BEGIN:VCALENDAR\r\n" + tz.ics + "\r\nEND:VCALENDAR");
-                    let icalComp = new ICAL.Component(parsedComp[1]);
+                    let icalComp = new ICAL.Component(parsedComp);
                     let tzComp = icalComp.getFirstSubcomponent("vtimezone");
                     tz.zone = new calICALJSTimezone(ICAL.Timezone.fromData({
                         tzid: tzid,

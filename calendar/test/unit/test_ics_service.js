@@ -128,19 +128,19 @@ function test_icalproperty() {
     equal(prop.parent.toString(), comp.toString());
     equal(prop.valueAsDatetime, null);
 
-    prop = svc.createIcalProperty("PROP");
+    prop = svc.createIcalProperty("DESCRIPTION");
     prop.value = "A\nB";
     equal(prop.value, "A\nB");
     equal(prop.valueAsIcalString, "A\\nB");
     equal(prop.valueAsDatetime, null);
 
-    prop = svc.createIcalProperty("PROP");
+    prop = svc.createIcalProperty("DESCRIPTION");
     prop.valueAsIcalString = "A\\nB";
     equal(prop.value, "A\nB");
     equal(prop.valueAsIcalString, "A\\nB");
     equal(prop.valueAsDatetime, null);
 
-    prop = svc.createIcalProperty("PROP");
+    prop = svc.createIcalProperty("DESCRIPTION");
     prop.value = "A\\nB";
     equal(prop.value, "A\\nB");
     equal(prop.valueAsIcalString, "A\\\\nB");
