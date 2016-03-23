@@ -339,6 +339,10 @@
          else {
            this.setAttribute("status", "unknown");
            this.setMessage(Status.toLabel("unknown"));
+           // Last ditch attempt to get some tooltip info. This call relies on
+           // the account's requestBuddyInfo implementation working correctly
+           // with aConv.normalizedName.
+           this.requestBuddyInfo(account, aConv.normalizedName);
          }
          this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
          return true;
