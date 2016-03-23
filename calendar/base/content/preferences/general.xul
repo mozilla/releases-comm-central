@@ -19,8 +19,6 @@
         <script type="application/javascript"
                 src="chrome://calendar/content/preferences/general.js"/>
         <script type="application/javascript"
-                src="chrome://calendar/content/preferences/timezones.js"/>
-        <script type="application/javascript"
                 src="chrome://calendar/content/calendar-ui-utils.js"/>
         <script type="application/javascript"
                 src="chrome://calendar/content/calUtils.js"/>
