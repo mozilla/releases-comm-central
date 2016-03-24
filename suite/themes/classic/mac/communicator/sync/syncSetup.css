@@ -114,7 +114,7 @@ description > .text-link {
 
 #add-device-throbber,
 #login-throbber {
-  list-style-image: url("chrome://global/skin/icons/loading_16.png");
+  list-style-image: url("chrome://communicator/skin/icons/loading.png");
 }
 
 #successPageIcon {

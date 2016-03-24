@@ -94,7 +94,7 @@ tabpanels {
 }
 
 .tabbrowser-tab[busy] {
-  list-style-image: url("chrome://global/skin/icons/loading_16.png");
+  list-style-image: url("chrome://communicator/skin/icons/loading.png");
 }
 
 .tabbrowser-tab[selected="true"] {
@@ -188,7 +188,7 @@ tabpanels {
 }
 
 .alltabs-item[busy] {
-  list-style-image: url("chrome://global/skin/icons/loading_16.png") !important;
+  list-style-image: url("chrome://communicator/skin/icons/loading.png") !important;
 }
 
 .alltabs-item[tabIsScrolled] {

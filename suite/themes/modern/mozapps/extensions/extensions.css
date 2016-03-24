@@ -144,7 +144,7 @@
 }
 
 .loading {
-  list-style-image: url("chrome://global/skin/icons/loading_16.png");
+  list-style-image: url("chrome://communicator/skin/icons/loading.gif");
   padding-left: 20px;
   padding-right: 20px;
 }

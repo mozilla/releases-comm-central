@@ -25,7 +25,7 @@ treechildren::-moz-tree-image(FilenameColumn, container) {
 }
 
 treechildren::-moz-tree-image(FilenameColumn, loading) {
-  list-style-image: url("chrome://global/skin/icons/loading_16.png");
+  list-style-image: url("chrome://communicator/skin/icons/loading.png");
 }
 
 treechildren::-moz-tree-cell-text(symbolic-link) {

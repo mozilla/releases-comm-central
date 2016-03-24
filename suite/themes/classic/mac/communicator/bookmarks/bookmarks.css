@@ -29,7 +29,7 @@ treechildren::-moz-tree-image(title, container) {
 }
 
 .bookmark-item[container="true"][open="true"][loading="true"] {
-  list-style-image: url("chrome://global/skin/icons/loading_16.png") !important;
+  list-style-image: url("chrome://communicator/skin/icons/loading.png") !important;
 }
 
 .bookmark-item > .toolbarbutton-box > .toolbarbutton-icon {
