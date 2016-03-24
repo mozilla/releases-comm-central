@@ -157,6 +157,16 @@ minimonth {
   border: 1px solid var(--mmDaySelectedBorderColor);
 }
 
+#repeat-until-datepicker .minimonth-day[extra="true"],
+#repeat-until-date .minimonth-day[extra="true"] {
+  border: 1px solid var(--mmDayOtherColor);
+}
+
+#repeat-until-datepicker .minimonth-day:hover[extra="true"],
+#repeat-until-date .minimonth-day:hover[extra="true"] {
+  border: 1px solid var(--mmHighlightBorderColor);
+}
+
 .minimonth-day[selected="true"][today="true"] {
   background-color: var(--mmDaySelectedTodayBackground);
   border: 1px solid var(--mmDaySelectedTodayBorderColor);

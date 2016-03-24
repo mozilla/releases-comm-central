@@ -30,9 +30,10 @@ function onLoad() {
 
     onChangeCalendar(calendar);
 
-    // Set starting value for 'repeat until' rule.
+    // Set starting value for 'repeat until' rule and highlight the start date.
     let repeatDate = cal.dateTimeToJsDate(gStartTime.getInTimezone(cal.floating()));
     setElementValue("repeat-until-date", repeatDate);
+    document.getElementById("repeat-until-date").extraDate = repeatDate;
 
     if (item.parentItem != item) {
         item = item.parentItem;

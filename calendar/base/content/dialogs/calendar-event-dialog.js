@@ -813,8 +813,16 @@ function dateTimeControls2State(aStartDatepicker) {
         }
     }
 
+    let startChanged = gStartTime.compare(saveStartTime) != 0;
+    // Preset the date in the until-datepicker's minimonth to the new start
+    // date if it has changed.
+    if (startChanged) {
+        let startDate = cal.dateTimeToJsDate(gStartTime.getInTimezone(cal.floating()));
+        document.getElementById("repeat-until-datepicker").extraDate = startDate;
+    }
+
     // Sort out and verify the until date if the start date has changed.
-    if (gUntilDate && gStartTime.compare(saveStartTime)) {
+    if (gUntilDate && startChanged) {
         // Make the time part of the until date equal to the time of start date.
         updateUntildateRecRule();
 
@@ -2691,6 +2699,9 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
             recurrenceInfo = createRecurrenceInfo(item);
             setElementValue("repeat-until-datepicker", "forever");
         }
+        // Preset the until-datepicker's minimonth to the start date.
+        let startDate = cal.dateTimeToJsDate(gStartTime.getInTimezone(cal.floating()));
+        document.getElementById("repeat-until-datepicker").extraDate = startDate;
 
         repeatDeck.selectedIndex = 0;
 

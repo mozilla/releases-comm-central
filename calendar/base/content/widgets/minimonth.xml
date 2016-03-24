@@ -398,6 +398,10 @@
                 onget="return this.mValue"
                 onset="this.update(val)"/>
 
+      <property name="extra"
+                onget="return this.mExtraDate"
+                onset="this.mExtraDate = val"/>
+
        <!--returns the first (inclusive) date of the minimonth as a calIDateTime object-->
       <property name="firstDate" readonly="true">
         <getter><![CDATA[
@@ -420,6 +424,7 @@
       <field name="mDaymap">null</field>
       <field name="mValue">null</field>
       <field name="mEditorDate">null</field>
+      <field name="mExtraDate">null</field>
       <field name="mPixelScrollDelta">0</field>
       <field name="mIsReadOnly">false</field>
       <field name="mObservesComposite">false</field>
@@ -430,6 +435,7 @@
 
           this.mToday = false;
           this.mSelected = false;
+          this.mExtra = false;
           this.mValue = new Date() // Default to "today"
           // save references for convenience
           if (this.hasAttribute("readonly")) {
@@ -784,11 +790,9 @@
       <method name="showMonth">
         <parameter name="aDate"/>
         <body><![CDATA[
-            if (!aDate) {
-              aDate = new Date();
-            } else {
-              aDate = new Date(aDate);
-            }
+            // Use mExtraDate if aDate is null.
+            aDate = new Date(aDate || this.mExtraDate);
+
             aDate.setDate(1);
             // We set the hour and minute to something highly unlikely to be the
             // exact change point of DST, so timezones like America/Sao Paulo
@@ -810,6 +814,12 @@
               this.mSelected.removeAttribute("selected");
               this.mSelected = null;
             }
+
+            if (this.mExtra) {
+              this.mExtra.removeAttribute("extra");
+              this.mExtra = null;
+            }
+
             // Update the month and year title
             this.setAttribute("month", aDate.getMonth());
             this.setAttribute("year", aDate.getFullYear());
@@ -868,6 +878,12 @@
                         day.setAttribute("selected", "true");
                     }
 
+                    // highlight the extra date
+                    if (this._sameDay(this.mExtraDate, date)) {
+                        this.mExtra = day;
+                        day.setAttribute("extra", "true");
+                    }
+
                     day.date = new Date(date);
                     day.minimonthParent = this;
                     day.setAttribute("value", date.getDate());
@@ -913,6 +929,7 @@
                   case "selected":
                   case "othermonth":
                   case "today":
+                  case "extra":
                   case "interactive":
                   case "value":
                   case "class":
@@ -958,7 +975,7 @@
             }
         ]]></body>
       </method>
-       <method name="removeAttribute">
+      <method name="removeAttribute">
         <parameter name="aAttr"/>
         <body><![CDATA[
           if (aAttr == "freebusy") {
@@ -1020,10 +1037,13 @@
         <parameter name="aValue"/>
         <body><![CDATA[
           this.mValue = aValue;
-          this.fireEvent('change');
+          if(this.mValue) {
+            this.fireEvent('change');
+          }
           this.showMonth(aValue);
         ]]></body>
       </method>
+
       <method name="hidePopupList">
         <body><![CDATA[
           if (!this.mIsReadOnly) {
@@ -1032,6 +1052,7 @@
           }
         ]]></body>
       </method>
+
       <method name="switchMonth">
         <parameter name="aMonth"/>
         <body><![CDATA[

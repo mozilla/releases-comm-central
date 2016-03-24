@@ -290,6 +290,10 @@
         </getter>
       </property>
 
+      <property name="extraDate"
+          onget="return this.kMinimonth.extra"
+          onset="this.kMinimonth.extra = val"/>
+
       <method name="update">
         <parameter name="aValue"/>
         <parameter name="aRefresh"/>
