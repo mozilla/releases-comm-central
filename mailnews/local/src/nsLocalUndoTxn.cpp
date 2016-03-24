@@ -549,9 +549,12 @@ NS_IMETHODIMP nsLocalUndoFolderListener::OnItemPropertyFlagChanged(nsIMsgDBHdr *
 
 NS_IMETHODIMP nsLocalUndoFolderListener::OnItemEvent(nsIMsgFolder *aItem, nsIAtom *aEvent)
 {
-  if (mTxn && mFolder && aItem == mFolder &&
-      aEvent->EqualsUTF8(NS_LITERAL_CSTRING("FolderLoaded")))
-    return mTxn->UndoTransactionInternal();
+  if (mTxn && mFolder && aItem == mFolder) {
+      bool isEqual = false;
+      aEvent->ScriptableEquals(NS_LITERAL_STRING("FolderLoaded"), &isEqual);
+      if (isEqual)
+        return mTxn->UndoTransactionInternal();
+  }
 
   return NS_ERROR_FAILURE;
 }
