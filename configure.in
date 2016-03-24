@@ -21,6 +21,8 @@ export OLD_CONFIGURE="${MOZILLA_SRCDIR}"/old-configure
 # directory for this file.
 if test -z "$MOZCONFIG" -a -f "$SRCDIR"/.mozconfig; then
     export MOZCONFIG="$SRCDIR"/.mozconfig
+elif test -z "$MOZCONFIG" -a -f "$SRCDIR"/mozconfig; then
+    export MOZCONFIG="$SRCDIR"/mozconfig
 fi
 
 # Execute the mozilla configure script in the current directory, adding the
