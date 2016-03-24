@@ -38,7 +38,6 @@
 <!ENTITY keynav.label "Keyboard Navigation">
 <!ENTITY findAsYouType.label "Find As You Type">
 <!ENTITY search.label "Internet Search">
-<!ENTITY policies.label "Security Policies">
 <!ENTITY mousewheel.label "Mouse Wheel">
 <!ENTITY scriptsAndWindows.label "Scripts &amp; Plugins">
 <!ENTITY spellingPane.label  "Spelling">
