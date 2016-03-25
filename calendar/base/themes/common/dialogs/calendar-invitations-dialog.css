@@ -8,7 +8,7 @@
 }
 
 .calendar-invitations-updating-icon {
-  list-style-image: url("chrome://global/skin/icons/loading_16.png");
+  list-style-image: url("chrome://global/skin/icons/loading.png");
   opacity: 0.5;
 }
 
