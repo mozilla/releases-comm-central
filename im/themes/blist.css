@@ -318,7 +318,7 @@ group[closed] .twisty {
 %endif
 
 #updatesMenuItem[loading="true"] {
-  list-style-image: url("chrome://global/skin/icons/loading_16.png");
+  list-style-image: url("chrome://global/skin/icons/loading.png");
 }
 
 #statusArea {
