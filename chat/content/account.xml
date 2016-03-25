@@ -5,7 +5,11 @@
 
 
 <!DOCTYPE bindings [
+#ifdef MOZ_THUNDERBIRD
+  <!ENTITY % accountsDTD SYSTEM "chrome://messenger/locale/imAccounts.dtd">
+#else
   <!ENTITY % accountsDTD SYSTEM "chrome://instantbird/locale/accounts.dtd">
+#endif
   <!ENTITY % certManagerDTD SYSTEM "chrome://pippki/locale/certManager.dtd">
   %accountsDTD;
   %certManagerDTD;
@@ -307,7 +311,9 @@
                   command="cmd_connect"
                   anonid="connect"/>
       <xul:spacer flex="1"/>
+#ifndef MOZ_THUNDERBIRD
       <xul:button command="cmd_delete"/>
+#endif
       <xul:button command="cmd_edit"/>
     </content>
     <implementation>

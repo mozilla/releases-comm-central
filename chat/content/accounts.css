@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 richlistitem {
-  -moz-binding: url("chrome://instantbird/content/account.xml#account");
+  -moz-binding: url("chrome://chat/content/account.xml#account");
 }
 
 richlistitem .account-buttons {
-  -moz-binding: url("chrome://instantbird/content/account.xml#nobuttons");
+  -moz-binding: url("chrome://chat/content/account.xml#nobuttons");
 }
 richlistitem[selected="true"] .account-buttons {
-  -moz-binding: url("chrome://instantbird/content/account.xml#buttons");
+  -moz-binding: url("chrome://chat/content/account.xml#buttons");
 }
 
 richlistitem:not([state="connected"]) .connected,

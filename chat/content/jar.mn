@@ -4,6 +4,8 @@
 
 chat.jar:
 % content chat %content/chat/
+	content/chat/accounts.css
+*	content/chat/account.xml
 	content/chat/browserRequest.js
 	content/chat/browserRequest.xul
 	content/chat/imAccountOptionsHelper.js

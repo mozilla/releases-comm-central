@@ -15,7 +15,6 @@ messenger.jar:
     content/messenger/chat/badgebutton.xml               (content/badgebutton.xml)
     content/messenger/chat/joinchat.js                   (content/joinchat.js)
     content/messenger/chat/joinchat.xul                  (content/joinchat.xul)
-    content/messenger/chat/imAccount.xml                 (content/imAccount.xml)
     content/messenger/chat/imAccounts.css                (content/imAccounts.css)
     content/messenger/chat/imAccounts.js                 (content/imAccounts.js)
     content/messenger/chat/imAccounts.xul                (content/imAccounts.xul)

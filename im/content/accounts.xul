@@ -3,7 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://instantbird/content/accounts.css" type="text/css"?>
+<?xml-stylesheet href="chrome://chat/content/accounts.css" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/skin/richlistbox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://instantbird/skin/accounts.css" type="text/css"?>
 #ifdef XP_MACOSX
