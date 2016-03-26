@@ -1,6 +1,51 @@
 #!/usr/bin/env perl
 
-require "readvaluesfile.pl";
+### START ###
+# Copied from readvaluesfile.pl as a temporary fix due to perl problems (Bug 1259090).
+###
+sub read_parameters_file {
+
+  my $path = shift;
+  my %h;
+
+  open(F,$path) || die "Can't open parameters file $path";
+
+  while(<F>){
+
+    chop;
+
+    s/#.*$//g;
+    s/\"//g;
+    s/\r//g;
+
+    next if ! $_;
+
+    @column = split(/\,/,$_);
+
+    my $parameter_name = $column[0];
+
+    my $enumConst = $column[1];
+    my $data_type = $column[2];
+    my $enum_string = $column[3];
+
+    my @enums;
+    if($enum_string){
+      @enums =  split(/;/,$enum_string);
+    }
+
+    $h{$parameter_name} = { C => $data_type,
+      kindEnum => $enumConst,
+      enums => [@enums]
+    };
+  }
+
+  close(F);
+
+  return %h;
+}
+### END ###
+# End of temporary fix.
+###
 
 use Getopt::Std;
 getopts('chspi:');

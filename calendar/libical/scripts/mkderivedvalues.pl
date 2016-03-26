@@ -1,8 +1,67 @@
 #!/usr/bin/perl 
 
-use lib '.';
+### START ###
+# Copied from readvaluesfile.pl as a temporary fix due to perl problems (Bug 1259090).
+###
+sub read_values_file {
 
-require 'readvaluesfile.pl';
+  my $path = shift;
+  my %h;
+
+  open(F,$path) || die "Can't open values file $path";
+
+  while(<F>){
+
+    chop;
+
+    s/#.*$//g;
+    s/\"//g;
+    s/\r//g;
+
+    next if ! $_;
+
+    @column = split(/,/,$_);
+
+    my $value_name = $column[0];
+
+    my $c_type_str =  $column[1];
+    my $c_autogen = ($c_type_str =~ /\(a\)/);
+
+    my $c_type = $c_type_str;
+    $c_type =~ s/\(.\)//;
+
+    my $python_type =  $column[2];
+    my $components = $column[3];
+    my $enum_values = $column[4];
+
+    my @components;
+    if($components ne "unitary"){
+      @components = split(/;/,$components);
+    } else {
+      @components = ();
+    }
+
+    my @enums;
+    if($enum_values) {
+      @enums  = split(/;/,$enum_values);
+
+    } else {
+      @enums = ();
+    }
+
+    $h{$value_name} = { C => [$c_autogen,$c_type],
+      perl => $perl_type,
+      python => $python_type,
+      components=>[@components],
+      enums=>[@enums]
+    };
+  }
+
+  return %h;
+}
+### END ###
+# End of temporary fix.
+###
 
 use Getopt::Std;
 getopts('chi:');
