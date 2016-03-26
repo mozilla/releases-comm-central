@@ -40,18 +40,6 @@
                             tooltiptext="Currently disabled due to bug 1175055" disabled="true"/>
 #endif
 
-#ifdef XP_UNIX
-#ifdef XP_MACOSX
-      <radio id="eudora"    label="&importFromEudora.label;"    accesskey="&importFromEudora.accesskey;"
-                            tooltiptext="Currently disabled due to bug 1175055" disabled="true"/>
-#endif
-#endif
-
-#ifdef XP_WIN
-      <radio id="eudora"    label="&importFromEudora.label;"    accesskey="&importFromEudora.accesskey;"
-                            tooltiptext="Currently disabled due to bug 1175055" disabled="true"/>
-#endif
-
       <radio id="nothing"   label="&importFromNothing.label;"   accesskey="&importFromNothing.accesskey;" hidden="true"/>
     </radiogroup>
   </wizardpage>

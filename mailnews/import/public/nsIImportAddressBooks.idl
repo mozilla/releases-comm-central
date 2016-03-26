@@ -9,8 +9,7 @@
   book import occurs in several forms (yuck!).
   The destination can be 1..n new address books corresponding to the source
   format.  For instance a text file would import into a new address book
-  with the same name as the text file, Eudora may import multiple address books
-  with the same names as the ones in Eudora.
+  with the same name as the text file.
   The destination can be 1 pre-defined address book, all entries will be
   added to the supplied address book - this allows the address book UI so provide
   an import command specific for an individual address book.

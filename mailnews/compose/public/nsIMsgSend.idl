@@ -131,7 +131,7 @@ interface nsIMsgAttachedFile : nsISupports
 };
 
 /**
- * This interface is used by Eudora and Outlook import to shuttle embedded
+ * This interface is used by Outlook import to shuttle embedded
  * image information over to nsIMsgSend's createRFC822Message method via
  * the aEmbbeddedObjects parameter.
  */

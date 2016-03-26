@@ -39,14 +39,12 @@ LOCAL_INCLUDES += [
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
     LOCAL_INCLUDES += [
         '../applemail/src',
-        '../eudora/src',
     ]
     OS_LIBS += CONFIG['TK_LIBS']
     OS_LIBS += ['-framework Cocoa']
 
 if CONFIG['OS_ARCH'] == 'WINNT':
     LOCAL_INCLUDES += [
-        '../eudora/src',
     ]
     if not CONFIG['GNU_CC']:
         LOCAL_INCLUDES += [

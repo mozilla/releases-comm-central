@@ -27,10 +27,6 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsOutlookProfileMigrator)
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsWindowsShellService, Init)
 #endif
 
-#if defined(XP_WIN32) || defined(XP_MACOSX)
-#include "nsEudoraProfileMigrator.h"
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsEudoraProfileMigrator)
-#endif
 #ifdef MOZ_WIDGET_GTK
 #include "nsMailGNOMEIntegration.h"
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMailGNOMEIntegration, Init)
@@ -56,10 +52,6 @@ NS_DEFINE_NAMED_CID(NS_MAILWININTEGRATION_CID);
 NS_DEFINE_NAMED_CID(NS_MAILWINSEARCHHELPER_CID);
 #endif // !XP_WIN32
 
-#if defined (XP_WIN32) || defined (XP_MACOSX)
-NS_DEFINE_NAMED_CID(NS_EUDORAPROFILEMIGRATOR_CID);
-#endif
-
 #ifdef MOZ_WIDGET_GTK
 NS_DEFINE_NAMED_CID(NS_MAILGNOMEINTEGRATION_CID);
 #endif
@@ -78,9 +70,6 @@ const mozilla::Module::CIDEntry kMailCIDs[] = {
   { &kNS_MAILWININTEGRATION_CID, false, NULL, nsWindowsShellServiceConstructor },
   { &kNS_MAILWINSEARCHHELPER_CID, false, NULL, nsMailWinSearchHelperConstructor },
 #endif // !XP_WIN32
-#if defined (XP_WIN32) || defined (XP_MACOSX)
-  { &kNS_EUDORAPROFILEMIGRATOR_CID, false, NULL, nsEudoraProfileMigratorConstructor },
-#endif
 #ifdef MOZ_WIDGET_GTK
   { &kNS_MAILGNOMEINTEGRATION_CID, false, NULL, nsMailGNOMEIntegrationConstructor },
 #endif
@@ -100,9 +89,6 @@ const mozilla::Module::ContractIDEntry kMailContracts[] = {
   { "@mozilla.org/mail/shell-service;1", &kNS_MAILWININTEGRATION_CID },
   { "@mozilla.org/mail/windows-search-helper;1", &kNS_MAILWINSEARCHHELPER_CID },
 #endif // !XP_WIN32
-#if defined (XP_WIN32) || defined (XP_MACOSX)
-  { NS_MAILPROFILEMIGRATOR_CONTRACTID_PREFIX "eudora", &kNS_EUDORAPROFILEMIGRATOR_CID },
-#endif
 #ifdef MOZ_WIDGET_GTK
   { "@mozilla.org/mail/shell-service;1", &kNS_MAILGNOMEINTEGRATION_CID },
 #endif

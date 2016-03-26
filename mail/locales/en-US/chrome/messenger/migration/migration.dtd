@@ -16,8 +16,6 @@
 <!ENTITY importFromOExpress.accesskey   "u">
 <!ENTITY importFromOutlook.label        "Outlook">
 <!ENTITY importFromOutlook.accesskey    "O">
-<!ENTITY importFromEudora.label         "Eudora">
-<!ENTITY importFromEudora.accesskey     "E">
 
 <!ENTITY importSource.title             "Import Settings and Mail Folders">
 <!ENTITY importItems.title              "Items to Import">

@@ -1500,7 +1500,7 @@ nsMsgComposeAndSend::GetMultipartRelatedCount(bool forceToBeCalculated /*=false*
         {
           rv = GetEmbeddedObjectInfo(node, attachment, &acceptObject);
         }
-        else // outlook/eudora import case
+        else // outlook import case
         {
           nsCOMPtr<nsIMsgEmbeddedImageData> imageData =
             do_QueryElementAt(mEmbeddedObjectList, i, &rv);

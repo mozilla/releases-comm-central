@@ -330,7 +330,7 @@ AbImportHelper.prototype =
  * @param aFile      An instance of nsIFile to import.
  * @param aModuleSearchString
  *                   The string to search the module names for, such as
- *                   "Outlook Express" or "Eudora mail" etc. etc.
+ *                   "Outlook Express", etc.
  * @param aExpected  An instance of nsIFile to compare with the imported
  *                   folders.
  *
@@ -387,7 +387,7 @@ MailImportHelper.prototype =
  * @param aFile      An instance of nsIFile to import, can be null.
  * @param aModuleSearchString
  *                   The string to search the module names for, such as
- *                   "Outlook Express" or "Eudora mail" etc. etc.
+ *                   "Outlook Express", etc.
  * @param aExpected  An array of object which has incomingServer, identity
  *                   and smtpSever to compare with imported nsIMsgAccount.
  *

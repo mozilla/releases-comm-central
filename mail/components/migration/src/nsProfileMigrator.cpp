@@ -113,7 +113,6 @@ nsProfileMigrator::GetDefaultMailMigratorKey(nsACString& aKey, nsCOMPtr<nsIMailP
     "seamonkey",
     "oexpress",
     "outlook",
-    "eudora",
     ""
   };
   for (uint32_t i = 0; sources[i][0]; ++i)
