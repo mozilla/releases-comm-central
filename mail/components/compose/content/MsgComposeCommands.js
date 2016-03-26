@@ -1472,7 +1472,7 @@ function convertListItemsToCloudAttachment(aItems, aProvider)
     }
   }
 
-  if (convertedAttachments.length) {
+  if (convertedAttachments.length > 0) {
     dispatchAttachmentBucketEvent("attachments-converted", convertedAttachments);
     Services.obs.notifyObservers(convertedAttachments,
                                  "mail:attachmentsConverted",
@@ -1949,7 +1949,8 @@ function manageAttachmentNotification(aForce = false)
     accessKey : getComposeBundle().getString("addAttachmentButton.accesskey"),
     label: getComposeBundle().getString("addAttachmentButton"),
     callback: function (aNotificationBar, aButton) {
-        goDoCommand("cmd_attachFile");
+      goDoCommand("cmd_attachFile");
+      return true; // keep notification open (the state machine will decide on it later)
     }
   };
 
@@ -1975,8 +1976,7 @@ function manageAttachmentNotification(aForce = false)
  * the state of keywords.
  */
 function attachmentNotificationSupressed() {
-  return (gManualAttachmentReminder ||
-          document.getElementById("attachmentBucket").itemCount);
+  return (gManualAttachmentReminder || AttachmentElementHasItems());
 }
 
 var attachmentWorker = new Worker("resource:///modules/attachmentChecker.js");
@@ -3828,15 +3828,14 @@ function AddAttachments(aAttachments, aCallback)
 
     if (aCallback)
       aCallback(item);
-
-    AttachmentsChanged();
   }
 
-  if (addedAttachments.length) {
+  if (addedAttachments.length > 0) {
     gContentChanged = true;
 
     UpdateAttachmentBucket(true);
     dispatchAttachmentBucketEvent("attachments-added", addedAttachments);
+    AttachmentsChanged();
   }
 
   return items;
@@ -3922,9 +3921,11 @@ function RemoveAllAttachments()
     child.attachment = null;
   }
 
-  dispatchAttachmentBucketEvent("attachments-removed", removedAttachments);
-  UpdateAttachmentBucket(false);
-  AttachmentsChanged();
+  if (removedAttachments.length > 0) {
+    dispatchAttachmentBucketEvent("attachments-removed", removedAttachments);
+    UpdateAttachmentBucket(false);
+    AttachmentsChanged();
+  }
 }
 
 /**
@@ -3986,8 +3987,8 @@ function RemoveSelectedAttachment()
 
     gContentChanged = true;
     dispatchAttachmentBucketEvent("attachments-removed", removedAttachments);
+    AttachmentsChanged();
   }
-  AttachmentsChanged();
 }
 
 function RenameSelectedAttachment()
@@ -4024,7 +4025,7 @@ function RenameSelectedAttachment()
 function AttachmentElementHasItems()
 {
   var element = document.getElementById("attachmentBucket");
-  return element ? element.getRowCount() : 0;
+  return element ? (element.getRowCount() > 0) : false;
 }
 
 function OpenSelectedAttachment()
@@ -4478,7 +4479,7 @@ var envelopeDragObserver = {
         }
       }
 
-      if (attachments.length)
+      if (attachments.length > 0)
         AddAttachments(attachments);
     },
 
