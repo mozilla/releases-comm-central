@@ -4186,8 +4186,6 @@ nsresult nsImapMailFolder::MoveIncorporatedMessage(nsIMsgDBHdr *mailHdr,
         }
         bool isRead = false;
         mailHdr->GetIsRead(&isRead);
-        if (!isRead)
-          destIFolder->SetFlag(nsMsgFolderFlags::GotNew);
         if (imapDeleteIsMoveToTrash)
           rv = NS_OK;
       }

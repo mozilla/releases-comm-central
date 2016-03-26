@@ -2606,7 +2606,6 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr *mailHdr,
   destIFolder->ReleaseSemaphore (myISupports);
 
   (void) localFolder->RefreshSizeOnDisk();
-  destIFolder->SetFlag(nsMsgFolderFlags::GotNew);
 
   // Notify the message was moved.
   if (notifier) {

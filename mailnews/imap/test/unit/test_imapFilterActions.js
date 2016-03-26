@@ -589,11 +589,9 @@ function testCounts(aHasNew, aUnreadDelta, aFolderNewDelta, aDbNewDelta)
   let arrayOut = {};
   db().getNewList(countOut, arrayOut);
   let dbNew = countOut.value ? countOut.value : 0;
-  let folderNewFlag = IMAPPump.inbox.getFlag(Ci.nsMsgFolderFlags.GotNew);
   dump(" hasNew: " + hasNew +
        " unread: " + unread +
        " folderNew: " + folderNew +
-       " folderNewFlag: " + folderNewFlag +
        " dbNew: " + dbNew +
        " prevUnread " + gPreviousUnread +
        "\n");

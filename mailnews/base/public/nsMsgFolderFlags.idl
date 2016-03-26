@@ -11,7 +11,7 @@
 typedef unsigned long nsMsgFolderFlagType;
 
 /// Flags about a folder or a newsgroup.
-[scriptable,uuid(fbe7cba8-3141-4c44-9660-99af6b53f27e)]
+[scriptable,uuid(440cd0fc-b4b3-4a0f-a492-92fbe7920588)]
 interface nsMsgFolderFlags {
   /**
    * @name Folder Type Flags
@@ -77,8 +77,8 @@ interface nsMsgFolderFlags {
   const nsMsgFolderFlagType Unused1         = 0x00008000;
   /// Used to be for categories
   const nsMsgFolderFlagType Unused4         = 0x00010000;
-  /// This folder got new msgs
-  const nsMsgFolderFlagType GotNew          = 0x00020000;
+  /// Used to be for new msgs in a folder
+  const nsMsgFolderFlagType Unused7         = 0x00020000;
   /// Used to be for a folder that is an IMAP server (ImapServer)
   const nsMsgFolderFlagType Unused6         = 0x00040000;
   /// This folder is an IMAP personal folder

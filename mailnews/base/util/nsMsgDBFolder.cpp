@@ -687,8 +687,6 @@ nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force)
           nsresult rv;
           rv = db->HasNew(&hasnew);
           if (NS_FAILED(rv)) return rv;
-          if (!hasnew && mNumPendingUnreadMessages <= 0)
-            ClearFlag(nsMsgFolderFlags::GotNew);
         }
       }
     }
