@@ -394,7 +394,7 @@ nsMsgAttachmentHandler::PickEncoding(const char *charset, nsIMsgSend *mime_deliv
       }
     }
 
-    if (force_p || (m_max_column > LINELENGTH_ENCODING_THRESHOLD)) {
+    if (force_p || (m_max_column > 900)) {
       encode_p = true;
     } else if (UseQuotedPrintable() && m_unprintable_count) {
       encode_p = true;
@@ -454,13 +454,7 @@ nsMsgAttachmentHandler::PickEncoding(const char *charset, nsIMsgSend *mime_deliv
   // According to RFC 821 we must always have lines shorter than 998 bytes.
   // To encode "long lines" use a CTE that will transmit shorter lines.
   // Switch to base64 if we are not already using "quoted printable".
-
-  // We don't do this for message/rfc822 attachments, since we can't
-  // change the original Content-Transfer-Encoding of the message we're
-  // attaching. We rely on the original message complying with RFC 821,
-  // if it doesn't we won't either. Not ideal.
-  if (!m_type.LowerCaseEqualsLiteral(MESSAGE_RFC822) &&
-      m_max_column > LINELENGTH_ENCODING_THRESHOLD && !isUsingQP)
+  if (m_max_column > 900 && !isUsingQP)
     m_encoding = ENCODING_BASE64;
 
   // Now that we've picked an encoding, initialize the filter.
