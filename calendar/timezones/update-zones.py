@@ -18,6 +18,7 @@ Otherwise manual corrections will get dropped when pushing the update.
 import argparse, ftplib, json, os, os.path, re, shutil, subprocess, sys, tarfile, tempfile
 from collections import OrderedDict
 
+
 class TimezoneUpdater(object):
     """ Timezone updater class, use the run method to do everything automatically"""
     def __init__(self, tzdata_path, zoneinfo_path, zoneinfo_pure_path):
@@ -28,8 +29,8 @@ class TimezoneUpdater(object):
     def download_tzdata(self):
         """Download the latest tzdata from ftp.iana.org"""
         tzdata_download_path = tempfile.mktemp(".tar.gz", prefix="zones")
-        sys.stderr.write("Downloading tzdata-latest.tar.gz from" \
-                         " ftp.iana.org to %s\n""" % tzdata_download_path)
+        sys.stderr.write("Downloading tzdata-latest.tar.gz from"
+                         " ftp.iana.org to %s\n" % tzdata_download_path)
         ftp = ftplib.FTP("ftp.iana.org")
         ftp.login()
         ftp.retrbinary("RETR /tz/tzdata-latest.tar.gz", open(tzdata_download_path, "wb").write)
@@ -231,9 +232,12 @@ class TimezoneUpdater(object):
         if need_download_tzdata:
             shutil.rmtree(self.tzdata_path)
 
+
 def parse_args():
     """Gather arguments from the command-line."""
-    parser = argparse.ArgumentParser(description="Create timezone info JSON file from tzdata files")
+    parser = argparse.ArgumentParser(
+        description="Create timezone info JSON file from tzdata files"
+    )
     parser.add_argument("-v", "--vzic", dest="vzic_path", required=True,
                         help="""Path to the `vzic` executable. This must be
                         downloaded from https://code.google.com/p/tzurl/ and
@@ -244,24 +248,25 @@ def parse_args():
                         will be downloaded from ftp.iana.org.""")
     return parser.parse_args()
 
+
 def create_test_data(zones_file):
     """Creating test data."""
 
     previous_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                 "..", "test", "data", "previous.json")
+                                 "..", "test", "unit", "data", "previous.json")
 
     previous_version = "no previous version"
     current_version = "no current version"
     if (os.path.isfile(zones_file) and os.access(zones_file, os.R_OK)):
         with open(zones_file, "r") as rzf:
-             current_data = json.load(rzf)
-             current_version = current_data["version"]
-             current_zones = current_data["zones"]
-             current_aliases = current_data["aliases"]
+            current_data = json.load(rzf)
+            current_version = current_data["version"]
+            current_zones = current_data["zones"]
+            current_aliases = current_data["aliases"]
     if (os.path.isfile(previous_file) and os.access(previous_file, os.R_OK)):
         with open(previous_file, "r") as rpf:
-             previous_data = json.load(rpf)
-             previous_version = previous_data["version"]
+            previous_data = json.load(rpf)
+            previous_version = previous_data["version"]
 
     if (current_version == "no current version"):
         """Test data creation not possible - currently no zones.json file available."""
@@ -274,8 +279,8 @@ def create_test_data(zones_file):
 
         test_data = OrderedDict()
         test_data["version"] = current_version
-        test_data["aliases"] = OrderedDict(sorted(test_aliases.items()))
-        test_data["zones"] = OrderedDict(sorted(test_zones.items()))
+        test_data["aliases"] = sorted(test_aliases)
+        test_data["zones"] = sorted(test_zones)
 
         """Writing test data"""
         with open(previous_file, "w") as wpf:
@@ -289,6 +294,7 @@ def create_test_data(zones_file):
         # This may happen if the script is executed multiple times without new tzdata available
         """Skipping test data creation.
         Test data are already available for the current version of zones.json"""
+
 
 def main():
     """Run the timezone updater from command-line args"""
