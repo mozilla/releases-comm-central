@@ -253,7 +253,6 @@
   locale/@AB_CD@/messenger/charsetTitles.properties                         (%chrome/mailnews/charsetTitles.properties)
   locale/@AB_CD@/messenger/custom.properties                                (%chrome/mailnews/custom.properties)
   locale/@AB_CD@/messenger/CustomHeaders.dtd                                (%chrome/mailnews/CustomHeaders.dtd)
-  locale/@AB_CD@/messenger/eudoraImportMsgs.properties                      (%chrome/mailnews/eudoraImportMsgs.properties)
   locale/@AB_CD@/messenger/downloadheaders.dtd                              (%chrome/mailnews/downloadheaders.dtd)
   locale/@AB_CD@/messenger/fieldMapImport.dtd                               (%chrome/mailnews/fieldMapImport.dtd)
   locale/@AB_CD@/messenger/filter.properties                                (%chrome/mailnews/filter.properties)
