@@ -1,5 +1,5 @@
 {
-  "version": "2.2015e",
+  "version": "2.2015g",
   "aliases": [
     "AUS Central Standard Time",
     "AUS Eastern Standard Time",
@@ -114,6 +114,11 @@
     "UCT",
     "US Eastern Standard Time",
     "US Mountain Standard Time",
+    "US/Central",
+    "US/Eastern",
+    "US/Mountain",
+    "US/Pacific",
+    "US/Pacific-New",
     "Ulaanbaatar Standard Time",
     "Universal",
     "Venezuela Standard Time",
@@ -231,6 +236,7 @@
     "America/Edmonton",
     "America/Eirunepe",
     "America/El_Salvador",
+    "America/Fort_Nelson",
     "America/Fortaleza",
     "America/Glace_Bay",
     "America/Godthab",
