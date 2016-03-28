@@ -17,9 +17,11 @@
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:xhtml="http://www.w3.org/1999/xhtml"
       id="dataman-page" title="&dataman.windowTitle;"
+      windowtype="data:manager"
       onload="gDataman.initialize();"
       onunload="gDataman.shutdown();"
-      onkeypress="gDataman.handleKeyPress(event);">
+      onkeypress="gDataman.handleKeyPress(event);"
+      persist="screenX screenY width height sizemode">
 
   <xhtml:link rel="shortcut icon"
               href="chrome://communicator/skin/dataman/datamanIcon-16.png"/>

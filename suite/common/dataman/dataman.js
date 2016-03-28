@@ -67,6 +67,12 @@ var gDataman = {
 
     gTabs.initialize();
     gDomains.initialize();
+
+    if ("arguments" in window &&
+        window.arguments.length >= 1 &&
+        window.arguments[0]) {
+      this.loadView(window.arguments[0])
+    }
   },
 
   shutdown: function dataman_shutdown() {

@@ -11,7 +11,7 @@ const BIFF_STATE_NOMESSAGES = "NoMail";
 const BIFF_STATE_UNKNOWN    = "UnknownMail";
 
 
-// uses "toOpenWindowByType" function provided by utilityOverlay.js
+// uses "toOpenWindowByType" function provided by tasksOverlay.js
 // which is included by most clients. 
 function toMessengerWindow()
 {

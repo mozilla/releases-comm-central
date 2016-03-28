@@ -40,6 +40,16 @@ function toDownloadManager()
 
 function toDataManager(aView)
 {
+  var useDlg = Services.prefs.getBoolPref("suite.manager.dataman.openAsDialog");
+
+  if (useDlg) {
+    var url = "chrome://communicator/content/dataman/dataman.xul";
+    var win = toOpenWindowByType("data:manager", url, "", aView);
+    if (win && aView)
+      win.gDataman.loadView(aView);
+    return;
+  }
+
   switchToTabHavingURI("about:data", true, function(browser) {
     if (aView)
       browser.contentWindow.wrappedJSObject.gDataman.loadView(aView);
@@ -48,6 +58,17 @@ function toDataManager(aView)
 
 function toEM(aView)
 {
+  var useDlg = Services.prefs.getBoolPref("suite.manager.addons.openAsDialog");
+
+  if (useDlg) {
+    var view = aView ? { view: aView } : null;
+    var url = "chrome://mozapps/content/extensions/extensions.xul";
+    var win = toOpenWindowByType("Addons:Manager", url, "", view);
+    if (win && aView)
+      win.loadView(aView);
+    return;
+  }
+
   switchToTabHavingURI("about:addons", true, function(browser) {
     if (aView)
       browser.contentWindow.wrappedJSObject.loadView(aView);
@@ -76,7 +97,7 @@ function toOpenWindow( aWindow )
   }
 }
 
-function toOpenWindowByType( inType, uri, features )
+function toOpenWindowByType(inType, uri, features, args)
 {
   // don't do several loads in parallel
   if (uri in window)
@@ -84,7 +105,10 @@ function toOpenWindowByType( inType, uri, features )
 
   var topWindow = Services.wm.getMostRecentWindow(inType);
   if ( topWindow )
+  {
     toOpenWindow( topWindow );
+    return topWindow;
+  }
   else
   {
     // open the requested window, but block it until it's fully loaded
@@ -97,10 +121,13 @@ function toOpenWindowByType( inType, uri, features )
     }
     // remember the newly loading window until it's fully loaded
     // or until the current window passes away
-    window[uri] = openDialog(uri, "", features || "non-private,all,dialog=no");
+    window[uri] = openDialog(uri, "",
+                             features || "non-private,all,dialog=no",
+                             args || null);
     window[uri].addEventListener("load", newWindowLoaded, false);
     window.addEventListener("unload", newWindowLoaded, false);
   }
+  return;
 }
 
 function OpenBrowserWindow()
