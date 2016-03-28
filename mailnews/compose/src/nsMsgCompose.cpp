@@ -187,7 +187,6 @@ nsMsgCompose::nsMsgCompose()
     prefBranch->GetBoolPref("converter.html2txt.structs", &mConvertStructs);
 
   m_composeHTML = false;
-  mRecycledWindow = true;
 }
 
 
@@ -609,17 +608,6 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
   TranslateLineEnding(aPrefix);
   TranslateLineEnding(aBuf);
   TranslateLineEnding(aSignature);
-
-  // We're going to be inserting stuff, and MsgComposeCommands
-  // may have set the editor to readonly in the recycled case.
-  // So set it back to writable.
-  // Note!  enableEditableFields in gComposeRecyclingListener::onReopen
-  // will redundantly set this flag to writable, but it gets there
-  // too late.
-  uint32_t flags = 0;
-  m_editor->GetFlags(&flags);
-  flags &= ~nsIPlaintextEditor::eEditorReadonlyMask;
-  m_editor->SetFlags(flags);
 
   m_editor->EnableUndo(false);
 
@@ -1488,34 +1476,6 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
   return rv;
 }
 
-// XXX when do we break this ref to the listener?
-NS_IMETHODIMP nsMsgCompose::SetRecyclingListener(nsIMsgComposeRecyclingListener *aRecyclingListener)
-{
-  mRecyclingListener = aRecyclingListener;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgCompose::GetRecyclingListener(nsIMsgComposeRecyclingListener **aRecyclingListener)
-{
-  NS_ENSURE_ARG_POINTER(aRecyclingListener);
-  *aRecyclingListener = mRecyclingListener;
-  NS_IF_ADDREF(*aRecyclingListener);
-  return NS_OK;
-}
-
-/* attribute boolean recycledWindow; */
-NS_IMETHODIMP nsMsgCompose::GetRecycledWindow(bool *aRecycledWindow)
-{
-  NS_ENSURE_ARG_POINTER(aRecycledWindow);
-  *aRecycledWindow = mRecycledWindow;
-  return NS_OK;
-}
-NS_IMETHODIMP nsMsgCompose::SetRecycledWindow(bool aRecycledWindow)
-{
-  mRecycledWindow = aRecycledWindow;
-  return NS_OK;
-}
-
 /* attribute boolean deleteDraft */
 NS_IMETHODIMP nsMsgCompose::GetDeleteDraft(bool *aDeleteDraft)
 {
@@ -1553,7 +1513,7 @@ bool nsMsgCompose::IsLastWindow()
   return true;
 }
 
-NS_IMETHODIMP nsMsgCompose::CloseWindow(bool recycleIt)
+NS_IMETHODIMP nsMsgCompose::CloseWindow(void)
 {
   nsresult rv;
 
@@ -1569,55 +1529,13 @@ NS_IMETHODIMP nsMsgCompose::CloseWindow(bool recycleIt)
   // temporary files.
   mMsgSend = nullptr;
 
-  recycleIt = recycleIt && !IsLastWindow();
-  if (recycleIt)
-  {
-    rv = composeService->CacheWindow(m_window, m_composeHTML, mRecyclingListener);
-    if (NS_SUCCEEDED(rv))
-    {
-      nsCOMPtr<nsIHTMLEditor> htmlEditor (do_QueryInterface(m_editor));
-      NS_ASSERTION(htmlEditor, "no editor");
-      if (htmlEditor)
-      {
-        // XXX clear undo txn manager?
-
-        rv = m_editor->EnableUndo(false);
-        NS_ENSURE_SUCCESS(rv,rv);
-
-        rv = htmlEditor->RebuildDocumentFromSource(EmptyString());
-        NS_ENSURE_SUCCESS(rv,rv);
-
-        rv = m_editor->EnableUndo(true);
-        NS_ENSURE_SUCCESS(rv,rv);
-
-        SetBodyModified(false);
-      }
-      if (mRecyclingListener)
-      {
-        mRecyclingListener->OnClose();
-
-        /**
-         * In order to really free the memory, we need to call the JS garbage collector for our window.
-         * If we don't call GC, the nsIMsgCompose object held by JS will not be released despite we set
-         * the JS global that held it to null. Each time we reopen a recycled window, we allocate a new
-         * nsIMsgCompose that we really need to be released when we recycle the window. In fact despite
-         * we call GC here, the release won't occur right away. But if we don't call it, the release
-         * will happen only when we physically close the window which will happen only on quit.
-         */
-        nsJSContext::PokeGC(JS::gcreason::NSJSCONTEXT_DESTROY);
-      }
-      return NS_OK;
-    }
-  }
-
   //We are going away for real, we need to do some clean up first
   if (m_baseWindow)
   {
     if (m_editor)
     {
-        /* The editor will be destroyed during yje close window.
-         * Set it to null to be sure we won't use it anymore
-         */
+      // The editor will be destroyed during the close window.
+      // Set it to null to be sure we won't use it anymore.
       m_editor = nullptr;
     }
     nsIBaseWindow * window = m_baseWindow;
@@ -1625,6 +1543,7 @@ NS_IMETHODIMP nsMsgCompose::CloseWindow(bool recycleIt)
     rv = window->Destroy();
   }
 
+  m_window = nullptr;
   return rv;
 }
 
@@ -3759,7 +3678,7 @@ nsresult nsMsgComposeSendListener::OnStopSending(const char *aMsgID, nsresult aS
               progress->CloseProgressDialog(false);
             }
             if (hasDomWindow)
-              msgCompose->CloseWindow(true);
+              msgCompose->CloseWindow();
           }
         }
       }
@@ -3772,8 +3691,8 @@ nsresult nsMsgComposeSendListener::OnStopSending(const char *aMsgID, nsresult aS
           progress->CloseProgressDialog(false);
         }
         if (hasDomWindow)
-          msgCompose->CloseWindow(true);  // if we fail on the simple GetFcc call, close the window to be safe and avoid
-                                              // windows hanging around to prevent the app from exiting.
+          msgCompose->CloseWindow();  // if we fail on the simple GetFcc call, close the window to be safe and avoid
+                                      // windows hanging around to prevent the app from exiting.
       }
 
       // Remove the current draft msg when sending draft is done.
@@ -3875,7 +3794,7 @@ nsMsgComposeSendListener::OnStopCopy(nsresult aStatus)
           msgCompose->SetDeleteDraft(true);
           RemoveCurrentDraftMessage(msgCompose, true);
         }
-        msgCompose->CloseWindow(true);
+        msgCompose->CloseWindow();
       }
     }
     msgCompose->ClearMessageSend();

@@ -143,87 +143,6 @@ function enableEditableFields()
 
 }
 
-var gComposeRecyclingListener = {
-  onClose: function() {
-    //Reset recipients and attachments
-    awResetAllRows();
-    RemoveAllAttachments();
-
-    // We need to clear the identity popup menu in case the user will change them. It will be rebuilded later in ComposeStartup
-    ClearIdentityListPopup(document.getElementById("msgIdentityPopup"));
-
-    // Stop listening to changes in the spell check dictionary.
-    document.removeEventListener("spellcheck-changed", updateDocumentLanguage);
-
-    // Stop InlineSpellCheckerUI so personal dictionary is saved.
-    // We need to do this before disabling the editor.
-    EnableInlineSpellCheck(false);
-    // clear any suggestions in the context menu
-    InlineSpellCheckerUI.clearSuggestionsFromMenu();
-    InlineSpellCheckerUI.clearDictionaryListFromMenu();
-
-    //Clear the subject
-    GetMsgSubjectElement().value = "";
-    SetComposeWindowTitle();
-
-    SetContentAndBodyAsUnmodified();
-    disableEditableFields();
-    ReleaseGlobalVariables();
-
-    // Clear the focus
-    awGetInputElement(1).removeAttribute('focused');
-
-    //Reset Boxes size
-    document.getElementById("compose-toolbox").removeAttribute("height");
-    document.getElementById("appcontent").removeAttribute("height");
-    document.getElementById("addresses-box").removeAttribute("width");
-    document.getElementById("attachments-box").removeAttribute("width");
-
-    //Reset menu options
-    document.getElementById("format_auto").setAttribute("checked", "true");
-
-    //Reset toolbars that could be hidden
-    if (gHideMenus) {
-      document.getElementById("formatMenu").hidden = false;
-      document.getElementById("insertMenu").hidden = false;
-      var showFormat = document.getElementById("menu_showFormatToolbar")
-      showFormat.hidden = false;
-      if (showFormat.getAttribute("checked") == "true")
-        document.getElementById("FormatToolbar").hidden = false;
-    }
-
-    //Reset the Customize Toolbars panel/sheet if open.
-    if (getMailToolbox().customizing && gCustomizeSheet)
-      document.getElementById("customizeToolbarSheetIFrame")
-              .contentWindow.finishToolbarCustomization();
-
-    //Reset editor
-    EditorResetFontAndColorAttributes();
-    EditorCleanup();
-
-    //Release the nsIMsgComposeParams object
-    if (window.arguments && window.arguments[0])
-      window.arguments[0] = null;
-
-    var event = document.createEvent('Events');
-    event.initEvent('compose-window-close', false, true);
-    document.getElementById("msgcomposeWindow").dispatchEvent(event);
-    if (gAutoSaveTimeout)
-      clearTimeout(gAutoSaveTimeout);
-  },
-
-  onReopen: function(params) {
-    // Reset focus to avoid undesirable visual effect when reopening the window
-
-    InitializeGlobalVariables();
-    ComposeStartup(true, params);
-
-    var event = document.createEvent('Events');
-    event.initEvent('compose-window-reopen', false, true);
-    document.getElementById("msgcomposeWindow").dispatchEvent(event);
-  }
-};
-
 var stateListener = {
   NotifyComposeFieldsReady: function() {
     ComposeFieldsReady();
@@ -251,7 +170,7 @@ var stateListener = {
         if (gMsgCompose)
           gMsgCompose.onSendNotPerformed(null, Components.results.NS_ERROR_ABORT);
 
-        MsgComposeCloseWindow(true);
+        MsgComposeCloseWindow();
       }
     }
     // else if we failed to save, and we're autosaving, need to re-mark the editor
@@ -734,7 +653,7 @@ function DoCommandClose()
       gMsgCompose.onSendNotPerformed(null, Components.results.NS_ERROR_ABORT);
 
     // note: if we're not caching this window, this destroys it for us
-    MsgComposeCloseWindow(true);
+    MsgComposeCloseWindow();
   }
 
   return false;
@@ -930,7 +849,7 @@ function handleMailtoArgs(mailtoUrl)
   return null;
 }
 
-function ComposeStartup(recycled, aParams)
+function ComposeStartup(aParams)
 {
   var params = null; // New way to pass parameters to the compose window as a nsIMsgComposeParameters object
   var args = null;   // old way, parameters are passed as a string
@@ -1055,12 +974,6 @@ function ComposeStartup(recycled, aParams)
                                                  editorElement.docShell);
     if (gMsgCompose)
     {
-      // set the close listener
-      gMsgCompose.recyclingListener = gComposeRecyclingListener;
-
-      //Lets the compose object knows that we are dealing with a recycled window
-      gMsgCompose.recycledWindow = recycled;
-
       if (!editorElement)
       {
         dump("Failed to get editor element!\n");
@@ -1076,32 +989,28 @@ function ComposeStartup(recycled, aParams)
       document.getElementById("menu_inlineSpellCheck")
               .setAttribute("checked", getPref("mail.spellcheck.inline"));
 
-      // If recycle, editor is already created
-      if (!recycled)
+      try {
+        var editortype = gMsgCompose.composeHTML ? "htmlmail" : "textmail";
+        editorElement.makeEditable(editortype, true);
+      } catch (e) { dump(" FAILED TO START EDITOR: "+e+"\n"); }
+
+      // setEditorType MUST be call before setContentWindow
+      if (gMsgCompose.composeHTML)
       {
-        try {
-          var editortype = gMsgCompose.composeHTML ? "htmlmail" : "textmail";
-          editorElement.makeEditable(editortype, true);
-        } catch (e) { dump(" FAILED TO START EDITOR: "+e+"\n"); }
-
-        // setEditorType MUST be call before setContentWindow
-        if (gMsgCompose.composeHTML)
-        {
-          initLocalFontFaceMenu(document.getElementById("FontFacePopup"));
-        }
-        else
-        {
-          //Remove HTML toolbar, format and insert menus as we are editing in plain text mode
-          document.getElementById("outputFormatMenu").setAttribute("hidden", true);
-          document.getElementById("FormatToolbar").setAttribute("hidden", true);
-          document.getElementById("formatMenu").setAttribute("hidden", true);
-          document.getElementById("insertMenu").setAttribute("hidden", true);
-          document.getElementById("menu_showFormatToolbar").setAttribute("hidden", true);
-        }
-
-        // Do setup common to Message Composer and Web Composer
-        EditorSharedStartup();
+        initLocalFontFaceMenu(document.getElementById("FontFacePopup"));
       }
+      else
+      {
+        //Remove HTML toolbar, format and insert menus as we are editing in plain text mode
+        document.getElementById("outputFormatMenu").setAttribute("hidden", true);
+        document.getElementById("FormatToolbar").setAttribute("hidden", true);
+        document.getElementById("formatMenu").setAttribute("hidden", true);
+        document.getElementById("insertMenu").setAttribute("hidden", true);
+        document.getElementById("menu_showFormatToolbar").setAttribute("hidden", true);
+      }
+
+      // Do setup common to Message Composer and Web Composer
+      EditorSharedStartup();
 
       var msgCompFields = gMsgCompose.compFields;
       if (msgCompFields)
@@ -1138,35 +1047,20 @@ function ComposeStartup(recycled, aParams)
 
       gMsgCompose.RegisterStateListener(stateListener);
 
-      if (recycled)
-      {
-        InitEditor(GetCurrentEditor());
+      // Add an observer to be called when document is done loading,
+      //   which creates the editor
+      try {
+        GetCurrentCommandManager().
+              addCommandObserver(gMsgEditorCreationObserver, "obs_documentCreated");
 
-        if (gMsgCompose.composeHTML)
-        {
-          // Force color picker on toolbar to show document colors
-          onFontColorChange();
-          onBackgroundColorChange();
-          // XXX todo: reset paragraph select to "Body Text"
-        }
-      }
-      else
-      {
-        // Add an observer to be called when document is done loading,
-        //   which creates the editor
-        try {
-          GetCurrentCommandManager().
-                addCommandObserver(gMsgEditorCreationObserver, "obs_documentCreated");
-
-          // Load empty page to create the editor
-          editorElement.webNavigation.loadURI("about:blank", // uri string
-                               0,                            // load flags
-                               null,                         // referrer
-                               null,                         // post-data stream
-                               null);
-        } catch (e) {
-          dump(" Failed to startup editor: "+e+"\n");
-        }
+        // Load empty page to create the editor
+        editorElement.webNavigation.loadURI("about:blank", // uri string
+                             0,                            // load flags
+                             null,                         // referrer
+                             null,                         // post-data stream
+                             null);
+      } catch (e) {
+        dump(" Failed to startup editor: "+e+"\n");
       }
     }
   }
@@ -1228,7 +1122,7 @@ function WizCallback(state)
   else
   {
     // The account wizard is still closing so we can't close just yet
-    setTimeout(MsgComposeCloseWindow, 0, false); // Don't recycle a bogus window
+    setTimeout(MsgComposeCloseWindow, 0);
   }
 }
 
@@ -1269,7 +1163,7 @@ function ComposeLoad()
     var errorMsg = sComposeMsgsBundle.getString("initErrorDlgMessage");
     Services.prompt.alert(window, errorTitle, errorMsg);
 
-    MsgComposeCloseWindow(false); // Don't try to recycle a bogus window
+    MsgComposeCloseWindow();
     return;
   }
   if (gLogComposePerformance)
@@ -2162,10 +2056,10 @@ function SetContentAndBodyAsUnmodified()
   gContentChanged = false;
 }
 
-function MsgComposeCloseWindow(recycleIt)
+function MsgComposeCloseWindow()
 {
   if (gMsgCompose)
-    gMsgCompose.CloseWindow(recycleIt);
+    gMsgCompose.CloseWindow();
   else
     window.close();
 }

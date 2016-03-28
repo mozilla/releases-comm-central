@@ -46,8 +46,7 @@ interface nsIMsgComposeService : nsISupports {
   void OpenComposeWindowWithParams(in string msgComposeWindowURL, in nsIMsgComposeParams params);
 
   /**
-   * Creates an nsIMsgCompose instance, initalizes it, and manages the window
-   * recycling cache.
+   * Creates an nsIMsgCompose instance and initalizes it.
    *
    * @param aParams   An nsIMsgComposeParams object containing the initial
    *                  details for the compose.
@@ -73,8 +72,6 @@ interface nsIMsgComposeService : nsISupports {
   readonly attribute boolean logComposePerformance;
 
   [noscript] boolean determineComposeHTML(in nsIMsgIdentity aIdentity, in MSG_ComposeFormat aFormat);
-  [noscript] void cacheWindow(in mozIDOMWindowProxy aWindow, in boolean aComposeHTML, in nsIMsgComposeRecyclingListener listener);
-  boolean isCachedWindow(in mozIDOMWindowProxy aWindow);
 
   /** 
    * given a mailto url, parse the attributes and turn them into a nsIMsgComposeParams object
@@ -130,7 +127,7 @@ interface nsIMsgComposeService : nsISupports {
                                in nsIMsgCompose aMsgCompose);
 
   /** 
-   * When an editor docShell is being closed (or recycled), you should
+   * When an editor docShell is being closed, you should
    * unregister it from this service. nsIMsgCompose normally calls this
    * automatically for items passed to initCompose.
    *

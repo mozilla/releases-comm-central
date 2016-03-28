@@ -113,8 +113,6 @@ protected:
   QuotingOutputStreamListener               *mQuoteStreamListener;
   nsCOMPtr<nsIOutputStream>                 mBaseStream;
 
-  nsCOMPtr<nsIMsgComposeRecyclingListener>  mRecyclingListener;
-  bool                                      mRecycledWindow;
   nsCOMPtr<nsIMsgSend>                      mMsgSend;           // for composition back end
   nsCOMPtr<nsIMsgProgress>                  mProgress;          // use by the back end to report progress to the front end
 

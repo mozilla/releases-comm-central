@@ -159,8 +159,10 @@ function test_encoding_upgrade_html_compose() {
     throw new Error("Chinese text not in msg; CHINESE=" + CHINESE +
                     ", draftMsg2Content=" + draftMsg2Content);
 
-  // Ctrl+Shift+Return = Send Later
-  compWin.keypress(null, "VK_RETURN", {shiftKey: true, accelKey: true});
+  compWin.window.setTimeout(function() {
+    // Ctrl+Shift+Return = Send Later
+    compWin.keypress(null, "VK_RETURN", {shiftKey: true, accelKey: true});
+  }, 0);
 
   be_in_folder(outboxFolder);
   let outMsg = select_click_row(0);
@@ -232,8 +234,10 @@ function test_encoding_upgrade_plaintext_compose() {
     throw new Error("Chinese text not in msg; CHINESE=" + CHINESE +
                     ", draftMsg2Content=" + draftMsg2Content);
 
-  // Ctrl+Shift+Return = Send Later.
-  compWin.keypress(null, "VK_RETURN", {shiftKey: true, accelKey: true});
+  compWin.window.setTimeout(function() {
+    // Ctrl+Shift+Return = Send Later.
+    compWin.keypress(null, "VK_RETURN", {shiftKey: true, accelKey: true});
+  }, 0);
 
   be_in_folder(outboxFolder);
   let outMsg = select_click_row(0);

@@ -555,42 +555,6 @@ function test_disabled_attachment_reminder() {
 }
 
 /**
- * Bug 1099866
- * Check if reminder does not stay open on compose window reopen
- * due to window recycling.
- */
-function test_recycling_attachment_reminder() {
-  let recycledWindows = Services.prefs.getIntPref("mail.compose.max_recycled_windows");
-  assert_true(recycledWindows > 0);
-  // Open a sample message with no attachment keywords.
-  let cwc = open_compose_new_mail();
-  setupComposeWin(cwc, "test@example.invalid", "Testing recycling a reminder!",
-                  "Some body...");
-
-  // There should be no attachment notification.
-  assert_automatic_reminder_state(cwc, false);
-
-  // Add some keyword so the automatic notification
-  // could potentially show up.
-  setupComposeWin(cwc, "", "", " and look for your attachment!");
-  // Give the notification time to appear. It should.
-  wait_for_reminder_state(cwc, true);
-
-  close_compose_window(cwc, true);
-
-  // Another compose window without any keywords.
-  cwc = open_compose_new_mail();
-  setupComposeWin(cwc, "test@example.invalid", "Testing reminder after recycling!",
-                  "Some body...");
-
-  // There should be no attachment notification.
-  assert_automatic_reminder_state(cwc, false);
-
-  close_compose_window(cwc);
-}
-
-
-/**
  * Click the send button and handle the send error dialog popping up.
  * It will return us back to the compose window.
  *

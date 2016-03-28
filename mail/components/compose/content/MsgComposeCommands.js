@@ -171,90 +171,6 @@ function updateEditableFields(aDisable)
     elements[i].disabled = aDisable;
 }
 
-var gComposeRecyclingListener = {
-  onClose: function() {
-    //Clear the subject
-    GetMsgSubjectElement().value = "";
-    // be sure to clear the transaction manager for the subject
-    GetMsgSubjectElement().editor.transactionManager.clear();
-    SetComposeWindowTitle();
-
-    //Reset recipients and attachments
-    awResetAllRows();
-    RemoveAllAttachments();
-
-    // We need to clear the identity popup menu in case the user will change them.
-    // It will be rebuilt later in ComposeStartup
-    ClearIdentityListPopup(document.getElementById("msgIdentityPopup"));
-    var identityElement = document.getElementById("msgIdentity");
-    identityElement.editable = false;
-    identityElement.setAttribute("type", "description");
-    var customizeMenuitem = document.getElementById("cmd_customizeFromAddress");
-    customizeMenuitem.removeAttribute("disabled");
-    customizeMenuitem.setAttribute("checked", "false");
-
-    // Do not listen to changes to spell check dictionary.
-    document.removeEventListener("spellcheck-changed", updateDocumentLanguage);
-
-    // Disconnect the observer, we'll attach a new one when recycling the
-    // window.
-    gLanguageObserver.disconnect();
-
-    // Stop observing dictionary removals.
-    dictionaryRemovalObserver.removeObserver();
-
-    // Stop gSpellChecker so personal dictionary is saved.
-    // We need to do this before disabling the editor.
-    enableInlineSpellCheck(false);
-    // clear any suggestions in the context menu
-    gSpellChecker.clearSuggestionsFromMenu();
-    gSpellChecker.clearDictionaryListFromMenu();
-
-    SetContentAndBodyAsUnmodified();
-    updateEditableFields(true);
-
-    // Clear the focus
-    awGetInputElement(1).removeAttribute('focused');
-
-    //Reset Boxes size
-    document.getElementById("headers-box").removeAttribute("height");
-    document.getElementById("appcontent").removeAttribute("height");
-    document.getElementById("addresses-box").removeAttribute("width");
-
-    //Reset menu options
-    document.getElementById("format_auto").setAttribute("checked", "true");
-    document.getElementById("priority_normal").setAttribute("checked", "true");
-
-    // Reset the Customize Toolbars panel/sheet if open.
-    if (getMailToolbox().customizing && gCustomizeSheet)
-      document.getElementById("customizeToolbarSheetIFrame")
-              .contentWindow.finishToolbarCustomization();
-
-    //Reset editor
-    EditorResetFontAndColorAttributes();
-    EditorCleanup();
-    gAttachmentNotifier.redetectKeywords();
-
-    //Release the nsIMsgComposeParams object
-    if (window.arguments && window.arguments[0])
-      window.arguments[0] = null;
-    document.getElementById("msgcomposeWindow").dispatchEvent(
-      new Event("compose-window-close", { bubbles: false , cancelable: true }));
-    if (gAutoSaveTimeout)
-      clearTimeout(gAutoSaveTimeout);
-    ReleaseGlobalVariables(); 	// This line must be the last in onClose();
-  },
-
-  onReopen: function(params) {
-    InitializeGlobalVariables();
-    ComposeStartup(true, params);
-
-    var event = document.createEvent('Events');
-    event.initEvent('compose-window-reopen', false, true);
-    document.getElementById("msgcomposeWindow").dispatchEvent(event);
-  }
-};
-
 var PrintPreviewListener = {
   getPrintPreviewBrowser: function() {
     var browser = document.getElementById("cppBrowser");
@@ -379,7 +295,7 @@ var stateListener = {
         if (gMsgCompose)
           gMsgCompose.onSendNotPerformed(null, Components.results.NS_ERROR_ABORT);
 
-        MsgComposeCloseWindow(true);
+        MsgComposeCloseWindow();
       }
     }
     // else if we failed to save, and we're autosaving, need to re-mark the editor
@@ -1671,8 +1587,8 @@ function DoCommandClose()
     if (gMsgCompose)
       gMsgCompose.onSendNotPerformed(null, Components.results.NS_ERROR_ABORT);
 
-    // note: if we're not caching this window, this destroys it for us
-    MsgComposeCloseWindow(true);
+    // This destroys the window for us.
+    MsgComposeCloseWindow();
   }
 
   return false;
@@ -2102,10 +2018,6 @@ var dictionaryRemovalObserver =
   },
 
   removeObserver: function() {
-    // We need to protect against double removal:
-    // The window can be recycled and later destroyed (at shutdown or when the
-    // composition style changes from HTML to plain text or vice versa) or
-    // only destroyed if it was never recycled before.
     if (this.isAdded) {
       Services.obs.removeObserver(this, "spellcheck-dictionary-remove");
       this.isAdded = false;
@@ -2113,7 +2025,7 @@ var dictionaryRemovalObserver =
   }
 }
 
-function ComposeStartup(recycled, aParams)
+function ComposeStartup(aParams)
 {
   // Findbar overlay
   if (!document.getElementById("findbar-replaceButton")) {
@@ -2297,11 +2209,7 @@ function ComposeStartup(recycled, aParams)
   var editorElement = GetCurrentEditorElement();
   gMsgCompose = MailServices.compose.initCompose(params, window, editorElement.docShell);
 
-  // Set the close listener.
-  gMsgCompose.recyclingListener = gComposeRecyclingListener;
   gMsgCompose.addMsgSendListener(gSendListener);
-  // Lets the compose object know that we are dealing with a recycled window.
-  gMsgCompose.recycledWindow = recycled;
 
   document.getElementById("returnReceiptMenu")
           .setAttribute('checked', gMsgCompose.compFields.returnReceipt);
@@ -2314,32 +2222,25 @@ function ComposeStartup(recycled, aParams)
   SetCompositionAsPerDeliveryFormat(gSendFormat);
   SelectDeliveryFormatMenuOption(gSendFormat);
 
-  // If recycle, editor is already created.
-  if (!recycled)
+  let editortype = gMsgCompose.composeHTML ? "htmlmail" : "textmail";
+  editorElement.makeEditable(editortype, true);
+
+  // setEditorType MUST be called before setContentWindow
+  if (gMsgCompose.composeHTML)
   {
-    let editortype = gMsgCompose.composeHTML ? "htmlmail" : "textmail";
-    editorElement.makeEditable(editortype, true);
-
-    // setEditorType MUST be called before setContentWindow
-    if (gMsgCompose.composeHTML)
-    {
-      initLocalFontFaceMenu(document.getElementById("FontFacePopup"));
-    }
-    else
-    {
-      // We are editing in plain text mode.
-      // The SetCompositionAsPerDeliveryFormat call above already hid
-      // the HTML toolbar, format and insert menus.
-      // Also remove the delivery format from the options menu.
-      // We only do that when the window is first created ("!recycled")
-      // as we will never need to restore it since a plain text window will
-      // never be used for a HTML composition.
-      document.getElementById("outputFormatMenu").setAttribute("hidden", true);
-    }
-
-    // Do setup common to Message Composer and Web Composer.
-    EditorSharedStartup();
+    initLocalFontFaceMenu(document.getElementById("FontFacePopup"));
   }
+  else
+  {
+    // We are editing in plain text mode.
+    // The SetCompositionAsPerDeliveryFormat call above already hid
+    // the HTML toolbar, format and insert menus.
+    // Also remove the delivery format from the options menu.
+    document.getElementById("outputFormatMenu").setAttribute("hidden", true);
+  }
+
+  // Do setup common to Message Composer and Web Composer.
+  EditorSharedStartup();
 
   if (params.bodyIsLink)
   {
@@ -2370,33 +2271,16 @@ function ComposeStartup(recycled, aParams)
 
   gMsgCompose.RegisterStateListener(stateListener);
 
-  if (recycled)
-  {
-    InitEditor();
+  // Add an observer to be called when document is done loading,
+  // which creates the editor.
+  try {
+    GetCurrentCommandManager().
+            addCommandObserver(gMsgEditorCreationObserver, "obs_documentCreated");
 
-    if (gMsgCompose.composeHTML)
-    {
-      // Force color picker on toolbar to show document colors.
-      onFontColorChange();
-      onBackgroundColorChange();
-    }
-
-    // Reset the priority field for recycled windows.
-    updatePriorityToolbarButton("Normal");
-  }
-  else
-  {
-    // Add an observer to be called when document is done loading,
-    // which creates the editor.
-    try {
-      GetCurrentCommandManager().
-              addCommandObserver(gMsgEditorCreationObserver, "obs_documentCreated");
-
-      // Load empty page to create the editor.
-      editorElement.webNavigation.loadURI("about:blank", 0, null, null, null);
-    } catch (e) {
-      Components.utils.reportError(e);
-    }
+    // Load empty page to create the editor.
+    editorElement.webNavigation.loadURI("about:blank", 0, null, null, null);
+  } catch (e) {
+    Components.utils.reportError(e);
   }
 
   gEditingDraft = gMsgCompose.compFields.draftId;
@@ -2456,7 +2340,7 @@ function WizCallback(state)
   else
   {
     // The account wizard is still closing so we can't close just yet
-    setTimeout(MsgComposeCloseWindow, 0, false); // Don't recycle a bogus window
+    setTimeout(MsgComposeCloseWindow, 0);
   }
 }
 
@@ -2495,14 +2379,14 @@ function ComposeLoad()
         selectNode.appendItem(other_headers_Array[i] + ":", "addr_other");
     }
     if (state)
-      ComposeStartup(false, null);
+      ComposeStartup(null);
   }
   catch (ex) {
     Components.utils.reportError(ex);
     Services.prompt.alert(window, getComposeBundle().getString("initErrorDlogTitle"),
                           getComposeBundle().getString("initErrorDlgMessage"));
 
-    MsgComposeCloseWindow(false); // Don't try to recycle a bogus window
+    MsgComposeCloseWindow();
     return;
   }
 
@@ -3664,10 +3548,10 @@ function SetContentAndBodyAsUnmodified()
   gContentChanged = false;
 }
 
-function MsgComposeCloseWindow(recycleIt)
+function MsgComposeCloseWindow()
 {
   if (gMsgCompose)
-    gMsgCompose.CloseWindow(recycleIt);
+    gMsgCompose.CloseWindow();
   else
     window.close();
 }
@@ -4993,9 +4877,8 @@ function InitEditor()
   editor.addOverrideStyleSheet("chrome://messenger/content/composerOverlay.css");
   gMsgCompose.initEditor(editor, window.content);
 
-  // We always go through this function everytime we init an editor, be it a
-  // recycled editor, or a fresh one. First step is making sure we can spell
-  // check.
+  // We always go through this function everytime we init an editor.
+  // First step is making sure we can spell check.
   gSpellChecker.init(editor);
   document.getElementById('menu_inlineSpellCheck')
           .setAttribute('disabled', !gSpellChecker.canSpellCheck);

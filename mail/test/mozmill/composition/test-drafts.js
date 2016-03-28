@@ -143,7 +143,7 @@ function test_save_delivery_format() {
   close_compose_window(cwc);
 
   // Open a new composition see if the menu is again at default value, not the one
-  // chosen above, even in a recycled compose window.
+  // chosen above.
   cwc = open_compose_new_mail();
 
   assert_format_value("format_auto", Ci.nsIMsgCompSendFormat.AskUser);

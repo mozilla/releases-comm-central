@@ -17,32 +17,8 @@
 #include "nsICommandLineHandler.h"
 #define ICOMMANDLINEHANDLER nsICommandLineHandler
 
-class nsMsgCachedWindowInfo
-{
-public:
-  void Initialize(mozIDOMWindowProxy *aWindow, nsIXULWindow *aXULWindow, nsIMsgComposeRecyclingListener *aListener, bool aHtmlCompose)
-  {
-    window = aWindow;
-    xulWindow = aXULWindow;
-    listener = aListener;
-    htmlCompose = aHtmlCompose;
-  }
-    
-  void Clear()
-  {
-    window = nullptr;
-    listener = nullptr;
-  }
-  
-  nsCOMPtr<mozIDOMWindowProxy>              window;
-  nsCOMPtr<nsIXULWindow>                    xulWindow;
-  nsCOMPtr<nsIMsgComposeRecyclingListener>  listener;
-  bool                                      htmlCompose;
-};
-
 class nsMsgComposeService : 
   public nsIMsgComposeService,
-  public nsIObserver,
   public ICOMMANDLINEHANDLER,
   public nsSupportsWeakReference
 {
@@ -51,7 +27,6 @@ public:
 
 	NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGCOMPOSESERVICE
-  NS_DECL_NSIOBSERVER
   NS_DECL_NSICOMMANDLINEHANDLER
 
   nsresult Init();
@@ -62,11 +37,6 @@ public:
 private:
 	virtual ~nsMsgComposeService();
   bool mLogComposePerformance;
-
-  int32_t mMaxRecycledWindows;
-  nsMsgCachedWindowInfo *mCachedWindows;
-  
-  void CloseHiddenCachedWindow(mozIDOMWindowProxy *domWindow);
 
   nsresult LoadDraftOrTemplate(const nsACString& aMsgURI, nsMimeOutputType aOutType, 
                                nsIMsgIdentity * aIdentity, const char * aOriginalMsgURI, 
@@ -83,8 +53,6 @@ private:
                                       const nsAString &forwardTo,
                                       bool overrideComposeFormat,
                                       nsIMsgWindow *aMsgWindow);
-
-  nsresult ShowCachedComposeWindow(mozIDOMWindowProxy *aComposeWindow, nsIXULWindow *aXULWindow, bool aShow);
 
   // hash table mapping dom windows to nsIMsgCompose objects
   nsInterfaceHashtable<nsISupportsHashKey, nsIWeakReference> mOpenComposeWindows;

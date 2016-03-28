@@ -71,8 +71,7 @@ function onComposerReOpen()
 
 addEventListener("load", smimeComposeOnLoad, false);
 
-// this function gets called multiple times,
-// but only on first open, not on composer recycling
+// this function gets called multiple times
 function smimeComposeOnLoad()
 {
   removeEventListener("load", smimeComposeOnLoad, false);

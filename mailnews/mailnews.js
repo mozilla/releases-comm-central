@@ -732,8 +732,6 @@ pref("mailnews.ui.select_addresses_results.version", 1);
 // to hide the non default columns in the advanced directory search dialog
 // see abCommon.js and ABSearchDialog.js
 pref("mailnews.ui.advanced_directory_search_results.version", 1);
-//If set to a number greater than 0, msg compose windows will be recycled in order to open them quickly
-pref("mail.compose.max_recycled_windows", 1);
 
 // from/recipient columns will be replaced with correspondents column
 pref("mailnews.ui.upgrade.correspondents", true);

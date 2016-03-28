@@ -91,13 +91,6 @@ interface nsIMsgComposeNotificationType
 native nsString(nsString);
 [ref] native nsStringRef(nsString);
 
-/* recycling listener interface */
-[scriptable, uuid(0b28cc56-1dd2-11b2-bbe4-99e6a314f8ba)]
-interface nsIMsgComposeRecyclingListener : nsISupports {
-  void onClose();
-  void onReopen(in nsIMsgComposeParams params);
-};
-
 [scriptable, uuid(c6544b6b-06dd-43ac-89b5-949d7c81bb7b)]
 interface nsIMsgCompose : nsIMsgSendListener {
 
@@ -140,7 +133,7 @@ interface nsIMsgCompose : nsIMsgSendListener {
                        in string accountKey);
 
   /* ... */
-  void CloseWindow(in boolean reclycleIt);
+  void CloseWindow();
 
   /* ... */
   void abort();
@@ -284,12 +277,6 @@ interface nsIMsgCompose : nsIMsgSendListener {
  	/* ... */
   [noscript] void getQuotingToFollow(out boolean quotingToFollow);
 
- 	/* ... */
-  attribute nsIMsgComposeRecyclingListener recyclingListener;
-  
-  /* ... */
-  attribute boolean recycledWindow;
-  
   readonly attribute string originalMsgURI;
 
   attribute boolean deleteDraft;
