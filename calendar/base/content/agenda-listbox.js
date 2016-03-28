@@ -1038,15 +1038,17 @@ agendaListbox.calendarObserver.onDefaultCalendarChanged = function(aCalendar) {
 };
 
 /**
- * Updates the "Soon" section of today pane when preference soondays changes
+ * Updates the "Upcoming" section of today pane when preference soondays changes
  **/
 agendaListbox.updateSoonSection =
 function updateSoonSection() {
-    let soonHeader = document.getElementById("nextweek-header");
     this.soon.duration = this.soonDays;
     this.soon.open = true;
-    soonHeader.setItem(this.soon, true);
-    agendaListbox.refreshPeriodDates(now());
+    let soonHeader = document.getElementById("nextweek-header");
+    if (soonHeader) {
+        soonHeader.setItem(this.soon, true);
+        agendaListbox.refreshPeriodDates(now());
+    }
 }
 
 /**
