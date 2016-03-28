@@ -28,8 +28,8 @@ var gUpdatingBatch = "";
 function Startup() {
 
   // arguments passed to this routine:
-  //   cookieManager 
- 
+  //   cookieManager
+
   // xpconnect to cookiemanager/permissionmanager/promptservice interfaces
   cookiemanager = Components.classes["@mozilla.org/cookiemanager;1"]
                             .getService(Components.interfaces.nsICookieManager);
@@ -172,8 +172,8 @@ function GetExpiresString(expires) {
     var expiry = "";
     try {
       expiry = gDateService.FormatDateTime("", gDateService.dateFormatLong,
-                                           gDateService.timeFormatSeconds, 
-                                           date.getFullYear(), date.getMonth()+1, 
+                                           gDateService.timeFormatSeconds,
+                                           date.getFullYear(), date.getMonth()+1,
                                            date.getDate(), date.getHours(),
                                            date.getMinutes(), date.getSeconds());
     } catch(ex) {
@@ -193,7 +193,7 @@ function CookieSelected() {
     ClearCookieProperties();
     return true;
   }
-    
+
   var idx = selections[0];
   if (idx >= cookies.length) {
     // Something got out of synch.  See bug 119812 for details
@@ -204,7 +204,7 @@ function CookieSelected() {
 
   var props = [
     {id: "ifl_name", value: cookies[idx].name},
-    {id: "ifl_value", value: cookies[idx].value}, 
+    {id: "ifl_value", value: cookies[idx].value},
     {id: "ifl_isDomain",
      value: cookies[idx].isDomain ?
             cookieBundle.getString("domainColon") : cookieBundle.getString("hostColon")},
@@ -212,20 +212,21 @@ function CookieSelected() {
     {id: "ifl_path", value: cookies[idx].path},
     {id: "ifl_isSecure",
      value: cookies[idx].isSecure ?
-            cookieBundle.getString("forSecureOnly") : 
+            cookieBundle.getString("forSecureOnly") :
             cookieBundle.getString("forAnyConnection")},
     {id: "ifl_expires", value: cookies[idx].expires}
   ];
 
   var value;
   var field;
-  for (var i = 0; i < props.length; i++)
+
+  for (let lProp of props)
   {
-    field = document.getElementById(props[i].id);
-    if ((selections.length > 1) && (props[i].id != "ifl_isDomain")) {
+    field = document.getElementById(lProp.id);
+    if ((selections.length > 1) && (lProp.id != "ifl_isDomain")) {
       value = ""; // clear field if multiple selections
     } else {
-      value = props[i].value;
+      value = lProp.value;
     }
     field.value = value;
   }
@@ -233,10 +234,10 @@ function CookieSelected() {
 }
 
 function ClearCookieProperties() {
-  var properties = 
+  var properties =
     ["ifl_name","ifl_value","ifl_host","ifl_path","ifl_isSecure","ifl_expires"];
-  for (var prop=0; prop<properties.length; prop++) {
-    document.getElementById(properties[prop]).value = "";
+  for (let prop of properties) {
+    document.getElementById(prop).value = "";
   }
 }
 
@@ -256,8 +257,8 @@ function DeleteCookie() {
                                  "removeCookie", "removeAllCookies");
   if (document.getElementById("filter").value) {
     // remove selected cookies from unfiltered set
-    for (var i = 0; i < deletedCookies.length; ++i) {
-      allCookies.splice(allCookies.indexOf(deletedCookies[i]), 1);
+    for (let cookie of deletedCookies) {
+      allCookies.splice(allCookies.indexOf(cookie), 1);
     }
   }
   if (!cookies.length) {
@@ -286,10 +287,10 @@ function DeleteAllCookies() {
 
 function FinalizeCookieDeletions() {
   gUpdatingBatch = "cookie-changed";
-  for (var c=0; c<deletedCookies.length; c++) {
-    cookiemanager.remove(deletedCookies[c].host,
-                         deletedCookies[c].name,
-                         deletedCookies[c].path,
+  for (let delCookie of deletedCookies) {
+    cookiemanager.remove(delCookie.host,
+                         delCookie.name,
+                         delCookie.path,
                          document.getElementById("checkbox").checked);
   }
   deletedCookies.length = 0;
@@ -347,12 +348,18 @@ var permissionsTreeView = {
   getImageSrc : function(row,column) {},
   getProgressMode : function(row,column) {},
   getCellValue : function(row,column) {},
-  getCellText : function(row,column){
-    var rv="";
-    if (column.id=="siteCol") {
-      rv = permissions[row].rawHost;
-    } else if (column.id=="capabilityCol") {
-      rv = permissions[row].capability;
+  getCellText : function(row,column) {
+    var rv = "";
+    switch (column.id) {
+      case "siteCol":
+        rv = permissions[row].host;
+        break;
+      case "siteCol2":
+        rv = permissions[row].scheme;
+        break;
+      case "capabilityCol":
+        rv = permissions[row].capability;
+        break;
     }
     return rv;
   },
@@ -366,11 +373,11 @@ var permissionsTreeView = {
  };
 var permissionsTree;
 
-function Permission(id, principal, host, rawHost, type, capability) {
+function Permission(id, principal, type, capability) {
   this.id = id;
   this.principal = principal;
-  this.host = host;
-  this.rawHost = rawHost;
+  this.host = principal.URI.hostPort;
+  this.scheme = principal.URI.scheme;
   this.type = type;
   this.capability = capability;
 }
@@ -384,8 +391,21 @@ function loadPermissions() {
   while (enumerator.hasMoreElements()) {
     var nextPermission = enumerator.getNext();
     nextPermission = nextPermission.QueryInterface(Components.interfaces.nsIPermission);
+    // We are only interested in cookie permissions in this code.
     if (nextPermission.type == "cookie") {
-      var host = nextPermission.principal.URI.host;
+      // It is currently possible to add a cookie permission for about:xxx and other internal pages.
+      // They are probably invalid and will be ignored for now.
+      // Test if the permission has a host.
+      try {
+        nextPermission.principal.URI.host;
+      }
+      catch (e) {
+        Components.utils.reportError("Invalid permission found: " +
+                                     nextPermission.principal.origin + " " +
+                                     nextPermission.type);
+        continue;
+      }
+
       var capability;
       switch (nextPermission.capability) {
         case nsIPermissionManager.ALLOW_ACTION:
@@ -402,9 +422,8 @@ function loadPermissions() {
       }
       permissions.push(new Permission(permissions.length,
                                       nextPermission.principal,
-                                      host,
-                                      host.replace(/^\./, ""),
-                                      nextPermission.type, capability));
+                                      nextPermission.type,
+                                      capability));
     }
   }
   permissionsTreeView.rowCount = permissions.length;
@@ -452,12 +471,35 @@ function DeletePermission() {
 
 function setCookiePermissions(action) {
   var site = document.getElementById('cookie-site');
-  var url = site.value.replace(/^\s*([-\w]*:\/+)?/, "http://");
+
+  // let the backend do the validation
+  try {
+    var url = new URL(site.value);
+  } catch (e) {
+    // show an error if URL is invalid
+    window.alert(cookieBundle.getString("allowedURLSchemes"));
+    return;
+  }
+
   var ioService = Components.classes["@mozilla.org/network/io-service;1"]
                             .getService(Components.interfaces.nsIIOService);
-  var uri = ioService.newURI(url, null, null);
-  
-  // only set the permission if the permission doesn't already exist
+
+  try {
+    var uri = ioService.newURI(url, null, null);
+  } catch (e) {
+    // show an error if URI can not be constructed or adding it failed
+    window.alert(cookieBundle.getString("errorAddPermisison"));
+    return;
+  }
+  // only allow a few schemes here
+  // others like file:// would produce an invalid entry in the database
+  if (uri.scheme != 'http'  &&
+      uri.scheme != 'https') {
+    // show an error if uri uses invalid scheme
+    window.alert(uri.scheme + ": " + cookieBundle.getString("allowedURLSchemes"));
+    return;
+  }
+
   if (permissionmanager.testPermission(uri, "cookie") != action)
     permissionmanager.add(uri, "cookie", action);
 
@@ -485,7 +527,7 @@ function DeleteAllPermissions() {
   var yes = cookieBundle.getString("deleteAllSitesYes");
   if (promptservice.confirmEx(window, title, msg, flags, yes, null, null, null, {value:0}) == 1)
     return;
-    
+
   DeleteAllFromTree(permissionsTree, permissionsTreeView,
                         permissions, deletedPermissions,
                         "removePermission", "removeAllPermissions");
@@ -497,8 +539,8 @@ function FinalizePermissionDeletions() {
     return;
 
   gUpdatingBatch = "perm-changed";
-  for (var p = 0; p < deletedPermissions.length; ++p)
-    permissionmanager.removeFromPrincipal(deletedPermissions[p].principal, deletedPermissions[p].type);
+  for (let permission of deletedPermissions)
+    permissionmanager.removeFromPrincipal(permission.principal, permission.type);
   deletedPermissions.length = 0;
   gUpdatingBatch = "";
 }
@@ -509,21 +551,24 @@ function HandlePermissionKeyPress(e) {
   }
 }
 
-var lastPermissionSortColumn = "rawHost";
+var lastPermissionSortColumn = "host";
 var lastPermissionSortAscending = true;
 
 function PermissionColumnSort(column, updateSelection) {
   lastPermissionSortAscending =
     SortTree(permissionsTree, permissionsTreeView, permissions,
-                 column, lastPermissionSortColumn, lastPermissionSortAscending, 
+                 column, lastPermissionSortColumn, lastPermissionSortAscending,
                  updateSelection);
   lastPermissionSortColumn = column;
-  
+
   // make sure sortDirection is set
   var sortedCol;
   switch (column) {
-    case "rawHost":
+    case "host":
       sortedCol = document.getElementById("siteCol");
+      break;
+    case "scheme":
+      sortedCol = document.getElementById("siteCol2");
       break;
     case "capability":
       sortedCol = document.getElementById("capabilityCol");
@@ -557,8 +602,7 @@ function doHelpButton()
 function filterCookies(aFilterValue)
 {
   var filterSet = [];
-  for (var i = 0; i < allCookies.length; ++i) {
-    var cookie = allCookies[i];
+  for (let cookie of allCookies) {
     if (cookie.rawHost.indexOf(aFilterValue) != -1 ||
         cookie.name.indexOf(aFilterValue) != -1 ||
         cookie.value.indexOf(aFilterValue) != -1)

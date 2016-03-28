@@ -139,12 +139,20 @@
       <menulist id="typeSelect"
                 oncommand="gDomains.selectType(this.value);">
         <menupopup>
-          <menuitem label="&select.all.label;" value="all"/>
-          <menuitem label="&select.cookies.label;" value="Cookies"/>
-          <menuitem label="&select.permissions.label;" value="Permissions"/>
-          <menuitem label="&select.preferences.label;" value="Preferences"/>
-          <menuitem label="&select.passwords.label;" value="Passwords"/>
-          <menuitem label="&select.storage.label;" value="Storage"/>
+          <menuitem label="&select.all.label;"
+                    value="all"/>
+          <menuitem label="&select.cookies.label;"
+                    value="Cookies"/>
+          <menuitem label="&select.permissions.label;"
+                    value="Permissions"/>
+          <menuitem label="&select.permissionspwd.label;"
+                    value="PermissionsPwd"/>
+          <menuitem label="&select.preferences.label;"
+                    value="Preferences"/>
+          <menuitem label="&select.passwords.label;"
+                    value="Passwords"/>
+          <menuitem label="&select.storage.label;"
+                    value="Storage"/>
         </menupopup>
       </menulist>
       <textbox id="domainSearch"
@@ -175,13 +183,30 @@
 
     <tabbox id="tabbox" flex="6">
       <tabs onselect="gTabs.select();">
-        <tab id="cookiesTab" label="&tab.cookies.label;" disabled="true"/>
-        <tab id="permissionsTab" label="&tab.permissions.label;" disabled="true"/>
-        <tab id="preferencesTab" label="&tab.preferences.label;" disabled="true"/>
-        <tab id="passwordsTab" label="&tab.passwords.label;" disabled="true"/>
-        <tab id="storageTab" label="&tab.storage.label;" disabled="true"/>
-        <tab id="formdataTab" label="&tab.formdata.label;" disabled="true"/>
-        <tab id="forgetTab" label="&tab.forget.label;" hidden="true"
+        <tab id="cookiesTab"
+             label="&tab.cookies.label;"
+             disabled="true"/>
+        <tab id="permissionsTab"
+             label="&tab.permissions.label;"
+             disabled="true"/>
+        <tab id="permissionsPwdTab"
+             label="&tab.permissionspwd.label;"
+             disabled="true"/>
+        <tab id="preferencesTab"
+             label="&tab.preferences.label;"
+             disabled="true"/>
+        <tab id="passwordsTab"
+             label="&tab.passwords.label;"
+             disabled="true"/>
+        <tab id="storageTab"
+             label="&tab.storage.label;"
+             disabled="true"/>
+        <tab id="formdataTab"
+             label="&tab.formdata.label;"
+             disabled="true"/>
+        <tab id="forgetTab"
+             label="&tab.forget.label;"
+             hidden="true"
              onkeypress="gForget.handleKeyPress(event);"/>
       </tabs>
 
@@ -309,6 +334,32 @@
                     label="&perm.button.add.label;"
                     accesskey="&perm.button.add.accesskey;"
                     oncommand="gPerms.addButtonClick();"/>
+          </hbox>
+        </vbox>
+
+        <vbox id="permissionsPwdPanel">
+          <richlistbox id="permPwdList"
+                       flex="1"
+                       onkeypress="if (this.selectedItem)
+                                     this.selectedItem.handleKeyPress(event);"/>
+
+          <hbox id="permPwdAddBox"
+                align="center">
+            <hbox id="permPwdSelectionBox"
+                  align="center"
+                  hidden="true">
+              <textbox id="permPwdHost"
+                       clickSelectsAll="true"
+                       class="compact"
+                       placeholder="&permpwd.host.placeholder;"
+                       oninput="gPermsPwd.addCheck();"/>
+              <menulist id="permPwdType"
+                        oncommand="gPermsPwd.addCheck();"/>
+            </hbox>
+            <button id="permPwdAddButton"
+                    label="&permpwd.button.add.label;"
+                    accesskey="&permpwd.button.add.accesskey;"
+                    oncommand="gPermsPwd.addButtonClick();"/>
           </hbox>
         </vbox>
 
@@ -493,6 +544,16 @@
                       oncommand="gForget.updateOptions();"/>
             <label id="forgetPermissionsLabel"
                    value="&forget.permissions.label;"
+                   hidden="true"/>
+          </hbox>
+          <hbox>
+            <checkbox id="forgetPermissionsPwd"
+                      label="&forget.permissionspwd.label;"
+                      accesskey="&forget.permissionspwd.accesskey;"
+                      disabled="true"
+                      oncommand="gForget.updateOptions();"/>
+            <label id="forgetPermissionsPwdLabel"
+                   value="&forget.permissionspwd.label;"
                    hidden="true"/>
           </hbox>
           <hbox>

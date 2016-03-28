@@ -26,11 +26,6 @@ richlistitem.permission[type="indexedDB"] {
   -moz-binding: url('chrome://communicator/content/dataman/dataman.xml#perm-geo-item');
 }
 
-/* password item has different labels */
-richlistitem.permission[type="password"] {
-  -moz-binding: url('chrome://communicator/content/dataman/dataman.xml#perm-password-item');
-}
-
 /* content blocker items have an allow for same domain option */
 richlistitem.permission[type="script"],
 richlistitem.permission[type="image"],
@@ -47,4 +42,10 @@ richlistitem.permission[type="dtd"],
 richlistitem.permission[type="font"],
 richlistitem.permission[type="media"] {
   -moz-binding: url('chrome://communicator/content/dataman/dataman.xml#perm-content-item');
+}
+
+/* password item has different labels */
+richlistitem.permissionpwd[type="password"] {
+  -moz-binding: url('chrome://communicator/content/dataman/dataman.xml#permpwd-base-item');
+  -moz-box-orient: vertical;
 }

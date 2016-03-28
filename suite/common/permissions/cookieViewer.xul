@@ -4,16 +4,14 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!-- CHANGE THIS WHEN MOVING FILES -->
-<?xml-stylesheet href="chrome://communicator/skin/" type="text/css"?> 
+<?xml-stylesheet href="chrome://communicator/skin/" type="text/css"?>
 
 <!-- CHANGE THIS WHEN MOVING FILES -->
 <!DOCTYPE dialog SYSTEM "chrome://communicator/locale/permissions/cookieViewer.dtd" >
 
 <dialog id="cookieviewer"
-        buttons="accept,help"
+        buttons="help"
         title="&windowtitle.label;"
-        buttonlabelaccept="&buttonaccept.label;"
-        buttonaccesskeyaccept="&buttonaccept.accesskey;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         windowtype="mozilla:cookieviewer"
         style="width: 65ch; height: 42em;"
@@ -30,13 +28,16 @@
           src="chrome://help/content/contextHelp.js" />
 
   <keyset id="dialogKeys">
-    <key key="&windowClose.key;" modifiers="accel" oncommand="window.close();"/>
-    <key key="&focusSearch.key;" modifiers="accel" oncommand="focusFilterBox();"/>
-    <key key="&selectAll.key;" modifiers="accel" oncommand="doSelectAll();"/>
+    <key key="&focusSearch.key;"
+         modifiers="accel"
+         oncommand="focusFilterBox();"/>
+    <key key="&selectAll.key;"
+         modifiers="accel"
+         oncommand="doSelectAll();"/>
   </keyset>
   <stringbundle id="cookieBundle"
                 src="chrome://communicator/locale/permissions/cookieViewer.properties"/>
-           
+
   <tabbox id="tabbox" flex="1">
     <tabs>
       <tab id="cookiesTab" label="&tab.cookiesonsystem.label;" help="cookies_stored"/>
@@ -145,7 +146,7 @@
           </hbox>
         </vbox>
       </vbox>
-      
+
       <vbox id="servers" flex="1">
           <description id="permissionsText">&div.bannedservers.label;</description>
           <separator class="thin"/>
@@ -162,29 +163,42 @@
                     oncommand="setCookiePermissions(nsIPermissionManager.ALLOW_ACTION);"/>
           </hbox>
           <separator class="thin"/>
-          <tree id="permissionsTree" flex="1" style="height: 10em;"
+          <tree id="permissionsTree"
+                flex="1"
+                style="height: 10em;"
                 hidecolumnpicker="true"
                 onkeypress="HandlePermissionKeyPress(event)"
                 onselect="PermissionSelected();">
             <treecols>
-              <treecol id="siteCol" label="&treehead.sitename.label;" flex="5"
-                           onclick="PermissionColumnSort('rawHost', true);" persist="width"
-                           sortDirection="ascending"/>
+              <treecol id="siteCol"
+                       label="&treehead.sitename.label;"
+                       flex="5"
+                       onclick="PermissionColumnSort('host', true);" persist="width"
+                       sortDirection="ascending"/>
               <splitter class="tree-splitter"/>
-              <treecol id="capabilityCol" label="&treehead.status.label;" flex="5"
-                           onclick="PermissionColumnSort('capability', true);" persist="width"/>
+              <treecol id="siteCol2" label="&treehead.scheme.label;"
+                       flex="5"
+                       onclick="PermissionColumnSort('scheme', true);"
+                       persist="width"/>
+              <splitter class="tree-splitter"/>
+              <treecol id="capabilityCol"
+                       label="&treehead.status.label;"
+                       flex="5"
+                       onclick="PermissionColumnSort('capability', true);"
+                       persist="width"/>
             </treecols>
             <treechildren/>
           </tree>
           <hbox>
-            <button id="removePermission" disabled="true" 
-                          label="&removepermission.label;" 
-                          accesskey="&removepermission.accesskey;" 
-                          oncommand="DeletePermission();"/>
+            <button id="removePermission"
+                    disabled="true"
+                    label="&removepermission.label;"
+                    accesskey="&removepermission.accesskey;"
+                    oncommand="DeletePermission();"/>
             <button id="removeAllPermissions"
-                          label="&removeallpermissions.label;" 
-                          accesskey="&removeallpermissions.accesskey;" 
-                          oncommand="DeleteAllPermissions();"/>
+                    label="&removeallpermissions.label;"
+                    accesskey="&removeallpermissions.accesskey;"
+                    oncommand="DeleteAllPermissions();"/>
           </hbox>
       </vbox>
 

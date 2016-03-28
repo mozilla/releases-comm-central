@@ -9,6 +9,7 @@
 <!ENTITY select.all.label "All data types">
 <!ENTITY select.cookies.label "Cookies only">
 <!ENTITY select.permissions.label "Permissions only">
+<!ENTITY select.permissionspwd.label "Password Permissions only">
 <!ENTITY select.preferences.label "Preferences only">
 <!ENTITY select.passwords.label "Passwords only">
 <!ENTITY select.storage.label "Storage only">
@@ -27,6 +28,7 @@
 
 <!ENTITY tab.cookies.label "Cookies">
 <!ENTITY tab.permissions.label "Permissions">
+<!ENTITY tab.permissionspwd.label "Password Permissions">
 <!ENTITY tab.preferences.label "Preferences">
 <!ENTITY tab.passwords.label "Passwords">
 <!ENTITY tab.storage.label "Storage">
@@ -73,6 +75,15 @@
 <!ENTITY perm.host.placeholder "Enter a host name">
 <!ENTITY perm.button.add.label "Add">
 <!ENTITY perm.button.add.accesskey "A">
+
+<!-- password permissions -->
+<!ENTITY permpwd.UseDefault "Use Default">
+<!ENTITY permpwd.AskAlways "Always ask">
+<!ENTITY permpwd.NeverSave "Never save">
+
+<!ENTITY permpwd.host.placeholder "Enter a host name">
+<!ENTITY permpwd.button.add.label "Add">
+<!ENTITY permpwd.button.add.accesskey "A">
 
 <!-- preferences -->
 <!ENTITY prefs.description "Content preferences are a way for &brandShortName; to save its settings, like zoom levels, specifically for a website.">
@@ -143,6 +154,8 @@
 <!ENTITY forget.cookies.accesskey "C">
 <!ENTITY forget.permissions.label "Permissions">
 <!ENTITY forget.permissions.accesskey "P">
+<!ENTITY forget.permissionspwd.label "Password Permissions">
+<!ENTITY forget.permissionspwd.accesskey "r">
 <!ENTITY forget.preferences.label "Content Preferences">
 <!ENTITY forget.preferences.accesskey "o">
 <!ENTITY forget.passwords.label "Passwords">
