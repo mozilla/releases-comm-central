@@ -260,7 +260,8 @@ var otherContactsTag = {
   showTag: function(aTag) {
     let id = aTag.id;
     delete this._hiddenTags[id];
-    for (let contact of this._contacts)
+    let contacts = Object.keys(this._contacts).map(id => this._contacts[id]);
+    for (let contact of contacts)
       if (contact.getTags().some(t => t.id == id))
         this._removeContact(contact);
 
