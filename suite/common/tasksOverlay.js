@@ -3,8 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const nsIWindowDataSource = Components.interfaces.nsIWindowDataSource;
-
 function toNavigator()
 {
   if (!CycleWindow("navigator:browser"))
@@ -201,42 +199,26 @@ function CycleWindow( aType )
   return firstWindow;
 }
 
+XPCOMUtils.defineLazyServiceGetter(Services, "windowManagerDS",
+                                   "@mozilla.org/rdf/datasource;1?name=window-mediator",
+                                   "nsIWindowDataSource");
+
 function ShowWindowFromResource( node )
 {
-	var windowManagerDS = Components.classes['@mozilla.org/rdf/datasource;1?name=window-mediator'].getService(nsIWindowDataSource);
-    
-    var desiredWindow = null;
-    var url = node.getAttribute('id');
-	desiredWindow = windowManagerDS.getWindowForResource( url );
-	if ( desiredWindow )
-	{
-		toOpenWindow(desiredWindow);
-	}
-}
-
-function OpenTaskURL( inURL )
-{
-	
-	window.open( inURL );
-}
-
-function ShowUpdateFromResource( node )
-{
-	var url = node.getAttribute('url');
-        // hack until I get a new interface on xpiflash to do a 
-        // look up on the name/url pair.
-	OpenTaskURL( "http://www.mozilla.org/binaries.html");
+  var desiredWindow = null;
+  var url = node.getAttribute("id");
+  desiredWindow = Services.windowManagerDS.getWindowForResource(url);
+  if (desiredWindow)
+    toOpenWindow(desiredWindow);
 }
 
 function checkFocusedWindow()
 {
-  var windowManagerDS = Components.classes['@mozilla.org/rdf/datasource;1?name=window-mediator'].getService(nsIWindowDataSource);
-
   var sep = document.getElementById("sep-window-list");
   // Using double parens to avoid warning
   while ((sep = sep.nextSibling)) {
-    var url = sep.getAttribute('id');
-    var win = windowManagerDS.getWindowForResource(url);
+    var url = sep.getAttribute("id");
+    var win = Services.windowManagerDS.getWindowForResource(url);
     if (win == window) {
       sep.setAttribute("checked", "true");
       break;
@@ -252,7 +234,7 @@ function toProfileManager()
   } else {
     var params = Components.classes["@mozilla.org/embedcomp/dialogparam;1"]
                  .createInstance(Components.interfaces.nsIDialogParamBlock);
-  
+
     params.SetNumberStrings(1);
     params.SetString(0, "menu");
     window.openDialog("chrome://communicator/content/profile/profileSelection.xul",
