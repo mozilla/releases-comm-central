@@ -431,8 +431,7 @@
             <menu id="options-menu"
                   label="&event.menu.options.label;"
                   accesskey="&event.menu.options.accesskey;">
-                <menupopup id="options-menupopup"
-                           onpopupshowing="onPopupShowing(this)">
+                <menupopup id="options-menupopup">
                   <menuitem id="options-attendees-menuitem"
                             label="&event.menu.options.attendees.label;"
                             accesskey="&event.menu.options.attendees.accesskey;"
@@ -546,8 +545,9 @@
                                 disable-on-readonly="true"/>
                     </menupopup>
                   </menu>
-                  <menuseparator id="options-menuseparator2"/>
+                  <menuseparator id="options-menuseparator2" class="event-only"/>
                   <menu id="options-freebusy-menu"
+                        class="event-only"
                         label="&event.menu.options.show.time.label;"
                         accesskey="&event.menu.options.show.time.accesskey;"
                         disable-on-readonly="true">
@@ -699,7 +699,7 @@
             </toolbarbutton>
             <toolbarbutton id="button-freebusy"
                            mode="dialog"
-                           class="cal-event-toolbarbutton toolbarbutton-1"
+                           class="cal-event-toolbarbutton toolbarbutton-1 event-only"
                            type="menu-button"
                            disable-on-readonly="true"
                            label="&event.menu.options.show.time.label;"
@@ -1305,6 +1305,7 @@
                hidden="true"/>
       </statusbarpanel>
       <statusbarpanel id="status-freebusy"
+                      class="event-only"
                       align="center"
                       flex="1"
                       collapsed="true"

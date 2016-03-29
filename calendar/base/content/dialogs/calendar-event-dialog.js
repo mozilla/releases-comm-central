@@ -558,15 +558,6 @@ function loadDialog(item) {
     updateReminder(true);
 
     gShowTimeAs = item.getProperty("TRANSP");
-    // display transparency controls only for events
-    if (!cal.isEvent(item)) {
-        setBooleanAttribute("options-freebusy-menu", "hidden", true);
-        setBooleanAttribute("options-menuseparator2", "hidden", true);
-        setBooleanAttribute("status-freebusy", "hidden", true);
-        if (document.getElementById("button-freebusy")) {
-            setBooleanAttribute("button-freebusy", "hidden", true);
-        }
-    }
     updateShowTimeAs();
 }
 
@@ -1276,22 +1267,6 @@ function updateTitle() {
     }
     document.title = cal.calGetString("calendar", strName) + ": " +
                         getElementValue("item-title");
-}
-
-/**
- * Handler function for showing the options menu
- *
- * XXX This function could go away with more general CSS rules?
- *
- * @param menuPopup   The menupopup node targeted by the event.
- */
-function onPopupShowing(menuPopup) {
-    if (isToDo(window.calendarItem)) {
-        var nodes = menuPopup.parentNode.querySelectorAll("#options-menupopup > .event-only");
-        for (var i = nodes.length - 1; i >= 0; --i) {
-            nodes.item(i).remove();
-        }
-    }
 }
 
 /**
