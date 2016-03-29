@@ -2335,7 +2335,7 @@ var gMsgEditorCreationObserver =
 function WizCallback(state)
 {
   if (state){
-    ComposeStartup(false, null);
+    ComposeStartup(null);
   }
   else
   {

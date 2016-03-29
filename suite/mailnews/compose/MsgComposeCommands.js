@@ -1117,7 +1117,7 @@ var gMsgEditorCreationObserver =
 function WizCallback(state)
 {
   if (state){
-    ComposeStartup(false, null);
+    ComposeStartup(null);
   }
   else
   {
@@ -1155,7 +1155,7 @@ function ComposeLoad()
         selectNode.appendItem(otherHeaders_Array[i] + ":", "addr_other");
     }
     if (state)
-      ComposeStartup(false, null);
+      ComposeStartup(null);
   }
   catch (ex) {
     Components.utils.reportError(ex);
