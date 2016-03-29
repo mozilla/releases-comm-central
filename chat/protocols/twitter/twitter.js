@@ -894,7 +894,8 @@ Account.prototype = {
     let cookies = Services.cookies.getCookiesFromHost("twitter.com");
     while (cookies.hasMoreElements()) {
       let cookie = cookies.getNext().QueryInterface(Ci.nsICookie2);
-      Services.cookies.remove(cookie.host, cookie.name, cookie.path, false);
+      Services.cookies.remove(cookie.host, cookie.name, cookie.path,
+                              cookie.originAttributes, false);
     }
 
     if (!("_browserRequest" in this))
