@@ -1396,11 +1396,12 @@
             <menuseparator id="appmenu_fileMenuAfterCloseSeparator"/>
             <menu id="appmenu_getNewMsgFor"
                   label="&getNewMsgForCmd.label;"
-                  oncommand="MsgGetMessagesForAccount(event.target._folder)">
+                  oncommand="MsgGetMessagesForAccount();">
               <menupopup type="folder"
                          mode="getMail"
                          id="appmenu_getAllNewMsgPopup"
-                         expandFolders="false">
+                         expandFolders="false"
+                         oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();">
                 <menuitem id="appmenu_getnewmsgs_all_accounts"
                           label="&getAllNewMsgCmdPopupMenu.label;"
                           key="key_getAllNewMessages"
@@ -2293,9 +2294,10 @@
           <menuseparator id="fileMenuAfterSaveSeparator"/>
           <menu label="&getNewMsgForCmd.label;" accesskey="&getNewMsgForCmd.accesskey;"
                 id="menu_getAllNewMsg"
-                oncommand="MsgGetMessagesForAccount(event.target._folder)">
+                oncommand="MsgGetMessagesForAccount();">
             <menupopup type="folder" mode="getMail" id="menu_getAllNewMsgPopup"
-                       expandFolders="false">
+                       expandFolders="false"
+                       oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();">
               <menuitem id="menu_getnewmsgs_all_accounts"
                         label="&getAllNewMsgCmdPopupMenu.label;"
                         accesskey="&getAllNewMsgCmdPopupMenu.accesskey;"
@@ -3063,10 +3065,11 @@
                    class="toolbarbutton-1"
                    label="&getMsgButton1.label;"
                    tooltiptext="&getMsgButton.tooltip;"
-                   oncommand="MsgGetMessagesForAccount(event.target._folder)"
+                   oncommand="MsgGetMessagesForAccount();"
                    observes="button_getNewMessages">
       <menupopup id="button-getMsgPopup"
                  onpopupshowing="getMsgToolbarMenu_init();"
+                 oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();"
                  type="folder"
                  expandFolders="false"
                  mode="getMail">
