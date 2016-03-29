@@ -365,6 +365,16 @@ function registerZoomManager() {
       label = zoomBundle.getString("zoom.200.label");
       accessKey = zoomBundle.getString("zoom.200.accesskey");
     }
+    else if (thisFactor == Math.round(ZoomManager.MIN * 100)) {
+      label = zoomBundle.getString("zoom.min.label")
+                        .replace(/%zoom%/, thisFactor);
+      accessKey = zoomBundle.getString("zoom.min.accesskey");
+    }
+    else if (thisFactor == Math.round(ZoomManager.MAX * 100)) {
+      label = zoomBundle.getString("zoom.max.label")
+                        .replace(/%zoom%/, thisFactor);
+      accessKey = zoomBundle.getString("zoom.max.accesskey");
+    }
     else {
       label = zoomBundle.getString("zoom.value.label")
                         .replace(/%zoom%/, thisFactor);
