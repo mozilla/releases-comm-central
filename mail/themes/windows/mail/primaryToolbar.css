@@ -188,6 +188,14 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   margin-inline-start: 2px;
 }
 
+#folderpane-mode-selector-popup > menuseparator {
+  -moz-appearance: none;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  padding: 0;
+  border-top-color: #d7d7d7;
+}
+
 /* Force the folder location and mail view items to fit in the available width
    in the Customize Toolbar dialog. */
 #palette-box #locationFolders,

@@ -3347,12 +3347,14 @@
     <toolbaritem id="folderpane-mode-selector"
                  title="&folderModeSelector.label;"
                  align="center">
-      <menulist sizetopopup="none"
+      <menulist id="folderpane-mode-selector-menulist"
+                sizetopopup="none"
                 crop="center"
                 flex="1"
                 label="&folderModeSelector.label;"
                 oncommand="gFolderTreeView.mode = this.value;">
-        <menupopup onpopupshowing="gFolderTreeView._initFolderModeSelector();"/>
+        <menupopup id="folderpane-mode-selector-popup"
+                   onpopupshowing="gFolderTreeView._initFolderModeSelector();"/>
       </menulist>
     </toolbaritem>
 
