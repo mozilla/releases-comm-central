@@ -3354,6 +3354,7 @@
                 label="&folderModeSelector.label;"
                 oncommand="gFolderTreeView.mode = this.value;">
         <menupopup id="folderpane-mode-selector-popup"
+                   class="noIconPopup"
                    onpopupshowing="gFolderTreeView._initFolderModeSelector();"/>
       </menulist>
     </toolbaritem>

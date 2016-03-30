@@ -854,16 +854,16 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
     -moz-padding-start: 2px;
   }
 
-  @media (-moz-windows-default-theme) {
-    #afterViewPickerUnreadSeparator,
-    #afterViewPickerCustomViewsSeparator {
-      -moz-appearance: none;
-      margin: 3px 0;
-      padding-top: 0;
-      padding-bottom: 0;
-      border-top-color: ThreeDLightShadow;
-    }
+  .noIconPopup > menuseparator {
+    -moz-appearance: none;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top-color: #d7d7d7;
+  }
 
+  @media (-moz-windows-default-theme) {
     menulist {
       -moz-appearance: none;
       min-height: 24px;
