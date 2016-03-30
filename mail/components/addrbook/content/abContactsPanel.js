@@ -85,17 +85,6 @@ function AddressBookMenuListChange()
   CommandUpdate_AddressBook();
 }
 
-function AbPanelOnComposerClose()
-{
-  CloseAbView();
-  onAbClearSearch(false);
-}
-
-function AbPanelOnComposerReOpen()
-{
-  SetAbView(GetSelectedDirectory());
-}
-
 var mutationObs = null;
 
 function AbPanelLoad()
@@ -116,9 +105,6 @@ function AbPanelLoad()
 
   ChangeDirectoryByURI(abPopup.value);
 
-  parent.addEventListener("compose-window-close", AbPanelOnComposerClose, true);
-  parent.addEventListener("compose-window-reopen", AbPanelOnComposerReOpen, true);
-
   mutationObs = new MutationObserver(function(aMutations) {
     aMutations.forEach(function(mutation) {
       if (GetSelectedDirectory() == (kAllDirectoryRoot + "?") &&
@@ -138,8 +124,6 @@ function AbPanelLoad()
 
 function AbPanelUnload()
 {
-  parent.removeEventListener("compose-window-close", AbPanelOnComposerClose, true);
-  parent.removeEventListener("compose-window-reopen", AbPanelOnComposerReOpen, true);
   mutationObs.disconnect();
 
   CloseAbView();

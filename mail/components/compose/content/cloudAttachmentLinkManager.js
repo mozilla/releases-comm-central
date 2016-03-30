@@ -23,15 +23,6 @@ var gCloudAttachmentLinkManager = {
     gMsgCompose.RegisterStateListener(this);
   },
 
-  uninit: function() {
-    let bucket = document.getElementById("attachmentBucket");
-    bucket.removeEventListener("attachment-uploaded", this, false);
-    bucket.removeEventListener("attachments-removed", this, false);
-    bucket.removeEventListener("attachments-converted", this, false);
-
-    gMsgCompose.UnregisterStateListener(this);
-  },
-
   NotifyComposeFieldsReady: function() {},
 
   NotifyComposeBodyReady: function() {
@@ -610,7 +601,5 @@ var gCloudAttachmentLinkManager = {
 
 window.addEventListener("compose-window-init",
   gCloudAttachmentLinkManager.init.bind(gCloudAttachmentLinkManager), true);
-window.addEventListener("compose-window-close",
-  gCloudAttachmentLinkManager.uninit.bind(gCloudAttachmentLinkManager), true);
 window.addEventListener("compose-send-message",
   gCloudAttachmentLinkManager.send.bind(gCloudAttachmentLinkManager), true);

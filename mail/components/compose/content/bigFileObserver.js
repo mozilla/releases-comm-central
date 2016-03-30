@@ -41,28 +41,6 @@ var gBigFileObserver = {
     this.bigFiles = [];
   },
 
-  uninit: function() {
-    let bucket = document.getElementById("attachmentBucket");
-    bucket.removeEventListener("attachments-added", this, false);
-    bucket.removeEventListener("attachments-removed", this, false);
-    bucket.removeEventListener("attachments-uploading", this, false);
-    bucket.removeEventListener("attachment-uploaded", this, false);
-    bucket.removeEventListener("attachment-upload-failed", this, false);
-    bucket.removeEventListener("attachments-converted", this, false);
-
-    let nb = document.getElementById("attachmentNotificationBox");
-
-    let removeValues = [kUploadNotificationValue,
-                        kPrivacyWarningNotificationValue];
-
-    for (let value of removeValues) {
-      let notification = nb.getNotificationWithValue(value);
-      if (notification) {
-        nb.removeNotification(notification);
-      }
-    };
-  },
-
   handleEvent: function(event) {
     if (this.hidden)
       return;
@@ -326,5 +304,3 @@ var gBigFileObserver = {
 
 window.addEventListener("compose-window-init",
   gBigFileObserver.init.bind(gBigFileObserver), true);
-window.addEventListener("compose-window-close",
-  gBigFileObserver.uninit.bind(gBigFileObserver), true);
