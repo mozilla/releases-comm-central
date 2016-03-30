@@ -4714,6 +4714,10 @@ var gAttachmentNotifier =
     // are ways of changing its value without key presses.
     GetMsgSubjectElement().addEventListener("input",
       this.subjectObserver, true);
+
+    // We could have been opened with a draft message already containing
+    // some keywords, so run the checker once to pick them up.
+    this.event.notify();
   },
 
   // Timer based function triggered by the inputEventListener

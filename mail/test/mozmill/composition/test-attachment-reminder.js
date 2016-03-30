@@ -555,6 +555,57 @@ function test_disabled_attachment_reminder() {
 }
 
 /**
+ * Bug 833909
+ * Test reminder comes up when a draft with keywords is opened.
+ */
+function test_reminder_in_draft() {
+  // Open a sample message with no attachment keywords.
+  let cwc = open_compose_new_mail();
+  setupComposeWin(cwc, "test@example.invalid", "Testing draft reminder!",
+                  "Some body...");
+
+  // This one should have the manual reminder disabled.
+  assert_manual_reminder_state(cwc, false);
+  // There should be no attachment notification.
+  assert_automatic_reminder_state(cwc, false);
+
+  // Add some keyword so the automatic notification
+  // could potentially show up.
+  setupComposeWin(cwc, "", "", " and look for your attachment!");
+
+  // Give the notification time to appear.
+  wait_for_reminder_state(cwc, true);
+
+  // Now close the message with saving it as draft.
+  plan_for_modal_dialog("commonDialog", click_save_message);
+  cwc.window.goDoCommand("cmd_close");
+  wait_for_modal_dialog("commonDialog");
+
+  // The draft message was saved into Local Folders/Drafts.
+  let drafts = MailServices.accounts.localFoldersServer.rootFolder
+                           .getFolderWithFlags(Ci.nsMsgFolderFlags.Drafts);
+  be_in_folder(drafts);
+
+  select_click_row(0);
+  // Wait for the notification with the Edit button.
+  wait_for_notification_to_show(mc, "msgNotificationBar", "draftMsgContent");
+  // Edit the draft again...
+  plan_for_new_window("msgcompose");
+  // ... by clicking Edit in the draft message notification bar.
+  mc.click(mc.eid("msgNotificationBar", {tagName: "button", label: "Edit"}));
+  cwc = wait_for_compose_window();
+
+  // Give the notification time to appear.
+  wait_for_reminder_state(cwc, true);
+
+  close_compose_window(cwc);
+
+  // Delete the leftover draft message.
+  press_delete();
+}
+
+
+/**
  * Click the send button and handle the send error dialog popping up.
  * It will return us back to the compose window.
  *
