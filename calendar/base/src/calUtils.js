@@ -1005,9 +1005,9 @@ function ASSERT(aCondition, aMessage, aCritical) {
  * @param aMsg The message to be shown
  */
 function showError(aMsg) {
-    let window = window || null;
-    if (window) {
-        Services.prompt.alert(window, calGetString("calendar", "genericErrorTitle"), aMsg);
+    let wnd = window || null;
+    if (wnd) {
+        Services.prompt.alert(wnd, calGetString("calendar", "genericErrorTitle"), aMsg);
     }
 }
 
