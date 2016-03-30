@@ -10,6 +10,31 @@
   background-image: linear-gradient(rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0) 19px);
 }
 
+.today-pane-cycler,
+.today-pane-cycler .toolbarbutton-icon,
+.today-pane-cycler .toolbarbutton-text {
+  padding: 0;
+  margin: 0;
+  border-style: none;
+}
+
+.today-pane-cycler[dir="prev"],
+.today-pane-cycler[dir="next"]:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://calendar/skin/spin-buttons.png");
+  -moz-image-region: rect(0 15px 16px 0);
+}
+
+.today-pane-cycler[dir="next"],
+.today-pane-cycler[dir="prev"]:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://calendar/skin/spin-buttons.png");
+  -moz-image-region: rect(0 31px 16px 15px);
+  margin-inline-end: 4px;
+}
+
+.today-pane-cycler:active {
+  list-style-image: url("chrome://calendar/skin/spin-buttons-active.png");
+}
+
 .miniday-nav-buttons {
   list-style-image: url("chrome://calendar-common/skin/widgets/nav-arrow.svg");
 }

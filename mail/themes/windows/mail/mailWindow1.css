@@ -816,11 +816,6 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
     -moz-border-start: none;
   }
 
-  .folderview-cycler {
-    padding-inline-start: 5px;
-    padding-inline-end: 5px;
-  }
-
   .treecol-image image {
     -moz-padding-start: 1px;
     -moz-padding-end: 2px;

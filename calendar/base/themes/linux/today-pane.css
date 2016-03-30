@@ -28,6 +28,23 @@
   z-index: 10;
 }
 
+.today-pane-cycler {
+  padding-inline-end: 0 !important;
+}
+
+.today-pane-cycler {
+  list-style-image: url("chrome://calendar-common/skin/today-pane-cycler.svg#normal");
+}
+
+.today-pane-cycler:-moz-lwtheme-brighttext {
+  list-style-image: url("chrome://calendar-common/skin/today-pane-cycler.svg#inverted");
+}
+
+.today-pane-cycler[dir="prev"]:-moz-locale-dir(ltr) > .toolbarbutton-icon,
+.today-pane-cycler[dir="next"]:-moz-locale-dir(rtl) > .toolbarbutton-icon {
+  transform: scaleX(-1);
+}
+
 .today-subpane {
   border-color: ThreeDShadow;
 }

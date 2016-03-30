@@ -32,13 +32,13 @@
         <label id ="today-pane-header"/>
         <spacer flex="1"/>
         <modehbox mode="mail,calendar" broadcaster="modeBroadcaster">
-          <toolbarbutton id="folderview-cycler-prev"
+          <toolbarbutton id="today-pane-cycler-prev"
                          dir="prev"
-                         class="folderview-cycler"
+                         class="today-pane-cycler"
                          oncommand="TodayPane.cyclePaneView(-1);"/>
-          <toolbarbutton id="folderview-cycler-next"
+          <toolbarbutton id="today-pane-cycler-next"
                          dir="next"
-                         class="folderview-cycler"
+                         class="today-pane-cycler"
                          oncommand="TodayPane.cyclePaneView(1);"/>
         </modehbox>
         <spacer id="buttonspacer"/>

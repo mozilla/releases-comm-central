@@ -16,6 +16,19 @@
   background-image: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 19px);
 }
 
+.today-pane-cycler {
+  list-style-image: url("chrome://calendar-common/skin/today-pane-cycler.svg#normal");
+}
+
+.today-pane-cycler:-moz-lwtheme-brighttext {
+  list-style-image: url("chrome://calendar-common/skin/today-pane-cycler.svg#inverted");
+}
+
+.today-pane-cycler[dir="prev"]:-moz-locale-dir(ltr) > .toolbarbutton-icon,
+.today-pane-cycler[dir="next"]:-moz-locale-dir(rtl) > .toolbarbutton-icon {
+  transform: scaleX(-1);
+}
+
 .today-subpane {
   border-color: ThreeDShadow;
 }
@@ -71,6 +84,10 @@
     border-left: 1px solid ThreeDShadow;
   }
 
+  .today-pane-cycler {
+    padding-inline-end: 0;
+  }
+
   #todaypane-new-event-button {
     list-style-image: url("chrome://calendar/skin/toolbar-small.png");
     -moz-image-region: rect(0px 16px 16px 0px);
@@ -83,6 +100,11 @@
 @media not all and (-moz-os-version: windows-xp) {
   #today-none-box {
     border-top: 1px solid ThreeDShadow;
+  }
+
+  .today-pane-cycler {
+    padding-inline-start: 5px;
+    padding-inline-end: 5px;
   }
 
   #todaypane-new-event-button {
@@ -128,7 +150,7 @@
     }
   }
 
-  #today-pane-panel .folderview-cycler {
+  .today-pane-cycler {
     margin-top: -1px;
   }
 }
