@@ -857,6 +857,9 @@ pref("privacy.cpd.cache", true);
 // 4 - Today
 pref("privacy.sanitize.timeSpan", 1);
 
+// Enable Contextual Identity Containers
+pref("privacy.userContext.enabled", false);
+
 // PgpMime Proxy
 pref("mail.pgpmime.addon_url", "https://addons.mozilla.org/thunderbird/addon/enigmail/");
 

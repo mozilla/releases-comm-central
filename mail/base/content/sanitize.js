@@ -104,7 +104,8 @@ Sanitizer.prototype = {
 
             if (cookie.creationTime > this.range[0])
               // This cookie was created after our cutoff, clear it
-              Services.cookies.remove(cookie.host, cookie.name, cookie.path, false);
+              Services.cookies.remove(cookie.host, cookie.name, cookie.path,
+                                      cookie.originAttributes, false);
           }
         }
         else {
