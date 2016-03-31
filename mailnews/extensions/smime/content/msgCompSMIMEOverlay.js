@@ -20,6 +20,43 @@ var gSMFields = null;
 var gEncryptOptionChanged;
 var gSignOptionChanged;
 
+function onComposerLoad()
+{
+  // Are we already set up ? Or are the required fields missing ?
+  if (gSMFields || !gMsgCompose || !gMsgCompose.compFields)
+    return;
+
+  gMsgCompose.compFields.securityInfo = null;
+
+  gSMFields = Components.classes["@mozilla.org/messenger-smime/composefields;1"]
+                        .createInstance(Components.interfaces.nsIMsgSMIMECompFields);
+  if (!gSMFields)
+    return;
+
+  gMsgCompose.compFields.securityInfo = gSMFields;
+
+  // Set up the intial security state.
+  gSMFields.requireEncryptMessage =
+    gCurrentIdentity.getIntAttribute("encryptionpolicy") == kEncryptionPolicy_Always;
+  if (!gSMFields.requireEncryptMessage &&
+      gEncryptedURIService &&
+      gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI))
+  {
+    // Override encryption setting if original is known as encrypted.
+    gSMFields.requireEncryptMessage = true;
+  }
+  if (gSMFields.requireEncryptMessage)
+    setEncryptionUI();
+  else
+    setNoEncryptionUI();
+
+  gSMFields.signMessage = gCurrentIdentity.getBoolAttribute("sign_mail");
+  if (gSMFields.signMessage)
+    setSignatureUI();
+  else
+    setNoSignatureUI();
+}
+
 addEventListener("load", smimeComposeOnLoad, false);
 
 // this function gets called multiple times
@@ -27,7 +64,7 @@ function smimeComposeOnLoad()
 {
   removeEventListener("load", smimeComposeOnLoad, false);
 
-  onComposerReOpen();
+  onComposerLoad();
 
   top.controllers.appendController(SecurityController);
 
