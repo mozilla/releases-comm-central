@@ -17,6 +17,10 @@ toolbarbutton[type="menu-button"] {
   -moz-binding: url("chrome://global/skin/globalBindings.xml#toolbar-menu-button");
 }
 
+toolbarbutton.devtools-toolbarbutton[type="menu-button"] {
+  -moz-binding: url("chrome://global/content/bindings/toolbarbutton.xml#menu-button");
+}
+
 .menulist-compact {
   -moz-binding: url("chrome://global/skin/globalBindings.xml#menulist-compact");
 }
@@ -186,6 +190,20 @@ description.error {
 
 .autoscroller[translucent="true"][scrolldir="EW"] {
   background-position: right bottom;
+}
+
+/* :::::: Close button icons ::::: */
+
+.close-icon {
+  list-style-image: url("chrome://global/skin/icons/close.gif");
+}
+
+.close-icon:hover {
+  list-style-image: url("chrome://global/skin/icons/close-hov.gif");
+}
+
+.close-icon:hover:active {
+  list-style-image: url("chrome://global/skin/icons/close-act.gif");
 }
 
 /* ===== taken from formatting.css ===== */

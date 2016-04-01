@@ -108,3 +108,11 @@ popupnotification-centeritem {
 .textbox-input-box {
   overflow-x: hidden;
 }
+
+/* Developer Tools: Error counter */
+
+#developer-toolbar-toolbox-button[error-count]:before {
+  content: attr(error-count);
+  display: -moz-box;
+  -moz-box-pack: center;
+}

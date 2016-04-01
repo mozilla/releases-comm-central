@@ -236,6 +236,7 @@
 @RESPATH@/components/dom_webspeechrecognition.xpt
 @RESPATH@/components/dom_webspeechsynth.xpt
 #endif
+@RESPATH@/components/dom_workers.xpt
 @RESPATH@/components/dom_xbl.xpt
 @RESPATH@/components/dom_xpath.xpt
 @RESPATH@/components/dom_xul.xpt
@@ -407,6 +408,8 @@
 @RESPATH@/components/cryptoComponents.manifest
 @RESPATH@/components/DataStoreImpl.js
 @RESPATH@/components/DataStore.manifest
+@RESPATH@/components/devtools-startup.manifest
+@RESPATH@/components/devtools-startup.js
 @RESPATH@/components/Downloads.manifest
 @RESPATH@/components/DownloadLegacy.js
 @RESPATH@/components/FeedConverter.js
@@ -549,6 +552,8 @@
 #endif
 @RESPATH@/components/Webapps.js
 @RESPATH@/components/Webapps.manifest
+@RESPATH@/components/webideCli.js
+@RESPATH@/components/webideComponents.manifest
 @RESPATH@/components/WebContentConverter.js
 @RESPATH@/components/WebVTT.manifest
 @RESPATH@/components/WebVTTParserWrapper.js
@@ -565,6 +570,11 @@
 @RESPATH@/chrome/recording/*
 @RESPATH@/chrome/toolkit@JAREXT@
 @RESPATH@/chrome/toolkit.manifest
+
+; [Webide Files]
+@RESPATH@/chrome/webide@JAREXT@
+@RESPATH@/chrome/webide.manifest
+@RESPATH@/@PREF_DIR@/webide-prefs.js
 
 ; DevTools
 @RESPATH@/chrome/devtools@JAREXT@

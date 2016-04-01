@@ -65,6 +65,9 @@ toolbarbutton[checked="true"] {
   border-right-color: #7D848D !important;
   border-bottom-color: #7D848D !important;
   border-left-color: #454C55 !important;
+}
+
+toolbarbutton:not(.devtools-toolbarbutton)[checked="true"] {
   background-color: #8C9AA8 !important;
   color: #EFF1F4;
 }
@@ -130,4 +133,14 @@ toolbarbutton[disabled="true"] > stack > .toolbarbutton-menubutton-dropmarker,
 toolbarbutton[disabled="true"]:hover > stack > .toolbarbutton-menubutton-dropmarker
 {
   list-style-image: none;
+}
+
+/* ::::: Devtools toolbarbuttons ::::: */
+
+.devtools-toolbarbutton[type=menu] > .toolbarbutton-menu-dropmarker,
+.devtools-toolbarbutton[type=menu-button] > .toolbarbutton-menubutton-dropmarker {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  -moz-margin-start: 0px;
+  -moz-margin-end: 0px;
 }

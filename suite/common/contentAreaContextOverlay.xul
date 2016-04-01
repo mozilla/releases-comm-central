@@ -361,6 +361,13 @@
                 label="&bidiSwitchPageDirectionItem.label;"
                 accesskey="&bidiSwitchPageDirectionItem.accesskey;"
                 oncommand="SwitchDocumentDirection(window.content);"/>
+      <menuseparator id="inspect-separator"
+                     hidden="true"/>
+      <menuitem id="context-inspect"
+                hidden="true"
+                label="&devtoolsInspect.label;"
+                accesskey="&devtoolsInspect.accesskey;"
+                oncommand="gContextMenu.inspectNode();"/>
     </menupopup>
   </popupset>
 </overlay>

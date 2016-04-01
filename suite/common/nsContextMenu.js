@@ -214,6 +214,11 @@ nsContextMenu.prototype = {
     this.showItem("context-viewsource", showView);
     this.showItem("context-viewinfo", showView);
 
+    var showInspect = "gDevTools" in window &&
+                      Services.prefs.getBoolPref("devtools.inspector.enabled");
+    this.showItem("inspect-separator", showInspect);
+    this.showItem("context-inspect", showInspect);
+
     this.showItem("context-sep-properties",
                   !(this.inDirList || this.isContentSelected || this.onTextInput ||
                     this.onCanvas || this.onVideo || this.onAudio));
@@ -473,8 +478,33 @@ nsContextMenu.prototype = {
     this.showItem("context-media-sep-commands", onMedia);
   },
 
+  inspectNode: function() {
+    var tmp = {};
+    Components.utils.import("resource://devtools/shared/Loader.jsm", tmp);
+    var gBrowser = this.browser.ownerDocument.defaultView.gBrowser;
+    var tt = tmp.devtools.TargetFactory.forTab(gBrowser.selectedTab);
+    return gDevTools.showToolbox(tt, "inspector").then(toolbox => {
+      var inspector = toolbox.getCurrentPanel();
+      /* Currently "isRemote" is always false.
+      if (this.isRemote) {
+        this.browser.messageManager
+            .sendAsyncMessage("debug:inspect", {}, { node: this.target });
+        inspector.walker.findInspectingNode().then(nodeFront => {
+          inspector.selection.setNodeFront(nodeFront, "browser-context-menu");
+        });
+      } else {
+        inspector.selection.setNode(this.target, "browser-context-menu");
+      }
+      */
+      inspector.selection.setNode(this.target, "browser-context-menu");
+    });
+  },
+
   // Set various context menu attributes based on the state of the world.
   setTarget: function(aNode, aRangeParent, aRangeOffset) {
+    // Currently "isRemote" is always false.
+    //this.isRemote = gContextMenuContentData && gContextMenuContentData.isRemote;
+
     const xulNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
     // Initialize contextual info.
