@@ -2578,6 +2578,7 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
       }
 
       bool isReplyToSelf = false;
+      nsCOMPtr<nsIMsgIdentity> selfIdentity;
       if (identities)
       {
         // Go through the identities to see if any of them is the author of
@@ -2592,6 +2593,8 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
           lookupIdentity = do_QueryElementAt(identities, i, &rv);
           if (NS_FAILED(rv))
             continue;
+
+          selfIdentity = lookupIdentity;
 
           nsCString curIdentityEmail;
           lookupIdentity->GetEmail(curIdentityEmail);
@@ -2638,11 +2641,12 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
           }
         }
       }
-
       if (type == nsIMsgCompType::ReplyToSender || type == nsIMsgCompType::Reply)
       {
         if (isReplyToSelf)
         {
+          compose->SetIdentity(selfIdentity);
+          compFields->SetFrom(from);
           compFields->SetTo(to);
           compFields->SetReplyTo(replyTo);
         }
@@ -2666,6 +2670,8 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
       {
         if (isReplyToSelf)
         {
+          compose->SetIdentity(selfIdentity);
+          compFields->SetFrom(from);
           compFields->SetTo(to);
           compFields->SetCc(cc);
           // In case it's a reply to self, but it's not the actual source of the
