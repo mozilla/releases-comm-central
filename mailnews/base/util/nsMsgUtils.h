@@ -351,9 +351,9 @@ ConvertBufToPlainText(nsString &aConBuf, bool formatFlowed, bool delsp,
 #define MsgNewNotificationCallbacksAggregation(aCallbacks, aLoadGroup, aResult) \
         NS_NewNotificationCallbacksAggregation(aCallbacks, aLoadGroup, aResult)
 #define MsgGetAtom(aString) \
-        do_GetAtom(aString)
+        NS_Atomize(aString)
 #define MsgNewAtom(aString) \
-        NS_NewAtom(aString)
+        NS_Atomize(aString)
 #define MsgReplaceChar(aString, aNeedle, aReplacement) \
         (aString).ReplaceChar(aNeedle, aReplacement)
 #define MsgFind(str, what, ignore_case, offset) \
@@ -447,11 +447,11 @@ NS_MSG_BASE char *MsgEscapeHTML(const char *aString);
 NS_MSG_BASE char16_t *MsgEscapeHTML2(const char16_t *aBuffer, int32_t aLen);
 // Existing replacement for IsUTF8
 NS_MSG_BASE bool MsgIsUTF8(const nsACString& aString);
-/// Equivalent of NS_NewAtom(aUTF8String)
+/// Equivalent of NS_Atomize(aUTF8String)
 NS_MSG_BASE already_AddRefed<nsIAtom> MsgNewAtom(const char* aString);
 /// Replacement of NS_RegisterStaticAtoms
 NS_MSG_BASE nsIAtom* MsgNewPermanentAtom(const char* aString);
-/// Equivalent of do_GetAtom(aUTF8String)
+/// Equivalent of NS_Atomize(aUTF8String)
 inline already_AddRefed<nsIAtom> MsgGetAtom(const char* aUTF8String)
 {
   return MsgNewAtom(aUTF8String);
