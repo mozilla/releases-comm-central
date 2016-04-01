@@ -7,8 +7,6 @@
 <!ENTITY  engineManager.intro       "You have the following search engines installed:">
 
 <!ENTITY  columnLabel.name          "Name">
-<!ENTITY  columnLabel.keyword       "Keyword">
-
 <!-- Buttons -->
 <!ENTITY  up.label                  "Move Up">
 <!ENTITY  up.accesskey              "U">
@@ -16,8 +14,6 @@
 <!ENTITY  dn.accesskey              "D">
 <!ENTITY  remove.label              "Remove">
 <!ENTITY  remove.accesskey          "R">
-<!ENTITY  edit.label                "Edit Keyword…">
-<!ENTITY  edit.accesskey            "t">
 
 <!ENTITY  addEngine.label           "Get more search engines…">
 <!ENTITY  addEngine.accesskey       "A">

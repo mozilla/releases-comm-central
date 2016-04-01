@@ -110,49 +110,6 @@ var gEngineManagerDialog = {
     document.getElementById("engineList").focus();
   },
 
-  editKeyword: function engineManager_editKeyword() {
-    var selectedEngine = gEngineView.selectedEngine;
-    if (!selectedEngine)
-      return;
-
-    var prompt = Cc["@mozilla.org/embedcomp/prompt-service;1"].
-                 getService(Ci.nsIPromptService);
-    var alias = { value: selectedEngine.alias };
-    var strings = document.getElementById("engineManagerBundle");
-    var title = strings.getString("editTitle");
-    var msg = strings.getFormattedString("editMsg", [selectedEngine.name]);
-
-    while (prompt.prompt(window, title, msg, alias, null, { })) {
-      var eduplicate = false;
-
-      if (alias.value != "") {
-        // Check for duplicates in changes we haven't committed yet
-        let engines = gEngineView._engineStore.engines;
-        for (let engine of engines) {
-          if (engine.alias == alias.value &&
-              engine.name != selectedEngine.name) {
-            eduplicate = true;
-            break;
-          }
-        }
-      }
-
-      // Notify the user if they have chosen an existing engine keyword
-      if (eduplicate) {
-        var dtitle = strings.getString("duplicateTitle");
-        var emsg = strings.getFormattedString("duplicateEngineMsg",
-                                              [engine.name]);
-
-        prompt.alert(window, dtitle, emsg);
-      } else {
-        gEngineView._engineStore.changeEngine(selectedEngine, "alias",
-                                              alias.value);
-        gEngineView.invalidate();
-        break;
-      }
-    }
-  },
-
   onSelect: function engineManager_onSelect() {
     // buttons only work if an engine is selected and it's not the last engine
     var disableButtons = (gEngineView.selectedIndex == -1) ||
@@ -169,8 +126,6 @@ var gEngineManagerDialog = {
 
     document.getElementById("cmd_movedown").setAttribute("disabled",
                                              disableButtons || lastSelected);
-    document.getElementById("cmd_editkeyword").setAttribute("disabled",
-                                                            noSelection);
   }
 };
 
@@ -463,8 +418,6 @@ EngineView.prototype = {
   getCellText: function(index, column) {
     if (column.id == "engineName")
       return this._engineStore.engines[index].name;
-    else if (column.id == "engineKeyword")
-      return this._engineStore.engines[index].alias;
     return "";
   },
 
