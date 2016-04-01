@@ -17,17 +17,17 @@
 
   <menupopup id="helpPopup">
     <menuitem id="reportPhishing"
-              label="&reportPhishSite.label;"
-              accesskey="&reportPhishSite.accesskey;"
+              label="&reportDeceptiveSite.label;"
+              accesskey="&reportDeceptiveSite.accesskey;"
               insertbefore="menu_HelpAboutSeparator"
               observes="safeBrowsingBroadcaster"
               oncommand="openUILink(gSafeBrowsing.getReportURL('Phish'), event);"
               onclick="checkForMiddleClick(this, event);"/>
     <menuitem id="reportPhishingError"
-              label="&notAForgery.label;"
-              accesskey="&notAForgery.accesskey;"
+              label="&notADeceptiveSite.label;"
+              accesskey="&notADeceptiveSite.accesskey;"
               insertbefore="menu_HelpAboutSeparator"
               observes="safeBrowsingBroadcaster"
-              oncommand="openUILinkIn(gSafeBrowsing.getReportURL('Error'), 'tabfocused');"/>
+              oncommand="openUILinkIn(gSafeBrowsing.getReportURL('PhishMistake'), 'tabfocused');"/>
   </menupopup>
 </overlay>

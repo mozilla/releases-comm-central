@@ -1922,13 +1922,12 @@
       </method>
 
       <method name="ignoreSafeBrowsingWarning">
-        <parameter name="aIsMalware"/>
+        <parameter name="aReason"/>
         <body>
           <![CDATA[
             var uri = this.activeBrowser.currentURI;
-            var asciiSpec = uri.asciiSpec;
             var flag = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_BYPASS_CLASSIFIER;
-            this.activeBrowser.loadURIWithFlags(asciiSpec, flag,
+            this.activeBrowser.loadURIWithFlags(uri.asciiSpec, flag,
                                                 null, null, null);
 
             const nsIPermissionManager = Components.interfaces.nsIPermissionManager;
@@ -1937,35 +1936,49 @@
             pm.add(uri, "safe-browsing", nsIPermissionManager.ALLOW_ACTION,
                                          nsIPermissionManager.EXPIRE_SESSION);
 
-            var title, label, accessKey, reportName;
-            if (aIsMalware) {
-              title = "safebrowsing.reportedAttackSite";
-              label = "safebrowsing.notAnAttackButton.label";
-              accessKey = "safebrowsing.notAnAttackButton.accessKey";
-              reportName = "MalwareError";
-            }
-            else {
-              title = "safebrowsing.reportedWebForgery";
-              label = "safebrowsing.notAForgeryButton.label";
-              accessKey = "safebrowsing.notAForgeryButton.accessKey";
-              reportName = "Error";
-            }
+            var title, label, accessKey, reportName, buttons;
+
+            switch (aReason) {
+             case "phishing":
+               title = "safebrowsing.deceptiveSite";
+               label = "safebrowsing.notADeceptiveSiteButton.label";
+               accessKey = "safebrowsing.notADeceptiveSiteButton.accessKey";
+               reportName = "PhishMistake";
+               break;
+             case "malware":
+               title = "safebrowsing.reportedAttackSite";
+               label = "safebrowsing.notAnAttackButton.label";
+               accessKey = "safebrowsing.notAnAttackButton.accessKey";
+               reportName = "MalwareMistake";
+               break;
+             case "unwanted":
+               title = "safebrowsing.reportedUnwantedSite";
+               break;
+             // No notifications for forbidden sites
+             // or unknown reasons.
+             default:
+               return;
+           }
+
             title = this._stringBundle.GetStringFromName(title);
 
-            var tmp = {};
-            Components.utils.import("resource://gre/modules/SafeBrowsing.jsm", tmp);
-            var reportUrl = tmp.SafeBrowsing.getReportURL(reportName);
-            reportUrl += "&url=" + encodeURIComponent(asciiSpec);
+            buttons = [{
+                label: this._stringBundle.GetStringFromName("safebrowsing.getMeOutOfHereButton.label"),
+                accessKey: this._stringBundle.GetStringFromName("safebrowsing.getMeOutOfHereButton.accessKey"),
+                callback: getMeOutOfHere
+             }]
 
-            var buttons = [{
-              label: this._stringBundle.GetStringFromName("safebrowsing.getMeOutOfHereButton.label"),
-              accessKey: this._stringBundle.GetStringFromName("safebrowsing.getMeOutOfHereButton.accessKey"),
-              callback: getMeOutOfHere
-            }, {
-              label: this._stringBundle.GetStringFromName(label),
-              accessKey: this._stringBundle.GetStringFromName(accessKey),
-              callback: function () { openUILinkIn(reportUrl, "tabfocused"); }
-            }];
+            if (reportName) {
+              var tmp = {};
+              Components.utils.import("resource://gre/modules/SafeBrowsing.jsm", tmp);
+              var reportUrl = tmp.SafeBrowsing.getReportURL(reportName, uri);
+
+              buttons.push({
+                label: this._stringBundle.GetStringFromName(label),
+                accessKey: this._stringBundle.GetStringFromName(accessKey),
+                callback() { openUILinkIn(reportUrl, "tabfocused"); }
+              });
+            }
 
             var type = "blocked-badware-page";
             var notification = this.getNotificationWithValue(type);
@@ -1979,11 +1992,9 @@
             // Persist the notification until the user removes so it
             // doesn't get removed on redirects.
             box.persistence = -1;
-
           ]]>
         </body>
       </method>
-
       <constructor>
         <![CDATA[
           var os = Components.classes["@mozilla.org/observer-service;1"]

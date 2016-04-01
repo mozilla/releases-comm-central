@@ -673,10 +673,10 @@ function openDictionaryList()
   }
 }
 
-// Prompt user to restart the browser in safe mode 
+// Prompt user to restart the browser in safe mode
 function safeModeRestart()
 {
-  // prompt the user to confirm 
+  // prompt the user to confirm
   var promptTitle = gUtilityBundle.getString("safeModeRestartPromptTitle");
   var promptMessage = gUtilityBundle.getString("safeModeRestartPromptMessage");
   var restartText = gUtilityBundle.getString("safeModeRestartButton");
@@ -769,7 +769,7 @@ function updateCheckUpdatesItem()
   else
     checkForUpdates.label = gUtilityBundle.getString("updatesItem_" + key + "Fallback");
 
-  checkForUpdates.accessKey = gUtilityBundle.getString("updatesItem_" + key + "AccessKey"); 
+  checkForUpdates.accessKey = gUtilityBundle.getString("updatesItem_" + key + "AccessKey");
 
   if (um.activeUpdate && updates.isDownloading)
     checkForUpdates.setAttribute("loading", "true");
@@ -945,7 +945,7 @@ function focusElement(aElement)
   if (isElementVisible(aElement))
     aElement.focus();
 }
- 
+
 function isElementVisible(aElement)
 {
   if (!aElement)
@@ -1156,9 +1156,21 @@ function BrowserOnCommand(event)
   }
   else if (docURI.startsWith("about:blocked")) {
     // The event came from a button on a malware/phishing block page
-    // First check whether it's malware or phishing, so that we can
+    // First check whether the reason, so that we can
     // use the right strings/links
-    let isMalware = /e=malwareBlocked/.test(docURI);
+    let reason = "phishing";
+
+    if (/e=malwareBlocked/.test(docURI)) {
+      reason = "malware";
+    } else if (/e=unwantedBlocked/.test(docURI)) {
+      reason = "unwanted";
+    // We do not have the parental control feature but testing for it in case
+    // it's implemented later should not break anything. This feature is currently
+    // only enabled if you set the pref browser.safebrowsing.forbiddenURIs.enabled
+    // to true.
+    } else if (/e=forbiddenBlocked/.test(docURI)) {
+      reason = "forbidden";
+    }
 
     switch (buttonID) {
       case "getMeOutOfHereButton":
@@ -1166,32 +1178,29 @@ function BrowserOnCommand(event)
         break;
 
       case "reportButton":
-        // This is the "Why is this site blocked" button.  For malware,
-        // we can fetch a site-specific report, for phishing, we redirect
-        // to the generic page describing phishing protection.
-
-        if (isMalware) {
-          // Get the stop badware "why is this blocked" report url,
-          // append the current url, and go there.
-          try {
-            let reportURL = Services.urlFormatter.formatURLPref("browser.safebrowsing.malware.reportURL");
-            reportURL += ownerDoc.location.href;
-            loadURI(reportURL);
-          } catch (e) {
-            Components.utils.reportError("Couldn't get malware report URL: " + e);
-          }
-        }
-        else { // It's a phishing site, not malware
-          try {
-            loadURI(Services.urlFormatter.formatURLPref("browser.safebrowsing.warning.infoURL"));
-          } catch (e) {
-            Components.utils.reportError("Couldn't get phishing info URL: " + e);
-          }
+        // This is the "Why is this site blocked" button. We redirect
+        // to the generic page describing phishing/malware protection.
+        try {
+          loadURI(Services.urlFormatter.formatURLPref("browser.safebrowsing.warning.infoURL"));
+        } catch (e) {
+          Components.utils.reportError("Couldn't get phishing info URL: " + e);
         }
         break;
 
       case "ignoreWarningButton":
-        getBrowser().getNotificationBox().ignoreSafeBrowsingWarning(isMalware);
+        if (Services.prefs.getBoolPref("browser.safebrowsing.allowOverride")) {
+          getBrowser().getNotificationBox().ignoreSafeBrowsingWarning(reason);
+        }
+        break;
+
+      case "whyForbiddenButton":
+        // This is the "Why is this site blocked" button for family friendly browsing
+        // for Fennec. There's no desktop focused support page yet.
+        try {
+          loadURI(Services.urlFormatter.formatURLPref("browser.safebrowsing.controlledAccess.infoURL"));
+         } catch (e) {
+          Components.utils.reportError("Couldn't get forbidden info URL: " + e);
+        }
         break;
     }
   }
@@ -1299,7 +1308,7 @@ function disablePopupBlockerNotifications()
  * @param  aIsFeed
  *         Whether this is already a known feed or not, if true only a security
  *         check will be performed.
- */ 
+ */
 function isValidFeed(aData, aPrincipal, aIsFeed)
 {
   if (!aData || !aPrincipal)

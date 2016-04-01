@@ -448,6 +448,7 @@ pref("browser.safebrowsing.reportMalwareMistakeURL", "https://%LOCALE%.malware-e
 pref("browser.safebrowsing.id", "navclient-auto-ffox");
 
 pref("browser.safebrowsing.warning.infoURL", "https://www.mozilla.org/%LOCALE%/firefox/phishing-protection/");
+pref("browser.safebrowsing.controlledAccess.infoURL", "https://support.mozilla.org/kb/controlledaccess/");
 
 // Name of the about: page contributed by safebrowsing to handle display of error
 // pages on phishing/malware hits.  (bug 399233)
