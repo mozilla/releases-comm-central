@@ -373,17 +373,6 @@ function awTestRowSequence()
   return false;
 }
 
-function awResetAllRows()
-{
-  var maxRecipients = top.MAX_RECIPIENTS;
-
-  for (var row = 1; row <= maxRecipients ; row ++)
-  {
-    awGetInputElement(row).value = "";
-    awGetPopupElement(row).selectedIndex = 0;
-  }
-}
-
 function awCleanupRows()
 {
   var maxRecipients = top.MAX_RECIPIENTS;

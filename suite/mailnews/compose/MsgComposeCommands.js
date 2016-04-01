@@ -1869,13 +1869,6 @@ function ToggleAttachVCard(target)
   }
 }
 
-function ClearIdentityListPopup(popup)
-{
-  if (popup)
-    while (popup.hasChildNodes())
-      popup.lastChild.remove();
-}
-
 function FillIdentityList(menulist)
 {
   var accounts = allAccountsSorted(true);

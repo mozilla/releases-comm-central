@@ -186,8 +186,7 @@ const gSourceTextObserver =
   }
 };
 
-// This should be called by all editor users when they close their window
-//  or other similar "done with editor" actions, like recycling a Mail Composer window.
+// This should be called by all editor users when they close their window.
 function EditorCleanup()
 {
   SwitchInsertCharToAnotherEditorOrClose();
@@ -480,26 +479,6 @@ function EditorSharedStartup()
   gColorObj.LastTextColor = "";
   gColorObj.LastBackgroundColor = "";
   gColorObj.LastHighlightColor = "";
-}
-
-// This method is only called by Message composer when recycling a compose window
-function EditorResetFontAndColorAttributes()
-{
-  try {  
-    var editor = GetCurrentEditor();
-    editor.rebuildDocumentFromSource("");
-    // Because the selection is now collapsed, the following line
-    // clears the typing state to discontinue all inline styles
-    editor.removeAllInlineProperties();
-    document.getElementById("cmd_fontFace").setAttribute("state", "");
-    ClearUsedFonts();
-    gColorObj.LastTextColor = "";
-    gColorObj.LastBackgroundColor = "";
-    gColorObj.LastHighlightColor = "";
-    document.getElementById("cmd_fontColor").setAttribute("state", "");
-    document.getElementById("cmd_backgroundColor").setAttribute("state", "");
-    UpdateDefaultColors();
-  } catch (e) {}
 }
 
 function SafeSetAttribute(nodeID, attributeName, attributeValue)

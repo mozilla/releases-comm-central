@@ -3315,13 +3315,6 @@ function toggleAttachmentReminder(aState = !gManualAttachmentReminder)
   manageAttachmentNotification(false);
 }
 
-function ClearIdentityListPopup(popup)
-{
-  if (popup)
-    while (popup.hasChildNodes())
-      popup.lastChild.remove();
-}
-
 function FillIdentityList(menulist)
 {
   let accounts = allAccountsSorted(true);
