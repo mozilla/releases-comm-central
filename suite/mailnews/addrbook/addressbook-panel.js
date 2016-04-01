@@ -39,19 +39,15 @@ function AbPanelLoad()
   for (var i = 0; i < 4; i++)
     popup.childNodes[i].hidden = !gIsMsgCompose;
   popup.childNodes[4].hidden = gIsMsgCompose;
-
-  if (gIsMsgCompose)
-    parent.addEventListener("compose-window-close", onAbClearSearch, true);
 }
 
 function AbPanelUnload()
 {
-  if (gIsMsgCompose)
-    parent.removeEventListener("compose-window-close", onAbClearSearch, true);
-
   CloseAbView();
 }
 
+// onAbClearSearch is unused. It is maintained here for possible
+// ports of patches from Thunderbird which still has this function.
 function onAbClearSearch()
 {
   gSearchInput.value = "";
