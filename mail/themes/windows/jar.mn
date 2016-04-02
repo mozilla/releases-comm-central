@@ -5,6 +5,8 @@ classic.jar:
   skin/classic/editor/icons/img-align-bottom.gif              (editor/img-align-bottom.gif)
   skin/classic/editor/icons/img-align-left.gif                (editor/img-align-left.gif)
   skin/classic/editor/icons/img-align-middle.gif              (editor/img-align-middle.gif)
+  skin/classic/editor/icons/img-align-right.gif               (editor/img-align-right.gif)
+  skin/classic/editor/icons/img-align-top.gif                 (editor/img-align-top.gif)
 
 % skin communicator classic/1.0 %skin/classic/communicator/
   skin/classic/communicator/communicator.css                       (mail/communicator.css)
