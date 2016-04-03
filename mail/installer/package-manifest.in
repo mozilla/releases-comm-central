@@ -369,7 +369,6 @@
 #ifdef ACCESSIBILITY
 #ifdef XP_WIN32
 @BINPATH@/AccessibleMarshal.dll
-@BINPATH@/firefox-plugin-container.exe
 #endif
 @RESPATH@/components/accessibility.xpt
 #endif
