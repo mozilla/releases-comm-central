@@ -855,9 +855,11 @@
               command="cmd_killThread"/>
     <menuitem id="mailContext-ignoreSubthread"
               label="&contextKillSubthreadMenu.label;"
+              accesskey="&contextKillSubthreadMenu.accesskey;"
               command="cmd_killSubthread"/>
     <menuitem id="mailContext-watchThread"
               label="&contextWatchThreadMenu.label;"
+              accesskey="&contextWatchThreadMenu.accesskey;"
               command="cmd_watchThread"/>
     <menuseparator id="mailContext-afterWatchThread"/>
     <menuitem id="mailContext-saveAs"
