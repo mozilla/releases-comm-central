@@ -91,8 +91,8 @@
                   name="mail.purge_threshhold_mb" type="int"/>
       <preference id="browser.cache.disk.capacity"
                   name="browser.cache.disk.capacity" type="int"/>
-      <!-- Update tab -->
 #ifdef MOZ_UPDATER
+      <!-- Update tab -->
       <preference id="app.update.enabled" name="app.update.enabled"
 type="bool"/>
       <preference id="app.update.auto" name="app.update.auto"
@@ -141,7 +141,9 @@ type="int"/>
         <tab id="dataChoicesTab" label="&dataChoicesTab.label;"/>
 #endif
         <tab id="networkingTab" label="&itemNetworking.label;"/>
+#ifdef MOZ_UPDATER
         <tab id="updateTab" label="&itemUpdate.label;"/>
+#endif
         <tab id="certificateTab" label="&itemCertificates.label;"/>
       </tabs>
 
@@ -333,10 +335,9 @@ type="int"/>
           </groupbox>
         </tabpanel>
 
-        <!-- Update -->
-
-        <tabpanel orient="vertical" align="start">
 #ifdef MOZ_UPDATER
+        <!-- Update -->
+        <tabpanel orient="vertical" align="start">
           <groupbox id="updateApp">
             <caption label="&updateApp.label;"/>
             <radiogroup id="updateRadioGroup"
@@ -382,8 +383,8 @@ type="int"/>
                     accesskey="&useService.accesskey;"
                     preference="app.update.service.enabled"/>
 #endif
-#endif
         </tabpanel>
+#endif
 
         <!-- Certificates -->
         <tabpanel orient="vertical">
