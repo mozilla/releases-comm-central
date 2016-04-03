@@ -25,7 +25,7 @@ var activityObject =
   _activitiesView: null,
   _activityLogger: Log4Moz.getConfiguredLogger("activitymgr"),
   _ignoreNotifications: false,
-  _groupCache: {},
+  _groupCache: new Map(),
 
   selectAll: function() {
     this._activitiesView.selectAll();
@@ -61,7 +61,7 @@ var activityObject =
    * and context of the given activity, if any.
    */
   getActivityGroupBindingByContext: function(aContextType, aContextObj) {
-    return this._groupCache[aContextType + ":" + aContextObj];
+    return this._groupCache.get(aContextType + ":" + aContextObj);
   },
 
   /**
@@ -82,8 +82,8 @@ var activityObject =
         this._activitiesView.appendChild(aBinding);
     }
     if (aBinding.isGroup)
-      this._groupCache[aBinding.contextType + ":" + aBinding.contextObj] =
-        aBinding;
+      this._groupCache.set(aBinding.contextType + ":" + aBinding.contextObj,
+                           aBinding);
     while (this._activitiesView.childNodes.length > ACTIVITY_LIMIT)
       this.removeActivityBinding(this._activitiesView.lastChild.getAttribute('actID'));
   },
@@ -185,7 +185,7 @@ var activityObject =
           // if the group becomes empty after the removal,
           // get rid of the group as well
           if (groupView.getRowCount() == 0) {
-            delete this._groupCache[item.contextType + ":" + item.contextObj];
+            this._groupCache.delete(item.contextType + ":" + item.contextObj);
             item.remove();
           }
 
@@ -277,7 +277,7 @@ var activityObject =
     this._activitiesView.parentNode.replaceChild(empty, this._activitiesView);
     this._activitiesView = empty;
 
-    this._groupCache = {};
+    this._groupCache.clear();
     this.rebuild();
     this._ignoreNotifications = false;
     this._activitiesView.focus();

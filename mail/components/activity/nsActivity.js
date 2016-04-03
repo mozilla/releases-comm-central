@@ -57,9 +57,7 @@ nsActivity.prototype = {
   },
 
   getSubjects: function(aCount) {
-    let list = [];
-    for (let value of this._subjects)
-      list.push(value);
+    let list = this._subjects.slice();
 
     aCount.value = list.length;
     return list;

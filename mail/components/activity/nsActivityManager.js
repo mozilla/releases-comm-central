@@ -30,12 +30,11 @@ nsActivityManager.prototype = {
   _processCount: 0,
   _db: null,
   _idCounter: 1,
-  _activities: {},
+  _activities: new Map(),
 
   get processCount() {
     let count = 0;
-    for (let id in this._activities) {
-      let value = this._activities[id];
+    for (let value of this._activities.values()) {
       if (value instanceof Ci.nsIActivityProcess)
         count++;
     }
@@ -45,8 +44,7 @@ nsActivityManager.prototype = {
 
   getProcessesByContext: function(aContextType, aContextObj, aCount) {
     let list = [];
-    for (let id in this._activities) {
-      let activity = this._activities[id];
+    for (let activity of this._activities.values()) {
       if (activity instanceof Ci.nsIActivityProcess &&
           activity.contextType == aContextType &&
           activity.contextObj == aContextObj) {
@@ -74,7 +72,7 @@ nsActivityManager.prototype = {
       aActivity.id = id;
 
       // add activity into the activities table
-      this._activities[id] = aActivity;
+      this._activities.set(id, aActivity);
       // notify all the listeners
       for (let value of this._listeners) {
         try {
@@ -94,10 +92,7 @@ nsActivityManager.prototype = {
   },
 
   removeActivity: function (aID) {
-    let activity = this._activities[aID];
-
-    if (!activity)
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
+    let activity = this.getActivity(aID);
 
     // make sure that the activity is not in-progress state
     if (activity instanceof Ci.nsIActivityProcess &&
@@ -105,7 +100,7 @@ nsActivityManager.prototype = {
       throw Cr.NS_ERROR_FAILURE;
 
     // remove the activity
-    delete this._activities[aID];
+    this._activities.delete(aID);
 
     // notify all the listeners
     for (let value of this._listeners) {
@@ -121,8 +116,7 @@ nsActivityManager.prototype = {
   cleanUp: function () {
     // Get the list of aIDs.
     this.log.info("cleanUp\n");
-    for (var id in this._activities) {
-      let activity = this._activities[id];
+    for (let [id, activity] of this._activities) {
       if (activity instanceof Ci.nsIActivityProcess) {
         // Note: The .state property will return undefined if you aren't in
         //       this if-instanceof block.
@@ -139,21 +133,17 @@ nsActivityManager.prototype = {
   },
 
   getActivity: function(aID) {
-    if (!this._activities[aID])
+    if (!this._activities.has(aID))
       throw Cr.NS_ERROR_NOT_AVAILABLE;
-    return this._activities[aID];
+    return this._activities.get(aID);
   },
 
   containsActivity: function (aID) {
-    return !!this._activities[aID];
+    return this._activities.has(aID);
   },
 
   getActivities: function(aCount) {
-    let list = [];
-    for (let id in this._activities) {
-      let value = this._activities[id];
-      list.push(value);
-    }
+    let list = [...this._activities.values()];
 
     aCount.value = list.length;
     return list;
