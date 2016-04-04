@@ -244,6 +244,20 @@ pref("extensions.getMoreMessageStylesURL", "https://add-ons.instantbird.org/%LOC
 pref("extensions.getMoreEmoticonsURL", "https://add-ons.instantbird.org/%LOCALE%/%APP%/%VERSION%/emoticons/");
 pref("extensions.getMoreProtocolsURL", "https://add-ons.instantbird.org/%LOCALE%/%APP%/%VERSION%/protocols/");
 
+// Click-to-play has not been ported yet, see bug 814168.
+// The default plugin state should be changed to "ask to activate" when this
+// has been done.
+pref("plugins.click_to_play", false);
+// Disable by default.
+pref("plugin.default.state", 0);
+
+// Plugins bundled in XPIs are enabled by default.
+pref("plugin.defaultXpi.state", 2);
+
+// Flash and Java disabled by default.
+pref("plugin.state.flash", 0);
+pref("plugin.state.java", 0);
+
 // suppress external-load warning for standard browser schemes
 pref("network.protocol-handler.warn-external.http", false);
 pref("network.protocol-handler.warn-external.https", false);
