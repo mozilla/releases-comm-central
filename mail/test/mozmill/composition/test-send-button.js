@@ -31,12 +31,6 @@ var setupModule = function (module) {
   be_in_folder(inbox);
 };
 
-function setupComposeWin(aCwc, aAddr, aSubj, aBody) {
-  aCwc.type(null, aAddr);
-  aCwc.type(aCwc.eid("msgSubject"), aSubj);
-  aCwc.type(aCwc.eid("content-frame"), aBody);
-}
-
 /**
  * Check if the send commands are in the wished state.
  *
@@ -67,7 +61,7 @@ function test_send_enabled_manual_address() {
   check_send_commands_state(cwc, false);
 
   // On valid "To:" addressee input, Send must be enabled.
-  setupComposeWin(cwc, "recipient@fake.invalid", "", "");
+  setup_msg_contents(cwc, "recipient@fake.invalid", "", "");
   check_send_commands_state(cwc, true);
 
   // When the addressee is not in To, Cc, Bcc or Newsgroup, disable Send again.

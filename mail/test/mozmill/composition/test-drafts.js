@@ -38,12 +38,6 @@ function setupModule(module) {
                              .getChildNamed("Drafts");
 }
 
-function setupComposeWin(aCwc, toAddr, subj, body) {
-  aCwc.type(aCwc.eid("addressCol2#1"), toAddr);
-  aCwc.type(aCwc.eid("msgSubject"), subj);
-  aCwc.type(aCwc.eid("content-frame"), body);
-}
-
 /**
  * Bug 349547.
  * Tests that we only open one compose window for one instance of a draft.
@@ -101,9 +95,9 @@ function test_open_draft_again() {
 function test_save_delivery_format() {
   let cwc = open_compose_new_mail();
 
-  setupComposeWin(cwc, "test@example.invalid",
-                  "Testing storing of the composition properties in the draft!",
-                  "Hello!");
+  setup_msg_contents(cwc, "test@example.invalid",
+                     "Testing storing of the composition properties in the draft!",
+                     "Hello!");
 
   // Select our wanted format.
   if (!mc.mozmillModule.isMac) {

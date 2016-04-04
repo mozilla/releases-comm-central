@@ -32,12 +32,6 @@ function setupModule(module) {
   assert_true(Services.prefs.getBoolPref(kReminderPref));
 }
 
-function setupComposeWin(aCwc, toAddr, subj, body) {
-  aCwc.type(aCwc.eid("addressCol2#1"), toAddr);
-  aCwc.type(aCwc.eid("msgSubject"), subj);
-  aCwc.type(aCwc.eid("content-frame"), body);
-}
-
 /**
  * Check if the attachment reminder bar is in the wished state.
  *
@@ -115,8 +109,8 @@ function test_attachment_reminder_appears_properly() {
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
 
-  setupComposeWin(cwc, "test@example.org", "Testing automatic reminder!",
-                  "Hello! ");
+  setup_msg_contents(cwc, "test@example.org", "Testing automatic reminder!",
+                     "Hello! ");
 
   // Give the notification time to appear. It shouldn't.
   wait_for_reminder_state(cwc, false);
@@ -157,10 +151,10 @@ function test_attachment_reminder_dismissal() {
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
 
-  setupComposeWin(cwc, "test@example.org", "popping up, eh?",
-                  "Hi there, remember the attachment! " +
-                  "Yes, there is a file test.doc attached! " +
-                  "Do check it, test.doc is a nice attachment.");
+  setup_msg_contents(cwc, "test@example.org", "popping up, eh?",
+                     "Hi there, remember the attachment! " +
+                     "Yes, there is a file test.doc attached! " +
+                     "Do check it, test.doc is a nice attachment.");
 
   // Give the notification time to appear.
   wait_for_reminder_state(cwc, true);
@@ -193,8 +187,8 @@ function test_attachment_reminder_with_attachment() {
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
 
-  setupComposeWin(cwc, "test@example.org", "Testing automatic reminder!",
-                  "Hello! We will have a real attachment here.");
+  setup_msg_contents(cwc, "test@example.org", "Testing automatic reminder!",
+                     "Hello! We will have a real attachment here.");
 
   // Give the notification time to appear. It should.
   wait_for_reminder_state(cwc, true);
@@ -211,7 +205,7 @@ function test_attachment_reminder_with_attachment() {
 
   // Add some more text with keyword so the automatic notification
   // could potentially show up.
-  setupComposeWin(cwc, "", "", " Yes, there is a file attached!");
+  setup_msg_contents(cwc, "", "", " Yes, there is a file attached!");
   // Give the notification time to appear. It shouldn't.
   wait_for_reminder_state(cwc, false);
 
@@ -237,8 +231,8 @@ function test_attachment_reminder_aggressive_pref() {
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
 
-  setupComposeWin(cwc, "test@example.org", "aggressive?",
-                  "Check this attachment!");
+  setup_msg_contents(cwc, "test@example.org", "aggressive?",
+                     "Check this attachment!");
 
   wait_for_reminder_state(cwc, true);
   click_send_and_handle_send_error(cwc);
@@ -257,9 +251,9 @@ function test_attachment_reminder_aggressive_pref() {
 function test_no_send_now_sends() {
   let cwc = open_compose_new_mail();
 
-  setupComposeWin(cwc, "test@example.org",
-                  "will the 'No, Send Now' button work?",
-                  "Hello, i got your attachment!");
+  setup_msg_contents(cwc, "test@example.org",
+                     "will the 'No, Send Now' button work?",
+                     "Hello, i got your attachment!");
 
   wait_for_reminder_state(cwc, true);
 
@@ -297,8 +291,8 @@ function click_manual_reminder(aCwc, aExpectedState) {
 function test_manual_attachment_reminder() {
   // Open a sample message with no attachment keywords.
   let cwc = open_compose_new_mail();
-  setupComposeWin(cwc, "test@example.invalid", "Testing manual reminder!",
-                  "Some body...");
+  setup_msg_contents(cwc, "test@example.invalid", "Testing manual reminder!",
+                     "Some body...");
 
   // Enable the manual reminder.
   click_manual_reminder(cwc, true);
@@ -373,8 +367,8 @@ function test_manual_automatic_attachment_reminder_interaction() {
   assert_automatic_reminder_state(cwc, false);
 
   // Add some attachment keywords.
-  setupComposeWin(cwc, "test@example.invalid", "Testing manual reminder!",
-                  "Expect an attachment here...");
+  setup_msg_contents(cwc, "test@example.invalid", "Testing manual reminder!",
+                     "Expect an attachment here...");
 
   // The automatic attachment notification should pop up.
   wait_for_reminder_state(cwc, true);
@@ -386,7 +380,7 @@ function test_manual_automatic_attachment_reminder_interaction() {
 
   // Add some more text so the automatic notification
   // could potentially show up.
-  setupComposeWin(cwc, "", "", " and look for your attachment!");
+  setup_msg_contents(cwc, "", "", " and look for your attachment!");
   // Give the notification time to appear. It shouldn't.
   wait_for_reminder_state(cwc, false);
 
@@ -396,12 +390,12 @@ function test_manual_automatic_attachment_reminder_interaction() {
   wait_for_reminder_state(cwc, false);
 
   // Add some more text without keywords.
-  setupComposeWin(cwc, "", "", " No keywords here.");
+  setup_msg_contents(cwc, "", "", " No keywords here.");
   // Give the notification time to appear. It shouldn't.
   wait_for_reminder_state(cwc, false);
 
   // Add some more text with a new keyword.
-  setupComposeWin(cwc, "", "", " Do you find it attached?");
+  setup_msg_contents(cwc, "", "", " Do you find it attached?");
   // Give the notification time to appear. It should now.
   wait_for_reminder_state(cwc, true);
   assert_equals(get_reminder_keywords(cwc), "attachment, attached");
@@ -431,8 +425,8 @@ function assert_any_notification(aCwc, aValue)
 function test_attachment_vs_filelink_reminder() {
   // Open a blank message compose
   let cwc = open_compose_new_mail();
-  setupComposeWin(cwc, "test@example.invalid", "Testing Filelink notification",
-                  "There is no body. I hope you don't mind!");
+  setup_msg_contents(cwc, "test@example.invalid", "Testing Filelink notification",
+                     "There is no body. I hope you don't mind!");
 
   // There should be no notification yet.
   assert_any_notification(cwc, false);
@@ -464,8 +458,8 @@ function test_attachment_reminder_in_subject() {
   assert_automatic_reminder_state(cwc, false);
 
   // Add some attachment keyword in subject.
-  setupComposeWin(cwc, "test@example.invalid", "Testing attachment reminder!",
-                  "There is no keyword in this body...");
+  setup_msg_contents(cwc, "test@example.invalid", "Testing attachment reminder!",
+                     "There is no keyword in this body...");
 
   // The automatic attachment notification should pop up.
   wait_for_reminder_state(cwc, true);
@@ -494,8 +488,8 @@ function test_attachment_reminder_in_subject_and_body() {
   assert_automatic_reminder_state(cwc, false);
 
   // Add some attachment keyword in subject.
-  setupComposeWin(cwc, "test@example.invalid", "Testing attachment reminder!",
-                  "There should be an attached file in this body...");
+  setup_msg_contents(cwc, "test@example.invalid", "Testing attachment reminder!",
+                     "There should be an attached file in this body...");
 
   // The automatic attachment notification should pop up.
   wait_for_reminder_state(cwc, true);
@@ -523,8 +517,8 @@ function test_disabled_attachment_reminder() {
 
   // Open a sample message with no attachment keywords.
   let cwc = open_compose_new_mail();
-  setupComposeWin(cwc, "test@example.invalid", "Testing disabled keyword reminder!",
-                  "Some body...");
+  setup_msg_contents(cwc, "test@example.invalid", "Testing disabled keyword reminder!",
+                     "Some body...");
 
   // This one should have the manual reminder disabled.
   assert_manual_reminder_state(cwc, false);
@@ -533,7 +527,7 @@ function test_disabled_attachment_reminder() {
 
   // Add some keyword so the automatic notification
   // could potentially show up.
-  setupComposeWin(cwc, "", "", " and look for your attachment!");
+  setup_msg_contents(cwc, "", "", " and look for your attachment!");
   // Give the notification time to appear. It shouldn't.
   wait_for_reminder_state(cwc, false);
 
@@ -561,8 +555,8 @@ function test_disabled_attachment_reminder() {
 function test_reminder_in_draft() {
   // Open a sample message with no attachment keywords.
   let cwc = open_compose_new_mail();
-  setupComposeWin(cwc, "test@example.invalid", "Testing draft reminder!",
-                  "Some body...");
+  setup_msg_contents(cwc, "test@example.invalid", "Testing draft reminder!",
+                     "Some body...");
 
   // This one should have the manual reminder disabled.
   assert_manual_reminder_state(cwc, false);
@@ -571,7 +565,7 @@ function test_reminder_in_draft() {
 
   // Add some keyword so the automatic notification
   // could potentially show up.
-  setupComposeWin(cwc, "", "", " and look for your attachment!");
+  setup_msg_contents(cwc, "", "", " and look for your attachment!");
 
   // Give the notification time to appear.
   wait_for_reminder_state(cwc, true);

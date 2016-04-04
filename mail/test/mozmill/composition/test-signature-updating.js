@@ -18,22 +18,16 @@ var MODULE_NAME = "test-signature-updating";
 
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
-var jumlib = {};
-Components.utils.import("resource://mozmill/modules/jum.js", jumlib);
 var elib = {};
 Components.utils.import("resource://mozmill/modules/elementslib.js", elib);
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-var composeHelper = null;
 var cwc = null; // compose window controller
 
 var setupModule = function (module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  composeHelper = collector.getModule("compose-helpers");
-  composeHelper.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   // Ensure we're in the tinderbox account as that has the right identities set
   // up for this test.
@@ -49,12 +43,6 @@ function teardownModule(module) {
   Services.prefs.clearUserPref("mail.identity.id2.suppress_signature_separator");
 }
 
-function setupComposeWin(toAddr, subj, body) {
-  cwc.type(null, toAddr);
-  cwc.type(cwc.eid("msgSubject"), subj);
-  cwc.type(cwc.eid("content-frame"), body);
-}
-
 /**
  * Test that the plaintext compose window has a signature initially,
  * and has the correct signature after switching to another identity.
@@ -65,7 +53,7 @@ function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
                              suppressSigSep);
   Services.prefs.setBoolPref("mail.identity.id2.suppress_signature_separator",
                              suppressSigSep);
-  cwc = composeHelper.open_compose_new_mail();
+  cwc = open_compose_new_mail();
 
   let contentFrame = cwc.e("content-frame");
   let mailBody = contentFrame.contentDocument.body;
@@ -74,7 +62,7 @@ function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
   // to insert text before / outside of the signature.
   assert_equals(mailBody.firstChild.localName, "br");
 
-  setupComposeWin("", "Plaintext compose window", "Body, first line.");
+  setup_msg_contents(cwc, "", "Plaintext compose window", "Body, first line.");
 
   let node = mailBody.lastChild;
 
@@ -142,7 +130,7 @@ function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
 
   assert_equals(node.nodeValue, "Body, first line.");
 
-  composeHelper.close_compose_window(cwc);
+  close_compose_window(cwc);
 }
 
 function testPlaintextComposeWindowSwitchSignatures() {
@@ -164,9 +152,9 @@ function HTMLComposeWindowSwitchSignatures(suppressSigSep, paragraphFormat) {
                              suppressSigSep);
   Services.prefs.setBoolPref("mail.identity.id2.suppress_signature_separator",
                              suppressSigSep);
-  cwc = composeHelper.open_compose_new_mail();
+  cwc = open_compose_new_mail();
 
-  setupComposeWin("", "HTML compose window", "Body, first line.");
+  setup_msg_contents(cwc, "", "HTML compose window", "Body, first line.");
 
   let contentFrame = cwc.e("content-frame");
   let node = contentFrame.contentDocument.body.lastChild;
@@ -219,7 +207,7 @@ function HTMLComposeWindowSwitchSignatures(suppressSigSep, paragraphFormat) {
   // check that that the signature is the last node.
   assert_equals(node, contentFrame.contentDocument.body.lastChild);
 
-  composeHelper.close_compose_window(cwc);
+  close_compose_window(cwc);
 }
 
 function testHTMLComposeWindowSwitchSignatures() {

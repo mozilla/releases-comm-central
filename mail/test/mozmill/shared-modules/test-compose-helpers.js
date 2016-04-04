@@ -41,6 +41,7 @@ function installInto(module) {
   module.open_compose_with_element_click = open_compose_with_element_click;
   module.close_compose_window = close_compose_window;
   module.wait_for_compose_window = wait_for_compose_window;
+  module.setup_msg_contents = setup_msg_contents;
   module.create_msg_attachment = create_msg_attachment;
   module.add_attachments = add_attachments;
   module.add_attachment = add_attachments;
@@ -252,6 +253,20 @@ function wait_for_compose_window(aController) {
   aController.sleep(1000);
 
   return replyWindow;
+}
+
+/**
+ * Fills in the given message recipient/subject/body into the right widgets.
+ *
+ * @param aCwc   Compose window controller.
+ * @param aAddr  Recipient to fill in.
+ * @param aSubj  Subject to fill in.
+ * @param aBody  Message body to fill in.
+ */
+function setup_msg_contents(aCwc, aAddr, aSubj, aBody) {
+  aCwc.type(aCwc.eid("addressCol2#1"), aAddr);
+  aCwc.type(aCwc.eid("msgSubject"), aSubj);
+  aCwc.type(aCwc.eid("content-frame"), aBody);
 }
 
 /**
