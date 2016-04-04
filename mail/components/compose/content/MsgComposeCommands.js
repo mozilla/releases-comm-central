@@ -1714,13 +1714,6 @@ function ComposeFieldsReady()
     }
   }
   CompFields2Recipients(gMsgCompose.compFields);
-  if (gMsgCompose.identity != gCurrentIdentity) {
-    let identityList = document.getElementById("msgIdentity");
-    identityList.selectedItem = identityList.getElementsByAttribute(
-      "identitykey", gMsgCompose.identity.key)[0];
-    LoadIdentity(false);
-  }
-
   SetComposeWindowTitle();
   updateEditableFields(false);
 }

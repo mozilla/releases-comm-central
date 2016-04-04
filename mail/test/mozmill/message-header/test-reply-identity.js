@@ -6,8 +6,6 @@
  * Tests that actions such as replying choses the most suitable identity.
  */
 
-// make SOLO_TEST=message-header/test-reply-identity.js mozmill-one
-
 var MODULE_NAME = "test-reply-identity";
 
 var RELATIVE_ROOT = "../shared-modules";
@@ -33,7 +31,6 @@ var setupModule = function (module) {
   composeHelper.installInto(module);
 
   addIdentitiesAndFolder();
-  // Msg #0
   add_message_to_folder(testFolder, create_message({
     from: "Homer <homer@example.com>",
     to: "workers@springfield.invalid",
@@ -42,7 +39,6 @@ var setupModule = function (module) {
     clobberHeaders: {
     }
   }));
-  // Msg #1
   add_message_to_folder(testFolder, create_message({
     from: "Homer <homer@example.com>",
     to: "powerplant-workers@springfield.invalid",
@@ -52,7 +48,6 @@ var setupModule = function (module) {
       "Delivered-To" : "<" + identity2Email + ">"
     }
   }));
-  // Msg #2
   add_message_to_folder(testFolder, create_message({
     from: "Homer <homer@example.com>",
     to: "powerplant-workers@springfield.invalid, Apu <apu@test.invalid>",
@@ -62,16 +57,14 @@ var setupModule = function (module) {
     clobberHeaders: {
     }
   }));
-  // Msg #3
   add_message_to_folder(testFolder, create_message({
     from: "Homer <homer@example.com>",
     to: "Lenny <" + identity2Email + ">",
     subject: "normal to:address match, with full name",
     body: {body: "Remember as far as anyone knows, we're a nice normal family."}
   }));
-  // Msg #4
   add_message_to_folder(testFolder, create_message({
-    from: "Homer <homer@example.com>",
+    from: ["Homer", "homer@example.com"],
     to: "powerplant-workers@springfield.invalid",
     subject: "delivered-to header matching only subpart of identity email",
     body: {body: "Mmmm...Forbidden donut"},
@@ -79,14 +72,8 @@ var setupModule = function (module) {
       "Delivered-To" : "<other." + identity2Email + ">"
     }
   }));
-  // Msg #5
-  add_message_to_folder(testFolder, create_message({
-    from: identity2Email + " <" + identity2Email+ ">",
-    to: "Marge <marge@example.com>",
-    subject: "from second self",
-    body: {body: "All my life I've had one dream, to achieve my many goals."}
-  }));
 }
+
 
 var addIdentitiesAndFolder = function() {
   let server = MailServices.accounts.createIncomingServer("nobody",
@@ -172,21 +159,5 @@ function test_deliveredto_to_matching_only_parlty() {
   let replyWin = composeHelper.open_compose_with_reply();
   // Should have selected the (default) first id.
   checkReply(replyWin, identity1Email);
-  close_compose_window(replyWin);
-}
-
-/**
- * A reply from self is treated as a follow-up. And this self
- * was the second identity, so the reply should also be from the second identity.
- */
-function test_reply_to_self_second_id() {
-  be_in_folder(testFolder);
-
-  let msg = select_click_row(5);
-  assert_selected_and_displayed(mc, msg);
-
-  let replyWin = composeHelper.open_compose_with_reply();
-  // Should have selected the second id, which was in From.
-  checkReply(replyWin, identity2Email);
   close_compose_window(replyWin);
 }
