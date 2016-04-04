@@ -1,17 +1,18 @@
 [
 {
-"clang_version": "r170890"
+"version": "clang 3.8.0/r247539",
+"size": 106877168,
+"digest": "1c50c6348eaf429ed59bb603cff63bcc1f870f59216dd3c234db5b1156cfd351d5ee7b820ec31be4d2661eb4213b2e0030e2ba2782b42905d1ec19c7f8bd322a",
+"algorithm": "sha512",
+"filename": "clang.tar.xz",
+"unpack": true
 },
 {
-"size": 47,
-"digest": "2005a41fe97a5e00997063705f39d42b6a43b1cf7ba306cbc7b1513de34cdcd050fc6326efa2107f19ba0cc67914745dbf13154fa748010a93cf072481ef4aaa",
+"size": 12072532,
+"digest": "3915f8ec396c56a8a92e6f9695b70f09ce9d1582359d1258e37e3fd43a143bc974410e4cfc27f500e095f34a8956206e0ebf799b7287f0f38def0d5e34ed71c9",
 "algorithm": "sha512",
-"filename": "setup.sh"
-},
-{
-"size": 62279506,
-"digest": "aa886361161a7d32aad71dfe5fd6b6cdff25610d8e32153a80caea66a8475aa8526d8529d8ac26e8ac26bd32878ee0df6d8dbef95dfd9faacec45b4ab918d52d",
-"algorithm": "sha512",
-"filename": "clang.tar.bz2"
+"filename": "gtk3.tar.xz",
+"setup": "setup.sh",
+"unpack": true
 }
 ]
