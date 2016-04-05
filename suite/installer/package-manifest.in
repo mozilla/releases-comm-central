@@ -958,3 +958,12 @@ bin/libfreebl_32int64_3.so
 @RESPATH@/extensions/debugQA@mozilla.org/chrome/debugqa@JAREXT@
 #endif
 #endif
+
+#ifdef MOZ_CALENDAR
+[calendar]
+#ifdef NIGHTLY_BUILD
+@RESPATH@/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/
+#else
+@RESPATH@/distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/
+#endif
+#endif
