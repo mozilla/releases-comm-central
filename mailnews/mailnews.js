@@ -220,7 +220,6 @@ pref("news.update_unread_on_expand",        true);
 pref("news.get_messages_on_select",         true);
 
 pref("mailnews.wraplength",                 72);
-pref("mail.compose.wrap_to_window_width",   false);
 
 // 0=no header, 1="<author> wrote:", 2="On <date> <author> wrote:", 3="<author> wrote On <date>:", 4=user specified
 pref("mailnews.reply_header_type",          1);

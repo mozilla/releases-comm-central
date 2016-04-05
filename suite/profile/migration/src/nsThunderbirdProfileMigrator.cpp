@@ -284,7 +284,6 @@ nsThunderbirdProfileMigrator::PrefTransform gTransforms[] = {
   MAKESAMETYPEPREFTRANSFORM("mail.compose.dont_attach_source_of_local_network_links", Bool),
   MAKESAMETYPEPREFTRANSFORM("mail.compose.dontWarnMail2Newsgroup",     Bool),
   MAKESAMETYPEPREFTRANSFORM("mail.compose.other.header",               String),
-  MAKESAMETYPEPREFTRANSFORM("mail.compose.wrap_to_window_width",       Bool),
   MAKESAMETYPEPREFTRANSFORM("mail.content_disposition_type",           Int),
 
   MAKESAMETYPEPREFTRANSFORM("mail.default_html_action",                Int),
