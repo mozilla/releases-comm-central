@@ -95,12 +95,6 @@
 <!ENTITY userIcon.label                "Change your icon">
 <!ENTITY contactsHeader.label          "Contacts">
 <!ENTITY convsHeader.label             "Conversations on hold">
-<!-- LOCALIZATION NOTE (dummyContact.label):
-     This string is not displayed anywhere, but it is used to calculate
-     the height of an item in the contact list. Therefore you should
-     set it to a string which contains characters that cover all
-     vertical sizes that occur in your language. -->
-<!ENTITY dummyContact.label            "SgFyWp">
 
 <!ENTITY openConversationCmd.label     "Start a conversation">
 <!ENTITY openConversationCmd.accesskey "c">

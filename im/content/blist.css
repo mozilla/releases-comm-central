@@ -30,26 +30,13 @@ group {
   -moz-box-align: center;
 }
 
-/* The height is required for the animation to work. */
+/* The height is required for the animation to work. The skin can
+ * specify an additionnal min-height value if there are things of
+ * constant size (icons + padding) */
+contact,
+buddy,
 group {
   height: 1em;
-}
-
-conv,
-contact,
-buddy {
-  /* Variable set from blist.js. This is necessary as CSS transitions don't
-     work with height: auto.
-     Usually 16+2+2px for the protocol icon, padding top and bottom. */
-  height: var(--blist-item-height);
-}
-
-contact[open],
-contact[aliasing],
-#buddylistbox:focus > contact[selected] {
-  /* This is fine because height transitions in this state are on the
-     buddies, and there is no transition on selection (it's instant). */
-  height: auto;
 }
 
 /* Possible values of the |state| attribute:
@@ -64,24 +51,23 @@ contact:not([state]),
 buddy:not([state]) {
   height: 0;
 }
-
 contact[state="showing"],
 buddy[state="showing"] {
   /* Should match the transition effect for contact/buddy collapsing so
      that reordering doesn't make the whole list jump. */
-  transition: height .2s ease-in;
+  -moz-transition: height .2s ease-in;
 }
 
 contact[state="fading"] {
   opacity: 0;
-  transition: opacity .4s ease-in 1s;
+  -moz-transition: opacity .4s ease-in 1s;
 }
 
 contact[state="collapsing"],
 buddy[state="collapsing"],
 group[collapsing="true"] {
   height: 0;
-  transition: height .2s ease-in;
+  -moz-transition: height .2s ease-in;
 }
 
 contact[state="collapsing"] *,
@@ -90,10 +76,6 @@ buddy[state="collapsing"] *,
 buddy[state="showing"] *,
 group[collapsing="true"] * {
   display: none;
-}
-
-#dummylistbox {
-  visibility: hidden;
 }
 
 tooltip[type="im"] {
@@ -150,6 +132,7 @@ contact[cansend]:hover .startChatBubble,
 
 conv {
   -moz-binding: url("chrome://instantbird/content/conv.xml#conv");
+  -moz-box-align: center;
 }
 
 .convUnreadCount[value="0"],

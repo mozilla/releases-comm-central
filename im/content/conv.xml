@@ -15,14 +15,12 @@
           xmlns:html="http://www.w3.org/1999/xhtml">
 
   <binding id="conv" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
-    <content align="center">
-      <xul:vbox mousethrough="always">
-        <xul:stack class="prplBuddyIcon" mousethrough="always">
-          <xul:image class="protoIcon" xbl:inherits="src=iconPrpl,status"/>
-          <xul:image class="statusIcon" xbl:inherits="status"/>
-        </xul:stack>
-      </xul:vbox>
-      <xul:hbox flex="1" class="conv-hbox" mousethrough="always" align="center">
+    <content>
+      <xul:stack class="prplBuddyIcon" mousethrough="always">
+        <xul:image class="protoIcon" xbl:inherits="src=iconPrpl,status"/>
+        <xul:image class="statusIcon" xbl:inherits="status"/>
+      </xul:stack>
+      <xul:hbox flex="1" class="conv-hbox" mousethrough="always">
         <xul:label crop="end" flex="1" mousethrough="always"
                    anonid="displayname" class="convDisplayName blistDisplayName"
                    xbl:inherits="value=displayname,status"/>

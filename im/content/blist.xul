@@ -225,10 +225,6 @@
                  onfocus="buddyList.buddylistboxFocus();"
                  onselect="buddyList.listboxSelect(event);"
                  tooltip="imTooltip"/>
-    <richlistbox id="dummylistbox">
-      <contact id="dummyContact" displayname="&dummyContact.label;"
-               state="visible" status="unknown"/>
-    </richlistbox>
     <spacer id="listSpacer" flex="1"
             onclick='document.getElementById("buddylistbox").focus();'/>
   </notificationbox>
