@@ -9,3 +9,7 @@ fi;
 ac_add_options --enable-application=suite
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 ac_add_options --enable-update-packaging
+
+# Build lightning locales
+ac_add_options --enable-calendar
+mk_add_options MOZ_POSTFLIGHT_ALL+=calendar/lightning/build/universal.mk

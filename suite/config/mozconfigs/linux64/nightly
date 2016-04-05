@@ -8,6 +8,7 @@ ac_add_options --disable-debug
 ac_add_options --enable-tests
 ac_add_options --disable-elf-hack
 ac_add_options --enable-profiling
+ac_add_options --enable-calendar
 
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1

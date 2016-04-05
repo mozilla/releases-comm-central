@@ -22,5 +22,9 @@ export CXXFLAGS="-gdwarf-2"
 export MOZ_DEBUG_SYMBOLS=1
 ac_add_options --enable-debug-symbols="-gdwarf-2"
 
+# Build lightning locales
+ac_add_options --enable-calendar
+mk_add_options MOZ_POSTFLIGHT_ALL+=calendar/lightning/build/universal.mk
+
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1

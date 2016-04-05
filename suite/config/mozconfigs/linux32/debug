@@ -6,6 +6,8 @@ ac_add_options --enable-debug
 
 ac_add_options --enable-tests
 
+ac_add_options --enable-calendar
+
 export CFLAGS="-gdwarf-2"
 export CXXFLAGS="-gdwarf-2"
 
