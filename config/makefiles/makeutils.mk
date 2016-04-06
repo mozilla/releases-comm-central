@@ -113,9 +113,5 @@ ifdef USE_AUTOTARGETS_MK # mkdir_deps
   include $(topORerr)/config/makefiles/autotargets.mk
 endif
 
-ifdef USE_RCS_MK
-  include $(topORerr)/config/makefiles/rcs.mk
-endif
-
 ## copy(src, dst): recursive copy
 copy_dir = (cd $(1)/. && $(TAR) $(TAR_CREATE_FLAGS) - .) | (cd $(2)/. && tar -xf -)
