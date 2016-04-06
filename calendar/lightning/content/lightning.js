@@ -78,6 +78,9 @@ pref("calendar.itip.displayInvitationChanges", true);
 //whether for delegated invitations a delegatee's replies will be send also to delegator(s)
 pref("calendar.itip.notifyDelegatorOnReply", true);
 
+// whether to prefix the subject field for email invitation invites or updates.
+pref("calendar.itip.useInvitationSubjectPrefixes", true);
+
 // whether CalDAV (experimental) scheduling is enabled or not.
 pref("calendar.caldav.sched.enabled", false);
 

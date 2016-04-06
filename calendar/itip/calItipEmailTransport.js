@@ -51,91 +51,131 @@ calItipEmailTransport.prototype = {
         return (this.mSenderAddress = aValue);
     },
 
-
     sendItems: function cietSI(aCount, aRecipients, aItipItem) {
         if (this.mHasXpcomMail) {
             cal.LOG("sendItems: Sending Email...");
-
-            let item = aItipItem.getItemList({})[0];
-
-            // Get ourselves some default text - when we handle organizer properly
-            // We'll need a way to configure the Common Name attribute and we should
-            // use it here rather than the email address
-
-            let summary = (item.getProperty("SUMMARY") || "");
-            let aSubject = "";
-            let aBody = "";
-            switch (aItipItem.responseMethod) {
-                case 'REQUEST':
-                    let seq = item.getProperty("SEQUENCE");
-                    let subjectKey = (seq && seq > 0 ? "itipRequestUpdatedSubject" : "itipRequestSubject");
-                    aSubject = cal.calGetString("lightning",
-                                                subjectKey,
-                                                [summary],
-                                                "lightning");
-                    aBody = cal.calGetString("lightning",
-                                             "itipRequestBody",
-                                             [item.organizer ? item.organizer.toString() : "", summary],
-                                             "lightning");
-                    break;
-                case 'CANCEL':
-                    aSubject = cal.calGetString("lightning",
-                                                "itipCancelSubject",
-                                                [summary],
-                                                "lightning");
-                    aBody = cal.calGetString("lightning",
-                                             "itipCancelBody",
-                                             [item.organizer ? item.organizer.toString() : "", summary],
-                                             "lightning");
-                    break;
-                case 'REPLY': {
-                    // Get my participation status
-                    let att = cal.getInvitedAttendee(item, aItipItem.targetCalendar);
-                    if (!att && aItipItem.identity) {
-                        att = item.getAttendeeById("mailto:" + aItipItem.identity);
-                    }
-                    if (!att) { // should not happen anymore
-                        return false;
-                    }
-
-                    // work around BUG 351589, the below just removes RSVP:
-                    aItipItem.setAttendeeStatus(att.id, att.participationStatus);
-                    let myPartStat = att.participationStatus;
-                    let name = att.toString();
-
-                    // Generate proper body from my participation status
-                    let subjectKey, bodyKey;
-                    switch (myPartStat) {
-                        case "ACCEPTED":
-                            subjectKey = "itipReplySubjectAccept";
-                            bodyKey = "itipReplyBodyAccept";
-                            break;
-                        case "TENTATIVE":
-                            subjectKey = "itipReplySubjectTentative";
-                            bodyKey = "itipReplyBodyAccept";
-                            break;
-                        case "DECLINED":
-                            subjectKey = "itipReplySubjectDecline";
-                            bodyKey = "itipReplyBodyDecline";
-                            break;
-                        default:
-                            subjectKey = "itipReplySubject";
-                            bodyKey = "itipReplyBodyAccept";
-                            break;
-                    }
-                    aSubject = cal.calGetString("lightning", subjectKey, [summary], "lightning");
-                    aBody = cal.calGetString("lightning", bodyKey, [name], "lightning");
-
-                    break;
-                }
-            }
-
-            return this._sendXpcomMail(aRecipients, aSubject, aBody, aItipItem);
+            let items = this._prepareItems(aItipItem);
+            return (items === false)
+                ? false
+                : this._sendXpcomMail(
+                    aRecipients,
+                    items.subject,
+                    items.body,
+                    aItipItem
+                );
         } else {
             // Sunbird case: Call user's default mailer on system.
             throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
         }
         return false;
+    },
+
+    _prepareItems: function (aItipItem) {
+        let item = aItipItem.getItemList({})[0];
+
+        // Get ourselves some default text - when we handle organizer properly
+        // We'll need a way to configure the Common Name attribute and we should
+        // use it here rather than the email address
+
+        let summary = (item.getProperty("SUMMARY") || "");
+        let subject = "";
+        let body = "";
+        switch (aItipItem.responseMethod) {
+            case "REQUEST":
+                let usePrefixes = Preferences.get(
+                    "calendar.itip.useInvitationSubjectPrefixes",
+                    true
+                );
+                if (!usePrefixes) {
+                    subject = summary;
+                } else {
+                    let seq = item.getProperty("SEQUENCE");
+                    let subjectKey = (seq && seq > 0)
+                        ? "itipRequestUpdatedSubject"
+                        : "itipRequestSubject";
+                    subject = cal.calGetString(
+                        "lightning",
+                        subjectKey,
+                        [summary],
+                        "lightning"
+                    );
+                }
+                body = cal.calGetString(
+                    "lightning",
+                    "itipRequestBody",
+                    [item.organizer ? item.organizer.toString() : "", summary],
+                    "lightning"
+                );
+                break;
+            case "CANCEL":
+                subject = cal.calGetString(
+                    "lightning",
+                    "itipCancelSubject",
+                    [summary],
+                    "lightning"
+                );
+                body = cal.calGetString(
+                    "lightning",
+                    "itipCancelBody",
+                    [item.organizer ? item.organizer.toString() : "", summary],
+                    "lightning"
+                );
+                break;
+            case "REPLY": {
+                // Get my participation status
+                let att = cal.getInvitedAttendee(item, aItipItem.targetCalendar);
+                if (!att && aItipItem.identity) {
+                    att = item.getAttendeeById("mailto:" + aItipItem.identity);
+                }
+                if (!att) { // should not happen anymore
+                    return false;
+                }
+
+                // work around BUG 351589, the below just removes RSVP:
+                aItipItem.setAttendeeStatus(att.id, att.participationStatus);
+                let myPartStat = att.participationStatus;
+                let name = att.toString();
+
+                // Generate proper body from my participation status
+                let subjectKey, bodyKey;
+                switch (myPartStat) {
+                    case "ACCEPTED":
+                        subjectKey = "itipReplySubjectAccept";
+                        bodyKey = "itipReplyBodyAccept";
+                        break;
+                    case "TENTATIVE":
+                        subjectKey = "itipReplySubjectTentative";
+                        bodyKey = "itipReplyBodyAccept";
+                        break;
+                    case "DECLINED":
+                        subjectKey = "itipReplySubjectDecline";
+                        bodyKey = "itipReplyBodyDecline";
+                        break;
+                    default:
+                        subjectKey = "itipReplySubject";
+                        bodyKey = "itipReplyBodyAccept";
+                        break;
+                }
+                subject = cal.calGetString(
+                    "lightning",
+                    subjectKey,
+                    [summary],
+                    "lightning"
+                );
+                body = cal.calGetString(
+                    "lightning",
+                    bodyKey,
+                    [name],
+                    "lightning"
+                );
+                break;
+            }
+        }
+
+        return {
+            subject: subject,
+            body: body
+        };
     },
 
     _initEmailTransport: function cietIES() {
