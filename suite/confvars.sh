@@ -23,7 +23,6 @@ ACCEPTED_MAR_CHANNEL_IDS=seamonkey-comm-central
 # The MAR_CHANNEL_ID must not contain the following 3 characters: ",\t "
 MAR_CHANNEL_ID=seamonkey-comm-central
 MOZ_HELP_VIEWER=1
-MOZ_MEDIA_NAVIGATOR=1
 MOZ_MORK=1
 # Enable navigator.mozPay
 MOZ_PAY=1
