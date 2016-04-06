@@ -91,6 +91,7 @@
 @BINPATH@/@MSVC_CXX_RUNTIME_DLL@
 #endif
 #ifndef MOZ_SYSTEM_ICU
+@RESPATH@/@ICU_DATA_FILE@
 #endif
 
 ; Optional RSS extension

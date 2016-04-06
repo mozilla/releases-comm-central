@@ -109,6 +109,7 @@
 
 #endif # MOZ_ANGLE_RENDERER
 #ifndef MOZ_SYSTEM_ICU
+@RESPATH@/@ICU_DATA_FILE@
 #endif
 
 @RESPATH@/components/PACGenerator.js

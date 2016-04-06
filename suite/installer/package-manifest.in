@@ -111,6 +111,7 @@
 #endif
 #endif
 #ifndef MOZ_SYSTEM_ICU
+@RESPATH@/@ICU_DATA_FILE@
 #endif
 
 [browser]
