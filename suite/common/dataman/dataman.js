@@ -957,6 +957,7 @@ var gCookies = {
               rawHost: aCookie.rawHost,
               displayHost: gLocSvc.idn.convertToDisplayIDN(aCookie.rawHost, {}),
               path: aCookie.path,
+              originAttributes: aCookie.originAttributes,
               isSecure: aCookie.isSecure,
               isSession: aCookie.isSession,
               isHttpOnly: aCookie.isHttpOnly,
@@ -1122,7 +1123,7 @@ var gCookies = {
       this.displayedCookies.splice(selections[i], 1);
       this.tree.treeBoxObject.rowCountChanged(selections[i], -1);
       Services.cookies.remove(delCookie.host, delCookie.name, delCookie.path,
-                              this.blockOnRemove.checked);
+                              delCookie.originAttributes, this.blockOnRemove.checked);
     }
     if (!this.displayedCookies.length)
       gDomains.removeDomainOrFlag(gDomains.selectedDomain.title, "hasCookies");

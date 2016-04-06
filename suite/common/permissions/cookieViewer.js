@@ -129,7 +129,8 @@ var cookiesTreeView = {
  };
 var cookiesTree;
 
-function Cookie(id,name,value,isDomain,host,rawHost,path,isSecure,expires) {
+function Cookie(id, name, value, isDomain, host, rawHost, path,
+                originAttributes, isSecure, expires) {
   this.id = id;
   this.name = name;
   this.value = value;
@@ -137,6 +138,7 @@ function Cookie(id,name,value,isDomain,host,rawHost,path,isSecure,expires) {
   this.host = host;
   this.rawHost = rawHost;
   this.path = path;
+  this.originAttributes = originAttributes;
   this.isSecure = isSecure;
   this.expires = GetExpiresString(expires);
   this.expiresSortValue = expires;
@@ -152,9 +154,11 @@ function loadCookies() {
     nextCookie = nextCookie.QueryInterface(Components.interfaces.nsICookie);
     var host = nextCookie.host;
     allCookies[count] =
-      new Cookie(count++, nextCookie.name, nextCookie.value, nextCookie.isDomain, host,
-                 (host.charAt(0)==".") ? host.substring(1,host.length) : host,
-                 nextCookie.path, nextCookie.isSecure, nextCookie.expires);
+      new Cookie(count++, nextCookie.name, nextCookie.value,
+                 nextCookie.isDomain, host,
+                 host.charAt(0)=="." ? host.slice(1) : host,
+                 nextCookie.path, nextCookie.originAttributes,
+                 nextCookie.isSecure, nextCookie.expires);
   }
 
   // filter, sort and display the table
@@ -291,6 +295,7 @@ function FinalizeCookieDeletions() {
     cookiemanager.remove(delCookie.host,
                          delCookie.name,
                          delCookie.path,
+                         delCookie.originAttributes,
                          document.getElementById("checkbox").checked);
   }
   deletedCookies.length = 0;
