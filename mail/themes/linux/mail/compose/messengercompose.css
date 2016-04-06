@@ -477,18 +477,13 @@ treechildren::-moz-tree-image(subscribed-news) {
   height: 1.4em;
 }
 
-#msgIdentity > .menulist-dropmarker {
+#msgIdentity[editable="true"] > .menulist-dropmarker {
   -moz-appearance: none;
   display: -moz-box;
-  padding: 6px;
+  margin-inline-start: 4px;
   border: none;
   background: transparent;
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
-}
-
-#msgIdentity > .menulist-dropmarker > .dropmarker-icon {
-  width: 5px;
-  height: 3px;
+  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");
 }
 
 /* ::::: format toolbar ::::: */
