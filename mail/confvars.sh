@@ -22,7 +22,6 @@ if test "$OS_ARCH" = "WINNT"; then
 fi
 
 MOZ_SAFE_BROWSING=1
-MOZ_MEDIA_NAVIGATOR=1
 MOZ_MORK=1
 
 MOZ_APP_VERSION_TXT=${_topsrcdir}/$MOZ_BUILD_APP/config/version.txt
