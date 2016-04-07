@@ -16,8 +16,8 @@
 using namespace mozilla;
 using namespace mozilla::dom;
 
-// 
-static const char* kAliases[][3] = {
+//
+static const nsUConvProp kAliases[] = {
 #include "charsetalias.properties.h"
 };
 
