@@ -68,6 +68,9 @@
 #ifndef MOZ_STATIC_JS
 @BINPATH@/@DLL_PREFIX@mozjs@DLL_SUFFIX@
 #endif
+#ifdef MOZ_DMD
+@BINPATH@/@DLL_PREFIX@dmd@DLL_SUFFIX@
+#endif
 #ifndef MOZ_SYSTEM_NSPR
 #ifndef MOZ_FOLD_LIBS
 @BINPATH@/@DLL_PREFIX@nspr4@DLL_SUFFIX@
@@ -86,12 +89,23 @@
 #else
 @BINPATH@/@MOZ_CHILD_PROCESS_NAME@
 #endif
+#ifdef XP_WIN32
+@BINPATH@/plugin-hang-ui@BIN_SUFFIX@
 #if MOZ_PACKAGE_MSVC_DLLS
 @BINPATH@/@MSVC_C_RUNTIME_DLL@
 @BINPATH@/@MSVC_CXX_RUNTIME_DLL@
 #endif
+#if MOZ_PACKAGE_WIN_UCRT_DLLS
+@BINPATH@/api-ms-win-*.dll
+@BINPATH@/ucrtbase.dll
+#endif
+#endif
 #ifndef MOZ_SYSTEM_ICU
 @RESPATH@/@ICU_DATA_FILE@
+#endif
+#ifdef MOZ_GTK3
+@BINPATH@/@DLL_PREFIX@mozgtk@DLL_SUFFIX@
+@BINPATH@/gtk2/@DLL_PREFIX@mozgtk@DLL_SUFFIX@
 #endif
 
 ; Optional RSS extension
@@ -125,10 +139,6 @@
 #ifdef MOZ_UPDATER
 @RESPATH@/icons/*.png
 #endif
-#endif
-#ifdef MOZ_GTK3
-@BINPATH@/@DLL_PREFIX@mozgtk@DLL_SUFFIX@
-@BINPATH@/gtk2/@DLL_PREFIX@mozgtk@DLL_SUFFIX@
 #endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -373,6 +383,9 @@
 @RESPATH@/components/content_events.xpt
 @RESPATH@/components/content_html.xpt
 @RESPATH@/components/content_geckomediaplugins.xpt
+#ifdef MOZ_WEBRTC
+@RESPATH@/components/content_webrtc.xpt
+#endif
 @RESPATH@/components/content_xslt.xpt
 @RESPATH@/components/cookie.xpt
 @RESPATH@/components/devtools_security.xpt
@@ -410,6 +423,7 @@
 @RESPATH@/components/dom_traversal.xpt
 @RESPATH@/components/dom_tv.xpt
 @RESPATH@/components/dom_webspeechrecognition.xpt
+@RESPATH@/components/dom_workers.xpt
 @RESPATH@/components/dom_xbl.xpt
 @RESPATH@/components/dom_xpath.xpt
 @RESPATH@/components/dom_xul.xpt
@@ -537,6 +551,8 @@
 @RESPATH@/components/ConsoleAPIStorage.js
 @RESPATH@/components/BrowserElementParent.manifest
 @RESPATH@/components/BrowserElementParent.js
+@RESPATH@/components/BrowserElementProxy.manifest
+@RESPATH@/components/BrowserElementProxy.js
 @RESPATH@/components/FeedProcessor.manifest
 @RESPATH@/components/FeedProcessor.js
 @RESPATH@/components/Downloads.manifest
@@ -710,6 +726,9 @@
 @RESPATH@/res/EditorOverride.css
 @RESPATH@/res/contenteditable.css
 @RESPATH@/res/designmode.css
+@RESPATH@/res/ImageDocument.css
+@RESPATH@/res/TopLevelImageDocument.css
+@RESPATH@/res/TopLevelVideoDocument.css
 @RESPATH@/res/table-add-column-after-active.gif
 @RESPATH@/res/table-add-column-after-hover.gif
 @RESPATH@/res/table-add-column-after.gif
@@ -730,12 +749,15 @@
 @RESPATH@/res/table-remove-row.gif
 @RESPATH@/res/grabber.gif
 #ifdef XP_MACOSX
-@RESPATH@/res/cursors/
+@RESPATH@/res/cursors/*
 #endif
 @RESPATH@/res/fonts/*
 @RESPATH@/res/dtd/*
-@RESPATH@/res/html/folder.png
+@RESPATH@/res/html/*
+#if defined(XP_MACOSX) || defined(XP_WIN)
+; For SafariProfileMigrator.js.
 @RESPATH@/res/langGroups.properties
+#endif
 @RESPATH@/res/language.properties
 @RESPATH@/res/entityTables/*
 #ifdef XP_MACOSX
@@ -775,6 +797,9 @@
 #if defined(MOZ_SANDBOX)
 #if defined(XP_WIN)
 @BINPATH@/@DLL_PREFIX@sandboxbroker@DLL_SUFFIX@
+#if defined(WOW_HELPER)
+@BINPATH@/wow_helper.exe
+#endif
 #endif
 #endif
 
@@ -807,6 +832,7 @@
 #ifdef MOZ_CRASHREPORTER
 @RESPATH@/components/CrashService.manifest
 @RESPATH@/components/CrashService.js
+@RESPATH@/components/toolkit_crashservice.xpt
 #ifdef XP_MACOSX
 @BINPATH@/crashreporter.app/
 #else

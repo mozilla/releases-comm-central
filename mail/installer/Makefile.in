@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 STANDALONE_MAKEFILE := 1
+# DIST_SUBDIR := mail  # Not sure why TB is not using this
 
 include $(topsrcdir)/config/rules.mk
 
@@ -52,6 +53,18 @@ ifdef _MSC_VER
 DEFINES += -D_MSC_VER=$(_MSC_VER)
 endif
 
+ifdef MOZ_SYSTEM_NSPR
+DEFINES += -DMOZ_SYSTEM_NSPR=1
+endif
+
+ifdef MOZ_SYSTEM_NSS
+DEFINES += -DMOZ_SYSTEM_NSS=1
+endif
+
+ifdef NSS_DISABLE_DBM
+DEFINES += -DNSS_DISABLE_DBM=1
+endif
+
 DEFINES += -DJAREXT=
 
 ifdef MOZ_ANGLE_RENDERER
@@ -68,27 +81,26 @@ ifdef MOZ_UPDATER
 DEFINES += -DMOZ_UPDATER=1
 endif
 
-ifdef MOZ_SYSTEM_NSPR
-DEFINES += -DMOZ_SYSTEM_NSPR=1
-endif
-
-ifdef MOZ_SYSTEM_NSS
-DEFINES += -DMOZ_SYSTEM_NSS=1
-endif
-
 DEFINES += -DMOZ_CHILD_PROCESS_NAME=$(MOZ_CHILD_PROCESS_NAME)
 
 # Set MSVC dlls version to package, if any.
-ifdef WIN32_REDIST_DIR
 ifdef MOZ_NO_DEBUG_RTL
+ifdef WIN32_REDIST_DIR
 DEFINES += -DMOZ_PACKAGE_MSVC_DLLS=1
 DEFINES += -DMSVC_C_RUNTIME_DLL=$(MSVC_C_RUNTIME_DLL)
 DEFINES += -DMSVC_CXX_RUNTIME_DLL=$(MSVC_CXX_RUNTIME_DLL)
+endif
+ifdef WIN_UCRT_REDIST_DIR
+DEFINES += -DMOZ_PACKAGE_WIN_UCRT_DLLS=1
 endif
 endif
 
 ifneq (,$(filter WINNT Darwin Android,$(OS_TARGET)))
 DEFINES += -DMOZ_SHARED_MOZGLUE=1
+endif
+
+ifdef NECKO_WIFI
+DEFINES += -DNECKO_WIFI
 endif
 
 ifdef MAKENSISU
@@ -116,10 +128,11 @@ INSTALL_SDK = 1
 include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/signing.mk
 include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/packager.mk
 
-ifeq (Darwin, $(OS_ARCH))
+ifeq (bundle, $(MOZ_FS_LAYOUT))
 BINPATH = $(_BINPATH)
 DEFINES += -DAPPNAME=$(_APPNAME)
 else
+# Every other platform just winds up in dist/bin
 BINPATH = bin
 endif
 DEFINES += -DBINPATH=$(BINPATH)
@@ -151,6 +164,13 @@ endif
 ifdef CLANG_CL
 DEFINES += -DCLANG_CL
 endif
+ifeq (x86,$(CPU_ARCH))
+ifdef _MSC_VER
+ifndef CLANG_CL
+DEFINES += -DWOW_HELPER
+endif
+endif
+endif
 
 libs::
 	$(MAKE) -C $(DEPTH)/mail/locales langpack
@@ -174,7 +194,7 @@ ifdef MOZ_PKG_MANIFEST_P
 	rm -f $(DIST)/pack-list.txt $(DIST)/bin-list.txt
 endif
 
-installer:
+installer::
 ifdef INSTALLER_DIR
 	$(MAKE) -C $(INSTALLER_DIR)
 endif
