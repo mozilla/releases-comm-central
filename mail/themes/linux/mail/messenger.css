@@ -23,8 +23,9 @@
   --toolbarbutton-checkedhover-backgroundcolor: rgba(200, 200, 200, .5);
 }
 
+#header-view-toolbar[brighttext],
 #ab-toolbox > toolbar[brighttext],
-#mail-toolbox > toolbar[brighttext],
+.mail-toolbox > toolbar[brighttext],
 #event-toolbox > toolbar[brighttext],
 #compose-toolbox > toolbar[brighttext] {
   --toolbarbutton-text-color: #fff;
@@ -39,7 +40,7 @@
 }
 
 #ab-toolbox > toolbar:-moz-lwtheme,
-#mail-toolbox > toolbar:-moz-lwtheme,
+.mail-toolbox > toolbar:-moz-lwtheme,
 #compose-toolbox > toolbar:-moz-lwtheme {
   --toolbarbutton-text-color: currentColor;
   --toolbarbutton-hover-background: rgba(255, 255, 255, .25);

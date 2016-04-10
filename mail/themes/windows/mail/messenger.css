@@ -231,8 +231,9 @@ button[type="menu-button"] > button {
     --toolbarbutton-checkedhover-backgroundcolor: rgba(0, 0, 0, .2);
   }
 
+  #header-view-toolbar[brighttext],
   #ab-toolbox > toolbar[brighttext],
-  #mail-toolbox > toolbar[brighttext],
+  .mail-toolbox > toolbar[brighttext],
   #event-toolbox > toolbar[brighttext],
   #compose-toolbox > toolbar[brighttext] {
     --toolbarbutton-hover-background: rgba(255, 255, 255, .25);
@@ -246,7 +247,7 @@ button[type="menu-button"] > button {
   }
 
   #ab-toolbox > toolbar:-moz-lwtheme,
-  #mail-toolbox > toolbar:-moz-lwtheme,
+  .mail-toolbox > toolbar:-moz-lwtheme,
   #compose-toolbox > toolbar:-moz-lwtheme {
     --toolbarbutton-hover-background: rgba(255, 255, 255, .25);
     --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .2);
