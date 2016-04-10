@@ -148,18 +148,26 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
 }
 
 .findbar-button:not(:-moz-any([checked="true"],[disabled="true"])):hover,
+.toolbarbutton-1:not([disabled=true]):hover {
+  background: var(--toolbarbutton-hover-background);
+  background-clip: padding-box;
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
+}
+
+.findbar-button:not(:-moz-any([checked="true"],[disabled="true"])):hover,
 .toolbarbutton-1:not([disabled=true]):hover,
 .toolbarbutton-1[open]:not([disabled=true]) > .toolbarbutton-menubutton-button,
 .toolbarbutton-1:not([disabled=true]):not(:-moz-any(:active, [open])):hover > .toolbarbutton-menubutton-button,
 .toolbarbutton-1:not([disabled=true]):not([open]):hover > .toolbarbutton-menubutton-dropmarker {
-  background: var(--toolbarbutton-hover-background);
-  background-clip: padding-box;
   border-color: var(--toolbarbutton-hover-bordercolor);
-  box-shadow: var(--toolbarbutton-hover-boxshadow);
+}
+
+.toolbarbutton-1:not([disabled=true]):-moz-any([open],[checked="true"],:hover:active) {
+  border-color: var(--toolbarbutton-active-bordercolor);
 }
 
 .findbar-button:not([disabled=true]):-moz-any([checked="true"],:hover:active),
-.toolbarbutton-1:not([disabled=true]):-moz-any([open],[checked="true"],:hover:active),
+.toolbarbutton-1:not([type="menu-button"]):not([disabled=true]):-moz-any([open],[checked="true"],:hover:active),
 .toolbarbutton-1 > .toolbarbutton-menubutton-button:not([disabled=true]):-moz-any(:hover:active, [open="true"]),
 .toolbarbutton-1[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled="true"]) {
   background: var(--toolbarbutton-active-background);
@@ -172,6 +180,18 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
 .toolbarbutton-1[checked="true"]:not(:active):hover {
   background-color: var(--toolbarbutton-checkedhover-backgroundcolor);
   transition: background-color 150ms;
+}
+
+.toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(ltr),
+.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(rtl) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(rtl),
+.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(ltr) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
