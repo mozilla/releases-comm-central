@@ -27,3 +27,12 @@
 #header-view-toolbox {
   font: message-box;
 }
+
+.toolbarbutton-1.msgHeaderView-button {
+  color: -moz-DialogText;
+  background-color: white;
+}
+
+.toolbarbutton-1.msgHeaderView-button:hover {
+  background-color: rgb(230, 230, 230) !important;
+}

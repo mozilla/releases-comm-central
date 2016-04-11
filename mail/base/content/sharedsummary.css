@@ -9,19 +9,20 @@ body {
   font-family: sans-serif;
   margin: 0;
   padding: 0;
-  background-color: white;
+  background-color: -moz-Field;
+  color: -moz-FieldText;
 }
 
 #heading_wrapper {
   position: fixed;
   top: 0;
   width: -moz-available;
-  background-color: #729fcf;
-  color: #fff;
+  color: HighlightText;
+  background-color: Highlight;
 }
 
 #heading {
-  padding: 1ex 0ex 1ex 1ex;
+  padding: 1ex 0 1ex 1ex;
   margin: 0;
   font-size: large;
   font-weight: normal;
@@ -34,7 +35,7 @@ body {
 }
 
 a {
-  color: darkblue;
+  color: -moz-nativehyperlinktext;
   font-weight: bold;
 }
 

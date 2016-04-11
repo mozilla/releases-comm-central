@@ -8,10 +8,6 @@
 
 /* mostly it's about CSS colors not being reliable */
 
-body {
-  background-color: white;
-}
-
 .heading.info {
   color: CaptionText;
 }
@@ -38,4 +34,16 @@ body {
 
 .starred .star {
   background-image: url("chrome://messenger/skin/icons/flag-col.png");
+}
+
+.toolbarbutton-1.msgHeaderView-button {
+  background: -moz-dialog;
+}
+
+.toolbarbutton-1.msgHeaderView-button:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover {
+  background: -moz-dialog linear-gradient(rgba(255, 255, 255, .5), transparent);
+}
+
+.toolbarbutton-1.msgHeaderView-button:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover {
+  background: rgb(154, 154, 154) linear-gradient(rgba(255, 255, 255, .7), rgba(255, 255, 255, .4));
 }
