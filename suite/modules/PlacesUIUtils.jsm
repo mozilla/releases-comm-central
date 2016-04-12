@@ -1060,7 +1060,7 @@ var PlacesUIUtils = {
           concreteId: PlacesUtils.bookmarksMenuFolderId },
       "UnfiledBookmarks":
         { title: null,
-          concreteTitle: PlacesUtils.getString("UnsortedBookmarksFolderTitle"),
+          concreteTitle: PlacesUtils.getString("OtherBookmarksFolderTitle"),
           concreteId: PlacesUtils.unfiledBookmarksFolderId },
     };
     // All queries but PlacesRoot.

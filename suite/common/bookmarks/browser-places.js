@@ -874,7 +874,7 @@ var BookmarksMenu = {
       let unsortedBookmarksElt =
         document.getElementById(aPrefix + "unsortedBookmarksFolderMenu");
       unsortedBookmarksElt.label =
-        PlacesUtils.getString("UnsortedBookmarksFolderTitle");
+        PlacesUtils.getString("OtherBookmarksFolderTitle");
     }
   },
 };
