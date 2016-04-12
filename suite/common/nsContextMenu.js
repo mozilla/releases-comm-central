@@ -876,29 +876,9 @@ nsContextMenu.prototype = {
 
   // View Partial Source
   viewPartialSource: function(aContext) {
-    var focusedWindow = document.commandDispatcher.focusedWindow;
-    if (focusedWindow == window)
-      focusedWindow = content;
-
-    var docCharset = null;
-    if (focusedWindow)
-      docCharset = "charset=" + focusedWindow.document.characterSet;
-
-    // "View Selection Source" and others such as "View MathML Source"
-    // are mutually exclusive, with the precedence given to the selection
-    // when there is one
-    var reference = null;
-    if (aContext == "selection")
-      reference = focusedWindow.getSelection();
-    else if (aContext == "mathml")
-      reference = this.target;
-    else
-      throw "not reached";
-
-    var docUrl = null; // unused (and play nice for fragments generated via XSLT too)
-    window.openDialog("chrome://global/content/viewPartialSource.xul",
-                      "_blank", "all,dialog=no",
-                      docUrl, docCharset, reference, aContext);
+    var browser = getBrowser().selectedBrowser;
+    var target = aContext == "mathml" ? this.target : null;
+    gViewSourceUtils.viewPartialSourceInBrowser(browser, target, null);
   },
 
   // Open new "view source" window with the frame's URL.
