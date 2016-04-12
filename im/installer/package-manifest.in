@@ -61,22 +61,21 @@
 
 [xpcom]
 @RESPATH@/dependentlibs.list
+#ifdef MOZ_SHARED_MOZGLUE
+@BINPATH@/@DLL_PREFIX@mozglue@DLL_SUFFIX@
+#endif
+#ifndef MOZ_STATIC_JS
+@BINPATH@/@DLL_PREFIX@mozjs@DLL_SUFFIX@
+#endif
+#ifdef MOZ_DMD
+@BINPATH@/@DLL_PREFIX@dmd@DLL_SUFFIX@
+#endif
 #ifndef MOZ_SYSTEM_NSPR
 #ifndef MOZ_FOLD_LIBS
 @BINPATH@/@DLL_PREFIX@nspr4@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@plc4@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@plds4@DLL_SUFFIX@
 #endif
-#endif
-#ifndef MOZ_STATIC_JS
-@BINPATH@/@DLL_PREFIX@mozjs@DLL_SUFFIX@
-#endif
-#if MOZ_PACKAGE_MSVC_DLLS
-@BINPATH@/@MSVC_C_RUNTIME_DLL@
-@BINPATH@/@MSVC_CXX_RUNTIME_DLL@
-#endif
-#ifdef MOZ_SHARED_MOZGLUE
-@BINPATH@/@DLL_PREFIX@mozglue@DLL_SUFFIX@
 #endif
 #ifdef XP_MACOSX
 @BINPATH@/XUL
@@ -88,6 +87,24 @@
 @BINPATH@/@DLL_PREFIX@plugin_child_interpose@DLL_SUFFIX@
 #else
 @BINPATH@/@MOZ_CHILD_PROCESS_NAME@
+#endif
+#ifdef XP_WIN32
+@BINPATH@/plugin-hang-ui@BIN_SUFFIX@
+#if MOZ_PACKAGE_MSVC_DLLS
+@BINPATH@/@MSVC_C_RUNTIME_DLL@
+@BINPATH@/@MSVC_CXX_RUNTIME_DLL@
+#endif
+#if MOZ_PACKAGE_WIN_UCRT_DLLS
+@BINPATH@/api-ms-win-*.dll
+@BINPATH@/ucrtbase.dll
+#endif
+#endif
+#ifndef MOZ_SYSTEM_ICU
+@RESPATH@/@ICU_DATA_FILE@
+#endif
+#ifdef MOZ_GTK3
+@BINPATH@/@DLL_PREFIX@mozgtk@DLL_SUFFIX@
+@BINPATH@/gtk2/@DLL_PREFIX@mozgtk@DLL_SUFFIX@
 #endif
 
 ; Security Reports
@@ -108,9 +125,6 @@
 #endif
 
 #endif # MOZ_ANGLE_RENDERER
-#ifndef MOZ_SYSTEM_ICU
-@RESPATH@/@ICU_DATA_FILE@
-#endif
 
 @RESPATH@/components/PACGenerator.js
 @RESPATH@/components/PACGenerator.manifest
@@ -125,8 +139,12 @@
 @BINPATH@/@MOZ_APP_NAME@-bin
 @BINPATH@/@MOZ_APP_NAME@
 #endif
-@BINPATH@/@DLL_PREFIX@lgpllibs@DLL_SUFFIX@
 @RESPATH@/application.ini
+#ifdef MOZ_UPDATER
+@RESPATH@/update-settings.ini
+#endif
+@BINPATH@/@DLL_PREFIX@lgpllibs@DLL_SUFFIX@
+@RESPATH@/blocklist.xml
 @RESPATH@/platform.ini
 #ifndef MOZ_SYSTEM_SQLITE
 #ifndef MOZ_FOLD_LIBS
@@ -138,10 +156,6 @@
 #ifdef MOZ_UPDATER
 @RESPATH@/icons/*.png
 #endif
-#endif
-#ifdef MOZ_GTK3
-@BINPATH@/@DLL_PREFIX@mozgtk@DLL_SUFFIX@
-@BINPATH@/gtk2/@DLL_PREFIX@mozgtk@DLL_SUFFIX@
 #endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -312,6 +326,10 @@
 ; layout
 @RESPATH@/components/content_events.xpt
 @RESPATH@/components/content_html.xpt
+@RESPATH@/components/content_geckomediaplugins.xpt
+#ifdef MOZ_WEBRTC
+@RESPATH@/components/content_webrtc.xpt
+#endif
 @RESPATH@/components/content_xslt.xpt
 @RESPATH@/components/html5.xpt
 @RESPATH@/components/htmlparser.xpt
@@ -366,11 +384,15 @@
 @RESPATH@/components/AppsService.manifest
 @RESPATH@/components/BrowserElementParent.js
 @RESPATH@/components/BrowserElementParent.manifest
+@RESPATH@/components/BrowserElementProxy.manifest
+@RESPATH@/components/BrowserElementProxy.js
 @RESPATH@/components/ColorAnalyzer.js
 @RESPATH@/components/PageThumbsProtocol.js
 @RESPATH@/components/XULStore.js
 @RESPATH@/components/XULStore.manifest
 @RESPATH@/components/PermissionSettings.js
+@RESPATH@/components/messageWakeupService.js
+@RESPATH@/components/messageWakeupService.manifest
 @RESPATH@/components/SettingsManager.js
 @RESPATH@/components/SettingsManager.manifest
 @RESPATH@/components/SiteSpecificUserAgent.js
@@ -453,6 +475,7 @@
 @RESPATH@/components/dom.xpt
 @RESPATH@/components/dom_alarm.xpt
 @RESPATH@/components/dom_apps.xpt
+@RESPATH@/components/dom_newapps.xpt
 @RESPATH@/components/dom_base.xpt
 @RESPATH@/components/dom_canvas.xpt
 @RESPATH@/components/dom_core.xpt
@@ -473,6 +496,7 @@
 @RESPATH@/components/dom_presentation.xpt
 @RESPATH@/components/dom_quota.xpt
 @RESPATH@/components/dom_range.xpt
+@RESPATH@/components/dom_security.xpt
 @RESPATH@/components/dom_settings.xpt
 @RESPATH@/components/dom_sidebar.xpt
 @RESPATH@/components/dom_smil.xpt
@@ -480,8 +504,10 @@
 @RESPATH@/components/dom_stylesheets.xpt
 @RESPATH@/components/dom_system.xpt
 @RESPATH@/components/dom_traversal.xpt
+@RESPATH@/components/dom_tv.xpt
 @RESPATH@/components/dom_webspeechrecognition.xpt
 @RESPATH@/components/dom_webspeechsynth.xpt
+@RESPATH@/components/dom_workers.xpt
 @RESPATH@/components/dom_xbl.xpt
 @RESPATH@/components/dom_xul.xpt
 @RESPATH@/components/NetworkGeolocationProvider.js
@@ -572,6 +598,9 @@
 #if defined(MOZ_SANDBOX)
 #if defined(XP_WIN)
 @BINPATH@/@DLL_PREFIX@sandboxbroker@DLL_SUFFIX@
+#if defined(WOW_HELPER)
+@BINPATH@/wow_helper.exe
+#endif
 #endif
 #endif
 
@@ -639,21 +668,14 @@
 @RESPATH@/components/places.xpt
 @RESPATH@/components/plugin.xpt
 @RESPATH@/components/prefetch.xpt
-@RESPATH@/res/langGroups.properties
-@RESPATH@/res/language.properties
-@RESPATH@/res/entityTables/*
-@RESPATH@/res/dtd/*
-@RESPATH@/res/fonts/*
-@RESPATH@/res/contenteditable.css
-@RESPATH@/res/designmode.css
-@RESPATH@/res/html/folder.png
-#ifdef XP_MACOSX
-@RESPATH@/res/cursors/
-@RESPATH@/res/MainMenu.nib/
-#endif
 
 ; editor resource files
 @RESPATH@/res/EditorOverride.css
+@RESPATH@/res/contenteditable.css
+@RESPATH@/res/designmode.css
+@RESPATH@/res/ImageDocument.css
+@RESPATH@/res/TopLevelImageDocument.css
+@RESPATH@/res/TopLevelVideoDocument.css
 @RESPATH@/res/table-add-column-after-active.gif
 @RESPATH@/res/table-add-column-after-hover.gif
 @RESPATH@/res/table-add-column-after.gif
@@ -673,6 +695,21 @@
 @RESPATH@/res/table-remove-row-hover.gif
 @RESPATH@/res/table-remove-row.gif
 @RESPATH@/res/grabber.gif
+#ifdef XP_MACOSX
+@RESPATH@/res/cursors/*
+#endif
+@RESPATH@/res/fonts/*
+@RESPATH@/res/dtd/*
+@RESPATH@/res/html/*
+#if defined(XP_MACOSX) || defined(XP_WIN)
+; For SafariProfileMigrator.js.
+@RESPATH@/res/langGroups.properties
+#endif
+@RESPATH@/res/language.properties
+@RESPATH@/res/entityTables/*
+#ifdef XP_MACOSX
+@RESPATH@/res/MainMenu.nib/
+#endif
 
 ; svg
 @RESPATH@/res/svg.css
@@ -687,11 +724,19 @@
 #endif
 #endif
 
+; [MaintenanceService]
+;
+#ifdef MOZ_MAINTENANCE_SERVICE
+@BINPATH@/maintenanceservice.exe
+@BINPATH@/maintenanceservice_installer.exe
+#endif
+
 ; [Crash Reporter]
 ;
 #ifdef MOZ_CRASHREPORTER
 @RESPATH@/components/CrashService.manifest
 @RESPATH@/components/CrashService.js
+@RESPATH@/components/toolkit_crashservice.xpt
 #ifdef XP_MACOSX
 @BINPATH@/crashreporter.app/
 #else
@@ -705,3 +750,7 @@
 @BINPATH@/breakpadinjector.dll
 #endif
 #endif
+
+; Shutdown Terminator
+@RESPATH@/components/nsTerminatorTelemetry.js
+@RESPATH@/components/terminator.manifest
