@@ -18,7 +18,7 @@
 #    clean
 #    distclean
 #
-# See http://developer.mozilla.org/en/Build_Documentation for 
+# See http://developer.mozilla.org/en/Build_Documentation for
 # more information.
 #
 # Options:
@@ -54,19 +54,6 @@ MOZ_OBJDIR = .
 else
 TOPSRCDIR := $(CWD)
 endif
-endif
-
-# try to find autoconf 2.13 - discard errors from 'which'
-# MacOS X 10.4 sends "no autoconf*" errors to stdout, discard those via grep
-AUTOCONF ?= $(shell which autoconf-2.13 autoconf2.13 autoconf213 2>/dev/null | grep -v '^no autoconf' | head -1)
-
-# See if the autoconf package was installed through fink
-ifeq (,$(strip $(AUTOCONF)))
-AUTOCONF = $(shell which fink >/dev/null 2>&1 && echo `which fink`/../../lib/autoconf2.13/bin/autoconf)
-endif
-
-ifeq (,$(strip $(AUTOCONF)))
-AUTOCONF=$(error Could not find autoconf 2.13)
 endif
 
 SH := /bin/sh
@@ -327,8 +314,9 @@ EXTRA_CONFIG_DEPS := \
 	$(NULL)
 
 $(CONFIGURES): %: %.in $(EXTRA_CONFIG_DEPS)
-	@echo Generating $@ using autoconf
-	cd $(@D); $(AUTOCONF)
+	@echo Generating $@
+	sed '1,/^divert/d' $< > $@
+	chmod +x $@
 
 CONFIG_STATUS_DEPS := \
 	$(wildcard $(CONFIGURES)) \
