@@ -3,11 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-    do_test_pending();
-    cal.getTimezoneService().startup({onResult: function() {
-        do_test_finished();
-        run_next_test();
-    }});
+    do_calendar_startup(run_next_test);
 }
 
 /**

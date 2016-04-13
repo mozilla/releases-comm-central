@@ -10,6 +10,10 @@ var freebusy = Components.classes["@mozilla.org/calendar/freebusy-service;1"]
                          .getService(Components.interfaces.calIFreeBusyService);
 
 function run_test() {
+    do_calendar_startup(really_run_test);
+}
+
+function really_run_test() {
     test_found();
     test_failure();
     test_cancel();

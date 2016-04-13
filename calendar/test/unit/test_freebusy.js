@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
+    do_calendar_startup(really_run_test);
+}
+
+function really_run_test() {
     test_freebusy();
     test_period();
 }

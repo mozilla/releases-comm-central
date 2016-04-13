@@ -8,12 +8,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 function run_test() {
-    do_test_pending();
-    //do_get_profile();
-    cal.getTimezoneService().startup({onResult: function() {
-        do_test_finished();
-        run_next_test();
-    }});
+    do_calendar_startup(run_next_test);
 }
 
 // tests for ltnInvitationUtils.jsm

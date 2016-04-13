@@ -9,19 +9,10 @@ Components.utils.import("resource://gre/modules/Services.jsm");
  * Tests the calICalendarManager interface
  */
 function run_test() {
-    do_get_profile();
-    // Initialize the floating timezone without actually starting the service.
-    cal.getTimezoneService().floating;
-    add_test(test_registration);
-    add_test(test_calobserver);
-    add_test(test_calprefs);
-    add_test(test_removeModes);
-    cal.getCalendarManager().startup({ onResult: function() {
-        run_next_test();
-    }});
+    do_calendar_startup(run_next_test);
 }
 
-function test_calobserver() {
+add_test(function test_calobserver() {
     function checkCounters(add, modify, del, alladd, allmodify, alldel) {
         equal(calcounter.addItem, add);
         equal(calcounter.modifyItem, modify);
@@ -100,9 +91,9 @@ function test_calobserver() {
 
     // We are done now, start the next test
     run_next_test();
-}
+});
 
-function test_registration() {
+add_test(function test_registration() {
     function checkCalendarCount(net, rdonly, all) {
         equal(calmgr.networkCalendarCount, net);
         equal(calmgr.readOnlyCalendarCount , rdonly);
@@ -192,9 +183,9 @@ function test_registration() {
 
     // We are done now, start the next test
     run_next_test();
-}
+});
 
-function test_removeModes() {
+add_test(function test_removeModes() {
     function checkCounts(modes, shouldDelete, expectCount, extraFlags=0) {
         if (calmgr.calendarCount == baseCalendarCount) {
             calmgr.registerCalendar(memory);
@@ -243,9 +234,9 @@ function test_removeModes() {
     checkCounts(["delete"], SHOULD_DELETE, 0);
 
     run_next_test();
-}
+});
 
-function test_calprefs() {
+add_test(function test_calprefs() {
     let prop;
     let calmgr = cal.getCalendarManager();
     let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
@@ -306,4 +297,4 @@ function test_calprefs() {
 
     // We are done now, start the next test
     run_next_test();
-}
+});

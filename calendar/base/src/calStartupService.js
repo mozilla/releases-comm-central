@@ -54,6 +54,8 @@ calStartupService.prototype = {
         Services.obs.addObserver(this, "xpcom-shutdown", false);
     },
 
+    started: false,
+
     /**
      * Gets the startup order of services. This is an array of service objects
      * that should be called in order at startup.
@@ -61,6 +63,7 @@ calStartupService.prototype = {
      * @return      The startup order as an array.
      */
     getStartupOrder: function getStartupOrder() {
+        let self = this;
         let tzService = Components.classes["@mozilla.org/calendar/timezone-service;1"]
                                   .getService(Components.interfaces.calITimezoneService);
         let calMgr = Components.classes["@mozilla.org/calendar/manager;1"]
@@ -69,6 +72,7 @@ calStartupService.prototype = {
         // Notification object
         let notify = {
             startup: function(aCompleteListener) {
+                self.started = true;
                 Services.obs.notifyObservers(null, "calendar-startup-done", null);
                 aCompleteListener.onResult(null, Components.results.NS_OK);
             },
@@ -77,6 +81,7 @@ calStartupService.prototype = {
                 // the array, the shutdown notification would happen before the
                 // other shutdown calls. For lack of pretty code, I'm
                 // leaving this out! Users can still listen to xpcom-shutdown.
+                self.started = false;
                 aCompleteListener.onResult(null, Components.results.NS_OK);
             }
         };

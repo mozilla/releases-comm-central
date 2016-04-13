@@ -3,16 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-    do_test_pending();
-    cal.getTimezoneService().startup({
-        onResult: function() {
-            testAttachRoundtrip();
-            do_test_finished();
-        }
-    });
+    do_calendar_startup(run_next_test);
 }
 
-function testAttachRoundtrip() {
+add_test(function testAttachRoundtrip() {
     let storage = getStorageCal();
     let str = ["BEGIN:VEVENT",
                "UID:attachItem",
@@ -103,6 +97,7 @@ function testAttachRoundtrip() {
                 do_throw("Could not find item");
             }
             do_test_finished();
+            run_next_test();
         }
     };
-}
+});

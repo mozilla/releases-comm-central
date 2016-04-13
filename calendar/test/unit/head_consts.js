@@ -205,3 +205,42 @@ function readJSONFile(aFile) {
   }
   return false;
 }
+
+function do_load_timezoneservice(callback) {
+    do_test_pending();
+    cal.getTimezoneService().startup({onResult: function() {
+        do_test_finished();
+        callback();
+    }});
+}
+
+function do_load_calmgr(callback) {
+    do_test_pending();
+    cal.getCalendarManager().startup({onResult: function() {
+        do_test_finished();
+        callback();
+    }});
+}
+
+function do_calendar_startup(callback) {
+    let obs = {
+      observe: function() {
+        Services.obs.removeObserver(this, "calendar-startup-done");
+        do_execute_soon(callback);
+      }
+    };
+
+    let ss = Components.classes['@mozilla.org/calendar/startup-service;1']
+                       .getService(Components.interfaces.nsISupports).wrappedJSObject;
+
+    if (ss.started) {
+        callback();
+    } else {
+        Services.obs.addObserver(obs, "calendar-startup-done", false);
+        if (_profileInitialized) {
+            Services.obs.notifyObservers(null, "profile-after-change", "xpcshell-do-get-profile");
+        } else {
+            do_get_profile(true);
+        }
+    }
+}

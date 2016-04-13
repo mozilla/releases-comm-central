@@ -8,14 +8,7 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calXMLUtils.jsm");
 
 function run_test() {
-    do_get_profile();
-    do_test_pending();
-    cal.getCalendarManager().startup({onResult: function() {
-        cal.getTimezoneService().startup({onResult: function() {
-            do_test_finished();
-            run_next_test();
-        }});
-    }});
+    do_calendar_startup(run_next_test);
 }
 
 add_task(function* test_setDefaultValues_events() {

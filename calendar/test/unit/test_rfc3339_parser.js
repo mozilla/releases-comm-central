@@ -5,13 +5,7 @@
 Components.utils.import("resource://calendar/modules/calProviderUtils.jsm");
 
 function run_test() {
-    do_test_pending();
-    cal.getTimezoneService().startup({
-        onResult: function() {
-            really_run_test();
-            do_test_finished();
-        }
-    });
+    do_calendar_startup(really_run_test);
 }
 
 function really_run_test() {

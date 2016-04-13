@@ -114,12 +114,10 @@ function run_test() {
     add_test(() => {
         // initialization needs to be done within the first test in order for
         // the subsequent tests to run properly
-        initializeAlarmService();
-        cal.getCalendarManager().startup({onResult: function() {
-            cal.getTimezoneService().startup({onResult: function() {
-                run_next_test();
-            }});
-        }});
+        do_calendar_startup(function() {
+            initializeAlarmService();
+            run_next_test();
+        });
     });
     add_test(test_addItems);
     add_test(test_loadCalendar);
@@ -133,8 +131,7 @@ function initializeAlarmService() {
                                        .getService(Components.interfaces.calIAlarmService)
                                        .wrappedJSObject;
     ok(!alarmObserver.service.mStarted);
-
-    alarmObserver.service.startup();
+    alarmObserver.service.startup(null);
     ok(alarmObserver.service.mStarted);
 
     // we need to replace the existing observers with our observer
