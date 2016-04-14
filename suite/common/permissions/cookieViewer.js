@@ -129,16 +129,16 @@ var cookiesTreeView = {
  };
 var cookiesTree;
 
-function Cookie(id, name, value, isDomain, host, rawHost, path,
-                originAttributes, isSecure, expires) {
+function Cookie(id, host, name, path, originAttributes, value,
+                isDomain, rawHost, isSecure, expires) {
   this.id = id;
-  this.name = name;
-  this.value = value;
-  this.isDomain = isDomain;
   this.host = host;
-  this.rawHost = rawHost;
+  this.name = name;
   this.path = path;
   this.originAttributes = originAttributes;
+  this.value = value;
+  this.isDomain = isDomain;
+  this.rawHost = rawHost;
   this.isSecure = isSecure;
   this.expires = GetExpiresString(expires);
   this.expiresSortValue = expires;
@@ -154,10 +154,10 @@ function loadCookies() {
     nextCookie = nextCookie.QueryInterface(Components.interfaces.nsICookie);
     var host = nextCookie.host;
     allCookies[count] =
-      new Cookie(count++, nextCookie.name, nextCookie.value,
-                 nextCookie.isDomain, host,
-                 host.charAt(0)=="." ? host.slice(1) : host,
+      new Cookie(count++, host, nextCookie.name,
                  nextCookie.path, nextCookie.originAttributes,
+                 nextCookie.value, nextCookie.isDomain,
+                 host.charAt(0)=="." ? host.slice(1) : host,
                  nextCookie.isSecure, nextCookie.expires);
   }
 
@@ -295,8 +295,8 @@ function FinalizeCookieDeletions() {
     cookiemanager.remove(delCookie.host,
                          delCookie.name,
                          delCookie.path,
-                         delCookie.originAttributes,
-                         document.getElementById("checkbox").checked);
+                         document.getElementById("checkbox").checked,
+                         delCookie.originAttributes);
   }
   deletedCookies.length = 0;
   gUpdatingBatch = "";
