@@ -11,14 +11,8 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 
-var mozmill = {};
-Components.utils.import("resource://mozmill/modules/mozmill.js", mozmill);
-var controller = {};
-Components.utils.import("resource://mozmill/modules/controller.js", controller);
 var elib = {};
 Components.utils.import("resource://mozmill/modules/elementslib.js", elib);
-
-var account, incoming, outgoing;
 
 var user = {
   name: "Yamato Nadeshiko",
@@ -29,10 +23,9 @@ var user = {
 };
 
 function setupModule(module) {
-  collector.getModule("window-helpers").installInto(module);
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("account-manager-helpers").installInto(module);
-  collector.getModule("keyboard-helpers").installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   try {
     let userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
@@ -51,20 +44,20 @@ function open_mail_account_setup_wizard(k) {
 }
 
 // Remove an account on the Account Manager
-function remove_account(amc) {
+function remove_account(amc, aAccount, aOutgoing) {
   let win = amc.window;
 
   try {
     // Remove the account and incoming server
-    let serverId = incoming.serverURI;
-    MailServices.accounts.removeAccount(account);
+    let serverId = aAccount.incomingServer.serverURI;
+    MailServices.accounts.removeAccount(aAccount);
     if (serverId in win.accountArray)
       delete win.accountArray[serverId];
     win.selectServer(null, null);
 
     // Remove the outgoing server
-    MailServices.smtp.deleteServer(outgoing);
-    win.replaceWithDefaultSmtpServer(outgoing.key);
+    MailServices.smtp.deleteServer(aOutgoing);
+    win.replaceWithDefaultSmtpServer(aOutgoing.key);
   } catch (ex) {
     throw new Error("failure to remove account: " + ex + "\n");
   }
@@ -115,10 +108,10 @@ function test_mail_account_setup() {
 function subtest_verify_account(amc) {
   amc.waitFor(() => amc.window.currentAccount != null,
               "Timeout waiting for currentAccount to become non-null");
-  account = amc.window.currentAccount;
+  let account = amc.window.currentAccount;
   let identity = account.defaultIdentity;
-  incoming = account.incomingServer;
-  outgoing = MailServices.smtp.getServerByKey(identity.smtpServerKey);
+  let incoming = account.incomingServer;
+  let outgoing = MailServices.smtp.getServerByKey(identity.smtpServerKey);
 
   let config = {
     "incoming server username": {
@@ -147,7 +140,7 @@ function subtest_verify_account(amc) {
       }
     }
   } finally {
-    remove_account(amc);
+    remove_account(amc, account, outgoing);
   }
 }
 

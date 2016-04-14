@@ -5,21 +5,11 @@
 var MODULE_NAME = "test-retest-config";
 
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["window-helpers", "folder-display-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "keyboard-helpers"];
 
-var mozmill = {};
-Components.utils.import("resource://mozmill/modules/mozmill.js", mozmill);
-var controller = {};
-Components.utils.import("resource://mozmill/modules/controller.js", controller);
 var elib = {};
 Components.utils.import("resource://mozmill/modules/elementslib.js", elib);
-
 Components.utils.import("resource://gre/modules/Services.jsm");
-
-var wh, account, incoming, outgoing;
-
-var url = collector.addHttpResource('../account/html', 'accountconfig');
-collector.httpd.registerContentType("invalid", "text/xml");
 
 var user = {
   name: "test",
@@ -28,21 +18,26 @@ var user = {
 };
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  wh = collector.getModule("window-helpers");
-  wh.installInto(module);
-  var kh = collector.getModule("keyboard-helpers");
-  kh.installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
   Services.prefs.setCharPref("mail.wizard.logging.dump", "All");
+
+  let url = collector.addHttpResource("../account/xml", "accountconfig");
   Services.prefs.setCharPref("mailnews.auto_config_url", url);
+  collector.httpd.registerContentType("invalid", "text/xml");
+}
+
+function tearDownModule(module) {
+  Services.prefs.clearUserPref("mailnews.auto_config_url");
+  Services.prefs.clearUserPref("mail.wizard.logging.dump");
 }
 
 // Select File > New > Mail Account to open the Mail Account Setup Wizard
 function open_mail_account_setup_wizard(k) {
-  wh.plan_for_modal_dialog("mail:autoconfig", k);
+  plan_for_modal_dialog("mail:autoconfig", k);
   mc.click(new elib.Elem(mc.menus.menu_File.menu_New.newMailAccountMenuItem));
-  return wh.wait_for_modal_dialog("mail:autoconfig", 30000);
+  return wait_for_modal_dialog("mail:autoconfig", 30000);
 }
 
 function test_re_test_config() {
@@ -96,7 +91,7 @@ function test_re_test_config() {
     assert_true(awc.e("advanced-setup_button").hidden,
       "We're not back to the original state!");
 
-    wh.close_window(awc);
+    close_window(awc);
   });
 }
 

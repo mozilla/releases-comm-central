@@ -6,17 +6,11 @@ var MODULE_NAME = "test-instrument-setup";
 
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       "account-manager-helpers", "keyboard-helpers" ];
+                       "keyboard-helpers" ];
 
-var mozmill = {};
-Components.utils.import("resource://mozmill/modules/mozmill.js", mozmill);
-var controller = {};
-Components.utils.import("resource://mozmill/modules/controller.js", controller);
 var elib = {};
-Components.utils.import("resource://mozmill/modules/elementslib.js", elib);
-Components.utils.import("resource://gre/modules/Services.jsm");
-
-var wh, awc, account, incoming, outgoing;
+Cu.import("resource://mozmill/modules/elementslib.js", elib);
+Cu.import("resource://gre/modules/Services.jsm");
 
 var user = {
   name: "Roger Sterling",
@@ -27,29 +21,22 @@ var user = {
 
 
 function setupModule(module) {
-  wh = collector.getModule("window-helpers");
-  wh.installInto(module);
-  var fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  var amh = collector.getModule("account-manager-helpers");
-  amh.installInto(module);
-  var kh = collector.getModule("keyboard-helpers");
-  kh.installInto(module);
-}
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
-function test_mail_account_setup() {
+  Services.prefs.setCharPref("mail.wizard.logging.dump", "All");
+
   // Set the pref to load a local autoconfig file.
-  let pref_name = "mailnews.auto_config_url";
   let url = collector.addHttpResource("../account/xml", "autoconfig");
-  Services.prefs.setCharPref(pref_name, url);
+  Services.prefs.setCharPref("mailnews.auto_config_url", url);
 
   // Force .com MIME-Type to text/xml
   collector.httpd.registerContentType("com", "text/xml");
+}
 
-  // Spawn the existing mail account config dialog by clicking on
-  // File > New > Existing Mail Account
-  mc.click(mc.eid("newMailAccountMenuItem"));
-  awc = wh.wait_for_existing_window("mail:autoconfig");
+function test_mail_account_setup() {
+  awc = wait_for_existing_window("mail:autoconfig");
 
   // Input user's account information
   awc.e("realname").focus();
@@ -71,11 +58,7 @@ function test_mail_account_setup() {
   awc.e("create_button").click();
 
   let events = mc.window.mailInstrumentationManager._currentState.events;
-
-  // Clean up
-  Services.prefs.clearUserPref(pref_name);
   wait_for_window_close();
-  remove_account();
 
   // we expect to have accountAdded and smtpServerAdded events.
   if (! (events["accountAdded"].data))
@@ -84,15 +67,18 @@ function test_mail_account_setup() {
     throw new Error("failed to add an smtp server");
 }
 
-// Remove the account we added.
-function remove_account() {
-  let incomingServer = MailServices.accounts.FindServer("roger.sterling", "testin.example.com", "pop3");
+// Remove the accounts we added.
+function tearDownModule(module) {
+  let incomingServer = MailServices.accounts.FindServer("roger.sterling", user.incomingHost, "pop3");
+  assert_equals(incomingServer.hostName, user.incomingHost);
   let account = MailServices.accounts.FindAccountForServer(incomingServer)
 
   let identity = account.defaultIdentity;
   MailServices.accounts.removeIncomingServer(incomingServer, true);
-  outgoing = MailServices.smtp.getServerByKey(identity.smtpServerKey);
-  MailServices.smtp.deleteServer(outgoing);
+  let outgoingServer = MailServices.smtp.getServerByKey(identity.smtpServerKey);
+  assert_equals(outgoingServer.hostname, user.outgoingHost);
+  MailServices.smtp.deleteServer(outgoingServer);
   MailServices.accounts.removeAccount(account);
-}
 
+  Services.prefs.clearUserPref("mailnews.auto_config_url");
+}

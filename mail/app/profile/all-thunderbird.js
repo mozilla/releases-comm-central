@@ -549,8 +549,9 @@ pref("mail.compose.big_attachments.threshold_kb", 5120);
 // their message when the upload is completed
 pref("mail.compose.big_attachments.insert_notification", true);
 
+// Instrumentation is currently unfinished, do not enable it.
 // Set this to false to prevent instrumentation from happening, e.g., user
-// has opted out, or an enterprise wants to disable it from the git go.
+// has opted out, or an enterprise wants to disable it from the get go.
 pref("mail.instrumentation.askUser", true);
 pref("mail.instrumentation.userOptedIn", false);
 pref("mail.instrumentation.postUrl", "https://www.mozilla.org/instrumentation");
