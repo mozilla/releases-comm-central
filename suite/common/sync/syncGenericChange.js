@@ -109,7 +109,7 @@ var Change = {
   },
 
   _clearStatus: function _clearStatus() {
-    this._status.value = "";
+    this._status.textContent = "";
     this._statusIcon.removeAttribute("status");
   },
 
@@ -119,7 +119,7 @@ var Change = {
 
   _updateStatusWithString: function Change__updateStatusWithString(string, state) {
     this._statusRow.hidden = false;
-    this._status.value = string;
+    this._status.textContent = string;
     this._statusIcon.setAttribute("status", state);
 
     let error = state == "error";
