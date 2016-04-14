@@ -12,6 +12,11 @@
   == message display and the mail editor instance for mail compose.
   ======================================================================= */
 
+/* workaround for MS Outlook mails where the line-height is set to 0 */
+body {
+  line-height: initial !important;
+}
+
 /* ::::: signature ::::: */
 
 @media not print {
