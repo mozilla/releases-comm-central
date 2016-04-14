@@ -210,6 +210,21 @@ pref("browser.search.update.log", false);
 // Check whether we need to perform engine updates every 6 hours
 pref("browser.search.updateinterval", 6);
 
+// Blocklist preferences
+pref("extensions.blocklist.enabled", true);
+// Controls what level the blocklist switches from warning about items to forcibly
+// blocking them.
+pref("extensions.blocklist.level", 2);
+
+// Kinto blocklist preferences
+pref("services.kinto.update_enabled", false);
+
+// Block insecure active content on https pages
+pref("security.mixed_content.block_active_content", true);
+
+// 1 = allow MITM for certificate pinning checks.
+pref("security.cert_pinning.enforcement_level", 1);
+
 /* Extension manager */
 pref("xpinstall.dialog.confirm", "chrome://mozapps/content/xpinstall/xpinstallConfirm.xul");
 pref("xpinstall.dialog.progress.skin", "chrome://mozapps/content/extensions/extensions.xul");
