@@ -115,16 +115,16 @@ BRANDED_ICON_FILES = $(addsuffix $(ICON_SUFFIX), $(BRANDED_ICONS) $(BRANDED_ICON
 #	$(INSTALL) $^ $(DIST)/bin/chrome/icons/default
 
 libs:: $(addprefix $(DIST)/branding/,$(BRANDED_ICON_FILES))
-	$(INSTALL) $^ $(DIST)/bin/chrome/icons/default
+	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/chrome/icons/default
 endif
 
 ifneq (,$(filter gtk%,$(MOZ_WIDGET_TOOLKIT)))
 libs::
-	$(INSTALL) $(DIST)/branding/default16.png $(DIST)/bin/chrome/icons/default
+	$(INSTALL) $(IFLAGS1) $(DIST)/branding/default16.png $(DIST)/bin/chrome/icons/default
 endif
 
 ifneq (,$(filter-out WINNT Darwin,$(OS_ARCH)))
-GARBAGE +=  $(MOZ_APP_NAME)
+GARBAGE += $(MOZ_APP_NAME)
 GARBAGE += $(addprefix $(DIST)/bin/defaults/pref/, all.js all-instantbird.js channel-prefs.js)
 endif
 
@@ -137,7 +137,7 @@ ICON_FILES	= \
 		$(NULL)
 
 libs::
-	$(INSTALL) $(ICON_FILES) $(DIST)/bin/icons
+	$(INSTALL) $(IFLAGS1) $(ICON_FILES) $(DIST)/bin/icons
 endif
 
 ifdef MOZ_SPLASHSCREEN
@@ -175,9 +175,12 @@ ifdef ENABLE_TESTS
 # mozilla-central does this in testing/xpcshell-tests which means that it is very
 # hard for anyone to specify anything else.
 libs::
-	$(INSTALL) $(topsrcdir)/im/test/xpcshell.ini $(DEPTH)/_tests/xpcshell
+	$(INSTALL) $(IFLAGS1) $(topsrcdir)/im/test/xpcshell.ini $(DEPTH)/_tests/xpcshell
 	cp $(topsrcdir)/im/test/xpcshell.ini $(DEPTH)/_tests/xpcshell/all-test-dirs.list
 endif
+
+libs:: $(topsrcdir)/mail/app/blocklist.xml
+	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin
 
 ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
 
@@ -186,6 +189,8 @@ MAC_APP_NAME = $(MOZ_APP_DISPLAYNAME)
 ifdef MOZ_DEBUG
 MAC_APP_NAME := $(MAC_APP_NAME)Debug
 endif
+
+LOWER_MAC_APP_NAME = $(shell echo $(MAC_APP_NAME) | tr '[A-Z]' '[a-z]')
 
 AB_CD = $(MOZ_UI_LOCALE)
 
@@ -201,11 +206,11 @@ clean clobber repackage::
 
 tools repackage:: $(PROGRAM)
 	$(MKDIR) -p $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS
-	rsync -a --exclude "*.in" $(srcdir)/macbuild/Contents $(DIST)/$(MOZ_MACBUNDLE_NAME) --exclude English.lproj
+	rsync -a --exclude '*.in' $(srcdir)/macbuild/Contents $(DIST)/$(MOZ_MACBUNDLE_NAME) --exclude English.lproj
 	$(MKDIR) -p $(DIST)/$(MOZ_MACBUNDLE_NAME)/$(LPROJ)
-	rsync -a --exclude "*.in" $(srcdir)/macbuild/Contents/Resources/English.lproj/ $(DIST)/$(MOZ_MACBUNDLE_NAME)/$(LPROJ)
-	sed -e "s/%APP_VERSION%/$(MOZ_APP_VERSION)/" -e "s/%MAC_APP_NAME%/$(MAC_APP_NAME)/" $(srcdir)/macbuild/Contents/Info.plist.in > $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Info.plist
-	sed -e "s/%MAC_APP_NAME%/$(MAC_APP_NAME)/" $(srcdir)/macbuild/Contents/Resources/English.lproj/InfoPlist.strings.in | iconv -f UTF-8 -t UTF-16 > $(DIST)/$(MOZ_MACBUNDLE_NAME)/$(LPROJ)/InfoPlist.strings
+	rsync -a --exclude '*.in' $(srcdir)/macbuild/Contents/Resources/English.lproj/ $(DIST)/$(MOZ_MACBUNDLE_NAME)/$(LPROJ)
+	sed -e 's/%APP_VERSION%/$(MOZ_APP_VERSION)/' -e 's/%MAC_APP_NAME%/$(MAC_APP_NAME)/' -e 's/%LOWER_MAC_APP_NAME%/$(LOWER_MAC_APP_NAME)/' $(srcdir)/macbuild/Contents/Info.plist.in > $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Info.plist
+	sed -e 's/%MAC_APP_NAME%/$(MAC_APP_NAME)/' $(srcdir)/macbuild/Contents/Resources/English.lproj/InfoPlist.strings.in | iconv -f UTF-8 -t UTF-16 > $(DIST)/$(MOZ_MACBUNDLE_NAME)/$(LPROJ)/InfoPlist.strings
 	rsync -a --exclude-from='$(srcdir)/macbuild/Contents/MacOS-files.in' $(DIST)/bin/ $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources
 	rsync -a --include-from='$(srcdir)/macbuild/Contents/MacOS-files.in' --exclude '*' $(DIST)/bin/ $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS
 	$(RM) $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS/$(PROGRAM)
