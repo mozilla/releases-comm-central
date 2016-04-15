@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-    do_calendar_startup(run_next_test);
+    do_calendar_startup(testAttachRoundtrip);
 }
 
-add_test(function testAttachRoundtrip() {
+function testAttachRoundtrip() {
     let storage = getStorageCal();
     let str = ["BEGIN:VEVENT",
                "UID:attachItem",
@@ -100,4 +100,4 @@ add_test(function testAttachRoundtrip() {
             run_next_test();
         }
     };
-});
+};
