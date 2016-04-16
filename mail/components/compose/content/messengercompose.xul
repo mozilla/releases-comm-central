@@ -922,7 +922,8 @@
             <menulist id="msgIdentity" type="description" flex="1"
                       disableautoselect="true" onkeypress="fromKeyPress(event);"
                       oncommand="LoadIdentity(false);" disableonsend="true">
-              <menupopup id="msgIdentityPopup"/>
+              <menupopup id="msgIdentityPopup"
+                         class="noIconPopup"/>
             </menulist>
           </hbox>
           <listbox id="addressingWidget" flex="1" seltype="multiple" rows="1"

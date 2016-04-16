@@ -849,15 +849,6 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
     -moz-padding-start: 2px;
   }
 
-  .noIconPopup > menuseparator {
-    -moz-appearance: none;
-    margin-top: 3px;
-    margin-bottom: 3px;
-    padding-top: 0;
-    padding-bottom: 0;
-    border-top-color: #d7d7d7;
-  }
-
   @media (-moz-windows-default-theme) {
     menulist {
       -moz-appearance: none;

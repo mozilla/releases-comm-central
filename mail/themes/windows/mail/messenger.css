@@ -434,6 +434,15 @@ button[type="menu-button"] > button {
       transition: background-color .4s;
     }
   }
+
+  .noIconPopup > menuseparator {
+    -moz-appearance: none;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top-color: #d7d7d7;
+  }
 }
 
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
