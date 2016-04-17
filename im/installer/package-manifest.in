@@ -432,6 +432,8 @@
 @RESPATH@/components/nsTaggingService.js
 @RESPATH@/components/PlacesCategoriesStarter.js
 @RESPATH@/components/servicesComponents.manifest
+@RESPATH@/components/TooltipTextProvider.js
+@RESPATH@/components/TooltipTextProvider.manifest
 #ifdef MOZ_WEBRTC
 @RESPATH@/components/PeerConnection.js
 @RESPATH@/components/PeerConnection.manifest

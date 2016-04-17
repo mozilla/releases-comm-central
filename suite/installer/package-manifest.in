@@ -529,6 +529,8 @@
 #ifdef MOZ_SERVICES_SYNC
 @RESPATH@/components/SyncComponents.manifest
 #endif
+@RESPATH@/components/TooltipTextProvider.js
+@RESPATH@/components/TooltipTextProvider.manifest
 @RESPATH@/components/txEXSLTRegExFunctions.js
 @RESPATH@/components/txEXSLTRegExFunctions.manifest
 @RESPATH@/components/UnifiedComplete.manifest
