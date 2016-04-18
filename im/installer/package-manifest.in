@@ -641,7 +641,6 @@
 @RESPATH@/components/contentAreaDropListener.manifest
 @RESPATH@/components/PackagedAppUtils.manifest
 @RESPATH@/components/PackagedAppUtils.js
-@RESPATH@/components/devtools_security.xpt
 @RESPATH@/components/directory.xpt
 @RESPATH@/components/jsconsole-clhandler.js
 @RESPATH@/components/jsconsole-clhandler.manifest
