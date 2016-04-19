@@ -191,6 +191,12 @@
 #include "nsMsgCompUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////////
+//  jsAccount includes
+////////////////////////////////////////////////////////////////////////////////
+#include "msgJsAccountCID.h"
+#include "JaUrl.h"
+
+////////////////////////////////////////////////////////////////////////////////
 // imap includes
 ////////////////////////////////////////////////////////////////////////////////
 #include "nsMsgImapCID.h"
@@ -586,6 +592,13 @@ NS_DEFINE_NAMED_CID(NS_URLFETCHER_CID);
 NS_DEFINE_NAMED_CID(NS_MSGCOMPUTILS_CID);
 
 ////////////////////////////////////////////////////////////////////////////////
+// jsAccount factories
+////////////////////////////////////////////////////////////////////////////////
+NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppUrlDelegator)
+
+NS_DEFINE_NAMED_CID(JACPPURLDELEGATOR_CID);
+
+////////////////////////////////////////////////////////////////////////////////
 // imap factories
 ////////////////////////////////////////////////////////////////////////////////
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsImapUrl)
@@ -968,6 +981,8 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
   { &kNS_MSGQUOTELISTENER_CID, false, NULL, nsMsgQuoteListenerConstructor},
   { &kNS_URLFETCHER_CID, false, NULL, nsURLFetcherConstructor},
   { &kNS_MSGCOMPUTILS_CID, false, NULL, nsMsgCompUtilsConstructor},
+  // JsAccount Entries
+  { &kJACPPURLDELEGATOR_CID, false, nullptr, JaCppUrlDelegatorConstructor },
   // Imap Entries
   { &kNS_IMAPURL_CID, false, NULL, nsImapUrlConstructor },
   { &kNS_IMAPPROTOCOL_CID, false, nullptr, nsImapProtocolConstructor },
@@ -1184,6 +1199,8 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
   { NS_MSGQUOTELISTENER_CONTRACTID, &kNS_MSGQUOTELISTENER_CID },
   { NS_URLFETCHER_CONTRACTID, &kNS_URLFETCHER_CID },
   { NS_MSGCOMPUTILS_CONTRACTID, &kNS_MSGCOMPUTILS_CID },
+  // JsAccount Entries
+  { JACPPURLDELEGATOR_CONTRACTID, &kJACPPURLDELEGATOR_CID },
   // Imap Entries
   { NS_IMAPINCOMINGSERVER_CONTRACTID, &kNS_IMAPINCOMINGSERVER_CID },
   { NS_RDF_RESOURCE_FACTORY_CONTRACTID_PREFIX "imap", &kNS_IMAPRESOURCE_CID },
@@ -1304,6 +1321,7 @@ static const mozilla::Module::CategoryEntry kMailNewsCategories[] = {
   // Bayesian Filter Entries
   // Compose Entries
   { "command-line-handler", "m-compose", NS_MSGCOMPOSESTARTUPHANDLER_CONTRACTID },
+  // JsAccount Entries
   // Imap Entries
   // Local Entries
   // msgdb Entries

@@ -162,6 +162,7 @@
 ; interfaces.manifest doesn't get packaged because it is dynamically
 ; re-created at packaging time when linking the xpts that will actually
 ; go into the package, so the test related interfaces aren't included.
+@RESPATH@/components/msgjsaccount.xpt
 @RESPATH@/components/mime.xpt
 @RESPATH@/components/mimeJSComponents.js
 @RESPATH@/components/msgMime.manifest

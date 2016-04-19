@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <title>JsAccount Usage and Architecture</title>
+  </head>
+  <body>
+    <h2>Overview of Testing Objects </h2>
+    This directory contains sample JS components to test the basic JsAccount
+    concepts, which can also serve as templates for new implementations.<br>
+    <h3>Component Naming</h3>
+    Because there are many different components involved with different roles,
+    it will be helpful to keep things straight by using a specific naming
+    convention for objects.
+    For testing, we consider that we are creating a new account type "foo". For
+    the specific case of the JA implementation of an object that implements the
+    nsIMsgMailNewsUrl interface, we'll use the following naming convention.
+    Typically C++ classes and JS constructors are capitalized, class instances
+    are not.<br>
+    <br>
+    Names are constructed with the following subparts:<br>
+    <br>
+    (<strong>Ja)</strong>(<strong>AccountType</strong>)(<strong>Language</strong>)(<strong>ComponentType</strong>)(<strong>Role</strong>)
+    <br>
+    <h4>Common parts of names</h4>
+    <ul>
+      <li><strong>Ja</strong>: All objects or classes begin with Ja</li>
+      <li><strong>AccountType</strong>: the type of account being created (here
+        <strong>Foo</strong>), or <strong>Base</strong> for the generic
+        implementation that is the base class of all types. May be *blank* if
+        the object is used for both base types and specific types.</li>
+      <li>
+        <strong>Language</strong>: Use <strong>Cpp</strong> with objects and
+        classes implemented using C++, leave blank for JS versions.
+      </li>
+      <li>
+        <strong>ComponentType</strong>: the standard MailNews term for objects
+        that implement a particular interface. The legacy .cpp base components
+        are typically named:<br>
+        <strong>(nsMsg)(ComponentType</strong>).cpp<br>
+        for example <strong>nsMsgIncomingServer</strong>.cpp. This may be
+        shortened where appropriate, for example we use <strong>Url</strong>
+        instead of <strong>MailNewsUrl</strong> as the <strong>Ja</strong>
+        prefix implies that this is an implementation of MailNews objects.</li>
+      <li><strong>Role</strong>: the function of the object within the JA
+        architecture.</li>
+      <ul>
+        <li><strong>Constructor</strong>: Creates the object only. </li>
+        <li><strong>Delegator</strong>: Calls the appropriate object, either a
+          JS or C++ variant, that implements a particular XPCOM method.
+        </li>
+        <li> <strong>Properties</strong>: JavaScript object that establishes
+          properties of a JA implementation class. This is used for automatic
+          generation of a list of methods to delegate to the JavaScript classes.</li>
+        <li>(blank): Actual implementation.</li>
+      </ul>
+    </ul>
+    Example: The C++ class that delegates the implementation of
+    nsIMsgMailNewsUrl (abbreviated as Url) to either a C++ or JS method is
+    called <strong>JaCppUrlDelegator</strong>.
+  </body>
+</html>

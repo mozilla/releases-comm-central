@@ -1,0 +1,42 @@
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* vim:set ts=2 sw=2 sts=2 et cindent: */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+#include "msgIDelegateList.idl"
+
+/**
+ * Mailnews code typically has a C++ base class for objects, which is then
+ * specialized for each account type with a C++ subclass of the base class.
+ *
+ * This interface provides the ability of JavaScript-based account
+ * implementations to use the same C++ base classes as core objects, but
+ * use JavaScript to override methods instead of C++.
+ */
+
+[scriptable, uuid(68075269-8BBD-4a09-AC04-3241BF44F633)]
+interface msgIOverride : nsISupports
+{
+  /**
+   *
+   * A list of methods in the C++ base class that will be delegated to the JS
+   * delegate. This is calculated once, and then a fixed value is set to
+   * all subsequent instances so that it does not need to be recalculated each
+   * time. If the value has not yet been set, this will return a new instance.
+   */
+  attribute msgIDelegateList methodsToDelegate;
+
+  /**
+   * JavaScript-based xpcom object that overrides C++ methods.
+   */
+  attribute nsISupports jsDelegate;
+
+  /**
+   * C++ class used to implement default functionality. This is used when
+   * JavaScript methods want to call the base class default action, bypassing a
+   * possible JS override.
+   */
+  readonly attribute nsISupports cppBase;
+};

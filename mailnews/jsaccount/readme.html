@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>JsAccount Usage and Architecture</title>
+  </head>
+  <body>
+    <h1>Overview</h1>
+    <p>JsAccount is a technology that allows message account types to be created
+      in Mozilla Mailnews code using JavaScript. Although this is primarily
+      targeted at allowing extensions to create new accounts, it might also be
+      useful as a bridge to convert existing account types from being C++ based
+      to JavaScript based.</p>
+    <h2>Existing C++-based architecture of mailnews accounts</h2>
+    <p>In mailnews code, an account type is a set of classes that allow
+      implementation of a messaging particular protocol. The account type is
+      given a short string identifier ("imap", "news", "pop3") and is then used
+      to create objects of the appropriate type by appending that string to the
+      end of a base XPCOM contractID. So, for example, to create an imap server,
+      you generate a contractID using a base ID,
+      NS_MSGINCOMINGSERVER_CONTRACTID_PREFIX
+      "@mozilla.org/messenger/server;1?type=", then append "imap" to get:</p>
+    <p>@mozilla.org/messenger/server;1?type=imap</p>
+    <p>In the C++ code, there is a base object implementing shared
+      functionality. An account-specific class inherits that base functionality,
+      then extends it to represent the account-specific behavior that is needed.
+      This same basic concept is used to represent a whole series of classes
+      that are necessary to implement a specific mailnews account type.</p>
+    <p>For the server example, there is a base class named
+      nsMsgIncomingServer.cpp that implements that base interface
+      nsIMsgIncomingServer.idl. For imap, there is a specific class
+      nsImapIncomingServer.cpp that inherits from nsMsgIncomingServer.cpp,
+      overrides some of the methods in nsIMsgIncomingServer.idl, and also
+      implements an imap-specific interface nsIImapIncomingServer.idl. All of
+      this works fine using C++ inheritance and polymorphism.</p>
+    <p>Although JsAccount is intended mostly for mailnews accounts, the same
+      basic method of using a base class extended for specific types is also used
+      in other ways in mailnews code, including for addressbook types and views.
+      The technology may also be applied to those other object types as well.</p>
+    <h2>Role of JsAccount</h2>
+    <p>The JavaScript class system works very differently than the C++ system,
+      and you cannot use normal language constructs to override a C++ class with
+      a JavaScript class. What JsAccount allows you to do is to create XPCOM
+      objects in JavaScript, and use those objects to override or extend the
+      methods from the C++ base class in a way that will function correctly
+      whether those objects are executed from within C++ code or JavaScript
+      code. This allows you to create a new account using JavaScript code, while
+      using the same base class functionality that is used by the core C++
+      account types. Thus a new account type may be created in JavaScript-based
+      extension. The technology may also be used to create JavaScript
+      versions of existing account types in an incremental manner, slowly
+      converting methods from C++ to JavaScript.</p>
+    <p><br>
+    </p>
+  </body>
+</html>

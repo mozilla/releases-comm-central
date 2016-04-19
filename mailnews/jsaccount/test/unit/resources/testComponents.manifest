@@ -1,0 +1,3 @@
+interfaces testJsAccount.xpt
+component {73F98539-A59F-4F6F-9A72-D83A08646C23} testJaFooUrlComponent.js
+contract @mozilla.org/jsaccount/testjafoourl;1 {73F98539-A59F-4F6F-9A72-D83A08646C23}

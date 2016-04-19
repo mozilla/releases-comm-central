@@ -1,0 +1,19 @@
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* vim:set ts=2 sw=2 sts=2 et cindent: */
+/* Any copyright is dedicated to the Public Domain.
+ * http://creativecommons.org/publicdomain/zero/1.0/ */
+
+// This is a sample test interface implemented by the URL object.
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(12CAD9FC-57FC-4AEE-A800-895A289237DD)]
+interface msgIFooUrl : nsISupports
+{
+  /// Foo id for item.
+  attribute AString itemId;
+  /// Does this url refer to an attachment?
+  readonly attribute boolean isAttachment;
+  /// urlType (copy, move, display) from nsIMsgMailNewsUrl
+  void setUrlType(in unsigned long aType);
+};

@@ -1,0 +1,14 @@
+# -*- Mode: python; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 40 -*-
+# vim: set filetype=python:
+# Any copyright is dedicated to the Public Domain.
+# http://creativecommons.org/publicdomain/zero/1.0/
+
+XPIDL_SOURCES += [
+  'msgIFooUrl.idl',
+]
+
+XPIDL_MODULE = 'testJsAccount'
+
+TEST_HARNESS_FILES.xpcshell.mailnews.jsaccount.test.unit.resources += [
+    '!/dist/bin/components/testJsAccount.xpt',
+]
