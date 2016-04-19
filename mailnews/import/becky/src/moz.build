@@ -3,18 +3,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-SOURCES += [
-    'nsVCardAddress.cpp',
-    'nsVCardImport.cpp',
-]
-
-EXPORTS += [
-    'nsVCardAddress.h',
+UNIFIED_SOURCES += [
+    'nsBeckyAddressBooks.cpp',
+    'nsBeckyFilters.cpp',
+    'nsBeckyImport.cpp',
+    'nsBeckyMail.cpp',
+    'nsBeckySettings.cpp',
+    'nsBeckyStringBundle.cpp',
+    'nsBeckyUtils.cpp',
 ]
 
 FINAL_LIBRARY = 'import'
-
-LOCAL_INCLUDES += [
-    '../../src'
-]
-
