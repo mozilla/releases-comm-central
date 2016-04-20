@@ -367,6 +367,41 @@ function test_rules() {
                 "20150419T080000Z"],
                false);
 
+    // Bug 1103187 - Monthly recurrence with only MONTHLY tag in the rule. Recurrence day taken
+    // from the start date. Check four occurrences.
+    check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
+                                          "DESCRIPTION:Only Monthly recurrence\n" +
+                                          "RRULE:FREQ=MONTHLY;COUNT=4\n" +
+                                          "DTSTART:20160404T080000Z\n" +
+                                          "DTEND:20160404T090000Z\n" +
+                                          "END:VEVENT\nEND:VCALENDAR\n"),
+               ["20160404T080000Z", "20160504T080000Z", "20160604T080000Z", "20160704T080000Z"],
+               false);
+
+    // Bug 1265554 - Monthly recurrence with only MONTHLY tag in the rule. Recurrence on the 31st
+    // of the month. Check for 6 occurrences.
+    check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
+                                          "DESCRIPTION:Only Monthly recurrence, the 31st\n" +
+                                          "RRULE:FREQ=MONTHLY;COUNT=6\n" +
+                                          "DTSTART:20160131T150000Z\n" +
+                                          "DTEND:20160131T160000Z\n" +
+                                          "END:VEVENT\nEND:VCALENDAR\n"),
+               ["20160131T150000Z", "20160331T150000Z", "20160531T150000Z",
+                "20160731T150000Z", "20160831T150000Z", "20161031T150000Z"],
+               false);
+
+    // Bug 1265554 - Monthly recurrence with only MONTHLY tag in the rule. Recurrence on the 31st
+    // of the month every two months. Check for 6 occurrences.
+    check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
+                                          "DESCRIPTION:Only Monthly recurrence, the 31st every 2 months\n" +
+                                          "RRULE:FREQ=MONTHLY;INTERVAL=2;COUNT=6\n" +
+                                          "DTSTART:20151231T150000Z\n" +
+                                          "DTEND:20151231T160000Z\n" +
+                                          "END:VEVENT\nEND:VCALENDAR\n"),
+               ["20151231T150000Z", "20160831T150000Z", "20161031T150000Z",
+                "20161231T150000Z", "20170831T150000Z", "20171031T150000Z"],
+               false);
+
     let item, occ1;
     item = makeEvent("DESCRIPTION:occurrence on day 1 moved between the occurrences " +
                                      "on days 2 and 3\n" +
