@@ -750,9 +750,13 @@ NS_IMETHODIMP nsMsgGroupView::GetCellProperties(int32_t aRow,
     rv = HashHdr(msgHdr, hashKey);
     if (NS_FAILED(rv))
       return NS_OK;
+
     nsCOMPtr<nsIMsgThread> msgThread;
     m_groupsTable.Get(hashKey, getter_AddRefs(msgThread));
     nsMsgGroupThread *groupThread = static_cast<nsMsgGroupThread *>(msgThread.get());
+    if (!groupThread)
+      return NS_OK;
+
     uint32_t numUnrMsg = 0;
     groupThread->GetNumUnreadChildren(&numUnrMsg);
     if (numUnrMsg > 0)
