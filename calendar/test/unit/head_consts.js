@@ -226,6 +226,7 @@ function do_calendar_startup(callback) {
     let obs = {
       observe: function() {
         Services.obs.removeObserver(this, "calendar-startup-done");
+        do_test_finished();
         do_execute_soon(callback);
       }
     };
@@ -236,6 +237,7 @@ function do_calendar_startup(callback) {
     if (ss.started) {
         callback();
     } else {
+        do_test_pending();
         Services.obs.addObserver(obs, "calendar-startup-done", false);
         if (_profileInitialized) {
             Services.obs.notifyObservers(null, "profile-after-change", "xpcshell-do-get-profile");
