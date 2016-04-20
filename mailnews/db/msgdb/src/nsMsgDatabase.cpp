@@ -390,7 +390,15 @@ NS_IMETHODIMP nsMsgDBService::CreateNewDB(nsIMsgFolder *aFolder,
 
   msgDatabase->m_folder = aFolder;
   rv = msgDatabase->Open(this, summaryFilePath, true, true);
-  NS_ENSURE_TRUE(rv == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING, rv);
+
+  // We are trying to create a new database, but that implies that it did not
+  // already exist. Open returns NS_MSG_ERROR_FOLDER_SUMMARY_MISSING for the
+  // successful creation of a new database. But if it existed for some
+  // reason, then we would get rv = NS_OK instead. That is a "failure"
+  // from our perspective, so we want to return a failure since we are not
+  // returning a valid database object.
+  NS_ENSURE_TRUE(rv == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING,
+                 NS_SUCCEEDED(rv) ? NS_ERROR_FILE_ALREADY_EXISTS : rv);
 
   NS_ADDREF(*_retval = msgDB);
 
