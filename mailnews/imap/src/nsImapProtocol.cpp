@@ -7116,8 +7116,11 @@ void nsImapProtocol::DiscoverAllAndSubscribedBoxes()
       const char *prefix = ns->GetPrefix();
       if (prefix)
       {
+        nsAutoCString inboxNameWithDelim("INBOX");
+        inboxNameWithDelim.Append(ns->GetDelimiter());
+
         if (!gHideUnusedNamespaces && *prefix &&
-        PL_strcasecmp(prefix, "INBOX.")) /* only do it for
+        PL_strcasecmp(prefix, inboxNameWithDelim.get())) /* only do it for
         non-empty namespace prefixes */
         {
           // Explicitly discover each Namespace, just so they're
@@ -7251,13 +7254,16 @@ void nsImapProtocol::DiscoverMailboxList()
       const char *prefix = ns->GetPrefix();
       if (prefix)
       {
+        nsAutoCString inboxNameWithDelim("INBOX");
+        inboxNameWithDelim.Append(ns->GetDelimiter());
+
         // static bool gHideUnusedNamespaces = true;
         // mscott -> WARNING!!! i where are we going to get this
         // global variable for unused name spaces from???
         // dmb - we should get this from a per-host preference,
         // I'd say. But for now, just make it true;
         if (!gHideUnusedNamespaces && *prefix &&
-                    PL_strcasecmp(prefix, "INBOX."))  // only do it for
+                    PL_strcasecmp(prefix, inboxNameWithDelim.get()))  // only do it for
                     // non-empty namespace prefixes, and for non-INBOX prefix
         {
           // Explicitly discover each Namespace, so that we can
