@@ -24,7 +24,7 @@ function check_delmgr_call(aFunc) {
     });
 }
 
-add_task(function test_deleted_items() {
+add_task(function* test_deleted_items() {
     let calmgr = cal.getCalendarManager();
     let delmgr = Components.classes["@mozilla.org/calendar/deleted-items-manager;1"]
                            .getService(Components.interfaces.calIDeletedItems);

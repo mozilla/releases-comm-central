@@ -12,87 +12,6 @@ function run_test() {
     do_calendar_startup(run_next_test);
 }
 
-add_test(function test_calobserver() {
-    function checkCounters(add, modify, del, alladd, allmodify, alldel) {
-        equal(calcounter.addItem, add);
-        equal(calcounter.modifyItem, modify);
-        equal(calcounter.deleteItem, del);
-        equal(allcounter.addItem, alladd === undefined ? add : alladd);
-        equal(allcounter.modifyItem, allmodify === undefined ? modify : allmodify);
-        equal(allcounter.deleteItem, alldel === undefined ? del : alldel);
-        resetCounters();
-    }
-    function resetCounters() {
-        calcounter = { addItem: 0, modifyItem: 0, deleteItem: 0 };
-        allcounter = { addItem: 0, modifyItem: 0, deleteItem: 0 };
-    }
-
-    // First of all we need a local calendar to work on and some variables
-    let calmgr = cal.getCalendarManager();
-    let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
-    let memory2 = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
-    let calcounter, allcounter;
-
-    // These observers will end up counting calls which we will use later on
-    let calobs = cal.createAdapter(Components.interfaces.calIObserver, {
-        onAddItem: itm => calcounter.addItem++,
-        onModifyItem: itm => calcounter.modifyItem++,
-        onDeleteItem: itm => calcounter.deleteItem++
-    });
-    let allobs = cal.createAdapter(Components.interfaces.calIObserver, {
-        onAddItem: itm => allcounter.addItem++,
-        onModifyItem: itm => allcounter.modifyItem++,
-        onDeleteItem: itm => allcounter.deleteItem++
-    });
-
-    // Set up counters and observers
-    resetCounters();
-    calmgr.registerCalendar(memory);
-    calmgr.registerCalendar(memory2);
-    calmgr.addCalendarObserver(allobs);
-    memory.addObserver(calobs);
-
-    // Add an item
-    let item = cal.createEvent();
-    item.id = cal.getUUID()
-    item.startDate = cal.now();
-    item.endDate = cal.now();
-    memory.addItem(item, null);
-    checkCounters(1, 0, 0);
-
-    // Modify the item
-    let newItem = item.clone();
-    newItem.title = "title";
-    memory.modifyItem(newItem, item, null);
-    checkCounters(0, 1, 0);
-
-    // Delete the item
-    newItem.generation++; // circumvent generation checks for easier code
-    memory.deleteItem(newItem, null);
-    checkCounters(0, 0, 1);
-
-    // Now check the same for adding the item to a calendar only observed by the
-    // calendar manager. The calcounters should still be 0, but the calendar
-    // manager counter should have an item added, modified and deleted
-    memory2.addItem(item, null);
-    memory2.modifyItem(newItem, item, null);
-    memory2.deleteItem(newItem, null);
-    checkCounters(0, 0, 0, 1, 1, 1);
-
-    // Remove observers
-    memory.removeObserver(calobs);
-    calmgr.removeCalendarObserver(allobs);
-
-    // Make sure removing it actually worked
-    memory.addItem(item, null);
-    memory.modifyItem(newItem, item, null);
-    memory.deleteItem(newItem, null);
-    checkCounters(0, 0, 0);
-
-    // We are done now, start the next test
-    run_next_test();
-});
-
 add_test(function test_registration() {
     function checkCalendarCount(net, rdonly, all) {
         equal(calmgr.networkCalendarCount, net);
@@ -180,6 +99,87 @@ add_test(function test_registration() {
     checkRegistration(false, false, false);
     equal(readOnly, true);
     checkCalendarCount(0, 0, 0);
+
+    // We are done now, start the next test
+    run_next_test();
+});
+
+add_test(function test_calobserver() {
+    function checkCounters(add, modify, del, alladd, allmodify, alldel) {
+        equal(calcounter.addItem, add);
+        equal(calcounter.modifyItem, modify);
+        equal(calcounter.deleteItem, del);
+        equal(allcounter.addItem, alladd === undefined ? add : alladd);
+        equal(allcounter.modifyItem, allmodify === undefined ? modify : allmodify);
+        equal(allcounter.deleteItem, alldel === undefined ? del : alldel);
+        resetCounters();
+    }
+    function resetCounters() {
+        calcounter = { addItem: 0, modifyItem: 0, deleteItem: 0 };
+        allcounter = { addItem: 0, modifyItem: 0, deleteItem: 0 };
+    }
+
+    // First of all we need a local calendar to work on and some variables
+    let calmgr = cal.getCalendarManager();
+    let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
+    let memory2 = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
+    let calcounter, allcounter;
+
+    // These observers will end up counting calls which we will use later on
+    let calobs = cal.createAdapter(Components.interfaces.calIObserver, {
+        onAddItem: itm => calcounter.addItem++,
+        onModifyItem: itm => calcounter.modifyItem++,
+        onDeleteItem: itm => calcounter.deleteItem++
+    });
+    let allobs = cal.createAdapter(Components.interfaces.calIObserver, {
+        onAddItem: itm => allcounter.addItem++,
+        onModifyItem: itm => allcounter.modifyItem++,
+        onDeleteItem: itm => allcounter.deleteItem++
+    });
+
+    // Set up counters and observers
+    resetCounters();
+    calmgr.registerCalendar(memory);
+    calmgr.registerCalendar(memory2);
+    calmgr.addCalendarObserver(allobs);
+    memory.addObserver(calobs);
+
+    // Add an item
+    let item = cal.createEvent();
+    item.id = cal.getUUID()
+    item.startDate = cal.now();
+    item.endDate = cal.now();
+    memory.addItem(item, null);
+    checkCounters(1, 0, 0);
+
+    // Modify the item
+    let newItem = item.clone();
+    newItem.title = "title";
+    memory.modifyItem(newItem, item, null);
+    checkCounters(0, 1, 0);
+
+    // Delete the item
+    newItem.generation++; // circumvent generation checks for easier code
+    memory.deleteItem(newItem, null);
+    checkCounters(0, 0, 1);
+
+    // Now check the same for adding the item to a calendar only observed by the
+    // calendar manager. The calcounters should still be 0, but the calendar
+    // manager counter should have an item added, modified and deleted
+    memory2.addItem(item, null);
+    memory2.modifyItem(newItem, item, null);
+    memory2.deleteItem(newItem, null);
+    checkCounters(0, 0, 0, 1, 1, 1);
+
+    // Remove observers
+    memory.removeObserver(calobs);
+    calmgr.removeCalendarObserver(allobs);
+
+    // Make sure removing it actually worked
+    memory.addItem(item, null);
+    memory.modifyItem(newItem, item, null);
+    memory.deleteItem(newItem, null);
+    checkCounters(0, 0, 0);
 
     // We are done now, start the next test
     run_next_test();
