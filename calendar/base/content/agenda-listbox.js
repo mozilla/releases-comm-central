@@ -6,9 +6,10 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-function Synthetic(aOpen, aDuration) {
+function Synthetic(aOpen, aDuration, aMultiday) {
     this.open = aOpen;
     this.duration = aDuration;
+    this.multiday = aMultiday;
 }
 
 var agendaListbox = {
@@ -29,11 +30,11 @@ function initAgendaListbox() {
     var showTodayHeader = (document.getElementById("today-header-hidden").getAttribute("checked") == "true");
     var showTomorrowHeader = (document.getElementById("tomorrow-header-hidden").getAttribute("checked") == "true");
     var showSoonHeader = (document.getElementById("nextweek-header-hidden").getAttribute("checked") == "true");
-    this.today = new Synthetic(showTodayHeader, 1);
+    this.today = new Synthetic(showTodayHeader, 1, false);
     this.addPeriodListItem(this.today, "today-header");
-    this.tomorrow = new Synthetic(showTomorrowHeader, 1);
+    this.tomorrow = new Synthetic(showTomorrowHeader, 1, false);
     this.soonDays = getSoondaysPreference();
-    this.soon = new Synthetic(showSoonHeader, this.soonDays);
+    this.soon = new Synthetic(showSoonHeader, this.soonDays, true);
     this.periods = [this.today, this.tomorrow, this.soon];
     this.mPendingRefreshJobs = new Map();
 

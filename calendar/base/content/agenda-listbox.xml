@@ -127,14 +127,14 @@
                               .getInTimezone(calendarDefaultTimezone());
             let endPreviousDay = endDate.clone();
             endPreviousDay.day--;
-            let now = cal.now();
-            now.isDate = true;
-            let longPeriod = periodStartDate.subtractDate(now).days > 1;
+            // Show items's date for long periods but also for "Upcoming"
+            // period with one day duration.
+            let showDate = aPeriod.multiday || aPeriod.duration > 1;
 
             let date = "";
             let iconType = "";
             let allDayDateLabel = document.getAnonymousElementByAttribute(this, "anonid", "agenda-allDayEvent-date");
-            setBooleanAttribute(allDayDateLabel, "hidden", !longPeriod);
+            setBooleanAttribute(allDayDateLabel, "hidden", !showDate);
             if (startDate.compare(endPreviousDay) != 0) {
                 // All day event spanning multiple days.
                 if (startDate.compare(periodStartDate) >= 0 &&
@@ -219,9 +219,9 @@
             if (endAtMidnight) {
                 endDate.day--;
             }
-            let now = cal.now();
-            now.isDate = true;
-            let longFormat = periodStartDate.subtractDate(now).days > 1;
+            // Show items's date for long periods but also for "Upcoming"
+            // period with one day duration.
+            let longFormat = aPeriod.multiday || aPeriod.duration > 1;
 
             let duration = "";
             let iconType = "";
