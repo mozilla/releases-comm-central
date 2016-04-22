@@ -866,7 +866,7 @@
       <label value="&priorityButton.label;" control="priorityMenu-button"/>
       <menulist id="priorityMenu-button" value="Normal" oncommand="PriorityMenuSelect(event.target);">
         <menupopup id="priorityMenu-buttonPopup">
-          <menuitem name="priority" label="&highestPriorityCmd.label;" value="Highest"  id="list_priotity_highest"/>
+          <menuitem name="priority" label="&highestPriorityCmd.label;" value="Highest"  id="list_priority_highest"/>
           <menuitem name="priority" label="&highPriorityCmd.label;"    value="High"     id="list_priority_high"/>
           <menuitem name="priority" label="&normalPriorityCmd.label;"  value="Normal"   id="list_priority_normal"/>
           <menuitem name="priority" label="&lowPriorityCmd.label;"     value="Low"      id="list_priority_low"/>
