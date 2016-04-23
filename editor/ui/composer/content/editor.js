@@ -933,50 +933,84 @@ function initFontFaceMenu(menuPopup)
     if (!children) return;
 
     var mixed = { value: false };
-    var state = GetCurrentEditor().getFontFaceState(mixed);
+    var editorFont = GetCurrentEditor().getFontFaceState(mixed);
     if (!mixed.value)
     {
-      switch (state)
+      switch (editorFont)
       {
       case "":
       case "serif":
       case "sans-serif":
         // Generic variable width.
-        state = "";
+        editorFont = "";
         break;
       case "tt":
       case "monospace":
         // Generic fixed width.
-        state = "tt";
+        editorFont = "tt";
         break;
       default:
-        state = state.toLowerCase().replace(/, /g, ","); // bug 1139524
+        editorFont = editorFont.toLowerCase().replace(/, /g, ","); // bug 1139524
       }
     }
 
+    var editorFontOptions = editorFont.split(',');
+    var matchedOption = editorFontOptions.length;  // initialise to high invalid value
     for (var i = 0; i < children.length; i++)
     {
       var menuItem = children[i];
       if (menuItem.localName == "menuitem")
       {
+        var matchFound = false;
         if (!mixed.value)
         {
-          var faceType = menuItem.getAttribute("value").toLowerCase().replace(/, /g, ",");
-          if (faceType == state)
+          var menuFont = menuItem.getAttribute("value").toLowerCase().replace(/, /g, ",");
+
+          // First compare the entire font string to match items that contain commas.
+          if (menuFont == editorFont)
           {
             menuItem.setAttribute("checked", "true");
             break;
           }
+
+          // Next compare the individual options.
+          else if (editorFontOptions.length > 1)
+          {
+            var matchPos = editorFontOptions.indexOf(menuFont);
+            if (matchPos >= 0 && matchPos < matchedOption) {
+              // This menu font comes earlier in the list of options,
+              // so prefer it.
+              menuItem.setAttribute("checked", "true");
+
+              // If we matched the first option, we don't need to look for
+              // a better match.
+              if (matchPos == 0)
+                break;
+
+              matchedOption = matchPos;
+              matchFound = true;
+            }
+          }
         }
 
-        // in case none match, make sure we've cleared the checkmark
-        menuItem.removeAttribute("checked");
+        // In case this item doesn't match, make sure we've cleared the checkmark.
+        if (!matchFound)
+          menuItem.removeAttribute("checked");
       }
     }
   }
 }
 
-const kFixedFontFaceMenuItems = 8; // number of fixed font face menuitems
+// Number of fixed font face menuitems, these are:
+// Variable Width
+// Fixed Width
+// ==separator
+// Helvetica, Arial
+// Times
+// Courier
+// ==separator
+// ==separator
+const kFixedFontFaceMenuItems = 8;
 
 function initLocalFontFaceMenu(menuPopup)
 {
