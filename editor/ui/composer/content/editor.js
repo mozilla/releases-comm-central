@@ -706,7 +706,7 @@ function onFontFaceChange(fontFaceMenuList, commandID)
   // 0: Variable Width
   // 1: Fixed Width
   // 2: Separator
-  // 3: Helvetica, Arial (stored as Helvetica, Arial, sans-serif
+  // 3: Helvetica, Arial (stored as Helvetica, Arial, sans-serif)
   // 4: Times (stored as Times New Roman, Times, serif)
   // 5: Courier (stored as Courier New, Courier, monospace)
   // 6: Separator, "menuseparator.fontFaceMenuAfterDefaultFonts"
