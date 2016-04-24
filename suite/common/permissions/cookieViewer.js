@@ -493,7 +493,7 @@ function setCookiePermissions(action) {
     var uri = ioService.newURI(url, null, null);
   } catch (e) {
     // show an error if URI can not be constructed or adding it failed
-    window.alert(cookieBundle.getString("errorAddPermisison"));
+    window.alert(cookieBundle.getString("errorAddPermission"));
     return;
   }
   // only allow a few schemes here
