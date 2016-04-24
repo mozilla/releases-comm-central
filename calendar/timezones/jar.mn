@@ -6,5 +6,5 @@
 
 locale.jar:
 % locale calendar-timezones @AB_CD@ chrome/locale/@AB_CD@/
-    @AB_CD@/timezones.properties (../locales/@AB_CD@/chrome/calendar/timezones.properties)
+    @AB_CD@/timezones.properties (%chrome/calendar/timezones.properties)
 % resource calendar-timezones .
