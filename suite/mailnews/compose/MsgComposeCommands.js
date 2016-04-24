@@ -1178,6 +1178,10 @@ function ComposeLoad()
 
 function ComposeUnload()
 {
+  // Send notification that the window is going away completely.
+  document.getElementById("msgcomposeWindow").dispatchEvent(
+    new Event("compose-window-unload", { bubbles: false, cancelable: false }));
+
   UnloadCommandUpdateHandlers();
 
   // Stop InlineSpellCheckerUI so personal dictionary is saved
