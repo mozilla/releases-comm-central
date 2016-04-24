@@ -24,3 +24,7 @@
 #statusContainerBox {
   height: 24px;
 }
+
+#autotagPrefix {
+  width: 300px;
+}
