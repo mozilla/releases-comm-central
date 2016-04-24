@@ -165,7 +165,7 @@ repackage-zip: repackage-extensions
 
 repackage-extensions: $(STAGEDIST)
 	$(MAKE) -C $(DEPTH)/extensions/irc/locales repackage-zip-$(AB_CD) STAGEDIST=$(STAGEDIST)
-ifdef MOZ_OMNIJAR
+ifeq ($(MOZ_PACKAGER_FORMAT),omni)
 	$(MAKE) -C ../app pack-ext AB_CD=$(AB_CD) STAGEDIST=$(STAGEDIST)/extensions;
 	$(MAKE) -C ../app pack-ext AB_CD=$(AB_CD) STAGEDIST=$(STAGEDIST)/distribution/extensions;
 endif

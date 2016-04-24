@@ -181,6 +181,10 @@ ifdef CLANG_CL
 DEFINES += -DCLANG_CL
 endif
 
+ifeq ($(MOZ_PACKAGER_FORMAT),omni)
+DEFINES += -DMOZ_OMNIJAR=1
+endif
+
 libs::
 	$(MAKE) -C $(DEPTH)/suite/locales langpack
 

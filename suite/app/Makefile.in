@@ -67,7 +67,7 @@ GARBAGE += $(MOZ_APP_NAME).1
 GARBAGE += $(addprefix $(DIST)/bin/defaults/pref/, browser-prefs.js)
 endif
 
-ifdef MOZ_OMNIJAR
+ifeq ($(MOZ_PACKAGER_FORMAT),omni)
 # Make extensions end up as XPIs instead of flat chrome when doing omni.jar.
 # Extensions that appear in dist/bin/extensions will get bundled with the
 # application, ones that appear in dist/bin/distribution/extensions will be
