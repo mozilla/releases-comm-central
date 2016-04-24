@@ -667,6 +667,12 @@ function onFontFaceChange(fontFaceMenuList, commandID)
   var commandNode = document.getElementById(commandID);
   var editorFont = commandNode.getAttribute("state");
 
+  // Strip quotes in font names. Experiments have shown that we only
+  // ever get double quotes around the font name, never single quotes,
+  // even if they were in the HTML source. Also single or double
+  // quotes within the font name are never returned.
+  editorFont = editorFont.replace(/"/g, "");
+
   switch (editorFont) {
   case "mixed":
     // Selection is the "mixed" ( > 1 style) state.
@@ -717,7 +723,7 @@ function onFontFaceChange(fontFaceMenuList, commandID)
   let afterUsedFontSection = false;
 
   // The menu items not only have "label" and "value", but also some other attributes:
-  // "value_parsed": Is the toLowerCase() and space stripped value.
+  // "value_parsed": Is the toLowerCase() and space-stripped value.
   // "value_cache":  Is a concatenation of all editor fonts that were ever mapped
   //                 onto this menu item. This is done for optimization.
   // "used":         This item is in the used font section.
@@ -934,6 +940,13 @@ function initFontFaceMenu(menuPopup)
 
     var mixed = { value: false };
     var editorFont = GetCurrentEditor().getFontFaceState(mixed);
+
+    // Strip quotes in font names. Experiments have shown that we only
+    // ever get double quotes around the font name, never single quotes,
+    // even if they were in the HTML source. Also single or double
+    // quotes within the font name are never returned.
+    editorFont = editorFont.replace(/"/g, "");
+
     if (!mixed.value)
     {
       switch (editorFont)
