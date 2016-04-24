@@ -18,6 +18,7 @@ classic.jar:
   skin/classic/communicator/aboutSessionRestore.css                     (mac/communicator/aboutSessionRestore.css)
   skin/classic/communicator/button.css                                  (mac/communicator/button.css)
   skin/classic/communicator/communicator.css                            (mac/communicator/communicator.css)
+  skin/classic/communicator/config.css                                  (mac/communicator/config.css)
   skin/classic/communicator/helpOverlay.css                             (mac/communicator/helpOverlay.css)
   skin/classic/communicator/toolbar.css                                 (mac/communicator/toolbar.css)
   skin/classic/communicator/viewSourceOverlay.css                       (mac/communicator/viewSourceOverlay.css)
@@ -54,6 +55,7 @@ classic.jar:
   skin/classic/communicator/aboutSessionRestore.css                     (communicator/aboutSessionRestore.css)
   skin/classic/communicator/button.css                                  (communicator/button.css)
   skin/classic/communicator/communicator.css                            (communicator/communicator.css)
+  skin/classic/communicator/config.css                                  (communicator/config.css)
   skin/classic/communicator/helpOverlay.css                             (communicator/helpOverlay.css)
   skin/classic/communicator/toolbar.css                                 (communicator/toolbar.css)
   skin/classic/communicator/viewSourceOverlay.css                       (communicator/viewSourceOverlay.css)
@@ -471,4 +473,6 @@ classic.jar:
   skin/classic/navigator/icons/tab-drag-indicator.gif                   (navigator/icons/tab-drag-indicator.gif)
   skin/classic/navigator/icons/tab-new.gif                              (navigator/icons/tab-new.gif)
 [extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}] chrome.jar:
-% override chrome://mozapps/skin/places/defaultFavicon.png chrome://communicator/skin/bookmarks/bookmark-item.png
+% override chrome://global/skin/config.css                        chrome://communicator/skin/config.css
+% override chrome://global/skin/in-content/info-pages.css         chrome://communicator/skin/communicator.css
+% override chrome://mozapps/skin/places/defaultFavicon.png        chrome://communicator/skin/bookmarks/bookmark-item.png
