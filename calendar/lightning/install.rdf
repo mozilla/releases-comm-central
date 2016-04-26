@@ -32,7 +32,7 @@
     <em:id>@XPI_EM_ID@</em:id>
     <em:name>Lightning</em:name>
     <em:version>@LIGHTNING_VERSION@</em:version> <!-- BuildID=@MOZ_BUILDID@ -->
-    <em:description>An integrated calendar for Thunderbird</em:description>
+    <em:description>Integrated Calendaring &amp; Scheduling for your Email client</em:description>
 #ifdef LIGHTNING_PRERELEASE_VERSION
     <em:developer>Build ID: @MOZ_BUILDID@</em:developer>
 #endif
