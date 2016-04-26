@@ -650,7 +650,7 @@ nsMsgPrintEngine::PrintMsgWindow()
 //---------------------------------------------------------------
 
 //---------------------------------------------------------------
-class nsPrintMsgWindowEvent : public nsRunnable
+class nsPrintMsgWindowEvent : public mozilla::Runnable
 {
 public:
   nsPrintMsgWindowEvent(nsMsgPrintEngine *mpe)
@@ -669,7 +669,7 @@ private:
 };
 
 //-----------------------------------------------------------
-class nsStartNextPrintOpEvent : public nsRunnable
+class nsStartNextPrintOpEvent : public mozilla::Runnable
 {
 public:
   nsStartNextPrintOpEvent(nsMsgPrintEngine *mpe)

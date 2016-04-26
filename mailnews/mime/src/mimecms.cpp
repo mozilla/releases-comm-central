@@ -241,7 +241,7 @@ protected:
   nsCString mSenderName;
 };
 
-class SignedStatusRunnable : public nsRunnable
+class SignedStatusRunnable : public mozilla::Runnable
 {
 public:
   SignedStatusRunnable(const nsMainThreadPtrHandle<nsIMsgSMIMEHeaderSink> &aSink, int32_t aNestingLevel,

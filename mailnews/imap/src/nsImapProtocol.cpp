@@ -1027,7 +1027,7 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning)
 }
 
 
-class nsImapThreadShutdownEvent : public nsRunnable {
+class nsImapThreadShutdownEvent : public mozilla::Runnable {
 public:
   nsImapThreadShutdownEvent(nsIThread *thread) : mThread(thread) {
   }
@@ -2014,7 +2014,7 @@ nsresult nsImapProtocol::ProcessProtocolState(nsIURI * url, nsIInputStream * inp
   return NS_OK;
 }
 
-class UrlListenerNotifierEvent : public nsRunnable
+class UrlListenerNotifierEvent : public mozilla::Runnable
 {
 public:
   UrlListenerNotifierEvent(nsIMsgMailNewsUrl *aUrl, nsIImapProtocol *aProtocol)

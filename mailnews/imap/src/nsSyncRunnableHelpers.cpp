@@ -56,7 +56,7 @@ struct RefType<const nsIID&>
   typedef const nsIID& type;
 };
 
-class SyncRunnableBase : public nsRunnable
+class SyncRunnableBase : public mozilla::Runnable
 {
 public:
   nsresult Result() {

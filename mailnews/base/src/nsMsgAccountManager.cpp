@@ -2502,7 +2502,7 @@ nsMsgAccountManager::GetChromePackageName(const nsACString& aExtensionName, nsAC
   return NS_ERROR_UNEXPECTED;
 }
 
-class VFChangeListenerEvent : public nsRunnable
+class VFChangeListenerEvent : public mozilla::Runnable
 {
 public:
   VFChangeListenerEvent(VirtualFolderChangeListener *vfChangeListener,

@@ -990,7 +990,7 @@ bool nsImportGenericMail::CreateFolder(nsIMsgFolder **ppFolder)
  * the folder, the main thread hands it the next folder.
  */
 
-class GetSubFoldersRunnable : public nsRunnable
+class GetSubFoldersRunnable : public mozilla::Runnable
 {
 public:
   GetSubFoldersRunnable(nsIMsgFolder *aFolder);
@@ -1018,7 +1018,7 @@ nsresult ProxyGetSubFolders(nsIMsgFolder *aFolder)
   return NS_DispatchToMainThread(getSubFolders, NS_DISPATCH_SYNC);
 }
 
-class GetChildNamedRunnable : public nsRunnable
+class GetChildNamedRunnable : public mozilla::Runnable
 {
 public:
   GetChildNamedRunnable(nsIMsgFolder *aFolder, const nsAString& aName, nsIMsgFolder **aChild);
@@ -1050,7 +1050,7 @@ nsresult ProxyGetChildNamed(nsIMsgFolder *aFolder, const nsAString & aName,
   return NS_DispatchToMainThread(getChildNamed, NS_DISPATCH_SYNC);
 }
 
-class GetParentRunnable : public nsRunnable
+class GetParentRunnable : public mozilla::Runnable
 {
 public:
   GetParentRunnable(nsIMsgFolder *aFolder, nsIMsgFolder **aParent);
@@ -1078,7 +1078,7 @@ nsresult ProxyGetParent(nsIMsgFolder *aFolder, nsIMsgFolder **aParent)
   return NS_DispatchToMainThread(getParent, NS_DISPATCH_SYNC);
 }
 
-class ContainsChildNamedRunnable : public nsRunnable
+class ContainsChildNamedRunnable : public mozilla::Runnable
 {
 public:
   ContainsChildNamedRunnable(nsIMsgFolder *aFolder, const nsAString& aName, bool *aResult);
@@ -1111,7 +1111,7 @@ nsresult ProxyContainsChildNamed(nsIMsgFolder *aFolder, const nsAString &aName,
 }
 
 
-class GenerateUniqueSubfolderNameRunnable : public nsRunnable
+class GenerateUniqueSubfolderNameRunnable : public mozilla::Runnable
 {
 public:
   GenerateUniqueSubfolderNameRunnable(nsIMsgFolder *aFolder,
@@ -1150,7 +1150,7 @@ nsresult ProxyGenerateUniqueSubfolderName(nsIMsgFolder *aFolder,
   return NS_DispatchToMainThread(generateUniqueSubfolderName, NS_DISPATCH_SYNC);
 }
 
-class CreateSubfolderRunnable : public nsRunnable
+class CreateSubfolderRunnable : public mozilla::Runnable
 {
 public:
   CreateSubfolderRunnable(nsIMsgFolder *aFolder, const nsAString& aName);
@@ -1179,7 +1179,7 @@ nsresult ProxyCreateSubfolder(nsIMsgFolder *aFolder, const nsAString &aName)
   return NS_DispatchToMainThread(createSubfolder, NS_DISPATCH_SYNC);
 }
 
-class ForceDBClosedRunnable : public nsRunnable
+class ForceDBClosedRunnable : public mozilla::Runnable
 {
 public:
   ForceDBClosedRunnable(nsIMsgFolder *aFolder);

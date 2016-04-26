@@ -21,7 +21,7 @@ class calICSService : public calIICSService,
 {
 protected:
     virtual ~calICSService() {}
-    class ParserWorker : public nsRunnable {
+    class ParserWorker : public mozilla::Runnable {
     public:
       ParserWorker(nsIThread *mainThread,
                    nsIThread *workerThread,
@@ -43,7 +43,7 @@ protected:
       nsCOMPtr<nsIThread> mMainThread;
       nsCOMPtr<nsIThread> mWorkerThread;
 
-      class ParserWorkerCompleter : public nsRunnable {
+      class ParserWorkerCompleter : public mozilla::Runnable {
       public:
         ParserWorkerCompleter(nsIThread *workerThread,
                               nsresult status,

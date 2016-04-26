@@ -477,7 +477,7 @@ nsMsgContentPolicy::ShouldAcceptRemoteContentForMsgHdr(nsIMsgDBHdr *aMsgHdr,
   return result;
 }
 
-class RemoteContentNotifierEvent : public nsRunnable
+class RemoteContentNotifierEvent : public mozilla::Runnable
 {
 public:
   RemoteContentNotifierEvent(nsIMsgWindow *aMsgWindow, nsIMsgDBHdr *aMsgHdr,

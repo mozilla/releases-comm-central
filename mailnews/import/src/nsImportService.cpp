@@ -283,7 +283,7 @@ NS_IMETHODIMP nsImportService::GetModuleDescription(const char *filter, int32_t 
   return NS_ERROR_FAILURE;
 }
 
-class nsProxySendRunnable : public nsRunnable
+class nsProxySendRunnable : public mozilla::Runnable
 {
 public:
   nsProxySendRunnable(nsIMsgIdentity *aIdentity,

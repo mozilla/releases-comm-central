@@ -1803,7 +1803,7 @@ nsresult nsMsgDBFolder::CompactOfflineStore(nsIMsgWindow *inWindow, nsIUrlListen
   return folderCompactor->Compact(this, true, aListener, inWindow);
 }
 
-class AutoCompactEvent : public nsRunnable
+class AutoCompactEvent : public mozilla::Runnable
 {
 public:
   AutoCompactEvent(nsIMsgWindow *aMsgWindow, nsMsgDBFolder *aFolder)

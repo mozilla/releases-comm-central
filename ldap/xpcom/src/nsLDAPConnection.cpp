@@ -377,7 +377,7 @@ nsLDAPConnection::RemovePendingOperation(uint32_t aOperationID)
   return NS_OK;
 }
 
-class nsOnLDAPMessageRunnable : public nsRunnable
+class nsOnLDAPMessageRunnable : public Runnable
 {
 public:
   nsOnLDAPMessageRunnable(nsLDAPMessage *aMsg, bool aClear)
