@@ -306,15 +306,13 @@ XMPPSession.prototype = {
       let authMechanisms = this._account.authMechanisms || XMPPAuthMechanisms;
       let selectedMech = "";
       let canUsePlain = false;
-      // RFC 6120, 6.4.1: The order of <mechanism/> elements in
-      // the XML indicates the preference order of the SASL mechanisms
-      // according to the receiving entity (which is not necessarily the
-      // preference order according to the initiating entity).
-      for (let m of mechs.getChildren("mechanism")) {
+      mechs = mechs.getChildren("mechanism");
+      for each (let m in mechs) {
         let mech = m.innerText;
-        if (mech == "PLAIN") {
-          // If PLAIN is proposed, remember that it's a possibility but don't
-          // bother checking if the user allowed it until we have verified
+        if (mech == "PLAIN" && !this._encrypted) {
+          // If PLAIN is proposed over an unencrypted connection,
+          // remember that it's a possibility but don't bother
+          // checking if the user allowed it until we have verified
           // that nothing more secure is available.
           canUsePlain = true;
         }
@@ -324,8 +322,7 @@ XMPPSession.prototype = {
         }
       }
       if (!selectedMech && canUsePlain) {
-        if (this._encrypted ||
-            this._connectionSecurity == "allow_unencrypted_plain_auth")
+        if (this._connectionSecurity == "allow_unencrypted_plain_auth")
           selectedMech = "PLAIN";
         else {
           this.onError(Ci.prplIAccount.ERROR_AUTHENTICATION_IMPOSSIBLE,
