@@ -421,7 +421,8 @@ FolderDisplayWidget.prototype = {
     "flaggedCol",
     "subjectCol",
     "unreadButtonColHeader",
-    "senderCol", // news folders
+    "senderCol", // news folders or incoming folders when correspondents not in use
+    "recipientCol", // outgoing folders when correspondents not in use
     "correspondentCol", // mail folders
     "junkStatusCol",
     "dateCol",
@@ -440,13 +441,28 @@ FolderDisplayWidget.prototype = {
    *  displayed by default.
    */
   COLUMN_DEFAULT_TESTERS: {
-    // Don't show the correspondent for news or RSS where it doesn't make sense.
     correspondentCol: function (viewWrapper) {
-      return viewWrapper.isMailFolder && !viewWrapper.isFeedFolder;
+      if (Services.prefs.getBoolPref("mail.threadpane.use_correspondents")) {
+        // Don't show the correspondent for news or RSS where it doesn't make sense.
+        return viewWrapper.isMailFolder && !viewWrapper.isFeedFolder;
+      }
+      return false;
     },
-    // Instead show the sender.
     senderCol: function (viewWrapper) {
-      return viewWrapper.isNewsFolder || viewWrapper.isFeedFolder;
+      if (Services.prefs.getBoolPref("mail.threadpane.use_correspondents")) {
+        // Show the sender even if correspondent is enabled for news and feeds.
+        return viewWrapper.isNewsFolder || viewWrapper.isFeedFolder;
+      }
+      // senderCol = From. You only care in incoming folders.
+      return viewWrapper.isIncomingFolder;
+    },
+    recipientCol: function (viewWrapper) {
+      if (Services.prefs.getBoolPref("mail.threadpane.use_correspondents")) {
+        // No recipient column if we use correspondent.
+        return false;
+      }
+      // recipientCol = To. You only care in outgoing folders.
+      return viewWrapper.isOutgoingFolder;
     },
     // Only show the location column for non-single-folder results
     locationCol: function(viewWrapper) {
@@ -737,33 +753,6 @@ FolderDisplayWidget.prototype = {
    */
   _restoreColumnStates: function FolderDisplayWidget__restoreColumnStates() {
     if (this._savedColumnStates) {
-      // upgrade column states that don't have a correspondent column
-      if (Services.prefs.getBoolPref("mailnews.ui.upgrade.correspondents") &&
-          (this._savedColumnStates.senderCol ||
-           this._savedColumnStates.recipientCol) &&
-          !this._savedColumnStates.correspondentCol) {
-        this._savedColumnStates.correspondentCol =
-          this._getDefaultColumnsForCurrentFolder(true).correspondentCol;
-        if (this._savedColumnStates.correspondentCol.visible) {
-          if (this._savedColumnStates.senderCol &&
-            this._savedColumnStates.senderCol.visible &&
-            this._savedColumnStates.senderCol.ordinal) {
-            this._savedColumnStates.senderCol.visible = false;
-            this._savedColumnStates.correspondentCol.ordinal =
-              this._savedColumnStates.senderCol.ordinal;
-          }
-          if (this._savedColumnStates.recipientCol &&
-            this._savedColumnStates.recipientCol.visible &&
-            this._savedColumnStates.recipientCol.ordinal) {
-            this._savedColumnStates.recipientCol.visible = false;
-            this._savedColumnStates.correspondentCol.ordinal =
-              this._savedColumnStates.recipientCol.ordinal;
-          }
-          if (!this._savedColumnStates.correspondentCol.ordinal)
-            this._savedColumnStates.correspondentCol.visible = false;
-        }
-      }
-
       this.setColumnStates(this._savedColumnStates);
       this._savedColumnStates = null;
     }

@@ -332,6 +332,9 @@ pref("mail.warn_on_shift_delete", true);
 pref("mail.threadpane.padding.top_percent", 10);
 pref("mail.threadpane.padding.bottom_percent", 10);
 
+// Use correspondents column instead of from/recipient columns.
+pref("mail.threadpane.use_correspondents", true);
+
 // only affects cookies from RSS articles
 // 0-Accept, 1-dontAcceptForeign, 2-dontUse
 pref("network.cookie.cookieBehavior", 0);

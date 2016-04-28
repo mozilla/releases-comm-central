@@ -732,9 +732,6 @@ pref("mailnews.ui.select_addresses_results.version", 1);
 // see abCommon.js and ABSearchDialog.js
 pref("mailnews.ui.advanced_directory_search_results.version", 1);
 
-// from/recipient columns will be replaced with correspondents column
-pref("mailnews.ui.upgrade.correspondents", true);
-
 // default description and color prefs for tags
 // (we keep the .labels. names for backwards compatibility)
 pref("mailnews.labels.description.1", "chrome://messenger/locale/messenger.properties");
