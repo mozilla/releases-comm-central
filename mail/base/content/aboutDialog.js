@@ -312,7 +312,7 @@ appUpdater.prototype =
 
   /**
    * Handles oncommand for the "Apply Update…" button
-   * which is presented if we need to show the billboard or license.
+   * which is presented if we need to show the billboard.
    */
   buttonApplyBillboard: function() {
     const URI_UPDATE_PROMPT_DIALOG = "chrome://mozapps/content/update/updates.xul";
@@ -359,9 +359,7 @@ appUpdater.prototype =
         return;
       }
 
-      // Thunderbird no longer displays a license for updates and the licenseURL
-      // check is just in case a distibution does.
-      if (gAppUpdater.update.billboardURL || gAppUpdater.update.licenseURL) {
+      if (gAppUpdater.update.billboardURL) {
         gAppUpdater.selectPanel("applyBillboard");
         return;
       }
