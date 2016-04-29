@@ -69,6 +69,11 @@
                   label="&limit.tls12.label;"
                   accesskey="&limit.tls12.accesskey;"
                   oncommand="UpdateSslPrefs();"/>
+        <checkbox id="allowTLS13"
+                  class="nogray-disabled"
+                  label="&limit.tls13.label;"
+                  accesskey="&limit.tls13.accesskey;"
+                  oncommand="UpdateSslPrefs();"/>
       </hbox>
 
     </groupbox>
