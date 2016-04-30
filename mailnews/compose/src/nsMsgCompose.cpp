@@ -5181,13 +5181,14 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
       *_retval = nsIMsgCompConvertible::No;
       return NS_OK;
     }
-    // moz-txt classes are used internally by the editor, those can be discarded.
+
+    // moz-* classes are used internally by the editor and mail composition
+    // (like moz-cite or moz-signature). Those can be discarded.
     // But any other ones are unconvertible. Style can be attached to them or any
     // other context (e.g. in microformats).
     if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("class"), attribValue)) &&
         !attribValue.IsEmpty() &&
-        !StringBeginsWith(attribValue, NS_LITERAL_STRING("moz-txt"), nsCaseInsensitiveStringComparator()) &&
-        !StringBeginsWith(attribValue, NS_LITERAL_STRING("moz-cite"), nsCaseInsensitiveStringComparator()))
+        !StringBeginsWith(attribValue, NS_LITERAL_STRING("moz-"), nsCaseInsensitiveStringComparator()))
     {
       *_retval = nsIMsgCompConvertible::No;
       return NS_OK;
