@@ -184,7 +184,6 @@
 @RESPATH@/components/dom_canvas.xpt
 @RESPATH@/components/dom_core.xpt
 @RESPATH@/components/dom_css.xpt
-@RESPATH@/components/dom_datastore.xpt
 @RESPATH@/components/dom_events.xpt
 #ifdef MOZ_GAMEPAD
 @RESPATH@/components/dom_gamepad.xpt
@@ -391,8 +390,6 @@
 @RESPATH@/components/crashmonitor.manifest
 @RESPATH@/components/crypto-SDR.js
 @RESPATH@/components/cryptoComponents.manifest
-@RESPATH@/components/DataStoreImpl.js
-@RESPATH@/components/DataStore.manifest
 @RESPATH@/components/devtools-startup.manifest
 @RESPATH@/components/devtools-startup.js
 @RESPATH@/components/Downloads.manifest
