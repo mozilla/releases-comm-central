@@ -4490,8 +4490,16 @@ var envelopeDragObserver = {
         else if (item.flavour.contentType == "text/x-moz-address")
         {
           // process the address
-          if (rawData)
+          if (rawData) {
             DropRecipient(aEvent.target, rawData);
+
+            // Since we are now using ondrop (eDrop) instead of previously using
+            // ondragdrop (eLegacyDragDrop), we must prevent the default
+            // which is dropping the address text into the widget.
+            // Note that stopPropagation() is called by our caller in
+            // nsDragAndDrop.js.
+            aEvent.preventDefault();
+          }
         }
       }
 
