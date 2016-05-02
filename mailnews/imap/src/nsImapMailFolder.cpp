@@ -2234,7 +2234,7 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(nsIArray *messages,
     {
       rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Trash,
                                      getter_AddRefs(trashFolder));
-      NS_ASSERTION(trashFolder != 0, "couldn't find trash");
+      NS_ASSERTION(trashFolder, "couldn't find trash");
       // if we can't find the trash, we'll just have to do an imap delete and pretend this is the trash
       if (!trashFolder)
         deleteImmediatelyNoTrash = true;

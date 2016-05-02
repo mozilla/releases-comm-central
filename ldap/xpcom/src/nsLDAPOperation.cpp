@@ -274,7 +274,7 @@ nsLDAPOperation::SimpleBind(const nsACString& passwd)
     if (!passwd.IsEmpty())
       mSavePassword = passwd;
 
-    NS_PRECONDITION(mMessageListener != 0, "MessageListener not set");
+    NS_PRECONDITION(mMessageListener, "MessageListener not set");
 
     rv = connection->GetBindName(bindName);
     if (NS_FAILED(rv))
@@ -520,7 +520,7 @@ nsLDAPOperation::AbandonExt()
     nsresult rv;
     nsresult retStatus = NS_OK;
 
-    if ( mMessageListener == 0 || mMsgID == 0 ) {
+    if (!mMessageListener || mMsgID == 0) {
         NS_ERROR("nsLDAPOperation::AbandonExt(): mMessageListener or "
                  "mMsgId not initialized");
         return NS_ERROR_NOT_INITIALIZED;
@@ -596,7 +596,7 @@ nsLDAPOperation::AddExt(const char *base,
                         LDAPControl **serverctrls,
                         LDAPControl **clientctrls)
 {
-  if (mMessageListener == 0) {
+  if (!mMessageListener) {
     NS_ERROR("nsLDAPOperation::AddExt(): mMessageListener not set");
     return NS_ERROR_NOT_INITIALIZED;
   }
@@ -710,7 +710,7 @@ nsLDAPOperation::DeleteExt(const char *base,
                            LDAPControl **serverctrls,
                            LDAPControl **clientctrls)
 {
-  if (mMessageListener == 0) {
+  if (!mMessageListener) {
     NS_ERROR("nsLDAPOperation::DeleteExt(): mMessageListener not set");
     return NS_ERROR_NOT_INITIALIZED;
   }
@@ -761,7 +761,7 @@ nsLDAPOperation::ModifyExt(const char *base,
                            LDAPControl **serverctrls,
                            LDAPControl **clientctrls)
 {
-  if (mMessageListener == 0) {
+  if (!mMessageListener) {
     NS_ERROR("nsLDAPOperation::ModifyExt(): mMessageListener not set");
     return NS_ERROR_NOT_INITIALIZED;
   }
@@ -876,7 +876,7 @@ nsLDAPOperation::Rename(const char *base,
                         LDAPControl **serverctrls,
                         LDAPControl **clientctrls)
 {
-  if (mMessageListener == 0) {
+  if (!mMessageListener) {
     NS_ERROR("nsLDAPOperation::Rename(): mMessageListener not set");
     return NS_ERROR_NOT_INITIALIZED;
   }

@@ -4762,7 +4762,7 @@ nsIMsgThread *  nsMsgDatabase::GetThreadForThreadId(nsMsgKey threadId)
 {
 
   nsIMsgThread *retThread = (threadId == m_cachedThreadId && m_cachedThread) ?
-    m_cachedThread : FindExistingThread(threadId);
+    m_cachedThread.get() : FindExistingThread(threadId);
   if (retThread)
   {
     NS_ADDREF(retThread);

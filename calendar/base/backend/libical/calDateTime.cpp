@@ -157,7 +157,8 @@ calDateTime::SetNativeTime(PRTime aNativeTime)
 {
     icaltimetype icalt;
     PRTimeToIcaltime(aNativeTime, false, icaltimezone_get_utc_timezone(), &icalt);
-    FromIcalTime(&icalt, cal::UTC());
+    nsCOMPtr<calITimezone> ctz = cal::UTC();
+    FromIcalTime(&icalt, ctz);
     return NS_OK;
 }
 
@@ -473,12 +474,14 @@ void calDateTime::FromIcalTime(icaltimetype const* icalt, calITimezone * tz)
 #if defined(DEBUG)
     if (mTimezone) {
         if (t.is_utc) {
-            NS_ASSERTION(SameCOMIdentity(mTimezone, cal::UTC()), "UTC mismatch!");
+            nsCOMPtr<calITimezone> ctz = cal::UTC();
+            NS_ASSERTION(SameCOMIdentity(mTimezone, ctz), "UTC mismatch!");
         } else if (!t.zone) {
             nsAutoCString tzid;
             mTimezone->GetTzid(tzid);
             if (tzid.EqualsLiteral("floating")) {
-                NS_ASSERTION(SameCOMIdentity(mTimezone, cal::floating()), "floating mismatch!");
+                nsCOMPtr<calITimezone> ctz = cal::floating();
+                NS_ASSERTION(SameCOMIdentity(mTimezone, ctz), "floating mismatch!");
             }
         } else {
             nsAutoCString tzid;

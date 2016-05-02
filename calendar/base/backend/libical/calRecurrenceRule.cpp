@@ -188,7 +188,7 @@ calRecurrenceRule::GetUntilDate(calIDateTime * *aRecurEnd)
         NS_ADDREF(*aRecurEnd);
     } else {
         // infinite recurrence
-        *aRecurEnd = nullptr; 
+        *aRecurEnd = nullptr;
     }
     return NS_OK;
 }
@@ -207,7 +207,8 @@ calRecurrenceRule::SetUntilDate(calIDateTime * aRecurEnd)
             NS_SUCCEEDED(tz->GetIsFloating(&b)) && !b) {
             // convert to UTC:
             nsCOMPtr<calIDateTime> dt;
-            aRecurEnd->GetInTimezone(cal::UTC(), getter_AddRefs(dt));
+            nsCOMPtr<calITimezone> ctz = cal::UTC();
+            aRecurEnd->GetInTimezone(ctz, getter_AddRefs(dt));
             icaldt = do_QueryInterface(dt, &rv);
         } else {
             icaldt = do_QueryInterface(aRecurEnd, &rv);
