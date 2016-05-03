@@ -87,21 +87,10 @@ pref("app.update.certs.2.commonName", "aus5.mozilla.org");
 // Whether or not app updates are enabled
 pref("app.update.enabled", true);
 
-// This preference turns on app.update.mode and allows automatic download and
-// install to take place. We use a separate boolean toggle for this to make
-// the UI easier to construct.
+// If set to true, the Update Service will automatically download updates when
+// app updates are enabled per the app.update.enabled preference and if the user
+// can apply updates.
 pref("app.update.auto", true);
-
-// Defines how the Application Update Service notifies the user about updates:
-//
-// AUM Set to:        Minor Releases:     Major Releases:
-// 0                  download no prompt  download no prompt
-// 1                  download no prompt  download no prompt if no incompatibilities
-// 2                  download no prompt  prompt
-//
-// See chart in nsUpdateService.js.in for more details
-//
-pref("app.update.mode", 1);
 
 // If set to true, the Update Service will present no UI for any event.
 pref("app.update.silent", false);
@@ -805,7 +794,7 @@ pref("layers.acceleration.disabled", true);
 // and direct2d support on Windows.
 pref("gfx.direct2d.disabled", true);
 #endif
- 
+
 // Account provisioner.
 pref("mail.provider.providerList", "https://broker-live.mozillamessaging.com/provider/list");
 pref("mail.provider.suggestFromName", "https://broker-live.mozillamessaging.com/provider/suggest");

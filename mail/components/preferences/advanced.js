@@ -191,15 +191,14 @@ var gAdvancedPane = {
 
 #ifdef MOZ_UPDATER
 /**
- * Selects the item of the radiogroup, and sets the warnIncompatible checkbox
- * based on the pref values and locked states.
+ * Selects the item of the radiogroup based on the pref values and locked
+ * states.
  *
  * UI state matrix for update preference conditions
  *
  * UI Components:                              Preferences
  * Radiogroup                                  i   = app.update.enabled
- * Warn before disabling extensions checkbox   ii  = app.update.auto
- *                                             iii = app.update.mode
+ *                                             ii  = app.update.auto
  *
  * Disabled states:
  * Element           pref  value  locked  disabled
@@ -207,15 +206,6 @@ var gAdvancedPane = {
  *                   i     t/f    *t*     *true*
  *                   ii    t/f    f       false
  *                   ii    t/f    *t*     *true*
- *                   iii   0/1/2  t/f     false
- * warnIncompatible  i     t      f       false
- *                   i     t      *t*     *true*
- *                   i     *f*    t/f     *true*
- *                   ii    t      f       false
- *                   ii    t      *t*     *true*
- *                   ii    *f*    t/f     *true*
- *                   iii   0/1/2  f       false
- *                   iii   0/1/2  *t*     *true*
  */
 updateReadPrefs: function ()
 {
@@ -239,13 +229,6 @@ updateReadPrefs: function ()
   // A locked pref is sufficient to disable the radiogroup.
   radiogroup.disabled = !canCheck || enabledPref.locked || autoPref.locked;
 
-  var modePref = document.getElementById("app.update.mode");
-  var warnIncompatible = document.getElementById("warnIncompatible");
-
-  // the warnIncompatible checkbox value is set by readAddonWarn
-  warnIncompatible.disabled = radiogroup.disabled || modePref.locked ||
-                              !enabledPref.value || !autoPref.value;
-
 #ifdef MOZ_MAINTENANCE_SERVICE
   // Check to see if the maintenance service is installed.
   // If it is don't show the preference at all.
@@ -267,8 +250,7 @@ updateReadPrefs: function ()
 },
 
 /**
- * Sets the pref values based on the selected item of the radiogroup,
- * and sets the disabled state of the warnIncompatible checkbox accordingly.
+ * Sets the pref values based on the selected item of the radiogroup.
  */
 updateWritePrefs: function ()
 {
@@ -287,38 +269,6 @@ updateWritePrefs: function ()
     case "manual":    // 3. Never check for updates.
       enabledPref.value = false;
       autoPref.value = false;
-  }
-
-  var warnIncompatible = document.getElementById("warnIncompatible");
-  var modePref = document.getElementById("app.update.mode");
-  warnIncompatible.disabled = enabledPref.locked || !enabledPref.value ||
-                              autoPref.locked || !autoPref.value ||
-                              modePref.locked;
-},
-
-  /**
-   * app.update.mode is a three state integer preference, and we have to
-   * express all three values in a single checkbox:
-   * "Warn me if this will disable extensions or themes"
-   * Preference Value         Checkbox State    Meaning
-   * 0                        Unchecked         Do not warn
-   * 1                        Checked           Warn if there are incompatibilities
-   * 2                        Checked           Warn if there are incompatibilities,
-   *                                            or the update is major.
-   */
-  _modePreference: -1,
-  addonWarnSyncFrom: function ()
-  {
-    var preference = document.getElementById("app.update.mode");
-    var warn = preference.value != 0;
-    gAdvancedPane._modePreference = warn ? preference.value : 1;
-    return warn;
-  },
-
-  addonWarnSyncTo: function ()
-  {
-    var warnIncompatible = document.getElementById("warnIncompatible");
-    return !warnIncompatible.checked ? 0 : gAdvancedPane._modePreference;
   },
 
   showUpdates: function ()
