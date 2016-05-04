@@ -181,8 +181,8 @@ add_task(function* createInvitationOverlay_test() {
                       "ATTENDEE:mailto:attendee7@example.net\r\n"},
         expected: {
             node: "attendee-table",
-            value: "<tr xmlns=\"http://www.w3.org/1999/xhtml\" hidden=\"true\" id=\"attendee-temp" +
-                   "late\"><td><p class=\"itip-icon\"></p></td><td class=\"attendee-name\"></td><" +
+            value: "<tr xmlns=\"http://www.w3.org/1999/xhtml\" id=\"attendee-template\" hidden=\"" +
+                   "true\"><td><p class=\"itip-icon\"></p></td><td class=\"attendee-name\"></td><" +
                    "/tr>" +
 
                    "<tr xmlns=\"http://www.w3.org/1999/xhtml\" title=\"Attendee 1 &lt;attendee1@e" +
