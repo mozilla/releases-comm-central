@@ -170,12 +170,12 @@ directoryTreeView.prototype = {
   },
 
   // Override the dnd methods for those functions in abDragDrop.js
-  canDrop: function dtv_canDrop(aIndex, aOrientation) {
-    return abDirTreeObserver.canDrop(aIndex, aOrientation);
+  canDrop: function dtv_canDrop(aIndex, aOrientation, dataTransfer) {
+    return abDirTreeObserver.canDrop(aIndex, aOrientation, dataTransfer);
   },
 
-  drop: function dtv_drop(aRow, aOrientation) {
-    abDirTreeObserver.onDrop(aRow, aOrientation);
+  drop: function dtv_drop(aRow, aOrientation, dataTransfer) {
+    abDirTreeObserver.onDrop(aRow, aOrientation, dataTransfer);
   },
 
   getDirectoryAtIndex: function dtv_getDirForIndex(aIndex) {
