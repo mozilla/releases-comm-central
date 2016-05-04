@@ -41,9 +41,6 @@
                   name="app.update.auto"
                   type="bool"
                   onchange="UpdateAppItems();"/>
-      <preference id="app.update.mode"
-                  name="app.update.mode"
-                  type="int"/>
       <preference id="app.update.interval"
                   name="app.update.interval"
                   type="int"/>
@@ -124,19 +121,12 @@
                     value="604800"/>
            </radiogroup>
         </hbox>
-        <vbox class="indent">
-          <checkbox id="appModeAutoEnabled"
-                    label="&appModeAutomatic.label;"
-                    flex="1"
-                    accesskey="&appModeAutomatic.accesskey;"
-                    preference="app.update.auto"/>
-          <checkbox id="appWarnIncompatible"
-                    class="indent"
-                    label="&appModeAutoAddonWarn.label;"
-                    accesskey="&appModeAutoAddonWarn.accesskey;"
-                    preference="app.update.mode"
-                    onsynctopreference="return this.checked ? 1 : 0;"/>
-        </vbox> 
+        <checkbox id="appModeAutoEnabled"
+                  class="indent"
+                  label="&appModeAutomatic.label;"
+                  flex="1"
+                  accesskey="&appModeAutomatic.accesskey;"
+                  preference="app.update.auto"/>
         <hbox pack="end">
           <button id="showUpdateHistory"
                   label="&updateHistoryButton.label;"

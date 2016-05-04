@@ -516,21 +516,8 @@ pref("app.support.baseURL", "http://www.seamonkey-project.org/doc/");
 // Whether or not app updates are enabled
 pref("app.update.enabled", true);
  
-// This preference turns on app.update.mode and allows automatic download and
-// install to take place. We use a separate boolean toggle for this to make
-// the UI easier to construct.
+// This preference allows automatic download and install to take place.
 pref("app.update.auto", true);
-
-// Defines how the Application Update Service notifies the user about updates:
-//
-// AUM Set to:        Minor Releases:     Major Releases:
-// 0                  download no prompt  download no prompt
-// 1                  download no prompt  download no prompt if no incompatibilities
-// 2                  download no prompt  prompt
-//
-// See chart in nsUpdateService.js for more details
-//
-pref("app.update.mode", 1);
 
 // If set to true, the Update Service will present no UI for any event.
 pref("app.update.silent", false);
@@ -595,8 +582,13 @@ pref("app.update.interval", 86400);
 // The minimum delay in seconds for the timer to fire.
 // default=2 minutes
 pref("app.update.timerMinimumDelay", 120);
-// Give the user x seconds to react before showing the big UI. default=12 hrs
+#ifdef RELEASE_BUILD
+// Give the user x seconds to react before showing the big UI. default=8 days
+pref("app.update.promptWaitTime", 691200);
+#else
+// For nightly and aurora builds, before showing the big UI, default=12 hrs
 pref("app.update.promptWaitTime", 43200);
+#endif
 // Show the Update Checking/Ready UI when the user was idle for x seconds
 pref("app.update.idletime", 60);
  
@@ -604,13 +596,6 @@ pref("app.update.idletime", 60);
 // successfully applied. At the moment suite doesn't want this dialog by
 // default
 pref("app.update.showInstalledUI", false);
-
-// 0 = suppress prompting for incompatibilities if there are updates available
-//     to newer versions of installed addons that resolve them.
-// 1 = suppress prompting for incompatibilities only if there are VersionInfo
-//     updates available to installed addons that resolve them, not newer
-//     versions.
-pref("app.update.incompatible.mode", 0);
 
 // Extension preferences
 
@@ -895,7 +880,6 @@ pref("services.sync.prefs.sync.addons.ignoreUserEnabledChanges", true);
 // could weaken the pref locally, install an add-on from an untrusted
 // source, and this would propagate automatically to other,
 // uncompromised Sync-connected devices.
-pref("services.sync.prefs.sync.app.update.mode", true);
 pref("services.sync.prefs.sync.browser.download.manager.behavior", true);
 pref("services.sync.prefs.sync.browser.download.manager.closeWhenDone", true);
 pref("services.sync.prefs.sync.browser.download.manager.retention", true);

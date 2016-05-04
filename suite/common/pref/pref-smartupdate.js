@@ -36,9 +36,8 @@ function Startup()
  * - true if updates to extensions and themes are enabled, false otherwise
  * app.update.auto
  * - true if updates should be automatically downloaded and installed,
- *   possibly with a warning if incompatible extensions are installed (see
- *   app.update.mode); false if the user should be asked what he wants to do
- *   when an update is available
+ *   false if the user should be asked what he wants to do when an 
+ *   update is available
  */
 function UpdateAddonsItems()
 {
@@ -74,23 +73,7 @@ function UpdateAppItems()
     document.getElementById("app.update.interval").locked;
 
   document.getElementById("appModeAutoEnabled").disabled =
-    !enabledPref.value || !gCanCheckForUpdates ||
-    document.getElementById("app.update.mode").locked;
-
-  UpdateAutoItems();
-}
-
-/**
- * Enables/disables UI for "when updates are found" based on the values,
- * and "locked" states of associated preferences.
- */
-function UpdateAutoItems()
-{
-  document.getElementById("appWarnIncompatible").disabled =
-    !gCanCheckForUpdates ||
-    !document.getElementById("app.update.enabled").value ||
-    !document.getElementById("app.update.auto").value ||
-    document.getElementById("app.update.mode").locked;
+    !enabledPref.value || !gCanCheckForUpdates;
 }
 
 /**

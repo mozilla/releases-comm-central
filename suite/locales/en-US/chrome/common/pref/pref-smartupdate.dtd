@@ -27,7 +27,5 @@
 <!ENTITY appWeekly.accesskey                  "e">
 <!ENTITY appModeAutomatic.label               "Automatically download and install the update">
 <!ENTITY appModeAutomatic.accesskey           "u">
-<!ENTITY appModeAutoAddonWarn.label           "Warn me if this will disable any of my add-ons">
-<!ENTITY appModeAutoAddonWarn.accesskey       "n">
 <!ENTITY updateHistoryButton.label            "Show Update History…">
 <!ENTITY updateHistoryButton.accesskey        "S">
