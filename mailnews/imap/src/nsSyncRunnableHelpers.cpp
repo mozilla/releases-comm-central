@@ -493,7 +493,7 @@ bool OAuth2ThreadHelper::SupportsOAuth2()
   else
   {
     nsCOMPtr<nsIRunnable> runInit =
-      NS_NewRunnableMethod(this, &OAuth2ThreadHelper::Init);
+      NewRunnableMethod(this, &OAuth2ThreadHelper::Init);
     NS_DispatchToMainThread(runInit);
     mMonitor.Wait();
   }
@@ -516,7 +516,7 @@ void OAuth2ThreadHelper::GetXOAuth2String(nsACString &base64Str)
     return;
 
   nsCOMPtr<nsIRunnable> runInit =
-    NS_NewRunnableMethod(this, &OAuth2ThreadHelper::Connect);
+    NewRunnableMethod(this, &OAuth2ThreadHelper::Connect);
   NS_DispatchToMainThread(runInit);
   mMonitor.Wait();
 
