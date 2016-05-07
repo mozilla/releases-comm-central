@@ -60,7 +60,7 @@ static void
 GenerateGlobalRandomBytes(unsigned char *buf, int32_t len)
 {
   static bool      firstTime = true;
-  
+
   if (firstTime)
   {
     // Seed the random-number generator with current time so that
@@ -68,15 +68,15 @@ GenerateGlobalRandomBytes(unsigned char *buf, int32_t len)
     srand( (unsigned)PR_Now() );
     firstTime = false;
   }
-  
+
   for( int32_t i = 0; i < len; i++ )
     buf[i] = rand() % 10;
 }
-   
-char 
+
+char
 *mime_make_separator(const char *prefix)
 {
-  unsigned char rand_buf[13]; 
+  unsigned char rand_buf[13];
   GenerateGlobalRandomBytes(rand_buf, 12);
 
   return PR_smprintf("------------%s"
@@ -230,7 +230,7 @@ void nsMsgComposeSecure::SetError(nsIMsgSendReport *sendReport, const char16_t *
     return;
 
   mErrorAlreadyReported = true;
-  
+
   nsString errorString;
   nsresult res;
 
@@ -254,7 +254,7 @@ void nsMsgComposeSecure::SetErrorWithParam(nsIMsgSendReport *sendReport, const c
     return;
 
   mErrorAlreadyReported = true;
-  
+
   nsString errorString;
   nsresult res;
   const char16_t *params[1];
@@ -708,7 +708,7 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned (bool aOuter, nsIMsgSendR
           CRLF,
           mMultipartSignedBoundary,
           sig_content_desc_utf8.get());
-          
+
   if (!header) {
     rv = NS_ERROR_OUT_OF_MEMORY;
     goto FAIL;
@@ -722,7 +722,7 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned (bool aOuter, nsIMsgSendR
     if (NS_FAILED(rv) || n < L) {
       // XXX This is -1, not an nsresult
       rv = static_cast<nsresult>(MK_MIME_ERROR_WRITING_FILE);
-    } 
+    }
   } else {
     /* If this is an inner block, feed it through the crypto stream. */
     rv = MimeCryptoWriteBlock (header, L);
@@ -898,7 +898,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
   RefPtr<SharedCertVerifier> certVerifier(GetDefaultCertVerifier());
   NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
 
-  ScopedCERTCertList builtChain;
+  UniqueCERTCertList builtChain;
   if (!mEncryptionCertDBKey.IsEmpty()) {
     certdb->FindCertByDBKey(mEncryptionCertDBKey.get(),
                             getter_AddRefs(mSelfEncryptionCert));
@@ -1006,7 +1006,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
 
       mCerts->AppendElement(cert, false);
     }
-    
+
     if (!already_added_self_cert) {
       mCerts->AppendElement(mSelfEncryptionCert, false);
     }
@@ -1061,7 +1061,7 @@ NS_IMETHODIMP nsMsgComposeSecure::MimeCryptoWriteBlock (const char *buf, int32_t
 
       memcpy(mBuffer+mBufferedBytes, inputBytesIterator, bytesToAppend);
       mBufferedBytes += bytesToAppend;
-      
+
       inputBytesIterator += bytesToAppend;
       inputBytesLeft -= bytesToAppend;
 

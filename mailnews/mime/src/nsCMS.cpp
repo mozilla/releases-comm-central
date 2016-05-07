@@ -236,14 +236,14 @@ nsresult nsCMSMessage::CommonVerifySignature(unsigned char* aDigestData, uint32_
   if (!NSS_CMSMessage_IsSigned(m_cmsMsg)) {
     MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::CommonVerifySignature - not signed\n"));
     return NS_ERROR_CMS_VERIFY_NOT_SIGNED;
-  } 
+  }
 
   cinfo = NSS_CMSMessage_ContentLevel(m_cmsMsg, 0);
   if (cinfo) {
     // I don't like this hard cast. We should check in some way, that we really have this type.
     sigd = (NSSCMSSignedData*)NSS_CMSContentInfo_GetContent(cinfo);
   }
-  
+
   if (!sigd) {
     MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::CommonVerifySignature - no content info\n"));
     rv = NS_ERROR_CMS_VERIFY_NO_CONTENT_INFO;
@@ -273,14 +273,14 @@ nsresult nsCMSMessage::CommonVerifySignature(unsigned char* aDigestData, uint32_
   NS_ENSURE_TRUE(nsigners > 0, NS_ERROR_UNEXPECTED);
   si = NSS_CMSSignedData_GetSignerInfo(sigd, 0);
 
-  // See bug 324474. We want to make sure the signing cert is 
+  // See bug 324474. We want to make sure the signing cert is
   // still valid at the current time.
 
   certVerifier = GetDefaultCertVerifier();
   NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
 
   {
-    ScopedCERTCertList builtChain;
+    UniqueCERTCertList builtChain;
     SECStatus srv = certVerifier->VerifyCert(si->cert,
                                              certificateUsageEmailSigner,
                                              Now(), nullptr /*XXX pinarg*/,
@@ -426,7 +426,7 @@ public:
   :mCerts(nullptr), mPoolp(nullptr), mSize(0)
   {
   }
-  
+
   ~nsZeroTerminatedCertArray()
   {
     nsNSSShutDownPreventionLock locker;
@@ -462,12 +462,12 @@ public:
     // only allow allocation once
     if (mPoolp)
       return false;
-  
+
     mSize = count;
 
     if (!mSize)
       return false;
-  
+
     mPoolp = PORT_NewArena(1024);
     if (!mPoolp)
       return false;
@@ -485,7 +485,7 @@ public:
 
     return true;
   }
-  
+
   void set(uint32_t i, CERTCertificate *c)
   {
     nsNSSShutDownPreventionLock locker;
@@ -494,14 +494,14 @@ public:
 
     if (i >= mSize)
       return;
-    
+
     if (mCerts[i]) {
       CERT_DestroyCertificate(mCerts[i]);
     }
-    
+
     mCerts[i] = CERT_DupCertificate(c);
   }
-  
+
   CERTCertificate *get(uint32_t i)
   {
     nsNSSShutDownPreventionLock locker;
@@ -510,7 +510,7 @@ public:
 
     if (i >= mSize)
       return nullptr;
-    
+
     return CERT_DupCertificate(mCerts[i]);
   }
 
@@ -563,7 +563,7 @@ NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray * aRecipientCerts)
     mozilla::ScopedCERTCertificate c(x509cert->GetCert());
     recipientCerts.set(i, c.get());
   }
-  
+
   // Find a bulk key algorithm //
   if (NSS_SMIMEUtil_FindBulkAlgForRecipients(recipientCerts.getRawArray(), &bulkAlgTag,
                                             &keySize) != SECSuccess) {
@@ -681,7 +681,7 @@ nsCMSMessage::CreateSigned(nsIX509Cert* aSigningCert, nsIX509Cert* aEncryptCert,
     goto loser;
   }
   cinfo = NSS_CMSMessage_GetContentInfo(m_cmsMsg);
-  if (NSS_CMSContentInfo_SetContent_SignedData(m_cmsMsg, cinfo, sigd) 
+  if (NSS_CMSContentInfo_SetContent_SignedData(m_cmsMsg, cinfo, sigd)
           != SECSuccess) {
     MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::CreateSigned - can't set content signed data\n"));
     goto loser;
@@ -690,13 +690,13 @@ nsCMSMessage::CreateSigned(nsIX509Cert* aSigningCert, nsIX509Cert* aEncryptCert,
   cinfo = NSS_CMSSignedData_GetContentInfo(sigd);
 
   /* we're always passing data in and detaching optionally */
-  if (NSS_CMSContentInfo_SetContent_Data(m_cmsMsg, cinfo, nullptr, true) 
+  if (NSS_CMSContentInfo_SetContent_Data(m_cmsMsg, cinfo, nullptr, true)
           != SECSuccess) {
     MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::CreateSigned - can't set content data\n"));
     goto loser;
   }
 
-  /* 
+  /*
    * create & attach signer information
    */
   signerinfo = NSS_CMSSignerInfo_Create(m_cmsMsg, scert.get(), digestType);
@@ -706,14 +706,14 @@ nsCMSMessage::CreateSigned(nsIX509Cert* aSigningCert, nsIX509Cert* aEncryptCert,
   }
 
   /* we want the cert chain included for this one */
-  if (NSS_CMSSignerInfo_IncludeCerts(signerinfo, NSSCMSCM_CertChain, 
-                                       certUsageEmailSigner) 
+  if (NSS_CMSSignerInfo_IncludeCerts(signerinfo, NSSCMSCM_CertChain,
+                                       certUsageEmailSigner)
           != SECSuccess) {
     MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::CreateSigned - can't include signer cert chain\n"));
     goto loser;
   }
 
-  if (NSS_CMSSignerInfo_AddSigningTime(signerinfo, PR_Now()) 
+  if (NSS_CMSSignerInfo_AddSigningTime(signerinfo, PR_Now())
 	      != SECSuccess) {
     MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::CreateSigned - can't add signing time\n"));
     goto loser;
