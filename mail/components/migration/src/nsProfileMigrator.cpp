@@ -32,7 +32,7 @@ NS_IMPL_ISUPPORTS(nsProfileMigrator, nsIProfileMigrator)
 #define MIGRATION_WIZARD_FE_FEATURES "chrome,dialog,modal,centerscreen"
 
 NS_IMETHODIMP
-nsProfileMigrator::Migrate(nsIProfileStartup* aStartup, const nsACString& aKey)
+nsProfileMigrator::Migrate(nsIProfileStartup* aStartup, const nsACString& aKey, const nsACString& aProfileName)
 {
   nsAutoCString key;
   nsCOMPtr<nsIMailProfileMigrator> mailMigrator;
