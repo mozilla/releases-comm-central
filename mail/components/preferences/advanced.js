@@ -269,7 +269,8 @@ updateWritePrefs: function ()
     case "manual":    // 3. Never check for updates.
       enabledPref.value = false;
       autoPref.value = false;
-  },
+  }
+},
 
   showUpdates: function ()
   {
