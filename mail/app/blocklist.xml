@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1461962224000">
+<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1462472009000">
   <emItems>
       <emItem  blockID="i58" id="webmaster@buzzzzvideos.info">
                         <versionRange  minVersion="0" maxVersion="*">
@@ -452,7 +452,7 @@
                     <prefs>
               </prefs>
     </emItem>
-      <emItem  blockID="i461" id="{8E9E3331-D360-4f87-8803-52DE43566502}">
+      <emItem  blockID="i748" id="{32da2f20-827d-40aa-a3b4-2fc4a294352e}">
                         <versionRange  minVersion="0" maxVersion="*" severity="1">
                     </versionRange>
                     <prefs>
@@ -1399,6 +1399,12 @@
                     <prefs>
               </prefs>
     </emItem>
+      <emItem  blockID="i1212" id="unblocker20@unblocker.yt">
+                        <versionRange  minVersion="0" maxVersion="2.0.0" severity="3">
+                    </versionRange>
+                    <prefs>
+              </prefs>
+    </emItem>
       <emItem  blockID="i568" os="Darwin" id="thunder@xunlei.com">
                         <versionRange  minVersion="0" maxVersion="2.0.6" severity="1">
                     </versionRange>
@@ -1865,6 +1871,12 @@
                     <prefs>
               </prefs>
     </emItem>
+      <emItem  blockID="i1210" id="auto-plugin-checker@jetpack">
+                        <versionRange  minVersion="0" maxVersion="*" severity="1">
+                    </versionRange>
+                    <prefs>
+              </prefs>
+    </emItem>
       <emItem  blockID="i652" id="garg_sms@yahoo.in">
                         <versionRange  minVersion="67.9" maxVersion="67.9" severity="3">
                     </versionRange>
@@ -2012,6 +2024,12 @@
               </prefs>
     </emItem>
       <emItem  blockID="i543" id="{badea1ae-72ed-4f6a-8c37-4db9a4ac7bc9}">
+                        <versionRange  minVersion="0" maxVersion="*" severity="1">
+                    </versionRange>
+                    <prefs>
+              </prefs>
+    </emItem>
+      <emItem  blockID="i1211" id="flvto@hotger.com">
                         <versionRange  minVersion="0" maxVersion="*" severity="1">
                     </versionRange>
                     <prefs>
@@ -2266,7 +2284,7 @@
                   <pref>browser.search.defaultenginename</pref>
               </prefs>
     </emItem>
-      <emItem  blockID="i748" id="{32da2f20-827d-40aa-a3b4-2fc4a294352e}">
+      <emItem  blockID="i461" id="{8E9E3331-D360-4f87-8803-52DE43566502}">
                         <versionRange  minVersion="0" maxVersion="*" severity="1">
                     </versionRange>
                     <prefs>
@@ -3063,7 +3081,7 @@
                       <device>0x0046</device>
                   </devices>
             <featureStatus>BLOCKED_DRIVER_VERSION</featureStatus>      <driverVersion>8.15.10.2086</driverVersion>      <driverVersionComparator>EQUAL</driverVersionComparator>    </gfxBlacklistEntry>
-    <gfxBlacklistEntry  blockID="g1208">      <os>All</os>      <vendor>0x8086</vendor>            <feature>FEATURE_HARDWARE_VIDEO_DECODING</feature>      <featureStatus>BLOCKED_DRIVER_VERSION</featureStatus>      <driverVersion>10.18.10.3947</driverVersion>      <driverVersionComparator>EQUAL</driverVersionComparator>    </gfxBlacklistEntry>
+    <gfxBlacklistEntry  blockID="g1208">      <os>All</os>      <vendor>0x8086</vendor>            <feature>HARDWARE_VIDEO_DECODING</feature>      <featureStatus>BLOCKED_DRIVER_VERSION</featureStatus>      <driverVersion>10.18.10.3947</driverVersion>      <driverVersionComparator>EQUAL</driverVersionComparator>    </gfxBlacklistEntry>
     </gfxItems>
 
   <certItems>
