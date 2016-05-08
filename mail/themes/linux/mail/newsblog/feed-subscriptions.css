@@ -24,11 +24,18 @@
 
 #rssFeedInfoBox row,
 #statusContainerBox {
-  height: 2.3em;
+  height: 2.4em;
 }
 
 #autotagPrefix {
   width: 300px;
+}
+
+#nameValue,
+#locationValue,
+#selectFolderValue {
+  padding-top: 0;
+  padding-bottom: 1px;
 }
 
 treechildren::-moz-tree-image(folderNameCol, isFeed-true) {

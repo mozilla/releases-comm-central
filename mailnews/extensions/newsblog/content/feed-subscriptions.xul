@@ -96,7 +96,7 @@
                        control="locationValue"
                        value="&feedLocation.label;"/>
               </hbox>
-              <hbox align="center">
+              <hbox>
                 <textbox id="locationValue"
                          flex="1"
                          class="uri-element"
@@ -104,12 +104,14 @@
                          clickSelectsAll="true"
                          onfocus="FeedSubscriptions.setSummaryFocus();"
                          onblur="FeedSubscriptions.setSummaryFocus();"/>
-                <label id="locationValidate"
-                       collapsed="true"
-                       class="text-link"
-                       crop="end"
-                       value="&locationValidate.label;"
-                       onclick="FeedSubscriptions.checkValidation(event);"/>
+                <hbox align="center">
+                  <label id="locationValidate"
+                         collapsed="true"
+                         class="text-link"
+                         crop="end"
+                         value="&locationValidate.label;"
+                         onclick="FeedSubscriptions.checkValidation(event);"/>
+                </hbox>
               </hbox>
             </row>
             <row>
