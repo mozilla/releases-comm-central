@@ -529,7 +529,6 @@
 @RESPATH@/components/TooltipTextProvider.manifest
 @RESPATH@/components/txEXSLTRegExFunctions.js
 @RESPATH@/components/txEXSLTRegExFunctions.manifest
-@RESPATH@/components/UnifiedComplete.manifest
 @RESPATH@/components/UnifiedComplete.js
 #ifdef MOZ_SERVICES_SYNC
 @RESPATH@/components/Weave.js
