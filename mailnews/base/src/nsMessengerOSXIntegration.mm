@@ -51,7 +51,6 @@
 #include <Carbon/Carbon.h>
 #import <Cocoa/Cocoa.h>
 
-#define kNewMailAlertIcon "chrome://messenger/skin/icons/new-mail-alert.png"
 #define kChatEnabledPref "mail.chat.enabled"
 #define kBiffShowAlertPref "mail.biff.show_alert"
 #define kBiffAnimateDockIconPref "mail.biff.animate_dock_icon"
@@ -398,7 +397,7 @@ nsMessengerOSXIntegration::ShowAlertMessage(const nsAString& aAlertTitle,
     // If we have an nsIAlertsService implementation, use it:
     if (NS_SUCCEEDED(rv))
     {
-      alertsService->ShowAlertNotification(NS_LITERAL_STRING(kNewMailAlertIcon),
+      alertsService->ShowAlertNotification(EmptyString(),
                                            aAlertTitle, aAlertText, true,
                                            NS_ConvertASCIItoUTF16(aFolderURI),
                                            this, EmptyString(),
