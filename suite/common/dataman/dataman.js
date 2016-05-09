@@ -106,22 +106,6 @@ var gDataman = {
     // Else will call this at the end of loading the list.
   },
 
-  checkValidPermission: function dataman_checkValidPermission(aPermission) {
-    // It is currently possible to add a permission for about:xxx and other internal pages.
-    // These are probably invalid and will be ignored for now.
-    // Test if the permission has a host. If not consider it invalid for now.
-    try {
-       aPermission.principal.URI.host;
-     }
-     catch (e) {
-       gDataman.debugError("Invalid permission found: " +
-                           aPermission.principal.origin + " " +
-                           aPermission.type);
-       return false;
-     }
-     return true;
-  },
-
   handleKeyPress: function dataman_handleKeyPress(aEvent) {
     if (aEvent.keyCode == KeyEvent.DOM_VK_ESCAPE &&
         gTabs.tabbox.selectedPanel &&
@@ -311,8 +295,12 @@ var gDomains = {
       while (enumerator.hasMoreElements()) {
         let nextPermission = enumerator.getNext().QueryInterface(Components.interfaces.nsIPermission);
 
-        if (gDataman.checkValidPermission(nextPermission))
+        if (!gDomains.commonScheme(nextPermission.principal.URI.scheme)) {
+          gDomains.addDomainOrFlag("*", "hasPermissions");
+        }
+        else {
           gDomains.addDomainOrFlag(nextPermission.principal.URI.host.replace(/^\./, ""), "hasPermissions");
+        }
       }
       gDomains.ignoreUpdate = false;
       gDomains.search(gDomains.searchfield.value);
@@ -333,8 +321,11 @@ var gDomains = {
       gDomains.ignoreUpdate = true;
       try {
         var statement = Services.contentPrefs.DBConnection.createStatement("SELECT groups.name AS host FROM groups");
-        while (statement.executeStep())
-          gDomains.addDomainOrFlag(statement.row["host"], "hasPreferences");
+        while (statement.executeStep()) {
+          gDataman.debugMsg("Found pref: " + statement.row["host"]);
+          let prefHost = gDomains.getDomainFromHostWithCheck(statement.row["host"]);
+          gDomains.addDomainOrFlag(prefHost, "hasPreferences");
+        }
       }
       finally {
         statement.reset();
@@ -503,6 +494,17 @@ var gDomains = {
     return gDomains.displayedDomains[aIdx].title;
   },
 
+  getDomainFromHostWithCheck: function domain_getDomainFromHostWithCheck(aHost)  {
+    let host = gDomains.getDomainFromHost(aHost).trim();
+    // Host couldn't be found and 2 static references for internal pages and data.
+    if (host.trim().length == 0 ||
+        aHost.startsWith("about:") ||
+        aHost.startsWith("jar:"))
+      return '*';
+
+    return host;
+  },
+
   getDomainFromHost: function domain_getDomainFromHost(aHostname) {
     // Find the base domain name for the given host name.
     if (!this.xlcache[aHostname]) {
@@ -544,23 +546,54 @@ var gDomains = {
         domain = Services.eTLD.getBaseDomainFromHost(hostName);
       }
       catch (e) {
-        gDataman.debugError("Error while trying to get domain from host name: " + hostName);
-        gDataman.debugError(e);
+        gDataman.debugMsg("Unable to get domain from host name: " + hostName);
         domain = hostName;
       }
       this.xlcache[aHostname] = domain;
       gDataman.debugMsg("cached: " + aHostname + " -> " + this.xlcache[aHostname]);
-    }
+    } // end hostname not cached
     return this.xlcache[aHostname];
+  },
+
+  // Used for checking if * global data domain should be used.
+  commonScheme: function domain_commonScheme(aScheme) {
+    // case intensitive search for domain schemes
+    return /^(https?|ftp|gopher)/i.test(aScheme);
   },
 
   hostMatchesSelected: function domain_hostMatchesSelected(aHostname) {
     return this.getDomainFromHost(aHostname) == this.selectedDomain.title;
   },
 
+  hostMatchesSelectedURI: function domain_hostMatchesSelectedURI(aURI) {
+    // default to * global data domain.
+    let mScheme = "*";
+
+    // First, try to get the scheme.
+    try {
+      mScheme = aURI.scheme;
+    }
+    catch (e) {
+      gDataman.debugError("Invalid permission found: " + aUri);
+    }
+
+    // See if his is a scheme which does not go into the global data domain.
+    if (!this.commonScheme(mScheme)) {
+      return ("*") == this.selectedDomain.title;
+    }
+
+    rawHost = aURI.host.replace(/^\./, "");
+    return this.getDomainFromHost(rawHost) == this.selectedDomain.title;
+  },
+
   addDomainOrFlag: function domain_addDomainOrFlag(aHostname, aFlag) {
+    let domain;
     // For existing domains, add flags, for others, add them to the object.
-    let domain = this.getDomainFromHost(aHostname);
+    if (aHostname == "*")
+      domain = aHostname;
+    else
+      domain = this.getDomainFromHost(aHostname);
+
     if (!this.domainObjects[domain]) {
       this.domainObjects[domain] = {title: domain};
       if (/xn--/.test(domain))
@@ -1291,12 +1324,7 @@ var gPerms = {
       let nextPermission = enumerator.getNext();
       nextPermission = nextPermission.QueryInterface(Components.interfaces.nsIPermission);
 
-      if (!gDataman.checkValidPermission(nextPermission))
-         continue;
-
-      let rawHost = nextPermission.principal.URI.host.replace(/^\./, "");
-
-      if (gDomains.hostMatchesSelected(rawHost)) {
+      if (gDomains.hostMatchesSelectedURI(nextPermission.principal.URI)) {
         let permElem = document.createElement("richlistitem");
         permElem.setAttribute("type", nextPermission.type);
         permElem.setAttribute("host", nextPermission.principal.origin);
@@ -1577,12 +1605,21 @@ var gPerms = {
 
     aSubject.QueryInterface(Components.interfaces.nsIPermission);
 
-    let rawHost = aSubject.principal.URI.host.replace(/^\./, "");
-    let domain = gDomains.getDomainFromHost(rawHost);
+    let rawHost;
+    let domain;
+
+    if (!gDomains.commonScheme(aSubject.principal.URI.scheme)) {
+      rawHost = "*";
+      domain = "*";
+    }
+    else {
+      rawHost = aSubject.principal.URI.host.replace(/^\./, "");
+      domain = gDomains.getDomainFromHost(rawHost);
+    }
 
     // Does change affect possibly loaded Preferences pane?
     let affectsLoaded = this.list && this.list.childElementCount &&
-                        gDomains.hostMatchesSelected(rawHost);
+                        gDomains.hostMatchesSelectedURI(aSubject.principal.URI);
 
     let permElem = null;
 
@@ -1610,10 +1647,16 @@ var gPerms = {
           let nextPermission = enumerator.getNext();
           nextPermission = nextPermission.QueryInterface(Components.interfaces.nsIPermission);
 
-          if (!gDataman.checkValidPermission(nextPermission))
-            continue;
+          let dDomain;
 
-          if (domain == gDomains.getDomainFromHost(nextPermission.principal.URI.host.replace(/^\./, ""))) {
+          if (!gDomains.commonScheme(nextPermission.principal.URI.scheme)) {
+            dDomain = "*";
+          }
+          else {
+            dDomain = gDomains.getDomainFromHost(nextPermission.principal.URI.host.replace(/^\./, ""));
+          }
+
+          if (domain == dDomain) {
             haveDomainPerms = true;
             break;
           }
@@ -1674,11 +1717,7 @@ var gPerms = {
       let nextPermission = enumerator.getNext();
       nextPermission = nextPermission.QueryInterface(Components.interfaces.nsIPermission);
 
-      if (!gDataman.checkValidPermission(nextPermission))
-        continue;
-
-      let host = nextPermission.principal.URI.host;
-      if (gDomains.hostMatchesSelected(host.replace(/^\./, ""))) {
+      if (gDomains.hostMatchesSelectedURI(nextPermission.principal.URI)) {
         delPerms.push({principal: nextPermission.principal, type: nextPermission.type});
       }
     }
@@ -1862,6 +1901,7 @@ var gPrefs = {
     this.tree.treeBoxObject.beginUpdateBatch();
     // Get all groups (hosts) that match the domain.
     let domain = gDomains.selectedDomain.title;
+
     if (domain == "*") {
       let enumerator = Services.contentPrefs.getPrefs(null, null).enumerator;
       while (enumerator.hasMoreElements()) {
@@ -1869,19 +1909,12 @@ var gPrefs = {
         this.prefs.push({host: null, name: pref.name, value: pref.value});
       }
     }
-    else {
-      try {
-        let sql = "SELECT groups.name AS host FROM groups " +
-                  "WHERE host = :hostName OR host = :hostIDNName OR " +
-                         "host LIKE :hostMatch OR host LIKE :hostIDNMatch " +
-                  "ESCAPE '/'";
-        var statement = Services.contentPrefs.DBConnection.createStatement(sql);
-        let idnDomain = gLocSvc.idn.convertToDisplayIDN(domain, {});
-        statement.params.hostName = domain;
-        statement.params.hostIDNName = idnDomain;
-        statement.params.hostMatch = "%." + statement.escapeStringForLIKE(domain, "/");
-        statement.params.hostIDNMatch = "%." + statement.escapeStringForLIKE(idnDomain, "/");
-        while (statement.executeStep()) {
+
+    try {
+      var statement = Services.contentPrefs.DBConnection.createStatement("SELECT groups.name AS host FROM groups");
+
+      while (statement.executeStep()) {
+        if (gDomains.hostMatchesSelected(gDomains.getDomainFromHostWithCheck(statement.row["host"]))) {
           // Now, get all prefs for that host.
           let enumerator =  Services.contentPrefs.getPrefs(statement.row["host"], null).enumerator;
           while (enumerator.hasMoreElements()) {
@@ -1893,10 +1926,11 @@ var gPrefs = {
           }
         }
       }
-      finally {
-        statement.reset();
-      }
     }
+    finally {
+      statement.reset();
+    }
+
     this.sort(null, false, false);
     this.tree.treeBoxObject.endUpdateBatch();
   },
@@ -2029,18 +2063,21 @@ var gPrefs = {
 
   reactToChange: function prefs_reactToChange(aSubject, aData) {
     // aData: prefSet, prefRemoved
-
+    gDataman.debugMsg("Observed pref change for: " + aSubject.host);
     // Do "surgical" updates.
-    let domain = gDomains.getDomainFromHost(aSubject.host);
+    let domain = gDomains.getDomainFromHostWithCheck(aSubject.host);
+    gDataman.debugMsg("domain: " + domain);
     // Does change affect possibly loaded Preferences pane?
     let affectsLoaded = this.prefs.length &&
-                        gDomains.hostMatchesSelected(aSubject.host);
+                        (domain == gDomains.selectedDomain.title);
+
     let idx = -1, domainPrefs = 0;
     if (affectsLoaded) {
+      gDataman.debugMsg("affects loaded");
       for (let i = 0; i < this.prefs.length; i++) {
         let cpref = this.prefs[i];
         if (cpref && cpref.host == aSubject.host && cpref.name == aSubject.name) {
-          idx = this.prefs[i];
+          idx = i;
           break;
         }
       }
@@ -2054,33 +2091,36 @@ var gPrefs = {
         if (enumerator.hasMoreElements())
           domainPrefs++;
       }
-      else {
-        try {
-          let sql = "SELECT groups.name AS host FROM groups WHERE host = :hostName OR host LIKE :hostMatch ESCAPE '/'";
-          var statement = Services.contentPrefs.DBConnection.createStatement(sql);
-          statement.params.hostName = domain;
-          statement.params.hostMatch = "%." + statement.escapeStringForLIKE(domain, "/");
-          while (statement.executeStep()) {
+
+      try {
+        let sql = "SELECT groups.name AS host FROM groups";
+        var statement = Services.contentPrefs.DBConnection.createStatement(sql);
+
+        while (statement.executeStep()) {
+          if (gDomains.hostMatchesSelected(gDomains.getDomainFromHostWithCheck(statement.row["host"]))) {
             // Now, get all prefs for that host.
             let enumerator = Services.contentPrefs.getPrefs(statement.row["host"], null).enumerator;
             if (enumerator.hasMoreElements())
               domainPrefs++;
           }
         }
-        finally {
-          statement.reset();
-        }
       }
+      finally {
+        statement.reset();
+      }
+
       if (!domainPrefs)
         gDomains.removeDomainOrFlag(domain, "hasPreferences");
     }
     if (aData == "prefSet")
         aSubject.displayHost = gLocSvc.idn.convertToDisplayIDN(aSubject.host, {});
+
+    // Affects loaded domain and is an existing pref.
     if (idx >= 0) {
       if (aData == "prefSet") {
         this.prefs[idx] = aSubject;
         if (affectsLoaded)
-          this.tree.treeBoxObject.invalidateRow(disp_idx);
+          this.tree.treeBoxObject.invalidateRow(idx);
       }
       else if (aData == "prefRemoved") {
         this.prefs.splice(idx, 1);
@@ -2092,14 +2132,16 @@ var gPrefs = {
       }
     }
     else if (aData == "prefSet") {
+      // Affects loaded domain but is not an existing pref.
       // Pref set, no prev index known - either new or existing pref domain.
       if (affectsLoaded) {
         this.prefs.push(aSubject);
         this.tree.treeBoxObject.rowCountChanged(this.prefs.length - 1, 1);
         this.sort(null, true, false);
       }
+      // Not the loaded domain but it now has a preference.
       else {
-        gDomains.addDomainOrFlag(aSubject.host, "hasPreferences");
+        gDomains.addDomainOrFlag(domain, "hasPreferences");
       }
     }
   },
@@ -2116,12 +2158,12 @@ var gPrefs = {
           delPrefs.push({host: null, name: pref.name, value: pref.value});
         }
       }
-      else {
-        let sql = "SELECT groups.name AS host FROM groups WHERE host = :hostName OR host LIKE :hostMatch ESCAPE '/'";
-        var statement = Services.contentPrefs.DBConnection.createStatement(sql);
-        statement.params.hostName = domain;
-        statement.params.hostMatch = "%." + statement.escapeStringForLIKE(domain, "/");
-        while (statement.executeStep()) {
+
+      let sql = "SELECT groups.name AS host FROM groups";
+      var statement = Services.contentPrefs.DBConnection.createStatement(sql);
+
+      while (statement.executeStep()) {
+        if (gDomains.hostMatchesSelected(gDomains.getDomainFromHostWithCheck(statement.row["host"]))) {
           // Now, get all prefs for that host.
           let enumerator =  Services.contentPrefs.getPrefs(statement.row["host"], null).enumerator;
           while (enumerator.hasMoreElements()) {
