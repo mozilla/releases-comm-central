@@ -412,7 +412,6 @@
 @RESPATH@/components/nsFormAutoComplete.js
 @RESPATH@/components/nsFormHistory.js
 @RESPATH@/components/FormHistoryStartup.js
-@RESPATH@/components/UnifiedComplete.manifest
 @RESPATH@/components/UnifiedComplete.js
 @RESPATH@/components/nsAsyncShutdown.manifest
 @RESPATH@/components/nsAsyncShutdown.js
@@ -422,8 +421,6 @@
 @RESPATH@/components/TCPPresentationServer.js
 @RESPATH@/components/nsInputListAutoComplete.js
 @RESPATH@/components/nsLivemarkService.js
-@RESPATH@/components/nsPlacesAutoComplete.js
-@RESPATH@/components/nsPlacesAutoComplete.manifest
 @RESPATH@/components/nsPlacesExpiration.js
 @RESPATH@/components/nsPrompter.js
 @RESPATH@/components/nsPrompter.manifest
