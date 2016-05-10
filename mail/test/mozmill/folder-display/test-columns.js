@@ -15,6 +15,8 @@ Cu.import("resource:///modules/MailUtils.js");
  *  folder-switching forms.
  */
 
+// make SOLO_TEST=folder-display/test-columns.js mozmill-one
+
 var MODULE_NAME = 'test-columns';
 
 var RELATIVE_ROOT = '../shared-modules';
@@ -31,11 +33,59 @@ var folderSource, folderParent, folderChild1, folderChild2;
 
 var gColumnStateUpdated = false;
 
+var useCorrespondent;
+var INBOX_DEFAULTS;
+var SENT_DEFAULTS;
+var VIRTUAL_DEFAULTS;
+var GLODA_DEFAULTS;
+
 function setupModule(module) {
   let fdh = collector.getModule('folder-display-helpers');
   fdh.installInto(module);
   let wh = collector.getModule('window-helpers');
   wh.installInto(module);
+
+  useCorrespondent =
+    Services.prefs.getBoolPref("mail.threadpane.use_correspondents");
+  INBOX_DEFAULTS = [
+    "threadCol",
+    "flaggedCol",
+    "attachmentCol",
+    "subjectCol",
+    "unreadButtonColHeader",
+    useCorrespondent ? "correspondentCol" : "senderCol",
+    "junkStatusCol",
+    "dateCol"
+  ];
+  SENT_DEFAULTS = [
+    "threadCol",
+    "flaggedCol",
+    "attachmentCol",
+    "subjectCol",
+    "unreadButtonColHeader",
+    useCorrespondent ? "correspondentCol" : "recipientCol",
+    "junkStatusCol",
+    "dateCol"
+  ];
+  VIRTUAL_DEFAULTS = [
+    "threadCol",
+    "flaggedCol",
+    "attachmentCol",
+    "subjectCol",
+    "unreadButtonColHeader",
+    useCorrespondent ? "correspondentCol" : "senderCol",
+    "junkStatusCol",
+    "dateCol",
+    "locationCol"
+  ];
+  GLODA_DEFAULTS = [
+    "threadCol",
+    "flaggedCol",
+    "subjectCol",
+    useCorrespondent ? "correspondentCol" : "senderCol",
+    "dateCol",
+    "locationCol"
+  ];
 }
 
 /**
@@ -100,17 +150,6 @@ function reorder_column(aColumnId, aBeforeId) {
   mc.threadTree._reorderColumn(col, before, true);
 }
 
-var INBOX_DEFAULTS = [
-  "threadCol",
-  "flaggedCol",
-  "attachmentCol",
-  "subjectCol",
-  "unreadButtonColHeader",
-  "correspondentCol",
-  "junkStatusCol",
-  "dateCol"
-];
-
 /**
  * Make sure we set the proper defaults for an Inbox.
  */
@@ -120,17 +159,6 @@ function test_column_defaults_inbox() {
   enter_folder(folderInbox);
   assert_visible_columns(INBOX_DEFAULTS);
 }
-
-var SENT_DEFAULTS = [
-  "threadCol",
-  "flaggedCol",
-  "attachmentCol",
-  "subjectCol",
-  "unreadButtonColHeader",
-  "correspondentCol",
-  "junkStatusCol",
-  "dateCol"
-];
 
 /**
  * Make sure we set the proper defaults for a Sent folder.
@@ -142,18 +170,6 @@ function test_column_defaults_sent() {
   be_in_folder(folderSent);
   assert_visible_columns(SENT_DEFAULTS);
 }
-
-var VIRTUAL_DEFAULTS = [
-  "threadCol",
-  "flaggedCol",
-  "attachmentCol",
-  "subjectCol",
-  "unreadButtonColHeader",
-  "correspondentCol",
-  "junkStatusCol",
-  "dateCol",
-  "locationCol"
-];
 
 /**
  * Make sure we set the proper defaults for a multi-folder virtual folder.
@@ -306,11 +322,11 @@ function test_column_reordering_persists() {
   let tabA = be_in_folder(folderA);
   let tabB = open_folder_in_new_tab(folderB);
 
-  // put correspondent before subject
-  reorder_column("correspondentCol", "subjectCol");
+  // put correspondent/sender before subject
+  reorder_column(useCorrespondent ? "correspondentCol" : "senderCol", "subjectCol");
   let reorderdB = columnsB.concat();
   reorderdB.splice(5, 1);
-  reorderdB.splice(3, 0, "correspondentCol");
+  reorderdB.splice(3, 0, useCorrespondent ? "correspondentCol" : "senderCol");
   assert_visible_columns(reorderdB);
 
   switch_tab(tabA);
@@ -450,15 +466,6 @@ function test_apply_to_folder_and_children() {
   assert_visible_columns(conExtra);
 }
 test_apply_to_folder_and_children.EXCLUDED_PLATFORMS = ["linux"];
-
-var GLODA_DEFAULTS = [
-  "threadCol",
-  "flaggedCol",
-  "subjectCol",
-  "correspondentCol",
-  "dateCol",
-  "locationCol"
-];
 
 /**
  * Create a fake gloda collection.
