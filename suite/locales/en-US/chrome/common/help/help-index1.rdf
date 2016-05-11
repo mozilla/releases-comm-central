@@ -1238,9 +1238,9 @@
          nc:link="mailnews_using_mail.xhtml#saving_attachments"/>
      </rdf:li>
      <rdf:li>
-       <rdf:Description ID="Mail_and_Newsgroups:saving_messages_drafts"
-         nc:name="saving messages drafts"
-         nc:link="mailnews_using_mail.xhtml#saving_and_editing_a_message_draft"/>
+       <rdf:Description ID="Mail_and_Newsgroups:saving_draft_messages"
+         nc:name="saving draft messages"
+         nc:link="mailnews_using_mail.xhtml#saving_and_editing_a_draft_message"/>
      </rdf:li>
      <rdf:li>
        <rdf:Description ID="Mail_and_Newsgroups:sending_messages"

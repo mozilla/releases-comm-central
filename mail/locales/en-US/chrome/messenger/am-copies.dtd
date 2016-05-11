@@ -36,7 +36,7 @@
 <!ENTITY archiveInOtherFolder.label "Other:">
 <!ENTITY archiveInOtherFolder.accesskey "h">
 <!ENTITY specialFolders.label "Drafts and Templates">
-<!ENTITY keepDrafts.label "Keep message drafts in:">
+<!ENTITY keepDrafts2.label "Keep draft messages in:">
 <!-- LOCALIZATION NOTE (draftsFolderOn.label): OK to translate this, bug #57440 -->
 <!ENTITY draftsFolderOn.label "&quot;Drafts&quot; Folder on:">
 <!ENTITY draftsFolderOn.accesskey "D">

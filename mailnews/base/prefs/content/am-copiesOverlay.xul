@@ -216,7 +216,7 @@
       <caption label="&specialFolders.label;"/>
 
       <hbox align="center">
-        <label value="&keepDrafts.label;" control="messageDrafts"/>
+        <label value="&keepDrafts2.label;" control="messageDrafts"/>
       </hbox>
 
       <radiogroup id="messageDrafts">
