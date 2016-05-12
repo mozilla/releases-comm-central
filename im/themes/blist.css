@@ -116,14 +116,7 @@ group {
   padding: 0 2px;
 }
 
-conv,
-contact,
-buddy {
-  height: 20px; /* 16+2+2px for the protocol icon, padding top and bottom */
-}
-
 /* The vertical padding directly on the binding would not be animated. */
-.prplBuddyIcon,
 group>* {
   padding-top: 2px;
   padding-bottom: 2px;
@@ -169,21 +162,28 @@ contact[droptarget] > buddy[dummy] {
   margin: 0;
 }
 
+.contactDisplayName,
 .buddyDisplayName {
   -moz-margin-start: 2px;
+}
+
+/* Used for the second line of a contact-big to add space on the left
+   where the .prplBuddyIcon sits on the first line. */
+.contactIconSpace {
+  /* .prplBuddyIcon width+margins (16+3+3) + .contactStatusText margin (2) */
+  margin-inline-start: 24px;
 }
 
 .contact-hbox,
 .conv-hbox {
   margin: 2px 0;
-  -moz-margin-start: 2px;
   min-height: 16px;
   overflow-x: hidden;
 }
 
 /* Avoid a strange jumping bug when hovering and the startChatBubble appears */
 .contact-vbox {
-  min-height: 40px;
+  min-height: calc(var(--blist-item-height) * 2);
 }
 
 .hideGroupButton,
@@ -256,8 +256,8 @@ contact[droptarget] > buddy[dummy] {
 .startChatBubble,
 .expander-up,
 .expander-down {
-  width: 16px;
-  height: 16px;
+  max-width: 16px;
+  max-height: 16px;
   min-height: 16px;
   min-width: 16px;
 }

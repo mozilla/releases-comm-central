@@ -16,11 +16,11 @@
 
   <binding id="conv" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <content>
-      <xul:stack class="prplBuddyIcon" mousethrough="always">
-        <xul:image class="protoIcon" xbl:inherits="src=iconPrpl,status"/>
-        <xul:image class="statusIcon" xbl:inherits="status"/>
-      </xul:stack>
-      <xul:hbox flex="1" class="conv-hbox" mousethrough="always">
+      <xul:hbox flex="1" class="conv-hbox" mousethrough="always" align="center">
+        <xul:stack class="prplBuddyIcon" mousethrough="always">
+          <xul:image class="protoIcon" xbl:inherits="src=iconPrpl,status"/>
+          <xul:image class="statusIcon" xbl:inherits="status"/>
+        </xul:stack>
         <xul:label crop="end" flex="1" mousethrough="always"
                    anonid="displayname" class="convDisplayName blistDisplayName"
                    xbl:inherits="value=displayname,status"/>

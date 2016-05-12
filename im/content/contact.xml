@@ -16,11 +16,11 @@
 
   <binding id="contact" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <content>
-      <xul:stack class="prplBuddyIcon" mousethrough="always">
-        <xul:image class="protoIcon" xbl:inherits="src=iconPrpl,status"/>
-        <xul:image class="statusIcon" xbl:inherits="status"/>
-      </xul:stack>
-      <xul:hbox flex="1" class="contact-hbox" mousethrough="always">
+      <xul:hbox flex="1" class="contact-hbox" mousethrough="always" align="center">
+        <xul:stack class="prplBuddyIcon" mousethrough="always">
+          <xul:image class="protoIcon" xbl:inherits="src=iconPrpl,status"/>
+          <xul:image class="statusIcon" xbl:inherits="status"/>
+        </xul:stack>
         <xul:label crop="end" flex="1" mousethrough="always"
                    anonid="displayname" class="contactDisplayName blistDisplayName"
                    xbl:inherits="value=displayname,status"/>
@@ -529,30 +529,29 @@
 
   <binding id="contact-big" extends="chrome://instantbird/content/contact.xml#contact">
     <content>
-      <xul:hbox flex="1" mousethrough="always">
-        <xul:stack class="prplBuddyIcon" mousethrough="always">
-          <xul:image class="protoIcon" xbl:inherits="src=iconPrpl,status"/>
-          <xul:image class="statusIcon" xbl:inherits="status"/>
-        </xul:stack>
-        <xul:vbox flex="1" class="contact-vbox" mousethrough="always">
-          <xul:hbox class="contact-hbox" mousethrough="always">
-            <xul:label crop="end" flex="1" mousethrough="always"
-                       anonid="displayname" class="contactDisplayName blistDisplayName"
-                       xbl:inherits="value=displayname,status"/>
-            <xul:button anonid="startChatBubble" class="startChatBubble"
-                        tooltiptext="&openConversationCmd.label;"/>
-          </xul:hbox>
-          <xul:hbox class="contact-hbox" mousethrough="always">
-            <xul:label crop="end" flex="1" mousethrough="always"
-                       anonid="statusText" class="contactStatusText"
-                       xbl:inherits="value=statusText"/>
-            <xul:button anonid="expander" class="expander-down"
-                        tooltiptextexpand="&expandContactTooltip;"
-                        tooltiptextcollapse="&collapseContactTooltip;"
-                        tooltiptext="&expandContactTooltip;"/>
-          </xul:hbox>
-        </xul:vbox>
-      </xul:hbox>
+      <xul:vbox flex="1" class="contact-vbox" mousethrough="always">
+        <xul:hbox flex="1" class="contact-hbox" mousethrough="always" align="center">
+          <xul:stack class="prplBuddyIcon" mousethrough="always">
+            <xul:image class="protoIcon" xbl:inherits="src=iconPrpl,status"/>
+            <xul:image class="statusIcon" xbl:inherits="status"/>
+          </xul:stack>
+          <xul:label crop="end" flex="1" mousethrough="always"
+                     anonid="displayname" class="contactDisplayName blistDisplayName"
+                     xbl:inherits="value=displayname,status"/>
+          <xul:button anonid="startChatBubble" class="startChatBubble"
+                      tooltiptext="&openConversationCmd.label;"/>
+        </xul:hbox>
+
+        <xul:hbox flex="1" class="contact-hbox" mousethrough="always" align="center">
+          <xul:label crop="end" flex="1" mousethrough="always"
+                     anonid="statusText" class="contactStatusText contactIconSpace"
+                     xbl:inherits="value=statusText"/>
+          <xul:button anonid="expander" class="expander-down"
+                      tooltiptextexpand="&expandContactTooltip;"
+                      tooltiptextcollapse="&collapseContactTooltip;"
+                      tooltiptext="&expandContactTooltip;"/>
+        </xul:hbox>
+      </xul:vbox>
       <xul:vbox anonid="contactBuddies" class="contactBuddies">
         <children/>
       </xul:vbox>

@@ -820,6 +820,13 @@ var buddyList = {
               .setAttribute("checked", "true");
     }
 
+    // Find the correct height of a contact list item. This can vary depending
+    // on the platform font and font size.
+    let dummyContact = document.getElementById("dummyContact");
+    let contactHeight = dummyContact.getBoundingClientRect().height;
+    document.getElementById("buddyListMsg")
+            .style.setProperty("--blist-item-height", contactHeight + "px");
+
     let blistBox = document.getElementById("buddylistbox");
     blistBox.removeGroup = function(aGroupElt) {
       let index = buddyList._displayedGroups.indexOf(aGroupElt);
