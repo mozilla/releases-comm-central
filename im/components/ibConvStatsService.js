@@ -150,7 +150,7 @@ ConvStatsService.prototype = {
     // Read all our conversation stats from the cache.
     this._statsCacheFilePath =
       OS.Path.join(OS.Constants.Path.profileDir, "statsservicecache.json");
-    OS.File.read(this._statsCacheFilePath).then(function(aArray) {
+    OS.File.read(this._statsCacheFilePath).then((aArray) => {
       try {
         let {version: version, stats: allStats} =
           JSON.parse((new TextDecoder()).decode(aArray));
@@ -173,12 +173,12 @@ ConvStatsService.prototype = {
         if (Services.prefs.getBoolPref("statsService.parseLogsForStats"))
           gLogParser.sweep(this);
       }
-    }.bind(this), function(aError) {
+    }, (aError) => {
       if (!aError.becauseNoSuchFile)
         Cu.reportError("Error while reading conversation stats cache.\n" + aError);
       if (Services.prefs.getBoolPref("statsService.parseLogsForStats"))
         gLogParser.sweep(this);
-    }.bind(this));
+    });
   },
 
   _addContact: function(aContact) {
@@ -227,7 +227,7 @@ ConvStatsService.prototype = {
       chatList.set(chat.name, possibleConv);
     }
     if (this._pendingChats.length)
-      executeSoon(this._addPendingChats.bind(this));
+      executeSoon(() => this._addPendingChats());
     else
       delete this._addingPendingChats;
     let now = Date.now();
@@ -376,15 +376,15 @@ ConvStatsService.prototype = {
         // Discard any chat room data we already have.
         this._removeChatsForAccount(id);
         try {
-          acc.prplAccount.requestRoomInfo(function(aRoomInfo, aPrplAccount, aCompleted) {
+          acc.prplAccount.requestRoomInfo((aRoomInfo, aPrplAccount, aCompleted) => {
             if (aCompleted)
               this._accountsRequestingRoomInfo.delete(acc.id);
             this._pendingChats = this._pendingChats.concat(aRoomInfo);
             if (this._addingPendingChats)
               return;
             this._addingPendingChats = true;
-            executeSoon(this._addPendingChats.bind(this));
-          }.bind(this));
+            executeSoon(() => this._addPendingChats());
+          });
           this._accountsRequestingRoomInfo.add(acc.id);
         } catch(e) {
           if (e.result != Cr.NS_ERROR_NOT_IMPLEMENTED)
@@ -430,7 +430,7 @@ ConvStatsService.prototype = {
     if (aTopic == "profile-after-change")
       Services.obs.addObserver(this, "prpl-init", false);
     else if (aTopic == "prpl-init") {
-      executeSoon(this._init.bind(this));
+      executeSoon(() => this._init());
       Services.obs.removeObserver(this, "prpl-init");
     }
     else if (aTopic == "prpl-quit") {
@@ -459,7 +459,7 @@ ConvStatsService.prototype = {
       // Schedule a cache update in 10 minutes.
       if (!this._statsCacheUpdateTimer) {
         this._statsCacheUpdateTimer =
-          setTimeout(this._cacheAllStats.bind(this), 600000);
+          setTimeout(() => this._cacheAllStats(), 600000);
       }
     }
     else if (aTopic == "new-conversation") {
