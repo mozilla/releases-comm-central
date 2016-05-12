@@ -10,6 +10,8 @@ var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/ircUtils.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "Task",
+  "resource://gre/modules/Task.jsm");
 
 // Shortcut to get the JavaScript conversation object.
 function getConv(aConv) { return aConv.wrappedJSObject; };
@@ -269,14 +271,27 @@ var commands = [
       let account = getAccount(aConv);
       let serverName = account._currentServerName;
       let serverConv = account.getConversation(serverName);
+      let pendingChats = [];
       account.requestRoomInfo({onRoomInfoAvailable: function(aRooms) {
-        aRooms.forEach(function(aRoom) {
-          serverConv.writeMessage(serverName,
-                                  aRoom.name +
-                                  " (" + aRoom.participantCount + ") " +
-                                  aRoom.topic,
-                                  {incoming: true, noLog: true});
-        });
+        if (!pendingChats.length) {
+          Task.spawn(function*() {
+            // pendingChats has no rooms added yet, so ensure we wait a tick.
+            let t = 0;
+            const kMaxBlockTime = 10; // Unblock every 10ms.
+            do {
+              if (Date.now() > t) {
+                yield Promise.resolve();
+                t = Date.now() + kMaxBlockTime;
+              }
+              let name = pendingChats.pop();
+              let roomInfo = account.getRoomInfo(name);
+              serverConv.writeMessage(serverName,
+                name + " (" + roomInfo.participantCount + ") " + roomInfo.topic,
+                {incoming: true, noLog: true});
+            } while (pendingChats.length);
+          });
+        }
+        pendingChats = pendingChats.concat(aRooms);
       }}, true);
       if (aReturnedConv)
         aReturnedConv.value = serverConv;

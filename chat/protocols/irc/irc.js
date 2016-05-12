@@ -765,6 +765,21 @@ ircAccountBuddy.prototype = {
   }
 };
 
+function ircRoomInfo(aName, aAccount) {
+  this.name = aName;
+  this._account = aAccount;
+}
+ircRoomInfo.prototype = {
+  __proto__: ClassInfo("prplIRoomInfo", "IRC RoomInfo Object"),
+  get topic() { return this._account._channelList.get(this.name).topic; },
+  get participantCount() {
+    return this._account._channelList.get(this.name).participantCount;
+  },
+  get chatRoomFieldValues() {
+    return this._account.getChatRoomDefaultFieldValues(this.name);
+  }
+};
+
 function ircAccount(aProtocol, aImAccount) {
   this._init(aProtocol, aImAccount);
   this.buddies = new NormalizedMap(this.normalizeNick.bind(this));
@@ -941,13 +956,14 @@ ircAccount.prototype = {
     return true;
   },
 
-  // Channels are stored as prplIRoomInfo.
-  _channelList: [],
+  // Room info: maps channel names to {topic, participantCount}.
+  _channelList: new Map(),
   _roomInfoCallbacks: new Set(),
   // If true, we have sent the LIST request and are waiting for replies.
   _pendingList: false,
-  // Callbacks receive at most this many channels per call.
-  _channelsPerBatch: 25,
+  // Callbacks receive this many channels per call while results are incoming.
+  _channelsPerBatch: 50,
+  _currentBatch: [],
   _lastListTime: 0,
   get isRoomInfoStale() { return Date.now() - this._lastListTime > kListRefreshInterval; },
   // Called by consumers that want a list of available channels, which are
@@ -962,15 +978,16 @@ ircAccount.prototype = {
     // Send a LIST request if the channel list is stale and a current request
     // has not been sent.
     if (this.isRoomInfoStale && !this._pendingList) {
-      this._channelList = [];
+      this._channelList = new Map();
+      this._currentBatch = [];
       this._pendingList = true;
       this._lastListTime = Date.now();
       this.sendMessage("LIST");
     }
     // Otherwise, pass channels that have already been received to the callback.
     else {
-      aCallback.onRoomInfoAvailable(this._channelList, this, !this._pendingList,
-                                    this._channelList.length);
+      let rooms = [...this._channelList.keys()];
+      aCallback.onRoomInfoAvailable(rooms, !this._pendingList, rooms.length);
     }
 
     if (this._pendingList)
@@ -978,16 +995,18 @@ ircAccount.prototype = {
   },
   // Pass room info for any remaining channels to callbacks and clean up.
   _sendRemainingRoomInfo: function() {
-    let remainingChannelCount = this._channelList.length % this._channelsPerBatch;
-    if (remainingChannelCount) {
-      let remainingChannels = this._channelList.slice(-remainingChannelCount);
+    if (this._currentBatch.length) {
       for (let callback of this._roomInfoCallbacks) {
-        callback.onRoomInfoAvailable(remainingChannels, this, true,
-                                     remainingChannelCount);
+        callback.onRoomInfoAvailable(this._currentBatch, true,
+                                     this._currentBatch.length);
       }
     }
     this._roomInfoCallbacks.clear();
     delete this._pendingList;
+    delete this._currentBatch;
+  },
+  getRoomInfo: function(aName) {
+    return new ircRoomInfo(aName, this);
   },
 
   // The last time a buffered command was sent.

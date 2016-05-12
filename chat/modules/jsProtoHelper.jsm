@@ -207,6 +207,7 @@ var GenericAccountPrototype = {
     return new ChatRoomFieldValues(defaultFieldValues);
   },
   requestRoomInfo: function(aCallback) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+  getRoomInfo: function(aName) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
   get isRoomInfoStale() { return false; },
 
   getPref: function (aName, aType) {

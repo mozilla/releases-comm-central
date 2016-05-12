@@ -27,20 +27,6 @@ Cu.import("resource:///modules/ircHandlers.jsm");
 Cu.import("resource:///modules/ircUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
 
-function ircRoomInfo(aName, aTopic, aParticipantCount, aAccount) {
-  this.name = aName;
-  this.topic = aTopic;
-  this.participantCount = aParticipantCount;
-  this._account = aAccount;
-}
-ircRoomInfo.prototype = {
-  __proto__: ClassInfo("prplIRoomInfo", "IRC RoomInfo Object"),
-  get accountId() { return this._account.imAccount.id; },
-  get chatRoomFieldValues() {
-    return this._account.getChatRoomDefaultFieldValues(this.name);
-  }
-}
-
 function privmsg(aAccount, aMessage, aIsNotification) {
   let params = {incoming: true};
   if (aIsNotification)
@@ -811,14 +797,16 @@ var ircBase = {
       // 1058584. This hack can be removed when bug 1058653 is fixed.
       topic = topic ? topic.normalize() : "";
 
-      this._channelList.push(new ircRoomInfo(name, topic, participantCount, this));
+      this._channelList.set(name,
+                            {topic: topic, participantCount: participantCount});
+      this._currentBatch.push(name);
       // Give callbacks a batch of channels of length _channelsPerBatch.
-      if (this._channelList.length % this._channelsPerBatch == 0) {
-        let channelBatch = this._channelList.slice(-this._channelsPerBatch);
+      if (this._currentBatch.length == this._channelsPerBatch) {
         for (let callback of this._roomInfoCallbacks) {
-          callback.onRoomInfoAvailable(channelBatch, this, false,
+          callback.onRoomInfoAvailable(this._currentBatch, false,
                                        this._channelsPerBatch);
         }
+        this._currentBatch = [];
       }
       return true;
     },
