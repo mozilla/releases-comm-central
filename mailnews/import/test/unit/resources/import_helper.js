@@ -320,6 +320,10 @@ AbImportHelper.prototype =
     var arr = JSON.parse(json)[aName];
     do_check_true(arr && arr.length > 0);
     return arr;
+  },
+
+  setSupportedAttributes: function(attributes) {
+    this.mSupportedAttributes = attributes;
   }
 };
 
