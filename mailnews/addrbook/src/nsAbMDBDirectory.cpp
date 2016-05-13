@@ -53,24 +53,29 @@ NS_IMETHODIMP nsAbMDBDirectory::Init(const char *aUri)
   // We need to ensure  that the m_DirPrefId is initialized properly
   nsDependentCString uri(aUri);
 
-  if (uri.Find("MailList") != -1)
+  // Find the first ? (of the search params) if there is one.
+  // We know we can start at the end of the moz-abmdbdirectory:// because
+  // that's the URI we should have been passed.
+  int32_t searchCharLocation = uri.FindChar('?', kMDBDirectoryRootLen);
+  nsAutoCString URINoQuery;
+  if (searchCharLocation != kNotFound)
+  {
+    URINoQuery = Substring(uri, 0, searchCharLocation);
+  } else {
+    URINoQuery.Assign(uri);
+  }
+
+  // In the non-query part of the URI, check if we are a mailinglist
+  if (URINoQuery.Find("MailList") != kNotFound)
     m_IsMailList = true;
 
   // Mailing lists don't have their own prefs.
   if (m_DirPrefId.IsEmpty() && !m_IsMailList)
   {
-    // Find the first ? (of the search params) if there is one.
-    // We know we can start at the end of the moz-abmdbdirectory:// because
-    // that's the URI we should have been passed.
-    int32_t searchCharLocation = uri.FindChar('?', kMDBDirectoryRootLen);
-
     nsAutoCString filename;
 
-    // extract the filename from the uri.
-    if (searchCharLocation == -1)
-      filename = Substring(uri, kMDBDirectoryRootLen);
-    else
-      filename = Substring(uri, kMDBDirectoryRootLen, searchCharLocation - kMDBDirectoryRootLen);
+    // Extract the filename from the uri.
+    filename = Substring(URINoQuery, kMDBDirectoryRootLen);
 
     // Get the pref servers and the address book directory branch
     nsresult rv;
