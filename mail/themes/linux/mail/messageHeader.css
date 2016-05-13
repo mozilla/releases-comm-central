@@ -40,7 +40,7 @@
 
 .inline-toolbox {
   -moz-appearance: none;
-  -moz-padding-end: 2px;
+  padding-inline-end: 2px;
 }
 
 .inline-toolbar {
@@ -82,7 +82,7 @@
 #attachmentIcon {
   list-style-image: url("chrome://messenger/skin/icons/filterbar.png");
   -moz-image-region: rect(0px, 80px, 16px, 64px);
-  -moz-margin-start: 5px;
+  margin-inline-start: 5px;
 }
 
 #attachmentName:hover,
@@ -94,7 +94,7 @@
 
 #attachmentSize {
   margin: 0;
-  -moz-margin-start: 8px;
+  margin-inline-start: 8px;
   color: #888a85; /* the same color as .headerName */
 }
 
@@ -119,7 +119,7 @@
   line-height: 1.5em;
   margin: 0;
   padding: .1em 0;
-  -moz-padding-end: 9px;
+  padding-inline-end: 9px;
   -moz-user-select: text;
   -moz-user-focus: normal;
   cursor: text;
@@ -152,8 +152,8 @@ toolbar[mode="text"] toolbarpaletteitem .msgHeaderView-button .toolbarbutton-tex
   margin: 0 !important;
   padding-top: 1px !important;
   padding-bottom: 2px !important;
-  -moz-padding-start: 0px !important;
-  -moz-padding-end: 0px !important;
+  padding-inline-start: 0px !important;
+  padding-inline-end: 0px !important;
 }
 
 /* For unclear reasons, toolkit's toolbarbutton.css forces a margin of 0,
@@ -164,7 +164,7 @@ toolbar[mode="text"] toolbarpaletteitem .msgHeaderView-button .toolbarbutton-tex
  * so that we effect both buttons and menubuttons.
  */
 toolbox[labelalign="end"] toolbar[mode="full"] .msgHeaderView-button .toolbarbutton-text {
-  -moz-margin-start: 2px !important;
+  margin-inline-start: 2px !important;
 }
 
 .hdrReplyToSenderButton,
@@ -276,7 +276,7 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker {
   background-color: transparent;
   padding: 0px;
   margin-top: 0;
-  -moz-margin-end: 3px;
+  margin-inline-end: 3px;
 }
 
 .headerValueBox {
@@ -296,7 +296,7 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker {
   padding: .1em 0px !important;
   margin: 0px !important;
   margin-bottom: 3px !important;
-  -moz-margin-start: 3px !important;
+  margin-inline-start: 3px !important;
   border: none !important;
   background-color: transparent;
 }
@@ -330,7 +330,7 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker {
 }
 
 .messageIdDisplayImage {
-  -moz-padding-start: 2px;
+  padding-inline-start: 2px;
   -moz-box-pack: end;
 }
 
@@ -339,8 +339,8 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker {
 
 .emailDisplayButton {
   margin: 0;
-  -moz-padding-start: 2px !important;
-  -moz-padding-end: 2px !important;
+  padding-inline-start: 2px !important;
+  padding-inline-end: 2px !important;
   background-color: transparent;
   border-radius: 2px;
   border: 1px dotted transparent;
@@ -366,7 +366,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
 
 .emailSeparator {
   /* this is for the comma in between email addresses/newsgroups */
-  -moz-margin-start: -3px; /* squeeze it inside the bubble, by the star */
+  margin-inline-start: -3px; /* squeeze it inside the bubble, by the star */
 }
 
 .emailDisplayButton:focus {
@@ -379,7 +379,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   -moz-appearance: none;
   -moz-box-orient: vertical;
   padding: 0px;
-  -moz-margin-start: -2px !important;
+  margin-inline-start: -2px !important;
   list-style-image: url("chrome://messenger/skin/starContact.png");
   -moz-image-region: rect(0px, 16px, 16px, 0px);
 }
@@ -398,7 +398,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
 
 .emailPresence {
   padding: 0px;
-  -moz-margin-start: -2px !important;
+  margin-inline-start: -2px !important;
   -moz-image-region: rect(6px, 16px, 16px, 6px);
 }
 

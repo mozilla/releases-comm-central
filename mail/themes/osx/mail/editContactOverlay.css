@@ -10,7 +10,7 @@
 }
 
 #editContactPanel {
-  -moz-margin-start: 0px;
+  margin-inline-start: 0px;
 }
 
 #editContactPanel > #editContactContent {
@@ -29,8 +29,8 @@
   font-weight: bold;
   margin-top: 8px;
   margin-bottom: 2px;
-  -moz-margin-start: 9px;
-  -moz-margin-end: 12px;
+  margin-inline-start: 9px;
+  margin-inline-end: 12px;
 }
 
 #editContactEmail {
@@ -136,7 +136,7 @@
   border: 0;
   margin: 0;
   padding: 0;
-  -moz-padding-end: 4px;
+  padding-inline-end: 4px;
   width: 7px;
 }
 

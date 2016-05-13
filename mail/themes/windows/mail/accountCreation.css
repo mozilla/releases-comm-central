@@ -22,7 +22,7 @@
 }
 
 .errordescription {
-  -moz-padding-start: 3px;
+  padding-inline-start: 3px;
   margin-top: 3px;
 }
 
@@ -122,7 +122,7 @@ window {
 }
 
 .larrybox {
-  -moz-padding-end: 2em;
+  padding-inline-end: 2em;
 }
 
 .acknowledge_checkbox {
@@ -151,7 +151,7 @@ window {
  */
 
 .protocol > label {
-  -moz-padding-start: 6px;
+  padding-inline-start: 6px;
 }
 
 .security {

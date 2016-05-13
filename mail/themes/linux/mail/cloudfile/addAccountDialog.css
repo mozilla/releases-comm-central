@@ -25,14 +25,14 @@ a {
 
 .indent {
   margin-bottom: 15px;
-  -moz-margin-start: 50px;
-  -moz-margin-end: 50px;
+  margin-inline-start: 50px;
+  margin-inline-end: 50px;
 }
 
 .small-indent {
   margin-bottom: 15px;
-  -moz-margin-start: 6px;
-  -moz-margin-end: 6px;
+  margin-inline-start: 6px;
+  margin-inline-end: 6px;
 }
 
 #accountType {
@@ -86,7 +86,7 @@ a {
 
 /* Make the icons show up in the menulist */
 #accountType > menupopup > menuitem > .menu-iconic-left {
-  -moz-padding-end: 2px;
+  padding-inline-end: 2px;
   display: -moz-box;
   min-width: 16px;
 }

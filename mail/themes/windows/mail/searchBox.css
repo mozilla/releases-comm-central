@@ -24,8 +24,8 @@
 #quick-search-button  {
   margin-top: 0px;
   margin-bottom: 0px;
-  -moz-margin-start: 0px;
-  -moz-margin-end: 2px;
+  margin-inline-start: 0px;
+  margin-inline-end: 2px;
 }
 
 .gloda-search-icon {
@@ -73,8 +73,8 @@
 #unifinder-task-edit-field {
   -moz-appearance: none;
   border: 1px solid ThreeDShadow;
-  -moz-padding-end: 2px;
-  -moz-padding-start: 2px;
+  padding-inline-end: 2px;
+  padding-inline-start: 2px;
 }
 
 @media (-moz-os-version: windows-xp) {

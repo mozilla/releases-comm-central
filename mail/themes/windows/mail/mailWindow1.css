@@ -75,7 +75,7 @@
 
 treechildren::-moz-tree-row(dummy)  {
   background-color: var(--row-grouped-header-bg-color);
-  -moz-padding-start: 2px;
+  padding-inline-start: 2px;
   margin-bottom: 1px;
 }
 
@@ -94,12 +94,12 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 /* ::::: message column icons ::::: */
 
 .treecol-image image {
-  -moz-padding-end: 4px;
+  padding-inline-end: 4px;
   padding-bottom: 3px;
 }
 
 :-moz-system-metric(windows-classic) .treecol-image image {
-  -moz-padding-end: 1px;
+  padding-inline-end: 1px;
   padding-bottom: 2px;
 }
 
@@ -152,7 +152,7 @@ treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
 }
 
 treechildren::-moz-tree-image(attachmentCol, attach) {
-  -moz-margin-start: 3px;
+  margin-inline-start: 3px;
 }
 
 @media (-moz-os-version: windows-xp) {
@@ -175,7 +175,7 @@ treechildren::-moz-tree-image(attachmentCol, attach) {
 
 treechildren::-moz-tree-image(flaggedCol) {
   list-style-image: url("chrome://messenger/skin/icons/flag-empty.png");
-  -moz-padding-end: 2px;
+  padding-inline-end: 2px;
 }
 
 @media (-moz-os-version: windows-xp) {
@@ -238,12 +238,12 @@ treechildren::-moz-tree-image(junkStatusCol, notjunk) {
 }
 
 treechildren::-moz-tree-image(correspondentCol, incoming) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   -moz-image-region: rect(0 112px 16px 96px);
 }
 
 treechildren::-moz-tree-image(correspondentCol, outgoing) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   -moz-image-region: rect(0 128px 16px 112px);
 }
 
@@ -251,11 +251,11 @@ treechildren::-moz-tree-image(correspondentCol, outgoing) {
 
 @media (-moz-os-version: windows-xp) {
   #subjectCol {
-    -moz-padding-start: 17px;
+    padding-inline-start: 17px;
   }
 
   #subjectCol[primary="true"] {
-    -moz-padding-start: 30px;
+    padding-inline-start: 30px;
   }
 
   treechildren::-moz-tree-image(subjectCol) {
@@ -270,7 +270,7 @@ treechildren::-moz-tree-image(correspondentCol, outgoing) {
 }
 
 treechildren::-moz-tree-image(subjectCol) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   -moz-image-region: rect(0 16px 16px 0);
 }
 
@@ -302,7 +302,7 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
 #mailContent[layout="standard"] #threadpane-splitter {
   /* Overlap the folder pane splitter to make the splitters appear unified. */
-  -moz-margin-start: -1px;
+  margin-inline-start: -1px;
 }
 
 #mailContent[layout="standard"] #folderpane_splitter:-moz-locale-dir(rtl) {
@@ -454,7 +454,7 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
 @media not all and (-moz-windows-classic) {
   #titlebar-min {
-    -moz-margin-end: 2px;
+    margin-inline-end: 2px;
   }
 }
 
@@ -497,7 +497,7 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
     }
 
     #messengerWindow[sizemode="maximized"] #titlebar-buttonbox {
-      -moz-margin-end: 3px;
+      margin-inline-end: 3px;
     }
   }
 
@@ -714,29 +714,29 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
 @media not all and (-moz-os-version: windows-xp) {
   #subjectCol {
-    -moz-padding-start: 20px;
+    padding-inline-start: 20px;
   }
 
   #subjectCol[primary="true"] {
-    -moz-padding-start: 30px;
+    padding-inline-start: 30px;
   }
 
   @media not all and (-moz-windows-default-theme) {
     #subjectCol {
-      -moz-padding-start: 17px;
+      padding-inline-start: 17px;
     }
 
     #subjectCol[primary="true"] {
-      -moz-padding-start: 27px;
+      padding-inline-start: 27px;
     }
   }
 
   .threadColumnHeader {
-    -moz-padding-end: 2px;
+    padding-inline-end: 2px;
   }
 
   treechildren::-moz-tree-image(news, threadCol, watch) {
-    -moz-margin-start: -2px;
+    margin-inline-start: -2px;
   }
 
   #folderPane-toolbar {
@@ -808,30 +808,30 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
   #accountCentralBox,
   #threadTree {
-    -moz-border-end: none;
+    border-inline-end: none;
   }
 
   #messagepanebox {
     border-top-width: 0px;
-    -moz-border-start: none;
+    border-inline-start: none;
   }
 
   .treecol-image image {
-    -moz-padding-start: 1px;
-    -moz-padding-end: 2px;
+    padding-inline-start: 1px;
+    padding-inline-end: 2px;
   }
 
   .junkStatusHeader {
-    -moz-padding-end: 2px;
+    padding-inline-end: 2px;
   }
 
   treechildren::-moz-tree-image(unreadButtonColHeader) {
-    -moz-padding-start: 0px;
-    -moz-margin-start: -3px;
+    padding-inline-start: 0px;
+    margin-inline-start: -3px;
   }
 
   treechildren::-moz-tree-image(attachmentCol, attach) {
-    -moz-margin-start: 0px;
+    margin-inline-start: 0px;
   }
 
   .tabmail-tab[type="message"] {
@@ -846,7 +846,7 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
   #folderLocationPopup menu,
   #folderLocationPopup menuitem {
-    -moz-padding-start: 2px;
+    padding-inline-start: 2px;
   }
 
   @media (-moz-windows-default-theme) {
@@ -1056,10 +1056,10 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
   }
 
   #tabbar-toolbar #viewPickerLabel:not(:-moz-lwtheme):not(:-moz-window-inactive) {
-    -moz-margin-start: 4px;
-    -moz-margin-end: 0;
-    -moz-padding-start: 2px;
-    -moz-padding-end: 5px;
+    margin-inline-start: 4px;
+    margin-inline-end: 0;
+    padding-inline-start: 2px;
+    padding-inline-end: 5px;
     background-color: rgba(255, 255, 255, .3);
     border-radius: 4px;
   }
@@ -1080,8 +1080,8 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
 #viewPickerPopup > menu > .menu-text {
   -moz-appearance: none;
-  -moz-margin-start: 0 !important;
-  -moz-padding-start: 0 !important;
+  margin-inline-start: 0 !important;
+  padding-inline-start: 0 !important;
 }
 
 #viewPickerTagsPopup > menuitem > .menu-iconic-text,

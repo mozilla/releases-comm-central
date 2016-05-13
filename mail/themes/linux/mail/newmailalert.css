@@ -22,7 +22,7 @@
   padding: 4px;
   background-image: linear-gradient(rgba(255, 255, 255, .7),
                                     rgba(255, 255, 255, .6));
-  -moz-border-end: 1px solid rgba(0, 0, 0, .1);
+  border-inline-end: 1px solid rgba(0, 0, 0, .1);
 }
 
 #alertImage {
@@ -31,7 +31,7 @@
 
 #alertTextBox {
   padding: 4px;
-  -moz-padding-end: 25px;
+  padding-inline-end: 25px;
   background-image: linear-gradient(rgba(255, 255, 255, .2),
                                     rgba(255, 255, 255, .1));
 }
@@ -39,12 +39,12 @@
 #alertTitle {
   font-weight: bold;
   font-size: 110%;
-  -moz-padding-start: 5px;
-  -moz-padding-end: 5px;
+  padding-inline-start: 5px;
+  padding-inline-end: 5px;
 }
 
 #alertGroove {
-  -moz-margin-start: 11px;
+  margin-inline-start: 11px;
 }
 
 .folderSummary-message-row {

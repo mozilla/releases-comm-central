@@ -20,7 +20,7 @@
 
 .statusMessageToolbarItem {
   height: 22px;
-  -moz-margin-start: -3px;
+  margin-inline-start: -3px;
   margin-bottom: 2px;
   padding-bottom: 3px;
 }
@@ -307,7 +307,7 @@ richlistitem[state="disconnected"] .accountStateIcon {
   width: 18px;
   height: 18px;
   margin-top: 0;
-  -moz-margin-end: 5px;
+  margin-inline-end: 5px;
   margin-bottom: -1px;
-  -moz-margin-start: -1px;
+  margin-inline-start: -1px;
 }

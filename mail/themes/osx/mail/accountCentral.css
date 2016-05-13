@@ -24,8 +24,8 @@ spacer {
 #acctCentralHeaderRow {
   padding-top: 10px;
   padding-bottom: 5px;
-  -moz-padding-start: 10px;
-  -moz-padding-end: 0px;
+  padding-inline-start: 10px;
+  padding-inline-end: 0px;
   font: menu;
   font-weight: bold;
   font-size: 150%;
@@ -45,7 +45,7 @@ spacer {
 
 .row-iconic-icon {
   list-style-image: inherit;
-  -moz-margin-end: 10px;
+  margin-inline-end: 10px;
 }
 
 .acctCentralRowTitleBox {
@@ -57,8 +57,8 @@ spacer {
   border-top-right-radius: 7px;
   padding-top: 4px;
   padding-bottom: 2px;
-  -moz-padding-start: 8px;
-  -moz-padding-end: 4px;
+  padding-inline-start: 8px;
+  padding-inline-end: 4px;
   font-weight: bold;
   font: menu;
 }
@@ -66,15 +66,15 @@ spacer {
 /* ::::: links ::::: */
 
 .acctCentralText {
-  -moz-padding-start: 50px;
+  padding-inline-start: 50px;
   font-size: 11px;
   padding-top: 7px;
   min-height: 32px;
 }
 
 .acctCentralNewAcctText {
-  -moz-padding-start: 20px;
-  -moz-padding-end: 10px;
+  padding-inline-start: 20px;
+  padding-inline-end: 10px;
   min-height: 20px;
 }
 
@@ -98,7 +98,7 @@ spacer {
 
 #CreateAccountsList {
   display: block;
-  -moz-padding-start: 50px;
+  padding-inline-start: 50px;
 }
 
 #ReadMessages label {

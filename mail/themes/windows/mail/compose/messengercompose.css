@@ -90,13 +90,13 @@
 /* ::::: attachment reminder ::::: */
 
 #attachmentReminderText {
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
   cursor: pointer;
 }
 
 #attachmentKeywords {
   font-weight: bold;
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
   text-decoration: underline;
   cursor: pointer;
 }
@@ -105,7 +105,7 @@
    objects underneath the attachmentList listbox */
 
 .listcell-icon {
-  -moz-margin-start: 2px;
+  margin-inline-start: 2px;
   margin-top: 2px;
 }
 
@@ -119,7 +119,7 @@
 
 #msgSubject {
   -moz-appearance: none;
-  -moz-margin-end: 5px;
+  margin-inline-end: 5px;
   background-color: inherit;
   border-color: transparent;
   -moz-border-top-colors: none;
@@ -127,7 +127,7 @@
   -moz-border-right-colors: none;
   -moz-border-bottom-colors: none;
   padding: 2px;
-  -moz-padding-start: 5px;
+  padding-inline-start: 5px;
   transition: border .2s, background-color .2s;
 }
 
@@ -487,8 +487,8 @@
 #TextColorButton {
   margin-top: 2px;
   margin-bottom: 9px;
-  -moz-margin-start: 2px;
-  -moz-margin-end: 9px;
+  margin-inline-start: 2px;
+  margin-inline-end: 9px;
 }
 
 #TextColorButton[color="mixed"] {
@@ -499,8 +499,8 @@
 #BackgroundColorButton {
   margin-top: 9px;
   margin-bottom: 2px;
-  -moz-margin-start: 9px;
-  -moz-margin-end: 2px;
+  margin-inline-start: 9px;
+  margin-inline-end: 2px;
 }
 
 #HighlightColorButton {
@@ -547,7 +547,7 @@
 }
 
 .ab-closebutton > .toolbarbutton-icon {
-  -moz-margin-end: 0; /* override toolkit's default value */
+  margin-inline-end: 0; /* override toolkit's default value */
 }
 
 #findbar-replaceButton > .toolbarbutton-icon {
@@ -940,7 +940,7 @@
 
   #attachmentBucketSize {
     opacity: 0.5; /* lower contrast */
-    -moz-padding-end: 1px;
+    padding-inline-end: 1px;
   }
 
   #attachmentNotificationBox > notification .messageImage {
@@ -976,26 +976,26 @@
   /* ::::: autocomplete icons ::::: */
 
   treechildren::-moz-tree-image(local-abook) {
-    -moz-margin-start: 2px;
-    -moz-margin-end: 3px;
+    margin-inline-start: 2px;
+    margin-inline-end: 3px;
     list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook-XP.png");
   }
 
   treechildren::-moz-tree-image(remote-abook) {
-    -moz-margin-start: 2px;
-    -moz-margin-end: 3px;
+    margin-inline-start: 2px;
+    margin-inline-end: 3px;
     list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook-XP.png");
   }
 
   treechildren::-moz-tree-image(remote-err) {
-    -moz-margin-start: 2px;
-    -moz-margin-end: 3px;
+    margin-inline-start: 2px;
+    margin-inline-end: 3px;
     list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook-error.png");
   }
 
   treechildren::-moz-tree-image(subscribed-news) {
-    -moz-margin-start: 2px;
-    -moz-margin-end: 3px;
+    margin-inline-start: 2px;
+    margin-inline-end: 3px;
     list-style-image: url("chrome://messenger/skin/icons/folder-XP.png");
     -moz-image-region: rect(0 160px 16px 144px);
   }
@@ -1021,7 +1021,7 @@
   .aw-menulist {
     -moz-appearance: none;
     margin: 0 1px 2px;
-    -moz-margin-start: 7px;
+    margin-inline-start: 7px;
     background-color: rgba(128, 128, 128, .1);
     border: 1px solid ThreeDShadow;
     list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
@@ -1060,7 +1060,7 @@
   }
 
   .aw-menulist > .menulist-label-box > .menulist-icon {
-    -moz-margin-start: 0;
+    margin-inline-start: 0;
   }
 
   .aw-menulist > .menulist-label-box > .menulist-label {
@@ -1150,8 +1150,8 @@
   }
 
   #msgIdentity {
-    -moz-margin-end: 5px;
-    -moz-padding-start: 3px !important;
+    margin-inline-end: 5px;
+    padding-inline-start: 3px !important;
     background-image: none;
   }
 
@@ -1322,11 +1322,11 @@
     min-width: 0;
     width: 5px;
     margin-top: -4px; /* revert the #headers-box padding-top */
-    -moz-margin-end: -4px;
-    -moz-border-end-width: 0;
-    -moz-border-start: 1px solid #a9b7c9;
+    margin-inline-end: -4px;
+    border-inline-end-width: 0;
+    border-inline-start: 1px solid #a9b7c9;
     -moz-border-left-colors: none;
-    -moz-border-right-colors: none; /* for rtl -moz-border-start */
+    -moz-border-right-colors: none; /* for rtl border-inline-start */
     background-color: transparent;
   }
 
@@ -1376,26 +1376,26 @@
   /* ::::: autocomplete icons ::::: */
 
   treechildren::-moz-tree-image(local-abook) {
-    -moz-margin-start: 2px;
-    -moz-margin-end: 5px;
+    margin-inline-start: 2px;
+    margin-inline-end: 5px;
     list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
   }
 
   treechildren::-moz-tree-image(remote-abook) {
-    -moz-margin-start: 2px;
-    -moz-margin-end: 5px;
+    margin-inline-start: 2px;
+    margin-inline-end: 5px;
     list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook.png");
   }
 
   treechildren::-moz-tree-image(remote-err) {
-    -moz-margin-start: 2px;
-    -moz-margin-end: 5px;
+    margin-inline-start: 2px;
+    margin-inline-end: 5px;
     list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook-error.png");
   }
 
   treechildren::-moz-tree-image(subscribed-news) {
-    -moz-margin-start: 2px;
-    -moz-margin-end: 5px;
+    margin-inline-start: 2px;
+    margin-inline-end: 5px;
     list-style-image: url("chrome://messenger/skin/icons/folder.png");
     -moz-image-region: rect(0 160px 16px 144px);
   }
@@ -1493,7 +1493,7 @@
   }
 
   .aw-menulist > .menulist-label-box > .menulist-icon {
-    -moz-margin-start: 2px;
+    margin-inline-start: 2px;
   }
 
   .aw-menulist > .menulist-label-box > .menulist-label {
@@ -1528,12 +1528,12 @@
   }
 
   #sidebar-splitter {
-    -moz-border-end: none;
-    -moz-border-start: 1px solid #a9b7c9;
+    border-inline-end: none;
+    border-inline-start: 1px solid #a9b7c9;
     min-width: 0;
     width: 5px;
     background-color: transparent;
-    -moz-margin-end: -5px;
+    margin-inline-end: -5px;
     position: relative;
     z-index: 10;
   }
@@ -1586,7 +1586,7 @@
 
   .aw-menulist {
     margin: 1px;
-    -moz-margin-end: 4px;
+    margin-inline-end: 4px;
     padding: 2px 0 !important;
     border-color: rgba(23, 51, 78, .08) rgba(23, 51, 78, .12)
                   rgba(23, 51, 78, .1);
@@ -1659,7 +1659,7 @@
 
   .aw-menulist {
     margin: 1px;
-    -moz-margin-end: 4px;
+    margin-inline-end: 4px;
     padding: 2px 0 !important;
     background-color: hsla(210, 4%, 10%, .04);
     border-color: hsla(210, 4%, 10%, .05);

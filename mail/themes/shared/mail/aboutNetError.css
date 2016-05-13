@@ -16,7 +16,7 @@ body {
 ul, ol {
   margin: 0;
   padding: 0;
-  -moz-margin-start: 1em;
+  margin-inline-start: 1em;
 }
 
 ul > li, ol > li {

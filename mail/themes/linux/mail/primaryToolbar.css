@@ -283,7 +283,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 .msgNotificaton-smallText {
-  -moz-padding-start: 10px;
+  padding-inline-start: 10px;
   font-size: 90%;
 }
 
@@ -294,12 +294,12 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 /* AppMenu styling */
 
 .splitmenu-menuitem {
-  -moz-margin-end: 1px;
+  margin-inline-end: 1px;
   -moz-image-region: auto;
 }
 
 #appmenuSecondaryPane {
-  -moz-border-start: 1px solid ThreeDShadow;
+  border-inline-start: 1px solid ThreeDShadow;
 }
 
 .appmenuPane-spacer {

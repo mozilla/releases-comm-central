@@ -9,7 +9,7 @@
  * Also make sure the labels are the same distance away from the icons.
  */
 .actionsMenu {
-  -moz-margin-start: -2px;
+  margin-inline-start: -2px;
   margin-top: 0;
   margin-bottom: -1px;
 }
@@ -20,7 +20,7 @@
 }
 
 richlistitem label {
-  -moz-margin-start: 1px;
+  margin-inline-start: 1px;
   margin-top: 2px;
 }
 
@@ -44,12 +44,12 @@ menuitem[appHandlerIcon="plugin"] {
 }
 
 .actionsMenu .menulist-icon {
-  -moz-margin-end: 1px;
+  margin-inline-end: 1px;
 }
 
 .actionsMenu > menupopup > menuitem > .menu-iconic-left {
-  -moz-padding-start: 3px;
-  -moz-padding-end: 1px;
+  padding-inline-start: 3px;
+  padding-inline-end: 1px;
 }
 
 .shortDetails {

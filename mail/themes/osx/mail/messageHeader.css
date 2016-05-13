@@ -27,7 +27,7 @@
 }
 
 .inline-toolbox {
-  -moz-padding-end: 6px;
+  padding-inline-end: 6px;
 }
 
 .inline-toolbar {
@@ -62,7 +62,7 @@
 
 #attachmentIcon {
   list-style-image: url("chrome://messenger/skin/icons/attachment.png");
-  -moz-margin-start: 5px;
+  margin-inline-start: 5px;
 }
 
 #attachmentName:hover,
@@ -73,7 +73,7 @@
 
 #attachmentSize {
   margin: 0;
-  -moz-margin-start: 8px;
+  margin-inline-start: 8px;
   color: #888a85; /* the same color as .headerName */
 }
 
@@ -144,7 +144,7 @@ attachmentlist:focus >attachmentitem[selected="true"] .attachmentcell-size {
 }
 
 #dateLabel {
-  -moz-padding-end: 3px;
+  padding-inline-end: 3px;
   -moz-user-select: text;
   -moz-user-focus: normal;
   cursor: text;
@@ -391,7 +391,7 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker >
   background-color: transparent;
   padding: 0px;
   margin-top: 0;
-  -moz-margin-end: 3px;
+  margin-inline-end: 3px;
 }
 
 .headerValueBox {
@@ -416,7 +416,7 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker >
   /* 1px plus 2px of border-radius matches the 3px at the beginning of
     .emailDisplayButton, making email address header values and plain text
     headers line up. Not sure why this math isn't needed in other themes*/
-  -moz-margin-start: 1px !important;
+  margin-inline-start: 1px !important;
   border: none !important;
   background-color: transparent;
 }
@@ -438,8 +438,8 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker >
   margin: 0;
   padding-top: 0px !important;
   padding-bottom: 0px !important;
-  -moz-padding-start: 0px !important;
-  -moz-padding-end: 10px !important;
+  padding-inline-start: 0px !important;
+  padding-inline-end: 10px !important;
   background-color: transparent !important;
   background: url("chrome://messenger/skin/icons/arrow-dn-grey.png") no-repeat center right;
 }
@@ -455,8 +455,8 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker >
 
 .emailDisplayButton {
   margin: 0;
-  -moz-padding-start: 2px !important;
-  -moz-padding-end: 2px !important;
+  padding-inline-start: 2px !important;
+  padding-inline-end: 2px !important;
   background-color: transparent;
   border-radius: 2px;
 }
@@ -479,7 +479,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
 
 /* this is for the comma in between email addresses */
 .emailSeparator {
-  -moz-margin-start: -5px; /* squeeze it inside the bubble, by the star */
+  margin-inline-start: -5px; /* squeeze it inside the bubble, by the star */
 }
 
 .emailDisplayButton:focus {
@@ -494,7 +494,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   max-height: 1em;
   -moz-appearance: none;
   -moz-box-orient: vertical;
-  -moz-margin-start: -1px !important;
+  margin-inline-start: -1px !important;
   padding: 0px;
   margin: 0px 2px;
   list-style-image: url("chrome://messenger/skin/starIcons.png");

@@ -307,13 +307,13 @@ toolbar[brighttext] #button-print {
 }
 
 #attachmentReminderText {
-  -moz-margin-start: 0px;
+  margin-inline-start: 0px;
   cursor: pointer;
 }
 
 #attachmentKeywords {
   font-weight: bold;
-  -moz-margin-start: 0px;
+  margin-inline-start: 0px;
   text-decoration: underline;
   cursor: pointer;
 }
@@ -321,7 +321,7 @@ toolbar[brighttext] #button-print {
 /* XXX I should really have a selector rule here to select just .listcell-icon objects underneath the attachmentList listbox */
 
 .listcell-icon {
-  -moz-margin-start: 2px;
+  margin-inline-start: 2px;
   margin-top: 2px;
 }
 
@@ -363,32 +363,32 @@ toolbar[brighttext] #button-print {
 treechildren::-moz-tree-cell-text(default-match) {
   margin-top: 2px;
   margin-bottom: 2px;
-  -moz-margin-start: 15px;
-  -moz-margin-end: -3px;
+  margin-inline-start: 15px;
+  margin-inline-end: -3px;
   border: none;
 }
 
 treechildren::-moz-tree-image(local-abook) {
   margin-top: 2px;
   margin-bottom: 2px;
-  -moz-margin-start: 4px;
-  -moz-margin-end: -1px;
+  margin-inline-start: 4px;
+  margin-inline-end: -1px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
 }
 
 treechildren::-moz-tree-image(remote-abook) {
   margin-top: 2px;
   margin-bottom: 2px;
-  -moz-margin-start: 2px;
-  -moz-margin-end: -3px;
+  margin-inline-start: 2px;
+  margin-inline-end: -3px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook.png");
 }
 
 treechildren::-moz-tree-image(remote-err) {
   margin-top: 2px;
   margin-bottom: 2px;
-  -moz-margin-start: 2px;
-  -moz-margin-end: -3px;
+  margin-inline-start: 2px;
+  margin-inline-end: -3px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook-error.png");
 }
 
@@ -411,8 +411,8 @@ treechildren::-moz-tree-image(remote-err) {
 treechildren::-moz-tree-image(subscribed-news) {
   margin-top: 2px;
   margin-bottom: 2px;
-  -moz-margin-start: 2px;
-  -moz-margin-end: -3px;
+  margin-inline-start: 2px;
+  margin-inline-end: -3px;
   list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
   -moz-image-region: rect(0 160px 16px 144px);
 }
@@ -541,12 +541,12 @@ toolbarbutton.formatting-button {
 #ColorButtons {
   margin-top: 0px;
   margin-bottom: 0px;
-  -moz-margin-start: 3px;
-  -moz-margin-end: 5px;
+  margin-inline-start: 3px;
+  margin-inline-end: 5px;
 }
 
 #AlignPopupButton, #InsertPopupButton, #smileButtonMenu {
- -moz-margin-end: 9px;
+ margin-inline-end: 9px;
 }
 
 #AbsoluteFontSizeButton:-moz-locale-dir(rtl),
@@ -1197,8 +1197,8 @@ toolbarbutton.formatting-button > .toolbarbutton-menubutton-dropmarker {
 #TextColorButton {
   margin-top: 2px;
   margin-bottom: 9px;
-  -moz-margin-start: 2px;
-  -moz-margin-end: 9px;
+  margin-inline-start: 2px;
+  margin-inline-end: 9px;
 }
 
 #TextColorButton[color="mixed"] {
@@ -1209,8 +1209,8 @@ toolbarbutton.formatting-button > .toolbarbutton-menubutton-dropmarker {
 #BackgroundColorButton {
   margin-top: 9px;
   margin-bottom: 2px;
-  -moz-margin-start: 9px;
-  -moz-margin-end: 2px;
+  margin-inline-start: 9px;
+  margin-inline-end: 2px;
 }
 
 #HighlightColorButton {
@@ -1311,5 +1311,5 @@ toolbarbutton.formatting-button > .toolbarbutton-menubutton-dropmarker {
 
 #titlebar-buttonbox-container {
   margin-top: 3px;
-  -moz-margin-start: 7px;
+  margin-inline-start: 7px;
 }

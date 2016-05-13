@@ -169,7 +169,7 @@ tabmail > tabbox > tabpanels {
 .tab-drop-indicator {
   list-style-image: url(tabs/dragIndicator.png);
   margin-bottom: -3px;
-  -moz-padding-start: 26px;
+  padding-inline-start: 26px;
 }
 
 /* Tabstrip close button */
@@ -177,7 +177,7 @@ tabmail > tabbox > tabpanels {
 .tabs-closebutton {
   -moz-box-align: stretch;
   margin-top: 1px;
-  -moz-padding-end: 4px;
+  padding-inline-end: 4px;
   border: none;
 }
 
@@ -190,7 +190,7 @@ tabmail > tabbox > tabpanels {
  */
 
 .tab-close-button > .toolbarbutton-icon {
-  -moz-margin-end: 0px !important;
+  margin-inline-end: 0px !important;
 }
 
 .tab-close-button {
@@ -312,7 +312,7 @@ tabmail > tabbox > tabpanels {
 }
 
 .tabs-alltabs-button > .toolbarbutton-icon {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
 }
 
 .tabs-alltabs-box-animate {

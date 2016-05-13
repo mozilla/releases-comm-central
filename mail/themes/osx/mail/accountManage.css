@@ -13,11 +13,11 @@
 /* ::::: account manager :::::: */
 
 .specialFolderPickerGrid {
-  -moz-margin-start: 20px;
+  margin-inline-start: 20px;
 }
 
 .fccReplyFollowsParent {
-  -moz-margin-start: 20px;
+  margin-inline-start: 20px;
 }
 
 .signatureBox {
@@ -33,7 +33,7 @@
 }
 
 #accounttree {
-  -moz-margin-end: 8px;
+  margin-inline-end: 8px;
 }
 
 #accountActionsDropdown {

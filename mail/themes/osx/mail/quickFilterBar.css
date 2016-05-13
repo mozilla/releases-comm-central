@@ -94,7 +94,7 @@
 
 #qfb-sticky {
   width: 16px;
-  -moz-margin-start: 6px !important;
+  margin-inline-start: 6px !important;
   list-style-image: url("chrome://messenger/skin/icons/QFB-toolbar.png");
   -moz-image-region: rect(0px 14px 14px 0px);
 }

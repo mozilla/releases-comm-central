@@ -106,8 +106,8 @@ p *:-moz-any-link img {
 .eventToggle {
   cursor: pointer;
   min-height: 22px;
-  -moz-margin-start: -20px;
-  -moz-padding-start: 20px;
+  margin-inline-start: -20px;
+  padding-inline-start: 20px;
   background: url('Bitmaps/minus.png') no-repeat left center;
   margin-bottom: -22px;
   width: 0px;

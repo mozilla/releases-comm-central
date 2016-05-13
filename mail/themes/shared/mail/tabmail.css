@@ -60,8 +60,8 @@
 }
 
 .tab-content {
-  -moz-padding-end: 9px;
-  -moz-padding-start: 9px;
+  padding-inline-end: 9px;
+  padding-inline-start: 9px;
 }
 
 .tab-throbber,
@@ -78,29 +78,29 @@
 
 .tab-throbber,
 .tab-icon-image {
-  -moz-margin-end: 6px;
+  margin-inline-end: 6px;
 }
 
 .tab-label {
-  -moz-margin-end: 0;
-  -moz-margin-start: 0;
+  margin-inline-end: 0;
+  margin-inline-start: 0;
 }
 
 .tab-content > .tab-close-button {
-  -moz-margin-start: 4px;
-  -moz-margin-end: -2px;
+  margin-inline-start: 4px;
+  margin-inline-end: -2px;
   padding: 0;
 }
 
 .tab-background {
   /* overlap the tab curves */
-  -moz-margin-end: var(--tabCurveHalfWidthNegative);
-  -moz-margin-start: var(--tabCurveHalfWidthNegative);
+  margin-inline-end: var(--tabCurveHalfWidthNegative);
+  margin-inline-start: var(--tabCurveHalfWidthNegative);
 }
 
 .tabmail-arrowscrollbox > scrollbox {
-  -moz-padding-end: var(--tabCurveHalfWidth);
-  -moz-padding-start: var(--tabCurveHalfWidth);
+  padding-inline-end: var(--tabCurveHalfWidth);
+  padding-inline-start: var(--tabCurveHalfWidth);
 }
 
 .tab-background-start[selected=true]::after,
@@ -133,7 +133,7 @@
 .tab-background-start[selected=true]::after,
 .tab-background-end[selected=true]::after {
   /* position ::after on top of its parent */
-  -moz-margin-start: var(--tabCurveWidthNegative);
+  margin-inline-start: var(--tabCurveWidthNegative);
   background-size: 100% 100%;
   content: '';
   display: -moz-box;
@@ -259,13 +259,13 @@
 }
 
 .tabmail-arrowscrollbox > .arrowscrollbox-overflow-start-indicator:not([collapsed]) {
-  -moz-margin-start: -2px;
-  -moz-margin-end: -12px;
+  margin-inline-start: -2px;
+  margin-inline-end: -12px;
 }
 
 .tabmail-arrowscrollbox > .arrowscrollbox-overflow-end-indicator:not([collapsed]) {
-  -moz-margin-start: -12px;
-  -moz-margin-end: -2px;
+  margin-inline-start: -12px;
+  margin-inline-end: -2px;
 }
 
 .tabmail-arrowscrollbox > .arrowscrollbox-overflow-start-indicator[collapsed],

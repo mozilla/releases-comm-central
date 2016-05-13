@@ -8,8 +8,8 @@
 richlistitem {
   padding-top: 6px;
   padding-bottom: 6px;
-  -moz-padding-start: 4px;
-  -moz-padding-end: 4px;
+  padding-inline-start: 4px;
+  padding-inline-end: 4px;
   min-height: 25px;
 %ifndef XP_MACOSX
 %ifdef XP_WIN

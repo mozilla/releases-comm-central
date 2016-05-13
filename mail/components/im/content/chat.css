@@ -98,14 +98,14 @@ toolbar[mode="text"] #button-chat {
   min-width: 11px;
   text-align: center;
   margin-top: -1px;
-  -moz-margin-start: 5px;
-  -moz-margin-end: 0;
+  margin-inline-start: 5px;
+  margin-inline-end: 0;
   margin-bottom: 5px;
   padding: 0 2px;
 }
 
 toolbar[iconsize="large"] .badgeButton-badge {
-  -moz-margin-start: 13px;
+  margin-inline-start: 13px;
   margin-bottom: 13px;
 }
 

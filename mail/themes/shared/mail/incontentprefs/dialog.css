@@ -44,7 +44,7 @@ tree {
 }
 
 caption {
-  -moz-padding-start: 0;
+  padding-inline-start: 0;
 }
 
 groupbox {

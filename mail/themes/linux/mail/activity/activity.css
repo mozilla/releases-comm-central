@@ -139,7 +139,7 @@ activity-warning button {
 .activitygroupbox activity-event,
 .activitygroupbox activity-warning,
 .activitygroupbox activity-process {
-  -moz-padding-start: 3px;
+  padding-inline-start: 3px;
 }
 
 activity-group button {
@@ -245,7 +245,7 @@ image.compactMail {
 .activityTypeIcon {
   min-height: 32px;
   min-width: 32px;
-  -moz-padding-end: 2px;
+  padding-inline-end: 2px;
 }
 
 .activityitem:not([selected="true"]):nth-child(odd) {

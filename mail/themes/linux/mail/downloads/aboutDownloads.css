@@ -37,7 +37,7 @@
 }
 
 .fileTypeIcon {
-  -moz-margin-end: 8px;
+  margin-inline-end: 8px;
   /* Prevent flickering when changing states. */
   min-height: 32px;
   min-width: 32px;

@@ -22,7 +22,7 @@
 
 #prefBox > windowdragbox {
   background-color: #424e5a;
-  -moz-border-end: 1px solid rgba(0, 0, 0, 0.20);
+  border-inline-end: 1px solid rgba(0, 0, 0, 0.20);
 }
 
 caption > label {
@@ -64,9 +64,9 @@ radio[pane] {
   color: #c1c1c1;
   border-right-width: 0;
   border-left-width: 0;
-  -moz-margin-end: 0;
-  -moz-padding-start: 15px;
-  -moz-padding-end: 21px;
+  margin-inline-end: 0;
+  padding-inline-start: 15px;
+  padding-inline-end: 21px;
   min-height: 40px;
   transition: background-color 150ms;
 }
@@ -81,8 +81,8 @@ radio[pane][selected] {
   background-image: none;
   background-color: #343f48;
   color: #f2f2f2;
-  -moz-padding-start: 11px; /* compensate the 4px border */
-  -moz-border-start: solid 4px #ff9500;
+  padding-inline-start: 11px; /* compensate the 4px border */
+  border-inline-start: solid 4px #ff9500;
 }
 
 radio[pane]:hover::before,
@@ -95,14 +95,14 @@ radio[pane][selected]::before {
   font: message-box;
   font-size: 1.25rem;
   padding-bottom: 2px;
-  -moz-padding-start: 9px;
+  padding-inline-start: 9px;
   margin: 0;
 }
 
 @media (max-width: 800px) {
   radio[pane] {
     min-width: 54px;
-    -moz-padding-end: 15px;
+    padding-inline-end: 15px;
   }
 
   .paneButtonLabel {
@@ -163,7 +163,7 @@ radio[pane=paneAccount] > .paneButtonIcon {
 }
 
 #filter {
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
 }
 
 #handlersView > richlistitem {
@@ -171,13 +171,13 @@ radio[pane=paneAccount] > .paneButtonIcon {
 }
 
 .typeIcon {
-  -moz-margin-start: 10px !important;
-  -moz-margin-end: 9px !important;
+  margin-inline-start: 10px !important;
+  margin-inline-end: 9px !important;
 }
 
 .actionIcon {
-  -moz-margin-start: 11px !important;
-  -moz-margin-end: 8px !important;
+  margin-inline-start: 11px !important;
+  margin-inline-end: 8px !important;
 }
 
 .actionsMenu {
@@ -185,11 +185,11 @@ radio[pane=paneAccount] > .paneButtonIcon {
 }
 
 .actionsMenu > menupopup > menuitem {
-  -moz-padding-start: 10px !important;
+  padding-inline-start: 10px !important;
 }
 
 .actionsMenu > menupopup > menuitem > .menu-iconic-left {
-  -moz-margin-end: 8px !important;
+  margin-inline-end: 8px !important;
 }
 
 listhead > listheader:first-of-type:-moz-locale-dir(ltr),
@@ -214,11 +214,11 @@ description > html|a {
 }
 
 tabs {
-  -moz-margin-end: 4px; /* add the 4px end-margin of other elements */
+  margin-inline-end: 4px; /* add the 4px end-margin of other elements */
 }
 
 .indent {
-  -moz-margin-start: 33px;
+  margin-inline-start: 33px;
 }
 
 .inset {
@@ -227,7 +227,7 @@ tabs {
 
 #telemetryLearnMore,
 #crashReporterLearnMore {
-  -moz-margin-end: 4px !important;
+  margin-inline-end: 4px !important;
 }
 
 /**

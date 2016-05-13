@@ -77,8 +77,8 @@ notification > hbox {
 #bottombuttons {
 %ifdef XP_MACOSX
   -moz-box-pack: end;
-  -moz-padding-start: 2px;
-  -moz-padding-end: 11px;
+  padding-inline-start: 2px;
+  padding-inline-end: 11px;
   -moz-appearance: statusbar;
   min-height: 28px;
 %else
@@ -210,7 +210,7 @@ richlistitem[dragover="up"] {
 }
 
 .accountStateIcon {
-  -moz-margin-start: 16px;
+  margin-inline-start: 16px;
   margin-top: 16px;
   width: 16px;
   height: 16px;

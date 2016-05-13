@@ -60,7 +60,7 @@
 }
 
 #attachmentIcon {
-  -moz-margin-start: 5px;
+  margin-inline-start: 5px;
 }
 
 #attachmentName:hover,
@@ -72,7 +72,7 @@
 
 #attachmentSize {
   margin: 0;
-  -moz-margin-start: 8px;
+  margin-inline-start: 8px;
 }
 
 #attachmentBar {
@@ -110,7 +110,7 @@
 .inline-toolbar toolbarpaletteitem toolbarseparator,
 .inline-toolbar toolbarseparator {
   margin-top: 1px;
-  -moz-margin-start: 1px; /* make it symetrical */
+  margin-inline-start: 1px; /* make it symetrical */
 }
 
 window[inlinetoolbox] #smallicons,
@@ -136,7 +136,7 @@ window[inlinetoolbox] #newtoolbar {
   background-color: transparent;
   padding: 0px;
   margin-top: 0;
-  -moz-margin-end: 3px;
+  margin-inline-end: 3px;
 }
 
 .headerValueBox {
@@ -154,7 +154,7 @@ window[inlinetoolbox] #newtoolbar {
   padding: .1em 0;
   margin: 0;
   margin-bottom: 3px !important;
-  -moz-margin-start: 3px;
+  margin-inline-start: 3px;
   border-width: 0;
   background-color: transparent;
 }
@@ -188,7 +188,7 @@ window[inlinetoolbox] #newtoolbar {
 }
 
 .messageIdDisplayImage {
-  -moz-padding-start: 2px;
+  padding-inline-start: 2px;
   -moz-box-pack: end;
 }
 
@@ -197,8 +197,8 @@ window[inlinetoolbox] #newtoolbar {
 
 .emailDisplayButton {
   margin: 0;
-  -moz-padding-start: 2px !important;
-  -moz-padding-end: 2px !important;
+  padding-inline-start: 2px !important;
+  padding-inline-end: 2px !important;
   background-color: transparent;
   border-radius: 2px;
   border: 1px dotted transparent;
@@ -224,7 +224,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
 
 .emailSeparator {
   /* this is for the comma in between email addresses/newsgroups */
-  -moz-margin-start: -3px; /* squeeze it inside the bubble, by the star */
+  margin-inline-start: -3px; /* squeeze it inside the bubble, by the star */
 }
 
 .emailDisplayButton:focus {
@@ -237,7 +237,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   -moz-appearance: none;
   -moz-box-orient: vertical;
   padding: 0;
-  -moz-margin-start: -2px !important;
+  margin-inline-start: -2px !important;
   list-style-image: url("chrome://messenger/skin/starContact.png");
   -moz-image-region: rect(0, 16px, 16px, 0);
 }
@@ -256,7 +256,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
 
 .emailPresence {
   padding: 0px;
-  -moz-margin-start: -2px !important;
+  margin-inline-start: -2px !important;
   -moz-image-region: rect(6px, 16px, 16px, 6px);
 }
 
@@ -319,21 +319,21 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   }
 
   .dateLabel {
-    -moz-padding-end: 8px;
+    padding-inline-end: 8px;
   }
 
   .msgHeaderView-button {
     -moz-appearance: button;
     min-height: 1ex;
-    -moz-margin-start: 2px;
-    -moz-margin-end: 2px;
+    margin-inline-start: 2px;
+    margin-inline-end: 2px;
     margin-top: 1px;
     margin-bottom: 2px;
     vertical-align: middle;
     /* important required to override messenger.css rules */
     min-width: 1em !important;
-    -moz-padding-start: 4px !important;
-    -moz-padding-end: 3px !important;
+    padding-inline-start: 4px !important;
+    padding-inline-end: 3px !important;
     padding-top: 3px !important;
     padding-bottom: 2px !important;
     list-style-image: none;
@@ -349,7 +349,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   .msgHeaderView-button[type="menu-button"] {
     /* important required to override -moz-appearance from msgHdrView-button */
     -moz-appearance: dualbutton !important;
-    -moz-margin-end: 0 !important;
+    margin-inline-end: 0 !important;
     /* Need to override both rules from messenger.css and msgHeaderView-button */
     padding: 0 !important;
   }
@@ -360,8 +360,8 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
     min-height: 1ex;
     margin: 0px;
     /* important required to override messenger.css rules */
-    -moz-padding-start: 4px !important;
-    -moz-padding-end: 3px !important;
+    padding-inline-start: 4px !important;
+    padding-inline-end: 3px !important;
     padding-top: 3px !important;
     padding-bottom: 2px !important;
   }
@@ -374,8 +374,8 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
     margin: 0 !important;
     padding-top: 1px !important;
     padding-bottom: 0px !important;
-    -moz-padding-start: 0px !important;
-    -moz-padding-end: 0px !important;
+    padding-inline-start: 0px !important;
+    padding-inline-end: 0px !important;
   }
 
   /* For unclear reasons, toolkit's toolbarbutton.css forces a margin of 0,
@@ -388,7 +388,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
 
   toolbox[labelalign="end"] toolbar[mode="full"] toolbarpaletteitem .msgHeaderView-button .toolbarbutton-text,
   toolbox[labelalign="end"] toolbar[mode="full"] .msgHeaderView-button .toolbarbutton-text {
-    -moz-margin-start: 2px !important;
+    margin-inline-start: 2px !important;
   }
 
   .hdrReplyToSenderButton,
@@ -439,7 +439,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   }
 
   #otherActionsButton > hbox > .toolbarbutton-menu-dropmarker {
-    -moz-padding-end: 3px;
+    padding-inline-end: 3px;
     list-style-image: url(chrome://messenger/skin/icons/mainwindow-dropdown-arrow.png);
     -moz-image-region: rect(0 13px 11px 0);
   }
@@ -539,19 +539,19 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   }
 
   .dateLabel {
-    -moz-padding-end: 6px;
+    padding-inline-end: 6px;
   }
 
   .toolbarbutton-1.msgHeaderView-button {
     min-width: 1em;
-    -moz-margin-start: 2px !important;
-    -moz-margin-end: 2px !important;
+    margin-inline-start: 2px !important;
+    margin-inline-end: 2px !important;
     margin-top: 1px;
     margin-bottom: 2px;
     vertical-align: middle;
     /* important required to override primaryToolbar.css rules */
-    -moz-padding-start: 3px !important;
-    -moz-padding-end: 3px !important;
+    padding-inline-start: 3px !important;
+    padding-inline-end: 3px !important;
   }
 
   @media not all and (-moz-windows-default-theme) {
@@ -564,16 +564,16 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
     }
 
     .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-      -moz-padding-start: 3px !important;
-      -moz-padding-end: 3px !important;
+      padding-inline-start: 3px !important;
+      padding-inline-end: 3px !important;
     }
   }
 
   @media (-moz-windows-default-theme) {
     toolbar[mode="icons"] .msgHeaderView-button.toolbarbutton-menubutton-button,
     toolbar[mode="icons"] .msgHeaderView-button:not([type="menu-button"]) {
-      -moz-padding-start: 3px !important;
-      -moz-padding-end: 3px !important;
+      padding-inline-start: 3px !important;
+      padding-inline-end: 3px !important;
     }
 
     .toolbarbutton-1.msgHeaderView-button,
@@ -611,8 +611,8 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
     min-width: 1em;
     margin: 0px;
     /* important required to override primaryToolbar.css rules */
-    -moz-padding-start: 3px !important;
-    -moz-padding-end: 3px !important;
+    padding-inline-start: 3px !important;
+    padding-inline-end: 3px !important;
   }
 
   /* toolbar[mode="text"] is necessary so that we end up with more specificity
@@ -624,8 +624,8 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
     margin: 0 !important;
     padding-top: 1px !important;
     padding-bottom: 0px !important;
-    -moz-padding-start: 0px !important;
-    -moz-padding-end: 0px !important;
+    padding-inline-start: 0px !important;
+    padding-inline-end: 0px !important;
   }
 
   toolbar[iconsize="small"] .msgHeaderView-button .toolbarbutton-text {
@@ -648,7 +648,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   toolbarpaletteitem .msgHeaderView-button .toolbarbutton-text,
   toolbox[labelalign="end"] toolbar[mode="full"]
   .msgHeaderView-button .toolbarbutton-text {
-    -moz-margin-start: 2px !important;
+    margin-inline-start: 2px !important;
   }
 
   .hdrReplyToSenderButton,
@@ -736,7 +736,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   }
 
   #otherActionsButton > hbox > .toolbarbutton-menu-dropmarker {
-    -moz-padding-end: 3px;
+    padding-inline-end: 3px;
   }
 
   /* show a icon in customize window */

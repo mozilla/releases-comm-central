@@ -209,7 +209,7 @@ toolbar[brighttext] menulist > .menulist-label-box {
 
 #attachmentBucketSize {
   color: #888a85;
-  -moz-padding-end: 1px;
+  padding-inline-end: 1px;
 }
 
 /* ::::: attachment reminder ::::: */
@@ -221,13 +221,13 @@ toolbar[brighttext] menulist > .menulist-label-box {
 }
 
 #attachmentReminderText {
-  -moz-margin-start: 0px;
+  margin-inline-start: 0px;
   cursor: pointer;
 }
 
 #attachmentKeywords {
   font-weight: bold;
-  -moz-margin-start: 0px;
+  margin-inline-start: 0px;
   text-decoration: underline;
   cursor: pointer;
 }
@@ -235,7 +235,7 @@ toolbar[brighttext] menulist > .menulist-label-box {
 /* XXX I should really have a selector rule here to select just .listcell-icon objects underneath the attachmentList listbox */
 
 .listcell-icon {
-  -moz-margin-start: 2px;
+  margin-inline-start: 2px;
   margin-top: 2px;
 }
 
@@ -245,14 +245,14 @@ toolbar[brighttext] menulist > .menulist-label-box {
 }
 
 #subject-box {
-  -moz-margin-start: -2px;
+  margin-inline-start: -2px;
 }
 
 #msgSubject {
   -moz-appearance: none;
   margin-top: 0;
-  -moz-margin-start: 6px;
-  -moz-margin-end: 5px;
+  margin-inline-start: 6px;
+  margin-inline-end: 5px;
   background-color: inherit;
   border-color: transparent;
   -moz-border-top-colors: none;
@@ -260,7 +260,7 @@ toolbar[brighttext] menulist > .menulist-label-box {
   -moz-border-right-colors: none;
   -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
   padding: 2px;
-  -moz-padding-start: 5px !important;
+  padding-inline-start: 5px !important;
   transition: border .2s, background-color .2s;
 }
 
@@ -276,26 +276,26 @@ toolbar[brighttext] menulist > .menulist-label-box {
 /* ::::: autocomplete icons ::::: */
 
 treechildren::-moz-tree-image(local-abook) {
-  -moz-margin-start: 3px;
-  -moz-margin-end: 2px;
+  margin-inline-start: 3px;
+  margin-inline-end: 2px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
 }
 
 treechildren::-moz-tree-image(remote-abook) {
-  -moz-margin-start: 3px;
-  -moz-margin-end: 2px;
+  margin-inline-start: 3px;
+  margin-inline-end: 2px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook.png");
 }
 
 treechildren::-moz-tree-image(remote-err) {
-  -moz-margin-start: 3px;
-  -moz-margin-end: 2px;
+  margin-inline-start: 3px;
+  margin-inline-end: 2px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook-error.png");
 }
 
 treechildren::-moz-tree-image(subscribed-news) {
-  -moz-margin-start: 3px;
-  -moz-margin-end: 2px;
+  margin-inline-start: 3px;
+  margin-inline-end: 2px;
   list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
   -moz-image-region: rect(208px 16px 224px 0px);
 }
@@ -355,8 +355,8 @@ treechildren::-moz-tree-image(subscribed-news) {
 .aw-menulist {
   -moz-binding: url("chrome://messenger/content/messengercompose/menulistCompactBindings.xml#menulist-compact");
   margin: 0;
-  -moz-margin-start: 5px;
-  -moz-margin-end: 7px;
+  margin-inline-start: 5px;
+  margin-inline-end: 7px;
   padding-inline-end: 0;
   outline: 1px solid transparent;
   outline-offset: -3px;
@@ -388,7 +388,7 @@ treechildren::-moz-tree-image(subscribed-news) {
 }
 
 .aw-menulist > .menulist-label-box > .menulist-icon {
-  -moz-margin-start: 2px;
+  margin-inline-start: 2px;
 }
 
 .aw-menulist > dropmarker {
@@ -756,8 +756,8 @@ toolbarbutton.formatting-button {
 #TextColorButton {
   margin-top: 2px;
   margin-bottom: 9px;
-  -moz-margin-start: 2px;
-  -moz-margin-end: 9px;
+  margin-inline-start: 2px;
+  margin-inline-end: 9px;
 }
 
 #TextColorButton[color="mixed"] {
@@ -768,8 +768,8 @@ toolbarbutton.formatting-button {
 #BackgroundColorButton {
   margin-top: 9px;
   margin-bottom: 2px;
-  -moz-margin-start: 9px;
-  -moz-margin-end: 2px;
+  margin-inline-start: 9px;
+  margin-inline-end: 2px;
 }
 
 #HighlightColorButton {
@@ -809,7 +809,7 @@ toolbarbutton.formatting-button {
 }
 
 .ab-closebutton > .toolbarbutton-icon {
-  -moz-margin-end: 0px; /* override toolkit's default value */
+  margin-inline-end: 0px; /* override toolkit's default value */
 }
 
 #sidebar {
@@ -854,11 +854,11 @@ toolbarbutton.formatting-button {
 
 #sidebar-splitter {
   -moz-appearance: none;
-  -moz-border-start: 1px solid ThreeDShadow;
+  border-inline-start: 1px solid ThreeDShadow;
   /* splitter grip area */
   width: 5px;
   /* make only the splitter border visible */
-  -moz-margin-end: -5px;
+  margin-inline-end: -5px;
   /* because of the negative margin needed to make the splitter visible */
   position: relative;
   z-index: 10;

@@ -44,7 +44,7 @@
   height: 11px;
   background-repeat: no-repeat;
   background-position: center;
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   background-image: url("chrome://global/skin/arrow/arrow-dn.gif");
 }
 
@@ -57,8 +57,8 @@
   height: 9px;
   background-repeat: no-repeat;
   background-position: center;
-  -moz-margin-start: 1px;
-  -moz-margin-end: 3px;
+  margin-inline-start: 1px;
+  margin-inline-end: 3px;
 %ifdef XP_WIN
   background-image: url("chrome://global/skin/tree/twisty.svg#open");
 %else

@@ -12,7 +12,7 @@
 }
 
 #quick-filter-bar-main-bar {
-  -moz-padding-start: 4px;
+  padding-inline-start: 4px;
 }
 
 #qfb-qs-textbox {
@@ -25,7 +25,7 @@
 }
 
 #quick-filter-bar-filter-text-bar {
-  -moz-padding-end: 4px;
+  padding-inline-end: 4px;
 }
 
 #threadTree[filterActive="matches"] {

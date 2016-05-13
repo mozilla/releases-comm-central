@@ -7,7 +7,7 @@
 #signedHdrIcon {
   list-style-image: none;
   visibility: visible;
-  -moz-margin-end: 10px;
+  margin-inline-end: 10px;
 }
 
 #encryptedHdrIcon {

@@ -34,12 +34,12 @@ body {
   background-color: #e0eaf5;
   padding: 4px;
   min-height: 100%;
-  -moz-padding-start: 1em;
+  padding-inline-start: 1em;
   font-size: 90%;
 }
 
 #main-column {
-  -moz-padding-start: 1em;
+  padding-inline-start: 1em;
   display: table-cell;
 }
 
@@ -51,7 +51,7 @@ body {
 
 #data-column {
   margin-top: 1em;
-  -moz-margin-end: 1em;
+  margin-inline-end: 1em;
   max-width: 40em;
 }
 
@@ -127,9 +127,9 @@ body {
   height: 40px;
   font-size: 140% !important;
   padding: 2px;
-  -moz-padding-start: 0;
+  padding-inline-start: 0;
   padding-top: 1em;
-  -moz-padding-end: 80px;
+  padding-inline-end: 80px;
 }
 
 .explanation-fulltext-label {
@@ -156,7 +156,7 @@ body {
 .explanation-query-involves,
 .explanation-query-tagged {
   color: #3465a4;
-  -moz-margin-end: 0.5ex;
+  margin-inline-end: 0.5ex;
 }
 
 /* ===== Facets ===== */
@@ -203,7 +203,7 @@ h2 {
 .facet > h3,
 .facet-content > h3 {
   font-size: 90%;
-  -moz-padding-start: 0;
+  padding-inline-start: 0;
   margin-top: 0.5em;
   margin-bottom: 0.5em;
 }
@@ -230,8 +230,8 @@ h2 {
   display: block;
   padding: 0px;
   padding-top: 0.5em;
-  -moz-margin-end: 1em;
-  -moz-padding-start: 2em;
+  margin-inline-end: 1em;
+  padding-inline-start: 2em;
   padding-bottom: 1em;
 }
 
@@ -245,7 +245,7 @@ h2 {
   display: none;
   width: 46px !important;
   height: 17px !important;
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   margin-top: 2px;
   padding: 4px;
   background-image: url("chrome://messenger/skin/icons/timeline.png");
@@ -322,7 +322,7 @@ html[dir="rtl"] .date-vis-frame {
 
 .facet-checkbox-bubble {
   padding: 2px;
-  -moz-padding-end: 6px;
+  padding-inline-end: 6px;
   border: solid transparent 1px;
   cursor: pointer;
   color: #333;
@@ -415,7 +415,7 @@ html[dir="rtl"] .date-vis-frame {
 .bar-count {
   position: absolute;
   right: 3px;
-  -moz-margin-end: 1.5em;
+  margin-inline-end: 1.5em;
   line-height: 1.6em;
   color: GrayText;
 }
@@ -451,7 +451,7 @@ html[dir="rtl"] .bar-count {
   text-decoration: none;
   display: block;
   padding: 0.3em 2em 0.3em 0.5em;
-  -moz-padding-end: 4em;
+  padding-inline-end: 4em;
   position: relative;
   z-index: 2;
   white-space: nowrap;
@@ -526,7 +526,7 @@ html[dir="rtl"] .bar-percent {
 .results-message-count {
   display: table-cell;
   margin: 0;
-  -moz-padding-start: 2px;
+  padding-inline-start: 2px;
   font-weight: normal;
   font-size: small;
 }
@@ -553,7 +553,7 @@ html[dir="rtl"] .bar-percent {
 
 .results-message-sort-bar {
   display: table-cell;
-  -moz-padding-end: 2px;
+  padding-inline-end: 2px;
   text-align: end;
   font-size: small;
 }
@@ -634,7 +634,7 @@ html[dir="rtl"] .bar-percent {
 }
 .message-meta {
   float: right;
-  -moz-padding-start: 2em;
+  padding-inline-start: 2em;
   text-align: end;
   max-width: 20em;
   max-height: 10em;
@@ -656,7 +656,7 @@ html[dir="rtl"] .message-meta {
   text-align: start;
   display: inline-block;
   white-space: nowrap;
-  -moz-padding-start: 1ex;
+  padding-inline-start: 1ex;
 }
 
 .message-attachment:after {
@@ -698,11 +698,11 @@ html[dir="rtl"] .message-attachment-icon {
 }
 
 .message-addresses-group {
-  -moz-padding-start: 1em;
+  padding-inline-start: 1em;
 }
 
 .message-subject-group {
-  -moz-padding-start: 2px; /* to line up the subjects with the "Top N messages out of M" */
+  padding-inline-start: 2px; /* to line up the subjects with the "Top N messages out of M" */
 }
 
 .message-author, .message-recipients {
@@ -722,7 +722,7 @@ html[dir="rtl"] .message-attachment-icon {
 
 .message-body {
   color: black;
-  -moz-margin-start: 1em;
+  margin-inline-start: 1em;
   font-family: monospace;
   font-size: medium;
   white-space: pre-wrap;
@@ -734,14 +734,14 @@ html[dir="rtl"] .message-attachment-icon {
 }
 
 .message-recipients-group {
-  -moz-margin-start: 0.5em;
+  margin-inline-start: 0.5em;
   font-size: small;
 }
 
 .message-tag {
   display: inline-block; /* to avoid splitting 'To' and 'Do' e.g. */
-  -moz-margin-start: 0px;
-  -moz-margin-end: 3px;
+  margin-inline-start: 0px;
+  margin-inline-end: 3px;
   padding: 0 0.5ex;
   background-image: url("chrome://messenger/skin/tagbg.png");
   border-radius: 3px;
@@ -763,7 +763,7 @@ html[dir="rtl"] .message-attachment-icon {
   float: right;
   padding: 0.2em 1em;
   font-size: small;
-  -moz-margin-end: 1em;
+  margin-inline-end: 1em;
   margin-bottom: 2em;
   color: #000000;
 }

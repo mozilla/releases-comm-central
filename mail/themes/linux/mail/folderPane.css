@@ -5,7 +5,7 @@
 /* ::::: Folder Pane ::::: */
 /* reduce the padding set from messenger.css */
 #folderTree treechildren::-moz-tree-cell-text {
-  -moz-padding-start: 2px;
+  padding-inline-start: 2px;
 }
 
 /* this needs a different rule from the tree because otherwise the margin
@@ -16,7 +16,7 @@
 
 treechildren::-moz-tree-image(folderNameCol) {
   list-style-image: url("moz-icon://stock/gtk-directory?size=menu");
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
 }
 
 /* ..... Shared folders .....

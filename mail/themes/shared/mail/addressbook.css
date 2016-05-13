@@ -22,7 +22,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
 /* ::::: directory pane icons ::::: */
 
 treechildren::-moz-tree-image(DirCol) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
 }
 
@@ -41,17 +41,17 @@ treechildren::-moz-tree-image(DirCol, IsRemote-true, IsSecure-true) {
 /* ::::: results pane ::::: */
 
 treechildren::-moz-tree-image(GeneratedName) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/abcard.png");
 }
 
 treechildren::-moz-tree-image(GeneratedName, MailList) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/ablist.png");
 }
 
 treechildren::-moz-tree-cell-text(GeneratedName) {
-  -moz-padding-start: 0;
+  padding-inline-start: 0;
 }
 
 /* ::::: card view pane ::::: */
@@ -61,14 +61,14 @@ treechildren::-moz-tree-cell-text(GeneratedName) {
 }
 
 #cvBuddyIcon {
-  -moz-padding-start: 20px;
+  padding-inline-start: 20px;
   padding-top: 2px;
 }
 
 .CardViewText,
 .CardViewLink {
-  -moz-padding-start: 20px;
-  -moz-padding-end: 2px;
+  padding-inline-start: 20px;
+  padding-inline-end: 2px;
   min-width: 30px;
   margin: 0px;
 }
@@ -97,8 +97,8 @@ treechildren::-moz-tree-cell-text(GeneratedName) {
 }
 
 html|a {
-  -moz-padding-start: 0px;
-  -moz-padding-end: 2px;
+  padding-inline-start: 0px;
+  padding-inline-end: 2px;
   border: none !important;
   text-decoration: underline;
 }

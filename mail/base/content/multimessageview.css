@@ -10,7 +10,7 @@
 /* The heading area */
 
 #summary_subtitle {
-  -moz-margin-start: 1em;
+  margin-inline-start: 1em;
   font-size: small;
   white-space: nowrap;
 }
@@ -89,18 +89,18 @@
 .count {
   white-space: nowrap;
   color: InactiveCaptionText;
-  -moz-margin-start: 1ch;
+  margin-inline-start: 1ch;
 }
 
 .tags {
   padding-top: 4px;
-  -moz-margin-start: 1ch;
+  margin-inline-start: 1ch;
 }
 
 .tag {
   display: inline-block; /* to avoid splitting 'To' and 'Do' e.g. */
-  -moz-margin-start: 0px;
-  -moz-margin-end: 3px;
+  margin-inline-start: 0px;
+  margin-inline-end: 3px;
   padding: 0 0.5ex;
   background-image: url("chrome://messenger/skin/tagbg.png");
   border-radius: 3px;

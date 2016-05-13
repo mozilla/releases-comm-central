@@ -80,7 +80,7 @@ listcell > hbox {
 
 /* No '.filler' here, so add margin to make more room. */
 hbox > .small-button + .small-button {
-  -moz-margin-end: 9px;
+  margin-inline-end: 9px;
 }
 
 .search-menulist, .search-value-menulist {
@@ -96,7 +96,7 @@ hbox > .small-button + .small-button {
 }
 
 .filler {
-  -moz-padding-end: 22px;
+  padding-inline-end: 22px;
 }
 
 .ruleaction {

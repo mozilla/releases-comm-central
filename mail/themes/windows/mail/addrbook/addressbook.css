@@ -17,7 +17,7 @@
 /* ::::: directory pane adjustments ::::: */
 
 #abDirTreeHeader-title {
-  -moz-padding-start: 4px;
+  padding-inline-start: 4px;
 }
 
 /* ::::: results pane ::::: */
@@ -29,7 +29,7 @@
 }
 
 #GeneratedName {
-  -moz-padding-start: 30px;
+  padding-inline-start: 30px;
 }
 
 /* ::::: card view pane ::::: */
@@ -248,7 +248,7 @@
   /* ::::: splitters ::::: */
 
   #results-splitter {
-    -moz-margin-start: -1px;
+    margin-inline-start: -1px;
   }
 
   #dirTree-splitter:-moz-locale-dir(rtl) {
@@ -276,7 +276,7 @@
 
   .CardViewHeading {
     padding: 1px;
-    -moz-padding-start: 5px;
+    padding-inline-start: 5px;
     background-color: Highlight;
     color: HighlightText;
     font-weight: bold;
@@ -402,11 +402,11 @@
 
   #dirTree-splitter {
     border: none;
-    -moz-border-end: 1px solid #a9b7c9;
+    border-inline-end: 1px solid #a9b7c9;
     min-width: 0;
     width: 3px;
     background-color: transparent;
-    -moz-margin-start: -3px;
+    margin-inline-start: -3px;
     position: relative;
     z-index: 10;
   }
@@ -425,7 +425,7 @@
   /* ::::: results pane ::::: */
 
   #abResultsTree {
-    -moz-border-end: 1px solid ThreeDHighlight;
+    border-inline-end: 1px solid ThreeDHighlight;
   }
 
   /* ::::: card view pane ::::: */

@@ -22,8 +22,8 @@ listcell[enabled="true"] {
 
 #FilterEditor {
   padding-top: 1px;
-  -moz-padding-start: 0;
-  -moz-padding-end: 0;
+  padding-inline-start: 0;
+  padding-inline-end: 0;
 }
 
 .small-button {
@@ -45,7 +45,7 @@ textbox {
 }
 
 .filler {
-  -moz-padding-end: 22px;
+  padding-inline-end: 22px;
 }
 
 .ruleaction {

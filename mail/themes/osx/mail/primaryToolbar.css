@@ -418,11 +418,11 @@ toolbar > #button-chat[unreadMessages="true"] {
 }
 
 #button-chat > stack > .badgeButton-badge {
-  -moz-padding-end: 1px;
+  padding-inline-end: 1px;
 }
 
 toolbar:not([mode="text"]) .badgeButton-badge {
-  -moz-margin-start: 11px;
+  margin-inline-start: 11px;
   margin-bottom: 12px;
 }
 
@@ -475,7 +475,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 .msgNotification-smallText {
-  -moz-padding-start: 10px;
+  padding-inline-start: 10px;
   font-size: 90%;
 }
 
@@ -498,10 +498,10 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   font: -moz-pull-down-menu;
   list-style-image: none;
   -moz-image-region: auto;
-  -moz-margin-end: 1px;
+  margin-inline-end: 1px;
   padding-bottom: 2px;
-  -moz-padding-start: 10px;
-  -moz-padding-end: 0;
+  padding-inline-start: 10px;
+  padding-inline-end: 0;
 }
 
 .splitmenu-menuitem[_moz-menuactive="true"] {
@@ -525,7 +525,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 .splitmenu-menuitem[iconic="true"] > .menu-iconic-left > .menu-iconic-icon {
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
   width: 16px;
 }
 
@@ -556,8 +556,8 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   box-shadow: 1px 0 2px rgb(170, 170, 170) inset;
   padding-top: 2px;
   padding-bottom: 2px;
-  -moz-padding-start: 3px;
-  -moz-padding-end: 2px;
+  padding-inline-start: 3px;
+  padding-inline-end: 2px;
 }
 
 #appmenuSecondaryPane:-moz-locale-dir(rtl) {
@@ -566,13 +566,13 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 #appmenuPrimaryPane > menu > .menu-right,
 #appmenuSecondaryPane > menu > .menu-right {
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
 }
 
 #appmenuPrimaryPane > :-moz-any(menu, menuitem),
 #appmenuSecondaryPane > :-moz-any(menu, menuitem) {
-  -moz-padding-start: 10px;
-  -moz-padding-end: 15px;
+  padding-inline-start: 10px;
+  padding-inline-end: 15px;
 }
 
 .appmenuPane-spacer {
@@ -589,8 +589,8 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 .splitmenu-menu,
 #appmenu-editmenu {
   -moz-box-pack: end;
-  -moz-padding-start: 5px;
-  -moz-padding-end: 15px;
+  padding-inline-start: 5px;
+  padding-inline-end: 15px;
 }
 
 .splitmenu-menu > .menu-accel-container,
@@ -600,7 +600,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 .splitmenu-menu > .menu-right,
 #appmenu-editmenu > .menu-right {
-  -moz-margin-start: 5px;
+  margin-inline-start: 5px;
 }
 
 .splitmenu-menuitem > .menu-iconic-left,
@@ -664,6 +664,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 #appmenu-edit-label {
   background: transparent;
   font-style: italic;
-  -moz-padding-start: 10px;
-  -moz-padding-end: 0;
+  padding-inline-start: 10px;
+  padding-inline-end: 0;
 }

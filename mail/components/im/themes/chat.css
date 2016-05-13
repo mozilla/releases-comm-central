@@ -77,15 +77,15 @@
 }
 
 imgroup {
-  -moz-padding-start: 4px;
+  padding-inline-start: 4px;
 }
 
 imgroup > label {
-  -moz-margin-start: 4px;
+  margin-inline-start: 4px;
 }
 
 imcontact, imconv {
-  -moz-padding-start: 23px;
+  padding-inline-start: 23px;
 }
 
 imgroup,
@@ -109,7 +109,7 @@ imconv[attention] {
 
 .contactDisplayName,
 .convDisplayName {
-  -moz-margin-end: 0;
+  margin-inline-end: 0;
 }
 
 imcontact[aliasing] .contactDisplayName {
@@ -118,7 +118,7 @@ imcontact[aliasing] .contactDisplayName {
 
 .contactStatusText,
 .convStatusText {
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
 }
 
 /* Avoid a strange jumping bug when hovering and the startChatBubble appears */
@@ -145,7 +145,7 @@ imcontact[aliasing] .contactDisplayName {
 }
 
 .closeConversationButton {
-  -moz-margin-end: 0;
+  margin-inline-end: 0;
   -moz-stack-sizing: ignore;
 %ifdef XP_WIN
   list-style-image: url("chrome://global/skin/icons/close-XPVista7.png");
@@ -404,14 +404,14 @@ imcontact[aliasing] .contactDisplayName {
 .conv-counter {
   color: #000;
   background-color: rgba(246, 246, 246, 0.7);
-  -moz-border-start: 1px solid rgb(200, 200, 200);
+  border-inline-start: 1px solid rgb(200, 200, 200);
   border-top: 1px solid rgb(200, 200, 200);
   /* Padding that gets flipped to margins in .conv-counter[value^="0"] to avoid the red border. */
   font-size: 130%;
   padding-top: 0;
   padding-bottom: 1px;
-  -moz-padding-start: 5px;
-  -moz-padding-end: 6px;
+  padding-inline-start: 5px;
+  padding-inline-end: 6px;
   margin: 0;
 }
 
@@ -436,17 +436,17 @@ imcontact[aliasing] .contactDisplayName {
 .conv-counter[value^="-"] {
   margin-bottom: 1px;
   /* The 6px padding-end from .conv-counter is split into a 1px margin-end (to avoid the border) and 5px padding-end (as regular padding). */
-  -moz-margin-end: 1px;
+  margin-inline-end: 1px;
   padding-top: 1px;
   padding-bottom: 0;
-  -moz-padding-end: 5px;
+  padding-inline-end: 5px;
 }
 
 %else
 .conv-counter {
   padding-bottom: 0;
-  -moz-padding-end: 5px;
-  -moz-margin-end: 2px;
+  padding-inline-end: 5px;
+  margin-inline-end: 2px;
   margin-bottom: 2px !important; /* override 4px from description */
 }
 
@@ -477,7 +477,7 @@ grippy {
 
 .conv-nicklist > .listitem-iconic > .listcell-iconic > .listcell-label {
   font-weight: bold;
-  -moz-padding-start: 1px;
+  padding-inline-start: 1px;
 %ifdef XP_MACOSX
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
 %endif
@@ -503,14 +503,14 @@ grippy {
 %endif
 .conv-nicklist-header-label {
 %ifdef XP_MACOSX
-  -moz-margin-start: 3px !important;
+  margin-inline-start: 3px !important;
   margin-top: 1px !important;
   margin-bottom: 0 !important;
 %else
   font-weight: bold;
-  -moz-margin-start: 0 !important;
+  margin-inline-start: 0 !important;
 %endif
-  -moz-margin-end: 2px !important;
+  margin-inline-end: 2px !important;
 }
 
 %ifdef XP_MACOSX
@@ -563,8 +563,8 @@ imgroup .twisty {
   padding-top: 1px;
   width: 9px; /* The image's width is 9 pixels */
   height: 9px;
-  -moz-margin-end: 3px;
-  -moz-margin-start: 3px;
+  margin-inline-end: 3px;
+  margin-inline-start: 3px;
   background: url("chrome://global/skin/tree/twisty.svg#open") no-repeat center;
 }
 
@@ -576,8 +576,8 @@ imgroup[closed] .twisty {
 imgroup .twisty {
   width: 9px;
   height: 9px;
-  -moz-margin-end: 3px;
-  -moz-margin-start: 3px;
+  margin-inline-end: 3px;
+  margin-inline-start: 3px;
   background: url("chrome://global/skin/arrow/arrow-dn-sharp.gif") no-repeat center;
 }
 
@@ -619,7 +619,7 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 
 .statusMessageToolbarItem {
   margin: 2px 4px;
-  -moz-margin-start: -1px;
+  margin-inline-start: -1px;
   padding: 3px 5px 4px;
   border: 1px solid transparent;
 }
@@ -636,8 +636,8 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 
 #chat-status-selector > .statusMessageToolbarItem[editing] {
   -moz-appearance: none;
-  -moz-padding-start: 4px;
-  -moz-padding-end: 4px;
+  padding-inline-start: 4px;
+  padding-inline-end: 4px;
   border-color: ThreeDShadow;
   background-color: -moz-field;
 }

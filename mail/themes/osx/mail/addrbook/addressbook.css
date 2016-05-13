@@ -109,7 +109,7 @@
 
 #dirTree {
   -moz-appearance: -moz-mac-vibrancy-light;
-  -moz-border-end: 1px solid #bdbdbd;
+  border-inline-end: 1px solid #bdbdbd;
   background-color: #E2E7ED
 }
 
@@ -201,12 +201,12 @@ splitter {
 /* ::::: results pane ::::: */
 
 #abResultsTree {
-  -moz-border-start: 1px solid #bebebe;
+  border-inline-start: 1px solid #bebebe;
   border-bottom: 1px solid #bebebe;
 }
 
 #GeneratedName {
-  -moz-padding-start: 42px;
+  padding-inline-start: 42px;
 }
 
 @media (min-resolution: 2dppx) {
@@ -226,7 +226,7 @@ splitter {
 /* ::::: card view pane ::::: */
 
 #blankResultsPaneMessageBox {
-  -moz-border-start: 1px solid #bebebe;
+  border-inline-start: 1px solid #bebebe;
 }
 
 #CardViewOuterBox {
@@ -296,7 +296,7 @@ spacer {
 
 #titlebar-buttonbox-container {
   margin-top: 3px;
-  -moz-margin-start: 7px;
+  margin-inline-start: 7px;
 }
 
 #titlebar-spacer {

@@ -59,8 +59,8 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
 .toolbarbutton-menubutton-button {
   padding-top: 5px;
   padding-bottom: 6px;
-  -moz-padding-start: 4px;
-  -moz-padding-end: 5px;
+  padding-inline-start: 4px;
+  padding-inline-end: 5px;
 }
 
 .toolbarbutton-1:hover:active:not([disabled]),
@@ -69,8 +69,8 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
 .toolbarbutton-menubutton-button[open="true"] {
   padding-top: 6px;
   padding-bottom: 5px;
-  -moz-padding-start: 5px;
-  -moz-padding-end: 4px;
+  padding-inline-start: 5px;
+  padding-inline-end: 4px;
 }
 
 .toolbarbutton-1[checked="true"] {
@@ -110,7 +110,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1[type="menu"] {
 /* Has to be !important to overrule toolkit's dropmarker.css for the
    dropmarker[disabled="true"] case. */
 .toolbarbutton-menu-dropmarker {
-  -moz-padding-start: 3px !important;
+  padding-inline-start: 3px !important;
 }
 
 toolbar[mode="full"] .toolbarbutton-1 {
@@ -153,7 +153,7 @@ treechildren::-moz-tree-cell-text {
 
 @media not all and (-moz-windows-default-theme) {
   treechildren::-moz-tree-cell-text {
-    -moz-padding-start: 4px !important;
+    padding-inline-start: 4px !important;
   }
 }
 
@@ -172,18 +172,18 @@ notification[type="critical"] .messageCloseButton {
 }
 
 menulist.folderMenuItem > .menulist-label-box > .menulist-label {
-  -moz-margin-start: 2px !important;
+  margin-inline-start: 2px !important;
 }
 
 button[type="menu-button"] > button {
   margin: -3px;
-  -moz-margin-end: 0;
+  margin-inline-end: 0;
 }
 
 @media not all and (-moz-windows-default-theme) {
   button[type="menu-button"] > button {
     margin: -2px;
-    -moz-margin-end: 0;
+    margin-inline-end: 0;
   }
 }
 
@@ -199,12 +199,12 @@ button[type="menu-button"] > button {
   .toolbarbutton-1[checked="true"] {
     padding-top: 6px !important;
     padding-bottom: 5px !important;
-    -moz-padding-start: 5px !important;
-    -moz-padding-end: 4px !important;
+    padding-inline-start: 5px !important;
+    padding-inline-end: 4px !important;
   }
 
   treechildren::-moz-tree-cell-text {
-    -moz-padding-start: 5px;
+    padding-inline-start: 5px;
   }
 
   menulist.folderMenuItem menu:not(.folderMenuItem) {

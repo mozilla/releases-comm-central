@@ -27,8 +27,8 @@
 treechildren::-moz-tree-twisty {
   margin-top: 0px !important;
   margin-bottom: 0px !important;
-  -moz-margin-start: 0px !important;
-  -moz-margin-end: -4px !important;
+  margin-inline-start: 0px !important;
+  margin-inline-end: -4px !important;
 }
 
 /* :::::::::::::::::::::::::::::::::::: */
@@ -78,7 +78,7 @@ treechildren::-moz-tree-twisty {
 }
 
 #folderTree treechildren::-moz-tree-row {
-  -moz-padding-start: 2px !important;
+  padding-inline-start: 2px !important;
   padding-bottom: 2px;
   background: transparent;
 }
@@ -210,7 +210,7 @@ treechildren::-moz-tree-image(subjectCol, replied, forwarded, focus, selected) {
 .attachmentColumnHeader {
   list-style-image: url("chrome://messenger/skin/icons/column-headers.png");
   -moz-image-region: rect(0px 16px 16px 0px);
-  -moz-padding-end: 5px;
+  padding-inline-end: 5px;
 }
 
 treechildren::-moz-tree-image(attachmentCol, attach) {
@@ -251,7 +251,7 @@ treechildren::-moz-tree-image(flaggedCol, flagged, focus, selected) {
 .junkStatusHeader {
   list-style-image: url("chrome://messenger/skin/icons/column-headers.png");
   -moz-image-region: rect(0px 48px 16px 32px);
-  -moz-padding-start: 2px;
+  padding-inline-start: 2px;
 }
 
 /* "unknown" now looks like "not junk".  see bug #182386 */
@@ -292,11 +292,11 @@ treechildren::-moz-tree-image(correspondentCol, outgoing, selected) {
 /* ..... subject column ..... */
 
 #subjectCol {
-  -moz-padding-start: 13px;
+  padding-inline-start: 13px;
 }
 
 #subjectCol[primary="true"] {
-  -moz-padding-start: 30px;
+  padding-inline-start: 30px;
 }
 
 treechildren::-moz-tree-image(subjectCol) {
@@ -526,8 +526,8 @@ splitter {
   min-height: 8px;
   background-image: url("chrome://messenger/skin/icons/vertical-threadpane-splitter-bg.gif");
   background-repeat: repeat-y;
-  -moz-border-start: 1px solid #A6A6A6;
-  -moz-border-end: 1px solid #8C8C8C;
+  border-inline-start: 1px solid #A6A6A6;
+  border-inline-end: 1px solid #8C8C8C;
 }
 
 #threadpane-splitter:-moz-locale-dir(rtl) {
@@ -542,13 +542,13 @@ splitter {
   background-repeat: repeat-x;
   border-top: 1px solid #A6A6A6;
   border-bottom: 1px solid #8C8C8C;
-  -moz-border-start-width: 0;
-  -moz-border-end-width: 0;
+  border-inline-start-width: 0;
+  border-inline-end-width: 0;
 }
 
 #threadpane-splitter[state="collapsed"] {
   border-bottom-width: 0;
-  -moz-border-end: 0;
+  border-inline-end: 0;
 }
 
 #folderpane_splitter,

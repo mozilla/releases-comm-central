@@ -29,8 +29,8 @@ spinbuttons {
 }
 
 .spinbuttons-button > .button-box {
-  -moz-padding-start: 2px !important;
-  -moz-padding-end: 3px !important;
+  padding-inline-start: 2px !important;
+  padding-inline-end: 3px !important;
 }
 
 .spinbuttons-button > .button-box > .button-text {
@@ -51,16 +51,16 @@ radio[pane]:active:hover > .paneButtonIcon {
 
 .actionsMenu > .menulist-label-box > .menulist-icon {
   margin-top: 2px;
-  -moz-margin-start: 2px;
-  -moz-margin-end: 8px !important;
+  margin-inline-start: 2px;
+  margin-inline-end: 8px !important;
 }
 
 textbox + button {
-  -moz-margin-start: -4px;
+  margin-inline-start: -4px;
 }
 
 filefield + button {
-  -moz-margin-start: -8px;
+  margin-inline-start: -8px;
 }
 
 /**

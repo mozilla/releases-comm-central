@@ -40,23 +40,23 @@
     margin: 0;
     padding-top: 5px;
     padding-bottom: 6px;
-    -moz-padding-start: 4px;
-    -moz-padding-end: 5px;
+    padding-inline-start: 4px;
+    padding-inline-end: 5px;
   }
 
   #mail-toolbox #qfb-show-filter-bar[open="true"],
   #mail-toolbox #qfb-show-filter-bar:hover:active {
     padding-top: 6px;
     padding-bottom: 5px;
-    -moz-padding-start: 5px;
-    -moz-padding-end: 4px;
+    padding-inline-start: 5px;
+    padding-inline-end: 4px;
   }
 
   #mail-toolbox #qfb-show-filter-bar[checked="true"] {
     padding-top: 6px !important;
     padding-bottom: 5px !important;
-    -moz-padding-start: 5px !important;
-    -moz-padding-end: 4px !important;
+    padding-inline-start: 5px !important;
+    padding-inline-end: 4px !important;
   }
 
   #mail-toolbox #qfb-show-filter-bar[style="visibility: hidden;"] {
@@ -94,8 +94,8 @@
   /* :::: Filter Buttons :::: */
 
   #quick-filter-bar-main-bar toolbarbutton {
-    -moz-margin-start: 1px;
-    -moz-margin-end: 1px;
+    margin-inline-start: 1px;
+    margin-inline-end: 1px;
     min-width: 26px;
   }
 
@@ -160,20 +160,20 @@
   }
 
   #quick-filter-bar-main-bar toolbarbutton > .toolbarbutton-icon {
-    -moz-margin-end: 0;
+    margin-inline-end: 0;
   }
 
   #quick-filter-bar-collapsible-buttons > toolbarbutton > .toolbarbutton-text {
-    -moz-margin-start: 4px !important;
+    margin-inline-start: 4px !important;
   }
 
   #quick-filter-bar-expando toolbarbutton,
   #quick-filter-bar-expando toolbarbutton[checked] {
-    -moz-padding-end: 6px !important;
+    padding-inline-end: 6px !important;
     padding-top: 1px;
     padding-bottom: 1px;
-    -moz-margin-start: 1px;
-    -moz-margin-end: 1px;
+    margin-inline-start: 1px;
+    margin-inline-end: 1px;
   }
 
   #quick-filter-bar-expando toolbarbutton:not(:-moz-system-metric(windows-default-theme)) {
@@ -190,7 +190,7 @@
   /* :::: Filter Bar :::: */
 
   #quick-filter-bar-main-bar {
-    -moz-padding-start: 2px;
+    padding-inline-start: 2px;
   }
 
   #quick-filter-bar-tab-bar,
@@ -210,8 +210,8 @@
     min-height: 19px;
     border: 1px solid transparent;
     padding: 1px 3px;
-    -moz-margin-start: 1px;
-    -moz-margin-end: 1px;
+    margin-inline-start: 1px;
+    margin-inline-end: 1px;
   }
 
   #quick-filter-bar toolbarbutton:not(.qfb-tag-button) {
@@ -220,8 +220,8 @@
 
   #quick-filter-bar-main-bar toolbarbutton {
     min-width: 22px;
-    -moz-margin-start: 1px;
-    -moz-margin-end: 1px;
+    margin-inline-start: 1px;
+    margin-inline-end: 1px;
     list-style-image: url("chrome://messenger/skin/icons/quick-search-icons.png");
   }
 
@@ -305,17 +305,17 @@
 
   #quick-filter-bar toolbarbutton:not([checked="true"]):hover {
     border-top-color: ButtonHighlight;
-    -moz-border-start-color: ButtonHighlight;
+    border-inline-start-color: ButtonHighlight;
     border-bottom-color: ButtonShadow;
-    -moz-border-end-color: ButtonShadow;
+    border-inline-end-color: ButtonShadow;
   }
 
   #quick-filter-bar toolbarbutton:hover:active,
   #quick-filter-bar toolbarbutton[checked="true"] {
     border-top-color: ButtonShadow;
-    -moz-border-start-color: ButtonShadow;
+    border-inline-start-color: ButtonShadow;
     border-bottom-color: ButtonHighlight;
-    -moz-border-end-color: ButtonHighlight;
+    border-inline-end-color: ButtonHighlight;
   }
 }
 

@@ -35,7 +35,7 @@ menulist {
 }
 
 menulist > menupopup > menuitem {
-  -moz-padding-end: 2px;
+  padding-inline-end: 2px;
 }
 
 textbox {
@@ -43,7 +43,7 @@ textbox {
 }
 
 .filler {
-  -moz-padding-end: 22px;
+  padding-inline-end: 22px;
 }
 
 .small-button {
@@ -81,7 +81,7 @@ treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
 
 .threadColumnHeader {
   list-style-image: url("chrome://messenger/skin/icons/thread-col.svg");
-  -moz-padding-end: 3px;
+  padding-inline-end: 3px;
 }
 
 .threadColumnHeader[sortDirection="ascending"]  {
@@ -100,7 +100,7 @@ treechildren::-moz-tree-image(threadCol, container) {
 
 .readColumnHeader {
   list-style-image: url("chrome://messenger/skin/icons/readcol.svg");
-  -moz-padding-end: 5px;
+  padding-inline-end: 5px;
   padding-bottom: 5px;
 }
 
@@ -116,14 +116,14 @@ treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
 
 .attachmentColumnHeader {
   list-style-image: url("chrome://messenger/skin/icons/attachment-col.svg");
-  -moz-padding-end: 5px;
+  padding-inline-end: 5px;
 }
 
 /* ..... flag column ..... */
 
 .flagColumnHeader {
   list-style-image: url("chrome://messenger/skin/icons/flag-col.svg");
-  -moz-padding-end: 5px;
+  padding-inline-end: 5px;
 }
 
 treechildren::-moz-tree-image(flaggedCol) {
@@ -139,13 +139,13 @@ treechildren::-moz-tree-image(flaggedCol, flagged) {
 
 .junkStatusHeader {
   list-style-image: url("chrome://messenger/skin/icons/junk-col.svg");
-  -moz-padding-end: 5px;
+  padding-inline-end: 5px;
 }
 
 /* "unknown" now looks like "not junk".  see bug #182386 */
 treechildren::-moz-tree-image(junkStatusCol) {
   list-style-image: url("chrome://messenger/skin/icons/readmail.png");
-  -moz-padding-start: 0px;
+  padding-inline-start: 0px;
 }
 
 treechildren::-moz-tree-image(junkStatusCol, junk) {
@@ -154,18 +154,18 @@ treechildren::-moz-tree-image(junkStatusCol, junk) {
 
 treechildren::-moz-tree-image(junkStatusCol, notjunk) {
   list-style-image: url("chrome://messenger/skin/icons/readmail.png");
-  -moz-padding-start: 0px;
+  padding-inline-start: 0px;
 }
 
 /* ..... subject column ..... */
 
 @media (-moz-os-version: windows-xp) {
   #subjectCol {
-    -moz-padding-start: 17px;
+    padding-inline-start: 17px;
   }
 
   #subjectCol[primary="true"] {
-    -moz-padding-start: 30px;
+    padding-inline-start: 30px;
   }
 
   treechildren::-moz-tree-image(subjectCol) {
@@ -183,20 +183,20 @@ treechildren::-moz-tree-image(junkStatusCol, notjunk) {
 
 @media not all and (-moz-os-version: windows-xp) {
   #subjectCol {
-    -moz-padding-start: 20px;
+    padding-inline-start: 20px;
   }
 
   #subjectCol[primary="true"] {
-    -moz-padding-start: 30px;
+    padding-inline-start: 30px;
   }
 
   @media not all and (-moz-windows-default-theme) {
     #subjectCol {
-      -moz-padding-start: 17px;
+      padding-inline-start: 17px;
     }
 
     #subjectCol[primary="true"] {
-      -moz-padding-start: 27px;
+      padding-inline-start: 27px;
     }
   }
 
@@ -214,7 +214,7 @@ treechildren::-moz-tree-image(junkStatusCol, notjunk) {
 }
 
 treechildren::-moz-tree-image(subjectCol) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   -moz-image-region: rect(0 16px 16px 0);
 }
 
@@ -239,7 +239,7 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 }
 
 treechildren::-moz-tree-cell-text(subjectCol) {
-  -moz-padding-start: 0 !important;
+  padding-inline-start: 0 !important;
 }
 
 #sizeCol,

@@ -145,7 +145,7 @@ tabpanels {
 .tabs-alltabs-button > .toolbarbutton-menu-dropmarker {
   -moz-appearance: none !important;
   margin-bottom: -1px;
-  -moz-padding-start: 0 !important;
+  padding-inline-start: 0 !important;
   list-style-image: url("chrome://messenger/skin/icons/dropmarker.svg");
 }
 
@@ -155,7 +155,7 @@ tabpanels {
 
 .tabs-alltabs-button > .toolbarbutton-icon {
   display: none;
-  -moz-margin-end: 0;
+  margin-inline-end: 0;
 }
 
 .alltabs-item > .menu-iconic-left {

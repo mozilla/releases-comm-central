@@ -7,7 +7,7 @@
 %include ../../../components/im/themes/chat.css
 
 #noConvScreen {
-  -moz-border-start: 2px solid;
+  border-inline-start: 2px solid;
   -moz-border-left-colors: ThreeDFace ThreeDDarkShadow;
 }
 
@@ -40,8 +40,8 @@
 }
 
 .conv-counter[value^="-"] {
-  -moz-margin-end: 2px;
-  -moz-padding-end: 4px;
+  margin-inline-end: 2px;
+  padding-inline-end: 4px;
 }
 
 #contextPane {
@@ -253,7 +253,7 @@
 @media not all and (-moz-os-version: windows-xp) {
   .statusMessageToolbarItem {
     margin: 0 1px;
-    -moz-margin-start: -2px;
+    margin-inline-start: -2px;
     padding: 3px 3px 4px;
     border-radius: 2px;
   }
@@ -308,7 +308,7 @@
   }
 
   #noConvScreen {
-    -moz-border-start: none;
+    border-inline-start: none;
   }
 
   @media (-moz-windows-default-theme) {
@@ -329,8 +329,8 @@
 
     #chat-status-selector > .statusMessageToolbarItem[editing] {
       -moz-appearance: none;
-      -moz-padding-start: 2px;
-      -moz-padding-end: 2px;
+      padding-inline-start: 2px;
+      padding-inline-end: 2px;
       border-color: hsla(206, 100%, 60%, .65) hsla(206, 100%, 55%, .65)
                     hsla(206, 100%, 50%, .65);
       background-color: -moz-field;
@@ -352,8 +352,8 @@
     :-moz-any(imconv, imcontact, imgroup) {
       min-height: 1.7em;
       color: -moz-FieldText !important;
-      -moz-margin-start: 1px;
-      -moz-margin-end: 1px;
+      margin-inline-start: 1px;
+      margin-inline-end: 1px;
       border: 2px solid transparent;
       background-color: transparent;
       background-origin: border-box;
@@ -441,9 +441,9 @@
     width: 18px;
     height: 18px;
     margin-top: 0;
-    -moz-margin-end: 5px;
+    margin-inline-end: 5px;
     margin-bottom: -1px;
-    -moz-margin-start: -1px;
+    margin-inline-start: -1px;
   }
 
   #statusTypeIcon[status="available"],

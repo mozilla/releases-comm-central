@@ -39,14 +39,14 @@
 #attachmentCount {
   margin: 0;
   padding: 2px 0;
-  -moz-margin-start: 2px;
-  -moz-margin-end: 1px;
+  margin-inline-start: 2px;
+  margin-inline-end: 1px;
 }
 
 #attachmentName {
   -moz-user-focus: normal;
   margin: 0;
-  -moz-margin-end: -3px;
+  margin-inline-end: -3px;
   padding: 1px 2px;
   border-radius: 2px;
   border: 1px dotted transparent;
@@ -90,7 +90,7 @@ toolbarpaletteitem #hdrDummyReplyButton {
 }
 
 .headerValue[containsEmail="true"] {
-  -moz-margin-start: 0px !important;
+  margin-inline-start: 0px !important;
 }
 
 .headerValueBox[singleline="true"] > .headerValue[containsEmail="true"] {
@@ -112,7 +112,7 @@ toolbarpaletteitem #hdrDummyReplyButton {
 
 .tagvalue {
   padding: 0 0.5ex;
-  -moz-margin-start: 0px;
+  margin-inline-start: 0px;
   background-image: url("chrome://messenger/skin/tagbg.png");
   border-radius: 3px;
   border-width: 0.5px;
@@ -129,7 +129,7 @@ toolbarpaletteitem #hdrDummyReplyButton {
  * using a separate rule here.
  */
 .newsgroupSeparator {
-  -moz-margin-start: -2px;
+  margin-inline-start: -2px;
 }
 
 .emailStar:focus {
@@ -169,7 +169,7 @@ toolbarpaletteitem #hdrDummyReplyButton {
 /* ::::: email address twisty ::::: */
 
 .addresstwisty {
-  -moz-padding-end: 0px;
+  padding-inline-end: 0px;
   padding-top: 4px;
   list-style-image:url("chrome://messenger/skin/icons/arrow/arrow-right-dim.png");
 }

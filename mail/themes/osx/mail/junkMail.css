@@ -16,5 +16,5 @@
 /* ::::: account manager :::::: */
 
 .specialFolderPickerGrid {
-  -moz-margin-start: 20px;
+  margin-inline-start: 20px;
 }

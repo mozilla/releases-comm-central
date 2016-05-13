@@ -58,7 +58,7 @@ mailattachcount {
 .moz-text-plain[graphical-quote="false"] blockquote {
   margin: inherit;
   border-left: inherit;
-  -moz-padding-start: inherit;
+  padding-inline-start: inherit;
 }
 
 .moz-text-plain[graphical-quote="true"] blockquote {

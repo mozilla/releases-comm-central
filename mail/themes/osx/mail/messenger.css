@@ -178,7 +178,7 @@ toolbox[labelalign="end"] toolbarpaletteitem
 
 toolbox[labelalign="end"] .toolbarbutton-1 .toolbarbutton-text {
   /* !important for overriding toolbarbutton.css */
-  -moz-margin-start: 2px !important;
+  margin-inline-start: 2px !important;
 }
 
 toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
@@ -315,7 +315,7 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
 /* ::::: online/offline icons ::::: */
 
 #offline-status {
-  -moz-padding-start: 3px;
+  padding-inline-start: 3px;
 }
 
 @media (min-resolution: 2dppx) {
@@ -364,7 +364,7 @@ tabmail > tabbox {
 }
 
 treechildren::-moz-tree-cell-text {
-  -moz-padding-start: 2px;
+  padding-inline-start: 2px;
 }
 
 /* ::::: Notifications ::::: */
@@ -434,7 +434,7 @@ notification[type="critical"] .messageCloseButton:not(:hover) {
 
 #messengerWindow:not([tabsintitlebar]) #titlebar-buttonbox-container {
   margin-top: 3px;
-  -moz-margin-start: 7px;
+  margin-inline-start: 7px;
 }
 
 #messengerWindow[tabsintitlebar="true"] #titlebar-buttonbox-container,
@@ -462,7 +462,7 @@ notification[type="critical"] .messageCloseButton:not(:hover) {
   visibility: collapse;
 }
 
-/* NB: these would be -moz-margin-start/end if it wasn't for the fact that OS X
+/* NB: these would be margin-inline-start/end if it wasn't for the fact that OS X
  * doesn't reverse the order of the items in the titlebar in RTL mode. */
 #messengerWindow[tabsintitlebar="true"] .titlebar-placeholder[type="caption-buttons"],
 #messengerWindow[tabsintitlebar="true"] #titlebar-buttonbox {
@@ -517,10 +517,10 @@ notification[type="critical"] .messageCloseButton:not(:hover) {
 button[type="menu-button"] > button {
   margin-top: -1px;
   margin-bottom: -3px;
-  -moz-margin-start: -7px;
-  -moz-margin-end: 0;
+  margin-inline-start: -7px;
+  margin-inline-end: 0;
 }
 
 button[type="menu-button"] > dropmarker {
-  -moz-margin-end: -2px;
+  margin-inline-end: -2px;
 }

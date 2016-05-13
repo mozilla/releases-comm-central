@@ -15,7 +15,7 @@
 
 .awIdentityLabel {
   width: 8em;
-  -moz-margin-start: 5px;
+  margin-inline-start: 5px;
 }
 
 .serverLabel {
@@ -23,5 +23,5 @@
 }
 
 .serverDataBox {
-  -moz-margin-start: 15px;
+  margin-inline-start: 15px;
 }

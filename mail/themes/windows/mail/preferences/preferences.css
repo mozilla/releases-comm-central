@@ -11,7 +11,7 @@
     background-image: url("chrome://messenger/skin/preferences/background.png");
     background-position: center bottom;
     background-repeat: repeat-x;
-    -moz-padding-start: 0;
+    padding-inline-start: 0;
   }
 
   radio[pane] {
@@ -37,7 +37,7 @@
 
 @media not all and (-moz-os-version: windows-xp) {
   .paneSelector {
-    -moz-padding-start: 0;
+    padding-inline-start: 0;
   }
 
   radio[pane] {
@@ -249,7 +249,7 @@ a {
   height: 1em;
   border: 1px solid rgba(0,0,0,0.5);
   border-radius: 2px;
-  -moz-margin-start: 0.5ch;
+  margin-inline-start: 0.5ch;
   box-sizing: border-box;
 }
 
@@ -276,7 +276,7 @@ a {
 }
 
 #provider-space label {
-  -moz-margin-end: 0.5ch;
+  margin-inline-end: 0.5ch;
   vertical-align: middle;
 }
 

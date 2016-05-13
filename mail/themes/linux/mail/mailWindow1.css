@@ -24,7 +24,7 @@
 
 menu > #folderLocationPopup > menu > .menu-iconic-left,
 menu > #folderLocationPopup > menuitem > .menu-iconic-left {
-  -moz-padding-start: 2px;
+  padding-inline-start: 2px;
 }
 
 #folderTree {
@@ -49,7 +49,7 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
 
 treechildren::-moz-tree-row(dummy)  {
   background-color: var(--row-grouped-header-bg-color);
-  -moz-padding-start: 2px;
+  padding-inline-start: 2px;
   margin-bottom: 1px;
 }
 
@@ -68,7 +68,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 /* ::::: message column icons ::::: */
 
 treecol.treecol-image:hover:active {
-  -moz-padding-start: 1px;
+  padding-inline-start: 1px;
 }
 
 /* ..... column picker ..... */
@@ -81,7 +81,7 @@ treecol.treecol-image:hover:active {
 
 .threadColumnHeader {
   list-style-image: url("chrome://messenger/skin/icons/thread-col.svg");
-  -moz-padding-end: 1px;
+  padding-inline-end: 1px;
 }
 
 treechildren::-moz-tree-image(threadCol, container) {
@@ -104,7 +104,7 @@ treechildren::-moz-tree-image(threadCol, ignoreSubthread) {
 
 .readColumnHeader {
   list-style-image: url("chrome://messenger/skin/icons/readcol.svg");
-  -moz-padding-end: 3px;
+  padding-inline-end: 3px;
 }
 
 treechildren::-moz-tree-image(unreadButtonColHeader) {
@@ -120,31 +120,31 @@ treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
 
 .attachmentColumnHeader {
   list-style-image: url("chrome://messenger/skin/icons/attachment-col.svg");
-  -moz-padding-end: 3px;
+  padding-inline-end: 3px;
 }
 
 treechildren::-moz-tree-image(attachmentCol, attach) {
   list-style-image: url("chrome://messenger/skin/icons/message-list.png");
   -moz-image-region: rect(160px 16px 176px 0px); /* message-attachment.png */
-  -moz-padding-start: 2px;
+  padding-inline-start: 2px;
 }
 
 /* ..... flag column ..... */
 
 .flagColumnHeader {
   list-style-image: url("chrome://messenger/skin/icons/flag-col.svg");
-  -moz-padding-end: 3px;
+  padding-inline-end: 3px;
 }
 
 treechildren::-moz-tree-image(flaggedCol) {
   list-style-image: url("chrome://messenger/skin/icons/message-list.png");
   -moz-image-region: rect(96px 16px 112px 0px); /* message-unstarred.png */
-  -moz-padding-end: 3px;
+  padding-inline-end: 3px;
 }
 
 treechildren::-moz-tree-image(flaggedCol, flagged) {
   -moz-image-region: rect(80px 16px 96px 0px); /* message-starred.png */
-  -moz-padding-end: 3px;
+  padding-inline-end: 3px;
 }
 
 /* ..... junkStatus column ..... */
@@ -171,13 +171,13 @@ treechildren::-moz-tree-image(junkStatusCol, notjunk) {
 /* ..... correspondent column ..... */
 
 treechildren::-moz-tree-image(correspondentCol, incoming) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   list-style-image: url("chrome://messenger/skin/icons/message.png");
   -moz-image-region: rect(0 112px 16px 96px);
 }
 
 treechildren::-moz-tree-image(correspondentCol, outgoing) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   list-style-image: url("chrome://messenger/skin/icons/message.png");
   -moz-image-region: rect(0 128px 16px 112px);
 }
@@ -185,15 +185,15 @@ treechildren::-moz-tree-image(correspondentCol, outgoing) {
 /* ..... subject column ..... */
 
 #subjectCol {
-  -moz-padding-start: 16px;
+  padding-inline-start: 16px;
 }
 
 #subjectCol[primary="true"] {
-  -moz-padding-start: 26px;
+  padding-inline-start: 26px;
 }
 
 treechildren::-moz-tree-image(subjectCol) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   list-style-image: url("chrome://messenger/skin/icons/message-list.png");
   -moz-image-region: rect(176px 16px 192px 0);
 }
@@ -295,7 +295,7 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 #messagesBox {
   /* For some reason, the thread/message panes overlap the folder pane splitter
      by 1px because of the CSS above. Fix this. */
-  -moz-margin-start: 1px;
+  margin-inline-start: 1px;
 }
 
 /* ..... tree adjustments ..... */
