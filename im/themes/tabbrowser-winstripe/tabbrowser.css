@@ -27,7 +27,7 @@ toolbarbutton {
 
 toolbarbutton > .toolbarbutton-menubutton-button > .toolbarbutton-icon,
 toolbarbutton > .toolbarbutton-icon {
-  -moz-margin-end: 0;
+  margin-inline-end: 0;
 }
 
 .tabs-container > toolbarbutton,
@@ -148,8 +148,8 @@ toolbarbutton > .toolbarbutton-icon {
 .tab-icon-image {
   width: 16px;
   height: 16px;
-  -moz-margin-start: 2px;
-  -moz-margin-end: 3px;
+  margin-inline-start: 2px;
+  margin-inline-end: 3px;
 }
 
 /* tabbrowser-tab focus ring */
@@ -162,9 +162,9 @@ toolbarbutton > .toolbarbutton-icon {
   height: 11px;
   margin-top: -11px;
   position: relative;
-  /* set -moz-margin-start to -1/2 indicator width: */
-  -moz-margin-start: -5px;
-  -moz-margin-end: -8px;
+  /* set margin-inline-start to -1/2 indicator width: */
+  margin-inline-start: -5px;
+  margin-inline-end: -8px;
 }
 
 .tab-drop-indicator {
@@ -324,9 +324,9 @@ toolbarbutton > .toolbarbutton-icon {
 }
 
 .tabs-closebutton > .toolbarbutton-icon {
-  -moz-margin-end: 0px !important;
-  -moz-padding-end: 2px !important;
-  -moz-padding-start: 2px !important;
+  margin-inline-end: 0px !important;
+  padding-inline-end: 2px !important;
+  padding-inline-start: 2px !important;
 }
 
 .tabs-closebutton:hover {

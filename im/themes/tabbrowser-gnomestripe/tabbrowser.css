@@ -92,12 +92,12 @@
 .tab-icon-image {
   width: 16px;
   height: 16px;
-  -moz-margin-end: 3px;
+  margin-inline-end: 3px;
 }
 
 .tabs-newtab-button > .toolbarbutton-icon {
-  -moz-margin-start: 2px;
-  -moz-margin-end: 2px;
+  margin-inline-start: 2px;
+  margin-inline-end: 2px;
 }
 
 #context_closeOtherTabs {
@@ -117,9 +117,9 @@
   height: 11px;
   margin-top: -11px;
   position: relative;
-  /* set -moz-margin-start to -1/2 indicator width: */
-  -moz-margin-start: -5px;
-  -moz-margin-end: -11px;
+  /* set margin-inline-start to -1/2 indicator width: */
+  margin-inline-start: -5px;
+  margin-inline-end: -11px;
 }
 
 .tab-drop-indicator {
@@ -144,7 +144,7 @@
   list-style-image: url("moz-icon://stock/gtk-close?size=menu");
   margin-top: -1px;
   margin-bottom: -1px;
-  -moz-margin-end: -1px;
+  margin-inline-end: -1px;
 }
 
 /* Tabstrip new tab button */
@@ -172,13 +172,13 @@
 }
 
 .tabbrowser-arrowscrollbox > .scrollbutton-up {
-  -moz-border-start: 0;
-  -moz-border-end: 2px solid transparent;
+  border-inline-start: 0;
+  border-inline-end: 2px solid transparent;
 }
 
 .tabbrowser-arrowscrollbox > .scrollbutton-down {
-  -moz-border-start: 2px solid transparent;
-  -moz-border-end: 0;
+  border-inline-start: 2px solid transparent;
+  border-inline-end: 0;
   -moz-transition: 1s box-shadow ease-out;
   border-radius: 4px;
 }

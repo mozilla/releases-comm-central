@@ -30,8 +30,8 @@ treechildren::-moz-tree-row(selected, focus) {
 }
 
 splitter {
-  -moz-border-end: none !important;
-  -moz-border-start: 1px solid #404040;
+  border-inline-end: none !important;
+  border-inline-start: 1px solid #404040;
   min-width: 1px;
   width: 1px;
 }

@@ -180,7 +180,7 @@
   }
 
   .displayNameAndstatusMessageStack {
-    -moz-margin-start: 4px;
+    margin-inline-start: 4px;
   }
 
   .statusMessage {
@@ -341,7 +341,7 @@
 
 %ifndef XP_WIN
 .conv-textbox {
-  -moz-margin-start: 1px;
+  margin-inline-start: 1px;
 }
 %endif
 %endif
@@ -352,11 +352,11 @@
 .conv-counter {
   color: black;
   background-color: rgba(246, 246, 246, 0.7);
-  -moz-border-start: 1px solid rgb(200, 200, 200);
+  border-inline-start: 1px solid rgb(200, 200, 200);
   border-top: 1px solid rgb(200, 200, 200);
   font-size: 120%;
   padding-top: 0;
-  -moz-padding-start: 5px;
+  padding-inline-start: 5px;
 }
 
 .conv-counter:-moz-locale-dir(ltr) {
@@ -379,15 +379,15 @@
 %ifdef XP_MACOSX
 .conv-counter {
   padding-bottom: 0;
-  -moz-padding-end: 5px;
-  -moz-margin-end: 2px;
+  padding-inline-end: 5px;
+  margin-inline-end: 2px;
   margin-bottom: 2px !important; /* override 4px from description */
 }
 
 %else
 .conv-counter {
   padding-bottom: 1px;
-  -moz-padding-end: 6px;
+  padding-inline-end: 6px;
   margin: 0 !important;  /* override margins from description */
 }
 
@@ -396,10 +396,10 @@
   /* The 6px padding-end from .conv-counter is split into a 1px
      margin-end (to avoid the border) and 5px padding-end (as
      regular padding). */
-  -moz-margin-end: 1px !important;
+  margin-inline-end: 1px !important;
   padding-top: 1px;
   padding-bottom: 0;
-  -moz-padding-end: 5px;
+  padding-inline-end: 5px;
 }
 %endif
 
@@ -464,7 +464,7 @@ grippy {
 
 .listcell-label {
   font-weight: bold;
-  -moz-padding-start: 1px;
+  padding-inline-start: 1px;
 %ifdef XP_MACOSX
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
 %endif
@@ -484,14 +484,14 @@ grippy {
 %endif
 .conv-nicklist-header-label {
 %ifdef XP_MACOSX
-  -moz-margin-start: 3px !important;
+  margin-inline-start: 3px !important;
   margin-top: 1px !important;
   margin-bottom: 0 !important;
 %else
   font-weight: bold;
-  -moz-margin-start: 0 !important;
+  margin-inline-start: 0 !important;
 %endif
-  -moz-margin-end: 2px !important;
+  margin-inline-end: 2px !important;
 }
 
 %ifdef XP_MACOSX

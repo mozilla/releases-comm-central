@@ -164,7 +164,7 @@ contact[droptarget] > buddy[dummy] {
 
 .contactDisplayName,
 .buddyDisplayName {
-  -moz-margin-start: 2px;
+  margin-inline-start: 2px;
 }
 
 /* Used for the second line of a contact-big to add space on the left
@@ -199,7 +199,7 @@ contact[droptarget] > buddy[dummy] {
 }
 
 .hideGroupButton {
-  -moz-margin-end: 0;
+  margin-inline-end: 0;
   -moz-stack-sizing: ignore;
 %ifdef XP_WIN
   list-style-image: url("chrome://global/skin/icons/close-XPVista7.png");
@@ -228,7 +228,7 @@ contact[droptarget] > buddy[dummy] {
 }
 
 .contactBuddies {
-  -moz-padding-start: 23px;
+  padding-inline-start: 23px;
 }
 
 .dummyBuddyIcon {
@@ -264,7 +264,7 @@ contact[droptarget] > buddy[dummy] {
 
 group label {
   margin: 0 2px;
-  -moz-margin-end: 0;
+  margin-inline-end: 0;
 }
 
 .blistDisplayName[status="idle"] {
@@ -285,8 +285,8 @@ group .twisty {
   padding-top: 1px;
   width: 9px; /* The image's width is 9 pixels */
   height: 9px;
-  -moz-margin-end: 3px;
-  -moz-margin-start: 3px;
+  margin-inline-end: 3px;
+  margin-inline-start: 3px;
   background: url("chrome://global/skin/tree/twisty.svg#open") no-repeat center;
 }
 
@@ -298,8 +298,8 @@ group[closed] .twisty {
 group .twisty {
   width: 9px;
   height: 9px;
-  -moz-margin-end: 3px;
-  -moz-margin-start: 3px;
+  margin-inline-end: 3px;
+  margin-inline-start: 3px;
   background: url("chrome://global/skin/arrow/arrow-dn-sharp.gif") no-repeat center;
 }
 
