@@ -195,8 +195,8 @@ nsFolderCompactState::Compact(nsIMsgFolder *folder, bool aOfflineStore,
      }
      else
      {
-       bool valid;  
-       rv = db->GetSummaryValid(&valid); 
+       bool valid;
+       rv = db->GetSummaryValid(&valid);
        if (!valid) //we are probably parsing the folder because we selected it.
        {
          folder->NotifyCompactCompleted();
@@ -213,81 +213,95 @@ nsFolderCompactState::Compact(nsIMsgFolder *folder, bool aOfflineStore,
      NS_ENSURE_SUCCESS(rv, rv);
    }
 
-   rv = folder->GetFilePath(getter_AddRefs(path));
-   NS_ENSURE_SUCCESS(rv, rv);
+  rv = folder->GetFilePath(getter_AddRefs(path));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-   int64_t expunged;
-   folder->GetExpungedBytes(&expunged);
+  do {
+    bool exists = false;
+    rv = path->Exists(&exists);
+    if (!exists) {
+      // No need to compact if the local file does not exist.
+      // Can happen e.g. on IMAP when the folder is not marked for offline use.
+      break;
+    }
 
-   bool abortCompactFolder = false;
-   int64_t diskSize;
-   rv = folder->GetSizeOnDisk(&diskSize);
-   NS_ENSURE_SUCCESS(rv, rv);
+    int64_t expunged = 0;
+    folder->GetExpungedBytes(&expunged);
+    if (expunged == 0) {
+      // No need to compact if nothing would be expunged.
+      break;
+    }
 
-   int64_t diskFree;
-   rv = path->GetDiskSpaceAvailable(&diskFree);
-   NS_ENSURE_SUCCESS(rv, rv);
+    int64_t diskSize;
+    rv = folder->GetSizeOnDisk(&diskSize);
+    NS_ENSURE_SUCCESS(rv, rv);
 
-   // Let's try to not even start compact if there is really low free space.
-   // It may still fail later as we do not know how big exactly the folder DB will
-   // end up being.
-   // The DB already doesn't contain references to messages that are already deleted.
-   // So theoretically it shouldn't shrink with compact. But in practice,
-   // the automatic shrinking of the DB may still have not yet happened.
-   // So we cap the final size at 1KB per message.
-   db->Commit(nsMsgDBCommitType::kCompressCommit);
+    int64_t diskFree;
+    rv = path->GetDiskSpaceAvailable(&diskFree);
+    if (NS_FAILED(rv)) {
+      // If GetDiskSpaceAvailable() failed, better bail out fast.
+      if (rv != NS_ERROR_NOT_IMPLEMENTED)
+        return rv;
+      // Some platforms do not have GetDiskSpaceAvailable implemented.
+      // In that case skip the preventive free space analysis and let it
+      // fail in compact later if space actually wasn't available.
+    } else {
+      // Let's try to not even start compact if there is really low free space.
+      // It may still fail later as we do not know how big exactly the folder DB will
+      // end up being.
+      // The DB already doesn't contain references to messages that are already deleted.
+      // So theoretically it shouldn't shrink with compact. But in practice,
+      // the automatic shrinking of the DB may still have not yet happened.
+      // So we cap the final size at 1KB per message.
+      db->Commit(nsMsgDBCommitType::kCompressCommit);
 
-   int64_t dbSize;
-   rv = db->GetDatabaseSize(&dbSize);
-   NS_ENSURE_SUCCESS(rv, rv);
+      int64_t dbSize;
+      rv = db->GetDatabaseSize(&dbSize);
+      NS_ENSURE_SUCCESS(rv, rv);
 
-   int32_t totalMsgs;
-   rv = folder->GetTotalMessages(false, &totalMsgs);
-   NS_ENSURE_SUCCESS(rv, rv);
-   int64_t expectedDBSize = std::min<int64_t>(dbSize, totalMsgs * 1024);
-   if (diskFree < diskSize - expunged + expectedDBSize)
-   {
-     if (!m_alreadyWarnedDiskSpace)
-     {
-       folder->ThrowAlertMsg("compactFolderInsufficientSpace", m_window);
-       m_alreadyWarnedDiskSpace = true;
-     }
-     abortCompactFolder = true;
-   }
+      int32_t totalMsgs;
+      rv = folder->GetTotalMessages(false, &totalMsgs);
+      NS_ENSURE_SUCCESS(rv, rv);
+      int64_t expectedDBSize = std::min<int64_t>(dbSize, ((int64_t)totalMsgs) * 1024);
+      if (diskFree < diskSize - expunged + expectedDBSize)
+      {
+        if (!m_alreadyWarnedDiskSpace)
+        {
+          folder->ThrowAlertMsg("compactFolderInsufficientSpace", m_window);
+          m_alreadyWarnedDiskSpace = true;
+        }
+        break;
+      }
+    }
 
-   if (!abortCompactFolder)
-   {
-     rv = folder->GetBaseMessageURI(baseMessageURI);
-     NS_ENSURE_SUCCESS(rv, rv);
+    rv = folder->GetBaseMessageURI(baseMessageURI);
+    NS_ENSURE_SUCCESS(rv, rv);
 
-     rv = Init(folder, baseMessageURI.get(), db, path, m_window);
-     NS_ENSURE_SUCCESS(rv, rv);
+    rv = Init(folder, baseMessageURI.get(), db, path, m_window);
+    NS_ENSURE_SUCCESS(rv, rv);
 
-     bool isLocked;
-     m_folder->GetLocked(&isLocked);
-     if (isLocked)
-     {
-       m_folder->NotifyCompactCompleted();
-       CleanupTempFilesAfterError();
-       m_folder->ThrowAlertMsg("compactFolderDeniedLock", m_window);
-       abortCompactFolder = true;
-     }
-   }
+    bool isLocked = true;
+    m_folder->GetLocked(&isLocked);
+    if (isLocked)
+    {
+      CleanupTempFilesAfterError();
+      m_folder->ThrowAlertMsg("compactFolderDeniedLock", m_window);
+      break;
+    }
 
-   if (!abortCompactFolder)
-   {
-     nsCOMPtr <nsISupports> supports = do_QueryInterface(static_cast<nsIMsgFolderCompactor*>(this));
-     m_folder->AcquireSemaphore(supports);
-     m_totalExpungedBytes += expunged;
-     return StartCompacting();
-   }
-   else
-   {
-     if (m_compactAll)
-       return CompactNextFolder();
-     else
-       return NS_OK;
-   }
+    // If we got here start the real compacting.
+    nsCOMPtr<nsISupports> supports = do_QueryInterface(static_cast<nsIMsgFolderCompactor*>(this));
+    m_folder->AcquireSemaphore(supports);
+    m_totalExpungedBytes += expunged;
+    return StartCompacting();
+
+  } while(false); // block for easy skipping the compaction using 'break'
+
+  folder->NotifyCompactCompleted();
+  if (m_compactAll)
+    return CompactNextFolder();
+  else
+    return NS_OK;
 }
 
 nsresult nsFolderCompactState::ShowStatusMsg(const nsString& aMsg)

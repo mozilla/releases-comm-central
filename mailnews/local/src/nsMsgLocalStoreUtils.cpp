@@ -310,17 +310,20 @@ nsMsgLocalStoreUtils::DiskSpaceAvailableInStore(nsIFile *aFile, uint64_t aSpaceR
     // sector sizes, allocation blocks, etc. The space "available" may be greater
     // than the actual space usable.
     return ((aSpaceRequested + EXTRA_SAFETY_SPACE) < (uint64_t) diskFree);
-  } else {
-    // The call to GetDiskSpaceAvailable FAILED!
+  } else if (rv == NS_ERROR_NOT_IMPLEMENTED) {
+    // The call to GetDiskSpaceAvailable is not implemented!
     // This will happen on certain platforms where GetDiskSpaceAvailable
     // is not implemented. Since people on those platforms still need
     // to download mail, we will simply bypass the disk-space check.
     //
     // We'll leave a debug message to warn people.
 #ifdef DEBUG
-    printf("Call to GetDiskSpaceAvailable FAILED! \n");
+    printf("Call to GetDiskSpaceAvailable FAILED because it is not implemented!\n");
 #endif
     return true;
+  } else {
+    printf("Call to GetDiskSpaceAvailable FAILED!\n");
+    return false;
   }
 }
 
