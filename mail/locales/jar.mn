@@ -105,6 +105,7 @@
   locale/@AB_CD@/messenger/oeImportMsgs.properties                      (%chrome/messenger/oeImportMsgs.properties)
   locale/@AB_CD@/messenger/wmImportMsgs.properties                      (%chrome/messenger/wmImportMsgs.properties)
   locale/@AB_CD@/messenger/outlookImportMsgs.properties                 (%chrome/messenger/outlookImportMsgs.properties)
+  locale/@AB_CD@/messenger/beckyImportMsgs.properties                   (%chrome/messenger/beckyImportMsgs.properties)
   locale/@AB_CD@/messenger/shutdownWindow.properties                    (%chrome/messenger/shutdownWindow.properties)
   locale/@AB_CD@/messenger/configEditorOverlay.dtd                      (%chrome/messenger/configEditorOverlay.dtd)
   locale/@AB_CD@/messenger/gloda.properties                             (%chrome/messenger/gloda.properties)
