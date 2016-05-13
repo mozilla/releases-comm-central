@@ -98,35 +98,5 @@
       "LastName"         : "Doe",
       "PrimaryEmail"     : "johndoe@host.invalid"
     }
-  ],
-  "becky_addressbook" :
-  [
-    {
-      "DisplayName"      : "The first man",
-      "PrimaryEmail"     : "first@host.invalid",
-      "HomePhone"        : "11-1111-1111",
-      "WorkPhone"        : "22-2222-2222",
-      "CellularNumber"   : "333-3333-3333",
-      "Company"          : "Organization",
-      "Notes"            : "This is a note."
-    },
-    {
-      "DisplayName"      : "The second man",
-      "PrimaryEmail"     : "second@host.invalid",
-      "HomePhone"        : "44-4444-4444",
-      "WorkPhone"        : "55-5555-5555",
-      "CellularNumber"   : "666-6666-6666",
-      "Company"          : "Organization",
-      "Notes"            : "This is a note."
-    },
-    {
-      "DisplayName"      : "The third man",
-      "PrimaryEmail"     : "third@host.invalid",
-      "HomePhone"        : "77-7777-7777",
-      "WorkPhone"        : "88-8888-8888",
-      "CellularNumber"   : "999-9999-9999",
-      "Company"          : "Organization",
-      "Notes"            : "This is a note."
-    }
   ]
 }
