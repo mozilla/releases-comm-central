@@ -48,7 +48,6 @@ if CONFIG['OS_ARCH'] == 'WINNT':
     ]
     if not CONFIG['GNU_CC']:
         LOCAL_INCLUDES += [
-            '../becky/src',
             '../oexpress',
             '../outlook/src',
             '../winlivemail',

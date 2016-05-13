@@ -8,10 +8,6 @@ SOURCES += [
     'nsVCardImport.cpp',
 ]
 
-EXPORTS += [
-    'nsVCardAddress.h',
-]
-
 FINAL_LIBRARY = 'import'
 
 LOCAL_INCLUDES += [
