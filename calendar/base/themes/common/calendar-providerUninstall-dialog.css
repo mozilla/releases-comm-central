@@ -4,5 +4,5 @@
 
 #provider-name-label {
     font-weight: bold;
-    -moz-margin-start: 3em;
+    margin-inline-start: 3em;
 }

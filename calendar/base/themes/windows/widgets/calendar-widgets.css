@@ -44,17 +44,17 @@ treenode-checkbox[checked="true"] > .checkbox-check {
 }
 
 #task-tree-filtergroup {
-  -moz-padding-start: 12px;
+  padding-inline-start: 12px;
 }
 
 calendar-list-tree .tree-scrollable-columns {
-  -moz-padding-start: 18px;
+  padding-inline-start: 18px;
 }
 
 .toolbarbutton-icon-begin {
-  -moz-margin-end: 5px;
+  margin-inline-end: 5px;
 }
 
 .toolbarbutton-icon-end {
-  -moz-margin-start: 5px;
+  margin-inline-start: 5px;
 }

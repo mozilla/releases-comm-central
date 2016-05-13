@@ -111,7 +111,7 @@
 }
 
 #todaypane-new-event-button > .toolbarbutton-text {
-  -moz-margin-start: 0px;
+  margin-inline-start: 0px;
 }
 
 #todaypane-new-event-button > .toolbarbutton-icon {

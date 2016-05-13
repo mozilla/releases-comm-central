@@ -16,8 +16,8 @@ prefwindow {
 .prefWindow-dlgbuttons {
     margin-top: 0;
     margin-bottom: 8px;
-    -moz-margin-start: 12px;
-    -moz-margin-end: 12px;
+    margin-inline-start: 12px;
+    margin-inline-end: 12px;
 }
 
 #CalendarPreferences .prefWindow-dlgbuttons {
@@ -127,8 +127,8 @@ caption {
     border-bottom: 1px solid #ececec;    
     padding-top: 4px !important;
     padding-bottom: 0 !important;
-    -moz-padding-start: 4px !important;
-    -moz-padding-end: 0 !important;
+    padding-inline-start: 4px !important;
+    padding-inline-end: 0 !important;
 }
 
 #paneAdvanced description {
@@ -144,7 +144,7 @@ prefpane description {
 }
 
 #alarmSoundFileField {
-    -moz-margin-start: 2em;
+    margin-inline-start: 2em;
 }
 
 .dayOffCheckbox {
@@ -159,11 +159,11 @@ prefpane description {
  * Update Preferences
  */
 #autoInstallOptions {
-    -moz-margin-start: 20px;
+    margin-inline-start: 20px;
 }
 
 .updateControls {
-    -moz-margin-start: 10px;
+    margin-inline-start: 10px;
 }
 
 tabpanels {

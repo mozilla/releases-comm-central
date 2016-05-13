@@ -21,8 +21,8 @@ calendar-invitations-richlistbox {
 calendar-invitations-richlistitem {
   padding-top: 6px;
   padding-bottom: 6px;
-  -moz-padding-start: 7px;
-  -moz-padding-end: 7px;
+  padding-inline-start: 7px;
+  padding-inline-end: 7px;
   min-height: 25px;
   border-bottom: 1px dotted #C0C0C0;
 }
@@ -64,8 +64,8 @@ calendar-invitations-richlistitem[selected="true"] .calendar-invitations-richlis
 .calendar-invitations-richlistitem-button .button-icon {
   margin-top: 0px;
   margin-bottom: 0px;
-  -moz-margin-start: 0px;
-  -moz-margin-end: 5px;
+  margin-inline-start: 0px;
+  margin-inline-end: 5px;
 }
 
 .calendar-invitations-richlistitem-accept-button {

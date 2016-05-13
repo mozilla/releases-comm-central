@@ -94,7 +94,7 @@ calendar-category-box:not([categories]) {
     list-style-image: url(chrome://calendar-common/skin/day-box-item-image.png);
     padding-top: 2px;
     padding-bottom: 2px;
-    -moz-margin-end: 4px;
+    margin-inline-end: 4px;
     display: none;
 }
 
@@ -128,7 +128,7 @@ calendar-category-box:not([categories]) {
 /* Margin that allows event creation by click and drag when the time slot is
    full of events. On the right side in normal view ... */
 .multiday-column-box-stack > .multiday-column-top-box[orient="horizontal"] {
-    -moz-margin-end: 5px;
+    margin-inline-end: 5px;
 }
 /* ... and on bottom in rotate view. */
 .multiday-column-box-stack > .multiday-column-top-box[orient="vertical"] {
@@ -168,7 +168,7 @@ calendar-event-column[orient="horizontal"][relation="today"] {
 calendar-event-column[orient="vertical"][relation="today"] {
     border-left: 1px solid var(--viewHighlightBorderColor);
     border-right: 1px solid var(--viewHighlightBorderColor);
-    -moz-margin-end: -1px;
+    margin-inline-end: -1px;
     position: relative;
 }
 
@@ -203,7 +203,7 @@ calendar-day-label[orient][relation="today"] {
 calendar-header-container[relation="today"] {
     border-left: 1px solid var(--viewTodayBorderColor);
     border-right: 1px solid var(--viewTodayBorderColor);
-    -moz-margin-end: -1px;
+    margin-inline-end: -1px;
     position: relative;
 }
 
@@ -347,8 +347,8 @@ calendar-header-container[weekend="true"][selected="true"],
 
 .timeIndicator[orient="vertical"] {
     min-width: 1px;
-    -moz-margin-start: -1px;
-    -moz-margin-end: -1px;
+    margin-inline-start: -1px;
+    margin-inline-end: -1px;
     border-top: 2px solid red;
     opacity: 0.7;
 }
@@ -388,11 +388,11 @@ calendar-header-container[weekend="true"][selected="true"],
 }
 
 .calendar-event-box-container[categories] {
-    -moz-margin-end: 0px;
+    margin-inline-end: 0px;
 }
 
 .calendar-event-details {
-    -moz-padding-start: 2px;
+    padding-inline-start: 2px;
     overflow: hidden;
 }
 
@@ -533,7 +533,7 @@ calendar-day-label[relation="today"],
 calendar-day-label[relation="today1day"] {
     background-color: var(--viewTodayDayLabelBackground);
     border: 1px solid var(--viewHighlightBorderColor);
-    -moz-margin-end: -1px;
+    margin-inline-end: -1px;
     margin-top: -1px;
     position: relative;
 }
@@ -612,7 +612,7 @@ calendar-month-day-box {
 .calendar-month-day-box-other-month[relation="today"] {
     background-color: var(--viewTodayBackground);
     border: 1px solid var(--viewTodayBorderColor) !important;
-    -moz-margin-end: -1px !important;
+    margin-inline-end: -1px !important;
     margin-top: -1px !important;
     position: relative;
 }
@@ -655,14 +655,14 @@ calendar-month-day-box {
     text-align: right;
     margin: 0px;
     padding-top: 1px;
-    -moz-padding-end: 2px;
+    padding-inline-end: 2px;
     padding-bottom: 1px;
     background-image: var(--viewMonthDayBoxLabelTexture);
 }
 
 .calendar-month-day-box-week-label {
     text-align: left;
-    -moz-padding-start: 2px;
+    padding-inline-start: 2px;
     font-weight: normal !important;
     color: var(--viewMonthDayBoxWeekLabel) !important;
 }
@@ -691,7 +691,7 @@ calendar-month-day-box calendar-month-day-box-item[allday="true"] .calendar-colo
 }
 
 .calendar-month-day-box-item-label[time="true"] {
-    -moz-margin-end: 4px;
+    margin-inline-end: 4px;
 }
 
 .labeldaybox-container {
@@ -772,8 +772,8 @@ calendar-event-box[gripBars="both"]:not([readonly="true"]):hover .calendar-event
     text-align: right;
     margin-top: 0;
     margin-bottom: 0;
-    -moz-margin-start: 0;
-    -moz-margin-end: 1em; /* 1em space before value */
+    margin-inline-start: 0;
+    margin-inline-end: 1em; /* 1em space before value */
 }
 
 .tooltipHeaderDescription {
@@ -891,12 +891,12 @@ tab[calview] > .tab-middle {
 
 .view-header[type="end"] {
     text-align: right;
-    -moz-margin-end: 6px;
+    margin-inline-end: 6px;
 }
 
 .navigation-inner-box {
-    -moz-padding-start: 6px;
-    -moz-padding-end: 6px;
+    padding-inline-start: 6px;
+    padding-inline-end: 6px;
     padding-bottom: 1px;
 }
 
@@ -914,8 +914,8 @@ tab[calview] > .tab-middle {
 .today-navigation-button {
     -moz-user-focus: normal;
     -moz-appearance: toolbarbutton;
-    -moz-margin-start: 2px;
-    -moz-margin-end: 2px;
+    margin-inline-start: 2px;
+    margin-inline-end: 2px;
     color: ButtonText;
     font-size: 14px;
 }

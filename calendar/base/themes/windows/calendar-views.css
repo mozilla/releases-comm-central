@@ -8,14 +8,14 @@
 #calendar-nav-control {
     background-color: ButtonFace;
     border-top: 1px solid ThreeDShadow;
-    -moz-border-start: 1px solid ThreeDShadow;
+    border-inline-start: 1px solid ThreeDShadow;
     padding-top: 1px;
 }
 
 #view-deck {
     background-color: -moz-Field;
     border-width: 0;
-    -moz-border-start: 1px;
+    border-inline-start: 1px;
 }
 
 tab[calview] {
@@ -53,8 +53,8 @@ tab[calview]:hover {
 }
 
 .view-navigation-button {
-    -moz-margin-start: 2px;
-    -moz-margin-end: 2px;
+    margin-inline-start: 2px;
+    margin-inline-end: 2px;
 }
 
 .today-navigation-button {

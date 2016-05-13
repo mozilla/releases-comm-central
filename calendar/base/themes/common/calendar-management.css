@@ -15,7 +15,7 @@ calendar-list-tree > tree > treechildren::-moz-tree-cell(color-treecol) {
 }
 
 calendar-list-tree > tree > treechildren::-moz-tree-cell(calendarname-treecol) {
-    -moz-margin-start: 1px;
+    margin-inline-start: 1px;
 }
 
 calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readonly) {

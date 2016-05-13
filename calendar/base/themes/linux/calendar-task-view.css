@@ -25,7 +25,7 @@
 }
 
 #other-actions-box {
-    -moz-margin-end: -1px;
+    margin-inline-end: -1px;
 }
 
 .task-details-name {

@@ -77,8 +77,8 @@ filefield[disabled="true"] .fileFieldIcon {
     height: 16px;
     margin-top: 2px;
     margin-bottom: 2px;
-    -moz-margin-start: 2px;
-    -moz-margin-end: 4px;
+    margin-inline-start: 2px;
+    margin-inline-end: 4px;
 }
 
 .fileFieldLabel {

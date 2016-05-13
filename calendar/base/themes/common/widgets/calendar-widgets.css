@@ -5,17 +5,17 @@
 treenode-checkbox {
   -moz-box-align: center;
   padding-top: 4px;
-  -moz-padding-start: 4px;
-  -moz-padding-end: 4px;
+  padding-inline-start: 4px;
+  padding-inline-end: 4px;
   font-weight: bold;
 }
 
 .checkbox-label-box {
-  -moz-margin-start: 4px;
+  margin-inline-start: 4px;
 }
 
 .checkbox-icon {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
 }
 
 .checkbox-label {

@@ -76,7 +76,7 @@
 }
 
 .today-closebutton > .toolbarbutton-icon {
-  -moz-margin-end: 0px; /* override toolkit's default value */
+  margin-inline-end: 0px; /* override toolkit's default value */
 }
 
 @media (-moz-os-version: windows-xp) {
@@ -144,7 +144,7 @@
 @media all and (-moz-windows-compositor) {
   @media not all and (-moz-os-version: windows-win10) {
     #messengerWindow[sizemode=normal] #today-pane-panel {
-      -moz-border-end: 1px solid rgba(10%, 10%, 10%, .4);
+      border-inline-end: 1px solid rgba(10%, 10%, 10%, .4);
       border-bottom: 1px solid rgba(10%, 10%, 10%, .4);
       background-clip: padding-box;
     }

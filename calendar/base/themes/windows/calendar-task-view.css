@@ -18,7 +18,7 @@
 }
 
 #other-actions-box {
-    -moz-margin-end: -2px;
+    margin-inline-end: -2px;
 }
 
 .task-details-name {
@@ -57,7 +57,7 @@
 
 @media (-moz-os-version: windows-xp) {
   #task-addition-box {
-    -moz-border-start: 1px solid ThreeDShadow;
+    border-inline-start: 1px solid ThreeDShadow;
   }
 
   #calendar-task-tree {

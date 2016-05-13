@@ -114,5 +114,5 @@
 }
 
 #calendar-add-task-button > .toolbarbutton-text {
-  -moz-margin-start: 0px;
+  margin-inline-start: 0px;
 }

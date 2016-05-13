@@ -64,8 +64,8 @@
        border: 3px solid -moz-default-color;
        border-collapse: collapse;
        width: 40em;
-       -moz-margin-start: auto;
-       -moz-margin-end: auto;
+       margin-inline-start: auto;
+       margin-inline-end: auto;
 }
 #invitation-table > tbody > tr > td {
        padding: 3px;
@@ -83,7 +83,7 @@
 .description {
        width: 9em;
        text-align: right;
-       -moz-border-end: 1px solid rgba(255, 255, 255, 0.2);
+       border-inline-end: 1px solid rgba(255, 255, 255, 0.2);
        background-color: rgba(0, 0, 0, 0.2);
        vertical-align: top;
 }

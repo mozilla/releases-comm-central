@@ -73,7 +73,7 @@ minimonth {
 .minimonth-year-name-readonly {
   min-width: 4em;
   font-weight: bold;
-  -moz-padding-start: 4px;
+  padding-inline-start: 4px;
 }
 
 .minimonth-month-name > .toolbarbutton-text {
@@ -187,8 +187,8 @@ minimonth {
 }
 
 .minimonth-list {
-  -moz-padding-start: 1em;
-  -moz-padding-end: 1em;
+  padding-inline-start: 1em;
+  padding-inline-end: 1em;
 }
 
 .minimonth-list[current="true"] {

@@ -13,9 +13,9 @@ treenode-checkbox > .checkbox-check {
 }
 
 #task-tree-filtergroup {
-  -moz-padding-start: 18px;
+  padding-inline-start: 18px;
 }
 
 calendar-list-tree .tree-scrollable-columns {
-   -moz-padding-start: 18px;
+   padding-inline-start: 18px;
 }

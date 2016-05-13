@@ -9,7 +9,7 @@
 
 #calendar-status-todaypane-button > stack > .toolbarbutton-day-text {
   text-align: center;
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
   margin-bottom: -4px;
   font-size: 7pt;
   font-family: Arial, Helvetica, sans-serif;

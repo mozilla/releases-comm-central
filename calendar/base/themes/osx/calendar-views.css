@@ -122,8 +122,8 @@ tab[calview] > .tab-middle {
     -moz-user-focus: normal;
     -moz-appearance: toolbarbutton;
     margin-top: 3px;
-    -moz-margin-start: 3px;
-    -moz-margin-end: 3px;
+    margin-inline-start: 3px;
+    margin-inline-end: 3px;
     margin-bottom: 1px;
     min-width: 22px;
 }

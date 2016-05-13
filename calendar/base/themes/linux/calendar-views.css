@@ -7,7 +7,7 @@
 /* Navigation controls for the views */
 #calendar-nav-control {
     background-color: AppWorkspace;
-    -moz-border-start: 1px solid ThreeDShadow;
+    border-inline-start: 1px solid ThreeDShadow;
     padding-top: 1px;
 }
 
@@ -51,8 +51,8 @@ tab[calview]:hover {
 }
 
 .view-navigation-button {
-    -moz-margin-start: 2px;
-    -moz-margin-end: 2px;
+    margin-inline-start: 2px;
+    margin-inline-end: 2px;
 }
 
 .today-navigation-button {
