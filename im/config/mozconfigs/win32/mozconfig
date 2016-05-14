@@ -17,7 +17,6 @@ ac_add_options --disable-debug
 # The Windows 8 SDK is required for gamepad support.
 ac_add_options --disable-gamepad
 ac_add_options --enable-require-all-d3dc-versions
-ac_add_options --enable-update-packaging
 ac_add_options --enable-jemalloc
 
 if [ `date +%m%d` = 1031 -o `date +%m%d` = 1101 ]; then

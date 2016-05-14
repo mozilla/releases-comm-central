@@ -16,7 +16,6 @@ mk_add_options MOZ_POSTFLIGHT_ALL+=calendar/lightning/build/universal.mk
 # Universal builds override the default of mail (bug 575283 comment 29)
 ac_add_options --enable-application=mail
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
-ac_add_options --enable-update-packaging
 ac_add_options --disable-install-strip
 ac_add_options --enable-profiling
 ac_add_options --enable-calendar
