@@ -1140,14 +1140,10 @@ Throbber-small.gif
 #else
   @DIR_MACOS@components/Aitc.js
   @DIR_MACOS@components/binary.manifest
-  #ifndef MOZ_SERVICES_SYNC
-    @DIR_MACOS@components/Weave.js
-  #endif
+  @DIR_MACOS@components/Weave.js
   @DIR_MACOS@defaults/pref/services-aitc.js
   @DIR_MACOS@defaults/pref/services-notifications.js
-  #ifndef MOZ_SERVICES_SYNC
-    @DIR_MACOS@defaults/pref/services-sync.js
-  #endif
+  @DIR_MACOS@defaults/pref/services-sync.js
   @DIR_MACOS@omni.ja
 #endif
 
