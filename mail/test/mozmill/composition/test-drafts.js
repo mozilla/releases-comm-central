@@ -92,7 +92,7 @@ function test_open_draft_again() {
  * Bug 1202165
  * Test that the user set delivery format is preserved in a draft message.
  */
-function test_save_delivery_format() {
+function internal_check_delivery_format(editDraft) {
   let cwc = open_compose_new_mail();
 
   setup_msg_contents(cwc, "test@example.invalid",
@@ -151,7 +151,13 @@ function test_save_delivery_format() {
   wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
-  mc.click(mc.eid(kBoxId, {tagName: "button", label: "Edit"}));
+  if (editDraft) {
+    // Trigger "edit draft".
+    mc.click(mc.eid(kBoxId, {tagName: "button", label: "Edit"}));
+  } else {
+    // Trigger "edit as new" resulting in template processing.
+    mc.keypress(null, "e", {shiftKey: false, accelKey: true});
+  }
   cwc = wait_for_compose_window();
 
   // Check if format value was restored.
@@ -160,6 +166,14 @@ function test_save_delivery_format() {
   close_compose_window(cwc);
 
   press_delete(mc); // clean up the created draft
+}
+
+function test_save_delivery_format_with_edit_draft() {
+  internal_check_delivery_format(true);
+}
+
+function test_save_delivery_format_with_edit_template() {
+  internal_check_delivery_format(false);
 }
 
 /**

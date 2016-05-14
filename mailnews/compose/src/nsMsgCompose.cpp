@@ -1022,7 +1022,7 @@ nsMsgCompose::Initialize(nsIMsgComposeParams *aParams,
     // by checking the identity prefs - but don't clobber the values for
     // drafts and templates as they were set up already by mime when
     // initializing the message.
-    if (m_identity && draftId.IsEmpty())
+    if (m_identity && draftId.IsEmpty() && type != nsIMsgCompType::Template)
     {
       bool requestReturnReceipt = false;
       rv = m_identity->GetRequestReturnReceipt(&requestReturnReceipt);
