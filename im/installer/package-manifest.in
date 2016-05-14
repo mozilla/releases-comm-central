@@ -386,7 +386,6 @@
 @RESPATH@/components/BrowserElementParent.manifest
 @RESPATH@/components/BrowserElementProxy.manifest
 @RESPATH@/components/BrowserElementProxy.js
-@RESPATH@/components/ColorAnalyzer.js
 @RESPATH@/components/PageThumbsProtocol.js
 @RESPATH@/components/XULStore.js
 @RESPATH@/components/XULStore.manifest
@@ -412,7 +411,6 @@
 @RESPATH@/components/nsFormAutoComplete.js
 @RESPATH@/components/nsFormHistory.js
 @RESPATH@/components/FormHistoryStartup.js
-@RESPATH@/components/UnifiedComplete.js
 @RESPATH@/components/nsAsyncShutdown.manifest
 @RESPATH@/components/nsAsyncShutdown.js
 @RESPATH@/components/PresentationDeviceInfoManager.manifest
@@ -420,14 +418,10 @@
 @RESPATH@/components/BuiltinProviders.manifest
 @RESPATH@/components/TCPPresentationServer.js
 @RESPATH@/components/nsInputListAutoComplete.js
-@RESPATH@/components/nsLivemarkService.js
-@RESPATH@/components/nsPlacesExpiration.js
 @RESPATH@/components/nsPrompter.js
 @RESPATH@/components/nsPrompter.manifest
 @RESPATH@/components/nsSearchService.js
 @RESPATH@/components/nsSearchSuggestions.js
-@RESPATH@/components/nsTaggingService.js
-@RESPATH@/components/PlacesCategoriesStarter.js
 @RESPATH@/components/servicesComponents.manifest
 @RESPATH@/components/TooltipTextProvider.js
 @RESPATH@/components/TooltipTextProvider.manifest
@@ -444,7 +438,6 @@
 @RESPATH@/components/toolkit_perfmonitoring.xpt
 #endif
 @RESPATH@/components/toolkit_xulstore.xpt
-@RESPATH@/components/toolkitplaces.manifest
 @RESPATH@/components/toolkitsearch.manifest
 #ifdef UNIX_BUT_NOT_MAC
 @RESPATH@/components/toolkitremote.xpt
