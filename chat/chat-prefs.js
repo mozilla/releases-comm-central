@@ -84,6 +84,8 @@ pref("chat.irc.automaticList", true);
 pref("chat.prpls.prpl-skype.disable", true);
 // Disable Facebook as the XMPP gateway no longer exists.
 pref("chat.prpls.prpl-facebook.disable", true);
+// Whether to disable SRV lookups that use the system DNS library.
+pref("chat.dns.srv.disable", false);
 
 // loglevel is the minimum severity level that a libpurple message
 // must have to be reported in the Error Console.

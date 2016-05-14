@@ -6,6 +6,8 @@ this.EXPORTED_SYMBOLS = ["XMPPSession", "XMPPDefaultResource"];
 
 var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
+Cu.import("resource:///modules/DNS.jsm");
+Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/socket.jsm");
 Cu.import("resource:///modules/xmpp-xml.jsm");
@@ -44,18 +46,46 @@ function XMPPSession(aHost, aPort, aSecurity, aJID, aPassword, aAccount) {
 
   this._resource = aJID.resource || XMPPDefaultResource;
   this._handlers = new Map();
-
   this._account.reportConnecting();
-  try {
+
+  // The User has specified a certain server or port, so we should not do
+  // DNS SRV lookup or the preference of disabling DNS SRV part and use
+  // normal connect is set.
+  // RFC 6120 (Section 3.2.3): When Not to Use SRV.
+  if (Services.prefs.getBoolPref("chat.dns.srv.disable") ||
+      (this._account.prefs.prefHasUserValue("server") ||
+       this._account.prefs.prefHasUserValue("port"))) {
     this.connect(this._host, this._port, this._security);
-  } catch (e) {
-    Cu.reportError(e);
-    // We can't use _networkError because this._account._connection
-    // isn't set until we return from the XMPPSession constructor.
-    this._account.reportDisconnecting(Ci.prplIAccount.ERROR_NETWORK_ERROR,
-                                      _("connection.error.failedToCreateASocket"));
-    this._account.reportDisconnected();
+    return;
   }
+
+  // RFC 6120 (Section 3.2.1): SRV lookup.
+  this._account.reportConnecting(_("connection.srvLookup"));
+  DNS.srv("_xmpp-client._tcp." + this._host).then(
+    aResult => this._handleSrvQuery(aResult)
+  ).catch(aError => {
+    if (aError === this.SRV_ERROR_XMPP_NOT_SUPPORTED) {
+      this.LOG("SRV: XMPP is not supported on this domain.");
+
+      // RFC 6120 (Section 3.2.1) and RFC 2782 (Usage rules): Abort as the
+      // service is decidedly not available at this domain.
+      this._account.reportDisconnecting(Ci.prplIAccount.ERROR_OTHER_ERROR,
+                                        _("connection.error.XMPPNotSupported"));
+      this._account.reportDisconnected();
+      return;
+    }
+    else if (aError === this.SRV_ERROR_LOOKUP_FAILED) {
+      // An error happened during SRV lookup (e.g. user is offline,
+      // network error, DNS name does not exist, etc.).
+      this.WARN("Error during SRV: Lookup failed.");
+    }
+    else
+      this.ERROR("Error during SRV lookup:", aError);
+
+    // Since we don't receive a response to SRV query, we SHOULD attempt the
+    // fallback process (use normal connect without SRV lookup).
+    this.connect(this._host, this._port, this._security);
+  });
 }
 
 XMPPSession.prototype = {
@@ -63,6 +93,10 @@ XMPPSession.prototype = {
   __proto__: Socket,
   connectTimeout: 60,
   readWriteTimeout: 300,
+
+  // Contains the remaining SRV records if we failed to connect the current one.
+  _srvRecords: [],
+
   sendPing: function() {
     this.sendStanza(Stanza.iq("get", null, null,
                               Stanza.node("ping", Stanza.NS.ping)),
@@ -96,6 +130,51 @@ XMPPSession.prototype = {
   _security: null,
   _encrypted: false,
 
+  // DNS SRV errors in XMPP.
+  SRV_ERROR_LOOKUP_FAILED: -1,
+  SRV_ERROR_XMPP_NOT_SUPPORTED: -2,
+
+  // Handles result of DNS SRV query and saves sorted results if it's OK in _srvRecords,
+  // otherwise throws error.
+  _handleSrvQuery: function(aResult) {
+    if (typeof aResult == "number" && aResult == -1)
+      throw this.SRV_ERROR_LOOKUP_FAILED;
+
+    this.LOG("SRV lookup: " + JSON.stringify(aResult));
+    if (aResult.length == 0) {
+      // RFC 6120 (Section 3.2.1) and RFC 2782 (Usage rules): No SRV records,
+      // try to login with the given domain name.
+      this.connect(this._host, this._port, this._security);
+      return;
+    }
+    else if (aResult.length == 1 && aResult[0].host == ".")
+      throw this.SRV_ERROR_XMPP_NOT_SUPPORTED;
+
+    // Sort results: Lower priority is more preferred and higher weight is
+    // more preferred in equal priorities.
+    aResult.sort(function(a, b) {
+      return a.prio - b.prio || b.weight - a.weight;
+    });
+
+    this._srvRecords = aResult;
+    this._connectNextRecord();
+  },
+
+  _connectNextRecord: function() {
+    if (!this._srvRecords.length) {
+      this.ERROR("_connectNextRecord is called and there are no more records " +
+                 "to connect.");
+      return;
+    }
+
+    let record = this._srvRecords.shift();
+
+    // RFC 3920 (Section 5.1): Certificates MUST be checked against the
+    // hostname as provided by the initiating entity (e.g. user).
+    this.connect(this._domain, this._port, this._security, null, record.host,
+                 record.port);
+  },
+
   /* Disconnect from the server */
   disconnect: function() {
     if (this.onXmppStanza == this.stanzaListeners.accountListening)
@@ -111,6 +190,13 @@ XMPPSession.prototype = {
 
   /* Report errors to the account */
   onError: function(aError, aException) {
+    // If we're trying to connect to SRV entries, then keep trying until a
+    // successful connection occurs or we run out of SRV entries to try.
+    if (!!this._srvRecords.length) {
+      this._connectNextRecord();
+      return;
+    }
+
     this._account.onError(aError, aException);
   },
 
@@ -189,6 +275,10 @@ XMPPSession.prototype = {
     }
     else
       this.onXmppStanza = this.stanzaListeners.initStream;
+
+    // Clear SRV results since we have connected.
+    this._srvRecords = [];
+
     this._account.reportConnecting(_("connection.initializingStream"));
     this.startStream();
   },

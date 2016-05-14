@@ -10,12 +10,13 @@
  * nsIRequestObserver, nsITransportEventSink, nsIBadCertListener2,
  * and nsIProtocolProxyCallback.
  *
- * This uses nsISocketTransportServices, nsIServerSocket, nsIThreadManager,
+ * This uses nsIRoutedSocketTransportService, nsIServerSocket, nsIThreadManager,
  * nsIBinaryInputStream, nsIScriptableInputStream, nsIInputStreamPump,
  * nsIProxyService, nsIProxyInfo.
  *
  * High-level methods:
- *   connect(<host>, <port>[, ("starttls" | "ssl" | "udp") [, <proxy>]])
+ *   connect(<originHost>, <originPort>[, ("starttls" | "ssl" | "udp")
+ *           [, <proxy>[, <host>, <port>]]])
  *   disconnect()
  *   listen(<port>)
  *   stopListening()
@@ -138,7 +139,11 @@ var Socket = {
    *****************************************************************************
    */
   // Synchronously open a connection.
-  connect: function(aHost, aPort, aSecurity, aProxy) {
+  // It connects to aHost and aPort, but uses aOriginHost and aOriginPort for
+  // checking the certificate for them (see nsIRoutedSocketTransportService
+  // in nsISocketTransportService.idl).
+  connect: function(aOriginHost, aOriginPort, aSecurity, aProxy,
+                    aHost = aOriginHost, aPort = aOriginPort) {
     if (Services.io.offline)
       throw Cr.NS_ERROR_FAILURE;
 
@@ -146,6 +151,8 @@ var Socket = {
     Services.obs.addObserver(this, "wake_notification", false);
 
     this.LOG("Connecting to: " + aHost + ":" + aPort);
+    this.originHost = aOriginHost;
+    this.originPort = aOriginPort;
     this.host = aHost;
     this.port = aPort;
     this.disconnected = false;
@@ -574,12 +581,16 @@ var Socket = {
     // Empty incoming and outgoing data storage buffers
     this._resetBuffers();
 
-    // Create a socket transport
+    // Create a routed socket transport
+    // We connect to host and port, but the origin host and origin port are
+    // given to PSM (e.g. check the certificate).
     let socketTS = Cc["@mozilla.org/network/socket-transport-service;1"]
-                      .getService(Ci.nsISocketTransportService);
-    this.transport = socketTS.createTransport(this.security,
-                                              this.security.length, this.host,
-                                              this.port, this.proxy);
+                      .getService(Ci.nsIRoutedSocketTransportService);
+    this.transport =
+      socketTS.createRoutedTransport(this.security, this.security.length,
+                                     this.originHost, this.originPort,
+                                     this.host, this.port,
+                                     this.proxy);
 
     this._openStreams();
   },
