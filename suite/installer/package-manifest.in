@@ -522,17 +522,13 @@
 @RESPATH@/components/storage-json.js
 @RESPATH@/components/SuiteProfileMigrator.js
 @RESPATH@/components/SuiteProfileMigrator.manifest
-#ifdef MOZ_SERVICES_SYNC
 @RESPATH@/components/SyncComponents.manifest
-#endif
 @RESPATH@/components/TooltipTextProvider.js
 @RESPATH@/components/TooltipTextProvider.manifest
 @RESPATH@/components/txEXSLTRegExFunctions.js
 @RESPATH@/components/txEXSLTRegExFunctions.manifest
 @RESPATH@/components/UnifiedComplete.js
-#ifdef MOZ_SERVICES_SYNC
 @RESPATH@/components/Weave.js
-#endif
 @RESPATH@/components/Webapps.js
 @RESPATH@/components/Webapps.manifest
 @RESPATH@/components/webideCli.js
@@ -646,9 +642,7 @@
 ; [Default Preferences]
 ; All the browser/general pref files must be part of base to prevent migration bugs
 @RESPATH@/@PREF_DIR@/browser-prefs.js
-#ifdef MOZ_SERVICES_SYNC
 @RESPATH@/@PREF_DIR@/services-sync.js
-#endif
 @RESPATH@/@PREF_DIR@/composer.js
 @RESPATH@/greprefs.js
 @RESPATH@/defaults/autoconfig/prefcalls.js
