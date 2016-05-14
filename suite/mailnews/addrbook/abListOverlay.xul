@@ -69,7 +69,7 @@
                  completedefaultindex="true" forcecomplete="true"
                  minresultsforpopup="3"
                  ontextentered="awRecipientTextCommand(eventParam, this)"
-                 onkeypress="handleKeyPress(this, event);"
+                 onkeypress="awHandleKeyPress(this, event);"
                  onkeydown="awRecipientKeyDown(event, this);"
                  onclick="awNotAnEmptyArea(event);">
           <image onclick="awNotAnEmptyArea(event)" class="person-icon"/>

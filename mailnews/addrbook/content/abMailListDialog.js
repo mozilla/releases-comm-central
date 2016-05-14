@@ -27,10 +27,10 @@ function getLoadContext() {
                .QueryInterface(Components.interfaces.nsILoadContext);
 }
 
-function handleKeyPress(element, event)
+function awHandleKeyPress(element, event)
 {
   // allow dialog to close on enter if focused textbox has no value
-  if (element.value != "" && event.keyCode == 13) {
+  if (element.value != "" && event.keyCode == KeyEvent.DOM_VK_RETURN) {
     event.stopPropagation();
     event.preventDefault();
   }
