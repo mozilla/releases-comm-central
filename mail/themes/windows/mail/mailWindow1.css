@@ -62,10 +62,6 @@
   color: -moz-FieldText;
 }
 
-#messengerBox {
-  background-color: -moz-Dialog;
-}
-
 #folderPane-toolbar {
   border-bottom-width: 1px !important;
   border-bottom-color: ThreeDShadow;
