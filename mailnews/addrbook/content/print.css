@@ -34,8 +34,8 @@ GeneratedName {
   font-family:verdana; 
   margin-top: 20px;
   margin-bottom: 3px;
-  -moz-margin-end: 10px;
-  -moz-margin-start: 10px;
+  margin-inline-end: 10px;
+  margin-inline-start: 10px;
 }
 
 FirstName, LastName, 
@@ -71,8 +71,8 @@ separator {
   border-bottom: 1px solid #000000;
   margin-top: 0px;
   margin-bottom: 0px;
-  -moz-margin-end: 0px;
-  -moz-margin-start: 10px;
+  margin-inline-end: 0px;
+  margin-inline-start: 10px;
 }
 
 table {

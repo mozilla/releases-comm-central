@@ -39,7 +39,7 @@
               document.getAnonymousElementByAttribute(
                   this, "anonid", "content");
           content.setAttribute("style",
-                               "-moz-margin-start: " + (-val) + "px;");
+                               "margin-inline-start: " + (-val) + "px;");
           return val;
         ]]></setter>
       </property>

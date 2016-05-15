@@ -740,7 +740,7 @@
     <notificationbox id="event-dialog-notifications" notificationside="top"/>
     <grid id="event-grid"
           flex="1"
-          style="padding-top: 8px; padding-bottom: 10px; -moz-padding-start: 8px; -moz-padding-end: 10px;">
+          style="padding-top: 8px; padding-bottom: 10px; padding-inline-start: 8px; padding-inline-end: 10px;">
         <columns id="event-grid-columns">
             <column id="event-description-column"/>
             <column id="event-controls-column" flex="1"/>

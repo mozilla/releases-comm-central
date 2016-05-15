@@ -1098,7 +1098,7 @@
                 newMargin = maxMargin;
             }
 
-            ind.style.MozMarginStart = newMargin + 'px';
+            ind.style.marginInlineStart = newMargin + 'px';
 
             ib.collapsed = false;
           ]]>
