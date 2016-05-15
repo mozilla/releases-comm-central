@@ -207,6 +207,9 @@ var ltnImipBar = {
         // Thunderbird doesn't provide a distinct flag on message level to do so. Relying on
         // folder flags only may lead to false positives.
         let isOutgoing = function(aMsgHdr) {
+            if (!aMsgHdr) {
+                return false;
+            }
             let author = aMsgHdr.mime2DecodedAuthor;
             let isSentFolder = aMsgHdr.folder.flags & nsMsgFolderFlags.SentMail;
             if (author && isSentFolder) {
