@@ -151,7 +151,7 @@ add_task(function *() {
   server.start();
   Services.prefs.setIntPref("mail.server.server2.port", server.port);
 
-  // Set the server expected username & password to what we have in signons.txt
+  // Login information needs to match the one stored in the signons json file.
   handler.kUsername = "testpop3";
   handler.kPassword = "pop3test";
 

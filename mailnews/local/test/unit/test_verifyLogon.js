@@ -73,7 +73,7 @@ function run_test()
   daemon = new pop3Daemon();
   function createHandler(d) {
     var handler = new POP3_RFC1939_handler(d);
-    // Set the server expected username & password to what we have in signons.txt
+    // Login information needs to match the one stored in the signons json file.
     handler.kUsername = kUserName;
     handler.kPassword = kValidPassword;
     handler.dropOnAuthFailure = true;
@@ -85,7 +85,7 @@ function run_test()
   // Set up the basic accounts and folders.
   // We would use createPop3ServerAndLocalFolders() however we want to have
   // a different username and NO password for this test (as we expect to load
-  // it from signons.txt).
+  // it from the signons json file in which the login information is stored).
   localAccountUtils.loadLocalMailAccount();
 
 

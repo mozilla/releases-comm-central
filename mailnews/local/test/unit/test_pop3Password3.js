@@ -21,7 +21,7 @@ add_task(function *() {
   // Set up the basic accounts and folders.
   // We would use createPop3ServerAndLocalFolders() however we want to have
   // a different username and NO password for this test (as we expect to load
-  // it from signons.txt).
+  // it from the signons json file in which the login information is stored).
   localAccountUtils.loadLocalMailAccount();
 
   let incomingServer1 = MailServices.accounts.createIncomingServer(kUser1, kHostname,

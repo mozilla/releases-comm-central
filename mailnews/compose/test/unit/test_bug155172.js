@@ -27,7 +27,7 @@ var server;
 var kSender = "from@foo.invalid";
 var kTo = "to@foo.invalid";
 var kUsername = "test.smtp@fakeserver";
-// kPassword 2 is the one defined in signons-mailnews1.8.txt, the other one
+// kPassword 2 is the one defined in signons-smtp.json, the other one
 // is intentionally wrong.
 var kPassword1 = "wrong";
 var kPassword2 = "smtptest";
@@ -37,7 +37,8 @@ add_task(function *() {
 
   function createHandler(d) {
     var handler = new SMTP_RFC2821_handler(d);
-    // Username needs to match signons.txt
+    // Username needs to match the login information stored in the signons json
+    // file.
     handler.kUsername = kUsername;
     handler.kPassword = kPassword1;
     handler.kAuthRequired = true;

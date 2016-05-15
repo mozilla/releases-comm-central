@@ -122,14 +122,14 @@ add_task(function *() {
   var handler = serverArray[2];
   server.start();
 
-  // Set the server expected username & password to what we have in signons.txt
+  // Login information needs to match the one stored in the signons json file.
   handler.kUsername = "testpop3";
   handler.kPassword = "pop3test";
 
   // Set up the basic accounts and folders.
   // We would use createPop3ServerAndLocalFolders() however we want to have
   // a different username and NO password for this test (as we expect to load
-  // it from signons.txt).
+  // it from the signons json file in which the login information is stored).
   localAccountUtils.loadLocalMailAccount();
 
   incomingServer = MailServices.accounts.createIncomingServer("testpop3", "localhost", "pop3");

@@ -21,7 +21,8 @@ var attempt = 0;
 var kSender = "from@foo.invalid";
 var kTo = "to@foo.invalid";
 var kUsername = "testsmtp";
-// This is the same as in the signons file.
+// Password needs to match the login information stored in the signons json
+// file.
 var kInvalidPassword = "smtptest";
 var kValidPassword = "smtptest1";
 
@@ -66,7 +67,8 @@ add_task(function *() {
   function createHandler(d) {
     var handler = new SMTP_RFC2821_handler(d);
     handler.dropOnAuthFailure = true;
-    // Username needs to match signons.txt
+    // Username needs to match the login information stored in the signons json
+    // file.
     handler.kUsername = kUsername;
     handler.kPassword = kValidPassword;
     handler.kAuthRequired = true;
