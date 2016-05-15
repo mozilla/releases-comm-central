@@ -35,7 +35,7 @@ ul {
   margin-bottom: 2em;
 }
 
-#errorPageContainer:-moz-dir(rtl) {
+#errorPageContainer:dir(rtl) {
   background-position: right 0;
 }
 
@@ -64,7 +64,7 @@ ul {
   padding-bottom: 0.4em;
 }
 
-#errorTitleText:-moz-dir(rtl) {
+#errorTitleText:dir(rtl) {
   background-position: right 0;
 }
 
@@ -92,7 +92,7 @@ button:disabled {
   opacity: .4;
 }
 
-#brand:-moz-dir(rtl) {
+#brand:dir(rtl) {
   right: auto;
   left: 0;
 }
