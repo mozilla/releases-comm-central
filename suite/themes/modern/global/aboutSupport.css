@@ -65,7 +65,7 @@ tr:first-child > td {
   visibility: hidden;
 }
 
-#reset-box:-moz-dir(rtl) {
+#reset-box:dir(rtl) {
   float: left;
 }
 
