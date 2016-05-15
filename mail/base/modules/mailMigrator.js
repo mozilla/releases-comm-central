@@ -20,6 +20,9 @@ Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/mailServices.js");
 Cu.import("resource:///modules/IOUtils.js");
 
+XPCOMUtils.defineLazyModuleGetter(this, "LoginHelper",
+                                  "resource://gre/modules/LoginHelper.jsm");
+
 var MailMigrator = {
   /**
    * Switch the given fonts to the given encodings, but only if the current fonts
@@ -99,7 +102,7 @@ var MailMigrator = {
   _migrateUI: function() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 11;
+    const UI_VERSION = 12;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul";
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = 0;
@@ -302,6 +305,12 @@ var MailMigrator = {
           Services.prefs.setComplexValue("font.language.group",
                                          Ci.nsIPrefLocalizedString, group);
         }
+      }
+
+      // The obsolete files signons.txt, signons2.txt and signons3.txt got
+      // removed from the profile directory.
+      if (currentUIVersion < 12) {
+        LoginHelper.removeLegacySignonFiles();
       }
 
       // Update the migration version.
