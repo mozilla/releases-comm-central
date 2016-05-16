@@ -151,6 +151,10 @@ function onLoad() {
   gAccountTree.load();
 
   setTimeout(selectServer, 0, selectedServer, selectPage);
+
+  // Make sure the account manager window fits the screen.
+  document.getElementById("accountManager").style.maxHeight =
+    (window.screen.availHeight - 30) + "px";
 }
 
 function onUnload() {
