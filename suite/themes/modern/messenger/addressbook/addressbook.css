@@ -155,8 +155,8 @@
   margin: 0px 0px 1px;
   padding-top: 1px;
   padding-bottom: 1px;
-  -moz-padding-start: 5px;
-  -moz-padding-end: 1px;
+  padding-inline-start: 5px;
+  padding-inline-end: 1px;
   min-width: 30px;
   background-color: #8E9EAA;
   color: #ffffff;
@@ -164,15 +164,15 @@
 }
 
 #cvBuddyIcon {
-  -moz-padding-start: 20px;
+  padding-inline-start: 20px;
   padding-top: 2px;
 }
 
 .CardViewText,
 .CardViewLink {
   margin: 0px;
-  -moz-padding-end: 2px;
-  -moz-padding-start: 20px;
+  padding-inline-end: 2px;
+  padding-inline-start: 20px;
   min-width: 30px;
   color: #000000;
 }
@@ -184,14 +184,14 @@
 }
 
 #cvHomeMapIt, #cvWorkMapIt {
-  -moz-margin-start: 3px;
+  margin-inline-start: 3px;
   margin-bottom: -1px;
 }
 
 html|a {
   border: none !important;
-  -moz-padding-end: 2px;
-  -moz-padding-start: 0px;
+  padding-inline-end: 2px;
+  padding-inline-start: 0px;
 }
 
 html|p {

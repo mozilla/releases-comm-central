@@ -75,7 +75,7 @@
   text-shadow: none;
   background-color: firebrick;
   border-radius: 2px;
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
 /*
   Firefox browser/themes/osx/browser.css
   color: #FDF3DE;

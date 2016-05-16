@@ -37,29 +37,29 @@ menuitem[_moz-menuactive="true"][disabled="true"] {
 .menu-iconic-text {
   margin-top: 0px !important;
   margin-bottom: 0px !important;
-  -moz-margin-start: 0px !important;
-  -moz-margin-end: 2px !important;
+  margin-inline-start: 0px !important;
+  margin-inline-end: 2px !important;
   color: inherit;
 }
 
 .menu-text {
-  -moz-margin-start: 18px !important;
+  margin-inline-start: 18px !important;
   font-weight: inherit;
 }
 
 .menu-description {
   font-style: italic;
   color: #8C99AB;
-  -moz-margin-start: 1ex !important;
+  margin-inline-start: 1ex !important;
 }
 
 .menu-accel,
 .menu-iconic-accel {
   margin-top: 0px !important;
   margin-bottom: 0px !important;
-  -moz-margin-start: 7px !important;
-  -moz-margin-end: 2px !important;
-  -moz-padding-end: 14px;
+  margin-inline-start: 7px !important;
+  margin-inline-end: 2px !important;
+  padding-inline-end: 14px;
   color: inherit;
 }
 
@@ -74,8 +74,8 @@ menuitem[_moz-menuactive="true"][disabled="true"] {
 .menu-right {
   margin-top: 0px;
   margin-bottom: 0px;
-  -moz-margin-start: 6px;
-  -moz-margin-end: 4px;
+  margin-inline-start: 6px;
+  margin-inline-end: 4px;
   width: 4px;
   list-style-image: url("chrome://global/skin/menu/menu-arrow.gif");
   -moz-image-region: auto;
@@ -114,16 +114,16 @@ menubar > menu[_moz-menuactive="true"][open="true"] {
 .menubar-left {
   margin-top: 0px;
   margin-bottom: 0px;
-  -moz-margin-start: 0px;
-  -moz-margin-end: 2px;
+  margin-inline-start: 0px;
+  margin-inline-end: 2px;
   color: inherit;
 }
 
 .menubar-text {
   margin-top: 0px !important;
   margin-bottom: 0px !important;
-  -moz-margin-start: 0px !important;
-  -moz-margin-end: 2px !important;
+  margin-inline-start: 0px !important;
+  margin-inline-end: 2px !important;
   color: inherit;
 }
 
@@ -154,7 +154,7 @@ menulist > menupopup > menu {
 }
 
 menulist > menupopup > menuitem {
-  -moz-padding-end: 30px;
+  padding-inline-end: 30px;
 }
     
 /* ..... selected state ..... */
@@ -227,7 +227,7 @@ menulist > menupopup > menuseparator,
 /* ::::: tree column picker ::::: */
 
 .treecell-popupcell-menu {
-  -moz-margin-start: -2px;
+  margin-inline-start: -2px;
   list-style-image: url("chrome://global/skin/tree/columnpicker.gif");
   -moz-image-region: auto;
 }

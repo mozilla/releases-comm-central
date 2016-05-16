@@ -22,7 +22,7 @@
 
 treechildren::-moz-tree-image(treecolAutoCompleteValue),
 treechildren::-moz-tree-image(FilenameColumn) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
 }
 
 treechildren::-moz-tree-image(treecolAutoCompleteValue, directory),

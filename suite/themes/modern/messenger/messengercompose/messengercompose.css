@@ -171,37 +171,37 @@ toolbar[iconsize="small"] > #print-button[disabled="true"],
 treechildren::-moz-tree-cell-text(default-match) {
   margin-top: 2px;
   margin-bottom: 2px;
-  -moz-margin-start: 15px;
-  -moz-margin-end: -3px;
+  margin-inline-start: 15px;
+  margin-inline-end: -3px;
   border: none;
 }
 
 treechildren::-moz-tree-image(local-abook) {
   margin-top: 2px;
   margin-bottom: 2px;
-  -moz-margin-start: 4px;
-  -moz-margin-end: -3px;
+  margin-inline-start: 4px;
+  margin-inline-end: -3px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/myaddrbk.gif");
 }
 
 treechildren::-moz-tree-image(remote-abook) {
   margin-top: 2px;
   margin-bottom: 2px;
-  -moz-margin-start: 3px;
-  -moz-margin-end: -4px;
+  margin-inline-start: 3px;
+  margin-inline-end: -4px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/directory.gif");
 }
 
 treechildren::-moz-tree-image(remote-err) {
   margin-top: 2px;
   margin-bottom: 2px;
-  -moz-margin-start: 3px;
-  -moz-margin-end: -4px;
+  margin-inline-start: 3px;
+  margin-inline-end: -4px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/directory-down.gif");
 }
 
 treechildren::-moz-tree-image(subscribed-news) {
-  -moz-margin-start: 3px;
-  -moz-margin-end: -4px;
+  margin-inline-start: 3px;
+  margin-inline-end: -4px;
   list-style-image: url("chrome://messenger/skin/icons/folder-newsgroup.gif");
 }

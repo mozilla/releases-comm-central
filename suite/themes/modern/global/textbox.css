@@ -18,8 +18,8 @@ textbox {
   border: 2px solid;
   padding-top: 1px;
   padding-bottom: 1px;
-  -moz-padding-start: 2px;
-  -moz-padding-end: 0px;
+  padding-inline-start: 2px;
+  padding-inline-end: 0px;
   background-color: #FFFFFF;
   color: #000000;
   font: inherit;

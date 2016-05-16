@@ -19,14 +19,14 @@
   border: 1px solid ThreeDShadow;
   border-radius: 10px;
   padding: 3em;
-  -moz-padding-start: 64px;
-  -moz-margin-start: 1em;
-  -moz-margin-end: 1em;
+  padding-inline-start: 64px;
+  margin-inline-start: 1em;
+  margin-inline-end: 1em;
 }
 
 .title, .description {
   max-width: 50em;
-  -moz-padding-start: 3em;
+  padding-inline-start: 3em;
 }
 
 #warningTitle {
@@ -37,7 +37,7 @@
 
 #warningText {
   font-size: 110%;
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
 }
 
 #warningButton {

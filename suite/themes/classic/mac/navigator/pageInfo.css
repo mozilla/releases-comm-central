@@ -69,7 +69,7 @@ textbox {
 }
 
 textbox.header {
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
 }
 
 .iframe {
@@ -118,8 +118,8 @@ treechildren::-moz-tree-cell-text(broken) {
 #feedListbox > richlistitem {
   padding-top: 6px;
   padding-bottom: 6px;
-  -moz-padding-start: 7px;
-  -moz-padding-end: 7px;
+  padding-inline-start: 7px;
+  padding-inline-end: 7px;
   min-height: 25px;
   border-bottom: 1px dotted #C0C0C0;
 }
@@ -137,8 +137,8 @@ treechildren::-moz-tree-cell-text(broken) {
 #permList > richlistitem {
   padding-top: 6px;
   padding-bottom: 6px;
-  -moz-padding-start: 7px;
-  -moz-padding-end: 7px;
+  padding-inline-start: 7px;
+  padding-inline-end: 7px;
   min-height: 25px;
   border-bottom: 1px dotted #C0C0C0;
 }
@@ -150,7 +150,7 @@ treechildren::-moz-tree-cell-text(broken) {
 /* Security Tab */
 #security-technical-longform1,
 #security-technical-longform2 {
-  -moz-margin-start: 6px;
+  margin-inline-start: 6px;
 }
 
 .fieldValue {

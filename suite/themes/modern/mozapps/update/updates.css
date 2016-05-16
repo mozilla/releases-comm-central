@@ -79,16 +79,16 @@ wizardpage {
 }
 
 #downloadStatusProgress {
-  -moz-padding-end: 5px;
+  padding-inline-end: 5px;
 }
 
 #pauseButton > .button-box > .button-icon {
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
 }
 
 #pauseButton > .button-box > .button-text {
-  -moz-margin-start: 0 !important;
-  -moz-margin-end: 0 !important;
+  margin-inline-start: 0 !important;
+  margin-inline-end: 0 !important;
 }
 
 #pauseButton {
@@ -129,7 +129,7 @@ wizardpage {
 }
 
 #verificationFailedIcon {
-  -moz-margin-start: 5px;
+  margin-inline-start: 5px;
   list-style-image: url("chrome://global/skin/icons/notfound.png");
 }
 
@@ -139,8 +139,8 @@ wizardpage {
 #errorReason {
   margin-top: 1px;
   margin-bottom: 2px;
-  -moz-margin-start: 6px !important;
-  -moz-margin-end: 5px;
+  margin-inline-start: 6px !important;
+  margin-inline-end: 5px;
   font-weight: bold;
 }
 

@@ -225,8 +225,8 @@ toolbar[iconsize="small"] > #sync-button[status=active] {
   -moz-box-align: center;
   padding-top: 0px;
   padding-bottom: 0px;
-  -moz-padding-start: 4px;
-  -moz-padding-end: 2px;
+  padding-inline-start: 4px;
+  padding-inline-end: 2px;
   border-left: 2px solid;
   -moz-border-left-colors: ThreeDHighlight ThreeDShadow;
   background-color: -moz-Dialog;
@@ -286,7 +286,7 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 .popup-notification-icon {
   width: 64px;
   height: 64px;
-  -moz-margin-end: 10px;
+  margin-inline-end: 10px;
 }
 
 .popup-notification-icon[popupid="geolocation"] {
@@ -389,7 +389,7 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 
 .click-to-play-plugins-notification-icon-box {
   background-color: rgba(255, 255, 255, .4);
-  -moz-border-end: 1px solid rgba(255, 255, 255, .2);
+  border-inline-end: 1px solid rgba(255, 255, 255, .2);
   padding: 24px;
 }
 
@@ -404,29 +404,29 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 }
 
 .click-to-play-plugins-notification-separator {
-  -moz-border-start: 1px solid rgba(3, 14, 27, .1);
+  border-inline-start: 1px solid rgba(3, 14, 27, .1);
   border-top: 1px solid rgba(3, 14, 27, .1);
 }
 
 .click-to-play-plugins-notification-description-box {
   border-bottom: 1px solid rgba(255, 255, 255, .2);
-  -moz-border-start: 1px solid rgba(255, 255, 255, .2);
+  border-inline-start: 1px solid rgba(255, 255, 255, .2);
   padding-top: 12px;
-  -moz-padding-end: 11px;
+  padding-inline-end: 11px;
    padding-bottom: 9px;
-  -moz-padding-start: 10px;
+  padding-inline-start: 10px;
 }
 
 .click-to-play-plugins-notification-center-box {
   border-top: 1px solid rgba(255, 255, 255, .2);
   border-bottom: 1px solid rgba(255, 255, 255, .2);
-  -moz-border-start: 1px solid rgba(255, 255, 255, .2);
+  border-inline-start: 1px solid rgba(255, 255, 255, .2);
   background-color: rgba(3, 14, 27, .05);
 }
 
 .click-to-play-plugins-notification-button-container {
   border-top: 1px solid rgba(255, 255, 255, .2);
-  -moz-border-start: 1px solid rgba(255, 255, 255, .2);
+  border-inline-start: 1px solid rgba(255, 255, 255, .2);
   margin: 0px;
   padding: 16px;
 }
@@ -522,7 +522,7 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 }
 
 .autocomplete-treebody::-moz-tree-cell-text(value) {
-  -moz-padding-start: 15px;
+  padding-inline-start: 15px;
 }
 
 .autocomplete-search-box {
@@ -545,7 +545,7 @@ panel[nomatch="true"] > .autocomplete-search-box {
 }
 
 .autocomplete-search-engine-img {
-  -moz-margin-end: 4px;
+  margin-inline-end: 4px;
   width: 16px;
   height: 16px;
 }
@@ -560,8 +560,8 @@ panel[nomatch="true"] > .autocomplete-search-box {
 #go-button {
   margin-top: 0px;
   margin-bottom: 0px;
-  -moz-margin-start: 0px;
-  -moz-margin-end: 4px;
+  margin-inline-start: 0px;
+  margin-inline-end: 4px;
   min-height: 25px;
   font: message-box;
   font-weight: bold;

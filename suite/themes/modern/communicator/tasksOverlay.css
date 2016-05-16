@@ -14,7 +14,7 @@
 #mini-nav {
   list-style-image: url("chrome://communicator/skin/taskbar/taskbar.png");
   -moz-image-region: rect(0 13px 13px 0);
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
 }
 
 #mini-nav:hover:active {
@@ -28,7 +28,7 @@
 #mini-mail {
   list-style-image: url("chrome://communicator/skin/taskbar/taskbar.png");
   -moz-image-region: rect(0 34px 13px 13px);
-  -moz-margin-start: 1px;
+  margin-inline-start: 1px;
 }
 
 #mini-mail:hover:active {

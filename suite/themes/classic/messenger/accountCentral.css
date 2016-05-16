@@ -27,8 +27,8 @@ spacer.big {
 #acctCentralHeaderRow {
   padding-top: 10px;
   padding-bottom: 10px;
-  -moz-padding-start: 10px;
-  -moz-padding-end: 0px;
+  padding-inline-start: 10px;
+  padding-inline-end: 0px;
   font-size: 180%;
   font-weight: bold;
   color: #000000;
@@ -36,14 +36,14 @@ spacer.big {
 
 .acctCentralRow {
   -moz-binding: url("chrome://communicator/skin/communicatorBindings.xml#row-iconic");
-  -moz-margin-start: 10px;
+  margin-inline-start: 10px;
   font-size: 125%;
   color: #000000;
 }
 
 .row-iconic-icon {
   list-style-image: inherit;
-  -moz-margin-end: 10px;
+  margin-inline-end: 10px;
 }
 
 .acctCentralRowTitleBox {

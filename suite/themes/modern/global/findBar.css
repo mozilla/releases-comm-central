@@ -9,8 +9,8 @@
   padding: 0 !important;
   margin-top: 3px !important;
   margin-bottom: 3px !important;
-  -moz-margin-start: 6px !important;
-  -moz-margin-end: 4px !important;
+  margin-inline-start: 6px !important;
+  margin-inline-end: 4px !important;
   border: none;
 }
 
@@ -75,8 +75,8 @@ findbar {
   list-style-image: none;
   margin-top: 2px;
   margin-bottom: 2px;
-  -moz-margin-start: 8px;
-  -moz-margin-end: 0;
+  margin-inline-start: 8px;
+  margin-inline-end: 0;
   width: 16px;
   height: 16px;
 }

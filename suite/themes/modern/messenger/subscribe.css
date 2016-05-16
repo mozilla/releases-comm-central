@@ -34,13 +34,13 @@ treechildren::-moz-tree-cell-text(nameColumn, Subscribable-false) {
 /* ::::: folder icons :::::: */
 
 treechildren::-moz-tree-image(nameColumn) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   list-style-image: url("chrome://messenger/skin/icons/folder-closed.gif");
 }
 
 treechildren::-moz-tree-image(nameColumn, ServerType-nntp),
 treechildren::-moz-tree-image(nameColumn2, nntp) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   list-style-image: url("chrome://messenger/skin/icons/folder-newsgroup.gif");
 }
 
@@ -70,5 +70,5 @@ statusbarpanel,
 }
 
 #statusContainerBox {
-  -moz-margin-end: 4px;
+  margin-inline-end: 4px;
 }

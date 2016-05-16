@@ -316,7 +316,7 @@ label[disabled="true"] {
 }
 
 .indent {
-  -moz-margin-start: 20px;
+  margin-inline-start: 20px;
 }
 
 .box-padded {

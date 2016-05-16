@@ -26,8 +26,8 @@
 .toolbarbutton-1[disabled="true"]:hover:active > .toolbarbutton-menubutton-button {
   padding-top: 2px;
   padding-bottom: 2px;
-  -moz-padding-start: 2px;
-  -moz-padding-end: 3px;
+  padding-inline-start: 2px;
+  padding-inline-end: 3px;
 }
 
 .toolbarbutton-1:hover:active,
@@ -35,8 +35,8 @@
 .toolbarbutton-1:hover:active > .toolbarbutton-menubutton-button {
   padding-top: 3px;
   padding-bottom: 1px;
-  -moz-padding-start: 3px;
-  -moz-padding-end: 2px;
+  padding-inline-start: 3px;
+  padding-inline-end: 2px;
 }
 
 .toolbarbutton-1[type="menu-button"],
@@ -90,13 +90,13 @@ toolbar[labelalign="end"] .toolbarbutton-1 > hbox > vbox {
 .button-toolbar:hover:active > .button-box  {
   padding-top: 2px;
   padding-bottom: 0px;
-  -moz-padding-start: 3px;
-  -moz-padding-end: 1px;
+  padding-inline-start: 3px;
+  padding-inline-end: 1px;
 }
 
 .button-toolbar > .button-box > .button-icon,
 .button-toolbar > .button-box > .button-text {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
 }  
 
 .button-toolbar, 
@@ -131,15 +131,15 @@ toolbar[labelalign="end"] .toolbarbutton-1 > hbox > vbox {
 .taskbutton:hover:active {
   padding-top: 2px;
   padding-bottom: 0px;
-  -moz-padding-start: 2px;
-  -moz-padding-end: 0px;
+  padding-inline-start: 2px;
+  padding-inline-end: 0px;
 }
 
 /* override windows */
 
 .toolbarbutton-icon[label]:not([label=""]),
 .toolbarbutton-icon[type="menu"] {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
 }
 
 /**
@@ -173,7 +173,7 @@ toolbar[labelalign="end"] .toolbarbutton-1 > hbox > vbox {
     -moz-border-left-colors: ThreeDShadow;
     padding-top: 3px;
     padding-bottom: 1px;
-    -moz-padding-start: 3px;
-    -moz-padding-end: 1px;
+    padding-inline-start: 3px;
+    padding-inline-end: 1px;
   }
 }

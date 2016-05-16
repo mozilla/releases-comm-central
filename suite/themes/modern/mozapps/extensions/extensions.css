@@ -23,7 +23,7 @@
 }
 
 #forward-btn {
-  -moz-border-start: none;
+  border-inline-start: none;
 }
 
 #back-btn:-moz-locale-dir(ltr),
@@ -155,7 +155,7 @@
 #categories {
   -moz-appearance: none;
   border: none;
-  -moz-margin-end: -1px;
+  margin-inline-end: -1px;
   background-color: transparent;
   position: relative;
   margin-top: 31px;
@@ -203,7 +203,7 @@
   background-color: #C7D0D9;
   color: #000000;
   border-color: #494F5D;
-  -moz-border-end-color: #C7D0D9;
+  border-inline-end-color: #C7D0D9;
 }
 
 .category-name {
@@ -234,7 +234,7 @@
 .category-icon {
   width: 32px;
   height: 32px;
-  -moz-margin-start: 6px;
+  margin-inline-start: 6px;
 }
 
 #category-search {
@@ -281,7 +281,7 @@
 
 #header-utils-btn {
   list-style-image: url("chrome://mozapps/skin/extensions/utilities.png");
-  -moz-margin-end: 16px;
+  margin-inline-end: 16px;
 }
 
 .view-header {
@@ -331,7 +331,7 @@
 }
 
 .sorter .button-icon {
-  -moz-margin-start: 4px;
+  margin-inline-start: 4px;
 }
 
 
@@ -349,7 +349,7 @@
 
 .discover-logo {
   list-style-image: url("chrome://mozapps/skin/extensions/discover-logo.png");
-  -moz-margin-end: 15px;
+  margin-inline-end: 15px;
 }
 
 .discover-title {
@@ -403,7 +403,7 @@
 .details {
   cursor: pointer;
   margin: 0;
-  -moz-margin-start: 10px;
+  margin-inline-start: 10px;
 }
 
 .icon-container {
@@ -458,7 +458,7 @@
 }
 
 .description-container {
-  -moz-margin-start: 6px;
+  margin-inline-start: 6px;
   -moz-box-align: center;
 }
 
@@ -469,7 +469,7 @@
 .warning,
 .pending,
 .error {
-  -moz-margin-start: 48px;
+  margin-inline-start: 48px;
   font-weight: bold;
   -moz-box-align: center;
 }
@@ -530,7 +530,7 @@
 
 .addon .relnotes-container {
   -moz-box-align: start;
-  -moz-margin-start: 6px;
+  margin-inline-start: 6px;
   height: 0;
   overflow: hidden;
   opacity: 0;
@@ -560,7 +560,7 @@
 }
 
 .addon .relnotes-toggle > .button-box > .button-icon {
-  -moz-padding-start: 4px;
+  padding-inline-start: 4px;
 }
 
 .addon[show-relnotes] .relnotes-toggle {
@@ -701,11 +701,11 @@
 #detail-notifications .warning,
 #detail-notifications .pending,
 #detail-notifications .error {
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
 }
 
 #detail-icon {
-  -moz-margin-end: 10px;
+  margin-inline-end: 10px;
   margin-top: 6px;
   max-width: 64px;
   max-height: 64px;
@@ -720,7 +720,7 @@
 }
 
 #detail-screenshot {
-  -moz-margin-end: 2em;
+  margin-inline-end: 2em;
   max-width: 300px;
   max-height: 300px;
 }
@@ -730,7 +730,7 @@
 }
 
 #detail-desc, #detail-fulldesc {
-  -moz-margin-start: 6px;
+  margin-inline-start: 6px;
   /* This is necessary to fix layout issues with multi-line descriptions, see
      bug 592712*/
   outline: solid transparent;
@@ -776,7 +776,7 @@
 }
 
 #detail-contrib-btn .button-icon {
-  -moz-margin-end: 3px;
+  margin-inline-end: 3px;
 }
 
 #detail-contrib-btn:not(:active):hover {
@@ -814,7 +814,7 @@
 }
 
 .detail-row-value {
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
 }
 
 #detail-controls {
@@ -828,8 +828,8 @@
 /*** creator ***/
 
 .creator > label {
-  -moz-margin-start: 0;
-  -moz-margin-end: 0;
+  margin-inline-start: 0;
+  margin-inline-end: 0;
 }
 
 .creator > .text-link {
@@ -841,8 +841,8 @@
 /*** rating ***/
 
 .meta-rating {
-  -moz-margin-start: 0;
-  -moz-margin-end: 0;
+  margin-inline-start: 0;
+  margin-inline-end: 0;
   padding-top: 2px;
 }
 
@@ -894,13 +894,13 @@
 }
 
 .download-progress .start-cap {
-  -moz-margin-start: -1px;
-  -moz-border-end-width: 0;
+  margin-inline-start: -1px;
+  border-inline-end-width: 0;
 }
 
 .download-progress .end-cap {
-  -moz-margin-end: -1px;
-  -moz-border-start-width: 0px !important;
+  margin-inline-end: -1px;
+  border-inline-start-color: 0px !important;
 }
 
 .download-progress .progress .progress-bar  {
@@ -961,7 +961,7 @@
 }
 
 .download-progress .cancel .button-icon {
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
 }
 
 .download-progress .cancel {

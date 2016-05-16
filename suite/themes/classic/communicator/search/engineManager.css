@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #engineChildren::-moz-tree-image(engineName) {
-  -moz-margin-end: 4px;
-  -moz-margin-start: 1px;
+  margin-inline-end: 4px;
+  margin-inline-start: 1px;
   width: 16px;
   height: 16px;
 }

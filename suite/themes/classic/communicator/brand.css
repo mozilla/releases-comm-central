@@ -16,8 +16,8 @@
   -moz-box-pack: center;
   margin-top: 1px;
   margin-bottom: 1px;
-  -moz-margin-start: 10px;
-  -moz-margin-end: 5px;
+  margin-inline-start: 10px;
+  margin-inline-end: 5px;
   border: none;
   padding: 1px;
   min-width: 0;

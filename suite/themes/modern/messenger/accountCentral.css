@@ -33,14 +33,14 @@ spacer.big {
 
 .acctCentralRow {
   -moz-binding: url("chrome://global/skin/globalBindings.xml#row-iconic");
-  -moz-margin-start: 10px;
+  margin-inline-start: 10px;
   font-size: 125%;
   color: #000000;
 }
 
 .row-iconic-icon {
   list-style-image: inherit;
-  -moz-margin-end: 10px;
+  margin-inline-end: 10px;
 }
 
 .acctCentralRowTitleBox {

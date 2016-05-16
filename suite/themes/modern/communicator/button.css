@@ -83,8 +83,8 @@ toolbar[mode="text"] .toolbarbutton-icon {
 toolbar[mode="icons"] .toolbarbutton-menubutton-dropmarker {
   margin-top: 20px;
   margin-bottom: 0px;
-  -moz-margin-start: 40px;
-  -moz-margin-end: 0px;
+  margin-inline-start: 40px;
+  margin-inline-end: 0px;
 }
 
 toolbar[mode="text"] .toolbarbutton-menubutton-dropmarker,
@@ -96,15 +96,15 @@ toolbar[labelalign="end"]:not([mode="icons"])
 toolbar[iconsize="small"] .toolbarbutton-menubutton-dropmarker {
   margin-top: 0px;
   margin-bottom: 2px;
-  -moz-margin-start: 14px;
-  -moz-margin-end: 0px;
+  margin-inline-start: 14px;
+  margin-inline-end: 0px;
 }
 
 toolbar[iconsize=small][mode="icons"] .toolbarbutton-menubutton-dropmarker {
   margin-top: 8px;
   margin-bottom: 0px;
-  -moz-margin-start: 14px;
-  -moz-margin-end: 0px;
+  margin-inline-start: 14px;
+  margin-inline-end: 0px;
 }
 
 /* ::::: standard toolbar buttons ::::: */

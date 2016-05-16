@@ -36,8 +36,8 @@
 .console-row-code {
   padding-top: 3px;
   padding-bottom: 3px;
-  -moz-padding-start: 3px;
-  -moz-padding-end: 0px;
+  padding-inline-start: 3px;
+  padding-inline-end: 0px;
   color: #0000BB;
   font-size: 120%;
 }
@@ -97,8 +97,8 @@
 #ButtonEval {
   margin-top: 2px !important;
   margin-bottom: 2px !important;
-  -moz-margin-start: 0px !important;
-  -moz-margin-end: 2px !important;
+  margin-inline-start: 0px !important;
+  margin-inline-end: 2px !important;
 }
 
 toolbarseparator {

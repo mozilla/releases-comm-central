@@ -29,7 +29,7 @@
 }
 
 #urlColumn {
-  -moz-margin-start: 1ex;
+  margin-inline-start: 1ex;
 }
 
 #alert-image {

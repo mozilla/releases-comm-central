@@ -30,7 +30,7 @@
 
 #alertTextBox {
   padding: 4px;
-  -moz-padding-end: 16px;
+  padding-inline-end: 16px;
 }
 
 .folderSummary-message-row

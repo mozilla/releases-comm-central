@@ -102,7 +102,7 @@
 }
 
 #help-sidebar-splitter {
-  -moz-border-end: 1px solid #BEBEBE;
+  border-inline-end: 1px solid #BEBEBE;
 }
 
 /* make findbar appear above content */

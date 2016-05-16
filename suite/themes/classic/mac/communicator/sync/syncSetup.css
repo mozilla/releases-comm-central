@@ -95,7 +95,7 @@ description > .text-link {
 }
 
 .inputColumn {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
 }
 
 .recommended {

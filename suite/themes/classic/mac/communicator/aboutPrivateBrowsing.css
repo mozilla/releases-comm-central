@@ -14,7 +14,7 @@
   border: 1px solid ThreeDShadow;
   border-radius: 10px;
   padding: 3em;
-  -moz-padding-start: 30px;
+  padding-inline-start: 30px;
   margin-left: 1em;
   margin-right: 1em;
 }
@@ -40,19 +40,19 @@
   list-style-image: url("chrome://global/skin/icons/information-large.png");
   width: 48px;
   height: 48px;
-  -moz-margin-end: 1.5em;
+  margin-inline-end: 1.5em;
 }
 
 #warningBox.normal > #warningBoxIcon {
   list-style-image: url("chrome://global/skin/icons/question-large.png");
   width: 48px;
   height: 48px;
-  -moz-margin-end: 1.5em;
+  margin-inline-end: 1.5em;
 }
 
 #trackWarnBox {
   margin-top: 0.6em;
-  -moz-margin-end: 4em;
+  margin-inline-end: 4em;
   -moz-box-align: start;
 }
 
@@ -60,7 +60,7 @@
   list-style-image: url("chrome://communicator/skin/icons/warning-24.png");
   width: 24px;
   height: 24px;
-  -moz-margin-end: 1em;
+  margin-inline-end: 1em;
 }
 
 /* Define additional styles to look similar to the netError/certError pages */
@@ -81,5 +81,5 @@
 
 #warningOuterBox > vbox > label,
 #warningInnerBox > description {
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
 }

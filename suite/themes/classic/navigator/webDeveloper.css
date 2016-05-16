@@ -75,7 +75,7 @@
   text-shadow: none;
   background-color: firebrick;
   border-radius: 2px;
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
 /*
   Firefox browser/themes/windows/browser.css
   color: #FDF3DE;
@@ -83,14 +83,14 @@
   text-shadow: none;
   background-image: linear-gradient(#B4211B, #8A1915);
   border-radius: 1px;
-  -moz-margin-end: 5px;
+  margin-inline-end: 5px;
   Firefox browser/themes/linux/browser.css
   color: #FDF3DE;
   min-width: 16px;
   text-shadow: none;
   background-image: linear-gradient(#B4211B, #8A1915);
   border-radius: 1px;
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
 */
 }
 

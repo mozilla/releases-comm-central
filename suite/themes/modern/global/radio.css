@@ -16,13 +16,13 @@ radio {
   border: 2px solid transparent;
   padding-top: 1px;
   padding-bottom: 1px;
-  -moz-padding-start: 4px;
-  -moz-padding-end: 2px;
+  padding-inline-start: 4px;
+  padding-inline-end: 2px;
   border-radius: 4px 5px;
 }
 
 .radio-icon {
-  -moz-margin-start: 2px;
+  margin-inline-start: 2px;
 }
 
 .radio-text {

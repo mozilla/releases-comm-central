@@ -39,7 +39,7 @@
 }
 
 .searchbar-engine-button {
-  -moz-padding-start: 6px !important; /* Need !important because of class="plain". */
+  padding-inline-start: 6px !important; /* Need !important because of class="plain". */
   min-width: 0;
 }
 
@@ -49,19 +49,19 @@
 
 .toolbarbutton-menu-dropmarker {
   list-style-image: url("chrome://communicator/skin/search/searchbar-dropmarker.png");
-  -moz-margin-end: 4px;
+  margin-inline-end: 4px;
 }
 
 .searchbar-popup {
   margin-top: 4px;
-  -moz-margin-start: 3px;
+  margin-inline-start: 3px;
 }
 
 /* ::::: search-go-button ::::: */
 
 .search-go-container {
   -moz-box-align: center;
-  -moz-padding-end: 6px;
+  padding-inline-end: 6px;
 }
 
 .search-go-button {

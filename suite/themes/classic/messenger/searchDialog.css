@@ -39,7 +39,7 @@ menulist:not(#menuSearchLocalSystem) {
 }
 
 menulist:not(#menuSearchLocalSystem) > menupopup > menuitem {
-  -moz-padding-end: 2px;
+  padding-inline-end: 2px;
 }
 
 textbox {
@@ -47,7 +47,7 @@ textbox {
 }
 
 .filler {
-  -moz-padding-end: 22px;
+  padding-inline-end: 22px;
 }
 
 .small-button {

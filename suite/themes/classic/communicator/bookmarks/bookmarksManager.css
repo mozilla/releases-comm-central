@@ -9,10 +9,10 @@
 }
 
 #infoBoxExpanderLabel {
-  -moz-padding-start: 2px;
+  padding-inline-start: 2px;
 }
 
 #organizerScopeBar {
   padding: 2px 0;
-  -moz-padding-end: 3px;
+  padding-inline-end: 3px;
 }

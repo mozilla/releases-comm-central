@@ -21,7 +21,7 @@ textbox {
 }
 
 textbox.header {
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
 }
 
 textbox.meta-properties {
@@ -82,8 +82,8 @@ treechildren::-moz-tree-cell-text(broken) {
 .permission {
   padding-top: 6px;
   padding-bottom: 6px;
-  -moz-padding-start: 7px;
-  -moz-padding-end: 7px;
+  padding-inline-start: 7px;
+  padding-inline-end: 7px;
   min-height: 25px;
   border-bottom: 1px dotted #C7D0D9;
 }

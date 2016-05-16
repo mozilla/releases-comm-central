@@ -30,8 +30,8 @@ listcell > hbox {
 
 #searchResultListBox {
   -moz-appearance: listbox;
-  -moz-margin-start: 4px;
-  -moz-margin-end: 4px;
+  margin-inline-start: 4px;
+  margin-inline-end: 4px;
   height: 100px;
 }
 

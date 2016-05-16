@@ -43,8 +43,8 @@ checkbox.nogray-disabled[disabled="true"][nogray="true"]
 .handler-type > .listcell-icon {
   margin-top: 5px;
   margin-bottom: 5px;
-  -moz-margin-start: 7px;
-  -moz-margin-end: 2px;
+  margin-inline-start: 7px;
+  margin-inline-end: 2px;
   height: 16px;
   width: 16px;
 }
@@ -53,8 +53,8 @@ checkbox.nogray-disabled[disabled="true"][nogray="true"]
 .handler-type > .listcell-label {
   padding-top: 5px;
   padding-bottom: 5px;
-  -moz-padding-start: 0px;
-  -moz-padding-end: 5px;
+  padding-inline-start: 0px;
+  padding-inline-end: 5px;
 }
 
 .actionsMenu {
@@ -62,7 +62,7 @@ checkbox.nogray-disabled[disabled="true"][nogray="true"]
 }
 
 .actionsMenu > .menulist-label-box {
-  -moz-padding-start: 0;
+  padding-inline-start: 0;
 }
 
 .actionsMenu > .menulist-label-box > .menulist-icon {
@@ -72,7 +72,7 @@ checkbox.nogray-disabled[disabled="true"][nogray="true"]
 }
 
 .handler-action > .menu-iconic-left > .menu-iconic-icon {
-  -moz-margin-start: 6px;
+  margin-inline-start: 6px;
 }
 
 /* Set icons on app pane elements */

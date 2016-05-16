@@ -11,7 +11,7 @@
 /* ::::: mail folder ::::: */
 
 treechildren::-moz-tree-image(folderNameCol) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
 }
 
 .icon-holder[type="folder"],

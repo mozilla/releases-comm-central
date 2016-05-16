@@ -40,8 +40,8 @@ dialogheader {
   -moz-box-orient: vertical;
   margin-top: -7px;
   margin-bottom: 5px;
-  -moz-margin-start: -7px;
-  -moz-margin-end: -5px;
+  margin-inline-start: -7px;
+  margin-inline-end: -5px;
   border-left: none;
   border-right: none;
   border-top: none;
@@ -49,8 +49,8 @@ dialogheader {
   -moz-border-bottom-colors: #000000;
   padding-top: 12px;
   padding-bottom: 12px;
-  -moz-padding-start: 25px;
-  -moz-padding-end: 5px;
+  padding-inline-start: 25px;
+  padding-inline-end: 5px;
   background-color: #90A1B3;
   color: #000000;
 }
@@ -61,5 +61,5 @@ dialogheader {
 }
 
 .header-large > .dialogheader-description {
-  -moz-margin-start: 12px !important;
+  margin-inline-start: 12px !important;
 }

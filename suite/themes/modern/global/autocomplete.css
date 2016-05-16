@@ -35,8 +35,8 @@ textbox[nomatch="true"][highlightnonmatches="true"] {
 .autocomplete-history-dropmarker[open="true"] {
   margin-top: 3px;
   margin-bottom: 1px;
-  -moz-margin-start: 3px;
-  -moz-margin-end: 1px;
+  margin-inline-start: 3px;
+  margin-inline-end: 1px;
 }
 
 /* ::::: popups ::::: */
@@ -69,7 +69,7 @@ panel[type="autocomplete"] {
 }
 
 .autocomplete-treebody::-moz-tree-cell-text {
-  -moz-padding-start: 8px;
+  padding-inline-start: 8px;
   color: #000000;
 }
 

@@ -15,8 +15,8 @@
 .permission {
   padding-top: 6px;
   padding-bottom: 6px;
-  -moz-padding-start: 7px;
-  -moz-padding-end: 7px;
+  padding-inline-start: 7px;
+  padding-inline-end: 7px;
   min-height: 25px;
   border-bottom: 1px dotted ThreeDFace;
 }
@@ -24,7 +24,7 @@
 .hostLabel {
   font-weight: bold;
   font-style: italic;
-  -moz-margin-end: 1em;
+  margin-inline-end: 1em;
 }
 
 .permissionLabel {

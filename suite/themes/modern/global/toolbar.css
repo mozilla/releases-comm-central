@@ -104,8 +104,8 @@ toolbargrippy[tbgrippy-collapsed="true"] {
 toolbargrippy[tbgrippy-collapsed="true"] > .toolbargrippy-arrow {
   margin-top: 1px;
   margin-bottom: 1px;
-  -moz-margin-start: 3px;
-  -moz-margin-end: 0px;
+  margin-inline-start: 3px;
+  margin-inline-end: 0px;
   width: 5px;
   height: 8px;
 }

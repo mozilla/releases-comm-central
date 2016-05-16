@@ -15,8 +15,8 @@ autorepeatbutton {
   -moz-box-pack: center;
   margin-top: 1px;
   margin-bottom: 2px;
-  -moz-margin-start: 1px;
-  -moz-margin-end: 2px;
+  margin-inline-start: 1px;
+  margin-inline-end: 2px;
   border: 1px solid transparent;
   padding: 3px;
 }
@@ -26,8 +26,8 @@ autorepeatbutton:not([disabled="true"]):hover {
   border: 1px inset #A5B2C2;
   padding-top: 4px;
   padding-bottom: 3px;
-  -moz-padding-start: 4px;
-  -moz-padding-end: 3px;
+  padding-inline-start: 4px;
+  padding-inline-end: 3px;
   background-color: #A5B2C2;
 }
 

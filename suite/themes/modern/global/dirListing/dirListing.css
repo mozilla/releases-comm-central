@@ -91,12 +91,12 @@ td:not(:first-child) {
 
 .up {
   padding: 0 .5em;
-  -moz-margin-start: 24px;
+  margin-inline-start: 24px;
 }
 
 .up::before {
-  -moz-margin-end: 4px;
-  -moz-margin-start: -24px;
+  margin-inline-end: 4px;
+  margin-inline-start: -24px;
   vertical-align: middle;
   content: url("chrome://global/skin/filepicker/folder-up.gif");
 }

@@ -32,7 +32,7 @@ h2 {
   border: 1px solid #FFBD09;
   border-radius: 10px;
   padding: 3em;
-  -moz-padding-start: 30px;
+  padding-inline-start: 30px;
   background: url("chrome://global/skin/icons/sslWarning.png") left 0 no-repeat -moz-Field;
   background-origin: content-box;
 }
@@ -42,16 +42,16 @@ body[dir="rtl"] #errorPageContainer {
 }
 
 #errorTitle {
-  -moz-margin-start: 80px;
+  margin-inline-start: 80px;
 }
 
 #errorLongContent {
-  -moz-margin-start: 80px;
+  margin-inline-start: 80px;
 }
 
 #technicalContent > h2, #expertContent > h2 {
   cursor: pointer;
-  -moz-padding-start: 20px;
+  padding-inline-start: 20px;
   position: relative;
   left: -20px;
   background: url("chrome://messenger/skin/icons/twisty-open.png") left center no-repeat;

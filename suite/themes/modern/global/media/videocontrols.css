@@ -97,8 +97,8 @@ button {
   margin: 6px 0px;
   border: 0px solid transparent;
   border-top-width: 16px;
-  -moz-border-end-width: 32px;
-  -moz-border-end-color: #B1BBC5;
+  border-inline-end-width: 32px;
+  border-inline-end-color: #B1BBC5;
 }
 
 .durationBox {

@@ -14,5 +14,5 @@
 }
 
 #buttons-box {
-  -moz-margin-start: 1em;
+  margin-inline-start: 1em;
 }

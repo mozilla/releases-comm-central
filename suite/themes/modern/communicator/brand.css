@@ -41,8 +41,8 @@ toolbar[mode="text"] #navigator-throbber,
 toolbar[iconsize="small"] #navigator-throbber {
   margin-top: 2px;
   margin-bottom: 2px;
-  -moz-margin-start: 6px;
-  -moz-margin-end: 4px;
+  margin-inline-start: 6px;
+  margin-inline-end: 4px;
   list-style-image: url("chrome://communicator/skin/brand/throbber16-single.png");
 }
 

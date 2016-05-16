@@ -81,8 +81,8 @@
 
 #advancedSearchRows > row,
 #searchActions {
-  -moz-padding-start: 2px;
-  -moz-padding-end: 8px;
+  padding-inline-start: 2px;
+  padding-inline-end: 8px;
 }
 
 #organizerScopeBar {
@@ -137,7 +137,7 @@ button[group="scopeBar"]:active:hover {
 #organizerScopeBarExpander {
   margin: 0;
   padding: 0;
-  -moz-padding-end: 2px;
+  padding-inline-end: 2px;
 }
 
 #saveSearch {

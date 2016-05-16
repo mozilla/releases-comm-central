@@ -14,7 +14,7 @@
 
 .importsampledata {
   border-left: 3px solid #C2D0D0;
-  -moz-padding-start: 10px;
+  padding-inline-start: 10px;
 }
 
 /* ::::: importDialog.xul ::::: */
@@ -26,7 +26,7 @@
 #progressMeter {
   margin-top: 1em;
   margin-bottom: 2em;
-  -moz-margin-start: 1em;
-  -moz-margin-end: 2em;
+  margin-inline-start: 1em;
+  margin-inline-end: 2em;
   width: 26em;
 }

@@ -26,14 +26,14 @@
   border: 1px solid #494F5D;
   border-radius: 10px;
   padding: 3em;
-  -moz-padding-start: 78px;
+  padding-inline-start: 78px;
   margin: 0 1em;
 }
 
 .title, .description
 {
   max-width: 50em;
-  -moz-padding-start: 3em;
+  padding-inline-start: 3em;
 }
 
 #warningTitle
@@ -46,7 +46,7 @@
 #warningText
 {
   font-size: 110%;
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
 }
 
 #warningButton

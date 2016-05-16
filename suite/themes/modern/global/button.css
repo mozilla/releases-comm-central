@@ -24,14 +24,14 @@ button {
 }
 
 .button-icon {
-  -moz-margin-start: 2px;
+  margin-inline-start: 2px;
 }
 
 .button-text {
   margin-top: 0px !important;
   margin-bottom: 0px !important;
-  -moz-margin-start: 4px !important;
-  -moz-margin-end: 6px !important;
+  margin-inline-start: 4px !important;
+  margin-inline-end: 6px !important;
   text-align: center;
 }
 
@@ -129,8 +129,8 @@ button[type="menu-button"] {
 .button-menubutton-dropmarker[open="true"] {
   margin-top: 2px;
   margin-bottom: 0px;
-  -moz-margin-start: 2px;
-  -moz-margin-end: 0px;
+  margin-inline-start: 2px;
+  margin-inline-end: 0px;
 }
 
 /* ::::: plain buttons ::::: */

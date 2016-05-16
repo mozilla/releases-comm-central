@@ -86,8 +86,8 @@ tooltip[titletip="true"] {
   /* See bug 32157 comment 128
    * margin-top: -2px;
    * margin-bottom: 0px;
-   * -moz-margin-start: -4px;
-   * -moz-margin-end: 0px;
+   * margin-inline-start: -4px;
+   * margin-inline-end: 0px;
    */
   max-width: none;
 }

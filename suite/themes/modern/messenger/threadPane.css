@@ -127,8 +127,8 @@ treechildren::-moz-tree-image(news, threadCol, container, hasUnread, ignore, off
 
 treechildren::-moz-tree-image(unreadButtonColHeader) {
   list-style-image: url("chrome://messenger/skin/icons/readcol-read.gif");
-  -moz-padding-start: 0px;
-  -moz-padding-end: 4px;
+  padding-inline-start: 0px;
+  padding-inline-end: 4px;
 }
 
 treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
@@ -157,8 +157,8 @@ treechildren::-moz-tree-image(attachmentCol, attach, focus, selected) {
 
 treechildren::-moz-tree-image(flaggedCol) {
   list-style-image: url("chrome://messenger/skin/icons/readcol-read.gif");
-  -moz-padding-start: 0px;
-  -moz-padding-end: 4px;
+  padding-inline-start: 0px;
+  padding-inline-end: 4px;
 }
 
 treechildren::-moz-tree-image(flaggedCol, flagged) {
@@ -174,8 +174,8 @@ treechildren::-moz-tree-image(flaggedCol, flagged) {
 /* "unknown" now looks like "not junk".  see bug #182386 */
 treechildren::-moz-tree-image(junkStatusCol) {
   list-style-image: url("chrome://messenger/skin/icons/readcol-read.gif");
-  -moz-padding-start: 0px;
-  -moz-padding-end: 4px;
+  padding-inline-start: 0px;
+  padding-inline-end: 4px;
 }
 
 treechildren::-moz-tree-image(junkStatusCol, junk) {
@@ -184,8 +184,8 @@ treechildren::-moz-tree-image(junkStatusCol, junk) {
 
 treechildren::-moz-tree-image(junkStatusCol, notjunk) {
   list-style-image: url("chrome://messenger/skin/icons/readcol-read.gif");
-  -moz-padding-start: 0px;
-  -moz-padding-end: 4px;
+  padding-inline-start: 0px;
+  padding-inline-end: 4px;
 }
 
 /* ..... subject column, tab and menuitem icons ..... */
@@ -196,7 +196,7 @@ treechildren::-moz-tree-image(subjectCol) {
 }
 
 treechildren::-moz-tree-image(subjectCol) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
 }
 
 treechildren::-moz-tree-image(subjectCol, new) {

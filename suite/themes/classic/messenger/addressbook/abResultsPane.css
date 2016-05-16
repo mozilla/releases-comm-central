@@ -5,12 +5,12 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 treechildren::-moz-tree-image(GeneratedName) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/abcard.gif");
 }
 
 treechildren::-moz-tree-image(GeneratedName, MailList) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/ablist.gif");
 }
 

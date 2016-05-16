@@ -11,7 +11,7 @@
 
 treechildren::-moz-tree-image(Name),
 treechildren::-moz-tree-image(title) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
   width: 16px;
   height: 16px;
 }

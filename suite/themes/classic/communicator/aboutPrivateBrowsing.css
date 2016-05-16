@@ -14,7 +14,7 @@
   border: 1px solid ThreeDShadow;
   border-radius: 10px;
   padding: 3em;
-  -moz-padding-start: 30px;
+  padding-inline-start: 30px;
   margin-left: 1em;
   margin-right: 1em;
 }
@@ -41,19 +41,19 @@
 
   width: 48px;
   height: 48px;
-  -moz-margin-end: 3em;
+  margin-inline-end: 3em;
 }
 
 #warningBox.normal > #warningBoxIcon {
   list-style-image: url("chrome://communicator/skin/icons/question-48.png");
   width: 48px;
   height: 48px;
-  -moz-margin-end: 3em;
+  margin-inline-end: 3em;
 }
 
 #trackWarnBox {
   margin-top: 0.6em;
-  -moz-margin-end: 7em;
+  margin-inline-end: 7em;
   -moz-box-align: center;
 }
 
@@ -82,5 +82,5 @@
 
 #warningOuterBox > vbox > label,
 #warningInnerBox > description {
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
 }

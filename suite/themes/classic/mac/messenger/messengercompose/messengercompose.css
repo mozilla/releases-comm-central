@@ -186,38 +186,38 @@ toolbar[iconsize="small"] > #button-save[disabled="true"] {
 treechildren::-moz-tree-cell-text(default-match) {
   margin-top: 2px;
   margin-bottom: 2px;
-  -moz-margin-start: 15px;
-  -moz-margin-end: -3px;
+  margin-inline-start: 15px;
+  margin-inline-end: -3px;
   border: none;
 }
 
 treechildren::-moz-tree-image(local-abook) {
   margin-top: 2px;
   margin-bottom: 2px;
-  -moz-margin-start: 4px;
-  -moz-margin-end: -1px;
+  margin-inline-start: 4px;
+  margin-inline-end: -1px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.gif");
 }
 
 treechildren::-moz-tree-image(remote-abook) {
   margin-top: 2px;
   margin-bottom: 2px;
-  -moz-margin-start: 2px;
-  -moz-margin-end: -3px;
+  margin-inline-start: 2px;
+  margin-inline-end: -3px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook.gif");
 }
 
 treechildren::-moz-tree-image(remote-err) {
   margin-top: 2px;
   margin-bottom: 2px;
-  -moz-margin-start: 2px;
-  -moz-margin-end: -3px;
+  margin-inline-start: 2px;
+  margin-inline-end: -3px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook-error.gif");
 }
 
 treechildren::-moz-tree-image(subscribed-news) {
-  -moz-margin-start: 2px;
-  -moz-margin-end: -3px;
+  margin-inline-start: 2px;
+  margin-inline-end: -3px;
   list-style-image: url("chrome://messenger/skin/icons/folder-newsgroup.png");
 }
 

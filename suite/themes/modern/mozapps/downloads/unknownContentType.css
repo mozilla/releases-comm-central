@@ -13,8 +13,8 @@
 #contentTypeImage {
   margin-top: 0;
   margin-bottom: 0;
-  -moz-margin-start: 0;
-  -moz-margin-end: 5px;
+  margin-inline-start: 0;
+  margin-inline-end: 5px;
 }
 
 .small-indent {
@@ -23,5 +23,5 @@
 }
 
 .small-indent label {
-  -moz-margin-start: 0;
+  margin-inline-start: 0;
 }

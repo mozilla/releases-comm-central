@@ -29,8 +29,8 @@ tabpanels {
 
 .tab-icon {
   margin-top: 1px;
-  -moz-margin-start: 1px;
-  -moz-margin-end: 4px;
+  margin-inline-start: 1px;
+  margin-inline-end: 4px;
   width: 16px;
   height: 16px;
 }
@@ -173,7 +173,7 @@ tabpanels {
 .tab-drop-indicator-bar {
     height: 11px;
     margin-top: -11px;
-    -moz-margin-start: -6px;
+    margin-inline-start: -6px;
     position: relative;
 }
 

@@ -10,7 +10,7 @@
 */
 
 treechildren::-moz-tree-image(Name) {
-  -moz-margin-end: 2px;
+  margin-inline-end: 2px;
 }
 
 #pauseButton,
@@ -55,8 +55,8 @@ treechildren::-moz-tree-image(ActionStop, inactive) {
   /* match dialog.css */
   padding-top: 8px;
   padding-bottom: 10px;
-  -moz-padding-start: 8px;
-  -moz-padding-end: 10px;
+  padding-inline-start: 8px;
+  padding-inline-end: 10px;
 }
 
 /* label with dropdown, actually done as a button type=menu */
