@@ -24,7 +24,7 @@ function GetNewMessages(selectedFolders, server)
 
 /**
  * Get the identity that most likely is the best one to use, given the hint.
- * @param identities nsISupportsArray<nsIMsgIdentity> of identities
+ * @param identities nsIArray<nsIMsgIdentity> of identities
  * @param optionalHint string containing comma separated mailboxes
  */
 function getBestIdentity(identities, optionalHint)

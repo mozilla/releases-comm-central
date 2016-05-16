@@ -9,7 +9,6 @@
 #include "nsISuiteProfileMigrator.h"
 #include "nsIFile.h"
 #include "nsIObserverService.h"
-#include "nsISupportsArray.h"
 #include "nsNetscapeProfileMigratorBase.h"
 #include "nsStringAPI.h"
 #include "nsITimer.h"
