@@ -231,6 +231,7 @@ imIncomingServer.prototype = {
     return (this._rootFolder = {
       isServer: true,
       server: this,
+      get URI() { return this.server.serverURI; },
       get prettyName() { return this.server.prettyName; }, // used in the account manager tree
       get prettiestName() { return this.server.prettyName + " prettiestName"; }, // never displayed?
       get name() { return this.server.prettyName + " name"; }, // never displayed?
@@ -241,6 +242,7 @@ imIncomingServer.prototype = {
       descendants: Components.classes["@mozilla.org/array;1"]
                   .createInstance(Components.interfaces.nsIArray),
       ListDescendants: function(descendants) {},
+      getFlag: () => false,
       getFolderWithFlags: aFlags => null,
       getFoldersWithFlags: aFlags =>
         Components.classes["@mozilla.org/array;1"]
