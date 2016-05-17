@@ -813,7 +813,10 @@ function dateTimeControls2State(aStartDatepicker) {
         }
     }
 
-    let startChanged = gStartTime.compare(saveStartTime) != 0;
+    let startChanged = false;
+    if (gStartTime && saveStartTime) {
+        startChanged = gStartTime.compare(saveStartTime) != 0;
+    }
     // Preset the date in the until-datepicker's minimonth to the new start
     // date if it has changed.
     if (startChanged) {
@@ -2699,9 +2702,6 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
             recurrenceInfo = createRecurrenceInfo(item);
             setElementValue("repeat-until-datepicker", "forever");
         }
-        // Preset the until-datepicker's minimonth to the start date.
-        let startDate = cal.dateTimeToJsDate(gStartTime.getInTimezone(cal.floating()));
-        document.getElementById("repeat-until-datepicker").extraDate = startDate;
 
         repeatDeck.selectedIndex = 0;
 
@@ -2743,6 +2743,10 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
             }
             disableElementWithLock("todo-has-entrydate", "repeat-lock");
         }
+
+        // Preset the until-datepicker's minimonth to the start date.
+        let startDate = cal.dateTimeToJsDate(gStartTime.getInTimezone(cal.floating()));
+        document.getElementById("repeat-until-datepicker").extraDate = startDate;
     }
 
     gLastRepeatSelection = repeatMenu.selectedIndex;
