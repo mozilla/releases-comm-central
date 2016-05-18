@@ -10,8 +10,9 @@
 #if defined(XP_WIN)
 #include <windows.h>
 #include <stdlib.h>
+#include <io.h>
+#include <fcntl.h>
 #elif defined(XP_UNIX)
-#include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
 #endif
@@ -22,6 +23,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <time.h>
 
 #include "nsCOMPtr.h"
 #include "nsIFile.h"
@@ -29,9 +31,15 @@
 
 #ifdef XP_WIN
 // we want a wmain entry point
+#define XRE_WANT_ENVIRON
 #include "nsWindowsWMain.cpp"
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
 #define snprintf _snprintf
+#endif
 #define strcasecmp _stricmp
+#ifdef MOZ_SANDBOX
+#include "mozilla/sandboxing/SandboxInitialization.h"
+#endif
 #endif
 #include "BinaryPath.h"
 
@@ -45,6 +53,7 @@ using namespace mozilla;
 #ifdef XP_MACOSX
 #define kOSXResourcesFolder "Resources"
 #endif
+#define kDesktopFolder "mail"
 
 static void Output(const char *fmt, ... )
 {
@@ -71,8 +80,8 @@ static void Output(const char *fmt, ... )
   // This is a rare codepath, so we can load user32 at run-time instead.
   HMODULE user32 = LoadLibraryW(L"user32.dll");
   if (user32) {
-    typedef int (WINAPI * MessageBoxWFn)(HWND, LPCWSTR, LPCWSTR, UINT);
-    MessageBoxWFn messageBoxW = (MessageBoxWFn)GetProcAddress(user32, "MessageBoxW");
+    decltype(MessageBoxW)* messageBoxW =
+      (decltype(MessageBoxW)*) GetProcAddress(user32, "MessageBoxW");
     if (messageBoxW) {
       messageBoxW(nullptr, wide_msg, L"Thunderbird", MB_OK
                                                    | MB_ICONERROR
@@ -110,21 +119,25 @@ XRE_GetFileFromPathType XRE_GetFileFromPath;
 XRE_CreateAppDataType XRE_CreateAppData;
 XRE_FreeAppDataType XRE_FreeAppData;
 XRE_TelemetryAccumulateType XRE_TelemetryAccumulate;
+XRE_StartupTimelineRecordType XRE_StartupTimelineRecord;
 XRE_mainType XRE_main;
+XRE_StopLateWriteChecksType XRE_StopLateWriteChecks;
+XRE_XPCShellMainType XRE_XPCShellMain;
 
 static const nsDynamicFunctionLoad kXULFuncs[] = {
     { "XRE_GetFileFromPath", (NSFuncPtr*) &XRE_GetFileFromPath },
     { "XRE_CreateAppData", (NSFuncPtr*) &XRE_CreateAppData },
     { "XRE_FreeAppData", (NSFuncPtr*) &XRE_FreeAppData },
     { "XRE_TelemetryAccumulate", (NSFuncPtr*) &XRE_TelemetryAccumulate },
+    { "XRE_StartupTimelineRecord", (NSFuncPtr*) &XRE_StartupTimelineRecord },
     { "XRE_main", (NSFuncPtr*) &XRE_main },
+    { "XRE_StopLateWriteChecks", (NSFuncPtr*) &XRE_StopLateWriteChecks },
+    { "XRE_XPCShellMain", (NSFuncPtr*) &XRE_XPCShellMain },
     { nullptr, nullptr }
 };
 
-static int do_main(int argc, char* argv[], nsIFile *xreDirectory)
+static int do_main(int argc, char* argv[], char* envp[], nsIFile *xreDirectory)
 {
-  NS_LogInit();
-
   nsCOMPtr<nsIFile> appini;
   nsresult rv;
   uint32_t mainFlags = 0;
@@ -160,9 +173,20 @@ static int do_main(int argc, char* argv[], nsIFile *xreDirectory)
     argv[2] = argv[0];
     argv += 2;
     argc -= 2;
+  } else if (argc > 1 && IsArg(argv[1], "xpcshell")) {
+    for (int i = 1; i < argc; i++) {
+      argv[i] = argv[i + 1];
+    }
+
+    XREShellData shellData;
+#if defined(XP_WIN) && defined(MOZ_SANDBOX)
+    shellData.sandboxBrokerServices =
+      sandboxing::GetInitializedBrokerServices();
+#endif
+
+    return XRE_XPCShellMain(--argc, argv, envp, &shellData);
   }
 
-  int result;
   if (appini) {
     nsXREAppData *appData;
     rv = XRE_CreateAppData(appini, &appData);
@@ -172,29 +196,45 @@ static int do_main(int argc, char* argv[], nsIFile *xreDirectory)
     }
     // xreDirectory already has a refcount from NS_NewLocalFile
     appData->xreDirectory = xreDirectory;
-    result = XRE_main(argc, argv, appData, 0);
+    int result = XRE_main(argc, argv, appData, mainFlags);
     XRE_FreeAppData(appData);
-  } else {
-    ScopedAppData appData(&sAppData);
-    nsCOMPtr<nsIFile> exeFile;
-    rv = mozilla::BinaryPath::GetFile(argv[0], getter_AddRefs(exeFile));
-    if (NS_FAILED(rv)) {
-      Output("Couldn't find the application directory.\n");
-      return 255;
-    }
-
-    nsCOMPtr<nsIFile> greDir;
-    exeFile->GetParent(getter_AddRefs(greDir));
-#ifdef XP_MACOSX
-    greDir->SetNativeLeafName(NS_LITERAL_CSTRING(kOSXResourcesFolder));
-#endif
-    SetStrongPtr(appData.directory, static_cast<nsIFile*>(greDir.get()));
-    // xreDirectory already has a refcount from NS_NewLocalFile
-    appData.xreDirectory = xreDirectory;
-
-    result = XRE_main(argc, argv, &appData, mainFlags);
+    return result;
   }
-  return result;
+
+  ScopedAppData appData(&sAppData);
+  nsCOMPtr<nsIFile> exeFile;
+  rv = mozilla::BinaryPath::GetFile(argv[0], getter_AddRefs(exeFile));
+  if (NS_FAILED(rv)) {
+    Output("Couldn't find the application directory.\n");
+    return 255;
+  }
+
+  nsCOMPtr<nsIFile> greDir;
+  exeFile->GetParent(getter_AddRefs(greDir));
+#ifdef XP_MACOSX
+  greDir->SetNativeLeafName(NS_LITERAL_CSTRING(kOSXResourcesFolder));
+#endif
+  nsCOMPtr<nsIFile> appSubdir;
+  greDir->Clone(getter_AddRefs(appSubdir));
+  appSubdir->Append(NS_LITERAL_STRING(kDesktopFolder));
+
+  SetStrongPtr(appData.directory, static_cast<nsIFile*>(appSubdir.get()));
+  // xreDirectory already has a refcount from NS_NewLocalFile
+  appData.xreDirectory = xreDirectory;
+
+#if defined(XP_WIN) && defined(MOZ_SANDBOX)
+  sandbox::BrokerServices* brokerServices =
+    sandboxing::GetInitializedBrokerServices();
+#if defined(MOZ_CONTENT_SANDBOX)
+  if (!brokerServices) {
+    Output("Couldn't initialize the broker services.\n");
+    return 255;
+  }
+#endif
+  appData.sandboxBrokerServices = brokerServices;
+#endif
+
+  return XRE_main(argc, argv, &appData, mainFlags);
 }
 
 static bool
@@ -222,7 +262,8 @@ InitXPCOMGlue(const char *argv0, nsIFile **xreDirectory)
   }
 
   char *lastSlash = strrchr(exePath, XPCOM_FILE_PATH_SEPARATOR[0]);
-  if (!lastSlash || (size_t(lastSlash - exePath) > MAXPATHLEN - sizeof(XPCOM_DLL) - 1))
+  if (!lastSlash || (size_t(lastSlash - exePath) > MAXPATHLEN -
+sizeof(XPCOM_DLL) - 1))
     return NS_ERROR_FAILURE;
 
   strcpy(lastSlash + 1, XPCOM_DLL);
@@ -247,6 +288,7 @@ InitXPCOMGlue(const char *argv0, nsIFile **xreDirectory)
     return rv;
   }
 
+  // This will set this thread as the main thread.
   NS_LogInit();
 
   // chop XPCOM_DLL off exePath
@@ -266,8 +308,10 @@ InitXPCOMGlue(const char *argv0, nsIFile **xreDirectory)
   return rv;
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char* argv[], char* envp[])
 {
+  mozilla::TimeStamp start = mozilla::TimeStamp::Now();
+
 #ifdef XP_MACOSX
   TriggerQuirks();
 #endif
@@ -277,13 +321,10 @@ int main(int argc, char* argv[])
   struct rusage initialRUsage;
   gotCounters = !getrusage(RUSAGE_SELF, &initialRUsage);
 #elif defined(XP_WIN)
-  // GetProcessIoCounters().ReadOperationCount seems to have little to
-  // do with actual read operations. It reports 0 or 1 at this stage
-  // in the program. Luckily 1 coincides with when prefetch is
-  // enabled. If Windows prefetch didn't happen we can do our own
-  // faster dll preloading.
   IO_COUNTERS ioCounters;
   gotCounters = GetProcessIoCounters(GetCurrentProcess(), &ioCounters);
+#else
+  #error "Unknown platform"  // having this here keeps cppcheck happy
 #endif
 
   nsIFile *xreDirectory;
@@ -304,6 +345,8 @@ int main(int argc, char* argv[])
   if (NS_FAILED(rv)) {
     return 255;
   }
+
+  XRE_StartupTimelineRecord(mozilla::StartupTimeline::START, start);
 
   if (gotCounters) {
 #if defined(XP_WIN)
@@ -326,12 +369,23 @@ int main(int argc, char* argv[])
       XRE_TelemetryAccumulate(mozilla::Telemetry::GLUESTARTUP_HARD_FAULTS,
                               int(newRUsage.ru_majflt - initialRUsage.ru_majflt));
     }
+#else
+  #error "Unknown platform"  // having this here keeps cppcheck happy
 #endif
   }
 
-  int result = do_main(argc, argv, xreDirectory);
+  int result = do_main(argc, argv, envp, xreDirectory);
 
   NS_LogTerm();
+
+#ifdef XP_MACOSX
+  // Allow writes again. While we would like to catch writes from static
+  // destructors to allow early exits to use _exit, we know that there is
+  // at least one such write that we don't control (see bug 826029). For
+  // now we enable writes again and early exits will have to use exit instead
+  // of _exit.
+  XRE_StopLateWriteChecks();
+#endif
 
   return result;
 }

@@ -5,7 +5,7 @@
 
 DIRS += ['profile']
 
-GeckoProgram(CONFIG['MOZ_APP_NAME'], msvcrt='static')
+GeckoProgram(CONFIG['MOZ_APP_NAME'])
 USE_LIBS += ['mozglue']
 SOURCES += ['nsMain.cpp']
 LOCAL_INCLUDES += [
@@ -15,13 +15,20 @@ LOCAL_INCLUDES += [
     '/mozilla/xpcom/build',
 ]
 
-DELAYLOAD_DLLS += [
-    'mozglue.dll',
-]
-
 if CONFIG['OS_ARCH'] == 'WINNT':
     RCINCLUDE = 'splash.rc'
     DEFINES['MOZ_INSTANTBIRD'] = True
+
+if CONFIG['MOZ_SANDBOX'] and CONFIG['OS_ARCH'] == 'WINNT':
+    # For sandbox includes and the include dependencies those have
+    LOCAL_INCLUDES += [
+        '/mozilla/security/sandbox/chromium',
+        '/mozilla/security/sandbox/chromium-shim',
+    ]
+
+    USE_LIBS += [
+        'sandbox_s',
+    ]
 
 if CONFIG['_MSC_VER']:
     # Always enter a Windows program through wmain, whether or not we're
@@ -44,9 +51,6 @@ if CONFIG['MOZ_LINKER']:
 
 if CONFIG['HAVE_CLOCK_MONOTONIC']:
     OS_LIBS += CONFIG['REALTIME_LIBS']
-
-if CONFIG['GNU_CXX']:
-    CXXFLAGS += ['-Wshadow']
 
 DEFINES['APP_VERSION'] = CONFIG['MOZ_APP_VERSION']
 
