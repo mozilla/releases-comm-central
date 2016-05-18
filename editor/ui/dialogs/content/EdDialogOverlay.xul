@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -30,15 +30,15 @@
   accesskey = "&AdvancedEditButton.accessKey;"
   tooltiptext="&AdvancedEditButton.tooltip;"/>
 
-<button 
-  id        = "AdvancedEditButton2" 
-  oncommand = "onAdvancedEdit()" 
+<button
+  id        = "AdvancedEditButton2"
+  oncommand = "onAdvancedEdit()"
   label     = "&AdvancedEditButton.label;"
   accesskey = "&AdvancedEditButton.accessKey;"
   tooltiptext="&AdvancedEditButton.tooltip;"/>
 
-<button 
-  id        = "ChooseFile" 
+<button
+  id        = "ChooseFile"
   oncommand = "chooseFile()"
   label     = "&chooseFileButton.label;"
   accesskey = "&chooseFileButton.accessKey;"/>
@@ -53,8 +53,8 @@
 <vbox id="LinkLocationBox">
   <label control="hrefInput" accesskey="&LinkURLEditField.accessKey;" width="1">&LinkURLEditField.label;</label>
   <textbox id="hrefInput" type="autocomplete"
-           autocompletesearch="history" timeout="50" maxrows="6"
-           enablehistory="true" class="uri-element"
+           autocompletesearch="unifiedcomplete" timeout="50" maxrows="6"
+           enablehistory="true" class="uri-element padded"
            oninput="ChangeLinkLocation();">
     <menupopup class="autocomplete-history-popup"
                popupalign="topleft" popupanchor="bottomleft"
@@ -71,6 +71,6 @@
     <spacer flex="1"/>
     <button label="&chooseFileLinkButton.label;" accesskey="&chooseFileLinkButton.accessKey;" oncommand="chooseLinkFile();"/>
   </hbox>
-</vbox>  
+</vbox>
 
-</overlay>    
+</overlay>
