@@ -2097,7 +2097,7 @@ function losslessDecodeURI(aURI) {
   // (RFC 3987 sections 3.2 and 4.1 paragraph 6)
   // Re-encode whitespace so that it doesn't get eaten away
   // by the location bar (bug 410726).
-  return value.replace(/[\u0000-\u001f\u007f-\u00a0\u00ad\u034f\u061c\u115f\u1160\u17b4\u17b5\u180b-\u180d\u200b\u200e\u200f\u2028-\u202e\u2060-\u206f\u3164\udb40-\udb43\udc00-\udfff\ufe00-\ufe0f\ufeff\uffa0\ufff0-\ufff8\ufffc]|i\ud834[\udd73-\udd7a]/g, encodeURIComponent);
+  return value.replace(/[\u0000-\u001f\u007f-\u00a0\u00ad\u034f\u061c\u115f\u1160\u17b4\u17b5\u180b-\u180d\u200b\u200e\u200f\u2028-\u202e\u2060-\u206f\u3164\ufe00-\ufe0f\ufeff\uffa0\ufff0-\ufff8\ufffc]|\ud834[\udd73-\udd7a]|[\udb40-\udb43][\udc00-\udfff]/g, encodeURIComponent);
 }
 
 /**
