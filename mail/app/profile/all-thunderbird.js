@@ -302,6 +302,7 @@ pref("mail.pane_config.dynamic",            0);
 pref("mailnews.reuse_thread_window2",     true);
 pref("editor.singleLine.pasteNewlines", 4);  // substitute commas for new lines in single line text boxes
 pref("editor.CR_creates_new_p", true);
+pref("mail.compose.default_to_paragraph", true);
 
 // hidden pref to ensure a certain number of headers in the message pane
 // to avoid the height of the header area from changing when headers are present / not present

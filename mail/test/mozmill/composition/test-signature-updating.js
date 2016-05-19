@@ -37,7 +37,7 @@ var setupModule = function (module) {
 };
 
 function teardownModule(module) {
-  Services.prefs.clearUserPref("editor.CR_creates_new_p");
+  Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
   Services.prefs.clearUserPref("mail.identity.id1.compose_html");
   Services.prefs.clearUserPref("mail.identity.id1.suppress_signature_separator");
   Services.prefs.clearUserPref("mail.identity.id2.suppress_signature_separator");
@@ -145,7 +145,7 @@ function testPlaintextComposeWindowSwitchSignaturesWithSuppressedSeparator() {
  * Same test, but with an HTML compose window
  */
 function HTMLComposeWindowSwitchSignatures(suppressSigSep, paragraphFormat) {
-  Services.prefs.setBoolPref("editor.CR_creates_new_p", paragraphFormat);
+  Services.prefs.setBoolPref("mail.compose.default_to_paragraph", paragraphFormat);
 
   Services.prefs.setBoolPref("mail.identity.id1.compose_html", true);
   Services.prefs.setBoolPref("mail.identity.id1.suppress_signature_separator",

@@ -102,7 +102,7 @@ var MailMigrator = {
   _migrateUI: function() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 12;
+    const UI_VERSION = 13;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul";
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = 0;
@@ -311,6 +311,13 @@ var MailMigrator = {
       // removed from the profile directory.
       if (currentUIVersion < 12) {
         LoginHelper.removeLegacySignonFiles();
+      }
+
+      // Untangled starting in Paragraph mode from Enter key preference
+      if (currentUIVersion < 13) {
+        Services.prefs.setBoolPref("mail.compose.default_to_paragraph",
+          Services.prefs.getBoolPref("editor.CR_creates_new_p"));
+        Services.prefs.clearUserPref("editor.CR_creates_new_p");
       }
 
       // Update the migration version.

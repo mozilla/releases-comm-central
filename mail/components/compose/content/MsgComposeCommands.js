@@ -317,7 +317,7 @@ var stateListener = {
 
   NotifyComposeBodyReadyNew: function() {
     // Control insertion of line breaks.
-    let useParagraph = Services.prefs.getBoolPref("editor.CR_creates_new_p");
+    let useParagraph = Services.prefs.getBoolPref("mail.compose.default_to_paragraph");
     if (gMsgCompose.composeHTML && useParagraph) {
       let editor = GetCurrentEditor();
       editor.enableUndo(false);
@@ -339,7 +339,7 @@ var stateListener = {
 
   NotifyComposeBodyReadyReply: function() {
     // Control insertion of line breaks.
-    let useParagraph = Services.prefs.getBoolPref("editor.CR_creates_new_p");
+    let useParagraph = Services.prefs.getBoolPref("mail.compose.default_to_paragraph");
     if (gMsgCompose.composeHTML && useParagraph) {
 
       let mailDoc = document.getElementById("content-frame").contentDocument;
@@ -395,7 +395,7 @@ var stateListener = {
 
     // Control insertion of line breaks.
     selection.collapse(mailBody, 0);
-    let useParagraph = Services.prefs.getBoolPref("editor.CR_creates_new_p");
+    let useParagraph = Services.prefs.getBoolPref("mail.compose.default_to_paragraph");
     if (gMsgCompose.composeHTML && useParagraph) {
       let pElement = editor.createElementWithDefaults("p");
       let brElement = editor.createElementWithDefaults("br");

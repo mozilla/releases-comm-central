@@ -191,6 +191,8 @@ pref("mail.html_compose",                   true);
 pref("mail.compose.other.header", "");
 pref("mail.compose.autosave", true);
 pref("mail.compose.autosaveinterval", 5); // in minutes
+pref("mail.compose.default_to_paragraph", false);
+
 // true:  If the message has practically no HTML formatting, bypass recipient-centric
 //        auto-detection of delivery format; auto-downgrade and silently send as plain text.
 // false: Don't auto-downgrade; use recipient-centric auto-detection of best delivery format,

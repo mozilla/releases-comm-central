@@ -69,7 +69,7 @@ function setupModule(module) {
 
   // Don't create paragraphs in the test.
   // The test fails if it encounters paragraphs <p> instead of breaks <br>.
-  Services.prefs.setBoolPref("editor.CR_creates_new_p", false);
+  Services.prefs.setBoolPref("mail.compose.default_to_paragraph", false);
 }
 
 function teardownModule(module) {
@@ -77,7 +77,7 @@ function teardownModule(module) {
   ah.gMockFilePickReg.unregister();
   Services.prefs.setCharPref(kDefaultSigKey, gOldSigPref);
   Services.prefs.setBoolPref(kHtmlPrefKey, gOldHtmlPref);
-  Services.prefs.clearUserPref("editor.CR_creates_new_p");
+  Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
 }
 
 function setupTest() {

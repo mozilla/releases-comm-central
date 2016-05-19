@@ -51,8 +51,8 @@
       <preference id="mail.compose.attachment_reminder"
                   name="mail.compose.attachment_reminder"
                   type="bool"/>
-      <preference id="editor.CR_creates_new_p"
-                  name="editor.CR_creates_new_p"
+      <preference id="mail.compose.default_to_paragraph"
+                  name="mail.compose.default_to_paragraph"
                   type="bool"/>
     </preferences>
 
@@ -161,10 +161,10 @@
             <separator class="thin"/>
 
             <hbox align="center">
-              <checkbox id="enterKeyCreatesNewParagraph"
-                        label="&enterKeyCreatesNewParagraph.label;"
-                        accesskey="&enterKeyCreatesNewParagraph.accesskey;"
-                        preference="editor.CR_creates_new_p"/>
+              <checkbox id="defaultToParagraph"
+                        label="&defaultToParagraph.label;"
+                        accesskey="&defaultToParagraph.accesskey;"
+                        preference="mail.compose.default_to_paragraph"/>
             </hbox>
           </groupbox>
 

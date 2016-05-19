@@ -66,11 +66,11 @@ function setupModule(module) {
   // When creating a paragraph, the test fails to retrieve the
   // original character set windows-1252. Until we understand why,
   // we run without paragraphs.
-  Services.prefs.setBoolPref("editor.CR_creates_new_p", false);
+  Services.prefs.setBoolPref("mail.compose.default_to_paragraph", false);
 }
 
 function teardownModule(module) {
-  Services.prefs.clearUserPref("editor.CR_creates_new_p");
+  Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
 }
 
 /**
