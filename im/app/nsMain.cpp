@@ -53,7 +53,7 @@ using namespace mozilla;
 #ifdef XP_MACOSX
 #define kOSXResourcesFolder "Resources"
 #endif
-#define kDesktopFolder "im"
+#define kDesktopFolder ""
 
 static void Output(const char *fmt, ... )
 {
