@@ -379,6 +379,8 @@
           this.setPaneTitle(aPane);
           if (this.scrollHeight > window.innerHeight)
             window.innerHeight = this.scrollHeight;
+          if (this.scrollWidth > window.innerWidth)
+            window.innerWidth = this.scrollWidth;
         ]]>
         </body>
       </method>
