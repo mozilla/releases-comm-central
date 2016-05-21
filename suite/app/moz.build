@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-GeckoProgram(CONFIG['MOZ_APP_NAME'], msvcrt='static')
+GeckoProgram(CONFIG['MOZ_APP_NAME'])
 USE_LIBS += ['mozglue']
 SOURCES += ['nsSuiteApp.cpp']
 LOCAL_INCLUDES += [
@@ -17,14 +17,21 @@ if CONFIG['OS_ARCH'] == 'WINNT':
     RCINCLUDE = 'splash.rc'
     DEFINES['MOZ_SUITE'] = True
 
-    DELAYLOAD_DLLS += [
-        'mozglue.dll',
-    ]
-
 if CONFIG['_MSC_VER']:
     # Always enter a Windows program through wmain, whether or not we're
     # a console application.
     WIN32_EXE_LDFLAGS += ['-ENTRY:wmainCRTStartup']
+
+if CONFIG['MOZ_SANDBOX'] and CONFIG['OS_ARCH'] == 'WINNT':
+    # For sandbox includes and the include dependencies those have
+    LOCAL_INCLUDES += [
+        '/mozilla/security/sandbox/chromium',
+        '/mozilla/security/sandbox/chromium-shim',
+    ]
+
+    USE_LIBS += [
+        'sandbox_s',
+    ]
 
 # Control the default heap size.
 # This is the heap returned by GetProcessHeap().

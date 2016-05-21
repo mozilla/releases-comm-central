@@ -33,10 +33,14 @@
 #include "nsStringGlue.h"
 
 #ifdef XP_WIN
+#define XRE_WANT_ENVIRON
 // we want a wmain entry point
 #include "nsWindowsWMain.cpp"
 #define snprintf _snprintf
 #define strcasecmp _stricmp
+#ifdef MOZ_SANDBOX
+#include "mozilla/sandboxing/SandboxInitialization.h"
+#endif
 #endif
 #include "BinaryPath.h"
 
@@ -114,6 +118,7 @@ XRE_FreeAppDataType XRE_FreeAppData;
 XRE_TelemetryAccumulateType XRE_TelemetryAccumulate;
 XRE_mainType XRE_main;
 XRE_StopLateWriteChecksType XRE_StopLateWriteChecks;
+XRE_XPCShellMainType XRE_XPCShellMain;
 
 static const nsDynamicFunctionLoad kXULFuncs[] = {
     { "XRE_GetFileFromPath", (NSFuncPtr*) &XRE_GetFileFromPath },
@@ -122,10 +127,11 @@ static const nsDynamicFunctionLoad kXULFuncs[] = {
     { "XRE_TelemetryAccumulate", (NSFuncPtr*) &XRE_TelemetryAccumulate },
     { "XRE_main", (NSFuncPtr*) &XRE_main },
     { "XRE_StopLateWriteChecks", (NSFuncPtr*) &XRE_StopLateWriteChecks },
+    { "XRE_XPCShellMain", (NSFuncPtr*) &XRE_XPCShellMain },
     { nullptr, nullptr }
 };
 
-static int do_main(int argc, char* argv[], nsIFile *xreDirectory)
+static int do_main(int argc, char* argv[], char* envp[], nsIFile *xreDirectory)
 {
   nsCOMPtr<nsIFile> appini;
   nsresult rv;
@@ -162,6 +168,18 @@ static int do_main(int argc, char* argv[], nsIFile *xreDirectory)
     argv[2] = argv[0];
     argv += 2;
     argc -= 2;
+  } else if (argc > 1 && IsArg(argv[1], "xpcshell")) {
+    for (int i = 1; i < argc; i++) {
+      argv[i] = argv[i + 1];
+    }
+
+    XREShellData shellData;
+#if defined(XP_WIN) && defined(MOZ_SANDBOX)
+    shellData.sandboxBrokerServices =
+      sandboxing::GetInitializedBrokerServices();
+#endif
+
+    return XRE_XPCShellMain(--argc, argv, envp, &shellData);
   }
 
   int result;
@@ -193,6 +211,18 @@ static int do_main(int argc, char* argv[], nsIFile *xreDirectory)
     SetStrongPtr(appData.directory, static_cast<nsIFile*>(greDir.get()));
     // xreDirectory already has a refcount from NS_NewLocalFile
     appData.xreDirectory = xreDirectory;
+
+#if defined(XP_WIN) && defined(MOZ_SANDBOX)
+    sandbox::BrokerServices* brokerServices =
+      sandboxing::GetInitializedBrokerServices();
+#if defined(MOZ_CONTENT_SANDBOX)
+    if (!brokerServices) {
+      Output("Couldn't initialize the broker services.\n");
+      return 255;
+    }
+#endif
+    appData.sandboxBrokerServices = brokerServices;
+#endif
 
     result = XRE_main(argc, argv, &appData, mainFlags);
   }
@@ -269,7 +299,7 @@ InitXPCOMGlue(const char *argv0, nsIFile **xreDirectory)
   return rv;
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char* argv[], char* envp[])
 {
 #ifdef XP_MACOSX
   TriggerQuirks();
@@ -327,7 +357,7 @@ int main(int argc, char* argv[])
 #endif
   }
 
-  int result = do_main(argc, argv, xreDirectory);
+  int result = do_main(argc, argv, envp, xreDirectory);
 
   NS_LogTerm();
 
