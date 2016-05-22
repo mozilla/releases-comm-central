@@ -16,7 +16,6 @@ DEFINES['THUNDERBIRD_VERSION'] = CONFIG['THUNDERBIRD_VERSION']
 DIST_SUBDIR = 'extensions/' + classic_extension_dir
 
 FINAL_TARGET_FILES += [
-    'chrome.manifest',
     'icon.png',
     'icon64.png',
 ]

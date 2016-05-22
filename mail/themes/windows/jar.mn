@@ -344,4 +344,5 @@ classic.jar:
   skin/classic/messenger/shared/tabmail.css                   (../shared/mail/tabmail.css)
   skin/classic/messenger/shared/addressbook.css               (../shared/mail/addressbook.css)
   skin/classic/messenger/shared/accountProvisioner.css        (../shared/mail/accountProvisioner.css)
+[extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}] chrome.jar:
 % override chrome://global/skin/netError.css chrome://messenger/skin/aboutNetError.css
