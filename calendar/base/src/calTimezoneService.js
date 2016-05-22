@@ -79,7 +79,7 @@ calTimezoneService.prototype = {
                                                              null,
                                                              Services.scriptSecurityManager.getSystemPrincipal(),
                                                              null,
-                                                             Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                             Components.interfaces.nsILoadInfo.SEC_REQUIRE_SAME_ORIGIN_DATA_INHERITS,
                                                              Components.interfaces.nsIContentPolicy.TYPE_OTHER);
 
                 NetUtil.asyncFetch(channel, (inputStream, status) => {
