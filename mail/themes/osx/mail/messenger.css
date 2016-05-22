@@ -268,13 +268,23 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
 
 .toolbarbutton-1 > .toolbarbutton-menu-dropmarker,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker.png) !important;
+  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-arrow.png);
+}
+
+toolbar[brighttext] .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
+toolbar[brighttext] .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
+  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted.png");
 }
 
 @media (min-resolution: 2dppx) {
   .toolbarbutton-1 > .toolbarbutton-menu-dropmarker,
   .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-    list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker@2x.png) !important;
+    list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-arrow@2x.png);
+  }
+
+  toolbar[brighttext] .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
+  toolbar[brighttext] .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
+    list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted@2x.png");
   }
 
   .toolbarbutton-menu-dropmarker > .dropmarker-icon,
@@ -286,6 +296,7 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
 
 .toolbarbutton-1 > .toolbarbutton-menu-dropmarker {
   margin-inline-end: 1px;
+  padding-inline-start: 4px;
 }
 
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {

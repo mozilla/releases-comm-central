@@ -316,9 +316,8 @@
       border-bottom-color: #A9B7C9;
     }
 
-    #statusTypeIcon .toolbarbutton-menu-dropmarker {
+    #statusTypeIcon > .toolbarbutton-menu-dropmarker {
       padding: 1px 3px;
-      list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");
     }
 
     #chat-status-selector:hover > .statusMessageToolbarItem,

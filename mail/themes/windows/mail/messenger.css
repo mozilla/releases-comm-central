@@ -346,6 +346,24 @@ button[type="menu-button"] > button {
     list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted.png");
   }
 
+  @media (min-resolution: 1.1dppx) {
+    .toolbarbutton-1 .toolbarbutton-menu-dropmarker > .dropmarker-icon,
+    .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+      width: 9px;
+      height: 7px;
+    }
+
+    .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
+    .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
+      list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow@2x.png");
+    }
+
+    toolbar[brighttext] .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
+    toolbar[brighttext] .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
+      list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted@2x.png");
+    }
+  }
+
   @media (-moz-windows-default-theme) {
     /* Separator between menu and split type buttons */
     .toolbarbutton-1:not(:hover):not(:active):not([open]):not([checked]) >
