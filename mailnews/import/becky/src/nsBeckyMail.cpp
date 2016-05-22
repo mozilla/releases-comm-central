@@ -23,7 +23,6 @@
 #include "nsTArray.h"
 #include "nspr.h"
 #include "nsIStringBundle.h"
-#include "nsIEnumerator.h"
 #include "nsThreadUtils.h"
 
 #include "nsBeckyMail.h"
