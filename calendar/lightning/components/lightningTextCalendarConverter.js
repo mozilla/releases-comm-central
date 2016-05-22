@@ -55,6 +55,12 @@ ltnMimeConverter.prototype = {
         let msgOverlay = '';
 
         try {
+            itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
+                                 .createInstance(Components.interfaces.calIItipItem);
+            itipItem.init(data);
+            let dom = ltn.invitation.createInvitationOverlay(event, itipItem);
+            msgOverlay = cal.xml.serializeDOM(dom);
+
             // this.uri is the message URL that we are processing.
             // We use it to get the nsMsgHeaderSink to store the calItipItem.
             if (this.uri) {
@@ -67,12 +73,6 @@ ltnMimeConverter.prototype = {
                 } catch (exc) {
                 }
                 if (msgWindow) {
-                    itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
-                                         .createInstance(Components.interfaces.calIItipItem);
-                    itipItem.init(data);
-                    let dom = ltn.invitation.createInvitationOverlay(event, itipItem);
-                    msgOverlay = cal.xml.serializeDOM(dom);
-
                     let sinkProps = msgWindow.msgHeaderSink.properties;
                     sinkProps.setPropertyAsInterface("itipItem", itipItem);
                     sinkProps.setPropertyAsAUTF8String("msgOverlay", msgOverlay);
