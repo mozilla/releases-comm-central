@@ -79,6 +79,7 @@
 #include "nsIChannel.h"
 
 using namespace mozilla;
+using namespace mozilla::net;
 
 static NS_DEFINE_CID(kImapUrlCID, NS_IMAPURL_CID);
 static NS_DEFINE_CID(kCMailboxUrl, NS_MAILBOXURL_CID);
