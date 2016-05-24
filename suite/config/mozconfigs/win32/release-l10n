@@ -4,15 +4,18 @@ ac_add_options --with-l10n-base=../../l10n
 ac_add_options --enable-application=suite
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 
-# Windows 8 SDK is required for gamepad support
-# bug 1005630
-ac_add_options --disable-gamepad
-
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
 
-# To enable MSVC 2010 building
-. $topsrcdir/build/win32/mozconfig.vs2010
+if test "$PROCESSOR_ARCHITECTURE" = "AMD64" -o "$PROCESSOR_ARCHITEW6432" = "AMD64"; then
+  . $topsrcdir/build/win32/mozconfig.vs2015-win64
+else
+  . $topsrcdir/build/win32/mozconfig.vs2013-win64
+fi
+
+# Set up mapi includes (must be done after visual studio setup)
+export INCLUDE=$INCLUDE:/c/Office\ 2010\ Developer\ Resources/Outlook\ 2010\ MAPI\ Headers
+mk_export_correct_style INCLUDE

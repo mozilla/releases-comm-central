@@ -4,5 +4,13 @@
 "digest": "bb345b0e700ffab4d09436981f14b5de84da55a3f18a7f09ebc4364a4488acdeab8d46f447b12ac70f2da1444a68b8ce8b8675f0dae2ccf845e966d1df0f0869",
 "algorithm": "sha512",
 "filename": "mozmake.exe"
+},
+{
+"version": "Visual Studio 2015 Update 2 / SDK 10.0.10586.0/212",
+"size": 332343834,
+"digest": "55814aaabcd4aa51fe85918ec02a8c29bc067d41ee79ddcfd628daaba5a06d4241a73a51bf5a8bc69cc762b52551009f44b05e65682c45b4684c17fb2d017c2c",
+"algorithm": "sha512",
+"filename": "vs2015u2.zip",
+"unpack": true
 }
 ]
