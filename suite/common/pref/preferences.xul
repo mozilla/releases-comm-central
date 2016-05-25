@@ -19,6 +19,8 @@
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
             title="&prefWindow.title;" 
             style="&prefWindow.size;"
+            overflow="auto"
+            onload="OnLoad();"
             windowtype="mozilla:preferences"
             buttons="accept,cancel,help"
             autopanes="true"> 

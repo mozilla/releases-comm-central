@@ -120,6 +120,11 @@ prefpane > .content-box {
   overflow: visible;
 }
 
+prefwindow[overflow="auto"] > .paneDeckContainer,
+prefwindow[overflow="auto"] prefpane > .content-box {
+  overflow: auto;
+}
+
 .statusbarpanel-backgroundbox {
   -moz-binding: url("chrome://communicator/content/bindings/general.xml#statusbarpanel-backgroundbox");
 }

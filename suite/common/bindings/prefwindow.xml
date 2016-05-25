@@ -377,10 +377,13 @@
             }
           }
           this.setPaneTitle(aPane);
-          if (this.scrollHeight > window.innerHeight)
-            window.innerHeight = this.scrollHeight;
-          if (this.scrollWidth > window.innerWidth)
-            window.innerWidth = this.scrollWidth;
+          if (this.getAttribute("overflow") != "auto")
+          {
+            if (this.scrollHeight > window.innerHeight)
+              window.innerHeight = this.scrollHeight;
+            if (this.scrollWidth > window.innerWidth)
+              window.innerWidth = this.scrollWidth;
+          }
         ]]>
         </body>
       </method>

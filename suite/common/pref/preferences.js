@@ -6,6 +6,28 @@
 // The content of this file is loaded into the scope of the
 // prefwindow and will be available to all prefpanes!
 
+function OnLoad()
+{
+  // Make sure that the preferences window fits the screen.
+  let dialog    = document.documentElement;
+  let curHeight = dialog.scrollHeight;
+  let curWidth  = dialog.scrollWidth;
+
+  // Leave some space for desktop toolbar and window decoration.
+  let maxHeight = window.screen.availHeight - 48;
+  let maxWidth  = window.screen.availWidth  - 24;
+
+  // Trigger overflow situation within 40px for bug 868495 expansions.
+  let setHeight = curHeight > maxHeight - 40 ? maxHeight : curHeight;
+  let setWidth  = curWidth  > maxWidth ? maxWidth : curWidth;
+
+  if (setHeight == curHeight && setWidth == curWidth)
+    dialog.setAttribute("overflow", "visible");
+
+  window.innerHeight = setHeight;
+  window.innerWidth  = setWidth;
+}
+
 function EnableElementById(aElementId, aEnable, aFocus)
 {
   EnableElement(document.getElementById(aElementId), aEnable, aFocus);
