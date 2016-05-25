@@ -331,6 +331,8 @@ var MailUtils =
    *
    * @param aPropertyName The name of the property to set.
    * @param aPropertyValue The (string) value of the property to set.
+   *     Alternately, you can pass a function that takes the nsIMsgFolder and
+   *     returns a string value.
    * @param aFolder The parent folder; we set the string property on it and all
    *     of its descendents.
    * @param [aCallback] The optional callback to invoke once we finish our work.
@@ -352,7 +354,9 @@ var MailUtils =
     function folder_string_setter_worker() {
       for (let folder in fixIterator(allFolders, Ci.nsIMsgFolder)) {
         // set the property; this may open the database...
-        folder.setStringProperty(aPropertyName, aPropertyValue);
+        let value = (typeof aPropertyValue == "function" ?
+                     aPropertyValue(folder) : aPropertyValue);
+        folder.setStringProperty(aPropertyName, value);
         // force the reference to be forgotten.
         folder.msgDatabase = null;
         yield undefined;

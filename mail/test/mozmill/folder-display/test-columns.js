@@ -385,7 +385,7 @@ function subtest_say_yes(cwc) {
   cwc.window.document.documentElement.getButton('accept').doCommand();
 }
 
-function _apply_to_folder_common(aChildrenToo) {
+function _apply_to_folder_common(aChildrenToo, folder) {
   if (aChildrenToo)
     plan_for_observable_event("msg-folder-columns-propagated");
   plan_for_modal_dialog("commonDialog", subtest_say_yes);
@@ -394,8 +394,8 @@ function _apply_to_folder_common(aChildrenToo) {
                                   "applyToFolderAndChildren-menu" :
                                   "applyToFolder-menu"},
                                {label: "Local Folders"},
-                               {label: "ColumnsApplyParent"},
-                               {label: "ColumnsApplyParent"}]);
+                               {label: folder.name},
+                               {label: folder.name}]);
   wait_for_modal_dialog("commonDialog");
   if (aChildrenToo)
     wait_for_observable_event("msg-folder-columns-propagated");
@@ -423,7 +423,7 @@ function test_apply_to_folder_no_children() {
   assert_visible_columns(conExtra);
 
   // apply to the one dude
-  _apply_to_folder_common(false);
+  _apply_to_folder_common(false, folderParent);
 
   // make sure it copied to the parent
   be_in_folder(folderParent);
@@ -455,7 +455,7 @@ function test_apply_to_folder_and_children() {
   assert_visible_columns(conExtra);
 
   // apply to the dude and his offspring
-  _apply_to_folder_common(true);
+  _apply_to_folder_common(true, folderParent);
 
   // make sure it copied to the parent and his children
   be_in_folder(folderParent);
@@ -466,6 +466,82 @@ function test_apply_to_folder_and_children() {
   assert_visible_columns(conExtra);
 }
 test_apply_to_folder_and_children.EXCLUDED_PLATFORMS = ["linux"];
+
+/**
+ * Change settings in an incoming folder, apply them to an outgoing folder that
+ * also has children. Make sure the folder changes but the children do not.
+ */
+function test_apply_to_folder_no_children_swapped() {
+  folderParent = create_folder("ColumnsApplyParentOutgoing");
+  folderParent.setFlag(Ci.nsMsgFolderFlags.SentMail);
+  folderParent.createSubfolder("Child1", null);
+  folderChild1 = folderParent.getChildNamed("Child1");
+  folderParent.createSubfolder("Child2", null);
+  folderChild2 = folderParent.getChildNamed("Child2");
+
+  be_in_folder(folderSource);
+
+  // reset!
+  invoke_column_picker_option([{anonid: "reset"}]);
+
+  // permute!
+  let conExtra = [...INBOX_DEFAULTS];
+  conExtra[5] = "senderCol";
+  hide_column("correspondentCol");
+  show_column("senderCol");
+  assert_visible_columns(conExtra);
+
+  // Apply to the one dude.
+  _apply_to_folder_common(false, folderParent);
+
+  // Make sure it copied to the parent.
+  let conExtraSwapped = [...INBOX_DEFAULTS];
+  conExtraSwapped[5] = "recipientCol";
+  be_in_folder(folderParent);
+  assert_visible_columns(conExtraSwapped);
+
+  // But not the children.
+  be_in_folder(folderChild1);
+  assert_visible_columns(INBOX_DEFAULTS);
+  be_in_folder(folderChild2);
+  assert_visible_columns(INBOX_DEFAULTS);
+}
+
+/**
+ * Change settings in an incoming folder, apply them to an outgoing folder and
+ * its children. Make sure the folder and its children change.
+ */
+function test_apply_to_folder_and_children_swapped() {
+  // No need to throttle ourselves during testing.
+  MailUtils.INTER_FOLDER_PROCESSING_DELAY_MS = 0;
+
+  be_in_folder(folderSource);
+
+  // reset!
+  invoke_column_picker_option([{anonid: "reset"}]);
+
+  // permute!
+  let conExtra = [...INBOX_DEFAULTS];
+  conExtra[5] = "senderCol";
+  hide_column("correspondentCol");
+  show_column("senderCol");
+  assert_visible_columns(conExtra);
+
+  // Apply to the dude and his offspring.
+  _apply_to_folder_common(true, folderParent);
+
+  // Make sure it copied to the parent and his children.
+  let conExtraSwapped = [...INBOX_DEFAULTS];
+  conExtraSwapped[5] = "recipientCol";
+  be_in_folder(folderParent);
+  assert_visible_columns(conExtraSwapped);
+  be_in_folder(folderChild1);
+  assert_visible_columns(conExtraSwapped);
+  be_in_folder(folderChild2);
+  assert_visible_columns(conExtraSwapped);
+}
+test_apply_to_folder_and_children_swapped.EXCLUDED_PLATFORMS = ["linux"];
+
 
 /**
  * Create a fake gloda collection.
