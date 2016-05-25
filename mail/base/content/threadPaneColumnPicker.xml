@@ -57,35 +57,116 @@
     <implementation>
       <method name="buildPopup">
         <parameter name="aPopup"/>
-        <body>
-          <![CDATA[
-            while (aPopup.childNodes.length > 3)
-              aPopup.firstChild.remove();
+        <body><![CDATA[
+          while (aPopup.childNodes.length > 3)
+            aPopup.firstChild.remove();
 
-            var refChild = aPopup.firstChild;
+          let refChild = aPopup.firstChild;
 
-            var tree = this.parentNode.parentNode;
-            for (var currCol = tree.columns.getFirstColumn(); currCol;
-                 currCol = currCol.getNext()) {
-              // Construct an entry for each column in the row, unless
-              // it is not being shown.
-              var currElement = currCol.element;
-              if (!currElement.hasAttribute("ignoreincolumnpicker")) {
-                var popupChild = document.createElement("menuitem");
-                popupChild.setAttribute("type", "checkbox");
-                var columnName = currElement.getAttribute("display") ||
-                                 currElement.getAttribute("label");
-                popupChild.setAttribute("label", columnName);
-                popupChild.setAttribute("colindex", currCol.index);
-                if (currElement.getAttribute("hidden") != "true")
-                  popupChild.setAttribute("checked", "true");
-                if (currCol.primary)
-                  popupChild.setAttribute("disabled", "true");
-                aPopup.insertBefore(popupChild, refChild);
-              }
+          let tree = this.parentNode.parentNode;
+          for (let currCol = tree.columns.getFirstColumn(); currCol;
+               currCol = currCol.getNext()) {
+            // Construct an entry for each column in the row, unless
+            // it is not being shown.
+            let currElement = currCol.element;
+            if (!currElement.hasAttribute("ignoreincolumnpicker")) {
+              let popupChild = document.createElement("menuitem");
+              popupChild.setAttribute("type", "checkbox");
+              let columnName = currElement.getAttribute("display") ||
+                               currElement.getAttribute("label");
+              popupChild.setAttribute("label", columnName);
+              popupChild.setAttribute("colindex", currCol.index);
+              if (currElement.getAttribute("hidden") != "true")
+                popupChild.setAttribute("checked", "true");
+              if (currCol.primary)
+                popupChild.setAttribute("disabled", "true");
+              aPopup.insertBefore(popupChild, refChild);
             }
-          ]]>
-        </body>
+          }
+        ]]></body>
+      </method>
+
+      <method name="_showPopup">
+        <body><![CDATA[
+          let popup = document.getAnonymousElementByAttribute(
+            this, "anonid", "popup"
+          );
+          this.buildPopup(popup);
+          popup.showPopup(this, -1, -1, "popup", "bottomright", "topright");
+        ]]></body>
+      </method>
+
+      <method name="_toggleColumn">
+        <parameter name="aColIndex"/>
+        <body><![CDATA[
+          let tree = this.parentNode.parentNode;
+          let column = tree.columns[aColIndex];
+          if (column) {
+            let element = column.element;
+            if (element.getAttribute("hidden") == "true")
+              element.setAttribute("hidden", "false");
+            else
+              element.setAttribute("hidden", "true");
+          }
+        ]]></body>
+      </method>
+
+      <method name="_resetColumns">
+        <body><![CDATA[
+          let columnStates =
+            gFolderDisplay._getDefaultColumnsForCurrentFolder();
+          gFolderDisplay.setColumnStates(columnStates, true);
+        ]]></body>
+      </method>
+
+      <method name="_useChildren">
+        <parameter name="aTarget"/>
+        <body><![CDATA[
+          // Let's figure out which of the actions they chose by walking the
+          // parent chain until we find one of them.
+          let noChildrenPopup = document.getAnonymousElementByAttribute(
+            this, "anonid", "applyToFolder"
+          );
+          let yesChildrenPopup = document.getAnonymousElementByAttribute(
+            this, "anonid", "applyToFolderAndChildren"
+          );
+
+          let parent = aTarget.parentNode;
+          while (parent != noChildrenPopup && parent != yesChildrenPopup) {
+            parent = parent.parentNode;
+          }
+          return parent == yesChildrenPopup;
+        ]]></body>
+      </method>
+
+      <method name="_applyColumns">
+        <parameter name="aDestFolder"/>
+        <parameter name="aUseChildren"/>
+        <body><![CDATA[
+          // Get the current folder's column state.
+          let propName = gFolderDisplay.PERSISTED_COLUMN_PROPERTY_NAME;
+          let dbFolderInfo = gFolderDisplay.displayedFolder.msgDatabase
+                                           .dBFolderInfo;
+          let columnStateString = dbFolderInfo.getCharProperty(propName);
+
+          // Now propagate appropriately...
+          if (aUseChildren) {
+            // Generate an observer notification when we have finished
+            // configuring all folders.  This is currently done for the benefit
+            // of our mozmill tests.
+            let observerCallback = function() {
+              Services.obs.notifyObservers(gFolderDisplay.displayedFolder,
+                                           "msg-folder-columns-propagated", "");
+            };
+            MailUtils.setStringPropertyOnFolderAndDescendents(
+              propName, columnStateString, aDestFolder, observerCallback
+            );
+          } else {
+            aDestFolder.setStringProperty(propName, columnStateString);
+            // null out to avoid memory bloat
+            aDestFolder.msgDatabase = null;
+          }
+        ]]></body>
       </method>
     </implementation>
     <handlers>
@@ -94,25 +175,13 @@
 
         // Are they clicking on our header to get us to show the column list?
         if (event.originalTarget == this) {
-          var popup = document.getAnonymousElementByAttribute(this, "anonid",
-                                                              "popup");
-          this.buildPopup(popup);
-          popup.showPopup(this, -1, -1, "popup", "bottomright", "topright");
+          this._showPopup();
           return;
         }
 
         // Are they clicking on one of the columns in the list?
         if (event.originalTarget.hasAttribute("colindex")) {
-          var tree = this.parentNode.parentNode;
-          var colindex = event.originalTarget.getAttribute("colindex");
-          var column = tree.columns[colindex];
-          if (column) {
-            var element = column.element;
-            if (element.getAttribute("hidden") == "true")
-              element.setAttribute("hidden", "false");
-            else
-              element.setAttribute("hidden", "true");
-          }
+          this._toggleColumn(event.originalTarget.getAttribute("colindex"));
           return;
         }
 
@@ -120,31 +189,18 @@
         let resetMenu = document.getAnonymousElementByAttribute(
                           this, "anonid", "reset");
         if (event.originalTarget == resetMenu) {
-          let columnStates =
-            gFolderDisplay._getDefaultColumnsForCurrentFolder();
-          gFolderDisplay.setColumnStates(columnStates, true);
+          this._resetColumns();
           return;
         }
 
         // Otherwise an exciting action has occurred!
         let destFolder = event.originalTarget._folder;
+        let useChildren = this._useChildren(event.originalTarget);
 
-        // Let's figure out which of the actions they chose by walking the
-        // parent chain until we find one of them.
-        let noChildrenPopup = document.getAnonymousElementByAttribute(
-                                this, "anonid", "applyToFolder");
-        let yesChildrenPopup = document.getAnonymousElementByAttribute(
-                                 this, "anonid", "applyToFolderAndChildren");
-        let parent = event.originalTarget.parentNode;
-        while (parent != noChildrenPopup && parent != yesChildrenPopup) {
-          parent = parent.parentNode;
-        }
-        let useChildren = (parent == yesChildrenPopup);
-
+        // Confirm the action with the user.
         let bundle = document.getElementById("bundle_messenger");
         let stringBase = "threadPane.columnPicker.confirmFolder." +
           (useChildren ? "withChildren." : "noChildren.");
-
         let confirmed = Services.prompt.confirm(null,
           bundle.getString(stringBase + "title"),
           bundle.getFormattedString(stringBase + "message",
@@ -152,30 +208,7 @@
         if (!confirmed)
           return;
 
-        // Get the current folder's column state.
-        let propName = gFolderDisplay.PERSISTED_COLUMN_PROPERTY_NAME;
-        let dbFolderInfo =
-          gFolderDisplay.displayedFolder.msgDatabase.dBFolderInfo;
-        let columnStateString = dbFolderInfo.getCharProperty(propName);
-        // Now propagate appropriately...
-        if (useChildren) {
-          // Generate an observer notification when we have finished configuring
-          // all folders.  This is currently done for the benefit of our mozmill
-          // tests.
-          let observerCallback = function() {
-            Services.obs.notifyObservers(gFolderDisplay.displayedFolder,
-                                         "msg-folder-columns-propagated", "");
-          }
-          MailUtils.setStringPropertyOnFolderAndDescendents(propName,
-                                                            columnStateString,
-                                                            destFolder,
-                                                            observerCallback);
-        }
-        else {
-          destFolder.setStringProperty(propName, columnStateString);
-          // null out to avoid memory bloat
-          destFolder.msgDatabase = null;
-        }
+        this._applyColumns(destFolder, useChildren);
       ]]></handler>
     </handlers>
   </binding>
