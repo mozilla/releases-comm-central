@@ -64,7 +64,7 @@ var Notifications = {
     switch (notificationContent) {
       case 0:
         let parser = Cc["@mozilla.org/xmlextras/domparser;1"].createInstance(Ci.nsIDOMParser);
-        let doc = parser.parseFromString(aMessage.message, "text/html");
+        let doc = parser.parseFromString(aMessage.displayMessage, "text/html");
         let body = doc.querySelector("body");
         let encoder =
           Cc["@mozilla.org/layout/documentEncoder;1?type=text/plain"]

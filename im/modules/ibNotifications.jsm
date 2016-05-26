@@ -25,7 +25,7 @@ var Notifications = {
     // Put the message content into a div node of the hidden HTML window.
     let doc = getHiddenHTMLWindow().document;
     let xhtmlElement = doc.createElementNS("http://www.w3.org/1999/xhtml", "div");
-    xhtmlElement.innerHTML = aMessage.message.replace(/<br>/gi, "<br/>");
+    xhtmlElement.innerHTML = aMessage.displayMessage.replace(/<br>/gi, "<br/>");
 
     // Convert the div node content to plain text.
     let encoder =
