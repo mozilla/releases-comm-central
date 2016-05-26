@@ -423,7 +423,7 @@ nsAbAutoCompleteSearch.prototype = {
       while (allABs.hasMoreElements()) {
         let dir = allABs.getNext();
         if (dir instanceof Components.interfaces.nsIAbDirectory &&
-            dir.useForAutocomplete(params.idKey)) {
+            dir.useForAutocomplete(("idKey" in params) ? params.idKey : null)) {
           this._searchCards(searchQuery, dir, result);
         }
       }
