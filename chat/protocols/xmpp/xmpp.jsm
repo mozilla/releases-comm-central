@@ -1182,19 +1182,22 @@ var XMPPAccountPrototype = {
   connect: function() {
     this._jid = this._parseJID(this.name);
 
-    // For the resource, if the user has edited the option to a non
-    // empty value, use that.
-    if (this.prefs.prefHasUserValue("resource")) {
-      let resource = this.getString("resource");
-      if (resource)
-        this._jid.resource = resource;
-    }
-    // Otherwise, if the username doesn't contain a resource, use the
-    // value of the resource option (it will be the default value).
-    // If we set an empty resource, XMPPSession will fallback to
+    // For the resource, if the user has edited the option, always use that.
+    // If that would set an empty resource, XMPPSession will fallback to
     // XMPPDefaultResource (set to brandShortName).
-    if (!this._jid.resource)
+    // If no resource is set by the user, the pref getter will return a
+    // default value.
+    if (this.prefs.prefHasUserValue("resource") || !this._jid.resource)
       this._jid.resource = this.getString("resource");
+    else if (this._jid.resource) {
+      // If there is a resource in the account name (inherited from libpurple),
+      // migrate it to the pref so it appears correctly in the advanced account
+      // options next time.
+      let str = Cc["@mozilla.org/supports-string;1"]
+                  .createInstance(Ci.nsISupportsString);
+      str.data = this._jid.resource;
+      this.prefs.setComplexValue("resource", Ci.nsISupportsString, str);
+    }
 
     //FIXME if we have changed this._jid.resource, then this._jid.jid
     // needs to be updated. This value is however never used because
