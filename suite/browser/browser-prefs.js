@@ -559,11 +559,6 @@ pref("app.update.promptWaitTime", 43200);
 // Show the Update Checking/Ready UI when the user was idle for x seconds
 pref("app.update.idletime", 60);
  
-// Whether or not we show a dialog box informing the user that the update was
-// successfully applied. At the moment suite doesn't want this dialog by
-// default
-pref("app.update.showInstalledUI", false);
-
 // Extension preferences
 
 // Enables some extra Extension System Logging (can reduce performance)
