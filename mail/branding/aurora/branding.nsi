@@ -11,4 +11,5 @@
 !define CompanyName           "mozilla.org"
 !define URLInfoAbout          "http://www.mozilla.org/"
 !define URLUpdateInfo         "http://www.mozilla.org/products/thunderbird/"
+!define URLSystemRequirements "https://www.mozilla.org/thunderbird/system-requirements/"
 !define SurveyURL             "http://live.mozillamessaging.com/survey/uninstall/?locale=${AB_CD}&version=${AppVersion}"
