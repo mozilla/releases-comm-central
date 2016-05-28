@@ -484,16 +484,6 @@ notification[type="critical"] .messageCloseButton:not(:hover) {
   -moz-appearance: -moz-window-button-box;
 }
 
-/* Because these buttons don't move, they should always be aligned the same,
- * left and right were deprecated, so we have to do work to get it to mean that: */
-#titlebar-buttonbox-container:-moz-locale-dir(ltr) {
-  -moz-box-align: start;
-}
-
-#titlebar-buttonbox-container:-moz-locale-dir(rtl) {
-  -moz-box-align: end;
-}
-
 /* Fullscreen and caption buttons don't move with RTL on OS X so override the automatic ordering. */
 #titlebar-fullscreen-button:-moz-locale-dir(ltr),
 #titlebar-buttonbox-container:-moz-locale-dir(rtl),
