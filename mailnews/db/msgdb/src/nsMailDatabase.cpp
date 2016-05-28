@@ -109,8 +109,17 @@ NS_IMETHODIMP nsMailDatabase::GetSummaryValid(bool *aResult)
     return NS_OK;
   }
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  if (!m_folder)
-    return NS_ERROR_NULL_POINTER;
+  if (!m_folder) {
+    // If the folder is not set, we just return without checking the validity
+    // of the summary file. For now, this is an expected condition when the
+    // message database is being opened from a URL in 
+    // nsMailboxUrl::GetMsgHdrForKey() which calls
+    // nsMsgDBService::OpenMailDBFromFile() without a folder.
+    // Returning an error here would lead to the deletion of the MSF in the
+    // caller nsMsgDatabase::CheckForErrors().
+    *aResult = true;
+    return NS_OK;
+  }
   nsresult rv = m_folder->GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
   return msgStore->IsSummaryFileValid(m_folder, this, aResult);
