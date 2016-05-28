@@ -276,10 +276,12 @@ nsBeckyUtils::ConvertToUTF8File(nsIFile *aSourceFile,
 
   const uint32_t kBlock = 8192;
 
-  nsCOMPtr<nsIConverterInputStream> convertedInput;
+  nsCOMPtr<nsIConverterInputStream> convertedInput =
+    do_CreateInstance("@mozilla.org/intl/converter-input-stream;1");
   convertedInput->Init(source, nsMsgI18NFileSystemCharset(), kBlock, 0x0000);
 
-  nsCOMPtr<nsIConverterOutputStream> convertedOutput;
+  nsCOMPtr<nsIConverterOutputStream> convertedOutput =
+    do_CreateInstance("@mozilla.org/intl/converter-output-stream;1");
   convertedOutput->Init(destination, "UTF-8", kBlock, 0x0000);
 
   char16_t *line = (char16_t *)moz_xmalloc(kBlock);
