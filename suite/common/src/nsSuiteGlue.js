@@ -267,6 +267,23 @@ SuiteGlue.prototype = {
         // the main thread, and this initialization request will be ignored.
         Services.logins;
         break;
+      case "handle-xul-text-link":
+        let linkHandled = subject.QueryInterface(Components.interfaces.nsISupportsPRBool);
+        if (!linkHandled.data) {
+          let mostRecentBrowserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+          if (mostRecentBrowserWindow) {
+            let dataObj = JSON.parse(data);
+            let where = mostRecentBrowserWindow.whereToOpenLink(dataObj, false, true, true);
+            // Preserve legacy behavior of non-modifier left-clicks
+            // opening in a new selected tab.
+            if (where == "current") {
+              where = "tabfocused";
+            }
+            mostRecentBrowserWindow.openUILinkIn(dataObj.href, where);
+            linkHandled.data = true;
+          }
+        }
+        break;
     }
   },
 
@@ -327,6 +344,7 @@ SuiteGlue.prototype = {
     Services.obs.addObserver(this, "browser-search-engine-modified", true);
     Services.obs.addObserver(this, "notifications-open-settings", true);
     Services.prefs.addObserver("devtools.debugger.", this, true);
+    Services.obs.addObserver(this, "handle-xul-text-link", true);
     Components.classes['@mozilla.org/docloaderservice;1']
               .getService(Components.interfaces.nsIWebProgress)
               .addProgressListener(this, Components.interfaces.nsIWebProgress.NOTIFY_LOCATION);
