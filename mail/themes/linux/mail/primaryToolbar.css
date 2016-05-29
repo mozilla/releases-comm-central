@@ -13,6 +13,30 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+/* ::::: Mail Toolbars and Menubars ::::: */
+
+.mail-toolbox,
+.contentTabToolbox {
+  -moz-appearance: none;
+  background-image: linear-gradient(var(--toolbarHighlight),
+                                    var(--toolbarHighlight));
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .3) inset;
+}
+
+.mail-toolbox::after,
+.contentTabToolbox::after {
+  content: "";
+  display: -moz-box;
+  height: 1px;
+  background-color: ThreeDShadow;
+}
+
+.mail-toolbox > toolbar,
+.contentTabToolbox > toolbar {
+  -moz-appearance: none;
+  background: transparent;
+}
+
 .mail-toolbox > toolbar {
   /* force iconsize="small" on these toolbars */
   counter-reset: smallicons;
