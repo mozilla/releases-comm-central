@@ -582,7 +582,7 @@ toolbarbutton.formatting-button:not(:hover):-moz-window-inactive
 
 toolbarbutton.formatting-button > .toolbarbutton-menu-dropmarker,
 toolbarbutton.formatting-button > .toolbarbutton-menubutton-dropmarker {
-  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker-lion.png);
+  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker.png);
 }
 
 #FormatToolbar > toolbarbutton > .toolbarbutton-text {

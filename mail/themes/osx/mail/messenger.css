@@ -249,13 +249,13 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
 
 .toolbarbutton-1 > .toolbarbutton-menu-dropmarker,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker-lion.png) !important;
+  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker.png) !important;
 }
 
 @media (min-resolution: 2dppx) {
   .toolbarbutton-1 > .toolbarbutton-menu-dropmarker,
   .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-    list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker-lion@2x.png) !important;
+    list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker@2x.png) !important;
   }
 
   .toolbarbutton-menu-dropmarker > .dropmarker-icon,

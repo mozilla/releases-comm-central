@@ -357,7 +357,7 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker >
   width: 7px;
   padding-top: 5px;
   padding-bottom: 5px;
-  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker-lion.png);
+  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker.png);
 }
 
 .inline-toolbox[doCustomization] .inline-toolbar {
