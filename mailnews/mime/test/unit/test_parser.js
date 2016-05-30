@@ -106,8 +106,7 @@ var parser_tests = [
   make_body_test("Truncated multipart", "multipart-complex2", {},
     [['1.1.1.1', 21, 25], ['2', 27, 57], ['3', 60, 62]]),
   make_body_test("No LF multipart", "multipartmalt-detach", {},
-    [['1', 20, 21], ['2.1', 27, 38], ['2.2', 42, 43], ['2.3', 47, 48],
-     ['3', 53, 54]]),
+    [['1', 20, 21], ['2.1', 27, 38], ['2.2', 42, 43], ['2.3', 47, 48]]),
   make_body_test("Raw body", "multipart1", {bodyformat: "raw"}, [['', 4, 14]]),
   ["Base64 decode 1", read_file("base64-1"), {bodyformat: "decode"},
     [['', "\r\nHello, world! (Again...)\r\n\r\nLet's see how well base64 text" +
