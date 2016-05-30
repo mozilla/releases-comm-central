@@ -569,28 +569,20 @@ toolbarbutton.formatting-button {
   border-bottom-right-radius: 0;
 }
 
-toolbarbutton.formatting-button > .toolbarbutton-menu-dropmarker,
-toolbarbutton.formatting-button > .toolbarbutton-menubutton-dropmarker {
-  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker.png);
+toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-menu-dropmarker,
+toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-menubutton-dropmarker
+  > .dropmarker-icon,
+toolbarbutton.formatting-button:not(:hover):-moz-window-inactive > .toolbarbutton-icon,
+toolbarbutton.formatting-button:not(:hover):-moz-window-inactive
+  > .toolbarbutton-menu-dropmarker,
+toolbarbutton.formatting-button:not(:hover):-moz-window-inactive
+  > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+  opacity: .5;
 }
 
-@media (-moz-mac-lion-theme) {
-  toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-menu-dropmarker,
-  toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-menubutton-dropmarker
-    > .dropmarker-icon,
-  toolbarbutton.formatting-button:not(:hover):-moz-window-inactive > .toolbarbutton-icon,
-  toolbarbutton.formatting-button:not(:hover):-moz-window-inactive > .toolbarbutton-icon,
-  toolbarbutton.formatting-button:not(:hover):-moz-window-inactive
-    > .toolbarbutton-menu-dropmarker,
-  toolbarbutton.formatting-button:not(:hover):-moz-window-inactive
-    > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
-    opacity: .5;
-  }
-
-  toolbarbutton.formatting-button > .toolbarbutton-menu-dropmarker,
-  toolbarbutton.formatting-button > .toolbarbutton-menubutton-dropmarker {
-    list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker-lion.png);
-  }
+toolbarbutton.formatting-button > .toolbarbutton-menu-dropmarker,
+toolbarbutton.formatting-button > .toolbarbutton-menubutton-dropmarker {
+  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker-lion.png);
 }
 
 #FormatToolbar > toolbarbutton > .toolbarbutton-text {

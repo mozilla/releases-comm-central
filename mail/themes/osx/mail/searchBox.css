@@ -14,11 +14,14 @@
   -moz-appearance: none;
   font: icon;
   height: 24px;
-  box-shadow: 0 1px rgba(255, 255, 255, 0.2), inset 0 1px hsla(0, 0%, 0%, 0.05);
+  box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.2),
+              inset 0 0 1px hsla(0, 0%, 0%, 0.05),
+              inset 0 1px 2px hsla(0, 0%, 0%, 0.1);
   padding: 1px;
   border: 1px solid;
-  border-color: #626262 #787878 #8c8c8c;
+  border-color: hsla(0, 0%, 0%, 0.35) hsla(0, 0%, 0%, 0.25) hsla(0, 0%, 0%, 0.15);
   border-radius: 10000px;
+  background-image: linear-gradient(hsl(0, 0%, 97%), hsl(0, 0%, 100%));
   background-clip: padding-box;
 }
 
@@ -28,22 +31,6 @@
 #peopleSearchInput {
   margin-top: 2px;
   margin-bottom: 3px;
-}
-
-@media (-moz-mac-lion-theme) {
-  .searchBox {
-    background-image: linear-gradient(hsl(0, 0%, 97%), hsl(0, 0%, 100%));
-    border-color: hsla(0, 0%, 0%, 0.35) hsla(0, 0%, 0%, 0.25) hsla(0, 0%, 0%, 0.15);
-    box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.2),
-                inset 0 0 1px hsla(0, 0%, 0%, 0.05),
-                inset 0 1px 2px hsla(0, 0%, 0%, 0.1);
-  }
-}
-
-@media not all and (-moz-mac-lion-theme) {
-  .searchBox:-moz-window-inactive {
-    border-color: rgba(146, 146, 146, 0.84);
-  }
 }
 
 @media (-moz-mac-yosemite-theme) {

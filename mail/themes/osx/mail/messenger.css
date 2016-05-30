@@ -206,15 +206,9 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
 }
 
 .toolbarbutton-1[disabled="true"] .toolbarbutton-text,
-.toolbarbutton-1[disabled="true"] .toolbarbutton-icon,
 .toolbarbutton-1[type="menu-button"] > .toolbarbutton-menubutton-button[disabled="true"]
   > .toolbarbutton-icon {
   opacity: .4;
-}
-
-.toolbarbutton-1 > .toolbarbutton-menu-dropmarker,
-.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker.png) !important;
 }
 
 /* Separator between menu and split type buttons */
@@ -233,31 +227,29 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
   box-shadow: 0 0 0 1px hsla(0, 0%, 100%, .2);
 }
 
-@media (-moz-mac-lion-theme) {
-  .toolbarbutton-1[disabled="true"] > .toolbarbutton-icon,
-  .toolbarbutton-1[type="menu-button"]
-    > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon,
-  .toolbarbutton-1[disabled="true"] > .toolbarbutton-menu-dropmarker,
-  .toolbarbutton-1[disabled="true"] > .toolbarbutton-menubutton-dropmarker
-    > .dropmarker-icon,
-  .toolbarbutton-1:not(:hover):-moz-window-inactive .toolbarbutton-icon,
-  .toolbarbutton-1:not(:hover):-moz-window-inactive
-    > .toolbarbutton-menu-dropmarker,
-  .toolbarbutton-1:not(:hover):-moz-window-inactive
-    > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
-    opacity: .5;
-  }
+.toolbarbutton-1[disabled="true"] > .toolbarbutton-icon,
+.toolbarbutton-1[type="menu-button"]
+  > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon,
+.toolbarbutton-1[disabled="true"] > .toolbarbutton-menu-dropmarker,
+.toolbarbutton-1[disabled="true"] > .toolbarbutton-menubutton-dropmarker
+  > .dropmarker-icon,
+.toolbarbutton-1:not(:hover):-moz-window-inactive .toolbarbutton-icon,
+.toolbarbutton-1:not(:hover):-moz-window-inactive
+  > .toolbarbutton-menu-dropmarker,
+.toolbarbutton-1:not(:hover):-moz-window-inactive
+  > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+  opacity: .5;
+}
 
-  .toolbarbutton-1:-moz-window-inactive[disabled="true"] > .toolbarbutton-icon,
-  .toolbarbutton-1:-moz-window-inactive[type="menu-button"]
-    > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon {
-    opacity: .25;
-  }
+.toolbarbutton-1:-moz-window-inactive[disabled="true"] > .toolbarbutton-icon,
+.toolbarbutton-1:-moz-window-inactive[type="menu-button"]
+  > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon {
+  opacity: .25;
+}
 
-  .toolbarbutton-1 > .toolbarbutton-menu-dropmarker,
-  .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-    list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker-lion.png) !important;
-  }
+.toolbarbutton-1 > .toolbarbutton-menu-dropmarker,
+.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
+  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker-lion.png) !important;
 }
 
 @media (min-resolution: 2dppx) {
@@ -469,15 +461,13 @@ notification[type="critical"] .messageCloseButton:not(:hover) {
   margin-left: 7px;
 }
 
-@media (-moz-mac-lion-theme) {
-  #messengerWindow[tabsintitlebar="true"] .titlebar-placeholder[type="fullscreen-button"] {
-    margin-right: 7px;
-  }
+#messengerWindow[tabsintitlebar="true"] .titlebar-placeholder[type="fullscreen-button"] {
+  margin-right: 7px;
+}
 
-  #titlebar-fullscreen-button {
-    -moz-appearance: -moz-mac-fullscreen-button;
-    margin-right: 7px;
-  }
+#titlebar-fullscreen-button {
+  -moz-appearance: -moz-mac-fullscreen-button;
+  margin-right: 7px;
 }
 
 #titlebar-buttonbox {
