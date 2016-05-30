@@ -205,7 +205,7 @@ NS_IMETHODIMP nsAbView::SetView(nsIAbDirectory *aAddressBook,
     // to iterate over all addressbooks.
     // Since the request is for all addressbooks, the URI must have been
     // passed with an extra '?'. We still check it for sanity and trim it here.
-    if (searchQuery.Find("??") != kNotFound)
+    if (searchQuery.Find("??") == 0)
       searchQuery = Substring(searchQuery, 1);
 
     nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID,
