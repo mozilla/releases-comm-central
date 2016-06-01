@@ -15,6 +15,14 @@ export MOZILLA_OFFICIAL=1
 
 . $topsrcdir/build/win32/mozconfig.vs-latest
 
+# Disable checking that add-ons are signed by the trusted root
+MOZ_ADDON_SIGNING=0
+# Disable enforcing that add-ons are signed by the trusted root
+MOZ_REQUIRE_ADDON_SIGNING=0
+
+# Package js shell
+export MOZ_PACKAGE_JSSHELL=1
+
 # Set up mapi includes (must be done after visual studio setup)
 export INCLUDE=$INCLUDE:/c/Office\ 2010\ Developer\ Resources/Outlook\ 2010\ MAPI\ Headers
 mk_export_correct_style INCLUDE
