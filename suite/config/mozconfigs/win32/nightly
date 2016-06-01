@@ -1,4 +1,4 @@
-. "$topsrcdir/bulid/mozconfig.win-common"
+. "$topsrcdir/build/mozconfig.win-common"
 . "$topsrcdir/build/mozconfig.common"
 
 ac_add_options --enable-application=suite
