@@ -9,11 +9,6 @@
 @import url("chrome://messenger/skin/");
 @import url("chrome://messenger/skin/shared/addressbook.css");
 
-#abContent {
-  text-shadow: none;
-  background-color: -moz-Dialog;
-}
-
 /* ::::: directory pane adjustments ::::: */
 
 #abDirTreeHeader-title {

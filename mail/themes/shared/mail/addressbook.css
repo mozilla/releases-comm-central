@@ -14,6 +14,12 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   text-align: start;
 }
 
+#abContent {
+  text-shadow: none;
+  color: -moz-DialogText;
+  background-color: -moz-Dialog;
+}
+
 #dirTree [sortDirection="ascending"],
 #dirTree [sortDirection="descending"] {
   list-style-image: none;

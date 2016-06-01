@@ -64,11 +64,6 @@
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#abdelete-inverted");
 }
 
-#abContent {
-  text-shadow: none;
-  background-color: -moz-Dialog;
-}
-
 /* ::::: directory pane adjustments ::::: */
 
 #abDirTreeHeader {
