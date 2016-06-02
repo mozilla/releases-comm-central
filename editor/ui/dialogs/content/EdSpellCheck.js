@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://gre/modules/InlineSpellChecker.jsm");
+
 var gMisspelledWord;
 var gSpellChecker = null;
 var gAllowSelectWord = true;
@@ -141,61 +143,8 @@ function InitLanguageMenu(aCurLang)
   // Store current dictionary count.
   gDictCount = count;
 
-  // Load the string bundles that will help us map
-  // RFC 1766 strings to UI strings.
-
-  // Load the language string bundle.
-  var languageBundle = document.getElementById("languageBundle");
-  var regionBundle = null;
-  // If we have a language string bundle, load the region string bundle.
-  if (languageBundle)
-    regionBundle = document.getElementById("regionBundle");
-  
-  var menuStr2;
-  var isoStrArray;
-  var langId;
-  var langLabel;
-  var i;
-
-  for (i = 0; i < count; i++)
-  {
-    try
-    {
-      langId = dictList[i];
-      isoStrArray = dictList[i].split(/[-_]/);
-
-      if (languageBundle && isoStrArray[0])
-        langLabel = languageBundle.getString(isoStrArray[0].toLowerCase());
-
-      if (regionBundle && langLabel && isoStrArray.length > 1 && isoStrArray[1])
-      {
-        menuStr2 = regionBundle.getString(isoStrArray[1].toLowerCase());
-        if (menuStr2)
-          langLabel += "/" + menuStr2;
-      }
-
-      if (langLabel && isoStrArray.length > 2 && isoStrArray[2])
-        langLabel += " (" + isoStrArray[2] + ")";
-
-      if (!langLabel)
-        langLabel = langId;
-    }
-    catch (ex)
-    {
-      // getString throws an exception when a key is not found in the
-      // bundle. In that case, just use the original dictList string.
-      langLabel = langId;
-    }
-    dictList[i] = [langLabel, langId];
-  }
-  
-  // sort by locale-aware collation
-  dictList.sort(
-    function compareFn(a, b)
-    {
-      return a[0].localeCompare(b[0]);
-    }
-  );
+  var inlineSpellChecker = new InlineSpellChecker();
+  var sortedList = inlineSpellChecker.sortDictionaryList(dictList);
 
   // Remove any languages from the list.
   var languageMenuPopup = gDialog.LanguageMenulist.firstChild;
@@ -204,10 +153,10 @@ function InitLanguageMenu(aCurLang)
 
   var defaultItem = null;
 
-  for (i = 0; i < count; i++)
+  for (var i = 0; i < count; i++)
   {
-    var item = gDialog.LanguageMenulist.insertItemAt(i, dictList[i][0], dictList[i][1]);
-    if (aCurLang && dictList[i][1] == aCurLang)
+    var item = gDialog.LanguageMenulist.insertItemAt(i, sortedList[i].label, sortedList[i].id);
+    if (aCurLang && sortedList[i].id == aCurLang)
       defaultItem = item;
   }
 

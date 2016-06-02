@@ -21,8 +21,6 @@
     <script type="application/javascript" src="chrome://global/content/contentAreaUtils.js"/>
     <script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
 
-    <stringbundle id="languageBundle" src="chrome://global/locale/languageNames.properties"/>
-    <stringbundle id="regionBundle" src="chrome://global/locale/regionNames.properties"/>
     <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
 
     <preferences id="composePreferences">

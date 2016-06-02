@@ -3258,53 +3258,7 @@ function InitLanguageMenu()
   // Store current dictionary count.
   sDictCount = count;
 
-  // Load the string bundle that will help us map
-  // RFC 1766 strings to UI strings.
-  var languageBundle = document.getElementById("languageBundle");
-  var isoStrArray;
-  var langId;
-  var langLabel;
-
-  for (let i = 0; i < count; i++)
-  {
-    try
-    {
-      langId = dictList[i];
-      isoStrArray = dictList[i].split(/[-_]/);
-
-      if (languageBundle && isoStrArray[0])
-        langLabel = languageBundle.getString(isoStrArray[0].toLowerCase());
-
-      // the user needs to be able to distinguish between the UK English dictionary
-      // and say the United States English Dictionary. If we have a isoStr value then
-      // wrap it in parentheses and append it to the menu item string. i.e.
-      // English (US) and English (UK)
-      if (!langLabel)
-        langLabel = langId;
-      // if we have a language ID like US or UK, append it to the menu item, and any sub-variety
-      else if (isoStrArray.length > 1 && isoStrArray[1]) {
-        langLabel += ' (' + isoStrArray[1];
-        if (isoStrArray.length > 2 && isoStrArray[2])
-          langLabel += '-' + isoStrArray[2];
-        langLabel += ')';
-      }
-    }
-    catch (ex)
-    {
-      // getString throws an exception when a key is not found in the
-      // bundle. In that case, just use the original dictList string.
-      langLabel = langId;
-    }
-    dictList[i] = [langLabel, langId];
-  }
-
-  // sort by locale-aware collation
-  dictList.sort(
-    function compareFn(a, b)
-    {
-      return a[0].localeCompare(b[0]);
-    }
-  );
+  var sortedList = gSpellChecker.sortDictionaryList(dictList);
 
   // Remove any languages from the list.
   while (languageMenuList.hasChildNodes())
@@ -3313,8 +3267,8 @@ function InitLanguageMenu()
   for (let i = 0; i < count; i++)
   {
     var item = document.createElement("menuitem");
-    item.setAttribute("label", dictList[i][0]);
-    item.setAttribute("value", dictList[i][1]);
+    item.setAttribute("label", sortedList[i].label);
+    item.setAttribute("value", sortedList[i].id);
     item.setAttribute('type', 'radio');
     languageMenuList.appendChild(item);
   }

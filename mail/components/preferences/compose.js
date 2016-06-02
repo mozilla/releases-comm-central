@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://gre/modules/InlineSpellChecker.jsm");
+
 var gComposePane = {
   mInitialized: false,
   mSpellChecker: null,
@@ -139,67 +141,15 @@ var gComposePane = {
     // Store current dictionary count.
     this.mDictCount = count;
 
-    // Load the string bundles that will help us map
-    // RFC 1766 strings to UI strings.
-
-    // Load the language string bundle.
-    var languageBundle = document.getElementById("languageBundle");
-    var regionBundle = null;
-    // If we have a language string bundle, load the region string bundle.
-    if (languageBundle)
-      regionBundle = document.getElementById("regionBundle");
-
-    var menuStr2;
-    var isoStrArray;
-    var langId;
-    var langLabel;
-    var i;
-
-    for (i = 0; i < count; i++)
-    {
-      try {
-        langId = dictList[i];
-        isoStrArray = dictList[i].split(/[-_]/);
-
-        if (languageBundle && isoStrArray[0])
-          langLabel = languageBundle.getString(isoStrArray[0].toLowerCase());
-
-        if (regionBundle && langLabel && isoStrArray.length > 1 && isoStrArray[1])
-        {
-          menuStr2 = regionBundle.getString(isoStrArray[1].toLowerCase());
-          if (menuStr2)
-            langLabel += "/" + menuStr2;
-        }
-
-        if (langLabel && isoStrArray.length > 2 && isoStrArray[2])
-          langLabel += " (" + isoStrArray[2] + ")";
-
-        if (!langLabel)
-          langLabel = langId;
-      } catch (ex) {
-        // getString throws an exception when a key is not found in the
-        // bundle. In that case, just use the original dictList string.
-        langLabel = langId;
-      }
-      dictList[i] = [langLabel, langId];
-    }
-
-    // sort by locale-aware collation
-    dictList.sort(
-      function compareFn(a, b)
-      {
-        return a[0].localeCompare(b[0]);
-      }
-    );
+    var inlineSpellChecker = new InlineSpellChecker();
+    var sortedList = inlineSpellChecker.sortDictionaryList(dictList);
 
     // Remove any languages from the list.
-    var languageMenuPopup = languageMenuList.firstChild;
-    while (languageMenuPopup.hasChildNodes())
-      languageMenuPopup.lastChild.remove();
+    languageMenuList.removeAllItems();
 
     // append the dictionaries to the menu list...
-    for (i = 0; i < count; i++)
-      languageMenuList.appendItem(dictList[i][0], dictList[i][1]);
+    for (var i = 0; i < count; i++)
+      languageMenuList.appendItem(sortedList[i].label, sortedList[i].id);
 
     languageMenuList.setInitialSelection();
   },
