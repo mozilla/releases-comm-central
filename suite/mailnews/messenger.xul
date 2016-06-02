@@ -27,7 +27,6 @@
         onload="OnLoadMessenger()"
         onunload="OnUnloadMessenger()"
         onclose="return MailWindowIsClosing();"
-        style="width: 82em; height: 50em;"
         screenX="10" screenY="10"
         persist="width height screenX screenY sizemode"
         toggletoolbar="true"

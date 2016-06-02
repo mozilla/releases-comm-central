@@ -676,6 +676,28 @@ function OnLoadMessenger()
   verifyAccounts(null, false);
   msgDBCacheManager.init();
 
+  // set the messenger default window size relative to the screen size
+  // initial default dimensions are 2/3 and 1/2 of the screen dimensions
+  if (!document.documentElement.hasAttribute("width")) {
+    let screenHeight  = window.screen.availHeight;
+    let screenWidth   = window.screen.availWidth;
+    let defaultHeight = Math.floor(screenHeight * 2 / 3);
+    let defaultWidth  = Math.floor(screenWidth / 2);
+
+    // minimum dimensions are 1024x768 less padding unless restrained by screen
+    const minHeight = 768;
+    const minWidth = 1024;
+
+    if (defaultHeight < minHeight)
+       defaultHeight = Math.min(minHeight, screenHeight);
+    if (defaultWidth < minWidth)
+       defaultWidth = Math.min(minWidth, screenWidth);
+
+    // keep some distance to the borders, accounting for window decoration
+    document.documentElement.setAttribute("height", defaultHeight - 48);
+    document.documentElement.setAttribute("width",  defaultWidth  - 24);
+  }
+
   // initialize tabmail system - see tabmail.js and tabmail.xml for details
   let tabmail = GetTabMail();
   tabmail.registerTabType(gMailNewsTabsType);
