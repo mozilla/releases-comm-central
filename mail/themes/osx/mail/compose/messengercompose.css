@@ -1272,8 +1272,7 @@ toolbarbutton.formatting-button > .toolbarbutton-menubutton-dropmarker {
 }
 
 #sidebar-box {
-  -moz-appearance: -moz-mac-vibrancy-light;
-  background-color: #E2E7ED
+  -moz-appearance: -moz-mac-source-list;
 }
 
 #sidebar-splitter {

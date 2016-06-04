@@ -76,12 +76,7 @@
 
 /* Adaptation of #folderPaneBox/#folderPaneTree from osx/mail/mailWindow1.css */
 #listPaneBox {
-  -moz-appearance: -moz-mac-vibrancy-light;
-  background-color: #DEE4EA !important;
-}
-
-#listPaneBox:-moz-window-inactive {
-  background-color: #E8E8E8 !important;
+  -moz-appearance: -moz-mac-source-list;
 }
 
 #listPaneBox > * {

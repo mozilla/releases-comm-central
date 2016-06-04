@@ -102,9 +102,8 @@
 }
 
 #dirTree {
-  -moz-appearance: -moz-mac-vibrancy-light;
+  -moz-appearance: -moz-mac-source-list;
   border-inline-end: 1px solid #bdbdbd;
-  background-color: #E2E7ED
 }
 
 #dirTree treechildren::-moz-tree-row {

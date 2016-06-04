@@ -52,21 +52,7 @@ treechildren::-moz-tree-twisty {
 }
 
 #folderTree {
-  -moz-appearance: -moz-mac-vibrancy-light;
-}
-
-#folderPaneHeader, #folderTree {
-  background-color: #E2E7ED !important;
-  border-bottom: 2px solid transparent;
-}
-
-#folderPaneHeader[overflowing="true"] {
-  border-bottom: 2px groove ThreeDShadow;
-}
-
-#folderPaneHeader:-moz-window-inactive,
-#folderTree:-moz-window-inactive {
-  background-color: #E8E8E8 !important;
+  -moz-appearance: -moz-mac-source-list;
 }
 
 .focusring > .tree-stack > .tree-rows > .tree-bodybox {

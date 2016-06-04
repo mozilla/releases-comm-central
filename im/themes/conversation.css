@@ -496,20 +496,9 @@ grippy {
 
 %ifdef XP_MACOSX
 .conv-nicklist {
-  -moz-appearance: none;
-  background: -moz-linear-gradient(top, #d2d8e2, #e8e8e8);
+  -moz-appearance: -moz-mac-source-list;
   width: 160px;
-  border: 0px;
-}
-
-.conv-nicklist:-moz-window-inactive {
-  background: #e8e8e8;
-}
-
-@media (-moz-mac-yosemite-theme) {
-  .conv-nicklist {
-    -moz-appearance: -moz-mac-vibrancy-light;
-  }
+  border: 0;
 }
 %endif
 
