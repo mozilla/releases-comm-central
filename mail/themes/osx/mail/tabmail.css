@@ -46,11 +46,37 @@
   list-style-image: url("chrome://messenger/skin/icons/search-tab.png");
 }
 
+/* image preloading hack */
+.tabmail-tabs::before {
+  background-image:
+    url(tabs/selected-end.svg),
+    url(tabs/selected-start.svg),
+    url(tabs/stroke-end.png),
+    url(tabs/active-middle.png),
+    url(tabs/stroke-start.png),
+    url(tabs/background-end.png),
+    url(tabs/background-middle.png),
+    url(tabs/background-start.png);
+}
+
 @media (min-resolution: 2dppx) {
   #tabs-toolbar {
     --tabBackgroundImage: url(chrome://messenger/skin/tabs/background-start@2x.png),
                           url(chrome://messenger/skin/tabs/background-middle@2x.png),
                           url(chrome://messenger/skin/tabs/background-end@2x.png);
+  }
+
+  /* image preloading hack */
+  .tabmail-tabs::before {
+    background-image:
+      url(tabs/selected-end.svg),
+      url(tabs/selected-start.svg),
+      url(tabs/stroke-end@2x.png),
+      url(tabs/active-middle@2x.png),
+      url(tabs/stroke-start@2x.png),
+      url(tabs/background-end@2x.png),
+      url(tabs/background-middle@2x.png),
+      url(tabs/background-start@2x.png);
   }
 
   .tab-background-middle[selected=true] {
@@ -79,6 +105,24 @@
 }
 
 @media (-moz-mac-yosemite-theme) {
+  /* image preloading hack */
+  .tabmail-tabs::before {
+    background-image:
+      url(tabs/selected-end.svg),
+      url(tabs/selected-start.svg),
+      url(tabs/stroke-end.png),
+      url(tabs/active-middle.png),
+      url(tabs/stroke-start.png),
+      url(tabs/background-end.png),
+      url(tabs/background-middle.png),
+      url(tabs/background-start.png),
+      url(tabs/selected-end-yosemite-inactive.svg),
+      url(tabs/selected-start-yosemite-inactive.svg),
+      url(tabs/stroke-start-yosemite-inactive.png),
+      url(tabs/active-middle-yosemite-inactive.png),
+      url(tabs/stroke-end-yosemite-inactive.png);
+  }
+
   .tab-background-middle[selected=true]:-moz-window-inactive {
     background-image: url(tabs/active-middle-yosemite-inactive.png),
                       var(--fgTabTexture),
@@ -87,12 +131,12 @@
 
   .tab-background-start[selected=true]:-moz-window-inactive:-moz-locale-dir(ltr):not(:-moz-lwtheme)::before,
   .tab-background-end[selected=true]:-moz-window-inactive:-moz-locale-dir(rtl):not(:-moz-lwtheme)::before {
-    background-image: url("chrome://messenger/skin/tabs/selected-start-yosemite-inactive.svg");
+    background-image: url(tabs/selected-start-yosemite-inactive.svg);
   }
 
   .tab-background-end[selected=true]:-moz-window-inactive:-moz-locale-dir(ltr):not(:-moz-lwtheme)::before,
   .tab-background-start[selected=true]:-moz-window-inactive:-moz-locale-dir(rtl):not(:-moz-lwtheme)::before {
-    background-image: url("chrome://messenger/skin/tabs/selected-end-yosemite-inactive.svg");
+    background-image: url(tabs/selected-end-yosemite-inactive.svg);
   }
 
   .tab-background-start[selected=true]:-moz-window-inactive:-moz-locale-dir(ltr)::after,
@@ -106,6 +150,24 @@
   }
 
   @media (min-resolution: 2dppx) {
+    /* image preloading hack */
+    .tabmail-tabs::before {
+      background-image:
+        url(tabs/selected-end.svg),
+        url(tabs/selected-start.svg),
+        url(tabs/stroke-end@2x.png),
+        url(tabs/active-middle@2x.png),
+        url(tabs/stroke-start@2x.png),
+        url(tabs/background-end@2x.png),
+        url(tabs/background-middle@2x.png),
+        url(tabs/background-start@2x.png),
+        url(tabs/selected-end-yosemite-inactive.svg),
+        url(tabs/selected-start-yosemite-inactive.svg),
+        url(tabs/stroke-start-yosemite-inactive@2x.png),
+        url(tabs/active-middle-yosemite-inactive@2x.png),
+        url(tabs/stroke-end-yosemite-inactive@2x.png);
+    }
+
     .tab-background-middle[selected=true]:-moz-window-inactive {
       background-image: url(tabs/active-middle-yosemite-inactive@2x.png),
                         var(--fgTabTexture),

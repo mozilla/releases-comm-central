@@ -25,6 +25,16 @@
   background-image: none;
 }
 
+@media (-moz-mac-yosemite-theme) {
+  #quick-filter-bar-expando {
+    border-bottom-color: hsl(0, 0%, 68%);
+  }
+
+  #quick-filter-bar-expando:-moz-window-inactive {
+    border-bottom-color: hsl(0, 0%, 85%);
+  }
+}
+
 #threadTree[filterActive="matches"] {
   background: repeating-linear-gradient(to bottom, #ecf3fe 0, #ecf3fe 18px, white 18px, white 36px);
 }
