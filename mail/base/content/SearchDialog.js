@@ -243,7 +243,8 @@ function searchOnLoad()
 
   gFolderDisplay.setColumnStates({
     subjectCol: { visible: true },
-    correspondentCol: { visible: true },
+    correspondentCol: { visible: Services.prefs.getBoolPref("mail.threadpane.use_correspondents") },
+    senderCol: { visible: !Services.prefs.getBoolPref("mail.threadpane.use_correspondents") },
     dateCol: { visible: true },
     locationCol: { visible: true },
   });
