@@ -425,9 +425,9 @@ XMPPSession.prototype = {
                      _("connection.error.noCompatibleAuthMec"));
         return;
       }
-      let authMec = new authMechanisms[selectedMech](this._jid.node,
-                                                     this._password,
-                                                     this._domain);
+      let authMec = authMechanisms[selectedMech](this._jid.node,
+                                                 this._password,
+                                                 this._domain);
       this._password = null;
 
       this._account.reportConnecting(_("connection.authenticating"));
@@ -437,8 +437,10 @@ XMPPSession.prototype = {
     authDialog: function(aAuthMec, aStanza) {
       if (aStanza && aStanza.localName == "failure") {
         let errorMsg = "authenticationFailure";
-        if (aStanza.getElement(["not-authorized"]))
+        if (aStanza.getElement(["not-authorized"]) ||
+            aStanza.getElement(["bad-auth"])) {
           errorMsg = "notAuthorized";
+        }
         this.onError(Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
                      _("connection.error." + errorMsg));
         return;
@@ -454,20 +456,12 @@ XMPPSession.prototype = {
         return;
       }
 
-      if (result.send)
-        this.send(result.send.getXML(), result.log);
-      if (result.done)
-        this.onXmppStanza = this.stanzaListeners.authResult;
-    },
-    authResult: function(aStanza) {
-      if (aStanza.localName != "success") {
-        this.onError(Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
-                     _("connection.error.notAuthorized"));
-        return;
+      if (result.value && result.value.send)
+        this.send(result.value.send.getXML(), result.value.log);
+      if (result.done) {
+        this.startStream();
+        this.onXmppStanza = this.stanzaListeners.startBind;
       }
-
-      this.startStream();
-      this.onXmppStanza = this.stanzaListeners.startBind;
     },
     startBind: function(aStanza) {
       if (!aStanza.getElement(["bind"])) {
