@@ -56,12 +56,12 @@
       <grid flex="1">
         <columns>
           <column/>
-          <column/>
+          <column flex="1"/>
         </columns>
         <rows>
           <row align="top">
             <label value="&read.only.title.label;" class="headline"/>
-            <label id="item-title"/>
+            <label id="item-title" crop="end"/>
           </row>
           <row class="item-date-row"
                id="item-start-row"
@@ -83,11 +83,11 @@
           </row>
           <row id="location-row" align="top" hidden="true">
             <label value="&read.only.location.label;" class="headline"/>
-            <label id="item-location"/>
+            <label id="item-location" crop="end"/>
           </row>
           <row id="category-row" align="top" hidden="true">
             <label value="&read.only.category.label;" class="headline"/>
-            <label id="item-category"/>
+            <label id="item-category" crop="end"/>
           </row>
           <row id="organizer-row" align="top" hidden="true" class="item-attendees-row">
             <label value="&read.only.organizer.label;" class="headline"/>
@@ -95,7 +95,7 @@
               <img class="itip-icon"/>
               <label id="item-organizer"
                      class="text-link item-attendees-cell-label"
-                     crop="right"
+                     crop="end"
                      onclick="sendMailToOrganizer()"/>
               <spacer flex="1"/>
             </hbox>
