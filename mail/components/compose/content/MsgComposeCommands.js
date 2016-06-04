@@ -3277,14 +3277,10 @@ function InitLanguageMenu()
 function OnShowDictionaryMenu(aTarget)
 {
   InitLanguageMenu();
-  let spellChecker = gSpellChecker.mInlineSpellChecker.spellChecker;
-  let curLang = spellChecker.GetCurrentDictionary();
-  if (!curLang || curLang != document.documentElement.getAttribute("lang")) {
-    // Looks like the active dictionary got removed, or something is
-    // inconsistent. In this case do not check anything, so the user can select
-    // another dictionary.
+  let curLang = document.documentElement.getAttribute("lang");
+  if (!curLang)
     return;
-  }
+
   let language = aTarget.querySelector('[value="' + curLang + '"]');
   if (language)
     language.setAttribute("checked", true);
@@ -3319,30 +3315,36 @@ function updateLanguageInStatusBar()
   }
 }
 
+/**
+ * Change the language of the composition and if we are using inline
+ * spell check, recheck the message with the new dictionary.
+ *
+ * @param event  Event of selecting an item in the spelling button menulist popup.
+ */
 function ChangeLanguage(event)
 {
-  // We need to change the dictionary language and if we are using inline spell check,
-  // recheck the message
+  let newLang = event.target.value;
 
-  var spellChecker = gSpellChecker.mInlineSpellChecker.spellChecker;
-  if (spellChecker.GetCurrentDictionary() != event.target.value)
-  {
-    spellChecker.SetCurrentDictionary(event.target.value);
-
+  if (document.documentElement.getAttribute("lang") != newLang) {
     // Update the document language as well (needed to synchronise
     // the subject).
-    document.documentElement.setAttribute("lang", event.target.value);
+    document.documentElement.setAttribute("lang", newLang);
 
-    // now check the document over again with the new dictionary
-    if (gSpellChecker.enabled) {
-      gSpellChecker.mInlineSpellChecker.spellCheckRange(null);
+    let spellChecker = gSpellChecker.mInlineSpellChecker.spellChecker;
+    if (spellChecker) {
+      spellChecker.SetCurrentDictionary(newLang);
 
-      // Also force a recheck of the subject. If for some reason the spell
-      // checker isn't ready yet, don't auto-create it, hence pass 'false'.
-      var inlineSpellChecker =
-        GetMsgSubjectElement().editor.getInlineSpellChecker(false);
-      if (inlineSpellChecker) {
-        inlineSpellChecker.spellCheckRange(null);
+      // now check the document over again with the new dictionary
+      if (gSpellChecker.enabled) {
+        gSpellChecker.mInlineSpellChecker.spellCheckRange(null);
+
+        // Also force a recheck of the subject. If for some reason the spell
+        // checker isn't ready yet, don't auto-create it, hence pass 'false'.
+        let inlineSpellChecker =
+          GetMsgSubjectElement().editor.getInlineSpellChecker(false);
+        if (inlineSpellChecker) {
+          inlineSpellChecker.spellCheckRange(null);
+        }
       }
     }
   }
