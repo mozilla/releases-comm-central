@@ -24,7 +24,10 @@ struct MimeMultipartAlternativeClass {
 extern "C" MimeMultipartAlternativeClass mimeMultipartAlternativeClass;
 
 enum priority_t {PRIORITY_UNDISPLAYABLE,
+                 PRIORITY_TEXT_UNKNOWN,
+                 PRIORITY_TEXT_PLAIN,
                  PRIORITY_NORMAL,
+                 PRIORITY_HIGH,
                  PRIORITY_HIGHEST};
 
 struct MimeMultipartAlternative {

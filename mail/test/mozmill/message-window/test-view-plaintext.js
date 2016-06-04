@@ -92,11 +92,18 @@ function test_view() {
   checkSingleMessage("./test-alt-HTML-missing.eml",        "Plain Text", "Plain Text");
   checkSingleMessage("./test-alt-plain-missing.eml",       "HTML Body",  "HTML Body");
 
+  // 6) plain and HTML parts reversed in order
+  checkSingleMessage("./test-alt-plain-HTML-reversed.eml", "Plain Text", "HTML Body");
+
+  // 7) 3 alt. parts with 2 plain and 1 HTML part
+  checkSingleMessage("./test-triple-alt.eml",              "Plain Text", "HTML Body");
+
+  // 8) 3 alt. parts with 2 plain and 1 multipart/related
+  checkSingleMessage("./test-alt-rel-text.eml",            "Plain Text", "HTML Body");
+
   // Now some cases that don't work yet.
-  // 6) multipart/related with embedded multipart/alternative
-  // 7) plain and HTML parts reversed in order
+  // 9) multipart/related with embedded multipart/alternative
   checkSingleMessage("./test-rel-alt.eml",                 "HTML Body",  "HTML Body");
-  checkSingleMessage("./test-alt-plain-HTML-reversed.eml", "Plain Text", "Plain Text");
 }
 
 function teardownModule() {

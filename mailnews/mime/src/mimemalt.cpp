@@ -112,6 +112,9 @@ static int MimeMultipartAlternative_close_child(MimeObject *);
 static int MimeMultipartAlternative_flush_children(MimeObject *, bool, priority_t);
 static priority_t MimeMultipartAlternative_display_part_p(MimeObject *self,
                              MimeHeaders *sub_hdrs);
+static priority_t MimeMultipartAlternative_prioritize_part(char *content_type,
+                             bool prefer_plaintext);
+
 static int MimeMultipartAlternative_display_cached_part(MimeObject *,
                                                         MimeHeaders *,
                                                         MimePartBufferData *,
@@ -363,9 +366,10 @@ static priority_t
 MimeMultipartAlternative_display_part_p(MimeObject *self,
                     MimeHeaders *sub_hdrs)
 {
+  priority_t priority = PRIORITY_UNDISPLAYABLE;
   char *ct = MimeHeaders_get (sub_hdrs, HEADER_CONTENT_TYPE, true, false);
   if (!ct)
-    return PRIORITY_UNDISPLAYABLE;
+    return priority;
 
   /* RFC 1521 says:
      Receiving user agents should pick and display the last format
@@ -374,40 +378,82 @@ MimeMultipartAlternative_display_part_p(MimeObject *self,
      sub-parts, the user agent may choose either to show that alternative,
      an earlier alternative, or both.
    */
-  priority_t priority = PRIORITY_UNDISPLAYABLE;
 
-  // prefer_plaintext pref
-  nsIPrefBranch *prefBranch = GetPrefBranch(self->options);
-  bool prefer_plaintext = false;
-  if (prefBranch)
-    prefBranch->GetBoolPref("mailnews.display.prefer_plaintext",
-                            &prefer_plaintext);
-  if (prefer_plaintext
-      && self->options->format_out != nsMimeOutput::nsMimeMessageSaveAs
-      && !PL_strncasecmp(ct, "text/plain", 10)
-     )
-    // if the user prefers plaintext and this is the plaintext part...
-  {
-    priority = PRIORITY_HIGHEST;
-  } else {
-    MimeObjectClass *clazz = mime_find_class (ct, sub_hdrs, self->options, true);
-    if (clazz && clazz->displayable_inline_p(clazz, sub_hdrs)) {
-      /* TODO:
-        If the user prefers plaintext and if this is a multipart that
-        contains a text/plain part (and it is not a converted/downgraded
-        text/html part) then the priority should be a bit less than
-        PRIORITY_HIGHEST, but above PRIORITY_NORMAL.
-        (A text/plain part inside a multipart is more likely to be
-        only a part of the message, but if there are multiple multipart
-        sub-parts then one that contains a true text/plain should be chosen
-        over a multipart that does not contain a true text/plain.)
-        But I do not know how to test for this.  - Terje Bråten.
-      */
-      priority = PRIORITY_NORMAL;
+  MimeObjectClass *clazz = mime_find_class (ct, sub_hdrs, self->options, false);
+  if (clazz && clazz->displayable_inline_p(clazz, sub_hdrs)) {
+    // prefer_plaintext pref
+    bool prefer_plaintext = false;
+    nsIPrefBranch *prefBranch = GetPrefBranch(self->options);
+    if (prefBranch) {
+      prefBranch->GetBoolPref("mailnews.display.prefer_plaintext",
+                              &prefer_plaintext);
     }
+    prefer_plaintext = prefer_plaintext
+           && (self->options->format_out != nsMimeOutput::nsMimeMessageSaveAs);
+
+    priority = MimeMultipartAlternative_prioritize_part(ct, prefer_plaintext);
   }
+
   PR_FREEIF(ct);
   return priority;
+}
+
+/**
+* RFC 1521 says we should display the last format we are capable of displaying.
+* But for various reasons (mainly to improve the user experience) we choose
+* to ignore that in some cases, and rather pick one that we prioritize.
+*/
+static priority_t
+MimeMultipartAlternative_prioritize_part(char *content_type,
+                                         bool prefer_plaintext)
+{
+  /*
+   * PRIORITY_NORMAL is the priority of text/html, multipart/..., etc. that
+   * we normally display. We should try to have as few exceptions from
+   * PRIORITY_NORMAL as possible
+   */
+
+  /* (with no / in the type) */
+  if (!PL_strcasecmp(content_type, "text")) {
+    if (prefer_plaintext) {
+       /* When in plain text view, a plain text part is what we want. */
+       return PRIORITY_HIGH;
+    }
+    /* We normally prefer other parts over the unspecified text type. */
+    return  PRIORITY_TEXT_UNKNOWN;
+  }
+
+  if (!PL_strncasecmp(content_type, "text/", 5)) {
+    char *text_type = content_type + 5;
+
+    if (!PL_strncasecmp(text_type, "plain", 5)) {
+      if (prefer_plaintext) {
+        /* When in plain text view,
+           the text/plain part is exactly what we want */
+        return PRIORITY_HIGHEST;
+      }
+      /*
+       * Because the html and the text part may be switched,
+       * or we have an extra text/plain added by f.ex. a buggy virus checker,
+       * we prioritize text/plain lower than normal.
+       */
+      return PRIORITY_TEXT_PLAIN;
+    }
+
+    /* Need to white-list all text/... types that are or could be implemented. */
+    if (!PL_strncasecmp(text_type, "html", 4) ||
+        !PL_strncasecmp(text_type, "enriched", 8) ||
+        !PL_strncasecmp(text_type, "richtext", 8) ||
+        !PL_strncasecmp(text_type, "calendar", 8) ||
+        !PL_strncasecmp(text_type, "rtf", 3)) {
+      return PRIORITY_NORMAL;
+    }
+
+    /* We prefer other parts over unknown text types. */
+    return PRIORITY_TEXT_UNKNOWN;
+  }
+
+  return PRIORITY_NORMAL;
 }
 
 static int
