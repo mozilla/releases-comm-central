@@ -136,3 +136,17 @@ tab[calview] > .tab-middle {
 .view-navigation-button > .toolbarbutton-icon {
     margin: 1px;
 }
+
+@media (-moz-mac-yosemite-theme) {
+    #calendar-nav-control:-moz-window-inactive {
+        background: -moz-mac-chrome-inactive;
+    }
+
+    .navigation-inner-box:-moz-window-inactive {
+        border-bottom-color: hsl(0, 0%, 85%);
+    }
+
+    tab[calview]:not([selected="true"]):-moz-window-inactive {
+        background-color: #EAEAEA;
+    }
+}

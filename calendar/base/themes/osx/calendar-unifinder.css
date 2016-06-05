@@ -20,3 +20,10 @@
 .unifinder-closebutton > .toolbarbutton-text {
     display: none;
 }
+
+@media (-moz-mac-yosemite-theme) {
+    #unifinder-searchBox:-moz-window-inactive {
+        border-bottom-color: hsl(0, 0%, 85%);
+        background: -moz-mac-chrome-inactive;
+    }
+}

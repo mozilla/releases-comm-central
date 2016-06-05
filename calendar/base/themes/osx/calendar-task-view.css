@@ -40,6 +40,17 @@
     min-height: 14px !important;
 }
 
+@media (-moz-mac-yosemite-theme) {
+    #task-addition-box:-moz-window-inactive {
+        border-bottom-color: hsl(0, 0%, 85%);
+        background: -moz-mac-chrome-inactive;
+    }
+
+    #calendar-task-details-container:-moz-window-inactive {
+        background-color: -moz-mac-chrome-inactive;
+    }
+}
+
 @media not all and (-moz-mac-yosemite-theme) {
   #task-actions-category {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#category);
