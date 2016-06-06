@@ -9,7 +9,7 @@
 
 <overlay id="tb-about-support-overlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <script type="application/x-javascript" src="chrome://messenger/content/about-support/overlay.js" />
+  <script type="application/javascript" src="chrome://messenger/content/about-support/overlay.js" />
   <menupopup id="menu_HelpPopup">
     <menuitem id="aboutsupport_open"
               label="&helpTroubleshootingInfo.label;"

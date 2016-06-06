@@ -18,7 +18,7 @@
         buttons="accept"
         title="&fileExceedsQuota.title;">
 
-  <script type="text/javascript;version=1.8"
+  <script type="application/javascript;version=1.8"
           src="chrome://messenger/content/cloudfile/Hightail/fileExceedsQuota.js"/>
 
   <description id="title">&fileExceedsQuota.storageLimitReached;</description>

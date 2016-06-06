@@ -25,7 +25,7 @@
         style="&addAccountDialog.style;"
         persist="screenX screenY">
 
-  <script type="text/javascript;version=1.8"
+  <script type="application/javascript;version=1.8"
           src="chrome://messenger/content/cloudfile/addAccountDialog.js"/>
 
 #ifdef XP_MACOSX

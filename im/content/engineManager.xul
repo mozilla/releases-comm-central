@@ -22,9 +22,9 @@
         persist="screenX screenY"
         windowtype="Browser:SearchManager">
 
-  <script type="application/x-javascript"
+  <script type="application/javascript"
           src="chrome://instantbird/content/engineManager.js"/>
-  <script type="application/x-javascript"
+  <script type="application/javascript"
           src="chrome://global/content/nsDragAndDrop.js"/>
 
   <commandset id="engineManagerCommandSet">
