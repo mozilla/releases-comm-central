@@ -225,7 +225,8 @@ Tokenizer::Tokenizer() :
   mBodyDelimiters(kBayesianFilterTokenDelimiters),
   mHeaderDelimiters(kBayesianFilterTokenDelimiters),
   mCustomHeaderTokenization(false),
-  mMaxLengthForToken(kMaxLengthForToken)
+  mMaxLengthForToken(kMaxLengthForToken),
+  mIframeToDiv(false)
 {
   nsresult rv;
   nsCOMPtr<nsIPrefService> prefs = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
