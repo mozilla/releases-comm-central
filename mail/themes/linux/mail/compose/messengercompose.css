@@ -500,6 +500,10 @@ treechildren::-moz-tree-image(subscribed-news) {
   max-width: 35ch;
 }
 
+#FontFacePopup > menuitem > .menu-iconic-left {
+  display: none;
+}
+
 toolbarbutton.formatting-button {
   list-style-image: url("chrome://messenger/skin/messengercompose/format-buttons.png");
 }
