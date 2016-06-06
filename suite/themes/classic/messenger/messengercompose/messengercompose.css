@@ -312,6 +312,10 @@ treechildren::-moz-tree-image(subscribed-news) {
   border: 1px dotted;
 }
 
+#FontFaceSelect {
+  max-width: 35ch;
+}
+
 /* ::::: lightweight themes ::::: */
 
 #MsgHeadersToolbar:-moz-lwtheme,

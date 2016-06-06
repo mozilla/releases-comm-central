@@ -166,6 +166,10 @@ toolbar[iconsize="small"] > #print-button[disabled="true"],
   -moz-border-top-colors: #EEF0F3;
 }
 
+#FontFaceSelect {
+  max-width: 35ch;
+}
+
 /* ::::: autocomplete icons ::::: */
 
 treechildren::-moz-tree-cell-text(default-match) {

@@ -241,6 +241,10 @@
   background-color: transparent;
 }
 
+#FontFaceSelect {
+  max-width: 35ch;
+}
+
 #FormatToolbar > toolbarbutton > .toolbarbutton-text {
   display: none;
 }

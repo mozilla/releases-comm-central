@@ -118,7 +118,8 @@
             <caption label="&htmlComposeHeader.label;"/>
             <hbox align="center">
               <label control="FontSelect" value="&font.label;" accesskey="&font.accesskey;"/>
-              <menulist id="FontSelect" preference="msgcompose.font_face">
+              <menulist id="FontSelect" preference="msgcompose.font_face"
+                        sizetopopup="pref" crop="center" flex="1">
                 <menupopup>
                   <menuitem value="" label="&fontVarWidth.label;"/>
                   <menuitem value="tt" label="&fontFixedWidth.label;"/>

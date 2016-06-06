@@ -1067,7 +1067,7 @@ function initLocalFontFaceMenu(menuPopup)
  * Creates a menuitem element for the font faces menulist. Returns the menuitem
  * but does not add it automatically to the menupopup.
  *
- * @param aFontLabel  Label to be displayed for the item
+ * @param aFontLabel  Label to be displayed for the item.
  * @param aFontName   The font face value to be used for the item.
  *                    Will be used in <font face="value"> in the edited document.
  * @param aMenuPopup  The menupopup for which this menuitem is created.
@@ -1078,6 +1078,7 @@ function createFontFaceMenuitem(aFontLabel, aFontName, aMenuPopup)
   itemNode.setAttribute("label", aFontLabel);
   itemNode.setAttribute("value", aFontName);
   itemNode.setAttribute("value_parsed", aFontName.toLowerCase().replace(/, /g, ","));
+  itemNode.setAttribute("tooltiptext", aFontLabel);
   if (aMenuPopup.getAttribute("useRadios") == "true") {
     itemNode.setAttribute("type", "radio");
     itemNode.setAttribute("observes", "cmd_renderedHTMLEnabler");

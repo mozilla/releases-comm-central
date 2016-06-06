@@ -519,6 +519,10 @@ treechildren::-moz-tree-image(subscribed-news) {
   margin-right: 3px;
 }
 
+#FontFaceSelect {
+  max-width: 35ch;
+}
+
 #FormatToolbar toolbarseparator {
   background-image: none;
 }

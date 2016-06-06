@@ -496,6 +496,10 @@ treechildren::-moz-tree-image(subscribed-news) {
   background-image: url("chrome://messenger/skin/messengercompose/linux-noise.png");
 }
 
+#FontFaceSelect {
+  max-width: 35ch;
+}
+
 toolbarbutton.formatting-button {
   list-style-image: url("chrome://messenger/skin/messengercompose/format-buttons.png");
 }
