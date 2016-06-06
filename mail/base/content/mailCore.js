@@ -1,7 +1,7 @@
-# -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
  * Core mail routines used by all of the major mail windows (address book,
@@ -13,6 +13,7 @@
  */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 
 var gCustomizeSheet = false;
@@ -493,16 +494,17 @@ function openIMAccountWizard()
   const kUrl = "chrome://messenger/content/chat/imAccountWizard.xul";
   const kName = "IMAccountWizard";
 
-#ifdef XP_MACOSX
-  // On Mac, avoid using the hidden window as a parent as that would
-  // make it visible.
-  let hiddenWindowUrl =
-    Services.prefs.getCharPref("browser.hiddenWindowChromeURL");
-  if (window.location.href == hiddenWindowUrl) {
-    Services.ww.openWindow(null, kUrl, kName, kFeatures, null);
-    return;
+  if (AppConstants.platform == "macosx") {
+    // On Mac, avoid using the hidden window as a parent as that would
+    // make it visible.
+    let hiddenWindowUrl =
+      Services.prefs.getCharPref("browser.hiddenWindowChromeURL");
+    if (window.location.href == hiddenWindowUrl) {
+      Services.ww.openWindow(null, kUrl, kName, kFeatures, null);
+      return;
+    }
   }
-#endif
+
   window.openDialog(kUrl, kName, kFeatures);
 }
 
@@ -547,13 +549,14 @@ function openAboutDialog()
     return;
   }
 
-#ifdef XP_WIN
-  var features = "chrome,centerscreen,dependent";
-#elifdef XP_MACOSX
-  var features = "chrome,resizable=no,minimizable=no";
-#else
-  var features = "chrome,centerscreen,dependent,dialog=no";
-#endif
+  let features;
+  if (AppConstants.platform == "win")
+    features = "chrome,centerscreen,dependent";
+  else if (AppConstants.platform == "macosx")
+    features = "chrome,resizable=no,minimizable=no";
+  else
+    features = "chrome,centerscreen,dependent,dialog=no";
+
   window.openDialog("chrome://messenger/content/aboutDialog.xul", "About", features);
 }
 
@@ -610,38 +613,36 @@ function safeModeRestart()
   }
 }
 
-#ifndef XP_WIN
-#define BROKEN_WM_Z_ORDER
-#endif
-
 function getMostRecentMailWindow() {
-#ifdef BROKEN_WM_Z_ORDER
-  let win = Services.wm.getMostRecentWindow("mail:3pane", true);
+  let win = null;
+  if (AppConstants.platform != "win") {
+    // Platforms other than Windows have a broken z-order...
+    win = Services.wm.getMostRecentWindow("mail:3pane", true);
 
-  // if we're lucky, this isn't a popup, and we can just return this
-  if (win && win.document.documentElement.getAttribute("chromehidden")) {
-    win = null;
-    var windowList = Services.wm.getEnumerator("mail:3pane", true);
-    // this is oldest to newest, so this gets a bit ugly
-    while (windowList.hasMoreElements()) {
-      var nextWin = windowList.getNext();
-      if (!nextWin.document.documentElement.getAttribute("chromehidden"))
-        win = nextWin;
+    // If we're lucky, this isn't a popup, and we can just return this.
+    if (win && win.document.documentElement.getAttribute("chromehidden")) {
+      win = null;
+      let windowList = Services.wm.getEnumerator("mail:3pane", true);
+      // This is oldest to newest, so this gets a bit ugly.
+      while (windowList.hasMoreElements()) {
+        let nextWin = windowList.getNext();
+        if (!nextWin.document.documentElement.getAttribute("chromehidden"))
+          win = nextWin;
+      }
     }
-  }
-#else
-  var windowList = Services.wm.getZOrderDOMWindowEnumerator("mail:3pane", true);
-  if (!windowList.hasMoreElements())
-    return null;
-
-  var win = windowList.getNext();
-  while (win.document.documentElement.getAttribute("chromehidden")) {
+  } else {
+    let windowList = Services.wm.getZOrderDOMWindowEnumerator("mail:3pane", true);
     if (!windowList.hasMoreElements())
       return null;
 
     win = windowList.getNext();
+    while (win.document.documentElement.getAttribute("chromehidden")) {
+      if (!windowList.hasMoreElements())
+        return null;
+
+      win = windowList.getNext();
+    }
   }
-#endif
 
   return win;
 }
@@ -658,12 +659,10 @@ function getMostRecentMailWindow() {
  */
 function SanitizeAttachmentDisplayName(aAttachment)
 {
-  let displayName = aAttachment.name.trim();
-  return displayName.replace(/\s+/g, " ")
-#ifdef XP_WIN
-                    .replace(/[ \.]+$/, "")
-#endif
-                    .replace(/(.)\1{9,}/g, "$1…$1");
+  let displayName = aAttachment.name.trim().replace(/\s+/g, " ");
+  if (AppConstants.platform == "win")
+    displayName = displayName.replace(/[ \.]+$/, "");
+  return displayName.replace(/(.)\1{9,}/g, "$1…$1");
 }
 
 /**
