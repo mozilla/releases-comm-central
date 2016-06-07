@@ -17,6 +17,16 @@
             onpaneload="gApplicationsTabController.init();"
             flex="1">
 
+    <script type="application/javascript">
+    <![CDATA[
+#ifdef MOZ_WIDGET_GTK
+      var ICON_URL_APP      = "moz-icon://dummy.exe?size=16";
+#else
+      var ICON_URL_APP      = "chrome://messenger/skin/preferences/application.png";
+#endif
+    ]]>
+    </script>
+
     <preferences id="applicationsPreferences">
       <preference id="mail.preferences.applications.selectedTabIndex"
                   name="mail.preferences.applications.selectedTabIndex" type="int"/>

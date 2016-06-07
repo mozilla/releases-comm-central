@@ -1,7 +1,7 @@
-# -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 4 -*-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+/* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var gAdvancedPane = {
   mPane: null,
@@ -22,9 +22,8 @@ var gAdvancedPane = {
       if (preference.value)
         document.getElementById("advancedPrefs").selectedIndex = preference.value;
     }
-#ifdef MOZ_UPDATER
-    this.updateReadPrefs();
-#endif
+    if (AppConstants.MOZ_UPDATER)
+      this.updateReadPrefs();
 
     // Default store type initialization.
     let storeTypeElement = document.getElementById("storeTypeMenulist");
@@ -33,9 +32,8 @@ var gAdvancedPane = {
     let targetItem = storeTypeElement.getElementsByAttribute("value", defaultStoreID);
     storeTypeElement.selectedItem = targetItem[0];
 
-#ifdef MOZ_CRASHREPORTER
-    this.initSubmitCrashes();
-#endif
+    if (AppConstants.MOZ_CRASHREPORTER)
+      this.initSubmitCrashes();
     this.initTelemetry();
 
     // Search integration -- check whether we should hide or disable integration
@@ -65,7 +63,6 @@ var gAdvancedPane = {
       document.getElementById("searchintegration.enable").disabled = true;
     }
 
-#ifdef HAVE_SHELL_SERVICE
     // If the shell service is not working, disable the "Check now" button
     // and "perform check at startup" checkbox.
     try {
@@ -73,12 +70,15 @@ var gAdvancedPane = {
                                .getService(Components.interfaces.nsIShellService);
       this.mShellServiceWorking = true;
     } catch (ex) {
-      document.getElementById("alwaysCheckDefault").disabled = true;
-      document.getElementById("alwaysCheckDefault").checked = false;
-      document.getElementById("checkDefaultButton").disabled = true;
+      // The elements may not exist if HAVE_SHELL_SERVICE is off.
+      if (document.getElementById("alwaysCheckDefault")) {
+        document.getElementById("alwaysCheckDefault").disabled = true;
+        document.getElementById("alwaysCheckDefault").checked = false;
+      }
+      if (document.getElementById("checkDefaultButton"))
+        document.getElementById("checkDefaultButton").disabled = true;
       this.mShellServiceWorking = false;
     }
-#endif
 
     if (this._loadInContent) {
       gSubDialog.init();
@@ -96,7 +96,6 @@ var gAdvancedPane = {
     }
   },
 
-#ifdef HAVE_SHELL_SERVICE
   /**
    * Checks whether Thunderbird is currently registered with the operating
    * system as the default app for mail, rss and news.  If Thunderbird is not
@@ -119,7 +118,6 @@ var gAdvancedPane = {
                         "modal,centerscreen,chrome,resizable=no", "calledFromPrefs");
     }
   },
-#endif
 
   showConfigEdit: function()
   {
@@ -189,7 +187,6 @@ var gAdvancedPane = {
     return undefined;
   },
 
-#ifdef MOZ_UPDATER
 /**
  * Selects the item of the radiogroup based on the pref values and locked
  * states.
@@ -229,24 +226,23 @@ updateReadPrefs: function ()
   // A locked pref is sufficient to disable the radiogroup.
   radiogroup.disabled = !canCheck || enabledPref.locked || autoPref.locked;
 
-#ifdef MOZ_MAINTENANCE_SERVICE
-  // Check to see if the maintenance service is installed.
-  // If it is don't show the preference at all.
-  var installed;
-  try {
-    let wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
-              .createInstance(Components.interfaces.nsIWindowsRegKey);
-    wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
-             "SOFTWARE\\Mozilla\\MaintenanceService",
-             wrk.ACCESS_READ | wrk.WOW64_64);
-    installed = wrk.readIntValue("Installed");
-    wrk.close();
-  } catch(e) {
+  if (AppConstants.MOZ_MAINTENANCE_SERVICE) {
+    // Check to see if the maintenance service is installed.
+    // If it is don't show the preference at all.
+    let installed;
+    try {
+      let wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
+                          .createInstance(Components.interfaces.nsIWindowsRegKey);
+      wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
+               "SOFTWARE\\Mozilla\\MaintenanceService",
+               wrk.ACCESS_READ | wrk.WOW64_64);
+      installed = wrk.readIntValue("Installed");
+      wrk.close();
+    } catch(e) { }
+    if (installed != 1) {
+      document.getElementById("useService").hidden = true;
+    }
   }
-  if (installed != 1) {
-    document.getElementById("useService").hidden = true;
-  }
-#endif
 },
 
 /**
@@ -278,7 +274,6 @@ updateWritePrefs: function ()
                              .createInstance(Components.interfaces.nsIUpdatePrompt);
     prompter.showUpdateHistory(window);
   },
-#endif
 
   updateCompactOptions: function(aCompactEnabled)
   {
@@ -395,9 +390,8 @@ updateWritePrefs: function ()
    */
   updateHardwareAcceleration: function(aVal)
   {
-#ifdef XP_WIN
-    Services.prefs.setBoolPref("gfx.direct2d.disabled", !aVal);
-#endif
+    if (AppConstants.platforms == "win")
+      Services.prefs.setBoolPref("gfx.direct2d.disabled", !aVal);
   },
 
   // DATA CHOICES TAB
@@ -466,8 +460,7 @@ updateWritePrefs: function ()
    */
   initTelemetry: function ()
   {
-#ifdef MOZ_TELEMETRY_REPORTING
-    this._setupLearnMoreLink("toolkit.telemetry.infoURL", "telemetryLearnMore");
-#endif
+    if (AppConstants.MOZ_TELEMETRY_REPORTING)
+      this._setupLearnMoreLink("toolkit.telemetry.infoURL", "telemetryLearnMore");
   },
 };

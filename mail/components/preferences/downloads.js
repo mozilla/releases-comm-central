@@ -1,7 +1,7 @@
-# -*- Mode: Java; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+/* -*- Mode: Java; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var gDownloadDirSection = {
   chooseFolder: function ()
@@ -66,15 +66,13 @@ var gDownloadDirSection = {
     if (aFolderType != "Downloads")
       throw "ASSERTION FAILED: folder type should be 'Desktop' or 'Downloads'";
 
-#ifdef XP_WIN
-    return "Pers";
-#else
-#ifdef XP_MACOSX
-    return "UsrDocs";
-#else
+    if (AppConstants.platform == "win")
+      return "Pers";
+
+    if (AppConstants.platform == "macosx")
+      return "UsrDocs";
+
     return "Home";
-#endif
-#endif
   },
 
   _getDownloadsFolder: function (aFolder)
