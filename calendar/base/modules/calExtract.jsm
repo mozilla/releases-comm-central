@@ -959,10 +959,12 @@ Extractor.prototype = {
                 }
             }
 
-            // no zero length events/tasks
-            if (guess.year == start.year && guess.month == start.month &&
-                guess.day == start.day && guess.hour == start.hour &&
-                guess.minute == start.minute) {
+            // no zero or negative length events/tasks
+            let startTime = new Date(start.year || 0, start.month - 1 || 0, start.day || 0,
+                                     start.hour || 0, start.minute || 0).getTime();
+            let guessTime = new Date(guess.year || 0, guess.month - 1 || 0, guess.day || 0,
+                                     guess.hour || 0, guess.minute || 0).getTime();
+            if (guessTime <= startTime) {
                 guess.year = null;
                 guess.month = null;
                 guess.day = null;
