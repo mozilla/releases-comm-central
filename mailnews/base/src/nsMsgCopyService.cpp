@@ -320,8 +320,9 @@ nsMsgCopyService::DoNextCopy()
                    copyRequest->m_msgWindow, copyRequest->m_listener, false, copyRequest->m_allowUndo);   //isFolder operation false
 
           }
-          else if (copyRequest->m_requestType == nsCopyFoldersType )
+          else if (copyRequest->m_requestType == nsCopyFoldersType)
           {
+              NS_ENSURE_STATE(copySource);
               copySource->m_processed = true;
               rv = copyRequest->m_dstFolder->CopyFolder
                   (copySource->m_msgFolder,
