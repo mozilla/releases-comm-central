@@ -16,7 +16,7 @@ function populateAccessibilitySection() {
   document.getElementById("a11y-activated").textContent = active ? "1" : "0";
 
   var forceDisabled = 0;
-  forceDisabled = Application.prefs.get("accessibility.force_disabled").value;
+  forceDisabled = Services.getIntPref("accessibility.force_disabled");
 
   document.getElementById("a11y-force-disabled").textContent
     = (forceDisabled == -1) ? "never" :

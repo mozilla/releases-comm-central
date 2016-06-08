@@ -6,7 +6,8 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-
+XPCOMUtils.defineLazyModuleGetter(this, "Deprecated",
+                                  "resource://gre/modules/Deprecated.jsm");
 var APPLICATION_CID = Components.ID("f265021a-7f1d-4b4b-bdc6-9aedca4d8f13");
 var APPLICATION_CONTRACTID = "@mozilla.org/steel/application;1";
 
@@ -32,6 +33,9 @@ var ApplicationFactory = {
 #include ../../mozilla/toolkit/components/exthelper/extApplication.js
 
 function Application() {
+  Deprecated.warning("STEEL is deprecated, you should use AppConstants.jsm or Services.jsm.",
+                     "http://mxr.mozilla.org/comm-central/source/mozilla/toolkit/modules/AppConstants.jsm");
+
   this.initToolkitHelpers();
 }
 

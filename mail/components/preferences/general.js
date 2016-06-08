@@ -139,9 +139,9 @@ var gGeneralPane = {
     // On Mac, allow AIFF and CAF files too
     var bundlePrefs = document.getElementById("bundlePreferences");
     var soundFilesText = bundlePrefs.getString("soundFilesDescription");
-    if (Application.platformIsMac)
+    if (AppConstants.platform == "macosx")
       fp.appendFilter(soundFilesText, "*.wav; *.aif; *.aiff; *.caf");
-    else if (Application.platformIsLinux)
+    else if (AppConstants.platform == "linux")
       fp.appendFilter(soundFilesText, "*.wav; *.ogg");
     else
       fp.appendFilter(soundFilesText, "*.wav");

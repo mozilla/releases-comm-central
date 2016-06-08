@@ -4,8 +4,7 @@
 
 Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
-var Application = Components.classes["@mozilla.org/steel/application;1"]
-                            .getService(Components.interfaces.steelIApplication);
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 function Sanitizer() {}
 Sanitizer.prototype = {
@@ -248,11 +247,11 @@ Sanitizer.__defineGetter__("prefs", function()
 // Shows sanitization UI
 Sanitizer.showUI = function(aParentWindow)
 {
-Services.ww.openWindow(Application.platformIsMac ? null : aParentWindow,
-"chrome://messenger/content/sanitize.xul",
-                "Sanitize",
-                "chrome,titlebar,dialog,centerscreen,modal",
-                null);
+  Services.ww.openWindow(AppConstants.platform == "macosx" ? null : aParentWindow,
+                         "chrome://messenger/content/sanitize.xul",
+                         "Sanitize",
+                         "chrome,titlebar,dialog,centerscreen,modal",
+                         null);
 };
 
 /**

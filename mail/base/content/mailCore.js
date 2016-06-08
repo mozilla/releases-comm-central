@@ -12,6 +12,7 @@
  * to be used by all of the main mail windows?
  */
 
+Components.utils.import("resource://gre/modules/BrowserUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/AppConstants.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
@@ -609,7 +610,7 @@ function safeModeRestart()
     let environment = Components.classes["@mozilla.org/process/environment;1"]
                                 .getService(Components.interfaces.nsIEnvironment);
     environment.set("MOZ_SAFE_MODE_RESTART", "1");
-    Application.restart();
+    BrowserUtils.restartApplication();
   }
 }
 

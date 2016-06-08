@@ -8,6 +8,7 @@
 Components.utils.import("resource:///modules/jsTreeSelection.js");
 Components.utils.import("resource:///modules/MailUtils.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource:///modules/MsgHdrSyntheticView.js");
 
@@ -224,13 +225,13 @@ StandaloneMessageDisplayWidget.prototype = {
 
     // If the tab hasn't got a title, or we're on Mac, don't display
     // the separator.
-    if (docTitle && !Application.platformIsMac)
+    if (docTitle && (AppConstants.platform != "macosx"))
         docTitle += document.documentElement
                             .getAttribute("titlemenuseparator");
 
     // If we haven't got a title at this stage add the modifier, or if
     // we are on a non-mac platform, add the modifier.
-    if (!docTitle || !Application.platformIsMac)
+    if (!docTitle || (AppConstants.platform != "macosx"))
          docTitle += document.documentElement
                              .getAttribute("titlemodifier");
 

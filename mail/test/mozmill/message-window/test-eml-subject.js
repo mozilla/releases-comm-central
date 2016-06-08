@@ -14,6 +14,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 var os = {};
 Cu.import('resource://mozmill/stdlib/os.js', os);
 Cu.import("resource:///modules/StringBundle.js");
+Cu.import("resource://gre/modules/AppConstants.jsm");
 
 var setupModule = function(module) {
   let fdh = collector.getModule("folder-display-helpers");
@@ -29,10 +30,10 @@ function check_eml_window_title(subject, eml) {
   let brandBundle = new StringBundle("chrome://branding/locale/brand.properties");
   let productName = brandBundle.get("brandFullName");
   let expectedTitle = subject;
-  if (expectedTitle && !Application.platformIsMac)
+  if (expectedTitle && (AppConstants.platform != "macosx"))
     expectedTitle += " - ";
 
-  if (!expectedTitle || !Application.platformIsMac)
+  if (!expectedTitle || (AppConstants.platform != "macosx"))
     expectedTitle += productName;
 
   assert_equals(msgc.window.document.title, expectedTitle);

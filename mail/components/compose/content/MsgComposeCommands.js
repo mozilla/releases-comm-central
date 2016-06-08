@@ -19,6 +19,7 @@ Components.utils.import("resource://gre/modules/InlineSpellChecker.jsm");
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 /**
  * interfaces
@@ -2931,7 +2932,7 @@ function SendMessage()
 {
   let sendInBackground =
     Services.prefs.getBoolPref("mailnews.sendInBackground");
-  if (sendInBackground && !Application.platformIsMac) {
+  if (sendInBackground && (AppConstants.platform != "macosx")) {
     let enumerator = Services.wm.getEnumerator(null);
     let count = 0;
     while (enumerator.hasMoreElements() && count < 2) {
@@ -2990,7 +2991,7 @@ function SendMessageLater()
 function ExitFullscreenMode()
 {
   // On OS X we need to deliberately exit full screen mode after sending.
-  if (Application.platformIsMac) {
+  if (AppConstants.platform == "macosx") {
     window.fullScreen = false;
   }
 }

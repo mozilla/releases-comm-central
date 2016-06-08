@@ -5,6 +5,7 @@
  */
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 var gCategoryList;
 var categoryPrefBranch = Services.prefs.getBranch("calendar.category.color.");
@@ -111,8 +112,9 @@ var gCategoriesPane = {
                           "addCategory",
                           // Workaround for Bug 1151440 - the HTML color picker won't work
                           // in linux when opened from modal dialog
-                          Application.platformIsLinux ? "centerscreen,chrome,resizable=no" :
-                                                        "modal,centerscreen,chrome,resizable=no",
+                          (AppConstants.platform == "linux") ?
+                            "centerscreen,chrome,resizable=no" :
+                            "modal,centerscreen,chrome,resizable=no",
                           "", null, addTitle);
     },
 
@@ -133,8 +135,9 @@ var gCategoriesPane = {
                               "editCategory",
                               // Workaround for Bug 1151440 - the HTML color picker won't work
                               // in linux when opened from modal dialog
-                              Application.platformIsLinux ? "centerscreen,chrome,resizable=no" :
-                                                            "modal,centerscreen,chrome,resizable=no",
+                              (AppConstants.platform == "linux") ?
+                                "centerscreen,chrome,resizable=no" :
+                                "modal,centerscreen,chrome,resizable=no",
                               gCategoryList[list.selectedIndex], currentColor, editTitle);
         }
     },

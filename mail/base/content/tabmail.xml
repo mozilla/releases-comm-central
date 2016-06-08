@@ -278,6 +278,7 @@
       <constructor>
         window.controllers.insertControllerAt(0, this);
         this._restoringTabState = null;
+        Components.utils.import("resource://gre/modules/AppConstants.jsm");
       </constructor>
       <destructor>
         window.controllers.removeController(this);
@@ -1507,7 +1508,7 @@
               docTitle = docElement.getAttribute("defaultTabTitle");
 
             // If we're on Mac, don't display the separator and the modifier.
-            if (!Application.platformIsMac) {
+            if (AppConstants.platform != "macosx") {
               docTitle += docElement.getAttribute("titlemenuseparator") +
                           docElement.getAttribute("titlemodifier");
             }

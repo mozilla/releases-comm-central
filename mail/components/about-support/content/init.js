@@ -33,8 +33,8 @@ window.onload = function () {
   let supportUrl = Services.urlFormatter.formatURLPref("app.support.baseURL");
 
   // Update the application basics section.
-  document.getElementById("application-box").textContent = Application.name;
-  document.getElementById("version-box").textContent = Application.version;
+  document.getElementById("application-box").textContent = Services.appinfo.name;
+  document.getElementById("version-box").textContent = Services.appinfo.version;
   document.getElementById("useragent-box").textContent = navigator.userAgent;
   document.getElementById("supportLink").href = supportUrl;
   let currProfD = Services.dirsvc.get("ProfD", Ci.nsIFile);

@@ -10,6 +10,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/MailUtils.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 var ADDR_DB_LARGE_COMMIT       = 1;
 
@@ -3032,9 +3033,9 @@ var gMessageNotificationBar =
     let remoteContentMsg = this.stringBundle.getFormattedString("remoteContentBarMessage",
                                                                 [brandName]);
 
-    let buttonLabel = this.stringBundle.getString(Application.platformIsWindows ?
+    let buttonLabel = this.stringBundle.getString((AppConstants.platform == "win") ?
       "remoteContentPrefLabel" : "remoteContentPrefLabelUnix");
-    let buttonAccesskey = this.stringBundle.getString(Application.platformIsWindows ?
+    let buttonAccesskey = this.stringBundle.getString((AppConstants.platform == "win") ?
       "remoteContentPrefAccesskey" : "remoteContentPrefAccesskeyUnix");
 
     let buttons = [{
@@ -3069,9 +3070,9 @@ var gMessageNotificationBar =
   {
     let phishingMsgNote = this.stringBundle.getString("phishingBarMessage");
 
-    let buttonLabel = this.stringBundle.getString(Application.platformIsWindows ?
+    let buttonLabel = this.stringBundle.getString((AppConstants.platform == "win") ?
       "phishingBarPrefLabel" : "phishingBarPrefLabelUnix");
-    let buttonAccesskey = this.stringBundle.getString(Application.platformIsWindows ?
+    let buttonAccesskey = this.stringBundle.getString((AppConstants.platform == "win") ?
       "phishingBarPrefAccesskey" : "phishingBarPrefAccesskeyUnix");
 
     let buttons = [

@@ -25,8 +25,9 @@
  *   on values set in the previous step.
  */
 
-Components.utils.import("resource:///modules/iteratorUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/BrowserUtils.jsm");
+Components.utils.import("resource:///modules/iteratorUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/folderUtils.jsm");
 Components.utils.import("resource:///modules/hostnameUtils.jsm");
@@ -259,7 +260,7 @@ function onAccept(aDoChecks) {
   Services.prefs.savePrefFile(null);
 
   if (gRestartNeeded) {
-    gRestartNeeded = !Application.restart();
+    gRestartNeeded = !BrowserUtils.restartApplication();
     // returns false so that Account manager is not exited when restart failed
     return !gRestartNeeded;
   }

@@ -6,6 +6,7 @@
 Components.utils.import("resource://gre/modules/InlineSpellChecker.jsm");
 Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 Components.utils.import("resource:///modules/MailUtils.js");
 
 XPCOMUtils.defineLazyGetter(this, "PageMenuParent", function() {
@@ -363,7 +364,7 @@ nsContextMenu.prototype = {
                                         !this.onPlayableMedia);
 
 
-    if (Application.platformIsMac)
+    if (AppConstants.platform == "macosx")
       this.showItem("mailContext-printpreview", false);
     else
       this.setSingleSelection("mailContext-printpreview");

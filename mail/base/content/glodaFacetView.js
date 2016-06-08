@@ -20,6 +20,7 @@ var Cu = Components.utils;
 Cu.import("resource:///modules/gloda/log4moz.js");
 Cu.import("resource:///modules/StringBundle.js");
 Cu.import("resource://gre/modules/PluralForm.jsm");
+Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/errUtils.js");
 Cu.import("resource:///modules/templateUtils.js");
 
@@ -359,7 +360,7 @@ var FacetContext = {
     // we like to sort them so should clone the list
     this.faceters = this.facetDriver.faceters.concat();
 
-    this._timelineShown = ! Application.prefs.getValue('gloda.facetview.hidetimeline', true);
+    this._timelineShown = !Services.prefs.getBoolPref("gloda.facetview.hidetimeline");
 
     this.everFaceted = false;
     this._activeConstraints = {};
@@ -597,7 +598,7 @@ var FacetContext = {
     facetDate.addEventListener("transitionend", listener);
     facetDate.removeAttribute("hide");
     document.getElementById("date-toggle").removeAttribute("tucked");
-    Application.prefs.setValue('gloda.facetview.hidetimeline', false);
+    Services.prefs.setBoolPref("gloda.facetview.hidetimeline", false);
   },
 
   _hideTimeline: function(immediate) {
@@ -607,7 +608,7 @@ var FacetContext = {
     facetDate.style.overflow = "hidden";
     facetDate.setAttribute("hide", "true");
     document.getElementById("date-toggle").setAttribute("tucked", "true");
-    Application.prefs.setValue('gloda.facetview.hidetimeline', true);
+    Services.prefs.setBoolPref("gloda.facetview.hidetimeline", true);
   },
 
   _timelineShown: true,

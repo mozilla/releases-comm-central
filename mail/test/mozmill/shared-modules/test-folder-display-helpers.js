@@ -70,9 +70,6 @@ var EXPORT_VIA_GETTER_SETTER = {
   mc: true,
 };
 
-var Application = Cc["@mozilla.org/steel/application;1"]
-                    .getService(Ci.steelIApplication);
-
 /** The controller for the main 3-pane window. */
 var mc;
 /** the index of the current 'other' tab */

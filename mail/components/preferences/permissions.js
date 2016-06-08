@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 var nsIPermissionManager = Components.interfaces.nsIPermissionManager;
 var nsICookiePermission = Components.interfaces.nsICookiePermission;
@@ -354,9 +355,9 @@ var gPermissionManager = {
 
   onPermissionKeyPress: function (aEvent)
   {
-    if (aEvent.keyCode == KeyEvent.DOM_VK_DELETE
-        || (Application.platformIsMac && aEvent.keyCode == KeyEvent.DOM_VK_BACK_SPACE)
-       )
+    if (aEvent.keyCode == KeyEvent.DOM_VK_DELETE ||
+        ((AppConstants.platform == "macosx") &&
+         aEvent.keyCode == KeyEvent.DOM_VK_BACK_SPACE))
       this.onPermissionDeleted();
   },
 

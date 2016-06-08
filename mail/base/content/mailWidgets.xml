@@ -575,6 +575,7 @@
       <constructor>
         <![CDATA[
           this.mAddresses = new Array;
+          Components.utils.import("resource://gre/modules/Services.jsm");
         ]]>
       </constructor>
 
@@ -798,12 +799,10 @@
       <method name="buildViews">
         <body>
           <![CDATA[
-            this.maxLinesBeforeMore = Application.prefs.getValue(
-              "mailnews.headers.show_n_lines_before_more",
-              this.maxLinesBeforeMore);
+            this.maxLinesBeforeMore = Services.prefs.getIntPref(
+              "mailnews.headers.show_n_lines_before_more");
             const dt = Components.interfaces.nsMimeHeaderDisplayTypes;
-            var headerchoice = Application.prefs.getValue("mail.show_headers",
-                                                          dt.NormalHeaders);
+            let headerchoice = Services.prefs.getIntPref("mail.show_headers");
             if (this.maxLinesBeforeMore < 1 ||
                 headerchoice == dt.AllHeaders) {
               this.fillAddressesNode(this.emailAddresses, true);

@@ -6,6 +6,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/AddonManager.jsm");
 Components.utils.import("resource:///modules/StringBundle.js");
+Components.utils.import("resource://gre/modules/BrowserUtils.jsm");
 
 function tabProgressListener(aTab, aStartsBlank) {
   this.mTab = aTab;
@@ -698,7 +699,7 @@ var specialTabs = {
       savedAppVersion = Services.prefs.getCharPref(prefstring);
     } catch (ex) {}
 
-    let currentApplicationVersion = Application.version;
+    let currentApplicationVersion = Services.appinfo.version;
 
     if (savedAppVersion == "ignore")
       return [null, this.splitVersion(currentApplicationVersion)];
@@ -1335,7 +1336,7 @@ var specialTabs = {
             accessKey: messengerBundle.getString("addonInstallRestartButton.accesskey"),
             popup: null,
             callback: function() {
-              Application.restart();
+              BrowserUtils.restartApplication();
             }
           }];
         }
@@ -1388,8 +1389,8 @@ var specialTabs = {
    */
   _shouldLoadFavIcon: function shouldLoadFavIcon(aURI) {
     return (aURI &&
-            Application.prefs.getValue("browser.chrome.site_icons", false) &&
-            Application.prefs.getValue("browser.chrome.favicons", false) &&
+            Services.prefs.getBoolPref("browser.chrome.site_icons") &&
+            Services.prefs.getBoolPref("browser.chrome.favicons") &&
             ("schemeIs" in aURI) &&
             (aURI.schemeIs("http") || aURI.schemeIs("https")));
   },

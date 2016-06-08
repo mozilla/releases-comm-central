@@ -6,6 +6,7 @@ var imServices = {};
 Components.utils.import("resource:///modules/chatNotifications.jsm");
 Components.utils.import("resource:///modules/imServices.jsm", imServices);
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 
@@ -1139,7 +1140,7 @@ var chatHandler = {
     listbox.addEventListener("select", this.onListItemSelected.bind(this));
     listbox.addEventListener("click", this.onListItemClick.bind(this));
     document.getElementById("chatTabPanel").addEventListener("keypress", function(aEvent) {
-      let accelKeyPressed = Application.platformIsMac ? aEvent.metaKey : aEvent.ctrlKey;
+      let accelKeyPressed = (AppContants.platform == "macosx") ? aEvent.metaKey : aEvent.ctrlKey;
       if (!accelKeyPressed ||
           (aEvent.keyCode != aEvent.DOM_VK_DOWN && aEvent.keyCode != aEvent.DOM_VK_UP))
         return;

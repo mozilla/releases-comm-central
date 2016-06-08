@@ -91,9 +91,9 @@ var gChatPane = {
     // On Mac, allow AIFF and CAF files too
     let bundlePrefs = document.getElementById("bundlePreferences");
     let soundFilesText = bundlePrefs.getString("soundFilesDescription");
-    if (Application.platformIsMac)
+    if (AppConstants.platform == "macosx")
       fp.appendFilter(soundFilesText, "*.wav; *.aif; *.aiff; *.caf");
-    else if (Application.platformIsLinux)
+    else if (AppConstants.platform == "linux")
       fp.appendFilter(soundFilesText, "*.wav; *.ogg");
     else
       fp.appendFilter(soundFilesText, "*.wav");

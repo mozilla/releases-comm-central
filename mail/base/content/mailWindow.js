@@ -425,8 +425,7 @@ nsMsgWindowCommands.prototype =
 function loadStartPage(aForce)
 {
   // If the preference isn't enabled, then don't load anything.
-  if (!aForce &&
-      !Application.prefs.getValue("mailnews.start_page.enabled", false))
+  if (!aForce && !Services.prefs.getBoolPref("mailnews.start_page.enabled"))
     return;
 
   gMessageNotificationBar.clearMsgNotifications();
@@ -557,7 +556,7 @@ nsBrowserAccess.prototype = {
     let isExternal = aContext == nsIBrowserDOMWindow.OPEN_EXTERNAL;
 
     if (isExternal && aURI && aURI.schemeIs("chrome")) {
-      Application.console.log("use -chrome command-line option to load external chrome urls\n");
+      Services.console.logStringMessage("use -chrome command-line option to load external chrome urls\n");
       return null;
     }
 
@@ -567,7 +566,7 @@ nsBrowserAccess.prototype = {
       Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
 
     if (aWhere != nsIBrowserDOMWindow.OPEN_NEWTAB)
-      Application.console.log("Opening a URI in something other than a new tab is not supported, opening in new tab instead");
+      Services.console.logStringMessage("Opening a URI in something other than a new tab is not supported, opening in new tab instead");
 
     let win, needToFocusWin;
 
@@ -584,7 +583,7 @@ nsBrowserAccess.prototype = {
       throw("Couldn't get a suitable window for openURI");
 
     let loadInBackground =
-      Application.prefs.getValue("browser.tabs.loadDivertedInBackground", false);
+      Services.prefs.getBoolPref("browser.tabs.loadDivertedInBackground");
 
     let tabmail = win.document.getElementById("tabmail");
     let clickHandler = null;

@@ -56,13 +56,14 @@
         const Cu = Components.utils;
         Cu.import("resource:///modules/errUtils.js");
         Cu.import("resource://gre/modules/Services.jsm");
+        Cu.import("resource://gre/modules/AppConstants.jsm");
 
         try {
           this.setAttribute(
             "placeholder",
             this.getAttribute("emptytextbase")
-                 .replace("#1", this.getAttribute(
-                                  Application.platformIsMac ?
+                .replace("#1", this.getAttribute(
+                                 (AppConstants.platform == "macosx") ?
                                   "keyLabelMac" : "keyLabelNonMac")));
 
           Services.prefs.addObserver("mailnews.database.global.indexer.enabled",

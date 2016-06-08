@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 var taskDetailsView = {
 
@@ -263,7 +264,7 @@ function taskViewOnLoad() {
         let textFilter = document.getElementById("task-text-filter-field");
         if (textFilter) {
             let base = textFilter.getAttribute("emptytextbase");
-            let keyLabel = textFilter.getAttribute(Application.platformIsMac ?
+            let keyLabel = textFilter.getAttribute((AppConstants.platform == "macosx") ?
                                                    "keyLabelMac" : "keyLabelNonMac");
 
             textFilter.setAttribute("placeholder", base.replace("#1", keyLabel));
