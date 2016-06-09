@@ -47,3 +47,5 @@ MOZ_SEPARATE_MANIFEST_FOR_THEME_OVERRIDES=1
 
 # Enable building ./signmar and running libmar signature tests
 MOZ_ENABLE_SIGNMAR=1
+
+MOZ_DEVTOOLS=all

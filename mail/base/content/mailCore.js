@@ -324,7 +324,9 @@ function onViewToolbarsPopupShowing(aEvent, toolboxIds, aInsertPoint)
 
 function toJavaScriptConsole()
 {
-  toOpenWindowByType("global:console", "chrome://global/content/console.xul");
+  let { require } = Components.utils.import("resource://devtools/shared/Loader.jsm", {})
+  let HUDService = require("devtools/client/webconsole/hudservice");
+  HUDService.openBrowserConsoleOrFocus();
 }
 
 function toOpenWindowByType(inType, uri)
