@@ -6,6 +6,9 @@ messenger.jar:
 % content messagebody %content/messagebody/ contentaccessible=yes
 % content messenger %content/messenger/
 % override chrome://global/content/nsDragAndDrop.js chrome://messenger/content/nsDragAndDrop.js
+# provide the nsTransferable in nsDragAndDrop.js to extensions that have to
+# work with Geckos from before 1.9, when there was a separate file
+% override chrome://global/content/nsTransferable.js chrome://messenger/content/nsDragAndDrop.js
 % override chrome://messagebody/skin/messageBody.css chrome://messenger/skin/messageBody.css
 % content messenger-region %content/messenger-region/
 % overlay chrome://communicator/content/pref/preferences.xul                   chrome://messenger/content/mailPrefsOverlay.xul
