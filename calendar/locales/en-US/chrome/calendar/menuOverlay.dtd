@@ -47,4 +47,4 @@
 <!ENTITY showCurrentView.accesskey              "V">
 
 <!ENTITY calendar.properties.label              "Calendar Properties…">
-<!ENTITY calendar.properties.accesskey          "C">
+<!ENTITY calendar.properties.accesskey          "a">
