@@ -62,7 +62,7 @@ cal.auth = {
                                            savepassword,
                                            aSavePassword);
         } else {
-            aText = cal.calGetString("commonDialogs", "EnterUserPasswordFor", [aCalendarName], "global");
+            aText = cal.calGetString("commonDialogs", "EnterUserPasswordFor2", [aCalendarName], "global");
             return prompter.promptUsernameAndPassword(aTitle,
                                                       aText,
                                                       aUsername,

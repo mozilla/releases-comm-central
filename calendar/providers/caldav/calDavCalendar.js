@@ -1605,7 +1605,7 @@ calDavCalendar.prototype = {
             if (!this.oauth) {
                 let sessionId = this.id;
                 let pwMgrId = "Google CalDAV v2";
-                let authTitle = cal.calGetString("commonDialogs", "EnterUserPasswordFor",
+                let authTitle = cal.calGetString("commonDialogs", "EnterUserPasswordFor2",
                                                  [this.name], "global");
 
                 this.oauth = new OAuth2(OAUTH_BASE_URI, OAUTH_SCOPE,
