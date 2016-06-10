@@ -213,18 +213,30 @@ cal.ical = {
     paramIterator: function cal_ical_paramIterator(aProperty) {
         return {
             __iterator__: function icalParamIterator(aWantKeys) {
+                let paramSet = new Set();
                 for (let paramName = aProperty.getFirstParameterName();
                      paramName;
                      paramName = aProperty.getNextParameterName()) {
-                    yield (aWantKeys ? paramName :
-                           [paramName, aProperty.getParameter(paramName)]);
+                    // Workaround to avoid infinite loop when the property
+                    // contains duplicate parameters (bug 875739 for libical)
+                    if (!paramSet.has(paramName)) {
+                        yield (aWantKeys ? paramName :
+                                           [paramName, aProperty.getParameter(paramName)]);
+                        paramSet.add(paramName);
+                    }
                 }
             },
             [Symbol.iterator]: function* icalParamIterator() {
+                let paramSet = new Set();
                 for (let paramName = aProperty.getFirstParameterName();
                      paramName;
                      paramName = aProperty.getNextParameterName()) {
-                    yield [paramName, aProperty.getParameter(paramName)];
+                    // Workaround to avoid infinite loop when the property
+                    // contains duplicate parameters (bug 875739 for libical)
+                    if (!paramSet.has(paramName)) {
+                        yield [paramName, aProperty.getParameter(paramName)];
+                        paramSet.add(paramName);
+                    }
                 }
             }
         };
