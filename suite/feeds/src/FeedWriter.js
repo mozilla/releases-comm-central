@@ -1006,7 +1006,8 @@ FeedWriter.prototype = {
     this._document = aWindow.document;
     this._handlersMenuList = this._getUIElement("handlersMenuList");
 
-    this._feedPrincipal = Services.scriptSecurityManager.getSimpleCodebasePrincipal(this._feedURI);
+    this._feedPrincipal = Services.scriptSecurityManager
+                                  .createCodebasePrincipal(this._feedURI, {});
 
     LOG("Subscribe Preview: feed uri = " + this._window.location.href);
 
