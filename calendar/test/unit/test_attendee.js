@@ -8,6 +8,7 @@ function run_test() {
     test_values();
     test_serialize();
     test_properties();
+    test_doubleParameters(); // Bug 875739
 }
 
 function test_values() {
@@ -188,4 +189,97 @@ function test_properties() {
     for (let x in fixIterator(a.propertyEnumerator, Components.interfaces.nsIProperty)) {
         do_throw("Unexpected property after setting null " + x.name + " = " + x.value);
     }
+}
+
+function test_doubleParameters() {
+    function testParameters(aAttendees, aExpected) {
+        for (let attendee of aAttendees) {
+            let prop = attendee.icalProperty;
+            let parNames = [];
+            let parValues = [];
+
+            // Extract the parameters
+            for (let paramName = prop.getFirstParameterName();
+                 paramName;
+                 paramName = prop.getNextParameterName()) {
+
+                parNames.push(paramName);
+                parValues.push(prop.getParameter(paramName));
+            }
+
+            // Check the results
+            let att_n = attendee.id.substr(7,9);
+            for (let parIndex in parNames) {
+                ok(aExpected[att_n].param.includes(parNames[parIndex]),
+                   "Parameter " + parNames[parIndex] + " included in "+ att_n);
+                ok(aExpected[att_n].values.includes(parValues[parIndex]),
+                   "Value " + parValues[parIndex] + " for parameter " + parNames[parIndex]);
+            }
+            ok(parNames.length == aExpected[att_n].param.length,
+               "Each parameter has been considered for " + att_n);
+        }
+    }
+
+    // Event with attendees and organizer with one of the parameter duplicated.
+    let ics = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Marketcircle Inc.//Daylite 4.0//EN',
+        'BEGIN:VEVENT',
+        'DTSTART:20130529T100000',
+        'DTEND:20130529T110000',
+        'SUMMARY:Summary',
+        'CREATED:20130514T124220Z',
+        'DTSTAMP:20130524T101307Z',
+        'UID:9482DDFA-07B4-44B9-8228-ED4BC17BA278',
+        'SEQUENCE:3',
+        'ORGANIZER;CN=CN_organizer;X-ORACLE-GUID=A5120D71D6193E11E04400144F;',
+        ' X-UW-AVAILABLE-APPOINTMENT-ROLE=OWNER;X-UW-AVAILABLE-APPOINTMENT',
+        ' -ROLE=OWNER:mailto:organizer@example.com',
+        'ATTENDEE;ROLE=REQ-PARTICIPANT;RSVP=TRUE;CUTYPE=INDIVIDUAL;RSVP=TRUE;',
+        ' PARTSTAT=NEEDS-ACTION;X-RECEIVED-DTSTAMP=',
+        ' 20130827T124944Z;CN=CN_attendee1:mailto:attendee1@example.com',
+        'ATTENDEE;ROLE=CHAIR;CN=CN_attendee2;CUTYPE=INDIVIDUAL;',
+        ' PARTSTAT=ACCEPTED;CN=CN_attendee2:mailto:attendee2@example.com',
+        'ATTENDEE;ROLE=REQ-PARTICIPANT;RSVP=TRUE;CUTYPE=RESOURCE;',
+        ' PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT;CN=CN_attendee3',
+        ' :mailto:attendee3@example.com',
+        'ATTENDEE;CN="CN_attendee4";PARTSTAT=ACCEPTED;X-RECEIVED-DTSTAMP=',
+        ' 20130827T124944Z;X-RECEIVED-SEQUENCE=0;X-RECEIVED-SEQUENCE=0',
+        ' :mailto:attendee4@example.com',
+        'END:VEVENT',
+        'END:VCALENDAR'
+    ].join("\n");
+
+    let expectedOrganizer = {
+        organizer: {
+            param:  ["CN", "X-ORACLE-GUID", "X-UW-AVAILABLE-APPOINTMENT-ROLE"],
+            values: ["CN_organizer", "A5120D71D6193E11E04400144F", "OWNER"]
+        }
+    };
+    let expectedAttendee = {
+        attendee1: {
+            param:  ["CN", "RSVP", "ROLE", "PARTSTAT", "CUTYPE", "X-RECEIVED-DTSTAMP"],
+            values: ["CN_attendee1", "TRUE", "REQ-PARTICIPANT", "NEEDS-ACTION", "INDIVIDUAL", "20130827T124944Z"]
+        },
+        attendee2: {
+            param:  ["CN", "ROLE",  "PARTSTAT", "CUTYPE"],
+            values: ["CN_attendee2", "CHAIR", "ACCEPTED", "INDIVIDUAL"]
+        },
+        attendee3: {
+            param:  ["CN", "RSVP", "ROLE", "PARTSTAT", "CUTYPE"],
+            values: ["CN_attendee3", "TRUE", "REQ-PARTICIPANT", "NEEDS-ACTION", "RESOURCE"]
+        },
+        attendee4: {
+            param:  ["CN", "PARTSTAT", "X-RECEIVED-DTSTAMP", "X-RECEIVED-SEQUENCE"],
+            values: ["CN_attendee4", "ACCEPTED", "20130827T124944Z", "0"]
+        }
+    };
+
+    let event = createEventFromIcalString(ics);
+    let organizer = [event.organizer];
+    let attendees = event.getAttendees({});
+
+    testParameters(organizer, expectedOrganizer);
+    testParameters(attendees, expectedAttendee);
 }
