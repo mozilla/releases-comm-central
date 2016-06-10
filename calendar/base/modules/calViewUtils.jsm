@@ -27,17 +27,20 @@ cal.view = {
         if (aIsTodo && bIsEvent) return -1;
         if (aIsEvent && bIsTodo) return 1;
 
-        // todos are kept equal
-        if (aIsTodo && bIsTodo) return 0;
+        // sort items of the same type according to date-time
+        let aStartDate = a.startDate || a.entryDate || a.dueDate;
+        let bStartDate = b.startDate || b.entryDate || b.dueDate;
+        let aEndDate = a.endDate || a.dueDate || a.entryDate;
+        let bEndDate = b.endDate || b.dueDate || b.entryDate;
 
         // sort all day events before events with a duration
-        if (a.startDate.isDate && !b.startDate.isDate) return -1;
-        if (!a.startDate.isDate && b.startDate.isDate) return 1;
+        if (aStartDate.isDate && !bStartDate.isDate) return -1;
+        if (!aStartDate.isDate && bStartDate.isDate) return 1;
 
-        let cmp = a.startDate.compare(b.startDate);
+        let cmp = aStartDate.compare(bStartDate);
         if (cmp != 0) return cmp;
 
-        cmp = a.endDate.compare(b.endDate);
+        cmp = aEndDate.compare(bEndDate);
         if (cmp != 0) return cmp;
 
         cmp = (a.title > b.title) - (a.title < b.title);
