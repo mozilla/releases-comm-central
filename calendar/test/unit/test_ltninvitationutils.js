@@ -51,6 +51,8 @@ function getIcs() {
         "TRANSP:OPAQUE",
         "LOCATION:Room 1",
         "DESCRIPTION:Let us get together",
+        "URL:http://www.example.com",
+        "ATTACH:http://www.example.com",
         "END:VEVENT",
         "END:VCALENDAR"].join("\r\n");
 }
@@ -159,6 +161,40 @@ add_task(function* createInvitationOverlay_test() {
                    "y-s3\" title=\";-)\"><span>;-)</span></span>"}
     }, {
         input: {
+            url: "URL:http://www.example.org/event.ics\r\n"},
+        expected: {
+            node: "imipHtml-url-content",
+            value: "<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-freetext\" hre" +
+                   "f=\"http://www.example.org/event.ics\">http://www.example.org/event.ics</a>"}
+    }, {
+        input: {
+            attach: "ATTACH:http://www.example.org\r\n"},
+        expected: {
+            node: "imipHtml-attachments-content",
+            value: "<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-freetext\" hre" +
+                   "f=\"http://www.example.org/\">http://www.example.org/</a>"}
+    }, {
+        input: {
+            attach: "ATTACH;FMTTYPE=text/plain;ENCODING=BASE64;VALUE=BINARY:VGhlIHF1aWNrIGJyb3duI" +
+                    "GZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4\r\n"},
+        expected: {
+            node: "imipHtml-attachments-content",
+            value: ""}
+    }, {
+        input: {
+            attach: "ATTACH:http://www.example.org/first/\r\n" +
+                    "ATTACH:http://www.example.org/second\r\n" +
+                    "ATTACH:file:///N:/folder/third.file\r\n"},
+        expected: {
+            node: "imipHtml-attachments-content",
+            value: "<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-freetext\" hre" +
+                   "f=\"http://www.example.org/first/\">http://www.example.org/first/</a>&lt;br&g" +
+                   "t;<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-freetext\" h" +
+                   "ref=\"http://www.example.org/second\">http://www.example.org/second</a>&lt;br" +
+                   "&gt;<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-freetext\"" +
+                   " href=\"file:///N:/folder/third.file\">file:///N:/folder/third.file</a>"}
+    }, {
+        input: {
             attendee: "ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;ROLE=OPT-PARTICIPANT;CUTYPE=INDIV" +
                       "IDUAL;CN=\"Attendee 1\":mailto:attendee1@example.net\r\n" +
 
@@ -252,6 +288,12 @@ add_task(function* createInvitationOverlay_test() {
                     break;
                 case "organizer":
                     item = item.replace(/ORGANIZER;[^\r]+\r\n/, test.input.organizer);
+                    break;
+                case "attach":
+                    item = item.replace(/ATTACH:[^\r]+\r\n/, test.input.attach);
+                    break;
+                case "url":
+                    item = item.replace(/URL:[^\r]+\r\n/, test.input.url);
                     break;
             }
         }

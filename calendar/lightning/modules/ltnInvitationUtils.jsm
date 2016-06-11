@@ -189,6 +189,19 @@ ltn.invitation = {
                                     .replace("*~*~*~*~*~*~*~*~*~*", "");
         field("description", eventDescription, true);
 
+        // URL
+        field("url", aEvent.getProperty("URL"), true);
+
+        // ATTACH - we only display URI but no BINARY type attachments here
+        let links = new Array();
+        let attachments = aEvent.getAttachments({});
+        for (let attachment of attachments) {
+            if (attachment.uri) {
+                links.push(attachment.uri.spec);
+            }
+        }
+        field("attachments", links.join("<br>"), true);
+
         // ATTENDEE and ORGANIZER fields
         let attendees = aEvent.getAttendees({});
         let attendeeTemplate = doc.getElementById("attendee-template");
