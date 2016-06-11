@@ -1021,19 +1021,23 @@ function next()
 
     if (radioGroup.value == "all")
     {
+      let args = { closeMigration: true };
 #ifdef MOZ_THUNDERBIRD
       window.openDialog("chrome://messenger/content/migration/migration.xul",
-                        "", "chrome,dialog,modal,centerscreen");
+                        "", "chrome,dialog,modal,centerscreen", null, null, null, args);
 #else
       window.openDialog("chrome://communicator/content/migration/migration.xul",
                         "", "chrome,dialog,modal,centerscreen");
 #endif
-      close();
+      if (args.closeMigration)
+        close();
     }
     else
     {
       SwitchType(radioGroup.value);
       deck.setAttribute("selectedIndex", "1");
+      document.getElementById("modulesFound").selectedIndex =
+        (document.getElementById("moduleList").itemCount > 0) ? 0 : 1;
       SelectFirstItem();
       enableAdvance();
     }

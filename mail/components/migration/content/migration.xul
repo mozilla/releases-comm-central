@@ -12,6 +12,8 @@
         title="&migrationWizard.title;"
         onload="MigrationWizard.init()"
         onunload="MigrationWizard.uninit()"
+        onwizardback="MigrationWizard.onBack();"
+        onwizardcancel="MigrationWizard.onCancel();"
         style="width: 40em;"
         branded="true"
         buttons="accept,cancel">
@@ -23,6 +25,8 @@
   <wizardpage id="importSource" pageid="importSource" next="selectProfile"
               label="&importSource.title;"
               onpageadvanced="MigrationWizard.onImportSourcePageAdvanced();">
+    <deck id="importSourceFound" selectedIndex="0">
+    <vbox>
 #ifdef XP_WIN
     <label control="importSourceGroup">&importFromWin.label;</label>
 #else
@@ -42,6 +46,9 @@
 
       <radio id="nothing"   label="&importFromNothing.label;"   accesskey="&importFromNothing.accesskey;" hidden="true"/>
     </radiogroup>
+    </vbox>
+    <label>&importSourceNotFound.label;</label>
+    </deck>
   </wizardpage>
 
   <wizardpage id="selectProfile" pageid="selectProfile" label="&selectProfile.title;"

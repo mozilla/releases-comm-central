@@ -75,17 +75,23 @@
       </radiogroup>
     </vbox>
     <vbox class="wizard-box">
-      <deck id="selectDescriptionDeck" selectedIndex="0">
-        <label control="moduleList"
-               value="&selectDescription.label;"
-               accesskey="&selectDescription.accesskey;"/>
-        <label control="moduleList"
-               value="&selectDescriptionB.label;"
-               accesskey="&selectDescription.accesskey;"/>
+      <deck id="modulesFound"
+            selectedIndex="0">
+        <vbox>
+          <deck id="selectDescriptionDeck"
+                selectedIndex="0">
+            <label control="moduleList"
+                   value="&selectDescription.label;"
+                   accesskey="&selectDescription.accesskey;"/>
+            <label control="moduleList"
+                   value="&selectDescriptionB.label;"
+                   accesskey="&selectDescription.accesskey;"/>
+          </deck>
+          <listbox id="moduleList" flex="3"
+                   onselect="ImportSelectionChanged(); enableAdvance();"/>
+        </vbox>
+        <label>&noModulesFound.label;</label>
       </deck>
-      <listbox id="moduleList" flex="3"
-                onselect="ImportSelectionChanged(); enableAdvance();" 
-                style="height: 0px;"/>
       <grid flex="1">
         <columns><column flex="1"/></columns>
         <rows>

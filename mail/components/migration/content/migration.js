@@ -27,7 +27,7 @@ var MigrationWizard = {
 
     this._wiz = document.documentElement;
 
-    if ("arguments" in window) {
+    if (("arguments" in window) && !window.arguments[3]) {
       this._source = window.arguments[0];
       this._migrator = window.arguments[1] ? window.arguments[1].QueryInterface(kIMig) : null;
       this._autoMigrate = window.arguments[2].QueryInterface(kIPStartup);
@@ -97,6 +97,11 @@ var MigrationWizard = {
 
     if (firstNonDisabled) {
       this._wiz.canAdvance = true;
+    } else {
+      // If no usable import module was found, inform user and enable back button.
+      document.getElementById("importSourceFound").selectedIndex = 1;
+      this._wiz.canRewind = true;
+      this._wiz.getButton("back").setAttribute("hidden", "false");
     }
   },
 
@@ -318,5 +323,25 @@ var MigrationWizard = {
     this._wiz.getButton("cancel").disabled = true;
     this._wiz.canRewind = false;
     this._listItems("doneItems");
+  },
+
+  onBack: function ()
+  {
+    if (this._wiz.onFirstPage) {
+      if (window.arguments[3])
+        window.arguments[3].closeMigration = false;
+      this._wiz.cancel();
+    } else {
+      this._wiz.rewind();
+    }
+  },
+
+  onCancel: function ()
+  {
+    // If .closeMigration is false, the user clicked Back button,
+    // then do not change its value.
+    if (window.arguments[3] && ("closeMigration" in window.arguments[3]) &&
+        (window.arguments[3].closeMigration !== false))
+      window.arguments[3].closeMigration = true;
   }
 };
