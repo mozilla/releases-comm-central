@@ -1592,15 +1592,8 @@ function EditorDblClick(event)
     // Only bring up properties if clicked on an element or selected link
     var element;
     try {
-      if (gEditorDisplayMode == kDisplayModeAllTags)
-        element = event.explicitOriginalTarget.QueryInterface(
+      element = event.explicitOriginalTarget.QueryInterface(
                     Components.interfaces.nsIDOMElement);
-      else
-        element = event.rangeParent.childNodes[event.rangeOffset];
-
-      // Don't fire for <br>, it counts as double-clicking text.
-      if (element.nodeName.toLowerCase() == 'br')
-        element = null;
     } catch (e) {}
 
      //  We use "href" instead of "a" to not be fooled by named anchor
@@ -1609,7 +1602,10 @@ function EditorDblClick(event)
         element = GetCurrentEditor().getSelectedElement("href");
       } catch (e) {}
 
-    if (element)
+    // Don't fire for body/p. It's common that people try to double-click
+    // to select a word, but the click hits an empty area.
+    if (element && element.nodeName.toLowerCase() != "body" &&
+        element.nodeName.toLowerCase() != "p")
     {
       goDoCommand("cmd_objectProperties");  
       event.preventDefault();
