@@ -6,7 +6,6 @@
 #filter substitution
 
 <?xml-stylesheet href="chrome://messenger/skin/messageWindow.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/sharedPlatform.css" type="text/css"?>
 
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 <?xul-overlay href="chrome://messenger/content/msgHdrViewOverlay.xul"?>

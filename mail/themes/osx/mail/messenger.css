@@ -11,6 +11,11 @@
 @import url("chrome://messenger/skin/shared/messenger.css");
 
 :root {
+  --fgTabTexture: linear-gradient(transparent 2px, hsl(0, 0%, 99%) 2px, hsl(0, 0%, 93%));
+  --toolbarColorLWT: rgba(253, 253, 253, 0.45);
+  --fgTabTextureLWT: linear-gradient(transparent 2px, rgba(254, 254, 254, .72) 2px, var(--toolbarColorLWT));
+  --fgTabBackgroundColor: transparent;
+
   --toolbarbutton-hover-background: hsla(0, 0%, 100%, .1)
                                     linear-gradient(hsla(0, 0%, 100%, .3),
                                     hsla(0, 0%, 100%, .1)) padding-box;
@@ -35,6 +40,10 @@
 }
 
 @media (-moz-mac-yosemite-theme) {
+  :root:-moz-window-inactive {
+    --fgTabTexture: linear-gradient(transparent 2px, hsl(0, 0%, 99%) 2px, hsl(0, 0%, 97%));
+  }
+
   #tabmail {
     border-top: solid 1px rgba(0, 0, 0, 0.2);
     border-bottom: solid 1px rgba(0, 0, 0, 0.2);

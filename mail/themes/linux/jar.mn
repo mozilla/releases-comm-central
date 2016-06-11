@@ -261,7 +261,6 @@ classic.jar:
   skin/classic/messenger/icons/hightail.png                   (mail/icons/hightail.png)
   skin/classic/messenger/sanitizeDialog.css                   (mail/sanitizeDialog.css)
   skin/classic/messenger/icons/box-logo.png                   (mail/icons/box-logo.png)
-  skin/classic/messenger/sharedPlatform.css                   (mail/linuxShared.css)
   skin/classic/messenger/shared/mailWindow1.css               (../shared/mail/mailWindow1.css)
   skin/classic/messenger/shared/messenger.css                 (../shared/mail/messenger.css)
   skin/classic/messenger/shared/messageHeader.css             (../shared/mail/messageHeader.css)

@@ -10,6 +10,16 @@
 @import url("chrome://messenger/content/messenger.css");
 @import url("chrome://messenger/skin/shared/messenger.css");
 
+:root {
+  --toolbarHighlight: rgba(255, 255, 255, 0.4);
+  --fgTabTexture: linear-gradient(transparent, transparent 2px, var(--toolbarHighlight) 2px, var(--toolbarHighlight));
+  --fgTabBackgroundColor: -moz-dialog;
+  --fgTabTextureLWT: var(--fgTabTexture);
+
+  /* Aero-only variables */
+  --customToolbarColor: hsl(210, 75%, 92%);
+}
+
 toolbox:-moz-lwtheme {
   border-top-width: 0;
 }
@@ -506,6 +516,13 @@ button[type="menu-button"] > button {
   .toolbarbutton-1:not([disabled="true"]):-moz-any(:hover,[open="true"]) >
   .toolbarbutton-menubutton-dropmarker {
     border-inline-start-color: hsla(210, 54%, 20%, .35);
+  }
+}
+
+@media (-moz-os-version: windows-win8),
+       (-moz-os-version: windows-win10) {
+  :root:not(:-moz-lwtheme) {
+    --fgTabTexture: linear-gradient(transparent, transparent)
   }
 }
 

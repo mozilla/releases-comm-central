@@ -11,6 +11,11 @@
 @import url("chrome://messenger/skin/shared/messenger.css");
 
 :root {
+  --toolbarHighlight: rgba(255, 255, 255, .4);
+  --fgTabTexture: linear-gradient(transparent 2px, var(--toolbarHighlight) 2px, var(--toolbarHighlight));
+  --fgTabTextureLWT: var(--fgTabTexture);
+  --fgTabBackgroundColor: -moz-dialog;
+
   --toolbarbutton-text-color: #222;
   --toolbarbutton-hover-background: rgba(255, 255, 255, .5) linear-gradient(rgba(255, 255, 255, .5), transparent);
   --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .25);
