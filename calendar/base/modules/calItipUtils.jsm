@@ -252,6 +252,21 @@ cal.itip = {
             if (foundItems && foundItems.length) {
                 // Not a real method, but helps us decide
                 data.buttons.push("imipDetailsButton");
+            } else if (itipItem.receivedMethod == "REPLY") {
+                // The item has been previously removed from the available calendars or the calendar
+                // containing the item is not available
+                let delmgr = Components.classes["@mozilla.org/calendar/deleted-items-manager;1"]
+                                       .getService(Components.interfaces.calIDeletedItems);
+                let delTime = null;
+                let items = itipItem.getItemList({});
+                if (items && items.length) {
+                    delTime = delmgr.getDeletedDate(items[0].id);
+                }
+                if (delTime) {
+                    data.label = _gs("imipBarReplyToRecentlyRemovedItem", [delTime.toString()]);
+                } else {
+                    data.label = _gs("imipBarReplyToNotExistingItem");
+                }
             }
         } else if (Components.isSuccessCode(rc)) {
 
@@ -1504,6 +1519,7 @@ ItipItemFinder.prototype = {
                         break;
                     }
                     case "CANCEL": // has already been processed
+                    case "REPLY": // item has been previously removed from the calendar
                         break;
                     default:
                         rc = Components.results.NS_ERROR_NOT_IMPLEMENTED;
