@@ -164,5 +164,6 @@ function test_send_enabled_address_contacts_sidebar() {
   // The recipient is filled in, Send must be enabled.
   check_send_commands_state(cwc, true);
 
+  cwc.window.toggleAddressPicker();
   close_compose_window(cwc);
 }
