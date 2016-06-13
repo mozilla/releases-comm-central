@@ -1873,11 +1873,6 @@
 <rdf:Description about="#search">
    <nc:subheadings>
      <rdf:Seq><rdf:li>
-       <rdf:Description ID="search:Advanced_mode"
-         nc:name="Sidebar Advanced Search Mode"
-         nc:link="nav_help.xhtml#sidebar_advanced_search_mode"/>
-     </rdf:li>
-     <rdf:li>
        <rdf:Description ID="search:bookmarks"
          nc:name="search bookmarks"
          nc:link="nav_help.xhtml#searching_the_bookmarks_or_history_list"/>

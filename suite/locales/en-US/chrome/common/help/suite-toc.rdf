@@ -75,7 +75,6 @@
     <nc:subheadings>
       <rdf:Seq>
         <rdf:li> <rdf:Description ID="nav-doc-searchweb" nc:name="Fast Searches" nc:link="nav_help.xhtml#fast_searches"/> </rdf:li>
-        <rdf:li> <rdf:Description ID="nav-doc-smartsearch" nc:name="Sidebar Advanced Search Mode" nc:link="nav_help.xhtml#sidebar_advanced_search_mode"/> </rdf:li>
         <rdf:li> <rdf:Description ID="nav-doc-searchprefs" nc:name="Setting Search Preferences" nc:link="nav_help.xhtml#setting_search_preferences"/> </rdf:li>
         <rdf:li> <rdf:Description ID="nav-doc-searchpage" nc:name="Searching Within a Page" nc:link="nav_help.xhtml#searching_within_a_page"/> </rdf:li>
         <rdf:li> <rdf:Description ID="nav-doc-find_as_you_type" nc:name="Using Find-as-you-type" nc:link="nav_help.xhtml#using_find_as_you_type"/></rdf:li>
