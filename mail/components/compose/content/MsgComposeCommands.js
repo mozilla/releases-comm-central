@@ -4710,10 +4710,37 @@ function toggleAddressPicker()
   }
   else
   {
+    // If something in the sidebar was left marked focused,
+    // clear out the attribute so that it does not keep focus in a hidden element.
+    let sidebarContent = document.getElementById("sidebar").contentDocument;
+    let sideFocused = Array.from(sidebarContent.querySelectorAll('[focused="true"]'))
+                           .concat(Array.from(sidebarContent.querySelectorAll(":focus")));
+    for (let elem of sideFocused) {
+      if ("blur" in elem)
+        elem.blur();
+      elem.removeAttribute("focused");
+    }
+
     sidebarBox.hidden = true;
     sidebarSplitter.hidden = true;
     sidebarBox.setAttribute("sidebarVisible", "false");
     elt.removeAttribute("checked");
+
+    // If nothing is focused in the main compose frame, focus subject if empty
+    // otherwise the body. If we didn't do that, focus may stay inside the closed
+    // Contacts sidebar and then the main window/frame does not respond to accesskeys.
+    // This may be fixed by bug 570835.
+    let composerBox = document.getElementById("headers-parent");
+    let focusedElement = composerBox.querySelector(":focus") ||
+                         composerBox.querySelector('[focused="true"]');
+    if (focusedElement) {
+      focusedElement.focus();
+    } else {
+      if (!GetMsgSubjectElement().value)
+        SetMsgSubjectElementFocus();
+      else
+        SetMsgBodyFrameFocus();
+    }
   }
 }
 
