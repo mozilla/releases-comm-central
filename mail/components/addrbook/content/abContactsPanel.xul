@@ -46,15 +46,6 @@
   <key id="key_properties" modifiers="alt" keycode="VK_RETURN"/>
 
   <menupopup id="cardProperties">
-    <menuitem label="&deleteAddrBookCard.label;"
-              accesskey="&deleteAddrBookCard.accesskey;"
-              key="key_delete"
-              command="cmd_delete"/>
-    <menuitem label="&addrBookCardProperties.label;"
-              accesskey="&addrBookCardProperties.accesskey;"
-              key="key_properties"
-              command="cmd_properties"/>
-    <menuseparator/>
     <menuitem label="&addtoToFieldMenu.label;"
               accesskey="&addtoToFieldMenu.accesskey;"
               oncommand="addSelectedAddresses('addr_to');"/>
@@ -64,6 +55,16 @@
     <menuitem label="&addtoBccFieldMenu.label;"
               accesskey="&addtoBccFieldMenu.accesskey;"
               oncommand="addSelectedAddresses('addr_bcc');"/>
+    <menuseparator/>
+    <menuitem label="&deleteAddrBookCard.label;"
+              accesskey="&deleteAddrBookCard.accesskey;"
+              key="key_delete"
+              command="cmd_delete"/>
+    <menuseparator/>
+    <menuitem label="&addrBookCardProperties.label;"
+              accesskey="&addrBookCardProperties.accesskey;"
+              key="key_properties"
+              command="cmd_properties"/>
   </menupopup>
 
   <vbox id="results_box" flex="1">
