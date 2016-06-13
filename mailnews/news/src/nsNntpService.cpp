@@ -683,7 +683,7 @@ nsNntpService::SetUpNntpUrlForPosting(const char *aAccountKey, char **newsUrlSpe
   nsresult rv = NS_OK;
 
   nsCString host;
-  int32_t port;
+  int32_t port = -1;
 
   nsCOMPtr<nsIMsgIncomingServer> nntpServer;
   rv = GetNntpServerByAccount(aAccountKey, getter_AddRefs(nntpServer));
@@ -691,6 +691,10 @@ nsNntpService::SetUpNntpUrlForPosting(const char *aAccountKey, char **newsUrlSpe
   {
     nntpServer->GetHostName(host);
     nntpServer->GetPort(&port);
+  }
+  else
+  {
+    NS_WARNING("Failure to obtain host and port");
   }
 
   *newsUrlSpec = PR_smprintf("%s/%s:%d",kNewsRootURI, host.IsEmpty() ? "news" : host.get(), port);
