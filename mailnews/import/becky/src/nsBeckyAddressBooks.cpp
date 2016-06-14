@@ -49,7 +49,7 @@ NS_IMETHODIMP
 nsBeckyAddressBooks::GetSupportsMultiple(bool *_retval)
 {
   NS_ENSURE_ARG_POINTER(_retval);
-  *_retval = false;
+  *_retval = true;
   return NS_OK;
 }
 
@@ -70,6 +70,8 @@ nsBeckyAddressBooks::GetAutoFind(char16_t **aDescription,
 NS_IMETHODIMP
 nsBeckyAddressBooks::GetNeedsFieldMap(nsIFile *aLocation, bool *_retval)
 {
+  NS_ENSURE_ARG_POINTER(_retval);
+
   *_retval = false;
   return NS_OK;
 }
@@ -84,10 +86,16 @@ nsBeckyAddressBooks::FindAddressBookDirectory(nsIFile **aAddressBookDirectory)
   rv = userDirectory->Append(NS_LITERAL_STRING("AddrBook"));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bool exists;
+  bool exists = false;
   rv = userDirectory->Exists(&exists);
   NS_ENSURE_SUCCESS(rv, rv);
   if (!exists)
+    return NS_ERROR_FILE_NOT_FOUND;
+
+  bool isDirectory = false;
+  rv = userDirectory->IsDirectory(&isDirectory);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!isDirectory)
     return NS_ERROR_FILE_NOT_FOUND;
 
   userDirectory.forget(aAddressBookDirectory);
@@ -128,10 +136,13 @@ nsBeckyAddressBooks::CreateAddressBookDescriptor(nsIImportABDescriptor **aDescri
 bool
 nsBeckyAddressBooks::IsAddressBookFile(nsIFile *aFile)
 {
+  if (!aFile)
+    return false;
+
   nsresult rv;
-  bool isDirectory = false;
-  rv = aFile->IsDirectory(&isDirectory);
-  if (NS_SUCCEEDED(rv) && isDirectory)
+  bool isFile = false;
+  rv = aFile->IsFile(&isFile);
+  if (NS_FAILED(rv) && !isFile)
     return false;
 
   nsAutoString name;
@@ -142,6 +153,9 @@ nsBeckyAddressBooks::IsAddressBookFile(nsIFile *aFile)
 bool
 nsBeckyAddressBooks::HasAddressBookFile(nsIFile *aDirectory)
 {
+  if (!aDirectory)
+    return false;
+
   nsresult rv;
   bool isDirectory = false;
   rv = aDirectory->IsDirectory(&isDirectory);
@@ -170,6 +184,9 @@ nsBeckyAddressBooks::HasAddressBookFile(nsIFile *aDirectory)
 uint32_t
 nsBeckyAddressBooks::CountAddressBookSize(nsIFile *aDirectory)
 {
+  if (!aDirectory)
+    return 0;
+
   nsresult rv;
   bool isDirectory = false;
   rv = aDirectory->IsDirectory(&isDirectory);
@@ -205,6 +222,8 @@ nsresult
 nsBeckyAddressBooks::AppendAddressBookDescriptor(nsIFile *aEntry,
                                                  nsIMutableArray *aCollected)
 {
+  NS_ENSURE_ARG_POINTER(aCollected);
+
   if (!HasAddressBookFile(aEntry))
     return NS_OK;
 

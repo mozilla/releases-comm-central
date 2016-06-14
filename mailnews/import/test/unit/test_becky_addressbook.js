@@ -1,8 +1,5 @@
 function run_test()
 {
-  if (!("nsIWindowsRegKey" in Ci))
-    return;
-
   // Due to the import code using nsIAbManager off the main thread, we need
   // to ensure that it is initialized before we start the main test.
   let abMgr = Cc["@mozilla.org/abmanager;1"].getService(Ci.nsIAbManager);

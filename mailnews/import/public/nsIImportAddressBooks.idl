@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
-
   Interface for importing address books using the standard UI.  Address
   book import occurs in several forms (yuck!).
   The destination can be 1..n new address books corresponding to the source
@@ -14,7 +13,7 @@
   added to the supplied address book - this allows the address book UI so provide
   an import command specific for an individual address book.
 
-  The source can import 1 or mulitple address books.
+  The source can import 1 or multiple address books.
   The address books can be auto-discoverable or user specified.
   The address books can require field mapping or not.
 
