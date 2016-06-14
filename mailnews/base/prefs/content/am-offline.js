@@ -329,14 +329,16 @@ function restoreOfflineFolders(offlineFolderMap)
 }
 
 /**
- * Checks if the user selected a permanent removal of messages from server and
- * warns about it.
+ * Checks if the user selected a permanent removal of messages from a server
+ * listed in the confirmfor attribute and warns about it.
  *
  * @param aRadio  The radiogroup element containing the retention options.
  */
 function warnServerRemove(aRadio)
 {
-  if (aRadio.value != 1) {
+  let confirmFor = aRadio.getAttribute("confirmfor");
+
+  if (confirmFor && confirmFor.split(',').includes(gServerType) && aRadio.value != 1) {
     let prefBundle = document.getElementById("bundle_prefs");
     let title = prefBundle.getString("removeFromServerTitle");
     let question = prefBundle.getString("removeFromServer");
