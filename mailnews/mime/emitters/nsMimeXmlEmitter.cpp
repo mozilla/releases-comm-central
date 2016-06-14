@@ -102,8 +102,8 @@ nsMimeXmlEmitter::WriteXMLTag(const char *tagName, const char *value)
   else
   {
     UtilityWrite(l10nTagName);
-    PR_FREEIF(l10nTagName);
   }
+  PR_FREEIF(l10nTagName);
 
   UtilityWrite(": ");
   UtilityWrite("</headerdisplayname>");
