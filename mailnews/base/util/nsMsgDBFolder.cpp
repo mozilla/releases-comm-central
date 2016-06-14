@@ -5989,9 +5989,12 @@ nsresult nsMsgDBFolder::MessagesInKeyOrder(nsTArray<nsMsgKey> &aKeyArray,
   {
     set->loKeySet = nsMsgKeySet::Create();
     set->hiKeySet = nsMsgKeySet::Create();
+    if (!(set->loKeySet && set->hiKeySet))
+    {
+      delete set;
+      set = nullptr;
+    }
   }
-  if (!(set && set->loKeySet && set->hiKeySet))
-    delete set;
   return set;
 }
 
