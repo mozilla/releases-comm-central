@@ -2127,6 +2127,11 @@
          nc:link="customize_help.xhtml#hiding_a_toolbar"/>
      </rdf:li>
      <rdf:li>
+       <rdf:Description ID="toolbar:menu_bar"
+         nc:name="menu bar"
+         nc:link="customize_help.xhtml#menu_bar"/>
+     </rdf:li>
+     <rdf:li>
        <rdf:Description ID="toolbar:navigation_toolbar"
          nc:name="navigation toolbar"
          nc:link="customize_help.xhtml#navigation_toolbar"/>
