@@ -1764,6 +1764,8 @@ mime_decompose_file_init_fn ( void *stream_closure, MimeHeaders *headers )
   if (newAttachment->m_description.IsEmpty() && workURLSpec)
     newAttachment->m_description = workURLSpec;
 
+  PR_FREEIF(workURLSpec);     // resource leak otherwise
+
   newAttachment->m_cloudPartInfo.Adopt(MimeHeaders_get(headers,
                                        HEADER_X_MOZILLA_CLOUD_PART,
                                        false, false));
@@ -1829,7 +1831,6 @@ mime_decompose_file_init_fn ( void *stream_closure, MimeHeaders *headers )
                      fileURL.get(), nullptr);
   }
 
-  PR_FREEIF(workURLSpec);
   if (!tmpFile)
     return MIME_OUT_OF_MEMORY;
 
