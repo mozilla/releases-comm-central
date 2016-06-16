@@ -637,8 +637,17 @@ var PlacesUIUtils = {
    * @return true if any transaction has been performed, false otherwise.
    */
   _showBookmarkDialog: function PUIU__showBookmarkDialog(aInfo) {
-    var dialogURL = "chrome://communicator/content/bookmarks/bm-props.xul";
-    var features = "centerscreen,chrome,modal,resizable=yes";
+    // Preserve size attributes differently based on the fact the dialog has
+    // a folder picker or not, since it needs more horizontal space than the
+    // other controls.
+    let hasFolderPicker = !("hiddenRows" in aInfo) ||
+                          !aInfo.hiddenRows.includes("folderPicker");
+    // Use a different chrome url to persist different sizes.
+    let dialogURL = hasFolderPicker ?
+                    "chrome://communicator/content/bookmarks/bm-props2.xul" :
+                    "chrome://communicator/content/bookmarks/bm-props.xul";
+
+    let features = "centerscreen,chrome,modal,resizable=yes";
     this._getCurrentActiveWin().openDialog(dialogURL, "", features, aInfo);
     return ("performed" in aInfo && aInfo.performed);
   },

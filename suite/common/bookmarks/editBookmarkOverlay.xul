@@ -28,7 +28,9 @@
         <column flex="1" id="editBMPanel_editColumn" />
       </columns>
       <rows id="editBMPanel_rows">
-        <row align="center" id="editBMPanel_nameRow">
+        <row id="editBMPanel_nameRow"
+             align="center"
+             collapsed="true">
           <label value="&editBookmarkOverlay.name.label;"
                  class="editBMPanel_rowLabel"
                  accesskey="&editBookmarkOverlay.name.accesskey;"
@@ -39,7 +41,9 @@
                    observes="paneElementsBroadcaster"/>
         </row>
 
-        <row align="center" id="editBMPanel_locationRow">
+        <row id="editBMPanel_locationRow"
+             align="center"
+             collapsed="true">
           <label value="&editBookmarkOverlay.location.label;"
                  class="editBMPanel_rowLabel"
                  accesskey="&editBookmarkOverlay.location.accesskey;"
@@ -51,7 +55,9 @@
                    observes="paneElementsBroadcaster"/>
         </row>
 
-        <row align="center" id="editBMPanel_feedLocationRow">
+        <row id="editBMPanel_feedLocationRow"
+             align="center"
+             collapsed="true">
           <label value="&editBookmarkOverlay.feedLocation.label;"
                  class="editBMPanel_rowLabel"
                  accesskey="&editBookmarkOverlay.feedLocation.accesskey;"
@@ -62,7 +68,9 @@
                    observes="paneElementsBroadcaster"/>
         </row>
 
-        <row align="center" id="editBMPanel_siteLocationRow">
+        <row id="editBMPanel_siteLocationRow"
+             align="center"
+             collapsed="true">
           <label value="&editBookmarkOverlay.siteLocation.label;"
                  class="editBMPanel_rowLabel"
                  accesskey="&editBookmarkOverlay.siteLocation.accesskey;"
@@ -73,7 +81,9 @@
                    observes="paneElementsBroadcaster"/>
         </row>
 
-        <row align="center" id="editBMPanel_folderRow">
+        <row id="editBMPanel_folderRow"
+             align="center"
+             collapsed="true">
           <label value="&editBookmarkOverlay.folder.label;"
                  class="editBMPanel_rowLabel"
                  accesskey="&editBookmarkOverlay.folder.accesskey;"
@@ -112,15 +122,14 @@
 
         <row id="editBMPanel_folderTreeRow"
              collapsed="true"
-             persist="height"
-             flex="2">
+             flex="1">
           <spacer/>
           <vbox flex="1">
             <tree id="editBMPanel_folderTree"
                   class="placesTree"
                   type="places"
                   treelines="true"
-                  height="150"
+                  minheight="150"
                   flex="1"
                   editable="true"
                   onselect="gEditItemOverlay.onFolderTreeSelect();"
@@ -142,7 +151,9 @@
           </vbox>
         </row>
 
-        <row align="center" id="editBMPanel_tagsRow">
+        <row id="editBMPanel_tagsRow"
+             align="center"
+             collapsed="true">
           <label value="&editBookmarkOverlay.tags.label;"
                  class="editBMPanel_rowLabel"
                  accesskey="&editBookmarkOverlay.tags.accesskey;"
@@ -153,7 +164,7 @@
                      type="autocomplete"
                      class="padded"
                      flex="1"
-                     autocompletesearch="places-tag-autocomplete" 
+                     autocompletesearch="places-tag-autocomplete"
                      completedefaultindex="true"
                      tabscrolling="true"
                      showcommentcolumn="true"
@@ -171,17 +182,17 @@
         </row>
 
         <row id="editBMPanel_tagsSelectorRow"
-             persist="height"
-             collapsed="true"
-             flex="2">
+             align="center"
+             collapsed="true">
           <spacer/>
           <listbox id="editBMPanel_tagsSelector"
-                   height="150"
-                   flex="1"
+                   minheight="150"
                    observes="paneElementsBroadcaster"/>
         </row>
 
-        <row align="center" id="editBMPanel_keywordRow">
+        <row id="editBMPanel_keywordRow"
+             align="center"
+             collapsed="true">
           <observes element="additionalInfoBroadcaster" attribute="hidden"/>
           <label value="&editBookmarkOverlay.keyword.label;"
                  class="editBMPanel_rowLabel"
@@ -193,7 +204,8 @@
                    observes="paneElementsBroadcaster"/>
         </row>
 
-        <row id="editBMPanel_descriptionRow" persist="height" flex="1">
+        <row id="editBMPanel_descriptionRow"
+             collapsed="true">
           <observes element="additionalInfoBroadcaster" attribute="hidden"/>
           <label value="&editBookmarkOverlay.description.label;"
                  class="editBMPanel_rowLabel"

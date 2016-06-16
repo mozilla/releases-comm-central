@@ -65,6 +65,8 @@ const LIVEMARK_CONTAINER = 2;
 const ACTION_EDIT = 0;
 const ACTION_ADD = 1;
 
+var elementsHeight = new Map();
+
 var BookmarkPropertiesPanel = {
 
   /** UI Text Strings */
@@ -253,7 +255,6 @@ var BookmarkPropertiesPanel = {
 
             document.documentElement
                     .getButton("accept").disabled = !this._inputIsValid();
-            window.outerHeight += this._element("nameRow").boxObject.height * 2;
           }, () => undefined);
       }
 
@@ -296,6 +297,44 @@ var BookmarkPropertiesPanel = {
     var acceptButton = document.documentElement.getButton("accept");
     acceptButton.label = this._getAcceptLabel();
 
+    // Do not use sizeToContent, otherwise, due to bug 90276, the dialog will
+    // grow at every opening.
+    // Since elements can be uncollapsed asynchronously, we must observe their
+    // mutations and resize the dialog using a cached element size.
+    this._height = window.outerHeight;
+    this._mutationObserver = new MutationObserver(mutations => {
+      for (let mutation of mutations) {
+        let target = mutation.target;
+        let id = target.id;
+        if (!/^editBMPanel_.*(Row|Checkbox)$/.test(id))
+          continue;
+
+        let collapsed = target.getAttribute("collapsed") == "true";
+        let wasCollapsed = mutation.oldValue == "true";
+        if (collapsed == wasCollapsed)
+          continue;
+
+        if (collapsed) {
+          this._height -= elementsHeight.get(id);
+          elementsHeight.delete(id);
+        } else {
+          elementsHeight.set(id, target.boxObject.height);
+          this._height += elementsHeight.get(id);
+        }
+      }
+      window.resizeTo(window.outerWidth, this._height);
+    });
+
+    this._mutationObserver.observe(document,
+                                   { attributes: true,
+                                     subtree: true,
+                                     attributeOldValue: true,
+                                     attributeFilter: ["collapsed"] });
+
+    // Some controls are flexible and we want to update their cached size when
+    // the dialog is resized.
+    window.addEventListener("resize", this);
+
     this._beginBatch();
 
     switch (this._action) {
@@ -310,27 +349,6 @@ var BookmarkPropertiesPanel = {
         if (this._itemType == BOOKMARK_ITEM)
           acceptButton.disabled = !this._inputIsValid();
         break;
-    }
-
-    // When collapsible elements change their collapsed attribute we must
-    // resize the dialog.
-    var observer = new MutationObserver(function(aRecords, aObserver) {
-      var el = document.getElementById("editBookmarkPanelContent");
-      var width = el.boxObject.width;
-      window.sizeToContent();
-      window.outerWidth -= el.boxObject.width - width;
-    });
-    if (!this._element("tagsRow").collapsed) {
-      if (Services.prefs.getBoolPref("browser.bookmarks.editDialog.expandTags"))
-        gEditItemOverlay.toggleTagsSelector();
-      observer.observe(this._element("tagsSelectorRow"),
-                       {attributes: true, attributeFilter: ["collapsed"]});
-    }
-    if (!this._element("folderRow").collapsed) {
-      if (Services.prefs.getBoolPref("browser.bookmarks.editDialog.expandFolders"))
-        gEditItemOverlay.toggleFolderTreeVisibility();
-      observer.observe(this._element("folderTreeRow"),
-                       {attributes: true, attributeFilter: ["collapsed"]});
     }
 
     if (!this._readOnly) {
@@ -350,9 +368,6 @@ var BookmarkPropertiesPanel = {
             .addEventListener("input", this, false);
       }
     }
-
-    window.sizeToContent();
-    window.addEventListener("resize", this, false);
   },
 
   // nsIDOMEventListener
@@ -369,14 +384,14 @@ var BookmarkPropertiesPanel = {
                   .getButton("accept").disabled = !this._inputIsValid();
         }
         break;
-
       case "resize":
-        ["folderTree", "tagsSelector", "description"].forEach(function(e) {
-          var el = document.getElementById("editBMPanel_" + e + "Row");
-          if (el.boxObject.height)
-            el.height = el.boxObject.height;
-        });
+        for (let [id, oldHeight] of elementsHeight) {
+          let newHeight = document.getElementById(id).boxObject.height;
+          this._height += - oldHeight + newHeight;
+          elementsHeight.set(id, newHeight);
         break;
+    }
+
     }
   },
 
@@ -412,9 +427,6 @@ var BookmarkPropertiesPanel = {
     var locationField = this._element("locationField");
     if (locationField.value == "about:blank")
       locationField.value = "";
-    if (this._itemType == BOOKMARK_ITEM)
-      acceptButton.disabled = !this._inputIsValid();
-    window.sizeToContent();
   },
 
   // nsISupports
@@ -431,8 +443,12 @@ var BookmarkPropertiesPanel = {
   },
 
   onDialogUnload: function BPP_onDialogUnload() {
+
+  // gEditItemOverlay does not exist anymore here, so don't rely on it.
+    this._mutationObserver.disconnect();
+    delete this._mutationObserver;
+
     window.removeEventListener("resize", this, false);
-    // gEditItemOverlay does not exist anymore here, so don't rely on it.
     // Calling removeEventListener with arguments which do not identify any
     // currently registered EventListener on the EventTarget has no effect.
     this._element("locationField")
@@ -442,12 +458,6 @@ var BookmarkPropertiesPanel = {
     this._element("siteLocationField")
         .removeEventListener("input", this, false);
 
-    if (!this._element("tagsRow").collapsed)
-      Services.prefs.setBoolPref("browser.bookmarks.editDialog.expandTags",
-                                 !this._element("tagsSelectorRow").collapsed);
-    if (!this._element("folderRow").collapsed)
-      Services.prefs.setBoolPref("browser.bookmarks.editDialog.expandFolders",
-                                 !this._element("folderTreeRow").collapsed);
   },
 
   onDialogAccept: function BPP_onDialogAccept() {
@@ -576,7 +586,7 @@ var BookmarkPropertiesPanel = {
                                                           title);
       transactions.push(createTxn);
     }
-    return transactions; 
+    return transactions;
   },
 
   /**
@@ -622,7 +632,7 @@ var BookmarkPropertiesPanel = {
         break;
       case LIVEMARK_CONTAINER:
         txn = this._getCreateNewLivemarkTransaction(container, index);
-        break;      
+        break;
       default: // BOOKMARK_ITEM
         txn = this._getCreateNewBookmarkTransaction(container, index);
     }
