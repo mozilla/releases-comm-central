@@ -32,7 +32,7 @@
   <script type="application/javascript" src="chrome://messenger-newsblog/content/feed-subscriptions.js"/>
 
   <keyset id="dialogKeys"/>
-  
+
   <hbox class="box-header" id="header"
        title="&importTitle.label;"
        description="&importShortDesc.label;"/>
@@ -128,9 +128,9 @@
   </deck>
 
   <separator/>
-  
+
   <separator class="groove"/>
-  
+
   <hbox class="box-padded">
     <spacer flex="1"/>
     <button id="back" label="&back.label;" disabled="true"
@@ -141,6 +141,5 @@
     <button id="cancel" label="&cancel.label;"
             oncommand="close();"/>
   </hbox>
-  
 
 </window>
