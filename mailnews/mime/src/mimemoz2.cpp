@@ -613,9 +613,19 @@ MimeGetAttachmentList(MimeObject *tobj, const char *aMessageURL, nsMsgAttachment
     MimeGetSize(obj, &size);
     rv = GenerateAttachmentData(obj, aMessageURL, obj->options, false, size,
                                 *data);
-    NS_ENSURE_SUCCESS(rv, rv);
+    if (NS_FAILED(rv))
+    {
+      delete [] *data;             // release data in case of error return.
+      return rv;
+    }
+
   }
-  return BuildAttachmentList((MimeObject *) cobj, *data, aMessageURL);
+  rv = BuildAttachmentList((MimeObject *) cobj, *data, aMessageURL);
+  if (NS_FAILED(rv))
+  {
+    delete [] *data;             // release data in case of error return.
+  }
+  return rv;
 }
 
 extern "C" void
