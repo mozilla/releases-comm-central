@@ -31,10 +31,10 @@ nsresult nsEmlxHelperUtils::ConvertToMozillaStatusFlags(const char *aXMLBufferSt
 
   // get the XML data as a dictionary
   NSPropertyListFormat format;
-  id plist = [NSPropertyListSerialization propertyListFromData:metadata
-                                              mutabilityOption:NSPropertyListImmutable
+  id plist = [NSPropertyListSerialization propertyListWithData:metadata
+                                              options:NSPropertyListImmutable
                                                         format:&format
-                                              errorDescription:NULL];
+                                              error:NULL];
 
   if (!plist)
     return NS_ERROR_FAILURE;
