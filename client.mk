@@ -185,6 +185,9 @@ ifdef WANT_MOZCONFIG_MK
 MOZCONFIG_MK_LINES := $(filter export||%,$(MOZCONFIG_OUT_LINES))
 $(OBJDIR)/.mozconfig.mk: $(FOUND_MOZCONFIG) $(call mkdir_deps,$(OBJDIR))
 	$(if $(MOZCONFIG_MK_LINES),( $(foreach line,$(MOZCONFIG_MK_LINES), echo "$(subst ||, ,$(line))";) )) > $@
+ifdef MOZ_CURRENT_PROJECT
+	echo export MOZ_CURRENT_PROJECT=$(MOZ_CURRENT_PROJECT) >> $@
+endif
 
 # Include that makefile so that it is created. This should not actually change
 # the environment since MOZCONFIG_CONTENT, which MOZCONFIG_OUT_LINES derives
