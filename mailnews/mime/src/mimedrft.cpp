@@ -1242,14 +1242,21 @@ mime_parse_stream_complete (nsMIMESession *stream)
       getter_AddRefs(fields));
 
     draftInfo = MimeHeaders_get(mdd->headers, HEADER_X_MOZILLA_DRAFT_INFO, false, false);
+
+    // Keep the same message id when editing a draft unless we're
+    // editing a message "as new message" (template) or forwarding inline.
+    if (mdd->format_out != nsMimeOutput::nsMimeMessageEditorTemplate &&
+        fields && !forward_inline) {
+      fields->SetMessageId(id);
+    }
+
     if (draftInfo && fields && !forward_inline)
     {
       char *parm = 0;
       parm = MimeHeaders_get_parameter(draftInfo, "vcard", NULL, NULL);
       fields->SetAttachVCard(parm && !strcmp(parm, "1"));
-
-      fields->SetMessageId(id); // keep same message id for editing template.
       PR_FREEIF(parm);
+
       parm = MimeHeaders_get_parameter(draftInfo, "receipt", NULL, NULL);
       if (parm && !strcmp(parm, "0"))
         fields->SetReturnReceipt(false);
