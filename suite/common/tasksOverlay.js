@@ -120,11 +120,20 @@ function toOpenWindowByType(inType, uri, features, args)
       window[uri].removeEventListener("load", newWindowLoaded, false);
       delete window[uri];
     }
-    // remember the newly loading window until it's fully loaded
-    // or until the current window passes away
-    window[uri] = openDialog(uri, "",
-                             features || "non-private,all,dialog=no",
-                             args || null);
+
+    // Remember the newly loading window until it's fully loaded
+    // or until the current window passes away.
+    // Only pass args if they exist and have a value (see Bug 1279738).
+    if (typeof args != "undefined" && args) {
+      window[uri] = openDialog(uri, "",
+                               features || "non-private,all,dialog=no",
+                               args || null);
+    }
+    else {
+      window[uri] = openDialog(uri, "",
+                               features || "non-private,all,dialog=no");
+    }
+
     window[uri].addEventListener("load", newWindowLoaded, false);
     window.addEventListener("unload", newWindowLoaded, false);
   }
