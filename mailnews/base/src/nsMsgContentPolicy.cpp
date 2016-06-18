@@ -264,20 +264,32 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
   }
 
   // Extract the windowtype to handle compose windows separately from mail
-  nsCOMPtr<nsIMsgCompose> msgCompose = GetMsgComposeForContext(aRequestingContext);
-  // Work out if we're in a compose window or not.
-  if (msgCompose)
+  if (aRequestingContext)
   {
-    ComposeShouldLoad(msgCompose, aRequestingContext, aContentLocation,
-                      aDecision);
-    return NS_OK;
+    nsCOMPtr<nsIMsgCompose> msgCompose =
+      GetMsgComposeForContext(aRequestingContext);
+    // Work out if we're in a compose window or not.
+    if (msgCompose)
+    {
+      ComposeShouldLoad(msgCompose, aRequestingContext, aContentLocation,
+                        aDecision);
+      return NS_OK;
+    }
   }
 
   // Find out the URI that originally initiated the set of requests for this
   // context.
   nsCOMPtr<nsIURI> originatorLocation;
-  rv = GetOriginatingURIForContext(aRequestingContext,
-                                   getter_AddRefs(originatorLocation));
+  if (!aRequestingContext && aRequestPrincipal)
+  {
+    // Can get the URI directly from the principal.
+    rv = aRequestPrincipal->GetURI(getter_AddRefs(originatorLocation));
+  }
+  else
+  {
+    rv = GetOriginatingURIForContext(aRequestingContext,
+                                     getter_AddRefs(originatorLocation));
+  }
   NS_ENSURE_SUCCESS(rv, NS_OK);
 
 #ifdef DEBUG_MsgContentPolicy
