@@ -138,7 +138,6 @@ FetchHTTP.prototype =
             mimetype == "application/xml" ||
             mimetype == "text/rdf")
         {
-          this._request.overrideMimeType("text/xml");
           this.result = JXON.build(this._request.responseXML);
         }
         else
