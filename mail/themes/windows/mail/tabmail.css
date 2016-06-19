@@ -43,30 +43,8 @@
 }
 
 @media (min-resolution: 1.1dppx) {
-  #tabs-toolbar {
-    --tabBackgroundImage: url(chrome://messenger/skin/tabs/background-start@2x.png),
-                          url(chrome://messenger/skin/tabs/background-middle@2x.png),
-                          url(chrome://messenger/skin/tabs/background-end@2x.png);
-  }
-
-  .tabmail-tab:hover > .tab-stack > .tab-background:not([selected=true]) {
-    background-image: var(--tabBackgroundImage);
-  }
-
-  .tab-background-middle[selected=true] {
-    background-image: url(tabs/active-middle@2x.png),
-                      var(--fgTabTexture),
-                      none;
-  }
-
-  .tab-background-start[selected=true]:-moz-locale-dir(ltr)::after,
-  .tab-background-end[selected=true]:-moz-locale-dir(rtl)::after {
-    background-image: url(tabs/stroke-start@2x.png);
-  }
-
-  .tab-background-end[selected=true]:-moz-locale-dir(ltr)::after,
-  .tab-background-start[selected=true]:-moz-locale-dir(rtl)::after {
-    background-image: url(tabs/stroke-end@2x.png);
+  .tab-throbber {
+    list-style-image: url("chrome://messenger/skin/icons/loading@2x.png") !important;
   }
 }
 

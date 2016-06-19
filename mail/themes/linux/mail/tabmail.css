@@ -109,19 +109,39 @@ tabpanels {
  * Tab Scrollbox Arrow Buttons
  */
 
-.tabmail-arrowscrollbox > .scrollbutton-up {
-  -moz-appearance: tab-scroll-arrow-back;
-  margin: 0px;
+.tabmail-arrowscrollbox > .scrollbutton-up > .toolbarbutton-icon,
+.tabmail-arrowscrollbox > stack > .scrollbutton-down > .toolbarbutton-icon {
+  -moz-appearance: none;
 }
 
-.tabmail-arrowscrollbox > .scrollbutton-down-stack > .scrollbutton-down {
-  -moz-appearance: tab-scroll-arrow-forward;
-  margin: 0px;
+.tabmail-arrowscrollbox > .scrollbutton-up,
+.tabmail-arrowscrollbox > stack > .scrollbutton-down {
+  -moz-appearance: none;
+  list-style-image: url(tabs/arrow-left.png);
+}
+
+#tabs-toolbar[brighttext] .tabmail-arrowscrollbox > .scrollbutton-up,
+#tabs-toolbar[brighttext] .tabmail-arrowscrollbox > stack > .scrollbutton-down {
+  list-style-image: url(tabs/arrow-left-inverted.png);
+}
+
+.tabmail-arrowscrollbox > .scrollbutton-up[disabled],
+.tabmail-arrowscrollbox > stack > .scrollbutton-down[disabled] {
+  opacity: .4;
+}
+
+.tabmail-arrowscrollbox > .scrollbutton-up > .toolbarbutton-icon:-moz-locale-dir(rtl),
+.tabmail-arrowscrollbox > stack > .scrollbutton-down > .toolbarbutton-icon:-moz-locale-dir(ltr) {
+  transform: scaleX(-1);
+}
+
+.tabmail-arrowscrollbox > .scrollbutton-down {
+  transition: 1s background-color ease-out;
 }
 
 .tabs-alltabs-box-animate {
   background-color: Highlight;
-  opacity: 0.0;
+  opacity: 0;
 }
 
 /* All tabs menupopup */

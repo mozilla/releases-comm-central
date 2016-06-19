@@ -198,6 +198,30 @@
   background-color: transparent;
 }
 
+@media (min-resolution: 1.1dppx) {
+  #tabs-toolbar {
+    --tabBackgroundImage: url(chrome://messenger/skin/tabs/background-start@2x.png),
+                          url(chrome://messenger/skin/tabs/background-middle@2x.png),
+                          url(chrome://messenger/skin/tabs/background-end@2x.png);
+  }
+
+  .tab-background-middle[selected=true] {
+    background-image: url(chrome://messenger/skin/tabs/active-middle@2x.png),
+                      var(--fgTabTexture),
+                      none;
+  }
+
+  .tab-background-start[selected=true]:-moz-locale-dir(ltr)::after,
+  .tab-background-end[selected=true]:-moz-locale-dir(rtl)::after {
+    background-image: url(chrome://messenger/skin/tabs/stroke-start@2x.png);
+  }
+
+  .tab-background-end[selected=true]:-moz-locale-dir(ltr)::after,
+  .tab-background-start[selected=true]:-moz-locale-dir(rtl)::after {
+    background-image: url(chrome://messenger/skin/tabs/stroke-end@2x.png);
+  }
+}
+
 /* End selected tab */
 
 /* new tab button border and gradient on hover */

@@ -286,6 +286,7 @@ classic.jar:
   skin/classic/messenger/tabs/stroke-start@2x.png             (mail/tabs/stroke-start@2x.png)
   skin/classic/messenger/icons/connecting.png                 (mail/icons/connecting.png)
   skin/classic/messenger/icons/loading.png                    (mail/icons/loading.png)
+  skin/classic/messenger/icons/loading@2x.png                 (mail/icons/loading@2x.png)
   skin/classic/messenger/icons/notloading.png                 (mail/icons/notloading.png)
   skin/classic/messenger/icons/chat-toolbar.png               (mail/icons/chat-toolbar.png)
   skin/classic/messenger/icons/chat-toolbar-small.png         (mail/icons/chat-toolbar-small.png)
