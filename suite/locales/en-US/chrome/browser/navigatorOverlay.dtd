@@ -122,17 +122,25 @@
 <!ENTITY cookieBlockImagesCmd.accesskey "B">
 <!ENTITY cookieBlockImagesMsg.label "Images from this website will never be downloaded.">
 
-<!ENTITY cookieAllowPopupsCmd.label "Allow Popups from This Website">
-<!ENTITY cookieAllowPopupsCmd.accesskey "A">
-<!ENTITY cookieManagePopups.label "Manage Popups">
-<!ENTITY cookieManagePopups.accesskey "M">
+<!ENTITY popupsMessageChangeTitle.label "Popup Permissions Changed">
+<!ENTITY popupAllowCmd.label "Allow Popups from This Website">
+<!ENTITY popupAllowCmd.accesskey "A">
+<!ENTITY popupAllowMsg.label "Popups from this website will always be shown.">
+<!ENTITY popupDefaultCmd.label "Use Default Popup Permissions">
+<!ENTITY popupDefaultCmd.accesskey "U">
+<!ENTITY popupDefaultMsg.label "Popups from this website will be shown based on default settings.">
+<!ENTITY popupBlockCmd.label "Block Popups from This Website">
+<!ENTITY popupBlockCmd.accesskey "B">
+<!ENTITY popupBlockMsg.label "Popups from this website will not be shown.">
+<!ENTITY popupsManage.label "Manage Popups">
+<!ENTITY popupsManage.accesskey "M">
 
 <!ENTITY cookieCookieManager.label "Cookie Manager">
 <!ENTITY cookieCookieManager.accesskey "C">
 <!ENTITY cookieImageManager.label "Image Manager">
 <!ENTITY cookieImageManager.accesskey "I">
-<!ENTITY cookiePopupManager.label "Popup Manager">
-<!ENTITY cookiePopupManager.accesskey "o">
+<!ENTITY popupsManager.label "Popup Manager">
+<!ENTITY popupsManager.accesskey "o">
 
 <!ENTITY clearPrivateDataCmd.label "Clear Private Data…">
 <!ENTITY clearPrivateDataCmd.accesskey "e">

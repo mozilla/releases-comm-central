@@ -1293,6 +1293,15 @@ function popupBlockerMenuCommand(target)
     target.parentNode.browser.unblockPopup(target.getAttribute("popupReportIndex"));
 }
 
+function hostUrl()
+{
+  var url = "";
+  try {
+    url = getBrowser().currentURI.scheme + "://" + getBrowser().currentURI.hostPort;
+  } catch (e) {}
+  return url;
+}
+
 function disablePopupBlockerNotifications()
 {
   Services.prefs.setBoolPref("privacy.popups.showBrowserMessage", false);

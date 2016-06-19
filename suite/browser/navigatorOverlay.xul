@@ -529,8 +529,8 @@
         <menu id="menu_cookieManager"
               label="&cookieCookieManager.label;"
               accesskey="&cookieCookieManager.accesskey;"
-              oncommand="if (event.target.id) CookieImageAction(event.target);
-                         else toDataManager('|cookies');">
+              oncommand="if (event.target.id.startsWith('cookie_'))
+                           CookieImagePopupAction(event.target);">
           <menupopup id="menupopup_checkPermissions_cookie"
                      onpopupshowing="CheckPermissionsMenu('cookie', this);">
             <menuitem id="cookie_deny"
@@ -562,17 +562,18 @@
                       type="radio"
                       name="cookie"/>
             <menuseparator/>
-            <menuitem label="&cookieDisplayCookiesCmd.label;"
-                      accesskey="&cookieDisplayCookiesCmd.accesskey;"/>
+            <menuitem id="menuitem_cookieDisplay"
+                      label="&cookieDisplayCookiesCmd.label;"
+                      accesskey="&cookieDisplayCookiesCmd.accesskey;"
+                      oncommand="toDataManager(hostUrl() + '|cookies');
+                                 event.stopPropagation();"/>
           </menupopup>
         </menu>
         <menu id="menu_imageManager"
               label="&cookieImageManager.label;"
               accesskey="&cookieImageManager.accesskey;"
-              oncommand="if (event.target.id == 'menuitem_cookieDisplay')
-                           toDataManager('|permissions');
-                         else
-                           CookieImageAction(event.target);">
+              oncommand="if (event.target.id.startsWith('image_'))
+                           CookieImagePopupAction(event.target);">
           <menupopup id="menupopup_checkPermissions_image"
                      onpopupshowing="CheckPermissionsMenu('image', this);">
             <menuitem id="image_deny"
@@ -597,30 +598,49 @@
                       type="radio"
                       name="image"/>
             <menuseparator/>
-            <menuitem id="menuitem_cookieDisplay"
+            <menuitem id="menuitem_imageDisplay"
                       label="&cookieDisplayImagesCmd.label;"
-                      accesskey="&cookieDisplayImagesCmd.accesskey;"/>
+                      accesskey="&cookieDisplayImagesCmd.accesskey;"
+                      oncommand="toDataManager(hostUrl() + '|permissions|add|image');
+                                 event.stopPropagation();"/>
           </menupopup>
         </menu>
         <menu id="menu_popupManager"
-              label="&cookiePopupManager.label;"
-              accesskey="&cookiePopupManager.accesskey;"
-              oncommand="popupBlockerMenuCommand(event.target);">
+              label="&popupsManager.label;"
+              accesskey="&popupsManager.accesskey;"
+              oncommand="if (event.target.id.startsWith('popup_'))
+                           CookieImagePopupAction(event.target);">
           <menupopup id="menupopup_checkForVisibility"
-                     onpopupshowing="CheckForVisibility(event);"
+                     onpopupshowing="CheckForVisibility(event, this);"
                      onpopuphiding="RemovePopupsItems(this);">
-            <menuitem id="AllowPopups"
-                      label="&cookieAllowPopupsCmd.label;"
-                      accesskey="&cookieAllowPopupsCmd.accesskey;"
-                      oncommand="toDataManager(popupHost() + '|permissions|add|popup');"/>
-            <menuitem id="ManagePopups"
-                      label="&cookieManagePopups.label;"
-                      accesskey="&cookieManagePopups.accesskey;"
-                      oncommand="toDataManager('|permissions');"
+            <menuitem id="popup_deny"
+                      label="&popupBlockCmd.label;"
+                      accesskey="&popupBlockCmd.accesskey;"
+                      title="&popupsMessageChangeTitle.label;"
+                      msg="&popupBlockMsg.label;"
+                      type="radio"
+                      name="popup"/>
+            <menuitem id="popup_default"
+                      label="&popupDefaultCmd.label;"
+                      accesskey="&popupDefaultCmd.accesskey;"
+                      title="&popupsMessageChangeTitle.label;"
+                      msg="&popupDefaultMsg.label;"
+                      type="radio"
+                      name="popup"/>
+            <menuitem id="popup_allow"
+                      label="&popupAllowCmd.label;"
+                      accesskey="&popupAllowCmd.accesskey;"
+                      title="&popupsMessageChangeTitle.label;"
+                      msg="&popupAllowMsg.label;"
+                      type="radio"
+                      name="popup"/>
+            <menuseparator id="popupMenuSeparator"/>
+            <menuitem id="menuitem_PopupsManage"
+                      label="&popupsManage.label;"
+                      accesskey="&popupsManage.accesskey;"
+                      oncommand="toDataManager(hostUrl() + '|permissions|add|popup');
+                                 event.stopPropagation();"
                       hidden="true"/>
-            <menuseparator id="popupMenuSeparator" hidden="true"/>
-            <!-- Additional items are generated (except for mac - bug 533097)
-                 by popupBlockerMenuShowing() in navigator.js. -->
           </menupopup>
         </menu>
         <menuseparator id="navBeginGlobalItems"/>
