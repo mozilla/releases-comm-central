@@ -70,9 +70,12 @@ function subtest_folder_deletion(root) {
   try {
     root.copyFolderLocal(folderDeleted3, true, null, null);
     do_throw("copyFolderLocal() should have failed here due to user prompt!");
-  } catch (e if e.result == 0x8055001a) {
+  } catch (e) {
     // Catch only the expected error NS_MSG_ERROR_COPY_FOLDER_ABORTED,
     // otherwise fail the test.
+    if (e.result != 0x8055001a) {
+      throw e;
+    }
   }
 }
 

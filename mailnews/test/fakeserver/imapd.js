@@ -746,13 +746,15 @@ IMAP_RFC3501_handler.prototype = {
     // Now parse realLine into an array of atoms, etc.
     try {
       var args = parseCommand(realLine);
-    } catch (state if typeof state == "object") {
-      this._partial = state;
-      this._partial.command = command;
-      this._multiline = true;
-      return "+ More!";
-    } catch (ex) {
-      return this._tag + " BAD " + ex;
+    } catch (state) {
+      if (typeof state == "object") {
+        this._partial = state;
+        this._partial.command = command;
+        this._multiline = true;
+        return "+ More!";
+      }
+
+      return this._tag + " BAD " + state;
     }
 
     // If we're here, we have a command with arguments. Dispatch!
@@ -777,14 +779,16 @@ IMAP_RFC3501_handler.prototype = {
       var args;
       try {
         args = parseCommand(line, this._partial);
-      } catch (state if typeof state == "object") {
-        // Yet another literal coming around...
-        this._partial = state;
-        this._partial.command = command;
-        return "+ I'll be needing more text";
-      } catch (ex) {
+      } catch (state) {
+        if (typeof state == "object") {
+          // Yet another literal coming around...
+          this._partial = state;
+          this._partial.command = command;
+          return "+ I'll be needing more text";
+        }
+
         this._multiline = false;
-        return this.tag + " BAD parse error: " + ex;
+        return this.tag + " BAD parse error: " + state;
       }
 
       this._partial = undefined;
@@ -829,8 +833,12 @@ IMAP_RFC3501_handler.prototype = {
 
         // Finally, run the thing
         var response = this[command](args);
-      } catch (e if typeof e == "string") {
-        var response = e;
+      } catch (e) {
+        if (typeof e == "string") {
+          var response = e;
+        } else {
+          throw e;
+        }
       }
     } else {
       var response = "BAD " + command  + " not implemented";

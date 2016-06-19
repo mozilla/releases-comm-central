@@ -1630,19 +1630,23 @@ var GlodaDatastore = {
       try {
         return aStatement.executeStep();
       }
-      // SQLITE_BUSY becomes NS_ERROR_FAILURE
-      catch (e if e.result == 0x80004005) {
-        tries++;
-        // we really need to delay here, somehow.  unfortunately, we can't
-        //  allow event processing to happen, and most of the things we could
-        //  do to delay ourselves result in event processing happening.  (Use
-        //  of a timer, a synchronous dispatch, etc.)
-        // in theory, nsIThreadEventFilter could allow us to stop other events
-        //  that aren't our timer from happening, but it seems slightly
-        //  dangerous and 'notxpcom' suggests it ain't happening anyways...
-        // so, let's just be dumb and hope that the underlying file I/O going
-        //  on makes us more likely to yield to the other thread so it can
-        //  finish what it is doing...
+      catch (e) {
+        // SQLITE_BUSY becomes NS_ERROR_FAILURE
+        if (e.result == 0x80004005) {
+          tries++;
+          // we really need to delay here, somehow.  unfortunately, we can't
+          //  allow event processing to happen, and most of the things we could
+          //  do to delay ourselves result in event processing happening.  (Use
+          //  of a timer, a synchronous dispatch, etc.)
+          // in theory, nsIThreadEventFilter could allow us to stop other events
+          //  that aren't our timer from happening, but it seems slightly
+          //  dangerous and 'notxpcom' suggests it ain't happening anyways...
+          // so, let's just be dumb and hope that the underlying file I/O going
+          //  on makes us more likely to yield to the other thread so it can
+          //  finish what it is doing...
+        } else {
+          throw e;
+        }
       }
     }
     this._log.error("Synchronous step gave up after " + tries + " tries.");

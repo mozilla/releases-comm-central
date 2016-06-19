@@ -621,13 +621,17 @@ var GlodaMsgIndexer = {
       // (note that although internally NS_MSG_ERROR_FOLDER_SUMMARY_MISSING
       //  might get flung around, it won't make it out to us, and will instead
       //  be permuted into an NS_ERROR_NOT_INITIALIZED.)
-      catch (e if ((e.result == Cr.NS_ERROR_NOT_INITIALIZED) ||
-                   (e.result == NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE))) {
-        // this means that we need to pend on the update; the listener for
-        //  FolderLoaded events will call _indexerCompletePendingFolderEntry.
-        this._log.debug("Pending on folder load...");
-        this._pendingFolderEntry = this._indexingFolder;
-        return this.kWorkAsync;
+      catch (e) {
+        if ((e.result == Cr.NS_ERROR_NOT_INITIALIZED) ||
+            (e.result == NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE)) {
+          // this means that we need to pend on the update; the listener for
+          //  FolderLoaded events will call _indexerCompletePendingFolderEntry.
+          this._log.debug("Pending on folder load...");
+          this._pendingFolderEntry = this._indexingFolder;
+          return this.kWorkAsync;
+        } else {
+          throw e;
+        }
       }
       // we get an nsIMsgDatabase out of this (unsurprisingly) which
       //  explicitly inherits from nsIDBChangeAnnouncer, which has the
@@ -1173,11 +1177,15 @@ var GlodaMsgIndexer = {
           else
             keepIterHeader = false;
         }
-        catch (ex if ex instanceof StopIteration) {
-          headerIter = null;
-          msgHdr = null;
-          // do the loop check again
-          continue;
+        catch (ex) {
+          if (ex instanceof StopIteration) {
+            headerIter = null;
+            msgHdr = null;
+            // do the loop check again
+            continue;
+          } else {
+            throw ex;
+          }
         }
       }
 

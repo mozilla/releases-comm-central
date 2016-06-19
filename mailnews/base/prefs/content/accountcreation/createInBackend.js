@@ -235,8 +235,12 @@ function rememberPassword(server, password)
   login.init(passwordURI, null, passwordURI, server.username, password, "", "");
   try {
     Services.logins.addLogin(login);
-  } catch (e if e.message.includes("This login already exists")) {
-    // TODO modify
+  } catch (e) {
+    if (e.message.includes("This login already exists")) {
+      // TODO modify
+    } else {
+      throw e;
+    }
   }
 }
 
