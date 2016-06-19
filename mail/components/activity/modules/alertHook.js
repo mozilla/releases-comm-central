@@ -64,9 +64,13 @@ var alertHook =
     }
     // nsIMsgMailNewsUrl.msgWindow will throw on a null pointer, so that's
     // what we're handling here.
-    catch (ex if (ex instanceof Ci.nsIException &&
-                  ex.result == Cr.NS_ERROR_INVALID_POINTER)) {
-      return true;
+    catch (ex) {
+      if (ex instanceof Ci.nsIException &&
+          ex.result == Cr.NS_ERROR_INVALID_POINTER) {
+        return true;
+      } else {
+        throw ex;
+      }
     }
 
     try {

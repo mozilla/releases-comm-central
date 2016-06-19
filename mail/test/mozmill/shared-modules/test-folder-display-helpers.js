@@ -865,10 +865,14 @@ function select_none(aController) {
   }
   try {
     utils.waitFor(noMessageChecker);
-  } catch (e if e instanceof utils.TimeoutError) {
-    mark_failure(["Timeout waiting for displayedMessage to become null.",
-                  "Current value: ",
-                  aController.messageDisplay.displayedMessage]);
+  } catch (e) {
+    if (e instanceof utils.TimeoutError) {
+      mark_failure(["Timeout waiting for displayedMessage to become null.",
+                    "Current value: ",
+                    aController.messageDisplay.displayedMessage]);
+    } else {
+      throw e;
+    }
   }
   wait_for_blank_content_pane(aController);
 }
@@ -1638,9 +1642,13 @@ function wait_for_blank_content_pane(aController) {
   };
   try {
     utils.waitFor(isBlankChecker);
-  } catch (e if e instanceof utils.TimeoutError) {
-    mark_failure(["Timeout waiting for blank content pane.  Current location:",
-                  aController.window.content.location.href]);
+  } catch (e) {
+    if (e instanceof utils.TimeoutError) {
+      mark_failure(["Timeout waiting for blank content pane.  Current location:",
+                    aController.window.content.location.href]);
+    } else {
+      throw e;
+    }
   }
 
   // the above may return immediately, meaning the event queue might not get a
@@ -1676,8 +1684,12 @@ var FolderListener = {
     let self = this;
     try {
       utils.waitFor(() => self.sawEvents);
-    } catch (e if e instanceof utils.TimeoutError) {
-      mark_failure(["Timeout waiting for events:", this.watchingFor]);
+    } catch (e) {
+      if (e instanceof utils.TimeoutError) {
+        mark_failure(["Timeout waiting for events:", this.watchingFor]);
+      } else {
+        throw e;
+      }
     }
   },
 

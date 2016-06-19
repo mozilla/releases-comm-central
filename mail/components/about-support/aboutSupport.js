@@ -123,9 +123,13 @@ var AboutSupport = {
       prettySocketType = gMessengerBundle.GetStringFromName(
         "smtpServer-ConnectionSecurityType-" + aIndex);
     }
-    catch (e if e.result == Components.results.NS_ERROR_FAILURE) {
-      // The string wasn't found in the bundle. Make do without it.
-      prettySocketType = plainSocketType;
+    catch (e) {
+      if (e.result == Components.results.NS_ERROR_FAILURE) {
+        // The string wasn't found in the bundle. Make do without it.
+        prettySocketType = plainSocketType;
+      } else {
+        throw e;
+      }
     }
     return {localized: prettySocketType, neutral: plainSocketType};
   },

@@ -1904,9 +1904,12 @@ AttachmentInfo.prototype = {
 
       try {
         chunk = inputStream.readBytes(1);
-      } catch (ex if ex.result == Components.results
-                                            .NS_BASE_STREAM_WOULD_BLOCK) {
-        bytesAvailable = 1;
+      } catch (ex) {
+        if (ex.result == Components.results.NS_BASE_STREAM_WOULD_BLOCK) {
+          bytesAvailable = 1;
+        } else {
+          throw ex;
+        }
       }
       if (chunk)
         bytesAvailable = chunk.length;

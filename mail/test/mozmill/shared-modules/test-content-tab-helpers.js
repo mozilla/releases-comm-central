@@ -332,9 +332,13 @@ function wait_for_content_tab_element_display_value(aTab, aElem, aValue) {
   }
   try {
     utils.waitFor(isValue);
-  } catch (e if e instanceof utils.TimeoutError) {
-    mark_failure(["Timeout waiting for element", aElem, "to have display value",
-                  aValue]);
+  } catch (e) {
+    if (e instanceof utils.TimeoutError) {
+      mark_failure(["Timeout waiting for element", aElem, "to have display value",
+                    aValue]);
+    } else {
+      throw e;
+    }
   }
 }
 

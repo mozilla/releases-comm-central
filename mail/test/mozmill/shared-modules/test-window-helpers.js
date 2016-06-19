@@ -749,9 +749,13 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
 
   try {
     utils.waitFor(isLoadedChecker);
-  } catch (e if e instanceof utils.TimeoutError) {
-    mark_failure(["Timeout waiting for content page to load. Current URL is:",
-                  aDetails.currentURI.spec]);
+  } catch (e) {
+    if (e instanceof utils.TimeoutError) {
+      mark_failure(["Timeout waiting for content page to load. Current URL is:",
+                    aDetails.currentURI.spec]);
+    } else {
+      throw e;
+    }
   }
 
   // Lie to mozmill to convince it to not explode because these frames never
