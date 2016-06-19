@@ -2324,11 +2324,15 @@ calStorageCalendar.prototype = {
             sp.item_id = id;
             sp.value = value;
             this.mInsertMetaData.executeStep();
-        } catch (e if e.result != Components.results.NS_ERROR_ILLEGAL_VALUE) {
-            // The storage service throws an NS_ERROR_ILLEGAL_VALUE in
-            // case pval is something complex (i.e not a string or
-            // number). Swallow this error, leaving the value empty.
-            this.logError("Error setting metadata for id " + id + "!", e);
+        } catch (e) {
+            if (e.result != Components.results.NS_ERROR_ILLEGAL_VALUE) {
+                // The storage service throws an NS_ERROR_ILLEGAL_VALUE in
+                // case pval is something complex (i.e not a string or
+                // number). Swallow this error, leaving the value empty.
+                this.logError("Error setting metadata for id " + id + "!", e);
+            } else {
+                this.logError("Unknown error!", e);
+            }
         } finally {
             this.mInsertMetaData.reset();
         }

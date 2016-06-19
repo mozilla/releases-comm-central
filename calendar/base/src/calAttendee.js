@@ -110,20 +110,28 @@ calAttendee.prototype = {
             if (this[prop.cal]) {
                 try {
                     icalatt.setParameter(prop.ics, this[prop.cal]);
-                } catch (e if e.result == Components.results.NS_ERROR_ILLEGAL_VALUE) {
-                    // Illegal values should be ignored, but we could log them if
-                    // the user has enabled logging.
-                    cal.LOG("Warning: Invalid attendee parameter value " + prop.ics + "=" + this[prop.cal]);
+                } catch (e) {
+                    if (e.result == Components.results.NS_ERROR_ILLEGAL_VALUE) {
+                        // Illegal values should be ignored, but we could log them if
+                        // the user has enabled logging.
+                        cal.LOG("Warning: Invalid attendee parameter value " + prop.ics + "=" + this[prop.cal]);
+                    } else {
+                        throw e;
+                    }
                 }
             }
         }
         for (let [key, value] of this.mProperties) {
             try {
                 icalatt.setParameter(key, value);
-            } catch (e if e.result == Components.results.NS_ERROR_ILLEGAL_VALUE) {
-                // Illegal values should be ignored, but we could log them if
-                // the user has enabled logging.
-                cal.LOG("Warning: Invalid attendee parameter value " + key + "=" + value);
+            } catch (e) {
+                if (e.result == Components.results.NS_ERROR_ILLEGAL_VALUE) {
+                    // Illegal values should be ignored, but we could log them if
+                    // the user has enabled logging.
+                    cal.LOG("Warning: Invalid attendee parameter value " + key + "=" + value);
+                } else {
+                    throw e;
+                }
             }
         }
         return icalatt;

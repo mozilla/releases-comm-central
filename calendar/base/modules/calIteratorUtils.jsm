@@ -83,13 +83,17 @@ cal.forEach = function cal_forEach(iter, body, completed) {
                         throw StopIteration;
                     }
                 }
-            } catch (e if e instanceof StopIteration) {
-                // Iterating is done, return early to avoid resubmitting to the
-                // event queue again. If there is a completed function, run it.
-                if (completed) {
-                    completed();
+            } catch (e) {
+                if (e instanceof StopIteration) {
+                    // Iterating is done, return early to avoid resubmitting to the
+                    // event queue again. If there is a completed function, run it.
+                    if (completed) {
+                        completed();
+                    }
+                    return;
+                } else {
+                    throw e;
                 }
-                return;
             }
 
             currentThread.dispatch(this, currentThread.DISPATCH_NORMAL);

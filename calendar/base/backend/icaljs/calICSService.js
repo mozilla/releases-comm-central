@@ -196,9 +196,13 @@ calIcalProperty.prototype = {
         if (this.paramIterator) {
             try {
                 return this.paramIterator.next();
-            } catch (e if e instanceof StopIteration) {
-                this.paramIterator = null;
-                return null;
+            } catch (e) {
+                if (e instanceof StopIteration) {
+                    this.paramIterator = null;
+                    return null;
+                } else {
+                    throw e;
+                }
             }
         } else {
             return this.getFirstParameterName();
@@ -254,9 +258,13 @@ calIcalComponent.prototype = {
         if (this.componentIterator) {
             try {
                 return this.componentIterator.next();
-            } catch (e if e instanceof StopIteration) {
-                this.componentIterator = null;
-                return null;
+            } catch (e) {
+                if (e instanceof StopIteration) {
+                    this.componentIterator = null;
+                    return null;
+                } else {
+                    throw e;
+                }
             }
         } else {
             return this.getFirstSubcomponent(kind);
@@ -390,9 +398,13 @@ calIcalComponent.prototype = {
         if (this.propertyIterator) {
             try {
                 return this.propertyIterator.next();
-            } catch (e if e instanceof StopIteration) {
-                this.propertyIterator = null;
-                return null;
+            } catch (e) {
+                if (e instanceof StopIteration) {
+                    this.propertyIterator = null;
+                    return null;
+                } else {
+                    throw e;
+                }
             }
         } else {
             return this.getFirstProperty(kind);

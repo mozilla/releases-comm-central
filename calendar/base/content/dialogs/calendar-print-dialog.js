@@ -282,9 +282,12 @@ function printAndClose() {
                     PSSVC.savePrintSettingsToPrefs(printSettings, false,
                                                    printSettings.kInitSavePrinterName);
                 }
-            } catch (e if e.result == Components.results.NS_ERROR_ABORT) {
+            } catch (e) {
                 // Pressing cancel is expressed as an NS_ERROR_ABORT return value,
                 // causing an exception to be thrown which we catch here.
+                if (e.result != Components.results.NS_ERROR_ABORT) {
+                    throw e;
+                }
             }
         });
     return false; // leave open

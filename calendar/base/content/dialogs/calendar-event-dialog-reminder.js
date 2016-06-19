@@ -184,9 +184,12 @@ function setupMaxReminders() {
     } else {
         try {
             notificationbox.removeNotification(setupMaxReminders.notification);
-        } catch (e if e.code == e.NOT_FOUND_ERR) {
-            // Its ok to swallow this, if the notification element hasn't been
-            // added then the call will throw a DOM NOT_FOUND_ERR.
+        } catch (e) {
+            // It's only ok to swallow this if the notification element hasn't been
+            // added. Then the call will throw a DOM NOT_FOUND_ERR.
+            if (e.code != e.NOT_FOUND_ERR) {
+                throw e;
+            }
         }
     }
 }

@@ -133,8 +133,11 @@ calCalendarManager.prototype = {
                             channel.setResponseHeader("WWW-Authenticate", authHeader, false);
                         }
                     }
-                } catch (e if e.result == Components.results.NS_NOINTERFACE ||
-                              e.result == Components.results.NS_ERROR_NOT_AVAILABLE) {
+                } catch (e) {
+                    if (e.result != Components.results.NS_NOINTERFACE &&
+                        e.result != Components.results.NS_ERROR_NOT_AVAILABLE) {
+                        throw e;
+                    }
                     // Possible reasons we got here:
                     // - Its not a http channel (wtf? Oh well)
                     // - The owner is not a calICalendar (looks like its not our deal)
@@ -161,7 +164,10 @@ calCalendarManager.prototype = {
                                                      ua + " " + calUAString,
                                                      false);
                     }
-                } catch (e if e.result == Components.results.NS_ERROR_NOT_AVAILABLE) {
+                } catch (e) {
+                    if (e.result != Components.results.NS_ERROR_NOT_AVAILABLE) {
+                        throw e;
+                    }
                     // We swallow this error since it means the User Agent
                     // header is not set. We don't want to force it to be set.
                 }

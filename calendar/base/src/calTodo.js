@@ -147,10 +147,14 @@ calTodo.prototype = {
                         for (let paramName in propBucket) {
                             try {
                                 icalprop.setParameter(paramName, propBucket[paramName]);
-                            } catch (e if e.result == Components.results.NS_ERROR_ILLEGAL_VALUE) {
-                                // Illegal values should be ignored, but we could log them if
-                                // the user has enabled logging.
-                                cal.LOG("Warning: Invalid todo parameter value " + paramName + "=" + propBucket[paramName]);
+                            } catch (e) {
+                                if (e.result == Components.results.NS_ERROR_ILLEGAL_VALUE) {
+                                    // Illegal values should be ignored, but we could log them if
+                                    // the user has enabled logging.
+                                    cal.LOG("Warning: Invalid todo parameter value " + paramName + "=" + propBucket[paramName]);
+                                } else {
+                                    throw e;
+                                }
                             }
                         }
                     }
