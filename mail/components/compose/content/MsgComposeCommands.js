@@ -4541,9 +4541,13 @@ var envelopeDragObserver = {
   getSupportedFlavours: function ()
     {
       var flavourSet = new FlavourSet();
+      // Prefer "text/x-moz-address", so when an address from the address book
+      // is dragged, this flavour is tested first. Otherwise the attachment
+      // bucket would open since the addresses also carry the
+      // "application/x-moz-file" flavour.
+      flavourSet.appendFlavour("text/x-moz-address");
       flavourSet.appendFlavour("text/x-moz-message");
       flavourSet.appendFlavour("application/x-moz-file", "nsIFile");
-      flavourSet.appendFlavour("text/x-moz-address");
       flavourSet.appendFlavour("text/x-moz-url");
       return flavourSet;
     }
