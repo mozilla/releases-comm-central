@@ -849,7 +849,7 @@ calWcapCalendar.prototype.parseItems = function calWcapCalendar_parseItems(
     let recurrenceBound = this.session.recurrenceBound;
 
     let count = 0;
-    for (let subComp in cal.ical.calendarComponentIterator(icalRootComp, componentType)) {
+    for (let subComp of cal.ical.calendarComponentIterator(icalRootComp, componentType)) {
 
         let organizer = subComp.getFirstProperty("ORGANIZER");
         if (organizer && organizer.getParameter("SENT-BY")) { // has SENT-BY

@@ -2494,7 +2494,7 @@ calDavCalendar.prototype = {
                 let caldata = caldavXPathFirst(fbResult, "/C:schedule-response/C:response/C:calendar-data/text()");
                 try {
                     let calComp = cal.getIcsService().parseICS(caldata, null);
-                    for (let fbComp in cal.ical.calendarComponentIterator(calComp)) {
+                    for (let fbComp of cal.ical.calendarComponentIterator(calComp)) {
                         let interval;
 
                         let replyRangeStart = fbComp.startTime;
@@ -2514,7 +2514,7 @@ calDavCalendar.prototype = {
                             periodsToReturn.push(interval);
                         }
 
-                        for (let fbProp in cal.ical.propertyIterator(fbComp, "FREEBUSY")) {
+                        for (let fbProp of cal.ical.propertyIterator(fbComp, "FREEBUSY")) {
                             let fbType = fbProp.getParameter("FBTYPE");
                             if (fbType) {
                                 fbType = fbTypeMap[fbType];

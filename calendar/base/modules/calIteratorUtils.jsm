@@ -14,21 +14,16 @@ this.EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, im
  *
  * @param items array of items
  */
-cal.itemIterator = function cal_itemIterator(items) {
-    return {
-        __iterator__: function itemIterator(aWantKeys) {
-            cal.ASSERT(aWantKeys, "Please use for() on the item iterator");
-            for (let item of items) {
-                yield item;
-                let rec = item.recurrenceInfo;
-                if (rec) {
-                    for (let exid of rec.getExceptionIds({})) {
-                        yield rec.getExceptionFor(exid);
-                    }
-                }
+cal.itemIterator = function* cal_itemIterator(items) {
+    for (let item of items) {
+        yield item;
+        let rec = item.recurrenceInfo;
+        if (rec) {
+            for (let exid of rec.getExceptionIds({})) {
+                yield rec.getExceptionFor(exid);
             }
         }
-    };
+    }
 };
 
 /**
@@ -50,49 +45,38 @@ cal.itemIterator = function cal_itemIterator(items) {
  *                          the single item from the iterator.
  * @param completed     [optional] The function called after the loop completes.
  */
-cal.forEach = function cal_forEach(iter, body, completed) {
+cal.forEach = function cal_forEach(iterable, body, completed) {
     // This should be a const one day, lets keep it a pref for now though until we
     // find a sane value.
     let LATENCY = Preferences.get("calendar.threading.latency", 250);
 
-    let ourIter = iter;
-    if (!(iter instanceof Iterator)) {
-        // If its not an iterator, we need to use a generator to make sure
-        // calling this function feels right.
-        // FIXME: Dispatcher needs StopIteration, so we use legacy generator
-        // here for now.  Should be replaced with ES6 generator in the future,
-        // when removing Iterator from caller.
-        ourIter = (function() {
-            for (let key in iter) {
-              yield iter[key];
-            }
-        })();
+    if (typeof iterable == "object" && !iterable[Symbol.iterator]) {
+        iterable = Object.entries(iterable);
     }
 
+    let ourIter = iterable[Symbol.iterator]();
     let currentThread = Services.tm.currentThread;
 
     // This is our dispatcher, it will be used for the iterations
     let dispatcher = {
         run: function run() {
-            try {
-                let startTime = (new Date()).getTime();
-                while (((new Date()).getTime()  - startTime) < LATENCY) {
-                    let next = ourIter.next();
-                    let rc = body(next);
+            let startTime = (new Date()).getTime();
+            while (((new Date()).getTime() - startTime) < LATENCY) {
+                let next = ourIter.next();
+                let done = next.done;
+
+                if (!done) {
+                    let rc = body(next.value);
                     if (rc == cal.forEach.BREAK) {
-                        throw StopIteration;
+                        done = true;
                     }
                 }
-            } catch (e) {
-                if (e instanceof StopIteration) {
-                    // Iterating is done, return early to avoid resubmitting to the
-                    // event queue again. If there is a completed function, run it.
+
+                if (done) {
                     if (completed) {
                         completed();
                     }
                     return;
-                } else {
-                    throw e;
                 }
             }
 
@@ -120,37 +104,25 @@ cal.ical = {
      *  - Otherwise assume the passed component is the item itself and yield
      *    only the passed component.
      *
-     * This iterator can only be used in a for() block:
-     *   for (let component in cal.ical.calendarComponentIterator(aComp)) { ... }
+     * This iterator can only be used in a for..of block:
+     *   for (let component of cal.ical.calendarComponentIterator(aComp)) { ... }
      *
      *  @param aComponent       The component to iterate given the above rules.
      *  @param aCompType        The type of item to iterate.
      *  @return                 The iterator that yields all items.
      */
-    calendarComponentIterator: function cal_ical_calendarComponentIterator(aComponent, aCompType) {
+    calendarComponentIterator: function* cal_ical_calendarComponentIterator(aComponent, aCompType) {
         let compType = (aCompType || "ANY");
         if (aComponent && aComponent.componentType == "VCALENDAR") {
-            return cal.ical.subcomponentIterator(aComponent, compType);
+            yield* cal.ical.subcomponentIterator(aComponent, compType);
         } else if (aComponent && aComponent.componentType == "XROOT") {
-            return {
-                __iterator__: function calVCALENDARIterator(aWantKeys) {
-                    cal.ASSERT(aWantKeys, "Please use for() on the calendar component iterator");
-                    for (let calComp in cal.ical.subcomponentIterator(aComponent, "VCALENDAR")) {
-                        for (let itemComp in cal.ical.subcomponentIterator(calComp, compType)) {
-                            yield itemComp;
-                        }
-                    }
-                }
-            };
-        } else if (aComponent && (compType == "ANY" || compType == aComponent.componentType)) {
-            return {
-                __iterator__: function singleItemIterator(aWantKeys) {
-                    cal.ASSERT(aWantKeys, "Please use for() on the calendar component iterator");
-                    yield aComponent;
-                }
+            for (let calComp of cal.ical.subcomponentIterator(aComponent, "VCALENDAR")) {
+                yield* cal.ical.subcomponentIterator(calComp, compType);
             }
+        } else if (aComponent && (compType == "ANY" || compType == aComponent.componentType)) {
+            yield aComponent;
         } else {
-            return Iterator({});
+            return null;
         }
     },
 
@@ -166,18 +138,13 @@ cal.ical = {
      *                            enumerate. If not given, "ANY" will be used.
      * @return                  An iterator object to iterate the properties.
      */
-    subcomponentIterator: function cal_ical_subcomponentIterator(aComponent, aSubcomp) {
-        return {
-            __iterator__: function icalSubcompIterator(aWantKeys) {
-                cal.ASSERT(aWantKeys, "Please use for() on the subcomponent iterator");
-                let subcompName = (aSubcomp || "ANY");
-                for (let subcomp = aComponent.getFirstSubcomponent(subcompName);
-                     subcomp;
-                     subcomp = aComponent.getNextSubcomponent(subcompName)) {
-                    yield subcomp;
-                }
-            }
-        };
+    subcomponentIterator: function* cal_ical_subcomponentIterator(aComponent, aSubcomp) {
+        let subcompName = (aSubcomp || "ANY");
+        for (let subcomp = aComponent.getFirstSubcomponent(subcompName);
+             subcomp;
+             subcomp = aComponent.getNextSubcomponent(subcompName)) {
+            yield subcomp;
+        }
     },
 
     /**
@@ -190,18 +157,13 @@ cal.ical = {
      *                            If not given, "ANY" will be used.
      * @return                  An iterator object to iterate the properties.
      */
-    propertyIterator: function cal_ical_propertyIterator(aComponent, aProperty) {
-        return {
-            __iterator__: function icalPropertyIterator(aWantKeys) {
-                cal.ASSERT(aWantKeys, "Please use for() on the property iterator");
-                let propertyName = (aProperty || "ANY");
-                for (let prop = aComponent.getFirstProperty(propertyName);
-                     prop;
-                     prop = aComponent.getNextProperty(propertyName)) {
-                    yield prop;
-                }
-            }
-        };
+    propertyIterator: function* cal_ical_propertyIterator(aComponent, aProperty) {
+        let propertyName = (aProperty || "ANY");
+        for (let prop = aComponent.getFirstProperty(propertyName);
+             prop;
+             prop = aComponent.getNextProperty(propertyName)) {
+            yield prop;
+        }
     },
 
     /**
@@ -214,36 +176,18 @@ cal.ical = {
      * @param aProperty         The property to iterate.
      * @return                  An iterator object to iterate the properties.
      */
-    paramIterator: function cal_ical_paramIterator(aProperty) {
-        return {
-            __iterator__: function icalParamIterator(aWantKeys) {
-                let paramSet = new Set();
-                for (let paramName = aProperty.getFirstParameterName();
-                     paramName;
-                     paramName = aProperty.getNextParameterName()) {
-                    // Workaround to avoid infinite loop when the property
-                    // contains duplicate parameters (bug 875739 for libical)
-                    if (!paramSet.has(paramName)) {
-                        yield (aWantKeys ? paramName :
-                                           [paramName, aProperty.getParameter(paramName)]);
-                        paramSet.add(paramName);
-                    }
-                }
-            },
-            [Symbol.iterator]: function* icalParamIterator() {
-                let paramSet = new Set();
-                for (let paramName = aProperty.getFirstParameterName();
-                     paramName;
-                     paramName = aProperty.getNextParameterName()) {
-                    // Workaround to avoid infinite loop when the property
-                    // contains duplicate parameters (bug 875739 for libical)
-                    if (!paramSet.has(paramName)) {
-                        yield [paramName, aProperty.getParameter(paramName)];
-                        paramSet.add(paramName);
-                    }
-                }
+    paramIterator: function* cal_ical_paramIterator(aProperty) {
+        let paramSet = new Set();
+        for (let paramName = aProperty.getFirstParameterName();
+             paramName;
+             paramName = aProperty.getNextParameterName()) {
+            // Workaround to avoid infinite loop when the property
+            // contains duplicate parameters (bug 875739 for libical)
+            if (!paramSet.has(paramName)) {
+                yield [paramName, aProperty.getParameter(paramName)];
+                paramSet.add(paramName);
             }
-        };
+        }
     }
 };
 

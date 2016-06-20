@@ -126,7 +126,7 @@ calItipItem.prototype = {
         }
 
         this.mItemList = [];
-        for (let item in cal.itemIterator(parser.getItems({}))) {
+        for (let item of cal.itemIterator(parser.getItems({}))) {
             cleanItem(item);
             // only push non-faked master items or
             // the overridden instances of faked master items

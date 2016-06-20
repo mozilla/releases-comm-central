@@ -815,8 +815,8 @@ cal.itip = {
             };
 
             let propStrings = [];
-            for (let item in cal.itemIterator([aItem])) {
-                for (let prop in cal.ical.propertyIterator(item.icalComponent)) {
+            for (let item of cal.itemIterator([aItem])) {
+                for (let prop of cal.ical.propertyIterator(item.icalComponent)) {
                     if (prop.propertyName in majorProps) {
                         propStrings.push(item.recurrenceId + "#" + prop.icalString);
                     }

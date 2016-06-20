@@ -177,7 +177,7 @@ calIcalProperty.prototype = {
     paramIterator: null,
     getFirstParameterName: function() {
         let innerObject = this.innerObject;
-        this.paramIterator = (function() {
+        this.paramIterator = (function*() {
             let propname = innerObject.name.toLowerCase();
             let defaultType = innerObject.getDefaultType();
             if (defaultType != innerObject.type) {
@@ -194,16 +194,12 @@ calIcalProperty.prototype = {
 
     getNextParameterName: function() {
         if (this.paramIterator) {
-            try {
-                return this.paramIterator.next();
-            } catch (e) {
-                if (e instanceof StopIteration) {
-                    this.paramIterator = null;
-                    return null;
-                } else {
-                    throw e;
-                }
+            let next = this.paramIterator.next();
+            if (next.done) {
+                this.paramIterator = null;
             }
+
+            return next.value;
         } else {
             return this.getFirstParameterName();
         }
@@ -244,7 +240,7 @@ calIcalComponent.prototype = {
             kind = kind.toLowerCase();
         }
         let innerObject = this.innerObject;
-        this.componentIterator = (function() {
+        this.componentIterator = (function*() {
             let comps = innerObject.getAllSubcomponents(kind);
             if (comps) {
                 for (let comp of comps) {
@@ -256,16 +252,12 @@ calIcalComponent.prototype = {
     },
     getNextSubcomponent: function(kind) {
         if (this.componentIterator) {
-            try {
-                return this.componentIterator.next();
-            } catch (e) {
-                if (e instanceof StopIteration) {
-                    this.componentIterator = null;
-                    return null;
-                } else {
-                    throw e;
-                }
+            let next = this.componentIterator.next();
+            if (next.done) {
+                this.componentIterator = null;
             }
+
+            return next.value;
         } else {
             return this.getFirstSubcomponent(kind);
         }
@@ -368,7 +360,7 @@ calIcalComponent.prototype = {
             kind = kind.toLowerCase();
         }
         let innerObject = this.innerObject;
-        this.propertyIterator = (function() {
+        this.propertyIterator = (function*() {
             let props = innerObject.getAllProperties(kind);
             if (!props) {
                 return;
@@ -396,16 +388,12 @@ calIcalComponent.prototype = {
 
     getNextProperty: function getNextProperty(kind) {
         if (this.propertyIterator) {
-            try {
-                return this.propertyIterator.next();
-            } catch (e) {
-                if (e instanceof StopIteration) {
-                    this.propertyIterator = null;
-                    return null;
-                } else {
-                    throw e;
-                }
+            let next = this.propertyIterator.next();
+            if (next.done) {
+                this.propertyIterator = null;
             }
+
+            return next.value;
         } else {
             return this.getFirstProperty(kind);
         }

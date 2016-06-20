@@ -1700,7 +1700,7 @@ function compareItemContent(aFirstItem, aSecondItem, aIgnoreProps, aIgnoreParams
     // in the same order
     function normalizeComponent(comp) {
         let props = [];
-        for (let prop in cal.ical.propertyIterator(comp)) {
+        for (let prop of cal.ical.propertyIterator(comp)) {
             if (!(prop.propertyName in ignoreProps)) {
                 props.push(normalizeProperty(prop));
             }
@@ -1708,7 +1708,7 @@ function compareItemContent(aFirstItem, aSecondItem, aIgnoreProps, aIgnoreParams
         props = props.sort();
 
         let comps = [];
-        for (let subcomp in cal.ical.subcomponentIterator(comp)) {
+        for (let subcomp of cal.ical.subcomponentIterator(comp)) {
             comps.push(normalizeComponent(subcomp));
         }
         comps = comps.sort();

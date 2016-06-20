@@ -206,8 +206,8 @@ cal.HashedArray.prototype = {
     /**
      * Iterator to allow iterating the hashed array object.
      */
-    __iterator__: function iterator(useKeys) {
-        return new Iterator(this.mArray, useKeys);
+    [Symbol.iterator]: function* iterator() {
+        yield* this.mArray;
     }
 };
 

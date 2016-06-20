@@ -424,7 +424,7 @@ calMemoryCalendar.prototype = {
              calICalendar.ITEM_FILTER_OFFLINE_CREATED |
              calICalendar.ITEM_FILTER_OFFLINE_MODIFIED);
 
-        cal.forEach(this.mItems, (item) => {
+        cal.forEach(this.mItems, ([id, item]) => {
             let isEvent_ = cal.isEvent(item);
             if (isEvent_) {
                 if (!wantEvents) {

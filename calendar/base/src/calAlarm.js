@@ -537,7 +537,7 @@ calAlarm.prototype = {
 
         // Set up attendees
         this.clearAttendees();
-        for (let attendeeProp in cal.ical.propertyIterator(aComp, "ATTENDEE")) {
+        for (let attendeeProp of cal.ical.propertyIterator(aComp, "ATTENDEE")) {
             let attendee = cal.createAttendee();
             attendee.icalProperty = attendeeProp;
             this.addAttendee(attendee);
@@ -545,7 +545,7 @@ calAlarm.prototype = {
 
         // Set up attachments
         this.clearAttachments();
-        for (let attachProp in cal.ical.propertyIterator(aComp, "ATTACH")) {
+        for (let attachProp of cal.ical.propertyIterator(aComp, "ATTACH")) {
             let attach = cal.createAttachment();
             attach.icalProperty = attachProp;
             this.addAttachment(attach);
@@ -566,15 +566,14 @@ calAlarm.prototype = {
         this.mPropertyParams = {};
 
         // Other properties
-        for (let prop in cal.ical.propertyIterator(aComp)) {
+        for (let prop of cal.ical.propertyIterator(aComp)) {
             if (!this.promotedProps[prop.propertyName]) {
                 this.setProperty(prop.propertyName, prop.value);
 
-                for (let paramName in cal.ical.paramIterator(prop)) {
+                for (let [paramName, param] of cal.ical.paramIterator(prop)) {
                     if (!(prop.propertyName in this.mPropertyParams)) {
                         this.mPropertyParams[prop.propertyName] = {};
                     }
-                    let param = prop.getParameter(paramName);
                     this.mPropertyParams[prop.propertyName][paramName] = param;
                 }
             }
