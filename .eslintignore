@@ -1,0 +1,27 @@
+# Always ignore node_modules.
+**/node_modules/**/*.*
+
+# Exclude expected objdirs.
+obj*/**
+
+# Exclude mozilla directory, this one is checked separately
+mozilla/**
+
+# These directories don't contain any js and are not meant to
+config/**
+db/**
+other-licenses/**
+testing/**
+
+# We ignore all these directories by default, until we get them enabled.
+# If you are enabling a directory, please add directory specific exclusions
+# below.
+build/**
+calendar/**
+chat/**
+editor/**
+im/**
+ldap/**
+mail/**
+mailnews/**
+suite/**
