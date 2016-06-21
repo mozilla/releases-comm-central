@@ -24,6 +24,13 @@ let tests = [
               ["@mozilla.org/jsaccount/testjafoourl;1", "nsIURI"],
               ["@mozilla.org/jsaccount/testjafoourl;1", "msgIOverride"],
               ["@mozilla.org/jsaccount/testjafoourl;1", "nsIInterfaceRequestor"],
+  // JaAbDirectory
+              ["@mozilla.org/jacppabdirectorydelegator;1", "nsISupports"],
+              ["@mozilla.org/jacppabdirectorydelegator;1", "nsIAbDirectory"],
+              ["@mozilla.org/jacppabdirectorydelegator;1", "nsIAbCollection"],
+              ["@mozilla.org/jacppabdirectorydelegator;1", "nsIAbItem"],
+              ["@mozilla.org/jacppabdirectorydelegator;1", "msgIOverride"],
+              ["@mozilla.org/jacppabdirectorydelegator;1", "nsIInterfaceRequestor"],
             ];
 
 function run_test()

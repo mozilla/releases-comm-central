@@ -194,6 +194,7 @@
 //  jsAccount includes
 ////////////////////////////////////////////////////////////////////////////////
 #include "msgJsAccountCID.h"
+#include "JaAbDirectory.h"
 #include "JaUrl.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -594,8 +595,10 @@ NS_DEFINE_NAMED_CID(NS_MSGCOMPUTILS_CID);
 ////////////////////////////////////////////////////////////////////////////////
 // jsAccount factories
 ////////////////////////////////////////////////////////////////////////////////
+NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppAbDirectoryDelegator)
 NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppUrlDelegator)
 
+NS_DEFINE_NAMED_CID(JACPPABDIRECTORYDELEGATOR_CID);
 NS_DEFINE_NAMED_CID(JACPPURLDELEGATOR_CID);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -983,6 +986,7 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
   { &kNS_MSGCOMPUTILS_CID, false, NULL, nsMsgCompUtilsConstructor},
   // JsAccount Entries
   { &kJACPPURLDELEGATOR_CID, false, nullptr, JaCppUrlDelegatorConstructor },
+  { &kJACPPABDIRECTORYDELEGATOR_CID, false, nullptr, JaCppAbDirectoryDelegatorConstructor },
   // Imap Entries
   { &kNS_IMAPURL_CID, false, NULL, nsImapUrlConstructor },
   { &kNS_IMAPPROTOCOL_CID, false, nullptr, nsImapProtocolConstructor },
@@ -1201,6 +1205,7 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
   { NS_MSGCOMPUTILS_CONTRACTID, &kNS_MSGCOMPUTILS_CID },
   // JsAccount Entries
   { JACPPURLDELEGATOR_CONTRACTID, &kJACPPURLDELEGATOR_CID },
+  { JACPPABDIRECTORYDELEGATOR_CONTRACTID, &kJACPPABDIRECTORYDELEGATOR_CID },
   // Imap Entries
   { NS_IMAPINCOMINGSERVER_CONTRACTID, &kNS_IMAPINCOMINGSERVER_CID },
   { NS_RDF_RESOURCE_FACTORY_CONTRACTID_PREFIX "imap", &kNS_IMAPRESOURCE_CID },

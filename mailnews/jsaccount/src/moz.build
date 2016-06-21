@@ -6,11 +6,13 @@
 
 SOURCES += [
     'DelegateList.cpp',
+    'JaAbDirectory.cpp',
     'JaUrl.cpp',
 ]
 
 EXPORTS += [
     'DelegateList.h',
+    'JaAbDirectory.h',
     'JaUrl.h',
 ]
 
