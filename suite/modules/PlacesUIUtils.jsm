@@ -184,7 +184,7 @@ var PlacesUIUtils = {
         aData.children.forEach(function(aChild) {
           transactions.push(
             new PlacesTagURITransaction(PlacesUtils._uri(aChild.uri),
-                                        [aData.title])          
+                                        [aData.title])
           );
         });
       }
