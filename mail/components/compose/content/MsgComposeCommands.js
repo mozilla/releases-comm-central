@@ -311,6 +311,28 @@ var stateListener = {
            gComposeType + ")\n");
     }
 
+    // Setting the selected item in the identity list will cause an
+    // identity/signature switch. This can only be done once the message
+    // body has already been assembled with the signature we need to switch.
+    if (gMsgCompose.identity != gCurrentIdentity) {
+      // Since switching the signature loses the caret position, we record it
+      // and restore it later.
+      let editor = GetCurrentEditor();
+      let selection = editor.selection;
+      let range = selection.getRangeAt(0);
+      let start = range.startOffset;
+      let startNode = range.startContainer;
+
+      editor.enableUndo(false);
+      let identityList = document.getElementById("msgIdentity");
+      identityList.selectedItem = identityList.getElementsByAttribute(
+        "identitykey", gMsgCompose.identity.key)[0];
+      LoadIdentity(false);
+
+      editor.enableUndo(true);
+      editor.resetModificationCount();
+      selection.collapse(startNode, start);
+    }
     if (gMsgCompose.composeHTML)
       loadHTMLMsgPrefs();
     AdjustFocus();
@@ -324,9 +346,8 @@ var stateListener = {
       editor.enableUndo(false);
 
       let pElement = editor.createElementWithDefaults("p");
-      let brElement = editor.createElementWithDefaults("br");
-      pElement.appendChild(brElement);
-      editor.insertElementAtSelection(pElement,true);
+      pElement.appendChild(editor.createElementWithDefaults("br"));
+      editor.insertElementAtSelection(pElement, false);
 
       document.getElementById("cmd_paragraphState").setAttribute("state", "p");
 
@@ -364,15 +385,25 @@ var stateListener = {
       editor.enableUndo(false);
 
       // Delete a <br> if we see one.
+      let deleted2ndBR = false;
       let currentNode = mailBody.childNodes[start];
       if (currentNode.nodeName == "BR") {
         mailBody.removeChild(currentNode);
+        currentNode = mailBody.childNodes[start];
+        if (currentNode && currentNode.nodeName == "BR") {
+          mailBody.removeChild(currentNode);
+          deleted2ndBR = true;
+        }
       }
 
       let pElement = editor.createElementWithDefaults("p");
-      let brElement = editor.createElementWithDefaults("br");
-      pElement.appendChild(brElement);
-      editor.insertElementAtSelection(pElement,true);
+      pElement.appendChild(editor.createElementWithDefaults("br"));
+      editor.insertElementAtSelection(pElement, false);
+
+      if (deleted2ndBR) {
+        editor.insertElementAtSelection(
+          editor.createElementWithDefaults("br"), false);
+      }
 
       // Position into the paragraph.
       selection.collapse(pElement, 0);
@@ -4244,13 +4275,29 @@ function LoadIdentity(startup)
               awAddRecipients(msgCompFields, "addr_reply", newReplyTo);
           }
 
+          let toAddrs = new Set(msgCompFields.splitRecipients(
+            msgCompFields.to, true, {}));
+          let ccAddrs = new Set(msgCompFields.splitRecipients(
+            msgCompFields.cc, true, {}));
+          let bccAddrs = new Set(msgCompFields.splitRecipients(
+            msgCompFields.bcc, true, {}));
+
           if (newCc != prevCc)
           {
             needToCleanUp = true;
             if (prevCc != "")
               awRemoveRecipients(msgCompFields, "addr_cc", prevCc);
-            if (newCc != "")
+            if (newCc != "") {
+              // Ensure none of the Ccs are already in To.
+              let cc2 = msgCompFields.splitRecipients(newCc, true, {});
+              for (let i = cc2.length - 1; i >= 0; i--) {
+                if (toAddrs.has(cc2[i])) {
+                  cc2.splice(i, 1);
+                }
+              }
+              newCc = cc2.join(", ");
               awAddRecipients(msgCompFields, "addr_cc", newCc);
+            }
           }
 
           if (newBcc != prevBcc)
@@ -4258,8 +4305,17 @@ function LoadIdentity(startup)
             needToCleanUp = true;
             if (prevBcc != "")
               awRemoveRecipients(msgCompFields, "addr_bcc", prevBcc);
-            if (newBcc != "")
+            if (newBcc != "") {
+              // Ensure none of the Bccs are already in To or Cc.
+              let bcc2 = msgCompFields.splitRecipients(newBcc, true, {});
+              for (let i = bcc2.length - 1; i >= 0; i--) {
+                if (toAddrs.has(bcc2[i]) || ccAddrs.has(bcc2[i])) {
+                  bcc2.splice(i, 1);
+                }
+              }
+              newBcc = bcc2.join(", ");
               awAddRecipients(msgCompFields, "addr_bcc", newBcc);
+            }
           }
 
           if (needToCleanUp)
