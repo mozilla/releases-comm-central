@@ -33,26 +33,26 @@
                     flex="1"/>
         <xul:spacer class="sidebar-tab-left-btm" xbl:inherits="selected,first-panel-after-selected,top-panel,last-panel"/>
       </xul:vbox>
-  
+
       <xul:stack class="sidebar-tab-mid-1">
         <xul:vbox class="sidebar-tab-mid-2">
           <xul:spacer class="sidebar-tab-mid-top" xbl:inherits="selected,first-panel-after-selected,top-panel,last-panel"
                       flex="1"/>
           <xul:spacer class="sidebar-tab-mid-btm" xbl:inherits="selected,first-panel-after-selected,top-panel,last-panel"/>
         </xul:vbox>
-      
+
         <xul:vbox class="sidebar-tab-text-box">
           <xul:label class="sidebar-tab-text" xbl:inherits="value=label" crop="right"/>
         </xul:vbox>
       </xul:stack>
-      
+
       <xul:vbox class="sidebar-tab-right">
         <xul:spacer class="sidebar-tab-right-top" xbl:inherits="selected,first-panel-after-selected,top-panel,last-panel"/>
         <xul:spacer class="sidebar-tab-right-mid" xbl:inherits="selected,first-panel-after-selected,top-panel,last-panel"
                     flex="1"/>
         <xul:spacer class="sidebar-tab-right-btm" xbl:inherits="selected,first-panel-after-selected,top-panel,last-panel"/>
       </xul:vbox>
-            
+
       <xul:spacer class="sidebar-tab-rightcap" flex="1"/>
     </content>
   </binding>
@@ -65,5 +65,5 @@
       </xul:hbox>
     </content>
   </binding>
-    
+
 </bindings>

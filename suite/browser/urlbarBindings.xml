@@ -78,7 +78,7 @@
       <field name="mPrefObserver"><![CDATA[
         ({
           urlbar: this,
-          
+
           observe: function(aObserver, aBlah, aPref) {
             if (/^browser\.urlbar\./.test(aPref))
               this.urlbar.updatePref(aPref);
@@ -346,7 +346,7 @@
       </xul:tree>
       <xul:box role="search-box" class="autocomplete-search-box"/>
     </content>
-    
+
     <implementation>
       <constructor><![CDATA[
         // listen for changes to default search engine
@@ -371,7 +371,7 @@
           }
         ]]></setter>
       </property>
-      
+
       <property name="defaultSearchEngine"
                 onget="return this.textbox.getAttribute('defaultSearchEngine') == 'true';"
                 onset="this.textbox.setAttribute('defaultSearchEngine', val); return val;"/>
@@ -389,7 +389,7 @@
       <field name="mPrefObserver"><![CDATA[
         ({
           resultsPopup: this,
-          
+
           observe: function(aObserver, aBlah, aPref) {
             if (/^browser\.search\./.test(aPref))
               this.resultsPopup.updateEngines();
@@ -497,8 +497,8 @@
             sel = this.mSearchBox.selectBy(aReverse, aPage);
             if (sel != -1 || !aReverse)
               return -1;
-          } 
-          
+          }
+
           sel = this.getNextIndex(aReverse, aPage, this.selectedIndex, this.view.rowCount - 1);
           this.selectedIndex = sel;
           if (sel == -1 && !aReverse)
@@ -516,11 +516,11 @@
         // the URL bar hasn't finished initializing the default engine info
         //   -or-
         // the search sidebar tab was displayed already triggering a change
-        // notification to the browser.search pref branch listener here which 
-        // calls updateEngines but doesn't cause the ``Search for ...'' 
+        // notification to the browser.search pref branch listener here which
+        // calls updateEngines but doesn't cause the ``Search for ...''
         // display string to be updated
         if ( (!this.mEnginesReady && this.defaultSearchEngine) ||
-             !("mShowSearch" in this) ) 
+             !("mShowSearch" in this) )
           this.updatePref("browser.urlbar.showSearch");
 
         if (this.mShowSearch) {
@@ -532,17 +532,17 @@
             this.mSearchBox.setAttribute("searchvalue", this.textbox.currentSearchString);
         }
       ]]></handler>
-      
+
       <handler event="popuphiding"><![CDATA[
         if (this.mShowSearch)
           this.textbox.removeEventListener("input", this.mInputListener, false);
-      ]]></handler>      
+      ]]></handler>
     </handlers>
   </binding>
 
   <binding id="autocomplete-search-box">
     <content orient="vertical"/>
-    
+
     <implementation>
       <constructor><![CDATA[
         this.navigatorBundle =
@@ -559,25 +559,25 @@
         -1
       </field>
 
-      <property name="activeChild" 
+      <property name="activeChild"
                 onget="return this.childNodes[this.mSelectedIndex]"/>
 
       <property name="selectedIndex">
         <getter>return this.mSelectedIndex;</getter>
-        
+
         <setter><![CDATA[
           if (this.mSelectedIndex != -1)
             this.activeChild.removeAttribute("menuactive");
-          
+
           this.mSelectedIndex = val;
 
           if (val != -1)
             this.activeChild.setAttribute("menuactive", "true");
           return val;
         ]]></setter>
-      
+
       </property>
-      
+
       <property name="searchValue">
         <getter><![CDATA[
           return this.mSearchValue;
@@ -593,7 +593,7 @@
           }
         ]]></setter>
       </property>
-      
+
       <method name="selectBy">
         <parameter name="aReverse"/>
         <parameter name="aPage"/>
@@ -644,7 +644,7 @@
       <xul:image class="autocomplete-search-engine-img" xbl:inherits="src=icon"/>
       <xul:label class="autocomplete-search-engine-text" xbl:inherits="value=label" crop="right" flex="1"/>
     </content>
-    
+
     <handlers>
       <handler event="mousemove">
         this.parentNode.selectedIndex = Number(this.getAttribute("engineIndex"));

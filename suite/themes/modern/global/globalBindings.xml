@@ -37,11 +37,11 @@
   </binding>
 
   <!-- :::/ mini scrollbar \ ::::::::::::::::::::::::::::::::::::::::::::::::: -->
-  
+
   <binding id="iframe-miniscroll" extends="chrome://global/content/bindings/general.xml#iframe">
     <content usechromesheets="chrome://global/skin/scrollbars-mini.css"/>
   </binding>
-  
+
   <binding id="browser-miniscroll" extends="chrome://global/content/bindings/browser.xml#browser">
     <content usechromesheets="chrome://global/skin/scrollbars-mini.css"/>
   </binding>
@@ -53,7 +53,7 @@
   </binding>
 
   <!-- :::/ misc scrollbar \ ::::::::::::::::::::::::::::::::::::::::::::::::: -->
-    
+
   <binding id="row-iconic" extends="xul:row">
     <content>
       <xul:hbox align="center">
