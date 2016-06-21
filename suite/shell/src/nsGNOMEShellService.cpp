@@ -304,7 +304,7 @@ nsGNOMEShellService::GetCanSetDesktopBackground(bool* aResult)
 }
 
 NS_IMETHODIMP
-nsGNOMEShellService::SetDesktopBackground(nsIDOMElement* aElement, 
+nsGNOMEShellService::SetDesktopBackground(nsIDOMElement* aElement,
                                           int32_t aPosition)
 {
   nsCString brandName;
@@ -477,11 +477,11 @@ NS_IMETHODIMP
 nsGNOMEShellService::OpenApplicationWithURI(nsIFile* aApplication, const nsACString& aURI)
 {
   nsresult rv;
-  nsCOMPtr<nsIProcess> process = 
+  nsCOMPtr<nsIProcess> process =
     do_CreateInstance("@mozilla.org/process/util;1", &rv);
   if (NS_FAILED(rv))
     return rv;
-  
+
   rv = process->Init(aApplication);
   if (NS_FAILED(rv))
     return rv;

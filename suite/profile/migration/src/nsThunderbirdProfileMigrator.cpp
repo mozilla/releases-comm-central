@@ -155,7 +155,7 @@ nsThunderbirdProfileMigrator::GetMigrateData(const char16_t* aProfile,
                            { FILE_NAME_JUNKTRAINING,
                              nsISuiteProfileMigrator::JUNKTRAINING,
                              true } };
-                                                                  
+
   GetMigrateDataFromArray(data, sizeof(data)/sizeof(MigrationData),
                           aReplace, mSourceProfile, aResult);
 
@@ -200,13 +200,13 @@ nsThunderbirdProfileMigrator::FillProfileDataFromRegistry()
 #elif defined(XP_MACOSX)
   fileLocator->Get(NS_MAC_USER_LIB_DIR, NS_GET_IID(nsIFile),
                    getter_AddRefs(thunderbirdData));
-  
+
   thunderbirdData->Append(NS_LITERAL_STRING("Thunderbird"));
 
 #elif defined(XP_UNIX)
   fileLocator->Get(NS_UNIX_HOME_DIR, NS_GET_IID(nsIFile),
                    getter_AddRefs(thunderbirdData));
-  
+
   thunderbirdData->Append(NS_LITERAL_STRING(".thunderbird"));
 
 #else
@@ -404,7 +404,7 @@ nsThunderbirdProfileMigrator::PrefTransform gTransforms[] = {
   MAKESAMETYPEPREFTRANSFORM("news.get_messages_on_select",             Bool),
   MAKESAMETYPEPREFTRANSFORM("news.show_size_in_lines",                 Bool),
   MAKESAMETYPEPREFTRANSFORM("news.update_unread_on_expand",            Bool),
- 
+
   // pdi is the new preference, but nii is the old one - so do nii first, and
   // then do pdi to account for both situations
   MAKEPREFTRANSFORM("network.image.imageBehavior", 0, Int,             Image),

@@ -106,7 +106,7 @@ nsNetscapeProfileMigratorBase::GetSourceProfiles(nsIArray** aResult)
     // Fills mProfileNames and mProfileLocations
     FillProfileDataFromRegistry();
   }
-  
+
   NS_IF_ADDREF(*aResult = mProfileNames);
   return NS_OK;
 }
@@ -416,7 +416,7 @@ nsNetscapeProfileMigratorBase::CopyFile(const char* aSourceFileName,
 
   nsCOMPtr<nsIFile> targetFile;
   mTargetProfile->Clone(getter_AddRefs(targetFile));
-  
+
   targetFile->AppendNative(nsDependentCString(aTargetFileName));
   targetFile->Exists(&exists);
   if (exists)
@@ -461,7 +461,7 @@ nsNetscapeProfileMigratorBase::RecursiveCopy(nsIFile* srcDir,
 
   bool hasMore = false;
   rv = dirIterator->HasMoreElements(&hasMore);
-  NS_ENSURE_SUCCESS(rv, rv); 
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIFile> dirEntry;
 
@@ -504,7 +504,7 @@ nsNetscapeProfileMigratorBase::RecursiveCopy(nsIFile* srcDir,
     if (NS_FAILED(rv))
       return rv;
   }
-  
+
   return rv;
 }
 
@@ -645,7 +645,7 @@ nsNetscapeProfileMigratorBase::CopyCookies(bool aReplace)
 
   nsresult rv;
   nsCOMPtr<nsICookieManager2> cookieManager(do_GetService(NS_COOKIEMANAGER_CONTRACTID, &rv));
-  if (NS_FAILED(rv)) 
+  if (NS_FAILED(rv))
     return rv;
 
   nsCOMPtr<nsIFile> seamonkeyCookiesFile;

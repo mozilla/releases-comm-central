@@ -175,9 +175,9 @@ AnnotatePersonalToolbarFolder(nsIFile* aSourceBookmarksFile,
                         &bytesWritten);
   }
   while (1);
-  
+
   outputStream->Close();
-  
+
   return NS_OK;
 }
 

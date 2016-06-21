@@ -284,11 +284,11 @@ static SETTING gBrowserSettings[] = {
    // Protocol Handlers
    { MAKE_KEY_NAME1("mailto", SOP), "", "\"%APPPATH%\" -osint -compose \"%1\"", APP_PATH_SUBSTITUTION }
  };
- 
+
  static SETTING gNewsSettings[] = {
     // Protocol Handler Class - for Vista and above
    { MAKE_KEY_NAME1(CLS_NEWSURL, SOP), "", "\"%APPPATH%\" -osint -mail \"%1\"",  APP_PATH_SUBSTITUTION },
- 
+
    // Protocol Handlers
    { MAKE_KEY_NAME1("news", SOP), "", "\"%APPPATH%\" -osint -mail \"%1\"", APP_PATH_SUBSTITUTION },
    { MAKE_KEY_NAME1("nntp", SOP), "", "\"%APPPATH%\" -osint -mail \"%1\"", APP_PATH_SUBSTITUTION },
@@ -306,7 +306,7 @@ nsresult
 GetHelperPath(nsString& aPath)
 {
   nsresult rv;
-  nsCOMPtr<nsIProperties> directoryService = 
+  nsCOMPtr<nsIProperties> directoryService =
     do_GetService(NS_DIRECTORY_SERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -495,7 +495,7 @@ nsWindowsShellService::IsDefaultClientVista(uint16_t aApps, bool* aIsDefaultClie
                                 CLSCTX_INPROC,
                                 IID_IApplicationAssociationRegistration,
                                 (void**)&pAAR);
-  
+
   if (SUCCEEDED(hr)) {
     BOOL isDefaultBrowser = true;
     BOOL isDefaultMail    = true;
@@ -568,7 +568,7 @@ nsWindowsShellService::SetDefaultClient(bool aForAllUsers,
     appHelperPath.AppendLiteral(" /SetAsDefaultAppUser");
     if (aApps & nsIShellService::BROWSER)
       appHelperPath.AppendLiteral(" Browser");
-    
+
     if (aApps & nsIShellService::MAIL)
       appHelperPath.AppendLiteral(" Mail");
 
@@ -771,7 +771,7 @@ nsWindowsShellService::SetDesktopBackground(nsIDOMElement* aElement,
   rv = bundleService->CreateBundle(SHELLSERVICE_PROPERTIES,
                                    getter_AddRefs(shellBundle));
   NS_ENSURE_SUCCESS(rv, rv);
- 
+
   // e.g. "Desktop Background.bmp"
   nsString fileLeafName;
   rv = shellBundle->GetStringFromName
@@ -879,15 +879,15 @@ nsWindowsShellService::OpenApplicationWithURI(nsIFile* aApplication,
                                               const nsACString& aURI)
 {
   nsresult rv;
-  nsCOMPtr<nsIProcess> process = 
+  nsCOMPtr<nsIProcess> process =
     do_CreateInstance("@mozilla.org/process/util;1", &rv);
   if (NS_FAILED(rv))
     return rv;
-  
+
   rv = process->Init(aApplication);
   if (NS_FAILED(rv))
     return rv;
-  
+
   const nsCString& spec = PromiseFlatCString(aURI);
   const char* specStr = spec.get();
   return process->Run(false, &specStr, 1);
