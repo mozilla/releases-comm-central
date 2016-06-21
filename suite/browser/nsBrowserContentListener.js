@@ -111,7 +111,7 @@ nsBrowserContentListener.prototype =
             return false;
 
         try {
-            var webNavInfo = 
+            var webNavInfo =
               Components.classes["@mozilla.org/webnavigation-info;1"]
                         .getService(Components.interfaces.nsIWebNavigationInfo);
             return webNavInfo.isTypeSupported(contentType, null);

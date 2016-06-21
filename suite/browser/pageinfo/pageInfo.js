@@ -752,7 +752,7 @@ function onFormSelect()
     var length = formfields.length;
 
     var checked = gBundle.getString("formChecked");
-    var unchecked = gBundle.getString("formUnchecked");    
+    var unchecked = gBundle.getString("formUnchecked");
 
     for (var i = 0; i < length; i++)
     {
@@ -777,7 +777,7 @@ function onFormSelect()
         gDocument.getElementById(label.getAttribute("for")) :
         findFirstControl(label);
 
-      if (whatfor && (whatfor.form == form)) 
+      if (whatfor && (whatfor.form == form))
       {
         var labeltext = getValueText(label);
         for (var j = 0; j < length; j++)
@@ -790,7 +790,7 @@ function onFormSelect()
   }
 }
 
-function FormControlFilter(node) 
+function FormControlFilter(node)
 {
   if (node instanceof HTMLInputElement || node instanceof HTMLSelectElement ||
       node instanceof HTMLButtonElement || node instanceof HTMLTextAreaElement ||
@@ -1324,9 +1324,9 @@ function formatDate(datestr, unknown)
 
 function getSelectedItems(linksMode)
 {
-  // linksMode is a boolean that is used to determine 
+  // linksMode is a boolean that is used to determine
   // whether the getSelectedItems() function needs to
-  // run with urlSecurityCheck() or not.  
+  // run with urlSecurityCheck() or not.
 
   var elem = document.commandDispatcher.focusedElement;
 
@@ -1357,7 +1357,7 @@ function getSelectedItems(linksMode)
       elem.removeAttribute("copybuffer");
     }
   }
-  
+
   return text;
 }
 

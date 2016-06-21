@@ -34,7 +34,7 @@ nsFindInstData.prototype =
     var findInFrames = findInst.QueryInterface(Components.interfaces.nsIWebBrowserFindInFrames);
     findInFrames.rootSearchFrame = this.rootSearchWindow;
     findInFrames.currentSearchFrame = this.currentSearchWindow;
-  
+
     // always search in frames for now. We could add a checkbox to the dialog for this.
     findInst.searchFrames = true;
   },

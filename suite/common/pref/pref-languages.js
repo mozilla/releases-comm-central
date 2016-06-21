@@ -149,7 +149,7 @@ function MoveUp()
     gActiveLanguages.selectItem(selected);
     gActiveLanguages.ensureElementIsVisible(selected);
   }
- 
+
   SelectLanguage();
   gActiveLanguages.doCommand();
 }

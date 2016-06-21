@@ -30,7 +30,7 @@ function SetLists()
     var uris = [];
 
     while (enumerator.hasMoreElements())
-    {                
+    {
       var permission = enumerator.getNext();
       if (permission instanceof nsIPermission)
       {
@@ -50,7 +50,7 @@ function SetLists()
   if (pref.value)
   {
     try
-    { 
+    {
       var whitelist = document.getElementById("privacy.popups.default_whitelist").value;
       var hosts = whitelist.split(",");
 
@@ -60,11 +60,11 @@ function SetLists()
         var uri = Services.io.newURI(host, null, null);
         permissionManager.add(uri, kPopupType, true);
       }
-    } 
+    }
     catch (ex) {}
 
     pref.value = false;
-  }  
+  }
 }
 
 function SetButtons()

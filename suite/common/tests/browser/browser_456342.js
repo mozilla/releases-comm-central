@@ -4,12 +4,12 @@
 
 function test() {
   /** Test for Bug 456342 **/
-  
+
   waitForExplicitFinish();
-  
+
   // make sure we do save form data
   Services.prefs.setIntPref("browser.sessionstore.privacy_level", 0);
-  
+
   let rootDir = getRootDirectory(gTestPath);
   let testURL = rootDir + "browser_456342_sample.xhtml";
   let tab = getBrowser().addTab(testURL);
@@ -24,10 +24,10 @@ function test() {
       formEls[i].value = expectedValue;
 
     getBrowser().removeTab(tab);
-    
+
     let undoItems = JSON.parse(ss.getClosedTabData(window));
     let savedFormData = undoItems[0].state.entries[0].formdata;
-    
+
     let countGood = 0, countBad = 0;
     for each (let value in savedFormData) {
       if (value == expectedValue)
@@ -35,10 +35,10 @@ function test() {
       else
         countBad++;
     }
-    
+
     is(countGood, 4, "Saved text for non-standard input fields");
     is(countBad,  0, "Didn't save text for ignored field types");
-    
+
     // clean up
     if (Services.prefs.prefHasUserValue("browser.sessionstore.privacy_level"))
       Services.prefs.clearUserPref("browser.sessionstore.privacy_level");

@@ -88,10 +88,10 @@ function OnLoadSelectAddress()
   ChangeDirectoryByURI(abList.value);
 
   DialogBucketPaneSelectionChanged();
-  
+
   var workPhoneCol = document.getElementById("WorkPhone");
   workPhoneCol.setAttribute("hidden", "true");
-  
+
   var companyCol = document.getElementById("Company");
   companyCol.setAttribute("hidden", "true");
 
@@ -340,7 +340,7 @@ function DropRecipient(address)
 }
 
 function OnReturnHit(event)
-{  
+{
   if (event.keyCode == 13) {
     var focusedElement = document.commandDispatcher.focusedElement;
     if (focusedElement && (focusedElement.id == "addressBucket"))
@@ -355,7 +355,7 @@ function OnReturnHit(event)
 function onEnterInSearchBar()
 {
   var selectedNode = abList.selectedItem;
- 
+
   if (!selectedNode)
     return;
 
@@ -363,7 +363,7 @@ function onEnterInSearchBar()
     // Get model query from pref, without preceding "?", so we need to add it again
     gQueryURIFormat = "?" + getModelQuery("mail.addr_book.quicksearchquery.format");
   }
-  
+
   var searchURI = selectedNode.value;
 
   if (gSearchInput.value != "") {
@@ -371,14 +371,14 @@ function onEnterInSearchBar()
   }
 
   SetAbView(searchURI);
-  
+
   SelectFirstCard();
 }
 
 function DirPaneSelectionChangeMenulist()
 {
   if (abList && abList.selectedItem) {
-    if (gSearchInput.value && (gSearchInput.value != "")) 
+    if (gSearchInput.value && (gSearchInput.value != ""))
       onEnterInSearchBar();
     else
       ChangeDirectoryByURI(abList.value);

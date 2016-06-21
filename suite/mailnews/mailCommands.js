@@ -497,15 +497,15 @@ function deleteAllInFolder(commandName)
   var iter = folder.subFolders;
   while (iter.hasMoreElements())
     folder.propagateDelete(iter.getNext(), true, msgWindow);
-  
+
   var children = Components.classes["@mozilla.org/array;1"]
                   .createInstance(Components.interfaces.nsIMutableArray);
-                  
+
   // Delete messages.
   iter = folder.messages;
   while (iter.hasMoreElements()) {
     children.appendElement(iter.getNext(), false);
   }
-  folder.deleteMessages(children, msgWindow, true, false, null, false); 
+  folder.deleteMessages(children, msgWindow, true, false, null, false);
   children.clear();
 }

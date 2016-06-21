@@ -182,7 +182,7 @@ nsBrowserStatusHandler.prototype =
   },
 
   onStateChange : function(aWebProgress, aRequest, aStateFlags, aStatus)
-  {  
+  {
     const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
     const nsIChannel = Components.interfaces.nsIChannel;
     var ctype;
@@ -242,7 +242,7 @@ nsBrowserStatusHandler.prototype =
         }
         this.status = "";
         this.setDefaultStatus(msg);
-        
+
         // Disable menu entries for images, enable otherwise
         if (content.document && this.mimeTypeIsTextBased(content.document.contentType))
           this.isImage.removeAttribute('disabled');
@@ -456,7 +456,7 @@ nsBrowserStatusHandler.prototype =
            Number(aStatus).toString(16));
       if (name)
            dump(" ("+name+")");
-      dump('\n'); 
+      dump('\n');
     }
 
     var notification = Components.isSuccessCode(aStatus) ? "EndDocumentLoad" : "FailDocumentLoad";

@@ -251,12 +251,12 @@ function AbDelete()
   {
     if (gAbView && gAbView.selection.count < 2)
       confirmDeleteMessage = gAddressBookBundle.getString("confirmDeleteContact");
-    else 
+    else
       confirmDeleteMessage = gAddressBookBundle.getString("confirmDeleteContacts");
   }
   // If at least one mailing list is selected then prompt users for deletion.
   else
-  {   
+  {
     if (types == kListsAndCards)
       confirmDeleteMessage = gAddressBookBundle.getString("confirmDeleteListsAndContacts");
     else if (types == kMultipleListsOnly)
@@ -372,11 +372,11 @@ function InitViewLayoutMenuPopup(aEvent)
           .setAttribute("checked", cardPaneVisible);
 }
 
-// Generate a list of cards from the selected mailing list 
+// Generate a list of cards from the selected mailing list
 // and get a comma separated list of card addresses. If the
 // item selected in the directory pane is not a mailing list,
-// an empty string is returned. 
-function GetSelectedAddressesFromDirTree() 
+// an empty string is returned.
+function GetSelectedAddressesFromDirTree()
 {
   var addresses = "";
 
@@ -440,7 +440,7 @@ function DirPaneClick(event)
   }
 
   var searchInput = document.getElementById("searchInput");
-  // if there is a searchInput element, and it's not blank 
+  // if there is a searchInput element, and it's not blank
   // then we need to act like the user cleared the
   // search text
   if (searchInput && searchInput.value) {
@@ -480,7 +480,7 @@ function ChangeDirectoryByURI(uri)
     uri = kPersonalAddressbookURI;
 
   SetAbView(uri);
-  
+
   // only select the first card if there is a first card
   if (gAbView && gAbView.getCardFromRow(0))
     SelectFirstCard();
@@ -572,12 +572,12 @@ function GenerateAddressFromCard(card)
     return "";
 
   var email;
-  if (card.isMailList) 
+  if (card.isMailList)
   {
     var directory = GetDirectoryFromURI(card.mailListURI);
     email = directory.description || card.displayName;
   }
-  else 
+  else
     email = card.primaryEmail;
   return MailServices.headerParser.makeMimeAddress(card.displayName, email);
 }
@@ -602,7 +602,7 @@ function GetParentDirectoryFromMailingListURI(abURI)
   }
 
   return null;
-} 
+}
 
 function DirPaneHasFocus()
 {

@@ -4,7 +4,7 @@
 
 function test() {
   /** Test for Bug 345898 **/
-  
+
   function test(aLambda) {
     try {
       aLambda();
@@ -14,7 +14,7 @@ function test() {
       return ex.name == "NS_ERROR_ILLEGAL_VALUE";
     }
   }
-  
+
   // all of the following calls with illegal arguments should throw NS_ERROR_ILLEGAL_VALUE
   ok(test(() => ss.getWindowState({})),
      "Invalid window for getWindowState throws");

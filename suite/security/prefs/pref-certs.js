@@ -18,7 +18,7 @@ function DoEnabling(aOCSPPrefValue)
 function OpenCertManager()
 {
     document.documentElement
-            .openWindow("mozilla:certmanager", 
+            .openWindow("mozilla:certmanager",
                         "chrome://pippki/content/certManager.xul",
                         "", null);
 }
@@ -26,7 +26,7 @@ function OpenCertManager()
 function OpenDeviceManager()
 {
     document.documentElement
-            .openWindow("mozilla:devicemanager", 
+            .openWindow("mozilla:devicemanager",
                         "chrome://pippki/content/device_manager.xul",
                         "", null);
 }

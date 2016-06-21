@@ -89,7 +89,7 @@ function test() {
     finish();
   }, true);
 
-  content.location = 
+  content.location =
     "data:text/html,<!DOCTYPE html><html><body><form id='content'></form></body></html>";
 }
 

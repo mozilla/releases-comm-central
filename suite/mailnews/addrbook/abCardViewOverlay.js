@@ -53,7 +53,7 @@ function OnLoadCardView()
   zCustom4 = gAddressBookBundle.getString("propertyCustom4");
 
 	var doc = document;
-	
+
 	/* data for address book, prefixes: "cvb" = card view box
 										"cvh" = crad view header
 										"cv"  = card view (normal fields) */
@@ -130,7 +130,7 @@ function OnLoadCardView()
   cvData.cvbPhoto = doc.getElementById("cvbPhoto");
   cvData.cvPhoto  = doc.getElementById("cvPhoto");
 }
-	
+
 // XXX todo
 // some similar code (in spirit) already exists, see OnLoadEditList()
 // perhaps we could combine and put in abCommon.js?
@@ -154,7 +154,7 @@ function GetAddressesFromURI(uri)
 function DisplayCardViewPane(realCard)
 {
   var generatedName = realCard.generateName(Services.prefs.getIntPref("mail.addr_book.lastnamefirst"));
-		
+
   var data = top.cvData;
   var visible;
 
@@ -181,7 +181,7 @@ function DisplayCardViewPane(realCard)
     cvSetNode(data.CardTitle, gAddressBookBundle.getFormattedString("viewListTitle", [generatedName]));
   else
     cvSetNode(data.CardTitle, titleString);
-	
+
   // Contact section
   cvSetNodeWithLabel(data.cvNickname, zNickname, card.getProperty("NickName"));
 
@@ -193,7 +193,7 @@ function DisplayCardViewPane(realCard)
 
     visible = HandleLink(data.cvListName, zListName, card.displayName, data.cvListNameBox, "mailto:" + encodeURIComponent(GenerateAddressFromCard(card))) || visible;
   }
-  else { 
+  else {
     // listname always hidden if not a mailing list
     cvSetVisible(data.cvListNameBox, false);
 
@@ -232,7 +232,7 @@ function DisplayCardViewPane(realCard)
     // Addresses section
 	  visible = cvAddAddressNodes(data.cvAddresses, card.mailListURI);
   	cvSetVisible(data.cvbAddresses, visible);
- 
+
     // Other section, not shown for mailing lists.
     cvSetVisible(data.cvbOther, false);
   }
@@ -296,7 +296,7 @@ function DisplayCardViewPane(realCard)
 	visible = cvSetNode(data.cvJobTitle, card.getProperty("JobTitle"));
 	visible = cvSetNode(data.cvDepartment, card.getProperty("Department")) || visible;
 	visible = cvSetNode(data.cvCompany, card.getProperty("Company")) || visible;
-        
+
         var addressVisible = cvSetNode(data.cvWorkAddress, card.getProperty("WorkAddress"));
 	addressVisible = cvSetNode(data.cvWorkAddress2, card.getProperty("WorkAddress2")) || addressVisible;
 	addressVisible = cvSetCityStateZip(data.cvWorkCityStZip, card.getProperty("WorkCity"), card.getProperty("WorkState"), card.getProperty("WorkZipCode")) || addressVisible;
@@ -332,7 +332,7 @@ function setBuddyIcon(card, buddyIcon)
 
       // check if the file exists
       var file = gFileHandler.getFileFromURLSpec(iconURLStr);
-            
+
       // check if the file exists
       // is this a perf hit?  (how expensive is stat()?)
       if (file.exists()) {
@@ -344,7 +344,7 @@ function setBuddyIcon(card, buddyIcon)
   catch (ex) {
     // can get here if no screenname
   }
-  
+
   buddyIcon.setAttribute("src", "");
   return false;
 }
@@ -394,18 +394,18 @@ function cvSetNode(node, text)
 		if ( !node.hasChildNodes() )
 		{
 			var textNode = document.createTextNode(text);
-			node.appendChild(textNode);                   			
+			node.appendChild(textNode);
 		}
 		else if ( node.childNodes.length == 1 )
 			node.childNodes[0].nodeValue = text;
 
 		var visible;
-		
+
 		if ( text )
 			visible = true;
 		else
 			visible = false;
-		
+
 		cvSetVisible(node, visible);
 	}
 
@@ -419,7 +419,7 @@ function cvAddAddressNodes(node, uri)
   if (node) {
     var editList = GetDirectoryFromURI(uri);
     var addressList = editList.addressLists;
-      
+
     if (addressList) {
       var total = addressList.length;
       if (total > 0) {
@@ -427,7 +427,7 @@ function cvAddAddressNodes(node, uri)
           node.lastChild.remove();
         }
         for (i = 0;  i < total; i++ ) {
-      	   var descNode = document.createElement("description");   
+      	   var descNode = document.createElement("description");
           var card = addressList.queryElementAt(i, Components.interfaces.nsIAbCard);
 
           descNode.setAttribute("class", "CardViewLink");
@@ -437,13 +437,13 @@ function cvAddAddressNodes(node, uri)
           linkNode.setAttribute("id", "addr#" + i);
           linkNode.setAttribute("href", "mailto:" + card.primaryEmail);
           descNode.appendChild(linkNode);
-          
+
           var textNode = document.createTextNode(card.displayName + " <" + card.primaryEmail + ">");
           linkNode.appendChild(textNode);
         }
         visible = true;
       }
-    }    
+    }
     cvSetVisible(node, visible);
   }
   return visible;

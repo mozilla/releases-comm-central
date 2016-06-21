@@ -46,17 +46,17 @@ var	RDF_observer =
 	{
 		if (prop == loadingArc) {
 		  if (loadingLevel++ == 0)
-        SetBusyCursor(window, true); 
+        SetBusyCursor(window, true);
       debug("Directory: assert: loading level is " + loadingLevel + " for " + src.Value + "\n");
 		}
 	},
-		
+
 	onUnassert: function(ds, src, prop, target)
 	{
 		if (prop == loadingArc) {
 		  if (loadingLevel > 0)
     	  if (--loadingLevel == 0)
-          SetBusyCursor(window, false); 
+          SetBusyCursor(window, false);
       debug("Directory: unassert: loading level is " + loadingLevel + " for " + src.Value + "\n");
 		}
 	},
@@ -191,7 +191,7 @@ function doSort(aTarget)
 {
   if (aTarget.localName != "treecol")
     return;
-    
+
 	// determine column resource to sort on
 	var sortResource = aTarget.getAttribute('resource');
 
@@ -208,7 +208,7 @@ function BeginDragTree (event)
 {
   if (event.target.localName != "treechildren")
     return true;
-    
+
   var dragStarted = false;
 
   try {
@@ -220,21 +220,21 @@ function BeginDragTree (event)
     // get information from treeitem for drag
     var url = item.getAttributeNS(NC_NS, "url");
     var desc = item.getAttributeNS(NC_NS, "desc");
-    
-    var transferable = 
+
+    var transferable =
       Components.classes[TRANSFERABLE_CONTRACTID].createInstance(nsITransferable);
-    var genDataURL = 
+    var genDataURL =
       Components.classes[WSTRING_CONTRACTID].createInstance(nsISupportsString);
-    var genDataHTML = 
+    var genDataHTML =
       Components.classes[WSTRING_CONTRACTID].createInstance(nsISupportsString);
-    var genData = 
+    var genData =
       Components.classes[WSTRING_CONTRACTID].createInstance(nsISupportsString);
 
     transferable.init(null);
     transferable.addDataFlavor("text/x-moz-url");
     transferable.addDataFlavor("text/html");
     transferable.addDataFlavor("text/unicode");
-    
+
     genDataURL.data = url + "\n" + desc;
     genDataHTML.data = "<a href=\"" + url + "\">" + desc + "</a>";
     genData.data = url;
@@ -243,22 +243,22 @@ function BeginDragTree (event)
     transferable.setTransferData("text/html", genDataHTML, genDataHTML.data.length * 2);
     transferable.setTransferData("text/unicode", genData, genData.data.length * 2);
 
-    var transArray = 
+    var transArray =
       Components.classes[ARRAY_CONTRACTID].createInstance(nsISupportsArray);
 
     // put it into the transferable as an |nsISupports|
     var genTrans = transferable.QueryInterface(Components.interfaces.nsISupports);
     transArray.AppendElement(genTrans);
-    
-    var dragService = 
+
+    var dragService =
       Components.classes[DRAGSERVICE_CONTRACTID].getService(nsIDragService);
 
-    dragService.invokeDragSession(event.target, transArray, null, nsIDragService.DRAGDROP_ACTION_COPY + 
+    dragService.invokeDragSession(event.target, transArray, null, nsIDragService.DRAGDROP_ACTION_COPY +
                                   nsIDragService.DRAGDROP_ACTION_MOVE);
-  
+
     dragStarted = true;
   } catch (ex) { }
-  
+
   return !dragStarted;
 }
 
@@ -279,7 +279,7 @@ function OnFTPControlLog(server, msg)
     div.setAttribute("class", "client");
 
   div.appendChild(logdoc.createTextNode(msg));
-  
+
   logdocDiv.appendChild(div);
 
   scrollDown();

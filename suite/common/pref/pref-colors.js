@@ -19,7 +19,7 @@ function TogglePickerDisability(aDisable, aPicker)
   var element = document.getElementById(aPicker);
   aDisable = aDisable ||
     document.getElementById(element.getAttribute("preference")).locked;
- 
+
   element.disabled = aDisable;
   element = document.getElementById(aPicker + "Label");
   element.disabled = aDisable;

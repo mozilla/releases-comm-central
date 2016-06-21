@@ -31,7 +31,7 @@ function onLoad()
     gMetadataBundle = document.getElementById("bundle_metadata");
     gLangBundle = document.getElementById("bundle_languages");
     gRegionBundle = document.getElementById("bundle_regions");
-    
+
     showMetadataFor(window.arguments[0]);
 
     nodeView = window.arguments[0].ownerDocument.defaultView;
@@ -50,16 +50,16 @@ function showMetadataFor(elem)
 
     if (elem.ownerDocument.getElementsByName && !elem.ownerDocument.namespaceURI)
         htmlMode = true;
-    
+
     // htmllocalname is "" if it's not an html tag, or the name of the tag if it is.
     var htmllocalname = "";
-    if (isHTMLElement(elem,"")) { 
+    if (isHTMLElement(elem,"")) {
         htmllocalname = elem.localName.toLowerCase();
     }
-    
+
     // We only look for images once
     checkForImage(elem, htmllocalname);
-    
+
     // Walk up the tree, looking for elements of interest.
     // Each of them could be at a different level in the tree, so they each
     // need their own boolean to tell us to stop looking.
@@ -75,7 +75,7 @@ function showMetadataFor(elem)
         if (!onTable)  checkForTable(elem, htmllocalname);
         if (!onTitle)  checkForTitle(elem, htmllocalname);
         if (!onLang)   checkForLang(elem, htmllocalname);
-          
+
         elem = elem.parentNode;
     }
 
@@ -185,14 +185,14 @@ function checkForImage(elem, htmllocalname)
         else {
             setInfo("image-width", "");
             setInfo("image-height", "");
-        }        
-         
+        }
+
         if (imgType == "img") {
             setInfo("image-desc", img.longDesc);
         } else {
             setInfo("image-desc", "");
         }
-        
+
         onImage = true;
     }
 
@@ -240,7 +240,7 @@ function checkForLink(elem, htmllocalname)
         default:
             setInfo("link-target", "\"" + target + "\"");
         }
-        
+
         onLink = true;
     }
     else if (elem.namespaceURI == MathMLNS && elem.hasAttribute("href")) {
@@ -272,7 +272,7 @@ function checkForLink(elem, htmllocalname)
             setInfo("link-target", "");
             break;
         }
-        
+
         onLink = true;
     }
 }
@@ -284,7 +284,7 @@ function checkForInsDel(elem, htmllocalname)
         setInfo("insdel-cite", elem.cite);
         setInfo("insdel-date", elem.dateTime);
         onInsDel = true;
-    } 
+    }
 }
 
 
@@ -293,7 +293,7 @@ function checkForQuote(elem, htmllocalname)
     if ((htmllocalname === "q" || htmllocalname === "blockquote") && elem.cite) {
         setInfo("quote-cite", elem.cite);
         onQuote = true;
-    } 
+    }
 }
 
 function checkForTable(elem, htmllocalname)
@@ -312,18 +312,18 @@ function checkForLang(elem, htmllocalname)
             abbr = elem.lang;
         else
             abbr = elem.getAttributeNS(XMLNS, "lang");
-            
+
         setInfo("misc-lang", convertLanguageCode(abbr));
         onLang = true;
     }
 }
-    
+
 function checkForTitle(elem, htmllocalname)
 {
     if (htmllocalname && elem.title) {
         setInfo("misc-title", elem.title);
         onTitle = true;
-    }    
+    }
 }
 
 /*
@@ -468,7 +468,7 @@ function convertLanguageCode(abbr)
         {
             language = gLangBundle.getString(language.toLowerCase());
         }
-        catch (e) 
+        catch (e)
         {
         }
 
@@ -478,7 +478,7 @@ function convertLanguageCode(abbr)
             {
                 tokens[0] = gRegionBundle.getString(tokens[0].toLowerCase());
             }
-            catch (e) 
+            catch (e)
             {
             }
             region = tokens.join(" ");

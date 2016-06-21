@@ -140,7 +140,7 @@ function UpdateHomePagePrefs()
 
   // work around bug 410562:
   // reset unneeded preferences on dialogaccept only
-  
+
   // update pref count watermark before setting new number of homepages
   var alreadyRequested = (gHomePagePrefPeak > 0);
   var oldCount = GetHomePagePrefCount();
@@ -234,7 +234,7 @@ function SetHomePageToDefaultPage()
 function Startup()
 {
   // homepage groups can have an arbitrary number of <preference>s,
-  // except for the default (0), thus we create them manually here 
+  // except for the default (0), thus we create them manually here
   gPreferences = document.getElementById("navigator_preferences");
   var count = GetHomePagePrefCount();
   var homePageGroup = GetHomePagePref(0).value + "\n";

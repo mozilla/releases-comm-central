@@ -51,7 +51,7 @@ function FindNextChildFolder(aParent, aAfter)
     while (i < subFolders.length) {
       folder = subFolders[i++];
       // if there is unread mail in the trash, sent, drafts, unsent messages
-      // templates or junk special folder, 
+      // templates or junk special folder,
       // we ignore it when doing cross folder "next" navigation
       if (!folder.isSpecialFolder(ignoreFlags, true)) {
         if (folder.getNumUnread(false) > 0)
@@ -86,7 +86,7 @@ function FindNextFolder()
     folder = FindNextChildFolder(parent, folder);
     if (folder)
       return folder;
- 
+
     // none at this level after the current folder.  go up.
     folder = parent;
   }
@@ -100,13 +100,13 @@ function FindNextFolder()
     if (rootFolders[i].URI == gDBView.msgFolder.server.serverURI)
       break;
   }
-  
+
   for (var j = i + 1; j < rootFolders.length; j++) {
     folder = FindNextChildFolder(rootFolders[j], null);
     if (folder)
       return folder;
   }
-  
+
   // if nothing from the current account down to the bottom
   // (of the folder pane), start again at the top.
   for (j = 0; j <= i; j++) {
@@ -140,7 +140,7 @@ function CrossFolderNavigation(type)
   if (type == nsMsgNavigationType.nextUnreadMessage ||
       type == nsMsgNavigationType.nextUnreadThread)
   {
-    
+
     var nextMode = Services.prefs.getIntPref("mailnews.nav_crosses_folders");
     // 0: "next" goes to the next folder, without prompting
     // 1: "next" goes to the next folder, and prompts (the default)
@@ -151,9 +151,9 @@ function CrossFolderNavigation(type)
       return;
 
     var folder = FindNextFolder();
-    if (folder && (gDBView.msgFolder.URI != folder.URI)) 
+    if (folder && (gDBView.msgFolder.URI != folder.URI))
     {
-      switch (nextMode) 
+      switch (nextMode)
       {
         case 0:
           // do this unconditionally
@@ -162,9 +162,9 @@ function CrossFolderNavigation(type)
           break;
         case 1:
         default:
-          var promptText = gMessengerBundle.getFormattedString("advanceNextPrompt", [ folder.name ], 1); 
-          if (Services.prompt.confirmEx(window, null, promptText, 
-                                        Services.prompt.STD_YES_NO_BUTTONS, 
+          var promptText = gMessengerBundle.getFormattedString("advanceNextPrompt", [ folder.name ], 1);
+          if (Services.prompt.confirmEx(window, null, promptText,
+                                        Services.prompt.STD_YES_NO_BUTTONS,
                                         null, null, null, null, {}) == 0)
           {
             gNextMessageAfterLoad = type;

@@ -352,7 +352,7 @@ function SetupNewMenuItem(folder, numSelected, isServer, serverType, specialFold
 function ShowMenuItem(id, showItem)
 {
   var item = document.getElementById(id);
-  if(item && item.hidden != "true") 
+  if(item && item.hidden != "true")
     item.hidden = !showItem;
 }
 

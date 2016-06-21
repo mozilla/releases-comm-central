@@ -54,7 +54,7 @@ function BeginDragLink(aEvent, aHref, aTitle)
   var dt = aEvent.dataTransfer;
   dt.setData("text/x-moz-url", aHref + "\n" + aTitle);
   dt.setData("text/uri-list", aHref);
-  dt.setData("text/html", "<a href=\"" + htmlEscape(aHref) + 
+  dt.setData("text/html", "<a href=\"" + htmlEscape(aHref) +
                           "\">" + htmlEscape(aTitle) + "</a>");
   dt.setData("text/plain", aHref);
 }

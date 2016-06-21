@@ -565,7 +565,7 @@ var gSyncSetup = {
 
     // When onAbort is called, Weave may already be gone.
     const JPAKE_ERROR_USERABORT = Weave.JPAKE_ERROR_USERABORT;
-  
+
     let self = this;
     this._jpakeclient = new Weave.JPAKEClient({
       displayPIN: function displayPIN(pin) {
@@ -664,7 +664,7 @@ var gSyncSetup = {
     control.focus();
     return control;
   },
-  
+
   onExistingServerCommand: function () {
     this._updateControl("existingServer");
     document.getElementById("existingServerFeedbackRow").hidden = true;

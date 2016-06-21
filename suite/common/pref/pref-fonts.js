@@ -171,7 +171,7 @@ function ReadFontLanguageGroup()
 function ReadFontSelection(aElement)
 {
   // Determine the appropriate value to select, for the following cases:
-  // - there is no setting 
+  // - there is no setting
   // - the font selected by the user is no longer present (e.g. deleted from
   //   fonts folder)
   var preference = document.getElementById(aElement.getAttribute("preference"));
@@ -214,7 +214,7 @@ function ReadUseDocumentFonts()
   var preference = document.getElementById("browser.display.use_document_fonts");
   return preference.value == 1;
 }
- 
+
 function WriteUseDocumentFonts(aUseDocumentFonts)
 {
   return aUseDocumentFonts.checked ? 1 : 0;

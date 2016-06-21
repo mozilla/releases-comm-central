@@ -36,7 +36,7 @@ function test() {
     finish();
   }, true);
 
-  content.location = 
+  content.location =
     "http://mochi.test:8888/browser/suite/browser/test/browser/title_test.svg";
 }
 

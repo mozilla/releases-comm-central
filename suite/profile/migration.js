@@ -263,7 +263,7 @@ var MigrationWizard = {
     var homePageStart = document.getElementById("homePageStart");
 
     // Find out if the target profile already has a homepage or not
-    var mainStr = this.targetHasHomePageURL() ? 
+    var mainStr = this.targetHasHomePageURL() ?
                   bundle.getString("homePageStartCurrent") :
                   bundle.getString("homePageStartDefault");
 

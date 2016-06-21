@@ -355,7 +355,7 @@ SuiteGlue.prototype = {
   {
     // check if we're in safe mode
     if (Services.appinfo.inSafeMode) {
-      Services.ww.openWindow(null, "chrome://communicator/content/safeMode.xul", 
+      Services.ww.openWindow(null, "chrome://communicator/content/safeMode.xul",
                              "_blank", "chrome,centerscreen,modal,resizable=no", null);
     }
   },

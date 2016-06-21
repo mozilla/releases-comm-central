@@ -43,15 +43,15 @@ function onAccept()
   for (var i = 0; i < defaultList.getRowCount(); i++) {
     var currentItem = defaultList.getItemAtIndex(i);
     var currentAppType = nsIShellService[currentItem.value];
-    
+
     if (currentItem.checked) {
       appTypesCheck |= currentAppType;
-      
+
       if (!currentItem.disabled)
         appTypes |= currentAppType;
     }
   }
- 
+
   if (appTypes)
     shellSvc.setDefaultClient(false, true, appTypes);
 

@@ -214,7 +214,7 @@ function test() {
            "userTypedValue was set when changing gURLBar.value");
         is(browser.userTypedClear, 0,
            "userTypedClear was not changed when changing gURLBar.value");
-  
+
         // Now make sure ss gets these values too
         let newState = JSON.parse(ss.getBrowserState());
         is(newState.windows[0].tabs[0].userTypedValue, "example.org",

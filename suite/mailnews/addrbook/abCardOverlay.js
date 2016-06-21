@@ -133,7 +133,7 @@ function OnLoadNewCard()
   if (gHideABPicker && abPopup) {
     abPopup.hidden = true;
     document.getElementById("abPopupLabel").hidden = true;
-  } 
+  }
 
   SetCardDialogTitle(gEditCard.card.displayName);
 
@@ -188,11 +188,11 @@ function EditCardOKButton()
       }
     }
   }
- 
+
   CheckAndSetCardValues(gEditCard.card, document, false);
 
   directory.modifyCard(gEditCard.card);
- 
+
   while (foundDirectories.length)
   {
     // Update the addressLists item for this card
@@ -247,7 +247,7 @@ function OnLoadEditCard()
       var abURI = window.arguments[0].abURI;
       var directory = GetDirectoryFromURI(abURI);
 
-      if (directory.readOnly) 
+      if (directory.readOnly)
       {
         // Set all the editable vcard fields to read only
         for (var i = kVcardFields.length; i-- > 0; )
@@ -344,7 +344,7 @@ function NotifySaveListeners(directory)
 function InitPhoneticFields()
 {
   var showPhoneticFields =
-    Services.prefs.getComplexValue("mail.addr_book.show_phonetic_fields", 
+    Services.prefs.getComplexValue("mail.addr_book.show_phonetic_fields",
       Components.interfaces.nsIPrefLocalizedString).data;
 
   // show phonetic fields if indicated by the pref
@@ -367,7 +367,7 @@ function InitEditCard()
   // get specific prefs that gEditCard will need
   try {
     var displayLastNameFirst =
-      Services.prefs.getComplexValue("mail.addr_book.displayName.lastnamefirst", 
+      Services.prefs.getComplexValue("mail.addr_book.displayName.lastnamefirst",
         Components.interfaces.nsIPrefLocalizedString).data;
     gEditCard.displayLastNameFirst = (displayLastNameFirst == "true");
     gEditCard.generateDisplayName =
@@ -754,7 +754,7 @@ function calculateYear(aEvent, aElement) {
  * If any field is blank, the corresponding property is either the previous
  * value if there was one since the card was opened or the relevant portion of
  * the current date.
- * 
+ *
  * To get the displayed values, get the value of the individual field, such as
  * datepicker.yyyyField.value where yyyy is "year", "month", or "date" for the
  * year, month, and day, respectively.
@@ -942,7 +942,7 @@ function browsePhoto() {
   var fp = Components.classes["@mozilla.org/filepicker;1"]
 	                   .createInstance(nsIFilePicker);
   fp.init(window, gAddressBookBundle.getString("browsePhoto"), nsIFilePicker.modeOpen);
-  
+
   // Add All Files & Image Files filters and select the latter
   fp.appendFilters(nsIFilePicker.filterImages);
   fp.appendFilters(nsIFilePicker.filterAll);

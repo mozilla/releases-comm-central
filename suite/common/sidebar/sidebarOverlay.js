@@ -262,7 +262,7 @@ function panel_loader() {
 
   if (gTimeoutID != null) {
       clearTimeout(gTimeoutID);
-      gTimeoutID = null; 
+      gTimeoutID = null;
   }
 
   this.removeEventListener("load", panel_loader, true);
@@ -324,7 +324,7 @@ function (force_reload)
     var panel = new sbPanel(id, header, ii);
     var excluded = panel.is_excluded();
     var in_view = false;
-    if (!this.initialized) 
+    if (!this.initialized)
     {
       if (num_in_view < gNumTabsInViewPref)
         in_view = true;
@@ -336,7 +336,7 @@ function (force_reload)
     }
     if (excluded || !in_view)
     {
-      debug("item("+ii/2+") excluded: " + excluded + 
+      debug("item("+ii/2+") excluded: " + excluded +
                           " in view: " + in_view);
       header.setAttribute('hidden','true');
       content.setAttribute('hidden','true');
@@ -352,7 +352,7 @@ function (force_reload)
         last_header = header;
       header.removeAttribute('last-panel');
       // only set if in view
-      if (!have_set_top && 
+      if (!have_set_top &&
           (!this.initialized || (header.getAttribute("in-view") == "true")))
       {
         header.setAttribute('top-panel','true');
@@ -369,8 +369,8 @@ function (force_reload)
       header.removeAttribute('hidden');
       header.setAttribute("in-view", true);
       num_in_view++;
-      
-      // (a) when we have hit the maximum number of tabs that can be in view and no tab 
+
+      // (a) when we have hit the maximum number of tabs that can be in view and no tab
       //     has been selected yet
       //     -or-
       // (b) when we have reached the last tab we are about to display
@@ -512,7 +512,7 @@ function ()
 {
   if (typeof this.iframe == "undefined") {
     var notificationbox = this.get_content().childNodes.item(1);
-    this.iframe = this.is_sandboxed() ? notificationbox.lastChild : 
+    this.iframe = this.is_sandboxed() ? notificationbox.lastChild :
                                         notificationbox.firstChild;
   }
   return this.iframe;
@@ -555,7 +555,7 @@ function ()
                                            true);
     if (persistNode)
     {
-        persistNode = 
+        persistNode =
           persistNode.QueryInterface(Components.interfaces.nsIRDFLiteral);
         rv = persistNode.Value == 'true';
     }
@@ -735,10 +735,10 @@ function sidebar_overlay_init() {
     var sidebar_splitter = document.getElementById('sidebar-splitter')
     if (sidebar_splitter)
       sidebar_splitter.setAttribute('hidden', 'false');
-    
+
     if (sidebarObj.never_built) {
       sidebarObj.never_built = false;
-      
+
       debug("sidebar = " + sidebarObj);
       debug("sidebarObj.resource = " + sidebarObj.resource);
       debug("sidebarObj.datasource_uri = " + sidebarObj.datasource_uri);
@@ -788,7 +788,7 @@ function sidebar_open_default_panel(wait, tries) {
     // the individual panel's title, customize URL, and content URL.
     var panels = document.getElementById('sidebar-panels');
     panels.database.AddDataSource(ds);
-    
+
     debug("Adding observer to database.");
     panels.database.AddObserver(panel_observer);
 
@@ -843,7 +843,7 @@ function check_for_missing_panels() {
                                        RDF.GetLiteral(sidebarObj.component),
                                        true);
           currTab.exclude();
-        }        
+        }
       }
     }
   }
@@ -899,9 +899,9 @@ function sidebar_revert_to_default_panels() {
 function get_sidebar_datasource_uri() {
   try {
     var sidebar_file = sidebar_get_panels_file();
-    
+
     var fileHandler = Services.io.getProtocolHandler("file").QueryInterface(Components.interfaces.nsIFileProtocolHandler);
-    
+
     return fileHandler.getURLSpecFromFile(sidebar_file);
   } catch (ex) {
     // This should not happen
@@ -984,9 +984,9 @@ function SidebarSelectPanel(header, should_popopen, should_unhide) {
   if (unhide)  SidebarShowHide();
   if (popopen) SidebarExpandCollapse();
 
-  try { 
-    panel.get_iframe().setAttribute('focusOnLoad', true); 
-  } catch (ex) { 
+  try {
+    panel.get_iframe().setAttribute('focusOnLoad', true);
+  } catch (ex) {
     // ignore exception for cases where content isn't built yet
     // e.g., auto opening search tab: we don't want to focus search field
   }
@@ -997,7 +997,7 @@ function SidebarSelectPanel(header, should_popopen, should_unhide) {
 
 function SidebarGetLastSelectedPanel()
 {
-  return (sidebarObj.panels && 
+  return (sidebarObj.panels &&
           sidebarObj.panels.node.getAttribute('last-selected-panel'));
 }
 
@@ -1022,7 +1022,7 @@ function SidebarGetRelativePanel(direction)
     var newPanelIndex = newPanel.index + (direction * 2);
     if (newPanelIndex < 2 || newPanelIndex >= sidebarObj.panels.node.childNodes.length)
       newPanel = (direction == 1)? sidebarObj.panels.find_first(): sidebarObj.panels.find_last();
-    else 
+    else
       newPanel = sidebarObj.panels.get_panel_from_header_index(newPanelIndex);
 
     if (!newPanel)
@@ -1049,7 +1049,7 @@ function SidebarReloadPanel(header) {
 function SidebarReload() {
   sidebarObj.panels.refresh();
 }
- 
+
 // Set up a lame hack to avoid opening two customize
 // windows on a double click.
 var gDisableCustomize = false;
@@ -1149,9 +1149,9 @@ function SidebarShowHide() {
   if (sidebar_is_hidden()) {
     debug("Showing the sidebar");
 
-    // for older profiles: 
-    sidebar_box.setAttribute('hidden', 'false'); 
-    sidebar_panels_splitter_box.setAttribute('hidden', 'false'); 
+    // for older profiles:
+    sidebar_box.setAttribute('hidden', 'false');
+    sidebar_panels_splitter_box.setAttribute('hidden', 'false');
 
     sidebar_box.removeAttribute('collapsed');
     if (sidebar_splitter.getAttribute('state') == 'collapsed')
@@ -1352,15 +1352,15 @@ function SidebarNavigate(aDirection)
   if (aDirection > 0)
   {
     // ensure we have a tab below the last one
-    var foundLast = false; 
+    var foundLast = false;
     var oldFirst = null;
-    for (i = 2; i < tabs.length; i += 2) 
+    for (i = 2; i < tabs.length; i += 2)
     {
       currHeader = tabs[i];
       currTab = new sbPanel(currHeader.getAttribute("id"), currHeader, i);
-  
+
       if (!currTab.is_excluded())
-      {     
+      {
         if (foundLast)
         {
           debug("toggling old first and new last");
@@ -1368,15 +1368,15 @@ function SidebarNavigate(aDirection)
           debug("old first: " + oldFirst.getAttribute("id"));
           currHeader.setAttribute("in-view", true);
           oldFirst.setAttribute("in-view", false);
-          
+
           // if old first was selected select new first instead
-          if (oldFirst.getAttribute("id") == 
+          if (oldFirst.getAttribute("id") ==
               sidebarObj.panels.node.getAttribute("last-selected-panel"))
           {
-            sidebarObj.panels.node.setAttribute('last-selected-panel', 
+            sidebarObj.panels.node.setAttribute('last-selected-panel',
               currTab.id);
           }
-          
+
           break;
         }
 
@@ -1393,7 +1393,7 @@ function SidebarNavigate(aDirection)
       }
     }
   }
-  
+
   // move back a tab (up in the template)
   else if (aDirection < 0)
   {
@@ -1430,12 +1430,12 @@ function SidebarNavigate(aDirection)
 
             newFirst.setAttribute("in-view", true);
             currHeader.setAttribute("in-view", false); // hide old last
-          
+
             // if old last was selected, now select one above it
             if (sidebarObj.panels.node.getAttribute("last-selected-panel") ==
                 currTab.id)
             {
-              sidebarObj.panels.node.setAttribute("last-selected-panel", 
+              sidebarObj.panels.node.setAttribute("last-selected-panel",
                 newLast.getAttribute("id"));
             }
 
@@ -1511,7 +1511,7 @@ function SidebarSetButtonOpen(aSidebarNowOpen)
 
     // set tooltip for toolbar icon
     var header = document.getElementById("sidebar-title-box");
-    var tooltip = header.getAttribute(aSidebarNowOpen ? 
+    var tooltip = header.getAttribute(aSidebarNowOpen ?
                   "tooltipclose" : "tooltipopen");
     pt.setAttribute("prefixtooltip", tooltip);
   }
@@ -1524,14 +1524,14 @@ function SidebarInitContextMenu(aMenu, aPopupNode)
   var reloadItem = document.getElementById("reload-ctx-item");
   var stopItem = document.getElementById("stop-ctx-item");
 
-  // the current panel can be reloaded, but other panels are not showing 
+  // the current panel can be reloaded, but other panels are not showing
   // any content, so we only allow you to switch to other panels
-  if (panel.is_selected()) 
+  if (panel.is_selected())
   {
-    switchItem.setAttribute("collapsed", "true"); 
+    switchItem.setAttribute("collapsed", "true");
     reloadItem.removeAttribute("disabled");
   }
-  else 
+  else
   {
     switchItem.removeAttribute("collapsed");
     reloadItem.setAttribute("disabled", "true");

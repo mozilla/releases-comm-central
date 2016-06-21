@@ -59,7 +59,7 @@ gTests.push({
     // Execute the delete command and check bookmark has been removed.
     PO._places.controller.doCommand("cmd_delete");
     try {
-      PlacesUtils.bookmarks.getFolderIdForItem(queryNode.itemId);  
+      PlacesUtils.bookmarks.getFolderIdForItem(queryNode.itemId);
       ok(false, "Unable to remove query node bookmark");
     } catch(ex) {
       ok(true, "Query node bookmark has been correctly removed");

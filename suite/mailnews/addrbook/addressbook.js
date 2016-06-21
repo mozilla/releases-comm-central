@@ -165,13 +165,13 @@ function UpdateCardView()
   // either no cards, or more than one card is selected, clear the pane.
   if (cards.length == 1)
     OnClickedCard(cards[0])
-  else 
+  else
     ClearCardViewPane();
 }
 
 function OnClickedCard(card)
-{ 
-  if (card) 
+{
+  if (card)
     DisplayCardViewPane(card);
   else
     ClearCardViewPane();
@@ -215,7 +215,7 @@ function AbPrintCardInternal(doPrintPreview, msgType)
   printEngineWindow = window.openDialog("chrome://messenger/content/msgPrintEngine.xul",
                                          "",
                                          "chrome,dialog=no,all",
-                                          totalCard, selectionArray, statusFeedback, 
+                                          totalCard, selectionArray, statusFeedback,
                                           doPrintPreview, msgType);
 
   return;
@@ -332,7 +332,7 @@ function AbExport(aSelectedABURI)
     }
 
     Services.prompt.alert(window,
-      gAddressBookBundle.getString("failedToExportTitle"), 
+      gAddressBookBundle.getString("failedToExportTitle"),
       message);
   }
 }
@@ -352,12 +352,12 @@ function SetStatusText(total)
       {
         if (total == 1)
           statusText = gAddressBookBundle.getString("matchFound");
-        else  
+        else
           statusText = gAddressBookBundle.getFormattedString("matchesFound", [total]);
       }
-    } 
+    }
     else
-      statusText = gAddressBookBundle.getFormattedString("totalContactStatus", [gAbView.directory.dirName, total]);   
+      statusText = gAddressBookBundle.getFormattedString("totalContactStatus", [gAbView.directory.dirName, total]);
 
     gStatusText.setAttribute("label", statusText);
   }
@@ -380,14 +380,14 @@ function onAdvancedAbSearch()
   if (existingSearchWindow)
     existingSearchWindow.focus();
   else
-    window.openDialog("chrome://messenger/content/ABSearchDialog.xul", "", 
-                      "chrome,resizable,status,centerscreen,dialog=no", 
+    window.openDialog("chrome://messenger/content/ABSearchDialog.xul", "",
+                      "chrome,resizable,status,centerscreen,dialog=no",
                       {directory: selectedABURI});
 }
 
 function onEnterInSearchBar()
 {
-  ClearCardViewPane();  
+  ClearCardViewPane();
 
   if (!gQueryURIFormat) {
     // Get model query from pref, without preceding "?", so we need to add it again
@@ -398,7 +398,7 @@ function onEnterInSearchBar()
 
   /*
    XXX todo, handle the case where the LDAP url
-   already has a query, like 
+   already has a query, like
    moz-abldapdirectory://nsdirectory.netscape.com:389/ou=People,dc=netscape,dc=com?(or(Department,=,Applications))
   */
   if (gSearchInput.value != "") {
@@ -408,9 +408,9 @@ function onEnterInSearchBar()
   }
 
   SetAbView(searchURI);
-  
-  // XXX todo 
-  // this works for synchronous searches of local addressbooks, 
+
+  // XXX todo
+  // this works for synchronous searches of local addressbooks,
   // but not for LDAP searches
   SelectFirstCard();
 }
@@ -434,9 +434,9 @@ function SwitchPaneFocus(event)
       if(cardViewBoxEmail1)
         cardViewBoxEmail1.focus();
       else
-        cardViewBox.focus();    
+        cardViewBox.focus();
     }
-    else 
+    else
       gAbResultsTree.focus();
   }
   else
@@ -448,7 +448,7 @@ function SwitchPaneFocus(event)
       if(cardViewBoxEmail1)
         cardViewBoxEmail1.focus();
       else
-        cardViewBox.focus();    
+        cardViewBox.focus();
     }
     else if (focusedElement != dirTree && !IsDirPaneCollapsed())
       dirTree.focus();
@@ -464,7 +464,7 @@ function WhichPaneHasFocus()
   var cardViewBox       = GetCardViewBox();
   var searchBox         = GetSearchBox();
   var dirTree           = GetDirTree();
-    
+
   var currentNode = top.document.commandDispatcher.focusedElement;
   while (currentNode)
   {

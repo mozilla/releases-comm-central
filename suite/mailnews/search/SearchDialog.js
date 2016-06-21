@@ -59,8 +59,8 @@ var nsSearchResultsController =
     isCommandEnabled: function(command)
     {
         var enabled = true;
-        
-        switch (command) { 
+
+        switch (command) {
           case "goto_folder_button":
             if (GetNumSelectedMessages() != 1)
               enabled = false;
@@ -76,7 +76,7 @@ var nsSearchResultsController =
               // need someway to see if there are any search criteria...
               return true;
           case "cmd_selectAll":
-            return GetDBView() != null;              
+            return GetDBView() != null;
           default:
             if (GetNumSelectedMessages() <= 0)
               enabled = false;
@@ -178,7 +178,7 @@ var gSearchNotificationListener =
     {
       gSearchStopButton.setAttribute("label", gSearchBundle.getString("labelForStopButton"));
       gSearchStopButton.setAttribute("accesskey", gSearchBundle.getString("labelForStopButton.accesskey"));
-      UpdateMailSearch("new-search");	
+      UpdateMailSearch("new-search");
       gStatusFeedback._startMeteors();
       gStatusFeedback.showStatusString(gSearchBundle.getString("searchingMessage"));
     }
@@ -201,10 +201,10 @@ var gFolderListener = {
 
     OnItemEvent: function(folder, event) {
         var eventType = event.toString();
-        
+
         if (eventType == "DeleteOrMoveMsgCompleted") {
             HandleDeleteOrMoveMessageCompleted(folder);
-        }     
+        }
         else if (eventType == "DeleteOrMoveMsgFailed") {
             HandleDeleteOrMoveMessageFailed(folder);
         }
@@ -249,7 +249,7 @@ function searchOnLoad()
 
   onMore(null);
   UpdateMailSearch("onload");
-  
+
   // hide and remove these columns from the column picker.  you can't thread search results
   HideSearchColumn("threadCol"); // since you can't thread search results
   HideSearchColumn("totalCol"); // since you can't thread search results
@@ -258,7 +258,7 @@ function searchOnLoad()
   HideSearchColumn("idCol");
   HideSearchColumn("junkStatusCol");
   HideSearchColumn("accountCol");
-  
+
   // we want to show the location column for search
   ShowSearchColumn("locationCol");
 }
@@ -272,7 +272,7 @@ function searchOnUnload()
     Components.classes["@mozilla.org/messenger/services/session;1"]
               .getService(Components.interfaces.nsIMsgMailSession)
               .RemoveFolderListener(gFolderListener);
-	
+
     if (gDBView)
     {
         gDBView.close();
@@ -291,7 +291,7 @@ function initializeSearchWindowWidgets()
     gSearchStopButton = document.getElementById("search-button");
     gStatusBar = document.getElementById('statusbar-icon');
     hideMatchAllItem();
-    
+
     msgWindow = Components.classes["@mozilla.org/messenger/msgwindow;1"]
                           .createInstance(nsIMsgWindow);
     msgWindow.domWindow = window;
@@ -311,13 +311,13 @@ function onSearchStop() {
 
 function onResetSearch(event) {
     onReset(event);
-    
+
     var tree = GetThreadTree();
     tree.treeBoxObject.view = null;
     gStatusFeedback.showStatusString("");
 }
 
-function selectFolder(folder) 
+function selectFolder(folder)
 {
     var folderURI;
 
@@ -332,8 +332,8 @@ function selectFolder(folder)
     updateSearchFolderPicker(folderURI);
 }
 
-function updateSearchFolderPicker(folderURI) 
-{ 
+function updateSearchFolderPicker(folderURI)
+{
     SetFolderPicker(folderURI, gFolderPicker.id);
 
     // use the URI to get the real folder
@@ -370,8 +370,8 @@ function onEnterInSearchTerm()
   // on enter
   // if not searching, start the search
   // if searching, stop and then start again
-  if (gSearchStopButton.getAttribute("label") == gSearchBundle.getString("labelForSearchButton")) { 
-     onSearch(); 
+  if (gSearchStopButton.getAttribute("label") == gSearchBundle.getString("labelForSearchButton")) {
+     onSearch();
   }
   else {
      onSearchStop();
@@ -433,7 +433,7 @@ function AddSubFolders(folder) {
   }
 }
 
-function AddSubFoldersToURI(folder) 
+function AddSubFoldersToURI(folder)
 {
   var returnString = "";
 
@@ -465,7 +465,7 @@ function AddSubFoldersToURI(folder)
 }
 
 
-function GetScopeForFolder(folder) 
+function GetScopeForFolder(folder)
 {
   var searchLocalSystem = document.getElementById("menuSearchLocalSystem");
   return searchLocalSystem && searchLocalSystem.value == "local" ?
@@ -645,12 +645,12 @@ function HandleDeleteOrMoveMessageCompleted(folder)
       var startIndex = {};
       var endIndex = {};
       treeSelection.getRangeAt(0, startIndex, endIndex);
-        
+
       // select the selected item, so we'll load it
-      treeSelection.select(startIndex.value); 
+      treeSelection.select(startIndex.value);
       treeView.selectionChanged();
 
-      EnsureRowInThreadTreeIsVisible(startIndex.value); 
+      EnsureRowInThreadTreeIsVisible(startIndex.value);
       UpdateMailSearch("delete from another view, 1 row now selected");
     }
     else {
@@ -661,12 +661,12 @@ function HandleDeleteOrMoveMessageCompleted(folder)
     }
   }
   else {
-    if (gNextMessageViewIndexAfterDelete != nsMsgViewIndex_None && gNextMessageViewIndexAfterDelete >= viewSize) 
+    if (gNextMessageViewIndexAfterDelete != nsMsgViewIndex_None && gNextMessageViewIndexAfterDelete >= viewSize)
     {
       if (viewSize > 0)
         gNextMessageViewIndexAfterDelete = viewSize - 1;
       else
-      {           
+      {
         gNextMessageViewIndexAfterDelete = nsMsgViewIndex_None;
 
         // there is nothing to select since viewSize is 0
@@ -680,23 +680,23 @@ function HandleDeleteOrMoveMessageCompleted(folder)
     // the selection then add the next message to select. This just generates
     // an extra round of command updating notifications that we are trying to
     // optimize away.
-    if (gNextMessageViewIndexAfterDelete != nsMsgViewIndex_None) 
+    if (gNextMessageViewIndexAfterDelete != nsMsgViewIndex_None)
     {
       treeSelection.select(gNextMessageViewIndexAfterDelete);
       // since gNextMessageViewIndexAfterDelete probably has the same value
       // as the last index we had selected, the tree isn't generating a new
-      // selectionChanged notification for the tree view. So we aren't loading the 
+      // selectionChanged notification for the tree view. So we aren't loading the
       // next message. to fix this, force the selection changed update.
       if (treeView)
         treeView.selectionChanged();
 
-      EnsureRowInThreadTreeIsVisible(gNextMessageViewIndexAfterDelete); 
+      EnsureRowInThreadTreeIsVisible(gNextMessageViewIndexAfterDelete);
 
       // XXX TODO
       // I think there is a bug in the suppression code above.
-      // what if I have two rows selected, and I hit delete, 
+      // what if I have two rows selected, and I hit delete,
       // and so we load the next row.
-      // what if I have commands that only enable where 
+      // what if I have commands that only enable where
       // exactly one row is selected?
       UpdateMailSearch("delete from current view, at least one row selected");
     }

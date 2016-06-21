@@ -59,12 +59,12 @@ function()
   if (!(currentNode instanceof Components.interfaces.nsIDOMHTMLHtmlElement))
     return;
   currentNode = currentNode.firstChild;
-  
+
   while(currentNode)
   {
     if (currentNode instanceof Components.interfaces.nsIDOMHTMLHeadElement) {
       currentNode = currentNode.firstChild;
-      
+
       while(currentNode)
       {
         if (currentNode instanceof Components.interfaces.nsIDOMHTMLLinkElement)
@@ -83,7 +83,7 @@ function()
       // Got a comment node or something like that. Moving on.
       currentNode = currentNode.nextSibling;
     }
-  }  
+  }
 }
 
 LinkToolbarUI.prototype.toolbarActive = false;
@@ -127,11 +127,11 @@ function(event)
 {
   // Return if this is one of the menubuttons.
   if (event.target.getAttribute("type") == "menu") return;
-  
+
   if (!event.target.getAttribute("href")) return;
 
   var destURL = event.target.getAttribute("href");
-  
+
   // We have to do a security check here, because we are loading URIs given
   // to us by a web page from chrome, which is privileged.
   try {
@@ -156,7 +156,7 @@ function(checkedItem)
     linkToolbarHandler.clearAllItems();
 }
 
-LinkToolbarUI.prototype.initLinkbarVisibilityMenu = 
+LinkToolbarUI.prototype.initLinkbarVisibilityMenu =
 function()
 {
   var state = document.getElementById("linktoolbar").getAttribute("hidden");

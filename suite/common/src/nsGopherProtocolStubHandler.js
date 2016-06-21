@@ -29,7 +29,7 @@ GopherProtocol.prototype = {
   protocolFlags: Components.interfaces.nsIProtocolHandler.URI_NORELATIVE |
                  Components.interfaces.nsIProtocolHandler.URI_NOAUTH |
                  Components.interfaces.nsIProtocolHandler.URI_LOADABLE_BY_ANYONE,
-  
+
   allowPort: function GP_allowPort(port, scheme) {
     return false; // meaningless.
   },

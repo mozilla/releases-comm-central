@@ -72,7 +72,7 @@ var security = {
         isBroken : isBroken,
         isEV : isEV,
         cert : null,
-        fullLocation : gWindow.location        
+        fullLocation : gWindow.location
       };
     }
   },
@@ -215,7 +215,7 @@ function securityOnLoad() {
   }
   setText("security-technical-shortform", hdr);
   setText("security-technical-longform1", msg1);
-  setText("security-technical-longform2", msg2); 
+  setText("security-technical-longform2", msg2);
   setText("general-security-privacy", hdr);
 }
 

@@ -45,10 +45,10 @@ function OnMailWindowUnload()
     if (gPreQuickSearchView)     //close the cached pre quick search view
       gPreQuickSearchView.close();
   }
-  
+
   var dbview = GetDBView();
   if (dbview) {
-    dbview.close(); 
+    dbview.close();
   }
 
   var mailSession = Components.classes["@mozilla.org/messenger/services/session;1"]
@@ -66,7 +66,7 @@ function CreateMailWindowGlobals()
   // get the messenger instance
   messenger = Components.classes["@mozilla.org/messenger;1"]
                         .createInstance(Components.interfaces.nsIMessenger);
-  
+
   //Create windows status feedback
   // set the JS implementation of status feedback before creating the c++ one..
   window.MsgStatusFeedback = new nsMsgStatusFeedback();
@@ -120,7 +120,7 @@ function InitMsgWindow()
 {
   msgWindow.windowCommands = new nsMsgWindowCommands();
   // set the domWindow before setting the status feedback and header sink objects
-  msgWindow.domWindow = window;  
+  msgWindow.domWindow = window;
   msgWindow.statusFeedback = statusFeedback;
   msgWindow.msgHeaderSink = messageHeaderSink;
   mailSession.AddMsgWindow(msgWindow);
@@ -171,7 +171,7 @@ function messagePaneOnClick(event)
   if (event.button != 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
     return contentAreaClick(event);
 
-  // try to determine the href for what you are clicking on.  
+  // try to determine the href for what you are clicking on.
   // for example, it might be "" if you aren't left clicking on a link
   var ceParams = hrefAndLinkNodeForClickEvent(event);
   if (!ceParams && !event.button)
@@ -207,14 +207,14 @@ function messagePaneOnClick(event)
   }
   var href = ceParams.href;
 
-  // we know that http://, https://, ftp://, file://, chrome://, 
-  // resource://, and about, should load in a browser.  but if 
-  // we don't have one of those (examples are mailto, imap, news, mailbox, snews, 
-  // nntp, ldap, and externally handled schemes like aim) we may or may not 
-  // want a browser window, in which case we return here and let the normal code 
+  // we know that http://, https://, ftp://, file://, chrome://,
+  // resource://, and about, should load in a browser.  but if
+  // we don't have one of those (examples are mailto, imap, news, mailbox, snews,
+  // nntp, ldap, and externally handled schemes like aim) we may or may not
+  // want a browser window, in which case we return here and let the normal code
   // handle it
   var needABrowser = /(^http(s)?:|^ftp:|^file:|^chrome:|^resource:|^about:)/i;
-  if (href.search(needABrowser) == -1) 
+  if (href.search(needABrowser) == -1)
     return true;
 
   // however, if the protocol should not be loaded internally, then we should
@@ -226,12 +226,12 @@ function messagePaneOnClick(event)
     var scheme = href.substring(0, href.indexOf(":"));
     if (!extProtService.isExposedProtocol(scheme))
       return true;
-  } 
+  }
   catch (ex) {} // ignore errors, and just assume that we can proceed.
 
   // if you get here, the user did a simple left click on a link
   // that we know should be in a browser window.
-  // since we are in the message pane, send it to the top most browser window 
+  // since we are in the message pane, send it to the top most browser window
   // (or open one) right away, instead of waiting for us to get some data and
   // determine the content type, and then open a browser window
   // we want to preventDefault, so that in
@@ -448,17 +448,17 @@ nsMsgWindowCommands.prototype =
       return this;
     throw Components.results.NS_NOINTERFACE;
   },
-  
+
   selectFolder: function(folderUri)
   {
     SelectFolder(folderUri);
   },
-  
+
   selectMessage: function(messageUri)
   {
     SelectMessage(messageUri);
   },
-  
+
   clearMsgPane: function()
   {
     if (gDBView)
@@ -466,7 +466,7 @@ nsMsgWindowCommands.prototype =
     else
       setTitleFromFolder(null,null);
     ClearMessagePane();
-  }  
+  }
 }
 
 function StopUrls()
@@ -500,7 +500,7 @@ function loadStartPage()
 }
 
 // Given the server, open the twisty and the set the selection
-// on inbox of that server. 
+// on inbox of that server.
 // prompt if offline.
 function OpenInboxForServer(server)
 {
@@ -531,9 +531,9 @@ function GetSearchSession()
     return null;
 }
 
-function SetKeywords(aKeywords) 
-{ 
-  // we cache the last keywords.  
+function SetKeywords(aKeywords)
+{
+  // we cache the last keywords.
   // if there is no chagne, we do nothing.
   // most of the time, this will be the case.
   if (aKeywords == gLastKeywords)
@@ -567,7 +567,7 @@ function SetKeywords(aKeywords)
     }
   }
 
-  // cache the keywords 
+  // cache the keywords
   gLastKeywords = aKeywords;
 }
 

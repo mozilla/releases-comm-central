@@ -32,7 +32,7 @@ var gSyncUI = {
       this.initUI();
       return;
     }
-    
+
     Services.obs.addObserver(this, "weave:service:ready", true);
 
     // Remove the observer if the window is closed before the observer

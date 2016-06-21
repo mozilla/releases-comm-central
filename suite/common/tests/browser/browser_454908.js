@@ -4,9 +4,9 @@
 
 function test() {
   /** Test for Bug 454908 **/
-  
+
   waitForExplicitFinish();
-  
+
   let fieldValues = {
     username: "User " + Math.random(),
     passwd:   "pwd" + Date.now()
@@ -14,7 +14,7 @@ function test() {
 
   // make sure we do save form data
   Services.prefs.setIntPref("browser.sessionstore.privacy_level", 0);
-  
+
   let rootDir = getRootDirectory(gTestPath);
   let testURL = rootDir + "browser_454908_sample.html";
   let tab = getBrowser().addTab(testURL);
@@ -23,9 +23,9 @@ function test() {
     let doc = tab.linkedBrowser.contentDocument;
     for (let id in fieldValues)
       doc.getElementById(id).value = fieldValues[id];
-    
+
     getBrowser().removeTab(tab);
-    
+
     tab = getBrowser().undoCloseTab();
     tab.linkedBrowser.addEventListener("load", function testTabLBLoad2(aEvent) {
       tab.linkedBrowser.removeEventListener("load", testTabLBLoad2, true);
@@ -37,7 +37,7 @@ function test() {
         else
           is(node.value, fieldValues[id], "username was saved/restored");
       }
-      
+
       // clean up
       if (Services.prefs.prefHasUserValue("browser.sessionstore.privacy_level"))
         Services.prefs.clearUserPref("browser.sessionstore.privacy_level");

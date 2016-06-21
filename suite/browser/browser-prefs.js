@@ -466,7 +466,7 @@ pref("browser.sessionstore.max_windows_undo", 3);
 pref("browser.sessionstore.max_concurrent_tabs", 3);
 
 pref("shell.checkDefaultClient", true);
-// We want to check if we are the default client for browser and mail. See 
+// We want to check if we are the default client for browser and mail. See
 // suite/shell/public/nsIShellService.idl for the possible constants you can use
 pref("shell.checkDefaultApps", 3);
 
@@ -480,7 +480,7 @@ pref("app.support.baseURL", "http://www.seamonkey-project.org/doc/");
 
 // Whether or not app updates are enabled
 pref("app.update.enabled", true);
- 
+
 // This preference allows automatic download and install to take place.
 pref("app.update.auto", true);
 
@@ -493,12 +493,12 @@ pref("app.update.url", "https://aus2-community.mozilla.org/update/3/%PRODUCT%/%V
 // attempts fail.
 pref("app.update.url.manual", "http://www.seamonkey-project.org/");
 // A default value for the "More information about this update" link
-// supplied in the "An update is available" page of the update wizard. 
+// supplied in the "An update is available" page of the update wizard.
 pref("app.update.url.details", "chrome://communicator-region/locale/region.properties");
- 
+
 // User-settable override to app.update.url for testing purposes.
 //pref("app.update.url.override", "");
- 
+
 // Enables some extra Application Update Logging (can reduce performance)
 pref("app.update.log", false);
 
@@ -556,7 +556,7 @@ pref("app.update.promptWaitTime", 43200);
 #endif
 // Show the Update Checking/Ready UI when the user was idle for x seconds
 pref("app.update.idletime", 60);
- 
+
 // Extension preferences
 
 // Enables some extra Extension System Logging (can reduce performance)
@@ -643,14 +643,14 @@ pref("sidebar.num_tabs_in_view", 8);
 
 pref("browser.throbber.url","chrome://navigator-region/locale/region.properties");
 
-// pref to control the alert notification 
+// pref to control the alert notification
 pref("alerts.slideIncrement", 1);
 pref("alerts.slideIncrementTime", 10);
 pref("alerts.totalOpenTime", 10000);
 
 // 0 opens the download manager
 // 1 opens a progress dialog
-// 2 and other values, no download manager, no progress dialog. 
+// 2 and other values, no download manager, no progress dialog.
 pref("browser.download.manager.behavior", 0);
 
 pref("privacy.popups.sound_enabled",              false);

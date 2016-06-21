@@ -45,7 +45,7 @@ function test() {
 
           // close tab, restore default values and finish the test
           getBrowser().removeTab(tab);
-          // we need this if-statement because if there is no user set value, 
+          // we need this if-statement because if there is no user set value,
           // clearUserPref throws a uncatched exception and finish is not called
           if (Services.prefs.prefHasUserValue("browser.startup.page"))
             Services.prefs.clearUserPref("browser.startup.page");

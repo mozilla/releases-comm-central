@@ -166,7 +166,7 @@ function BisectString(aPrev, aNext)
                                                 : kOrdinalPadding;
     var prevCode = prevChar.charCodeAt(0);
     var nextCode = nextChar.charCodeAt(0);
-    if (prevCode == nextCode) 
+    if (prevCode == nextCode)
     {
       // copy common characters
       result += prevChar;

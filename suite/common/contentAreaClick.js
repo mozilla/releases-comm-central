@@ -46,7 +46,7 @@
   // Called whenever the user clicks in the content area,
   // except when left-clicking on links (special case)
   // should always return true for click to go through
-  function contentAreaClick(event) 
+  function contentAreaClick(event)
   {
     if (!event.isTrusted || event.defaultPrevented) {
       return true;
@@ -62,7 +62,7 @@
       }
       else {
         // if in mailnews block the link left click if we determine
-        // that this URL is phishy (i.e. a potential email scam) 
+        // that this URL is phishy (i.e. a potential email scam)
         if ("gMessengerBundle" in this && event.button < 2 &&
             isPhishingURL(ceParams.linkNode, false, href))
           return false;

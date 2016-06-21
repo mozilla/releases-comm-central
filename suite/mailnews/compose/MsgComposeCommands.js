@@ -2137,7 +2137,7 @@ function ComposeCanClose()
       case 2: //Don't Save
         // only delete the draft if we didn't start off editing a draft
         if (!gEditingDraft && gAutoSaveKickedIn)
-          RemoveDraft();            
+          RemoveDraft();
         break;
     }
   }
@@ -2153,11 +2153,11 @@ function RemoveDraft()
     var msgKey = draftId.substr(draftId.indexOf('#') + 1);
     var folder = sRDF.GetResource(gMsgCompose.savedFolderURI);
     try {
-      if (folder instanceof Components.interfaces.nsIMsgFolder) 
+      if (folder instanceof Components.interfaces.nsIMsgFolder)
       {
         var msgs = Components.classes["@mozilla.org/array;1"]
                              .createInstance(Components.interfaces.nsIMutableArray);
-        msgs.appendElement(folder.GetMessageHeader(msgKey), false);    
+        msgs.appendElement(folder.GetMessageHeader(msgKey), false);
         folder.deleteMessages(msgs, null, true, false, null, false);
       }
     }

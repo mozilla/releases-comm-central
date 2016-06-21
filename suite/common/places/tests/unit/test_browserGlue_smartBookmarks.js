@@ -220,7 +220,7 @@ tests.push({
 
 tests.push({
   description: "An explicitly removed smart bookmark should not be recreated.",
-  exec: function() {   
+  exec: function() {
     // Remove toolbar's smart bookmarks
     PlacesUtils.bookmarks.removeItem(PlacesUtils.bookmarks.getIdForItemAt(PlacesUtils.toolbarFolderId, 0));
 

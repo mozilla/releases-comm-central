@@ -88,7 +88,7 @@ var gEditItemOverlay = {
    * Initialize the panel
    * @param aFor
    *        Either a places-itemId (of a bookmark, folder or a live bookmark),
-   *        an array of itemIds (used for bulk tagging), or a URI object (in 
+   *        an array of itemIds (used for bulk tagging), or a URI object (in
    *        which case, the panel would be initialized in read-only mode).
    * @param [optional] aInfo
    *        JS object which stores additional info for the panel
@@ -159,7 +159,7 @@ var gEditItemOverlay = {
       this._initFolderMenuList(containerId);
 
       // description field
-      this._initTextField("descriptionField", 
+      this._initTextField("descriptionField",
                           PlacesUIUtils.getItemDescription(this._itemId));
     }
 
@@ -416,7 +416,7 @@ var gEditItemOverlay = {
     if (tags.length > 0 || currentTags.length > 0) {
       var tagsToRemove = [];
       var tagsToAdd = [];
-      var txns = []; 
+      var txns = [];
       for (var i = 0; i < currentTags.length; i++) {
         if (tags.indexOf(currentTags[i]) == -1)
           tagsToRemove.push(currentTags[i]);
@@ -473,7 +473,7 @@ var gEditItemOverlay = {
     if (tags.length > 0 || this._allTags.length > 0) {
       var tagsToRemove = [];
       var tagsToAdd = [];
-      var txns = []; 
+      var txns = [];
       for (var i = 0; i < this._allTags.length; i++) {
         if (tags.indexOf(this._allTags[i]) == -1)
           tagsToRemove.push(this._allTags[i]);

@@ -34,7 +34,7 @@ function Startup()
   // Calculate a sane default for network.proxy.share_proxy_settings.
   if (gShareSettings.value == null)
     gShareSettings.value = DefaultForShareSettingsPref();
-  
+
   // The pref value 3 (kObsoleteProxy) for network.proxy.type is unused to
   // maintain backwards compatibility. Treat 3 (kObsoleteProxy) equally to
   // 0 (kNoProxy). See bug 115720.

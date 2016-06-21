@@ -33,7 +33,7 @@ function test() {
       docShell[attribute] = false;
     }
   }
-  
+
   // make sure that all available permissions have been remembered
   tabState = JSON.parse(ss.getTabState(tab));
   let disallow = tabState.disallow.split(",");
@@ -42,7 +42,7 @@ function test() {
   });
   // IF A TEST FAILS, please add the missing permission's name (without the
   // leading "allow") to nsSessionStore.js's CAPABILITIES array. Thanks.
-  
+
   getBrowser().removeTab(tab);
   is(browserWindowsCount(), 1, "Only one browser window should be open eventually");
 }

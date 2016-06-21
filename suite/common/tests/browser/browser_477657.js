@@ -15,13 +15,13 @@ function browserWindowsCount() {
 function test() {
   /** Test for Bug 477657 **/
   is(browserWindowsCount(), 1, "Only one browser window should be open initially");
-  
+
   // Test fails randomly on OS X (bug 482975)
   if ("nsILocalFileMac" in Components.interfaces)
     return;
 
   waitForExplicitFinish();
-  
+
   let newWin = openDialog(location, "_blank", "chrome,all,dialog=no");
   newWin.addEventListener("load", function loadListener(aEvent) {
     newWin.removeEventListener("load", loadListener, false);

@@ -46,7 +46,7 @@ function InitLanguageMenu() {
   // If we have a language string bundle, load the region string bundle.
   if (languageBundle)
     regionBundle = document.getElementById("regionNamesBundle");
-  
+
   var menuStr2;
   var isoStrArray;
   var langId;
@@ -78,7 +78,7 @@ function InitLanguageMenu() {
     }
     dictList[i] = [langLabel, langId];
   }
-  
+
   // sort by locale-aware collation
   dictList.sort(
     function compareFn(a, b) {

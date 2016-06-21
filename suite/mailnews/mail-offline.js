@@ -28,7 +28,7 @@ function CheckForUnsentMessages()
 // Init strings.
 function InitPrompts()
 {
-  if (!gOfflinePromptsBundle) 
+  if (!gOfflinePromptsBundle)
     gOfflinePromptsBundle = document.getElementById("bundle_offlinePrompts");
 }
 
@@ -41,14 +41,14 @@ function PromptSendMessages()
   var checkValue = {value:true};
   var buttonPressed = Services.prompt.confirmEx(
       window,
-      gOfflinePromptsBundle.getString('sendMessagesWindowTitle'), 
+      gOfflinePromptsBundle.getString('sendMessagesWindowTitle'),
       gOfflinePromptsBundle.getString('sendMessagesLabel2'),
-      Services.prompt.BUTTON_TITLE_IS_STRING * (Services.prompt.BUTTON_POS_0 + 
+      Services.prompt.BUTTON_TITLE_IS_STRING * (Services.prompt.BUTTON_POS_0 +
       Services.prompt.BUTTON_POS_1 + Services.prompt.BUTTON_POS_2),
       gOfflinePromptsBundle.getString('sendMessagesSendButtonLabel'),
       gOfflinePromptsBundle.getString('sendMessagesCancelButtonLabel'),
       gOfflinePromptsBundle.getString('sendMessagesNoSendButtonLabel'),
-      gOfflinePromptsBundle.getString('sendMessagesCheckboxLabel'), 
+      gOfflinePromptsBundle.getString('sendMessagesCheckboxLabel'),
       checkValue);
   switch (buttonPressed) {
     case 0:
@@ -72,15 +72,15 @@ function PromptDownloadMessages()
 
   var checkValue = {value:true};
   var buttonPressed = Services.prompt.confirmEx(
-    window, 
-    gOfflinePromptsBundle.getString('downloadMessagesWindowTitle'), 
+    window,
+    gOfflinePromptsBundle.getString('downloadMessagesWindowTitle'),
     gOfflinePromptsBundle.getString('downloadMessagesLabel'),
-    Services.prompt.BUTTON_TITLE_IS_STRING * (Services.prompt.BUTTON_POS_0 + 
+    Services.prompt.BUTTON_TITLE_IS_STRING * (Services.prompt.BUTTON_POS_0 +
     Services.prompt.BUTTON_POS_1 + Services.prompt.BUTTON_POS_2),
     gOfflinePromptsBundle.getString('downloadMessagesDownloadButtonLabel'),
     gOfflinePromptsBundle.getString('downloadMessagesCancelButtonLabel'),
-    gOfflinePromptsBundle.getString('downloadMessagesNoDownloadButtonLabel'), 
-    gOfflinePromptsBundle.getString('downloadMessagesCheckboxLabel'), 
+    gOfflinePromptsBundle.getString('downloadMessagesNoDownloadButtonLabel'),
+    gOfflinePromptsBundle.getString('downloadMessagesCheckboxLabel'),
     checkValue);
   switch (buttonPressed) {
     case 0:
@@ -99,7 +99,7 @@ function PromptDownloadMessages()
 // Init Pref Service & Offline Manager
 function InitServices()
 {
-  if (!gOfflineManager) 
+  if (!gOfflineManager)
     GetOfflineMgrService();
 }
 
@@ -107,7 +107,7 @@ function InitServices()
 function GetOfflineMgrService()
 {
   if (!gOfflineManager) {
-    gOfflineManager = Components.classes["@mozilla.org/messenger/offline-manager;1"]                 
+    gOfflineManager = Components.classes["@mozilla.org/messenger/offline-manager;1"]
         .getService(Components.interfaces.nsIMsgOfflineManager);
   }
 }
@@ -122,23 +122,23 @@ function MailCheckBeforeOfflineChange()
   if (Services.io.offline) {
     switch(Services.prefs.getIntPref("offline.send.unsent_messages")) {
     case 0:
-      if(CheckForUnsentMessages()) { 
-        if(! PromptSendMessages()) 
+      if(CheckForUnsentMessages()) {
+        if(! PromptSendMessages())
           return false;
       }
-      else 
-        gOfflineManager.goOnline(false /* sendUnsentMessages */, 
-                                 true /* playbackOfflineImapOperations */, 
+      else
+        gOfflineManager.goOnline(false /* sendUnsentMessages */,
+                                 true /* playbackOfflineImapOperations */,
                                  msgWindow);
       break;
     case 1:
-      gOfflineManager.goOnline(CheckForUnsentMessages() /* sendUnsentMessages */, 
-                               true  /* playbackOfflineImapOperations */, 
+      gOfflineManager.goOnline(CheckForUnsentMessages() /* sendUnsentMessages */,
+                               true  /* playbackOfflineImapOperations */,
                                msgWindow);
       break;
     case 2:
-      gOfflineManager.goOnline(false /* sendUnsentMessages */, 
-                               true /* playbackOfflineImapOperations */, 
+      gOfflineManager.goOnline(false /* sendUnsentMessages */,
+                               true /* playbackOfflineImapOperations */,
                                msgWindow);
       break;
     }

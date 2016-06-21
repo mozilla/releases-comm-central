@@ -1609,7 +1609,7 @@ function BrowserTryToCloseWindow()
     BrowserCloseWindow();
 }
 
-function BrowserCloseWindow() 
+function BrowserCloseWindow()
 {
   // This code replicates stuff in Shutdown().  It is here because
   // window.screenX and window.screenY have real values.  We need
@@ -2623,7 +2623,7 @@ function convertFromUnicode(charset, str)
     str = unicodeConverter.ConvertFromUnicode(str);
     return str + unicodeConverter.Finish();
   } catch(ex) {
-    return null; 
+    return null;
   }
 }
 

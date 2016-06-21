@@ -152,7 +152,7 @@ SessionStoreService.prototype = {
 
   // states for all currently opened windows
   _windows: {},
-  
+
   // states for all recently closed windows
   _closedWindows: [],
 
@@ -254,7 +254,7 @@ SessionStoreService.prototype = {
           if (lastSessionCrashed) {
             this._recentCrashes = (this._initialState.session &&
                                    this._initialState.session.recentCrashes || 0) + 1;
-            
+
             if (this._needsRestorePage(this._initialState, this._recentCrashes)) {
               // replace the crashed session with a restore-page-only session
               let pageData = {
@@ -1947,7 +1947,7 @@ SessionStoreService.prototype = {
    */
   _extractHostsForCookiesFromEntry:
     function sss__extractHostsForCookiesFromEntry(aEntry, aHosts, aCheckPrivacy, aIsPinned) {
- 
+
     if (aEntry.children) {
       aEntry.children.forEach(function(entry) {
         this._extractHostsForCookiesFromEntry(entry, aHosts, aCheckPrivacy, aIsPinned);
@@ -2283,7 +2283,7 @@ SessionStoreService.prototype = {
     var tabstrip = tabbrowser.tabContainer.mTabstrip;
     var smoothScroll = tabstrip.smoothScroll;
     tabstrip.smoothScroll = false;
-    
+
     // make sure that the selected tab won't be closed in order to
     // prevent unnecessary flickering
     if (aOverwriteTabs && tabbrowser.tabContainer.selectedIndex >= newTabCount)
@@ -3095,7 +3095,7 @@ SessionStoreService.prototype = {
         aTop = screenTop.value + screenHeight.value - aHeight;
       }
     }
- 
+
     // only modify those aspects which aren't correct yet
     if (aWidth && aHeight && (aWidth != win_("width") || aHeight != win_("height"))) {
       aWindow.resizeTo(aWidth, aHeight);

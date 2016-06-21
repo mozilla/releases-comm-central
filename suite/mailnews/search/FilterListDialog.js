@@ -32,7 +32,7 @@ var gStatusFeedback = {
     gRunFiltersButton.setAttribute("accesskey", gRunFiltersButton.getAttribute("stopaccesskey"));
     gStatusBar.setAttribute("mode", "undetermined");
   },
-	stopMeteors: function() 
+	stopMeteors: function()
   {
     try {
       // change run button to be a stop button
@@ -127,8 +127,8 @@ function onLoad()
 {
     setHelpFileURI("chrome://communicator/locale/help/suitehelp.rdf");
     gFilterListMsgWindow = Components.classes["@mozilla.org/messenger/msgwindow;1"].createInstance(Components.interfaces.nsIMsgWindow);
-    gFilterListMsgWindow.domWindow = window; 
-    gFilterListMsgWindow.rootDocShell.appType = Components.interfaces.nsIDocShell.APP_TYPE_MAIL;   
+    gFilterListMsgWindow.domWindow = window;
+    gFilterListMsgWindow.rootDocShell.appType = Components.interfaces.nsIDocShell.APP_TYPE_MAIL;
     gFilterListMsgWindow.statusFeedback = gStatusFeedback;
 
     gFilterBundle = document.getElementById("bundle_filter");
@@ -288,7 +288,7 @@ function onFilterSelect(event)
     updateButtons();
 }
 
-function onEditFilter() 
+function onEditFilter()
 {
   var selectedFilter = currentFilter();
   var curFilterList = currentFilterList();
@@ -305,7 +305,7 @@ function onNewFilter(emailAddress)
   var position = Math.max(gFilterTree.currentIndex, 0);
   var args = {filterList: curFilterList,
               filterPosition: position, refresh: false};
-  
+
   window.openDialog("chrome://messenger/content/FilterEditor.xul", "FilterEditor", "chrome,modal,titlebar,resizable,centerscreen", args);
 
   if (args.refresh)
@@ -324,8 +324,8 @@ function onDeleteFilter()
 
   var sel = gFilterTree.view.selection;
   var selCount = sel.getRangeCount();
-  if (!selCount || 
-      Services.prompt.confirmEx(window, null, 
+  if (!selCount ||
+      Services.prompt.confirmEx(window, null,
                         gFilterBundle.getString("deleteFilterConfirmation"),
                         Services.prompt.STD_YES_NO_BUTTONS,
                         '', '', '', '', {}))
@@ -365,7 +365,7 @@ function onFilterUnload()
 {
   // make sure to save the filter to disk
   var filterList = currentFilterList();
-  if (filterList) 
+  if (filterList)
     filterList.saveToDefaultFile();
 
   Services.obs.removeObserver(onFilterClose, "quit-application-requested");
@@ -407,7 +407,7 @@ function runSelectedFilters()
     gFilterListMsgWindow.StopUrls();
     return;
   }
-  
+
   var msgFolder = gRunFiltersFolderPicker._folder || gRunFiltersFolderPicker.selectedItem._folder;
   var filterList = MailServices.filters.getTempFilterList(msgFolder);
   var folders = Components.classes["@mozilla.org/array;1"]
@@ -435,7 +435,7 @@ function moveCurrentFilter(motion)
 {
     var filterList = currentFilterList();
     var filter = currentFilter();
-    if (!filterList || !filter) 
+    if (!filterList || !filter)
       return;
 
     filterList.moveFilter(filter, motion);
@@ -455,7 +455,7 @@ function updateButtons()
     var filter = currentFilter();
     // "edit" only enabled when one filter selected or if we couldn't parse the filter
     gEditButton.disabled = !oneFilterSelected || filter.unparseable;
-    
+
     // "delete" only disabled when no filters are selected
     gDeleteButton.disabled = !numFiltersSelected;
 
@@ -483,7 +483,7 @@ function getFilterFolderForSelection()
 {
     var args = window.arguments;
     var selectedFolder = args[0].folder;
-  
+
     if (args && args[0] && selectedFolder)
     {
         var msgFolder = selectedFolder.QueryInterface(Components.interfaces.nsIMsgFolder);

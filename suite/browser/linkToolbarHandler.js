@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** 
- * LinkToolbarHandler is a Singleton that displays LINK elements 
+/**
+ * LinkToolbarHandler is a Singleton that displays LINK elements
  * and nodeLists of LINK elements in the Link Toolbar.  It
- * associates the LINK with a corresponding LinkToolbarItem based 
+ * associates the LINK with a corresponding LinkToolbarItem based
  * on it's REL attribute and the toolbar item's ID attribute.
- * LinkToolbarHandler is also a Factory and will create 
+ * LinkToolbarHandler is also a Factory and will create
  * LinkToolbarItems as necessary.
  */
 function LinkToolbarHandler()
@@ -149,19 +149,19 @@ var gLanguageBundle;
 function LinkElementDecorator(element) {
   /*
    * XXX: this is an incomplete decorator, because it doesn't implement
-   *      the full Element interface.  If you need to use a method 
+   *      the full Element interface.  If you need to use a method
    *      or member in the Element interface, just add it here and
    *      have it delegate to this.element
    *
    * XXX: would rather add some methods to Element.prototype instead of
-   *    using a decorator, but Element.prototype is no longer exposed 
+   *    using a decorator, but Element.prototype is no longer exposed
    *      since the XPCDOM landing, see bug 83433
    */
 
   if (!element) return; // skip the rest on foo.prototype = new ThisClass calls
-  
+
   this.element = element;
-  
+
   this.rel = LinkElementDecorator.convertRevMade(element.rel, element.rev);
   if (this.rel)
     this.relValues = this.rel.split(" ");
@@ -184,7 +184,7 @@ function()
 }
 
 LinkElementDecorator.convertRevMade =
-function(rel, rev) 
+function(rel, rev)
 {
   if (!rel && rev && /\bmade\b/i.test(rev))
     return rev;
@@ -193,19 +193,19 @@ function(rel, rev)
 }
 
 LinkElementDecorator.prototype.getTooltip =
-function() 
+function()
 {
   return this.getLongTitle() || this.href;
 }
 
 LinkElementDecorator.prototype.getLabel =
-function() 
+function()
 {
   return this.getLongTitle() || this.rel;
 }
 
 LinkElementDecorator.prototype.getLongTitle =
-function() 
+function()
 {
   if (this.longTitle == null)
     this.longTitle = this.makeLongTitle();
@@ -218,7 +218,7 @@ function()
 {
   var prefix = "";
 
-  // XXX: lookup more meaningful and localized version of media, 
+  // XXX: lookup more meaningful and localized version of media,
   //   i.e. media="print" becomes "Printable" or some such
   // XXX: use localized version of ":" separator
   if (this.media && !/\ball\b|\bscreen\b/i.test(this.media))
@@ -246,9 +246,9 @@ function AnchorElementDecorator(element) {
 AnchorElementDecorator.prototype = new LinkElementDecorator;
 
 AnchorElementDecorator.prototype.getLongTitle =
-function() 
+function()
 {
-  return this.title ? this.__proto__.getLongTitle.apply(this) 
+  return this.title ? this.__proto__.getLongTitle.apply(this)
       : getText(this.element);
 }
 
@@ -259,7 +259,7 @@ function(element)
 }
 
 AnchorElementDecorator.prototype.getTextRecursive =
-function(node) 
+function(node)
 {
   var text = "";
   node.normalize();

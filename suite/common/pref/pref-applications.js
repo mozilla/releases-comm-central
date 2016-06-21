@@ -125,7 +125,7 @@ function getLocalHandlerApp(aFile) {
  * An enumeration of items in a JS array.
  *
  * FIXME: use ArrayConverter once it lands (bug 380839).
- * 
+ *
  * @constructor
  */
 function ArrayEnumerator(aItems) {
@@ -998,7 +998,7 @@ var gApplicationsPane = {
    * enabledPlugin property.  But if there's a plugin for a type, we need
    * to know about it even if it isn't enabled, since we're going to give
    * the user an option to enable it.
-   * 
+   *
    * I'll also note that my reading of nsPluginTag::RegisterWithCategoryManager
    * suggests that enabledPlugin is only determined during registration
    * and does not get updated when plugin.disable_full_page_plugin_for_types
@@ -1422,7 +1422,7 @@ var gApplicationsPane = {
       menu.value = nsIHandlerInfo.alwaysAsk;
     else if (handlerInfo.preferredAction == nsIHandlerInfo.useHelperApp &&
              preferredApp)
-      menu.selectedItem = 
+      menu.selectedItem =
         possibleAppMenuItems.filter(v => v.handlerApp.equals(preferredApp))[0];
     else
       menu.value = handlerInfo.preferredAction;
@@ -1578,7 +1578,7 @@ var gApplicationsPane = {
 
     if (isFeedType(handlerInfo.type)) {
       // MIME info will be null, create a temp object.
-      params.mimeInfo = mimeSvc.getFromTypeAndExtension(handlerInfo.type, 
+      params.mimeInfo = mimeSvc.getFromTypeAndExtension(handlerInfo.type,
                                                  handlerInfo.primaryExtension);
     } else {
       params.mimeInfo = handlerInfo.wrappedHandlerInfo;

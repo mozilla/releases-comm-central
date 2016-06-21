@@ -4,18 +4,18 @@
 
 function test() {
   /** Test for Bug 448741 **/
-  
+
   waitForExplicitFinish();
-  
+
   let uniqueName = "bug 448741";
   let uniqueValue = "as good as unique: " + Date.now();
-  
+
   // set a unique value on a new, blank tab
   var tab = getBrowser().addTab();
   tab.linkedBrowser.stop();
   ss.setTabValue(tab, uniqueName, uniqueValue);
   let valueWasCleaned = false;
-  
+
   // prevent our value from being written to disk
   function cleaningObserver(aSubject, aTopic, aData) {
     ok(aTopic == "sessionstore-state-write", "observed correct topic?");
@@ -38,7 +38,7 @@ function test() {
     aSubject.data = JSON.stringify(state);
     Services.obs.removeObserver(cleaningObserver, aTopic, false);
   }
-  
+
   // make sure that all later observers don't see that value any longer
   function checkingObserver(aSubject, aTopic, aData) {
     ok(valueWasCleaned && aSubject instanceof Ci.nsISupportsString,
@@ -52,11 +52,11 @@ function test() {
       Services.prefs.clearUserPref("browser.sessionstore.interval");
     finish();
   }
-  
+
   // last added observers are invoked first
   Services.obs.addObserver(checkingObserver, "sessionstore-state-write", false);
   Services.obs.addObserver(cleaningObserver, "sessionstore-state-write", false);
-  
+
   // trigger an immediate save operation
   Services.prefs.setIntPref("browser.sessionstore.interval", 0);
 }

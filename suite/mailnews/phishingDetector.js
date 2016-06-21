@@ -21,7 +21,7 @@ const kPhishingWithMismatchedHosts = 2;
 //////////////////////////////////////////////////////////////////////////////
 function isMsgEmailScam(aUrl)
 {
-  var isEmailScam = false; 
+  var isEmailScam = false;
   if (!aUrl || !Services.prefs.getBoolPref("mail.phishing.detection.enabled"))
     return isEmailScam;
 
@@ -90,7 +90,7 @@ function isPhishingURL(aLinkNode, aSilentMode, aHref)
   var isPhishingURL = false;
 
   var hrefURL = Services.io.newURI(href, null, null);
-  
+
   // only check for phishing urls if the url is an http or https link.
   // this prevents us from flagging imap and other internally handled urls
   if (hrefURL.schemeIs('http') || hrefURL.schemeIs('https'))

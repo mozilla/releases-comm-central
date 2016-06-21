@@ -132,7 +132,7 @@ var gSyncPane = {
     let win = Services.wm.getMostRecentWindow("Sync:AddDevice");
     if (win)
       win.focus();
-    else 
+    else
       window.openDialog("chrome://communicator/content/sync/syncAddDevice.xul",
                         "syncAddDevice", "centerscreen,chrome,resizable=no");
   },

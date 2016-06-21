@@ -306,7 +306,7 @@ function test_setWindowStateNoOverwrite() {
     loadCount++;
 
     // When loadCount == 2, we'll also restore state2 into the window
-    if (loadCount == 2) 
+    if (loadCount == 2)
       ss.setWindowState(window, JSON.stringify(state2), false);
 
     if (loadCount < numTabs)

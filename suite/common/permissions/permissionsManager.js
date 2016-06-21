@@ -167,7 +167,7 @@ function capabilityString(aCapability) {
       break;
     default:
       break;
-  } 
+  }
   return permissionsBundle.getString(capability);
 }
 
@@ -178,7 +178,7 @@ function permissionPush(aId, aHost, aType, aString, aCapability) {
 }
 
 function permissionColumnSort(aColumn, aUpdateSelection) {
-  sortAscending = 
+  sortAscending =
     SortTree(permissionsTree, permissionsTreeView, additions,
              aColumn, sortColumn, sortAscending, aUpdateSelection);
   sortColumn = aColumn;

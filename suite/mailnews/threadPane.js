@@ -72,7 +72,7 @@ function ThreadPaneOnClick(event)
 function nsMsgDBViewCommandUpdater()
 {}
 
-nsMsgDBViewCommandUpdater.prototype = 
+nsMsgDBViewCommandUpdater.prototype =
 {
   updateCommandStatus : function()
     {
@@ -103,7 +103,7 @@ nsMsgDBViewCommandUpdater.prototype =
      if (iid.equals(Components.interfaces.nsIMsgDBViewCommandUpdater) ||
          iid.equals(Components.interfaces.nsISupports))
        return this;
-	  
+
      throw Components.results.NS_NOINTERFACE;
     }
 }
@@ -141,7 +141,7 @@ function HandleColumnClick(columnID)
       // it exists - save this column ID in the customSortCol property of
       // dbFolderInfo for later use (see nsIMsgDBView.cpp)
       gDBView.db.dBFolderInfo.setProperty('customSortCol', columnID);
-        
+
       sortType = "byCustom";
     } catch(err) {
         dump("unsupported sort column: " + columnID + " - no custom handler installed. (Error was: " + err + ")\n");
@@ -258,7 +258,7 @@ function MsgSortThreaded()
     let wasGrouped = viewFlags & nsMsgViewFlagsType.kGroupBySort;
     dbview.viewFlags &= ~nsMsgViewFlagsType.kGroupBySort;
     // if we were grouped, and not a saved search, just rebuild the view
-    if (wasGrouped && !(gMsgFolderSelected.flags & 
+    if (wasGrouped && !(gMsgFolderSelected.flags &
                        Components.interfaces.nsMsgFolderFlags.Virtual))
       SwitchView("cmd_viewAllMsgs");
     // Toggle if not already threaded.
@@ -275,7 +275,7 @@ function MsgGroupBySort()
   var count = new Object;
   var msgFolder = dbview.msgFolder;
 
-  var sortTypeSupportsGrouping = (sortType == nsMsgViewSortType.byAuthor 
+  var sortTypeSupportsGrouping = (sortType == nsMsgViewSortType.byAuthor
          || sortType == nsMsgViewSortType.byDate || sortType == nsMsgViewSortType.byReceived || sortType == nsMsgViewSortType.byPriority
          || sortType == nsMsgViewSortType.bySubject || sortType == nsMsgViewSortType.byTags
          || sortType == nsMsgViewSortType.byStatus  || sortType == nsMsgViewSortType.byRecipient
@@ -336,7 +336,7 @@ function MsgSortDescending()
 
 function groupedBySortUsingDummyRow()
 {
-  return (gDBView.viewFlags & nsMsgViewFlagsType.kGroupBySort) && 
+  return (gDBView.viewFlags & nsMsgViewFlagsType.kGroupBySort) &&
          (gDBView.sortType != nsMsgViewSortType.bySubject);
 }
 
@@ -356,12 +356,12 @@ function UpdateSortIndicators(sortType, sortOrder)
     sortedColumn = document.getElementById(colID);
 
   var dbview = GetDBView();
-  var currCol = dbview.viewFlags & nsMsgViewFlagsType.kGroupBySort 
+  var currCol = dbview.viewFlags & nsMsgViewFlagsType.kGroupBySort
     ? sortedColumn : document.getElementById("subjectCol");
 
   if (dbview.viewFlags & nsMsgViewFlagsType.kGroupBySort)
   {
-    var threadTree = document.getElementById("threadTree");  
+    var threadTree = document.getElementById("threadTree");
     var subjectCol = document.getElementById("subjectCol");
 
     if (groupedBySortUsingDummyRow())
@@ -370,7 +370,7 @@ function UpdateSortIndicators(sortType, sortOrder)
       subjectCol.setAttribute("primary", "true");
     }
 
-    // hide the threaded column when in grouped view since you can't do 
+    // hide the threaded column when in grouped view since you can't do
     // threads inside of a group.
     document.getElementById("threadCol").collapsed = true;
   }
@@ -425,7 +425,7 @@ function EnsureRowInThreadTreeIsVisible(index)
     return;
 
   var tree = GetThreadTree();
-  tree.treeBoxObject.ensureRowIsVisible(index); 
+  tree.treeBoxObject.ensureRowIsVisible(index);
 }
 
 function RerootThreadPane()

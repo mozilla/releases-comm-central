@@ -105,7 +105,7 @@ function initRow(aPartId)
   var pm = Services.perms;
   var perm = aPartId == "geo" ? pm.testExactPermissionFromPrincipal(gPermPrincipal, aPartId) :
                                 pm.testPermissionFromPrincipal(gPermPrincipal, aPartId);
- 
+
   if (perm) {
     checkbox.checked = false;
     command.removeAttribute("disabled");

@@ -4,9 +4,9 @@
 
 function test() {
   /** Test for Bug 485482, ported by Bug 487922 **/
-  
+
   waitForExplicitFinish();
-  
+
   let uniqueValue = Math.random();
 
   let rootDir = getRootDirectory(gTestPath);
@@ -17,7 +17,7 @@ function test() {
     let doc = tab.linkedBrowser.contentDocument;
     doc.querySelector("input[type=text]").value = uniqueValue;
     doc.querySelector("input[type=checkbox]").checked = true;
-    
+
     let tab2 = ss.duplicateTab(window, tab);
     tab2.linkedBrowser.addEventListener("load", function testTab2LBLoad(aEvent) {
       tab2.linkedBrowser.removeEventListener("load", testTab2LBLoad, true);
@@ -26,7 +26,7 @@ function test() {
          "generated XPath expression was valid");
       ok(doc.querySelector("input[type=checkbox]").checked,
          "generated XPath expression was valid");
-      
+
       // clean up
       getBrowser().removeTab(tab2);
       getBrowser().removeTab(tab);

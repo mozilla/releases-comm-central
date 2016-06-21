@@ -8,7 +8,7 @@
  * widget/menu item, which gets some context (like the current selection)
  * and then calls a function/command in commandglue
  */
- 
+
 //The eventual goal is for this file to go away and its contents to be brought into
 //mailWindowOverlay.js.  This is currently being done.
 
@@ -22,7 +22,7 @@ function GetSelectedFolderURI()
   return folders.length == 1 ? folders[0].URI : null;
 }
 
-function MsgRenameFolder() 
+function MsgRenameFolder()
 {
   let folder = GetSelectedMsgFolders()[0];
   let dialog = window.openDialog(
@@ -38,7 +38,7 @@ function RenameFolder(name,uri)
   var folderTree = GetFolderTree();
   if (folderTree)
   {
-    if (uri && (uri != "") && name && (name != "")) 
+    if (uri && (uri != "") && name && (name != ""))
     {
       var selectedFolder = GetMsgFolderFromUri(uri);
       if (gDBView)
@@ -59,12 +59,12 @@ function RenameFolder(name,uri)
         dump ("Exception : RenameFolder \n");
       }
     }
-    else 
+    else
     {
       dump("no name or nothing selected\n");
-    }   
+    }
   }
-  else 
+  else
   {
     dump("no folder tree\n");
   }
@@ -161,7 +161,7 @@ function MsgFolderProperties()
   }
 
   if (msgFolder.flags & Components.interfaces.nsMsgFolderFlags.Virtual)
-  { 
+  {
     // virtual folders get their own property dialog that contains all of the
     // search information related to the virtual folder.
     MsgVirtualFolderProperties(true);
@@ -215,9 +215,9 @@ function FolderProperties(name, oldName, uri)
 }
 
 // Given a URI we would like to return corresponding message folder here.
-// An additonal input param which specifies whether or not to check folder 
+// An additonal input param which specifies whether or not to check folder
 // attributes (like if there exists a parent or is it a server) is also passed
-// to this routine. Qualifying against those checks would return an existing 
+// to this routine. Qualifying against those checks would return an existing
 // folder. Callers who don't want to check those attributes will specify the
 // same and then this routine will simply return a msgfolder. This scenario
 // applies to a new imap account creation where special folders are created

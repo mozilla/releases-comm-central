@@ -36,7 +36,7 @@ function Startup()
  * - true if updates to extensions and themes are enabled, false otherwise
  * app.update.auto
  * - true if updates should be automatically downloaded and installed,
- *   false if the user should be asked what he wants to do when an 
+ *   false if the user should be asked what he wants to do when an
  *   update is available
  */
 function UpdateAddonsItems()

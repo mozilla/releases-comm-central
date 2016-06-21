@@ -137,7 +137,7 @@ function storeCache(aURL, aContent) {
   let session = cache.createSession("FTP", Ci.nsICache.STORE_ANYWHERE,
                                     Ci.nsICache.STREAM_BASED);
 
-  
+
   var storeCacheListener = {
     onCacheEntryAvailable: function (entry, access, status) {
       do_check_eq(status, Cr.NS_OK);

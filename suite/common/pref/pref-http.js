@@ -8,7 +8,7 @@ function Startup()
   CheckPipelining();
   CheckPipeliningProxy();
 }
- 
+
 function CheckPipelining()
 {
   var prefHTTPVersion = document.getElementById("network.http.version");

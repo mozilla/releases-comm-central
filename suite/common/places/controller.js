@@ -190,10 +190,10 @@ PlacesController.prototype = {
   doCommand: function PC_doCommand(aCommand) {
     switch (aCommand) {
     case "cmd_undo":
-      PlacesUtils.transactionManager.undoTransaction(); 
+      PlacesUtils.transactionManager.undoTransaction();
       break;
     case "cmd_redo":
-      PlacesUtils.transactionManager.redoTransaction(); 
+      PlacesUtils.transactionManager.redoTransaction();
       break;
     case "cmd_cut":
     case "placesCmd_cut":

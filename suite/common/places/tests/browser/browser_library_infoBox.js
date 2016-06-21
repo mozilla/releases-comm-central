@@ -89,7 +89,7 @@ gTests.push({
         visitDate: Date.now()*1000,
         transition: PlacesUtils.history.TRANSITION_TYPED },
       addVisitsCallback);
-  } 
+  }
 });
 
 function checkInfoBoxSelected(PO) {

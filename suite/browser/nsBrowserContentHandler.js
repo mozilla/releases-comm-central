@@ -60,7 +60,7 @@ function resolveURIInternal(aCmdLine, aArgument)
 
   // We have interpreted the argument as a relative file URI, but the file
   // doesn't exist. Try URI fixup heuristics: see bug 290782.
- 
+
   try {
     var urifixup = Components.classes["@mozilla.org/docshell/urifixup;1"]
                              .getService(nsIURIFixup);
@@ -156,7 +156,7 @@ function getURLToLoad()
                                             nsISupportsString).data;
     }
   } catch (e) {
-  } 
+  }
 
   return "about:blank";
 }
@@ -215,11 +215,11 @@ function doSearch(aSearchTerm, aFeatures) {
                      .getService(nsIBrowserSearchService);
 
   var submission = ss.defaultEngine.getSubmission(aSearchTerm);
-  
+
   // fill our nsIMutableArray with uri-as-wstring, null, null, postData
   var sa = Components.classes["@mozilla.org/array;1"]
                      .createInstance(Components.interfaces.nsIMutableArray);
-  
+
   var uristring = Components.classes["@mozilla.org/supports-string;1"]
                             .createInstance(nsISupportsString);
   uristring.data = submission.uri.spec;
@@ -303,7 +303,7 @@ var nsBrowserContentHandler = {
           case "openbrowser":
             openWindow(null, getBrowserURL(), features, RegExp.$3 || getURLToLoad());
             break;
-          
+
           case "openinbox":
             openWindow(null, "chrome://messenger/content", features);
             break;
@@ -387,7 +387,7 @@ var nsBrowserContentHandler = {
             // "mozilla -url http://www.foo.com". Store the URL so we can
             // ignore this request later
             this._handledURI = urlParam;
-          } 
+          }
 
           urlParam = resolveURIInternal(cmdLine, urlParam);
           handURIToExistingBrowser(urlParam,
@@ -432,7 +432,7 @@ var nsBrowserContentHandler = {
       }
     } catch (e) {
     }
- 
+
     try {
       var fileParam = cmdLine.handleFlagWithParam("file", false);
       if (fileParam) {
@@ -631,7 +631,7 @@ var nsBrowserContentHandler = {
 
     return this.QueryInterface(iid);
   },
-    
+
   lockFactory: function lockFactory(lock) {
     /* no-op */
   }

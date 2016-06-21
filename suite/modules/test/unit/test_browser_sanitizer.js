@@ -167,7 +167,7 @@ var sanTests = {
       this.forms.addEntry("Sanitizer", "Foo");
     },
 
-    check: function(aShouldBeCleared) { 
+    check: function(aShouldBeCleared) {
       do_check_eq(this.forms.entryExists("Sanitizer", "Foo"), !aShouldBeCleared);
     }
   },
@@ -204,7 +204,7 @@ var sanTests = {
       this.dm.cancelDownload(this.dl.id);
     },
 
-    check: function(aShouldBeCleared) { 
+    check: function(aShouldBeCleared) {
       var dl = null;
       try {
         dl = this.dm.getDownload(this.dl.id);

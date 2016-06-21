@@ -80,7 +80,7 @@ function sidebar_customize_init()
                                    RDF.GetLiteral("true"), true);
 
   while (links.hasMoreElements()) {
-    var folder = 
+    var folder =
       links.getNext().QueryInterface(Components.interfaces.nsIRDFResource);
     var folder_name = folder.Value;
     debug("+++ fixing up remote container " + folder_name + "\n");
@@ -172,7 +172,7 @@ function SelectChangeForOtherPanels(event, target)
 function ClickOnOtherPanels(event)
 {
   var tree = document.getElementById("other-panels");
-  
+
   var rowIndex = -1;
   if (event.type == "click" && event.button == 0) {
     var b = tree.treeBoxObject;
@@ -184,10 +184,10 @@ function ClickOnOtherPanels(event)
   }
 
   if (rowIndex < 0) return;
-  
+
   var treeitem = tree.contentView.getItemAtIndex(rowIndex);
   var res = RDF.GetResource(treeitem.id);
-  
+
   if (treeitem.getAttribute('container') == 'true') {
     if (treeitem.getAttribute('open') == 'true') {
       var link = treeitem.getAttribute('link');
@@ -299,7 +299,7 @@ function PreviewPanel()
 function AddPanel()
 {
   var added = -1;
-  
+
   var tree = document.getElementById('other-panels');
   var database = tree.database;
   var sel = tree.view.selection;
@@ -342,7 +342,7 @@ function add_node_to_current_list(registry, service)
 
   var tree = document.getElementById('current-panels');
   var tree_root = tree.lastChild;
-  
+
   // Check to see if the panel already exists...
   var i = 0;
   for (var treeitem = tree_root.firstChild; treeitem; treeitem = treeitem.nextSibling) {
@@ -374,7 +374,7 @@ function RemovePanel()
 {
   var tree = document.getElementById('current-panels');
   var sel = tree.view.selection;
-  
+
   var nextNode = -1;
   var rangeCount = sel.getRangeCount();
   for (var range = rangeCount-1; range >= 0; --range) {

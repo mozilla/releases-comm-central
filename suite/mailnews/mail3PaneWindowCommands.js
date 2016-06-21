@@ -19,7 +19,7 @@ var FolderPaneController =
 			case "cmd_copy":
 			case "cmd_paste":
 				return true;
-				
+
 			default:
 				return false;
 		}
@@ -61,7 +61,7 @@ var FolderPaneController =
 				}
 				catch (ex) {
 					//dump("specialFolder failure: " + ex + "\n");
-				} 
+				}
         if (specialFolder == "Inbox" || specialFolder == "Trash" || specialFolder == "Drafts" ||
             specialFolder == "Sent" || specialFolder == "Templates" || specialFolder == "Outbox" ||
             (specialFolder == "Junk" && !CanRenameDeleteJunkMail(GetSelectedFolderURI())) || isServer)
@@ -94,7 +94,7 @@ var FolderPaneController =
 				break;
 		}
 	},
-	
+
 	onEvent: function(event)
 	{
 	}
@@ -405,7 +405,7 @@ var DefaultController =
         return gDBView;
       case "cmd_viewThreadsWithUnread":
       case "cmd_viewWatchedThreadsWithUnread":
-        return gDBView && !(GetSelectedMsgFolders()[0].flags & 
+        return gDBView && !(GetSelectedMsgFolders()[0].flags &
                             Components.interfaces.nsMsgFolderFlags.Virtual);
       case "cmd_stop":
         return true;
@@ -509,7 +509,7 @@ var DefaultController =
 				break;
       case "cmd_createFilterFromMenu":
         MsgCreateFilter();
-        break;   
+        break;
       case "cmd_createFilterFromPopup":
         CreateFilter(document.popupNode);
         break;
@@ -731,7 +731,7 @@ var DefaultController =
         break;
 		}
 	},
-	
+
 	onEvent: function(event)
 	{
 		// on blur events set the menu item texts back to the normal values
@@ -760,16 +760,16 @@ function FocusRingUpdate_Mail()
   // WhichPaneHasFocus() uses on top.document.commandDispatcher.focusedElement
   // to determine which pane has focus
   // if the focusedElement is null, we're here on a blur.
-  // nsFocusController::Blur() calls nsFocusController::SetFocusedElement(null), 
+  // nsFocusController::Blur() calls nsFocusController::SetFocusedElement(null),
   // which will update any commands listening for "focus".
-  // we really only care about nsFocusController::Focus() happens, 
+  // we really only care about nsFocusController::Focus() happens,
   // which calls nsFocusController::SetFocusedElement(element)
   var currentFocusedElement = WhichPaneHasFocus();
-      
+
 	if (currentFocusedElement != gLastFocusedElement) {
     if (currentFocusedElement)
       currentFocusedElement.setAttribute("focusring", "true");
-    
+
     if (gLastFocusedElement)
       gLastFocusedElement.removeAttribute("focusring");
 
@@ -788,20 +788,20 @@ function WhichPaneHasFocus()
   var threadTree = GetThreadTree();
   var folderTree = GetFolderTree();
   var messagePane = GetMessagePane();
-    
+
   if (top.document.commandDispatcher.focusedWindow == GetMessagePaneFrame())
     return messagePane;
 
-	var currentNode = top.document.commandDispatcher.focusedElement;	
+	var currentNode = top.document.commandDispatcher.focusedElement;
 	while (currentNode) {
     if (currentNode === threadTree ||
         currentNode === folderTree ||
         currentNode === messagePane)
       return currentNode;
-    			
+
 		currentNode = currentNode.parentNode;
   }
-	
+
 	return null;
 }
 
