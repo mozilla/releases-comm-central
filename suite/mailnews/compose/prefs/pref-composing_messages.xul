@@ -52,6 +52,9 @@
       <preference id="mailnews.reply_header_type"
                   name="mailnews.reply_header_type"
                   type="int"/>
+      <preference id="mail.compose.default_to_paragraph"
+                  name="mail.compose.default_to_paragraph"
+                  type="bool"/>
     </preferences>
 
     <groupbox>
@@ -192,6 +195,18 @@
           </row>
         </rows>
       </grid>
+      <separator class="thin"/>
+      <description>&defaultCompose.label;</description>
+      <radiogroup id="defaultCompose"
+                  class="indent"
+                  preference="mail.compose.default_to_paragraph">
+        <radio value="false"
+               label="&defaultBodyText.label;"
+               accesskey="&defaultBodyText.accesskey;"/>
+        <radio value="true"
+               label="&defaultParagraph.label;"
+               accesskey="&defaultParagraph.accesskey;"/>
+      </radiogroup>
     </groupbox>
   </prefpane>
 </overlay>

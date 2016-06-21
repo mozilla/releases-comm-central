@@ -67,6 +67,7 @@ var gMsgAddressingWidgetElement;
 var gMsgSubjectElement;
 var gMsgAttachmentElement;
 var gMsgHeadersToolbarElement;
+var gComposeType;
 
 // i18n globals
 var gSendDefaultCharset;
@@ -149,9 +150,131 @@ var stateListener = {
   },
 
   NotifyComposeBodyReady: function() {
+    this.useParagraph = gMsgCompose.composeHTML &&
+                        Services.prefs.getBoolPref("mail.compose.default_to_paragraph");
+    this.editor = GetCurrentEditor();
+    this.paragraphState = document.getElementById("cmd_paragraphState");
+
+    // Look at the compose types which require action (nsIMsgComposeParams.idl):
+    switch (gComposeType) {
+
+      case Components.interfaces.nsIMsgCompType.New:
+      case Components.interfaces.nsIMsgCompType.NewsPost:
+      case Components.interfaces.nsIMsgCompType.ForwardAsAttachment:
+        this.NotifyComposeBodyReadyNew();
+        break;
+
+      case Components.interfaces.nsIMsgCompType.Reply:
+      case Components.interfaces.nsIMsgCompType.ReplyAll:
+      case Components.interfaces.nsIMsgCompType.ReplyToSender:
+      case Components.interfaces.nsIMsgCompType.ReplyToGroup:
+      case Components.interfaces.nsIMsgCompType.ReplyToSenderAndGroup:
+      case Components.interfaces.nsIMsgCompType.ReplyWithTemplate:
+      case Components.interfaces.nsIMsgCompType.ReplyToList:
+        this.NotifyComposeBodyReadyReply();
+        break;
+
+      case Components.interfaces.nsIMsgCompType.ForwardInline:
+        this.NotifyComposeBodyReadyForwardInline();
+        break;
+    }
+
     if (gMsgCompose.composeHTML)
       loadHTMLMsgPrefs();
     AdjustFocus();
+  },
+
+  NotifyComposeBodyReadyNew: function() {
+    // Control insertion of line breaks.
+    if (this.useParagraph) {
+      this.editor.enableUndo(false);
+
+      let pElement = this.editor.createElementWithDefaults("p");
+      let brElement = this.editor.createElementWithDefaults("br");
+      pElement.appendChild(brElement);
+      this.editor.insertElementAtSelection(pElement,true);
+
+      this.paragraphState.setAttribute("state", "p");
+
+      this.editor.beginningOfDocument();
+      this.editor.enableUndo(true);
+      this.editor.resetModificationCount();
+    } else {
+      this.paragraphState.setAttribute("state", "");
+    }
+  },
+
+  NotifyComposeBodyReadyReply: function() {
+    // Control insertion of line breaks.
+    if (this.useParagraph) {
+      let mailDoc = document.getElementById("content-frame").contentDocument;
+      let mailBody = mailDoc.querySelector("body");
+      let selection = this.editor.selection;
+      let range = selection.getRangeAt(0);
+      let start = range.startOffset;
+
+      if (start != range.endOffset) {
+        // The selection is not collapsed, most likely due to the
+        // "select the quote" option. In this case we do nothing.
+        return;
+      }
+
+      if (range.startContainer != mailBody) {
+        dump("Unexpected selection in NotifyComposeBodyReadyReply\n");
+        return;
+      }
+
+      this.editor.enableUndo(false);
+
+      // Delete a <br> if we see one.
+      let currentNode = mailBody.childNodes[start];
+      if (currentNode.nodeName == "BR") {
+        currentNode.remove();
+      }
+
+      let pElement = this.editor.createElementWithDefaults("p");
+      let brElement = this.editor.createElementWithDefaults("br");
+      pElement.appendChild(brElement);
+      this.editor.insertElementAtSelection(pElement,true);
+
+      // Position into the paragraph.
+      selection.collapse(pElement, 0);
+
+      this.paragraphState.setAttribute("state", "p");
+
+      this.editor.enableUndo(true);
+      this.editor.resetModificationCount();
+    } else {
+      this.paragraphState.setAttribute("state", "");
+    }
+  },
+
+  NotifyComposeBodyReadyForwardInline: function() {
+    let mailDoc = document.getElementById("content-frame").contentDocument;
+    let mailBody = mailDoc.querySelector("body");
+    let selection = this.editor.selection;
+
+    this.editor.enableUndo(false);
+
+    // Control insertion of line breaks.
+    selection.collapse(mailBody, 0);
+    if (this.useParagraph) {
+      let pElement = this.editor.createElementWithDefaults("p");
+      let brElement = this.editor.createElementWithDefaults("br");
+      pElement.appendChild(brElement);
+      this.editor.insertElementAtSelection(pElement, false);
+      this.paragraphState.setAttribute("state", "p");
+    } else {
+      // insertLineBreak() has been observed to insert two <br> elements
+      // instead of one before a <div>, so we'll do it ourselves here.
+      let brElement = this.editor.createElementWithDefaults("br");
+      this.editor.insertElementAtSelection(brElement, false);
+      this.paragraphState.setAttribute("state", "");
+    }
+
+    this.editor.beginningOfDocument();
+    this.editor.enableUndo(true);
+    this.editor.resetModificationCount();
   },
 
   ComposeProcessDone: function(aResult) {
@@ -951,6 +1074,8 @@ function ComposeStartup(aParams)
          composeFields.body = args.body;
     }
   }
+
+  gComposeType = params.type;
 
   // " <>" is an empty identity, and most likely not valid
   if (!params.identity || params.identity.identityName == " <>") {
@@ -2903,6 +3028,11 @@ function InitEditor(editor)
   var eEditorMailMask = Components.interfaces.nsIPlaintextEditor.eEditorMailMask;
   editor.flags |= eEditorMailMask;
   GetMsgSubjectElement().editor.flags |= eEditorMailMask;
+
+  // Control insertion of line breaks.
+  editor.returnInParagraphCreatesNewParagraph =
+    Services.prefs.getBoolPref("mail.compose.default_to_paragraph") ||
+    Services.prefs.getBoolPref("editor.CR_creates_new_p");
 
   gMsgCompose.initEditor(editor, window.content);
   InlineSpellCheckerUI.init(editor);

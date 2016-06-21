@@ -33,6 +33,11 @@
 <!ENTITY fontColor.accesskey                  "T">
 <!ENTITY bgColor.label                        "Background:">
 <!ENTITY bgColor.accesskey                    "B">
+<!ENTITY defaultCompose.label                 "Default composition format:">
+<!ENTITY defaultBodyText.label                "Body Text (Enter key creates a new line)">
+<!ENTITY defaultBodyText.accesskey            "o">
+<!ENTITY defaultParagraph.label               "Paragraph (Enter key creates a new paragraph)">
+<!ENTITY defaultParagraph.accesskey           "P">
 
 <!ENTITY selectHeaderType.label               "Select reply header type:">
 <!ENTITY selectHeaderType.accesskey           "e">
