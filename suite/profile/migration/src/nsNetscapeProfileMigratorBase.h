@@ -158,5 +158,5 @@ protected:
 
   nsCOMPtr<nsITimer> mFileIOTimer;
 };
- 
+
 #endif

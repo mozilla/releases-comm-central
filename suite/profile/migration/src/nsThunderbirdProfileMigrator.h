@@ -44,5 +44,5 @@ protected:
   nsresult CopyHistory(bool aReplace);
   nsresult CopyPasswords(bool aReplace);
 };
- 
+
 #endif
