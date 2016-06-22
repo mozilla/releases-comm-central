@@ -31,6 +31,11 @@ let tests = [
               ["@mozilla.org/jacppabdirectorydelegator;1", "nsIAbItem"],
               ["@mozilla.org/jacppabdirectorydelegator;1", "msgIOverride"],
               ["@mozilla.org/jacppabdirectorydelegator;1", "nsIInterfaceRequestor"],
+  // JaIncomingServer
+              ["@mozilla.org/jacppincomingserverdelegator;1", "nsISupports"],
+              ["@mozilla.org/jacppincomingserverdelegator;1", "nsIMsgIncomingServer"],
+              ["@mozilla.org/jacppincomingserverdelegator;1", "msgIOverride"],
+              ["@mozilla.org/jacppincomingserverdelegator;1", "nsIInterfaceRequestor"],
             ];
 
 function run_test()
