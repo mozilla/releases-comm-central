@@ -76,13 +76,10 @@ distribution:
 ifdef ENABLE_TESTS
 	$(MAKE) xpcshell-tests
 endif
-ifdef MOZ_UPDATE_PACKAGING
-	$(MAKE) -C tools/update-packaging complete-patch PKG_INST_PATH=
-endif
+$(MAKE) -C tools/update-packaging complete-patch PKG_INST_PATH=
 ifdef L10NBASEDIR
-	$(foreach locale,$(SHIPPED_LOCALES),$(MAKE) -C im/locales/ repack-$(locale) LOCALE_MERGEDIR=mergedir MOZ_MAKE_COMPLETE_MAR=$(MOZ_UPDATE_PACKAGING) ;)
+	$(foreach locale,$(SHIPPED_LOCALES),$(MAKE) -C im/locales/ repack-$(locale) LOCALE_MERGEDIR=mergedir MOZ_MAKE_COMPLETE_MAR=1 ;)
 endif
-ifdef MOZ_UPDATE_PACKAGING
 ifdef LIST_PREVIOUS_MAR_CMD
 	rm -rf $(PREVIOUS_MAR_DIR) $(PATCH_FILE)
 	mkdir $(PREVIOUS_MAR_DIR)
@@ -95,7 +92,6 @@ ifdef LIST_PREVIOUS_MAR_CMD
 	        $(DOWNLOAD_MAR_CMD) ; \
 		echo "$(MAR_FILE_DEST),$(DIST)/$(COMPLETE_MAR),$(DIST)/$(PKG_UPDATE_PATH)$(PKG_UPDATE_BASENAME).partial.from-$(buildid).mar,$(FORCE_UPDATE)" >> $(PATCH_FILE) ;))))
 	PATH="$(realpath $(DIST)/host/bin):$(PATH)" $(PYTHON) $(topsrcdir)/tools/update-packaging/make_incremental_updates.py -f $(PATCH_FILE)
-endif
 endif
 ifdef SYMBOL_SERVER_HOST
 	@$(MAKE) uploadsymbols
