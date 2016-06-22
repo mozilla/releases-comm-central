@@ -32,8 +32,15 @@ nsNoIncomingServer::~nsNoIncomingServer()
 {
 }
 
-nsresult
+NS_IMETHODIMP
 nsNoIncomingServer::GetLocalStoreType(nsACString& type)
+{
+  type.AssignLiteral("mailbox");
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsNoIncomingServer::GetLocalDatabaseType(nsACString& type)
 {
   type.AssignLiteral("mailbox");
   return NS_OK;

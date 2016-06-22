@@ -185,6 +185,12 @@ NS_IMETHODIMP nsImapIncomingServer::GetLocalStoreType(nsACString& type)
   return NS_OK;
 }
 
+NS_IMETHODIMP nsImapIncomingServer::GetLocalDatabaseType(nsACString& type)
+{
+  type.AssignLiteral("imap");
+  return NS_OK;
+}
+
 NS_IMETHODIMP
 nsImapIncomingServer::GetServerDirectory(nsACString& serverDirectory)
 {

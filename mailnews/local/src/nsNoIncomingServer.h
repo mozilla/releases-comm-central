@@ -27,6 +27,7 @@ public:
   nsNoIncomingServer();
 
   NS_IMETHOD GetLocalStoreType(nsACString& type) override;
+  NS_IMETHOD GetLocalDatabaseType(nsACString& type) override;
   NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) override;
   NS_IMETHOD GetServerRequiresPasswordForBiff(bool *aServerRequiresPasswordForBiff) override;
   NS_IMETHOD GetAccountManagerChrome(nsAString& aResult) override;

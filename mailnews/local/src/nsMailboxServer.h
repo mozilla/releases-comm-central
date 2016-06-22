@@ -13,6 +13,7 @@ class nsMailboxServer : public nsMsgIncomingServer
 {
 public:
   NS_IMETHOD GetLocalStoreType(nsACString& type) override;
+  NS_IMETHOD GetLocalDatabaseType(nsACString& type) override;
 protected:
   virtual nsresult CreateRootFolderFromUri(const nsCString &serverUri,
                                            nsIMsgFolder **rootFolder) override;

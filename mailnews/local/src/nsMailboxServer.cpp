@@ -13,6 +13,13 @@ nsMailboxServer::GetLocalStoreType(nsACString& type)
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsMailboxServer::GetLocalDatabaseType(nsACString& type)
+{
+  type.AssignLiteral("mailbox");
+  return NS_OK;
+}
+
 nsresult
 nsMailboxServer::CreateRootFolderFromUri(const nsCString &serverUri,
                                          nsIMsgFolder **rootFolder)

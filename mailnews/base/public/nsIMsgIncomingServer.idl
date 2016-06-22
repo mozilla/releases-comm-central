@@ -27,7 +27,7 @@ interface nsIMsgPluggableStore;
  * often you will want to add extra interfaces that give you server-specific
  * attributes and methods.
  */
-[scriptable, uuid(92f4ee31-a14d-48dc-8676-22417caefa84)]
+[scriptable, uuid(aa9a3389-9dac-41f1-9ec5-18287cfaa47c)]
 interface nsIMsgIncomingServer : nsISupports {
 
   /**
@@ -84,11 +84,19 @@ interface nsIMsgIncomingServer : nsISupports {
   readonly attribute AString accountManagerChrome;
 
   /**
-   * the schema for the local mail store, such
-   * as "mailbox", "imap", or "news"
-   * used to construct URIs
+   * The schema for the local mail store, such as "mailbox", "imap", or "news"
+   * used to construct URIs. The contractID for the nsIMsgMessageService
+   * implementation that will manage access to messages associated with this
+   * server is constructed using this type.
    */
   readonly attribute ACString localStoreType;
+
+  /**
+   * The schema for the nsIMsgDatabase implementation, such as "mailbox" or
+   * "imap", that will be used to construct the database instance used by
+   * message folders associated with this server.
+   */
+  readonly attribute ACString localDatabaseType;
 
   // Perform specific tasks (reset flags, remove files, etc) for account user/server name changes.
   void onUserOrHostNameChanged(in ACString oldName, in ACString newName,

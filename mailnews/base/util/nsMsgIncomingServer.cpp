@@ -974,6 +974,13 @@ nsMsgIncomingServer::GetLocalStoreType(nsACString& aResult)
 }
 
 NS_IMETHODIMP
+nsMsgIncomingServer::GetLocalDatabaseType(nsACString& aResult)
+{
+  NS_NOTYETIMPLEMENTED("nsMsgIncomingServer superclass not implementing GetLocalDatabaseType!");
+  return NS_ERROR_UNEXPECTED;
+}
+
+NS_IMETHODIMP
 nsMsgIncomingServer::GetAccountManagerChrome(nsAString& aResult)
 {
   aResult.AssignLiteral("am-main.xul");

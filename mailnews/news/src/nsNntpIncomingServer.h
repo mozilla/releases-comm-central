@@ -48,7 +48,8 @@ public:
 
     nsNntpIncomingServer();
 
-    NS_IMETHOD GetLocalStoreType(nsACString& type);
+    NS_IMETHOD GetLocalStoreType(nsACString& type) override;
+    NS_IMETHOD GetLocalDatabaseType(nsACString& type) override;
     NS_IMETHOD CloseCachedConnections();
     NS_IMETHOD PerformBiff(nsIMsgWindow *aMsgWindow);
     NS_IMETHOD PerformExpand(nsIMsgWindow *aMsgWindow);

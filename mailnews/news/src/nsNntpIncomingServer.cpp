@@ -211,6 +211,13 @@ nsNntpIncomingServer::GetLocalStoreType(nsACString& type)
 }
 
 NS_IMETHODIMP
+nsNntpIncomingServer::GetLocalDatabaseType(nsACString& type)
+{
+  type.AssignLiteral("news");
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 nsNntpIncomingServer::SetNewsrcRootPath(nsIFile *aNewsrcRootPath)
 {
     NS_ENSURE_ARG(aNewsrcRootPath);

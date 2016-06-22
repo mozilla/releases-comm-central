@@ -121,10 +121,10 @@ NS_IMETHODIMP nsMsgDBService::OpenFolderDB(nsIMsgFolder *aFolder,
     return NS_OK;
   }
 
-  nsCString localStoreType;
-  incomingServer->GetLocalStoreType(localStoreType);
+  nsCString localDatabaseType;
+  incomingServer->GetLocalDatabaseType(localDatabaseType);
   nsAutoCString dbContractID(NS_MSGDB_CONTRACTID);
-  dbContractID.Append(localStoreType.get());
+  dbContractID.Append(localDatabaseType.get());
   nsCOMPtr <nsIMsgDatabase> msgDB = do_CreateInstance(dbContractID.get(), &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -184,10 +184,10 @@ NS_IMETHODIMP nsMsgDBService::AsyncOpenFolderDB(nsIMsgFolder *aFolder,
   nsCOMPtr <nsIMsgIncomingServer> incomingServer;
   rv = aFolder->GetServer(getter_AddRefs(incomingServer));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCString localStoreType;
-  incomingServer->GetLocalStoreType(localStoreType);
+  nsCString localDatabaseType;
+  incomingServer->GetLocalDatabaseType(localDatabaseType);
   nsAutoCString dbContractID(NS_MSGDB_CONTRACTID);
-  dbContractID.Append(localStoreType.get());
+  dbContractID.Append(localDatabaseType.get());
   nsCOMPtr <nsIMsgDatabase> msgDB = do_CreateInstance(dbContractID.get(), &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -378,10 +378,10 @@ NS_IMETHODIMP nsMsgDBService::CreateNewDB(nsIMsgFolder *aFolder,
   rv = aFolder->GetSummaryFile(getter_AddRefs(summaryFilePath));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCString localStoreType;
-  incomingServer->GetLocalStoreType(localStoreType);
+  nsCString localDatabaseType;
+  incomingServer->GetLocalDatabaseType(localDatabaseType);
   nsAutoCString dbContractID(NS_MSGDB_CONTRACTID);
-  dbContractID.Append(localStoreType.get());
+  dbContractID.Append(localDatabaseType.get());
   
   nsCOMPtr <nsIMsgDatabase> msgDB = do_CreateInstance(dbContractID.get(), &rv);
   NS_ENSURE_SUCCESS(rv, rv);

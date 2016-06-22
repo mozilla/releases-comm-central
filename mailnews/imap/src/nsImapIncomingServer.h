@@ -36,6 +36,7 @@ public:
     // overriding nsMsgIncomingServer methods
   NS_IMETHOD SetKey(const nsACString& aKey) override;  // override nsMsgIncomingServer's implementation...
   NS_IMETHOD GetLocalStoreType(nsACString& type) override;
+  NS_IMETHOD GetLocalDatabaseType(nsACString& type) override;
 
   NS_DECL_NSIIMAPINCOMINGSERVER
   NS_DECL_NSIIMAPSERVERSINK
