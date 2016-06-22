@@ -375,14 +375,14 @@ function* testContentHeaders() {
   checkDraftHeaders(plainAttachmentHeaders, "2");
 
   let httpAttachment = makeAttachment({
-    url: "data:text/html,<html><body></body></html>",
+    url: "data:text/html,<html></html>",
     name: "attachment.html",
   });
   let httpAttachmentHeaders = {
     "Content-Type": "text/html",
     "Content-Disposition": "attachment; filename=\"attachment.html\"",
-    "Content-Base": '"data:text/html,<html><body></body></html>"',
-    "Content-Location": '"data:text/html,<html><body></body></html>"',
+    "Content-Base": '"data:text/html,<html></html>"',
+    "Content-Location": '"data:text/html,<html></html>"',
   };
   yield richCreateMessage(fields, [httpAttachment], identity);
   checkDraftHeaders({

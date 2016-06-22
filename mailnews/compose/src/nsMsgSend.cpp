@@ -2510,8 +2510,17 @@ nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
 
       // Display some feedback to user...
       nsString msg;
+      nsAutoString attachmentFileName;
       NS_ConvertUTF8toUTF16 params(m_attachments[i]->m_realName);
-      const char16_t *formatParams[] = { params.get() };
+      const char16_t *formatParams[1];
+      if (!params.IsEmpty()) {
+        formatParams[0] = params.get();
+      } else if (m_attachments[i]->mURL) {
+        nsCString asciiSpec;
+        m_attachments[i]->mURL->GetAsciiSpec(asciiSpec);
+        attachmentFileName.AssignASCII(asciiSpec.get());
+        formatParams[0] = attachmentFileName.get();
+      }
       mComposeBundle->FormatStringFromName(MOZ_UTF16("gatheringAttachment"),
                                            formatParams, 1, getter_Copies(msg));
 
@@ -2529,8 +2538,13 @@ nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
       if (NS_FAILED(status))
       {
         nsString errorMsg;
-        nsAutoString attachmentFileName;
         nsresult rv = ConvertToUnicode(nsMsgI18NFileSystemCharset(), m_attachments[i]->m_realName, attachmentFileName);
+        if (attachmentFileName.IsEmpty() && m_attachments[i]->mURL) {
+          nsCString asciiSpec;
+          m_attachments[i]->mURL->GetAsciiSpec(asciiSpec);
+          attachmentFileName.AssignASCII(asciiSpec.get());
+          rv = NS_OK;
+        }
         if (NS_SUCCEEDED(rv))
         {
           nsCOMPtr<nsIStringBundle> bundle;
