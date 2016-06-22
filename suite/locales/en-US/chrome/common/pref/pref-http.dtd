@@ -21,3 +21,6 @@
 <!ENTITY prefUseragent.label                 "User Agent String">
 <!ENTITY prefFirefoxCompat.label             "Advertise Firefox compatibility">
 <!ENTITY prefFirefoxCompat.accesskey         "F">
+<!ENTITY prefLightningShow.label             "Advertise Lightning installation">
+<!ENTITY prefLightningShow.accesskey         "L">
+<!ENTITY prefCompatWarning                   "WARNING: disabling these settings may result in websites or services not working properly.">
