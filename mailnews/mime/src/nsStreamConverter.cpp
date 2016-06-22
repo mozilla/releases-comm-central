@@ -999,6 +999,8 @@ nsStreamConverter::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
 nsresult
 nsStreamConverter::OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult status)
 {
+  // Make sure we fire any pending OnStartRequest before we do OnStop.
+  FirePendingStartRequest();
 #ifdef DEBUG_rhp
     printf("nsStreamConverter::OnStopRequest()\n");
 #endif

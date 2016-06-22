@@ -9280,7 +9280,7 @@ nsresult nsImapMockChannel::ReadFromImapConnection()
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Assume AsyncRead is always called from the UI thread.....
-  return imapServer->GetImapConnectionAndLoadUrl(imapUrl, nullptr);
+  return imapServer->GetImapConnectionAndLoadUrl(imapUrl, m_channelListener);
 }
 
 // for messages stored in our offline cache, we have special code to handle that...

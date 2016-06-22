@@ -140,7 +140,7 @@ function createMessage(aAttachment) {
       attachment.contentType = 'text/plain';
       attachment.name = aAttachment.leafName;
     } else {
-      attachment.url = "data:,";
+      attachment.url = "data:,sometext";
       attachment.name = aAttachment;
     }
     attachments = [attachment];

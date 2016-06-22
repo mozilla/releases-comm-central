@@ -1130,6 +1130,10 @@ nsMsgAttachmentHandler::UrlExit(nsresult status, const char16_t* aMsg)
   if (mimeDeliveryStatus == NS_ERROR_ABORT)
     status = NS_ERROR_ABORT;
 
+  // If the attachment is empty, let's call that a failure.
+  if (!m_size)
+    status = NS_ERROR_FAILURE;
+
   if (NS_FAILED(status) && status != NS_ERROR_ABORT && NS_SUCCEEDED(mimeDeliveryStatus))
   {
     // At this point, we should probably ask a question to the user
