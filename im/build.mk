@@ -76,7 +76,7 @@ distribution:
 ifdef ENABLE_TESTS
 	$(MAKE) xpcshell-tests
 endif
-$(MAKE) -C tools/update-packaging complete-patch PKG_INST_PATH=
+	$(MAKE) -C tools/update-packaging complete-patch PKG_INST_PATH=
 ifdef L10NBASEDIR
 	$(foreach locale,$(SHIPPED_LOCALES),$(MAKE) -C im/locales/ repack-$(locale) LOCALE_MERGEDIR=mergedir MOZ_MAKE_COMPLETE_MAR=1 ;)
 endif
