@@ -33,6 +33,13 @@ let tests = [
               ["@mozilla.org/jacppabdirectorydelegator;1", "msgIOverride"],
               ["@mozilla.org/jacppabdirectorydelegator;1", "nsIInterfaceRequestor"],
               ["@mozilla.org/jacppabdirectorydelegator;1", "nsISupportsWeakReference"],
+  // JaCompose
+              ["@mozilla.org/jacppcomposedelegator;1", "nsISupports"],
+              ["@mozilla.org/jacppcomposedelegator;1", "nsIMsgCompose"],
+              ["@mozilla.org/jacppcomposedelegator;1", "nsIMsgSendListener"],
+              ["@mozilla.org/jacppcomposedelegator;1", "msgIOverride"],
+              ["@mozilla.org/jacppcomposedelegator;1", "nsIInterfaceRequestor"],
+              ["@mozilla.org/jacppcomposedelegator;1", "nsISupportsWeakReference"],
   // JaIncomingServer
               ["@mozilla.org/jacppincomingserverdelegator;1", "nsISupports"],
               ["@mozilla.org/jacppincomingserverdelegator;1", "nsIMsgIncomingServer"],

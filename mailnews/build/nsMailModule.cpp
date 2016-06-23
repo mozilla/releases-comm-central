@@ -195,6 +195,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include "msgJsAccountCID.h"
 #include "JaAbDirectory.h"
+#include "JaCompose.h"
 #include "JaIncomingServer.h"
 #include "JaMsgFolder.h"
 #include "JaUrl.h"
@@ -598,11 +599,13 @@ NS_DEFINE_NAMED_CID(NS_MSGCOMPUTILS_CID);
 // jsAccount factories
 ////////////////////////////////////////////////////////////////////////////////
 NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppAbDirectoryDelegator)
+NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppComposeDelegator)
 NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppIncomingServerDelegator)
 NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppMsgFolderDelegator)
 NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppUrlDelegator)
 
 NS_DEFINE_NAMED_CID(JACPPABDIRECTORYDELEGATOR_CID);
+NS_DEFINE_NAMED_CID(JACPPCOMPOSEDELEGATOR_CID);
 NS_DEFINE_NAMED_CID(JACPPINCOMINGSERVERDELEGATOR_CID);
 NS_DEFINE_NAMED_CID(JACPPMSGFOLDERDELEGATOR_CID);
 NS_DEFINE_NAMED_CID(JACPPURLDELEGATOR_CID);
@@ -991,10 +994,11 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
   { &kNS_URLFETCHER_CID, false, NULL, nsURLFetcherConstructor},
   { &kNS_MSGCOMPUTILS_CID, false, NULL, nsMsgCompUtilsConstructor},
   // JsAccount Entries
-  { &kJACPPURLDELEGATOR_CID, false, nullptr, JaCppUrlDelegatorConstructor },
   { &kJACPPABDIRECTORYDELEGATOR_CID, false, nullptr, JaCppAbDirectoryDelegatorConstructor },
+  { &kJACPPCOMPOSEDELEGATOR_CID, false, nullptr, JaCppComposeDelegatorConstructor },
   { &kJACPPINCOMINGSERVERDELEGATOR_CID, false, nullptr, JaCppIncomingServerDelegatorConstructor },
   { &kJACPPMSGFOLDERDELEGATOR_CID, false, nullptr, JaCppMsgFolderDelegatorConstructor },
+  { &kJACPPURLDELEGATOR_CID, false, nullptr, JaCppUrlDelegatorConstructor },
   // Imap Entries
   { &kNS_IMAPURL_CID, false, NULL, nsImapUrlConstructor },
   { &kNS_IMAPPROTOCOL_CID, false, nullptr, nsImapProtocolConstructor },
@@ -1212,10 +1216,11 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
   { NS_URLFETCHER_CONTRACTID, &kNS_URLFETCHER_CID },
   { NS_MSGCOMPUTILS_CONTRACTID, &kNS_MSGCOMPUTILS_CID },
   // JsAccount Entries
-  { JACPPURLDELEGATOR_CONTRACTID, &kJACPPURLDELEGATOR_CID },
   { JACPPABDIRECTORYDELEGATOR_CONTRACTID, &kJACPPABDIRECTORYDELEGATOR_CID },
+  { JACPPCOMPOSEDELEGATOR_CONTRACTID, &kJACPPCOMPOSEDELEGATOR_CID },
   { JACPPINCOMINGSERVERDELEGATOR_CONTRACTID, &kJACPPINCOMINGSERVERDELEGATOR_CID },
   { JACPPMSGFOLDERDELEGATOR_CONTRACTID, &kJACPPMSGFOLDERDELEGATOR_CID },
+  { JACPPURLDELEGATOR_CONTRACTID, &kJACPPURLDELEGATOR_CID },
   // Imap Entries
   { NS_IMAPINCOMINGSERVER_CONTRACTID, &kNS_IMAPINCOMINGSERVER_CID },
   { NS_RDF_RESOURCE_FACTORY_CONTRACTID_PREFIX "imap", &kNS_IMAPRESOURCE_CID },

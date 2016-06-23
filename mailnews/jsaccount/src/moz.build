@@ -7,6 +7,7 @@
 SOURCES += [
     'DelegateList.cpp',
     'JaAbDirectory.cpp',
+    'JaCompose.cpp',
     'JaIncomingServer.cpp',
     'JaMsgFolder.cpp',
     'JaUrl.cpp',
@@ -15,6 +16,7 @@ SOURCES += [
 EXPORTS += [
     'DelegateList.h',
     'JaAbDirectory.h',
+    'JaCompose.h',
     'JaIncomingServer.h',
     'JaMsgFolder.h',
     'JaUrl.h',
