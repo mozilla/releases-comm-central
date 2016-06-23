@@ -65,6 +65,12 @@ let tests = [
   // TestJaMsgProtocolInfo
               ["@mozilla.org/messenger/protocol/info;1?type=testja", "nsISupports"],
               ["@mozilla.org/messenger/protocol/info;1?type=testja", "nsIMsgProtocolInfo"],
+  // JaSend
+              ["@mozilla.org/jacppsenddelegator;1", "nsISupports"],
+              ["@mozilla.org/jacppsenddelegator;1", "nsIMsgSend"],
+              ["@mozilla.org/jacppsenddelegator;1", "nsIMsgOperationListener"],
+              ["@mozilla.org/jacppsenddelegator;1", "msgIOverride"],
+              ["@mozilla.org/jacppsenddelegator;1", "nsISupportsWeakReference"],
             ];
 
 function run_test()

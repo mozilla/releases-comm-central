@@ -198,6 +198,7 @@
 #include "JaCompose.h"
 #include "JaIncomingServer.h"
 #include "JaMsgFolder.h"
+#include "JaSend.h"
 #include "JaUrl.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -602,12 +603,14 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppAbDirectoryDelegator)
 NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppComposeDelegator)
 NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppIncomingServerDelegator)
 NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppMsgFolderDelegator)
+NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppSendDelegator)
 NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppUrlDelegator)
 
 NS_DEFINE_NAMED_CID(JACPPABDIRECTORYDELEGATOR_CID);
 NS_DEFINE_NAMED_CID(JACPPCOMPOSEDELEGATOR_CID);
 NS_DEFINE_NAMED_CID(JACPPINCOMINGSERVERDELEGATOR_CID);
 NS_DEFINE_NAMED_CID(JACPPMSGFOLDERDELEGATOR_CID);
+NS_DEFINE_NAMED_CID(JACPPSENDDELEGATOR_CID);
 NS_DEFINE_NAMED_CID(JACPPURLDELEGATOR_CID);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -998,6 +1001,7 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
   { &kJACPPCOMPOSEDELEGATOR_CID, false, nullptr, JaCppComposeDelegatorConstructor },
   { &kJACPPINCOMINGSERVERDELEGATOR_CID, false, nullptr, JaCppIncomingServerDelegatorConstructor },
   { &kJACPPMSGFOLDERDELEGATOR_CID, false, nullptr, JaCppMsgFolderDelegatorConstructor },
+  { &kJACPPSENDDELEGATOR_CID, false, nullptr, JaCppSendDelegatorConstructor },
   { &kJACPPURLDELEGATOR_CID, false, nullptr, JaCppUrlDelegatorConstructor },
   // Imap Entries
   { &kNS_IMAPURL_CID, false, NULL, nsImapUrlConstructor },
@@ -1220,6 +1224,7 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
   { JACPPCOMPOSEDELEGATOR_CONTRACTID, &kJACPPCOMPOSEDELEGATOR_CID },
   { JACPPINCOMINGSERVERDELEGATOR_CONTRACTID, &kJACPPINCOMINGSERVERDELEGATOR_CID },
   { JACPPMSGFOLDERDELEGATOR_CONTRACTID, &kJACPPMSGFOLDERDELEGATOR_CID },
+  { JACPPSENDDELEGATOR_CONTRACTID, &kJACPPSENDDELEGATOR_CID },
   { JACPPURLDELEGATOR_CONTRACTID, &kJACPPURLDELEGATOR_CID },
   // Imap Entries
   { NS_IMAPINCOMINGSERVER_CONTRACTID, &kNS_IMAPINCOMINGSERVER_CID },
