@@ -19,23 +19,21 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
 // attribute to the auth stanza to tell the Google Talk servers that we
 // support their JID Domain Discovery extension.
 // See https://developers.google.com/talk/jep_extensions/jid_domain_change
-function PlainFullBindAuth(username, password, domain) {
-  this._key = btoa("\0"+ username + "\0" + password);
+function* PlainFullBindAuth(aUsername, aPassword, aDomain) {
+  let key = btoa("\0"+ aUsername + "\0" + aPassword);
+  let attrs = {
+    mechanism: "PLAIN",
+    "xmlns:ga": "http://www.google.com/talk/protocol/auth",
+    "ga:client-uses-full-bind-result": "true"
+  };
+  let stanza = yield {
+    send: Stanza.node("auth", Stanza.NS.sasl, attrs, key),
+    log: '<auth.../> (PlainFullBindAuth base64 encoded username and password not logged)'
+  };
+
+  if (stanza.localName != "success")
+    throw "Didn't receive the expected auth success stanza.";
 }
-PlainFullBindAuth.prototype = {
-  next: function(aStanza) {
-    let attrs = {
-      mechanism: "PLAIN",
-      "xmlns:ga": "http://www.google.com/talk/protocol/auth",
-      "ga:client-uses-full-bind-result": "true"
-    };
-    return {
-      done: true,
-      send: Stanza.node("auth", Stanza.NS.sasl, attrs, this._key),
-      log: '<auth.../> (PlainFullBindAuth base64 encoded username and password not logged)'
-    };
-  }
-};
 
 function GTalkAccount(aProtoInstance, aImAccount) {
   this._init(aProtoInstance, aImAccount);
