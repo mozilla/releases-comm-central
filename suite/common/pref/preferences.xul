@@ -15,15 +15,15 @@
   <!ENTITY % dtdPlatform SYSTEM "chrome://communicator-platform/locale/pref/platformPrefOverlay.dtd"> %dtdPlatform;
 ]>
 
-<prefwindow id="prefDialog" 
+<prefwindow id="prefDialog"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-            title="&prefWindow.title;" 
+            title="&prefWindow.title;"
             style="&prefWindow.size;"
             overflow="auto"
             onload="OnLoad();"
             windowtype="mozilla:preferences"
             buttons="accept,cancel,help"
-            autopanes="true"> 
+            autopanes="true">
 
   <script type="application/javascript" src="chrome://communicator/content/pref/preferences.js"/>
   <!-- Used by pref-smartupdate, pref-privatedata, pref-cookies, pref-images, pref-popups and pref-passwords, as well as pref-sync (gSyncUtils.*open* -> openUILinkIn) -->
@@ -48,7 +48,7 @@
     <treecols>
       <treecol id="categoryCol"
                label="&categoryHeader;"
-               primary="true" 
+               primary="true"
                flex="1"/>
     </treecols>
 

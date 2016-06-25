@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -11,7 +11,7 @@
   <!ENTITY % metadataDTD SYSTEM "chrome://navigator/locale/metadata.dtd" >
   %metadataDTD;
 ]>
- 
+
 <dialog id="metadata"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="&caption.label;"
@@ -28,7 +28,7 @@
   <stringbundle src="chrome://global/locale/regionNames.properties" id="bundle_regions"/>
 
   <label id="no-properties" value="&no-properties.label;"/>
-  
+
   <vbox id="link-sec">
     <label value="&link-sec.label;"/>
     <separator class="groove"/>

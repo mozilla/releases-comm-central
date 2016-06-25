@@ -51,7 +51,7 @@
   <broadcaster id="Communicator:WorkMode"/>
 
   <dummy class="usesMailWidgets"/>
- 
+
     <vbox id="searchTerms" flex="3" persist="height">
       <vbox>
         <hbox align="center">

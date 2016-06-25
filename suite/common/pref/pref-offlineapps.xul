@@ -71,7 +71,7 @@
           <button id="offlineAppsListRemove"
                   disabled="true"
                   label="&offlineAppsListRemove.label;"
-                  accesskey="&offlineAppsListRemove.accesskey;" 
+                  accesskey="&offlineAppsListRemove.accesskey;"
                   oncommand="RemoveOfflineApp();"/>
         </vbox>
       </hbox>

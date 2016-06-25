@@ -37,7 +37,7 @@
 
     <groupbox>
       <caption label="&pref.offline.caption;"/>
-    
+
       <hbox align="center">
         <label value="&textStartUp;" control="whenStartingUp"
                accesskey="&textStartUp.accesskey;"/>
@@ -51,9 +51,9 @@
           </menupopup>
         </menulist>
       </hbox>
-    
+
       <separator/>
-    
+
       <label value="&textGoingOnline;" control="whengoingOnlinestate"/>
         <radiogroup id="whengoingOnlinestate"
                     orient="horizontal" class="indent"
@@ -65,9 +65,9 @@
           <radio value="0" label="&radioAskUnsent;"
                  accesskey="&radioAskUnsent.accesskey;"/>
         </radiogroup>
-    
+
       <separator/>
-    
+
       <label value="&textGoingOffline;" control="whengoingOfflinestate"/>
         <radiogroup id="whengoingOfflinestate"
                     orient="horizontal" class="indent"

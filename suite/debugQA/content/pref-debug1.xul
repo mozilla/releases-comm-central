@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
@@ -38,7 +38,7 @@
     <!-- nothing on this page has accesskeys because this is a temporary debug
          panel and you can damn well click the widgets! -->
 
-    <!-- Event Debugging -->  
+    <!-- Event Debugging -->
     <groupbox>
       <caption label="&debugEventDebugging.label;"/>
       <vbox align="start">
@@ -53,7 +53,7 @@
                   label="&debugInvalidateDumping.label;"
                   preference="nglayout.debug.invalidate_dumping"/>
         <checkbox id="nglayoutDebugEventDumping" label="&debugEventDumping.label;"
-                  preference="nglayout.debug.event_dumping"/>              
+                  preference="nglayout.debug.event_dumping"/>
         <checkbox id="nglayoutDebugMotionEventDumping"
                   label="&debugMotionEventDumping.label;"
                   preference="nglayout.debug.motion_event_dumping"/>

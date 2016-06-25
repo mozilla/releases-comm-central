@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
@@ -14,4 +14,4 @@
 	<key id="key_shiftDelete"  keycode="VK_BACK"   modifiers="shift" command="cmd_shiftDelete"/>
 	<key id="key_shiftDelete2" keycode="VK_DELETE" modifiers="shift" command="cmd_shiftDelete"/>
 
-</overlay>	
+</overlay>

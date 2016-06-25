@@ -185,7 +185,7 @@
       </radiogroup>
 
       <hbox align="left">
-        <checkbox id="networkProxySOCKSRemoteDNS" 
+        <checkbox id="networkProxySOCKSRemoteDNS"
                   label="&socksRemoteDNS.label;"
                   accesskey="&socksRemoteDNS.accesskey;"
                   preference="network.proxy.socks_remote_dns"/>

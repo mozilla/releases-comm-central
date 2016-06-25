@@ -14,7 +14,7 @@
     function doPublishDialogHelpButton()
     {
      var selTab = document.getElementById('tabBox').selectedTab;
-     
+
      if (selTab.id == "PublishTab")
        openHelp('comp-doc-publish-publishtab');
      else
@@ -42,7 +42,7 @@
   <dialog id="publishProgressDlg"
     buttons="cancel,help"
     ondialoghelp="openHelp('comp-doc-publish-troubleshooting');"/>
-    
+
   <dialog id="publishSettingsDlg"
     buttons="accept,cancel,help"
     ondialoghelp="openHelp('comp-doc-publish-site-settings');"/>

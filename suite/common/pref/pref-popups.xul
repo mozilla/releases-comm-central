@@ -59,11 +59,11 @@
     <groupbox id="popupsArea">
       <caption label="&pref.popups.caption;"/>
 
-      <hbox>      
+      <hbox>
         <checkbox id="popupPolicy"
                   label="&popupBlock.label;"
                   accesskey="&popupBlock.accesskey;"
-                  preference="dom.disable_open_during_load"/>   
+                  preference="dom.disable_open_during_load"/>
         <spacer flex="1"/>
         <button id="exceptionsButton"
                 label="&viewPermissions.label;"

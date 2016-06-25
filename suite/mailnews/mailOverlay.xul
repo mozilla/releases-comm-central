@@ -12,8 +12,8 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <script type="application/javascript" src="chrome://messenger/content/mailOverlay.js"/>
-         
-  <!-- generic commands -->  
+
+  <!-- generic commands -->
   <commandset id="tasksCommands">
     <command id="cmd_newMessage" oncommand="goOpenNewMessage();"/>
     <command id="cmd_newCard" oncommand="openNewCardDialog()"/>

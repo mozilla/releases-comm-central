@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
@@ -8,7 +8,7 @@
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/subscribe.dtd">
 
 <dialog id="subscribeWindow"
-        xmlns:NC="http://home.netscape.com/NC-rdf#" 
+        xmlns:NC="http://home.netscape.com/NC-rdf#"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="&subscribeDialog.title;"
         style="width: 44em; height: 33em;"
@@ -30,7 +30,7 @@
       <column flex="1"/>
       <column/>
     </columns>
-  
+
     <rows>
       <row>
         <grid flex="1">
@@ -38,7 +38,7 @@
             <column/>
             <column flex="1"/>
           </columns>
-          
+
           <rows>
             <row>
               <hbox pack="end" align="center">
@@ -58,7 +58,7 @@
               </menulist>
             </row>
             <row align="center">
-              <label value="&namefield.label;" accesskey="&namefield.accesskey;" 
+              <label value="&namefield.label;" accesskey="&namefield.accesskey;"
                      id="namefieldlabel" control="namefield"/>
               <textbox id="namefield"
                        flex="1"
@@ -99,14 +99,14 @@
                           disableKeyNavigation="true"
                           statedatasource="rdf:null"
                           onkeypress="onSubscribeTreeKeyPress(event);"
-                          onclick="SubscribeOnClick(event);"> 
+                          onclick="SubscribeOnClick(event);">
                       <template>
                         <rule>
                           <conditions>
-                            <content uri="?container"/> 
+                            <content uri="?container"/>
                               <member container="?container" child="?member"/>
                             </conditions>
-              
+
                             <bindings>
                               <binding subject="?member"
                                       predicate="http://home.netscape.com/NC-rdf#LeafName"
@@ -141,7 +141,7 @@
                             </action>
                         </rule>
                       </template>
-    
+
                       <treecols id="theSubscribeColumns">
                         <treecol id="nameColumn" persist="hidden"
                                  flex="1" primary="true" label="..."
@@ -151,7 +151,7 @@
                                  type="checkbox"
                                  cycler="true" label="&subscribedHeader.label;"
                                  sort="?Subscribed"/>
-                        <!-- commenting out until bug 38906 is fixed 
+                        <!-- commenting out until bug 38906 is fixed
                         <splitter class="tree-splitter"/>
                         <treecol id="messagesColumn" persist="hidden"
                                  label="&messagesHeader.label;"
@@ -159,12 +159,12 @@
                       </treecols>
                     </tree>
                   </hbox>
-                  
+
                   <hbox id="searchview">
-                    <tree id="searchTree" flex="1" 
+                    <tree id="searchTree" flex="1"
                            disableKeyNavigation="true"
                            onkeypress="onSearchTreeKeyPress(event);"
-                           onclick="SearchOnClick(event);"> 
+                           onclick="SearchOnClick(event);">
                       <treecols>
                         <treecol id="nameColumn2" persist="hidden sortDirection"
                                  ignoreincolumnpicker="true" flex="1"
@@ -172,7 +172,7 @@
                         <splitter class="tree-splitter"/>
                         <treecol id="subscribedColumn2" persist="hidden"
                                  cycler="true" label="&subscribedHeader.label;" />
-                        <!-- commenting out until bug 38906 is fixed 
+                        <!-- commenting out until bug 38906 is fixed
                         <splitter class="tree-splitter"/>
                         <treecol id="messagesColumn2" persist="hidden"
                                  label="&messagesHeader.label;" /> -->
@@ -184,28 +184,28 @@
 
                 <vbox>
                   <button id="subscribe" label="&subscribeButton.label;"
-                          accesskey="&subscribeButton.accesskey;" 
+                          accesskey="&subscribeButton.accesskey;"
                           oncommand="SetSubscribeState(true)"/>
                   <button id="unsubscribe" label="&unsubscribeButton.label;"
-                          accesskey="&unsubscribeButton.accesskey;" 
+                          accesskey="&unsubscribeButton.accesskey;"
                           oncommand="SetSubscribeState(false)"/>
                   <button id="refreshButton" label="&refreshButton.label;"
-                          accesskey="&refreshButton.accesskey;" 
+                          accesskey="&refreshButton.accesskey;"
                           oncommand="Refresh()"/>
                   <button id="cmd_stop" label="&stopButton.label;"
-                          accesskey="&stopButton.accesskey;" 
+                          accesskey="&stopButton.accesskey;"
                           oncommand="Stop()"/>
                   <spacer flex="1"/>
                 </vbox>
-                
-              </hbox> 
+
+              </hbox>
             </tabpanel>
           </tabpanels>
         </tabbox>
-      </row>        
+      </row>
       <row>
         <hbox id="statusContainerBox" >
-           <statusbarpanel id="statusText" crop="right" flex="1"/> 
+           <statusbarpanel id="statusText" crop="right" flex="1"/>
            <statusbarpanel class="statusbarpanel-progress" id="statusbar-progresspanel">
              <progressmeter class="progressmeter-statusbar" id="statusbar-icon" mode="normal" value="0"/>
            </statusbarpanel>

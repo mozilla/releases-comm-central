@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -11,8 +11,8 @@
   %brandDTD;
   <!ENTITY % openDialogDTD SYSTEM "chrome://communicator/locale/openLocation.dtd" >
   %openDialogDTD;
-]>            
- 
+]>
+
 <dialog id="openLocation"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="&caption.label;"
@@ -22,12 +22,12 @@
         style="width: 40em;"
         persist="screenX screenY"
         screenX="24" screenY="24">
-              
-  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>  
+
+  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
   <script type="application/javascript" src="chrome://communicator/content/openLocation.js"/>
   <script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
   <script type="application/javascript" src="chrome://navigator/content/sessionHistoryUI.js"/>
-  
+
   <stringbundle id="openLocationBundle" src="chrome://communicator/locale/openLocation.properties"/>
 
   <hbox>
@@ -69,6 +69,6 @@
         <spacer flex="1"/>
       </hbox>
     </vbox>
-  </hbox> 
+  </hbox>
 
 </dialog>

@@ -160,7 +160,7 @@
                      observes="devtoolsMenuBroadcaster_DevToolbox"
                      tooltiptext="&devToolbarToolsButton.tooltip;"
                      _defaultTooltipText="&devToolbarToolsButton.tooltip;"/>
-    
+
       <toolbarbutton id="developer-toolbar-closebutton"
                      class="close-icon"
                      oncommand="DeveloperToolbar.hide();"

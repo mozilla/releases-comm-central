@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
@@ -41,7 +41,7 @@
     <menuitem id="menu_FileQuitItem" label="&quitApplicationCmd.label;"
               key="key_quit" command="cmd_quit"/>
   </menupopup>
-  <key id="key_quit"  key="&quitApplicationCmd.key;" command="cmd_quit" 
+  <key id="key_quit"  key="&quitApplicationCmd.key;" command="cmd_quit"
        modifiers="&quitApplicationCmd.modifiers;"/>
 
   <!-- Edit Menu -->
@@ -92,7 +92,7 @@
   <key id="key_toggleFolderPane" key="&toggleFolderPaneCmd.key;" modifiers="accel,alt"/>
 
   <!-- Tasks Commands -->
-  <commandset id="tasksCommands"> 
+  <commandset id="tasksCommands">
     <command id="cmd_minimizeWindow" oncommand="window.minimize();"/>
     <command id="cmd_zoomWindow" oncommand="ZoomCurrentWindow();"/>
   </commandset>
@@ -144,4 +144,4 @@
     </hbox>
   </vbox>
 
-</overlay>    
+</overlay>

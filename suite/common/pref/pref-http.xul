@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
@@ -44,7 +44,7 @@
                    label="&prefEnableHTTP10.label;"
                    accesskey="&prefEnableHTTP10.accesskey;"/>
             <radio value="1.1"
-                   label="&prefEnableHTTP11.label;" 
+                   label="&prefEnableHTTP11.label;"
                    accesskey="&prefEnableHTTP11.accesskey;"/>
           </radiogroup>
 
@@ -60,13 +60,13 @@
       <groupbox flex="1">
         <caption label="&prefProxy.label;"/>
         <vbox class="indent" align="start">
-          <radiogroup id="httpVersionProxy" 
+          <radiogroup id="httpVersionProxy"
                       preference="network.http.proxy.version">
             <radio value="1.0"
                    label="&prefEnableHTTP10.label;"
                    accesskey="&prefEnableHTTP10Proxy.accesskey;"/>
             <radio value="1.1"
-                   label="&prefEnableHTTP11.label;" 
+                   label="&prefEnableHTTP11.label;"
                    accesskey="&prefEnableHTTP11Proxy.accesskey;"/>
           </radiogroup>
 

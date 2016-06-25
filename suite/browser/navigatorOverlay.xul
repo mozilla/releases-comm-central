@@ -87,7 +87,7 @@
     <key id="key_viewNextSidebarPanel" keycode="VK_PAGE_DOWN"  oncommand="SidebarGetRelativePanel(1);"  modifiers="alt" />
     <key id="key_viewPrevSidebarPanel" keycode="VK_PAGE_UP"  oncommand="SidebarGetRelativePanel(-1);"  modifiers="alt" />
 
-    <!-- Search Menu -->  
+    <!-- Search Menu -->
     <keyset id="findKeys"/>
     <key id="key_findTypeText"/>
     <key id="key_findTypeLinks"/>
@@ -110,7 +110,7 @@
     <key id="goUpKb" keycode="VK_UP" command="Browser:Up" modifiers="alt"/>
     <key id="key_gotoHistory"  key="&history.commandKey;"        oncommand="toHistory();" modifiers="accel"/>
     <keyset id="viewZoomKeys"/>
-    <keyset id="navigationKeys"/>  
+    <keyset id="navigationKeys"/>
     <keyset id="tasksKeys"/>
     <key id="key_sanitize" command="Tools:Sanitize" keycode="VK_DELETE" modifiers="accel,shift"/>
   </keyset>
@@ -162,7 +162,7 @@
     <command id="View:PageInfo"   oncommand="BrowserPageInfo();"/>
     <command id="View:FullScreen" oncommand="BrowserFullScreen();"/>
     <command id="cmd_SwitchDocumentDirection" oncommand="SwitchDocumentDirection(window.content);" />
- 
+
     <!-- Search Menu -->
     <command id="cmd_find"
              oncommand="BrowserFind();"
@@ -195,7 +195,7 @@
     <command id="feedsMenu" disabled="true"/>
     <commandset id="placesCommands"/>
 
-    <!-- Go Menu -->  
+    <!-- Go Menu -->
     <command id="Browser:Home"    oncommand="BrowserHome(event);"/>
     <command id="Browser:Back"    oncommand="BrowserBack();"    observes="canGoBack"/>
     <command id="Browser:Forward" oncommand="BrowserForward();" observes="canGoForward"/>
@@ -284,14 +284,14 @@
         <menuitem id="menu_find" label="&findOnCmd.label;"/>
         <menuitem id="menu_findNext"/>
         <menuitem id="menu_findPrev"/>
-        <menuseparator/> 
+        <menuseparator/>
         <menuitem id="menu_findTypeLinks"/>
         <menuitem id="menu_findTypeText"/>
 
         <menuseparator id="textfieldDirection-separator" hidden="true"/>
         <menuitem id="textfieldDirection-swap" hidden="true"/>
 
-        <menuseparator id="menu_PrefsSeparator"/> 
+        <menuseparator id="menu_PrefsSeparator"/>
         <menuitem id="menu_preferences" oncommand="goPreferences('navigator_pane')"/>
       </menupopup>
     </menu>
@@ -322,7 +322,7 @@
                       type="checkbox"
                       observes="cmd_viewcomponentbar"/>
           </menupopup>
-        </menu>   
+        </menu>
         <menuitem id="menuitem_fullScreen"
                   label="&fullScreenCmd.label;"
                   accesskey="&fullScreenCmd.accesskey;"

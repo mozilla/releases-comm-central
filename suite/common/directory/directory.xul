@@ -70,5 +70,5 @@
   <vbox id="logbox" flex="1" collapsed="true" persist="height collapsed" hidden="true">
      <iframe id="output-iframe" type="content" flex="1" src="chrome://communicator/content/directory/directory.html"/>
   </vbox>
-  
+
 </page>

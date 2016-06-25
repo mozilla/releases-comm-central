@@ -41,7 +41,7 @@
     }
 
   ]]>
-  </script>         
+  </script>
 
   <!-- editor specific UI items -->
   <menupopup id="menu_NewPopup">
@@ -51,7 +51,7 @@
   </menupopup>
 
   <menupopup id="menu_FilePopup">
-    <!-- The command node cmd_editSendPage is in editor.xul. 
+    <!-- The command node cmd_editSendPage is in editor.xul.
          Implementation is in ComposerCommands.js
     -->
     <menuitem id="menu_sendPage" label="&sendPage.label;" accesskey="&sendPage.accesskey;" observes="cmd_editSendPage" insertafter="previewInBrowser"/>

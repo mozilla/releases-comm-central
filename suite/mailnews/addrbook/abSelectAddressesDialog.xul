@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
@@ -35,21 +35,21 @@
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
 
   <vbox flex="1">
-  
+
     <hbox id="topBox" align="center">
       <label value="&lookIn.label;" accesskey="&lookIn.accesskey;" control="addressbookList"/>
-      <menulist id="addressbookList" 
+      <menulist id="addressbookList"
                 oncommand="DirPaneSelectionChangeMenulist(); document.commandDispatcher.updateCommands('addrbook-select');">
         <menupopup id="addressbookList-menupopup" class="addrbooksPopup"/>
-      </menulist>  
+      </menulist>
       <label value="&for.label;" accesskey="&for.accesskey;" control="searchInput"/>
       <textbox id="searchInput" flex="1" type="search"
                aria-controls="abResultsTree"
                placeholder="&for.placeholder;"
                oncommand="onEnterInSearchBar();" clickSelectsAll="true"/>
     </hbox>
-    
-    <hbox flex="1">    
+
+    <hbox flex="1">
 
       <vbox id="resultsBox" flex="4">
         <tree id="abResultsTree" flex="1" persist="height"/>
@@ -57,13 +57,13 @@
 
       <vbox id="addToBucketButtonBox">
         <spacer flex="1"/>
-        <button id="toButton" label="&toButton.label;" accesskey="&toButton.accesskey;" oncommand="SelectAddressToButton()"/> 
+        <button id="toButton" label="&toButton.label;" accesskey="&toButton.accesskey;" oncommand="SelectAddressToButton()"/>
         <spacer class="middle-button-spacer"/>
-        <button id="ccButton" label="&ccButton.label;" accesskey="&ccButton.accesskey;" oncommand="SelectAddressCcButton()"/> 
+        <button id="ccButton" label="&ccButton.label;" accesskey="&ccButton.accesskey;" oncommand="SelectAddressCcButton()"/>
         <spacer class="middle-button-spacer"/>
-        <button id="bccButton" label="&bccButton.label;" accesskey="&bccButton.accesskey;" oncommand="SelectAddressBccButton()"/>  
+        <button id="bccButton" label="&bccButton.label;" accesskey="&bccButton.accesskey;" oncommand="SelectAddressBccButton()"/>
         <spacer class="above-remove-spacer"/>
-        <button id="remove" label="&removeButton.label;" accesskey="&removeButton.accesskey;" class="dialog" oncommand="RemoveSelectedFromBucket()"/> 
+        <button id="remove" label="&removeButton.label;" accesskey="&removeButton.accesskey;" class="dialog" oncommand="RemoveSelectedFromBucket()"/>
         <spacer flex="1"/>
       </vbox>
 
@@ -79,13 +79,13 @@
           <treechildren id="bucketBody" flex="1"/>
         </tree>
       </vbox>
-        
+
     </hbox>
 
     <hbox id="newEditButtonBox">
-      <button id="new" label="&newButton.label;" accesskey="&newButton.accesskey;" tooltiptext="&addressPickerNewButton.tooltip;" oncommand="AbNewCard();"/> 
-      <button id="edit" label="&editButton.label;" accesskey="&editButton.accesskey;" tooltiptext="&addressPickerEditButton.tooltip;" oncommand="AbEditSelectedCard()"/> 
+      <button id="new" label="&newButton.label;" accesskey="&newButton.accesskey;" tooltiptext="&addressPickerNewButton.tooltip;" oncommand="AbNewCard();"/>
+      <button id="edit" label="&editButton.label;" accesskey="&editButton.accesskey;" tooltiptext="&addressPickerEditButton.tooltip;" oncommand="AbEditSelectedCard()"/>
     </hbox>
   </vbox>
-  
+
 </dialog>

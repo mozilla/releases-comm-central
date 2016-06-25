@@ -83,16 +83,16 @@
 
   <keyset id="placesOrganizerKeyset">
     <!-- Instantiation Keys -->
-    <key id="placesKey_close" key="&cmd.close.key;" modifiers="accel" 
+    <key id="placesKey_close" key="&cmd.close.key;" modifiers="accel"
          oncommand="close();"/>
 
     <!-- Command Keys -->
     <key id="placesKey_find:all"
-         command="OrganizerCommand_find:all" 
+         command="OrganizerCommand_find:all"
          key="&cmd.find.key;"
          modifiers="accel"/>
     <key id="placesKey_find:current"
-         command="OrganizerCommand_find:current" 
+         command="OrganizerCommand_find:current"
          key="&cmd.find.key;"
          modifiers="accel,shift"/>
 
@@ -142,9 +142,9 @@
                       accesskey="&cmd.new_separator.accesskey;"/>
             <menuseparator id="fileNewSeparator"/>
             <menuitem id="orgClose"
-                      key="placesKey_close" 
+                      key="placesKey_close"
                       label="&file.close.label;"
-                      accesskey="&file.close.accesskey;" 
+                      accesskey="&file.close.accesskey;"
                       oncommand="close();"/>
           </menupopup>
         </menu>
@@ -191,14 +191,14 @@
                   accesskey="&view.sort.accesskey;">
               <menupopup onpopupshowing="ViewMenu.populateSortMenu(event);"
                          oncommand="ViewMenu.setSortColumn(event.target.column, null); event.stopPropagation();">
-                <menuitem id="viewUnsorted" type="radio" name="columns" 
+                <menuitem id="viewUnsorted" type="radio" name="columns"
                           label="&view.unsorted.label;" accesskey="&view.unsorted.accesskey;"
                           oncommand="ViewMenu.setSortColumn(null, null);"/>
                 <menuseparator id="directionSeparator"/>
-                <menuitem id="viewSortAscending" type="radio" name="direction" 
+                <menuitem id="viewSortAscending" type="radio" name="direction"
                           label="&view.sortAscending.label;" accesskey="&view.sortAscending.accesskey;"
                           oncommand="ViewMenu.setSortColumn(null, 'ascending'); event.stopPropagation();"/>
-                <menuitem id="viewSortDescending" type="radio" name="direction" 
+                <menuitem id="viewSortDescending" type="radio" name="direction"
                           label="&view.sortDescending.label;" accesskey="&view.sortDescending.accesskey;"
                           oncommand="ViewMenu.setSortColumn(null, 'descending'); event.stopPropagation();"/>
               </menupopup>

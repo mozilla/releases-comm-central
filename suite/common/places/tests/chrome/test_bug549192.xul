@@ -58,7 +58,7 @@
       // Add some visits.
       let vtime = Date.now() * 1000;
       const ttype = PlacesUtils.history.TRANSITION_TYPED;
-      
+
       addVisits(
         [{ uri: Services.io.newURI("http://example.tld/", null, null),
            visitDate: vtime, transition: ttype },

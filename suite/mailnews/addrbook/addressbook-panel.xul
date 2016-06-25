@@ -59,14 +59,14 @@
   <vbox id="results_box" flex="1">
     <hbox id="panel-bar" class="toolbar" align="center">
 	  <label value="&lookIn.label;" control="addressbookList" id="lookInLabel"/>
-      <menulist id="addressbookList" 
+      <menulist id="addressbookList"
                 oncommand="DirPaneSelectionChangeMenulist();" flex="1"
                 persist="value">
         <menupopup id="addressbookList-menupopup" class="addrbooksPopup"/>
       </menulist>
     </hbox>
 	<hbox align="center">
-	  <label value="&for.label;" id="forLabel" control="searchInput"/> 
+	  <label value="&for.label;" id="forLabel" control="searchInput"/>
 	  <textbox id="searchInput" flex="1" type="search"
                aria-labelledby="lookInLabel addressbookList forLabel"
                aria-controls="abResultsTree"
@@ -82,7 +82,7 @@
           persist="hidden ordinal width sortDirection" flex="1" label="&GeneratedName.label;" primary="true"/>
     <splitter class="tree-splitter"/>
     <treecol id="PrimaryEmail"
-          persist="hidden ordinal width sortDirection" 
+          persist="hidden ordinal width sortDirection"
       hiddenbydefault="true"
       flex="1" label="&PrimaryEmail.label;"/>
   </treecols>

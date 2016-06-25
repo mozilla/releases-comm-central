@@ -61,5 +61,5 @@
               command="Tasks:AddressBook"
               insertafter="tasksMenuEditor"/>
   </menupopup>
-  
+
 </overlay>

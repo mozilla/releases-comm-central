@@ -19,7 +19,7 @@
                   name="browser.display.languageList"
                   type="wstring"/>
     </preferences>
- 
+
     <groupbox>
       <caption align="center">
         <label value="&language.label;"

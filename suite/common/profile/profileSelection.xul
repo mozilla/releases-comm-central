@@ -77,7 +77,7 @@
         <treechildren tooltip="treetip"
                       ondblclick="HandleClickEvent(event);"/>
       </tree>
-      <checkbox id="offlineState" label="&offlineState.label;" accesskey="&offlineState.accesskey;" hidden="true"/> 
+      <checkbox id="offlineState" label="&offlineState.label;" accesskey="&offlineState.accesskey;" hidden="true"/>
       <checkbox id="autoSelect" label="&autoSelect.label;" accesskey="&autoSelect.accesskey;"/>
     </vbox>
   </hbox>

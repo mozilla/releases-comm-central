@@ -1,4 +1,4 @@
-<?xml version="1.0"?> <!-- -*- Mode: HTML; indent-tabs-mode: nil -*- --> 
+<?xml version="1.0"?> <!-- -*- Mode: HTML; indent-tabs-mode: nil -*- -->
 
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -28,8 +28,8 @@
         onload="Startup()" onunload="Shutdown()"
         onclose="return WindowIsClosing();"
         contenttitlesetting="true"
-        title="&mainWindow.title;" 
-        titlemodifier="&mainWindow.titlemodifier;" 
+        title="&mainWindow.title;"
+        titlemodifier="&mainWindow.titlemodifier;"
         titlemenuseparator="&mainWindow.titlemodifiermenuseparator;"
         titleprivate="&mainWindow.titleprivate;"
         toggletoolbar="true"
@@ -38,7 +38,7 @@
         windowtype="navigator:browser"
         macanimationtype="document"
         drawtitle="true"
-        persist="screenX screenY width height sizemode"> 
+        persist="screenX screenY width height sizemode">
 
   <!-- Generic Utility -->
   <script type="application/javascript" src="chrome://global/content/nsUserSettings.js"/>
@@ -185,7 +185,7 @@
       </toolbaritem>
     </toolbar>
 
-    <toolbar class="toolbar-primary chromeclass-toolbar" id="nav-bar" persist="collapsed" 
+    <toolbar class="toolbar-primary chromeclass-toolbar" id="nav-bar" persist="collapsed"
              grippytooltiptext="&navigationToolbar.tooltip;"
              fullscreentoolbar="true" customizable="true"
              toolbarname="&navbarCmd.label;" accesskey="&navbarCmd.accesskey;"
@@ -499,7 +499,7 @@
              require error page UI to do privileged things, without letting
              error pages have any privilege themselves. -->
       </hbox>
-    </vbox>  
+    </vbox>
   </hbox>
 
   <panel id="customizeToolbarSheetPopup"/>
@@ -519,5 +519,5 @@
                     id="security-button" dir="reverse"
                     context="security-context-menu"
                     oncommand="BrowserPageInfo(null, 'securityTab')"/>
-  </statusbar> 
+  </statusbar>
 </window>

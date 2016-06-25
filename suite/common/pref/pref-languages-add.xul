@@ -31,11 +31,11 @@
       <stringbundle id="prefLangAddBundle"
                     src="chrome://communicator/locale/pref/pref-languages.properties"/>
     </stringbundleset>
- 
+
     <description style="width: 1px;">&languages.customize.prefAddLangDescript;</description>
     <separator class="thin"/>
     <description style="width: 1px;">&languages.customize.available.label;</description>
- 
+
     <listbox id="availableLanguages"
              flex="1"
              seltype="multiple"
@@ -44,8 +44,8 @@
              onsynctopreference="return WriteAddedLanguages(this);"/>
 
     <hbox align="center">
-      <label value="&languages.customize.others.label;" 
-             accesskey="&languages.customize.others.accesskey;" 
+      <label value="&languages.customize.others.label;"
+             accesskey="&languages.customize.others.accesskey;"
              control="otherLanguages"/>
       <textbox id="otherLanguages" size="12" flex="1"/>
       <label value="&languages.customize.others.examples;" control="otherLanguages"/>

@@ -38,7 +38,7 @@
   <broadcaster id="cmd_CustomizeToolbars"/>
 </broadcasterset>
 
-  <!-- online/offline status indicators -->   
+  <!-- online/offline status indicators -->
   <broadcaster id="Communicator:WorkMode"
                label="&offlineGoOfflineCmd.label;"
                type="checkbox"
@@ -180,7 +180,7 @@
             label="&newPageFromDraftCmd.label;"
             accesskey="&newPageFromDraftCmd.accesskey;"
             command="cmd_newEditorDraft"/>
- 
+
   <menu id="menu_New"
         label="&newMenu.label;"
         accesskey="&newMenu.accesskey;"/>
@@ -309,7 +309,7 @@
             key="key_findTypeLinks"
             accesskey="&findTypeLinksCmd.accesskey;"
             command="cmd_findTypeLinks"/>
-  <menuitem id="textfieldDirection-swap" 
+  <menuitem id="textfieldDirection-swap"
             label="&bidiSwitchTextDirectionItem.label;"
             key="key_switchTextDirection"
             accesskey="&bidiSwitchTextDirectionItem.accesskey;"
@@ -423,11 +423,11 @@
            disabled="true"/>
   <command id="cmd_switchTextDirection"
            oncommand="goDoCommand('cmd_switchTextDirection');"/>
-  <command id="cmd_findTypeText" 
+  <command id="cmd_findTypeText"
            oncommand="findTextAsYouType();"/>
-  <command id="cmd_findTypeLinks" 
+  <command id="cmd_findTypeLinks"
            oncommand="findLinksAsYouType();"/>
-        
+
   <!-- Not needed yet, window will need this: -->
   <!-- broadcaster id="cmd_preferences"/ -->
 

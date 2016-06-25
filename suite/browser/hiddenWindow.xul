@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -29,7 +29,7 @@
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
   title="hidden"
-  titlemodifier="&mainWindow.titlemodifier;" 
+  titlemodifier="&mainWindow.titlemodifier;"
   titlemenuseparator="&mainWindow.titlemodifiermenuseparator;"
   onload="hiddenWindowStartup();"
   onunload="Shutdown();">

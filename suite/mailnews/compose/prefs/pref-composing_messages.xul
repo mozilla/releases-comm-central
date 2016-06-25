@@ -59,7 +59,7 @@
 
     <groupbox>
       <caption label="&generalComposing.label;"/>
-  
+
       <radiogroup id="forwardMessageMode"
                   orient="horizontal"
                   align="center"
@@ -72,7 +72,7 @@
                label="&asAttachment.label;"
                accesskey="&asAttachment.accesskey;"/>
       </radiogroup>
-  
+
       <checkbox id="replyQuoteInline" label="&replyQuoteInline.label;"
                 preference="mail.reply_quote_inline"
                 accesskey="&replyQuoteInline.accesskey;"/>
@@ -96,7 +96,7 @@
                 label="&warnOnSendAccelKey.label;"
                 accesskey="&warnOnSendAccelKey.accesskey;"
                 preference="mail.warn_on_send_accel_key"/>
-  
+
       <hbox align="center">
         <label id="wrapOutLabel"
                value="&wrapOutMsg.label;"
@@ -131,9 +131,9 @@
         </menulist>
       </hbox>
     </groupbox>
-  
+
     <!-- Composing Mail -->
- 
+
     <groupbox align="start">
       <caption label="&defaultMessagesHeader.label;"/>
       <grid>
@@ -141,7 +141,7 @@
           <column/>
           <column/>
         </columns>
-    
+
         <rows>
           <row align="center">
             <label value="&font.label;"

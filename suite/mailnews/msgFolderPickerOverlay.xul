@@ -25,7 +25,7 @@
       <template>
         <rule nc:NoSelect="false" iscontainer="true" isempty="false">
           <menupopup>
-              <menu uri="..." 
+              <menu uri="..."
                 class="folderMenuItem menu-iconic"
                 oncommand="PickedMsgFolder(event.target,'runFiltersFolder')"
                 SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
@@ -59,7 +59,7 @@
         </rule>
         <rule nc:NoSelect="false">
           <menupopup>
-             <menuitem uri="..." value="..."  
+             <menuitem uri="..." value="..."
               class="folderMenuItem menuitem-iconic"
               oncommand="PickedMsgFolder(event.target,'runFiltersFolder')"
               SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"

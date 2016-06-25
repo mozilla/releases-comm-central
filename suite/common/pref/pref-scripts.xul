@@ -111,6 +111,6 @@
                 accesskey="&warnPluginsRequired.accesskey;"
                 preference="plugins.hide_infobar_for_missing_plugin"/>
     </groupbox>
-    
+
   </prefpane>
 </overlay>

@@ -45,7 +45,7 @@
             <listheader label="&colorColumn.label;"/>
           </listhead>
         </listbox>
-  
+
         <vbox>
           <button id="addTagButton"
                   label="&addTagButton.label;"

@@ -25,6 +25,6 @@
     <!--  <iframe id="previewframe" type="content" src="about:blank" flex="1"/>-->
     <iframe class="box-panel" id="previewframe" type="content" src="about:blank" flex="1"/>
 
-  </vbox>  
+  </vbox>
 
 </window>

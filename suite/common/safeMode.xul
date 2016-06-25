@@ -53,6 +53,6 @@
               label="&restoreSearch.label;"
               accesskey="&restoreSearch.accesskey;"/>
   </vbox>
-     
+
   <separator class="thin"/>
 </dialog>

@@ -123,7 +123,7 @@
                 preference="browser.enable_automatic_image_resizing"/>
     </groupbox>
 
-    <vbox class="box-padded" align="start"> 
+    <vbox class="box-padded" align="start">
       <checkbox id="allowHWAccel"
                 label="&allowHWAccel.label;"
                 accesskey="&allowHWAccel.accesskey;"

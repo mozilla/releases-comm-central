@@ -95,21 +95,21 @@
   <menuitem id="context-deleteAttachment" label="&deleteAttachmentCmd.label;" accesskey="&deleteAttachmentCmd.accesskey;"
      oncommand="handleAttachmentSelection('deleteAttachment');"/>
   <menuseparator/>
-  <menuitem id="context-saveAllAttachments" oncommand="HandleMultipleAttachments('saveAttachment', currentAttachments);" 
+  <menuitem id="context-saveAllAttachments" oncommand="HandleMultipleAttachments('saveAttachment', currentAttachments);"
     label="&saveAllAttachmentsCmd.label;" accesskey="&saveAllAttachmentsCmd.accesskey;"/>
-  <menuitem id="context-detachAllAttachments" oncommand="HandleMultipleAttachments('detachAttachment', currentAttachments);" 
+  <menuitem id="context-detachAllAttachments" oncommand="HandleMultipleAttachments('detachAttachment', currentAttachments);"
     label="&detachAllAttachmentsCmd.label;" accesskey="&detachAllAttachmentsCmd.accesskey;"/>
-  <menuitem id="context-deleteAllAttachments" oncommand="HandleMultipleAttachments('deleteAttachment', currentAttachments);" 
+  <menuitem id="context-deleteAllAttachments" oncommand="HandleMultipleAttachments('deleteAttachment', currentAttachments);"
     label="&deleteAllAttachmentsCmd.label;" accesskey="&deleteAllAttachmentsCmd.accesskey;"/>
 </menupopup>
 
 <menupopup id="attachmentMenuList">
   <menuseparator/>
-  <menuitem id="file-saveAllAttachments" label="&saveAllAttachmentsCmd.label;" 
+  <menuitem id="file-saveAllAttachments" label="&saveAllAttachmentsCmd.label;"
     accesskey="&saveAllAttachmentsCmd.accesskey;" oncommand="HandleMultipleAttachments('saveAttachment', currentAttachments);"/>
-  <menuitem id="file-detachAllAttachments" label="&detachAllAttachmentsCmd.label;" 
+  <menuitem id="file-detachAllAttachments" label="&detachAllAttachmentsCmd.label;"
     accesskey="&detachAllAttachmentsCmd.accesskey;" oncommand="HandleMultipleAttachments('detachAttachment', currentAttachments);" />
-  <menuitem id="file-deleteAllAttachments" label="&deleteAllAttachmentsCmd.label;" 
+  <menuitem id="file-deleteAllAttachments" label="&deleteAllAttachmentsCmd.label;"
     accesskey="&deleteAllAttachmentsCmd.accesskey;" oncommand="HandleMultipleAttachments('deleteAttachment', currentAttachments);" />
 </menupopup>
 
@@ -138,7 +138,7 @@
           onclick="ToggleHeaderView();"/>
       </hbox>
     </column>
-      
+
     <column id="collapsedsubjectBox" collapsed="true" flex="1">
       <hbox>
         <label class="collapsedHeaderDisplayName" value="&subjectField.label;" control="collapsedsubjectValue"/>
@@ -160,13 +160,13 @@
 
     <column id="collapsedKeywordBox">
       <hbox align="start">
-      <image id="collapsedKeywordImage" keywordrelated="true" originalclass="none"/>  
+      <image id="collapsedKeywordImage" keywordrelated="true" originalclass="none"/>
       </hbox>
     </column>
 
     <column id="collapsedAttachmentBox" collapsed="true">
       <hbox align="start">
-      <image id="collapsedAttachment" class="collapsedAttachmentButton" onclick="ToggleHeaderView();" />  
+      <image id="collapsedAttachment" class="collapsedAttachmentButton" onclick="ToggleHeaderView();" />
       </hbox>
     </column>
   </columns>
@@ -176,7 +176,7 @@
 
   <vbox id="expandedHeaders" flex="1">
     <mail-toggle-headerfield keywordrelated="true" id="expandedsubjectBox" class="subjectvalue" label="&subjectField.label;" ontwistyclick="ToggleHeaderView();" collapsed="true"/>
-   
+
     <mail-multi-emailHeaderField id="expandedfromBox" label="&fromField.label;" collapsed="true"/>
     <mail-emailheaderfield id="expandedsenderBox" label="&senderField.label;" collapsed="true"/>
     <mail-headerfield id="expandedorganizationBox" label="&organizationField.label;" collapsed="true"/>
@@ -201,9 +201,9 @@
   <vbox id="expandedKeywordBox">
     <spacer flex="1"/>
     <image id="expandedKeywordImage" keywordrelated="true" originalclass="none" />
-    <spacer flex="1"/>  
+    <spacer flex="1"/>
   </vbox>
-   
+
   <vbox id="editMessageBox" class="header-part1" keywordrelated="true" originalclass="header-part1" collapsed="true">
     <spacer flex="1"/>
     <button id="editMessageButton"
@@ -211,7 +211,7 @@
             accesskey="&editMessage.accesskey;"
             oncommand="MsgComposeDraftMessage()"/>
     <spacer flex="1"/>
-  </vbox> 
+  </vbox>
 
   <vbox>
     <spacer flex="1"/>

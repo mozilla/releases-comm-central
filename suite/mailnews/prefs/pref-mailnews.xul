@@ -131,7 +131,7 @@
       </hbox>
 
       <hbox align="center">
-        <label value="&location.label;" accesskey="&location.accesskey;" 
+        <label value="&location.label;" accesskey="&location.accesskey;"
                control="mailnewsStartPageUrl"/>
         <textbox id="mailnewsStartPageUrl" flex="1" type="autocomplete"
                  preference="mailnews.start_page.url" timeout="50"

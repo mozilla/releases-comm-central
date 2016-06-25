@@ -24,7 +24,7 @@
   <keyset id="tasksKeys">
     <key id="key_newMessage" key="&newMessageCmd.key;" command="cmd_newMessage" modifiers="accel"/>
   </keyset>
-         
+
   <!-- navigator specific UI items -->
   <menupopup id="menu_NewPopup">
     <menuitem id="menu_newCard"
@@ -36,7 +36,7 @@
               label="&newMessageCmd.label;"
               accesskey="&newMessageCmd.accesskey;"
               command="cmd_newMessage"
-              key="key_newMessage"           
+              key="key_newMessage"
               insertafter="navBeginGlobalNewItems"/>
   </menupopup>
 
@@ -89,6 +89,6 @@
     </menupopup>
     </menu>
   </menupopup>
-  
+
 </overlay>
 

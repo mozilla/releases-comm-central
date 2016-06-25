@@ -54,14 +54,14 @@
                       predicate="http://home.netscape.com/NC-rdf#panel-list"/>
               <member container="?panel-list" child="?panel"/>
             </conditions>
-            
+
             <bindings>
-              <binding subject="?panel" object="?title" 
+              <binding subject="?panel" object="?title"
                        predicate="http://home.netscape.com/NC-rdf#title"/>
-              <binding subject="?panel" object="?link" 
+              <binding subject="?panel" object="?link"
                        predicate="http://home.netscape.com/NC-rdf#link"/>
             </bindings>
-            
+
             <action>
               <treechildren>
                 <treeitem uri="?panel" link="?link">
@@ -73,7 +73,7 @@
             </action>
           </rule>
         </template>
-        
+
         <treecols>
           <treecol id="AvailNameCol" flex="1" primary="true" hideheader="true"/>
         </treecols>
@@ -90,9 +90,9 @@
                 accesskey="&sidebar.customize.preview.accesskey;"
                 disabled="true"/>
       </hbox>
-    </vbox> 
-    
-    <separator orient="vertical"/>    
+    </vbox>
+
+    <separator orient="vertical"/>
 
     <!-- The panels that the user currently has chosen -->
     <vbox flex="1">
@@ -107,7 +107,7 @@
 
         <treechildren/>
       </tree>
-      
+
       <hbox class="button-group">
         <button id="customize-button" oncommand="CustomizePanel();"
                 label="&sidebar.customize.customize.label;" disabled="true"
@@ -115,7 +115,7 @@
         <button id="remove-button" oncommand="RemovePanel()"
                 label="&sidebar.customize.remove.label;" disabled="true"
                 accesskey="&sidebar.customize.remove.accesskey;"/>
-      </hbox>      
+      </hbox>
     </vbox>
 
     <separator orient="vertical" class="thin"/>
@@ -130,7 +130,7 @@
               disabled="true" label="&sidebar.customize.down.label;"
               accesskey="&sidebar.customize.down.accesskey;"/>
       <spacer flex="1"/>
-    </vbox> 
+    </vbox>
 
   </hbox>
 
