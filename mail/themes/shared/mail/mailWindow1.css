@@ -69,6 +69,20 @@ treechildren::-moz-tree-cell-text(subjectCol) {
   padding-inline-start: 0;
 }
 
+/* ..... correspondent column ..... */
+
+treechildren::-moz-tree-image(correspondentCol) {
+  list-style-image: url("chrome://messenger/skin/icons/correspndents.svg#right");
+}
+
+#threadTree:-moz-locale-dir(ltr) > treechildren::-moz-tree-image(correspondentCol, outgoing) {
+  list-style-image: url("chrome://messenger/skin/icons/correspndents.svg#right-show");
+}
+
+#threadTree:-moz-locale-dir(rtl) > treechildren::-moz-tree-image(correspondentCol, outgoing) {
+  list-style-image: url("chrome://messenger/skin/icons/correspndents.svg#left-show");
+}
+
 #sizeCol,
 #unreadCol,
 #totalCol {

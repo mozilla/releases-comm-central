@@ -87,6 +87,10 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   text-decoration: line-through;
 }
 
+#correspondentCol {
+  padding-inline-start: 20px;
+}
+
 /* ::::: message column icons ::::: */
 
 .treecol-image image {
@@ -217,30 +221,6 @@ treechildren::-moz-tree-image(junkStatusCol, junk) {
 
 treechildren::-moz-tree-image(junkStatusCol, notjunk) {
   -moz-image-region: rect(16px 128px 32px 112px);
-}
-
-/* ..... correspondent column ..... */
-
-@media (-moz-os-version: windows-xp) {
-  treechildren::-moz-tree-image(correspondentCol) {
-    list-style-image: url("chrome://messenger/skin/icons/message-XP.png");
-  }
-}
-
-@media not all and (-moz-os-version: windows-xp) {
-  treechildren::-moz-tree-image(correspondentCol) {
-    list-style-image: url("chrome://messenger/skin/icons/message.png");
-  }
-}
-
-treechildren::-moz-tree-image(correspondentCol, incoming) {
-  margin-inline-end: 2px;
-  -moz-image-region: rect(0 112px 16px 96px);
-}
-
-treechildren::-moz-tree-image(correspondentCol, outgoing) {
-  margin-inline-end: 2px;
-  -moz-image-region: rect(0 128px 16px 112px);
 }
 
 /* ..... subject column ..... */

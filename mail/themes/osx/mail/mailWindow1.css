@@ -257,22 +257,18 @@ treechildren::-moz-tree-image(junkStatusCol, junk) {
 
 /* ..... correspondent column ..... */
 
-treechildren::-moz-tree-image(correspondentCol, incoming) {
-  list-style-image: url("chrome://messenger/skin/icons/threadpane-col.png");
-  -moz-image-region: rect(0px 107px 16px 96px);
+#correspondentCol {
+  padding-inline-start: 20px;
 }
 
-treechildren::-moz-tree-image(correspondentCol, incoming, selected) {
-  -moz-image-region: rect(16px 107px 32px 96px);
+#threadTree:-moz-locale-dir(ltr)
+  > treechildren::-moz-tree-image(correspondentCol, outgoing, focus, selected) {
+  list-style-image: url("chrome://messenger/skin/icons/correspndents.svg#right-selected");
 }
 
-treechildren::-moz-tree-image(correspondentCol, outgoing) {
-  list-style-image: url("chrome://messenger/skin/icons/threadpane-col.png");
-  -moz-image-region: rect(0px 118px 16px 107px);
-}
-
-treechildren::-moz-tree-image(correspondentCol, outgoing, selected) {
-  -moz-image-region: rect(16px 118px 32px 107px);
+#threadTree:-moz-locale-dir(rtl)
+  > treechildren::-moz-tree-image(correspondentCol, outgoing, focus, selected) {
+  list-style-image: url("chrome://messenger/skin/icons/correspndents.svg#left-selected");
 }
 
 /* ..... subject column ..... */
@@ -431,24 +427,6 @@ treechildren::-moz-tree-image(threadCol, ignoreSubthread) {
   .tree-columnpicker-icon {
     list-style-image: url("chrome://messenger/skin/icons/column-headers@2x.png");
     -moz-image-region: rect(0px 192px 32px 160px);
-  }
-
-  treechildren::-moz-tree-image(correspondentCol, incoming) {
-    list-style-image: url("chrome://messenger/skin/icons/threadpane-col@2x.png");
-    -moz-image-region: rect(0px 214px 32px 192px);
-  }
-
-  treechildren::-moz-tree-image(correspondentCol, incoming, selected) {
-    -moz-image-region: rect(32px 214px 64px 192px);
-  }
-
-  treechildren::-moz-tree-image(correspondentCol, outgoing) {
-    list-style-image: url("chrome://messenger/skin/icons/threadpane-col@2x.png");
-    -moz-image-region: rect(0px 236px 32px 214px);
-  }
-
-  treechildren::-moz-tree-image(correspondentCol, outgoing, selected) {
-    -moz-image-region: rect(32px 236px 64px 214px);
   }
 
   .tree-columnpicker-icon,
