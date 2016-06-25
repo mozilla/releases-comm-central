@@ -316,7 +316,7 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 }
 
 .popup-notification-icon[popupid="password"] {
-  list-style-image: url("chrome://mozapps/skin/passwordmgr/key-64.png");
+  list-style-image: url("chrome://communicator/skin/icons/key-64.png");
 }
 
 .popup-notification-icon[popupid="click-to-play-plugins"] {
@@ -371,7 +371,7 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 }
 
 #password-notification-icon {
-  list-style-image: url("chrome://mozapps/skin/passwordmgr/key-16.png");
+  list-style-image: url("chrome://communicator/skin/icons/key-16.png");
   width: 16px;
   height: 16px;
 }
