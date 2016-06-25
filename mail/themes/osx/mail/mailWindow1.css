@@ -263,12 +263,12 @@ treechildren::-moz-tree-image(junkStatusCol, junk) {
 
 #threadTree:-moz-locale-dir(ltr)
   > treechildren::-moz-tree-image(correspondentCol, outgoing, focus, selected) {
-  list-style-image: url("chrome://messenger/skin/icons/correspndents.svg#right-selected");
+  list-style-image: url("chrome://messenger/skin/icons/correspondents.svg#right-selected");
 }
 
 #threadTree:-moz-locale-dir(rtl)
   > treechildren::-moz-tree-image(correspondentCol, outgoing, focus, selected) {
-  list-style-image: url("chrome://messenger/skin/icons/correspndents.svg#left-selected");
+  list-style-image: url("chrome://messenger/skin/icons/correspondents.svg#left-selected");
 }
 
 /* ..... subject column ..... */

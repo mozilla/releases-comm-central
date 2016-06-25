@@ -72,15 +72,15 @@ treechildren::-moz-tree-cell-text(subjectCol) {
 /* ..... correspondent column ..... */
 
 treechildren::-moz-tree-image(correspondentCol) {
-  list-style-image: url("chrome://messenger/skin/icons/correspndents.svg#right");
+  list-style-image: url("chrome://messenger/skin/icons/correspondents.svg#right");
 }
 
 #threadTree:-moz-locale-dir(ltr) > treechildren::-moz-tree-image(correspondentCol, outgoing) {
-  list-style-image: url("chrome://messenger/skin/icons/correspndents.svg#right-show");
+  list-style-image: url("chrome://messenger/skin/icons/correspondents.svg#right-show");
 }
 
 #threadTree:-moz-locale-dir(rtl) > treechildren::-moz-tree-image(correspondentCol, outgoing) {
-  list-style-image: url("chrome://messenger/skin/icons/correspndents.svg#left-show");
+  list-style-image: url("chrome://messenger/skin/icons/correspondents.svg#left-show");
 }
 
 #sizeCol,
