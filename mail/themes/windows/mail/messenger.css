@@ -181,6 +181,25 @@ notification[type="critical"] .messageCloseButton {
   }
 }
 
+/* Give menupopup[type="folder"] a menu look */
+menupopup[type="folder"] {
+  -moz-appearance: menupopup;
+  background-color: menu;
+}
+
+menupopup[type="folder"] menu[_moz-menuactive="true"],
+menupopup[type="folder"] menuitem[_moz-menuactive="true"] {
+  color: -moz-MenuHoverText;
+  background-color: -moz-MenuHover;
+}
+
+menupopup[type="folder"] > menu,
+menupopup[type="folder"] > menuitem {
+  -moz-appearance: menuitem !important;
+  padding-right: 0;
+  padding-left: 0;
+}
+
 menulist.folderMenuItem > .menulist-label-box > .menulist-label {
   margin-inline-start: 2px !important;
 }

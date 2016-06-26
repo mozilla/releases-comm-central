@@ -67,6 +67,29 @@
   border-bottom-color: ThreeDShadow;
 }
 
+/* Give viewPickerPopup a menu look */
+#viewPickerPopup {
+  background-color: menu;
+}
+
+#viewPickerPopup {
+  -moz-border-top-colors: ThreeDShadow;
+  -moz-border-left-colors: ThreeDShadow;
+  -moz-border-right-colors: ThreeDShadow;
+  -moz-border-bottom-colors: ThreeDShadow;
+}
+
+#viewPickerPopup > menu,
+#viewPickerPopup > menuitem {
+  padding-inline-end: 1px;
+}
+
+#viewPickerPopup menu[_moz-menuactive="true"],
+#viewPickerPopup menuitem[_moz-menuactive="true"] {
+  color: -moz-MenuHoverText;
+  background-color: -moz-MenuHover;
+}
+
 /* ::::: thread decoration ::::: */
 
 treechildren::-moz-tree-row(dummy)  {
@@ -820,11 +843,6 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
     -moz-appearance: none;
   }
 
-  #folderLocationPopup menu,
-  #folderLocationPopup menuitem {
-    padding-inline-start: 2px;
-  }
-
   @media (-moz-windows-default-theme) {
     menulist {
       -moz-appearance: none;
@@ -853,6 +871,17 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
     menulist[disabled="true"] {
       opacity: .6;
+    }
+
+    #viewPickerPopup > menu,
+    #viewPickerPopup > menuitem {
+      margin: 1px;
+    }
+
+    #viewPickerPopup menu,
+    #viewPickerPopup menuitem {
+      height: 2em;
+      border: 1px solid transparent;
     }
 
     #folderPaneHeader {
@@ -920,6 +949,19 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
   menulist[open="true"] {
     text-shadow: none;
     transition: none;
+  }
+
+  #viewPickerPopup menu,
+  #viewPickerPopup menuitem {
+    border-radius: 2px;
+  }
+
+  #viewPickerPopup menu[_moz-menuactive="true"],
+  #viewPickerPopup menuitem[_moz-menuactive="true"] {
+    color: -moz-DialogText;
+    border-color: rgb(184, 214, 251);
+    background-image: linear-gradient(rgba(131, 183, 249, .05), rgba(131, 183, 249, .16));
+    background-color: transparent;
   }
 
   #status-bar,
@@ -1020,6 +1062,22 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
   }
 }
 
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+  #viewPickerPopup menu[_moz-menuactive="true"],
+  #viewPickerPopup menuitem[_moz-menuactive="true"] {
+    color: -moz-DialogText;
+    border-color: rgb(132, 172, 221);
+    background-color: rgba(131, 183, 249, .16);
+  }
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  #viewPickerPopup menu[_moz-menuactive="true"],
+  #viewPickerPopup menuitem[_moz-menuactive="true"] {
+    background-color: #91c9f7;
+  }
+}
+
 @media (-moz-windows-glass) {
   /* lesser transparency on Glass background */
   #tabbar-toolbar menulist:not(:-moz-lwtheme):not([open="true"]) {
@@ -1048,10 +1106,6 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 #viewPicker > .menulist-label-box > .menulist-icon,
 #locationFolders > .menulist-label-box > .menulist-icon {
   min-height: 16px;
-}
-
-#viewPickerPopup > menuitem[type="radio"] {
-  -moz-appearance: none;
 }
 
 #viewPickerPopup > menu > .menu-text {
