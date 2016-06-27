@@ -5,8 +5,6 @@
 var addBuddyWindow = "chrome://instantbird/content/addbuddy.xul";
 var joinChatWindow = "chrome://instantbird/content/joinchat.xul";
 var aboutWindow = "chrome://instantbird/content/aboutDialog.xul";
-var errorConsoleWindow = "chrome://global/content/console.xul";
-var preferencesWindow = "chrome://instantbird/content/preferences/preferences.xul";
 
 if (!("Services" in window))
   Components.utils.import("resource:///modules/imServices.jsm");
@@ -57,8 +55,9 @@ var menus = {
   },
 
   errors: function debug_errors() {
-    Core.showWindow("global:console", errorConsoleWindow, "Errors",
-                    "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
+    let { require } = Components.utils.import("resource://devtools/shared/Loader.jsm", {});
+    let HUDService = require("devtools/client/webconsole/hudservice");
+    HUDService.openBrowserConsoleOrFocus();
   },
 
   updates: function menu_updates() {

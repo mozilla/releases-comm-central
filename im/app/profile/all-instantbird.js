@@ -203,6 +203,11 @@ pref("browser.search.update.log", false);
 // Check whether we need to perform engine updates every 6 hours
 pref("browser.search.updateinterval", 6);
 
+// Developer Tools related preferences
+pref("devtools.debugger.log", false);
+pref("devtools.chrome.enabled", true);
+pref("devtools.selfxss.count", 5);
+
 // Blocklist preferences
 pref("extensions.blocklist.enabled", true);
 // Controls what level the blocklist switches from warning about items to forcibly

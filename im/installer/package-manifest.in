@@ -308,6 +308,9 @@
 ; DevTools
 @RESPATH@/chrome/devtools@JAREXT@
 @RESPATH@/chrome/devtools.manifest
+@RESPATH@/@PREF_DIR@/devtools.js
+@RESPATH@/components/devtools-startup.manifest
+@RESPATH@/components/devtools-startup.js
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Base Package Files
@@ -631,8 +634,6 @@
 @RESPATH@/components/PackagedAppUtils.manifest
 @RESPATH@/components/PackagedAppUtils.js
 @RESPATH@/components/directory.xpt
-@RESPATH@/components/jsconsole-clhandler.js
-@RESPATH@/components/jsconsole-clhandler.manifest
 @RESPATH@/components/layout_xul_tree.xpt
 @RESPATH@/components/mozfind.xpt
 @RESPATH@/components/mimetype.xpt
