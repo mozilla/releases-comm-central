@@ -324,7 +324,7 @@ function onViewToolbarsPopupShowing(aEvent, toolboxIds, aInsertPoint)
 
 function toJavaScriptConsole()
 {
-  let { require } = Components.utils.import("resource://devtools/shared/Loader.jsm", {})
+  let { require } = Components.utils.import("resource://devtools/shared/Loader.jsm", {});
   let HUDService = require("devtools/client/webconsole/hudservice");
   HUDService.openBrowserConsoleOrFocus();
 }
