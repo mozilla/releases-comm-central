@@ -326,21 +326,22 @@ YahooSession.prototype = {
     let file = FileUtils.getFile("ProfD", [aFileName]);
     let type = Cc["@mozilla.org/mime;1"].getService(Ci.nsIMIMEService)
                                         .getTypeFromFile(file);
-    NetUtil.asyncFetch({
-        uri: NetUtil.newURI(file),
-        contentPolicyType: Ci.nsIContentPolicy.TYPE_IMAGE,
-        securityFlags: Ci.nsILoadInfo.SEC_NORMAL,
-        loadUsingSystemPrincipal: true
-      }, (aStream, aStatus) => {
-        if (!Components.isSuccessCode(aStatus)) {
-          throw "Could not access icon file.";
-          return;
-        }
-        let image = imgTools.decodeImage(aStream, type);
-        let uploader = new YahooProfileIconUploader(this._account, this,
-                                                    aFileName, image);
-        uploader.uploadIcon();
-      });
+    let channel = NetUtil.newChannel({
+      uri: file,
+      securityFlags: Ci.nsILoadInfo.SEC_REQUIRE_SAME_ORIGIN_DATA_INHERITS,
+      contentPolicyType: Ci.nsIContentPolicy.TYPE_IMAGE,
+      loadUsingSystemPrincipal: true
+    });
+    NetUtil.asyncFetch(channel, (aStream, aStatus) => {
+      if (!Components.isSuccessCode(aStatus)) {
+        throw "Could not access icon file.";
+        return;
+      }
+      let image = imgTools.decodeImage(aStream, type);
+      let uploader = new YahooProfileIconUploader(this._account, this,
+                                                  aFileName, image);
+      uploader.uploadIcon();
+    });
   },
 
   requestBuddyIcon: function(aName) {

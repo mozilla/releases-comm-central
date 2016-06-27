@@ -2262,9 +2262,12 @@ var XMPPAccountPrototype = {
     }
 
     this._cachingUserIcon = true;
-    let channel = Services.io.newChannelFromURI2(userIcon,
-      null, Services.scriptSecurityManager.getSystemPrincipal(), null,
-      Ci.nsILoadInfo.SEC_NORMAL, Ci.nsIContentPolicy.TYPE_IMAGE);
+    let channel = NetUtil.newChannel({
+      uri: userIcon,
+      loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+      securityFlags: Ci.nsILoadInfo.SEC_REQUIRE_SAME_ORIGIN_DATA_INHERITS,
+      contentPolicyType: Ci.nsIContentPolicy.TYPE_IMAGE
+    });
     NetUtil.asyncFetch(channel, (inputStream, resultCode) => {
       if (!Components.isSuccessCode(resultCode))
         return;
