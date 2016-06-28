@@ -404,7 +404,6 @@
 @RESPATH@/components/dom_core.xpt
 @RESPATH@/components/dom_css.xpt
 @RESPATH@/components/dom_events.xpt
-@RESPATH@/components/dom_gamepad.xpt
 @RESPATH@/components/dom_geolocation.xpt
 @RESPATH@/components/dom_media.xpt
 @RESPATH@/components/dom_mobilemessage.xpt
@@ -428,6 +427,7 @@
 @RESPATH@/components/dom_webspeechrecognition.xpt
 @RESPATH@/components/dom_workers.xpt
 @RESPATH@/components/dom_xbl.xpt
+@RESPATH@/components/dom_xhr.xpt
 @RESPATH@/components/dom_xpath.xpt
 @RESPATH@/components/dom_xul.xpt
 @RESPATH@/components/dom_presentation.xpt
