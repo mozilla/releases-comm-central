@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay SYSTEM "chrome://instantbird/locale/instantbird.dtd">
+
+<overlay id="instantbird-webconsole-overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <window id="devtools-webconsole" browserConsoleTitle="&errorConsoleCmd.label;">
+    <!--  Workaround since devtools hardcodes navigator:browser, which makes
+          browserWindow null, which means it falls back to using the
+          webconsole.xul window to look for gViewSourceUtils. -->
+    <script type="application/javascript" src="chrome://global/content/viewSourceUtils.js"/>
+    <script type="application/javascript"><![CDATA[
+        var {classes: Cc, interfaces: Ci} = Components;
+        function openUILinkIn(url) {
+            var ios = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+            Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
+                      .getService(Ci.nsIExternalProtocolService)
+                      .loadURI(ios.newURI(url, null, null), window);
+        }
+    ]]></script>
+  </window>
+</overlay>
