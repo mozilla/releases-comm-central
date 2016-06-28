@@ -207,6 +207,8 @@ var XMPPMUCConversationPrototype = {
       let message;
       switch (error.condition) {
         case "not-authorized":
+        case "registration-required":
+          // XEP-0045 (7.2.7): Members-Only Rooms.
           message = _("conversation.error.joinFailedNotAuthorized");
           break;
         case "not-allowed":
