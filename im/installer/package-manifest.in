@@ -476,7 +476,6 @@
 @RESPATH@/components/dom_core.xpt
 @RESPATH@/components/dom_css.xpt
 @RESPATH@/components/dom_events.xpt
-@RESPATH@/components/dom_gamepad.xpt
 @RESPATH@/components/dom_geolocation.xpt
 @RESPATH@/components/dom_html.xpt
 @RESPATH@/components/dom_json.xpt
@@ -504,6 +503,8 @@
 @RESPATH@/components/dom_webspeechsynth.xpt
 @RESPATH@/components/dom_workers.xpt
 @RESPATH@/components/dom_xbl.xpt
+@RESPATH@/components/dom_xhr.xpt
+@RESPATH@/components/dom_xpath.xpt
 @RESPATH@/components/dom_xul.xpt
 @RESPATH@/components/NetworkGeolocationProvider.js
 @RESPATH@/components/NetworkGeolocationProvider.manifest
@@ -645,7 +646,6 @@
 @RESPATH@/components/exthelper.xpt
 @RESPATH@/components/embed_base.xpt
 @RESPATH@/components/windowds.xpt
-@RESPATH@/components/dom_xpath.xpt
 @RESPATH@/components/lwbrk.xpt
 @RESPATH@/components/nsINIProcessor.js
 @RESPATH@/components/nsINIProcessor.manifest
