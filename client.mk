@@ -211,7 +211,7 @@ else
 
 
 # Print out any options loaded from mozconfig.
-all build clean depend distclean export libs install realclean::
+all build clean distclean export libs install realclean::
 ifneq (,$(strip $(MOZCONFIG_OUT_FILTERED)))
 	$(info Adding client.mk options from $(FOUND_MOZCONFIG):)
 	$(foreach line,$(MOZCONFIG_OUT_FILTERED),$(info $(NULL) $(NULL) $(NULL) $(NULL) $(subst ||, ,$(line))))
@@ -219,8 +219,6 @@ endif
 
 # Windows equivalents
 build_all: build
-build_all_dep: alldep
-build_all_depend: alldep
 clobber clobber_all: clean
 
 # Do everything from scratch
@@ -265,7 +263,7 @@ endif
 #####################################################
 # Preflight, before building any project
 
-build alldep preflight_all::
+build preflight_all::
 ifeq (,$(MOZ_CURRENT_PROJECT)$(if $(MOZ_PREFLIGHT_ALL),,1))
 # Don't run preflight_all for individual projects in multi-project builds
 # (when MOZ_CURRENT_PROJECT is set.)
@@ -289,7 +287,7 @@ endif
 # loop through them.
 
 ifeq (,$(MOZ_CURRENT_PROJECT)$(if $(MOZ_BUILD_PROJECTS),,1))
-configure depend build install export libs clean realclean distclean alldep preflight postflight maybe_clobber_profiledbuild upload sdk::
+configure build install export libs clean realclean distclean preflight postflight maybe_clobber_profiledbuild upload sdk::
 	set -e; \
 	for app in $(MOZ_BUILD_PROJECTS); do \
 	  $(MAKE) -f $(TOPSRCDIR)/client.mk $@ MOZ_CURRENT_PROJECT=$$app; \
@@ -374,15 +372,9 @@ endif
 
 
 ####################################
-# Depend
-
-depend:: $(OBJDIR)/Makefile $(OBJDIR)/config.status
-	$(MOZ_MAKE) export && $(MOZ_MAKE) depend
-
-####################################
 # Preflight
 
-build alldep preflight::
+build preflight::
 ifdef MOZ_PREFLIGHT
 	set -e; \
 	for mkfile in $(MOZ_PREFLIGHT); do \
@@ -400,13 +392,13 @@ build::  $(OBJDIR)/Makefile $(OBJDIR)/config.status
 # Other targets
 
 # Pass these target onto the real build system
-install export libs clean realclean distclean alldep maybe_clobber_profiledbuild upload sdk:: $(OBJDIR)/Makefile $(OBJDIR)/config.status
+install export libs clean realclean distclean maybe_clobber_profiledbuild upload sdk:: $(OBJDIR)/Makefile $(OBJDIR)/config.status
 	$(MOZ_MAKE) $@
 
 ####################################
 # Postflight
 
-build alldep postflight::
+build postflight::
 ifdef MOZ_POSTFLIGHT
 	set -e; \
 	for mkfile in $(MOZ_POSTFLIGHT); do \
@@ -420,7 +412,7 @@ endif # RAN_CLIENT_PY
 ####################################
 # Postflight, after building all projects
 
-build alldep postflight_all::
+build postflight_all::
 ifeq (,$(MOZ_CURRENT_PROJECT)$(if $(MOZ_POSTFLIGHT_ALL),,1))
 # Don't run postflight_all for individual projects in multi-project builds
 # (when MOZ_CURRENT_PROJECT is set.)
@@ -465,4 +457,4 @@ run_client_py:
 # in parallel.
 .NOTPARALLEL:
 
-.PHONY: checkout co real_checkout depend build profiledbuild maybe_clobber_profiledbuild export libs alldep install clean realclean distclean cleansrcdir pull_all build_all clobber clobber_all pull_and_build_all everything configure preflight_all preflight postflight postflight_all
+.PHONY: checkout co real_checkout build profiledbuild maybe_clobber_profiledbuild export libs install clean realclean distclean cleansrcdir pull_all build_all clobber clobber_all pull_and_build_all everything configure preflight_all preflight postflight postflight_all
