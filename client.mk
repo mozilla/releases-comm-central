@@ -50,7 +50,6 @@ endif
 ifndef TOPSRCDIR
 ifeq (,$(wildcard client.mk))
 TOPSRCDIR := $(patsubst %/,%,$(dir $(MAKEFILE_LIST)))
-MOZ_OBJDIR = .
 else
 TOPSRCDIR := $(CWD)
 endif
@@ -102,6 +101,8 @@ endef
 MOZCONFIG_CONTENT := $(subst ||,$(CR),$(subst || ,$(CR),$(shell MOZ_PGO=$(MOZ_PGO) $(TOPSRCDIR)/$(MOZCONFIG_LOADER) $(TOPSRCDIR) | sed 's/$$/||/')))
 $(eval $(MOZCONFIG_CONTENT))
 
+export FOUND_MOZCONFIG
+
 # As '||' was used as a newline separator, it means it's not occurring in
 # lines themselves. It can thus safely be used to replaces normal spaces,
 # to then replace newlines with normal spaces. This allows to get a list
@@ -110,6 +111,8 @@ MOZCONFIG_OUT_LINES := $(subst $(CR), ,$(subst $(NULL) $(NULL),||,$(MOZCONFIG_CO
 # Filter-out comments from those lines.
 START_COMMENT = \#
 MOZCONFIG_OUT_FILTERED := $(filter-out $(START_COMMENT)%,$(MOZCONFIG_OUT_LINES))
+
+export MOZ_PGO
 
 # Automatically add -jN to make flags if not defined. N defaults to number of cores.
 ifeq (,$(findstring -j,$(MOZ_MAKE_FLAGS)))
