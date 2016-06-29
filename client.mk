@@ -158,6 +158,9 @@ CONFIGURES := $(TOPSRCDIR)/configure
 CONFIGURES += $(TOPSRCDIR)/mozilla/configure
 CONFIGURES += $(TOPSRCDIR)/mozilla/js/src/configure
 
+# Make targets that are going to be passed to the real build system
+OBJDIR_TARGETS = install export libs clean realclean distclean maybe_clobber_profiledbuild upload sdk installer package package-compare stage-package source-package l10n-check automation/build
+
 #######################################################################
 # Rules
 
@@ -287,7 +290,7 @@ endif
 # loop through them.
 
 ifeq (,$(MOZ_CURRENT_PROJECT)$(if $(MOZ_BUILD_PROJECTS),,1))
-configure build install export libs clean realclean distclean preflight postflight maybe_clobber_profiledbuild upload sdk::
+configure build preflight postflight $(OBJDIR_TARGETS)::
 	set -e; \
 	for app in $(MOZ_BUILD_PROJECTS); do \
 	  $(MAKE) -f $(TOPSRCDIR)/client.mk $@ MOZ_CURRENT_PROJECT=$$app; \
@@ -386,14 +389,14 @@ endif
 # Build it
 
 build::  $(OBJDIR)/Makefile $(OBJDIR)/config.status
-	$(MOZ_MAKE)
+	+$(MOZ_MAKE)
 
 ####################################
 # Other targets
 
 # Pass these target onto the real build system
-install export libs clean realclean distclean maybe_clobber_profiledbuild upload sdk:: $(OBJDIR)/Makefile $(OBJDIR)/config.status
-	$(MOZ_MAKE) $@
+$(OBJDIR_TARGETS):: $(OBJDIR)/Makefile $(OBJDIR)/config.status
+	+$(MOZ_MAKE) $@
 
 ####################################
 # Postflight
@@ -457,4 +460,4 @@ run_client_py:
 # in parallel.
 .NOTPARALLEL:
 
-.PHONY: checkout co real_checkout build profiledbuild maybe_clobber_profiledbuild export libs install clean realclean distclean cleansrcdir pull_all build_all clobber clobber_all pull_and_build_all everything configure preflight_all preflight postflight postflight_all
+.PHONY: checkout co real_checkout build profiledbuild cleansrcdir pull_all build_all clobber clobber_all pull_and_build_all everything configure preflight_all preflight postflight postflight_all $(OBJDIR_TARGETS)
