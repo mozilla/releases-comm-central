@@ -986,13 +986,20 @@ Extractor.prototype = {
         let value;
         try {
             value = this.bundle.GetStringFromName(name);
-            this.checkForFaultyPatterns(value, name);
             if (value.trim() == "") {
                 cal.LOG("[calExtract] Pattern not found: " + name);
                 return this.defPattern;
             }
 
             let vals = this.cleanPatterns(value).split("|");
+            for (let idx = vals.length - 1; idx >= 0; idx--) {
+                if (vals[idx].trim() == "") {
+                    vals.splice(idx, 1);
+                    Components.utils.reportError("[calExtract] Faulty extraction pattern " +
+                                                 value + " for " + name);
+                }
+            }
+
             if (this.overrides[name] !== undefined &&
                 this.overrides[name]["add"] !== undefined) {
                 let additions = this.overrides[name]["add"];
@@ -1032,13 +1039,20 @@ Extractor.prototype = {
 
         try {
             let value = this.bundle.GetStringFromName(name);
-            this.checkForFaultyPatterns(value, name);
             if (value.trim() == "") {
                 cal.LOG("[calExtract] Pattern empty: " + name);
                 return alts;
             }
 
             let vals = this.cleanPatterns(value).split("|");
+            for (let idx = vals.length - 1; idx >= 0; idx--) {
+                if (vals[idx].trim() == "") {
+                    vals.splice(idx, 1);
+                    Components.utils.reportError("[calExtract] Faulty extraction pattern " +
+                                                 value + " for " + name);
+                }
+            }
+
             if (this.overrides[name] !== undefined &&
                 this.overrides[name]["add"] !== undefined) {
                 let additions = this.overrides[name]["add"];
@@ -1113,15 +1127,6 @@ Extractor.prototype = {
         let value = pattern.replace(/\s*\|\s*/g, "|");
         // allow matching for patterns with missing or excessive whitespace
         return this.sanitize(value).replace(/\s+/g, "\\s*");
-    },
-
-    checkForFaultyPatterns: function checkForFaultyPatterns(pattern, name) {
-        if (/^\s*\|/.exec(pattern) || /\|\s*$/.exec(pattern) || /\|\s*\|/.exec(pattern)) {
-            dump("[calExtract] Faulty extraction pattern " +
-                 pattern + " for " + name + "\n");
-            Components.utils.reportError("[calExtract] Faulty extraction pattern " +
-                                         pattern + " for " + name);
-        }
     },
 
     isValidYear: function isValidYear(year) {
