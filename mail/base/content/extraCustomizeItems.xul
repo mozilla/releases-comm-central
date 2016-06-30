@@ -93,7 +93,6 @@
              accesskey="&viewPicker.accesskey;"/>
       <menulist id="viewPicker" oncommand="ViewChangeByMenuitem(event.target);">
         <menupopup id="viewPickerPopup"
-                   class="noIconPopup"
                    onpopupshowing="RefreshViewPopup(this);">
           <menuitem id="viewPickerAll" value="0"
                     label="&viewAll.label;"

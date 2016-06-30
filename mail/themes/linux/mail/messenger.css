@@ -65,12 +65,16 @@ toolbar:not(.inline-toolbar):not(:-moz-lwtheme) {
 
 /*
  * Override the menulist icon forbidding in menu.css so that we can show
- * check-marks. bug 443516
+ * check-marks. radio-marks and folder icons. bug 443516
  */
 .menulist-menupopup > menuitem > .menu-iconic-left,
-menulist > menupopup > menuitem > .menu-iconic-left,
+menulist > menupopup >
+  menuitem:-moz-any(.menuitem-iconic, [type="radio"], [type="checkbox"]) >
+  .menu-iconic-left,
 .menulist-menupopup > menu > .menu-iconic-left,
-menulist > menupopup > menu > .menu-iconic-left {
+menulist > menupopup >
+  menu:-moz-any(.menuitem-iconic, [type="radio"], [type="checkbox"]) >
+  .menu-iconic-left {
   display: -moz-box;
 }
 

@@ -482,7 +482,7 @@ button[type="menu-button"] > button {
     }
   }
 
-  .noIconPopup > menuseparator {
+  menupopup:not([type="folder"]) > menuseparator {
     -moz-appearance: none;
     margin-top: 3px;
     margin-bottom: 3px;

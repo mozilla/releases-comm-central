@@ -879,8 +879,7 @@
             sizetopopup="pref">
     <observes element="font-face-select-container" attribute="disabled"/>
     <observes element="cmd_fontFace" attribute="state" onbroadcast="onFontFaceChange(this.parentNode, 'cmd_fontFace')"/>
-    <menupopup id="FontFacePopup"
-               class="noIconPopup">
+    <menupopup id="FontFacePopup">
       <menuitem id="toolbarmenu_fontVarWidth" label="&fontVarWidth.label;" value=""/>
       <menuitem id="toolbarmenu_fontFixedWidth" label="&fontFixedWidth.label;" value="tt"/>
       <menuseparator id="toolbarmenuAfterGenericFontsSeparator"/>
