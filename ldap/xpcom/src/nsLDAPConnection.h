@@ -26,6 +26,16 @@
 #include "nsAutoPtr.h"
 #include "mozilla/Mutex.h"
 
+/**
+ * Casting nsILDAPConnection to nsISupports is ambiguous.
+ * This method handles that.
+ */
+inline nsISupports*
+ToSupports(nsILDAPConnection* p)
+{
+  return NS_ISUPPORTS_CAST(nsILDAPConnection*, p);
+}
+
 // 0d871e30-1dd2-11b2-8ea9-831778c78e93
 //
 #define NS_LDAPCONNECTION_CID \
