@@ -662,6 +662,15 @@ var XMPPConversationPrototype = {
     delete this._typingState;
   },
 
+  // Invites the contact to a MUC room.
+  invite: function(aRoomJid, aPassword = null) {
+    // XEP-0045 (7.8): Inviting Another User to a Room.
+    // XEP-0045 (7.8.1) and XEP-0249: Direct Invitation.
+    let x = Stanza.node("x", Stanza.NS.conference, {jid: aRoomJid,
+                                                    password: aPassword});
+    this._account.sendStanza(Stanza.node("message", null, {to: this.to}, x));
+  },
+
   /* Perform entity escaping before displaying the message. We assume incoming
      messages have already been escaped, and will otherwise be filtered. */
   prepareForDisplaying: function(aMsg) {
@@ -1775,6 +1784,36 @@ var XMPPAccountPrototype = {
       return;
     }
 
+    let invitation = this.parseInvitation(aStanza);
+    if (invitation) {
+      let messageID;
+      if (invitation.reason)
+        messageID = "conversation.muc.invitationWithReason";
+      else
+        messageID = "conversation.muc.invitationWithoutReason";
+      if (invitation.password)
+        messageID += ".password";
+      let params =
+        [invitation.from, invitation.mucJid, invitation.password,
+         invitation.reason].filter(s => s);
+      let message = _(messageID, ...params);
+
+      if (Services.prefs.getIntPref("messenger.conversations.autoAcceptChatInvitations") == 1) {
+        // Auto-accept the invitation.
+        let chatRoomFields = this.getChatRoomDefaultFieldValues(invitation.mucJid);
+        if (invitation.password)
+          chatRoomFields.setValue("password", invitation.password);
+        let muc = this.joinChat(chatRoomFields);
+        muc.writeMessage(muc.name, message, {system: true});
+      }
+      else {
+        // Otherwise, just notify the user.
+        let conv = this.createConversation(invitation.from);
+        if (conv)
+          conv.writeMessage(invitation.from, message, {system: true});
+      }
+    }
+
     if (body) {
       let date;
       let delay = aStanza.getElement(["delay"]);
@@ -1792,32 +1831,6 @@ var XMPPAccountPrototype = {
         }
         let muc = this._mucs.get(norm);
         muc.incomingMessage(body, aStanza, date);
-        return;
-      }
-
-      let invitation = this.parseInvitation(aStanza);
-      if (invitation) {
-        if (invitation.reason) {
-          body = _("conversation.muc.invitationWithReason",
-                   invitation.from, invitation.mucJid, invitation.reason);
-        }
-        else {
-          body = _("conversation.muc.invitationWithoutReason",
-                   invitation.from, invitation.mucJid);
-        }
-        if (Services.prefs.getIntPref("messenger.conversations.autoAcceptChatInvitations") == 1) {
-          // Auto-accept the invitation.
-          let chatRoomFields = this.getChatRoomDefaultFieldValues(invitation.mucJid);
-          if (invitation.password)
-            chatRoomFields.setValue("password", invitation.password);
-          let muc = this.joinChat(chatRoomFields);
-          muc.writeMessage(muc.name, body, {system: true});
-          return;
-        }
-        // Otherwise, just notify the user.
-        let conv = this.createConversation(invitation.from);
-        if (conv)
-          conv.writeMessage(invitation.from, body, {system: true});
         return;
       }
 

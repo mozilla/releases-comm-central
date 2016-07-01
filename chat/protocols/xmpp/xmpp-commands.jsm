@@ -84,6 +84,28 @@ function splitByNick(aString, aConv) {
   return splitParams;
 }
 
+// Splits aMsg in two entries and checks the first entry is a valid jid, then
+// passes it to aConv.invite().
+// Returns false if aMsg is empty, otherwise returns true.
+function invite(aMsg, aConv) {
+  let params = splitInput(aMsg);
+  if (!params.length)
+    return false;
+
+  // Check user's jid is valid.
+  let account = getAccount(aConv);
+  let jid = account._parseJID(params[0]);
+  if (!jid) {
+    aConv.writeMessage(aConv.name,
+                      _("conversation.error.invalidJID", params[0]),
+                      {system: true});
+    return true;
+  }
+
+  aConv.invite(...params);
+  return true;
+}
+
 var commands = [
   {
     name: "join",
@@ -177,26 +199,18 @@ var commands = [
     get helpString() { return _("command.invite", "invite"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: function(aMsg, aConv) {
-      let params = splitInput(aMsg);
-      if (!params.length)
-        return false;
-
       let conv = getMUC(aConv);
       if (!conv)
         return true;
 
-      // Check user's jid is valid.
-      let account = getAccount(aConv);
-      let jid = account._parseJID(params[0]);
-      if (!jid) {
-        conv.writeMessage(conv.name,
-                          _("conversation.error.invalidJID", params[0]),
-                          {system: true});
-        return true;
-      }
-      conv.invite(...params);
-      return true;
+      return invite(aMsg, conv);
     }
+  },
+  {
+    name: "inviteto",
+    get helpString() { return _("command.inviteto", "inviteto"); },
+    usageContext: Ci.imICommand.CMD_CONTEXT_IM,
+    run: (aMsg, aConv) => invite(aMsg, getConv(aConv))
   },
   {
     name: "me",
