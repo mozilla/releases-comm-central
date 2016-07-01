@@ -26,7 +26,7 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
 
-. $topsrcdir/build/win64/mozconfig/mozconfig.vs-latest
+. $topsrcdir/build/win64/mozconfig.vs-latest
 
 # Set up mapi includes (must be done after visual studio setup)
 export INCLUDE=$INCLUDE:/c/Office\ 2010\ Developer\ Resources/Outlook\ 2010\ MAPI\ Headers
