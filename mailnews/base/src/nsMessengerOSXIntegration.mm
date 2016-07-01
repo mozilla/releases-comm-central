@@ -52,7 +52,6 @@
 #import <Cocoa/Cocoa.h>
 
 #define kChatEnabledPref "mail.chat.enabled"
-#define kBiffShowAlertPref "mail.biff.show_alert"
 #define kBiffAnimateDockIconPref "mail.biff.animate_dock_icon"
 #define kMaxDisplayCount 10
 #define kNewChatMessageTopic "new-directed-incoming-message"
@@ -385,32 +384,24 @@ nsMessengerOSXIntegration::ShowAlertMessage(const nsAString& aAlertTitle,
                                             const nsACString& aFolderURI)
 {
   nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
 
-  bool showAlert = true;
-  prefBranch->GetBoolPref(kBiffShowAlertPref, &showAlert);
-
-  if (showAlert)
+  nsCOMPtr<nsIAlertsService> alertsService (do_GetService(NS_ALERTSERVICE_CONTRACTID, &rv));
+  // If we have an nsIAlertsService implementation, use it:
+  if (NS_SUCCEEDED(rv))
   {
-    nsCOMPtr<nsIAlertsService> alertsService (do_GetService(NS_ALERTSERVICE_CONTRACTID, &rv));
-    // If we have an nsIAlertsService implementation, use it:
-    if (NS_SUCCEEDED(rv))
-    {
-      alertsService->ShowAlertNotification(EmptyString(),
-                                           aAlertTitle, aAlertText, true,
-                                           NS_ConvertASCIItoUTF16(aFolderURI),
-                                           this, EmptyString(),
-                                           NS_LITERAL_STRING("auto"),
-                                           EmptyString(), EmptyString(),
-                                           nullptr,
-                                           false);
-    }
-
-    BounceDockIcon();
+    alertsService->ShowAlertNotification(EmptyString(),
+                                         aAlertTitle, aAlertText, true,
+                                         NS_ConvertASCIItoUTF16(aFolderURI),
+                                         this, EmptyString(),
+                                         NS_LITERAL_STRING("auto"),
+                                         EmptyString(), EmptyString(),
+                                         nullptr,
+                                         false);
   }
 
-  if (!showAlert || NS_FAILED(rv))
+  BounceDockIcon();
+
+  if (NS_FAILED(rv))
     OnAlertFinished();
 
   return rv;
