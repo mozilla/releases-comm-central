@@ -124,21 +124,15 @@ var Stanza = {
 
   /* Create a XML node */
   node: function(aName, aNs, aAttr, aData) {
-    let n = new XMLNode(null, aNs, aName, aName, null);
-
-    if (aAttr) {
-      for (let at in aAttr)
-        n.attributes[at] = aAttr[at];
-    }
-
+    let node = new XMLNode(null, aNs, aName, aName, aAttr);
     if (aData) {
       if (!Array.isArray(aData))
         aData = [aData];
       for (let child of aData)
-        n[typeof(child) == "string" ? "addText" : "addChild"](child);
+        node[typeof(child) == "string" ? "addText" : "addChild"](child);
     }
 
-    return n;
+    return node;
   }
 };
 
@@ -169,10 +163,17 @@ TextNode.prototype = {
 };
 
 /* XML node */
+/* https://www.w3.org/TR/2008/REC-xml-20081126 */
 /* aUri is the namespace. */
+/* aLocalName must have value, otherwise throws. */
+/* aAttr can be instance of nsISAXAttributes or object */
 /* Example: <f:a xmlns:f='g' d='1'> is parsed to
    uri/namespace='g', localName='a', qName='f:a', attributes={d='1'} */
-function XMLNode(aParentNode, aUri, aLocalName, aQName, aAttr) {
+function XMLNode(aParentNode, aUri, aLocalName, aQName = aLocalName,
+                 aAttr = {}) {
+  if (!aLocalName)
+    throw "aLocalName must have value";
+
   this._parentNode = aParentNode; // Used only for parsing
   this.uri = aUri;
   this.localName = aLocalName;
@@ -180,9 +181,16 @@ function XMLNode(aParentNode, aUri, aLocalName, aQName, aAttr) {
   this.attributes = {};
   this.children = [];
 
-  if (aAttr) {
+  if (aAttr instanceof Ci.nsISAXAttributes) {
     for (let i = 0; i < aAttr.length; ++i)
       this.attributes[aAttr.getQName(i)] = aAttr.getValue(i);
+  }
+  else {
+    for (let attributeName in aAttr) {
+      // Each attribute specification has a name and a value.
+      if (aAttr[attributeName])
+        this.attributes[attributeName] = aAttr[attributeName];
+    }
   }
 }
 XMLNode.prototype = {
