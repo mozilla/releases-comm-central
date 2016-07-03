@@ -80,6 +80,9 @@ function parseStatus(aStanza) {
   return {statusType: statusType, statusText: status, idleSince: idleSince};
 };
 
+// The timespan after which we consider roomInfo to be stale.
+var kListRefreshInterval = 12 * 60 * 60 * 1000; // 12 hours.
+
 /* This is an ordered list, used to determine chat buddy flags:
  *  index < member    -> noFlags
  *  index = member    -> voiced
@@ -1049,6 +1052,25 @@ function XMPPAccountBuddy(aAccount, aBuddy, aTag, aUserName)
 }
 XMPPAccountBuddy.prototype = XMPPAccountBuddyPrototype;
 
+var XMPPRoomInfoPrototype = {
+  __proto__: ClassInfo("prplIRoomInfo", "XMPP RoomInfo Object"),
+  get topic() {
+    return "";
+  },
+  get participantCount() {
+    return Ci.prplIRoomInfo.NO_PARTICIPANT_COUNT;
+  },
+  get chatRoomFieldValues() {
+    let roomJid = this._account._roomList.get(this.name);
+    return this._account.getChatRoomDefaultFieldValues(roomJid);
+  }
+};
+function XMPPRoomInfo(aName, aAccount) {
+  this.name = aName;
+  this._account = aAccount;
+}
+XMPPRoomInfo.prototype = XMPPRoomInfoPrototype;
+
 /* Helper class for account */
 var XMPPAccountPrototype = {
   __proto__: GenericAccountPrototype,
@@ -1060,6 +1082,19 @@ var XMPPAccountPrototype = {
   // Contains the domain of MUC service which is obtained using service
   // discovery.
   _mucService: null,
+
+   // Maps room names to room jid.
+  _roomList: new Map(),
+
+  // Callbacks used when roomInfo is available.
+  _roomInfoCallbacks: new Set(),
+
+  // Determines if roomInfo that we have is expired or not.
+  _lastListTime: 0,
+  get isRoomInfoStale() { return Date.now() - this._lastListTime > kListRefreshInterval; },
+
+  // If true, we are waiting for replies.
+  _pendingList: false,
 
   // An array of jids for which we still need to request vCards.
   _pendingVCardRequests: [],
@@ -1686,6 +1721,72 @@ var XMPPAccountPrototype = {
         return true;
       });
     });
+  },
+
+  requestRoomInfo: function(aCallback) {
+    if (this._roomInfoCallbacks.has(aCallback))
+      return;
+
+    if (this.isRoomInfoStale && !this._pendingList) {
+      this._roomList = new Map();
+      this._lastListTime = Date.now();
+      this._roomInfoCallback = aCallback;
+      this._pendingList = true;
+
+      // XEP-0045 (6.3): Discovering Rooms.
+      let iq = Stanza.iq("get", null, this._mucService,
+                         Stanza.node("query", Stanza.NS.disco_items));
+      this.sendStanza(iq, this.onRoomDiscovery, this);
+    }
+    else {
+      let rooms = [...this._roomList.keys()];
+      aCallback.onRoomInfoAvailable(rooms, !this._pendingList, rooms.length);
+    }
+
+    if (this._pendingList)
+      this._roomInfoCallbacks.add(aCallback);
+  },
+
+  onRoomDiscovery: function(aStanza) {
+    let query = aStanza.getElement(["query"]);
+    if (!query || query.uri != Stanza.NS.disco_items) {
+      this.LOG("Could not get rooms for this server: " + this._jid.domain);
+      return true;
+    }
+
+    // XEP-0059: Result Set Management.
+    let set = query.getElement(["set"]);
+    let last = set ? set.getElement(["last"]) : null;
+    if (last) {
+      let after = Stanza.node("after", null, null, last.innerText);
+      let setNode = Stanza.node("set", Stanza.NS.rsm, null, after);
+      let iq = Stanza.iq("get", null, this._mucService,
+                         Stanza.node("query", Stanza.NS.disco_items));
+      this.sendStanza(iq, this.onRoomDiscovery, this);
+    }
+    else
+      this._pendingList = false;
+
+    let rooms = [];
+    query.getElements(["item"]).forEach(item => {
+      let jid = this._parseJID(item.attributes["jid"]);
+      if (!jid)
+        return;
+
+      let name = item.attributes["name"];
+      if (!name)
+        name = jid.node ? jid.node : jid.jid;
+
+      this._roomList.set(name, jid.jid);
+      rooms.push(name);
+    });
+
+    this._roomInfoCallback.onRoomInfoAvailable(rooms, !this._pendingList,
+                                               rooms.length);
+  },
+
+  getRoomInfo: function(aName) {
+    return new XMPPRoomInfo(aName, this);
   },
 
   // Returns null if not an invitation stanza, and an object

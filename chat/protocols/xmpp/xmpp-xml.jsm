@@ -67,6 +67,7 @@ var NS = {
   nick                      : "http://jabber.org/protocol/nick",
   nick_notify               : "http://jabber.org/protocol/nick+notify",
   activity                  : "http://jabber.org/protocol/activity",
+  rsm                       : "http://jabber.org/protocol/rsm",
   last                      : "jabber:iq:last",
   version                   : "jabber:iq:version",
   avatar_data               : "urn:xmpp:avatar:data",
