@@ -48,7 +48,10 @@ interface prplIChatRoomField: nsISupports {
 interface prplIRoomInfo: nsISupports {
   readonly attribute AUTF8String name;
   readonly attribute AUTF8String topic;
-  readonly attribute unsigned long participantCount;
+
+  const long NO_PARTICIPANT_COUNT = -1;
+
+  readonly attribute long participantCount;
   readonly attribute prplIChatRoomFieldValues chatRoomFieldValues;
 };
 

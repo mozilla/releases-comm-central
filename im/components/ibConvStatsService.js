@@ -695,7 +695,12 @@ PossibleChat.prototype = {
   },
   get statusText() {
     let roomInfo = this.account.prplAccount.getRoomInfo(this.displayName);
-    return "(" + roomInfo.participantCount + ") " + roomInfo.topic;
+    let text = "";
+    if (roomInfo.participantCount != Ci.prplIRoomInfo.NO_PARTICIPANT_COUNT)
+      text += "(" + roomInfo.participantCount + ") ";
+    if (roomInfo.topic)
+      text += roomInfo.topic;
+    return text;
   },
   get infoText() { return this.account.normalizedName; },
   get source() { return "chat"; },
