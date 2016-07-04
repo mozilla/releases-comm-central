@@ -9,6 +9,11 @@ fi;
 ac_add_options --enable-application=suite
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 
+# Disable checking that add-ons are signed by the trusted root
+MOZ_ADDON_SIGNING=0
+# Disable enforcing that add-ons are signed by the trusted root
+MOZ_REQUIRE_SIGNING=0
+
 # Build lightning locales
 ac_add_options --enable-calendar
 mk_add_options MOZ_POSTFLIGHT_ALL+=calendar/lightning/build/universal.mk
