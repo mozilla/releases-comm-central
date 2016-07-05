@@ -19,6 +19,7 @@
 <!ENTITY playSound1.accesskey              "d">
 <!ENTITY showAnimatedAlert.label          "Show an alert">
 <!ENTITY showAnimatedAlert.accesskey      "S">
+<!ENTITY notificationAlertSettings.label  "Alerts can be disabled on the Notification pane of System Preferences.">
 <!ENTITY customizeMailAlert.label         "Customize…">
 <!ENTITY customizeMailAlert.accesskey     "C">
 

@@ -23,7 +23,9 @@
       <preference id="mailnews.reuse_message_window" name="mailnews.reuse_message_window" type="bool"/>
       <preference id="mailnews.start_page.enabled" name="mailnews.start_page.enabled" type="bool"/>
       <preference id="mailnews.start_page.url" name="mailnews.start_page.url" type="string"/>
+#ifndef XP_MACOSX
       <preference id="mail.biff.show_alert" name="mail.biff.show_alert" type="bool"/>
+#endif
       <preference id="mail.biff.show_tray_icon" name="mail.biff.show_tray_icon" type="bool" />
       <preference id="mail.biff.play_sound" name="mail.biff.play_sound" type="bool"/>
       <preference id="mail.biff.play_sound.type" name="mail.biff.play_sound.type" type="int"/>
@@ -72,10 +74,7 @@
                 oncommand="gGeneralPane.configureDockOptions();"/>
       </hbox>
       <hbox>
-        <checkbox id="newMailNotificationAlert"
-                  label="&showAnimatedAlert.label;"
-                  preference="mail.biff.show_alert"
-                  accesskey="&showAnimatedAlert.accesskey;"/>
+        <description class="bold">&notificationAlertSettings.label;</description>
 #else
         <checkbox id="newMailNotificationAlert"
                   label="&showAnimatedAlert.label;"
