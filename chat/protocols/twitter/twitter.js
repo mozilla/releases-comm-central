@@ -142,7 +142,7 @@ var GenericTwitterConversation = {
     let tweet = JSON.parse(aData);
     if (tweet.user.screen_name != this._account.name)
       throw "Wrong screen_name... Uh?";
-    this._account.displayMessages([tweet]);
+    this.displayMessages([tweet]);
   },
   parseTweet: function(aTweet) {
     let text = aTweet.text;
@@ -366,6 +366,29 @@ TimelineConversation.prototype = {
       return kMaxMessageLength;
     }
     return kMaxMessageLength - this.getTweetLength(aString);
+  },
+  displayMessages: function(aMessages) {
+    let account = this._account;
+    let lastMsgId = account._lastMsgId;
+    for (let tweet of aMessages) {
+      if (!("user" in tweet) || !("text" in tweet) || !("id_str" in tweet) ||
+          account._knownMessageIds.has(tweet.id_str))
+        continue;
+      let id = tweet.id_str;
+      // Update the last known message.
+      // Compare the length of the ids first, and then the text.
+      // This avoids converting tweet ids into rounded numbers.
+      if (id.length > lastMsgId.length ||
+          (id.length == lastMsgId.length && id > lastMsgId))
+        lastMsgId = id;
+      account._knownMessageIds.add(id);
+      account.setUserInfo(tweet.user);
+      this.displayTweet(tweet);
+    }
+    if (lastMsgId != account._lastMsgId) {
+      account._lastMsgId = lastMsgId;
+      account.prefs.setCharPref("lastMessageId", account._lastMsgId);
+    }
   },
   _ensureParticipantExists: function(aNick) {
     if (this._participants.has(aNick))
@@ -628,28 +651,6 @@ Account.prototype = {
   },
 
   get timeline() { return this._timeline || (this._timeline = new TimelineConversation(this)); },
-  displayMessages: function(aMessages) {
-    let lastMsgId = this._lastMsgId;
-    for (let tweet of aMessages) {
-      if (!("user" in tweet) || !("text" in tweet) || !("id_str" in tweet) ||
-          this._knownMessageIds.has(tweet.id_str))
-        continue;
-      let id = tweet.id_str;
-      // Update the last known message.
-      // Compare the length of the ids first, and then the text.
-      // This avoids converting tweet ids into rounded numbers.
-      if (id.length > lastMsgId.length ||
-          (id.length == lastMsgId.length && id > lastMsgId))
-        lastMsgId = id;
-      this._knownMessageIds.add(id);
-      this.setUserInfo(tweet.user);
-      this.timeline.displayTweet(tweet);
-    }
-    if (lastMsgId != this._lastMsgId) {
-      this._lastMsgId = lastMsgId;
-      this.prefs.setCharPref("lastMessageId", this._lastMsgId);
-    }
-  },
 
   onTimelineError: function(aError, aResponseText, aRequest) {
     this.ERROR(aError);
@@ -697,7 +698,7 @@ Account.prototype = {
 
     this._timelineBuffer.sort(this.sortByDate);
     this._timelineBuffer.forEach(aTweet => aTweet.delayed = true);
-    this.displayMessages(this._timelineBuffer);
+    this.timeline.displayMessages(this._timelineBuffer);
 
     // Fetch userInfo for the user if we don't already have it.
     this.requestBuddyInfo(this.name);
@@ -760,7 +761,7 @@ Account.prototype = {
         continue;
       }
       if ("text" in msg)
-        this.displayMessages([msg]);
+        this.timeline.displayMessages([msg]);
       else if ("friends" in msg) {
         // Filter out the IDs that info has already been received from (e.g. a
         // tweet has been received as part of the timeline request).
