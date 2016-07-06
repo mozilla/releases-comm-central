@@ -149,6 +149,11 @@ var GenericTwitterConversation = {
     this.writeMessage("twitter.com", aMessage, flags);
   },
   onSentCallback: function(aData) {
+    // The conversation may have been unitialized in the time it takes for
+    // the async callback to fire.  Use `_observers` as a proxy for uninit'd.
+    if (!this._observers)
+      return;
+
     let tweet = JSON.parse(aData);
     this.displayMessages([tweet]);
   },
