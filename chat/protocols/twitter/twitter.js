@@ -352,8 +352,7 @@ TimelineConversation.prototype = {
                          _("replyingToStatusText", aTweet.text));
   },
   reTweet: function(aTweet) {
-    this._account.reTweet(aTweet, this.onSentCallback,
-                          function(aException, aData) {
+    this._account.reTweet(aTweet, null, function(aException, aData) {
       this.systemMessage(_("error.retweet", this._parseError(aData),
                            aTweet.text), true);
     }, this);
