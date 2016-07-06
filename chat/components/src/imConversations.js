@@ -418,7 +418,8 @@ UIConversation.prototype = {
       this.notifyObservers(aSubject, "received-message");
       if (aSubject.cancelled)
         return;
-      aSubject.conversation.prepareForDisplaying(aSubject);
+      if (!aSubject.system)
+        aSubject.conversation.prepareForDisplaying(aSubject);
 
       this._messages.push(aSubject);
       ++this._unreadMessageCount;
