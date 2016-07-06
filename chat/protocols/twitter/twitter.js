@@ -123,86 +123,12 @@ Action.prototype = {
   get run() { return this._action.bind(this._tweet); }
 };
 
-function Conversation(aAccount)
-{
-  this._init(aAccount);
-  this._ensureParticipantExists(aAccount.name);
-  // We need the screen names for the IDs in _friends, but _userInfo is
-  // indexed by name, so we build an ID -> name map.
-  let entries = [];
-  for (let [name, userInfo] of aAccount._userInfo) {
-    entries.push([userInfo.id_str, name]);
-  }
-  let names = new Map(entries);
-  for (let id_str of aAccount._friends)
-    this._ensureParticipantExists(names.get(id_str));
-
-  // If the user's info has already been received, update the timeline topic.
-  if (aAccount._userInfo.has(aAccount.name)) {
-    let userInfo = aAccount._userInfo.get(aAccount.name);
-    if ("description" in userInfo)
-      this.setTopic(userInfo.description, aAccount.name, true);
-  }
-}
-Conversation.prototype = {
-  __proto__: GenericConvChatPrototype,
-  unInit: function() {
-    delete this._account._timeline;
-    GenericConvChatPrototype.unInit.call(this);
-  },
-  inReplyToStatusId: null,
-  startReply: function(aTweet) {
-    this.inReplyToStatusId = aTweet.id_str;
-    let entities = aTweet.entities;
-
-    // Twitter replies go to all the users mentioned in the tweet.
-    let nicks = [aTweet.user.screen_name];
-    if ("user_mentions" in entities && Array.isArray(entities.user_mentions)) {
-      nicks = nicks.concat(entities.user_mentions
-                                   .map(um => um.screen_name));
-    }
-    // Ignore duplicates and the user's nick.
-    let prompt =
-      nicks.filter(function(aNick, aPos) {
-             return nicks.indexOf(aNick) == aPos && aNick != this._account.name;
-           }, this)
-           .map(aNick => "@" + aNick)
-           .join(" ") + " ";
-
-    this.notifyObservers(null, "replying-to-prompt", prompt);
-    this.notifyObservers(null, "status-text-changed",
-                         _("replyingToStatusText", aTweet.text));
-  },
-  reTweet: function(aTweet) {
-    this._account.reTweet(aTweet, this.onSentCallback,
-                          function(aException, aData) {
-      this.systemMessage(_("error.retweet", this._parseError(aData),
-                           aTweet.text), true);
-    }, this);
-  },
+// Properties / methods shared by both DirectMessageConversation and
+// TimelineConversation.
+var GenericTwitterConversation = {
   getTweetLength: function (aString) {
     // Use the Twitter library to calculate the length.
     return twttr.txt.getTweetLength(aString, this._account.config);
-  },
-  sendMsg: function (aMsg) {
-    if (this.getTweetLength(aMsg) > kMaxMessageLength) {
-      this.systemMessage(_("error.tooLong"), true);
-      throw Cr.NS_ERROR_INVALID_ARG;
-    }
-    this._account.tweet(aMsg, this.inReplyToStatusId, this.onSentCallback,
-                        function(aException, aData) {
-      let error = this._parseError(aData);
-      this.systemMessage(_("error.general", error, aMsg), true);
-    }, this);
-    this.sendTyping("");
-  },
-  sendTyping: function(aString) {
-    if (aString.length == 0 && this.inReplyToStatusId) {
-      delete this.inReplyToStatusId;
-      this.notifyObservers(null, "status-text-changed", "");
-      return kMaxMessageLength;
-    }
-    return kMaxMessageLength - this.getTweetLength(aString);
   },
   systemMessage: function(aMessage, aIsError, aDate) {
     let flags = {system: true};
@@ -217,19 +143,6 @@ Conversation.prototype = {
     if (tweet.user.screen_name != this._account.name)
       throw "Wrong screen_name... Uh?";
     this._account.displayMessages([tweet]);
-  },
-  _parseError: function(aData) {
-    let error = "";
-    try {
-      let data = JSON.parse(aData);
-      if ("error" in data)
-        error = data.error;
-      else if ("errors" in data)
-        error = data.errors[0].message;
-      if (error)
-        error = "(" + error + ")";
-    } catch(e) {}
-    return error;
   },
   parseTweet: function(aTweet) {
     let text = aTweet.text;
@@ -362,6 +275,98 @@ Conversation.prototype = {
 
     (new Tweet(aTweet, name, text, flags)).conversation = this;
   },
+  _parseError: function(aData) {
+    let error = "";
+    try {
+      let data = JSON.parse(aData);
+      if ("error" in data)
+        error = data.error;
+      else if ("errors" in data)
+        error = data.errors[0].message;
+      if (error)
+        error = "(" + error + ")";
+    } catch(e) {}
+    return error;
+  }
+};
+
+function TimelineConversation(aAccount)
+{
+  this._init(aAccount);
+  this._ensureParticipantExists(aAccount.name);
+  // We need the screen names for the IDs in _friends, but _userInfo is
+  // indexed by name, so we build an ID -> name map.
+  let entries = [];
+  for (let [name, userInfo] of aAccount._userInfo) {
+    entries.push([userInfo.id_str, name]);
+  }
+  let names = new Map(entries);
+  for (let id_str of aAccount._friends)
+    this._ensureParticipantExists(names.get(id_str));
+
+  // If the user's info has already been received, update the timeline topic.
+  if (aAccount._userInfo.has(aAccount.name)) {
+    let userInfo = aAccount._userInfo.get(aAccount.name);
+    if ("description" in userInfo)
+      this.setTopic(userInfo.description, aAccount.name, true);
+  }
+}
+TimelineConversation.prototype = {
+  __proto__: GenericConvChatPrototype,
+  unInit: function() {
+    delete this._account._timeline;
+    GenericConvChatPrototype.unInit.call(this);
+  },
+  inReplyToStatusId: null,
+  startReply: function(aTweet) {
+    this.inReplyToStatusId = aTweet.id_str;
+    let entities = aTweet.entities;
+
+    // Twitter replies go to all the users mentioned in the tweet.
+    let nicks = [aTweet.user.screen_name];
+    if ("user_mentions" in entities && Array.isArray(entities.user_mentions)) {
+      nicks = nicks.concat(entities.user_mentions
+                                   .map(um => um.screen_name));
+    }
+    // Ignore duplicates and the user's nick.
+    let prompt =
+      nicks.filter(function(aNick, aPos) {
+             return nicks.indexOf(aNick) == aPos && aNick != this._account.name;
+           }, this)
+           .map(aNick => "@" + aNick)
+           .join(" ") + " ";
+
+    this.notifyObservers(null, "replying-to-prompt", prompt);
+    this.notifyObservers(null, "status-text-changed",
+                         _("replyingToStatusText", aTweet.text));
+  },
+  reTweet: function(aTweet) {
+    this._account.reTweet(aTweet, this.onSentCallback,
+                          function(aException, aData) {
+      this.systemMessage(_("error.retweet", this._parseError(aData),
+                           aTweet.text), true);
+    }, this);
+  },
+  sendMsg: function (aMsg) {
+    if (this.getTweetLength(aMsg) > kMaxMessageLength) {
+      this.systemMessage(_("error.tooLong"), true);
+      throw Cr.NS_ERROR_INVALID_ARG;
+    }
+    this._account.tweet(aMsg, this.inReplyToStatusId, this.onSentCallback,
+                        function(aException, aData) {
+      let error = this._parseError(aData);
+      this.systemMessage(_("error.general", error, aMsg), true);
+    }, this);
+    this.sendTyping("");
+  },
+  sendTyping: function(aString) {
+    if (aString.length == 0 && this.inReplyToStatusId) {
+      delete this.inReplyToStatusId;
+      this.notifyObservers(null, "status-text-changed", "");
+      return kMaxMessageLength;
+    }
+    return kMaxMessageLength - this.getTweetLength(aString);
+  },
   _ensureParticipantExists: function(aNick) {
     if (this._participants.has(aNick))
       return;
@@ -382,6 +387,7 @@ Conversation.prototype = {
       this._account.setUserDescription(aTopic);
   }
 };
+Object.assign(TimelineConversation.prototype, GenericTwitterConversation);
 
 function Account(aProtocol, aImAccount)
 {
@@ -621,7 +627,7 @@ Account.prototype = {
     }
   },
 
-  get timeline() { return this._timeline || (this._timeline = new Conversation(this)); },
+  get timeline() { return this._timeline || (this._timeline = new TimelineConversation(this)); },
   displayMessages: function(aMessages) {
     let lastMsgId = this._lastMsgId;
     for (let tweet of aMessages) {
