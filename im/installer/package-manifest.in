@@ -390,7 +390,6 @@
 @RESPATH@/components/BrowserElementProxy.manifest
 @RESPATH@/components/BrowserElementProxy.js
 @RESPATH@/components/PageThumbsProtocol.js
-@RESPATH@/components/PageIconProtocolHandler.js
 @RESPATH@/components/XULStore.js
 @RESPATH@/components/XULStore.manifest
 @RESPATH@/components/PermissionSettings.js
