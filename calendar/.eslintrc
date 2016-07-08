@@ -376,8 +376,8 @@
     // Enforce spaces inside of single line blocks
     "block-spacing": [2, "always"],
 
-    // Will enable these rules later
-    "computed-property-spacing": 0,
+    // Disallow spaces inside of computed properties
+    "computed-property-spacing": [2, "never"],
 
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.

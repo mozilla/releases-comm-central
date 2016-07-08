@@ -521,7 +521,7 @@ webDavSyncHandler.prototype = {
             case "getcontenttype":
             case "sync-token":
                 this.tag = aLocalName.replace(/-/g, "");
-                this.currentResponse[this.tag ] = "";
+                this.currentResponse[this.tag] = "";
                 break;
         }
         if (this.calendar.verboseLogging()) {
@@ -875,7 +875,7 @@ multigetSyncHandler.prototype = {
             case "href":
             case "getetag":
                 this.tag = aLocalName.replace(/-/g, "");
-                this.currentResponse[this.tag ] = "";
+                this.currentResponse[this.tag] = "";
                 break;
         }
         if (this.calendar.verboseLogging()) {
