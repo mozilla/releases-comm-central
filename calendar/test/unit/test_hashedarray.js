@@ -182,7 +182,9 @@ function test_hashAccessor() {
     };
 
     function itemAccessor(obj) {
-        if (!obj) do_throw("WTF?");
+        if (!obj) {
+            do_throw("WTF?");
+        }
         return obj.item;
     }
 

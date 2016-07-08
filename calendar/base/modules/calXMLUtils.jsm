@@ -166,8 +166,8 @@ cal.xml.escapeString = function escapeString(str, isAttribute) {
             case "&": return "&amp;";
             case "<": return "&lt;";
             case ">": return "&gt;";
-            case '"': if (isAttribute) return "&quot;";
-            case "'": if (isAttribute) return "&apos;";
+            case '"': return (isAttribute ? "&quot;" : chr);
+            case "'": return (isAttribute ? "&apos;" : chr);
             default: return chr;
         }
     });

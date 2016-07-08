@@ -40,9 +40,11 @@ var testTaskView = function () {
     + 'id("calendarTabPanel")/id("calendarContent")/id("ltnSidebar")/id("calendar-panel")/'
     + 'id("calendar-list-pane")/id("calendar-listtree-pane")/id("calendar-list-tree-widget")'))
     .getNode();
-  for(i = 0; i < calendarTree.mCalendarList.length; i++)
-    if(calendarTree.mCalendarList[i].name == calendar)
+  for (i = 0; i < calendarTree.mCalendarList.length; i++) {
+    if (calendarTree.mCalendarList[i].name == calendar) {
       calendarTree.tree.view.selection.select(i);
+    }
+  }
 
   let taskTreeNode = (new elementslib.Lookup(controller.window.document, taskTree)).getNode();
   let countBefore = taskTreeNode.mTaskArray.length;

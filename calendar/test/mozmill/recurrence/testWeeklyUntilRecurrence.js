@@ -154,7 +154,9 @@ function checkMultiWeekView(view){
   let startWeek = 1;
 
   // in month view event starts from 2nd row
-  if(view == "month") startWeek++;
+  if (view == "month") {
+    startWeek++;
+  }
 
   for(let week = startWeek; week < startWeek + 3; week++){
     // Monday

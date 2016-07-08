@@ -55,8 +55,9 @@ var eventDialogQuitObserver = {
     // observer already did.
     if (aTopic == "quit-application-requested" &&
         (aSubject instanceof Components.interfaces.nsISupportsPRBool) &&
-        !aSubject.data)
+        !aSubject.data) {
       aSubject.data = !onCancel();
+    }
   }
 };
 

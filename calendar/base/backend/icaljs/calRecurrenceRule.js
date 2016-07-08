@@ -164,7 +164,9 @@ calRecurrenceRule.prototype = {
             }
         }
 
-        if (aCount) aCount.value = values.length;
+        if (aCount) {
+            aCount.value = values.length;
+        }
         return values;
     },
 

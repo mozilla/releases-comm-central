@@ -73,7 +73,9 @@ var testEventDialog = function () {
   if (now.toLocaleTimeString().match(/AM|PM/)) {
     ampm = (hour >= 12 ? " PM" : " AM")
     startHour = startHour % 12;
-    if (startHour == 0) startHour = 12;
+    if (startHour == 0) {
+      startHour = 12;
+    }
   }
 
   let startTime = startHour + ':00' + ampm;
@@ -191,10 +193,12 @@ var testEventDialog = function () {
   controller.assertNode(new elementslib.Lookup(controller.window.document,
     eventBox.replace("rowNumber", "0").replace("columnNumber", "6")));
 
-  for(row = 1; row < 5; row++)
-    for(col = 0; col < 7; col++)
+  for (row = 1; row < 5; row++) {
+    for (col = 0; col < 7; col++) {
         controller.assertNode(new elementslib.Lookup(controller.window.document,
           eventBox.replace("rowNumber", row).replace("columnNumber", col)));
+    }
+  }
 
   // delete series by deleting 3rd January and confirming to delete all
   calUtils.handleParentDeletion(controller);
@@ -211,10 +215,12 @@ var testEventDialog = function () {
   controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document,
     eventBox.replace("rowNumber", "0").replace("columnNumber", "6")));
 
-  for(row = 1; row < 5; row++)
-    for(col = 0; col < 7; col++)
+  for (row = 1; row < 5; row++) {
+    for (col = 0; col < 7; col++) {
         controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document,
           eventBox.replace("rowNumber", row).replace("columnNumber", col)));
+    }
+  }
 }
 
 function handleAttendees(attendees){

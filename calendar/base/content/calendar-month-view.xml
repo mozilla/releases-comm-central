@@ -159,10 +159,11 @@
           return false;
         ]]></getter>
         <setter><![CDATA[
-          if (val)
+          if (val) {
             this.setAttribute("selected", "true");
-          else
+          } else {
             this.removeAttribute("selected");
+          }
           return val;
         ]]></setter>
       </property>
@@ -311,8 +312,9 @@
     <handlers>
       <handler event="mousedown"><![CDATA[
         event.stopPropagation();
-        if (this.mDate)
+        if (this.mDate) {
           this.calendarView.selectedDay = this.mDate;
+        }
       ]]></handler>
       <handler event="dblclick"><![CDATA[
         event.stopPropagation();
@@ -448,14 +450,12 @@
         <parameter name="aAttr"/>
         <parameter name="aVal"/>
         <body><![CDATA[
-          var needsrelayout = false;
-          if (aAttr == "context" || aAttr == "item-context")
-              needsrelayout = true;
+          let needsrelayout = (aAttr == "context" || aAttr == "item-context");
+          let ret = XULElement.prototype.setAttribute.call (this, aAttr, aVal);
 
-          var ret = XULElement.prototype.setAttribute.call (this, aAttr, aVal);
-
-          if (needsrelayout)
+          if (needsrelayout) {
               this.relayout();
+          }
 
           return ret;
         ]]></body>
@@ -581,14 +581,16 @@
 
       <property name="selectedDay">
         <getter><![CDATA[
-          if (this.mSelectedDayBox)
+          if (this.mSelectedDayBox) {
             return this.mSelectedDayBox.date.clone();
+          }
 
           return null;
         ]]></getter>
         <setter><![CDATA[
-          if (this.mSelectedDayBox)
+          if (this.mSelectedDayBox) {
             this.mSelectedDayBox.selected = false;
+          }
 
           var realVal = val;
           if (!realVal.isDate) {
@@ -938,8 +940,9 @@
             return null;
           }
           for (let box of this.mDateBoxes) {
-            if (box.mDate.compare(aDate) == 0)
+            if (box.mDate.compare(aDate) == 0) {
               return box;
+            }
           }
           return null;
         ]]></body>
@@ -964,8 +967,9 @@
               }
           }
 
-          if (!targetDate)
-            return boxes;
+          if (!targetDate) {
+              return boxes;
+          }
 
           if (!finishDate) {
             let maybeBox = this.findDayBoxForDate(targetDate);
@@ -1010,11 +1014,12 @@
         <body><![CDATA[
           let boxes = this.findDayBoxesForItem(aItem);
 
-          if (!boxes.length)
-            return;
+          if (!boxes.length) {
+              return;
+          }
 
           for (let box of boxes) {
-            box.addItem(aItem);
+              box.addItem(aItem);
           }
         ]]></body>
       </method>
@@ -1024,8 +1029,9 @@
         <body><![CDATA[
           let boxes = this.findDayBoxesForItem(aItem);
 
-          if (!boxes.length)
-            return;
+          if (!boxes.length) {
+              return;
+          }
 
           function isNotItem(a) {
               return (a.hashId != aItem.hashId);
@@ -1034,7 +1040,7 @@
           this.mSelectedItems = this.mSelectedItems.filter(isNotItem);
 
           for (let box of boxes) {
-            box.deleteItem(aItem);
+              box.deleteItem(aItem);
           }
 
           // If a deleted event was selected, we need to announce that the

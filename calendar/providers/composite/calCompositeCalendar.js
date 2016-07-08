@@ -141,10 +141,12 @@ calCompositeCalendar.prototype = {
         let cals = mgr.getCalendars({});
 
         cals.forEach(function (c) {
-            if (c.getProperty(this.mActivePref))
+            if (c.getProperty(this.mActivePref)) {
                 this.addCalendar(c);
-            if (c.getProperty(this.mDefaultPref))
+            }
+            if (c.getProperty(this.mDefaultPref)) {
                 this.setDefaultCalendar(c, false);
+            }
         }, this);
     },
 
@@ -525,8 +527,9 @@ calCompositeGetListenerHelper.prototype = {
         }
 
         // ignore if we have a max and we're past it
-        if (this.mMaxItems && this.mItemsReceived >= this.mMaxItems)
+        if (this.mMaxItems && this.mItemsReceived >= this.mMaxItems) {
             return;
+        }
 
         if (Components.isSuccessCode(aStatus) &&
             this.mMaxItems &&

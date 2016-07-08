@@ -123,7 +123,9 @@ function checkMultiWeekView(view){
   let week = 1;
 
   // in month view event starts from 2nd row
-  if(view == "month") week++;
+  if (view == "month") {
+    week++;
+  }
 
   // Monday, Tuesday, Wednesday, Thursday
   for(let i = 2; i < 6; i++){

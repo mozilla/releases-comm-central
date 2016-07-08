@@ -195,11 +195,13 @@
                 let content = treecols[i].getAttribute("itemproperty");
                 visible += (visible.length > 0) ? " "+content : content;
               }
-              if(ordinals.length > 0)
+              if (ordinals.length > 0) {
                   ordinals += " ";
+              }
               ordinals += treecols[i].ordinal;
-              if(widths.length > 0)
+              if (widths.length > 0) {
                   widths += " ";
+              }
               widths += treecols[i].width || 0;
           }
           this.setAttribute("visible-columns", visible);
@@ -586,8 +588,10 @@
           // image, then the empty string is returned.
           getCellText: function mTV_getCellText(aRow, aCol) {
               var task = this.binding.mTaskArray[aRow];
-              if (!task)
+              if (!task) {
                   return false;
+              }
+
               switch (aCol.element.getAttribute("itemproperty")) {
                   case "title":
                       // return title, or "Untitled" if empty/null
@@ -1160,14 +1164,16 @@
 
           //add a rectangle for each visible selected row
           for (var i = obo.getFirstVisibleRow(); i <= obo.getLastVisibleRow(); i ++) {
-            if (sel.isSelected(i))
+            if (sel.isSelected(i)) {
               region.unionRect(rowX, rowY, rowWidth, rowHeight);
+            }
             rowY = rowY + rowHeight;
           }
 
           //and finally, clip the result to be sure we don't spill over...
-          if(!region.isEmpty())
+          if (!region.isEmpty()) {
             region.intersectRect(bo.x, bo.y, bo.width, bo.height);
+          }
         } catch(ex) {
           ASSERT(false, "Error while building selection region: " + ex + "\n");
           region = null;

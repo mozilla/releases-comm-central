@@ -241,8 +241,9 @@ function setupTitle() {
  *                              0 - otherwise
  */
 function widgetAlarmComptor(aItem, aWidgetItem) {
-
-    if (aItem == null || aWidgetItem == null) return -1;
+    if (aItem == null || aWidgetItem == null) {
+        return -1;
+    }
 
     // Get the dates to compare
     let aDate = aItem[calGetStartDateProp(aItem)];

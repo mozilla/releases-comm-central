@@ -77,11 +77,12 @@
          };
          this.eventNameTextbox.onkeypress = function onKeyPress(event) {
              // save on enter
-             if (event.keyCode == 13)
+             if (event.keyCode == 13) {
                  self.stopEditing(true);
              // abort on escape
-             else if (event.keyCode == 27)
+             } else if (event.keyCode == 27) {
                  self.stopEditing(false);
+             }
          };
          function stopPropagationIfEditing(event) {
            if (self.mEditing) {
@@ -283,8 +284,9 @@
       <method name="stopEditing">
         <parameter name="saveChanges"/>
         <body><![CDATA[
-          if (!this.mEditing)
-            return;
+          if (!this.mEditing) {
+              return;
+          }
 
           this.mEditing = false;
 
@@ -366,8 +368,9 @@
             || (item.calendar instanceof Components.interfaces.calISchedulingSupport && item.calendar.isInvitation(item))) {
             return;
         }
-        if (!this.selected)
+        if (!this.selected) {
             this.select(event);
+        }
         invokeEventDragSession(item, this);
       ]]></handler>
     </handlers>

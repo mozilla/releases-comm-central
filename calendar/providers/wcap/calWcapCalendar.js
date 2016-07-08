@@ -247,8 +247,9 @@ calWcapCalendar.prototype = {
             log("cannot determine primary owner of calendar " + calId, this);
             // fallback to calId prefix:
             var nColon = calId.indexOf(":");
-            if (nColon >= 0)
+            if (nColon >= 0) {
                 calId = calId.substring(0, nColon);
+            }
             return calId;
         }
         return ar[0];

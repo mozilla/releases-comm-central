@@ -616,8 +616,9 @@ calStorageCalendar.prototype = {
 
     // void getItem( in string id, in calIOperationListener aListener );
     getItem: function cSC_getItem(aId, aListener) {
-        if (!aListener)
+        if (!aListener) {
             return;
+        }
 
         var item = this.getItemById (aId);
         if (!item) {
@@ -670,8 +671,9 @@ calStorageCalendar.prototype = {
                                       aRangeStart, aRangeEnd, aListener)
     {
         //var profStartTime = Date.now();
-        if (!aListener)
+        if (!aListener) {
             return;
+        }
 
         let self = this;
 
@@ -680,10 +682,12 @@ calStorageCalendar.prototype = {
         // endTime needs to be the max value a PRTime can be
         let endTime = 0x7fffffffffffffff;
         let count = 0;
-        if (aRangeStart)
+        if (aRangeStart) {
             startTime = aRangeStart.nativeTime;
-        if (aRangeEnd)
+        }
+        if (aRangeEnd) {
             endTime = aRangeEnd.nativeTime;
+        }
 
         let wantUnrespondedInvitations = ((aItemFilter & kCalICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0);
         let superCal;
@@ -742,13 +746,15 @@ calStorageCalendar.prototype = {
             // if we're about to start sending a different IID,
             // flush the queue
             if (theIID && queuedItemsIID != theIID) {
-                if (queuedItemsIID)
+                if (queuedItemsIID) {
                     queueItems(null);
+                }
                 queuedItemsIID = theIID;
             }
 
-            if (theItems)
+            if (theItems) {
                 queuedItems = queuedItems.concat(theItems);
+            }
 
             if (queuedItems.length != 0 && (!theItems || queuedItems.length > maxQueueSize)) {
                 //var listenerStart = Date.now();
@@ -826,9 +832,13 @@ calStorageCalendar.prototype = {
                 sp.end_offset = aRangeEnd ? aRangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
                 sp.offline_journal = null;
 
-                if (wantOfflineDeletedItems) sp.offline_journal = cICL.OFFLINE_FLAG_DELETED_RECORD;
-                else if (wantOfflineCreatedItems) sp.offline_journal = cICL.OFFLINE_FLAG_CREATED_RECORD;
-                else if (wantOfflineModifiedItems) sp.offline_journal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+                if (wantOfflineDeletedItems) {
+                    sp.offline_journal = cICL.OFFLINE_FLAG_DELETED_RECORD;
+                } else if (wantOfflineCreatedItems) {
+                    sp.offline_journal = cICL.OFFLINE_FLAG_CREATED_RECORD;
+                } else if (wantOfflineModifiedItems) {
+                    sp.offline_journal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+                }
 
                 while (this.mSelectNonRecurringEventsByRange.executeStep()) {
                     let row = this.mSelectNonRecurringEventsByRange.row;
@@ -878,9 +888,15 @@ calStorageCalendar.prototype = {
                 sp.start_offset = aRangeStart ? aRangeStart.timezoneOffset * USECS_PER_SECOND : 0;
                 sp.end_offset = aRangeEnd ? aRangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
                 sp.offline_journal = null;
-                if (wantOfflineCreatedItems) sp.offline_journal = cICL.OFFLINE_FLAG_CREATED_RECORD;
-                if (wantOfflineDeletedItems) sp.offline_journal = cICL.OFFLINE_FLAG_DELETED_RECORD;
-                if (wantOfflineModifiedItems) sp.offline_journal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+                if (wantOfflineCreatedItems) {
+                    sp.offline_journal = cICL.OFFLINE_FLAG_CREATED_RECORD;
+                }
+                if (wantOfflineDeletedItems) {
+                    sp.offline_journal = cICL.OFFLINE_FLAG_DELETED_RECORD;
+                }
+                if (wantOfflineModifiedItems) {
+                    sp.offline_journal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+                }
 
                 while (this.mSelectNonRecurringTodosByRange.executeStep()) {
                     let row = this.mSelectNonRecurringTodosByRange.row;
@@ -1496,14 +1512,18 @@ calStorageCalendar.prototype = {
     getItemBaseFromRow: function cSC_getItemBaseFromRow(row, flags, item) {
         item.calendar = this.superCalendar;
         item.id = row.id;
-        if (row.title)
+        if (row.title) {
             item.title = row.title;
-        if (row.priority)
+        }
+        if (row.priority) {
             item.priority = row.priority;
-        if (row.privacy)
+        }
+        if (row.privacy) {
             item.privacy = row.privacy;
-        if (row.ical_status)
+        }
+        if (row.ical_status) {
             item.status = row.ical_status;
+        }
 
         if (row.alarm_last_ack) {
             // alarm acks are always in utc
@@ -1517,8 +1537,9 @@ calStorageCalendar.prototype = {
             }
         }
 
-        if (flags)
+        if (flags) {
             flags.value = row.flags;
+        }
 
         if (row.time_created) {
             item.setProperty("CREATED", newDateTime(row.time_created, "UTC"));
@@ -1597,12 +1618,15 @@ calStorageCalendar.prototype = {
 
         item = createEvent();
 
-        if (row.event_start)
+        if (row.event_start) {
             item.startDate = newDateTime(row.event_start, row.event_start_tz);
-        if (row.event_end)
+        }
+        if (row.event_end) {
             item.endDate = newDateTime(row.event_end, row.event_end_tz);
-        if (row.event_stamp)
+        }
+        if (row.event_stamp) {
             item.setProperty("DTSTAMP", newDateTime(row.event_stamp, "UTC"));
+        }
         if ((row.flags & CAL_ITEM_FLAG.EVENT_ALLDAY) != 0) {
             item.startDate.isDate = true;
             item.endDate.isDate = true;
@@ -1630,16 +1654,21 @@ calStorageCalendar.prototype = {
 
         item = createTodo();
 
-        if (row.todo_entry)
+        if (row.todo_entry) {
             item.entryDate = newDateTime(row.todo_entry, row.todo_entry_tz);
-        if (row.todo_due)
+        }
+        if (row.todo_due) {
             item.dueDate = newDateTime(row.todo_due, row.todo_due_tz);
-        if (row.todo_stamp)
+        }
+        if (row.todo_stamp) {
             item.setProperty("DTSTAMP", newDateTime(row.todo_stamp, "UTC"));
-        if (row.todo_completed)
+        }
+        if (row.todo_completed) {
             item.completedDate = newDateTime(row.todo_completed, row.todo_completed_tz);
-        if (row.todo_complete)
+        }
+        if (row.todo_complete) {
             item.percentComplete = row.todo_complete;
+        }
 
         // This must be done last to keep the modification time intact.
         this.getItemBaseFromRow (row, flags, item);
@@ -1762,8 +1791,9 @@ calStorageCalendar.prototype = {
             // it's safe that we don't run into this branch again for exceptions
             // (getAdditionalDataForItem->get[Event|Todo]FromRow->getAdditionalDataForItem):
             // every excepton has a recurrenceId and isn't flagged as CAL_ITEM_FLAG.HAS_EXCEPTIONS
-            if (item.recurrenceId)
+            if (item.recurrenceId) {
                 throw Components.results.NS_ERROR_UNEXPECTED;
+            }
 
             let rec = item.recurrenceInfo;
 
@@ -2064,10 +2094,12 @@ calStorageCalendar.prototype = {
 
         var tmp;
 
-        if ((tmp = item.getProperty("CREATED")))
+        if ((tmp = item.getProperty("CREATED"))) {
             ip.time_created = tmp.nativeTime;
-        if ((tmp = item.getProperty("LAST-MODIFIED")))
+        }
+        if ((tmp = item.getProperty("LAST-MODIFIED"))) {
             ip.last_modified = tmp.nativeTime;
+        }
 
         ip.title = item.getProperty("SUMMARY");
         ip.priority = item.getProperty("PRIORITY");
@@ -2139,8 +2171,9 @@ calStorageCalendar.prototype = {
         while (propEnumerator.hasMoreElements()) {
             ret = CAL_ITEM_FLAG.HAS_PROPERTIES;
             var prop = propEnumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
-            if (item.isPropertyPromoted(prop.name))
+            if (item.isPropertyPromoted(prop.name)) {
                 continue;
+            }
             this.writeProperty(item, prop.name, prop.value);
         }
 
@@ -2181,8 +2214,9 @@ calStorageCalendar.prototype = {
                 // writing the recurrenceId for us
                 for (let exid of exceptions) {
                     let ex = rec.getExceptionFor(exid);
-                    if (!ex)
+                    if (!ex) {
                         throw Components.results.NS_ERROR_UNEXPECTED;
+                    }
                     this.writeItem(ex, null);
                 }
             }

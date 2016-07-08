@@ -1196,7 +1196,9 @@ ItipItemFinder.prototype = {
         this._unobserveChanges();
         this.mObservedCalendar = aCalendar;
 
-        if (this.mObservedCalendar) this.mObservedCalendar.addObserver(this);
+        if (this.mObservedCalendar) {
+            this.mObservedCalendar.addObserver(this);
+        }
     },
     _unobserveChanges: function _unobserveChanges() {
         if (this.mObservedCalendar) {

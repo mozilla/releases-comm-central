@@ -628,9 +628,10 @@ function ltnFinish() {
 
     // Remove listener for mailContext.
     let mailContextPopup = document.getElementById("mailContext");
-    if (mailContextPopup)
-      mailContextPopup.removeEventListener("popupshowing",
-                                           gCalSetupMailContext.popup, false);
+    if (mailContextPopup) {
+        mailContextPopup.removeEventListener("popupshowing",
+                                             gCalSetupMailContext.popup, false);
+    }
 
     // Common finish steps
     commonFinishCalendar();

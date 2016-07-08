@@ -157,8 +157,9 @@
          <parameter name="aPopupAnonId"/>
           <body><![CDATA[
            // Close open popups (if any), to prevent linux crashes
-           if (this.mPopup)
+           if (this.mPopup) {
                this.mPopup.hidePopup();
+           }
            this.mPopup = document.getAnonymousElementByAttribute(this, "anonid", aPopupAnonId);
            this.mPopup.openPopup(aEvent.target, "after_start");
          ]]></body>
@@ -169,8 +170,9 @@
            // Close open popups (if any)
            let popup = this.mPopup;
            this.mPopup = null;
-           if (popup)
+           if (popup) {
                popup.hidePopup();
+           }
          ]]></body>
        </method>
        <method name="firePopupListHidden">
@@ -586,8 +588,9 @@
             let box = this.getBoxForDate(current);
             if (box) {
                 let busyCalendars = this.parseBoxBusy(box);
-                if (!busyCalendars[aOccurrence.calendar.id])
+                if (!busyCalendars[aOccurrence.calendar.id]) {
                     busyCalendars[aOccurrence.calendar.id] = 0;
+                }
                 busyCalendars[aOccurrence.calendar.id] += (aState ? 1 : -1);
                 this.updateBoxBusy(box, busyCalendars);
             }
@@ -758,8 +761,9 @@
                       if (dayList.some(function(dayAbbr) {
                                              return dayAbbr[endPrefix] != c; })) {
                           if (endPrefix > 0) {
-                              for (i = 0; i < dayList.length; i++) // trim prefix chars.
+                              for (i = 0; i < dayList.length; i++) { // trim prefix chars.
                                   dayList[i] = dayList[i].substring(endPrefix);
+                              }
                           }
                           break;
                       }
@@ -893,7 +897,11 @@
                     }
                 }
             }
-            if (monthChanged) this.fireEvent('monthchange');
+
+            if (monthChanged) {
+                this.fireEvent('monthchange');
+            }
+
             if (this.getAttribute("freebusy") == "true") {
                 this.getItems();
             }

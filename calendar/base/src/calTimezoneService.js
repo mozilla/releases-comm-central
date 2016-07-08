@@ -512,8 +512,9 @@ function guessSystemTimezone() {
         let envSvc = Components.classes["@mozilla.org/process/environment;1"]
                                 .getService(Components.interfaces.nsIEnvironment);
         let value = envSvc.get(varName);
-        if (!value) return "";
-        if (!value.match(tzRegex)) return "";
+        if (!value || !value.match(tzRegex)) {
+            return "";
+        }
         return varName+"="+value;
     }
 
@@ -523,9 +524,10 @@ function guessSystemTimezone() {
                                  .createInstance(Components.interfaces.nsILocalFile);
             file.initWithPath(filepath);
             file.QueryInterface(Components.interfaces.nsIFile);
-            if (!file.exists()) return "";
-            if (!file.isSymlink()) return "";
-            if (!file.target.match(tzRegex)) return "";
+            if (!file.exists() || !file.isSymlink() || !file.target.match(tzRegex)) {
+                return "";
+            }
+
             return filepath +" -> "+file.target;
         } catch (ex) {
             Components.utils.reportError(filepath+": "+ex);
@@ -541,7 +543,9 @@ function guessSystemTimezone() {
                                  .createInstance(Components.interfaces.nsILocalFile);
             file.initWithPath(filepath);
             file.QueryInterface(Components.interfaces.nsIFile);
-            if (!file.exists()) return "";
+            if (!file.exists()) {
+                return "";
+            }
             let fileInstream = Components.classes["@mozilla.org/network/file-input-stream;1"]
                                          .createInstance(Components.interfaces.nsIFileInputStream);
             const PR_RDONLY = 0x1;

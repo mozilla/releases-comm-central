@@ -192,8 +192,9 @@ function doCreateCalendar() {
 function initNameFromURI() {
     let path = document.getElementById("calendar-uri").value;
     let nameField = document.getElementById("calendar-name");
-    if (!path || nameField.value)
+    if (!path || nameField.value) {
         return;
+    }
 
     let fullPathRegex = new RegExp("([^/:]+)[.]ics$");
     let captures = path.match(fullPathRegex);

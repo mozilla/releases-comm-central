@@ -108,8 +108,9 @@ function netErrorToString(rc) {
         while (i < g_nsNetErrorCodes.length) {
             // however rc is kept unsigned, our generated code signed,
             // so == won't work here:
-            if ((g_nsNetErrorCodes[i] ^ rc) == 0)
+            if ((g_nsNetErrorCodes[i] ^ rc) == 0) {
                 return g_nsNetErrorCodes[i + 1];
+            }
             i += 2;
         }
     }

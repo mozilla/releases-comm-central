@@ -577,10 +577,11 @@
           this.kTextBox.kTimePicker = this; // enable call back to method in Moz1.7
 
           var val = this.getAttribute("value");
-          if (val)
+          if (val) {
             this.value = (new Date(val));
-          else
+          } else {
             this.value = (new Date());
+          }
 
           // Change the grids in the timepicker-grids for 12-hours time format.
           if (this.ampmIndex) {
@@ -1145,8 +1146,9 @@
       <method name="onPopupHiding">
         <body>
           <![CDATA[
-            if (this.hasChanged)
+            if (this.hasChanged) {
                 this.timeSelected();
+            }
           ]]>
         </body>
       </method>
@@ -1277,8 +1279,9 @@
         <body>
           <![CDATA[
             // clear old selection, if there is one
-            if (this.mSelectedHourItem != null)
+            if (this.mSelectedHourItem != null) {
               this.mSelectedHourItem.removeAttribute( "selected" );
+            }
             // set selected attribute, to cause the selected style to apply
             hourItem.setAttribute( "selected", "true" );
             // remember the selected item so we can deselect it
@@ -1293,8 +1296,9 @@
         <body>
           <![CDATA[
             // clear old selection, if there is one
-            if (this.mSelectedMinuteItem != null)
+            if (this.mSelectedMinuteItem != null) {
               this.mSelectedMinuteItem.removeAttribute( "selected" );
+            }
             // set selected attribute, to cause the selected style to apply
             minuteItem.setAttribute( "selected", "true" );
             // remember the selected item so we can deselect it
@@ -1306,8 +1310,9 @@
         <parameter name="aNumber"/>
         <body>
           <![CDATA[
-            if (!this.mSelectedTime)
+            if (!this.mSelectedTime) {
               return;
+            }
 
             var idPrefix = "time-picker-one-minute-box-";
 
@@ -1328,10 +1333,12 @@
             var newMinutes = this.mSelectedTime.getMinutes() + aNumber;
 
             // Handle rollover cases
-            if (newMinutes < 0)
+            if (newMinutes < 0) {
                 newMinutes += 60;
-            if (newMinutes > 59)
+            }
+            if (newMinutes > 59) {
                 newMinutes -= 60;
+            }
 
             this.mSelectedTime.setMinutes(newMinutes);
 
@@ -1348,16 +1355,19 @@
         <parameter name="aNumber"/>
         <body>
           <![CDATA[
-            if (!this.mSelectedTime)
+            if (!this.mSelectedTime) {
               return;
+            }
 
             var newHours = this.mSelectedTime.getHours() + aNumber;
 
             // Handle rollover cases
-            if (newHours < 0)
+            if (newHours < 0) {
                 newHours += 24;
-            if (newHours > 23)
+            }
+            if (newHours > 23) {
                 newHours -= 24;
+            }
 
             this.mSelectedTime.setHours(newHours);
 
@@ -1379,8 +1389,9 @@
             var minutes = time.getMinutes();
             var minutesByFive = Math.round( minutes / 5 ) * 5;
 
-            if (minutesByFive > 59)
+            if (minutesByFive > 59) {
               minutesByFive = 55;
+            }
             return minutesByFive;
           ]]>
         </body>
@@ -1483,10 +1494,11 @@
         <body>
           <![CDATA[
             var tempTime;
-            if (this.kDatePicker.lastDateParseIncludedTime)
+            if (this.kDatePicker.lastDateParseIncludedTime) {
               tempTime = new Date(this.kDatePicker.value);
-            else
+            } else {
               tempTime = new Date(this.mValue);
+            }
             var newDate = new Date(this.kDatePicker.value);
             // Note: create new date because setting month and date of month in
             // either order can lead to unexpected results (month may be advanced
@@ -1584,8 +1596,9 @@
           <![CDATA[
             this.mLastDateParseIncludedTime = false;
             var tempDate = null;
-            if (!this.probeSucceeded)
+            if (!this.probeSucceeded) {
               return null; // avoid errors accessing uninitialized data.
+            }
 
             var year = Number.MIN_VALUE; var month = -1; var day = -1; let timeString = null;
             if (this.alphaMonths == null) {
@@ -1636,10 +1649,12 @@
                 var currentYear = new Date().getFullYear();
                 var currentCentury = currentYear - currentYear % 100;
                 year = currentCentury + year;
-                if (year < currentYear - 69)
+                if (year < currentYear - 69) {
                   year += 100;
-                if (year > currentYear + 30)
+                }
+                if (year > currentYear + 30) {
                   year -= 100;
+                }
               }
               // if time is also present, parse it
               var hours = 0; var minutes = 0; var seconds = 0;
@@ -1701,17 +1716,23 @@
               var hoursString   = timePartsArray[HR_INDEX]
               var hours         = Number(hoursString);
               var hoursSuffix   = timePartsArray[HR_INDEX + 1];
-              if (!(0 <= hours && hours < 24)) return null;
+              if (!(0 <= hours && hours < 24)) {
+                return null;
+              }
 
               var minutesString = timePartsArray[MIN_INDEX];
               var minutes       = (minutesString == null? 0 : Number(minutesString));
               var minutesSuffix = timePartsArray[MIN_INDEX + 1];
-              if (!(0 <= minutes && minutes < 60)) return null;
+              if (!(0 <= minutes && minutes < 60)) {
+                return null;
+              }
 
               var secondsString = timePartsArray[SEC_INDEX];
               var seconds       = (secondsString == null? 0 : Number(secondsString));
               var secondsSuffix = timePartsArray[SEC_INDEX + 1];
-              if (!(0 <= seconds && seconds < 60)) return null;
+              if (!(0 <= seconds && seconds < 60)) {
+                return null;
+              }
 
               var ampmCode = null;
               if (timePartsArray[PRE_INDEX] || timePartsArray[POST_INDEX]) {
@@ -1738,11 +1759,13 @@
                 }
               }
               if (ampmCode == "AM") {
-                if (hours == 12)
+                if (hours == 12) {
                   hours = 0;
+                }
               } else if (ampmCode == "PM") {
-                if (hours < 12)
+                if (hours < 12) {
                   hours += 12;
+                }
               }
               time = new Date(0, 0, 0, hours, minutes, seconds, 0);
             }  // else did not match regex, not valid time
@@ -1810,16 +1833,18 @@
                     probeDate.setMonth(m);
                     probeString = this.formatDate(probeDate);
                     probeArray = this.parseShortDateRegex.exec(probeString);
-                    if (probeArray != null)
+                    if (probeArray != null) {
                       this.alphaMonths[m] = probeArray[this.monthIndex].toUpperCase();
-                    else
+                    } else {
                       this.probeSucceeded = false;
+                    }
                   }
                 }
               }
             }
-            if (! this.probeSucceeded)
+            if (!this.probeSucceeded) {
               dump("\nOperating system short date format is not recognized: "+probeString+"\n");
+            }
           ]]>
         </body>
       </method>
@@ -1893,11 +1918,13 @@
                     // make expr to accept either as provided, lowercased, or uppercased
                     var regExp = string.replace(/(\W)/g, "[$1]"); // escape punctuation
                     var lowercased = string.toLowerCase();
-                    if (string != lowercased)
+                    if (string != lowercased) {
                       regExp += "|"+lowercased;
+                    }
                     var uppercased = string.toUpperCase();
-                    if (string != uppercased)
+                    if (string != uppercased) {
                       regExp += "|"+uppercased;
+                    }
                     return regExp;
                   };
                   amFormatExpr = makeFormatRegExp(amProbeArray[this.ampmIndex]);
@@ -1932,12 +1959,13 @@
             this.pmRegExp = new RegExp("^(?:"+pmExpr+")$");
             // build time display format that mimics "%x" format without seconds
             var ampmSep = (pmProbeString.includes(' ') ? " " : "");
-	          if (this.ampmIndex == PRE_INDEX)
+            if (this.ampmIndex == PRE_INDEX) {
               this.kTimeFormatString = "%p" + ampmSep + "%I:%M";
-            else if (this.ampmIndex == POST_INDEX)
+            } else if (this.ampmIndex == POST_INDEX) {
               this.kTimeFormatString = "%I:%M" + ampmSep + "%p";
-            else
+            } else {
               this.kTimeFormatString = "%H:%M";
+            }
           ]]>
         </body>
       </method>

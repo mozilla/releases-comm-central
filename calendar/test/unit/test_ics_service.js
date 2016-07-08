@@ -14,7 +14,9 @@ function really_run_test() {
     test_param();
 
     // Only supported with ical.js
-    if (Preferences.get("calendar.icaljs", false)) test_icalproperty();
+    if (Preferences.get("calendar.icaljs", false)) {
+        test_icalproperty();
+    }
 }
 
 function test_icalstring() {

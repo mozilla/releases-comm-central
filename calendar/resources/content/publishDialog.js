@@ -28,14 +28,12 @@ function loadCalendarPublishDialog()
 
    gOnOkFunction = args.onOk;
 
-   if( args.publishObject )
-   {
+   if (args.publishObject) {
       gPublishObject = args.publishObject;
-      if ( args.publishObject.remotePath )
+      if (args.publishObject.remotePath) {
           document.getElementById( "publish-remotePath-textbox" ).value = args.publishObject.remotePath;
-   }
-   else
-   {
+      }
+   } else {
       gPublishObject = new Object();
    }
    document.getElementById( "calendar-publishwindow" ).getButton( "accept" ).setAttribute( "label", publishButtonLabel );
@@ -66,10 +64,11 @@ function onOKCommand()
 
 function checkURLField( )
 {
-   if( document.getElementById( "publish-remotePath-textbox" ).value.length == 0 )
+   if (document.getElementById( "publish-remotePath-textbox" ).value.length == 0) {
       document.getElementById( "calendar-publishwindow" ).getButton( "accept" ).setAttribute( "disabled", "true" );
-   else
+   } else {
       document.getElementById( "calendar-publishwindow" ).getButton( "accept" ).removeAttribute( "disabled" );
+   }
 }
 
 function closeDialog( )

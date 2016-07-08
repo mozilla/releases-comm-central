@@ -19,6 +19,9 @@
     // Enforce one true comma style.
     "comma-style": [2, "last"],
 
+    // Enforce curly brace conventions for all control statements.
+    "curly": 2,
+
     // Enforce the spacing around the * in generator functions.
     "generator-star-spacing": [2, "after"],
 

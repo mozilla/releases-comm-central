@@ -204,8 +204,9 @@ calOutlookCSVImporter.prototype = {
         // be made stricter, if it seems this matches too loosely.
         let regExpStr = "^";
         for (i = 1; i <= header.length; i++) {
-            if (i > 1)
+            if (i > 1) {
                 regExpStr += ",";
+            }
             regExpStr += "(?:\"((?:[^\"]|\"\")*)\")?";
         }
         regExpStr += "$";

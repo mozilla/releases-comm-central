@@ -474,27 +474,33 @@ var cal = {
     },
 
     compareNativeTimeFilledAsc: function cal_compareNativeTimeFilledAsc(a, b) {
-      if (a == b)
+      if (a == b) {
         return 0;
+      }
 
       // In this filter, a zero time (not set) is always at the end.
-      if (a == -62168601600000000) // value for (0000/00/00 00:00:00)
+      if (a == -62168601600000000) { // value for (0000/00/00 00:00:00)
         return 1;
-      if (b == -62168601600000000) // value for (0000/00/00 00:00:00)
+      }
+      if (b == -62168601600000000) { // value for (0000/00/00 00:00:00)
         return -1;
+      }
 
       return (a < b ? -1 : 1);
     },
 
     compareNativeTimeFilledDesc: function cal_compareNativeTimeFilledDesc(a, b) {
-      if (a == b)
+      if (a == b) {
         return 0;
+      }
 
       // In this filter, a zero time (not set) is always at the end.
-      if (a == -62168601600000000) // value for (0000/00/00 00:00:00)
+      if (a == -62168601600000000) { // value for (0000/00/00 00:00:00)
         return 1;
-      if (b == -62168601600000000) // value for (0000/00/00 00:00:00)
+      }
+      if (b == -62168601600000000) { // value for (0000/00/00 00:00:00)
         return -1;
+      }
 
       return (a < b ? 1 : -1);
     },
@@ -895,8 +901,10 @@ var cal = {
      *
      */
     wrapInstance: function wrapInstance(aObj, aInterface) {
-        if (!aObj)
+        if (!aObj) {
             return null;
+        }
+
         try {
             return aObj.QueryInterface(aInterface);
         } catch (e) {

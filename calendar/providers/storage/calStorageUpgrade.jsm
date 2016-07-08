@@ -1496,9 +1496,11 @@ upgrade.v22 = function upgrade_v22(db, version) {
                     attendee.id = aAttendeeId;
                     attendee.commonName = aCommonName;
 
-                    if (aRsvp === 0) attendee.rsvp = "FALSE";
-                    if (aRsvp === 1) attendee.rsvp = "TRUE";
-                    // default: keep undefined
+                    switch (aRsvp) {
+                        case 0: attendee.rsvp = "FALSE"; break;
+                        case 1: attendee.rsvp = "TRUE"; break;
+                        // default: keep undefined
+                    }
 
                     attendee.role = aRole;
                     attendee.participationStatus = aStatus;

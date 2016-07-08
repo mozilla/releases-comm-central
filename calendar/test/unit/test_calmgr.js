@@ -39,13 +39,19 @@ add_test(function test_registration() {
     let registered = false, unregistered = false, deleted = false, readOnly = false;
     let mgrobs = cal.createAdapter(Components.interfaces.calICalendarManagerObserver, {
         onCalendarRegistered: function onCalendarRegistered(aCalendar) {
-            if (aCalendar.id == memory.id) registered = true;
+            if (aCalendar.id == memory.id) {
+              registered = true;
+            }
         },
         onCalendarUnregistering: function onCalendarUnregistering(aCalendar) {
-            if (aCalendar.id == memory.id) unregistered = true;
+            if (aCalendar.id == memory.id) {
+              unregistered = true;
+            }
         },
         onCalendarDeleting: function onCalendarDeleting(aCalendar) {
-            if (aCalendar.id == memory.id) deleted = true;
+            if (aCalendar.id == memory.id) {
+              deleted = true;
+            }
         }
     });
     let calobs = cal.createAdapter(Components.interfaces.calIObserver, {

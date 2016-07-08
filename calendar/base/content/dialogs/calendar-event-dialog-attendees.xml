@@ -500,8 +500,10 @@
         <parameter name="allListsUri"/>
         <body><![CDATA[
             function in_list(aList, listid) {
-              for (var l=0;l<aList.length;l++){
-                if (aList[l]===listid) return true;
+              for (let l = 0; l < aList.length; l++) {
+                if (aList[l] === listid) {
+                  return true;
+                }
               }
               return false;
             }
@@ -517,12 +519,16 @@
                   }
                   thisId = rCn + " <" + thisId + ">";
               }
-              if (in_list(attendees, thisId)) continue;
+              if (in_list(attendees, thisId)) {
+                continue;
+              }
 
               if (abCard.displayName.length > 0) {
                 let ml = this._findListInAddrBooks(abCard.displayName);
                 if (null!=ml){
-                  if (in_list(allListsUri, ml.URI)) continue;
+                  if (in_list(allListsUri, ml.URI)) {
+                    continue;
+                  }
                   allListsUri.push(ml.URI);
 
                   this._getListEntriesInt(ml, attendees, allListsUri);

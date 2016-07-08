@@ -132,8 +132,9 @@ var calendarController = {
             case "calendar_task_filter_command":
                 return true;
             case "calendar_delete_todo_command":
-                if (!CalendarDeleteCommandEnabled)
+                if (!CalendarDeleteCommandEnabled) {
                     return false;
+                }
             case "calendar_toggle_completed_command":
             case "calendar_percentComplete-0_command":
             case "calendar_percentComplete-25_command":
@@ -891,16 +892,20 @@ function calendarUpdateNewItemsCommand() {
     CalendarNewEventsCommandEnabled = false;
     CalendarNewTasksCommandEnabled = false;
     let calendars = cal.getCalendarManager().getCalendars({}).filter(cal.isCalendarWritable).filter(userCanAddItemsToCalendar);
-    if (calendars.some(cal.isEventCalendar))
+    if (calendars.some(cal.isEventCalendar)) {
         CalendarNewEventsCommandEnabled = true;
-    if (calendars.some(cal.isTaskCalendar))
+    }
+    if (calendars.some(cal.isTaskCalendar)) {
         CalendarNewTasksCommandEnabled = true;
+    }
 
     // update command status if required
-    if (CalendarNewEventsCommandEnabled != oldEventValue)
+    if (CalendarNewEventsCommandEnabled != oldEventValue) {
         eventCommands.forEach(goUpdateCommand);
-    if (CalendarNewTasksCommandEnabled != oldTaskValue)
+    }
+    if (CalendarNewTasksCommandEnabled != oldTaskValue) {
         taskCommands.forEach(goUpdateCommand);
+    }
 }
 
 function calendarUpdateDeleteCommand(selectedItems) {

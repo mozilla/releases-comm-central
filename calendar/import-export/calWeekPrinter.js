@@ -133,9 +133,7 @@ calWeekPrinter.prototype = {
 
         // Now insert the week into the week container, sorting by date (and therefore week number)
         function compareDates(a, b) {
-            if (!a || !b) return -1;
-            let res = a.compare(b);
-            return res;
+            return (!a || !b) ? -1 : a.compare(b);
         }
 
         cal.binaryInsertNode(weekContainer, currentPage, currentPage.item, compareDates);

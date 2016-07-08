@@ -111,10 +111,12 @@ calMemoryCalendar.prototype = {
 
     // void adoptItem( in calIItemBase aItem, in calIOperationListener aListener );
     adoptItem: function (aItem, aListener) {
-        if (this.readOnly)
+        if (this.readOnly) {
             throw Components.interfaces.calIErrors.CAL_IS_READONLY;
-        if (aItem.id == null && aItem.isMutable)
+        }
+        if (aItem.id == null && aItem.isMutable) {
             aItem.id = cal.getUUID();
+        }
 
         if (aItem.id == null) {
             this.notifyOperationComplete(aListener,
@@ -165,8 +167,9 @@ calMemoryCalendar.prototype = {
 
     // void modifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem, in calIOperationListener aListener );
     modifyItem: function (aNewItem, aOldItem, aListener) {
-        if (this.readOnly)
+        if (this.readOnly) {
             throw Components.interfaces.calIErrors.CAL_IS_READONLY;
+        }
         if (!aNewItem) {
             throw Components.results.NS_ERROR_INVALID_ARG;
         }
@@ -300,8 +303,9 @@ calMemoryCalendar.prototype = {
 
     // void getItem( in string id, in calIOperationListener aListener );
     getItem: function (aId, aListener) {
-        if (!aListener)
+        if (!aListener) {
             return;
+        }
 
         if (aId == null || this.mItems[aId] == null) {
             // querying by id is a valid use case, even if no item is returned:

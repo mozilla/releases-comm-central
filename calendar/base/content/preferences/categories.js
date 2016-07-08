@@ -76,8 +76,9 @@ var gCategoriesPane = {
         this.updateButtons();
 
 
-        while (listbox.lastChild.id != "categoryColumns")
+        while (listbox.lastChild.id != "categoryColumns") {
             listbox.lastChild.remove();
+        }
 
         for (var i=0; i < gCategoryList.length; i++) {
             var newListItem = document.createElement("listitem");
@@ -189,13 +190,16 @@ var gCategoriesPane = {
         // Check to make sure another category doesn't have the same name
         var toBeDeleted = -1;
         for (var i=0; i < gCategoryList.length; i++) {
-            if (i == list.selectedIndex)
+            if (i == list.selectedIndex) {
                 continue;
+            }
+
             if (categoryName.toLowerCase() == gCategoryList[i].toLowerCase()) {
                 if (Services.prompt.confirm(null, overwriteTitle, overwrite)) {
-                    if (list.selectedIndex != -1)
+                    if (list.selectedIndex != -1) {
                         // Don't delete the old category yet. It will mess up indices.
                         toBeDeleted = list.selectedIndex;
+                    }
                     list.selectedIndex = i;
                 } else {
                     return;
@@ -212,8 +216,9 @@ var gCategoriesPane = {
         if (list.selectedIndex == -1) {
             this.backupData(categoryNameFix);
             gCategoryList.push(categoryName);
-            if (categoryColor)
+            if (categoryColor) {
                 categoryPrefBranch.setCharPref(categoryNameFix, categoryColor);
+            }
         } else {
             this.backupData(categoryNameFix);
             gCategoryList.splice(list.selectedIndex, 1, categoryName);

@@ -353,8 +353,9 @@
           return this.mCalendar;
         ]]></getter>
         <setter><![CDATA[
-          if (this.mCalendar)
+          if (this.mCalendar) {
               this.mCalendar.removeObserver(this.mObserver);
+          }
           this.mCalendar = val;
           this.mCalendar.addObserver(this.mObserver);
           this.refresh();

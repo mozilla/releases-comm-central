@@ -136,8 +136,9 @@ calEvent.prototype = {
         this.modify();
         if (event.componentType != "VEVENT") {
             event = event.getFirstSubcomponent("VEVENT");
-            if (!event)
+            if (!event) {
                 throw Components.results.NS_ERROR_INVALID_ARG;
+            }
         }
 
         this.mEndDate = undefined;

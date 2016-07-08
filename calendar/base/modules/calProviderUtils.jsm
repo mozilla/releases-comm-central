@@ -825,7 +825,9 @@ cal.ProviderBase.prototype = {
             // to a recurring event. We check the parent item.
             if (aItem.parentItem) {
                 org = aItem.parentItem.organizer;
-                if (!org || !org.id) return false;
+                if (!org || !org.id) {
+                    return false;
+                }
             } else {
                 return false;
             }
@@ -837,11 +839,13 @@ cal.ProviderBase.prototype = {
         let ownerIdentities = this.mACLEntry.getOwnerIdentities({});
         for (let i = 0; i < ownerIdentities.length; i++) {
             let identity = "mailto:" + ownerIdentities[i].email.toLowerCase();
-            if (org.id.toLowerCase() == identity)
+            if (org.id.toLowerCase() == identity) {
                 return false;
+            }
 
-            if (aItem.getAttendeeById(identity) != null)
+            if (aItem.getAttendeeById(identity) != null) {
                 return true;
+            }
         }
 
         return false;

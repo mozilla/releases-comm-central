@@ -94,8 +94,12 @@ function getPrintSettings(receiverFunc) {
     case 'selected': {
         let selectedItems = theView.getSelectedItems({});
         settings.eventList = selectedItems.filter(function(item) {
-            if (cal.isEvent(item) && !settings.printEvents) return false;
-            if (cal.isToDo(item) && !settings.printTasks) return false;
+            if (cal.isEvent(item) && !settings.printEvents) {
+                return false;
+            }
+            if (cal.isToDo(item) && !settings.printTasks) {
+                return false;
+            }
             return true;
         });
 

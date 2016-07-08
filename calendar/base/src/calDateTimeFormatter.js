@@ -59,8 +59,9 @@ function calDateTimeFormatter() {
         // workaround hack instead.
         if (longProbeString == null ||
             longProbeString.length < 4 ||
-            longProbeString == probeStringA)
-           this.mUseLongDateService = false;
+            longProbeString == probeStringA) {
+            this.mUseLongDateService = false;
+        }
     } catch (e) {
         this.mUseLongDateService = false;
     }
@@ -132,8 +133,9 @@ calDateTimeFormatter.prototype = {
     },
 
     formatTime: function formatTime(aDate) {
-        if (aDate.isDate)
+        if (aDate.isDate) {
             return this.mDateStringBundle.GetStringFromName("AllDay");
+        }
 
         return this.mDateService.FormatTime("",
                                             nsIScriptableDateFormat.timeFormatNoSeconds,
@@ -155,9 +157,15 @@ calDateTimeFormatter.prototype = {
     },
 
     formatTimeInterval: function formatTimeInterval(aStartDate, aEndDate) {
-        if (!aStartDate && aEndDate) return this.formatTime(aEndDate);
-        if (!aEndDate && aStartDate) return this.formatTime(aStartDate);
-        if (!aStartDate && !aEndDate) return "";
+        if (!aStartDate && aEndDate) {
+            return this.formatTime(aEndDate);
+        }
+        if (!aEndDate && aStartDate) {
+            return this.formatTime(aStartDate);
+        }
+        if (!aStartDate && !aEndDate) {
+            return "";
+        }
 
         // TODO do we need l10n for this?
         // TODO should we check for the same day? The caller should know what

@@ -99,8 +99,9 @@ function textToDate(d) {
         date = newDateTime(dval, "floating");
     }
 
-    if (d[1] == 'D')
+    if (d[1] == 'D') {
         date.isDate = true;
+    }
     return date;
 }
 

@@ -251,14 +251,18 @@ var calendarExtract = {
             contextTaskDisabled = true;
         }
 
-        if (eventButton)
+        if (eventButton) {
             eventButton.disabled = eventDisabled;
-        if (taskButton)
+        }
+        if (taskButton) {
             taskButton.disabled = taskDisabled;
-        if (hdrEventButton)
+        }
+        if (hdrEventButton) {
             hdrEventButton.disabled = eventDisabled;
-        if (hdrTaskButton)
+        }
+        if (hdrTaskButton) {
             hdrTaskButton.disabled = taskDisabled;
+        }
 
         contextMenuEvent.disabled = contextEventDisabled;
         contextMenuTask.disabled = contextTaskDisabled;

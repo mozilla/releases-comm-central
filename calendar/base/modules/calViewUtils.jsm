@@ -14,8 +14,12 @@ cal.view = {
       - * @return      The usual -1, 0, 1
       - */
     compareItems: function(a, b) {
-        if (!a) return -1;
-        if (!b) return 1;
+        if (!a) {
+            return -1;
+        }
+        if (!b) {
+            return 1;
+        }
 
         let aIsEvent = cal.isEvent(a);
         let aIsTodo = cal.isToDo(a);
@@ -24,21 +28,35 @@ cal.view = {
         let bIsTodo = cal.isToDo(b);
 
         // sort todos before events
-        if (aIsTodo && bIsEvent) return -1;
-        if (aIsEvent && bIsTodo) return 1;
+        if (aIsTodo && bIsEvent) {
+            return -1;
+        }
+        if (aIsEvent && bIsTodo) {
+            return 1;
+        }
 
         // todos are kept equal
-        if (aIsTodo && bIsTodo) return 0;
+        if (aIsTodo && bIsTodo) {
+            return 0;
+        }
 
         // sort all day events before events with a duration
-        if (a.startDate.isDate && !b.startDate.isDate) return -1;
-        if (!a.startDate.isDate && b.startDate.isDate) return 1;
+        if (a.startDate.isDate && !b.startDate.isDate) {
+            return -1;
+        }
+        if (!a.startDate.isDate && b.startDate.isDate) {
+            return 1;
+        }
 
         let cmp = a.startDate.compare(b.startDate);
-        if (cmp != 0) return cmp;
+        if (cmp != 0) {
+            return cmp;
+        }
 
         cmp = a.endDate.compare(b.endDate);
-        if (cmp != 0) return cmp;
+        if (cmp != 0) {
+            return cmp;
+        }
 
         cmp = (a.title > b.title) - (a.title < b.title);
         return cmp;

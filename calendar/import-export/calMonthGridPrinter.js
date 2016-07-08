@@ -180,9 +180,7 @@ calMonthPrinter.prototype = {
 
         // Now insert the month into the page container, sorting by date (and therefore by month)
         function compareDates(a, b) {
-            if (!a || !b) return -1;
-            let res = a.compare(b);
-            return res;
+            return (!a || !b) ? -1 : a.compare(b);
         }
 
         cal.binaryInsertNode(monthContainer, currentMonth, currentMonth.item, compareDates);

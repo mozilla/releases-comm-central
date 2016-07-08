@@ -584,7 +584,9 @@ calAlarmService.prototype = {
 
     get isLoading() {
         for (let calId in this.mLoadedCalendars) {
-            if (!this.mLoadedCalendars[calId]) return true;
+            if (!this.mLoadedCalendars[calId]) {
+                return true;
+            }
         }
         return false;
     }

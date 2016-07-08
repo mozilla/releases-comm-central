@@ -761,16 +761,20 @@ function compareObjects(aObject, aOtherObject, aIID) {
  * Compare two arrays using the passed function.
  */
 function compareArrays(aOne, aTwo, compareFunc) {
-    if (!aOne && !aTwo)
+    if (!aOne && !aTwo) {
         return true;
-    if (!aOne || !aTwo)
+    }
+    if (!aOne || !aTwo) {
         return false;
+    }
     var len = aOne.length;
-    if (len != aTwo.length)
+    if (len != aTwo.length) {
         return false;
+    }
     for (var i = 0; i < len; ++i) {
-        if (!compareFunc(aOne[i], aTwo[i]))
+        if (!compareFunc(aOne[i], aTwo[i])) {
             return false;
+        }
     }
     return true;
 }
@@ -1130,11 +1134,13 @@ function checkIfInRange(item, rangeStart, rangeEnd, returnDtstartOrDue)
 function getProgressAtom(aTask) {
     var now = new Date();
 
-    if (aTask.recurrenceInfo)
-      return "repeating";
+    if (aTask.recurrenceInfo) {
+        return "repeating";
+    }
 
-    if (aTask.isCompleted)
-      return "completed";
+    if (aTask.isCompleted) {
+        return "completed";
+    }
 
     if (aTask.dueDate && aTask.dueDate.isValid) {
         if (cal.dateTimeToJsDate(aTask.dueDate).getTime() < now.getTime()) {

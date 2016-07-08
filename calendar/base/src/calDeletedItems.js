@@ -130,7 +130,9 @@ calDeletedItems.prototype = {
     },
 
     ensureStatements: function ensureStatements() {
-        if (!this.mDB) this.initDB();
+        if (!this.mDB) {
+            this.initDB();
+        }
 
         if (!this.stmtMarkDelete) {
             let stmt = "INSERT OR REPLACE INTO cal_deleted_items (cal_id, id, time_deleted, recurrence_id) VALUES(:calId, :id, :time, :rid)";
@@ -156,11 +158,13 @@ calDeletedItems.prototype = {
 
     shutdown: function shutdown() {
         try {
-            if (this.stmtMarkDelete) this.stmtMarkDelete.finalize();
-            if (this.stmtUnmarkDelete) this.stmtUnmarkDelete.finalize();
-            if (this.stmtGet) this.stmtGet.finalize();
-            if (this.stmtGetWithCal) this.stmtGetWithCal.finalize();
-            if (this.stmtFlush) this.stmtFlush.finalize();
+            let stmts = [
+                this.stmtMarkDelete, this.stmtUnmarkDelete, this.stmtGet,
+                this.stmtGetWithCal, this.stmtFlush
+            ];
+            for (let stmt of stmts) {
+                stmt.finalize();
+            }
 
             if (this.mDB) { this.mDB.asyncClose(); this.mDB = null; }
         } catch (e) {

@@ -52,13 +52,12 @@ function handleAddingAttachment(controller, url) {
  */
 function handleOccurrenceDeletion(controller, attendees) {
   let md = new modalDialog.modalDialog(controller.window);
-  md.start(
-    function(dialog){
-      if(attendees)
-        acceptSendingNotificationMail();
-      dialog.waitThenClick(new elementslib.ID(dialog.window.document, "accept-occurrence-button"));
+  md.start((dialog) => {
+    if (attendees) {
+      acceptSendingNotificationMail();
     }
-  );
+    dialog.waitThenClick(new elementslib.ID(dialog.window.document, "accept-occurrence-button"));
+  });
 }
 
 /**
@@ -68,13 +67,12 @@ function handleOccurrenceDeletion(controller, attendees) {
  */
 function handleParentDeletion(controller, attendees){
   let md = new modalDialog.modalDialog(controller.window);
-  md.start(
-    function(dialog){
-      if(attendees)
-        acceptSendingNotificationMail();
-      dialog.waitThenClick(new elementslib.ID(dialog.window.document, "accept-parent-button"));
+  md.start((dialog) => {
+    if (attendees) {
+      acceptSendingNotificationMail();
     }
-  );
+    dialog.waitThenClick(new elementslib.ID(dialog.window.document, "accept-parent-button"));
+  });
 }
 
 /**
@@ -240,30 +238,30 @@ function getEventBoxPath(controller, view, option, row, column, hour){
     default: path += dayView;
   }
 
-  if((view == "day" || view == "week") && option == ALLDAY){
+  if ((view == "day" || view == "week") && option == ALLDAY) {
     path += '/anon({"anonid":"mainbox"})/anon({"anonid":"headerbox"})/anon({"anonid":"headerdaybox"})';
     path += '/[' + (column - 1) + ']';
 
     return path;
-  }
-  else if(view == "day" || view == "week"){
+  } else if (view == "day" || view == "week") {
     path += '/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})';
     path += '/[' + (column - 1) + ']';
     path += '/anon({"anonid":"boxstack"})';
 
-    if(option == CANVAS_BOX)
+    if (option == CANVAS_BOX) {
       path += '/anon({"anonid":"bgbox"})/[' + hour + ']';
-    else
+    } else {
       path += '/anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}';
+    }
 
     return path;
-  }
-  else{
+  } else {
     path += '/anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/'
       + 'anon({"anonid":"monthgridrows"})/[' + (row - 1) + ']/[' + (column - 1) + ']';
 
-    if(option == CANVAS_BOX)
+    if (option == CANVAS_BOX) {
       path += '/anon({"anonid":"day-items"})';
+    }
 
     return path;
   }
@@ -302,10 +300,11 @@ function deleteCalendars(controller, name){
   let manager = defaultView.getCalendarManager();
   let cals = manager.getCalendars({});
 
-  for (let i = 0; i < cals.length; i++)
+  for (let i = 0; i < cals.length; i++) {
     if (cals[i].name == name) {
         manager.removeCalendar(cals[i]);
     }
+  }
 }
 
 /**
@@ -329,9 +328,11 @@ function createCalendar(controller, name){
     + 'id("calendarTabPanel")/id("calendarContent")/id("ltnSidebar")/id("calendar-panel")/'
     + 'id("calendar-list-pane")/id("calendar-listtree-pane")/id("calendar-list-tree-widget")'))
     .getNode();
-  for(i = 0; i < calendarTree.mCalendarList.length; i++)
-    if(calendarTree.mCalendarList[i].id == id)
+  for (i = 0; i < calendarTree.mCalendarList.length; i++) {
+    if (calendarTree.mCalendarList[i].id == id) {
       calendarTree.tree.view.selection.select(i);
+    }
+  }
 }
 
 /**
@@ -484,8 +485,9 @@ function setData(controller, data) {
   if (data.startdate != undefined && data.startdate.constructor.name == 'Date') {
     let startdate = dateService.FormatDate("", dateService.dateFormatShort,
       data.startdate.getFullYear(), data.startdate.getMonth() + 1, data.startdate.getDate());
-    if(!isEvent)
+    if (!isEvent) {
       controller.check(new elementslib.ID(controller.window.document, "todo-has-entrydate"), true);
+    }
     if (!mac) {
       controller.keypress(startDateInput, 'a', {ctrlKey: true});
       controller.type(startDateInput, startdate);
@@ -511,8 +513,9 @@ function setData(controller, data) {
   if (data.enddate != undefined && data.enddate.constructor.name == 'Date') {
     let enddate = dateService.FormatDate("", dateService.dateFormatShort,
       data.enddate.getFullYear(), data.enddate.getMonth() + 1, data.enddate.getDate());
-    if(!isEvent)
+    if (!isEvent) {
       controller.check(new elementslib.ID(controller.window.document, "todo-has-duedate"), true);
+    }
     if (!mac) {
       controller.keypress(endDateInput, 'a', {ctrlKey: true});
       controller.type(endDateInput, enddate);

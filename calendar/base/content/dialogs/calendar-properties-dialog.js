@@ -144,7 +144,9 @@ function initRefreshInterval() {
 
     if (gCalendar.canRefresh) {
         let refreshInterval = gCalendar.getProperty("refreshInterval");
-        if (refreshInterval === null) refreshInterval = 30;
+        if (refreshInterval === null) {
+            refreshInterval = 30;
+        }
 
         let foundValue = false;
         let separator = document.getElementById("calendar-refreshInterval-manual-separator");

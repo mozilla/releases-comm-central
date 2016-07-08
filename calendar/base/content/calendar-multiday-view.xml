@@ -73,8 +73,9 @@
         <body><![CDATA[
           var needsrelayout = false;
           if (aAttr == "orient") {
-              if (this.getAttribute("orient") != aVal)
+              if (this.getAttribute("orient") != aVal) {
                   needsrelayout = true;
+              }
           }
 
           // this should be done using lookupMethod(), see bug 286629
@@ -121,8 +122,9 @@
               return box;
           }
 
-          while (topbox.hasChildNodes())
+          while (topbox.hasChildNodes()) {
               topbox.lastChild.remove();
+          }
 
           var formatter = Components.classes["@mozilla.org/intl/scriptabledateformat;1"].
                           getService(Components.interfaces.nsIScriptableDateFormat);
@@ -139,7 +141,9 @@
                   dur = theMin % 60;
               }
               theMin += dur;
-              if (dur == 0) dur = 60;
+              if (dur == 0) {
+                  dur = 60;
+              }
 
               // calculate duration pixel as the difference between
               // start pixel and end pixel to avoid rounding errors.
@@ -293,11 +297,12 @@
           return this.mPixPerMin;
         ]]></getter>
         <setter><![CDATA[
-          if (val <= 0.0)
-            val = 0.01;
+          if (val <= 0.0) {
+              val = 0.01;
+          }
           if (val != this.mPixPerMin) {
-            this.mPixPerMin = val;
-            this.relayout();
+              this.mPixPerMin = val;
+              this.relayout();
           }
           return val;
         ]]></setter>
@@ -461,8 +466,9 @@
       <method name="endLayoutBatchChange">
         <body><![CDATA[
             this.mLayoutBatchCount--;
-            if (this.mLayoutBatchCount == 0)
-              this.relayout();
+            if (this.mLayoutBatchCount == 0) {
+                this.relayout();
+            }
         ]]></body>
       </method>
 
@@ -607,8 +613,9 @@
       <method name="deleteEvent">
         <parameter name="aOccurrence"/>
         <body><![CDATA[
-           if (this.internalDeleteEvent(aOccurrence))
-             this.relayout();
+           if (this.internalDeleteEvent(aOccurrence)) {
+               this.relayout();
+           }
         ]]></body>
       </method>
 
@@ -631,8 +638,9 @@
       <method name="relayout">
         <body><![CDATA[
 
-          if (this.mLayoutBatchCount > 0)
+          if (this.mLayoutBatchCount > 0) {
               return;
+          }
           this.clear();
 
           let orient = this.getAttribute("orient");
@@ -653,7 +661,9 @@
           while (theMin < this.mEndMin) {
               let dur = theMin % 60;
               theMin += dur;
-              if (dur == 0) dur = 60;
+              if (dur == 0) {
+                  dur = 60;
+              }
 
               let box = createXULElement("spacer");
               // we key off this in a CSS selector
@@ -678,10 +688,11 @@
               let startPix = Math.round(theMin * this.mPixPerMin);
               let endPix   = Math.round((theMin + dur) * this.mPixPerMin);
               let durPix   = endPix - startPix;
-              if (orient == "vertical")
+              if (orient == "vertical") {
                   box.setAttribute("height", durPix);
-              else
+              } else {
                   box.setAttribute("width", durPix);
+              }
 
               box.setAttribute("style", "min-width: 1px; min-height: 1px;");
 
@@ -1423,7 +1434,9 @@
         <parameter name="event"/>
         <body><![CDATA[
           let col = document.calendarEventColumnDragging;
-          if (!col) return;
+          if (!col) {
+              return;
+          }
 
           col.setupMagicScroll(event);
 
@@ -1613,7 +1626,9 @@
         <parameter name="event"/>
         <body><![CDATA[
           let col = document.calendarEventColumnDragging;
-          if (!col) return;
+          if (!col) {
+              return;
+          }
 
           let dragState = col.mDragState;
 
@@ -1640,11 +1655,13 @@
           if (dragState.origColumn == col) {
               var ignore = false;
               if (col.getAttribute("orient") == "vertical") {
-                  if (Math.abs(event.screenY - dragState.origLoc) < 3)
+                  if (Math.abs(event.screenY - dragState.origLoc) < 3) {
                       ignore = true;
+                  }
               } else {
-                  if (Math.abs(event.screenX - dragState.origLoc) < 3)
+                  if (Math.abs(event.screenX - dragState.origLoc) < 3) {
                       ignore = true;
+                  }
               }
 
               if (ignore) {
@@ -1896,10 +1913,11 @@
               // we need to set a mouse offset, since we're not dragging from
               // one end of the element
               if (aEventBox) {
-                  if (this.getAttribute("orient") == "vertical")
+                  if (this.getAttribute("orient") == "vertical") {
                       this.mDragState.mouseOffset = aMouseY - aEventBox.boxObject.screenY;
-                  else
+                  } else {
                       this.mDragState.mouseOffset = aMouseX - aEventBox.boxObject.screenX;
+                  }
               }
           } else {
               // Invalid grabbed element.
@@ -1935,7 +1953,9 @@
         <parameter name="aFirstColumn"/>
         <parameter name="aLastColumn"/>
         <body><![CDATA[
-          if (!this.mDragState) return;
+          if (!this.mDragState) {
+              return;
+          }
 
           let firstColumn = (aFirstColumn || this);
           let lastColumn = (aLastColumn || this);
@@ -2312,16 +2332,16 @@
         <body><![CDATA[
           var needsrelayout = false;
           if (aAttr == "orient") {
-              if (this.getAttribute("orient") != aVal)
+              if (this.getAttribute("orient") != aVal) {
                   needsrelayout = true;
+              }
           }
 
           // this should be done using lookupMethod(), see bug 286629
           var ret = XULElement.prototype.setAttribute.call (this, aAttr, aVal);
 
           if (needsrelayout) {
-              var otherorient = "vertical";
-              if (val != "horizontal") otherorient = "horizontal";
+              var otherorient = (val == "vertical" ? "horizontal" : "vertical");
               var eventbox = document.getAnonymousElementByAttribute(this, "anonid", "eventbox");
               eventbox.setAttribute("orient", val);
               var gb1 = document.getAnonymousElementByAttribute(this, "anonid", "gripbar1");
@@ -2359,8 +2379,9 @@
 
       <property name="startMinute" readonly="true">
         <getter><![CDATA[
-            if (!this.mOccurrence)
+            if (!this.mOccurrence) {
                 return 0;
+            }
             var startDate = this.mOccurrence.startDate || this.mOccurrence.entryDate;
             return startDate.hour * 60 + startDate.minute;
         ]]></getter>
@@ -2368,8 +2389,9 @@
 
       <property name="endMinute" readonly="true">
         <getter><![CDATA[
-            if (!this.mOccurrence)
+            if (!this.mOccurrence) {
                 return 0;
+            }
             var endDate = this.mOccurrence.endDate || this.mOccurrence.dueDate;
             return endDate.hour * 60 + endDate.minute;
         ]]></getter>
@@ -2398,8 +2420,9 @@
       <handler event="mousedown" button="0"><![CDATA[
         event.stopPropagation();
 
-        if (this.mEditing)
+        if (this.mEditing) {
             return;
+        }
 
         this.parentColumn.calendarView.selectedDay = this.parentColumn.mDate;
         this.mMouseX = event.screenX;
@@ -2427,8 +2450,10 @@
       ]]></handler>
 
       <handler event="mousemove"><![CDATA[
-        if (!this.mInMouseDown)
+        if (!this.mInMouseDown) {
             return;
+        }
+
         var dx = Math.abs(event.screenX - this.mMouseX);
         var dy = Math.abs(event.screenY - this.mMouseY);
         // more than a 3 pixel move?
@@ -2466,8 +2491,9 @@
       ]]></handler>
 
       <handler event="mouseup"><![CDATA[
-        if (this.mEditing)
+        if (this.mEditing) {
             return;
+        }
 
         this.mInMouseDown = false;
       ]]></handler>
@@ -2789,17 +2815,25 @@
 
       <property name="startDate">
         <getter><![CDATA[
-          if (this.mStartDate) return this.mStartDate;
-          else if (this.mDateList && this.mDateList.length > 0) return this.mDateList[0];
-          else return null;
+          if (this.mStartDate) {
+              return this.mStartDate;
+          } else if (this.mDateList && this.mDateList.length > 0) {
+              return this.mDateList[0];
+          } else {
+              return null;
+          }
         ]]></getter>
       </property>
 
       <property name="endDate">
         <getter><![CDATA[
-          if (this.mEndDate) return this.mEndDate;
-          else if (this.mDateList && this.mDateList.length > 0) return this.mDateList[this.mDateList.length-1];
-          else return null;
+          if (this.mEndDate) {
+              return this.mEndDate;
+          } else if (this.mDateList && this.mDateList.length > 0) {
+              return this.mDateList[this.mDateList.length - 1];
+          } else {
+              return null;
+          }
         ]]></getter>
       </property>
 
@@ -2811,13 +2845,15 @@
 
           if (this.mStartDate && this.mEndDate) {
               if (this.mStartDate.compare(targetDate) <= 0 &&
-                  this.mEndDate.compare(targetDate) >= 0)
+                  this.mEndDate.compare(targetDate) >= 0) {
                   return;
+              }
           } else if (this.mDateList) {
               for (var d of this.mDateList) {
                   // if date is already visible, nothing to do
-                  if (d.compare(targetDate) == 0)
+                  if (d.compare(targetDate) == 0) {
                       return;
+                  }
               }
           }
 
@@ -3135,8 +3171,9 @@
 
       <property name="numVisibleDates" readonly="true">
         <getter><![CDATA[
-          if (this.mDateList)
+          if (this.mDateList) {
             return this.mDateList.length;
+          }
 
           var count = 0;
 
@@ -3174,21 +3211,25 @@
           var needsreorient = false;
           var needsrelayout = false;
           if (aAttr == "orient") {
-              if (this.getAttribute("orient") != aVal)
+              if (this.getAttribute("orient") != aVal) {
                   needsreorient = true;
+              }
           }
 
-          if (aAttr == "context" || aAttr == "item-context")
+          if (aAttr == "context" || aAttr == "item-context") {
               needsrelayout = true;
+          }
 
           // this should be done using lookupMethod(), see bug 286629
           var ret = XULElement.prototype.setAttribute.call (this, aAttr, aVal);
 
-          if (needsrelayout && !needsreorient)
+          if (needsrelayout && !needsreorient) {
               this.relayout();
+          }
 
-          if (needsreorient)
+          if (needsreorient) {
               this.reorient();
+          }
 
           return ret;
         ]]></body>
@@ -3196,10 +3237,8 @@
 
       <method name="reorient">
         <body><![CDATA[
-          let orient = this.getAttribute("orient");
-          let otherorient = "vertical";
-          if (!orient) orient = "horizontal";
-          if (orient == "vertical") otherorient = "horizontal";
+          let orient = this.getAttribute("orient") || "horizontal";
+          let otherorient = (orient == "vertical" ? "horizontal" : "vertical");
 
           if (orient == "horizontal") {
               this.pixelsPerMinute = 1.5;
@@ -3254,9 +3293,8 @@
               return;
           }
 
-          var orient = this.getAttribute("orient");
-          if (!orient) orient = "horizontal";
-          var otherorient = getOtherOrientation(orient);
+          let orient = this.getAttribute("orient") || "horizontal";
+          let otherorient = getOtherOrientation(orient);
 
           let computedDateList = new Array();
           let startDate = this.mStartDate.clone();
@@ -3459,8 +3497,9 @@
               return null;
           }
           for (var col of this.mDateColumns) {
-              if (col.date.compare(aDate) == 0)
+              if (col.date.compare(aDate) == 0) {
                   return col;
+              }
           }
           return null;
         ]]></body>
@@ -3606,8 +3645,9 @@
         <parameter name="aEvent"/>
         <body><![CDATA[
           var cols = this.findColumnsForItem(aEvent);
-          if (!cols.length)
+          if (!cols.length) {
               return;
+          }
 
           for (let col of cols) {
               let column = col.column;
@@ -3629,8 +3669,9 @@
         <parameter name="aEvent"/>
         <body><![CDATA[
           var cols = this.findColumnsForItem(aEvent);
-          if (!cols.length)
+          if (!cols.length) {
               return;
+          }
 
           var oldLength = this.mSelectedItems.length;
           this.mSelectedItems = this.mSelectedItems.filter((item) => {

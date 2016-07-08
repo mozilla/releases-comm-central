@@ -135,10 +135,12 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
                                                  null,
                                                  Components.interfaces.nsILoadInfo.SEC_NORMAL,
                                                  Components.interfaces.nsIContentPolicy.TYPE_OTHER);
-    if (icsURL.schemeIs('webcal'))
+    if (icsURL.schemeIs('webcal')) {
         icsURL.scheme = 'http';
-    if (icsURL.schemeIs('webcals'))
+    }
+    if (icsURL.schemeIs('webcals')) {
         icsURL.scheme = 'https';
+    }
 
     switch(icsURL.scheme) {
         case 'http':
@@ -202,16 +204,8 @@ var notificationCallbacks =
 }
 
 
-var publishingListener =
-{
-    QueryInterface: function(aIId, instance)
-    {
-        if (aIId.equals(Components.interfaces.nsIStreamListener) ||
-            aIId.equals(Components.interfaces.nsISupports))
-            return this;
-
-        throw Components.results.NS_ERROR_NO_INTERFACE;
-    },
+var publishingListener = {
+    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIStreamListener]),
 
     onStartRequest: function(request, ctxt)
     {

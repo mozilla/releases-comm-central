@@ -77,8 +77,9 @@ calTodo.prototype = {
 
     set isCompleted(v) {
         if (v) {
-            if (!this.completedDate)
+            if (!this.completedDate) {
                 this.completedDate = cal.jsDateToDateTime(new Date());
+            }
             this.status = "COMPLETED";
             this.percentComplete = 100;
         } else {
@@ -173,8 +174,9 @@ calTodo.prototype = {
         this.modify();
         if (todo.componentType != "VTODO") {
             todo = todo.getFirstSubcomponent("VTODO");
-            if (!todo)
+            if (!todo) {
                 throw Components.results.NS_ERROR_INVALID_ARG;
+            }
         }
 
         this.mDueDate = undefined;

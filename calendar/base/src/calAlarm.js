@@ -82,8 +82,9 @@ calAlarm.prototype = {
             let val = prop.value;
 
             if (prop.value instanceof Components.interfaces.calIDateTime) {
-                if (prop.value.isMutable)
+                if (prop.value.isMutable) {
                     prop.value.makeImmutable();
+                }
             }
         }
 

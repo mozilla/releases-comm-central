@@ -124,8 +124,9 @@ calItemBase.prototype = {
         return (this.mParentItem || this);
     },
     set parentItem(value) {
-        if (this.mImmutable)
+        if (this.mImmutable) {
             throw Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE;
+        }
         return (this.mParentItem = calTryWrappedJSObject(value));
     },
 
@@ -163,8 +164,9 @@ calItemBase.prototype = {
      * mDirty property.
      */
     modify: function cIB_modify() {
-        if (this.mImmutable)
+        if (this.mImmutable) {
             throw Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE;
+        }
         this.mDirty = true;
     },
 
@@ -191,11 +193,13 @@ calItemBase.prototype = {
         }
 
         // make all our components immutable
-        if (this.mRecurrenceInfo)
+        if (this.mRecurrenceInfo) {
             this.mRecurrenceInfo.makeImmutable();
+        }
 
-        if (this.mOrganizer)
+        if (this.mOrganizer) {
             this.mOrganizer.makeImmutable();
+        }
         if (this.mAttendees) {
             for (let att of this.mAttendees) {
                 att.makeImmutable();
@@ -684,8 +688,9 @@ calItemBase.prototype = {
         }
     },
     set calendar(v) {
-        if (this.mImmutable)
+        if (this.mImmutable) {
             throw Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE;
+        }
         this.mHashId = null; // recompute hashId
         this.mCalendar = v;
     },
@@ -786,8 +791,9 @@ calItemBase.prototype = {
         for (var i = 0; i < propmap.length; i++) {
             var prop = propmap[i];
             var val = icalcomp[prop.ics];
-            if (val != null && val != Components.interfaces.calIIcalComponent.INVALID_VALUE)
+            if (val != null && val != Components.interfaces.calIIcalComponent.INVALID_VALUE) {
                 this.setProperty(prop.cal, val);
+            }
         }
     },
 
@@ -803,8 +809,9 @@ calItemBase.prototype = {
         for (var i = 0; i < propmap.length; i++) {
             var prop = propmap[i];
             var val = this.getProperty(prop.cal);
-            if (val != null && val != Components.interfaces.calIIcalComponent.INVALID_VALUE)
+            if (val != null && val != Components.interfaces.calIIcalComponent.INVALID_VALUE) {
                 icalcomp[prop.ics] = val;
+            }
         }
     },
 

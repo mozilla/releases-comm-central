@@ -304,8 +304,9 @@ calICSCalendar.prototype = {
         cal.LOG("[calICSCalendar] Commencing write of ICS Calendar " + this.name);
         this.lock();
         try {
-            if (!this.mUri)
+            if (!this.mUri) {
                 throw Components.results.NS_ERROR_FAILURE;
+            }
             // makeBackup will call doWriteICS
             this.makeBackup(this.doWriteICS);
         } catch (exc) {
@@ -467,23 +468,26 @@ calICSCalendar.prototype = {
         this.adoptItem(aItem.clone(), aListener);
     },
     adoptItem: function (aItem, aListener) {
-        if (this.readOnly)
+        if (this.readOnly) {
             throw calIErrors.CAL_IS_READONLY;
+        }
         this.queue.push({action:'add', item:aItem, listener:aListener});
         this.processQueue();
     },
 
     modifyItem: function (aNewItem, aOldItem, aListener) {
-        if (this.readOnly)
+        if (this.readOnly) {
             throw calIErrors.CAL_IS_READONLY;
+        }
         this.queue.push({action:'modify', oldItem: aOldItem,
                          newItem: aNewItem, listener:aListener});
         this.processQueue();
     },
 
     deleteItem: function (aItem, aListener) {
-        if (this.readOnly)
+        if (this.readOnly) {
             throw calIErrors.CAL_IS_READONLY;
+        }
         this.queue.push({action:'delete', item:aItem, listener:aListener});
         this.processQueue();
     },
@@ -505,8 +509,9 @@ calICSCalendar.prototype = {
 
     processQueue: function ()
     {
-        if (this.isLocked())
+        if (this.isLocked()) {
             return;
+        }
 
         function modListener(action) {
             this.mAction = action;
@@ -700,10 +705,11 @@ calICSCalendar.prototype = {
                 }
             }
 
-            if (doDailyBackup)
+            if (doDailyBackup) {
                 purgeBackupsByType(files, 'day');
-            else
+            } else {
                 purgeBackupsByType(files, 'edit');
+            }
 
             return;
         }
@@ -760,8 +766,9 @@ calICSCalendar.prototype = {
         var doInitialBackup = false;
         var initialBackupFile = backupDir.clone();
         initialBackupFile.append(makeName('initial'));
-        if (!initialBackupFile.exists())
+        if (!initialBackupFile.exists()) {
             doInitialBackup = true;
+        }
 
         var doDailyBackup = false;
         var backupTime = this.getProperty('backup-time2');
@@ -799,10 +806,12 @@ calICSCalendar.prototype = {
         var savedthis = this;
         var listener = {
             onDownloadComplete: function(downloader, request, ctxt, status, result) {
-                if (doInitialBackup)
+                if (doInitialBackup) {
                     copyToOverwriting(result, backupDir, makeName('initial'));
-                if (doDailyBackup)
+                }
+                if (doDailyBackup) {
                     copyToOverwriting(result, backupDir, dailyBackupFileName);
+                }
 
                 aCallback.call(savedthis);
             }

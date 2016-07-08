@@ -108,8 +108,9 @@
               var child = mainbox.childNodes[i];
               if (child.getAttribute("checked") == "true") {
                   var index = i + this.weekStartOffset;
-                  if (index >= 7)
-                  index -= 7;
+                  if (index >= 7) {
+                      index -= 7;
+                  }
                   days.push(index + 1);
               }
           }

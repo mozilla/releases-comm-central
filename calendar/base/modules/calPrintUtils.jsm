@@ -186,14 +186,15 @@ cal.print = {
             // Events that span two or more days.
             let compareStart = aBoxDate.compare(start);
             let compareEnd = aBoxDate.compare(end);
-            if (compareStart == 0)
+            if (compareStart == 0) {
                 return "\u21e4 " + dateFormatter.formatTime(startDate); // unicode '⇤'
-            else if (compareStart > 0 && compareEnd < 0)
+            } else if (compareStart > 0 && compareEnd < 0) {
                 return "\u21ff";                                        // unicode '↔'
-            else if (compareEnd == 0)
+            } else if (compareEnd == 0) {
                 return "\u21e5 " + dateFormatter.formatTime(endDate);   // unicode '⇥'
-            else
+            } else {
                 return "";
+            }
         }
     }
 }

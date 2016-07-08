@@ -1095,8 +1095,9 @@ function calWcapCalendar_getItem(id, listener) {
                     this_.issueNetworkRequest(
                         request,
                         function fetchTodosById_resp(err, icalRootComp) {
-                            if (err)
+                            if (err) {
                                 throw err;
+                            }
                             notifyResult(icalRootComp);
                         },
                         stringToIcal, "fetchtodos_by_id", params, calIWcapCalendar.AC_COMP_READ);

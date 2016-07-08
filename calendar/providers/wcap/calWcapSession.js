@@ -486,8 +486,9 @@ calWcapSession.prototype = {
             this.issueNetworkRequest_(
                 request,
                 function userprefs_resp(err, data) {
-                    if (err)
+                    if (err) {
                         throw err;
+                    }
                     this_.credentials.userPrefs = data;
                     log("installed user prefs.", this_);
 
@@ -751,10 +752,11 @@ calWcapSession.prototype = {
                                 var data;
                                 if (!err) {
                                     try {
-                                        if (dataConvFunc)
+                                        if (dataConvFunc) {
                                             data = dataConvFunc(this_, str);
-                                        else
+                                        } else {
                                             data = str;
+                                        }
                                     } catch (exc) {
                                         err = exc;
                                     }

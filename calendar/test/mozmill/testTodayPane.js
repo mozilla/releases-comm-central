@@ -51,8 +51,9 @@ var testTodayPane = function () {
   let startHour = (hour < 18)? hour + 6 : 23;
   let view = (new elementslib.Lookup(controller.window.document, dayView)).getNode();
 
-  if(startHour < 8 || startHour > 16)
+  if (startHour < 8 || startHour > 16) {
     view.scrollToMinute(60 * startHour);
+  }
 
   controller.doubleClick(new elementslib.Lookup(controller.window.document, dayView
     + 'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/'
@@ -88,8 +89,9 @@ var testTodayPane = function () {
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0});
 
   // go 5 days forward and add an event
-  for(let i = 0; i < 5; i++)
+  for (let i = 0; i < 5; i++) {
     controller.click(new elementslib.ID(controller.window.document, "next-view-button"));
+  }
   controller.sleep(WAIT_FOR_WINDOW_TIMEOUT);
 
   controller.doubleClick(new elementslib.Lookup(controller.window.document, dayView
