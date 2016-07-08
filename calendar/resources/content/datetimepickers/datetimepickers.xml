@@ -1668,7 +1668,7 @@
                 }
               }
               tempDate = new Date(year, month, day, hours, minutes, seconds, 0);
-            } //else did not match regex, not a valid date
+            } // else did not match regex, not a valid date
             return tempDate;
           ]]>
         </body>

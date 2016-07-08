@@ -1162,7 +1162,7 @@
           var rowHeight = obo.rowHeight;
           var rowWidth = bo.width;
 
-          //add a rectangle for each visible selected row
+          // add a rectangle for each visible selected row
           for (var i = obo.getFirstVisibleRow(); i <= obo.getLastVisibleRow(); i ++) {
             if (sel.isSelected(i)) {
               region.unionRect(rowX, rowY, rowWidth, rowHeight);
@@ -1170,7 +1170,7 @@
             rowY = rowY + rowHeight;
           }
 
-          //and finally, clip the result to be sure we don't spill over...
+          // and finally, clip the result to be sure we don't spill over...
           if (!region.isEmpty()) {
             region.intersectRect(bo.x, bo.y, bo.width, bo.height);
           }

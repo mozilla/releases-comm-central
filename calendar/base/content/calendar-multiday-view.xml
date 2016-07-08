@@ -95,12 +95,10 @@
 
       <method name="relayout">
         <body><![CDATA[
-          //dump ("calendar-time-bar: relayout\n");
           var topbox = document.getAnonymousElementByAttribute(this, "anonid", "topbox");
           var orient = topbox.getAttribute("orient");
           var otherorient = getOtherOrientation(orient);
 
-          //dump ("calendar-time-bar: orient: " + orient + " other: " + otherorient + "\n");
 
           function makeTimeBox(timestr, size) {
               var box = createXULElement("box");
@@ -339,7 +337,6 @@
           this.mDate = val;
 
           if (!compareObjects(val.timezone, this.mTimezone)) {
-              //dump ("++ column tz: " + val.timezone + "\n");
               this.mTimezone = val.timezone;
               if (!this.mLayoutBatchCount) {
                   this.recalculateStartEndMinutes();

@@ -94,7 +94,7 @@ function getDateFormatter() {
                      .getService(Components.interfaces.calIDateTimeFormatter);
 }
 
-/// @return the UTC timezone.
+// @return the UTC timezone.
 function UTC() {
     if (UTC.mObject === undefined) {
         UTC.mObject = getTimezoneService().UTC;
@@ -102,7 +102,7 @@ function UTC() {
     return UTC.mObject;
 }
 
-/// @return the floating timezone.
+// @return the floating timezone.
 function floating() {
     if (floating.mObject === undefined) {
         floating.mObject = getTimezoneService().floating;
@@ -892,9 +892,10 @@ function setDefaultStartEndHour(aItem, aReferenceDate) {
     }
 }
 
-/****
- **** debug code
- ****/
+/**
+ * Helper used in the following log functions to actually log the message.
+ * Should not be used outside of this file.
+ */
 function _log(message, flag) {
     let frame = Components.stack.caller.caller;
     let filename = frame.filename ? frame.filename.split(" -> ").pop() : null;
@@ -1170,13 +1171,13 @@ calInterfaceBag.prototype = {
     // Iterating the inteface bag iterates the interfaces it contains
     [Symbol.iterator]: function() { return this.mInterfaces[Symbol.iterator](); },
 
-    /// internal:
+    // internal:
     init: function calInterfaceBag_init(iid) {
         this.mIid = iid;
         this.mInterfaces = [];
     },
 
-    /// external:
+    // external:
     get size() {
         return this.mInterfaces.length;
     },

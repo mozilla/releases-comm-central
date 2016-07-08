@@ -177,22 +177,22 @@ calIcsParser.prototype = {
 
     getItems: function ip_getItems(aCount) {
         aCount.value = this.mItems.length;
-        return this.mItems.concat([]); //clone
+        return this.mItems.concat([]);
     },
 
     getParentlessItems: function ip_getParentlessItems(aCount) {
         aCount.value = this.mParentlessItems.length;
-        return this.mParentlessItems.concat([]); //clone
+        return this.mParentlessItems.concat([]);
     },
 
     getProperties: function ip_getProperties(aCount) {
         aCount.value = this.mProperties.length;
-        return this.mProperties.concat([]); //clone
+        return this.mProperties.concat([]);
     },
 
     getComponents: function ip_getComponents(aCount) {
         aCount.value = this.mComponents.length;
-        return this.mComponents.concat([]); //clone
+        return this.mComponents.concat([]);
     }
 };
 

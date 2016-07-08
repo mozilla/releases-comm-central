@@ -135,8 +135,6 @@ var testEventDialogModificationPrompt = function () {
     // delete it
     // XXX somehow the event is selected at this point, this didn't use to be the case
     // and can't be reproduced manually
-    /*controller.click(new elementslib.Lookup(controller.window.document,
-      calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8)));*/
     controller.keypress(new elementslib.ID(controller.window.document, "day-view"),
       "VK_DELETE", {});
     controller.waitForElementNotPresent(new elementslib.Lookup(controller.window.document,

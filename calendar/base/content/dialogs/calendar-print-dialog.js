@@ -84,7 +84,7 @@ function getPrintSettings(receiverFunc) {
     var theView = getCalendarView();
     switch (document.getElementById("view-field").selectedItem.value) {
     case 'currentView':
-    case '': //just in case
+    case '': // just in case
         settings.start = theView.startDay.clone();
         settings.end = theView.endDay.clone();
         settings.end.day += 1;

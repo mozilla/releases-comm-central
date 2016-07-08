@@ -51,7 +51,6 @@
           let date;
           if (this.mode == "start") {
               date = this.mItem[calGetStartDateProp(this.mItem)];
-              //this.mItem.startDate || this.mItem.entryDate;
               if (date) {
                   let label;
                   if (isToDo(this.mItem)) {

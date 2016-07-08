@@ -343,8 +343,6 @@
               input.attendee = newAttendee;
 
               // set role and participation status
-              //status.setAttribute("status", newAttendee.participationStatus);
-              //role.setAttribute("role", newAttendee.role);
               roleStatusIcon.setAttribute("class", "role-icon");
               roleStatusIcon.setAttribute("role", "REQ-PARTICIPANT");
               userTypeIcon.setAttribute("cutype", "INDIVIDUAL");
@@ -395,7 +393,7 @@
               }
 
               attendee.role = this.getRoleElement(i).getAttribute("role");
-              //attendee.participationStatus = this.getStatusElement(i).getAttribute("status");
+              // attendee.participationStatus = this.getStatusElement(i).getAttribute("status");
               let userType = this.getUserTypeElement(i).getAttribute("cutype");
               attendee.userType = (userType == "INDIVIDUAL" ? null : userType) // INDIVIDUAL is the default
 
@@ -438,7 +436,7 @@
               // object, we just need to fill in the name.
               let attendee = inputField.attendee.clone();
 
-              //attendee.role = this.getRoleElement(i).getAttribute("role");
+              // attendee.role = this.getRoleElement(i).getAttribute("role");
               attendee.participationStatus = this.getStatusElement(i).getAttribute("status");
               // Organizers do not have a CUTYPE
               attendee.userType = null;

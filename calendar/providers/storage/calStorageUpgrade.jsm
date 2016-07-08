@@ -1350,7 +1350,7 @@ upgrade.v20 = function upgrade_v20(db, version) {
     LOGdb(db, "Storage: Upgrading to v20");
     beginTransaction(db);
     try {
-        //Adding a offline_journal column
+        // Adding a offline_journal column
         for (let tblName of ["cal_events", "cal_todos"]) {
             addColumn(tbl, tblName, ["offline_journal"], "INTEGER", db);
         }

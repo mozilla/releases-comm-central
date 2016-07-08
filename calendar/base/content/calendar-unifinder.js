@@ -765,7 +765,7 @@ var unifinderTreeView = {
             case "endDate":
                 let eventEndDate = calendarEvent.endDate.clone();
                 // XXX reimplement
-                //let eventEndDate = getCurrentNextOrPreviousRecurrence(calendarEvent);
+                // let eventEndDate = getCurrentNextOrPreviousRecurrence(calendarEvent);
                 if (calendarEvent.startDate.isDate) {
                     // display enddate is ical enddate - 1
                     eventEndDate.day = eventEndDate.day - 1;

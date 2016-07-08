@@ -458,9 +458,9 @@ calItemBase.prototype = {
                 (paramName in this.mPropertyParams[propName]));
     },
 
-    //void setPropertyParameter(in AString aPropertyName,
-    //                          in AString aParameterName,
-    //                          in AUTF8String aParameterValue);
+    // void setPropertyParameter(in AString aPropertyName,
+    //                           in AString aParameterName,
+    //                           in AUTF8String aParameterValue);
     setPropertyParameter: function cIB_setPropertyParameter(aPropName, aParamName, aParamValue) {
         let propName = aPropName.toUpperCase();
         let paramName = aParamName.toUpperCase();

@@ -463,7 +463,7 @@ calCachedCalendar.prototype = {
         }
     },
 
-    //aOldItem is already in the cache
+    // aOldItem is already in the cache
     promptOverwrite: function cCC_promptOverwrite(aMethod, aItem, aListener, aOldItem) {
         let overwrite = cal.promptOverwrite(aMethod, aItem, aListener, aOldItem);
         if (overwrite) {

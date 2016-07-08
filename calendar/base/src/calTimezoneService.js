@@ -486,7 +486,7 @@ function guessSystemTimezone() {
             // found period that covers today.
             if (!isForNextTransitionDate) {
                 return period;
-            } else /*isForNextTranstionDate*/ {
+            } else {
                 if (todayUTC.nativeTime < periodStartCalDate.nativeTime) {
                     // already know periodStartCalDate < oneYr from now,
                     // and transitions are at most once per year, so it is next.

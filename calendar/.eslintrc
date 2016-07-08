@@ -121,6 +121,9 @@
     // Disallow Yoda conditions (where literal value comes first).
     "yoda": 2,
 
+    // Require a space immediately following the // in a line comment.
+    "spaced-comment": [2, "always"],
+
     // Will enable these rules later
     "keyword-spacing": 0,
     "block-spacing": 0,

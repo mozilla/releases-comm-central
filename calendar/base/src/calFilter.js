@@ -354,7 +354,7 @@ calFilter.prototype = {
             return true;
         }
 
-        //XXX TODO: Support specifying which fields to search on
+        // TODO: Support specifying which fields to search on
         for (let field of ["SUMMARY", "DESCRIPTION", "LOCATION", "URL"]) {
             let val = aItem.getProperty(field);
             if (val && val.toLowerCase().includes(searchText)) {

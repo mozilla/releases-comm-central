@@ -15,13 +15,13 @@ function valid_tz_version(aVersionString) {
     return (aVersionString.match(/^2\.(\d{4})(z*[a-z])$/));
 }
 
-//check tz database version
+// check tz database version
 add_task(function* version_test() {
     let tzs = cal.getTimezoneService();
     ok(valid_tz_version(tzs.version), "timezone version");
 });
 
-//check whether all tz definitions have all properties
+// check whether all tz definitions have all properties
 add_task(function* zone_test() {
     function resolveZone(aZoneId) {
         let tz = tzs.getTimezone(aZoneId);

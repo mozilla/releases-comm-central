@@ -127,11 +127,12 @@ calMemoryCalendar.prototype = {
             return;
         }
 
-        //Lines below are commented because of the offline bug 380060
-        //Memory Calendar cannot assume that a new item should not have an ID.
-        //calCachedCalendar could send over an item with an id.
+        // Lines below are commented because of the offline bug 380060, the
+        // memory calendar cannot assume that a new item should not have an ID.
+        // calCachedCalendar could send over an item with an id.
 
-        /*if (this.mItems[aItem.id] != null) {
+        /*
+        if (this.mItems[aItem.id] != null) {
             if (this.relaxedMode) {
                 // we possibly want to interact with the user before deleting
                 delete this.mItems[aItem.id];
@@ -143,7 +144,8 @@ calMemoryCalendar.prototype = {
                                              "ID already exists for addItem");
                 return;
             }
-        }*/
+        }
+        */
 
         let parentItem = aItem.parentItem;
         if (parentItem != aItem) {

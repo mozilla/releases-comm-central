@@ -259,7 +259,7 @@ function test_lastack() {
     e.alarmLastAck = cal.createDateTime("20120101T010101");
 
     // Our items don't support this yet
-    //equal(e.getProperty("X-MOZ-LASTACK"), "20120101T010101");
+    //  equal(e.getProperty("X-MOZ-LASTACK"), "20120101T010101");
 
     let comp = e.icalComponent;
     let prop = comp.getFirstProperty("X-MOZ-LASTACK");

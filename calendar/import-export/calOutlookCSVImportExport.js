@@ -139,11 +139,11 @@ calOutlookCSVImporter.prototype = {
             return [];
         }
 
-        //strip header from string
+        // strip header from string
         str = str.slice(trimResults[0].length);
 
         let args = {};
-        //args.fieldList contains the field names from the first row of CSV
+        // args.fieldList contains the field names from the first row of CSV
         args.fieldList = header;
 
         let locale;
@@ -357,11 +357,11 @@ calOutlookCSVImporter.prototype = {
                     }
                 }
 
-                //save the event into return array
+                // save the event into return array
                 eventArray.push(event);
             }
 
-            //get next events fields
+            // get next events fields
             eventFields = eventRegExp.exec(str);
 
         } while (eventRegExp.lastIndex != 0);
@@ -374,7 +374,7 @@ calOutlookCSVImporter.prototype = {
     parseDateTime: function parseDateTime(aDate, aTime, aLocale) {
         let dt = cal.createDateTime();
 
-        //XXX Can we do better?
+        // XXX Can we do better?
         dt.timezone = cal.floating();
 
         let rd = aLocale.dateRe.exec(aDate);

@@ -33,7 +33,7 @@ function test_rules() {
         // Check number of items
         dump("Expected " + expected.length + " occurrences\n");
         dump("Got: " + recdates.map(x => x.toString()) + "\n");
-        //equal(recdates.length, expected.length);
+        equal(recdates.length, expected.length);
         let fmt = cal.getDateFormatter();
 
         for (let i = 0; i < expected.length; i++) {

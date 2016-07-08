@@ -874,7 +874,7 @@ calICSObserver.prototype = {
     }
 };
 
-/***************************
+/*
  * Transport Abstraction Hooks
  *
  * Those hooks provide a way to do checks before or after publishing an

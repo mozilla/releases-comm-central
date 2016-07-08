@@ -670,7 +670,6 @@ calStorageCalendar.prototype = {
     getItems_: function cSC_getItems_(aItemFilter, aCount,
                                       aRangeStart, aRangeEnd, aListener)
     {
-        //var profStartTime = Date.now();
         if (!aListener) {
             return;
         }
@@ -757,15 +756,11 @@ calStorageCalendar.prototype = {
             }
 
             if (queuedItems.length != 0 && (!theItems || queuedItems.length > maxQueueSize)) {
-                //var listenerStart = Date.now();
                 aListener.onGetResult(self.superCalendar,
                                       Components.results.NS_OK,
                                       queuedItemsIID, null,
                                       queuedItems.length, queuedItems);
-                //var listenerEnd = Date.now();
-                //dump ("++++ listener callback took: " + (listenerEnd - listenerStart) + " ms\n");
-
-                queuedItems = [ ];
+                queuedItems = [];
             }
         }
 
@@ -951,8 +946,6 @@ calStorageCalendar.prototype = {
                                      null,
                                      null);
 
-        //var profEndTime = Date.now();
-        //dump ("++++ getItems took: " + (profEndTime - profStartTime) + " ms\n");
     },
 
     getItemOfflineFlag: function cSC_getOfflineJournalFlag(aItem, aListener) {
@@ -1364,7 +1357,7 @@ calStorageCalendar.prototype = {
                 "  (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz) " +
                 "VALUES  (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)  "
                 );
-            //Offline Operations
+            // Offline Operations
             this.mEditEventOfflineFlag = this.mDB.createStatement(
                 "UPDATE cal_events SET offline_journal = :offline_journal" +
                 " WHERE id = :id AND cal_id = :cal_id"
@@ -1803,7 +1796,7 @@ calStorageCalendar.prototype = {
                 try {
                     while (this.mSelectEventExceptions.executeStep()) {
                         let row = this.mSelectEventExceptions.row;
-                        let exc = this.getEventFromRow(row, {}, true /*isException*/);
+                        let exc = this.getEventFromRow(row, {}, true /* isException */);
                         rec.modifyException(exc, true);
                     }
                 } catch (e) {
@@ -1818,7 +1811,7 @@ calStorageCalendar.prototype = {
                 try {
                     while (this.mSelectTodoExceptions.executeStep()) {
                         let row = this.mSelectTodoExceptions.row;
-                        let exc = this.getTodoFromRow(row, {}, true /*isException*/);
+                        let exc = this.getTodoFromRow(row, {}, true /* isException */);
                         rec.modifyException(exc, true);
                     }
                 } catch (e) {

@@ -54,12 +54,12 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
         if (rule &&
             !checkRecurrenceRule(rule, ['BYSECOND',
                                         'BYMINUTE',
-                                        //'BYDAY',
+                                        // 'BYDAY',
                                         'BYHOUR',
-                                        //'BYMONTHDAY',
+                                        // 'BYMONTHDAY',
                                         'BYYEARDAY',
                                         'BYWEEKNO',
-                                        //'BYMONTH',
+                                        // 'BYMONTH',
                                         'BYSETPOS'])) {
             let dateFormatter = cal.getDateFormatter();
             let ruleString;

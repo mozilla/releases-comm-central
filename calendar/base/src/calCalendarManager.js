@@ -332,7 +332,6 @@ calCalendarManager.prototype = {
             if (db.tableExists("cal_calendars_prefs")) {
                 // Check if we need to upgrade:
                 let version = this.getSchemaVersion(db);
-                //cal.LOG("*** Calendar schema version is: " + version);
                 if (version < DB_SCHEMA_VERSION) {
                     this.upgradeDB(version, db);
                 }

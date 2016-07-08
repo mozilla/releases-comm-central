@@ -5,7 +5,15 @@
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-function calWcapCalendar(/*optional*/session, /*optional*/calProps) {
+/**
+ * The calendar provider class for WCAP calendars. Usually instanciated through
+ * the calendar manager, but may also be created by the wcap session, hence the
+ * following optional parameters.
+ *
+ * @param session       (optional) The calWcapSession for this calendar
+ * @param calProps      (optional) The XML node containing the WCAP calendar properties
+ */
+function calWcapCalendar(session, calProps) {
     this.initProviderBase();
     this.m_session = session;
     this.m_calProps = calProps;
