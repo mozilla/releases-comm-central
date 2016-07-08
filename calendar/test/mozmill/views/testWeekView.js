@@ -15,7 +15,7 @@ var setupModule = function(module) {
   calUtils.createCalendar(controller, calendar);
 }
 
-var testWeekView = function () {
+var testWeekView = function() {
   let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
                               .getService(Components.interfaces.nsIScriptableDateFormat);
   // paths
@@ -101,7 +101,7 @@ var testWeekView = function () {
   // if it was created successfully, it can be opened
   controller.waitForElement(new elementslib.Lookup(controller.window.document, eventBox));
   controller.doubleClick(new elementslib.Lookup(controller.window.document, eventBox));
-  controller.waitFor(function () {return utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+  controller.waitFor(function() {return utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // change title and save changes

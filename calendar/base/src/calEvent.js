@@ -35,7 +35,7 @@ calEvent.prototype = {
         interfaces: calEventInterfaces
     }),
 
-    cloneShallow: function (aNewParent) {
+    cloneShallow: function(aNewParent) {
         let m = new calEvent();
         this.cloneItemBaseInto(m, aNewParent);
         return m;
@@ -59,7 +59,7 @@ calEvent.prototype = {
         return m;
     },
 
-    makeImmutable: function () {
+    makeImmutable: function() {
         this.makeItemBaseImmutable();
     },
 
@@ -151,7 +151,7 @@ calEvent.prototype = {
         this.mDirty = false;
     },
 
-    isPropertyPromoted: function (name) {
+    isPropertyPromoted: function(name) {
         // avoid strict undefined property warning
         return (this.eventPromotedProps[name] || false);
     },

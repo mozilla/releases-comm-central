@@ -122,7 +122,7 @@ var calendarWindowPrefs = {
      *
      * @see nsIObserver
      */
-    observe: function (aSubject, aTopic, aData) {
+    observe: function(aSubject, aTopic, aData) {
         if (aTopic == "nsPref:changed") {
             switch (aData) {
                 case "calendar.view.useSystemColors": {

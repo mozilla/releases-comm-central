@@ -144,11 +144,11 @@ calAttachment.prototype = {
         return val;
     },
 
-    getParameter: function (aName) {
+    getParameter: function(aName) {
         return this.mProperties.getProperty(aName);
     },
 
-    setParameter: function (aName, aValue) {
+    setParameter: function(aName, aValue) {
         if (aValue || aValue === 0) {
             return this.mProperties.setProperty(aName, aValue);
         } else {
@@ -156,7 +156,7 @@ calAttachment.prototype = {
         }
     },
 
-    deleteParameter: function (aName) {
+    deleteParameter: function(aName) {
         this.mProperties.deleteProperty(aName);
     },
 

@@ -35,7 +35,7 @@ var setupModule = function(module) {
   uri = fileURI.prePath + fileURI.path;
 }
 
-var testLocalICS = function () {
+var testLocalICS = function() {
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
   calUtils.switchToView(controller, "day");
 

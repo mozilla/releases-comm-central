@@ -298,7 +298,7 @@ calICSCalendar.prototype = {
         parser.parseString(str, null, listener);
     },
 
-    writeICS: function () {
+    writeICS: function() {
         cal.LOG("[calICSCalendar] Commencing write of ICS Calendar " + this.name);
         this.lock();
         try {
@@ -313,7 +313,7 @@ calICSCalendar.prototype = {
         }
     },
 
-    doWriteICS: function () {
+    doWriteICS: function() {
         cal.LOG("[calICSCalendar] Writing ICS File " + this.uri.spec);
         var savedthis = this;
         var listener =
@@ -459,10 +459,10 @@ calICSCalendar.prototype = {
     // Always use the queue, just to reduce the amount of places where
     // this.mMemoryCalendar.addItem() and friends are called. less
     // copied code.
-    addItem: function (aItem, aListener) {
+    addItem: function(aItem, aListener) {
         this.adoptItem(aItem.clone(), aListener);
     },
-    adoptItem: function (aItem, aListener) {
+    adoptItem: function(aItem, aListener) {
         if (this.readOnly) {
             throw calIErrors.CAL_IS_READONLY;
         }
@@ -470,7 +470,7 @@ calICSCalendar.prototype = {
         this.processQueue();
     },
 
-    modifyItem: function (aNewItem, aOldItem, aListener) {
+    modifyItem: function(aNewItem, aOldItem, aListener) {
         if (this.readOnly) {
             throw calIErrors.CAL_IS_READONLY;
         }
@@ -479,7 +479,7 @@ calICSCalendar.prototype = {
         this.processQueue();
     },
 
-    deleteItem: function (aItem, aListener) {
+    deleteItem: function(aItem, aListener) {
         if (this.readOnly) {
             throw calIErrors.CAL_IS_READONLY;
         }
@@ -487,7 +487,7 @@ calICSCalendar.prototype = {
         this.processQueue();
     },
 
-    getItem: function (aId, aListener) {
+    getItem: function(aId, aListener) {
         this.queue.push({action: 'get_item', id: aId, listener: aListener});
         this.processQueue();
     },
@@ -569,11 +569,11 @@ calICSCalendar.prototype = {
         }
     },
 
-    lock: function () {
+    lock: function() {
         this.locked = true;
     },
 
-    unlock: function (errCode) {
+    unlock: function(errCode) {
         ASSERT(this.locked, "unexpected!");
 
         this.mModificationActions.forEach(

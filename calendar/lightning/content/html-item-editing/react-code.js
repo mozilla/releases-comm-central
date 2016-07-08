@@ -584,7 +584,7 @@ var TopComponent = React.createClass({
     }
 });
 
-window.onload = function () {
+window.onload = function() {
     onLoad();
 }
 

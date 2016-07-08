@@ -26,7 +26,7 @@ var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
 }
 
-var testTimezones8_checkParis = function () {
+var testTimezones8_checkParis = function() {
   let eventPath = '/{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';
 
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));

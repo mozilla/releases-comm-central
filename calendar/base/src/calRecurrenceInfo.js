@@ -552,7 +552,7 @@ calRecurrenceInfo.prototype = {
                     let toRemove = [];
                     for (let occurenceKey in occurrenceMap) {
                         if (occurrenceMap[occurenceKey] && occurenceKey.substring(0, 8) == dateToRemoveKey) {
-                            dates = dates.filter(function (d) { return d.id.compare(dateToRemove) != 0; });
+                            dates = dates.filter(d => d.id.compare(dateToRemove) != 0);
                             toRemove.push(occurenceKey)
                         }
                     }
@@ -564,7 +564,7 @@ calRecurrenceInfo.prototype = {
                     // to construct the array of occurrences. Right now I'm
                     // just using the occurrence map to skip the filter
                     // action if the occurrence isn't there anyway.
-                    dates = dates.filter(function (d) { return d.id.compare(dateToRemove) != 0; });
+                    dates = dates.filter(d => d.id.compare(dateToRemove) != 0);
                     delete occurrenceMap[dateToRemoveKey];
                 }
             }

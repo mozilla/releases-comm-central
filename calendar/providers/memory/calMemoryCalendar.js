@@ -104,13 +104,13 @@ calMemoryCalendar.prototype = {
     get type() { return "memory"; },
 
     // void addItem( in calIItemBase aItem, in calIOperationListener aListener );
-    addItem: function (aItem, aListener) {
+    addItem: function(aItem, aListener) {
         var newItem = aItem.clone();
         return this.adoptItem(newItem, aListener);
     },
 
     // void adoptItem( in calIItemBase aItem, in calIOperationListener aListener );
-    adoptItem: function (aItem, aListener) {
+    adoptItem: function(aItem, aListener) {
         if (this.readOnly) {
             throw Components.interfaces.calIErrors.CAL_IS_READONLY;
         }
@@ -168,7 +168,7 @@ calMemoryCalendar.prototype = {
     },
 
     // void modifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem, in calIOperationListener aListener );
-    modifyItem: function (aNewItem, aOldItem, aListener) {
+    modifyItem: function(aNewItem, aOldItem, aListener) {
         if (this.readOnly) {
             throw Components.interfaces.calIErrors.CAL_IS_READONLY;
         }
@@ -257,7 +257,7 @@ calMemoryCalendar.prototype = {
     },
 
     // void deleteItem( in calIItemBase aItem, in calIOperationListener aListener );
-    deleteItem: function (aItem, aListener) {
+    deleteItem: function(aItem, aListener) {
         if (this.readOnly) {
             this.notifyOperationComplete(aListener,
                                          Components.interfaces.calIErrors.CAL_IS_READONLY,
@@ -304,7 +304,7 @@ calMemoryCalendar.prototype = {
     },
 
     // void getItem( in string id, in calIOperationListener aListener );
-    getItem: function (aId, aListener) {
+    getItem: function(aId, aListener) {
         if (!aListener) {
             return;
         }
@@ -350,14 +350,14 @@ calMemoryCalendar.prototype = {
     // void getItems( in unsigned long aItemFilter, in unsigned long aCount,
     //                in calIDateTime aRangeStart, in calIDateTime aRangeEnd,
     //                in calIOperationListener aListener );
-    getItems: function (aItemFilter, aCount,
+    getItems: function(aItemFilter, aCount,
                         aRangeStart, aRangeEnd, aListener) {
         let this_ = this;
         cal.postPone(function() {
                 this_.getItems_(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener);
             });
     },
-    getItems_: function (aItemFilter, aCount,
+    getItems_: function(aItemFilter, aCount,
                          aRangeStart, aRangeEnd, aListener) {
         if (!aListener) {
             return;

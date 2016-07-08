@@ -17,7 +17,7 @@ var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
 }
 
-var testTimezones2_CreateEvents = function () {
+var testTimezones2_CreateEvents = function() {
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
   calUtils.switchToView(controller, "day");
   calUtils.goToDate(controller, 2009, 1, 1);

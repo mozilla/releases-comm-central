@@ -13,7 +13,7 @@ var setupModule = function(module) {
   calUtils.createCalendar(controller, calendar);
 }
 
-var testDailyRecurrence = function () {
+var testDailyRecurrence = function() {
   let eventPath = '/{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';
 
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));

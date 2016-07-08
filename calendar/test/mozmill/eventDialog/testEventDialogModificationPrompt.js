@@ -39,7 +39,7 @@ var setupModule = function(module) {
 }
 
 // Test that closing an event dialog with no changes does not prompt for save
-var testEventDialogModificationPrompt = function () {
+var testEventDialogModificationPrompt = function() {
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
   calUtils.switchToView(controller, "day");
   calUtils.goToDate(controller, 2009, 1, 1);

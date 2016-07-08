@@ -26,7 +26,7 @@ var calendarViewController = {
      * Creates a new event
      * @see calICalendarViewController
      */
-    createNewEvent: function (aCalendar, aStartTime, aEndTime, aForceAllday) {
+    createNewEvent: function(aCalendar, aStartTime, aEndTime, aForceAllday) {
         // if we're given both times, skip the dialog
         if (aStartTime && aEndTime && !aStartTime.isDate && !aEndTime.isDate) {
             let item = cal.createEvent();
@@ -42,7 +42,7 @@ var calendarViewController = {
      * Modifies the given occurrence
      * @see calICalendarViewController
      */
-    modifyOccurrence: function (aOccurrence, aNewStartTime, aNewEndTime, aNewTitle) {
+    modifyOccurrence: function(aOccurrence, aNewStartTime, aNewEndTime, aNewTitle) {
         // if modifying this item directly (e.g. just dragged to new time),
         // then do so; otherwise pop up the dialog
         if (aNewStartTime || aNewEndTime || aNewTitle) {
@@ -87,10 +87,10 @@ var calendarViewController = {
      * Deletes the given occurrences
      * @see calICalendarViewController
      */
-    deleteOccurrences: function (aCount,
-                                 aOccurrences,
-                                 aUseParentItems,
-                                 aDoNotConfirm) {
+    deleteOccurrences: function(aCount,
+                                aOccurrences,
+                                aUseParentItems,
+                                aDoNotConfirm) {
         startBatchTransaction();
         var recurringItems = {};
 

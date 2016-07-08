@@ -16,7 +16,7 @@ var setupModule = function(module) {
   Preferences.set("calendar.categories.names", UTF8string);
 }
 
-var testUTF8 = function () {
+var testUTF8 = function() {
   let eventDialog = '/id("calendar-event-dialog")/id("event-grid")/id("event-grid-rows")/';
 
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));

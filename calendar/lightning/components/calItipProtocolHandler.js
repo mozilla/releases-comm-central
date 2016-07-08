@@ -43,16 +43,16 @@ ItipChannel.prototype = {
     securityInfo: null,
 
     open: NYI,
-    asyncOpen: function (observer, ctxt) {
+    asyncOpen: function(observer, ctxt) {
         observer.onStartRequest(this, ctxt);
     },
-    asyncRead: function (listener, ctxt) {
+    asyncRead: function(listener, ctxt) {
         return listener.onStartRequest(this, ctxt);
     },
 
-    isPending: function () { return true; },
+    isPending: function() { return true; },
     status: Components.results.NS_OK,
-    cancel: function (status) { this.status = status; },
+    cancel: function(status) { this.status = status; },
     suspend: NYI,
     resume: NYI,
 };
@@ -75,7 +75,7 @@ ItipProtocolHandler.prototype = {
     protocolFlags: CI.nsIProtocolHandler.URI_NORELATIVE | CI.nsIProtocolHandler.URI_DANGEROUS_TO_LOAD,
     allowPort: () => false,
     isSecure: false,
-    newURI: function (spec, charSet, baseURI) {
+    newURI: function(spec, charSet, baseURI) {
         let cls = Components.classes["@mozilla.org/network/standard-url;1"];
         let url = cls.createInstance(CI.nsIStandardURL);
         url.init(CI.nsIStandardURL.URLTYPE_STANDARD, 0, spec, charSet, baseURI);
@@ -83,7 +83,7 @@ ItipProtocolHandler.prototype = {
         return url.QueryInterface(CI.nsIURI);
     },
 
-    newChannel: function (URI) {
+    newChannel: function(URI) {
         return this.newChannel2(URI, null);
     },
 
@@ -108,7 +108,7 @@ ItipContentHandler.prototype = {
         interfaces: ItipContentHandlerInterfaces
     }),
 
-    handleContent: function (contentType, windowTarget, request) {
+    handleContent: function(contentType, windowTarget, request) {
         let channel = request.QueryInterface(CI.nsIChannel);
         let uri = channel.URI.spec;
         if (!uri.startsWith(ITIP_HANDLER_PROTOCOL + ":")) {
@@ -119,7 +119,7 @@ ItipContentHandler.prototype = {
         let paramString = uri.substring(ITIP_HANDLER_PROTOCOL.length + 4);
         let paramArray = paramString.split("&");
         let paramBlock = { };
-        paramArray.forEach(function (v) {
+        paramArray.forEach(function(v) {
             let parts = v.split("=");
             paramBlock[parts[0]] = unescape(unescape(parts[1]));
             });

@@ -14,7 +14,7 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
  */
 var calIOperationListener = Components.interfaces.calIOperationListener;
 
-function calCompositeCalendarObserverHelper (compCalendar) {
+function calCompositeCalendarObserverHelper(compCalendar) {
     this.compCalendar = compCalendar;
     this.pendingLoads = {};
 }
@@ -70,7 +70,7 @@ calCompositeCalendarObserverHelper.prototype = {
     }
 };
 
-function calCompositeCalendar () {
+function calCompositeCalendar() {
     this.mObserverHelper = new calCompositeCalendarObserverHelper(this);
     this.wrappedJSObject = this;
 
@@ -128,7 +128,7 @@ calCompositeCalendar.prototype = {
       );
     },
 
-    set prefPrefix (aPrefPrefix) {
+    set prefPrefix(aPrefPrefix) {
         if (this.mPrefPrefix) {
             for (let calendar of this.mCalendars) {
                 this.removeCalendar(calendar);
@@ -140,7 +140,7 @@ calCompositeCalendar.prototype = {
         let mgr = cal.getCalendarManager();
         let cals = mgr.getCalendars({});
 
-        cals.forEach(function (c) {
+        cals.forEach(function(c) {
             if (c.getProperty(this.mActivePref)) {
                 this.addCalendar(c);
             }
@@ -150,7 +150,7 @@ calCompositeCalendar.prototype = {
         }, this);
     },
 
-    get prefPrefix () {
+    get prefPrefix() {
         return this.mPrefPrefix;
     },
 
@@ -209,7 +209,7 @@ calCompositeCalendar.prototype = {
         return this.mDefaultCalendar;
     },
 
-    setDefaultCalendar: function (calendar, usePref) {
+    setDefaultCalendar: function(calendar, usePref) {
         // Don't do anything if the passed calendar is the default calendar
         if (calendar && this.mDefaultCalendar && this.mDefaultCalendar.id == calendar.id) {
             return;
@@ -301,7 +301,7 @@ calCompositeCalendar.prototype = {
     // void addObserver( in calIObserver observer );
     mCompositeObservers: null,
     mObservers: null,
-    addObserver: function (aObserver) {
+    addObserver: function(aObserver) {
         let wrappedCObserver = cal.wrapInstance(aObserver, Components.interfaces.calICompositeObserver);
         if (wrappedCObserver) {
             this.mCompositeObservers.add(wrappedCObserver);
@@ -310,7 +310,7 @@ calCompositeCalendar.prototype = {
     },
 
     // void removeObserver( in calIObserver observer );
-    removeObserver: function (aObserver) {
+    removeObserver: function(aObserver) {
         let wrappedCObserver = cal.wrapInstance(aObserver, Components.interfaces.calICompositeObserver);
         if (wrappedCObserver) {
             this.mCompositeObservers.remove(wrappedCObserver);
@@ -341,7 +341,7 @@ calCompositeCalendar.prototype = {
     },
 
     // void modifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem, in calIOperationListener aListener );
-    modifyItem: function (aNewItem, aOldItem, aListener) {
+    modifyItem: function(aNewItem, aOldItem, aListener) {
         cal.ASSERT(aNewItem.calendar, "Composite can't modify item with null calendar", true);
         cal.ASSERT(aNewItem.calendar != this, "Composite can't modify item with this calendar", true);
 
@@ -349,7 +349,7 @@ calCompositeCalendar.prototype = {
     },
 
     // void deleteItem( in string id, in calIOperationListener aListener );
-    deleteItem: function (aItem, aListener) {
+    deleteItem: function(aItem, aListener) {
         cal.ASSERT(aItem.calendar, "Composite can't delete item with null calendar", true);
         cal.ASSERT(aItem.calendar != this, "Composite can't delete item with this calendar", true);
 
@@ -357,12 +357,12 @@ calCompositeCalendar.prototype = {
     },
 
     // void addItem( in calIItemBase aItem, in calIOperationListener aListener );
-    addItem: function (aItem, aListener) {
+    addItem: function(aItem, aListener) {
         return this.mDefaultCalendar.addItem(aItem, aListener);
     },
 
     // void getItem( in string aId, in calIOperationListener aListener );
-    getItem: function (aId, aListener) {
+    getItem: function(aId, aListener) {
         let enabledCalendars = this.enabledCalendars;
         let cmpListener = new calCompositeGetListenerHelper(this, aListener);
         for (let calendar of enabledCalendars) {
@@ -378,7 +378,7 @@ calCompositeCalendar.prototype = {
     // void getItems( in unsigned long aItemFilter, in unsigned long aCount,
     //                in calIDateTime aRangeStart, in calIDateTime aRangeEnd,
     //                in calIOperationListener aListener );
-    getItems: function (aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
+    getItems: function(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
         // If there are no calendars, then we just call onOperationComplete
         let enabledCalendars = this.enabledCalendars;
         if (enabledCalendars.length == 0) {
@@ -410,10 +410,10 @@ calCompositeCalendar.prototype = {
         return cmpListener.opGroup;
     },
 
-    startBatch: function () {
+    startBatch: function() {
         this.mCompositeObservers.notify("onStartBatch");
     },
-    endBatch: function () {
+    endBatch: function() {
         this.mCompositeObservers.notify("onEndBatch");
     },
 
@@ -471,7 +471,7 @@ calCompositeGetListenerHelper.prototype = {
 
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
 
-    onOperationComplete: function (aCalendar, aStatus, aOperationType, aId, aDetail) {
+    onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
         if (!this.mRealListener) {
             // has been cancelled, ignore any providers firing on this...
             return;
@@ -508,7 +508,7 @@ calCompositeGetListenerHelper.prototype = {
         }
     },
 
-    onGetResult: function (aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+    onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
         if (!this.mRealListener) {
             // has been cancelled, ignore any providers firing on this...
             return;

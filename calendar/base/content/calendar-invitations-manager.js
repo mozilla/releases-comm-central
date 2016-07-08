@@ -145,10 +145,9 @@ InvitationsManager.prototype = {
                                           aId,
                                           aDetail) {
                 if (--this.mCount == 0) {
-                    this.mInvitationsManager.mItemList.sort(
-                        function (a, b) {
-                            return a.startDate.compare(b.startDate);
-                        });
+                    this.mInvitationsManager.mItemList.sort((a, b) => {
+                        return a.startDate.compare(b.startDate)
+                    });
                     for (var listener of listeners) {
                         try {
                             if (this.mInvitationsManager.mItemList.length) {
@@ -275,11 +274,11 @@ InvitationsManager.prototype = {
         }
         operationListener.prototype = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
-            onOperationComplete: function (aCalendar,
-                                           aStatus,
-                                           aOperationType,
-                                           aId,
-                                           aDetail) {
+            onOperationComplete: function(aCalendar,
+                                          aStatus,
+                                          aOperationType,
+                                          aId,
+                                          aDetail) {
                 if (Components.isSuccessCode(aStatus) &&
                     aOperationType == Components.interfaces.calIOperationListener.MODIFY) {
                     cal.itip.checkAndSend(aOperationType, aDetail, this.mOldItem);

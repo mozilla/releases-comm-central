@@ -418,10 +418,10 @@ function ltnIntegrationNotification() {
     let label = ltnGetString("lightning", "integrationLabel", [appBrand, ltnBrand]);
 
     // call backs for doing/undoing Lightning removal
-    let cbRemoveLightning = function (aAddon) {
+    let cbRemoveLightning = function(aAddon) {
         aAddon.userDisabled = true;
     };
-    let cbUndoRemoveLightning = function (aAddon) {
+    let cbUndoRemoveLightning = function(aAddon) {
         aAddon.userDisabled = false;
     };
 

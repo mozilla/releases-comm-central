@@ -70,7 +70,7 @@ calItipEmailTransport.prototype = {
         return false;
     },
 
-    _prepareItems: function (aItipItem) {
+    _prepareItems: function(aItipItem) {
         let item = aItipItem.getItemList({})[0];
 
         // Get ourselves some default text - when we handle organizer properly
@@ -260,14 +260,14 @@ calItipEmailTransport.prototype = {
                 if (aItem.autoResponse == Components.interfaces.calIItipItem.AUTO) {
                     cal.LOG("sendXpcomMail: Found AUTO autoResponse type.");
                 }
-                let cbEmail = function (aVal, aInd, aArr) {
+                let cbEmail = function(aVal, aInd, aArr) {
                     let email = cal.getAttendeeEmail(aVal, true);
                     if (!email.length) {
                         cal.LOG("Invalid recipient for email transport: " + aVal.toString());
                     }
                     return email;
                 }
-                let toMap = aToList.map(cbEmail).filter(function (aVal, aInd, aArr) {return (aVal.length)});
+                let toMap = aToList.map(cbEmail).filter(function(aVal, aInd, aArr) {return (aVal.length)});
                 if (toMap.length < aToList.length) {
                     // at least one invalid recipient, so we skip sending for this message
                     return false;
@@ -339,7 +339,7 @@ calItipEmailTransport.prototype = {
         return false;
     },
 
-    _createTempImipFile: function (compatMode, aToList, aSubject, aBody, aItem, aIdentity, aMessageId) {
+    _createTempImipFile: function(compatMode, aToList, aSubject, aBody, aItem, aIdentity, aMessageId) {
         try {
             let itemList = aItem.getItemList({});
             let serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]

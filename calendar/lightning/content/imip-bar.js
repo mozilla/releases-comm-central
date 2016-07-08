@@ -250,7 +250,7 @@ var ltnImipBar = {
     /**
      * Displays changes in case of invitation updates in invitation overlay
      */
-    displayModifications: function () {
+    displayModifications: function() {
         if (!ltnImipBar.msgOverlay || !msgWindow || !ltnImipBar.foundItems ||
             !ltnImipBar.foundItems[0] || !ltnImipBar.itipItem) {
             return;

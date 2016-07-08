@@ -107,15 +107,15 @@ calRelation.prototype = {
         return val;
     },
 
-    getParameter: function (aName) {
+    getParameter: function(aName) {
         return this.mProperties.getProperty(aName);
     },
 
-    setParameter: function (aName, aValue) {
+    setParameter: function(aName, aValue) {
         return this.mProperties.setProperty(aName, aValue);
     },
 
-    deleteParameter: function (aName) {
+    deleteParameter: function(aName) {
         return this.mProperties.deleteProperty(aName);
     },
 

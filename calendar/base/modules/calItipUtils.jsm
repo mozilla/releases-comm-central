@@ -145,7 +145,7 @@ cal.itip = {
         }
         cal.LOG("iTIP method: " + imipMethod);
 
-        let isWritableCalendar = function (aCalendar) {
+        let isWritableCalendar = function(aCalendar) {
             /* TODO: missing ACL check for existing items (require callback API) */
             return (cal.itip.isSchedulingCalendar(aCalendar)
                     && cal.userCanAddItemsToCalendar(aCalendar));
@@ -635,7 +635,7 @@ cal.itip = {
                     let delegatorIds = invitedAttendee.getProperty("DELEGATED-FROM");
                     if (delegatorIds &&
                         Preferences.get("calendar.itip.notifyDelegatorOnReply", false)) {
-                        let getDelegator = function (aDelegatorId) {
+                        let getDelegator = function(aDelegatorId) {
                             let delegator = aOriginalItem.getAttendeeById(aDelegatorId);
                             if (delegator) {
                                 replyTo.push(delegator);
@@ -793,7 +793,7 @@ cal.itip = {
             }
         }
 
-        let hashMajorProps = function (aItem) {
+        let hashMajorProps = function(aItem) {
             const majorProps = {
                 DTSTART: true,
                 DTEND: true,
@@ -1024,7 +1024,7 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
     }
     aTransport = aTransport.QueryInterface(Components.interfaces.calIItipTransport);
 
-    let _sendItem = function (aSendToList, aSendItem) {
+    let _sendItem = function(aSendToList, aSendItem) {
         let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
                                  .createInstance(Components.interfaces.calIItipItem);
         itipItem.init(cal.getSerializedItem(aSendItem));

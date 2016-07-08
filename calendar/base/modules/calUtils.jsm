@@ -205,7 +205,7 @@ var cal = {
      * @param aItem         original item
      * @param aUid          (optional) UID to use for the new item
      */
-    getPublishLikeItemCopy: function (aItem, aUid) {
+    getPublishLikeItemCopy: function(aItem, aUid) {
         // avoid changing aItem
         let item = aItem.clone();
         // reset to a new UUID if applicable
@@ -251,7 +251,7 @@ var cal = {
      * @param   string aRecipients  a comma-seperated list of e-mail addresses
      * @return  string              a comma-seperated list of e-mail addresses
      */
-    validateRecipientList: function (aRecipients) {
+    validateRecipientList: function(aRecipients) {
         let compFields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
                                    .createInstance(Components.interfaces.nsIMsgCompFields);
         // Resolve the list considering also configured common names
@@ -349,7 +349,7 @@ var cal = {
      * @param aAttendees {Array}         An array of calIAttendee objects to look up
      * @return           {Object}        An object with string attributes for delegators and delegatees
      */
-    resolveDelegation: function (aAttendee, aAttendees) {
+    resolveDelegation: function(aAttendee, aAttendees) {
         let attendees = aAttendees || [aAttendee];
 
         // this will be replaced by a direct property getter in calIAttendee
@@ -365,7 +365,7 @@ var cal = {
         }
 
         for (let att of attendees) {
-            let resolveDelegation = function (e, i, a) {
+            let resolveDelegation = function(e, i, a) {
                 if (e == att.id) {
                     a[i] = att.toString();
                 }
@@ -402,7 +402,7 @@ var cal = {
      * @param  {boolean}       aIncludeCn - whether or not to return also the CN if available
      * @return {string}        valid email string or an empty string in case of error
      */
-    getAttendeeEmail: function (aAttendee, aIncludeCn) {
+    getAttendeeEmail: function(aAttendee, aIncludeCn) {
         // If the recipient id is of type urn, we need to figure out the email address, otherwise
         // we fall back to the attendee id
         let email = aAttendee.id.match(/^urn:/i) ? aAttendee.getProperty("EMAIL") || "" : aAttendee.id;
@@ -428,8 +428,8 @@ var cal = {
      * @param  {array}   aAttendees - array of calIAttendee's to check
      * @return {string}  Valid string to use in a 'to' header of an email
      */
-    getRecipientList: function (aAttendees) {
-        let cbEmail = function (aVal, aInd, aArr) {
+    getRecipientList: function(aAttendees) {
+        let cbEmail = function(aVal, aInd, aArr) {
             let email = cal.getAttendeeEmail(aVal, true);
             if (!email.length) {
                 cal.LOG("Dropping invalid recipient for email transport: " + aVal.toString());
@@ -446,7 +446,7 @@ var cal = {
      *
      * @param aIsAllDay      If true, the default transparency for all-day events is returned
      */
-    getEventDefaultTransparency: function (aIsAllDay) {
+    getEventDefaultTransparency: function(aIsAllDay) {
         let transp = null;
         if (aIsAllDay) {
             transp = Preferences.get("calendar.events.defaultTransparency.allday.transparent", false)

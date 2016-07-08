@@ -70,7 +70,7 @@ calAttendee.prototype = {
     set isOrganizer(bool) { this.mIsOrganizer = bool; },
 
     // icalatt is a calIcalProperty of type attendee
-    set icalProperty (icalatt) {
+    set icalProperty(icalatt) {
         this.modify();
         this.id = icalatt.valueAsIcalString;
         this.mIsOrganizer = (icalatt.propertyName == "ORGANIZER");
@@ -154,10 +154,10 @@ calAttendee.prototype = {
     get propertyEnumerator() { return this.mProperties.enumerator; },
 
     // The has/get/set/deleteProperty methods are case-insensitive.
-    getProperty: function (aName) {
+    getProperty: function(aName) {
         return this.mProperties.getProperty(aName.toUpperCase());
     },
-    setProperty: function (aName, aValue) {
+    setProperty: function(aName, aValue) {
         this.modify();
         if (aValue || !isNaN(parseInt(aValue, 10))) {
             this.mProperties.setProperty(aName.toUpperCase(), aValue);
@@ -165,7 +165,7 @@ calAttendee.prototype = {
             this.mProperties.deleteProperty(aName.toUpperCase());
         }
     },
-    deleteProperty: function (aName) {
+    deleteProperty: function(aName) {
         this.modify();
         this.mProperties.deleteProperty(aName.toUpperCase());
     },

@@ -26,7 +26,7 @@ calDateTime.prototype = {
     }),
 
     isMutable: true,
-    makeImmutable: function () { this.isMutable = false; },
+    makeImmutable: function() { this.isMutable = false; },
     clone: function() { return new calDateTime(this.innerObject.clone()); },
 
     isValid: true,
@@ -61,7 +61,7 @@ calDateTime.prototype = {
         }, this);
     },
 
-    resetTo: function (yr, mo, dy, hr, mi, sc, tz) {
+    resetTo: function(yr, mo, dy, hr, mi, sc, tz) {
         this.innerObject.fromData({
             year: yr, month: mo + 1, day: dy,
             hour: hr, minute: mi, second: sc,

@@ -15,7 +15,7 @@ var setupModule = function(module) {
   calUtils.createCalendar(controller, calendar);
 }
 
-var testDayView = function () {
+var testDayView = function() {
   let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
                               .getService(Components.interfaces.nsIScriptableDateFormat);
   // paths

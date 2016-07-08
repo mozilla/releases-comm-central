@@ -161,7 +161,7 @@ calCachedCalendar.prototype = {
             // afterwards.
 
             let listener = {
-                onDeleteCalendar: function (aCalendar, aStatus, aDetail) {
+                onDeleteCalendar: function(aCalendar, aStatus, aDetail) {
                     self.mCachedCalendar = null;
                 }
             };

@@ -19,7 +19,7 @@ var setupModule = function(module) {
   calUtils.createCalendar(controller, MOZMILL_CALENDAR);
 }
 
-var testTodayPane = function () {
+var testTodayPane = function() {
   // paths
   let panels = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/'
     + 'id("tabpanelcontainer")/';

@@ -471,9 +471,9 @@ calStorageCalendar.prototype = {
         // HACK Just modifying the item would clear the offline flag, we need to
         // retrieve the flag and pass it to the real modify function.
         let offlineJournalFlagListener = {
-            onGetResult: function (calendar, status, opType, id, detail) {
+            onGetResult: function(calendar, status, opType, id, detail) {
             },
-            onOperationComplete: function (this_, status, opType, id, offlineFlag) {
+            onOperationComplete: function(this_, status, opType, id, offlineFlag) {
                 this_.doModifyItem(aNewItem, aOldItem, aListener, offlineFlag);
             }
         };
@@ -1024,7 +1024,7 @@ calStorageCalendar.prototype = {
         let this_ = this;
         let opListener = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
-            onGetResult: function (calendar, status, itemType, detail, count, items) {
+            onGetResult: function(calendar, status, itemType, detail, count, items) {
             },
             onOperationComplete: function(calendar, status, opType, id, oldOfflineJournalFlag) {
                 let newOfflineJournalFlag = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
@@ -1047,7 +1047,7 @@ calStorageCalendar.prototype = {
         let this_ = this;
         let opListener = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
-            onGetResult: function (calendar, status, itemType, detail, count, items) {
+            onGetResult: function(calendar, status, itemType, detail, count, items) {
 
             },
             onOperationComplete: function(calendar, status, opType, id, oldOfflineJournalFlag) {

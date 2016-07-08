@@ -74,7 +74,7 @@ calDefaultCalendarACLEntry.prototype = {
 
     _getIdentities: function calDefaultCalendarACLEntry_getUserAddresses(aCount) {
         let identities = [];
-        cal.calIterateEmailIdentities(function (id, ac) { identities.push(id); });
+        cal.calIterateEmailIdentities(function(id, ac) { identities.push(id); });
         aCount.value = identities.length;
         return identities;
     },

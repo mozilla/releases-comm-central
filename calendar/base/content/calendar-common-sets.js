@@ -521,7 +521,7 @@ var calendarController = {
     /**
      * Returns a boolean indicating if all calendars are readonly.
      */
-    get all_readonly () {
+    get all_readonly() {
         var calMgr = getCalendarManager();
         return (calMgr.readOnlyCalendarCount == calMgr.calendarCount);
     },

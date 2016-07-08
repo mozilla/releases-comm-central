@@ -26,7 +26,7 @@ var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
 }
 
-var testTimezones7_checkBuenosAires = function () {
+var testTimezones7_checkBuenosAires = function() {
   let eventPath = '/{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';
 
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));

@@ -15,7 +15,7 @@ var setupModule = function(module) {
   modalDialog = collector.getModule('window-helpers');
 }
 
-var testSmokeTest = function () {
+var testSmokeTest = function() {
   let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
                               .getService(Components.interfaces.nsIScriptableDateFormat);
   let path = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabpanelcontainer")/'

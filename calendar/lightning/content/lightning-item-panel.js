@@ -303,7 +303,7 @@ function updateItemTabState(aArg) {
  * @param {string} aLabel      The new name for the menu
  * @param {string} aAccessKey  The access key for the menu
  */
-function initializeItemMenu (aLabel, aAccessKey) {
+function initializeItemMenu(aLabel, aAccessKey) {
     let menuItem = document.getElementById("item-menu");
     menuItem.setAttribute("label", aLabel);
     menuItem.setAttribute("accesskey", aAccessKey);

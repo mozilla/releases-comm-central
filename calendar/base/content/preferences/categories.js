@@ -68,7 +68,7 @@ var gCategoriesPane = {
             categoriesArrayToString(gCategoryList);
     },
 
-    updateCategoryList: function gCP_updateCategoryList () {
+    updateCategoryList: function gCP_updateCategoryList() {
         this.updatePrefs();
         let listbox = document.getElementById("categorieslist");
 

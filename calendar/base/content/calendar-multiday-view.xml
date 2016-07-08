@@ -1469,10 +1469,7 @@
               // the packets. that's why we need to make sure at least the currently
               // dragged event is contained in the set of selected items.
               let selectedItems = this.getSelectedItems({});
-              if (!selectedItems.some(
-                  function (aItem) {
-                      return (aItem.hashId == item.hashId);
-                  })) {
+              if (!selectedItems.some(aItem => aItem.hashId == item.hashId)) {
                   col.calendarView.setSelectedItems(1,
                       [event.ctrlKey ? item.parentItem : item]);
               }
@@ -2136,9 +2133,7 @@
         <parameter name="aItem"/>
         <body><![CDATA[
           // prevent same items being added
-          if (this.mItemBoxes.some(function (itemBox) {
-                                     return itemBox.occurrence.hashId == aItem.hashId;
-                                   })) {
+          if (this.mItemBoxes.some(itemBox => itemBox.occurrence.hashId == aItem.hashId)) {
             return;
           }
 

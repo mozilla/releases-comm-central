@@ -18,7 +18,7 @@ var setupModule = function(module) {
 
 // mozmill doesn't support trees yet, therefore completed checkbox and line-through style are not
 // checked
-var testTaskView = function () {
+var testTaskView = function() {
   // paths
   let taskView = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/'
     + 'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/'

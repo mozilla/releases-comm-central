@@ -27,7 +27,7 @@ var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
 }
 
-var testTimezones10_checkAdelaide = function () {
+var testTimezones10_checkAdelaide = function() {
   let eventPath = '/{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';
 
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));

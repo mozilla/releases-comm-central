@@ -12,6 +12,6 @@ var setupModule = function(module) {
   calUtils.createCalendar(controller, calendar);
 }
 
-var testTimezones1_SetGMT = function () {
+var testTimezones1_SetGMT = function() {
   timezoneUtils.switchAppTimezone("Europe/London");
 }

@@ -1115,14 +1115,14 @@ makeMemberAttr(calItemBase, "mProperties", null, "properties");
  */
 function makeMemberAttr(ctor, varname, dflt, attr, asProperty) {
     // XXX handle defaults!
-    var getter = function () {
+    var getter = function() {
         if (asProperty) {
             return this.getProperty(varname);
         } else {
             return (varname in this ? this[varname] : undefined);
         }
     };
-    var setter = function (v) {
+    var setter = function(v) {
         this.modify();
         if (asProperty) {
             return this.setProperty(varname, v);

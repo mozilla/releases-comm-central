@@ -38,7 +38,7 @@ calTodo.prototype = {
         interfaces: calTodoInterfaces,
     }),
 
-    cloneShallow: function (aNewParent) {
+    cloneShallow: function(aNewParent) {
         let m = new calTodo();
         this.cloneItemBaseInto(m, aNewParent);
         return m;
@@ -65,7 +65,7 @@ calTodo.prototype = {
         return m;
     },
 
-    makeImmutable: function () {
+    makeImmutable: function() {
         this.makeItemBaseImmutable();
     },
 
@@ -188,7 +188,7 @@ calTodo.prototype = {
         this.mDirty = false;
     },
 
-    isPropertyPromoted: function (name) {
+    isPropertyPromoted: function(name) {
         // avoid strict undefined property warning
         return (this.todoPromotedProps[name] || false);
     },

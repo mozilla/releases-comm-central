@@ -341,7 +341,7 @@ var compositeObserver = {
                                            Components.interfaces.calICompositeObserver]),
 
     onStartBatch: function() {},
-    onEndBatch: function () {},
+    onEndBatch: function() {},
     onAddItem: function() {},
     onModifyItem: function() {},
     onDeleteItem: function() {},
