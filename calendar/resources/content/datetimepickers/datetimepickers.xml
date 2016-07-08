@@ -1798,7 +1798,7 @@
               // Numeric month format
               for (let i = 1; i <= 3; i++) {
                 switch (Number(probeArray[i])) {
-                  case 2: this.twoDigitYear = true; // fall thru
+                  case 2: this.twoDigitYear = true; // falls through
                   case 2002: this.yearIndex = i; break;
                   case 3: this.monthIndex = i; break;
                   case 4: this.dayIndex = i; break;
@@ -1820,7 +1820,7 @@
               if (probeArray != null) {
                 for (let j = 1; j <= 3; j++) {
                   switch (Number(probeArray[j])) {
-                    case 2: this.twoDigitYear = true; // fall thru
+                    case 2: this.twoDigitYear = true; // falls through
                     case 2002: this.yearIndex = j; break;
                     case 4: this.dayIndex = j; break;
                     default: this.monthIndex = j; break;

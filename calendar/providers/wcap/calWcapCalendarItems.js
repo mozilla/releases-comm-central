@@ -620,7 +620,7 @@ function calWcapCalendar_tunnelXProps(destItem, srcItem) {
                         if (!hasAlarms) {
                             break; // alarm has been reset
                         }
-                        // fallthru intended
+                        // falls through
                     default:
                         if (LOG_LEVEL > 1) {
                             log("tunneling " + name + "=" + prop.value, this);

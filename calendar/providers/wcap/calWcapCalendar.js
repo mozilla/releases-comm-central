@@ -177,7 +177,7 @@ calWcapCalendar.prototype = {
                         }
                     }
                 }
-                // fallthru intended
+                // falls through
             default:
                 this.__proto__.__proto__.setProperty.apply(this, arguments);
                 break;

@@ -945,6 +945,7 @@ calMgrCalendarObserver.prototype = {
                 break;
             case calIErrors.MODIFICATION_FAILED:
                 errMsg = calGetString("calendar", "errorWriting", [aCalendar.name]);
+                // falls through
              default:
                 message = aMessage;
          }

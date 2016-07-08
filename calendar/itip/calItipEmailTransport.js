@@ -247,6 +247,7 @@ calItipEmailTransport.prototype = {
                     Preferences.set("calendar.itip.compatSendMode", compatMode);
                 }
             }
+            // falls through, based on prompting above
             case (Components.interfaces.calIItipItem.AUTO): {
                 // don't show log message in case of falling through
                 if (aItem.autoResponse == Components.interfaces.calIItipItem.AUTO) {

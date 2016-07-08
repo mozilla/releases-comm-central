@@ -140,6 +140,7 @@ var calendarController = {
                 if (!CalendarDeleteCommandEnabled) {
                     return false;
                 }
+                // falls through otherwise
             case "calendar_toggle_completed_command":
             case "calendar_percentComplete-0_command":
             case "calendar_percentComplete-25_command":

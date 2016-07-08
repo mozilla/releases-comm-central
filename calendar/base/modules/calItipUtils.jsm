@@ -272,8 +272,8 @@ cal.itip = {
             cal.LOG("iTIP options on: " + actionFunc.method);
             switch (actionFunc.method) {
                 case "REPLY":
-                    // fall-thru intended
                 case "PUBLISH:UPDATE":
+                    // falls through
                 case "REQUEST:UPDATE-MINOR":
                     data.label = _gs("imipBarUpdateText");
                     data.buttons.push("imipUpdateButton");

@@ -205,6 +205,7 @@ etagsHandler.prototype = {
                 break;
             case "collection":
                 this.currentResponse.isCollection = true;
+                // falls through
             case "href":
             case "getetag":
             case "getcontenttype":
