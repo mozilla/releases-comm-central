@@ -341,6 +341,9 @@
     // Enforce newline before and after dot
     "dot-location": [2, "property"],
 
+    // Disallow Use of caller/callee
+    "no-caller": 2,
+
     // Will enable these rules later
     "block-spacing": 0,
     "no-lonely-if": 0,

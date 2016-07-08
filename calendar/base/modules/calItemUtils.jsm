@@ -42,10 +42,11 @@ itemDiff.prototype = {
      * Expect the difference engine to be in the given state.
      *
      * @param aState    The state to be in
+     * @param aMethod   The method name expecting the state
      */
-    _expectState: function _expectState(aState) {
+    _expectState: function _expectState(aState, aMethod) {
         if ((this.state & aState) == 0) {
-            throw new Error("itemDiff method " + arguments.callee.caller.name +
+            throw new Error("itemDiff method " + aMethod +
                             " called while in unexpected state " + this.state);
         }
     },
@@ -66,7 +67,7 @@ itemDiff.prototype = {
      * @param items     The array of items to load
      */
     load: function load(items) {
-        this._expectState(this.STATE_INITIAL | this.STATE_LOADING);
+        this._expectState(this.STATE_INITIAL | this.STATE_LOADING, "load");
 
         for (let item of items) {
             this.mInitialItems[item.hashId] = item;
@@ -91,7 +92,7 @@ itemDiff.prototype = {
      * @param items     The array of items to calculate difference with
      */
     difference: function difference(items) {
-        this._expectState(this.STATE_INITIAL | this.STATE_LOADING | this.STATE_DIFFERING);
+        this._expectState(this.STATE_INITIAL | this.STATE_LOADING | this.STATE_DIFFERING, "difference");
 
         this.mModifiedOldItems.startBatch();
         this.mModifiedItems.startBatch();
@@ -120,7 +121,7 @@ itemDiff.prototype = {
      * makes sure that all item states are correctly returned.
      */
     complete: function complete() {
-        this._expectState(this.STATE_INITIAL | this.STATE_LOADING | this.STATE_DIFFERING);
+        this._expectState(this.STATE_INITIAL | this.STATE_LOADING | this.STATE_DIFFERING, "complete");
 
         this.mDeletedItems.startBatch();
 
@@ -137,25 +138,25 @@ itemDiff.prototype = {
 
     /** @return a HashedArray containing the new version of the modified items */
     get modifiedItems() {
-        this._expectState(this.STATE_COMPLETED);
+        this._expectState(this.STATE_COMPLETED, "get modifiedItems");
         return this.mModifiedItems;
     },
 
     /** @return a HashedArray containing the old version of the modified items */
     get modifiedOldItems() {
-        this._expectState(this.STATE_COMPLETED);
+        this._expectState(this.STATE_COMPLETED, "get modifiedOldItems");
         return this.mModifiedOldItems;
     },
 
     /** @return a HashedArray containing added items */
     get addedItems() {
-        this._expectState(this.STATE_COMPLETED);
+        this._expectState(this.STATE_COMPLETED, "get addedItems");
         return this.mAddedItems;
     },
 
     /** @return a HashedArray containing deleted items */
     get deletedItems() {
-        this._expectState(this.STATE_COMPLETED);
+        this._expectState(this.STATE_COMPLETED, "get deletedItems");
         return this.mDeletedItems;
     },
 
