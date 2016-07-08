@@ -27,7 +27,6 @@ var calendarViewController = {
      * @see calICalendarViewController
      */
     createNewEvent: function (aCalendar, aStartTime, aEndTime, aForceAllday) {
-
         // if we're given both times, skip the dialog
         if (aStartTime && aEndTime && !aStartTime.isDate && !aEndTime.isDate) {
             let item = cal.createEvent();

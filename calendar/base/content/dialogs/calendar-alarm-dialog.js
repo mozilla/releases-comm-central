@@ -301,7 +301,6 @@ function removeWidgetFor(aItem, aAlarm) {
         let widget = nodes[i];
         if (widget.item && widget.item.hashId == hashId &&
             widget.alarm && widget.alarm.icalString == aAlarm.icalString) {
-
             if (widget.selected) {
                 // Advance selection if needed
                 widget.control.selectedItem = widget.previousSibling ||

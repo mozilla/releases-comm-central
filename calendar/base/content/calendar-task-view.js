@@ -15,7 +15,6 @@ var taskDetailsView = {
      * its the only function in taskDetailsView.
      */
     onSelect: function tDV_onSelect(event) {
-
         var dateFormatter =
             Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
             .getService(Components.interfaces.calIDateTimeFormatter);
@@ -28,7 +27,6 @@ var taskDetailsView = {
         var item = document.getElementById("calendar-task-tree").currentTask;
         if (displayElement("calendar-task-details-container", item != null) &&
             displayElement("calendar-task-view-splitter", item != null)) {
-
             displayElement("calendar-task-details-title-row", true);
             document.getElementById("calendar-task-details-title").textContent =
                 (item.title ? item.title.replace(/\n/g, ' ') : "");

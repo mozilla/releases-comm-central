@@ -269,7 +269,6 @@ cal.itip = {
                 }
             }
         } else if (Components.isSuccessCode(rc)) {
-
             cal.LOG("iTIP options on: " + actionFunc.method);
             switch (actionFunc.method) {
                 case "REPLY":
@@ -546,7 +545,6 @@ cal.itip = {
      * deleted and sends out appropriate iTIP messages.
      */
     checkAndSend: function cal_itip_checkAndSend(aOpType, aItem, aOriginalItem) {
-
         // balance out parts of the modification vs delete confusion, deletion of occurrences
         // are notified as parent modifications and modifications of occurrences are notified
         // as mixed new-occurrence, old-parent (IIRC).
@@ -565,7 +563,6 @@ cal.itip = {
                 let clonedItem = aItem.clone();
                 let exdates = [];
                 for (let ritem of clonedItem.recurrenceInfo.getRecurrenceItems({})) {
-
                     let wrappedRItem = cal.wrapInstance(ritem, Components.interfaces.calIRecurrenceDate);
                     if (ritem.isNegative &&
                         wrappedRItem &&
@@ -674,7 +671,6 @@ cal.itip = {
         // special handling for invitation with event status cancelled
         if (aItem.getAttendees({}).length > 0 &&
             aItem.getProperty("STATUS") == "CANCELLED") {
-
             if (cal.itip.getSequence(aItem) > 0) {
                 // make sure we send a cancellation and not an request
                 aOpType = Components.interfaces.calIOperationListener.DELETE;
@@ -721,13 +717,11 @@ cal.itip = {
         let sendOut = true;
         // Check to see if some part of the item was updated, if so, re-send REQUEST
         if (!aOriginalItem || (cal.itip.compare(aItem, aOriginalItem) > 0)) { // REQUEST
-
             // check whether it's a simple UPDATE (no SEQUENCE change) or real (RE)REQUEST,
             // in case of time or location/description change.
             let isMinorUpdate = (aOriginalItem && (cal.itip.getSequence(aItem) == cal.itip.getSequence(aOriginalItem)));
 
             if (!isMinorUpdate || !cal.compareItemContent(stripUserData(aItem), stripUserData(aOriginalItem))) {
-
                 let requestItem = aItem.clone();
                 if (!requestItem.organizer) {
                     requestItem.organizer = createOrganizer(requestItem.calendar);
@@ -766,7 +760,6 @@ cal.itip = {
                 if (recipients.length > 0) {
                     sendOut = sendMessage(requestItem, "REQUEST", recipients, autoResponse);
                 }
-
             }
         }
 
@@ -848,7 +841,6 @@ cal.itip = {
      * @param aProps        List of properties to be different in the new itipItem
      */
     getModifiedItipItem: function cal_getModifiedItipItem(aItipItem, aItems, aProps) {
-
         let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
                                  .createInstance(Components.interfaces.calIItipItem);
         let serializedItems = "";
@@ -877,7 +869,6 @@ cal.itip = {
  * @param itipItemItem received iTIP item
  */
 function setReceivedInfo(item, itipItemItem) {
-
     let wrappedItem = cal.wrapInstance(item, Components.interfaces.calIAttendee);
     item.setProperty(wrappedItem ? "RECEIVED-SEQUENCE"
                                  : "X-MOZ-RECEIVED-SEQUENCE",
@@ -1359,7 +1350,6 @@ ItipItemFinder.prototype = {
                                             if (foundAttendee.participationStatus == "NEEDS-ACTION" &&
                                                 (item.calendar.getProperty("itip.disableRevisionChecks") ||
                                                  cal.itip.compare(itipItemItem, item) == 0)) {
-
                                                 actionMethod = "REQUEST:NEEDS-ACTION";
                                                 operations.push(function(opListener, partStat) {
                                                     let changedItem = firstFoundItem.clone();
@@ -1375,7 +1365,6 @@ ItipItemFinder.prototype = {
                                                 });
                                             } else if (item.calendar.getProperty("itip.disableRevisionChecks") ||
                                                        cal.itip.compare(itipItemItem, item) > 0) {
-
                                                 addScheduleAgentClient(newItem, item.calendar);
 
                                                 let isMinorUpdate = (cal.itip.getSequence(newItem) ==

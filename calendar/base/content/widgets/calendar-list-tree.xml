@@ -603,7 +603,6 @@
                                      aRow,
                                      aCol || {},
                                      {});
-
           } else {
               // Otherwise, we can try to get the context calendar from the popupNode.
               if (document.popupNode && document.popupNode.contextCalendar) {

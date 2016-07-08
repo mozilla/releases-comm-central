@@ -151,7 +151,6 @@ function test_serialize() {
     equal(prop.getParameter("PARTSTAT"), "DECLINED");
     equal(prop.getParameter("CUTYPE"), "RESOURCE");
     equal(prop.getParameter("X-NAME"), "X-VALUE");
-
 }
 
 function test_properties() {
@@ -202,7 +201,6 @@ function test_doubleParameters() {
             for (let paramName = prop.getFirstParameterName();
                  paramName;
                  paramName = prop.getNextParameterName()) {
-
                 parNames.push(paramName);
                 parValues.push(prop.getParameter(paramName));
             }

@@ -280,7 +280,6 @@ var ltnImipBar = {
     },
 
     executeAction: function ltnExecAction(partStat, extendResponse) {
-
         function _execAction(aActionFunc, aItipItem, aWindow, aPartStat) {
             if (cal.itip.promptCalendar(aActionFunc.method, aItipItem, aWindow)) {
                 // filter out fake partstats

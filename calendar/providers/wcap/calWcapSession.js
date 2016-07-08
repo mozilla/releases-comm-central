@@ -252,7 +252,6 @@ calWcapSession.prototype = {
     recurrenceBound: 60,
 
     getSessionId_: function calWcapSession_getSessionId_(request, respFunc) {
-
         var this_ = this;
         this.checkServerVersion(
             request,
@@ -460,7 +459,6 @@ calWcapSession.prototype = {
                             throw new Components.Exception(labelText, calIWcapErrors.WCAP_LOGIN_FAILED);
                         }
                     }
-
                 } catch (exc) {
                     err = exc;
                 }
@@ -500,7 +498,6 @@ calWcapSession.prototype = {
                     if (defaultCal && cals[defaultCal.calId] && // default calendar is registered
                         getPref("calendar.wcap.subscriptions", true) &&
                         !defaultCal.getProperty("subscriptions_registered")) {
-
                         var hasSubscriptions = false;
                         // post register subscribed calendars:
                         var list = this_.getUserPreferences("X-NSCP-WCAP-PREF-icsSubscribed");
@@ -550,7 +547,6 @@ calWcapSession.prototype = {
                 sessionId);
             this.installServerTimeDiff(sessionId, request);
             this.installServerTimezones(sessionId, request);
-
         } finally {
             request.unlockPending();
         }
@@ -558,7 +554,6 @@ calWcapSession.prototype = {
 
     installCalProps_get_calprops:
     function calWcapSession_installCalProps_get_calprops(respFunc, sessionId, cals, request) {
-
         var this_ = this;
         function calprops_resp(err, data) {
             if (err) {
@@ -592,7 +587,6 @@ calWcapSession.prototype = {
                             }
                         }
                     }
-
                 } catch (exc) { // ignore but log any errors on subscribed calendars:
                     logError(exc, this_);
                 }
@@ -714,8 +708,7 @@ calWcapSession.prototype = {
     },
 
     issueNetworkRequest: function calWcapSession_issueNetworkRequest(
-        request, respFunc, dataConvFunc, wcapCommand, params) {
-
+                    request, respFunc, dataConvFunc, wcapCommand, params) {
         var this_ = this;
         function getSessionId_resp(err, sessionId) {
             if (err) {
@@ -743,8 +736,7 @@ calWcapSession.prototype = {
     },
 
     issueNetworkRequest_: function calWcapSession_issueNetworkRequest_(
-        request, respFunc, dataConvFunc, wcapCommand, params, sessionId) {
-
+                    request, respFunc, dataConvFunc, wcapCommand, params, sessionId) {
         var url = this.getCommandUrl(wcapCommand, params, sessionId);
         var this_ = this;
         issueNetworkRequest(request,
@@ -943,7 +935,6 @@ calWcapSession.prototype = {
                     request.execRespFunc(null, ret);
                 },
                 null, "search_calprops", params);
-
         } catch (exc) {
             request.execRespFunc(exc);
         }
@@ -1036,7 +1027,6 @@ calWcapSession.prototype = {
                     }
                 },
                 stringToXml_, "get_freebusy", params);
-
         } catch (exc) {
             request.execRespFunc(exc);
         }
@@ -1068,8 +1058,6 @@ calWcapSession.prototype = {
         try {
             // make sure the calendar belongs to this session:
             if (this.belongsTo(aCalendar)) {
-
-
                 assureDefault("shared_context", this.m_contextId);
                 assureDefault("name", aCalendar.name);
 

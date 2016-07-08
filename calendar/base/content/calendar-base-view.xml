@@ -79,7 +79,6 @@
             },
 
             onAddItem: function onAddItem(aItem) {
-
                 if (cal.isToDo(aItem)) {
                     if (!aItem.entryDate && !aItem.dueDate) {
                         return;
@@ -102,7 +101,6 @@
             },
 
             onModifyItem: function onModifyItem(aNewItem, aOldItem) {
-
                 if (cal.isToDo(aNewItem) && cal.isToDo(aOldItem) &&
                     !this.calView.mTasksInView) {
                     return;
@@ -135,7 +133,6 @@
             },
 
             onDeleteItem: function onDeleteItem(aItem) {
-
                 if (cal.isToDo(aItem)) {
                     if (!this.calView.mTasksInView) {
                         return;

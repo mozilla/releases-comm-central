@@ -62,7 +62,6 @@ add_task(function* test_setDefaultValues_events() {
     Preferences.reset("calendar.alarms.onforevents");
     Preferences.reset("calendar.alarms.eventalarmunit");
     Preferences.reset("calendar.alarms.eventalarmlen");
-
 });
 
 add_task(function* test_setDefaultValues_tasks() {

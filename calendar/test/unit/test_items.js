@@ -65,11 +65,9 @@ function test_aclmanager() {
     e.id = "noentry";
     e.calendar = mockCalendar;
     equal(e.aclEntry, null);
-
 }
 
 function test_calendar() {
-
     let e = cal.createEvent();
     let pe = cal.createEvent();
 
@@ -108,7 +106,6 @@ function test_attachment() {
 }
 
 function test_attendee() {
-
     let e = cal.createEvent();
     equal(e.getAttendeeById("unknown"), null);
     equal(e.getAttendees({}).length, 0);
@@ -142,7 +139,6 @@ function test_attendee() {
 }
 
 function test_categories() {
-
     let e = cal.createEvent();
 
     equal(e.getCategories({}).length, 0);
@@ -190,7 +186,6 @@ function test_alarm() {
 }
 
 function test_immutable() {
-
     let e = cal.createEvent();
 
     let dt = cal.createDateTime();
@@ -253,7 +248,6 @@ function test_immutable() {
 }
 
 function test_lastack() {
-
     let e = cal.createEvent();
 
     e.alarmLastAck = cal.createDateTime("20120101T010101");

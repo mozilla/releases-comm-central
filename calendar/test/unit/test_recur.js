@@ -685,7 +685,6 @@ function test_rrule_interface() {
 }
 
 function test_startdate_change() {
-
     // Setting a start date if its missing shouldn't throw
     let item = makeEvent("DTEND:20020402T124500Z\r\n" +
                          "RRULE:FREQ=DAILY\r\n");

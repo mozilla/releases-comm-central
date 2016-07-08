@@ -38,7 +38,6 @@ cal.auth = {
                                                aPassword,
                                                aSavePassword,
                                                aFixedUsername) {
-
         if (typeof aUsername != "object" ||
             typeof aPassword != "object" ||
             typeof aSavePassword != "object") {

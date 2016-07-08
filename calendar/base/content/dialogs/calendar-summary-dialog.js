@@ -24,13 +24,11 @@ function onLoad() {
     // entity needs to immediately terminate the pending modification. in this
     // case we serialize the item and close the window.
     if (args.job) {
-
         // keep this context...
         var self = this;
 
         // store the 'finalize'-functor in the provided job-object.
         args.job.finalize = function finalize() {
-
             // store any pending modifications...
             self.onAccept();
 

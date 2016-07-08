@@ -147,7 +147,6 @@ function disableElement(aElement) {
  * @param lockId        The ID of the lock to set.
  */
 function disableElementWithLock(elementId, lockId) {
-
     // unconditionally disable the element.
     disableElement(elementId);
 
@@ -174,7 +173,6 @@ function disableElementWithLock(elementId, lockId) {
  * @param lockId        The ID of the lock to set.
  */
 function enableElementWithLock(elementId, lockId) {
-
     var element = document.getElementById(elementId);
     if (!element) {
         dump("unable to find " + elementId + "\n");

@@ -218,7 +218,6 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
 
         // Add a listener to detect close events, prompt user about saving changes.
         window.addEventListener("close", windowCloseListener, false);
-
     } else {
         // window dialog case
         iframe = document.createElement("iframe");
@@ -910,7 +909,6 @@ function onCommandViewToolbar(aToolbarId, aMenuItemId) {
  * @param {boolean} aToolboxChanged  When true the toolbox has changed
  */
 function dialogToolboxCustomizeDone(aToolboxChanged) {
-
     // Re-enable menu items (disabled during toolbar customization).
     let menubarId = gTabmail ? "mail-menubar" : "event-menubar";
     let menubar = document.getElementById(menubarId);
@@ -969,7 +967,6 @@ function onCommandCustomize() {
  *                                 data to create a menuitem
  */
 function loadCloudProviders(aItemObjects) {
-
     /**
      * Deletes any existing menu items in aParentNode that have a
      * cloudProviderAccountKey attribute.
@@ -997,7 +994,6 @@ function loadCloudProviders(aItemObjects) {
     }
 
     for (let itemObject of aItemObjects) {
-
         // Create a menu item.
         let item = createXULElement("menuitem");
         item.setAttribute("label", itemObject.label);

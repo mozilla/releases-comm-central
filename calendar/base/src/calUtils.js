@@ -1804,7 +1804,6 @@ function binaryInsertNode(parentNode, insertNode, aItem, comptor, discardDuplica
         newIndex = 0;
     } else if (!discardDuplicates ||
         comptor(accessor(parentNode.childNodes[Math.min(newIndex, parentNode.childNodes.length - 1)]), aItem) >= 0) {
-
         // Only add the node if duplicates should not be discarded, or if
         // they should and the childNode[newIndex] == node.
         let node = parentNode.childNodes[newIndex];

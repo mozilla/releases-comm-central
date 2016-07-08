@@ -111,7 +111,6 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                     weeklyString = getRString(weeklyString, [weekdays]);
                     ruleString = PluralForm.get(rule.interval, weeklyString)
                                            .replace("#2", rule.interval);
-
                 } else {
                     let weeklyString = getRString("weeklyEveryNth");
                     ruleString = PluralForm.get(rule.interval, weeklyString)

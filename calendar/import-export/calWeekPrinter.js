@@ -63,7 +63,6 @@ calWeekPrinter.prototype = {
             let boxDate = itemStartDate.clone();
             boxDate.isDate = true;
             for (boxDate; boxDate.compare(itemEndDate) < (itemEndDate.isDate ? 0 : 1); boxDate.day++) {
-
                 // Ignore items outside of the range, i.e tasks without start date
                 // where the end date is somewhere else.
                 if (aStart && aEnd && boxDate &&

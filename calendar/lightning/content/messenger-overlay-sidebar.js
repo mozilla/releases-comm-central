@@ -294,7 +294,6 @@ var calendarItemTabType = {
         // functionality), thus we confirm we have the expected values.
         if (args && args.calendar && args.calendar.id &&
             args.calendarEvent && args.calendarEvent.id) {
-
             let calendarId = args.calendar.id;
             let itemId = args.calendarEvent.id;
             // Handle null args.initialStartDateValue, just for good measure.
@@ -355,7 +354,6 @@ window.addEventListener("load", function(e) {
 
 
 function ltnOnLoad(event) {
-
     // nuke the onload, or we get called every time there's
     // any load that occurs
     window.removeEventListener("load", ltnOnLoad, false);
@@ -558,7 +556,6 @@ function refreshUIBits() {
 
         // update today's date on todaypane button
         document.getElementById("calendar-status-todaypane-button").setUpTodayDate();
-
     } catch (exc) {
         ASSERT(false, exc);
     }

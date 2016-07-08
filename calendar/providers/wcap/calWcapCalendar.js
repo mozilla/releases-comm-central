@@ -211,8 +211,7 @@ calWcapCalendar.prototype = {
     },
 
     issueNetworkRequest: function calWcapCalendar_issueNetworkRequest(
-        request, respFunc, dataConvFunc, wcapCommand, params, accessRights) {
-
+              request, respFunc, dataConvFunc, wcapCommand, params, accessRights) {
         var this_ = this;
         // - bootstrap problem: no cal_props, no access check, no default calId
         // - assure being logged in, thus the default cal_props are available

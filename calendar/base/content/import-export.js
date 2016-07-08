@@ -65,7 +65,6 @@ function loadEventsFromFile(aCalendar) {
 
     if (rv != nsIFilePicker.returnCancel &&
         fp.file && fp.file.path && fp.file.path.length > 0) {
-
         let filterIndex = fp.filterIndex;
         if (fp.filterIndex < 0 || fp.filterIndex > contractids.length) {
             // For some reason the wrong filter was selected, assume default extension

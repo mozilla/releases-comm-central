@@ -184,18 +184,15 @@
           // grid, sorted by rows first -> iterate the rows that may exist.
           var row = document.getAnonymousElementByAttribute(this, "anonid", "row");
           while (row) {
-
               // now iterater all the child nodes of this row
               // in order to visit each minimonth in turn.
               var numChilds = row.childNodes.length - 1;
               for (var i = 0; i < numChilds; i++) {
-
                   // we now have one of the minimonth controls while 'start'
                   // and 'end' are set to the interval this minimonth shows.
                   var minimonth = row.childNodes[i];
                   minimonth.showMonth(cal.dateTimeToJsDate(start));
                   if (aRecurrenceInfo) {
-
                       // retrieve an array of dates that represents all occurrences
                       // that fall into this time interval [start,end[.
                       // note: the following loop assumes that this array conains

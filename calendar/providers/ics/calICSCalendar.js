@@ -294,7 +294,6 @@ calICSCalendar.prototype = {
                 // the views from being notified.
                 this_.mMemoryCalendar.addObserver(this_.mObserver);
                 this_.unlock();
-
             }
         };
         parser.parseString(str, null, listener);

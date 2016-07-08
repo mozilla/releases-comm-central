@@ -350,7 +350,6 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
             }
         }
     } else { // PUBLISH, REQUEST
-
         // workarounds for server bugs concerning recurrences/exceptions:
         // - if first occurrence is an exception
         //   and an EXDATE for that occurrence ought to be written,
@@ -733,7 +732,6 @@ function calWcapCalendar_modifyItem(newItem, oldItem, listener) {
                                          params, calIWcapCalendar.AC_COMP_WRITE);
                 return request;
             }
-
         } else if (oldItem && !oldItem.parentItem.recurrenceInfo.getExceptionFor(newItem.recurrenceId)) {
             // pass null for oldItem when creating new exceptions, write whole item:
             oldItem_ = null;
@@ -851,7 +849,6 @@ calWcapCalendar.prototype.parseItems = function calWcapCalendar_parseItems(
 
     let count = 0;
     for (let subComp of cal.ical.calendarComponentIterator(icalRootComp, componentType)) {
-
         let organizer = subComp.getFirstProperty("ORGANIZER");
         if (organizer && organizer.getParameter("SENT-BY")) { // has SENT-BY
             // &emailorcalid=1 sets wrong email, workaround setting calid...
@@ -915,7 +912,6 @@ calWcapCalendar.prototype.parseItems = function calWcapCalendar_parseItems(
                         "\nitem.id=" + item.id, this);
                 }
                 excItems.push(item);
-
             } else if (item.recurrenceInfo) {
                 unexpandedItems.push(item);
                 uid2parent[item.id] = item;
@@ -1015,7 +1011,6 @@ calWcapCalendar.prototype.parseItems = function calWcapCalendar_parseItems(
             // only proxies returned:
             items = items.concat(occurrences);
         }
-
     } else {
         if (maxResults != 0 &&
             (items.length + unexpandedItems.length) > maxResults) {
@@ -1218,7 +1213,6 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
                         if (listener &&
                             (itemFilter & calICalendar.ITEM_FILTER_TYPE_EVENT) &&
                             rangeStart && rangeEnd) {
-
                             var freeBusyListener = { // calIGenericOperationListener:
                                 onResult: function freeBusyListener_onResult(request, result) {
                                     if (!Components.isSuccessCode(request.status)) {
@@ -1248,7 +1242,6 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
                         throw err;
                     }
                 } else if (listener) {
-
                     var items = this_.parseItems(
                         icalRootComp, itemFilter, maxResults,
                         rangeStart, rangeEnd);
@@ -1256,7 +1249,6 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
                     if (CACHE_LAST_RESULTS > 0) {
                         // auto invalidate after X minutes:
                         if (!this_.m_cachedResultsTimer) {
-
                             var callback = {
                                 notify: function notify(timer) {
                                     if (!this_.m_cachedResults) {

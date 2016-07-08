@@ -363,7 +363,6 @@ calOutlookCSVImporter.prototype = {
 
             // get next events fields
             eventFields = eventRegExp.exec(str);
-
         } while (eventRegExp.lastIndex != 0);
 
         // return results

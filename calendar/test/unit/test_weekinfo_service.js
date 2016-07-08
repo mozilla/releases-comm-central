@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-
     // Bug 1239622. The 1st of January after a leap year which ends with
     // a Thursday belongs to week number 53 unless the start of week is
     // set on Friday.

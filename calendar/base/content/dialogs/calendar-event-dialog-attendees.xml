@@ -482,7 +482,6 @@
               }
 
               if (abDir != null && abDir.supportsMailingLists) {
-
                 let childNodes = abDir.childNodes;
                 while (childNodes.hasMoreElements()) {
                   let dir = null;

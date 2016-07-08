@@ -118,7 +118,6 @@ calTransaction.prototype = {
                                                          aId,
                                                          aDetail) {
         if (Components.isSuccessCode(aStatus)) {
-
             cal.itip.checkAndSend(aOperationType,
                                   aDetail,
                                   this.mIsDoTransaction ? this.mOldItem : this.mItem);

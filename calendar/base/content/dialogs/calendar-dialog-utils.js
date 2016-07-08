@@ -554,11 +554,10 @@ function updateLink() {
  * setup attendees in event and summary dialog
  */
 function setupAttendees() {
-
     let attBox = document.getElementById("item-attendees-box");
     let attBoxRows = attBox.getElementsByClassName("item-attendees-row");
-    if (window.attendees && window.attendees.length > 0) {
 
+    if (window.attendees && window.attendees.length > 0) {
         // cloning of the template nodes
         let selector = "#item-attendees-box-template .item-attendees-row";
         let clonedRow = document.querySelector(selector).cloneNode(false);

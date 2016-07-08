@@ -215,7 +215,6 @@ etagsHandler.prototype = {
         if (this.calendar.verboseLogging()) {
             this.logXML += "<" + aQName + ">";
         }
-
     },
 
     endElement: function eH_endElement(aUri, aLocalName, aQName) {
@@ -227,7 +226,6 @@ etagsHandler.prototype = {
                     r.href && r.href.length &&
                     r.getcontenttype && r.getcontenttype.length &&
                     !r.isCollection) {
-
                     r.href = this.calendar.ensureDecodedPath(r.href);
 
                     if (r.getcontenttype.substr(0, 14) == "message/rfc822") {
@@ -498,7 +496,6 @@ webDavSyncHandler.prototype = {
                                                    this.changeLogListener)
             multiget.doMultiGet();
         }
-
     },
 
     startElement: function wH_startElement(aUri, aLocalName, aQName, aAttributes) {
@@ -531,7 +528,6 @@ webDavSyncHandler.prototype = {
         if (this.calendar.verboseLogging()) {
             this.logXML += "<" + aQName + ">";
         }
-
     },
 
     endElement: function wH_endElement(aUri, aLocalName, aQName) {
@@ -888,7 +884,6 @@ multigetSyncHandler.prototype = {
         if (this.calendar.verboseLogging()) {
             this.logXML += "<" + aQName + ">";
         }
-
     },
 
     endElement: function mg_endElement(aUri, aLocalName, aQName) {

@@ -10,7 +10,6 @@ var ltnSuiteUtils = {
     Services.obs.addObserver(this.startupObserver, "lightning-startup-done", false);
     Services.obs.addObserver(this.startupObserver, "calendar-taskview-startup-done",
                     false);
-
   },
 
   startupObserver: {
@@ -40,7 +39,6 @@ var ltnSuiteUtils = {
       });
     }
   }
-
 }
 
 ltnSuiteUtils.addStartupObserver();

@@ -684,7 +684,6 @@
               this.mViewEnd.compare(viewEnd) != 0 ||
               this.mViewStart.compare(viewStart) != 0 ||
               this.mToggleStatus != toggleStatus) {
-
               this.refresh();
           }
 

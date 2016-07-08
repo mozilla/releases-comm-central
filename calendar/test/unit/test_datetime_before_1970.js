@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-
     // Bug 769938 - dates before 1970 are not handled correctly
     // due to signed vs. unsigned mismatch in PRTime in xpconnect
 

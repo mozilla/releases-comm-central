@@ -607,7 +607,6 @@ function loadDialog(aItem) {
                     !(attachment.hashId in gAttachMap) &&
                     // We currently only support uri attachments.
                     attachment.uri) {
-
                     itemProps.initialAttachments[attachment.hashId] = attachment;
 
                     // XXX eventually we probably need to call addAttachment(attachment)
@@ -1918,7 +1917,6 @@ function loadCloudProviders() {
     let itemObjects = [];
 
     for (let [, cloudProvider] in Iterator(cloudFileAccounts.accounts)) {
-
         // Create a serializable object to pass in a message outside the iframe
         let itemObject = {};
         itemObject.displayName = cloudFileAccounts.getDisplayName(cloudProvider);
@@ -1966,7 +1964,6 @@ function attachURL() {
                                    result,
                                    null,
                                    { value: 0 })) {
-
             try {
                 // If something bogus was entered, makeURL may fail.
                 var attachment = createAttachment();
@@ -3018,7 +3015,6 @@ function onCommandSave(aIsClosing) {
     // the above item if we are not closing, otherwise the listener will be
     // missing its window afterwards.
     window.onAcceptCallback(item, calendar, originalItem, !aIsClosing && listener);
-
 }
 
 /**
@@ -3488,7 +3484,6 @@ function showOrHideItemURL(aShow, aUrl) {
         // and there is an external app for the scheme
         handler = cal.wrapInstance(handler, Components.interfaces.nsIExternalProtocolHandler);
         return !handler || handler.externalAppExistsForScheme(uri.scheme);
-
     } else {
         // Hide if there is no url, or the menuitem was chosen so that the url
         // should be hidden.
@@ -3503,7 +3498,6 @@ function showOrHideItemURL(aShow, aUrl) {
  * @param {string} aUrl    The url
  */
 function updateItemURL(aShow, aUrl) {
-
     // Hide or show the link
     setElementValue("event-grid-link-row", !aShow && "true", "hidden");
     // The separator is not there in the summary dialog

@@ -249,7 +249,6 @@ function refreshHtml(finishFunc) {
  */
 var closeOnComplete = {
     onStateChange: function onStateChange(aProgress, aRequest, aStateFlags, aStatus) {
-
         if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP) {
             // The request is complete, close the window.
             document.documentElement.cancelDialog();

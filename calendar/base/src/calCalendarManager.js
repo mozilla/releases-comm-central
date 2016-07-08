@@ -315,7 +315,6 @@ calCalendarManager.prototype = {
             }
             Preferences.set("calendar.list.sortOrder", sortOrderAr.join(" "));
             flushPrefs();
-
         } finally {
             selectPrefs.reset();
             selectCalendars.reset();
@@ -911,7 +910,6 @@ calMgrCalendarObserver.prototype = {
 
     // Error announcer specific functions
     announceError: function(aCalendar, aErrNo, aMessage) {
-
         var paramBlock = Components.classes["@mozilla.org/embedcomp/dialogparam;1"]
                                    .createInstance(Components.interfaces.nsIDialogParamBlock);
         var props = Services.strings.createBundle("chrome://calendar/locale/calendar.properties");

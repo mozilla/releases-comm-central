@@ -376,8 +376,8 @@ var clonePropMap = { "related": Ci.calIAlarm.ALARM_RELATED_END,
                      "offset": createDuration("PT5M"),
                      "repeatOffset": createDuration("PT2M")
 };
-function test_immutable() {
 
+function test_immutable() {
     dump("Testing immutable alarms...");
     let alarm = cal.createAlarm();
     // Set up each attribute
@@ -549,7 +549,6 @@ function test_serialize() {
         addDuration();
         alarm.icalComponent = comp;
     }, /Illegal value/, "Invalid Argument");
-
 }
 
 function test_strings() {

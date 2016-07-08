@@ -217,7 +217,6 @@ function test_param() {
     equal(prop.icalString, "DTSTART;X-FOO=BAR:20120101T010101\r\n");
     prop.removeParameter("X-FOO", "BAR");
     equal(prop.icalString, "DTSTART:20120101T010101\r\n");
-
 }
 
 function test_iterator() {

@@ -60,7 +60,6 @@ function test_found() {
 
             equal(result.length, 1);
             equal(result[0].id, "test");
-
         }
     };
 
@@ -99,7 +98,6 @@ function test_cancel() {
     let provider = {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICalendarSearchProvider, Components.interfaces.calIOperation]),
         searchForCalendars: function(aStr, aHint, aMax, aListener) {
-
             Services.tm.currentThread.dispatch({run: function() {
                 dump("Cancelling search...");
                 op.cancel();

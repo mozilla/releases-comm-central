@@ -1162,7 +1162,6 @@ calDavCalendar.prototype = {
         let wasInboxItem = this.mItemInfoCache[foundItem.id].isInboxItem;
         if ((wasInboxItem && this.isInbox(path)) ||
             (wasInboxItem === false && !this.isInbox(path))) {
-
             cal.LOG("CalDAV: deleting item: " + path + ", uid: " + foundItem.id);
             delete this.mHrefIndex[path];
             delete this.mItemInfoCache[foundItem.id];
@@ -1258,7 +1257,6 @@ calDavCalendar.prototype = {
      * @param aListener   listener for method completion
      */
     getUpdatedItem: function caldav_getUpdatedItem(aItem, aListener, aChangeLogListener) {
-
         if (aItem == null) {
             this.notifyOperationComplete(aListener,
                                          Components.results.NS_ERROR_FAILURE,
@@ -1449,7 +1447,6 @@ calDavCalendar.prototype = {
                 if (thisCalendar.verboseLogging()) {
                     cal.LOG("CalDAV: ctag mismatch on refresh, fetching data for " +
                             "calendar " + thisCalendar.name);
-
                 }
             } else {
                 if (thisCalendar.verboseLogging()) {
@@ -1972,7 +1969,6 @@ calDavCalendar.prototype = {
                 cal.LOG("CalDAV: Error getting DAV header for " + thisCalendar.name +
                         ", status " + request.responseStatus +
                         ", data: " + cal.convertByteArray(aResult, aResultLength));
-
             }
             // Google does not yet support OPTIONS but does support scheduling
             // so we'll spoof the DAV header until Google gets fixed
@@ -2382,7 +2378,6 @@ calDavCalendar.prototype = {
         return props.formatStringFromName("caldavRequestStatusCode", [ status ], 1) + ", " +
                statusString + "\n\n" +
                (extraInfo ? extraInfo : "");
-
     },
 
     //
@@ -2390,8 +2385,7 @@ calDavCalendar.prototype = {
     //
 
     getFreeBusyIntervals: function caldav_getFreeBusyIntervals(
-        aCalId, aRangeStart, aRangeEnd, aBusyTypes, aListener) {
-
+                             aCalId, aRangeStart, aRangeEnd, aBusyTypes, aListener) {
         // We explicitly don't check for hasScheduling here to allow free-busy queries
         // even in case sched is turned off.
         if (!this.outboxUrl || !this.calendarUserAddress) {
@@ -2741,7 +2735,6 @@ calDavCalendar.prototype = {
     },
 
     sendItems: function caldav_sendItems(aCount, aRecipients, aItipItem) {
-
         if (this.hasAutoScheduling) {
             // If auto scheduling is supported by the server we still need
             // to send out REPLIES for meetings where the ORGANIZER has the
@@ -2773,7 +2766,6 @@ calDavCalendar.prototype = {
         }
 
         for (var item of aItipItem.getItemList({})) {
-
             var serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
                                        .createInstance(Components.interfaces.calIIcsSerializer);
             serializer.addItems([item], 1);
@@ -2899,7 +2891,6 @@ calDavCalendar.prototype = {
 
     // nsIChannelEventSink implementation
     asyncOnChannelRedirect: function caldav_asyncOonChannelRedirect(aOldChannel, aNewChannel, aFlags, aCallback) {
-
         let uploadData;
         let uploadContent;
         if (aOldChannel instanceof Components.interfaces.nsIUploadChannel &&

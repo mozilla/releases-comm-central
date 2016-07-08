@@ -199,7 +199,6 @@ calStorageCalendar.prototype = {
             this.mDB = Services.storage.openDatabase(fileURL.file);
             this.mDB.executeSimpleSQL("PRAGMA journal_mode=WAL");
             upgradeDB(this.mDB);
-
         } else if (this.uri.schemeIs("moz-profile-calendar")) {
             // This is an old-style moz-profile-calendar. It requires some
             // migration steps.
@@ -925,7 +924,6 @@ calStorageCalendar.prototype = {
                       offline_journal_flag == null)) ||
                     (sp.offline_journal != null &&
                      (offline_journal_flag == sp.offline_journal))) {
-
                     count += handleResultItem(todoitem,
                                               Components.interfaces.calITodo,
                                               checkCompleted);
@@ -945,7 +943,6 @@ calStorageCalendar.prototype = {
                                      Components.interfaces.calIOperationListener.GET,
                                      null,
                                      null);
-
     },
 
     getItemOfflineFlag: function cSC_getOfflineJournalFlag(aItem, aListener) {
@@ -997,7 +994,6 @@ calStorageCalendar.prototype = {
             } finally {
                 this.mEditEventOfflineFlag.reset();
             }
-
         } else if (cal.isToDo(aItem)) {
             this.prepareStatement(this.mEditTodoOfflineFlag);
             this.mEditTodoOfflineFlag.params.id = aID;

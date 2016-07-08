@@ -69,7 +69,6 @@ function test_failures() {
     parser.parseString(str);
     equal(parser.getComponents({}).length, 0);
     equal(parser.getItems({}).length, 0);
-
 }
 
 function test_fake_parent() {

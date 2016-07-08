@@ -28,7 +28,6 @@ function run_test() {
     storage.addItem(item, { onOperationComplete: checkAddedItem });
 
     function checkAddedItem(c, s, o, i, addedItem) {
-
         let seq = addedItem.getProperty("SEQUENCE");
         let rec = addedItem.recurrenceInfo.getOccurrenceFor(rid);
 
@@ -55,7 +54,6 @@ function run_test() {
         changedItem2.setProperty("SEQUENCE", parseInt(seq, 10) + 1);
 
         storage.modifyItem(changedItem2, changedItem, { onOperationComplete: checkNormalItem });
-
     }
 
     function checkNormalItem(c, s, o, i, changedItem) {

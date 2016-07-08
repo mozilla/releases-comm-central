@@ -338,7 +338,6 @@ calAlarmService.prototype = {
             let snoozeDate;
             if (aItem.parentItem != aItem) {
                 snoozeDate = aItem.parentItem.getProperty("X-MOZ-SNOOZE-TIME-" + aItem.recurrenceId.nativeTime)
-
             } else {
                 snoozeDate = aItem.getProperty("X-MOZ-SNOOZE-TIME");
             }
@@ -447,7 +446,7 @@ calAlarmService.prototype = {
             aItem.hashId in this.mTimerMap[aItem.calendar.id] &&
             /* ...and is the alarm in the item map ? */
             aAlarm.icalString in this.mTimerMap[aItem.calendar.id][aItem.hashId]) {
-
+            // First cancel the existing timer
             let timer = this.mTimerMap[aItem.calendar.id][aItem.hashId][aAlarm.icalString];
             timer.cancel();
 

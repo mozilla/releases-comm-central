@@ -726,7 +726,6 @@
           let spanTotal = 0;
 
           for (let layer of this.mEventMap) {
-
               // The event-map (this.mEventMap) contains an array of layers.
               // For each layer we create a box below the stack just created above.
               // So each different layer lives in a box that's contained in the stack.
@@ -786,7 +785,6 @@
                           // hidden for tasks with only entry date OR due date.
                           if ((chunk.event.entryDate || !chunk.event.dueDate) &&
                               (!chunk.event.entryDate || chunk.event.dueDate)) {
-
                               let startGripVisible = (chunk.event.startDate || chunk.event.entryDate)
                                                          .compare(chunk.startDate) == 0;
                               let endGripVisible = (chunk.event.endDate || chunk.event.dueDate)
@@ -1122,12 +1120,10 @@
           // When we start a new blob, move to a new set of layers
           var layerOffset = 0;
           for (var glob of aBlobs) {
-
               var layerArray = [];
               var layerCounter = 1;
 
               for (var data of glob.blob) {
-
                   // from the item at hand we need to figure out on which
                   // layer and on which column it should go.
                   var layerIndex;
@@ -1451,7 +1447,6 @@
               event.clientX > (event.target.boxObject.x + event.target.boxObject.width) ||
               event.clientY < (event.target.boxObject.y) ||
               event.clientY > (event.target.boxObject.y + event.target.boxObject.height)) {
-
               // Remove the drag state
               for (let column = firstCol, i = firstIndex;
                    column && i < col.mDragState.shadows;
@@ -1865,7 +1860,6 @@
               // update drag labels
               let lastCol = this.firstLastShadowColumns().lastCol;
               this.updateDragLabels(this, lastCol);
-
           } else if (aGrabbedElement == "end") {
               this.mDragState.dragType = "modify-end";
               // we have to use "realStart" as fixed end value
@@ -1888,7 +1882,6 @@
               // update drag labels
               let firstCol = this.firstLastShadowColumns().firstCol;
               this.updateDragLabels(firstCol, this);
-
           } else if (aGrabbedElement == "middle") {
               this.mDragState.dragType = "move";
               // in a move, origMin will be the start minute of the element where
@@ -1998,8 +1991,7 @@
             throw Components.results.NS_ERROR_INVALID_ARG;
           }
           if (this.mDayStartMin != aDayStartMin ||
-            this.mDayEndMin != aDayEndMin) {
-
+              this.mDayEndMin != aDayEndMin) {
             this.mDayStartMin = aDayStartMin;
             this.mDayEndMin = aDayEndMin;
           }
@@ -2197,7 +2189,6 @@
             if (aItem && (itemBox.occurrence.hashId == aItem.hashId)) {
               itemBox.selected = true;
             }
-
           }
         ]]></body>
       </method>
@@ -2916,10 +2907,8 @@
               this.mViewEnd.compare(viewEnd) != 0 ||
               this.mViewStart.compare(viewStart) != 0 ||
               this.mToggleStatus != toggleStatus) {
-
               this.refresh();
           }
-
         ]]></body>
       </method>
 
@@ -3800,8 +3789,7 @@
             throw Components.results.NS_ERROR_INVALID_ARG;
           }
           if (this.mDayStartMin != aDayStartMin ||
-            this.mDayEndMin != aDayEndMin) {
-
+              this.mDayEndMin != aDayEndMin) {
             this.mDayStartMin = aDayStartMin;
             this.mDayEndMin = aDayEndMin;
 

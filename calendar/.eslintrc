@@ -162,6 +162,9 @@
     // single line of code to have only one easily predictable effect.
     "no-return-assign": 2,
 
+    // Disallow padding within blocks.
+    "padded-blocks": [2, "never"],
+
     // Will enable these rules later
     "block-spacing": 0,
     "no-lonely-if": 0,

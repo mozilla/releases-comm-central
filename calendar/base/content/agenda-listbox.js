@@ -1130,7 +1130,6 @@ var gEventTimer;
  *                                is current.
  */
 function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
-
     // Is an nsITimer/callback extreme overkill here? Yes, but it's necessary to
     // workaround bug 291386.  If we don't, we stand a decent chance of getting
     // stuck in an infinite loop.

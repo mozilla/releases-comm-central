@@ -744,7 +744,6 @@ upgrade.v3 = function upgrade_v3(db, version) {
 
     beginTransaction(db);
     try {
-
         copyTable(tbl, "cal_items", "cal_events", db, "item_type = 0");
         copyTable(tbl, "cal_items", "cal_todos", db, "item_type = 1");
 
@@ -1161,7 +1160,6 @@ upgrade.v16 = function upgrade_v16(db, version) {
                                  "   FROM " + tbl +
                                  "  WHERE alarm_offset IS NOT NULL" +
                                  "     OR alarm_time IS NOT NULL;");
-
         };
         copyDataOver("cal_events");
         copyDataOver("cal_todos");
@@ -1258,7 +1256,6 @@ upgrade.v17 = function upgrade_v17(db, version) {
                         "cal_" + tblName,
                         db,
                         true);
-
         }
         setDbVersionAndCommit(db, 17);
     } catch (e) {
@@ -1370,8 +1367,8 @@ upgrade.v21 = function upgrade_v21(db, version) {
     let tbl = upgrade.v20(version < 20 && db, version);
     LOGdb(db, "Storage: Upgrading to v21");
     beginTransaction(db);
-    try {
 
+    try {
         // The following operation is only important on a live DB, since we are
         // changing only the values on the DB, not the schema itself.
         if (db) {

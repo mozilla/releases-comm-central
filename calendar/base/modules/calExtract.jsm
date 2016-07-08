@@ -375,7 +375,6 @@ Extractor.prototype = {
 
                     if (this.isValidDay(day) && this.isValidMonth(month) &&
                         this.isValidYear(year)) {
-
                         let rev = this.prefixSuffixStartEnd(res, relation, this.email);
                         this.guess(year, month, day, null, null,
                                    rev.start, rev.end, rev.pattern, rev.relation, pattern);
@@ -711,7 +710,6 @@ Extractor.prototype = {
                     this.collected[inner].end <= this.collected[outer].end &&
                     !(this.collected[inner].start == this.collected[outer].start &&
                         this.collected[inner].end == this.collected[outer].end)) {
-
                         cal.LOG("[calExtract] " + this.collected[outer].str + " found as well, disgarding " + this.collected[inner].str);
                         this.collected[inner].relation = "notadatetime";
                 }

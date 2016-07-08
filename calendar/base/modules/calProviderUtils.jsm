@@ -255,7 +255,6 @@ cal.getEmailIdentityOfCalendar = function calGetEmailIdentityOfCalendar(aCalenda
         }
         return identity;
     } else { // take default account/identity:
-
         let accounts = MailServices.accounts.accounts;
         let account = null;
         let identity = null;
@@ -304,7 +303,6 @@ cal.getEmailIdentityOfCalendar = function calGetEmailIdentityOfCalendar(aCalenda
  * @return              A calIDateTime object
  */
 cal.fromRFC3339 = function fromRFC3339(aStr, aTimezone) {
-
     // XXX I have not covered leapseconds (matches[8]), this might need to
     // be done. The only reference to leap seconds I found is bug 227329.
     //
@@ -341,14 +339,12 @@ cal.fromRFC3339 = function fromRFC3339(aStr, aTimezone) {
         // If the dates timezone is "Z" or "z", then this is UTC, no matter
         // what timezone was passed
         dateTime.timezone = cal.UTC();
-
     } else if (matches[9] == null) {
         // We have no timezone info, only a date. We have no way to
         // know what timezone we are in, so lets assume we are in the
         // timezone of our local calendar, or whatever was passed.
 
         dateTime.timezone = aTimezone;
-
     } else {
         let offset_in_s = (matches[11] == "-" ? -1 : 1) *
             ( (matches[12] * 3600) + (matches[13] * 60) );
@@ -392,7 +388,6 @@ cal.fromRFC3339 = function fromRFC3339(aStr, aTimezone) {
  * @return              The RFC3339 compliant date string
  */
 cal.toRFC3339 = function toRFC3339(aDateTime) {
-
     if (!aDateTime) {
         return "";
     }
@@ -641,7 +636,6 @@ cal.ProviderBase.prototype = {
                 cal.ERROR(exc);
             }
         }
-
     },
 
     notifyOperationComplete: function cPB_notifyOperationComplete(aListener,
