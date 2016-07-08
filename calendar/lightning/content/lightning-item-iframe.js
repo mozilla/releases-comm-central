@@ -1821,6 +1821,7 @@ function editAttendees() {
         updateAttendees();
         updateDateTime();
         updateAllDay();
+
         if (isAllDay != gStartTime.isDate){
             setShowTimeAs(gStartTime.isDate);
         }
@@ -2092,6 +2093,7 @@ function lastDirectory(aFileUri) {
  */
 function makePrettyName(aUri){
     let name = aUri.spec;
+
     if (aUri.schemeIs("file")) {
         name = aUri.spec.split("/").pop();
     } else if (aUri.schemeIs("http")) {

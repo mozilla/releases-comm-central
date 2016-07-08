@@ -1390,10 +1390,10 @@
               diffEnd = scrollbox.boxObject.x + scrollbox.boxObject.width - event.clientX;
           }
 
-          const SCROLLZONE = 55;    // Size (pixels) of the top/bottom view where the scroll starts.
-          const MAXTIMEOUT = 250,   // Max and min time interval (ms) between
-                MINTIMEOUT = 30;    // two consecutive scrolls.
-          const SCROLLBYHOUR = .33; // Part of hour to move for each scroll.
+          const SCROLLZONE = 55;     // Size (pixels) of the top/bottom view where the scroll starts.
+          const MAXTIMEOUT = 250,    // Max and min time interval (ms) between
+                MINTIMEOUT = 30;     // two consecutive scrolls.
+          const SCROLLBYHOUR = 0.33; // Part of hour to move for each scroll.
           let insideScrollZone = 0;
           let pxPerHr = event.target.mPixPerMin * 60;
           let scrollBy = Math.floor(pxPerHr * SCROLLBYHOUR);

@@ -347,6 +347,9 @@
     // Disallow Case Statement Fallthrough
     "no-fallthrough": 2,
 
+    // Disallow Floating Decimals
+    "no-floating-decimal": 2,
+
     // Will enable these rules later
     "block-spacing": 0,
     "no-lonely-if": 0,
