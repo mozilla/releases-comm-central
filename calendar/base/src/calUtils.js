@@ -267,12 +267,12 @@ function getCalendarDirectory() {
  * @return              True if the calendar is writable
  */
 function isCalendarWritable(aCalendar) {
-    return (!aCalendar.getProperty("disabled") &&
+    return !aCalendar.getProperty("disabled") &&
             !aCalendar.readOnly &&
             (!Services.io.offline ||
              aCalendar.getProperty("cache.enabled") ||
              aCalendar.getProperty("cache.always") ||
-             aCalendar.getProperty("requiresNetwork") === false));
+             aCalendar.getProperty("requiresNetwork") === false);
 }
 
 /**
@@ -283,7 +283,7 @@ function isCalendarWritable(aCalendar) {
  */
 function userCanAddItemsToCalendar(aCalendar) {
     let aclEntry = aCalendar.aclEntry;
-    return (!aclEntry || !aclEntry.hasAccessControl || aclEntry.userIsOwner || aclEntry.userCanAddItems);
+    return !aclEntry || !aclEntry.hasAccessControl || aclEntry.userIsOwner || aclEntry.userCanAddItems;
 }
 
 /**
@@ -294,7 +294,7 @@ function userCanAddItemsToCalendar(aCalendar) {
  */
 function userCanDeleteItemsFromCalendar(aCalendar) {
     let aclEntry = aCalendar.aclEntry;
-    return (!aclEntry || !aclEntry.hasAccessControl || aclEntry.userIsOwner || aclEntry.userCanDeleteItems);
+    return !aclEntry || !aclEntry.hasAccessControl || aclEntry.userIsOwner || aclEntry.userCanDeleteItems;
 }
 
 /**
@@ -307,7 +307,7 @@ function userCanDeleteItemsFromCalendar(aCalendar) {
  */
 function userCanModifyItem(aItem) {
     let aclEntry = aItem.aclEntry;
-    return (!aclEntry || !aclEntry.calendarEntry.hasAccessControl || aclEntry.calendarEntry.userIsOwner || aclEntry.userCanModify);
+    return !aclEntry || !aclEntry.calendarEntry.hasAccessControl || aclEntry.calendarEntry.userIsOwner || aclEntry.userCanModify;
 }
 
 /**
@@ -701,7 +701,7 @@ function calGetString(aBundleName, aStringName, aParams, aComponent="calendar") 
             return props.GetStringFromName(aStringName);
         }
     } catch (ex) {
-        let s = ("Failed to read '" + aStringName + "' from " + propName + ".");
+        let s = "Failed to read '" + aStringName + "' from " + propName + ".";
         Components.utils.reportError(s + " Error: " + ex);
         return s;
     }
@@ -1104,10 +1104,10 @@ function checkIfInRange(item, rangeStart, rangeEnd, returnDtstartOrDue) {
             // xxx todo: should we assert this case?
             return null;
         }
-        endDate = (item.endDate || startDate);
+        endDate = item.endDate || startDate;
     } else {
         let dueDate = item.dueDate;
-        startDate = (item.entryDate || dueDate);
+        startDate = item.entryDate || dueDate;
         if (!item.entryDate) {
             if (returnDtstartOrDue) { // DTSTART or DUE mandatory
                 return null;
@@ -1122,7 +1122,7 @@ function checkIfInRange(item, rangeStart, rangeEnd, returnDtstartOrDue) {
                    completedDate.compare(queryStart) > 0 ||
                    (dueDate && dueDate.compare(queryStart) >= 0);
         }
-        endDate = (dueDate || startDate);
+        endDate = dueDate || startDate;
     }
 
     let start = ensureDateTime(startDate);
@@ -1283,10 +1283,10 @@ function calOperationGroup(cancelFunc) {
         calOperationGroup.mOpGroupId = 0;
     }
     if (calOperationGroup.mOpGroupPrefix === undefined) {
-        calOperationGroup.mOpGroupPrefix = (getUUID() + "-");
+        calOperationGroup.mOpGroupPrefix = getUUID() + "-";
     }
     this.mCancelFunc = cancelFunc;
-    this.mId = (calOperationGroup.mOpGroupPrefix + calOperationGroup.mOpGroupId++);
+    this.mId = calOperationGroup.mOpGroupPrefix + calOperationGroup.mOpGroupId++;
     this.mSubOperations = [];
 }
 calOperationGroup.prototype = {
@@ -1323,7 +1323,7 @@ calOperationGroup.prototype = {
     },
 
     toString: function calOperationGroup_toString() {
-        return ("[calOperationGroup] id=" + this.id);
+        return "[calOperationGroup] id=" + this.id;
     },
 
     // calIOperation:

@@ -241,7 +241,7 @@ calDavCalendar.prototype = {
     setMetaData: function caldav_setMetaData(id, path, etag, isInboxItem) {
         if (this.mOfflineStorage.setMetaData) {
             if (id) {
-                let dataString = [etag, path, (isInboxItem ? "true" : "false")].join("\u001A");
+                let dataString = [etag, path, isInboxItem ? "true" : "false"].join("\u001A");
                 this.mOfflineStorage.setMetaData(id, dataString);
             } else {
                 cal.LOG("CalDAV: cannot store meta data without an id");
@@ -323,7 +323,7 @@ calDavCalendar.prototype = {
                     let item = { etag: etag,
                                  isNew: false,
                                  locationPath: locationPath,
-                                 isInboxItem: (isInboxItem == "true") };
+                                 isInboxItem: isInboxItem == "true" };
                     this.mItemInfoCache[itemId] = item;
                 }
             }
@@ -377,7 +377,7 @@ calDavCalendar.prototype = {
 
         const OAUTH_GRACE_TIME = 30 * 1000;
 
-        let usesGoogleOAuth = (aUri && aUri.host == "apidata.googleusercontent.com" && this.oauth);
+        let usesGoogleOAuth = aUri && aUri.host == "apidata.googleusercontent.com" && this.oauth;
         let origArgs = arguments;
         let self = this;
 
@@ -564,9 +564,9 @@ calDavCalendar.prototype = {
                 } // else use outbound email-based iTIP (from cal.ProviderBase)
                 break;
             case "capabilities.tasks.supported":
-                return (this.supportedItemTypes.includes("VTODO"));
+                return this.supportedItemTypes.includes("VTODO");
             case "capabilities.events.supported":
-                return (this.supportedItemTypes.includes("VEVENT"));
+                return this.supportedItemTypes.includes("VEVENT");
             case "capabilities.autoschedule.supported":
                 return this.hasAutoScheduling;
         }
@@ -2618,9 +2618,9 @@ calDavCalendar.prototype = {
     isInbox: function caldav_isInbox(aString) {
         // Note: If you change this, make sure it really returns a boolean
         // value and not null!
-        return ((this.hasScheduling || this.hasAutoScheduling) &&
-                (this.mInboxUrl != null) &&
-                aString.startsWith(this.mInboxUrl.spec));
+        return (this.hasScheduling || this.hasAutoScheduling) &&
+               this.mInboxUrl != null &&
+               aString.startsWith(this.mInboxUrl.spec);
     },
 
     /**

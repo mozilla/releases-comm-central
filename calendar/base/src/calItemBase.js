@@ -60,7 +60,7 @@ calItemBase.prototype = {
      */
     get aclEntry() {
         let aclEntry = this.mACLEntry;
-        let aclManager = (this.calendar && this.calendar.superCalendar.aclManager);
+        let aclManager = this.calendar && this.calendar.superCalendar.aclManager;
 
         if (!aclEntry && aclManager) {
             this.mACLEntry = aclManager.getItemEntry(this);
@@ -121,7 +121,7 @@ calItemBase.prototype = {
 
     // attribute calIItemBase parentItem;
     get parentItem() {
-        return (this.mParentItem || this);
+        return this.mParentItem || this;
     },
     set parentItem(value) {
         if (this.mImmutable) {
@@ -229,10 +229,10 @@ calItemBase.prototype = {
 
      // boolean hasSameIds(in calIItemBase aItem);
     hasSameIds: function cIB_hasSameIds(that) {
-        return (that && this.id == that.id &&
-                (this.recurrenceId == that.recurrenceId || // both null
-                 (this.recurrenceId && that.recurrenceId &&
-                  this.recurrenceId.compare(that.recurrenceId) == 0)));
+        return that && this.id == that.id &&
+               (this.recurrenceId == that.recurrenceId || // both null
+                (this.recurrenceId && that.recurrenceId &&
+                 this.recurrenceId.compare(that.recurrenceId) == 0));
     },
 
     // calIItemBase clone();
@@ -251,7 +251,7 @@ calItemBase.prototype = {
         m.mImmutable = false;
         m.mACLEntry = this.mACLEntry;
         m.mIsProxy = this.mIsProxy;
-        m.mParentItem = (calTryWrappedJSObject(aNewParent) || this.mParentItem);
+        m.mParentItem = calTryWrappedJSObject(aNewParent) || this.mParentItem;
         m.mHashId = this.mHashId;
         m.mCalendar = this.mCalendar;
         if (this.mRecurrenceInfo) {
@@ -454,8 +454,8 @@ calItemBase.prototype = {
     hasPropertyParameter: function cIB_hasPropertyParameter(aPropName, aParamName) {
         let propName = aPropName.toUpperCase();
         let paramName = aParamName.toUpperCase();
-        return ((propName in this.mPropertyParams) &&
-                (paramName in this.mPropertyParams[propName]));
+        return (propName in this.mPropertyParams) &&
+                (paramName in this.mPropertyParams[propName]);
     },
 
     // void setPropertyParameter(in AString aPropertyName,
@@ -941,7 +941,7 @@ calItemBase.prototype = {
 
     // boolean isPropertyPromoted(in AString name);
     isPropertyPromoted: function cIB_isPropertyPromoted(name) {
-        return (this.itemBasePromotedProps[name.toUpperCase()]);
+        return this.itemBasePromotedProps[name.toUpperCase()];
     },
 
     // attribute calIIcalComponent icalComponent;

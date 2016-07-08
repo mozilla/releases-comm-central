@@ -380,7 +380,7 @@ calMemoryCalendar.prototype = {
         }
         function checkUnrespondedInvitation(item) {
             let att = superCal.getInvitedAttendee(item);
-            return (att && (att.participationStatus == "NEEDS-ACTION"));
+            return att && att.participationStatus == "NEEDS-ACTION";
         }
 
         // item base type

@@ -402,11 +402,12 @@ function openEventDialog(calendarItem, calendar, mode, callback, job, initialDat
              * check that the user can remove items from that calendar and
              * add items to the current one.
              */
-            return (((calendarItem.calendar != aCalendar) &&
-                     userCanDeleteItemsFromCalendar(calendarItem.calendar) &&
-                     userCanAddItemsToCalendar(aCalendar)) ||
-                    ((calendarItem.calendar == aCalendar) &&
-                     userCanModifyItem(calendarItem)));
+            let isSameCalendar = calendarItem.calendar == aCalendar;
+            let canModify = userCanModifyItem(calendarItem);
+            let canMoveItems = userCanDeleteItemsFromCalendar(calendarItem.calendar) &&
+                               userCanAddItemsToCalendar(aCalendar);
+
+            return isSameCalendar ? canModify : canMoveItems;
         });
     }
 
@@ -438,7 +439,7 @@ function openEventDialog(calendarItem, calendar, mode, callback, job, initialDat
     args.mode = mode;
     args.onOk = callback;
     args.job = job;
-    args.initialStartDateValue = (initialDate || getDefaultStartDate());
+    args.initialStartDateValue = initialDate || getDefaultStartDate();
     args.inTab = Preferences.get("calendar.item.editInTab", false);
     args.useNewItemUI = Preferences.get("calendar.item.useNewItemUI", false);
 

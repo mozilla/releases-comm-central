@@ -419,7 +419,7 @@ var calendarOfflineManager = {
     },
 
     isOnline: function cOM_isOnline() {
-        return (!Services.io.offline);
+        return !Services.io.offline;
     },
 
     updateOfflineUI: function cOM_updateOfflineUI(aIsOffline) {

@@ -40,7 +40,7 @@ calWcapCalendar.prototype = {
     toString: function calWcapCalendar_toString() {
         let str = this.session.toString();
         if (this.m_calId) {
-            str += (", calId=" + this.calId);
+            str += ", calId=" + this.calId;
         } else {
             str += ", default calendar";
         }
@@ -62,7 +62,7 @@ calWcapCalendar.prototype = {
             this,
             err instanceof Components.interfaces.nsIException
             ? [err.result, err.message]
-            : [(isNaN(err) ? Components.results.NS_ERROR_FAILURE : err), msg]);
+            : [isNaN(err) ? Components.results.NS_ERROR_FAILURE : err, msg]);
     },
     notifyError: function calWcapCalendar_notifyError(err, msg) {
         this.notifyError_(err, msg, this);
@@ -110,7 +110,7 @@ calWcapCalendar.prototype = {
         if (qmPos != -1) {
             let pos = path.indexOf("?calid=", qmPos);
             if (pos != -1) {
-                let start = (pos + "?calid=".length);
+                let start = pos + "?calid=".length;
                 let end = path.indexOf("&", start);
                 this.m_calId = decodeURIComponent(
                     path.substring(start, end == -1 ? path.length : end));
@@ -244,7 +244,7 @@ calWcapCalendar.prototype = {
 
     m_calId: null,
     get calId() {
-        return (this.m_calId || this.session.defaultCalId);
+        return this.m_calId || this.session.defaultCalId;
     },
 
     get ownerId() {

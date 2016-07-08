@@ -95,11 +95,10 @@ calWeekInfoService.prototype = {
     getStartOfWeek: function(aDate) {
         let date = aDate.clone();
         date.isDate = true;
-        let offset = (Preferences.get("calendar.week.start", 0) - aDate.weekday);
+        let offset = Preferences.get("calendar.week.start", 0) - aDate.weekday;
+        date.day += offset;
         if (offset > 0) {
-            date.day -= (7 - offset);
-        } else {
-            date.day += offset;
+            date.day -= 7;
         }
         return date;
     },

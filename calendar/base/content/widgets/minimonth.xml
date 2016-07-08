@@ -189,7 +189,7 @@
            let months = document.getAnonymousElementByAttribute(this, "anonid", "months-popup").firstChild.childNodes;
            let month = aDate.getMonth();
            for (let i = 0; i < months.length; i++) {
-               months[i].setAttribute("current", (i == month) ? "true" : "false");
+               months[i].setAttribute("current", i == month ? "true" : "false");
            }
          ]]></body>
        </method>
@@ -203,7 +203,7 @@
            for (let i = 1; i < years.length - 1; i++) {
                let curfullYear = year.getFullYear();
                years[i].setAttribute("value", curfullYear);
-               years[i].setAttribute("current", (curfullYear == compFullYear) ? "true" : "false");
+               years[i].setAttribute("current", curfullYear == compFullYear ? "true" : "false");
                year.setFullYear(curfullYear + 1);
            }
          ]]></body>

@@ -408,9 +408,9 @@ calCalendarManager.prototype = {
 
         let promptSvc = Services.prompt;
 
-        let errorBoxButtonFlags = (promptSvc.BUTTON_POS_0 *
-                                   promptSvc.BUTTON_TITLE_IS_STRING +
-                                   promptSvc.BUTTON_POS_0_DEFAULT);
+        let errorBoxButtonFlags = promptSvc.BUTTON_POS_0 *
+                                  promptSvc.BUTTON_TITLE_IS_STRING +
+                                  promptSvc.BUTTON_POS_0_DEFAULT;
 
         promptSvc.confirmEx(null,
                             errorBoxTitle,
@@ -723,7 +723,7 @@ calCalendarManager.prototype = {
         cal.ASSERT(calendar.id !== null, "Calendar id needs to be set!");
         cal.ASSERT(name && name.length > 0, "Pref Name must be non-empty!");
 
-        let branch = (getPrefBranchFor(calendar.id) + name);
+        let branch = getPrefBranchFor(calendar.id) + name;
         let value = Preferences.get(branch, null);
 
         if (typeof value == "string" && value.startsWith("bignum:")) {
@@ -740,7 +740,7 @@ calCalendarManager.prototype = {
         cal.ASSERT(calendar.id !== null, "Calendar id needs to be set!");
         cal.ASSERT(name && name.length > 0, "Pref Name must be non-empty!");
 
-        let branch = (getPrefBranchFor(calendar.id) + name);
+        let branch = getPrefBranchFor(calendar.id) + name;
 
         if (typeof value == "number" && (value > MAX_INT || value < MIN_INT || !Number.isInteger(value))) {
             // This is something the preferences service can't store directly.
@@ -1030,7 +1030,7 @@ calDummyCalendar.prototype = {
 };
 
 function getPrefBranchFor(id) {
-    return (REGISTRY_BRANCH + id + ".");
+    return REGISTRY_BRANCH + id + ".";
 }
 
 /**

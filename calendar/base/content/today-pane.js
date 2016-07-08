@@ -75,14 +75,14 @@ var TodayPane = {
         todayHeader.setAttribute("index", index);
         todayHeader.setAttribute("value", this.paneViews[index]);
         let todayPaneSplitter = document.getElementById("today-pane-splitter");
-        setBooleanAttribute(todayPaneSplitter, "hidden", (index != 0));
+        setBooleanAttribute(todayPaneSplitter, "hidden", index != 0);
         let todayIsVisible = document.getElementById("today-pane-panel").isVisible();
 
         // Disable or enable the today pane menuitems that have an attribute
         // name="minidisplay" depending on the visibility of elements.
         let menu = document.getElementById("ltnTodayPaneMenuPopup");
         if (menu) {
-            setAttributeToChildren(menu, "disabled", (!todayIsVisible || !agendaIsVisible), "name", "minidisplay");
+            setAttributeToChildren(menu, "disabled", !todayIsVisible || !agendaIsVisible, "name", "minidisplay");
         }
 
         onCalendarViewResize();
@@ -389,7 +389,7 @@ var TodayPane = {
      * Checks if the today pane is showing today's date.
      */
     showsToday: function showsToday() {
-        return (cal.sameDay(cal.now(), this.start));
+        return cal.sameDay(cal.now(), this.start);
     },
 
     /**

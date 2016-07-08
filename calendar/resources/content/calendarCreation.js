@@ -38,7 +38,7 @@ function initCustomizePage() {
 
     let suppressAlarmsRow = document.getElementById("customize-suppressAlarms-row");
     suppressAlarmsRow.hidden =
-        (gCalendar && gCalendar.getProperty("capabilities.alarms.popup.supported") === false);
+        gCalendar && gCalendar.getProperty("capabilities.alarms.popup.supported") === false;
     document.getElementById("calendar-color").value = "#A8C2E1";
 }
 

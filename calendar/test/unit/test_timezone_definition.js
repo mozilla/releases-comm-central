@@ -12,7 +12,7 @@ function run_test() {
  * @returns  {boolean}
  */
 function valid_tz_version(aVersionString) {
-    return (aVersionString.match(/^2\.(\d{4})(z*[a-z])$/));
+    return aVersionString.match(/^2\.(\d{4})(z*[a-z])$/);
 }
 
 // check tz database version

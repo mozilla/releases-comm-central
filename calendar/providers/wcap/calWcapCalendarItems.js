@@ -17,7 +17,7 @@ function calWcapCalendar_encodeAttendee(att) {
                 params += "^";
             }
             if (attr) {
-                params += (attr + "=");
+                params += attr + "=";
             }
             params += encodeURIComponent(val);
         }
@@ -47,7 +47,7 @@ function calWcapCalendar_getRecurrenceParams(item, out_rrules, out_rdates, out_e
             let rRuleInstance = cal.wrapInstance(rItem, Components.interfaces.calIRecurrenceRule);
             let rDateInstance = cal.wrapInstance(rItem, Components.interfaces.calIRecurrenceDate);
             if (rRuleInstance) {
-                let rule = ("\"" + encodeURIComponent(rRuleInstance.icalProperty.valueAsIcalString) + "\"");
+                let rule = "\"" + encodeURIComponent(rRuleInstance.icalProperty.valueAsIcalString) + "\"";
                 if (isNeg) {
                     out_exrules.value.push(rule);
                 } else {
@@ -69,11 +69,8 @@ function calWcapCalendar_getRecurrenceParams(item, out_rrules, out_rdates, out_e
 };
 
 function sameStringSet(list, list_) {
-    return (list.length == list_.length &&
-            list.every(function everyFunc(x) {
-                    return list_.some(
-                        function someFunc(y) { return x == y; });
-                }));
+    return list.length == list_.length &&
+           list.every(x => list_.some(y => x == y));
 }
 
 calWcapCalendar.prototype.encodeRecurrenceParams =
@@ -121,16 +118,16 @@ calWcapCalendar.prototype.encodeRecurrenceParams =
 
     let ret = "";
     if (rrules.value) {
-        ret += ("&rrules=" + rrules.value.join(";"));
+        ret += "&rrules=" + rrules.value.join(";");
     }
     if (rdates.value) {
-        ret += ("&rdates=" + rdates.value.join(";"));
+        ret += "&rdates=" + rdates.value.join(";");
     }
     if (exrules.value) {
-        ret += ("&exrules=" + exrules.value.join(";"));
+        ret += "&exrules=" + exrules.value.join(";");
     }
     if (!excludeExdates && exdates.value) {
-        ret += ("&exdates=" + exdates.value.join(";"));
+        ret += "&exdates=" + exdates.value.join(";");
     }
     return ret;
     // xxx todo:
@@ -166,8 +163,8 @@ function calWcapCalendar_getAlarmParams(item) {
             emails = this.session.getDefaultAlarmEmails({}).map(encodeURIComponent).join(";");
         }
         if (emails.length > 0) {
-            params = ("&alarmStart=" + alarmStart.icalString);
-            params += ("&alarmEmails=" + emails);
+            params = "&alarmStart=" + alarmStart.icalString;
+            params += "&alarmEmails=" + emails;
         }
         // else popup
     }
@@ -227,9 +224,9 @@ function calWcapCalendar_canNotify(method, item) {
         case "REQUEST":
         case "CANCEL":
             // when creating new items, mind that organizer's id
-            return (!item.organizer || // might yet not be set
-                    (item.organizer.id == calId) || // or is set to raw calId
-                    (getCalId(item.organizer) == calId));
+            return !item.organizer || // might yet not be set
+                   item.organizer.id == calId || // or is set to raw calId
+                   getCalId(item.organizer) == calId;
         case "REPLY": // only if we we're invited from cs, and find matching X-S1CS-CALID:
             return (getAttendeeByCalId(item.getAttendees({}), calId) != null);
         default:
@@ -238,16 +235,16 @@ function calWcapCalendar_canNotify(method, item) {
 };
 
 function equalDatetimes(one, two) {
-    return ((!one && !two) ||
-            (one && two &&
-             (one.isDate == two.isDate) &&
-             (one.compare(two) == 0)));
+    return !one && !two ||
+           (one && two &&
+            one.isDate == two.isDate &&
+            one.compare(two) == 0);
 }
 
 function identicalDatetimes(one, two) {
-    return ((!one && !two) ||
-            (equalDatetimes(one, two) &&
-             compareObjects(one.timezone, two.timezone)));
+    return !one && !two ||
+           (equalDatetimes(one, two) &&
+            compareObjects(one.timezone, two.timezone));
 }
 
 // @return null if nothing has changed else value to be written
@@ -347,8 +344,8 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
             }
             if (!oldAtt || (att.participationStatus != oldAtt.participationStatus)) {
                 // REPLY first for just this calendar:
-                params += ("&attendees=PARTSTAT=" + att.participationStatus +
-                           "^" + encodeURIComponent(att.id));
+                params += "&attendees=PARTSTAT=" + att.participationStatus +
+                           "^" + encodeURIComponent(att.id);
             }
         }
     } else { // PUBLISH, REQUEST
@@ -365,12 +362,12 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
         if (bIsEvent) {
             dtstart = item.startDate;
             dtend = item.endDate;
-            bIsAllDay = (dtstart.isDate && dtend.isDate);
+            bIsAllDay = dtstart.isDate && dtend.isDate;
             if (!oldItem || !identicalDatetimes(dtstart, oldItem.startDate) ||
                 !identicalDatetimes(dtend, oldItem.endDate)) {
-                params += ("&dtstart=" + getIcalUTC(dtstart)); // timezone will be set with tzid param
-                params += ("&dtend=" + getIcalUTC(dtend));
-                params += (bIsAllDay ? "&isAllDay=1" : "&isAllDay=0");
+                params += "&dtstart=" + getIcalUTC(dtstart); // timezone will be set with tzid param
+                params += "&dtend=" + getIcalUTC(dtend);
+                params += bIsAllDay ? "&isAllDay=1" : "&isAllDay=0";
 
                 if (bIsParent && item.recurrenceInfo) {
                     oldItem = null; // recurrence/exceptions hack: write whole master
@@ -387,12 +384,12 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
                 dtend = dtstart;
             }
 
-            bIsAllDay = (dtstart && dtstart.isDate);
+            bIsAllDay = dtstart && dtstart.isDate;
             if (!oldItem || !identicalDatetimes(dtstart, oldItem.entryDate) ||
                 !identicalDatetimes(dtend, oldItem.dueDate)) {
-                params += ("&dtstart=" + getIcalUTC(dtstart)); // timezone will be set with tzid param
-                params += ("&due=" + getIcalUTC(dtend)); // timezone will be set with tzid param
-                params += (bIsAllDay ? "&isAllDay=1" : "&isAllDay=0");
+                params += "&dtstart=" + getIcalUTC(dtstart); // timezone will be set with tzid param
+                params += "&due=" + getIcalUTC(dtend); // timezone will be set with tzid param
+                params += bIsAllDay ? "&isAllDay=1" : "&isAllDay=0";
 
                 if (bIsParent && item.recurrenceInfo) {
                     oldItem = null; // recurrence/exceptions hack: write whole master
@@ -420,7 +417,7 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
             // xxx todo: why ever, X-S1CS-EMAIL is unsupported though documented for calprops... WTF.
             let attParam = encodeAttendees(attendees);
             if (!oldItem || attParam != encodeAttendees(oldItem.getAttendees({}))) {
-                params += ("&attendees=" + attParam);
+                params += "&attendees=" + attParam;
             }
 
             if (orgCalId == calId) {
@@ -436,47 +433,47 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
 
         if (orgCalId) {
             if (!oldItem || (orgCalId != getCalId(oldItem.organizer))) {
-                params += ("&orgCalid=" + encodeURIComponent(orgCalId));
+                params += "&orgCalid=" + encodeURIComponent(orgCalId);
             }
         } else { // might be a copy of an iTIP invitation:
             let orgEmail = getOrgId(item);
             if (!oldItem || (getOrgId(oldItem) != orgEmail)) {
-                params += ("&orgEmail=" + encodeURIComponent(orgEmail));
+                params += "&orgEmail=" + encodeURIComponent(orgEmail);
             }
         }
 
         let val = item.title;
         if (!oldItem || val != oldItem.title) {
-            params += ("&summary=" + encodeURIComponent(val));
+            params += "&summary=" + encodeURIComponent(val);
         }
 
         let categories = item.getCategories({});
         let catParam = encodeCategories(categories);
         if (!oldItem || catParam != encodeCategories(oldItem.getCategories({}))) {
-            params += ("&categories=" + catParam);
+            params += "&categories=" + catParam;
         }
 
         val = diffProperty(item, oldItem, "DESCRIPTION");
         if (val !== null) {
-            params += ("&desc=" + encodeURIComponent(val));
+            params += "&desc=" + encodeURIComponent(val);
         }
         val = diffProperty(item, oldItem, "LOCATION");
         if (val !== null) {
-            params += ("&location=" + encodeURIComponent(val));
+            params += "&location=" + encodeURIComponent(val);
         }
         val = diffProperty(item, oldItem, "URL");
         if (val !== null) {
-            params += ("&icsUrl=" + encodeURIComponent(val));
+            params += "&icsUrl=" + encodeURIComponent(val);
         }
         // xxx todo: default prio is 0 (5 in sjs cs)
         val = item.priority;
         if (!oldItem || val != oldItem.priority) {
-            params += ("&priority=" + encodeURIComponent(val));
+            params += "&priority=" + encodeURIComponent(val);
         }
 
         let icsClass = getPrivacy(item);
         if (!oldItem || icsClass != getPrivacy(oldItem)) {
-            params += ("&icsClass=" + icsClass);
+            params += "&icsClass=" + icsClass;
         }
 
         if (!oldItem || item.status != oldItem.status) {
@@ -490,7 +487,7 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
                 case "DRAFT": params += "&status=6"; break;
                 case "FINAL": params += "&status=7"; break;
                 default: // reset to default
-                    params += (bIsEvent ? "&status=0" : "&status=3");
+                    params += bIsEvent ? "&status=0" : "&status=3";
                     break;
             }
         }
@@ -505,24 +502,24 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
                     params += "&transparent=0";
                     break;
                 default:
-                    params += ("&transparent=" + (((icsClass == "PRIVATE") || bIsAllDay) ? "1" : "0"));
+                    params += "&transparent=" + (icsClass == "PRIVATE" || bIsAllDay ? "1" : "0");
                     break;
             }
         }
 
         if (!bIsEvent) {
             if (!oldItem || item.percentComplete != oldItem.percentComplete) {
-                params += ("&percent=" + item.percentComplete.toString(10));
+                params += "&percent=" + item.percentComplete.toString(10);
             }
             if (!oldItem || !equalDatetimes(item.completedDate, oldItem.completedDate)) {
-                params += ("&completed=" + getIcalUTC(item.completedDate));
+                params += "&completed=" + getIcalUTC(item.completedDate);
             }
         }
 
         // attachment urls:
         val = getAttachments(item);
         if (!oldItem || val != getAttachments(oldItem)) {
-            params += ("&attachments=" + val);
+            params += "&attachments=" + val;
         }
     } // PUBLISH, REQUEST
 
@@ -543,13 +540,13 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
         request.execRespFunc(null, item);
     } else {
         // cs does not support separate timezones for start and end, just pick one for tzid param:
-        let someDate = (item.startDate || item.entryDate || item.dueDate);
+        let someDate = item.startDate || item.entryDate || item.dueDate;
         if (someDate && !someDate.timezone.isUTC) {
-            params += ("&tzid=" + encodeURIComponent(this.getAlignedTzid(someDate.timezone)));
+            params += "&tzid=" + encodeURIComponent(this.getAlignedTzid(someDate.timezone));
         }
 
         if (item.id) {
-            params += ("&uid=" + encodeURIComponent(item.id));
+            params += "&uid=" + encodeURIComponent(item.id);
         }
 
         // be picky about create/modify, if possible:
@@ -563,10 +560,10 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
         if (bIsParent) {
             params += "&mod=4"; // THIS AND ALL INSTANCES
         } else {
-            params += ("&mod=1&rid=" + getIcalUTC(ensureDateTime(item.recurrenceId))); // THIS INSTANCE
+            params += "&mod=1&rid=" + getIcalUTC(ensureDateTime(item.recurrenceId)); // THIS INSTANCE
         }
 
-        params += ("&method=" + method);
+        params += "&method=" + method;
         if (bNoSmtpNotify) {
             params += "&smtp=0&smtpNotify=0&notify=0";
         }
@@ -705,7 +702,7 @@ function calWcapCalendar_modifyItem(newItem, oldItem, listener) {
                         params += ";";
                     }
                 }
-                params += ("&mod=1&rid=" + exdates.value.join(";"));
+                params += "&mod=1&rid=" + exdates.value.join(";");
 
                 let orgCalId = getCalId(newItem.organizer);
                 if (!orgCalId || (orgCalId != this.calId)) {
@@ -765,12 +762,12 @@ function calWcapCalendar_deleteItem(item, listener) {
         if (!item.id) {
             throw new Components.Exception("no item id!");
         }
-        let params = ("&uid=" + encodeURIComponent(item.id));
+        let params = "&uid=" + encodeURIComponent(item.id);
         if (isParent(item)) { // delete THIS AND ALL:
             params += "&mod=4&rid=0";
         } else { // delete THIS INSTANCE:
             // cs does not accept DATE here:
-            params += ("&mod=1&rid=" + getIcalUTC(ensureDateTime(item.recurrenceId)));
+            params += "&mod=1&rid=" + getIcalUTC(ensureDateTime(item.recurrenceId));
         }
 
         let orgCalId = getCalId(item.organizer);
@@ -1015,7 +1012,7 @@ calWcapCalendar.prototype.parseItems = function calWcapCalendar_parseItems(
     } else {
         if (maxResults != 0 &&
             (items.length + unexpandedItems.length) > maxResults) {
-            unexpandedItems.length = (maxResults - items.length);
+            unexpandedItems.length = maxResults - items.length;
         }
         if (!bLeaveMutable) {
             for (let item of unexpandedItems) {
@@ -1137,7 +1134,7 @@ function getItemFilterParams(itemFilter) {
 //     if (itemFilter & calIWcapCalendar.ITEM_FILTER_REQUEST_WAITFORREPLY)
 //         compstate += ";REQUEST-WAITFORREPLY";
     if (compstate.length > 0) {
-        params += ("&compstate=" + compstate.substr(1));
+        params += "&compstate=" + compstate.substr(1);
     }
     return params;
 }
@@ -1196,14 +1193,14 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
     }
 
     try {
-        let params = ("&relativealarm=1&compressed=1&recurring=1&emailorcalid=1&fmt-out=text%2Fcalendar");
+        let params = "&relativealarm=1&compressed=1&recurring=1&emailorcalid=1&fmt-out=text%2Fcalendar";
         // setting component-type, compstate filters:
         params += getItemFilterParams(itemFilter);
         if (maxResults > 0) {
-            params += ("&maxResults=" + maxResults);
+            params += "&maxResults=" + maxResults;
         }
-        params += ("&dtstart=" + zRangeStart);
-        params += ("&dtend=" + zRangeEnd);
+        params += "&dtstart=" + zRangeStart;
+        params += "&dtend=" + zRangeEnd;
 
         this.issueNetworkRequest(
             request,
@@ -1222,7 +1219,7 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
                                     let items = [];
                                     for (let entry of result) {
                                         let item = createEvent();
-                                        item.id = (g_busyPhantomItemUuidPrefix + getIcalUTC(entry.interval.start));
+                                        item.id = g_busyPhantomItemUuidPrefix + getIcalUTC(entry.interval.start);
                                         item.calendar = this_.superCalendar;
                                         item.title = g_busyItemTitle;
                                         item.startDate = entry.interval.start;
@@ -1352,7 +1349,7 @@ function calWcapCalendar_replayChangesOn(listener) {
                 let modifiedIds = {};
                 for (let item of request.m_modifiedItems) {
                     let dtCreated = item.getProperty("CREATED");
-                    let bAdd = (!dtCreated || !dtFrom || dtCreated.compare(dtFrom) >= 0);
+                    let bAdd = !dtCreated || !dtFrom || dtCreated.compare(dtFrom) >= 0;
                     modifiedIds[item.id] = true;
                     if (bAdd) {
                         log("replayChangesOn(): new item " + item.id, this_);
@@ -1396,13 +1393,13 @@ function calWcapCalendar_replayChangesOn(listener) {
                     if (err) {
                         throw err;
                     }
-                    let params = ("&relativealarm=1&compressed=1&recurring=1" +
-                                  "&emailorcalid=1&fmt-out=text%2Fcalendar");
+                    let params = "&relativealarm=1&compressed=1&recurring=1" +
+                                 "&emailorcalid=1&fmt-out=text%2Fcalendar";
                     if (dtFrom) {
                         dtFrom = this_.session.getServerTime(dtFrom);
                     }
-                    params += ("&dtstart=" + getIcalUTC(dtFrom));
-                    params += ("&dtend=" + getIcalUTC(this_.session.getServerTime(now)));
+                    params += "&dtstart=" + getIcalUTC(dtFrom);
+                    params += "&dtend=" + getIcalUTC(this_.session.getServerTime(now));
 
                     log("replayChangesOn(): getting last modifications...", this_);
                     this_.issueNetworkRequest(

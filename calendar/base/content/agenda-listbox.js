@@ -137,7 +137,7 @@ function onCheckboxChange(event) {
             leaveloop = (listItem == null);
             if (!leaveloop) {
                 let nextItemSibling = listItem.nextSibling;
-                leaveloop = (!agendaListbox.isEventListItem(listItem));
+                leaveloop = !agendaListbox.isEventListItem(listItem);
                 if (!leaveloop) {
                     listItem.remove();
                     listItem = nextItemSibling;
@@ -382,15 +382,15 @@ function isBefore(aItem, aCompItem, aPeriod) {
         } else if (itemDate.isDate) {
             if (aItem.startDate.compare(itemDate) == 0) {
                 // starting day of an all-day events spannig multiple days
-                return (!compItemDate.isDate || aCompItem.duration.days != 1);
+                return !compItemDate.isDate || aCompItem.duration.days != 1;
             } else if (aItem.endDate.compare(itemDateEndDate) == 0) {
                 // ending day of an all-day events spannig multiple days
-                return (!compItemDate.isDate ||
-                        (aCompItem.duration.days != 1 &&
-                          aCompItem.startDate.compare(compItemDate) != 0));
+                return !compItemDate.isDate ||
+                       (aCompItem.duration.days != 1 &&
+                        aCompItem.startDate.compare(compItemDate) != 0);
             } else {
                 // intermediate day of an all-day events spannig multiple days
-                return (!compItemDate.isDate);
+                return !compItemDate.isDate;
             }
         } else if (aCompItem.startDate.isDate) {
             return false;
@@ -469,7 +469,7 @@ function getListItems(aItem, aPeriod) {
             let leaveloop;
             do {
                 complistItem = complistItem.nextSibling;
-                leaveloop = (!this.isEventListItem(complistItem));
+                leaveloop = !this.isEventListItem(complistItem);
                 if (!leaveloop) {
                     if (this.isSameEvent(aItem, complistItem.occurrence)) {
                         retlistItems.push(complistItem);
@@ -536,8 +536,8 @@ function deleteItemsFromCalendar(aCalendar) {
  */
 agendaListbox.isSameEvent =
 function isSameEvent(aItem, aCompItem) {
-    return ((aItem.id == aCompItem.id) &&
-            (aItem[calGetStartDateProp(aItem)].compare(aCompItem[calGetStartDateProp(aCompItem)]) == 0));
+    return aItem.id == aCompItem.id &&
+           aItem[calGetStartDateProp(aItem)].compare(aCompItem[calGetStartDateProp(aCompItem)]) == 0;
 };
 
 /**
@@ -550,7 +550,7 @@ agendaListbox.isEventSelected =
 function isEventSelected() {
     let listItem = this.agendaListboxControl.selectedItem;
     if (listItem) {
-        return (this.isEventListItem(listItem));
+        return this.isEventListItem(listItem);
     }
     return false;
 };
@@ -786,7 +786,7 @@ function showsToday(aStartDate) {
     if (!lstart) {
         lstart = this.today.start;
     }
-    let lshowsToday = (sameDay(now(), lstart));
+    let lshowsToday = sameDay(now(), lstart);
     if (lshowsToday) {
         this.periods = [this.today, this.tomorrow, this.soon];
     } else {
@@ -1069,7 +1069,7 @@ function setCurrentEvent() {
     let msuntillstart = 0;
     let leaveloop;
     do {
-        leaveloop = (!agendaListbox.isEventListItem(complistItem));
+        leaveloop = !agendaListbox.isEventListItem(complistItem);
         if (!leaveloop) {
             msuntillstart = complistItem.occurrence.startDate
                                         .getInTimezone(agendaListbox.kDefaultTimezone)

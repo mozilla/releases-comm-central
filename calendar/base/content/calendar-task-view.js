@@ -55,10 +55,10 @@ var taskDetailsView = {
             if (item.calendar.getProperty("capabilities.priority.supported") != false) {
                 priority = parseInt(item.priority, 10);
             }
-            displayElement("calendar-task-details-priority-label", (priority > 0));
-            displayElement("calendar-task-details-priority-low", (priority >= 6 && priority <= 9));
+            displayElement("calendar-task-details-priority-label", priority > 0);
+            displayElement("calendar-task-details-priority-low", priority >= 6 && priority <= 9);
             displayElement("calendar-task-details-priority-normal", priority == 5);
-            displayElement("calendar-task-details-priority-high", (priority >= 1 && priority <= 4));
+            displayElement("calendar-task-details-priority-high", priority >= 1 && priority <= 4);
 
             let status = item.getProperty("STATUS");
             if (displayElement("calendar-task-details-status-row", status && status.length > 0)) {
@@ -258,7 +258,7 @@ function taskViewOnLoad() {
         let textFilter = document.getElementById("task-text-filter-field");
         if (textFilter) {
             let base = textFilter.getAttribute("emptytextbase");
-            let keyLabel = textFilter.getAttribute((AppConstants.platform == "macosx") ?
+            let keyLabel = textFilter.getAttribute(AppConstants.platform == "macosx" ?
                                                    "keyLabelMac" : "keyLabelNonMac");
 
             textFilter.setAttribute("placeholder", base.replace("#1", keyLabel));

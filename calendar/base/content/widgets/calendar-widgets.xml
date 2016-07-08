@@ -346,7 +346,7 @@
         ]]></body>
       </method>
 
-      <method name="setModeAttribute"> 
+      <method name="setModeAttribute">
         <parameter name="aModeAttribute"/>
         <parameter name="aModeValue"/>
         <parameter name="amode"/>
@@ -382,7 +382,7 @@
         <parameter name="aPushModeCollapsedAttribute"/>
         <parameter name="aNotifyRefControl"/>
         <body><![CDATA[
-            let notifyRefControl = ((aNotifyRefControl == null) || (aNotifyRefControl === true));
+            let notifyRefControl = aNotifyRefControl == null || aNotifyRefControl === true;
             let pushModeCollapsedAttribute = aPushModeCollapsedAttribute == null ||
                                              aPushModeCollapsedAttribute === true;
             let collapsedModes = [];
@@ -398,7 +398,7 @@
                 display = (aVisible === true) && (!collapsedInMode);
             }
 
-            setBooleanAttribute(this, "collapsed", (!display || !this.isVisibleInMode()));
+            setBooleanAttribute(this, "collapsed", !display || !this.isVisibleInMode());
             if (pushModeCollapsedAttribute) {
                 if (!display) {
                     if (modeIndex == -1) {

@@ -512,7 +512,7 @@ var calendarController = {
      * calendar.
      */
     get writable() {
-        return (cal.getCalendarManager().getCalendars({}).some(cal.isCalendarWritable));
+        return cal.getCalendarManager().getCalendars({}).some(cal.isCalendarWritable);
     },
 
     /**

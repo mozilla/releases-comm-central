@@ -86,7 +86,7 @@ function getElementValue(aElement, aPropertyName) {
  * @return                Returns aValue (for chaining)
  */
 function setBooleanAttribute(aXulElement, aAttribute, aValue) {
-    setElementValue(aXulElement, (aValue ? "true" : false), aAttribute);
+    setElementValue(aXulElement, aValue ? "true" : false, aAttribute);
     return aValue;
 }
 

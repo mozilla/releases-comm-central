@@ -74,7 +74,7 @@ function getPrintSettings(receiverFunc) {
     let tempTitle = document.getElementById("title-field").value;
     let settings = {};
     let requiresFetch = true;
-    settings.title = (tempTitle || calGetString("calendar", "Untitled"));
+    settings.title = tempTitle || calGetString("calendar", "Untitled");
     settings.layoutCId = document.getElementById("layout-field").value;
     settings.start = null;
     settings.end = null;

@@ -48,14 +48,11 @@ calItipEmailTransport.prototype = {
         if (this.mHasXpcomMail) {
             cal.LOG("sendItems: Sending Email...");
             let items = this._prepareItems(aItipItem);
-            return (items === false)
-                ? false
-                : this._sendXpcomMail(
-                    aRecipients,
-                    items.subject,
-                    items.body,
-                    aItipItem
-                );
+            if (items === false) {
+                return false;
+            } else {
+                return this._sendXpcomMail(aRecipients, items.subject, items.body, aItipItem);
+            }
         } else {
             // Sunbird case: Call user's default mailer on system.
             throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
@@ -69,7 +66,7 @@ calItipEmailTransport.prototype = {
         // We'll need a way to configure the Common Name attribute and we should
         // use it here rather than the email address
 
-        let summary = (item.getProperty("SUMMARY") || "");
+        let summary = item.getProperty("SUMMARY") || "";
         let subject = "";
         let body = "";
         switch (aItipItem.responseMethod) {
@@ -82,7 +79,7 @@ calItipEmailTransport.prototype = {
                     subject = summary;
                 } else {
                     let seq = item.getProperty("SEQUENCE");
-                    let subjectKey = (seq && seq > 0)
+                    let subjectKey = seq && seq > 0
                         ? "itipRequestUpdatedSubject"
                         : "itipRequestSubject";
                     subject = cal.calGetString(
@@ -218,7 +215,7 @@ calItipEmailTransport.prototype = {
 
         let compatMode = 0;
         switch (aItem.autoResponse) {
-            case (Components.interfaces.calIItipItem.USER): {
+            case Components.interfaces.calIItipItem.USER: {
                 cal.LOG("sendXpcomMail: Found USER autoResponse type.\n" +
                         "This type is currently unsupported, the compose API will always enter a text/plain\n" +
                         "or text/html part as first part of the message.\n" +
@@ -226,7 +223,7 @@ calItipEmailTransport.prototype = {
                         "the usual calendar buttons.");
                 // To somehow have a last resort before sending spam, the user can choose to send the mail.
                 let prefCompatMode = Preferences.get("calendar.itip.compatSendMode", 0);
-                let inoutCheck = { value: (prefCompatMode == 1) };
+                let inoutCheck = { value: prefCompatMode == 1 };
                 let parent = Services.wm.getMostRecentWindow(null);
                 if (parent.closed) {
                     parent = cal.getCalendarWindow();
@@ -248,7 +245,7 @@ calItipEmailTransport.prototype = {
                 }
             }
             // falls through, based on prompting above
-            case (Components.interfaces.calIItipItem.AUTO): {
+            case Components.interfaces.calIItipItem.AUTO: {
                 // don't show log message in case of falling through
                 if (aItem.autoResponse == Components.interfaces.calIItipItem.AUTO) {
                     cal.LOG("sendXpcomMail: Found AUTO autoResponse type.");
@@ -260,7 +257,7 @@ calItipEmailTransport.prototype = {
                     }
                     return email;
                 };
-                let toMap = aToList.map(cbEmail).filter(function(aVal, aInd, aArr) {return (aVal.length);});
+                let toMap = aToList.map(cbEmail).filter(v => v.length);
                 if (toMap.length < aToList.length) {
                     // at least one invalid recipient, so we skip sending for this message
                     return false;
@@ -318,7 +315,7 @@ calItipEmailTransport.prototype = {
                 }
                 break;
             }
-            case (Components.interfaces.calIItipItem.NONE):
+            case Components.interfaces.calIItipItem.NONE:
                 cal.LOG("sendXpcomMail: Found NONE autoResponse type.");
 
                 // No response
@@ -350,42 +347,42 @@ calItipEmailTransport.prototype = {
             let mailText = ltn.invitation.getHeaderSection(aMessageId, aIdentity, aToList, aSubject);
             switch (compatMode) {
                 case 1:
-                    mailText += ("Content-class: urn:content-classes:calendarmessage\r\n" +
-                                 "Content-type: text/calendar; method=" + aItem.responseMethod + "; charset=UTF-8\r\n" +
-                                 "Content-transfer-encoding: 8BIT\r\n" +
-                                 "\r\n" +
-                                 utf8CalText +
-                                 "\r\n");
+                    mailText += "Content-class: urn:content-classes:calendarmessage\r\n" +
+                                "Content-type: text/calendar; method=" + aItem.responseMethod + "; charset=UTF-8\r\n" +
+                                "Content-transfer-encoding: 8BIT\r\n" +
+                                "\r\n" +
+                                utf8CalText +
+                                "\r\n";
                     break;
                 default:
-                    mailText += ("Content-type: multipart/mixed; boundary=\"Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)\"\r\n" +
-                                 "\r\n\r\n" +
-                                 "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)\r\n" +
-                                 "Content-type: multipart/alternative;\r\n" +
-                                 " boundary=\"Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\"\r\n" +
-                                 "\r\n\r\n" +
-                                 "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\r\n" +
-                                 "Content-type: text/plain; charset=UTF-8\r\n" +
-                                 "Content-transfer-encoding: 8BIT\r\n" +
-                                 "\r\n" +
-                                 ltn.invitation.encodeUTF8(aBody) +
-                                 "\r\n\r\n\r\n" +
-                                 "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\r\n" +
-                                 "Content-type: text/calendar; method=" + aItem.responseMethod + "; charset=UTF-8\r\n" +
-                                 "Content-transfer-encoding: 8BIT\r\n" +
-                                 "\r\n" +
-                                 utf8CalText +
-                                 "\r\n\r\n" +
-                                 "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)--\r\n" +
-                                 "\r\n" +
-                                 "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)\r\n" +
-                                 "Content-type: application/ics; name=invite.ics\r\n" +
-                                 "Content-transfer-encoding: 8BIT\r\n" +
-                                 "Content-disposition: attachment; filename=invite.ics\r\n" +
-                                 "\r\n" +
-                                 utf8CalText +
-                                 "\r\n\r\n" +
-                                 "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)--\r\n");
+                    mailText += "Content-type: multipart/mixed; boundary=\"Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)\"\r\n" +
+                                "\r\n\r\n" +
+                                "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)\r\n" +
+                                "Content-type: multipart/alternative;\r\n" +
+                                " boundary=\"Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\"\r\n" +
+                                "\r\n\r\n" +
+                                "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\r\n" +
+                                "Content-type: text/plain; charset=UTF-8\r\n" +
+                                "Content-transfer-encoding: 8BIT\r\n" +
+                                "\r\n" +
+                                ltn.invitation.encodeUTF8(aBody) +
+                                "\r\n\r\n\r\n" +
+                                "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\r\n" +
+                                "Content-type: text/calendar; method=" + aItem.responseMethod + "; charset=UTF-8\r\n" +
+                                "Content-transfer-encoding: 8BIT\r\n" +
+                                "\r\n" +
+                                utf8CalText +
+                                "\r\n\r\n" +
+                                "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)--\r\n" +
+                                "\r\n" +
+                                "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)\r\n" +
+                                "Content-type: application/ics; name=invite.ics\r\n" +
+                                "Content-transfer-encoding: 8BIT\r\n" +
+                                "Content-disposition: attachment; filename=invite.ics\r\n" +
+                                "\r\n" +
+                                utf8CalText +
+                                "\r\n\r\n" +
+                                "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)--\r\n";
                     break;
             }
             cal.LOG("mail text:\n" + mailText);

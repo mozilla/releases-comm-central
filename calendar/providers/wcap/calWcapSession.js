@@ -37,9 +37,9 @@ calWcapTimezone.prototype = {
 function splitUriParams(uri) {
     let spec = uri.spec;
     let qmPos = spec.indexOf("?");
-    return ((qmPos != -1)
-            ? [spec.substring(0, qmPos), spec.substring(qmPos)]
-            : [spec, ""]);
+    return qmPos != -1
+           ? [spec.substring(0, qmPos), spec.substring(qmPos)]
+           : [spec, ""];
 }
 
 function getWcapSessionFor(calendar, uri) {
@@ -82,7 +82,7 @@ function getWcapSessionFor(calendar, uri) {
                     if (spec != defaultSpec) {
                         log("fixing url of subscribed calendar: " + regCal.calId, session);
                         let caluri = regCal.uri.clone();
-                        caluri.spec = (defaultSpec + params);
+                        caluri.spec = defaultSpec + params;
                         regCal.uri = caluri;
                         regCal.setProperty("uri", caluri.spec);
                     }
@@ -124,9 +124,9 @@ calWcapSession.prototype = {
     }),
 
     toString: function calWcapSession_toString(msg) {
-        let str = ("context-id: " + this.m_contextId + ", uri: " + (this.uri ? this.uri.spec : "unknown"));
+        let str = "context-id: " + this.m_contextId + ", uri: " + (this.uri ? this.uri.spec : "unknown");
         if (this.credentials.userId) {
-            str += (", userId=" + this.credentials.userId);
+            str += ", userId=" + this.credentials.userId;
         }
         if (!this.m_sessionId) {
             str += (Services.io.offline ? ", offline" : ", not logged in");
@@ -580,7 +580,7 @@ calWcapSession.prototype = {
                         if (calendar === null) {
                             calendar = new calWcapCalendar(this_);
                             let uri = this_.uri.clone();
-                            uri.path += ("?calid=" + encodeURIComponent(calId));
+                            uri.path += "?calid=" + encodeURIComponent(calId);
                             calendar.uri = uri;
                         }
                         if (calendar) {
@@ -703,7 +703,7 @@ calWcapSession.prototype = {
 
     getCommandUrl: function calWcapSession_getCommandUrl(wcapCommand, params, sessionId) {
         let url = this.sessionUri.spec;
-        url += (wcapCommand + ".wcap?appid=mozilla-calendar&id=");
+        url += wcapCommand + ".wcap?appid=mozilla-calendar&id=";
         url += sessionId;
         url += params;
         return url;
@@ -884,12 +884,12 @@ calWcapSession.prototype = {
         try {
             let registeredCalendars = this.getRegisteredCalendars(true);
 
-            let params = ("&fmt-out=text%2Fxml&search-string=" + encodeURIComponent(searchString));
+            let params = "&fmt-out=text%2Fxml&search-string=" + encodeURIComponent(searchString);
             if (maxResults > 0) {
-                params += ("&maxResults=" + maxResults);
+                params += "&maxResults=" + maxResults;
             }
-            params += ("&name=1&calid=1&primaryOwner=1&searchOpts=" +
-                       ((hints & calICalendarSearchProvider.HINT_EXACT_MATCH) ? "3" : "0"));
+            params += "&name=1&calid=1&primaryOwner=1&searchOpts=" +
+                       (hints & calICalendarSearchProvider.HINT_EXACT_MATCH ? "3" : "0");
 
             this.issueNetworkRequest(
                 request,
@@ -918,7 +918,7 @@ calWcapSession.prototype = {
                                 } else {
                                     calendar = new calWcapCalendar(this_, node);
                                     let uri = this_.uri.clone();
-                                    uri.path += ("?calid=" + encodeURIComponent(calId));
+                                    uri.path += "?calid=" + encodeURIComponent(calId);
                                     calendar.uri = uri;
                                 }
                                 ret.push(calendar);
@@ -987,10 +987,10 @@ calWcapSession.prototype = {
         };
 
         try {
-            let params = ("&calid=" + encodeURIComponent(calId));
-            params += ("&busyonly=" + ((busyTypes & calIFreeBusyInterval.FREE) ? "0" : "1"));
-            params += ("&dtstart=" + zRangeStart);
-            params += ("&dtend=" + zRangeEnd);
+            let params = "&calid=" + encodeURIComponent(calId);
+            params += "&busyonly=" + (busyTypes & calIFreeBusyInterval.FREE ? "0" : "1");
+            params += "&dtstart=" + zRangeStart;
+            params += "&dtend=" + zRangeEnd;
             params += "&fmt-out=text%2Fxml";
 
             this.issueNetworkRequest(
@@ -1151,7 +1151,7 @@ function confirmInsecureLogin(uri) {
                 newConfirmedLogins += ",";
             }
             confirmedEntry = (bConfirmed ? "1" : "0");
-            newConfirmedLogins += (encodedHost + ":" + confirmedEntry);
+            newConfirmedLogins += encodedHost + ":" + confirmedEntry;
             Preferences.set("calendar.wcap.confirmed_http_logins", newConfirmedLogins);
             getPref("calendar.wcap.confirmed_http_logins"); // log written entry
             confirmInsecureLogin.m_confirmedHttpLogins[encodedHost] = confirmedEntry;

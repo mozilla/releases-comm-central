@@ -51,9 +51,9 @@ function onLoad() {
     let firstAvailableItem;
     let actionNodes = document.getElementById("reminder-actions-menupopup").childNodes;
     for (let actionNode of actionNodes) {
-        let shouldHide = (!(actionNode.value in allowedActionsMap) ||
-                          (actionNode.hasAttribute("provider") &&
-                           actionNode.getAttribute("provider") != calendar.type));
+        let shouldHide = !(actionNode.value in allowedActionsMap) ||
+                         (actionNode.hasAttribute("provider") &&
+                          actionNode.getAttribute("provider") != calendar.type);
         setElementValue(actionNode, shouldHide && "true", "hidden");
         if (!firstAvailableItem && !shouldHide) {
             firstAvailableItem = actionNode;
@@ -408,8 +408,8 @@ function onNewReminder() {
 function onRemoveReminder() {
     let listbox = document.getElementById("reminder-listbox");
     let listitem = listbox.selectedItem;
-    let newSelection = (listitem ? listitem.nextSibling ||
-                                   listitem.previousSibling : null);
+    let newSelection = listitem ? listitem.nextSibling || listitem.previousSibling
+                                 : null;
 
     listbox.clearSelection();
     listitem.remove();

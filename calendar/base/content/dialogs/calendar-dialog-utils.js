@@ -137,9 +137,9 @@ function editReminder() {
     let args = {};
     args.reminders = customItem.reminders;
     args.item = window.calendarItem;
-    args.timezone = (window.gStartTimezone ||
-                     window.gEndTimezone ||
-                     calendarDefaultTimezone());
+    args.timezone = window.gStartTimezone ||
+                    window.gEndTimezone ||
+                    calendarDefaultTimezone();
 
     args.calendar = getCurrentCalendar();
 

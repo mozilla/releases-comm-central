@@ -65,8 +65,8 @@
       </property>
 
       <field name="calMgrObserver"><![CDATA[
-      ({ listTree: this,
-
+      ({
+        listTree: this,
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICalendarManagerObserver]),
 
         // calICalendarManagerObserver
@@ -93,8 +93,8 @@
       })
       ]]></field>
       <field name="compositeObserver"><![CDATA[
-      ({ listTree: this,
-
+      ({
+        listTree: this,
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICompositeObserver,
                                                Components.interfaces.calIObserver]),
 
@@ -253,8 +253,8 @@
       ]]></destructor>
 
       <field name="calObserver"><![CDATA[
-      ({ listTree: this,
-
+      ({
+        listTree: this,
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIObserver]),
 
         // calIObserver. Note that each registered calendar uses this observer
@@ -299,8 +299,8 @@
       ]]></field>
 
       <field name="compositeObserver"><![CDATA[
-      ({ listTree: this,
-
+      ({
+        listTree: this,
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICompositeObserver]),
 
         // calICompositeObserver
@@ -408,7 +408,8 @@
           let handler = this.getAttribute("onSortOrderChanged");
           if (handler) {
               // Call the given code in a function
-              (new Function("event", handler))(event);
+              let func = new Function("event", handler);
+              func(event);
           }
         ]]></body>
       </method>

@@ -189,7 +189,7 @@ calItipItem.prototype = {
     setAttendeeStatus: function ciiSAS(aAttendeeId, aStatus) {
         // Append "mailto:" to the attendee if it is missing it.
         if (!aAttendeeId.match(/^mailto:/i)) {
-            aAttendeeId = ("mailto:" + aAttendeeId);
+            aAttendeeId = "mailto:" + aAttendeeId;
         }
 
         for (let item of this.mItemList) {

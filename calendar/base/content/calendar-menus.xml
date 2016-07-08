@@ -49,14 +49,14 @@
             } else {
                 // We are in the Tasks tab.
                 let tasks = getSelectedTasks();
-                let tasksSelected = ((tasks != null) && (tasks.length > 0));
+                let tasksSelected = (tasks != null) && (tasks.length > 0);
                 if (tasksSelected) {
                     let task = tasks[0];
                     if (isPropertyValueSame(tasks, this.mType)) {
                         propertyValue = task[this.mType];
                     }
                 } else {
-                    applyAttributeToMenuChildren(this, "disabled", (!tasksSelected));
+                    applyAttributeToMenuChildren(this, "disabled", !tasksSelected);
                 }
             }
             if (propertyValue || propertyValue == 0) {

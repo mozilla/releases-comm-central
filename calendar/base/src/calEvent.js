@@ -153,7 +153,7 @@ calEvent.prototype = {
 
     isPropertyPromoted: function(name) {
         // avoid strict undefined property warning
-        return (this.eventPromotedProps[name] || false);
+        return this.eventPromotedProps[name] || false;
     },
 
     set startDate(value) {

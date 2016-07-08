@@ -89,7 +89,7 @@ function log(msg, context, bForce) {
     if (bForce || LOG_LEVEL > 0) {
         let ret = "";
         if (context) {
-            ret += ("[" + context + "]");
+            ret += "[" + context + "]";
         }
         if (ret.length > 0) {
             ret += "\n";
@@ -99,9 +99,9 @@ function log(msg, context, bForce) {
         if (now && initLogging.mLogTimezone) {
             now = now.getInTimezone(initLogging.mLogTimezone);
         }
-        let str = ("### WCAP log entry: " + now + "\n" + ret);
+        let str = "### WCAP log entry: " + now + "\n" + ret;
         Services.console.logStringMessage(str);
-        str = ("\n" + str + "\n");
+        str = "\n" + str + "\n";
         dump(str);
         if (initLogging.mLogFilestream) {
             try {
@@ -109,7 +109,7 @@ function log(msg, context, bForce) {
                 // assuming ANSI chars here, for logging sufficient:
                 initLogging.mLogFilestream.write(str, str.length);
             } catch (exc) { // catching any io errors here:
-                let err = ("error writing log file: " + errorToString(exc));
+                let err = "error writing log file: " + errorToString(exc);
                 Components.utils.reportError(exc);
                 Services.console.logStringMessage(err);
                 dump(err + "\n\n");
@@ -161,7 +161,7 @@ function isParent(item) {
     if (item.id != item.parentItem.id) {
         throw new Components.Exception("proxy has different id than its parent!");
     }
-    return (!item.recurrenceId);
+    return !item.recurrenceId;
 }
 
 function filterXmlNodes(name, rootNode) {

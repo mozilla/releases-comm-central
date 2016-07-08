@@ -112,9 +112,9 @@ cal.itip = {
      * @return            True, if its a scheduling calendar.
      */
     isSchedulingCalendar: function isSchedulingCalendar(calendar) {
-        return (cal.isCalendarWritable(calendar) &&
-                calendar.getProperty("organizerId") &&
-                calendar.getProperty("itip.transport"));
+        return cal.isCalendarWritable(calendar) &&
+               calendar.getProperty("organizerId") &&
+               calendar.getProperty("itip.transport");
     },
 
     /**
@@ -471,7 +471,7 @@ cal.itip = {
             }
         }
 
-        return (!needsCalendar || targetCalendar != null);
+        return !needsCalendar || targetCalendar != null;
     },
 
     /**
@@ -568,9 +568,9 @@ cal.itip = {
                         !aOriginalItem.recurrenceInfo.getRecurrenceItems({}).some(
                             function(r) {
                                 let wrappedR = cal.wrapInstance(r, Components.interfaces.calIRecurrenceDate);
-                                return (r.isNegative &&
-                                        wrappedR &&
-                                        wrappedR.date.compare(wrappedRItem.date) == 0);
+                                return r.isNegative &&
+                                       wrappedR &&
+                                       wrappedR.date.compare(wrappedRItem.date) == 0;
                             })) {
                         exdates.push(wrappedRItem);
                     }
@@ -839,23 +839,22 @@ cal.itip = {
      * @param aItems        List of items to be contained in the new itipItem
      * @param aProps        List of properties to be different in the new itipItem
      */
-    getModifiedItipItem: function cal_getModifiedItipItem(aItipItem, aItems, aProps) {
+    getModifiedItipItem: function cal_getModifiedItipItem(aItipItem, aItems=[], aProps={}) {
         let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
                                  .createInstance(Components.interfaces.calIItipItem);
         let serializedItems = "";
-        for (let item of (aItems || [])) {
+        for (let item of aItems) {
             serializedItems += cal.getSerializedItem(item);
         }
         itipItem.init(serializedItems);
 
-        let props = aProps || {};
-        itipItem.autoResponse = ("autoResponse" in props) ? props.autoResponse : aItipItem.autoResponse;
-        itipItem.identity = ("identity" in props) ? props.identity : aItipItem.identity;
-        itipItem.isSend = ("isSend" in props) ? props.isSend : aItipItem.isSend;
-        itipItem.localStatus = ("localStatus" in props) ? props.localStatus : aItipItem.localStatus;
-        itipItem.receivedMethod = ("receivedMethod" in props) ? props.receivedMethod : aItipItem.receivedMethod;
-        itipItem.responseMethod = ("responseMethod" in props) ? props.responseMethod : aItipItem.responseMethod;
-        itipItem.targetCalendar = ("targetCalendar" in props) ? properties.targetCalendar : aItipItem.targetCalendar;
+        itipItem.autoResponse = ("autoResponse" in aProps) ? aProps.autoResponse : aItipItem.autoResponse;
+        itipItem.identity = ("identity" in aProps) ? aProps.identity : aItipItem.identity;
+        itipItem.isSend = ("isSend" in aProps) ? aProps.isSend : aItipItem.isSend;
+        itipItem.localStatus = ("localStatus" in aProps) ? aProps.localStatus : aItipItem.localStatus;
+        itipItem.receivedMethod = ("receivedMethod" in aProps) ? aProps.receivedMethod : aItipItem.receivedMethod;
+        itipItem.responseMethod = ("responseMethod" in aProps) ? aProps.responseMethod : aItipItem.responseMethod;
+        itipItem.targetCalendar = ("targetCalendar" in aProps) ? aProps.targetCalendar : aItipItem.targetCalendar;
 
         return itipItem;
     }
@@ -943,7 +942,7 @@ function updateItem(item, itipItemItem) {
             let newExc = newItem.recurrenceInfo.getOccurrenceFor(rid).clone();
             newExc.icalComponent = excItem.icalComponent;
             setReceivedInfo(newExc, itipItemItem);
-            let existingExcItem = (item.recurrenceInfo && item.recurrenceInfo.getExceptionFor(rid));
+            let existingExcItem = item.recurrenceInfo && item.recurrenceInfo.getExceptionFor(rid);
             if (existingExcItem) {
                 updateUserData(newExc, existingExcItem);
             }
@@ -1025,13 +1024,14 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
     aTransport = aTransport.QueryInterface(Components.interfaces.calIItipTransport);
 
     let _sendItem = function(aSendToList, aSendItem) {
+        let cIII = Components.interfaces.calIItipItem;
         let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
                                  .createInstance(Components.interfaces.calIItipItem);
         itipItem.init(cal.getSerializedItem(aSendItem));
         itipItem.responseMethod = aMethod;
         itipItem.targetCalendar = aSendItem.calendar;
-        itipItem.autoResponse = ((autoResponse && autoResponse.value) ? Components.interfaces.calIItipItem.AUTO
-                                                                      : Components.interfaces.calIItipItem.USER);
+        itipItem.autoResponse = autoResponse && autoResponse.value ? cIII.calIItipItem.AUTO
+                                                                   : cIII.USER;
         if (autoResponse) {
             autoResponse.value = true; // auto every following
         }
@@ -1394,7 +1394,7 @@ ItipItemFinder.prototype = {
                                          (cal.itip.compare(itipItemItem, item.getAttendeeById(attendees[0].id)) > 0))) {
                                         // accepts REPLYs from previously uninvited attendees:
                                         let newItem = item.clone();
-                                        let att = (item.getAttendeeById(attendees[0].id) || attendees[0]);
+                                        let att = item.getAttendeeById(attendees[0].id) || attendees[0];
                                         newItem.removeAttendee(att);
                                         att = att.clone();
                                         setReceivedInfo(att, itipItemItem);
@@ -1503,7 +1503,7 @@ ItipItemFinder.prototype = {
                                            "invalid number of attendees in PUBLISH!");
                             }
                             return newItem.calendar.addItem(newItem,
-                                                            (method == "REQUEST")
+                                                            method == "REQUEST"
                                                             ? new ItipOpListener(opListener, null)
                                                             : opListener);
                         };

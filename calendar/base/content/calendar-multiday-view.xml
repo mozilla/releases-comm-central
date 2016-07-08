@@ -747,7 +747,7 @@
                   let innerColumn = createXULElement("box");
                   innerColumn.setAttribute("orient", orient);
 
-                  let colFlex = column.specialSpan ? (columnCount * column.specialSpan) : 1;
+                  let colFlex = column.specialSpan ? columnCount * column.specialSpan : 1;
                   innerColumn.setAttribute("flex", colFlex);
                   spanTotal += colFlex;
 
@@ -1138,7 +1138,7 @@
                           layerIndex = layerCounter++;
                           layerArray[index] = layerIndex;
                       }
-                      let offset = ((glob.totalCols - data.colSpan) % glob.totalCols);
+                      let offset = (glob.totalCols - data.colSpan) % glob.totalCols;
                       if (offset != 0) {
                           specialSpan = data.colSpan / glob.totalCols;
                       }
@@ -1313,7 +1313,7 @@
           }
 
           // set shadow boxes size for every part of the occurrence
-          let firstShadowSize = (aCurrentShadows == 1) ? aEnd - aStart : this.mEndMin - aStart;
+          let firstShadowSize = (aCurrentShadows == 1 ? aEnd : this.mEndMin) - aStart;
           let column = firstCol;
           for (let i = firstIndex; column && i <= lastIndex; i++) {
               column.fgboxes.box.setAttribute("dragging", "true");
@@ -1939,8 +1939,8 @@
               return;
           }
 
-          let firstColumn = (aFirstColumn || this);
-          let lastColumn = (aLastColumn || this);
+          let firstColumn = aFirstColumn || this;
+          let lastColumn = aLastColumn || this;
           let realstartmin = this.mDragState.startMin + this.mStartMin;
           let realendmin = this.mDragState.endMin + this.mStartMin;
           let starthr = Math.floor(realstartmin / 60);
@@ -3062,8 +3062,8 @@
 
                   // if just has single datetime, treat as zero duration item
                   // (such as task with due datetime or start datetime only)
-                  occStart = (occStart || occEnd);
-                  occEnd = (occEnd || occStart);
+                  occStart = occStart || occEnd;
+                  occEnd = occEnd || occStart;
                   // Now both occStart and occEnd are datetimes.
 
                   // skip occurrence if all-day: it won't show in time view.
@@ -3167,7 +3167,7 @@
       </property>
 
       <property name="orient">
-        <getter><![CDATA[return (this.getAttribute("orient") || "vertical");]]></getter>
+        <getter><![CDATA[return this.getAttribute("orient") || "vertical";]]></getter>
         <setter><![CDATA[this.setAttribute("orient", val); return val;]]></setter>
       </property>
 

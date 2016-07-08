@@ -131,7 +131,7 @@ function getPreviewForTask(toDoItem) {
       boxAppendBody(vbox, description);
     }
 
-    return (vbox);
+    return vbox;
   } else {
     return null;
   }
@@ -191,7 +191,7 @@ function getPreviewForEvent(aEvent) {
       // display wrapped description lines, like body of message below headers
       boxAppendBody(vbox, description);
     }
-    return (vbox);
+    return vbox;
   } else {
       return null;
   }

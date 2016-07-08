@@ -514,7 +514,7 @@ var unifinderTreeView = {
     setItems: function uTV_setItems(aItemArray, aDontSort) {
         let oldCount = this.eventArray.length;
         this.eventArray = aItemArray.slice(0);
-        this.tree.rowCountChanged(oldCount - 1, (this.eventArray.length - oldCount));
+        this.tree.rowCountChanged(oldCount - 1, this.eventArray.length - oldCount);
 
         if (aDontSort) {
             this.calculateIndexMap();

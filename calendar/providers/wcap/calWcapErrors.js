@@ -28,7 +28,7 @@ function getResultCode(err) {
         return NS_OK;
     }
     if (isNaN(err)) {
-        return ((err instanceof nsIException) ? err.result : Components.results.NS_ERROR_FAILURE);
+        return (err instanceof nsIException ? err.result : Components.results.NS_ERROR_FAILURE);
     }
     return err;
 }
@@ -328,7 +328,7 @@ function errorToString(err) {
             return err.toString(); // xxx todo: or just message?
         }
         if (isNaN(err)) {
-            return ("[" + err + "] unknown error.");
+            return "[" + err + "] unknown error.";
         }
     }
     // numeric codes:
@@ -378,7 +378,7 @@ function errorToString(err) {
                             }
                         }
                     }
-                    return ("[0x" + err.toString(0x10) + "] unknown error.");
+                    return "[0x" + err.toString(0x10) + "] unknown error.";
                 }
             }
     }

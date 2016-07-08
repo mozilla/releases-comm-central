@@ -66,8 +66,8 @@ calTransactionManager.prototype = {
     },
 
     canUndo: function cTM_canUndo() {
-        return ((this.transactionManager.numberOfUndoItems > 0) &&
-                this.checkWritable(this.transactionManager.peekUndoStack()));
+        return this.transactionManager.numberOfUndoItems > 0 &&
+               this.checkWritable(this.transactionManager.peekUndoStack());
     },
 
     redo: function cTM_redo() {
@@ -75,8 +75,8 @@ calTransactionManager.prototype = {
     },
 
     canRedo: function cTM_canRedo() {
-        return ((this.transactionManager.numberOfRedoItems > 0) &&
-                this.checkWritable(this.transactionManager.peekRedoStack()));
+        return this.transactionManager.numberOfRedoItems > 0 &&
+               this.checkWritable(this.transactionManager.peekRedoStack());
     }
 };
 

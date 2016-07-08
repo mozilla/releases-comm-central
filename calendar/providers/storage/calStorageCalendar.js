@@ -2053,7 +2053,7 @@ calStorageCalendar.prototype = {
 
             ip.todo_complete = item.getProperty("PERCENT-COMPLETED");
 
-            let someDate = (item.entryDate || item.dueDate);
+            let someDate = item.entryDate || item.dueDate;
             if (someDate && someDate.isDate) {
                 flags |= CAL_ITEM_FLAG.EVENT_ALLDAY;
             }

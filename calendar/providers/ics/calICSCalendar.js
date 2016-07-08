@@ -133,7 +133,7 @@ calICSCalendar.prototype = {
     getProperty: function calICSCalendar_getProperty(aName) {
         switch (aName) {
             case "requiresNetwork":
-                return (!this.uri.schemeIs("file"));
+                return !this.uri.schemeIs("file");
         }
         return this.__proto__.__proto__.getProperty.apply(this, arguments);
     },
@@ -661,10 +661,7 @@ calICSCalendar.prototype = {
                 v => v.name.includes("calBackupData_" + pseudoID + "_" + type)
             );
             // Sort by lastmodifed
-            filteredFiles.sort(
-                function s(a, b) {
-                    return (a.lastmodified - b.lastmodified);
-                });
+            filteredFiles.sort((a, b) => a.lastmodified - b.lastmodified);
             // And delete the oldest files, and keep the desired number of
             // old backups
             for (let i = 0; i < filteredFiles.length - numBackupFiles; ++i) {

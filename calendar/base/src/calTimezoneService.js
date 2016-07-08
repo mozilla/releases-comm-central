@@ -593,9 +593,8 @@ function guessSystemTimezone() {
                                 .getService(Components.interfaces.nsIHttpProtocolHandler);
 
         if (handler.oscpu.match(/^Windows/)) {
-            let wrk = (Components
-                       .classes["@mozilla.org/windows-registry-key;1"]
-                       .createInstance(Components.interfaces.nsIWindowsRegKey));
+            let wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
+                                .createInstance(Components.interfaces.nsIWindowsRegKey);
             wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
                      "SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation",
                      wrk.ACCESS_READ);
@@ -655,11 +654,11 @@ function guessSystemTimezone() {
             // the values are similar (but cannot have a leading colon).
             // (Note: the OS ZoneInfo database may be a different version from
             // the one we use, so still need to check that DST dates match.)
-            osUserTimeZone = (environmentVariableValue("TZ") ||
-                              symbolicLinkTarget("/etc/localtime") ||
-                              fileFirstZoneLineString("/etc/TIMEZONE") ||
-                              fileFirstZoneLineString("/etc/timezone") ||
-                              fileFirstZoneLineString("/etc/sysconfig/clock"));
+            osUserTimeZone = environmentVariableValue("TZ") ||
+                             symbolicLinkTarget("/etc/localtime") ||
+                             fileFirstZoneLineString("/etc/TIMEZONE") ||
+                             fileFirstZoneLineString("/etc/timezone") ||
+                             fileFirstZoneLineString("/etc/sysconfig/clock");
             let results = osUserTimeZone.match(tzRegex);
             if (results) {
                 zoneInfoIdFromOSUserTimeZone = results[1];
@@ -784,20 +783,19 @@ function guessSystemTimezone() {
                 let standardStartWeekday = weekday(standardStart, tz);
                 let standardRule = getIcalString(standard, "RRULE");
                 let standardText =
-                    ("  Standard: " + standardStart + " " + standardStartWeekday + "\n" +
-                     "            " + standardRule + "\n");
+                    "  Standard: " + standardStart + " " + standardStartWeekday + "\n" +
+                    "            " + standardRule + "\n";
                 let daylightStart = getIcalString(daylight, "DTSTART");
                 let daylightStartWeekday = weekday(daylightStart, tz);
                 let daylightRule = getIcalString(daylight, "RRULE");
                 let daylightText =
-                    ("  Daylight: " + daylightStart + " " + daylightStartWeekday + "\n" +
-                     "            " + daylightRule + "\n");
+                    "  Daylight: " + daylightStart + " " + daylightStartWeekday + "\n" +
+                    "            " + daylightRule + "\n";
                 warningDetail =
-                    ((standardStart < daylightStart
+                    (standardStart < daylightStart
                       ? standardText + daylightText
                       : daylightText + standardText) +
-                     (calProperties.GetStringFromName(
-                      "TZAlmostMatchesOSDifferAtMostAWeek")));
+                     calProperties.GetStringFromName("TZAlmostMatchesOSDifferAtMostAWeek");
             } else {
                 warningDetail = calProperties.GetStringFromName("TZSeemsToMatchOS");
             }

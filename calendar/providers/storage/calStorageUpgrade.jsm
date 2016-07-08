@@ -94,7 +94,7 @@ var EXPORTED_SYMBOLS = ["DB_SCHEMA_VERSION", "getSql", "getAllSql", "getSqlTable
  */
 function getSql(tblName, tblData, alternateName) {
     tblData = tblData || getSqlTable();
-    let altName = (alternateName || tblName);
+    let altName = alternateName || tblName;
     let sql;
     if (tblName.substr(0, 4) == "idx_") {
         // If this is an index, we need construct the SQL differently

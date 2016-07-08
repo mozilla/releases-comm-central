@@ -481,7 +481,7 @@ calOutlookCSVExporter.prototype = {
             line.push(txtString(cal.categoriesArrayToString(item.getCategories({})))); // xxx todo: what's the correct way to encode ',' in csv?, how are multi-values expressed?
             line.push(txtString(item.getProperty("DESCRIPTION")));
             line.push(txtString(item.getProperty("LOCATION")));
-            line.push((item.privacy == "PRIVATE") ? localeEn.valueTrue : localeEn.valueFalse);
+            line.push(item.privacy == "PRIVATE" ? localeEn.valueTrue : localeEn.valueFalse);
 
             line = line.map(function(v) {
                 v = String(v).replace(/"/g, '""');

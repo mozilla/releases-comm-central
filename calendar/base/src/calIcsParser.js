@@ -239,10 +239,10 @@ parserState.prototype = {
                 // so this UI code can be removed from the parser, and caller can
                 // choose whether to alert, or show user the problem items and ask
                 // for fixes, or something else.
-                let msg = (calGetString("calendar", "unknownTimezoneInItem",
-                                        [tzid, item.title, cal.getDateFormatter().formatDateTime(dt)]) +
-                           "\n" + item.icalString);
-                cal.ERROR(msg);
+                let msgArgs = [tzid, item.title, cal.getDateFormatter().formatDateTime(dt)];
+                let msg = calGetString("calendar", "unknownTimezoneInItem", msgArgs);
+
+                cal.ERROR(msg + "\n" + item.icalString);
                 this.tzErrors[hid] = true;
             }
         }

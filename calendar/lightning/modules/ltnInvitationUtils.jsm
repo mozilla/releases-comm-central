@@ -230,7 +230,7 @@ ltn.invitation = {
             itipIcon.setAttribute("role", role);
             itipIcon.setAttribute("usertype", ut);
             itipIcon.setAttribute("partstat", ps);
-            let attName = (aAttendee.commonName && aAttendee.commonName.length)
+            let attName = aAttendee.commonName && aAttendee.commonName.length
                           ? aAttendee.commonName : aAttendee.toString();
             let utString = ltn.getString("lightning", "imipHtml.attendeeUserType2." + ut,
                                          [aAttendee.toString()]);
@@ -281,7 +281,7 @@ ltn.invitation = {
             if (aClear && aToNode.hasChildNodes()) {
                 aToNode.removeChild(aToNode.firstChild);
             }
-            let n = nodeDoc.createElement((aType.toLowerCase() == 'newline') ? 'br' : 'span');
+            let n = nodeDoc.createElement(aType.toLowerCase() == 'newline' ? 'br' : 'span');
             switch (aType) {
                 case 'added':
                 case 'modified':
@@ -316,7 +316,7 @@ ltn.invitation = {
          * @param {String} aElement  part of the element id within the html template
          */
         function _compareElement(aElement) {
-            let element = (aElement == 'attendee') ? aElement + 's' : aElement;
+            let element = aElement == 'attendee' ? aElement + 's' : aElement;
             let oldRow = aOldDoc.getElementById('imipHtml-' + element + '-row');
             let newRow = aNewDoc.getElementById('imipHtml-' + element + '-row');
             let row = doc.getElementById('imipHtml-' + element + '-row');
@@ -363,8 +363,8 @@ ltn.invitation = {
                         for (let att of Object.keys(oldAttendees)) {
                             // if att is the user his/herself, who accepted an invitation he/she was
                             // not invited to, we exclude him/her from decoration
-                            let notExcluded = (excludeAddress == "" ||
-                                               !att.includes(excludeAddress));
+                            let notExcluded = excludeAddress == "" ||
+                                               !att.includes(excludeAddress);
                             // decorate removed attendees
                             if (!(att in attendees) && notExcluded) {
                                 _content2Child(oldAttendees[att], 'removed', att);
@@ -409,30 +409,30 @@ ltn.invitation = {
         let from = !aIdentity.fullName.length ? aIdentity.email
                                               : cal.validateRecipientList(aIdentity.fullName +
                                                                           " <" + aIdentity.email + ">");
-        let header = ("MIME-version: 1.0\r\n" +
-                      (aIdentity.replyTo ? "Return-path: " +
-                                           ltn.invitation.encodeMimeHeader(aIdentity.replyTo, true) +
-                                           "\r\n" : "") +
-                      "From: " + ltn.invitation.encodeMimeHeader(from, true) + "\r\n" +
-                      (aIdentity.organization ? "Organization: " +
-                                                ltn.invitation.encodeMimeHeader(aIdentity.organization) +
-                                                "\r\n" : "") +
-                      "Message-ID: " + aMessageId + "\r\n" +
-                      "To: " + ltn.invitation.encodeMimeHeader(aToList, true) + "\r\n" +
-                      "Date: " + ltn.invitation.getRfc5322FormattedDate() + "\r\n" +
-                      "Subject: " + ltn.invitation
-                                       .encodeMimeHeader(aSubject.replace(/(\n|\r\n)/, "|")) + "\r\n");
+        let header = "MIME-version: 1.0\r\n" +
+                     (aIdentity.replyTo ? "Return-path: " +
+                                          ltn.invitation.encodeMimeHeader(aIdentity.replyTo, true) +
+                                          "\r\n" : "") +
+                     "From: " + ltn.invitation.encodeMimeHeader(from, true) + "\r\n" +
+                     (aIdentity.organization ? "Organization: " +
+                                               ltn.invitation.encodeMimeHeader(aIdentity.organization) +
+                                               "\r\n" : "") +
+                     "Message-ID: " + aMessageId + "\r\n" +
+                     "To: " + ltn.invitation.encodeMimeHeader(aToList, true) + "\r\n" +
+                     "Date: " + ltn.invitation.getRfc5322FormattedDate() + "\r\n" +
+                     "Subject: " + ltn.invitation
+                                      .encodeMimeHeader(aSubject.replace(/(\n|\r\n)/, "|")) + "\r\n";
         let validRecipients;
         if (aIdentity.doCc) {
             validRecipients = cal.validateRecipientList(aIdentity.doCcList);
             if (validRecipients != "") {
-                header += ("Cc: " + ltn.invitation.encodeMimeHeader(validRecipients, true) + "\r\n");
+                header += "Cc: " + ltn.invitation.encodeMimeHeader(validRecipients, true) + "\r\n";
             }
         }
         if (aIdentity.doBcc) {
             validRecipients = cal.validateRecipientList(aIdentity.doBccList);
             if (validRecipients != "") {
-                header += ("Bcc: " + ltn.invitation.encodeMimeHeader(validRecipients, true) + "\r\n");
+                header += "Bcc: " + ltn.invitation.encodeMimeHeader(validRecipients, true) + "\r\n";
             }
         }
         return header;
@@ -488,7 +488,7 @@ ltn.invitation = {
      * @return {String}            the encoded string
      */
     encodeMimeHeader: function(aHeader, aIsEmail = false) {
-        let fieldNameLen = (aHeader.indexOf(": ") + 2);
+        let fieldNameLen = aHeader.indexOf(": ") + 2;
         return MailServices.mimeConverter
                            .encodeMimePartIIStr_UTF8(aHeader,
                                                      aIsEmail,

@@ -192,7 +192,7 @@
           for (let i = 0; i < treecols.length; i++) {
               if (treecols[i].getAttribute("hidden") != "true") {
                 let content = treecols[i].getAttribute("itemproperty");
-                visible += (visible.length > 0) ? " " + content : content;
+                visible += visible.length > 0 ? " " + content : content;
               }
               if (ordinals.length > 0) {
                   ordinals += " ";
@@ -242,7 +242,7 @@
               // If the current index is not selected, then ignore
               index = (tree.view.selection.isSelected(index) ? index : -1);
           }
-          return (index < 0) ? null : this.mTaskArray[index];
+          return index < 0 ? null : this.mTaskArray[index];
         ]]></getter>
       </property>
 
@@ -1106,7 +1106,7 @@
 
             let focused = (document.activeElement == tree) || menuOpen;
 
-            calendarController.onSelectionChanged({ detail: (focused ? this.selectedTasks : []) });
+            calendarController.onSelectionChanged({ detail: focused ? this.selectedTasks : [] });
             calendarController.todo_tasktree_focused = focused;
         ]]></body>
       </method>

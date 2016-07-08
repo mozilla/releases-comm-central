@@ -106,8 +106,8 @@ function switchToView(controller, view) {
       controller.waitThenClick(new elementslib.ID(controller.window.document,
         "calendar-week-view-button"));
       controller.waitFor(function() {
-        let button = (new elementslib.ID(controller.window.document,
-        "calendar-week-view-button"));
+        let button = new elementslib.ID(controller.window.document,
+        "calendar-week-view-button");
         return button.getNode().selected == true;
       });
       break;
@@ -115,8 +115,8 @@ function switchToView(controller, view) {
       controller.waitThenClick(new elementslib.ID(controller.window.document,
         "calendar-multiweek-view-button"));
       controller.waitFor(function() {
-        let button = (new elementslib.ID(controller.window.document,
-        "calendar-multiweek-view-button"));
+        let button = new elementslib.ID(controller.window.document,
+        "calendar-multiweek-view-button");
         return button.getNode().selected == true;
       });
       break;
@@ -124,8 +124,8 @@ function switchToView(controller, view) {
       controller.waitThenClick(new elementslib.ID(controller.window.document,
         "calendar-month-view-button"));
       controller.waitFor(function() {
-        let button = (new elementslib.ID(controller.window.document,
-        "calendar-month-view-button"));
+        let button = new elementslib.ID(controller.window.document,
+        "calendar-month-view-button");
         return button.getNode().selected == true;
       });
       break;
@@ -133,8 +133,8 @@ function switchToView(controller, view) {
       controller.waitThenClick(new elementslib.ID(controller.window.document,
         "calendar-day-view-button"));
       controller.waitFor(function() {
-        let button = (new elementslib.ID(controller.window.document,
-        "calendar-day-view-button"));
+        let button = new elementslib.ID(controller.window.document,
+        "calendar-day-view-button");
         return button.getNode().selected == true;
       });
   }

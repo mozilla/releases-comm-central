@@ -243,7 +243,7 @@
               if (cn.search(/[,;<>@]/) != -1) {
                   cn = '"' + cn + '"';
               }
-              inputValue = (inputValue.length) ? cn + ' <' + inputValue + '>' : cn;
+              inputValue = inputValue.length ? cn + ' <' + inputValue + '>' : cn;
           }
 
           // trim spaces if any
@@ -454,7 +454,7 @@
         <parameter name="value"/>
         <body><![CDATA[
             let entries = MailServices.headerParser.makeFromDisplayAddress(value);
-            return (entries.length) ? this._findListInAddrBooks(entries[0].name) : null;
+            return entries.length ? this._findListInAddrBooks(entries[0].name) : null;
           ]]></body>
     </method>
 
@@ -679,7 +679,7 @@
             let roleNameString = "event.attendee.role." + (role in roleMap ? roleMap[role] : "unknown");
             let tooltip = cal.calGetString("calendar-event-dialog-attendees",
                                            roleNameString,
-                                           (role in roleMap ? null : [role]));
+                                           role in roleMap ? null : [role]);
             targetIcon.setAttribute("tooltiptext", tooltip);
         } else if (targetIcon.className == "usertype-icon") {
             let cutype = targetIcon.getAttribute("cutype");
@@ -694,7 +694,7 @@
             let cutypeString = "event.attendee.usertype." + (cutype in cutypeMap ? cutypeMap[cutype] : "unknown");
             let tooltip = cal.calGetString("calendar-event-dialog-attendees",
                                            cutypeString,
-                                           (cutype in cutypeMap ? null : [cutype]));
+                                           cutype in cutypeMap ? null : [cutype]);
             targetIcon.setAttribute("tooltiptext", tooltip);
         }
       ]]></body>
@@ -966,7 +966,7 @@
           function parseHeaderValue(aMsgIAddressObject) {
               if (aMsgIAddressObject.name.match(/[<>@,]/)) {
                   // special handling only needed for a name with a comma which are not already quoted
-                  return ((aMsgIAddressObject.name.match(/^".*"$/))
+                  return (aMsgIAddressObject.name.match(/^".*"$/)
                           ? aMsgIAddressObject.name
                           : '"' + aMsgIAddressObject.name + '"'
                          ) + ' <' + aMsgIAddressObject.email + '>';

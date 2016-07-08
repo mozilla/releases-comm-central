@@ -454,8 +454,8 @@
                     this.update(date, aRefresh);
                 } else {
                     // Invalid date, revert to previous date.
-                    this.kTextBox.value = (this.mValue == "forever") ? this.mForeverStr
-                                                                     : this.formatDate(this.mValue);
+                    this.kTextBox.value = this.mValue == "forever" ? this.mForeverStr
+                                                                   : this.formatDate(this.mValue);
                 }
                 this.lastDateParseIncludedTime = false;
             }
@@ -582,9 +582,9 @@
 
           let val = this.getAttribute("value");
           if (val) {
-            this.value = (new Date(val));
+            this.value = new Date(val);
           } else {
-            this.value = (new Date());
+            this.value = new Date();
           }
 
           // Change the grids in the timepicker-grids for 12-hours time format.

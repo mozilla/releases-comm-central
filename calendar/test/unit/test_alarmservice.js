@@ -50,9 +50,9 @@ var alarmObserver = {
     },
 
     getTimer: function obs_getTimer(aCalendarId, aItemId, aAlarmStr) {
-        return (aCalendarId in this.service.mTimerMap &&
-                aItemId in this.service.mTimerMap[aCalendarId] &&
-                aAlarmStr in this.service.mTimerMap[aCalendarId][aItemId]) ?
+        return aCalendarId in this.service.mTimerMap &&
+               aItemId in this.service.mTimerMap[aCalendarId] &&
+               aAlarmStr in this.service.mTimerMap[aCalendarId][aItemId] ?
                this.service.mTimerMap[aCalendarId][aItemId][aAlarmStr] : null;
     },
 

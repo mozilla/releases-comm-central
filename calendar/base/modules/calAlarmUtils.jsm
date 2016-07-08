@@ -38,9 +38,9 @@ cal.alarms = {
 
             // Default to a display alarm, unless the calendar doesn't support
             // it or we have no calendar yet. (Man this is hard to wrap)
-            let actionValues = ((aItem.calendar &&
+            let actionValues = (aItem.calendar &&
                                  aItem.calendar.getProperty("capabilities.alarms.actionValues")) ||
-                                ["DISPLAY"]);
+                                ["DISPLAY"];
 
             alarm.action = (actionValues.includes("DISPLAY") ? "DISPLAY" : actionValues[0]);
             aItem.addAlarm(alarm);

@@ -24,11 +24,11 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function generateRequestId() {
     if (!generateRequestId.mRequestPrefix) {
-        generateRequestId.mRequestPrefix = (cal.getUUID() + "-");
+        generateRequestId.mRequestPrefix = cal.getUUID() + "-";
         generateRequestId.mRequestId = 0;
     }
     ++generateRequestId.mRequestId;
-    return (generateRequestId.mRequestPrefix + generateRequestId.mRequestId);
+    return generateRequestId.mRequestPrefix + generateRequestId.mRequestId;
 }
 
 function calWcapRequest(respFunc, logContext) {
@@ -79,17 +79,17 @@ calWcapRequest.prototype = {
     },
 
     toString: function calWcapRequest_toString() {
-        let ret = ("calWcapRequest id=" + this.id +
-                   ", parent-id=" + (this.parentRequest ? this.parentRequest.id : "<none>") +
-                   " (" + this.m_logContext + ")");
+        let ret = "calWcapRequest id=" + this.id +
+                  ", parent-id=" + (this.parentRequest ? this.parentRequest.id : "<none>") +
+                  " (" + this.m_logContext + ")";
         if (LOG_LEVEL > 2 && this.m_attachedRequests.length > 0) {
             ret += "\nattached requests:";
             for (let req of this.m_attachedRequests) {
-                ret += ("\n#" + req.id + "\t" + req);
+                ret += "\n#" + req.id + "\t" + req;
             }
         }
-        ret += (", isPending=" + this.isPending);
-        ret += (", status=" + errorToString(this.status));
+        ret += ", isPending=" + this.isPending;
+        ret += ", status=" + errorToString(this.status);
         return ret;
     },
 
@@ -297,10 +297,10 @@ calWcapNetworkRequest.prototype = {
                 break;
             default: {
                 // Something else went wrong
-                let error = ("A request Error Occurred. Status Code: " +
-                             httpChannel.responseStatus + " " +
-                             httpChannel.responseStatusText + " Body: " +
-                             unicharData);
+                let error = "A request Error Occurred. Status Code: " +
+                            httpChannel.responseStatus + " " +
+                            httpChannel.responseStatusText + " Body: " +
+                            unicharData;
                 this.execRespFunc(Components.Exception(error, NS_BINDING_FAILED));
                 break;
             }
@@ -308,13 +308,13 @@ calWcapNetworkRequest.prototype = {
     },
 
     toString: function calWcapNetworkRequest_toString() {
-        let ret = ("calWcapNetworkRequest id=" + this.id +
-                   ", parent-id=" + (this.parentRequest ? this.parentRequest.id : "<none>"));
+        let ret = "calWcapNetworkRequest id=" + this.id +
+                   ", parent-id=" + (this.parentRequest ? this.parentRequest.id : "<none>");
         if (this.m_bLogging) {
-            ret += (" (" + this.m_url + ")");
+            ret += " (" + this.m_url + ")";
         }
-        ret += (", isPending=" + this.isPending);
-        ret += (", status=" + errorToString(this.status));
+        ret += ", isPending=" + this.isPending;
+        ret += ", status=" + errorToString(this.status);
         return ret;
     },
 

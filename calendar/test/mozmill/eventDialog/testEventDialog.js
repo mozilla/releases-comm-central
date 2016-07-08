@@ -127,7 +127,7 @@ var testEventDialog = function() {
   // make it private and verify label visible
   event.click(new elementslib.ID(event.window.document, "button-privacy"));
   event.click(new elementslib.ID(event.window.document, "event-privacy-private-menuitem"));
-  let label = (new elementslib.ID(event.window.document, "status-privacy-private-box"));
+  let label = new elementslib.ID(event.window.document, "status-privacy-private-box");
   event.assertJS(event.window.getComputedStyle(label.getNode(), null).getPropertyValue("visibility") == "visible");
 
   // add attachment and verify added

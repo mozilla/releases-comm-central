@@ -190,7 +190,7 @@ calTodo.prototype = {
 
     isPropertyPromoted: function(name) {
         // avoid strict undefined property warning
-        return (this.todoPromotedProps[name] || false);
+        return this.todoPromotedProps[name] || false;
     },
 
     set entryDate(value) {

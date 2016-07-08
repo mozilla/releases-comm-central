@@ -571,7 +571,7 @@ webDavSyncHandler.prototype = {
                             r.status.indexOf(" 201"))) { // and status 201 and 204 the same
                     this.itemsReported[r.href] = r.getetag;
                     let itemId = this.calendar.mHrefIndex[r.href];
-                    let oldEtag = (itemId && this.calendar.mItemInfoCache[itemId].etag);
+                    let oldEtag = itemId && this.calendar.mItemInfoCache[itemId].etag;
 
                     if (!oldEtag || oldEtag != r.getetag) {
                         // Etag mismatch, getting new/updated item.

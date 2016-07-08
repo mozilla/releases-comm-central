@@ -752,7 +752,7 @@ calFilter.prototype = {
      *                            false otherwise.
      */
     isItemInFilters: function cF_isItemInFilters(aItem) {
-        return (this.propertyFilter(aItem) && this.textFilter(aItem));
+        return this.propertyFilter(aItem) && this.textFilter(aItem);
     },
 
     /**
@@ -795,7 +795,7 @@ calFilter.prototype = {
             let exMatch = null;
             aItem.recurrenceInfo.getExceptionIds({}).forEach(function(rID) {
                 let ex = aItem.recurrenceInfo.getExceptionFor(rID);
-                if (ex && cal.now().compare((ex.startDate || ex.entryDate)) < 0 &&
+                if (ex && cal.now().compare(ex.startDate || ex.entryDate) < 0 &&
                     this.isItemInFilters(ex)) {
                     exMatch = ex;
                 }
