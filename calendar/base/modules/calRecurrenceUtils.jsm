@@ -188,40 +188,38 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                                        })) {
                         // we don't support any other combination for now...
                         return getRString("ruleTooComplex");
+                    } else if (component.length == 1 && component[0] == -1) {
+                        // i.e. one day, the last day of the month
+                        let monthlyString = getRString("monthlyLastDayOfNth");
+                        ruleString = PluralForm.get(rule.interval, monthlyString)
+                                               .replace("#1", rule.interval);
                     } else {
-                        if (component.length == 1 && component[0] == -1) {
-                            // i.e. one day, the last day of the month
-                            let monthlyString = getRString("monthlyLastDayOfNth");
-                            ruleString = PluralForm.get(rule.interval, monthlyString)
-                                                   .replace("#1", rule.interval);
-                        } else {
-                            // i.e. one or more monthdays every N months.
+                        // i.e. one or more monthdays every N months.
 
-                            // Build a string with a list of days separated with commas.
-                            let day_string = "";
-                            let lastDay = false;
-                            for (let i = 0; i < component.length; i++) {
-                                if (component[i] == -1) {
-                                    lastDay = true;
-                                    continue;
-                                }
-                                day_string += dateFormatter.formatDayWithOrdinal(component[i]) + ", ";
+                        // Build a string with a list of days separated with commas.
+                        let day_string = "";
+                        let lastDay = false;
+                        for (let i = 0; i < component.length; i++) {
+                            if (component[i] == -1) {
+                                lastDay = true;
+                                continue;
                             }
-                            if (lastDay) {
-                                day_string += getRString("monthlyLastDay") + ", ";
-                            }
-                            day_string = day_string.slice(0, -2)
-                                                   .replace(/,(?= [^,]*$)/,
-                                                            " " + getRString("repeatDetailsAnd"));
-
-                            // Add the word "day" in plural form to the list of days then
-                            // compose the final string with the interval of months
-                            let monthlyDayString = getRString("monthlyDaysOfNth_day", [day_string]);
-                            monthlyDayString = PluralForm.get(component.length, monthlyDayString);
-                            let monthlyString = getRString("monthlyDaysOfNth", [monthlyDayString]);
-                            ruleString = PluralForm.get(rule.interval, monthlyString)
-                                                   .replace("#2", rule.interval);
+                            day_string += dateFormatter.formatDayWithOrdinal(component[i]) + ", ";
                         }
+                        if (lastDay) {
+                            day_string += getRString("monthlyLastDay") + ", ";
+                        }
+                        day_string = day_string.slice(0, -2)
+                                               .replace(/,(?= [^,]*$)/,
+                                                        " " + getRString("repeatDetailsAnd"));
+
+                        // Add the word "day" in plural form to the list of days then
+                        // compose the final string with the interval of months
+                        let monthlyDayString = getRString("monthlyDaysOfNth_day", [day_string]);
+                        monthlyDayString = PluralForm.get(component.length, monthlyDayString);
+                        let monthlyString = getRString("monthlyDaysOfNth", [monthlyDayString]);
+                        ruleString = PluralForm.get(rule.interval, monthlyString)
+                                               .replace("#2", rule.interval);
                     }
                 } else {
                     let monthlyString = getRString("monthlyDaysOfNth", [startDate.day]);
@@ -335,32 +333,30 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                                                [ruleString,
                                                 dateFormatter.formatDateShort(startDate)]);
                 }
-            } else {
-                if (rule.isFinite) {
-                    if (rule.isByCount) {
-                        let countString = getRString("repeatCount",
-                            [ruleString,
-                             dateFormatter.formatDateShort(startDate),
-                             dateFormatter.formatTime(startDate),
-                             dateFormatter.formatTime(endDate)]);
-                        detailsString = PluralForm.get(rule.count, countString)
-                                                  .replace("#5", rule.count);
-                    } else {
-                        let untilDate = rule.untilDate.getInTimezone(kDefaultTimezone);
-                        detailsString = getRString("repeatDetailsUntil",
-                            [ruleString,
-                             dateFormatter.formatDateShort(startDate),
-                             dateFormatter.formatDateShort(untilDate),
-                             dateFormatter.formatTime(startDate),
-                             dateFormatter.formatTime(endDate)]);
-                    }
-                } else {
-                    detailsString = getRString("repeatDetailsInfinite",
+            } else if (rule.isFinite) {
+                if (rule.isByCount) {
+                    let countString = getRString("repeatCount",
                         [ruleString,
                          dateFormatter.formatDateShort(startDate),
                          dateFormatter.formatTime(startDate),
                          dateFormatter.formatTime(endDate)]);
+                    detailsString = PluralForm.get(rule.count, countString)
+                                              .replace("#5", rule.count);
+                } else {
+                    let untilDate = rule.untilDate.getInTimezone(kDefaultTimezone);
+                    detailsString = getRString("repeatDetailsUntil",
+                        [ruleString,
+                         dateFormatter.formatDateShort(startDate),
+                         dateFormatter.formatDateShort(untilDate),
+                         dateFormatter.formatTime(startDate),
+                         dateFormatter.formatTime(endDate)]);
                 }
+            } else {
+                detailsString = getRString("repeatDetailsInfinite",
+                    [ruleString,
+                     dateFormatter.formatDateShort(startDate),
+                     dateFormatter.formatTime(startDate),
+                     dateFormatter.formatTime(endDate)]);
             }
             return detailsString;
         }

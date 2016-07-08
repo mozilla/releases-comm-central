@@ -1550,18 +1550,17 @@ upgrade.v22 = function upgrade_v22(db, version) {
                             } catch (exc) {
                                 // Don't fail if setting an invalid count
                             }
-                        } else {
-                            if (aEndDate) {
-                                let allday = ((aTmpFlags & CAL_ITEM_FLAG.EVENT_ALLDAY) != 0);
-                                let untilDate = newDateTime(aEndDate, allday ? "" : "UTC");
-                                if (allday) {
-                                    untilDate.isDate = true;
-                                }
-                                ritem.untilDate = untilDate;
-                            } else {
-                                ritem.untilDate = null;
+                        } else if (aEndDate) {
+                            let allday = (aTmpFlags & CAL_ITEM_FLAG.EVENT_ALLDAY) != 0;
+                            let untilDate = newDateTime(aEndDate, allday ? "" : "UTC");
+                            if (allday) {
+                                untilDate.isDate = true;
                             }
+                            ritem.untilDate = untilDate;
+                        } else {
+                            ritem.untilDate = null;
                         }
+
                         try {
                             ritem.interval = aInterval;
                         } catch (exc) {

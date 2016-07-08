@@ -203,20 +203,18 @@ calTimezoneService.prototype = {
             if (tz.aliasTo) {
                 // This zone is an alias.
                 tz.zone = this.getTimezone(tz.aliasTo);
+            } else if (Preferences.get("calendar.icaljs", false)) {
+                let parsedComp = ICAL.parse("BEGIN:VCALENDAR\r\n" + tz.ics + "\r\nEND:VCALENDAR");
+                let icalComp = new ICAL.Component(parsedComp);
+                let tzComp = icalComp.getFirstSubcomponent("vtimezone");
+                tz.zone = new calICALJSTimezone(ICAL.Timezone.fromData({
+                    tzid: tzid,
+                    component: tzComp,
+                    latitude: tz.latitude,
+                    longitude: tz.longitude
+                }));
             } else {
-                if (Preferences.get("calendar.icaljs", false)) {
-                    let parsedComp = ICAL.parse("BEGIN:VCALENDAR\r\n" + tz.ics + "\r\nEND:VCALENDAR");
-                    let icalComp = new ICAL.Component(parsedComp);
-                    let tzComp = icalComp.getFirstSubcomponent("vtimezone");
-                    tz.zone = new calICALJSTimezone(ICAL.Timezone.fromData({
-                        tzid: tzid,
-                        component: tzComp,
-                        latitude: tz.latitude,
-                        longitude: tz.longitude
-                    }));
-                } else {
-                    tz.zone = new calLibicalTimezone(tzid, tz.ics, tz.latitude, tz.longitude);
-                }
+                tz.zone = new calLibicalTimezone(tzid, tz.ics, tz.latitude, tz.longitude);
             }
         }
         return tz.zone;
@@ -488,21 +486,19 @@ function guessSystemTimezone() {
             // found period that covers today.
             if (!isForNextTransitionDate) {
                 return period;
-            } else {
-                if (todayUTC.nativeTime < periodStartCalDate.nativeTime) {
-                    // already know periodStartCalDate < oneYr from now,
-                    // and transitions are at most once per year, so it is next.
-                    return cal.dateTimeToJsDate(periodStartCalDate);
-                } else if (rrule) {
-                    // find next occurrence after today
-                    periodCalRule.icalProperty = rrule;
-                    let nextTransitionDate =
-                        periodCalRule.getNextOccurrence(periodStartCalDate,
-                                                        todayUTC);
-                    // make sure rule doesn't end before next transition date.
-                    if (nextTransitionDate) {
-                        return cal.dateTimeToJsDate(nextTransitionDate);
-                    }
+            } else if (todayUTC.nativeTime < periodStartCalDate.nativeTime) {
+                // already know periodStartCalDate < oneYr from now,
+                // and transitions are at most once per year, so it is next.
+                return cal.dateTimeToJsDate(periodStartCalDate);
+            } else if (rrule) {
+                // find next occurrence after today
+                periodCalRule.icalProperty = rrule;
+                let nextTransitionDate =
+                    periodCalRule.getNextOccurrence(periodStartCalDate,
+                                                    todayUTC);
+                // make sure rule doesn't end before next transition date.
+                if (nextTransitionDate) {
+                    return cal.dateTimeToJsDate(nextTransitionDate);
                 }
             }
         }

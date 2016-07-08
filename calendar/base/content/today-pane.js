@@ -180,21 +180,19 @@ var TodayPane = {
             } else {
                 TodayPane.minidayDrag.distance = 0;
             }
-        } else {
+        } else if (x * x + y * y > 9) {
             // move the mouse a bit before starting the drag session
-            if (x * x + y * y > 9) {
-                window.addEventListener("mouseout", TodayPane.stopSwitching, false);
-                TodayPane.minidayDrag.session = true;
-                let dragCenterImage = document.getElementById("dragCenter-image");
-                dragCenterImage.removeAttribute("hidden");
-                // Move the starting point in the center so we have a fixed
-                // point where stopping the day switching while still dragging
-                let centerObj = dragCenterImage.boxObject;
-                TodayPane.minidayDrag.startX = Math.floor(centerObj.x + centerObj.width / 2);
-                TodayPane.minidayDrag.startY = Math.floor(centerObj.y + centerObj.height / 2);
+            window.addEventListener("mouseout", TodayPane.stopSwitching, false);
+            TodayPane.minidayDrag.session = true;
+            let dragCenterImage = document.getElementById("dragCenter-image");
+            dragCenterImage.removeAttribute("hidden");
+            // Move the starting point in the center so we have a fixed
+            // point where stopping the day switching while still dragging
+            let centerObj = dragCenterImage.boxObject;
+            TodayPane.minidayDrag.startX = Math.floor(centerObj.x + centerObj.width / 2);
+            TodayPane.minidayDrag.startY = Math.floor(centerObj.y + centerObj.height / 2);
 
-                TodayPane.updateAdvanceTimer();
-            }
+            TodayPane.updateAdvanceTimer();
         }
     },
 

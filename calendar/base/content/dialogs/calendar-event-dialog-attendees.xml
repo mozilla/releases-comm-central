@@ -898,10 +898,8 @@
               let numOfVisibleRows = listbox.getNumberOfVisibleRows();
               if (aRow <= firstVisibleRow) {
                   listbox.scrollToIndex(aRow - 1);
-              } else {
-                  if (aRow - 1 >= (firstVisibleRow + numOfVisibleRows)) {
-                      listbox.scrollToIndex(aRow - numOfVisibleRows);
-                  }
+              } else if (aRow - 1 >= (firstVisibleRow + numOfVisibleRows)) {
+                  listbox.scrollToIndex(aRow - numOfVisibleRows);
               }
               let input =
                   document.getAnonymousElementByAttribute(

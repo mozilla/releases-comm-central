@@ -1298,12 +1298,10 @@ calDavCalendar.prototype = {
                                              null,
                                              null);
             }
+        } else if (!this.checkedServerInfo) {
+            this.mQueuedQueries.push(Array.from(arguments));
         } else {
-            if (!this.checkedServerInfo) {
-                this.mQueuedQueries.push(Array.from(arguments));
-            } else {
-                this.mOfflineStorage.getItems.apply(this.mOfflineStorage, arguments);
-            }
+            this.mOfflineStorage.getItems.apply(this.mOfflineStorage, arguments);
         }
     },
 

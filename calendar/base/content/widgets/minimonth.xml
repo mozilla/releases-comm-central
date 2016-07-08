@@ -973,11 +973,9 @@
                     this.mObservesComposite = true;
                     this.getItems();
                  }
-            } else {
-                if (this.mObservesComposite == true) {
-                    getCompositeCalendar().removeObserver(this);
-                    this.mObservesComposite = false;
-                 }
+            } else if (this.mObservesComposite == true) {
+                getCompositeCalendar().removeObserver(this);
+                this.mObservesComposite = false;
             }
         ]]></body>
       </method>

@@ -891,12 +891,10 @@ calMgrCalendarObserver.prototype = {
                                    initialSortOrderPos);
             }
             this.calMgr.registerCalendar(newCal);
-        } else {
-            if (aCalendar.wrappedJSObject instanceof calCachedCalendar) {
-                // any attempt to switch this flag will reset the cached calendar;
-                // could be useful for users in case the cache may be corrupted.
-                aCalendar.wrappedJSObject.setupCachedCalendar();
-            }
+        } else if (aCalendar.wrappedJSObject instanceof calCachedCalendar) {
+            // any attempt to switch this flag will reset the cached calendar;
+            // could be useful for users in case the cache may be corrupted.
+            aCalendar.wrappedJSObject.setupCachedCalendar();
         }
     },
 

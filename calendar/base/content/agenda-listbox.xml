@@ -70,12 +70,10 @@
                         this.kCheckbox.label += " (" + unitPluralForm(duration, "days") + ")";
                     }
                 }
+            } else if (synthetic.duration == 1) {
+                this.kCheckbox.label = getDateFormatter().formatDate(synthetic.start);
             } else {
-                if (synthetic.duration == 1) {
-                    this.kCheckbox.label = getDateFormatter().formatDate(synthetic.start);
-                } else {
-                    this.kCheckbox.label = getDateFormatter().formatInterval(synthetic.start, synthetic.end);
-                }
+                this.kCheckbox.label = getDateFormatter().formatInterval(synthetic.start, synthetic.end);
             }
         ]]></body>
       </method>
@@ -229,27 +227,26 @@
                 // event that starts and ends in the same day, midnight included
                 duration = longFormat ? dateFormatter.formatDateTime(start)
                                       : dateFormatter.formatTime(start);
-            } else {
-                // event spanning multiple days
-                if (startDate.compare(periodStartDate) >= 0 &&
-                     startDate.compare(periodEndDate) <= 0) {
-                    iconType = "start";
-                    duration = longFormat ? dateFormatter.formatDateTime(start)
-                                          : dateFormatter.formatTime(start);
-                } else if (endDate.compare(periodStartDate) >= 0 &&
-                           endDate.compare(periodEndDate) <= 0) {
-                    iconType = "end";
-                    if (endAtMidnight) {
-                        duration = dateFormatter.formatDate(endDate) + " ";
-                        duration = longFormat ? duration + calGetString("dateFormat", "midnight")
-                                              : calGetString("dateFormat", "midnight");
-                    } else {
-                        duration = longFormat ? dateFormatter.formatDateTime(end)
-                                              : dateFormatter.formatTime(end);
-                    }
+            } else if (startDate.compare(periodStartDate) >= 0 &&
+                       startDate.compare(periodEndDate) <= 0) {
+                // event spanning multiple days, start date within period
+                iconType = "start";
+                duration = longFormat ? dateFormatter.formatDateTime(start)
+                                      : dateFormatter.formatTime(start);
+            } else if (endDate.compare(periodStartDate) >= 0 &&
+                       endDate.compare(periodEndDate) <= 0) {
+                // event spanning multiple days, end date within period
+                iconType = "end";
+                if (endAtMidnight) {
+                    duration = dateFormatter.formatDate(endDate) + " ";
+                    duration = longFormat ? duration + calGetString("dateFormat", "midnight")
+                                          : calGetString("dateFormat", "midnight");
                 } else {
-                    iconType = "continue";
+                    duration = longFormat ? dateFormatter.formatDateTime(end)
+                                          : dateFormatter.formatTime(end);
                 }
+            } else {
+                iconType = "continue";
             }
             let multiDayImage = document.getAnonymousElementByAttribute(this, "anonid", "agenda-multiDayEvent-image");
             multiDayImage.setAttribute("type", iconType);

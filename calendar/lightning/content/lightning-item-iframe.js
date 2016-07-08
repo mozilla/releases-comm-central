@@ -1272,11 +1272,9 @@ function getRepeatTypeAndUntilDate(aItem) {
                                             updateUntilDate(rule);
                                         }
                                     }
-                                } else {
-                                    if (!rule.isFinite || !rule.isByCount) {
-                                        repeatType = "daily";
-                                        updateUntilDate(rule);
-                                    }
+                                } else if (!rule.isFinite || !rule.isByCount) {
+                                    repeatType = "daily";
+                                    updateUntilDate(rule);
                                 }
                             }
                         }
@@ -2186,24 +2184,22 @@ function addAttachment(attachment, cloudProvider) {
                     listItem.setAttribute("label", leafName);
                 }
             }
+        } else if (attachment.uri.schemeIs("file")) {
+            listItem.setAttribute("image", "moz-icon://" + attachment.uri);
         } else {
-            if (attachment.uri.schemeIs("file")) {
-                listItem.setAttribute("image", "moz-icon://" + attachment.uri);
-            } else {
-                let leafName = attachment.getParameter("FILENAME");
-                let providerType = attachment.getParameter("PROVIDER");
-                let cloudFileEnabled = Preferences.get("mail.cloud_files.enabled", false);
+            let leafName = attachment.getParameter("FILENAME");
+            let providerType = attachment.getParameter("PROVIDER");
+            let cloudFileEnabled = Preferences.get("mail.cloud_files.enabled", false);
 
-                if (leafName) {
-                    // TODO security issues?
-                    listItem.setAttribute("label", leafName);
-                }
-                if (providerType && cloudFileEnabled) {
-                    let provider = cloudFileAccounts.getProviderForType(providerType);
-                    listItem.setAttribute("image", provider.iconClass);
-                } else {
-                    listItem.setAttribute("image", "moz-icon://dummy.html");
-                }
+            if (leafName) {
+                // TODO security issues?
+                listItem.setAttribute("label", leafName);
+            }
+            if (providerType && cloudFileEnabled) {
+                let provider = cloudFileAccounts.getProviderForType(providerType);
+                listItem.setAttribute("image", provider.iconClass);
+            } else {
+                listItem.setAttribute("image", "moz-icon://dummy.html");
             }
         }
 

@@ -363,9 +363,11 @@
     // Double quotes should be used.
     "quotes": [2, "double", { "avoidEscape": true }],
 
+    // Disallow if as the only statement in an else block.
+    "no-lonely-if": 2,
+
     // Will enable these rules later
     "block-spacing": 0,
-    "no-lonely-if": 0,
     "computed-property-spacing": 0,
 
     // The following rules will not be enabled currently, but are kept here for

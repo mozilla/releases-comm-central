@@ -323,12 +323,10 @@
                   this.fireEvent("change");
                 }
               }
-            } else {
+            } else if (this.mValue) {
               // invalid date, revert to previous date
               // set textBox.value property, not attribute
-              if (this.mValue) {
-                this.kTextBox.value = this.formatDate(this.mValue);
-              }
+              this.kTextBox.value = this.formatDate(this.mValue);
             }
           ]]>
         </body>

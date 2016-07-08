@@ -451,13 +451,11 @@ function test_clone() {
     for (let prop in propMap) {
         if (prop == "item") {
             equal(alarm.item.icalString, newAlarm.item.icalString);
-        } else {
-            if ((alarm[prop] instanceof Ci.nsISupports &&
-                 alarm[prop].icalString != newAlarm[prop].icalString) ||
-                !(alarm[prop] instanceof Ci.nsISupports) &&
-                  alarm[prop] != newAlarm[prop]) {
-                do_throw(prop + " differs, " + alarm[prop] + " == " + newAlarm[prop]);
-            }
+        } else if ((alarm[prop] instanceof Ci.nsISupports &&
+                    alarm[prop].icalString != newAlarm[prop].icalString) ||
+                   !(alarm[prop] instanceof Ci.nsISupports) &&
+                     alarm[prop] != newAlarm[prop]) {
+            do_throw(prop + " differs, " + alarm[prop] + " == " + newAlarm[prop]);
         }
     }
 

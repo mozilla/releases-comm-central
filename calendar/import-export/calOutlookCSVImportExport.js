@@ -273,30 +273,27 @@ calOutlookCSVImporter.prototype = {
                     } else {
                         eDate.minute += Preferences.get("calendar.event.defaultlength", 60);
                     }
+                } else if (sDate.isDate) {
+                    // A time part for the startDate is missing or was
+                    // not recognized. We have to throw away the endDates
+                    // time part too for obtaining a valid event.
+                    eDate.isDate = true;
+                    // Correct the eDate if duration is less than one day.
+                    if (eDate.subtractDate(sDate).days < 1) {
+                        eDate = sDate.clone();
+                        eDate.day += 1;
+                    }
                 } else {
-                    // An endDate was found.
-                    if (sDate.isDate) {
-                        // A time part for the startDate is missing or was
-                        // not recognized. We have to throw away the endDates
-                        // time part too for obtaining a valid event.
-                        eDate.isDate = true;
-                        // Correct the eDate if duration is less than one day.
-                        if (eDate.subtractDate(sDate).days < 1) {
-                            eDate = sDate.clone();
-                            eDate.day += 1;
-                        }
-                    } else {
-                        // We now have a timed startDate and an endDate. If the
-                        // end time is invalid set it to 23:59:00
-                        if (eDate.isDate) {
-                            eDate.isDate = false;
-                            eDate.hour = 23;
-                            eDate.minute = 59;
-                        }
-                        // Correct the duration to 0 seconds if it is negative.
-                        if (eDate.subtractDate(sDate).isNegative) {
-                            eDate = sDate.clone();
-                        }
+                    // We now have a timed startDate and an endDate. If the
+                    // end time is invalid set it to 23:59:00
+                    if (eDate.isDate) {
+                        eDate.isDate = false;
+                        eDate.hour = 23;
+                        eDate.minute = 59;
+                    }
+                    // Correct the duration to 0 seconds if it is negative.
+                    if (eDate.subtractDate(sDate).isNegative) {
+                        eDate = sDate.clone();
                     }
                 }
                 event.startDate = sDate;
@@ -396,11 +393,9 @@ calOutlookCSVImporter.prototype = {
             if (dt.hour == 12) {
                 dt.hour = 0;
             }
-        } else {
-            // PM
-            if (dt.hour < 12) {
-               dt.hour += 12;
-            }
+        } else if (dt.hour < 12) {
+           // PM
+           dt.hour += 12;
         }
         return dt;
     },

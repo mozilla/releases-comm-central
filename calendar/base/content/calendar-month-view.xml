@@ -100,12 +100,10 @@
                 } else {
                   label.value = "⇥ " + df.formatTime(endTime);
                 }
+              } else if (comp == 1) {
+                label.value = "⇤ " + df.formatTime(startTime);
               } else {
-                if (comp == 1) {
-                  label.value = "⇤ " + df.formatTime(startTime);
-                } else {
-                  label.value = df.formatTime(startTime);
-                }
+                label.value = df.formatTime(startTime);
               }
               label.setAttribute("time", "true");
             }

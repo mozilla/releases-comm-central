@@ -161,27 +161,25 @@ function initializeControls(rule) {
         let day = Math.floor((startDate.day - 1) / 7) + 1;
         setElementValue("monthly-ordinal", day);
         setElementValue("monthly-weekday", startDate.weekday + 1);
-    } else {
-        if (everyWeekDay(byDayRuleComponent)) {
-            // Every day of the month.
-            document.getElementById("monthly-group").selectedIndex = 0;
-            setElementValue("monthly-ordinal", 0);
-            setElementValue("monthly-weekday", -1);
-        } else if (byDayRuleComponent.length > 0) {
-            // One of the first five days or weekdays of the month.
-            document.getElementById("monthly-group").selectedIndex = 0;
-            let ruleInfo = getOrdinalAndWeekdayOfRule(byDayRuleComponent[0]);
-            setElementValue("monthly-ordinal", ruleInfo.ordinal);
-            setElementValue("monthly-weekday", ruleInfo.weekday);
-        } else if (byMonthDayRuleComponent.length == 1 && byMonthDayRuleComponent[0] == -1) {
-            // The last day of the month.
-            document.getElementById("monthly-group").selectedIndex = 0;
-            setElementValue("monthly-ordinal", byMonthDayRuleComponent[0]);
-            setElementValue("monthly-weekday", byMonthDayRuleComponent[0]);
-        } else if (byMonthDayRuleComponent.length > 0) {
-            document.getElementById("monthly-group").selectedIndex = 1;
-            document.getElementById("monthly-days").days = byMonthDayRuleComponent;
-        }
+    } else if (everyWeekDay(byDayRuleComponent)) {
+        // Every day of the month.
+        document.getElementById("monthly-group").selectedIndex = 0;
+        setElementValue("monthly-ordinal", 0);
+        setElementValue("monthly-weekday", -1);
+    } else if (byDayRuleComponent.length > 0) {
+        // One of the first five days or weekdays of the month.
+        document.getElementById("monthly-group").selectedIndex = 0;
+        let ruleInfo = getOrdinalAndWeekdayOfRule(byDayRuleComponent[0]);
+        setElementValue("monthly-ordinal", ruleInfo.ordinal);
+        setElementValue("monthly-weekday", ruleInfo.weekday);
+    } else if (byMonthDayRuleComponent.length == 1 && byMonthDayRuleComponent[0] == -1) {
+        // The last day of the month.
+        document.getElementById("monthly-group").selectedIndex = 0;
+        setElementValue("monthly-ordinal", byMonthDayRuleComponent[0]);
+        setElementValue("monthly-weekday", byMonthDayRuleComponent[0]);
+    } else if (byMonthDayRuleComponent.length > 0) {
+        document.getElementById("monthly-group").selectedIndex = 1;
+        document.getElementById("monthly-days").days = byMonthDayRuleComponent;
     }
 
     // "YEARLY" ruletype

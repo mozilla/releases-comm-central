@@ -410,14 +410,12 @@ calMemoryCalendar.prototype = {
         let typeIID = null;
         if (itemReturnOccurrences) {
             typeIID = Components.interfaces.calIItemBase;
-        } else {
-            if (wantEvents && wantTodos) {
-                typeIID = Components.interfaces.calIItemBase;
-            } else if (wantEvents) {
-                typeIID = Components.interfaces.calIEvent;
-            } else if (wantTodos) {
-                typeIID = Components.interfaces.calITodo;
-            }
+        } else if (wantEvents && wantTodos) {
+            typeIID = Components.interfaces.calIItemBase;
+        } else if (wantEvents) {
+            typeIID = Components.interfaces.calIEvent;
+        } else if (wantTodos) {
+            typeIID = Components.interfaces.calITodo;
         }
 
         aRangeStart = cal.ensureDateTime(aRangeStart);

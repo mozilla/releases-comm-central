@@ -604,11 +604,9 @@
                                      aRow,
                                      aCol || {},
                                      {});
-          } else {
+          } else if (document.popupNode && document.popupNode.contextCalendar) {
               // Otherwise, we can try to get the context calendar from the popupNode.
-              if (document.popupNode && document.popupNode.contextCalendar) {
-                  return document.popupNode.contextCalendar;
-              }
+              return document.popupNode.contextCalendar;
           }
           return aRow && aRow.value > -1 && this.mCalendarList[aRow.value];
         ]]></body>

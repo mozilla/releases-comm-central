@@ -1134,11 +1134,9 @@ function checkIfInRange(item, rangeStart, rangeEnd, returnDtstartOrDue) {
             (!queryEnd || start.compare(queryEnd) < 0)) {
             return startDate;
         }
-    } else {
-        if ((!queryEnd || start.compare(queryEnd) < 0) &&
-            (!queryStart || end.compare(queryStart) > 0)) {
-            return startDate;
-        }
+    } else if ((!queryEnd || start.compare(queryEnd) < 0) &&
+               (!queryStart || end.compare(queryStart) > 0)) {
+        return startDate;
     }
     return null;
 }

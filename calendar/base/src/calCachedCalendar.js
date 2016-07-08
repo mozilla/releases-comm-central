@@ -622,13 +622,11 @@ calCachedCalendar.prototype = {
     refresh: function() {
         if (this.offline) {
             this.downstreamRefresh();
-        } else {
+        } else if (this.supportsChangeLog) {
             /* we first ensure that any remaining offline items are reconciled with the calendar server */
-            if (this.supportsChangeLog) {
-                this.playbackOfflineItems(this.downstreamRefresh.bind(this));
-            } else {
-                this.downstreamRefresh();
-            }
+            this.playbackOfflineItems(this.downstreamRefresh.bind(this));
+        } else {
+            this.downstreamRefresh();
         }
     },
     downstreamRefresh: function() {

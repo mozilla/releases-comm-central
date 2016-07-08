@@ -802,12 +802,10 @@ var unifinderTreeView = {
     cycleHeader: function uTV_cycleHeader(col) {
         if (!this.selectedColumn) {
             this.sortDirection = "ascending";
+        } else if (!this.sortDirection || this.sortDirection == "descending") {
+            this.sortDirection = "ascending";
         } else {
-            if (!this.sortDirection || this.sortDirection == "descending") {
-                this.sortDirection = "ascending";
-            } else {
-                this.sortDirection = "descending";
-            }
+            this.sortDirection = "descending";
         }
         this.selectedColumn = col.element;
         this.sortItems();

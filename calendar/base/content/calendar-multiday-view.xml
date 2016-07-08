@@ -1639,14 +1639,10 @@
           // unless we're in a different column
           if (dragState.origColumn == col) {
               let ignore = false;
-              if (col.getAttribute("orient") == "vertical") {
-                  if (Math.abs(event.screenY - dragState.origLoc) < 3) {
-                      ignore = true;
-                  }
-              } else {
-                  if (Math.abs(event.screenX - dragState.origLoc) < 3) {
-                      ignore = true;
-                  }
+              let orient = col.getAttribute("orient");
+              let position = orient == "vertical" ? event.screenY : event.screenX;
+              if (Math.abs(position - dragState.origLoc) < 3) {
+                  ignore = true;
               }
 
               if (ignore) {

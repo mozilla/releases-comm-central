@@ -188,13 +188,11 @@ calEvent.prototype = {
                 if (dur) {
                     // If there is a duration set on the event, calculate the right end time.
                     endDate.addDuration(cal.createDuration(dur));
-                } else {
+                } else if (endDate.isDate) {
                     // If the start time is a date-time the event ends on the same calendar
                     // date and time of day. If the start time is a date the events
                     // non-inclusive end is the end of the calendar date.
-                    if (endDate.isDate) {
-                        endDate.day += 1;
-                    }
+                    endDate.day += 1;
                 }
             }
             this.mEndDate = endDate;
