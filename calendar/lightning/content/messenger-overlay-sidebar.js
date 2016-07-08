@@ -48,8 +48,8 @@ var calendarTabType = {
       type: "calendar",
       maxTabs: 1,
       openTab: function(aTab, aArgs) {
-        aTab.title = aArgs["title"];
-        if (!("background" in aArgs) || !aArgs["background"]) {
+        aTab.title = aArgs.title;
+        if (!("background" in aArgs) || !aArgs.background) {
             // Only do calendar mode switching if the tab is opened in
             // foreground.
             ltnSwitch2Calendar();
@@ -96,8 +96,8 @@ var calendarTabType = {
       type: "tasks",
       maxTabs: 1,
       openTab: function(aTab, aArgs) {
-        aTab.title = aArgs["title"];
-        if (!("background" in aArgs) || !aArgs["background"]) {
+        aTab.title = aArgs.title;
+        if (!("background" in aArgs) || !aArgs.background) {
             ltnSwitch2Task();
         }
       },

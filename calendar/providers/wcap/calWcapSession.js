@@ -1008,8 +1008,8 @@ calWcapSession.prototype = {
                         let nodeList = xml.getElementsByTagName("FB");
 
                         let fbTypeMap = {};
-                        fbTypeMap["FREE"] = calIFreeBusyInterval.FREE;
-                        fbTypeMap["BUSY"] = calIFreeBusyInterval.BUSY;
+                        fbTypeMap.FREE = calIFreeBusyInterval.FREE;
+                        fbTypeMap.BUSY = calIFreeBusyInterval.BUSY;
                         fbTypeMap["BUSY-UNAVAILABLE"] = calIFreeBusyInterval.BUSY_UNAVAILABLE;
                         fbTypeMap["BUSY-TENTATIVE"] = calIFreeBusyInterval.BUSY_TENTATIVE;
 

@@ -385,6 +385,9 @@
     // Disallow unnecessary .call() and .apply()
     "no-useless-call": 2,
 
+    // Require dot notation when accessing properties
+    "dot-notation": 2,
+
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.
     "no-else-return": 0,

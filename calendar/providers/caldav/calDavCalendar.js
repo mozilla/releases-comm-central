@@ -1308,15 +1308,15 @@ calDavCalendar.prototype = {
     fillACLProperties: function caldav_fillACLProperties() {
         let orgId = this.calendarUserAddress;
         if (orgId) {
-            this.mACLProperties["organizerId"] = orgId;
+            this.mACLProperties.organizerId = orgId;
         }
 
         if (this.mACLEntry && this.mACLEntry.hasAccessControl) {
             let ownerIdentities = this.mACLEntry.getOwnerIdentities({});
             if (ownerIdentities.length > 0) {
                 let identity = ownerIdentities[0];
-                this.mACLProperties["organizerId"] = identity.email;
-                this.mACLProperties["organizerCN"] = identity.fullName;
+                this.mACLProperties.organizerId = identity.email;
+                this.mACLProperties.organizerCN = identity.fullName;
                 this.mACLProperties["imip.identity"] = identity;
             }
         }
@@ -2462,8 +2462,8 @@ calDavCalendar.prototype = {
             if (request.responseStatus == 200) {
                 let periodsToReturn = [];
                 let fbTypeMap = {};
-                fbTypeMap["FREE"] = calIFreeBusyInterval.FREE;
-                fbTypeMap["BUSY"] = calIFreeBusyInterval.BUSY;
+                fbTypeMap.FREE = calIFreeBusyInterval.FREE;
+                fbTypeMap.BUSY = calIFreeBusyInterval.BUSY;
                 fbTypeMap["BUSY-UNAVAILABLE"] = calIFreeBusyInterval.BUSY_UNAVAILABLE;
                 fbTypeMap["BUSY-TENTATIVE"] = calIFreeBusyInterval.BUSY_TENTATIVE;
 

@@ -150,7 +150,7 @@ Extractor.prototype = {
             let arr = {};
             let cnt = {};
             sp.getDictionaryList(arr, cnt);
-            let dicts = arr["value"];
+            let dicts = arr.value;
 
             if (dicts.length == 0) {
                 cal.LOG("[calExtract] There are no dictionaries installed and " +
@@ -999,8 +999,8 @@ Extractor.prototype = {
             }
 
             if (this.overrides[name] !== undefined &&
-                this.overrides[name]["add"] !== undefined) {
-                let additions = this.overrides[name]["add"];
+                this.overrides[name].add !== undefined) {
+                let additions = this.overrides[name].add;
                 additions = this.cleanPatterns(additions).split("|");
                 for (let pattern in additions) {
                     vals.push(additions[pattern]);
@@ -1009,8 +1009,8 @@ Extractor.prototype = {
             }
 
             if (this.overrides[name] !== undefined &&
-                this.overrides[name]["remove"] !== undefined) {
-                let removals = this.overrides[name]["remove"];
+                this.overrides[name].remove !== undefined) {
+                let removals = this.overrides[name].remove;
                 removals = this.cleanPatterns(removals).split("|");
                 for (let pattern in removals) {
                     let idx = vals.indexOf(removals[pattern]);
@@ -1052,8 +1052,8 @@ Extractor.prototype = {
             }
 
             if (this.overrides[name] !== undefined &&
-                this.overrides[name]["add"] !== undefined) {
-                let additions = this.overrides[name]["add"];
+                this.overrides[name].add !== undefined) {
+                let additions = this.overrides[name].add;
                 additions = this.cleanPatterns(additions).split("|");
                 for (let pattern in additions) {
                     vals.push(additions[pattern]);
@@ -1062,8 +1062,8 @@ Extractor.prototype = {
             }
 
             if (this.overrides[name] !== undefined &&
-                this.overrides[name]["remove"] !== undefined) {
-                let removals = this.overrides[name]["remove"];
+                this.overrides[name].remove !== undefined) {
+                let removals = this.overrides[name].remove;
                 removals = this.cleanPatterns(removals).split("|");
                 for (let pattern in removals) {
                     let idx = vals.indexOf(removals[pattern]);

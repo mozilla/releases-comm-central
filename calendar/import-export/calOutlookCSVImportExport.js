@@ -432,19 +432,19 @@ calOutlookCSVExporter.prototype = {
         let headers = [];
         // Not using a loop here, since we need to be sure the order here matches
         // with the orders the field data is added later on
-        headers.push(localeEn["headTitle"]);
-        headers.push(localeEn["headStartDate"]);
-        headers.push(localeEn["headStartTime"]);
-        headers.push(localeEn["headEndDate"]);
-        headers.push(localeEn["headEndTime"]);
-        headers.push(localeEn["headAllDayEvent"]);
-        headers.push(localeEn["headAlarm"]);
-        headers.push(localeEn["headAlarmDate"]);
-        headers.push(localeEn["headAlarmTime"]);
-        headers.push(localeEn["headCategories"]);
-        headers.push(localeEn["headDescription"]);
-        headers.push(localeEn["headLocation"]);
-        headers.push(localeEn["headPrivate"]);
+        headers.push(localeEn.headTitle);
+        headers.push(localeEn.headStartDate);
+        headers.push(localeEn.headStartTime);
+        headers.push(localeEn.headEndDate);
+        headers.push(localeEn.headEndTime);
+        headers.push(localeEn.headAllDayEvent);
+        headers.push(localeEn.headAlarm);
+        headers.push(localeEn.headAlarmDate);
+        headers.push(localeEn.headAlarmTime);
+        headers.push(localeEn.headCategories);
+        headers.push(localeEn.headDescription);
+        headers.push(localeEn.headLocation);
+        headers.push(localeEn.headPrivate);
         headers = headers.map(function(v) {
             return '"' + v + '"';
         });

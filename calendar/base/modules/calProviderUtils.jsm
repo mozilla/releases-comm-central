@@ -762,8 +762,8 @@ cal.ProviderBase.prototype = {
                 case "imip.identity.key": // invalidate identity and account object if key is set:
                     delete this.mProperties["imip.identity"];
                     delete this.mProperties["imip.account"];
-                    delete this.mProperties["organizerId"];
-                    delete this.mProperties["organizerCN"];
+                    delete this.mProperties.organizerId;
+                    delete this.mProperties.organizerCN;
                     break;
             }
             if (!this.transientProperties &&
