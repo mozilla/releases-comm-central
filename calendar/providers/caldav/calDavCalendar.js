@@ -2658,7 +2658,7 @@ calDavCalendar.prototype = {
         var thisCalendar = this;
 
         var getItemListener = {};
-        getItemListener.QueryInterface = XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+        getItemListener.QueryInterface = XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]);
         getItemListener.onOperationComplete = function caldav_gUIs_oOC(aCalendar,
                                                                        aStatus,
                                                                        aOperationType,
@@ -2691,7 +2691,7 @@ calDavCalendar.prototype = {
         };
 
         var modListener = {};
-        modListener.QueryInterface = XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+        modListener.QueryInterface = XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]);
         modListener.onOperationComplete = function caldav_pIR_moOC(aCalendar,
                                                                    aStatus,
                                                                    aOperationType,

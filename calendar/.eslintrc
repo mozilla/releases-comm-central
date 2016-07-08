@@ -155,6 +155,9 @@
     // Disallow shadowing of names such as arguments.
     "no-shadow-restricted-names": 2,
 
+    // Disallow use of comma operator.
+    "no-sequences": 2,
+
     // Will enable these rules later
     "block-spacing": 0,
     "no-lonely-if": 0,
