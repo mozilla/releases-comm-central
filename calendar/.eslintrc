@@ -131,6 +131,9 @@
     // nonwords off by default).
     "space-unary-ops": [2, { "words": true, "nonwords": false }],
 
+    // Enforce spacing after semicolons.
+    "semi-spacing": [2, {"before": false, "after": true}],
+
     // Will enable these rules later
     "keyword-spacing": 0,
     "block-spacing": 0,

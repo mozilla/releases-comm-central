@@ -517,7 +517,7 @@
             }
 
             let addressLists = mailingList.addressLists;
-            for (var i=0;i<addressLists.length;i++) {
+            for (var i = 0; i < addressLists.length; i++) {
               let abCard = addressLists.queryElementAt(i, Components.interfaces.nsIAbCard);
               let thisId = abCard.primaryEmail;
               if (abCard.displayName.length > 0) {

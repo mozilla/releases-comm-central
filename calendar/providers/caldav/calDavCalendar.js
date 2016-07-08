@@ -1482,7 +1482,7 @@ calDavCalendar.prototype = {
 
     firstInRealm: function caldav_firstInRealm() {
         var calendars = getCalendarManager().getCalendars({});
-        for (var i = 0; i < calendars.length ; i++) {
+        for (var i = 0; i < calendars.length; i++) {
             if (calendars[i].type != "caldav" || calendars[i].getProperty("disabled")) {
                 continue;
             }
@@ -2491,7 +2491,7 @@ calDavCalendar.prototype = {
                 let status = caldavXPathFirst(fbResult, "/C:schedule-response/C:response/C:request-status/text()");
                 if (!status || status.substr(0, 1) != "2") {
                     cal.LOG("CalDAV: Got status " + status + " in response to " +
-                            "freebusy query for " + thisCalendar.name) ;
+                            "freebusy query for " + thisCalendar.name);
                     aListener.onResult(null, null);
                     return;
                 }
@@ -2615,7 +2615,7 @@ calDavCalendar.prototype = {
         }
 
         var uriComponents = aString.split("/");
-        for (var i = 0 ; i < uriComponents.length ; i++ ) {
+        for (var i = 0; i < uriComponents.length; i++) {
             try {
                 uriComponents[i] = decodeURIComponent(uriComponents[i]);
             }

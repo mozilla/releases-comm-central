@@ -1111,7 +1111,7 @@ function setCurrentEvent() {
 
     if (removelist) {
       if (removelist.length > 0) {
-          for (let i = 0;i < removelist.length; i++) {
+          for (let i = 0; i < removelist.length; i++) {
               removelist[i].remove();
           }
       }

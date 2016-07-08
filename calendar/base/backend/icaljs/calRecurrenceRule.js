@@ -66,7 +66,7 @@ calRecurrenceRule.prototype = {
 
         let iter = this.innerObject.iterator(aStartTime);
 
-        for (let next = iter.next(); next ; next = iter.next()) {
+        for (let next = iter.next(); next; next = iter.next()) {
             let dtNext  = next.clone();
             dtNext.isDate = false;
 

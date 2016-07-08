@@ -127,7 +127,7 @@ function getPrintSettings(receiverFunc) {
         settings.end = settings.end.getInTimezone(currentTimezone);
         settings.end = settings.end.clone();
         settings.end.day += 1;
-        break ;
+        break;
     default:
         dump("Error : no case in printDialog.js::printCalendar()");
     }

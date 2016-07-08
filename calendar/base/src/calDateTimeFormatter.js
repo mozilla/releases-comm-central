@@ -43,7 +43,7 @@ function calDateTimeFormatter() {
 
         // Compare the index of the first differing character between
         // probeStringA to probeStringB and probeStringA to probeStringC.
-        for (var i=0; i < probeStringA.length ; i++) {
+        for (var i = 0; i < probeStringA.length; i++) {
             if (probeStringA[i] != probeStringB[i]) {
                 this.mMonthFirst = true;
                 break;

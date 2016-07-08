@@ -530,7 +530,7 @@ var unifinderTreeView = {
      */
     calculateIndexMap: function uTV_calculateIndexMap(aDontInvalidate) {
         this.eventIndexMap = {};
-        for (let i = 0 ; i < this.eventArray.length; i++) {
+        for (let i = 0; i < this.eventArray.length; i++) {
             this.eventIndexMap[this.eventArray[i].hashId] = i;
         }
 
