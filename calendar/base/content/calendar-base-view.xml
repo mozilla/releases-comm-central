@@ -159,7 +159,7 @@
                 switch (aName) {
                     case "suppressAlarms":
                         if (!Preferences.get("calendar.alarms.indicator.show", true) ||
-                            aCalendar.getProperty("capabilities.alarms.popup.supported") === false ) {
+                            aCalendar.getProperty("capabilities.alarms.popup.supported") === false) {
                             break;
                         }
                         // else fall through

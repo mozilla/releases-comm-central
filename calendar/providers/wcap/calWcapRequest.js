@@ -93,7 +93,7 @@ calWcapRequest.prototype = {
 
     attachSubRequest: function calWcapRequest_attachSubRequest(req) {
         if (req) {
-            if (!this.m_attachedRequests.some( function(req_) { return req.id == req_.id; } )) {
+            if (!this.m_attachedRequests.some(function(req_) { return req.id == req_.id; })) {
                 if (req.isPending) {
                     this.m_attachedRequests.push(req);
                     req.parentRequest = this;
@@ -108,7 +108,7 @@ calWcapRequest.prototype = {
     },
 
     detachSubRequest: function calWcapRequest_detachSubRequest(req, err) {
-        this.m_attachedRequests = this.m_attachedRequests.filter( function(req_) { return req.id != req_.id; } );
+        this.m_attachedRequests = this.m_attachedRequests.filter(function(req_) { return req.id != req_.id; });
         if (err) {
             // first failing sub request stops parent request:
             this.execRespFunc(err);
@@ -121,7 +121,7 @@ calWcapRequest.prototype = {
     cancelAllSubRequests: function calWcapRequest_cancelAllSubRequests(status) {
         var attachedRequests = this.m_attachedRequests;
         this.m_attachedRequests = [];
-        attachedRequests.forEach( function(req) { req.cancel(null); } );
+        attachedRequests.forEach(function(req) { req.cancel(null); });
     },
 
     detachFromParent: function calWcapRequest_detachFromParent(err) {

@@ -175,7 +175,7 @@ calDateTimeFormatter.prototype = {
 
     formatInterval: function formatInterval(aStartDate, aEndDate) {
         // Check for tasks without start and/or due date
-        if (aEndDate == null && aStartDate == null ) {
+        if (aEndDate == null && aStartDate == null) {
             return calGetString("calendar", "datetimeIntervalTaskWithoutDate");
         } else if (aEndDate == null) {
             let startDateString = this.formatDate(aStartDate);
@@ -276,21 +276,21 @@ calDateTimeFormatter.prototype = {
 
     monthName: function monthName(aMonthIndex) {
         let oneBasedMonthIndex = aMonthIndex + 1;
-        return this.mDateStringBundle.GetStringFromName("month." + oneBasedMonthIndex + ".name" );
+        return this.mDateStringBundle.GetStringFromName("month." + oneBasedMonthIndex + ".name");
     },
 
     shortMonthName: function shortMonthName(aMonthIndex) {
         let oneBasedMonthIndex = aMonthIndex + 1;
-        return this.mDateStringBundle.GetStringFromName("month." + oneBasedMonthIndex + ".Mmm" );
+        return this.mDateStringBundle.GetStringFromName("month." + oneBasedMonthIndex + ".Mmm");
     },
 
     dayName: function dayName(aDayIndex) {
         let oneBasedDayIndex = aDayIndex + 1;
-        return this.mDateStringBundle.GetStringFromName("day." + oneBasedDayIndex + ".name" );
+        return this.mDateStringBundle.GetStringFromName("day." + oneBasedDayIndex + ".name");
     },
 
     shortDayName: function shortDayName(aDayIndex) {
         let oneBasedDayIndex = aDayIndex + 1;
-        return this.mDateStringBundle.GetStringFromName("day." + oneBasedDayIndex + ".Mmm" );
+        return this.mDateStringBundle.GetStringFromName("day." + oneBasedDayIndex + ".Mmm");
     }
 };

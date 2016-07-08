@@ -597,7 +597,7 @@ function setData(controller, data) {
       data.completed.getFullYear(), data.completed.getMonth() + 1,
       data.completed.getDate());
 
-    if ( currentStatus == "COMPLETED") {
+    if (currentStatus == "COMPLETED") {
       if (!mac) {
         controller.keypress(completedDateInput, 'a', {ctrlKey: true});
         controller.type(completedDateInput, completeddate);

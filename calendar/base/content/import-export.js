@@ -83,7 +83,7 @@ function loadEventsFromFile(aCalendar) {
         let items = [];
 
         try {
-            inputStream.init( fp.file, MODE_RDONLY, parseInt("0444", 8), {});
+            inputStream.init(fp.file, MODE_RDONLY, parseInt("0444", 8), {});
             items = importer.importFromStream(inputStream, {});
         } catch (ex) {
             switch (ex.result) {

@@ -1026,7 +1026,7 @@ calStorageCalendar.prototype = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onGetResult: function (calendar, status, itemType, detail, count, items) {
             },
-            onOperationComplete: function(calendar, status, opType, id, oldOfflineJournalFlag ) {
+            onOperationComplete: function(calendar, status, opType, id, oldOfflineJournalFlag) {
                 let newOfflineJournalFlag = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
                 if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD || oldOfflineJournalFlag == cICL.OFFLINE_FLAG_DELETED_RECORD) {
                     // Do nothing since a flag of "created" or "deleted" exists

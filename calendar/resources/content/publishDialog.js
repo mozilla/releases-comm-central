@@ -18,16 +18,16 @@ function loadCalendarPublishDialog() {
    if (args.publishObject) {
       gPublishObject = args.publishObject;
       if (args.publishObject.remotePath) {
-          document.getElementById( "publish-remotePath-textbox" ).value = args.publishObject.remotePath;
+          document.getElementById("publish-remotePath-textbox").value = args.publishObject.remotePath;
       }
    } else {
       gPublishObject = {};
    }
-   document.getElementById( "calendar-publishwindow" ).getButton( "accept" ).setAttribute( "label", publishButtonLabel );
+   document.getElementById("calendar-publishwindow").getButton("accept").setAttribute("label", publishButtonLabel);
 
-   checkURLField( );
+   checkURLField();
 
-   var firstFocus = document.getElementById( "publish-remotePath-textbox" );
+   var firstFocus = document.getElementById("publish-remotePath-textbox");
    firstFocus.focus();
 }
 
@@ -38,21 +38,21 @@ function loadCalendarPublishDialog() {
 */
 
 function onOKCommand() {
-   gPublishObject.remotePath = document.getElementById( "publish-remotePath-textbox" ).value;
+   gPublishObject.remotePath = document.getElementById("publish-remotePath-textbox").value;
 
    // call caller's on OK function
    gOnOkFunction(gPublishObject, progressDialog);
-   document.getElementById( "calendar-publishwindow" ).getButton( "accept" ).setAttribute( "label", closeButtonLabel );
-   document.getElementById( "calendar-publishwindow" ).setAttribute( "ondialogaccept", "closeDialog()" );
-   return ( false );
+   document.getElementById("calendar-publishwindow").getButton("accept").setAttribute("label", closeButtonLabel);
+   document.getElementById("calendar-publishwindow").setAttribute("ondialogaccept", "closeDialog()");
+   return false;
 }
 
 
 function checkURLField() {
-   if (document.getElementById( "publish-remotePath-textbox" ).value.length == 0) {
-      document.getElementById( "calendar-publishwindow" ).getButton( "accept" ).setAttribute( "disabled", "true" );
+   if (document.getElementById("publish-remotePath-textbox").value.length == 0) {
+      document.getElementById("calendar-publishwindow").getButton("accept").setAttribute("disabled", "true");
    } else {
-      document.getElementById( "calendar-publishwindow" ).getButton( "accept" ).removeAttribute( "disabled" );
+      document.getElementById("calendar-publishwindow").getButton("accept").removeAttribute("disabled");
    }
 }
 
@@ -62,11 +62,11 @@ function closeDialog() {
 
 var progressDialog = {
     onStartUpload: function() {
-        document.getElementById( "publish-progressmeter" ).setAttribute( "mode", "undetermined" );
+        document.getElementById("publish-progressmeter").setAttribute("mode", "undetermined");
     },
 
     onStopUpload: function() {
-        document.getElementById( "publish-progressmeter" ).setAttribute( "mode", "determined" );
+        document.getElementById("publish-progressmeter").setAttribute("mode", "determined");
     }
 };
 progressDialog.wrappedJSObject = progressDialog;

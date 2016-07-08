@@ -1376,7 +1376,7 @@ calDavCalendar.prototype = {
         // to get the collection tag (getctag) on a calendar if it supports
         // webdav sync, the sync request will only return data if something
         // changed).
-        if (!this.mCtag || !this.mFirstRefreshDone || this.mHasWebdavSyncSupport ) {
+        if (!this.mCtag || !this.mFirstRefreshDone || this.mHasWebdavSyncSupport) {
             this.getUpdatedItems(this.calendarUri, aChangeLogListener);
             return;
         }
@@ -2415,7 +2415,7 @@ calDavCalendar.prototype = {
 
         if (aCalIdParts[0] != "mailto"
             && aCalIdParts[0] != "http"
-            && aCalIdParts[0] != "https" ) {
+            && aCalIdParts[0] != "https") {
             aListener.onResult(null, null);
             return;
         }

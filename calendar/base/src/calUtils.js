@@ -1429,7 +1429,7 @@ function isPropertyValueSame(aObjects, aPropertyName) {
             value = aObjects[0][aPropertyName];
         }
         var compValue = aObjects[i][aPropertyName];
-        if (compValue != value ) {
+        if (compValue != value) {
             return false;
         }
     }

@@ -347,7 +347,7 @@ cal.fromRFC3339 = function fromRFC3339(aStr, aTimezone) {
         dateTime.timezone = aTimezone;
     } else {
         let offset_in_s = (matches[11] == "-" ? -1 : 1) *
-            ( (matches[12] * 3600) + (matches[13] * 60) );
+            ((matches[12] * 3600) + (matches[13] * 60));
 
         // try local timezone first
         dateTime.timezone = aTimezone;

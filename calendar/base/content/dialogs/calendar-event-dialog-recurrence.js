@@ -225,7 +225,7 @@ function initializeControls(rule) {
             setElementValue("recurrence-duration", "forever");
         } else {
             setElementValue("recurrence-duration", "ntimes");
-            setElementValue("repeat-ntimes-count", rule.count );
+            setElementValue("repeat-ntimes-count", rule.count);
         }
     } else {
         let untilDate = rule.untilDate;

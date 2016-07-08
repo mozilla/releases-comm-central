@@ -70,9 +70,9 @@ function calWcapCalendar_getRecurrenceParams(item, out_rrules, out_rdates, out_e
 
 function sameStringSet(list, list_) {
     return (list.length == list_.length &&
-            list.every( function everyFunc(x) {
+            list.every(function everyFunc(x) {
                     return list_.some(
-                        function someFunc(y) { return x == y; } );
+                        function someFunc(y) { return x == y; });
                 }));
 }
 

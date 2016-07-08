@@ -388,7 +388,7 @@ function isBefore(aItem, aCompItem, aPeriod) {
                 // ending day of an all-day events spannig multiple days
                 return (!compItemDate.isDate ||
                         (aCompItem.duration.days != 1 &&
-                          aCompItem.startDate.compare(compItemDate) != 0 ));
+                          aCompItem.startDate.compare(compItemDate) != 0));
             } else {
                 // intermediate day of an all-day events spannig multiple days
                 return (!compItemDate.isDate);
@@ -441,7 +441,7 @@ function comparisonDate(aItem, aPeriod) {
     }
     endDate.isDate = true;
     if (startDate.compare(endDate) != 0 &&
-         startDate.compare(periodStartDate) < 0 ) {
+         startDate.compare(periodStartDate) < 0) {
         // returns a end date when the item is a multiday event AND
         // it starts before the given period
         return endDateToReturn;
@@ -803,7 +803,7 @@ function showsToday(aStartDate) {
 agendaListbox.moveSelection =
 function moveSelection() {
     var selindex = this.agendaListboxControl.selectedIndex;
-    if ( !this.isEventListItem(this.agendaListboxControl.selectedItem.nextSibling)) {
+    if (!this.isEventListItem(this.agendaListboxControl.selectedItem.nextSibling)) {
         this.agendaListboxControl.goUp();
     } else {
         this.agendaListboxControl.goDown();

@@ -17,7 +17,7 @@ function publishCalendarData() {
    args.onOk = self.publishCalendarDataDialogResponse;
 
    openDialog("chrome://calendar/content/publishDialog.xul", "caPublishEvents",
-              "chrome,titlebar,modal,resizable", args );
+              "chrome,titlebar,modal,resizable", args);
 }
 
 /**
@@ -74,7 +74,7 @@ function publishEntireCalendar(aCalendar) {
 
     args.publishObject = publishObject;
     openDialog("chrome://calendar/content/publishDialog.xul", "caPublishEvents",
-               "chrome,titlebar,modal,resizable", args );
+               "chrome,titlebar,modal,resizable", args);
 
     return;
 }

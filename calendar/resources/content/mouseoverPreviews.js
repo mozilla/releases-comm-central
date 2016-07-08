@@ -18,7 +18,7 @@
  *  Used by all grid views.
  */
 
-function onMouseOverItem( occurrenceBoxMouseEvent ) {
+function onMouseOverItem(occurrenceBoxMouseEvent) {
   if ("occurrence" in occurrenceBoxMouseEvent.currentTarget) {
     // occurrence of repeating event or todo
       var occurrence = occurrenceBoxMouseEvent.currentTarget.occurrence;
@@ -50,7 +50,7 @@ function showToolTip(aToolTip, aItem) {
  */
 function getPreviewForTask(toDoItem) {
   if (toDoItem) {
-    const vbox = document.createElement( "vbox" );
+    const vbox = document.createElement("vbox");
     vbox.setAttribute("class", "tooltipBox");
     // tooltip appears above or below pointer, so may have as little as
     // one half the screen height available (avoid top going off screen).
@@ -129,7 +129,7 @@ function getPreviewForTask(toDoItem) {
       boxAppendBody(vbox, description);
     }
 
-    return ( vbox );
+    return (vbox);
   } else {
     return null;
   }
@@ -142,9 +142,9 @@ function getPreviewForTask(toDoItem) {
  *  (recurring or multiday events may be displayed by more than one event box
  *  for different days), or null if should compute next instance from now.
  */
-function getPreviewForEvent( aEvent) {
+function getPreviewForEvent(aEvent) {
   var event = aEvent;
-  const vbox = document.createElement( "vbox" );
+  const vbox = document.createElement("vbox");
   vbox.setAttribute("class", "tooltipBox");
   // tooltip appears above or below pointer, so may have as little as
   // one half the screen height available (avoid top going off screen).
@@ -189,7 +189,7 @@ function getPreviewForEvent( aEvent) {
       // display wrapped description lines, like body of message below headers
       boxAppendBody(vbox, description);
     }
-    return ( vbox );
+    return (vbox);
   } else {
       return null;
   }
@@ -198,7 +198,7 @@ function getPreviewForEvent( aEvent) {
 
 /** String for event status: (none), Tentative, Confirmed, or Cancelled **/
 function getEventStatusString(calendarEvent) {
-  switch ( calendarEvent.status ) {
+  switch (calendarEvent.status) {
     // Event status value keywords are specified in RFC2445sec4.8.1.11
     case "TENTATIVE":
       return calGetString('calendar', "statusTentative");
@@ -213,7 +213,7 @@ function getEventStatusString(calendarEvent) {
 
 /** String for todo status: (none), NeedsAction, InProcess, Cancelled, or Completed **/
 function getToDoStatusString(iCalToDo) {
-  switch ( iCalToDo.status ) {
+  switch (iCalToDo.status) {
     // Todo status keywords are specified in RFC2445sec4.8.1.11
     case "NEEDS-ACTION":
       return calGetString('calendar', "statusNeedsAction");

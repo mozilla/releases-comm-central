@@ -201,7 +201,7 @@ function enableElementWithLock(elementId, lockId) {
  */
 function uncheckChildNodes(aEvent) {
     var liveList = aEvent.target.getElementsByAttribute("checked", "true");
-    for (var i = liveList.length - 1; i >= 0; i-- ) {
+    for (var i = liveList.length - 1; i >= 0; i--) {
         var commandName = liveList.item(i).getAttribute("command");
         var command = document.getElementById(commandName);
         if (command) {

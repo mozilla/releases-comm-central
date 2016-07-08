@@ -442,7 +442,7 @@
           if (this.hasAttribute("readonly")) {
               this.mIsReadOnly = this.getAttribute("readonly") == "true";
           }
-          this.refreshDisplay( );
+          this.refreshDisplay();
           if (this.hasAttribute("freebusy")) {
               this._setFreeBusy(this.getAttribute("freebusy") == "true");
           }

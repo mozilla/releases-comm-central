@@ -169,6 +169,9 @@
     // Disallow padding within blocks.
     "padded-blocks": [2, "never"],
 
+    // Disallow spaces inside parentheses.
+    "space-in-parens": [2, "never"],
+
     // Will enable these rules later
     "block-spacing": 0,
     "no-lonely-if": 0,

@@ -12,7 +12,7 @@
     and consistent behavior.
     It relies on <minimonth/> for the date picker's drop down.
     You can be notified of change event as follows:
-      <datepicker id="my-date-picker" onchange="myDatePick( this );"/>
+      <datepicker id="my-date-picker" onchange="myDatePick(this);"/>
     May get/set value in javascript with
       document.getElementById("my-date-picker").value = new Date();
     May disable/enable in javascript with
@@ -1127,11 +1127,11 @@
             var hours24 = this.mSelectedTime.getHours();
             var hourItemId = "time-picker-hour-box-" + hours24;
             var hourItem = document.getAnonymousElementByAttribute(this, "anonid", hourItemId);
-            this.selectHourItem( hourItem );
+            this.selectHourItem(hourItem);
 
             // Show the five minute view if we are an even five minutes,
             // otherwise one minute view
-            var minutesByFive = this.calcNearestFiveMinutes( this.mSelectedTime );
+            var minutesByFive = this.calcNearestFiveMinutes(this.mSelectedTime);
 
             if (minutesByFive == this.mSelectedTime.getMinutes()) {
               this.clickLess();
@@ -1157,7 +1157,7 @@
         <body>
           <![CDATA[
             // switch to one minute view
-            this.switchMinuteView( this.kMINUTE_VIEW_ONE );
+            this.switchMinuteView(this.kMINUTE_VIEW_ONE);
 
             // select minute box corresponding to the time
             var minutes = this.mSelectedTime.getMinutes();
@@ -1173,7 +1173,7 @@
         <body>
           <![CDATA[
             // switch to five minute view
-            this.switchMinuteView( this.kMINUTE_VIEW_FIVE );
+            this.switchMinuteView(this.kMINUTE_VIEW_FIVE);
 
             // select closest five minute box,
             // BUT leave the selected time at what may NOT be an even five minutes
@@ -1194,10 +1194,10 @@
         <body>
           <![CDATA[
             // select the item
-            this.selectHourItem( hourItem );
+            this.selectHourItem(hourItem);
 
             // Change the hour in the selected time.
-            this.mSelectedTime.setHours( hourNumber );
+            this.mSelectedTime.setHours(hourNumber);
 
             this.hasChanged = true;
           ]]>
@@ -1243,7 +1243,7 @@
         <body>
           <![CDATA[
             // Copy picked time to avoid problems changing Date object in place
-            var pickedTime = new Date( this.mSelectedTime );
+            var pickedTime = new Date(this.mSelectedTime);
 
             // put the picked time in the value property, and update
             this.mPicker.update(pickedTime, true);
@@ -1262,11 +1262,11 @@
             var oneMinuteBox = document.getAnonymousElementByAttribute(this, "anonid", "time-picker-one-minute-grid-box");
 
             if (view == this.kMINUTE_VIEW_ONE) {
-              fiveMinuteBox.setAttribute( "hidden", true );
-              oneMinuteBox.setAttribute( "hidden", false );
+              fiveMinuteBox.setAttribute("hidden", true);
+              oneMinuteBox.setAttribute("hidden", false);
             } else {
-              fiveMinuteBox.setAttribute( "hidden", false );
-              oneMinuteBox.setAttribute( "hidden", true );
+              fiveMinuteBox.setAttribute("hidden", false);
+              oneMinuteBox.setAttribute("hidden", true);
             }
           ]]>
         </body>
@@ -1279,10 +1279,10 @@
           <![CDATA[
             // clear old selection, if there is one
             if (this.mSelectedHourItem != null) {
-              this.mSelectedHourItem.removeAttribute( "selected" );
+              this.mSelectedHourItem.removeAttribute("selected");
             }
             // set selected attribute, to cause the selected style to apply
-            hourItem.setAttribute( "selected", "true" );
+            hourItem.setAttribute("selected", "true");
             // remember the selected item so we can deselect it
             this.mSelectedHourItem = hourItem;
           ]]>
@@ -1296,10 +1296,10 @@
           <![CDATA[
             // clear old selection, if there is one
             if (this.mSelectedMinuteItem != null) {
-              this.mSelectedMinuteItem.removeAttribute( "selected" );
+              this.mSelectedMinuteItem.removeAttribute("selected");
             }
             // set selected attribute, to cause the selected style to apply
-            minuteItem.setAttribute( "selected", "true" );
+            minuteItem.setAttribute("selected", "true");
             // remember the selected item so we can deselect it
             this.mSelectedMinuteItem = minuteItem;
           ]]>
@@ -1386,7 +1386,7 @@
         <body>
           <![CDATA[
             var minutes = time.getMinutes();
-            var minutesByFive = Math.round( minutes / 5 ) * 5;
+            var minutesByFive = Math.round(minutes / 5) * 5;
 
             if (minutesByFive > 59) {
               minutesByFive = 55;

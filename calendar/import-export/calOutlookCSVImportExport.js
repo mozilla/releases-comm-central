@@ -132,7 +132,7 @@ calOutlookCSVImporter.prototype = {
 
         // parse header line of quoted comma separated column names.
         let trimEndQuotesRegExp = /^"(.*)"$/m;
-        let trimResults = trimEndQuotesRegExp.exec( str );
+        let trimResults = trimEndQuotesRegExp.exec(str);
         let header = trimResults && trimResults[1].split(/","/);
         if (header == null) {
             aCount.value = 0;
@@ -298,7 +298,7 @@ calOutlookCSVImporter.prototype = {
                             eDate.minute = 59;
                         }
                         // Correct the duration to 0 seconds if it is negative.
-                        if (eDate.subtractDate(sDate).isNegative ) {
+                        if (eDate.subtractDate(sDate).isNegative) {
                             eDate = sDate.clone();
                         }
                     }
