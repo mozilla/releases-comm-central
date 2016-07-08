@@ -247,7 +247,7 @@ function onReminderSelected() {
             // Date
             absDate.value = cal.dateTimeToJsDate(reminder.alarmDate || cal.getDefaultStartDate());
         } else {
-            relationType.value =  "relative";
+            relationType.value = "relative";
 
             // Unit and length
             let alarmlen = Math.abs(reminder.offset.inSeconds / 60);

@@ -101,7 +101,7 @@ var TodayPane = {
 
         for (let i = 0; i < childNodes.length; i++) {
             let monthlabel = childNodes[i];
-            this.setMonthDescription(monthlabel, i,  kYEARINIT, kCALWEEKINIT);
+            this.setMonthDescription(monthlabel, i, kYEARINIT, kCALWEEKINIT);
         }
 
         let now = cal.now();

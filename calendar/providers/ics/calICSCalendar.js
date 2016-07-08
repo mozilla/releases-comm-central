@@ -325,7 +325,7 @@ calICSCalendar.prototype = {
             onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail)
             {
                 var inLastWindowClosingSurvivalArea = false;
-                try  {
+                try {
                     // All events are returned. Now set up a channel and a
                     // streamloader to upload.  onStopRequest will be called
                     // once the write has finished

@@ -521,7 +521,7 @@
 
               // Add calendar name and id atom
               properties.push("calendar-" + formatStringForCSSRule(item.calendar.name));
-              properties.push("calendarid-" +  formatStringForCSSRule(item.calendar.id));
+              properties.push("calendarid-" + formatStringForCSSRule(item.calendar.id));
 
               // Add item status atom
               if (item.status) {
@@ -552,7 +552,7 @@
               }
               if (aCol != null) {
                   var content = aCol.element.getAttribute("itemproperty");
-                  if (content == "completed")  {
+                  if (content == "completed") {
                       var newTask = task.clone().QueryInterface(Components.interfaces.calITodo);
                       newTask.isCompleted = !task.completedDate;
                       doTransaction('modify', newTask, newTask.calendar, task, null);

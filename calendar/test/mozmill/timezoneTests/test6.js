@@ -7,8 +7,8 @@ var timezoneUtils = require("../shared-modules/timezone-utils");
 
 var sleep = 500;
 var calendar = "Mozmill";
-var dates = [[2009,  1,  1], [2009,  4,  2], [2009,  4, 16], [2009,  4, 30],
-             [2009,  7,  2], [2009, 10, 15], [2009, 10, 29], [2009, 11,  5]];
+var dates = [[2009, 1, 1], [2009, 4, 2], [2009, 4, 16], [2009, 4, 30],
+             [2009, 7, 2], [2009, 10, 15], [2009, 10, 29], [2009, 11, 5]];
 var timezones = ["America/St_Johns", "America/Caracas", "America/Phoenix", "America/Los_Angeles",
                  "America/Argentina/Buenos_Aires", "Europe/Paris", "Asia/Kathmandu", "Australia/Adelaide"];
 /* rows - dates

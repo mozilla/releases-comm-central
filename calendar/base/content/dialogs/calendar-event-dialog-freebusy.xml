@@ -642,7 +642,7 @@
 
       <property name="documentSize">
         <getter><![CDATA[
-          return  this.contentWidth * this.mRange;
+          return this.contentWidth * this.mRange;
         ]]></getter>
       </property>
 

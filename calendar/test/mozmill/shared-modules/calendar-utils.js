@@ -5,8 +5,10 @@
 var MODULE_NAME = "calendar-utils";
 var MODULE_REQUIRES = ["window-helpers"];
 
-var os = {};      Components.utils.import('resource://mozmill/stdlib/os.js', os);
-var frame = {};      Components.utils.import('resource://mozmill/modules/frame.js', frame);
+var os = {};
+Components.utils.import('resource://mozmill/stdlib/os.js', os);
+var frame = {};
+Components.utils.import('resource://mozmill/modules/frame.js', frame);
 
 var modalDialog = require("test-window-helpers");
 

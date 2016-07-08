@@ -312,9 +312,9 @@ function guessSystemTimezone() {
     const tzSvc = cal.getTimezoneService();
 
     var continent = "Africa|America|Antarctica|Asia|Australia|Europe";
-    var ocean     = "Arctic|Atlantic|Indian|Pacific";
-    var tzRegex   = new RegExp(".*((?:"+continent+"|"+ocean+")"+
-                               "(?:[/][-A-Z_a-z]+)+)");
+    var ocean = "Arctic|Atlantic|Indian|Pacific";
+    var tzRegex = new RegExp(".*((?:"+continent+"|"+ocean+")"+
+                             "(?:[/][-A-Z_a-z]+)+)");
 
     function getIcalString(component, property) {
         var prop = (component && component.getFirstProperty(property));
@@ -350,10 +350,10 @@ function guessSystemTimezone() {
         // because offsets of timezone may be changed over the years.
         var standard = findCurrentTimePeriod(tz, subComp, "STANDARD");
         var standardTZOffset = getIcalString(standard, "TZOFFSETTO");
-        var standardName     = getIcalString(standard, "TZNAME");
+        var standardName = getIcalString(standard, "TZNAME");
         var daylight = findCurrentTimePeriod(tz, subComp, "DAYLIGHT");
         var daylightTZOffset = getIcalString(daylight, "TZOFFSETTO");
-        var daylightName     = getIcalString(daylight, "TZNAME");
+        var daylightName = getIcalString(daylight, "TZNAME");
 
         // Try northern hemisphere cases.
         if (offsetDec == standardTZOffset && offsetDec == offsetJun &&
@@ -619,7 +619,7 @@ function guessSystemTimezone() {
                 // (Registry keys are sorted by subkeyName, not by localized name
                 //  nor offset, so cannot use binary search.)
                 for (var i = 0; i < wrk.childCount; i++) {
-                    var subkeyName  = wrk.getChildName(i);
+                    var subkeyName = wrk.getChildName(i);
                     var subkey = wrk.openChild(subkeyName, wrk.ACCESS_READ);
                     var std = subkey.readStringValue("Std");
                     subkey.close();
@@ -780,13 +780,13 @@ function guessSystemTimezone() {
                 // but transitions start on different weekday from os timezone.
                 var standardStart = getIcalString(standard, "DTSTART");
                 var standardStartWeekday = weekday(standardStart, tz);
-                var standardRule  = getIcalString(standard, "RRULE");
+                var standardRule = getIcalString(standard, "RRULE");
                 var standardText =
                     ("  Standard: "+standardStart+" "+standardStartWeekday+"\n"+
                      "            "+standardRule+"\n");
                 var daylightStart = getIcalString(daylight, "DTSTART");
                 var daylightStartWeekday = weekday(daylightStart, tz);
-                var daylightRule  = getIcalString(daylight, "RRULE");
+                var daylightRule = getIcalString(daylight, "RRULE");
                 var daylightText =
                     ("  Daylight: "+daylightStart+" "+daylightStartWeekday+"\n"+
                      "            "+daylightRule+"\n");

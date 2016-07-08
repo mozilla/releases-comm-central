@@ -108,7 +108,7 @@ function log(msg, context, bForce) {
                 var err = ("error writing log file: " + errorToString(exc));
                 Components.utils.reportError(exc);
                 Services.console.logStringMessage(err);
-                dump(err  + "\n\n");
+                dump(err + "\n\n");
             }
         }
         return ret;

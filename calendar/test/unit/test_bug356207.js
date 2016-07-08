@@ -34,8 +34,8 @@ function really_run_test() {
         "END:VCALENDAR";
 
     let event = createEventFromIcalString(icalString);
-    let start = createDate(2009,  0,  1);
-    let end   = createDate(2009, 11, 31);
+    let start = createDate(2009, 0, 1);
+    let end = createDate(2009, 11, 31);
 
     // the following call caused a never ending loop:
     let occurrenceDates = event.recurrenceInfo.getOccurrenceDates(start, end, 0, {});

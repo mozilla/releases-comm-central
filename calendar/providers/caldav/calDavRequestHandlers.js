@@ -543,7 +543,7 @@ webDavSyncHandler.prototype = {
                     r.href = this.calendar.ensureDecodedPath(r.href);
                 }
 
-                if ((!r.getcontenttype || r.getcontenttype == "text/plain")  &&
+                if ((!r.getcontenttype || r.getcontenttype == "text/plain") &&
                     r.href &&
                     r.href.endsWith(".ics")) {
                   // If there is no content-type (iCloud) or text/plain was passed

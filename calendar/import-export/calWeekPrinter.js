@@ -119,7 +119,7 @@ calWeekPrinter.prototype = {
         for (let currentDate = startOfWeek.clone(); currentDate.compare(endOfWeek) <= 0; currentDate.day++) {
             let weekday = currentDate.weekday;
             let weekdayName = weekdayMap[weekday];
-            let dayOffPrefName = "calendar.week.d" +  weekday + weekdayName + "soff";
+            let dayOffPrefName = "calendar.week.d" + weekday + weekdayName + "soff";
             dayTable[cal.print.getDateKey(currentDate)] = currentPage.querySelector("." + weekdayName + "-container");
 
             let titleNode = currentPage.querySelector("." + weekdayName + "-title");

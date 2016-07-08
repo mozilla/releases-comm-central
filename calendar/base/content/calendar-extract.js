@@ -177,7 +177,7 @@ var calendarExtract = {
                 if (endGuess.year != null) {
                     dueDate.setYear(endGuess.year);
                 }
-                if (endGuess.month  != null) {
+                if (endGuess.month != null) {
                     dueDate.setMonth(endGuess.month - 1);
                 }
                 if (endGuess.day != null) {

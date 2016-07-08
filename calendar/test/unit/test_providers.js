@@ -387,17 +387,17 @@ function testMetaData() {
         var values = {};
         aCalendar.getAllMetaData(count, ids, values);
         equal(count.value, 2);
-        ok(ids.value[0] ==  "item1" || ids.value[1] == "item1");
-        ok(ids.value[0] ==  "item2" || ids.value[1] == "item2");
-        ok(values.value[0] ==  "meta1" || values.value[1] == "meta1");
-        ok(values.value[0] ==  "meta2" || values.value[1] == "meta2");
+        ok(ids.value[0] == "item1" || ids.value[1] == "item1");
+        ok(ids.value[0] == "item2" || ids.value[1] == "item2");
+        ok(values.value[0] == "meta1" || values.value[1] == "meta1");
+        ok(values.value[0] == "meta2" || values.value[1] == "meta2");
 
         aCalendar.deleteItem(event1, null);
         equal(aCalendar.getMetaData("item1"), null);
         aCalendar.getAllMetaData(count, ids, values);
         equal(count.value, 1);
-        ok(ids.value[0] ==  "item2");
-        ok(values.value[0] ==  "meta2");
+        ok(ids.value[0] == "item2");
+        ok(values.value[0] == "meta2");
 
         aCalendar.deleteMetaData("item2");
         equal(aCalendar.getMetaData("item2"), null);

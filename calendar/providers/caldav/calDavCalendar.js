@@ -2055,7 +2055,7 @@ calDavCalendar.prototype = {
             '</D:propfind>';
 
         if (this.verboseLogging()) {
-            cal.LOG("CalDAV: send: " + homeSet.spec + "\n"  + queryXml);
+            cal.LOG("CalDAV: send: " + homeSet.spec + "\n" + queryXml);
         }
         var streamListener = {};
         streamListener.onStreamComplete =
@@ -2312,7 +2312,7 @@ calDavCalendar.prototype = {
         if (Components.isSuccessCode(aError)) {
             // "undefined" is a successcode, so all is good
             this.saveCalendarProperties();
-            this.checkedServerInfo  = true;
+            this.checkedServerInfo = true;
             this.setProperty("currentStatus", Components.results.NS_OK);
 
             if (this.isCached) {

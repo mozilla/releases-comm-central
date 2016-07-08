@@ -94,7 +94,7 @@ var ltnImipBar = {
 
             let imipBar = document.getElementById("imip-bar");
             imipBar.setAttribute("collapsed", "false");
-            imipBar.setAttribute("label",  cal.itip.getMethodText(itipItem.receivedMethod));
+            imipBar.setAttribute("label", cal.itip.getMethodText(itipItem.receivedMethod));
 
             ltnImipBar.msgOverlay = msgOverlay;
 
@@ -194,7 +194,7 @@ var ltnImipBar = {
      *                      in subscribed calendars
      */
     setupOptions: function setupOptions(itipItem, rc, actionFunc, foundItems) {
-        let imipBar =  document.getElementById("imip-bar");
+        let imipBar = document.getElementById("imip-bar");
         let data = cal.itip.getOptionsText(itipItem, rc, actionFunc, foundItems);
 
         if (Components.isSuccessCode(rc)) {

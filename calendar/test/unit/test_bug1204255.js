@@ -115,7 +115,7 @@ function test_fromICS() {
     for (let attendee of attendees) {
         for (let exp of expected) {
             if (attendee.id == exp.id) {
-                equal(attendee.participationStatus,  exp.partstat, "partstat matches for " + exp.id);
+                equal(attendee.participationStatus, exp.partstat, "partstat matches for " + exp.id);
                 equal(attendee.commonName, exp.cn, "cn matches for " + exp.id);
                 count++;
             }

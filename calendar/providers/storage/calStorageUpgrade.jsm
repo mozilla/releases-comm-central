@@ -100,8 +100,8 @@ function getSql(tblName, tblData, alternateName) {
         let idxOn = idxTbl + "(" + tblData[tblName].join(",") + ")";
         sql = "CREATE INDEX " + altName + " ON " + idxOn + ";";
     } else {
-        sql = "CREATE TABLE " + altName  + " (\n";
-        for (let [key, type] in Iterator(tblData[tblName]))  {
+        sql = "CREATE TABLE " + altName + " (\n";
+        for (let [key, type] in Iterator(tblData[tblName])) {
             sql += "    " + key + " " + type + ",\n";
         }
     }
@@ -872,9 +872,9 @@ upgrade.v6 = function upgrade_v6(db, version) {
                             "common_name", "role", "status", "type"];
         alterTypes(tbl, "cal_attendees", attendeeCols, "TEXT", db);
 
-        let recurrenceCols =  ["item_id", "recur_type", "dates", "second",
-                               "minute", "hour", "day", "monthday", "yearday",
-                               "weekno", "month", "setpos"];
+        let recurrenceCols = ["item_id", "recur_type", "dates", "second",
+                              "minute", "hour", "day", "monthday", "yearday",
+                              "weekno", "month", "setpos"];
         alterTypes(tbl, "cal_recurrence", recurrenceCols, "TEXT", db);
 
         let propertyCols = ["item_id", "recurrence_id_tz", "key"];
@@ -1148,10 +1148,10 @@ upgrade.v16 = function upgrade_v16(db, version) {
         }, db);
 
         let copyDataOver = function copyDataOver(tbl) {
-            const transAlarm =  "translateAlarm(alarm_offset, " +
-                                               "alarm_related, " +
-                                               "alarm_time, " +
-                                               "alarm_time_tz)";
+            const transAlarm = "translateAlarm(alarm_offset, " +
+                                              "alarm_related, " +
+                                              "alarm_time, " +
+                                              "alarm_time_tz)";
             executeSimpleSQL(db, "INSERT INTO cal_alarms (cal_id, item_id," +
                                  "                        recurrence_id, " +
                                  "                        recurrence_id_tz, " +

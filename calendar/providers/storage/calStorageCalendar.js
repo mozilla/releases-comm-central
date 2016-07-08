@@ -238,9 +238,9 @@ calStorageCalendar.prototype = {
                             // take over data and drop from storage.sdb tables:
                             for (let table in getSqlTable(DB_SCHEMA_VERSION)) {
                                 if (table.substr(0, 4) != "idx_") {
-                                    this.mDB.executeSimpleSQL("CREATE TABLE local_sqlite." +  table +
+                                    this.mDB.executeSimpleSQL("CREATE TABLE local_sqlite." + table +
                                                               " AS SELECT * FROM " + table +
-                                                              "; DROP TABLE IF EXISTS " +  table);
+                                                              "; DROP TABLE IF EXISTS " + table);
                                 }
                             }
                             this.mDB.commitTransaction();
@@ -993,7 +993,7 @@ calStorageCalendar.prototype = {
             try {
                 this.mEditEventOfflineFlag.executeStep();
             } catch (e) {
-                this.logError("Error setting offline journal flag for "  + aItem.title, e);
+                this.logError("Error setting offline journal flag for " + aItem.title, e);
             } finally {
                 this.mEditEventOfflineFlag.reset();
             }
@@ -1005,7 +1005,7 @@ calStorageCalendar.prototype = {
             try {
                 this.mEditTodoOfflineFlag.executeStep();
             } catch (e) {
-                this.logError("Error setting offline journal flag for "  + aItem.title, e);
+                this.logError("Error setting offline journal flag for " + aItem.title, e);
             } finally {
                 this.mEditTodoOfflineFlag.reset();
             }
@@ -2213,7 +2213,7 @@ calStorageCalendar.prototype = {
                     this.writeItem(ex, null);
                 }
             }
-        } else  if (item.recurrenceId && item.recurrenceId.isDate) {
+        } else if (item.recurrenceId && item.recurrenceId.isDate) {
             flags |= CAL_ITEM_FLAG.RECURRENCE_ID_ALLDAY;
         }
 

@@ -443,7 +443,7 @@ function unitPluralForm(aLength, aUnit, aIncludeLength=true) {
  * @param aUnit              The unit to use for the label.
  */
 function updateUnitLabelPlural(aLengthFieldId, aLabelId, aUnit) {
-    let label  = document.getElementById(aLabelId);
+    let label = document.getElementById(aLabelId);
     let length = Number(document.getElementById(aLengthFieldId).value);
 
     label.value = unitPluralForm(length, aUnit, false);
@@ -456,7 +456,7 @@ function updateUnitLabelPlural(aLengthFieldId, aLabelId, aUnit) {
  * @param aMenuId           The menu to update labels in.
  */
 function updateMenuLabelsPlural(aLengthFieldId, aMenuId) {
-    let menu  = document.getElementById(aMenuId);
+    let menu = document.getElementById(aMenuId);
     let length = Number(document.getElementById(aLengthFieldId).value);
 
     // update the menu items

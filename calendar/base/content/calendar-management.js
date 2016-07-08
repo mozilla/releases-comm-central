@@ -194,7 +194,7 @@ function calendarListSetupContextMenu(event) {
         // itself. In that case we won't have a client point even for
         // opening the context menu. The "target" element should then be the
         // selected calendar.
-        row.value =  treeNode.tree.currentIndex;
+        row.value = treeNode.tree.currentIndex;
         col.value = treeNode.getColumn("calendarname-treecol");
         calendar = treeNode.getCalendar(row.value);
     } else {
@@ -261,7 +261,7 @@ function calendarListSetupContextMenu(event) {
  * @param aDeleteId     The id of the menuitem to delete the calendar
  */
 function setupDeleteMenuitem(aDeleteId, aCalendar) {
-    let calendar = (aCalendar === undefined ?  getSelectedCalendar() : aCalendar);
+    let calendar = (aCalendar === undefined ? getSelectedCalendar() : aCalendar);
     let modes = new Set(calendar ? calendar.getProperty("capabilities.removeModes") || ["unsubscribe"] : []);
 
     let type = "remove";

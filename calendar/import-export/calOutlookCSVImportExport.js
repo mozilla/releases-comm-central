@@ -156,19 +156,19 @@ calOutlookCSVImporter.prototype = {
             args.startDateIndex = 0;
             for (let i = 1; i <= header.length; ++i) {
                 switch( header[i-1] ) {
-                    case locale.headTitle:        args.titleIndex = i;       knownIndxs++; break;
-                    case locale.headStartDate:    args.startDateIndex = i;   knownIndxs++; break;
-                    case locale.headStartTime:    args.startTimeIndex = i;   knownIndxs++; break;
-                    case locale.headEndDate:      args.endDateIndex = i;     knownIndxs++; break;
-                    case locale.headEndTime:      args.endTimeIndex = i;     knownIndxs++; break;
-                    case locale.headAllDayEvent:  args.allDayIndex = i;      knownIndxs++; break;
-                    case locale.headAlarm:        args.alarmIndex = i;       knownIndxs++; break;
-                    case locale.headAlarmDate:    args.alarmDateIndex = i;   knownIndxs++; break;
-                    case locale.headAlarmTime:    args.alarmTimeIndex = i;   knownIndxs++; break;
-                    case locale.headCategories:   args.categoriesIndex = i;  knownIndxs++; break;
-                    case locale.headDescription:  args.descriptionIndex = i; knownIndxs++; break;
-                    case locale.headLocation:     args.locationIndex = i;    knownIndxs++; break;
-                    case locale.headPrivate:      args.privateIndex = i;     knownIndxs++; break;
+                    case locale.headTitle: args.titleIndex = i; knownIndxs++; break;
+                    case locale.headStartDate: args.startDateIndex = i; knownIndxs++; break;
+                    case locale.headStartTime: args.startTimeIndex = i; knownIndxs++; break;
+                    case locale.headEndDate: args.endDateIndex = i; knownIndxs++; break;
+                    case locale.headEndTime: args.endTimeIndex = i; knownIndxs++; break;
+                    case locale.headAllDayEvent: args.allDayIndex = i; knownIndxs++; break;
+                    case locale.headAlarm: args.alarmIndex = i; knownIndxs++; break;
+                    case locale.headAlarmDate: args.alarmDateIndex = i; knownIndxs++; break;
+                    case locale.headAlarmTime: args.alarmTimeIndex = i; knownIndxs++; break;
+                    case locale.headCategories: args.categoriesIndex = i; knownIndxs++; break;
+                    case locale.headDescription: args.descriptionIndex = i; knownIndxs++; break;
+                    case locale.headLocation: args.locationIndex = i; knownIndxs++; break;
+                    case locale.headPrivate: args.privateIndex = i; knownIndxs++; break;
                 }
             }
             // Were both mandatory fields recognized?
@@ -294,7 +294,7 @@ calOutlookCSVImporter.prototype = {
                         // end time is invalid set it to 23:59:00
                         if (eDate.isDate) {
                             eDate.isDate = false;
-                            eDate.hour   = 23;
+                            eDate.hour = 23;
                             eDate.minute = 59;
                         }
                         // Correct the duration to 0 seconds if it is negative.

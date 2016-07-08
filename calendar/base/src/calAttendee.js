@@ -58,11 +58,12 @@ calAttendee.prototype = {
     // XXX enforce legal values for our properties;
 
     icalAttendeePropMap: [
-    { cal: "rsvp",                ics: "RSVP" },
-    { cal: "commonName",          ics: "CN" },
-    { cal: "participationStatus", ics: "PARTSTAT" },
-    { cal: "userType",            ics: "CUTYPE" },
-    { cal: "role",                ics: "ROLE" } ],
+        { cal: "rsvp", ics: "RSVP" },
+        { cal: "commonName", ics: "CN" },
+        { cal: "participationStatus", ics: "PARTSTAT" },
+        { cal: "userType", ics: "CUTYPE" },
+        { cal: "role", ics: "ROLE" }
+    ],
 
     mIsOrganizer: false,
     get isOrganizer() { return this.mIsOrganizer; },

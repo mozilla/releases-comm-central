@@ -146,8 +146,8 @@
               // calculate duration pixel as the difference between
               // start pixel and end pixel to avoid rounding errors.
               var startPix = Math.round(theMin * this.mPixPerMin);
-              var endPix   = Math.round((theMin + dur) * this.mPixPerMin);
-              var durPix   = endPix - startPix;
+              var endPix = Math.round((theMin + dur) * this.mPixPerMin);
+              var durPix = endPix - startPix;
               var box;
               if (dur != 60) {
                   box = makeTimeBox("", durPix);
@@ -541,9 +541,9 @@
                enddate = enddate.getInTimezone (this.mTimezone);
            }
 
-           var startHour   = stdate.hour;
+           var startHour = stdate.hour;
            var startMinute = stdate.minute;
-           var endHour   = enddate.hour;
+           var endHour = enddate.hour;
            var endMinute = enddate.minute;
 
            // Handle cases where an event begins or ends on a day other than this
@@ -568,7 +568,7 @@
            let realEnd_ = (durend.days * 24 + durend.hours) * 60 + durend.minutes;
 
            return { start:        startHour * 60 + startMinute,
-                    end:          endHour   * 60 + endMinute,
+                    end:          endHour * 60 + endMinute,
                     realStart:    realStart_,
                     realEnd:      realEnd_ };
         ]]></body>
@@ -684,8 +684,8 @@
               // calculate duration pixel as the difference between
               // start pixel and end pixel to avoid rounding errors.
               let startPix = Math.round(theMin * this.mPixPerMin);
-              let endPix   = Math.round((theMin + dur) * this.mPixPerMin);
-              let durPix   = endPix - startPix;
+              let endPix = Math.round((theMin + dur) * this.mPixPerMin);
+              let durPix = endPix - startPix;
               if (orient == "vertical") {
                   box.setAttribute("height", durPix);
               } else {
@@ -1179,9 +1179,9 @@
                   // timespan of this column.
                   var start = data.itemInfo.layoutStart;
                   var end = data.itemInfo.layoutEnd;
-                  if (start.year  != this.date.year ||
+                  if (start.year != this.date.year ||
                       start.month != this.date.month ||
-                      start.day   != this.date.day) {
+                      start.day != this.date.day) {
                       start = start.clone();
                       start.resetTo(this.date.year,
                                     this.date.month,
@@ -1189,9 +1189,9 @@
                                     0, this.mStartMin, 0,
                                     start.timezone);
                   }
-                  if (end.year  != this.date.year ||
+                  if (end.year != this.date.year ||
                       end.month != this.date.month ||
-                      end.day   != this.date.day) {
+                      end.day != this.date.day) {
                       end = end.clone();
                       end.resetTo(this.date.year,
                                   this.date.month,
@@ -1546,7 +1546,7 @@
           // snap interval: 15 minutes or 1 minute if modifier key is pressed
           let snapIntMin = (event.shiftKey &&
                             !event.ctrlKey &&
-                            !event.altKey  &&
+                            !event.altKey &&
                             !event.metaKey) ? 1 : 15;
           let interval = col.mPixPerMin * snapIntMin;
           let curmin = Math.floor(pos / interval) * snapIntMin;
@@ -1867,7 +1867,7 @@
               this.updateDragLabels(this, lastCol);
 
           } else if (aGrabbedElement == "end") {
-              this.mDragState.dragType =  "modify-end";
+              this.mDragState.dragType = "modify-end";
               // we have to use "realStart" as fixed end value
               this.mDragState.limitStartMin = mins.realStart;
 
@@ -2082,7 +2082,7 @@
         // snap interval: 15 minutes or 1 minute if modifier key is pressed
         let snapIntMin = (event.shiftKey &&
                           !event.ctrlKey &&
-                          !event.altKey  &&
+                          !event.altKey &&
                           !event.metaKey) ? 1 : 15;
         let interval = this.mPixPerMin * snapIntMin;
 
@@ -2438,7 +2438,7 @@
 
             let snapIntMin = (event.shiftKey &&
                               !event.ctrlKey &&
-                              !event.altKey  &&
+                              !event.altKey &&
                               !event.metaKey) ? 1 : 15;
             // start edge resize drag
             this.parentColumn.startSweepingToModifyEvent(this, this.mOccurrence, whichside,
@@ -3087,7 +3087,7 @@
                   // if just has single datetime, treat as zero duration item
                   // (such as task with due datetime or start datetime only)
                   occStart = (occStart || occEnd);
-                  occEnd   = (occEnd || occStart);
+                  occEnd = (occEnd || occStart);
                   // Now both occStart and occEnd are datetimes.
 
                   // skip occurrence if all-day: it won't show in time view.

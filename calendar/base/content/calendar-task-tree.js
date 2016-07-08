@@ -277,8 +277,7 @@ function getSelectedTasks(aEvent) {
     var taskTree = getTaskTree();
     if (taskTree != null) {
         return taskTree.selectedTasks;
-    }
-    else  {
+    } else {
         return [];
     }
 }

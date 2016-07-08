@@ -263,7 +263,7 @@ function test_doubleParameters() {
             values: ["CN_attendee1", "TRUE", "REQ-PARTICIPANT", "NEEDS-ACTION", "INDIVIDUAL", "20130827T124944Z"]
         },
         attendee2: {
-            param:  ["CN", "ROLE",  "PARTSTAT", "CUTYPE"],
+            param:  ["CN", "ROLE", "PARTSTAT", "CUTYPE"],
             values: ["CN_attendee2", "CHAIR", "ACCEPTED", "INDIVIDUAL"]
         },
         attendee3: {

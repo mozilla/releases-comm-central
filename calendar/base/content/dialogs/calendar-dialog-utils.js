@@ -128,7 +128,7 @@ function createReminderFromMenuitem(aMenuitem) {
  * custom menuitem and call updateReminder().
  */
 function editReminder() {
-    let customItem =  document.getElementById("reminder-custom-menuitem");
+    let customItem = document.getElementById("reminder-custom-menuitem");
     let args = {};
     args.reminders = customItem.reminders;
     args.item = window.calendarItem;

@@ -217,7 +217,7 @@ function onKeyPress(aEvent) {
  */
 agendaListbox.editSelectedItem =
 function editSelectedItem() {
-    var listItem  = document.getElementById("agenda-listbox").selectedItem;
+    var listItem = document.getElementById("agenda-listbox").selectedItem;
     if (listItem) {
         modifyEventWithDialog(listItem.occurrence, null, true);
     }
@@ -741,7 +741,7 @@ function refreshPeriodDates(newDate) {
     // Today: now until midnight of tonight
     var oldshowstoday = this.showstoday;
     this.showstoday = this.showsToday(newDate);
-    if ((this.showstoday) && (!oldshowstoday))  {
+    if ((this.showstoday) && (!oldshowstoday)) {
         this.addPeriodListItem(this.tomorrow, "tomorrow-header");
         this.addPeriodListItem(this.soon, "nextweek-header");
     } else if (!this.showstoday) {
@@ -752,7 +752,7 @@ function refreshPeriodDates(newDate) {
     for (var i = 0; i < this.periods.length; i++) {
         var curPeriod = this.periods[i];
         newDate.hour = newDate.minute = newDate.second = 0;
-        if ((i == 0)  && (this.showstoday)){
+        if (i == 0 && this.showstoday) {
             curPeriod.start = now();
         } else {
             curPeriod.start = newDate.clone();
@@ -840,8 +840,8 @@ function isEventListItem(aListItem) {
     var isEventListItem = (aListItem != null);
     if (isEventListItem) {
         var localName = aListItem.localName;
-        isEventListItem = ((localName ==  "agenda-richlist-item") ||
-                          (localName ==  "agenda-allday-richlist-item"));
+        isEventListItem = (localName == "agenda-richlist-item" ||
+                           localName == "agenda-allday-richlist-item");
     }
     return isEventListItem;
 }

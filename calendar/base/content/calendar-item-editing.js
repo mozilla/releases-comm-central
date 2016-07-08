@@ -422,7 +422,7 @@ function openEventDialog(calendarItem, calendar, mode, callback, job, initialDat
             // item. Don't show the dialog.
             disposeJob(job);
             return;
-        } else  {
+        } else {
             // Pick the first calendar that supports the item and is writable
             calendar = calendars[0];
             if (calendarItem) {

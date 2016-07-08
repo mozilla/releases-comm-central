@@ -198,7 +198,7 @@ calMonthPrinter.prototype = {
         let currentDate = startOfWeek.clone();
         for (let i = 1; i <= 7; i++) {
             let dayNumber = currentWeek.querySelector(".day" + i + "-number");
-            let dayContainer =  currentWeek.querySelector(".day" + i + "-container");
+            let dayContainer = currentWeek.querySelector(".day" + i + "-container");
             let dayBox = currentWeek.querySelector(".day" + i + "-box");
             let dateKey = cal.print.getDateKey(currentDate);
             dayNumber.textContent = currentDate.day;

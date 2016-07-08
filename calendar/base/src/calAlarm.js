@@ -513,7 +513,7 @@ calAlarm.prototype = {
         }
 
         if (triggerProp) {
-            if (triggerProp.getParameter("VALUE") == "DATE-TIME")  {
+            if (triggerProp.getParameter("VALUE") == "DATE-TIME") {
                 this.mAbsoluteDate = triggerProp.valueAsDatetime;
                 this.related = ALARM_RELATED_ABSOLUTE;
             } else {

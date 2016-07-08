@@ -249,7 +249,7 @@ var gCategoriesPane = {
     /**
      * Enable the edit and delete category buttons.
      */
-    updateButtons: function  gCP_updateButtons() {
+    updateButtons: function gCP_updateButtons() {
         let categoriesList = document.getElementById("categorieslist");
         document.getElementById("deleteCButton").disabled = (categoriesList.selectedCount <= 0);
         document.getElementById("editCButton").disabled = (categoriesList.selectedCount != 1)

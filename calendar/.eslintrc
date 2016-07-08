@@ -137,6 +137,11 @@
     // Disallow the use of Boolean literals in conditional expressions.
     "no-unneeded-ternary": 2,
 
+    // Disallow use of multiple spaces (sometimes used to align const values,
+    // array or object items, etc.). It's hard to maintain and doesn't add that
+    // much benefit.
+    "no-multi-spaces": 2,
+
     // Will enable these rules later
     "keyword-spacing": 0,
     "block-spacing": 0,

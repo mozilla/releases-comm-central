@@ -449,7 +449,7 @@ calCachedCalendar.prototype = {
 
         this.getOfflineAddedItems(function(){
             this_.mPendingSync = this_.mUncachedCalendar.getItems(Components.interfaces.calICalendar.ITEM_FILTER_ALL_ITEMS,
-                                                                    0, null,  null, completeListener);
+                                                                    0, null, null, completeListener);
         });
         return this.mPendingSync;
     },

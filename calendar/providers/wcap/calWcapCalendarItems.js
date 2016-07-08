@@ -274,9 +274,9 @@ function diffProperty(newItem, oldItem, propName) {
 
 var METHOD_PUBLISH = 1;
 var METHOD_REQUEST = 2;
-var METHOD_REPLY   = 4;
-var METHOD_CANCEL  = 8;
-var METHOD_UPDATE  = 256;
+var METHOD_REPLY = 4;
+var METHOD_CANCEL = 8;
+var METHOD_UPDATE = 256;
 
 calWcapCalendar.prototype.storeItem =
 function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
@@ -480,14 +480,14 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
 
         if (!oldItem || item.status != oldItem.status) {
             switch (item.status) {
-                case "CONFIRMED":    params += "&status=0"; break;
-                case "CANCELLED":    params += "&status=1"; break;
-                case "TENTATIVE":    params += "&status=2"; break;
+                case "CONFIRMED": params += "&status=0"; break;
+                case "CANCELLED": params += "&status=1"; break;
+                case "TENTATIVE": params += "&status=2"; break;
                 case "NEEDS-ACTION": params += "&status=3"; break;
-                case "COMPLETED":    params += "&status=4"; break;
-                case "IN-PROCESS":   params += "&status=5"; break;
-                case "DRAFT":        params += "&status=6"; break;
-                case "FINAL":        params += "&status=7"; break;
+                case "COMPLETED": params += "&status=4"; break;
+                case "IN-PROCESS": params += "&status=5"; break;
+                case "DRAFT": params += "&status=6"; break;
+                case "FINAL": params += "&status=7"; break;
                 default: // reset to default
                     params += (bIsEvent ? "&status=0" : "&status=3");
                     break;

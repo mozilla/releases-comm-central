@@ -571,7 +571,7 @@
           let sheet = this.sheet;
           if (!(aCalendar.id in this.ruleCache)) {
               let ruleString = "calendar-list-tree > tree > treechildren" +
-                               "::-moz-tree-cell(color-treecol, id-"  +
+                               "::-moz-tree-cell(color-treecol, id-" +
                                aCalendar.id + ") {}";
 
               let ruleIndex = sheet.insertRule(ruleString, sheet.cssRules.length);

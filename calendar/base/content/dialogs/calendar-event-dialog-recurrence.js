@@ -138,7 +138,7 @@ function initializeControls(rule) {
     // byDayRuleComponents may have been set priorily by "MONTHLY"- ruletypes
     // where they have a different context-
     // that's why we also query the current rule-type
-    if (byDayRuleComponent.length == 0  || rule.type != "DAILY") {
+    if (byDayRuleComponent.length == 0 || rule.type != "DAILY") {
         document.getElementById("daily-group").selectedIndex = 0;
     } else {
         document.getElementById("daily-group").selectedIndex = 1;
@@ -184,7 +184,7 @@ function initializeControls(rule) {
     }
 
     // "YEARLY" ruletype
-    if (byMonthRuleComponent.length == 0  || rule.type != "YEARLY") {
+    if (byMonthRuleComponent.length == 0 || rule.type != "YEARLY") {
         setElementValue("yearly-month-rule", startDate.month + 1);
         setElementValue("yearly-month-ordinal", startDate.month + 1);
         if (byMonthDayRuleComponent.length > 0) {

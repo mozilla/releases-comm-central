@@ -18,7 +18,7 @@ var gCalendarGeneralPane = {
         var df = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
                     .getService(Components.interfaces.calIDateTimeFormatter);
 
-        var dateFormattedLong  = df.formatDateLong(now());
+        var dateFormattedLong = df.formatDateLong(now());
         var dateFormattedShort = df.formatDateShort(now());
 
         // menu items include examples of current date formats.

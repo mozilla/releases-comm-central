@@ -405,8 +405,8 @@ calItipEmailTransport.prototype = {
             let outputStream = Components.classes["@mozilla.org/network/file-output-stream;1"]
                                          .createInstance(Components.interfaces.nsIFileOutputStream);
             // Let's write the file - constants from file-utils.js
-            const MODE_WRONLY   = 0x02;
-            const MODE_CREATE   = 0x08;
+            const MODE_WRONLY = 0x02;
+            const MODE_CREATE = 0x08;
             const MODE_TRUNCATE = 0x20;
             outputStream.init(tempFile,
                               MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE,

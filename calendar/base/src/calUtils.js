@@ -27,8 +27,8 @@ var createEvent = _calIcalCreator("@mozilla.org/calendar/event;1",
                                   Components.interfaces.calIEvent);
 var createTodo = _calIcalCreator("@mozilla.org/calendar/todo;1",
                                  Components.interfaces.calITodo);
-var createDateTime  = _calIcalCreator("@mozilla.org/calendar/datetime;1",
-                                      Components.interfaces.calIDateTime);
+var createDateTime = _calIcalCreator("@mozilla.org/calendar/datetime;1",
+                                     Components.interfaces.calIDateTime);
 var createDuration = _calIcalCreator("@mozilla.org/calendar/duration;1",
                                      Components.interfaces.calIDuration);
 var createAttendee = _calIcalCreator("@mozilla.org/calendar/attendee;1",

@@ -12,7 +12,7 @@ function calICALJSTimezone(innerObject) {
 }
 
 var calTimezoneInterfaces = [Components.interfaces.calITimezone];
-var calTimezoneClassID =  Components.ID("{6702eb17-a968-4b43-b562-0d0c5f8e9eb5}");
+var calTimezoneClassID = Components.ID("{6702eb17-a968-4b43-b562-0d0c5f8e9eb5}");
 calICALJSTimezone.prototype = {
     QueryInterface: XPCOMUtils.generateQI(calTimezoneInterfaces),
     classID: calTimezoneClassID,

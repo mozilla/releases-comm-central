@@ -451,7 +451,7 @@ calMemoryCalendar.prototype = {
             }
 
             if (itemReturnOccurrences && item.recurrenceInfo) {
-                let startDate  = aRangeStart;
+                let startDate = aRangeStart;
                 if (!aRangeStart && cal.isToDo(item)) {
                     startDate = item.entryDate;
                 }

@@ -893,11 +893,11 @@ calFilter.prototype = {
         let filter = aItemType || aCalendar.FILTER_TYPE_ALL;
         if (!props.status || (props.status & (props.FILTER_STATUS_COMPLETED_TODAY |
                                               props.FILTER_STATUS_COMPLETED_BEFORE))) {
-            filter |=  aCalendar.ITEM_FILTER_COMPLETED_YES;
+            filter |= aCalendar.ITEM_FILTER_COMPLETED_YES;
         }
         if (!props.status || (props.status & (props.FILTER_STATUS_INCOMPLETE |
                                               props.FILTER_STATUS_IN_PROGRESS))) {
-            filter |=  aCalendar.ITEM_FILTER_COMPLETED_NO;
+            filter |= aCalendar.ITEM_FILTER_COMPLETED_NO;
         }
 
         let startDate = this.startDate;

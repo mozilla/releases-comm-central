@@ -118,8 +118,8 @@ calAlarmMonitor.prototype = {
         }
 
         let calAlarmWindow = peekAlarmWindow();
-        if (!calAlarmWindow  && (!this.mWindowOpening ||
-                                  this.mWindowOpening.closed)) {
+        if (!calAlarmWindow && (!this.mWindowOpening ||
+                                 this.mWindowOpening.closed)) {
             this.mWindowOpening = Services.ww.openWindow(
                 null,
                 "chrome://calendar/content/calendar-alarm-dialog.xul",

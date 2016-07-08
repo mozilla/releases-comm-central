@@ -42,22 +42,23 @@ var testLastDayOfMonthRecurrence = function () {
   event.click(new elementslib.ID(event.window.document, "button-save"));
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0});
 
-  //                        date     correct row in month view
-  let checkingData = [[2008,  1, 31, 5],
-                      [2008,  2, 29, 5],
-                      [2008,  3, 31, 6],
-                      [2008,  4, 30, 5],
-                      [2008,  5, 31, 5],
-                      [2008,  6, 30, 5],
-                      [2008,  7, 31, 5],
-                      [2008,  8, 31, 6],
-                      [2008,  9, 30, 5],
+  //                      date      correct row in month view
+  //                   vvvvvvvvvvv  v
+  let checkingData = [[2008, 1, 31, 5],
+                      [2008, 2, 29, 5],
+                      [2008, 3, 31, 6],
+                      [2008, 4, 30, 5],
+                      [2008, 5, 31, 5],
+                      [2008, 6, 30, 5],
+                      [2008, 7, 31, 5],
+                      [2008, 8, 31, 6],
+                      [2008, 9, 30, 5],
                       [2008, 10, 31, 5],
                       [2008, 11, 30, 6],
                       [2008, 12, 31, 5],
-                      [2009,  1, 31, 5],
-                      [2009,  2, 28, 4],
-                      [2009,  3, 31, 5]];
+                      [2009, 1, 31, 5],
+                      [2009, 2, 28, 4],
+                      [2009, 3, 31, 5]];
   let box = "";
 
   // check all dates

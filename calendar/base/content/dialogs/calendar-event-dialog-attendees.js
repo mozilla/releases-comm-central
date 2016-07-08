@@ -509,7 +509,7 @@ function updateAllDay() {
     }
 
     var allDayElement = document.getElementById("all-day");
-    var allDay  = (allDayElement.getAttribute("checked") == "true");
+    var allDay = (allDayElement.getAttribute("checked") == "true");
     var startpicker = document.getElementById("event-starttime");
     var endpicker = document.getElementById("event-endtime");
 

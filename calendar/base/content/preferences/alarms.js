@@ -20,7 +20,7 @@ var gAlarmsPane = {
 
         // Set the correct singular/plural for the time units
         updateMenuLabelsPlural("eventdefalarmlen", "eventdefalarmunit");
-        updateMenuLabelsPlural("tododefalarmlen",  "tododefalarmunit");
+        updateMenuLabelsPlural("tododefalarmlen", "tododefalarmunit");
         updateUnitLabelPlural("defaultsnoozelength", "defaultsnoozelengthunit", "minutes");
     },
 

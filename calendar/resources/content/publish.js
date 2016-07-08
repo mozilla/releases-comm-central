@@ -15,7 +15,7 @@ function publishCalendarData()
 {
    var args = {};
 
-   args.onOk =  self.publishCalendarDataDialogResponse;
+   args.onOk = self.publishCalendarDataDialogResponse;
 
    openDialog("chrome://calendar/content/publishDialog.xul", "caPublishEvents",
               "chrome,titlebar,modal,resizable", args );
@@ -65,7 +65,7 @@ function publishEntireCalendar(aCalendar)
     let args = {};
     let publishObject = {};
 
-    args.onOk =  self.publishEntireCalendarDialogResponse;
+    args.onOk = self.publishEntireCalendarDialogResponse;
 
     publishObject.calendar = aCalendar;
 

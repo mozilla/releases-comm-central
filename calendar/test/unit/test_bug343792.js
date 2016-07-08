@@ -54,7 +54,7 @@ function really_run_test() {
 
     let event = createEventFromIcalString(icalString);
     let start = createDate(2009, 4, 1);
-    let end   = createDate(2009, 4, 30);
+    let end = createDate(2009, 4, 30);
 
     // the following call caused a never ending loop:
     let occurrenceDates = event.recurrenceInfo.getOccurrenceDates(start, end, 0, {});

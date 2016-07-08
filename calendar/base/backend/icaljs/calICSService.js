@@ -301,7 +301,7 @@ calIcalComponent.prototype = {
         const INVALID_VALUE = Components.interfaces.calIIcalComponent.INVALID_VALUE;
         let prop = this.innerObject.getFirstProperty("priority");
         let val = prop ? prop.getFirstValue() : null;
-        return (val === null ?  INVALID_VALUE : val);
+        return (val === null ? INVALID_VALUE : val);
     },
     set priority(val) { this.innerObject.updatePropertyWithValue("priority", val); },
 

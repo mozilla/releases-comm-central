@@ -20,7 +20,7 @@ function run_test() {
     add_test(check_webcal_uri.bind(null, "webcal" + baseUri));
     // TODO webcals needs bug 466524 to be fixed
     // add_test(check_webcal_uri.bind(null, "webcals" + baseUri));
-    add_test(() =>  httpserv.stop(run_next_test));
+    add_test(() => httpserv.stop(run_next_test));
 
     // Now lets go...
     run_next_test();

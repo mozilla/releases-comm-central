@@ -117,7 +117,7 @@ ltn.invitation = {
 
         if (aEvent.recurrenceInfo) {
             let kDefaultTimezone = cal.calendarDefaultTimezone();
-            let startDate =  aEvent.startDate;
+            let startDate = aEvent.startDate;
             let endDate = aEvent.endDate;
             startDate = startDate ? startDate.getInTimezone(kDefaultTimezone) : null;
             endDate = endDate ? endDate.getInTimezone(kDefaultTimezone) : null;

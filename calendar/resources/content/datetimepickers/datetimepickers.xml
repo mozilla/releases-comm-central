@@ -1713,22 +1713,22 @@
             const PRE_INDEX=1, HR_INDEX=2, MIN_INDEX=4, SEC_INDEX=6, POST_INDEX=8;
 
             if (timePartsArray != null) {
-              var hoursString   = timePartsArray[HR_INDEX]
-              var hours         = Number(hoursString);
-              var hoursSuffix   = timePartsArray[HR_INDEX + 1];
+              var hoursString = timePartsArray[HR_INDEX]
+              var hours = Number(hoursString);
+              var hoursSuffix = timePartsArray[HR_INDEX + 1];
               if (!(hours >= 0 && hours < 24)) {
                 return null;
               }
 
               var minutesString = timePartsArray[MIN_INDEX];
-              var minutes       = (minutesString == null? 0 : Number(minutesString));
+              var minutes = (minutesString == null? 0 : Number(minutesString));
               var minutesSuffix = timePartsArray[MIN_INDEX + 1];
               if (!(minutes >= 0 && minutes < 60)) {
                 return null;
               }
 
               var secondsString = timePartsArray[SEC_INDEX];
-              var seconds       = (secondsString == null? 0 : Number(secondsString));
+              var seconds = (secondsString == null? 0 : Number(secondsString));
               var secondsSuffix = timePartsArray[SEC_INDEX + 1];
               if (!(seconds >= 0 && seconds < 60)) {
                 return null;
@@ -1797,10 +1797,10 @@
               // Numeric month format
               for (var i = 1; i <= 3; i++) {
                 switch (Number(probeArray[i])) {
-                  case 2:    this.twoDigitYear = true; // fall thru
-                  case 2002: this.yearIndex = i;       break;
-                  case 3:    this.monthIndex = i;      break;
-                  case 4:    this.dayIndex = i;        break;
+                  case 2: this.twoDigitYear = true; // fall thru
+                  case 2002: this.yearIndex = i; break;
+                  case 3: this.monthIndex = i; break;
+                  case 4: this.dayIndex = i; break;
                 }
               }
               // All three indexes are set (not -1) at this point.
@@ -1819,10 +1819,10 @@
               if (probeArray != null) {
                 for (var j = 1; j <= 3; j++) {
                   switch (Number(probeArray[j])) {
-                    case 2:    this.twoDigitYear = true; // fall thru
-                    case 2002: this.yearIndex = j;       break;
-                    case 4:    this.dayIndex = j;        break;
-                    default:   this.monthIndex = j;      break;
+                    case 2: this.twoDigitYear = true; // fall thru
+                    case 2002: this.yearIndex = j; break;
+                    case 4: this.dayIndex = j; break;
+                    default: this.monthIndex = j; break;
                   }
                 }
                 if (this.yearIndex != -1 && this.dayIndex != -1 && this.monthIndex != -1) {

@@ -93,7 +93,7 @@
               nextDay.day++;
               var comp = endTime.compare(nextDay);
               if(startTime.compare( parentDate) == -1 ) {
-                if (comp == 1)  {
+                if (comp == 1) {
                   label.value = "↔";
                 } else if (comp == 0) {
                   label.value = "↤";
@@ -275,7 +275,7 @@
         <parameter name="aItem"/>
         <body><![CDATA[
           if (aItem.hashId in this.mItemHash) {
-            let node =  this.mItemHash[aItem.hashId];
+            let node = this.mItemHash[aItem.hashId];
             node.remove();
             delete this.mItemHash[aItem.hashId];
           }

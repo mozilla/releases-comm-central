@@ -281,7 +281,7 @@ function updateRepeatDetails() {
 
     // Try to create a descriptive string from the rule(s).
     var kDefaultTimezone = calendarDefaultTimezone();
-    var startDate =  item.startDate || item.entryDate;
+    var startDate = item.startDate || item.entryDate;
     var endDate = item.endDate || item.dueDate;
     startDate = startDate ? startDate.getInTimezone(kDefaultTimezone) : null;
     endDate = endDate ? endDate.getInTimezone(kDefaultTimezone) : null;

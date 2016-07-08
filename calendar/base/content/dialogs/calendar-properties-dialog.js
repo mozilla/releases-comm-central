@@ -122,7 +122,7 @@ function setupEnabledCheckbox() {
  * shown unless the provider for the calendar is missing (i.e force-disabled)
  */
 function unsubscribeCalendar() {
-    let calmgr =  cal.getCalendarManager();
+    let calmgr = cal.getCalendarManager();
 
     calmgr.unregisterCalendar(gCalendar);
     window.close();

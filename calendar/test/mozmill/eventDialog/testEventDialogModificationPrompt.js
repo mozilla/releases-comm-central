@@ -12,8 +12,8 @@ var title = "Title";
 var location = "Location";
 var description = "Description\ncontinuing";
 var pass;
-var date1 = new Date(2009, 0, 1,  8, 0);
-var date2 = new Date(2009, 0, 2,  9, 0);
+var date1 = new Date(2009, 0, 1, 8, 0);
+var date2 = new Date(2009, 0, 2, 9, 0);
 var date3 = new Date(2009, 0, 3, 10, 0);
 var data = [{title: "title1", location: "location1", description: "description1", allday: false,
              startdate: date1, starttime: date1, enddate: date2, endtime: date2, repeat: "none",

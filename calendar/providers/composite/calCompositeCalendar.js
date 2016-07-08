@@ -219,7 +219,7 @@ calCompositeCalendar.prototype = {
                 this.mDefaultCalendar.deleteProperty(this.mDefaultPref);
             }
             // if not null set the new calendar as default in the preferences
-            if (calendar)  {
+            if (calendar) {
                 calendar.setProperty(this.mDefaultPref, true);
             }
         }

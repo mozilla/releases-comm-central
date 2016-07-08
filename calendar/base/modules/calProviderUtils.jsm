@@ -404,7 +404,7 @@ cal.toRFC3339 = function toRFC3339(aDateTime) {
                        tzoffset_hr) * 60;
 
     var str = aDateTime.year + "-" +
-        ("00" + (aDateTime.month + 1)).substr(-2) +  "-" +
+        ("00" + (aDateTime.month + 1)).substr(-2) + "-" +
         ("00" + aDateTime.day).substr(-2);
 
     // Time and Timezone extension
