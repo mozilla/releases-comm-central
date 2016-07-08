@@ -227,7 +227,7 @@ calMemoryCalendar.prototype = {
             // compareItems is not suitable here. See bug 418805.
             // Cannot compare here due to bug 380060
             if (!cal.compareItemContent(storedOldItem, aOldItem)) {
-                return reportError("old item mismatch in modifyItem" + " storedId:" + storedOldItem.icalComponent + " old item:" + aOldItem.icalComponent);
+                return reportError("old item mismatch in modifyItem. storedId:" + storedOldItem.icalComponent + " old item:" + aOldItem.icalComponent);
             }
            // offline bug
 

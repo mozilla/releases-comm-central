@@ -414,6 +414,9 @@
         ]
     }],
 
+    // Disallow unnecessary concatenation of strings
+    "no-useless-concat": 2,
+
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.
     "no-else-return": 0,
