@@ -192,7 +192,6 @@ calTransaction.prototype = {
             default:
                 throw new Components.Exception("Invalid action specified",
                                                Components.results.NS_ERROR_ILLEGAL_VALUE);
-                break;
         }
     },
 
@@ -217,7 +216,6 @@ calTransaction.prototype = {
             default:
                 throw new Components.Exception("Invalid action specified",
                                                Components.results.NS_ERROR_ILLEGAL_VALUE);
-                break;
         }
     },
 

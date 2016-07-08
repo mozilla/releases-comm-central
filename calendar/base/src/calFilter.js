@@ -802,8 +802,6 @@ calFilter.prototype = {
             }, this);
             return exMatch;
         }
-
-        return null;
     },
 
     /**

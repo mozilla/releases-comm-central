@@ -380,8 +380,6 @@ function errorToString(err) {
                     return ("[0x" + err.toString(0x10) + "] unknown error.");
                 }
             }
-            break;
     }
-    return ("[" + err + "] unknown error."); // dummy to avoid js warning
 }
 

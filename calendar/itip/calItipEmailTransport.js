@@ -67,7 +67,6 @@ calItipEmailTransport.prototype = {
             // Sunbird case: Call user's default mailer on system.
             throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
         }
-        return false;
     },
 
     _prepareItems: function(aItipItem) {

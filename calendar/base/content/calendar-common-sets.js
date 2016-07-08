@@ -190,7 +190,6 @@ var calendarController = {
                 // Small hack, we want to hide instead of disable.
                 setBooleanAttribute("calendar_attendance_command", "hidden", !attendSel);
                 return attendSel;
-                break;
             }
 
             // The following commands all just need the calendar in foreground,

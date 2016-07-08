@@ -1901,7 +1901,6 @@ calStorageCalendar.prototype = {
                 break;
             default:
                 throw "Unknown recurrence item: " + prop.propertyName;
-                break;
         }
 
         ritem.icalProperty = prop;

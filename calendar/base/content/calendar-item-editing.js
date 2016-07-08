@@ -574,7 +574,6 @@ function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
         case MODIFY_FOLLOWING:
             // TODO tbd in a different bug
             throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-            break;
         case MODIFY_OCCURRENCE:
             pastItem = aItem;
             break;
