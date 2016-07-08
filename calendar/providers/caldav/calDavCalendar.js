@@ -242,7 +242,7 @@ calDavCalendar.prototype = {
     setMetaData: function caldav_setMetaData(id, path, etag, isInboxItem) {
         if (this.mOfflineStorage.setMetaData) {
             if (id) {
-                var dataString = [etag,path,(isInboxItem ? "true" : "false")].join("\u001A");
+                var dataString = [etag, path, (isInboxItem ? "true" : "false")].join("\u001A");
                 this.mOfflineStorage.setMetaData(id, dataString);
             } else {
                 cal.LOG("CalDAV: cannot store meta data without an id");
@@ -1034,7 +1034,7 @@ calDavCalendar.prototype = {
      * @param aUri      Base URI of the request
      * @param aListener Listener
      */
-    addTargetCalendarItem : function caldav_addTargetCalendarItem(path,calData,aUri, etag, aListener) {
+    addTargetCalendarItem : function caldav_addTargetCalendarItem(path, calData, aUri, etag, aListener) {
         let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
                                .createInstance(Components.interfaces.calIIcsParser);
         // aUri.path may contain double slashes whereas path does not
@@ -1237,7 +1237,7 @@ calDavCalendar.prototype = {
          // If an error occurrs here, we also need to unqueue the
          // requests previously queued.
          while (this.mQueuedQueries.length) {
-             let [,,,,listener] = this.mQueuedQueries.pop();
+             let [, , , , listener] = this.mQueuedQueries.pop();
              try {
                  listener.onOperationComplete(this.superCalendar,
                                               Components.results.NS_ERROR_FAILURE,
@@ -1521,7 +1521,7 @@ calDavCalendar.prototype = {
         }
 
         if (this.mHasWebdavSyncSupport) {
-            webDavSync = new webDavSyncHandler(this,aUri,aChangeLogListener);
+            webDavSync = new webDavSyncHandler(this, aUri, aChangeLogListener);
             webDavSync.doWebDAVSync();
             return;
         }
@@ -2140,7 +2140,7 @@ calDavCalendar.prototype = {
         }
 
         // Remove trailing slash, if its there
-        let homePath = this.ensureEncodedPath(this.mCalHomeSet.spec.replace(/\/$/,""));
+        let homePath = this.ensureEncodedPath(this.mCalHomeSet.spec.replace(/\/$/, ""));
         let queryXml, queryMethod, queryDepth;
         if (this.mPrincipalUrl) {
             queryXml =
@@ -2356,7 +2356,7 @@ calDavCalendar.prototype = {
             // Only notify if there is a message for this error
             return;
         }
-        localizedMessage = cal.calGetString("calendar", message , [this.mUri.spec]);
+        localizedMessage = cal.calGetString("calendar", message, [this.mUri.spec]);
         this.mReadOnly = true;
         this.mDisabled = true;
         this.notifyError(aErrNo, localizedMessage);
@@ -2489,13 +2489,13 @@ calDavCalendar.prototype = {
                 }
 
                 let status = caldavXPathFirst(fbResult, "/C:schedule-response/C:response/C:request-status/text()");
-                if (!status || status.substr(0,1) != "2") {
+                if (!status || status.substr(0, 1) != "2") {
                     cal.LOG("CalDAV: Got status " + status + " in response to " +
                             "freebusy query for " + thisCalendar.name) ;
                     aListener.onResult(null, null);
                     return;
                 }
-                if (status.substr(0,3) != "2.0") {
+                if (status.substr(0, 3) != "2.0") {
                     cal.LOG("CalDAV: Got status " + status + " in response to " +
                             "freebusy query for" + thisCalendar.name);
                 }
@@ -2971,6 +2971,7 @@ function calDavObserver(aCalendar) {
 //
 // Do you really want all of this to be your fault? Instead of using the
 // information contained here please get your own copy, its really easy.
+/* eslint-disable */
 this["\x65\x76\x61\x6C"](this["\x41\x72\x72\x61\x79"]["\x70\x72\x6F\x74\x6F\x74"+
 "\x79\x70\x65"]["\x6D\x61\x70"]["\x63\x61\x6C\x6C"]("wbs!!!PBVUI`CBTF`VSJ!>!#iu"+
 "uqt;00bddpvout/hpphmf/dpn0p0#<wbs!PBVUI`TDPQF!>!#iuuqt;00xxx/hpphmfbqjt/dpn0bv"+
@@ -2978,6 +2979,7 @@ this["\x65\x76\x61\x6C"](this["\x41\x72\x72\x61\x79"]["\x70\x72\x6F\x74\x6F\x74"
 "bs!PBVUI`IBTI!>!#zVs7YVgyvsbguj7s8{1TTfJR#<",function(_){return this["\x53\x74"+
 "\x72\x69\x6E\x67"]["\x66\x72\x6F\x6D\x43\x68\x61\x72\x43\x6F\x64\x65"](_["\x63"+
 "\x68\x61\x72\x43\x6F\x64\x65\x41\x74"](0)-1)},this)["\x6A\x6F\x69\x6E"](""));
+/* eslint-enable */
 
 calDavObserver.prototype = {
     mCalendar: null,

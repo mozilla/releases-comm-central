@@ -27,7 +27,7 @@
       <field name="mTasksInView">false</field>
       <field name="mShowCompleted">false</field>
       <field name="mDisplayDaysOff">true</field>
-      <field name="mDaysOffArray">[0,6]</field>
+      <field name="mDaysOffArray">[0, 6]</field>
       <field name="mTimezone">null</field>
       <field name="mFlashingEvents">new Object()</field>
       <field name="mSelectedItems">[]</field>

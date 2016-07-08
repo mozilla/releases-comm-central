@@ -871,7 +871,7 @@ calMgrCalendarObserver.prototype = {
             // calCachedCalendar facade saving the user the need to
             // restart Thunderbird and making sure a new Id is used.
             this.calMgr.removeCalendar(aCalendar, cICM.REMOVE_NO_DELETE);
-            var newCal = this.calMgr.createCalendar(aCalendar.type,aCalendar.uri);
+            var newCal = this.calMgr.createCalendar(aCalendar.type, aCalendar.uri);
             newCal.name = aCalendar.name;
 
             // TODO: if properties get added this list will need to be adjusted,
@@ -962,8 +962,8 @@ calMgrCalendarObserver.prototype = {
         paramBlock.SetString(2, message);
 
         this.storedReadOnly = this.calendar.readOnly;
-        var errorCode = calGetString("calendar","errorCode", [errCode]);
-        var errorDescription = calGetString("calendar","errorDescription", [message]);
+        var errorCode = calGetString("calendar", "errorCode", [errCode]);
+        var errorDescription = calGetString("calendar", "errorDescription", [message]);
         var summary = errMsg + " " + errorCode + ". " + errorDescription;
 
         // Log warnings in error console.

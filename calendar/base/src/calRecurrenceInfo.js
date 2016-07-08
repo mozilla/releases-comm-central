@@ -342,9 +342,9 @@ calRecurrenceInfo.prototype = {
 
                 // As decided in bug 734245, an EXDATE of type DATE shall also match a DTSTART of type DATE-TIME
                 let nextKey = getRidKey(nextOccurrences[i]);
-                let isInExceptionMap = nextKey && (this.mExceptionMap[nextKey.substring(0,8)] ||
+                let isInExceptionMap = nextKey && (this.mExceptionMap[nextKey.substring(0, 8)] ||
                                                    this.mExceptionMap[nextKey]);
-                let isInNegMap = nextKey && (negMap[nextKey.substring(0,8)] ||
+                let isInNegMap = nextKey && (negMap[nextKey.substring(0, 8)] ||
                                              negMap[nextKey]);
                 if (nextKey && (isInNegMap || isInExceptionMap)) {
                     // If the found recurrence id points to either an exception
@@ -428,7 +428,7 @@ calRecurrenceInfo.prototype = {
         this.ensureBaseItem();
         this.ensureSortedRecurrenceRules();
 
-        function ridDateSortComptor(a,b) {
+        function ridDateSortComptor(a, b) {
             return a.rstart.compare(b.rstart);
         }
 
@@ -551,7 +551,7 @@ calRecurrenceInfo.prototype = {
                     // As decided in bug 734245, an EXDATE of type DATE shall also match a DTSTART of type DATE-TIME
                     let toRemove = [];
                     for (let occurenceKey in occurrenceMap) {
-                        if (occurrenceMap[occurenceKey] && occurenceKey.substring(0,8) == dateToRemoveKey) {
+                        if (occurrenceMap[occurenceKey] && occurenceKey.substring(0, 8) == dateToRemoveKey) {
                             dates = dates.filter(function (d) { return d.id.compare(dateToRemove) != 0; });
                             toRemove.push(occurenceKey)
                         }

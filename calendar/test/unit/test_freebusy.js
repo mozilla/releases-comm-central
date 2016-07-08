@@ -58,10 +58,10 @@ function test_period() {
         // ical.js doesn't support immutability yet
         throws(function() {
             period.start = cal.createDateTime("20120202T020202");
-        }, /0x80460002/,"Object is Immutable");
+        }, /0x80460002/, "Object is Immutable");
         throws(function() {
             period.end = cal.createDateTime("20120202T020202");
-        }, /0x80460002/,"Object is Immutable");
+        }, /0x80460002/, "Object is Immutable");
     }
 
     let copy = period.clone();

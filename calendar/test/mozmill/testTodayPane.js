@@ -64,7 +64,7 @@ var testTodayPane = function () {
   event.waitFor(() => iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded == true);
 
   event.waitForElement(new elementslib.Lookup(iframe.contentDocument, eventName));
-  event.type(new elementslib.Lookup(iframe.contentDocument, eventName),"Today's Event");
+  event.type(new elementslib.Lookup(iframe.contentDocument, eventName), "Today's Event");
   event.click(new elementslib.ID(event.window.document, "button-save"));
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0});
 
@@ -83,7 +83,7 @@ var testTodayPane = function () {
   event.waitFor(() => iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded == true);
 
   event.waitForElement(new elementslib.Lookup(iframe.contentDocument, eventName));
-  event.type(new elementslib.Lookup(iframe.contentDocument, eventName),"Tomorrow's Event");
+  event.type(new elementslib.Lookup(iframe.contentDocument, eventName), "Tomorrow's Event");
   event.click(new elementslib.ID(event.window.document, "button-save"));
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0});
 
@@ -102,7 +102,7 @@ var testTodayPane = function () {
   event.waitFor(() => iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded == true);
 
   event.waitForElement(new elementslib.Lookup(iframe.contentDocument, eventName));
-  event.type(new elementslib.Lookup(iframe.contentDocument, eventName),"Future's Event");
+  event.type(new elementslib.Lookup(iframe.contentDocument, eventName), "Future's Event");
   event.click(new elementslib.ID(event.window.document, "button-save"));
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0});
 

@@ -407,8 +407,8 @@ function test_rules() {
                                      "on days 2 and 3\n" +
                          "RRULE:FREQ=DAILY;COUNT=3\n" +
                          "DTSTART:20020402T114500Z\n");
-    occ1 = item.recurrenceInfo.getOccurrenceFor(createDate(2002,3,2,true,11,45,0));
-    occ1.startDate = createDate(2002,3,3,true,12,0,0);
+    occ1 = item.recurrenceInfo.getOccurrenceFor(createDate(2002, 3, 2, true, 11, 45, 0));
+    occ1.startDate = createDate(2002, 3, 3, true, 12, 0, 0);
     item.recurrenceInfo.modifyException(occ1, true);
     check_recur(item, ["20020403T114500Z", "20020403T120000Z", "20020404T114500Z"]);
 
@@ -417,19 +417,19 @@ function test_rules() {
                      "RRULE:FREQ=DAILY;COUNT=3\n" +
                      "DTSTART:20020402T114500Z\n" +
                      "EXDATE:20020403T114500Z\n");
-    occ1 = item.recurrenceInfo.getOccurrenceFor(createDate(2002,3,2,true,11,45,0));
-    occ1.startDate = createDate(2002,3,3,true,12,0,0);
+    occ1 = item.recurrenceInfo.getOccurrenceFor(createDate(2002, 3, 2, true, 11, 45, 0));
+    occ1.startDate = createDate(2002, 3, 3, true, 12, 0, 0);
     item.recurrenceInfo.modifyException(occ1, true);
     check_recur(item, ["20020403T120000Z", "20020404T114500Z"]);
 
     item = makeEvent("DESCRIPTION:all occurrences have exceptions\n" +
                      "RRULE:FREQ=DAILY;COUNT=2\n" +
                      "DTSTART:20020402T114500Z\n");
-    occ1 = item.recurrenceInfo.getOccurrenceFor(createDate(2002,3,2,true,11,45,0));
-    occ1.startDate = createDate(2002,3,2,true,12,0,0);
+    occ1 = item.recurrenceInfo.getOccurrenceFor(createDate(2002, 3, 2, true, 11, 45, 0));
+    occ1.startDate = createDate(2002, 3, 2, true, 12, 0, 0);
     item.recurrenceInfo.modifyException(occ1, true);
-    let occ2 = item.recurrenceInfo.getOccurrenceFor(createDate(2002,3,3,true,11,45,0));
-    occ2.startDate = createDate(2002,3,3,true,12,0,0);
+    let occ2 = item.recurrenceInfo.getOccurrenceFor(createDate(2002, 3, 3, true, 11, 45, 0));
+    occ2.startDate = createDate(2002, 3, 3, true, 12, 0, 0);
     item.recurrenceInfo.modifyException(occ2, true);
     check_recur(item, ["20020402T120000Z", "20020403T120000Z"]);
 
@@ -437,8 +437,8 @@ function test_rules() {
                      "RRULE:FREQ=DAILY;COUNT=2\n" +
                      "DTSTART:20020402T114500Z\n" +
                      "RDATE:20020401T114500Z\n");
-    occ1 = item.recurrenceInfo.getOccurrenceFor(createDate(2002,3,2,true,11,45,0));
-    occ1.startDate = createDate(2002,2,30,true,11,45,0);
+    occ1 = item.recurrenceInfo.getOccurrenceFor(createDate(2002, 3, 2, true, 11, 45, 0));
+    occ1.startDate = createDate(2002, 2, 30, true, 11, 45, 0);
     item.recurrenceInfo.modifyException(occ1, true);
     check_recur(item, ["20020330T114500Z", "20020401T114500Z", "20020403T114500Z"]);
 
@@ -641,10 +641,10 @@ function test_rrule_interface() {
     ok(rrule.isByCount);
     ok(!rrule.isNegative);
     ok(rrule.isFinite);
-    equal(rrule.getComponent("BYDAY", {}).toString(), [3,4].toString());
+    equal(rrule.getComponent("BYDAY", {}).toString(), [3, 4].toString());
 
     // Now start changing things
-    rrule.setComponent("BYDAY", 2, [4,5]);
+    rrule.setComponent("BYDAY", 2, [4, 5]);
     equal(rrule.icalString.match(/BYDAY=WE,TH/), "BYDAY=WE,TH");
 
     rrule.count = -1;
@@ -751,7 +751,7 @@ function test_idchange() {
     item.id = "changed";
 
     occ = item.recurrenceInfo.getExceptionFor(cal.createDateTime("20020406T114500Z"));
-    equal(occ.id , "changed");
+    equal(occ.id, "changed");
 }
 
 function test_failures() {
@@ -834,9 +834,9 @@ function test_rrule_icalstring() {
 
     recRule = createRecurrenceRule();
     recRule.type = "MONTHLY";
-    recRule.setComponent("BYDAY", 7, [2,3,4,5,6,7,1]);
+    recRule.setComponent("BYDAY", 7, [2, 3, 4, 5, 6, 7, 1]);
     equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR,SA,SU\r\n");
-    deepEqual(recRule.getComponent("BYDAY", {}), [2,3,4,5,6,7,1]);
+    deepEqual(recRule.getComponent("BYDAY", {}), [2, 3, 4, 5, 6, 7, 1]);
 
     recRule = createRecurrenceRule();
     recRule.type = "MONTHLY";

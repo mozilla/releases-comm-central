@@ -669,7 +669,7 @@ calICSCalendar.prototype = {
                 v => v.name.includes("calBackupData_"+pseudoID+"_"+type));
             // Sort by lastmodifed
             filteredFiles.sort(
-                function s(a,b) {
+                function s(a, b) {
                     return (a.lastmodified - b.lastmodified);
                 });
             // And delete the oldest files, and keep the desired number of

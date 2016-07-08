@@ -298,8 +298,8 @@ calTimezoneService.prototype = {
 */
 function guessSystemTimezone() {
     // Probe JSDates for basic OS timezone offsets and names.
-    const dateJun = (new Date(2005, 5,20)).toString();
-    const dateDec = (new Date(2005,11,20)).toString();
+    const dateJun = (new Date(2005, 5, 20)).toString();
+    const dateDec = (new Date(2005, 11, 20)).toString();
     const tzNameRegex = /[^(]* ([^ ]*) \(([^)]+)\)/;
     const nameDataJun = dateJun.match(tzNameRegex);
     const nameDataDec = dateDec.match(tzNameRegex);

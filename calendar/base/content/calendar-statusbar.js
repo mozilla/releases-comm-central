@@ -60,7 +60,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
                  this.mStatusBar.removeAttribute("collapsed");
                  this.mStatusBar.setAttribute("mode", "determined");
                  this.mStatusBar.value = 0;
-                 var commonStatus = calGetString("calendar","gettingCalendarInfoCommon");
+                 var commonStatus = calGetString("calendar", "gettingCalendarInfoCommon");
                  this.showStatusString(commonStatus);
              }
              if (this.mThrobber) {

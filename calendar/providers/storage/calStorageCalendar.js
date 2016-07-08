@@ -1072,7 +1072,7 @@ calStorageCalendar.prototype = {
     },
 
     resetItemOfflineFlag: function(aItem, aListener) {
-        this.setOfflineJournalFlag(aItem,null);
+        this.setOfflineJournalFlag(aItem, null);
         this.notifyOperationComplete(aListener,
                                      Components.results.NS_OK,
                                      Components.interfaces.calIOperationListener.MODIFY,
@@ -2390,7 +2390,7 @@ calStorageCalendar.prototype = {
      * @param message           Error message to log.
      * @param exception         Exception that caused the error.
      */
-    logError: function cSC_logError(message,exception) {
+    logError: function cSC_logError(message, exception) {
         let logMessage = "Message: " + message;
         if (this.mDB) {
             if (this.mDB.connectionReady) {

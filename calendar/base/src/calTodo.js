@@ -201,7 +201,7 @@ calTodo.prototype = {
         if (this.parentItem == this) {
             var rec = this.recurrenceInfo;
             if (rec) {
-                rec.onStartDateChange(value,this.entryDate);
+                rec.onStartDateChange(value, this.entryDate);
             }
         }
 

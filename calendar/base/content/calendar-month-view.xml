@@ -81,7 +81,7 @@
           this.mOccurrence = val;
           if (cal.isEvent(val)) {
             if (!val.startDate.isDate) {
-              var label = document.getAnonymousElementByAttribute(this,"anonid","item-label");
+              var label = document.getAnonymousElementByAttribute(this, "anonid", "item-label");
               var df = Components.classes["@mozilla.org/calendar/datetime-formatter;1"].
                        getService(Components.interfaces.calIDateTimeFormatter);
               var timezone = this.calendarView ? this.calendarView.mTimezone :

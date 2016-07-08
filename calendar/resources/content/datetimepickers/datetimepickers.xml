@@ -585,8 +585,8 @@
           // Change the grids in the timepicker-grids for 12-hours time format.
           if (this.ampmIndex) {
             // Find the locale strings for the AM/PM prefix/suffix.
-            let amTime = new Date(2000,0,1,6,12,34);
-            let pmTime = new Date(2000,0,1,18,12,34);
+            let amTime = new Date(2000, 0, 1, 6, 12, 34);
+            let pmTime = new Date(2000, 0, 1, 18, 12, 34);
             amTime = amTime.toLocaleFormat(this.kTimeFormatString);
             pmTime = pmTime.toLocaleFormat(this.kTimeFormatString);
             let amLabel = this.parseTimeRegExp.exec(amTime)[this.ampmIndex] || "AM";
@@ -1280,7 +1280,7 @@
             if (this.mSelectedHourItem != null)
               this.mSelectedHourItem.removeAttribute( "selected" );
             // set selected attribute, to cause the selected style to apply
-            hourItem.setAttribute( "selected" , "true" );
+            hourItem.setAttribute( "selected", "true" );
             // remember the selected item so we can deselect it
             this.mSelectedHourItem = hourItem;
           ]]>
@@ -1296,7 +1296,7 @@
             if (this.mSelectedMinuteItem != null)
               this.mSelectedMinuteItem.removeAttribute( "selected" );
             // set selected attribute, to cause the selected style to apply
-            minuteItem.setAttribute( "selected" , "true" );
+            minuteItem.setAttribute( "selected", "true" );
             // remember the selected item so we can deselect it
             this.mSelectedMinuteItem = minuteItem;
           ]]>
@@ -1767,7 +1767,7 @@
             // Made of digits & nonDigits.  (Nondigits may be unicode letters
             // which do not match \w, esp. in CJK locales.)
             this.parseShortDateRegex = /^\D*(\d+)\D+(\d+)\D+(\d+)\D?$/;
-            var probeDate = new Date(2002,3-1,4); // month is 0-based
+            var probeDate = new Date(2002, 3-1, 4); // month is 0-based
             var probeString = this.formatDate(probeDate);
             var probeArray = this.parseShortDateRegex.exec(probeString);
             if (probeArray != null) {
@@ -1851,9 +1851,9 @@
             var probeTimeRegExp =
               new RegExp("^("+anyAmPmExpr+")?\\s?"+digitsExpr+"("+anyAmPmExpr+")?\\s*$");
             const PRE_INDEX=1, HR_INDEX=2, MIN_INDEX=4, SEC_INDEX=6, POST_INDEX=8;
-            var amProbeTime = new Date(2000,0,1,6,12,34);
+            var amProbeTime = new Date(2000, 0, 1, 6, 12, 34);
             var amProbeString = amProbeTime.toLocaleFormat("%X");
-            var pmProbeTime = new Date(2000,0,1,18,12,34);
+            var pmProbeTime = new Date(2000, 0, 1, 18, 12, 34);
             var pmProbeString = pmProbeTime.toLocaleFormat("%X");
             var amFormatExpr = null, pmFormatExpr = null;
             if (amProbeString != pmProbeString) {
@@ -1967,7 +1967,7 @@
         <body>
           <![CDATA[
             // remove leading zero in hours before colon in xx01:23pmxx
-            return aValue.toLocaleFormat(this.kTimeFormatString).replace(/0(\d):/,"$1:");
+            return aValue.toLocaleFormat(this.kTimeFormatString).replace(/0(\d):/, "$1:");
           ]]>
         </body>
       </method>

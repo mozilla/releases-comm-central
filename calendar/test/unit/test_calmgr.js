@@ -15,7 +15,7 @@ function run_test() {
 add_test(function test_registration() {
     function checkCalendarCount(net, rdonly, all) {
         equal(calmgr.networkCalendarCount, net);
-        equal(calmgr.readOnlyCalendarCount , rdonly);
+        equal(calmgr.readOnlyCalendarCount, rdonly);
         equal(calmgr.calendarCount, all);
     }
     function checkRegistration(reg, unreg, del) {

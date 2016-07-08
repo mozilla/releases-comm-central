@@ -88,7 +88,7 @@ function dumpArray(ar) {
  *                            array.
  */
 function testRemoveModify(har, testItems, postprocessFunc, itemAccessor, itemCreator) {
-    postprocessFunc = postprocessFunc || function(a, b) { return [a,b]; };
+    postprocessFunc = postprocessFunc || function(a, b) { return [a, b]; };
     itemCreator = itemCreator || (title => hashedCreateItem(title));
     itemAccessor = itemAccessor || function(o) { return o; }
 
@@ -122,7 +122,7 @@ function test_array_base() {
 
     // Test normal additions
     har = new cal.HashedArray();
-    testItems = ["a","b","c","d"].map(hashedCreateItem);
+    testItems = ["a", "b", "c", "d"].map(hashedCreateItem);
 
     testItems.forEach(har.addItem, har);
     checkConsistancy(har, testItems);

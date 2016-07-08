@@ -241,7 +241,7 @@ etagsHandler.prototype = {
                     }
 
                     // Only handle calendar items
-                    if (r.getcontenttype.substr(0,13) == "text/calendar") {
+                    if (r.getcontenttype.substr(0, 13) == "text/calendar") {
                         if (r.href && r.href.length) {
                             this.itemsReported[r.href] = r.getetag;
 
@@ -524,7 +524,7 @@ webDavSyncHandler.prototype = {
             case "getetag":
             case "getcontenttype":
             case "sync-token":
-                this.tag = aLocalName.replace(/-/g,'');
+                this.tag = aLocalName.replace(/-/g, '');
                 this.currentResponse[this.tag ] = "";
                 break;
         }
@@ -567,7 +567,7 @@ webDavSyncHandler.prototype = {
                     }
                 // Only handle Created or Updated calendar items
                 } else if (r.getcontenttype &&
-                           r.getcontenttype.substr(0,13) == "text/calendar" &&
+                           r.getcontenttype.substr(0, 13) == "text/calendar" &&
                            r.getetag && r.getetag.length &&
                            r.href && r.href.length &&
                            (!r.status ||                 // Draft 3 does not require
@@ -881,7 +881,7 @@ multigetSyncHandler.prototype = {
             case "calendar-data":
             case "href":
             case "getetag":
-                this.tag = aLocalName.replace(/-/g,'');
+                this.tag = aLocalName.replace(/-/g, '');
                 this.currentResponse[this.tag ] = "";
                 break;
         }

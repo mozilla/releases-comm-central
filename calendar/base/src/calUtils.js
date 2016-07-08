@@ -652,7 +652,7 @@ function setPrefCategoriesFromArray(aCategoriesArray) {
  * may contain unescaped commas, which will be escaped in combined string.
  */
 function categoriesArrayToString(aSortedCategoriesArray) {
-    function escapeComma(category) { return category.replace(/,/g,"\\,"); }
+    function escapeComma(category) { return category.replace(/,/g, "\\,"); }
     return aSortedCategoriesArray.map(escapeComma).join(",");
 }
 
@@ -1733,7 +1733,7 @@ function compareItemContent(aFirstItem, aSecondItem, aIgnoreProps, aIgnoreParams
  * function.
  *
  * The comptor function may look as follows for calIDateTime objects.
- *     function comptor(a,b) {
+ *     function comptor(a, b) {
  *         return a.compare(b);
  *     }
  * If no comptor is specified, the default greater-than comptor will be used.
@@ -1765,7 +1765,7 @@ function binarySearch(itemArray, newItem, comptor) {
         return -1;
     }
     if (!comptor) {
-        comptor = function defaultComptor(a,b) {
+        comptor = function defaultComptor(a, b) {
             return (a > b) - (a < b);
         }
     }

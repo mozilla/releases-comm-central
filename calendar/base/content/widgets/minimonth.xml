@@ -770,13 +770,13 @@
                   var foundMatch = 1;
                   for (j = 0; j < dayList.length; j++) {
                       if (i != j) {
-                          if (dayList[i].substring(0,1) == dayList[j].substring(0,1)) {
+                          if (dayList[i].substring(0, 1) == dayList[j].substring(0, 1)) {
                               foundMatch = 2;
                               break;
                           }
                       }
                   }
-                  dayList[i] = dayList[i].substring(0,foundMatch)
+                  dayList[i] = dayList[i].substring(0, foundMatch)
               }
           }
 
@@ -1081,7 +1081,7 @@
             // note, that aMainDate and this.mEditorDate refer to the first day
             // of the corresponding month
             var sameMonth = this._sameDay(aMainDate, this.mEditorDate);
-            var sameDate = this._sameDay(aDate,this.mValue);
+            var sameDate = this._sameDay(aDate, this.mValue);
             if (!sameMonth && !sameDate) {
                 // change month and select day
                 this.mValue = aDate;

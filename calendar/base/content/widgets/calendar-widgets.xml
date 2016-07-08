@@ -404,7 +404,7 @@
                     if (modeIndex == -1) {
                         collapsedModes.push(this.currentMode);
                         if (this.getAttribute("collapsedinmodes") == ",") {
-                            collapsedModes.splice(0,2);
+                            collapsedModes.splice(0, 2);
                         }
                     }
                 } else {

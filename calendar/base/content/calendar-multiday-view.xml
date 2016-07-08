@@ -1177,7 +1177,7 @@
                       start.resetTo(this.date.year,
                                     this.date.month,
                                     this.date.day,
-                                    0,this.mStartMin,0,
+                                    0, this.mStartMin, 0,
                                     start.timezone);
                   }
                   if (end.year  != this.date.year ||
@@ -1187,7 +1187,7 @@
                       end.resetTo(this.date.year,
                                   this.date.month,
                                   this.date.day,
-                                  0,this.mEndMin,0,
+                                  0, this.mEndMin, 0,
                                   end.timezone);
                   }
                   var prevEnd;

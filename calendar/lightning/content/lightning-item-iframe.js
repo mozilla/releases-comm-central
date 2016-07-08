@@ -1916,7 +1916,7 @@ function loadCloudProviders() {
 
     let itemObjects = [];
 
-    for (let [,cloudProvider] in Iterator(cloudFileAccounts.accounts)) {
+    for (let [, cloudProvider] in Iterator(cloudFileAccounts.accounts)) {
 
         // Create a serializable object to pass in a message outside the iframe
         let itemObject = {};
@@ -1985,7 +1985,7 @@ function attachURL() {
  * @param {string} aAccountKey  The accountKey for a cloud provider
  */
 function attachFileByAccountKey(aAccountKey) {
-    for (let [,cloudProvider] in Iterator(cloudFileAccounts.accounts)) {
+    for (let [, cloudProvider] in Iterator(cloudFileAccounts.accounts)) {
         if (aAccountKey == cloudProvider.accountKey) {
             attachFile(cloudProvider);
             return;
@@ -3206,7 +3206,7 @@ function showTimezonePopup(event, dateTime, editFunc) {
  * @param aDateTime         The Date/Time of the time to change zone on.
  * @param aCallback         What to do when the user has chosen a zone.
  */
-function editTimezone(aElementId,aDateTime,aCallback) {
+function editTimezone(aElementId, aDateTime, aCallback) {
     if (document.getElementById(aElementId)
         .hasAttribute("disabled")) {
         return;

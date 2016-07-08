@@ -103,9 +103,9 @@ function handle_pref_dialog(prefsController) {
   let eventdefalarmlen = new elementslib.ID(prefsController.window.document, "eventdefalarmlen");
   let tododefalarmlen = new elementslib.ID(prefsController.window.document, "tododefalarmlen");
   prefsController.keypress(eventdefalarmlen, "a", {accelKey:true});
-  prefsController.type(eventdefalarmlen ,"50");
+  prefsController.type(eventdefalarmlen, "50");
   prefsController.keypress(tododefalarmlen, "a", {accelKey:true});
-  prefsController.type(tododefalarmlen ,"50");
+  prefsController.type(tododefalarmlen, "50");
 }
 
 function teardownTest(module) {

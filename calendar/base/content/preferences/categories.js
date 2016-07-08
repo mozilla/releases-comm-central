@@ -89,7 +89,7 @@ var gCategoriesPane = {
             try {
                 var colorCode = categoryPrefBranch.getCharPref(categoryNameFix);
                 categoryColor.setAttribute("id", colorCode);
-                categoryColor.setAttribute("style","background-color: "+colorCode+';');
+                categoryColor.setAttribute("style", "background-color: "+colorCode+';');
             } catch (ex) {
                 categoryColor.setAttribute("label", noneLabel);
             }

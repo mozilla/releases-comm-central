@@ -34,7 +34,7 @@ function acceptSendingNotificationMail(controller) {
  *  @param controller - Mozmill window controller
  */
 function handleAddingAttachment(controller, url) {
-  modalDialog.plan_for_modal_dialog("commonDialog",function(attachment) {
+  modalDialog.plan_for_modal_dialog("commonDialog", function(attachment) {
     let input = new elementslib.ID(attachment.window.document, 'loginTextbox');
     attachment.waitForElement(input);
     input.getNode().value = url;

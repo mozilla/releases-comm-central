@@ -128,7 +128,7 @@ var calendarWindowPrefs = {
                 case "calendar.view.useSystemColors": {
                     let attributeValue = Preferences.get("calendar.view.useSystemColors", false) && "true";
                     for (let win in fixIterator(Services.ww.getWindowEnumerator())) {
-                        setElementValue(win.document.documentElement, attributeValue , "systemcolors");
+                        setElementValue(win.document.documentElement, attributeValue, "systemcolors");
                     }
                     break;
                 }
@@ -137,7 +137,7 @@ var calendarWindowPrefs = {
             let win = aSubject.QueryInterface(Components.interfaces.nsIDOMWindow);
             win.addEventListener("load", function() {
                 let attributeValue = Preferences.get("calendar.view.useSystemColors", false) && "true";
-                setElementValue(win.document.documentElement, attributeValue , "systemcolors");
+                setElementValue(win.document.documentElement, attributeValue, "systemcolors");
             }, false);
         }
     }

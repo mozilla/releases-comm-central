@@ -36,7 +36,7 @@ var setupModule = function(module) {
 }
 
 var testLocalICS = function () {
-  controller.click(new elementslib.ID(controller.window.document,"calendar-tab-button"));
+  controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
   calUtils.switchToView(controller, "day");
 
   modalDialog.plan_for_modal_dialog("Calendar:NewCalendarWizard", handleNewCalendarWizard);

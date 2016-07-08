@@ -183,7 +183,7 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
     } catch (e) {
         var props = Services.strings.createBundle("chrome://calendar/locale/calendar.properties");
         Services.prompt.alert(null, calGetString("calendar", "genericErrorTitle"),
-                              props.formatStringFromName('otherPutError',[e.message],1));
+                              props.formatStringFromName('otherPutError', [e.message], 1));
     }
 }
 
@@ -231,11 +231,11 @@ var publishingListener =
         }
         if (channel && !requestSucceeded) {
             Services.prompt.alert(null, calGetString("calendar", "genericErrorTitle"),
-                                  props.formatStringFromName('httpPutError',[channel.responseStatus, channel.responseStatusText],2));
+                                  props.formatStringFromName('httpPutError', [channel.responseStatus, channel.responseStatusText], 2));
         } else if (!channel && !Components.isSuccessCode(request.status)) {
             // XXX this should be made human-readable.
             Services.prompt.alert(null, calGetString("calendar", "genericErrorTitle"),
-                                  props.formatStringFromName('otherPutError',[request.status.toString(16)],1));
+                                  props.formatStringFromName('otherPutError', [request.status.toString(16)], 1));
         }
     },
 

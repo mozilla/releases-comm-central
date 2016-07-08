@@ -456,7 +456,7 @@ function ltnIntegrationNotification() {
         Preferences.set(kOptOut, true);
         AddonManager.getAddonByID(kLightningGuuid, cbRemoveLightning);
         // let the user know that removal will be applied after restart
-        let restartLabel = ltnGetString("lightning", "integrationRestartLabel",[ltnBrand, appBrand]);
+        let restartLabel = ltnGetString("lightning", "integrationRestartLabel", [ltnBrand, appBrand]);
         let button = [{
              label:     ltnGetString("lightning", "integrationUndoButton"),
              accessKey: ltnGetString("lightning", "integrationUndoAccessKey"),

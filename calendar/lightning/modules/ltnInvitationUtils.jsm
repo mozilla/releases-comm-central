@@ -130,7 +130,7 @@ ltn.invitation = {
             let formattedExDates = [];
             let modifiedOccurrences = [];
 
-            let dateComptor = function (a,b) {
+            let dateComptor = function (a, b) {
                 return a.startDate.compare(b.startDate);
             }
 

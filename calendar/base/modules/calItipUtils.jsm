@@ -1123,7 +1123,7 @@ ItipOpListener.prototype = {
 function addScheduleAgentClient(item, calendar) {
      if (calendar.getProperty("capabilities.autoschedule.supported") === true) {
           if (item.organizer) {
-             item.organizer.setProperty("SCHEDULE-AGENT","CLIENT");
+             item.organizer.setProperty("SCHEDULE-AGENT", "CLIENT");
           }
      }
 }

@@ -165,7 +165,7 @@ calEvent.prototype = {
         if (this.parentItem == this) {
             var rec = this.recurrenceInfo;
             if (rec) {
-                rec.onStartDateChange(value,this.startDate);
+                rec.onStartDateChange(value, this.startDate);
             }
         }
 

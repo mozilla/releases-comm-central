@@ -406,7 +406,7 @@ function editConfigState(aArg) {
  * following the sequence  -> PUBLIC -> CONFIDENTIAL -> PRIVATE ->.
  */
 function rotatePrivacy() {
-    const states = ["PUBLIC","CONFIDENTIAL","PRIVATE"];
+    const states = ["PUBLIC", "CONFIDENTIAL", "PRIVATE"];
     let oldPrivacy = gConfig.privacy;
     let newPrivacy = states[(states.indexOf(oldPrivacy) + 1) % states.length];
     editConfigState({ privacy: newPrivacy });
@@ -640,7 +640,7 @@ function rotateStatus() {
     let oldStatus = gConfig.status;
     let noneCommand = document.getElementById("cmd_status_none");
     let noneCommandIsVisible = !noneCommand.hasAttribute("hidden");
-    let states = ["TENTATIVE","CONFIRMED","CANCELLED"];
+    let states = ["TENTATIVE", "CONFIRMED", "CANCELLED"];
 
     // If control for status "NONE" ("cmd_status_none") is visible,
     // allow rotating to it.

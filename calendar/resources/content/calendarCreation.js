@@ -106,7 +106,7 @@ function checkRequired() {
         let notificationbox = document.getElementById("location-notifications");
         if (canAdvance && document.getElementById("calendar-uri").value &&
                 curPage.pageid == "locationPage") {
-            let [reason,] = parseUri(document.getElementById("calendar-uri").value);
+            let [reason, ] = parseUri(document.getElementById("calendar-uri").value);
             canAdvance = (reason == errorConstants.SUCCESS);
             setNotification(reason);
         } else {
@@ -206,9 +206,9 @@ function initNameFromURI() {
  * Parses the given uri value to check if it is valid and there is not already
  * a calendar with this uri.
  *
- * @param aUri          The string to parse as an uri.
- * @return [error,uri]  |error| is the error code from errorConstants, |uri| the
- *                        parsed nsIURI, or null on error.
+ * @param aUri              The string to parse as an uri.
+ * @return [error, uri]     |error| is the error code from errorConstants,
+ *                          |uri| the parsed nsIURI, or null on error.
  */
 function parseUri(aUri) {
     let uri;

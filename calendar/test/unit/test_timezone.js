@@ -49,7 +49,8 @@ function really_run_test() {
           "DTEND;TZID=America/New_York:19980312T093000",
           "LOCATION:1CP Conference Room 4350",
           "END:VEVENT",
-          "END:VCALENDAR",].join("\r\n");
+          "END:VCALENDAR",
+          ""].join("\r\n");
 
     var strTz =
          ["BEGIN:VTIMEZONE",
@@ -66,7 +67,8 @@ function really_run_test() {
           "TZOFFSETTO:-0400",
           "TZNAME:EDT",
           "END:DAYLIGHT",
-          "END:VTIMEZONE",].join("\r\n");
+          "END:VTIMEZONE",
+          ""].join("\r\n");
 
     let tzs = cal.getTimezoneService();
 
@@ -77,6 +79,5 @@ function really_run_test() {
 
     g.timezone = tzs.getTimezone(g.timezone.tzid);
     h.timezone = tzs.getTimezone(h.timezone.tzid);
-    notEqual(strTz,g.timezone.toString());
+    notEqual(strTz, g.timezone.toString());
 }
-

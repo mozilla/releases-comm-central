@@ -281,7 +281,7 @@ function onSave(item) {
     }
 
     var recRule = createRecurrenceRule();
-    const ALL_WEEKDAYS = [2,3,4,5,6,7,1]; // The sequence MO,TU,WE,TH,FR,SA,SU.
+    const ALL_WEEKDAYS = [2, 3, 4, 5, 6, 7, 1]; // The sequence MO,TU,WE,TH,FR,SA,SU.
     switch (deckNumber) {
     case 0:
         recRule.type = "DAILY";

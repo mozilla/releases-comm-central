@@ -257,8 +257,8 @@ function finishCalendarUnifinder() {
     let unifinderTree = document.getElementById("unifinder-search-results-tree");
     let sorted = unifinderTreeView.selectedColumn;
     if (sorted) {
-        unifinderTree.setAttribute("sort-active",sorted.getAttribute("itemproperty"));
-        unifinderTree.setAttribute("sort-direction",unifinderTreeView.sortDirection);
+        unifinderTree.setAttribute("sort-active", sorted.getAttribute("itemproperty"));
+        unifinderTree.setAttribute("sort-direction", unifinderTreeView.sortDirection);
     } else {
         unifinderTree.removeAttribute("sort-active");
         unifinderTree.removeAttribute("sort-direction");
@@ -510,7 +510,7 @@ var unifinderTreeView = {
     setItems: function uTV_setItems(aItemArray, aDontSort) {
         let oldCount = this.eventArray.length;
         this.eventArray = aItemArray.slice(0);
-        this.tree.rowCountChanged(oldCount - 1 , (this.eventArray.length - oldCount));
+        this.tree.rowCountChanged(oldCount - 1, (this.eventArray.length - oldCount));
 
         if (aDontSort) {
             this.calculateIndexMap();

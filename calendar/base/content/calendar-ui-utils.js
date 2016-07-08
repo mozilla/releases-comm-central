@@ -147,7 +147,7 @@ function disableElement(aElement) {
  * @param elementId     The element ID of the element to disable.
  * @param lockId        The ID of the lock to set.
  */
-function disableElementWithLock(elementId,lockId) {
+function disableElementWithLock(elementId, lockId) {
 
     // unconditionally disable the element.
     disableElement(elementId);

@@ -20,7 +20,7 @@ var taskDetailsView = {
             Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
             .getService(Components.interfaces.calIDateTimeFormatter);
 
-        function displayElement(id,flag) {
+        function displayElement(id, flag) {
             setBooleanAttribute(id, "hidden", !flag);
             return flag;
         }

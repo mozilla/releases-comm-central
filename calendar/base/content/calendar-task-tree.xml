@@ -157,7 +157,7 @@
                 })) {
                 treecols[i].removeAttribute("hidden");
             } else {
-                treecols[i].setAttribute("hidden","true");
+                treecols[i].setAttribute("hidden", "true");
             }
             if (ordinals && ordinals.length > 0) {
                treecols[i].ordinal = Number(ordinals.shift());
@@ -202,12 +202,12 @@
                   widths += " ";
               widths += treecols[i].width || 0;
           }
-          this.setAttribute("visible-columns",visible);
-          this.setAttribute("ordinals",ordinals);
-          this.setAttribute("widths",widths);
+          this.setAttribute("visible-columns", visible);
+          this.setAttribute("ordinals", ordinals);
+          this.setAttribute("widths", widths);
           if (sorted) {
-              this.setAttribute("sort-active",sorted.getAttribute("itemproperty"));
-              this.setAttribute("sort-direction",this.mTreeView.sortDirection);
+              this.setAttribute("sort-active", sorted.getAttribute("itemproperty"));
+              this.setAttribute("sort-direction", this.mTreeView.sortDirection);
           } else {
               this.removeAttribute("sort-active");
               this.removeAttribute("sort-direction");

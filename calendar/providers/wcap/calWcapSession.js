@@ -67,7 +67,7 @@ function getWcapSessionFor(calendar, uri) {
 
         if (defaultCal) {
             session.defaultCalendar = defaultCal;
-            let [defaultSpec,] = splitUriParams(defaultCal.uri);
+            let [defaultSpec, ] = splitUriParams(defaultCal.uri);
             session.uri = cal.makeURL(defaultSpec);
             session.credentials.userId = defaultCal.getProperty("user_id");
             log("default calendar found.", defaultCal);

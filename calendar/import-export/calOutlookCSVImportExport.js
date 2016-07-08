@@ -488,7 +488,7 @@ calOutlookCSVExporter.prototype = {
             line.push((item.privacy=="PRIVATE") ? localeEn.valueTrue : localeEn.valueFalse);
 
             line = line.map(function(v) {
-                v = String(v).replace(/"/g,'""');
+                v = String(v).replace(/"/g, '""');
                 return '"'+v+'"';
             })
             str = line.join(',') + exportLineEnding;

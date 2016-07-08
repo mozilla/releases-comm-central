@@ -19,7 +19,7 @@ var setupModule = function(module) {
 var testUTF8 = function () {
   let eventDialog = '/id("calendar-event-dialog")/id("event-grid")/id("event-grid-rows")/';
 
-  controller.click(new elementslib.ID(controller.window.document,"calendar-tab-button"));
+  controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
   calUtils.switchToView(controller, "day");
 
   // create new event

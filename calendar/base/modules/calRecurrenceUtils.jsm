@@ -165,7 +165,7 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                             }
                         }
                         let weekdaysString = weekdaysString_every + weekdaysString_position;
-                        weekdaysString = weekdaysString.slice(0,-2)
+                        weekdaysString = weekdaysString.slice(0, -2)
                                                        .replace(/,(?= [^,]*$)/,
                                                                 ' ' + getRString("repeatDetailsAnd"));
 
@@ -208,7 +208,7 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                             if (lastDay) {
                                 day_string += getRString("monthlyLastDay") + ", ";
                             }
-                            day_string = day_string.slice(0,-2)
+                            day_string = day_string.slice(0, -2)
                                                    .replace(/,(?= [^,]*$)/,
                                                             ' ' + getRString("repeatDetailsAnd"));
 

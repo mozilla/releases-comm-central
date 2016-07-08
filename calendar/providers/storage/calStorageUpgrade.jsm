@@ -1356,7 +1356,7 @@ upgrade.v20 = function upgrade_v20(db, version) {
         }
         setDbVersionAndCommit(db, 20);
     } catch (e) {
-        throw reportErrorAndRollback(db,e);
+        throw reportErrorAndRollback(db, e);
     }
     return tbl;
 }
@@ -1429,7 +1429,7 @@ upgrade.v21 = function upgrade_v21(db, version) {
 
         setDbVersionAndCommit(db, 21);
     } catch (e) {
-        throw reportErrorAndRollback(db,e);
+        throw reportErrorAndRollback(db, e);
     }
     return tbl;
 }

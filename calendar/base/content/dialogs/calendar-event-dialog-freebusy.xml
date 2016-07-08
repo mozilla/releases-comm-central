@@ -881,16 +881,16 @@
               let hour = hours.childNodes[i];
               switch (this.mState[i + this.mOffset]) {
                   case Components.interfaces.calIFreeBusyInterval.FREE:
-                      hour.setAttribute("state","free");
+                      hour.setAttribute("state", "free");
                       break;
                   case Components.interfaces.calIFreeBusyInterval.BUSY:
-                      hour.setAttribute("state","busy");
+                      hour.setAttribute("state", "busy");
                       break;
                   case Components.interfaces.calIFreeBusyInterval.BUSY_TENTATIVE:
-                      hour.setAttribute("state","busy_tentative");
+                      hour.setAttribute("state", "busy_tentative");
                       break;
                   case Components.interfaces.calIFreeBusyInterval.BUSY_UNAVAILABLE:
-                      hour.setAttribute("state","busy_unavailable");
+                      hour.setAttribute("state", "busy_unavailable");
                       break;
                   default:
                       hour.removeAttribute("state");

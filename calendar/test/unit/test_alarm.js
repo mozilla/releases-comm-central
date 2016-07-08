@@ -495,9 +495,9 @@ function test_serialize() {
 
     throws(function() {
         alarm.icalComponent = srv.createIcalComponent("BARF");
-    }, /0x80070057/ , "Invalid Argument");
+    }, /0x80070057/, "Invalid Argument");
 
-    function addProp(k,v) { let p = srv.createIcalProperty(k); p.value = v; comp.addProperty(p) }
+    function addProp(k, v) { let p = srv.createIcalProperty(k); p.value = v; comp.addProperty(p) }
     function addActionDisplay() { addProp("ACTION", "DISPLAY"); }
     function addActionEmail() { addProp("ACTION", "EMAIL"); }
     function addTrigger() { addProp("TRIGGER", "-PT15M"); }
