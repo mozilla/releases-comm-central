@@ -95,7 +95,7 @@ function getRecipientList_test() {
     let i = 0;
     for (let test of data) {
         i++;
-        let attendees = new Array();
+        let attendees = [];
         for (let att of test.input) {
             let attendee = cal.createAttendee();
             attendee.id = att.id;
@@ -218,7 +218,7 @@ function resolveDelegation_test() {
     let i = 0;
     for (let test of data) {
         i++;
-        let attendees = new Array();
+        let attendees = [];
         for (let att of test.input.attendees) {
             let attendee = cal.createAttendee();
             attendee.icalString = att;

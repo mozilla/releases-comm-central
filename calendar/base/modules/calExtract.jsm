@@ -1034,8 +1034,8 @@ Extractor.prototype = {
     },
 
     getRepPatterns: function getRepPatterns(name, replaceables) {
-        let alts = new Array();
-        let patterns = new Array();
+        let alts = [];
+        let patterns = [];
 
         try {
             let value = this.bundle.GetStringFromName(name);
@@ -1088,7 +1088,7 @@ Extractor.prototype = {
             }
 
             for (let val in vals) {
-                let positions = new Array();
+                let positions = [];
                 if (replaceables.length == 1) {
                     positions[1] = 1;
                 } else {
@@ -1103,7 +1103,7 @@ Extractor.prototype = {
     },
 
     getPositionsFor: function getPositionsFor(s, name, count) {
-        let positions = new Array();
+        let positions = [];
         let re = /#(\d)/g;
         let match;
         let i = 0;

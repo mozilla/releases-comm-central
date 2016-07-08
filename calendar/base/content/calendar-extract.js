@@ -9,7 +9,7 @@ Components.utils.import("resource://gre/modules/Preferences.jsm");
 var calendarExtract = {
     onShowLocaleMenu: function onShowLocaleMenu(target) {
         let localeList = document.getElementById(target.id);
-        let langs = new Array();
+        let langs = [];
         let chrome = Components.classes["@mozilla.org/chrome/chrome-registry;1"]
                                .getService(Components.interfaces.nsIXULChromeRegistry);
         chrome.QueryInterface(Components.interfaces.nsIToolkitChromeRegistry);

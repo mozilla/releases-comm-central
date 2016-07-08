@@ -46,7 +46,7 @@ function verify(controller, dates, timezones, times) {
       timeY += timeNode.boxObject.height * (minutes / 60);
 
       let stackNode;
-      let eventNodes = new Array();
+      let eventNodes = [];
 
       // same day
       if(day == undefined) {

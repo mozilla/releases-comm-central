@@ -8,10 +8,10 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function calIcsParser() {
     this.wrappedJSObject = this;
-    this.mItems = new Array();
-    this.mParentlessItems = new Array();
-    this.mComponents = new Array();
-    this.mProperties = new Array();
+    this.mItems = [];
+    this.mParentlessItems = [];
+    this.mComponents = [];
+    this.mProperties = [];
 }
 var calIcsParserClassID = Components.ID("{6fe88047-75b6-4874-80e8-5f5800f14984}");
 var calIcsParserInterfaces = [Components.interfaces.calIIcsParser];

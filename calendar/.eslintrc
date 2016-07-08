@@ -28,6 +28,13 @@
     // Enforces spacing between keys and values in object literal properties.
     "key-spacing": [2, {"beforeColon": false, "afterColon": true, "mode": "minimum"}],
 
+    // Disallow the omission of parentheses when invoking a constructor with no
+    // arguments.
+    "new-parens": 2,
+
+    // Disallow use of the Array constructor.
+    "no-array-constructor": 2,
+
     // Disallow deletion of variables (deleting properties is fine).
     "no-delete-var": 2,
 

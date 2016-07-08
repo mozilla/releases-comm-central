@@ -953,7 +953,7 @@
         <body><![CDATA[
           var targetDate = null;
           var finishDate = null;
-          var boxes = new Array();
+          var boxes = [];
 
           // All our boxes are in default tz, so we need these times in them too.
           if (cal.isEvent(aItem)) {

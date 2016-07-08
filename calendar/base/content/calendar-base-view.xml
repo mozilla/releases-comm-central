@@ -664,7 +664,7 @@
                                "d5fridaysoff", "d6saturdaysoff"];
             const defaults = ["true", "false", "false", "false",
                               "false", "false", "true"];
-            let daysOff = new Array();
+            let daysOff = [];
             for (let i in prefNames) {
                 if (Preferences.get(weekPrefix+prefNames[i])) {
                     daysOff.push(Number(i));

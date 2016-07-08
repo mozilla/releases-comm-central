@@ -226,7 +226,7 @@ calOutlookCSVImporter.prototype = {
         args.boolIsTrue = true;
 
         let dateParseConfirmed = false;
-        let eventArray = new Array();
+        let eventArray = [];
         do {
             // At this point eventFields contains following fields. Position
             // of fields is in args.[fieldname]Index.

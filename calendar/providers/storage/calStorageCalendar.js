@@ -677,7 +677,7 @@ calStorageCalendar.prototype = {
 
         let self = this;
 
-        let itemsFound = Array();
+        let itemsFound = [];
         let startTime = -0x7fffffffffffffff;
         // endTime needs to be the max value a PRTime can be
         let endTime = 0x7fffffffffffffff;
@@ -1410,8 +1410,8 @@ calStorageCalendar.prototype = {
                                  "cal_metadata", "cal_relations",
                                  "cal_alarms"];
 
-            this.mDeleteEventExtras = new Array();
-            this.mDeleteTodoExtras = new Array();
+            this.mDeleteEventExtras = [];
+            this.mDeleteTodoExtras = [];
 
             for (var table in extrasTables) {
                 this.mDeleteEventExtras[table] = this.mDB.createStatement(

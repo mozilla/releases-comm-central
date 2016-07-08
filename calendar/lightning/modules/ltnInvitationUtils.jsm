@@ -193,7 +193,7 @@ ltn.invitation = {
         field("url", aEvent.getProperty("URL"), true);
 
         // ATTACH - we only display URI but no BINARY type attachments here
-        let links = new Array();
+        let links = [];
         let attachments = aEvent.getAttachments({});
         for (let attachment of attachments) {
             if (attachment.uri) {

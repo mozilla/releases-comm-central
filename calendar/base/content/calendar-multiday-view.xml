@@ -251,7 +251,7 @@
 
     <implementation>
       <constructor><![CDATA[
-        this.mEventInfos = Array();
+        this.mEventInfos = [];
         this.mTimezone = UTC();
       ]]></constructor>
 
@@ -269,7 +269,7 @@
                     The 'layoutEnd' may be different from the real 'end' time of the
                     event because it considers a certain minimum duration of the event
                     that is basically dependent of the font-size of the event-box label -->
-      <field name="mEventInfos">new Array()</field>
+      <field name="mEventInfos">[]</field>
       <field name="mEventMap">null</field>
       <field name="mCalendarView">null</field>
       <field name="mDate">null</field>
@@ -282,7 +282,7 @@
       <field name="mEventMapTimeout">null</field>
       <!-- Sometimes we need to add resize handlers for columns with special
            widths.  When we relayout, we need to cancel those handlers -->
-      <field name="mHandlersToRemove">new Array()</field>
+      <field name="mHandlersToRemove">[]</field>
 
       <!-- Set this true so that we know in our onAddItem listener to start
          - modifying an event when it comes back to us as created
@@ -710,7 +710,7 @@
           this.topbox.setAttribute("orient", otherorient);
 
           this.mEventMap = this.computeEventMap();
-          this.mEventBoxes = new Array();
+          this.mEventBoxes = [];
 
           if (!this.mEventMap.length) {
               return;
@@ -880,8 +880,8 @@
            *
            * An item with no conflicts will have startCol: 0 and colSpan: 1.
            */
-          var blobs = new Array();
-          var currentBlob = new Array();
+          var blobs = [];
+          var currentBlob = [];
           function sortByStart(aEventInfo, bEventInfo) {
               // If you pass in tasks without both entry and due dates, I will
               // kill you
@@ -920,7 +920,7 @@
           // the columns of the current blob. We could reconstruct this data at
           // any time by looking at the items in the blob, but that would hurt
           // perf.
-          var colEndArray = new Array();
+          var colEndArray = [];
 
           /* Go through a 3 step process to try and place each item.
            * Step 1: Look for an existing column with room for the item.
@@ -944,8 +944,8 @@
                   blobs.push({blob: currentBlob, totalCols: colEndArray.length});
 
                   // Reset our variables
-                  currentBlob = new Array();
-                  colEndArray = new Array();
+                  currentBlob = [];
+                  colEndArray = [];
               }
 
               // Place the item in its correct place in the blob
@@ -2117,7 +2117,7 @@
     <implementation>
       <field name="mItemBoxes">null</field>
       <constructor><![CDATA[
-        this.mItemBoxes = new Array();
+        this.mItemBoxes = [];
       ]]></constructor>
 
       <property name="date">
@@ -2928,7 +2928,7 @@
       <method name="getDateList">
         <parameter name="aCount"/>
         <body><![CDATA[
-           let dates = new Array();
+           let dates = [];
            if (this.mStartDate && this.mEndDate) {
                let d = this.mStartDate.clone();
                while (d.compare(this.mEndDate) <= 0) {
@@ -3296,7 +3296,7 @@
           let orient = this.getAttribute("orient") || "horizontal";
           let otherorient = getOtherOrientation(orient);
 
-          let computedDateList = new Array();
+          let computedDateList = [];
           let startDate = this.mStartDate.clone();
           while (startDate.compare(this.mEndDate) <= 0) {
               let workday = startDate.clone();
@@ -3342,7 +3342,7 @@
               setBooleanAttribute(aDayBox, "rotated", orient == "horizontal");
           }
 
-          this.mDateColumns = new Array();
+          this.mDateColumns = [];
 
 
           // get today's date
@@ -3358,7 +3358,7 @@
               if (counter < dayboxkids.length) {
                   dayEventsBox = dayboxkids[counter];
                   dayEventsBox.removeAttribute("relation");
-                  dayEventsBox.mEventInfos = new Array();
+                  dayEventsBox.mEventInfos = [];
               } else {
                   dayEventsBox = createXULElement("calendar-event-column");
                   dayEventsBox.setAttribute("flex", "1");
@@ -3558,7 +3558,7 @@
       <method name="findColumnsForItem">
         <parameter name="aItem"/>
         <body><![CDATA[
-          let columns = new Array();
+          let columns = [];
 
           if (!this.mDateColumns) {
             return columns;

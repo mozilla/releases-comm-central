@@ -31,7 +31,7 @@ function loadEventsFromFile(aCalendar) {
     fp.defaultExtension = "ics";
 
     // Get a list of importers
-    let contractids = new Array();
+    let contractids = [];
     let catman = Components.classes["@mozilla.org/categorymanager;1"]
                            .getService(Components.interfaces.nsICategoryManager);
     let catenum = catman.enumerateCategory('cal-importers');
@@ -229,7 +229,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
     fp.defaultExtension = "ics";
 
     // Get a list of exporters
-    let contractids = new Array();
+    let contractids = [];
     let catman = Components.classes["@mozilla.org/categorymanager;1"]
                            .getService(Components.interfaces.nsICategoryManager);
     let catenum = catman.enumerateCategory('cal-exporters');

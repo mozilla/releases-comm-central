@@ -458,7 +458,7 @@ function comparisonDate(aItem, aPeriod) {
  */
 agendaListbox.getListItems =
 function getListItems(aItem, aPeriod) {
-    var retlistItems = new Array();
+    var retlistItems = [];
     var periods = [aPeriod];
     if (!aPeriod) {
         periods = this.findPeriodsForItem(aItem);

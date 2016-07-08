@@ -45,7 +45,7 @@ function calICSCalendar() {
 
     this.unmappedComponents = [];
     this.unmappedProperties = [];
-    this.queue = new Array();
+    this.queue = [];
     this.mModificationActions = [];
 }
 var calICSCalendarClassID = Components.ID("{f8438bff-a3c9-4ed5-b23f-2663b5469abf}");

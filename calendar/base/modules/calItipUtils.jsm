@@ -635,7 +635,7 @@ cal.itip = {
                     }
                     // if the event was delegated to the replying attendee, we may also notify also
                     // the delegator due to chapter 3.2.2.3. of RfC 5546
-                    let replyTo = new Array;
+                    let replyTo = [];
                     let delegatorIds = invitedAttendee.getProperty("DELEGATED-FROM");
                     if (delegatorIds &&
                         Preferences.get("calendar.itip.notifyDelegatorOnReply", false)) {

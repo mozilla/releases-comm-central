@@ -61,7 +61,7 @@ function getInvitationsManager() {
  * @constructor
  */
 function InvitationsManager() {
-    this.mItemList = new Array();
+    this.mItemList = [];
     this.mStartDate = null;
     this.mJobsPending = 0;
     this.mTimer = null;
@@ -242,7 +242,7 @@ InvitationsManager.prototype = {
                                                              finishedCallBack) {
         var args = new Object();
         args.onLoadOperationListener = onLoadOpListener;
-        args.queue = new Array();
+        args.queue = [];
         args.finishedCallBack = finishedCallBack;
         args.requestManager = gInvitationsRequestManager;
         args.invitationsManager = this;
