@@ -95,7 +95,7 @@ function handleTaskContextMenuStateChange(aEvent) {
  * @param aEvent    The popupshowing event of the opening menu.
  */
 function changeMenuForTask(aEvent) {
-    // Make sure to update the status of some commands. 
+    // Make sure to update the status of some commands.
     ["calendar_delete_todo_command",
      "calendar_toggle_completed_command",
      "calendar_general-progress_command",

@@ -27,7 +27,7 @@ var gCategoriesPane = {
         if (!parentPrefWindow.instantApply) {
             var existingOnDialogCancel = parentPrefWindow.getAttribute("ondialogcancel");
             parentPrefWindow.setAttribute("ondialogcancel",
-                                          "gCategoriesPane.panelOnCancel(); " + 
+                                          "gCategoriesPane.panelOnCancel(); " +
                                           existingOnDialogCancel);
         }
 
@@ -122,14 +122,14 @@ var gCategoriesPane = {
      * Edits the currently selected category using the edit category dialog.
      */
     editCategory: function gCP_editCategory() {
-        var list = document.getElementById("categorieslist");
-        var categoryNameFix = formatStringForCSSRule(gCategoryList[list.selectedIndex]);
+        let list = document.getElementById("categorieslist");
+        let categoryNameFix = formatStringForCSSRule(gCategoryList[list.selectedIndex]);
+        let currentColor = null;
         try {
-            var currentColor = categoryPrefBranch.getCharPref(categoryNameFix);
+            currentColor = categoryPrefBranch.getCharPref(categoryNameFix);
         } catch (ex) {
-            var currentColor = null;
         }
- 
+
         if (list.selectedItem) {
             window.openDialog("chrome://calendar/content/preferences/editCategory.xul",
                               "editCategory",
@@ -237,7 +237,7 @@ var gCategoriesPane = {
         this.updateCategoryList();
 
         var updatedCategory = gCategoryList.indexOf(categoryName);
-        list.ensureIndexIsVisible(updatedCategory); 
+        list.ensureIndexIsVisible(updatedCategory);
         list.selectedIndex = updatedCategory;
     },
 

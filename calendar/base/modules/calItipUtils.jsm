@@ -1065,7 +1065,7 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
             // send message
             if (!_sendItem(sendToList, sendItem)) {
                 return false;
-            };
+            }
         }
         return true;
     } else {

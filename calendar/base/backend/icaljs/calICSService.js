@@ -177,7 +177,7 @@ calIcalProperty.prototype = {
     paramIterator: null,
     getFirstParameterName: function() {
         let innerObject = this.innerObject;
-        this.paramIterator = (function*() {
+        this.paramIterator = (function* () {
             let propname = innerObject.name.toLowerCase();
             let defaultType = innerObject.getDefaultType();
             if (defaultType != innerObject.type) {
@@ -240,7 +240,7 @@ calIcalComponent.prototype = {
             kind = kind.toLowerCase();
         }
         let innerObject = this.innerObject;
-        this.componentIterator = (function*() {
+        this.componentIterator = (function* () {
             let comps = innerObject.getAllSubcomponents(kind);
             if (comps) {
                 for (let comp of comps) {
@@ -360,7 +360,7 @@ calIcalComponent.prototype = {
             kind = kind.toLowerCase();
         }
         let innerObject = this.innerObject;
-        this.propertyIterator = (function*() {
+        this.propertyIterator = (function* () {
             let props = innerObject.getAllProperties(kind);
             if (!props) {
                 return;

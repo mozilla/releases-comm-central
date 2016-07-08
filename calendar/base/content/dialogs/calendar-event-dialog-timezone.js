@@ -13,12 +13,12 @@ function onLoad() {
     window.time = args.time;
     window.onAcceptCallback = args.onOk;
 
-    var tzProvider = (args.calendar.getProperty("timezones.provider") ||
+    let tzProvider = (args.calendar.getProperty("timezones.provider") ||
                       cal.getTimezoneService());
     window.tzProvider = tzProvider;
 
-    var menulist = document.getElementById("timezone-menulist");
-    var tzMenuPopup = document.getElementById("timezone-menupopup");
+    let menulist = document.getElementById("timezone-menulist");
+    let tzMenuPopup = document.getElementById("timezone-menupopup");
 
     // floating and UTC (if supported) at the top:
     if (args.calendar.getProperty("capabilities.timezones.floating.supported") !== false) {
@@ -28,25 +28,25 @@ function onLoad() {
         addMenuItem(tzMenuPopup, UTC().displayName, UTC().tzid);
     }
 
-    var enumerator = tzProvider.timezoneIds;
-    var tzids = {};
-    var displayNames = [];
+    let enumerator = tzProvider.timezoneIds;
+    let tzids = {};
+    let displayNames = [];
     while (enumerator.hasMore()) {
-        var tz = tzProvider.getTimezone(enumerator.getNext());
+        let tz = tzProvider.getTimezone(enumerator.getNext());
         if (tz && !tz.isFloating && !tz.isUTC) {
-            var displayName = tz.displayName;
+            let displayName = tz.displayName;
             displayNames.push(displayName);
             tzids[displayName] = tz.tzid;
         }
     }
     // the display names need to be sorted
     displayNames.sort(String.localeCompare);
-    for (var i = 0; i < displayNames.length; ++i) {
-        var displayName = displayNames[i];
+    for (let i = 0; i < displayNames.length; ++i) {
+        let displayName = displayNames[i];
         addMenuItem(tzMenuPopup, displayName, tzids[displayName]);
     }
 
-    var index = findTimezone(window.time.timezone);
+    let index = findTimezone(window.time.timezone);
     if (index < 0) {
         index = findTimezone(calendarDefaultTimezone());
         if (index < 0) {
@@ -54,7 +54,7 @@ function onLoad() {
         }
     }
 
-    var menulist = document.getElementById("timezone-menulist");
+    menulist = document.getElementById("timezone-menulist");
     menulist.selectedIndex = index;
 
     updateTimezone();

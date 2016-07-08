@@ -30,17 +30,17 @@ var testWeekView = function () {
     + 'anon({"anonid":"daybox"})/[4]/anon({"anonid":"boxstack"})/anon({"anonid":"topbox"})/'
     + '{"flex":"1"}/{"flex":"1"}/{"flex":"1"}/{"tooltip":"itemTooltip","calendar":"'
     + calendar.toLowerCase() + '"}';
-    
+
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
   controller.waitThenClick(new elementslib.ID(controller.window.document, "calendar-week-view-button"));
-  
+
   // pick year
   controller.click(new elementslib.Lookup(controller.window.document, miniMonth
     + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})'));
   controller.click(new elementslib.Lookup(controller.window.document, miniMonth
     + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/'
     + 'anon({"anonid":"years-popup"})/[0]/{"value":"2009"}'));
-  
+
   // pick month
   controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth
     + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})'));
@@ -51,7 +51,7 @@ var testWeekView = function () {
   // pick day
   controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth
     + 'anon({"anonid":"minimonth-calendar"})/[1]/{"value":"1"}'));
-  
+
   // verify date
   let day = new elementslib.Lookup(controller.window.document, weekView
     + 'anon({"anonid":"mainbox"})/anon({"anonid":"labelbox"})/anon({"anonid":"labeldaybox"})/'
@@ -65,7 +65,7 @@ var testWeekView = function () {
     + '[4]/anon({"anonid":"boxstack"})/anon({"anonid":"bgbox"})/[8]'), 1, 1);
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
-  
+
   // check that the start time is correct
   let startTimeInput = new elementslib.Lookup(event.window.document, eventDialog
     + 'id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/'
@@ -83,7 +83,7 @@ var testWeekView = function () {
     + '{"class":"datepicker-text-class"}/anon({"class":"menulist-editable-box textbox-input-box"})/'
     + 'anon({"anonid":"input"})'),
     date);
-    
+
   // fill in title, description and calendar
   event.type(new elementslib.Lookup(event.window.document, eventDialog
     + 'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/'
@@ -94,16 +94,16 @@ var testWeekView = function () {
     + 'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
     desc);
   event.select(new elementslib.ID(event.window.document, "item-calendar"), null, calendar);
-  
+
   // save
   event.click(new elementslib.ID(event.window.document, "button-save"));
-  
+
   // if it was created successfully, it can be opened
   controller.waitForElement(new elementslib.Lookup(controller.window.document, eventBox));
   controller.doubleClick(new elementslib.Lookup(controller.window.document, eventBox));
   controller.waitFor(function () {return utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
-  
+
   // change title and save changes
   let titleTextBox = new elementslib.Lookup(event.window.document, eventDialog
     + 'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/'
@@ -111,7 +111,7 @@ var testWeekView = function () {
   event.waitForElement(titleTextBox);
   event.type(titleTextBox, title2);
   event.click(new elementslib.ID(event.window.document, "button-save"));
-  
+
   // check if name was saved
   let eventName = new elementslib.Lookup(controller.window.document, eventBox
     + '/anon({"flex":"1"})/anon({"anonid":"event-container"})/{"class":"calendar-event-selection"}/'
@@ -119,7 +119,7 @@ var testWeekView = function () {
     + 'anon({"anonid":"event-name"})');
   controller.waitForElement(eventName);
   controller.assertJSProperty(eventName, "textContent", title2);
-  
+
   // delete event
   controller.click(new elementslib.Lookup(controller.window.document, eventBox));
   controller.keypress(new elementslib.ID(controller.window.document, "week-view"),

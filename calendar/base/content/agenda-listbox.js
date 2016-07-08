@@ -126,7 +126,7 @@ function onCheckboxChange(event) {
     period.open= lopen;
     // as the agenda-checkboxes are only transient we have to set the "checked"
     // attribute at their hidden origins to make that attribute persistent.
-    document.getElementById(listItem.id + "-hidden").setAttribute("checked", 
+    document.getElementById(listItem.id + "-hidden").setAttribute("checked",
                             periodCheckbox.getAttribute("checked"));
     if (lopen) {
         agendaListbox.refreshCalendarQuery(period.start, period.end);
@@ -144,7 +144,7 @@ function onCheckboxChange(event) {
             }
         } while (!leaveloop);
     }
-    calendarController.onSelectionChanged({detail: []});    
+    calendarController.onSelectionChanged({detail: []});
 };
 
 /**
@@ -460,7 +460,7 @@ function getListItems(aItem, aPeriod) {
     var retlistItems = new Array();
     var periods = [aPeriod];
     if (!aPeriod) {
-        var periods = this.findPeriodsForItem(aItem);
+        periods = this.findPeriodsForItem(aItem);
     }
     if (periods.length > 0) {
         for (var i = 0; i < periods.length; i++) {
@@ -1072,12 +1072,12 @@ function setCurrentEvent() {
             var leaveloop = (!agendaListbox.isEventListItem(complistItem));
             if (!leaveloop) {
                 msuntillstart =  complistItem.occurrence.startDate
-                                .getInTimezone(agendaListbox.kDefaultTimezone)
-                                .subtractDate(anow).inSeconds;
+                                             .getInTimezone(agendaListbox.kDefaultTimezone)
+                                             .subtractDate(anow).inSeconds;
                 if (msuntillstart <= 0) {
-                    var msuntillend = complistItem.occurrence.endDate
-                                        .getInTimezone(agendaListbox.kDefaultTimezone)
-                                        .subtractDate(anow).inSeconds;
+                    msuntillend = complistItem.occurrence.endDate
+                                              .getInTimezone(agendaListbox.kDefaultTimezone)
+                                              .subtractDate(anow).inSeconds;
                     if (msuntillend > 0) {
                         complistItem.setAttribute("current", "true");
                         if ((msuntillend < msScheduleTime)  || (msScheduleTime == -1)){

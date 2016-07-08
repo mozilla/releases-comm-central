@@ -10,7 +10,7 @@
   <binding id="recurrence-preview" extends="xul:box">
     <resources>
       <stylesheet src="chrome://calendar/content/widgets/calendar-widget-bindings.css"/>
-    </resources>               
+    </resources>
     <content>
       <xul:box flex="1" style="overflow: hidden;">
         <xul:grid flex="1" anonid="mainbox">
@@ -108,7 +108,7 @@
 
           // Adjust rows
           while (numRows < numVertical) {
-              var newNode = row.cloneNode(true);
+              let newNode = row.cloneNode(true);
               rows.appendChild(newNode);
               numRows++;
           }
@@ -136,7 +136,7 @@
           while (row) {
               var firstChild = row.firstChild;
               while ((row.childNodes.length - 1) < numHorizontal) {
-                  var newNode = firstChild.cloneNode(true);
+                  let newNode = firstChild.cloneNode(true);
                   firstChild.parentNode.insertBefore(newNode, firstChild);
               }
               while ((row.childNodes.length - 1) > numHorizontal) {
@@ -178,23 +178,23 @@
           start.second = 0;
           var end = start.clone();
           end.month++;
-                      
+
           // the 'minimonth' controls are arranged in a
           // grid, sorted by rows first -> iterate the rows that may exist.
           var row = document.getAnonymousElementByAttribute(this, "anonid", "row");
           while (row) {
-          
+
               // now iterater all the child nodes of this row
               // in order to visit each minimonth in turn.
               var numChilds = row.childNodes.length - 1;
               for (var i = 0; i < numChilds; i++) {
-              
+
                   // we now have one of the minimonth controls while 'start'
                   // and 'end' are set to the interval this minimonth shows.
                   var minimonth = row.childNodes[i];
                   minimonth.showMonth(cal.dateTimeToJsDate(start));
                   if (aRecurrenceInfo) {
-                      
+
                       // retrieve an array of dates that represents all occurrences
                       // that fall into this time interval [start,end[.
                       // note: the following loop assumes that this array conains
@@ -202,7 +202,7 @@
                       // should getOccurrenceDates() not enforce this assumption we
                       // need to fall back to some different algorithm.
                       var dates = aRecurrenceInfo.getOccurrenceDates(start, end, 0, {});
-                      
+
                       // now run throgh all days of this month and set the
                       // 'busy' attribute with respect to the occurrence array.
                       var index = 0;

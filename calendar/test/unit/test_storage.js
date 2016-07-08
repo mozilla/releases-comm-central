@@ -100,4 +100,4 @@ function testAttachRoundtrip() {
             run_next_test();
         }
     };
-};
+}

@@ -31,17 +31,17 @@ var testMonthView = function () {
     + '{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}/anon({"flex":"1"})/'
     + '[0]/anon({"anonid":"event-container"})/{"class":"calendar-event-selection"}/'
     + 'anon({"anonid":"eventbox"})/{"class":"calendar-event-details"}';
-  
+
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
   controller.waitThenClick(new elementslib.ID(controller.window.document, "calendar-month-view-button"));
-  
+
   // pick year
   controller.click(new elementslib.Lookup(controller.window.document, miniMonth
     + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})'));
   controller.click(new elementslib.Lookup(controller.window.document, miniMonth
     + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/'
     + 'anon({"anonid":"years-popup"})/[0]/{"value":"2009"}'));
-  
+
   // pick month
   controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth
     + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})'));
@@ -52,7 +52,7 @@ var testMonthView = function () {
   // pick day
   controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth
     + 'anon({"anonid":"minimonth-calendar"})/[1]/{"value":"1"}'));
-  
+
   // verify date
   let day = new elementslib.Lookup(controller.window.document, monthView
     + 'anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/anon({"anonid":"monthgridrows"})/'
@@ -67,7 +67,7 @@ var testMonthView = function () {
     + '[0]/{"selected":"true"}/anon({"anonid":"day-items"})'));
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
-  
+
   // check that the start time is correct
   // next full hour except last hour hour of the day
   let nextHour = (hour == 23)? hour : (hour + 1) % 24;
@@ -88,7 +88,7 @@ var testMonthView = function () {
     + '{"class":"datepicker-text-class"}/anon({"class":"menulist-editable-box textbox-input-box"})/'
     + 'anon({"anonid":"input"})'),
     date);
-    
+
   // fill in title, description and calendar
   event.type(new elementslib.Lookup(event.window.document, eventDialog
     + 'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/'
@@ -102,16 +102,16 @@ var testMonthView = function () {
   event.click(new elementslib.Lookup(event.window.document, eventDialog
     + 'id("event-grid-category-color-row")/id("event-grid-category-box")/id("item-calendar")/'
     + '[0]/{"label":"' + calendar + '"}'));
-  
+
   // save
   event.click(new elementslib.ID(event.window.document, "button-save"));
-  
+
   // if it was created successfully, it can be opened
   controller.waitForElement(new elementslib.Lookup(controller.window.document, eventBox));
   controller.doubleClick(new elementslib.Lookup(controller.window.document, eventBox));
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
-  
+
   // change title and save changes
   let titleTextBox = new elementslib.Lookup(event.window.document, eventDialog
     + 'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/'
@@ -119,13 +119,13 @@ var testMonthView = function () {
   event.waitForElement(titleTextBox);
   event.type(titleTextBox, title2);
   event.click(new elementslib.ID(event.window.document, "button-save"));
-  
+
   // check if name was saved
   let eventName = new elementslib.Lookup(controller.window.document, eventBox
     + '/{"flex":"1"}/anon({"anonid":"event-name"})');
   controller.waitForElement(eventName);
   controller.assertValue(eventName, title2);
-  
+
   // delete event
   controller.click(new elementslib.Lookup(controller.window.document, eventBox));
   controller.keypress(new elementslib.ID(controller.window.document, "month-view"),

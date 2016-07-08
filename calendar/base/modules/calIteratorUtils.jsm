@@ -121,8 +121,6 @@ cal.ical = {
             }
         } else if (aComponent && (compType == "ANY" || compType == aComponent.componentType)) {
             yield aComponent;
-        } else {
-            return null;
         }
     },
 

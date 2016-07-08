@@ -21,7 +21,7 @@ var testTimezones2_CreateEvents = function () {
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
   calUtils.switchToView(controller, "day");
   calUtils.goToDate(controller, 2009, 1, 1);
-  
+
   // create daily recurring events in all timezones
   let time = new Date();
   for (let i = 0; i < timezones.length; i++) {
@@ -29,13 +29,13 @@ var testTimezones2_CreateEvents = function () {
       calUtils.getEventBoxPath(controller, "day", calUtils.CANVAS_BOX, undefined, 1, i + 8)), 1, 1);
     controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
     let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
-    
+
     time.setHours(times[i][0]);
     time.setMinutes(times[i][1]);
-    
+
     // set timezone
     setTimezone(event, timezones[i]);
-    
+
     // set title and repeat
     calUtils.setData(event, {title:timezones[i], repeat:"weekly", starttime:time});
 
@@ -51,13 +51,13 @@ var teardownTest = function(module) {
 
 function setTimezone(event, timezone) {
   gTimezone = timezone;
-  
+
   // for some reason setting checked is needed, no other menuitem with checkbox needs it
   let menuitem = new elementslib.ID(event.window.document, "options-timezones-menuitem");
   event.waitForElement(menuitem);
   menuitem.getNode().setAttribute("checked", "true");
   event.click(menuitem);
-  
+
   let modal = new modalDialog.modalDialog(event.window);
   modal.start(eventCallback);
   event.waitForElement(new elementslib.ID(event.window.document, "timezone-starttime"));

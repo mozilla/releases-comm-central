@@ -69,6 +69,17 @@
       <field name="mInitialParticipationStatus">null</field>
       <field name="mParticipationStatus">null</field>
 
+      <property name="mStrings">
+        <getter>return {
+            alldayEvent: "&calendar.invitations.list.alldayevent.text;",
+            recurrentEvent: "&calendar.invitations.list.recurrentevent.text;",
+            location: "&calendar.invitations.list.location.text;",
+            organizer: "&calendar.invitations.list.organizer.text;",
+            attendee: "&calendar.invitations.list.attendee.text;",
+            none: "&calendar.invitations.list.none.text;"
+        };</getter>
+      </property>
+
       <!-- properties -->
       <property name="calendarItem">
         <getter><![CDATA[
@@ -112,14 +123,7 @@
       <!-- methods -->
       <method name="setCalendarItem">
         <parameter name="aItem"/>
-        <body>
-          var alldayEventText = "&calendar.invitations.list.alldayevent.text;";
-          var recurrentEventText = "&calendar.invitations.list.recurrentevent.text;";
-          var locationText = "&calendar.invitations.list.location.text;";
-          var organizerText = "&calendar.invitations.list.organizer.text;";
-          var attendeeText = "&calendar.invitations.list.attendee.text;";
-          var noneText = "&calendar.invitations.list.none.text;";
-          <![CDATA[
+        <body><![CDATA[
             this.mCalendarItem = aItem;
             this.mInitialParticipationStatus =
                 this.getCalendarItemParticipationStatus(aItem);
@@ -133,14 +137,14 @@
                 this, "anonid", "date");
             var dateString = this.mDateFormatter.formatItemInterval(aItem);
             if (aItem.startDate.isDate) {
-                dateString += ", " + alldayEventText;
+                dateString += ", " + this.mStrings.alldayEvent;
             }
             dateLabel.setAttribute("value", dateString);
 
             var recurrenceLabel = document.getAnonymousElementByAttribute(
                 this, "anonid", "recurrence");
             if (aItem.recurrenceInfo) {
-                recurrenceLabel.setAttribute("value", recurrentEventText);
+                recurrenceLabel.setAttribute("value", this.mStrings.recurrentEvent);
             } else {
                 recurrenceLabel.setAttribute("hidden", "true");
                 var spacer = document.getAnonymousElementByAttribute(
@@ -150,18 +154,18 @@
 
             var locationLabel = document.getAnonymousElementByAttribute(
                 this, "anonid", "location");
-            var locationString = locationText;
+            var locationString = this.mStrings.location;
             var locationProperty = aItem.getProperty("LOCATION");
             if (locationProperty && locationProperty.length > 0) {
                 locationString += locationProperty;
             } else {
-                locationString += noneText;
+                locationString += this.mStrings.none;
             }
             locationLabel.setAttribute("value", locationString);
 
             var organizerLabel = document.getAnonymousElementByAttribute(
                 this, "anonid", "organizer");
-            var organizerString = organizerText;
+            var organizerString = this.mStrings.organizer;
             var org = aItem.organizer;
             if (org) {
                 if (org.commonName && org.commonName.length > 0) {
@@ -174,7 +178,7 @@
 
             let attendeeLabel = document.getAnonymousElementByAttribute(
                 this, "anonid", "attendee");
-            let attendeeString = attendeeText;
+            let attendeeString = this.mStrings.attendee;
             let att = cal.getInvitedAttendee(aItem);
             if (att) {
                 if (att.commonName && att.commonName.length > 0) {

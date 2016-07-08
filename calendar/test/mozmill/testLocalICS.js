@@ -22,13 +22,13 @@ var title;
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
   modalDialog = collector.getModule('window-helpers');
-  
+
   // unique name needed as deleting a calendar only unsubscribes from it
   // and if same file were used on next testrun then previously created event would show up
   let time = (new Date()).getTime() + '';
   calendar = time;
   title = time;
-  
+
   file = Services.dirsvc.get("TmpD", Components.interfaces.nsIFile);
   file.append(calendar + ".ics");
   let fileURI = Services.io.newFileURI(file);
@@ -38,11 +38,11 @@ var setupModule = function(module) {
 var testLocalICS = function () {
   controller.click(new elementslib.ID(controller.window.document,"calendar-tab-button"));
   calUtils.switchToView(controller, "day");
-  
+
   modalDialog.plan_for_modal_dialog("Calendar:NewCalendarWizard", handleNewCalendarWizard);
   controller.mainMenu.click("#ltnNewCalendar");
   modalDialog.wait_for_modal_dialog("Calendar:NewCalendarWizard", TIMEOUT_MODAL_DIALOG);
-  
+
   // create new event
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
     calUtils.getEventBoxPath(controller, "day", calUtils.CANVAS_BOX, undefined, 1, hour)), 1, 1);
@@ -68,10 +68,10 @@ var testLocalICS = function () {
   // like mac where selecting the menuitem is an asynchronous process, it might
   // be fixed in a later version of mozmill.
   event.waitFor(() => itemCalendar.getNode().value == calendar);
-  
+
   // save
   event.click(new elementslib.ID(event.window.document, "button-save"));
-  
+
   // assert presence in view
   let box = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour)
     + '/{"tooltip":"itemTooltip","calendar":"' + calendar + '"}';
@@ -106,14 +106,14 @@ var teardownTest = function(module) {
 
 function handleNewCalendarWizard(wizard) {
   let docEl = wizard.window.document.documentElement;
-  
+
   // choose network calendar
   let remoteOption = new elementslib.Lookup(wizard.window.document, '/id("calendar-wizard")/'
     + '{"pageid":"initialPage"}/id("calendar-type")/{"value":"remote"}');
   wizard.waitForElement(remoteOption);
   wizard.radio(remoteOption);
   docEl.getButton("next").doCommand();
-  
+
   // choose ical
   let icalOption = new elementslib.Lookup(wizard.window.document, '/id("calendar-wizard")/'
     + '{"pageid":"locationPage"}/[1]/[1]/[0]/id("calendar-format")/{"value":"ics"}');
@@ -125,11 +125,11 @@ function handleNewCalendarWizard(wizard) {
     + 'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
     uri);
   docEl.getButton("next").doCommand();
-  
+
   // name is filled in automatically using filename
   wizard.waitFor(function() {return docEl.getButton("next").disabled == false});
   docEl.getButton("next").doCommand();
-  
+
   // finish
   docEl.getButton("finish").doCommand();
 }

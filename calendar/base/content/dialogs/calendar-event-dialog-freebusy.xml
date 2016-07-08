@@ -168,30 +168,30 @@
           }
 
           // First set the formatted date string as title
-          var day =
+          let day =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "day");
-          var value = (this.mZoomFactor > 100) ?
+          let value = (this.mZoomFactor > 100) ?
               this.mDateFormatter.formatDateShort(date) :
               this.mDateFormatter.formatDateLong(date);
           day.setAttribute("value", value);
 
           // Now create as many 'hour' elements as needed
-          var step_in_minutes = Math.floor(60 * this.mZoomFactor / 100);
-          var hours =
+          let step_in_minutes = Math.floor(60 * this.mZoomFactor / 100);
+          let hours =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "hours");
           date.hour = this.mStartHour;
           if (hours.childNodes.length <= 0) {
-              var template = createXULElement("text");
+              let template = createXULElement("text");
               template.className = "freebusy-timebar-hour";
-              var count = Math.ceil(
+              let count = Math.ceil(
                   (this.mEndHour - this.mStartHour) * 60 / step_in_minutes);
-              var remain = count;
+              let remain = count;
               let first = true;
               while (remain--) {
-                  var newNode = template.cloneNode(false);
-                  var value = this.mDateFormatter.formatTime(date);
+                  let newNode = template.cloneNode(false);
+                  let value = this.mDateFormatter.formatTime(date);
                   if (first) {
                       newNode.className += " first-in-day";
                       first = false;
@@ -1350,9 +1350,9 @@
           do {
               recheck = false;
 
-              for (var i = 1; i <= this.mMaxFreeBusy; i++) {
+              for (let i = 1; i <= this.mMaxFreeBusy; i++) {
                   var row = this.getFreeBusyElement(i);
-                  var newTime = row.nextSlot(startTime, endTime, allDay);
+                  let newTime = row.nextSlot(startTime, endTime, allDay);
                   if (newTime) {
                     if (newTime.compare(startTime) != 0) {
                         startTime = newTime;
@@ -1401,8 +1401,8 @@
           // complete freebusy informations and appropriate
           // underlying arrays holding the informaion.
           if (this.mStartDate.day != startTime.day) {
-              for (var i = 1; i <= this.mMaxFreeBusy; i++) {
-                  var row = this.getFreeBusyElement(i);
+              for (let i = 1; i <= this.mMaxFreeBusy; i++) {
+                  let row = this.getFreeBusyElement(i);
                   row.setAttribute("dirty", "true");
               }
               this.updateFreeBusy();

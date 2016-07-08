@@ -108,10 +108,10 @@ calMemoryCalendar.prototype = {
         var newItem = aItem.clone();
         return this.adoptItem(newItem, aListener);
     },
-    
+
     // void adoptItem( in calIItemBase aItem, in calIOperationListener aListener );
     adoptItem: function (aItem, aListener) {
-        if (this.readOnly) 
+        if (this.readOnly)
             throw Components.interfaces.calIErrors.CAL_IS_READONLY;
         if (aItem.id == null && aItem.isMutable)
             aItem.id = cal.getUUID();
@@ -165,7 +165,7 @@ calMemoryCalendar.prototype = {
 
     // void modifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem, in calIOperationListener aListener );
     modifyItem: function (aNewItem, aOldItem, aListener) {
-        if (this.readOnly) 
+        if (this.readOnly)
             throw Components.interfaces.calIErrors.CAL_IS_READONLY;
         if (!aNewItem) {
             throw Components.results.NS_ERROR_INVALID_ARG;
@@ -284,7 +284,7 @@ calMemoryCalendar.prototype = {
                 return;
             }
         }
-            
+
 
         delete this.mItems[aItem.id];
         this.mMetaData.deleteProperty(aItem.id);
@@ -341,7 +341,7 @@ calMemoryCalendar.prototype = {
                                      null);
     },
 
-    // void getItems( in unsigned long aItemFilter, in unsigned long aCount, 
+    // void getItems( in unsigned long aItemFilter, in unsigned long aCount,
     //                in calIDateTime aRangeStart, in calIDateTime aRangeEnd,
     //                in calIOperationListener aListener );
     getItems: function (aItemFilter, aCount,

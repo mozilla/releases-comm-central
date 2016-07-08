@@ -56,12 +56,16 @@ function getInUtcOrKeepFloating(dt) {
  * @return      The string representation of the date object.
  */
 function dateToText(d) {
-    let datestr;
-    let tz = null;
+    let zonestr;
+    if (d.timezone.isFloating) {
+        zonestr = "L";
+    } else if (d.timezone.isUTC) {
+        zonestr = "U";
+    } else {
+        zonestr = "Z";
+    }
 
-    datestr = (d.timezone.isFloating ? "L" :
-                 (d.timezone.isUTC ? "U" : "Z")) +
-              (d.isDate ? "D" : "T") + d.nativeTime;
+    let datestr = zonestr + (d.isDate ? "D" : "T") + d.nativeTime;
     if (!d.timezone.isFloating && ! d.timezone.isUTC) {
         datestr += ":" + d.timezone.tzid.replace(/%/g, "%%").replace(/:/g, "%:");
     }

@@ -18,7 +18,7 @@ function check_delmgr_call(aFunc) {
                 resolve();
             } else {
                 reject(aReason);
-            };
+            }
         };
         aFunc();
     });

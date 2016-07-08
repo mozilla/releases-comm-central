@@ -42,8 +42,8 @@ function publishCalendarDataDialogResponse(CalendarPublishObject, aProgressDialo
 function publishEntireCalendar(aCalendar)
 {
     if (!aCalendar) {
-        var count = new Object();
-        var calendars = getCalendarManager().getCalendars(count);
+        let count = {};
+        let calendars = getCalendarManager().getCalendars(count);
 
         if (count.value == 1) {
             // Do not ask user for calendar if only one calendar exists
@@ -53,7 +53,7 @@ function publishEntireCalendar(aCalendar)
             // publishEntireCalendar() will be called again if OK is pressed
             // in the dialog and the selected calendar will be passed in.
             // Therefore return after openDialog().
-            var args = new Object();
+            let args = new Object();
             args.onOk = publishEntireCalendar;
             args.promptText = calGetString("calendar", "publishPrompt");
             openDialog("chrome://calendar/content/chooseCalendarDialog.xul",
@@ -62,15 +62,15 @@ function publishEntireCalendar(aCalendar)
         }
     }
 
-    var args = new Object();
-    var publishObject = new Object( );
+    let args = {};
+    let publishObject = {};
 
     args.onOk =  self.publishEntireCalendarDialogResponse;
 
     publishObject.calendar = aCalendar;
 
     // restore the remote ics path preference from the calendar passed in
-    var remotePath = aCalendar.getProperty("remote-ics-path");
+    let remotePath = aCalendar.getProperty("remote-ics-path");
     if (remotePath && remotePath.length && remotePath.length > 0) {
         publishObject.remotePath = remotePath;
     }

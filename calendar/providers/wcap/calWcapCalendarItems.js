@@ -360,9 +360,10 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
         // So in these cases: write all data of master.
 
         var bIsAllDay = false;
+        var dtstart, dtend;
         if (bIsEvent) {
-            var dtstart = item.startDate;
-            var dtend = item.endDate;
+            dtstart = item.startDate;
+            dtend = item.endDate;
             bIsAllDay = (dtstart.isDate && dtend.isDate);
             if (!oldItem || !identicalDatetimes(dtstart, oldItem.startDate)
                          || !identicalDatetimes(dtend, oldItem.endDate)) {
@@ -377,8 +378,8 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
         } else { // calITodo
             // xxx todo: dtstart is mandatory for cs, so if this is
             //           undefined, assume an allDay todo???
-            var dtstart = item.entryDate;
-            var dtend = item.dueDate;
+            dtstart = item.entryDate;
+            dtend = item.dueDate;
 
             // cs bug: enforce DUE (set to DTSTART) if alarm is set
             if (!dtend && item.getAlarms({}).length) {
@@ -518,7 +519,7 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
         }
 
         // attachment urls:
-        var val = getAttachments(item);
+        val = getAttachments(item);
         if (!oldItem || val != getAttachments(oldItem)) {
             params += ("&attachments=" + val);
         }
@@ -1084,7 +1085,7 @@ function calWcapCalendar_getItem(id, listener) {
                                              items.length, items);
                     }
                     request.execRespFunc(null, items[0]);
-                };
+                }
                 if (err) {
                     if (!checkErrorCode(err, calIWcapErrors.WCAP_FETCH_EVENTS_BY_ID_FAILED) &&
                         !checkErrorCode(err, calIWcapErrors.WCAP_COMPONENT_NOT_FOUND)) {
@@ -1355,7 +1356,7 @@ function calWcapCalendar_replayChangesOn(listener) {
         var request = new calWcapRequest(
             function netFinishedRespFunc(err, data) {
                 var modifiedIds = {};
-                for (var item of request.m_modifiedItems) {
+                for (let item of request.m_modifiedItems) {
                     var dtCreated = item.getProperty("CREATED");
                     var bAdd = (!dtCreated || !dtFrom || dtCreated.compare(dtFrom) >= 0);
                     modifiedIds[item.id] = true;
@@ -1371,7 +1372,7 @@ function calWcapCalendar_replayChangesOn(listener) {
                         }
                     }
                 }
-                for (var item of request.m_deletedItems) {
+                for (let item of request.m_deletedItems) {
                     // don't delete anything that has been touched by lastmods:
                     if (modifiedIds[item.id]) {
                         log("replayChangesOn(): skipping deletion of " + item.id, this_);

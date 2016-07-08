@@ -83,7 +83,7 @@ etagsHandler.prototype = {
         }
     },
 
-    onStopRequest: Task.async(function*(request, context, statusCode) {
+    onStopRequest: Task.async(function* (request, context, statusCode) {
         if (this.calendar.verboseLogging()) {
             cal.LOG("CalDAV: recv: " + this.logXML);
         }

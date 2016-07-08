@@ -46,10 +46,11 @@
         ]]></getter>
         <setter><![CDATA[
           this.mItem = val;
-          var headerLabel = document.getAnonymousElementByAttribute(this, "anonid", "item-datetime-label");
-          var itemDateTimeLabel = document.getAnonymousElementByAttribute(this, "anonid", "item-datetime-value");
+          let headerLabel = document.getAnonymousElementByAttribute(this, "anonid", "item-datetime-label");
+          let itemDateTimeLabel = document.getAnonymousElementByAttribute(this, "anonid", "item-datetime-value");
+          let date;
           if (this.mode == "start") {
-              var date = this.mItem[calGetStartDateProp(this.mItem)];
+              date = this.mItem[calGetStartDateProp(this.mItem)];
               //this.mItem.startDate || this.mItem.entryDate;
               if (date) {
                   let label;
@@ -61,7 +62,7 @@
                   headerLabel.value = label;
               }
           } else {
-              var date = this.mItem[calGetEndDateProp(this.mItem)];
+              date = this.mItem[calGetEndDateProp(this.mItem)];
               if (date) {
                   let label;
                   if (isToDo(this.mItem)) {
@@ -72,7 +73,7 @@
                   headerLabel.value = label;
               }
           }
-          var hideLabels = (date == null);
+          let hideLabels = (date == null);
           if (hideLabels) {
               this.setAttribute("hidden", "true");
           } else {

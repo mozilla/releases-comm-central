@@ -11,9 +11,9 @@ function run_test() {
     dateTime1950.year = 1950;
     equal(dateTime1950.year, 1950);
 
-    let dateTime1955 = cal.jsDateToDateTime(new Date(1955, 06, 15));
+    let dateTime1955 = cal.jsDateToDateTime(new Date(1955, 6, 15));
     equal(dateTime1955.year, 1955);
-    
+
     let dateTime1965 = cal.createDateTime();
     dateTime1965.nativeTime = -150000000000000;
     equal(dateTime1965.year, 1965);

@@ -104,7 +104,7 @@ calDefaultCalendarACLEntry.prototype = {
 
 function calDefaultItemACLEntry(aCalendarEntry) {
     this.calendarEntry = aCalendarEntry;
-};
+}
 
 calDefaultItemACLEntry.prototype = {
     /* nsISupports */

@@ -25,11 +25,11 @@ calWeekInfoService.prototype = {
     // calIWeekInfoService:
     getWeekTitle: function(aDateTime) {
         /**
-         * This implementation is based on the ISO 8601 standard.  
+         * This implementation is based on the ISO 8601 standard.
          * ISO 8601 defines week one as the first week with at least 4
          * days, and defines Monday as the first day of the week.
          * Equivalently, the week one is the week with the first Thursday.
-         * 
+         *
          * This implementation uses the second definition, because it
          * enables the user to set a different start-day of the week
          * (Sunday instead of Monday is a common setting).  If the first
@@ -61,7 +61,7 @@ calWeekInfoService.prototype = {
         // The number of days since the start of the week.
         // Notice that the result of the substraction might be negative.
         // We correct for that by adding 7, and then using the remainder operator.
-        var sinceStartOfWeek = (aDateTime.weekday - startWeekday + 7) % 7; 
+        var sinceStartOfWeek = (aDateTime.weekday - startWeekday + 7) % 7;
 
         // The number of days to Thursday is the difference between Thursday
         // and the start-day of the week (again corrected for negative values).
@@ -86,7 +86,7 @@ calWeekInfoService.prototype = {
     },
 
     /**
-     * gets the first day of a week of a passed day under consideration 
+     * gets the first day of a week of a passed day under consideration
      * of the preference setting "calendar.week.start"
      *
      * @param aDate     a date time object
@@ -105,7 +105,7 @@ calWeekInfoService.prototype = {
     },
 
     /**
-     * gets the last day of a week of a passed day under consideration 
+     * gets the last day of a week of a passed day under consideration
      * of the preference setting "calendar.week.start"
      *
      * @param aDate     a date time object

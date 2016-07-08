@@ -116,7 +116,7 @@ var calendarViewController = {
         // are readonly.
         var occurrences = aOccurrences.filter(function(item) { return isCalendarWritable(item.calendar); });
 
-        for (var itemToDelete of occurrences) {
+        for (let itemToDelete of occurrences) {
             if (aUseParentItems) {
                 // Usually happens when ctrl-click is used. In that case we
                 // don't need to ask the user if he wants to delete an
@@ -126,11 +126,13 @@ var calendarViewController = {
                 // Only give the user the selection if only one occurrence is
                 // selected. Otherwise he will get a dialog for each occurrence
                 // he deletes.
-                var [itemToDelete, hasFutureItem, response] = promptOccurrenceModification(itemToDelete, false, "delete");
+                let [targetItem, hasFutureItem, response] = promptOccurrenceModification(itemToDelete, false, "delete");
                 if (!response) {
                     // The user canceled the dialog, bail out
                     break;
                 }
+
+                itemToDelete = targetItem;
             }
 
             // Now some dirty work: Make sure more than one occurrence can be

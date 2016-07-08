@@ -1425,7 +1425,7 @@
           var total_width = this.mContentWidth * this.mRange - this.parentNode.boxObject.width;
 
           // Calculate the current scroll offset.
-          var offset = Math.floor(total_width * this.mRatio);
+          offset = Math.floor(total_width * this.mRatio);
 
           // The final margin is the difference between the date-based margin
           // and the scroll-based margin.
@@ -1553,8 +1553,8 @@
         var mouseX = event.screenX;
         if (this.mDragState == 1) {
             // Move the startdate and the enddate
-            var delta = mouseX - this.mMouseX;
-            var newStart = this.moveTime(this.mStartDate, delta, false);
+            let delta = mouseX - this.mMouseX;
+            let newStart = this.moveTime(this.mStartDate, delta, false);
             if (newStart.compare(this.mStartDate) != 0) {
                 newEnd = this.moveTime(this.mEndDate, delta, false);
 
@@ -1572,8 +1572,8 @@
             }
         } else if (this.mDragState == 2) {
             // Move the startdate only...
-            var delta = event.screenX - this.mSelectionbar.boxObject.screenX;
-            var newStart = this.moveTime(this.mStartDate, delta, true);
+            let delta = event.screenX - this.mSelectionbar.boxObject.screenX;
+            let newStart = this.moveTime(this.mStartDate, delta, true);
             if (newStart.compare(this.mEndDate) >= 0) {
                 if (!this.mStartDate.isDate) {
                     newStart = this.mEndDate;
@@ -1588,9 +1588,9 @@
             }
         } else if (this.mDragState == 3) {
             // Move the enddate only..
-            var delta = mouseX - (this.mSelectionbar.boxObject.screenX +
+            let delta = mouseX - (this.mSelectionbar.boxObject.screenX +
                                   this.mSelectionbar.boxObject.width);
-            var newEnd = this.moveTime(this.mEndDate, delta, true);
+            let newEnd = this.moveTime(this.mEndDate, delta, true);
             if (newEnd.compare(this.mStartDate) < 0) {
                 newEnd = this.mStartDate;
             }

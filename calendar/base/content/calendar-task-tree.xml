@@ -1189,12 +1189,12 @@
       <method name="updateFilter">
         <parameter name="aFilter"/>
         <body><![CDATA[
-            this.mFilter.selectedDate = agendaListbox.today && agendaListbox.today.start ? 
+            this.mFilter.selectedDate = agendaListbox.today && agendaListbox.today.start ?
                                         agendaListbox.today.start : now();
 
             this.doUpdateFilter(aFilter);
         ]]></body>
       </method>
-    </implementation>    
+    </implementation>
   </binding>
 </bindings>

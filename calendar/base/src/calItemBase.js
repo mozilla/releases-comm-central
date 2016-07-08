@@ -354,7 +354,7 @@ calItemBase.prototype = {
                     }
                     if (this.mProxyEnum) {
                         while (this.mProxyEnum.hasMoreElements()) {
-                            var prop = this.mProxyEnum.getNext();
+                            let prop = this.mProxyEnum.getNext();
                             this.mHandledProps[prop.name] = true;
                             if (prop.value !== null) {
                                 this.mCurrentProp = prop;
@@ -364,7 +364,7 @@ calItemBase.prototype = {
                         this.mProxyEnum = null;
                     }
                     while (this.mParentEnum.hasMoreElements()) {
-                        var prop = this.mParentEnum.getNext();
+                        let prop = this.mParentEnum.getNext();
                         if (!this.mHandledProps[prop.name]) {
                             this.mCurrentProp = prop;
                             return true;

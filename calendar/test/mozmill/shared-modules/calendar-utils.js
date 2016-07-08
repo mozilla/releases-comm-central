@@ -159,7 +159,7 @@ function goToDate(controller, year, month, day){
     + 'anon({"anonid":"months-popup"})/[0]/{"current":"true"}')).getNode().getAttribute("index");
   let yearDifference = activeYear - year;
   let monthDifference = activeMonth - (month - 1);
-  
+
   if (yearDifference != 0) {
     let scrollArrow = yearDifference > 0 ?
       (new elementslib.Lookup(controller.window.document, miniMonth
@@ -168,23 +168,23 @@ function goToDate(controller, year, month, day){
       (new elementslib.Lookup(controller.window.document, miniMonth
         + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/'
         + 'anon({"anonid":"years-popup"})/[0]/{"class":"autorepeatbutton-down"}')).getNode();
-    
+
     // pick year
     controller.click(new elementslib.Lookup(controller.window.document, miniMonth
       + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})'));
     controller.sleep(500);
-    
+
     for(let i = 0; i < Math.abs(yearDifference); i++){
       scrollArrow.doCommand();
       controller.sleep(100);
     }
-  
+
     controller.click(new elementslib.Lookup(controller.window.document, miniMonth
       + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/'
       + 'anon({"anonid":"years-popup"})/[0]/{"value":"' + year + '"}'));
     controller.sleep(500);
   }
-  
+
   if (monthDifference != 0) {
     // pick month
     controller.click(new elementslib.Lookup(controller.window.document, miniMonth
@@ -195,13 +195,13 @@ function goToDate(controller, year, month, day){
       + 'anon({"anonid":"months-popup"})/[0]/{"index":"' + (month - 1) + '"}'));
     controller.sleep(500);
   }
-  
+
   let lastDayInFirstRow = (new elementslib.Lookup(controller.window.document,
     miniMonth + 'anon({"anonid":"minimonth-calendar"})/[1]/[6]')).getNode().getAttribute("value");
   let positionOfFirst = 7 - lastDayInFirstRow;
   let dateColumn = (positionOfFirst + day - 1) % 7;
   let dateRow = Math.floor((positionOfFirst + day - 1) / 7);
-  
+
   // pick day
   controller.click(new elementslib.Lookup(controller.window.document, miniMonth
     + 'anon({"anonid":"minimonth-calendar"})/[' + (dateRow + 1) + ']/[' + dateColumn + ']'));
@@ -225,7 +225,7 @@ function getEventBoxPath(controller, view, option, row, column, hour){
   let weekView = viewDeck + '/id("week-view")';
   let multiweekView = viewDeck + '/id("multiweek-view")';
   let monthView = viewDeck + '/id("month-view")';
-  
+
   let path = '';
   switch(view){
     case "week":
@@ -239,32 +239,32 @@ function getEventBoxPath(controller, view, option, row, column, hour){
       break;
     default: path += dayView;
   }
-  
+
   if((view == "day" || view == "week") && option == ALLDAY){
     path += '/anon({"anonid":"mainbox"})/anon({"anonid":"headerbox"})/anon({"anonid":"headerdaybox"})';
     path += '/[' + (column - 1) + ']';
-    
+
     return path;
   }
   else if(view == "day" || view == "week"){
     path += '/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})';
     path += '/[' + (column - 1) + ']';
     path += '/anon({"anonid":"boxstack"})';
-    
+
     if(option == CANVAS_BOX)
       path += '/anon({"anonid":"bgbox"})/[' + hour + ']';
     else
       path += '/anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}';
-    
+
     return path;
   }
   else{
     path += '/anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/'
       + 'anon({"anonid":"monthgridrows"})/[' + (row - 1) + ']/[' + (column - 1) + ']';
-  
+
     if(option == CANVAS_BOX)
       path += '/anon({"anonid":"day-items"})';
-    
+
     return path;
   }
 }
@@ -322,7 +322,7 @@ function createCalendar(controller, name){
   let calendar = manager.createCalendar("storage", url);
   calendar.name = name;
   manager.registerCalendar(calendar);
-  
+
   let id = calendar.id;
   let calendarTree = (new elementslib.Lookup(controller.window.document,
     '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabpanelcontainer")/'
@@ -383,7 +383,7 @@ function setData(controller, data) {
   let taskDialog = '/id("calendar-task-dialog")/id("event-grid")/id("event-grid-rows")/';
   let dialog;
   let isEvent = true;
-  
+
   // see if it's an event dialog
   try {
     (new elementslib.Lookup(controller.window.document, eventDialog)).getNode();
@@ -426,7 +426,7 @@ function setData(controller, data) {
   let mac = utils.appInfo.os.toLowerCase().includes("darwin");
   // wait for input elements' values to be populated
   controller.sleep(sleep);
-  
+
   // title
   if (data.title != undefined) {
     if (!mac) {
@@ -443,7 +443,7 @@ function setData(controller, data) {
       titleField.getNode().value = data.title;
     }
   }
-  
+
   // location
   if (data.location != undefined) {
     if (!mac) {
@@ -460,26 +460,26 @@ function setData(controller, data) {
       locationField.getNode().value = data.location;
     }
   }
-  
+
   // category
   if (data.category != undefined) {
     controller.select(new elementslib.ID(controller.window.document, "item-categories"), undefined,
       data.category);
     controller.sleep(sleep);
   }
-  
+
   // all-day
   if (data.allday != undefined && isEvent) {
     controller.check(new elementslib.ID(controller.window.document, "event-all-day"), data.allday);
   }
-  
+
   // timezone
   if (data.timezone != undefined) {
     let menuitem = new elementslib.ID(controller.window.document, "options-timezones-menuitem");
     menuitem.getNode().setAttribute("checked", data.timezone);
     controller.click(menuitem);
   }
-  
+
   // startdate
   if (data.startdate != undefined && data.startdate.constructor.name == 'Date') {
     let startdate = dateService.FormatDate("", dateService.dateFormatShort,
@@ -493,7 +493,7 @@ function setData(controller, data) {
       startDateInput.getNode().value = startdate;
     }
   }
-  
+
   // starttime
   if (data.starttime != undefined && data.starttime.constructor.name == 'Date') {
     let starttime = dateService.FormatTime("", dateService.timeFormatNoSeconds,
@@ -506,7 +506,7 @@ function setData(controller, data) {
       controller.sleep(sleep);
     }
   }
-  
+
   // enddate
   if (data.enddate != undefined && data.enddate.constructor.name == 'Date') {
     let enddate = dateService.FormatDate("", dateService.dateFormatShort,
@@ -520,7 +520,7 @@ function setData(controller, data) {
       endDateInput.getNode().value = enddate;
     }
   }
-  
+
   // endttime
   if (data.endtime != undefined && data.endtime.constructor.name == 'Date') {
     let endtime = dateService.FormatTime("", dateService.timeFormatNoSeconds,
@@ -533,18 +533,18 @@ function setData(controller, data) {
       controller.sleep(sleep);
     }
   }
-  
+
   // recurrence
   if (data.repeat != undefined) {
     controller.select(new elementslib.ID(controller.window.document, "item-repeat"), undefined,
       undefined, data.repeat);
   }
-  
+
   // reminder
   if (data.reminder != undefined) {
     controller.select(new elementslib.ID(controller.window.document, "item-alarm"), data.reminder);
   }
-  
+
   // description
   if (data.description != undefined) {
     if (!mac) {
@@ -563,17 +563,17 @@ function setData(controller, data) {
       descField.getNode().value = data.description;
     }
   }
-  
+
   // priority
   if (data.priority != undefined) {
     controller.mainMenu.click("#options-priority-" + data.priority + "-label");
   }
-  
+
   // privacy
   if (data.privacy != undefined) {
     controller.mainMenu.click("#options-privacy-" + data.privacy + "-menuitem");
   }
-  
+
   // status
   if (data.status != undefined) {
     if (isEvent) {
@@ -584,15 +584,15 @@ function setData(controller, data) {
       controller.sleep(sleep);
     }
   }
-  
+
   let currentStatus = (new elementslib.ID(controller.window.document, "todo-status")).getNode().value;
-  
+
   // completed on
   if (data.completed != undefined && data.completed.constructor.name == 'Date' && !isEvent) {
     let completeddate = dateService.FormatDate("", dateService.dateFormatShort,
       data.completed.getFullYear(), data.completed.getMonth() + 1,
       data.completed.getDate());
-    
+
     if ( currentStatus == "COMPLETED") {
       if (!mac) {
         controller.keypress(completedDateInput, 'a', {ctrlKey: true});
@@ -602,19 +602,19 @@ function setData(controller, data) {
       }
     }
   }
-  
+
   // percent complete
-  if (data.percent != undefined && 
+  if (data.percent != undefined &&
        (currentStatus == "NEEDS-ACTION" || currentStatus == "IN-PROCESS" ||
         currentStatus == "COMPLETED")) {
     percentCompleteInput.getNode().value = data.percent;
   }
-  
+
   // free/busy
   if (data.freebusy != undefined) {
     controller.mainMenu.click("#options-freebusy-" + data.freebusy + "-menuitem");
   }
-  
+
   // attachment
   if (data.attachment != undefined) {
     if (data.attachment.add != undefined) {
@@ -629,7 +629,7 @@ function setData(controller, data) {
         "VK_DELETE", {});
     }
   }
-  
+
   controller.sleep(sleep);
 }
 

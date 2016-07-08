@@ -29,29 +29,29 @@ var testDayView = function () {
     + 'anon({"anonid":"mainbox"})/anon({"anonid":"labelbox"})/anon({"anonid":"labeldaybox"})/'
     + '{"flex":"1"}');
   let eventDialog = '/id("calendar-event-dialog")/id("event-grid")/id("event-grid-rows")/';
-  
+
   // open day view
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
   controller.waitThenClick(new elementslib.ID(controller.window.document, "calendar-day-view-button"));
-  
+
   // pick year
   controller.click(new elementslib.Lookup(controller.window.document, miniMonth
     + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})'));
   controller.click(new elementslib.Lookup(controller.window.document, miniMonth
     + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/'
     + 'anon({"anonid":"years-popup"})/[0]/{"value":"2009"}'));
-  
+
   // pick month
   controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth
     + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})'));
   controller.click(new elementslib.Lookup(controller.window.document, miniMonth
     + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/'
     + 'anon({"anonid":"months-popup"})/[0]/{"index":"0"}'));
-  
+
   // pick day
   controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth
     + 'anon({"anonid":"minimonth-calendar"})/[1]/{"value":"1"}'));
-  
+
   // verify date in view
   controller.waitFor(function() {return day.getNode().mDate.icalString == "20090101"});
 
@@ -62,7 +62,7 @@ var testDayView = function () {
     + 'anon({"anonid":"bgbox"})/[8]'), 1, 1);
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
-  
+
   // check that the start time is correct
   let startTimeInput = new elementslib.Lookup(event.window.document, eventDialog
     + 'id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/'
@@ -80,7 +80,7 @@ var testDayView = function () {
     + '{"class":"datepicker-text-class"}/anon({"class":"menulist-editable-box textbox-input-box"})/'
     + 'anon({"anonid":"input"})'),
     date);
-    
+
   // fill in title, description and calendar
   event.type(new elementslib.Lookup(event.window.document, eventDialog
     + 'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/'
@@ -91,10 +91,10 @@ var testDayView = function () {
     + 'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
     desc);
   event.select(new elementslib.ID(event.window.document, "item-calendar"), null, calendar);
-  
+
   // save
   event.click(new elementslib.ID(event.window.document, "button-save"));
-  
+
   // if it was created successfully, it can be opened
   let eventBox = new elementslib.Lookup(controller.window.document, dayView
     + 'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/'
@@ -105,7 +105,7 @@ var testDayView = function () {
   controller.doubleClick(eventBox);
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
-  
+
   // change title and save changes
   let titleTextBox = new elementslib.Lookup(event.window.document, eventDialog
     + 'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/'
@@ -113,7 +113,7 @@ var testDayView = function () {
   event.waitForElement(titleTextBox);
   event.type(titleTextBox, title2);
   event.click(new elementslib.ID(event.window.document, "button-save"));
-  
+
   // check if name was saved
   let eventName = new elementslib.Lookup(controller.window.document, dayView
     + 'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/'
@@ -124,7 +124,7 @@ var testDayView = function () {
     + 'anon({"anonid":"eventbox"})/{"class":"calendar-event-details"}/anon({"anonid":"event-name"})');
   controller.waitForElement(eventName);
   controller.assertJSProperty(eventName, "textContent", title2);
-  
+
   // delete event
   controller.click(new elementslib.Lookup(controller.window.document, dayView
     + 'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/'

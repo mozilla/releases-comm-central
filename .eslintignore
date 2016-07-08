@@ -17,7 +17,6 @@ testing/**
 # If you are enabling a directory, please add directory specific exclusions
 # below.
 build/**
-calendar/**
 chat/**
 editor/**
 im/**
@@ -25,3 +24,19 @@ ldap/**
 mail/**
 mailnews/**
 suite/**
+
+# calendar/ exclusions
+
+# prefs files
+calendar/lightning/content/lightning.js
+calendar/locales/en-US/lightning-l10n.js
+
+# gdata-provider uses non-standard javascript for Postbox compatibility
+calendar/providers/gdata/**
+
+# third party library
+calendar/base/modules/ical.js
+
+# preprocessed files
+calendar/base/content/dialogs/calendar-migration-dialog.js
+calendar/base/content/calendar-dnd-listener.js

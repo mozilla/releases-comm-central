@@ -673,36 +673,36 @@ calStorageCalendar.prototype = {
         if (!aListener)
             return;
 
-        var self = this;
+        let self = this;
 
-        var itemsFound = Array();
-        var startTime = -0x7fffffffffffffff;
+        let itemsFound = Array();
+        let startTime = -0x7fffffffffffffff;
         // endTime needs to be the max value a PRTime can be
-        var endTime = 0x7fffffffffffffff;
-        var count = 0;
+        let endTime = 0x7fffffffffffffff;
+        let count = 0;
         if (aRangeStart)
             startTime = aRangeStart.nativeTime;
         if (aRangeEnd)
             endTime = aRangeEnd.nativeTime;
 
-        var wantUnrespondedInvitations = ((aItemFilter & kCalICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0);
-        var superCal;
+        let wantUnrespondedInvitations = ((aItemFilter & kCalICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0);
+        let superCal;
         try {
             superCal = this.superCalendar.QueryInterface(Components.interfaces.calISchedulingSupport);
         } catch (exc) {
             wantUnrespondedInvitations = false;
         }
         function checkUnrespondedInvitation(item) {
-            var att = superCal.getInvitedAttendee(item);
+            let att = superCal.getInvitedAttendee(item);
             return (att && (att.participationStatus == "NEEDS-ACTION"));
         }
 
-        var wantEvents = ((aItemFilter & kCalICalendar.ITEM_FILTER_TYPE_EVENT) != 0);
-        var wantTodos = ((aItemFilter & kCalICalendar.ITEM_FILTER_TYPE_TODO) != 0);
-        var asOccurrences = ((aItemFilter & kCalICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0);
-        var wantOfflineDeletedItems = ((aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_DELETED) != 0);
-        var wantOfflineCreatedItems = ((aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0);
-        var wantOfflineModifiedItems = ((aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_MODIFIED) != 0);
+        let wantEvents = ((aItemFilter & kCalICalendar.ITEM_FILTER_TYPE_EVENT) != 0);
+        let wantTodos = ((aItemFilter & kCalICalendar.ITEM_FILTER_TYPE_TODO) != 0);
+        let asOccurrences = ((aItemFilter & kCalICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0);
+        let wantOfflineDeletedItems = ((aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_DELETED) != 0);
+        let wantOfflineCreatedItems = ((aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0);
+        let wantOfflineModifiedItems = ((aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_MODIFIED) != 0);
 
         if (!wantEvents && !wantTodos) {
             // nothing to do
@@ -723,8 +723,8 @@ calStorageCalendar.prototype = {
 
         this.assureRecurringItemCaches();
 
-        var itemCompletedFilter = ((aItemFilter & kCalICalendar.ITEM_FILTER_COMPLETED_YES) != 0);
-        var itemNotCompletedFilter = ((aItemFilter & kCalICalendar.ITEM_FILTER_COMPLETED_NO) != 0);
+        let itemCompletedFilter = ((aItemFilter & kCalICalendar.ITEM_FILTER_COMPLETED_YES) != 0);
+        let itemNotCompletedFilter = ((aItemFilter & kCalICalendar.ITEM_FILTER_COMPLETED_NO) != 0);
 
         function checkCompleted(item) {
             return (item.isCompleted ? itemCompletedFilter : itemNotCompletedFilter);
@@ -735,9 +735,9 @@ calStorageCalendar.prototype = {
         // if we ever have more than maxQueueSize items outstanding,
         // call the listener.  Calling with null theItems forces
         // a send and a queue clear.
-        var maxQueueSize = 10;
-        var queuedItems = [ ];
-        var queuedItemsIID;
+        let maxQueueSize = 10;
+        let queuedItems = [];
+        let queuedItemsIID;
         function queueItems(theItems, theIID) {
             // if we're about to start sending a different IID,
             // flush the queue
@@ -766,7 +766,7 @@ calStorageCalendar.prototype = {
         // helper function to handle converting a row to an item,
         // expanding occurrences, and queue the items for the listener
         function handleResultItem(item, theIID, optionalFilterFunc) {
-            var expandedItems = [];
+            let expandedItems = [];
             if (item.recurrenceInfo && asOccurrences) {
                 // If the item is recurring, get all ocurrences that fall in
                 // the range. If the item doesn't fall into the range at all,
@@ -812,8 +812,8 @@ calStorageCalendar.prototype = {
 
         // First fetch all the events
         if (wantEvents) {
-            var sp;             // stmt params
-            var resultItems = [];
+            let sp;             // stmt params
+            let resultItems = [];
 
             // first get non-recurring events that happen to fall within the range
             //
@@ -841,7 +841,7 @@ calStorageCalendar.prototype = {
             }
 
             // Process the non-recurring events:
-            for (var evitem of resultItems) {
+            for (let evitem of resultItems) {
                 count += handleResultItem(evitem, Components.interfaces.calIEvent);
                 if (checkCount()) {
                     return;
@@ -866,8 +866,8 @@ calStorageCalendar.prototype = {
 
         // if todos are wanted, do them next
         if (wantTodos) {
-            var sp;             // stmt params
-            var resultItems = [];
+            let sp;             // stmt params
+            let resultItems = [];
 
             // first get non-recurring todos that happen to fall within the range
             try {
@@ -893,7 +893,7 @@ calStorageCalendar.prototype = {
             }
 
             // process the non-recurring todos:
-            for (var todoitem of resultItems) {
+            for (let todoitem of resultItems) {
                 count += handleResultItem(todoitem, Components.interfaces.calITodo, checkCompleted);
                 if (checkCount()) {
                     return;
@@ -1660,10 +1660,10 @@ calStorageCalendar.prototype = {
 
     getAdditionalDataForItem: function cSC_getAdditionalDataForItem(item, flags) {
         // This is needed to keep the modification time intact.
-        var savedLastModifiedTime = item.lastModifiedTime;
+        let savedLastModifiedTime = item.lastModifiedTime;
 
         if (flags & CAL_ITEM_FLAG.HAS_ATTENDEES) {
-            var selectItem = null;
+            let selectItem = null;
             if (item.recurrenceId == null) {
                 selectItem = this.mSelectAttendeesForItem;
             } else {
@@ -1695,9 +1695,9 @@ calStorageCalendar.prototype = {
             }
         }
 
-        var row;
+        let row;
         if (flags & CAL_ITEM_FLAG.HAS_PROPERTIES) {
-            var selectItem = null;
+            let selectItem = null;
             if (item.recurrenceId == null) {
                 selectItem = this.mSelectPropertiesForItem;
             } else {
@@ -1710,13 +1710,13 @@ calStorageCalendar.prototype = {
                 selectItem.params.item_id = item.id;
                 while (selectItem.executeStep()) {
                     row = selectItem.row;
-                    var name = row.key;
+                    let name = row.key;
                     switch (name) {
                         case "DURATION":
                             // for events DTEND/DUE is enforced by calEvent/calTodo, so suppress DURATION:
                             break;
                         case "CATEGORIES": {
-                            var cats = categoriesStringToArray(row.value);
+                            let cats = categoriesStringToArray(row.value);
                             item.setCategories(cats.length, cats);
                             break;
                         }
@@ -1733,7 +1733,7 @@ calStorageCalendar.prototype = {
             }
         }
 
-        var i;
+        let i;
         if (flags & CAL_ITEM_FLAG.HAS_RECURRENCE) {
             if (item.recurrenceId) {
                 throw Components.results.NS_ERROR_UNEXPECTED;
@@ -1765,15 +1765,15 @@ calStorageCalendar.prototype = {
             if (item.recurrenceId)
                 throw Components.results.NS_ERROR_UNEXPECTED;
 
-            var rec = item.recurrenceInfo;
+            let rec = item.recurrenceInfo;
 
             if (cal.isEvent(item)) {
                 this.mSelectEventExceptions.params.id = item.id;
                 this.prepareStatement(this.mSelectEventExceptions);
                 try {
                     while (this.mSelectEventExceptions.executeStep()) {
-                        var row = this.mSelectEventExceptions.row;
-                        var exc = this.getEventFromRow(row, {}, true /*isException*/);
+                        let row = this.mSelectEventExceptions.row;
+                        let exc = this.getEventFromRow(row, {}, true /*isException*/);
                         rec.modifyException(exc, true);
                     }
                 } catch (e) {
@@ -1787,8 +1787,8 @@ calStorageCalendar.prototype = {
                 this.prepareStatement(this.mSelectTodoExceptions);
                 try {
                     while (this.mSelectTodoExceptions.executeStep()) {
-                        var row = this.mSelectTodoExceptions.row;
-                        var exc = this.getTodoFromRow(row, {}, true /*isException*/);
+                        let row = this.mSelectTodoExceptions.row;
+                        let exc = this.getTodoFromRow(row, {}, true /*isException*/);
                         rec.modifyException(exc, true);
                     }
                 } catch (e) {

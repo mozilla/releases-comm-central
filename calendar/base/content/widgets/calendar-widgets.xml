@@ -390,8 +390,8 @@
             var display = aVisible;
             var collapsedInMode = false;
             if (this.hasAttribute("collapsedinmodes")) {
-                var collapsedModes = this.getAttribute("collapsedinmodes").split(",");
-                var modeIndex = collapsedModes.indexOf(this.currentMode);
+                collapsedModes = this.getAttribute("collapsedinmodes").split(",");
+                modeIndex = collapsedModes.indexOf(this.currentMode);
                 collapsedInMode = (modeIndex > -1);
             }
             if ((aVisible === true) && (pushModeCollapsedAttribute == false)){

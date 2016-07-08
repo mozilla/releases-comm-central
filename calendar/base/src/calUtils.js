@@ -920,16 +920,14 @@ function LOG(aArg) {
         return;
     }
     ASSERT(aArg, "Bad log argument.", false);
-    var string;
+    var string = aArg;
     // We should just dump() both String objects, and string primitives.
     if (!(aArg instanceof String) && !(typeof(aArg) == "string")) {
-        var string = "Logging object...\n";
+        string = "Logging object...\n";
         for (var prop in aArg) {
             string += prop + ': ' + aArg[prop] + '\n';
         }
         string += "End object\n";
-    } else {
-        string = aArg;
     }
 
     dump(string + '\n');
@@ -1454,7 +1452,7 @@ function getParentNodeOrThis(aChildNode, aLocalName) {
         if (node.tagName == undefined) {
             return null;
         }
-    };
+    }
     return node;
 }
 
@@ -1477,7 +1475,7 @@ function getParentNodeOrThisByAttribute(aChildNode, aAttributeName, aAttributeVa
         if (node.tagName == undefined) {
             return null;
         }
-    };
+    }
     return node;
 }
 

@@ -518,10 +518,6 @@
                    this.weeksInView = aSubject.getIntPref(aPreference);
                    break;
 
-               case "calendar.previousweeks.inview":
-                   this.refreshView();
-                   break;
-
                case "calendar.view-minimonth.showWeekNumber":
                    this.mShowWeekNumber = aSubject.getBoolPref(aPreference);
                    if (this.mShowWeekNumber) {
@@ -553,7 +549,7 @@
         <parameter name="aSuppressEvent"/>
         <body><![CDATA[
           if (this.mSelectedItems.length) {
-              for (var item of this.mSelectedItems) {
+              for (let item of this.mSelectedItems) {
                   let oldboxes = this.findDayBoxesForItem(item);
                   for (let oldbox of oldboxes) {
                       oldbox.unselectItem(item);
@@ -564,7 +560,7 @@
           this.mSelectedItems = aItems || [];
 
           if (this.mSelectedItems.length) {
-              for (var item of this.mSelectedItems) {
+              for (let item of this.mSelectedItems) {
                   let newboxes = this.findDayBoxesForItem(item);
                   for (let newbox of newboxes) {
                       newbox.selectItem(item);
@@ -777,13 +773,13 @@
 
           var rows = this.monthgridrows.childNodes;
 
-          // Iterate through each monthgridrow and set up the day-boxes that 
+          // Iterate through each monthgridrow and set up the day-boxes that
           // are its child nodes.  Remember, childNodes is not a normal array,
-          // so don't use the in operator if you don't want extra properties 
+          // so don't use the in operator if you don't want extra properties
           // coming out.
           for (var i = 0; i < rows.length; i++) {
             var row = rows[i];
-            // If we've already assigned all of the day-boxes that we need, just 
+            // If we've already assigned all of the day-boxes that we need, just
             // collapse the rest of the rows, otherwise expand them if needed.
             if (finished) {
               row.setAttribute("collapsed", true);

@@ -15,7 +15,6 @@ function onLoad() {
     var args = window.arguments[0];
     var item = args.calendarEvent;
     item = item.clone(); // use an own copy of the passed item
-    var calendar = item.calendar;
     window.calendarItem = item;
 
     // the calling entity provides us with an object that is responsible
@@ -53,7 +52,7 @@ function onLoad() {
 
     window.attendees = item.getAttendees({});
 
-    calendar = cal.wrapInstance(item.calendar, Components.interfaces.calISchedulingSupport);
+    let calendar = cal.wrapInstance(item.calendar, Components.interfaces.calISchedulingSupport);
     window.readOnly = !(isCalendarWritable(calendar)
                         && (userCanModifyItem(item)
                             || (calendar
@@ -92,9 +91,9 @@ function onLoad() {
 
     // show reminder if this item is *not* readonly.
     // this case happens for example if this is an invitation.
-    var calendar = window.arguments[0].calendarEvent.calendar;
+    let argCalendar = window.arguments[0].calendarEvent.calendar;
     var supportsReminders =
-        (calendar.getProperty("capabilities.alarms.oninvitations.supported") !== false);
+        (argCalendar.getProperty("capabilities.alarms.oninvitations.supported") !== false);
     if (!window.readOnly && supportsReminders) {
         document.getElementById("reminder-row").removeAttribute("hidden");
         loadReminders(window.calendarItem.getAlarms({}));

@@ -23,11 +23,11 @@ var gPublishObject;
 function loadCalendarPublishDialog()
 {
    // Get arguments, see description at top of file
-   
+
    var args = window.arguments[0];
-   
+
    gOnOkFunction = args.onOk;
-   
+
    if( args.publishObject )
    {
       gPublishObject = args.publishObject;
@@ -38,8 +38,8 @@ function loadCalendarPublishDialog()
    {
       gPublishObject = new Object();
    }
-   document.getElementById( "calendar-publishwindow" ).getButton( "accept" ).setAttribute( "label", publishButtonLabel );   
-   
+   document.getElementById( "calendar-publishwindow" ).getButton( "accept" ).setAttribute( "label", publishButtonLabel );
+
    checkURLField( );
 
    var firstFocus = document.getElementById( "publish-remotePath-textbox" );
@@ -58,7 +58,7 @@ function onOKCommand()
 
    // call caller's on OK function
    gOnOkFunction(gPublishObject, progressDialog);
-   document.getElementById( "calendar-publishwindow" ).getButton( "accept" ).setAttribute( "label", closeButtonLabel );   
+   document.getElementById( "calendar-publishwindow" ).getButton( "accept" ).setAttribute( "label", closeButtonLabel );
    document.getElementById( "calendar-publishwindow" ).setAttribute( "ondialogaccept", "closeDialog()" );
    return( false );
 }
@@ -81,7 +81,7 @@ var progressDialog = {
     onStartUpload: function() {
         document.getElementById( "publish-progressmeter" ).setAttribute( "mode", "undetermined" );
     },
-    
+
     onStopUpload: function() {
         document.getElementById( "publish-progressmeter" ).setAttribute( "mode", "determined" );
     }

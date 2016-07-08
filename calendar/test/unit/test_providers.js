@@ -5,7 +5,7 @@
 var icalStringArray = [
                 // Comments refer to the range defined in testGetItems().
                 // 1: one-hour event
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART:20020402T114500Z\n" +
                 "DTEND:20020402T124500Z\n" +
                 "END:VEVENT\n",
@@ -23,66 +23,66 @@ var icalStringArray = [
                 "DTEND:20020402T000000Z\n" +
                 "END:VEVENT\n",
                 // 5: one-hour event that is outside the range
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART:20020401T114500Z\n" +
                 "DTEND:20020401T124500Z\n" +
                 "END:VEVENT\n",
                 // 6: one-hour event that starts outside the range and ends inside.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART:20020401T114500Z\n" +
                 "DTEND:20020402T124500Z\n" +
                 "END:VEVENT\n",
                 // 7:  one-hour event that starts inside the range and ends outside.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART:20020402T114500Z\n" +
                 "DTEND:20020403T124500Z\n" +
                 "END:VEVENT\n",
                 // 8: one-hour event that starts at the end of the range.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART:20020403T000000Z\n" +
                 "DTEND:20020403T124500Z\n" +
                 "END:VEVENT\n",
                 // 9: allday event that starts at start of range and ends at end of range.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART;VALUE=DATE:20020402\n" +
                 "DTEND;VALUE=DATE:20020403\n" +
                 "END:VEVENT\n",
                 // 10: allday event that starts at end of range.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART;VALUE=DATE:20020403\n" +
                 "DTEND;VALUE=DATE:20020404\n" +
                 "END:VEVENT\n",
                 // 11: allday event that ends at start of range. See bug 333363.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART;VALUE=DATE:20020401\n" +
                 "DTEND;VALUE=DATE:20020402\n" +
                 "END:VEVENT\n",
                 // 12: daily recurring allday event. parent item in the range.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART;VALUE=DATE:20020402\n" +
                 "DTEND;VALUE=DATE:20020403\n" +
                 "RRULE:FREQ=DAILY;INTERVAL=1;COUNT=10\n" +
                 "END:VEVENT\n",
                 // 13: daily recurring allday event. First occurence in the range.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART;VALUE=DATE:20020401\n" +
                 "DTEND;VALUE=DATE:20020402\n" +
                 "RRULE:FREQ=DAILY;COUNT=10\n" +
                 "END:VEVENT\n",
                 // 14: two-daily recurring allday event. Not in the range.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART;VALUE=DATE:20020401\n" +
                 "DTEND;VALUE=DATE:20020402\n" +
                 "RRULE:FREQ=DAILY;INTERVAL=2;COUNT=10\n" +
                 "END:VEVENT\n",
                 // 15: daily recurring one-hour event. Parent in the range.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART:20020402T100000Z\n" +
                 "DTEND:20020402T110000Z\n" +
                 "RRULE:FREQ=DAILY;COUNT=10\n" +
                 "END:VEVENT\n",
                 // 16: daily recurring one-hour event. Occurrence in the range.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART:20020401T100000Z\n" +
                 "DTEND:20020401T110000Z\n" +
                 "RRULE:FREQ=DAILY;COUNT=10\n" +
@@ -116,13 +116,13 @@ var icalStringArray = [
                 "DUE:20020402T000000Z\n" +
                 "END:VTODO\n",
                 // 23: daily recurring one-hour event. Parent in the range.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART:20020402T000000\n" +
                 "DTEND:20020402T010000\n" +
                 "RRULE:FREQ=DAILY;COUNT=10\n" +
                 "END:VEVENT\n",
                 // 24: daily recurring 24-hour event. Parent in the range.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART:20020402T000000\n" +
                 "DTEND:20020403T000000\n" +
                 "RRULE:FREQ=DAILY;COUNT=10\n" +
@@ -157,37 +157,37 @@ var icalStringArray = [
                 "STATUS:COMPLETED\n" +
                 "END:VTODO\n",
                 // 30: one-hour event with duration (in the range). See bug 390492.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART:20020402T114500Z\n" +
                 "DURATION:PT1H\n" +
                 "END:VEVENT\n",
                 // 31: one-hour event with duration (after the range). See bug 390492.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART:20020403T000000Z\n" +
                 "DURATION:PT1H\n" +
                 "END:VEVENT\n",
                 // 32: one-hour event with duration (before the range). See bug 390492.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART:20020401T230000Z\n" +
                 "DURATION:PT1H\n" +
                 "END:VEVENT\n",
                 // 33: one-day event with duration. Starts in the range, Ends outside. See bug 390492.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART:20020402T120000Z\n" +
                 "DURATION:P1D\n" +
                 "END:VEVENT\n",
                 // 34: one-day event with duration. Starts before the range. Ends inside. See bug 390492.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART:20020401T120000Z\n" +
                 "DURATION:P1D\n" +
                 "END:VEVENT\n",
                 // 35: one-day event with duration (before the range). See bug 390492.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART:20020401T000000Z\n" +
                 "DURATION:P1D\n" +
                 "END:VEVENT\n",
                 // 36: one-day event with duration (after the range). See bug 390492.
-                "BEGIN:VEVENT\n" + 
+                "BEGIN:VEVENT\n" +
                 "DTSTART:20020403T000000Z\n" +
                 "DURATION:P1D\n" +
                 "END:VEVENT\n"
@@ -231,15 +231,16 @@ function run_test() {
                        [ 35, 0],
                        [ 36, 0]];
 
-    for (var i = 0; i < wantedArray.length; i++) {
-        var itemArray = wantedArray[i];
+    for (let i = 0; i < wantedArray.length; i++) {
+        let itemArray = wantedArray[i];
         // Correct for 1 to stay in synch with test numbers.
-        var calItem = icalStringArray[itemArray[0] - 1];
+        let calItem = icalStringArray[itemArray[0] - 1];
 
+        let item;
         if (calItem.search(/VEVENT/) != -1) {
-            var item = createEventFromIcalString(calItem);
+            item = createEventFromIcalString(calItem);
         } else if (calItem.search(/VTODO/) != -1) {
-            var item = createTodoFromIcalString(calItem);
+            item = createTodoFromIcalString(calItem);
         }
 
         print("Test " + wantedArray[i][0]);
@@ -267,7 +268,7 @@ function run_test() {
         rangeEnd.day += 1;
 
         // filter options
-        var filter = Ci.calICalendar.ITEM_FILTER_TYPE_ALL | 
+        var filter = Ci.calICalendar.ITEM_FILTER_TYPE_ALL |
                      Ci.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES |
                      Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL;
 

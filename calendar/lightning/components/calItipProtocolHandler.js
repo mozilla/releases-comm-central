@@ -9,6 +9,7 @@ var CI = Components.interfaces;
 
 var ITIP_HANDLER_MIMETYPE = "application/x-itip-internal";
 var ITIP_HANDLER_PROTOCOL = "moz-cal-handle-itip";
+var NS_ERROR_WONT_HANDLE_CONTENT = 0x805d0001;
 
 
 function NYI() {
@@ -40,7 +41,7 @@ ItipChannel.prototype = {
     loadGroup: null,
     notificationCallbacks: null,
     securityInfo: null,
-    
+
     open: NYI,
     asyncOpen: function (observer, ctxt) {
         observer.onStartRequest(this, ctxt);
@@ -48,7 +49,7 @@ ItipChannel.prototype = {
     asyncRead: function (listener, ctxt) {
         return listener.onStartRequest(this, ctxt);
     },
-    
+
     isPending: function () { return true; },
     status: Components.results.NS_OK,
     cancel: function (status) { this.status = status; },
@@ -81,7 +82,7 @@ ItipProtocolHandler.prototype = {
         dump("Creating new URI for " + spec + "\n");
         return url.QueryInterface(CI.nsIURI);
     },
-    
+
     newChannel: function (URI) {
         return this.newChannel2(URI, null);
     },
@@ -113,7 +114,7 @@ ItipContentHandler.prototype = {
         let uri = channel.URI.spec;
         if (!uri.startsWith(ITIP_HANDLER_PROTOCOL + ":")) {
             cal.ERROR("Unexpected iTIP uri: " + uri + "\n");
-            return Components.results.NS_ERROR_FAILURE;
+            throw NS_ERROR_WONT_HANDLE_CONTENT;
         }
         // moz-cal-handle-itip:///?
         let paramString = uri.substring(ITIP_HANDLER_PROTOCOL.length + 4);

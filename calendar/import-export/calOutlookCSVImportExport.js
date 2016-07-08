@@ -130,247 +130,244 @@ calOutlookCSVImporter.prototype = {
         scriptableInputStream.init(aStream);
         let str = scriptableInputStream.read(-1);
 
-        parse: {
-            // parse header line of quoted comma separated column names.
-            let trimEndQuotesRegExp = /^"(.*)"$/m;
-            let trimResults = trimEndQuotesRegExp.exec( str );
-            let header = trimResults && trimResults[1].split(/","/);
-            if (header == null) {
-                break parse;
-            }
+        // parse header line of quoted comma separated column names.
+        let trimEndQuotesRegExp = /^"(.*)"$/m;
+        let trimResults = trimEndQuotesRegExp.exec( str );
+        let header = trimResults && trimResults[1].split(/","/);
+        if (header == null) {
+            aCount.value = 0;
+            return [];
+        }
 
-            //strip header from string
-            str = str.slice(trimResults[0].length);
+        //strip header from string
+        str = str.slice(trimResults[0].length);
 
-            let args = {};
-            //args.fieldList contains the field names from the first row of CSV
-            args.fieldList = header;
+        let args = {};
+        //args.fieldList contains the field names from the first row of CSV
+        args.fieldList = header;
 
-            let locale;
-            let i;
-            let knownIndxs;
-            for (i in locales) {
-                locale = locales[i];
-                knownIndxs = 0;
-                args.titleIndex = 0;
-                args.startDateIndex = 0;
-                for (let i = 1; i <= header.length; ++i) {
-                    switch( header[i-1] ) {
-                        case locale.headTitle:        args.titleIndex = i;       knownIndxs++; break;
-                        case locale.headStartDate:    args.startDateIndex = i;   knownIndxs++; break;
-                        case locale.headStartTime:    args.startTimeIndex = i;   knownIndxs++; break;
-                        case locale.headEndDate:      args.endDateIndex = i;     knownIndxs++; break;
-                        case locale.headEndTime:      args.endTimeIndex = i;     knownIndxs++; break;
-                        case locale.headAllDayEvent:  args.allDayIndex = i;      knownIndxs++; break;
-                        case locale.headAlarm:        args.alarmIndex = i;       knownIndxs++; break;
-                        case locale.headAlarmDate:    args.alarmDateIndex = i;   knownIndxs++; break;
-                        case locale.headAlarmTime:    args.alarmTimeIndex = i;   knownIndxs++; break;
-                        case locale.headCategories:   args.categoriesIndex = i;  knownIndxs++; break;
-                        case locale.headDescription:  args.descriptionIndex = i; knownIndxs++; break;
-                        case locale.headLocation:     args.locationIndex = i;    knownIndxs++; break;
-                        case locale.headPrivate:      args.privateIndex = i;     knownIndxs++; break;
-                    }
-                }
-                // Were both mandatory fields recognized?
-                if (args.titleIndex != 0 && args.startDateIndex != 0) {
-                    break;
+        let locale;
+        let i;
+        let knownIndxs;
+        for (i in locales) {
+            locale = locales[i];
+            knownIndxs = 0;
+            args.titleIndex = 0;
+            args.startDateIndex = 0;
+            for (let i = 1; i <= header.length; ++i) {
+                switch( header[i-1] ) {
+                    case locale.headTitle:        args.titleIndex = i;       knownIndxs++; break;
+                    case locale.headStartDate:    args.startDateIndex = i;   knownIndxs++; break;
+                    case locale.headStartTime:    args.startTimeIndex = i;   knownIndxs++; break;
+                    case locale.headEndDate:      args.endDateIndex = i;     knownIndxs++; break;
+                    case locale.headEndTime:      args.endTimeIndex = i;     knownIndxs++; break;
+                    case locale.headAllDayEvent:  args.allDayIndex = i;      knownIndxs++; break;
+                    case locale.headAlarm:        args.alarmIndex = i;       knownIndxs++; break;
+                    case locale.headAlarmDate:    args.alarmDateIndex = i;   knownIndxs++; break;
+                    case locale.headAlarmTime:    args.alarmTimeIndex = i;   knownIndxs++; break;
+                    case locale.headCategories:   args.categoriesIndex = i;  knownIndxs++; break;
+                    case locale.headDescription:  args.descriptionIndex = i; knownIndxs++; break;
+                    case locale.headLocation:     args.locationIndex = i;    knownIndxs++; break;
+                    case locale.headPrivate:      args.privateIndex = i;     knownIndxs++; break;
                 }
             }
-
-            if (knownIndxs == 0 && header.length == 22) {
-                // set default indexes for a default Outlook2000 CSV file
-                args.titleIndex = 1;
-                args.startDateIndex = 2;
-                args.startTimeIndex = 3;
-                args.endDateIndex = 4;
-                args.endTimeIndex = 5;
-                args.allDayIndex = 6;
-                args.alarmIndex = 7;
-                args.alarmDateIndex = 8;
-                args.alarmTimeIndex = 9;
-                args.categoriesIndex = 15;
-                args.descriptionIndex = 16;
-                args.locationIndex = 17;
-                args.privateIndex = 20;
+            // Were both mandatory fields recognized?
+            if (args.titleIndex != 0 && args.startDateIndex != 0) {
+                break;
             }
+        }
 
-            if (args.titleIndex == 0 || args.startDateIndex == 0) {
-                dump("Can't import. Life sucks\n")
-                break parse;
-            }
+        if (knownIndxs == 0 && header.length == 22) {
+            // set default indexes for a default Outlook2000 CSV file
+            args.titleIndex = 1;
+            args.startDateIndex = 2;
+            args.startTimeIndex = 3;
+            args.endDateIndex = 4;
+            args.endTimeIndex = 5;
+            args.allDayIndex = 6;
+            args.alarmIndex = 7;
+            args.alarmDateIndex = 8;
+            args.alarmTimeIndex = 9;
+            args.categoriesIndex = 15;
+            args.descriptionIndex = 16;
+            args.locationIndex = 17;
+            args.privateIndex = 20;
+        }
 
-            // Construct event regexp according to field indexes. The regexp can
-            // be made stricter, if it seems this matches too loosely.
-            let regExpStr = "^";
-            for (i = 1; i <= header.length; i++) {
-                if (i > 1)
-                    regExpStr += ",";
-                regExpStr += "(?:\"((?:[^\"]|\"\")*)\")?";
-            }
-            regExpStr += "$";
+        if (args.titleIndex == 0 || args.startDateIndex == 0) {
+            dump("Can't import. Life sucks\n")
+            aCount.value = 0;
+            return [];
+        }
 
-            // eventRegExp: regexp for reading events (this one'll be constructed on fly)
-            const eventRegExp = new RegExp(regExpStr, "gm");
+        // Construct event regexp according to field indexes. The regexp can
+        // be made stricter, if it seems this matches too loosely.
+        let regExpStr = "^";
+        for (i = 1; i <= header.length; i++) {
+            if (i > 1)
+                regExpStr += ",";
+            regExpStr += "(?:\"((?:[^\"]|\"\")*)\")?";
+        }
+        regExpStr += "$";
 
-            // match first line
-            let eventFields = eventRegExp.exec(str);
+        // eventRegExp: regexp for reading events (this one'll be constructed on fly)
+        const eventRegExp = new RegExp(regExpStr, "gm");
 
-            if (eventFields == null)
-                break parse;
+        // match first line
+        let eventFields = eventRegExp.exec(str);
 
-            args.boolStr = localeEn.valueTrue;
-            args.boolIsTrue = true;
+        if (eventFields == null) {
+            aCount.value = 0;
+            return [];
+        }
 
-            let dateParseConfirmed = false;
-            let eventArray = new Array();
-            do {
-                // At this point eventFields contains following fields. Position
-                // of fields is in args.[fieldname]Index.
-                //    subject, start date, start time, end date, end time,
-                //    all day, alarm on, alarm date, alarm time,
-                //    Description, Categories, Location, Private
-                // Unused fields (could maybe be copied to Description):
-                //    Meeting Organizer, Required Attendees, Optional Attendees,
-                //    Meeting Resources, Billing Information, Mileage, Priority,
-                //    Sensitivity, Show time as
+        args.boolStr = localeEn.valueTrue;
+        args.boolIsTrue = true;
 
-                let title = ("titleIndex" in args
-                             ? this.parseTextField(eventFields[args.titleIndex]) : "");
-                let sDate = this.parseDateTime(eventFields[args.startDateIndex],
-                                               eventFields[args.startTimeIndex],
-                                               locale);
-                let eDate = this.parseDateTime(eventFields[args.endDateIndex],
-                                               eventFields[args.endTimeIndex],
-                                               locale);
-                // Create an event only if we have a startDate. No more checks
-                // on sDate needed in the following process.
-                if (sDate) {
-                    let event = cal.createEvent();
+        let dateParseConfirmed = false;
+        let eventArray = new Array();
+        do {
+            // At this point eventFields contains following fields. Position
+            // of fields is in args.[fieldname]Index.
+            //    subject, start date, start time, end date, end time,
+            //    all day, alarm on, alarm date, alarm time,
+            //    Description, Categories, Location, Private
+            // Unused fields (could maybe be copied to Description):
+            //    Meeting Organizer, Required Attendees, Optional Attendees,
+            //    Meeting Resources, Billing Information, Mileage, Priority,
+            //    Sensitivity, Show time as
 
-                    // Use column head in brackets if event title misses in data.
-                    if (title) {
-                        event.title = title;
+            let title = ("titleIndex" in args
+                         ? this.parseTextField(eventFields[args.titleIndex]) : "");
+            let sDate = this.parseDateTime(eventFields[args.startDateIndex],
+                                           eventFields[args.startTimeIndex],
+                                           locale);
+            let eDate = this.parseDateTime(eventFields[args.endDateIndex],
+                                           eventFields[args.endTimeIndex],
+                                           locale);
+            // Create an event only if we have a startDate. No more checks
+            // on sDate needed in the following process.
+            if (sDate) {
+                let event = cal.createEvent();
+
+                // Use column head in brackets if event title misses in data.
+                if (title) {
+                    event.title = title;
+                } else {
+                    event.title = "[" + locale.headTitle + "]";
+                }
+
+                // Check data for all day event. Additionally sDate.isDate
+                // may have been set in parseDateTime() if no time was found
+                if (eventFields[args.allDayIndex] == locale.valueTrue) {
+                    sDate.isDate = true;
+                }
+                if (locale.valueTrue == eventFields[args.privateIndex]) {
+                    event.privacy = "PRIVATE";
+                }
+
+                if (!eDate) {
+                    // No endDate was found. All day events last one day and
+                    // timed events last the default length.
+                    eDate = sDate.clone();
+                    if (sDate.isDate) {
+                        // end date is exclusive, so set to next day after start.
+                        eDate.day += 1;
                     } else {
-                        event.title = "[" + locale.headTitle + "]";
+                        eDate.minute += Preferences.get("calendar.event.defaultlength", 60);
                     }
+                } else {
+                    // An endDate was found.
+                    if (sDate.isDate) {
+                        // A time part for the startDate is missing or was
+                        // not recognized. We have to throw away the endDates
+                        // time part too for obtaining a valid event.
+                        eDate.isDate = true;
+                        // Correct the eDate if duration is less than one day.
+                        if (1 > eDate.subtractDate(sDate).days) {
+                            eDate = sDate.clone();
+                            eDate.day += 1;
+                        }
+                    } else {
+                        // We now have a timed startDate and an endDate. If the
+                        // end time is invalid set it to 23:59:00
+                        if (eDate.isDate) {
+                            eDate.isDate = false;
+                            eDate.hour   = 23;
+                            eDate.minute = 59;
+                        }
+                        // Correct the duration to 0 seconds if it is negative.
+                        if (eDate.subtractDate(sDate).isNegative ) {
+                            eDate = sDate.clone();
+                        }
+                    }
+                }
+                event.startDate = sDate;
+                event.endDate = eDate;
 
-                    // Check data for all day event. Additionally sDate.isDate
-                    // may have been set in parseDateTime() if no time was found
-                    if (eventFields[args.allDayIndex] == locale.valueTrue) {
-                        sDate.isDate = true;
+                // Exists an alarm true/false column?
+                if ("alarmIndex" in args) {
+                    // Is an alarm wanted for this event?
+                    if (locale.valueTrue == eventFields[args.alarmIndex]) {
+                        let alarmDate =
+                                this.parseDateTime(eventFields[args.alarmDateIndex],
+                                                   eventFields[args.alarmTimeIndex],
+                                                   locale);
+                        // Only set the alarm if a date was parsed
+                        if (alarmDate) {
+                            let alarm = cal.createAlarm();
+                            alarm.related = alarm.ALARM_RELATED_ABSOLUTE;
+                            alarm.alarmDate = alarmDate;
+                            event.addAlarm(alarm);
+                        } else {
+                            // XXX Is this really wanted here?
+                            cal.alarms.setDefaultValues(event);
+                        }
                     }
+                }
+
+                // Using the "Private" field only for getting privacy status.
+                // "Sensitivity" is neglected for now.
+                if ("privateIndex" in args) {
                     if (locale.valueTrue == eventFields[args.privateIndex]) {
                         event.privacy = "PRIVATE";
                     }
-
-                    if (!eDate) {
-                        // No endDate was found. All day events last one day and
-                        // timed events last the default length.
-                        eDate = sDate.clone();
-                        if (sDate.isDate) {
-                            // end date is exclusive, so set to next day after start.
-                            eDate.day += 1;
-                        } else {
-                            eDate.minute += Preferences.get("calendar.event.defaultlength", 60);
-                        }
-                    } else {
-                        // An endDate was found.
-                        if (sDate.isDate) {
-                            // A time part for the startDate is missing or was
-                            // not recognized. We have to throw away the endDates
-                            // time part too for obtaining a valid event.
-                            eDate.isDate = true;
-                            // Correct the eDate if duration is less than one day.
-                            if (1 > eDate.subtractDate(sDate).days) {
-                                eDate = sDate.clone();
-                                eDate.day += 1;
-                            }
-                        } else {
-                            // We now have a timed startDate and an endDate. If the
-                            // end time is invalid set it to 23:59:00
-                            if (eDate.isDate) {
-                                eDate.isDate = false;
-                                eDate.hour   = 23;
-                                eDate.minute = 59;
-                            }
-                            // Correct the duration to 0 seconds if it is negative.
-                            if (eDate.subtractDate(sDate).isNegative ) {
-                                eDate = sDate.clone();
-                            }
-                        }
-                    }
-                    event.startDate = sDate;
-                    event.endDate = eDate;
-
-                    // Exists an alarm true/false column?
-                    if ("alarmIndex" in args) {
-                        // Is an alarm wanted for this event?
-                        if (locale.valueTrue == eventFields[args.alarmIndex]) {
-                            let alarmDate =
-                                    this.parseDateTime(eventFields[args.alarmDateIndex],
-                                                       eventFields[args.alarmTimeIndex],
-                                                       locale);
-                            // Only set the alarm if a date was parsed
-                            if (alarmDate) {
-                                let alarm = cal.createAlarm();
-                                alarm.related = alarm.ALARM_RELATED_ABSOLUTE;
-                                alarm.alarmDate = alarmDate;
-                                event.addAlarm(alarm);
-                            } else {
-                                // XXX Is this really wanted here?
-                                cal.alarms.setDefaultValues(event);
-                            }
-                        }
-                    }
-
-                    // Using the "Private" field only for getting privacy status.
-                    // "Sensitivity" is neglected for now.
-                    if ("privateIndex" in args) {
-                        if (locale.valueTrue == eventFields[args.privateIndex]) {
-                            event.privacy = "PRIVATE";
-                        }
-                    }
-
-                    // Avoid setting empty properties
-                    let txt = "";
-                    if ("descriptionIndex" in args) {
-                        txt = this.parseTextField(eventFields[args.descriptionIndex])
-                        if (txt) {
-                            event.setProperty("DESCRIPTION", txt);
-                        }
-                    }
-                    if ("categoriesIndex" in args) {
-                        txt = this.parseTextField(eventFields[args.categoriesIndex])
-                        if (txt) {
-                            let categories = cal.categoriesStringToArray(txt);
-                            event.setCategories(categories.length, categories);
-                        }
-                    }
-                    if ("locationIndex" in args) {
-                        txt = this.parseTextField(eventFields[args.locationIndex])
-                        if (txt) {
-                            event.setProperty("LOCATION", txt);
-                        }
-                    }
-
-                    //save the event into return array
-                    eventArray.push(event);
                 }
 
-                //get next events fields
-                eventFields = eventRegExp.exec(str);
+                // Avoid setting empty properties
+                let txt = "";
+                if ("descriptionIndex" in args) {
+                    txt = this.parseTextField(eventFields[args.descriptionIndex])
+                    if (txt) {
+                        event.setProperty("DESCRIPTION", txt);
+                    }
+                }
+                if ("categoriesIndex" in args) {
+                    txt = this.parseTextField(eventFields[args.categoriesIndex])
+                    if (txt) {
+                        let categories = cal.categoriesStringToArray(txt);
+                        event.setCategories(categories.length, categories);
+                    }
+                }
+                if ("locationIndex" in args) {
+                    txt = this.parseTextField(eventFields[args.locationIndex])
+                    if (txt) {
+                        event.setProperty("LOCATION", txt);
+                    }
+                }
 
-            } while (eventRegExp.lastIndex != 0);
+                //save the event into return array
+                eventArray.push(event);
+            }
 
-            // return results
-            aCount.value = eventArray.length;
-            return eventArray;
+            //get next events fields
+            eventFields = eventRegExp.exec(str);
 
-        } // end parse
+        } while (eventRegExp.lastIndex != 0);
 
-        // The parse was cancelled, return an empty array of events.
-        aCount.value = 0;
-        return [];
+        // return results
+        aCount.value = eventArray.length;
+        return eventArray;
     },
 
     parseDateTime: function parseDateTime(aDate, aTime, aLocale) {

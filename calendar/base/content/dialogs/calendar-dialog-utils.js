@@ -264,7 +264,7 @@ function matchCustomReminderToMenuitem(reminder) {
 /**
  * Load an item's reminders into the dialog
  *
- * @param reminders     An array of calIAlarms to load. 
+ * @param reminders     An array of calIAlarms to load.
  */
 function loadReminders(reminders) {
     // select 'no reminder' by default

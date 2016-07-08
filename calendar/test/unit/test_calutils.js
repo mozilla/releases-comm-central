@@ -60,7 +60,7 @@ function getAttendeeEmail_test() {
         }
         equal(cal.getAttendeeEmail(attendee, test.input.useCn), test.expected, "(test #" + i + ")");
     }
-};
+}
 
 function getRecipientList_test() {
     let data = [{
@@ -106,7 +106,7 @@ function getRecipientList_test() {
         }
         equal(cal.getRecipientList(attendees), test.expected, "(test #" + i + ")");
     }
-};
+}
 
 function prependMailTo_test() {
     let data = [{input: "mailto:first.last@example.net", expected: "mailto:first.last@example.net"},
@@ -118,7 +118,7 @@ function prependMailTo_test() {
         i++;
         equal(cal.prependMailTo(test.input), test.expected, "(test #" + i + ")");
     }
-};
+}
 
 function removeMailTo_test() {
     let data = [{input: "mailto:first.last@example.net", expected: "first.last@example.net"},
@@ -130,7 +130,7 @@ function removeMailTo_test() {
         i++;
         equal(cal.removeMailTo(test.input), test.expected, "(test #" + i + ")");
     }
-};
+}
 
 function resolveDelegation_test() {
     let data = [{
@@ -276,4 +276,4 @@ function validateRecipientList_test() {
         equal(cal.validateRecipientList(test.input), test.expected,
               "(test #" + i + ")");
     }
-};
+}

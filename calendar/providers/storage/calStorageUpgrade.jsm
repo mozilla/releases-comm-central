@@ -264,6 +264,7 @@ function createDBDelegate(funcName) {
                 cal.WARN(cal.STACK(10));
             }
         }
+        return null;
     };
 }
 

@@ -2449,7 +2449,7 @@
       ]]></handler>
 
       <handler event="mouseout"><![CDATA[
-        if (!this.mEditing && this.mInMouseDown && this.parentColumn) { 
+        if (!this.mEditing && this.mInMouseDown && this.parentColumn) {
             if (this.editingTimer) {
                 clearTimeout(this.editingTimer);
                 this.editingTimer = null;
@@ -2891,16 +2891,17 @@
       <method name="getDateList">
         <parameter name="aCount"/>
         <body><![CDATA[
-           var dates = new Array();
+           let dates = new Array();
            if (this.mStartDate && this.mEndDate) {
-               var d = this.mStartDate.clone();
+               let d = this.mStartDate.clone();
                while (d.compare(this.mEndDate) <= 0) {
                    dates.push(d.clone());
                    d.day += 1;
                }
            } else if (this.mDateList) {
-               for (var d of this.mDateList)
+               for (let d of this.mDateList) {
                    dates.push(d.clone());
+               }
            }
 
            aCount.value = dates.length;
@@ -2974,9 +2975,9 @@
         <parameter name="aSuppressEvent"/>
         <body><![CDATA[
           if (this.mSelectedItems) {
-              for (var item of this.mSelectedItems) {
-                  for (var occ of this.getItemOccurrencesInView(item)) {
-                      var cols = this.findColumnsForItem(occ);
+              for (let item of this.mSelectedItems) {
+                  for (let occ of this.getItemOccurrencesInView(item)) {
+                      let cols = this.findColumnsForItem(occ);
                       for (let col of cols) {
                           col.header.unselectOccurrence(occ);
                           col.column.unselectOccurrence(occ);
@@ -2986,8 +2987,8 @@
           }
           this.mSelectedItems = aItems || [];
 
-          for (var item of this.mSelectedItems) {
-              for (var occ of this.getItemOccurrencesInView(item)) {
+          for (let item of this.mSelectedItems) {
+              for (let occ of this.getItemOccurrencesInView(item)) {
                   let cols = this.findColumnsForItem(occ);
                   if (cols.length > 0) {
                       let start = item.startDate || item.entryDate || item.dueDate;
@@ -3071,7 +3072,7 @@
                   if (occStart.timezone != displayTZ) {
                       occStart = occStart.getInTimezone(displayTZ);
                   }
-                  if (occEnd.timezone != displayTZ) { 
+                  if (occEnd.timezone != displayTZ) {
                       occEnd = occEnd.getInTimezone(displayTZ);
                   }
                   // If crosses midnite in current TZ, set end just
@@ -3120,7 +3121,7 @@
           timebar.pixelsPerMinute = val;
 
           if (!this.mDateColumns) {
-              return;
+              return val;
           }
           for (let col of this.mDateColumns) {
               col.column.pixelsPerMinute = val;
@@ -3194,8 +3195,8 @@
 
       <method name="reorient">
         <body><![CDATA[
-          var orient = this.getAttribute("orient");
-          var otherorient = "vertical";
+          let orient = this.getAttribute("orient");
+          let otherorient = "vertical";
           if (!orient) orient = "horizontal";
           if (orient == "vertical") otherorient = "horizontal";
 
@@ -3205,20 +3206,20 @@
               this.pixelsPerMinute = 0.6;
           }
 
-          var normalelems = ['mainbox', 'timebar'];
-          var otherelems = ['labelbox', 'labeldaybox', 'headertimespacer',
+          let normalelems = ['mainbox', 'timebar'];
+          let otherelems = ['labelbox', 'labeldaybox', 'headertimespacer',
                             'headerbox', 'headerdaybox', 'scrollbox', 'daybox'];
 
-          for (var id of normalelems) {
+          for (let id of normalelems) {
               document.getAnonymousElementByAttribute(this, "anonid", id).setAttribute("orient", orient);
           }
-          for (var id of otherelems) {
+          for (let id of otherelems) {
               document.getAnonymousElementByAttribute(this, "anonid", id).setAttribute("orient", otherorient);
           }
 
-          var scrollbox = document.getAnonymousElementByAttribute(
+          let scrollbox = document.getAnonymousElementByAttribute(
                          this, "anonid", "scrollbox");
-          var mainbox = document.getAnonymousElementByAttribute(
+          let mainbox = document.getAnonymousElementByAttribute(
                         this, "anonid", "mainbox");
 
           if (orient == "vertical") {
@@ -3233,12 +3234,12 @@
                   "style", "overflow-x: hidden; overflow-y: auto;");
           }
 
-          var boxes = ["daybox", "headerdaybox"];
-          for (var boxname of boxes) {
-              var box = document.getAnonymousElementByAttribute(this, "anonid", boxname);
+          let boxes = ["daybox", "headerdaybox"];
+          for (let boxname of boxes) {
+              let box = document.getAnonymousElementByAttribute(this, "anonid", boxname);
               setAttributeToChildren(box, "orient", orient);
           }
-          var box = document.getAnonymousElementByAttribute(this, "anonid", "labeldaybox");
+
           setAttributeToChildren(this.labeldaybox, "orient", otherorient);
 
           // Refresh
@@ -3454,7 +3455,7 @@
         <parameter name="aDate"/>
         <body><![CDATA[
           if (!this.mDateColumns) {
-              return;
+              return null;
           }
           for (var col of this.mDateColumns) {
               if (col.date.compare(aDate) == 0)

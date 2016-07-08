@@ -464,8 +464,13 @@ var cal = {
     // unifinder tress are consolidated.
 
     compareNativeTime: function cal_compareNativeTime(a, b) {
-      return (a < b ? -1 :
-              a > b ?  1 : 0);
+      if (a < b) {
+        return -1;
+      } else if (a > b) {
+        return 1;
+      } else {
+        return 0;
+      }
     },
 
     compareNativeTimeFilledAsc: function cal_compareNativeTimeFilledAsc(a, b) {
@@ -497,8 +502,13 @@ var cal = {
     compareNumber: function cal_compareNumber(a, b) {
       a = Number(a);
       b = Number(b);
-      return ((a < b) ? -1 :      // avoid underflow problems of subtraction
-              (a > b) ?  1 : 0);
+      if (a < b) {
+        return -1;
+      } else if (a > b) {
+        return 1;
+      } else {
+        return 0;
+      }
     },
 
     sortEntryComparer: function cal_sortEntryComparer(sortType, modifier) {
@@ -832,7 +842,7 @@ var cal = {
                 childNode.remove();
             }
             childNode = prevChildNode;
-        };
+        }
     },
 
     /**
@@ -865,13 +875,13 @@ var cal = {
     },
 
     /**
-     * Wraps an instance. Replaces calInstanceOf from calUtils.js 
+     * Wraps an instance. Replaces calInstanceOf from calUtils.js
      *
-     * @param aObj the object under consideration 
+     * @param aObj the object under consideration
      * @param aInterface the interface to be wrapped
      *
-     * Use this function to QueryInterface the object to a particular interface. 
-     * You may only expect the return value to be wrapped, not the original passed object. 
+     * Use this function to QueryInterface the object to a particular interface.
+     * You may only expect the return value to be wrapped, not the original passed object.
      * For example:
      * // BAD USAGE:
      * if (cal.wrapInstance(foo, Ci.nsIBar)) {

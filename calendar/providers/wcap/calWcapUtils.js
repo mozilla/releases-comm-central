@@ -19,7 +19,7 @@ function initLogging() {
         }
         initLogging.mLogFilestream = null;
     }
-    
+
     LOG_LEVEL = getPref("calendar.wcap.log_level", 0);
     if (LOG_LEVEL < 1 && getPref("calendar.debug.log", false)) {
         LOG_LEVEL = 1; // at least basic logging when calendar.debug.log is set

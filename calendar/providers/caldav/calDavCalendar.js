@@ -1083,7 +1083,7 @@ calDavCalendar.prototype = {
         let isInboxItem = this.isInbox(aUri.spec);
         let self = this;
 
-        Task.spawn(function*() {
+        Task.spawn(function* () {
             if (self.mHrefIndex[path] &&
                 !self.mItemInfoCache[item.id]) {
                 // If we get here it means a meeting has kept the same filename
@@ -1151,7 +1151,7 @@ calDavCalendar.prototype = {
      *
      * @param path Path of the item to delete, must not be encoded
      */
-    deleteTargetCalendarItem: Task.async(function*(path) {
+    deleteTargetCalendarItem: Task.async(function* (path) {
         let pcal = cal.async.promisifyCalendar(this.mOfflineStorage);
 
         let foundItem = (yield pcal.getItem(this.mHrefIndex[path]))[0];

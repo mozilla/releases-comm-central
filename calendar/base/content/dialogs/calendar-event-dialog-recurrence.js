@@ -285,21 +285,21 @@ function onSave(item) {
     switch (deckNumber) {
     case 0:
         recRule.type = "DAILY";
-        var dailyGroup = document.getElementById("daily-group");
+        let dailyGroup = document.getElementById("daily-group");
         if (dailyGroup.selectedIndex == 0) {
-            var ndays = Math.max(1, Number(getElementValue("daily-days")));
+            let ndays = Math.max(1, Number(getElementValue("daily-days")));
             recRule.interval = ndays;
         } else {
             recRule.interval = 1;
-            var onDays = [2, 3, 4, 5, 6];
+            let onDays = [2, 3, 4, 5, 6];
             recRule.setComponent("BYDAY", onDays.length, onDays);
         }
         break;
     case 1:
         recRule.type = "WEEKLY";
-        var ndays = Number(getElementValue("weekly-weeks"));
+        let ndays = Number(getElementValue("weekly-weeks"));
         recRule.interval = ndays;
-        var onDays = document.getElementById("daypicker-weekday").days;
+        let onDays = document.getElementById("daypicker-weekday").days;
         if (onDays.length > 0) {
             recRule.setComponent("BYDAY", onDays.length, onDays);
         }
@@ -334,19 +334,19 @@ function onSave(item) {
         break;
     case 3:
         recRule.type = "YEARLY";
-        var yearInterval = Number(getElementValue("yearly-interval"));
+        let yearInterval = Number(getElementValue("yearly-interval"));
         recRule.interval = yearInterval;
-        var yearlyGroup = document.getElementById("yearly-group");
+        let yearlyGroup = document.getElementById("yearly-group");
         if (yearlyGroup.selectedIndex == 0) {
-            var yearlyByMonth = [ Number(getElementValue("yearly-month-ordinal")) ];
+            let yearlyByMonth = [ Number(getElementValue("yearly-month-ordinal")) ];
             recRule.setComponent("BYMONTH", yearlyByMonth.length, yearlyByMonth);
-            var yearlyByDay = [ Number(getElementValue("yearly-days")) ];
+            let yearlyByDay = [ Number(getElementValue("yearly-days")) ];
             recRule.setComponent("BYMONTHDAY", yearlyByDay.length, yearlyByDay);
         } else {
-            var yearlyByMonth = [ Number(getElementValue("yearly-month-rule")) ];
+            let yearlyByMonth = [ Number(getElementValue("yearly-month-rule")) ];
             recRule.setComponent("BYMONTH", yearlyByMonth.length, yearlyByMonth);
-            var ordinal = Number(getElementValue("yearly-ordinal"));
-            var day_of_week = Number(getElementValue("yearly-weekday"));
+            let ordinal = Number(getElementValue("yearly-ordinal"));
+            let day_of_week = Number(getElementValue("yearly-weekday"));
             if (day_of_week < 0) {
                 if (ordinal == 0) {
                     // Yearly rule "Every day of a month".
@@ -747,7 +747,6 @@ function updateRecurrencePattern() {
 function changeOrderForElements(aPropKey, aPropParams) {
     var localeOrder;
     var parents = {};
-    var i = 0;
 
     for (var key in aPropParams) {
         // Save original parents so that the nodes to reorder get appended to
@@ -770,7 +769,7 @@ function changeOrderForElements(aPropKey, aPropParams) {
     }
 
     // Add elements in the right order, removing them from their old parent
-    for (var i = 0; i < aPropParams.length; i++) {
+    for (let i = 0; i < aPropParams.length; i++) {
         var newEl = document.getElementById(localeOrder[i]);
         if (newEl) {
             parents[i].appendChild(newEl.parentNode.removeChild(newEl));

@@ -73,7 +73,7 @@ var taskDetailsView = {
                         var percent = 0;
                         var property = item.getProperty("PERCENT-COMPLETE");
                         if (property != null) {
-                            var percent = parseInt(property);
+                            percent = parseInt(property, 10);
                         }
                         statusDetails.value = calGetString(
                             "calendar",

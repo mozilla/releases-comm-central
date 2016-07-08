@@ -241,8 +241,8 @@ function updateDateTime() {
     // is *not* checked, otherwise keep the specific timezone
     // and display the labels in order to modify the timezone.
     if (gDisplayTimezone) {
-        var startTime = gStartDate.getInTimezone(gStartTimezone);
-        var endTime = gEndDate.getInTimezone(gEndTimezone);
+        let startTime = gStartDate.getInTimezone(gStartTimezone);
+        let endTime = gEndDate.getInTimezone(gEndTimezone);
 
         if (startTime.isDate) {
             document.getElementById("all-day")
@@ -269,10 +269,10 @@ function updateDateTime() {
         document.getElementById("event-starttime").value = cal.dateTimeToJsDate(startTime);
         document.getElementById("event-endtime").value = cal.dateTimeToJsDate(endTime);
     } else {
-        var kDefaultTimezone = calendarDefaultTimezone();
+        let kDefaultTimezone = calendarDefaultTimezone();
 
-        var startTime = gStartDate.getInTimezone(kDefaultTimezone);
-        var endTime = gEndDate.getInTimezone(kDefaultTimezone);
+        let startTime = gStartDate.getInTimezone(kDefaultTimezone);
+        let endTime = gEndDate.getInTimezone(kDefaultTimezone);
 
         if (startTime.isDate) {
             document.getElementById("all-day")
@@ -355,7 +355,7 @@ function updateStartTime() {
     // timezone instead of converting.
     let timezone = gDisplayTimezone ? gStartTimezone : calendarDefaultTimezone();
     let start = cal.jsDateToDateTime(startWidget.value, timezone);
-                                    
+
     gStartDate = start.clone();
     start.addDuration(gDuration);
     gEndDate = start.getInTimezone(gEndTimezone);
@@ -584,24 +584,24 @@ function onResize() {
         return;
     }
 
-    var grid = document.getElementById("freebusy-grid");
-    var gridScrollbar = document.getElementById("horizontal-scrollbar");
+    let grid = document.getElementById("freebusy-grid");
+    let gridScrollbar = document.getElementById("horizontal-scrollbar");
     grid.fitDummyRows();
-    var ratio = grid.boxObject.width / grid.documentSize;
-    var maxpos = gridScrollbar.getAttribute("maxpos");
-    var inc = maxpos * ratio / (1 - ratio);
-    gridScrollbar.setAttribute("pageincrement", inc);
+    let gridRatio = grid.boxObject.width / grid.documentSize;
+    let gridMaxpos = gridScrollbar.getAttribute("maxpos");
+    let gridInc = gridMaxpos * gridRatio / (1 - gridRatio);
+    gridScrollbar.setAttribute("pageincrement", gridInc);
 
-    var attendees = document.getElementById("attendees-list");
-    var attendeesScrollbar = document.getElementById("vertical-scrollbar");
-    var box = document.getElementById("vertical-scrollbar-box");
+    let attendees = document.getElementById("attendees-list");
+    let attendeesScrollbar = document.getElementById("vertical-scrollbar");
+    let box = document.getElementById("vertical-scrollbar-box");
     attendees.fitDummyRows();
-    var ratio = attendees.boxObject.height / attendees.documentSize;
-    if (ratio < 1) {
+    let attRatio = attendees.boxObject.height / attendees.documentSize;
+    let attMaxpos = attendeesScrollbar.getAttribute("maxpos");
+    if (attRatio < 1) {
         box.removeAttribute("collapsed");
-        var maxpos = attendeesScrollbar.getAttribute("maxpos");
-        var inc = maxpos * ratio / (1 - ratio);
-        attendeesScrollbar.setAttribute("pageincrement", inc);
+        let attInc = attMaxpos * attRatio / (1 - attRatio);
+        attendeesScrollbar.setAttribute("pageincrement", attInc);
     } else {
         box.setAttribute("collapsed", "true");
     }
@@ -749,7 +749,7 @@ function scrollToCurrentTime() {
  * @return              aValue (for chaining)
  */
 function setZoomFactor(aValue) {
-    // Correct zoom factor, if needed 
+    // Correct zoom factor, if needed
     aValue = parseInt(aValue, 10) || 100;
 
     if (gZoomFactor == aValue) {
@@ -886,17 +886,17 @@ function onMouseScroll(event) {
  */
 function onAttrModified(event) {
     if (event.attrName == "width") {
-        var selectionbar = document.getElementById("selection-bar");
+        let selectionbar = document.getElementById("selection-bar");
         selectionbar.setWidth(selectionbar.boxObject.width);
         return;
     }
 
     // Synchronize grid and attendee list
-    var target = event.originalTarget;
+    let target = event.originalTarget;
     if (target.hasAttribute("anonid") &&
         target.getAttribute("anonid") == "input" &&
         event.attrName == "focused") {
-        var attendees = document.getElementById("attendees-list");
+        let attendees = document.getElementById("attendees-list");
         if (event.newValue == "true") {
             let grid = document.getElementById("freebusy-grid");
             if (grid.firstVisibleRow != attendees.firstVisibleRow) {
@@ -911,23 +911,23 @@ function onAttrModified(event) {
     }
 
     if (event.originalTarget.localName == "scrollbar") {
-        var scrollbar = event.originalTarget;
+        let scrollbar = event.originalTarget;
         if (scrollbar.hasAttribute("maxpos")) {
             if (scrollbar.getAttribute("id") == "vertical-scrollbar") {
-                var attendees = document.getElementById("attendees-list");
-                var grid = document.getElementById("freebusy-grid");
+                let attendees = document.getElementById("attendees-list");
+                let grid = document.getElementById("freebusy-grid");
                 if (event.attrName == "curpos") {
-                    var maxpos = scrollbar.getAttribute("maxpos");
+                    let maxpos = scrollbar.getAttribute("maxpos");
                     attendees.ratio = event.newValue / maxpos;
                 }
                 grid.firstVisibleRow = attendees.firstVisibleRow;
             } else if (scrollbar.getAttribute("id") == "horizontal-scrollbar") {
                 if (event.attrName == "curpos") {
-                    var maxpos = scrollbar.getAttribute("maxpos");
-                    var ratio = event.newValue/maxpos;
-                    var timebar = document.getElementById("timebar");
-                    var grid = document.getElementById("freebusy-grid");
-                    var selectionbar = document.getElementById("selection-bar");
+                    let maxpos = scrollbar.getAttribute("maxpos");
+                    let ratio = event.newValue/maxpos;
+                    let timebar = document.getElementById("timebar");
+                    let grid = document.getElementById("freebusy-grid");
+                    let selectionbar = document.getElementById("selection-bar");
                     timebar.scroll = ratio;
                     grid.scroll = ratio;
                     selectionbar.ratio = ratio;

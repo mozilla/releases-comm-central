@@ -5,7 +5,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!--
-/* MiniMonth Calendar: day-of-month grid XBL component.
+   MiniMonth Calendar: day-of-month grid XBL component.
    Displays month name and year above grid of days of month by week rows.
    Arrows move forward or back a month.
    Selecting a month name from month menu moves to that month in same year.
@@ -26,7 +26,6 @@
          Use onpopuplisthidden to reshow parent popop (hidePopup, openPopup).
        When title month or year changes, parent popup may need to be reshown.
          Use onmonthchange to reshow parent popop (hidePopup, openPopup).
-*/
 -->
 <!DOCTYPE bindings
 [

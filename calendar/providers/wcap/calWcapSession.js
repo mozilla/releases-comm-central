@@ -483,7 +483,6 @@ calWcapSession.prototype = {
 
         request.lockPending();
         try {
-            var this_ = this;
             this.issueNetworkRequest_(
                 request,
                 function userprefs_resp(err, data) {
@@ -492,7 +491,7 @@ calWcapSession.prototype = {
                     this_.credentials.userPrefs = data;
                     log("installed user prefs.", this_);
 
-                    // get calprops for all registered calendars:                        
+                    // get calprops for all registered calendars:
                     var cals = this_.getRegisteredCalendars(true);
 
                     var calprops_resp = null;
@@ -555,7 +554,7 @@ calWcapSession.prototype = {
             request.unlockPending();
         }
     },
-    
+
     installCalProps_get_calprops:
     function calWcapSession_installCalProps_get_calprops(respFunc, sessionId, cals, request) {
 
@@ -1144,7 +1143,7 @@ function confirmInsecureLogin(uri)
     } else {
         var prompt = Services.ww.getNewPrompter(null);
         var out_dontAskAgain = { value: false };
-        var bConfirmed = prompt.confirmCheck(
+        bConfirmed = prompt.confirmCheck(
             cal.calGetString("wcap", "noHttpsConfirmation.label"),
             cal.calGetString("wcap", "noHttpsConfirmation.text", [host]),
             cal.calGetString("wcap", "noHttpsConfirmation.check.text"),
@@ -1153,13 +1152,13 @@ function confirmInsecureLogin(uri)
         if (out_dontAskAgain.value) {
             // save decision for all running calendars and
             // all future confirmations:
-            var confirmedHttpLogins = getPref("calendar.wcap.confirmed_http_logins", "");
-            if (confirmedHttpLogins.length > 0) {
-                confirmedHttpLogins += ",";
+            var newConfirmedLogins = getPref("calendar.wcap.confirmed_http_logins", "");
+            if (newConfirmedLogins.length > 0) {
+                newConfirmedLogins += ",";
             }
             confirmedEntry = (bConfirmed ? "1" : "0");
-            confirmedHttpLogins += (encodedHost + ":" + confirmedEntry);
-            Preferences.set("calendar.wcap.confirmed_http_logins", confirmedHttpLogins);
+            newConfirmedLogins += (encodedHost + ":" + confirmedEntry);
+            Preferences.set("calendar.wcap.confirmed_http_logins", newConfirmedLogins);
             getPref("calendar.wcap.confirmed_http_logins"); // log written entry
             confirmInsecureLogin.m_confirmedHttpLogins[encodedHost] = confirmedEntry;
         }

@@ -28,11 +28,11 @@ var setupModule = function(module) {
 
 var testTimezones5_checkPhoenix = function () {
   let eventPath = '/{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';
-  
+
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
   calUtils.switchToView(controller, "day");
   calUtils.goToDate(controller, 2009, 1, 1);
-  
+
   timezoneUtils.verify(controller, dates, timezones, times);
 }
 

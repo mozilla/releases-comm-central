@@ -97,7 +97,7 @@
           if (val) {
             checkbox.setAttribute("checked", "true");
           } else {
-            checkbox.removeAttribute("checked");          
+            checkbox.removeAttribute("checked");
           }
           return val;
         ]]></setter>

@@ -83,7 +83,7 @@
              else if (event.keyCode == 27)
                  self.stopEditing(false);
          };
-         function stopPropagationIfEditing(event) { 
+         function stopPropagationIfEditing(event) {
            if (self.mEditing) {
              event.stopPropagation();
            }
@@ -158,7 +158,7 @@
 
       <method name="setCSSClasses">
         <body><![CDATA[
-          var item = this.mOccurrence;          
+          var item = this.mOccurrence;
           this.setAttribute("calendar-uri", item.calendar.uri.spec);
           this.setAttribute("calendar-id", item.calendar.id);
           var categoriesArray = item.getCategories({});
@@ -267,7 +267,7 @@
                 return;
             }
             let items = this.calendarView.mSelectedItems.slice();
-            if (event.ctrlKey || event.metaKey) {    
+            if (event.ctrlKey || event.metaKey) {
                 if (this.selected) {
                     let pos = items.indexOf(this.mOccurrence);
                     items.splice(pos, 1);
@@ -289,7 +289,7 @@
           this.mEditing = false;
 
           if (saveChanges && (this.eventNameTextbox.value != this.mOriginalTextLabel)) {
-              this.calendarView.controller.modifyOccurrence(this.mOccurrence, 
+              this.calendarView.controller.modifyOccurrence(this.mOccurrence,
                                                             null, null,
                                                             this.eventNameTextbox.value);
 

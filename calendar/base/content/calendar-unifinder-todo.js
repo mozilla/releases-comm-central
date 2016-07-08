@@ -24,7 +24,7 @@ function updateCalendarToDoUnifinder(aFilter) {
     let oldFilter = document.getElementById("unifinder-todo-filter-broadcaster").getAttribute("value");
     let filter = oldFilter;
 
-    // This function acts as an event listener, in which case we get the Event as the 
+    // This function acts as an event listener, in which case we get the Event as the
     // parameter instead of a filter.
     if (aFilter && !(aFilter instanceof Event)) {
         filter = aFilter;

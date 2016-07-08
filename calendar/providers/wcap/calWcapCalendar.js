@@ -201,7 +201,7 @@ calWcapCalendar.prototype = {
         // notify about refreshed calendar:
         this.notifyObservers("onLoad", [this]);
     },
-    
+
     issueNetworkRequest: function calWcapCalendar_issueNetworkRequest(
         request, respFunc, dataConvFunc, wcapCommand, params, accessRights) {
 

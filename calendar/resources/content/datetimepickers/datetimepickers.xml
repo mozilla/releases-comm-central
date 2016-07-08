@@ -7,7 +7,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!--
-/*  This defines <datepicker/> <timepicker/> and <datetimepicker/>
+    This defines <datepicker/> <timepicker/> and <datetimepicker/>
     which all descend from datetimepicker-base to get date/time parsing
     and consistent behavior.
     It relies on <minimonth/> for the date picker's drop down.
@@ -21,8 +21,6 @@
       datepicker or timepicker individually with
       document.getElementById("my-datetimepicker").datepickerdisabled = true;
       document.getElementById("my-datetimepicker").timepickerdisabled = true;
-
-*/
 -->
 <bindings id="xulDatePicker"
           xmlns="http://www.mozilla.org/xbl"
@@ -166,18 +164,18 @@
            }
 
            // Replace month names with numbers
-           for (var i in this.mMonthLongNames) {
+           for (let i in this.mMonthLongNames) {
              if (val.includes(this.mMonthLongNames[i])) {
-               var newVal = val.replace(this.mMonthLongNames[i], Number(i)+1);
+               let newVal = val.replace(this.mMonthLongNames[i], Number(i)+1);
                newVal = newVal.replace(' ', '/');
                return this.parseDateTime(newVal);
              }
           }
 
           // Same for short month names
-           for (var i in this.mMonthShortNames) {
+           for (let i in this.mMonthShortNames) {
              if (val.includes(this.mMonthShortNames[i])) {
-               var newVal = val.replace(this.mMonthShortNames[i], Number(i)+1);
+               let newVal = val.replace(this.mMonthShortNames[i], Number(i)+1);
                newVal = newVal.replace(' ', '/');
                return this.parseDateTime(newVal);
              }
@@ -619,7 +617,7 @@
             if (aValue != null && aRefresh && timeChanged) {
               let event = document.createEvent('Events');
               event.initEvent("change", true, true);
-              this.dispatchEvent(event);;
+              this.dispatchEvent(event);
             }
           ]]>
         </body>

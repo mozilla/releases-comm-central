@@ -492,7 +492,7 @@ calRecurrenceInfo.prototype = {
 
         // Apply positive rules
         for (let ritem of this.mPositiveRules) {
-            var cur_dates = ritem.getOccurrences(startDate,
+            let cur_dates = ritem.getOccurrences(startDate,
                                                  searchStart,
                                                  rangeEnd,
                                                  maxCount, {});
@@ -503,13 +503,13 @@ calRecurrenceInfo.prototype = {
             // if positive, we just add these date to the existing set,
             // but only if they're not already there
 
-            var index = 0;
-            var len = cur_dates.length;
+            let index = 0;
+            let len = cur_dates.length;
 
             // skip items before rangeStart due to searchStart libical hack:
             if (rangeStart && baseDuration) {
                 for (; index < len; ++index) {
-                    var date = cur_dates[index].clone();
+                    let date = cur_dates[index].clone();
                     date.addDuration(baseDuration);
                     if (rangeStart.compare(date) < 0) {
                         break;
@@ -517,8 +517,8 @@ calRecurrenceInfo.prototype = {
                 }
             }
             for (; index < len; ++index) {
-                var date = cur_dates[index];
-                var dateKey = getRidKey(date);
+                let date = cur_dates[index];
+                let dateKey = getRidKey(date);
                 if (occurrenceMap[dateKey]) {
                     // Don't add occurrences twice (i.e exception was
                     // already added before)
@@ -533,7 +533,7 @@ calRecurrenceInfo.prototype = {
 
         // Apply negative rules
         for (let ritem of this.mNegativeRules) {
-            var cur_dates = ritem.getOccurrences(startDate,
+            let cur_dates = ritem.getOccurrences(startDate,
                                                  searchStart,
                                                  rangeEnd,
                                                  maxCount, {});

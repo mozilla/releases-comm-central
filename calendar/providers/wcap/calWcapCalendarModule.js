@@ -42,7 +42,7 @@ var CACHE_LAST_RESULTS_INVALIDATE = 120;
 var LOG_LEVEL = 0;
 
 function initWcapProvider() {
-    try {        
+    try {
         initLogging();
 
         // some string resources:

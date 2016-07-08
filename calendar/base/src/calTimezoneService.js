@@ -367,7 +367,7 @@ function guessSystemTimezone() {
 
         if (offsetDec == standardTZOffset && offsetJun == daylightTZOffset &&
             daylight) {
-            var dateMatchWt = systemTZMatchesTimeShiftDates(tz, subComp);
+            let dateMatchWt = systemTZMatchesTimeShiftDates(tz, subComp);
             if (dateMatchWt > 0) {
                 if (standardName && standardName == tzNameJun &&
                     daylightName && daylightName == tzNameDec) {
@@ -390,7 +390,7 @@ function guessSystemTimezone() {
 
         if (offsetJun == standardTZOffset && offsetDec == daylightTZOffset &&
             daylight) {
-            var dateMatchWt = systemTZMatchesTimeShiftDates(tz, subComp);
+            let dateMatchWt = systemTZMatchesTimeShiftDates(tz, subComp);
             if (dateMatchWt > 0) {
                 if (standardName && standardName == tzNameJun &&
                     daylightName && daylightName == tzNameDec) {
@@ -662,8 +662,8 @@ function guessSystemTimezone() {
 
         // check how well OS tz matches tz defined in our version of zoneinfo db
         if (zoneInfoIdFromOSUserTimeZone != null) {
-            var tzId = zoneInfoIdFromOSUserTimeZone;
-            var score = checkTZ(tzId);
+            let tzId = zoneInfoIdFromOSUserTimeZone;
+            let score = checkTZ(tzId);
             switch(score) {
             case 0:
                 // Did not match.
@@ -681,8 +681,9 @@ function guessSystemTimezone() {
                 // another ZoneInfo TZ matches it better).
                 probableTZId = tzId;
                 probableTZScore = score;
-                probableTZSource = (calProperties.formatStringFromName
-                                    ("TZFromOS", [osUserTimeZone], 1));
+                probableTZSource = calProperties.formatStringFromName(
+                    "TZFromOS", [osUserTimeZone], 1);
+
                 break;
             case 3:
                 // exact match
@@ -691,10 +692,9 @@ function guessSystemTimezone() {
         }
     } catch (ex) {
         // zoneInfo id given was not recognized by our ZoneInfo database
-        var errMsg = (calProperties.formatStringFromName
-                      ("SkippingOSTimezone",
-                       [zoneInfoIdFromOSUserTimeZone || osUserTimeZone], 1));
-        Components.utils.reportError(errMsg+" "+ex);
+        let errParams = [zoneInfoIdFromOSUserTimeZone || osUserTimeZone];
+        let errMsg = calProperties.formatStringFromName("SkippingOSTimezone", errParams, 1);
+        Components.utils.reportError(errMsg + " " + ex);
     }
 
     // Second, give priority to "likelyTimezone"s if provided by locale.
@@ -704,10 +704,10 @@ function guessSystemTimezone() {
         const bundleTZString =
             calProperties.GetStringFromName("likelyTimezone");
         const bundleTZIds = bundleTZString.split(/\s*,\s*/);
-        for (var bareTZId of bundleTZIds) {
-            var tzId = bareTZId;
+        for (let bareTZId of bundleTZIds) {
+            let tzId = bareTZId;
             try {
-                var score = checkTZ(tzId);
+                let score = checkTZ(tzId);
 
                 switch (score) {
                 case 0:
@@ -716,16 +716,15 @@ function guessSystemTimezone() {
                     if (score > probableTZScore) {
                         probableTZId = tzId;
                         probableTZScore = score;
-                        probableTZSource = (calProperties.GetStringFromName
-                                            ("TZFromLocale"));
+                        probableTZSource = calProperties.GetStringFromName("TZFromLocale");
                     }
                     break;
                 case 3:
                     return tzId;
                 }
             } catch (ex) {
-                var errMsg = (calProperties.formatStringFromName
-                              ("SkippingLocaleTimezone", [bareTZId], 1));
+                let errMsg = calProperties.formatStringFromName(
+                    "SkippingLocaleTimezone", [bareTZId], 1);
                 Components.utils.reportError(errMsg+" "+ex);
             }
         }
@@ -736,25 +735,23 @@ function guessSystemTimezone() {
     // Third, try all known timezones.
     const tzIDs = tzSvc.timezoneIds;
     while (tzIDs.hasMore()) {
-        var tzId = tzIDs.getNext();
+        let tzId = tzIDs.getNext();
         try {
-            var score = checkTZ(tzId);
+            let score = checkTZ(tzId);
             switch(score) {
             case 0: break;
             case 1: case 2:
                 if (score > probableTZScore) {
                     probableTZId = tzId;
                     probableTZScore = score;
-                    probableTZSource = (calProperties.GetStringFromName
-                                        ("TZFromKnownTimezones"));
+                    probableTZSource = calProperties.GetStringFromName("TZFromKnownTimezones");
                 }
                 break;
             case 3:
                 return tzId;
             }
         } catch (ex) { // bug if ics service doesn't recognize own tzid!
-            var msg = ("ics-service doesn't recognize own tzid: "+tzId+"\n"+
-                       ex);
+            let msg = "ics-service doesn't recognize own tzid: " + tzId + "\n" + ex;
             Components.utils.reportError(msg);
         }
     }
@@ -766,7 +763,7 @@ function guessSystemTimezone() {
             cal.WARN(calProperties.GetStringFromName("warningUsingFloatingTZNoMatch"));
             break;
         case 1: case 2:
-            var tzId = probableTZId;
+            let tzId = probableTZId;
             var tz = tzSvc.getTimezone(tzId);
             var subComp = tz.icalComponent;
             var standard = findCurrentTimePeriod(tz, subComp, "STANDARD");
@@ -793,18 +790,15 @@ function guessSystemTimezone() {
                     ((standardStart < daylightStart
                       ? standardText + daylightText
                       : daylightText + standardText)+
-                     (calProperties.GetStringFromName
-                      ("TZAlmostMatchesOSDifferAtMostAWeek")));
+                     (calProperties.GetStringFromName(
+                      "TZAlmostMatchesOSDifferAtMostAWeek")));
             } else {
-                warningDetail =
-                    (calProperties.GetStringFromName("TZSeemsToMatchOS"));
+                warningDetail = calProperties.GetStringFromName("TZSeemsToMatchOS");
             }
-            var offsetString = (standardTZOffset+
-                                 (!daylightTZOffset? "": "/"+daylightTZOffset));
-            var warningMsg = (calProperties.formatStringFromName
-                              ("WarningUsingGuessedTZ",
-                               [tzId, offsetString, warningDetail,
-                                probableTZSource], 4));
+            var offsetString = standardTZOffset+
+                                 (!daylightTZOffset ? "" : "/" + daylightTZOffset);
+            var warningMsg = calProperties.formatStringFromName("WarningUsingGuessedTZ",
+                              [tzId, offsetString, warningDetail, probableTZSource], 4);
             cal.WARN(warningMsg);
             break;
         }

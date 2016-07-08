@@ -7,7 +7,7 @@ Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-var allowedActionsMap = {}; 
+var allowedActionsMap = {};
 
 /**
  * Sets up the reminder dialog.
@@ -163,10 +163,10 @@ function setupMaxReminders() {
     // If we hit the maximum number of reminders, show the error box and
     // disable the new button.
     setElementValue("reminder-new-button", cond && "true", "disabled");
-    
+
     if (!setupMaxReminders.notification) {
         let notification = createXULElement("notification");
-        let localeErrorString = 
+        let localeErrorString =
             calGetString("calendar-alarms",
                          getItemBundleStringName("reminderErrorMaxCountReached"),
                          [maxReminders]);
