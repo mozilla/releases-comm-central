@@ -23,7 +23,7 @@
         <parameter name="aCalendar"/>
         <parameter name="bSubscribed"/>
         <body><![CDATA[
-          var newNode = createXULElement("calendar-subscriptions-richlistitem");
+          let newNode = createXULElement("calendar-subscriptions-richlistitem");
           this.appendChild(newNode);
           newNode.setAttribute("anonid", "subscriptions-listitem");
           newNode.calendar = aCalendar;
@@ -83,7 +83,7 @@
 
       <property name="checked">
         <getter><![CDATA[
-          var checkbox = document.getAnonymousElementByAttribute(
+          let checkbox = document.getAnonymousElementByAttribute(
             this, "anonid", "subscription-checkbox");
           if (checkbox.getAttribute("checked") == "true") {
             return true;
@@ -92,7 +92,7 @@
           }
         ]]></getter>
         <setter><![CDATA[
-          var checkbox = document.getAnonymousElementByAttribute(
+          let checkbox = document.getAnonymousElementByAttribute(
             this, "anonid", "subscription-checkbox");
           if (val) {
             checkbox.setAttribute("checked", "true");
@@ -105,7 +105,7 @@
 
       <property name="disabled">
         <getter><![CDATA[
-          var checkbox = document.getAnonymousElementByAttribute(
+          let checkbox = document.getAnonymousElementByAttribute(
             this, "anonid", "subscription-checkbox");
           if (checkbox.getAttribute("disabled") == "true") {
             return true;
@@ -114,7 +114,7 @@
           }
         ]]></getter>
         <setter><![CDATA[
-          var checkbox = document.getAnonymousElementByAttribute(
+          let checkbox = document.getAnonymousElementByAttribute(
             this, "anonid", "subscription-checkbox");
           if (val) {
             checkbox.setAttribute("disabled", "true");
@@ -132,7 +132,7 @@
         <body>
           <![CDATA[
             this.mCalendar = aCalendar;
-            var label = document.getAnonymousElementByAttribute(
+            let label = document.getAnonymousElementByAttribute(
                 this, "anonid", "subscription-name");
             label.setAttribute("value", aCalendar.name);
           ]]>

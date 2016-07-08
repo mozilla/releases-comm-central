@@ -878,7 +878,7 @@ function addItemsFromCalendar(aCalendar, aAddItemsInternalFunc) {
         // getItems calls.
         return;
     }
-    var refreshListener = {
+    let refreshListener = {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
         mEventArray: [],
 
@@ -887,7 +887,7 @@ function addItemsFromCalendar(aCalendar, aAddItemsInternalFunc) {
                                                               aOperationType,
                                                               aId,
                                                               aDateTime) {
-            var refreshTreeInternalFunc = function() {
+            let refreshTreeInternalFunc = function() {
                 aAddItemsInternalFunc(refreshListener.mEventArray);
             };
             setTimeout(refreshTreeInternalFunc, 0);

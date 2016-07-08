@@ -195,7 +195,7 @@ var icalStringArray = [
 
 function run_test() {
     // First entry is test number, second item is expected result for testGetItems().
-    var wantedArray = [[ 1, 1],
+    let wantedArray = [[ 1, 1],
                        [ 2, 1],
                        [ 3, 1],
                        [ 5, 0],
@@ -263,18 +263,18 @@ function run_test() {
 
     function checkCalendar(calendar, aItem, aResult) {
         // construct range
-        var rangeStart = createDate(2002, 3, 2); // 3 = April
-        var rangeEnd = rangeStart.clone();
+        let rangeStart = createDate(2002, 3, 2); // 3 = April
+        let rangeEnd = rangeStart.clone();
         rangeEnd.day += 1;
 
         // filter options
-        var filter = Ci.calICalendar.ITEM_FILTER_TYPE_ALL |
+        let filter = Ci.calICalendar.ITEM_FILTER_TYPE_ALL |
                      Ci.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES |
                      Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL;
 
         // implement listener
-        var count = 0;
-        var listener = {
+        let count = 0;
+        let listener = {
             onOperationComplete: function(aCalendar,
                                           aStatus,
                                           aOperationType,
@@ -297,7 +297,7 @@ function run_test() {
                                   aItems) {
                 if (aCount) {
                     count += aCount;
-                    for (var i = 0; i < aCount; i++) {
+                    for (let i = 0; i < aCount; i++) {
                         compareItemsSpecific(aItems[i].parentItem, aItem);
                     }
                 }
@@ -317,14 +317,14 @@ function run_test() {
     */
     function testGetItem(aItem) {
         // get calendars
-        var calArray = [];
+        let calArray = [];
         calArray.push(getStorageCal());
         calArray.push(getMemoryCal());
         for (let calendar of calArray) {
             // implement listener
-            var count = 0;
-            var returnedItem = null;
-            var listener = {
+            let count = 0;
+            let returnedItem = null;
+            let listener = {
                 onOperationComplete: function(aCalendar,
                                               aStatus,
                                               aOperationType,
@@ -363,7 +363,7 @@ function run_test() {
 function testMetaData() {
     function testMetaData_(aCalendar) {
         dump("testMetaData_() calendar type: " + aCalendar.type + "\n");
-        var event1 = createEventFromIcalString("BEGIN:VEVENT\n" +
+        let event1 = createEventFromIcalString("BEGIN:VEVENT\n" +
                                                "DTSTART;VALUE=DATE:20020402\n" +
                                                "END:VEVENT\n");
 
@@ -373,7 +373,7 @@ function testMetaData() {
         equal(aCalendar.getMetaData("item1"), "meta1");
         equal(aCalendar.getMetaData("unknown"), null);
 
-        var event2 = event1.clone();
+        let event2 = event1.clone();
         event2.id = "item2";
         aCalendar.addItem(event2, null);
         aCalendar.setMetaData("item2", "meta2-");
@@ -382,9 +382,9 @@ function testMetaData() {
         aCalendar.setMetaData("item2", "meta2");
         equal(aCalendar.getMetaData("item2"), "meta2");
 
-        var count = {};
-        var ids = {};
-        var values = {};
+        let count = {};
+        let ids = {};
+        let values = {};
         aCalendar.getAllMetaData(count, ids, values);
         equal(count.value, 2);
         ok(ids.value[0] == "item1" || ids.value[1] == "item1");

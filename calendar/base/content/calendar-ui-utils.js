@@ -153,11 +153,11 @@ function disableElementWithLock(elementId, lockId) {
     // remember that this element has been locked with
     // the key passed as argument. we keep a primitive
     // form of ref-count in the attribute 'lock'.
-    var element = document.getElementById(elementId);
+    let element = document.getElementById(elementId);
     if (element) {
         if (!element.hasAttribute(lockId)) {
             element.setAttribute(lockId, "true");
-            var n = parseInt(element.getAttribute("lock") || 0, 10);
+            let n = parseInt(element.getAttribute("lock") || 0, 10);
             element.setAttribute("lock", n + 1);
         }
     }
@@ -173,7 +173,7 @@ function disableElementWithLock(elementId, lockId) {
  * @param lockId        The ID of the lock to set.
  */
 function enableElementWithLock(elementId, lockId) {
-    var element = document.getElementById(elementId);
+    let element = document.getElementById(elementId);
     if (!element) {
         dump("unable to find " + elementId + "\n");
         return;
@@ -181,7 +181,7 @@ function enableElementWithLock(elementId, lockId) {
 
     if (element.hasAttribute(lockId)) {
         element.removeAttribute(lockId);
-        var n = parseInt(element.getAttribute("lock") || 0, 10) - 1;
+        let n = parseInt(element.getAttribute("lock") || 0, 10) - 1;
         if (n > 0) {
             element.setAttribute("lock", n);
         } else {
@@ -200,10 +200,10 @@ function enableElementWithLock(elementId, lockId) {
  *                    child elements
  */
 function uncheckChildNodes(aEvent) {
-    var liveList = aEvent.target.getElementsByAttribute("checked", "true");
-    for (var i = liveList.length - 1; i >= 0; i--) {
-        var commandName = liveList.item(i).getAttribute("command");
-        var command = document.getElementById(commandName);
+    let liveList = aEvent.target.getElementsByAttribute("checked", "true");
+    for (let i = liveList.length - 1; i >= 0; i--) {
+        let commandName = liveList.item(i).getAttribute("command");
+        let command = document.getElementById(commandName);
         if (command) {
             command.setAttribute("checked", "false");
         }
@@ -345,12 +345,12 @@ function addMenuItem(aParent, aLabel, aValue, aCommand) {
  *                            'aFilterValue' set.
  */
 function setAttributeToChildren(aParent, aAttribute, aValue, aFilterAttribute, aFilterValue) {
-    for (var i = 0; i < aParent.childNodes.length; i++) {
-        var element = aParent.childNodes[i];
+    for (let i = 0; i < aParent.childNodes.length; i++) {
+        let element = aParent.childNodes[i];
         if (aFilterAttribute == null) {
             setElementValue(element, aValue, aAttribute);
         } else if (element.hasAttribute(aFilterAttribute)) {
-            var compValue = element.getAttribute(aFilterAttribute);
+            let compValue = element.getAttribute(aFilterAttribute);
             if (compValue === aFilterValue) {
                 setElementValue(element, aValue, aAttribute);
             }
@@ -368,10 +368,10 @@ function setAttributeToChildren(aParent, aAttribute, aValue, aFilterAttribute, a
  *                  given value could be checked.
  */
 function checkRadioControl(aParent, aValue) {
-    for (var i = 0; i < aParent.childNodes.length; i++) {
-        var element = aParent.childNodes[i];
+    for (let i = 0; i < aParent.childNodes.length; i++) {
+        let element = aParent.childNodes[i];
         if (element.hasAttribute("value")) {
-            var compValue = element.getAttribute("value");
+            let compValue = element.getAttribute("value");
             if (compValue == aValue) {
                 if (element.localName == "menuitem") {
                     if (element.getAttribute("type") == "radio") {
@@ -395,7 +395,7 @@ function checkRadioControl(aParent, aValue) {
  * @param elementId     The element to change the disabled state on.
  */
 function processEnableCheckbox(checkboxId, elementId) {
-    var checked = document.getElementById(checkboxId).checked;
+    let checked = document.getElementById(checkboxId).checked;
     setElementValue(elementId, !checked && "true", "disabled");
 }
 
@@ -408,7 +408,7 @@ function processEnableCheckbox(checkboxId, elementId) {
  * @param buttonId      The element to change the disabled state on.
  */
 function updateListboxDeleteButton(listboxId, buttonId) {
-    var rowCount = document.getElementById(listboxId).getRowCount();
+    let rowCount = document.getElementById(listboxId).getRowCount();
     setElementValue(buttonId, rowCount < 1 && "true", "disabled");
 }
 
@@ -477,8 +477,8 @@ function updateMenuLabelsPlural(aLengthFieldId, aMenuId) {
  * @throws              String error if value not found.
  */
 function menuListSelectItem(menuListId, value) {
-    var menuList = document.getElementById(menuListId);
-    var index = menuListIndexOf(menuList, value);
+    let menuList = document.getElementById(menuListId);
+    let index = menuListIndexOf(menuList, value);
     if (index != -1) {
         menuList.selectedIndex = index;
     } else {
@@ -494,10 +494,10 @@ function menuListSelectItem(menuListId, value) {
  * @return              The child index of the node that matches, or -1.
  */
 function menuListIndexOf(menuList, value) {
-    var items = menuList.menupopup.childNodes;
-    var index = -1;
-    for (var i = 0; i < items.length; i++) {
-        var element = items[i];
+    let items = menuList.menupopup.childNodes;
+    let index = -1;
+    for (let i = 0; i < items.length; i++) {
+        let element = items[i];
         if (element.nodeName == "menuitem") {
             index++;
         }
@@ -529,9 +529,9 @@ function createXULElement(el) {
  * @return              An integer value denoting the optimal minimum width
  */
 function getSummarizedStyleValues(aXULElement, aStyleProps) {
-    var retValue = 0;
-    var cssStyleDeclares = document.defaultView.getComputedStyle(aXULElement, null);
-    for (var prop of aStyleProps) {
+    let retValue = 0;
+    let cssStyleDeclares = document.defaultView.getComputedStyle(aXULElement, null);
+    for (let prop of aStyleProps) {
         retValue += parseInt(cssStyleDeclares.getPropertyValue(prop), 10);
     }
     return retValue;
@@ -564,8 +564,8 @@ function getOptimalMinimumWidth(aXULElement) {
 function getOptimalMinimumHeight(aXULElement) {
     // the following line of code presumes that the line-height is set to "normal"
     // which is supposed to be a "reasonable distance" between the lines
-    var firstEntity = parseInt(1.35 * getSummarizedStyleValues(aXULElement, ["font-size"]), 10);
-    var secondEntity = getSummarizedStyleValues(aXULElement,
+    let firstEntity = parseInt(1.35 * getSummarizedStyleValues(aXULElement, ["font-size"]), 10);
+    let secondEntity = getSummarizedStyleValues(aXULElement,
                                                 ["padding-bottom", "padding-top",
                                                 "margin-bottom", "margin-top",
                                                 "border-bottom-width", "border-top-width"]);
@@ -593,7 +593,7 @@ function updateSelectedLabel(aElement) {
     if (typeof aElement == "string") {
         aElement = document.getElementById(aElement);
     }
-    var selectedIndex = aElement.selectedIndex;
+    let selectedIndex = aElement.selectedIndex;
     aElement.selectedIndex = -1;
     aElement.selectedIndex = selectedIndex;
 }

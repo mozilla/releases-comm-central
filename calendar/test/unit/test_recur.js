@@ -813,7 +813,7 @@ function test_immutable() {
 }
 
 function test_rrule_icalstring() {
-    var recRule = createRecurrenceRule();
+    let recRule = createRecurrenceRule();
     recRule.type = "DAILY";
     recRule.interval = 4;
     equal(recRule.icalString, "RRULE:FREQ=DAILY;INTERVAL=4\r\n");

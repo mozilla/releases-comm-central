@@ -15,7 +15,7 @@ var setupModule = function(module) {
 };
 
 var testLastDayOfMonthRecurrence = function() {
-  var eventPath = '/{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';
+  let eventPath = '/{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
   calUtils.switchToView(controller, "day");
   calUtils.goToDate(controller, 2008, 1, 31); // start with a leap year

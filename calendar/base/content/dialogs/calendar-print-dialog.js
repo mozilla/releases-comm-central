@@ -81,7 +81,7 @@ function getPrintSettings(receiverFunc) {
     settings.printTasks = document.getElementById("tasks").checked;
     settings.printCompletedTasks = document.getElementById("completed-tasks").checked;
     settings.printTasksWithNoDueDate = document.getElementById("tasks-with-no-due-date").checked;
-    var theView = getCalendarView();
+    let theView = getCalendarView();
     switch (document.getElementById("view-field").selectedItem.value) {
     case 'currentView':
     case '': // just in case
@@ -107,7 +107,7 @@ function getPrintSettings(receiverFunc) {
         // opening window.
         if (settings.printTasks) {
             let selectedTasks = window.opener.getSelectedTasks();
-            for (var task of selectedTasks) {
+            for (let task of selectedTasks) {
                 settings.eventList.push(task);
             }
         }
@@ -146,7 +146,7 @@ function getPrintSettings(receiverFunc) {
                 settings.eventList = settings.eventList.concat(aItems);
                 if (!settings.printTasksWithNoDueDate) {
                     eventWithDueDate = [];
-                    for (var item of settings.eventList) {
+                    for (let item of settings.eventList) {
                         if (item.dueDate || item.endDate) {
                             eventWithDueDate.push(item);
                         }
@@ -267,8 +267,8 @@ var closeOnComplete = {
 function printAndClose() {
     refreshHtml(
         function finish() {
-            var webBrowserPrint = PrintUtils.getWebBrowserPrint();
-            var printSettings = PrintUtils.getPrintSettings();
+            let webBrowserPrint = PrintUtils.getWebBrowserPrint();
+            let printSettings = PrintUtils.getPrintSettings();
 
             // Evicts "about:blank" header
             printSettings.docURL = " ";
@@ -278,7 +278,7 @@ function printAndClose() {
             try {
                 webBrowserPrint.print(printSettings, closeOnComplete);
                 if (gPrintSettingsAreGlobal && gSavePrintSettings) {
-                    var PSSVC = Components.classes["@mozilla.org/gfx/printsettings-service;1"]
+                    let PSSVC = Components.classes["@mozilla.org/gfx/printsettings-service;1"]
                                           .getService(Components.interfaces.nsIPrintSettingsService);
                     PSSVC.savePrintSettingsToPrefs(printSettings, true,
                                                         printSettings.kInitSaveAll);

@@ -214,8 +214,8 @@ calCalendarManager.prototype = {
                                 " value    TEXT);");
 
             // Copy in the data.
-            var calendarCols = ["id", "type", "uri"];
-            var calendarPrefsCols = ["id", "calendar", "name", "value"];
+            let calendarCols = ["id", "type", "uri"];
+            let calendarPrefsCols = ["id", "calendar", "name", "value"];
 
             db.executeSimpleSQL("INSERT INTO cal_calendars_v6(" + calendarCols.join(",") + ") " +
                                 "     SELECT " + calendarCols.join(",") +
@@ -227,9 +227,9 @@ calCalendarManager.prototype = {
 
             // Delete each old table and rename the new ones to use the
             // old tables' names.
-            var tableNames = ["cal_calendars", "cal_calendars_prefs"];
+            let tableNames = ["cal_calendars", "cal_calendars_prefs"];
 
-            for (var i in tableNames) {
+            for (let i in tableNames) {
                 db.executeSimpleSQL("DROP TABLE " + tableNames[i] + ";" +
                                     "ALTER TABLE " + tableNames[i] + "_v6 " +
                                     "  RENAME TO " + tableNames[i] + ";");
@@ -364,10 +364,10 @@ calCalendarManager.prototype = {
      * @exception   various, depending on error
      */
     getSchemaVersion: function calMgrGetSchemaVersion(db) {
-        var stmt;
-        var version = null;
+        let stmt;
+        let version = null;
 
-        var table;
+        let table;
         if (db.tableExists("cal_calmgr_schema_version")) {
             table = "cal_calmgr_schema_version";
         } else {
@@ -405,19 +405,19 @@ calCalendarManager.prototype = {
     alertAndQuit: function cmgr_alertAndQuit() {
         // We want to include the extension name in the error message rather
         // than blaming Thunderbird.
-        var hostAppName = calGetString("brand", "brandShortName", null, "branding");
-        var calAppName = calGetString("lightning", "brandShortName", null, "lightning");
-        var errorBoxTitle = calGetString("calendar", "tooNewSchemaErrorBoxTitle", [calAppName]);
-        var errorBoxText = calGetString("calendar", "tooNewSchemaErrorBoxTextLightning", [calAppName, hostAppName]);
-        var errorBoxButtonLabel = calGetString("calendar", "tooNewSchemaButtonRestart", [hostAppName]);
+        let hostAppName = calGetString("brand", "brandShortName", null, "branding");
+        let calAppName = calGetString("lightning", "brandShortName", null, "lightning");
+        let errorBoxTitle = calGetString("calendar", "tooNewSchemaErrorBoxTitle", [calAppName]);
+        let errorBoxText = calGetString("calendar", "tooNewSchemaErrorBoxTextLightning", [calAppName, hostAppName]);
+        let errorBoxButtonLabel = calGetString("calendar", "tooNewSchemaButtonRestart", [hostAppName]);
 
-        var promptSvc = Services.prompt;
+        let promptSvc = Services.prompt;
 
-        var errorBoxButtonFlags = (promptSvc.BUTTON_POS_0 *
+        let errorBoxButtonFlags = (promptSvc.BUTTON_POS_0 *
                                    promptSvc.BUTTON_TITLE_IS_STRING +
                                    promptSvc.BUTTON_POS_0_DEFAULT);
 
-        var choice = promptSvc.confirmEx(null,
+        let choice = promptSvc.confirmEx(null,
                                          errorBoxTitle,
                                          errorBoxText,
                                          errorBoxButtonFlags,
@@ -522,7 +522,7 @@ calCalendarManager.prototype = {
         this.mCache[calendar.id] = calendar;
 
         // Add an observer to track readonly-mode triggers
-        var newObserver = new calMgrCalendarObserver(calendar, this);
+        let newObserver = new calMgrCalendarObserver(calendar, this);
         calendar.addObserver(newObserver);
         this.mCalObservers[calendar.id] = newObserver;
 
@@ -651,8 +651,8 @@ calCalendarManager.prototype = {
 
     getCalendars: function cmgr_getCalendars(count) {
         this.assureCache();
-        var calendars = [];
-        for (var id in this.mCache) {
+        let calendars = [];
+        for (let id in this.mCache) {
             let calendar = this.mCache[id];
             calendars.push(calendar);
         }
@@ -868,7 +868,7 @@ calMgrCalendarObserver.prototype = {
             // calCachedCalendar facade saving the user the need to
             // restart Thunderbird and making sure a new Id is used.
             this.calMgr.removeCalendar(aCalendar, cICM.REMOVE_NO_DELETE);
-            var newCal = this.calMgr.createCalendar(aCalendar.type, aCalendar.uri);
+            let newCal = this.calMgr.createCalendar(aCalendar.type, aCalendar.uri);
             newCal.name = aCalendar.name;
 
             // TODO: if properties get added this list will need to be adjusted,
@@ -909,10 +909,10 @@ calMgrCalendarObserver.prototype = {
 
     // Error announcer specific functions
     announceError: function(aCalendar, aErrNo, aMessage) {
-        var paramBlock = Components.classes["@mozilla.org/embedcomp/dialogparam;1"]
+        let paramBlock = Components.classes["@mozilla.org/embedcomp/dialogparam;1"]
                                    .createInstance(Components.interfaces.nsIDialogParamBlock);
-        var props = Services.strings.createBundle("chrome://calendar/locale/calendar.properties");
-        var errMsg;
+        let props = Services.strings.createBundle("chrome://calendar/locale/calendar.properties");
+        let errMsg;
         paramBlock.SetNumberStrings(3);
         if (!this.storedReadOnly && this.calendar.readOnly) {
             // Major errors change the calendar to readOnly
@@ -927,18 +927,18 @@ calMgrCalendarObserver.prototype = {
 
         // When possible, change the error number into its name, to
         // make it slightly more readable.
-        var errCode = "0x" + aErrNo.toString(16);
+        let errCode = "0x" + aErrNo.toString(16);
         const calIErrors = Components.interfaces.calIErrors;
         // Check if it is worth enumerating all the error codes.
         if (aErrNo & calIErrors.ERROR_BASE) {
-            for (var err in calIErrors) {
+            for (let err in calIErrors) {
                 if (calIErrors[err] == aErrNo) {
                     errCode = err;
                 }
             }
         }
 
-        var message;
+        let message;
         switch (aErrNo) {
             case calIErrors.CAL_UTF8_DECODING_FAILED:
                 message = props.GetStringFromName("utf8DecodeError");
@@ -958,9 +958,9 @@ calMgrCalendarObserver.prototype = {
         paramBlock.SetString(2, message);
 
         this.storedReadOnly = this.calendar.readOnly;
-        var errorCode = calGetString("calendar", "errorCode", [errCode]);
-        var errorDescription = calGetString("calendar", "errorDescription", [message]);
-        var summary = errMsg + " " + errorCode + ". " + errorDescription;
+        let errorCode = calGetString("calendar", "errorCode", [errCode]);
+        let errorDescription = calGetString("calendar", "errorDescription", [message]);
+        let summary = errMsg + " " + errorCode + ". " + errorDescription;
 
         // Log warnings in error console.
         // Report serious errors in both error console and in prompt window.

@@ -227,7 +227,7 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
 function createEventWithDialog(calendar, startDate, endDate, summary, event, aForceAllday) {
     const kDefaultTimezone = calendarDefaultTimezone();
 
-    var onNewEvent = function(item, opcalendar, originalItem, listener) {
+    let onNewEvent = function(item, opcalendar, originalItem, listener) {
         if (item.id) {
             // If the item already has an id, then this is the result of
             // saving the item without closing, and then saving again.
@@ -284,7 +284,7 @@ function createEventWithDialog(calendar, startDate, endDate, summary, event, aFo
 function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
     const kDefaultTimezone = calendarDefaultTimezone();
 
-    var onNewItem = function(item, opcalendar, originalItem, listener) {
+    let onNewItem = function(item, opcalendar, originalItem, listener) {
         if (item.id) {
             // If the item already has an id, then this is the result of
             // saving the item without closing, and then saving again.
@@ -377,10 +377,10 @@ function openEventDialog(calendarItem, calendar, mode, callback, job, initialDat
     // Set up some defaults
     mode = mode || "new";
     calendar = calendar || getSelectedCalendar();
-    var calendars = getCalendarManager().getCalendars({});
+    let calendars = getCalendarManager().getCalendars({});
     calendars = calendars.filter(isCalendarWritable);
 
-    var isItemSupported;
+    let isItemSupported;
     if (isToDo(calendarItem)) {
         isItemSupported = function isTodoSupported(aCalendar) {
             return (aCalendar.getProperty("capabilities.tasks.supported") !== false);
@@ -434,7 +434,7 @@ function openEventDialog(calendarItem, calendar, mode, callback, job, initialDat
     }
 
     // Setup the window arguments
-    var args = {};
+    let args = {};
     args.calendarEvent = calendarItem;
     args.calendar = calendar;
     args.mode = mode;
@@ -544,9 +544,9 @@ function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
     const MODIFY_FOLLOWING = 2;
     const MODIFY_PARENT = 3;
 
-    var futureItem = false;
-    var pastItem;
-    var type = CANCEL;
+    let futureItem = false;
+    let pastItem;
+    let type = CANCEL;
 
     // Check if this actually is an instance of a recurring event
     if (aItem == aItem.parentItem) {
@@ -559,7 +559,7 @@ function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
     } else {
         // Prompt the user. Setting modal blocks the dialog until it is closed. We
         // use rv to pass our return value.
-        var rv = { value: CANCEL, item: aItem, action: aAction};
+        let rv = { value: CANCEL, item: aItem, action: aAction};
         window.openDialog("chrome://calendar/content/calendar-occurrence-prompt.xul",
                           "PromptOccurrenceModification",
                           "centerscreen,chrome,modal,titlebar",

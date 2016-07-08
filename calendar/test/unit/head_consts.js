@@ -29,7 +29,7 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 cal.loadScripts(["calUtils.js"], Components.utils.getGlobalForObject(Cc));
 
 function createDate(aYear, aMonth, aDay, aHasTime, aHour, aMinute, aSecond, aTimezone) {
-    var cd = Cc["@mozilla.org/calendar/datetime;1"]
+    let cd = Cc["@mozilla.org/calendar/datetime;1"]
              .createInstance(Ci.calIDateTime);
     cd.resetTo(aYear,
                aMonth,
@@ -44,21 +44,21 @@ function createDate(aYear, aMonth, aDay, aHasTime, aHour, aMinute, aSecond, aTim
 
 function createEventFromIcalString(icalString) {
     if (/^BEGIN:VCALENDAR/.test(icalString)) {
-        var parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
+        let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
                                .createInstance(Components.interfaces.calIIcsParser);
         parser.parseString(icalString);
-        var items = parser.getItems({});
+        let items = parser.getItems({});
         ASSERT(items.length == 1);
         return items[0];
     } else {
-        var event = Cc["@mozilla.org/calendar/event;1"].createInstance(Ci.calIEvent);
+        let event = Cc["@mozilla.org/calendar/event;1"].createInstance(Ci.calIEvent);
         event.icalString = icalString;
         return event;
     }
 }
 
 function createTodoFromIcalString(icalString) {
-    var todo = Cc["@mozilla.org/calendar/todo;1"]
+    let todo = Cc["@mozilla.org/calendar/todo;1"]
                .createInstance(Ci.calITodo);
     todo.icalString = icalString;
     return todo;
@@ -75,9 +75,9 @@ function getStorageCal() {
     do_get_profile();
 
     // create URI
-    var db = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    let db = Services.dirsvc.get("TmpD", Ci.nsIFile);
     db.append("test_storage.sqlite");
-    var uri = Services.io.newFileURI(db);
+    let uri = Services.io.newFileURI(db);
 
     // Make sure timezone service is initialized
     Components.classes["@mozilla.org/calendar/timezone-service;1"]
@@ -85,7 +85,7 @@ function getStorageCal() {
               .startup(null);
 
     // create storage calendar
-    var stor = Cc["@mozilla.org/calendar/calendar;1?type=storage"]
+    let stor = Cc["@mozilla.org/calendar/calendar;1?type=storage"]
               .createInstance(Ci.calISyncWriteCalendar);
     stor.uri = uri;
     stor.id = cal.getUUID();
@@ -103,7 +103,7 @@ function getStorageCal() {
  *                     and any property that can be obtained using getProperty()
  */
 function getProps(aItem, aProp) {
-    var value = null;
+    let value = null;
     switch (aProp) {
         case "start":
             value = aItem.startDate || aItem.entryDate || null;
@@ -169,7 +169,7 @@ function compareItemsSpecific(aLeftItem, aRightItem, aPropArray) {
                       "status", "alarmLastAck",
                       "recurrenceStartDate"];
     }
-    for (var i = 0; i < aPropArray.length; i++) {
+    for (let i = 0; i < aPropArray.length; i++) {
         equal(getProps(aLeftItem, aPropArray[i]),
               getProps(aRightItem, aPropArray[i]),
               Components.stack.caller);

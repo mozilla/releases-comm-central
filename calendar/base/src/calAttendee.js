@@ -37,7 +37,7 @@ calAttendee.prototype = {
     },
 
     clone: function() {
-        var a = new calAttendee();
+        let a = new calAttendee();
 
         if (this.mIsOrganizer) {
             a.isOrganizer = true;
@@ -94,8 +94,8 @@ calAttendee.prototype = {
     },
 
     get icalProperty() {
-        var icssvc = cal.getIcsService();
-        var icalatt;
+        let icssvc = cal.getIcsService();
+        let icalatt;
         if (!this.mIsOrganizer) {
             icalatt = icssvc.createIcalProperty("ATTENDEE");
         } else {
@@ -106,8 +106,8 @@ calAttendee.prototype = {
             throw Components.results.NS_ERROR_NOT_INITIALIZED;
         }
         icalatt.valueAsIcalString = this.id;
-        for (var i = 0; i < this.icalAttendeePropMap.length; i++) {
-            var prop = this.icalAttendeePropMap[i];
+        for (let i = 0; i < this.icalAttendeePropMap.length; i++) {
+            let prop = this.icalAttendeePropMap[i];
             if (this[prop.cal]) {
                 try {
                     icalatt.setParameter(prop.ics, this[prop.cal]);

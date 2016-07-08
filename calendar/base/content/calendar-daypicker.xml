@@ -32,7 +32,7 @@
         <body>
           <![CDATA[
             if (aEvent.attrName == "checked") {
-                var event = document.createEvent('Events');
+                let event = document.createEvent('Events');
                 event.initEvent('select', true, true);
                 this.calendar.dispatchEvent(event);
             }
@@ -81,16 +81,16 @@
       -->
       <property name="days">
         <setter><![CDATA[
-          var mainbox =
+          let mainbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "mainbox");
-          var numChilds = mainbox.childNodes.length;
+          let numChilds = mainbox.childNodes.length;
           for (let i = 0; i < numChilds; i++) {
-              var child = mainbox.childNodes[i];
+              let child = mainbox.childNodes[i];
               child.removeAttribute("checked");
           }
           for (let i = 0; i < val.length; i++) {
-              var index = val[i] - 1 - this.weekStartOffset;
+              let index = val[i] - 1 - this.weekStartOffset;
               if (index < 0) {
                   index += 7;
               }
@@ -99,15 +99,15 @@
           return val;
         ]]></setter>
         <getter><![CDATA[
-          var mainbox =
+          let mainbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "mainbox");
-          var numChilds = mainbox.childNodes.length;
-          var days = [];
-          for (var i = 0; i < numChilds; i++) {
-              var child = mainbox.childNodes[i];
+          let numChilds = mainbox.childNodes.length;
+          let days = [];
+          for (let i = 0; i < numChilds; i++) {
+              let child = mainbox.childNodes[i];
               if (child.getAttribute("checked") == "true") {
-                  var index = i + this.weekStartOffset;
+                  let index = i + this.weekStartOffset;
                   if (index >= 7) {
                       index -= 7;
                   }
@@ -124,20 +124,20 @@
 
         this.weekStartOffset = Preferences.get("calendar.week.start", 0);
 
-        var props =
+        let props =
             Services.strings.createBundle(
                 "chrome://calendar/locale/dateFormat.properties");
-        var mainbox =
+        let mainbox =
             document.getAnonymousElementByAttribute(
                 this, "anonid", "mainbox");
-        var numChilds = mainbox.childNodes.length;
-        for (var i = 0; i < numChilds; i++) {
-            var child = mainbox.childNodes[i];
-            var dow = i + this.weekStartOffset;
+        let numChilds = mainbox.childNodes.length;
+        for (let i = 0; i < numChilds; i++) {
+            let child = mainbox.childNodes[i];
+            let dow = i + this.weekStartOffset;
             if (dow >= 7) {
                 dow -= 7;
             }
-            var day = props.GetStringFromName("day." + (dow + 1) + ".Mmm");
+            let day = props.GetStringFromName("day." + (dow + 1) + ".Mmm");
             child.label = day;
             child.calendar = this;
         }
@@ -229,16 +229,16 @@
           return val;
         ]]></setter>
         <getter><![CDATA[
-          var mainbox =
+          let mainbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "mainbox");
-          var numRows = mainbox.childNodes.length;
-          var days = [];
-          for (var i = 0; i < numRows; i++) {
-              var row = mainbox.childNodes[i];
-              var numChilds = row.childNodes.length;
-              for (var j = 0; j < numChilds; j++) {
-                  var child = row.childNodes[j];
+          let numRows = mainbox.childNodes.length;
+          let days = [];
+          for (let i = 0; i < numRows; i++) {
+              let row = mainbox.childNodes[i];
+              let numChilds = row.childNodes.length;
+              for (let j = 0; j < numChilds; j++) {
+                  let child = row.childNodes[j];
                   if (child.getAttribute("checked") == "true") {
                       days.push(Number(child.label) ? Number(child.label) : -1);
                   }

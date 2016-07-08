@@ -12,7 +12,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
  * Show publish dialog, ask for URL and publish all selected items.
  */
 function publishCalendarData() {
-   var args = {};
+   let args = {};
 
    args.onOk = self.publishCalendarDataDialogResponse;
 
@@ -89,8 +89,8 @@ function publishEntireCalendarDialogResponse(CalendarPublishObject, aProgressDia
     CalendarPublishObject.calendar.setProperty("remote-ics-path",
                                            CalendarPublishObject.remotePath);
 
-    var itemArray = [];
-    var getListener = {
+    let itemArray = [];
+    let getListener = {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
         onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
             publishItemArray(itemArray, CalendarPublishObject.remotePath, aProgressDialog);
@@ -101,28 +101,28 @@ function publishEntireCalendarDialogResponse(CalendarPublishObject, aProgressDia
                 return;
             }
             if (aCount) {
-                for (var i = 0; i < aCount; ++i) {
+                for (let i = 0; i < aCount; ++i) {
                     // Store a (short living) reference to the item.
-                    var itemCopy = aItems[i].clone();
+                    let itemCopy = aItems[i].clone();
                     itemArray.push(itemCopy);
                 }
             }
         }
     };
     aProgressDialog.onStartUpload();
-    var oldCalendar = CalendarPublishObject.calendar;
+    let oldCalendar = CalendarPublishObject.calendar;
     oldCalendar.getItems(Components.interfaces.calICalendar.ITEM_FILTER_ALL_ITEMS,
                          0, null, null, getListener);
 }
 
 function publishItemArray(aItemArray, aPath, aProgressDialog) {
-    var outputStream;
-    var inputStream;
-    var storageStream;
+    let outputStream;
+    let inputStream;
+    let storageStream;
 
-    var icsURL = makeURL(aPath);
+    let icsURL = makeURL(aPath);
 
-    var channel = Services.io.newChannelFromURI2(icsURL,
+    let channel = Services.io.newChannelFromURI2(icsURL,
                                                  null,
                                                  Services.scriptSecurityManager.getSystemPrincipal(),
                                                  null,
@@ -151,7 +151,7 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
             return;
     }
 
-    var uploadChannel = channel.QueryInterface(Components.interfaces.nsIUploadChannel);
+    let uploadChannel = channel.QueryInterface(Components.interfaces.nsIUploadChannel);
     uploadChannel.notificationCallbacks = notificationCallbacks;
 
     storageStream = Components.classes["@mozilla.org/storagestream;1"]
@@ -159,11 +159,11 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
     storageStream.init(32768, 0xffffffff, null);
     outputStream = storageStream.getOutputStream(0);
 
-    var serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
+    let serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
                                .createInstance(Components.interfaces.calIIcsSerializer);
     serializer.addItems(aItemArray, aItemArray.length);
     // Outlook requires METHOD:PUBLISH property:
-    var methodProp = getIcsService().createIcalProperty("METHOD");
+    let methodProp = getIcsService().createIcalProperty("METHOD");
     methodProp.value = "PUBLISH";
     serializer.addProperty(methodProp);
     serializer.serializeToStream(outputStream);
@@ -176,7 +176,7 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
     try {
         channel.asyncOpen(publishingListener, aProgressDialog);
     } catch (e) {
-        var props = Services.strings.createBundle("chrome://calendar/locale/calendar.properties");
+        let props = Services.strings.createBundle("chrome://calendar/locale/calendar.properties");
         Services.prompt.alert(null, calGetString("calendar", "genericErrorTitle"),
                               props.formatStringFromName('otherPutError', [e.message], 1));
     }

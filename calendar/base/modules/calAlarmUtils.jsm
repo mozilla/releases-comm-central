@@ -140,7 +140,7 @@ cal.alarms = {
         let actionMap = {};
         let i, offset;
         for (i = 0, offset = 0; i < aReminders.length; i++) {
-            var reminder = aReminders[i];
+            let reminder = aReminders[i];
             if (reminder.action in actionMap) {
                 // Only show one icon of each type;
                 offset++;

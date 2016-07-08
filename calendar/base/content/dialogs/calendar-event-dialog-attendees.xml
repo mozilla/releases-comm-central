@@ -71,8 +71,8 @@
 
         this.mMaxAttendees = 0;
 
-        var self = this;
-        var load = function loadHandler() {
+        let self = this;
+        let load = function loadHandler() {
             self.onLoad();
         };
         window.addEventListener("load", load, true);
@@ -80,10 +80,10 @@
 
       <method name="onLoad">
         <body><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
-          var template =
+          let template =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "item");
 
@@ -92,8 +92,8 @@
           // this trigger the continous update chain, which
           // effectively calls this.onModify() on predefined
           // time intervals [each second].
-          var self = this;
-          var callback = function() {
+          let self = this;
+          let callback = function() {
               setTimeout(callback, 1000);
               self.onModify();
           };
@@ -103,26 +103,26 @@
 
       <method name="onInitialize">
         <body><![CDATA[
-          var args = window.arguments[0];
-          var organizer = args.organizer;
-          var attendees = args.attendees;
-          var calendar = args.calendar;
+          let args = window.arguments[0];
+          let organizer = args.organizer;
+          let attendees = args.attendees;
+          let calendar = args.calendar;
 
           this.mIsReadOnly = calendar.readOnly;
 
           // assume we're the organizer [in case that the calendar
           // does not support the concept of identities].
-          var organizerID = ((organizer && organizer.id)
+          let organizerID = ((organizer && organizer.id)
                              ? organizer.id
                              : calendar.getProperty("organizerId"));
 
           calendar = cal.wrapInstance(calendar, Components.interfaces.calISchedulingSupport);
           this.mIsInvitation = (calendar && calendar.isInvitation(args.item));
 
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
-          var template =
+          let template =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "item");
           template.focus();
@@ -158,9 +158,9 @@
               this.appendAttendee(organizer, listbox, template, true);
           }
 
-          var numRowsAdded = 0;
+          let numRowsAdded = 0;
           if (attendees.length > 0) {
-              for (var attendee of attendees) {
+              for (let attendee of attendees) {
                   this.appendAttendee(attendee, listbox, template, false);
                   numRowsAdded++;
               }
@@ -185,15 +185,15 @@
         <parameter name="aDisableIfOrganizer"/>
         <body><![CDATA[
           // create a new listbox item and append it to our parent control.
-          var newNode = aTemplateNode.cloneNode(true);
+          let newNode = aTemplateNode.cloneNode(true);
 
-          var input =
+          let input =
               document.getAnonymousElementByAttribute(
                   newNode, "anonid", "input");
-          var roleStatusIcon =
+          let roleStatusIcon =
               document.getAnonymousElementByAttribute(
                   newNode, "anonid", "rolestatus-icon");
-          var userTypeIcon =
+          let userTypeIcon =
               document.getAnonymousElementByAttribute(
                   newNode, "anonid", "usertype-icon");
 
@@ -230,7 +230,7 @@
           }
 
           this.mMaxAttendees++;
-          var rowNumber = this.mMaxAttendees;
+          let rowNumber = this.mMaxAttendees;
           if (rowNumber >= 0) {
               roleStatusIcon.setAttribute("id", "attendeeCol1#" + rowNumber);
               userTypeIcon.setAttribute("id", "attendeeCol2#" + rowNumber);
@@ -289,15 +289,15 @@
         <parameter name="aSetFocus"/>
         <parameter name="aInsertAfter"/>
         <body><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
-          var listitem1 = this.getListItem(1);
-          var newNode = null;
+          let listitem1 = this.getListItem(1);
+          let newNode = null;
 
           if (listbox && listitem1) {
-              var newAttendee = this.createAttendee();
-              var nextDummy = this.getNextDummyRow();
+              let newAttendee = this.createAttendee();
+              let nextDummy = this.getNextDummyRow();
               newNode = listitem1.cloneNode(true);
 
               if (aInsertAfter) {
@@ -308,13 +308,13 @@
                   listbox.appendChild(newNode);
               }
 
-              var input =
+              let input =
                   document.getAnonymousElementByAttribute(
                       newNode, "anonid", "input");
-              var roleStatusIcon =
+              let roleStatusIcon =
                   document.getAnonymousElementByAttribute(
                       newNode, "anonid", "rolestatus-icon");
-              var userTypeIcon =
+              let userTypeIcon =
                   document.getAnonymousElementByAttribute(
                       newNode, "anonid", "usertype-icon");
 
@@ -331,7 +331,7 @@
               }
 
               this.mMaxAttendees++;
-              var rowNumber = this.mMaxAttendees;
+              let rowNumber = this.mMaxAttendees;
               if (rowNumber >= 0) {
                   roleStatusIcon.setAttribute("id", "attendeeCol1#" + rowNumber);
                   userTypeIcon.setAttribute("id", "attendeeCol2#" + rowNumber);
@@ -514,7 +514,7 @@
             }
 
             let addressLists = mailingList.addressLists;
-            for (var i = 0; i < addressLists.length; i++) {
+            for (let i = 0; i < addressLists.length; i++) {
               let abCard = addressLists.queryElementAt(i, Components.interfaces.nsIAbCard);
               let thisId = abCard.primaryEmail;
               if (abCard.displayName.length > 0) {
@@ -714,8 +714,8 @@
 
       <method name="fitDummyRows">
         <body><![CDATA[
-          var self = this;
-          var func = function attendees_list_fitDummyRows() {
+          let self = this;
+          let func = function attendees_list_fitDummyRows() {
               self.calcContentHeight();
               self.createOrRemoveDummyRows();
           };
@@ -725,13 +725,13 @@
 
       <method name="calcContentHeight">
         <body><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
-          var items = listbox.getElementsByTagNameNS('*', 'listitem');
+          let items = listbox.getElementsByTagNameNS('*', 'listitem');
           this.mContentHeight = 0;
           if (items.length > 0) {
-              var i = 0;
+              let i = 0;
               do {
                   this.mRowHeight = items[i].boxObject.height;
                   ++i;
@@ -743,14 +743,14 @@
 
       <method name="createOrRemoveDummyRows">
         <body><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
-          var listboxHeight = listbox.boxObject.height;
+          let listboxHeight = listbox.boxObject.height;
 
           // remove rows to remove scrollbar
-          var kids = listbox.childNodes;
-          for (var i = kids.length - 1; this.mContentHeight > listboxHeight && i >= 0; --i) {
+          let kids = listbox.childNodes;
+          for (let i = kids.length - 1; this.mContentHeight > listboxHeight && i >= 0; --i) {
               if (kids[i].hasAttribute("_isDummyRow")) {
                   this.mContentHeight -= this.mRowHeight;
                   kids[i].remove();
@@ -770,7 +770,7 @@
       <method name="createDummyCell">
         <parameter name="aParent"/>
         <body><![CDATA[
-          var cell = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "listcell");
+          let cell = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "listcell");
           cell.setAttribute("class", "addressingWidgetCell dummy-row-cell");
           if (aParent) {
               aParent.appendChild(cell);
@@ -782,10 +782,10 @@
       <method name="createDummyItem">
         <parameter name="aParent"/>
         <body><![CDATA[
-          var titem = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "listitem");
+          let titem = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "listitem");
           titem.setAttribute("_isDummyRow", "true");
           titem.setAttribute("class", "dummy-row");
-          for (var i = this.numColumns; i > 0; i--) {
+          for (let i = this.numColumns; i > 0; i--) {
               this.createDummyCell(titem);
           }
           if (aParent) {
@@ -798,11 +798,11 @@
       <!-- gets the next row from the top down -->
       <method name="getNextDummyRow">
         <body><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
-          var kids = listbox.childNodes;
-          for (var i = 0; i < kids.length; ++i) {
+          let kids = listbox.childNodes;
+          for (let i = 0; i < kids.length; ++i) {
               if (kids[i].hasAttribute("_isDummyRow")) {
                   return kids[i];
               }
@@ -815,11 +815,11 @@
       <method name="getListItem">
         <parameter name="aRow"/>
         <body><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
           if (listbox && aRow > 0) {
-              var listitems = listbox.getElementsByTagNameNS('*', 'listitem');
+              let listitems = listbox.getElementsByTagNameNS('*', 'listitem');
               if (listitems && listitems.length >= aRow) {
                   return listitems[aRow - 1];
               }
@@ -838,7 +838,7 @@
       <method name="getRowByInputElement">
         <parameter name="aElement"/>
         <body><![CDATA[
-          var row = 0;
+          let row = 0;
           while (aElement && aElement.localName != "listitem") {
               aElement = aElement.parentNode;
           }
@@ -887,9 +887,9 @@
       <method name="setFocus">
         <parameter name="aRow"/>
         <body><![CDATA[
-          var self = this;
-          var set_focus = function() {
-              var node;
+          let self = this;
+          let set_focus = function() {
+              let node;
               if (typeof aRow == 'number') {
                 node = self.getListItem(aRow);
               } else {
@@ -897,11 +897,11 @@
               }
 
               // do we need to scroll in order to see the selected row?
-              var listbox =
+              let listbox =
                   document.getAnonymousElementByAttribute(
                       self, "anonid", "listbox");
-              var firstVisibleRow = listbox.getIndexOfFirstVisibleRow();
-              var numOfVisibleRows = listbox.getNumberOfVisibleRows();
+              let firstVisibleRow = listbox.getIndexOfFirstVisibleRow();
+              let numOfVisibleRows = listbox.getNumberOfVisibleRows();
               if (aRow <= firstVisibleRow) {
                   listbox.scrollToIndex(aRow - 1);
               } else {
@@ -909,7 +909,7 @@
                       listbox.scrollToIndex(aRow - numOfVisibleRows);
                   }
               }
-              var input =
+              let input =
                   document.getAnonymousElementByAttribute(
                       node, "anonid", "input");
               input.focus();
@@ -920,7 +920,7 @@
 
       <property name="firstVisibleRow">
         <getter><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
           return listbox.getIndexOfFirstVisibleRow();
@@ -929,7 +929,7 @@
 
       <method name="createAttendee">
         <body><![CDATA[
-          var attendee = createAttendee();
+          let attendee = createAttendee();
           attendee.id = "";
           attendee.rsvp = "TRUE";
           attendee.role = "REQ-PARTICIPANT";
@@ -941,10 +941,10 @@
       <property name="numColumns">
         <getter><![CDATA[
           if (!this.mNumColumns) {
-              var listbox =
+              let listbox =
                   document.getAnonymousElementByAttribute(
                       this, "anonid", "listbox");
-              var listCols = listbox.getElementsByTagNameNS('*', 'listcol');
+              let listCols = listbox.getElementsByTagNameNS('*', 'listcol');
               this.mNumColumns = listCols.length;
               if (!this.mNumColumns) {
                   this.mNumColumns = 1;
@@ -956,10 +956,10 @@
 
       <property name="ratio">
         <setter><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
-          var rowcount = listbox.getRowCount();
+          let rowcount = listbox.getRowCount();
           listbox.scrollToIndex(Math.floor(rowcount * val));
           return val;
         ]]></setter>
@@ -1010,18 +1010,18 @@
         <parameter name="aElement"/>
         <parameter name="aDirection"/>
         <body><![CDATA[
-          var row = this.getRowByInputElement(aElement) + aDirection;
+          let row = this.getRowByInputElement(aElement) + aDirection;
           if (row) {
               if (row > this.mMaxAttendees) {
                   this.appendNewRow(true);
               } else {
-                  var input = this.getInputElement(row);
+                  let input = this.getInputElement(row);
                   if (input.hasAttribute("disabled")) {
                       return;
                   }
                   this.setFocus(row);
               }
-              var event = document.createEvent('Events');
+              let event = document.createEvent('Events');
               event.initEvent('rowchange', true, false);
               event.details = row;
               this.dispatchEvent(event);
@@ -1037,7 +1037,7 @@
               return;
           }
 
-          var row = this.getRowByInputElement(aElement);
+          let row = this.getRowByInputElement(aElement);
           this.deleteRow(row);
           if (row > 0) {
               row = row - 1;
@@ -1045,7 +1045,7 @@
           this.setFocus(row);
           this.onModify();
 
-          var event = document.createEvent('Events');
+          let event = document.createEvent('Events');
           event.initEvent('rowchange', true, false);
           event.details = row;
           this.dispatchEvent(event);
@@ -1056,13 +1056,13 @@
         <parameter name="aRow"/>
         <body><![CDATA[
           // reset id's in order to not break the sequence
-          var maxAttendees = this.mMaxAttendees;
+          let maxAttendees = this.mMaxAttendees;
           this.removeRow(aRow);
-          var numberOfCols = this.numColumns;
-          for (var row = aRow + 1; row <= maxAttendees; row++) {
-              for (var col = 1; col <= numberOfCols; col++) {
-                  var colID = "attendeeCol" + col + "#" + row;
-                  var elem = document.getAnonymousElementByAttribute(this, "id", colID);
+          let numberOfCols = this.numColumns;
+          for (let row = aRow + 1; row <= maxAttendees; row++) {
+              for (let col = 1; col <= numberOfCols; col++) {
+                  let colID = "attendeeCol" + col + "#" + row;
+                  let elem = document.getAnonymousElementByAttribute(this, "id", colID);
                   if (elem) {
                       elem.setAttribute("id", "attendeeCol" + col + "#" + (row - 1));
                   }
@@ -1074,7 +1074,7 @@
       <method name="removeRow">
         <parameter name="aRow"/>
         <body><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
           this.getListItem(aRow).remove();
@@ -1303,7 +1303,7 @@
           // we need to convert the date/time in question in
           // order to calculate with hours that are aligned
           // with our timebar display.
-          var kDefaultTimezone = calendarDefaultTimezone();
+          let kDefaultTimezone = calendarDefaultTimezone();
           this.mBaseDate = val.getInTimezone(kDefaultTimezone);
           this.mBaseDate.isDate = true;
           this.mBaseDate.makeImmutable();
@@ -1320,7 +1320,7 @@
           // we need to convert the date/time in question in
           // order to calculate with hours that are aligned
           // with our timebar display.
-          var kDefaultTimezone = calendarDefaultTimezone();
+          let kDefaultTimezone = calendarDefaultTimezone();
           this.mStartDate = val.getInTimezone(kDefaultTimezone);
           this.mStartDate.makeImmutable();
           return val;
@@ -1335,7 +1335,7 @@
           // we need to convert the date/time in question in
           // order to calculate with hours that are aligned
           // with our timebar display.
-          var kDefaultTimezone = calendarDefaultTimezone();
+          let kDefaultTimezone = calendarDefaultTimezone();
           this.mEndDate = val.getInTimezone(kDefaultTimezone);
           if (this.mEndDate.isDate) {
               this.mEndDate.day += 1;
@@ -1385,10 +1385,10 @@
       <method name="date2offset">
         <parameter name="date"/>
         <body><![CDATA[
-          var num_hours = this.mEndHour - this.mStartHour;
-          var diff = date.subtractDate(this.mBaseDate);
-          var offset = diff.days * num_hours;
-          var hours = (diff.hours - this.mStartHour) + (diff.minutes / 60.0);
+          let num_hours = this.mEndHour - this.mStartHour;
+          let diff = date.subtractDate(this.mBaseDate);
+          let offset = diff.days * num_hours;
+          let hours = (diff.hours - this.mStartHour) + (diff.minutes / 60.0);
           if (hours < 0) {
               hours = 0;
           }
@@ -1407,24 +1407,24 @@
           }
 
           // Calculate the relation of startdate/basedate and enddate/startdate.
-          var offset = this.mStartDate.subtractDate(this.mBaseDate);
-          var duration = this.mEndDate.subtractDate(this.mStartDate);
+          let offset = this.mStartDate.subtractDate(this.mBaseDate);
+          let duration = this.mEndDate.subtractDate(this.mStartDate);
 
           // Calculate how much pixels a single hour and a single day take up.
-          var num_hours = this.mEndHour - this.mStartHour;
-          var hour_width = this.mContentWidth / num_hours;
+          let num_hours = this.mEndHour - this.mStartHour;
+          let hour_width = this.mContentWidth / num_hours;
 
           // Calculate the offset in fractional hours that corrospond
           // to our start- and end-time.
-          var start_offset_in_hours = this.date2offset(this.mStartDate);
-          var end_offset_in_hours = this.date2offset(this.mEndDate);
-          var duration_in_hours = end_offset_in_hours - start_offset_in_hours;
+          let start_offset_in_hours = this.date2offset(this.mStartDate);
+          let end_offset_in_hours = this.date2offset(this.mEndDate);
+          let duration_in_hours = end_offset_in_hours - start_offset_in_hours;
 
           // Calculate width & margin for the selection bar based on the
           // relation of startdate/basedate and enddate/startdate.
           // This is a simple conversion from hours to pixels.
           this.mWidth = duration_in_hours * hour_width;
-          var totaldragwidths = this.leftdragWidth + this.rightdragWidth;
+          let totaldragwidths = this.leftdragWidth + this.rightdragWidth;
           if (this.mWidth < totaldragwidths) {
               this.mWidth = totaldragwidths;
           }
@@ -1433,7 +1433,7 @@
           // Calculate the difference between content and container in pixels.
           // The container is the window showing this control, the content is the
           // total number of pixels the selection bar can theoretically take up.
-          var total_width = this.mContentWidth * this.mRange - this.parentNode.boxObject.width;
+          let total_width = this.mContentWidth * this.mRange - this.parentNode.boxObject.width;
 
           // Calculate the current scroll offset.
           offset = Math.floor(total_width * this.mRatio);
@@ -1443,12 +1443,12 @@
           this.mMargin -= offset;
 
           // Set the styles based on the calculations above for the 'selection-bar'.
-          var style = "width: " + this.mWidth +
+          let style = "width: " + this.mWidth +
                       "px; margin-inline-start: " + this.mMargin +
                       "px; margin-top: " + this.mHeaderHeight + "px;";
           this.mSelectionbar.setAttribute("style", style);
 
-          var event = document.createEvent('Events');
+          let event = document.createEvent('Events');
           event.initEvent('timechange', true, false);
           event.startDate = this.mStartDate;
           event.endDate = this.mEndDate.clone();
@@ -1463,7 +1463,7 @@
       <method name="setWidth">
         <parameter name="width"/>
         <body><![CDATA[
-            var scrollbox =
+            let scrollbox =
                 document.getAnonymousElementByAttribute(
                     this, "anonid", "scrollbox");
             scrollbox.setAttribute("width", width);
@@ -1487,16 +1487,16 @@
         <parameter name="delta"/>
         <parameter name="doclip"/>
         <body><![CDATA[
-          var newTime = time.clone();
-          var clip_minutes = 60 * this.zoomFactor / 100;
+          let newTime = time.clone();
+          let clip_minutes = 60 * this.zoomFactor / 100;
           if (newTime.isDate) {
               clip_minutes = 60 * 24;
           }
-          var num_hours = this.mEndHour - this.mStartHour;
-          var hour_width = this.mContentWidth / num_hours;
-          var minutes_per_pixel = 60 / hour_width;
-          var minute_shift = minutes_per_pixel * delta;
-          var isClipped = Math.abs(minute_shift) >= (this.mfClipRatio * clip_minutes);
+          let num_hours = this.mEndHour - this.mStartHour;
+          let hour_width = this.mContentWidth / num_hours;
+          let minutes_per_pixel = 60 / hour_width;
+          let minute_shift = minutes_per_pixel * delta;
+          let isClipped = Math.abs(minute_shift) >= (this.mfClipRatio * clip_minutes);
           if (isClipped) {
               if (delta > 0) {
                   if (time.isDate) {
@@ -1537,9 +1537,9 @@
 
     <handlers>
       <handler event="mousedown"><![CDATA[
-        var element = event.target;
+        let element = event.target;
         this.mMouseX = event.screenX;
-        var mouseX = event.clientX - element.boxObject.x;
+        let mouseX = event.clientX - element.boxObject.x;
 
         if (mouseX >= this.mMargin) {
             if (mouseX <= (this.mMargin + this.mWidth)) {
@@ -1561,7 +1561,7 @@
       ]]></handler>
 
       <handler event="mousemove"><![CDATA[
-        var mouseX = event.screenX;
+        let mouseX = event.screenX;
         if (this.mDragState == 1) {
             // Move the startdate and the enddate
             let delta = mouseX - this.mMouseX;

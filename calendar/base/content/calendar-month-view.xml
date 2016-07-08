@@ -81,17 +81,17 @@
           this.mOccurrence = val;
           if (cal.isEvent(val)) {
             if (!val.startDate.isDate) {
-              var label = document.getAnonymousElementByAttribute(this, "anonid", "item-label");
-              var df = Components.classes["@mozilla.org/calendar/datetime-formatter;1"].
+              let label = document.getAnonymousElementByAttribute(this, "anonid", "item-label");
+              let df = Components.classes["@mozilla.org/calendar/datetime-formatter;1"].
                        getService(Components.interfaces.calIDateTimeFormatter);
-              var timezone = this.calendarView ? this.calendarView.mTimezone :
+              let timezone = this.calendarView ? this.calendarView.mTimezone :
                              calendarDefaultTimezone();
-              var parentDate = ensureDateTime(this.parentBox.date);
-              var startTime = val.startDate.getInTimezone(timezone);
-              var endTime = val.endDate.getInTimezone(timezone);
-              var nextDay = parentDate.clone();
+              let parentDate = ensureDateTime(this.parentBox.date);
+              let startTime = val.startDate.getInTimezone(timezone);
+              let endTime = val.endDate.getInTimezone(timezone);
+              let nextDay = parentDate.clone();
               nextDay.day++;
-              var comp = endTime.compare(nextDay);
+              let comp = endTime.compare(nextDay);
               if (startTime.compare(parentDate) == -1) {
                 if (comp == 1) {
                   label.value = "↔";
@@ -151,7 +151,7 @@
 
       <property name="selected">
         <getter><![CDATA[
-          var sel = this.getAttribute("selected");
+          let sel = this.getAttribute("selected");
           if (sel && sel == "true") {
             return true;
           }
@@ -423,7 +423,7 @@
           // Set the preference for the default start of the week
           this.weekStartOffset = Preferences.get("calendar.week.start", 0);
 
-          for (var i = 0; i < 7; i++) {
+          for (let i = 0; i < 7; i++) {
               let hdr = createXULElement("calendar-day-label");
               this.labeldaybox.appendChild(hdr);
               hdr.weekDay = (i + this.mWeekStartOffset) % 7;
@@ -592,7 +592,7 @@
             this.mSelectedDayBox.selected = false;
           }
 
-          var realVal = val;
+          let realVal = val;
           if (!realVal.isDate) {
             realVal = val.clone();
             realVal.isDate = true;
@@ -755,31 +755,31 @@
           // Days that are not in the main month on display are displayed with
           // a gray background.  Unless the month actually starts on a Sunday,
           // this means that mStartDate.month is 1 month less than the main month
-          var mainMonth = this.mStartDate.month;
+          let mainMonth = this.mStartDate.month;
           if (this.mStartDate.day != 1) {
             mainMonth++;
             mainMonth = mainMonth % 12;
           }
 
-          var dateBoxes = [];
-          var today = this.today();
+          let dateBoxes = [];
+          let today = this.today();
 
           // This gets set to true, telling us to collapse the rest of the rows
-          var finished = false;
-          var dateList = this.getDateList({});
+          let finished = false;
+          let dateList = this.getDateList({});
 
           // This allows to find the first column of dayboxes where to set the
           // week labels taking into account whether days-off are displayed or not.
           let weekLabelColumnPos = -1;
 
-          var rows = this.monthgridrows.childNodes;
+          let rows = this.monthgridrows.childNodes;
 
           // Iterate through each monthgridrow and set up the day-boxes that
           // are its child nodes.  Remember, childNodes is not a normal array,
           // so don't use the in operator if you don't want extra properties
           // coming out.
-          for (var i = 0; i < rows.length; i++) {
-            var row = rows[i];
+          for (let i = 0; i < rows.length; i++) {
+            let row = rows[i];
             // If we've already assigned all of the day-boxes that we need, just
             // collapse the rest of the rows, otherwise expand them if needed.
             if (finished) {
@@ -788,9 +788,9 @@
             } else {
               row.removeAttribute("collapsed");
             }
-            for (var j = 0; j < row.childNodes.length; j++) {
-              var daybox = row.childNodes[j];
-              var dt = dateList[dateBoxes.length];
+            for (let j = 0; j < row.childNodes.length; j++) {
+              let daybox = row.childNodes[j];
+              let dt = dateList[dateBoxes.length];
 
               // Remove the attribute "relation" for all the column headers.
               // Consider only the first row index otherwise it will be
@@ -804,7 +804,7 @@
 
               // Set the box-class depending on if this box displays a day in
               // the month being currently shown or not.
-              var boxClass;
+              let boxClass;
               if (this.showFullMonth) {
                   boxClass = "calendar-month-day-box-" +
                              (mainMonth == dt.month ? "current-month" : "other-month");
@@ -921,11 +921,11 @@
 
       <method name="hideDaysOff">
         <body><![CDATA[
-          var columns = document.getAnonymousElementByAttribute(this, "anonid", "monthgridcolumns").childNodes;
+          let columns = document.getAnonymousElementByAttribute(this, "anonid", "monthgridcolumns").childNodes;
           let headerkids = document.getAnonymousElementByAttribute(this, "anonid", "labeldaybox").childNodes;
           for (let i = 0; i < columns.length; i++) {
-            var dayForColumn = (i + this.mWeekStartOffset) % 7;
-            var dayOff = this.mDaysOffArray.includes(dayForColumn);
+            let dayForColumn = (i + this.mWeekStartOffset) % 7;
+            let dayOff = this.mDaysOffArray.includes(dayForColumn);
             columns[i].collapsed = dayOff && !this.mDisplayDaysOff;
             headerkids[i].collapsed = dayOff && !this.mDisplayDaysOff;
           }
@@ -950,9 +950,9 @@
       <method name="findDayBoxesForItem">
         <parameter name="aItem"/>
         <body><![CDATA[
-          var targetDate = null;
-          var finishDate = null;
-          var boxes = [];
+          let targetDate = null;
+          let finishDate = null;
+          let boxes = [];
 
           // All our boxes are in default tz, so we need these times in them too.
           if (cal.isEvent(aItem)) {
@@ -1035,7 +1035,7 @@
           function isNotItem(a) {
               return (a.hashId != aItem.hashId);
           }
-          var oldLength = this.mSelectedItems.length;
+          let oldLength = this.mSelectedItems.length;
           this.mSelectedItems = this.mSelectedItems.filter(isNotItem);
 
           for (let box of boxes) {
@@ -1072,8 +1072,8 @@
         <parameter name="aAlarmItem"/>
         <parameter name="aStop"/>
         <body><![CDATA[
-          var showIndicator = Preferences.get("calendar.alarms.indicator.show", true);
-          var totaltime = Preferences.get("calendar.alarms.indicator.totaltime", 3600);
+          let showIndicator = Preferences.get("calendar.alarms.indicator.show", true);
+          let totaltime = Preferences.get("calendar.alarms.indicator.totaltime", 3600);
 
           if (!aStop && (!showIndicator || totaltime < 1)) {
             // No need to animate if the indicator should not be shown.
@@ -1083,8 +1083,8 @@
           // Make sure the flashing attribute is set or reset on all visible
           // boxes.
           let boxes = this.findDayBoxesForItem(aAlarmItem);
-          for (var box of boxes) {
-            for (var id in box.mItemHash) {
+          for (let box of boxes) {
+            for (let id in box.mItemHash) {
               let itemData = box.mItemHash[id];
               if (itemData.item.hasSameIds(aAlarmItem)) {
                 if (aStop) {
@@ -1098,7 +1098,7 @@
 
           if (!aStop) {
             // Set up a timer to stop the flashing after the total time.
-            var this_ = this;
+            let this_ = this;
             this.mFlashingEvents[aAlarmItem.hashId] = aAlarmItem;
             setTimeout(function() { this_.flashAlarm(aAlarmItem, true); }, totaltime);
           } else {

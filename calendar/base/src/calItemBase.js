@@ -78,8 +78,8 @@ calItemBase.prototype = {
     // readonly attribute AUTF8String hashId;
     get hashId() {
         if (this.mHashId === null) {
-            var rid = this.recurrenceId;
-            var calendar = this.calendar;
+            let rid = this.recurrenceId;
+            let calendar = this.calendar;
             // some unused delim character:
             this.mHashId = [encodeURIComponent(this.id),
                             rid ? rid.getInTimezone(UTC()).icalString : "",
@@ -382,7 +382,7 @@ calItemBase.prototype = {
                         cal.ASSERT(false, Components.results.NS_ERROR_UNEXPECTED);
                         throw Components.results.NS_ERROR_UNEXPECTED;
                     }
-                    var ret = this.mCurrentProp;
+                    let ret = this.mCurrentProp;
                     this.mCurrentProp = null;
                     return ret;
                 }
@@ -395,7 +395,7 @@ calItemBase.prototype = {
     // nsIVariant getProperty(in AString name);
     getProperty: function cIB_getProperty(aName) {
         aName = aName.toUpperCase();
-        var aValue = this.mProperties.getProperty_(aName);
+        let aValue = this.mProperties.getProperty_(aName);
         if (aValue === undefined) {
             aValue = (this.mIsProxy ? this.mParentItem.getProperty(aName) : null);
         }
@@ -521,9 +521,9 @@ calItemBase.prototype = {
 
     // calIAttendee getAttendeeById(in AUTF8String id);
     getAttendeeById: function cIB_getAttendeeById(id) {
-        var attendees = this.getAttendees({});
-        var lowerCaseId = id.toLowerCase();
-        for (var attendee of attendees) {
+        let attendees = this.getAttendees({});
+        let lowerCaseId = id.toLowerCase();
+        for (let attendee of attendees) {
             // This match must be case insensitive to deal with differing
             // cases of things like MAILTO:
             if (attendee.id.toLowerCase() == lowerCaseId) {
@@ -536,11 +536,11 @@ calItemBase.prototype = {
     // void removeAttendee(in calIAttendee attendee);
     removeAttendee: function cIB_removeAttendee(attendee) {
         this.modify();
-        var found = false, newAttendees = [];
-        var attendees = this.getAttendees({});
-        var attIdLowerCase = attendee.id.toLowerCase();
+        let found = false, newAttendees = [];
+        let attendees = this.getAttendees({});
+        let attIdLowerCase = attendee.id.toLowerCase();
 
-        for (var i = 0; i < attendees.length; i++) {
+        for (let i = 0; i < attendees.length; i++) {
             if (attendees[i].id.toLowerCase() != attIdLowerCase) {
                 newAttendees.push(attendees[i]);
             } else {
@@ -612,7 +612,7 @@ calItemBase.prototype = {
     // void removeAttachment(in calIAttachment attachment);
     removeAttachment: function cIB_removeAttachment(aAttachment) {
         this.modify();
-        for (var attIndex in this.mAttachments) {
+        for (let attIndex in this.mAttachments) {
             if (cal.compareObjects(this.mAttachments[attIndex], aAttachment, Components.interfaces.calIAttachment)) {
                 this.modify();
                 this.mAttachments.splice(attIndex, 1);
@@ -654,7 +654,7 @@ calItemBase.prototype = {
     // void removeRelation(in calIRelation relation);
     removeRelation: function cIB_removeRelation(aRelation) {
         this.modify();
-        for (var attIndex in this.mRelations) {
+        for (let attIndex in this.mRelations) {
             // Could we have the same item as parent and as child ?
             if (this.mRelations[attIndex].relId == aRelation.relId &&
                 this.mRelations[attIndex].relType == aRelation.relType) {
@@ -788,9 +788,9 @@ calItemBase.prototype = {
      * @param propmap       The property map to walk through.
      */
     mapPropsFromICS: function cIB_mapPropsFromICS(icalcomp, propmap) {
-        for (var i = 0; i < propmap.length; i++) {
-            var prop = propmap[i];
-            var val = icalcomp[prop.ics];
+        for (let i = 0; i < propmap.length; i++) {
+            let prop = propmap[i];
+            let val = icalcomp[prop.ics];
             if (val != null && val != Components.interfaces.calIIcalComponent.INVALID_VALUE) {
                 this.setProperty(prop.cal, val);
             }
@@ -806,9 +806,9 @@ calItemBase.prototype = {
      * @param propmap       The property map to walk through.
      */
     mapPropsToICS: function cIB_mapPropsToICS(icalcomp, propmap) {
-        for (var i = 0; i < propmap.length; i++) {
-            var prop = propmap[i];
-            var val = this.getProperty(prop.cal);
+        for (let i = 0; i < propmap.length; i++) {
+            let prop = propmap[i];
+            let val = this.getProperty(prop.cal);
             if (val != null && val != Components.interfaces.calIIcalComponent.INVALID_VALUE) {
                 icalcomp[prop.ics] = val;
             }
@@ -1115,14 +1115,14 @@ makeMemberAttr(calItemBase, "mProperties", null, "properties");
  */
 function makeMemberAttr(ctor, varname, dflt, attr, asProperty) {
     // XXX handle defaults!
-    var getter = function() {
+    let getter = function() {
         if (asProperty) {
             return this.getProperty(varname);
         } else {
             return (varname in this ? this[varname] : undefined);
         }
     };
-    var setter = function(v) {
+    let setter = function(v) {
         this.modify();
         if (asProperty) {
             return this.setProperty(varname, v);

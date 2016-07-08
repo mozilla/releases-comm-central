@@ -35,7 +35,7 @@
     <implementation>
       <property name="x">
         <setter><![CDATA[
-          var content =
+          let content =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "content");
           content.setAttribute("style",
@@ -46,7 +46,7 @@
 
       <property name="y">
         <setter><![CDATA[
-          var content =
+          let content =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "content");
           content.setAttribute("style",
@@ -145,7 +145,7 @@
 
       <property name="dayHeight">
         <getter><![CDATA[
-          var day =
+          let day =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "day");
           return day.boxObject.height;
@@ -154,7 +154,7 @@
 
       <property name="date">
         <setter><![CDATA[
-          var date = val.clone();
+          let date = val.clone();
           date.hour = 0;
           date.minute = 0;
           date.isDate = false;
@@ -259,10 +259,10 @@
         <setter><![CDATA[
           this.mZoomFactor = val;
 
-          var template =
+          let template =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "template");
-          var parent = template.parentNode;
+          let parent = template.parentNode;
           while (parent.childNodes.length > 1) {
               parent.lastChild.remove();
           }
@@ -284,11 +284,11 @@
           this.mForce24Hours = val;
           this.initTimeRange();
 
-          var template =
+          let template =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "template");
 
-          var parent = template.parentNode;
+          let parent = template.parentNode;
           while (parent.childNodes.length > 1) {
             parent.lastChild.remove();
           }
@@ -307,7 +307,7 @@
           // Calculate the difference between the first to day-elements, since
           // the width of the head element does not specify the width we need
           // due to an arbitrary margin value.
-          var template =
+          let template =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "template");
           return template.nextSibling.boxObject.x - template.boxObject.x;
@@ -345,14 +345,14 @@
       <property name="dayOffset">
         <setter><![CDATA[
           this.mDayOffset = val;
-          var container =
+          let container =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "container");
-          var date = this.mStartDate.clone();
+          let date = this.mStartDate.clone();
           date.day += val;
-          var numChilds = container.childNodes.length;
-          for (var i = 0; i < numChilds; i++) {
-              var child = container.childNodes[i];
+          let numChilds = container.childNodes.length;
+          for (let i = 0; i < numChilds; i++) {
+              let child = container.childNodes[i];
               child.date = date;
               date.day++;
           }
@@ -363,15 +363,15 @@
       <property name="step">
         <getter><![CDATA[
           // How much pixels spans a single day
-          var oneday = this.contentWidth;
+          let oneday = this.contentWidth;
 
           // The difference in pixels between the content and the container.
-          var shift = (oneday * this.mRange) - (this.containerWidth);
+          let shift = (oneday * this.mRange) - (this.containerWidth);
 
           // What we want to know is the scale of the total shift
           // needed to step one block further. Since the content
           // is divided into 'numHours' equal parts, we can simply state:
-          var numHours = this.mEndHour - this.mStartHour;
+          let numHours = this.mEndHour - this.mStartHour;
           return (this.contentWidth) / (numHours * shift);
         ]]></getter>
       </property>
@@ -381,14 +381,14 @@
           this.mScrollOffset = val;
 
           // How much pixels spans a single day
-          var oneday = this.contentWidth;
+          let oneday = this.contentWidth;
 
           // The difference in pixels between the content and the container.
-          var shift = (oneday * this.mRange) - (this.containerWidth);
+          let shift = (oneday * this.mRange) - (this.containerWidth);
 
           // Now calculate the (positive) offset in pixels which the content
           // needs to be shifted. This is a simple scaling in one dimension.
-          var offset = Math.floor(val * shift);
+          let offset = Math.floor(val * shift);
 
           // Now find out how much days this offset effectively skips.
           // this is a simple division which always yields a positive integer value.
@@ -399,7 +399,7 @@
           offset %= oneday;
 
           // Set the offset at the content node.
-          var container =
+          let container =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "container");
           container.x = offset;
@@ -413,9 +413,9 @@
       <constructor><![CDATA[
         Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-        var args = window.arguments[0];
-        var startTime = args.startTime;
-        var endTime = args.endTime;
+        let args = window.arguments[0];
+        let startTime = args.startTime;
+        let endTime = args.endTime;
 
         this.initTimeRange();
 
@@ -423,13 +423,13 @@
         // of the timebar starts. The range is the number of days
         // we should be able to show. The start- and enddate
         // is the time the event is scheduled for.
-        var kDefaultTimezone = calendarDefaultTimezone();
+        let kDefaultTimezone = calendarDefaultTimezone();
         this.startDate = startTime.getInTimezone(kDefaultTimezone);
         this.endDate = endTime.getInTimezone(kDefaultTimezone);
         this.mRange = Number(this.getAttribute("range"));
 
-        var self = this;
-        var load = function loadHandler() {
+        let self = this;
+        let load = function loadHandler() {
             self.onLoad();
         };
         window.addEventListener("load", load, true);
@@ -437,20 +437,20 @@
 
       <method name="refresh">
         <body><![CDATA[
-          var date = this.mStartDate.clone();
-          var template =
+          let date = this.mStartDate.clone();
+          let template =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "template");
-          var parent = template.parentNode;
-          var numChilds = parent.childNodes.length;
-          for (var i = 0; i < numChilds; i++) {
-              var child = parent.childNodes[i];
+          let parent = template.parentNode;
+          let numChilds = parent.childNodes.length;
+          for (let i = 0; i < numChilds; i++) {
+              let child = parent.childNodes[i];
               child.startDate = this.mStartDate;
               child.endDate = this.mEndDate;
               child.date = date;
               date.day++;
           }
-          var offset = this.mDayOffset;
+          let offset = this.mDayOffset;
           this.dayOffset = offset;
         ]]></body>
       </method>
@@ -458,10 +458,10 @@
       <method name="onLoad">
         <body><![CDATA[
             this.initialize();
-            var template =
+            let template =
                 document.getAnonymousElementByAttribute(
                     this, "anonid", "template");
-            var event = document.createEvent('Events');
+            let event = document.createEvent('Events');
             event.initEvent('timebar', true, false);
             event.details = this.contentWidth;
             event.height = template.dayHeight;
@@ -471,12 +471,12 @@
 
       <method name="initialize">
         <body><![CDATA[
-          var args = window.arguments[0];
-          var startTime = args.startTime;
-          var endTime = args.endTime;
-          var calendar = args.calendar;
+          let args = window.arguments[0];
+          let startTime = args.startTime;
+          let endTime = args.endTime;
+          let calendar = args.calendar;
 
-          var kDefaultTimezone = calendarDefaultTimezone();
+          let kDefaultTimezone = calendarDefaultTimezone();
           this.startDate = startTime.getInTimezone(kDefaultTimezone);
           this.endDate = endTime.getInTimezone(kDefaultTimezone);
 
@@ -489,8 +489,8 @@
           }
 
           // Now create those elements and set their date property.
-          var date = this.mStartDate.clone();
-          var template =
+          let date = this.mStartDate.clone();
+          let template =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "template");
           template.force24Hours = this.mForce24Hours;
@@ -498,13 +498,13 @@
           template.startDate = this.mStartDate;
           template.endDate = this.mEndDate;
           template.date = date;
-          var parent = template.parentNode;
+          let parent = template.parentNode;
           if (parent.childNodes.length <= 1) {
-              var count = this.mNumDays - 1;
+              let count = this.mNumDays - 1;
               if (count > 0) {
-                  for (var i = 0; i < count; i++) {
+                  for (let i = 0; i < count; i++) {
                       date.day++;
-                      var newNode = template.cloneNode(false);
+                      let newNode = template.cloneNode(false);
                       newNode.force24Hours = this.mForce24Hours;
                       newNode.zoomFactor = this.mZoomFactor;
                       newNode.startDate = this.mStartDate;
@@ -606,14 +606,14 @@
 
       <property name="numHours">
         <getter><![CDATA[
-          var numHours = this.mEndHour - this.mStartHour;
+          let numHours = this.mEndHour - this.mStartHour;
           return Math.ceil(numHours * 100 / this.mZoomFactor);
         ]]></getter>
       </property>
 
       <property name="contentWidth">
         <getter><![CDATA[
-          var hours =
+          let hours =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "hours");
           return (hours.childNodes[1].boxObject.x -
@@ -649,17 +649,17 @@
       <property name="scroll">
         <setter><![CDATA[
           // How much pixels spans a single day
-          var oneday = this.contentWidth;
+          let oneday = this.contentWidth;
           if (oneday <= 0) {
               return val;
           }
 
           // The difference in pixels between the content and the container.
-          var shift = (oneday * this.mRange) - (this.containerWidth);
+          let shift = (oneday * this.mRange) - (this.containerWidth);
 
           // Now calculate the (positive) offset in pixels which the content
           // needs to be shifted. This is a simple scaling in one dimension.
-          var offset = Math.floor(val * shift);
+          let offset = Math.floor(val * shift);
 
           // Now find out how much days this offset effectively skips.
           // this is a simple division which always yields a positive integer value.
@@ -670,7 +670,7 @@
           offset %= oneday;
 
           // Set the offset at the content node.
-          var container =
+          let container =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "container");
           container.x = offset;
@@ -754,14 +754,14 @@
               // (temporarily clean the display) we keep the last know result.
               this.mEntries = aEntries;
 
-              var kDefaultTimezone = calendarDefaultTimezone();
+              let kDefaultTimezone = calendarDefaultTimezone();
 
-              var start = this.mStartDate.clone();
+              let start = this.mStartDate.clone();
               start.hour = 0;
               start.minute = 0;
               start.second = 0;
               start.timezone = kDefaultTimezone;
-              var end = start.clone();
+              let end = start.clone();
               end.day += this.mRange;
               end.timezone = kDefaultTimezone;
 
@@ -902,21 +902,21 @@
         <parameter name="aEndTime"/>
         <parameter name="allDay"/>
         <body><![CDATA[
-          var newTime = aStartTime.clone();
-          var duration = aEndTime.subtractDate(aStartTime);
-          var newEndTime = newTime.clone();
+          let newTime = aStartTime.clone();
+          let duration = aEndTime.subtractDate(aStartTime);
+          let newEndTime = newTime.clone();
           newEndTime.addDuration(duration);
 
-          var kDefaultTimezone = calendarDefaultTimezone();
+          let kDefaultTimezone = calendarDefaultTimezone();
 
           if (this.mEntries) {
-              for (var entry of this.mEntries) {
-                var rangeStart =
+              for (let entry of this.mEntries) {
+                let rangeStart =
                     entry.interval.start.getInTimezone(kDefaultTimezone);
-                var rangeEnd =
+                let rangeEnd =
                     entry.interval.end.getInTimezone(kDefaultTimezone);
 
-                var isZeroLength = !newTime.compare(newEndTime);
+                let isZeroLength = !newTime.compare(newEndTime);
                 if ((isZeroLength &&
                      newTime.compare(rangeStart) >= 0 &&
                      newTime.compare(rangeEnd) < 0) ||
@@ -1014,8 +1014,8 @@
         ]]></getter>
         <setter><![CDATA[
           this.mZoomFactor = val;
-          for (var i = 1; i <= this.mMaxFreeBusy; i++) {
-              var freebusy = this.getFreeBusyElement(i);
+          for (let i = 1; i <= this.mMaxFreeBusy; i++) {
+              let freebusy = this.getFreeBusyElement(i);
               freebusy.zoomFactor = this.mZoomFactor;
           }
           this.forceRefresh();
@@ -1030,8 +1030,8 @@
         <setter><![CDATA[
           this.mForce24Hours = val;
           this.initTimeRange();
-          for (var i = 1; i <= this.mMaxFreeBusy; i++) {
-              var freebusy = this.getFreeBusyElement(i);
+          for (let i = 1; i <= this.mMaxFreeBusy; i++) {
+              let freebusy = this.getFreeBusyElement(i);
               freebusy.force24Hours = this.mForce24Hours;
           }
           return val;
@@ -1040,13 +1040,13 @@
 
       <property name="firstVisibleRow">
         <getter><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
           return listbox.getIndexOfFirstVisibleRow();
         ]]></getter>
         <setter><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
           listbox.scrollToIndex(val);
@@ -1056,10 +1056,10 @@
 
       <property name="ratio">
         <setter><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
-          var rowcount = listbox.getRowCount();
+          let rowcount = listbox.getRowCount();
           listbox.scrollToIndex(Math.floor(rowcount * val));
           return val;
         ]]></setter>
@@ -1068,7 +1068,7 @@
       <constructor><![CDATA[
         Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-        var args = window.arguments[0];
+        let args = window.arguments[0];
 
         this.initTimeRange();
 
@@ -1077,12 +1077,12 @@
         this.mMaxFreeBusy = 0;
         this.mPendingRequests = [];
 
-        var self = this;
-        var load = function freebusy_grid_loadHandler() {
+        let self = this;
+        let load = function freebusy_grid_loadHandler() {
             self.onLoad();
         };
         window.addEventListener("load", load, true);
-        var unload = function freebusy_grid_unloadHandler() {
+        let unload = function freebusy_grid_unloadHandler() {
             self.onUnload();
         };
         window.addEventListener("unload", unload, true);
@@ -1095,7 +1095,7 @@
         <setter><![CDATA[
           this.mStartDate = val.clone();
           this.mStartDate.makeImmutable();
-          for (var i = 1; i <= this.mMaxFreeBusy; i++) {
+          for (let i = 1; i <= this.mMaxFreeBusy; i++) {
               this.getFreeBusyElement(i).startDate = val;
           }
           return val;
@@ -1109,7 +1109,7 @@
         <setter><![CDATA[
           this.mEndDate = val.clone();
           this.mEndDate.makeImmutable();
-          for (var i = 1; i <= this.mMaxFreeBusy; i++) {
+          for (let i = 1; i <= this.mMaxFreeBusy; i++) {
               this.getFreeBusyElement(i).endDate = val;
           }
           return val;
@@ -1131,7 +1131,7 @@
       <method name="onUnload">
         <body><![CDATA[
           // Cancel pending free/busy requests
-          for (var request of this.mPendingRequests) {
+          for (let request of this.mPendingRequests) {
               request.cancel(null);
           }
 
@@ -1141,19 +1141,19 @@
 
       <method name="onInitialize">
         <body><![CDATA[
-          var args = window.arguments[0];
-          var startTime = args.startTime;
-          var endTime = args.endTime;
-          var calendar = args.calendar;
+          let args = window.arguments[0];
+          let startTime = args.startTime;
+          let endTime = args.endTime;
+          let calendar = args.calendar;
 
-          var kDefaultTimezone = calendarDefaultTimezone();
+          let kDefaultTimezone = calendarDefaultTimezone();
           this.startDate = startTime.getInTimezone(kDefaultTimezone);
           this.endDate = endTime.getInTimezone(kDefaultTimezone);
 
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
-          var template =
+          let template =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "item");
           this.appendNewRow(listbox, template, null);
@@ -1176,17 +1176,17 @@
         <parameter name="aReplaceNode"/>
         <body><![CDATA[
           this.mMaxFreeBusy++;
-          var newNode = aTemplateNode.cloneNode(true);
+          let newNode = aTemplateNode.cloneNode(true);
           if (aReplaceNode) {
               aParentNode.replaceChild(newNode, aReplaceNode);
           } else {
               aParentNode.appendChild(newNode);
           }
 
-          var grid =
+          let grid =
               document.getAnonymousElementByAttribute(
                   newNode, "anonid", "grid");
-          var rowNumber = this.mMaxFreeBusy;
+          let rowNumber = this.mMaxFreeBusy;
           if (rowNumber >= 0) {
               grid.setAttribute("id", "attendeeCol4#" + rowNumber);
           }
@@ -1215,7 +1215,7 @@
       <property name="scroll">
         <setter><![CDATA[
           this.mScrollOffset = val;
-          for (var i = 1; i <= this.mMaxFreeBusy; i++) {
+          for (let i = 1; i <= this.mMaxFreeBusy; i++) {
               this.getFreeBusyElement(i).scroll = val;
           }
           return val;
@@ -1227,16 +1227,16 @@
         <body><![CDATA[
           // Add or remove rows depending on the number of items
           // contained in the list passed as argument.
-          var list = event.details;
+          let list = event.details;
           if (this.mMaxFreeBusy != list.length) {
-              var listbox =
+              let listbox =
                   document.getAnonymousElementByAttribute(
                       this, "anonid", "listbox");
-              var template =
+              let template =
                   document.getAnonymousElementByAttribute(
                       this, "anonid", "item");
               while (this.mMaxFreeBusy < list.length) {
-                  var nextDummy = this.getNextDummyRow();
+                  let nextDummy = this.getNextDummyRow();
                   this.appendNewRow(listbox, template, nextDummy);
                   template =
                       document.getAnonymousElementByAttribute(
@@ -1248,8 +1248,8 @@
           }
 
           // Store the attributes in our grid rows.
-          for (var i = 1; i <= this.mMaxFreeBusy; i++) {
-              var freebusy = this.getFreeBusyElement(i);
+          for (let i = 1; i <= this.mMaxFreeBusy; i++) {
+              let freebusy = this.getFreeBusyElement(i);
               freebusy.setAttribute("calid", list[i - 1].calid);
               freebusy.removeAttribute("dirty");
               if (list[i - 1].dirty) {
@@ -1267,26 +1267,26 @@
       <!-- updateFreeBusy(), implementation of the core functionality of this binding -->
       <method name="updateFreeBusy">
         <body><![CDATA[
-          var fbService = getFreeBusyService();
-          for (var i = 1; i <= this.mMaxFreeBusy; i++) {
+          let fbService = getFreeBusyService();
+          for (let i = 1; i <= this.mMaxFreeBusy; i++) {
               // Retrieve the string from the appropriate row
-              var freebusy = this.getFreeBusyElement(i);
+              let freebusy = this.getFreeBusyElement(i);
               if (freebusy.hasAttribute("dirty")) {
                   freebusy.removeAttribute("dirty");
-                  var calid = freebusy.getAttribute("calid");
+                  let calid = freebusy.getAttribute("calid");
                   if (calid && calid.length > 0) {
                       // Define the datetime range we would like to ask for.
-                      var start = this.mStartDate.clone();
+                      let start = this.mStartDate.clone();
                       start.hour = 0;
                       start.minute = 0;
                       start.second = 0;
-                      var end = start.clone();
+                      let end = start.clone();
                       end.day += this.mRange;
                       // Update with 'no data available' until response will be received
                       freebusy.onFreeBusy(null);
                       try {
-                          var listener = new calFreeBusyListener(freebusy, this);
-                          var request = fbService.getFreeBusyIntervals(calid,
+                          let listener = new calFreeBusyListener(freebusy, this);
+                          let request = fbService.getFreeBusyIntervals(calid,
                                                                        start,
                                                                        end,
                                                                        Components.interfaces.calIFreeBusyInterval.BUSY_ALL,
@@ -1305,20 +1305,20 @@
 
       <method name="nextSlot">
         <body><![CDATA[
-          var startTime = this.mStartDate.clone();
-          var endTime = this.mEndDate.clone();
+          let startTime = this.mStartDate.clone();
+          let endTime = this.mEndDate.clone();
 
           startTime.isDate = false;
           endTime.isDate = false;
 
-          var allDay = this.mStartDate.isDate;
-          var step_in_minutes = Math.floor(60 * this.zoomFactor / 100);
+          let allDay = this.mStartDate.isDate;
+          let step_in_minutes = Math.floor(60 * this.zoomFactor / 100);
           if (allDay) {
               step_in_minutes = 60 * 24;
               endTime.day++;
           }
 
-          var duration = endTime.subtractDate(startTime);
+          let duration = endTime.subtractDate(startTime);
 
           startTime.minute += step_in_minutes;
 
@@ -1344,12 +1344,12 @@
           // if it wants to modify the suggested time slot.
           // we keep iterating the rows until all of them
           // are happy with it.
-          var recheck;
+          let recheck;
           do {
               recheck = false;
 
               for (let i = 1; i <= this.mMaxFreeBusy; i++) {
-                  var row = this.getFreeBusyElement(i);
+                  let row = this.getFreeBusyElement(i);
                   let newTime = row.nextSlot(startTime, endTime, allDay);
                   if (newTime) {
                     if (newTime.compare(startTime) != 0) {
@@ -1413,8 +1413,8 @@
 
       <method name="forceRefresh">
         <body><![CDATA[
-          for (var i = 1; i <= this.mMaxFreeBusy; i++) {
-              var row = this.getFreeBusyElement(i);
+          for (let i = 1; i <= this.mMaxFreeBusy; i++) {
+              let row = this.getFreeBusyElement(i);
               row.setAttribute("dirty", "true");
           }
           this.updateFreeBusy();
@@ -1425,11 +1425,11 @@
       <method name="getListItem">
         <parameter name="aRow"/>
         <body><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
           if (listbox && aRow > 0) {
-              var listitems = listbox.getElementsByTagNameNS('*', 'listitem');
+              let listitems = listbox.getElementsByTagNameNS('*', 'listitem');
               if (listitems && listitems.length >= aRow) {
                   return listitems[aRow - 1];
               }
@@ -1450,13 +1450,13 @@
         <parameter name="aRow"/>
         <body><![CDATA[
           // Reset id's in order to not break the sequence
-          var max = this.mMaxFreeBusy;
+          let max = this.mMaxFreeBusy;
           this.removeRow(aRow);
-          var numberOfCols = this.numColumns;
-          for (var row = aRow + 1; row <= max; row++) {
-              for (var col = 1; col <= numberOfCols; col++) {
-                  var colID = "attendeeCol" + col + "#" + row;
-                  var elem = document.getAnonymousElementByAttribute(this, "id", colID);
+          let numberOfCols = this.numColumns;
+          for (let row = aRow + 1; row <= max; row++) {
+              for (let col = 1; col <= numberOfCols; col++) {
+                  let colID = "attendeeCol" + col + "#" + row;
+                  let elem = document.getAnonymousElementByAttribute(this, "id", colID);
                   if (elem) {
                       elem.setAttribute(
                           "id",
@@ -1470,7 +1470,7 @@
       <method name="removeRow">
         <parameter name="aRow"/>
         <body><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
           this.getListItem(aRow).remove();
@@ -1482,11 +1482,11 @@
       <!-- gets the next row from the top down -->
       <method name="getNextDummyRow">
         <body><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
-          var kids = listbox.childNodes;
-          for (var i = 0; i < kids.length; ++i) {
+          let kids = listbox.childNodes;
+          for (let i = 0; i < kids.length; ++i) {
               if (kids[i].hasAttribute("_isDummyRow")) {
                   return kids[i];
               }
@@ -1497,8 +1497,8 @@
 
       <method name="fitDummyRows">
         <body><![CDATA[
-          var self = this;
-          var func = function func() {
+          let self = this;
+          let func = function func() {
               self.calcContentHeight();
               self.createOrRemoveDummyRows();
           };
@@ -1508,13 +1508,13 @@
 
       <method name="calcContentHeight">
         <body><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
-          var items = listbox.getElementsByTagNameNS('*', 'listitem');
+          let items = listbox.getElementsByTagNameNS('*', 'listitem');
           this.mContentHeight = 0;
           if (items.length > 0) {
-              var i = 0;
+              let i = 0;
               do {
                   this.mRowHeight = items[i].boxObject.height;
                   ++i;
@@ -1526,14 +1526,14 @@
 
       <method name="createOrRemoveDummyRows">
         <body><![CDATA[
-          var listbox =
+          let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
-          var listboxHeight = listbox.boxObject.height;
+          let listboxHeight = listbox.boxObject.height;
 
           // Remove rows to remove scrollbar
-          var kids = listbox.childNodes;
-          for (var i = kids.length - 1; this.mContentHeight > listboxHeight && i >= 0; --i) {
+          let kids = listbox.childNodes;
+          for (let i = kids.length - 1; this.mContentHeight > listboxHeight && i >= 0; --i) {
               if (kids[i].hasAttribute("_isDummyRow")) {
                   this.mContentHeight -= this.mRowHeight;
                   kids[i].remove();
@@ -1553,7 +1553,7 @@
       <method name="createDummyCell">
         <parameter name="aParent"/>
         <body><![CDATA[
-          var cell = document.createElement("listcell");
+          let cell = document.createElement("listcell");
           cell.setAttribute("class", "addressingWidgetCell dummy-row-cell");
           if (aParent) {
               aParent.appendChild(cell);
@@ -1565,10 +1565,10 @@
       <method name="createDummyItem">
         <parameter name="aParent"/>
         <body><![CDATA[
-          var titem = document.createElement("listitem");
+          let titem = document.createElement("listitem");
           titem.setAttribute("_isDummyRow", "true");
           titem.setAttribute("class", "dummy-row");
-          for (var i = this.numColumns; i > 0; i--) {
+          for (let i = this.numColumns; i > 0; i--) {
               this.createDummyCell(titem);
           }
           if (aParent) {
@@ -1581,10 +1581,10 @@
       <property name="numColumns">
         <getter><![CDATA[
           if (!this.mNumColumns) {
-              var listbox =
+              let listbox =
                   document.getAnonymousElementByAttribute(
                       this, "anonid", "listbox");
-              var listCols = listbox.getElementsByTagNameNS('*', 'listcol');
+              let listCols = listbox.getElementsByTagNameNS('*', 'listcol');
               this.mNumColumns = listCols.length || 1;
           }
           return this.mNumColumns;

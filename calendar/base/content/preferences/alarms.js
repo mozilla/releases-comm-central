@@ -33,7 +33,7 @@ var gAlarmsPane = {
     convertURLToLocalFile: function gAP_convertURLToLocalFile(aFileURL) {
         // Convert the file url into a nsILocalFile
         if (aFileURL) {
-            var fph = Services.io
+            let fph = Services.io
                          .getProtocolHandler("file")
                          .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
             return fph.getFileFromURLSpec(aFileURL);
@@ -47,7 +47,7 @@ var gAlarmsPane = {
      * changed. Updates the label in the dialog.
      */
     readSoundLocation: function gAP_readSoundLocation() {
-        var soundUrl = document.getElementById("alarmSoundFileField");
+        let soundUrl = document.getElementById("alarmSoundFileField");
         soundUrl.value = document.getElementById("calendar.alarms.soundURL").value;
         if (soundUrl.value.startsWith("file://")) {
             soundUrl.label = this.convertURLToLocalFile(soundUrl.value).leafName;
@@ -62,7 +62,7 @@ var gAlarmsPane = {
      * Causes the default sound to be selected in the dialog controls
      */
     useDefaultSound: function gAP_useDefaultSound() {
-        var defaultSoundUrl = "chrome://calendar/content/sound.wav";
+        let defaultSoundUrl = "chrome://calendar/content/sound.wav";
         document.getElementById("calendar.alarms.soundURL").value = defaultSoundUrl;
         document.getElementById("alarmSoundCheckbox").checked = true;
         this.readSoundLocation();
@@ -73,19 +73,19 @@ var gAlarmsPane = {
      */
     browseAlarm: function gAP_browseAlarm() {
         const nsIFilePicker = Components.interfaces.nsIFilePicker;
-        var fp = Components.classes["@mozilla.org/filepicker;1"]
+        let fp = Components.classes["@mozilla.org/filepicker;1"]
                     .createInstance(nsIFilePicker);
 
-        var bundlePreferences = document.getElementById("bundleCalendarPreferences");
-        var title = bundlePreferences.getString("Open");
-        var wildmat = "*.wav";
-        var label = bundlePreferences.getFormattedString("filterWav", [wildmat], 1);
+        let bundlePreferences = document.getElementById("bundleCalendarPreferences");
+        let title = bundlePreferences.getString("Open");
+        let wildmat = "*.wav";
+        let label = bundlePreferences.getFormattedString("filterWav", [wildmat], 1);
 
         fp.init(window, title, nsIFilePicker.modeOpen);
         fp.appendFilter(label, wildmat);
         fp.appendFilters(nsIFilePicker.filterAll);
 
-        var ret = fp.show();
+        let ret = fp.show();
 
         if (ret == nsIFilePicker.returnOK) {
             document.getElementById("calendar.alarms.soundURL").value = fp.fileURL.spec;
@@ -98,10 +98,10 @@ var gAlarmsPane = {
      * Plays the alarm sound currently selected.
      */
     previewAlarm: function gAP_previewAlarm() {
-        var soundUrl = document.getElementById("alarmSoundFileField").value;
-        var soundIfc = Components.classes["@mozilla.org/sound;1"]
+        let soundUrl = document.getElementById("alarmSoundFileField").value;
+        let soundIfc = Components.classes["@mozilla.org/sound;1"]
                             .createInstance(Components.interfaces.nsISound);
-        var url;
+        let url;
         try {
             soundIfc.init();
             if (soundUrl && soundUrl.length && soundUrl.length > 0) {
@@ -121,15 +121,15 @@ var gAlarmsPane = {
      * playing a sound.
      */
     alarmsPlaySoundPrefChanged: function gAP_alarmsPlaySoundPrefChanged() {
-        var alarmsPlaySoundPref =
+        let alarmsPlaySoundPref =
             document.getElementById("calendar.alarms.playsound");
 
-        var items = [document.getElementById("alarmSoundFileField"),
+        let items = [document.getElementById("alarmSoundFileField"),
                      document.getElementById("calendar.prefs.alarm.sound.useDefault"),
                      document.getElementById("calendar.prefs.alarm.sound.browse"),
                      document.getElementById("calendar.prefs.alarm.sound.play")];
 
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             items[i].disabled = !alarmsPlaySoundPref.value;
         }
     }

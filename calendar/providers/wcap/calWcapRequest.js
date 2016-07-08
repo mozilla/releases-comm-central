@@ -77,12 +77,12 @@ calWcapRequest.prototype = {
     },
 
     toString: function calWcapRequest_toString() {
-        var ret = ("calWcapRequest id=" + this.id +
+        let ret = ("calWcapRequest id=" + this.id +
                    ", parent-id=" + (this.parentRequest ? this.parentRequest.id : "<none>") +
                    " (" + this.m_logContext + ")");
         if (LOG_LEVEL > 2 && this.m_attachedRequests.length > 0) {
             ret += "\nattached requests:";
-            for (var req of this.m_attachedRequests) {
+            for (let req of this.m_attachedRequests) {
                 ret += ("\n#" + req.id + "\t" + req);
             }
         }
@@ -119,13 +119,13 @@ calWcapRequest.prototype = {
     },
 
     cancelAllSubRequests: function calWcapRequest_cancelAllSubRequests(status) {
-        var attachedRequests = this.m_attachedRequests;
+        let attachedRequests = this.m_attachedRequests;
         this.m_attachedRequests = [];
         attachedRequests.forEach(function(req) { req.cancel(null); });
     },
 
     detachFromParent: function calWcapRequest_detachFromParent(err) {
-        var parentRequest = this.m_parentRequest;
+        let parentRequest = this.m_parentRequest;
         if (parentRequest) {
             this.m_parentRequest = null;
             parentRequest.detachSubRequest(this, err);
@@ -139,7 +139,7 @@ calWcapRequest.prototype = {
                 this.m_status = err;
             }
             this.cancelAllSubRequests();
-            var respFunc = this.m_respFunc;
+            let respFunc = this.m_respFunc;
             if (respFunc) {
                 this.m_respFunc = null; // call once only
                 if (LOG_LEVEL > 2) {
@@ -252,11 +252,11 @@ calWcapNetworkRequest.prototype = {
                                                                           context,
                                                                           firstSegment,
                                                                           length) {
-        var channel = null;
+        let channel = null;
         if (loader) {
             channel = loader.channel;
         }
-        var charset = null;
+        let charset = null;
         if (channel) {
             charset = channel.contentCharset;
         }
@@ -287,7 +287,7 @@ calWcapNetworkRequest.prototype = {
             log("contentCharset = " + aLoader.charset + "\nrequest result:\n" + unicharData, this);
         }
 
-        var httpChannel = aLoader.channel.QueryInterface(Components.interfaces.nsIHttpChannel);
+        let httpChannel = aLoader.channel.QueryInterface(Components.interfaces.nsIHttpChannel);
         switch (httpChannel.responseStatus / 100) {
             case 2: /* 2xx codes */
                 // Everything worked out, we are done
@@ -295,7 +295,7 @@ calWcapNetworkRequest.prototype = {
                 break;
             default: {
                 // Something else went wrong
-                var error = ("A request Error Occurred. Status Code: " +
+                let error = ("A request Error Occurred. Status Code: " +
                              httpChannel.responseStatus + " " +
                              httpChannel.responseStatusText + " Body: " +
                              unicharData);
@@ -306,7 +306,7 @@ calWcapNetworkRequest.prototype = {
     },
 
     toString: function calWcapNetworkRequest_toString() {
-        var ret = ("calWcapNetworkRequest id=" + this.id +
+        let ret = ("calWcapNetworkRequest id=" + this.id +
                    ", parent-id=" + (this.parentRequest ? this.parentRequest.id : "<none>"));
         if (this.m_bLogging) {
             ret += (" (" + this.m_url + ")");
@@ -343,7 +343,7 @@ calWcapNetworkRequest.prototype = {
     },
 
     detachFromParent: function calWcapNetworkRequest_detachFromParent(err) {
-        var parentRequest = this.m_parentRequest;
+        let parentRequest = this.m_parentRequest;
         if (parentRequest) {
             this.m_parentRequest = null;
             parentRequest.detachSubRequest(this, err);
@@ -360,7 +360,7 @@ calWcapNetworkRequest.prototype = {
         }
         this.execRespFunc(status);
         // xxx todo: check whether this works on redirected channels!
-        var request = this.request;
+        let request = this.request;
         if (request && request.isPending()) {
             log("canceling netwerk request...", this);
             request.cancel(NS_BINDING_FAILED);
@@ -371,7 +371,7 @@ calWcapNetworkRequest.prototype = {
     execRespFunc: function calWcapNetworkRequest_execRespFunc(err, str) {
         if (this.isPending) {
             this.m_isPending = false;
-            var respFunc = this.m_respFunc;
+            let respFunc = this.m_respFunc;
             if (respFunc) {
                 this.m_respFunc = null; // call once only
                 if (LOG_LEVEL > 2 && this.m_bLogging) {
@@ -400,13 +400,13 @@ calWcapNetworkRequest.prototype = {
 };
 
 function issueNetworkRequest(parentRequest, respFunc, url, bLogging) {
-    var netRequest = new calWcapNetworkRequest(url, respFunc, bLogging);
+    let netRequest = new calWcapNetworkRequest(url, respFunc, bLogging);
     if (parentRequest) {
         parentRequest.attachSubRequest(netRequest);
     }
     try {
-        var uri = Services.io.newURI(url, null, null);
-        var channel = Services.io.newChannelFromURI2(uri,
+        let uri = Services.io.newURI(url, null, null);
+        let channel = Services.io.newChannelFromURI2(uri,
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),
                                                      null,
@@ -416,7 +416,7 @@ function issueNetworkRequest(parentRequest, respFunc, url, bLogging) {
         channel = channel.QueryInterface(Components.interfaces.nsIHttpChannel);
         channel.redirectionLimit = 3;
         channel.notificationCallbacks = netRequest;
-        var loader = Components.classes["@mozilla.org/network/unichar-stream-loader;1"]
+        let loader = Components.classes["@mozilla.org/network/unichar-stream-loader;1"]
                                .createInstance(Components.interfaces.nsIUnicharStreamLoader);
         netRequest.m_loader = loader;
 
@@ -430,8 +430,8 @@ function issueNetworkRequest(parentRequest, respFunc, url, bLogging) {
 }
 
 function getWcapRequestStatusString(xml) {
-    var str = "request status: ";
-    var items = xml.getElementsByTagName("RSTATUS");
+    let str = "request status: ";
+    let items = xml.getElementsByTagName("RSTATUS");
     if (items != null && items.length > 0) {
         str += items.item(0).textContent;
     } else {
@@ -445,7 +445,7 @@ function stringToIcal(session, data, expectedErrno) {
         throw new Components.Exception(errorToString(calIWcapErrors.WCAP_LOGIN_FAILED),
                                        calIWcapErrors.WCAP_LOGIN_FAILED);
     }
-    var icalRootComp;
+    let icalRootComp;
     try {
         icalRootComp = getIcsService().parseICS(data, session /* implements calITimezoneProvider */);
     } catch (exc) { // map into more useful error string:
@@ -460,7 +460,7 @@ function stringToXml(session, data, expectedErrno) {
         throw new Components.Exception(errorToString(calIWcapErrors.WCAP_LOGIN_FAILED),
                                        calIWcapErrors.WCAP_LOGIN_FAILED);
     }
-    var xml = getDomParser().parseFromString(data, "text/xml");
+    let xml = getDomParser().parseFromString(data, "text/xml");
     checkWcapXmlErrno(xml, expectedErrno);
     return xml;
 }

@@ -42,7 +42,7 @@
                     if (!aNumber) {
                         this.goToDay(now());
                     } else {
-                        var currentDay = this.startDay.clone();
+                        let currentDay = this.startDay.clone();
                         currentDay.day += aNumber;
                         this.goToDay(currentDay);
                     }
@@ -95,8 +95,8 @@
                         return;
                     }
                     aDate = aDate.getInTimezone(this.timezone);
-                    var d1 = getWeekInfoService().getStartOfWeek(aDate);
-                    var d2 = d1.clone();
+                    let d1 = getWeekInfoService().getStartOfWeek(aDate);
+                    let d2 = d1.clone();
                     d2.day += 6;
                     this.setDateRange(d1, d2);
                     this.selectedDay = aDate;
@@ -108,7 +108,7 @@
                     if (!aNumber) {
                         this.goToDay(now());
                     } else {
-                        var d1 = this.selectedDay.clone();
+                        let d1 = this.selectedDay.clone();
                         d1.day += 7 * aNumber;
                         this.goToDay(d1);
                     }

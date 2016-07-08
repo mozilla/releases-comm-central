@@ -46,19 +46,18 @@
 
       <constructor><![CDATA[
         Components.utils.import("resource://calendar/modules/calUtils.jsm");
-        var goButton = document.getAnonymousElementByAttribute(this, "anonid", "date-go-button");
+        let goButton = document.getAnonymousElementByAttribute(this, "anonid", "date-go-button");
         goButton.setAttribute("label", calGetString("calendar", "go"));
         // Load the stuff we're going to use to parse written dates
         this.mRelativeDates = [
             {word: cal.calGetString("calendar", "today").toLowerCase(), offset: 0},
             {word: cal.calGetString("calendar", "yesterday").toLowerCase(), offset: -1},
             {word: cal.calGetString("calendar", "tomorrow").toLowerCase(), offset: 1}];
-        var i;
-        for (i = 1; i <= 7; i++) {
+        for (let i = 1; i <= 7; i++) {
           this.mDayNames.push(calGetString("dateFormat", "day." + i + ".name").toLowerCase());
         }
 
-        for (i = 1; i <= 12; i++) {
+        for (let i = 1; i <= 12; i++) {
           this.mMonthLongNames.push(calGetString("dateFormat", "month." + i + ".name").toLowerCase());
           this.mMonthShortNames.push(calGetString("dateFormat", "month." + i + ".Mmm").toLowerCase());
         }
@@ -72,7 +71,7 @@
             {word: cal.calGetString("calendar", "next2"), offset: 0}];
 
         // Set the value to today
-        var text = document.getAnonymousElementByAttribute(this, "anonid", "date-textbox");
+        let text = document.getAnonymousElementByAttribute(this, "anonid", "date-textbox");
         text.value = calGetString("calendar", "today");
       ]]></constructor>
 
@@ -81,7 +80,7 @@
           return this.mValue;
         ]]></getter>
         <setter><![CDATA[
-         var text = document.getAnonymousElementByAttribute(this, "anonid", "date-textbox");
+         let text = document.getAnonymousElementByAttribute(this, "anonid", "date-textbox");
           try {
             text.value = this.formatDate(val);
           } catch (ex) {
@@ -93,8 +92,8 @@
 
       <method name="fireGoEvent">
         <body><![CDATA[
-          var text = document.getAnonymousElementByAttribute(this, "anonid", "date-textbox");
-          var date = this.parseLanguageDate(text.value);
+          let text = document.getAnonymousElementByAttribute(this, "anonid", "date-textbox");
+          let date = this.parseLanguageDate(text.value);
           if (!date) {
             date = this.parseDateTime(text.value);
           }
@@ -259,10 +258,10 @@
     <implementation>
       <constructor>
         <![CDATA[
-          var hbox = document.getAnonymousNodes(this)[0];
+          let hbox = document.getAnonymousNodes(this)[0];
           this.kTextBox = hbox.firstChild;
 
-          var val = this.getAttribute("value");
+          let val = this.getAttribute("value");
           if (val) {
             this.value = new Date(val); // setting value property calls update
           } else {
@@ -376,7 +375,7 @@
         <parameter name="aEvent" />
         <body>
           <![CDATA[
-            var datepicker = aEvent.target.parentNode.parentNode.kDatePicker;
+            let datepicker = aEvent.target.parentNode.parentNode.kDatePicker;
             if (!datepicker.mInPopup) {
               // aEvent.target is the minimonth
               datepicker.update(new Date(aEvent.target.value), true);
@@ -577,11 +576,11 @@
     <implementation>
       <constructor>
         <![CDATA[
-          var hbox = document.getAnonymousNodes(this)[0];
+          let hbox = document.getAnonymousNodes(this)[0];
           this.kTextBox = hbox.childNodes[0];
           this.kTextBox.kTimePicker = this; // enable call back to method in Moz1.7
 
-          var val = this.getAttribute("value");
+          let val = this.getAttribute("value");
           if (val) {
             this.value = (new Date(val));
           } else {
@@ -652,7 +651,7 @@
           <![CDATA[
             // select all to remove cursor since can't type while popped-up
             this.select();
-            var timePickerGrid = aPopup.childNodes[0];
+            let timePickerGrid = aPopup.childNodes[0];
             timePickerGrid.onPopupShowing(this, aPopup);
           ]]>
         </body>
@@ -1122,7 +1121,7 @@
 
             // if there is a Date object in the popup item's
             // value attribute, use it, otherwise use Now.
-            var inputTime = this.mPicker.value;
+            let inputTime = this.mPicker.value;
             if (inputTime) {
               this.mSelectedTime = new Date(inputTime);
             } else {
@@ -1130,14 +1129,14 @@
             }
 
             // select the hour item
-            var hours24 = this.mSelectedTime.getHours();
-            var hourItemId = "time-picker-hour-box-" + hours24;
-            var hourItem = document.getAnonymousElementByAttribute(this, "anonid", hourItemId);
+            let hours24 = this.mSelectedTime.getHours();
+            let hourItemId = "time-picker-hour-box-" + hours24;
+            let hourItem = document.getAnonymousElementByAttribute(this, "anonid", hourItemId);
             this.selectHourItem(hourItem);
 
             // Show the five minute view if we are an even five minutes,
             // otherwise one minute view
-            var minutesByFive = this.calcNearestFiveMinutes(this.mSelectedTime);
+            let minutesByFive = this.calcNearestFiveMinutes(this.mSelectedTime);
 
             if (minutesByFive == this.mSelectedTime.getMinutes()) {
               this.clickLess();
@@ -1166,9 +1165,9 @@
             this.switchMinuteView(this.kMINUTE_VIEW_ONE);
 
             // select minute box corresponding to the time
-            var minutes = this.mSelectedTime.getMinutes();
-            var oneMinuteItemId = "time-picker-one-minute-box-" + minutes;
-            var oneMinuteItem = document.getAnonymousElementByAttribute(this, "anonid", oneMinuteItemId);
+            let minutes = this.mSelectedTime.getMinutes();
+            let oneMinuteItemId = "time-picker-one-minute-box-" + minutes;
+            let oneMinuteItem = document.getAnonymousElementByAttribute(this, "anonid", oneMinuteItemId);
             this.selectMinuteItem(oneMinuteItem);
           ]]>
         </body>
@@ -1185,9 +1184,9 @@
             // BUT leave the selected time at what may NOT be an even five minutes
             // So that If they click more again the proper non-even-five minute
             // box will be selected
-            var minutesByFive = this.calcNearestFiveMinutes(this.mSelectedTime);
-            var fiveMinuteItemId = "time-picker-five-minute-box-" + minutesByFive;
-            var fiveMinuteItem = document.getAnonymousElementByAttribute(this, "anonid", fiveMinuteItemId);
+            let minutesByFive = this.calcNearestFiveMinutes(this.mSelectedTime);
+            let fiveMinuteItemId = "time-picker-five-minute-box-" + minutesByFive;
+            let fiveMinuteItem = document.getAnonymousElementByAttribute(this, "anonid", fiveMinuteItemId);
             this.selectMinuteItem(fiveMinuteItem);
           ]]>
         </body>
@@ -1249,7 +1248,7 @@
         <body>
           <![CDATA[
             // Copy picked time to avoid problems changing Date object in place
-            var pickedTime = new Date(this.mSelectedTime);
+            let pickedTime = new Date(this.mSelectedTime);
 
             // put the picked time in the value property, and update
             this.mPicker.update(pickedTime, true);
@@ -1264,8 +1263,8 @@
         <parameter name="view"/>
         <body>
           <![CDATA[
-            var fiveMinuteBox = document.getAnonymousElementByAttribute(this, "anonid", "time-picker-five-minute-grid-box");
-            var oneMinuteBox = document.getAnonymousElementByAttribute(this, "anonid", "time-picker-one-minute-grid-box");
+            let fiveMinuteBox = document.getAnonymousElementByAttribute(this, "anonid", "time-picker-five-minute-grid-box");
+            let oneMinuteBox = document.getAnonymousElementByAttribute(this, "anonid", "time-picker-one-minute-grid-box");
 
             if (view == this.kMINUTE_VIEW_ONE) {
               fiveMinuteBox.setAttribute("hidden", true);
@@ -1319,11 +1318,11 @@
               return;
             }
 
-            var idPrefix = "time-picker-one-minute-box-";
+            let idPrefix = "time-picker-one-minute-box-";
 
             // Everything above assumes that we are showing the one-minute-grid,
             // If not, we need to do these corrections;
-            var fiveMinuteBox = document.getAnonymousElementByAttribute(
+            let fiveMinuteBox = document.getAnonymousElementByAttribute(
                                 this, "anonid", "time-picker-five-minute-grid-box");
 
             if (fiveMinuteBox.getAttribute("hidden") == 'false') {
@@ -1335,7 +1334,7 @@
               this.mSelectedTime.setMinutes(this.calcNearestFiveMinutes(this.mSelectedTime));
             }
 
-            var newMinutes = this.mSelectedTime.getMinutes() + aNumber;
+            let newMinutes = this.mSelectedTime.getMinutes() + aNumber;
 
             // Handle rollover cases
             if (newMinutes < 0) {
@@ -1347,8 +1346,8 @@
 
             this.mSelectedTime.setMinutes(newMinutes);
 
-            var minuteItemId = idPrefix + this.mSelectedTime.getMinutes();
-            var minuteItem = document.getAnonymousElementByAttribute(this, "anonid", minuteItemId);
+            let minuteItemId = idPrefix + this.mSelectedTime.getMinutes();
+            let minuteItem = document.getAnonymousElementByAttribute(this, "anonid", minuteItemId);
 
             this.selectMinuteItem(minuteItem);
             this.mPicker.kTextBox.value = this.mPicker.formatTime(this.mSelectedTime);
@@ -1364,7 +1363,7 @@
               return;
             }
 
-            var newHours = this.mSelectedTime.getHours() + aNumber;
+            let newHours = this.mSelectedTime.getHours() + aNumber;
 
             // Handle rollover cases
             if (newHours < 0) {
@@ -1376,8 +1375,8 @@
 
             this.mSelectedTime.setHours(newHours);
 
-            var hourItemId = "time-picker-hour-box-" + this.mSelectedTime.getHours();
-            var hourItem = document.getAnonymousElementByAttribute(this, "anonid", hourItemId);
+            let hourItemId = "time-picker-hour-box-" + this.mSelectedTime.getHours();
+            let hourItem = document.getAnonymousElementByAttribute(this, "anonid", hourItemId);
 
             this.selectHourItem(hourItem);
             this.mPicker.kTextBox.value = this.mPicker.formatTime(this.mSelectedTime);
@@ -1391,8 +1390,8 @@
         <parameter name="time"/>
         <body>
           <![CDATA[
-            var minutes = time.getMinutes();
-            var minutesByFive = Math.round(minutes / 5) * 5;
+            let minutes = time.getMinutes();
+            let minutesByFive = Math.round(minutes / 5) * 5;
 
             if (minutesByFive > 59) {
               minutesByFive = 55;
@@ -1470,7 +1469,7 @@
           this.kTimePicker =
       document.getAnonymousElementByAttribute(this, "anonid", "time-picker");
 
-          var val = this.getAttribute("value");
+          let val = this.getAttribute("value");
           this.mValue = (val ? new Date(val)
                              : new Date());
         ]]>
@@ -1498,17 +1497,17 @@
       <method name="onDatePick">
         <body>
           <![CDATA[
-            var tempTime;
+            let tempTime;
             if (this.kDatePicker.lastDateParseIncludedTime) {
               tempTime = new Date(this.kDatePicker.value);
             } else {
               tempTime = new Date(this.mValue);
             }
-            var newDate = new Date(this.kDatePicker.value);
+            let newDate = new Date(this.kDatePicker.value);
             // Note: create new date because setting month and date of month in
             // either order can lead to unexpected results (month may be advanced
             // automatically if day of month is temporarily out of range).
-            var dateTime = new Date(newDate.getFullYear(),
+            let dateTime = new Date(newDate.getFullYear(),
                                     newDate.getMonth(),
                                     newDate.getDate(),
                                     tempTime.getHours(),
@@ -1524,8 +1523,8 @@
       <method name="onTimePick">
         <body>
           <![CDATA[
-            var dateTime = new Date(this.mValue);
-            var newTime = this.kTimePicker.value;
+            let dateTime = new Date(this.mValue);
+            let newTime = this.kTimePicker.value;
             dateTime.setHours(newTime.getHours());
             dateTime.setMinutes(newTime.getMinutes());
             dateTime.setSeconds(newTime.getSeconds());
@@ -1583,7 +1582,7 @@
         <parameter name="aDetail"/>
         <body>
           <![CDATA[
-            var event = document.createEvent('Events');
+            let event = document.createEvent('Events');
             event.initEvent(aEventName, true, true);
             event.detail = aDetail;
             this.dispatchEvent(event);
@@ -1600,19 +1599,19 @@
         <body>
           <![CDATA[
             this.mLastDateParseIncludedTime = false;
-            var tempDate = null;
+            let tempDate = null;
             if (!this.probeSucceeded) {
               return null; // avoid errors accessing uninitialized data.
             }
 
-            var year = Number.MIN_VALUE; var month = -1; var day = -1; let timeString = null;
+            let year = Number.MIN_VALUE; let month = -1; let day = -1; let timeString = null;
             if (this.alphaMonths == null) {
               // SHORT NUMERIC DATE, such as 2002-03-04, 4/3/2002, or CE2002Y03M04D.
               // Made of digits & nonDigits.  (Nondigits may be unicode letters
               // which do not match \w, esp. in CJK locales.)
               // (.*)? binds to null if no suffix.
-              var parseNumShortDateRegex = /^\D*(\d+)\D+(\d+)\D+(\d+)(.*)?$/;
-              var dateNumbersArray = parseNumShortDateRegex.exec(aValue);
+              let parseNumShortDateRegex = /^\D*(\d+)\D+(\d+)\D+(\d+)(.*)?$/;
+              let dateNumbersArray = parseNumShortDateRegex.exec(aValue);
               if (dateNumbersArray != null) {
                 year = Number(dateNumbersArray[this.yearIndex]);
                 month = Number(dateNumbersArray[this.monthIndex]) - 1; // 0-based
@@ -1629,12 +1628,12 @@
               // regexp derived from the Alphabetic ranges in
               // http://www.unicode.org/Public/UNIDATA/DerivedCoreProperties.txt)
               // (.*)? binds to null if no suffix.
-              var parseAlphShortDateRegex = /^\s*(\d+|[^\d\W]+)\W{0,2}(\d+|[^\d\W]+)\W{0,2}(\d+|[^\d\W]+)(.*)?$/;
-              var datePartsArray = parseAlphShortDateRegex.exec(aValue);
+              let parseAlphShortDateRegex = /^\s*(\d+|[^\d\W]+)\W{0,2}(\d+|[^\d\W]+)\W{0,2}(\d+|[^\d\W]+)(.*)?$/;
+              let datePartsArray = parseAlphShortDateRegex.exec(aValue);
               if (datePartsArray != null) {
                 year = Number(datePartsArray[this.yearIndex]);
-                var monthString = datePartsArray[this.monthIndex].toUpperCase();
-                for (var m = 0; m < this.alphaMonths.length; m++) {
+                let monthString = datePartsArray[this.monthIndex].toUpperCase();
+                for (let m = 0; m < this.alphaMonths.length; m++) {
                   if (monthString == this.alphaMonths[m]) {
                     month = m;
                     break;
@@ -1651,8 +1650,8 @@
                 //   parse year as up to 30 years in future or 69 years in past.
                 //   (Covers 30-year mortgage and most working people's birthdate.)
                 // otherwise will be treated as four digit year.
-                var currentYear = new Date().getFullYear();
-                var currentCentury = currentYear - currentYear % 100;
+                let currentYear = new Date().getFullYear();
+                let currentCentury = currentYear - currentYear % 100;
                 year = currentCentury + year;
                 if (year < currentYear - 69) {
                   year += 100;
@@ -1662,9 +1661,9 @@
                 }
               }
               // if time is also present, parse it
-              var hours = 0; var minutes = 0; var seconds = 0;
+              let hours = 0; let minutes = 0; let seconds = 0;
               if (timeString != null) {
-                var time = this.parseTime(timeString);
+                let time = this.parseTime(timeString);
                 if (time != null) {
                   hours = time.getHours();
                   minutes = time.getMinutes();
@@ -1698,12 +1697,12 @@
         <body>
           <![CDATA[
             try {
-              var noon = calGetString("dateFormat", "noon");
+              let noon = calGetString("dateFormat", "noon");
               if (aValue.toLowerCase() == noon.toLowerCase()) {
                 return new Date(0, 0, 0, 12, 0, 0, 0);
               }
 
-              var midnight = calGetString("dateFormat", "midnight");
+              let midnight = calGetString("dateFormat", "midnight");
               if (aValue.toLowerCase() == midnight.toLowerCase()) {
                 return new Date(0, 0, 0, 0, 0, 0, 0);
               }
@@ -1713,37 +1712,37 @@
               // calGetString wouldn't exist
             }
 
-            var time = null;
-            var timePartsArray = this.parseTimeRegExp.exec(aValue);
+            let time = null;
+            let timePartsArray = this.parseTimeRegExp.exec(aValue);
             const PRE_INDEX = 1, HR_INDEX = 2, MIN_INDEX = 4, SEC_INDEX = 6, POST_INDEX = 8;
 
             if (timePartsArray != null) {
-              var hoursString = timePartsArray[HR_INDEX];
-              var hours = Number(hoursString);
-              var hoursSuffix = timePartsArray[HR_INDEX + 1];
+              let hoursString = timePartsArray[HR_INDEX];
+              let hours = Number(hoursString);
+              let hoursSuffix = timePartsArray[HR_INDEX + 1];
               if (!(hours >= 0 && hours < 24)) {
                 return null;
               }
 
-              var minutesString = timePartsArray[MIN_INDEX];
-              var minutes = (minutesString == null ? 0 : Number(minutesString));
-              var minutesSuffix = timePartsArray[MIN_INDEX + 1];
+              let minutesString = timePartsArray[MIN_INDEX];
+              let minutes = (minutesString == null ? 0 : Number(minutesString));
+              let minutesSuffix = timePartsArray[MIN_INDEX + 1];
               if (!(minutes >= 0 && minutes < 60)) {
                 return null;
               }
 
-              var secondsString = timePartsArray[SEC_INDEX];
-              var seconds = (secondsString == null ? 0 : Number(secondsString));
-              var secondsSuffix = timePartsArray[SEC_INDEX + 1];
+              let secondsString = timePartsArray[SEC_INDEX];
+              let seconds = (secondsString == null ? 0 : Number(secondsString));
+              let secondsSuffix = timePartsArray[SEC_INDEX + 1];
               if (!(seconds >= 0 && seconds < 60)) {
                 return null;
               }
 
-              var ampmCode = null;
+              let ampmCode = null;
               if (timePartsArray[PRE_INDEX] || timePartsArray[POST_INDEX]) {
                 if (this.ampmIndex && timePartsArray[this.ampmIndex]) {
                   // try current format order first
-                  var ampmString = timePartsArray[this.ampmIndex];
+                  let ampmString = timePartsArray[this.ampmIndex];
                   if (this.amRegExp.test(ampmString)) {
                     ampmCode = "AM";
                   } else if (this.pmRegExp.test(ampmString)) {
@@ -1752,8 +1751,8 @@
                 }
                 if (ampmCode == null) { // not yet found
                   // try any format order
-                  var preString = timePartsArray[PRE_INDEX];
-                  var postString = timePartsArray[POST_INDEX];
+                  let preString = timePartsArray[PRE_INDEX];
+                  let postString = timePartsArray[POST_INDEX];
                   if ((preString && this.amRegExp.test(preString)) ||
                       (postString && this.amRegExp.test(postString))) {
                     ampmCode = "AM";
@@ -1795,12 +1794,12 @@
             // Made of digits & nonDigits.  (Nondigits may be unicode letters
             // which do not match \w, esp. in CJK locales.)
             this.parseShortDateRegex = /^\D*(\d+)\D+(\d+)\D+(\d+)\D?$/;
-            var probeDate = new Date(2002, 2, 4); // month is 0-based
-            var probeString = this.formatDate(probeDate);
-            var probeArray = this.parseShortDateRegex.exec(probeString);
+            let probeDate = new Date(2002, 2, 4); // month is 0-based
+            let probeString = this.formatDate(probeDate);
+            let probeArray = this.parseShortDateRegex.exec(probeString);
             if (probeArray != null) {
               // Numeric month format
-              for (var i = 1; i <= 3; i++) {
+              for (let i = 1; i <= 3; i++) {
                 switch (Number(probeArray[i])) {
                   case 2: this.twoDigitYear = true; // fall thru
                   case 2002: this.yearIndex = i; break;
@@ -1822,7 +1821,7 @@
               this.parseShortDateRegex = /^\s*(\d+|[^\d\W]+)\W{0,2}(\d+|[^\d\W]+)\W{0,2}(\d+|[^\d\W]+)\s*$/;
               probeArray = this.parseShortDateRegex.exec(probeString);
               if (probeArray != null) {
-                for (var j = 1; j <= 3; j++) {
+                for (let j = 1; j <= 3; j++) {
                   switch (Number(probeArray[j])) {
                     case 2: this.twoDigitYear = true; // fall thru
                     case 2002: this.yearIndex = j; break;
@@ -1834,7 +1833,7 @@
                   this.probeSucceeded = true;
                   // Fill this.alphaMonths with month names.
                   this.alphaMonths = new Array(12);
-                  for (var m = 0; m < 12; m++) {
+                  for (let m = 0; m < 12; m++) {
                     probeDate.setMonth(m);
                     probeString = this.formatDate(probeDate);
                     probeArray = this.parseShortDateRegex.exec(probeString);
@@ -1874,21 +1873,21 @@
             this.ampmIndex = null;
             // Digits         HR       sep      MIN     sep      SEC     sep
             //   Index:       2        3        4       5        6       7
-            var digitsExpr = "(\\d?\\d)(\\D)?(?:(\\d\\d)(\\D)?(?:(\\d\\d)(\\D)?)?)?";
+            let digitsExpr = "(\\d?\\d)(\\D)?(?:(\\d\\d)(\\D)?(?:(\\d\\d)(\\D)?)?)?";
             // any letters or '.': non-digit alphanumeric, period (a.m.), or space (P M)
-            var anyAmPmExpr = "(?:[^\\d\\W]|[. ])+";
+            let anyAmPmExpr = "(?:[^\\d\\W]|[. ])+";
             // digitsExpr has 6 captures, so index of first ampmExpr is 1, of last is 8.
-            var probeTimeRegExp =
+            let probeTimeRegExp =
               new RegExp("^(" + anyAmPmExpr + ")?\\s?" + digitsExpr + "(" + anyAmPmExpr + ")?\\s*$");
             const PRE_INDEX = 1, HR_INDEX = 2, MIN_INDEX = 4, SEC_INDEX = 6, POST_INDEX = 8;
-            var amProbeTime = new Date(2000, 0, 1, 6, 12, 34);
-            var amProbeString = amProbeTime.toLocaleFormat("%X");
-            var pmProbeTime = new Date(2000, 0, 1, 18, 12, 34);
-            var pmProbeString = pmProbeTime.toLocaleFormat("%X");
-            var amFormatExpr = null, pmFormatExpr = null;
+            let amProbeTime = new Date(2000, 0, 1, 6, 12, 34);
+            let amProbeString = amProbeTime.toLocaleFormat("%X");
+            let pmProbeTime = new Date(2000, 0, 1, 18, 12, 34);
+            let pmProbeString = pmProbeTime.toLocaleFormat("%X");
+            let amFormatExpr = null, pmFormatExpr = null;
             if (amProbeString != pmProbeString) {
-              var amProbeArray = probeTimeRegExp.exec(amProbeString);
-              var pmProbeArray = probeTimeRegExp.exec(pmProbeString);
+              let amProbeArray = probeTimeRegExp.exec(amProbeString);
+              let pmProbeArray = probeTimeRegExp.exec(pmProbeString);
               if (amProbeArray != null && pmProbeArray != null) {
                 if (amProbeArray[PRE_INDEX] && pmProbeArray[PRE_INDEX] &&
                     amProbeArray[PRE_INDEX] != pmProbeArray[PRE_INDEX]) {
@@ -1900,9 +1899,9 @@
                     // check if need to append previous character,
                     // captured by the optional separator pattern after seconds digits,
                     // or after minutes if no seconds, or after hours if no minutes.
-                    for (var k = SEC_INDEX; k >= HR_INDEX; k -= 2) {
-                      var nextSepI = k + 1;
-                      var nextDigitsI = k + 2;
+                    for (let k = SEC_INDEX; k >= HR_INDEX; k -= 2) {
+                      let nextSepI = k + 1;
+                      let nextDigitsI = k + 2;
                       if ((k == SEC_INDEX ||
                            (!amProbeArray[nextDigitsI] && !pmProbeArray[nextDigitsI]))
                           && amProbeArray[nextSepI] && pmProbeArray[nextSepI]
@@ -1918,14 +1917,14 @@
                   }
                 }
                 if (this.ampmIndex) {
-                  var makeFormatRegExp = function(string) {
+                  let makeFormatRegExp = function(string) {
                     // make expr to accept either as provided, lowercased, or uppercased
-                    var regExp = string.replace(/(\W)/g, "[$1]"); // escape punctuation
-                    var lowercased = string.toLowerCase();
+                    let regExp = string.replace(/(\W)/g, "[$1]"); // escape punctuation
+                    let lowercased = string.toLowerCase();
                     if (string != lowercased) {
                       regExp += "|" + lowercased;
                     }
-                    var uppercased = string.toUpperCase();
+                    let uppercased = string.toUpperCase();
                     if (string != uppercased) {
                       regExp += "|" + uppercased;
                     }
@@ -1939,15 +1938,15 @@
             // International formats ([roman, cyrillic]|arabic|chinese/kanji characters)
             // covering languages of U.N. (en,fr,sp,ru,ar,zh) and G8 (en,fr,de,it,ru,ja).
             // See examples at parseTimeOfDay.
-            var amExpr =
+            let amExpr =
               "[Aa\u0410\u0430][. ]?[Mm\u041c\u043c][. ]?|\u0635|\u4e0a\u5348|\u5348\u524d";
-            var pmExpr =
+            let pmExpr =
               "[Pp\u0420\u0440][. ]?[Mm\u041c\u043c][. ]?|\u0645|\u4e0b\u5348|\u5348\u5f8c";
             if (this.ampmIndex){
               amExpr = amFormatExpr + "|" + amExpr;
               pmExpr = pmFormatExpr + "|" + pmExpr;
             }
-            var ampmExpr = amExpr + "|" + pmExpr;
+            let ampmExpr = amExpr + "|" + pmExpr;
             // Must build am/pm formats into parse time regexp so that it can
             // match them without mistaking the initial char for an optional divider.
             // (For example, want to be able to parse both "12:34pm" and
@@ -1962,7 +1961,7 @@
             this.amRegExp = new RegExp("^(?:" + amExpr + ")$");
             this.pmRegExp = new RegExp("^(?:" + pmExpr + ")$");
             // build time display format that mimics "%x" format without seconds
-            var ampmSep = (pmProbeString.includes(' ') ? " " : "");
+            let ampmSep = (pmProbeString.includes(' ') ? " " : "");
             if (this.ampmIndex == PRE_INDEX) {
               this.kTimeFormatString = "%p" + ampmSep + "%I:%M";
             } else if (this.ampmIndex == POST_INDEX) {
@@ -1981,9 +1980,9 @@
             // workaround for bugs 354073/327869:
             // aDate.toLocaleFormat("%x") exits application
             // if year before 1900 (e.g., typo) on MSWindows (due to MS bug).
-            var nsIScriptableDateFormat =
+            let nsIScriptableDateFormat =
               Components.interfaces.nsIScriptableDateFormat;
-            var dateService =
+            let dateService =
               Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
                         .getService(nsIScriptableDateFormat);
             return dateService.FormatDate("", dateService.dateFormatShort,

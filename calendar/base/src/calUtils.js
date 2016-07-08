@@ -46,7 +46,7 @@ var createRecurrenceRule = _calIcalCreator("@mozilla.org/calendar/recurrence-rul
 
 /* Returns a clean new calIRecurrenceInfo */
 function createRecurrenceInfo(aItem) {
-    var recInfo = Components.classes["@mozilla.org/calendar/recurrence-info;1"].
+    let recInfo = Components.classes["@mozilla.org/calendar/recurrence-info;1"].
            createInstance(Components.interfaces.calIRecurrenceInfo);
     recInfo.item = aItem;
     return recInfo;
@@ -200,7 +200,7 @@ function getRecentTimezones(aConvertZones) {
 function formatStringForCSSRule(aString) {
     function toReplacement(ch) {
         // char code is natural number (positive integer)
-        var nat = ch.charCodeAt(0);
+        let nat = ch.charCodeAt(0);
         switch (nat) {
             case 0x20: // space
                 return "_";
@@ -218,7 +218,7 @@ function formatStringForCSSRule(aString) {
  */
 function getCalendarDirectory() {
     if (getCalendarDirectory.mDir === undefined) {
-        var dir = Services.dirsvc.get("ProfD", Components.interfaces.nsILocalFile);
+        let dir = Services.dirsvc.get("ProfD", Components.interfaces.nsILocalFile);
         dir.append("calendar-data");
         if (!dir.exists()) {
             try {
@@ -387,7 +387,7 @@ function makeURL(aUriString) {
  * default timezone.
  */
 function now() {
-    var d = cal.jsDateToDateTime(new Date());
+    let d = cal.jsDateToDateTime(new Date());
     return d.getInTimezone(calendarDefaultTimezone());
 }
 
@@ -398,10 +398,10 @@ function now() {
  * @param aItemId        the item to be selected
  */
 function calRadioGroupSelectItem(aRadioGroupId, aItemId) {
-    var radioGroup = document.getElementById(aRadioGroupId);
-    var items = radioGroup.getElementsByTagName("radio");
-    var index;
-    for (var i in items) {
+    let radioGroup = document.getElementById(aRadioGroupId);
+    let items = radioGroup.getElementsByTagName("radio");
+    let index;
+    for (let i in items) {
         if (items[i].getAttribute("id") == aItemId) {
             index = i;
             break;
@@ -687,7 +687,7 @@ function calGetString(aBundleName, aStringName, aParams, aComponent="calendar") 
  * Make a UUID using the UUIDGenerator service available, we'll use that.
  */
 function getUUID() {
-    var uuidGen = Components.classes["@mozilla.org/uuid-generator;1"]
+    let uuidGen = Components.classes["@mozilla.org/uuid-generator;1"]
                   .getService(Components.interfaces.nsIUUIDGenerator);
     // generate uuids without braces to avoid problems with
     // CalDAV servers that don't support filenames with {}
@@ -704,12 +704,12 @@ function getUUID() {
  * calIItemBase comparer
  */
 function compareItems(aItem, aOtherItem) {
-    var sip1 = Components.classes["@mozilla.org/supports-interface-pointer;1"].
+    let sip1 = Components.classes["@mozilla.org/supports-interface-pointer;1"].
                createInstance(Components.interfaces.nsISupportsInterfacePointer);
     sip1.data = aItem;
     sip1.dataIID = Components.interfaces.calIItemBase;
 
-    var sip2 = Components.classes["@mozilla.org/supports-interface-pointer;1"].
+    let sip2 = Components.classes["@mozilla.org/supports-interface-pointer;1"].
                createInstance(Components.interfaces.nsISupportsInterfacePointer);
     sip2.data = aOtherItem;
     sip2.dataIID = Components.interfaces.calIItemBase;
@@ -745,12 +745,12 @@ function compareObjects(aObject, aOtherObject, aIID) {
     if (!aIID) {
         aIID = Components.interfaces.nsISupports;
     }
-    var sip1 = Components.classes["@mozilla.org/supports-interface-pointer;1"].
+    let sip1 = Components.classes["@mozilla.org/supports-interface-pointer;1"].
                createInstance(Components.interfaces.nsISupportsInterfacePointer);
     sip1.data = aObject;
     sip1.dataIID = aIID;
 
-    var sip2 = Components.classes["@mozilla.org/supports-interface-pointer;1"].
+    let sip2 = Components.classes["@mozilla.org/supports-interface-pointer;1"].
                createInstance(Components.interfaces.nsISupportsInterfacePointer);
     sip2.data = aOtherObject;
     sip2.dataIID = aIID;
@@ -767,11 +767,11 @@ function compareArrays(aOne, aTwo, compareFunc) {
     if (!aOne || !aTwo) {
         return false;
     }
-    var len = aOne.length;
+    let len = aOne.length;
     if (len != aTwo.length) {
         return false;
     }
-    for (var i = 0; i < len; ++i) {
+    for (let i = 0; i < len; ++i) {
         if (!compareFunc(aOne[i], aTwo[i])) {
             return false;
         }
@@ -810,7 +810,7 @@ function doQueryInterface(aSelf, aProto, aIID, aList, aClassInfo) {
     }
 
     if (aList) {
-        for (var iid of aList) {
+        for (let iid of aList) {
             if (aIID.equals(iid)) {
                 return aSelf;
             }
@@ -822,7 +822,7 @@ function doQueryInterface(aSelf, aProto, aIID, aList, aClassInfo) {
     }
 
     if (aProto) {
-        var base = aProto.__proto__;
+        let base = aProto.__proto__;
         if (base && base.QueryInterface) {
             // Try to QI the base prototype
             return base.QueryInterface.call(aSelf, aIID);
@@ -843,7 +843,7 @@ function ensureDateTime(aDate) {
     if (!aDate || !aDate.isDate) {
         return aDate;
     }
-    var newDate = aDate.clone();
+    let newDate = aDate.clone();
     newDate.isDate = false;
     return newDate;
 }
@@ -856,9 +856,9 @@ function ensureDateTime(aDate) {
  *                            keeping the date and timezone intact.
  */
 function getDefaultStartDate(aReferenceDate) {
-    var startDate = now();
+    let startDate = now();
     if (aReferenceDate) {
-        var savedHour = startDate.hour;
+        let savedHour = startDate.hour;
         startDate = aReferenceDate;
         if (!startDate.isMutable) {
             startDate = startDate.clone();
@@ -919,11 +919,11 @@ function LOG(aArg) {
     }
 
     ASSERT(aArg, "Bad log argument.", false);
-    var string = aArg;
+    let string = aArg;
     // We should just dump() both String objects, and string primitives.
     if (!(aArg instanceof String) && !(typeof aArg == "string")) {
         string = "Logging object...\n";
-        for (var prop in aArg) {
+        for (let prop in aArg) {
             string += prop + ': ' + aArg[prop] + '\n';
         }
         string += "End object\n";
@@ -1018,13 +1018,13 @@ function showError(aMsg) {
  * @param bgColor   the background color as a "#RRGGBB" string
  */
 function getContrastingTextColor(bgColor) {
-    var calcColor = bgColor.replace(/#/g, "");
-    var red = parseInt(calcColor.substring(0, 2), 16);
-    var green = parseInt(calcColor.substring(2, 4), 16);
-    var blue = parseInt(calcColor.substring(4, 6), 16);
+    let calcColor = bgColor.replace(/#/g, "");
+    let red = parseInt(calcColor.substring(0, 2), 16);
+    let green = parseInt(calcColor.substring(2, 4), 16);
+    let blue = parseInt(calcColor.substring(4, 6), 16);
 
     // Calculate the brightness (Y) value using the YUV color system.
-    var brightness = (0.299 * red) + (0.587 * green) + (0.114 * blue);
+    let brightness = (0.299 * red) + (0.587 * green) + (0.114 * blue);
 
     // Consider all colors with less than 56% brightness as dark colors and
     // use white as the foreground color, otherwise use black.
@@ -1321,12 +1321,12 @@ calOperationGroup.prototype = {
                 status = Components.interfaces.calIErrors.OPERATION_CANCELLED;
             }
             this.notifyCompleted(status);
-            var cancelFunc = this.mCancelFunc;
+            let cancelFunc = this.mCancelFunc;
             if (cancelFunc) {
                 this.mCancelFunc = null;
                 cancelFunc();
             }
-            var subOperations = this.mSubOperations;
+            let subOperations = this.mSubOperations;
             this.mSubOperations = [];
             for (let op of subOperations) {
                 op.cancel(Components.interfaces.calIErrors.OPERATION_CANCELLED);
@@ -1390,16 +1390,16 @@ function calSetProdidVersion(aIcalComponent) {
  * @param aValue The value of the attribute
  */
 function applyAttributeToMenuChildren(aElement, aAttributeName, aValue) {
-   var sibling = aElement.firstChild;
+   let sibling = aElement.firstChild;
    do {
        if (sibling) {
-           var domObject = sibling;
-           var commandName = null;
+           let domObject = sibling;
+           let commandName = null;
            if (sibling.hasAttribute("command")){
                commandName = sibling.getAttribute("command");
            }
            if (commandName) {
-               var command = document.getElementById(commandName);
+               let command = document.getElementById(commandName);
                if (command) {
                    domObject = command;
                }
@@ -1419,12 +1419,12 @@ function applyAttributeToMenuChildren(aElement, aAttributeName, aValue) {
  * @param aProperty Name the name of the Property of which the value is compared
  */
 function isPropertyValueSame(aObjects, aPropertyName) {
-    var value = null;
-    for (var i = 0; i < aObjects.length; i++) {
+    let value = null;
+    for (let i = 0; i < aObjects.length; i++) {
         if (!value) {
             value = aObjects[0][aPropertyName];
         }
-        var compValue = aObjects[i][aPropertyName];
+        let compValue = aObjects[i][aPropertyName];
         if (compValue != value) {
             return false;
         }
@@ -1445,7 +1445,7 @@ function isPropertyValueSame(aObjects, aPropertyName) {
  *                      retrieved it is returned 'null'.
  */
 function getParentNodeOrThis(aChildNode, aLocalName) {
-    var node = aChildNode;
+    let node = aChildNode;
     while (node && (node.localName != aLocalName)) {
         node = node.parentNode;
         if (node.tagName == undefined) {
@@ -1468,7 +1468,7 @@ function getParentNodeOrThis(aChildNode, aLocalName) {
  *                          parent node can be retrieved it is returned 'null'.
  */
 function getParentNodeOrThisByAttribute(aChildNode, aAttributeName, aAttributeValue) {
-    var node = aChildNode;
+    let node = aChildNode;
     while (node && (node.getAttribute(aAttributeName) != aAttributeValue)) {
         node = node.parentNode;
         if (node.tagName == undefined) {
@@ -1479,8 +1479,8 @@ function getParentNodeOrThisByAttribute(aChildNode, aAttributeName, aAttributeVa
 }
 
 function setItemProperty(item, propertyName, aValue, aCapability) {
-    var isSupported = (item.calendar.getProperty("capabilities." + aCapability + ".supported") !== false);
-    var value = (aCapability && !isSupported ? null : aValue);
+    let isSupported = (item.calendar.getProperty("capabilities." + aCapability + ".supported") !== false);
+    let value = (aCapability && !isSupported ? null : aValue);
 
     switch (propertyName) {
         case "startDate":
@@ -1578,9 +1578,9 @@ calPropertyBag.prototype = {
         return (aName in this.mData ? this.mData[aName] : null);
     },
     getAllProperties: function cpb_getAllProperties(aOutKeys, aOutValues) {
-        var keys = [];
-        var values = [];
-        for (var key in this.mData) {
+        let keys = [];
+        let values = [];
+        for (let key in this.mData) {
             keys.push(key);
             values.push(this.mData[key]);
         }
@@ -1616,7 +1616,7 @@ calPropertyBagEnumerator.prototype = {
             ASSERT(false, Components.results.NS_ERROR_UNEXPECTED);
             throw Components.results.NS_ERROR_UNEXPECTED;
         }
-        var name = this.mKeys[this.mIndex++];
+        let name = this.mKeys[this.mIndex++];
         return { // nsIProperty:
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIProperty]),
             name: name,
@@ -1640,12 +1640,12 @@ calPropertyBagEnumerator.prototype = {
  * If the called function returns false, iteration is stopped.
  */
 function calIterateEmailIdentities(func) {
-    var accounts = MailServices.accounts.accounts;
-    for (var i = 0; i < accounts.length; ++i) {
-        var account = accounts.queryElementAt(i, Components.interfaces.nsIMsgAccount);
-        var identities = account.identities;
-        for (var j = 0; j < identities.length; ++j) {
-            var identity = identities.queryElementAt(j, Components.interfaces.nsIMsgIdentity);
+    let accounts = MailServices.accounts.accounts;
+    for (let i = 0; i < accounts.length; ++i) {
+        let account = accounts.queryElementAt(i, Components.interfaces.nsIMsgAccount);
+        let identities = account.identities;
+        for (let j = 0; j < identities.length; ++j) {
+            let identity = identities.queryElementAt(j, Components.interfaces.nsIMsgIdentity);
             if (!func(identity, account)) {
                 break;
             }
@@ -1751,8 +1751,8 @@ function binarySearch(itemArray, newItem, comptor) {
             return low + (comptor(newItem, itemArray[low]) < 0 ? 0 : 1);
         }
 
-        var mid = Math.floor(low + ((high - low) / 2));
-        var q = comptor(newItem, itemArray[mid]);
+        let mid = Math.floor(low + ((high - low) / 2));
+        let q = comptor(newItem, itemArray[mid]);
         if (q > 0) {
             return binarySearchInternal(mid + 1, high);
         } else if (q < 0) {
@@ -1820,7 +1820,7 @@ binaryInsertNode.defaultAccessor = n => n.item;
  * @return                      The index of the new item.
  */
 function binaryInsert(itemArray, item, comptor, discardDuplicates) {
-    var newIndex = binarySearch(itemArray, item, comptor);
+    let newIndex = binarySearch(itemArray, item, comptor);
 
     if (newIndex < 0) {
         itemArray.push(item);

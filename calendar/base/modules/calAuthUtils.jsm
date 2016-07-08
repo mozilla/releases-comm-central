@@ -281,7 +281,7 @@ cal.auth.Prompt.prototype = {
                                      aLevel,     // PRUint32
                                      aAuthInfo   // nsIAuthInformation
                                 ) {
-        var self = this;
+        let self = this;
         let promptlistener = {
             onPromptStart: function() {
                 res = self.promptAuth(aChannel, aLevel, aAuthInfo);

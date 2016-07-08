@@ -59,14 +59,14 @@ var taskEdit = {
      * @param aEvent    The DOM focus event
      */
     onFocus: function tE_onFocus(aEvent) {
-        var edit = aEvent.target;
+        let edit = aEvent.target;
         if (edit.localName == "input") {
             // For some reason, we only receive an onfocus event for the textbox
             // when debugging with venkman.
             edit = edit.parentNode.parentNode;
         }
 
-        var calendar = getSelectedCalendar();
+        let calendar = getSelectedCalendar();
         edit.showsInstructions = true;
 
         if (calendar.getProperty("capabilities.tasks.supported") === false) {
@@ -148,8 +148,8 @@ var taskEdit = {
     onLoad: function tE_onLoad(aEvent) {
         window.removeEventListener("load", taskEdit.onLoad, false);
         // TODO use getElementsByClassName
-        var taskEditFields = document.getElementsByAttribute("class", "task-edit-field");
-        for (var i = 0; i < taskEditFields.length; i++) {
+        let taskEditFields = document.getElementsByAttribute("class", "task-edit-field");
+        for (let i = 0; i < taskEditFields.length; i++) {
             taskEdit.onBlur({ target: taskEditFields[i] });
         }
 
@@ -195,8 +195,8 @@ var taskEdit = {
             switch (aName) {
                 case "readOnly":
                 case "disabled":
-                    var taskEditFields = document.getElementsByAttribute("class", "task-edit-field");
-                    for (var i = 0; i < taskEditFields.length; i++) {
+                    let taskEditFields = document.getElementsByAttribute("class", "task-edit-field");
+                    for (let i = 0; i < taskEditFields.length; i++) {
                         taskEdit.onBlur({ target: taskEditFields[i] });
                     }
             }
@@ -239,8 +239,8 @@ var taskEdit = {
         onCalendarAdded: function onCalendarAdded(aCalendar) {},
         onCalendarRemoved: function onCalendarRemoved(aCalendar) {},
         onDefaultCalendarChanged: function tE_compObs_onDefaultCalendarChanged(aNewDefault) {
-            var taskEditFields = document.getElementsByAttribute("class", "task-edit-field");
-            for (var i = 0; i < taskEditFields.length; i++) {
+            let taskEditFields = document.getElementsByAttribute("class", "task-edit-field");
+            for (let i = 0; i < taskEditFields.length; i++) {
                 taskEdit.onBlur({ target: taskEditFields[i] });
             }
             taskEdit.observedCalendar = aNewDefault;

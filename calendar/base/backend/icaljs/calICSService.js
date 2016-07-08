@@ -368,13 +368,13 @@ calIcalComponent.prototype = {
             if (!props) {
                 return;
             }
-            for (var prop of props) {
+            for (let prop of props) {
                 let hell = prop.getValues();
                 if (hell.length > 1) {
                     // Uh oh, multiple property values. Our code expects each as one
                     // property. I hate API incompatibility!
-                    for (var devil of hell) {
-                        var thisprop = new ICAL.Property(prop.toJSON(),
+                    for (let devil of hell) {
+                        let thisprop = new ICAL.Property(prop.toJSON(),
                                                          prop.parent);
                         thisprop.removeAllValues();
                         thisprop.setValue(devil);

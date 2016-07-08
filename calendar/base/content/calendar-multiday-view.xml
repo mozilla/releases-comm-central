@@ -51,11 +51,11 @@
               this.mDayEndHour = aDayEndHour;
               this.mDayStartHour = aDayStartHour;
 
-              var topbox = document.getAnonymousElementByAttribute(this, "anonid", "topbox");
+              let topbox = document.getAnonymousElementByAttribute(this, "anonid", "topbox");
               if (topbox.childNodes.length) {
                   // This only needs to be done if the initial relayout has
                   // already happened, otherwise it will be done then.
-                  for (var hour = this.mStartMin / 60; hour < this.mEndMin / 60; hour++) {
+                  for (let hour = this.mStartMin / 60; hour < this.mEndMin / 60; hour++) {
                       if (hour < this.mDayStartHour || hour >= this.mDayEndHour) {
                           topbox.childNodes[hour].setAttribute("off-time", "true");
                       } else {
@@ -71,7 +71,7 @@
         <parameter name="aAttr"/>
         <parameter name="aVal"/>
         <body><![CDATA[
-          var needsrelayout = false;
+          let needsrelayout = false;
           if (aAttr == "orient") {
               if (this.getAttribute("orient") != aVal) {
                   needsrelayout = true;
@@ -79,7 +79,7 @@
           }
 
           // this should be done using lookupMethod(), see bug 286629
-          var ret = XULElement.prototype.setAttribute.call(this, aAttr, aVal);
+          let ret = XULElement.prototype.setAttribute.call(this, aAttr, aVal);
 
           if (needsrelayout) {
               this.relayout();
@@ -95,13 +95,13 @@
 
       <method name="relayout">
         <body><![CDATA[
-          var topbox = document.getAnonymousElementByAttribute(this, "anonid", "topbox");
-          var orient = topbox.getAttribute("orient");
-          var otherorient = getOtherOrientation(orient);
+          let topbox = document.getAnonymousElementByAttribute(this, "anonid", "topbox");
+          let orient = topbox.getAttribute("orient");
+          let otherorient = getOtherOrientation(orient);
 
 
           function makeTimeBox(timestr, size) {
-              var box = createXULElement("box");
+              let box = createXULElement("box");
               box.setAttribute("orient", orient);
 
               if (orient == "horizontal") {
@@ -110,7 +110,7 @@
                   box.setAttribute("height", size);
               }
 
-              var label = createXULElement("label");
+              let label = createXULElement("label");
               label.setAttribute("class", "calendar-time-bar-label");
               label.setAttribute("value", timestr);
               label.setAttribute("align", "center");
@@ -124,15 +124,15 @@
               topbox.lastChild.remove();
           }
 
-          var formatter = Components.classes["@mozilla.org/intl/scriptabledateformat;1"].
+          let formatter = Components.classes["@mozilla.org/intl/scriptabledateformat;1"].
                           getService(Components.interfaces.nsIScriptableDateFormat);
-          var timeString;
-          var theMin = this.mStartMin;
-          var theHour = Math.floor(theMin / 60);
-          var durLeft = this.mEndMin - this.mStartMin;
+          let timeString;
+          let theMin = this.mStartMin;
+          let theHour = Math.floor(theMin / 60);
+          let durLeft = this.mEndMin - this.mStartMin;
 
           while (durLeft > 0) {
-              var dur;
+              let dur;
               if (this.mEndMin - theMin < 60) {
                   dur = this.mEndMin - theMin;
               } else {
@@ -145,10 +145,10 @@
 
               // calculate duration pixel as the difference between
               // start pixel and end pixel to avoid rounding errors.
-              var startPix = Math.round(theMin * this.mPixPerMin);
-              var endPix = Math.round((theMin + dur) * this.mPixPerMin);
-              var durPix = endPix - startPix;
-              var box;
+              let startPix = Math.round(theMin * this.mPixPerMin);
+              let endPix = Math.round((theMin + dur) * this.mPixPerMin);
+              let durPix = endPix - startPix;
+              let box;
               if (dur != 60) {
                   box = makeTimeBox("", durPix);
               } else {
@@ -196,7 +196,7 @@
           return this.getAttribute("parentorient");
         ]]></getter>
         <setter><![CDATA[
-          var thebox = document.getAnonymousElementByAttribute(this, "anonid", "thebox");
+          let thebox = document.getAnonymousElementByAttribute(this, "anonid", "thebox");
           this.setAttribute("parentorient", val);
           thebox.setAttribute("orient", getOtherOrientation(val));
           return val;
@@ -315,7 +315,7 @@
         <setter><![CDATA[
           this.mSelected = val;
           if (this.bgbox && this.bgbox.hasChildNodes()) {
-            var child = this.bgbox.firstChild;
+            let child = this.bgbox.firstChild;
             while (child) {
               if (val) {
                 child.setAttribute("selected", "true");
@@ -417,7 +417,7 @@
         <body><![CDATA[
           if (aOccurrence) {
               this.mSelectedItemIds[aOccurrence.hashId] = true;
-              var chunk = this.findChunkForOccurrence(aOccurrence);
+              let chunk = this.findChunkForOccurrence(aOccurrence);
               if (!chunk) {
                   return;
               }
@@ -432,12 +432,12 @@
         <body><![CDATA[
           if (aOccurrence) {
               delete this.mSelectedItemIds[aOccurrence.hashId];
-              var chunk = this.findChunkForOccurrence(aOccurrence);
+              let chunk = this.findChunkForOccurrence(aOccurrence);
               if (!chunk) {
                   return;
               }
               chunk.selected = false;
-              var index = this.mSelectedChunks.indexOf(chunk);
+              let index = this.mSelectedChunks.indexOf(chunk);
               this.mSelectedChunks.splice(index, 1);
           }
         ]]></body>
@@ -446,7 +446,7 @@
       <method name="findChunkForOccurrence">
         <parameter name="aOccurrence"/>
         <body><![CDATA[
-          for (var chunk of this.mEventBoxes) {
+          for (let chunk of this.mEventBoxes) {
               if (chunk.occurrence.hashId == aOccurrence.hashId) {
                   return chunk;
               }
@@ -475,7 +475,7 @@
         <parameter name="aVal"/>
         <body><![CDATA[
           // this should be done using lookupMethod(), see bug 286629
-          var ret = XULElement.prototype.setAttribute.call(this, aAttr, aVal);
+          let ret = XULElement.prototype.setAttribute.call(this, aAttr, aVal);
 
           if (aAttr == "orient" && this.getAttribute("orient") != aVal) {
               this.relayout();
@@ -488,9 +488,9 @@
       <method name="internalDeleteEvent">
         <parameter name="aOccurrence"/>
         <body><![CDATA[
-           var itemIndex = -1;
-           var occ;
-           for (var i in this.mEventInfos) {
+           let itemIndex = -1;
+           let occ;
+           for (let i in this.mEventInfos) {
                occ = this.mEventInfos[i].event;
                if (occ.hashId == aOccurrence.hashId) {
                    itemIndex = i;
@@ -513,8 +513,8 @@
 
       <method name="recalculateStartEndMinutes">
         <body><![CDATA[
-          for (var chunk of this.mEventInfos) {
-              var mins = this.getStartEndMinutesForOccurrence(chunk.event);
+          for (let chunk of this.mEventInfos) {
+              let mins = this.getStartEndMinutesForOccurrence(chunk.event);
               chunk.startMinute = mins.start;
               chunk.endMinute = mins.end;
           }
@@ -541,10 +541,10 @@
                enddate = enddate.getInTimezone(this.mTimezone);
            }
 
-           var startHour = stdate.hour;
-           var startMinute = stdate.minute;
-           var endHour = enddate.hour;
-           var endMinute = enddate.minute;
+           let startHour = stdate.hour;
+           let startMinute = stdate.minute;
+           let endHour = enddate.hour;
+           let endMinute = enddate.minute;
 
            // Handle cases where an event begins or ends on a day other than this
            if (stdate.compare(this.mDate) == -1) {
@@ -577,9 +577,9 @@
       <method name="createChunk">
         <parameter name="aOccurrence"/>
         <body><![CDATA[
-           var mins = this.getStartEndMinutesForOccurrence(aOccurrence);
+           let mins = this.getStartEndMinutesForOccurrence(aOccurrence);
 
-           var chunk = {
+           let chunk = {
                startMinute: mins.start,
                endMinute: mins.end,
                event: aOccurrence
@@ -593,12 +593,12 @@
         <body><![CDATA[
            this.internalDeleteEvent(aOccurrence);
 
-           var chunk = this.createChunk(aOccurrence);
+           let chunk = this.createChunk(aOccurrence);
            this.mEventInfos.push(chunk);
            if (this.mEventMapTimeout) {
                clearTimeout(this.mEventMapTimeout);
            }
-           var column = this;
+           let column = this;
 
            if (this.mCreatedNewEvent) {
                this.mEventToEdit = aOccurrence;
@@ -876,12 +876,12 @@
            *
            * An item with no conflicts will have startCol: 0 and colSpan: 1.
            */
-          var blobs = [];
-          var currentBlob = [];
+          let blobs = [];
+          let currentBlob = [];
           function sortByStart(aEventInfo, bEventInfo) {
               // If you pass in tasks without both entry and due dates, I will
               // kill you
-              var startComparison = aEventInfo.layoutStart.compare(bEventInfo.layoutStart);
+              let startComparison = aEventInfo.layoutStart.compare(bEventInfo.layoutStart);
               if (startComparison != 0) {
                   return startComparison;
               } else {
@@ -890,7 +890,7 @@
                   return bEventInfo.layoutEnd.compare(aEventInfo.layoutEnd);
               }
           }
-          var self = this;
+          let self = this;
           this.mEventInfos.forEach(function(aEventInfo) {
               let item = aEventInfo.event.clone();
               let start = item.startDate || item.entryDate || item.dueDate;
@@ -910,13 +910,13 @@
           this.mEventInfos.sort(sortByStart);
 
           // The end time of the last ending event in the entire blob
-          var latestItemEnd;
+          let latestItemEnd;
 
           // This array keeps track of the last (latest ending) item in each of
           // the columns of the current blob. We could reconstruct this data at
           // any time by looking at the items in the blob, but that would hurt
           // perf.
-          var colEndArray = [];
+          let colEndArray = [];
 
           /* Go through a 3 step process to try and place each item.
            * Step 1: Look for an existing column with room for the item.
@@ -926,8 +926,8 @@
            *
            * (The steps are explained in more detail as we come to them)
            */
-          for (var i in this.mEventInfos) {
-              var curItemInfo = {event: this.mEventInfos[i].event,
+          for (let i in this.mEventInfos) {
+              let curItemInfo = {event: this.mEventInfos[i].event,
                                  layoutStart: this.mEventInfos[i].layoutStart,
                                  layoutEnd: this.mEventInfos[i].layoutEnd};
               if (!latestItemEnd) {
@@ -945,7 +945,7 @@
               }
 
               // Place the item in its correct place in the blob
-              var placedItem = false;
+              let placedItem = false;
 
               // Step 1
               // Look for a possible column in the blob that has been left open. This
@@ -963,19 +963,19 @@
               //
               // Remember that any time we're starting a new blob, colEndArray
               // will be empty, but that's ok.
-              for (var ii = 0; ii < colEndArray.length; ++ii) {
-                  var colStart = colEndArray[ii].layoutStart;
-                  var colEnd = colEndArray[ii].layoutEnd;
+              for (let ii = 0; ii < colEndArray.length; ++ii) {
+                  let colStart = colEndArray[ii].layoutStart;
+                  let colEnd = colEndArray[ii].layoutEnd;
                   if (colEnd.compare(curItemInfo.layoutStart) != 1) {
                       // Yay, we can jump into this column
                       colEndArray[ii] = curItemInfo;
 
                       // Check and see if there are any adjacent columns we can
                       // jump into as well.
-                      var lastCol = Number(ii) + 1;
+                      let lastCol = Number(ii) + 1;
                       while (lastCol < colEndArray.length) {
-                          var nextColStart = colEndArray[lastCol].layoutStart;
-                          var nextColEnd = colEndArray[lastCol].layoutEnd;
+                          let nextColStart = colEndArray[lastCol].layoutStart;
+                          let nextColEnd = colEndArray[lastCol].layoutEnd;
                           // If the next column's item ends after we start, we
                           // can't expand any further
                           if (nextColEnd.compare(curItemInfo.layoutStart) == 1) {
@@ -1020,20 +1020,20 @@
               //       |      |_____________|   here, we can shrink ev2 and jump
               //       |      |      |      |   in column #3
               //
-              for (var jj = 1; jj < colEndArray.length; ++jj) {
+              for (let jj = 1; jj < colEndArray.length; ++jj) {
                   if (colEndArray[jj].event.hashId == colEndArray[jj - 1].event.hashId) {
                       // Good we found a item that spanned multiple columns.
                       // Find it in the blob so we can modify its properties
-                      for (var kk in currentBlob) {
+                      for (let kk in currentBlob) {
                           if (currentBlob[kk].itemInfo.event.hashId == colEndArray[jj].event.hashId) {
                               // Take all but the first spot that the item spanned
-                              var spanOfShrunkItem = currentBlob[kk].colSpan;
+                              let spanOfShrunkItem = currentBlob[kk].colSpan;
                               currentBlob.push({itemInfo: curItemInfo,
                                                 startCol: Number(currentBlob[kk].startCol) + 1,
                                                 colSpan: spanOfShrunkItem - 1});
 
                               // Update colEndArray
-                              for (var ll = jj; ll < jj + spanOfShrunkItem - 1; ll++) {
+                              for (let ll = jj; ll < jj + spanOfShrunkItem - 1; ll++) {
                                   colEndArray[ll] = curItemInfo;
                               }
 
@@ -1070,10 +1070,10 @@
               // * Note that there can only be one, because we sorted our
               //   events by start time, so this event must start later than
               //   the start of any possible conflicts.
-              var lastColNum = colEndArray.length;
-              for (var mm in currentBlob) {
-                  var mmStart = currentBlob[mm].itemInfo.layoutStart;
-                  var mmEnd = currentBlob[mm].itemInfo.layoutEnd;
+              let lastColNum = colEndArray.length;
+              for (let mm in currentBlob) {
+                  let mmStart = currentBlob[mm].itemInfo.layoutStart;
+                  let mmEnd = currentBlob[mm].itemInfo.layoutEnd;
                   if (currentBlob[mm].startCol + currentBlob[mm].colSpan == lastColNum &&
                       mmEnd.compare(curItemInfo.layoutStart) != 1) {
                       currentBlob[mm] = {itemInfo: currentBlob[mm].itemInfo,
@@ -1115,19 +1115,19 @@
           //   columns won't actually have the same size, but will only all
           //   be multiples of a common size.  See the note in the relayout
           //   function for more info on this (fairly rare) case.
-          var layers = [];
+          let layers = [];
 
           // When we start a new blob, move to a new set of layers
-          var layerOffset = 0;
-          for (var glob of aBlobs) {
-              var layerArray = [];
-              var layerCounter = 1;
+          let layerOffset = 0;
+          for (let glob of aBlobs) {
+              let layerArray = [];
+              let layerCounter = 1;
 
-              for (var data of glob.blob) {
+              for (let data of glob.blob) {
                   // from the item at hand we need to figure out on which
                   // layer and on which column it should go.
-                  var layerIndex;
-                  var specialSpan = null;
+                  let layerIndex;
+                  let specialSpan = null;
 
                   // each blob receives its own layer, that's the first part of the story. within
                   // a given blob we need to distribute the items on different layers depending on
@@ -1137,13 +1137,13 @@
                   // the items on the first layer in the case an item covers a single column. new layers
                   // are introduced based on the start column and number of spanning columns of an item.
                   if (data.colSpan != 1) {
-                      var index = glob.totalCols * data.colSpan + data.startCol;
+                      let index = glob.totalCols * data.colSpan + data.startCol;
                       layerIndex = layerArray[index];
                       if (!layerIndex) {
                           layerIndex = layerCounter++;
                           layerArray[index] = layerIndex;
                       }
-                      var offset = ((glob.totalCols - data.colSpan) % glob.totalCols);
+                      let offset = ((glob.totalCols - data.colSpan) % glob.totalCols);
                       if (offset != 0) {
                           specialSpan = data.colSpan / glob.totalCols;
                       }
@@ -1165,7 +1165,7 @@
                   }
 
                   // we now retrieve the column from 'layerIndex' and 'startCol'.
-                  var col = layers[layerIndex][data.startCol];
+                  let col = layers[layerIndex][data.startCol];
                   if (specialSpan) {
                       col.specialSpan = specialSpan;
                   }
@@ -1173,8 +1173,8 @@
                   // take into account that items can span several days.
                   // that's why i'm clipping the start- and end-time to the
                   // timespan of this column.
-                  var start = data.itemInfo.layoutStart;
-                  var end = data.itemInfo.layoutEnd;
+                  let start = data.itemInfo.layoutStart;
+                  let end = data.itemInfo.layoutEnd;
                   if (start.year != this.date.year ||
                       start.month != this.date.month ||
                       start.day != this.date.day) {
@@ -1195,7 +1195,7 @@
                                   0, this.mEndMin, 0,
                                   end.timezone);
                   }
-                  var prevEnd;
+                  let prevEnd;
                   if (col.length > 0) {
                       // Fill in time gaps with a placeholder
                       prevEnd = col[col.length - 1].endDate.clone();
@@ -1213,13 +1213,13 @@
                   // floating conveys this idea in a natural way. note that
                   // we explicitly don't use getInTimezone() as it would
                   // be slightly more expensive in terms of performance.
-                  var floatstart = start.clone();
+                  let floatstart = start.clone();
                   floatstart.timezone = floating();
-                  var dur = floatstart.subtractDate(prevEnd);
+                  let dur = floatstart.subtractDate(prevEnd);
                   if (dur.inSeconds) {
                       col.push({duration: dur});
                   }
-                  var floatend = end.clone();
+                  let floatend = end.clone();
                   floatend.timezone = floating();
                   col.push({event: data.itemInfo.event,
                             endDate: end,
@@ -1643,7 +1643,7 @@
           // if the user didn't sweep out at least a few pixels, ignore
           // unless we're in a different column
           if (dragState.origColumn == col) {
-              var ignore = false;
+              let ignore = false;
               if (col.getAttribute("orient") == "vertical") {
                   if (Math.abs(event.screenY - dragState.origLoc) < 3) {
                       ignore = true;
@@ -1660,16 +1660,16 @@
               }
           }
 
-          var newStart;
-          var newEnd;
-          var startTZ;
-          var endTZ;
+          let newStart;
+          let newEnd;
+          let startTZ;
+          let endTZ;
           let dragDay = col.mDate;
           if (dragState.dragType != "new") {
-              var oldStart = dragState.dragOccurrence.startDate ||
+              let oldStart = dragState.dragOccurrence.startDate ||
                              dragState.dragOccurrence.entryDate ||
                              dragState.dragOccurrence.dueDate;
-              var oldEnd = dragState.dragOccurrence.endDate ||
+              let oldEnd = dragState.dragOccurrence.endDate ||
                            dragState.dragOccurrence.dueDate ||
                            dragState.dragOccurrence.entryDate;
               newStart = oldStart.clone();
@@ -1948,18 +1948,18 @@
           let lastColumn = (aLastColumn || this);
           let realstartmin = this.mDragState.startMin + this.mStartMin;
           let realendmin = this.mDragState.endMin + this.mStartMin;
-          var starthr = Math.floor(realstartmin / 60);
-          var startmin = realstartmin % 60;
+          let starthr = Math.floor(realstartmin / 60);
+          let startmin = realstartmin % 60;
 
-          var endhr = Math.floor(realendmin / 60);
-          var endmin = realendmin % 60;
+          let endhr = Math.floor(realendmin / 60);
+          let endmin = realendmin % 60;
 
-          var formatter = Components.classes["@mozilla.org/intl/scriptabledateformat;1"].
+          let formatter = Components.classes["@mozilla.org/intl/scriptabledateformat;1"].
                           getService(Components.interfaces.nsIScriptableDateFormat);
-          var startstr = formatter.FormatTime("",
+          let startstr = formatter.FormatTime("",
                                               Components.interfaces.nsIScriptableDateFormat.timeFormatNoSeconds,
                                               starthr, startmin, 0);
-          var endstr = formatter.FormatTime("",
+          let endstr = formatter.FormatTime("",
                                             Components.interfaces.nsIScriptableDateFormat.timeFormatNoSeconds,
                                             endhr, endmin, 0);
 
@@ -2118,7 +2118,7 @@
       <method name="findBoxForItem">
         <parameter name="aItem"/>
         <body><![CDATA[
-          for (var item of this.mItemBoxes) {
+          for (let item of this.mItemBoxes) {
               if (aItem && item.occurrence.hasSameIds(aItem)) {
                   // We can return directly, since there will only be one box per
                   // item in the header.
@@ -2137,11 +2137,11 @@
             return;
           }
 
-          var itemBox = createXULElement("calendar-editable-item");
+          let itemBox = createXULElement("calendar-editable-item");
           this.appendChild(itemBox);
           itemBox.calendarView = this.calendarView;
           itemBox.occurrence = aItem;
-          var ctxt = this.calendarView.getAttribute("item-context") ||
+          let ctxt = this.calendarView.getAttribute("item-context") ||
                      this.calendarView.getAttribute("context");
           itemBox.setAttribute("context", ctxt);
 
@@ -2157,7 +2157,7 @@
       <method name="deleteEvent">
         <parameter name="aItem"/>
         <body><![CDATA[
-          for (var i in this.mItemBoxes) {
+          for (let i in this.mItemBoxes) {
             if (this.mItemBoxes[i].occurrence.hashId == aItem.hashId) {
               this.mItemBoxes[i].remove();
               this.mItemBoxes.splice(i, 1);
@@ -2313,7 +2313,7 @@
         <parameter name="aAttr"/>
         <parameter name="aVal"/>
         <body><![CDATA[
-          var needsrelayout = false;
+          let needsrelayout = false;
           if (aAttr == "orient") {
               if (this.getAttribute("orient") != aVal) {
                   needsrelayout = true;
@@ -2321,15 +2321,15 @@
           }
 
           // this should be done using lookupMethod(), see bug 286629
-          var ret = XULElement.prototype.setAttribute.call(this, aAttr, aVal);
+          let ret = XULElement.prototype.setAttribute.call(this, aAttr, aVal);
 
           if (needsrelayout) {
-              var otherorient = (val == "vertical" ? "horizontal" : "vertical");
-              var eventbox = document.getAnonymousElementByAttribute(this, "anonid", "eventbox");
+              let otherorient = (val == "vertical" ? "horizontal" : "vertical");
+              let eventbox = document.getAnonymousElementByAttribute(this, "anonid", "eventbox");
               eventbox.setAttribute("orient", val);
-              var gb1 = document.getAnonymousElementByAttribute(this, "anonid", "gripbar1");
+              let gb1 = document.getAnonymousElementByAttribute(this, "anonid", "gripbar1");
               gb1.parentorient = val;
-              var gb2 = document.getAnonymousElementByAttribute(this, "anonid", "gripbar2");
+              let gb2 = document.getAnonymousElementByAttribute(this, "anonid", "gripbar2");
               gb2.parentorient = val;
           }
 
@@ -2340,7 +2340,7 @@
       <method name="getOptimalMinSize">
         <body><![CDATA[
           if (this.getAttribute("orient") == "vertical") {
-              var minHeight = getOptimalMinimumHeight(this.eventNameLabel) +
+              let minHeight = getOptimalMinimumHeight(this.eventNameLabel) +
                               getSummarizedStyleValues(document.getAnonymousElementByAttribute(this, "anonid", "eventbox"), ["margin-bottom", "margin-top"]) +
                               getSummarizedStyleValues(this, ["border-bottom-width", "border-top-width"]);
               this.setAttribute("minheight", minHeight);
@@ -2348,7 +2348,7 @@
               return minHeight;
           } else {
               this.eventNameLabel.setAttribute("style", "min-width: 2em");
-              var minWidth = getOptimalMinimumWidth(this.eventNameLabel);
+              let minWidth = getOptimalMinimumWidth(this.eventNameLabel);
               this.setAttribute("minwidth", minWidth);
               this.setAttribute("minheight", "1");
               return minWidth;
@@ -2365,7 +2365,7 @@
             if (!this.mOccurrence) {
                 return 0;
             }
-            var startDate = this.mOccurrence.startDate || this.mOccurrence.entryDate;
+            let startDate = this.mOccurrence.startDate || this.mOccurrence.entryDate;
             return startDate.hour * 60 + startDate.minute;
         ]]></getter>
       </property>
@@ -2375,15 +2375,15 @@
             if (!this.mOccurrence) {
                 return 0;
             }
-            var endDate = this.mOccurrence.endDate || this.mOccurrence.dueDate;
+            let endDate = this.mOccurrence.endDate || this.mOccurrence.dueDate;
             return endDate.hour * 60 + endDate.minute;
         ]]></getter>
       </property>
 
       <method name="setEditableLabel">
         <body><![CDATA[
-          var evl = this.eventNameLabel;
-          var item = this.mOccurrence;
+          let evl = this.eventNameLabel;
+          let item = this.mOccurrence;
 
           if (item.title && item.title != "") {
             // Use <description> textContent so it can wrap.
@@ -2392,8 +2392,8 @@
             evl.textContent = calGetString("calendar", "eventUntitled");
           }
 
-          var gripbar = document.getAnonymousElementByAttribute(this, "anonid", "gripbar1").boxObject.height;
-          var height = document.getAnonymousElementByAttribute(this, "anonid", "eventbox").boxObject.height;
+          let gripbar = document.getAnonymousElementByAttribute(this, "anonid", "gripbar1").boxObject.height;
+          let height = document.getAnonymousElementByAttribute(this, "anonid", "eventbox").boxObject.height;
           evl.setAttribute("style", "max-height: " + Math.max(0, height-gripbar * 2) + "px");
         ]]></body>
       </method>
@@ -2437,8 +2437,8 @@
             return;
         }
 
-        var dx = Math.abs(event.screenX - this.mMouseX);
-        var dy = Math.abs(event.screenY - this.mMouseY);
+        let dx = Math.abs(event.screenX - this.mMouseX);
+        let dy = Math.abs(event.screenY - this.mMouseY);
         // more than a 3 pixel move?
         if ((dx * dx + dy * dy) > 9) {
             if (this.parentColumn) {
@@ -2532,7 +2532,7 @@
         let visibleMinutes = Preferences.get("calendar.view.visiblehours", 9) * 60;
         this.setVisibleMinutes(visibleMinutes);
 
-        var self = this;
+        let self = this;
         // set the flex attribute at the scrollbox-innerbox
         // (this can be removed, after Bug 343555 is fixed)
         let scrollbox = document.getAnonymousElementByAttribute(
@@ -2748,8 +2748,8 @@
         <parameter name="aAlarmItem"/>
         <parameter name="aStop"/>
         <body><![CDATA[
-          var showIndicator = Preferences.get("calendar.alarms.indicator.show", true);
-          var totaltime = Preferences.get("calendar.alarms.indicator.totaltime", 3600);
+          let showIndicator = Preferences.get("calendar.alarms.indicator.show", true);
+          let totaltime = Preferences.get("calendar.alarms.indicator.totaltime", 3600);
 
           if (!aStop && (!showIndicator || totaltime < 1)) {
             // No need to animate if the indicator should not be shown.
@@ -2767,9 +2767,9 @@
 
           // Make sure the flashing attribute is set or reset on all visible
           // boxes.
-          var columns = this.findColumnsForItem(aAlarmItem);
-          for (var col of columns) {
-            var box = col.column.findChunkForOccurrence(aAlarmItem);
+          let columns = this.findColumnsForItem(aAlarmItem);
+          for (let col of columns) {
+            let box = col.column.findChunkForOccurrence(aAlarmItem);
             if (box && box.eventbox) {
               setFlashingAttribute(box.eventbox);
             }
@@ -2781,7 +2781,7 @@
 
           if (!aStop) {
             // Set up a timer to stop the flashing after the total time.
-            var this_ = this;
+            let this_ = this;
             this.mFlashingEvents[aAlarmItem.hashId] = aAlarmItem;
             setTimeout(function() { this_.flashAlarm(aAlarmItem, true); }, totaltime);
           } else {
@@ -2824,7 +2824,7 @@
       <method name="showDate">
         <parameter name="aDate"/>
         <body><![CDATA[
-          var targetDate = aDate.getInTimezone(this.mTimezone);
+          let targetDate = aDate.getInTimezone(this.mTimezone);
           targetDate.isDate = true;
 
           if (this.mStartDate && this.mEndDate) {
@@ -2833,7 +2833,7 @@
                   return;
               }
           } else if (this.mDateList) {
-              for (var d of this.mDateList) {
+              for (let d of this.mDateList) {
                   // if date is already visible, nothing to do
                   if (d.compare(targetDate) == 0) {
                       return;
@@ -2939,7 +2939,7 @@
 
       <property name="selectedDay">
         <getter><![CDATA[
-          var selected;
+          let selected;
           if (this.numVisibleDates == 1) {
               selected = this.mDateColumns[0].date;
           } else if (this.mSelectedDay) {
@@ -2975,7 +2975,7 @@
               this.mSelectedDay = val;
             }
           }
-          var headerColLabel = this.selectColumnHeader(val);
+          let headerColLabel = this.selectColumnHeader(val);
           this.fireEvent("dayselect", val);
           return val;
         ]]></setter>
@@ -3044,15 +3044,15 @@
 
       <method name="centerSelectedItems">
         <body><![CDATA[
-          var displayTZ = calendarDefaultTimezone();
-          var lowMinute = 24 * 60;
-          var highMinute = 0;
+          let displayTZ = calendarDefaultTimezone();
+          let lowMinute = 24 * 60;
+          let highMinute = 0;
 
-          for (var item of this.mSelectedItems) {
-              var startDateProperty = calGetStartDateProp(item);
-              var endDateProperty = calGetEndDateProp(item);
+          for (let item of this.mSelectedItems) {
+              let startDateProperty = calGetStartDateProp(item);
+              let endDateProperty = calGetEndDateProp(item);
 
-              var occs = [];
+              let occs = [];
               if (item.recurrenceInfo) {
                   // if selected a parent item, show occurrence(s) in view range
                   occs = item.getOccurrencesBetween(this.startDate, this.queryEndDate, {}, 0);
@@ -3060,9 +3060,9 @@
                   occs = [item];
               }
 
-              for (var occ of occs) {
-                  var occStart = occ[startDateProperty];
-                  var occEnd = occ[endDateProperty];
+              for (let occ of occs) {
+                  let occStart = occ[startDateProperty];
+                  let occEnd = occ[endDateProperty];
                   // must have at least one of start or end
                   if (!occStart && !occEnd) {
                       continue; // task with no dates
@@ -3111,7 +3111,7 @@
               }
           }
 
-          var displayDuration = highMinute - lowMinute;
+          let displayDuration = highMinute - lowMinute;
           if (this.mSelectedItems.length &&
               displayDuration >= 0) {
               let minute;
@@ -3157,14 +3157,14 @@
             return this.mDateList.length;
           }
 
-          var count = 0;
+          let count = 0;
 
           if (!this.mStartDate || !this.mEndDate) {
             // The view has not been initialized, so there are 0 visible dates.
             return count;
           }
 
-          var d = this.mStartDate.clone();
+          let d = this.mStartDate.clone();
           while (d.compare(this.mEndDate) <= 0) {
             count++;
             d.day += 1;
@@ -3190,8 +3190,8 @@
         <parameter name="aAttr"/>
         <parameter name="aVal"/>
         <body><![CDATA[
-          var needsreorient = false;
-          var needsrelayout = false;
+          let needsreorient = false;
+          let needsrelayout = false;
           if (aAttr == "orient") {
               if (this.getAttribute("orient") != aVal) {
                   needsreorient = true;
@@ -3203,7 +3203,7 @@
           }
 
           // this should be done using lookupMethod(), see bug 286629
-          var ret = XULElement.prototype.setAttribute.call(this, aAttr, aVal);
+          let ret = XULElement.prototype.setAttribute.call(this, aAttr, aVal);
 
           if (needsrelayout && !needsreorient) {
               this.relayout();
@@ -3297,12 +3297,12 @@
           // change week view.
           this.setSelectedItems(0, [], true);
 
-          var daybox = document.getAnonymousElementByAttribute(this, "anonid", "daybox");
-          var headerdaybox = document.getAnonymousElementByAttribute(this, "anonid", "headerdaybox");
+          let daybox = document.getAnonymousElementByAttribute(this, "anonid", "daybox");
+          let headerdaybox = document.getAnonymousElementByAttribute(this, "anonid", "headerdaybox");
 
-          var calView = this;
-          var dayStartMin = this.mDayStartMin;
-          var dayEndMin = this.mDayEndMin;
+          let calView = this;
+          let dayStartMin = this.mDayStartMin;
+          let dayEndMin = this.mDayEndMin;
           function setUpDayEventsBox(aDayBox, date) {
               aDayBox.setAttribute("class", "calendar-event-column-" + (counter % 2 == 0 ? "even" : "odd"));
               aDayBox.setAttribute("context", calView.getAttribute("context"));
@@ -3328,15 +3328,15 @@
 
 
           // get today's date
-          var today = this.today();
-          var counter = 0;
-          var dayboxkids = daybox.childNodes;
-          var headerboxkids = headerdaybox.childNodes;
+          let today = this.today();
+          let counter = 0;
+          let dayboxkids = daybox.childNodes;
+          let headerboxkids = headerdaybox.childNodes;
           let labelboxkids = this.labeldaybox.childNodes;
           let updateTimeIndicator = false;
 
-          for (var d of computedDateList) {
-              var dayEventsBox;
+          for (let d of computedDateList) {
+              let dayEventsBox;
               if (counter < dayboxkids.length) {
                   dayEventsBox = dayboxkids[counter];
                   dayEventsBox.removeAttribute("relation");
@@ -3348,13 +3348,13 @@
               }
               setUpDayEventsBox(dayEventsBox, d);
 
-              var dayHeaderBox;
+              let dayHeaderBox;
               if (counter < headerboxkids.length) {
                   dayHeaderBox = headerboxkids[counter];
                   // Delete backwards to make sure we get them all
                   // and delete until no more elements are left.
                   while (dayHeaderBox.mItemBoxes.length != 0) {
-                      var num = dayHeaderBox.mItemBoxes.length;
+                      let num = dayHeaderBox.mItemBoxes.length;
                       dayHeaderBox.deleteEvent(dayHeaderBox.mItemBoxes[num-1].occurrence);
                   }
               } else {
@@ -3371,7 +3371,7 @@
                   dayEventsBox.dayOff = false;
                   dayHeaderBox.removeAttribute("weekend");
               }
-              var labelbox;
+              let labelbox;
               if (counter < labelboxkids.length) {
                   labelbox = labelboxkids[counter];
                   labelbox.date = d;
@@ -3418,7 +3418,7 @@
               }
               // We don't want to actually mess with our original dates, plus
               // they're likely to be immutable.
-              var d2 = d.clone();
+              let d2 = d.clone();
               d2.isDate = true;
               d2.makeImmutable();
               this.mDateColumns.push({ date: d2, column: dayEventsBox, header: dayHeaderBox });
@@ -3478,7 +3478,7 @@
           if (!this.mDateColumns) {
               return null;
           }
-          for (var col of this.mDateColumns) {
+          for (let col of this.mDateColumns) {
               if (col.date.compare(aDate) == 0) {
                   return col;
               }
@@ -3517,15 +3517,15 @@
             return [];
           }
 
-          var occMap = {};
-          for (var occ of aOccurrences) {
-              var startDate = occ[calGetStartDateProp(occ)]
+          let occMap = {};
+          for (let occ of aOccurrences) {
+              let startDate = occ[calGetStartDateProp(occ)]
                               .getInTimezone(this.mStartDate.timezone);
-              var endDate = occ[calGetEndDateProp(occ)]
+              let endDate = occ[calGetEndDateProp(occ)]
                               .getInTimezone(this.mEndDate.timezone) || startDate;
               if (startDate.compare(this.mStartDate) >= 0 &&
                   endDate.compare(this.mEndDate) <= 0) {
-                  for (var i = startDate.day; i <= endDate.day; i++) {
+                  for (let i = startDate.day; i <= endDate.day; i++) {
                       occMap[i] = true;
                   }
               }
@@ -3597,7 +3597,7 @@
           if (!this.mDateColumns) {
               return null;
           }
-          for (var col of this.mDateColumns) {
+          for (let col of this.mDateColumns) {
               let bo = document.getAnonymousElementByAttribute(col.column, "anonid", "boxstack").boxObject;
               if ((aClientX >= bo.screenX) && (aClientX <= (bo.screenX + bo.width)) &&
                   (aClientY >= bo.screenY) && (aClientY <= (bo.screenY + bo.height))) {
@@ -3611,8 +3611,8 @@
       <method name="adjustScrollbarSpacersForAlldayEvents">
         <parameter name="aEvent"/>
         <body><![CDATA[
-          var startDate = aEvent[calGetStartDateProp(aEvent)];
-          var endDate = aEvent[calGetEndDateProp(aEvent)];
+          let startDate = aEvent[calGetStartDateProp(aEvent)];
+          let endDate = aEvent[calGetEndDateProp(aEvent)];
           if (startDate && startDate.isDate ||
               endDate && endDate.isDate) {
               // If this is an all day event, then the header with allday
@@ -3625,7 +3625,7 @@
       <method name="doAddItem">
         <parameter name="aEvent"/>
         <body><![CDATA[
-          var cols = this.findColumnsForItem(aEvent);
+          let cols = this.findColumnsForItem(aEvent);
           if (!cols.length) {
               return;
           }
@@ -3649,12 +3649,12 @@
       <method name="doDeleteItem">
         <parameter name="aEvent"/>
         <body><![CDATA[
-          var cols = this.findColumnsForItem(aEvent);
+          let cols = this.findColumnsForItem(aEvent);
           if (!cols.length) {
               return;
           }
 
-          var oldLength = this.mSelectedItems.length;
+          let oldLength = this.mSelectedItems.length;
           this.mSelectedItems = this.mSelectedItems.filter((item) => {
               return item.hashId != aEvent.hashId;
           });
@@ -3704,7 +3704,7 @@
       <method name="adjustScrollBarSpacers">
         <body><![CDATA[
           // get the view's orientation
-          var propertyName;
+          let propertyName;
           if (this.getAttribute("orient") == "vertical") {
               propertyName = "width";
           } else {
@@ -3712,17 +3712,17 @@
           }
 
           // get the width/height of the scrollbox scrollbar
-          var scrollbox = document.getAnonymousElementByAttribute(
+          let scrollbox = document.getAnonymousElementByAttribute(
                          this, "anonid", "scrollbox");
-          var propertyValue = scrollbox.boxObject.firstChild
+          let propertyValue = scrollbox.boxObject.firstChild
                               .boxObject[propertyName];
           // Check if we need to show the headerScrollbarSpacer at all
-          var headerPropertyValue = propertyValue;
-          var headerDayBox = document.getAnonymousElementByAttribute(
+          let headerPropertyValue = propertyValue;
+          let headerDayBox = document.getAnonymousElementByAttribute(
                              this, "anonid", "headerdaybox");
           if (headerDayBox) {
             // Only do this when there are multiple days
-            var headerDayBoxMaxHeight = parseInt(document.defaultView.getComputedStyle(headerDayBox, null)
+            let headerDayBoxMaxHeight = parseInt(document.defaultView.getComputedStyle(headerDayBox, null)
                                                          .getPropertyValue("max-height"), 10);
             if (this.getAttribute("orient") == "vertical" &&
                 headerDayBox.boxObject.height >= headerDayBoxMaxHeight) {
@@ -3735,10 +3735,10 @@
           }
 
           // set the same width/height for the label and header box spacers
-          var headerScrollBarSpacer = document.getAnonymousElementByAttribute(
+          let headerScrollBarSpacer = document.getAnonymousElementByAttribute(
                                       this, "anonid", "headerscrollbarspacer");
           headerScrollBarSpacer.setAttribute(propertyName, headerPropertyValue);
-          var labelScrollBarSpacer = document.getAnonymousElementByAttribute(
+          let labelScrollBarSpacer = document.getAnonymousElementByAttribute(
                                      this, "anonid", "labelscrollbarspacer");
           labelScrollBarSpacer.setAttribute(propertyName, propertyValue);
         ]]></body>

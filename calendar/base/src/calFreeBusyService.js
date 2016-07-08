@@ -8,7 +8,7 @@ function calFreeBusyListener(numOperations, finalListener) {
     this.mFinalListener = finalListener;
     this.mNumOperations = numOperations;
 
-    var this_ = this;
+    let this_ = this;
     function cancelFunc() { // operation group has been cancelled
         this_.notifyResult(null);
     }
@@ -22,7 +22,7 @@ calFreeBusyListener.prototype = {
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIGenericOperationListener]),
 
     notifyResult: function calFreeBusyListener_notifyResult(result) {
-        var listener = this.mFinalListener;
+        let listener = this.mFinalListener;
         if (listener) {
             if (!this.opGroup.isPending) {
                 this.mFinalListener = null;
@@ -79,7 +79,7 @@ calFreeBusyService.prototype = {
                                                                            aRangeEnd,
                                                                            aBusyTypes,
                                                                            aListener) {
-        var groupListener = new calFreeBusyListener(this.mProviders.size, aListener);
+        let groupListener = new calFreeBusyListener(this.mProviders.size, aListener);
         for (let provider of this.mProviders) {
             let operation = provider.getFreeBusyIntervals(aCalId, aRangeStart,
                                                           aRangeEnd,

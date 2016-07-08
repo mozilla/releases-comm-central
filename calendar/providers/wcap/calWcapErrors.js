@@ -30,7 +30,7 @@ function getResultCode(err) {
 }
 
 function getErrorModule(err) {
-    var rc = getResultCode(err);
+    let rc = getResultCode(err);
     return (((rc >>> 16) & 0x7fff) - NS_ERROR_MODULE_BASE_OFFSET);
 }
 
@@ -38,7 +38,7 @@ function checkErrorCode(err, rcBits, maskBits) {
     if (!maskBits) {
         maskBits = 0;
     }
-    var rc = getResultCode(err);
+    let rc = getResultCode(err);
     return ((rc ^ rcBits) >>> maskBits) == 0;
 }
 
@@ -104,7 +104,7 @@ var g_nsNetErrorCodes = [
 
 function netErrorToString(rc) {
     if (!isNaN(rc) && getErrorModule(rc) == NS_ERROR_MODULE_NETWORK) {
-        var i = 0;
+        let i = 0;
         while (i < g_nsNetErrorCodes.length) {
             // however rc is kept unsigned, our generated code signed,
             // so == won't work here:
@@ -251,7 +251,7 @@ function wcapErrorToString(rc) {
         return "No WCAP errno (missing X-NSCP-WCAP-ERRNO).";
     }
 
-    var index = (rc - calIWcapErrors.WCAP_ERROR_BASE + 1);
+    let index = (rc - calIWcapErrors.WCAP_ERROR_BASE + 1);
     if (index >= 1 && index <= 108 && g_wcapErrorCodes[index * 2] != NS_ERROR_INVALID_ARG) {
         return g_wcapErrorCodes[(index * 2) + 1];
     }
@@ -262,7 +262,7 @@ function getWcapErrorCode(errno) {
     if (errno == -5000) { // semantically same error
         errno = 59;
     }
-    var index = -1;
+    let index = -1;
     if (errno >= -1 && errno <= 81) {
         index = (errno + 1);
     } else if (errno >= 11000 && errno <= 11008) {
@@ -275,7 +275,7 @@ function getWcapErrorCode(errno) {
 }
 
 function getWcapXmlErrno(xml) {
-    var elem = xml.getElementsByTagName("X-NSCP-WCAP-ERRNO");
+    let elem = xml.getElementsByTagName("X-NSCP-WCAP-ERRNO");
     if (elem) {
         elem = elem.item(0);
         if (elem) {
@@ -288,7 +288,7 @@ function getWcapXmlErrno(xml) {
 }
 
 function getWcapIcalErrno(icalRootComp) {
-    var prop = icalRootComp.getFirstProperty("X-NSCP-WCAP-ERRNO");
+    let prop = icalRootComp.getFirstProperty("X-NSCP-WCAP-ERRNO");
     if (prop) {
         return parseInt(prop.value, 10);
     }
@@ -302,7 +302,7 @@ function checkWcapErrno(errno, expectedErrno) {
         expectedErrno = 0; // i.e. Command successful.
     }
     if (errno !== undefined && errno != expectedErrno) {
-        var rc = getWcapErrorCode(errno);
+        let rc = getWcapErrorCode(errno);
         throw new Components.Exception(wcapErrorToString(rc), rc);
     }
 }
@@ -371,7 +371,7 @@ function errorToString(err) {
                     return netErrorToString(err);
                 } catch (exc2) {
                     if (err & calIErrors.ERROR_BASE) {
-                        for (var err_ in calIErrors) {
+                        for (let err_ in calIErrors) {
                             if (calIErrors[err_] == err) {
                                 return err_;
                             }

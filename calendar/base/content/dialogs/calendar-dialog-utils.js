@@ -34,7 +34,7 @@ function intializeTabOrWindowVariables() {
  * window.arguments[0].job.dispose()
  */
 function dispose() {
-    var args = window.arguments[0];
+    let args = window.arguments[0];
     if (args.job && args.job.dispose) {
         args.job.dispose();
     }
@@ -173,7 +173,7 @@ function updateReminderDetails() {
     let calendar = getCurrentCalendar();
     let actionValues = calendar.getProperty("capabilities.alarms.actionValues") || ["DISPLAY"];
     let actionMap = {};
-    for (var action of actionValues) {
+    for (let action of actionValues) {
         actionMap[action] = true;
     }
 
@@ -502,17 +502,18 @@ function commonUpdateReminder(aSuppressDialogs) {
  * read-only summary dialog.
  */
 function updateLink() {
-    var itemUrlString = window.calendarItem.getProperty("URL") || "";
-    var linkCommand = document.getElementById("cmd_toggle_link");
-
     function hideOrShow(aBool) {
         setElementValue("event-grid-link-row", !aBool && "true", "hidden");
-        var separator = document.getElementById("event-grid-link-separator");
+        let separator = document.getElementById("event-grid-link-separator");
         if (separator) {
             // The separator is not there in the summary dialog
             setElementValue("event-grid-link-separator", !aBool && "true", "hidden");
         }
     }
+
+    let itemUrlString = window.calendarItem.getProperty("URL") || "";
+    let linkCommand = document.getElementById("cmd_toggle_link");
+
 
     if (linkCommand) {
         // Disable if there is no url
@@ -527,7 +528,7 @@ function updateLink() {
         // should be hidden
         hideOrShow(false);
     } else {
-        var handler, uri;
+        let handler, uri;
         try {
             uri = makeURL(itemUrlString);
             handler = Services.io.getProtocolHandler(uri.scheme);

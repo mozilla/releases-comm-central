@@ -313,11 +313,11 @@ cal.fromRFC3339 = function fromRFC3339(aStr, aTimezone) {
     let dateTime = cal.createDateTime();
 
     // Killer regex to parse RFC3339 dates
-    var re = new RegExp("^([0-9]{4})-([0-9]{2})-([0-9]{2})" +
+    let re = new RegExp("^([0-9]{4})-([0-9]{2})-([0-9]{2})" +
         "([Tt]([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]+)?)?" +
         "(([Zz]|([+-])([0-9]{2}):([0-9]{2})))?");
 
-    var matches = re.exec(aStr);
+    let matches = re.exec(aStr);
 
     if (!matches) {
         return null;
@@ -394,13 +394,13 @@ cal.toRFC3339 = function toRFC3339(aDateTime) {
         return "";
     }
 
-    var full_tzoffset = aDateTime.timezoneOffset;
-    var tzoffset_hr = Math.floor(Math.abs(full_tzoffset) / 3600);
+    let full_tzoffset = aDateTime.timezoneOffset;
+    let tzoffset_hr = Math.floor(Math.abs(full_tzoffset) / 3600);
 
-    var tzoffset_mn = ((Math.abs(full_tzoffset) / 3600).toFixed(2) -
+    let tzoffset_mn = ((Math.abs(full_tzoffset) / 3600).toFixed(2) -
                        tzoffset_hr) * 60;
 
-    var str = aDateTime.year + "-" +
+    let str = aDateTime.year + "-" +
         ("00" + (aDateTime.month + 1)).substr(-2) + "-" +
         ("00" + aDateTime.day).substr(-2);
 
@@ -465,7 +465,7 @@ cal.ObserverBag.prototype = {
         if (this.__proto__.__proto__.add.apply(this, arguments) && (this.mBatchCount > 0)) {
             // Replay batch notifications, because the onEndBatch notifications are yet to come.
             // We may think about doing the reverse on remove, though I currently see no need:
-            for (var i = this.mBatchCount; i--;) {
+            for (let i = this.mBatchCount; i--;) {
                 iface.onStartBatch();
             }
         }

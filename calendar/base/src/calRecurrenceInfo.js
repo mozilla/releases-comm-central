@@ -9,7 +9,7 @@ function getRidKey(dt) {
     if (!dt) {
         return null;
     }
-    var tz = dt.timezone;
+    let tz = dt.timezone;
     if (!tz.isUTC && !tz.isFloating) {
         dt = dt.getInTimezone(UTC());
     }
@@ -59,7 +59,7 @@ calRecurrenceInfo.prototype = {
         if (!this.mPositiveRules || !this.mNegativeRules) {
             this.mPositiveRules = [];
             this.mNegativeRules = [];
-            for (var ritem of this.mRecurrenceItems) {
+            for (let ritem of this.mRecurrenceItems) {
                 if (ritem.isNegative) {
                     this.mNegativeRules.push(ritem);
                 } else {
@@ -97,17 +97,17 @@ calRecurrenceInfo.prototype = {
     },
 
     clone: function cRI_clone() {
-        var cloned = new calRecurrenceInfo();
+        let cloned = new calRecurrenceInfo();
         cloned.mBaseItem = this.mBaseItem;
 
-        var clonedItems = [];
-        for (var ritem of this.mRecurrenceItems) {
+        let clonedItems = [];
+        for (let ritem of this.mRecurrenceItems) {
             clonedItems.push(ritem.clone());
         }
         cloned.mRecurrenceItems = clonedItems;
 
-        var clonedExceptions = {};
-        for (var exitem in this.mExceptionMap) {
+        let clonedExceptions = {};
+        for (let exitem in this.mExceptionMap) {
             clonedExceptions[exitem] = this.mExceptionMap[exitem].cloneShallow(this.mBaseItem);
         }
         cloned.mExceptionMap = clonedExceptions;
@@ -211,12 +211,12 @@ calRecurrenceInfo.prototype = {
         // Because xpcom objects can be wrapped in various ways, testing for
         // mere == sometimes returns false even when it should be true.  Use
         // the interface pointer returned by sip to avoid that problem.
-        var sip1 = Components.classes["@mozilla.org/supports-interface-pointer;1"]
+        let sip1 = Components.classes["@mozilla.org/supports-interface-pointer;1"]
                             .createInstance(Components.interfaces.nsISupportsInterfacePointer);
         sip1.data = aItem;
         sip1.dataIID = Components.interfaces.calIRecurrenceItem;
 
-        var pos;
+        let pos;
         if ((pos = this.mRecurrenceItems.indexOf(sip1.data)) > -1) {
             this.deleteRecurrenceItemAt(pos);
         } else {
@@ -258,17 +258,17 @@ calRecurrenceInfo.prototype = {
         this.ensureBaseItem();
         this.ensureSortedRecurrenceRules();
 
-        var startDate = this.mBaseItem.recurrenceStartDate;
-        var dates = [];
+        let startDate = this.mBaseItem.recurrenceStartDate;
+        let dates = [];
 
-        var nextOccurrences = [];
-        var invalidOccurrences;
-        var negMap = {};
-        var minOccRid;
+        let nextOccurrences = [];
+        let invalidOccurrences;
+        let negMap = {};
+        let minOccRid;
 
         // Go through all negative rules to create a map of occurrences that
         // should be skipped when going through occurrences.
-        for (var ritem of this.mNegativeRules) {
+        for (let ritem of this.mNegativeRules) {
             // TODO Infinite rules (i.e EXRULE) are not taken into account,
             // because its very performance hungry and could potentially
             // lead to a deadlock (i.e RRULE is canceled out by an EXRULE).
@@ -278,13 +278,13 @@ calRecurrenceInfo.prototype = {
                 // This is fine, since there will never be an EXDATE that
                 // occurrs before the event started and its illegal to EXDATE an
                 // RDATE.
-                var rdates = ritem.getOccurrences(startDate,
+                let rdates = ritem.getOccurrences(startDate,
                                                   startDate,
                                                   null,
                                                   0,
                                                   {});
                 // Map all negative dates.
-                for (var r of rdates) {
+                for (let r of rdates) {
                     negMap[getRidKey(r)] = true;
                 }
             } else {
@@ -294,7 +294,7 @@ calRecurrenceInfo.prototype = {
             }
         }
 
-        var bailCounter = 0;
+        let bailCounter = 0;
         do {
             invalidOccurrences = 0;
             // Go through all positive rules and get the next recurrence id
@@ -304,7 +304,7 @@ calRecurrenceInfo.prototype = {
             //
             // If in a loop at least one rid is valid (i.e not an exception, not
             // an exdate, is after aTime), then remember the lowest one.
-            for (var i = 0; i < this.mPositiveRules.length; i++) {
+            for (let i = 0; i < this.mPositiveRules.length; i++) {
                 let rDateInstance = cal.wrapInstance(this.mPositiveRules[i], Components.interfaces.calIRecurrenceDate);
                 let rRuleInstance = cal.wrapInstance(this.mPositiveRules[i], Components.interfaces.calIRecurrenceRule);
                 if (rDateInstance) {
@@ -325,13 +325,13 @@ calRecurrenceInfo.prototype = {
                     // the pattern is only valid afterwards. If an occurrence
                     // was found in a previous round, we can go ahead and start
                     // searching from that occurrence.
-                    var searchStart = nextOccurrences[i] || startDate;
+                    let searchStart = nextOccurrences[i] || startDate;
 
                     // Search for the next occurrence after aTime. If the last
                     // round was invalid, then in this round we need to search
                     // after nextOccurrences[i] to make sure getNextOccurrence()
                     // doesn't find the same occurrence again.
-                    var searchDate =
+                    let searchDate =
                         (nextOccurrences[i] && nextOccurrences[i].compare(aTime) > 0 ?
                             nextOccurrences[i] :
                             aTime);
@@ -379,13 +379,13 @@ calRecurrenceInfo.prototype = {
         // Since we need to compare occurrences by date, save the rid found
         // above also as a date. This works out because above we skipped
         // exceptions.
-        var minOccDate = minOccRid;
+        let minOccDate = minOccRid;
 
         // Scan exceptions for any dates earlier than the above found
         // minOccDate, but still after aTime.
-        for (var ex in this.mExceptionMap) {
+        for (let ex in this.mExceptionMap) {
             let exc = this.mExceptionMap[ex];
-            var start = exc.recurrenceStartDate;
+            let start = exc.recurrenceStartDate;
             if (start.compare(aTime) > 0 &&
                 (!minOccDate || start.compare(minOccDate) <= 0)) {
                 // This exception is earlier, save its rid (for getting the
@@ -410,10 +410,10 @@ calRecurrenceInfo.prototype = {
         // recurrence start. Since rangeStart cannot be null for recurrence
         // items like calIRecurrenceRule, we need to work around by supplying a
         // very early date. Again, this might have a high performance penalty.
-        var early = createDateTime();
+        let early = createDateTime();
         early.icalString = "00000101T000000Z";
 
-        var rids = this.calculateDates(early,
+        let rids = this.calculateDates(early,
                                        aTime,
                                        0);
         // The returned dates are sorted, so the last one is a good
@@ -433,23 +433,23 @@ calRecurrenceInfo.prototype = {
         }
 
         // workaround for UTC- timezones
-        var rangeStart = ensureDateTime(aRangeStart);
-        var rangeEnd = ensureDateTime(aRangeEnd);
+        let rangeStart = ensureDateTime(aRangeStart);
+        let rangeEnd = ensureDateTime(aRangeEnd);
 
         // If aRangeStart falls in the middle of an occurrence, libical will
         // not return that occurrence when we go and ask for an
         // icalrecur_iterator_new.  This actually seems fairly rational, so
         // instead of hacking libical, I'm going to move aRangeStart back far
         // enough to make sure we get the occurrences we might miss.
-        var searchStart = rangeStart.clone();
-        var baseDuration = this.mBaseItem.duration;
+        let searchStart = rangeStart.clone();
+        let baseDuration = this.mBaseItem.duration;
         if (baseDuration) {
-            var duration = baseDuration.clone();
+            let duration = baseDuration.clone();
             duration.isNegative = true;
             searchStart.addDuration(duration);
         }
 
-        var startDate = this.mBaseItem.recurrenceStartDate;
+        let startDate = this.mBaseItem.recurrenceStartDate;
         if (startDate == null) {
             // Todo created by other apps may have a saved recurrence but
             // start and due dates disabled.  Since no recurrenceStartDate,
@@ -457,14 +457,14 @@ calRecurrenceInfo.prototype = {
             return [];
         }
 
-        var dates = [];
+        let dates = [];
 
         // toss in exceptions first. Save a map of all exceptions ids, so we
         // don't add the wrong occurrences later on.
-        var occurrenceMap = {};
-        for (var ex in this.mExceptionMap) {
-            var item = this.mExceptionMap[ex];
-            var occDate = checkIfInRange(item, aRangeStart, aRangeEnd, true);
+        let occurrenceMap = {};
+        for (let ex in this.mExceptionMap) {
+            let item = this.mExceptionMap[ex];
+            let occDate = checkIfInRange(item, aRangeStart, aRangeEnd, true);
             occurrenceMap[ex] = true;
             if (occDate) {
                 binaryInsert(dates, { id: item.recurrenceId, rstart: occDate }, ridDateSortComptor);
@@ -473,8 +473,8 @@ calRecurrenceInfo.prototype = {
 
         // DTSTART/DUE is always part of the (positive) expanded set:
         // DTSTART always equals RECURRENCE-ID for items expanded from RRULE
-        var baseOccDate = checkIfInRange(this.mBaseItem, aRangeStart, aRangeEnd, true);
-        var baseOccDateKey = getRidKey(baseOccDate);
+        let baseOccDate = checkIfInRange(this.mBaseItem, aRangeStart, aRangeEnd, true);
+        let baseOccDateKey = getRidKey(baseOccDate);
         if (baseOccDate && !occurrenceMap[baseOccDateKey]) {
             occurrenceMap[baseOccDateKey] = true;
             binaryInsert(dates, { id: baseOccDate, rstart: baseOccDate }, ridDateSortComptor);
@@ -483,7 +483,7 @@ calRecurrenceInfo.prototype = {
         // if both range start and end are specified, we ask for all of the occurrences,
         // to make sure we catch all possible exceptions.  If aRangeEnd isn't specified,
         // then we have to ask for aMaxCount, and hope for the best.
-        var maxCount;
+        let maxCount;
         if (rangeStart && rangeEnd) {
             maxCount = 0;
         } else {
@@ -583,7 +583,7 @@ calRecurrenceInfo.prototype = {
                                                         aRangeEnd,
                                                         aMaxCount,
                                                         aCount) {
-        var dates = this.calculateDates(aRangeStart, aRangeEnd, aMaxCount);
+        let dates = this.calculateDates(aRangeStart, aRangeEnd, aMaxCount);
         dates = dates.map(function(d) { return d.rstart; });
         aCount.value = dates.length;
         return dates;
@@ -624,7 +624,7 @@ calRecurrenceInfo.prototype = {
         this.ensureBaseItem();
         this.ensureMutable();
 
-        var d = Components.classes["@mozilla.org/calendar/recurrence-date;1"]
+        let d = Components.classes["@mozilla.org/calendar/recurrence-date;1"]
                           .createInstance(Components.interfaces.calIRecurrenceDate);
         d.isNegative = true;
         d.date = aRecurrenceId.clone();
@@ -639,7 +639,7 @@ calRecurrenceInfo.prototype = {
         this.ensureMutable();
         this.ensureSortedRecurrenceRules();
 
-        for (var i = 0; i < this.mRecurrenceItems.length; i++) {
+        for (let i = 0; i < this.mRecurrenceItems.length; i++) {
             let wrappedItem = cal.wrapInstance(this.mRecurrenceItems[i], Components.interfaces.calIRecurrenceDate);
             if (wrappedItem) {
                 let rd = wrappedItem;
@@ -700,7 +700,7 @@ calRecurrenceInfo.prototype = {
             throw Components.results.NS_ERROR_INVALID_ARG;
         }
 
-        var itemtoadd;
+        let itemtoadd;
         if (aTakeOverOwnership && anItem.isMutable) {
             itemtoadd = anItem;
             itemtoadd.parentItem = this.mBaseItem;
@@ -711,7 +711,7 @@ calRecurrenceInfo.prototype = {
         // we're going to assume that the recurrenceId is valid here,
         // because presumably the item came from one of our functions
 
-        var exKey = getRidKey(itemtoadd.recurrenceId);
+        let exKey = getRidKey(itemtoadd.recurrenceId);
         this.mExceptionMap[exKey] = itemtoadd;
     },
 
@@ -732,7 +732,7 @@ calRecurrenceInfo.prototype = {
     getExceptionIds: function cRI_getExceptionIds(aCount) {
         this.ensureBaseItem();
 
-        var ids = [];
+        let ids = [];
         for (let ex in this.mExceptionMap) {
             let item = this.mExceptionMap[ex];
             ids.push(item.recurrenceId);

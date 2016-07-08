@@ -50,11 +50,11 @@ function test_values() {
     const cIA = Components.interfaces.calIAttendee;
 
     // Create Attendee
-    var a1 = cal.createAttendee();
+    let a1 = cal.createAttendee();
     // Testing attendee set/get.
-    var properties = ["id", "commonName", "rsvp", "role", "participationStatus",
+    let properties = ["id", "commonName", "rsvp", "role", "participationStatus",
                       "userType"];
-    var values = ["myid", "mycn", "TRUE", "CHAIR", "DECLINED", "RESOURCE"];
+    let values = ["myid", "mycn", "TRUE", "CHAIR", "DECLINED", "RESOURCE"];
     // Make sure test is valid
     equal(properties.length, values.length);
 
@@ -64,7 +64,7 @@ function test_values() {
     }
 
     // Create event
-    var event = cal.createEvent();
+    let event = cal.createEvent();
 
     // Add attendee to event
     event.addAttendee(a1);
@@ -88,9 +88,9 @@ function test_values() {
     testImmutability(a2, properties);
 
     // Testing cloning
-    var ec = event.clone();
-    var clonedatts = ec.getAttendees({});
-    var atts = event.getAttendees({});
+    let ec = event.clone();
+    let clonedatts = ec.getAttendees({});
+    let atts = event.getAttendees({});
     equal(atts.length, clonedatts.length);
 
     for (let i = 0; i < clonedatts.length; i++) {

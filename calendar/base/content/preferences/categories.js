@@ -23,9 +23,9 @@ var gCategoriesPane = {
         // On non-instant-apply platforms, once this pane has been loaded,
         // attach our "revert all changes" function to the parent prefwindow's
         // "ondialogcancel" event.
-        var parentPrefWindow = document.documentElement;
+        let parentPrefWindow = document.documentElement;
         if (!parentPrefWindow.instantApply) {
-            var existingOnDialogCancel = parentPrefWindow.getAttribute("ondialogcancel");
+            let existingOnDialogCancel = parentPrefWindow.getAttribute("ondialogcancel");
             parentPrefWindow.setAttribute("ondialogcancel",
                                           "gCategoriesPane.panelOnCancel(); " +
                                           existingOnDialogCancel);
@@ -80,15 +80,15 @@ var gCategoriesPane = {
             listbox.lastChild.remove();
         }
 
-        for (var i = 0; i < gCategoryList.length; i++) {
-            var newListItem = document.createElement("listitem");
-            var categoryName = document.createElement("listcell");
+        for (let i = 0; i < gCategoryList.length; i++) {
+            let newListItem = document.createElement("listitem");
+            let categoryName = document.createElement("listcell");
             categoryName.setAttribute("id", gCategoryList[i]);
             categoryName.setAttribute("label", gCategoryList[i]);
-            var categoryNameFix = formatStringForCSSRule(gCategoryList[i]);
-            var categoryColor = document.createElement("listcell");
+            let categoryNameFix = formatStringForCSSRule(gCategoryList[i]);
+            let categoryColor = document.createElement("listcell");
             try {
-                var colorCode = categoryPrefBranch.getCharPref(categoryNameFix);
+                let colorCode = categoryPrefBranch.getCharPref(categoryNameFix);
                 categoryColor.setAttribute("id", colorCode);
                 categoryColor.setAttribute("style", "background-color: " + colorCode + ";");
             } catch (ex) {
@@ -188,10 +188,10 @@ var gCategoriesPane = {
      * @param categoryColor     The color of the category
      */
     saveCategory: function gCP_saveCateogry(categoryName, categoryColor) {
-        var list = document.getElementById("categorieslist");
+        let list = document.getElementById("categorieslist");
         // Check to make sure another category doesn't have the same name
-        var toBeDeleted = -1;
-        for (var i = 0; i < gCategoryList.length; i++) {
+        let toBeDeleted = -1;
+        for (let i = 0; i < gCategoryList.length; i++) {
             if (i == list.selectedIndex) {
                 continue;
             }
@@ -214,7 +214,7 @@ var gCategoriesPane = {
             return;
         }
 
-        var categoryNameFix = formatStringForCSSRule(categoryName);
+        let categoryNameFix = formatStringForCSSRule(categoryName);
         if (list.selectedIndex == -1) {
             this.backupData(categoryNameFix);
             gCategoryList.push(categoryName);
@@ -243,7 +243,7 @@ var gCategoriesPane = {
 
         this.updateCategoryList();
 
-        var updatedCategory = gCategoryList.indexOf(categoryName);
+        let updatedCategory = gCategoryList.indexOf(categoryName);
         list.ensureIndexIsVisible(updatedCategory);
         list.selectedIndex = updatedCategory;
     },
@@ -264,7 +264,7 @@ var gCategoriesPane = {
      * @param categoryNameFix     The formatted category name.
      */
     backupData: function gCP_backupData(categoryNameFix) {
-        var currentColor;
+        let currentColor;
         try {
             currentColor = categoryPrefBranch.getCharPref(categoryNameFix);
         } catch (ex) {
@@ -272,7 +272,7 @@ var gCategoriesPane = {
             currentColor = "##NEW";
         }
 
-        for (var i = 0; i < parent.backupPrefList.length; i++) {
+        for (let i = 0; i < parent.backupPrefList.length; i++) {
             if (categoryNameFix == parent.backupPrefList[i].name) {
                 return;
             }
@@ -297,7 +297,7 @@ var gCategoriesPane = {
      * Reverts category preferences in case the cancel button is pressed.
      */
     panelOnCancel: function gCP_panelOnCancel() {
-        for (var i = 0; i < parent.backupPrefList.length; i++) {
+        for (let i = 0; i < parent.backupPrefList.length; i++) {
             if (parent.backupPrefList[i].color == "##NEW") {
                 try {
                    categoryPrefBranch.clearUserPref(parent.backupPrefList[i].name);

@@ -143,16 +143,16 @@ function putItemsIntoCal(destCal, aItems, aFilePath) {
     // This listener is needed to find out when the last addItem really
     // finished. Using a counter to find the last item (which might not
     // be the last item added)
-    var count = 0;
-    var failedCount = 0;
-    var duplicateCount = 0;
+    let count = 0;
+    let failedCount = 0;
+    let duplicateCount = 0;
     // Used to store the last error. Only the last error, because we don't
     // wan't to bomb the user with thousands of error messages in case
     // something went really wrong.
     // (example of something very wrong: importing the same file twice.
     //  quite easy to trigger, so we really should do this)
-    var lastError;
-    var listener = {
+    let lastError;
+    let listener = {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
         onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
             count++;
@@ -318,8 +318,8 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
  * @param aCalendar     (optional) A specific calendar to export
  */
 function exportEntireCalendar(aCalendar) {
-    var itemArray = [];
-    var getListener = {
+    let itemArray = [];
+    let getListener = {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
         onOperationComplete: function(aOpCalendar, aStatus, aOperationType, aId, aDetail) {
             saveEventsToFile(itemArray, aOpCalendar.name);
@@ -331,14 +331,14 @@ function exportEntireCalendar(aCalendar) {
         }
     };
 
-    function getItemsFromCal(aCal) {
+    let getItemsFromCal = function(aCal) {
         aCal.getItems(Components.interfaces.calICalendar.ITEM_FILTER_ALL_ITEMS,
                       0, null, null, getListener);
-    }
+    };
 
     if (!aCalendar) {
-        var count = {};
-        var calendars = getCalendarManager().getCalendars(count);
+        let count = {};
+        let calendars = getCalendarManager().getCalendars(count);
 
         if (count.value == 1) {
             // There's only one calendar, so it's silly to ask what calendar
@@ -346,7 +346,7 @@ function exportEntireCalendar(aCalendar) {
             getItemsFromCal(calendars[0]);
         } else {
             // Ask what calendar to import into
-            var args = {};
+            let args = {};
             args.onOk = getItemsFromCal;
             args.promptText = calGetString("calendar", "exportPrompt");
             openDialog("chrome://calendar/content/chooseCalendarDialog.xul",

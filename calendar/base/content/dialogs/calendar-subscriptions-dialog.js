@@ -64,13 +64,13 @@ function onTextBoxKeyPress(event) {
  * @return      Returns true if the window should be closed
  */
 function onAccept() {
-    var richListBox = document.getElementById("subscriptions-listbox");
-    var rowCount = richListBox.getRowCount();
-    for (var i = 0; i < rowCount; i++) {
-        var richListItem = richListBox.getItemAtIndex(i);
-        var checked = richListItem.checked;
+    let richListBox = document.getElementById("subscriptions-listbox");
+    let rowCount = richListBox.getRowCount();
+    for (let i = 0; i < rowCount; i++) {
+        let richListItem = richListBox.getItemAtIndex(i);
+        let checked = richListItem.checked;
         if (checked != richListItem.subscribed) {
-            var calendar = richListItem.calendar;
+            let calendar = richListItem.calendar;
             if (checked) {
                 getCalendarManager().registerCalendar(calendar);
             } else {
@@ -132,7 +132,7 @@ function onSearch() {
  * actual subscribe happens when the window is closed.
  */
 function onSubscribe() {
-    var item = document.getElementById("subscriptions-listbox").selectedItem;
+    let item = document.getElementById("subscriptions-listbox").selectedItem;
     if (item && !item.disabled) {
         item.checked = true;
     }
@@ -143,7 +143,7 @@ function onSubscribe() {
  * actual subscribe happens when the window is closed.
  */
 function onUnsubscribe() {
-    var item = document.getElementById("subscriptions-listbox").selectedItem;
+    let item = document.getElementById("subscriptions-listbox").selectedItem;
     if (item && !item.disabled) {
         item.checked = false;
     }

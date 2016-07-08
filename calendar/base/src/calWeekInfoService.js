@@ -56,24 +56,24 @@ calWeekInfoService.prototype = {
         // which may be part of the week counted in the previous year.) So we
         // need the startWeekday.
         const SUNDAY = 0;
-        var startWeekday = Preferences.get("calendar.week.start", SUNDAY); // default to monday per ISO8601 standard.
+        let startWeekday = Preferences.get("calendar.week.start", SUNDAY); // default to monday per ISO8601 standard.
 
         // The number of days since the start of the week.
         // Notice that the result of the substraction might be negative.
         // We correct for that by adding 7, and then using the remainder operator.
-        var sinceStartOfWeek = (aDateTime.weekday - startWeekday + 7) % 7;
+        let sinceStartOfWeek = (aDateTime.weekday - startWeekday + 7) % 7;
 
         // The number of days to Thursday is the difference between Thursday
         // and the start-day of the week (again corrected for negative values).
         const THURSDAY = 4;
-        var startToThursday = (THURSDAY - startWeekday + 7) % 7;
+        let startToThursday = (THURSDAY - startWeekday + 7) % 7;
 
         // The yearday number of the Thursday this week.
-        var thisWeeksThursday = aDateTime.yearday - sinceStartOfWeek + startToThursday;
+        let thisWeeksThursday = aDateTime.yearday - sinceStartOfWeek + startToThursday;
 
         if (thisWeeksThursday < 1) {
             // For the first few days of the year, we still are in week 52 or 53.
-            var lastYearDate = aDateTime.clone();
+            let lastYearDate = aDateTime.clone();
             lastYearDate.year -= 1;
             thisWeeksThursday += lastYearDate.endOfYear.yearday;
         } else if (thisWeeksThursday > aDateTime.endOfYear.yearday) {
@@ -81,7 +81,7 @@ calWeekInfoService.prototype = {
             thisWeeksThursday -= aDateTime.endOfYear.yearday;
         }
 
-        var weekNumber = Math.ceil(thisWeeksThursday / 7);
+        let weekNumber = Math.ceil(thisWeeksThursday / 7);
         return weekNumber;
     },
 
@@ -93,9 +93,9 @@ calWeekInfoService.prototype = {
      * @return          a dateTime-object denoting the first day of the week
      */
     getStartOfWeek: function(aDate) {
-        var date = aDate.clone();
+        let date = aDate.clone();
         date.isDate = true;
-        var offset = (Preferences.get("calendar.week.start", 0) - aDate.weekday);
+        let offset = (Preferences.get("calendar.week.start", 0) - aDate.weekday);
         if (offset > 0) {
             date.day -= (7 - offset);
         } else {
@@ -112,7 +112,7 @@ calWeekInfoService.prototype = {
      * @return          a dateTime-object denoting the last day of the week
      */
     getEndOfWeek: function(aDate) {
-        var date = this.getStartOfWeek(aDate);
+        let date = this.getStartOfWeek(aDate);
         date.day += 6;
         return date;
     }

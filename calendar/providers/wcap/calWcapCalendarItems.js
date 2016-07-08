@@ -26,7 +26,7 @@ function calWcapCalendar_encodeAttendee(att) {
     let params = encodeAttr(att.rsvp, "RSVP", "");
     params = encodeAttr(att.participationStatus, "PARTSTAT", params);
     params = encodeAttr(att.role, "ROLE", params);
-    var cn = att.commonName;
+    let cn = att.commonName;
     if (cn) {
         params = encodeAttr(cn.replace(/[;:]/g, " "), "CN", params); // remove ';' and ':' from CN
     }
@@ -41,13 +41,13 @@ function calWcapCalendar_getRecurrenceParams(item, out_rrules, out_rdates, out_e
     out_exrules.value = [];
     out_exdates.value = [];
     if (item.recurrenceInfo) {
-        var rItems = item.recurrenceInfo.getRecurrenceItems({});
-        for (var rItem of rItems) {
-            var isNeg = rItem.isNegative;
+        let rItems = item.recurrenceInfo.getRecurrenceItems({});
+        for (let rItem of rItems) {
+            let isNeg = rItem.isNegative;
             let rRuleInstance = cal.wrapInstance(rItem, Components.interfaces.calIRecurrenceRule);
             let rDateInstance = cal.wrapInstance(rItem, Components.interfaces.calIRecurrenceDate);
             if (rRuleInstance) {
-                var rule = ("\"" + encodeURIComponent(rRuleInstance.icalProperty.valueAsIcalString) + "\"");
+                let rule = ("\"" + encodeURIComponent(rRuleInstance.icalProperty.valueAsIcalString) + "\"");
                 if (isNeg) {
                     out_exrules.value.push(rule);
                 } else {
@@ -78,10 +78,10 @@ function sameStringSet(list, list_) {
 
 calWcapCalendar.prototype.encodeRecurrenceParams =
     function calWcapCalendar_encodeRecurrenceParams(item, oldItem, excludeExdates) {
-    var rrules = {};
-    var rdates = {};
-    var exrules = {};
-    var exdates = {};
+    let rrules = {};
+    let rdates = {};
+    let exrules = {};
+    let exdates = {};
     this.getRecurrenceParams(item, rrules, rdates, exrules, exdates);
     if (oldItem) {
         // actually only write changes if an old item has been changed, because
@@ -99,10 +99,10 @@ calWcapCalendar.prototype.encodeRecurrenceParams =
         //            - entering an exception again
         //            - or adding an item)
         //           Currently it can just modifyItem(newItem/oldItem) back.
-        var rrules_ = {};
-        var rdates_ = {};
-        var exrules_ = {};
-        var exdates_ = {};
+        let rrules_ = {};
+        let rdates_ = {};
+        let exrules_ = {};
+        let exdates_ = {};
         this.getRecurrenceParams(oldItem, rrules_, rdates_, exrules_, exdates_);
 
         if (sameStringSet(rrules.value, rrules_.value)) {
@@ -119,7 +119,7 @@ calWcapCalendar.prototype.encodeRecurrenceParams =
         }
     }
 
-    var ret = "";
+    let ret = "";
     if (rrules.value) {
         ret += ("&rrules=" + rrules.value.join(";"));
     }
@@ -184,7 +184,7 @@ function getCalId(att) {
 }
 
 function getAttendeeByCalId(atts, calId) {
-    for (var att of atts) {
+    for (let att of atts) {
         if (getCalId(att) == calId) {
             return att;
         }
@@ -197,8 +197,8 @@ function calWcapCalendar_isInvitation(item) {
     if (!this.session.isLoggedIn) {
         return false; // don't know
     }
-    var calId = this.calId;
-    var orgCalId = getCalId(item.organizer);
+    let calId = this.calId;
+    let orgCalId = getCalId(item.organizer);
     if (!orgCalId || (orgCalId == calId)) {
         return false;
     }
@@ -207,9 +207,9 @@ function calWcapCalendar_isInvitation(item) {
 
 calWcapCalendar.prototype.getInvitedAttendee =
 function calWcapCalendar_getInvitedAttendee(item) {
-    var att = getAttendeeByCalId(item.getAttendees({}), this.calId);
+    let att = getAttendeeByCalId(item.getAttendees({}), this.calId);
     if (!att) { // try to find mail address
-        var ar = this.session.getUserPreferences("X-NSCP-WCAP-PREF-mail");
+        let ar = this.session.getUserPreferences("X-NSCP-WCAP-PREF-mail");
         if (ar.length > 0 && ar[0].length > 0) {
             att = item.getAttendeeById("mailto:" + ar[0]);
         }
@@ -222,7 +222,7 @@ function calWcapCalendar_canNotify(method, item) {
     if (!this.session.isLoggedIn) {
         return false;
     }
-    var calId = this.calId;
+    let calId = this.calId;
     switch (method) {
         case "REQUEST":
         case "CANCEL":
@@ -252,8 +252,8 @@ function identicalDatetimes(one, two) {
 
 // @return null if nothing has changed else value to be written
 function diffProperty(newItem, oldItem, propName) {
-    var val = newItem.getProperty(propName);
-    var oldVal = (oldItem ? oldItem.getProperty(propName) : null);
+    let val = newItem.getProperty(propName);
+    let oldVal = (oldItem ? oldItem.getProperty(propName) : null);
     if (val === null) {
         // force being set when - no old item, eg when adding new item
         //                      - property is to be deleted
@@ -305,11 +305,11 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
         return ((pitem.privacy && pitem.privacy != "") ? pitem.privacy : "PUBLIC");
     }
     function getAttachments(attitem) {
-        var ret;
-        var attachments = attitem.attachments;
+        let ret;
+        let attachments = attitem.attachments;
         if (attachments) {
-            var strings = [];
-            for (var att of attachments) {
+            let strings = [];
+            for (let att of attachments) {
                 let wrappedAtt = cal.wrapInstance(att, Components.interfaces.calIAttachment);
                 if (typeof att == "string") {
                     strings.push(encodeURIComponent(att));
@@ -325,21 +325,21 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
         return ret || "";
     }
 
-    var this_ = this;
-    var bIsEvent = isEvent(item);
-    var bIsParent = isParent(item);
+    let this_ = this;
+    let bIsEvent = isEvent(item);
+    let bIsParent = isParent(item);
 
-    var method = METHOD_PUBLISH;
-    var bNoSmtpNotify = false;
-    var params = "";
+    let method = METHOD_PUBLISH;
+    let bNoSmtpNotify = false;
+    let params = "";
 
-    var calId = this.calId;
+    let calId = this.calId;
     if (!bAddItem && this.isInvitation(item)) { // REPLY
         method = METHOD_REPLY;
-        var att = getAttendeeByCalId(item.getAttendees({}), calId);
+        let att = getAttendeeByCalId(item.getAttendees({}), calId);
         if (att) {
             log("attendee: " + att.icalProperty.icalString, this);
-            var oldAtt = null;
+            let oldAtt = null;
             if (oldItem) {
                 oldAtt = getAttendeeByCalId(oldItem.getAttendees({}), calId);
             }
@@ -358,8 +358,8 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
         //   exception overwrites master, why ever.
         // So in these cases: write all data of master.
 
-        var bIsAllDay = false;
-        var dtstart, dtend;
+        let bIsAllDay = false;
+        let dtstart, dtend;
         if (bIsEvent) {
             dtstart = item.startDate;
             dtend = item.endDate;
@@ -398,25 +398,25 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
             }
         }
         if (bIsParent) {
-            var recParams = this.encodeRecurrenceParams(item, oldItem, !bAddItem /* exclude EXDATEs */);
+            let recParams = this.encodeRecurrenceParams(item, oldItem, !bAddItem /* exclude EXDATEs */);
             if (recParams.length > 0) {
                 oldItem = null; // recurrence/exceptions hack: write whole master
                 params += recParams;
             }
         }
 
-        var orgCalId = getCalId(item.organizer);
+        let orgCalId = getCalId(item.organizer);
         if (!orgCalId) { // new events yet don't have X-S1CS-CALID set on ORGANIZER or this is outbound iTIP
-            var orgId = getOrgId(item);
+            let orgId = getOrgId(item);
             if (!orgId || (orgId.toLowerCase().replace(/^mailto:/, "") == this.ownerId.toLowerCase())) {
                 orgCalId = calId; // own event
             } // else outbound
         }
 
-        var attendees = item.getAttendees({});
+        let attendees = item.getAttendees({});
         if (attendees.length > 0) {
             // xxx todo: why ever, X-S1CS-EMAIL is unsupported though documented for calprops... WTF.
-            var attParam = encodeAttendees(attendees);
+            let attParam = encodeAttendees(attendees);
             if (!oldItem || attParam != encodeAttendees(oldItem.getAttendees({}))) {
                 params += ("&attendees=" + attParam);
             }
@@ -437,13 +437,13 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
                 params += ("&orgCalid=" + encodeURIComponent(orgCalId));
             }
         } else { // might be a copy of an iTIP invitation:
-            var orgEmail = getOrgId(item);
+            let orgEmail = getOrgId(item);
             if (!oldItem || (getOrgId(oldItem) != orgEmail)) {
                 params += ("&orgEmail=" + encodeURIComponent(orgEmail));
             }
         }
 
-        var val = item.title;
+        let val = item.title;
         if (!oldItem || val != oldItem.title) {
             params += ("&summary=" + encodeURIComponent(val));
         }
@@ -472,7 +472,7 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
             params += ("&priority=" + encodeURIComponent(val));
         }
 
-        var icsClass = getPrivacy(item);
+        let icsClass = getPrivacy(item);
         if (!oldItem || icsClass != getPrivacy(oldItem)) {
             params += ("&icsClass=" + icsClass);
         }
@@ -524,7 +524,7 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
         }
     } // PUBLISH, REQUEST
 
-    var alarmParams = this.getAlarmParams(item);
+    let alarmParams = this.getAlarmParams(item);
     if (!oldItem || (this.getAlarmParams(oldItem) != alarmParams)) {
         if ((method == METHOD_REQUEST) && params.length == 0) {
             // assure no email notifications about this change:
@@ -541,7 +541,7 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
         request.execRespFunc(null, item);
     } else {
         // cs does not support separate timezones for start and end, just pick one for tzid param:
-        var someDate = (item.startDate || item.entryDate || item.dueDate);
+        let someDate = (item.startDate || item.entryDate || item.dueDate);
         if (someDate && !someDate.timezone.isUTC) {
             params += ("&tzid=" + encodeURIComponent(this.getAlignedTzid(someDate.timezone)));
         }
@@ -576,13 +576,13 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
             if (err) {
                 throw err;
             }
-            var items = this.parseItems(icalRootComp, calICalendar.ITEM_FILTER_ALL_ITEMS,
+            let items = this.parseItems(icalRootComp, calICalendar.ITEM_FILTER_ALL_ITEMS,
                                         0, null, null, true /* bLeaveMutable */);
             if (items.length != 1) {
                 this.notifyError(NS_ERROR_UNEXPECTED,
                                  "unexpected number of items: " + items.length);
             }
-            var newItem = items[0];
+            let newItem = items[0];
             this.tunnelXProps(newItem, item);
             newItem.makeImmutable();
             // invalidate cached results:
@@ -609,8 +609,8 @@ function calWcapCalendar_tunnelXProps(destItem, srcItem) {
     let enumerator = srcItem.propertyEnumerator;
     while (enumerator.hasMoreElements()) {
         try {
-            var prop = enumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
-            var name = prop.name;
+            let prop = enumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
+            let name = prop.name;
             if (name.startsWith("X-MOZ-")) {
                 switch (name) {
                     // keep snooze stamps for occurrences only and if alarm is still set:
@@ -635,8 +635,8 @@ function calWcapCalendar_tunnelXProps(destItem, srcItem) {
 
 calWcapCalendar.prototype.adoptItem =
 function calWcapCalendar_adoptItem(item, listener) {
-    var this_ = this;
-    var request = new calWcapRequest(
+    let this_ = this;
+    let request = new calWcapRequest(
         function adoptItem_resp(oprequest, err, newItem) {
             this_.notifyOperationComplete(listener,
                                           getResultCode(err),
@@ -664,8 +664,8 @@ function calWcapCalendar_addItem(item, listener) {
 
 calWcapCalendar.prototype.modifyItem =
 function calWcapCalendar_modifyItem(newItem, oldItem, listener) {
-    var this_ = this;
-    var request = new calWcapRequest(
+    let this_ = this;
+    let request = new calWcapRequest(
         function modifyItem_resp(oprequest, err, item) {
             this_.notifyOperationComplete(listener,
                                           getResultCode(err),
@@ -681,23 +681,23 @@ function calWcapCalendar_modifyItem(newItem, oldItem, listener) {
         if (!newItem.id) {
             throw new Components.Exception("new item has no id!");
         }
-        var oldItem_ = oldItem;
+        let oldItem_ = oldItem;
         if (isParent(newItem)) {
             // Due to a cs bug, EXDATEs cannot be passed with store, thus make a two-step delete then store.
             // First check if EXDATEs are passed or have been modified:
-            var exdates = {};
+            let exdates = {};
             this.getRecurrenceParams(newItem, {}, {}, {}, exdates);
             if (oldItem) {
-                var exdates_ = {};
+                let exdates_ = {};
                 this.getRecurrenceParams(oldItem_, {}, {}, {}, exdates_);
                 // only use added elements
                 exdates.value = exdates.value.filter(
                     function(elem) { return !exdates_.value.some(function(elem_) { return elem_ == elem; }); });
             } // else in case no oldItem is passed, nevertheless try to delete the EXDATEs
             if (exdates.value.length > 0) {
-                var params = "&uid=";
+                let params = "&uid=";
                 // all deletes on the same item:
-                for (var i = exdates.value.length; i--;) {
+                for (let i = exdates.value.length; i--;) {
                     params += encodeURIComponent(newItem.id);
                     if (i > 0) {
                         params += ";";
@@ -705,7 +705,7 @@ function calWcapCalendar_modifyItem(newItem, oldItem, listener) {
                 }
                 params += ("&mod=1&rid=" + exdates.value.join(";"));
 
-                var orgCalId = getCalId(newItem.organizer);
+                let orgCalId = getCalId(newItem.organizer);
                 if (!orgCalId || (orgCalId != this.calId)) {
                     // item does not belong to this user, so don't notify:
                     params += "&smtp=0&smtpNotify=0&notify=0";
@@ -745,8 +745,8 @@ function calWcapCalendar_modifyItem(newItem, oldItem, listener) {
 
 calWcapCalendar.prototype.deleteItem =
 function calWcapCalendar_deleteItem(item, listener) {
-    var this_ = this;
-    var request = new calWcapRequest(
+    let this_ = this;
+    let request = new calWcapRequest(
         function deleteItem_resp(oprequest, err) {
             // xxx todo: need to notify about each deleted item if multiple?
             this_.notifyOperationComplete(listener,
@@ -763,7 +763,7 @@ function calWcapCalendar_deleteItem(item, listener) {
         if (!item.id) {
             throw new Components.Exception("no item id!");
         }
-        var params = ("&uid=" + encodeURIComponent(item.id));
+        let params = ("&uid=" + encodeURIComponent(item.id));
         if (isParent(item)) { // delete THIS AND ALL:
             params += "&mod=4&rid=0";
         } else { // delete THIS INSTANCE:
@@ -771,7 +771,7 @@ function calWcapCalendar_deleteItem(item, listener) {
             params += ("&mod=1&rid=" + getIcalUTC(ensureDateTime(item.recurrenceId)));
         }
 
-        var orgCalId = getCalId(item.organizer);
+        let orgCalId = getCalId(item.organizer);
         if (!orgCalId || (orgCalId != this.calId)) {
             // item does not belong to this user, so don't notify:
             params += "&smtp=0&smtpNotify=0&notify=0";
@@ -799,15 +799,15 @@ function calWcapCalendar_deleteItem(item, listener) {
 };
 
 calWcapCalendar.prototype.patchTimezone = function calWcapCalendar_patchTimezone(subComp, attr, xpropOrTz) {
-    var dt = subComp[attr];
+    let dt = subComp[attr];
     // if TZID parameter present (all-day items), it takes precedence:
     if (dt && (dt.timezone.isUTC || dt.timezone.isFloating)) {
         if (LOG_LEVEL > 2) {
             log(attr + " is " + dt, this);
         }
-        var tz;
+        let tz;
         if (typeof xpropOrTz == "string") {
-            var tzid = subComp.getFirstProperty(xpropOrTz);
+            let tzid = subComp.getFirstProperty(xpropOrTz);
             if (tzid) {
                 tz = this.session.getTimezone(tzid.value);
                 ASSERT(tz, "timezone not found: " + tzid);
@@ -1037,8 +1037,8 @@ calWcapCalendar.prototype.parseItems = function calWcapCalendar_parseItems(
 
 calWcapCalendar.prototype.getItem =
 function calWcapCalendar_getItem(id, listener) {
-    var this_ = this;
-    var request = new calWcapRequest(
+    let this_ = this;
+    let request = new calWcapRequest(
         function getItem_resp(oprequest, err, item) {
             if (checkErrorCode(err, calIWcapErrors.WCAP_FETCH_EVENTS_BY_ID_FAILED) ||
                 checkErrorCode(err, calIWcapErrors.WCAP_COMPONENT_NOT_FOUND)) {
@@ -1057,7 +1057,7 @@ function calWcapCalendar_getItem(id, listener) {
         if (!id) {
             throw new Components.Exception("no item id!");
         }
-        var params = "&relativealarm=1&compressed=1&recurring=1";
+        let params = "&relativealarm=1&compressed=1&recurring=1";
         params += "&emailorcalid=1&fmt-out=text%2Fcalendar&uid=";
         params += encodeURIComponent(id);
 
@@ -1066,7 +1066,7 @@ function calWcapCalendar_getItem(id, listener) {
             request,
             function fetchEventById_resp(err, eventRootComp) {
                 function notifyResult(rootComp) {
-                    var items = this_.parseItems(rootComp, calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null);
+                    let items = this_.parseItems(rootComp, calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null);
                     if (items.length < 1) {
                         throw new Components.Exception("no such item!");
                     }
@@ -1108,7 +1108,7 @@ function calWcapCalendar_getItem(id, listener) {
 };
 
 function getItemFilterParams(itemFilter) {
-    var params = "";
+    let params = "";
     switch (itemFilter & calICalendar.ITEM_FILTER_TYPE_ALL) {
         case calICalendar.ITEM_FILTER_TYPE_TODO:
             params += "&component-type=todo";
@@ -1118,7 +1118,7 @@ function getItemFilterParams(itemFilter) {
             break;
     }
 
-    var compstate = "";
+    let compstate = "";
 //     if (itemFilter & calIWcapCalendar.ITEM_FILTER_REPLY_DECLINED)
 //         compstate += ";REPLY-DECLINED";
 //     if (itemFilter & calIWcapCalendar.ITEM_FILTER_REPLY_ACCEPTED)
@@ -1145,11 +1145,11 @@ calWcapCalendar.prototype.getItems =
 function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, listener) {
     rangeStart = ensureDateTime(rangeStart);
     rangeEnd = ensureDateTime(rangeEnd);
-    var zRangeStart = getIcalUTC(rangeStart);
-    var zRangeEnd = getIcalUTC(rangeEnd);
+    let zRangeStart = getIcalUTC(rangeStart);
+    let zRangeEnd = getIcalUTC(rangeEnd);
 
-    var this_ = this;
-    var request = new calWcapRequest(
+    let this_ = this;
+    let request = new calWcapRequest(
         function getItems_resp(oprequest, err, data) {
             log("getItems() complete: " + errorToString(err), this_);
             this_.notifyOperationComplete(listener,
@@ -1195,7 +1195,7 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
     }
 
     try {
-        var params = ("&relativealarm=1&compressed=1&recurring=1&emailorcalid=1&fmt-out=text%2Fcalendar");
+        let params = ("&relativealarm=1&compressed=1&recurring=1&emailorcalid=1&fmt-out=text%2Fcalendar");
         // setting component-type, compstate filters:
         params += getItemFilterParams(itemFilter);
         if (maxResults > 0) {
@@ -1213,14 +1213,14 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
                         if (listener &&
                             (itemFilter & calICalendar.ITEM_FILTER_TYPE_EVENT) &&
                             rangeStart && rangeEnd) {
-                            var freeBusyListener = { // calIGenericOperationListener:
+                            let freeBusyListener = { // calIGenericOperationListener:
                                 onResult: function freeBusyListener_onResult(oprequest, result) {
                                     if (!Components.isSuccessCode(oprequest.status)) {
                                         throw oprequest.status;
                                     }
-                                    var items = [];
+                                    let items = [];
                                     for (let entry of result) {
-                                        var item = createEvent();
+                                        let item = createEvent();
                                         item.id = (g_busyPhantomItemUuidPrefix + getIcalUTC(entry.interval.start));
                                         item.calendar = this_.superCalendar;
                                         item.title = g_busyItemTitle;
@@ -1242,14 +1242,14 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
                         throw err;
                     }
                 } else if (listener) {
-                    var items = this_.parseItems(
+                    let items = this_.parseItems(
                         icalRootComp, itemFilter, maxResults,
                         rangeStart, rangeEnd);
 
                     if (CACHE_LAST_RESULTS > 0) {
                         // auto invalidate after X minutes:
                         if (!this_.m_cachedResultsTimer) {
-                            var callback = {
+                            let callback = {
                                 notify: function notify(timer) {
                                     if (!this_.m_cachedResults) {
                                         return;
@@ -1314,12 +1314,12 @@ function calWcapCalendar_resetLog() {
 
 calWcapCalendar.prototype.replayChangesOn =
 function calWcapCalendar_replayChangesOn(listener) {
-    var this_ = this;
-    var itemFilter = calICalendar.ITEM_FILTER_ALL_ITEMS;
-    var dtFrom = getDatetimeFromIcalString(this.getProperty("replay.last_stamp"));
-    var now = getTime(); // new stamp for this sync
+    let this_ = this;
+    let itemFilter = calICalendar.ITEM_FILTER_ALL_ITEMS;
+    let dtFrom = getDatetimeFromIcalString(this.getProperty("replay.last_stamp"));
+    let now = getTime(); // new stamp for this sync
 
-    var request_ = new calWcapRequest(
+    let request_ = new calWcapRequest(
         function replayChangesOn_resp(request, err) {
             if (err) {
                 logError("error replaying changes: " + errorToString(err));
@@ -1337,7 +1337,7 @@ function calWcapCalendar_replayChangesOn(listener) {
             "\n\tdtFrom=" + getIcalUTC(dtFrom), this));
 
     try {
-        var writeListener = {
+        let writeListener = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onGetResult: function() {},
             onOperationComplete: function(aCalendar, status, opType, id, detail) {
@@ -1346,12 +1346,12 @@ function calWcapCalendar_replayChangesOn(listener) {
                 }
             }
         };
-        var request = new calWcapRequest(
+        let request = new calWcapRequest(
             function netFinishedRespFunc(err, data) {
-                var modifiedIds = {};
+                let modifiedIds = {};
                 for (let item of request.m_modifiedItems) {
-                    var dtCreated = item.getProperty("CREATED");
-                    var bAdd = (!dtCreated || !dtFrom || dtCreated.compare(dtFrom) >= 0);
+                    let dtCreated = item.getProperty("CREATED");
+                    let bAdd = (!dtCreated || !dtFrom || dtCreated.compare(dtFrom) >= 0);
                     modifiedIds[item.id] = true;
                     if (bAdd) {
                         log("replayChangesOn(): new item " + item.id, this_);
@@ -1376,7 +1376,7 @@ function calWcapCalendar_replayChangesOn(listener) {
                         }
                     } else { // modify parent instead of
                              // straight-forward deleteItem(). WTF.
-                        var parent = item.parentItem.clone();
+                        let parent = item.parentItem.clone();
                         parent.recurrenceInfo.removeOccurrenceAt(item.recurrenceId);
                         log("replayChangesOn(): modified parent " + parent.id, this_);
                         if (this_.offlineStorage) {
@@ -1395,7 +1395,7 @@ function calWcapCalendar_replayChangesOn(listener) {
                     if (err) {
                         throw err;
                     }
-                    var params = ("&relativealarm=1&compressed=1&recurring=1" +
+                    let params = ("&relativealarm=1&compressed=1&recurring=1" +
                                   "&emailorcalid=1&fmt-out=text%2Fcalendar");
                     if (dtFrom) {
                         dtFrom = this_.session.getServerTime(dtFrom);

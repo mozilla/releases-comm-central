@@ -12,15 +12,15 @@
  * @param aEvent    The popupshowing event of the opening menu
  */
 function addCalendarNames(aEvent) {
-    var calendarMenuPopup = aEvent.target;
-    var calendars = getCalendarManager().getCalendars({});
+    let calendarMenuPopup = aEvent.target;
+    let calendars = getCalendarManager().getCalendars({});
     while (calendarMenuPopup.hasChildNodes()) {
         calendarMenuPopup.lastChild.remove();
     }
-    var tasks = getSelectedTasks(aEvent);
-    var tasksSelected = (tasks.length > 0);
+    let tasks = getSelectedTasks(aEvent);
+    let tasksSelected = (tasks.length > 0);
     if (tasksSelected) {
-        var selIndex = appendCalendarItems(tasks[0], calendarMenuPopup, null, "contextChangeTaskCalendar(event);");
+        let selIndex = appendCalendarItems(tasks[0], calendarMenuPopup, null, "contextChangeTaskCalendar(event);");
         if (isPropertyValueSame(tasks, "calendar") && (selIndex > -1)) {
             calendarMenuPopup.childNodes[selIndex].setAttribute("checked", "true");
         }
@@ -156,10 +156,10 @@ function contextChangeTaskProgress(aEvent, aProgress) {
  */
 function contextChangeTaskCalendar(aEvent) {
    startBatchTransaction();
-   var tasks = getSelectedTasks(aEvent);
-   for (var t = 0; t < tasks.length; t++) {
-       var task = tasks[t];
-       var newTask = task.clone().QueryInterface(Components.interfaces.calITodo);
+   let tasks = getSelectedTasks(aEvent);
+   for (let t = 0; t < tasks.length; t++) {
+       let task = tasks[t];
+       let newTask = task.clone().QueryInterface(Components.interfaces.calITodo);
        newTask.calendar = aEvent.target.calendar;
        doTransaction('modify', newTask, newTask.calendar, task, null);
     }
@@ -179,7 +179,7 @@ function contextChangeTaskPriority(aEvent, aPriority) {
         editConfigState({ priority: aPriority });
     } else {
         startBatchTransaction();
-        var tasks = getSelectedTasks(aEvent);
+        let tasks = getSelectedTasks(aEvent);
         for (let task of tasks) {
             let newTask = task.clone().QueryInterface(Components.interfaces.calITodo);
             newTask.priority = aPriority;
@@ -231,8 +231,8 @@ function contextPostponeTask(aEvent, aDuration) {
  * @param initialDate   (optional) The initial date for new task datepickers
  */
 function modifyTaskFromContext(aEvent, initialDate) {
-    var tasks = getSelectedTasks(aEvent);
-    for (var t = 0; t < tasks.length; t++) {
+    let tasks = getSelectedTasks(aEvent);
+    for (let t = 0; t < tasks.length; t++) {
         modifyEventWithDialog(tasks[t], null, true, initialDate);
     }
  }
@@ -244,7 +244,7 @@ function modifyTaskFromContext(aEvent, initialDate) {
  * @param aDoNotConfirm   If true, the user will not be asked to delete.
  */
 function deleteToDoCommand(aEvent, aDoNotConfirm) {
-    var tasks = getSelectedTasks(aEvent);
+    let tasks = getSelectedTasks(aEvent);
     calendarViewController.deleteOccurrences(tasks.length,
                                              tasks,
                                              false,
@@ -257,7 +257,7 @@ function deleteToDoCommand(aEvent, aDoNotConfirm) {
  * @return    The XUL task tree element.
  */
 function getTaskTree() {
-    var currentMode = document.getElementById("modeBroadcaster").getAttribute("mode");
+    let currentMode = document.getElementById("modeBroadcaster").getAttribute("mode");
     if (currentMode == "task") {
         return document.getElementById("calendar-task-tree");
     } else {
@@ -274,7 +274,7 @@ function getTaskTree() {
  * @param aEvent      Unused
  */
 function getSelectedTasks(aEvent) {
-    var taskTree = getTaskTree();
+    let taskTree = getTaskTree();
     if (taskTree != null) {
         return taskTree.selectedTasks;
     } else {
@@ -286,7 +286,7 @@ function getSelectedTasks(aEvent) {
  * Convert selected tasks to emails.
  */
 function tasksToMail(aEvent) {
-    var tasks = getSelectedTasks(aEvent);
+    let tasks = getSelectedTasks(aEvent);
     calendarMailButtonDNDObserver.onDropItems(tasks);
 }
 
@@ -294,7 +294,7 @@ function tasksToMail(aEvent) {
  * Convert selected tasks to events.
  */
 function tasksToEvents(aEvent) {
-    var tasks = getSelectedTasks(aEvent);
+    let tasks = getSelectedTasks(aEvent);
     calendarCalendarButtonDNDObserver.onDropItems(tasks);
 }
 

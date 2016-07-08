@@ -89,7 +89,7 @@ var calendarController = {
     },
 
     updateCommands: function cC_updateCommands() {
-        for (var command in this.commands) {
+        for (let command in this.commands) {
             goUpdateCommand(command);
         }
     },
@@ -227,7 +227,7 @@ var calendarController = {
                     // The delete-button demands a special handling in mail-mode
                     // as it is supposed to delete an element of the focused pane
                     if (aCommand == "cmd_delete" || aCommand == "button_delete") {
-                        var focusedElement = document.commandDispatcher.focusedElement;
+                        let focusedElement = document.commandDispatcher.focusedElement;
                         if (focusedElement) {
                             if (focusedElement.getAttribute("id") == "agenda-listbox") {
                                  return agendaListbox.isEventSelected();
@@ -444,7 +444,7 @@ var calendarController = {
     },
 
     onSelectionChanged: function cC_onSelectionChanged(aEvent) {
-        var selectedItems = aEvent.detail;
+        let selectedItems = aEvent.detail;
 
         calendarUpdateDeleteCommand(selectedItems);
         calendarController.item_selected = selectedItems && (selectedItems.length > 0);
@@ -455,7 +455,7 @@ var calendarController = {
         let selected_events_invitation = 0;
 
         if (selLength > 0) {
-            for (var item of selectedItems) {
+            for (let item of selectedItems) {
                 if (item.calendar.readOnly) {
                     selected_events_readonly++;
                 }
@@ -521,7 +521,7 @@ var calendarController = {
      * Returns a boolean indicating if all calendars are readonly.
      */
     get all_readonly() {
-        var calMgr = getCalendarManager();
+        let calMgr = getCalendarManager();
         return (calMgr.readOnlyCalendarCount == calMgr.calendarCount);
     },
 
@@ -537,7 +537,7 @@ var calendarController = {
      * network access.
      */
     get has_local_calendars() {
-        var calMgr = getCalendarManager();
+        let calMgr = getCalendarManager();
         return (calMgr.networkCalendarCount < calMgr.calendarCount);
     },
 
@@ -569,9 +569,9 @@ var calendarController = {
     get all_local_calendars_readonly() {
         // We might want to speed this part up by keeping track of this in the
         // calendar manager.
-        var calendars = getCalendarManager().getCalendars({});
-        var count = calendars.length;
-        for (var calendar of calendars) {
+        let calendars = getCalendarManager().getCalendars({});
+        let count = calendars.length;
+        for (let calendar of calendars) {
             if (!isCalendarWritable(calendar)) {
                 count--;
             }
@@ -594,7 +594,7 @@ var calendarController = {
      * Returns a boolean indicating that tasks are selected.
      */
     get todo_items_selected() {
-        var selectedTasks = getSelectedTasks();
+        let selectedTasks = getSelectedTasks();
         return (selectedTasks.length > 0);
     },
 
@@ -624,8 +624,8 @@ var calendarController = {
      * on a calendar that is writable.
      */
     get todo_items_writable() {
-        var selectedTasks = getSelectedTasks();
-        for (var task of selectedTasks) {
+        let selectedTasks = getSelectedTasks();
+        for (let task of selectedTasks) {
             if (isCalendarWritable(task.calendar)) {
                 return true;
             }

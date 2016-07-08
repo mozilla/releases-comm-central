@@ -228,7 +228,7 @@
 
       <property name="currentIndex">
         <getter><![CDATA[
-          var tree = document.getAnonymousElementByAttribute(
+          let tree = document.getAnonymousElementByAttribute(
               this, "anonid", "calendar-task-tree");
           return tree.currentIndex;
         ]]></getter>
@@ -249,18 +249,18 @@
 
       <property name="selectedTasks" readonly="true">
         <getter><![CDATA[
-          var tasks = [];
-          var start = {};
-          var end = {};
+          let tasks = [];
+          let start = {};
+          let end = {};
           if (!this.mTreeView.selection) {
               return tasks;
           }
 
-          var rangeCount = this.mTreeView.selection.getRangeCount();
-          for (var range = 0; range < rangeCount; range++) {
+          let rangeCount = this.mTreeView.selection.getRangeCount();
+          for (let range = 0; range < rangeCount; range++) {
               this.mTreeView.selection.getRangeAt(range, start, end);
-              for (var i = start.value; i <= end.value; i++) {
-                  var task = this.getTaskAtRow(i);
+              for (let i = start.value; i <= end.value; i++) {
+                  let task = this.getTaskAtRow(i);
                   if (task) {
                       tasks.push(this.getTaskAtRow(i));
                   }
@@ -358,10 +358,10 @@
           },
 
           set selectedColumn(aCol) {
-              var tree = document.getAnonymousNodes(this.binding)[0];
-              var treecols = tree.getElementsByTagNameNS(tree.namespaceURI, "treecol");
-              for (var i = 0; i < treecols.length; i++) {
-                  var col = treecols[i];
+              let tree = document.getAnonymousNodes(this.binding)[0];
+              let treecols = tree.getElementsByTagNameNS(tree.namespaceURI, "treecol");
+              for (let i = 0; i < treecols.length; i++) {
+                  let col = treecols[i];
                   if (col.getAttribute("sortActive")) {
                       col.removeAttribute("sortActive");
                       col.removeAttribute("sortDirection");
@@ -469,7 +469,7 @@
           },
 
           clear: function tTV_clear() {
-              var count = this.binding.mTaskArray.length;
+              let count = this.binding.mTaskArray.length;
               if (count > 0) {
                   this.binding.mTaskArray = [];
                   this.binding.mHash2Index = {};
@@ -479,7 +479,7 @@
           },
 
           updateItem: function tTV_updateItem(aItem) {
-              var index = this.binding.mHash2Index[aItem.hashId];
+              let index = this.binding.mHash2Index[aItem.hashId];
               if (index) {
                   this.treebox.invalidateRow(index);
               }
@@ -543,7 +543,7 @@
           // Called on the view when a cell in a non-selectable cycling
           // column (e.g., unread/flag/etc.) is clicked.
           cycleCell: function mTV_cycleCell(aRow, aCol) {
-              var task = this.binding.mTaskArray[aRow];
+              let task = this.binding.mTaskArray[aRow];
 
               // prevent toggling completed status for parent items of
               // repeating tasks or when the calendar is read-only.
@@ -551,9 +551,9 @@
                   return;
               }
               if (aCol != null) {
-                  var content = aCol.element.getAttribute("itemproperty");
+                  let content = aCol.element.getAttribute("itemproperty");
                   if (content == "completed") {
-                      var newTask = task.clone().QueryInterface(Components.interfaces.calITodo);
+                      let newTask = task.clone().QueryInterface(Components.interfaces.calITodo);
                       newTask.isCompleted = !task.completedDate;
                       doTransaction('modify', newTask, newTask.calendar, task, null);
                   }
@@ -584,7 +584,7 @@
           // The text for a given cell. If a column consists only of an
           // image, then the empty string is returned.
           getCellText: function mTV_getCellText(aRow, aCol) {
-              var task = this.binding.mTaskArray[aRow];
+              let task = this.binding.mTaskArray[aRow];
               if (!task) {
                   return false;
               }
@@ -620,7 +620,7 @@
 
           // This method is only called for columns of type other than text.
           getCellValue: function mTV_getCellValue(aRow, aCol) {
-              var task = this.binding.mTaskArray[aRow];
+              let task = this.binding.mTaskArray[aRow];
               if (!task) {
                   return null;
               }
@@ -710,7 +710,7 @@
           getProgressMode: function mTV_getProgressMode(aRow, aCol) {
               switch (aCol.element.getAttribute("itemproperty")) {
                   case "percentComplete":
-                      var task = this.binding.mTaskArray[aRow];
+                      let task = this.binding.mTaskArray[aRow];
                       if (aCol.element.boxObject.width > 75 &&
                           task.percentComplete > 0) {
                           // XXX Would be nice if we could use relative widths,
@@ -731,10 +731,10 @@
           onDoubleClick: function tTV_onDoubleClick(event) {
               if (event.button == 0) {
                   let initialDate = getDefaultStartDate(this.binding.getInitialDate());
-                  var col = {};
-                  var item = this._getItemFromEvent(event, col);
+                  let col = {};
+                  let item = this._getItemFromEvent(event, col);
                   if (item) {
-                      var colAnonId = col.value.element.getAttribute("itemproperty");
+                      let colAnonId = col.value.element.getAttribute("itemproperty");
                       if (colAnonId == "completed") {
                           // item holds checkbox state toggled by first click,
                           // so don't call modifyEventWithDialog
@@ -759,7 +759,7 @@
                       break;
                   case kKE.DOM_VK_SPACE:
                       if (this.tree.currentIndex > -1) {
-                          var col = document.getAnonymousElementByAttribute(
+                          let col = document.getAnonymousElementByAttribute(
                               this.binding, "itemproperty", "completed");
                           this.cycleCell(
                               this.tree.currentIndex,
@@ -767,7 +767,7 @@
                       }
                       break;
                   case kKE.DOM_VK_RETURN:
-                      var index = this.tree.currentIndex;
+                      let index = this.tree.currentIndex;
                       if (index > -1) {
                           modifyEventWithDialog(this.binding.mTaskArray[index]);
                       }
@@ -792,7 +792,7 @@
 
           _getItemFromEvent: function tTV_getItemFromEvent(event, aCol, aRow) {
             aRow = aRow || {};
-            var childElt = {};
+            let childElt = {};
             this.treebox.getCellAt(event.clientX, event.clientY, aRow, aCol || {}, childElt);
             if (!childElt.value) {
                 return false;
@@ -802,12 +802,12 @@
 
           // Helper function to display datetimes
           _formatDateTime: function tTV_formatDateTime(aDateTime) {
-              var dateFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
+              let dateFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
                                             .getService(Components.interfaces.calIDateTimeFormatter);
 
               // datetime is from todo object, it is not a javascript date
               if (aDateTime && aDateTime.isValid) {
-                  var dateTime = aDateTime.getInTimezone(calendarDefaultTimezone());
+                  let dateTime = aDateTime.getInTimezone(calendarDefaultTimezone());
                   return dateFormatter.formatDateTime(dateTime);
               }
               return "";
@@ -853,7 +853,7 @@
                                                      this.binding.mFilter.getOccurrences(aOldItem));
 
                   // we also need to notify potential listeners.
-                  var event = document.createEvent('Events');
+                  let event = document.createEvent('Events');
                   event.initEvent('select', true, false);
                   this.binding.dispatchEvent(event);
               }
@@ -1013,15 +1013,15 @@
       <method name="sortItems">
         <body><![CDATA[
           if (this.mTreeView.selectedColumn) {
-              var modifier = (this.mTreeView.sortDirection == "descending" ? -1 : 1);
-              var sortKey = cal.sortEntry.mSortKey = this.mTreeView.selectedColumn.getAttribute("sortKey") ?
+              let modifier = (this.mTreeView.sortDirection == "descending" ? -1 : 1);
+              let sortKey = cal.sortEntry.mSortKey = this.mTreeView.selectedColumn.getAttribute("sortKey") ?
                           this.mTreeView.selectedColumn.getAttribute("sortKey") :
                           this.mTreeView.selectedColumn.getAttribute("itemproperty");
-              var sortType = cal.getSortTypeForSortKey(sortKey);
+              let sortType = cal.getSortTypeForSortKey(sortKey);
 
               // sort (key,item) entries
               cal.sortEntry.mSortStartedDate = now();
-              var entries = this.mTaskArray.map(cal.sortEntry, cal.sortEntry);
+              let entries = this.mTaskArray.map(cal.sortEntry, cal.sortEntry);
               entries.sort(cal.sortEntryComparer(sortType, modifier));
               this.mTaskArray = entries.map(cal.sortEntryItem);
           }
@@ -1033,8 +1033,8 @@
       <method name="recreateHashTable">
         <body><![CDATA[
           this.mHash2Index = {};
-          for (var i=0; i < this.mTaskArray.length; i++) {
-              var item = this.mTaskArray[i];
+          for (let i = 0; i < this.mTaskArray.length; i++) {
+              let item = this.mTaskArray[i];
               this.mHash2Index[item.hashId] = i;
           }
           if (this.mTreeView.treebox) {
@@ -1138,29 +1138,29 @@
             // We should only drag treechildren, not for example the scrollbar.
             return;
         }
-        var item = this.mTreeView._getItemFromEvent(event);
+        let item = this.mTreeView._getItemFromEvent(event);
         if (!item || item.calendar.readOnly) {
             return;
         }
 
-        var tree = document.getAnonymousElementByAttribute(this, "anonid", "calendar-task-tree");
+        let tree = document.getAnonymousElementByAttribute(this, "anonid", "calendar-task-tree");
 
         // let's build the drag region
-        var region = null;
+        let region = null;
         try {
           region = Components.classes["@mozilla.org/gfx/region;1"].createInstance(Components.interfaces.nsIScriptableRegion);
           region.init();
-          var obo = tree.treeBoxObject;
-          var bo = obo.treeBody.boxObject;
-          var sel = tree.view.selection;
+          let obo = tree.treeBoxObject;
+          let bo = obo.treeBody.boxObject;
+          let sel = tree.view.selection;
 
-          var rowX = bo.x;
-          var rowY = bo.y;
-          var rowHeight = obo.rowHeight;
-          var rowWidth = bo.width;
+          let rowX = bo.x;
+          let rowY = bo.y;
+          let rowHeight = obo.rowHeight;
+          let rowWidth = bo.width;
 
           // add a rectangle for each visible selected row
-          for (var i = obo.getFirstVisibleRow(); i <= obo.getLastVisibleRow(); i++) {
+          for (let i = obo.getFirstVisibleRow(); i <= obo.getLastVisibleRow(); i++) {
             if (sel.isSelected(i)) {
               region.unionRect(rowX, rowY, rowWidth, rowHeight);
             }

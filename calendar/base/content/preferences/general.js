@@ -15,11 +15,11 @@ var gCalendarGeneralPane = {
      * values set in prefs.
      */
     init: function gCGP_init() {
-        var df = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
+        let df = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
                     .getService(Components.interfaces.calIDateTimeFormatter);
 
-        var dateFormattedLong = df.formatDateLong(now());
-        var dateFormattedShort = df.formatDateShort(now());
+        let dateFormattedLong = df.formatDateLong(now());
+        let dateFormattedShort = df.formatDateShort(now());
 
         // menu items include examples of current date formats.
         document.getElementById("dateformat-long-menuitem")

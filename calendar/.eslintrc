@@ -200,6 +200,11 @@
     // confused.
     "no-shadow": 2,
 
+    // We use var-only-at-top-level instead of no-var as we allow top level
+    // vars.
+    "no-var": 0,
+    "mozilla/var-only-at-top-level": 1,
+
     // Will enable these rules later
     "block-spacing": 0,
     "no-lonely-if": 0,

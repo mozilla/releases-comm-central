@@ -15,30 +15,30 @@ var taskDetailsView = {
      * its the only function in taskDetailsView.
      */
     onSelect: function tDV_onSelect(event) {
-        var dateFormatter =
-            Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
-            .getService(Components.interfaces.calIDateTimeFormatter);
-
         function displayElement(id, flag) {
             setBooleanAttribute(id, "hidden", !flag);
             return flag;
         }
 
-        var item = document.getElementById("calendar-task-tree").currentTask;
+        let dateFormatter =
+            Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
+            .getService(Components.interfaces.calIDateTimeFormatter);
+
+        let item = document.getElementById("calendar-task-tree").currentTask;
         if (displayElement("calendar-task-details-container", item != null) &&
             displayElement("calendar-task-view-splitter", item != null)) {
             displayElement("calendar-task-details-title-row", true);
             document.getElementById("calendar-task-details-title").textContent =
                 (item.title ? item.title.replace(/\n/g, ' ') : "");
 
-            var organizer = item.organizer;
+            let organizer = item.organizer;
             if (displayElement("calendar-task-details-organizer-row", organizer != null)) {
-                var name = organizer.commonName;
+                let name = organizer.commonName;
                 if (!name || name.length <= 0) {
                   if (organizer.id && organizer.id.length) {
                       name = organizer.id;
-                      var re = new RegExp("^mailto:(.*)", "i");
-                      var matches = re.exec(name);
+                      let re = new RegExp("^mailto:(.*)", "i");
+                      let matches = re.exec(name);
                       if (matches) {
                           name = matches[1];
                       }
@@ -49,7 +49,7 @@ var taskDetailsView = {
                 }
             }
 
-            var priority = 0;
+            let priority = 0;
             if (item.calendar.getProperty("capabilities.priority.supported") != false) {
                 priority = parseInt(item.priority, 10);
             }
@@ -58,9 +58,9 @@ var taskDetailsView = {
             displayElement("calendar-task-details-priority-normal", priority == 5);
             displayElement("calendar-task-details-priority-high", (priority >= 1 && priority <= 4));
 
-            var status = item.getProperty("STATUS");
+            let status = item.getProperty("STATUS");
             if (displayElement("calendar-task-details-status-row", status && status.length > 0)) {
-                var statusDetails = document.getElementById("calendar-task-details-status");
+                let statusDetails = document.getElementById("calendar-task-details-status");
                 switch (status) {
                     case "NEEDS-ACTION":
                         statusDetails.value = calGetString(
@@ -68,8 +68,8 @@ var taskDetailsView = {
                             "taskDetailsStatusNeedsAction");
                         break;
                     case "IN-PROCESS":
-                        var percent = 0;
-                        var property = item.getProperty("PERCENT-COMPLETE");
+                        let percent = 0;
+                        let property = item.getProperty("PERCENT-COMPLETE");
                         if (property != null) {
                             percent = parseInt(property, 10);
                         }
@@ -79,7 +79,7 @@ var taskDetailsView = {
                         break;
                     case "COMPLETED":
                         if (item.completedDate) {
-                            var completedDate = item.completedDate.getInTimezone(
+                            let completedDate = item.completedDate.getInTimezone(
                                                     calendarDefaultTimezone());
                             statusDetails.value = calGetString(
                                 "calendar",
@@ -97,31 +97,31 @@ var taskDetailsView = {
                         break;
                 }
             }
-            var categories = item.getCategories({});
+            let categories = item.getCategories({});
             if (displayElement("calendar-task-details-category-row", categories.length > 0)) {
                 document.getElementById("calendar-task-details-category").value = categories.join(", ");
             }
             document.getElementById("task-start-row").Item = item;
             document.getElementById("task-due-row").Item = item;
-            var parentItem = item;
+            let parentItem = item;
             if (parentItem.parentItem != parentItem) {
                 // XXXdbo Didn't we want to get rid of these checks?
                 parentItem = parentItem.parentItem;
             }
-            var recurrenceInfo = parentItem.recurrenceInfo;
-            var recurStart = parentItem.recurrenceStartDate;
+            let recurrenceInfo = parentItem.recurrenceInfo;
+            let recurStart = parentItem.recurrenceStartDate;
             if (displayElement("calendar-task-details-repeat-row", recurrenceInfo && recurStart)) {
-                var kDefaultTimezone = calendarDefaultTimezone();
-                var startDate = recurStart.getInTimezone(kDefaultTimezone);
-                var endDate = item.dueDate ? item.dueDate.getInTimezone(kDefaultTimezone) : null;
-                var detailsString = recurrenceRule2String(recurrenceInfo, startDate, endDate, startDate.isDate);
+                let kDefaultTimezone = calendarDefaultTimezone();
+                let startDate = recurStart.getInTimezone(kDefaultTimezone);
+                let endDate = item.dueDate ? item.dueDate.getInTimezone(kDefaultTimezone) : null;
+                let detailsString = recurrenceRule2String(recurrenceInfo, startDate, endDate, startDate.isDate);
                 if (detailsString) {
                     let rpv = document.getElementById("calendar-task-details-repeat");
                     rpv.value = detailsString.split("\n").join(" ");
                 }
             }
-            var textbox = document.getElementById("calendar-task-details-description");
-            var description = item.hasProperty("DESCRIPTION") ? item.getProperty("DESCRIPTION") : null;
+            let textbox = document.getElementById("calendar-task-details-description");
+            let description = item.hasProperty("DESCRIPTION") ? item.getProperty("DESCRIPTION") : null;
             textbox.value = description;
             textbox.inputField.readOnly = true;
             let attachmentRows = document.getElementById("calendar-task-details-attachment-rows");
@@ -210,7 +210,7 @@ function taskViewUpdate(aFilter) {
  * consolidate or make name more clear.
  */
 function sendMailToOrganizer() {
-    var item = document.getElementById("calendar-task-tree").currentTask;
+    let item = document.getElementById("calendar-task-tree").currentTask;
     if (item != null) {
         let organizer = item.organizer;
         let email = cal.getAttendeeEmail(organizer, true);
@@ -265,12 +265,12 @@ function taskViewOnLoad() {
     }
 
     // Setup customizeDone handler for the task action toolbox.
-    var toolbox = document.getElementById("task-actions-toolbox");
+    let toolbox = document.getElementById("task-actions-toolbox");
     toolbox.customizeDone = function(aEvent) {
         MailToolboxCustomizeDone(aEvent, "CustomizeTaskActionsToolbar");
     };
 
-    var toolbarset = document.getElementById("customToolbars");
+    let toolbarset = document.getElementById("customToolbars");
     toolbox.toolbarset = toolbarset;
 
     Services.obs.notifyObservers(window, "calendar-taskview-startup-done", false);

@@ -116,7 +116,7 @@ calICSCalendar.prototype = {
 
         // Use the ioservice, to create a channel, which makes finding the
         // right hooks to use easier.
-        var channel = Services.io.newChannelFromURI2(this.mUri,
+        let channel = Services.io.newChannelFromURI2(this.mUri,
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),
                                                      null,
@@ -178,7 +178,7 @@ calICSCalendar.prototype = {
                                  .createInstance(Components.interfaces.nsISupportsPRBool);
         prbForce.data = aForce;
 
-        var channel = Services.io.newChannelFromURI2(this.mUri,
+        let channel = Services.io.newChannelFromURI2(this.mUri,
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),
                                                      null,
@@ -186,7 +186,7 @@ calICSCalendar.prototype = {
                                                      Components.interfaces.nsIContentPolicy.TYPE_OTHER);
         this.prepareChannel(channel, aForce);
 
-        var streamLoader = Components.classes["@mozilla.org/network/stream-loader;1"]
+        let streamLoader = Components.classes["@mozilla.org/network/stream-loader;1"]
                                      .createInstance(Components.interfaces.nsIStreamLoader);
 
         // Lock other changes to the item list.
@@ -246,11 +246,11 @@ calICSCalendar.prototype = {
         // This conversion is needed, because the stream only knows about
         // byte arrays, not about strings or encodings. The array of bytes
         // need to be interpreted as utf8 and put into a javascript string.
-        var unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
+        let unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
                                          .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
         // ics files are always utf8
         unicodeConverter.charset = "UTF-8";
-        var str;
+        let str;
         try {
             str = unicodeConverter.convertFromByteArray(result, result.length);
         } catch (e) {
@@ -315,18 +315,18 @@ calICSCalendar.prototype = {
 
     doWriteICS: function() {
         cal.LOG("[calICSCalendar] Writing ICS File " + this.uri.spec);
-        var savedthis = this;
-        var listener =
+        let savedthis = this;
+        let listener =
         {
             serializer: null,
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
-                var inLastWindowClosingSurvivalArea = false;
+                let inLastWindowClosingSurvivalArea = false;
                 try {
                     // All events are returned. Now set up a channel and a
                     // streamloader to upload.  onStopRequest will be called
                     // once the write has finished
-                    var channel = Services.io.newChannelFromURI2(savedthis.mUri,
+                    let channel = Services.io.newChannelFromURI2(savedthis.mUri,
                                                                  null,
                                                                  Services.scriptSecurityManager.getSystemPrincipal(),
                                                                  null,
@@ -335,14 +335,14 @@ calICSCalendar.prototype = {
 
                     // Allow the hook to add things to the channel, like a
                     // header that checks etags
-                    var notChanged = savedthis.mHooks.onBeforePut(channel);
+                    let notChanged = savedthis.mHooks.onBeforePut(channel);
                     if (notChanged) {
                         channel.notificationCallbacks = savedthis;
-                        var uploadChannel = channel.QueryInterface(
+                        let uploadChannel = channel.QueryInterface(
                             Components.interfaces.nsIUploadChannel);
 
                         // Serialize
-                        var icsStream = this.serializer.serializeToInputStream();
+                        let icsStream = this.serializer.serializeToInputStream();
 
                         // Upload
                         uploadChannel.setUploadStream(icsStream,
@@ -517,9 +517,9 @@ calICSCalendar.prototype = {
             }
         };
 
-        var a;
-        var writeICS = false;
-        var refreshAction = null;
+        let a;
+        let writeICS = false;
+        let refreshAction = null;
         while ((a = this.queue.shift())) {
             switch (a.action) {
                 case 'add':
@@ -643,7 +643,7 @@ calICSCalendar.prototype = {
         // Using createUnique anyway, because I don't feel like
         // re-implementing it
         function makeDailyFileName() {
-            var dailyBackupFile = backupDir.clone();
+            let dailyBackupFile = backupDir.clone();
             dailyBackupFile.append(makeName('day'));
             dailyBackupFile.createUnique(CI.nsIFile.NORMAL_FILE_TYPE,
                                          parseInt("0600", 8));
@@ -661,7 +661,7 @@ calICSCalendar.prototype = {
 
         function purgeBackupsByType(files, type) {
             // filter out backups of the type we care about.
-            var filteredFiles = files.filter(
+            let filteredFiles = files.filter(
                 v => v.name.includes("calBackupData_" + pseudoID + "_" + type)
             );
             // Sort by lastmodifed
@@ -671,8 +671,7 @@ calICSCalendar.prototype = {
                 });
             // And delete the oldest files, and keep the desired number of
             // old backups
-            var i;
-            for (i = 0; i < filteredFiles.length - numBackupFiles; ++i) {
+            for (let i = 0; i < filteredFiles.length - numBackupFiles; ++i) {
                 let file = backupDir.clone();
                 file.append(filteredFiles[i].name);
 
@@ -689,10 +688,10 @@ calICSCalendar.prototype = {
 
         function purgeOldBackups() {
             // Enumerate files in the backupdir for expiry of old backups
-            var dirEnum = backupDir.directoryEntries;
-            var files = [];
+            let dirEnum = backupDir.directoryEntries;
+            let files = [];
             while (dirEnum.hasMoreElements()) {
-                var file = dirEnum.getNext().QueryInterface(CI.nsIFile);
+                let file = dirEnum.getNext().QueryInterface(CI.nsIFile);
                 if (file.isFile()) {
                     files.push({name: file.leafName, lastmodified: file.lastModifiedTime});
                 }
@@ -709,7 +708,7 @@ calICSCalendar.prototype = {
 
         function copyToOverwriting(oldFile, newParentDir, newName) {
             try {
-                var newFile = newParentDir.clone();
+                let newFile = newParentDir.clone();
                 newFile.append(newName);
 
                 if (newFile.exists()) {
@@ -723,8 +722,8 @@ calICSCalendar.prototype = {
             }
         }
 
-        var backupDays = Preferences.get("calendar.backup.days", 1);
-        var numBackupFiles = Preferences.get("calendar.backup.filenum", 3);
+        let backupDays = Preferences.get("calendar.backup.days", 1);
+        let numBackupFiles = Preferences.get("calendar.backup.filenum", 3);
 
         let backupDir;
         try {
@@ -756,15 +755,15 @@ calICSCalendar.prototype = {
             return;
         }
 
-        var doInitialBackup = false;
-        var initialBackupFile = backupDir.clone();
+        let doInitialBackup = false;
+        let initialBackupFile = backupDir.clone();
         initialBackupFile.append(makeName('initial'));
         if (!initialBackupFile.exists()) {
             doInitialBackup = true;
         }
 
-        var doDailyBackup = false;
-        var backupTime = this.getProperty('backup-time2');
+        let doDailyBackup = false;
+        let backupTime = this.getProperty('backup-time2');
         if (!backupTime ||
             (new Date().getTime() > backupTime + backupDays * 24 * 60 * 60 * 1000)) {
             // It's time do to a daily backup
@@ -772,19 +771,19 @@ calICSCalendar.prototype = {
             this.setProperty('backup-time2', new Date().getTime());
         }
 
-        var dailyBackupFileName;
+        let dailyBackupFileName;
         if (doDailyBackup) {
             dailyBackupFileName = makeDailyFileName(backupDir);
         }
 
-        var backupFile = backupDir.clone();
+        let backupFile = backupDir.clone();
         backupFile.append(makeName('edit'));
         backupFile.createUnique(CI.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
 
         purgeOldBackups();
 
         // Now go download the remote file, and store it somewhere local.
-        var channel = Services.io.newChannelFromURI2(this.mUri,
+        let channel = Services.io.newChannelFromURI2(this.mUri,
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),
                                                      null,
@@ -793,11 +792,11 @@ calICSCalendar.prototype = {
         channel.loadFlags |= Components.interfaces.nsIRequest.LOAD_BYPASS_CACHE;
         channel.notificationCallbacks = this;
 
-        var downloader = Components.classes["@mozilla.org/network/downloader;1"]
+        let downloader = Components.classes["@mozilla.org/network/downloader;1"]
                                    .createInstance(CI.nsIDownloader);
 
-        var savedthis = this;
-        var listener = {
+        let savedthis = this;
+        let listener = {
             onDownloadComplete: function(opdownloader, request, ctxt, status, result) {
                 if (doInitialBackup) {
                     copyToOverwriting(result, backupDir, makeName('initial'));
@@ -916,7 +915,7 @@ function httpHooks(calendar) {
 
 httpHooks.prototype = {
     onBeforeGet: function(aChannel, aForceRefresh) {
-        var httpchannel = aChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
+        let httpchannel = aChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
         httpchannel.setRequestHeader("Accept", "text/calendar,text/plain;q=0.8,*/*;q=0.5", false);
 
         if (this.mEtag && !aForceRefresh) {
@@ -986,7 +985,7 @@ httpHooks.prototype = {
 
     onBeforePut: function(aChannel) {
         if (this.mEtag) {
-            var httpchannel = aChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
+            let httpchannel = aChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
 
             // Apache doesn't work correctly with if-match on a PUT method,
             // so use the webdav header
@@ -996,7 +995,7 @@ httpHooks.prototype = {
     },
 
     onAfterPut: function(aChannel, aRespFunc) {
-        var httpchannel = aChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
+        let httpchannel = aChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
         try {
             this.mEtag = httpchannel.getResponseHeader("ETag");
             aRespFunc();
@@ -1007,13 +1006,13 @@ httpHooks.prototype = {
             // etag.
             // Try to do the best we can, by immediatly getting the etag.
 
-            var etagListener = {};
-            var thisHook = this; // need to reference in callback
+            let etagListener = {};
+            let thisHook = this; // need to reference in callback
 
             etagListener.onStreamComplete =
                 function ics_etLoSC(aLoader, aContext, aStatus, aResultLength,
                                     aResult) {
-                var resultConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
+                let resultConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
                                                 .createInstance(Components
                                                 .interfaces.nsIScriptableUnicodeConverter);
                 resultConverter.charset = "UTF-8";
@@ -1041,7 +1040,7 @@ httpHooks.prototype = {
                                                   this);
             etagChannel.setRequestHeader("Depth", "0", false);
             etagChannel.requestMethod = "PROPFIND";
-            var streamLoader = Components.classes["@mozilla.org/network/stream-loader;1"]
+            let streamLoader = Components.classes["@mozilla.org/network/stream-loader;1"]
                                          .createInstance(Components.interfaces
                                          .nsIStreamLoader);
 

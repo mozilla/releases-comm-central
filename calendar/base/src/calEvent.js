@@ -85,27 +85,27 @@ calEvent.prototype = {
     },
 
     get icalString() {
-        var calcomp = getIcsService().createIcalComponent("VCALENDAR");
+        let calcomp = getIcsService().createIcalComponent("VCALENDAR");
         calSetProdidVersion(calcomp);
         calcomp.addSubcomponent(this.icalComponent);
         return calcomp.serializeToICS();
     },
 
     get icalComponent() {
-        var icssvc = getIcsService();
-        var icalcomp = icssvc.createIcalComponent("VEVENT");
+        let icssvc = getIcsService();
+        let icalcomp = icssvc.createIcalComponent("VEVENT");
         this.fillIcalComponentFromBase(icalcomp);
         this.mapPropsToICS(icalcomp, this.icsEventPropMap);
 
-        var bagenum = this.propertyEnumerator;
+        let bagenum = this.propertyEnumerator;
         while (bagenum.hasMoreElements()) {
-            var iprop = bagenum.getNext().
+            let iprop = bagenum.getNext().
                 QueryInterface(Components.interfaces.nsIProperty);
             try {
                 if (!this.eventPromotedProps[iprop.name]) {
-                    var icalprop = icssvc.createIcalProperty(iprop.name);
+                    let icalprop = icssvc.createIcalProperty(iprop.name);
                     icalprop.value = iprop.value;
-                    var propBucket = this.mPropertyParams[iprop.name];
+                    let propBucket = this.mPropertyParams[iprop.name];
                     if (propBucket) {
                         for (let paramName in propBucket) {
                             try {
@@ -164,7 +164,7 @@ calEvent.prototype = {
         // the appropriate method here to adjust the internal structure in
         // order to free clients from worrying about such details.
         if (this.parentItem == this) {
-            var rec = this.recurrenceInfo;
+            let rec = this.recurrenceInfo;
             if (rec) {
                 rec.onStartDateChange(value, this.startDate);
             }
@@ -179,12 +179,12 @@ calEvent.prototype = {
 
     mEndDate: undefined,
     get endDate() {
-        var endDate = this.mEndDate;
+        let endDate = this.mEndDate;
         if (endDate === undefined) {
             endDate = this.getProperty("DTEND");
             if (!endDate && this.startDate) {
                 endDate = this.startDate.clone();
-                var dur = this.getProperty("DURATION");
+                let dur = this.getProperty("DURATION");
                 if (dur) {
                     // If there is a duration set on the event, calculate the right end time.
                     endDate.addDuration(cal.createDuration(dur));

@@ -24,13 +24,13 @@ var gViewsPane = {
      * menulists. This is needed to respect locales that use AM/PM.
      */
     initializeViewStartEndMenus: function gVP_initializeViewStartEndMenus() {
-        var labelIdStart;
-        var labelIdEnd;
-        var timeFormatter = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
+        let labelIdStart;
+        let labelIdEnd;
+        let timeFormatter = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
                                       .getService(Components.interfaces.nsIScriptableDateFormat);
         // 1 to 23 instead of 0 to 24 to keep midnight & noon as the localized strings
-        for (var theHour = 1; theHour <= 23; theHour++) {
-            var time = timeFormatter.FormatTime("", Components.interfaces.nsIScriptableDateFormat
+        for (let theHour = 1; theHour <= 23; theHour++) {
+            let time = timeFormatter.FormatTime("", Components.interfaces.nsIScriptableDateFormat
                                     .timeFormatNoSeconds, theHour, 0, 0);
 
             labelIdStart = "timeStart" + theHour;
@@ -54,9 +54,9 @@ var gViewsPane = {
      * @param aStartValue       The value selected for view start.
      */
     updateViewEndMenu: function gVP_updateViewEndMenu(aStartValue) {
-        var endMenuKids = document.getElementById("dayendhourpopup")
+        let endMenuKids = document.getElementById("dayendhourpopup")
                                   .childNodes;
-        for (var i = 0; i < endMenuKids.length; i++) {
+        for (let i = 0; i < endMenuKids.length; i++) {
             if (Number(endMenuKids[i].value) <= Number(aStartValue)) {
                 endMenuKids[i].setAttribute("hidden", true);
             } else {
@@ -72,9 +72,9 @@ var gViewsPane = {
      * @param aEndValue         The value selected for view end.
      */
     updateViewStartMenu: function gVP_updateViewStartMenu(aEndValue) {
-        var startMenuKids = document.getElementById("daystarthourpopup")
+        let startMenuKids = document.getElementById("daystarthourpopup")
                                   .childNodes;
-        for (var i = 0; i < startMenuKids.length; i++) {
+        for (let i = 0; i < startMenuKids.length; i++) {
             if (Number(startMenuKids[i].value) >= Number(aEndValue)) {
                 startMenuKids[i].setAttribute("hidden", true);
             } else {
@@ -91,8 +91,8 @@ var gViewsPane = {
      */
     updateViewWorkDayCheckboxes: function gVP_updateViewWorkDayCheckboxes(weekStart) {
         weekStart = Number(weekStart);
-        for (var i = weekStart; i < weekStart + 7; i++) {
-            var checkbox = document.getElementById("dayoff" + (i % 7));
+        for (let i = weekStart; i < weekStart + 7; i++) {
+            let checkbox = document.getElementById("dayoff" + (i % 7));
             checkbox.parentNode.appendChild(checkbox);
         }
     }

@@ -123,27 +123,27 @@ calTodo.prototype = {
     },
 
     get icalString() {
-        var calcomp = getIcsService().createIcalComponent("VCALENDAR");
+        let calcomp = getIcsService().createIcalComponent("VCALENDAR");
         calSetProdidVersion(calcomp);
         calcomp.addSubcomponent(this.icalComponent);
         return calcomp.serializeToICS();
     },
 
     get icalComponent() {
-        var icssvc = getIcsService();
-        var icalcomp = icssvc.createIcalComponent("VTODO");
+        let icssvc = getIcsService();
+        let icalcomp = icssvc.createIcalComponent("VTODO");
         this.fillIcalComponentFromBase(icalcomp);
         this.mapPropsToICS(icalcomp, this.icsEventPropMap);
 
-        var bagenum = this.propertyEnumerator;
+        let bagenum = this.propertyEnumerator;
         while (bagenum.hasMoreElements()) {
-            var iprop = bagenum.getNext().
+            let iprop = bagenum.getNext().
                 QueryInterface(Components.interfaces.nsIProperty);
             try {
                 if (!this.todoPromotedProps[iprop.name]) {
-                    var icalprop = icssvc.createIcalProperty(iprop.name);
+                    let icalprop = icssvc.createIcalProperty(iprop.name);
                     icalprop.value = iprop.value;
-                    var propBucket = this.mPropertyParams[iprop.name];
+                    let propBucket = this.mPropertyParams[iprop.name];
                     if (propBucket) {
                         for (let paramName in propBucket) {
                             try {
@@ -201,7 +201,7 @@ calTodo.prototype = {
         // the appropriate method here to adjust the internal structure in
         // order to free clients from worrying about such details.
         if (this.parentItem == this) {
-            var rec = this.recurrenceInfo;
+            let rec = this.recurrenceInfo;
             if (rec) {
                 rec.onStartDateChange(value, this.entryDate);
             }
@@ -216,12 +216,12 @@ calTodo.prototype = {
 
     mDueDate: undefined,
     get dueDate() {
-        var dueDate = this.mDueDate;
+        let dueDate = this.mDueDate;
         if (dueDate === undefined) {
             dueDate = this.getProperty("DUE");
             if (!dueDate) {
-                var entryDate = this.entryDate;
-                var dur = this.getProperty("DURATION");
+                let entryDate = this.entryDate;
+                let dur = this.getProperty("DURATION");
                 if (entryDate && dur) {
                     // If there is a duration set on the todo, calculate the right end time.
                     dueDate = entryDate.clone();

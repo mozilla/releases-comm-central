@@ -151,8 +151,8 @@
     </implementation>
     <handlers>
       <handler event="dblclick"><![CDATA[
-        var col = {};
-        var calendar = this.getCalendarFromEvent(event, col);
+        let col = {};
+        let calendar = this.getCalendarFromEvent(event, col);
         if (event.button != 0 ||
             (col.value && col.value.element &&
              col.value.element.getAttribute("anonid") == "checkbox-treecol")) {
@@ -444,7 +444,7 @@
           -->
         <parameter name="aId"/>
         <body><![CDATA[
-          for (var i = 0; i < this.mCalendarList.length; i++) {
+          for (let i = 0; i < this.mCalendarList.length; i++) {
               if (this.mCalendarList[i].id == aId) {
                   return i;
               }

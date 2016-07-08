@@ -598,7 +598,7 @@ function switchCalendarView(aType, aShow) {
  * - ltnSwitch2Task()
  */
 function LtnObserveDisplayDeckChange(event) {
-    var deck = event.target;
+    let deck = event.target;
 
     // Bug 309505: The 'select' event also fires when we change the selected
     // panel of calendar-view-box.  Workaround with this check.

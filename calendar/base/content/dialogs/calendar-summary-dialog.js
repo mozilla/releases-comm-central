@@ -12,8 +12,8 @@ Components.utils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
  * item received in the window arguments.
  */
 function onLoad() {
-    var args = window.arguments[0];
-    var item = args.calendarEvent;
+    let args = window.arguments[0];
+    let item = args.calendarEvent;
     item = item.clone(); // use an own copy of the passed item
     window.calendarItem = item;
 
@@ -25,7 +25,7 @@ function onLoad() {
     // case we serialize the item and close the window.
     if (args.job) {
         // keep this context...
-        var self = this;
+        let self = this;
 
         // store the 'finalize'-functor in the provided job-object.
         args.job.finalize = function finalize() {
@@ -57,7 +57,7 @@ function onLoad() {
                                 && item.calendar.isInvitation(item)
                                 && userCanRespondToInvitation(item))));
     if (!window.readOnly && calendar) {
-        var attendee = calendar.getInvitedAttendee(item);
+        let attendee = calendar.getInvitedAttendee(item);
         if (attendee) {
             // if this is an unresponded invitation, preset our default alarm values:
             if (!item.getAlarms({}).length &&
@@ -90,7 +90,7 @@ function onLoad() {
     // show reminder if this item is *not* readonly.
     // this case happens for example if this is an invitation.
     let argCalendar = window.arguments[0].calendarEvent.calendar;
-    var supportsReminders =
+    let supportsReminders =
         (argCalendar.getProperty("capabilities.alarms.oninvitations.supported") !== false);
     if (!window.readOnly && supportsReminders) {
         document.getElementById("reminder-row").removeAttribute("hidden");
@@ -102,19 +102,19 @@ function onLoad() {
     updateAttendees();
     updateLink();
 
-    var location = item.getProperty("LOCATION");
+    let location = item.getProperty("LOCATION");
     if (location && location.length) {
         document.getElementById("location-row").removeAttribute("hidden");
         document.getElementById("item-location").value = location;
     }
 
-    var categories = item.getCategories({});
+    let categories = item.getCategories({});
     if (categories.length > 0) {
         document.getElementById("category-row").removeAttribute("hidden");
         document.getElementById("item-category").value = categories.join(", "); // TODO l10n-unfriendly
     }
 
-    var organizer = item.organizer;
+    let organizer = item.organizer;
     if (organizer && organizer.id) {
         document.getElementById("organizer-row").removeAttribute("hidden");
         let cell = document.getElementsByClassName("item-organizer-cell")[0];
@@ -142,10 +142,10 @@ function onLoad() {
         icon.setAttribute("role", role);
     }
 
-    var status = item.getProperty("STATUS");
+    let status = item.getProperty("STATUS");
     if (status && status.length) {
-        var statusRow = document.getElementById("status-row");
-        for (var i = 0; i < statusRow.childNodes.length; i++) {
+        let statusRow = document.getElementById("status-row");
+        for (let i = 0; i < statusRow.childNodes.length; i++) {
             if (statusRow.childNodes[i].getAttribute("status") == status) {
                 statusRow.removeAttribute("hidden");
                 if (status == "CANCELLED" && cal.isToDo(item)) {
@@ -160,11 +160,11 @@ function onLoad() {
     }
 
     if (item.hasProperty("DESCRIPTION")) {
-        var description = item.getProperty("DESCRIPTION");
+        let description = item.getProperty("DESCRIPTION");
         if (description && description.length) {
             document.getElementById("item-description-box")
                 .removeAttribute("hidden");
-            var textbox = document.getElementById("item-description");
+            let textbox = document.getElementById("item-description");
             textbox.value = description;
             textbox.inputField.readOnly = true;
         }
@@ -192,10 +192,10 @@ function onAccept() {
     if (window.readOnly) {
         return true;
     }
-    var args = window.arguments[0];
-    var oldItem = args.calendarEvent;
-    var newItem = window.calendarItem;
-    var calendar = newItem.calendar;
+    let args = window.arguments[0];
+    let oldItem = args.calendarEvent;
+    let newItem = window.calendarItem;
+    let calendar = newItem.calendar;
     saveReminder(newItem);
     args.onOk(newItem, calendar, oldItem);
     window.calendarItem = newItem;
@@ -217,10 +217,10 @@ function onCancel() {
 function updateInvitationStatus() {
     if (!window.readOnly) {
         if (window.attendee) {
-            var invitationRow =
+            let invitationRow =
                 document.getElementById("invitation-row");
             invitationRow.removeAttribute("hidden");
-            var statusElement =
+            let statusElement =
                 document.getElementById("item-participation");
             statusElement.value = window.attendee.participationStatus;
         }
@@ -232,7 +232,7 @@ function updateInvitationStatus() {
  * user's invitation status from the value chosen in the dialog.
  */
 function updatePartStat() {
-  var statusElement = document.getElementById("item-participation");
+  let statusElement = document.getElementById("item-participation");
   if (window.attendee) {
       let item = window.arguments[0];
       let aclEntry = item.calendar.aclEntry;
@@ -253,8 +253,8 @@ function updatePartStat() {
  * recurrence)
  */
 function updateRepeatDetails() {
-    var args = window.arguments[0];
-    var item = args.calendarEvent;
+    let args = window.arguments[0];
+    let item = args.calendarEvent;
 
     // step to the parent (in order to show the
     // recurrence info which is stored at the parent).
@@ -263,7 +263,7 @@ function updateRepeatDetails() {
     // retrieve a valid recurrence rule from the currently
     // set recurrence info. bail out if there's more
     // than a single rule or something other than a rule.
-    var recurrenceInfo = item.recurrenceInfo;
+    let recurrenceInfo = item.recurrenceInfo;
     if (!recurrenceInfo) {
         return;
     }
@@ -274,16 +274,16 @@ function updateRepeatDetails() {
     // create a details string, we simply don't show anything.
     // this could happen if the repeat rule is something exotic
     // we don't have any strings prepared for.
-    var repeatDetails = document.getElementById("repeat-details");
+    let repeatDetails = document.getElementById("repeat-details");
     repeatDetails.setAttribute("collapsed", "true");
 
     // Try to create a descriptive string from the rule(s).
-    var kDefaultTimezone = calendarDefaultTimezone();
-    var startDate = item.startDate || item.entryDate;
-    var endDate = item.endDate || item.dueDate;
+    let kDefaultTimezone = calendarDefaultTimezone();
+    let startDate = item.startDate || item.entryDate;
+    let endDate = item.endDate || item.dueDate;
     startDate = startDate ? startDate.getInTimezone(kDefaultTimezone) : null;
     endDate = endDate ? endDate.getInTimezone(kDefaultTimezone) : null;
-    var detailsString = recurrenceRule2String(recurrenceInfo, startDate,
+    let detailsString = recurrenceRule2String(recurrenceInfo, startDate,
                                               endDate, startDate.isDate);
 
     if (!detailsString) {
@@ -291,15 +291,15 @@ function updateRepeatDetails() {
     }
 
     // Now display the string...
-    var lines = detailsString.split("\n");
+    let lines = detailsString.split("\n");
     repeatDetails.removeAttribute("collapsed");
     while (repeatDetails.childNodes.length > lines.length) {
         repeatDetails.lastChild.remove();
     }
-    var numChilds = repeatDetails.childNodes.length;
-    for (var i = 0; i < lines.length; i++) {
+    let numChilds = repeatDetails.childNodes.length;
+    for (let i = 0; i < lines.length; i++) {
         if (i >= numChilds) {
-            var newNode = repeatDetails.firstChild
+            let newNode = repeatDetails.firstChild
                                        .cloneNode(true);
             repeatDetails.appendChild(newNode);
         }
@@ -333,9 +333,9 @@ function updateReminder() {
  * XXX This function is broken, should be fixed in bug 471967
  */
 function browseDocument() {
-    var args = window.arguments[0];
-    var item = args.calendarEvent;
-    var url = item.getProperty("URL");
+    let args = window.arguments[0];
+    let item = args.calendarEvent;
+    let url = item.getProperty("URL");
     launchBrowser(url);
 }
 

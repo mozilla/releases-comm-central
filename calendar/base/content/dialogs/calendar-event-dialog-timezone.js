@@ -9,7 +9,7 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
  * dialog controls from the window's dates.
  */
 function onLoad() {
-    var args = window.arguments[0];
+    let args = window.arguments[0];
     window.time = args.time;
     window.onAcceptCallback = args.onOk;
 
@@ -69,11 +69,11 @@ function onLoad() {
  * @return              The index of the childnode below "timezone-menulist"
  */
 function findTimezone(timezone) {
-    var tzid = timezone.tzid;
-    var menulist = document.getElementById("timezone-menulist");
-    var numChilds = menulist.childNodes[0].childNodes.length;
-    for (var i = 0; i < numChilds; i++) {
-        var menuitem = menulist.childNodes[0].childNodes[i];
+    let tzid = timezone.tzid;
+    let menulist = document.getElementById("timezone-menulist");
+    let numChilds = menulist.childNodes[0].childNodes.length;
+    for (let i = 0; i < numChilds; i++) {
+        let menuitem = menulist.childNodes[0].childNodes[i];
         if (menuitem.getAttribute("value") == tzid) {
             return i;
         }
@@ -119,11 +119,11 @@ function updateTimezone() {
  * @return      Returns true if the window should be closed
  */
 function onAccept() {
-    var menulist = document.getElementById("timezone-menulist");
-    var menuitem = menulist.selectedItem;
-    var timezone = menuitem.getAttribute("value");
-    var tz = window.tzProvider.getTimezone(timezone);
-    var datetime = window.time.getInTimezone(tz);
+    let menulist = document.getElementById("timezone-menulist");
+    let menuitem = menulist.selectedItem;
+    let timezone = menuitem.getAttribute("value");
+    let tz = window.tzProvider.getTimezone(timezone);
+    let datetime = window.time.getInTimezone(tz);
     window.onAcceptCallback(datetime);
     return true;
 }

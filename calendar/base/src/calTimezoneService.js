@@ -246,8 +246,8 @@ calTimezoneService.prototype = {
 
     get defaultTimezone() {
         if (!this.mDefaultTimezone) {
-            var prefTzid = Preferences.get("calendar.timezone.local", null);
-            var tzid = prefTzid;
+            let prefTzid = Preferences.get("calendar.timezone.local", null);
+            let tzid = prefTzid;
             if (!tzid) {
                 try {
                     tzid = guessSystemTimezone();
@@ -311,13 +311,13 @@ function guessSystemTimezone() {
 
     const tzSvc = cal.getTimezoneService();
 
-    var continent = "Africa|America|Antarctica|Asia|Australia|Europe";
-    var ocean = "Arctic|Atlantic|Indian|Pacific";
-    var tzRegex = new RegExp(".*((?:" + continent + "|" + ocean + ")" +
+    let continent = "Africa|America|Antarctica|Asia|Australia|Europe";
+    let ocean = "Arctic|Atlantic|Indian|Pacific";
+    let tzRegex = new RegExp(".*((?:" + continent + "|" + ocean + ")" +
                              "(?:[/][-A-Z_a-z]+)+)");
 
     function getIcalString(component, property) {
-        var prop = (component && component.getFirstProperty(property));
+        let prop = (component && component.getFirstProperty(property));
         return (prop ? prop.valueAsIcalString : null);
     }
 
@@ -330,7 +330,7 @@ function guessSystemTimezone() {
     // 1 if matches dates within a week (so changes on different weekday),
     // otherwise 0 if no match.
     function checkTZ(tzId) {
-        var tz = tzSvc.getTimezone(tzId);
+        let tz = tzSvc.getTimezone(tzId);
 
         // Have to handle UTC separately because it has no .icalComponent.
         if (tz.isUTC) {
@@ -345,15 +345,15 @@ function guessSystemTimezone() {
             }
         }
 
-        var subComp = tz.icalComponent;
+        let subComp = tz.icalComponent;
         // find currently applicable time period, not just first,
         // because offsets of timezone may be changed over the years.
-        var standard = findCurrentTimePeriod(tz, subComp, "STANDARD");
-        var standardTZOffset = getIcalString(standard, "TZOFFSETTO");
-        var standardName = getIcalString(standard, "TZNAME");
-        var daylight = findCurrentTimePeriod(tz, subComp, "DAYLIGHT");
-        var daylightTZOffset = getIcalString(daylight, "TZOFFSETTO");
-        var daylightName = getIcalString(daylight, "TZNAME");
+        let standard = findCurrentTimePeriod(tz, subComp, "STANDARD");
+        let standardTZOffset = getIcalString(standard, "TZOFFSETTO");
+        let standardName = getIcalString(standard, "TZNAME");
+        let daylight = findCurrentTimePeriod(tz, subComp, "DAYLIGHT");
+        let daylightTZOffset = getIcalString(daylight, "TZOFFSETTO");
+        let daylightName = getIcalString(daylight, "TZNAME");
 
         // Try northern hemisphere cases.
         if (offsetDec == standardTZOffset && offsetDec == offsetJun &&
@@ -472,9 +472,9 @@ function guessSystemTimezone() {
             // Must examine UNTIL date (not next daylight start) because
             // some zones (e.g., Arizona, Hawaii) may stop using daylight
             // time, so there might not be a next daylight start.
-            var rrule = period.getFirstProperty("RRULE");
+            let rrule = period.getFirstProperty("RRULE");
             if (rrule) {
-                var match = untilRegex.exec(rrule.valueAsIcalString);
+                let match = untilRegex.exec(rrule.valueAsIcalString);
                 if (match) {
                     periodUntilCalDate.icalString = match[1];
                     if (todayUTC.nativeTime > periodUntilDate.nativeTime) {
@@ -494,7 +494,7 @@ function guessSystemTimezone() {
                 } else if (rrule) {
                     // find next occurrence after today
                     periodCalRule.icalProperty = rrule;
-                    var nextTransitionDate =
+                    let nextTransitionDate =
                         periodCalRule.getNextOccurrence(periodStartCalDate,
                                                         todayUTC);
                     // make sure rule doesn't end before next transition date.
@@ -577,9 +577,9 @@ function guessSystemTimezone() {
 
     // Try to find a tz that matches OS/JSDate timezone.  If no name match,
     // will use first of probable timezone(s) with highest score.
-    var probableTZId = "floating"; // default fallback tz if no tz matches.
-    var probableTZScore = 0;
-    var probableTZSource = null;
+    let probableTZId = "floating"; // default fallback tz if no tz matches.
+    let probableTZScore = 0;
+    let probableTZSource = null;
 
     const calProperties = Services.strings.createBundle("chrome://calendar/locale/calendar.properties");
 
@@ -587,11 +587,11 @@ function guessSystemTimezone() {
     let zoneInfoIdFromOSUserTimeZone = null;
     let osUserTimeZone = null;
     try {
-        var handler = Components.classes["@mozilla.org/network/protocol;1?name=http"]
+        let handler = Components.classes["@mozilla.org/network/protocol;1?name=http"]
                                 .getService(Components.interfaces.nsIHttpProtocolHandler);
 
         if (handler.oscpu.match(/^Windows/)) {
-            var wrk = (Components
+            let wrk = (Components
                        .classes["@mozilla.org/windows-registry-key;1"]
                        .createInstance(Components.interfaces.nsIWindowsRegKey));
             wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
@@ -607,7 +607,7 @@ function guessSystemTimezone() {
                 // localized names of each windows timezone listed in registry.
                 // Then use the registry key name to see if this timezone has a
                 // known ZoneInfo name.
-                var currentTZStandardName = wrk.readStringValue("StandardName");
+                let currentTZStandardName = wrk.readStringValue("StandardName");
                 wrk.close();
 
                 wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
@@ -618,10 +618,10 @@ function guessSystemTimezone() {
                 // to find the non-localized registry key.
                 // (Registry keys are sorted by subkeyName, not by localized name
                 //  nor offset, so cannot use binary search.)
-                for (var i = 0; i < wrk.childCount; i++) {
-                    var subkeyName = wrk.getChildName(i);
-                    var subkey = wrk.openChild(subkeyName, wrk.ACCESS_READ);
-                    var std = subkey.readStringValue("Std");
+                for (let i = 0; i < wrk.childCount; i++) {
+                    let subkeyName = wrk.getChildName(i);
+                    let subkey = wrk.openChild(subkeyName, wrk.ACCESS_READ);
+                    let std = subkey.readStringValue("Std");
                     subkey.close();
                     if (std == currentTZStandardName) {
                         osUserTimeZone = subkeyName;
@@ -768,26 +768,26 @@ function guessSystemTimezone() {
             break;
         case 1: case 2:
             let tzId = probableTZId;
-            var tz = tzSvc.getTimezone(tzId);
-            var subComp = tz.icalComponent;
-            var standard = findCurrentTimePeriod(tz, subComp, "STANDARD");
-            var standardTZOffset = getIcalString(standard, "TZOFFSETTO");
-            var daylight = findCurrentTimePeriod(tz, subComp, "DAYLIGHT");
-            var daylightTZOffset = getIcalString(daylight, "TZOFFSETTO");
-            var warningDetail;
+            let tz = tzSvc.getTimezone(tzId);
+            let subComp = tz.icalComponent;
+            let standard = findCurrentTimePeriod(tz, subComp, "STANDARD");
+            let standardTZOffset = getIcalString(standard, "TZOFFSETTO");
+            let daylight = findCurrentTimePeriod(tz, subComp, "DAYLIGHT");
+            let daylightTZOffset = getIcalString(daylight, "TZOFFSETTO");
+            let warningDetail;
             if (probableTZScore == 1) {
                 // score 1 means has daylight time,
                 // but transitions start on different weekday from os timezone.
-                var standardStart = getIcalString(standard, "DTSTART");
-                var standardStartWeekday = weekday(standardStart, tz);
-                var standardRule = getIcalString(standard, "RRULE");
-                var standardText =
+                let standardStart = getIcalString(standard, "DTSTART");
+                let standardStartWeekday = weekday(standardStart, tz);
+                let standardRule = getIcalString(standard, "RRULE");
+                let standardText =
                     ("  Standard: " + standardStart + " " + standardStartWeekday + "\n" +
                      "            " + standardRule + "\n");
-                var daylightStart = getIcalString(daylight, "DTSTART");
-                var daylightStartWeekday = weekday(daylightStart, tz);
-                var daylightRule = getIcalString(daylight, "RRULE");
-                var daylightText =
+                let daylightStart = getIcalString(daylight, "DTSTART");
+                let daylightStartWeekday = weekday(daylightStart, tz);
+                let daylightRule = getIcalString(daylight, "RRULE");
+                let daylightText =
                     ("  Daylight: " + daylightStart + " " + daylightStartWeekday + "\n" +
                      "            " + daylightRule + "\n");
                 warningDetail =
@@ -799,9 +799,9 @@ function guessSystemTimezone() {
             } else {
                 warningDetail = calProperties.GetStringFromName("TZSeemsToMatchOS");
             }
-            var offsetString = standardTZOffset +
+            let offsetString = standardTZOffset +
                                  (!daylightTZOffset ? "" : "/" + daylightTZOffset);
-            var warningMsg = calProperties.formatStringFromName("WarningUsingGuessedTZ",
+            let warningMsg = calProperties.formatStringFromName("WarningUsingGuessedTZ",
                               [tzId, offsetString, warningDetail, probableTZSource], 4);
             cal.WARN(warningMsg);
             break;

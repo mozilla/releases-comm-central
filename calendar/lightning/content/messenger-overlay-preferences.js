@@ -6,9 +6,9 @@ var gLightningPane = {
     mInitialized: false,
 
     init: function lnPaneInit() {
-        var preference = document.getElementById("calendar.preferences.lightning.selectedTabIndex");
+        let preference = document.getElementById("calendar.preferences.lightning.selectedTabIndex");
         if (preference.value) {
-            var ltnPrefs = document.getElementById("calPreferencesTabbox");
+            let ltnPrefs = document.getElementById("calPreferencesTabbox");
             ltnPrefs.selectedIndex = preference.value;
         }
         this.mInitialized = true;
@@ -18,8 +18,8 @@ var gLightningPane = {
         if (!this.mInitialized) {
             return;
         }
-        var ltnPrefs = document.getElementById("calPreferencesTabbox");
-        var preference = document.getElementById("calendar.preferences.lightning.selectedTabIndex");
+        let ltnPrefs = document.getElementById("calPreferencesTabbox");
+        let preference = document.getElementById("calendar.preferences.lightning.selectedTabIndex");
         preference.valueFromPreferences = ltnPrefs.selectedIndex;
     }
 };

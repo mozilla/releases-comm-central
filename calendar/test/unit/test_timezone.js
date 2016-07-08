@@ -13,9 +13,9 @@ function run_test() {
 }
 
 function really_run_test() {
-    var f = cal.createEvent();
+    let f = cal.createEvent();
 
-    var str =
+    let str =
          ["BEGIN:VCALENDAR",
           "PRODID:-//RDU Software//NONSGML HandCal//EN",
           "VERSION:2.0",
@@ -52,7 +52,7 @@ function really_run_test() {
           "END:VCALENDAR",
           ""].join("\r\n");
 
-    var strTz =
+    let strTz =
          ["BEGIN:VTIMEZONE",
           "TZID:America/New_York",
           "BEGIN:STANDARD",

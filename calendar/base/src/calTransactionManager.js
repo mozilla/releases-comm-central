@@ -34,7 +34,7 @@ calTransactionManager.prototype = {
                                                         aCalendar,
                                                         aOldItem,
                                                         aListener) {
-        var txn = new calTransaction(aAction,
+        let txn = new calTransaction(aAction,
                                      aItem,
                                      aCalendar,
                                      aOldItem,

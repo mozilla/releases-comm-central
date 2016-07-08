@@ -143,7 +143,7 @@ var testDailyRecurrence = function() {
   // check day view for 7 days
   let day = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, undefined)
     + eventPath;
-  var dates = [[2009, 1, 3],
+  let dates = [[2009, 1, 3],
                [2009, 1, 4]];
   for (let i = 0; i < dates.length; i++){
     calUtils.goToDate(controller, dates[i][0], dates[i][1], dates[i][2]);

@@ -107,7 +107,7 @@ calMemoryCalendar.prototype = {
 
     // void addItem( in calIItemBase aItem, in calIOperationListener aListener );
     addItem: function(aItem, aListener) {
-        var newItem = aItem.clone();
+        let newItem = aItem.clone();
         return this.adoptItem(newItem, aListener);
     },
 
@@ -178,7 +178,7 @@ calMemoryCalendar.prototype = {
             throw Components.results.NS_ERROR_INVALID_ARG;
         }
 
-        var this_ = this;
+        let this_ = this;
         function reportError(errStr, errId) {
             this_.notifyOperationComplete(aListener,
                                           errId ? errId : Components.results.NS_ERROR_FAILURE,
@@ -193,7 +193,7 @@ calMemoryCalendar.prototype = {
             return reportError(null, "ID for modifyItem item is null");
         }
 
-        var modifiedItem = aNewItem.parentItem.clone();
+        let modifiedItem = aNewItem.parentItem.clone();
         if (aNewItem.parentItem != aNewItem) {
             modifiedItem.recurrenceInfo.modifyException(aNewItem, false);
         }
@@ -224,7 +224,7 @@ calMemoryCalendar.prototype = {
             }
 
             aOldItem = aOldItem.parentItem;
-            var storedOldItem = this.mItems[aOldItem.id];
+            let storedOldItem = this.mItems[aOldItem.id];
 
             // compareItems is not suitable here. See bug 418805.
             // Cannot compare here due to bug 380060
@@ -277,7 +277,7 @@ calMemoryCalendar.prototype = {
             return;
         }
 
-        var oldItem;
+        let oldItem;
         if (this.relaxedMode) {
             oldItem = aItem;
         } else {
@@ -321,8 +321,8 @@ calMemoryCalendar.prototype = {
             return;
         }
 
-        var item = this.mItems[aId];
-        var iid = null;
+        let item = this.mItems[aId];
+        let iid = null;
 
         if (cal.isEvent(item)) {
             iid = Components.interfaces.calIEvent;

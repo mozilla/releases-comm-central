@@ -426,7 +426,7 @@ calStorageCalendar.prototype = {
             // is this an error?  Or should we generate an IID?
             aItem.id = cal.getUUID();
         } else {
-            var olditem = this.getItemById(aItem.id);
+            let olditem = this.getItemById(aItem.id);
             if (olditem) {
                 if (this.relaxedMode) {
                     // we possibly want to interact with the user before deleting
@@ -539,7 +539,7 @@ calStorageCalendar.prototype = {
             }
             aOldItem = aOldItem.parentItem;
         } else {
-            var storedOldItem = (aOldItem ? this.getItemById(aOldItem.id) : null);
+            let storedOldItem = (aOldItem ? this.getItemById(aOldItem.id) : null);
             if (!aOldItem || !storedOldItem) {
                 // no old item found?  should be using addItem, then.
                 return reportError("ID does not already exist for modifyItem");
@@ -619,7 +619,7 @@ calStorageCalendar.prototype = {
             return;
         }
 
-        var item = this.getItemById(aId);
+        let item = this.getItemById(aId);
         if (!item) {
             // querying by id is a valid use case, even if no item is returned:
             this.notifyOperationComplete(aListener,
@@ -630,7 +630,7 @@ calStorageCalendar.prototype = {
             return;
         }
 
-        var item_iid = null;
+        let item_iid = null;
         if (cal.isEvent(item)) {
             item_iid = Components.interfaces.calIEvent;
         } else if (cal.isToDo(item)) {
@@ -1051,7 +1051,7 @@ calStorageCalendar.prototype = {
 
             },
             onOperationComplete: function(calendar, status, opType, id, oldOfflineJournalFlag) {
-                var newOfflineJournalFlag = cICL.OFFLINE_FLAG_DELETED_RECORD;
+                let newOfflineJournalFlag = cICL.OFFLINE_FLAG_DELETED_RECORD;
                 if (oldOfflineJournalFlag) {
                     // Delete item if flag is c
                     if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD) {
@@ -1118,10 +1118,10 @@ calStorageCalendar.prototype = {
             // but that doesn't work with floating start or end times. The logic
             // is the same though.
             // For readability, a few helpers:
-            var floatingEventStart = "event_start_tz = 'floating' AND event_start";
-            var nonFloatingEventStart = "event_start_tz != 'floating' AND event_start";
-            var floatingEventEnd = "event_end_tz = 'floating' AND event_end";
-            var nonFloatingEventEnd = "event_end_tz != 'floating' AND event_end";
+            let floatingEventStart = "event_start_tz = 'floating' AND event_start";
+            let nonFloatingEventStart = "event_start_tz != 'floating' AND event_start";
+            let floatingEventEnd = "event_end_tz = 'floating' AND event_end";
+            let nonFloatingEventEnd = "event_end_tz != 'floating' AND event_end";
             // The query needs to take both floating and non floating into account
             this.mSelectNonRecurringEventsByRange = this.mDB.createStatement(
                 "SELECT * FROM cal_events " +
@@ -1148,12 +1148,12 @@ calStorageCalendar.prototype = {
             //       (due IS NULL  AND  (entry >= rangeStart  AND  entry < rangeEnd)) OR
             //       (entry IS NULL  AND  (completed > rangeStart  OR  completed IS NULL))
             //
-            var floatingTodoEntry = "todo_entry_tz = 'floating' AND todo_entry";
-            var nonFloatingTodoEntry = "todo_entry_tz != 'floating' AND todo_entry";
-            var floatingTodoDue = "todo_due_tz = 'floating' AND todo_due";
-            var nonFloatingTodoDue = "todo_due_tz != 'floating' AND todo_due";
-            var floatingCompleted = "todo_completed_tz = 'floating' AND todo_completed";
-            var nonFloatingCompleted = "todo_completed_tz != 'floating' AND todo_completed";
+            let floatingTodoEntry = "todo_entry_tz = 'floating' AND todo_entry";
+            let nonFloatingTodoEntry = "todo_entry_tz != 'floating' AND todo_entry";
+            let floatingTodoDue = "todo_due_tz = 'floating' AND todo_due";
+            let nonFloatingTodoDue = "todo_due_tz != 'floating' AND todo_due";
+            let floatingCompleted = "todo_completed_tz = 'floating' AND todo_completed";
+            let nonFloatingCompleted = "todo_completed_tz != 'floating' AND todo_completed";
 
             this.mSelectNonRecurringTodosByRange = this.mDB.createStatement(
                 "SELECT * FROM cal_todos " +
@@ -1393,7 +1393,7 @@ calStorageCalendar.prototype = {
                 );
 
             // These are only used when deleting an entire calendar
-            var extrasTables = [ "cal_attendees", "cal_properties",
+            let extrasTables = [ "cal_attendees", "cal_properties",
                                  "cal_recurrence", "cal_attachments",
                                  "cal_metadata", "cal_relations",
                                  "cal_alarms"];
@@ -1401,7 +1401,7 @@ calStorageCalendar.prototype = {
             this.mDeleteEventExtras = [];
             this.mDeleteTodoExtras = [];
 
-            for (var table in extrasTables) {
+            for (let table in extrasTables) {
                 this.mDeleteEventExtras[table] = this.mDB.createStatement(
                     "DELETE FROM " + extrasTables[table] + " WHERE item_id IN" +
                     "  (SELECT id FROM cal_events WHERE cal_id = :cal_id)" +
@@ -1580,8 +1580,8 @@ calStorageCalendar.prototype = {
             this.prepareStatement(this.mSelectTodosWithRecurrence);
             let sp = this.mSelectTodosWithRecurrence.params;
             while (this.mSelectTodosWithRecurrence.executeStep()) {
-                var row = this.mSelectTodosWithRecurrence.row;
-                var item = this.getTodoFromRow(row, {});
+                let row = this.mSelectTodosWithRecurrence.row;
+                let item = this.getTodoFromRow(row, {});
                 this.mRecTodoCache[item.id] = item;
                 this.mRecTodoCacheOfflineFlags[item.id] = row.offline_journal || null;
             }
@@ -1596,7 +1596,7 @@ calStorageCalendar.prototype = {
 
     // xxx todo: consider removing flags parameter
     getEventFromRow: function cSC_getEventFromRow(row, flags, isException) {
-        var item;
+        let item;
         if (!isException) { // only parent items are cached
             item = this.mItemCache[row.id];
             if (item) {
@@ -1632,7 +1632,7 @@ calStorageCalendar.prototype = {
     },
 
     getTodoFromRow: function cSC_getTodoFromRow(row, flags, isException) {
-        var item;
+        let item;
         if (!isException) { // only parent items are cached
             item = this.mItemCache[row.id];
             if (item) {
@@ -1913,13 +1913,13 @@ calStorageCalendar.prototype = {
         this.assureRecurringItemCaches();
 
         // cached?
-        var item = this.mItemCache[aID];
+        let item = this.mItemCache[aID];
         if (item) {
             return item;
         }
 
         // not cached; need to read from the db
-        var flags = {};
+        let flags = {};
 
         try {
             // try events first
@@ -1959,8 +1959,8 @@ calStorageCalendar.prototype = {
     setDateParamHelper: function cSC_setDateParamHelper(params, entryname, cdt) {
         if (cdt) {
             params[entryname] = cdt.nativeTime;
-            var tz = cdt.timezone;
-            var ownTz = cal.getTimezoneService().getTimezone(tz.tzid);
+            let tz = cdt.timezone;
+            let ownTz = cal.getTimezoneService().getTimezone(tz.tzid);
             if (ownTz) { // if we know that TZID, we use it
                 params[entryname + "_tz"] = ownTz.tzid;
             } else if (!tz.icalComponent) { // timezone component missing
@@ -1998,7 +1998,7 @@ calStorageCalendar.prototype = {
     //
 
     writeItem: function cSC_writeItem(item, olditem) {
-        var flags = 0;
+        let flags = 0;
 
         flags |= this.writeAttendees(item, olditem);
         flags |= this.writeRecurrence(item, olditem);
@@ -2078,7 +2078,7 @@ calStorageCalendar.prototype = {
             this.setDateParamHelper(ip, "recurrence_id", item.recurrenceId);
         }
 
-        var tmp;
+        let tmp;
 
         if ((tmp = item.getProperty("CREATED"))) {
             ip.time_created = tmp.nativeTime;
@@ -2098,14 +2098,14 @@ calStorageCalendar.prototype = {
     },
 
     writeAttendees: function cSC_writeAttendees(item, olditem) {
-        var attendees = item.getAttendees({});
+        let attendees = item.getAttendees({});
         if (item.organizer) {
             attendees = attendees.concat([]);
             attendees.push(item.organizer);
         }
         if (attendees.length > 0) {
-            for (var att of attendees) {
-                var ap = this.mInsertAttendee.params;
+            for (let att of attendees) {
+                let ap = this.mInsertAttendee.params;
                 ap.item_id = item.id;
                 try {
                     this.prepareStatement(this.mInsertAttendee);
@@ -2126,7 +2126,7 @@ calStorageCalendar.prototype = {
     writeProperty: function cSC_writeProperty(item, propName, propValue) {
         try {
             this.prepareStatement(this.mInsertProperty);
-            var pp = this.mInsertProperty.params;
+            let pp = this.mInsertProperty.params;
             pp.key = propName;
             let wPropValue = cal.wrapInstance(propValue, Components.interfaces.calIDateTime);
             if (wPropValue) {
@@ -2152,18 +2152,18 @@ calStorageCalendar.prototype = {
     },
 
     writeProperties: function cSC_writeProperties(item, olditem) {
-        var ret = 0;
-        var propEnumerator = item.propertyEnumerator;
+        let ret = 0;
+        let propEnumerator = item.propertyEnumerator;
         while (propEnumerator.hasMoreElements()) {
             ret = CAL_ITEM_FLAG.HAS_PROPERTIES;
-            var prop = propEnumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
+            let prop = propEnumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
             if (item.isPropertyPromoted(prop.name)) {
                 continue;
             }
             this.writeProperty(item, prop.name, prop.value);
         }
 
-        var cats = item.getCategories({});
+        let cats = item.getCategories({});
         if (cats.length > 0) {
             ret = CAL_ITEM_FLAG.HAS_PROPERTIES;
             this.writeProperty(item, "CATEGORIES", categoriesArrayToString(cats));
@@ -2173,9 +2173,9 @@ calStorageCalendar.prototype = {
     },
 
     writeRecurrence: function cSC_writeRecurrence(item, olditem) {
-        var flags = 0;
+        let flags = 0;
 
-        var rec = item.recurrenceInfo;
+        let rec = item.recurrenceInfo;
         if (rec) {
             flags = CAL_ITEM_FLAG.HAS_RECURRENCE;
             let ritems = rec.getRecurrenceItems({});
@@ -2191,7 +2191,7 @@ calStorageCalendar.prototype = {
                 }
             }
 
-            var exceptions = rec.getExceptionIds({});
+            let exceptions = rec.getExceptionIds({});
             if (exceptions.length > 0) {
                 flags |= CAL_ITEM_FLAG.HAS_EXCEPTIONS;
 
@@ -2237,7 +2237,7 @@ calStorageCalendar.prototype = {
     writeRelations: function cSC_writeRelations(item, olditem) {
         let relations = item.getRelations({});
         if (relations && relations.length > 0) {
-            for (var rel of relations) {
+            for (let rel of relations) {
                 let rp = this.mInsertRelation.params;
                 try {
                     this.prepareStatement(this.mInsertRelation);
@@ -2456,9 +2456,9 @@ calStorageCalendar.prototype = {
         } else {
             aItem.deleteProperty("SEQUENCE");
         }
-        var rec = aItem.recurrenceInfo;
+        let rec = aItem.recurrenceInfo;
         if (rec) {
-            var exceptions = rec.getExceptionIds({});
+            let exceptions = rec.getExceptionIds({});
             if (exceptions.length > 0) {
                 for (let exid of exceptions) {
                     let ex = rec.getExceptionFor(exid);

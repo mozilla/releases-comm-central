@@ -37,7 +37,7 @@
       <field name="mDateTime">null</field>
 
       <constructor><![CDATA[
-        var self = this;
+        let self = this;
         this.mResizeHandler = function recurrence_preview_resizeHandler() {
             self.onResize();
         };
@@ -62,46 +62,46 @@
       </property>
       <method name="onResize">
         <body><![CDATA[
-          var mainbox =
+          let mainbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "mainbox");
-          var minimonth =
+          let minimonth =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "minimonth");
 
-          var row =
+          let row =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "row");
-          var rows = row.parentNode;
+          let rows = row.parentNode;
 
-          var contentWidth = minimonth.boxObject.width;
-          var containerWidth =
+          let contentWidth = minimonth.boxObject.width;
+          let containerWidth =
               document.getAnonymousNodes(this)[0]
                   .boxObject.width;
 
           // Now find out how much elements can be displayed.
           // this is a simple division which always yields a positive integer value.
-          var numHorizontal =
+          let numHorizontal =
               (containerWidth -
                   (containerWidth % contentWidth)) /
                       contentWidth;
 
-          var contentHeight = minimonth.boxObject.height;
-          var containerHeight =
+          let contentHeight = minimonth.boxObject.height;
+          let containerHeight =
               document.getAnonymousNodes(this)[0]
                   .boxObject.height;
 
           // Now find out how much elements can be displayed.
           // this is a simple division which always yields a positive integer value.
-          var numVertical =
+          let numVertical =
               (containerHeight -
                   (containerHeight % contentHeight)) /
                       contentHeight;
           numVertical = Math.max(1, numVertical);
 
           // Count the number of existing rows
-          var numRows = 0;
-          var rowIterator = row;
+          let numRows = 0;
+          let rowIterator = row;
           while (rowIterator) {
               numRows++;
               rowIterator = rowIterator.nextSibling;
@@ -119,12 +119,12 @@
           }
 
           // Adjust columns in the grid
-          var column =
+          let column =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "column");
-          var columns = column.parentNode;
+          let columns = column.parentNode;
           while ((columns.childNodes.length - 1) < numHorizontal) {
-              var newColumn = column.cloneNode(false);
+              let newColumn = column.cloneNode(false);
               columns.insertBefore(newColumn, column.nextSibling);
           }
           while ((columns.childNodes.length - 1) > numHorizontal) {
@@ -135,7 +135,7 @@
           row = document.getAnonymousElementByAttribute(
                    this, "anonid", "row");
           while (row) {
-              var firstChild = row.firstChild;
+              let firstChild = row.firstChild;
               while ((row.childNodes.length - 1) < numHorizontal) {
                   let newNode = firstChild.cloneNode(true);
                   firstChild.parentNode.insertBefore(newNode, firstChild);
@@ -153,13 +153,13 @@
 
       <method name="updateContent">
         <body><![CDATA[
-          var dt = cal.dateTimeToJsDate(this.dateTime);
-          var row = document.getAnonymousElementByAttribute(
+          let dt = cal.dateTimeToJsDate(this.dateTime);
+          let row = document.getAnonymousElementByAttribute(
                         this, "anonid", "row");
           while (row) {
-              var numChilds = row.childNodes.length - 1;
-              for (var i = 0; i < numChilds; i++) {
-                  var minimonth = row.childNodes[i];
+              let numChilds = row.childNodes.length - 1;
+              for (let i = 0; i < numChilds; i++) {
+                  let minimonth = row.childNodes[i];
                   minimonth.showMonth(dt);
                   dt.setMonth(dt.getMonth() + 1);
               }
@@ -172,25 +172,25 @@
         <parameter name="aRecurrenceInfo"/>
         <body><![CDATA[
           this.mRecurrenceInfo = aRecurrenceInfo;
-          var start = this.dateTime.clone();
+          let start = this.dateTime.clone();
           start.day = 1;
           start.hour = 0;
           start.minute = 0;
           start.second = 0;
-          var end = start.clone();
+          let end = start.clone();
           end.month++;
 
           // the 'minimonth' controls are arranged in a
           // grid, sorted by rows first -> iterate the rows that may exist.
-          var row = document.getAnonymousElementByAttribute(this, "anonid", "row");
+          let row = document.getAnonymousElementByAttribute(this, "anonid", "row");
           while (row) {
               // now iterater all the child nodes of this row
               // in order to visit each minimonth in turn.
-              var numChilds = row.childNodes.length - 1;
-              for (var i = 0; i < numChilds; i++) {
+              let numChilds = row.childNodes.length - 1;
+              for (let i = 0; i < numChilds; i++) {
                   // we now have one of the minimonth controls while 'start'
                   // and 'end' are set to the interval this minimonth shows.
-                  var minimonth = row.childNodes[i];
+                  let minimonth = row.childNodes[i];
                   minimonth.showMonth(cal.dateTimeToJsDate(start));
                   if (aRecurrenceInfo) {
                       // retrieve an array of dates that represents all occurrences
@@ -199,18 +199,18 @@
                       // dates that are strictly monotonically increasing.
                       // should getOccurrenceDates() not enforce this assumption we
                       // need to fall back to some different algorithm.
-                      var dates = aRecurrenceInfo.getOccurrenceDates(start, end, 0, {});
+                      let dates = aRecurrenceInfo.getOccurrenceDates(start, end, 0, {});
 
                       // now run throgh all days of this month and set the
                       // 'busy' attribute with respect to the occurrence array.
-                      var index = 0;
-                      var occurrence = null;
+                      let index = 0;
+                      let occurrence = null;
                       if (index < dates.length) {
                           occurrence =
                               dates[index++]
                                   .getInTimezone(start.timezone);
                       }
-                      var current = start.clone();
+                      let current = start.clone();
                       while (current.compare(end) < 0) {
                         let box = minimonth.getBoxForDate(current);
                         if (box) {

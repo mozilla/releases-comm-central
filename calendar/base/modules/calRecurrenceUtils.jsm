@@ -373,10 +373,10 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
  *                            rules and an array of negative rules.
  */
 function splitRecurrenceRules(recurrenceInfo) {
-    var ritems = recurrenceInfo.getRecurrenceItems({});
-    var rules = [];
-    var exceptions = [];
-    for (var r of ritems) {
+    let ritems = recurrenceInfo.getRecurrenceItems({});
+    let rules = [];
+    let exceptions = [];
+    for (let r of ritems) {
         if (r.isNegative) {
             exceptions.push(r);
         } else {
@@ -395,8 +395,8 @@ function splitRecurrenceRules(recurrenceInfo) {
  * @return                  Returns true if the rule is valid.
  */
 function checkRecurrenceRule(aRule, aArray) {
-    for (var comp of aArray) {
-        var ruleComp = aRule.getComponent(comp, {});
+    for (let comp of aArray) {
+        let ruleComp = aRule.getComponent(comp, {});
         if (ruleComp && ruleComp.length > 0) {
             return true;
         }

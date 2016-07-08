@@ -75,7 +75,7 @@ calCachedCalendarObserverHelper.prototype = {
             // xxx todo, think about:
             // although onAddItem et al have been called, we need to fire
             // an additional onLoad completing the refresh call (->composite)
-            var home = this.home;
+            let home = this.home;
             home.synchronize(function(status) {
                 home.mObservers.notify("onLoad", [home]);
             });
@@ -285,7 +285,7 @@ calCachedCalendar.prototype = {
     mPendingSync: null,
     mSyncQueue: null,
     synchronize: function cCC_synchronize(respFunc) {
-        var this_ = this;
+        let this_ = this;
         if (this.getProperty("disabled")) {
             return emptyQueue(Components.results.NS_OK);
         }
@@ -297,7 +297,7 @@ calCachedCalendar.prototype = {
         }
 
         function emptyQueue(status) {
-            var queue = this_.mSyncQueue;
+            let queue = this_.mSyncQueue;
             this_.mSyncQueue = [];
             function execResponseFunc(func) {
                 try {
@@ -308,7 +308,7 @@ calCachedCalendar.prototype = {
             }
             queue.forEach(execResponseFunc);
             cal.LOG("[calCachedCalendar] sync queue empty.");
-            var op = this_.mPendingSync;
+            let op = this_.mPendingSync;
             this_.mPendingSync = null;
             return op;
         }
@@ -319,10 +319,10 @@ calCachedCalendar.prototype = {
 
         if (this.supportsChangeLog) {
             cal.LOG("[calCachedCalendar] Doing changelog based sync for calendar " + this.uri.spec);
-            var opListener = {
+            let opListener = {
                 onResult: function(op, result) {
                     if (!op || !op.isPending) {
-                        var status = (op ? op.status : Components.results.NS_OK);
+                        let status = (op ? op.status : Components.results.NS_OK);
                         if (!Components.isSuccessCode(status)) {
                             cal.ERROR("[calCachedCalendar] replay action failed: " +
                                       (op ? op.id : "<unknown>") + ", uri=" +
@@ -635,7 +635,7 @@ calCachedCalendar.prototype = {
         if (this.mUncachedCalendar.canRefresh && !this.offline) {
             return this.mUncachedCalendar.refresh(); // will trigger synchronize once the calendar is loaded
         } else {
-            var this_ = this;
+            let this_ = this;
             return this.synchronize(
                 function(status) { // fire completing onLoad for this refresh call
                     this_.mCachedObserver.onLoad(this_.mCachedCalendar);
@@ -696,14 +696,14 @@ calCachedCalendar.prototype = {
         }
     },
     adoptOfflineItem: function(item, listener) {
-        var this_ = this;
-        var opListener = {
+        let this_ = this;
+        let opListener = {
             onGetResult: function(calendar, status, itemType, detail, count, items) {
                 cal.ASSERT(false, "unexpected!");
             },
             onOperationComplete: function(calendar, status, opType, id, detail) {
                 if (Components.isSuccessCode(status)) {
-                    var storage = this_.mCachedCalendar.QueryInterface(Components.interfaces.calIOfflineStorage);
+                    let storage = this_.mCachedCalendar.QueryInterface(Components.interfaces.calIOfflineStorage);
                     storage.addOfflineItem(detail, listener);
                 } else if (listener) {
                     listener.onOperationComplete(this_, status, opType, id, detail);
@@ -772,8 +772,8 @@ calCachedCalendar.prototype = {
     },
 
     modifyOfflineItem: function(newItem, oldItem, listener) {
-        var this_ = this;
-        var opListener = {
+        let this_ = this;
+        let opListener = {
             onGetResult: function(calendar, status, itemType, detail, count, items) {
                 cal.ASSERT(false, "unexpected!");
             },
@@ -781,7 +781,7 @@ calCachedCalendar.prototype = {
                 if (Components.isSuccessCode(status)) {
                     // Modify the offline item in the storage, passing the
                     // listener will make sure its notified
-                    var storage = this_.mCachedCalendar.QueryInterface(Components.interfaces.calIOfflineStorage);
+                    let storage = this_.mCachedCalendar.QueryInterface(Components.interfaces.calIOfflineStorage);
                     storage.modifyOfflineItem(detail, listener);
                 } else if (listener) {
                     // If there was not a success, then we need to notify the
@@ -823,7 +823,7 @@ calCachedCalendar.prototype = {
         // hasn't yet been performed on the cached calendar (which happens in onAddItem et al).
         // Result is that we currently stick to firing onOperationComplete if the cached calendar
         // has performed the modification, see below:
-        var cacheListener = {
+        let cacheListener = {
             onGetResult: function() {},
             onOperationComplete: function(calendar, status, opType, id, detail) {
                 if (isUnavailableCode(status)) {
@@ -861,7 +861,7 @@ calCachedCalendar.prototype = {
     },
     deleteOfflineItem: function(item, listener) {
         /* We do not delete the item from the cache, as we will need it when reconciling the cache content and the server content. */
-        var storage = this.mCachedCalendar.QueryInterface(Components.interfaces.calIOfflineStorage);
+        let storage = this.mCachedCalendar.QueryInterface(Components.interfaces.calIOfflineStorage);
         storage.deleteOfflineItem(item, listener);
     }
 };
@@ -876,7 +876,7 @@ calCachedCalendar.prototype = {
         }
         function defineForwardFunction(funcName) {
             proto[funcName] = function() {
-                var obj = this[targetName];
+                let obj = this[targetName];
                 return obj[funcName].apply(obj, arguments);
             };
         }

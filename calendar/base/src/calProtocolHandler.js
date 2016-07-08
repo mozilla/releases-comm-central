@@ -31,7 +31,7 @@ calProtocolHandler.prototype = {
     get protocolFlags() { return this.mHttpProtocol.protocolFlags; },
 
     newURI: function cph_newURI(aSpec, anOriginalCharset, aBaseURI) {
-        var uri = Components.classes["@mozilla.org/network/standard-url;1"].
+        let uri = Components.classes["@mozilla.org/network/standard-url;1"].
                              createInstance(Components.interfaces.nsIStandardURL);
         uri.init(Components.interfaces.nsIStandardURL.URLTYPE_STANDARD,
                  this.mHttpProtocol.defaultPort, aSpec, anOriginalCharset, aBaseURI);

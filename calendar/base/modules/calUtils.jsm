@@ -639,7 +639,7 @@ var cal = {
         if (calDateTime == null) {
             return sortStartedTime.nativeTime;
         }
-        var ns = calDateTime.nativeTime;
+        let ns = calDateTime.nativeTime;
         if (ns == -62168601600000000) { // ns value for (0000/00/00 00:00:00)
             return sortStartedTime;
         }
@@ -721,7 +721,7 @@ var cal = {
      * Modifies aStringArray, returning it sorted.
      */
     sortArrayByLocaleCollator: function cal_sortArrayByLocaleCollator(aStringArray) {
-        var localeCollator = cal.createLocaleCollator();
+        let localeCollator = cal.createLocaleCollator();
         function compare(a, b) { return localeCollator.compareString(0, a, b); }
         aStringArray.sort(compare);
         return aStringArray;

@@ -7,7 +7,7 @@ function calCalendarSearchListener(numOperations, finalListener) {
     this.mNumOperations = numOperations;
     this.mResults = [];
 
-    var this_ = this;
+    let this_ = this;
     function cancelFunc() { // operation group has been cancelled
         this_.notifyResult(null);
     }
@@ -19,7 +19,7 @@ calCalendarSearchListener.prototype = {
     opGroup: null,
 
     notifyResult: function calCalendarSearchListener_notifyResult(result) {
-        var listener = this.mFinalListener;
+        let listener = this.mFinalListener;
         if (listener) {
             if (!this.opGroup.isPending) {
                 this.mFinalListener = null;
@@ -71,7 +71,7 @@ calCalendarSearchService.prototype = {
                                                                              aHints,
                                                                              aMaxResults,
                                                                              aListener) {
-        var groupListener = new calCalendarSearchListener(this.mProviders.size, aListener);
+        let groupListener = new calCalendarSearchListener(this.mProviders.size, aListener);
         function searchForCalendars_(provider) {
             try {
                 groupListener.opGroup.add(provider.searchForCalendars(aString,
@@ -89,7 +89,7 @@ calCalendarSearchService.prototype = {
 
     // calICalendarSearchService:
     getProviders: function calCalendarSearchService_getProviders(out_aCount) {
-        var ret = this.mProviders.interfaceArray;
+        let ret = this.mProviders.interfaceArray;
         out_aCount.value = ret.length;
         return ret;
     },

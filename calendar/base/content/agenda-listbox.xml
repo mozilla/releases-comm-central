@@ -268,11 +268,11 @@
       </method>
       <method name="refreshColor">
         <body><![CDATA[
-            var calcolor = ((this.mOccurrence &&
+            let calcolor = ((this.mOccurrence &&
                              this.mOccurrence.calendar.getProperty("color")) ||
                             "#a8c2e1");
 
-            var imagebox = document.getAnonymousElementByAttribute(this, "anonid", "agenda-calendar-image");
+            let imagebox = document.getAnonymousElementByAttribute(this, "anonid", "agenda-calendar-image");
             imagebox.setAttribute("style", "background-color: " + calcolor + ";");
         ]]></body>
       </method>

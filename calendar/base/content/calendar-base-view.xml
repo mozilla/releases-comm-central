@@ -420,7 +420,7 @@
 
       <method name="today">
         <body><![CDATA[
-          var d = cal.jsDateToDateTime(new Date()).getInTimezone(this.mTimezone);
+          let d = cal.jsDateToDateTime(new Date()).getInTimezone(this.mTimezone);
           d.isDate = true;
           return d;
         ]]></body>

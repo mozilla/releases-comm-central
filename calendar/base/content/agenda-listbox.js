@@ -27,9 +27,9 @@ agendaListbox.init =
 function initAgendaListbox() {
     this.agendaListboxControl = document.getElementById("agenda-listbox");
     this.agendaListboxControl.removeAttribute("suppressonselect");
-    var showTodayHeader = (document.getElementById("today-header-hidden").getAttribute("checked") == "true");
-    var showTomorrowHeader = (document.getElementById("tomorrow-header-hidden").getAttribute("checked") == "true");
-    var showSoonHeader = (document.getElementById("nextweek-header-hidden").getAttribute("checked") == "true");
+    let showTodayHeader = (document.getElementById("today-header-hidden").getAttribute("checked") == "true");
+    let showTomorrowHeader = (document.getElementById("tomorrow-header-hidden").getAttribute("checked") == "true");
+    let showSoonHeader = (document.getElementById("nextweek-header-hidden").getAttribute("checked") == "true");
     this.today = new Synthetic(showTodayHeader, 1, false);
     this.addPeriodListItem(this.today, "today-header");
     this.tomorrow = new Synthetic(showTomorrowHeader, 1, false);
@@ -38,7 +38,7 @@ function initAgendaListbox() {
     this.periods = [this.today, this.tomorrow, this.soon];
     this.mPendingRefreshJobs = new Map();
 
-    var prefObserver = {
+    let prefObserver = {
         observe: function aL_observe(aSubject, aTopic, aPrefName) {
             switch (aPrefName) {
                 case "calendar.agendaListbox.soondays":
@@ -51,7 +51,7 @@ function initAgendaListbox() {
     Services.prefs.addObserver("calendar.agendaListbox", prefObserver, false);
 
     // Make sure the agenda listbox is unloaded
-    var self = this;
+    let self = this;
     window.addEventListener("unload",
                             function unload_agendaListbox() {
                                 Services.prefs.removeObserver("calendar.agendaListbox", prefObserver);
@@ -69,7 +69,7 @@ function uninit() {
         this.calendar.removeObserver(this.calendarObserver);
     }
 
-    for (var period of this.periods) {
+    for (let period of this.periods) {
         if (period.listItem) {
             period.listItem.getCheckbox()
                   .removeEventListener("CheckboxStateChange",
@@ -119,10 +119,10 @@ function removePeriodListItem(aPeriod) {
  */
 agendaListbox.onCheckboxChange =
 function onCheckboxChange(event) {
-    var periodCheckbox = event.target;
-    var lopen = (periodCheckbox.getAttribute("checked") == "true");
-    var listItem = getParentNodeOrThis(periodCheckbox, "agenda-checkbox-richlist-item");
-    var period = listItem.getItem();
+    let periodCheckbox = event.target;
+    let lopen = (periodCheckbox.getAttribute("checked") == "true");
+    let listItem = getParentNodeOrThis(periodCheckbox, "agenda-checkbox-richlist-item");
+    let period = listItem.getItem();
     period.open = lopen;
     // as the agenda-checkboxes are only transient we have to set the "checked"
     // attribute at their hidden origins to make that attribute persistent.
@@ -136,7 +136,7 @@ function onCheckboxChange(event) {
         do {
             leaveloop = (listItem == null);
             if (!leaveloop) {
-                var nextItemSibling = listItem.nextSibling;
+                let nextItemSibling = listItem.nextSibling;
                 leaveloop = (!agendaListbox.isEventListItem(listItem));
                 if (!leaveloop) {
                     listItem.remove();
@@ -186,7 +186,7 @@ function onBlur() {
  */
 agendaListbox.onKeyPress =
 function onKeyPress(aEvent) {
-    var listItem = aEvent.target;
+    let listItem = aEvent.target;
     if (listItem.localName == "richlistbox") {
         listItem = listItem.selectedItem;
     }
@@ -217,7 +217,7 @@ function onKeyPress(aEvent) {
  */
 agendaListbox.editSelectedItem =
 function editSelectedItem() {
-    var listItem = document.getElementById("agenda-listbox").selectedItem;
+    let listItem = document.getElementById("agenda-listbox").selectedItem;
     if (listItem) {
         modifyEventWithDialog(listItem.occurrence, null, true);
     }
@@ -231,8 +231,8 @@ function editSelectedItem() {
  */
 agendaListbox.findPeriodsForItem =
 function findPeriodsForItem(aItem) {
-    var retPeriods = [];
-    for (var i = 0; i < this.periods.length; i++) {
+    let retPeriods = [];
+    for (let i = 0; i < this.periods.length; i++) {
         if (this.periods[i].open) {
             if (checkIfInRange(aItem, this.periods[i].start, this.periods[i].end)) {
                 retPeriods.push(this.periods[i]);
@@ -247,8 +247,8 @@ function findPeriodsForItem(aItem) {
  */
 agendaListbox.getStart =
 function getStart(){
-    var retStart = null;
-    for (var i = 0; i < this.periods.length; i++) {
+    let retStart = null;
+    for (let i = 0; i < this.periods.length; i++) {
         if (this.periods[i].open) {
             retStart = this.periods[i].start;
             break;
@@ -262,8 +262,8 @@ function getStart(){
  */
 agendaListbox.getEnd =
 function getEnd(){
-    var retEnd = null;
-    for (var i = this.periods.length - 1; i >= 0; i--) {
+    let retEnd = null;
+    for (let i = this.periods.length - 1; i >= 0; i--) {
         if (this.periods[i].open) {
             retEnd = this.periods[i].end;
             break;
@@ -283,7 +283,7 @@ function getEnd(){
  */
 agendaListbox.addItemBefore =
 function addItemBefore(aNewItem, aAgendaItem, aPeriod, visible) {
-    var newelement = null;
+    let newelement = null;
     if (aNewItem.startDate.isDate) {
         newelement = createXULElement("agenda-allday-richlist-item");
     } else {
@@ -314,12 +314,12 @@ function addItem(aItem) {
     if (!isEvent(aItem)) {
         return null;
     }
-    var periods = this.findPeriodsForItem(aItem);
+    let periods = this.findPeriodsForItem(aItem);
     if (periods.length == 0) {
         return null;
     }
     let newlistItem = null;
-    for (var i = 0; i < periods.length; i++) {
+    for (let i = 0; i < periods.length; i++) {
         let period = periods[i];
         let complistItem = period.listItem;
         let visible = complistItem.getCheckbox().checked;
@@ -334,7 +334,7 @@ function addItem(aItem) {
                     newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
                     break;
                 } else {
-                    var compitem = complistItem.occurrence;
+                    let compitem = complistItem.occurrence;
                     if (this.isSameEvent(aItem, compitem)) {
                         // The same event occurs on several calendars but we only
                         // display the first one.
@@ -458,13 +458,13 @@ function comparisonDate(aItem, aPeriod) {
  */
 agendaListbox.getListItems =
 function getListItems(aItem, aPeriod) {
-    var retlistItems = [];
-    var periods = [aPeriod];
+    let retlistItems = [];
+    let periods = [aPeriod];
     if (!aPeriod) {
         periods = this.findPeriodsForItem(aItem);
     }
     if (periods.length > 0) {
-        for (var i = 0; i < periods.length; i++) {
+        for (let i = 0; i < periods.length; i++) {
             let period = periods[i];
             let complistItem = period.listItem;
             let leaveloop;
@@ -493,12 +493,12 @@ function getListItems(aItem, aPeriod) {
  */
 agendaListbox.deleteItem =
 function deleteItem(aItem, aMoveSelection) {
-    var isSelected = false;
-    var listItems = this.getListItems(aItem);
+    let isSelected = false;
+    let listItems = this.getListItems(aItem);
     if (listItems.length > 0) {
-        for (var i = listItems.length - 1; i >= 0; i--) {
-            var listItem = listItems[i];
-            var isSelected2 = listItem.selected;
+        for (let i = listItems.length - 1; i >= 0; i--) {
+            let listItem = listItems[i];
+            let isSelected2 = listItem.selected;
             if (isSelected2 && !isSelected) {
                 isSelected = true;
                 if (aMoveSelection) {
@@ -549,7 +549,7 @@ function isSameEvent(aItem, aCompItem) {
  */
 agendaListbox.isEventSelected =
 function isEventSelected() {
-    var listItem = this.agendaListboxControl.selectedItem;
+    let listItem = this.agendaListboxControl.selectedItem;
     if (listItem) {
         return (this.isEventListItem(listItem));
     }
@@ -563,9 +563,9 @@ function isEventSelected() {
  */
 agendaListbox.deleteSelectedItem =
 function deleteSelectedItem(aDoNotConfirm) {
-    var listItem = this.agendaListboxControl.selectedItem;
+    let listItem = this.agendaListboxControl.selectedItem;
     if (this.isEventListItem(listItem)) {
-        var selectedItems = [listItem.occurrence];
+        let selectedItems = [listItem.occurrence];
         calendarViewController.deleteOccurrences(selectedItems.length,
                                                  selectedItems,
                                                  false,
@@ -584,7 +584,7 @@ function createNewEvent(aEvent) {
     if (!this.isEventListItem(aEvent.target)){
         // Create new event for the date currently displayed in the agenda. Setting
         // isDate = true automatically makes the start time be the next full hour.
-        var eventStart = agendaListbox.today.start.clone();
+        let eventStart = agendaListbox.today.start.clone();
         eventStart.isDate = true;
         if (calendarController.isCommandEnabled("calendar_new_event_command")) {
             createEventWithDialog(getSelectedCalendar(), eventStart);
@@ -739,7 +739,7 @@ agendaListbox.refreshPeriodDates =
 function refreshPeriodDates(newDate) {
      this.kDefaultTimezone = calendarDefaultTimezone();
     // Today: now until midnight of tonight
-    var oldshowstoday = this.showstoday;
+    let oldshowstoday = this.showstoday;
     this.showstoday = this.showsToday(newDate);
     if ((this.showstoday) && (!oldshowstoday)) {
         this.addPeriodListItem(this.tomorrow, "tomorrow-header");
@@ -749,8 +749,8 @@ function refreshPeriodDates(newDate) {
         this.removePeriodListItem(this.soon);
     }
     newDate.isDate = true;
-    for (var i = 0; i < this.periods.length; i++) {
-        var curPeriod = this.periods[i];
+    for (let i = 0; i < this.periods.length; i++) {
+        let curPeriod = this.periods[i];
         newDate.hour = newDate.minute = newDate.second = 0;
         if (i == 0 && this.showstoday) {
             curPeriod.start = now();
@@ -783,11 +783,11 @@ function addListener(aListener) {
  */
 agendaListbox.showsToday =
 function showsToday(aStartDate) {
-    var lstart = aStartDate;
+    let lstart = aStartDate;
     if (!lstart) {
         lstart = this.today.start;
     }
-    var lshowsToday = (sameDay(now(), lstart));
+    let lshowsToday = (sameDay(now(), lstart));
     if (lshowsToday) {
         this.periods = [this.today, this.tomorrow, this.soon];
     } else {
@@ -802,7 +802,7 @@ function showsToday(aStartDate) {
  */
 agendaListbox.moveSelection =
 function moveSelection() {
-    var selindex = this.agendaListboxControl.selectedIndex;
+    let selindex = this.agendaListboxControl.selectedIndex;
     if (!this.isEventListItem(this.agendaListboxControl.selectedItem.nextSibling)) {
         this.agendaListboxControl.goUp();
     } else {
@@ -818,8 +818,8 @@ function moveSelection() {
  */
 agendaListbox.getSelectedItems =
 function getSelectedItems() {
-    var selindex = this.agendaListboxControl.selectedIndex;
-    var items = [];
+    let selindex = this.agendaListboxControl.selectedIndex;
+    let items = [];
     if (this.isEventListItem(this.agendaListboxControl.selectedItem)) {
         // If at some point we support selecting multiple items, this array can
         // be expanded.
@@ -837,9 +837,9 @@ function getSelectedItems() {
  */
 agendaListbox.isEventListItem =
 function isEventListItem(aListItem) {
-    var isListItem = (aListItem != null);
+    let isListItem = (aListItem != null);
     if (isListItem) {
-        var localName = aListItem.localName;
+        let localName = aListItem.localName;
         isListItem = (localName == "agenda-richlist-item" ||
                       localName == "agenda-allday-richlist-item");
     }
@@ -851,11 +851,11 @@ function isEventListItem(aListItem) {
  */
 agendaListbox.removeListItems =
 function removeListItems() {
-    var listItem = this.agendaListboxControl.lastChild;
+    let listItem = this.agendaListboxControl.lastChild;
     if (listItem) {
-        var leaveloop = false;
+        let leaveloop = false;
         do {
-            var newlistItem = null;
+            let newlistItem = null;
             if (listItem) {
                 newlistItem = listItem.previousSibling;
             } else {
@@ -880,8 +880,8 @@ function removeListItems() {
  */
 agendaListbox.getListItemByHashId =
 function getListItemByHashId(ahashId) {
-    var listItem = this.agendaListboxControl.firstChild;
-    var leaveloop = false;
+    let listItem = this.agendaListboxControl.firstChild;
+    let leaveloop = false;
     do {
         if (this.isEventListItem(listItem)) {
             if (listItem.occurrence.hashId == ahashId) {
@@ -938,16 +938,16 @@ agendaListbox.calendarObserver.onAddItem = function observer_onAddItem(item) {
         return;
     }
     // get all sub items if it is a recurring item
-    var occs = this.getOccurrencesBetween(item);
+    let occs = this.getOccurrencesBetween(item);
     occs.forEach(this.agendaListbox.addItem, this.agendaListbox);
     setCurrentEvent();
 };
 
 agendaListbox.calendarObserver.getOccurrencesBetween =
 function getOccurrencesBetween(aItem) {
-    var occs = [];
-    var start = this.agendaListbox.getStart();
-    var end = this.agendaListbox.getEnd();
+    let occs = [];
+    let start = this.agendaListbox.getStart();
+    let end = this.agendaListbox.getEnd();
     if (start && end) {
         occs = aItem.getOccurrencesBetween(start, end, {});
     }
@@ -964,11 +964,11 @@ function observer_onLocalDeleteItem(item, moveSelection) {
     if (!isEvent(item)) {
         return false;
     }
-    var selectedItemHashId = -1;
+    let selectedItemHashId = -1;
 // get all sub items if it is a recurring item
-    var occs = this.getOccurrencesBetween(item);
-    for (var i = 0; i < occs.length; i++) {
-        var isSelected = this.agendaListbox.deleteItem(occs[i], moveSelection);
+    let occs = this.getOccurrencesBetween(item);
+    for (let i = 0; i < occs.length; i++) {
+        let isSelected = this.agendaListbox.deleteItem(occs[i], moveSelection);
         if (isSelected) {
             selectedItemHashId = occs[i].hashId;
         }
@@ -978,13 +978,13 @@ function observer_onLocalDeleteItem(item, moveSelection) {
 
 agendaListbox.calendarObserver.onModifyItem =
 function observer_onModifyItem(newItem, oldItem) {
-    var selectedItemHashId = this.onLocalDeleteItem(oldItem, false);
+    let selectedItemHashId = this.onLocalDeleteItem(oldItem, false);
     if (!isEvent(newItem)) {
         return;
     }
     this.onAddItem(newItem);
     if (selectedItemHashId != -1) {
-        var listItem = agendaListbox.getListItemByHashId(selectedItemHashId);
+        let listItem = agendaListbox.getListItemByHashId(selectedItemHashId);
         if (listItem) {
             agendaListbox.agendaListboxControl.clearSelection();
             agendaListbox.agendaListboxControl.ensureElementIsVisible(listItem);
@@ -1002,7 +1002,7 @@ agendaListbox.calendarObserver.onPropertyChanged = function(aCalendar, aName, aV
             this.agendaListbox.refreshCalendarQuery();
             break;
         case "color":
-            for (var node = agendaListbox.agendaListboxControl.firstChild;
+            for (let node = agendaListbox.agendaListboxControl.firstChild;
                  node;
                  node = node.nextSibling) {
                 // Change color on all nodes that don't do so themselves, which
@@ -1131,7 +1131,7 @@ function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
     // Is an nsITimer/callback extreme overkill here? Yes, but it's necessary to
     // workaround bug 291386.  If we don't, we stand a decent chance of getting
     // stuck in an infinite loop.
-    var udCallback = {
+    let udCallback = {
         notify: function(timer) {
             aRefreshCallback();
         }
@@ -1139,7 +1139,7 @@ function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
 
     if (!gEventTimer) {
         // Observer for wake after sleep/hibernate/standby to create new timers and refresh UI
-        var wakeObserver = {
+        let wakeObserver = {
            observe: function(aSubject, aTopic, aData) {
                if (aTopic == "wake_notification") {
                    aRefreshCallback();

@@ -153,7 +153,7 @@
 
           let children = categoryListbox.childNodes;
           let categories = [];
-          for (var i = 0; i < children.length; i++) {
+          for (let i = 0; i < children.length; i++) {
             categories.push(children[i].label);
           }
 
@@ -337,11 +337,11 @@
       <method name="isVisible">
         <parameter name="aMode"/>
         <body><![CDATA[
-            var lMode = aMode || this.currentMode;
+            let lMode = aMode || this.currentMode;
             if (!this.isVisibleInMode(lMode)) {
                 return false;
             }
-            var collapsedModes = this.getAttribute("collapsedinmodes").split(",");
+            let collapsedModes = this.getAttribute("collapsedinmodes").split(",");
             return (!collapsedModes.includes(lMode));
         ]]></body>
       </method>
@@ -382,13 +382,13 @@
         <parameter name="aPushModeCollapsedAttribute"/>
         <parameter name="aNotifyRefControl"/>
         <body><![CDATA[
-            var notifyRefControl = ((aNotifyRefControl == null) || (aNotifyRefControl === true));
-            var pushModeCollapsedAttribute = ((aPushModeCollapsedAttribute == null)
+            let notifyRefControl = ((aNotifyRefControl == null) || (aNotifyRefControl === true));
+            let pushModeCollapsedAttribute = ((aPushModeCollapsedAttribute == null)
                                                  || (aPushModeCollapsedAttribute === true));
-            var collapsedModes = [];
-            var modeIndex = -1;
-            var display = aVisible;
-            var collapsedInMode = false;
+            let collapsedModes = [];
+            let modeIndex = -1;
+            let display = aVisible;
+            let collapsedInMode = false;
             if (this.hasAttribute("collapsedinmodes")) {
                 collapsedModes = this.getAttribute("collapsedinmodes").split(",");
                 modeIndex = collapsedModes.indexOf(this.currentMode);
@@ -416,14 +416,14 @@
                     }
                 }
                 this.setAttribute("collapsedinmodes", collapsedModes.join(","));
-                var id = this.getAttribute("id");
+                let id = this.getAttribute("id");
                 if (id) {
                     document.persist(id, "collapsedinmodes");
                 }
             }
             if (notifyRefControl === true) {
                 if (this.hasAttribute("refcontrol")) {
-                    var command = document.getElementById(this.getAttribute("refcontrol"));
+                    let command = document.getElementById(this.getAttribute("refcontrol"));
                     if (command) {
                         command.setAttribute("checked", display);
                         setBooleanAttribute(command, "disabled", !this.isVisibleInMode());
@@ -436,11 +436,11 @@
       <method name="isVisibleInMode">
         <parameter name="aMode"/>
         <body><![CDATA[
-            var lMode = aMode || this.currentMode;
-            var display = true;
-            var lModes = [];
+            let lMode = aMode || this.currentMode;
+            let display = true;
+            let lModes = [];
             if (this.hasAttribute("mode")) {
-                var modeString = this.getAttribute("mode");
+                let modeString = this.getAttribute("mode");
                 lModes = modeString.split(",");
             }
             if (lModes && lModes.length > 0) {
@@ -455,7 +455,7 @@
         <parameter name="aBinding"/>
         <body><![CDATA[
             if (aEvent.attrName == "mode") {
-                var display = aBinding.isVisibleInMode(aEvent.newValue);
+                let display = aBinding.isVisibleInMode(aEvent.newValue);
                 aBinding.setVisible(display, false, true);
             }
         ]]></body>
@@ -464,8 +464,8 @@
       <method name="togglePane">
         <parameter name="aEvent"/>
         <body><![CDATA[
-            var command = aEvent.target;
-            var newValue = (command.getAttribute("checked") == "true" ? "false" : "true");
+            let command = aEvent.target;
+            let newValue = (command.getAttribute("checked") == "true" ? "false" : "true");
             command.setAttribute("checked", newValue);
             this.setVisible(newValue == "true", true, true);
         ]]></body>
@@ -475,7 +475,7 @@
         <parameter name="aEvent"/>
         <parameter name="aBinding"/>
         <body><![CDATA[
-            var newValue = aEvent.target.checked;
+            let newValue = aEvent.target.checked;
             this.setVisible(newValue, true, true);
         ]]></body>
       </method>
@@ -495,7 +495,7 @@
               this.mBroadcaster.addEventListener("DOMAttrModified", this.mModHandler, true);
             }
           }
-          var ret = XULElement.prototype.setAttribute.call(this, aAttr, aVal);
+          let ret = XULElement.prototype.setAttribute.call(this, aAttr, aVal);
         ]]></body>
       </method>
     </implementation>

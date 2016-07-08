@@ -22,7 +22,7 @@ function calDateTimeFormatter() {
     // If LONG FORMATTED DATE is same as short formatted date,
     // then OS has poor extended/long date config, so use workaround.
     this.mUseLongDateService = true;
-    var probeDate =
+    let probeDate =
         Components.classes["@mozilla.org/calendar/datetime;1"]
                   .createInstance(Components.interfaces.calIDateTime);
     probeDate.timezone = UTC();
@@ -33,17 +33,17 @@ function calDateTimeFormatter() {
         // We're try/catching the calls to nsScriptableDateFormat since it's
         // outside this module. We're also reusing probeDate rather than
         // creating 3 discrete calDateTimes for performance.
-        var probeStringA = this.formatDateShort(probeDate);
-        var longProbeString = this.formatDateLong(probeDate);
+        let probeStringA = this.formatDateShort(probeDate);
+        let longProbeString = this.formatDateLong(probeDate);
         probeDate.month = 4;
-        var probeStringB = this.formatDateShort(probeDate);
+        let probeStringB = this.formatDateShort(probeDate);
         probeDate.month = 3;
         probeDate.day = 6;
-        var probeStringC = this.formatDateShort(probeDate);
+        let probeStringC = this.formatDateShort(probeDate);
 
         // Compare the index of the first differing character between
         // probeStringA to probeStringB and probeStringA to probeStringC.
-        for (var i = 0; i < probeStringA.length; i++) {
+        for (let i = 0; i < probeStringA.length; i++) {
             if (probeStringA[i] != probeStringB[i]) {
                 this.mMonthFirst = true;
                 break;

@@ -11,7 +11,7 @@ var gPublishObject;
 function loadCalendarPublishDialog() {
    // Get arguments, see description at top of file
 
-   var args = window.arguments[0];
+   let args = window.arguments[0];
 
    gOnOkFunction = args.onOk;
 
@@ -27,7 +27,7 @@ function loadCalendarPublishDialog() {
 
    checkURLField();
 
-   var firstFocus = document.getElementById("publish-remotePath-textbox");
+   let firstFocus = document.getElementById("publish-remotePath-textbox");
    firstFocus.focus();
 }
 

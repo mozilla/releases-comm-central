@@ -24,7 +24,7 @@ function ltnInitMailIdentitiesRow() {
         collapseElement("calendar-email-identity-row");
     }
 
-    var imipIdentityDisabled = gCalendar.getProperty("imip.identity.disabled");
+    let imipIdentityDisabled = gCalendar.getProperty("imip.identity.disabled");
     setElementValue("calendar-email-identity-row",
                     imipIdentityDisabled && "true",
                     "collapsed");
@@ -38,7 +38,7 @@ function ltnInitMailIdentitiesRow() {
     // If there is no transport but also no organizer id, then the
     // provider has not statically configured an organizer id. This is
     // basically what happens when "None" is selected.
-    var menuPopup = document.getElementById("email-identity-menupopup");
+    let menuPopup = document.getElementById("email-identity-menupopup");
 
     // Remove all children from the email list to avoid duplicates if the list
     // has already been populated during a previous step in the calendar
@@ -58,7 +58,7 @@ function ltnInitMailIdentitiesRow() {
         addMenuItem(menuPopup, identity.identityName, identity.key);
     }
     try {
-        var sel = gCalendar.getProperty("imip.identity");
+        let sel = gCalendar.getProperty("imip.identity");
         if (sel) {
             sel = sel.QueryInterface(Components.interfaces.nsIMsgIdentity);
         }
@@ -72,9 +72,9 @@ function ltnSaveMailIdentitySelection() {
     if (!gCalendar) {
         return;
     }
-    var sel = "none";
-    var imipIdentityDisabled = gCalendar.getProperty("imip.identity.disabled");
-    var selItem = document.getElementById("email-identity-menulist").selectedItem;
+    let sel = "none";
+    let imipIdentityDisabled = gCalendar.getProperty("imip.identity.disabled");
+    let selItem = document.getElementById("email-identity-menulist").selectedItem;
     if (!imipIdentityDisabled && selItem) {
         sel = selItem.getAttribute("value");
     }

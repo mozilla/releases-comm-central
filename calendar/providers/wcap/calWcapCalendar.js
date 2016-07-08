@@ -38,7 +38,7 @@ calWcapCalendar.prototype = {
     }),
 
     toString: function calWcapCalendar_toString() {
-        var str = this.session.toString();
+        let str = this.session.toString();
         if (this.m_calId) {
             str += (", calId=" + this.calId);
         } else {
@@ -48,7 +48,7 @@ calWcapCalendar.prototype = {
     },
 
     notifyError_: function calWcapCalendar_notifyError_(err, msg, context) {
-        var rc = getResultCode(err);
+        let rc = getResultCode(err);
         switch (rc) {
             case calIWcapErrors.WCAP_COMPONENT_NOT_FOUND:
             case NS_ERROR_OFFLINE:
@@ -85,7 +85,7 @@ calWcapCalendar.prototype = {
 
     // calICalendar:
     get name() {
-        var name = this.getProperty("name");
+        let name = this.getProperty("name");
         if (!name) {
             name = this.displayName;
         }
@@ -105,13 +105,13 @@ calWcapCalendar.prototype = {
     },
     set uri(thatUri) {
         this.m_uri = thatUri.clone();
-        var path = thatUri.path;
-        var qmPos = path.indexOf("?");
+        let path = thatUri.path;
+        let qmPos = path.indexOf("?");
         if (qmPos != -1) {
-            var pos = path.indexOf("?calid=", qmPos);
+            let pos = path.indexOf("?calid=", qmPos);
             if (pos != -1) {
-                var start = (pos + "?calid=".length);
-                var end = path.indexOf("&", start);
+                let start = (pos + "?calid=".length);
+                let end = path.indexOf("&", start);
                 this.m_calId = decodeURIComponent(
                     path.substring(start, end == -1 ? path.length : end));
             }
@@ -144,7 +144,7 @@ calWcapCalendar.prototype = {
                 return 1;
         }
 
-        var value = this.__proto__.__proto__.getProperty.apply(this, arguments);
+        let value = this.__proto__.__proto__.getProperty.apply(this, arguments);
         switch (aName) {
             case "readOnly":
                 if (value === null) {
@@ -212,7 +212,7 @@ calWcapCalendar.prototype = {
 
     issueNetworkRequest: function calWcapCalendar_issueNetworkRequest(
               request, respFunc, dataConvFunc, wcapCommand, params, accessRights) {
-        var this_ = this;
+        let this_ = this;
         // - bootstrap problem: no cal_props, no access check, no default calId
         // - assure being logged in, thus the default cal_props are available
         // - every subscribed calendar will come along with cal_props
@@ -248,12 +248,12 @@ calWcapCalendar.prototype = {
     },
 
     get ownerId() {
-        var ar = this.getCalendarProperties("X-NSCP-CALPROPS-PRIMARY-OWNER");
+        let ar = this.getCalendarProperties("X-NSCP-CALPROPS-PRIMARY-OWNER");
         if (ar.length == 0) {
-            var calId = this.calId;
+            let calId = this.calId;
             log("cannot determine primary owner of calendar " + calId, this);
             // fallback to calId prefix:
-            var nColon = calId.indexOf(":");
+            let nColon = calId.indexOf(":");
             if (nColon >= 0) {
                 calId = calId.substring(0, nColon);
             }
@@ -263,7 +263,7 @@ calWcapCalendar.prototype = {
     },
 
     get description() {
-        var ar = this.getCalendarProperties("X-NSCP-CALPROPS-DESCRIPTION");
+        let ar = this.getCalendarProperties("X-NSCP-CALPROPS-DESCRIPTION");
         if (ar.length == 0) {
             // fallback to display name:
             return this.displayName;
@@ -272,7 +272,7 @@ calWcapCalendar.prototype = {
     },
 
     get displayName() {
-        var ar = this.getCalendarProperties("X-NSCP-CALPROPS-NAME");
+        let ar = this.getCalendarProperties("X-NSCP-CALPROPS-NAME");
         if (ar.length == 0) {
             // fallback to common name:
             ar = this.getCalendarProperties("X-S1CS-CALPROPS-COMMON-NAME");
@@ -299,7 +299,7 @@ calWcapCalendar.prototype = {
         if (!this.m_calProps) {
             log("soft error: no calprops available, most possibly not logged in.", this);
         }
-        var ret = filterXmlNodes(propName, this.m_calProps);
+        let ret = filterXmlNodes(propName, this.m_calProps);
         if (out_count) {
             out_count.value = ret.length;
         }
@@ -319,7 +319,7 @@ calWcapCalendar.prototype = {
     },
 
     getAlignedTzid: function calWcapCalendar_getAlignedTzid(tz) {
-        var tzid = tz.tzid;
+        let tzid = tz.tzid;
         // check whether it is one cs supports:
         if (tz.isFloating || !this.session.getTimezone(tzid)) {
             log("not a supported timezone: " + tzid);
@@ -327,7 +327,7 @@ calWcapCalendar.prototype = {
             // xxx todo: we could further on search for a matching region,
             //           e.g. CET (in TZNAME), but for now stick to
             //           user's default if not supported directly
-            var ret = this.defaultTimezone;
+            let ret = this.defaultTimezone;
             // use calendar's default:
             log(tzid + " not supported, falling back to default: " + ret, this);
             return ret;
@@ -338,7 +338,7 @@ calWcapCalendar.prototype = {
     checkAccess: function calWcapCalendar_checkAccess(accessControlBits) {
         // xxx todo: take real acl into account
         // for now, optimistically assuming that everybody has full access, server will check:
-        var granted = calIWcapCalendar.AC_FULL;
+        let granted = calIWcapCalendar.AC_FULL;
         if (this.getProperty("readOnly")) {
             granted &= ~(calIWcapCalendar.AC_COMP_WRITE |
                          calIWcapCalendar.AC_PROP_WRITE);

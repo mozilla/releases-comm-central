@@ -486,7 +486,7 @@
             if (!Components.isSuccessCode(aStatus)) {
                 return;
             }
-            for (var item of aItems) {
+            for (let item of aItems) {
                 this.setBusyDaysForOccurrence(item, true);
             }
         ]]></body>
@@ -496,13 +496,13 @@
         <parameter name="aItem"/>
         <parameter name="aState"/>
         <body><![CDATA[
-          var items = [aItem];
+          let items = [aItem];
           if (aItem.recurrenceInfo) {
-              var startDate = this.firstDate;
-              var endDate = this.lastDate;
+              let startDate = this.firstDate;
+              let endDate = this.lastDate;
               items = aItem.getOccurrencesBetween(startDate, endDate, {});
           }
-          for (var item of items) {
+          for (let item of items) {
               this.setBusyDaysForOccurrence(item, aState);
           }
         ]]></body>
@@ -724,11 +724,11 @@
       <method name="setHeader">
         <body><![CDATA[
           // Reset the headers
-          var header = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-row-header");
-          var dayList = new Array(7);
-          var tempDate = new Date();
-          var i, j;
-          var useOSFormat;
+          let header = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-row-header");
+          let dayList = new Array(7);
+          let tempDate = new Date();
+          let i, j;
+          let useOSFormat;
           tempDate.setDate(tempDate.getDate() - (tempDate.getDay() - this.weekStart));
           for (i = 0; i < header.childNodes.length - 1; i++) {
               // if available, use UILocale days, else operating system format
@@ -748,7 +748,7 @@
               // be as narrow as 2 digits.
               //
               // 1. Compute the minLength of the day name abbreviations.
-              var minLength = dayList[0].length;
+              let minLength = dayList[0].length;
               for (i = 1; i < dayList.length; i++) {
                   minLength = Math.min(minLength, dayList[i].length);
               }
@@ -756,8 +756,8 @@
               //    and ALL localized day names share same prefix (as in Chinese),
               //    then trim shared "day-" prefix.
               if (dayList.some(function(dayAbbr){ return dayAbbr.length > 2; })) {
-                  for (var endPrefix = 0; endPrefix < minLength; endPrefix++) {
-                      var c = dayList[0][endPrefix];
+                  for (let endPrefix = 0; endPrefix < minLength; endPrefix++) {
+                      let c = dayList[0][endPrefix];
                       if (dayList.some(dayAbbr => dayAbbr[endPrefix] != c)) {
                           if (endPrefix > 0) {
                               for (i = 0; i < dayList.length; i++) { // trim prefix chars.
@@ -770,7 +770,7 @@
               }
               // 3. trim each day abbreviation to 1 char if unique, else 2 chars.
               for (i = 0; i < dayList.length; i++) {
-                  var foundMatch = 1;
+                  let foundMatch = 1;
                   for (j = 0; j < dayList.length; j++) {
                       if (i != j) {
                           if (dayList[i].substring(0, 1) == dayList[j].substring(0, 1)) {
@@ -784,7 +784,7 @@
           }
 
           setBooleanAttribute(header.childNodes[0], "hidden", !this.mShowWeekNumber);
-          for (var column = 1; column < header.childNodes.length; column++) {
+          for (let column = 1; column < header.childNodes.length; column++) {
               header.childNodes[column].setAttribute("value", dayList[column - 1]);
           }
         ]]></body>
@@ -804,7 +804,7 @@
             aDate.setSeconds(0);
             aDate.setMilliseconds(0);
             // Don't fire onmonthchange event upon initialization
-            var monthChanged = this.mEditorDate && (this.mEditorDate.valueOf() != aDate.valueOf());
+            let monthChanged = this.mEditorDate && (this.mEditorDate.valueOf() != aDate.valueOf());
             this.mEditorDate = aDate; // only place mEditorDate is set.
 
             if (this.mToday) {
@@ -827,20 +827,20 @@
             this.setAttribute("year", aDate.getFullYear());
             if (!this.mIsReadOnly) {
                 // Update the month popup
-                var header = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-header");
+                let header = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-header");
                 header.updateYearPopup(aDate);
                 header.updateMonthPopup(aDate);
             }
             // Update the calendar
-            var calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
-            var date = this._getStartDate(aDate);
+            let calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
+            let date = this._getStartDate(aDate);
 
             // get today's date
-            var today = new Date();
+            let today = new Date();
 
             this.mDayMap = {};
-            for (var k = 1; k < calbox.childNodes.length; k++) {
-                var row = calbox.childNodes[k];
+            for (let k = 1; k < calbox.childNodes.length; k++) {
+                let row = calbox.childNodes[k];
 
                 // Set the week number.
                 let firstElement = row.childNodes[0];
@@ -850,9 +850,9 @@
                     firstElement.setAttribute("value", weekNumber);
                 }
 
-                for (var i = 1; i < 8; i++) {
-                    var day = row.childNodes[i];
-                    var ymd = date.getFullYear() + "-" +
+                for (let i = 1; i < 8; i++) {
+                    let day = row.childNodes[i];
+                    let ymd = date.getFullYear() + "-" +
                               date.getMonth() + "-" +
                               date.getDate();
                     this.mDayMap[ymd] = day;
@@ -874,7 +874,7 @@
                     }
 
                     // highlight the current date
-                    var val = this.value;
+                    let val = this.value;
                     if (this._sameDay(val, date)) {
                         this.mSelected = day;
                         day.setAttribute("selected", "true");
@@ -910,7 +910,7 @@
       <method name="fireEvent">
         <parameter name="aEventName"/>
         <body><![CDATA[
-            var event = document.createEvent('Events');
+            let event = document.createEvent('Events');
             event.initEvent(aEventName, true, true);
             this.dispatchEvent(event);
         ]]></body>
@@ -929,7 +929,7 @@
         <parameter name="aDate"/>
         <body><![CDATA[
             function removeForBox(aBox) {
-              var allowedAttributes = 0;
+              let allowedAttributes = 0;
               while (aBox.attributes.length > allowedAttributes) {
                 switch (aBox.attributes[allowedAttributes].nodeName) {
                   case "selected":
@@ -955,9 +955,9 @@
                   removeForBox(box);
               }
             } else {
-              var calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
-              for (var k = 1; k < calbox.childNodes.length; k++) {
-                for (var i = 1; i < 8; i++) {
+              let calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
+              for (let k = 1; k < calbox.childNodes.length; k++) {
+                for (let i = 1; i < 8; i++) {
                     removeForBox(calbox.childNodes[k].childNodes[i]);
                 }
               }
@@ -988,7 +988,7 @@
               this._setFreeBusy(false);
           }
           // this should be done using lookupMethod(), see bug 286629
-          var ret = XULElement.prototype.removeAttribute.call(this, aAttr);
+          let ret = XULElement.prototype.removeAttribute.call(this, aAttr);
           return ret;
         ]]></body>
       </method>
@@ -1000,7 +1000,7 @@
               this._setFreeBusy(aVal == "true");
           }
           // this should be done using lookupMethod(), see bug 286629
-          var ret = XULElement.prototype.setAttribute.call(this, aAttr, aVal);
+          let ret = XULElement.prototype.setAttribute.call(this, aAttr, aVal);
           return ret;
         ]]></body>
       </method>
@@ -1053,7 +1053,7 @@
       <method name="hidePopupList">
         <body><![CDATA[
           if (!this.mIsReadOnly) {
-             var header = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-header");
+             let header = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-header");
              header.hidePopupList();
           }
         ]]></body>
@@ -1062,7 +1062,7 @@
       <method name="switchMonth">
         <parameter name="aMonth"/>
         <body><![CDATA[
-            var newMonth = new Date(this.mEditorDate);
+            let newMonth = new Date(this.mEditorDate);
             newMonth.setMonth(aMonth);
             this.showMonth(newMonth);
         ]]></body>
@@ -1071,7 +1071,7 @@
       <method name="switchYear">
         <parameter name="aYear"/>
         <body><![CDATA[
-            var newMonth = new Date(this.mEditorDate);
+            let newMonth = new Date(this.mEditorDate);
             newMonth.setFullYear(aYear);
             this.showMonth(newMonth);
         ]]></body>
@@ -1087,8 +1087,8 @@
             }
             // note, that aMainDate and this.mEditorDate refer to the first day
             // of the corresponding month
-            var sameMonth = this._sameDay(aMainDate, this.mEditorDate);
-            var sameDate = this._sameDay(aDate, this.mValue);
+            let sameMonth = this._sameDay(aMainDate, this.mEditorDate);
+            let sameDate = this._sameDay(aDate, this.mValue);
             if (!sameMonth && !sameDate) {
                 // change month and select day
                 this.mValue = aDate;
@@ -1112,8 +1112,8 @@
       <method name="_getStartDate">
         <parameter name="aMainDate"/>
         <body><![CDATA[
-          var date = new Date(aMainDate);
-          var firstWeekday = (7 + aMainDate.getDay() - this.weekStart) % 7;
+          let date = new Date(aMainDate);
+          let firstWeekday = (7 + aMainDate.getDay() - this.weekStart) % 7;
           date.setDate(date.getDate() - firstWeekday);
           return date;
         ]]></body>
@@ -1122,9 +1122,9 @@
       <method name="_getEndDate">
         <parameter name="aMainDate"/>
         <body><![CDATA[
-          var date = this._getStartDate(aMainDate);
-          var calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
-          var days = (calbox.childNodes.length - 1) * 7;
+          let date = this._getStartDate(aMainDate);
+          let calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
+          let days = (calbox.childNodes.length - 1) * 7;
           date.setDate(date.getDate() + days - 1);
           return date;
         ]]></body>
@@ -1146,8 +1146,8 @@
       <method name="advanceMonth">
         <parameter name="aDir"/>
         <body><![CDATA[
-          var advEditorDate = new Date(this.mEditorDate); // at 1st of month
-          var advMonth = this.mEditorDate.getMonth() + aDir;
+          let advEditorDate = new Date(this.mEditorDate); // at 1st of month
+          let advMonth = this.mEditorDate.getMonth() + aDir;
           advEditorDate.setMonth(advMonth);
           this.showMonth(advEditorDate);
         ]]></body>

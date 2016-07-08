@@ -8,7 +8,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
  * This code might change soon if we support Thunderbird's activity manager.
  * NOTE: The naming "Meteors" is historical.
  */
- var gCalendarStatusFeedback = {
+ let gCalendarStatusFeedback = {
      mCalendarStep: 0,
      mCalendarCount: 0,
      mWindow: null,
@@ -60,7 +60,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
                  this.mStatusBar.removeAttribute("collapsed");
                  this.mStatusBar.setAttribute("mode", "determined");
                  this.mStatusBar.value = 0;
-                 var commonStatus = calGetString("calendar", "gettingCalendarInfoCommon");
+                 let commonStatus = calGetString("calendar", "gettingCalendarInfoCommon");
                  this.showStatusString(commonStatus);
              }
              if (this.mThrobber) {
