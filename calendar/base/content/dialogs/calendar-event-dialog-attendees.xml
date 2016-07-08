@@ -1591,8 +1591,7 @@
             if (newStart.compare(this.mEndDate) >= 0) {
                 if (!this.mStartDate.isDate) {
                     newStart = this.mEndDate;
-                }
-                else{
+                } else {
                     return;
                 }
             }

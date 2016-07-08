@@ -46,7 +46,7 @@ var testWeeklyUntilRecurrence = function () {
     + eventPath;
 
   // check day view
-  for(let week = 0; week < 3; week++){
+  for (let week = 0; week < 3; week++){
     // Monday
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
     calUtils.forward(controller, 2);
@@ -68,7 +68,7 @@ var testWeeklyUntilRecurrence = function () {
   // check week view
   calUtils.switchToView(controller, "week");
   calUtils.goToDate(controller, 2009, 1, 5);
-  for(let week = 0; week < 3; week++){
+  for (let week = 0; week < 3; week++){
     // Monday
     box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 2, hour)
       + eventPath;
@@ -171,7 +171,7 @@ function checkMultiWeekView(view){
     startWeek++;
   }
 
-  for(let week = startWeek; week < startWeek + 3; week++){
+  for (let week = startWeek; week < startWeek + 3; week++){
     // Monday
     let box = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, week, 2, undefined)
       + eventPath;

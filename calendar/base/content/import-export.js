@@ -86,7 +86,7 @@ function loadEventsFromFile(aCalendar) {
         try {
             inputStream.init( fp.file, MODE_RDONLY, parseInt("0444", 8), {});
             items = importer.importFromStream(inputStream, {});
-        } catch(ex) {
+        } catch (ex) {
             switch (ex.result) {
                 case Components.interfaces.calIErrors.INVALID_TIMEZONE:
                     showError(calGetString("calendar", "timezoneError", [filePath]));
@@ -181,7 +181,7 @@ function putItemsIntoCal(destCal, aItems, aFilePath) {
         // XXX prompt when finding a duplicate.
         try {
             destCal.addItem(item, listener);
-        } catch(e) {
+        } catch (e) {
             failedCount++;
             lastError = e;
             // Call the listener's operationComplete, to increase the
@@ -306,7 +306,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
                                     calendarEventArray,
                                     null);
             outputStream.close();
-        } catch(ex) {
+        } catch (ex) {
             showError(calGetString("calendar", "unableToWrite") + filePath);
         }
     }

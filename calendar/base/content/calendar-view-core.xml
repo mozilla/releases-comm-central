@@ -359,7 +359,7 @@
         }
       ]]></handler>
       <handler event="dragstart"><![CDATA[
-        if( event.target.localName == "calendar-event-box") {
+        if (event.target.localName == "calendar-event-box") {
             return;
         }
         let item = this.occurrence;

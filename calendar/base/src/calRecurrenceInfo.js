@@ -641,7 +641,7 @@ calRecurrenceInfo.prototype = {
 
         for (var i = 0; i < this.mRecurrenceItems.length; i++) {
             let wrappedItem = cal.wrapInstance(this.mRecurrenceItems[i], Components.interfaces.calIRecurrenceDate);
-            if(wrappedItem) {
+            if (wrappedItem) {
                 let rd = wrappedItem;
                 if (rd.isNegative && rd.date.compare(aRecurrenceId) == 0) {
                     return this.deleteRecurrenceItemAt(i);

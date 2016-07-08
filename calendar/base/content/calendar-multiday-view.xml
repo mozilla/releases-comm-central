@@ -1979,7 +1979,7 @@
           if (cal.isToDo(this.mDragState.dragOccurrence)) {
               if (!this.mDragState.dragOccurrence.dueDate) {
                   startstr = calGetString("calendar", "dragLabelTasksWithOnlyEntryDate");
-              } else if(!this.mDragState.dragOccurrence.entryDate) {
+              } else if (!this.mDragState.dragOccurrence.entryDate) {
                   startstr = calGetString("calendar", "dragLabelTasksWithOnlyDueDate");
               }
           }
@@ -3369,7 +3369,7 @@
                   dayHeaderBox = headerboxkids[counter];
                   // Delete backwards to make sure we get them all
                   // and delete until no more elements are left.
-                  while(dayHeaderBox.mItemBoxes.length != 0) {
+                  while (dayHeaderBox.mItemBoxes.length != 0) {
                       var num = dayHeaderBox.mItemBoxes.length;
                       dayHeaderBox.deleteEvent(dayHeaderBox.mItemBoxes[num-1].occurrence);
                   }

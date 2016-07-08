@@ -49,18 +49,18 @@ function verify(controller, dates, timezones, times) {
       let eventNodes = [];
 
       // same day
-      if(day == undefined) {
+      if (day == undefined) {
         stackNode = (new elementslib.Lookup(controller.window.document, dayStack)).getNode();
       }
 
       // following day
-      if(day != undefined && day == 1) {
+      if (day != undefined && day == 1) {
         calUtils.forward(controller, 1);
         stackNode = (new elementslib.Lookup(controller.window.document, dayStack)).getNode();
       }
 
       // previous day
-      if(day != undefined && day == -1) {
+      if (day != undefined && day == -1) {
         calUtils.back(controller, 1);
         stackNode = (new elementslib.Lookup(controller.window.document, dayStack)).getNode();
       }
@@ -75,11 +75,11 @@ function verify(controller, dates, timezones, times) {
         }
       }
 
-      if(day != undefined && day == 1) {
+      if (day != undefined && day == 1) {
         calUtils.back(controller, 1);
       }
 
-      if(day != undefined && day == -1) {
+      if (day != undefined && day == -1) {
         calUtils.forward(controller, 1);
       }
       controller.assertJS(found == true);

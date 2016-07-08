@@ -609,7 +609,7 @@ function mapStorageArgs(storArgs) {
     const mISVA = Components.interfaces.mozIStorageValueArray;
     let mappedArgs = [];
     for (let i = 0; i < storArgs.numEntries; i++) {
-        switch(storArgs.getTypeOfIndex(i)) {
+        switch (storArgs.getTypeOfIndex(i)) {
             case mISVA.VALUE_TYPE_NULL: mappedArgs.push(null); break;
             case mISVA.VALUE_TYPE_INTEGER:
                 mappedArgs.push(storArgs.getInt64(i));

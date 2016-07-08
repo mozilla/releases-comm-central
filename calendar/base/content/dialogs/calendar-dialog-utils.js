@@ -573,7 +573,7 @@ function setupAttendees() {
             inRow = determineAttendeesInRow();
             window.attendeesInRow = inRow;
         } else {
-            while(attBoxRows.length > 0) {
+            while (attBoxRows.length > 0) {
                 attBox.removeChild(attBoxRows[0]);
             }
         }
@@ -659,7 +659,7 @@ function setupAttendees() {
             window.maxLabelWidth = maxWidth;
         }
     } else {
-        while(attBoxRows.length > 0) {
+        while (attBoxRows.length > 0) {
             attBox.removeChild(attBoxRows[0]);
         }
     }

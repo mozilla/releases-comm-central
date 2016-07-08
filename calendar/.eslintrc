@@ -146,8 +146,10 @@
     // Disabled for now given eslint doesn't support default args yet
     // "space-infix-ops": [2, {"int32Hint": true}],
 
+    // Require a space around all keywords.
+    "keyword-spacing": 2,
+
     // Will enable these rules later
-    "keyword-spacing": 0,
     "block-spacing": 0,
     "no-lonely-if": 0,
     "space-before-blocks": 0,

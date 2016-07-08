@@ -43,7 +43,7 @@ var testDailyRecurrence = function () {
     + eventPath;
   controller.waitForElement(new elementslib.Lookup(controller.window.document, box));
 
-  for(let day = 1; day <= 7; day++){
+  for (let day = 1; day <= 7; day++){
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
     calUtils.forward(controller, 1);
   }
@@ -52,7 +52,7 @@ var testDailyRecurrence = function () {
   calUtils.switchToView(controller, "week");
   calUtils.goToDate(controller, 2009, 1, 1);
 
-  for(let day = 5; day <= 7; day++){
+  for (let day = 5; day <= 7; day++){
     let box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, 1, day, hour)
       + eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
@@ -60,7 +60,7 @@ var testDailyRecurrence = function () {
 
   calUtils.forward(controller, 1);
 
-  for(let day = 1; day <= 7; day++){
+  for (let day = 1; day <= 7; day++){
     let box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, 2, day, hour)
       + eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
@@ -70,14 +70,14 @@ var testDailyRecurrence = function () {
   calUtils.switchToView(controller, "multiweek");
   calUtils.goToDate(controller, 2009, 1, 1);
 
-  for(let day = 5; day <= 7; day++){
+  for (let day = 5; day <= 7; day++){
     let box = calUtils.getEventBoxPath(controller, "multiweek", calUtils.EVENT_BOX, 1, day, hour)
       + eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
   }
 
-  for(let week = 2; week <= 4; week++){
-    for(let day = 1; day <= 7; day++){
+  for (let week = 2; week <= 4; week++){
+    for (let day = 1; day <= 7; day++){
       let box = calUtils.getEventBoxPath(controller, "multiweek", calUtils.EVENT_BOX, week, day, hour)
         + eventPath;
       controller.assertNode(new elementslib.Lookup(controller.window.document, box));
@@ -88,14 +88,14 @@ var testDailyRecurrence = function () {
   calUtils.switchToView(controller, "month");
   calUtils.goToDate(controller, 2009, 1, 1);
 
-  for(let day = 5; day <= 7; day++){
+  for (let day = 5; day <= 7; day++){
     let box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 1, day, undefined)
       + eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
   }
 
-  for(let week = 2; week <= 5; week++){
-    for(let day = 1; day <= 7; day++){
+  for (let week = 2; week <= 5; week++){
+    for (let day = 1; day <= 7; day++){
       let box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, week, day, undefined)
         + eventPath;
       controller.assertNode(new elementslib.Lookup(controller.window.document, box));
@@ -151,7 +151,7 @@ var testDailyRecurrence = function () {
     + eventPath;
   var dates = [[2009, 1, 3],
                [2009, 1, 4]];
-  for(let i = 0; i < dates.length; i++){
+  for (let i = 0; i < dates.length; i++){
     calUtils.goToDate(controller, dates[i][0], dates[i][1], dates[i][2]);
     controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, day));
   }
@@ -160,7 +160,7 @@ var testDailyRecurrence = function () {
   calUtils.switchToView(controller, "week");
   calUtils.goToDate(controller, 2009, 1, 1);
 
-  for(let i = 0; i <= 1; i++){
+  for (let i = 0; i <= 1; i++){
     let day = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 1, undefined)
       + eventPath;
     controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, day));
@@ -174,7 +174,7 @@ var testDailyRecurrence = function () {
   calUtils.switchToView(controller, "multiweek");
   calUtils.goToDate(controller, 2009, 1, 1);
 
-  for(let i = 1; i <= 4; i++){
+  for (let i = 1; i <= 4; i++){
     let day = calUtils.getEventBoxPath(controller, "multiweek", calUtils.EVENT_BOX, i, 1, undefined)
       + eventPath;
     controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, day));
@@ -187,7 +187,7 @@ var testDailyRecurrence = function () {
   calUtils.switchToView(controller, "month");
   calUtils.goToDate(controller, 2009, 1, 1);
 
-  for(let i = 1; i <= 5; i++){
+  for (let i = 1; i <= 5; i++){
     let day = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, i, 1, undefined)
       + eventPath;
     controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, day));

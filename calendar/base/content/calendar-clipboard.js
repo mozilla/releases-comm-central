@@ -134,7 +134,7 @@ function pasteFromClipboard() {
                                       .createInstance(Components.interfaces.calIIcsParser);
             try {
                 icsParser.parseString(data);
-            } catch(e) {}
+            } catch (e) {}
 
             let items = icsParser.getItems({});
             if (items.length == 0) {

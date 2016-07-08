@@ -101,7 +101,7 @@ function handleParentModification(controller, attendees){
  *  @param view - day, week, multiweek or month
  */
 function switchToView(controller, view){
-  switch(view){
+  switch (view){
     case "week":
       controller.waitThenClick(new elementslib.ID(controller.window.document,
         "calendar-week-view-button"));
@@ -174,7 +174,7 @@ function goToDate(controller, year, month, day){
       + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})'));
     controller.sleep(500);
 
-    for(let i = 0; i < Math.abs(yearDifference); i++){
+    for (let i = 0; i < Math.abs(yearDifference); i++){
       scrollArrow.doCommand();
       controller.sleep(100);
     }
@@ -227,7 +227,7 @@ function getEventBoxPath(controller, view, option, row, column, hour){
   let monthView = viewDeck + '/id("month-view")';
 
   let path = '';
-  switch(view){
+  switch (view){
     case "week":
       path += weekView;
       break;
@@ -274,7 +274,7 @@ function getEventBoxPath(controller, view, option, row, column, hour){
  * @param n - how many times next button in view is clicked
  */
 function forward(controller, n){
-  for(let i = 0; i < n; i++){
+  for (let i = 0; i < n; i++){
     controller.click(new elementslib.ID(controller.window.document, "next-view-button"));
     controller.sleep(100);
   }
@@ -285,7 +285,7 @@ function forward(controller, n){
  * @param n - how many times previous button in view is clicked
  */
 function back(controller, n){
-  for(let i = 0; i < n; i++){
+  for (let i = 0; i < n; i++){
     controller.click(new elementslib.ID(controller.window.document, "previous-view-button"));
     controller.sleep(100);
   }
@@ -343,11 +343,11 @@ function createCalendar(controller, name){
  * @param eventNodes - array where to put resultíng nodes
  */
 function findEventsInNode(node, eventNodes) {
-  if(node.tagName == "calendar-event-box") {
+  if (node.tagName == "calendar-event-box") {
     eventNodes.push(node);
     return;
   }
-  else if(node.children.length > 0) {
+  else if (node.children.length > 0) {
     for (let i = 0; i < node.children.length; i++) {
       findEventsInNode(node.children[i], eventNodes);
     }

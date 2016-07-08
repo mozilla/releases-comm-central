@@ -107,7 +107,7 @@ var testEventDialogModificationPrompt = function () {
   controller.waitForElementNotPresent(new elementslib.Lookup(controller.window.document,
     calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8)));
 
-  for(let i = 0; i < newlines.length; i++) {
+  for (let i = 0; i < newlines.length; i++) {
     // test set i
     controller.doubleClick(new elementslib.Lookup(controller.window.document,
       calUtils.getEventBoxPath(controller, "day", calUtils.CANVAS_BOX, undefined, 1, 8)), 1, 1);

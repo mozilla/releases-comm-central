@@ -83,7 +83,7 @@ add_task(function* completeness_test() {
 
         // some checks on the test data
         if (comp != -1) {
-            switch(comp) {
+            switch (comp) {
                 case 0:
                     do_print("Test data and timezone service use the same timezone version.");
                     break;

@@ -198,7 +198,7 @@ function readJSONFile(aFile) {
       let json = Cc["@mozilla.org/dom/json;1"].createInstance(Components.interfaces.nsIJSON);
       let data = json.decodeFromStream(stream, stream.available());
       return data;
-  } catch(ex) {
+  } catch (ex) {
       dump("readJSONFile: Error reading JSON file: " + ex);
   } finally {
       stream.close();

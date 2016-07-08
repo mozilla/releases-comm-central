@@ -294,7 +294,7 @@
           let popup = getParentNodeOrThis(element, "menupopup");
           if (popup) {
               let anonid = popup.getAttribute("anonid")
-              switch(anonid) {
+              switch (anonid) {
                   case "months-popup":
                       this.hidePopupList();
                       this.kMinimonth.switchMonth(element.getAttribute("index"));
@@ -1044,7 +1044,7 @@
         <parameter name="aValue"/>
         <body><![CDATA[
           this.mValue = aValue;
-          if(this.mValue) {
+          if (this.mValue) {
             this.fireEvent('change');
           }
           this.showMonth(aValue);

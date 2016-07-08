@@ -201,7 +201,7 @@ function formatStringForCSSRule(aString) {
     function toReplacement(ch) {
         // char code is natural number (positive integer)
         var nat = ch.charCodeAt(0);
-        switch(nat) {
+        switch (nat) {
             case 0x20: // space
                 return "_";
             default:
@@ -917,7 +917,7 @@ function LOG(aArg) {
     var shouldLog = false;
     try {
         shouldLog = Services.prefs.getBoolPref("calendar.debug.log");
-    } catch(ex) {}
+    } catch (ex) {}
 
     if (!shouldLog) {
         return;

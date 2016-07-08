@@ -32,7 +32,7 @@ function onUnload() {
  * (Cancels the search when pressing escape)
  */
 function onKeyPress(event) {
-    switch(event.keyCode) {
+    switch (event.keyCode) {
         case 27: /* ESC */
             if (gCurrentSearchOperation) {
                 cancelPendingSearchOperation();
@@ -49,7 +49,7 @@ function onKeyPress(event) {
  * (Starts the search when hitting enter)
  */
 function onTextBoxKeyPress(event) {
-    switch(event.keyCode) {
+    switch (event.keyCode) {
         case 13: /* RET */
             onSearch();
             event.stopPropagation();

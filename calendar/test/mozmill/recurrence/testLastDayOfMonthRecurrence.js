@@ -55,7 +55,7 @@ var testLastDayOfMonthRecurrence = function () {
   let box = "";
 
   // check all dates
-  for(let i = 0; i < checkingData.length; i++){
+  for (let i = 0; i < checkingData.length; i++){
     calUtils.goToDate(controller, checkingData[i][0], checkingData[i][1], checkingData[i][2]);
 
     // day view

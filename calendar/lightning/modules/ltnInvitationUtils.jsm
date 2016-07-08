@@ -453,7 +453,7 @@ ltn.invitation = {
         // according to section 3.3 of RfC5322, +0000 should be used for defined timezones using
         // UTC time, while -0000 should indicate a floating time instead
         let tz = cal.calendarDefaultTimezone();
-        if(tz && tz.isFloating) {
+        if (tz && tz.isFloating) {
             str.replace(/\+0000$/, "-0000");
         }
         return str;

@@ -85,7 +85,7 @@ var testLocalICS = function () {
 
   // wait a moment until file is written
   let i = 0;
-  while(!file.exists() && i < 10) {
+  while (!file.exists() && i < 10) {
     controller.sleep(sleep);
     i++;
   }

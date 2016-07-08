@@ -84,7 +84,7 @@
                     if (!aItem.entryDate && !aItem.dueDate) {
                         return;
                     }
-                    if(!this.calView.mTasksInView){
+                    if (!this.calView.mTasksInView){
                         return;
                     }
                     if (aItem.isCompleted && !this.calView.mShowCompleted) {
@@ -372,7 +372,7 @@
             try {
                 retval = this.displayCalendar && this.startDay
                          && this.endDay;
-            } catch(ex) {
+            } catch (ex) {
                 return false;
             }
             return retval;

@@ -142,7 +142,7 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
         icsURL.scheme = 'https';
     }
 
-    switch(icsURL.scheme) {
+    switch (icsURL.scheme) {
         case 'http':
         case 'https':
             channel = channel.QueryInterface(Components.interfaces.nsIHttpChannel);
@@ -221,7 +221,7 @@ var publishingListener = {
         try {
             channel = request.QueryInterface(Components.interfaces.nsIHttpChannel);
             requestSucceeded = channel.requestSucceeded;
-        } catch(e) {
+        } catch (e) {
         }
         if (channel && !requestSucceeded) {
             Services.prompt.alert(null, calGetString("calendar", "genericErrorTitle"),

@@ -190,7 +190,7 @@ function onKeyPress(aEvent) {
     if (listItem.localName == "richlistbox") {
         listItem = listItem.selectedItem;
     }
-    switch(aEvent.keyCode) {
+    switch (aEvent.keyCode) {
         case aEvent.DOM_VK_RETURN:
             document.getElementById('agenda_edit_event_command').doCommand();
             break;

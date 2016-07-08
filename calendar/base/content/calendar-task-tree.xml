@@ -566,7 +566,7 @@
                   this.sortDirection = "ascending";
               }
               else {
-                  if(!this.sortDirection || this.sortDirection == "descending") {
+                  if (!this.sortDirection || this.sortDirection == "descending") {
                       this.sortDirection = "ascending";
                   } else {
                       this.sortDirection = "descending";
@@ -646,7 +646,7 @@
              // Return the empty string in order
              // to use moz-tree-image pseudoelement :
              // it is mandatory to return "" and not false :-(
-             return("");
+             return "";
           },
 
           // IsEditable is called to ask the view if the cell contents are editable.
@@ -711,7 +711,7 @@
           // The progress mode for a given cell. This method is only called for
           // columns of type |progressmeter|.
           getProgressMode: function mTV_getProgressMode(aRow, aCol) {
-              switch(aCol.element.getAttribute("itemproperty")) {
+              switch (aCol.element.getAttribute("itemproperty")) {
                   case "percentComplete":
                       var task = this.binding.mTaskArray[aRow];
                       if (aCol.element.boxObject.width > 75 &&
@@ -1174,7 +1174,7 @@
           if (!region.isEmpty()) {
             region.intersectRect(bo.x, bo.y, bo.width, bo.height);
           }
-        } catch(ex) {
+        } catch (ex) {
           ASSERT(false, "Error while building selection region: " + ex + "\n");
           region = null;
         }

@@ -46,7 +46,7 @@ function onOKCommand()
    gOnOkFunction(gPublishObject, progressDialog);
    document.getElementById( "calendar-publishwindow" ).getButton( "accept" ).setAttribute( "label", closeButtonLabel );
    document.getElementById( "calendar-publishwindow" ).setAttribute( "ondialogaccept", "closeDialog()" );
-   return( false );
+   return ( false );
 }
 
 

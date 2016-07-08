@@ -92,7 +92,7 @@
               var nextDay = parentDate.clone();
               nextDay.day++;
               var comp = endTime.compare(nextDay);
-              if(startTime.compare( parentDate) == -1 ) {
+              if (startTime.compare( parentDate) == -1 ) {
                 if (comp == 1) {
                   label.value = "↔";
                 } else if (comp == 0) {

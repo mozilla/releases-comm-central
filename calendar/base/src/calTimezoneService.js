@@ -668,7 +668,7 @@ function guessSystemTimezone() {
         if (zoneInfoIdFromOSUserTimeZone != null) {
             let tzId = zoneInfoIdFromOSUserTimeZone;
             let score = checkTZ(tzId);
-            switch(score) {
+            switch (score) {
             case 0:
                 // Did not match.
                 // Maybe OS or Application is old, and the timezone changed.
@@ -742,7 +742,7 @@ function guessSystemTimezone() {
         let tzId = tzIDs.getNext();
         try {
             let score = checkTZ(tzId);
-            switch(score) {
+            switch (score) {
             case 0: break;
             case 1: case 2:
                 if (score > probableTZScore) {
@@ -762,7 +762,7 @@ function guessSystemTimezone() {
 
     // If reach here, there were no score=3 matches, so Warn in console.
     try {
-        switch(probableTZScore) {
+        switch (probableTZScore) {
         case 0:
             cal.WARN(calProperties.GetStringFromName("warningUsingFloatingTZNoMatch"));
             break;

@@ -1051,10 +1051,10 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
 
     // split up transport, if attendee undisclosure is requested
     // and this is a message send by the organizer
-    if((aItem.getProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED") == "TRUE") &&
-       aMethod != "REPLY" &&
-       aMethod != "REFRESH" &&
-       aMethod != "COUNTER") {
+    if (aItem.getProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED") == "TRUE" &&
+        aMethod != "REPLY" &&
+        aMethod != "REFRESH" &&
+        aMethod != "COUNTER") {
         for (let aRecipient of aRecipientsList) {
             // create a list with a single recipient
             let sendToList = [aRecipient];

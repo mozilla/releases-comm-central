@@ -52,7 +52,7 @@ function showToolTip(aToolTip, aItem) {
 
 function getPreviewForTask( toDoItem )
 {
-  if( toDoItem )
+  if ( toDoItem )
   {
     const vbox = document.createElement( "vbox" );
     vbox.setAttribute("class", "tooltipBox");
@@ -214,7 +214,7 @@ function getPreviewForEvent( aEvent) {
 /** String for event status: (none), Tentative, Confirmed, or Cancelled **/
 function getEventStatusString(calendarEvent)
 {
-  switch( calendarEvent.status )
+  switch ( calendarEvent.status )
   {
     // Event status value keywords are specified in RFC2445sec4.8.1.11
     case "TENTATIVE":
@@ -231,7 +231,7 @@ function getEventStatusString(calendarEvent)
 /** String for todo status: (none), NeedsAction, InProcess, Cancelled, or Completed **/
 function getToDoStatusString(iCalToDo)
 {
-  switch( iCalToDo.status )
+  switch ( iCalToDo.status )
   {
     // Todo status keywords are specified in RFC2445sec4.8.1.11
     case "NEEDS-ACTION":

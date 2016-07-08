@@ -168,8 +168,8 @@ var testEventDialog = function () {
 
   // 31st of January is Saturday so there's four more full rows to check
   let date = 4;
-  for(row = 1; row < 5; row++){
-    for(col = 0; col < 7; col++){
+  for (row = 1; row < 5; row++){
+    for (col = 0; col < 7; col++){
         controller.assertNode(new elementslib.Lookup(controller.window.document,
           eventBox.replace("rowNumber", row).replace("columnNumber", col)));
         checkIcon(eventBox, row, col);

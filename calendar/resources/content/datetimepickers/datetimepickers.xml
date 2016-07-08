@@ -84,7 +84,7 @@
          var text = document.getAnonymousElementByAttribute(this, "anonid", "date-textbox");
           try {
             text.value = this.formatDate(val);
-          } catch(ex) {}
+          } catch (ex) {}
           return val;
         ]]></setter>
       </property>
@@ -1705,7 +1705,7 @@
               if (aValue.toLowerCase() == midnight.toLowerCase()) {
                 return new Date(0, 0, 0, 0, 0, 0, 0);
               }
-            } catch(ex) {
+            } catch (ex) {
             }
 
             var time = null;

@@ -74,7 +74,7 @@ calMemoryCalendar.prototype = {
 
         try {
             listener.onDeleteCalendar(calendar, Components.results.NS_OK, null);
-        } catch(ex) {}
+        } catch (ex) {}
     },
 
     mRelaxedMode: undefined,
@@ -387,7 +387,7 @@ calMemoryCalendar.prototype = {
         // item base type
         let wantEvents = ((aItemFilter & calICalendar.ITEM_FILTER_TYPE_EVENT) != 0);
         let wantTodos = ((aItemFilter & calICalendar.ITEM_FILTER_TYPE_TODO) != 0);
-        if(!wantEvents && !wantTodos) {
+        if (!wantEvents && !wantTodos) {
             // bail.
             this.notifyOperationComplete(aListener,
                                          Components.results.NS_ERROR_FAILURE,

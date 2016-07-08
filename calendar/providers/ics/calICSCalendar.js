@@ -195,7 +195,7 @@ calICSCalendar.prototype = {
         try {
             streamLoader.init(this);
             channel.asyncOpen(streamLoader, prbForce);
-        } catch(e) {
+        } catch (e) {
             // File not found: a new calendar. No problem.
             cal.LOG("[calICSCalendar] Error occurred opening channel: " + e);
             this.unlock();
@@ -254,7 +254,7 @@ calICSCalendar.prototype = {
         var str;
         try {
             str = unicodeConverter.convertFromByteArray(result, result.length);
-        } catch(e) {
+        } catch (e) {
             this.mObserver.onError(this.superCalendar, calIErrors.CAL_UTF8_DECODING_FAILED, e.toString());
             this.mObserver.onError(this.superCalendar, calIErrors.READ_FAILED, "");
             this.unlock();
@@ -428,7 +428,7 @@ calICSCalendar.prototype = {
         try {
             httpChannel = request.QueryInterface(Components.interfaces.nsIHttpChannel);
             requestSucceeded = httpChannel.requestSucceeded;
-        } catch(e) {
+        } catch (e) {
         }
 
         if (httpChannel) {
@@ -690,7 +690,7 @@ calICSCalendar.prototype = {
                 // file the next time around.
                 try {
                     file.remove(false);
-                } catch(ex) {}
+                } catch (ex) {}
             }
             return;
         }
@@ -724,7 +724,7 @@ calICSCalendar.prototype = {
                     newFile.remove(false);
                 }
                 oldFile.copyTo(newParentDir, newName);
-            } catch(e) {
+            } catch (e) {
                 cal.ERROR("[calICSCalendar] Backup failed, no copy: " + e);
                 // Error in making a daily/initial backup.
                 // not fatal, so just continue
@@ -741,7 +741,7 @@ calICSCalendar.prototype = {
             if (!backupDir.exists()) {
                 backupDir.create(CI.nsIFile.DIRECTORY_TYPE, parseInt("0755", 8));
             }
-        } catch(e) {
+        } catch (e) {
             // Backup dir wasn't found. Likely because we are running in
             // xpcshell. Don't die, but continue the upload.
             cal.ERROR("[calICSCalendar] Backup failed, no backupdir:" + e);
@@ -756,7 +756,7 @@ calICSCalendar.prototype = {
                 pseudoID = new Date().getTime();
                 this.setProperty("uniquenum2", pseudoID);
             }
-        } catch(e) {
+        } catch (e) {
             // calendarmgr not found. Likely because we are running in
             // xpcshell. Don't die, but continue the upload.
             cal.ERROR("[calICSCalendar] Backup failed, no calendarmanager:" + e);
@@ -821,7 +821,7 @@ calICSCalendar.prototype = {
         downloader.init(listener, backupFile);
         try {
             channel.asyncOpen(downloader, null);
-        } catch(e) {
+        } catch (e) {
             // For local files, asyncOpen throws on new (calendar) files
             // No problem, go and upload something
             cal.ERROR("[calICSCalendar] Backup failed in asyncOpen:" + e);
@@ -947,7 +947,7 @@ httpHooks.prototype = {
         try {
             responseStatus = httpchannel.responseStatus;
             responseStatusCategory = Math.floor(responseStatus / 100);
-        } catch(e) {
+        } catch (e) {
             // Error might have been a temporary connection issue, keep old data to
             // prevent potential data loss if it becomes available again.
             cal.LOG("[calICSCalendar] Unable to get response status.");
@@ -978,14 +978,14 @@ httpHooks.prototype = {
 
         try {
             this.mEtag = httpchannel.getResponseHeader("ETag");
-        } catch(e) {
+        } catch (e) {
             // No etag header. Now what?
             this.mEtag = null;
         }
 
         try {
             this.mLastModified = httpchannel.getResponseHeader("Last-Modified");
-        } catch(e) {
+        } catch (e) {
             this.mLastModified = null;
         }
 
@@ -1008,7 +1008,7 @@ httpHooks.prototype = {
         try {
             this.mEtag = httpchannel.getResponseHeader("ETag");
             aRespFunc();
-        } catch(e) {
+        } catch (e) {
             // There was no ETag header on the response. This means that
             // putting is not atomic. This is bad. Race conditions can happen,
             // because there is a time in which we don't know the right

@@ -288,7 +288,7 @@ var ltnImipBar = {
                     partstat = "";
                 }
                 // hide the buttons now, to disable pressing them twice...
-                if(aPartStat == partStat) {
+                if (aPartStat == partStat) {
                     ltnImipBar.resetButtons();
                 }
 

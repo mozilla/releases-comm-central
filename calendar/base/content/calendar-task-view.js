@@ -63,7 +63,7 @@ var taskDetailsView = {
             var status = item.getProperty("STATUS");
             if (displayElement("calendar-task-details-status-row", status && status.length > 0)) {
                 var statusDetails = document.getElementById("calendar-task-details-status");
-                switch(status) {
+                switch (status) {
                     case "NEEDS-ACTION":
                         statusDetails.value = calGetString(
                             "calendar",

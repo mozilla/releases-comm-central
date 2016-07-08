@@ -54,7 +54,7 @@ function onLoad() {
 
     // Make sure zoom factor is set up correctly (from persisted value)
     setZoomFactor(zoom.value);
-    if(gZoomFactor == 100) {
+    if (gZoomFactor == 100) {
         // if zoom factor was not changed, make sure it is applied at least once
         applyCurrentZoomFactor();
     }

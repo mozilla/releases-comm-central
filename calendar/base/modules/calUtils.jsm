@@ -563,7 +563,7 @@ var cal = {
     },
 
     getItemSortKey: function cal_getItemSortKey(aItem, aKey, aStartTime) {
-      switch(aKey) {
+      switch (aKey) {
         case "priority":
           return aItem.priority || 5;
 
@@ -609,7 +609,7 @@ var cal = {
     },
 
     getSortTypeForSortKey: function cal_getSortTypeForSortKey(aSortKey) {
-      switch(aSortKey) {
+      switch (aSortKey) {
         case "title":
         case "categories":
         case "location":
