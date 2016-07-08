@@ -268,6 +268,9 @@
     // Disallow duplicate name in class members
     "no-dupe-class-members": 2,
 
+    // Disallow use of this/super before calling super() in constructors
+    "no-this-before-super": 2,
+
     // Disallow duplicate imports
     "no-duplicate-imports": 2,
 
@@ -434,6 +437,9 @@
 
     // Enforce a maximum number of statements allowed per line
     "max-statements-per-line": [2, { "max": 2 }],
+
+    // Disallow arrow functions where they could be confused with comparisons
+    "no-confusing-arrow": 2,
 
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.
