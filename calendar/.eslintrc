@@ -391,6 +391,9 @@
     // Disallow named function expressions
     "func-names": [2, "never"],
 
+    // Enforce placing object properties on separate lines
+    "object-property-newline": [2, { "allowMultiplePropertiesPerLine": true }],
+
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.
     "no-else-return": 0,

@@ -230,8 +230,11 @@ var ltnImipBar = {
             if (ltnImipBar.foundItems && ltnImipBar.foundItems[0]) {
                 data.label = ltn.getString("lightning", "imipBarSentText");
             } else {
-                data = { label: ltn.getString("lightning", "imipBarSentButRemovedText"),
-                         buttons: [], hideMenuItems: [] };
+                data = {
+                    label: ltn.getString("lightning", "imipBarSentButRemovedText"),
+                    buttons: [],
+                    hideMenuItems: []
+                };
             }
         }
 

@@ -471,8 +471,12 @@ calICSCalendar.prototype = {
         if (this.readOnly) {
             throw calIErrors.CAL_IS_READONLY;
         }
-        this.queue.push({ action: "modify", oldItem: aOldItem,
-                          newItem: aNewItem, listener: aListener });
+        this.queue.push({
+            action: "modify",
+            oldItem: aOldItem,
+            newItem: aNewItem,
+            listener: aListener
+        });
         this.processQueue();
     },
 
@@ -480,20 +484,32 @@ calICSCalendar.prototype = {
         if (this.readOnly) {
             throw calIErrors.CAL_IS_READONLY;
         }
-        this.queue.push({ action: "delete", item: aItem, listener: aListener });
+        this.queue.push({
+            action: "delete",
+            item: aItem,
+            listener: aListener
+        });
         this.processQueue();
     },
 
     getItem: function(aId, aListener) {
-        this.queue.push({ action: "get_item", id: aId, listener: aListener });
+        this.queue.push({
+            action: "get_item",
+            id: aId,
+            listener: aListener
+        });
         this.processQueue();
     },
 
     getItems: function(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
-        this.queue.push({ action: "get_items",
-                          itemFilter: aItemFilter, count: aCount,
-                          rangeStart: aRangeStart, rangeEnd: aRangeEnd,
-                          listener: aListener });
+        this.queue.push({
+            action: "get_items",
+            itemFilter: aItemFilter,
+            count: aCount,
+            rangeStart: aRangeStart,
+            rangeEnd: aRangeEnd,
+            listener: aListener
+        });
         this.processQueue();
     },
 

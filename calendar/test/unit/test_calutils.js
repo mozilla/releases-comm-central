@@ -32,16 +32,13 @@ function getAttendeeEmail_test() {
         input: { id: "mailto:first.last@example.net", cn: null, email: null, useCn: true },
         expected: "first.last@example.net"
     }, {
-        input: { id: "urn:uuid:first.last.example.net", cn: null, email: "first.last@example.net",
-                useCn: false },
+        input: { id: "urn:uuid:first.last.example.net", cn: null, email: "first.last@example.net", useCn: false },
         expected: "first.last@example.net"
     }, {
-        input: { id: "urn:uuid:first.last.example.net", cn: null, email: "first.last@example.net",
-                useCn: true },
+        input: { id: "urn:uuid:first.last.example.net", cn: null, email: "first.last@example.net", useCn: true },
         expected: "first.last@example.net"
     }, {
-        input: { id: "urn:uuid:first.last.example.net", cn: "First Last", email: "first.last@example.net",
-                useCn: true },
+        input: { id: "urn:uuid:first.last.example.net", cn: "First Last", email: "first.last@example.net", useCn: true },
         expected: "First Last <first.last@example.net>"
     }, {
         input: { id: "urn:uuid:first.last.example.net", cn: null, email: null, useCn: false },

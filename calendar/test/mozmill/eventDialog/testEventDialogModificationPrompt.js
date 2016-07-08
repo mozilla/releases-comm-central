@@ -12,14 +12,41 @@ var pass;
 var date1 = new Date(2009, 0, 1, 8, 0);
 var date2 = new Date(2009, 0, 2, 9, 0);
 var date3 = new Date(2009, 0, 3, 10, 0);
-var data = [{ title: "title1", location: "location1", description: "description1", allday: false,
-              startdate: date1, starttime: date1, enddate: date2, endtime: date2, repeat: "none",
-              reminder: 0, priority: "normal", privacy: "public", status: "confirmed",
-              freebusy: "busy", timezone: true, attachment: { add: "http://mozilla.org" } },
-            { title: "title2", location: "location2", description: "description2", allday: true,
-              startdate: date2, starttime: date2, enddate: date3, endtime: date3, repeat: "daily",
-              reminder: 2, priority: "high", privacy: "private", status: "tentative",
-              freebusy: "free", timezone: true, attachment: { delete: "mozilla.org" } }];
+var data = [{
+    title: "title1",
+    location: "location1",
+    description: "description1",
+    allday: false,
+    startdate: date1,
+    starttime: date1,
+    enddate: date2,
+    endtime: date2,
+    repeat: "none",
+    reminder: 0,
+    priority: "normal",
+    privacy: "public",
+    status: "confirmed",
+    freebusy: "busy",
+    timezone: true,
+    attachment: { add: "http://mozilla.org" }
+}, {
+    title: "title2",
+    location: "location2",
+    description: "description2",
+    allday: true,
+    startdate: date2,
+    starttime: date2,
+    enddate: date3,
+    endtime: date3,
+    repeat: "daily",
+    reminder: 2,
+    priority: "high",
+    privacy: "private",
+    status: "tentative",
+    freebusy: "free",
+    timezone: true,
+    attachment: { delete: "mozilla.org" }
+}];
 var newlines = [{ title: "title", description: "  test spaces  " },
                 { title: "title", description: "\ntest newline\n" },
                 { title: "title", description: "\rtest \\r\r" },

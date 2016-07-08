@@ -63,8 +63,12 @@ calDateTime.prototype = {
 
     resetTo: function(yr, mo, dy, hr, mi, sc, tz) {
         this.innerObject.fromData({
-            year: yr, month: mo + 1, day: dy,
-            hour: hr, minute: mi, second: sc,
+            year: yr,
+            month: mo + 1,
+            day: dy,
+            hour: hr,
+            minute: mi,
+            second: sc,
         });
         this.timezone = tz;
     },

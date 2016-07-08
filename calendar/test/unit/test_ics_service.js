@@ -50,9 +50,15 @@ function test_icalstring() {
 
     checkComp(cal.createAttendee.bind(cal),
               "ATTENDEE;RSVP=TRUE;CN=Name;PARTSTAT=ACCEPTED;CUTYPE=RESOURCE;ROLE=REQ-PARTICIPANT;X-THING=BAR:mailto:test@example.com",
-              { id: "mailto:test@example.com", commonName: "Name", rsvp: "TRUE",
-                isOrganizer: false, role: "REQ-PARTICIPANT", participationStatus: "ACCEPTED",
-                userType: "RESOURCE" },
+              {
+                  id: "mailto:test@example.com",
+                  commonName: "Name",
+                  rsvp: "TRUE",
+                  isOrganizer: false,
+                  role: "REQ-PARTICIPANT",
+                  participationStatus: "ACCEPTED",
+                  userType: "RESOURCE"
+              },
               { "X-THING": "BAR" });
 
     checkComp(cal.createRelation.bind(cal),

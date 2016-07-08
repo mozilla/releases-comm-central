@@ -1200,8 +1200,12 @@ Extractor.prototype = {
         let pattern = email.substring(res.index, res.index + res[0].length);
         let prev = email.substring(0, res.index);
         let next = email.substring(res.index + res[0].length);
-        let prefixSuffix = { start: res.index, end: res.index + res[0].length,
-                             pattern: pattern, relation: relation };
+        let prefixSuffix = {
+            start: res.index,
+            end: res.index + res[0].length,
+            pattern: pattern,
+            relation: relation
+        };
         let ch = "\\s*";
         let psres;
 
@@ -1268,10 +1272,19 @@ Extractor.prototype = {
     guess: function(year, month, day, hour, minute, start, end, str,
                     relation, pattern, ambiguous) {
         let dateGuess = {
-            year: year, month: month, day: day, hour: hour, minute: minute,
-            start: start, end: end, str: str, relation: relation,
-            pattern: pattern, ambiguous: ambiguous
+            year: year,
+            month: month,
+            day: day,
+            hour: hour,
+            minute: minute,
+            start: start,
+            end: end,
+            str: str,
+            relation: relation,
+            pattern: pattern,
+            ambiguous: ambiguous
         };
+
         // past dates are kept for containment checks
         if (this.isPastDate(dateGuess, this.now)) {
             guess.relation = "notadatetime";
