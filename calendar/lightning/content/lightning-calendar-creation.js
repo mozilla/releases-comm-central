@@ -15,4 +15,3 @@ doCreateCalendar = function ltn_doCreateCalendar() {
     ltnSaveMailIdentitySelection();
     return true;
 };
-

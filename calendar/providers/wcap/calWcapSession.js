@@ -1161,4 +1161,3 @@ function confirmInsecureLogin(uri) {
     log("returned: " + bConfirmed, "confirmInsecureLogin(" + host + ")");
     return bConfirmed;
 }
-

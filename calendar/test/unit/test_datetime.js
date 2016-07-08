@@ -98,4 +98,3 @@ function really_run_test() {
     equal(cal.createDateTime("20120101T120000").compare(cal.createDateTime("20120101")), 0);
     equal(cal.createDateTime("20120101").compare(cal.createDateTime("20120101T120000")), 0);
 }
-

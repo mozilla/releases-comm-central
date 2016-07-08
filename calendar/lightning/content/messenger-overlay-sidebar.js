@@ -954,4 +954,3 @@ function checkCalendarBinaryComponent() {
         Services.prompt.alert(window, title, text);
     });
 }
-

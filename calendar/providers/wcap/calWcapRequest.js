@@ -466,4 +466,3 @@ function stringToXml(session, data, expectedErrno) {
     checkWcapXmlErrno(xml, expectedErrno);
     return xml;
 }
-

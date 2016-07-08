@@ -218,4 +218,3 @@ function getPref(prefName, defaultValue) {
     log(ret, "getPref(): prefName=" + prefName);
     return ret;
 }
-

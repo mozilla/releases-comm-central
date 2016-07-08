@@ -317,8 +317,6 @@ function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
     openEventDialog(todo, calendar, "new", onNewItem, null, initialDate);
 }
 
-
-
 /**
  * Modifies the passed event in the event dialog.
  *

@@ -1440,4 +1440,3 @@ function calWcapCalendar_replayChangesOn(listener) {
     }
     return request_;
 };
-

@@ -366,6 +366,10 @@
     // Disallow if as the only statement in an else block.
     "no-lonely-if": 2,
 
+    // Not more than two empty lines with in the file, and no extra lines at
+    // beginning or end of file.
+    "no-multiple-empty-lines": [2, { "max": 2, "maxEOF": 0, "maxBOF": 0 }],
+
     // Will enable these rules later
     "block-spacing": 0,
     "computed-property-spacing": 0,

@@ -33,12 +33,9 @@ function loadCalendarPublishDialog() {
    firstFocus.focus();
 }
 
-
-
 /**
 *   Called when the OK button is clicked.
 */
-
 function onOKCommand() {
    gPublishObject.remotePath = document.getElementById("publish-remotePath-textbox").value;
 
@@ -48,7 +45,6 @@ function onOKCommand() {
    document.getElementById("calendar-publishwindow").setAttribute("ondialogaccept", "closeDialog()");
    return false;
 }
-
 
 function checkURLField() {
    if (document.getElementById("publish-remotePath-textbox").value.length == 0) {

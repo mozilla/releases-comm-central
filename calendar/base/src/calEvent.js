@@ -206,4 +206,3 @@ calEvent.prototype = {
         return (this.mEndDate = value);
     }
 };
-
