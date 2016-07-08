@@ -565,7 +565,7 @@ function rotatePriority() {
  * @param {nsIDOMNode} aTarget  Has the new priority in its "value" attribute
  */
 function editPriority(aTarget) {
-    let newPriority = parseInt(aTarget.getAttribute("value"));
+    let newPriority = parseInt(aTarget.getAttribute("value"), 10);
     editConfigState({ priority: newPriority });
 }
 

@@ -199,7 +199,7 @@
            let years = document.getAnonymousElementByAttribute(this, "anonid", "years-popup").firstChild.childNodes;
            let year = new Date(aDate);
            let compFullYear = aDate.getFullYear();
-           year.setFullYear(Math.max(1, compFullYear - parseInt(years.length / 2, 10) + 1));
+           year.setFullYear(Math.max(1, compFullYear - Math.trunc(years.length / 2) + 1));
            for (let i = 1; i < years.length - 1; i++) {
                let curfullYear = year.getFullYear();
                years[i].setAttribute("value", curfullYear);
@@ -518,7 +518,7 @@
               let calChunks = busyStr.split("\u001A");
               for (let chunk of calChunks) {
                   let expr = chunk.split("=");
-                  boxBusy[expr[0]] = parseInt(expr[1]);
+                  boxBusy[expr[0]] = parseInt(expr[1], 10);
               }
           }
 

@@ -661,7 +661,7 @@ function loadDialog(aItem) {
         let percentCompleteInteger = 0;
         let percentCompleteProperty = aItem.getProperty("PERCENT-COMPLETE");
         if (percentCompleteProperty != null) {
-            percentCompleteInteger = parseInt(percentCompleteProperty);
+            percentCompleteInteger = parseInt(percentCompleteProperty, 10);
         }
         if (percentCompleteInteger < 0) {
             percentCompleteInteger = 0;
@@ -774,7 +774,7 @@ function loadDialog(aItem) {
     }
 
     // Priority, Privacy, Transparency
-    gConfig.priority = parseInt(aItem.priority);
+    gConfig.priority = parseInt(aItem.priority, 10);
     gConfig.privacy = aItem.privacy;
     gConfig.showTimeAs = aItem.getProperty("TRANSP");
 
@@ -1382,7 +1382,7 @@ function saveDialog(item) {
         var percentCompleteInteger = 0;
         if (getElementValue("percent-complete-textbox") != "") {
             percentCompleteInteger =
-                parseInt(getElementValue("percent-complete-textbox"));
+                parseInt(getElementValue("percent-complete-textbox"), 10);
         }
         if (percentCompleteInteger < 0) {
             percentCompleteInteger = 0;
@@ -2803,7 +2803,7 @@ function updateToDoStatus(aStatus, aCompletedDate=null) {
   // date will get lost.
 
   // remember the original values
-  let oldPercentComplete = parseInt(getElementValue("percent-complete-textbox"));
+  let oldPercentComplete = parseInt(getElementValue("percent-complete-textbox"), 10);
   let oldCompletedDate = getElementValue("completed-date-picker");
 
   // If the percent completed has changed to 100 or from 100 to another

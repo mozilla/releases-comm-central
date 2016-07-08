@@ -85,10 +85,10 @@ function textToDate(d) {
 
     if (d[0] == 'Z') {
         let strs = d.substr(2).split(":");
-        dval = parseInt(strs[0]);
+        dval = parseInt(strs[0], 10);
         tz = strs[1].replace(/%:/g, ":").replace(/%%/g, "%");
     } else {
-        dval = parseInt(d.substr(2));
+        dval = parseInt(d.substr(2), 10);
     }
 
     let date;

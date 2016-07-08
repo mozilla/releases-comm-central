@@ -608,7 +608,7 @@
                 if (mailingList) {
                     let entries = this._getListEntries(mailingList);
                       if (entries.length > 0) {
-                          let currentIndex = parseInt(input.id.substr(13));
+                          let currentIndex = parseInt(input.id.substr(13), 10);
                           let template = document.getAnonymousElementByAttribute(this, "anonid", "item");
                           let currentNode = template.parentNode.childNodes[currentIndex];
                           this._fillListItemWithEntry(currentNode, entries[0], currentIndex);

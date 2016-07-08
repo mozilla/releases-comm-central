@@ -217,7 +217,7 @@ var TodayPane = {
         } else {
             // Keeping pressed next/previous day buttons causes days switching (with
             // three levels higher speed after some commutations).
-            TodayPane.advance(parseInt(aDir));
+            TodayPane.advance(parseInt(aDir, 10));
             TodayPane.switchCounter++;
             let timeInterval = INITIAL_TIME;
             if (TodayPane.switchCounter > 2 * ACCELERATE_COUNT_LIMIT) {
@@ -247,7 +247,7 @@ var TodayPane = {
             delete TodayPane.minidayTimer;
             if (TodayPane.switchCounter == 0 && !TodayPane.minidayDrag.session) {
                 let dir = element.getAttribute('dir');
-                TodayPane.advance(parseInt(dir));
+                TodayPane.advance(parseInt(dir, 10));
             }
         }
         if (element.id == "previous-day-button" ||
@@ -293,7 +293,7 @@ var TodayPane = {
         if (this.paneViews == null) {
             return;
         }
-        let index = parseInt(document.getElementById("today-pane-header").getAttribute("index"));
+        let index = parseInt(document.getElementById("today-pane-header").getAttribute("index"), 10);
         index = index + aCycleForward;
         let nViewLen = this.paneViews.length;
         if (index >= nViewLen) {

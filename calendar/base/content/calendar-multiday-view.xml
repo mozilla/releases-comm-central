@@ -653,7 +653,7 @@
           configBox.setAttribute("hidden", "true");
           this.mMinDuration = Components.classes["@mozilla.org/calendar/duration;1"]
                                             .createInstance(Components.interfaces.calIDuration);
-          this.mMinDuration.minutes = parseInt(minSize/this.mPixPerMin);
+          this.mMinDuration.minutes = Math.trunc(minSize / this.mPixPerMin);
 
           let theMin = this.mStartMin;
           while (theMin < this.mEndMin) {

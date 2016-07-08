@@ -346,7 +346,7 @@ calWcapSession.prototype = {
                     sessionId = prop.value;
                     prop = icalRootComp.getFirstProperty("X-NSCP-RECURRENCE-BOUND");
                     if (prop) {
-                        var val = parseInt(prop.value);
+                        var val = parseInt(prop.value, 10);
                         if (!isNaN(val)) {
                             this_.recurrenceBound = val;
                             log("X-NSCP-RECURRENCE-BOUND:" + this_.recurrenceBound);
@@ -443,7 +443,7 @@ calWcapSession.prototype = {
                     if (!prop) {
                         throw new Components.Exception("missing X-NSCP-WCAPVERSION!");
                     }
-                    var wcapVersion = parseInt(prop.value);
+                    var wcapVersion = parseInt(prop.value, 10);
                     if (wcapVersion < 3) {
                         var strVers = prop.value;
                         var vars = [this_.sessionUri.hostPort];

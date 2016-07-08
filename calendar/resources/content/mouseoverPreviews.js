@@ -96,7 +96,7 @@ function getPreviewForTask( toDoItem )
 
     if (toDoItem.priority && toDoItem.priority != 0)
     {
-      var priorityInteger = parseInt(toDoItem.priority);
+      var priorityInteger = parseInt(toDoItem.priority, 10);
       var priorityString;
 
       // These cut-offs should match calendar-event-dialog.js

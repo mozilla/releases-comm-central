@@ -241,7 +241,7 @@ calAlarm.prototype = {
         if (aValue === null) {
             this.mRepeat = null;
         } else {
-            this.mRepeat = parseInt(aValue);
+            this.mRepeat = parseInt(aValue, 10);
             if (isNaN(this.mRepeat)) {
                 throw Components.results.NS_ERROR_INVALID_ARG;
             }

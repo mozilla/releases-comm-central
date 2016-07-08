@@ -53,7 +53,7 @@ var taskDetailsView = {
 
             var priority = 0;
             if (item.calendar.getProperty("capabilities.priority.supported") != false) {
-                priority = parseInt(item.priority);
+                priority = parseInt(item.priority, 10);
             }
             displayElement("calendar-task-details-priority-label", (priority > 0));
             displayElement("calendar-task-details-priority-low", (priority >= 6 && priority <= 9));

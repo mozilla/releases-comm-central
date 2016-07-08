@@ -159,7 +159,7 @@ function disableElementWithLock(elementId, lockId) {
     if (element) {
         if (!element.hasAttribute(lockId)) {
             element.setAttribute(lockId, "true");
-            var n = parseInt(element.getAttribute("lock") || 0);
+            var n = parseInt(element.getAttribute("lock") || 0, 10);
             element.setAttribute("lock", n + 1);
         }
     }
@@ -184,7 +184,7 @@ function enableElementWithLock(elementId, lockId) {
 
     if (element.hasAttribute(lockId)) {
         element.removeAttribute(lockId);
-        var n = parseInt(element.getAttribute("lock") || 0) - 1;
+        var n = parseInt(element.getAttribute("lock") || 0, 10) - 1;
         if (n > 0) {
             element.setAttribute("lock", n);
         } else {

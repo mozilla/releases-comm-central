@@ -52,7 +52,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
              this.mCurIndex = 0;
              if (aCalendarCount) {
                  this.mCalendarCount = this.mCalendarCount + aCalendarCount;
-                 this.mCalendarStep = parseInt(100 / this.mCalendarCount);
+                 this.mCalendarStep = Math.trunc(100 / this.mCalendarCount);
              }
              this.mProgressMode = aProgressMode;
              this.mStatusProgressPanel.removeAttribute("collapsed");
@@ -94,7 +94,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
              if (this.spinning == Components.interfaces.calIStatusObserver.DETERMINED_PROGRESS) {
                  if (!this.mCalendars[aCalendar.id] || this.mCalendars[aCalendar.id] === undefined) {
                      this.mCalendars[aCalendar.id] = true;
-                     this.mStatusBar.value = (parseInt(this.mStatusBar.value) + this.mCalendarStep);
+                     this.mStatusBar.value = parseInt(this.mStatusBar.value, 10) + this.mCalendarStep;
                      this.mCurIndex++;
                      let curStatus = calGetString("calendar", "gettingCalendarInfoDetail",
                                                   [this.mCurIndex, this.mCalendarCount]);

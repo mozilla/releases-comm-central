@@ -279,7 +279,7 @@ function getWcapXmlErrno(xml) {
     if (elem) {
         elem = elem.item(0);
         if (elem) {
-            return parseInt(elem.textContent);
+            return parseInt(elem.textContent, 10);
         }
     }
     // some commands just respond with an empty calendar, no errno. WTF.
@@ -290,7 +290,7 @@ function getWcapXmlErrno(xml) {
 function getWcapIcalErrno(icalRootComp) {
     var prop = icalRootComp.getFirstProperty("X-NSCP-WCAP-ERRNO");
     if (prop) {
-        return parseInt(prop.value);
+        return parseInt(prop.value, 10);
     }
     // some commands just respond with an empty calendar, no errno. WTF.
     // assume success:
