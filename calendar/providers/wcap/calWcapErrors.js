@@ -317,7 +317,7 @@ function checkWcapIcalErrno(icalRootComp, expectedErrno) {
 
 function errorToString(err) {
     if (err) {
-        if (typeof(err) == "string") {
+        if (typeof err == "string") {
             return err;
         }
         if (err instanceof Error) {

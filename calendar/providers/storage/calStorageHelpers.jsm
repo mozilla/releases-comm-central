@@ -66,7 +66,7 @@ function dateToText(d) {
     }
 
     let datestr = zonestr + (d.isDate ? "D" : "T") + d.nativeTime;
-    if (!d.timezone.isFloating && ! d.timezone.isUTC) {
+    if (!d.timezone.isFloating && !d.timezone.isUTC) {
         datestr += ":" + d.timezone.tzid.replace(/%/g, "%%").replace(/:/g, "%:");
     }
     return datestr;

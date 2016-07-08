@@ -127,6 +127,10 @@
     // Require use of the second argument for parseInt().
     "radix": 2,
 
+    // Require spaces before/after unary operators (words on by default,
+    // nonwords off by default).
+    "space-unary-ops": [2, { "words": true, "nonwords": false }],
+
     // Will enable these rules later
     "keyword-spacing": 0,
     "block-spacing": 0,

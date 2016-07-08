@@ -415,7 +415,7 @@ calFilter.prototype = {
         if (result && props.category) {
             let cats = [];
 
-            if (typeof(props.category) == "string") {
+            if (typeof props.category == "string") {
                 cats.push(props.category);
             } else if (Array.isArray(props.category)) {
                 cats = props.category;
@@ -458,7 +458,7 @@ calFilter.prototype = {
 
         // Call the filter properties onfilter callback if set. The return value of the
         // callback function will override the result of this function.
-        if (props.onfilter && (typeof(props.onfilter) == "function")) {
+        if (props.onfilter && typeof props.onfilter == "function") {
             return props.onfilter(aItem, result, props, this);
         }
 
@@ -482,7 +482,7 @@ calFilter.prototype = {
         let selectedDate = this.mSelectedDate || currentView().selectedDay || cal.now();
         let nowDate = cal.now();
 
-        if (typeof(prop) == "string") {
+        if (typeof prop == "string") {
             let duration = cal.createDuration(prop);
             if (duration) {
                 result = nowDate;
@@ -667,7 +667,7 @@ calFilter.prototype = {
     applyFilter: function cF_applyFilter(aFilter) {
         this.mFilterProperties = null;
 
-        if (typeof(aFilter) == "string") {
+        if (typeof aFilter == "string") {
             if (aFilter in this.mDefinedFilters) {
                 this.mFilterProperties = this.getDefinedFilterProperties(aFilter);
             } else {
@@ -678,9 +678,9 @@ calFilter.prototype = {
                     this.mFilterProperties.end = aFilter;
                 }
             }
-        } else if (typeof(aFilter) == "object" && (aFilter instanceof calFilterProperties)) {
+        } else if (typeof aFilter == "object" && (aFilter instanceof calFilterProperties)) {
             this.mFilterProperties = aFilter;
-        } else if (typeof(aFilter) == "function") {
+        } else if (typeof aFilter == "function") {
             this.mFilterProperties = new calFilterProperties();
             this.mFilterProperties.onfilter = aFilter;
         } else {
@@ -736,7 +736,7 @@ calFilter.prototype = {
         return aItems.filter(function(aItem) {
             let result = this.propertyFilter(aItem) && this.textFilter(aItem);
 
-            if (aCallback && (typeof(aCallback) == "function")) {
+            if (aCallback && typeof aCallback == "function") {
                 aCallback(aItem, result, this.mFilterProperties, this);
             }
 

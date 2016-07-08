@@ -1163,7 +1163,7 @@
           var rowWidth = bo.width;
 
           // add a rectangle for each visible selected row
-          for (var i = obo.getFirstVisibleRow(); i <= obo.getLastVisibleRow(); i ++) {
+          for (var i = obo.getFirstVisibleRow(); i <= obo.getLastVisibleRow(); i++) {
             if (sel.isSelected(i)) {
               region.unionRect(rowX, rowY, rowWidth, rowHeight);
             }

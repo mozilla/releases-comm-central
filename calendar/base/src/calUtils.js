@@ -925,7 +925,7 @@ function LOG(aArg) {
     ASSERT(aArg, "Bad log argument.", false);
     var string = aArg;
     // We should just dump() both String objects, and string primitives.
-    if (!(aArg instanceof String) && !(typeof(aArg) == "string")) {
+    if (!(aArg instanceof String) && !(typeof aArg == "string")) {
         string = "Logging object...\n";
         for (var prop in aArg) {
             string += prop + ': ' + aArg[prop] + '\n';

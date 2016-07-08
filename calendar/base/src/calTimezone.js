@@ -85,7 +85,7 @@ calLibicalTimezone.prototype = {
 
     get icalComponent() {
         var comp = this.mComponent;
-        if (comp && (typeof(comp) == "string")) {
+        if (comp && (typeof comp == "string")) {
             this.mComponent = cal.getIcsService().parseICS("BEGIN:VCALENDAR\r\n" + comp + "\r\nEND:VCALENDAR\r\n", null)
                                                  .getFirstSubcomponent("VTIMEZONE");
         }

@@ -311,7 +311,7 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
             var strings = [];
             for (var att of attachments) {
                 let wrappedAtt = cal.wrapInstance(att, Components.interfaces.calIAttachment);
-                if (typeof(att) == "string") {
+                if (typeof att == "string") {
                     strings.push(encodeURIComponent(att));
                 } else if (wrappedAtt && wrappedAtt.uri) {
                     strings.push(encodeURIComponent(wrappedAtt.uri.spec));
@@ -808,7 +808,7 @@ calWcapCalendar.prototype.patchTimezone = function calWcapCalendar_patchTimezone
             log(attr + " is " + dt, this);
         }
         var tz;
-        if (typeof(xpropOrTz) == "string") {
+        if (typeof xpropOrTz == "string") {
             var tzid = subComp.getFirstProperty(xpropOrTz);
             if (tzid) {
                 tz = this.session.getTimezone(tzid.value);

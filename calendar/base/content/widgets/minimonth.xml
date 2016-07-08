@@ -253,7 +253,7 @@
                case "reset":
                    let middleyear = years[Math.floor(years.length / 2)].getAttribute("value");
                    if (current <= (years.length / 2)) {
-                       offset = - years[1].getAttribute("value") + 1;
+                       offset = 1 - years[1].getAttribute("value");
                    } else {
                        offset = current - middleyear;
                    }

@@ -371,7 +371,7 @@
         <body>
           <![CDATA[
             var datepicker = aEvent.target.parentNode.parentNode.kDatePicker;
-            if (! datepicker.mInPopup)
+            if (!datepicker.mInPopup)
             {
               // aEvent.target is the minimonth
               datepicker.update(new Date(aEvent.target.value), true);

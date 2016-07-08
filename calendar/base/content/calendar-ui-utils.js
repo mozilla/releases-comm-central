@@ -22,7 +22,7 @@ function setElementValue(aElement, aNewValue, aPropertyName) {
     var undefined;
 
     if (aNewValue !== undefined) {
-        if (typeof(aElement) == "string") {
+        if (typeof aElement == "string") {
             aElement = document.getElementById(aElement);
             cal.ASSERT(aElement, "aElement");
         }
@@ -62,7 +62,7 @@ function setElementValue(aElement, aNewValue, aPropertyName) {
  *
  */
 function getElementValue(aElement, aPropertyName) {
-    if (typeof(aElement) == "string") {
+    if (typeof aElement == "string") {
         aElement = document.getElementById(aElement);
     }
     return aElement[aPropertyName || "value"];
@@ -219,7 +219,7 @@ function uncheckChildNodes(aEvent) {
  * @param aElement  The Node (or its id) to remove children from
  */
 function removeChildren(aElement) {
-    if (typeof(aElement) == "string") {
+    if (typeof aElement == "string") {
         aElement = document.getElementById(aElement);
     }
 
@@ -594,7 +594,7 @@ function getOtherOrientation(aOrientation) {
  * @param aElement  The element to update, or its id as a string
  */
 function updateSelectedLabel(aElement) {
-    if (typeof(aElement) == "string") {
+    if (typeof aElement == "string") {
         aElement = document.getElementById(aElement);
     }
     var selectedIndex = aElement.selectedIndex;
