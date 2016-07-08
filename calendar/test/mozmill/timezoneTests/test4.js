@@ -20,11 +20,11 @@ var times = [[[3, 30], [4, 30], [5, 30], [6, 30], [7, 30], [8, 30], [9, 30], [10
              [[2, 30], [4, 30], [5, 30], [5, 30], [7, 30], [7, 30], [9, 30], [11, 30]],
              [[2, 30], [4, 30], [5, 30], [5, 30], [7, 30], [7, 30], [9, 30], [10, 30]],
              [[2, 30], [4, 30], [5, 30], [5, 30], [7, 30], [8, 30], [9, 30], [10, 30]],
-             [[3, 30], [4, 30], [5, 30], [6, 30], [7, 30], [8, 30], [9, 30], [10, 30]]]
+             [[3, 30], [4, 30], [5, 30], [6, 30], [7, 30], [8, 30], [9, 30], [10, 30]]];
 
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
-}
+};
 
 var testTimezones4_checkCaracas = function() {
   let eventPath = '/{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';
@@ -34,8 +34,8 @@ var testTimezones4_checkCaracas = function() {
   calUtils.goToDate(controller, 2009, 1, 1);
 
   timezoneUtils.verify(controller, dates, timezones, times);
-}
+};
 
 var teardownTest = function(module) {
   timezoneUtils.switchAppTimezone(timezones[2]);
-}
+};

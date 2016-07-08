@@ -844,7 +844,7 @@ cal.itip = {
                                  .createInstance(Components.interfaces.calIItipItem);
         let serializedItems = "";
         for (let item of (aItems || [])) {
-            serializedItems += cal.getSerializedItem(item)
+            serializedItems += cal.getSerializedItem(item);
         }
         itipItem.init(serializedItems);
 

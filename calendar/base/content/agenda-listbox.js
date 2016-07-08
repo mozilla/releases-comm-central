@@ -47,7 +47,7 @@ function initAgendaListbox() {
                     break;
             }
         }
-    }
+    };
     Services.prefs.addObserver("calendar.agendaListbox", prefObserver, false);
 
     // Make sure the agenda listbox is unloaded
@@ -95,7 +95,7 @@ function addPeriodListItem(aPeriod, aItemId) {
     aPeriod.listItem.id = aItemId;
     aPeriod.listItem.getCheckbox().setChecked(aPeriod.open);
     aPeriod.listItem.getCheckbox().addEventListener("CheckboxStateChange", this.onCheckboxChange, true);
-}
+};
 
 /**
  * Remove a period item from the agenda listbox.
@@ -110,7 +110,7 @@ function removePeriodListItem(aPeriod) {
             aPeriod.listItem = null;
         }
     }
-}
+};
 
 /**
  * Handler function called when changing the checkbox state on period items.
@@ -161,7 +161,7 @@ function onSelect(aListItem) {
         listbox.selectedItem = item;
     }
     calendarController.onSelectionChanged({detail: agendaListbox.getSelectedItems()});
-}
+};
 
 /**
  * Handler function called when the agenda listbox becomes focused
@@ -170,7 +170,7 @@ agendaListbox.onFocus =
 function onFocus() {
     let listbox = document.getElementById("agenda-listbox");
     calendarController.onSelectionChanged({detail: agendaListbox.getSelectedItems()});
-}
+};
 
 /**
  * Handler function called when the agenda listbox loses focus.
@@ -178,7 +178,7 @@ function onFocus() {
 agendaListbox.onBlur =
 function onBlur() {
     calendarController.onSelectionChanged({detail: []});
-}
+};
 
 
 /**
@@ -210,7 +210,7 @@ function onKeyPress(aEvent) {
             }
             break;
     }
-}
+};
 
 /**
  * Calls the event dialog to edit the currently selected item
@@ -221,7 +221,7 @@ function editSelectedItem() {
     if (listItem) {
         modifyEventWithDialog(listItem.occurrence, null, true);
     }
-}
+};
 
 /**
  * Finds the appropriate period for the given item, i.e finds "Tomorrow" if the
@@ -255,7 +255,7 @@ function getStart(){
         }
     }
     return retStart;
-}
+};
 
 /**
  * Gets the end of the latest period shown in the agenda listbox
@@ -270,7 +270,7 @@ function getEnd(){
         }
     }
     return retEnd;
-}
+};
 
 /**
  * Adds an item to an agenda period before another existing item.
@@ -287,7 +287,7 @@ function addItemBefore(aNewItem, aAgendaItem, aPeriod, visible) {
     if (aNewItem.startDate.isDate) {
         newelement = createXULElement("agenda-allday-richlist-item");
     } else {
-        newelement = createXULElement("agenda-richlist-item")
+        newelement = createXULElement("agenda-richlist-item");
     }
     // set the item at the richlistItem. When the duration of the period
     // is bigger than 1 (day) the starttime of the item has to include
@@ -300,7 +300,7 @@ function addItemBefore(aNewItem, aAgendaItem, aPeriod, visible) {
     newelement.setOccurrence(aNewItem, aPeriod);
     newelement.removeAttribute("selected");
     return newelement;
-}
+};
 
 /**
  * Adds an item to the agenda listbox. This function finds the correct period
@@ -343,14 +343,14 @@ function addItem(aItem) {
                     } else if (this.isBefore(aItem, compitem, period)) {
                         if (this.isSameEvent(aItem, compitem)) {
                             newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
-                            break
+                            break;
                         } else {
                             newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
                             break;
                         }
                     }
                 }
-            } while (complistItem)
+            } while (complistItem);
         }
     }
     return newlistItem;
@@ -407,7 +407,7 @@ function isBefore(aItem, aCompItem, aPeriod) {
         }
     }
     return (comp <= 0);
-}
+};
 
 /**
  * Returns the start or end date of an item according to which of them
@@ -447,7 +447,7 @@ function comparisonDate(aItem, aPeriod) {
         return endDateToReturn;
     }
     return aItem.startDate.clone();
-}
+};
 
 /**
  * Gets the listitems for a given item, possibly in a given period.
@@ -477,11 +477,11 @@ function getListItems(aItem, aPeriod) {
                         break;
                     }
                 }
-            } while (!leaveloop)
+            } while (!leaveloop);
         }
     }
     return retlistItems;
-}
+};
 
 /**
  * Removes the given item from the agenda listbox
@@ -509,7 +509,7 @@ function deleteItem(aItem, aMoveSelection) {
         }
     }
     return isSelected;
-}
+};
 
 /**
  * Remove all items belonging to the specified calendar.
@@ -525,7 +525,7 @@ function deleteItemsFromCalendar(aCalendar) {
             childNode.remove();
         }
     }
-}
+};
 
 /**
  * Compares two items to see if they have the same id and their start date
@@ -539,7 +539,7 @@ agendaListbox.isSameEvent =
 function isSameEvent(aItem, aCompItem) {
     return ((aItem.id == aCompItem.id) &&
             (aItem[calGetStartDateProp(aItem)].compare(aCompItem[calGetStartDateProp(aCompItem)]) == 0));
-}
+};
 
 /**
  * Checks if the currently selected node in the listbox is an Event item (not a
@@ -554,7 +554,7 @@ function isEventSelected() {
         return (this.isEventListItem(listItem));
     }
     return false;
-}
+};
 
 /**
  * Delete the selected item from its calendar (if it is an event item)
@@ -571,7 +571,7 @@ function deleteSelectedItem(aDoNotConfirm) {
                                                  false,
                                                  aDoNotConfirm);
     }
-}
+};
 
 /**
  * If a Period item is targeted by the passed DOM event, opens the event dialog
@@ -590,7 +590,7 @@ function createNewEvent(aEvent) {
             createEventWithDialog(getSelectedCalendar(), eventStart);
         }
     }
-}
+};
 
 /**
  * Sets up the context menu for the agenda listbox
@@ -608,7 +608,7 @@ function setupContextMenu(popup) {
 
     let menu = document.getElementById("calendar-today-pane-menu-attendance-menu");
     setupAttendanceMenu(menu, agendaListbox.getSelectedItems({}));
-}
+};
 
 
 /**
@@ -772,7 +772,7 @@ function refreshPeriodDates(newDate) {
 agendaListbox.addListener =
 function addListener(aListener) {
     this.mListener = aListener;
-}
+};
 
 /**
  * Checks if the agenda listbox is showing "today". Without arguments, this
@@ -808,7 +808,7 @@ function moveSelection() {
     } else {
         this.agendaListboxControl.goDown();
     }
-}
+};
 
 /**
  * Gets an array of selected items. If a period node is selected, it is not
@@ -826,7 +826,7 @@ function getSelectedItems() {
         items = [this.agendaListboxControl.selectedItem.occurrence];
     }
     return items;
-}
+};
 
 /**
  * Checks if the passed node in the listbox is an Event item (not a
@@ -844,7 +844,7 @@ function isEventListItem(aListItem) {
                            localName == "agenda-allday-richlist-item");
     }
     return isEventListItem;
-}
+};
 
 /**
  * Removes all Event items, keeping the period items intact.
@@ -869,9 +869,9 @@ function removeListItems() {
                 }
             }
             listItem = newlistItem;
-        } while (!leaveloop)
+        } while (!leaveloop);
     }
-}
+};
 
 /**
  * Gets the list item node by its associated event's hashId.
@@ -890,9 +890,9 @@ function getListItemByHashId(ahashId) {
         }
         listItem = listItem.nextSibling;
         leaveloop = (listItem == null);
-    } while (!leaveloop)
+    } while (!leaveloop);
     return null;
-}
+};
 
 /**
  * The operation listener used for calendar queries.
@@ -952,7 +952,7 @@ function getOccurrencesBetween(aItem) {
         occs = aItem.getOccurrencesBetween(start, end, {});
     }
     return occs;
-}
+};
 
 agendaListbox.calendarObserver.onDeleteItem =
 function observer_onDeleteItem(item, rebuildFlag) {
@@ -1050,7 +1050,7 @@ function updateSoonSection() {
         soonHeader.setItem(this.soon, true);
         agendaListbox.refreshPeriodDates(now());
     }
-}
+};
 
 /**
  * Updates the event considered "current". This goes through all "today" items

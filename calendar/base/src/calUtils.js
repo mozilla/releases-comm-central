@@ -1483,7 +1483,7 @@ function getParentNodeOrThisByAttribute(aChildNode, aAttributeName, aAttributeVa
 }
 
 function setItemProperty(item, propertyName, aValue, aCapability) {
-    var isSupported = (item.calendar.getProperty("capabilities." + aCapability + ".supported") !== false)
+    var isSupported = (item.calendar.getProperty("capabilities." + aCapability + ".supported") !== false);
     var value = (aCapability && !isSupported ? null : aValue);
 
     switch (propertyName) {
@@ -1772,7 +1772,7 @@ function binarySearch(itemArray, newItem, comptor) {
     if (!comptor) {
         comptor = function defaultComptor(a, b) {
             return (a > b) - (a < b);
-        }
+        };
     }
     return binarySearchInternal(0, itemArray.length - 1);
 }

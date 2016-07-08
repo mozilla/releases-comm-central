@@ -685,7 +685,7 @@ calCachedCalendar.prototype = {
                     listener.onOperationComplete(self, status, opType, id, detail);
                 }
             }
-        }
+        };
 
         if (this.offline) {
             // If we are offline, don't even try to add the item

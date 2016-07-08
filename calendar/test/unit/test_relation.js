@@ -14,7 +14,7 @@ function run_test() {
     let properties = {
         relType: "PARENT",
         relId: e2.id
-    }
+    };
 
     for (let [property, value] in Iterator(properties)) {
         r1[property] = value;

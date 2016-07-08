@@ -15,7 +15,7 @@ var gTimezone;
 
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
-}
+};
 
 var testTimezones2_CreateEvents = function() {
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
@@ -27,7 +27,7 @@ var testTimezones2_CreateEvents = function() {
   for (let i = 0; i < timezones.length; i++) {
     controller.doubleClick(new elementslib.Lookup(controller.window.document,
       calUtils.getEventBoxPath(controller, "day", calUtils.CANVAS_BOX, undefined, 1, i + 8)), 1, 1);
-    controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+    controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
     let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
     time.setHours(times[i][0]);
@@ -41,13 +41,13 @@ var testTimezones2_CreateEvents = function() {
 
     // save
     event.click(new elementslib.ID(event.window.document, "button-save"));
-    controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0});
+    controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0;});
   }
-}
+};
 
 var teardownTest = function(module) {
   timezoneUtils.switchAppTimezone(timezones[0]);
-}
+};
 
 function setTimezone(event, timezone) {
   gTimezone = timezone;

@@ -109,7 +109,7 @@ cal.async = {
             onOperationComplete: function(aCalendar, aStatus, aOpType, aId, aDetail) {
                 if (!Components.isSuccessCode(aStatus)) {
                     // This function has failed, reject with the status
-                    deferred.reject(aStatus)
+                    deferred.reject(aStatus);
                 } else if (!Components.isSuccessCode(this.itemStatus)) {
                     // onGetResult has failed, reject with its status
                     deferred.reject(this.itemStatus);
@@ -120,9 +120,9 @@ cal.async = {
                 } else { /* ADD,MODIFY,DELETE: resolve with 1 item */
                     // Success of an ADD MODIFY or DELETE operation, resolve
                     // with the one item that was processed.
-                    deferred.resolve(aDetail)
+                    deferred.resolve(aDetail);
                 }
             }
-        }
+        };
     }
 };

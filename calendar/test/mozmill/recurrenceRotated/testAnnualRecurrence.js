@@ -12,7 +12,7 @@ var epoch = 1970;
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
   calUtils.createCalendar(controller, calendar);
-}
+};
 
 var testAnnualRecurrence = function() {
   var eventPath = '/{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';
@@ -31,7 +31,7 @@ var testAnnualRecurrence = function() {
   // create yearly recurring all-day event
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
     calUtils.getEventBoxPath(controller, "day", calUtils.ALLDAY, undefined, 1, undefined)));
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils
                  .getWindows("Calendar:EventDialog")[0]);
   event.sleep(sleep);
@@ -89,8 +89,8 @@ var testAnnualRecurrence = function() {
     let view = (new elementslib.ID(controller.window.document, "day-view")).getNode();
     return view.orient == "vertical";
   });
-}
+};
 
 var teardownTest = function(module) {
   calUtils.deleteCalendars(controller, calendar);
-}
+};

@@ -13,7 +13,7 @@ var desc = "Day View Event Description";
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
   calUtils.createCalendar(controller, calendar);
-}
+};
 
 var testDayView = function() {
   let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
@@ -53,14 +53,14 @@ var testDayView = function() {
     + 'anon({"anonid":"minimonth-calendar"})/[1]/{"value":"1"}'));
 
   // verify date in view
-  controller.waitFor(function() {return day.getNode().mDate.icalString == "20090101"});
+  controller.waitFor(function() {return day.getNode().mDate.icalString == "20090101";});
 
   // create event at 8 AM
   controller.doubleClick(new elementslib.Lookup(controller.window.document, dayView
     + 'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/'
     + '{"class":"calendar-event-column-even"}/anon({"anonid":"boxstack"})/'
     + 'anon({"anonid":"bgbox"})/[8]'), 1, 1);
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // check that the start time is correct
@@ -103,7 +103,7 @@ var testDayView = function() {
     + '{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}');
   controller.waitForElement(eventBox);
   controller.doubleClick(eventBox);
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // change title and save changes
@@ -138,8 +138,8 @@ var testDayView = function() {
     + '{"class":"calendar-event-column-even"}/anon({"anonid":"boxstack"})/'
     + 'anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}/'
     + '{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}'));
-}
+};
 
 var teardownTest = function(module) {
   calUtils.deleteCalendars(controller, calendar);
-}
+};

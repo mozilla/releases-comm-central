@@ -39,6 +39,6 @@ var ltnSuiteUtils = {
       });
     }
   }
-}
+};
 
 ltnSuiteUtils.addStartupObserver();

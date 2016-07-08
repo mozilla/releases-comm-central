@@ -91,13 +91,13 @@ function test_values() {
     var ec = event.clone();
     var clonedatts = ec.getAttendees({});
     var atts = event.getAttendees({});
-    equal(atts.length, clonedatts.length)
+    equal(atts.length, clonedatts.length);
 
     for (let i = 0; i < clonedatts.length; i++) {
         // The attributes should not be equal
         notEqual(atts[i], clonedatts[i]);
         // But the ids should
-        equal(atts[i].id, clonedatts[i].id)
+        equal(atts[i].id, clonedatts[i].id);
     }
 
     // Make sure organizers are also cloned correctly
@@ -106,9 +106,9 @@ function test_values() {
     a3.isOrganizer = true;
     let a4 = a3.clone();
 
-    ok(a4.isOrganizer)
+    ok(a4.isOrganizer);
     a3.isOrganizer = false;
-    ok(a4.isOrganizer)
+    ok(a4.isOrganizer);
 }
 
 function test_serialize() {

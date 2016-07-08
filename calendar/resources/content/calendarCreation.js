@@ -11,7 +11,7 @@ var errorConstants = {
     SUCCESS: 0,
     INVALID_URI: 1,
     ALREADY_EXISTS: 2
-}
+};
 
 var l10nStrings = {};
 l10nStrings[errorConstants.SUCCESS] = "";

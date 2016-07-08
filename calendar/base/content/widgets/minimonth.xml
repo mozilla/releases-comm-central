@@ -293,7 +293,7 @@
           let element = event.originalTarget;
           let popup = getParentNodeOrThis(element, "menupopup");
           if (popup) {
-              let anonid = popup.getAttribute("anonid")
+              let anonid = popup.getAttribute("anonid");
               switch (anonid) {
                   case "months-popup":
                       this.hidePopupList();
@@ -437,7 +437,7 @@
           this.mToday = false;
           this.mSelected = false;
           this.mExtra = false;
-          this.mValue = new Date() // Default to "today"
+          this.mValue = new Date(); // Default to "today"
           // save references for convenience
           if (this.hasAttribute("readonly")) {
               this.mIsReadOnly = this.getAttribute("readonly") == "true";
@@ -779,7 +779,7 @@
                           }
                       }
                   }
-                  dayList[i] = dayList[i].substring(0, foundMatch)
+                  dayList[i] = dayList[i].substring(0, foundMatch);
               }
           }
 
@@ -971,7 +971,7 @@
                 if (this.mObservesComposite == false) {
                     getCompositeCalendar().addObserver(this);
                     this.mObservesComposite = true;
-                    this.getItems()
+                    this.getItems();
                  }
             } else {
                 if (this.mObservesComposite == true) {
@@ -1194,7 +1194,7 @@
       <handler event="click" button="0"><![CDATA[
         if (this.minimonthParent.getAttribute("readonly") != "true") {
             this.setAttribute("selected", "true");
-            this.minimonthParent.onSelectDay(this)
+            this.minimonthParent.onSelectDay(this);
         }
       ]]></handler>
     </handlers>

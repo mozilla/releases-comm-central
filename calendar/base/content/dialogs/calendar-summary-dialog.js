@@ -335,7 +335,7 @@ function updateReminder() {
 function browseDocument() {
     var args = window.arguments[0];
     var item = args.calendarEvent;
-    var url = item.getProperty("URL")
+    var url = item.getProperty("URL");
     launchBrowser(url);
 }
 

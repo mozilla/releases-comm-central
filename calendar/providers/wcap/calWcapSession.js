@@ -525,7 +525,7 @@ calWcapSession.prototype = {
                                     log("registering subscribed calendar: " + aCalendar.calId, this_);
                                     cal.getCalendarManager().registerCalendar(aCalendar);
                                 }
-                            }
+                            };
                             // do only once:
                             defaultCal.setProperty("subscriptions_registered", true);
                         }

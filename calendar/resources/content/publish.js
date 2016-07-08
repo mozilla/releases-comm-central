@@ -194,7 +194,7 @@ var notificationCallbacks =
 
         throw Components.results.NS_ERROR_NO_INTERFACE;
     }
-}
+};
 
 
 var publishingListener = {
@@ -226,4 +226,4 @@ var publishingListener = {
 
     onDataAvailable: function(request, ctxt, inStream, sourceOffset, count) {
     }
-}
+};

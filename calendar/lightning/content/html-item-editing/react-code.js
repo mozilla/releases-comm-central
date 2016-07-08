@@ -28,7 +28,7 @@ var Tabstrip = React.createClass({
                     );
                 }
             )
-        )
+        );
     }
 });
 
@@ -220,7 +220,7 @@ var TopComponent = React.createClass({
                 [11, 'Custom...']
             ],
             supportsPriority: false
-        }
+        };
     },
     getInitialState: function() {
         // all the passed-in props that begin with 'initial' become state
@@ -399,10 +399,10 @@ var TopComponent = React.createClass({
                         key: cat + 'key',
                         keyprop: 'categories',
                         onDelete: this.onDeleteCapsule
-                    })
-                })
+                    });
+                });
         } else {
-            categoriesCapsules = null
+            categoriesCapsules = null;
         }
         let categoriesDiv = React.DOM.div(
             {id: 'categoriesDiv', className: 'box'},
@@ -586,5 +586,5 @@ var TopComponent = React.createClass({
 
 window.onload = function() {
     onLoad();
-}
+};
 

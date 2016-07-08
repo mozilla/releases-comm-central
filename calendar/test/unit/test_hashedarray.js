@@ -19,7 +19,7 @@ function run_test() {
  */
 function hashedCreateItem(ident) {
     let item = cal.createEvent();
-    item.calendar = { id: "test" }
+    item.calendar = { id: "test" };
     item.id = cal.getUUID();
     item.title = ident;
     return item;
@@ -52,7 +52,7 @@ function titleComptor(a, b) {
  * @throws Exception    If the arrays are not the same.
  */
 function checkConsistancy(har, testItems, itemAccessor) {
-    itemAccessor = itemAccessor || function(o) { return o; }
+    itemAccessor = itemAccessor || function(o) { return o; };
     for (let idx in testItems) {
         let ti = itemAccessor(testItems[idx]);
         equal(itemAccessor(har.itemByIndex(idx)).title,
@@ -90,7 +90,7 @@ function dumpArray(ar) {
 function testRemoveModify(har, testItems, postprocessFunc, itemAccessor, itemCreator) {
     postprocessFunc = postprocessFunc || function(a, b) { return [a, b]; };
     itemCreator = itemCreator || (title => hashedCreateItem(title));
-    itemAccessor = itemAccessor || function(o) { return o; }
+    itemAccessor = itemAccessor || function(o) { return o; };
 
     // Now, delete the second item and check again
     har.removeById(itemAccessor(testItems[1]).hashId);

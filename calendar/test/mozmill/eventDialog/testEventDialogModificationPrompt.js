@@ -36,7 +36,7 @@ var setupModule = function(module) {
   let categories = prefs.preferences.getPref("calendar.categories.names", "string").split(',');
   data[0].category = categories[0];
   data[1].category = categories[1];
-}
+};
 
 // Test that closing an event dialog with no changes does not prompt for save
 var testEventDialogModificationPrompt = function() {
@@ -47,7 +47,7 @@ var testEventDialogModificationPrompt = function() {
   // create new event
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
     calUtils.getEventBoxPath(controller, "day", calUtils.CANVAS_BOX, undefined, 1, 8)), 1, 1);
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils
     .getWindows("Calendar:EventDialog")[0]);
 
@@ -63,7 +63,7 @@ var testEventDialogModificationPrompt = function() {
     + '/{"tooltip":"itemTooltip"}');
   controller.waitForElement(eventBox);
   controller.doubleClick(eventBox);
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
   event = new mozmill.controller.MozMillController(mozmill.utils
     .getWindows("Calendar:EventDialog")[0]);
 
@@ -80,7 +80,7 @@ var testEventDialogModificationPrompt = function() {
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
     calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8)
     + '/{"tooltip":"itemTooltip"}'));
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
   event = new mozmill.controller.MozMillController(mozmill.utils
     .getWindows("Calendar:EventDialog")[0]);
 
@@ -111,7 +111,7 @@ var testEventDialogModificationPrompt = function() {
     // test set i
     controller.doubleClick(new elementslib.Lookup(controller.window.document,
       calUtils.getEventBoxPath(controller, "day", calUtils.CANVAS_BOX, undefined, 1, 8)), 1, 1);
-    controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+    controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
     event = new mozmill.controller.MozMillController(mozmill.utils
       .getWindows("Calendar:EventDialog")[0]);
     calUtils.setData(event, newlines[i]);
@@ -123,7 +123,7 @@ var testEventDialogModificationPrompt = function() {
       + '/{"tooltip":"itemTooltip"}');
     controller.waitForElement(eventBox);
     controller.doubleClick(eventBox);
-    controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+    controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
     event = new mozmill.controller.MozMillController(mozmill.utils
       .getWindows("Calendar:EventDialog")[0]);
     md = new modalDialog.modalDialog(event.window);
@@ -140,14 +140,14 @@ var testEventDialogModificationPrompt = function() {
     controller.waitForElementNotPresent(new elementslib.Lookup(controller.window.document,
       calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8)));
   }
-}
+};
 
 var teardownTest = function(module) {
   calUtils.deleteCalendars(controller, calendar);
   if (pass != undefined && pass == false) {
     controller.assertJS('"Prompt appeared" == "Prompt didn\'t appear."');
   }
-}
+};
 
 function handleSavePrompt(controller) {
   // unexpected prompt, thus the test has already failed

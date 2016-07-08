@@ -189,7 +189,7 @@ function test_custom_alarm() {
     dump("Testing X-SMS (custom) alarms...");
     let alarm = cal.createAlarm();
     // Set ACTION to a custom value, make sure this was not rejected
-    alarm.action = "X-SMS"
+    alarm.action = "X-SMS";
     equal(alarm.action, "X-SMS");
 
     // There is no restriction on DESCRIPTION for custom alarms
@@ -308,7 +308,7 @@ function test_xprop() {
     alarm.setProperty("X-MOZ-LASTACK", dt.icalString);
     alarm.action = "DISPLAY";
     alarm.description = "test";
-    alarm.related = Ci.calIAlarm.ALARM_RELATED_START
+    alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
     alarm.offset = createDuration("-PT5M");
     ok(alarm.icalComponent.serializeToICS().includes(dt.icalString));
 
@@ -326,7 +326,7 @@ function test_dates() {
     equal(alarm.offset, null);
 
     // Set an offset and check it
-    alarm.related = Ci.calIAlarm.ALARM_RELATED_START
+    alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
     let offset = createDuration("-PT5M");
     alarm.offset = offset;
     equal(alarm.alarmDate, null);
@@ -447,7 +447,7 @@ function test_clone() {
     // the comparisons.
     for (let prop in propMap) {
         if (prop == "item") {
-            equal(alarm.item.icalString, newAlarm.item.icalString)
+            equal(alarm.item.icalString, newAlarm.item.icalString);
         } else {
             if ((alarm[prop] instanceof Ci.nsISupports &&
                  alarm[prop].icalString != newAlarm[prop].icalString) ||
@@ -497,7 +497,7 @@ function test_serialize() {
         alarm.icalComponent = srv.createIcalComponent("BARF");
     }, /0x80070057/, "Invalid Argument");
 
-    function addProp(k, v) { let p = srv.createIcalProperty(k); p.value = v; comp.addProperty(p) }
+    function addProp(k, v) { let p = srv.createIcalProperty(k); p.value = v; comp.addProperty(p); }
     function addActionDisplay() { addProp("ACTION", "DISPLAY"); }
     function addActionEmail() { addProp("ACTION", "EMAIL"); }
     function addTrigger() { addProp("TRIGGER", "-PT15M"); }

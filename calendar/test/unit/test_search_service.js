@@ -28,7 +28,7 @@ function test_found() {
         id: 2,
         called: false,
         searchForCalendars: function(aStr, aHint, aMax, aListener) {
-            ok(!this.called)
+            ok(!this.called);
             this.called = true;
 
             equal(aStr, "str");

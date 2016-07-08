@@ -382,7 +382,7 @@
         <parameter name="aPushModeCollapsedAttribute"/>
         <parameter name="aNotifyRefControl"/>
         <body><![CDATA[
-            var notifyRefControl = ((aNotifyRefControl == null) || (aNotifyRefControl === true))
+            var notifyRefControl = ((aNotifyRefControl == null) || (aNotifyRefControl === true));
             var pushModeCollapsedAttribute = ((aPushModeCollapsedAttribute == null)
                                                  || (aPushModeCollapsedAttribute === true));
             var collapsedModes = [];
@@ -423,7 +423,7 @@
             }
             if (notifyRefControl === true) {
                 if (this.hasAttribute("refcontrol")) {
-                    var command = document.getElementById(this.getAttribute("refcontrol"))
+                    var command = document.getElementById(this.getAttribute("refcontrol"));
                     if (command) {
                         command.setAttribute("checked", display);
                         setBooleanAttribute(command, "disabled", !this.isVisibleInMode());

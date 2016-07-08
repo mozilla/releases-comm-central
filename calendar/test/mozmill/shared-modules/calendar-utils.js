@@ -399,7 +399,7 @@ function setData(controller, data) {
     + 'anon({"class":"menulist-editable-box textbox-input-box"})/anon({"anonid":"input"})';
   let timeInput = 'anon({"anonid":"hbox"})/anon({"anonid":"time-picker"})/'
     + 'anon({"class":"timepicker-box-class"})/anon({"class":"timepicker-text-class"})/'
-    + 'anon({"flex":"1"})/anon({"anonid":"input"})'
+    + 'anon({"flex":"1"})/anon({"anonid":"input"})';
   let startDateInput = new elementslib.Lookup(controller.window.document, dialog
     + 'id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/'
     + (isEvent ? 'id("event-starttime")/' : 'id("todo-entrydate")/')
@@ -645,7 +645,7 @@ function open_lightning_prefs(aCallback, aParentController, collector, windowTim
 
   let timeout = windowTimeout || 30000;
   aParentController.window.openOptionsDialog("paneLightning");
-  aParentController.waitFor(function() {return mozmill.utils.getWindows("Mail:Preferences").length == 1},
+  aParentController.waitFor(function() {return mozmill.utils.getWindows("Mail:Preferences").length == 1;},
                             "Error opening preferences window", timeout);
   let prefsController = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Mail:Preferences")[0]);
   prefsController.waitFor(paneLoadedChecker, "Timed out waiting for lightning prefpane to load.");
@@ -653,7 +653,7 @@ function open_lightning_prefs(aCallback, aParentController, collector, windowTim
   aCallback(prefsController);
 
   prefsController.window.close();
-  aParentController.waitFor(function() {return mozmill.utils.getWindows("Mail:Preferences").length == 0},
+  aParentController.waitFor(function() {return mozmill.utils.getWindows("Mail:Preferences").length == 0;},
                             "Error closing preferences window", timeout);
 }
 

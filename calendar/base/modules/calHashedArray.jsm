@@ -18,7 +18,7 @@ var EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, imp
  */
 cal.HashedArray = function HashedArray() {
     this.clear();
-}
+};
 
 cal.HashedArray.prototype = {
     mArray: null,
@@ -222,10 +222,10 @@ cal.HashedArray.prototype = {
 cal.SortedHashedArray = function SortedHashedArray(comparator) {
     cal.HashedArray.apply(this, arguments);
     if (!comparator) {
-        throw "Sorted Hashed Array needs a comparator"
+        throw "Sorted Hashed Array needs a comparator";
     }
     this.mCompFunc = comparator;
-}
+};
 
 cal.SortedHashedArray.prototype = {
     __proto__: cal.HashedArray.prototype,

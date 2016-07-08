@@ -56,7 +56,7 @@ add_task(function* test_deleted_items() {
     let oldNowFunction = cal.now;
     cal.now = function test_specific_now() {
         return (useFutureDate ? futureDate : referenceDate).clone();
-    }
+    };
 
     // Deleting an item should trigger it being marked for deletion.
     yield check_delmgr_call(() => memory.deleteItem(item, null));

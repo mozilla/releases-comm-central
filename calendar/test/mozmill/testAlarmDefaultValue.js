@@ -45,7 +45,7 @@ function testDefaultAlarms() {
   calendarController.click(new elementslib.ID(calendarController.window.document, "newMsgButton-calendar-menuitem"));
 
   // Set up the event dialog controller
-  calendarController.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0});
+  calendarController.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;});
   let eventController = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // Check if the "custom" item was selected
@@ -60,13 +60,13 @@ function testDefaultAlarms() {
 
   // Close the event dialog
   eventController.window.close();
-  calendarController.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0});
+  calendarController.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0;});
 
   // Create New Task
   calendarController.click(new elementslib.ID(calendarController.window.document, "newMsgButton-task-menuitem"));
 
   // Set up the task dialog controller
-  calendarController.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0});
+  calendarController.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;});
   let taskController = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // Check if the "custom" item was selected
@@ -80,7 +80,7 @@ function testDefaultAlarms() {
                                    expectedTaskReminder);
   // Close the task dialog
   taskController.window.close();
-  calendarController.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0});
+  calendarController.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0;});
 }
 
 function handle_pref_dialog(prefsController) {

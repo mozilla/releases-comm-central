@@ -14,7 +14,7 @@ var percentComplete = "50";
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
   calUtils.createCalendar(controller, calendar);
-}
+};
 
 // mozmill doesn't support trees yet, therefore completed checkbox and line-through style are not
 // checked
@@ -75,13 +75,13 @@ var testTaskView = function() {
   // doubleclick on completion checkbox is ignored as opening action, so don't click at immediate
   // left where the checkbox is located
   controller.doubleClick(new elementslib.Lookup(controller.window.document, treeChildren), 50, 0);
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
   let task = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // verify calendar
   task.waitForElement(new elementslib.Lookup(task.window.document, taskDialog
     + 'id("event-grid-category-color-row")/id("event-grid-category-box")/id("item-calendar")/[0]/'
-    + '{"selected":"true","label":"' + calendar + '"}'))
+    + '{"selected":"true","label":"' + calendar + '"}'));
 
   // add description, mark needs action and add percent complete
   task.type(new elementslib.Lookup(task.window.document, taskDialog
@@ -104,7 +104,7 @@ var testTaskView = function() {
 
   // save
   task.click(new elementslib.ID(task.window.document, "button-save"));
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0});
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0;});
 
   // verify description and status in details pane
   controller.assertValue(new elementslib.Lookup(controller.window.document, taskView
@@ -157,8 +157,8 @@ var testTaskView = function() {
   controller.click(new elementslib.ID(controller.window.document, "calendar-delete-task-button"));
   let countAfterDelete = taskTreeNode.mTaskArray.length;
   controller.assertJS(countAfter - 1 == countAfterDelete);
-}
+};
 
 var teardownTest = function(module) {
   calUtils.deleteCalendars(controller, calendar);
-}
+};

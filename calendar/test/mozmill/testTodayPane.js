@@ -17,7 +17,7 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
   calUtils.createCalendar(controller, MOZMILL_CALENDAR);
-}
+};
 
 var testTodayPane = function() {
   // paths
@@ -59,7 +59,7 @@ var testTodayPane = function() {
     + 'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/'
     + '{"class":"calendar-event-column-even"}/anon({"anonid":"boxstack"})/'
     + 'anon({"anonid":"bgbox"})/[' + startHour + ']'), 1, 1);
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, WAIT_FOR_WINDOW_TIMEOUT);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, WAIT_FOR_WINDOW_TIMEOUT);
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
   let iframe = event.window.document.getElementById("lightning-item-panel-iframe");
   event.waitFor(() => iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded == true);
@@ -67,7 +67,7 @@ var testTodayPane = function() {
   event.waitForElement(new elementslib.Lookup(iframe.contentDocument, eventName));
   event.type(new elementslib.Lookup(iframe.contentDocument, eventName), "Today's Event");
   event.click(new elementslib.ID(event.window.document, "button-save"));
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0});
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0;});
 
   // reset view
   view.scrollToMinute(60 * 8);
@@ -78,7 +78,7 @@ var testTodayPane = function() {
     + 'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/'
     + '{"class":"calendar-event-column-even"}/anon({"anonid":"boxstack"})/'
     + 'anon({"anonid":"bgbox"})/[9]'), 1, 1);
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, WAIT_FOR_WINDOW_TIMEOUT);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, WAIT_FOR_WINDOW_TIMEOUT);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
   iframe = event.window.document.getElementById("lightning-item-panel-iframe");
   event.waitFor(() => iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded == true);
@@ -86,7 +86,7 @@ var testTodayPane = function() {
   event.waitForElement(new elementslib.Lookup(iframe.contentDocument, eventName));
   event.type(new elementslib.Lookup(iframe.contentDocument, eventName), "Tomorrow's Event");
   event.click(new elementslib.ID(event.window.document, "button-save"));
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0});
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0;});
 
   // go 5 days forward and add an event
   for (let i = 0; i < 5; i++) {
@@ -98,7 +98,7 @@ var testTodayPane = function() {
     + 'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/'
     + '{"class":"calendar-event-column-even"}/anon({"anonid":"boxstack"})/'
     + 'anon({"anonid":"bgbox"})/[9]'), 1, 1);
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, WAIT_FOR_WINDOW_TIMEOUT);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, WAIT_FOR_WINDOW_TIMEOUT);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
   iframe = event.window.document.getElementById("lightning-item-panel-iframe");
   event.waitFor(() => iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded == true);
@@ -106,7 +106,7 @@ var testTodayPane = function() {
   event.waitForElement(new elementslib.Lookup(iframe.contentDocument, eventName));
   event.type(new elementslib.Lookup(iframe.contentDocument, eventName), "Future's Event");
   event.click(new elementslib.ID(event.window.document, "button-save"));
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0});
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0;});
 
   // go to mail tab
   controller.click(new elementslib.Lookup(controller.window.document, '/id("messengerWindow")/'
@@ -237,7 +237,7 @@ var testTodayPane = function() {
 //    || tomorrow.getAttribute("checked") != "true");
   controller.assertJS(!soon.hasAttribute("checked")
     || soon.getAttribute("checked") != "true");
-}
+};
 
 var getIsoDate = function() {
   let date = new Date();
@@ -246,8 +246,8 @@ var getIsoDate = function() {
   let day = (date.getDate() < 10) ? '0' + date.getDate() : date.getDate();
   let isoDate = year + '' + month + '' + day;
   return isoDate;
-}
+};
 
 var teardownTest = function(module) {
   calUtils.deleteCalendars(controller, MOZMILL_CALENDAR);
-}
+};

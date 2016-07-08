@@ -13,7 +13,7 @@ var modalDialog;
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
   modalDialog = collector.getModule('window-helpers');
-}
+};
 
 var testSmokeTest = function() {
   let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
@@ -71,7 +71,7 @@ var testSmokeTest = function() {
     + 'id("calendar-list-tree-widget")/anon({"anonid":"tree"})/anon({"anonid":"treechildren"})');
   controller.doubleClick(calendarList, 0, calendarList.getNode().boxObject.height); // bottom left
   modalDialog.wait_for_modal_dialog("Calendar:NewCalendarWizard", TIMEOUT_MODAL_DIALOG);
-}
+};
 
 function handleNewCalendarWizard(controller) {
   let docEl = controller.window.document.documentElement;
@@ -94,4 +94,4 @@ function handleNewCalendarWizard(controller) {
 
 var teardownTest = function(module) {
   calUtils.deleteCalendars(controller, "Mozmill");
-}
+};

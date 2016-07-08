@@ -62,7 +62,7 @@ etagsHandler.prototype = {
 
         let responseStatus;
         try {
-            responseStatus = httpchannel.responseStatus
+            responseStatus = httpchannel.responseStatus;
         } catch (ex) {
             cal.WARN("CalDAV: No response status getting etags for calendar " + this.calendar.name);
         }
@@ -120,7 +120,7 @@ etagsHandler.prototype = {
                     let wasInboxItem = this.calendar.mItemInfoCache[foundItem.id].isInboxItem;
                     if ((wasInboxItem && this.calendar.isInbox(this.baseUri.spec)) ||
                         (wasInboxItem === false && !this.calendar.isInbox(this.baseUri.spec))) {
-                        cal.LOG("Deleting local href: " + path)
+                        cal.LOG("Deleting local href: " + path);
                         delete this.calendar.mHrefIndex[path];
                         yield pcal.deleteItem(foundItem);
                         needsRefresh = true;
@@ -157,7 +157,7 @@ etagsHandler.prototype = {
                                        null,
                                        false,
                                        null,
-                                       this.changeLogListener)
+                                       this.changeLogListener);
             multiget.doMultiGet();
         }
     }),
@@ -191,7 +191,7 @@ etagsHandler.prototype = {
     startDocument: function eH_startDocument() {
         this.hrefMap = {};
         this.currentResponse = {};
-        this.tag = null
+        this.tag = null;
     },
 
     endDocument: function eH_endDocument() { },
@@ -201,7 +201,7 @@ etagsHandler.prototype = {
             case "response":
                 this.currentResponse = {};
                 this.currentResponse.isCollection = false;
-                this.tag = null
+                this.tag = null;
                 break;
             case "collection":
                 this.currentResponse.isCollection = true;
@@ -372,7 +372,7 @@ webDavSyncHandler.prototype = {
 
         let responseStatus;
         try {
-            responseStatus = httpchannel.responseStatus
+            responseStatus = httpchannel.responseStatus;
         } catch (ex) {
             cal.WARN("CalDAV: No response status doing webdav sync for calendar " + this.calendar.name);
         }
@@ -446,7 +446,7 @@ webDavSyncHandler.prototype = {
     startDocument: function wH_startDocument() {
         this.hrefMap = {};
         this.currentResponse = {};
-        this.tag = null
+        this.tag = null;
         if (this.calendar.isCached) {
             this.calendar.superCalendar.startBatch();
         }
@@ -492,7 +492,7 @@ webDavSyncHandler.prototype = {
                                                    this.newSyncToken,
                                                    this.additionalSyncNeeded,
                                                    null,
-                                                   this.changeLogListener)
+                                                   this.changeLogListener);
             multiget.doMultiGet();
         }
     },
@@ -501,7 +501,7 @@ webDavSyncHandler.prototype = {
         switch (aLocalName) {
             case "response": // WebDAV Sync draft 3
                 this.currentResponse = {};
-                this.tag = null
+                this.tag = null;
                 this.isInPropStat = false;
                 break;
             case "propstat":
@@ -733,7 +733,7 @@ multigetSyncHandler.prototype = {
 
         let responseStatus;
         try {
-            responseStatus = httpchannel.responseStatus
+            responseStatus = httpchannel.responseStatus;
         } catch (ex) {
             cal.WARN("CalDAV: No response status doing multiget for calendar " + this.calendar.name);
         }
@@ -839,7 +839,7 @@ multigetSyncHandler.prototype = {
     startDocument: function mg_startDocument() {
         this.hrefMap = {};
         this.currentResponse = {};
-        this.tag = null
+        this.tag = null;
         this.logXML = "";
         if (this.calendar.isCached) {
             this.calendar.superCalendar.startBatch();
@@ -856,7 +856,7 @@ multigetSyncHandler.prototype = {
         switch (aLocalName) {
             case "response":
                 this.currentResponse = {};
-                this.tag = null
+                this.tag = null;
                 this.isInPropStat = false;
                 break;
             case "propstat":

@@ -184,7 +184,7 @@ function test_binarySearch() {
     equal(binarySearch(arr, 2), 0); // Left most
     equal(binarySearch(arr, 62), 11); // Right most
 
-    equal(binarySearch([5], 5), 1) // One element found
-    equal(binarySearch([1], 0), 0) // One element insert left
-    equal(binarySearch([1], 2), 1) // One element insert right
+    equal(binarySearch([5], 5), 1); // One element found
+    equal(binarySearch([1], 0), 0); // One element insert left
+    equal(binarySearch([1], 2), 1); // One element insert right
 }

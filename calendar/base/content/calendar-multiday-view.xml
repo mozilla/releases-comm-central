@@ -604,7 +604,7 @@
                this.mEventToEdit = aOccurrence;
            }
            // Fun with scoping...
-           this.mEventMapTimeout = setTimeout(function() { column.relayout.call(column) }, 5);
+           this.mEventMapTimeout = setTimeout(function() { column.relayout.call(column); }, 5);
         ]]></body>
       </method>
 
@@ -1143,7 +1143,7 @@
                           layerIndex = layerCounter++;
                           layerArray[index] = layerIndex;
                       }
-                      var offset = ((glob.totalCols - data.colSpan) % glob.totalCols)
+                      var offset = ((glob.totalCols - data.colSpan) % glob.totalCols);
                       if (offset != 0) {
                           specialSpan = data.colSpan / glob.totalCols;
                       }
@@ -2581,10 +2581,10 @@
         <body><![CDATA[
           // Hide or show the time indicator if the preference becomes 0 or greater than 0.
           let hideIndicator = this.mTimeIndicatorInterval == 0;
-          setBooleanAttribute(this.timeBarTimeIndicator, "hidden", hideIndicator)
+          setBooleanAttribute(this.timeBarTimeIndicator, "hidden", hideIndicator);
           let todayColumn = this.findColumnForDate(this.today());
           if (todayColumn) {
-              setBooleanAttribute(todayColumn.column.timeIndicatorBox, "hidden", hideIndicator)
+              setBooleanAttribute(todayColumn.column.timeIndicatorBox, "hidden", hideIndicator);
           }
           // Update the timer but only under some circumstances, otherwise
           // it will update the wrong view or it will start without need.
@@ -2607,7 +2607,7 @@
           if (aUpdateTheTimer) {
               let prefInt = this.mTimeIndicatorInterval;
               if (prefInt == 0) {
-                  timeIndicator.cancel()
+                  timeIndicator.cancel();
                   return;
               }
 
@@ -2710,7 +2710,7 @@
           }
           let ppmChanged = (self.pixelsPerMinute != ppm);
           self.pixelsPerMinute = ppm;
-          setTimeout(function(){self.scrollToMinute(self.mFirstVisibleMinute)}, 0);
+          setTimeout(function() { self.scrollToMinute(self.mFirstVisibleMinute); }, 0);
 
           // Fit the weekday labels while scrolling.
           self.adjustWeekdayLength(self.getAttribute("orient") == "horizontal");
@@ -2783,7 +2783,7 @@
             // Set up a timer to stop the flashing after the total time.
             var this_ = this;
             this.mFlashingEvents[aAlarmItem.hashId] = aAlarmItem;
-            setTimeout(function() { this_.flashAlarm(aAlarmItem, true) }, totaltime);
+            setTimeout(function() { this_.flashAlarm(aAlarmItem, true); }, totaltime);
           } else {
             // We are done flashing, prevent newly created event boxes from flashing.
             delete this.mFlashingEvents[aAlarmItem.hashId];
@@ -3116,7 +3116,7 @@
               displayDuration >= 0) {
               let minute;
               if (displayDuration <= this.mVisibleMinutes) {
-                  minute = lowMinute + (displayDuration - this.mVisibleMinutes) / 2
+                  minute = lowMinute + (displayDuration - this.mVisibleMinutes) / 2;
               } else if (this.mSelectedItems.length == 1) {
                   // If the displayDuration doesn't fit into the visible
                   // minutes, but only one event is selected, then go ahead and
@@ -3131,7 +3131,7 @@
 
       <property name="pixelsPerMinute">
         <getter><![CDATA[
-          return this.mPixPerMin
+          return this.mPixPerMin;
         ]]></getter>
         <setter><![CDATA[
           this.mPixPerMin = val;
@@ -3397,7 +3397,7 @@
                       dayHeaderBox.setAttribute("relation", relation_);
                       dayEventsBox.setAttribute("relation", relation_);
                       labelbox.setAttribute("relation", relation_);
-                      setBooleanAttribute(dayEventsBox.timeIndicatorBox, "hidden", this.mTimeIndicatorInterval == 0)
+                      setBooleanAttribute(dayEventsBox.timeIndicatorBox, "hidden", this.mTimeIndicatorInterval == 0);
                       updateTimeIndicator = true;
 
                       // Due to equalsize=always being set on the dayboxes

@@ -35,7 +35,7 @@ if (!gTabmail) {
         goUpdateCommand("cmd_copy");
         goUpdateCommand("cmd_paste");
         goUpdateCommand("cmd_selectAll");
-    }
+    };
     /**
      * Update menu items that rely on the current selection.
      */
@@ -44,20 +44,20 @@ if (!gTabmail) {
         goUpdateCommand("cmd_copy");
         goUpdateCommand("cmd_delete");
         goUpdateCommand("cmd_selectAll");
-    }
+    };
     /**
      * Update menu items that relate to undo/redo.
      */
     window.goUpdateUndoEditMenuItems = () => {
         goUpdateCommand("cmd_undo");
         goUpdateCommand("cmd_redo");
-    }
+    };
     /**
      * Update menu items that depend on clipboard contents.
      */
     window.goUpdatePasteMenuItems = () => {
         goUpdateCommand("cmd_paste");
-    }
+    };
 }
 
 // Stores the ids of the iframes of currently open event/task tabs, used
@@ -85,7 +85,7 @@ var gConfig = {
     // XXX Currently there is no toolbar button or menu item for
     // cmd_toggle_link for event/task tabs
     toggleLinkCommand: null // cmd_toggle_link
-}
+};
 
 /**
  * Receive an asynchronous message from the iframe.

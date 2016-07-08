@@ -293,7 +293,7 @@ function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
             // Otherwise, this is an addition
             doTransaction('add', item, calendar, null, listener);
         }
-    }
+    };
 
     if (todo) {
         // If the todo should be created from a template, then make sure to

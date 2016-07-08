@@ -21,11 +21,11 @@ var times = [[[18, 30], [19, 30], [20, 30], [21, 30], [22, 30], [23, 30], [0, 30
              [[16, 30], [18, 30], [19, 30], [19, 30], [21, 30], [21, 30], [23, 30], [1, 30, +1]],
              [[17, 30], [19, 30], [20, 30], [20, 30], [22, 30], [22, 30], [0, 30, +1], [1, 30, +1]],
              [[17, 30], [19, 30], [20, 30], [20, 30], [22, 30], [23, 30], [0, 30, +1], [1, 30, +1]],
-             [[18, 30], [19, 30], [20, 30], [21, 30], [22, 30], [23, 30], [0, 30, +1], [1, 30, +1]]]
+             [[18, 30], [19, 30], [20, 30], [21, 30], [22, 30], [23, 30], [0, 30, +1], [1, 30, +1]]];
 
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
-}
+};
 
 var testTimezones10_checkAdelaide = function() {
   let eventPath = '/{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';
@@ -35,9 +35,9 @@ var testTimezones10_checkAdelaide = function() {
   calUtils.goToDate(controller, 2009, 1, 1);
 
   timezoneUtils.verify(controller, dates, timezones, times);
-}
+};
 
 var teardownTest = function(module) {
   prefs.preferences.clearUserPref("calendar.timezone.local");
   calUtils.deleteCalendars(controller, calendar);
-}
+};

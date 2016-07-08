@@ -1118,10 +1118,10 @@ calStorageCalendar.prototype = {
             // but that doesn't work with floating start or end times. The logic
             // is the same though.
             // For readability, a few helpers:
-            var floatingEventStart = "event_start_tz = 'floating' AND event_start"
-            var nonFloatingEventStart = "event_start_tz != 'floating' AND event_start"
-            var floatingEventEnd = "event_end_tz = 'floating' AND event_end"
-            var nonFloatingEventEnd = "event_end_tz != 'floating' AND event_end"
+            var floatingEventStart = "event_start_tz = 'floating' AND event_start";
+            var nonFloatingEventStart = "event_start_tz != 'floating' AND event_start";
+            var floatingEventEnd = "event_end_tz = 'floating' AND event_end";
+            var nonFloatingEventEnd = "event_end_tz != 'floating' AND event_end";
             // The query needs to take both floating and non floating into account
             this.mSelectNonRecurringEventsByRange = this.mDB.createStatement(
                 "SELECT * FROM cal_events " +

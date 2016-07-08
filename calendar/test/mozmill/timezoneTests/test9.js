@@ -20,11 +20,11 @@ var times = [[[13, 45], [14, 45], [15, 45], [16, 45], [17, 45], [18, 45], [19, 4
              [[12, 45], [14, 45], [15, 45], [15, 45], [17, 45], [17, 45], [19, 45], [21, 45]],
              [[12, 45], [14, 45], [15, 45], [15, 45], [17, 45], [17, 45], [19, 45], [20, 45]],
              [[12, 45], [14, 45], [15, 45], [15, 45], [17, 45], [18, 45], [19, 45], [20, 45]],
-             [[13, 45], [14, 45], [15, 45], [16, 45], [17, 45], [18, 45], [19, 45], [20, 45]]]
+             [[13, 45], [14, 45], [15, 45], [16, 45], [17, 45], [18, 45], [19, 45], [20, 45]]];
 
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
-}
+};
 
 var testTimezones9_checkKathmandu = function() {
   let eventPath = '/{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';
@@ -34,8 +34,8 @@ var testTimezones9_checkKathmandu = function() {
   calUtils.goToDate(controller, 2009, 1, 1);
 
   timezoneUtils.verify(controller, dates, timezones, times);
-}
+};
 
 var teardownTest = function(module) {
   timezoneUtils.switchAppTimezone(timezones[7]);
-}
+};

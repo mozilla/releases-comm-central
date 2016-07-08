@@ -279,7 +279,7 @@ function createDBDelegate(funcName) {
 function createDBDelegateGetter(getterAttr) {
     return function(db) {
         return (db ? db[getterAttr] : null);
-    }
+    };
 }
 
 // These functions use the db delegate to allow easier calling of common
@@ -1354,7 +1354,7 @@ upgrade.v20 = function upgrade_v20(db, version) {
         throw reportErrorAndRollback(db, e);
     }
     return tbl;
-}
+};
 
 /**
  * Bug 785659 - Get rid of calIRecurrenceDateSet
@@ -1427,7 +1427,7 @@ upgrade.v21 = function upgrade_v21(db, version) {
         throw reportErrorAndRollback(db, e);
     }
     return tbl;
-}
+};
 
 /**
  * Bug 785733 - Move some properties to use icalString in database.
@@ -1579,7 +1579,7 @@ upgrade.v22 = function upgrade_v22(db, version) {
                         for (let rtype in rtypes) {
                             if (rtypes[rtype]) {
                                 let comp = "BY" + rtype;
-                                let rstr = rtypes[rtype].toString()
+                                let rstr = rtypes[rtype].toString();
                                 let rarray = rstr.split(",").map(parseInt10);
                                 ritem.setComponent(comp, rarray.length, rarray);
                             }

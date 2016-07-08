@@ -655,7 +655,7 @@ function calWcapCalendar_adoptItem(item, listener) {
         request.execRespFunc(exc);
     }
     return request;
-}
+};
 
 calWcapCalendar.prototype.addItem =
 function calWcapCalendar_addItem(item, listener) {
@@ -825,7 +825,7 @@ calWcapCalendar.prototype.patchTimezone = function calWcapCalendar_patchTimezone
         }
     }
     return dt;
-}
+};
 
 calWcapCalendar.prototype.parseItems = function calWcapCalendar_parseItems(
     icalRootComp, itemFilter, maxResults, rangeStart, rangeEnd, bLeaveMutable) {

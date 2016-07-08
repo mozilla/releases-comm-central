@@ -340,7 +340,7 @@ function closeIfEmpty() {
  * @param event         The DOM event from the click action
  */
 function onSelectAlarm(event) {
-    let richList = document.getElementById("alarm-richlist")
+    let richList = document.getElementById("alarm-richlist");
     if (richList == event.target) {
         richList.ensureElementIsVisible(richList.getSelectedItem(0));
         richList.userSelectedWidget = true;

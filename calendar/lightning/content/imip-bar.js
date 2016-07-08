@@ -222,7 +222,7 @@ var ltnImipBar = {
                 }
             }
             return false;
-        }
+        };
 
         // We override the bar label for sent out invitations and in case the event does not exist
         // anymore, we also clear the buttons if any to avoid e.g. accept/decline buttons
@@ -373,7 +373,7 @@ var ltnImipBar = {
                         if (isFirstProcessing && aActionFunc && Components.isSuccessCode(aRc)) {
                             _execAction(aActionFunc, aItipItem, window, partStat);
                         }
-                    }
+                    };
                     cal.itip.processItipItem(newItipItem, storeCopy);
                     isFirstProcessing = false;
                 }

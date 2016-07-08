@@ -22,7 +22,7 @@ calFreeBusyListener.prototype = {
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIGenericOperationListener]),
 
     notifyResult: function calFreeBusyListener_notifyResult(result) {
-        var listener = this.mFinalListener
+        var listener = this.mFinalListener;
         if (listener) {
             if (!this.opGroup.isPending) {
                 this.mFinalListener = null;

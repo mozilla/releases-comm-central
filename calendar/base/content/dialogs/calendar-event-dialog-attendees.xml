@@ -96,7 +96,7 @@
           var callback = function() {
               setTimeout(callback, 1000);
               self.onModify();
-          }
+          };
           callback();
         ]]></body>
       </method>
@@ -395,7 +395,7 @@
               attendee.role = this.getRoleElement(i).getAttribute("role");
               // attendee.participationStatus = this.getStatusElement(i).getAttribute("status");
               let userType = this.getUserTypeElement(i).getAttribute("cutype");
-              attendee.userType = (userType == "INDIVIDUAL" ? null : userType) // INDIVIDUAL is the default
+              attendee.userType = (userType == "INDIVIDUAL" ? null : userType); // INDIVIDUAL is the default
 
               // break the list of potentially many attendees back into individual names. This
               // is required in case the user entered comma-separated attendees in one field and
@@ -683,7 +683,7 @@
               "OPT-PARTICIPANT": "optional",
               "NON-PARTICIPANT": "nonparticipant",
               "CHAIR": "chair"
-            }
+            };
 
             let roleNameString = "event.attendee.role." + (role in roleMap ? roleMap[role] : "unknown");
             let tooltip = cal.calGetString("calendar-event-dialog-attendees",
@@ -720,7 +720,7 @@
           var func = function attendees_list_fitDummyRows() {
               self.calcContentHeight();
               self.createOrRemoveDummyRows();
-          }
+          };
           setTimeout(func, 0);
         ]]></body>
       </method>
@@ -915,7 +915,7 @@
                   document.getAnonymousElementByAttribute(
                       node, "anonid", "input");
               input.focus();
-          }
+          };
           setTimeout(set_focus, 0);
         ]]></body>
       </method>

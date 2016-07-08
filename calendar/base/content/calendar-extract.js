@@ -50,7 +50,7 @@ var calendarExtract = {
                 } else {
                     return 1;
                 }
-            }
+            };
         }
 
         langs.sort(createLanguageComptor(lastUsedLangs));

@@ -174,7 +174,7 @@ function putItemsIntoCal(destCal, aItems, aFilePath) {
                 }
             }
         }
-    }
+    };
 
     for (let item of aItems) {
         // XXX prompt when finding a duplicate.

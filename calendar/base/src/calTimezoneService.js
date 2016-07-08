@@ -608,7 +608,7 @@ function guessSystemTimezone() {
                 // Then use the registry key name to see if this timezone has a
                 // known ZoneInfo name.
                 var currentTZStandardName = wrk.readStringValue("StandardName");
-                wrk.close()
+                wrk.close();
 
                 wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
                          "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Time Zones",

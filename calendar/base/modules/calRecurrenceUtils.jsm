@@ -279,7 +279,7 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                             // The first|the second|...|the last  Monday, Tuesday, ..., day.
                             let yearlyString = "yearlyNthOnNthOf";
                             yearlyString = nounClass(dayString, yearlyString);
-                            let ordinalString = "repeatOrdinal" + day_position(byday[0])
+                            let ordinalString = "repeatOrdinal" + day_position(byday[0]);
                             ordinalString = nounClass(dayString, ordinalString);
                             let ordinal = getRString(ordinalString);
                             let day = getRString(dayString);

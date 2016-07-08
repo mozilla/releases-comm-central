@@ -337,7 +337,7 @@ calAlarmService.prototype = {
             // Check for snooze
             let snoozeDate;
             if (aItem.parentItem != aItem) {
-                snoozeDate = aItem.parentItem.getProperty("X-MOZ-SNOOZE-TIME-" + aItem.recurrenceId.nativeTime)
+                snoozeDate = aItem.parentItem.getProperty("X-MOZ-SNOOZE-TIME-" + aItem.recurrenceId.nativeTime);
             } else {
                 snoozeDate = aItem.getProperty("X-MOZ-SNOOZE-TIME");
             }
@@ -475,7 +475,7 @@ calAlarmService.prototype = {
                         timer.cancel();
                     }
                 }
-                delete this.mTimerMap[calendar.id]
+                delete this.mTimerMap[calendar.id];
             }
         }
     },

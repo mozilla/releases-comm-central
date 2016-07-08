@@ -538,7 +538,7 @@ function test_interface() {
     equal(itemString.match(/RRULE:[A-Z=,]*FREQ=WEEKLY/), null);
     equal(itemString.match(/EXDATE[A-Z;=-]*:20020403T114500Z/, null));
     equal(itemString.match(/RDATE[A-Z;=-]*:20020401T114500Z/, null));
-    notEqual(itemString.match(/RRULE:[A-Z=,]*FREQ=DAILY/), null)
+    notEqual(itemString.match(/RRULE:[A-Z=,]*FREQ=DAILY/), null);
     notEqual(itemString.match(/EXDATE[A-Z;=-]*:20020404T114500Z/, null));
 
     // This may be an implementation detail, but we don't want this breaking
@@ -602,7 +602,7 @@ function test_interface() {
     let occDate2 = cal.createDateTime("20020404T114500Z");
     rinfo.removeOccurrenceAt(occDate1);
     ok(item.icalString.includes("EXDATE"));
-    rinfo.restoreOccurrenceAt(occDate1)
+    rinfo.restoreOccurrenceAt(occDate1);
     ok(!item.icalString.includes("EXDATE"));
 
     // modifyException / getExceptionFor
@@ -670,7 +670,7 @@ function test_rrule_interface() {
     let untilDate = cal.createDateTime();
     untilDate.timezone = cal.getTimezoneService().getTimezone("Europe/Berlin");
     rrule.untilDate = untilDate;
-    ok(!rrule.isByCount)
+    ok(!rrule.isByCount);
     throws(() => rrule.count, /0x80004005/);
     equal(rrule.untilDate.icalString, untilDate.getInTimezone(cal.UTC()).icalString);
 
@@ -679,7 +679,7 @@ function test_rrule_interface() {
     untilDate = cal.createDateTime();
     untilDate.timezone = cal.UTC();
     rrule.untilDate = untilDate;
-    ok(!rrule.isByCount)
+    ok(!rrule.isByCount);
     throws(() => rrule.count, /0x80004005/);
     equal(rrule.untilDate.icalString, untilDate.icalString);
 }
@@ -772,7 +772,7 @@ function test_failures() {
 
     // modifyException with a different parent item
     let occ = rinfo.getOccurrenceFor(cal.createDateTime("20120102T114500Z"));
-    occ.calendar = {}
+    occ.calendar = {};
     occ.id = "1234";
     occ.parentItem = occ;
     throws(() => rinfo.modifyException(occ, true), /Illegal value/, "Invalid Argument");

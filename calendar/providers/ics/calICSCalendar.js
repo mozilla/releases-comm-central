@@ -109,7 +109,7 @@ calICSCalendar.prototype = {
         return true;
     },
 
-    get uri() { return this.mUri },
+    get uri() { return this.mUri; },
     set uri(aUri) {
         this.mUri = aUri;
         this.mMemoryCalendar.uri = this.mUri;
@@ -806,7 +806,7 @@ calICSCalendar.prototype = {
 
                 aCallback.call(savedthis);
             }
-        }
+        };
 
         downloader.init(listener, backupFile);
         try {
@@ -1026,7 +1026,7 @@ httpHooks.prototype = {
 
                 thisHook.mEtag = icsXPathFirst(multistatus, "/D:propfind/D:response/D:propstat/D:prop/D:getetag");
                 aRespFunc();
-            }
+            };
             let queryXml =
                 '<D:propfind xmlns:D="DAV:">' +
                   '<D:prop>' +

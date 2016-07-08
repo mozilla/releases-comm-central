@@ -143,7 +143,7 @@ calTodo.prototype = {
                 if (!this.todoPromotedProps[iprop.name]) {
                     var icalprop = icssvc.createIcalProperty(iprop.name);
                     icalprop.value = iprop.value;
-                    var propBucket = this.mPropertyParams[iprop.name]
+                    var propBucket = this.mPropertyParams[iprop.name];
                     if (propBucket) {
                         for (let paramName in propBucket) {
                             try {

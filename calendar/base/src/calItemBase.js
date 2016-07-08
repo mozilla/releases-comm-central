@@ -494,7 +494,7 @@ calItemBase.prototype = {
             },
 
             getNext: function cIB_gPE_getNext() {
-                let paramName = this.mParamNames.pop()
+                let paramName = this.mParamNames.pop();
                 return { // nsIProperty
                     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIProperty]),
                     name: paramName,

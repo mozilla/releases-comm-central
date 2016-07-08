@@ -716,7 +716,7 @@
             }
         } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
             // The natural direction for pixel scrolling is left/right
-            this.mPixelScrollDelta += event.deltaX
+            this.mPixelScrollDelta += event.deltaX;
             if (this.mPixelScrollDelta > pixelThreshold) {
                 deltaView = 1;
                 this.mPixelScrollDelta = 0;
@@ -765,7 +765,7 @@
             }
         } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
             // The natural direction for pixel scrolling is left/right
-            this.mPixelScrollDelta += event.deltaX
+            this.mPixelScrollDelta += event.deltaX;
             if (this.mPixelScrollDelta > pixelThreshold) {
                 deltaView = 1;
                 this.mPixelScrollDelta = 0;
@@ -1712,7 +1712,7 @@
             const PRE_INDEX = 1, HR_INDEX = 2, MIN_INDEX = 4, SEC_INDEX = 6, POST_INDEX = 8;
 
             if (timePartsArray != null) {
-              var hoursString = timePartsArray[HR_INDEX]
+              var hoursString = timePartsArray[HR_INDEX];
               var hours = Number(hoursString);
               var hoursSuffix = timePartsArray[HR_INDEX + 1];
               if (!(hours >= 0 && hours < 24)) {

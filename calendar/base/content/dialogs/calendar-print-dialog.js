@@ -148,7 +148,7 @@ function getPrintSettings(receiverFunc) {
                     eventWithDueDate = [];
                     for (var item of settings.eventList) {
                         if (item.dueDate || item.endDate) {
-                            eventWithDueDate.push(item)
+                            eventWithDueDate.push(item);
                         }
                     }
                     settings.eventList = eventWithDueDate;

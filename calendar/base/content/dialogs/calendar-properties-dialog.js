@@ -30,7 +30,7 @@ function onLoad() {
     // Set up the cache field
     let cacheBox = document.getElementById("cache");
     let canCache = (gCalendar.getProperty("cache.supported") !== false);
-    let alwaysCache = (gCalendar.getProperty("cache.always"))
+    let alwaysCache = (gCalendar.getProperty("cache.always"));
     if (!canCache || alwaysCache) {
         cacheBox.setAttribute("disable-capability", "true");
         cacheBox.hidden = true;
@@ -91,7 +91,7 @@ function onAcceptDialog() {
     }
 
     // Save cache options
-    let alwaysCache = (gCalendar.getProperty("cache.always"))
+    let alwaysCache = (gCalendar.getProperty("cache.always"));
     if (!alwaysCache) {
         gCalendar.setProperty("cache.enabled", document.getElementById("cache").checked);
     }

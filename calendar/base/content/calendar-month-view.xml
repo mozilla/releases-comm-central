@@ -766,7 +766,7 @@
 
           // This gets set to true, telling us to collapse the rest of the rows
           var finished = false;
-          var dateList = this.getDateList({})
+          var dateList = this.getDateList({});
 
           // This allows to find the first column of dayboxes where to set the
           // week labels taking into account whether days-off are displayed or not.
@@ -1100,7 +1100,7 @@
             // Set up a timer to stop the flashing after the total time.
             var this_ = this;
             this.mFlashingEvents[aAlarmItem.hashId] = aAlarmItem;
-            setTimeout(function() { this_.flashAlarm(aAlarmItem, true) }, totaltime);
+            setTimeout(function() { this_.flashAlarm(aAlarmItem, true); }, totaltime);
           } else {
             // We are done flashing, prevent newly created event boxes from flashing.
             delete this.mFlashingEvents[aAlarmItem.hashId];

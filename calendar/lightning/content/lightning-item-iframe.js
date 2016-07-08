@@ -43,7 +43,7 @@ var gConfig = {
     status: "NONE",
     showTimeAs: null,
     percentComplete: 0
-}
+};
 // The following variables are set by the load handler function of the
 // parent context, so that they are already set before iframe content load:
 //   - gTimezoneEnabled
@@ -275,7 +275,7 @@ function onLoad() {
             sendMessage({ command: "closeWindowOrTab", iframeId: iframeId });
 
             return item;
-        }
+        };
     }
 
     window.fbWrapper = args.fbWrapper;
@@ -296,7 +296,7 @@ function onLoad() {
     }
 
     window.onAcceptCallback = args.onOk;
-    window.mode = args.mode
+    window.mode = args.mode;
 
     // we store the item in the window to be able
     // to access this from any location. please note
@@ -540,7 +540,7 @@ function loadDialog(aItem) {
             initialEndTimezone: gEndTimezone,
             initialStartTime: gStartTime,
             initialEndTime: gEndTime
-        }
+        };
     } else {
         setElementValue("item-title", aItem.title);
         setElementValue("item-location", aItem.getProperty("LOCATION"));
@@ -1814,7 +1814,7 @@ function editAttendees() {
         updateDateTime();
         updateAllDay();
         if (isAllDay != gStartTime.isDate){
-            setShowTimeAs(gStartTime.isDate)
+            setShowTimeAs(gStartTime.isDate);
         }
     };
 
@@ -3362,7 +3362,7 @@ function updateDateTime() {
                 endTime.timezone = floating();
                 setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
             } else {
-                startTime = window.initialStartDateValue
+                startTime = window.initialStartDateValue;
                 startTime.timezone = floating();
                 endTime = startTime.clone();
 

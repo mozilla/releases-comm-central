@@ -13,7 +13,7 @@ var desc = "Multiweek View Event Description";
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
   calUtils.createCalendar(controller, calendar);
-}
+};
 
 var testMultiWeekView = function() {
   let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
@@ -57,7 +57,7 @@ var testMultiWeekView = function() {
   let day = new elementslib.Lookup(controller.window.document, multiWeekView
     + 'anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/anon({"anonid":"monthgridrows"})/'
     + '[0]/{"selected":"true"}');
-  controller.waitFor(function() {return day.getNode().mDate.icalString == "20090101"});
+  controller.waitFor(function() {return day.getNode().mDate.icalString == "20090101";});
 
   // create event
   // Thursday of 2009-01-01 should be the selected box in the first row with default settings
@@ -65,7 +65,7 @@ var testMultiWeekView = function() {
   controller.doubleClick(new elementslib.Lookup(controller.window.document, multiWeekView
     + 'anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/anon({"anonid":"monthgridrows"})/'
     + '[0]/{"selected":"true"}/anon({"anonid":"day-items"})'));
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // check that the start time is correct
@@ -109,7 +109,7 @@ var testMultiWeekView = function() {
   // if it was created successfully, it can be opened
   controller.waitForElement(new elementslib.Lookup(controller.window.document, eventBox));
   controller.doubleClick(new elementslib.Lookup(controller.window.document, eventBox));
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // change title and save changes
@@ -131,8 +131,8 @@ var testMultiWeekView = function() {
   controller.keypress(new elementslib.ID(controller.window.document, "multiweek-view"),
     "VK_DELETE", {});
   controller.waitForElementNotPresent(new elementslib.Lookup(controller.window.document, eventBox));
-}
+};
 
 var teardownTest = function(module) {
   calUtils.deleteCalendars(controller, calendar);
-}
+};

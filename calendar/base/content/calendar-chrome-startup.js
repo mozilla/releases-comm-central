@@ -141,7 +141,7 @@ var calendarWindowPrefs = {
             }, false);
         }
     }
-}
+};
 
 /**
  * Migrate calendar UI. This function is called at each startup and can be used

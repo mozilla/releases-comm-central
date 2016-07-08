@@ -522,7 +522,7 @@ function ltnIntegrationCheck() {
             // we look at all items at any time, but we can stop if the first item was found
             // if we've found no items, we call ltnIntegrationNotification to display the bar
             pCal.getItems(Components.interfaces.calICalendar.ITEM_FILTER_ALL_ITEMS, 1, null, null)
-                .then(function(aItems) {if (!aItems.length) {ltnIntegrationNotification()}});
+                .then(function(aItems) {if (!aItems.length) {ltnIntegrationNotification();}});
         }
     }
 }
@@ -607,7 +607,7 @@ function LtnObserveDisplayDeckChange(event) {
     }
 
     var id = null;
-    try { id = deck.selectedPanel.id } catch (e) { }
+    try { id = deck.selectedPanel.id; } catch (e) { }
 
     // Switch back to mail mode in case we find that this
     // notification has been fired but we're still in calendar or task mode.

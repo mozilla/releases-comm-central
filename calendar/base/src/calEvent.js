@@ -15,7 +15,7 @@ function calEvent() {
         "DTSTART": true,
         "DTEND": true,
         __proto__: this.itemBasePromotedProps
-    }
+    };
 }
 var calEventClassID = Components.ID("{974339d5-ab86-4491-aaaf-2b2ca177c12b}");
 var calEventInterfaces = [

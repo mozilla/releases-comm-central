@@ -201,7 +201,7 @@
                   date.minute += step_in_minutes;
 
                   if (remain == 0) {
-                      newNode.className += " last-in-day"
+                      newNode.className += " last-in-day";
                   }
               }
           }
@@ -729,7 +729,7 @@
                       date.minute += step_in_minutes;
 
                       if (remain == 0) {
-                          newNode.className += " last-in-day"
+                          newNode.className += " last-in-day";
                       }
                   }
                   date.hour = this.mStartHour;
@@ -1503,7 +1503,7 @@
           var func = function func() {
               self.calcContentHeight();
               self.createOrRemoveDummyRows();
-          }
+          };
           setTimeout(func, 0);
         ]]></body>
       </method>

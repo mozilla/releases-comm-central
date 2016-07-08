@@ -14,7 +14,7 @@ var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
   calUtils.createCalendar(controller, UTF8string);
   Preferences.set("calendar.categories.names", UTF8string);
-}
+};
 
 var testUTF8 = function() {
   let eventDialog = '/id("calendar-event-dialog")/id("event-grid")/id("event-grid-rows")/';
@@ -25,7 +25,7 @@ var testUTF8 = function() {
   // create new event
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
     calUtils.getEventBoxPath(controller, "day", calUtils.CANVAS_BOX, undefined, 1, 8)));
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // fill in name, location, description
@@ -56,7 +56,7 @@ var testUTF8 = function() {
     + '/{"tooltip":"itemTooltip","calendar":"' + UTF8string.toLowerCase() + '"}');
   controller.waitForElement(eventBox);
   controller.doubleClick(eventBox);
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // check values
@@ -78,9 +78,9 @@ var testUTF8 = function() {
 
   // escape the event window
   event.keypress(undefined, "VK_ESCAPE", {});
-}
+};
 
 var teardownTest = function(module) {
   calUtils.deleteCalendars(controller, UTF8string);
   prefs.preferences.clearUserPref("calendar.categories.names");
-}
+};

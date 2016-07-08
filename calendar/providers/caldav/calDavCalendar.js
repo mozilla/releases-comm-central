@@ -24,7 +24,7 @@ Components.utils.import("resource://calendar/modules/calAsyncUtils.jsm");
 
 var xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>\n';
 
-var davNS = "DAV:"
+var davNS = "DAV:";
 var caldavNS = "urn:ietf:params:xml:ns:caldav";
 var calservNS = "http://calendarserver.org/ns/";
 var MIME_TEXT_CALENDAR = "text/calendar; charset=utf-8";
@@ -664,7 +664,7 @@ calDavCalendar.prototype = {
                         cal.LOG("CalDAV: recv: " + (str || ""));
                     }
                 } catch (ex) {
-                    listenerStatus = ex.result
+                    listenerStatus = ex.result;
                     listenerDetail = "Request Failed: " + ex.message;
                     cal.LOG("CalDAV: Request error during add: " + ex);
                 }
@@ -786,7 +786,7 @@ calDavCalendar.prototype = {
                        cal.LOG("CalDAV: recv: " + (str || ""));
                     }
                 } catch (ex) {
-                    listenerStatus = ex.result
+                    listenerStatus = ex.result;
                     listenerDetail = "Request Failed: " + ex.message;
                     cal.LOG("CalDAV: Request error during add: " + ex);
                 }
@@ -914,7 +914,7 @@ calDavCalendar.prototype = {
                         cal.LOG("CalDAV: recv: " + (str || ""));
                     }
                 } catch (ex) {
-                    listenerStatus = ex.result
+                    listenerStatus = ex.result;
                     listenerDetail = "Request Failed: " + ex.message;
                     cal.LOG("CalDAV: Request error during delete: " + ex);
                 }
@@ -984,7 +984,7 @@ calDavCalendar.prototype = {
                         cal.LOG("CalDAV: recv: " + (str || ""));
                     }
                 } catch (ex) {
-                    listenerStatus = ex.result
+                    listenerStatus = ex.result;
                     listenerDetail = "Request Failed: " + ex.message;
                     cal.LOG("CalDAV: Request error during add: " + ex);
                 }

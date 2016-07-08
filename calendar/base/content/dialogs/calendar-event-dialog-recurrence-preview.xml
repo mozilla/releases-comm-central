@@ -115,7 +115,7 @@
           }
           while (numRows > numVertical) {
               rows.firstChild.remove();
-              numRows--
+              numRows--;
           }
 
           // Adjust columns in the grid

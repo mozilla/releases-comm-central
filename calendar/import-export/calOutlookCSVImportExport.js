@@ -195,7 +195,7 @@ calOutlookCSVImporter.prototype = {
         }
 
         if (args.titleIndex == 0 || args.startDateIndex == 0) {
-            dump("Can't import. Life sucks\n")
+            dump("Can't import. Life sucks\n");
             aCount.value = 0;
             return [];
         }
@@ -338,20 +338,20 @@ calOutlookCSVImporter.prototype = {
                 // Avoid setting empty properties
                 let txt = "";
                 if ("descriptionIndex" in args) {
-                    txt = this.parseTextField(eventFields[args.descriptionIndex])
+                    txt = this.parseTextField(eventFields[args.descriptionIndex]);
                     if (txt) {
                         event.setProperty("DESCRIPTION", txt);
                     }
                 }
                 if ("categoriesIndex" in args) {
-                    txt = this.parseTextField(eventFields[args.categoriesIndex])
+                    txt = this.parseTextField(eventFields[args.categoriesIndex]);
                     if (txt) {
                         let categories = cal.categoriesStringToArray(txt);
                         event.setCategories(categories.length, categories);
                     }
                 }
                 if ("locationIndex" in args) {
-                    txt = this.parseTextField(eventFields[args.locationIndex])
+                    txt = this.parseTextField(eventFields[args.locationIndex]);
                     if (txt) {
                         event.setProperty("LOCATION", txt);
                     }
@@ -490,7 +490,7 @@ calOutlookCSVExporter.prototype = {
             line = line.map(function(v) {
                 v = String(v).replace(/"/g, '""');
                 return '"' + v + '"';
-            })
+            });
             str = line.join(',') + exportLineEnding;
             aStream.write(str, str.length);
         }

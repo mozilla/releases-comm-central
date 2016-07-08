@@ -10,8 +10,8 @@ var calendar = "Mozmill";
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
   calUtils.createCalendar(controller, calendar);
-}
+};
 
 var testTimezones1_SetGMT = function() {
   timezoneUtils.switchAppTimezone("Europe/London");
-}
+};

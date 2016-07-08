@@ -33,7 +33,7 @@ function really_run_test() {
             // Object comparison fails with ical.js, and we only want to check
             // that we have the right timezone.
             if (prop == "timezone") {
-                equal(dateTime[prop].tzid, expectedDateProps[prop].tzid)
+                equal(dateTime[prop].tzid, expectedDateProps[prop].tzid);
             } else {
                 equal(dateTime[prop], expectedDateProps[prop]);
             }

@@ -146,7 +146,7 @@ InvitationsManager.prototype = {
                                           aDetail) {
                 if (--this.mCount == 0) {
                     this.mInvitationsManager.mItemList.sort((a, b) => {
-                        return a.startDate.compare(b.startDate)
+                        return a.startDate.compare(b.startDate);
                     });
                     for (var listener of listeners) {
                         try {

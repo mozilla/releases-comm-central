@@ -252,7 +252,7 @@ var gCategoriesPane = {
     updateButtons: function gCP_updateButtons() {
         let categoriesList = document.getElementById("categorieslist");
         document.getElementById("deleteCButton").disabled = (categoriesList.selectedCount <= 0);
-        document.getElementById("editCButton").disabled = (categoriesList.selectedCount != 1)
+        document.getElementById("editCButton").disabled = (categoriesList.selectedCount != 1);
     },
 
     /**

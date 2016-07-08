@@ -213,7 +213,7 @@ function switchToView(aViewType) {
      "appmenu_calendar-go-menu-next",
      "appmenu_calendar-go-menu-previous"].forEach(function(x) {
             setupViewNode(x, "label");
-            setupViewNode(x, "accesskey")
+            setupViewNode(x, "accesskey");
      });
 
     // Set up the labels for the view navigation
@@ -718,4 +718,4 @@ var timeIndicator = {
         }
     },
     lastView: null
-}
+};

@@ -19,7 +19,7 @@ calCalendarSearchListener.prototype = {
     opGroup: null,
 
     notifyResult: function calCalendarSearchListener_notifyResult(result) {
-        var listener = this.mFinalListener
+        var listener = this.mFinalListener;
         if (listener) {
             if (!this.opGroup.isPending) {
                 this.mFinalListener = null;

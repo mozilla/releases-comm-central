@@ -102,7 +102,7 @@ ltn.invitation = {
                     content.textContent = aContentText;
                 }
             }
-        }
+        };
 
         // Simple fields
         let headerDescr = doc.getElementById("imipHtml-header-descr");
@@ -132,7 +132,7 @@ ltn.invitation = {
 
             let dateComptor = function(a, b) {
                 return a.startDate.compare(b.startDate);
-            }
+            };
 
             // Show removed instances
             for (let exc of aEvent.recurrenceInfo.getRecurrenceItems({})) {
@@ -143,7 +143,7 @@ ltn.invitation = {
                     } else {
                         // This is an RDATE, close enough to a modified occurrence
                         let excItem = aEvent.recurrenceInfo.getOccurrenceFor(exc.date);
-                        cal.binaryInsert(modifiedOccurrences, excItem, dateComptor, true)
+                        cal.binaryInsert(modifiedOccurrences, excItem, dateComptor, true);
                     }
                 }
             }
@@ -161,7 +161,7 @@ ltn.invitation = {
                 if (exc.startDate.compare(exc.recurrenceId) != 0 ||
                     exc.duration.compare(aEvent.duration) != 0 ||
                     excLocation != aEvent.getProperty("LOCATION")) {
-                    cal.binaryInsert(modifiedOccurrences, exc, dateComptor, true)
+                    cal.binaryInsert(modifiedOccurrences, exc, dateComptor, true);
                 }
             }
 
@@ -173,7 +173,7 @@ ltn.invitation = {
                     formattedExc += " (" + location + ")";
                 }
                 return formattedExc;
-            }
+            };
 
             if (modifiedOccurrences.length > 0) {
                 field("modifiedOccurrences", modifiedOccurrences.map(stringifyOcc).join("\n"));

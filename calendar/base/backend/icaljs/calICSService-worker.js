@@ -20,4 +20,4 @@ onmessage = function onmessage(event) {
         postMessage({ rc: NS_ERROR_FAILURE, data: "Exception occurred: " + e});
     }
     close();
-}
+};

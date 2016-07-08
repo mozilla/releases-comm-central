@@ -115,7 +115,7 @@ function onLoad() {
                     break;
             }
         }
-    }
+    };
     Services.prefs.addObserver("calendar.", prefObserver, false);
     window.addEventListener("unload",
         function() {
@@ -426,7 +426,7 @@ function updateEndTime() {
                 null,
                 document.title,
                 calGetString("calendar", "warningEndBeforeStart"));
-        }
+        };
         setTimeout(callback, 1);
     }
 }

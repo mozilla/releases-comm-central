@@ -12,7 +12,7 @@ var hour = 8;
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
   calUtils.createCalendar(controller, calendar);
-}
+};
 
 var testLastDayOfMonthRecurrence = function() {
   var eventPath = '/{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';
@@ -23,7 +23,7 @@ var testLastDayOfMonthRecurrence = function() {
   // create monthly recurring event
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
     calUtils.getEventBoxPath(controller, "day", calUtils.CANVAS_BOX, undefined, 1, hour)), 1, 1);
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils
     .getWindows("Calendar:EventDialog")[0]);
 
@@ -34,7 +34,7 @@ var testLastDayOfMonthRecurrence = function() {
     "custom");
 
   event.click(new elementslib.ID(event.window.document, "button-save"));
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0});
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0;});
 
   //                        date     correct row in month view
   let checkingData = [[2008, 1, 31, 5],
@@ -95,7 +95,7 @@ var testLastDayOfMonthRecurrence = function() {
   controller.keypress(new elementslib.ID(controller.window.document, "day-view"),
     "VK_DELETE", {});
   controller.waitForElementNotPresent(new elementslib.Lookup(controller.window.document, box));
-}
+};
 
 function setRecurrence(recurrence){
   recurrence.sleep(sleep);
@@ -121,4 +121,4 @@ function setRecurrence(recurrence){
 
 var teardownTest = function(module) {
   calUtils.deleteCalendars(controller, calendar);
-}
+};

@@ -566,7 +566,7 @@ calCalendarManager.prototype = {
         if (aCalendar.id in this.mRefreshTimer &&
             this.mRefreshTimer[aCalendar.id]) {
             this.mRefreshTimer[aCalendar.id].cancel();
-            delete this.mRefreshTimer[aCalendar.id]
+            delete this.mRefreshTimer[aCalendar.id];
         }
     },
 
@@ -1056,7 +1056,7 @@ function timerCallback(aCalendar) {
         if (!aCalendar.getProperty("disabled") && aCalendar.canRefresh) {
             aCalendar.refresh();
         }
-    }
+    };
 }
 
 var gCalendarManagerAddonListener = {

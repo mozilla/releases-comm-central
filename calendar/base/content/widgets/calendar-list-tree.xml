@@ -402,7 +402,7 @@
           }
           let event = document.createEvent('Events');
           event.initEvent("SortOrderChanged", true, false);
-          event.sortOrder = this.sortOrder
+          event.sortOrder = this.sortOrder;
           this.dispatchEvent(event);
 
           let handler = this.getAttribute("onSortOrderChanged");

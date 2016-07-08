@@ -380,7 +380,7 @@ function onNewReminder() {
     if ("DISPLAY" in allowedActionsMap) {
         reminder.action = "DISPLAY";
     } else {
-        let calendar = window.arguments[0].calendar
+        let calendar = window.arguments[0].calendar;
         let actions = calendar.getProperty("capabilities.alarms.actionValues") || [];
         reminder.action = actions[0];
     }

@@ -265,8 +265,8 @@ calItipEmailTransport.prototype = {
                         cal.LOG("Invalid recipient for email transport: " + aVal.toString());
                     }
                     return email;
-                }
-                let toMap = aToList.map(cbEmail).filter(function(aVal, aInd, aArr) {return (aVal.length)});
+                };
+                let toMap = aToList.map(cbEmail).filter(function(aVal, aInd, aArr) {return (aVal.length);});
                 if (toMap.length < aToList.length) {
                     // at least one invalid recipient, so we skip sending for this message
                     return false;

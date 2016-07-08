@@ -214,7 +214,7 @@
           }
 
           if (alarms.length) {
-              this.setAttribute("alarm", "true")
+              this.setAttribute("alarm", "true");
           }
 
           // priority

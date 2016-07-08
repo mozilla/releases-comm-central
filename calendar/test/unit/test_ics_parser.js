@@ -47,7 +47,7 @@ function test_failures() {
     let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
                            .createInstance(Components.interfaces.calIIcsParser);
 
-    do_test_pending()
+    do_test_pending();
     parser.parseString("BOGUS", null, {
         onParsingComplete: function(rc, parser) {
             dump("Note: The previous error message is expected ^^\n");
@@ -196,7 +196,7 @@ function test_roundtrip() {
     equal(comps.length, 1);
     equal(props.length, 1);
 
-    let everything = items[0].icalString.split("\r\n").concat(comps[0].serializeToICS().split("\r\n"))
+    let everything = items[0].icalString.split("\r\n").concat(comps[0].serializeToICS().split("\r\n"));
     everything.push((props[0].icalString.split("\r\n"))[0]);
     everything.sort();
 

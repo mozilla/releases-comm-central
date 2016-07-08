@@ -553,7 +553,7 @@ calRecurrenceInfo.prototype = {
                     for (let occurenceKey in occurrenceMap) {
                         if (occurrenceMap[occurenceKey] && occurenceKey.substring(0, 8) == dateToRemoveKey) {
                             dates = dates.filter(d => d.id.compare(dateToRemove) != 0);
-                            toRemove.push(occurenceKey)
+                            toRemove.push(occurenceKey);
                         }
                     }
                     for (let i = 0; i < toRemove.length; i++) {

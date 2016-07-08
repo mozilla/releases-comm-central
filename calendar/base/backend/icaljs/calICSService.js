@@ -33,7 +33,7 @@ calIcalProperty.prototype = {
     get value() {
         // Unescaped value for properties of TEXT, escaped otherwise.
         if (this.innerObject.type == "text") {
-            return this.innerObject.getValues().join(",")
+            return this.innerObject.getValues().join(",");
         }
         return this.valueAsIcalString;
     },
@@ -251,7 +251,7 @@ calIcalComponent.prototype = {
                 }
             }
         })();
-        return this.getNextSubcomponent(kind)
+        return this.getNextSubcomponent(kind);
     },
     getNextSubcomponent: function(kind) {
         if (this.componentIterator) {

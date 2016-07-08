@@ -70,7 +70,7 @@ add_task(function* test_setDefaultValues_tasks() {
     let nowDate = cal.createDateTime("20150815T120000");
     cal.now = function() {
       return nowDate;
-    }
+    };
 
     Preferences.set("calendar.alarms.onfortodos", 1);
     Preferences.set("calendar.alarms.todoalarmunit", "hours");

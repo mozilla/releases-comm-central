@@ -61,4 +61,4 @@ cal.view = {
         cmp = (a.title > b.title) - (a.title < b.title);
         return cmp;
     }
-}
+};

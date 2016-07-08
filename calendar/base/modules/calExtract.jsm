@@ -49,7 +49,7 @@ function Extractor(fallbackLocale, dayStart, fixedLang) {
 
     if (!this.checkBundle(fallbackLocale)) {
         this.bundleUrl = this.packagedUrl;
-        cal.WARN("Your installed Lightning only includes a single locale, extracting event info from other languages is likely inaccurate. You can install Lightning from addons.mozilla.org manually for multiple locale support.")
+        cal.WARN("Your installed Lightning only includes a single locale, extracting event info from other languages is likely inaccurate. You can install Lightning from addons.mozilla.org manually for multiple locale support.");
     }
 }
 
@@ -768,7 +768,7 @@ Extractor.prototype = {
             if (rc != 0) {
                 return rc;
             } else {
-                rc = (one.minute > two.minute) - (one.minute < two.minute)
+                rc = (one.minute > two.minute) - (one.minute < two.minute);
                 return rc;
             }
         }
@@ -951,7 +951,7 @@ Extractor.prototype = {
                     guess.month = endTime.getMonth() + 1;
                     guess.day = endTime.getDate();
                     if (!(endTime.getHours() == 0 && endTime.getMinutes() == 0)) {
-                        guess.hour = endTime.getHours()
+                        guess.hour = endTime.getHours();
                         guess.minute = endTime.getMinutes();
                     }
                 }

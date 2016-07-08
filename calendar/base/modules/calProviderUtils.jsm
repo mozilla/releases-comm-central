@@ -197,7 +197,7 @@ cal.BadCertHandler.prototype = {
  * @return               The fresh calIFreeBusyInterval.
  */
 cal.FreeBusyInterval = function calFreeBusyInterval(aCalId, aFreeBusyType, aStart, aEnd) {
-    this.calId = aCalId
+    this.calId = aCalId;
     this.interval = Components.classes["@mozilla.org/calendar/period;1"]
                               .createInstance(Components.interfaces.calIPeriod);
     this.interval.start = aStart;

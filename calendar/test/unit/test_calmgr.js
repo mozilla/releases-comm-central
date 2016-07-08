@@ -152,7 +152,7 @@ add_test(function test_calobserver() {
 
     // Add an item
     let item = cal.createEvent();
-    item.id = cal.getUUID()
+    item.id = cal.getUUID();
     item.startDate = cal.now();
     item.endDate = cal.now();
     memory.addItem(item, null);
@@ -264,7 +264,7 @@ add_test(function test_calprefs() {
     // First test the standard types
     prop = memory.getProperty("stringpref");
     equal(typeof prop, "string");
-    equal(prop, "abc")
+    equal(prop, "abc");
 
     prop = memory.getProperty("boolpref");
     equal(typeof prop, "boolean");
@@ -291,7 +291,7 @@ add_test(function test_calprefs() {
     calmgr.setCalendarPref_(memory, "boolpref", "kinda true");
     prop = memory.getProperty("boolpref");
     equal(typeof prop, "string");
-    equal(prop, "kinda true")
+    equal(prop, "kinda true");
 
     // Check if unsetting a pref works
     memory.setProperty("intpref", null);

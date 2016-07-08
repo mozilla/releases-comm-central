@@ -18,7 +18,7 @@ var tmp;
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
   calUtils.createCalendar(controller, calendar);
-}
+};
 
 var testEventDialog = function() {
   // paths
@@ -61,7 +61,7 @@ var testEventDialog = function() {
 
   // create new event
   controller.mainMenu.click("#ltnNewEvent");
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // check that the start time is correct
@@ -71,7 +71,7 @@ var testEventDialog = function() {
   let startHour = (hour == 23) ? hour : (hour + 1) % 24;
   let ampm = "";
   if (now.toLocaleTimeString().match(/AM|PM/)) {
-    ampm = (hour >= 12 ? " PM" : " AM")
+    ampm = (hour >= 12 ? " PM" : " AM");
     startHour = startHour % 12;
     if (startHour == 0) {
       startHour = 12;
@@ -92,7 +92,7 @@ var testEventDialog = function() {
   // check selected calendar
   event.assertNode(new elementslib.Lookup(event.window.document, eventDialog
     + 'id("event-grid-category-color-row")/id("event-grid-category-box")/id("item-calendar")/[0]/'
-    + '{"selected":"true","label":"' + calendar + '"}'))
+    + '{"selected":"true","label":"' + calendar + '"}'));
 
   // fill in name, location, description
   event.type(new elementslib.Lookup(event.window.document, eventDialog
@@ -142,12 +142,12 @@ var testEventDialog = function() {
   event.click(new elementslib.ID(event.window.document, "button-save"));
 
   // catch and dismiss alarm
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:AlarmWindow").length > 0}, sleep);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:AlarmWindow").length > 0;}, sleep);
   let alarm = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:AlarmWindow")[0]);
   // dismiss all button, label in .dtd file, bug #504635
   alarm.waitThenClick(new elementslib.Lookup(alarm.window.document, '/id("calendar-alarm-dialog")/'
     + 'id("alarm-actionbar")/[1]'));
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:AlarmWindow").length == 0}, sleep);
+  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:AlarmWindow").length == 0;}, sleep);
 
   // verify event and alarm icon visible every day of the month and check tooltip
   // 1st January is Thursday so there's three days to check in the first row
@@ -221,7 +221,7 @@ var testEventDialog = function() {
           eventBox.replace("rowNumber", row).replace("columnNumber", col)));
     }
   }
-}
+};
 
 function handleAttendees(attendees){
   let input = new elementslib.Lookup(attendees.window.document,
@@ -266,4 +266,4 @@ function checkTooltip(monthView, row, col, date, startTime, endTime){
 
 var teardownTest = function(module) {
   calUtils.deleteCalendars(controller, calendar);
-}
+};

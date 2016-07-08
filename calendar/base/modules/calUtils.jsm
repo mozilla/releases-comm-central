@@ -435,7 +435,7 @@ var cal = {
                 cal.LOG("Dropping invalid recipient for email transport: " + aVal.toString());
             }
             return email;
-        }
+        };
         return aAttendees.map(cbEmail)
                          .filter(aVal => aVal.length > 0)
                          .join(', ');
