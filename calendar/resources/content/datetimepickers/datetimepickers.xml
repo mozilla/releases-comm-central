@@ -96,9 +96,9 @@
           if (!date) {
             date = this.parseDateTime(text.value);
           }
+          let prettyDate;
           if (date) {
             // format fails if year <= 1600 on win2k, so try format first.
-            var prettyDate;
             try {
               prettyDate = this.formatDate(date);
             } catch (ex) {} // fall thru
@@ -144,7 +144,7 @@
                  continue;
                }
                // Figure out what day of the week today is.
-               var today = now();
+               var today = cal.now();
 
                // i-weekday gets the offset. Add 7 to ensure that the %
                // operation stays positive.
@@ -1587,7 +1587,7 @@
             if (!this.probeSucceeded)
               return null; // avoid errors accessing uninitialized data.
 
-            var year = Number.MIN_VALUE; var month = -1; var day = -1; var timeString = null;
+            var year = Number.MIN_VALUE; var month = -1; var day = -1; let timeString = null;
             if (this.alphaMonths == null) {
               // SHORT NUMERIC DATE, such as 2002-03-04, 4/3/2002, or CE2002Y03M04D.
               // Made of digits & nonDigits.  (Nondigits may be unicode letters
@@ -1644,7 +1644,7 @@
               // if time is also present, parse it
               var hours = 0; var minutes = 0; var seconds = 0;
               if (timeString != null) {
-                var time = this.parseTime(dateNumbersArray[4]);
+                var time = this.parseTime(timeString);
                 if (time != null) {
                   hours = time.getHours();
                   minutes = time.getMinutes();

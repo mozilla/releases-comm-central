@@ -665,13 +665,11 @@ function categoriesArrayToString(aSortedCategoriesArray) {
  * @param aParams      optional array of parameters to format the string
  * @param aComponent   optional stringbundle component name
  */
-function calGetString(aBundleName, aStringName, aParams, aComponent) {
+function calGetString(aBundleName, aStringName, aParams, aComponent="calendar") {
+    let propName = "chrome://" + aComponent + "/locale/" + aBundleName + ".properties";
+
     try {
-        if (!aComponent) {
-            aComponent = "calendar";
-        }
-        var propName = "chrome://" + aComponent + "/locale/" + aBundleName + ".properties";
-        var props = Services.strings.createBundle(propName);
+        let props = Services.strings.createBundle(propName);
 
         if (aParams && aParams.length) {
             return props.formatStringFromName(aStringName, aParams, aParams.length);
@@ -679,7 +677,7 @@ function calGetString(aBundleName, aStringName, aParams, aComponent) {
             return props.GetStringFromName(aStringName);
         }
     } catch (ex) {
-        var s = ("Failed to read '" + aStringName + "' from " + propName + ".");
+        let s = ("Failed to read '" + aStringName + "' from " + propName + ".");
         Components.utils.reportError(s + " Error: " + ex);
         return s;
     }

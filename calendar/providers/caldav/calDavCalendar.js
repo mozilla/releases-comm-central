@@ -655,8 +655,9 @@ calDavCalendar.prototype = {
                 let request = aLoader.request.QueryInterface(Components.interfaces.nsIHttpChannel);
                 let listenerStatus = Components.results.NS_OK;
                 let listenerDetail = parentItem;
+                let responseStatus;
                 try {
-                    var responseStatus = request.responseStatus;
+                    responseStatus = request.responseStatus;
 
                     if (thisCalendar.verboseLogging()) {
                         let str = cal.convertByteArray(aResult, aResultLength);
@@ -776,8 +777,9 @@ calDavCalendar.prototype = {
                 let request = aLoader.request.QueryInterface(Components.interfaces.nsIHttpChannel);
                 let listenerStatus = Components.results.NS_OK;
                 let listenerDetail = aNewItem;
+                let responseStatus;
                 try {
-                    var responseStatus = request.responseStatus;
+                    responseStatus = request.responseStatus;
 
                     if (thisCalendar.verboseLogging()) {
                        let str = cal.convertByteArray(aResult, aResultLength);
@@ -903,8 +905,9 @@ calDavCalendar.prototype = {
                 let request = aLoader.request.QueryInterface(Components.interfaces.nsIHttpChannel);
                 let listenerStatus = Components.results.NS_OK;
                 let listenerDetail = aItem;
+                let responseStatus;
                 try {
-                    var responseStatus = request.responseStatus;
+                    responseStatus = request.responseStatus;
 
                     if (thisCalendar.verboseLogging()) {
                         let str = cal.convertByteArray(aResult, aResultLength);
@@ -972,8 +975,9 @@ calDavCalendar.prototype = {
                 let request = aLoader.request.QueryInterface(Components.interfaces.nsIHttpChannel);
                 let listenerStatus = Components.results.NS_OK;
                 let listenerDetail = aItem;
+                let responseStatus;
                 try {
-                    var responseStatus = request.responseStatus;
+                    responseStatus = request.responseStatus;
 
                     if (thisCalendar.verboseLogging()) {
                         let str = cal.convertByteArray(aResult, aResultLength);
@@ -1426,8 +1430,9 @@ calDavCalendar.prototype = {
                 cal.LOG("CalDAV: recv: " + str);
             }
 
+            let multistatus;
             try {
-                var multistatus = cal.xml.parseString(str);
+                multistatus = cal.xml.parseString(str);
             } catch (ex) {
                 cal.LOG("CalDAV: Failed to get ctag from server for calendar " +
                         thisCalendar.name);
@@ -1807,8 +1812,9 @@ calDavCalendar.prototype = {
                 cal.LOG("CalDAV: recv: " + str);
             }
 
+            let multistatus;
             try {
-                var multistatus = cal.xml.parseString(str);
+                multistatus = cal.xml.parseString(str);
             } catch (ex) {
                 cal.LOG("CalDAV: Failed to determine resource type for" +
                         thisCalendar.name + ": " + ex);
@@ -2074,8 +2080,9 @@ calDavCalendar.prototype = {
                 cal.LOG("CalDAV: recv: " + str);
             }
 
+            let multistatus;
             try {
-                var multistatus = cal.xml.parseString(str);
+                multistatus = cal.xml.parseString(str);
             } catch (ex) {
                 cal.LOG("CalDAV: Failed to propstat principal namespace for " + thisCalendar.name);
                 thisCalendar.completeCheckServerInfo(aChangeLogListener,
@@ -2198,8 +2205,9 @@ calDavCalendar.prototype = {
                 return;
             }
 
+            let multistatus;
             try {
-                var multistatus = cal.xml.parseString(str);
+                multistatus = cal.xml.parseString(str);
             } catch (ex) {
                 cal.LOG("CalDAV: Could not parse multistatus response: " + ex + "\n" + str);
                 doesntSupportScheduling();
@@ -2471,8 +2479,9 @@ calDavCalendar.prototype = {
                 fbTypeMap["BUSY-UNAVAILABLE"] = calIFreeBusyInterval.BUSY_UNAVAILABLE;
                 fbTypeMap["BUSY-TENTATIVE"] = calIFreeBusyInterval.BUSY_TENTATIVE;
 
+                let fbResult;
                 try {
-                    var fbResult = cal.xml.parseString(str);
+                    fbResult = cal.xml.parseString(str);
                 } catch (ex) {
                     cal.LOG("CalDAV: Could not parse freebusy response " + ex);
                     aListener.onResult(null, null);
@@ -2801,8 +2810,9 @@ calDavCalendar.prototype = {
                                 thisCalendar.name);
                     }
 
+                    let responseXML;
                     try {
-                        var responseXML = cal.xml.parseString(str);
+                        responseXML = cal.xml.parseString(str);
                     } catch (ex) {
                         cal.LOG("CalDAV: Could not parse multistatus response: " + ex + "\n" + str);
                         return;

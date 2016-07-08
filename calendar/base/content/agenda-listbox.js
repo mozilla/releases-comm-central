@@ -132,8 +132,9 @@ function onCheckboxChange(event) {
         agendaListbox.refreshCalendarQuery(period.start, period.end);
     } else {
         listItem = listItem.nextSibling;
+        let leaveloop;
         do {
-            var leaveloop = (listItem == null);
+            leaveloop = (listItem == null);
             if (!leaveloop) {
                 var nextItemSibling = listItem.nextSibling;
                 leaveloop = (!agendaListbox.isEventListItem(listItem));
@@ -466,9 +467,10 @@ function getListItems(aItem, aPeriod) {
         for (var i = 0; i < periods.length; i++) {
             let period = periods[i];
             let complistItem = period.listItem;
+            let leaveloop;
             do {
                 complistItem = complistItem.nextSibling;
-                var leaveloop = (!this.isEventListItem(complistItem));
+                leaveloop = (!this.isEventListItem(complistItem));
                 if (!leaveloop) {
                     if (this.isSameEvent(aItem, complistItem.occurrence)){
                         retlistItems.push(complistItem);
@@ -1060,52 +1062,56 @@ function updateSoonSection() {
  * @see scheduleNextCurrentEventUpdate
  */
 function setCurrentEvent() {
-    if (agendaListbox.showsToday() && agendaListbox.today.open) {
+    if (!agendaListbox.showsToday() || !agendaListbox.today.open) {
+        return;
+    }
 
-        var msScheduleTime = -1;
-        var complistItem = agendaListbox.tomorrow.listItem.previousSibling;
-        var removelist = [];
-        var anow = now();
-        var msuntillend = 0;
-        var msuntillstart = 0;
-        do {
-            var leaveloop = (!agendaListbox.isEventListItem(complistItem));
-            if (!leaveloop) {
-                msuntillstart =  complistItem.occurrence.startDate
-                                             .getInTimezone(agendaListbox.kDefaultTimezone)
-                                             .subtractDate(anow).inSeconds;
-                if (msuntillstart <= 0) {
-                    msuntillend = complistItem.occurrence.endDate
-                                              .getInTimezone(agendaListbox.kDefaultTimezone)
-                                              .subtractDate(anow).inSeconds;
-                    if (msuntillend > 0) {
-                        complistItem.setAttribute("current", "true");
-                        if ((msuntillend < msScheduleTime)  || (msScheduleTime == -1)){
-                            msScheduleTime = msuntillend;
-                        }
-                    } else {
-                         removelist.push(complistItem);
+    let msScheduleTime = -1;
+    let complistItem = agendaListbox.tomorrow.listItem.previousSibling;
+    let removelist = [];
+    let anow = now();
+    let msuntillend = 0;
+    let msuntillstart = 0;
+    let leaveloop;
+    do {
+        leaveloop = (!agendaListbox.isEventListItem(complistItem));
+        if (!leaveloop) {
+            msuntillstart = complistItem.occurrence.startDate
+                                        .getInTimezone(agendaListbox.kDefaultTimezone)
+                                        .subtractDate(anow).inSeconds;
+            if (msuntillstart <= 0) {
+                msuntillend = complistItem.occurrence.endDate
+                                          .getInTimezone(agendaListbox.kDefaultTimezone)
+                                          .subtractDate(anow).inSeconds;
+                if (msuntillend > 0) {
+                    complistItem.setAttribute("current", "true");
+                    if (msuntillend < msScheduleTime || msScheduleTime == -1) {
+                        msScheduleTime = msuntillend;
                     }
                 } else {
-                    complistItem.removeAttribute("current");
+                     removelist.push(complistItem);
                 }
-                if ((msScheduleTime == -1) || (msuntillstart < msScheduleTime)) {
-                    if (msuntillstart > 0) {
-                        msScheduleTime = msuntillstart;
-                    }
+            } else {
+                complistItem.removeAttribute("current");
+            }
+            if (msScheduleTime == -1 || msuntillstart < msScheduleTime) {
+                if (msuntillstart > 0) {
+                    msScheduleTime = msuntillstart;
                 }
             }
-            if (!leaveloop) {
-                complistItem = complistItem.previousSibling;
-            }
-        } while (!leaveloop)
-        if (msScheduleTime > -1) {
-            scheduleNextCurrentEventUpdate(setCurrentEvent, msScheduleTime * 1000);
         }
+        if (!leaveloop) {
+            complistItem = complistItem.previousSibling;
+        }
+    } while (!leaveloop);
+
+    if (msScheduleTime > -1) {
+        scheduleNextCurrentEventUpdate(setCurrentEvent, msScheduleTime * 1000);
     }
+
     if (removelist) {
       if (removelist.length > 0) {
-          for (var i = 0;i < removelist.length; i++) {
+          for (let i = 0;i < removelist.length; i++) {
               removelist[i].remove();
           }
       }

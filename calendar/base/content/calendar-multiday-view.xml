@@ -752,8 +752,9 @@
 
                   xulColumn.appendChild(innerColumn);
                   let curTime = 0;
+                  let duration;
                   for (let chunk of column) {
-                      var duration = chunk.duration;
+                      duration = chunk.duration;
                       if (!duration) {
                           continue;
                       }

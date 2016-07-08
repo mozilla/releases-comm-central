@@ -727,8 +727,9 @@ calICSCalendar.prototype = {
         var backupDays = Preferences.get("calendar.backup.days", 1);
         var numBackupFiles = Preferences.get("calendar.backup.filenum", 3);
 
+        let backupDir;
         try {
-            var backupDir = cal.getCalendarDirectory();
+            backupDir = cal.getCalendarDirectory();
             backupDir.append("backup");
             if (!backupDir.exists()) {
                 backupDir.create(CI.nsIFile.DIRECTORY_TYPE, parseInt("0755", 8));
@@ -741,8 +742,9 @@ calICSCalendar.prototype = {
             return;
         }
 
+        let pseudoID;
         try {
-            var pseudoID = this.getProperty("uniquenum2");
+            pseudoID = this.getProperty("uniquenum2");
             if (!pseudoID) {
                 pseudoID = new Date().getTime();
                 this.setProperty("uniquenum2", pseudoID);
@@ -1014,9 +1016,10 @@ httpHooks.prototype = {
                                                 .interfaces.nsIScriptableUnicodeConverter);
                 resultConverter.charset = "UTF-8";
 
+                let multistatus;
                 try {
-                    var str = resultConverter.convertFromByteArray(aResult, aResultLength);
-                    var multistatus = cal.xml.parseString(str);
+                    let str = resultConverter.convertFromByteArray(aResult, aResultLength);
+                    multistatus = cal.xml.parseString(str);
                 } catch (e) {
                     cal.LOG("[calICSCalendar] Failed to fetch channel etag");
                 }

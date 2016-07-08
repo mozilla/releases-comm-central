@@ -85,11 +85,11 @@
               document.getAnonymousElementByAttribute(
                   this, "anonid", "mainbox");
           var numChilds = mainbox.childNodes.length;
-          for (var i = 0; i < numChilds; i++) {
+          for (let i = 0; i < numChilds; i++) {
               var child = mainbox.childNodes[i];
               child.removeAttribute("checked");
           }
-          for (i = 0; i < val.length; i++) {
+          for (let i = 0; i < val.length; i++) {
               var index = val[i] - 1 - this.weekStartOffset;
               if (index < 0) {
                   index += 7;
@@ -208,21 +208,21 @@
     <implementation>
       <property name="days">
         <setter><![CDATA[
-          var mainbox =
+          let mainbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "mainbox");
-          var numRows = mainbox.childNodes.length;
-          var days = [];
-          for (var i = 0; i < numRows; i++) {
-              var row = mainbox.childNodes[i];
-              var numChilds = row.childNodes.length;
-              for (var j = 0; j < numChilds; j++) {
-                  var child = row.childNodes[j];
+          let numRows = mainbox.childNodes.length;
+          let days = [];
+          for (let i = 0; i < numRows; i++) {
+              let row = mainbox.childNodes[i];
+              let numChilds = row.childNodes.length;
+              for (let j = 0; j < numChilds; j++) {
+                  let child = row.childNodes[j];
                   child.removeAttribute("checked");
                   days.push(child);
               }
           }
-          for (i = 0; i < val.length; i++) {
+          for (let i = 0; i < val.length; i++) {
               let lastDayOffset = val[i] == -1 ? 0 : -1;
               let index = (val[i] < 0 ? val[i] + days.length + lastDayOffset
                                       : val[i] - 1);

@@ -580,9 +580,9 @@ function guessSystemTimezone() {
     const calProperties = Services.strings.createBundle("chrome://calendar/locale/calendar.properties");
 
     // First, try to detect operating system timezone.
+    let zoneInfoIdFromOSUserTimeZone = null;
+    let osUserTimeZone = null;
     try {
-        var osUserTimeZone = null;
-        var zoneInfoIdFromOSUserTimeZone = null;
         var handler = Components.classes["@mozilla.org/network/protocol;1?name=http"]
                                 .getService(Components.interfaces.nsIHttpProtocolHandler);
 

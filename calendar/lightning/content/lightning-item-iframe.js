@@ -870,11 +870,11 @@ function saveCategories(aItem) {
  * @param item      The item to parse information out of.
  */
 function loadDateTime(item) {
-    var kDefaultTimezone = calendarDefaultTimezone();
+    let kDefaultTimezone = calendarDefaultTimezone();
     if (isEvent(item)) {
-        var startTime = item.startDate;
-        var endTime = item.endDate;
-        var duration = endTime.subtractDate(startTime);
+        let startTime = item.startDate;
+        let endTime = item.endDate;
+        let duration = endTime.subtractDate(startTime);
 
         // Check if an all-day event has been passed in (to adapt endDate).
         if (startTime.isDate) {
@@ -896,11 +896,11 @@ function loadDateTime(item) {
     }
 
     if (isToDo(item)) {
-        var startTime = null;
-        var endTime = null;
-        var duration = null;
+        let startTime = null;
+        let endTime = null;
+        let duration = null;
 
-        var hasEntryDate = (item.entryDate != null);
+        let hasEntryDate = (item.entryDate != null);
         if (hasEntryDate) {
             startTime = item.entryDate;
             gStartTimezone = startTime.timezone;
@@ -908,7 +908,7 @@ function loadDateTime(item) {
         } else {
             gStartTimezone = kDefaultTimezone;
         }
-        var hasDueDate = (item.dueDate != null);
+        let hasDueDate = (item.dueDate != null);
         if (hasDueDate) {
             endTime = item.dueDate;
             gEndTimezone = endTime.timezone;
@@ -1250,16 +1250,16 @@ function getRepeatTypeAndUntilDate(aItem) {
                             if (rule.interval == 1) {
                                 if (ruleComp.length > 0) {
                                     if (ruleComp.length == 5) {
-                                        for (var i = 0; i < 5; i++) {
+                                        let found = false;
+                                        for (let i = 0; i < 5; i++) {
                                             if (ruleComp[i] != i + 2) {
+                                                found = true;
                                                 break;
                                             }
                                         }
-                                        if (i==5) {
-                                            if (!rule.isFinite || !rule.isByCount) {
-                                                repeatType = "every.weekday";
-                                                updateUntilDate(rule);
-                                            }
+                                        if (!found && (!rule.isFinite || !rule.isByCount)) {
+                                            repeatType = "every.weekday";
+                                            updateUntilDate(rule);
                                         }
                                     }
                                 } else {
@@ -1466,9 +1466,9 @@ function saveDateTime(item) {
     untilDateCompensation(item);
 
     if (isEvent(item)) {
-        var startTime = gStartTime.getInTimezone(gStartTimezone);
-        var endTime = gEndTime.getInTimezone(gEndTimezone);
-        var isAllDay = getElementValue("event-all-day", "checked");
+        let startTime = gStartTime.getInTimezone(gStartTimezone);
+        let endTime = gEndTime.getInTimezone(gEndTimezone);
+        let isAllDay = getElementValue("event-all-day", "checked");
         if (isAllDay) {
             startTime = startTime.clone();
             endTime = endTime.clone();
@@ -1485,8 +1485,8 @@ function saveDateTime(item) {
         setItemProperty(item, "endDate", endTime);
     }
     if (isToDo(item)) {
-        var startTime = gStartTime && gStartTime.getInTimezone(gStartTimezone);
-        var endTime = gEndTime && gEndTime.getInTimezone(gEndTimezone);
+        let startTime = gStartTime && gStartTime.getInTimezone(gStartTimezone);
+        let endTime = gEndTime && gEndTime.getInTimezone(gEndTimezone);
         setItemProperty(item, "entryDate", startTime);
         setItemProperty(item, "dueDate", endTime);
     }
@@ -2571,7 +2571,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
     if (repeatValue == 'none') {
         repeatDeck.selectedIndex = -1;
         window.recurrenceInfo = null;
-        var item = window.calendarItem;
+        let item = window.calendarItem;
         if (isToDo(item)) {
             enableElementWithLock("todo-has-entrydate", "repeat-lock");
         }
@@ -2582,14 +2582,14 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
         // up the appropriate dialog in order to let the user specify the
         // new rule. First of all, retrieve the item we want to specify
         // the custom repeat pattern for.
-        var item = window.calendarItem;
+        let item = window.calendarItem;
 
         setUpEntrydateForTask(item);
 
         // retrieve the current recurrence info, we need this
         // to find out whether or not the user really created
         // a new repeat pattern.
-        var recurrenceInfo = window.recurrenceInfo;
+        let recurrenceInfo = window.recurrenceInfo;
 
         // now bring up the recurrence dialog.
         // don't pop up the dialog if aSuppressDialogs was specified or if
@@ -3255,8 +3255,8 @@ function updateDateTime() {
     // and display the labels in order to modify the timezone.
     if (gTimezonesEnabled) {
         if (isEvent(item)) {
-          var startTime = gStartTime.getInTimezone(gStartTimezone);
-          var endTime = gEndTime.getInTimezone(gEndTimezone);
+          let startTime = gStartTime.getInTimezone(gStartTimezone);
+          let endTime = gEndTime.getInTimezone(gEndTimezone);
 
           setElementValue("event-all-day", startTime.isDate, "checked");
 
@@ -3282,10 +3282,10 @@ function updateDateTime() {
         }
 
         if (isToDo(item)) {
-          var startTime = gStartTime && gStartTime.getInTimezone(gStartTimezone);
-          var endTime = gEndTime && gEndTime.getInTimezone(gEndTimezone);
-          var hasEntryDate = (startTime != null);
-          var hasDueDate = (endTime != null);
+          let startTime = gStartTime && gStartTime.getInTimezone(gStartTimezone);
+          let endTime = gEndTime && gEndTime.getInTimezone(gEndTimezone);
+          let hasEntryDate = (startTime != null);
+          let hasDueDate = (endTime != null);
 
           if (hasEntryDate && hasDueDate) {
               setElementValue("todo-has-entrydate", hasEntryDate, "checked");
@@ -3319,11 +3319,11 @@ function updateDateTime() {
           }
         }
     } else {
-        var kDefaultTimezone = calendarDefaultTimezone();
+        let kDefaultTimezone = calendarDefaultTimezone();
 
         if (isEvent(item)) {
-            var startTime = gStartTime.getInTimezone(kDefaultTimezone);
-            var endTime = gEndTime.getInTimezone(kDefaultTimezone);
+            let startTime = gStartTime.getInTimezone(kDefaultTimezone);
+            let endTime = gEndTime.getInTimezone(kDefaultTimezone);
             setElementValue("event-all-day", startTime.isDate, "checked");
 
             // before feeding the date/time value into the control we need
@@ -3336,11 +3336,11 @@ function updateDateTime() {
         }
 
         if (isToDo(item)) {
-            var startTime = gStartTime &&
+            let startTime = gStartTime &&
                             gStartTime.getInTimezone(kDefaultTimezone);
-            var endTime = gEndTime && gEndTime.getInTimezone(kDefaultTimezone);
-            var hasEntryDate = (startTime != null);
-            var hasDueDate = (endTime != null);
+            let endTime = gEndTime && gEndTime.getInTimezone(kDefaultTimezone);
+            let hasEntryDate = (startTime != null);
+            let hasDueDate = (endTime != null);
 
             if (hasEntryDate && hasDueDate) {
                 setElementValue("todo-has-entrydate", hasEntryDate, "checked");

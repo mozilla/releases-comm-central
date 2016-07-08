@@ -93,7 +93,7 @@ function test_values() {
     var atts = event.getAttendees({});
     equal(atts.length, clonedatts.length)
 
-    for (i = 0; i < clonedatts.length; i++) {
+    for (let i = 0; i < clonedatts.length; i++) {
         // The attributes should not be equal
         notEqual(atts[i], clonedatts[i]);
         // But the ids should

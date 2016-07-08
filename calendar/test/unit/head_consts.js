@@ -53,8 +53,8 @@ function createEventFromIcalString(icalString) {
     } else {
         var event = Cc["@mozilla.org/calendar/event;1"].createInstance(Ci.calIEvent);
         event.icalString = icalString;
+        return event;
     }
-    return event;
 }
 
 function createTodoFromIcalString(icalString) {

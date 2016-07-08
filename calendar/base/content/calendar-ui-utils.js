@@ -317,8 +317,9 @@ function appendCalendarItems(aItem, aCalendarMenuParent, aCalendarToUse, aOnComm
  * @return            The newly created menuitem
  */
 function addMenuItem(aParent, aLabel, aValue, aCommand) {
+    let item = null;
     if (aParent.localName == "menupopup") {
-        var item = createXULElement("menuitem");
+        item = createXULElement("menuitem");
         item.setAttribute("label", aLabel);
         if (aValue) {
             item.setAttribute("value", aValue);
@@ -327,8 +328,7 @@ function addMenuItem(aParent, aLabel, aValue, aCommand) {
             item.command = aCommand;
         }
         aParent.appendChild(item);
-    }
-    else if (aParent.localName == "menulist") {
+    } else if (aParent.localName == "menulist") {
         item = aParent.appendItem(aLabel, aValue);
     }
     return item;
