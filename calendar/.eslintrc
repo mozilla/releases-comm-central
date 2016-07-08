@@ -42,6 +42,9 @@
     // Disallow assignment in conditional expressions.
     "no-cond-assign": 2,
 
+    // Disallow use of debugger.
+    "no-debugger": 2,
+
     // Disallow deletion of variables (deleting properties is fine).
     "no-delete-var": 2,
 
