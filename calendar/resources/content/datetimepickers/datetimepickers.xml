@@ -136,14 +136,14 @@
              }
            }
 
-           let parser = this;
+           let self = this;
 
            // Takes a written day of the week and returns a js-date
            // corresponding to the nearest day in the future that is
            // that day of the week
            function getDateForDay(aWord) {
-             for (let i in parser.mDayNames) {
-               if (aWord != parser.mDayNames[i]) {
+             for (let i in self.mDayNames) {
+               if (aWord != self.mDayNames[i]) {
                  continue;
                }
                // Figure out what day of the week today is.

@@ -1474,12 +1474,11 @@ ItipItemFinder.prototype = {
                 switch (method) {
                     case "REQUEST":
                     case "PUBLISH": {
-                        let this_ = this;
-                        let action = function(opListener, partStat) {
+                        let action = (opListener, partStat) => {
                             let newItem = itipItemItem.clone();
                             setReceivedInfo(newItem, itipItemItem);
-                            newItem.parentItem.calendar = this_.mItipItem.targetCalendar;
-                            addScheduleAgentClient(newItem, this_.mItipItem.targetCalendar);
+                            newItem.parentItem.calendar = this.mItipItem.targetCalendar;
+                            addScheduleAgentClient(newItem, this.mItipItem.targetCalendar);
                             if (partStat) {
                                 if (partStat != "DECLINED") {
                                     cal.alarms.setDefaultValues(newItem);

@@ -1096,9 +1096,8 @@
 
           if (!aStop) {
             // Set up a timer to stop the flashing after the total time.
-            let this_ = this;
             this.mFlashingEvents[aAlarmItem.hashId] = aAlarmItem;
-            setTimeout(function() { this_.flashAlarm(aAlarmItem, true); }, totaltime);
+            setTimeout(() => this.flashAlarm(aAlarmItem, true), totaltime);
           } else {
             // We are done flashing, prevent newly created event boxes from flashing.
             delete this.mFlashingEvents[aAlarmItem.hashId];

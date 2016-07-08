@@ -254,7 +254,7 @@ parserState.prototype = {
      * @param subComp       The component to process
      */
     submit: function submit(subComp) {
-        let state = this;
+        let self = this;
         let runner = {
             run: function run() {
                 let item = null;
@@ -262,14 +262,14 @@ parserState.prototype = {
                     case "VEVENT":
                         item = cal.createEvent();
                         item.icalComponent = subComp;
-                        state.checkTimezone(item, item.startDate);
-                        state.checkTimezone(item, item.endDate);
+                        self.checkTimezone(item, item.startDate);
+                        self.checkTimezone(item, item.endDate);
                         break;
                     case "VTODO":
                         item = cal.createTodo();
                         item.icalComponent = subComp;
-                        state.checkTimezone(item, item.entryDate);
-                        state.checkTimezone(item, item.dueDate);
+                        self.checkTimezone(item, item.entryDate);
+                        self.checkTimezone(item, item.dueDate);
                         // completed is defined to be in UTC
                         break;
                     case "VTIMEZONE":
@@ -278,23 +278,23 @@ parserState.prototype = {
                         // do anything with it here.
                         break;
                     default:
-                        state.extraComponents.push(subComp);
+                        self.extraComponents.push(subComp);
                         break;
                 }
 
                 if (item) {
                     let rid = item.recurrenceId;
                     if (!rid) {
-                        state.items.push(item);
+                        self.items.push(item);
                         if (item.recurrenceInfo) {
-                            state.uid2parent[item.id] = item;
+                            self.uid2parent[item.id] = item;
                         }
                     } else {
-                        state.excItems.push(item);
+                        self.excItems.push(item);
                     }
                 }
-                state.threadCount--;
-                state.checkCompletion();
+                self.threadCount--;
+                self.checkCompletion();
             }
         };
 

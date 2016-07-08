@@ -401,11 +401,11 @@ calIcalComponent.prototype = {
     },
 
     _getNextParentVCalendar: function() {
-        let that = this;
-        while (that && that.componentType != "VCALENDAR") {
-            that = that.parent;
+        let vcalendar = this; // eslint-disable-line consistent-this
+        while (vcalendar && vcalendar.componentType != "VCALENDAR") {
+            vcalendar = vcalendar.parent;
         }
-        return that || this;
+        return vcalendar || this;
     },
 
     addProperty: function(prop) {

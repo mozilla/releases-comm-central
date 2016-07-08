@@ -176,13 +176,13 @@ calMemoryCalendar.prototype = {
             throw Components.results.NS_ERROR_INVALID_ARG;
         }
 
-        let this_ = this;
+        let self = this;
         function reportError(errStr, errId) {
-            this_.notifyOperationComplete(aListener,
-                                          errId ? errId : Components.results.NS_ERROR_FAILURE,
-                                          Components.interfaces.calIOperationListener.MODIFY,
-                                          aNewItem.id,
-                                          errStr);
+            self.notifyOperationComplete(aListener,
+                                         errId ? errId : Components.results.NS_ERROR_FAILURE,
+                                         Components.interfaces.calIOperationListener.MODIFY,
+                                         aNewItem.id,
+                                         errStr);
             return null;
         }
 
@@ -352,10 +352,9 @@ calMemoryCalendar.prototype = {
     //                in calIOperationListener aListener );
     getItems: function(aItemFilter, aCount,
                         aRangeStart, aRangeEnd, aListener) {
-        let this_ = this;
-        cal.postPone(function() {
-                this_.getItems_(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener);
-            });
+        cal.postPone(() => {
+            this.getItems_(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener);
+        });
     },
     getItems_: function(aItemFilter, aCount,
                          aRangeStart, aRangeEnd, aListener) {

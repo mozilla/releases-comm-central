@@ -379,6 +379,12 @@
     // Disallow spaces inside of computed properties
     "computed-property-spacing": [2, "never"],
 
+    // Require consistent this (using |self|)
+    "consistent-this": [2, "self"],
+
+    // Disallow unnecessary .call() and .apply()
+    "no-useless-call": 2,
+
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.
     "no-else-return": 0,

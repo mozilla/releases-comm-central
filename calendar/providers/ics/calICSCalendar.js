@@ -265,30 +265,30 @@ calICSCalendar.prototype = {
         // That's why we put them in readOnly mode
         let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
                                .createInstance(Components.interfaces.calIIcsParser);
-        let this_ = this;
+        let self = this;
         let listener = { // calIIcsParsingListener
             onParsingComplete: function ics_onParsingComplete(rc, parser_) {
                 try {
                     for (let item of parser_.getItems({})) {
-                        this_.mMemoryCalendar.adoptItem(item, null);
+                        self.mMemoryCalendar.adoptItem(item, null);
                     }
-                    this_.unmappedComponents = parser_.getComponents({});
-                    this_.unmappedProperties = parser_.getProperties({});
-                    cal.LOG("[calICSCalendar] Parsing ICS succeeded for " + this_.uri.spec);
+                    self.unmappedComponents = parser_.getComponents({});
+                    self.unmappedProperties = parser_.getProperties({});
+                    cal.LOG("[calICSCalendar] Parsing ICS succeeded for " + self.uri.spec);
                 } catch (exc) {
                     cal.LOG("[calICSCalendar] Parsing ICS failed for \nException: " + exc);
-                    this_.mObserver.onError(this_.superCalendar, exc.result, exc.toString());
-                    this_.mObserver.onError(this_.superCalendar, calIErrors.READ_FAILED, "");
+                    self.mObserver.onError(self.superCalendar, exc.result, exc.toString());
+                    self.mObserver.onError(self.superCalendar, calIErrors.READ_FAILED, "");
                 }
-                this_.mObserver.onEndBatch();
-                this_.mObserver.onLoad(this_);
+                self.mObserver.onEndBatch();
+                self.mObserver.onLoad(self);
 
                 // Now that all items have been stuffed into the memory calendar
                 // we should add ourselves as observer. It is important that this
                 // happens *after* the calls to adoptItem in the above loop to prevent
                 // the views from being notified.
-                this_.mMemoryCalendar.addObserver(this_.mObserver);
-                this_.unlock();
+                self.mMemoryCalendar.addObserver(self.mObserver);
+                self.unlock();
             }
         };
         parser.parseString(str, null, listener);
@@ -311,7 +311,7 @@ calICSCalendar.prototype = {
 
     doWriteICS: function() {
         cal.LOG("[calICSCalendar] Writing ICS File " + this.uri.spec);
-        let savedthis = this;
+        let self = this;
         let listener =
         {
             serializer: null,
@@ -322,7 +322,7 @@ calICSCalendar.prototype = {
                     // All events are returned. Now set up a channel and a
                     // streamloader to upload.  onStopRequest will be called
                     // once the write has finished
-                    let channel = Services.io.newChannelFromURI2(savedthis.mUri,
+                    let channel = Services.io.newChannelFromURI2(self.mUri,
                                                                  null,
                                                                  Services.scriptSecurityManager.getSystemPrincipal(),
                                                                  null,
@@ -331,9 +331,9 @@ calICSCalendar.prototype = {
 
                     // Allow the hook to add things to the channel, like a
                     // header that checks etags
-                    let notChanged = savedthis.mHooks.onBeforePut(channel);
+                    let notChanged = self.mHooks.onBeforePut(channel);
                     if (notChanged) {
-                        channel.notificationCallbacks = savedthis;
+                        channel.notificationCallbacks = self;
                         let uploadChannel = channel.QueryInterface(
                             Components.interfaces.nsIUploadChannel);
 
@@ -346,26 +346,26 @@ calICSCalendar.prototype = {
 
                         Services.startup.enterLastWindowClosingSurvivalArea();
                         inLastWindowClosingSurvivalArea = true;
-                        channel.asyncOpen(savedthis, savedthis);
+                        channel.asyncOpen(self, self);
                     } else {
                         if (inLastWindowClosingSurvivalArea) {
                             Services.startup.exitLastWindowClosingSurvivalArea();
                         }
-                        savedthis.mObserver.onError(savedthis.superCalendar,
-                                                    calIErrors.MODIFICATION_FAILED,
-                                                    "The calendar has been changed remotely. Please reload and apply your changes again!");
-                        savedthis.unlock(calIErrors.MODIFICATION_FAILED);
+                        self.mObserver.onError(self.superCalendar,
+                                               calIErrors.MODIFICATION_FAILED,
+                                               "The calendar has been changed remotely. Please reload and apply your changes again!");
+                        self.unlock(calIErrors.MODIFICATION_FAILED);
                     }
                 } catch (ex) {
                     if (inLastWindowClosingSurvivalArea) {
                         Services.startup.exitLastWindowClosingSurvivalArea();
                     }
-                    savedthis.mObserver.onError(savedthis.superCalendar,
-                                                ex.result, "The calendar could not be saved; there " +
-                                                "was a failure: 0x" + ex.result.toString(16));
-                    savedthis.mObserver.onError(savedthis.superCalendar, calIErrors.MODIFICATION_FAILED, "");
-                    savedthis.unlock(calIErrors.MODIFICATION_FAILED);
-                    savedthis.forceRefresh();
+                    self.mObserver.onError(self.superCalendar,
+                                           ex.result, "The calendar could not be saved; there " +
+                                           "was a failure: 0x" + ex.result.toString(16));
+                    self.mObserver.onError(self.superCalendar, calIErrors.MODIFICATION_FAILED, "");
+                    self.unlock(calIErrors.MODIFICATION_FAILED);
+                    self.forceRefresh();
                 }
             },
             onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
@@ -788,7 +788,7 @@ calICSCalendar.prototype = {
         let downloader = Components.classes["@mozilla.org/network/downloader;1"]
                                    .createInstance(CI.nsIDownloader);
 
-        let savedthis = this;
+        let self = this;
         let listener = {
             onDownloadComplete: function(opdownloader, request, ctxt, status, result) {
                 if (doInitialBackup) {
@@ -798,7 +798,7 @@ calICSCalendar.prototype = {
                     copyToOverwriting(result, backupDir, dailyBackupFileName);
                 }
 
-                aCallback.call(savedthis);
+                aCallback.call(self);
             }
         };
 
@@ -1000,7 +1000,7 @@ httpHooks.prototype = {
             // Try to do the best we can, by immediatly getting the etag.
 
             let etagListener = {};
-            let thisHook = this; // need to reference in callback
+            let self = this; // need to reference in callback
 
             etagListener.onStreamComplete =
                 function ics_etLoSC(aLoader, aContext, aStatus, aResultLength,
@@ -1018,7 +1018,7 @@ httpHooks.prototype = {
                     cal.LOG("[calICSCalendar] Failed to fetch channel etag");
                 }
 
-                thisHook.mEtag = icsXPathFirst(multistatus, "/D:propfind/D:response/D:propstat/D:prop/D:getetag");
+                self.mEtag = icsXPathFirst(multistatus, "/D:propfind/D:response/D:propstat/D:prop/D:getetag");
                 aRespFunc();
             };
             let queryXml =

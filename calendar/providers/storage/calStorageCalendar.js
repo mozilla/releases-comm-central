@@ -466,7 +466,7 @@ calStorageCalendar.prototype = {
     // void modifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem, in calIOperationListener aListener );
     // Actually uses doModifyItem
     modifyItem: function cSC_modifyItem(aNewItem, aOldItem, aListener) {
-        let this_ = this;
+        let self = this;
 
         // HACK Just modifying the item would clear the offline flag, we need to
         // retrieve the flag and pass it to the real modify function.
@@ -474,7 +474,7 @@ calStorageCalendar.prototype = {
             onGetResult: function(calendar, status, opType, id, detail) {
             },
             onOperationComplete: function(opcalendar, status, opType, id, offlineFlag) {
-                this_.doModifyItem(aNewItem, aOldItem, aListener, offlineFlag);
+                self.doModifyItem(aNewItem, aOldItem, aListener, offlineFlag);
             }
         };
         this.getItemOfflineFlag(aOldItem, offlineJournalFlagListener);
@@ -494,13 +494,13 @@ calStorageCalendar.prototype = {
             throw Components.results.NS_ERROR_INVALID_ARG;
         }
 
-        let this_ = this;
+        let self = this;
         function reportError(errStr, errId) {
-            this_.notifyOperationComplete(aListener,
-                                          errId ? errId : Components.results.NS_ERROR_FAILURE,
-                                          Components.interfaces.calIOperationListener.MODIFY,
-                                          aNewItem.id,
-                                          errStr);
+            self.notifyOperationComplete(aListener,
+                                         errId ? errId : Components.results.NS_ERROR_FAILURE,
+                                         Components.interfaces.calIOperationListener.MODIFY,
+                                         aNewItem.id,
+                                         errStr);
             return null;
         }
 
@@ -661,9 +661,8 @@ calStorageCalendar.prototype = {
     //                in calIOperationListener aListener );
     getItems: function cSC_getItems(aItemFilter, aCount,
                                     aRangeStart, aRangeEnd, aListener) {
-        let this_ = this;
-        cal.postPone(function() {
-            this_.getItems_(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener);
+        cal.postPone(() => {
+            this.getItems_(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener);
         });
     },
     getItems_: function cSC_getItems_(aItemFilter, aCount,
@@ -951,20 +950,20 @@ calStorageCalendar.prototype = {
                                                Components.interfaces.calIOperationListener.GET, null, flag);
         } else {
             let aID = aItem.id;
-            let this_ = this;
+            let self = this;
             let listener = {
                 handleResult: function(aResultSet) {
                         let row = aResultSet.getNextRow();
                         flag = row.getResultByName("offline_journal") || null;
                 },
                 handleError: function(aError) {
-                    this_.logError("Error getting offline flag", aError);
-                    aListener.onOperationComplete(this_, Components.results.NS_ERROR_FAILURE,
-                                                   Components.interfaces.calIOperationListener.GET, aItem.id, aItem);
+                    self.logError("Error getting offline flag", aError);
+                    aListener.onOperationComplete(self, Components.results.NS_ERROR_FAILURE,
+                                                  Components.interfaces.calIOperationListener.GET, aItem.id, aItem);
                 },
                 handleCompletion: function(aReason) {
-                    aListener.onOperationComplete(this_, Components.results.NS_OK,
-                                                   Components.interfaces.calIOperationListener.GET, aItem.id, flag);
+                    aListener.onOperationComplete(self, Components.results.NS_OK,
+                                                  Components.interfaces.calIOperationListener.GET, aItem.id, flag);
                 }
             };
             if (cal.isEvent(aItem)) {
@@ -1020,7 +1019,7 @@ calStorageCalendar.prototype = {
     },
 
     modifyOfflineItem: function(aItem, aListener) {
-        let this_ = this;
+        let self = this;
         let opListener = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onGetResult: function(calendar, status, itemType, detail, count, items) {
@@ -1030,20 +1029,20 @@ calStorageCalendar.prototype = {
                 if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD || oldOfflineJournalFlag == cICL.OFFLINE_FLAG_DELETED_RECORD) {
                     // Do nothing since a flag of "created" or "deleted" exists
                 } else {
-                    this_.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
+                    self.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
                 }
-                this_.notifyOperationComplete(aListener,
-                                              Components.results.NS_OK,
-                                              Components.interfaces.calIOperationListener.MODIFY,
-                                              aItem.id,
-                                              aItem);
+                self.notifyOperationComplete(aListener,
+                                             Components.results.NS_OK,
+                                             Components.interfaces.calIOperationListener.MODIFY,
+                                             aItem.id,
+                                             aItem);
             }
         };
         this.getItemOfflineFlag(aItem, opListener);
     },
 
     deleteOfflineItem: function(aItem, aListener) {
-        let this_ = this;
+        let self = this;
         let opListener = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onGetResult: function(calendar, status, itemType, detail, count, items) {
@@ -1053,21 +1052,21 @@ calStorageCalendar.prototype = {
                 if (oldOfflineJournalFlag) {
                     // Delete item if flag is c
                     if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD) {
-                        this_.deleteItemById(aItem.id);
+                        self.deleteItemById(aItem.id);
                     } else if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD) {
-                        this_.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
+                        self.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
                     }
                 } else {
-                    this_.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
+                    self.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
                 }
 
-                this_.notifyOperationComplete(aListener,
+                self.notifyOperationComplete(aListener,
                                              Components.results.NS_OK,
                                              Components.interfaces.calIOperationListener.DELETE,
                                              aItem.id,
                                              aItem);
                 // notify observers
-                this_.observers.notify("onDeleteItem", [aItem]);
+                self.observers.notify("onDeleteItem", [aItem]);
             }
         };
         this.getItemOfflineFlag(aItem, opListener);

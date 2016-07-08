@@ -212,7 +212,7 @@ calWcapCalendar.prototype = {
 
     issueNetworkRequest: function calWcapCalendar_issueNetworkRequest(
               request, respFunc, dataConvFunc, wcapCommand, params, accessRights) {
-        let this_ = this;
+        let self = this;
         // - bootstrap problem: no cal_props, no access check, no default calId
         // - assure being logged in, thus the default cal_props are available
         // - every subscribed calendar will come along with cal_props
@@ -223,9 +223,9 @@ calWcapCalendar.prototype = {
                     if (err) {
                         throw err;
                     }
-                    this_.assureAccess(accessRights);
-                    params += ("&calid=" + encodeURIComponent(this_.calId));
-                    this_.session.issueNetworkRequest(request, respFunc, dataConvFunc, wcapCommand, params);
+                    self.assureAccess(accessRights);
+                    params += ("&calid=" + encodeURIComponent(self.calId));
+                    self.session.issueNetworkRequest(request, respFunc, dataConvFunc, wcapCommand, params);
                 } catch (exc) {
                     request.execSubRespFunc(respFunc, exc);
                 }

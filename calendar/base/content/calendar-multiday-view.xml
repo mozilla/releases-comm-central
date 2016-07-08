@@ -596,13 +596,12 @@
            if (this.mEventMapTimeout) {
                clearTimeout(this.mEventMapTimeout);
            }
-           let column = this;
 
            if (this.mCreatedNewEvent) {
                this.mEventToEdit = aOccurrence;
            }
-           // Fun with scoping...
-           this.mEventMapTimeout = setTimeout(function() { column.relayout.call(column); }, 5);
+
+           this.mEventMapTimeout = setTimeout(() => this.relayout(), 5);
         ]]></body>
       </method>
 
@@ -1259,8 +1258,8 @@
         <parameter name="aOffset"/>
         <parameter name="aShadows"/>
         <body><![CDATA[
-          let firstCol = this;
-          let lastCol = this;
+          let firstCol = this; // eslint-disable-line consistent-this
+          let lastCol = this; // eslint-disable-line consistent-this
           let firstIndex = (aOffset != null ? aOffset : this.mDragState.offset);
           let lastIndex = firstIndex;
           while (firstCol.previousSibling && firstIndex > 0) {
@@ -2679,12 +2678,8 @@
       <method name="onResize">
         <parameter name="aRealSelf"/>
         <body><![CDATA[
-          let self = this;
-          let isARelayout = true;
-          if (aRealSelf) {
-              self = aRealSelf;
-              isARelayout = false;
-          }
+          let self = aRealSelf || this; // eslint-disable-line consistent-this
+          let isARelayout = !aRealSelf;
           let scrollbox = document.getAnonymousElementByAttribute(self, "anonid", "scrollbox");
           let size;
           if (self.orient == "horizontal") {
@@ -2770,9 +2765,8 @@
 
           if (!aStop) {
             // Set up a timer to stop the flashing after the total time.
-            let this_ = this;
             this.mFlashingEvents[aAlarmItem.hashId] = aAlarmItem;
-            setTimeout(function() { this_.flashAlarm(aAlarmItem, true); }, totaltime);
+            setTimeout(() => this.flashAlarm(aAlarmItem, true), totaltime);
           } else {
             // We are done flashing, prevent newly created event boxes from flashing.
             delete this.mFlashingEvents[aAlarmItem.hashId];
@@ -3288,29 +3282,28 @@
           let daybox = document.getAnonymousElementByAttribute(this, "anonid", "daybox");
           let headerdaybox = document.getAnonymousElementByAttribute(this, "anonid", "headerdaybox");
 
-          let calView = this;
           let dayStartMin = this.mDayStartMin;
           let dayEndMin = this.mDayEndMin;
-          function setUpDayEventsBox(aDayBox, date) {
+          let setUpDayEventsBox = (aDayBox, date) => {
               aDayBox.setAttribute("class", "calendar-event-column-" + (counter % 2 == 0 ? "even" : "odd"));
-              aDayBox.setAttribute("context", calView.getAttribute("context"));
-              aDayBox.setAttribute("item-context", calView.getAttribute("item-context") || calView.getAttribute("context"));
+              aDayBox.setAttribute("context", this.getAttribute("context"));
+              aDayBox.setAttribute("item-context", this.getAttribute("item-context") || this.getAttribute("context"));
               aDayBox.startLayoutBatchChange();
               aDayBox.date = date;
               aDayBox.setAttribute("orient", orient);
-              aDayBox.calendarView = calView;
+              aDayBox.calendarView = this;
               aDayBox.setDayStartEndMinutes(dayStartMin, dayEndMin);
-          }
+          };
 
-          function setUpDayHeaderBox(aDayBox, date) {
+          let setUpDayHeaderBox = (aDayBox, date) => {
               aDayBox.date = date;
-              aDayBox.calendarView = calView;
+              aDayBox.calendarView = this;
               aDayBox.setAttribute("orient", "vertical");
               // Since the calendar-header-container boxes have the same vertical
               // orientation for normal and rotated views, it needs an attribute
               // "rotated" in order to have different css rules.
               setBooleanAttribute(aDayBox, "rotated", orient == "horizontal");
-          }
+          };
 
           this.mDateColumns = [];
 

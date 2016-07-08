@@ -8,11 +8,9 @@ function calFreeBusyListener(numOperations, finalListener) {
     this.mFinalListener = finalListener;
     this.mNumOperations = numOperations;
 
-    let this_ = this;
-    function cancelFunc() { // operation group has been cancelled
-        this_.notifyResult(null);
-    }
-    this.opGroup = new calOperationGroup(cancelFunc);
+    this.opGroup = new calOperationGroup(() => {
+        this.notifyResult(null);
+    });
 }
 calFreeBusyListener.prototype = {
     mFinalListener: null,

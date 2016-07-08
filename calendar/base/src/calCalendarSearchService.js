@@ -7,11 +7,9 @@ function calCalendarSearchListener(numOperations, finalListener) {
     this.mNumOperations = numOperations;
     this.mResults = [];
 
-    let this_ = this;
-    function cancelFunc() { // operation group has been cancelled
-        this_.notifyResult(null);
-    }
-    this.opGroup = new calOperationGroup(cancelFunc);
+    this.opGroup = new calOperationGroup(() => {
+        this.notifyResult(null);
+    });
 }
 calCalendarSearchListener.prototype = {
     mFinalListener: null,
