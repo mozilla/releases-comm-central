@@ -285,7 +285,7 @@ calOutlookCSVImporter.prototype = {
                         // time part too for obtaining a valid event.
                         eDate.isDate = true;
                         // Correct the eDate if duration is less than one day.
-                        if (1 > eDate.subtractDate(sDate).days) {
+                        if (eDate.subtractDate(sDate).days < 1) {
                             eDate = sDate.clone();
                             eDate.day += 1;
                         }

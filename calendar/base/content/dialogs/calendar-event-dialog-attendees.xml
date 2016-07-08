@@ -535,7 +535,7 @@
 
               if (abCard.displayName.length > 0) {
                 let ml = this._findListInAddrBooks(abCard.displayName);
-                if (null!=ml){
+                if (ml) {
                   if (in_list(allListsUri, ml.URI)) {
                     continue;
                   }

@@ -115,6 +115,9 @@
     // disallow use of void operator
     "no-void": 2,
 
+    // Disallow Yoda conditions (where literal value comes first).
+    "yoda": 2,
+
     // Will enable these rules later
     "keyword-spacing": 0,
     "block-spacing": 0,

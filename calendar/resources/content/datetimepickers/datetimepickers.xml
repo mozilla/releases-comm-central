@@ -1641,7 +1641,7 @@
             }
             if (year != Number.MIN_VALUE && month != -1 && day != -1) {
               // year, month, day successfully parsed
-              if (0 <= year && year < 100) {
+              if (year >= 0 && year < 100) {
                 // If 0 <= year < 100, treat as 2-digit year (like formatDate):
                 //   parse year as up to 30 years in future or 69 years in past.
                 //   (Covers 30-year mortgage and most working people's birthdate.)
@@ -1716,21 +1716,21 @@
               var hoursString   = timePartsArray[HR_INDEX]
               var hours         = Number(hoursString);
               var hoursSuffix   = timePartsArray[HR_INDEX + 1];
-              if (!(0 <= hours && hours < 24)) {
+              if (!(hours >= 0 && hours < 24)) {
                 return null;
               }
 
               var minutesString = timePartsArray[MIN_INDEX];
               var minutes       = (minutesString == null? 0 : Number(minutesString));
               var minutesSuffix = timePartsArray[MIN_INDEX + 1];
-              if (!(0 <= minutes && minutes < 60)) {
+              if (!(minutes >= 0 && minutes < 60)) {
                 return null;
               }
 
               var secondsString = timePartsArray[SEC_INDEX];
               var seconds       = (secondsString == null? 0 : Number(secondsString));
               var secondsSuffix = timePartsArray[SEC_INDEX + 1];
-              if (!(0 <= seconds && seconds < 60)) {
+              if (!(seconds >= 0 && seconds < 60)) {
                 return null;
               }
 
