@@ -280,7 +280,8 @@ var TodayPane = {
             this.cwlabel = cal.calGetString("calendar", "shortcalendarweek");
         }
         document.getElementById("currentWeek-label").value = this.cwlabel + " " + aCalWeek;
-        return aMonthLabel.value = cal.getDateFormatter().shortMonthName(aIndex) + " " + aYear;
+        aMonthLabel.value = cal.getDateFormatter().shortMonthName(aIndex) + " " + aYear;
+        return aMonthLabel.value;
     },
 
     /**

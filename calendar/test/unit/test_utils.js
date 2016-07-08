@@ -123,7 +123,7 @@ function test_getStartEndProps() {
 
 function test_calOperationGroup() {
     let cancelCalled = false;
-    function cancelFunc() { return cancelCalled = true; }
+    function cancelFunc() { cancelCalled = true; return true; }
 
     let group = new cal.calOperationGroup(cancelFunc);
 
@@ -143,7 +143,7 @@ function test_calOperationGroup() {
     let pendingOp1 = {
         id: 1,
         isPending: true,
-        cancel: function() { return this.cancelCalled = true; }
+        cancel: function() { this.cancelCalled = true; return true; }
     };
 
     group.add(pendingOp1);
@@ -153,7 +153,7 @@ function test_calOperationGroup() {
     let pendingOp2 = {
         id: 2,
         isPending: true,
-        cancel: function() { return this.cancelCalled = true; }
+        cancel: function() { this.cancelCalled = true; return true; }
     };
 
     group.add(pendingOp2);

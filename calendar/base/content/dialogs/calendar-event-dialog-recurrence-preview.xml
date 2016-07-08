@@ -50,7 +50,8 @@
 
       <property name="dateTime">
         <setter><![CDATA[
-            return this.mDateTime = val.clone();
+            this.mDateTime = val.clone();
+            return this.mDateTime;
         ]]></setter>
         <getter><![CDATA[
             if (this.mDateTime == null) {

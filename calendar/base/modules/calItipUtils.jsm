@@ -852,7 +852,9 @@ cal.itip = {
         let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
                                  .createInstance(Components.interfaces.calIItipItem);
         let serializedItems = "";
-        (aItems || []).forEach(item => serializedItems += cal.getSerializedItem(item));
+        for (let item of (aItems || [])) {
+            serializedItems += cal.getSerializedItem(item)
+        }
         itipItem.init(serializedItems);
 
         let props = aProps || {};

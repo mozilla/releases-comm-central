@@ -43,7 +43,8 @@ calIcalProperty.prototype = {
             this.innerObject.setValue(val);
             return val;
         }
-        return this.valueAsIcalString = val;
+        this.valueAsIcalString = val;
+        return val;
     },
 
     get valueAsIcalString() {
