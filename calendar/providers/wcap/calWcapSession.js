@@ -192,8 +192,7 @@ calWcapSession.prototype = {
     m_loginQueue: null,
     m_loginLock: false,
 
-    getSessionId:
-    function(request, respFunc, timedOutSessionId) {
+    getSessionId: function(request, respFunc, timedOutSessionId) {
         if (Services.io.offline) {
             log("in offline mode.", this);
             respFunc(new Components.Exception(errorToString(NS_ERROR_OFFLINE), NS_ERROR_OFFLINE));
@@ -221,28 +220,27 @@ calWcapSession.prototype = {
                 getCalendarSearchService().removeProvider(this);
             }
 
-            let self = this;
             this.getSessionId_(null, // don't couple to parent request parent may be cancelled
-                               function(err, sessionId) {
-                                   log("getSessionId_resp_(): " + sessionId, self);
+                               (err, sessionId) => {
+                                   log("getSessionId_resp_(): " + sessionId, this);
                                    if (!err) {
-                                       self.m_sessionId = sessionId;
-                                       getFreeBusyService().addProvider(self);
-                                       getCalendarSearchService().addProvider(self);
+                                       this.m_sessionId = sessionId;
+                                       getFreeBusyService().addProvider(this);
+                                       getCalendarSearchService().addProvider(this);
                                    }
 
-                                   let queue = self.m_loginQueue;
-                                   self.m_loginLock = false;
-                                   self.m_loginQueue = [];
-                                   log("unlocked login queue.", self);
+                                   let queue = this.m_loginQueue;
+                                   this.m_loginLock = false;
+                                   this.m_loginQueue = [];
+                                   log("unlocked login queue.", this);
 
-                                   function getSessionId_exec(func) {
+                                   let getSessionId_exec = (func) => {
                                        try {
                                            func(err, sessionId);
                                        } catch (exc) { // unexpected
-                                           self.notifyError(exc);
+                                           this.notifyError(exc);
                                        }
-                                   }
+                                   };
                                    // answer first request:
                                    getSessionId_exec(respFunc);
                                    // and any remaining:
@@ -255,50 +253,49 @@ calWcapSession.prototype = {
     recurrenceBound: 60,
 
     getSessionId_: function(request, respFunc) {
-        let self = this;
         this.checkServerVersion(
             request,
             // probe whether server is accessible and responds:
-            function(err) {
+            (err) => {
                 if (err) {
                     respFunc(err);
                     return;
                 }
                 // lookup password manager, then try login or prompt/login:
-                log("attempting to get a session id for " + self.sessionUri.spec, self);
+                log("attempting to get a session id for " + this.sessionUri.spec, this);
 
-                if (!self.sessionUri.schemeIs("https") &&
-                    !confirmInsecureLogin(self.sessionUri)) {
-                    log("user rejected insecure login on " + self.sessionUri.spec, self);
+                if (!this.sessionUri.schemeIs("https") &&
+                    !confirmInsecureLogin(this.sessionUri)) {
+                    log("user rejected insecure login on " + this.sessionUri.spec, this);
                     respFunc(new Components.Exception(errorToString(calIWcapErrors.WCAP_LOGIN_FAILED),
                                                       calIWcapErrors.WCAP_LOGIN_FAILED));
                     return;
                 }
 
-                let outUser = { value: self.credentials.userId };
-                let outPW = { value: self.credentials.pw };
+                let outUser = { value: this.credentials.userId };
+                let outPW = { value: this.credentials.pw };
                 let outSavePW = { value: false };
 
                 if (outUser.value && !outPW.value) { // lookup pw manager
-                    log("looking in pw db for: " + self.uri.spec, self);
-                    cal.auth.passwordManagerGet(outUser.value, outPW, self.uri.spec, "wcap login");
+                    log("looking in pw db for: " + this.uri.spec, this);
+                    cal.auth.passwordManagerGet(outUser.value, outPW, this.uri.spec, "wcap login");
                 }
 
-                function promptAndLoginLoop_resp(loginerr, sessionId) {
+                let promptAndLoginLoop_resp = (loginerr, sessionId) => {
                     if (checkErrorCode(loginerr, calIWcapErrors.WCAP_LOGIN_FAILED)) {
-                        log("prompting for [user/]pw...", self);
+                        log("prompting for [user/]pw...", this);
                         if (cal.auth.getCredentials(cal.calGetString("wcap", "loginDialog.label"),
-                                                    self.sessionUri.hostPort,
+                                                    this.sessionUri.hostPort,
                                                     outUser,
                                                     outPW,
                                                     outSavePW,
-                                                    self.credentials.userId != null)) {
-                            self.login(request, promptAndLoginLoop_resp,
+                                                    this.credentials.userId != null)) {
+                            this.login(request, promptAndLoginLoop_resp,
                                        outUser.value, outPW.value);
                         } else {
-                            log("login prompt cancelled.", self);
-                            self.defaultCalendar.setProperty("disabled", true);
-                            self.defaultCalendar.setProperty("auto-enabled", true);
+                            log("login prompt cancelled.", this);
+                            this.defaultCalendar.setProperty("disabled", true);
+                            this.defaultCalendar.setProperty("auto-enabled", true);
                             respFunc(new Components.Exception(errorToString(calIWcapErrors.WCAP_LOGIN_FAILED),
                                                               calIWcapErrors.WCAP_LOGIN_FAILED));
                         }
@@ -307,20 +304,16 @@ calWcapSession.prototype = {
                     } else {
                         if (outSavePW.value) {
                             // so try to remove old pw from db first:
-                            cal.auth.passwordManagerSave(outUser.value, outPW.value, self.uri.spec, "wcap login");
+                            cal.auth.passwordManagerSave(outUser.value, outPW.value, this.uri.spec, "wcap login");
                         }
-                        self.credentials.userId = outUser.value;
-                        self.credentials.pw = outPW.value;
-                        self.setupSession(sessionId,
-                                          request,
-                                          function(setuperr) {
-                                              respFunc(setuperr, sessionId);
-                                          });
+                        this.credentials.userId = outUser.value;
+                        this.credentials.pw = outPW.value;
+                        this.setupSession(sessionId, request, (setuperr) => respFunc(setuperr, sessionId));
                     }
-                }
+                };
 
                 if (outPW.value) {
-                    self.login(request, promptAndLoginLoop_resp, outUser.value, outPW.value);
+                    this.login(request, promptAndLoginLoop_resp, outUser.value, outPW.value);
                 } else {
                     promptAndLoginLoop_resp(calIWcapErrors.WCAP_LOGIN_FAILED);
                 }
@@ -328,10 +321,9 @@ calWcapSession.prototype = {
     },
 
     login: function(request, respFunc, user, pw) {
-        let self = this;
         issueNetworkRequest(
             request,
-            function(err, str) {
+            (err, str) => {
                 let sessionId;
                 try {
                     if (err) {
@@ -340,7 +332,7 @@ calWcapSession.prototype = {
                     // currently, xml parsing at an early stage during
                     // process startup does not work reliably, so use
                     // libical parsing for now:
-                    let icalRootComp = stringToIcal(self, str);
+                    let icalRootComp = stringToIcal(this, str);
                     let prop = icalRootComp.getFirstProperty("X-NSCP-WCAP-SESSION-ID");
                     if (!prop) {
                         throw new Components.Exception("missing X-NSCP-WCAP-SESSION-ID in\n" + str);
@@ -350,36 +342,35 @@ calWcapSession.prototype = {
                     if (prop) {
                         let val = parseInt(prop.value, 10);
                         if (!isNaN(val)) {
-                            self.recurrenceBound = val;
-                            log("X-NSCP-RECURRENCE-BOUND:" + self.recurrenceBound);
+                            this.recurrenceBound = val;
+                            log("X-NSCP-RECURRENCE-BOUND:" + this.recurrenceBound);
                         }
                     }
-                    log("login succeeded: " + sessionId, self);
+                    log("login succeeded: " + sessionId, this);
                 } catch (exc) {
                     err = exc;
                     if (checkErrorCode(err, calIWcapErrors.WCAP_LOGIN_FAILED)) {
-                        log("error: " + errorToString(exc), self); // log login failure
+                        log("error: " + errorToString(exc), this); // log login failure
                     } else if (getErrorModule(err) == NS_ERROR_MODULE_NETWORK) {
                         // server seems unavailable:
                         err = new Components.Exception(cal.calGetString("wcap", "accessingServerFailedError.text",
-                                                                        [self.sessionUri.hostPort]), exc);
+                                                                        [this.sessionUri.hostPort]), exc);
                     }
                 }
                 respFunc(err, sessionId);
             },
-            self.sessionUri.spec + "login.wcap?fmt-out=text%2Fcalendar&user=" +
+            this.sessionUri.spec + "login.wcap?fmt-out=text%2Fcalendar&user=" +
             encodeURIComponent(user) + "&password=" + encodeURIComponent(pw),
             false /* no logging */);
     },
 
     logout: function(listener) {
-        let self = this;
         let request = new calWcapRequest(
-            function(oprequest, err) {
+            (oprequest, err) => {
                 if (err) {
-                    logError(err, self);
+                    logError(err, this);
                 } else {
-                    log("logout succeeded.", self);
+                    log("logout succeeded.", this);
                 }
                 if (listener) {
                     listener.onResult(oprequest, null);
@@ -403,11 +394,11 @@ calWcapSession.prototype = {
 
         if (url) {
             issueNetworkRequest(request,
-                                function(err, str) {
+                                (err, str) => {
                                     if (err) {
                                         throw err;
                                     }
-                                    stringToXml(self, str, -1 /* logout successfull */);
+                                    stringToXml(this, str, -1 /* logout successfull */);
                                 }, url);
         } else {
             request.execRespFunc();
@@ -418,15 +409,14 @@ calWcapSession.prototype = {
     checkServerVersion: function(request, respFunc) {
         // currently, xml parsing at an early stage during process startup
         // does not work reliably, so use libical:
-        let self = this;
         issueNetworkRequest(
             request,
-            function(err, str) {
+            (err, str) => {
                 try {
                     let icalRootComp;
                     if (!err) {
                         try {
-                            icalRootComp = stringToIcal(self, str);
+                            icalRootComp = stringToIcal(this, str);
                         } catch (exc) {
                             err = exc;
                         }
@@ -437,7 +427,7 @@ calWcapSession.prototype = {
                         } else { // soft error; request denied etc.
                                  // map into localized message:
                             throw new Components.Exception(cal.calGetString("wcap", "accessingServerFailedError.text",
-                                                                            [self.sessionUri.hostPort]),
+                                                                            [this.sessionUri.hostPort]),
                                                            calIWcapErrors.WCAP_LOGIN_FAILED);
                         }
                     }
@@ -448,7 +438,7 @@ calWcapSession.prototype = {
                     let wcapVersion = parseInt(prop.value, 10);
                     if (wcapVersion < 3) {
                         let strVers = prop.value;
-                        let vars = [self.sessionUri.hostPort];
+                        let vars = [this.sessionUri.hostPort];
                         prop = icalRootComp.getFirstProperty("PRODID");
                         vars.push(prop ? prop.value : "<unknown>");
                         prop = icalRootComp.getFirstProperty("X-NSCP-SERVERVERSION");
@@ -467,14 +457,13 @@ calWcapSession.prototype = {
                 }
                 respFunc(err);
             },
-            self.sessionUri.spec + "version.wcap?fmt-out=text%2Fcalendar");
+            this.sessionUri.spec + "version.wcap?fmt-out=text%2Fcalendar");
     },
 
     setupSession: function(sessionId, request_, respFunc) {
-        let self = this;
         let request = new calWcapRequest(
-            function(oprequest, err) {
-                log("setupSession_resp finished: " + errorToString(err), self);
+            (oprequest, err) => {
+                log("setupSession_resp finished: " + errorToString(err), this);
                 respFunc(err);
             },
             log("setupSession", this));
@@ -486,24 +475,24 @@ calWcapSession.prototype = {
         try {
             this.issueNetworkRequest_(
                 request,
-                function(err, data) {
+                (err, data) => {
                     if (err) {
                         throw err;
                     }
-                    self.credentials.userPrefs = data;
-                    log("installed user prefs.", self);
+                    this.credentials.userPrefs = data;
+                    log("installed user prefs.", this);
 
                     // get calprops for all registered calendars:
-                    let cals = self.getRegisteredCalendars(true);
+                    let cals = this.getRegisteredCalendars(true);
 
                     let calprops_resp = null;
-                    let defaultCal = self.defaultCalendar;
+                    let defaultCal = this.defaultCalendar;
                     if (defaultCal && cals[defaultCal.calId] && // default calendar is registered
                         getPref("calendar.wcap.subscriptions", true) &&
                         !defaultCal.getProperty("subscriptions_registered")) {
                         let hasSubscriptions = false;
                         // post register subscribed calendars:
-                        let list = self.getUserPreferences("X-NSCP-WCAP-PREF-icsSubscribed");
+                        let list = this.getUserPreferences("X-NSCP-WCAP-PREF-icsSubscribed");
                         for (let item of list) {
                             let ar = item.split(",");
                             // ',', '$' are not encoded. ',' can be handled here. WTF.
@@ -511,7 +500,7 @@ calWcapSession.prototype = {
                                 let dollar = a.indexOf("$");
                                 if (dollar >= 0) {
                                     let calId = a.substring(0, dollar);
-                                    if (calId != self.defaultCalId) {
+                                    if (calId != this.defaultCalId) {
                                         cals[calId] = null;
                                         hasSubscriptions = true;
                                     }
@@ -520,12 +509,12 @@ calWcapSession.prototype = {
                         }
 
                         if (hasSubscriptions) {
-                            calprops_resp = function(aCalendar) {
+                            calprops_resp = (aCalendar) => {
                                 if (aCalendar.isDefaultCalendar) {
                                     // tweak name:
                                     aCalendar.setProperty("name", aCalendar.displayName);
                                 } else {
-                                    log("registering subscribed calendar: " + aCalendar.calId, self);
+                                    log("registering subscribed calendar: " + aCalendar.calId, this);
                                     cal.getCalendarManager().registerCalendar(aCalendar);
                                 }
                             };
@@ -535,14 +524,14 @@ calWcapSession.prototype = {
                     }
 
                     if (!defaultCal.getProperty("user_id")) { // nail once:
-                        defaultCal.setProperty("user_id", self.credentials.userId);
+                        defaultCal.setProperty("user_id", this.credentials.userId);
                     }
 
                     if (getPref("calendar.wcap.no_get_calprops", false)) {
                         // hack around the get/search calprops mess:
-                        self.installCalProps_search_calprops(calprops_resp, sessionId, cals, request);
+                        this.installCalProps_search_calprops(calprops_resp, sessionId, cals, request);
                     } else {
-                        self.installCalProps_get_calprops(calprops_resp, sessionId, cals, request);
+                        this.installCalProps_get_calprops(calprops_resp, sessionId, cals, request);
                     }
                 },
                 stringToXml, "get_userprefs",
@@ -556,8 +545,7 @@ calWcapSession.prototype = {
     },
 
     installCalProps_get_calprops: function(respFunc, sessionId, cals, request) {
-        let self = this;
-        function calprops_resp(err, data) {
+        let calprops_resp = (err, data) => {
             if (err) {
                 throw err;
             }
@@ -577,8 +565,8 @@ calWcapSession.prototype = {
                         let calId = ar[0];
                         let calendar = cals[calId];
                         if (calendar === null) {
-                            calendar = new calWcapCalendar(self);
-                            let uri = self.uri.clone();
+                            calendar = new calWcapCalendar(this);
+                            let uri = this.uri.clone();
                             uri.path += "?calid=" + encodeURIComponent(calId);
                             calendar.uri = uri;
                         }
@@ -590,10 +578,10 @@ calWcapSession.prototype = {
                         }
                     }
                 } catch (exc) { // ignore but log any errors on subscribed calendars:
-                    logError(exc, self);
+                    logError(exc, this);
                 }
             }
-        }
+        };
 
         let calidParam = "";
         for (let calId in cals) {
@@ -602,14 +590,13 @@ calWcapSession.prototype = {
             }
             calidParam += encodeURIComponent(calId);
         }
-        self.issueNetworkRequest_(request, calprops_resp,
+        this.issueNetworkRequest_(request, calprops_resp,
                                   null, "get_calprops",
                                   "&fmt-out=text%2Fxml&calid=" + calidParam,
                                   sessionId);
     },
 
     installCalProps_search_calprops: function(respFunc, sessionId, cals, request) {
-        let self = this;
         let retrievedCals = {};
         let issuedSearchRequests = {};
         for (let calId in cals) {
@@ -635,11 +622,11 @@ calWcapSession.prototype = {
                                         }
                                     }
                                 } catch (exc) { // ignore but log any errors on subscribed calendars:
-                                    logError(exc, self);
+                                    logError(exc, this);
                                 }
                             }
                         } catch (exc) { // ignore but log any errors on subscribed calendars:
-                            logError(exc, self);
+                            logError(exc, this);
                         }
                     }
                 };
@@ -657,10 +644,9 @@ calWcapSession.prototype = {
     },
 
     installServerTimeDiff: function(sessionId, request) {
-        let self = this;
         this.issueNetworkRequest_(
             request,
-            function(err, data) {
+            (err, data) => {
                 if (err) {
                     throw err;
                 }
@@ -669,8 +655,8 @@ calWcapSession.prototype = {
                 // than the current (real) server time:
                 let localTime = getTime();
                 let serverTime = getDatetimeFromIcalProp(data.getFirstProperty("X-NSCP-WCAPTIME"));
-                self.m_serverTimeDiff = serverTime.subtractDate(localTime);
-                log("server time diff is: " + self.m_serverTimeDiff, self);
+                this.m_serverTimeDiff = serverTime.subtractDate(localTime);
+                log("server time diff is: " + this.m_serverTimeDiff, this);
             },
             stringToIcal, "gettime", "&fmt-out=text%2Fcalendar",
             sessionId);
@@ -678,22 +664,21 @@ calWcapSession.prototype = {
 
     installServerTimezones: function(sessionId, request) {
         this.m_serverTimezones = {};
-        let self = this;
-        self.issueNetworkRequest_(
+        this.issueNetworkRequest_(
             request,
-            function(err, data) {
+            (err, data) => {
                 if (err) {
                     throw err;
                 }
                 for (let subComp of cal.ical.calendarComponentIterator(data, "VTIMEZONE")) {
                     try {
                         let tzid = subComp.getFirstProperty("TZID").value;
-                        self.m_serverTimezones[tzid] = new calWcapTimezone(self, tzid, subComp);
+                        this.m_serverTimezones[tzid] = new calWcapTimezone(this, tzid, subComp);
                     } catch (exc) { // ignore but errors:
-                        logError(exc, self);
+                        logError(exc, this);
                     }
                 }
-                log("installed timezones.", self);
+                log("installed timezones.", this);
             },
             stringToIcal, "get_all_timezones", "&fmt-out=text%2Fcalendar",
             sessionId);
@@ -708,19 +693,18 @@ calWcapSession.prototype = {
     },
 
     issueNetworkRequest: function(request, respFunc, dataConvFunc, wcapCommand, params) {
-        let self = this;
-        let getSessionId_resp = function(err, sessionId) {
+        let getSessionId_resp = (err, sessionId) => {
             if (err) {
                 request.execSubRespFunc(respFunc, err);
             } else {
                 // else have session uri and id:
-                self.issueNetworkRequest_(
+                this.issueNetworkRequest_(
                     request,
-                    function(loginerr, data) {
+                    (loginerr, data) => {
                         // timeout?
                         if (checkErrorCode(loginerr, calIWcapErrors.WCAP_LOGIN_FAILED)) {
                             // try again:
-                            self.getSessionId(
+                            this.getSessionId(
                                 request,
                                 getSessionId_resp,
                                 sessionId/* (old) timed-out session */);
@@ -736,14 +720,13 @@ calWcapSession.prototype = {
 
     issueNetworkRequest_: function(request, respFunc, dataConvFunc, wcapCommand, params, sessionId) {
         let url = this.getCommandUrl(wcapCommand, params, sessionId);
-        let self = this;
         issueNetworkRequest(request,
-                            function(err, str) {
+                            (err, str) => {
                                 let data;
                                 if (!err) {
                                     try {
                                         if (dataConvFunc) {
-                                            data = dataConvFunc(self, str);
+                                            data = dataConvFunc(this, str);
                                         } else {
                                             data = str;
                                         }
@@ -864,11 +847,10 @@ calWcapSession.prototype = {
 
     // calICalendarSearchProvider:
     searchForCalendars: function(searchString, hints, maxResults, listener) {
-        let self = this;
         let request = new calWcapRequest(
-            function(oprequest, err, data) {
+            (oprequest, err, data) => {
                 if (err && !checkErrorCode(err, calIErrors.OPERATION_CANCELLED)) {
-                    self.notifyError(err);
+                    this.notifyError(err);
                 }
                 if (listener) {
                     listener.onResult(oprequest, data);
@@ -888,7 +870,7 @@ calWcapSession.prototype = {
 
             this.issueNetworkRequest(
                 request,
-                function(err, data) {
+                (err, data) => {
                     if (err) {
                         throw err;
                     }
@@ -911,8 +893,8 @@ calWcapSession.prototype = {
                                 if (calendar) {
                                     calendar.m_calProps = node; // update calprops
                                 } else {
-                                    calendar = new calWcapCalendar(self, node);
-                                    let uri = self.uri.clone();
+                                    calendar = new calWcapCalendar(this, node);
+                                    let uri = this.uri.clone();
                                     uri.path += "?calid=" + encodeURIComponent(calId);
                                     calendar.uri = uri;
                                 }
@@ -922,15 +904,15 @@ calWcapSession.prototype = {
                             switch (getResultCode(exc)) {
                                 case calIWcapErrors.WCAP_NO_ERRNO: // workaround
                                 case calIWcapErrors.WCAP_ACCESS_DENIED_TO_CALENDAR:
-                                    log("searchForCalendars_netResp() ignored error: " + errorToString(exc), self);
+                                    log("searchForCalendars_netResp() ignored error: " + errorToString(exc), this);
                                     break;
                                 default:
-                                    self.notifyError(exc);
+                                    this.notifyError(exc);
                                     break;
                             }
                         }
                     }
-                    log("search done. number of found calendars: " + ret.length, self);
+                    log("search done. number of found calendars: " + ret.length, this);
                     request.execRespFunc(null, ret);
                 },
                 null, "search_calprops", params);
@@ -947,19 +929,18 @@ calWcapSession.prototype = {
         let zRangeStart = getIcalUTC(rangeStart);
         let zRangeEnd = getIcalUTC(rangeEnd);
 
-        let self = this;
         let request = new calWcapRequest(
-            function(oprequest, err, data) {
+            (oprequest, err, data) => {
                 let rc = getResultCode(err);
                 switch (rc) {
                     case calIWcapErrors.WCAP_NO_ERRNO: // workaround
                     case calIWcapErrors.WCAP_ACCESS_DENIED_TO_CALENDAR:
                     case calIWcapErrors.WCAP_CALENDAR_DOES_NOT_EXIST:
-                        log("getFreeBusyIntervals_resp() error: " + errorToString(err), self);
+                        log("getFreeBusyIntervals_resp() error: " + errorToString(err), this);
                         break;
                     default:
                         if (!Components.isSuccessCode(rc)) {
-                            self.notifyError(err);
+                            this.notifyError(err);
                         }
                         break;
                 }
@@ -989,13 +970,13 @@ calWcapSession.prototype = {
 
             this.issueNetworkRequest(
                 request,
-                function(err, xml) {
+                (err, xml) => {
                     if (err) {
                         throw err;
                     }
                     if (LOG_LEVEL > 0) {
                         log("getFreeBusyIntervals net_resp(): " +
-                            getWcapRequestStatusString(xml), self);
+                            getWcapRequestStatusString(xml), this);
                     }
                     if (listener) {
                         let ret = [];

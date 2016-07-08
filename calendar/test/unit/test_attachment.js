@@ -97,7 +97,7 @@ function test_serialize() {
     attach.uri = Services.io.newURI("data:text/plain,", null, null);
     equal(attach.icalString, "ATTACH;ENCODING=BASE64:data:text/plain,\r\n");
 
-    throws(function() {
+    throws(() => {
         attach.icalString = "X-STICKER:smiley";
     }, /Illegal value/);
 

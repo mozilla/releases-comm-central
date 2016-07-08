@@ -22,7 +22,7 @@ var ALLDAY = 2; // Use when you need an allday canvas or event box
  *  @param controller - Mozmill window controller
  */
 function acceptSendingNotificationMail(controller) {
-  modalDialog.plan_for_modal_dialog("commonDialog", function(dialog) {
+  modalDialog.plan_for_modal_dialog("commonDialog", (dialog) => {
       dialog.waitThenClick(new elementslib.Lookup(dialog.window.document, '/id("commonDialog")/' +
         'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
     }
@@ -36,7 +36,7 @@ function acceptSendingNotificationMail(controller) {
  *  @param controller - Mozmill window controller
  */
 function handleAddingAttachment(controller, url) {
-  modalDialog.plan_for_modal_dialog("commonDialog", function(attachment) {
+  modalDialog.plan_for_modal_dialog("commonDialog", (attachment) => {
     let input = new elementslib.ID(attachment.window.document, "loginTextbox");
     attachment.waitForElement(input);
     input.getNode().value = url;
@@ -105,7 +105,7 @@ function switchToView(controller, view) {
     case "week":
       controller.waitThenClick(new elementslib.ID(controller.window.document,
         "calendar-week-view-button"));
-      controller.waitFor(function() {
+      controller.waitFor(() => {
         let button = new elementslib.ID(controller.window.document,
         "calendar-week-view-button");
         return button.getNode().selected == true;
@@ -114,7 +114,7 @@ function switchToView(controller, view) {
     case "multiweek":
       controller.waitThenClick(new elementslib.ID(controller.window.document,
         "calendar-multiweek-view-button"));
-      controller.waitFor(function() {
+      controller.waitFor(() => {
         let button = new elementslib.ID(controller.window.document,
         "calendar-multiweek-view-button");
         return button.getNode().selected == true;
@@ -123,7 +123,7 @@ function switchToView(controller, view) {
     case "month":
       controller.waitThenClick(new elementslib.ID(controller.window.document,
         "calendar-month-view-button"));
-      controller.waitFor(function() {
+      controller.waitFor(() => {
         let button = new elementslib.ID(controller.window.document,
         "calendar-month-view-button");
         return button.getNode().selected == true;
@@ -132,7 +132,7 @@ function switchToView(controller, view) {
     default:
       controller.waitThenClick(new elementslib.ID(controller.window.document,
         "calendar-day-view-button"));
-      controller.waitFor(function() {
+      controller.waitFor(() => {
         let button = new elementslib.ID(controller.window.document,
         "calendar-day-view-button");
         return button.getNode().selected == true;

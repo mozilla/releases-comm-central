@@ -239,16 +239,16 @@ cal.getEmailIdentityOfCalendar = function(aCalendar, outAccount) {
             return null;
         }
         let identity = null;
-        cal.calIterateEmailIdentities(
-            function(identity_, account) {
-                if (identity_.key == key) {
-                    identity = identity_;
-                    if (outAccount) {
-                        outAccount.value = account;
-                    }
+        cal.calIterateEmailIdentities((identity_, account) => {
+            if (identity_.key == key) {
+                identity = identity_;
+                if (outAccount) {
+                    outAccount.value = account;
                 }
-                return (identity_.key != key);
-            });
+            }
+            return (identity_.key != key);
+        });
+
         if (!identity) {
             // dangling identity:
             cal.WARN("Calendar " + (aCalendar.uri ? aCalendar.uri.spec : aCalendar.id) +

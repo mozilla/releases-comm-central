@@ -114,7 +114,7 @@ function run_test() {
     add_test(() => {
         // initialization needs to be done within the first test in order for
         // the subsequent tests to run properly
-        do_calendar_startup(function() {
+        do_calendar_startup(() => {
             initializeAlarmService();
             run_next_test();
         });
@@ -198,11 +198,11 @@ function addTestItems(aCalendar) {
     // test multiple alarms on an item
     [item, alarm] = createEventWithAlarm(aCalendar, dt, dt);
     [["-PT1H", EXPECT_FIRED], ["-PT15M", EXPECT_FIRED], ["PT1H", EXPECT_TIMER],
-     ["PT7H", EXPECT_NONE], ["P7D", EXPECT_NONE]].forEach(function([offset, expected]) {
+     ["PT7H", EXPECT_NONE], ["P7D", EXPECT_NONE]].forEach(([offset, expected]) => {
         alarm = createAlarmFromDuration(offset);
         item.addAlarm(alarm);
         alarmObserver.expectResult(aCalendar, item, alarm, expected);
-    }, this);
+    });
     aCalendar.addItem(item, null);
 
     // daily repeating event starting almost 2 full days ago. The alarms on the first 2 occurrences
@@ -330,7 +330,7 @@ function doRunTest(aOnCalendarCreated, aOnAlarmsLoaded) {
 
     calmgr.registerCalendar(memory);
 
-    alarmObserver.doOnAlarmsLoaded(memory, function() {
+    alarmObserver.doOnAlarmsLoaded(memory, () => {
         if (aOnAlarmsLoaded) {
             aOnAlarmsLoaded.call(aOnAlarmsLoaded, memory);
         }
@@ -346,7 +346,7 @@ function test_loadCalendar() {
 
 // Test adding alarm data to a calendar already registered
 function test_addItems() {
-    doRunTest(null, function(memory) {
+    doRunTest(null, (memory) => {
         addTestItems(memory);
         alarmObserver.checkExpected();
     });
@@ -354,7 +354,7 @@ function test_addItems() {
 
 // Test response to modification of alarm data
 function test_modifyItems() {
-    doRunTest(null, function(memory) {
+    doRunTest(null, (memory) => {
         doModifyItemTest(memory);
         doDeleteItemTest(memory);
         doAcknowledgeTest(memory);

@@ -26,7 +26,7 @@ var testAnnualRecurrence = function() {
   // create yearly recurring all-day event
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
     calUtils.getEventBoxPath(controller, "day", calUtils.ALLDAY, undefined, 1, undefined)));
-  controller.waitFor(function() { return mozmill.utils.getWindows("Calendar:EventDialog").length > 0; }, sleep);
+  controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils
                  .getWindows("Calendar:EventDialog")[0]);
   event.sleep(sleep);

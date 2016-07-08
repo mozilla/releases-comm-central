@@ -46,7 +46,7 @@ var testLocalICS = function() {
   // create new event
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
     calUtils.getEventBoxPath(controller, "day", calUtils.CANVAS_BOX, undefined, 1, hour)), 1, 1);
-  controller.waitFor(function() { return mozmill.utils.getWindows("Calendar:EventDialog").length > 0; }, sleep);
+  controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils
     .getWindows("Calendar:EventDialog")[0]);
 
@@ -127,7 +127,7 @@ function handleNewCalendarWizard(wizard) {
   docEl.getButton("next").doCommand();
 
   // name is filled in automatically using filename
-  wizard.waitFor(function() { return docEl.getButton("next").disabled == false; });
+  wizard.waitFor(() => docEl.getButton("next").disabled == false);
   docEl.getButton("next").doCommand();
 
   // finish

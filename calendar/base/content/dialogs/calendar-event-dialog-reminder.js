@@ -102,7 +102,7 @@ function loadReminders() {
         // setting the selected index in a load handler makes the selection
         // break for the set item, therefore we need a setTimeout.
         setupMaxReminders();
-        setTimeout(function() { listbox.selectedIndex = 0; }, 0);
+        setTimeout(() => { listbox.selectedIndex = 0; }, 0);
     } else {
         // Make sure the fields are disabled if we have no alarms
         setupRadioEnabledState(true);

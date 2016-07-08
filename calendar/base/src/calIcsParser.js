@@ -61,7 +61,7 @@ calIcsParser.prototype = {
             calComp = rootComp.getNextSubcomponent("VCALENDAR");
         }
 
-        state.join(function() {
+        state.join(() => {
             let fakedParents = {};
             // tag "exceptions", i.e. items with rid:
             for (let item of state.excItems) {

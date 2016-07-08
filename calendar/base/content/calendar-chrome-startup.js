@@ -137,7 +137,7 @@ var calendarWindowPrefs = {
             }
         } else if (aTopic == "domwindowopened") {
             let win = aSubject.QueryInterface(Components.interfaces.nsIDOMWindow);
-            win.addEventListener("load", function() {
+            win.addEventListener("load", () => {
                 let attributeValue = Preferences.get("calendar.view.useSystemColors", false) && "true";
                 setElementValue(win.document.documentElement, attributeValue, "systemcolors");
             }, false);

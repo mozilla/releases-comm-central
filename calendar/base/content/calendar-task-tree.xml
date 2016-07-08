@@ -150,10 +150,7 @@
         let treecols = tree.getElementsByTagNameNS(tree.namespaceURI, "treecol");
         for (let i = 0; i < treecols.length; i++) {
             let content = treecols[i].getAttribute("itemproperty");
-            if (names.some(
-                function(element) {
-                    return (element == content);
-                })) {
+            if (names.some(element => element == content)) {
                 treecols[i].removeAttribute("hidden");
             } else {
                 treecols[i].setAttribute("hidden", "true");
@@ -927,10 +924,7 @@
                       delete this.binding.mPendingRefreshJobs[aOpCalendar.id];
                   }
 
-                  let oldItems = this.binding.mTaskArray.filter(function(item) {
-                      return item.calendar.id == aOpCalendar.id;
-                  });
-
+                  let oldItems = this.binding.mTaskArray.filter(item => item.calendar.id == aOpCalendar.id);
                   this.binding.mTreeView.modifyItems(this.items, oldItems);
               },
 
@@ -1001,9 +995,7 @@
       <method name="onCalendarRemoved">
         <parameter name="aCalendar"/>
         <body><![CDATA[
-            let tasks = this.mTaskArray.filter(function(task) {
-                return task.calendar.id == aCalendar.id;
-            });
+            let tasks = this.mTaskArray.filter(task => task.calendar.id == aCalendar.id);
             this.mTreeView.removeItems(tasks);
         ]]></body>
       </method>

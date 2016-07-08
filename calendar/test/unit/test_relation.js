@@ -122,7 +122,7 @@ function test_icalprop() {
     rel.deleteParameter("X-PROP");
     equal(rel.icalProperty.getParameter("X-PROP"), null);
 
-    throws(function() {
+    throws(() => {
         rel.icalString = "X-UNKNOWN:value";
     }, /Illegal value/);
 }

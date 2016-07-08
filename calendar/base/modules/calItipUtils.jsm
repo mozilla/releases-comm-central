@@ -439,10 +439,7 @@ cal.itip = {
                 // try to further limit down the list to those calendars that
                 // are configured to a matching attendee;
                 let item = aItipItem.getItemList({})[0];
-                let matchingCals = calendars.filter(
-                    function(calendar) {
-                        return (cal.getInvitedAttendee(item, calendar) != null);
-                    });
+                let matchingCals = calendars.filter(calendar => cal.getInvitedAttendee(item, calendar) != null);
                 // if there's none, we will show the whole list of calendars:
                 if (matchingCals.length > 0) {
                     calendars = matchingCals;
@@ -565,13 +562,12 @@ cal.itip = {
                     let wrappedRItem = cal.wrapInstance(ritem, Components.interfaces.calIRecurrenceDate);
                     if (ritem.isNegative &&
                         wrappedRItem &&
-                        !aOriginalItem.recurrenceInfo.getRecurrenceItems({}).some(
-                            function(r) {
-                                let wrappedR = cal.wrapInstance(r, Components.interfaces.calIRecurrenceDate);
-                                return r.isNegative &&
-                                       wrappedR &&
-                                       wrappedR.date.compare(wrappedRItem.date) == 0;
-                            })) {
+                        !aOriginalItem.recurrenceInfo.getRecurrenceItems({}).some((r) => {
+                            let wrappedR = cal.wrapInstance(r, Components.interfaces.calIRecurrenceDate);
+                            return r.isNegative &&
+                                   wrappedR &&
+                                   wrappedR.date.compare(wrappedRItem.date) == 0;
+                        })) {
                         exdates.push(wrappedRItem);
                     }
                 }
@@ -899,11 +895,10 @@ function stripUserData(item_) {
             item.deleteProperty(prop.name);
         }
     }
-    item.getAttendees({}).forEach(
-        function(att) {
-            att.deleteProperty("RECEIVED-SEQUENCE");
-            att.deleteProperty("RECEIVED-DTSTAMP");
-        });
+    item.getAttendees({}).forEach((att) => {
+        att.deleteProperty("RECEIVED-SEQUENCE");
+        att.deleteProperty("RECEIVED-DTSTAMP");
+    });
     item.setProperty("DTSTAMP", stamp);
     item.setProperty("LAST-MODIFIED", lastModified); // need to be last to undirty the item
     return item;
@@ -1337,7 +1332,7 @@ ItipItemFinder.prototype = {
                                                 (item.calendar.getProperty("itip.disableRevisionChecks") ||
                                                  cal.itip.compare(itipItemItem, item) == 0)) {
                                                 actionMethod = "REQUEST:NEEDS-ACTION";
-                                                operations.push(function(opListener, partStat) {
+                                                operations.push((opListener, partStat) => {
                                                     let changedItem = firstFoundItem.clone();
                                                     changedItem.removeAttendee(foundAttendee);
                                                     foundAttendee = foundAttendee.clone();
@@ -1357,7 +1352,7 @@ ItipItemFinder.prototype = {
                                                                      cal.itip.getSequence(item));
                                                 actionMethod = (isMinorUpdate ? method + ":UPDATE-MINOR"
                                                                               : method + ":UPDATE");
-                                                operations.push(function(opListener, partStat) {
+                                                operations.push((opListener, partStat) => {
                                                     if (!partStat) { // keep PARTSTAT
                                                         let att_ = cal.getInvitedAttendee(item);
                                                         partStat = (att_ ? att_.participationStatus : "NEEDS-ACTION");
@@ -1422,24 +1417,15 @@ ItipItemFinder.prototype = {
                                         // Make sure the provider-specified properties are copied over
                                         copyProviderProperties(this.mItipItem, itipItemItem, newItem);
 
-                                        operations.push(
-                                            function(opListener) {
-                                                return newItem.calendar.modifyItem(newItem, item, opListener);
-                                            });
+                                        operations.push(opListener => newItem.calendar.modifyItem(newItem, item, opListener));
                                     }
                                     newItem.recurrenceInfo.removeOccurrenceAt(rid);
                                 } else if (item.recurrenceId && (item.recurrenceId.compare(rid) == 0)) {
                                     // parentless occurrence to be deleted (future)
-                                    operations.push(
-                                        function(opListener) {
-                                            return item.calendar.deleteItem(item, opListener);
-                                        });
+                                    operations.push(opListener => item.calendar.deleteItem(item, opListener));
                                 }
                             } else {
-                                operations.push(
-                                    function(opListener) {
-                                        return item.calendar.deleteItem(item, opListener);
-                                    });
+                                operations.push(opListener => item.calendar.deleteItem(item, opListener));
                             }
                         }
                     }

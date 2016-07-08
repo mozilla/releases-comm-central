@@ -123,9 +123,7 @@ calCompositeCalendar.prototype = {
     mActivePref: null,
 
     get enabledCalendars() {
-      return this.mCalendars.filter(
-        function(e) { return !e.getProperty("disabled"); }
-      );
+      return this.mCalendars.filter(e => !e.getProperty("disabled"));
     },
 
     set prefPrefix(aPrefPrefix) {
@@ -179,7 +177,7 @@ calCompositeCalendar.prototype = {
 
     removeCalendar: function(aCalendar) {
         let id = aCalendar.id;
-        let newCalendars = this.mCalendars.filter(function(calendar) { return calendar.id != id; });
+        let newCalendars = this.mCalendars.filter(calendar => calendar.id != id);
         if (newCalendars.length != this.mCalendars) {
             this.mCalendars = newCalendars;
             if (this.mPrefPrefix) {

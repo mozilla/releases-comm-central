@@ -60,12 +60,12 @@ function test_display_alarm() {
     let attendee = cal.createAttendee();
     attendee.id = "mailto:horst";
 
-    throws(function() {
+    throws(() => {
         // DISPLAY alarm should not be able to save attendees
         alarm.addAttendee(attendee);
     }, /Alarm type AUDIO\/DISPLAY may not have attendees/);
 
-    throws(function() {
+    throws(() => {
         // DISPLAY alarm should not be able to save attachment
         alarm.addAttachment(cal.createAttachment());
     }, /Alarm type DISPLAY may not have attachments/);
@@ -415,11 +415,11 @@ function test_immutable() {
     }
 
     // Functions
-    throws(function() {
+    throws(() => {
         alarm.setProperty("X-FOO", "changed");
     }, /Can not modify immutable data container/);
 
-    throws(function() {
+    throws(() => {
         alarm.deleteProperty("X-FOO");
     }, /Can not modify immutable data container/);
 
@@ -496,7 +496,7 @@ function test_serialize() {
     let alarm = cal.createAlarm();
     let srv = cal.getIcsService();
 
-    throws(function() {
+    throws(() => {
         alarm.icalComponent = srv.createIcalComponent("BARF");
     }, /0x80070057/, "Invalid Argument");
 
@@ -524,21 +524,21 @@ function test_serialize() {
     alarm.toString();
 
     // Missing action
-    throws(function() {
+    throws(() => {
         comp = srv.createIcalComponent("VALARM");
         addTrigger(); addDescr();
         alarm.icalComponent = comp;
     }, /Illegal value/, "Invalid Argument");
 
     // Missing trigger
-    throws(function() {
+    throws(() => {
         comp = srv.createIcalComponent("VALARM");
         addActionDisplay(); addDescr();
         alarm.icalComponent = comp;
     }, /Illegal value/, "Invalid Argument");
 
     // Missing duration with repeat
-    throws(function() {
+    throws(() => {
         comp = srv.createIcalComponent("VALARM");
         addActionDisplay(); addTrigger(); addDescr();
         addRepeat();
@@ -546,7 +546,7 @@ function test_serialize() {
     }, /Illegal value/, "Invalid Argument");
 
     // Missing repeat with duration
-    throws(function() {
+    throws(() => {
         comp = srv.createIcalComponent("VALARM");
         addActionDisplay(); addTrigger(); addDescr();
         addDuration();

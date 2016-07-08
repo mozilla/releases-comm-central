@@ -349,7 +349,7 @@ var calendarItemTabType = {
     }
 };
 
-window.addEventListener("load", function(e) {
+window.addEventListener("load", (e) => {
     let tabmail = document.getElementById("tabmail");
     tabmail.registerTabType(calendarTabType);
     tabmail.registerTabType(calendarItemTabType);
@@ -528,7 +528,7 @@ function ltnIntegrationCheck() {
             // we look at all items at any time, but we can stop if the first item was found
             // if we've found no items, we call ltnIntegrationNotification to display the bar
             pCal.getItems(Components.interfaces.calICalendar.ITEM_FILTER_ALL_ITEMS, 1, null, null)
-                .then(function(aItems) { if (!aItems.length) { ltnIntegrationNotification(); } });
+                .then((aItems) => { if (!aItems.length) { ltnIntegrationNotification(); } });
         }
     }
 }
@@ -547,7 +547,7 @@ function refreshUIBits() {
         ["day-view",
          "week-view",
          "multiweek-view",
-         "month-view"].forEach(function(view) {
+         "month-view"].forEach((view) => {
             if (view != currView.id) {
                 document.getElementById(view).mToggleStatus = -1;
             }

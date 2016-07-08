@@ -148,10 +148,10 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                                     // position ('THE LAST ...').
                                     return null;
                                 }
-                                if (byday.some(function(element) {
-                                                   return (day_position(element) == 0 &&
-                                                           day_of_week(byday[i]) == day_of_week(element));
-                                               })) {
+                                if (byday.some((element) => {
+                                                return (day_position(element) == 0 &&
+                                                        day_of_week(byday[i]) == day_of_week(element));
+                                                })) {
                                     // Prevent to build strings such as for example:
                                     // "every Monday and the second Monday...".
                                     continue;
@@ -183,9 +183,7 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                     // First, find out if the 'BYMONTHDAY' component contains
                     // any elements with a negative value lesser than -1 ("the
                     // last day"). If so we currently don't support any rule
-                    if (component.some(function(element, index, array) {
-                                           return element < -1;
-                                       })) {
+                    if (component.some(element => element < -1)) {
                         // we don't support any other combination for now...
                         return getRString("ruleTooComplex");
                     } else if (component.length == 1 && component[0] == -1) {

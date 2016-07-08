@@ -218,7 +218,7 @@ function test_serialize() {
     let e = cal.createEvent();
     let prop = cal.getIcsService().createIcalComponent("VTODO");
 
-    throws(function() {
+    throws(() => {
         e.icalComponent = prop;
     }, /Illegal value/);
 }

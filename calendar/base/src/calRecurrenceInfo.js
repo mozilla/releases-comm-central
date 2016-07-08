@@ -576,7 +576,7 @@ calRecurrenceInfo.prototype = {
 
     getOccurrenceDates: function(aRangeStart, aRangeEnd, aMaxCount, aCount) {
         let dates = this.calculateDates(aRangeStart, aRangeEnd, aMaxCount);
-        dates = dates.map(function(d) { return d.rstart; });
+        dates = dates.map(d => d.rstart);
         aCount.value = dates.length;
         return dates;
     },

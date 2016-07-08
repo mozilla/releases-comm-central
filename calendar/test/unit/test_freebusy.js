@@ -56,10 +56,10 @@ function test_period() {
     period.makeImmutable();
     if (!Preferences.get("calendar.icaljs", false)) {
         // ical.js doesn't support immutability yet
-        throws(function() {
+        throws(() => {
             period.start = cal.createDateTime("20120202T020202");
         }, /0x80460002/, "Object is Immutable");
-        throws(function() {
+        throws(() => {
             period.end = cal.createDateTime("20120202T020202");
         }, /0x80460002/, "Object is Immutable");
     }

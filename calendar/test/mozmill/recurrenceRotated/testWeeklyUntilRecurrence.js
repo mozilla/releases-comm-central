@@ -24,7 +24,7 @@ var testWeeklyUntilRecurrence = function() {
 
   // rotate view
   controller.mainMenu.click("#ltnViewRotated");
-  controller.waitFor(function() {
+  controller.waitFor(() => {
     let view = (new elementslib.ID(controller.window.document, "day-view")).getNode();
     return view.orient == "horizontal";
   });
@@ -117,7 +117,7 @@ var testWeeklyUntilRecurrence = function() {
   // reset view
   calUtils.switchToView(controller, "day");
   controller.mainMenu.click("#ltnViewRotated");
-  controller.waitFor(function() {
+  controller.waitFor(() => {
     let view = (new elementslib.ID(controller.window.document, "day-view")).getNode();
     return view.orient == "vertical";
   });

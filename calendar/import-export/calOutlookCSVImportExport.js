@@ -447,9 +447,7 @@ calOutlookCSVExporter.prototype = {
         headers.push(localeEn.headDescription);
         headers.push(localeEn.headLocation);
         headers.push(localeEn.headPrivate);
-        headers = headers.map(function(v) {
-            return '"' + v + '"';
-        });
+        headers = headers.map(v => '"' + v + '"');
         str = headers.join(",");
         str += exportLineEnding;
         aStream.write(str, str.length);
@@ -480,10 +478,7 @@ calOutlookCSVExporter.prototype = {
             line.push(txtString(item.getProperty("LOCATION")));
             line.push(item.privacy == "PRIVATE" ? localeEn.valueTrue : localeEn.valueFalse);
 
-            line = line.map(function(v) {
-                v = String(v).replace(/"/g, '""');
-                return '"' + v + '"';
-            });
+            line = line.map(v => `"${String(v).replace(/"/g, '""')}"`);
             str = line.join(",") + exportLineEnding;
             aStream.write(str, str.length);
         }

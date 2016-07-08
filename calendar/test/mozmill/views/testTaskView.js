@@ -62,7 +62,7 @@ var testTaskView = function() {
 
   // verify added
   let countAfter;
-  controller.waitFor(function() {
+  controller.waitFor(() => {
     countAfter = taskTreeNode.mTaskArray.length;
     return countBefore + 1 == countAfter;
   });
@@ -75,7 +75,7 @@ var testTaskView = function() {
   // doubleclick on completion checkbox is ignored as opening action, so don't click at immediate
   // left where the checkbox is located
   controller.doubleClick(new elementslib.Lookup(controller.window.document, treeChildren), 50, 0);
-  controller.waitFor(function() { return mozmill.utils.getWindows("Calendar:EventDialog").length > 0; }, sleep);
+  controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
   let task = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // verify calendar
@@ -104,7 +104,7 @@ var testTaskView = function() {
 
   // save
   task.click(new elementslib.ID(task.window.document, "button-save"));
-  controller.waitFor(function() { return mozmill.utils.getWindows("Calendar:EventDialog").length == 0; });
+  controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
 
   // verify description and status in details pane
   controller.assertValue(new elementslib.Lookup(controller.window.document, taskView +

@@ -362,9 +362,7 @@ calFilter.prototype = {
             }
         }
 
-        return aItem.getCategories({}).some(function(cat) {
-            return cat.toLowerCase().includes(searchText);
-        });
+        return aItem.getCategories({}).some(cat => cat.toLowerCase().includes(searchText));
     },
 
     /**
@@ -420,9 +418,7 @@ calFilter.prototype = {
             } else if (Array.isArray(props.category)) {
                 cats = props.category;
             }
-            result = cats.some(function(cat) {
-                return aItem.getCategories({}).includes(cat);
-            });
+            result = cats.some(cat => aItem.getCategories({}).includes(cat));
         }
 
         // test the status property. Only applies to tasks.

@@ -161,7 +161,7 @@ cal.xml.serializeDOM = function(doc) {
  * @return              The escaped string
  */
 cal.xml.escapeString = function(str, isAttribute) {
-    return str.replace(/[&<>'"]/g, function(chr) {
+    return str.replace(/[&<>'"]/g, (chr) => {
         switch (chr) {
             case "&": return "&amp;";
             case "<": return "&lt;";

@@ -120,7 +120,7 @@ var calendarViewController = {
         // it, filter out any items that have readonly calendars, so that
         // checking for one total item below also works out if all but one item
         // are readonly.
-        let occurrences = aOccurrences.filter(function(item) { return isCalendarWritable(item.calendar); });
+        let occurrences = aOccurrences.filter(item => isCalendarWritable(item.calendar));
 
         for (let itemToDelete of occurrences) {
             if (aUseParentItems) {
@@ -218,7 +218,7 @@ function switchToView(aViewType) {
      "calendar-go-menu-next",
      "calendar-go-menu-previous",
      "appmenu_calendar-go-menu-next",
-     "appmenu_calendar-go-menu-previous"].forEach(function(x) {
+     "appmenu_calendar-go-menu-previous"].forEach((x) => {
             setupViewNode(x, "label");
             setupViewNode(x, "accesskey");
      });
@@ -336,10 +336,9 @@ function scheduleMidnightUpdate(aRefreshCallback) {
         Services.obs.addObserver(wakeObserver, "wake_notification", false);
 
         // Remove observer on unload
-        window.addEventListener("unload",
-                                function() {
-                                    Services.obs.removeObserver(wakeObserver, "wake_notification");
-                                }, false);
+        window.addEventListener("unload", () => {
+            Services.obs.removeObserver(wakeObserver, "wake_notification");
+        }, false);
         gMidnightTimer = Components.classes["@mozilla.org/timer;1"]
                                    .createInstance(Components.interfaces.nsITimer);
     } else {
@@ -712,8 +711,7 @@ cal.navigationBar = {
 var timeIndicator = {
     timer: null,
     start: function(aInterval, aThis) {
-        timeIndicator.timer = setInterval(function() { aThis.updateTimeIndicatorPosition(false); },
-                                          aInterval * 1000);
+        timeIndicator.timer = setInterval(() => aThis.updateTimeIndicatorPosition(false), aInterval * 1000);
     },
     cancel: function() {
         if (timeIndicator.timer) {

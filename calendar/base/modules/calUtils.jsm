@@ -938,16 +938,16 @@ var cal = {
 function shutdownCleanup(obj, prop) {
     if (!shutdownCleanup.mEntries) {
         shutdownCleanup.mEntries = [];
-        cal.addShutdownObserver(function() {
-                for (let entry of shutdownCleanup.mEntries) {
-                    if (entry.mProp) {
-                        delete entry.mObj[entry.mProp];
-                    } else {
-                        delete entry.mObj;
-                    }
+        cal.addShutdownObserver(() => {
+            for (let entry of shutdownCleanup.mEntries) {
+                if (entry.mProp) {
+                    delete entry.mObj[entry.mProp];
+                } else {
+                    delete entry.mObj;
                 }
-                delete shutdownCleanup.mEntries;
-            });
+            }
+            delete shutdownCleanup.mEntries;
+        });
     }
     shutdownCleanup.mEntries.push({ mObj: obj, mProp: prop });
 }

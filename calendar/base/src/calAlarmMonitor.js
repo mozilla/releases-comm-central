@@ -148,8 +148,7 @@ calAlarmMonitor.prototype = {
 
     onRemoveAlarmsByItem: function(aItem) {
         let calAlarmWindow = peekAlarmWindow();
-        this.mAlarms = this.mAlarms.filter(function(itemAlarm) {
-            let [thisItem, alarm] = itemAlarm;
+        this.mAlarms = this.mAlarms.filter(([thisItem, alarm]) => {
             let ret = (aItem.hashId != thisItem.hashId);
             if (!ret && calAlarmWindow) { // window is open
                 calAlarmWindow.removeWidgetFor(thisItem, alarm);
@@ -160,8 +159,7 @@ calAlarmMonitor.prototype = {
 
     onRemoveAlarmsByCalendar: function(calendar) {
         let calAlarmWindow = peekAlarmWindow();
-        this.mAlarms = this.mAlarms.filter(function(itemAlarm) {
-            let [thisItem, alarm] = itemAlarm;
+        this.mAlarms = this.mAlarms.filter(([thisItem, alarm]) => {
             let ret = (calendar.id != thisItem.calendar.id);
 
             if (!ret && calAlarmWindow) { // window is open

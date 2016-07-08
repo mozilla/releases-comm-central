@@ -24,7 +24,7 @@ var testWeeklyWithExceptionRecurrence = function() {
 
   // rotate view
   controller.mainMenu.click("#ltnViewRotated");
-  controller.waitFor(function() {
+  controller.waitFor(() => {
     let view = (new elementslib.ID(controller.window.document, "day-view")).getNode();
     return view.orient == "horizontal";
   });
@@ -209,7 +209,7 @@ var testWeeklyWithExceptionRecurrence = function() {
 
   // reset view
   controller.mainMenu.click("#ltnViewRotated");
-  controller.waitFor(function() {
+  controller.waitFor(() => {
     let view = (new elementslib.ID(controller.window.document, "day-view")).getNode();
     return view.orient == "vertical";
   });

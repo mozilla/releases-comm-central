@@ -39,7 +39,7 @@ function test_values() {
         // Check if setting a property throws. It should.
         for (let i = 0; i < properties.length; i++) {
             let old = a[properties[i]];
-            throws(function() {
+            throws(() => {
                 a[properties[i]] = old + 1;
             }, /Can not modify immutable data container/);
 
@@ -112,7 +112,7 @@ function test_values() {
 function test_serialize() {
     let a = cal.createAttendee();
 
-    throws(function() {
+    throws(() => {
         // eslint-disable-next-line no-unused-expressions
         a.icalProperty;
     }, /Component not initialized/);
@@ -155,7 +155,7 @@ function test_serialize() {
 function test_properties() {
     let a = cal.createAttendee();
 
-    throws(function() {
+    throws(() => {
         // eslint-disable-next-line no-unused-expressions
         a.icalProperty;
     }, /Component not initialized/);

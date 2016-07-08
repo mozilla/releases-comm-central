@@ -889,16 +889,15 @@
                   return bEventInfo.layoutEnd.compare(aEventInfo.layoutEnd);
               }
           }
-          let self = this;
-          this.mEventInfos.forEach(function(aEventInfo) {
+          this.mEventInfos.forEach((aEventInfo) => {
               let item = aEventInfo.event.clone();
               let start = item.startDate || item.entryDate || item.dueDate;
-              start = start.getInTimezone(self.mTimezone);
+              start = start.getInTimezone(this.mTimezone);
               aEventInfo.layoutStart = start;
               let end = item.endDate || item.dueDate || item.entryDate;
-              end = end.getInTimezone(self.mTimezone);
+              end = end.getInTimezone(this.mTimezone);
               let secEnd = start.clone();
-              secEnd.addDuration(self.mMinDuration);
+              secEnd.addDuration(this.mMinDuration);
               if (secEnd.nativeTime > end.nativeTime) {
                    aEventInfo.layoutEnd = secEnd;
               } else {
@@ -1427,11 +1426,11 @@
           if (insideScrollZone) {
               let sbo = scrollbox.boxObject;
               let timeout = MAXTIMEOUT - insideScrollZone * (MAXTIMEOUT - MINTIMEOUT) / SCROLLZONE;
-              this.mMagicScrollTimer = setTimeout(function() {
+              this.mMagicScrollTimer = setTimeout(() => {
                   sbo.scrollBy(orient == "horizontal" && scrollBy,
                                orient == "vertical" && scrollBy);
                   this.onEventSweepMouseMove(event);
-              }.bind(this), timeout);
+              }, timeout);
           }
         ]]></body>
       </method>
@@ -2719,7 +2718,7 @@
           }
           let ppmChanged = (self.pixelsPerMinute != ppm);
           self.pixelsPerMinute = ppm;
-          setTimeout(function() { self.scrollToMinute(self.mFirstVisibleMinute); }, 0);
+          setTimeout(() => self.scrollToMinute(self.mFirstVisibleMinute), 0);
 
           // Fit the weekday labels while scrolling.
           self.adjustWeekdayLength(self.getAttribute("orient") == "horizontal");
@@ -3537,9 +3536,7 @@
               }
           }
 
-          return this.mDateColumns.filter(function(col) {
-              return (col.date.day in occMap);
-          });
+          return this.mDateColumns.filter(col => col.date.day in occMap);
         ]]></body>
       </method>
 

@@ -644,7 +644,7 @@ var unifinderTreeView = {
         }
 
         // This needs to be in a setTimeout
-        setTimeout(function() { unifinderTreeView.resetAllowSelection(); }, 1);
+        setTimeout(() => unifinderTreeView.resetAllowSelection(), 1);
     },
 
     /**

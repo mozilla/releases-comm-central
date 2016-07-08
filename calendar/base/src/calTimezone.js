@@ -49,7 +49,7 @@ calICALJSTimezone.prototype = {
         } catch (e) {
             // Just use the TZID if the string is mising.
         }
-        this.__defineGetter__("displayName", function() {
+        this.__defineGetter__("displayName", () => {
             return displayName;
         });
         return displayName;

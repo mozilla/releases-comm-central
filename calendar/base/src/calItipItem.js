@@ -116,11 +116,10 @@ calItipItem.prototype = {
                 }
             }
             // never publish an organizer's RECEIVED params:
-            item.getAttendees({}).forEach(
-                function(att) {
-                    att.deleteProperty("RECEIVED-SEQUENCE");
-                    att.deleteProperty("RECEIVED-DTSTAMP");
-                });
+            item.getAttendees({}).forEach((att) => {
+                att.deleteProperty("RECEIVED-SEQUENCE");
+                att.deleteProperty("RECEIVED-DTSTAMP");
+            });
             item.setProperty("DTSTAMP", stamp);
             item.setProperty("LAST-MODIFIED", lastModified); // need to be last to undirty the item
         }
@@ -158,7 +157,7 @@ calItipItem.prototype = {
 
     clone: function() {
         let newItem = new calItipItem();
-        newItem.mItemList = this.mItemList.map(function(item) { return item.clone(); });
+        newItem.mItemList = this.mItemList.map(item => item.clone());
         newItem.mReceivedMethod = this.mReceivedMethod;
         newItem.mResponseMethod = this.mResponseMethod;
         newItem.mAutoResponse = this.mAutoResponse;

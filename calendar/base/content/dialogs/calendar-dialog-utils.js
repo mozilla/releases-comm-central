@@ -546,10 +546,10 @@ function updateLink() {
         handler = cal.wrapInstance(handler, Components.interfaces.nsIExternalProtocolHandler);
         hideOrShow(!handler || handler.externalAppExistsForScheme(uri.scheme));
 
-        setTimeout(function() {
-          // HACK the url-link doesn't crop when setting the value in onLoad
-          setElementValue("url-link", itemUrlString);
-          setElementValue("url-link", itemUrlString, "href");
+        setTimeout(() => {
+            // HACK the url-link doesn't crop when setting the value in onLoad
+            setElementValue("url-link", itemUrlString);
+            setElementValue("url-link", itemUrlString, "href");
         }, 0);
     }
 }

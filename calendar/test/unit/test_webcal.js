@@ -36,7 +36,7 @@ function check_webcal_uri(aUri) {
                                                  Components.interfaces.nsILoadInfo.SEC_NORMAL,
                                                  Components.interfaces.nsIContentPolicy.TYPE_OTHER);
 
-    NetUtil.asyncFetch(channel, function(data, status, request) {
+    NetUtil.asyncFetch(channel, (data, status, request) => {
         ok(Components.isSuccessCode(status));
         run_next_test();
     });

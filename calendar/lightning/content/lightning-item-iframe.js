@@ -2140,7 +2140,7 @@ function uploadCloudAttachment(attachment, cloudProvider, listItem) {
                 // Keep the item for a while so the user can see something failed.
                 // When we have a nice notification bar, we can show more info
                 // about the failure.
-                setTimeout(function() {
+                setTimeout(() => {
                     listItem.remove();
                     updateAttachment();
                 }, 5000);

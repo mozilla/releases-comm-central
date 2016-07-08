@@ -218,7 +218,7 @@ calWcapCalendar.prototype = {
         // - every subscribed calendar will come along with cal_props
         return this.session.getSessionId(
             request,
-            function(err, sessionId) {
+            (err, sessionId) => {
                 try {
                     if (err) {
                         throw err;

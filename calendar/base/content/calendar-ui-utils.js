@@ -262,7 +262,7 @@ function sortCalendarArray(calendars) {
 
     // check and repair pref:
     let sortOrderString = Preferences.get("calendar.list.sortOrder", "");
-    let wantedOrderString = ret.map(function(c) { return c.id; }).join(" ");
+    let wantedOrderString = ret.map(c => c.id).join(" ");
     if (wantedOrderString != sortOrderString) {
         Preferences.set("calendar.list.sortOrder", wantedOrderString);
     }

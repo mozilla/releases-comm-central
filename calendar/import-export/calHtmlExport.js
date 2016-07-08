@@ -45,7 +45,7 @@ calHtmlExporter.prototype = {
         document.getElementById("title").textContent = aTitle || cal.calGetString("calendar", "HTMLTitle");
 
         // Sort aItems
-        aItems.sort(function(a, b) {
+        aItems.sort((a, b) => {
             let start_a = a[cal.calGetStartDateProp(a)];
             if (!start_a) {
                 return -1;

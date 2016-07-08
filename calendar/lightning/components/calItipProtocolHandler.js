@@ -119,10 +119,10 @@ ItipContentHandler.prototype = {
         let paramString = uri.substring(ITIP_HANDLER_PROTOCOL.length + 4);
         let paramArray = paramString.split("&");
         let paramBlock = { };
-        paramArray.forEach(function(v) {
+        paramArray.forEach((v) => {
             let parts = v.split("=");
             paramBlock[parts[0]] = unescape(unescape(parts[1]));
-            });
+        });
         // dump("content-handler: have params " + paramBlock.toSource() + "\n");
         let event = cal.createEvent(paramBlock.data);
         dump("Processing iTIP event '" + event.title + "' from " +

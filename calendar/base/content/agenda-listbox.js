@@ -50,13 +50,10 @@ agendaListbox.init = function() {
     Services.prefs.addObserver("calendar.agendaListbox", prefObserver, false);
 
     // Make sure the agenda listbox is unloaded
-    let self = this;
-    window.addEventListener("unload",
-                            function() {
-                                Services.prefs.removeObserver("calendar.agendaListbox", prefObserver);
-                                self.uninit();
-                            },
-                            false);
+    window.addEventListener("unload", () => {
+        Services.prefs.removeObserver("calendar.agendaListbox", prefObserver);
+        this.uninit();
+    }, false);
 };
 
 /**
@@ -1099,10 +1096,9 @@ function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
         Services.obs.addObserver(wakeObserver, "wake_notification", false);
 
         // Remove observer on unload
-        window.addEventListener("unload",
-                                function() {
-                                    Services.obs.removeObserver(wakeObserver, "wake_notification");
-                                }, false);
+        window.addEventListener("unload", () => {
+            Services.obs.removeObserver(wakeObserver, "wake_notification");
+        }, false);
 
         gEventTimer = Components.classes["@mozilla.org/timer;1"]
                                    .createInstance(Components.interfaces.nsITimer);

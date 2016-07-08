@@ -219,16 +219,16 @@ function test_immutable() {
     ok(!org.isMutable);
     ok(!alarm.isMutable);
 
-    throws(function() {
+    throws(() => {
         e.alarmLastAck = cal.createDateTime();
     }, /Can not modify immutable data container/);
-    throws(function() {
+    throws(() => {
         e.calendar = null;
     }, /Can not modify immutable data container/);
-    throws(function() {
+    throws(() => {
         e.parentItem = null;
     }, /Can not modify immutable data container/);
-    throws(function() {
+    throws(() => {
         e.setCategories(3, ["d", "e", "f"]);
     }, /Can not modify immutable data container/);
 

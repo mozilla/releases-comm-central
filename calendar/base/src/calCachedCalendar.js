@@ -76,7 +76,7 @@ calCachedCalendarObserverHelper.prototype = {
             // although onAddItem et al have been called, we need to fire
             // an additional onLoad completing the refresh call (->composite)
             let home = this.home;
-            home.synchronize(function(status) {
+            home.synchronize((status) => {
                 home.mObservers.notify("onLoad", [home]);
             });
         }
@@ -358,12 +358,12 @@ calCachedCalendar.prototype = {
                     }
 
                     this.getsReceived++;
-                    cal.forEach(aItems, function(item) {
+                    cal.forEach(aItems, (item) => {
                         // Adding items recd from the Memory Calendar
                         // These may be different than what the cache has
                         completeListener.modifiedTimes[item.id] = item.lastModifiedTime;
                         self.mCachedCalendar.addItem(item, null);
-                    }, function() {
+                    }, () => {
                         completeListener.getsCompleted++;
                         if (completeListener.opCompleted) {
                             // onOperationComplete was called, but we were not ready yet. call it now.
@@ -383,7 +383,7 @@ calCachedCalendar.prototype = {
                 }
 
                 if (Components.isSuccessCode(aStatus)) {
-                    cal.forEach(self.offlineCachedItems, function(item) {
+                    cal.forEach(self.offlineCachedItems, (item) => {
                         switch (self.offlineCachedItemFlags[item.hashId]) {
                             case cICL.OFFLINE_FLAG_CREATED_RECORD:
                                 // Created items are not present on the server, so its safe to adopt them
@@ -425,13 +425,13 @@ calCachedCalendar.prototype = {
                                 }
                                 break;
                         }
-                    }, function() {
+                    }, () => {
                         self.offlineCachedItems = {};
                         self.offlineCachedItemFlags = {};
                         self.playbackOfflineItems(() => emptyQueue(aStatus));
                     });
                 } else {
-                    self.playbackOfflineItems(function() { self.mCachedObserver.onLoad(self.mCachedCalendar); });
+                    self.playbackOfflineItems(() => self.mCachedObserver.onLoad(self.mCachedCalendar));
                     emptyQueue(aStatus);
                 }
             }
@@ -623,11 +623,9 @@ calCachedCalendar.prototype = {
         if (this.mUncachedCalendar.canRefresh && !this.offline) {
             return this.mUncachedCalendar.refresh(); // will trigger synchronize once the calendar is loaded
         } else {
-            let self = this;
-            return this.synchronize(
-                function(status) { // fire completing onLoad for this refresh call
-                    self.mCachedObserver.onLoad(self.mCachedCalendar);
-                });
+            return this.synchronize((status) => { // fire completing onLoad for this refresh call
+                this.mCachedObserver.onLoad(this.mCachedCalendar);
+            });
         }
     },
 

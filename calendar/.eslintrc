@@ -420,6 +420,9 @@
     // Disallow unmodified conditions of loops
     "no-unmodified-loop-condition": 2,
 
+    // Suggest using arrow functions as callbacks
+    "prefer-arrow-callback": [2, { "allowNamedFunctions": true }],
+
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.
     "no-else-return": 0,

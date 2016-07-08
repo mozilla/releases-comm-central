@@ -21,7 +21,7 @@ var ltnSuiteUtils = {
 
       [["CustomizeTaskActionsToolbar", "task-actions-toolbox"],
        ["CustomizeCalendarToolbar", "calendar-toolbox"],
-       ["CustomizeTaskToolbar", "task-toolbox"]].forEach(function(eIDs) {
+       ["CustomizeTaskToolbar", "task-toolbox"]].forEach((eIDs) => {
         let [itemID, toolboxID] = eIDs;
         let item = document.getElementById(itemID);
         let toolbox = document.getElementById(toolboxID);

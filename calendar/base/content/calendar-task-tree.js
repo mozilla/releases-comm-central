@@ -217,7 +217,7 @@ function contextPostponeTask(aEvent, aDuration) {
         startBatchTransaction();
         let tasks = getSelectedTasks(aEvent);
 
-        tasks.forEach(function(task) {
+        tasks.forEach((task) => {
             if (task.entryDate || task.dueDate) {
                 let newTask = task.clone();
                 cal.shiftItem(newTask, duration);

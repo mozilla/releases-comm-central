@@ -68,10 +68,9 @@ function InvitationsManager() {
     this.mJobsPending = 0;
     this.mTimer = null;
 
-    let self = this;
-    window.addEventListener("unload", function() {
+    window.addEventListener("unload", () => {
         // Unload handlers get removed automatically
-        self.cancelInvitationsUpdate();
+        this.cancelInvitationsUpdate();
     }, false);
 }
 

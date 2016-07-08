@@ -443,11 +443,10 @@ calICSCalendar.prototype = {
 
         // Allow the hook to grab data of the channel, like the new etag
 
-        ctxt.mHooks.onAfterPut(request,
-                               function() {
-                                   ctxt.unlock();
-                                   Services.startup.exitLastWindowClosingSurvivalArea();
-                               });
+        ctxt.mHooks.onAfterPut(request, () => {
+            ctxt.unlock();
+            Services.startup.exitLastWindowClosingSurvivalArea();
+        });
     },
 
     // Always use the queue, just to reduce the amount of places where
@@ -586,20 +585,19 @@ calICSCalendar.prototype = {
     unlock: function(errCode) {
         ASSERT(this.locked, "unexpected!");
 
-        this.mModificationActions.forEach(
-            function(action) {
-                let args = action.opCompleteArgs;
-                ASSERT(args, "missing onOperationComplete call!");
-                let listener = action.listener;
-                if (listener) {
-                    if (Components.isSuccessCode(args[1]) &&
-                        errCode && !Components.isSuccessCode(errCode)) {
-                        listener.onOperationComplete(args[0], errCode, args[2], args[3], null);
-                    } else {
-                        listener.onOperationComplete.apply(listener, args);
-                    }
+        this.mModificationActions.forEach((action) => {
+            let args = action.opCompleteArgs;
+            ASSERT(args, "missing onOperationComplete call!");
+            let listener = action.listener;
+            if (listener) {
+                if (Components.isSuccessCode(args[1]) &&
+                    errCode && !Components.isSuccessCode(errCode)) {
+                    listener.onOperationComplete(args[0], errCode, args[2], args[3], null);
+                } else {
+                    listener.onOperationComplete.apply(listener, args);
                 }
-            });
+            }
+        });
         this.mModificationActions = [];
 
         this.locked = false;

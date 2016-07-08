@@ -12,7 +12,7 @@ function check_delmgr_call(aFunc) {
     const mISSC = Components.interfaces.mozIStorageStatementCallback;
     let delmgr = Components.classes["@mozilla.org/calendar/deleted-items-manager;1"]
                            .getService(Components.interfaces.calIDeletedItems);
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
         delmgr.wrappedJSObject.completedNotifier.handleCompletion = (aReason) => {
             if (aReason == mISSC.REASON_FINISHED) {
                 resolve();

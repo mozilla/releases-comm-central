@@ -120,11 +120,9 @@ function onLoad() {
         }
     };
     Services.prefs.addObserver("calendar.", prefObserver, false);
-    window.addEventListener("unload",
-        function() {
-            Services.prefs.removeObserver("calendar.", prefObserver);
-        },
-        false);
+    window.addEventListener("unload", () => {
+        Services.prefs.removeObserver("calendar.", prefObserver);
+    }, false);
 
     opener.setCursor("auto");
     self.focus();
