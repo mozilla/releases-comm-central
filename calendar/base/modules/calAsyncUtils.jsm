@@ -20,7 +20,7 @@ var promisifyProxyHandler = {
         let deferred = PromiseUtils.defer();
         let listener = cal.async.promiseOperationListener(deferred);
         args.push(listener);
-        target[name].apply(target, args);
+        target[name](...args);
         return deferred.promise;
     },
     get: function(target, name) {

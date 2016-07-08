@@ -206,7 +206,7 @@ function test_icalcomponent() {
     ];
 
     for (let prop of props) {
-        check_getset.apply(null, prop);
+        check_getset(...prop);
     }
 }
 

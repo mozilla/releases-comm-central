@@ -1234,10 +1234,10 @@ function calListenerBag(iid) {
 calListenerBag.prototype = {
     __proto__: calInterfaceBag.prototype,
 
-    notify: function(func, args) {
+    notify: function(func, args=[]) {
         function notifyFunc(iface) {
             try {
-                iface[func].apply(iface, args ? args : []);
+                iface[func](...args);
             } catch (exc) {
                 let stack = exc.stack || (exc.location ? exc.location.formattedStack : null);
                 Components.utils.reportError(exc + "\nSTACK: " + stack);

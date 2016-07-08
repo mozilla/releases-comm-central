@@ -367,7 +367,7 @@ calCachedCalendar.prototype = {
                         completeListener.getsCompleted++;
                         if (completeListener.opCompleted) {
                             // onOperationComplete was called, but we were not ready yet. call it now.
-                            completeListener.onOperationComplete.apply(completeListener, completeListener.opCompleted);
+                            completeListener.onOperationComplete(...completeListener.opCompleted);
                             completeListener.opCompleted = false;
                         }
                     });
@@ -861,9 +861,9 @@ calCachedCalendar.prototype = {
             proto.__defineSetter__(attr, function(value) { return (this[targetName][attr] = value); });
         }
         function defineForwardFunction(funcName) {
-            proto[funcName] = function() {
+            proto[funcName] = function(...args) {
                 let obj = this[targetName];
-                return obj[funcName].apply(obj, arguments);
+                return obj[funcName](...args);
             };
         }
         functions.forEach(defineForwardFunction);

@@ -154,7 +154,7 @@ calTransaction.prototype = {
                     let self = this;
                     let addListener = {
                         onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
-                            self.onOperationComplete.apply(self, arguments);
+                            self.onOperationComplete(...arguments);
                             if (Components.isSuccessCode(aStatus)) {
                                 self.mOldItem.calendar.deleteItem(self.mOldItem, self);
                             }

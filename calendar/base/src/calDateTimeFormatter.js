@@ -267,11 +267,11 @@ calDateTimeFormatter.prototype = {
     },
 
     formatItemInterval: function(aItem) {
-        return this.formatInterval.apply(this, this._getItemDates(aItem));
+        return this.formatInterval(...this._getItemDates(aItem));
     },
 
     formatItemTimeInterval: function(aItem) {
-        return this.formatTimeInterval.apply(this, this._getItemDates(aItem));
+        return this.formatTimeInterval(...this._getItemDates(aItem));
     },
 
     monthName: function(aMonthIndex) {

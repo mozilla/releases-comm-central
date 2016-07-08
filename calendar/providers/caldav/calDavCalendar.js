@@ -352,10 +352,10 @@ calDavCalendar.prototype = {
 
             if (self.oauth && error) {
                 self.oauth.accessToken = null;
-                self.sendHttpRequest.apply(self, origArgs);
+                self.sendHttpRequest(...origArgs);
             } else {
                 let nextArguments = Array.slice(arguments, 1);
-                nextMethod.apply(null, nextArguments);
+                nextMethod(...nextArguments);
             }
         }
 
@@ -1202,8 +1202,7 @@ calDavCalendar.prototype = {
         this.mFirstRefreshDone = true;
         while (this.mQueuedQueries.length) {
             let query = this.mQueuedQueries.pop();
-            this.mOfflineStorage.getItems
-                .apply(this.mOfflineStorage, query);
+            this.mOfflineStorage.getItems(...query);
         }
         if (this.hasScheduling &&
             !this.isInbox(calendarURI.spec)) {
@@ -1290,7 +1289,7 @@ calDavCalendar.prototype = {
     getItems: function(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
         if (this.isCached) {
             if (this.mOfflineStorage) {
-                this.mOfflineStorage.getItems.apply(this.mOfflineStorage, arguments);
+                this.mOfflineStorage.getItems(...arguments);
             } else {
                 this.notifyOperationComplete(aListener,
                                              Components.results.NS_OK,
@@ -1301,7 +1300,7 @@ calDavCalendar.prototype = {
         } else if (!this.checkedServerInfo) {
             this.mQueuedQueries.push(Array.from(arguments));
         } else {
-            this.mOfflineStorage.getItems.apply(this.mOfflineStorage, arguments);
+            this.mOfflineStorage.getItems(...arguments);
         }
     },
 

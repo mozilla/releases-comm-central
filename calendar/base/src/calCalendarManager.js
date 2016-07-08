@@ -825,7 +825,7 @@ calMgrCalendarObserver.prototype = {
                 this.calMgr.setupRefreshTimer(aCalendar);
                 break;
             case "cache.enabled":
-                this.changeCalendarCache.apply(this, arguments);
+                this.changeCalendarCache(...arguments);
                 break;
             case "disabled":
                 if (!aValue && aCalendar.canRefresh) {

@@ -594,7 +594,7 @@ calICSCalendar.prototype = {
                     errCode && !Components.isSuccessCode(errCode)) {
                     listener.onOperationComplete(args[0], errCode, args[2], args[3], null);
                 } else {
-                    listener.onOperationComplete.apply(listener, args);
+                    listener.onOperationComplete(...args);
                 }
             }
         });
