@@ -4,7 +4,7 @@
 
 function run_test() {
     // Initialize the floating timezone without actually starting the service.
-    cal.getTimezoneService().floating;
+    cal.getTimezoneService().floating; // eslint-disable-line no-unused-expressions
 
     test_initial_creation();
 
@@ -29,6 +29,7 @@ function test_initial_creation() {
 
     let passed;
     try {
+        // eslint-disable-next-line no-unused-expressions
         alarm.icalString;
         passed = false;
     } catch (e) {

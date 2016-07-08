@@ -332,6 +332,9 @@
     // Require IIFEs to be Wrapped
     "wrap-iife": [2, "inside"],
 
+    // Disallow Unused Expressions
+    "no-unused-expressions": 2,
+
     // Will enable these rules later
     "block-spacing": 0,
     "no-lonely-if": 0,

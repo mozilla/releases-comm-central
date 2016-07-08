@@ -1046,7 +1046,7 @@ calItemBase.prototype = {
         if (!aDoNotValidate) {
             try {
                 // Trigger the icalComponent getter to make sure the alarm is valid.
-                aAlarm.icalComponent;
+                aAlarm.icalComponent; // eslint-disable-line no-unused-expressions
             } catch (e) {
                 throw Components.results.NS_ERROR_INVALID_ARG;
             }

@@ -2348,8 +2348,12 @@ function attachmentClick(aEvent) {
     }
     let attachmentPopup = document.getElementById("attachment-popup");
     for (let node of attachmentPopup.childNodes) {
-        (aEvent.originalTarget.localName == "listitem" ||
-         node.id == "attachment-popup-attachPage") ? showElement(node) : hideElement(node);
+        if (aEvent.originalTarget.localName == "listitem" ||
+            node.id == "attachment-popup-attachPage") {
+            showElement(node);
+        } else {
+            hideElement(node);
+        }
     }
 }
 
@@ -3671,7 +3675,11 @@ function attendeeClick(aEvent) {
         let popup = document.getElementById("attendee-popup");
         let invite = document.getElementById("attendee-popup-invite-menuitem");
         for (let node of popup.childNodes) {
-            (node == invite) ? showElement(node) : hideElement(node);
+            if (node == invite) {
+                showElement(node);
+            } else {
+                hideElement(node);
+            }
         }
     } else {
         if (window.attendees.length > 1) {

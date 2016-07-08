@@ -130,8 +130,8 @@ calTimezoneService.prototype = {
             g_stringBundle = ICAL.Timezone.cal_tz_bundle = Services.strings.createBundle(bundleURL);
 
             // Make sure UTC and floating are cached by calling their getters
-            this.UTC;
-            this.floating;
+            this.UTC; // eslint-disable-line no-unused-expressions
+            this.floating; // eslint-disable-line no-unused-expressions
         }).then(() => {
             if (aCompleteListener) {
                 aCompleteListener.onResult(null, Components.results.NS_OK);

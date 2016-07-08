@@ -36,6 +36,7 @@ function run_test() {
     modifyRelations(e1, [r1, r2]);
 
     // test icalproperty
+    // eslint-disable-next-line no-unused-expressions
     r2.icalProperty;
 
     test_icalprop();
