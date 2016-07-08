@@ -127,7 +127,7 @@ calCalendarManager.prototype = {
                             // rewriting, for example if all calendars on a
                             // domain have the same credentials
                             let escapedName = calendar.name.replace(/\\/g, "\\\\")
-                                                           .replace(/\"/g, '\\"');
+                                                           .replace(/"/g, '\\"');
                             authHeader = appendToRealm(authHeader, "(" + escapedName + ")");
                             channel.setResponseHeader("WWW-Authenticate", authHeader, false);
                         }

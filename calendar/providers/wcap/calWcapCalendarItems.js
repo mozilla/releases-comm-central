@@ -60,7 +60,7 @@ calWcapCalendar.prototype.getRecurrenceParams = function(item, out_rrules, out_r
                 }
             } else {
                 this.notifyError(NS_ERROR_UNEXPECTED,
-                                 "don\'t know how to handle this recurrence item: " + rItem.valueAsIcalString);
+                                 "don't know how to handle this recurrence item: " + rItem.valueAsIcalString);
             }
         }
     }

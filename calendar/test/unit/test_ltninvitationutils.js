@@ -599,14 +599,14 @@ add_task(function* getHeaderSection_test() {
         let header = ltn.invitation.getHeaderSection(messageId, identity,
                                                      test.input.toList, test.input.subject);
         // we test Date and Message-ID headers separately to avoid false positives
-        ok(!!header.match(/Date\:.+(?:\n|\r\n|\r)/),
+        ok(!!header.match(/Date:.+(?:\n|\r\n|\r)/),
            "(test #" + i + "): date");
-        ok(!!header.match(/Message-ID\:.+(?:\n|\r\n|\r)/),
+        ok(!!header.match(/Message-ID:.+(?:\n|\r\n|\r)/),
            "(test #" + i + "): message-id");
-        equal(header.replace(/Date\:.+(?:\n|\r\n|\r)/, "")
-                    .replace(/Message-ID\:.+(?:\n|\r\n|\r)/, ""),
-              test.expected.replace(/Date\:.+(?:\n|\r\n|\r)/, "")
-                           .replace(/Message-ID\:.+(?:\n|\r\n|\r)/, ""),
+        equal(header.replace(/Date:.+(?:\n|\r\n|\r)/, "")
+                    .replace(/Message-ID:.+(?:\n|\r\n|\r)/, ""),
+              test.expected.replace(/Date:.+(?:\n|\r\n|\r)/, "")
+                           .replace(/Message-ID:.+(?:\n|\r\n|\r)/, ""),
               "(test #" + i + "): all headers");
     }
 });
@@ -726,7 +726,7 @@ add_task(function* getRfc5322FormattedDate_test() {
             dt: "Sat, 24 Jan 2015 09:24:49",
             dtz: "floating"
         }],
-        expected: /^\w{3}, \d{2} \w{3} \d{4} \d{2}\:\d{2}\:\d{2} [+-]\d{4}$/
+        expected: /^\w{3}, \d{2} \w{3} \d{4} \d{2}:\d{2}:\d{2} [+-]\d{4}$/
     };
 
     let i = 0;
