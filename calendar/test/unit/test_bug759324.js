@@ -29,10 +29,10 @@ function run_test() {
 
     function checkAddedItem(c, s, o, i, addedItem) {
         let seq = addedItem.getProperty("SEQUENCE");
-        let rec = addedItem.recurrenceInfo.getOccurrenceFor(rid);
+        let occ = addedItem.recurrenceInfo.getOccurrenceFor(rid);
 
         equal(seq, 3);
-        equal(rec.getProperty("SEQUENCE"), seq);
+        equal(occ.getProperty("SEQUENCE"), seq);
 
         let changedItem = addedItem.clone();
         changedItem.setProperty("SEQUENCE", parseInt(seq, 10) + 1);
@@ -42,10 +42,10 @@ function run_test() {
 
     function checkModifiedItem(c, s, o, i, changedItem) {
         let seq = changedItem.getProperty("SEQUENCE");
-        let rec = changedItem.recurrenceInfo.getOccurrenceFor(rid);
+        let occ = changedItem.recurrenceInfo.getOccurrenceFor(rid);
 
         equal(seq, 4);
-        equal(rec.getProperty("SEQUENCE"), seq);
+        equal(occ.getProperty("SEQUENCE"), seq);
 
         // Now check with the pref off
         storage.deleteProperty("capabilities.propagate-sequence");
@@ -58,10 +58,10 @@ function run_test() {
 
     function checkNormalItem(c, s, o, i, changedItem) {
         let seq = changedItem.getProperty("SEQUENCE");
-        let rec = changedItem.recurrenceInfo.getOccurrenceFor(rid);
+        let occ = changedItem.recurrenceInfo.getOccurrenceFor(rid);
 
         equal(seq, 5);
-        equal(rec.getProperty("SEQUENCE"), 4);
+        equal(occ.getProperty("SEQUENCE"), 4);
         completeTest();
     }
 

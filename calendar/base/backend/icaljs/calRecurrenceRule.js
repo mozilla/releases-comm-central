@@ -103,8 +103,8 @@ calRecurrenceRule.prototype = {
         prop.setValue(this.innerObject);
         return new calIcalProperty(prop);
     },
-    set icalProperty(val) {
-        unwrapSetter(ICAL.Property, val, function(val) {
+    set icalProperty(rawval) {
+        unwrapSetter(ICAL.Property, rawval, function(val) {
             this.innerObject = val.getFirstValue();
         }, this);
     },
@@ -130,8 +130,8 @@ calRecurrenceRule.prototype = {
             return null;
         }
     },
-    set untilDate(val) {
-        unwrapSetter(ICAL.Time, val, function(val) {
+    set untilDate(rawval) {
+        unwrapSetter(ICAL.Time, rawval, function(val) {
             if (val.timezone != ICAL.Timezone.utcTimezone &&
                 val.timezone != ICAL.Timezone.localTimezone) {
                 val = val.convertToZone(ICAL.Timezone.utcTimezone);

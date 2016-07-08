@@ -528,9 +528,9 @@ cal.ProviderBase.prototype = {
         // make all properties persistent that have been set so far:
         for (let aName in this.mProperties) {
             if (!cal.ProviderBase.mTransientProperties[aName]) {
-                let aValue = this.mProperties[aName];
-                if (aValue !== null) {
-                    calMgr.setCalendarPref_(this, aName, aValue);
+                let value = this.mProperties[aName];
+                if (value !== null) {
+                    calMgr.setCalendarPref_(this, aName, value);
                 }
             }
         }

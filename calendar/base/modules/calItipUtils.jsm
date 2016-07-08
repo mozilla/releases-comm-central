@@ -728,11 +728,11 @@ cal.itip = {
 
                 // Fix up our attendees for invitations using some good defaults
                 let recipients = [];
-                let itemAtt = requestItem.getAttendees({});
+                let reqItemAtt = requestItem.getAttendees({});
                 if (!isMinorUpdate) {
                     requestItem.removeAllAttendees();
                 }
-                for (let attendee of itemAtt) {
+                for (let attendee of reqItemAtt) {
                     if (!isMinorUpdate) {
                         attendee = attendee.clone();
                         if (!attendee.role) {
@@ -917,15 +917,15 @@ function stripUserData(item_) {
  * @param itipItemItem the received item
  */
 function updateItem(item, itipItemItem) {
-    function updateUserData(newItem, item) {
+    function updateUserData(newItem, oldItem) {
         // preserve user settings:
-        newItem.generation = item.generation;
+        newItem.generation = oldItem.generation;
         newItem.clearAlarms();
-        for (let alarm of item.getAlarms({})) {
+        for (let alarm of oldItem.getAlarms({})) {
             newItem.addAlarm(alarm);
         }
-        newItem.alarmLastAck = item.alarmLastAck;
-        let cats = item.getCategories({});
+        newItem.alarmLastAck = oldItem.alarmLastAck;
+        let cats = oldItem.getCategories({});
         newItem.setCategories(cats.length, cats);
     }
 

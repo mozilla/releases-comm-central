@@ -473,7 +473,7 @@ calStorageCalendar.prototype = {
         let offlineJournalFlagListener = {
             onGetResult: function(calendar, status, opType, id, detail) {
             },
-            onOperationComplete: function(this_, status, opType, id, offlineFlag) {
+            onOperationComplete: function(opcalendar, status, opType, id, offlineFlag) {
                 this_.doModifyItem(aNewItem, aOldItem, aListener, offlineFlag);
             }
         };
@@ -1712,7 +1712,6 @@ calStorageCalendar.prototype = {
             }
         }
 
-        let row;
         if (flags & CAL_ITEM_FLAG.HAS_PROPERTIES) {
             let selectItem = null;
             if (item.recurrenceId == null) {
@@ -1726,7 +1725,7 @@ calStorageCalendar.prototype = {
                 this.prepareStatement(selectItem);
                 selectItem.params.item_id = item.id;
                 while (selectItem.executeStep()) {
-                    row = selectItem.row;
+                    let row = selectItem.row;
                     let name = row.key;
                     switch (name) {
                         case "DURATION":

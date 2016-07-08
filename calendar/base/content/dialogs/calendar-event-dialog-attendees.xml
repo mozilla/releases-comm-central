@@ -375,7 +375,6 @@
       <property name="attendees">
         <getter><![CDATA[
           let attendees = [];
-          let inputField;
 
           for (let i = 1; true; i++) {
               let inputField = this.getInputElement(i);
@@ -423,7 +422,6 @@
 
       <property name="organizer">
         <getter><![CDATA[
-          let inputField;
           for (let i = 1; true; i++) {
               let inputField = this.getInputElement(i);
               if (!inputField) {
@@ -599,15 +597,15 @@
     </method>
 
     <method name="resolvePotentialList">
-        <parameter name="input"/>
+        <parameter name="aInput"/>
         <body><![CDATA[
-            let fieldValue = input.value;
-            if (input.id.length > 0 && fieldValue.length > 0) {
+            let fieldValue = aInput.value;
+            if (aInput.id.length > 0 && fieldValue.length > 0) {
                 let mailingList = this._resolveListByName(fieldValue);
                 if (mailingList) {
                     let entries = this._getListEntries(mailingList);
                       if (entries.length > 0) {
-                          let currentIndex = parseInt(input.id.substr(13), 10);
+                          let currentIndex = parseInt(aInput.id.substr(13), 10);
                           let template = document.getAnonymousElementByAttribute(this, "anonid", "item");
                           let currentNode = template.parentNode.childNodes[currentIndex];
                           this._fillListItemWithEntry(currentNode, entries[0], currentIndex);

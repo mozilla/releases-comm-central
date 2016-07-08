@@ -1683,7 +1683,6 @@ calDavCalendar.prototype = {
     checkDavResourceType: function caldav_checkDavResourceType(aChangeLogListener) {
         this.ensureTargetCalendar();
 
-        let resourceTypeXml = null;
         let resourceType = kDavResourceTypeNone;
         let thisCalendar = this;
 
@@ -2496,10 +2495,10 @@ calDavCalendar.prototype = {
                 let caldata = caldavXPathFirst(fbResult, "/C:schedule-response/C:response/C:calendar-data/text()");
                 try {
                     let calComp = cal.getIcsService().parseICS(caldata, null);
-                    for (let fbComp of cal.ical.calendarComponentIterator(calComp)) {
+                    for (let calFbComp of cal.ical.calendarComponentIterator(calComp)) {
                         let interval;
 
-                        let replyRangeStart = fbComp.startTime;
+                        let replyRangeStart = calFbComp.startTime;
                         if (replyRangeStart && (aRangeStart.compare(replyRangeStart) == -1)) {
                             interval = new cal.FreeBusyInterval(aCalId,
                                                                 calIFreeBusyInterval.UNKNOWN,
@@ -2507,7 +2506,7 @@ calDavCalendar.prototype = {
                                                                 replyRangeStart);
                             periodsToReturn.push(interval);
                         }
-                        let replyRangeEnd = fbComp.endTime;
+                        let replyRangeEnd = calFbComp.endTime;
                         if (replyRangeEnd && (aRangeEnd.compare(replyRangeEnd) == 1)) {
                             interval = new cal.FreeBusyInterval(aCalId,
                                                                 calIFreeBusyInterval.UNKNOWN,
@@ -2516,7 +2515,7 @@ calDavCalendar.prototype = {
                             periodsToReturn.push(interval);
                         }
 
-                        for (let fbProp of cal.ical.propertyIterator(fbComp, "FREEBUSY")) {
+                        for (let fbProp of cal.ical.propertyIterator(calFbComp, "FREEBUSY")) {
                             let fbType = fbProp.getParameter("FBTYPE");
                             if (fbType) {
                                 fbType = fbTypeMap[fbType];
@@ -2816,8 +2815,8 @@ calDavCalendar.prototype = {
                     if (responses) {
                         for (let response of responses) {
                             let recip = caldavXPathFirst(response, "C:recipient/D:href/text()");
-                            let status = caldavXPathFirst(response, "C:request-status/text()");
-                            if (status.substr(0, 1) != "2") {
+                            let reqstatus = caldavXPathFirst(response, "C:request-status/text()");
+                            if (reqstatus.substr(0, 1) != "2") {
                                 if (thisCalendar.verboseLogging()) {
                                     cal.LOG("CalDAV: Failed scheduling delivery to " + recip);
                                 }

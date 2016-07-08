@@ -58,7 +58,7 @@ function test_values() {
     // Make sure test is valid
     equal(properties.length, values.length);
 
-    for (var i = 0; i < properties.length; i++) {
+    for (let i = 0; i < properties.length; i++) {
         a1[properties[i]] = values[i];
         equal(a1[properties[i]], values[i]);
     }

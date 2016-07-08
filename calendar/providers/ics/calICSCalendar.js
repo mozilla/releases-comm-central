@@ -798,7 +798,7 @@ calICSCalendar.prototype = {
 
         var savedthis = this;
         var listener = {
-            onDownloadComplete: function(downloader, request, ctxt, status, result) {
+            onDownloadComplete: function(opdownloader, request, ctxt, status, result) {
                 if (doInitialBackup) {
                     copyToOverwriting(result, backupDir, makeName('initial'));
                 }

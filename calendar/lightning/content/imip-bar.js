@@ -360,10 +360,10 @@ var ltnImipBar = {
 
             if (partStat == "X-SAVECOPY") {
                 // we create and adopt copies of the respective events
-                let items = ltnImipBar.itipItem.getItemList({}).map(cal.getPublishLikeItemCopy.bind(cal));
-                if (items.length > 0) {
+                let saveitems = ltnImipBar.itipItem.getItemList({}).map(cal.getPublishLikeItemCopy.bind(cal));
+                if (saveitems.length > 0) {
                     let newItipItem = cal.itip.getModifiedItipItem(ltnImipBar.itipItem,
-                                                                   items,
+                                                                   saveitems,
                                                                    {receivedMethod: "PUBLISH",
                                                                     responseMethod: "PUBLISH"});
                     // control to avoid processing _execAction on later user changes on the item

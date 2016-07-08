@@ -49,7 +49,7 @@ function test_failures() {
 
     do_test_pending();
     parser.parseString("BOGUS", null, {
-        onParsingComplete: function(rc, parser) {
+        onParsingComplete: function(rc, opparser) {
             dump("Note: The previous error message is expected ^^\n");
             equal(rc, Components.results.NS_ERROR_FAILURE);
             do_test_finished();
@@ -126,7 +126,7 @@ function test_async() {
 
     do_test_pending();
     parser.parseString(str, null, {
-        onParsingComplete: function(rc, parser) {
+        onParsingComplete: function(rc, opparser) {
             let items = parser.getItems({});
             equal(items.length, 2);
             let item = items[0];

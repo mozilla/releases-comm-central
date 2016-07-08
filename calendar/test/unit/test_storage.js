@@ -19,10 +19,10 @@ function testAttachRoundtrip() {
                "EXDATE:20120301T010101Z",
                "END:VEVENT"].join("\r\n");
 
-    let item = createEventFromIcalString(str);
+    let storageItem = createEventFromIcalString(str);
 
     do_test_pending();
-    storage.addItem(item, {
+    storage.addItem(storageItem, {
         onOperationComplete: function checkAddedItem(c, s, o, i, addedItem) {
             do_execute_soon(function() {
                 // Make sure the cache is cleared, otherwise we'll get the cached item.

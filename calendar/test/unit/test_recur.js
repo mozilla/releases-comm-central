@@ -696,10 +696,10 @@ function test_startdate_change() {
                          str);
     }
 
-    function changeBy(item, dur) {
-        let newDate = item.startDate.clone();
+    function changeBy(changeItem, dur) {
+        let newDate = changeItem.startDate.clone();
         newDate.addDuration(cal.createDuration(dur));
-        item.startDate = newDate;
+        changeItem.startDate = newDate;
     }
 
     let dur, ritem;

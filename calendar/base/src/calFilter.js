@@ -867,7 +867,7 @@ calFilter.prototype = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onOperationComplete: aListener.onOperationComplete.bind(aListener),
 
-            onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+            onGetResult: function(aOpCalendar, aStatus, aOpItemType, aDetail, aCount, aItems) {
                 let items;
                 if (props.occurrences == props.FILTER_OCCURRENCES_PAST_AND_NEXT) {
                     // with the FILTER_OCCURRENCES_PAST_AND_NEXT occurrence filter we will
@@ -883,7 +883,7 @@ calFilter.prototype = {
                     items = self.filterItems(aItems);
                 }
 
-                aListener.onGetResult(aCalendar, aStatus, aItemType, aDetail, items.length, items);
+                aListener.onGetResult(aOpCalendar, aStatus, aOpItemType, aDetail, items.length, items);
             }
         };
 

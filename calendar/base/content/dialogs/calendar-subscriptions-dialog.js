@@ -93,24 +93,23 @@ function onCancel() {
 function onSearch() {
     cancelPendingSearchOperation();
 
-    var richListBox = document.getElementById("subscriptions-listbox");
+    let richListBox = document.getElementById("subscriptions-listbox");
     richListBox.clear();
 
-    var registeredCals = {};
-    for (var calendar of getCalendarManager().getCalendars({})) {
+    let registeredCals = {};
+    for (let calendar of getCalendarManager().getCalendars({})) {
         registeredCals[calendar.id] = true;
     }
 
-    var opListener = {
+    let opListener = {
         onResult: function search_onResult(op, result) {
-            var richListBox = document.getElementById("subscriptions-listbox");
             if (result) {
-                for (var calendar of result) {
+                for (let calendar of result) {
                     richListBox.addCalendar(calendar, registeredCals[calendar.id]);
                 }
             }
             if (!op.isPending) {
-                var statusDeck = document.getElementById("status-deck");
+                let statusDeck = document.getElementById("status-deck");
                 if (richListBox.getRowCount() > 0) {
                     statusDeck.selectedIndex = 0;
                 } else {
@@ -120,7 +119,7 @@ function onSearch() {
         }
     };
 
-    var op = getCalendarSearchService().searchForCalendars(document.getElementById("search-textbox").value,
+    let op = getCalendarSearchService().searchForCalendars(document.getElementById("search-textbox").value,
                                                            0 /* hints */, 50, opListener);
     if (op && op.isPending) {
         gCurrentSearchOperation = op;

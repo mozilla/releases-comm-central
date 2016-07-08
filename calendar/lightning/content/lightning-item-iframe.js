@@ -1508,10 +1508,10 @@ function untilDateCompensation(aItem) {
         let rrules = splitRecurrenceRules(aItem.recurrenceInfo);
         let rule = rrules[0][0];
         if (!rule.isByCount && rule.isFinite && startDate) {
-            let untilDateCompensation = startDate.subtractDate(gStartTime);
-            if (untilDateCompensation != "PT0S") {
+            let compensation = startDate.subtractDate(gStartTime);
+            if (compensation != "PT0S") {
                 let untilDate = rule.untilDate.clone();
-                untilDate.addDuration(untilDateCompensation);
+                untilDate.addDuration(compensation);
                 rule.untilDate = untilDate;
             }
         }
@@ -2189,8 +2189,8 @@ function addAttachment(attachment, cloudProvider) {
                     listItem.setAttribute("label", leafName);
                 }
                 if (providerType && cloudFileEnabled) {
-                    let cloudProvider = cloudFileAccounts.getProviderForType(providerType);
-                    listItem.setAttribute("image", cloudProvider.iconClass);
+                    let provider = cloudFileAccounts.getProviderForType(providerType);
+                    listItem.setAttribute("image", provider.iconClass);
                 } else {
                     listItem.setAttribute("image", "moz-icon://dummy.html");
                 }
@@ -2261,7 +2261,6 @@ function deleteAllAttachments() {
 
     if (ok) {
         let child;
-        let documentLink = document.getElementById("attachment-link");
         while (documentLink.hasChildNodes()) {
             child = documentLink.lastChild;
             child.attachment = null;
@@ -2637,8 +2636,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
                 });
                 // XXX more to do, see loadRepeat
             } else {
-                let item = window.calendarItem;
-                loadRepeat(repeatType, untilDate, item);
+                loadRepeat(repeatType, untilDate, window.calendarItem);
             }
         }
     } else {

@@ -38,24 +38,20 @@ var calendarExtract = {
         let pref = "calendar.patterns.last.used.languages";
         let lastUsedLangs = Preferences.get(pref, "");
 
-        function createLanguageComptor(lastUsedLangs) {
-            return function compare(a, b) {
-                let idx_a = lastUsedLangs.indexOf(a[1]);
-                let idx_b = lastUsedLangs.indexOf(b[1]);
+        langs.sort((a, b) => {
+            let idx_a = lastUsedLangs.indexOf(a[1]);
+            let idx_b = lastUsedLangs.indexOf(b[1]);
 
-                if (idx_a == -1 && idx_b == -1) {
-                    return a[0].localeCompare(b[0]);
-                } else if (idx_a != -1 && idx_b != -1) {
-                    return idx_a - idx_b;
-                } else if (idx_a != -1) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            };
-        }
-
-        langs.sort(createLanguageComptor(lastUsedLangs));
+            if (idx_a == -1 && idx_b == -1) {
+                return a[0].localeCompare(b[0]);
+            } else if (idx_a != -1 && idx_b != -1) {
+                return idx_a - idx_b;
+            } else if (idx_a != -1) {
+                return -1;
+            } else {
+                return 1;
+            }
+        });
         removeChildren(localeList);
 
         for (let lang of langs) {

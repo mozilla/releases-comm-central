@@ -98,15 +98,14 @@ calCalendarManager.prototype = {
         switch (aTopic) {
             case "timer-callback":
                 // Refresh all the calendars that can be refreshed.
-                var cals = this.getCalendars({});
-                for (var calendar of cals) {
+                for (let calendar of this.getCalendars({})) {
                     if (!calendar.getProperty("disabled") && calendar.canRefresh) {
                         calendar.refresh();
                     }
                 }
                 break;
             case "network:offline-status-changed":
-                for (var id in this.mCache) {
+                for (let id in this.mCache) {
                     let calendar = this.mCache[id];
                     if (calendar instanceof calCachedCalendar) {
                         calendar.onOfflineStatusChanged(aData == "offline");

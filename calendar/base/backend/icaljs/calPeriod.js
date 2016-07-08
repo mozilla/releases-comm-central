@@ -32,15 +32,15 @@ calPeriod.prototype = {
     clone: function() { return new calPeriod(this.innerObject.clone()); },
 
     get start() { return wrapGetter(calDateTime, this.innerObject.start); },
-    set start(val) {
-        unwrapSetter(ICAL.Time, val, function(val) {
+    set start(rawval) {
+        unwrapSetter(ICAL.Time, rawval, function(val) {
             this.innerObject.start = val;
         }, this);
     },
 
     get end() { return wrapGetter(calDateTime, this.innerObject.getEnd()); },
-    set end(val) {
-        unwrapSetter(ICAL.Time, val, function(val) {
+    set end(rawval) {
+        unwrapSetter(ICAL.Time, rawval, function(val) {
             if (this.innerObject.duration) {
                 this.innerObject.duration = null;
             }

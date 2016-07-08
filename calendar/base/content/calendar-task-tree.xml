@@ -924,19 +924,19 @@
               items: null,
               operation: null,
 
-              onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDateTime) {
-                  if (aCalendar.id in this.binding.mPendingRefreshJobs) {
-                      delete this.binding.mPendingRefreshJobs[aCalendar.id];
+              onOperationComplete: function(aOpCalendar, aStatus, aOperationType, aId, aDateTime) {
+                  if (aOpCalendar.id in this.binding.mPendingRefreshJobs) {
+                      delete this.binding.mPendingRefreshJobs[aOpCalendar.id];
                   }
 
                   let oldItems = this.binding.mTaskArray.filter(function(item) {
-                      return item.calendar.id == aCalendar.id;
+                      return item.calendar.id == aOpCalendar.id;
                   });
 
                   this.binding.mTreeView.modifyItems(this.items, oldItems);
               },
 
-              onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+              onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                   this.items = this.items.concat(aItems);
               },
 
@@ -948,7 +948,7 @@
                   }
               },
 
-              execute: function(aCalendar) {
+              execute: function() {
                   if (aCalendar.id in this.binding.mPendingRefreshJobs) {
                       this.binding.mPendingRefreshJobs[aCalendar.id].cancel();
                   }
@@ -965,7 +965,7 @@
               }
           };
 
-          refreshJob.execute(aCalendar);
+          refreshJob.execute();
         ]]></body>
       </method>
 

@@ -40,12 +40,12 @@ var testDailyRecurrence = function() {
   event.click(new elementslib.ID(event.window.document, "button-save"));
 
   // check day view for 7 days
-  let box = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour, undefined)
+  let daybox = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour, undefined)
     + eventPath;
-  controller.waitForElement(new elementslib.Lookup(controller.window.document, box));
+  controller.waitForElement(new elementslib.Lookup(controller.window.document, daybox));
 
   for (let day = 1; day <= 7; day++){
-    controller.assertNode(new elementslib.Lookup(controller.window.document, box));
+    controller.assertNode(new elementslib.Lookup(controller.window.document, daybox));
     calUtils.forward(controller, 1);
   }
 
@@ -54,17 +54,17 @@ var testDailyRecurrence = function() {
   calUtils.goToDate(controller, 2009, 1, 1);
 
   for (let day = 5; day <= 7; day++){
-    let box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, 1, day, hour)
+    let weekbox = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, 1, day, hour)
       + eventPath;
-    controller.assertNode(new elementslib.Lookup(controller.window.document, box));
+    controller.assertNode(new elementslib.Lookup(controller.window.document, weekbox));
   }
 
   calUtils.forward(controller, 1);
 
   for (let day = 1; day <= 7; day++){
-    let box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, 2, day, hour)
+    let weekbox = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, 2, day, hour)
       + eventPath;
-    controller.assertNode(new elementslib.Lookup(controller.window.document, box));
+    controller.assertNode(new elementslib.Lookup(controller.window.document, weekbox));
   }
 
   // check multiweek view for 4 weeks
@@ -72,16 +72,16 @@ var testDailyRecurrence = function() {
   calUtils.goToDate(controller, 2009, 1, 1);
 
   for (let day = 5; day <= 7; day++){
-    let box = calUtils.getEventBoxPath(controller, "multiweek", calUtils.EVENT_BOX, 1, day, hour)
+    let mweekbox = calUtils.getEventBoxPath(controller, "multiweek", calUtils.EVENT_BOX, 1, day, hour)
       + eventPath;
-    controller.assertNode(new elementslib.Lookup(controller.window.document, box));
+    controller.assertNode(new elementslib.Lookup(controller.window.document, mweekbox));
   }
 
   for (let week = 2; week <= 4; week++){
     for (let day = 1; day <= 7; day++){
-      let box = calUtils.getEventBoxPath(controller, "multiweek", calUtils.EVENT_BOX, week, day, hour)
+      let mweekbox = calUtils.getEventBoxPath(controller, "multiweek", calUtils.EVENT_BOX, week, day, hour)
         + eventPath;
-      controller.assertNode(new elementslib.Lookup(controller.window.document, box));
+      controller.assertNode(new elementslib.Lookup(controller.window.document, mweekbox));
     }
   }
 
@@ -90,16 +90,16 @@ var testDailyRecurrence = function() {
   calUtils.goToDate(controller, 2009, 1, 1);
 
   for (let day = 5; day <= 7; day++){
-    let box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 1, day, undefined)
+    let mbox = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 1, day, undefined)
       + eventPath;
-    controller.assertNode(new elementslib.Lookup(controller.window.document, box));
+    controller.assertNode(new elementslib.Lookup(controller.window.document, mbox));
   }
 
   for (let week = 2; week <= 5; week++){
     for (let day = 1; day <= 7; day++){
-      let box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, week, day, undefined)
+      let mbox = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, week, day, undefined)
         + eventPath;
-      controller.assertNode(new elementslib.Lookup(controller.window.document, box));
+      controller.assertNode(new elementslib.Lookup(controller.window.document, mbox));
     }
   }
 
@@ -162,12 +162,12 @@ var testDailyRecurrence = function() {
   calUtils.goToDate(controller, 2009, 1, 1);
 
   for (let i = 0; i <= 1; i++){
-    let day = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 1, undefined)
+    let weekday = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 1, undefined)
       + eventPath;
-    controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, day));
-    day = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 7, undefined)
+    controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, weekday));
+    weekday = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 7, undefined)
       + eventPath;
-    controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, day));
+    controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, weekday));
     calUtils.forward(controller, 1);
   }
 
@@ -176,12 +176,12 @@ var testDailyRecurrence = function() {
   calUtils.goToDate(controller, 2009, 1, 1);
 
   for (let i = 1; i <= 4; i++){
-    let day = calUtils.getEventBoxPath(controller, "multiweek", calUtils.EVENT_BOX, i, 1, undefined)
+    let mweekday = calUtils.getEventBoxPath(controller, "multiweek", calUtils.EVENT_BOX, i, 1, undefined)
       + eventPath;
-    controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, day));
-    day = calUtils.getEventBoxPath(controller, "multiweek", calUtils.EVENT_BOX, i, 7, undefined)
+    controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, mweekday));
+    mweekday = calUtils.getEventBoxPath(controller, "multiweek", calUtils.EVENT_BOX, i, 7, undefined)
       + eventPath;
-    controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, day));
+    controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, mweekday));
   }
 
   // check month view for all 5 weeks
@@ -189,12 +189,12 @@ var testDailyRecurrence = function() {
   calUtils.goToDate(controller, 2009, 1, 1);
 
   for (let i = 1; i <= 5; i++){
-    let day = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, i, 1, undefined)
+    let mday = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, i, 1, undefined)
       + eventPath;
-    controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, day));
-    day = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, i, 7, undefined)
+    controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, mday));
+    mday = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, i, 7, undefined)
       + eventPath;
-    controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, day));
+    controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, mday));
   }
 
   // delete event

@@ -882,7 +882,7 @@ function addItemsFromCalendar(aCalendar, aAddItemsInternalFunc) {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
         mEventArray: [],
 
-        onOperationComplete: function rET_onOperationComplete(aCalendar,
+        onOperationComplete: function rET_onOperationComplete(aOpCalendar,
                                                               aStatus,
                                                               aOperationType,
                                                               aId,
@@ -893,7 +893,7 @@ function addItemsFromCalendar(aCalendar, aAddItemsInternalFunc) {
             setTimeout(refreshTreeInternalFunc, 0);
         },
 
-        onGetResult: function rET_onGetResult(aCalendar,
+        onGetResult: function rET_onGetResult(aOpCalendar,
                                               aStatus,
                                               aItemType,
                                               aDetail,

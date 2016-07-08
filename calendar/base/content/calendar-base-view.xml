@@ -461,7 +461,7 @@
               operation: null,
               cancelled: false,
 
-              onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDateTime) {
+              onOperationComplete: function(aOpCalendar, aStatus, aOperationType, aId, aDateTime) {
                   this.calView.mLog.info("Refresh complete of calendar " + this.calId);
                   if (this.calView.mPendingRefreshJobs.has(this.calId)) {
                       this.calView.mPendingRefreshJobs.delete(this.calId);
@@ -473,7 +473,7 @@
                   }
               },
 
-              onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+              onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                   if (this.cancelled || !Components.isSuccessCode(aStatus)) {
                       return;
                   }
@@ -495,7 +495,7 @@
                   }
               },
 
-              execute: function(aCalendar) {
+              execute: function() {
                   if (!this.calView.startDate || !this.calView.endDate || !aCalendar) {
                       return;
                   }
@@ -548,7 +548,7 @@
               }
           };
 
-          refreshJob.execute(aCalendar);
+          refreshJob.execute();
         ]]></body>
       </method>
 

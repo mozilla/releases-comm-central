@@ -1127,7 +1127,7 @@ function checkIfInRange(item, rangeStart, rangeEnd, returnDtstartOrDue) {
  * @return          The progress atom.
  */
 function getProgressAtom(aTask) {
-    var now = new Date();
+    let nowdate = new Date();
 
     if (aTask.recurrenceInfo) {
         return "repeating";
@@ -1138,11 +1138,11 @@ function getProgressAtom(aTask) {
     }
 
     if (aTask.dueDate && aTask.dueDate.isValid) {
-        if (cal.dateTimeToJsDate(aTask.dueDate).getTime() < now.getTime()) {
+        if (cal.dateTimeToJsDate(aTask.dueDate).getTime() < nowdate.getTime()) {
             return "overdue";
-        } else if (aTask.dueDate.year == now.getFullYear() &&
-                   aTask.dueDate.month == now.getMonth() &&
-                   aTask.dueDate.day == now.getDate()) {
+        } else if (aTask.dueDate.year == nowdate.getFullYear() &&
+                   aTask.dueDate.month == nowdate.getMonth() &&
+                   aTask.dueDate.day == nowdate.getDate()) {
             return "duetoday";
         }
     }

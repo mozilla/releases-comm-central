@@ -1145,7 +1145,7 @@ upgrade.v16 = function upgrade_v16(db, version) {
             icalString: "TEXT"
         }, db);
 
-        let copyDataOver = function copyDataOver(tbl) {
+        let copyDataOver = function copyDataOver(tblName) {
             const transAlarm = "translateAlarm(alarm_offset, " +
                                               "alarm_related, " +
                                               "alarm_time, " +
@@ -1156,7 +1156,7 @@ upgrade.v16 = function upgrade_v16(db, version) {
                                  "                        icalString)" +
                                  " SELECT cal_id, id, recurrence_id," +
                                  "        recurrence_id_tz, " + transAlarm +
-                                 "   FROM " + tbl +
+                                 "   FROM " + tblName +
                                  "  WHERE alarm_offset IS NOT NULL" +
                                  "     OR alarm_time IS NOT NULL;");
         };

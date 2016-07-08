@@ -307,13 +307,13 @@ calWcapCalendar.prototype = {
     },
 
     get defaultTimezone() {
-        var tzid = this.getCalendarProperties("X-NSCP-CALPROPS-TZID");
+        let tzid = this.getCalendarProperties("X-NSCP-CALPROPS-TZID");
         if (tzid.length > 0) { // first try server-configured tz:
             return tzid[0];
         } else {
             logWarning("defaultTimezone: cannot get X-NSCP-CALPROPS-TZID!", this);
             // try to use local one if supported:
-            let tzid = cal.getTimezoneService().defaultTimezone.tzid;
+            tzid = cal.getTimezoneService().defaultTimezone.tzid;
             return (this.session.getTimezone(tzid) ? tzid : "UTC");
         }
     },

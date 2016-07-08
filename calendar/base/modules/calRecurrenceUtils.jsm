@@ -28,9 +28,9 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
     }
     function nounClass(aDayString, aRuleString) {
         // Select noun class (grammatical gender) for rule string
-        let nounClass = getRString(aDayString + "Nounclass");
-        return aRuleString + nounClass.substr(0, 1).toUpperCase() +
-               nounClass.substr(1);
+        let nounClassStr = getRString(aDayString + "Nounclass");
+        return aRuleString + nounClassStr.substr(0, 1).toUpperCase() +
+               nounClassStr.substr(1);
     }
     function pluralWeekday(aDayString) {
         let plural = getRString("pluralForWeekdays") == "true";

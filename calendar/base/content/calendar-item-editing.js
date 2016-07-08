@@ -227,14 +227,14 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
 function createEventWithDialog(calendar, startDate, endDate, summary, event, aForceAllday) {
     const kDefaultTimezone = calendarDefaultTimezone();
 
-    var onNewEvent = function(item, calendar, originalItem, listener) {
+    var onNewEvent = function(item, opcalendar, originalItem, listener) {
         if (item.id) {
             // If the item already has an id, then this is the result of
             // saving the item without closing, and then saving again.
-            doTransaction('modify', item, calendar, originalItem, listener);
+            doTransaction('modify', item, opcalendar, originalItem, listener);
         } else {
             // Otherwise, this is an addition
-            doTransaction('add', item, calendar, null, listener);
+            doTransaction('add', item, opcalendar, null, listener);
         }
     };
 
@@ -284,14 +284,14 @@ function createEventWithDialog(calendar, startDate, endDate, summary, event, aFo
 function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
     const kDefaultTimezone = calendarDefaultTimezone();
 
-    var onNewItem = function(item, calendar, originalItem, listener) {
+    var onNewItem = function(item, opcalendar, originalItem, listener) {
         if (item.id) {
             // If the item already has an id, then this is the result of
             // saving the item without closing, and then saving again.
-            doTransaction('modify', item, calendar, originalItem, listener);
+            doTransaction('modify', item, opcalendar, originalItem, listener);
         } else {
             // Otherwise, this is an addition
-            doTransaction('add', item, calendar, null, listener);
+            doTransaction('add', item, opcalendar, null, listener);
         }
     };
 
@@ -445,11 +445,11 @@ function openEventDialog(calendarItem, calendar, mode, callback, job, initialDat
     args.useNewItemUI = Preferences.get("calendar.item.useNewItemUI", false);
 
     // this will be called if file->new has been selected from within the dialog
-    args.onNewEvent = function(calendar) {
-        createEventWithDialog(calendar, null, null);
+    args.onNewEvent = function(opcalendar) {
+        createEventWithDialog(opcalendar, null, null);
     };
-    args.onNewTodo = function(calendar) {
-        createTodoWithDialog(calendar);
+    args.onNewTodo = function(opcalendar) {
+        createTodoWithDialog(opcalendar);
     };
 
     // the dialog will reset this to auto when it is done loading.

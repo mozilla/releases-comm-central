@@ -146,11 +146,8 @@ calOutlookCSVImporter.prototype = {
         // args.fieldList contains the field names from the first row of CSV
         args.fieldList = header;
 
-        let locale;
-        let i;
         let knownIndxs;
-        for (i in locales) {
-            locale = locales[i];
+        for (let locale of locales) {
             knownIndxs = 0;
             args.titleIndex = 0;
             args.startDateIndex = 0;
@@ -203,7 +200,7 @@ calOutlookCSVImporter.prototype = {
         // Construct event regexp according to field indexes. The regexp can
         // be made stricter, if it seems this matches too loosely.
         let regExpStr = "^";
-        for (i = 1; i <= header.length; i++) {
+        for (let i = 1; i <= header.length; i++) {
             if (i > 1) {
                 regExpStr += ",";
             }

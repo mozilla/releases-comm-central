@@ -79,8 +79,8 @@ calIcalProperty.prototype = {
                          ("icalclass" in val) && val.icalclass == "icaltime";
         return (isIcalTime ? new calDateTime(val) : null);
     },
-    set valueAsDatetime(val) {
-        unwrapSetter(ICAL.Time, val, function(val) {
+    set valueAsDatetime(rawval) {
+        unwrapSetter(ICAL.Time, rawval, function(val) {
             if (val && val.zone &&
                 val.zone != ICAL.Timezone.utcTimezone &&
                 val.zone != ICAL.Timezone.localTimezone) {

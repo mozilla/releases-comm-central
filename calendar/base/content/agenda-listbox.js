@@ -630,7 +630,7 @@ function refreshCalendarQuery(aStart, aEnd, aCalendar) {
         operation: null,
         cancelled: false,
 
-        onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDateTime) {
+        onOperationComplete: function(aOpCalendar, aStatus, aOperationType, aId, aDateTime) {
             if (this.agendaListbox.mPendingRefreshJobs.has(this.calId)) {
                 this.agendaListbox.mPendingRefreshJobs.delete(this.calId);
             }
@@ -640,7 +640,7 @@ function refreshCalendarQuery(aStart, aEnd, aCalendar) {
             }
         },
 
-        onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+        onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
             if (this.cancelled || !Components.isSuccessCode(aStatus)) {
                 return;
             }
@@ -658,7 +658,7 @@ function refreshCalendarQuery(aStart, aEnd, aCalendar) {
             }
         },
 
-        execute: function(aStart, aEnd, aCalendar) {
+        execute: function() {
             if (!(aStart || aEnd || aCalendar)) {
                 this.agendaListbox.removeListItems();
             }
@@ -704,7 +704,7 @@ function refreshCalendarQuery(aStart, aEnd, aCalendar) {
         }
     };
 
-    refreshJob.execute(aStart, aEnd, aCalendar);
+    refreshJob.execute();
 };
 
 /**
@@ -837,13 +837,13 @@ function getSelectedItems() {
  */
 agendaListbox.isEventListItem =
 function isEventListItem(aListItem) {
-    var isEventListItem = (aListItem != null);
-    if (isEventListItem) {
+    var isListItem = (aListItem != null);
+    if (isListItem) {
         var localName = aListItem.localName;
-        isEventListItem = (localName == "agenda-richlist-item" ||
-                           localName == "agenda-allday-richlist-item");
+        isListItem = (localName == "agenda-richlist-item" ||
+                      localName == "agenda-allday-richlist-item");
     }
-    return isEventListItem;
+    return isListItem;
 };
 
 /**

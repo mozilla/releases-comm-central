@@ -171,10 +171,10 @@
           let day =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "day");
-          let value = (this.mZoomFactor > 100) ?
+          let dateValue = (this.mZoomFactor > 100) ?
               this.mDateFormatter.formatDateShort(date) :
               this.mDateFormatter.formatDateLong(date);
-          day.setAttribute("value", value);
+          day.setAttribute("value", dateValue);
 
           // Now create as many 'hour' elements as needed
           let step_in_minutes = Math.floor(60 * this.mZoomFactor / 100);
@@ -770,8 +770,6 @@
                   this.mState[i] = Components.interfaces.calIFreeBusyInterval.FREE;
               }
 
-              let numHours = this.numHours;
-
               // Iterate all incoming freebusy entries
               for (let entry of aEntries) {
                   let rangeStart = entry.interval.start.getInTimezone(kDefaultTimezone);
@@ -839,19 +837,19 @@
                       };
 
                       // Number of hours (fractional representation)
-                      let numHours = this.mEndHour - this.mStartHour;
-                      let fNumHours = numHours * 100 / this.mZoomFactor;
+                      let calcNumHours = this.mEndHour - this.mStartHour;
+                      let fNumHours = calcNumHours * 100 / this.mZoomFactor;
 
                       let start_offset =
                           minute2offset(start_in_minutes,
                                         fNumHours,
-                                        numHours,
+                                        calcNumHours,
                                         this.mStartHour,
                                         this.mZoomFactor);
                       let end_offset =
                           minute2offset(end_in_minutes - 1,
                                         fNumHours,
-                                        numHours,
+                                        calcNumHours,
                                         this.mStartHour,
                                         this.mZoomFactor);
 
@@ -1402,8 +1400,8 @@
           // underlying arrays holding the informaion.
           if (this.mStartDate.day != startTime.day) {
               for (let i = 1; i <= this.mMaxFreeBusy; i++) {
-                  let row = this.getFreeBusyElement(i);
-                  row.setAttribute("dirty", "true");
+                  let fbelem = this.getFreeBusyElement(i);
+                  fbelem.setAttribute("dirty", "true");
               }
               this.updateFreeBusy();
           }

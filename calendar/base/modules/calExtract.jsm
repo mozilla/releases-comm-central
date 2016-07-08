@@ -1269,14 +1269,16 @@ Extractor.prototype = {
 
     guess: function guess(year, month, day, hour, minute, start, end, str,
                           relation, pattern, ambiguous) {
-        let guess = {year: year, month: month, day: day, hour: hour, minute: minute,
-                     start: start, end: end, str: str, relation: relation,
-                     pattern: pattern, ambiguous: ambiguous};
+        let dateGuess = {
+            year: year, month: month, day: day, hour: hour, minute: minute,
+            start: start, end: end, str: str, relation: relation,
+            pattern: pattern, ambiguous: ambiguous
+        };
         // past dates are kept for containment checks
-        if (this.isPastDate(guess, this.now)) {
+        if (this.isPastDate(dateGuess, this.now)) {
             guess.relation = "notadatetime";
         }
-        this.collected.push(guess);
+        this.collected.push(dateGuess);
     },
 
     sanitize: function(str) {

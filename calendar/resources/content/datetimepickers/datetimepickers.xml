@@ -127,32 +127,32 @@
            if (!aValue) {
              return null;
            }
-           var val = aValue.toLowerCase();
+           let val = aValue.toLowerCase();
            // Look for the easy ones like today, tomorrow, etc
-           for (var rel of this.mRelativeDates) {
+           for (let rel of this.mRelativeDates) {
              if (val == rel.word) {
-               var now = new Date();
+               let now = new Date();
                now.setDate(now.getDate() + rel.offset);
                return now;
              }
            }
 
-           var parser = this;
+           let parser = this;
 
            // Takes a written day of the week and returns a js-date
            // corresponding to the nearest day in the future that is
            // that day of the week
            function getDateForDay(aWord) {
-             for (var i in parser.mDayNames) {
+             for (let i in parser.mDayNames) {
                if (aWord != parser.mDayNames[i]) {
                  continue;
                }
                // Figure out what day of the week today is.
-               var today = cal.now();
+               let today = cal.now();
 
                // i-weekday gets the offset. Add 7 to ensure that the %
                // operation stays positive.
-               var offset = (i - today.weekday + 7) % 7;
+               let offset = (i - today.weekday + 7) % 7;
                today.day = today.day + offset;
                return cal.dateTimeToJsDate(today);
              }
@@ -186,8 +186,8 @@
           }
 
           // Now for the cool 'next' and 'last'
-          var words = val.split(' ');
-          var offset, day;
+          let words = val.split(' ');
+          let offset, day;
           for (let word of words) {
             for (let rel of this.mRelationWords) {
               if (word == rel.word) {
@@ -195,7 +195,7 @@
                 break;
               }
             }
-            for (var i in this.mDayNames) {
+            for (let i in this.mDayNames) {
               if (word == this.mDayNames[i]) {
                 day = getDateForDay(word);
                 break;

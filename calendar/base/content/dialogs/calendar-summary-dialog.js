@@ -32,12 +32,12 @@ function onLoad() {
             // store any pending modifications...
             self.onAccept();
 
-            let item = window.calendarItem;
+            let calendarItem = window.calendarItem;
 
             // ...and close the window.
             window.close();
 
-            return item;
+            return calendarItem;
         };
     }
 

@@ -78,10 +78,10 @@ function getWcapSessionFor(calendar, uri) {
                     let [spec, params] = splitUriParams(regCal.uri);
                     if (spec != defaultSpec) {
                         log("fixing url of subscribed calendar: " + regCal.calId, session);
-                        let uri = regCal.uri.clone();
-                        uri.spec = (defaultSpec + params);
-                        regCal.uri = uri;
-                        regCal.setProperty("uri", uri.spec);
+                        let caluri = regCal.uri.clone();
+                        caluri.spec = (defaultSpec + params);
+                        regCal.uri = caluri;
+                        regCal.setProperty("uri", caluri.spec);
                     }
                 }
             }
@@ -281,8 +281,8 @@ calWcapSession.prototype = {
                     cal.auth.passwordManagerGet(outUser.value, outPW, this_.uri.spec, "wcap login");
                 }
 
-                function promptAndLoginLoop_resp(err, sessionId) {
-                    if (checkErrorCode(err, calIWcapErrors.WCAP_LOGIN_FAILED)) {
+                function promptAndLoginLoop_resp(loginerr, sessionId) {
+                    if (checkErrorCode(loginerr, calIWcapErrors.WCAP_LOGIN_FAILED)) {
                         log("prompting for [user/]pw...", this_);
                         if (cal.auth.getCredentials(cal.calGetString("wcap", "loginDialog.label"),
                                                     this_.sessionUri.hostPort,
@@ -299,8 +299,8 @@ calWcapSession.prototype = {
                             respFunc(new Components.Exception(errorToString(calIWcapErrors.WCAP_LOGIN_FAILED),
                                                               calIWcapErrors.WCAP_LOGIN_FAILED));
                         }
-                    } else if (err) {
-                        respFunc(err);
+                    } else if (loginerr) {
+                        respFunc(loginerr);
                     } else {
                         if (outSavePW.value) {
                             // so try to remove old pw from db first:
@@ -310,8 +310,8 @@ calWcapSession.prototype = {
                         this_.credentials.pw = outPW.value;
                         this_.setupSession(sessionId,
                                            request,
-                                           function setupSession_resp(err) {
-                                               respFunc(err, sessionId);
+                                           function setupSession_resp(setuperr) {
+                                               respFunc(setuperr, sessionId);
                                            });
                     }
                 }
@@ -372,14 +372,14 @@ calWcapSession.prototype = {
     logout: function calWcapSession_logout(listener) {
         var this_ = this;
         var request = new calWcapRequest(
-            function logout_resp(request, err) {
+            function logout_resp(oprequest, err) {
                 if (err) {
                     logError(err, this_);
                 } else {
                     log("logout succeeded.", this_);
                 }
                 if (listener) {
-                    listener.onResult(request, null);
+                    listener.onResult(oprequest, null);
                 }
             },
             log("logout", this));
@@ -470,7 +470,7 @@ calWcapSession.prototype = {
     setupSession: function calWcapSession_setupSession(sessionId, request_, respFunc) {
         var this_ = this;
         var request = new calWcapRequest(
-            function setupSession_resp(request_, err) {
+            function setupSession_resp(oprequest, err) {
                 log("setupSession_resp finished: " + errorToString(err), this_);
                 respFunc(err);
             },
@@ -614,10 +614,10 @@ calWcapSession.prototype = {
         for (var calId in cals) {
             if (!retrievedCals[calId]) {
                 var listener = {
-                    onResult: function search_onResult(request, result) {
+                    onResult: function search_onResult(oprequest, result) {
                         try {
-                            if (!Components.isSuccessCode(request.status)) {
-                                throw request.status;
+                            if (!Components.isSuccessCode(oprequest.status)) {
+                                throw oprequest.status;
                             }
                             if (result.length < 1) {
                                 throw Components.results.NS_ERROR_UNEXPECTED;
@@ -626,9 +626,9 @@ calWcapSession.prototype = {
                                 // user may have dangling users referred in his subscription list, so
                                 // retrieve each by each, don't break:
                                 try {
-                                    var calId = calendar.calId;
-                                    if ((cals[calId] !== undefined) && !retrievedCals[calId]) {
-                                        retrievedCals[calId] = calendar;
+                                    let thisCalId = calendar.calId;
+                                    if ((cals[thisCalId] !== undefined) && !retrievedCals[thisCalId]) {
+                                        retrievedCals[thisCalId] = calendar;
                                         if (respFunc) {
                                             respFunc(calendar);
                                         }
@@ -716,9 +716,9 @@ calWcapSession.prototype = {
                 // else have session uri and id:
                 this_.issueNetworkRequest_(
                     request,
-                    function issueNetworkRequest_resp(err, data) {
+                    function issueNetworkRequest_resp(loginerr, data) {
                         // timeout?
-                        if (checkErrorCode(err, calIWcapErrors.WCAP_LOGIN_FAILED)) {
+                        if (checkErrorCode(loginerr, calIWcapErrors.WCAP_LOGIN_FAILED)) {
                             // try again:
                             this_.getSessionId(
                                 request,
@@ -726,7 +726,7 @@ calWcapSession.prototype = {
                                 sessionId/* (old) timed-out session */);
                             return;
                         }
-                        request.execSubRespFunc(respFunc, err, data);
+                        request.execSubRespFunc(respFunc, loginerr, data);
                     },
                     dataConvFunc, wcapCommand, params, sessionId);
             }
@@ -868,12 +868,12 @@ calWcapSession.prototype = {
     function calWcapSession_searchForCalendars(searchString, hints, maxResults, listener) {
         var this_ = this;
         var request = new calWcapRequest(
-            function searchForCalendars_resp(request, err, data) {
+            function searchForCalendars_resp(oprequest, err, data) {
                 if (err && !checkErrorCode(err, calIErrors.OPERATION_CANCELLED)) {
                     this_.notifyError(err);
                 }
                 if (listener) {
-                    listener.onResult(request, data);
+                    listener.onResult(oprequest, data);
                 }
             },
             log("searchForCalendars, searchString=" + searchString, this));
@@ -952,7 +952,7 @@ calWcapSession.prototype = {
 
         var this_ = this;
         var request = new calWcapRequest(
-            function _resp(request, err, data) {
+            function _resp(oprequest, err, data) {
                 var rc = getResultCode(err);
                 switch (rc) {
                     case calIWcapErrors.WCAP_NO_ERRNO: // workaround
@@ -967,7 +967,7 @@ calWcapSession.prototype = {
                         break;
                 }
                 if (listener) {
-                    listener.onResult(request, data);
+                    listener.onResult(oprequest, data);
                 }
             },
             log("getFreeBusyIntervals():\n\tcalId=" + calId +
