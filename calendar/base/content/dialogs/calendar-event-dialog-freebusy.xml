@@ -34,6 +34,13 @@
 
     <implementation>
       <property name="x">
+        <getter><![CDATA[
+          let content =
+              document.getAnonymousElementByAttribute(
+                  this, "anonid", "content");
+          let margin = getComputedStyle(content, null).marginInlineStart;
+          return -parseInt(margin.replace(/px/, ""), 10);
+        ]]></getter>
         <setter><![CDATA[
           let content =
               document.getAnonymousElementByAttribute(
@@ -45,6 +52,13 @@
       </property>
 
       <property name="y">
+        <getter><![CDATA[
+          let content =
+              document.getAnonymousElementByAttribute(
+                  this, "anonid", "content");
+          let margin = getComputedStyle(content, null).marginTop;
+          return -parseInt(margin.replace(/px/, ""), 10);
+        ]]></getter>
         <setter><![CDATA[
           let content =
               document.getAnonymousElementByAttribute(
