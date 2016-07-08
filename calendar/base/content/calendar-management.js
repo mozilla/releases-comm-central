@@ -95,9 +95,7 @@ function loadCalendarManager() {
 
     // Create the home calendar if no calendar exists.
     let calendars = cal.getCalendarManager().getCalendars({});
-    if (!calendars.length) {
-        initHomeCalendar();
-    } else {
+    if (calendars.length) {
         // migration code to make sure calendars, which do not support caching have cache enabled
         // required to further clean up on top of bug 1182264
         for (let calendar of calendars) {
@@ -106,6 +104,8 @@ function loadCalendarManager() {
                 calendar.deleteProperty("cache.enabled");
             }
         }
+    } else {
+        initHomeCalendar();
     }
 }
 

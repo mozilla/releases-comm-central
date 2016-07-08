@@ -150,7 +150,11 @@ calTransaction.prototype = {
                 this.mCalendar.addItem(this.mItem, this);
                 break;
             case "modify":
-                if (this.mItem.calendar.id != this.mOldItem.calendar.id) {
+                if (this.mItem.calendar.id == this.mOldItem.calendar.id) {
+                    this.mCalendar.modifyItem(cal.itip.prepareSequence(this.mItem, this.mOldItem),
+                                              this.mOldItem,
+                                              this);
+                } else {
                     let self = this;
                     let addListener = {
                         onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
@@ -163,10 +167,6 @@ calTransaction.prototype = {
 
                     this.mOldCalendar = this.mOldItem.calendar;
                     this.mCalendar.addItem(this.mItem, addListener);
-                } else {
-                    this.mCalendar.modifyItem(cal.itip.prepareSequence(this.mItem, this.mOldItem),
-                                              this.mOldItem,
-                                              this);
                 }
                 break;
             case "delete":
@@ -185,12 +185,12 @@ calTransaction.prototype = {
                 this.mCalendar.deleteItem(this.mItem, this);
                 break;
             case "modify":
-                if (this.mOldItem.calendar.id != this.mItem.calendar.id) {
-                    this.mCalendar.deleteItem(this.mItem, this);
-                    this.mOldCalendar.addItem(this.mOldItem, this);
-                } else {
+                if (this.mOldItem.calendar.id == this.mItem.calendar.id) {
                     this.mCalendar.modifyItem(cal.itip.prepareSequence(this.mOldItem, this.mItem),
                                               this.mItem, this);
+                } else {
+                    this.mCalendar.deleteItem(this.mItem, this);
+                    this.mOldCalendar.addItem(this.mOldItem, this);
                 }
                 break;
             case "delete":

@@ -37,9 +37,9 @@ calWcapTimezone.prototype = {
 function splitUriParams(uri) {
     let spec = uri.spec;
     let qmPos = spec.indexOf("?");
-    return qmPos != -1
-           ? [spec.substring(0, qmPos), spec.substring(qmPos)]
-           : [spec, ""];
+    return qmPos == -1
+           ? [spec, ""]
+           : [spec.substring(0, qmPos), spec.substring(qmPos)];
 }
 
 function getWcapSessionFor(calendar, uri) {

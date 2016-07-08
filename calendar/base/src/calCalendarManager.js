@@ -336,15 +336,15 @@ calCalendarManager.prototype = {
                                     "DROP TABLE cal_calmgr_schema_version;");
             }
 
-            if (!db.tableExists("cal_calendars")) {
+            if (db.tableExists("cal_calendars")) {
+                db.rollbackTransaction();
+            } else {
                 // create dummy cal_calendars, so previous versions (pre 1.0pre) run into the schema check:
                 db.createTable("cal_calendars", "id INTEGER");
                 // let schema checks always fail, we cannot take the shared cal_calendar_schema_version:
                 db.createTable("cal_calmgr_schema_version", "version INTEGER");
                 db.executeSimpleSQL("INSERT INTO cal_calmgr_schema_version VALUES(" + (DB_SCHEMA_VERSION + 1) + ")");
                 db.commitTransaction();
-            } else {
-                db.rollbackTransaction();
             }
         } catch (exc) {
             db.rollbackTransaction();

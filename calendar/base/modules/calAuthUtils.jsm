@@ -318,10 +318,10 @@ cal.auth.Prompt.prototype = {
         self.mWindow = cal.getCalendarWindow();
 
         // the prompt will fail if we are too early
-        if (self.mWindow.document.readyState != "complete") {
-            self.mWindow.addEventListener("load", queuePrompt, true);
-        } else {
+        if (self.mWindow.document.readyState == "complete") {
             queuePrompt();
+        } else {
+            self.mWindow.addEventListener("load", queuePrompt, true);
         }
     }
 };

@@ -466,10 +466,10 @@ calItemBase.prototype = {
         let paramName = aParamName.toUpperCase();
         this.modify();
         if (!(propName in this.mPropertyParams)) {
-            if (!this.hasProperty(propName)) {
-                throw "Property " + aPropName + " not set";
-            } else {
+            if (this.hasProperty(propName)) {
                 this.mPropertyParams[propName] = {};
+            } else {
+                throw "Property " + aPropName + " not set";
             }
         }
         if (aParamValue || !isNaN(parseInt(aParamValue, 10))) {
@@ -541,10 +541,10 @@ calItemBase.prototype = {
         let attIdLowerCase = attendee.id.toLowerCase();
 
         for (let i = 0; i < attendees.length; i++) {
-            if (attendees[i].id.toLowerCase() != attIdLowerCase) {
-                newAttendees.push(attendees[i]);
-            } else {
+            if (attendees[i].id.toLowerCase() == attIdLowerCase) {
                 found = true;
+            } else {
+                newAttendees.push(attendees[i]);
             }
         }
         if (found) {

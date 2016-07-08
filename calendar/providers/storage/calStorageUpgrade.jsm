@@ -206,16 +206,7 @@ function backupDB(db, currentVersion) {
  */
 function upgradeDB(db) {
     cal.ASSERT(db, "Database has not been opened!", true);
-    if (!db.tableExists("cal_calendar_schema_version")) {
-        cal.LOG("Storage: Creating tables from scratch");
-        beginTransaction(db);
-        try {
-            executeSimpleSQL(db, getAllSql());
-            setDbVersionAndCommit(db, DB_SCHEMA_VERSION);
-        } catch (e) {
-            reportErrorAndRollback(db, e);
-        }
-    } else {
+    if (db.tableExists("cal_calendar_schema_version")) {
         let version = getVersion(db);
         if (version < DB_SCHEMA_VERSION) {
             // First, create a backup
@@ -227,6 +218,15 @@ function upgradeDB(db) {
             upgrade["v" + DB_SCHEMA_VERSION](db, version);
         } else if (version > DB_SCHEMA_VERSION) {
             throw Components.interfaces.calIErrors.STORAGE_UNKNOWN_SCHEMA_ERROR;
+        }
+    } else {
+        cal.LOG("Storage: Creating tables from scratch");
+        beginTransaction(db);
+        try {
+            executeSimpleSQL(db, getAllSql());
+            setDbVersionAndCommit(db, DB_SCHEMA_VERSION);
+        } catch (e) {
+            reportErrorAndRollback(db, e);
         }
     }
 

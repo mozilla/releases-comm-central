@@ -147,13 +147,13 @@
               let endPix = Math.round((theMin + dur) * this.mPixPerMin);
               let durPix = endPix - startPix;
               let box;
-              if (dur != 60) {
-                  box = makeTimeBox("", durPix);
-              } else {
+              if (dur == 60) {
                   timeString = formatter.FormatTime("",
                                                     Components.interfaces.nsIScriptableDateFormat.timeFormatNoSeconds,
                                                     theHour, 0, 0);
                   box = makeTimeBox(timeString, durPix);
+              } else {
+                  box = makeTimeBox("", durPix);
               }
 
               // Set up workweek hours
@@ -496,15 +496,15 @@
                }
            }
 
-           if (itemIndex != -1) {
+           if (itemIndex == -1) {
+               return false;
+           } else {
                delete this.mSelectedItemIds[occ.hashId];
                this.mSelectedChunks = this.mSelectedChunks.filter((item) => {
                    return !item.occurrence || (item.occurrence.hashId != aOccurrence.hashId);
                });
                this.mEventInfos.splice(itemIndex, 1);
                return true;
-           } else {
-               return false;
            }
         ]]></body>
       </method>
@@ -881,12 +881,12 @@
               // If you pass in tasks without both entry and due dates, I will
               // kill you
               let startComparison = aEventInfo.layoutStart.compare(bEventInfo.layoutStart);
-              if (startComparison != 0) {
-                  return startComparison;
-              } else {
+              if (startComparison == 0) {
                   // If the items start at the same time, return the longer one
                   // first
                   return bEventInfo.layoutEnd.compare(aEventInfo.layoutEnd);
+              } else {
+                  return startComparison;
               }
           }
           this.mEventInfos.forEach((aEventInfo) => {
@@ -1145,7 +1145,9 @@
                   // a single column, this blob will cover more than one layer. the algorithm places
                   // the items on the first layer in the case an item covers a single column. new layers
                   // are introduced based on the start column and number of spanning columns of an item.
-                  if (data.colSpan != 1) {
+                  if (data.colSpan == 1) {
+                      layerIndex = 0;
+                  } else {
                       let index = glob.totalCols * data.colSpan + data.startCol;
                       layerIndex = layerArray[index];
                       if (!layerIndex) {
@@ -1156,8 +1158,6 @@
                       if (offset != 0) {
                           specialSpan = data.colSpan / glob.totalCols;
                       }
-                  } else {
-                      layerIndex = 0;
                   }
                   layerIndex += layerOffset;
 
@@ -1278,13 +1278,13 @@
         <body><![CDATA[
           let firstCol = this; // eslint-disable-line consistent-this
           let lastCol = this; // eslint-disable-line consistent-this
-          let firstIndex = (aOffset != null ? aOffset : this.mDragState.offset);
+          let firstIndex = aOffset || this.mDragState.offset;
           let lastIndex = firstIndex;
           while (firstCol.previousSibling && firstIndex > 0) {
               firstCol = firstCol.previousSibling;
               firstIndex--;
           }
-          let lastShadow = (aShadows != null ? aShadows : this.mDragState.shadows);
+          let lastShadow = aShadows || this.mDragState.shadows;
           while (lastCol.nextSibling && lastIndex < lastShadow - 1) {
               lastCol = lastCol.nextSibling;
               lastIndex++;
@@ -2425,12 +2425,7 @@
         this.mMouseY = event.screenY;
 
         let whichside = event.whichside;
-        if (!whichside) {
-            // may be click or drag,
-            // so wait for mousemove (or mouseout if fast) to start item move drag
-            this.mInMouseDown = true;
-            return;
-        } else {
+        if (whichside) {
             this.calendarView.setSelectedItems(1,
                 [event.ctrlKey ? this.mOccurrence.parentItem : this.mOccurrence]);
 
@@ -2442,6 +2437,11 @@
             this.parentColumn.startSweepingToModifyEvent(this, this.mOccurrence, whichside,
                                                          event.screenX, event.screenY,
                                                          snapIntMin);
+        } else {
+            // may be click or drag,
+            // so wait for mousemove (or mouseout if fast) to start item move drag
+            this.mInMouseDown = true;
+            return;
         }
       ]]></handler>
 
@@ -2787,13 +2787,13 @@
             }
           }
 
-          if (!aStop) {
+          if (aStop) {
+            // We are done flashing, prevent newly created event boxes from flashing.
+            delete this.mFlashingEvents[aAlarmItem.hashId];
+          } else {
             // Set up a timer to stop the flashing after the total time.
             this.mFlashingEvents[aAlarmItem.hashId] = aAlarmItem;
             setTimeout(() => this.flashAlarm(aAlarmItem, true), totaltime);
-          } else {
-            // We are done flashing, prevent newly created event boxes from flashing.
-            delete this.mFlashingEvents[aAlarmItem.hashId];
           }
         ]]></body>
       </method>

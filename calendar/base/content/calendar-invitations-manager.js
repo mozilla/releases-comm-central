@@ -392,13 +392,13 @@ InvitationsManager.prototype = {
      * the same or after what getStartDate() returned.
      */
     updateStartDate: function() {
-        if (!this.mStartDate) {
-            this.mStartDate = this.getStartDate();
-        } else {
+        if (this.mStartDate) {
             let startDate = this.getStartDate();
             if (startDate.compare(this.mStartDate) > 0) {
                 this.mStartDate = startDate;
             }
+        } else {
+            this.mStartDate = this.getStartDate();
         }
     },
 

@@ -310,11 +310,23 @@ calStorageCalendar.prototype = {
                 let path = this.uri.path;
                 let pos = path.indexOf("?id=");
 
-                if (pos != -1) {
+                if (pos == -1) {
+                    // For some reason, the first storage calendar before the
+                    // v19 upgrade has cal_id=0. If we still have a
+                    // moz-profile-calendar here, then this is the one and we
+                    // need to move all events with cal_id=0 to this id.
+                    cal.LOG("[calStorageCalendar] Migrating stray cal_id=0 calendar to uuid");
+                    migrateTables(this.mDB, this.id, 0);
+                    this.setProperty("uri", "moz-storage-calendar://");
+                    this.setProperty("old_calendar_id", 0);
+                    this.mDB.commitTransaction();
+                } else {
                     // There is an "id" parameter in the uri. This calendar
                     // has not been migrated to using the uuid as its cal_id.
                     pos = this.uri.path.indexOf("?id=");
-                    if (pos != -1) {
+                    if (pos == -1) {
+                        this.mDB.rollbackTransaction();
+                    } else {
                         cal.LOG("[calStorageCalendar] Migrating numeric cal_id to uuid");
                         id = parseInt(path.substr(pos + 4), 10);
                         migrateTables(this.mDB, this.id, id);
@@ -326,19 +338,7 @@ calStorageCalendar.prototype = {
                         this.setProperty("old_calendar_id", id);
 
                         this.mDB.commitTransaction();
-                    } else {
-                        this.mDB.rollbackTransaction();
                     }
-                } else {
-                    // For some reason, the first storage calendar before the
-                    // v19 upgrade has cal_id=0. If we still have a
-                    // moz-profile-calendar here, then this is the one and we
-                    // need to move all events with cal_id=0 to this id.
-                    cal.LOG("[calStorageCalendar] Migrating stray cal_id=0 calendar to uuid");
-                    migrateTables(this.mDB, this.id, 0);
-                    this.setProperty("uri", "moz-storage-calendar://");
-                    this.setProperty("old_calendar_id", 0);
-                    this.mDB.commitTransaction();
                 }
             } catch (exc) {
                 this.logError("prepareInitDB  moz-profile-calendar migration exception", exc);
@@ -942,11 +942,7 @@ calStorageCalendar.prototype = {
 
     getItemOfflineFlag: function(aItem, aListener) {
         let flag = null;
-        if (!aItem) {
-            // It is possible that aItem can be null, flag provided should be null in this case
-            aListener.onOperationComplete(this, Components.results.NS_OK,
-                                               Components.interfaces.calIOperationListener.GET, null, flag);
-        } else {
+        if (aItem) {
             let aID = aItem.id;
             let self = this;
             let listener = {
@@ -973,6 +969,10 @@ calStorageCalendar.prototype = {
                 this.mSelectTodo.params.id = aID;
                 this.mSelectTodo.executeAsync(listener);
             }
+        } else {
+            // It is possible that aItem can be null, flag provided should be null in this case
+            aListener.onOperationComplete(this, Components.results.NS_OK,
+                                               Components.interfaces.calIOperationListener.GET, null, flag);
         }
     },
 
@@ -1955,10 +1955,10 @@ calStorageCalendar.prototype = {
             let ownTz = cal.getTimezoneService().getTimezone(tz.tzid);
             if (ownTz) { // if we know that TZID, we use it
                 params[entryname + "_tz"] = ownTz.tzid;
-            } else if (!tz.icalComponent) { // timezone component missing
-                params[entryname + "_tz"] = "floating";
-            } else { // foreign one
+            } else if (tz.icalComponent) { // foreign one
                 params[entryname + "_tz"] = tz.icalComponent.serializeToICS();
+            } else { // timezone component missing
+                params[entryname + "_tz"] = "floating";
             }
         } else {
             params[entryname] = null;
@@ -2337,13 +2337,13 @@ calStorageCalendar.prototype = {
             sp.value = value;
             this.mInsertMetaData.executeStep();
         } catch (e) {
-            if (e.result != Components.results.NS_ERROR_ILLEGAL_VALUE) {
+            if (e.result == Components.results.NS_ERROR_ILLEGAL_VALUE) {
+                this.logError("Unknown error!", e);
+            } else {
                 // The storage service throws an NS_ERROR_ILLEGAL_VALUE in
                 // case pval is something complex (i.e not a string or
                 // number). Swallow this error, leaving the value empty.
                 this.logError("Error setting metadata for id " + id + "!", e);
-            } else {
-                this.logError("Unknown error!", e);
             }
         } finally {
             this.mInsertMetaData.reset();

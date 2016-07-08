@@ -861,10 +861,10 @@
                         day.setAttribute("interactive", "true");
                     }
 
-                    if (aDate.getMonth() != date.getMonth()) {
-                        day.setAttribute("othermonth", "true");
-                    } else {
+                    if (aDate.getMonth() == date.getMonth()) {
                         day.removeAttribute("othermonth");
+                    } else {
+                        day.setAttribute("othermonth", "true");
                     }
 
                     // highlight today

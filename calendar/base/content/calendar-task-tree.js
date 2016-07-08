@@ -280,11 +280,7 @@ function getTaskTree() {
  */
 function getSelectedTasks(aEvent) {
     let taskTree = getTaskTree();
-    if (taskTree != null) {
-        return taskTree.selectedTasks;
-    } else {
-        return [];
-    }
+    return taskTree ? taskTree.selectedTasks : [];
 }
 
 /**

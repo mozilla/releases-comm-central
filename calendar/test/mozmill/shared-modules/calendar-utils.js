@@ -431,7 +431,10 @@ function setData(controller, data) {
 
   // title
   if (data.title != undefined) {
-    if (!mac) {
+    if (mac) {
+      let titleField = new elementslib.ID(controller.window.document, "item-title");
+      titleField.getNode().value = data.title;
+    } else {
       controller.keypress(new elementslib.Lookup(controller.window.document, dialog +
         'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/' +
         'anon({"anonid":"input"})'),
@@ -440,15 +443,15 @@ function setData(controller, data) {
         'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/' +
         'anon({"anonid":"input"})'),
         data.title);
-    } else {
-      let titleField = new elementslib.ID(controller.window.document, "item-title");
-      titleField.getNode().value = data.title;
     }
   }
 
   // location
   if (data.location != undefined) {
-    if (!mac) {
+    if (mac) {
+      let locationField = new elementslib.ID(controller.window.document, "item-location");
+      locationField.getNode().value = data.location;
+    } else {
       controller.keypress(new elementslib.Lookup(controller.window.document, dialog +
         'id("event-grid-location-row")/id("item-location")/anon({"class":"textbox-input-box"})/' +
         'anon({"anonid":"input"})'),
@@ -457,9 +460,6 @@ function setData(controller, data) {
         'id("event-grid-location-row")/id("item-location")/anon({"class":"textbox-input-box"})/' +
         'anon({"anonid":"input"})'),
         data.location);
-    } else {
-      let locationField = new elementslib.ID(controller.window.document, "item-location");
-      locationField.getNode().value = data.location;
     }
   }
 
@@ -489,11 +489,11 @@ function setData(controller, data) {
     if (!isEvent) {
       controller.check(new elementslib.ID(controller.window.document, "todo-has-entrydate"), true);
     }
-    if (!mac) {
+    if (mac) {
+      startDateInput.getNode().value = startdate;
+    } else {
       controller.keypress(startDateInput, "a", { ctrlKey: true });
       controller.type(startDateInput, startdate);
-    } else {
-      startDateInput.getNode().value = startdate;
     }
   }
 
@@ -501,12 +501,12 @@ function setData(controller, data) {
   if (data.starttime != undefined && data.starttime.constructor.name == "Date") {
     let starttime = dateService.FormatTime("", dateService.timeFormatNoSeconds,
       data.starttime.getHours(), data.starttime.getMinutes(), 0);
-    if (!mac) {
-      controller.keypress(startTimeInput, "a", { ctrlKey: true });
-      controller.type(startTimeInput, starttime);
-    } else {
+    if (mac) {
       startTimeInput.getNode().value = starttime;
       controller.sleep(sleep);
+    } else {
+      controller.keypress(startTimeInput, "a", { ctrlKey: true });
+      controller.type(startTimeInput, starttime);
     }
   }
 
@@ -517,11 +517,11 @@ function setData(controller, data) {
     if (!isEvent) {
       controller.check(new elementslib.ID(controller.window.document, "todo-has-duedate"), true);
     }
-    if (!mac) {
+    if (mac) {
+      endDateInput.getNode().value = enddate;
+    } else {
       controller.keypress(endDateInput, "a", { ctrlKey: true });
       controller.type(endDateInput, enddate);
-    } else {
-      endDateInput.getNode().value = enddate;
     }
   }
 
@@ -529,12 +529,12 @@ function setData(controller, data) {
   if (data.endtime != undefined && data.endtime.constructor.name == "Date") {
     let endtime = dateService.FormatTime("", dateService.timeFormatNoSeconds,
       data.endtime.getHours(), data.endtime.getMinutes(), 0);
-    if (!mac) {
-      controller.keypress(endTimeInput, "a", { ctrlKey: true });
-      controller.type(endTimeInput, endtime);
-    } else {
+    if (mac) {
       endTimeInput.getNode().value = endtime;
       controller.sleep(sleep);
+    } else {
+      controller.keypress(endTimeInput, "a", { ctrlKey: true });
+      controller.type(endTimeInput, endtime);
     }
   }
 
@@ -551,7 +551,12 @@ function setData(controller, data) {
 
   // description
   if (data.description != undefined) {
-    if (!mac) {
+    if (mac) {
+      let descField = new elementslib.Lookup(controller.window.document, dialog +
+        'id("event-grid-description-row")/id("item-description")/' +
+        'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})');
+      descField.getNode().value = data.description;
+    } else {
       controller.keypress(new elementslib.Lookup(controller.window.document, dialog +
         'id("event-grid-description-row")/id("item-description")/' +
         'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
@@ -560,11 +565,6 @@ function setData(controller, data) {
         'id("event-grid-description-row")/id("item-description")/' +
         'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
         data.description);
-    } else {
-      let descField = new elementslib.Lookup(controller.window.document, dialog +
-        'id("event-grid-description-row")/id("item-description")/' +
-        'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})');
-      descField.getNode().value = data.description;
     }
   }
 
@@ -598,11 +598,11 @@ function setData(controller, data) {
       data.completed.getDate());
 
     if (currentStatus == "COMPLETED") {
-      if (!mac) {
+      if (mac) {
+        completedDateInput.getNode().value = completeddate;
+      } else {
         controller.keypress(completedDateInput, "a", { ctrlKey: true });
         controller.type(completedDateInput, completeddate);
-      } else {
-        completedDateInput.getNode().value = completeddate;
       }
     }
   }

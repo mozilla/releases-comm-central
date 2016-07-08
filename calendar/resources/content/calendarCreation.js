@@ -181,8 +181,8 @@ function doCreateCalendar() {
     gCalendar.name = cal_name;
     gCalendar.setProperty("color", cal_color);
     if (!gCalendar.getProperty("cache.always")) {
-        gCalendar.setProperty("cache.enabled", gCalendar.getProperty("cache.supported") !== false ?
-                                               document.getElementById("cache").checked : false);
+        gCalendar.setProperty("cache.enabled", gCalendar.getProperty("cache.supported") === false
+                                               ? false : document.getElementById("cache").checked);
     }
 
     if (!document.getElementById("fire-alarms").checked) {

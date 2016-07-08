@@ -490,10 +490,10 @@ function updateMenuLabelsPlural(aLengthFieldId, aMenuId) {
 function menuListSelectItem(menuListId, value) {
     let menuList = document.getElementById(menuListId);
     let index = menuListIndexOf(menuList, value);
-    if (index != -1) {
-        menuList.selectedIndex = index;
-    } else {
+    if (index == -1) {
         throw "menuListSelectItem: No such Element: " + value;
+    } else {
+        menuList.selectedIndex = index;
     }
 }
 

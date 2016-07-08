@@ -96,10 +96,10 @@ calAttendee.prototype = {
     get icalProperty() {
         let icssvc = cal.getIcsService();
         let icalatt;
-        if (!this.mIsOrganizer) {
-            icalatt = icssvc.createIcalProperty("ATTENDEE");
-        } else {
+        if (this.mIsOrganizer) {
             icalatt = icssvc.createIcalProperty("ORGANIZER");
+        } else {
+            icalatt = icssvc.createIcalProperty("ATTENDEE");
         }
 
         if (!this.id) {

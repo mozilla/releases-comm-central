@@ -133,23 +133,21 @@
             let iconType = "";
             let allDayDateLabel = document.getAnonymousElementByAttribute(this, "anonid", "agenda-allDayEvent-date");
             setBooleanAttribute(allDayDateLabel, "hidden", !showDate);
-            if (startDate.compare(endPreviousDay) != 0) {
-                // All day event spanning multiple days.
-                if (startDate.compare(periodStartDate) >= 0 &&
-                     startDate.compare(periodEndDate) <= 0) {
-                    iconType = "start";
-                    date = dateFormatter.formatDate(startDate);
-                } else if (endDate.compare(periodStartDate) >= 0 &&
-                           endDate.compare(periodEndDate) <= 0) {
-                    iconType = "end";
-                    date = dateFormatter.formatDate(endPreviousDay);
-                } else {
-                    iconType = "continue";
-                    hideElement(allDayDateLabel);
-                }
-            } else {
+            if (startDate.compare(endPreviousDay) == 0) {
                 // All day event one day duration.
                 date = dateFormatter.formatDate(startDate);
+            } else if (startDate.compare(periodStartDate) >= 0 &&
+                 startDate.compare(periodEndDate) <= 0) {
+                // All day event spanning multiple days.
+                iconType = "start";
+                date = dateFormatter.formatDate(startDate);
+            } else if (endDate.compare(periodStartDate) >= 0 &&
+                       endDate.compare(periodEndDate) <= 0) {
+                iconType = "end";
+                date = dateFormatter.formatDate(endPreviousDay);
+            } else {
+                iconType = "continue";
+                hideElement(allDayDateLabel);
             }
 
             let multiDayImage = document.getAnonymousElementByAttribute(this, "anonid", "agenda-multiDayEvent-image");

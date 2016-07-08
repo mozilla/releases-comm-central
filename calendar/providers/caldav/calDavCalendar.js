@@ -230,12 +230,12 @@ calDavCalendar.prototype = {
 
     // in calIGenericOperationListener aListener
     replayChangesOn: function(aChangeLogListener) {
-        if (!this.checkedServerInfo) {
+        if (this.checkedServerInfo) {
+            this.safeRefresh(aChangeLogListener);
+        } else {
             // If we haven't refreshed yet, then we should check the resource
             // type first. This will call refresh() again afterwards.
             this.setupAuthentication(aChangeLogListener);
-        } else {
-            this.safeRefresh(aChangeLogListener);
         }
     },
     setMetaData: function(id, path, etag, isInboxItem) {
@@ -1297,10 +1297,10 @@ calDavCalendar.prototype = {
                                              null,
                                              null);
             }
-        } else if (!this.checkedServerInfo) {
-            this.mQueuedQueries.push(Array.from(arguments));
-        } else {
+        } else if (this.checkedServerInfo) {
             this.mOfflineStorage.getItems(...arguments);
+        } else {
+            this.mQueuedQueries.push(Array.from(arguments));
         }
     },
 
@@ -1627,10 +1627,10 @@ calDavCalendar.prototype = {
                     },
                     set: function(val) {
                         try {
-                            if (!val) {
-                                cal.auth.passwordManagerRemove(sessionId, sessionId, pwMgrId);
-                            } else {
+                            if (val) {
                                 cal.auth.passwordManagerSave(sessionId, val, sessionId, pwMgrId);
+                            } else {
+                                cal.auth.passwordManagerRemove(sessionId, sessionId, pwMgrId);
                             }
                         } catch (e) {
                             // User might have cancelled the master password prompt, thats ok

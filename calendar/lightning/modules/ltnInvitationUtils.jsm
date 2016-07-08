@@ -406,9 +406,9 @@ ltn.invitation = {
      * @returns {String}                     the source code of the header section of the email
      */
     getHeaderSection: function(aMessageId, aIdentity, aToList, aSubject) {
-        let from = !aIdentity.fullName.length ? aIdentity.email
-                                              : cal.validateRecipientList(aIdentity.fullName +
-                                                                          " <" + aIdentity.email + ">");
+        let recipient = aIdentity.fullName + " <" + aIdentity.email + ">";
+        let from = aIdentity.fullName.length ? cal.validateRecipientList(recipient)
+                                             : aIdentity.email;
         let header = "MIME-version: 1.0\r\n" +
                      (aIdentity.replyTo ? "Return-path: " +
                                           ltn.invitation.encodeMimeHeader(aIdentity.replyTo, true) +

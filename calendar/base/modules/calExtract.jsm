@@ -753,25 +753,19 @@ Extractor.prototype = {
             return 1;
         } else if (one.year != null && two.year != null) {
             rc = (one.year > two.year) - (one.year < two.year);
-            if (rc != 0) {
-                return rc;
-            } else {
+            if (rc == 0) {
                 rc = (one.month > two.month) - (one.month < two.month);
-                if (rc != 0) {
-                    return rc;
-                } else {
+                if (rc == 0) {
                     rc = (one.day > two.day) - (one.day < two.day);
-                    return rc;
                 }
             }
+            return rc;
         } else {
             rc = (one.hour > two.hour) - (one.hour < two.hour);
-            if (rc != 0) {
-                return rc;
-            } else {
+            if (rc == 0) {
                 rc = (one.minute > two.minute) - (one.minute < two.minute);
-                return rc;
             }
+            return rc;
         }
     },
 
@@ -938,7 +932,7 @@ Extractor.prototype = {
 
                 if (duration != 0) {
                     let startDate = new Date(start.year, start.month - 1, start.day);
-                    if (start.hour != null) {
+                    if (start.hour) {
                         startDate.setHours(start.hour);
                         startDate.setMinutes(start.minute);
                     } else {

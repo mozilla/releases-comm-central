@@ -124,12 +124,7 @@
           // should be based on the organizer contained in the appropriate field of calIItemBase.
           // This is currently not supported, since we're still missing calendar identities.
           if (organizerID && organizerID != "") {
-              if (!organizer) {
-                  organizer = this.createAttendee();
-                  organizer.id = organizerID;
-                  organizer.role = "CHAIR";
-                  organizer.participationStatus = "ACCEPTED";
-              } else {
+              if (organizer) {
                   if (!organizer.id) {
                       organizer.id = organizerID;
                   }
@@ -139,6 +134,11 @@
                   if (!organizer.participationStatus) {
                       organizer.participationStatus = "ACCEPTED";
                   }
+              } else {
+                  organizer = this.createAttendee();
+                  organizer.id = organizerID;
+                  organizer.role = "CHAIR";
+                  organizer.participationStatus = "ACCEPTED";
               }
               if (!organizer.commonName || !organizer.commonName.length) {
                   organizer.commonName = calendar.getProperty("organizerCN");
@@ -1568,11 +1568,10 @@
             let delta = event.screenX - this.mSelectionbar.boxObject.screenX;
             let newStart = this.moveTime(this.mStartDate, delta, true);
             if (newStart.compare(this.mEndDate) >= 0) {
-                if (!this.mStartDate.isDate) {
-                    newStart = this.mEndDate;
-                } else {
+                if (this.mStartDate.isDate) {
                     return;
                 }
+                newStart = this.mEndDate;
             }
             if (newStart.compare(this.mStartDate) != 0) {
                 this.startDate = newStart;

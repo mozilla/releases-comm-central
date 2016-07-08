@@ -796,7 +796,7 @@ function guessSystemTimezone() {
                 warningDetail = calProperties.GetStringFromName("TZSeemsToMatchOS");
             }
             let offsetString = standardTZOffset +
-                                 (!daylightTZOffset ? "" : "/" + daylightTZOffset);
+                                 (daylightTZOffset ? "/" + daylightTZOffset : "");
             let warningMsg = calProperties.formatStringFromName("WarningUsingGuessedTZ",
                               [tzId, offsetString, warningDetail, probableTZSource], 4);
             cal.WARN(warningMsg);

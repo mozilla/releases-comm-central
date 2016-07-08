@@ -284,13 +284,13 @@ parserState.prototype = {
 
                 if (item) {
                     let rid = item.recurrenceId;
-                    if (!rid) {
+                    if (rid) {
+                        self.excItems.push(item);
+                    } else {
                         self.items.push(item);
                         if (item.recurrenceInfo) {
                             self.uid2parent[item.id] = item;
                         }
-                    } else {
-                        self.excItems.push(item);
                     }
                 }
                 self.threadCount--;

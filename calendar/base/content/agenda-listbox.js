@@ -311,10 +311,7 @@ agendaListbox.addItem = function(aItem) {
         } else {
             do {
                 complistItem = complistItem.nextSibling;
-                if (!this.isEventListItem(complistItem)) {
-                    newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
-                    break;
-                } else {
+                if (this.isEventListItem(complistItem)) {
                     let compitem = complistItem.occurrence;
                     if (this.isSameEvent(aItem, compitem)) {
                         // The same event occurs on several calendars but we only
@@ -330,6 +327,9 @@ agendaListbox.addItem = function(aItem) {
                             break;
                         }
                     }
+                } else {
+                    newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
+                    break;
                 }
             } while (complistItem);
         }
@@ -767,10 +767,10 @@ agendaListbox.showsToday = function(aStartDate) {
  * which case the selection moves up.
  */
 agendaListbox.moveSelection = function() {
-    if (!this.isEventListItem(this.agendaListboxControl.selectedItem.nextSibling)) {
-        this.agendaListboxControl.goUp();
-    } else {
+    if (this.isEventListItem(this.agendaListboxControl.selectedItem.nextSibling)) {
         this.agendaListboxControl.goDown();
+    } else {
+        this.agendaListboxControl.goUp();
     }
 };
 
@@ -822,10 +822,10 @@ agendaListbox.removeListItems = function() {
                 leaveloop = true;
             }
             if (this.isEventListItem(listItem)) {
-                if (listItem != this.agendaListboxControl.firstChild) {
-                    listItem.remove();
-                } else {
+                if (listItem == this.agendaListboxControl.firstChild) {
                     leaveloop = true;
+                } else {
+                    listItem.remove();
                 }
             }
             listItem = newlistItem;
@@ -1083,7 +1083,9 @@ function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
         }
     };
 
-    if (!gEventTimer) {
+    if (gEventTimer) {
+        gEventTimer.cancel();
+    } else {
         // Observer for wake after sleep/hibernate/standby to create new timers and refresh UI
         let wakeObserver = {
            observe: function(aSubject, aTopic, aData) {
@@ -1102,8 +1104,6 @@ function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
 
         gEventTimer = Components.classes["@mozilla.org/timer;1"]
                                    .createInstance(Components.interfaces.nsITimer);
-    } else {
-        gEventTimer.cancel();
     }
     gEventTimer.initWithCallback(udCallback, aMsUntil, gEventTimer.TYPE_ONE_SHOT);
 }

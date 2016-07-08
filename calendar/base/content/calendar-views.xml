@@ -39,12 +39,12 @@
             <method name="moveView">
                 <parameter name="aNumber"/>
                 <body><![CDATA[
-                    if (!aNumber) {
-                        this.goToDay(now());
-                    } else {
+                    if (aNumber) {
                         let currentDay = this.startDay.clone();
                         currentDay.day += aNumber;
                         this.goToDay(currentDay);
+                    } else {
+                        this.goToDay(now());
                     }
                 ]]></body>
             </method>
@@ -104,12 +104,12 @@
             <method name="moveView">
                 <parameter name="aNumber"/>
                 <body><![CDATA[
-                    if (!aNumber) {
-                        this.goToDay(now());
-                    } else {
+                    if (aNumber) {
                         let d1 = this.selectedDay.clone();
                         d1.day += 7 * aNumber;
                         this.goToDay(d1);
+                    } else {
+                        this.goToDay(now());
                     }
                 ]]></body>
             </method>
@@ -200,11 +200,7 @@
             <method name="moveView">
                 <parameter name="aNumber"/>
                 <body><![CDATA[
-                    if (!aNumber) {
-                        let date = now();
-                        this.goToDay(date);
-                        this.selectedDay = date;
-                    } else {
+                    if (aNumber) {
                         let d1 = this.startDay.clone();
                         let savedSelectedDay = this.selectedDay.clone();
                         // aNumber only corresponds to the number of weeks to move
@@ -213,6 +209,10 @@
                         this.goToDay(d1);
                         savedSelectedDay.day += 7 * aNumber;
                         this.selectedDay = savedSelectedDay;
+                    } else {
+                        let date = now();
+                        this.goToDay(date);
+                        this.selectedDay = date;
                     }
                 ]]></body>
             </method>
@@ -253,11 +253,7 @@
                     let dates = this.getDateList({});
                     this.displayDaysOff = !this.mWorkdaysOnly;
 
-                    if (!aNumber) {
-                        let date = now();
-                        this.goToDay(date);
-                        this.selectedDay = date;
-                    } else {
+                    if (aNumber) {
                         // The first few dates in this list are likely in the month
                         // prior to the one actually being shown (since the month
                         // probably doesn't start on a Sunday).  The 7th item must
@@ -281,6 +277,10 @@
                         }
 
                         this.selectedDay = newSelectedDay;
+                    } else {
+                        let date = now();
+                        this.goToDay(date);
+                        this.selectedDay = date;
                     }
                 ]]></body>
             </method>

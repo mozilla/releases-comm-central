@@ -145,14 +145,14 @@ var calendarViewController = {
             // deleted by saving the recurring items and removing occurrences as
             // they come in. If this is not an occurrence, we can go ahead and
             // delete the whole item.
-            if (itemToDelete.parentItem.hashId != itemToDelete.hashId) {
+            if (itemToDelete.parentItem.hashId == itemToDelete.hashId) {
+                doTransaction("delete", itemToDelete, itemToDelete.calendar, null, null);
+            } else {
                 let savedItem = getSavedItem(itemToDelete);
                 savedItem.newItem.recurrenceInfo
                          .removeOccurrenceAt(itemToDelete.recurrenceId);
                 // Dont start the transaction yet. Do so later, in case the
                 // parent item gets modified more than once.
-            } else {
-                doTransaction("delete", itemToDelete, itemToDelete.calendar, null, null);
             }
         }
 
@@ -314,7 +314,9 @@ function scheduleMidnightUpdate(aRefreshCallback) {
         }
     };
 
-    if (!gMidnightTimer) {
+    if (gMidnightTimer) {
+        gMidnightTimer.cancel();
+    } else {
         // Observer for wake after sleep/hibernate/standby to create new timers and refresh UI
         let wakeObserver = {
            observe: function(aSubject, aTopic, aData) {
@@ -341,8 +343,6 @@ function scheduleMidnightUpdate(aRefreshCallback) {
         }, false);
         gMidnightTimer = Components.classes["@mozilla.org/timer;1"]
                                    .createInstance(Components.interfaces.nsITimer);
-    } else {
-        gMidnightTimer.cancel();
     }
     gMidnightTimer.initWithCallback(udCallback, msUntilTomorrow, gMidnightTimer.TYPE_ONE_SHOT);
 }
@@ -413,13 +413,13 @@ var categoryManagement = {
           let category = categories[i];
           if (category.search(/[^_0-9a-z-]/) != -1) {
               let categoryFix = formatStringForCSSRule(category);
-              if (!categoryPrefBranch.prefHasUserValue(categoryFix)) {
+              if (categoryPrefBranch.prefHasUserValue(categoryFix)) {
+                  categories.splice(i, 1); // remove illegal name
+              } else {
                   let color = categoryPrefBranch.getCharPref(category);
                   categoryPrefBranch.setCharPref(categoryFix, color);
                   categoryPrefBranch.clearUserPref(category); // not usable
                   categories[i] = categoryFix;  // replace illegal name
-              } else {
-                  categories.splice(i, 1); // remove illegal name
               }
           }
       }

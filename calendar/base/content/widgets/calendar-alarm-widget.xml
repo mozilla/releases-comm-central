@@ -123,11 +123,7 @@
           let relativeDateLabel = document.getAnonymousElementByAttribute(this, "anonid", "alarm-relative-date-label");
           let relativeDateString;
           let startDate = item[calGetStartDateProp(item)] || item[calGetEndDateProp(item)];
-          if (!startDate) {
-              // No start or end date, therefore the alarm must be absolute and
-              // have an alarm date.
-              relativeDateString = [formatter.formatDateTime(this.mAlarm.alarmDate)];
-          } else {
+          if (startDate) {
               startDate = startDate.getInTimezone(calendarDefaultTimezone());
               let currentDate = now();
               let sinceDayStart = (currentDate.hour * 3600) + (currentDate.minute * 60);
@@ -157,6 +153,10 @@
                   // The alarm is way back
                   relativeDateString = [formatter.formatDateTime(startDate)];
               }
+          } else {
+              // No start or end date, therefore the alarm must be absolute and
+              // have an alarm date.
+              relativeDateString = [formatter.formatDateTime(this.mAlarm.alarmDate)];
           }
 
           relativeDateLabel.textContent = relativeDateString;

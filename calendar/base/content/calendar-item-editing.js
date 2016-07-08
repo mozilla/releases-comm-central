@@ -82,13 +82,13 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
             }
         } else {
             aItem.endDate = aItem.startDate.clone();
-            if (!aForceAllday) {
+            if (aForceAllday) {
+                // All day events need to go to the beginning of the next day.
+                aItem.endDate.day++;
+            } else {
                 // If the event is not all day, then add the default event
                 // length.
                 aItem.endDate.minute += Preferences.get("calendar.event.defaultlength", 60);
-            } else {
-                // All day events need to go to the beginning of the next day.
-                aItem.endDate.day++;
             }
         }
 

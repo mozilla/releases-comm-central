@@ -135,7 +135,16 @@ etagsHandler.prototype = {
 
         // Avoid sending empty multiget requests update views if something has
         // been deleted server-side.
-        if (!this.itemsNeedFetching.length) {
+        if (this.itemsNeedFetching.length) {
+            let multiget = new multigetSyncHandler(this.itemsNeedFetching,
+                                       this.calendar,
+                                       this.baseUri,
+                                       null,
+                                       false,
+                                       null,
+                                       this.changeLogListener);
+            multiget.doMultiGet();
+        } else {
             if (this.calendar.isCached && this.changeLogListener) {
                 this.changeLogListener.onResult({ status: Components.results.NS_OK },
                                                 Components.results.NS_OK);
@@ -150,15 +159,6 @@ etagsHandler.prototype = {
                 !this.calendar.isInbox(this.baseUri.spec)) {
                 this.calendar.pollInbox();
             }
-        } else {
-            let multiget = new multigetSyncHandler(this.itemsNeedFetching,
-                                       this.calendar,
-                                       this.baseUri,
-                                       null,
-                                       false,
-                                       null,
-                                       this.changeLogListener);
-            multiget.doMultiGet();
         }
     }),
 
@@ -478,15 +478,7 @@ webDavSyncHandler.prototype = {
             this.calendar.superCalendar.endBatch();
         }
 
-        if (!this.itemsNeedFetching.length) {
-            if (this.newSyncToken) {
-                this.calendar.mWebdavSyncToken = this.newSyncToken;
-                this.calendar.saveCalendarProperties();
-                cal.LOG("CalDAV: New webdav-sync Token: " + this.calendar.mWebdavSyncToken);
-            }
-            this.calendar.finalizeUpdatedItems(this.changeLogListener,
-                                               this.baseUri);
-        } else {
+        if (this.itemsNeedFetching.length) {
             let multiget = new multigetSyncHandler(this.itemsNeedFetching,
                                                    this.calendar,
                                                    this.baseUri,
@@ -495,6 +487,14 @@ webDavSyncHandler.prototype = {
                                                    null,
                                                    this.changeLogListener);
             multiget.doMultiGet();
+        } else {
+            if (this.newSyncToken) {
+                this.calendar.mWebdavSyncToken = this.newSyncToken;
+                this.calendar.saveCalendarProperties();
+                cal.LOG("CalDAV: New webdav-sync Token: " + this.calendar.mWebdavSyncToken);
+            }
+            this.calendar.finalizeUpdatedItems(this.changeLogListener,
+                                               this.baseUri);
         }
     },
 

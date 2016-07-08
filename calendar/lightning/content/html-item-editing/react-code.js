@@ -368,14 +368,14 @@ var TopComponent = React.createClass({
                 options: this.props.repeatList,
                 onInput: this.handleSimpleChange
             }),
-            (this.state.repeat != "none" ? " Until " : null),
-            (this.state.repeat!= "none" ?
-                React.createElement(TextField, {
+            (this.state.repeat == "none" ? null : " Until "),
+            (this.state.repeat == "none"
+                ? null
+                : React.createElement(TextField, {
                     keyprop: "repeatUntilDate",
                     value: this.state.repeatUntilDate,
                     onInput: this.handleSimpleChange
-                })
-                : null)
+                }))
         );
         let calendarDiv = React.DOM.div(
             { id: "calendarDiv", className: "box" },

@@ -313,7 +313,7 @@ function updateTimezone() {
 
         let tzStart = document.getElementById("timezone-starttime");
         let tzEnd = document.getElementById("timezone-endtime");
-        if (startTimezone != null) {
+        if (startTimezone) {
             tzStart.removeAttribute("collapsed");
             tzStart.value = startTimezone.displayName || startTimezone.tzid;
         } else {

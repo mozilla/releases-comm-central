@@ -310,7 +310,7 @@ function unifinderDoubleClick(event) {
     // find event by id
     let calendarEvent = unifinderTreeView.getItemFromEvent(event);
 
-    if (calendarEvent != null) {
+    if (calendarEvent) {
         modifyEventWithDialog(calendarEvent, null, true);
     } else {
         createEventWithDialog();

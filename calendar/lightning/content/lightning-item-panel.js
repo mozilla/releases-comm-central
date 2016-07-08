@@ -527,10 +527,10 @@ function updatePrivacy(aArg) {
         }
 
         // Don't show the status panel if no valid privacy value is selected
-        if (!hasAnyPrivacyValue) {
-            privacyPanel.setAttribute("collapsed", "true");
-        } else {
+        if (hasAnyPrivacyValue) {
             privacyPanel.removeAttribute("collapsed");
+        } else {
+            privacyPanel.setAttribute("collapsed", "true");
         }
     } else {
         // aArg.hasPrivacy is false

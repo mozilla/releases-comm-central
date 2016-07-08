@@ -95,16 +95,14 @@ calWcapRequest.prototype = {
 
     attachSubRequest: function(req) {
         if (req) {
-            if (!this.m_attachedRequests.some(req_ => req.id == req_.id)) {
-                if (req.isPending) {
-                    this.m_attachedRequests.push(req);
-                    req.parentRequest = this;
-                    log("attachSubRequest()", this);
-                } else if (!this.m_locked && this.m_attachedRequests.length == 0) {
-                    this.execRespFunc(req.status);
-                }
-            } else {
+            if (this.m_attachedRequests.some(req_ => req.id == req_.id)) {
                 logError("request already attached: " + req.id, this);
+            } else if (req.isPending) {
+                this.m_attachedRequests.push(req);
+                req.parentRequest = this;
+                log("attachSubRequest()", this);
+            } else if (!this.m_locked && this.m_attachedRequests.length == 0) {
+                this.execRespFunc(req.status);
             }
         }
     },

@@ -73,13 +73,13 @@ var taskEdit = {
             taskEdit.setupTaskField(edit,
                                     true,
                                     calGetString("calendar", "taskEditInstructionsCapability"));
-        } else if (!isCalendarWritable(calendar)) {
+        } else if (isCalendarWritable(calendar)) {
+            edit.showsInstructions = false;
+            taskEdit.setupTaskField(edit, false, edit.savedValue || "");
+        } else {
             taskEdit.setupTaskField(edit,
                                     true,
                                     calGetString("calendar", "taskEditInstructionsReadonly"));
-        } else {
-            edit.showsInstructions = false;
-            taskEdit.setupTaskField(edit, false, edit.savedValue || "");
         }
     },
 
@@ -107,17 +107,17 @@ var taskEdit = {
             taskEdit.setupTaskField(edit,
                                     true,
                                     calGetString("calendar", "taskEditInstructionsCapability"));
-        } else if (!isCalendarWritable(calendar)) {
-            taskEdit.setupTaskField(edit,
-                                    true,
-                                    calGetString("calendar", "taskEditInstructionsReadonly"));
-        } else {
+        } else if (isCalendarWritable(calendar)) {
             if (!edit.showsInstructions) {
                 edit.savedValue = edit.value || "";
             }
             taskEdit.setupTaskField(edit,
                                     false,
                                     calGetString("calendar", "taskEditInstructions"));
+        } else {
+            taskEdit.setupTaskField(edit,
+                                    true,
+                                    calGetString("calendar", "taskEditInstructionsReadonly"));
         }
         edit.showsInstructions = true;
     },

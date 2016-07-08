@@ -75,9 +75,7 @@ calItipEmailTransport.prototype = {
                     "calendar.itip.useInvitationSubjectPrefixes",
                     true
                 );
-                if (!usePrefixes) {
-                    subject = summary;
-                } else {
+                if (usePrefixes) {
                     let seq = item.getProperty("SEQUENCE");
                     let subjectKey = seq && seq > 0
                         ? "itipRequestUpdatedSubject"
@@ -88,6 +86,8 @@ calItipEmailTransport.prototype = {
                         [summary],
                         "lightning"
                     );
+                } else {
+                    subject = summary;
                 }
                 body = cal.calGetString(
                     "lightning",
@@ -273,9 +273,8 @@ calItipEmailTransport.prototype = {
                                                   .createInstance(Components.interfaces.nsIMsgCompFields);
                     composeFields.characterSet = "UTF-8";
                     composeFields.to = toList;
-                    let mailfrom = (!identity.fullName.length) ? identity.email : identity.fullName + " <" + identity.email + ">";
-                    composeFields.from = (cal.validateRecipientList(mailfrom) == mailfrom)
-                                         ? mailfrom : identity.email;
+                    let mailfrom = (identity.fullName.length ? identity.fullName + " <" + identity.email + ">" : identity.email);
+                    composeFields.from = (cal.validateRecipientList(mailfrom) == mailfrom ? mailfrom : identity.email);
                     composeFields.replyTo = identity.replyTo;
                     composeFields.organization = identity.organization;
                     composeFields.messageId = messageId;

@@ -327,7 +327,9 @@ function exportEntireCalendar(aCalendar) {
                       0, null, null, getListener);
     };
 
-    if (!aCalendar) {
+    if (aCalendar) {
+        getItemsFromCal(aCalendar);
+    } else {
         let count = {};
         let calendars = getCalendarManager().getCalendars(count);
 
@@ -343,7 +345,5 @@ function exportEntireCalendar(aCalendar) {
             openDialog("chrome://calendar/content/chooseCalendarDialog.xul",
                        "_blank", "chrome,titlebar,modal,resizable", args);
         }
-    } else {
-        getItemsFromCal(aCalendar);
     }
 }

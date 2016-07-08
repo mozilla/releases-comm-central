@@ -166,15 +166,15 @@ calAlarmService.prototype = {
         alarmTime = alarmTime.clone();
         alarmTime.addDuration(aDuration);
 
-        if (aItem.parentItem != aItem) {
+        if (aItem.parentItem == aItem) {
+            newEvent.setProperty("X-MOZ-SNOOZE-TIME", alarmTime.icalString);
+        } else {
             // This is the *really* hard case where we've snoozed a single
             // instance of a recurring event.  We need to not only know that
             // there was a snooze, but also which occurrence was snoozed.  Part
             // of me just wants to create a local db of snoozes here...
             newEvent.setProperty("X-MOZ-SNOOZE-TIME-" + aItem.recurrenceId.nativeTime,
                                  alarmTime.icalString);
-        } else {
-            newEvent.setProperty("X-MOZ-SNOOZE-TIME", alarmTime.icalString);
         }
         // calling modifyItem will cause us to get the right callback
         // and update the alarm properly
@@ -233,7 +233,10 @@ calAlarmService.prototype = {
             notify: function() {
                 let now = nowUTC();
                 let start;
-                if (!this.alarmService.mRangeEnd) {
+                if (this.alarmService.mRangeEnd) {
+                    // This is a subsequent search, so we got all the past alarms before
+                    start = this.alarmService.mRangeEnd.clone();
+                } else {
                     // This is our first search for alarms.  We're going to look for
                     // alarms +/- 1 month from now.  If someone sets an alarm more than
                     // a month ahead of an event, or doesn't start Lightning
@@ -241,9 +244,6 @@ calAlarmService.prototype = {
                     start = now.clone();
                     start.month -= Components.interfaces.calIAlarmService.MAX_SNOOZE_MONTHS;
                     this.alarmService.mRangeStart = start.clone();
-                } else {
-                    // This is a subsequent search, so we got all the past alarms before
-                    start = this.alarmService.mRangeEnd.clone();
                 }
                 let until = now.clone();
                 until.month += Components.interfaces.calIAlarmService.MAX_SNOOZE_MONTHS;
@@ -334,10 +334,10 @@ calAlarmService.prototype = {
 
             // Check for snooze
             let snoozeDate;
-            if (aItem.parentItem != aItem) {
-                snoozeDate = aItem.parentItem.getProperty("X-MOZ-SNOOZE-TIME-" + aItem.recurrenceId.nativeTime);
-            } else {
+            if (aItem.parentItem == aItem) {
                 snoozeDate = aItem.getProperty("X-MOZ-SNOOZE-TIME");
+            } else {
+                snoozeDate = aItem.parentItem.getProperty("X-MOZ-SNOOZE-TIME-" + aItem.recurrenceId.nativeTime);
             }
 
             if (snoozeDate && !(snoozeDate instanceof Components.interfaces.calIDateTime)) {

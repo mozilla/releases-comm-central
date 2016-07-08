@@ -1094,13 +1094,13 @@
             }
           }
 
-          if (!aStop) {
+          if (aStop) {
+            // We are done flashing, prevent newly created event boxes from flashing.
+            delete this.mFlashingEvents[aAlarmItem.hashId];
+          } else {
             // Set up a timer to stop the flashing after the total time.
             this.mFlashingEvents[aAlarmItem.hashId] = aAlarmItem;
             setTimeout(() => this.flashAlarm(aAlarmItem, true), totaltime);
-          } else {
-            // We are done flashing, prevent newly created event boxes from flashing.
-            delete this.mFlashingEvents[aAlarmItem.hashId];
           }
         ]]></body>
       </method>

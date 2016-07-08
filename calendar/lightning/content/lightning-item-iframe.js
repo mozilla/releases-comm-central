@@ -1427,7 +1427,7 @@ function saveDialog(item) {
         if (status != "COMPLETED") {
             item.completedDate = null;
         }
-        setItemProperty(item, "STATUS", (status != "NONE") ? status : null);
+        setItemProperty(item, "STATUS", status == "NONE" ? null : status);
     }
 
     // set the "PRIORITY" property if a valid priority has been
@@ -2078,7 +2078,7 @@ function lastDirectory(aFileUri) {
     }
 
     // In any case, return the value
-    return (lastDirectory.mValue !== undefined ? lastDirectory.mValue : null);
+    return (lastDirectory.mValue === undefined ? null : lastDirectory.mValue);
 }
 
 /**
@@ -2665,8 +2665,8 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
             if (aItemRepeatCall && repeatDeck.selectedIndex == 1) {
                 if (!rule.isByCount || !rule.isFinite) {
                     setElementValue("repeat-until-datepicker",
-                                    !rule.isByCount ? cal.dateTimeToJsDate(rule.untilDate.getInTimezone(cal.floating()))
-                                                    : "forever");
+                                    rule.isByCount ? "forever"
+                                                   : cal.dateTimeToJsDate(rule.untilDate.getInTimezone(cal.floating())));
                 } else {
                     // Try to recover the last occurrence in 10(?) years.
                     let endDate = gStartTime.clone();
@@ -3532,10 +3532,7 @@ function updateAttendees() {
     // sending email invitations currently only supported for events
     let attendeeTab = document.getElementById("event-grid-tab-attendees");
     let attendeePanel = document.getElementById("event-grid-tabpanel-attendees");
-    if (!isEvent(window.calendarItem)) {
-        attendeeTab.setAttribute("collapsed", "true");
-        attendeePanel.setAttribute("collapsed", "true");
-    } else {
+    if (isEvent(window.calendarItem)) {
         attendeeTab.removeAttribute("collapsed");
         attendeePanel.removeAttribute("collapsed");
 
@@ -3569,6 +3566,9 @@ function updateAttendees() {
             setBooleanAttribute("item-organizer-row", "collapsed", true);
         }
         setupAttendees();
+    } else {
+        attendeeTab.setAttribute("collapsed", "true");
+        attendeePanel.setAttribute("collapsed", "true");
     }
 }
 

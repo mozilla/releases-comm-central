@@ -429,6 +429,9 @@
     // Quoting style for property names
     "quote-props": ["error", "consistent-as-needed", { "keywords": true }],
 
+    // Disallow negated conditions
+    "no-negated-condition": 2,
+
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.
     "no-else-return": 0,

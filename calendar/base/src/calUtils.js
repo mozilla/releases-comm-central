@@ -179,13 +179,13 @@ function getRecentTimezones(aConvertZones) {
         let oldZonesLength = recentTimezones.length;
         for (let i = 0; i < recentTimezones.length; i++) {
             let tz = tzService.getTimezone(recentTimezones[i]);
-            if (!tz) {
+            if (tz) {
+                // Replace id with found timezone
+                recentTimezones[i] = tz;
+            } else {
                 // Looks like the timezone doesn't longer exist, remove it
                 recentTimezones.splice(i, 1);
                 i--;
-            } else {
-                // Replace id with found timezone
-                recentTimezones[i] = tz;
             }
         }
 

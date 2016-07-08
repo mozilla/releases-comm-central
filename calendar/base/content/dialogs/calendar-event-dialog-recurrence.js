@@ -228,9 +228,7 @@ function initializeControls(rule) {
         }
     } else {
         let untilDate = rule.untilDate;
-        if (!untilDate) {
-            setElementValue("recurrence-duration", "forever");
-        } else {
+        if (untilDate) {
             gUntilDate = untilDate.getInTimezone(gStartTime.timezone); // calIRecurrenceRule::untilDate is always UTC or floating
             // Change the until date to start date if the rule has a forbidden
             // value (earlier than the start date).
@@ -240,6 +238,8 @@ function initializeControls(rule) {
             let repeatDate = cal.dateTimeToJsDate(gUntilDate.getInTimezone(cal.floating()));
             setElementValue("recurrence-duration", "until");
             setElementValue("repeat-until-date", repeatDate);
+        } else {
+            setElementValue("recurrence-duration", "forever");
         }
     }
 }

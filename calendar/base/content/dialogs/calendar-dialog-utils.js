@@ -204,16 +204,16 @@ function updateReminderDetails() {
     } else {
         hideElement(reminderMultipleLabel);
         hideElement(reminderSingleLabel);
-        if (reminderList.value != "none") {
-            // This is one of the predefined dropdown items. We should show a single
-            // icon in the icons box to tell the user what kind of alarm this will
-            // be.
+        if (reminderList.value == "none") {
+            // No reminder selected means show no icons.
+            removeChildren(iconBox);
+        } else {
+            // This is one of the predefined dropdown items. We should show a
+            // single icon in the icons box to tell the user what kind of alarm
+            // this will be.
             let mockAlarm = cal.createAlarm();
             mockAlarm.action = getDefaultAlarmType();
             cal.alarms.addReminderImages(iconBox, [mockAlarm]);
-        } else {
-            // No reminder selected means show no icons.
-            removeChildren(iconBox);
         }
     }
 }

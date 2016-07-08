@@ -416,10 +416,10 @@ calCompositeCalendar.prototype = {
     },
 
     get statusDisplayed() {
-        if (!this.mStatusObserver) {
-            return false;
-        } else {
+        if (this.mStatusObserver) {
             return this.mStatusObserver.spinning != Components.interfaces.calIStatusObserver.NO_PROGRESS;
+        } else {
+            return false;
         }
     },
 

@@ -1792,7 +1792,7 @@
             let probeDate = new Date(2002, 2, 4); // month is 0-based
             let probeString = this.formatDate(probeDate);
             let probeArray = this.parseShortDateRegex.exec(probeString);
-            if (probeArray != null) {
+            if (probeArray) {
               // Numeric month format
               for (let i = 1; i <= 3; i++) {
                 switch (Number(probeArray[i])) {
@@ -1832,7 +1832,7 @@
                     probeDate.setMonth(m);
                     probeString = this.formatDate(probeDate);
                     probeArray = this.parseShortDateRegex.exec(probeString);
-                    if (probeArray != null) {
+                    if (probeArray) {
                       this.alphaMonths[m] = probeArray[this.monthIndex].toUpperCase();
                     } else {
                       this.probeSucceeded = false;
@@ -1888,9 +1888,7 @@
                     amProbeArray[PRE_INDEX] != pmProbeArray[PRE_INDEX]) {
                   this.ampmIndex = PRE_INDEX;
                 } else if (amProbeArray[POST_INDEX] && pmProbeArray[POST_INDEX]) {
-                  if (amProbeArray[POST_INDEX] != pmProbeArray[POST_INDEX]) {
-                    this.ampmIndex = POST_INDEX;
-                  } else {
+                  if (amProbeArray[POST_INDEX] == pmProbeArray[POST_INDEX]) {
                     // check if need to append previous character,
                     // captured by the optional separator pattern after seconds digits,
                     // or after minutes if no seconds, or after hours if no minutes.
@@ -1909,6 +1907,8 @@
                         break;
                       }
                     }
+                  } else {
+                    this.ampmIndex = POST_INDEX;
                   }
                 }
                 if (this.ampmIndex) {

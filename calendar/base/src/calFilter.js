@@ -683,11 +683,11 @@ calFilter.prototype = {
             this.mFilterProperties = new calFilterProperties();
         }
 
-        if (!this.mFilterProperties) {
-            cal.WARN("[calFilter] Unable to apply filter " + aFilter);
-        } else {
+        if (this.mFilterProperties) {
             this.updateFilterDates();
             // this.mFilterProperties.LOG("Applying filter:");
+        } else {
+            cal.WARN("[calFilter] Unable to apply filter " + aFilter);
         }
     },
 

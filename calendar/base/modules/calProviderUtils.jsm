@@ -234,28 +234,7 @@ cal.getImipTransport = function(aCalendar) {
 cal.getEmailIdentityOfCalendar = function(aCalendar, outAccount) {
     cal.ASSERT(aCalendar, "no calendar!", Components.results.NS_ERROR_INVALID_ARG);
     let key = aCalendar.getProperty("imip.identity.key");
-    if (key !== null) {
-        if (key.length == 0) { // i.e. "None"
-            return null;
-        }
-        let identity = null;
-        cal.calIterateEmailIdentities((identity_, account) => {
-            if (identity_.key == key) {
-                identity = identity_;
-                if (outAccount) {
-                    outAccount.value = account;
-                }
-            }
-            return (identity_.key != key);
-        });
-
-        if (!identity) {
-            // dangling identity:
-            cal.WARN("Calendar " + (aCalendar.uri ? aCalendar.uri.spec : aCalendar.id) +
-                     " has a dangling E-Mail identity configured.");
-        }
-        return identity;
-    } else { // take default account/identity:
+    if (key === null) { // take default account/identity:
         let findIdentity = function(account) {
             if (account && account.identities.length) {
                 return account.defaultIdentity ||
@@ -290,6 +269,27 @@ cal.getEmailIdentityOfCalendar = function(aCalendar, outAccount) {
             outAccount.value = foundIdentity ? foundAccount : null;
         }
         return foundIdentity;
+    } else {
+        if (key.length == 0) { // i.e. "None"
+            return null;
+        }
+        let identity = null;
+        cal.calIterateEmailIdentities((identity_, account) => {
+            if (identity_.key == key) {
+                identity = identity_;
+                if (outAccount) {
+                    outAccount.value = account;
+                }
+            }
+            return (identity_.key != key);
+        });
+
+        if (!identity) {
+            // dangling identity:
+            cal.WARN("Calendar " + (aCalendar.uri ? aCalendar.uri.spec : aCalendar.id) +
+                     " has a dangling E-Mail identity configured.");
+        }
+        return identity;
     }
 };
 
