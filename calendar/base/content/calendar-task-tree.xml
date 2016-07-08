@@ -425,10 +425,10 @@
               }
 
               // remove the old items working backward from the end so the indexes stay valid
-              remIndexes.sort(function(a, b) {return b - a;}).forEach(function(index) {
+              remIndexes.sort((a, b) => b - a).forEach((index) => {
                   this.binding.mTaskArray.splice(index, 1);
                   this.treebox.rowCountChanged(index, -1);
-              }, this);
+              });
 
               // add the new items
               for (let item of addItems.mArray) {
@@ -1105,7 +1105,7 @@
 
             let focused = (document.activeElement == tree) || menuOpen;
 
-            calendarController.onSelectionChanged({detail: (focused ? this.selectedTasks : [])});
+            calendarController.onSelectionChanged({ detail: (focused ? this.selectedTasks : []) });
             calendarController.todo_tasktree_focused = focused;
         ]]></body>
       </method>
@@ -1116,7 +1116,7 @@
       <handler event="select"><![CDATA[
         this.mTreeView.onSelect(event);
         if (calendarController.todo_tasktree_focused) {
-          calendarController.onSelectionChanged({detail: this.selectedTasks});
+          calendarController.onSelectionChanged({ detail: this.selectedTasks });
         }
       ]]></handler>
       <handler event="focus"><![CDATA[

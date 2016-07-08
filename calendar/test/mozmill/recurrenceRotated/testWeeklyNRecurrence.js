@@ -31,7 +31,7 @@ var testWeeklyNRecurrence = function() {
   // create weekly recurring event
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
     calUtils.getEventBoxPath(controller, "day", calUtils.CANVAS_BOX, undefined, 1, hour)), 1, 1);
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
+  controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   let md = new modalDialog.modalDialog(event.window);
@@ -126,7 +126,7 @@ function setRecurrence(recurrence){
     + 'id("recurrence-duration")/id("recurrence-range-count-box")/id("repeat-ntimes-count")/'
     + 'anon({"class":"textbox-input-box numberbox-input-box"})/anon({"anonid":"input"})';
   // replace previous number
-  recurrence.keypress(new elementslib.Lookup(recurrence.window.document, input), "a", {ctrlKey: true});
+  recurrence.keypress(new elementslib.Lookup(recurrence.window.document, input), "a", { ctrlKey: true });
   recurrence.type(new elementslib.Lookup(recurrence.window.document, input), "4");
 
   // close dialog

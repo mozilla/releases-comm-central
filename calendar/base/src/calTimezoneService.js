@@ -159,7 +159,7 @@ calTimezoneService.prototype = {
                 utc.mUTC = true;
             }
 
-            this.mZones.set("UTC", {zone: utc});
+            this.mZones.set("UTC", { zone: utc });
         }
 
         return this.mZones.get("UTC").zone;
@@ -174,7 +174,7 @@ calTimezoneService.prototype = {
                 floating = new calLibicalTimezone("floating", null, "", "");
                 floating.isFloating = true;
             }
-            this.mZones.set("floating", {zone: floating});
+            this.mZones.set("floating", { zone: floating });
         }
 
         return this.mZones.get("floating").zone;

@@ -268,7 +268,7 @@ calDavCalendar.prototype = {
                         self.mItemInfoCache[item.id] = { etag: null,
                                                          isNew: false,
                                                          locationPath: path,
-                                                         isInboxItem: false};
+                                                         isInboxItem: false };
                         self.mHrefIndex[self.mLocationPath + path] = item.id;
                         refreshNeeded = true;
                     }
@@ -323,7 +323,7 @@ calDavCalendar.prototype = {
                     let item = { etag: etag,
                                  isNew: false,
                                  locationPath: locationPath,
-                                 isInboxItem: (isInboxItem == "true")};
+                                 isInboxItem: (isInboxItem == "true") };
                     this.mItemInfoCache[itemId] = item;
                 }
             }

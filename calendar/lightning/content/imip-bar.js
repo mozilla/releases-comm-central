@@ -230,8 +230,8 @@ var ltnImipBar = {
             if (ltnImipBar.foundItems && ltnImipBar.foundItems[0]) {
                 data.label = ltn.getString("lightning", "imipBarSentText");
             } else {
-                data = {label: ltn.getString("lightning", "imipBarSentButRemovedText"),
-                        buttons: [], hideMenuItems: []};
+                data = { label: ltn.getString("lightning", "imipBarSentButRemovedText"),
+                         buttons: [], hideMenuItems: [] };
             }
         }
 
@@ -364,8 +364,8 @@ var ltnImipBar = {
                 if (saveitems.length > 0) {
                     let newItipItem = cal.itip.getModifiedItipItem(ltnImipBar.itipItem,
                                                                    saveitems,
-                                                                   {receivedMethod: "PUBLISH",
-                                                                    responseMethod: "PUBLISH"});
+                                                                   { receivedMethod: "PUBLISH",
+                                                                     responseMethod: "PUBLISH" });
                     // control to avoid processing _execAction on later user changes on the item
                     let isFirstProcessing = true;
                     // setup callback and trigger re-processing

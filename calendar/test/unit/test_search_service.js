@@ -98,10 +98,10 @@ function test_cancel() {
     let provider = {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICalendarSearchProvider, Components.interfaces.calIOperation]),
         searchForCalendars: function(aStr, aHint, aMax, aListener) {
-            Services.tm.currentThread.dispatch({run: function() {
+            Services.tm.currentThread.dispatch({ run: function() {
                 dump("Cancelling search...");
                 op.cancel();
-            }}, Components.interfaces.nsIEventTarget.DISPATCH_NORMAL);
+            } }, Components.interfaces.nsIEventTarget.DISPATCH_NORMAL);
 
             // No listener call, we emulate a long running search
             // Do return the operation though

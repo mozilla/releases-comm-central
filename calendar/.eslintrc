@@ -210,6 +210,9 @@
 
     "mozilla/mark-test-function-used": 1,
 
+    // Require padding inside curly braces
+    "object-curly-spacing": [2, "always"],
+
     // Will enable these rules later
     "block-spacing": 0,
     "no-lonely-if": 0,

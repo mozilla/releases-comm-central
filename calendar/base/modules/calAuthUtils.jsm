@@ -201,12 +201,12 @@ cal.auth.Prompt.prototype = {
                 cal.auth.passwordManagerRemove(username,
                                                aPasswordRealm.prePath,
                                                aPasswordRealm.realm);
-                return {found: false, username: username};
+                return { found: false, username: username };
             } else {
                 this.mReturnedLogins[keyStr] = now;
             }
         }
-        return {found: found, username: username, password: password};
+        return { found: found, username: username, password: password };
     },
 
     /**

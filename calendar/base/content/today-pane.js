@@ -14,10 +14,12 @@ var TodayPane = {
     previousMode:  null,
     switchCounter: 0,
     minidayTimer: null,
-    minidayDrag: {startX: 0,
-                  startY: 0,
-                  distance: 0,
-                  session: false},
+    minidayDrag: {
+        startX: 0,
+        startY: 0,
+        distance: 0,
+        session: false
+    },
 
     /**
      * Load Handler, sets up the today pane controls.
@@ -131,7 +133,7 @@ var TodayPane = {
             }
             let title = document.getElementById('calendar-tab-button')
                             .getAttribute('tooltiptext');
-            document.getElementById('tabmail').openTab('calendar', {title: title});
+            document.getElementById('tabmail').openTab('calendar', { title: title });
             currentView().goToDay(agendaListbox.today.start);
         }
     },

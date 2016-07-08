@@ -357,7 +357,7 @@ function unifinderSelect(event) {
     // up in a circular loop
     currentView().setSelectedItems(selectedItems.length, selectedItems, true);
     currentView().centerSelectedItems();
-    calendarController.onSelectionChanged({detail: selectedItems});
+    calendarController.onSelectionChanged({ detail: selectedItems });
     document.getElementById("unifinder-search-results-tree").focus();
 }
 

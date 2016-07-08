@@ -50,9 +50,9 @@
         goButton.setAttribute("label", calGetString("calendar", "go"));
         // Load the stuff we're going to use to parse written dates
         this.mRelativeDates = [
-            {word: cal.calGetString("calendar", "today").toLowerCase(), offset: 0},
-            {word: cal.calGetString("calendar", "yesterday").toLowerCase(), offset: -1},
-            {word: cal.calGetString("calendar", "tomorrow").toLowerCase(), offset: 1}];
+            { word: cal.calGetString("calendar", "today").toLowerCase(), offset: 0 },
+            { word: cal.calGetString("calendar", "yesterday").toLowerCase(), offset: -1 },
+            { word: cal.calGetString("calendar", "tomorrow").toLowerCase(), offset: 1 }];
         for (let i = 1; i <= 7; i++) {
           this.mDayNames.push(calGetString("dateFormat", "day." + i + ".name").toLowerCase());
         }
@@ -65,10 +65,10 @@
         // note that some languages have different conjugations of
         // next/last depending on the day
         this.mRelationWords = [
-            {word: cal.calGetString("calendar", "last1"), offset: -1},
-            {word: cal.calGetString("calendar", "last2"), offset: -1},
-            {word: cal.calGetString("calendar", "next1"), offset: 0},
-            {word: cal.calGetString("calendar", "next2"), offset: 0}];
+            { word: cal.calGetString("calendar", "last1"), offset: -1 },
+            { word: cal.calGetString("calendar", "last2"), offset: -1 },
+            { word: cal.calGetString("calendar", "next1"), offset: 0 },
+            { word: cal.calGetString("calendar", "next2"), offset: 0 }];
 
         // Set the value to today
         let text = document.getAnonymousElementByAttribute(this, "anonid", "date-textbox");

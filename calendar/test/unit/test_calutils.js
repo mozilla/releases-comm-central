@@ -17,34 +17,34 @@ function run_test() {
 
 function getAttendeeEmail_test() {
     let data = [{
-        input: {id: "mailto:first.last@example.net", cn: "Last, First", email: null, useCn: true},
+        input: { id: "mailto:first.last@example.net", cn: "Last, First", email: null, useCn: true },
         expected: "\"Last, First\" <first.last@example.net>"
     }, {
-        input: {id: "mailto:first.last@example.net", cn: "Last; First", email: null, useCn: true},
+        input: { id: "mailto:first.last@example.net", cn: "Last; First", email: null, useCn: true },
         expected: "\"Last; First\" <first.last@example.net>"
     }, {
-        input: {id: "mailto:first.last@example.net", cn: "First Last", email: null, useCn: true},
+        input: { id: "mailto:first.last@example.net", cn: "First Last", email: null, useCn: true },
         expected: "First Last <first.last@example.net>"
     }, {
-        input: {id: "mailto:first.last@example.net", cn: "Last, First", email: null, useCn: false},
+        input: { id: "mailto:first.last@example.net", cn: "Last, First", email: null, useCn: false },
         expected: "first.last@example.net"
     }, {
-        input: {id: "mailto:first.last@example.net", cn: null, email: null, useCn: true},
+        input: { id: "mailto:first.last@example.net", cn: null, email: null, useCn: true },
         expected: "first.last@example.net"
     }, {
-        input: {id: "urn:uuid:first.last.example.net", cn: null, email: "first.last@example.net",
-                useCn: false},
+        input: { id: "urn:uuid:first.last.example.net", cn: null, email: "first.last@example.net",
+                useCn: false },
         expected: "first.last@example.net"
     }, {
-        input: {id: "urn:uuid:first.last.example.net", cn: null, email: "first.last@example.net",
-                useCn: true},
+        input: { id: "urn:uuid:first.last.example.net", cn: null, email: "first.last@example.net",
+                useCn: true },
         expected: "first.last@example.net"
     }, {
-        input: {id: "urn:uuid:first.last.example.net", cn: "First Last", email: "first.last@example.net",
-                useCn: true},
+        input: { id: "urn:uuid:first.last.example.net", cn: "First Last", email: "first.last@example.net",
+                useCn: true },
         expected: "First Last <first.last@example.net>"
     }, {
-        input: {id: "urn:uuid:first.last.example.net", cn: null, email: null, useCn: false},
+        input: { id: "urn:uuid:first.last.example.net", cn: null, email: null, useCn: false },
         expected: ""
     }];
     let i = 0;
@@ -64,31 +64,31 @@ function getAttendeeEmail_test() {
 
 function getRecipientList_test() {
     let data = [{
-        input: [{id: "mailto:first@example.net", cn: null},
-                {id: "mailto:second@example.net", cn: null},
-                {id: "mailto:third@example.net", cn: null}],
+        input: [{ id: "mailto:first@example.net", cn: null },
+                { id: "mailto:second@example.net", cn: null },
+                { id: "mailto:third@example.net", cn: null }],
         expected: "first@example.net, second@example.net, third@example.net"
     }, {
-        input: [{id: "mailto:first@example.net", cn: "first example"},
-                {id: "mailto:second@example.net", cn: "second example"},
-                {id: "mailto:third@example.net", cn: "third example"}],
+        input: [{ id: "mailto:first@example.net", cn: "first example" },
+                { id: "mailto:second@example.net", cn: "second example" },
+                { id: "mailto:third@example.net", cn: "third example" }],
         expected: "first example <first@example.net>, second example <second@example.net>, " +
                   "third example <third@example.net>"
     }, {
-        input: [{id: "mailto:first@example.net", cn: "example, first"},
-                {id: "mailto:second@example.net", cn: "example, second"},
-                {id: "mailto:third@example.net", cn: "example, third"}],
+        input: [{ id: "mailto:first@example.net", cn: "example, first" },
+                { id: "mailto:second@example.net", cn: "example, second" },
+                { id: "mailto:third@example.net", cn: "example, third" }],
         expected: "\"example, first\" <first@example.net>, \"example, second\" <second@example.net>, " +
                   "\"example, third\" <third@example.net>"
     }, {
-        input: [{id: "mailto:first@example.net", cn: null},
-                {id: "urn:uuid:second.example.net", cn: null},
-                {id: "mailto:third@example.net", cn: null}],
+        input: [{ id: "mailto:first@example.net", cn: null },
+                { id: "urn:uuid:second.example.net", cn: null },
+                { id: "mailto:third@example.net", cn: null }],
         expected: "first@example.net, third@example.net"
     }, {
-        input: [{id: "mailto:first@example.net", cn: "first"},
-                {id: "urn:uuid:second.example.net", cn: "second"},
-                {id: "mailto:third@example.net", cn: "third"}],
+        input: [{ id: "mailto:first@example.net", cn: "first" },
+                { id: "urn:uuid:second.example.net", cn: "second" },
+                { id: "mailto:third@example.net", cn: "third" }],
         expected: "first <first@example.net>, third <third@example.net>"
     }];
 
@@ -109,10 +109,10 @@ function getRecipientList_test() {
 }
 
 function prependMailTo_test() {
-    let data = [{input: "mailto:first.last@example.net", expected: "mailto:first.last@example.net"},
-                {input: "MAILTO:first.last@example.net", expected: "mailto:first.last@example.net"},
-                {input: "first.last@example.net", expected: "mailto:first.last@example.net"},
-                {input: "first.last.example.net", expected: "first.last.example.net"}];
+    let data = [{ input: "mailto:first.last@example.net", expected: "mailto:first.last@example.net" },
+                { input: "MAILTO:first.last@example.net", expected: "mailto:first.last@example.net" },
+                { input: "first.last@example.net", expected: "mailto:first.last@example.net" },
+                { input: "first.last.example.net", expected: "first.last.example.net" }];
     let i = 0;
     for (let test of data) {
         i++;
@@ -121,10 +121,10 @@ function prependMailTo_test() {
 }
 
 function removeMailTo_test() {
-    let data = [{input: "mailto:first.last@example.net", expected: "first.last@example.net"},
-                {input: "MAILTO:first.last@example.net", expected: "first.last@example.net"},
-                {input: "first.last@example.net", expected: "first.last@example.net"},
-                {input: "first.last.example.net", expected: "first.last.example.net"}];
+    let data = [{ input: "mailto:first.last@example.net", expected: "first.last@example.net" },
+                { input: "MAILTO:first.last@example.net", expected: "first.last@example.net" },
+                { input: "first.last@example.net", expected: "first.last@example.net" },
+                { input: "first.last.example.net", expected: "first.last.example.net" }];
     let i = 0;
     for (let test of data) {
         i++;
@@ -143,7 +143,8 @@ function resolveDelegation_test() {
                 'tendee1@example.net',
                 'ATTENDEE;DELEGATED-TO="mailto:attendee1@example.net";CN="Attendee 2":mailto:atte' +
                 'ndee2@example.net'
-            ]},
+            ]
+        },
         expected: {
             delegatees: '',
             delegators: 'Attendee 2 <attendee2@example.net>'
@@ -155,7 +156,8 @@ function resolveDelegation_test() {
             attendees: [
                 'ATTENDEE;DELEGATED-FROM="mailto:attendee2@example.net":mailto:attendee1@example.net',
                 'ATTENDEE;DELEGATED-TO="mailto:attendee1@example.net":mailto:attendee2@example.net'
-            ]},
+            ]
+        },
         expected: {
             delegatees: '',
             delegators: 'attendee2@example.net'
@@ -170,7 +172,8 @@ function resolveDelegation_test() {
                 'ndee1@example.net',
                 'ATTENDEE;DELEGATED-FROM="mailto:attendee1@example.net";CN="Attendee 2":mailto:at' +
                 'tendee2@example.net'
-            ]},
+            ]
+        },
         expected: {
             delegatees: 'Attendee 2 <attendee2@example.net>',
             delegators: ''
@@ -182,7 +185,8 @@ function resolveDelegation_test() {
             attendees: [
                 'ATTENDEE;DELEGATED-TO="mailto:attendee2@example.net":mailto:attendee1@example.net',
                 'ATTENDEE;DELEGATED-FROM="mailto:attendee1@example.net":mailto:attendee2@example.net'
-            ]},
+            ]
+        },
         expected: {
             delegatees: 'attendee2@example.net',
             delegators: ''
@@ -194,7 +198,8 @@ function resolveDelegation_test() {
             attendees: [
                 'ATTENDEE:mailto:attendee1@example.net',
                 'ATTENDEE:mailto:attendee2@example.net'
-            ]},
+            ]
+        },
         expected: {
             delegatees: '',
             delegators: ''
@@ -209,7 +214,8 @@ function resolveDelegation_test() {
                 'ndee3@example.net":mailto:attendee1@example.net',
                 'ATTENDEE;DELEGATED-TO="mailto:attendee1@example.net":mailto:attendee2@example.net',
                 'ATTENDEE;DELEGATED-FROM="mailto:attendee1@example.net":mailto:attendee3@example.net'
-            ]},
+            ]
+        },
         expected: {
             delegatees: 'attendee3@example.net',
             delegators: 'attendee2@example.net'

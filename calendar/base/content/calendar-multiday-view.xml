@@ -925,9 +925,9 @@
            * (The steps are explained in more detail as we come to them)
            */
           for (let i in this.mEventInfos) {
-              let curItemInfo = {event: this.mEventInfos[i].event,
-                                 layoutStart: this.mEventInfos[i].layoutStart,
-                                 layoutEnd: this.mEventInfos[i].layoutEnd};
+              let curItemInfo = { event: this.mEventInfos[i].event,
+                                  layoutStart: this.mEventInfos[i].layoutStart,
+                                  layoutEnd: this.mEventInfos[i].layoutEnd };
               if (!latestItemEnd) {
                  latestItemEnd = curItemInfo.layoutEnd;
               }
@@ -935,7 +935,7 @@
                   curItemInfo.layoutStart.compare(latestItemEnd) != -1) {
                   // We're done with this current blob because item starts
                   // after the last event in the current blob ended.
-                  blobs.push({blob: currentBlob, totalCols: colEndArray.length});
+                  blobs.push({ blob: currentBlob, totalCols: colEndArray.length });
 
                   // Reset our variables
                   currentBlob = [];
@@ -981,9 +981,9 @@
                           lastCol++;
                       }
                       // Now construct the info we need to push into the blob
-                      currentBlob.push({itemInfo: curItemInfo,
-                                        startCol: ii,
-                                        colSpan: lastCol - ii});
+                      currentBlob.push({ itemInfo: curItemInfo,
+                                         startCol: ii,
+                                         colSpan: lastCol - ii });
 
                       // Update latestItemEnd
                       if (latestItemEnd &&
@@ -1024,9 +1024,9 @@
                           if (currentBlob[kk].itemInfo.event.hashId == colEndArray[jj].event.hashId) {
                               // Take all but the first spot that the item spanned
                               let spanOfShrunkItem = currentBlob[kk].colSpan;
-                              currentBlob.push({itemInfo: curItemInfo,
-                                                startCol: Number(currentBlob[kk].startCol) + 1,
-                                                colSpan: spanOfShrunkItem - 1});
+                              currentBlob.push({ itemInfo: curItemInfo,
+                                                 startCol: Number(currentBlob[kk].startCol) + 1,
+                                                 colSpan: spanOfShrunkItem - 1 });
 
                               // Update colEndArray
                               for (let ll = jj; ll < jj + spanOfShrunkItem - 1; ll++) {
@@ -1034,9 +1034,9 @@
                               }
 
                               // Modify the data on the old item
-                              currentBlob[kk] = {itemInfo: currentBlob[kk].itemInfo,
-                                                 startCol: currentBlob[kk].startCol,
-                                                 colSpan: 1};
+                              currentBlob[kk] = { itemInfo: currentBlob[kk].itemInfo,
+                                                  startCol: currentBlob[kk].startCol,
+                                                  colSpan: 1 };
                               // Update latestItemEnd
                               if (latestItemEnd &&
                                   curItemInfo.layoutEnd.compare(latestItemEnd) == 1) {
@@ -1071,14 +1071,14 @@
                   let mmEnd = currentBlob[mm].itemInfo.layoutEnd;
                   if (currentBlob[mm].startCol + currentBlob[mm].colSpan == lastColNum &&
                       mmEnd.compare(curItemInfo.layoutStart) != 1) {
-                      currentBlob[mm] = {itemInfo: currentBlob[mm].itemInfo,
-                                         startCol: currentBlob[mm].startCol,
-                                         colSpan: currentBlob[mm].colSpan + 1};
+                      currentBlob[mm] = { itemInfo: currentBlob[mm].itemInfo,
+                                          startCol: currentBlob[mm].startCol,
+                                          colSpan: currentBlob[mm].colSpan + 1 };
                   }
               }
-              currentBlob.push({itemInfo: curItemInfo,
-                                startCol: colEndArray.length,
-                                colSpan: 1});
+              currentBlob.push({ itemInfo: curItemInfo,
+                                 startCol: colEndArray.length,
+                                 colSpan: 1 });
               colEndArray.push(curItemInfo);
 
               // Update latestItemEnd
@@ -1088,8 +1088,8 @@
               // Go get the next item
           }
           // Add the last blob
-          blobs.push({blob: currentBlob,
-                      totalCols: colEndArray.length});
+          blobs.push({ blob: currentBlob,
+                       totalCols: colEndArray.length });
           return this.setupBoxStructure(blobs);
         ]]></body>
       </method>
@@ -1212,14 +1212,14 @@
                   floatstart.timezone = floating();
                   let dur = floatstart.subtractDate(prevEnd);
                   if (dur.inSeconds) {
-                      col.push({duration: dur});
+                      col.push({ duration: dur });
                   }
                   let floatend = end.clone();
                   floatend.timezone = floating();
-                  col.push({event: data.itemInfo.event,
-                            endDate: end,
-                            startDate: start,
-                            duration: floatend.subtractDate(floatstart)});
+                  col.push({ event: data.itemInfo.event,
+                             endDate: end,
+                             startDate: start,
+                             duration: floatend.subtractDate(floatstart) });
               }
               layerOffset = layers.length;
           }
@@ -1545,16 +1545,16 @@
               deltamin += minutesInDay * dragState.jumpedColumns;
               if (deltamin < 0) {
                   // create a new event modifying the start. End time is fixed
-                  shadowElements = {shadows: 1 - dragState.jumpedColumns,
-                                    offset: 0,
-                                    startMin: curmin,
-                                    endMin: dragState.origMin};
+                  shadowElements = { shadows: 1 - dragState.jumpedColumns,
+                                     offset: 0,
+                                     startMin: curmin,
+                                     endMin: dragState.origMin };
               } else {
                   // create a new event modifying the end. Start time is fixed
-                  shadowElements = {shadows: dragState.jumpedColumns + 1,
-                                    offset: dragState.jumpedColumns,
-                                    startMin: dragState.origMin,
-                                    endMin: curmin};
+                  shadowElements = { shadows: dragState.jumpedColumns + 1,
+                                     offset: dragState.jumpedColumns,
+                                     startMin: dragState.origMin,
+                                     endMin: curmin };
               }
               dragState.startMin = shadowElements.startMin;
               dragState.endMin = shadowElements.endMin;

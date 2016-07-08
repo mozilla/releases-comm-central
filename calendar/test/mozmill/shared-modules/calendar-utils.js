@@ -435,7 +435,7 @@ function setData(controller, data) {
       controller.keypress(new elementslib.Lookup(controller.window.document, dialog
         + 'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/'
         + 'anon({"anonid":"input"})'),
-        'a', {ctrlKey: true});
+        'a', { ctrlKey: true });
       controller.type(new elementslib.Lookup(controller.window.document, dialog
         + 'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/'
         + 'anon({"anonid":"input"})'),
@@ -452,7 +452,7 @@ function setData(controller, data) {
       controller.keypress(new elementslib.Lookup(controller.window.document, dialog
         + 'id("event-grid-location-row")/id("item-location")/anon({"class":"textbox-input-box"})/'
         + 'anon({"anonid":"input"})'),
-        'a', {ctrlKey: true});
+        'a', { ctrlKey: true });
       controller.type(new elementslib.Lookup(controller.window.document, dialog
         + 'id("event-grid-location-row")/id("item-location")/anon({"class":"textbox-input-box"})/'
         + 'anon({"anonid":"input"})'),
@@ -490,7 +490,7 @@ function setData(controller, data) {
       controller.check(new elementslib.ID(controller.window.document, "todo-has-entrydate"), true);
     }
     if (!mac) {
-      controller.keypress(startDateInput, 'a', {ctrlKey: true});
+      controller.keypress(startDateInput, 'a', { ctrlKey: true });
       controller.type(startDateInput, startdate);
     } else {
       startDateInput.getNode().value = startdate;
@@ -502,7 +502,7 @@ function setData(controller, data) {
     let starttime = dateService.FormatTime("", dateService.timeFormatNoSeconds,
       data.starttime.getHours(), data.starttime.getMinutes(), 0);
     if (!mac) {
-      controller.keypress(startTimeInput, 'a', {ctrlKey: true});
+      controller.keypress(startTimeInput, 'a', { ctrlKey: true });
       controller.type(startTimeInput, starttime);
     } else {
       startTimeInput.getNode().value = starttime;
@@ -518,7 +518,7 @@ function setData(controller, data) {
       controller.check(new elementslib.ID(controller.window.document, "todo-has-duedate"), true);
     }
     if (!mac) {
-      controller.keypress(endDateInput, 'a', {ctrlKey: true});
+      controller.keypress(endDateInput, 'a', { ctrlKey: true });
       controller.type(endDateInput, enddate);
     } else {
       endDateInput.getNode().value = enddate;
@@ -530,7 +530,7 @@ function setData(controller, data) {
     let endtime = dateService.FormatTime("", dateService.timeFormatNoSeconds,
       data.endtime.getHours(), data.endtime.getMinutes(), 0);
     if (!mac) {
-      controller.keypress(endTimeInput, 'a', {ctrlKey: true});
+      controller.keypress(endTimeInput, 'a', { ctrlKey: true });
       controller.type(endTimeInput, endtime);
     } else {
       endTimeInput.getNode().value = endtime;
@@ -555,7 +555,7 @@ function setData(controller, data) {
       controller.keypress(new elementslib.Lookup(controller.window.document, dialog
         + 'id("event-grid-description-row")/id("item-description")/'
         + 'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
-        'a', {ctrlKey: true});
+        'a', { ctrlKey: true });
       controller.type(new elementslib.Lookup(controller.window.document, dialog
         + 'id("event-grid-description-row")/id("item-description")/'
         + 'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
@@ -599,7 +599,7 @@ function setData(controller, data) {
 
     if (currentStatus == "COMPLETED") {
       if (!mac) {
-        controller.keypress(completedDateInput, 'a', {ctrlKey: true});
+        controller.keypress(completedDateInput, 'a', { ctrlKey: true });
         controller.type(completedDateInput, completeddate);
       } else {
         completedDateInput.getNode().value = completeddate;
@@ -645,7 +645,7 @@ function open_lightning_prefs(aCallback, aParentController, collector, windowTim
 
   let timeout = windowTimeout || 30000;
   aParentController.window.openOptionsDialog("paneLightning");
-  aParentController.waitFor(function() {return mozmill.utils.getWindows("Mail:Preferences").length == 1;},
+  aParentController.waitFor(() => mozmill.utils.getWindows("Mail:Preferences").length == 1,
                             "Error opening preferences window", timeout);
   let prefsController = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Mail:Preferences")[0]);
   prefsController.waitFor(paneLoadedChecker, "Timed out waiting for lightning prefpane to load.");
@@ -653,7 +653,7 @@ function open_lightning_prefs(aCallback, aParentController, collector, windowTim
   aCallback(prefsController);
 
   prefsController.window.close();
-  aParentController.waitFor(function() {return mozmill.utils.getWindows("Mail:Preferences").length == 0;},
+  aParentController.waitFor(() => mozmill.utils.getWindows("Mail:Preferences").length == 0,
                             "Error closing preferences window", timeout);
 }
 

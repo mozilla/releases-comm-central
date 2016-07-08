@@ -16,7 +16,7 @@ onmessage = function onmessage(event) {
         let comp = ICAL.parse(event.data);
         postMessage({ rc: NS_OK, data: comp });
     } catch (e) {
-        postMessage({ rc: NS_ERROR_FAILURE, data: "Exception occurred: " + e});
+        postMessage({ rc: NS_ERROR_FAILURE, data: "Exception occurred: " + e });
     }
     close();
 };

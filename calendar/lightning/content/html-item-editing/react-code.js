@@ -16,7 +16,7 @@ var Tabstrip = React.createClass({
     },
     render: function() {
         return React.DOM.ul(
-            {id: 'tabstrip'},
+            { id: 'tabstrip' },
             this.props.tabs.map((tab, index) => {
                 let style = (this.props.activeTab == index) ? 'activeTab' : '';
                 // The bind() method makes the index
@@ -133,7 +133,7 @@ var Capsule = React.createClass({
         return React.DOM.span(
             {
                 className: "capsule",
-                style: {background: "ButtonHighlight"},
+                style: { background: "ButtonHighlight" },
             },
             this.props.value,
             React.DOM.span({
@@ -258,7 +258,7 @@ var TopComponent = React.createClass({
     updateWideview: function() {
         let wv = (window.innerWidth > 750);
         if (wv != this.state.isWideview) {
-            this.setState({isWideview: wv});
+            this.setState({ isWideview: wv });
         }
     },
     componentWillMount: function() {
@@ -299,13 +299,13 @@ var TopComponent = React.createClass({
         let a = this.state[aKey];
         let index = a.indexOf(aValue);
         a.splice(index, 1);
-        this.setState({aKey: a});
+        this.setState({ aKey: a });
     },
     render: function() {
         // 'key' doesn't seem to work as a prop name (presumably because
         // already used by react?), so using 'keyprop' instead for now.
         let titleDiv = React.DOM.div(
-            {id: 'titleDiv', className: 'box'},
+            { id: 'titleDiv', className: 'box' },
             'Title ',
             React.createElement(TextField, {
                 keyprop: 'title',
@@ -314,7 +314,7 @@ var TopComponent = React.createClass({
             })
         );
         let locationDiv = React.DOM.div(
-            {id: 'locationDiv', className: 'box'},
+            { id: 'locationDiv', className: 'box' },
             'Location ',
             React.createElement(TextField, {
                 keyprop: 'location',
@@ -323,7 +323,7 @@ var TopComponent = React.createClass({
             })
         );
         let startDiv = React.DOM.div(
-            {id: 'startDiv', className: 'box'},
+            { id: 'startDiv', className: 'box' },
             'Start ',
             // React.createElement(DatePicker, { }),
             React.createElement(TextField, {
@@ -338,7 +338,7 @@ var TopComponent = React.createClass({
             })
         );
         let endDiv = React.DOM.div(
-            {id: 'endDiv', className: 'box'},
+            { id: 'endDiv', className: 'box' },
             'End ',
             React.createElement(TextField, {
                 keyprop: 'endDate',
@@ -353,7 +353,7 @@ var TopComponent = React.createClass({
             // React.createElement(DatePicker, { }),
         );
         let allDayDiv = React.DOM.div(
-            {id: 'allDayDiv', className: 'box'},
+            { id: 'allDayDiv', className: 'box' },
             React.createElement(Checkbox, {
                 keyprop: 'allDay',
                 checked: this.state.allDay,
@@ -362,7 +362,7 @@ var TopComponent = React.createClass({
             'All day event'
         );
         let repeatDiv = React.DOM.div(
-            {id: 'repeatDiv', className: 'box'},
+            { id: 'repeatDiv', className: 'box' },
             'Repeat ',
             React.createElement(Dropdown, {
                 keyprop: 'repeat',
@@ -382,7 +382,7 @@ var TopComponent = React.createClass({
                 null)
         );
         let calendarDiv = React.DOM.div(
-            {id: 'calendarDiv', className: 'box'},
+            { id: 'calendarDiv', className: 'box' },
             'Calendar ',
             React.createElement(Dropdown, {
                 keyprop: 'calendarId',
@@ -407,7 +407,7 @@ var TopComponent = React.createClass({
             categoriesCapsules = null;
         }
         let categoriesDiv = React.DOM.div(
-            {id: 'categoriesDiv', className: 'box'},
+            { id: 'categoriesDiv', className: 'box' },
             'Categories ',
             categoriesCapsules,
             React.createElement(Link, {
@@ -416,7 +416,7 @@ var TopComponent = React.createClass({
             })
         );
         let attendeesDiv = React.DOM.div(
-            {id: 'attendeesDiv', className: 'box'},
+            { id: 'attendeesDiv', className: 'box' },
             'Attendees ',
             React.createElement(Link, {
                 value: 'Add Attendees',
@@ -424,7 +424,7 @@ var TopComponent = React.createClass({
             })
         );
         let remindersDiv = React.DOM.div(
-            {id: 'remindersDiv', className: 'box'},
+            { id: 'remindersDiv', className: 'box' },
             'Reminders ',
             React.createElement(Dropdown, {
                 keyprop: 'reminders',
@@ -434,7 +434,7 @@ var TopComponent = React.createClass({
             })
         );
         let attachmentsDiv = React.DOM.div(
-            {id: 'attachmentsDiv', className: 'box'},
+            { id: 'attachmentsDiv', className: 'box' },
             'Attachments ',
             React.createElement(Link, {
                 value: 'Add Attachments',
@@ -443,7 +443,7 @@ var TopComponent = React.createClass({
         );
         let urlDiv = (this.state.showUrl ?
             React.DOM.div(
-            {id: 'urlDiv', className: 'box'},
+            { id: 'urlDiv', className: 'box' },
             'Event link ',
             React.createElement(Link, {
                 value: this.state.url,
@@ -453,7 +453,7 @@ var TopComponent = React.createClass({
         );
 
         let privacyDiv = React.DOM.div(
-            {id: 'privacyDiv', className: 'box'},
+            { id: 'privacyDiv', className: 'box' },
             'Privacy ',
             React.createElement(Dropdown, {
                 keyprop: 'privacy',
@@ -463,7 +463,7 @@ var TopComponent = React.createClass({
             })
         );
         let statusDiv = React.DOM.div(
-            {id: 'statusDiv', className: 'box'},
+            { id: 'statusDiv', className: 'box' },
             'Status ',
             React.createElement(Dropdown, {
                 keyprop: 'status',
@@ -473,7 +473,7 @@ var TopComponent = React.createClass({
             })
         );
         let priorityDiv = React.DOM.div(
-            {id: 'priorityDiv', className: 'box'},
+            { id: 'priorityDiv', className: 'box' },
             'Priority ',
             React.createElement(Dropdown, {
                 keyprop: 'priority',
@@ -487,7 +487,7 @@ var TopComponent = React.createClass({
         let tIndex = this.props.showTimeAsList.findIndex(
             (t) => (t[0] == this.state.showTimeAs));
         let showTimeAsDiv = React.DOM.div(
-            {id: 'showTimeAsDiv', className: 'box'},
+            { id: 'showTimeAsDiv', className: 'box' },
             React.createElement(Checkbox, {
                 keyprop: 'showTimeAs',
                 checked: (tIndex == -1 ? false : this.props.showTimeAsList[tIndex][1]),
@@ -497,7 +497,7 @@ var TopComponent = React.createClass({
             'Show Time As Busy'
         );
         let descriptionDiv = React.DOM.div(
-            {id: 'description', value: 'Description'},
+            { id: 'description', value: 'Description' },
             React.createElement(TextArea, {
                 keyprop: 'description',
                 value: this.state.description,
@@ -508,9 +508,9 @@ var TopComponent = React.createClass({
         if (this.state.isWideview) {
             // wideview
             return React.DOM.div(
-                {id: 'topwrapper'},
+                { id: 'topwrapper' },
                 React.DOM.div(
-                    {className: 'wrapper'},
+                    { className: 'wrapper' },
                     titleDiv,
                     startDiv,
                     endDiv,
@@ -526,7 +526,7 @@ var TopComponent = React.createClass({
                     ),
                 descriptionDiv,
                 React.DOM.div(
-                    {className: 'wrapper', id: 'wrapper2'},
+                    { className: 'wrapper', id: 'wrapper2' },
                     privacyDiv,
                     statusDiv,
                     priorityDiv,
@@ -539,7 +539,7 @@ var TopComponent = React.createClass({
                 descriptionDiv,
                 React.DOM.div({
                         className: 'wrapper',
-                        style: {flexDirection: 'column'},
+                        style: { flexDirection: 'column' },
                     },
                     statusDiv,
                     priorityDiv,
@@ -557,8 +557,8 @@ var TopComponent = React.createClass({
                     tabpanelChildren[index]
                 );
             });
-            return React.DOM.div({id: 'topwrapper'},
-                React.DOM.div({className: 'wrapper'},
+            return React.DOM.div({ id: 'topwrapper' },
+                React.DOM.div({ className: 'wrapper' },
                     titleDiv,
                     locationDiv,
                     startDiv,
@@ -566,7 +566,7 @@ var TopComponent = React.createClass({
                     allDayDiv,
                     repeatDiv,
                     React.DOM.div(
-                        {style: {flexDirection: 'row', display: 'flex'}},
+                        { style: { flexDirection: 'row', display: 'flex' } },
                         calendarDiv,
                         privacyDiv
                     ),

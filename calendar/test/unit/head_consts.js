@@ -212,18 +212,18 @@ function readJSONFile(aFile) {
 
 function do_load_timezoneservice(callback) {
     do_test_pending();
-    cal.getTimezoneService().startup({onResult: function() {
+    cal.getTimezoneService().startup({ onResult: function() {
         do_test_finished();
         callback();
-    }});
+    } });
 }
 
 function do_load_calmgr(callback) {
     do_test_pending();
-    cal.getCalendarManager().startup({onResult: function() {
+    cal.getCalendarManager().startup({ onResult: function() {
         do_test_finished();
         callback();
-    }});
+    } });
 }
 
 function do_calendar_startup(callback) {

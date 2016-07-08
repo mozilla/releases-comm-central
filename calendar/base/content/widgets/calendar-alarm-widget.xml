@@ -326,7 +326,7 @@
           let okButton = document.getAnonymousElementByAttribute(this, "anonid", "snooze-popup-ok");
 
           function unitName(list) {
-              return {1: "unitMinutes", 60: "unitHours", 1440: "unitDays"}[list.value] || "unitMinutes";
+              return { 1: "unitMinutes", 60: "unitHours", 1440: "unitDays" }[list.value] || "unitMinutes";
           }
 
           let pluralString = cal.calGetString("calendar", unitName(unitList));

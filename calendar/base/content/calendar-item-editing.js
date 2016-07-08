@@ -557,7 +557,7 @@ function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
     } else {
         // Prompt the user. Setting modal blocks the dialog until it is closed. We
         // use rv to pass our return value.
-        let rv = { value: CANCEL, item: aItem, action: aAction};
+        let rv = { value: CANCEL, item: aItem, action: aAction };
         window.openDialog("chrome://calendar/content/calendar-occurrence-prompt.xul",
                           "PromptOccurrenceModification",
                           "centerscreen,chrome,modal,titlebar",

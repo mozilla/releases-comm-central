@@ -271,12 +271,13 @@ Extractor.prototype = {
         initial.hour = now.getHours();
         initial.minute = now.getMinutes();
 
-        this.collected.push({year: initial.year,
-                             month: initial.month,
-                             day: initial.day,
-                             hour: initial.hour,
-                             minute: initial.minute,
-                             relation: "start"
+        this.collected.push({
+            year: initial.year,
+            month: initial.month,
+            day: initial.day,
+            hour: initial.hour,
+            minute: initial.minute,
+            relation: "start"
         });
 
         this.cleanup();
@@ -448,7 +449,7 @@ Extractor.prototype = {
                         for (let i = 0; i < 12; i++) {
                             let ms = this.unescape(this.months[i]).split("|");
                             if (ms.includes(month.toLowerCase())) {
-                                let date = {year: this.now.getFullYear(), month: i + 1, day: day};
+                                let date = { year: this.now.getFullYear(), month: i + 1, day: day };
                                 if (this.isPastDate(date, this.now)) {
                                     // find next such date
                                     let item = new Date(this.now.getTime());
@@ -487,7 +488,7 @@ Extractor.prototype = {
                     let month = parseInt(res[positions[2]], 10);
 
                     if (this.isValidMonth(month) && this.isValidDay(day)) {
-                        let date = {year: this.now.getFullYear(), month: month, day: day};
+                        let date = { year: this.now.getFullYear(), month: month, day: day };
 
                         if (this.isPastDate(date, this.now)) {
                             // find next such date
@@ -1020,7 +1021,7 @@ Extractor.prototype = {
                 }
             }
 
-            vals.sort(function(one, two) {return two.length - one.length;});
+            vals.sort((a, b) => b.length - a.length);
             return vals.join("|");
         } catch (ex) {
             cal.LOG("[calExtract] Pattern not found: " + name);
@@ -1073,7 +1074,7 @@ Extractor.prototype = {
                 }
             }
 
-            vals.sort(function(one, two) {return two.length - one.length;});
+            vals.sort((a, b) => b.length - a.length);
             for (let val in vals) {
                 let pattern = vals[val];
                 for (let cnt = 1; cnt <= replaceables.length; cnt++) {
@@ -1089,7 +1090,7 @@ Extractor.prototype = {
                 } else {
                     positions = this.getPositionsFor(vals[val], name, replaceables.length);
                 }
-                alts[val] = {pattern: patterns[val], positions: positions};
+                alts[val] = { pattern: patterns[val], positions: positions };
             }
         } catch (ex) {
             cal.LOG("[calExtract] Pattern not found: " + name);
@@ -1199,8 +1200,8 @@ Extractor.prototype = {
         let pattern = email.substring(res.index, res.index + res[0].length);
         let prev = email.substring(0, res.index);
         let next = email.substring(res.index + res[0].length);
-        let prefixSuffix = {start: res.index, end: res.index + res[0].length,
-                            pattern: pattern, relation: relation};
+        let prefixSuffix = { start: res.index, end: res.index + res[0].length,
+                             pattern: pattern, relation: relation };
         let ch = "\\s*";
         let psres;
 

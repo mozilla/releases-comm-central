@@ -145,7 +145,7 @@ function onCheckboxChange(event) {
             }
         } while (!leaveloop);
     }
-    calendarController.onSelectionChanged({detail: []});
+    calendarController.onSelectionChanged({ detail: [] });
 };
 
 /**
@@ -160,7 +160,7 @@ function onSelect(aListItem) {
     if (aListItem) {
         listbox.selectedItem = item;
     }
-    calendarController.onSelectionChanged({detail: agendaListbox.getSelectedItems()});
+    calendarController.onSelectionChanged({ detail: agendaListbox.getSelectedItems() });
 };
 
 /**
@@ -168,7 +168,7 @@ function onSelect(aListItem) {
  */
 agendaListbox.onFocus =
 function onFocus() {
-    calendarController.onSelectionChanged({detail: agendaListbox.getSelectedItems()});
+    calendarController.onSelectionChanged({ detail: agendaListbox.getSelectedItems() });
 };
 
 /**
@@ -176,7 +176,7 @@ function onFocus() {
  */
 agendaListbox.onBlur =
 function onBlur() {
-    calendarController.onSelectionChanged({detail: []});
+    calendarController.onSelectionChanged({ detail: [] });
 };
 
 

@@ -61,30 +61,35 @@ add_task(function* getItipHeader_test() {
     let data = [{
         input: {
             method: "METHOD:REQUEST\r\n",
-            attendee: null},
+            attendee: null
+        },
         expected: "Organizer has invited you to Test Event"
     }, {
         input: {
             method: "METHOD:CANCEL\r\n",
-            attendee: null},
+            attendee: null
+        },
         expected: "Organizer has canceled this event: « Test Event »"
     }, {
         input: {
             method: "METHOD:REPLY\r\n",
             attendee: "ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=ACCEPTED;" +
-                      "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net"},
+                      "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net"
+        },
         expected: "Attendee1 <attendee1@example.net> has accepted your event invitation."
     }, {
         input: {
             method: "METHOD:REPLY\r\n",
             attendee: "ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=TENTATIVE;" +
-                      "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net"},
+                      "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net"
+        },
         expected: "Attendee1 <attendee1@example.net> has accepted your event invitation."
     }, {
         input: {
             method: "METHOD:REPLY\r\n",
             attendee: "ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=DECLINED;" +
-                      "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net"},
+                      "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net"
+        },
         expected: "Attendee1 <attendee1@example.net> has declined your event invitation."
     }, {
         input: {
@@ -92,17 +97,20 @@ add_task(function* getItipHeader_test() {
             attendee: ["ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=ACCEPTED;" +
                        "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net",
                        "ATTENDEE;RSVP=TRUE;CN=Attendee2;PARTSTAT=DECLINED;" +
-                       "ROLE=REQ-PARTICIPANT:mailto:attendee2@example.net"].join("\r\n")},
+                       "ROLE=REQ-PARTICIPANT:mailto:attendee2@example.net"].join("\r\n")
+        },
         expected: "Attendee1 <attendee1@example.net> has accepted your event invitation."
     }, {
         input: {
             method: "METHOD:UNSUPPORTED\r\n",
-            attendee: null},
+            attendee: null
+        },
         expected: "Event Invitation"
     }, {
         input: {
             method: "",
-            attendee: ""},
+            attendee: ""
+        },
         expected: "Event Invitation"
     }];
     let i = 0;
@@ -126,65 +134,82 @@ add_task(function* getItipHeader_test() {
 add_task(function* createInvitationOverlay_test() {
     let data = [{
         input: {
-            description: "DESCRIPTION:Go to https://www.example.net if you can.\r\n"},
+            description: "DESCRIPTION:Go to https://www.example.net if you can.\r\n"
+        },
         expected: {
             node: "imipHtml-description-content",
             value: "Go to <a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-freetext" +
-                   "\" href=\"https://www.example.net\">https://www.example.net</a> if you can."}
+                   "\" href=\"https://www.example.net\">https://www.example.net</a> if you can."
+        }
     }, {
         input: {
-            description: "DESCRIPTION:Go to www.example.net if you can.\r\n"},
+            description: "DESCRIPTION:Go to www.example.net if you can.\r\n"
+        },
         expected: {
             node: "imipHtml-description-content",
             value: "Go to <a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-abbrevia" +
-                   "ted\" href=\"http://www.example.net\">www.example.net</a> if you can."}
+                   "ted\" href=\"http://www.example.net\">www.example.net</a> if you can."
+        }
     }, {
         input: {
-            description: "DESCRIPTION:Or write to mailto:faq@example.net instead.\r\n"},
+            description: "DESCRIPTION:Or write to mailto:faq@example.net instead.\r\n"
+        },
         expected: {
             node: "imipHtml-description-content",
             value: "Or write to <a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-fr" +
-                   "eetext\" href=\"mailto:faq@example.net\">mailto:faq@example.net</a> instead."}
+                   "eetext\" href=\"mailto:faq@example.net\">mailto:faq@example.net</a> instead."
+        }
     }, {
         input: {
-            description: "DESCRIPTION:Or write to faq@example.net instead.\r\n"},
+            description: "DESCRIPTION:Or write to faq@example.net instead.\r\n"
+        },
         expected: {
             node: "imipHtml-description-content",
             value: "Or write to <a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-ab" +
-                   "breviated\" href=\"mailto:faq@example.net\">faq@example.net</a> instead."}
+                   "breviated\" href=\"mailto:faq@example.net\">faq@example.net</a> instead."
+        }
     }, {
         input: {
-            description: "DESCRIPTION:It's up to you ;-)\r\n"},
+            description: "DESCRIPTION:It's up to you ;-)\r\n"
+        },
         expected: {
             node: "imipHtml-description-content",
             value: "It's up to you <span xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-smile" +
-                   "y-s3\" title=\";-)\"><span>;-)</span></span>"}
+                   "y-s3\" title=\";-)\"><span>;-)</span></span>"
+        }
     }, {
         input: {
-            url: "URL:http://www.example.org/event.ics\r\n"},
+            url: "URL:http://www.example.org/event.ics\r\n"
+        },
         expected: {
             node: "imipHtml-url-content",
             value: "<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-freetext\" hre" +
-                   "f=\"http://www.example.org/event.ics\">http://www.example.org/event.ics</a>"}
+                   "f=\"http://www.example.org/event.ics\">http://www.example.org/event.ics</a>"
+        }
     }, {
         input: {
-            attach: "ATTACH:http://www.example.org\r\n"},
+            attach: "ATTACH:http://www.example.org\r\n"
+        },
         expected: {
             node: "imipHtml-attachments-content",
             value: "<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-freetext\" hre" +
-                   "f=\"http://www.example.org/\">http://www.example.org/</a>"}
+                   "f=\"http://www.example.org/\">http://www.example.org/</a>"
+        }
     }, {
         input: {
             attach: "ATTACH;FMTTYPE=text/plain;ENCODING=BASE64;VALUE=BINARY:VGhlIHF1aWNrIGJyb3duI" +
-                    "GZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4\r\n"},
+                    "GZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4\r\n"
+        },
         expected: {
             node: "imipHtml-attachments-content",
-            value: ""}
+            value: ""
+        }
     }, {
         input: {
             attach: "ATTACH:http://www.example.org/first/\r\n" +
                     "ATTACH:http://www.example.org/second\r\n" +
-                    "ATTACH:file:///N:/folder/third.file\r\n"},
+                    "ATTACH:file:///N:/folder/third.file\r\n"
+        },
         expected: {
             node: "imipHtml-attachments-content",
             value: "<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-freetext\" hre" +
@@ -192,7 +217,8 @@ add_task(function* createInvitationOverlay_test() {
                    "t;<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-freetext\" h" +
                    "ref=\"http://www.example.org/second\">http://www.example.org/second</a>&lt;br" +
                    "&gt;<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-freetext\"" +
-                   " href=\"file:///N:/folder/third.file\">file:///N:/folder/third.file</a>"}
+                   " href=\"file:///N:/folder/third.file\">file:///N:/folder/third.file</a>"
+        }
     }, {
         input: {
             attendee: "ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;ROLE=OPT-PARTICIPANT;CUTYPE=INDIV" +
@@ -214,7 +240,8 @@ add_task(function* createInvitationOverlay_test() {
 
                       "ATTENDEE;RSVP=TRUE:mailto:attendee6@example.net\r\n" +
 
-                      "ATTENDEE:mailto:attendee7@example.net\r\n"},
+                      "ATTENDEE:mailto:attendee7@example.net\r\n"
+        },
         expected: {
             node: "attendee-table",
             value: "<tr xmlns=\"http://www.w3.org/1999/xhtml\" id=\"attendee-template\" hidden=\"" +
@@ -261,18 +288,21 @@ add_task(function* createInvitationOverlay_test() {
                    " required participant. attendee7@example.net still needs to reply.\"><td><p c" +
                    "lass=\"itip-icon\" role=\"REQ-PARTICIPANT\" usertype=\"INDIVIDUAL\" partstat=" +
                    "\"NEEDS-ACTION\"></p></td><td class=\"attendee-name\">attendee7@example.net</" +
-                   "td></tr>"}
+                   "td></tr>"
+        }
     }, {
         input: {
             organizer: "ORGANIZER;PARTSTAT=ACCEPTED;ROLE=CHAIR;CUTYPE=\"INDIVIDUAL\";CN=\"The Org" +
-                       "anizer\":mailto:organizer@example.net\r\n"},
+                       "anizer\":mailto:organizer@example.net\r\n"
+        },
         expected: {
             node: "organizer-table",
             value: "<tr xmlns=\"http://www.w3.org/1999/xhtml\" title=\"The Organizer &lt;organize" +
                    "r@example.net&gt; chairs the event. The Organizer has confirmed attendance.\"" +
                    "><td><p class=\"itip-icon\" role=\"CHAIR\" usertype=\"INDIVIDUAL\" partstat=\"" +
                    "ACCEPTED\"></p></td><td class=\"attendee-name\">The Organizer &lt;organizer@e" +
-                   "xample.net&gt;</td></tr>"}
+                   "xample.net&gt;</td></tr>"
+        }
     }];
     let i = 0;
     for (let test of data) {
@@ -340,34 +370,45 @@ add_task(function* compareInvitationOverlay_test() {
     let data = [{
         input: {
             previous: {
-                location: "LOCATION:This place\r\n"},
+                location: "LOCATION:This place\r\n"
+            },
             current: {
-                location: "LOCATION:Another location\r\n"},
-            ignore: ""},
+                location: "LOCATION:Another location\r\n"
+            },
+            ignore: ""
+        },
         expected: {
             node: "imipHtml-location-content",
             value: "<span xmlns=\"\" class=\"added\">Another location</span><br xmlns=\"\"/>" +
-                   "<span xmlns=\"\" class=\"removed\">This place</span>"}
+                   "<span xmlns=\"\" class=\"removed\">This place</span>"
+        }
     }, {
         input: {
             previous: {
-                summary: "SUMMARY:My invitation\r\n"},
+                summary: "SUMMARY:My invitation\r\n"
+            },
             current: {
-                summary: "SUMMARY:My new invitation\r\n"},
-            ignore: ""},
+                summary: "SUMMARY:My new invitation\r\n"
+            },
+            ignore: ""
+        },
         expected: {
             node: "imipHtml-summary-content",
             value: "<span xmlns=\"\" class=\"added\">My new invitation</span><br xmlns=\"\"/>" +
-                   "<span xmlns=\"\" class=\"removed\">My invitation</span>"}
+                   "<span xmlns=\"\" class=\"removed\">My invitation</span>"
+        }
     }, {
         input: {
             previous: {
                 dtstart: "DTSTART;TZID=Europe/Berlin:20150909T130000\r\n",
-                dtend: "DTEND;TZID=Europe/Berlin:20150909T140000\r\n"},
+                dtend: "DTEND;TZID=Europe/Berlin:20150909T140000\r\n"
+            },
             current: {
                 dtstart: "DTSTART;TZID=Europe/Berlin:20150909T140000\r\n",
-                dtend: "DTEND;TZID=Europe/Berlin:20150909T150000\r\n"},
-            ignore: ""},
+                dtend: "DTEND;TZID=Europe/Berlin:20150909T150000\r\n"
+            },
+            ignore: ""
+        },
         expected: {
             // time format is platform dependent, so we use alternative result sets here
             // the first three are to meet configurations running for automated tests, the
@@ -402,18 +443,23 @@ add_task(function* compareInvitationOverlay_test() {
 
                    "<span xmlns=\"\" class=\"added\">Wed 09 Sep 2015 14:00 – 15:00</span>" +
                    "<br xmlns=\"\"/>" +
-                   "<span xmlns=\"\" class=\"removed\">Wed 09 Sep 2015 13:00 – 14:00</span>"]}
+                   "<span xmlns=\"\" class=\"removed\">Wed 09 Sep 2015 13:00 – 14:00</span>"]
+        }
     }, {
         input: {
             previous: {
-                organizer: "ORGANIZER:mailto:organizer1@example.net\r\n"},
+                organizer: "ORGANIZER:mailto:organizer1@example.net\r\n"
+            },
             current: {
-                organizer: "ORGANIZER:mailto:organizer2@example.net\r\n"},
-            ignore: ""},
+                organizer: "ORGANIZER:mailto:organizer2@example.net\r\n"
+            },
+            ignore: ""
+        },
         expected: {
             node: "organizer-table",
             each: ["<span xmlns=\"\" class=\"added\">organizer2@example.net</span>",
-                   "<span xmlns=\"\" class=\"removed\">organizer1@example.net</span>"]}
+                   "<span xmlns=\"\" class=\"removed\">organizer1@example.net</span>"]
+        }
     }, {
         input: {
             previous: {
@@ -422,21 +468,25 @@ add_task(function* compareInvitationOverlay_test() {
                           "ATTENDEE;RSVP=TRUE;CUTYPE=INDIVIDUAL;PARTSTAT=NEEDS-ACTION:" +
                           "mailto:attendee2@example.net\r\n" +
                           "ATTENDEE;RSVP=TRUE;CUTYPE=INDIVIDUAL;PARTSTAT=NEEDS-ACTION:" +
-                          "mailto:attendee3@example.net\r\n"},
+                          "mailto:attendee3@example.net\r\n"
+            },
             current: {
                 attendee: "ATTENDEE;RSVP=TRUE;CUTYPE=INDIVIDUAL;PARTSTAT=ACCEPTED:mail" +
                           "to:attendee2@example.net\r\n" +
                           "ATTENDEE;RSVP=TRUE;CUTYPE=INDIVIDUAL;PARTSTAT=NEEDS-ACTION:" +
                           "mailto:attendee3@example.net\r\n" +
                           "ATTENDEE;RSVP=TRUE;CUTYPE=INDIVIDUAL;PARTSTAT=NEEDS-ACTION:" +
-                          "mailto:attendee4@example.net\r\n"},
-            ignore: ""},
+                          "mailto:attendee4@example.net\r\n"
+            },
+            ignore: ""
+        },
         expected: {
             node: "attendee-table",
             each: ["<span xmlns=\"\" class=\"modified\">attendee2@example.net</span>",
                    "attendee3@example.net",
                    "<span xmlns=\"\" class=\"added\">attendee4@example.net</span>",
-                   "<span xmlns=\"\" class=\"removed\">attendee1@example.net</span>"]}
+                   "<span xmlns=\"\" class=\"removed\">attendee1@example.net</span>"]
+        }
     }];
     // we make sure that the Europe/Berlin timezone and long datetime format is set
     let dateformat = Preferences.get("calendar.date.format", 0);
@@ -490,7 +540,9 @@ add_task(function* getHeaderSection_test() {
                 replyTo: "no-reply@example.net",
                 organization: "Example Net",
                 cc: "cc@example.net",
-                bcc: "bcc@example.net"}},
+                bcc: "bcc@example.net"
+            }
+        },
         expected: "MIME-version: 1.0\r\n" +
                   "Return-path: no-reply@example.net\r\n" +
                   "From: Invitation sender <sender@example.net>\r\n" +
@@ -509,7 +561,9 @@ add_task(function* getHeaderSection_test() {
                 replyTo: "no-reply@example.net",
                 organization: "Example Net",
                 cc: "cc1@example.net, Cc 2 <cc2@example.net>, \"Cc, 3\" <cc3@example.net>",
-                bcc: "bcc1@example.net, BCc 2 <bcc2@example.net>, \"Bcc, 3\" <bcc3@example.net>"}},
+                bcc: "bcc1@example.net, BCc 2 <bcc2@example.net>, \"Bcc, 3\" <bcc3@example.net>"
+            }
+        },
         expected: "MIME-version: 1.0\r\n" +
                   "Return-path: no-reply@example.net\r\n" +
                   "From: \"invitation, sender\" <sender@example.net>\r\n" +
@@ -523,7 +577,9 @@ add_task(function* getHeaderSection_test() {
             toList: "recipient@example.net",
             subject: "Invitation: test subject",
             identity: {
-                email: "sender@example.net"}},
+                email: "sender@example.net"
+            }
+        },
         expected: "MIME-version: 1.0\r\n" +
                   "From: sender@example.net\r\n" +
                   "To: recipient@example.net\r\n" +
@@ -538,7 +594,9 @@ add_task(function* getHeaderSection_test() {
                 replyTo: "Max & René <no-reply@example.net>",
                 organization: "Max & René",
                 cc: "René <cc@example.net>",
-                bcc: "René <bcc@example.net>"}},
+                bcc: "René <bcc@example.net>"
+            }
+        },
         expected: "MIME-version: 1.0\r\n" +
                   "Return-path: =?UTF-8?Q?Max_&_Ren=c3=a9?= <no-reply@example.net>\r\n" +
                   "From: =?UTF-8?B?UmVuw6k=?= <sender@example.net>\r\n" +
@@ -585,22 +643,26 @@ add_task(function* convertFromUnicode_test() {
     let data = [{
         input: {
             charset: "UTF-8",
-            text: "müller"},
+            text: "müller"
+        },
         expected: "mÃ¼ller"
     }, {
         input: {
             charset: "UTF-8",
-            text: "muller"},
+            text: "muller"
+        },
         expected: "muller"
     }, {
         input: {
             charset: "UTF-8",
-            text: "müller\nmüller"},
+            text: "müller\nmüller"
+        },
         expected: "mÃ¼ller\nmÃ¼ller"
     }, {
         input: {
             charset: "UTF-8",
-            text: "müller\r\nmüller"},
+            text: "müller\r\nmüller"
+        },
         expected: "mÃ¼ller\r\nmÃ¼ller"
     }];
     let i = 0;
@@ -640,17 +702,20 @@ add_task(function* encodeMimeHeader_test() {
     let data = [{
         input: {
             header: "Max Müller <m.mueller@example.net>",
-            isEmail: true},
+            isEmail: true
+        },
         expected: "=?UTF-8?Q?Max_M=c3=bcller?= <m.mueller@example.net>"
     }, {
         input: {
             header: "Max Mueller <m.mueller@example.net>",
-            isEmail: true},
+            isEmail: true
+        },
         expected: "Max Mueller <m.mueller@example.net>"
     }, {
         input: {
             header: "Müller & Müller",
-            isEmail: false},
+            isEmail: false
+        },
         expected: "=?UTF-8?B?TcO8bGxlciAmIE3DvGxsZXI=?="
     }];
 

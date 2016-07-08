@@ -380,7 +380,7 @@ function openCalendarProperties(aCalendar) {
                (AppConstants.platform == "linux") ?
                  "chrome,titlebar,resizable" :
                  "modal,chrome,titlebar,resizable",
-               {calendar: aCalendar});
+               { calendar: aCalendar });
 }
 
 /**

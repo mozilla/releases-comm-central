@@ -32,7 +32,7 @@ var testWeeklyWithExceptionRecurrence = function() {
   // create weekly recurring event
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
     calUtils.getEventBoxPath(controller, "day", calUtils.CANVAS_BOX, undefined, 1, hour)), 1, 1);
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
+  controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   let md = new modalDialog.modalDialog(event.window);
@@ -47,7 +47,7 @@ var testWeeklyWithExceptionRecurrence = function() {
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
     calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour)
       + eventPath));
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
+  controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
   event.sleep(sleep);
 
@@ -64,7 +64,7 @@ var testWeeklyWithExceptionRecurrence = function() {
     + '{"class":"datepicker-text-class"}/anon({"class":"menulist-editable-box textbox-input-box"})/'
     + 'anon({"anonid":"input"})');
 
-  event.keypress(startDateInput, "a", {ctrlKey: true});
+  event.keypress(startDateInput, "a", { ctrlKey: true });
   let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
                      .getService(Components.interfaces.nsIScriptableDateFormat);
   let startDateString = dateService.FormatDate("", dateService.dateFormatShort,
@@ -74,7 +74,7 @@ var testWeeklyWithExceptionRecurrence = function() {
   event.click(endDateInput);
 
   event.click(new elementslib.ID(event.window.document, "button-save"));
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0;});
+  controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
 
   // change recurrence rule
   calUtils.goToDate(controller, 2009, 1, 7);
@@ -82,7 +82,7 @@ var testWeeklyWithExceptionRecurrence = function() {
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
     calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour)
       + eventPath));
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
+  controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   md = new modalDialog.modalDialog(event.window);
@@ -91,7 +91,7 @@ var testWeeklyWithExceptionRecurrence = function() {
   event.select(new elementslib.ID(event.window.document, "item-repeat"), undefined, undefined, "custom");
 
   event.click(new elementslib.ID(event.window.document, "button-save"));
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0;});
+  controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
 
   // check two weeks
   // day view

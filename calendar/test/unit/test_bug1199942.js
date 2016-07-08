@@ -11,10 +11,10 @@ function run_test() {
 }
 
 function createAttendee_test() {
-    let data = [{input: "mailto:user1@example.net", expected: "mailto:user1@example.net"},
-                {input: "MAILTO:user2@example.net", expected: "mailto:user2@example.net"},
-                {input: "user3@example.net", expected: "mailto:user3@example.net"},
-                {input: "urn:uuid:user4", expected: "urn:uuid:user4"}];
+    let data = [{ input: "mailto:user1@example.net", expected: "mailto:user1@example.net" },
+                { input: "MAILTO:user2@example.net", expected: "mailto:user2@example.net" },
+                { input: "user3@example.net", expected: "mailto:user3@example.net" },
+                { input: "urn:uuid:user4", expected: "urn:uuid:user4" }];
     let event = cal.createEvent();
     for (let test of data) {
         let attendee = cal.createAttendee();
