@@ -397,6 +397,9 @@
     // Enforce consistent line breaks inside braces
     "object-curly-newline": [2, { "multiline": true }],
 
+    // Disallow whitespace before properties
+    "no-whitespace-before-property": 2,
+
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.
     "no-else-return": 0,
