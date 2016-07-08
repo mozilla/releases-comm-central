@@ -123,7 +123,10 @@ function test_getStartEndProps() {
 
 function test_calOperationGroup() {
     let cancelCalled = false;
-    function cancelFunc() { cancelCalled = true; return true; }
+    function cancelFunc() {
+        cancelCalled = true;
+        return true;
+    }
 
     let group = new cal.calOperationGroup(cancelFunc);
 

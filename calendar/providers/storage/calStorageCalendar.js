@@ -1480,7 +1480,9 @@ calStorageCalendar.prototype = {
                 for (let stmt of this.mDeleteTodoExtras) { stmt.finalize(); }
             }
 
-            if (this.mDB) { this.mDB.asyncClose(); this.mDB = null; }
+            if (this.mDB) {
+                this.mDB.asyncClose(); this.mDB = null;
+            }
         } catch (e) {
             cal.ERROR("Error closing storage database: " + e);
         }

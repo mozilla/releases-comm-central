@@ -155,6 +155,7 @@ calOutlookCSVImporter.prototype = {
             args.startDateIndex = 0;
             for (let i = 1; i <= header.length; ++i) {
                 switch (header[i - 1]) {
+                    /* eslint-disable max-statements-per-line */
                     case locale.headTitle: args.titleIndex = i; knownIndxs++; break;
                     case locale.headStartDate: args.startDateIndex = i; knownIndxs++; break;
                     case locale.headStartTime: args.startTimeIndex = i; knownIndxs++; break;
@@ -168,6 +169,7 @@ calOutlookCSVImporter.prototype = {
                     case locale.headDescription: args.descriptionIndex = i; knownIndxs++; break;
                     case locale.headLocation: args.locationIndex = i; knownIndxs++; break;
                     case locale.headPrivate: args.privateIndex = i; knownIndxs++; break;
+                    /* eslint-enable max-statements-per-line */
                 }
             }
             // Were both mandatory fields recognized?

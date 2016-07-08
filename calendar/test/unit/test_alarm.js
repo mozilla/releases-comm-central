@@ -500,7 +500,11 @@ function test_serialize() {
         alarm.icalComponent = srv.createIcalComponent("BARF");
     }, /0x80070057/, "Invalid Argument");
 
-    function addProp(k, v) { let p = srv.createIcalProperty(k); p.value = v; comp.addProperty(p); }
+    function addProp(k, v) {
+        let p = srv.createIcalProperty(k);
+        p.value = v;
+        comp.addProperty(p);
+    }
     function addActionDisplay() { addProp("ACTION", "DISPLAY"); }
     function addActionEmail() { addProp("ACTION", "EMAIL"); }
     function addTrigger() { addProp("TRIGGER", "-PT15M"); }
@@ -512,14 +516,21 @@ function test_serialize() {
 
     // All is there, should not throw
     let comp = srv.createIcalComponent("VALARM");
-    addActionDisplay(); addTrigger(); addDescr(); addDuration(); addRepeat();
+    addActionDisplay();
+    addTrigger();
+    addDescr();
+    addDuration();
+    addRepeat();
     alarm.icalComponent = comp;
     alarm.toString();
 
     // Attachments and attendees
     comp = srv.createIcalComponent("VALARM");
-    addActionEmail(); addTrigger(); addDescr();
-    addAttendee(); addAttachment();
+    addActionEmail();
+    addTrigger();
+    addDescr();
+    addAttendee();
+    addAttachment();
     alarm.icalComponent = comp;
     alarm.toString();
 
@@ -540,7 +551,9 @@ function test_serialize() {
     // Missing duration with repeat
     throws(() => {
         comp = srv.createIcalComponent("VALARM");
-        addActionDisplay(); addTrigger(); addDescr();
+        addActionDisplay();
+        addTrigger();
+        addDescr();
         addRepeat();
         alarm.icalComponent = comp;
     }, /Illegal value/, "Invalid Argument");
@@ -548,7 +561,9 @@ function test_serialize() {
     // Missing repeat with duration
     throws(() => {
         comp = srv.createIcalComponent("VALARM");
-        addActionDisplay(); addTrigger(); addDescr();
+        addActionDisplay();
+        addTrigger();
+        addDescr();
         addDuration();
         alarm.icalComponent = comp;
     }, /Illegal value/, "Invalid Argument");

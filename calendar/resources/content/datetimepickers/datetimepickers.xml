@@ -1602,7 +1602,11 @@
               return null; // avoid errors accessing uninitialized data.
             }
 
-            let year = Number.MIN_VALUE; let month = -1; let day = -1; let timeString = null;
+            let year = Number.MIN_VALUE;
+            let month = -1;
+            let day = -1;
+            let timeString = null;
+
             if (this.alphaMonths == null) {
               // SHORT NUMERIC DATE, such as 2002-03-04, 4/3/2002, or CE2002Y03M04D.
               // Made of digits & nonDigits.  (Nondigits may be unicode letters
@@ -1659,7 +1663,9 @@
                 }
               }
               // if time is also present, parse it
-              let hours = 0; let minutes = 0; let seconds = 0;
+              let hours = 0;
+              let minutes = 0;
+              let seconds = 0;
               if (timeString != null) {
                 let time = this.parseTime(timeString);
                 if (time != null) {

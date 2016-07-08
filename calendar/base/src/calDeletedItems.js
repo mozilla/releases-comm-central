@@ -166,7 +166,10 @@ calDeletedItems.prototype = {
                 stmt.finalize();
             }
 
-            if (this.mDB) { this.mDB.asyncClose(); this.mDB = null; }
+            if (this.mDB) {
+                this.mDB.asyncClose();
+                this.mDB = null;
+            }
         } catch (e) {
             cal.ERROR("Error closing deleted items database: " + e);
         }
