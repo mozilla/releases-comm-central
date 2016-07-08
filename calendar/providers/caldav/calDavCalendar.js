@@ -265,10 +265,12 @@ calDavCalendar.prototype = {
                     if (!(item.id in self.mItemInfoCache)) {
                         let path = self.getItemLocationPath(item);
                         cal.LOG("Adding meta-data for cached item " + item.id);
-                        self.mItemInfoCache[item.id] = { etag: null,
-                                                         isNew: false,
-                                                         locationPath: path,
-                                                         isInboxItem: false };
+                        self.mItemInfoCache[item.id] = {
+                            etag: null,
+                            isNew: false,
+                            locationPath: path,
+                            isInboxItem: false
+                        };
                         self.mHrefIndex[self.mLocationPath + path] = item.id;
                         refreshNeeded = true;
                     }
@@ -320,10 +322,12 @@ calDavCalendar.prototype = {
                     this.mHrefIndex[resourcePath] = itemId;
                     let locationPath = resourcePath
                         .substr(this.mLocationPath.length);
-                    let item = { etag: etag,
-                                 isNew: false,
-                                 locationPath: locationPath,
-                                 isInboxItem: isInboxItem == "true" };
+                    let item = {
+                        etag: etag,
+                        isNew: false,
+                        locationPath: locationPath,
+                        isInboxItem: isInboxItem == "true"
+                    };
                     this.mItemInfoCache[itemId] = item;
                 }
             }
@@ -679,9 +683,7 @@ calDavCalendar.prototype = {
                     let targetParts = request.URI.path.split("/");
                     targetParts.splice(0, uriComponentParts - 1);
 
-                    self.mItemInfoCache[parentItem.id] = {
-                        locationPath: targetParts.join("/")
-                    };
+                    self.mItemInfoCache[parentItem.id] = { locationPath: targetParts.join("/") };
                     // TODO: onOpComplete adds the item to the cache, probably after getUpdatedItem!
 
                     // Some CalDAV servers will modify items on PUT (add X-props,

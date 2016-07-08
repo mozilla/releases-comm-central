@@ -24,10 +24,7 @@ var calICalendar = Components.interfaces.calICalendar;
 var calIErrors = Components.interfaces.calIErrors;
 
 function icsNSResolver(prefix) {
-    const ns = {
-        D: "DAV:"
-    };
-
+    const ns = { D: "DAV:" };
     return ns[prefix] || null;
 }
 

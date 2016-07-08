@@ -644,9 +644,7 @@ var upgrade = {};
 upgrade.v2 = upgrade.v1 = function(db, version) {
     LOGdb(db, "Storage: Upgrading to v1/v2");
     let tblData = {
-      cal_calendar_schema_version: {
-        version: "INTEGER"
-      },
+      cal_calendar_schema_version: { version: "INTEGER" },
 
     /* While this table is in v1, actually keeping it in the sql object will
      * cause problems when migrating from storage.sdb to local.sqlite. There,

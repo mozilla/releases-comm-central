@@ -860,18 +860,14 @@ agendaListbox.getListItemByHashId = function(ahashId) {
  * The operation listener used for calendar queries.
  * Implements calIOperationListener.
  */
-agendaListbox.calendarOpListener = {
-    agendaListbox: agendaListbox
-};
+agendaListbox.calendarOpListener = { agendaListbox: agendaListbox };
 
 /**
  * Calendar and composite observer, used to keep agenda listbox up to date.
  * @see calIObserver
  * @see calICompositeObserver
  */
-agendaListbox.calendarObserver = {
-    agendaListbox: agendaListbox
-};
+agendaListbox.calendarObserver = { agendaListbox: agendaListbox };
 
 agendaListbox.calendarObserver.QueryInterface = function(aIID) {
     if (!aIID.equals(Components.interfaces.calIObserver) &&

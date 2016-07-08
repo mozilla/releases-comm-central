@@ -133,63 +133,49 @@ add_task(function* getItipHeader_test() {
 
 add_task(function* createInvitationOverlay_test() {
     let data = [{
-        input: {
-            description: "DESCRIPTION:Go to https://www.example.net if you can.\r\n"
-        },
+        input: { description: "DESCRIPTION:Go to https://www.example.net if you can.\r\n" },
         expected: {
             node: "imipHtml-description-content",
             value: "Go to <a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-freetext" +
                    "\" href=\"https://www.example.net\">https://www.example.net</a> if you can."
         }
     }, {
-        input: {
-            description: "DESCRIPTION:Go to www.example.net if you can.\r\n"
-        },
+        input: { description: "DESCRIPTION:Go to www.example.net if you can.\r\n" },
         expected: {
             node: "imipHtml-description-content",
             value: "Go to <a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-abbrevia" +
                    "ted\" href=\"http://www.example.net\">www.example.net</a> if you can."
         }
     }, {
-        input: {
-            description: "DESCRIPTION:Or write to mailto:faq@example.net instead.\r\n"
-        },
+        input: { description: "DESCRIPTION:Or write to mailto:faq@example.net instead.\r\n" },
         expected: {
             node: "imipHtml-description-content",
             value: "Or write to <a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-fr" +
                    "eetext\" href=\"mailto:faq@example.net\">mailto:faq@example.net</a> instead."
         }
     }, {
-        input: {
-            description: "DESCRIPTION:Or write to faq@example.net instead.\r\n"
-        },
+        input: { description: "DESCRIPTION:Or write to faq@example.net instead.\r\n" },
         expected: {
             node: "imipHtml-description-content",
             value: "Or write to <a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-ab" +
                    "breviated\" href=\"mailto:faq@example.net\">faq@example.net</a> instead."
         }
     }, {
-        input: {
-            description: "DESCRIPTION:It's up to you ;-)\r\n"
-        },
+        input: { description: "DESCRIPTION:It's up to you ;-)\r\n" },
         expected: {
             node: "imipHtml-description-content",
             value: "It's up to you <span xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-smile" +
                    "y-s3\" title=\";-)\"><span>;-)</span></span>"
         }
     }, {
-        input: {
-            url: "URL:http://www.example.org/event.ics\r\n"
-        },
+        input: { url: "URL:http://www.example.org/event.ics\r\n" },
         expected: {
             node: "imipHtml-url-content",
             value: "<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-freetext\" hre" +
                    "f=\"http://www.example.org/event.ics\">http://www.example.org/event.ics</a>"
         }
     }, {
-        input: {
-            attach: "ATTACH:http://www.example.org\r\n"
-        },
+        input: { attach: "ATTACH:http://www.example.org\r\n" },
         expected: {
             node: "imipHtml-attachments-content",
             value: "<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"moz-txt-link-freetext\" hre" +
@@ -369,12 +355,8 @@ add_task(function* compareInvitationOverlay_test() {
     }
     let data = [{
         input: {
-            previous: {
-                location: "LOCATION:This place\r\n"
-            },
-            current: {
-                location: "LOCATION:Another location\r\n"
-            },
+            previous: { location: "LOCATION:This place\r\n" },
+            current: { location: "LOCATION:Another location\r\n" },
             ignore: ""
         },
         expected: {
@@ -384,12 +366,8 @@ add_task(function* compareInvitationOverlay_test() {
         }
     }, {
         input: {
-            previous: {
-                summary: "SUMMARY:My invitation\r\n"
-            },
-            current: {
-                summary: "SUMMARY:My new invitation\r\n"
-            },
+            previous: { summary: "SUMMARY:My invitation\r\n" },
+            current: { summary: "SUMMARY:My new invitation\r\n" },
             ignore: ""
         },
         expected: {
@@ -447,12 +425,8 @@ add_task(function* compareInvitationOverlay_test() {
         }
     }, {
         input: {
-            previous: {
-                organizer: "ORGANIZER:mailto:organizer1@example.net\r\n"
-            },
-            current: {
-                organizer: "ORGANIZER:mailto:organizer2@example.net\r\n"
-            },
+            previous: { organizer: "ORGANIZER:mailto:organizer1@example.net\r\n" },
+            current: { organizer: "ORGANIZER:mailto:organizer2@example.net\r\n" },
             ignore: ""
         },
         expected: {
@@ -576,9 +550,7 @@ add_task(function* getHeaderSection_test() {
         input: {
             toList: "recipient@example.net",
             subject: "Invitation: test subject",
-            identity: {
-                email: "sender@example.net"
-            }
+            identity: { email: "sender@example.net" }
         },
         expected: "MIME-version: 1.0\r\n" +
                   "From: sender@example.net\r\n" +

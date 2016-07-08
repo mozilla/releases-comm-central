@@ -431,10 +431,12 @@ function updateListboxDeleteButton(listboxId, buttonId) {
  * @return                A string containg the pluralized version of the unit
  */
 function unitPluralForm(aLength, aUnit, aIncludeLength=true) {
-    let unitProp = { "minutes": "unitMinutes",
-                     "hours": "unitHours",
-                     "days": "unitDays",
-                     "weeks": "unitWeeks" }[aUnit] || "unitMinutes";
+    let unitProp = {
+        "minutes": "unitMinutes",
+        "hours": "unitHours",
+        "days": "unitDays",
+        "weeks": "unitWeeks"
+    }[aUnit] || "unitMinutes";
 
     return PluralForm.get(aLength, cal.calGetString("calendar", unitProp))
                      .replace("#1", aIncludeLength ? aLength : "").trim();

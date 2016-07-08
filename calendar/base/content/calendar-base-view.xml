@@ -43,14 +43,16 @@
       <field name="mToggleStatus">0</field>
       <field name="mLog">null</field>
       <field name="mToggleStatusFlag"><![CDATA[
-      ({ WorkdaysOnly:  1,
+      ({
+         WorkdaysOnly:  1,
          TasksInView:   2,
          ShowCompleted: 4,
       })
       ]]></field>
 
       <field name="mPrefObserver"><![CDATA[
-      ({ calView: this,
+      ({
+         calView: this,
          observe: function(subj, topic, pref) {
              this.calView.handlePreference(subj, topic, pref);
              return;

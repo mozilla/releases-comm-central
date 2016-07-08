@@ -119,9 +119,7 @@ var Link = React.createClass({
 
 var DatePicker = React.createClass({
     render: function() {
-        return React.DOM.input({
-            type: "date"
-        });
+        return React.DOM.input({ type: "date" });
     }
 });
 

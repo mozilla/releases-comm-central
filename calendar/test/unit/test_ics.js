@@ -92,9 +92,7 @@ var test_data = [
         "END:VCALENDAR\n"
     },
     {
-        expectedProps: {
-            "x-magic": "mymagicstring"
-        },
+        expectedProps: { "x-magic": "mymagicstring" },
         ics: "BEGIN:VEVENT\n" +
              "UID:1\n" +
              "DTSTART:20070521T100000Z\n" +

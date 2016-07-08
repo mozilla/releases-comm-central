@@ -132,9 +132,7 @@ function test_calOperationGroup() {
     equal(group.status, Components.results.NS_OK);
     equal(group.isPending, true);
 
-    let completedOp = {
-        isPending: false
-    };
+    let completedOp = { isPending: false };
 
     group.add(completedOp);
     ok(group.isEmpty);

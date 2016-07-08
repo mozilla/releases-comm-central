@@ -427,9 +427,11 @@ cal.toRFC3339 = function(aDateTime) {
 
 cal.promptOverwrite = function(aMode, aItem) {
     let window = cal.getCalendarWindow();
-    let args = { item: aItem,
-                 mode: aMode,
-                 overwrite: false };
+    let args = {
+        item: aItem,
+        mode: aMode,
+        overwrite: false
+    };
 
     window.openDialog("chrome://calendar/content/calendar-conflicts-dialog.xul",
                       "calendarConflictsDialog",

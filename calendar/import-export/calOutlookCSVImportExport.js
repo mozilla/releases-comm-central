@@ -82,9 +82,11 @@ function getOutlookCsvFileTypes(aCount) {
     aCount.value = 1;
     let wildmat = "*.csv";
     let label = cal.calGetString("calendar", "filterOutlookCsv", [wildmat]);
-    return [{ defaultExtension: "csv",
-              extensionFilter: wildmat,
-              description: label }];
+    return [{
+        defaultExtension: "csv",
+        extensionFilter: wildmat,
+        description: label
+    }];
 }
 
 // Importer

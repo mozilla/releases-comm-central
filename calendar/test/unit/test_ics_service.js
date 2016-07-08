@@ -120,8 +120,10 @@ function test_icsservice() {
 
     checkProp(svc.createIcalPropertyFromString.bind(svc),
               "DESCRIPTION:new\\nlines\\nare\\ngreat\\,eh?",
-              { value: "new\nlines\nare\ngreat,eh?",
-                valueAsIcalString: "new\\nlines\\nare\\ngreat\\,eh?" }, {});
+              {
+                  value: "new\nlines\nare\ngreat,eh?",
+                  valueAsIcalString: "new\\nlines\\nare\\ngreat\\,eh?"
+              }, {});
 
     // Test ::createIcalProperty
     let attach2 = svc.createIcalProperty("ATTACH");

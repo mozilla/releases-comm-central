@@ -111,10 +111,12 @@ function test_cancel() {
     let provider = {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIFreeBusyProvider, Components.interfaces.calIOperation]),
         getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
-            Services.tm.currentThread.dispatch({ run: function() {
-                dump("Cancelling freebusy query...");
-                op.cancel();
-            } }, Components.interfaces.nsIEventTarget.DISPATCH_NORMAL);
+            Services.tm.currentThread.dispatch({
+                run: function() {
+                    dump("Cancelling freebusy query...");
+                    op.cancel();
+                }
+            }, Components.interfaces.nsIEventTarget.DISPATCH_NORMAL);
 
             // No listener call, we emulate a long running search
             // Do return the operation though

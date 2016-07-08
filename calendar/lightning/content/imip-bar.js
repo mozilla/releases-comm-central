@@ -356,10 +356,9 @@ var ltnImipBar = {
                 // we create and adopt copies of the respective events
                 let saveitems = ltnImipBar.itipItem.getItemList({}).map(cal.getPublishLikeItemCopy.bind(cal));
                 if (saveitems.length > 0) {
+                    let methods = { receivedMethod: "PUBLISH", responseMethod: "PUBLISH" };
                     let newItipItem = cal.itip.getModifiedItipItem(ltnImipBar.itipItem,
-                                                                   saveitems,
-                                                                   { receivedMethod: "PUBLISH",
-                                                                     responseMethod: "PUBLISH" });
+                                                                   saveitems, methods);
                     // control to avoid processing _execAction on later user changes on the item
                     let isFirstProcessing = true;
                     // setup callback and trigger re-processing

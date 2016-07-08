@@ -158,12 +158,8 @@ var calendarItemTabType = {
     perTabPanel: "vbox",
     idNumber: 0,
     modes: {
-        calendarEvent: {
-            type: "calendarEvent"
-        },
-        calendarTask: {
-            type: "calendarTask"
-        }
+        calendarEvent: { type: "calendarEvent" },
+        calendarTask: { type: "calendarTask" }
     },
     /**
      * Opens an event tab or a task tab.
@@ -450,8 +446,10 @@ function ltnIntegrationNotification() {
     let cbLearnMore = function(aNotificationBar, aButton) {
         // In SeaMonkey the second parameter should be either null or an
         // event object with a non null target.ownerDocument.
-        openUILink(kSupportUri, { button: 0,
-                                  target: { ownerDocument: document } });
+        openUILink(kSupportUri, {
+            button: 0,
+            target: { ownerDocument: document }
+        });
         return true;
     };
     let cbKeepIt = function(aNotificationBar, aButton) {
