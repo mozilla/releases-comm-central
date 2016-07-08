@@ -36,7 +36,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
         }
      },
 
-     showStatusString: function cStObs_showStatusString(status){
+     showStatusString: function cStObs_showStatusString(status) {
          this.mStatusText.setAttribute("label", status);
      },
 
@@ -103,7 +103,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
                      this.showStatusString(curStatus);
                  }
              }
-             if (this.mThrobber){
+             if (this.mThrobber) {
                  this.mThrobber.setAttribute("busy", true);
              }
          }

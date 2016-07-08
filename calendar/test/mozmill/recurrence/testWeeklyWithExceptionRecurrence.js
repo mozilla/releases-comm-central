@@ -202,7 +202,7 @@ var testWeeklyWithExceptionRecurrence = function() {
   controller.waitForElementNotPresent(new elementslib.Lookup(controller.window.document, path));
 };
 
-function setRecurrence(recurrence){
+function setRecurrence(recurrence) {
   // weekly
   recurrence.waitForElement(new elementslib.ID(recurrence.window.document, "period-list"));
   recurrence.select(new elementslib.ID(recurrence.window.document, "period-list"), undefined, undefined, "1");
@@ -227,7 +227,7 @@ function setRecurrence(recurrence){
     + 'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
 }
 
-function changeRecurrence(recurrence){
+function changeRecurrence(recurrence) {
   // weekly
   recurrence.waitForElement(new elementslib.ID(recurrence.window.document, "period-list"));
   recurrence.select(new elementslib.ID(recurrence.window.document, "period-list"), undefined, undefined, "1");
@@ -255,7 +255,7 @@ function changeRecurrence(recurrence){
     + 'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
 }
 
-function checkMultiWeekView(view){
+function checkMultiWeekView(view) {
   let startWeek = view == "multiweek" ? 1 : 2;
 
   let path = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, startWeek, 2, hour);

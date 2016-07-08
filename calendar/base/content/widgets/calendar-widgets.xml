@@ -303,7 +303,7 @@
         if (this.hasAttribute("refcontrol")) {
             this.mRefControl = document.getElementById(this.getAttribute("refcontrol"));
             if (this.mRefControl && ((this.mRefControl.localName == "treenode-checkbox") ||
-                                  (this.mRefControl.localName == "checkbox"))){
+                                  (this.mRefControl.localName == "checkbox"))) {
                 this.mControlHandler = {
                     binding: this,
                     handleEvent: function(aEvent, aHandled) {
@@ -394,7 +394,7 @@
                 modeIndex = collapsedModes.indexOf(this.currentMode);
                 collapsedInMode = (modeIndex > -1);
             }
-            if ((aVisible === true) && (pushModeCollapsedAttribute == false)){
+            if ((aVisible === true) && (pushModeCollapsedAttribute == false)) {
                 display = (aVisible === true) && (!collapsedInMode);
             }
 

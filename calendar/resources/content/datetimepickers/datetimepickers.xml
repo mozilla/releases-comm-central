@@ -1939,7 +1939,7 @@
               "[Aa\u0410\u0430][. ]?[Mm\u041c\u043c][. ]?|\u0635|\u4e0a\u5348|\u5348\u524d";
             let pmExpr =
               "[Pp\u0420\u0440][. ]?[Mm\u041c\u043c][. ]?|\u0645|\u4e0b\u5348|\u5348\u5f8c";
-            if (this.ampmIndex){
+            if (this.ampmIndex) {
               amExpr = amFormatExpr + "|" + amExpr;
               pmExpr = pmFormatExpr + "|" + pmExpr;
             }

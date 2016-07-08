@@ -172,7 +172,7 @@ function calendarListTooltipShowing(event) {
     let tooltipText = false;
     if (calendar) {
         let currentStatus = calendar.getProperty("currentStatus");
-        if (!Components.isSuccessCode(currentStatus)){
+        if (!Components.isSuccessCode(currentStatus)) {
             tooltipText = calGetString("calendar", "tooltipCalendarDisabled", [calendar.name]);
         } else if (calendar.readOnly) {
             tooltipText = calGetString("calendar", "tooltipCalendarReadOnly", [calendar.name]);

@@ -245,7 +245,7 @@ function findPeriodsForItem(aItem) {
  * Gets the start of the earliest period shown in the agenda listbox
  */
 agendaListbox.getStart =
-function getStart(){
+function getStart() {
     let retStart = null;
     for (let i = 0; i < this.periods.length; i++) {
         if (this.periods[i].open) {
@@ -260,7 +260,7 @@ function getStart(){
  * Gets the end of the latest period shown in the agenda listbox
  */
 agendaListbox.getEnd =
-function getEnd(){
+function getEnd() {
     let retEnd = null;
     for (let i = this.periods.length - 1; i >= 0; i--) {
         if (this.periods[i].open) {
@@ -471,7 +471,7 @@ function getListItems(aItem, aPeriod) {
                 complistItem = complistItem.nextSibling;
                 leaveloop = (!this.isEventListItem(complistItem));
                 if (!leaveloop) {
-                    if (this.isSameEvent(aItem, complistItem.occurrence)){
+                    if (this.isSameEvent(aItem, complistItem.occurrence)) {
                         retlistItems.push(complistItem);
                         break;
                     }
@@ -580,7 +580,7 @@ function deleteSelectedItem(aDoNotConfirm) {
  */
 agendaListbox.createNewEvent =
 function createNewEvent(aEvent) {
-    if (!this.isEventListItem(aEvent.target)){
+    if (!this.isEventListItem(aEvent.target)) {
         // Create new event for the date currently displayed in the agenda. Setting
         // isDate = true automatically makes the start time be the next full hour.
         let eventStart = agendaListbox.today.start.clone();
@@ -720,7 +720,7 @@ function setupCalendar() {
         this.calendar.removeObserver(this.calendarObserver);
     }
     this.calendar.addObserver(this.calendarObserver);
-    if (this.mListener){
+    if (this.mListener) {
         this.mListener.updatePeriod();
     }
 };

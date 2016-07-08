@@ -418,14 +418,14 @@ calCompositeCalendar.prototype = {
     },
 
     get statusDisplayed() {
-        if (!this.mStatusObserver){
+        if (!this.mStatusObserver) {
             return false;
         } else {
             return this.mStatusObserver.spinning != Components.interfaces.calIStatusObserver.NO_PROGRESS;
         }
     },
 
-    setStatusObserver: function(aStatusObserver, aWindow){
+    setStatusObserver: function(aStatusObserver, aWindow) {
         this.mStatusObserver = aStatusObserver;
         if (this.mStatusObserver) {
             this.mStatusObserver.initialize(aWindow);

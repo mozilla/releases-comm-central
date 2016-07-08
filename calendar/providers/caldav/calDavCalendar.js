@@ -744,7 +744,7 @@ calDavCalendar.prototype = {
      * @param aListener   listener from original request
      * @param aIgnoreEtag ignore item etag
      */
-    doModifyItem: function caldav_doModifyItem(aNewItem, aOldItem, aListener, aIgnoreEtag){
+    doModifyItem: function caldav_doModifyItem(aNewItem, aOldItem, aListener, aIgnoreEtag) {
         let notifyListener = (status, detail, pure=false) => {
             let method = pure ? "notifyPureOperationComplete" : "notifyOperationComplete";
             this[method](aListener, status, cIOL.MODIFY, aNewItem.id, detail);
@@ -869,7 +869,7 @@ calDavCalendar.prototype = {
      * @param aFromInbox  delete from inbox rather than calendar
      * @param aUri        uri of item to delete
      * */
-    doDeleteItem: function caldav_doDeleteItem(aItem, aListener, aIgnoreEtag, aFromInbox, aUri){
+    doDeleteItem: function caldav_doDeleteItem(aItem, aListener, aIgnoreEtag, aFromInbox, aUri) {
         let notifyListener = (status, detail, pure=false) => {
             let method = pure ? "notifyPureOperationComplete" : "notifyOperationComplete";
             this[method](aListener, status, cIOL.DELETE, aItem.id, detail);

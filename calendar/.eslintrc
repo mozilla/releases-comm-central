@@ -350,10 +350,12 @@
     // Disallow Floating Decimals
     "no-floating-decimal": 2,
 
+    // Require Space Before Blocks
+    "space-before-blocks": 2,
+
     // Will enable these rules later
     "block-spacing": 0,
     "no-lonely-if": 0,
-    "space-before-blocks": 0,
     "computed-property-spacing": 0,
 
     // The following rules will not be enabled currently, but are kept here for

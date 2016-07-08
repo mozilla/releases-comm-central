@@ -1126,7 +1126,7 @@
                 }
             } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
                 this.mPixelScrollDelta += event.deltaY;
-                if (this.mPixelScrollDelta > pixelThreshold){
+                if (this.mPixelScrollDelta > pixelThreshold) {
                     deltaView = 1;
                     this.mPixelScrollDelta = 0;
                 } else if (this.mPixelScrollDelta < -pixelThreshold) {

@@ -784,7 +784,7 @@ var cal = {
      * @param aIsDate       True or false indicating the new value of 'isDate'
      * @return              The modified item
      */
-    setItemToAllDay: function cal_setItemToAllDay(aItem, aIsDate){
+    setItemToAllDay: function cal_setItemToAllDay(aItem, aIsDate) {
         let start = aItem[calGetStartDateProp(aItem)];
         let end = aItem[calGetEndDateProp(aItem)];
         if (start || end) {

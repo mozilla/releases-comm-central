@@ -46,7 +46,7 @@ var testWeeklyNRecurrence = function() {
     + eventPath;
 
   // Monday, Tuesday, Wednesday, Thursday
-  for (let i = 0; i < 4; i++){
+  for (let i = 0; i < 4; i++) {
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
     calUtils.forward(controller, 1);
   }
@@ -59,7 +59,7 @@ var testWeeklyNRecurrence = function() {
   calUtils.switchToView(controller, "week");
 
   // Monday, Tuesday, Wednesday, Thursday
-  for (let i = 2; i < 6; i++){
+  for (let i = 2; i < 6; i++) {
     box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, i, hour)
       + eventPath;
     controller.waitForElement(new elementslib.Lookup(controller.window.document, box));
@@ -96,7 +96,7 @@ var testWeeklyNRecurrence = function() {
   });
 };
 
-function setRecurrence(recurrence){
+function setRecurrence(recurrence) {
   // weekly
   recurrence.waitForElement(new elementslib.ID(recurrence.window.document, "period-list"));
   recurrence.select(new elementslib.ID(recurrence.window.document, "period-list"), undefined, undefined, "1");
@@ -134,7 +134,7 @@ function setRecurrence(recurrence){
     + 'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
 }
 
-function checkMultiWeekView(view){
+function checkMultiWeekView(view) {
   let week = 1;
 
   // in month view event starts from 2nd row
@@ -143,7 +143,7 @@ function checkMultiWeekView(view){
   }
 
   // Monday, Tuesday, Wednesday, Thursday
-  for (let i = 2; i < 6; i++){
+  for (let i = 2; i < 6; i++) {
     let box = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, week, i, undefined)
       + eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));

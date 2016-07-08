@@ -42,7 +42,7 @@ var testBiweeklyRecurrence = function() {
     + eventPath;
 
   // check day view
-  for (let i = 0; i < 4; i++){
+  for (let i = 0; i < 4; i++) {
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
     calUtils.forward(controller, 14);
   }
@@ -53,7 +53,7 @@ var testBiweeklyRecurrence = function() {
 
   box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 7, hour)
     + eventPath;
-  for (let i = 0; i < 4; i++){
+  for (let i = 0; i < 4; i++) {
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
     calUtils.forward(2);
   }
@@ -63,7 +63,7 @@ var testBiweeklyRecurrence = function() {
   calUtils.goToDate(controller, 2009, 1, 31);
 
   // always two occurrences in view, 1st and 3rd or 2nd and 4th week
-  for (let i = 0; i < 5; i++){
+  for (let i = 0; i < 5; i++) {
     box = calUtils.getEventBoxPath(controller, "multiweek", calUtils.EVENT_BOX, i % 2 + 1, 7,
       undefined) + eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));

@@ -67,7 +67,7 @@ function handleOccurrenceDeletion(controller, attendees) {
  *  @param controller - Mozmill window controller
  *  @param attendees - whether there are attendees that can be notified or not
  */
-function handleParentDeletion(controller, attendees){
+function handleParentDeletion(controller, attendees) {
   let md = new modalDialog.modalDialog(controller.window);
   md.start((dialog) => {
     if (attendees) {
@@ -82,7 +82,7 @@ function handleParentDeletion(controller, attendees){
  *  @param controller - Mozmill window controller
  *  @param attendees - whether there are attendees that can be notified or not
  */
-function handleOccurrenceModification(controller, attendees){
+function handleOccurrenceModification(controller, attendees) {
   handleOccurrenceDeletion(controller, attendees);
 }
 
@@ -91,7 +91,7 @@ function handleOccurrenceModification(controller, attendees){
  *  @param controller - Mozmill window controller
  *  @param attendees - whether there are attendees that can be notified or not
  */
-function handleParentModification(controller, attendees){
+function handleParentModification(controller, attendees) {
   handleParentDeletion(controller, attendees);
 }
 
@@ -100,8 +100,8 @@ function handleParentModification(controller, attendees){
  *  @param controller - Mozmill window controller
  *  @param view - day, week, multiweek or month
  */
-function switchToView(controller, view){
-  switch (view){
+function switchToView(controller, view) {
+  switch (view) {
     case "week":
       controller.waitThenClick(new elementslib.ID(controller.window.document,
         "calendar-week-view-button"));
@@ -147,7 +147,7 @@ function switchToView(controller, view){
  *  @param month - 1-based index of a month
  *  @param day - 1-based index of a day
  */
-function goToDate(controller, year, month, day){
+function goToDate(controller, year, month, day) {
   let miniMonth = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/'
     + 'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/id("ltnSidebar")/'
     + 'id("minimonth-pane")/{"align":"center"}/id("calMinimonthBox")/id("calMinimonth")/';
@@ -174,7 +174,7 @@ function goToDate(controller, year, month, day){
       + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})'));
     controller.sleep(500);
 
-    for (let i = 0; i < Math.abs(yearDifference); i++){
+    for (let i = 0; i < Math.abs(yearDifference); i++) {
       scrollArrow.doCommand();
       controller.sleep(100);
     }
@@ -217,7 +217,7 @@ function goToDate(controller, year, month, day){
  *  @param hour - index of hour box
  *  @returns path string
  */
-function getEventBoxPath(controller, view, option, row, column, hour){
+function getEventBoxPath(controller, view, option, row, column, hour) {
   let viewDeck = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/'
     + 'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/'
     + 'id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")';
@@ -227,7 +227,7 @@ function getEventBoxPath(controller, view, option, row, column, hour){
   let monthView = viewDeck + '/id("month-view")';
 
   let path = '';
-  switch (view){
+  switch (view) {
     case "week":
       path += weekView;
       break;
@@ -273,8 +273,8 @@ function getEventBoxPath(controller, view, option, row, column, hour){
  * @param controller - Mozmill window controller
  * @param n - how many times next button in view is clicked
  */
-function forward(controller, n){
-  for (let i = 0; i < n; i++){
+function forward(controller, n) {
+  for (let i = 0; i < n; i++) {
     controller.click(new elementslib.ID(controller.window.document, "next-view-button"));
     controller.sleep(100);
   }
@@ -284,8 +284,8 @@ function forward(controller, n){
  * @param controller - Mozmill window controller
  * @param n - how many times previous button in view is clicked
  */
-function back(controller, n){
-  for (let i = 0; i < n; i++){
+function back(controller, n) {
+  for (let i = 0; i < n; i++) {
     controller.click(new elementslib.ID(controller.window.document, "previous-view-button"));
     controller.sleep(100);
   }
@@ -296,7 +296,7 @@ function back(controller, n){
  * @param controller - Mozmill window controller
  * @param name - calendar name
  */
-function deleteCalendars(controller, name){
+function deleteCalendars(controller, name) {
   let defaultView = (new elementslib.ID(controller.window.document, "messengerWindow"))
                     .getNode().ownerDocument.defaultView;
   let manager = defaultView.getCalendarManager();
@@ -314,7 +314,7 @@ function deleteCalendars(controller, name){
  * @param controller - Mozmill window controller
  * @param name - calendar name
  */
-function createCalendar(controller, name){
+function createCalendar(controller, name) {
   let defaultView = (new elementslib.ID(controller.window.document, "messengerWindow"))
                     .getNode().ownerDocument.defaultView;
   let manager = defaultView.getCalendarManager();

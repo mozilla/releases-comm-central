@@ -755,7 +755,7 @@
               // 2. If some day name abbrev. is longer than 2 chars (not Catalan),
               //    and ALL localized day names share same prefix (as in Chinese),
               //    then trim shared "day-" prefix.
-              if (dayList.some(function(dayAbbr){ return dayAbbr.length > 2; })) {
+              if (dayList.some(dayAbbr => dayAbbr.length > 2)) {
                   for (let endPrefix = 0; endPrefix < minLength; endPrefix++) {
                       let c = dayList[0][endPrefix];
                       if (dayList.some(dayAbbr => dayAbbr[endPrefix] != c)) {
@@ -1178,7 +1178,7 @@
               }
           }
 
-          if (deltaView != 0){
+          if (deltaView != 0) {
               this.advanceMonth(deltaView);
           }
 

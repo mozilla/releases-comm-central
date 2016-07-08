@@ -42,7 +42,7 @@ var testAnnualRecurrence = function() {
 
   let checkYears = [startYear, startYear + 1, epoch - 1, epoch, epoch + 1];
   let box = "";
-  for (let i = 0; i < checkYears.length; i++){
+  for (let i = 0; i < checkYears.length; i++) {
     calUtils.goToDate(controller, checkYears[i], 1, 1);
     let date = new Date(checkYears[i], 0, 1);
     let column = date.getDay() + 1;

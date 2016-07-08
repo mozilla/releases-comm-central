@@ -103,7 +103,7 @@ var taskEdit = {
             return;
         }
 
-        if (calendar.getProperty("capabilities.tasks.supported") === false){
+        if (calendar.getProperty("capabilities.tasks.supported") === false) {
             taskEdit.setupTaskField(edit,
                                     true,
                                     calGetString("calendar", "taskEditInstructionsCapability"));

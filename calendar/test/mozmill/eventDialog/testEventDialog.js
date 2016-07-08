@@ -167,8 +167,8 @@ var testEventDialog = function() {
 
   // 31st of January is Saturday so there's four more full rows to check
   let date = 4;
-  for (row = 1; row < 5; row++){
-    for (col = 0; col < 7; col++){
+  for (row = 1; row < 5; row++) {
+    for (col = 0; col < 7; col++) {
         controller.assertNode(new elementslib.Lookup(controller.window.document,
           eventBox.replace("rowNumber", row).replace("columnNumber", col)));
         checkIcon(eventBox, row, col);
@@ -222,7 +222,7 @@ var testEventDialog = function() {
   }
 };
 
-function handleAttendees(attendees){
+function handleAttendees(attendees) {
   let input = new elementslib.Lookup(attendees.window.document,
     '/id("calendar-event-dialog-attendees-v2")/[6]/[0]/id("attendees-list")/'
     + 'anon({"anonid":"listbox"})/[1]/[1]/anon({"anonid":"input"})/'
@@ -234,14 +234,14 @@ function handleAttendees(attendees){
     '/id("calendar-event-dialog-attendees-v2")/anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
 }
 
-function checkIcon(eventBox, row, col){
+function checkIcon(eventBox, row, col) {
   let icon = new elementslib.Lookup(controller.window.document,
     (eventBox + '/anon({"anonid":"category-box-stack"})/anon({"align": "right"})/anon({"class":"alarm-icons-box"})/anon({"class": "reminder-icon"})')
     .replace("rowNumber", row).replace("columnNumber", col));
   controller.assertJS(icon.getNode().getAttribute("value") == "DISPLAY");
 }
 
-function checkTooltip(monthView, row, col, date, startTime, endTime){
+function checkTooltip(monthView, row, col, date, startTime, endTime) {
   let mouseOverItem = monthView + 'anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/'
     + 'anon({"anonid":"monthgridrows"})/[rowNumber]/[columnNumber]/'
     + '{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';

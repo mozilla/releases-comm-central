@@ -1419,7 +1419,7 @@ function applyAttributeToMenuChildren(aElement, aAttributeName, aValue) {
        if (sibling) {
            let domObject = sibling;
            let commandName = null;
-           if (sibling.hasAttribute("command")){
+           if (sibling.hasAttribute("command")) {
                commandName = sibling.getAttribute("command");
            }
            if (commandName) {
@@ -1891,7 +1891,7 @@ function getCompositeCalendar() {
  *
  * @param aItem     The item of the dialog to search for.
  */
-function findItemWindow(aItem){
+function findItemWindow(aItem) {
     let list = Services.wm.getEnumerator("Calendar:EventDialog");
     while (list.hasMoreElements()) {
         let dlg = list.getNext();
