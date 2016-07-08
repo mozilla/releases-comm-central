@@ -8,8 +8,7 @@ var gPublishObject;
 /**
 *   Called when the dialog is loaded.
 */
-function loadCalendarPublishDialog()
-{
+function loadCalendarPublishDialog() {
    // Get arguments, see description at top of file
 
    var args = window.arguments[0];
@@ -38,8 +37,7 @@ function loadCalendarPublishDialog()
 *   Called when the OK button is clicked.
 */
 
-function onOKCommand()
-{
+function onOKCommand() {
    gPublishObject.remotePath = document.getElementById( "publish-remotePath-textbox" ).value;
 
    // call caller's on OK function
@@ -50,8 +48,7 @@ function onOKCommand()
 }
 
 
-function checkURLField( )
-{
+function checkURLField() {
    if (document.getElementById( "publish-remotePath-textbox" ).value.length == 0) {
       document.getElementById( "calendar-publishwindow" ).getButton( "accept" ).setAttribute( "disabled", "true" );
    } else {
@@ -59,9 +56,8 @@ function checkURLField( )
    }
 }
 
-function closeDialog( )
-{
-   self.close( );
+function closeDialog() {
+   self.close();
 }
 
 var progressDialog = {

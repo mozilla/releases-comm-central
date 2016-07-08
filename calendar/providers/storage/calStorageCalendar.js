@@ -667,8 +667,7 @@ calStorageCalendar.prototype = {
         });
     },
     getItems_: function cSC_getItems_(aItemFilter, aCount,
-                                      aRangeStart, aRangeEnd, aListener)
-    {
+                                      aRangeStart, aRangeEnd, aListener) {
         if (!aListener) {
             return;
         }

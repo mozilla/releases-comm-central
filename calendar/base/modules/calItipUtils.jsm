@@ -452,8 +452,7 @@ cal.itip = {
             if (calendars.length == 0) {
                 let msg = cal.calGetString("lightning", "imipNoCalendarAvailable", null, "lightning");
                 aWindow.alert(msg);
-            }
-            else if (calendars.length == 1) {
+            } else if (calendars.length == 1) {
                 // There's only one calendar, so it's silly to ask what calendar
                 // the user wants to import into.
                 targetCalendar = calendars[0];

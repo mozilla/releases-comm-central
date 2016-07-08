@@ -54,10 +54,12 @@ calDateTime.prototype = {
     set second(val) { this.innerObject.second = val; },
 
     get timezone() { return new calICALJSTimezone(this.innerObject.zone); },
-    set timezone(val) { unwrapSetter(ICAL.Timezone, val, function(val) {
-        this.innerObject.zone = val;
-        return val;
-    }, this); },
+    set timezone(val) {
+        unwrapSetter(ICAL.Timezone, val, function(val) {
+            this.innerObject.zone = val;
+            return val;
+        }, this);
+    },
 
     resetTo: function (yr, mo, dy, hr, mi, sc, tz) {
         this.innerObject.fromData({

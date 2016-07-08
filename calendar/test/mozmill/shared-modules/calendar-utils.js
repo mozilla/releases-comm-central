@@ -346,8 +346,7 @@ function findEventsInNode(node, eventNodes) {
   if (node.tagName == "calendar-event-box") {
     eventNodes.push(node);
     return;
-  }
-  else if (node.children.length > 0) {
+  } else if (node.children.length > 0) {
     for (let i = 0; i < node.children.length; i++) {
       findEventsInNode(node.children[i], eventNodes);
     }

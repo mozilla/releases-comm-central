@@ -79,20 +79,22 @@ calIcalProperty.prototype = {
                          ("icalclass" in val) && val.icalclass == "icaltime";
         return (isIcalTime ? new calDateTime(val) : null);
     },
-    set valueAsDatetime(val) { unwrapSetter(ICAL.Time, val, function(val) {
-        if (val && val.zone &&
-            val.zone != ICAL.Timezone.utcTimezone &&
-            val.zone != ICAL.Timezone.localTimezone) {
-            this.innerObject.setParameter("TZID", val.zone.tzid);
-            if (this.parent) {
-                let tzref = wrapGetter(calICALJSTimezone, val.zone);
-                this.parent.addTimezoneReference(tzref);
+    set valueAsDatetime(val) {
+        unwrapSetter(ICAL.Time, val, function(val) {
+            if (val && val.zone &&
+                val.zone != ICAL.Timezone.utcTimezone &&
+                val.zone != ICAL.Timezone.localTimezone) {
+                this.innerObject.setParameter("TZID", val.zone.tzid);
+                if (this.parent) {
+                    let tzref = wrapGetter(calICALJSTimezone, val.zone);
+                    this.parent.addTimezoneReference(tzref);
+                }
+            } else {
+                this.innerObject.removeParameter("TZID");
             }
-        } else {
-            this.innerObject.removeParameter("TZID");
-        }
-        this.innerObject.setValue(val);
-    }, this); },
+            this.innerObject.setValue(val);
+        }, this);
+    },
 
     get propertyName() { return this.innerObject.name.toUpperCase(); },
 

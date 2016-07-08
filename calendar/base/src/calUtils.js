@@ -1021,8 +1021,7 @@ function showError(aMsg) {
  *
  * @param bgColor   the background color as a "#RRGGBB" string
  */
-function getContrastingTextColor(bgColor)
-{
+function getContrastingTextColor(bgColor) {
     var calcColor = bgColor.replace(/#/g, "");
     var red = parseInt(calcColor.substring(0, 2), 16);
     var green = parseInt(calcColor.substring(2, 4), 16);
@@ -1075,8 +1074,7 @@ function calGetEndDateProp(aItem) {
  * @param returnDtstartOrDue returns item's start (or due) date in case
  *                           the item is in the specified Range; null otherwise.
  */
-function checkIfInRange(item, rangeStart, rangeEnd, returnDtstartOrDue)
-{
+function checkIfInRange(item, rangeStart, rangeEnd, returnDtstartOrDue) {
     let startDate;
     let endDate;
     let queryStart = ensureDateTime(rangeStart);

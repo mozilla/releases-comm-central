@@ -18,8 +18,7 @@
  *  Used by all grid views.
  */
 
-function onMouseOverItem( occurrenceBoxMouseEvent )
-{
+function onMouseOverItem( occurrenceBoxMouseEvent ) {
   if ("occurrence" in occurrenceBoxMouseEvent.currentTarget) {
     // occurrence of repeating event or todo
       var occurrence = occurrenceBoxMouseEvent.currentTarget.occurrence;
@@ -49,11 +48,8 @@ function showToolTip(aToolTip, aItem) {
 /**
  *  Called when a user hovers over a todo element and the text for the mouse over is changed.
  */
-
-function getPreviewForTask( toDoItem )
-{
-  if ( toDoItem )
-  {
+function getPreviewForTask(toDoItem) {
+  if (toDoItem) {
     const vbox = document.createElement( "vbox" );
     vbox.setAttribute("class", "tooltipBox");
     // tooltip appears above or below pointer, so may have as little as
@@ -63,15 +59,13 @@ function getPreviewForTask( toDoItem )
 
     var hasHeader = false;
 
-    if (toDoItem.title)
-    {
+    if (toDoItem.title) {
       boxAppendLabeledText(vbox, "tooltipTitle", toDoItem.title);
       hasHeader = true;
     }
 
     var location = toDoItem.getProperty("LOCATION");
-    if (location)
-    {
+    if (location) {
       boxAppendLabeledText(vbox, "tooltipLocation", location);
       hasHeader = true;
     }
@@ -82,20 +76,17 @@ function getPreviewForTask( toDoItem )
       boxAppendLabeledText(vbox, "tooltipCalName", calendarNameString);
     }
 
-    if (toDoItem.entryDate && toDoItem.entryDate.isValid)
-    {
+    if (toDoItem.entryDate && toDoItem.entryDate.isValid) {
       boxAppendLabeledDateTime(vbox, "tooltipStart", toDoItem.entryDate);
       hasHeader = true;
     }
 
-    if (toDoItem.dueDate && toDoItem.dueDate.isValid)
-    {
+    if (toDoItem.dueDate && toDoItem.dueDate.isValid) {
       boxAppendLabeledDateTime(vbox, "tooltipDue", toDoItem.dueDate);
       hasHeader = true;
     }
 
-    if (toDoItem.priority && toDoItem.priority != 0)
-    {
+    if (toDoItem.priority && toDoItem.priority != 0) {
       var priorityInteger = parseInt(toDoItem.priority, 10);
       var priorityString;
 
@@ -111,19 +102,16 @@ function getPreviewForTask( toDoItem )
       hasHeader = true;
     }
 
-    if (toDoItem.status && toDoItem.status != "NONE")
-    {
+    if (toDoItem.status && toDoItem.status != "NONE") {
       var status = getToDoStatusString(toDoItem);
       boxAppendLabeledText(vbox, "tooltipStatus", status);
       hasHeader = true;
     }
 
-    if (toDoItem.status != null && toDoItem.percentComplete != 0 && toDoItem.percentComplete != 100)
-    {
+    if (toDoItem.status != null && toDoItem.percentComplete != 0 && toDoItem.percentComplete != 100) {
       boxAppendLabeledText(vbox, "tooltipPercent", String(toDoItem.percentComplete) + "%");
       hasHeader = true;
-    } else if (toDoItem.percentComplete == 100)
-    {
+    } else if (toDoItem.percentComplete == 100) {
       if (toDoItem.completedDate == null) {
         boxAppendLabeledText(vbox, "tooltipPercent", "100%");
       } else {
@@ -133,8 +121,7 @@ function getPreviewForTask( toDoItem )
     }
 
     var description = toDoItem.getProperty("DESCRIPTION");
-    if (description)
-    {
+    if (description) {
       // display wrapped description lines like body of message below headers
       if (hasHeader) {
         boxAppendBodySeparator(vbox);
@@ -143,9 +130,7 @@ function getPreviewForTask( toDoItem )
     }
 
     return ( vbox );
-  }
-  else
-  {
+  } else {
     return null;
   }
 }
@@ -212,10 +197,8 @@ function getPreviewForEvent( aEvent) {
 
 
 /** String for event status: (none), Tentative, Confirmed, or Cancelled **/
-function getEventStatusString(calendarEvent)
-{
-  switch ( calendarEvent.status )
-  {
+function getEventStatusString(calendarEvent) {
+  switch ( calendarEvent.status ) {
     // Event status value keywords are specified in RFC2445sec4.8.1.11
     case "TENTATIVE":
       return calGetString('calendar', "statusTentative");
@@ -229,10 +212,8 @@ function getEventStatusString(calendarEvent)
 }
 
 /** String for todo status: (none), NeedsAction, InProcess, Cancelled, or Completed **/
-function getToDoStatusString(iCalToDo)
-{
-  switch ( iCalToDo.status )
-  {
+function getToDoStatusString(iCalToDo) {
+  switch ( iCalToDo.status ) {
     // Todo status keywords are specified in RFC2445sec4.8.1.11
     case "NEEDS-ACTION":
       return calGetString('calendar', "statusNeedsAction");
@@ -264,8 +245,7 @@ function boxAppendBodySeparator(vbox) {
  * @param box           box to which to append body
  * @param textString    text of body
  */
-function boxAppendBody(box, textString)
-{
+function boxAppendBody(box, textString) {
   var textNode = document.createTextNode(textString);
   var xulDescription = document.createElement("description");
   xulDescription.setAttribute("class", "tooltipBody");
@@ -277,8 +257,7 @@ function boxAppendBody(box, textString)
  * PRIVATE: Use dateFormatter to format date and time,
  * and to header grid append a row containing localized Label: date.
  */
-function boxAppendLabeledDateTime(box, labelProperty, date)
-{
+function boxAppendLabeledDateTime(box, labelProperty, date) {
   date = date.getInTimezone(calendarDefaultTimezone());
   var formattedDateTime = getDateFormatter().formatDateTime(date);
   boxAppendLabeledText(box, labelProperty, formattedDateTime);
@@ -291,8 +270,7 @@ function boxAppendLabeledDateTime(box, labelProperty, date)
  * @param labelProperty     name of property for localized field label.
  * @param item              the event or task
  */
-function boxAppendLabeledDateTimeInterval(box, labelProperty, item)
-{
+function boxAppendLabeledDateTimeInterval(box, labelProperty, item) {
   var dateString = getDateFormatter().formatItemInterval(item);
   boxAppendLabeledText(box, labelProperty, dateString);
 }
@@ -301,8 +279,7 @@ function boxAppendLabeledDateTimeInterval(box, labelProperty, item)
  * PRIVATE: create empty 2-column grid for header fields,
  * and append it to box.
  */
-function boxInitializeHeaderGrid(box)
-{
+function boxInitializeHeaderGrid(box) {
   var grid = document.createElement("grid");
   grid.setAttribute("class", "tooltipHeaderGrid");
   var rows;
@@ -330,8 +307,7 @@ function boxInitializeHeaderGrid(box)
  * @param labelProperty     name of property for localized name of header
  * @param textString        value of header field.
  */
-function boxAppendLabeledText(box, labelProperty, textString)
-{
+function boxAppendLabeledText(box, labelProperty, textString) {
   var labelText = calGetString('calendar', labelProperty);
   var rows = box.getElementsByTagNameNS(box.namespaceURI, "rows")[0];
   {
@@ -345,8 +321,7 @@ function boxAppendLabeledText(box, labelProperty, textString)
 }
 
 /** PRIVATE: create element for field label (for header grid). **/
-function createTooltipHeaderLabel(text)
-{
+function createTooltipHeaderLabel(text) {
   var label = document.createElement("label");
   label.setAttribute("class", "tooltipHeaderLabel");
   label.appendChild(document.createTextNode(text));
@@ -354,8 +329,7 @@ function createTooltipHeaderLabel(text)
 }
 
 /** PRIVATE: create element for field value (for header grid). **/
-function createTooltipHeaderDescription(text)
-{
+function createTooltipHeaderDescription(text) {
   var label = document.createElement("description");
   label.setAttribute("class", "tooltipHeaderDescription");
   label.appendChild(document.createTextNode(text));
@@ -367,8 +341,7 @@ function createTooltipHeaderDescription(text)
  * Else if now is before an occurrence, return the next occurrence.
  * Otherwise return the previous occurrence.
  */
-function getCurrentNextOrPreviousRecurrence(calendarEvent)
-{
+function getCurrentNextOrPreviousRecurrence(calendarEvent) {
     if (!calendarEvent.recurrenceInfo) {
         return calendarEvent;
     }

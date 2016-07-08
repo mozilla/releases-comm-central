@@ -112,9 +112,8 @@ calWcapRequest.prototype = {
         if (err) {
             // first failing sub request stops parent request:
             this.execRespFunc(err);
-        }
-        // assures that respFunc is executed after all sub requests have been completed:
-        else if (!this.m_locked && this.m_attachedRequests.length == 0) {
+        } else if (!this.m_locked && this.m_attachedRequests.length == 0) {
+            // assures that respFunc is executed after all sub requests have been completed:
             this.execRespFunc();
         }
     },

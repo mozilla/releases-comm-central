@@ -382,12 +382,11 @@ webDavSyncHandler.prototype = {
             // server error (i.e 50x).
             httpchannel.contentType = "application/xml";
             this._reader.onStartRequest(request, context);
-        }
-        // Invalidate sync token with 4xx errors that could indicate the
-        // sync token has become invalid and do a refresh
-        else if (this.calendar.mWebdavSyncToken != null &&
-                 responseStatus >= 400 &&
-                 responseStatus <= 499) {
+        } else if (this.calendar.mWebdavSyncToken != null &&
+                   responseStatus >= 400 &&
+                   responseStatus <= 499) {
+            // Invalidate sync token with 4xx errors that could indicate the
+            // sync token has become invalid and do a refresh
             cal.LOG("CalDAV: Reseting sync token because server returned status code: " + responseStatus);
             this._reader = null;
             this.calendar.mWebdavSyncToken = null;
@@ -511,8 +510,7 @@ webDavSyncHandler.prototype = {
             case "status":
                 if (this.isInPropStat) {
                     this.tag = "propstat_" + aLocalName;
-                }
-                else {
+                } else {
                     this.tag = aLocalName;
                 }
                 this.currentResponse[this.tag] = "";
@@ -557,8 +555,7 @@ webDavSyncHandler.prototype = {
                     if (this.calendar.mHrefIndex[r.href]) {
                         this.changeCount++;
                         this.calendar.deleteTargetCalendarItem(r.href);
-                    }
-                    else {
+                    } else {
                         cal.LOG("CalDAV: skipping unfound deleted item : " + r.href);
                     }
                 // Only handle Created or Updated calendar items
@@ -868,8 +865,7 @@ multigetSyncHandler.prototype = {
             case "status":
                 if (this.isInPropStat) {
                     this.tag = "propstat_" + aLocalName;
-                }
-                else {
+                } else {
                     this.tag = aLocalName;
                 }
                 this.currentResponse[this.tag] = "";

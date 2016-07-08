@@ -236,16 +236,10 @@ function taskViewObserveDisplayDeckChange(event) {
         return;
     }
 
-    let id = null;
-    try {
-        id = deck.selectedPanel.id;
-    }
-    catch (e) {}
-
     // In case we find that the task view has been made visible, we refresh the view.
-    if (id == "calendar-task-box") {
-        taskViewUpdate(
-            document.getElementById("task-tree-filtergroup").value || "all");
+    if (deck.selectedPanel && deck.selectedPanel.id == "calendar-task-box") {
+        let taskFilterGroup = document.getElementById("task-tree-filtergroup");
+        taskViewUpdate(taskFilterGroup.value || "all");
     }
 }
 

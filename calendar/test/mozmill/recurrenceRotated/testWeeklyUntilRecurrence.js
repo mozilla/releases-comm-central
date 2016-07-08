@@ -26,7 +26,8 @@ var testWeeklyUntilRecurrence = function () {
   controller.mainMenu.click("#ltnViewRotated");
   controller.waitFor(function() {
     let view = (new elementslib.ID(controller.window.document, "day-view")).getNode();
-    return view.orient == "horizontal"});
+    return view.orient == "horizontal";
+  });
 
   // create weekly recurring event
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
@@ -118,7 +119,8 @@ var testWeeklyUntilRecurrence = function () {
   controller.mainMenu.click("#ltnViewRotated");
   controller.waitFor(function() {
     let view = (new elementslib.ID(controller.window.document, "day-view")).getNode();
-    return view.orient == "vertical"});
+    return view.orient == "vertical";
+  });
 }
 
 function setRecurrence(recurrence){

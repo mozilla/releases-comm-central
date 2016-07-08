@@ -371,8 +371,7 @@
         <body>
           <![CDATA[
             var datepicker = aEvent.target.parentNode.parentNode.kDatePicker;
-            if (!datepicker.mInPopup)
-            {
+            if (!datepicker.mInPopup) {
               // aEvent.target is the minimonth
               datepicker.update(new Date(aEvent.target.value), true);
               // select changed value so no cursor appears (can't type to it).
@@ -1901,8 +1900,7 @@
                       if ((k == SEC_INDEX ||
                            (!amProbeArray[nextDigitsI] && !pmProbeArray[nextDigitsI]))
                           && amProbeArray[nextSepI] && pmProbeArray[nextSepI]
-                          && amProbeArray[nextSepI] != pmProbeArray[nextSepI])
-                      {
+                          && amProbeArray[nextSepI] != pmProbeArray[nextSepI]) {
                         amProbeArray[POST_INDEX] =
                           amProbeArray[nextSepI] + amProbeArray[POST_INDEX];
                         pmProbeArray[POST_INDEX] =

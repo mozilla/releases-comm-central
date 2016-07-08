@@ -87,8 +87,7 @@ ItipProtocolHandler.prototype = {
         return this.newChannel2(URI, null);
     },
 
-    newChannel2: function(URI, aLoadInfo)
-    {
+    newChannel2: function(URI, aLoadInfo) {
         dump("Creating new ItipChannel for " + URI + "\n");
         return new ItipChannel(URI);
     },

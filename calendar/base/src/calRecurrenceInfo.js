@@ -690,8 +690,7 @@ calRecurrenceInfo.prototype = {
         anItem = calTryWrappedJSObject(anItem);
 
         if (anItem.parentItem.calendar != this.mBaseItem.calendar &&
-            anItem.parentItem.id != this.mBaseItem.id)
-        {
+            anItem.parentItem.id != this.mBaseItem.id) {
             ERROR("recurrenceInfo::addException: item parentItem != this.mBaseItem (calendar/id)!");
             throw Components.results.NS_ERROR_INVALID_ARG;
         }

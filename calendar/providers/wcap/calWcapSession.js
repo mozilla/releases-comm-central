@@ -633,8 +633,7 @@ calWcapSession.prototype = {
                                             respFunc(calendar);
                                         }
                                     }
-                                }
-                                catch (exc) { // ignore but log any errors on subscribed calendars:
+                                } catch (exc) { // ignore but log any errors on subscribed calendars:
                                     logError(exc, this_);
                                 }
                             }
@@ -1111,8 +1110,7 @@ calWcapSession.prototype = {
     }
 };
 
-function confirmInsecureLogin(uri)
-{
+function confirmInsecureLogin(uri) {
     if (!confirmInsecureLogin.m_confirmedHttpLogins) {
         confirmInsecureLogin.m_confirmedHttpLogins = {};
         var confirmedHttpLogins = getPref("calendar.wcap.confirmed_http_logins", "");

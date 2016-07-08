@@ -24,7 +24,8 @@ var testBiweeklyRecurrence = function () {
   controller.mainMenu.click("#ltnViewRotated");
   controller.waitFor(function() {
     let view = (new elementslib.ID(controller.window.document, "day-view")).getNode();
-    return view.orient == "horizontal"});
+    return view.orient == "horizontal";
+  });
 
   // create biweekly event
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
@@ -111,7 +112,8 @@ var testBiweeklyRecurrence = function () {
   controller.mainMenu.click("#ltnViewRotated");
   controller.waitFor(function() {
     let view = (new elementslib.ID(controller.window.document, "day-view")).getNode();
-    return view.orient == "vertical"});
+    return view.orient == "vertical";
+  });
 }
 
 var teardownTest = function(module) {

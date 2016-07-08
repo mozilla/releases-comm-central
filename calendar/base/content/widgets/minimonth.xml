@@ -758,8 +758,7 @@
               if (dayList.some(function(dayAbbr){ return dayAbbr.length > 2; })) {
                   for (var endPrefix = 0; endPrefix < minLength; endPrefix++) {
                       var c = dayList[0][endPrefix];
-                      if (dayList.some(function(dayAbbr) {
-                                             return dayAbbr[endPrefix] != c; })) {
+                      if (dayList.some(dayAbbr => dayAbbr[endPrefix] != c)) {
                           if (endPrefix > 0) {
                               for (i = 0; i < dayList.length; i++) { // trim prefix chars.
                                   dayList[i] = dayList[i].substring(endPrefix);

@@ -103,9 +103,11 @@ calRecurrenceRule.prototype = {
         prop.setValue(this.innerObject);
         return new calIcalProperty(prop);
     },
-    set icalProperty(val) { unwrapSetter(ICAL.Property, val, function(val) {
-        this.innerObject = val.getFirstValue();
-    }, this); },
+    set icalProperty(val) {
+        unwrapSetter(ICAL.Property, val, function(val) {
+            this.innerObject = val.getFirstValue();
+        }, this);
+    },
 
     get type() { return this.innerObject.freq; },
     set type(val) { this.innerObject.freq = val; },
@@ -128,14 +130,16 @@ calRecurrenceRule.prototype = {
             return null;
         }
     },
-    set untilDate(val) { unwrapSetter(ICAL.Time, val, function(val) {
-        if (val.timezone != ICAL.Timezone.utcTimezone &&
-            val.timezone != ICAL.Timezone.localTimezone) {
-            val = val.convertToZone(ICAL.Timezone.utcTimezone);
-        }
+    set untilDate(val) {
+        unwrapSetter(ICAL.Time, val, function(val) {
+            if (val.timezone != ICAL.Timezone.utcTimezone &&
+                val.timezone != ICAL.Timezone.localTimezone) {
+                val = val.convertToZone(ICAL.Timezone.utcTimezone);
+            }
 
-        this.innerObject.until = val;
-    }, this); },
+            this.innerObject.until = val;
+        }, this);
+    },
 
     get isByCount() { return this.innerObject.isByCount(); },
 

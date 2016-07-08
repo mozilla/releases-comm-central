@@ -62,8 +62,10 @@ var testTaskView = function () {
 
   // verify added
   let countAfter;
-  controller.waitFor(function() {countAfter = taskTreeNode.mTaskArray.length;
-                                 return countBefore + 1 == countAfter});
+  controller.waitFor(function() {
+    countAfter = taskTreeNode.mTaskArray.length;
+    return countBefore + 1 == countAfter;
+  });
 
   // last added task is automatically selected so verify detail window data
   controller.assertJSProperty(new elementslib.ID(controller.window.document,

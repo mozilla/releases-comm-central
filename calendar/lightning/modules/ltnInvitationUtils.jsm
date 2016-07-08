@@ -369,9 +369,8 @@ ltn.invitation = {
                             if (!(att in attendees) && notExcluded) {
                                 _content2Child(oldAttendees[att], 'removed', att);
                                 content.appendChild(oldAttendees[att].parentNode.cloneNode(true));
-                            }
-                            // highlight partstat, role or usertype changes
-                            else if ((att in attendees) && notExcluded) {
+                            } else if ((att in attendees) && notExcluded) {
+                                // highlight partstat, role or usertype changes
                                 let oldAtts = oldAttendees[att].parentNode
                                                                .getElementsByClassName("itip-icon")[0]
                                                                .attributes;

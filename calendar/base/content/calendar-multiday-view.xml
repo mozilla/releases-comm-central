@@ -1774,8 +1774,7 @@
                                                          newEnd);
           } else if (dragState.dragType == "move" ||
                      dragState.dragType == "modify-start" ||
-                     dragState.dragType == "modify-end")
-          {
+                     dragState.dragType == "modify-end") {
               col.calendarView.controller.modifyOccurrence(dragState.dragOccurrence,
                                                            newStart, newEnd);
           }
@@ -2629,10 +2628,11 @@
                       timeIndicator.cancel();
                   }
                   timeIndicator.lastView = this.id;
-                  let self = this;
-                  timeIndicator.timer = setTimeout(function() {self.updateTimeIndicatorPosition(false);
-                                                               timeIndicator.start(prefInt * 60, self);},
-                                                   firstInterval * 1000);
+                  timeIndicator.timer = setTimeout(() => {
+                      this.updateTimeIndicatorPosition(false);
+                      timeIndicator.start(prefInt * 60, this);
+                  }, firstInterval * 1000);
+
                   // Set the time for the first positioning of the indicator.
                   let time = Math.floor(nowMinutes / prefInt) * prefInt;
                   document.getElementById("day-view").mTimeIndicatorMinutes = time;
@@ -3605,8 +3605,7 @@
           for (var col of this.mDateColumns) {
               let bo = document.getAnonymousElementByAttribute(col.column, "anonid", "boxstack").boxObject;
               if ((aClientX >= bo.screenX) && (aClientX <= (bo.screenX + bo.width)) &&
-                  (aClientY >= bo.screenY) && (aClientY <= (bo.screenY + bo.height)))
-              {
+                  (aClientY >= bo.screenY) && (aClientY <= (bo.screenY + bo.height))) {
                   return col.column;
               }
           }

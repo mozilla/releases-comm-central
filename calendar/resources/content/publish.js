@@ -11,8 +11,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
  * publishCalendarData
  * Show publish dialog, ask for URL and publish all selected items.
  */
-function publishCalendarData()
-{
+function publishCalendarData() {
    var args = {};
 
    args.onOk = self.publishCalendarDataDialogResponse;
@@ -26,8 +25,7 @@ function publishCalendarData()
  * Callback method for publishCalendarData() that is called when the user
  * presses the OK button in the publish dialog.
  */
-function publishCalendarDataDialogResponse(CalendarPublishObject, aProgressDialog)
-{
+function publishCalendarDataDialogResponse(CalendarPublishObject, aProgressDialog) {
     publishItemArray(currentView().getSelectedItems({}),
                      CalendarPublishObject.remotePath, aProgressDialog);
 }
@@ -39,8 +37,7 @@ function publishCalendarDataDialogResponse(CalendarPublishObject, aProgressDialo
  * @param aCalendar   (optional) The calendar that will be published. If ommitted
  *                               the user will be prompted to select a calendar.
  */
-function publishEntireCalendar(aCalendar)
-{
+function publishEntireCalendar(aCalendar) {
     if (!aCalendar) {
         let count = {};
         let calendars = getCalendarManager().getCalendars(count);
@@ -87,8 +84,7 @@ function publishEntireCalendar(aCalendar)
  * Callback method for publishEntireCalendar() that is called when the user
  * presses the OK button in the publish dialog.
  */
-function publishEntireCalendarDialogResponse(CalendarPublishObject, aProgressDialog)
-{
+function publishEntireCalendarDialogResponse(CalendarPublishObject, aProgressDialog) {
     // store the selected remote ics path as a calendar preference
     CalendarPublishObject.calendar.setProperty("remote-ics-path",
                                            CalendarPublishObject.remotePath);
@@ -96,12 +92,10 @@ function publishEntireCalendarDialogResponse(CalendarPublishObject, aProgressDia
     var itemArray = [];
     var getListener = {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
-        onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail)
-        {
+        onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
             publishItemArray(itemArray, CalendarPublishObject.remotePath, aProgressDialog);
         },
-        onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems)
-        {
+        onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
             if (!Components.isSuccessCode(aStatus)) {
                 aborted = true;
                 return;
@@ -206,12 +200,10 @@ var notificationCallbacks =
 var publishingListener = {
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIStreamListener]),
 
-    onStartRequest: function(request, ctxt)
-    {
+    onStartRequest: function(request, ctxt) {
     },
 
-    onStopRequest: function(request, ctxt, status, errorMsg)
-    {
+    onStopRequest: function(request, ctxt, status, errorMsg) {
         ctxt.wrappedJSObject.onStopUpload();
 
         let channel;
@@ -232,8 +224,6 @@ var publishingListener = {
         }
     },
 
-    onDataAvailable: function(request, ctxt, inStream, sourceOffset, count)
-    {
+    onDataAvailable: function(request, ctxt, inStream, sourceOffset, count) {
     }
 }
-

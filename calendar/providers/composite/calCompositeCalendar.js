@@ -469,15 +469,7 @@ calCompositeGetListenerHelper.prototype = {
         return this.mOpGroup;
     },
 
-    QueryInterface: function (aIID) {
-        if (!aIID.equals(Components.interfaces.nsISupports) &&
-            !aIID.equals(Components.interfaces.calIOperationListener))
-        {
-            throw Components.results.NS_ERROR_NO_INTERFACE;
-        }
-
-        return this;
-    },
+    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
 
     onOperationComplete: function (aCalendar, aStatus, aOperationType, aId, aDetail) {
         if (!this.mRealListener) {
@@ -531,10 +523,8 @@ calCompositeGetListenerHelper.prototype = {
             return;
         }
 
-        if (Components.isSuccessCode(aStatus) &&
-            this.mMaxItems &&
-            ((this.mItemsReceived + aCount) > this.mMaxItems))
-        {
+        if (Components.isSuccessCode(aStatus) && this.mMaxItems &&
+            ((this.mItemsReceived + aCount) > this.mMaxItems)) {
             // this will blow past the limit
             aCount = this.mMaxItems - this.mItemsReceived;
             aItems = aItems.slice(0, aCount);

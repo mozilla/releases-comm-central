@@ -1365,8 +1365,7 @@ calDavCalendar.prototype = {
               if (headchannel.responseStatus != 200) {
                 throw "OPTIONS returned unexpected status code: " + headchannel.responseStatus;
               }
-            }
-            catch (e) {
+            } catch (e) {
                 cal.WARN("CalDAV: Exception: " + e);
                 notifyListener(Components.results.NS_ERROR_FAILURE);
             }
@@ -2612,8 +2611,7 @@ calDavCalendar.prototype = {
         for (var i = 0; i < uriComponents.length; i++) {
             try {
                 uriComponents[i] = decodeURIComponent(uriComponents[i]);
-            }
-            catch (e) {
+            } catch (e) {
                 cal.WARN("CalDAV: Exception decoding path " + aString + ", segment: " + uriComponents[i]);
             }
         }

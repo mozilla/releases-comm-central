@@ -50,8 +50,7 @@ calMonthPrinter.prototype = {
             // Now set up all the months we need to
             for (let current = startDate.clone();
                  weekInfoService.getEndOfWeek(current.endOfMonth).compare(endDate) < 0;
-                 current.month += 1)
-            {
+                 current.month += 1) {
                 this.setupMonth(document, current, dayTable);
             }
         }

@@ -12,8 +12,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
  * @param url       The URL to open, as a string
  * @param event     (optional) The event that caused the URL to open
  */
-function launchBrowser(url, event)
-{
+function launchBrowser(url, event) {
   // Bail out if there is no url set, or an event was passed without left-click
   if (!url || (event && event.button != 0)) {
     return;

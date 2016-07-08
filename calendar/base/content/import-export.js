@@ -321,12 +321,10 @@ function exportEntireCalendar(aCalendar) {
     var itemArray = [];
     var getListener = {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
-        onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail)
-        {
+        onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
             saveEventsToFile(itemArray, aCalendar.name);
         },
-        onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems)
-        {
+        onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
             for (let item of aItems) {
                 itemArray.push(item);
             }

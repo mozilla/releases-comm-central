@@ -250,7 +250,8 @@
         let self = this;
         this.setAttribute("type", this.type);
         this.mResizeHandler = function resizeHandler() {
-            self.onResize(self); };
+            self.onResize(self);
+        };
         this.viewBroadcaster.addEventListener(this.getAttribute("type") + "viewresized", this.mResizeHandler, true);
         // add a preference observer to monitor changes
         Services.prefs.addObserver("calendar.", this.mPrefObserver, false);

@@ -378,8 +378,7 @@ function checkRadioControl(aParent, aValue) {
                         element.setAttribute("checked", "true");
                         return true;
                     }
-                }
-                else if (element.localName == "radio") {
+                } else if (element.localName == "radio") {
                     element.radioGroup.selectedItem = element;
                     return true;
                 }

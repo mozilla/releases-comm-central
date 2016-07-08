@@ -933,16 +933,14 @@ agendaListbox.calendarObserver.onLoad = function() {
     this.agendaListbox.refreshCalendarQuery();
 };
 
-agendaListbox.calendarObserver.onAddItem =
-function observer_onAddItem(item)
-{
-  if (!isEvent(item)) {
-      return;
-  }
-// get all sub items if it is a recurring item
-  var occs = this.getOccurrencesBetween(item);
-  occs.forEach(this.agendaListbox.addItem, this.agendaListbox);
-  setCurrentEvent();
+agendaListbox.calendarObserver.onAddItem = function observer_onAddItem(item) {
+    if (!isEvent(item)) {
+        return;
+    }
+    // get all sub items if it is a recurring item
+    var occs = this.getOccurrencesBetween(item);
+    occs.forEach(this.agendaListbox.addItem, this.agendaListbox);
+    setCurrentEvent();
 };
 
 agendaListbox.calendarObserver.getOccurrencesBetween =

@@ -564,13 +564,10 @@
           cycleHeader: function mTV_cycleHeader(aCol) {
               if (!this.selectedColumn) {
                   this.sortDirection = "ascending";
-              }
-              else {
-                  if (!this.sortDirection || this.sortDirection == "descending") {
-                      this.sortDirection = "ascending";
-                  } else {
-                      this.sortDirection = "descending";
-                  }
+              } else if (!this.sortDirection || this.sortDirection == "descending") {
+                  this.sortDirection = "ascending";
+              } else {
+                  this.sortDirection = "descending";
               }
               this.selectedColumn = aCol.element;
               let selectedItems = this.binding.selectedTasks;

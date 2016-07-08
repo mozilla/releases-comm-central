@@ -211,8 +211,7 @@ calICSCalendar.prototype = {
     // nsIStreamLoaderObserver impl
     // Listener for download. Parse the downloaded file
 
-    onStreamComplete: function(loader, ctxt, status, resultLength, result)
-    {
+    onStreamComplete: function(loader, ctxt, status, resultLength, result) {
         let forceRefresh = ctxt.QueryInterface(Components.interfaces.nsISupportsPRBool).data;
         let cont = false;
 
@@ -321,8 +320,7 @@ calICSCalendar.prototype = {
         {
             serializer: null,
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
-            onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail)
-            {
+            onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
                 var inLastWindowClosingSurvivalArea = false;
                 try {
                     // All events are returned. Now set up a channel and a
@@ -374,8 +372,7 @@ calICSCalendar.prototype = {
                     savedthis.forceRefresh();
                 }
             },
-            onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems)
-            {
+            onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                 this.serializer.addItems(aItems, aCount);
             }
         };
@@ -419,8 +416,7 @@ calICSCalendar.prototype = {
          scriptableInputStream.init(inStream);
          scriptableInputStream.read(-1);
     },
-    onStopRequest: function(request, ctxt, status, errorMsg)
-    {
+    onStopRequest: function(request, ctxt, status, errorMsg) {
         ctxt = ctxt.wrappedJSObject;
         let httpChannel;
         let requestSucceeded = false;
@@ -496,9 +492,7 @@ calICSCalendar.prototype = {
         this.processQueue();
     },
 
-    getItems: function (aItemFilter, aCount,
-                        aRangeStart, aRangeEnd, aListener)
-    {
+    getItems: function(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
         this.queue.push({action: 'get_items',
                          itemFilter: aItemFilter, count: aCount,
                          rangeStart: aRangeStart, rangeEnd: aRangeEnd,
@@ -506,8 +500,7 @@ calICSCalendar.prototype = {
         this.processQueue();
     },
 
-    processQueue: function ()
-    {
+    processQueue: function() {
         if (this.isLocked()) {
             return;
         }
@@ -603,16 +596,14 @@ calICSCalendar.prototype = {
         this.processQueue();
     },
 
-    isLocked: function () {
+    isLocked: function() {
         return this.locked;
     },
 
-    startBatch: function ()
-    {
+    startBatch: function() {
         this.mObserver.onStartBatch();
     },
-    endBatch: function ()
-    {
+    endBatch: function() {
         this.mObserver.onEndBatch();
     },
 

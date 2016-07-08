@@ -1010,8 +1010,7 @@ upgrade.v13 = function upgrade_v13(db, version) {
                     while (stmt.executeStep()) {
                         calIds[stmt.row.id] = stmt.row.cal_id;
                     }
-                }
-                finally {
+                } finally {
                     stmt.reset();
                 }
             }
@@ -1228,8 +1227,7 @@ upgrade.v17 = function upgrade_v17(db, version) {
             } catch (e) {
                 // An error happened, which means the cols don't exist
                 hasColumns = false;
-            }
-            finally {
+            } finally {
                 if (stmt) {
                     stmt.finalize();
                 }

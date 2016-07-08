@@ -42,8 +42,7 @@ calProtocolHandler.prototype = {
       return this.newChannel2(aUri, null);
     },
 
-    newChannel2: function cph_newChannel2(aUri, aLoadInfo)
-    {
+    newChannel2: function cph_newChannel2(aUri, aLoadInfo) {
         // make sure to clone the uri, because we are about to change
         // it, and we don't want to change the original uri.
         let uri = aUri.clone();

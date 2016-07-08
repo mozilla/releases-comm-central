@@ -201,8 +201,7 @@ cal.auth.Prompt.prototype = {
                                                aPasswordRealm.prePath,
                                                aPasswordRealm.realm);
                 return {found: false, username: username};
-            }
-            else {
+            } else {
                 this.mReturnedLogins[keyStr] = now;
             }
         }
