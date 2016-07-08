@@ -699,7 +699,7 @@ var cal = {
 
     sortEntry: function cal_sortEntry(aItem) {
         let key = cal.getItemSortKey(aItem, this.mSortKey, this.mSortStartedDate);
-        return { mSortKey : key, mItem: aItem };
+        return { mSortKey: key, mItem: aItem };
     },
 
     sortEntryItem: function cal_sortEntryItem(sortEntry) {

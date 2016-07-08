@@ -32,7 +32,7 @@ calAttendee.prototype = {
         }
     },
 
-    makeImmutable : function() {
+    makeImmutable: function() {
         this.mImmutable = true;
     },
 

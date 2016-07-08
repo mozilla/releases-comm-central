@@ -111,7 +111,7 @@ function setRecurrence(recurrence){
     + 'id("recurrence-duration")/id("recurrence-range-count-box")/id("repeat-ntimes-count")/'
     + 'anon({"class":"textbox-input-box numberbox-input-box"})/anon({"anonid":"input"})';
   // replace previous number
-  recurrence.keypress(new elementslib.Lookup(recurrence.window.document, input), "a", {ctrlKey:true});
+  recurrence.keypress(new elementslib.Lookup(recurrence.window.document, input), "a", {ctrlKey: true});
   recurrence.type(new elementslib.Lookup(recurrence.window.document, input), "4");
 
   // close dialog

@@ -37,7 +37,7 @@ var testTimezones2_CreateEvents = function () {
     setTimezone(event, timezones[i]);
 
     // set title and repeat
-    calUtils.setData(event, {title:timezones[i], repeat:"weekly", starttime:time});
+    calUtils.setData(event, {title: timezones[i], repeat: "weekly", starttime: time});
 
     // save
     event.click(new elementslib.ID(event.window.document, "button-save"));

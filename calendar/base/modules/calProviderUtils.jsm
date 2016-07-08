@@ -162,7 +162,7 @@ cal.BadCertHandler.prototype = {
             notify: function(timer) {
                 let params = {
                   exceptionAdded: false,
-                  sslStatus : status,
+                  sslStatus: status,
                   prefetchCert: true,
                   location: targetSite
                 };

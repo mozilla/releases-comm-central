@@ -303,9 +303,9 @@ webDavSyncHandler.prototype = {
     newSyncToken: null,
     changeLogListener: null,
     logXML: "",
-    isInPropStat : false,
-    changeCount : 0,
-    unhandledErrors : 0,
+    isInPropStat: false,
+    changeCount: 0,
+    unhandledErrors: 0,
     itemsReported: null,
     itemsNeedFetching: null,
     additionalSyncNeeded: false,
@@ -677,7 +677,7 @@ multigetSyncHandler.prototype = {
     listener: null,
     changeLogListener: null,
     logXML: null,
-    unhandledErrors : 0,
+    unhandledErrors: 0,
     itemsNeedFetching: null,
     additionalSyncNeeded: false,
 
@@ -805,7 +805,7 @@ multigetSyncHandler.prototype = {
             this._reader.errorHandler = this;
             this._reader.parseAsync(null);
             let timerCallback = {
-                requestHandler : this,
+                requestHandler: this,
                 notify: function(timer) {
                     // Call multiget again to get another batch
                     this.requestHandler.doMultiGet();

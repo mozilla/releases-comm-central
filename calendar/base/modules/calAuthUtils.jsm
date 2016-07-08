@@ -275,11 +275,11 @@ cal.auth.Prompt.prototype = {
      *        Asynchronous authentication prompts are not supported;
      *        the caller should fall back to promptUsernameAndPassword().
      */
-    asyncPromptAuth : function capAPA(aChannel,   // nsIChannel
-                                      aCallback,  // nsIAuthPromptCallback
-                                      aContext,   // nsISupports
-                                      aLevel,     // PRUint32
-                                      aAuthInfo   // nsIAuthInformation
+    asyncPromptAuth: function capAPA(aChannel,   // nsIChannel
+                                     aCallback,  // nsIAuthPromptCallback
+                                     aContext,   // nsISupports
+                                     aLevel,     // PRUint32
+                                     aAuthInfo   // nsIAuthInformation
                                 ) {
         var self = this;
         let promptlistener = {
@@ -296,7 +296,7 @@ cal.auth.Prompt.prototype = {
                 return false;
             },
 
-            onPromptAuthAvailable : function() {
+            onPromptAuthAvailable: function() {
                 let authInfo = gAuthCache.retrieveAuthInfo(hostKey);
                 if (authInfo) {
                     aAuthInfo.username = authInfo.username;
@@ -305,7 +305,7 @@ cal.auth.Prompt.prototype = {
                 aCallback.onAuthAvailable(aContext, aAuthInfo);
             },
 
-            onPromptCanceled : function() {
+            onPromptCanceled: function() {
                 gAuthCache.retrieveAuthInfo(hostKey);
                 aCallback.onAuthCancelled(aContext, true);
             }

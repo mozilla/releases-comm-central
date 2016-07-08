@@ -529,7 +529,7 @@ function setData(controller, data) {
     let endtime = dateService.FormatTime("", dateService.timeFormatNoSeconds,
       data.endtime.getHours(), data.endtime.getMinutes(), 0);
     if (!mac) {
-      controller.keypress(endTimeInput, 'a', {ctrlKey:true});
+      controller.keypress(endTimeInput, 'a', {ctrlKey: true});
       controller.type(endTimeInput, endtime);
     } else {
       endTimeInput.getNode().value = endtime;

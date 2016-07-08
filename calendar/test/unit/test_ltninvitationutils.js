@@ -592,17 +592,17 @@ add_task(function* convertFromUnicode_test() {
     }, {
         input: {
             charset: "UTF-8",
-            text:"muller"},
+            text: "muller"},
         expected: "muller"
     }, {
         input: {
             charset: "UTF-8",
-            text:"müller\nmüller"},
+            text: "müller\nmüller"},
         expected: "mÃ¼ller\nmÃ¼ller"
     }, {
         input: {
             charset: "UTF-8",
-            text:"müller\r\nmüller"},
+            text: "müller\r\nmüller"},
         expected: "mÃ¼ller\r\nmÃ¼ller"
     }];
     let i = 0;

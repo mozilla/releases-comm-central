@@ -1564,7 +1564,7 @@ calStorageCalendar.prototype = {
     },
 
     mRecEventCacheOfflineFlags: {},
-    mRecTodoCacheOfflineFlags : {},
+    mRecTodoCacheOfflineFlags: {},
     assureRecurringItemCaches: function cSC_assureRecurringItemCaches() {
         if (this.mRecItemCacheInited) {
             return;

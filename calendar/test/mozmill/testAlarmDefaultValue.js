@@ -102,9 +102,9 @@ function handle_pref_dialog(prefsController) {
   // Sets default alarm length for events to "50"
   let eventdefalarmlen = new elementslib.ID(prefsController.window.document, "eventdefalarmlen");
   let tododefalarmlen = new elementslib.ID(prefsController.window.document, "tododefalarmlen");
-  prefsController.keypress(eventdefalarmlen, "a", {accelKey:true});
+  prefsController.keypress(eventdefalarmlen, "a", {accelKey: true});
   prefsController.type(eventdefalarmlen, "50");
-  prefsController.keypress(tododefalarmlen, "a", {accelKey:true});
+  prefsController.keypress(tododefalarmlen, "a", {accelKey: true});
   prefsController.type(tododefalarmlen, "50");
 }
 

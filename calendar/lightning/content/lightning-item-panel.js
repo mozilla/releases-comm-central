@@ -357,14 +357,14 @@ function closeWindowOrTab(iframeId) {
  * @param {boolean} aIsClosing  Is the tab or window closing
  */
 function onCommandSave(aIsClosing) {
-    sendMessage({ command:"onCommandSave", isClosing: aIsClosing });
+    sendMessage({ command: "onCommandSave", isClosing: aIsClosing });
 }
 
 /**
  * Handler for deleting the event or task.
  */
 function onCommandDeleteItem() {
-    sendMessage({ command:"onCommandDeleteItem" });
+    sendMessage({ command: "onCommandDeleteItem" });
 }
 
 /**

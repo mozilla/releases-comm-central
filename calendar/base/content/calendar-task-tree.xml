@@ -1110,7 +1110,7 @@
 
             let focused = (document.activeElement == tree) || menuOpen;
 
-            calendarController.onSelectionChanged({detail:(focused ? this.selectedTasks : [])});
+            calendarController.onSelectionChanged({detail: (focused ? this.selectedTasks : [])});
             calendarController.todo_tasktree_focused = focused;
         ]]></body>
       </method>
@@ -1121,7 +1121,7 @@
       <handler event="select"><![CDATA[
         this.mTreeView.onSelect(event);
         if (calendarController.todo_tasktree_focused) {
-          calendarController.onSelectionChanged({detail:this.selectedTasks});
+          calendarController.onSelectionChanged({detail: this.selectedTasks});
         }
       ]]></handler>
       <handler event="focus"><![CDATA[

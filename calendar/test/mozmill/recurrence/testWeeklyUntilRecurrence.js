@@ -136,7 +136,7 @@ function setRecurrence(recurrence){
     + 'anon({"class":"datepicker-box-class"})/{"class":"datepicker-text-class"}/'
     + 'anon({"class":"menulist-editable-box textbox-input-box"})/anon({"anonid":"input"})';
   // delete previous date
-  recurrence.keypress(new elementslib.Lookup(recurrence.window.document, input), "a", {ctrlKey:true});
+  recurrence.keypress(new elementslib.Lookup(recurrence.window.document, input), "a", {ctrlKey: true});
   recurrence.keypress(new elementslib.Lookup(recurrence.window.document, input), "VK_DELETE", {});
 
   let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]

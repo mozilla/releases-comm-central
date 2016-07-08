@@ -276,7 +276,7 @@ var gCategoriesPane = {
             }
         }
         parent.backupPrefList[parent.backupPrefList.length] =
-            { name : categoryNameFix, color : currentColor };
+            { name: categoryNameFix, color: currentColor };
     },
 
     /**

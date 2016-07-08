@@ -1034,7 +1034,7 @@ calDavCalendar.prototype = {
      * @param aUri      Base URI of the request
      * @param aListener Listener
      */
-    addTargetCalendarItem : function caldav_addTargetCalendarItem(path, calData, aUri, etag, aListener) {
+    addTargetCalendarItem: function caldav_addTargetCalendarItem(path, calData, aUri, etag, aListener) {
         let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
                                .createInstance(Components.interfaces.calIIcsParser);
         // aUri.path may contain double slashes whereas path does not
@@ -2366,7 +2366,7 @@ calDavCalendar.prototype = {
                          this.buildDetailedMessage(status, extraInfo));
     },
 
-    buildDetailedMessage : function caldav_buildDetailedMessage(status, extraInfo) {
+    buildDetailedMessage: function caldav_buildDetailedMessage(status, extraInfo) {
         if (!status) {
             return "";
         }
@@ -2575,7 +2575,7 @@ calDavCalendar.prototype = {
      * Extract the path from the full spec, if the regexp failed, log
      * warning and return unaltered path.
      */
-    extractPathFromSpec : function caldav_extractPathFromSpec(aSpec) {
+    extractPathFromSpec: function caldav_extractPathFromSpec(aSpec) {
         // The parsed array should look like this:
         // a[0] = full string
         // a[1] = scheme

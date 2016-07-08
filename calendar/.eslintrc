@@ -25,6 +25,9 @@
     // Enforce the spacing around the * in generator functions.
     "generator-star-spacing": [2, "after"],
 
+    // Enforces spacing between keys and values in object literal properties.
+    "key-spacing": [2, {"beforeColon": false, "afterColon": true, "mode": "minimum"}],
+
     // Disallow deletion of variables (deleting properties is fine).
     "no-delete-var": 2,
 

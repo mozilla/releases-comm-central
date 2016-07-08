@@ -306,7 +306,7 @@
                                   (this.mRefControl.localName == "checkbox"))){
                 this.mControlHandler = {
                     binding: this,
-                    handleEvent : function(aEvent, aHandled) {
+                    handleEvent: function(aEvent, aHandled) {
                         return this.binding.onCheckboxStateChange(aEvent, this.binding);
                     }
                 };
@@ -488,7 +488,7 @@
               if (this.mBroadcaster) {
                   this.mModHandler = {
                   binding: this,
-                  handleEvent : function(aEvent, aHandled) {
+                  handleEvent: function(aEvent, aHandled) {
                       return this.binding.onModeModified(aEvent, this.binding);
                   }
               };

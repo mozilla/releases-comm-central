@@ -899,7 +899,7 @@ function getListItemByHashId(ahashId) {
  * Implements calIOperationListener.
  */
 agendaListbox.calendarOpListener = {
-    agendaListbox : agendaListbox
+    agendaListbox: agendaListbox
 };
 
 /**

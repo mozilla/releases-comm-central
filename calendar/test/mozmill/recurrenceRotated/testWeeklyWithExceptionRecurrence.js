@@ -63,7 +63,7 @@ var testWeeklyWithExceptionRecurrence = function () {
     + '{"class":"datepicker-text-class"}/anon({"class":"menulist-editable-box textbox-input-box"})/'
     + 'anon({"anonid":"input"})');
 
-  event.keypress(startDateInput, "a", {ctrlKey:true});
+  event.keypress(startDateInput, "a", {ctrlKey: true});
   let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
                      .getService(Components.interfaces.nsIScriptableDateFormat);
   let startDateString = dateService.FormatDate("", dateService.dateFormatShort,

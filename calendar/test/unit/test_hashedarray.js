@@ -19,7 +19,7 @@ function run_test() {
  */
 function hashedCreateItem(ident) {
     let item = cal.createEvent();
-    item.calendar = { id : "test" }
+    item.calendar = { id: "test" }
     item.id = cal.getUUID();
     item.title = ident;
     return item;
