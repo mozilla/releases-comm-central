@@ -976,6 +976,16 @@ calWcapSession.prototype = {
             log("getFreeBusyIntervals():\n\tcalId=" + calId +
                 "\n\trangeStart=" + zRangeStart + ",\n\trangeEnd=" + zRangeEnd, this));
 
+        // cannot use stringToXml here, because cs 6.3 returns plain nothing
+        // on invalid user freebusy requests. WTF.
+        let stringToXml_ = function(session, data) {
+            if (!data || data.length == 0) { // assuming invalid user
+                throw new Components.Exception(errorToString(calIWcapErrors.WCAP_CALENDAR_DOES_NOT_EXIST),
+                                               calIWcapErrors.WCAP_CALENDAR_DOES_NOT_EXIST);
+            }
+            return stringToXml(session, data);
+        };
+
         try {
             let params = ("&calid=" + encodeURIComponent(calId));
             params += ("&busyonly=" + ((busyTypes & calIFreeBusyInterval.FREE) ? "0" : "1"));
@@ -983,15 +993,6 @@ calWcapSession.prototype = {
             params += ("&dtend=" + zRangeEnd);
             params += "&fmt-out=text%2Fxml";
 
-            // cannot use stringToXml here, because cs 6.3 returns plain nothing
-            // on invalid user freebusy requests. WTF.
-            function stringToXml_(session, data) {
-                if (!data || data.length == 0) { // assuming invalid user
-                    throw new Components.Exception(errorToString(calIWcapErrors.WCAP_CALENDAR_DOES_NOT_EXIST),
-                                                   calIWcapErrors.WCAP_CALENDAR_DOES_NOT_EXIST);
-                }
-                return stringToXml(session, data);
-            }
             this.issueNetworkRequest(
                 request,
                 function net_resp(err, xml) {
