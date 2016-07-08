@@ -369,8 +369,8 @@ function ltnOnLoad(event) {
     // Check if the binary component was loaded
     checkCalendarBinaryComponent();
 
-    document.getElementById("calendarDisplayDeck").
-      addEventListener("select", LtnObserveDisplayDeckChange, true);
+    document.getElementById("calendarDisplayDeck")
+            .addEventListener("select", LtnObserveDisplayDeckChange, true);
 
     // Take care of common initialization
     commonInitCalendar();

@@ -669,8 +669,8 @@
          }
          let item = session.sourceNode.sourceObject.clone();
          this.setAttribute("dropbox", "false");
-         let transfer = Components.classes["@mozilla.org/widget/transferable;1"].
-                        createInstance(Components.interfaces.nsITransferable);
+         let transfer = Components.classes["@mozilla.org/widget/transferable;1"]
+                                  .createInstance(Components.interfaces.nsITransferable);
          transfer.init(null);
 
          if (isEvent(item)) {

@@ -122,8 +122,8 @@
               topbox.lastChild.remove();
           }
 
-          let formatter = Components.classes["@mozilla.org/intl/scriptabledateformat;1"].
-                          getService(Components.interfaces.nsIScriptableDateFormat);
+          let formatter = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
+                                    .getService(Components.interfaces.nsIScriptableDateFormat);
           let timeString;
           let theMin = this.mStartMin;
           let theHour = Math.floor(theMin / 60);
@@ -1949,8 +1949,8 @@
           let endhr = Math.floor(realendmin / 60);
           let endmin = realendmin % 60;
 
-          let formatter = Components.classes["@mozilla.org/intl/scriptabledateformat;1"].
-                          getService(Components.interfaces.nsIScriptableDateFormat);
+          let formatter = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
+                                    .getService(Components.interfaces.nsIScriptableDateFormat);
           let startstr = formatter.FormatTime("",
                                               Components.interfaces.nsIScriptableDateFormat.timeFormatNoSeconds,
                                               starthr, startmin, 0);

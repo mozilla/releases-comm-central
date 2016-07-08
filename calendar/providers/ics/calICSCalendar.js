@@ -372,8 +372,8 @@ calICSCalendar.prototype = {
                 this.serializer.addItems(aItems, aCount);
             }
         };
-        listener.serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"].
-                                         createInstance(Components.interfaces.calIIcsSerializer);
+        listener.serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
+                                        .createInstance(Components.interfaces.calIIcsSerializer);
         for (let comp of this.unmappedComponents) {
             listener.serializer.addComponent(comp);
         }

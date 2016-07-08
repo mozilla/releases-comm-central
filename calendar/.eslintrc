@@ -338,6 +338,9 @@
     // Disallow function or var declarations in nested blocks
     "no-inner-declarations": 2,
 
+    // Enforce newline before and after dot
+    "dot-location": [2, "property"],
+
     // Will enable these rules later
     "block-spacing": 0,
     "no-lonely-if": 0,

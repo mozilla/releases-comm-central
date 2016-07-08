@@ -137,8 +137,8 @@ calTodo.prototype = {
 
         let bagenum = this.propertyEnumerator;
         while (bagenum.hasMoreElements()) {
-            let iprop = bagenum.getNext().
-                QueryInterface(Components.interfaces.nsIProperty);
+            let iprop = bagenum.getNext()
+                               .QueryInterface(Components.interfaces.nsIProperty);
             try {
                 if (!this.todoPromotedProps[iprop.name]) {
                     let icalprop = icssvc.createIcalProperty(iprop.name);

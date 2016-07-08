@@ -70,8 +70,8 @@ var createRecurrenceRule = _calIcalCreator("@mozilla.org/calendar/recurrence-rul
 
 /* Returns a clean new calIRecurrenceInfo */
 function createRecurrenceInfo(aItem) {
-    let recInfo = Components.classes["@mozilla.org/calendar/recurrence-info;1"].
-           createInstance(Components.interfaces.calIRecurrenceInfo);
+    let recInfo = Components.classes["@mozilla.org/calendar/recurrence-info;1"]
+                            .createInstance(Components.interfaces.calIRecurrenceInfo);
     recInfo.item = aItem;
     return recInfo;
 }
@@ -728,13 +728,13 @@ function getUUID() {
  * calIItemBase comparer
  */
 function compareItems(aItem, aOtherItem) {
-    let sip1 = Components.classes["@mozilla.org/supports-interface-pointer;1"].
-               createInstance(Components.interfaces.nsISupportsInterfacePointer);
+    let sip1 = Components.classes["@mozilla.org/supports-interface-pointer;1"]
+                         .createInstance(Components.interfaces.nsISupportsInterfacePointer);
     sip1.data = aItem;
     sip1.dataIID = Components.interfaces.calIItemBase;
 
-    let sip2 = Components.classes["@mozilla.org/supports-interface-pointer;1"].
-               createInstance(Components.interfaces.nsISupportsInterfacePointer);
+    let sip2 = Components.classes["@mozilla.org/supports-interface-pointer;1"]
+                         .createInstance(Components.interfaces.nsISupportsInterfacePointer);
     sip2.data = aOtherItem;
     sip2.dataIID = Components.interfaces.calIItemBase;
     return sip1.data == sip2.data;
@@ -769,13 +769,13 @@ function compareObjects(aObject, aOtherObject, aIID) {
     if (!aIID) {
         aIID = Components.interfaces.nsISupports;
     }
-    let sip1 = Components.classes["@mozilla.org/supports-interface-pointer;1"].
-               createInstance(Components.interfaces.nsISupportsInterfacePointer);
+    let sip1 = Components.classes["@mozilla.org/supports-interface-pointer;1"]
+                         .createInstance(Components.interfaces.nsISupportsInterfacePointer);
     sip1.data = aObject;
     sip1.dataIID = aIID;
 
-    let sip2 = Components.classes["@mozilla.org/supports-interface-pointer;1"].
-               createInstance(Components.interfaces.nsISupportsInterfacePointer);
+    let sip2 = Components.classes["@mozilla.org/supports-interface-pointer;1"]
+                         .createInstance(Components.interfaces.nsISupportsInterfacePointer);
     sip2.data = aOtherObject;
     sip2.dataIID = aIID;
     return sip1.data == sip2.data;
@@ -1738,11 +1738,11 @@ function compareItemContent(aFirstItem, aSecondItem, aIgnoreProps, aIgnoreParams
     }
 
     function normalizeProperty(prop) {
-        let params = [...cal.ical.paramIterator(prop)].
-            filter(([k, v]) => !(prop.propertyName in ignoreParams) ||
-                   !(k in ignoreParams[prop.propertyName])).
-            map(([k, v]) => k + "=" + v).
-            sort();
+        let params = [...cal.ical.paramIterator(prop)]
+            .filter(([k, v]) => !(prop.propertyName in ignoreParams) ||
+                   !(k in ignoreParams[prop.propertyName]))
+            .map(([k, v]) => k + "=" + v)
+            .sort();
 
         return prop.propertyName + ";" +
                params.join(";") + ":" +

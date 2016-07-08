@@ -624,10 +624,10 @@
       <property name="containerWidth">
         <getter><![CDATA[
           // Step up the hierarchy until we reach the listbox
-          return this.parentNode.
-                      parentNode.
-                      parentNode.
-                      parentNode.boxObject.width;
+          return this.parentNode
+                     .parentNode
+                     .parentNode
+                     .parentNode.boxObject.width;
         ]]></getter>
       </property>
 
