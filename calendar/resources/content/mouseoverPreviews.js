@@ -312,14 +312,12 @@ function boxInitializeHeaderGrid(box) {
 function boxAppendLabeledText(box, labelProperty, textString) {
   let labelText = calGetString("calendar", labelProperty);
   let rows = box.getElementsByTagNameNS(box.namespaceURI, "rows")[0];
-  {
-    let row = document.createElement("row");
-    {
-      row.appendChild(createTooltipHeaderLabel(labelText));
-      row.appendChild(createTooltipHeaderDescription(textString));
-    }
-    rows.appendChild(row);
-  }
+  let row = document.createElement("row");
+
+  row.appendChild(createTooltipHeaderLabel(labelText));
+  row.appendChild(createTooltipHeaderDescription(textString));
+
+  rows.appendChild(row);
 }
 
 /** PRIVATE: create element for field label (for header grid). **/

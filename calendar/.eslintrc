@@ -441,6 +441,9 @@
     // Disallow arrow functions where they could be confused with comparisons
     "no-confusing-arrow": 2,
 
+    // Disallow Unnecessary Nested Blocks
+    "no-lone-blocks": 2,
+
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.
     "no-else-return": 0,
