@@ -134,6 +134,9 @@
     // Enforce spacing after semicolons.
     "semi-spacing": [2, {"before": false, "after": true}],
 
+    // Disallow the use of Boolean literals in conditional expressions.
+    "no-unneeded-ternary": 2,
+
     // Will enable these rules later
     "keyword-spacing": 0,
     "block-spacing": 0,

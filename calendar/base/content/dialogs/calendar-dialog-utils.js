@@ -102,7 +102,7 @@ function applyPersitedProperties(aDialog) {
 function createReminderFromMenuitem(aMenuitem) {
     let reminder = aMenuitem.reminder || cal.createAlarm();
     // clone immutable reminders if necessary to set default values
-    let isImmutable = reminder.isMutable ? false : true;
+    let isImmutable = !reminder.isMutable;
     if (isImmutable) {
         reminder = reminder.clone();
     }
@@ -116,7 +116,7 @@ function createReminderFromMenuitem(aMenuitem) {
     reminder.action = getDefaultAlarmType();
     // make reminder immutable in case it was before
     if (isImmutable) {
-        reminder.makeImmutable;
+        reminder.makeImmutable();
     }
     return reminder;
 }
