@@ -369,7 +369,7 @@ function errorToString(err) {
             } catch (exc) { // probe for netwerk error:
                 try {
                     return netErrorToString(err);
-                } catch (exc) {
+                } catch (exc2) {
                     if (err & calIErrors.ERROR_BASE) {
                         for (var err_ in calIErrors) {
                             if (calIErrors[err_] == err) {

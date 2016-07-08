@@ -35,6 +35,10 @@
     // Disallow use of the Array constructor.
     "no-array-constructor": 2,
 
+    // Disallow the catch clause parameter name being the same as a variable in
+    // the outer scope, to avoid confusion.
+    "no-catch-shadow": 2,
+
     // Disallow deletion of variables (deleting properties is fine).
     "no-delete-var": 2,
 

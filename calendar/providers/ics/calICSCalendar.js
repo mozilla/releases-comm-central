@@ -1029,7 +1029,7 @@ httpHooks.prototype = {
                 try {
                     let str = resultConverter.convertFromByteArray(aResult, aResultLength);
                     multistatus = cal.xml.parseString(str);
-                } catch (e) {
+                } catch (ex) {
                     cal.LOG("[calICSCalendar] Failed to fetch channel etag");
                 }
 
