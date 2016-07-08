@@ -812,6 +812,8 @@ calWcapSession.prototype = {
                 return calendar;
             }
         } catch (exc) {
+            // Fall through to the return statement below in case the uncached
+            // calendar can't be retrieved.
         }
         return null;
     },

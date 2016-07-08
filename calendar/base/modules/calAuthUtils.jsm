@@ -155,6 +155,7 @@ cal.auth = {
                 }
             }
         } catch (exc) {
+            // If no logins are found, fall through to the return statement below.
         }
         return false;
     }

@@ -22,7 +22,9 @@ var calendarExtract = {
 
             try {
                 langName = cal.calGetString("languageNames", langName, null, "global");
-            } catch (ex) {}
+            } catch (ex) {
+                // If no language name is found that is ok, keep the technical term
+            }
 
             let label = cal.calGetString("calendar", "extractUsing", [langName]);
             if (localeParts[3] != "") {
@@ -115,7 +117,10 @@ var calendarExtract = {
                 sel = document.getElementById("multimessage")
                               .contentDocument.querySelector(".iframe-container iframe")
                               .contentDocument.getSelection();
-            } catch (ex) {}
+            } catch (ex) {
+                // If Thunderbird Conversations is not installed that is fine,
+                // we will just have a null selection.
+            }
         }
         let collected = extractor.extract(title, content, date, sel);
 

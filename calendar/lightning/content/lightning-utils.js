@@ -64,6 +64,7 @@ function ltnInitMailIdentitiesRow() {
         }
         menuListSelectItem("email-identity-menulist", sel ? sel.key : "none");
     } catch (exc) {
+        // Don't select anything if the message identity can't be found
     }
 }
 

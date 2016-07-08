@@ -260,7 +260,9 @@ cal.getEmailIdentityOfCalendar = function calGetEmailIdentityOfCalendar(aCalenda
         let identity = null;
         try {
             account = MailServices.accounts.defaultAccount;
-        } catch (exc) {}
+        } catch (exc) {
+            // If no default account can be found that is fine
+        }
 
         for (let i = 0; accounts && (i < accounts.length) && (!account || !identity); ++i) {
             if (!account) { // Pick an account only if none was set (i.e there is no default account)

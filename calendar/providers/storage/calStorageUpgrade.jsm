@@ -1546,6 +1546,7 @@ upgrade.v22 = function upgrade_v22(db, version) {
                             try {
                                 ritem.count = aCount;
                             } catch (exc) {
+                                // Don't fail if setting an invalid count
                             }
                         } else {
                             if (aEndDate) {
@@ -1562,6 +1563,7 @@ upgrade.v22 = function upgrade_v22(db, version) {
                         try {
                             ritem.interval = aInterval;
                         } catch (exc) {
+                            // Don't fail if setting an invalid interval
                         }
 
                         let rtypes = {

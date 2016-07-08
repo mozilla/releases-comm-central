@@ -145,7 +145,9 @@ function test_audio_alarm() {
     try {
         alarm.addAttendee(attendee);
         do_throw("AUDIO alarm should not be able to save attendees");
-    } catch (e) {}
+    } catch (e) {
+        // TODO looks like this test is disabled. Why?
+    }
 
     // Test attachments
     let sound = cal.createAttachment();
@@ -169,7 +171,9 @@ function test_audio_alarm() {
     try {
         alarm.addAttachment(sound2);
         do_throw("Adding a second attachment should fail for type AUDIO");
-    } catch (e) {}
+    } catch (e) {
+        // TODO looks like this test is disabled. Why?
+    }
 
     // Deleting should work
     alarm.deleteAttachment(sound);

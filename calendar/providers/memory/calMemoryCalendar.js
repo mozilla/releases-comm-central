@@ -74,7 +74,9 @@ calMemoryCalendar.prototype = {
 
         try {
             listener.onDeleteCalendar(calendar, Components.results.NS_OK, null);
-        } catch (ex) {}
+        } catch (ex) {
+            // Don't bail out if the listener fails
+        }
     },
 
     mRelaxedMode: undefined,

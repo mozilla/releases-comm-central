@@ -606,8 +606,7 @@ function LtnObserveDisplayDeckChange(event) {
         return;
     }
 
-    var id = null;
-    try { id = deck.selectedPanel.id; } catch (e) { }
+    let id = deck.selectedPanel && deck.selectedPanel.id;
 
     // Switch back to mail mode in case we find that this
     // notification has been fired but we're still in calendar or task mode.

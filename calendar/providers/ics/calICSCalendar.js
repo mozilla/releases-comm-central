@@ -424,6 +424,7 @@ calICSCalendar.prototype = {
             httpChannel = request.QueryInterface(Components.interfaces.nsIHttpChannel);
             requestSucceeded = httpChannel.requestSucceeded;
         } catch (e) {
+            // This may fail if it was not a http channel, handled later on.
         }
 
         if (httpChannel) {
@@ -675,12 +676,13 @@ calICSCalendar.prototype = {
                 let file = backupDir.clone();
                 file.append(filteredFiles[i].name);
 
-                // This can fail because of some crappy code in nsILocalFile.
-                // That's not the end of the world.  We can try to remove the
-                // file the next time around.
                 try {
                     file.remove(false);
-                } catch (ex) {}
+                } catch (ex) {
+                    // This can fail because of some crappy code in
+                    // nsILocalFile.  That's not the end of the world.  We can
+                    // try to remove the file the next time around.
+                }
             }
             return;
         }

@@ -84,7 +84,9 @@
          var text = document.getAnonymousElementByAttribute(this, "anonid", "date-textbox");
           try {
             text.value = this.formatDate(val);
-          } catch (ex) {}
+          } catch (ex) {
+            // Don't fail if date formatting fails.
+          }
           return val;
         ]]></setter>
       </property>
@@ -101,7 +103,9 @@
             // format fails if year <= 1600 on win2k, so try format first.
             try {
               prettyDate = this.formatDate(date);
-            } catch (ex) {} // fall thru
+            } catch (ex) {
+              // Don't fail if date formatting fails.
+            }
           }
           if (date && prettyDate) {
             this.mValue = date;
@@ -302,7 +306,9 @@
               let formattedValue = null;
               try {
                 formattedValue = this.formatDate(aValue);
-              } catch (ex) {} // fall thru
+              } catch (ex) {
+                // formattedValue is checked for a value below
+              }
 
               if (formattedValue) {
                 // format succeeded, safe to set value
@@ -1691,9 +1697,6 @@
         <parameter name="aValue"/>
         <body>
           <![CDATA[
-            // Try/catch this, since some people are apparently
-            // interested in using the datepicker in remote apps, where
-            // calGetString wouldn't exist
             try {
               var noon = calGetString("dateFormat", "noon");
               if (aValue.toLowerCase() == noon.toLowerCase()) {
@@ -1705,6 +1708,9 @@
                 return new Date(0, 0, 0, 0, 0, 0, 0);
               }
             } catch (ex) {
+              // Try/catch this, since some people are apparently
+              // interested in using the datepicker in remote apps, where
+              // calGetString wouldn't exist
             }
 
             var time = null;

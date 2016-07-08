@@ -120,13 +120,10 @@
 
       <constructor><![CDATA[
         Components.utils.import("resource://gre/modules/Services.jsm");
+        Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-        this.weekStartOffset = 0;
-        try {
-            this.weekStartOffset =
-                Services.prefs.getIntPref("calendar.week.start");
-        } catch (ex) {
-        }
+        this.weekStartOffset = Preferences.get("calendar.week.start", 0);
+
         var props =
             Services.strings.createBundle(
                 "chrome://calendar/locale/dateFormat.properties");

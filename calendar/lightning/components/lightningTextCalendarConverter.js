@@ -67,11 +67,12 @@ ltnMimeConverter.prototype = {
                 let msgWindow = null;
                 try {
                     let msgUrl = this.uri.QueryInterface(Components.interfaces.nsIMsgMailNewsUrl);
-                    // msgWindow is optional in some scenarios
-                    // (e.g. gloda in action, throws NS_ERROR_INVALID_POINTER then)
                     msgWindow = msgUrl.msgWindow;
                 } catch (exc) {
+                    // msgWindow is optional in some scenarios
+                    // (e.g. gloda in action, throws NS_ERROR_INVALID_POINTER then)
                 }
+
                 if (msgWindow) {
                     let sinkProps = msgWindow.msgHeaderSink.properties;
                     sinkProps.setPropertyAsInterface("itipItem", itipItem);

@@ -416,7 +416,10 @@ calIcalComponent.prototype = {
             if (dt && dt.timezone) {
                 this._getNextParentVCalendar().addTimezoneReference(dt.timezone);
             }
-        } catch (e) {}
+        } catch (e) {
+            // If there is an issue adding the timezone reference, don't make
+            // that break adding the property.
+        }
 
         let jsprop = unwrapSingle(ICAL.Property, prop);
         this.innerObject.addProperty(jsprop);

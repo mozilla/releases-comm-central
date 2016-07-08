@@ -562,8 +562,6 @@ function updateRecurrenceRange() {
 
     var durationSelection = document.getElementById("recurrence-duration")
                                     .selectedItem.value;
-    if (durationSelection == "forever") {
-    }
 
     if (durationSelection == "ntimes") {
         rangeTimesCount.removeAttribute("disabled");

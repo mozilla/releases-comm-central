@@ -213,7 +213,9 @@ var publishingListener = {
             channel = request.QueryInterface(Components.interfaces.nsIHttpChannel);
             requestSucceeded = channel.requestSucceeded;
         } catch (e) {
+            // Don't fail if it is not a http channel, will be handled below
         }
+
         if (channel && !requestSucceeded) {
             Services.prompt.alert(null, calGetString("calendar", "genericErrorTitle"),
                                   props.formatStringFromName('httpPutError', [channel.responseStatus, channel.responseStatusText], 2));

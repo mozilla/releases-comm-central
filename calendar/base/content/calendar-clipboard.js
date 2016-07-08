@@ -134,7 +134,10 @@ function pasteFromClipboard() {
                                       .createInstance(Components.interfaces.calIIcsParser);
             try {
                 icsParser.parseString(data);
-            } catch (e) {}
+            } catch (e) {
+                // Ignore parser errors from the clipboard data, if it fails
+                // there will just be 0 items.
+            }
 
             let items = icsParser.getItems({});
             if (items.length == 0) {

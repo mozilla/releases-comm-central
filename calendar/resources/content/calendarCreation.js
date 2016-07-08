@@ -75,7 +75,9 @@ function onSelectProvider(type) {
     try {
         tempCal = Components.classes["@mozilla.org/calendar/calendar;1?type=" + type]
                             .createInstance(Components.interfaces.calICalendar);
-    } catch (e) {}
+    } catch (e) {
+        // keep tempCal undefined if the calendar can not be created
+    }
 
     if (tempCal && tempCal.getProperty("cache.always")) {
         cache.oldValue = cache.checked;

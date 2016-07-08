@@ -129,6 +129,7 @@ var gCategoriesPane = {
         try {
             currentColor = categoryPrefBranch.getCharPref(categoryNameFix);
         } catch (ex) {
+            // If the pref doesn't exist, don't bail out here.
         }
 
         if (list.selectedItem) {
@@ -157,6 +158,7 @@ var gCategoriesPane = {
         try {
             categoryPrefBranch.clearUserPref(categoryNameFix);
         } catch (ex) {
+            // If the pref doesn't exist, don't bail out here.
         }
 
         // Remove category entry from listbox and gCategoryList.

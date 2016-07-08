@@ -914,14 +914,10 @@ function _log(message, flag) {
  *              properties should be logged.
  */
 function LOG(aArg) {
-    var shouldLog = false;
-    try {
-        shouldLog = Services.prefs.getBoolPref("calendar.debug.log");
-    } catch (ex) {}
-
-    if (!shouldLog) {
+    if (!Preferences.get("calendar.debug.log", false)) {
         return;
     }
+
     ASSERT(aArg, "Bad log argument.", false);
     var string = aArg;
     // We should just dump() both String objects, and string primitives.
