@@ -235,8 +235,8 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                 if (checkRecurrenceRule(rule, ["BYMONTH"])) {
                     bymonth = rule.getComponent("BYMONTH", {});
                 }
-                if (bymonth && bymonth.length > 1 ||
-                    bymonthday && (bymonthday.length > 1 || bymonthday[0] < -1)) {
+                if ((bymonth && bymonth.length > 1) ||
+                    (bymonthday && (bymonthday.length > 1 || bymonthday[0] < -1))) {
                     // Don't build a string for a recurrence rule that the UI
                     // currently can't show completely (with more than one month
                     // or than one monthday, or bymonthdays lesser than -1).

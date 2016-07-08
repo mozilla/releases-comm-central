@@ -460,10 +460,11 @@ var TodayPane = {
      */
     onCommandTodaySplitter: function() {
         let todaypane = document.getElementById("today-pane-panel");
-        let splitterState = document.getElementById("today-splitter").getAttribute("state");
-        if (splitterState == "collapsed" && todaypane.isVisible() ||
-            splitterState != "collapsed" && !todaypane.isVisible()) {
-              document.getElementById("calendar_toggle_todaypane_command").doCommand();
+        let splitter = document.getElementById("today-splitter");
+        let splitterCollapsed = splitter.getAttribute("state") == "collapsed";
+
+        if (splitterCollapsed == todaypane.isVisible()) {
+            document.getElementById("calendar_toggle_todaypane_command").doCommand();
         }
     }
 };

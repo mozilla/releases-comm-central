@@ -403,6 +403,17 @@
     // Disallow unnecessary escape usage
     "no-useless-escape": 2,
 
+    // Disallow mixes of different operators, but allow simple math operations.
+    "no-mixed-operators": [2, {
+        "groups": [
+            /* ["+", "-", "*", "/", "%", "**"], */
+            ["&", "|", "^", "~", "<<", ">>", ">>>"],
+            ["==", "!=", "===", "!==", ">", ">=", "<", "<="],
+            ["&&", "||"],
+            ["in", "instanceof"]
+        ]
+    }],
+
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.
     "no-else-return": 0,

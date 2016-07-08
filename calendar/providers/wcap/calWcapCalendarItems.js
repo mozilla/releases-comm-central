@@ -228,16 +228,16 @@ calWcapCalendar.prototype.canNotify = function(method, item) {
 };
 
 function equalDatetimes(one, two) {
-    return !one && !two ||
-           (one && two &&
-            one.isDate == two.isDate &&
-            one.compare(two) == 0);
+    return (!one && !two) ||
+            (one && two &&
+             one.isDate == two.isDate &&
+             one.compare(two) == 0);
 }
 
 function identicalDatetimes(one, two) {
-    return !one && !two ||
-           (equalDatetimes(one, two) &&
-            compareObjects(one.timezone, two.timezone));
+    return (!one && !two) ||
+            (equalDatetimes(one, two) &&
+             compareObjects(one.timezone, two.timezone));
 }
 
 // @return null if nothing has changed else value to be written

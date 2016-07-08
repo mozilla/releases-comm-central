@@ -118,7 +118,7 @@
                     }
                 }
                 if (cal.isToDo(aNewItem)) {
-                    if (!aNewItem.entryDate && !aNewItem.dueDate || !this.calView.mTasksInView) {
+                    if ((!aNewItem.entryDate && !aNewItem.dueDate) || !this.calView.mTasksInView) {
                         return;
                     }
                     if (aNewItem.isCompleted && !this.calView.mShowCompleted) {

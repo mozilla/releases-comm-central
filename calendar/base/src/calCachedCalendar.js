@@ -581,7 +581,7 @@ calCachedCalendar.prototype = {
     },
 
     get superCalendar() {
-        return this.mSuperCalendar && this.mSuperCalendar.superCalendar || this;
+        return (this.mSuperCalendar && this.mSuperCalendar.superCalendar) || this;
     },
     set superCalendar(val) {
         return (this.mSuperCalendar = val);

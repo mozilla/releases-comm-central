@@ -3619,8 +3619,8 @@
         <body><![CDATA[
           let startDate = aEvent[calGetStartDateProp(aEvent)];
           let endDate = aEvent[calGetEndDateProp(aEvent)];
-          if (startDate && startDate.isDate ||
-              endDate && endDate.isDate) {
+          if ((startDate && startDate.isDate) ||
+              (endDate && endDate.isDate)) {
               // If this is an all day event, then the header with allday
               // events could possibly get a scrollbar. Readjust them.
               this.adjustScrollBarSpacers();

@@ -1506,16 +1506,16 @@ function setItemProperty(item, propertyName, aValue, aCapability) {
 
     switch (propertyName) {
         case "startDate":
-            if (value.isDate && !item.startDate.isDate ||
-                !value.isDate && item.startDate.isDate ||
+            if ((value.isDate && !item.startDate.isDate) ||
+                (!value.isDate && item.startDate.isDate) ||
                 !compareObjects(value.timezone, item.startDate.timezone) ||
                 value.compare(item.startDate) != 0) {
                 item.startDate = value;
             }
             break;
         case "endDate":
-            if (value.isDate && !item.endDate.isDate ||
-                !value.isDate && item.endDate.isDate ||
+            if ((value.isDate && !item.endDate.isDate) ||
+                (!value.isDate && item.endDate.isDate) ||
                 !compareObjects(value.timezone, item.endDate.timezone) ||
                 value.compare(item.endDate) != 0) {
                 item.endDate = value;
@@ -1525,8 +1525,8 @@ function setItemProperty(item, propertyName, aValue, aCapability) {
             if (value == item.entryDate) {
                 break;
             }
-            if (value && !item.entryDate ||
-                !value && item.entryDate ||
+            if ((value && !item.entryDate) ||
+                (!value && item.entryDate) ||
                 value.isDate != item.entryDate.isDate ||
                 !compareObjects(value.timezone, item.entryDate.timezone) ||
                 value.compare(item.entryDate) != 0) {
@@ -1537,8 +1537,8 @@ function setItemProperty(item, propertyName, aValue, aCapability) {
             if (value == item.dueDate) {
                 break;
             }
-            if (value && !item.dueDate ||
-                !value && item.dueDate ||
+            if ((value && !item.dueDate) ||
+                (!value && item.dueDate) ||
                 value.isDate != item.dueDate.isDate ||
                 !compareObjects(value.timezone, item.dueDate.timezone) ||
                 value.compare(item.dueDate) != 0) {
