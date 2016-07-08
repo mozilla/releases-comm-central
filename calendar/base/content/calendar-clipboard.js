@@ -126,7 +126,7 @@ function pasteFromClipboard() {
     data = data.value.QueryInterface(Components.interfaces.nsISupportsString).data;
     switch (flavor.value) {
         case "text/calendar":
-        case "text/unicode":
+        case "text/unicode": {
             let destCal = getSelectedCalendar();
             if (!destCal) {
                 return;
@@ -194,6 +194,7 @@ function pasteFromClipboard() {
             }
             endBatchTransaction();
             break;
+        }
         default:
             break;
     }

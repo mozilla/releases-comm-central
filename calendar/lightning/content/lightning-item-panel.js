@@ -108,12 +108,13 @@ function receiveMessage(aEvent) {
         case "initializeItemMenu":
             initializeItemMenu(aEvent.data.label, aEvent.data.accessKey);
             break;
-        case "disableLinkCommand":
+        case "disableLinkCommand": {
             let linkCommand = document.getElementById("cmd_toggle_link");
             if (linkCommand) {
                 setElementValue(linkCommand, "true", "disabled");
             }
             break;
+        }
         case "cancelDialog":
             document.documentElement.cancelDialog();
             break;
@@ -139,10 +140,11 @@ function receiveMessage(aEvent) {
         case "removeDisableAndCollapseOnReadonly":
             removeDisableAndCollapseOnReadonly();
             break;
-        case "setElementAttribute":
+        case "setElementAttribute": {
             let arg = aEvent.data.argument;
             setElementValue(arg.id, arg.value, arg.attribute);
             break;
+        }
         case "loadCloudProviders":
             loadCloudProviders(aEvent.data.items);
             break;

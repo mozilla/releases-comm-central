@@ -191,11 +191,13 @@ var taskEdit = {
             }
             switch (aName) {
                 case "readOnly":
-                case "disabled":
+                case "disabled": {
                     let taskEditFields = document.getElementsByAttribute("class", "task-edit-field");
                     for (let i = 0; i < taskEditFields.length; i++) {
                         taskEdit.onBlur({ target: taskEditFields[i] });
                     }
+                    break;
+                }
             }
         },
 

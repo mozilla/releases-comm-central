@@ -1123,7 +1123,7 @@
         if (event.originalTarget.localName == "input") {
             switch (event.keyCode) {
                 case KeyEvent.DOM_VK_DELETE:
-                case KeyEvent.DOM_VK_BACK_SPACE:
+                case KeyEvent.DOM_VK_BACK_SPACE: {
                     let curRowId = this.getRowByInputElement(event.originalTarget);
                     let allSelected = (event.originalTarget.textLength ==
                                        event.originalTarget.selectionEnd -
@@ -1159,6 +1159,7 @@
 
                     event.stopPropagation();
                     break;
+                }
             }
         }
       ]]></handler>

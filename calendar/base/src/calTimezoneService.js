@@ -761,47 +761,50 @@ function guessSystemTimezone() {
     // If reach here, there were no score=3 matches, so Warn in console.
     try {
         switch (probableTZScore) {
-        case 0:
-            cal.WARN(calProperties.GetStringFromName("warningUsingFloatingTZNoMatch"));
-            break;
-        case 1: case 2:
-            let tzId = probableTZId;
-            let timezone = tzSvc.getTimezone(tzId);
-            let subComp = timezone.icalComponent;
-            let standard = findCurrentTimePeriod(timezone, subComp, "STANDARD");
-            let standardTZOffset = getIcalString(standard, "TZOFFSETTO");
-            let daylight = findCurrentTimePeriod(timezone, subComp, "DAYLIGHT");
-            let daylightTZOffset = getIcalString(daylight, "TZOFFSETTO");
-            let warningDetail;
-            if (probableTZScore == 1) {
-                // score 1 means has daylight time,
-                // but transitions start on different weekday from os timezone.
-                let standardStart = getIcalString(standard, "DTSTART");
-                let standardStartWeekday = weekday(standardStart, timezone);
-                let standardRule = getIcalString(standard, "RRULE");
-                let standardText =
-                    "  Standard: " + standardStart + " " + standardStartWeekday + "\n" +
-                    "            " + standardRule + "\n";
-                let daylightStart = getIcalString(daylight, "DTSTART");
-                let daylightStartWeekday = weekday(daylightStart, timezone);
-                let daylightRule = getIcalString(daylight, "RRULE");
-                let daylightText =
-                    "  Daylight: " + daylightStart + " " + daylightStartWeekday + "\n" +
-                    "            " + daylightRule + "\n";
-                warningDetail =
-                    (standardStart < daylightStart
-                      ? standardText + daylightText
-                      : daylightText + standardText) +
-                     calProperties.GetStringFromName("TZAlmostMatchesOSDifferAtMostAWeek");
-            } else {
-                warningDetail = calProperties.GetStringFromName("TZSeemsToMatchOS");
+            case 0: {
+                cal.WARN(calProperties.GetStringFromName("warningUsingFloatingTZNoMatch"));
+                break;
             }
-            let offsetString = standardTZOffset +
-                                 (daylightTZOffset ? "/" + daylightTZOffset : "");
-            let warningMsg = calProperties.formatStringFromName("WarningUsingGuessedTZ",
-                              [tzId, offsetString, warningDetail, probableTZSource], 4);
-            cal.WARN(warningMsg);
-            break;
+            case 1:
+            case 2: {
+                let tzId = probableTZId;
+                let timezone = tzSvc.getTimezone(tzId);
+                let subComp = timezone.icalComponent;
+                let standard = findCurrentTimePeriod(timezone, subComp, "STANDARD");
+                let standardTZOffset = getIcalString(standard, "TZOFFSETTO");
+                let daylight = findCurrentTimePeriod(timezone, subComp, "DAYLIGHT");
+                let daylightTZOffset = getIcalString(daylight, "TZOFFSETTO");
+                let warningDetail;
+                if (probableTZScore == 1) {
+                    // score 1 means has daylight time,
+                    // but transitions start on different weekday from os timezone.
+                    let standardStart = getIcalString(standard, "DTSTART");
+                    let standardStartWeekday = weekday(standardStart, timezone);
+                    let standardRule = getIcalString(standard, "RRULE");
+                    let standardText =
+                        "  Standard: " + standardStart + " " + standardStartWeekday + "\n" +
+                        "            " + standardRule + "\n";
+                    let daylightStart = getIcalString(daylight, "DTSTART");
+                    let daylightStartWeekday = weekday(daylightStart, timezone);
+                    let daylightRule = getIcalString(daylight, "RRULE");
+                    let daylightText =
+                        "  Daylight: " + daylightStart + " " + daylightStartWeekday + "\n" +
+                        "            " + daylightRule + "\n";
+                    warningDetail =
+                        (standardStart < daylightStart
+                          ? standardText + daylightText
+                          : daylightText + standardText) +
+                         calProperties.GetStringFromName("TZAlmostMatchesOSDifferAtMostAWeek");
+                } else {
+                    warningDetail = calProperties.GetStringFromName("TZSeemsToMatchOS");
+                }
+                let offsetString = standardTZOffset +
+                                     (daylightTZOffset ? "/" + daylightTZOffset : "");
+                let warningMsg = calProperties.formatStringFromName("WarningUsingGuessedTZ",
+                                  [tzId, offsetString, warningDetail, probableTZSource], 4);
+                cal.WARN(warningMsg);
+                break;
+            }
         }
     } catch (ex) { // don't abort if error occurs warning user
         Components.utils.reportError(ex);

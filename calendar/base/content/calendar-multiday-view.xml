@@ -3392,12 +3392,13 @@
               headerDayBox.removeAttribute("todaylastinview");
               dayEventsBox.timeIndicatorBox.setAttribute("hidden", "true");
               switch (date.compare(today)) {
-                  case -1:
+                  case -1: {
                       dayHeaderBox.setAttribute("relation", "past");
                       dayEventsBox.setAttribute("relation", "past");
                       labelbox.setAttribute("relation", "past");
                       break;
-                  case 0:
+                  }
+                  case 0: {
                       let relation_ = this.numVisibleDates == 1 ? "today1day" : "today";
                       dayHeaderBox.setAttribute("relation", relation_);
                       dayEventsBox.setAttribute("relation", relation_);
@@ -3415,11 +3416,13 @@
                           headerDayBox.setAttribute("todaylastinview", "true");
                       }
                       break;
-                  case 1:
+                  }
+                  case 1: {
                       dayHeaderBox.setAttribute("relation", "future");
                       dayEventsBox.setAttribute("relation", "future");
                       labelbox.setAttribute("relation", "future");
                       break;
+                  }
               }
               // We don't want to actually mess with our original dates, plus
               // they're likely to be immutable.

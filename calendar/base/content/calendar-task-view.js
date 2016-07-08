@@ -64,12 +64,13 @@ var taskDetailsView = {
             if (displayElement("calendar-task-details-status-row", status && status.length > 0)) {
                 let statusDetails = document.getElementById("calendar-task-details-status");
                 switch (status) {
-                    case "NEEDS-ACTION":
+                    case "NEEDS-ACTION": {
                         statusDetails.value = calGetString(
                             "calendar",
                             "taskDetailsStatusNeedsAction");
                         break;
-                    case "IN-PROCESS":
+                    }
+                    case "IN-PROCESS": {
                         let percent = 0;
                         let property = item.getProperty("PERCENT-COMPLETE");
                         if (property != null) {
@@ -79,7 +80,8 @@ var taskDetailsView = {
                             "calendar",
                             "taskDetailsStatusInProgress", [percent]);
                         break;
-                    case "COMPLETED":
+                    }
+                    case "COMPLETED": {
                         if (item.completedDate) {
                             let completedDate = item.completedDate.getInTimezone(
                                                     calendarDefaultTimezone());
@@ -89,14 +91,17 @@ var taskDetailsView = {
                                 [dateFormatter.formatDateTime(completedDate)]);
                         }
                         break;
-                    case "CANCELLED":
+                    }
+                    case "CANCELLED": {
                         statusDetails.value = calGetString(
                             "calendar",
                             "taskDetailsStatusCancelled");
                         break;
-                    default:
+                    }
+                    default: {
                         displayElement("calendar-task-details-status-row", false);
                         break;
+                    }
                 }
             }
             let categories = item.getCategories({});

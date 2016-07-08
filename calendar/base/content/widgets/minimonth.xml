@@ -250,7 +250,7 @@
            let current = this.getAttribute("year");
            let offset;
            switch (direction) {
-               case "reset":
+               case "reset": {
                    let middleyear = years[Math.floor(years.length / 2)].getAttribute("value");
                    if (current <= (years.length / 2)) {
                        offset = 1 - years[1].getAttribute("value");
@@ -258,12 +258,15 @@
                        offset = current - middleyear;
                    }
                    break;
-               case "up":
+               }
+               case "up": {
                    offset = -Math.abs(scrollOffset) || -1;
                    break;
-               case "down":
+               }
+               case "down": {
                    offset = Math.abs(scrollOffset) || 1;
                    break;
+               }
            }
 
            // Disable the up arrow when we get to the year 1.
@@ -295,17 +298,19 @@
           if (popup) {
               let anonid = popup.getAttribute("anonid");
               switch (anonid) {
-                  case "months-popup":
+                  case "months-popup": {
                       this.hidePopupList();
                       this.kMinimonth.switchMonth(element.getAttribute("index"));
                       break;
-                  case "years-popup":
+                  }
+                  case "years-popup": {
                       this.hidePopupList();
                       let value = element.getAttribute("value");
                       if (value) {
                           this.kMinimonth.switchYear(value);
                       }
                       break;
+                  }
               }
           }
         ]]>

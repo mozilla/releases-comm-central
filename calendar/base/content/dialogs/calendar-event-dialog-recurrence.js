@@ -282,98 +282,102 @@ function onSave(item) {
     let recRule = createRecurrenceRule();
     const ALL_WEEKDAYS = [2, 3, 4, 5, 6, 7, 1]; // The sequence MO,TU,WE,TH,FR,SA,SU.
     switch (deckNumber) {
-    case 0: {
-        recRule.type = "DAILY";
-        let dailyGroup = document.getElementById("daily-group");
-        if (dailyGroup.selectedIndex == 0) {
-            let ndays = Math.max(1, Number(getElementValue("daily-days")));
+        case 0: {
+            recRule.type = "DAILY";
+            let dailyGroup = document.getElementById("daily-group");
+            if (dailyGroup.selectedIndex == 0) {
+                let ndays = Math.max(1, Number(getElementValue("daily-days")));
+                recRule.interval = ndays;
+            } else {
+                recRule.interval = 1;
+                let onDays = [2, 3, 4, 5, 6];
+                recRule.setComponent("BYDAY", onDays.length, onDays);
+            }
+            break;
+        }
+        case 1: {
+            recRule.type = "WEEKLY";
+            let ndays = Number(getElementValue("weekly-weeks"));
             recRule.interval = ndays;
-        } else {
-            recRule.interval = 1;
-            let onDays = [2, 3, 4, 5, 6];
-            recRule.setComponent("BYDAY", onDays.length, onDays);
-        }
-        break;
-    }
-    case 1: {
-        recRule.type = "WEEKLY";
-        let ndays = Number(getElementValue("weekly-weeks"));
-        recRule.interval = ndays;
-        let onDays = document.getElementById("daypicker-weekday").days;
-        if (onDays.length > 0) {
-            recRule.setComponent("BYDAY", onDays.length, onDays);
-        }
-        break;
-    }
-    case 2:
-        recRule.type = "MONTHLY";
-        let monthInterval = Number(getElementValue("monthly-interval"));
-        recRule.interval = monthInterval;
-        let monthlyGroup = document.getElementById("monthly-group");
-        if (monthlyGroup.selectedIndex == 0) {
-            let monthlyOrdinal = Number(getElementValue("monthly-monthlyOrdinal"));
-            let monthlyDOW = Number(getElementValue("monthly-weekday"));
-            if (monthlyDOW < 0) {
-                if (monthlyOrdinal == 0) {
-                    // Monthly rule "Every day of the month".
-                    recRule.setComponent("BYDAY", 7, ALL_WEEKDAYS);
-                } else {
-                    // One of the first five days or the last day of the month.
-                    recRule.setComponent("BYMONTHDAY", 1, [monthlyOrdinal]);
-                }
-            } else {
-                let sign = monthlyOrdinal < 0 ? -1 : 1;
-                let onDays = [(Math.abs(monthlyOrdinal) * 8 + monthlyDOW) * sign];
+            let onDays = document.getElementById("daypicker-weekday").days;
+            if (onDays.length > 0) {
                 recRule.setComponent("BYDAY", onDays.length, onDays);
             }
-        } else {
-            let monthlyDays = document.getElementById("monthly-days").days;
-            if (monthlyDays.length > 0) {
-                recRule.setComponent("BYMONTHDAY", monthlyDays.length, monthlyDays);
-            }
+            break;
         }
-        break;
-    case 3:
-        recRule.type = "YEARLY";
-        let yearInterval = Number(getElementValue("yearly-interval"));
-        recRule.interval = yearInterval;
-        let yearlyGroup = document.getElementById("yearly-group");
-        if (yearlyGroup.selectedIndex == 0) {
-            let yearlyByMonth = [Number(getElementValue("yearly-month-ordinal"))];
-            recRule.setComponent("BYMONTH", yearlyByMonth.length, yearlyByMonth);
-            let yearlyByDay = [Number(getElementValue("yearly-days"))];
-            recRule.setComponent("BYMONTHDAY", yearlyByDay.length, yearlyByDay);
-        } else {
-            let yearlyByMonth = [Number(getElementValue("yearly-month-rule"))];
-            recRule.setComponent("BYMONTH", yearlyByMonth.length, yearlyByMonth);
-            let yearlyOrdinal = Number(getElementValue("yearly-ordinal"));
-            let yearlyDOW = Number(getElementValue("yearly-weekday"));
-            if (yearlyDOW < 0) {
-                if (yearlyOrdinal == 0) {
-                    // Yearly rule "Every day of a month".
-                    recRule.setComponent("BYDAY", 7, ALL_WEEKDAYS);
+        case 2: {
+            recRule.type = "MONTHLY";
+            let monthInterval = Number(getElementValue("monthly-interval"));
+            recRule.interval = monthInterval;
+            let monthlyGroup = document.getElementById("monthly-group");
+            if (monthlyGroup.selectedIndex == 0) {
+                let monthlyOrdinal = Number(getElementValue("monthly-monthlyOrdinal"));
+                let monthlyDOW = Number(getElementValue("monthly-weekday"));
+                if (monthlyDOW < 0) {
+                    if (monthlyOrdinal == 0) {
+                        // Monthly rule "Every day of the month".
+                        recRule.setComponent("BYDAY", 7, ALL_WEEKDAYS);
+                    } else {
+                        // One of the first five days or the last day of the month.
+                        recRule.setComponent("BYMONTHDAY", 1, [monthlyOrdinal]);
+                    }
                 } else {
-                    // One of the first five days or the last of a month.
-                    recRule.setComponent("BYMONTHDAY", 1, [yearlyOrdinal]);
+                    let sign = monthlyOrdinal < 0 ? -1 : 1;
+                    let onDays = [(Math.abs(monthlyOrdinal) * 8 + monthlyDOW) * sign];
+                    recRule.setComponent("BYDAY", onDays.length, onDays);
                 }
             } else {
-                let sign = yearlyOrdinal < 0 ? -1 : 1;
-                let onDays = [(Math.abs(yearlyOrdinal) * 8 + yearlyDOW) * sign];
-                recRule.setComponent("BYDAY", onDays.length, onDays);
+                let monthlyDays = document.getElementById("monthly-days").days;
+                if (monthlyDays.length > 0) {
+                    recRule.setComponent("BYMONTHDAY", monthlyDays.length, monthlyDays);
+                }
             }
+            break;
         }
-        break;
+        case 3: {
+            recRule.type = "YEARLY";
+            let yearInterval = Number(getElementValue("yearly-interval"));
+            recRule.interval = yearInterval;
+            let yearlyGroup = document.getElementById("yearly-group");
+            if (yearlyGroup.selectedIndex == 0) {
+                let yearlyByMonth = [Number(getElementValue("yearly-month-ordinal"))];
+                recRule.setComponent("BYMONTH", yearlyByMonth.length, yearlyByMonth);
+                let yearlyByDay = [Number(getElementValue("yearly-days"))];
+                recRule.setComponent("BYMONTHDAY", yearlyByDay.length, yearlyByDay);
+            } else {
+                let yearlyByMonth = [Number(getElementValue("yearly-month-rule"))];
+                recRule.setComponent("BYMONTH", yearlyByMonth.length, yearlyByMonth);
+                let yearlyOrdinal = Number(getElementValue("yearly-ordinal"));
+                let yearlyDOW = Number(getElementValue("yearly-weekday"));
+                if (yearlyDOW < 0) {
+                    if (yearlyOrdinal == 0) {
+                        // Yearly rule "Every day of a month".
+                        recRule.setComponent("BYDAY", 7, ALL_WEEKDAYS);
+                    } else {
+                        // One of the first five days or the last of a month.
+                        recRule.setComponent("BYMONTHDAY", 1, [yearlyOrdinal]);
+                    }
+                } else {
+                    let sign = yearlyOrdinal < 0 ? -1 : 1;
+                    let onDays = [(Math.abs(yearlyOrdinal) * 8 + yearlyDOW) * sign];
+                    recRule.setComponent("BYDAY", onDays.length, onDays);
+                }
+            }
+            break;
+        }
     }
 
     // Figure out how long this event is supposed to last
     switch (document.getElementById("recurrence-duration").selectedItem.value) {
-        case "forever":
+        case "forever": {
             recRule.count = -1;
             break;
-        case "ntimes":
+        }
+        case "ntimes": {
             recRule.count = Math.max(1, getElementValue("repeat-ntimes-count"));
             break;
-        case "until":
+        }
+        case "until": {
             let untilDate = cal.jsDateToDateTime(getElementValue("repeat-until-date"), gStartTime.timezone);
             untilDate.isDate = gStartTime.isDate; // enforce same value type as DTSTART
             if (!gStartTime.isDate) {
@@ -384,6 +388,7 @@ function onSave(item) {
             }
             recRule.untilDate = untilDate;
             break;
+        }
     }
 
     if (recRule.interval < 1) {
@@ -674,7 +679,7 @@ function updateRecurrencePattern() {
 
     switch (Number(getElementValue("period-list"))) {
         // daily
-        case 0:
+        case 0: {
             let dailyGroup = document.getElementById("daily-group");
             let dailyDays = document.getElementById("daily-days");
             dailyDays.removeAttribute("disabled");
@@ -682,11 +687,13 @@ function updateRecurrencePattern() {
                 dailyDays.setAttribute("disabled", "true");
             }
             break;
+        }
         // weekly
-        case 1:
+        case 1: {
             break;
+        }
         // monthly
-        case 2:
+        case 2: {
             let monthlyGroup = document.getElementById("monthly-group");
             let monthlyOrdinal = document.getElementById("monthly-ordinal");
             let monthlyWeekday = document.getElementById("monthly-weekday");
@@ -701,8 +708,9 @@ function updateRecurrencePattern() {
                 monthlyWeekday.setAttribute("disabled", "true");
             }
             break;
+        }
         // yearly
-        case 3:
+        case 3: {
             let yearlyGroup = document.getElementById("yearly-group");
             let yearlyDays = document.getElementById("yearly-days");
             let yearlyMonthOrdinal = document.getElementById("yearly-month-ordinal");
@@ -729,6 +737,7 @@ function updateRecurrencePattern() {
                 yearlyPeriodOfMonthLabel.setAttribute("disabled", "true");
             }
             break;
+        }
     }
 }
 

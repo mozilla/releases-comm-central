@@ -85,53 +85,57 @@ function getPrintSettings(receiverFunc) {
     settings.printTasksWithNoDueDate = document.getElementById("tasks-with-no-due-date").checked;
     let theView = getCalendarView();
     switch (document.getElementById("view-field").selectedItem.value) {
-    case "currentView":
-    case "": // just in case
-        settings.start = theView.startDay.clone();
-        settings.end = theView.endDay.clone();
-        settings.end.day += 1;
-        settings.start.isDate = false;
-        settings.end.isDate = false;
-        break;
-    case "selected": {
-        let selectedItems = theView.getSelectedItems({});
-        settings.eventList = selectedItems.filter((item) => {
-            if (cal.isEvent(item) && !settings.printEvents) {
-                return false;
-            }
-            if (cal.isToDo(item) && !settings.printTasks) {
-                return false;
-            }
-            return true;
-        });
-
-        // If tasks should be printed, also include selected tasks from the
-        // opening window.
-        if (settings.printTasks) {
-            let selectedTasks = window.opener.getSelectedTasks();
-            for (let task of selectedTasks) {
-                settings.eventList.push(task);
-            }
+        case "currentView":
+        case "": { // just in case
+            settings.start = theView.startDay.clone();
+            settings.end = theView.endDay.clone();
+            settings.end.day += 1;
+            settings.start.isDate = false;
+            settings.end.isDate = false;
+            break;
         }
+        case "selected": {
+            let selectedItems = theView.getSelectedItems({});
+            settings.eventList = selectedItems.filter((item) => {
+                if (cal.isEvent(item) && !settings.printEvents) {
+                    return false;
+                }
+                if (cal.isToDo(item) && !settings.printTasks) {
+                    return false;
+                }
+                return true;
+            });
 
-        // We've set the event list above, no need to fetch items below.
-        requiresFetch = false;
-        break;
-    }
-    case "custom":
-        // We return the time from the timepickers using the selected
-        // timezone, as not doing so in timezones with a positive offset
-        // from UTC may cause the printout to include the wrong days.
-        let currentTimezone = cal.calendarDefaultTimezone();
-        settings.start = cal.jsDateToDateTime(document.getElementById("start-date-picker").value);
-        settings.start = settings.start.getInTimezone(currentTimezone);
-        settings.end = cal.jsDateToDateTime(document.getElementById("end-date-picker").value);
-        settings.end = settings.end.getInTimezone(currentTimezone);
-        settings.end = settings.end.clone();
-        settings.end.day += 1;
-        break;
-    default:
-        dump("Error : no case in printDialog.js::printCalendar()");
+            // If tasks should be printed, also include selected tasks from the
+            // opening window.
+            if (settings.printTasks) {
+                let selectedTasks = window.opener.getSelectedTasks();
+                for (let task of selectedTasks) {
+                    settings.eventList.push(task);
+                }
+            }
+
+            // We've set the event list above, no need to fetch items below.
+            requiresFetch = false;
+            break;
+        }
+        case "custom": {
+            // We return the time from the timepickers using the selected
+            // timezone, as not doing so in timezones with a positive offset
+            // from UTC may cause the printout to include the wrong days.
+            let currentTimezone = cal.calendarDefaultTimezone();
+            settings.start = cal.jsDateToDateTime(document.getElementById("start-date-picker").value);
+            settings.start = settings.start.getInTimezone(currentTimezone);
+            settings.end = cal.jsDateToDateTime(document.getElementById("end-date-picker").value);
+            settings.end = settings.end.getInTimezone(currentTimezone);
+            settings.end = settings.end.clone();
+            settings.end.day += 1;
+            break;
+        }
+        default: {
+            dump("Error : no case in printDialog.js::printCalendar()");
+            break;
+        }
     }
 
     // Some filters above might have filled the events list themselves. If not,

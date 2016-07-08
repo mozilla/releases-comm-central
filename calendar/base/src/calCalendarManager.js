@@ -96,7 +96,7 @@ calCalendarManager.prototype = {
 
     observe: function(aSubject, aTopic, aData) {
         switch (aTopic) {
-            case "timer-callback":
+            case "timer-callback": {
                 // Refresh all the calendars that can be refreshed.
                 for (let calendar of this.getCalendars({})) {
                     if (!calendar.getProperty("disabled") && calendar.canRefresh) {
@@ -104,7 +104,8 @@ calCalendarManager.prototype = {
                     }
                 }
                 break;
-            case "network:offline-status-changed":
+            }
+            case "network:offline-status-changed": {
                 for (let id in this.mCache) {
                     let calendar = this.mCache[id];
                     if (calendar instanceof calCachedCalendar) {
@@ -112,7 +113,8 @@ calCalendarManager.prototype = {
                     }
                 }
                 break;
-            case "http-on-examine-response":
+            }
+            case "http-on-examine-response": {
                 try {
                     let channel = aSubject.QueryInterface(Components.interfaces.nsIHttpChannel);
                     if (channel.notificationCallbacks) {
@@ -143,7 +145,8 @@ calCalendarManager.prototype = {
                     // - The WWW-Authenticate header is missing (thats ok)
                 }
                 break;
-            case "http-on-modify-request":
+            }
+            case "http-on-modify-request": {
                 // Unfortunately, the ability to do this with a general pref has
                 // been removed. Calendar servers might still want to know what
                 // client is used for access, so add our UA String to each
@@ -171,6 +174,7 @@ calCalendarManager.prototype = {
                     // header is not set. We don't want to force it to be set.
                 }
                 break;
+            }
         }
     },
 

@@ -70,7 +70,7 @@ calItipEmailTransport.prototype = {
         let subject = "";
         let body = "";
         switch (aItipItem.responseMethod) {
-            case "REQUEST":
+            case "REQUEST": {
                 let usePrefixes = Preferences.get(
                     "calendar.itip.useInvitationSubjectPrefixes",
                     true
@@ -96,7 +96,8 @@ calItipEmailTransport.prototype = {
                     "lightning"
                 );
                 break;
-            case "CANCEL":
+            }
+            case "CANCEL": {
                 subject = cal.calGetString(
                     "lightning",
                     "itipCancelSubject",
@@ -110,6 +111,7 @@ calItipEmailTransport.prototype = {
                     "lightning"
                 );
                 break;
+            }
             case "REPLY": {
                 // Get my participation status
                 let att = cal.getInvitedAttendee(item, aItipItem.targetCalendar);
@@ -315,16 +317,18 @@ calItipEmailTransport.prototype = {
                 }
                 break;
             }
-            case Components.interfaces.calIItipItem.NONE:
+            case Components.interfaces.calIItipItem.NONE: {
                 cal.LOG("sendXpcomMail: Found NONE autoResponse type.");
 
                 // No response
                 break;
-            default:
+            }
+            default: {
                 // Unknown autoResponse type
                 throw new Error("sendXpcomMail: " +
                                 "Unknown autoResponse type: " +
                                 aItem.autoResponse);
+            }
         }
         return false;
     },

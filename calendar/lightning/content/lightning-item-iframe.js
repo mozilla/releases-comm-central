@@ -191,18 +191,20 @@ function receiveMessage(aEvent) {
         case "onCommandSave": onCommandSave(aEvent.data.isClosing); break;
         case "onAccept": onAccept(); break;
         case "onCancel": onCancel(aEvent.data.iframeId); break;
-        case "editConfigState":
+        case "editConfigState": {
             Object.assign(gConfig, aEvent.data.argument);
             updateConfigState(aEvent.data.argument);
             if (gNewItemUI) {
                 gTopComponent.importState(aEvent.data.argument);
             }
             break;
-        case "editToDoStatus":
+        }
+        case "editToDoStatus": {
             let textbox = document.getElementById("percent-complete-textbox");
             setElementValue(textbox, aEvent.data.value);
             updateToDoStatus("percent-changed");
             break;
+        }
         case "postponeTask":
             postponeTask(aEvent.data.value);
             break;
@@ -216,7 +218,7 @@ function receiveMessage(aEvent) {
             }
             */
             break;
-        case "toggleLink":
+        case "toggleLink": {
             let newUrl = window.calendarItem.getProperty("URL") || "";
             let newShow = showOrHideItemURL(aEvent.data.checked, newUrl);
             // Disable command if there is no url
@@ -232,13 +234,15 @@ function receiveMessage(aEvent) {
                 updateItemURL(newShow, newUrl);
             }
             break;
-        case "closingWindowWithTabs":
+        }
+        case "closingWindowWithTabs": {
             let response = onCancel(aEvent.data.id, true);
             sendMessage({
                 command: "replyToClosingWindowWithTabs",
                 response: response
             });
             break;
+        }
         case "attachFileByAccountKey":
             attachFileByAccountKey(aEvent.data.accountKey);
             break;
@@ -2702,8 +2706,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
               break;
             case "every.weekday":
               recRule.type = "DAILY";
-              let onDays = [2, 3, 4, 5, 6];
-              recRule.setComponent("BYDAY", onDays.length, onDays);
+              recRule.setComponent("BYDAY", onDays.length, [2, 3, 4, 5, 6]);
               break;
             case "bi.weekly":
               recRule.type = "WEEKLY";

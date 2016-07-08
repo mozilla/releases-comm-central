@@ -704,7 +704,7 @@
           // columns of type |progressmeter|.
           getProgressMode: function(aRow, aCol) {
               switch (aCol.element.getAttribute("itemproperty")) {
-                  case "percentComplete":
+                  case "percentComplete": {
                       let task = this.binding.mTaskArray[aRow];
                       if (aCol.element.boxObject.width > 75 &&
                           task.percentComplete > 0) {
@@ -713,6 +713,7 @@
                           return Components.interfaces.nsITreeView.PROGRESS_NORMAL;
                       }
                       break;
+                  }
               }
 
               return Components.interfaces.nsITreeView.PROGRESS_NONE;
@@ -746,13 +747,14 @@
           onKeyPress: function(event) {
               const kKE = Components.interfaces.nsIDOMKeyEvent;
               switch (event.keyCode || event.which) {
-                  case kKE.DOM_VK_DELETE:
+                  case kKE.DOM_VK_DELETE: {
                       document.popupNode = this.binding;
                       document.getElementById("calendar_delete_todo_command").doCommand();
                       event.preventDefault();
                       event.stopPropagation();
                       break;
-                  case kKE.DOM_VK_SPACE:
+                  }
+                  case kKE.DOM_VK_SPACE: {
                       if (this.tree.currentIndex > -1) {
                           let col = document.getAnonymousElementByAttribute(
                               this.binding, "itemproperty", "completed");
@@ -761,12 +763,14 @@
                               { element: col });
                       }
                       break;
-                  case kKE.DOM_VK_RETURN:
+                  }
+                  case kKE.DOM_VK_RETURN: {
                       let index = this.tree.currentIndex;
                       if (index > -1) {
                           modifyEventWithDialog(this.binding.mTaskArray[index]);
                       }
                       break;
+                  }
               }
           },
 

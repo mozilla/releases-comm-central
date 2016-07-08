@@ -459,6 +459,9 @@
       ]
     }],
 
+    // Disallow lexical declarations in case/default clauses
+    "no-case-declarations": 2,
+
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.
     "no-else-return": 0,

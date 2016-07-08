@@ -193,20 +193,23 @@ calCachedCalendar.prototype = {
                 let cachedCalendar = Components.classes["@mozilla.org/calendar/calendar;1?type=" + calType]
                                                .createInstance(Components.interfaces.calICalendar);
                 switch (calType) {
-                    case "memory":
+                    case "memory": {
                         if (this.supportsChangeLog) {
                             // start with full sync:
                             this.mUncachedCalendar.resetLog();
                         }
                         break;
-                    case "storage":
+                    }
+                    case "storage": {
                         let file = getCalendarDirectory();
                         file.append("cache.sqlite");
                         cachedCalendar.uri = Services.io.newFileURI(file);
                         cachedCalendar.id = this.id;
                         break;
-                    default:
+                    }
+                    default: {
                         throw new Error("unsupported cache calendar type: " + calType);
+                    }
                 }
                 cachedCalendar.transientProperties = true;
                 cachedCalendar.setProperty("relaxedMode", true);

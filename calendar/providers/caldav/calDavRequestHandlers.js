@@ -220,7 +220,7 @@ etagsHandler.prototype = {
 
     endElement: function(aUri, aLocalName, aQName) {
         switch (aLocalName) {
-            case "response":
+            case "response": {
                 this.tag = null;
                 let resp = this.currentResponse;
                 if (resp.getetag && resp.getetag.length &&
@@ -253,11 +253,13 @@ etagsHandler.prototype = {
                     }
                 }
                 break;
+            }
             case "href":
             case "getetag":
-            case "getcontenttype":
+            case "getcontenttype": {
                 this.tag = null;
                 break;
+            }
         }
         if (this.calendar.verboseLogging()) {
             this.logXML += "</" + aQName + ">";
@@ -532,7 +534,7 @@ webDavSyncHandler.prototype = {
     endElement: function(aUri, aLocalName, aQName) {
         switch (aLocalName) {
             case "response": // WebDAV Sync draft 3
-            case "sync-response": // WebDAV Sync draft 0,1,2
+            case "sync-response": { // WebDAV Sync draft 0,1,2
                 let resp = this.currentResponse;
                 if (resp.href && resp.href.length) {
                     resp.href = this.calendar.ensureDecodedPath(resp.href);
@@ -612,12 +614,15 @@ webDavSyncHandler.prototype = {
                     cal.LOG("CalDAV: Unhandled response element, status: " + resp.status + ", href: " + resp.href + " contenttype:" + resp.getcontenttype);
                 }
                 break;
-            case "sync-token":
+            }
+            case "sync-token": {
                 this.newSyncToken = this.currentResponse[this.tag];
                 break;
-            case "propstat":
+            }
+            case "propstat": {
                 this.isInPropStat = false;
                 break;
+            }
         }
         this.tag = null;
         if (this.calendar.verboseLogging()) {
@@ -885,7 +890,7 @@ multigetSyncHandler.prototype = {
 
     endElement: function(aUri, aLocalName, aQName) {
         switch (aLocalName) {
-            case "response":
+            case "response": {
                 let resp = this.currentResponse;
                 if (resp.href &&
                     resp.href.length) {
@@ -928,9 +933,11 @@ multigetSyncHandler.prototype = {
                     this.unhandledErrors++;
                 }
                 break;
-            case "propstat":
+            }
+            case "propstat": {
                 this.isInPropStat = false;
                 break;
+            }
         }
         this.tag = null;
         if (this.calendar.verboseLogging()) {

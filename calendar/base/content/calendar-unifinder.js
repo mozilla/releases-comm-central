@@ -761,12 +761,13 @@ var unifinderTreeView = {
         let calendarEvent = this.eventArray[row];
 
         switch (column.element.getAttribute("itemproperty")) {
-            case "title":
+            case "title": {
                 return (calendarEvent.title ? calendarEvent.title.replace(/\n/g, " ") : "");
-            case "startDate":
+            }
+            case "startDate": {
                 return formatUnifinderEventDateTime(calendarEvent.startDate);
-
-            case "endDate":
+            }
+            case "endDate": {
                 let eventEndDate = calendarEvent.endDate.clone();
                 // XXX reimplement
                 // let eventEndDate = getCurrentNextOrPreviousRecurrence(calendarEvent);
@@ -775,21 +776,22 @@ var unifinderTreeView = {
                     eventEndDate.day = eventEndDate.day - 1;
                 }
                 return formatUnifinderEventDateTime(eventEndDate);
-
-            case "categories":
+            }
+            case "categories": {
                 return calendarEvent.getCategories({}).join(", ");
-
-            case "location":
+            }
+            case "location": {
                 return calendarEvent.getProperty("LOCATION");
-
-            case "status":
+            }
+            case "status": {
                 return getEventStatusString(calendarEvent);
-
-            case "calendar":
+            }
+            case "calendar": {
                 return calendarEvent.calendar.name;
-
-            default:
+            }
+            default: {
                 return false;
+            }
         }
     },
 
