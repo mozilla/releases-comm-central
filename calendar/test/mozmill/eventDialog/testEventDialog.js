@@ -60,7 +60,7 @@ var testEventDialog = function() {
 
   // create new event
   controller.mainMenu.click("#ltnNewEvent");
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
+  controller.waitFor(function() { return mozmill.utils.getWindows("Calendar:EventDialog").length > 0; }, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // check that the start time is correct
@@ -141,12 +141,12 @@ var testEventDialog = function() {
   event.click(new elementslib.ID(event.window.document, "button-save"));
 
   // catch and dismiss alarm
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:AlarmWindow").length > 0;}, sleep);
+  controller.waitFor(function() { return mozmill.utils.getWindows("Calendar:AlarmWindow").length > 0; }, sleep);
   let alarm = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:AlarmWindow")[0]);
   // dismiss all button, label in .dtd file, bug #504635
   alarm.waitThenClick(new elementslib.Lookup(alarm.window.document, '/id("calendar-alarm-dialog")/' +
     'id("alarm-actionbar")/[1]'));
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:AlarmWindow").length == 0;}, sleep);
+  controller.waitFor(function() { return mozmill.utils.getWindows("Calendar:AlarmWindow").length == 0; }, sleep);
 
   // verify event and alarm icon visible every day of the month and check tooltip
   // 1st January is Thursday so there's three days to check in the first row

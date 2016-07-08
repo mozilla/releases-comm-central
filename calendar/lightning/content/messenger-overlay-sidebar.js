@@ -530,7 +530,7 @@ function ltnIntegrationCheck() {
             // we look at all items at any time, but we can stop if the first item was found
             // if we've found no items, we call ltnIntegrationNotification to display the bar
             pCal.getItems(Components.interfaces.calICalendar.ITEM_FILTER_ALL_ITEMS, 1, null, null)
-                .then(function(aItems) {if (!aItems.length) {ltnIntegrationNotification();}});
+                .then(function(aItems) { if (!aItems.length) { ltnIntegrationNotification(); } });
         }
     }
 }

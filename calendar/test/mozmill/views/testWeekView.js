@@ -56,14 +56,14 @@ var testWeekView = function() {
   let day = new elementslib.Lookup(controller.window.document, weekView +
     'anon({"anonid":"mainbox"})/anon({"anonid":"labelbox"})/anon({"anonid":"labeldaybox"})/' +
     '{"selected":"true"}');
-  controller.waitFor(function() {return day.getNode().mDate.icalString == "20090101";});
+  controller.waitFor(function() { return day.getNode().mDate.icalString == "20090101"; });
 
   // create event at 8 AM
   // Thursday of 2009-01-01 is 4th with default settings
   controller.doubleClick(new elementslib.Lookup(controller.window.document, weekView +
     'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/' +
     '[4]/anon({"anonid":"boxstack"})/anon({"anonid":"bgbox"})/[8]'), 1, 1);
-  controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
+  controller.waitFor(function() { return mozmill.utils.getWindows("Calendar:EventDialog").length > 0; }, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // check that the start time is correct
@@ -101,7 +101,7 @@ var testWeekView = function() {
   // if it was created successfully, it can be opened
   controller.waitForElement(new elementslib.Lookup(controller.window.document, eventBox));
   controller.doubleClick(new elementslib.Lookup(controller.window.document, eventBox));
-  controller.waitFor(function() {return utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
+  controller.waitFor(function() { return utils.getWindows("Calendar:EventDialog").length > 0; }, sleep);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // change title and save changes
