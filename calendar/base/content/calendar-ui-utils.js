@@ -19,7 +19,6 @@ Components.utils.import("resource://gre/modules/PluralForm.jsm");
  */
 function setElementValue(aElement, aNewValue, aPropertyName) {
     cal.ASSERT(aElement, "aElement");
-    var undefined;
 
     if (aNewValue !== undefined) {
         if (typeof aElement == "string") {

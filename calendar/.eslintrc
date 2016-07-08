@@ -152,6 +152,9 @@
     // Disallow space between function identifier and application.
     "no-spaced-func": 2,
 
+    // Disallow shadowing of names such as arguments.
+    "no-shadow-restricted-names": 2,
+
     // Will enable these rules later
     "block-spacing": 0,
     "no-lonely-if": 0,
