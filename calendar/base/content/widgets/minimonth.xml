@@ -989,7 +989,7 @@
               this._setFreeBusy(false);
           }
           // this should be done using lookupMethod(), see bug 286629
-          var ret = XULElement.prototype.removeAttribute.call (this, aAttr);
+          var ret = XULElement.prototype.removeAttribute.call(this, aAttr);
           return ret;
         ]]></body>
       </method>
@@ -1001,7 +1001,7 @@
               this._setFreeBusy(aVal == "true");
           }
           // this should be done using lookupMethod(), see bug 286629
-          var ret = XULElement.prototype.setAttribute.call (this, aAttr, aVal);
+          var ret = XULElement.prototype.setAttribute.call(this, aAttr, aVal);
           return ret;
         ]]></body>
       </method>

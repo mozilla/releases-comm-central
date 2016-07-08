@@ -186,7 +186,7 @@ calCalendarManager.prototype = {
         }
 
         if (oldVersion < 6) {
-            dump ("**** Upgrading calCalendarManager schema to 6\n");
+            dump("**** Upgrading calCalendarManager schema to 6\n");
 
             // Schema changes in v6:
             //
@@ -240,7 +240,7 @@ calCalendarManager.prototype = {
         }
 
         if (oldVersion < DB_SCHEMA_VERSION) {
-            dump ("**** Upgrading calCalendarManager schema to 9/10\n");
+            dump("**** Upgrading calCalendarManager schema to 9/10\n");
 
             if (db.tableExists("cal_calmgr_schema_version")) {
                 // Set only once the last time to v10, so the version check works in calendar 0.8.

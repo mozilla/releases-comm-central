@@ -335,10 +335,10 @@ calMemoryCalendar.prototype = {
             return;
         }
 
-        aListener.onGetResult (this.superCalendar,
-                               Components.results.NS_OK,
-                               iid,
-                               null, 1, [item]);
+        aListener.onGetResult(this.superCalendar,
+                              Components.results.NS_OK,
+                              iid,
+                              null, 1, [item]);
 
         this.notifyOperationComplete(aListener,
                                      Components.results.NS_OK,

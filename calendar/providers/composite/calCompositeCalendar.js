@@ -382,11 +382,11 @@ calCompositeCalendar.prototype = {
         // If there are no calendars, then we just call onOperationComplete
         let enabledCalendars = this.enabledCalendars;
         if (enabledCalendars.length == 0) {
-            aListener.onOperationComplete (this,
-                                           Components.results.NS_OK,
-                                           calIOperationListener.GET,
-                                           null,
-                                           null);
+            aListener.onOperationComplete(this,
+                                          Components.results.NS_OK,
+                                          calIOperationListener.GET,
+                                          null,
+                                          null);
             return null;
         }
         if (this.mStatusObserver) {
@@ -485,7 +485,7 @@ calCompositeGetListenerHelper.prototype = {
             return;
         }
         if (this.mFinished) {
-            dump ("+++ calCompositeGetListenerHelper.onOperationComplete: called with mFinished == true!");
+            dump("+++ calCompositeGetListenerHelper.onOperationComplete: called with mFinished == true!");
             return;
         }
         if (this.mCompositeCalendar.statusDisplayed) {
@@ -508,11 +508,11 @@ calCompositeGetListenerHelper.prototype = {
             // we're done here.
             this.mFinished = true;
             this.opGroup.notifyCompleted();
-            this.mRealListener.onOperationComplete (this,
-                                                    aStatus,
-                                                    calIOperationListener.GET,
-                                                    null,
-                                                    null);
+            this.mRealListener.onOperationComplete(this,
+                                                   aStatus,
+                                                   calIOperationListener.GET,
+                                                   null,
+                                                   null);
         }
     },
 
@@ -522,7 +522,7 @@ calCompositeGetListenerHelper.prototype = {
             return;
         }
         if (this.mFinished) {
-            dump ("+++ calCompositeGetListenerHelper.onGetResult: called with mFinished == true!");
+            dump("+++ calCompositeGetListenerHelper.onGetResult: called with mFinished == true!");
             return;
         }
 
@@ -541,7 +541,7 @@ calCompositeGetListenerHelper.prototype = {
         }
 
         // send GetResults to the real listener
-        this.mRealListener.onGetResult (aCalendar, aStatus, aItemType, aDetail, aCount, aItems);
+        this.mRealListener.onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems);
         this.mItemsReceived += aCount;
     }
 

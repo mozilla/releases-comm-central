@@ -620,7 +620,7 @@ calStorageCalendar.prototype = {
             return;
         }
 
-        var item = this.getItemById (aId);
+        var item = this.getItemById(aId);
         if (!item) {
             // querying by id is a valid use case, even if no item is returned:
             this.notifyOperationComplete(aListener,
@@ -645,10 +645,10 @@ calStorageCalendar.prototype = {
             return;
         }
 
-        aListener.onGetResult (this.superCalendar,
-                               Components.results.NS_OK,
-                               item_iid, null,
-                               1, [item]);
+        aListener.onGetResult(this.superCalendar,
+                              Components.results.NS_OK,
+                              item_iid, null,
+                              1, [item]);
 
         this.notifyOperationComplete(aListener,
                                      Components.results.NS_OK,
@@ -787,7 +787,7 @@ calStorageCalendar.prototype = {
                 expandedItems = expandedItems.filter(optionalFilterFunc);
             }
 
-            queueItems (expandedItems, theIID);
+            queueItems(expandedItems, theIID);
             return expandedItems.length;
         }
 
@@ -1626,7 +1626,7 @@ calStorageCalendar.prototype = {
         }
 
         // This must be done last to keep the modification time intact.
-        this.getItemBaseFromRow (row, flags, item);
+        this.getItemBaseFromRow(row, flags, item);
         this.getAdditionalDataForItem(item, flags.value);
 
         if (!isException) { // keep exceptions modifyable to set the parentItem
@@ -1664,7 +1664,7 @@ calStorageCalendar.prototype = {
         }
 
         // This must be done last to keep the modification time intact.
-        this.getItemBaseFromRow (row, flags, item);
+        this.getItemBaseFromRow(row, flags, item);
         this.getAdditionalDataForItem(item, flags.value);
 
         if (!isException) { // keep exceptions modifyable to set the parentItem
@@ -2198,7 +2198,7 @@ calStorageCalendar.prototype = {
                 }
             }
 
-            var exceptions = rec.getExceptionIds ({});
+            var exceptions = rec.getExceptionIds({});
             if (exceptions.length > 0) {
                 flags |= CAL_ITEM_FLAG.HAS_EXCEPTIONS;
 
@@ -2465,7 +2465,7 @@ calStorageCalendar.prototype = {
         }
         var rec = aItem.recurrenceInfo;
         if (rec) {
-            var exceptions = rec.getExceptionIds ({});
+            var exceptions = rec.getExceptionIds({});
             if (exceptions.length > 0) {
                 for (let exid of exceptions) {
                     let ex = rec.getExceptionFor(exid);

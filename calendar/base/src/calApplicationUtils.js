@@ -24,9 +24,9 @@ function launchBrowser(url, event)
   // XXX: We likely will want to do this using nsIURLs in the future to
   //      prevent sneaky nasty escaping issues, but this is fine for now.
   if (!url.startsWith("http")) {
-    Components.utils.reportError ("launchBrowser: " +
-                                  "Invalid URL provided: " + url +
-                                  " Only http:// and https:// URLs are valid.");
+    Components.utils.reportError("launchBrowser: " +
+                                 "Invalid URL provided: " + url +
+                                 " Only http:// and https:// URLs are valid.");
     return;
   }
 

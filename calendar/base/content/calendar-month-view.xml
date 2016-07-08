@@ -451,7 +451,7 @@
         <parameter name="aVal"/>
         <body><![CDATA[
           let needsrelayout = (aAttr == "context" || aAttr == "item-context");
-          let ret = XULElement.prototype.setAttribute.call (this, aAttr, aVal);
+          let ret = XULElement.prototype.setAttribute.call(this, aAttr, aVal);
 
           if (needsrelayout) {
               this.relayout();

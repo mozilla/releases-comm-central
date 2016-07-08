@@ -478,7 +478,7 @@
                 abDir = allAddressBooks.getNext()
                                   .QueryInterface(Components.interfaces.nsIAbDirectory);
               } catch (ex) {
-                cal.WARN ("[eventDialog] Error Encountered" + ex);
+                cal.WARN("[eventDialog] Error Encountered" + ex);
               }
 
               if (abDir != null && abDir.supportsMailingLists) {
@@ -489,7 +489,7 @@
                   try {
                     dir = childNodes.getNext().QueryInterface(Components.interfaces.nsIAbDirectory);
                   } catch (ex) {
-                    cal.WARN ("[eventDialog] Error Encountered" + ex);
+                    cal.WARN("[eventDialog] Error Encountered" + ex);
                   }
 
                   if (dir && dir.isMailList && (dir.dirName == entryname)) {
