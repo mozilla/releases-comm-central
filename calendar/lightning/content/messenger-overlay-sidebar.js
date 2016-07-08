@@ -298,29 +298,31 @@ var calendarItemTabType = {
         // persistTab is called even for new events/tasks in tabs that
         // were closed and never saved (for 'undo close tab'
         // functionality), thus we confirm we have the expected values.
-        if (args && args.calendar && args.calendar.id &&
-            args.calendarEvent && args.calendarEvent.id) {
-            let calendarId = args.calendar.id;
-            let itemId = args.calendarEvent.id;
-            // Handle null args.initialStartDateValue, just for good measure.
-            // Note that this is not the start date for the event or task.
-            let hasDateValue = args.initialStartDateValue &&
-                               args.initialStartDateValue.icalString;
-            let initialStartDate = hasDateValue
-                ? args.initialStartDateValue.icalString : null;
-
-            args.calendar = null;
-            args.calendarEvent = null;
-            args.initialStartDateValue = null;
-
-            return {
-                calendarId: calendarId,
-                itemId: itemId,
-                initialStartDate: initialStartDate,
-                args: args,
-                tabType: aTab.mode.type
-            };
+        if (!args || !args.calendar || !args.calendar.id ||
+            !args.calendarEvent || !args.calendarEvent.id) {
+            return {};
         }
+
+        let calendarId = args.calendar.id;
+        let itemId = args.calendarEvent.id;
+        // Handle null args.initialStartDateValue, just for good measure.
+        // Note that this is not the start date for the event or task.
+        let hasDateValue = args.initialStartDateValue &&
+                           args.initialStartDateValue.icalString;
+        let initialStartDate = hasDateValue
+            ? args.initialStartDateValue.icalString : null;
+
+        args.calendar = null;
+        args.calendarEvent = null;
+        args.initialStartDateValue = null;
+
+        return {
+            calendarId: calendarId,
+            itemId: itemId,
+            initialStartDate: initialStartDate,
+            args: args,
+            tabType: aTab.mode.type
+        };
     },
     /**
      * Called when starting the application (and/or opening the window).

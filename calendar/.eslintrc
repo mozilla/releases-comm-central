@@ -29,6 +29,9 @@
     // Enforce the spacing around the * in generator functions.
     "generator-star-spacing": [2, "after"],
 
+    // Require space before/after arrow function's arrow
+    "arrow-spacing": [2, { "before": true, "after": true }],
+
     // Enforces spacing between keys and values in object literal properties.
     "key-spacing": [2, {"beforeColon": false, "afterColon": true, "mode": "minimum"}],
 
@@ -41,6 +44,9 @@
 
     // disallow use of the Object constructor
     "no-new-object": 2,
+
+    // Disallow Primitive Wrapper Instances
+    "no-new-wrappers": 2,
 
     // Disallow the catch clause parameter name being the same as a variable in
     // the outer scope, to avoid confusion.
@@ -166,6 +172,9 @@
     // single line of code to have only one easily predictable effect.
     "no-return-assign": 2,
 
+    // Require return statements to either always or never specify values
+    "consistent-return": 2,
+
     // Disallow padding within blocks.
     "padded-blocks": [2, "never"],
 
@@ -213,12 +222,118 @@
     // Require padding inside curly braces
     "object-curly-spacing": [2, "always"],
 
+    // Disallow control characters in regular expressions
+    "no-control-regex": 2,
+
+    // Disallow invalid regular expression strings in RegExp constructors
+    "no-invalid-regexp": 2,
+
+    // Disallow multiple spaces in regular expression literals
+    "no-regex-spaces": 2,
+
+    // Disallow irregular whitespace
+    "no-irregular-whitespace": 2,
+
+    // Disallow negating the left operand in `in` expressions
+    "no-negated-in-lhs": 2,
+
+    // Allow constant expressions in conditions
+    // With 2.11.0 we can enable this with checkLoops: false
+    "no-constant-condition": [2, {"checkLoops": false}],
+
+    // Disallow Regexs That Look Like Division
+    "no-div-regex": 2,
+
+    // Disallow Iterator (using __iterator__)
+    "no-iterator": 2,
+
+    // Enforce consistent linebreak style
+    "linebreak-style": [2, "unix"],
+
+    // Enforces return statements in callbacks of array's methods
+    "array-callback-return": 2,
+
+    // Verify super() calls in constructors
+    "constructor-super": 2,
+
+    // Disallow modifying variables of class declarations
+    "no-class-assign": 2,
+
+    // Disallow modifying variables that are declared using const
+    "no-const-assign": 2,
+
+    // Disallow duplicate name in class members
+    "no-dupe-class-members": 2,
+
+    // Disallow duplicate imports
+    "no-duplicate-imports": 2,
+
+    // Disallow empty destructuring patterns
+    "no-empty-pattern": 2,
+
+    // Disallow Labeled Statements
+    "no-labels": 2,
+
+    // Disallow Multiline Strings
+    "no-multi-str": 2,
+
+    // Disallow Symbol Constructor
+    "no-new-symbol": 2,
+
+    // Disallow Initializing to undefined
+    "no-undef-init": 2,
+
+    // Disallow control flow statements in finally blocks
+    "no-unsafe-finally": 2,
+
+    // Disallow Unused Labels
+    "no-unused-labels": 2,
+
+    // Disallow unnecessary computed property keys on objects
+    "no-useless-computed-key": 2,
+
+    // Disallow unnecessary constructor
+    "no-useless-constructor": 2,
+
+    // Disallow renaming import, export, and destructured assignments to the
+    // same name
+    "no-useless-rename": 2,
+
+    // Enforce spacing between rest and spread operators and their expressions
+    "rest-spread-spacing": [2, "never"],
+
+    // Disallow usage of spacing in template string expressions
+    "template-curly-spacing": [2, "never"],
+
+    // Disallow the Unicode Byte Order Mark
+    "unicode-bom": [2, "never"],
+
+    // Enforce spacing around the * in yield* expressions
+    "yield-star-spacing": [2, "after"],
+
+    // Disallow Implied eval
+    "no-implied-eval": 2,
+
+    // Disallow unnecessary function binding
+    "no-extra-bind": 2,
+
+    // Disallow new For Side Effects
+    "no-new": 2,
+
+    // Disallow Self Assignment
+    "no-self-assign": 2,
+
+    // Disallow confusing multiline expressions
+    "no-unexpected-multiline": 2,
+
+    // Require IIFEs to be Wrapped
+    "wrap-iife": [2, "inside"],
+
     // Will enable these rules later
     "block-spacing": 0,
     "no-lonely-if": 0,
     "space-before-blocks": 0,
     "computed-property-spacing": 0,
-    "consistent-return": 0,
 
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.
