@@ -56,8 +56,8 @@ var testEventDialogModificationPrompt = function() {
 
   // open, but change nothing
   let eventBox = new elementslib.Lookup(controller.window.document,
-    calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8)
-    + '/{"tooltip":"itemTooltip"}');
+    calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8) +
+    '/{"tooltip":"itemTooltip"}');
   controller.waitForElement(eventBox);
   controller.doubleClick(eventBox);
   controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
@@ -75,8 +75,8 @@ var testEventDialogModificationPrompt = function() {
 
   // open
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
-    calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8)
-    + '/{"tooltip":"itemTooltip"}'));
+    calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8) +
+    '/{"tooltip":"itemTooltip"}'));
   controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
   event = new mozmill.controller.MozMillController(mozmill.utils
     .getWindows("Calendar:EventDialog")[0]);
@@ -116,8 +116,8 @@ var testEventDialogModificationPrompt = function() {
 
     // open and close
     eventBox = new elementslib.Lookup(controller.window.document,
-      calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8)
-      + '/{"tooltip":"itemTooltip"}');
+      calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8) +
+      '/{"tooltip":"itemTooltip"}');
     controller.waitForElement(eventBox);
     controller.doubleClick(eventBox);
     controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);

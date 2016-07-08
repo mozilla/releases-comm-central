@@ -55,9 +55,9 @@ var testLocalICS = function() {
   event.waitFor(() => iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded == true);
 
   // title
-  let titleTextBox = new elementslib.Lookup(iframe.contentDocument, '/id("calendar-event-dialog-inner")/'
-    + 'id("event-grid")/id("event-grid-rows")/id("event-grid-title-row")/'
-    + 'id("item-title")/anon({"class":"textbox-input-box"})/anon({"anonid":"input"})');
+  let titleTextBox = new elementslib.Lookup(iframe.contentDocument, '/id("calendar-event-dialog-inner")/' +
+    'id("event-grid")/id("event-grid-rows")/id("event-grid-title-row")/' +
+    'id("item-title")/anon({"class":"textbox-input-box"})/anon({"anonid":"input"})');
   event.waitForElement(titleTextBox);
   event.type(titleTextBox, title);
 
@@ -73,8 +73,8 @@ var testLocalICS = function() {
   event.click(new elementslib.ID(event.window.document, "button-save"));
 
   // assert presence in view
-  let box = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour)
-    + '/{"tooltip":"itemTooltip","calendar":"' + calendar + '"}';
+  let box = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour) +
+    '/{"tooltip":"itemTooltip","calendar":"' + calendar + '"}';
   controller.waitForElement(new elementslib.Lookup(controller.window.document, box));
 
   // verify in file
@@ -108,21 +108,21 @@ function handleNewCalendarWizard(wizard) {
   let docEl = wizard.window.document.documentElement;
 
   // choose network calendar
-  let remoteOption = new elementslib.Lookup(wizard.window.document, '/id("calendar-wizard")/'
-    + '{"pageid":"initialPage"}/id("calendar-type")/{"value":"remote"}');
+  let remoteOption = new elementslib.Lookup(wizard.window.document, '/id("calendar-wizard")/' +
+    '{"pageid":"initialPage"}/id("calendar-type")/{"value":"remote"}');
   wizard.waitForElement(remoteOption);
   wizard.radio(remoteOption);
   docEl.getButton("next").doCommand();
 
   // choose ical
-  let icalOption = new elementslib.Lookup(wizard.window.document, '/id("calendar-wizard")/'
-    + '{"pageid":"locationPage"}/[1]/[1]/[0]/id("calendar-format")/{"value":"ics"}');
+  let icalOption = new elementslib.Lookup(wizard.window.document, '/id("calendar-wizard")/' +
+    '{"pageid":"locationPage"}/[1]/[1]/[0]/id("calendar-format")/{"value":"ics"}');
   wizard.waitForElement(icalOption);
   wizard.radio(icalOption);
   // enter location
-  wizard.type(new elementslib.Lookup(wizard.window.document, '/id("calendar-wizard")/'
-    + '{"pageid":"locationPage"}/[1]/[1]/{"align":"center"}/id("calendar-uri")/'
-    + 'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
+  wizard.type(new elementslib.Lookup(wizard.window.document, '/id("calendar-wizard")/' +
+    '{"pageid":"locationPage"}/[1]/[1]/{"align":"center"}/id("calendar-uri")/' +
+    'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
     uri);
   docEl.getButton("next").doCommand();
 

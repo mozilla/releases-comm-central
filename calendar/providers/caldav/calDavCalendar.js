@@ -2411,9 +2411,9 @@ calDavCalendar.prototype = {
         let aCalIdParts = aCalId.split(":");
         aCalIdParts[0] = aCalIdParts[0].toLowerCase();
 
-        if (aCalIdParts[0] != "mailto"
-            && aCalIdParts[0] != "http"
-            && aCalIdParts[0] != "https") {
+        if (aCalIdParts[0] != "mailto" &&
+            aCalIdParts[0] != "http" &&
+            aCalIdParts[0] != "https") {
             aListener.onResult(null, null);
             return;
         }

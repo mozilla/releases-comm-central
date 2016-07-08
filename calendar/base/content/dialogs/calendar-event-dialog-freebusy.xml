@@ -171,9 +171,8 @@
           let day =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "day");
-          let dateValue = (this.mZoomFactor > 100) ?
-              this.mDateFormatter.formatDateShort(date) :
-              this.mDateFormatter.formatDateLong(date);
+          let dateValue = this.mZoomFactor > 100 ? this.mDateFormatter.formatDateShort(date)
+                                                 : this.mDateFormatter.formatDateLong(date);
           day.setAttribute("value", dateValue);
 
           // Now create as many 'hour' elements as needed

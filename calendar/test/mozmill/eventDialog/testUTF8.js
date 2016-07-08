@@ -29,18 +29,18 @@ var testUTF8 = function() {
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // fill in name, location, description
-  let titleTextBox = new elementslib.Lookup(event.window.document, eventDialog
-    + 'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/'
-    + 'anon({"anonid":"input"})');
+  let titleTextBox = new elementslib.Lookup(event.window.document, eventDialog +
+    'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/' +
+    'anon({"anonid":"input"})');
   event.waitForElement(titleTextBox);
   event.type(titleTextBox, UTF8string);
-  event.type(new elementslib.Lookup(event.window.document, eventDialog
-    + 'id("event-grid-location-row")/id("item-location")/anon({"class":"textbox-input-box"})/'
-    + 'anon({"anonid":"input"})'),
+  event.type(new elementslib.Lookup(event.window.document, eventDialog +
+    'id("event-grid-location-row")/id("item-location")/anon({"class":"textbox-input-box"})/' +
+    'anon({"anonid":"input"})'),
     UTF8string);
-  event.type(new elementslib.Lookup(event.window.document, eventDialog
-    + 'id("event-grid-description-row")/id("item-description")/'
-    + 'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
+  event.type(new elementslib.Lookup(event.window.document, eventDialog +
+    'id("event-grid-description-row")/id("item-description")/' +
+    'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
     UTF8string);
 
   // select category
@@ -52,26 +52,26 @@ var testUTF8 = function() {
 
   // open
   let eventBox = new elementslib.Lookup(controller.window.document,
-    calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8)
-    + '/{"tooltip":"itemTooltip","calendar":"' + UTF8string.toLowerCase() + '"}');
+    calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8) +
+    '/{"tooltip":"itemTooltip","calendar":"' + UTF8string.toLowerCase() + '"}');
   controller.waitForElement(eventBox);
   controller.doubleClick(eventBox);
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, sleep);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // check values
-  titleTextBox = new elementslib.Lookup(event.window.document, eventDialog
-    + 'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/'
-    + 'anon({"anonid":"input"})');
+  titleTextBox = new elementslib.Lookup(event.window.document, eventDialog +
+    'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/' +
+    'anon({"anonid":"input"})');
   event.waitForElement(titleTextBox);
   event.assertValue(titleTextBox, UTF8string);
-  event.assertValue(new elementslib.Lookup(event.window.document, eventDialog
-    + 'id("event-grid-location-row")/id("item-location")/anon({"class":"textbox-input-box"})/'
-    + 'anon({"anonid":"input"})'),
+  event.assertValue(new elementslib.Lookup(event.window.document, eventDialog +
+    'id("event-grid-location-row")/id("item-location")/anon({"class":"textbox-input-box"})/' +
+    'anon({"anonid":"input"})'),
     UTF8string);
-  event.assertValue(new elementslib.Lookup(event.window.document, eventDialog
-    + 'id("event-grid-description-row")/id("item-description")/'
-    + 'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
+  event.assertValue(new elementslib.Lookup(event.window.document, eventDialog +
+    'id("event-grid-description-row")/id("item-description")/' +
+    'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
     UTF8string);
   event.assertValue(new elementslib.ID(event.window.document, "item-categories"),
     UTF8string);

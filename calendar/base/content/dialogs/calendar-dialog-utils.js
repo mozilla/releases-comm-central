@@ -397,9 +397,9 @@ function getDefaultAlarmType() {
  */
 function getCurrentCalendar() {
     let calendarNode = document.getElementById("item-calendar");
-    return (calendarNode && calendarNode.selectedItem ?
-                calendarNode.selectedItem.calendar :
-                window.calendarItem.calendar);
+    return (calendarNode && calendarNode.selectedItem
+                                ? calendarNode.selectedItem.calendar
+                                : window.calendarItem.calendar);
 }
 
 /**

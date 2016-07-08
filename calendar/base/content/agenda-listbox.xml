@@ -227,25 +227,25 @@
             let iconType = "";
             if (startDate.compare(endDate) == 0) {
                 // event that starts and ends in the same day, midnight included
-                duration = longFormat ? dateFormatter.formatDateTime(start) :
-                                        dateFormatter.formatTime(start);
+                duration = longFormat ? dateFormatter.formatDateTime(start)
+                                      : dateFormatter.formatTime(start);
             } else {
                 // event spanning multiple days
                 if (startDate.compare(periodStartDate) >= 0 &&
                      startDate.compare(periodEndDate) <= 0) {
                     iconType = "start";
-                    duration = longFormat ? dateFormatter.formatDateTime(start) :
-                                            dateFormatter.formatTime(start);
+                    duration = longFormat ? dateFormatter.formatDateTime(start)
+                                          : dateFormatter.formatTime(start);
                 } else if (endDate.compare(periodStartDate) >= 0 &&
                            endDate.compare(periodEndDate) <= 0) {
                     iconType = "end";
                     if (endAtMidnight) {
                         duration = dateFormatter.formatDate(endDate) + " ";
-                        duration = longFormat ? duration + calGetString("dateFormat", "midnight") :
-                                                calGetString("dateFormat", "midnight");
+                        duration = longFormat ? duration + calGetString("dateFormat", "midnight")
+                                              : calGetString("dateFormat", "midnight");
                     } else {
-                        duration = longFormat ? dateFormatter.formatDateTime(end) :
-                                                dateFormatter.formatTime(end);
+                        duration = longFormat ? dateFormatter.formatDateTime(end)
+                                              : dateFormatter.formatTime(end);
                     }
                 } else {
                     iconType = "continue";

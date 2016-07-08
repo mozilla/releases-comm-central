@@ -494,8 +494,8 @@ calFilter.prototype = {
                     result = null;
                     break;
                 case props.FILTER_DATE_VIEW:
-                    result = start ? currentView().startDay.clone() :
-                                     currentView().endDay.clone();
+                    result = start ? currentView().startDay.clone()
+                                   : currentView().endDay.clone();
                     break;
                 case props.FILTER_DATE_SELECTED:
                     result = selectedDate.clone();

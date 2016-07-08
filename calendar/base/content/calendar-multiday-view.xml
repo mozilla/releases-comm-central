@@ -1792,10 +1792,10 @@
         <parameter name="aMouseY"/>
         <parameter name="aSnapInt"/>
         <body><![CDATA[
-          if (!isCalendarWritable(aOccurrence.calendar)
-              || !userCanModifyItem(aOccurrence)
-              || (aOccurrence.calendar instanceof Components.interfaces.calISchedulingSupport && aOccurrence.calendar.isInvitation(aOccurrence))
-              || aOccurrence.calendar.getProperty("capabilities.events.supported") === false) {
+          if (!isCalendarWritable(aOccurrence.calendar) ||
+              !userCanModifyItem(aOccurrence) ||
+              (aOccurrence.calendar instanceof Components.interfaces.calISchedulingSupport && aOccurrence.calendar.isInvitation(aOccurrence)) ||
+              aOccurrence.calendar.getProperty("capabilities.events.supported") === false) {
               return;
           }
 
@@ -2583,8 +2583,8 @@
           // it will update the wrong view or it will start without need.
           let currentMode = document.getElementById("modeBroadcaster").getAttribute("mode");
           let currView = currentView().type;
-          if (currentMode == "calendar" && currView == this.type && !hideIndicator
-              && (currView == "day" || currView == "week")) {
+          if (currentMode == "calendar" && currView == this.type && !hideIndicator &&
+              (currView == "day" || currView == "week")) {
               this.updateTimeIndicatorPosition(true);
           }
         ]]></body>

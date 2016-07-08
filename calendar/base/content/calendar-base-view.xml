@@ -368,8 +368,8 @@
 
             // Some views throw when accessing an uninitialized startDay
             try {
-                retval = this.displayCalendar && this.startDay
-                         && this.endDay;
+                retval = this.displayCalendar && this.startDay &&
+                         this.endDay;
             } catch (ex) {
                 return false;
             }

@@ -843,8 +843,8 @@ var cal = {
                 childNode.remove();
              } else if (!aValue || aValue === undefined) {
                 childNode.remove();
-            } else if (childNode && childNode.hasAttribute(aAttribute)
-                && childNode.getAttribute(aAttribute) == aValue) {
+            } else if (childNode && childNode.hasAttribute(aAttribute) &&
+                       childNode.getAttribute(aAttribute) == aValue) {
                 childNode.remove();
             }
             childNode = prevChildNode;

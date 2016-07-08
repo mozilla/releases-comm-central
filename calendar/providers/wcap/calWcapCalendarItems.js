@@ -366,8 +366,8 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
             dtstart = item.startDate;
             dtend = item.endDate;
             bIsAllDay = (dtstart.isDate && dtend.isDate);
-            if (!oldItem || !identicalDatetimes(dtstart, oldItem.startDate)
-                         || !identicalDatetimes(dtend, oldItem.endDate)) {
+            if (!oldItem || !identicalDatetimes(dtstart, oldItem.startDate) ||
+                !identicalDatetimes(dtend, oldItem.endDate)) {
                 params += ("&dtstart=" + getIcalUTC(dtstart)); // timezone will be set with tzid param
                 params += ("&dtend=" + getIcalUTC(dtend));
                 params += (bIsAllDay ? "&isAllDay=1" : "&isAllDay=0");
@@ -388,8 +388,8 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
             }
 
             bIsAllDay = (dtstart && dtstart.isDate);
-            if (!oldItem || !identicalDatetimes(dtstart, oldItem.entryDate)
-                         || !identicalDatetimes(dtend, oldItem.dueDate)) {
+            if (!oldItem || !identicalDatetimes(dtstart, oldItem.entryDate) ||
+                !identicalDatetimes(dtend, oldItem.dueDate)) {
                 params += ("&dtstart=" + getIcalUTC(dtstart)); // timezone will be set with tzid param
                 params += ("&due=" + getIcalUTC(dtend)); // timezone will be set with tzid param
                 params += (bIsAllDay ? "&isAllDay=1" : "&isAllDay=0");

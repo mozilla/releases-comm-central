@@ -23,8 +23,8 @@ var ALLDAY = 2; // Use when you need an allday canvas or event box
  */
 function acceptSendingNotificationMail(controller) {
   modalDialog.plan_for_modal_dialog("commonDialog", function(dialog) {
-      dialog.waitThenClick(new elementslib.Lookup(dialog.window.document, '/id("commonDialog")/'
-        + 'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
+      dialog.waitThenClick(new elementslib.Lookup(dialog.window.document, '/id("commonDialog")/' +
+        'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
     }
   );
 
@@ -40,8 +40,8 @@ function handleAddingAttachment(controller, url) {
     let input = new elementslib.ID(attachment.window.document, 'loginTextbox');
     attachment.waitForElement(input);
     input.getNode().value = url;
-    attachment.click(new elementslib.Lookup(attachment.window.document, '/id("commonDialog")/'
-      + 'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
+    attachment.click(new elementslib.Lookup(attachment.window.document, '/id("commonDialog")/' +
+      'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
   });
 
   modalDialog.wait_for_modal_dialog("commonDialog");
@@ -148,30 +148,30 @@ function switchToView(controller, view) {
  *  @param day - 1-based index of a day
  */
 function goToDate(controller, year, month, day) {
-  let miniMonth = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/'
-    + 'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/id("ltnSidebar")/'
-    + 'id("minimonth-pane")/{"align":"center"}/id("calMinimonthBox")/id("calMinimonth")/';
-  let activeYear = (new elementslib.Lookup(controller.window.document, miniMonth
-    + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/'
-    + 'anon({"anonid":"years-popup"})/[0]/{"current":"true"}')).getNode().getAttribute("value");
-  let activeMonth = (new elementslib.Lookup(controller.window.document, miniMonth
-    + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/'
-    + 'anon({"anonid":"months-popup"})/[0]/{"current":"true"}')).getNode().getAttribute("index");
+  let miniMonth = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/' +
+    'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/id("ltnSidebar")/' +
+    'id("minimonth-pane")/{"align":"center"}/id("calMinimonthBox")/id("calMinimonth")/';
+  let activeYear = (new elementslib.Lookup(controller.window.document, miniMonth +
+    'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/' +
+    'anon({"anonid":"years-popup"})/[0]/{"current":"true"}')).getNode().getAttribute("value");
+  let activeMonth = (new elementslib.Lookup(controller.window.document, miniMonth +
+    'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/' +
+    'anon({"anonid":"months-popup"})/[0]/{"current":"true"}')).getNode().getAttribute("index");
   let yearDifference = activeYear - year;
   let monthDifference = activeMonth - (month - 1);
 
   if (yearDifference != 0) {
-    let scrollArrow = yearDifference > 0 ?
-      (new elementslib.Lookup(controller.window.document, miniMonth
-        + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/'
-        + 'anon({"anonid":"years-popup"})/[0]/{"class":"autorepeatbutton-up"}')).getNode() :
-      (new elementslib.Lookup(controller.window.document, miniMonth
-        + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/'
-        + 'anon({"anonid":"years-popup"})/[0]/{"class":"autorepeatbutton-down"}')).getNode();
+    let scrollArrow = yearDifference > 0
+      ? (new elementslib.Lookup(controller.window.document, miniMonth +
+          'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/' +
+          'anon({"anonid":"years-popup"})/[0]/{"class":"autorepeatbutton-up"}')).getNode()
+      : (new elementslib.Lookup(controller.window.document, miniMonth +
+          'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/' +
+          'anon({"anonid":"years-popup"})/[0]/{"class":"autorepeatbutton-down"}')).getNode();
 
     // pick year
-    controller.click(new elementslib.Lookup(controller.window.document, miniMonth
-      + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})'));
+    controller.click(new elementslib.Lookup(controller.window.document, miniMonth +
+      'anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})'));
     controller.sleep(500);
 
     for (let i = 0; i < Math.abs(yearDifference); i++) {
@@ -179,20 +179,20 @@ function goToDate(controller, year, month, day) {
       controller.sleep(100);
     }
 
-    controller.click(new elementslib.Lookup(controller.window.document, miniMonth
-      + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/'
-      + 'anon({"anonid":"years-popup"})/[0]/{"value":"' + year + '"}'));
+    controller.click(new elementslib.Lookup(controller.window.document, miniMonth +
+      'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/' +
+      'anon({"anonid":"years-popup"})/[0]/{"value":"' + year + '"}'));
     controller.sleep(500);
   }
 
   if (monthDifference != 0) {
     // pick month
-    controller.click(new elementslib.Lookup(controller.window.document, miniMonth
-      + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})/[' + activeMonth
-      + ']'));
-    controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth
-      + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/'
-      + 'anon({"anonid":"months-popup"})/[0]/{"index":"' + (month - 1) + '"}'));
+    controller.click(new elementslib.Lookup(controller.window.document, miniMonth +
+      'anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})/[' + activeMonth +
+      ']'));
+    controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth +
+      'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/' +
+      'anon({"anonid":"months-popup"})/[0]/{"index":"' + (month - 1) + '"}'));
     controller.sleep(500);
   }
 
@@ -203,8 +203,8 @@ function goToDate(controller, year, month, day) {
   let dateRow = Math.floor((positionOfFirst + day - 1) / 7);
 
   // pick day
-  controller.click(new elementslib.Lookup(controller.window.document, miniMonth
-    + 'anon({"anonid":"minimonth-calendar"})/[' + (dateRow + 1) + ']/[' + dateColumn + ']'));
+  controller.click(new elementslib.Lookup(controller.window.document, miniMonth +
+    'anon({"anonid":"minimonth-calendar"})/[' + (dateRow + 1) + ']/[' + dateColumn + ']'));
   controller.sleep(500);
 }
 
@@ -218,9 +218,9 @@ function goToDate(controller, year, month, day) {
  *  @returns path string
  */
 function getEventBoxPath(controller, view, option, row, column, hour) {
-  let viewDeck = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/'
-    + 'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/'
-    + 'id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")';
+  let viewDeck = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/' +
+    'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/' +
+    'id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")';
   let dayView = viewDeck + '/id("day-view")';
   let weekView = viewDeck + '/id("week-view")';
   let multiweekView = viewDeck + '/id("multiweek-view")';
@@ -258,8 +258,8 @@ function getEventBoxPath(controller, view, option, row, column, hour) {
 
     return path;
   } else {
-    path += '/anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/'
-      + 'anon({"anonid":"monthgridrows"})/[' + (row - 1) + ']/[' + (column - 1) + ']';
+    path += '/anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/' +
+      'anon({"anonid":"monthgridrows"})/[' + (row - 1) + ']/[' + (column - 1) + ']';
 
     if (option == CANVAS_BOX) {
       path += '/anon({"anonid":"day-items"})';
@@ -326,9 +326,9 @@ function createCalendar(controller, name) {
 
   let id = calendar.id;
   let calendarTree = (new elementslib.Lookup(controller.window.document,
-    '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabpanelcontainer")/'
-    + 'id("calendarTabPanel")/id("calendarContent")/id("ltnSidebar")/id("calendar-panel")/'
-    + 'id("calendar-list-pane")/id("calendar-listtree-pane")/id("calendar-list-tree-widget")'))
+    '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabpanelcontainer")/' +
+    'id("calendarTabPanel")/id("calendarContent")/id("ltnSidebar")/id("calendar-panel")/' +
+    'id("calendar-list-pane")/id("calendar-listtree-pane")/id("calendar-list-tree-widget")'))
     .getNode();
   for (i = 0; i < calendarTree.mCalendarList.length; i++) {
     if (calendarTree.mCalendarList[i].id == id) {
@@ -395,34 +395,34 @@ function setData(controller, data) {
     isEvent = false;
   }
 
-  let dateInput = 'anon({"class":"datepicker-box-class"})/{"class":"datepicker-text-class"}/'
-    + 'anon({"class":"menulist-editable-box textbox-input-box"})/anon({"anonid":"input"})';
-  let timeInput = 'anon({"anonid":"hbox"})/anon({"anonid":"time-picker"})/'
-    + 'anon({"class":"timepicker-box-class"})/anon({"class":"timepicker-text-class"})/'
-    + 'anon({"flex":"1"})/anon({"anonid":"input"})';
-  let startDateInput = new elementslib.Lookup(controller.window.document, dialog
-    + 'id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/'
-    + (isEvent ? 'id("event-starttime")/' : 'id("todo-entrydate")/')
-    + 'anon({"anonid":"hbox"})/anon({"anonid":"date-picker"})/' + dateInput);
-  let endDateInput = new elementslib.Lookup(controller.window.document, dialog
-    + 'id("event-grid-enddate-row")/[1]/id("event-grid-enddate-picker-box")/'
-    + (isEvent ? 'id("event-endtime")/' : 'id("todo-duedate")/')
-    + 'anon({"anonid":"hbox"})/anon({"anonid":"date-picker"})/' + dateInput);
-  let startTimeInput = new elementslib.Lookup(controller.window.document, dialog
-    + 'id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/'
-    + (isEvent ? 'id("event-starttime")/' : 'id("todo-entrydate")/')
-    + timeInput);
-  let endTimeInput = new elementslib.Lookup(controller.window.document, dialog
-    + 'id("event-grid-enddate-row")/[1]/id("event-grid-enddate-picker-box")/'
-    + (isEvent ? 'id("event-endtime")/' : 'id("todo-duedate")/')
-    + timeInput);
+  let dateInput = 'anon({"class":"datepicker-box-class"})/{"class":"datepicker-text-class"}/' +
+    'anon({"class":"menulist-editable-box textbox-input-box"})/anon({"anonid":"input"})';
+  let timeInput = 'anon({"anonid":"hbox"})/anon({"anonid":"time-picker"})/' +
+    'anon({"class":"timepicker-box-class"})/anon({"class":"timepicker-text-class"})/' +
+    'anon({"flex":"1"})/anon({"anonid":"input"})';
+  let startDateInput = new elementslib.Lookup(controller.window.document, dialog +
+    'id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/' +
+    (isEvent ? 'id("event-starttime")/' : 'id("todo-entrydate")/') +
+    'anon({"anonid":"hbox"})/anon({"anonid":"date-picker"})/' + dateInput);
+  let endDateInput = new elementslib.Lookup(controller.window.document, dialog +
+    'id("event-grid-enddate-row")/[1]/id("event-grid-enddate-picker-box")/' +
+    (isEvent ? 'id("event-endtime")/' : 'id("todo-duedate")/') +
+    'anon({"anonid":"hbox"})/anon({"anonid":"date-picker"})/' + dateInput);
+  let startTimeInput = new elementslib.Lookup(controller.window.document, dialog +
+    'id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/' +
+    (isEvent ? 'id("event-starttime")/' : 'id("todo-entrydate")/') +
+    timeInput);
+  let endTimeInput = new elementslib.Lookup(controller.window.document, dialog +
+    'id("event-grid-enddate-row")/[1]/id("event-grid-enddate-picker-box")/' +
+    (isEvent ? 'id("event-endtime")/' : 'id("todo-duedate")/') +
+    timeInput);
   let completedDateInput = new elementslib.Lookup(controller.window.document,
-    dialog + 'id("event-grid-todo-status-row")/id("event-grid-todo-status-picker-box")/'
-    + 'id("completed-date-picker")/' + dateInput);
-  let percentCompleteInput = new elementslib.Lookup(controller.window.document, dialog
-    + 'id("event-grid-todo-status-row")/id("event-grid-todo-status-picker-box")/'
-    + 'id("percent-complete-textbox")/anon({"class":"textbox-input-box numberbox-input-box"})/'
-    + 'anon({"anonid":"input"})');
+    dialog + 'id("event-grid-todo-status-row")/id("event-grid-todo-status-picker-box")/' +
+    'id("completed-date-picker")/' + dateInput);
+  let percentCompleteInput = new elementslib.Lookup(controller.window.document, dialog +
+    'id("event-grid-todo-status-row")/id("event-grid-todo-status-picker-box")/' +
+    'id("percent-complete-textbox")/anon({"class":"textbox-input-box numberbox-input-box"})/' +
+    'anon({"anonid":"input"})');
   let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
                               .getService(Components.interfaces.nsIScriptableDateFormat);
   let mac = utils.appInfo.os.toLowerCase().includes("darwin");
@@ -432,13 +432,13 @@ function setData(controller, data) {
   // title
   if (data.title != undefined) {
     if (!mac) {
-      controller.keypress(new elementslib.Lookup(controller.window.document, dialog
-        + 'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/'
-        + 'anon({"anonid":"input"})'),
+      controller.keypress(new elementslib.Lookup(controller.window.document, dialog +
+        'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/' +
+        'anon({"anonid":"input"})'),
         'a', { ctrlKey: true });
-      controller.type(new elementslib.Lookup(controller.window.document, dialog
-        + 'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/'
-        + 'anon({"anonid":"input"})'),
+      controller.type(new elementslib.Lookup(controller.window.document, dialog +
+        'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/' +
+        'anon({"anonid":"input"})'),
         data.title);
     } else {
       let titleField = new elementslib.ID(controller.window.document, "item-title");
@@ -449,13 +449,13 @@ function setData(controller, data) {
   // location
   if (data.location != undefined) {
     if (!mac) {
-      controller.keypress(new elementslib.Lookup(controller.window.document, dialog
-        + 'id("event-grid-location-row")/id("item-location")/anon({"class":"textbox-input-box"})/'
-        + 'anon({"anonid":"input"})'),
+      controller.keypress(new elementslib.Lookup(controller.window.document, dialog +
+        'id("event-grid-location-row")/id("item-location")/anon({"class":"textbox-input-box"})/' +
+        'anon({"anonid":"input"})'),
         'a', { ctrlKey: true });
-      controller.type(new elementslib.Lookup(controller.window.document, dialog
-        + 'id("event-grid-location-row")/id("item-location")/anon({"class":"textbox-input-box"})/'
-        + 'anon({"anonid":"input"})'),
+      controller.type(new elementslib.Lookup(controller.window.document, dialog +
+        'id("event-grid-location-row")/id("item-location")/anon({"class":"textbox-input-box"})/' +
+        'anon({"anonid":"input"})'),
         data.location);
     } else {
       let locationField = new elementslib.ID(controller.window.document, "item-location");
@@ -552,18 +552,18 @@ function setData(controller, data) {
   // description
   if (data.description != undefined) {
     if (!mac) {
-      controller.keypress(new elementslib.Lookup(controller.window.document, dialog
-        + 'id("event-grid-description-row")/id("item-description")/'
-        + 'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
+      controller.keypress(new elementslib.Lookup(controller.window.document, dialog +
+        'id("event-grid-description-row")/id("item-description")/' +
+        'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
         'a', { ctrlKey: true });
-      controller.type(new elementslib.Lookup(controller.window.document, dialog
-        + 'id("event-grid-description-row")/id("item-description")/'
-        + 'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
+      controller.type(new elementslib.Lookup(controller.window.document, dialog +
+        'id("event-grid-description-row")/id("item-description")/' +
+        'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
         data.description);
     } else {
-      let descField = new elementslib.Lookup(controller.window.document, dialog
-        + 'id("event-grid-description-row")/id("item-description")/'
-        + 'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})');
+      let descField = new elementslib.Lookup(controller.window.document, dialog +
+        'id("event-grid-description-row")/id("item-description")/' +
+        'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})');
       descField.getNode().value = data.description;
     }
   }
@@ -626,8 +626,8 @@ function setData(controller, data) {
       controller.click(new elementslib.ID(controller.window.document, "button-url"));
     }
     if (data.attachment.delete != undefined) {
-      controller.click(new elementslib.Lookup(controller.window.document, dialog
-        + 'id("event-grid-attachment-row")/id("attachment-link")/{"label":"' +
+      controller.click(new elementslib.Lookup(controller.window.document, dialog +
+        'id("event-grid-attachment-row")/id("attachment-link")/{"label":"' +
         data.attachment.delete + '"}'));
       controller.keypress(new elementslib.ID(controller.window.document, "attachment-link"),
         "VK_DELETE", {});

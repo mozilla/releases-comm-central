@@ -45,24 +45,24 @@ var testWeeklyWithExceptionRecurrence = function() {
   // move 5th January occurrence to 6th January
   calUtils.handleOccurrenceModification(controller, false);
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
-    calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour)
-      + eventPath));
+    calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour) +
+      eventPath));
   controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
   event.sleep(sleep);
 
-  let startDateInput = new elementslib.Lookup(event.window.document, '/id("calendar-event-dialog")/'
-    + 'id("event-grid")/id("event-grid-rows")/id("event-grid-startdate-row")/'
-    + 'id("event-grid-startdate-picker-box")/id("event-starttime")/anon({"anonid":"hbox"})/'
-    + 'anon({"anonid":"date-picker"})/anon({"class":"datepicker-box-class"})/'
-    + '{"class":"datepicker-text-class"}/anon({"class":"menulist-editable-box textbox-input-box"})/'
-    + 'anon({"anonid":"input"})');
-  let endDateInput = new elementslib.Lookup(event.window.document, '/id("calendar-event-dialog")/'
-    + 'id("event-grid")/id("event-grid-rows")/id("event-grid-enddate-row")/[1]/'
-    + 'id("event-grid-enddate-picker-box")/id("event-endtime")/anon({"anonid":"hbox"})/'
-    + 'anon({"anonid":"date-picker"})/anon({"class":"datepicker-box-class"})/'
-    + '{"class":"datepicker-text-class"}/anon({"class":"menulist-editable-box textbox-input-box"})/'
-    + 'anon({"anonid":"input"})');
+  let startDateInput = new elementslib.Lookup(event.window.document, '/id("calendar-event-dialog")/' +
+    'id("event-grid")/id("event-grid-rows")/id("event-grid-startdate-row")/' +
+    'id("event-grid-startdate-picker-box")/id("event-starttime")/anon({"anonid":"hbox"})/' +
+    'anon({"anonid":"date-picker"})/anon({"class":"datepicker-box-class"})/' +
+    '{"class":"datepicker-text-class"}/anon({"class":"menulist-editable-box textbox-input-box"})/' +
+    'anon({"anonid":"input"})');
+  let endDateInput = new elementslib.Lookup(event.window.document, '/id("calendar-event-dialog")/' +
+    'id("event-grid")/id("event-grid-rows")/id("event-grid-enddate-row")/[1]/' +
+    'id("event-grid-enddate-picker-box")/id("event-endtime")/anon({"anonid":"hbox"})/' +
+    'anon({"anonid":"date-picker"})/anon({"class":"datepicker-box-class"})/' +
+    '{"class":"datepicker-text-class"}/anon({"class":"menulist-editable-box textbox-input-box"})/' +
+    'anon({"anonid":"input"})');
 
   event.keypress(startDateInput, "a", { ctrlKey: true });
   let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
@@ -80,8 +80,8 @@ var testWeeklyWithExceptionRecurrence = function() {
   calUtils.goToDate(controller, 2009, 1, 7);
   calUtils.handleParentModification(controller, false);
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
-    calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour)
-      + eventPath));
+    calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour) +
+      eventPath));
   controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
@@ -96,18 +96,18 @@ var testWeeklyWithExceptionRecurrence = function() {
   // check two weeks
   // day view
   calUtils.switchToView(controller, "day");
-  let path = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour)
-    + eventPath;
+  let path = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour) +
+    eventPath;
 
   calUtils.goToDate(controller, 2009, 1, 5);
   controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, path));
 
   calUtils.forward(controller, 1);
-  let tuesPath = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabpanelcontainer")/'
-    + 'id("calendarTabPanel")/id("calendarContent")/id("calendarDisplayDeck")/id("calendar-view-box")/'
-    + 'id("view-deck")/id("day-view")/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/'
-    + 'anon({"anonid":"daybox"})/[0]/anon({"anonid":"boxstack"})/anon({"anonid":"topbox"})/'
-    + '{"flex":"1"}/{"flex":"1"}/[eventIndex]';
+  let tuesPath = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabpanelcontainer")/' +
+    'id("calendarTabPanel")/id("calendarContent")/id("calendarDisplayDeck")/id("calendar-view-box")/' +
+    'id("view-deck")/id("day-view")/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/' +
+    'anon({"anonid":"daybox"})/[0]/anon({"anonid":"boxstack"})/anon({"anonid":"topbox"})/' +
+    '{"flex":"1"}/{"flex":"1"}/[eventIndex]';
   // assert exactly two
   controller.assertNode(new elementslib.Lookup(controller.window.document,
     tuesPath.replace("eventIndex", "0") + eventPath));
@@ -145,15 +145,15 @@ var testWeeklyWithExceptionRecurrence = function() {
   calUtils.switchToView(controller, "week");
   calUtils.goToDate(controller, 2009, 1, 5);
 
-  path = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 2, hour)
-    + eventPath;
+  path = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 2, hour) +
+    eventPath;
   controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, path));
 
-  tuesPath = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabpanelcontainer")/'
-    + 'id("calendarTabPanel")/id("calendarContent")/id("calendarDisplayDeck")/id("calendar-view-box")/'
-    + 'id("view-deck")/id("week-view")/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/'
-    + 'anon({"anonid":"daybox"})/[dayIndex]/anon({"anonid":"boxstack"})/anon({"anonid":"topbox"})/'
-    + '{"flex":"1"}/{"flex":"1"}/[eventIndex]';
+  tuesPath = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabpanelcontainer")/' +
+    'id("calendarTabPanel")/id("calendarContent")/id("calendarDisplayDeck")/id("calendar-view-box")/' +
+    'id("view-deck")/id("week-view")/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/' +
+    'anon({"anonid":"daybox"})/[dayIndex]/anon({"anonid":"boxstack"})/anon({"anonid":"topbox"})/' +
+    '{"flex":"1"}/{"flex":"1"}/[eventIndex]';
   // assert exactly two
   controller.assertNode(new elementslib.Lookup(controller.window.document,
     tuesPath.replace("dayIndex", "2").replace("eventIndex", "0") + eventPath));
@@ -199,8 +199,8 @@ var testWeeklyWithExceptionRecurrence = function() {
   // delete event
   calUtils.switchToView(controller, "day");
   calUtils.goToDate(controller, 2009, 1, 12);
-  path = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour)
-    + eventPath;
+  path = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour) +
+    eventPath;
   controller.click(new elementslib.Lookup(controller.window.document, path));
   calUtils.handleParentDeletion(controller, false);
   controller.keypress(new elementslib.ID(controller.window.document, "day-view"),
@@ -225,9 +225,9 @@ function setRecurrence(recurrence) {
   let wed = utils.getProperty("chrome://calendar/locale/dateFormat.properties", "day.4.Mmm");
   let fri = utils.getProperty("chrome://calendar/locale/dateFormat.properties", "day.6.Mmm");
 
-  let days = '/id("calendar-event-dialog-recurrence")/id("recurrence-pattern-groupbox")/'
-    + 'id("recurrence-pattern-grid")/id("recurrence-pattern-rows")/id("recurrence-pattern-period-row")/'
-    + 'id("period-deck")/id("period-deck-weekly-box")/[1]/id("daypicker-weekday")/anon({"anonid":"mainbox"})/';
+  let days = '/id("calendar-event-dialog-recurrence")/id("recurrence-pattern-groupbox")/' +
+    'id("recurrence-pattern-grid")/id("recurrence-pattern-rows")/id("recurrence-pattern-period-row")/' +
+    'id("period-deck")/id("period-deck-weekly-box")/[1]/id("daypicker-weekday")/anon({"anonid":"mainbox"})/';
 
   // starting from Monday so it should be checked
   recurrence.assertChecked(new elementslib.Lookup(recurrence.window.document, days + '{"label":"' + mon + '"}'));
@@ -236,8 +236,8 @@ function setRecurrence(recurrence) {
   recurrence.click(new elementslib.Lookup(recurrence.window.document, days + '{"label":"' + fri + '"}'));
 
   // close dialog
-  recurrence.click(new elementslib.Lookup(recurrence.window.document, '/id("calendar-event-dialog-recurrence")/'
-    + 'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
+  recurrence.click(new elementslib.Lookup(recurrence.window.document, '/id("calendar-event-dialog-recurrence")/' +
+    'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
 }
 
 function changeRecurrence(recurrence) {
@@ -251,9 +251,9 @@ function changeRecurrence(recurrence) {
   let wed = utils.getProperty("chrome://calendar/locale/dateFormat.properties", "day.4.Mmm");
   let fri = utils.getProperty("chrome://calendar/locale/dateFormat.properties", "day.6.Mmm");
 
-  let days = '/id("calendar-event-dialog-recurrence")/id("recurrence-pattern-groupbox")/'
-    + 'id("recurrence-pattern-grid")/id("recurrence-pattern-rows")/id("recurrence-pattern-period-row")/'
-    + 'id("period-deck")/id("period-deck-weekly-box")/[1]/id("daypicker-weekday")/anon({"anonid":"mainbox"})/';
+  let days = '/id("calendar-event-dialog-recurrence")/id("recurrence-pattern-groupbox")/' +
+    'id("recurrence-pattern-grid")/id("recurrence-pattern-rows")/id("recurrence-pattern-period-row")/' +
+    'id("period-deck")/id("period-deck-weekly-box")/[1]/id("daypicker-weekday")/anon({"anonid":"mainbox"})/';
 
   // check old rule
   recurrence.assertChecked(new elementslib.Lookup(recurrence.window.document, days + '{"label":"' + mon + '"}'));
@@ -264,8 +264,8 @@ function changeRecurrence(recurrence) {
   recurrence.click(new elementslib.Lookup(recurrence.window.document, days + '{"label":"' + tue + '"}'));
 
   // close dialog
-  recurrence.click(new elementslib.Lookup(recurrence.window.document, '/id("calendar-event-dialog-recurrence")/'
-    + 'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
+  recurrence.click(new elementslib.Lookup(recurrence.window.document, '/id("calendar-event-dialog-recurrence")/' +
+    'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
 }
 
 function checkMultiWeekView(view) {

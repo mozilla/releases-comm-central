@@ -43,8 +43,8 @@ var testWeeklyUntilRecurrence = function() {
   event.click(new elementslib.ID(event.window.document, "button-save"));
   controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
 
-  let box = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour)
-    + eventPath;
+  let box = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour) +
+    eventPath;
 
   // check day view
   for (let week = 0; week < 3; week++) {
@@ -71,28 +71,28 @@ var testWeeklyUntilRecurrence = function() {
   calUtils.goToDate(controller, 2009, 1, 5);
   for (let week = 0; week < 3; week++) {
     // Monday
-    box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 2, hour)
-      + eventPath;
+    box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 2, hour) +
+      eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
     // Wednesday
-    box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 4, hour)
-      + eventPath;
+    box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 4, hour) +
+      eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
     // Friday
-    box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 6, hour)
-      + eventPath;
+    box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 6, hour) +
+      eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
 
     calUtils.forward(controller, 1);
   }
 
   // Monday, last occurrence
-  box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 2, hour)
-    + eventPath;
+  box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 2, hour) +
+    eventPath;
   controller.assertNode(new elementslib.Lookup(controller.window.document, box));
   // Wednesday
-  box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 4, hour)
-    + eventPath;
+  box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 4, hour) +
+    eventPath;
   controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, box));
 
   // check multiweek view
@@ -106,8 +106,8 @@ var testWeeklyUntilRecurrence = function() {
   checkMultiWeekView("month");
 
   // delete event
-  box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 2, 2, undefined)
-    + eventPath;
+  box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 2, 2, undefined) +
+    eventPath;
   controller.click(new elementslib.Lookup(controller.window.document, box));
   calUtils.handleParentDeletion(controller, false);
   controller.keypress(new elementslib.ID(controller.window.document, "month-view"),
@@ -133,9 +133,9 @@ function setRecurrence(recurrence) {
   let wed = utils.getProperty("chrome://calendar/locale/dateFormat.properties", "day.4.Mmm");
   let fri = utils.getProperty("chrome://calendar/locale/dateFormat.properties", "day.6.Mmm");
 
-  let days = '/id("calendar-event-dialog-recurrence")/id("recurrence-pattern-groupbox")/'
-    + 'id("recurrence-pattern-grid")/id("recurrence-pattern-rows")/id("recurrence-pattern-period-row")/'
-    + 'id("period-deck")/id("period-deck-weekly-box")/[1]/id("daypicker-weekday")/anon({"anonid":"mainbox"})/';
+  let days = '/id("calendar-event-dialog-recurrence")/id("recurrence-pattern-groupbox")/' +
+    'id("recurrence-pattern-grid")/id("recurrence-pattern-rows")/id("recurrence-pattern-period-row")/' +
+    'id("period-deck")/id("period-deck-weekly-box")/[1]/id("daypicker-weekday")/anon({"anonid":"mainbox"})/';
 
   // starting from Monday so it should be checked
   recurrence.assertChecked(new elementslib.Lookup(recurrence.window.document, days + '{"label":"' + mon + '"}'));
@@ -145,10 +145,10 @@ function setRecurrence(recurrence) {
 
   // set until date
   recurrence.click(new elementslib.ID(recurrence.window.document, "recurrence-range-until"));
-  let input = '/id("calendar-event-dialog-recurrence")/id("recurrence-range-groupbox")/[1]/'
-    + 'id("recurrence-duration")/id("recurrence-range-until-box")/id("repeat-until-date")/'
-    + 'anon({"class":"datepicker-box-class"})/{"class":"datepicker-text-class"}/'
-    + 'anon({"class":"menulist-editable-box textbox-input-box"})/anon({"anonid":"input"})';
+  let input = '/id("calendar-event-dialog-recurrence")/id("recurrence-range-groupbox")/[1]/' +
+    'id("recurrence-duration")/id("recurrence-range-until-box")/id("repeat-until-date")/' +
+    'anon({"class":"datepicker-box-class"})/{"class":"datepicker-text-class"}/' +
+    'anon({"class":"menulist-editable-box textbox-input-box"})/anon({"anonid":"input"})';
   // delete previous date
   recurrence.keypress(new elementslib.Lookup(recurrence.window.document, input), "a", { ctrlKey: true });
   recurrence.keypress(new elementslib.Lookup(recurrence.window.document, input), "VK_DELETE", {});
@@ -161,8 +161,8 @@ function setRecurrence(recurrence) {
   recurrence.type(new elementslib.Lookup(recurrence.window.document, input), endDateString);
 
   // close dialog
-  recurrence.click(new elementslib.Lookup(recurrence.window.document, '/id("calendar-event-dialog-recurrence")/'
-    + 'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
+  recurrence.click(new elementslib.Lookup(recurrence.window.document, '/id("calendar-event-dialog-recurrence")/' +
+    'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
 }
 
 function checkMultiWeekView(view) {
@@ -175,16 +175,16 @@ function checkMultiWeekView(view) {
 
   for (let week = startWeek; week < startWeek + 3; week++) {
     // Monday
-    let box = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, week, 2, undefined)
-      + eventPath;
+    let box = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, week, 2, undefined) +
+      eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
     // Wednesday
-    box = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, week, 4, undefined)
-      + eventPath;
+    box = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, week, 4, undefined) +
+      eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
     // Friday
-    box = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, week, 6, undefined)
-      + eventPath;
+    box = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, week, 6, undefined) +
+      eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
   }
 

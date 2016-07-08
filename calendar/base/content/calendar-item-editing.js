@@ -402,18 +402,18 @@ function openEventDialog(calendarItem, calendar, mode, callback, job, initialDat
              * check that the user can remove items from that calendar and
              * add items to the current one.
              */
-            return (((calendarItem.calendar != aCalendar)
-                     && userCanDeleteItemsFromCalendar(calendarItem.calendar)
-                     && userCanAddItemsToCalendar(aCalendar))
-                    || ((calendarItem.calendar == aCalendar)
-                        && userCanModifyItem(calendarItem)));
+            return (((calendarItem.calendar != aCalendar) &&
+                     userCanDeleteItemsFromCalendar(calendarItem.calendar) &&
+                     userCanAddItemsToCalendar(aCalendar)) ||
+                    ((calendarItem.calendar == aCalendar) &&
+                     userCanModifyItem(calendarItem)));
         });
     }
 
-    if (mode == "new"
-        && (!isCalendarWritable(calendar)
-            || !userCanAddItemsToCalendar(calendar)
-            || !isItemSupported(calendar))) {
+    if (mode == "new" &&
+        (!isCalendarWritable(calendar) ||
+         !userCanAddItemsToCalendar(calendar) ||
+         !isItemSupported(calendar))) {
         if (calendars.length < 1) {
             // There are no writable calendars or no calendar supports the given
             // item. Don't show the dialog.
@@ -464,9 +464,8 @@ function openEventDialog(calendarItem, calendar, mode, callback, job, initialDat
     let isEditable = mode == "modify" && !isInvitation && userCanModifyItem(calendarItem);
     if (isCalendarWritable(calendar) && (mode == "new" || isEditable)) {
         if (args.inTab) {
-            url = args.useNewItemUI ?
-                "chrome://lightning/content/html-item-editing/lightning-item-iframe.html" :
-                "chrome://lightning/content/lightning-item-iframe.xul";
+            url = args.useNewItemUI ? "chrome://lightning/content/html-item-editing/lightning-item-iframe.html"
+                                    : "chrome://lightning/content/lightning-item-iframe.xul";
         } else {
             url = "chrome://calendar/content/calendar-event-dialog.xul";
         }

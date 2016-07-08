@@ -855,9 +855,8 @@ function refreshEventTree() {
  * @param eventArray        The array of items to be set in the unifinder.
  */
 function addItemsFromCompositeCalendarInternal(eventArray) {
-    let newItems
-        = eventArray.filter(unifinderTreeView.mFilter.isItemInFilters,
-                            unifinderTreeView.mFilter);
+    let newItems = eventArray.filter(unifinderTreeView.mFilter.isItemInFilters,
+                                     unifinderTreeView.mFilter);
     unifinderTreeView.setItems(newItems);
 
     // Select selected events in the tree. Not passing the argument gets the
@@ -866,9 +865,8 @@ function addItemsFromCompositeCalendarInternal(eventArray) {
 }
 
 function addItemsFromSingleCalendarInternal(eventArray) {
-    let newItems
-        = eventArray.filter(unifinderTreeView.mFilter.isItemInFilters,
-                            unifinderTreeView.mFilter);
+    let newItems = eventArray.filter(unifinderTreeView.mFilter.isItemInFilters,
+                                     unifinderTreeView.mFilter);
     unifinderTreeView.setItems(unifinderTreeView.eventArray.concat(newItems));
 
     // Select selected events in the tree. Not passing the argument gets the

@@ -44,34 +44,34 @@ var testAnnualRecurrence = function() {
 
     // day view
     calUtils.switchToView(controller, "day");
-    box = calUtils.getEventBoxPath(controller, "day", calUtils.ALLDAY, undefined, 1, undefined)
-      + eventPath;
+    box = calUtils.getEventBoxPath(controller, "day", calUtils.ALLDAY, undefined, 1, undefined) +
+      eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
 
     // week view
     calUtils.switchToView(controller, "week");
-    box = calUtils.getEventBoxPath(controller, "week", calUtils.ALLDAY, undefined, column, undefined)
-      + eventPath;
+    box = calUtils.getEventBoxPath(controller, "week", calUtils.ALLDAY, undefined, column, undefined) +
+      eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
 
     // multiweek view
     calUtils.switchToView(controller, "multiweek");
-    box = calUtils.getEventBoxPath(controller, "multiweek", calUtils.ALLDAY, 1, column, undefined)
-      + eventPath;
+    box = calUtils.getEventBoxPath(controller, "multiweek", calUtils.ALLDAY, 1, column, undefined) +
+      eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
 
     // month view
     calUtils.switchToView(controller, "month");
-    box = calUtils.getEventBoxPath(controller, "month", calUtils.ALLDAY, 1, column, undefined)
-      + eventPath;
+    box = calUtils.getEventBoxPath(controller, "month", calUtils.ALLDAY, 1, column, undefined) +
+      eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
   }
 
   // delete event
   calUtils.goToDate(controller, checkYears[0], 1, 1);
   calUtils.switchToView(controller, "day");
-  box = calUtils.getEventBoxPath(controller, "day", calUtils.ALLDAY, undefined, 1, undefined)
-    + eventPath;
+  box = calUtils.getEventBoxPath(controller, "day", calUtils.ALLDAY, undefined, 1, undefined) +
+    eventPath;
   calUtils.handleParentDeletion(controller, false);
   controller.click(new elementslib.Lookup(controller.window.document, box));
   controller.keypress(new elementslib.ID(controller.window.document, "day-view"),

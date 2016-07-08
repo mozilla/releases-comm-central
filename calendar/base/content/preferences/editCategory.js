@@ -29,9 +29,9 @@ function editCategoryLoad() {
  * the opener should further process the selected name and color
  */
 function doOK() {
-    let color = document.getElementById("useColor").checked ?
-                document.getElementById("categoryColor").value :
-                null;
+    let color = document.getElementById("useColor").checked
+                    ? document.getElementById("categoryColor").value
+                    : null;
 
     let categoryName = document.getElementById("categoryName").value;
     window.opener.gCategoriesPane.saveCategory(categoryName, color);

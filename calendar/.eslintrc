@@ -353,6 +353,9 @@
     // Require Space Before Blocks
     "space-before-blocks": 2,
 
+    // Operators always before the line break
+    "operator-linebreak": [2, "after", { "overrides": { ":": "before", "?": "ignore"}}],
+
     // Will enable these rules later
     "block-spacing": 0,
     "no-lonely-if": 0,

@@ -84,8 +84,8 @@
               let label = document.getAnonymousElementByAttribute(this, "anonid", "item-label");
               let df = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
                                  .getService(Components.interfaces.calIDateTimeFormatter);
-              let timezone = this.calendarView ? this.calendarView.mTimezone :
-                             calendarDefaultTimezone();
+              let timezone = this.calendarView ? this.calendarView.mTimezone
+                                               : calendarDefaultTimezone();
               let parentDate = ensureDateTime(this.parentBox.date);
               let startTime = val.startDate.getInTimezone(timezone);
               let endTime = val.endDate.getInTimezone(timezone);

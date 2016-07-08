@@ -45,9 +45,9 @@ ltn.invitation = {
                     let attendees = item.getAttendees({});
                     if (attendees && attendees.length >= 1) {
                         let sender = attendees[0];
-                        let statusString = (sender.participationStatus == "DECLINED" ?
-                                            "itipReplyBodyDecline" :
-                                            "itipReplyBodyAccept");
+                        let statusString = sender.participationStatus == "DECLINED"
+                                               ? "itipReplyBodyDecline"
+                                               : "itipReplyBodyAccept";
 
                         header = ltn.getString("lightning", statusString, [sender.toString()]);
                     } else {
@@ -406,8 +406,8 @@ ltn.invitation = {
      * @returns {String}                     the source code of the header section of the email
      */
     getHeaderSection: function(aMessageId, aIdentity, aToList, aSubject) {
-        let from = !aIdentity.fullName.length ? aIdentity.email :
-                                                cal.validateRecipientList(aIdentity.fullName +
+        let from = !aIdentity.fullName.length ? aIdentity.email
+                                              : cal.validateRecipientList(aIdentity.fullName +
                                                                           " <" + aIdentity.email + ">");
         let header = ("MIME-version: 1.0\r\n" +
                       (aIdentity.replyTo ? "Return-path: " +

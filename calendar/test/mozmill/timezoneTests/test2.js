@@ -64,10 +64,10 @@ function setTimezone(event, timezone) {
 }
 
 function eventCallback(timezone) {
-  let item = new elementslib.XPath(timezone.window.document, "/*[name()='dialog']/"
-     + "*[name()='menulist'][1]/*[name()='menupopup'][1]/*[@value='" + gTimezone + "']");
+  let item = new elementslib.XPath(timezone.window.document, "/*[name()='dialog']/" +
+     "*[name()='menulist'][1]/*[name()='menupopup'][1]/*[@value='" + gTimezone + "']");
   timezone.waitForElement(item);
   timezone.click(item);
-  timezone.click(new elementslib.Lookup(timezone.window.document, '/id("calendar-event-dialog-timezone")/'
-    + 'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
+  timezone.click(new elementslib.Lookup(timezone.window.document, '/id("calendar-event-dialog-timezone")/' +
+    'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
 }

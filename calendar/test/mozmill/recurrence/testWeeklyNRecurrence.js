@@ -35,8 +35,8 @@ var testWeeklyNRecurrence = function() {
   event.click(new elementslib.ID(event.window.document, "button-save"));
 
   // check day view
-  let box = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour)
-    + eventPath;
+  let box = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour) +
+    eventPath;
 
   // Monday, Tuesday, Wednesday, Thursday
   for (let i = 0; i < 4; i++) {
@@ -53,14 +53,14 @@ var testWeeklyNRecurrence = function() {
 
   // Monday, Tuesday, Wednesday, Thursday
   for (let i = 2; i < 6; i++) {
-    box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, i, hour)
-      + eventPath;
+    box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, i, hour) +
+      eventPath;
     controller.waitForElement(new elementslib.Lookup(controller.window.document, box));
   }
 
   // Saturday
-  box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 7, hour)
-    + eventPath;
+  box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 7, hour) +
+    eventPath;
   controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, box));
 
   // check multiweek view
@@ -72,8 +72,8 @@ var testWeeklyNRecurrence = function() {
   checkMultiWeekView("month");
 
   // delete event
-  box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 2, 2, hour)
-    + eventPath;
+  box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 2, 2, hour) +
+    eventPath;
   controller.click(new elementslib.Lookup(controller.window.document, box));
   calUtils.handleParentDeletion(controller, false);
   controller.keypress(new elementslib.ID(controller.window.document, "month-view"),
@@ -93,9 +93,9 @@ function setRecurrence(recurrence) {
   let thu = utils.getProperty("chrome://calendar/locale/dateFormat.properties", "day.5.Mmm");
   let sat = utils.getProperty("chrome://calendar/locale/dateFormat.properties", "day.7.Mmm");
 
-  let days = '/id("calendar-event-dialog-recurrence")/id("recurrence-pattern-groupbox")/'
-    + 'id("recurrence-pattern-grid")/id("recurrence-pattern-rows")/id("recurrence-pattern-period-row")/'
-    + 'id("period-deck")/id("period-deck-weekly-box")/[1]/id("daypicker-weekday")/anon({"anonid":"mainbox"})/';
+  let days = '/id("calendar-event-dialog-recurrence")/id("recurrence-pattern-groupbox")/' +
+    'id("recurrence-pattern-grid")/id("recurrence-pattern-rows")/id("recurrence-pattern-period-row")/' +
+    'id("period-deck")/id("period-deck-weekly-box")/[1]/id("daypicker-weekday")/anon({"anonid":"mainbox"})/';
 
   // starting from Monday so it should be checked
   recurrence.assertChecked(new elementslib.Lookup(recurrence.window.document, days + '{"label":"' + mon + '"}'));
@@ -107,16 +107,16 @@ function setRecurrence(recurrence) {
 
   // set number of occurrences
   recurrence.click(new elementslib.ID(recurrence.window.document, "recurrence-range-for"));
-  let input = '/id("calendar-event-dialog-recurrence")/id("recurrence-range-groupbox")/[1]/'
-    + 'id("recurrence-duration")/id("recurrence-range-count-box")/id("repeat-ntimes-count")/'
-    + 'anon({"class":"textbox-input-box numberbox-input-box"})/anon({"anonid":"input"})';
+  let input = '/id("calendar-event-dialog-recurrence")/id("recurrence-range-groupbox")/[1]/' +
+    'id("recurrence-duration")/id("recurrence-range-count-box")/id("repeat-ntimes-count")/' +
+    'anon({"class":"textbox-input-box numberbox-input-box"})/anon({"anonid":"input"})';
   // replace previous number
   recurrence.keypress(new elementslib.Lookup(recurrence.window.document, input), "a", { ctrlKey: true });
   recurrence.type(new elementslib.Lookup(recurrence.window.document, input), "4");
 
   // close dialog
-  recurrence.click(new elementslib.Lookup(recurrence.window.document, '/id("calendar-event-dialog-recurrence")/'
-    + 'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
+  recurrence.click(new elementslib.Lookup(recurrence.window.document, '/id("calendar-event-dialog-recurrence")/' +
+    'anon({"anonid":"buttons"})/{"dlgtype":"accept"}'));
 }
 
 function checkMultiWeekView(view) {
@@ -129,14 +129,14 @@ function checkMultiWeekView(view) {
 
   // Monday, Tuesday, Wednesday, Thursday
   for (let i = 2; i < 6; i++) {
-    let box = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, week, i, undefined)
-      + eventPath;
+    let box = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, week, i, undefined) +
+      eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
   }
 
   // Saturday
-  let box = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, week, 7, undefined)
-    + eventPath;
+  let box = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, week, 7, undefined) +
+    eventPath;
   controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, box));
 }
 

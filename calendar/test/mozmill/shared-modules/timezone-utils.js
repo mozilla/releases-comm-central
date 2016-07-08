@@ -11,14 +11,14 @@ function switchAppTimezone(timezone) {
 }
 
 function verify(controller, dates, timezones, times) {
-  let dayView = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/'
-    + 'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/'
-    + 'id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")/id("day-view")';
-  let dayStack = dayView + '/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/'
-    + 'anon({"anonid":"daybox"})/[0]/anon({"anonid":"boxstack"})/anon({"anonid":"topbox"})/'
-    + '{"flex":"1"}';
-  let timeLine = dayView + '/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"timebar"})/'
-    + 'anon({"anonid":"topbox"})/';
+  let dayView = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/' +
+    'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/' +
+    'id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")/id("day-view")';
+  let dayStack = dayView + '/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/' +
+    'anon({"anonid":"daybox"})/[0]/anon({"anonid":"boxstack"})/anon({"anonid":"topbox"})/' +
+    '{"flex":"1"}';
+  let timeLine = dayView + '/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"timebar"})/' +
+    'anon({"anonid":"topbox"})/';
   let allowedDifference = 3;
 
   /* Event box' time can't be deduced from it's position in                    ----------------

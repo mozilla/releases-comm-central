@@ -21,41 +21,41 @@ var setupModule = function(module) {
 
 var testEventDialog = function() {
   // paths
-  let monthView = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/'
-    + 'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/'
-    + 'id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")/id("month-view")/';
-  let miniMonth = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/'
-    + 'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/id("ltnSidebar")/'
-    + 'id("minimonth-pane")/{"align":"center"}/id("calMinimonthBox")/id("calMinimonth")/';
+  let monthView = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/' +
+    'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/' +
+    'id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")/id("month-view")/';
+  let miniMonth = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/' +
+    'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/id("ltnSidebar")/' +
+    'id("minimonth-pane")/{"align":"center"}/id("calMinimonthBox")/id("calMinimonth")/';
   let eventDialog = '/id("calendar-event-dialog")/id("event-grid")/id("event-grid-rows")/';
 
-  let eventBox = monthView + 'anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/'
-    + 'anon({"anonid":"monthgridrows"})/[rowNumber]/[columnNumber]/'
-    + '{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}/anon({"flex":"1"})/'
-    + '[0]/anon({"anonid":"event-container"})/{"class":"calendar-event-selection"}/'
-    + 'anon({"anonid":"eventbox"})/{"class":"calendar-event-details"}';
+  let eventBox = monthView + 'anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/' +
+    'anon({"anonid":"monthgridrows"})/[rowNumber]/[columnNumber]/' +
+    '{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}/anon({"flex":"1"})/' +
+    '[0]/anon({"anonid":"event-container"})/{"class":"calendar-event-selection"}/' +
+    'anon({"anonid":"eventbox"})/{"class":"calendar-event-details"}';
 
   // open month view
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
   controller.waitThenClick(new elementslib.ID(controller.window.document, "calendar-month-view-button"));
 
   // pick year
-  controller.click(new elementslib.Lookup(controller.window.document, miniMonth
-    + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})'));
-  controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth
-    + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/'
-    + 'anon({"anonid":"years-popup"})/[0]/{"value":"2009"}'));
+  controller.click(new elementslib.Lookup(controller.window.document, miniMonth +
+    'anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})'));
+  controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth +
+    'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/' +
+    'anon({"anonid":"years-popup"})/[0]/{"value":"2009"}'));
 
   // pick month
-  controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth
-    + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})'));
-  controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth
-    + 'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/'
-    + 'anon({"anonid":"months-popup"})/[0]/{"index":"0"}'));
+  controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth +
+    'anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})'));
+  controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth +
+    'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/' +
+    'anon({"anonid":"months-popup"})/[0]/{"index":"0"}'));
 
   // pick day
-  controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth
-    + 'anon({"anonid":"minimonth-calendar"})/[1]/{"value":"1"}'));
+  controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth +
+    'anon({"anonid":"minimonth-calendar"})/[1]/{"value":"1"}'));
   controller.sleep(sleep);
 
   // create new event
@@ -79,31 +79,31 @@ var testEventDialog = function() {
 
   let startTime = startHour + ':00' + ampm;
   let endTime = ((startHour + 1) % 24) + ':00' + ampm;
-  let startTimeInput = new elementslib.Lookup(event.window.document, eventDialog
-    + 'id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/'
-    + 'id("event-starttime")/anon({"anonid":"hbox"})/anon({"anonid":"time-picker"})/'
-    + 'anon({"class":"timepicker-box-class"})/id("timepicker-text")/'
-    + 'anon({"class":"menulist-editable-box textbox-input-box"})/anon({"anonid":"input"})'
+  let startTimeInput = new elementslib.Lookup(event.window.document, eventDialog +
+    'id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/' +
+    'id("event-starttime")/anon({"anonid":"hbox"})/anon({"anonid":"time-picker"})/' +
+    'anon({"class":"timepicker-box-class"})/id("timepicker-text")/' +
+    'anon({"class":"menulist-editable-box textbox-input-box"})/anon({"anonid":"input"})'
     );
   event.waitForElement(startTimeInput);
   event.assertValue(startTimeInput, startTime);
 
   // check selected calendar
-  event.assertNode(new elementslib.Lookup(event.window.document, eventDialog
-    + 'id("event-grid-category-color-row")/id("event-grid-category-box")/id("item-calendar")/[0]/'
-    + '{"selected":"true","label":"' + calendar + '"}'));
+  event.assertNode(new elementslib.Lookup(event.window.document, eventDialog +
+    'id("event-grid-category-color-row")/id("event-grid-category-box")/id("item-calendar")/[0]/' +
+    '{"selected":"true","label":"' + calendar + '"}'));
 
   // fill in name, location, description
-  event.type(new elementslib.Lookup(event.window.document, eventDialog
-    + 'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/'
-    + 'anon({"anonid":"input"})'),
+  event.type(new elementslib.Lookup(event.window.document, eventDialog +
+    'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/' +
+    'anon({"anonid":"input"})'),
     title);
-  event.type(new elementslib.Lookup(event.window.document, eventDialog
-    + 'id("event-grid-location-row")/id("item-location")/anon({"class":"textbox-input-box"})/'
-    + 'anon({"anonid":"input"})'), location);
-  event.type(new elementslib.Lookup(event.window.document, eventDialog
-    + 'id("event-grid-description-row")/id("item-description")/'
-    + 'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
+  event.type(new elementslib.Lookup(event.window.document, eventDialog +
+    'id("event-grid-location-row")/id("item-location")/anon({"class":"textbox-input-box"})/' +
+    'anon({"anonid":"input"})'), location);
+  event.type(new elementslib.Lookup(event.window.document, eventDialog +
+    'id("event-grid-description-row")/id("item-description")/' +
+    'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
     desc);
 
   // set category
@@ -133,8 +133,8 @@ var testEventDialog = function() {
   // add attachment and verify added
   calUtils.handleAddingAttachment(event, url);
   event.click(new elementslib.ID(event.window.document, "button-url"));
-  event.assertNode(new elementslib.Lookup(event.window.document, eventDialog
-    + 'id("event-grid-attachment-row")/id("attachment-link")/{"label":"mozilla.org"}'));
+  event.assertNode(new elementslib.Lookup(event.window.document, eventDialog +
+    'id("event-grid-attachment-row")/id("attachment-link")/{"label":"mozilla.org"}'));
 
   // save
   calUtils.acceptSendingNotificationMail(event);
@@ -144,8 +144,8 @@ var testEventDialog = function() {
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:AlarmWindow").length > 0;}, sleep);
   let alarm = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:AlarmWindow")[0]);
   // dismiss all button, label in .dtd file, bug #504635
-  alarm.waitThenClick(new elementslib.Lookup(alarm.window.document, '/id("calendar-alarm-dialog")/'
-    + 'id("alarm-actionbar")/[1]'));
+  alarm.waitThenClick(new elementslib.Lookup(alarm.window.document, '/id("calendar-alarm-dialog")/' +
+    'id("alarm-actionbar")/[1]'));
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:AlarmWindow").length == 0;}, sleep);
 
   // verify event and alarm icon visible every day of the month and check tooltip
@@ -224,10 +224,10 @@ var testEventDialog = function() {
 
 function handleAttendees(attendees) {
   let input = new elementslib.Lookup(attendees.window.document,
-    '/id("calendar-event-dialog-attendees-v2")/[6]/[0]/id("attendees-list")/'
-    + 'anon({"anonid":"listbox"})/[1]/[1]/anon({"anonid":"input"})/'
-    + 'anon({"class":"autocomplete-textbox-container"})/'
-    + '{"class":"textbox-input-box"}/anon({"anonid":"input"})');
+    '/id("calendar-event-dialog-attendees-v2")/[6]/[0]/id("attendees-list")/' +
+    'anon({"anonid":"listbox"})/[1]/[1]/anon({"anonid":"input"})/' +
+    'anon({"class":"autocomplete-textbox-container"})/' +
+    '{"class":"textbox-input-box"}/anon({"anonid":"input"})');
   attendees.waitForElement(input);
   attendees.type(input, attendee);
   attendees.click(new elementslib.Lookup(attendees.window.document,
@@ -242,25 +242,25 @@ function checkIcon(eventBox, row, col) {
 }
 
 function checkTooltip(monthView, row, col, date, startTime, endTime) {
-  let mouseOverItem = monthView + 'anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/'
-    + 'anon({"anonid":"monthgridrows"})/[rowNumber]/[columnNumber]/'
-    + '{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';
+  let mouseOverItem = monthView + 'anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/' +
+    'anon({"anonid":"monthgridrows"})/[rowNumber]/[columnNumber]/' +
+    '{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';
   controller.mouseOver(new elementslib.Lookup(controller.window.document,
           mouseOverItem.replace("rowNumber", row).replace("columnNumber", col)));
 
   // check title
   let eventName = new elementslib.Lookup(controller.window.document,
-    '/id("messengerWindow")/id("calendar-popupset")/id("itemTooltip")/'
-    + '{"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/[1]/[0]/[1]');
+    '/id("messengerWindow")/id("calendar-popupset")/id("itemTooltip")/' +
+    '{"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/[1]/[0]/[1]');
   controller.assertJS(eventName.getNode().textContent == title);
 
   // check date and time
   // date-time string contains strings formatted in operating system language so check numeric values only
   let dateTime = new elementslib.Lookup(controller.window.document,
-    '/id("messengerWindow")/id("calendar-popupset")/id("itemTooltip")/'
-    + '{"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/[1]/[2]/[1]').getNode().textContent + '';
-  controller.assertJS(dateTime.includes(date) && dateTime.includes(startTime)
-    && dateTime.includes(endTime));
+    '/id("messengerWindow")/id("calendar-popupset")/id("itemTooltip")/' +
+    '{"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/[1]/[2]/[1]').getNode().textContent + '';
+  controller.assertJS(dateTime.includes(date) && dateTime.includes(startTime) &&
+    dateTime.includes(endTime));
 }
 
 var teardownTest = function(module) {

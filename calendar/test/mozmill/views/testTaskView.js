@@ -20,12 +20,12 @@ var setupModule = function(module) {
 // checked
 var testTaskView = function() {
   // paths
-  let taskView = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/'
-    + 'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/'
-    + 'id("calendarDisplayDeck")/id("calendar-task-box")/';
+  let taskView = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/' +
+    'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/' +
+    'id("calendarDisplayDeck")/id("calendar-task-box")/';
   let taskDialog = '/id("calendar-task-dialog")/id("event-grid")/id("event-grid-rows")/';
-  let treeChildren = taskView + '[1]/id("calendar-task-tree")/anon({"anonid":"calendar-task-tree"})/'
-    + '{"tooltip":"taskTreeTooltip"}';
+  let treeChildren = taskView + '[1]/id("calendar-task-tree")/anon({"anonid":"calendar-task-tree"})/' +
+    '{"tooltip":"taskTreeTooltip"}';
   let taskTree = taskView + '[1]/id("calendar-task-tree")';
   let toolTip = '/id("messengerWindow")/id("calendar-popupset")/id("taskTreeTooltip")';
   let toolTipGrid = toolTip + '/{"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/';
@@ -36,9 +36,9 @@ var testTaskView = function() {
 
   // make sure that testing calendar is selected
   let calendarTree = (new elementslib.Lookup(controller.window.document,
-    '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabpanelcontainer")/'
-    + 'id("calendarTabPanel")/id("calendarContent")/id("ltnSidebar")/id("calendar-panel")/'
-    + 'id("calendar-list-pane")/id("calendar-listtree-pane")/id("calendar-list-tree-widget")'))
+    '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabpanelcontainer")/' +
+    'id("calendarTabPanel")/id("calendarContent")/id("ltnSidebar")/id("calendar-panel")/' +
+    'id("calendar-list-pane")/id("calendar-listtree-pane")/id("calendar-list-tree-widget")'))
     .getNode();
   for (i = 0; i < calendarTree.mCalendarList.length; i++) {
     if (calendarTree.mCalendarList[i].name == calendar) {
@@ -50,13 +50,13 @@ var testTaskView = function() {
   let countBefore = taskTreeNode.mTaskArray.length;
 
   // add task
-  controller.type(new elementslib.Lookup(controller.window.document, taskView
-    + 'id("task-addition-box")/id("view-task-edit-field")/anon({"class":"textbox-input-box"})/'
-    + 'anon({"anonid":"input"})'),
+  controller.type(new elementslib.Lookup(controller.window.document, taskView +
+    'id("task-addition-box")/id("view-task-edit-field")/anon({"class":"textbox-input-box"})/' +
+    'anon({"anonid":"input"})'),
     title);
-  controller.keypress(new elementslib.Lookup(controller.window.document, taskView
-    + 'id("task-addition-box")/id("view-task-edit-field")/anon({"class":"textbox-input-box"})/'
-    + 'anon({"anonid":"input"})'),
+  controller.keypress(new elementslib.Lookup(controller.window.document, taskView +
+    'id("task-addition-box")/id("view-task-edit-field")/anon({"class":"textbox-input-box"})/' +
+    'anon({"anonid":"input"})'),
     "VK_RETURN",
     {});
 
@@ -79,27 +79,27 @@ var testTaskView = function() {
   let task = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
   // verify calendar
-  task.waitForElement(new elementslib.Lookup(task.window.document, taskDialog
-    + 'id("event-grid-category-color-row")/id("event-grid-category-box")/id("item-calendar")/[0]/'
-    + '{"selected":"true","label":"' + calendar + '"}'));
+  task.waitForElement(new elementslib.Lookup(task.window.document, taskDialog +
+    'id("event-grid-category-color-row")/id("event-grid-category-box")/id("item-calendar")/[0]/' +
+    '{"selected":"true","label":"' + calendar + '"}'));
 
   // add description, mark needs action and add percent complete
-  task.type(new elementslib.Lookup(task.window.document, taskDialog
-    + 'id("event-grid-description-row")/id("item-description")/'
-    + 'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
+  task.type(new elementslib.Lookup(task.window.document, taskDialog +
+    'id("event-grid-description-row")/id("item-description")/' +
+    'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
     description);
   task.click(new elementslib.ID(task.window.document, "todo-status-needsaction-menuitem"));
 
   // delete default 0 percent complete
-  task.keypress(new elementslib.Lookup(task.window.document, taskDialog
-    + 'id("event-grid-todo-status-row")/id("event-grid-todo-status-picker-box")/'
-    + 'id("percent-complete-textbox")/anon({"class":"textbox-input-box numberbox-input-box"})/'
-    + 'anon({"anonid":"input"})'),
+  task.keypress(new elementslib.Lookup(task.window.document, taskDialog +
+    'id("event-grid-todo-status-row")/id("event-grid-todo-status-picker-box")/' +
+    'id("percent-complete-textbox")/anon({"class":"textbox-input-box numberbox-input-box"})/' +
+    'anon({"anonid":"input"})'),
     "VK_DELETE", {});
-  task.type(new elementslib.Lookup(task.window.document, taskDialog
-    + 'id("event-grid-todo-status-row")/id("event-grid-todo-status-picker-box")/'
-    + 'id("percent-complete-textbox")/anon({"class":"textbox-input-box numberbox-input-box"})/'
-    + 'anon({"anonid":"input"})'),
+  task.type(new elementslib.Lookup(task.window.document, taskDialog +
+    'id("event-grid-todo-status-row")/id("event-grid-todo-status-picker-box")/' +
+    'id("percent-complete-textbox")/anon({"class":"textbox-input-box numberbox-input-box"})/' +
+    'anon({"anonid":"input"})'),
     percentComplete);
 
   // save
@@ -107,9 +107,9 @@ var testTaskView = function() {
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0;});
 
   // verify description and status in details pane
-  controller.assertValue(new elementslib.Lookup(controller.window.document, taskView
-    + '{"flex":"1"}/id("calendar-task-details-container")/id("calendar-task-details-description")/'
-    + 'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
+  controller.assertValue(new elementslib.Lookup(controller.window.document, taskView +
+    '{"flex":"1"}/id("calendar-task-details-container")/id("calendar-task-details-description")/' +
+    'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
     description);
   let status = utils.getProperty("chrome://calendar/locale/calendar.properties",
     "taskDetailsStatusNeedsAction");

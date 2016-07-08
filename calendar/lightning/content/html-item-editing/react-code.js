@@ -370,16 +370,14 @@ var TopComponent = React.createClass({
                 options: this.props.repeatList,
                 onInput: this.handleSimpleChange
             }),
-            (this.state.repeat != 'none' ?
-                ' Until ' :
-                null),
+            (this.state.repeat != 'none' ? ' Until ' : null),
             (this.state.repeat!= 'none' ?
                 React.createElement(TextField, {
                     keyprop: 'repeatUntilDate',
                     value: this.state.repeatUntilDate,
                     onInput: this.handleSimpleChange
-                }) :
-                null)
+                })
+                : null)
         );
         let calendarDiv = React.DOM.div(
             { id: 'calendarDiv', className: 'box' },
@@ -448,8 +446,8 @@ var TopComponent = React.createClass({
             React.createElement(Link, {
                 value: this.state.url,
                 onInput: this.linkClicked
-            })) :
-            null
+            }))
+            : null
         );
 
         let privacyDiv = React.DOM.div(

@@ -361,9 +361,9 @@ function openCalendarWizard(aCallback) {
     openDialog("chrome://calendar/content/calendarCreation.xul", "caEditServer",
                // Workaround for Bug 1151440 - the HTML color picker won't work
                // in linux when opened from modal dialog
-               (AppConstants.platform == "linux") ?
-                 "chrome,titlebar,resizable" :
-                 "modal,chrome,titlebar,resizable",
+               AppConstants.platform == "linux"
+                   ? "chrome,titlebar,resizable"
+                   : "modal,chrome,titlebar,resizable",
                aCallback);
 }
 
@@ -377,9 +377,9 @@ function openCalendarProperties(aCalendar) {
                "CalendarPropertiesDialog",
                // Workaround for Bug 1151440 - the HTML color picker won't work
                // in linux when opened from modal dialog
-               (AppConstants.platform == "linux") ?
-                 "chrome,titlebar,resizable" :
-                 "modal,chrome,titlebar,resizable",
+               AppConstants.platform == "linux"
+                   ? "chrome,titlebar,resizable"
+                   : "modal,chrome,titlebar,resizable",
                { calendar: aCalendar });
 }
 

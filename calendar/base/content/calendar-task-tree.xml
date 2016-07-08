@@ -1012,10 +1012,11 @@
         <body><![CDATA[
           if (this.mTreeView.selectedColumn) {
               let modifier = (this.mTreeView.sortDirection == "descending" ? -1 : 1);
-              let sortKey = cal.sortEntry.mSortKey = this.mTreeView.selectedColumn.getAttribute("sortKey") ?
-                          this.mTreeView.selectedColumn.getAttribute("sortKey") :
-                          this.mTreeView.selectedColumn.getAttribute("itemproperty");
-              let sortType = cal.getSortTypeForSortKey(sortKey);
+              let column = this.mTreeView.selectedColumn;
+              cal.sortEntry.mSortKey = column.getAttribute("sortKey")
+                                       ? column.getAttribute("sortKey")
+                                       : column.getAttribute("itemproperty");
+              let sortType = cal.getSortTypeForSortKey(cal.sortEntry.mSortKey);
 
               // sort (key,item) entries
               cal.sortEntry.mSortStartedDate = now();

@@ -856,8 +856,8 @@ calStorageCalendar.prototype = {
                 let offline_journal_flag = this.mRecEventCacheOfflineFlags[evitem.id] || null;
                 // No need to return flagged unless asked i.e. sp.offline_journal == offline_journal_flag
                 // Return created and modified offline records if sp.offline_journal is null alongwith events that have no flag
-                if ((sp.offline_journal == null && offline_journal_flag != cICL.OFFLINE_FLAG_DELETED_RECORD)
-                    || (sp.offline_journal != null && offline_journal_flag == sp.offline_journal)) {
+                if ((sp.offline_journal == null && offline_journal_flag != cICL.OFFLINE_FLAG_DELETED_RECORD) ||
+                    (sp.offline_journal != null && offline_journal_flag == sp.offline_journal)) {
                     count += handleResultItem(evitem, Components.interfaces.calIEvent);
                     if (checkCount()) {
                         return;
@@ -1267,16 +1267,16 @@ calStorageCalendar.prototype = {
                 );
 
             this.mSelectMetaData = this.mDB.createStatement(
-                "SELECT * FROM cal_metadata"
-                + " WHERE item_id = :item_id AND cal_id = :cal_id");
+                "SELECT * FROM cal_metadata" +
+                " WHERE item_id = :item_id AND cal_id = :cal_id");
 
             this.mSelectAllMetaData = this.mDB.createStatement(
-                "SELECT * FROM cal_metadata"
-                + " WHERE cal_id = :cal_id");
+                "SELECT * FROM cal_metadata" +
+                " WHERE cal_id = :cal_id");
 
             this.mSelectAlarmsForItem = this.mDB.createStatement(
-                "SELECT icalString FROM cal_alarms"
-                + " WHERE item_id = :item_id AND cal_id = :cal_id" +
+                "SELECT icalString FROM cal_alarms" +
+                " WHERE item_id = :item_id AND cal_id = :cal_id" +
                 " AND recurrence_id IS NULL"
                 );
 
@@ -1341,9 +1341,9 @@ calStorageCalendar.prototype = {
                 );
 
             this.mInsertMetaData = this.mDB.createStatement(
-                "INSERT INTO cal_metadata"
-                + " (cal_id, item_id, value)"
-                + " VALUES (:cal_id, :item_id, :value)");
+                "INSERT INTO cal_metadata" +
+                " (cal_id, item_id, value)" +
+                " VALUES (:cal_id, :item_id, :value)");
 
             this.mInsertAlarm = this.mDB.createStatement(
                 "INSERT INTO cal_alarms " +

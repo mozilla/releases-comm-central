@@ -114,9 +114,9 @@ var gCategoriesPane = {
                           "addCategory",
                           // Workaround for Bug 1151440 - the HTML color picker won't work
                           // in linux when opened from modal dialog
-                          (AppConstants.platform == "linux") ?
-                            "centerscreen,chrome,resizable=no" :
-                            "modal,centerscreen,chrome,resizable=no",
+                          AppConstants.platform == "linux"
+                              ? "centerscreen,chrome,resizable=no"
+                              : "modal,centerscreen,chrome,resizable=no",
                           "", null, addTitle);
     },
 
@@ -138,9 +138,9 @@ var gCategoriesPane = {
                               "editCategory",
                               // Workaround for Bug 1151440 - the HTML color picker won't work
                               // in linux when opened from modal dialog
-                              (AppConstants.platform == "linux") ?
-                                "centerscreen,chrome,resizable=no" :
-                                "modal,centerscreen,chrome,resizable=no",
+                              AppConstants.platform == "linux"
+                                  ? "centerscreen,chrome,resizable=no"
+                                  : "modal,centerscreen,chrome,resizable=no",
                               gCategoryList[list.selectedIndex], currentColor, editTitle);
         }
     },

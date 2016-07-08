@@ -152,8 +152,8 @@
         <body><![CDATA[
           let evl = this.eventNameLabel;
           let item = this.mOccurrence;
-          evl.value = (item.title ? item.title.replace(/\n/g, ' ') :
-                                    cal.calGetString("calendar", "eventUntitled"));
+          evl.value = (item.title ? item.title.replace(/\n/g, ' ')
+                                  : cal.calGetString("calendar", "eventUntitled"));
         ]]></body>
       </method>
 
@@ -363,9 +363,8 @@
             return;
         }
         let item = this.occurrence;
-        if (!isCalendarWritable(item.calendar)
-            || !userCanModifyItem(item)
-            || (item.calendar instanceof Components.interfaces.calISchedulingSupport && item.calendar.isInvitation(item))) {
+        let isInvitation = item.calendar instanceof Components.interfaces.calISchedulingSupport && item.calendar.isInvitation(item);
+        if (!isCalendarWritable(item.calendar) || !userCanModifyItem(item) || isInvitation) {
             return;
         }
         if (!this.selected) {

@@ -96,14 +96,12 @@ function onLoad() {
         if (stylesheet.href == kStylesheet) {
             // make the dummy-spacer #1 [top] the same height as the timebar
             let timebar = document.getElementById("timebar");
-            stylesheet.insertRule(
-                ".attendee-spacer-top { height: "
-                    + timebar.boxObject.height + "px; }", 0);
+            stylesheet.insertRule(".attendee-spacer-top { height: " +
+                                  timebar.boxObject.height + "px; }", 0);
             // make the dummy-spacer #2 [bottom] the same height as the scrollbar
             let scrollbar = document.getElementById("horizontal-scrollbar");
-            stylesheet.insertRule(
-                ".attendee-spacer-bottom { height: "
-                    + scrollbar.boxObject.height + "px; }", 0);
+            stylesheet.insertRule(".attendee-spacer-bottom { height: " +
+                                  scrollbar.boxObject.height + "px; }", 0);
             break;
         }
     }
@@ -904,8 +902,8 @@ function onAttrModified(event) {
                 grid.firstVisibleRow = attendees.firstVisibleRow;
             }
         }
-        if (!target.lastListCheckedValue
-            || target.lastListCheckedValue != target.value) {
+        if (!target.lastListCheckedValue ||
+            target.lastListCheckedValue != target.value) {
             attendees.resolvePotentialList(target);
             target.lastListCheckedValue = target.value;
         }

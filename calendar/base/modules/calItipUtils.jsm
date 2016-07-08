@@ -147,8 +147,8 @@ cal.itip = {
 
         let isWritableCalendar = function(aCalendar) {
             /* TODO: missing ACL check for existing items (require callback API) */
-            return (cal.itip.isSchedulingCalendar(aCalendar)
-                    && cal.userCanAddItemsToCalendar(aCalendar));
+            return cal.itip.isSchedulingCalendar(aCalendar) &&
+                   cal.userCanAddItemsToCalendar(aCalendar);
         };
 
         let writableCalendars = cal.getCalendarManager().getCalendars({}).filter(isWritableCalendar);
@@ -598,8 +598,8 @@ cal.itip = {
              * someone is accepting invitations on behalf of an other user. */
             if (aItem.calendar.aclEntry) {
                 let userAddresses = aItem.calendar.aclEntry.getUserAddresses({});
-                if (userAddresses.length > 0
-                    && !cal.attendeeMatchesAddresses(invitedAttendee, userAddresses)) {
+                if (userAddresses.length > 0 &&
+                    !cal.attendeeMatchesAddresses(invitedAttendee, userAddresses)) {
                     invitedAttendee = invitedAttendee.clone();
                     invitedAttendee.setProperty("SENT-BY", "mailto:" + userAddresses[0]);
                 }

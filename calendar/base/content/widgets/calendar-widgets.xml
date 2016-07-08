@@ -383,8 +383,8 @@
         <parameter name="aNotifyRefControl"/>
         <body><![CDATA[
             let notifyRefControl = ((aNotifyRefControl == null) || (aNotifyRefControl === true));
-            let pushModeCollapsedAttribute = ((aPushModeCollapsedAttribute == null)
-                                                 || (aPushModeCollapsedAttribute === true));
+            let pushModeCollapsedAttribute = aPushModeCollapsedAttribute == null ||
+                                             aPushModeCollapsedAttribute === true;
             let collapsedModes = [];
             let modeIndex = -1;
             let display = aVisible;

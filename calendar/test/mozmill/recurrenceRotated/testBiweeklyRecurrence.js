@@ -38,8 +38,8 @@ var testBiweeklyRecurrence = function() {
   event.click(new elementslib.ID(event.window.document, "button-save"));
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0;});
 
-  let box = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour)
-    + eventPath;
+  let box = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour) +
+    eventPath;
 
   // check day view
   for (let i = 0; i < 4; i++) {
@@ -51,8 +51,8 @@ var testBiweeklyRecurrence = function() {
   calUtils.switchToView(controller, "week");
   calUtils.goToDate(controller, 2009, 1, 31);
 
-  box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 7, hour)
-    + eventPath;
+  box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, 7, hour) +
+    eventPath;
   for (let i = 0; i < 4; i++) {
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
     calUtils.forward(2);
@@ -78,26 +78,26 @@ var testBiweeklyRecurrence = function() {
   calUtils.goToDate(controller, 2009, 1, 31);
 
   // January
-  box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 5, 7, undefined)
-    + eventPath;
+  box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 5, 7, undefined) +
+    eventPath;
   controller.assertNode(new elementslib.Lookup(controller.window.document, box));
   calUtils.forward(controller, 1);
 
   // February
-  box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 2, 7, undefined)
-    + eventPath;
+  box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 2, 7, undefined) +
+    eventPath;
   controller.assertNode(new elementslib.Lookup(controller.window.document, box));
-  box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 4, 7, undefined)
-    + eventPath;
+  box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 4, 7, undefined) +
+    eventPath;
   controller.assertNode(new elementslib.Lookup(controller.window.document, box));
   calUtils.forward(controller, 1);
 
   // March
-  box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 2, 7, undefined)
-    + eventPath;
+  box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 2, 7, undefined) +
+    eventPath;
   controller.assertNode(new elementslib.Lookup(controller.window.document, box));
-  box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 4, 7, undefined)
-    + eventPath;
+  box = calUtils.getEventBoxPath(controller, "month", calUtils.EVENT_BOX, 4, 7, undefined) +
+    eventPath;
   controller.assertNode(new elementslib.Lookup(controller.window.document, box));
 
   // delete event

@@ -68,22 +68,22 @@ var testLastDayOfMonthRecurrence = function() {
 
     // day view
     calUtils.switchToView(controller, "day");
-    box = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour)
-      + eventPath;
+    box = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour) +
+      eventPath;
     controller.waitForElement(new elementslib.Lookup(controller.window.document, box));
 
     // week view
     calUtils.switchToView(controller, "week");
     let date = new Date(checkingData[i][0], checkingData[i][1] - 1, checkingData[i][2]);
     let column = date.getDay() + 1;
-    box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, column, hour)
-      + eventPath;
+    box = calUtils.getEventBoxPath(controller, "week", calUtils.EVENT_BOX, undefined, column, hour) +
+      eventPath;
     controller.waitForElement(new elementslib.Lookup(controller.window.document, box));
 
     // multiweek view
     calUtils.switchToView(controller, "multiweek");
-    box = calUtils.getEventBoxPath(controller, "multiweek", calUtils.EVENT_BOX, 1, column, undefined)
-      + eventPath;
+    box = calUtils.getEventBoxPath(controller, "multiweek", calUtils.EVENT_BOX, 1, column, undefined) +
+      eventPath;
     controller.assertNode(new elementslib.Lookup(controller.window.document, box));
 
     // month view

@@ -453,13 +453,13 @@ function onCommandCancel() {
     let promptService = Components.interfaces.nsIPromptService;
 
     let promptTitle = cal.calGetString("calendar",
-                                       isEvent(window.calendarItem) ?
-                                          "askSaveTitleEvent" :
-                                          "askSaveTitleTask");
+                                       isEvent(window.calendarItem)
+                                          ? "askSaveTitleEvent"
+                                          : "askSaveTitleTask");
     let promptMessage = cal.calGetString("calendar",
-                                         isEvent(window.calendarItem) ?
-                                            "askSaveMessageEvent" :
-                                            "askSaveMessageTask");
+                                         isEvent(window.calendarItem)
+                                            ? "askSaveMessageEvent"
+                                            : "askSaveMessageTask");
 
     let flags = promptService.BUTTON_TITLE_SAVE *
                 promptService.BUTTON_POS_0 +
@@ -1822,7 +1822,7 @@ function editAttendees() {
         updateDateTime();
         updateAllDay();
 
-        if (isAllDay != gStartTime.isDate){
+        if (isAllDay != gStartTime.isDate) {
             setShowTimeAs(gStartTime.isDate);
         }
     };
@@ -2091,7 +2091,7 @@ function lastDirectory(aFileUri) {
  * @param aUri    The uri to parse.
  * @return        A string that can be used in UI.
  */
-function makePrettyName(aUri){
+function makePrettyName(aUri) {
     let name = aUri.spec;
 
     if (aUri.schemeIs("file")) {
@@ -2940,8 +2940,8 @@ function saveItem() {
     // the organizer.
     if (item.organizer && item.calendar.aclEntry) {
         let userAddresses = item.calendar.aclEntry.getUserAddresses({});
-        if (userAddresses.length > 0
-            && !cal.attendeeMatchesAddresses(item.organizer, userAddresses)) {
+        if (userAddresses.length > 0 &&
+            !cal.attendeeMatchesAddresses(item.organizer, userAddresses)) {
             let organizer = item.organizer.clone();
             organizer.setProperty("SENT-BY", "mailto:" + userAddresses[0]);
             item.organizer = organizer;

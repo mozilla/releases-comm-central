@@ -1900,9 +1900,9 @@
                       let nextSepI = k + 1;
                       let nextDigitsI = k + 2;
                       if ((k == SEC_INDEX ||
-                           (!amProbeArray[nextDigitsI] && !pmProbeArray[nextDigitsI]))
-                          && amProbeArray[nextSepI] && pmProbeArray[nextSepI]
-                          && amProbeArray[nextSepI] != pmProbeArray[nextSepI]) {
+                           (!amProbeArray[nextDigitsI] && !pmProbeArray[nextDigitsI])) &&
+                          amProbeArray[nextSepI] && pmProbeArray[nextSepI] &&
+                          amProbeArray[nextSepI] != pmProbeArray[nextSepI]) {
                         amProbeArray[POST_INDEX] =
                           amProbeArray[nextSepI] + amProbeArray[POST_INDEX];
                         pmProbeArray[POST_INDEX] =

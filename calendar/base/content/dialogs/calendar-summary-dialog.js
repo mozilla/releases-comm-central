@@ -55,11 +55,11 @@ function onLoad() {
     window.attendees = item.getAttendees({});
 
     let calendar = cal.wrapInstance(item.calendar, Components.interfaces.calISchedulingSupport);
-    window.readOnly = !(isCalendarWritable(calendar)
-                        && (userCanModifyItem(item)
-                            || (calendar
-                                && item.calendar.isInvitation(item)
-                                && userCanRespondToInvitation(item))));
+    window.readOnly = !(isCalendarWritable(calendar) &&
+                        (userCanModifyItem(item) ||
+                         (calendar &&
+                          item.calendar.isInvitation(item) &&
+                          userCanRespondToInvitation(item))));
     if (!window.readOnly && calendar) {
         let attendee = calendar.getInvitedAttendee(item);
         if (attendee) {
@@ -242,8 +242,8 @@ function updatePartStat() {
       let aclEntry = item.calendar.aclEntry;
       if (aclEntry) {
           let userAddresses = aclEntry.getUserAddresses({});
-          if (userAddresses.length > 0
-              && !cal.attendeeMatchesAddresses(window.attendee, userAddresses)) {
+          if (userAddresses.length > 0 &&
+              !cal.attendeeMatchesAddresses(window.attendee, userAddresses)) {
               window.attendee.setProperty("SENT-BY", "mailto:" + userAddresses[0]);
           }
       }

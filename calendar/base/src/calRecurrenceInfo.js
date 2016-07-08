@@ -329,10 +329,9 @@ calRecurrenceInfo.prototype = {
                     // round was invalid, then in this round we need to search
                     // after nextOccurrences[i] to make sure getNextOccurrence()
                     // doesn't find the same occurrence again.
-                    let searchDate =
-                        (nextOccurrences[i] && nextOccurrences[i].compare(aTime) > 0 ?
-                            nextOccurrences[i] :
-                            aTime);
+                    let searchDate = nextOccurrences[i] && nextOccurrences[i].compare(aTime) > 0
+                        ? nextOccurrences[i]
+                        : aTime;
 
                     nextOccurrences[i] = rRuleInstance
                                              .getNextOccurrence(searchStart, searchDate);

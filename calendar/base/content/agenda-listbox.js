@@ -519,8 +519,8 @@ agendaListbox.deleteItemsFromCalendar =
 function deleteItemsFromCalendar(aCalendar) {
     let childNodes = Array.from(this.agendaListboxControl.childNodes);
     for (let childNode of childNodes) {
-        if (childNode && childNode.occurrence
-            && childNode.occurrence.calendar.id == aCalendar.id) {
+        if (childNode && childNode.occurrence &&
+            childNode.occurrence.calendar.id == aCalendar.id) {
             childNode.remove();
         }
     }
