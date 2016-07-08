@@ -1700,8 +1700,8 @@ function calIterateEmailIdentities(func) {
  */
 function compareItemContent(aFirstItem, aSecondItem, aIgnoreProps, aIgnoreParams) {
     let ignoreProps = arr2hash(aIgnoreProps ||
-        [ "X-MOZ-GENERATION", "SEQUENCE", "DTSTAMP",
-          "LAST-MODIFIED", "X-MOZ-SEND-INVITATIONS" ]);
+        ["X-MOZ-GENERATION", "SEQUENCE", "DTSTAMP",
+         "LAST-MODIFIED", "X-MOZ-SEND-INVITATIONS"]);
 
     let ignoreParams = aIgnoreParams ||
         { "ATTENDEE": ["CN"], "ORGANIZER": ["CN"] };

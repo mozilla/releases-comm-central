@@ -42,7 +42,7 @@ function onLoad() {
 
     // Set up the action map
     let supportedActions = calendar.getProperty("capabilities.alarms.actionValues") ||
-                           ["DISPLAY" /* TODO email support, "EMAIL" */];
+                           ["DISPLAY"]; // TODO email support, "EMAIL"
     for (let action of supportedActions) {
         allowedActionsMap[action] = true;
     }

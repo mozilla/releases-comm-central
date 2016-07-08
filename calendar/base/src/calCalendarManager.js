@@ -869,16 +869,18 @@ calMgrCalendarObserver.prototype = {
             // TODO: if properties get added this list will need to be adjusted,
             // ideally we should add a "getProperties" method to calICalendar.idl
             // to retrieve all non-transient properties for a calendar.
-            let propsToCopy = [ "color",
-                                "disabled",
-                                "auto-enabled",
-                                "cache.enabled",
-                                "refreshInterval",
-                                "suppressAlarms",
-                                "calendar-main-in-composite",
-                                "calendar-main-default",
-                                "readOnly",
-                                "imip.identity.key"];
+            let propsToCopy = [
+                "color",
+                "disabled",
+                "auto-enabled",
+                "cache.enabled",
+                "refreshInterval",
+                "suppressAlarms",
+                "calendar-main-in-composite",
+                "calendar-main-default",
+                "readOnly",
+                "imip.identity.key"
+            ];
             for (let prop of propsToCopy) {
               newCal.setProperty(prop,
                                  aCalendar.getProperty(prop));

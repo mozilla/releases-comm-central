@@ -222,6 +222,9 @@
     // Require padding inside curly braces
     "object-curly-spacing": [2, "always"],
 
+    // Disallow spaces inside of brackets
+    "array-bracket-spacing": [2, "never"],
+
     // Disallow control characters in regular expressions
     "no-control-regex": 2,
 

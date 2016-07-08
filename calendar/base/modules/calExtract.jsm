@@ -362,7 +362,7 @@ Extractor.prototype = {
 
     extractDayMonthYear: function extractDayMonthYear(pattern, relation) {
         let alts = this.getRepPatterns(pattern, ["(\\d{1,2})", "(\\d{1,2})",
-                                                "(\\d{2,4})" ]);
+                                                 "(\\d{2,4})"]);
         let res;
         for (let alt in alts) {
             let positions = alts[alt].positions;
@@ -387,8 +387,8 @@ Extractor.prototype = {
 
     extractDayMonthNameYear: function extractDayMonthNameYear(pattern, relation) {
         let alts = this.getRepPatterns(pattern, ["(\\d{1,2})",
-                                                "(" + this.allMonths + ")",
-                                                "(\\d{2,4})" ]);
+                                                 "(" + this.allMonths + ")",
+                                                 "(\\d{2,4})"]);
         let res;
         for (let alt in alts) {
             let exp = alts[alt].pattern.split(this.marker).join("|");

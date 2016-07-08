@@ -464,6 +464,7 @@ calAlarm.prototype = {
         }
 
         // Set up X-Props. mProperties contains only non-promoted props
+        // eslint-disable-next-line array-bracket-spacing
         for (let [propName, ] of this.mProperties) {
             let icalprop = icssvc.createIcalProperty(propName);
             icalprop.value = this.mProperties.getProperty(propName);

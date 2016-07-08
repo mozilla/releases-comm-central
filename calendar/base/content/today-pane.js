@@ -25,9 +25,9 @@ var TodayPane = {
      * Load Handler, sets up the today pane controls.
      */
     onLoad: function onLoad() {
-        TodayPane.paneViews = [ cal.calGetString("calendar", "eventsandtasks"),
-                                cal.calGetString("calendar", "tasksonly"),
-                                cal.calGetString("calendar", "eventsonly") ];
+        TodayPane.paneViews = [cal.calGetString("calendar", "eventsandtasks"),
+                               cal.calGetString("calendar", "tasksonly"),
+                               cal.calGetString("calendar", "eventsonly")];
         agendaListbox.setupCalendar();
         TodayPane.initializeMiniday();
         TodayPane.setShortWeekdays();

@@ -1085,8 +1085,8 @@
         let target = event.originalTarget;
         if (target.className == "role-icon") {
             if (target.getAttribute("disabled") != "true") {
-                const roleCycle = [ "REQ-PARTICIPANT", "OPT-PARTICIPANT",
-                                    "NON-PARTICIPANT", "CHAIR" ];
+                const roleCycle = ["REQ-PARTICIPANT", "OPT-PARTICIPANT",
+                                   "NON-PARTICIPANT", "CHAIR"];
 
                 let nextValue = cycle(roleCycle, target.getAttribute("role"));
                 target.setAttribute("role", nextValue);
@@ -1094,7 +1094,7 @@
             }
         } else if (target.className == "status-icon") {
             if (target.getAttribute("disabled") != "true") {
-                const statusCycle = [ "ACCEPTED", "DECLINED", "TENTATIVE" ];
+                const statusCycle = ["ACCEPTED", "DECLINED", "TENTATIVE"];
 
                 let nextValue = cycle(statusCycle, target.getAttribute("status"));
                 target.setAttribute("status", nextValue);
@@ -1105,7 +1105,7 @@
             let inputField = this.getInputElement(fieldNum);
             if (target.getAttribute("disabled") != "true" &&
                 !inputField.attendee.isOrganizer) {
-                const cutypeCycle = [ "INDIVIDUAL", "GROUP", "RESOURCE", "ROOM" ];
+                const cutypeCycle = ["INDIVIDUAL", "GROUP", "RESOURCE", "ROOM"];
 
                 let nextValue = cycle(cutypeCycle, target.getAttribute("cutype"));
                 target.setAttribute("cutype", nextValue);

@@ -777,7 +777,7 @@ calStorageCalendar.prototype = {
                        checkIfInRange(item, aRangeStart, aRangeEnd)) {
                 // If no occurrences are wanted, check only the parent item.
                 // This will be changed with bug 416975.
-                expandedItems = [ item ];
+                expandedItems = [item];
             }
 
             if (expandedItems.length && optionalFilterFunc) {
@@ -1391,10 +1391,10 @@ calStorageCalendar.prototype = {
                 );
 
             // These are only used when deleting an entire calendar
-            let extrasTables = [ "cal_attendees", "cal_properties",
-                                 "cal_recurrence", "cal_attachments",
-                                 "cal_metadata", "cal_relations",
-                                 "cal_alarms"];
+            let extrasTables = ["cal_attendees", "cal_properties",
+                                "cal_recurrence", "cal_attachments",
+                                "cal_metadata", "cal_relations",
+                                "cal_alarms"];
 
             this.mDeleteEventExtras = [];
             this.mDeleteTodoExtras = [];

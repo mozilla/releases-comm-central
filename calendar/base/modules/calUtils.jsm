@@ -596,7 +596,7 @@ var cal = {
 
         case "status":
           if (cal.isToDo(aItem)) {
-            return ["NEEDS-ACTION", "IN-PROCESS", "COMPLETED", "CANCELLED" ].indexOf(aItem.status);
+            return ["NEEDS-ACTION", "IN-PROCESS", "COMPLETED", "CANCELLED"].indexOf(aItem.status);
           } else {
             return ["TENTATIVE", "CONFIRMED", "CANCELLED"].indexOf(aItem.status);
           }

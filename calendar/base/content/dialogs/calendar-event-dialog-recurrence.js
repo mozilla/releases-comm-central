@@ -321,11 +321,11 @@ function onSave(item) {
                     recRule.setComponent("BYDAY", 7, ALL_WEEKDAYS);
                 } else {
                     // One of the first five days or the last day of the month.
-                    recRule.setComponent("BYMONTHDAY", 1, [ monthlyOrdinal ]);
+                    recRule.setComponent("BYMONTHDAY", 1, [monthlyOrdinal]);
                 }
             } else {
                 let sign = monthlyOrdinal < 0 ? -1 : 1;
-                let onDays = [ (Math.abs(monthlyOrdinal) * 8 + monthlyDOW) * sign ];
+                let onDays = [(Math.abs(monthlyOrdinal) * 8 + monthlyDOW) * sign];
                 recRule.setComponent("BYDAY", onDays.length, onDays);
             }
         } else {
@@ -341,12 +341,12 @@ function onSave(item) {
         recRule.interval = yearInterval;
         let yearlyGroup = document.getElementById("yearly-group");
         if (yearlyGroup.selectedIndex == 0) {
-            let yearlyByMonth = [ Number(getElementValue("yearly-month-ordinal")) ];
+            let yearlyByMonth = [Number(getElementValue("yearly-month-ordinal"))];
             recRule.setComponent("BYMONTH", yearlyByMonth.length, yearlyByMonth);
-            let yearlyByDay = [ Number(getElementValue("yearly-days")) ];
+            let yearlyByDay = [Number(getElementValue("yearly-days"))];
             recRule.setComponent("BYMONTHDAY", yearlyByDay.length, yearlyByDay);
         } else {
-            let yearlyByMonth = [ Number(getElementValue("yearly-month-rule")) ];
+            let yearlyByMonth = [Number(getElementValue("yearly-month-rule"))];
             recRule.setComponent("BYMONTH", yearlyByMonth.length, yearlyByMonth);
             let yearlyOrdinal = Number(getElementValue("yearly-ordinal"));
             let yearlyDOW = Number(getElementValue("yearly-weekday"));
@@ -356,11 +356,11 @@ function onSave(item) {
                     recRule.setComponent("BYDAY", 7, ALL_WEEKDAYS);
                 } else {
                     // One of the first five days or the last of a month.
-                    recRule.setComponent("BYMONTHDAY", 1, [ yearlyOrdinal ]);
+                    recRule.setComponent("BYMONTHDAY", 1, [yearlyOrdinal]);
                 }
             } else {
                 let sign = yearlyOrdinal < 0 ? -1 : 1;
-                let onDays = [ (Math.abs(yearlyOrdinal) * 8 + yearlyDOW) * sign ];
+                let onDays = [(Math.abs(yearlyOrdinal) * 8 + yearlyDOW) * sign];
                 recRule.setComponent("BYDAY", onDays.length, onDays);
             }
         }

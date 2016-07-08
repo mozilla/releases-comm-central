@@ -342,7 +342,7 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                             [ruleString,
                              dateFormatter.formatDateShort(startDate),
                              dateFormatter.formatTime(startDate),
-                             dateFormatter.formatTime(endDate) ]);
+                             dateFormatter.formatTime(endDate)]);
                         detailsString = PluralForm.get(rule.count, countString)
                                                   .replace("#5", rule.count);
                     } else {
@@ -359,7 +359,7 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                         [ruleString,
                          dateFormatter.formatDateShort(startDate),
                          dateFormatter.formatTime(startDate),
-                         dateFormatter.formatTime(endDate) ]);
+                         dateFormatter.formatTime(endDate)]);
                 }
             }
             return detailsString;
