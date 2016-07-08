@@ -38,7 +38,7 @@ cal.print = {
             if (!(prefName in sheet.insertedCategoryRules)) {
                 sheet.insertedCategoryRules[prefName] = true;
                 let ruleAdd = ' .category-color-box[categories~="' + prefName + '"] { ' +
-                              ' border: 2px solid ' + color + '; }' + "\n";
+                              " border: 2px solid " + color + "; }\n";
                 sheet.textContent += ruleAdd;
             }
         }
@@ -62,8 +62,8 @@ cal.print = {
             sheet.insertedCalendarRules[calendar.id] = true;
             let formattedId = cal.formatStringForCSSRule(calendar.id);
             let ruleAdd = ' .calendar-color-box[calendar-id="' + formattedId + '"] { ' +
-                          ' background-color: ' + color + '; ' +
-                          ' color: ' + cal.getContrastingTextColor(color) + '; }' + "\n";
+                          " background-color: " + color + "; " +
+                          " color: " + cal.getContrastingTextColor(color) + "; }\n";
             sheet.textContent += ruleAdd;
         }
     },

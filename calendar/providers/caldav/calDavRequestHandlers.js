@@ -334,12 +334,12 @@ webDavSyncHandler.prototype = {
           xmlHeader +
           '<sync-collection xmlns="DAV:">' +
             syncTokenString +
-            '<sync-level>1</sync-level>' +
-            '<prop>' +
-              '<getcontenttype/>' +
-              '<getetag/>' +
-            '</prop>' +
-          '</sync-collection>';
+            "<sync-level>1</sync-level>" +
+            "<prop>" +
+              "<getcontenttype/>" +
+              "<getetag/>" +
+            "</prop>" +
+          "</sync-collection>";
 
         let requestUri = this.calendar.makeUri(null, this.baseUri);
 
@@ -520,7 +520,7 @@ webDavSyncHandler.prototype = {
             case "getetag":
             case "getcontenttype":
             case "sync-token":
-                this.tag = aLocalName.replace(/-/g, '');
+                this.tag = aLocalName.replace(/-/g, "");
                 this.currentResponse[this.tag ] = "";
                 break;
         }
@@ -702,12 +702,12 @@ multigetSyncHandler.prototype = {
         let queryXml =
           xmlHeader +
           '<C:calendar-multiget xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav">' +
-            '<D:prop>' +
-              '<D:getetag/>' +
-              '<C:calendar-data/>' +
-            '</D:prop>' +
+            "<D:prop>" +
+              "<D:getetag/>" +
+              "<C:calendar-data/>" +
+            "</D:prop>" +
             hrefString +
-          '</C:calendar-multiget>';
+          "</C:calendar-multiget>";
 
         let requestUri = this.calendar.makeUri(null, this.baseUri);
         if (this.calendar.verboseLogging()) {
@@ -874,7 +874,7 @@ multigetSyncHandler.prototype = {
             case "calendar-data":
             case "href":
             case "getetag":
-                this.tag = aLocalName.replace(/-/g, '');
+                this.tag = aLocalName.replace(/-/g, "");
                 this.currentResponse[this.tag ] = "";
                 break;
         }

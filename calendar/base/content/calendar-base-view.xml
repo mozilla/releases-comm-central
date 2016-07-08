@@ -244,7 +244,7 @@
                                 .getAttribute("checked") == "true");
 
         this.mTimezone = calendarDefaultTimezone();
-        let alarmService = Components.classes['@mozilla.org/calendar/alarm-service;1']
+        let alarmService = Components.classes["@mozilla.org/calendar/alarm-service;1"]
                            .getService(Components.interfaces.calIAlarmService);
         alarmService.addObserver(this.mObserver);
         let self = this;
@@ -268,7 +268,7 @@
         if (this.mCalendar) {
             this.mCalendar.removeObserver(this.mObserver);
         }
-        let alarmService = Components.classes['@mozilla.org/calendar/alarm-service;1']
+        let alarmService = Components.classes["@mozilla.org/calendar/alarm-service;1"]
                            .getService(Components.interfaces.calIAlarmService);
         alarmService.removeObserver(this.mObserver);
         this.viewBroadcaster.removeEventListener(this.getAttribute("type") + "viewresized", this.mResizeHandler, true);
@@ -469,7 +469,7 @@
 
                   if (!this.cancelled) {
                       // Fire event
-                      this.calView.fireEvent('viewloaded', aOperationType);
+                      this.calView.fireEvent("viewloaded", aOperationType);
                   }
               },
 
@@ -578,7 +578,7 @@
         <parameter name="aEventName"/>
         <parameter name="aEventDetail"/>
         <body><![CDATA[
-          let event = document.createEvent('Events');
+          let event = document.createEvent("Events");
           event.initEvent(aEventName, true, false);
           event.detail = aEventDetail;
           this.dispatchEvent(event);
@@ -780,7 +780,7 @@
       ]]></handler>
       <handler event="wheel"><![CDATA[
         const pixelThreshold = 150;
-        if (event.shiftKey && Preferences.get('calendar.view.mousescroll', true)) {
+        if (event.shiftKey && Preferences.get("calendar.view.mousescroll", true)) {
             if (event.deltaMode == event.DOM_DELTA_LINE) {
                 if (event.deltaY != 0) {
                     deltaView = event.deltaY < 0 ? -1 : 1;

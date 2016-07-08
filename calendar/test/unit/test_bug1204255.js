@@ -67,15 +67,15 @@ function test_newAttendee() {
 
 function test_fromICS() {
     let ics = [
-        'BEGIN:VCALENDAR',
-        'PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN',
-        'VERSION:2.0',
-        'BEGIN:VEVENT',
-        'UID:a84c74d1-cfc6-4ddf-9d60-9e4afd8238cf',
-        'SUMMARY:New Event',
-        'DTSTART:20150729T103000Z',
-        'DTEND:20150729T113000Z',
-        'ORGANIZER;RSVP=TRUE;CN=Tester1;PARTSTAT=ACCEPTED;ROLE=CHAIR:mailto:user1@example.net',
+        "BEGIN:VCALENDAR",
+        "PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN",
+        "VERSION:2.0",
+        "BEGIN:VEVENT",
+        "UID:a84c74d1-cfc6-4ddf-9d60-9e4afd8238cf",
+        "SUMMARY:New Event",
+        "DTSTART:20150729T103000Z",
+        "DTEND:20150729T113000Z",
+        "ORGANIZER;RSVP=TRUE;CN=Tester1;PARTSTAT=ACCEPTED;ROLE=CHAIR:mailto:user1@example.net",
 
         'ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;CN="NOT PREFIXED";ROLE=REQ-PARTICIPANT:user2@example.net',
         'ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;CN="PREFIXED";ROLE=REQ-PARTICIPANT:mailto:user2@example.net',
@@ -94,8 +94,8 @@ function test_fromICS() {
 
         'ATTENDEE;RSVP=TRUE;PARTSTAT=TENTATIVE;CN="NOT PREFIXED";ROLE=REQ-PARTICIPANT:user7@example.net',
         'ATTENDEE;RSVP=TRUE;PARTSTAT=DECLINED;CN="PREFIXED";ROLE=REQ-PARTICIPANT:mailto:user7@example.net',
-        'END:VEVENT',
-        'END:VCALENDAR'
+        "END:VEVENT",
+        "END:VCALENDAR"
     ].join("\n");
 
     let expected = [

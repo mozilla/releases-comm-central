@@ -90,7 +90,7 @@ calWeekPrinter.prototype = {
         let html = cal.xml.serializeDOM(document);
         let convStream = Components.classes["@mozilla.org/intl/converter-output-stream;1"]
                                    .createInstance(Components.interfaces.nsIConverterOutputStream);
-        convStream.init(aStream, 'UTF-8', 0, 0x0000);
+        convStream.init(aStream, "UTF-8", 0, 0x0000);
         convStream.writeString(html);
     },
 
@@ -110,7 +110,7 @@ calWeekPrinter.prototype = {
         let weekInfo = cal.getWeekInfoService();
         let dateFormatter = cal.getDateFormatter();
         let weekno = weekInfo.getWeekTitle(startOfWeek);
-        let weekTitle = cal.calGetString("calendar", 'WeekTitle', [weekno]);
+        let weekTitle = cal.calGetString("calendar", "WeekTitle", [weekno]);
         currentPage.querySelector(".week-number").textContent = weekTitle;
 
         // Set up the day boxes

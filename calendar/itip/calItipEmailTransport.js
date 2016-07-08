@@ -262,7 +262,7 @@ calItipEmailTransport.prototype = {
                     // at least one invalid recipient, so we skip sending for this message
                     return false;
                 }
-                let toList = toMap.join(', ');
+                let toList = toMap.join(", ");
                 let composeUtils = Components.classes["@mozilla.org/messengercompose/computils;1"]
                                              .createInstance(Components.interfaces.nsIMsgCompUtils);
                 let messageId = composeUtils.msgGenerateMessageId(identity);

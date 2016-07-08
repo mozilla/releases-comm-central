@@ -159,10 +159,10 @@ calTransaction.prototype = {
     doTransaction: function cT_doTransaction() {
         this.mIsDoTransaction = true;
         switch (this.mAction) {
-            case 'add':
+            case "add":
                 this.mCalendar.addItem(this.mItem, this);
                 break;
-            case 'modify':
+            case "modify":
                 if (this.mItem.calendar.id != this.mOldItem.calendar.id) {
                     let self = this;
                     let addListener = {
@@ -186,7 +186,7 @@ calTransaction.prototype = {
                                               this);
                 }
                 break;
-            case 'delete':
+            case "delete":
                 this.mCalendar.deleteItem(this.mItem, this);
                 break;
             default:
@@ -198,10 +198,10 @@ calTransaction.prototype = {
     undoTransaction: function cT_undoTransaction() {
         this.mIsDoTransaction = false;
         switch (this.mAction) {
-            case 'add':
+            case "add":
                 this.mCalendar.deleteItem(this.mItem, this);
                 break;
-            case 'modify':
+            case "modify":
                 if (this.mOldItem.calendar.id != this.mItem.calendar.id) {
                     this.mCalendar.deleteItem(this.mItem, this);
                     this.mOldCalendar.addItem(this.mOldItem, this);
@@ -210,7 +210,7 @@ calTransaction.prototype = {
                                               this.mItem, this);
                 }
                 break;
-            case 'delete':
+            case "delete":
                 this.mCalendar.addItem(this.mItem, this);
                 break;
             default:

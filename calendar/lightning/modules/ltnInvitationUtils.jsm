@@ -276,19 +276,19 @@ ltn.invitation = {
          * @param {String}  aText   [optional]
          * @param {Boolean} aClear  [optional] for consecutive changes on the same node, set to false
          */
-        function _content2Child(aToNode, aType, aText = '', aClear = true) {
+        function _content2Child(aToNode, aType, aText = "", aClear = true) {
             let nodeDoc = aToNode.ownerDocument;
             if (aClear && aToNode.hasChildNodes()) {
                 aToNode.removeChild(aToNode.firstChild);
             }
-            let n = nodeDoc.createElement(aType.toLowerCase() == 'newline' ? 'br' : 'span');
+            let n = nodeDoc.createElement(aType.toLowerCase() == "newline" ? "br" : "span");
             switch (aType) {
-                case 'added':
-                case 'modified':
-                case 'removed':
+                case "added":
+                case "modified":
+                case "removed":
                     n.className = aType;
-                    if (Preferences.get('calendar.view.useSystemColors', false)) {
-                        n.setAttribute('systemcolors', true);
+                    if (Preferences.get("calendar.view.useSystemColors", false)) {
+                        n.setAttribute("systemcolors", true);
                     }
                     break;
             }
@@ -303,9 +303,9 @@ ltn.invitation = {
          */
         function _getAttendees(aDoc, aElement) {
             let attendees = [];
-            for (let att of aDoc.getElementsByClassName('attendee-name')) {
+            for (let att of aDoc.getElementsByClassName("attendee-name")) {
                 if (!att.parentNode.hidden &&
-                    att.parentNode.parentNode.id == (aElement + '-table')) {
+                    att.parentNode.parentNode.id == (aElement + "-table")) {
                     attendees[att.textContent] = att;
                 }
             }
@@ -316,19 +316,19 @@ ltn.invitation = {
          * @param {String} aElement  part of the element id within the html template
          */
         function _compareElement(aElement) {
-            let element = aElement == 'attendee' ? aElement + 's' : aElement;
-            let oldRow = aOldDoc.getElementById('imipHtml-' + element + '-row');
-            let newRow = aNewDoc.getElementById('imipHtml-' + element + '-row');
-            let row = doc.getElementById('imipHtml-' + element + '-row');
-            let oldContent = aOldDoc.getElementById('imipHtml-' + aElement + '-content');
-            let content = doc.getElementById('imipHtml-' + aElement + '-content');
+            let element = aElement == "attendee" ? aElement + "s" : aElement;
+            let oldRow = aOldDoc.getElementById("imipHtml-" + element + "-row");
+            let newRow = aNewDoc.getElementById("imipHtml-" + element + "-row");
+            let row = doc.getElementById("imipHtml-" + element + "-row");
+            let oldContent = aOldDoc.getElementById("imipHtml-" + aElement + "-content");
+            let content = doc.getElementById("imipHtml-" + aElement + "-content");
 
             if (newRow.hidden && !oldRow.hidden) {
                 // element was removed
                 // we only need to check for simple elements here: attendee or organizer row
                 // cannot be removed
                 if (oldContent) {
-                    _content2Child(content, 'removed', oldContent.textContent);
+                    _content2Child(content, "removed", oldContent.textContent);
                     row.hidden = false;
                 }
             } else if (!newRow.hidden && oldRow.hidden) {
@@ -336,19 +336,19 @@ ltn.invitation = {
                 // we only need to check for simple elements here: attendee or organizer row
                 // must have been there before
                 if (content) {
-                    _content2Child(content, 'added', content.textContent);
+                    _content2Child(content, "added", content.textContent);
                 }
             } else if (!newRow.hidden && !oldRow.hidden) {
                 // the element may have been modified
                 if (content) {
                     if (content.textContent != oldContent.textContent) {
-                        _content2Child(content, 'added', content.textContent);
-                        _content2Child(content, 'newline', null, false);
-                        _content2Child(content, 'removed', oldContent.textContent, false);
+                        _content2Child(content, "added", content.textContent);
+                        _content2Child(content, "newline", null, false);
+                        _content2Child(content, "removed", oldContent.textContent, false);
                     }
                 } else {
-                    content = doc.getElementById(aElement + '-table');
-                    oldContent = aOldDoc.getElementById(aElement + '-table');
+                    content = doc.getElementById(aElement + "-table");
+                    oldContent = aOldDoc.getElementById(aElement + "-table");
                     let excludeAddress = cal.removeMailTo(aIgnoreId);
                     if (content && oldContent && !content.isEqualNode(oldContent)) {
                         // extract attendees
@@ -357,7 +357,7 @@ ltn.invitation = {
                         // decorate newly added attendees
                         for (let att of Object.keys(attendees)) {
                             if (!(att in oldAttendees)) {
-                                _content2Child(attendees[att], 'added', att);
+                                _content2Child(attendees[att], "added", att);
                             }
                         }
                         for (let att of Object.keys(oldAttendees)) {
@@ -367,7 +367,7 @@ ltn.invitation = {
                                                !att.includes(excludeAddress);
                             // decorate removed attendees
                             if (!(att in attendees) && notExcluded) {
-                                _content2Child(oldAttendees[att], 'removed', att);
+                                _content2Child(oldAttendees[att], "removed", att);
                                 content.appendChild(oldAttendees[att].parentNode.cloneNode(true));
                             } else if ((att in attendees) && notExcluded) {
                                 // highlight partstat, role or usertype changes
@@ -382,7 +382,7 @@ ltn.invitation = {
                                            newAtts.getNamedItem(name).value;
                                 };
                                 if (["role", "partstat", "usertype"].some(hasChanged)) {
-                                    _content2Child(attendees[att], 'modified', att);
+                                    _content2Child(attendees[att], "modified", att);
                                 }
                             }
                         }
@@ -394,8 +394,8 @@ ltn.invitation = {
         aNewDoc = cal.xml.parseString(aNewDoc);
         let doc = aNewDoc.cloneNode(true);
         // elements to consider for comparison
-        ['summary', 'location', 'when', 'canceledOccurrences',
-         'modifiedOccurrences', 'organizer', 'attendee'].forEach(_compareElement);
+        ["summary", "location", "when", "canceledOccurrences",
+         "modifiedOccurrences", "organizer", "attendee"].forEach(_compareElement);
         return cal.xml.serializeDOM(doc);
     },
 

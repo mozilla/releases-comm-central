@@ -360,6 +360,9 @@
     // Disabled for now since this also removes parens around assignments, e.g. let foo = bar == baz
     // "no-extra-parens": [2, "all", { "conditionalAssign": false, "returnAssign": false, "nestedBinaryExpressions": false }],
 
+    // Double quotes should be used.
+    "quotes": [2, "double", { "avoidEscape": true }],
+
     // Will enable these rules later
     "block-spacing": 0,
     "no-lonely-if": 0,

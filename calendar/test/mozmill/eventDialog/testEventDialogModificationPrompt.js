@@ -30,7 +30,7 @@ var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
   calUtils.createCalendar(controller, calendar);
 
-  let categories = prefs.preferences.getPref("calendar.categories.names", "string").split(',');
+  let categories = prefs.preferences.getPref("calendar.categories.names", "string").split(",");
   data[0].category = categories[0];
   data[1].category = categories[1];
 };

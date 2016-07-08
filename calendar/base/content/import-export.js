@@ -32,13 +32,13 @@ function loadEventsFromFile(aCalendar) {
     let contractids = [];
     let catman = Components.classes["@mozilla.org/categorymanager;1"]
                            .getService(Components.interfaces.nsICategoryManager);
-    let catenum = catman.enumerateCategory('cal-importers');
+    let catenum = catman.enumerateCategory("cal-importers");
     let currentListLength = 0;
     let defaultCIDIndex = 0;
     while (catenum.hasMoreElements()) {
         let entry = catenum.getNext();
         entry = entry.QueryInterface(Components.interfaces.nsISupportsCString);
-        let contractid = catman.getCategoryEntry('cal-importers', entry);
+        let contractid = catman.getCategoryEntry("cal-importers", entry);
         let importer;
         try {
             importer = Components.classes[contractid]
@@ -228,13 +228,13 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
     let contractids = [];
     let catman = Components.classes["@mozilla.org/categorymanager;1"]
                            .getService(Components.interfaces.nsICategoryManager);
-    let catenum = catman.enumerateCategory('cal-exporters');
+    let catenum = catman.enumerateCategory("cal-exporters");
     let currentListLength = 0;
     let defaultCIDIndex = 0;
     while (catenum.hasMoreElements()) {
         let entry = catenum.getNext();
         entry = entry.QueryInterface(Components.interfaces.nsISupportsCString);
-        let contractid = catman.getCategoryEntry('cal-exporters', entry);
+        let contractid = catman.getCategoryEntry("cal-exporters", entry);
         let exporter;
         try {
             exporter = Components.classes[contractid]

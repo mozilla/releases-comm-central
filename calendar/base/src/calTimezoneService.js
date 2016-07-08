@@ -103,7 +103,7 @@ calTimezoneService.prototype = {
 
         let resNamespace = "calendar";
         // Check for presence of the calendar timezones add-on.
-        let resProtocol = Services.io.getProtocolHandler('resource')
+        let resProtocol = Services.io.getProtocolHandler("resource")
                                   .QueryInterface(Components.interfaces.nsIResProtocolHandler);
         if (resProtocol.hasSubstitution("calendar-timezones")) {
             resNamespace = "calendar-timezones";

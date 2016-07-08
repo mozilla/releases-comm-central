@@ -1374,26 +1374,26 @@ upgrade.v21 = function upgrade_v21(db, version) {
         if (db) {
             // Oh boy, here we go :-)
             // Insert a new row with the following columns...
-            let insertSQL = 'INSERT INTO cal_recurrence ' +
-                            '            (item_id, cal_id, recur_type, recur_index,' +
-                            '             is_negative, dates, end_date, count,' +
-                            '             interval, second, minute, hour, day,' +
-                            '             monthday, yearday, weekno,  month, setpos)' +
+            let insertSQL = "INSERT INTO cal_recurrence " +
+                            "            (item_id, cal_id, recur_type, recur_index," +
+                            "             is_negative, dates, end_date, count," +
+                            "             interval, second, minute, hour, day," +
+                            "             monthday, yearday, weekno,  month, setpos)" +
                             // ... by selecting some columns from the existing table ...
                             '     SELECT item_id, cal_id, "x-date" AS recur_type, ' +
                             // ... like a new recur_index, we need it to be maximum for this item ...
-                            '            (SELECT MAX(recur_index)+1' +
-                            '               FROM cal_recurrence AS rinner ' +
-                            '              WHERE rinner.item_id = router.item_id' +
-                            '                AND rinner.cal_id = router.cal_id) AS recur_index,' +
-                            '            is_negative,' +
+                            "            (SELECT MAX(recur_index)+1" +
+                            "               FROM cal_recurrence AS rinner " +
+                            "              WHERE rinner.item_id = router.item_id" +
+                            "                AND rinner.cal_id = router.cal_id) AS recur_index," +
+                            "            is_negative," +
                             // ... the string until the first comma in the current dates field
                             '            SUBSTR(dates, 0, LENGTH(dates) - LENGTH(LTRIM(dates, REPLACE(dates, ",", ""))) + 1) AS dates,' +
-                            '            end_date, count, interval, second, minute,' +
-                            '            hour, day, monthday, yearday, weekno, month,' +
-                            '            setpos' +
+                            "            end_date, count, interval, second, minute," +
+                            "            hour, day, monthday, yearday, weekno, month," +
+                            "            setpos" +
                             // ... from the recurrence table ...
-                            '       FROM cal_recurrence AS router ' +
+                            "       FROM cal_recurrence AS router " +
                             // ... but only on fields that are x-datesets ...
                             '      WHERE recur_type = "x-dateset" ' +
                             // ... and are not already empty.
@@ -1401,7 +1401,7 @@ upgrade.v21 = function upgrade_v21(db, version) {
                             dump(insertSQL + "\n");
 
             // Now we need to remove the first segment from the dates field
-            let updateSQL = 'UPDATE cal_recurrence' +
+            let updateSQL = "UPDATE cal_recurrence" +
                             '   SET dates = SUBSTR(dates, LENGTH(dates) - LENGTH(LTRIM(dates, REPLACE(dates, ",", ""))) + 2)' +
                             ' WHERE recur_type = "x-dateset"' +
                             '   AND dates != ""';

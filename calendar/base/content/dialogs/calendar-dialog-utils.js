@@ -287,7 +287,7 @@ function loadReminders(reminders) {
         // If more than one alarm is selected, or we didn't find a matching item
         // above, then select the "custom" item and attach the item's reminders to
         // it.
-        reminderList.value = 'custom';
+        reminderList.value = "custom";
         customItem.reminders = reminders;
     }
 
@@ -312,7 +312,7 @@ function saveReminder(item) {
     item.clearAlarms();
 
     let reminderList = document.getElementById("item-alarm");
-    if (reminderList.value != 'none') {
+    if (reminderList.value != "none") {
         let menuitem = reminderList.selectedItem;
         let reminders;
 
@@ -414,7 +414,7 @@ function commonUpdateReminder(aSuppressDialogs) {
     // dialog in order to allow the user to specify the details.
     // the result will be placed in the 'reminder-custom-menuitem' tag.
     let reminderList = document.getElementById("item-alarm");
-    if (reminderList.value == 'custom') {
+    if (reminderList.value == "custom") {
         // Clear the reminder icons first, this will make sure that while the
         // dialog is open the default reminder image is not shown which may
         // confuse users.
@@ -427,7 +427,7 @@ function commonUpdateReminder(aSuppressDialogs) {
             editReminder();
         }
 
-        if (reminderList.value == 'custom') {
+        if (reminderList.value == "custom") {
             // Only do this if the 'custom' item is still selected. If the edit
             // reminder dialog was canceled then the previously selected
             // menuitem is selected, which may not be the custom menuitem.
@@ -463,7 +463,7 @@ function commonUpdateReminder(aSuppressDialogs) {
         enableElementWithLock("todo-has-entrydate", "reminder-lock");
 
         let menuitem = reminderList.selectedItem;
-        if (menuitem.value != 'none') {
+        if (menuitem.value != "none") {
             // In case a reminder is selected, retrieve the array of alarms from
             // it, or create one from the currently selected menuitem.
             let reminders = menuitem.reminders || [createReminderFromMenuitem(menuitem)];

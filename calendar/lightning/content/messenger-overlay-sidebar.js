@@ -79,7 +79,7 @@ var calendarTabType = {
 
       restoreTab: function(aTabmail, aState) {
         aState.title = ltnGetString("lightning", "tabTitleCalendar");
-        aTabmail.openTab('calendar', aState);
+        aTabmail.openTab("calendar", aState);
       },
 
       onTitleChanged: function(aTab) {
@@ -124,7 +124,7 @@ var calendarTabType = {
 
       restoreTab: function(aTabmail, aState) {
         aState.title = ltnGetString("lightning", "tabTitleTasks");
-        aTabmail.openTab('tasks', aState);
+        aTabmail.openTab("tasks", aState);
       },
 
       onTitleChanged: function(aTab) {
@@ -218,7 +218,7 @@ var calendarItemTabType = {
         aTab.iframe.contentWindow.arguments = [aArgs];
 
         // activate or de-activate 'Events and Tasks' menu items
-        document.commandDispatcher.updateCommands('calendar_commands');
+        document.commandDispatcher.updateCommands("calendar_commands");
 
         onLoadLightningItemPanel(iframeId, aArgs.url);
 
@@ -256,7 +256,7 @@ var calendarItemTabType = {
         updateItemTabState(gConfig);
 
         // activate or de-activate 'Events and Tasks' menu items
-        document.commandDispatcher.updateCommands('calendar_commands');
+        document.commandDispatcher.updateCommands("calendar_commands");
     },
     /**
      * Called when there is a request to close a tab.  Using aTab.allowTabClose
@@ -354,7 +354,7 @@ var calendarItemTabType = {
 };
 
 window.addEventListener("load", function(e) {
-    let tabmail = document.getElementById('tabmail');
+    let tabmail = document.getElementById("tabmail");
     tabmail.registerTabType(calendarTabType);
     tabmail.registerTabType(calendarItemTabType);
     tabmail.registerTabMonitor(calendarTabMonitor);
@@ -620,7 +620,7 @@ function LtnObserveDisplayDeckChange(event) {
     // notification has been fired but we're still in calendar or task mode.
     // Specifically, switch back if we're *not* in mail mode but the notification
     // did *not* come from either the "calendar-view-box" or the "calendar-task-box".
-    if (gCurrentMode != 'mail') {
+    if (gCurrentMode != "mail") {
         if (id != "calendar-view-box" && id != "calendar-task-box") {
             ltnSwitch2Mail();
         }
@@ -724,18 +724,18 @@ function openInvitationsDialog() {
  *  - 'calendar'
  *  - 'task'
  */
-var gCurrentMode = 'mail';
+var gCurrentMode = "mail";
 
 /**
  * ltnSwitch2Mail() switches to the mail mode
  */
 
 function ltnSwitch2Mail() {
-  if (gCurrentMode != 'mail') {
-    gCurrentMode = 'mail';
+  if (gCurrentMode != "mail") {
+    gCurrentMode = "mail";
     document.getElementById("modeBroadcaster").setAttribute("mode", gCurrentMode);
 
-    document.commandDispatcher.updateCommands('calendar_commands');
+    document.commandDispatcher.updateCommands("calendar_commands");
     window.setCursor("auto");
   }
 }
@@ -745,8 +745,8 @@ function ltnSwitch2Mail() {
  */
 
 function ltnSwitch2Calendar() {
-  if (gCurrentMode != 'calendar') {
-    gCurrentMode = 'calendar';
+  if (gCurrentMode != "calendar") {
+    gCurrentMode = "calendar";
     document.getElementById("modeBroadcaster").setAttribute("mode", gCurrentMode);
 
     // display the calendar panel on the display deck
@@ -756,7 +756,7 @@ function ltnSwitch2Calendar() {
     // show the last displayed type of calendar view
     switchToView(gLastShownCalendarView);
 
-    document.commandDispatcher.updateCommands('calendar_commands');
+    document.commandDispatcher.updateCommands("calendar_commands");
     window.setCursor("auto");
 
     // make sure the view is sized correctly
@@ -769,15 +769,15 @@ function ltnSwitch2Calendar() {
  */
 
 function ltnSwitch2Task() {
-  if (gCurrentMode != 'task') {
-    gCurrentMode = 'task';
+  if (gCurrentMode != "task") {
+    gCurrentMode = "task";
     document.getElementById("modeBroadcaster").setAttribute("mode", gCurrentMode);
 
     // display the task panel on the display deck
     let deck = document.getElementById("calendarDisplayDeck");
     deck.selectedPanel = document.getElementById("calendar-task-box");
 
-    document.commandDispatcher.updateCommands('calendar_commands');
+    document.commandDispatcher.updateCommands("calendar_commands");
     window.setCursor("auto");
   }
 }
@@ -797,7 +797,7 @@ var gCalSetupMailContext = {
 function calInitMessageMenu() {
     calInitMessageMenu.origFunc();
 
-    document.getElementById("markMenu").disabled = (gCurrentMode != 'mail');
+    document.getElementById("markMenu").disabled = (gCurrentMode != "mail");
 }
 calInitMessageMenu.origFunc = InitMessageMenu;
 InitMessageMenu = calInitMessageMenu;

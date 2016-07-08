@@ -102,9 +102,9 @@ function onSelectProvider(type) {
  */
 function checkRequired() {
     let canAdvance = true;
-    let curPage = document.getElementById('calendar-wizard').currentPage;
+    let curPage = document.getElementById("calendar-wizard").currentPage;
     if (curPage) {
-        let eList = curPage.getElementsByAttribute('required', 'true');
+        let eList = curPage.getElementsByAttribute("required", "true");
         for (let i = 0; i < eList.length && canAdvance; ++i) {
             canAdvance = (eList[i].value != "");
         }
@@ -119,7 +119,7 @@ function checkRequired() {
         } else {
             notificationbox.removeAllNotifications();
         }
-        document.getElementById('calendar-wizard').canAdvance = canAdvance;
+        document.getElementById("calendar-wizard").canAdvance = canAdvance;
     }
 }
 
@@ -128,13 +128,13 @@ function checkRequired() {
  * wizard page
  */
 function onInitialAdvance() {
-    let type = document.getElementById('calendar-type').selectedItem.value;
-    let page = document.getElementsByAttribute('pageid', 'initialPage')[0];
-    if (type == 'local') {
+    let type = document.getElementById("calendar-type").selectedItem.value;
+    let page = document.getElementsByAttribute("pageid", "initialPage")[0];
+    if (type == "local") {
         prepareCreateCalendar();
-        page.next = 'customizePage';
+        page.next = "customizePage";
     } else {
-        page.next = 'locationPage';
+        page.next = "locationPage";
     }
 }
 
@@ -148,12 +148,12 @@ function prepareCreateCalendar() {
     let provider;
     let url;
     let reason;
-    let type = document.getElementById('calendar-type').selectedItem.value;
-    if (type == 'local') {
-        provider = 'storage';
-        [reason, url] = parseUri('moz-storage-calendar://');
+    let type = document.getElementById("calendar-type").selectedItem.value;
+    if (type == "local") {
+        provider = "storage";
+        [reason, url] = parseUri("moz-storage-calendar://");
     } else {
-        provider = document.getElementById('calendar-format').selectedItem.value;
+        provider = document.getElementById("calendar-format").selectedItem.value;
         [reason, url] = parseUri(document.getElementById("calendar-uri").value);
     }
 
@@ -179,14 +179,14 @@ function doCreateCalendar() {
     let cal_color = document.getElementById("calendar-color").value;
 
     gCalendar.name = cal_name;
-    gCalendar.setProperty('color', cal_color);
+    gCalendar.setProperty("color", cal_color);
     if (!gCalendar.getProperty("cache.always")) {
         gCalendar.setProperty("cache.enabled", gCalendar.getProperty("cache.supported") !== false ?
                                                document.getElementById("cache").checked : false);
     }
 
     if (!document.getElementById("fire-alarms").checked) {
-        gCalendar.setProperty('suppressAlarms', true);
+        gCalendar.setProperty("suppressAlarms", true);
     }
 
     cal.getCalendarManager().registerCalendar(gCalendar);
@@ -229,8 +229,8 @@ function parseUri(aUri) {
 
     let calManager = cal.getCalendarManager();
     let cals = calManager.getCalendars({});
-    let type = document.getElementById('calendar-type').selectedItem.value;
-    if (type != 'local' && cals.some(c => c.uri.spec == uri.spec)) {
+    let type = document.getElementById("calendar-type").selectedItem.value;
+    if (type != "local" && cals.some(c => c.uri.spec == uri.spec)) {
         // If the calendar is not local, we check if there is already a calendar
         // with the same uri spec. Storage calendars all have the same uri, so
         // we have to specialcase them.
@@ -245,5 +245,5 @@ function parseUri(aUri) {
  * undo.
  */
 function setCanRewindFalse() {
-   document.getElementById('calendar-wizard').canRewind = false;
+   document.getElementById("calendar-wizard").canRewind = false;
 }

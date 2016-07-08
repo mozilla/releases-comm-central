@@ -135,7 +135,7 @@ cal.xml.parseFile = function(uri) {
     let req = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
                         .createInstance(Components.interfaces.nsIXMLHttpRequest);
 
-    req.open('GET', uri, false);
+    req.open("GET", uri, false);
     req.overrideMimeType("text/xml");
     req.send(null);
     return req.responseXML;

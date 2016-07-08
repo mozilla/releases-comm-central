@@ -762,7 +762,7 @@ var unifinderTreeView = {
 
         switch (column.element.getAttribute("itemproperty")) {
             case "title":
-                return (calendarEvent.title ? calendarEvent.title.replace(/\n/g, ' ') : "");
+                return (calendarEvent.title ? calendarEvent.title.replace(/\n/g, " ") : "");
             case "startDate":
                 return formatUnifinderEventDateTime(calendarEvent.startDate);
 
@@ -945,8 +945,8 @@ function focusSearch() {
  */
 function toggleUnifinder() {
     // Toggle the elements
-    goToggleToolbar('bottom-events-box', 'calendar_show_unifinder_command');
-    goToggleToolbar('calendar-view-splitter');
+    goToggleToolbar("bottom-events-box", "calendar_show_unifinder_command");
+    goToggleToolbar("calendar-view-splitter");
 
     unifinderTreeView.treeElement.view = unifinderTreeView;
 

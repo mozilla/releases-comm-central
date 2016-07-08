@@ -310,7 +310,7 @@ InvitationsManager.prototype = {
             let oldItem = job.oldItem;
             let newItem = job.newItem;
             switch (job.action) {
-                case 'modify':
+                case "modify":
                     this.mJobsPending++;
                     newItem.calendar.modifyItem(newItem,
                                                 oldItem,

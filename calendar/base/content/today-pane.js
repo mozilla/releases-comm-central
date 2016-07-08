@@ -131,9 +131,9 @@ var TodayPane = {
             } else {
                 return;
             }
-            let title = document.getElementById('calendar-tab-button')
-                            .getAttribute('tooltiptext');
-            document.getElementById('tabmail').openTab('calendar', { title: title });
+            let title = document.getElementById("calendar-tab-button")
+                            .getAttribute("tooltiptext");
+            document.getElementById("tabmail").openTab("calendar", { title: title });
             currentView().goToDay(agendaListbox.today.start);
         }
     },
@@ -248,7 +248,7 @@ var TodayPane = {
             clearTimeout(TodayPane.minidayTimer);
             delete TodayPane.minidayTimer;
             if (TodayPane.switchCounter == 0 && !TodayPane.minidayDrag.session) {
-                let dir = element.getAttribute('dir');
+                let dir = element.getAttribute("dir");
                 TodayPane.advance(parseInt(dir, 10));
             }
         }
@@ -462,10 +462,10 @@ var TodayPane = {
      */
     onCommandTodaySplitter: function onCommandTodaySplitter() {
         let todaypane = document.getElementById("today-pane-panel");
-        let splitterState = document.getElementById('today-splitter').getAttribute("state");
+        let splitterState = document.getElementById("today-splitter").getAttribute("state");
         if (splitterState == "collapsed" && todaypane.isVisible() ||
             splitterState != "collapsed" && !todaypane.isVisible()) {
-              document.getElementById('calendar_toggle_todaypane_command').doCommand();
+              document.getElementById("calendar_toggle_todaypane_command").doCommand();
         }
     }
 };

@@ -169,8 +169,8 @@
           if (event.type == "click" ||
               (event.type == "keypress" &&
                event.keyCode == event.DOM_VK_RETURN)) {
-              let detailsEvent = document.createEvent('Events');
-              detailsEvent.initEvent('itemdetails', true, false);
+              let detailsEvent = document.createEvent("Events");
+              detailsEvent.initEvent("itemdetails", true, false);
               this.dispatchEvent(detailsEvent);
           }
         ]]></body>
@@ -178,8 +178,8 @@
 
       <method name="dismissAlarm">
         <body><![CDATA[
-          let dismissEvent = document.createEvent('Events');
-          dismissEvent.initEvent('dismiss', true, false);
+          let dismissEvent = document.createEvent("Events");
+          dismissEvent.initEvent("dismiss", true, false);
           this.dispatchEvent(dismissEvent);
         ]]></body>
       </method>
@@ -275,8 +275,8 @@
       <method name="snoozeAlarm">
         <parameter name="minutes"/>
         <body><![CDATA[
-          let snoozeEvent = document.createEvent('Events');
-          snoozeEvent.initEvent('snooze', true, false);
+          let snoozeEvent = document.createEvent("Events");
+          snoozeEvent.initEvent("snooze", true, false);
           snoozeEvent.detail = minutes;
 
           // The onsnooze attribute is set on the menupopup, this binding is

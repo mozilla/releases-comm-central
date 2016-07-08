@@ -432,12 +432,12 @@ calDavCalendar.prototype = {
 
     get calendarUri() {
         let calUri = this.mUri.clone();
-        let parts = calUri.spec.split('?');
+        let parts = calUri.spec.split("?");
         if (parts.length > 1) {
             calUri.spec = parts.shift();
-            this.mUriParams = '?' + parts.join('?');
+            this.mUriParams = "?" + parts.join("?");
         }
-        if (calUri.spec.charAt(calUri.spec.length - 1) != '/') {
+        if (calUri.spec.charAt(calUri.spec.length - 1) != "/") {
             calUri.spec += "/";
         }
         return calUri;
@@ -446,14 +446,14 @@ calDavCalendar.prototype = {
     setCalHomeSet: function caldav_setCalHomeSet(removeLastPathSegment) {
         if (removeLastPathSegment) {
             let calUri = this.mUri.clone();
-            let split1 = calUri.spec.split('?');
+            let split1 = calUri.spec.split("?");
             let baseUrl = split1[0];
-            if (baseUrl.charAt(baseUrl.length - 1) == '/') {
+            if (baseUrl.charAt(baseUrl.length - 1) == "/") {
                 baseUrl = baseUrl.substring(0, baseUrl.length - 2);
             }
-            let split2 = baseUrl.split('/');
+            let split2 = baseUrl.split("/");
             split2.pop();
-            calUri.spec = split2.join('/') + '/';
+            calUri.spec = split2.join("/") + "/";
             this.mCalHomeSet = calUri;
         } else {
             this.mCalHomeSet = this.calendarUri;
@@ -1383,10 +1383,10 @@ calDavCalendar.prototype = {
         let queryXml =
             xmlHeader +
             '<D:propfind xmlns:D="DAV:" xmlns:CS="http://calendarserver.org/ns/">' +
-              '<D:prop>' +
-                '<CS:getctag/>' +
-              '</D:prop>' +
-            '</D:propfind>';
+              "<D:prop>" +
+                "<CS:getctag/>" +
+              "</D:prop>" +
+            "</D:propfind>";
 
         if (this.verboseLogging()) {
             cal.LOG("CalDAV: send(" + this.makeUri().spec + "): " + queryXml);
@@ -1524,12 +1524,12 @@ calDavCalendar.prototype = {
         let queryXml =
             xmlHeader +
             '<D:propfind xmlns:D="DAV:">' +
-              '<D:prop>' +
-                '<D:getcontenttype/>' +
-                '<D:resourcetype/>' +
-                '<D:getetag/>' +
-              '</D:prop>' +
-            '</D:propfind>';
+              "<D:prop>" +
+                "<D:getcontenttype/>" +
+                "<D:resourcetype/>" +
+                "<D:getetag/>" +
+              "</D:prop>" +
+            "</D:propfind>";
 
         let requestUri = this.makeUri(null, aUri);
         if (this.verboseLogging()) {
@@ -1688,15 +1688,15 @@ calDavCalendar.prototype = {
         let queryXml =
             xmlHeader +
             '<D:propfind xmlns:D="DAV:" xmlns:CS="http://calendarserver.org/ns/" xmlns:C="urn:ietf:params:xml:ns:caldav">' +
-              '<D:prop>' +
-                '<D:resourcetype/>' +
-                '<D:owner/>' +
-                '<D:current-user-principal/>' +
-                '<D:supported-report-set/>' +
-                '<C:supported-calendar-component-set/>' +
-                '<CS:getctag/>' +
-              '</D:prop>' +
-            '</D:propfind>';
+              "<D:prop>" +
+                "<D:resourcetype/>" +
+                "<D:owner/>" +
+                "<D:current-user-principal/>" +
+                "<D:supported-report-set/>" +
+                "<C:supported-calendar-component-set/>" +
+                "<CS:getctag/>" +
+              "</D:prop>" +
+            "</D:propfind>";
 
         if (this.verboseLogging()) {
             cal.LOG("CalDAV: send: " + queryXml);
@@ -2042,10 +2042,10 @@ calDavCalendar.prototype = {
         let queryXml =
             xmlHeader +
             '<D:propfind xmlns:D="DAV:">' +
-              '<D:prop>' +
-                '<D:principal-collection-set/>' +
-              '</D:prop>' +
-            '</D:propfind>';
+              "<D:prop>" +
+                "<D:principal-collection-set/>" +
+              "</D:prop>" +
+            "</D:propfind>";
 
         if (this.verboseLogging()) {
             cal.LOG("CalDAV: send: " + homeSet.spec + "\n" + queryXml);
@@ -2139,32 +2139,32 @@ calDavCalendar.prototype = {
             queryXml =
                 xmlHeader +
                 '<D:propfind xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav">' +
-                  '<D:prop>' +
-                    '<C:calendar-home-set/>' +
-                    '<C:calendar-user-address-set/>' +
-                    '<C:schedule-inbox-URL/>' +
-                    '<C:schedule-outbox-URL/>' +
-                  '</D:prop>' +
-                '</D:propfind>';
+                  "<D:prop>" +
+                    "<C:calendar-home-set/>" +
+                    "<C:calendar-user-address-set/>" +
+                    "<C:schedule-inbox-URL/>" +
+                    "<C:schedule-outbox-URL/>" +
+                  "</D:prop>" +
+                "</D:propfind>";
             queryMethod = "PROPFIND";
             queryDepth = 0;
         } else {
             queryXml =
                 xmlHeader +
                 '<D:principal-property-search xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav">' +
-                '<D:property-search>' +
-                    '<D:prop>' +
-                        '<C:calendar-home-set/>' +
-                    '</D:prop>' +
-                    '<D:match>' + cal.xml.escapeString(homePath) + '</D:match>' +
-                '</D:property-search>' +
-                    '<D:prop>' +
-                        '<C:calendar-home-set/>' +
-                        '<C:calendar-user-address-set/>' +
-                        '<C:schedule-inbox-URL/>' +
-                        '<C:schedule-outbox-URL/>' +
-                    '</D:prop>' +
-                '</D:principal-property-search>';
+                "<D:property-search>" +
+                    "<D:prop>" +
+                        "<C:calendar-home-set/>" +
+                    "</D:prop>" +
+                    "<D:match>" + cal.xml.escapeString(homePath) + "</D:match>" +
+                "</D:property-search>" +
+                    "<D:prop>" +
+                        "<C:calendar-home-set/>" +
+                        "<C:calendar-user-address-set/>" +
+                        "<C:schedule-inbox-URL/>" +
+                        "<C:schedule-outbox-URL/>" +
+                    "</D:prop>" +
+                "</D:principal-property-search>";
             queryMethod = "REPORT";
             queryDepth = 1;
         }
@@ -2217,7 +2217,7 @@ calDavCalendar.prototype = {
                 let url = thisCalendar.mUri.clone();
                 url.path = thisCalendar.ensureDecodedPath(path);
                 // Make sure the uri has a / at the end, as we do with the calendarUri.
-                if (url.path.charAt(url.path.length - 1) != '/') {
+                if (url.path.charAt(url.path.length - 1) != "/") {
                     url.path += "/";
                 }
                 return url;

@@ -190,7 +190,7 @@ function pasteFromClipboard() {
                 if (offset) {
                     cal.shiftItem(newItem, offset);
                 }
-                doTransaction('add', newItem, destCal, null, null);
+                doTransaction("add", newItem, destCal, null, null);
             }
             endBatchTransaction();
             break;

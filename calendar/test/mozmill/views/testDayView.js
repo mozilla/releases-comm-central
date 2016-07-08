@@ -70,7 +70,7 @@ var testDayView = function() {
     'anon({"class":"timepicker-box-class"})/anon({"class":"timepicker-text-class"})/' +
     'anon({"flex":"1"})/anon({"anonid":"input"})');
   event.waitForElement(startTimeInput);
-  event.assertValue(startTimeInput, '8:00');
+  event.assertValue(startTimeInput, "8:00");
   let date = startdate = dateService.FormatDate("", dateService.dateFormatShort,
     2009, 1, 1);
   event.assertValue(new elementslib.Lookup(event.window.document, eventDialog +

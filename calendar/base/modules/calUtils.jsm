@@ -438,7 +438,7 @@ var cal = {
         };
         return aAttendees.map(cbEmail)
                          .filter(aVal => aVal.length > 0)
-                         .join(', ');
+                         .join(", ");
     },
 
     /**

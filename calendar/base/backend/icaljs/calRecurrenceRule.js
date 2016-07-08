@@ -161,7 +161,7 @@ calRecurrenceRule.prototype = {
                     // match[2] is the week number for this value.
                     values[i] += 8 * match[2];
                 }
-                if (match[1] == '-') {
+                if (match[1] == "-") {
                     // Week numbers are counted back from the end of the period.
                     values[i] *= -1;
                 }

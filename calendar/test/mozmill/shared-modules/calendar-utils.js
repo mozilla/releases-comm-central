@@ -6,9 +6,9 @@ var MODULE_NAME = "calendar-utils";
 var MODULE_REQUIRES = ["window-helpers"];
 
 var os = {};
-Components.utils.import('resource://mozmill/stdlib/os.js', os);
+Components.utils.import("resource://mozmill/stdlib/os.js", os);
 var frame = {};
-Components.utils.import('resource://mozmill/modules/frame.js', frame);
+Components.utils.import("resource://mozmill/modules/frame.js", frame);
 
 var modalDialog = require("test-window-helpers");
 
@@ -37,7 +37,7 @@ function acceptSendingNotificationMail(controller) {
  */
 function handleAddingAttachment(controller, url) {
   modalDialog.plan_for_modal_dialog("commonDialog", function(attachment) {
-    let input = new elementslib.ID(attachment.window.document, 'loginTextbox');
+    let input = new elementslib.ID(attachment.window.document, "loginTextbox");
     attachment.waitForElement(input);
     input.getNode().value = url;
     attachment.click(new elementslib.Lookup(attachment.window.document, '/id("commonDialog")/' +
@@ -189,7 +189,7 @@ function goToDate(controller, year, month, day) {
     // pick month
     controller.click(new elementslib.Lookup(controller.window.document, miniMonth +
       'anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})/[' + activeMonth +
-      ']'));
+      "]"));
     controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth +
       'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/' +
       'anon({"anonid":"months-popup"})/[0]/{"index":"' + (month - 1) + '"}'));
@@ -204,7 +204,7 @@ function goToDate(controller, year, month, day) {
 
   // pick day
   controller.click(new elementslib.Lookup(controller.window.document, miniMonth +
-    'anon({"anonid":"minimonth-calendar"})/[' + (dateRow + 1) + ']/[' + dateColumn + ']'));
+    'anon({"anonid":"minimonth-calendar"})/[' + (dateRow + 1) + "]/[" + dateColumn + "]"));
   controller.sleep(500);
 }
 
@@ -226,7 +226,7 @@ function getEventBoxPath(controller, view, option, row, column, hour) {
   let multiweekView = viewDeck + '/id("multiweek-view")';
   let monthView = viewDeck + '/id("month-view")';
 
-  let path = '';
+  let path = "";
   switch (view) {
     case "week":
       path += weekView;
@@ -242,16 +242,16 @@ function getEventBoxPath(controller, view, option, row, column, hour) {
 
   if ((view == "day" || view == "week") && option == ALLDAY) {
     path += '/anon({"anonid":"mainbox"})/anon({"anonid":"headerbox"})/anon({"anonid":"headerdaybox"})';
-    path += '/[' + (column - 1) + ']';
+    path += "/[" + (column - 1) + "]";
 
     return path;
   } else if (view == "day" || view == "week") {
     path += '/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})';
-    path += '/[' + (column - 1) + ']';
+    path += "/[" + (column - 1) + "]";
     path += '/anon({"anonid":"boxstack"})';
 
     if (option == CANVAS_BOX) {
-      path += '/anon({"anonid":"bgbox"})/[' + hour + ']';
+      path += '/anon({"anonid":"bgbox"})/[' + hour + "]";
     } else {
       path += '/anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}';
     }
@@ -259,7 +259,7 @@ function getEventBoxPath(controller, view, option, row, column, hour) {
     return path;
   } else {
     path += '/anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/' +
-      'anon({"anonid":"monthgridrows"})/[' + (row - 1) + ']/[' + (column - 1) + ']';
+      'anon({"anonid":"monthgridrows"})/[' + (row - 1) + "]/[" + (column - 1) + "]";
 
     if (option == CANVAS_BOX) {
       path += '/anon({"anonid":"day-items"})';
@@ -435,7 +435,7 @@ function setData(controller, data) {
       controller.keypress(new elementslib.Lookup(controller.window.document, dialog +
         'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/' +
         'anon({"anonid":"input"})'),
-        'a', { ctrlKey: true });
+        "a", { ctrlKey: true });
       controller.type(new elementslib.Lookup(controller.window.document, dialog +
         'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/' +
         'anon({"anonid":"input"})'),
@@ -452,7 +452,7 @@ function setData(controller, data) {
       controller.keypress(new elementslib.Lookup(controller.window.document, dialog +
         'id("event-grid-location-row")/id("item-location")/anon({"class":"textbox-input-box"})/' +
         'anon({"anonid":"input"})'),
-        'a', { ctrlKey: true });
+        "a", { ctrlKey: true });
       controller.type(new elementslib.Lookup(controller.window.document, dialog +
         'id("event-grid-location-row")/id("item-location")/anon({"class":"textbox-input-box"})/' +
         'anon({"anonid":"input"})'),
@@ -483,14 +483,14 @@ function setData(controller, data) {
   }
 
   // startdate
-  if (data.startdate != undefined && data.startdate.constructor.name == 'Date') {
+  if (data.startdate != undefined && data.startdate.constructor.name == "Date") {
     let startdate = dateService.FormatDate("", dateService.dateFormatShort,
       data.startdate.getFullYear(), data.startdate.getMonth() + 1, data.startdate.getDate());
     if (!isEvent) {
       controller.check(new elementslib.ID(controller.window.document, "todo-has-entrydate"), true);
     }
     if (!mac) {
-      controller.keypress(startDateInput, 'a', { ctrlKey: true });
+      controller.keypress(startDateInput, "a", { ctrlKey: true });
       controller.type(startDateInput, startdate);
     } else {
       startDateInput.getNode().value = startdate;
@@ -498,11 +498,11 @@ function setData(controller, data) {
   }
 
   // starttime
-  if (data.starttime != undefined && data.starttime.constructor.name == 'Date') {
+  if (data.starttime != undefined && data.starttime.constructor.name == "Date") {
     let starttime = dateService.FormatTime("", dateService.timeFormatNoSeconds,
       data.starttime.getHours(), data.starttime.getMinutes(), 0);
     if (!mac) {
-      controller.keypress(startTimeInput, 'a', { ctrlKey: true });
+      controller.keypress(startTimeInput, "a", { ctrlKey: true });
       controller.type(startTimeInput, starttime);
     } else {
       startTimeInput.getNode().value = starttime;
@@ -511,14 +511,14 @@ function setData(controller, data) {
   }
 
   // enddate
-  if (data.enddate != undefined && data.enddate.constructor.name == 'Date') {
+  if (data.enddate != undefined && data.enddate.constructor.name == "Date") {
     let enddate = dateService.FormatDate("", dateService.dateFormatShort,
       data.enddate.getFullYear(), data.enddate.getMonth() + 1, data.enddate.getDate());
     if (!isEvent) {
       controller.check(new elementslib.ID(controller.window.document, "todo-has-duedate"), true);
     }
     if (!mac) {
-      controller.keypress(endDateInput, 'a', { ctrlKey: true });
+      controller.keypress(endDateInput, "a", { ctrlKey: true });
       controller.type(endDateInput, enddate);
     } else {
       endDateInput.getNode().value = enddate;
@@ -526,11 +526,11 @@ function setData(controller, data) {
   }
 
   // endttime
-  if (data.endtime != undefined && data.endtime.constructor.name == 'Date') {
+  if (data.endtime != undefined && data.endtime.constructor.name == "Date") {
     let endtime = dateService.FormatTime("", dateService.timeFormatNoSeconds,
       data.endtime.getHours(), data.endtime.getMinutes(), 0);
     if (!mac) {
-      controller.keypress(endTimeInput, 'a', { ctrlKey: true });
+      controller.keypress(endTimeInput, "a", { ctrlKey: true });
       controller.type(endTimeInput, endtime);
     } else {
       endTimeInput.getNode().value = endtime;
@@ -555,7 +555,7 @@ function setData(controller, data) {
       controller.keypress(new elementslib.Lookup(controller.window.document, dialog +
         'id("event-grid-description-row")/id("item-description")/' +
         'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
-        'a', { ctrlKey: true });
+        "a", { ctrlKey: true });
       controller.type(new elementslib.Lookup(controller.window.document, dialog +
         'id("event-grid-description-row")/id("item-description")/' +
         'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
@@ -592,14 +592,14 @@ function setData(controller, data) {
   let currentStatus = (new elementslib.ID(controller.window.document, "todo-status")).getNode().value;
 
   // completed on
-  if (data.completed != undefined && data.completed.constructor.name == 'Date' && !isEvent) {
+  if (data.completed != undefined && data.completed.constructor.name == "Date" && !isEvent) {
     let completeddate = dateService.FormatDate("", dateService.dateFormatShort,
       data.completed.getFullYear(), data.completed.getMonth() + 1,
       data.completed.getDate());
 
     if (currentStatus == "COMPLETED") {
       if (!mac) {
-        controller.keypress(completedDateInput, 'a', { ctrlKey: true });
+        controller.keypress(completedDateInput, "a", { ctrlKey: true });
         controller.type(completedDateInput, completeddate);
       } else {
         completedDateInput.getNode().value = completeddate;

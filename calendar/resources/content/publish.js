@@ -131,22 +131,22 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
                                                  null,
                                                  Components.interfaces.nsILoadInfo.SEC_NORMAL,
                                                  Components.interfaces.nsIContentPolicy.TYPE_OTHER);
-    if (icsURL.schemeIs('webcal')) {
-        icsURL.scheme = 'http';
+    if (icsURL.schemeIs("webcal")) {
+        icsURL.scheme = "http";
     }
-    if (icsURL.schemeIs('webcals')) {
-        icsURL.scheme = 'https';
+    if (icsURL.schemeIs("webcals")) {
+        icsURL.scheme = "https";
     }
 
     switch (icsURL.scheme) {
-        case 'http':
-        case 'https':
+        case "http":
+        case "https":
             channel = channel.QueryInterface(Components.interfaces.nsIHttpChannel);
             break;
-        case 'ftp':
+        case "ftp":
             channel = channel.QueryInterface(Components.interfaces.nsIFTPChannel);
             break;
-        case 'file':
+        case "file":
             channel = channel.QueryInterface(Components.interfaces.nsIFileChannel);
             break;
         default:
@@ -181,7 +181,7 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
     } catch (e) {
         let props = Services.strings.createBundle("chrome://calendar/locale/calendar.properties");
         Services.prompt.alert(null, calGetString("calendar", "genericErrorTitle"),
-                              props.formatStringFromName('otherPutError', [e.message], 1));
+                              props.formatStringFromName("otherPutError", [e.message], 1));
     }
 }
 
@@ -221,11 +221,11 @@ var publishingListener = {
 
         if (channel && !requestSucceeded) {
             Services.prompt.alert(null, calGetString("calendar", "genericErrorTitle"),
-                                  props.formatStringFromName('httpPutError', [channel.responseStatus, channel.responseStatusText], 2));
+                                  props.formatStringFromName("httpPutError", [channel.responseStatus, channel.responseStatusText], 2));
         } else if (!channel && !Components.isSuccessCode(request.status)) {
             // XXX this should be made human-readable.
             Services.prompt.alert(null, calGetString("calendar", "genericErrorTitle"),
-                                  props.formatStringFromName('otherPutError', [request.status.toString(16)], 1));
+                                  props.formatStringFromName("otherPutError", [request.status.toString(16)], 1));
         }
     },
 

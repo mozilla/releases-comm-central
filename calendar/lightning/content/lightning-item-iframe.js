@@ -401,7 +401,7 @@ function onLoad() {
 onLoad.hasLoaded = false;
 
 function onEventDialogUnload() {
-    if (typeof ToolbarIconColor !== 'undefined') {
+    if (typeof ToolbarIconColor !== "undefined") {
         ToolbarIconColor.uninit();
     }
     Services.obs.removeObserver(eventDialogQuitObserver,
@@ -545,7 +545,7 @@ function loadDialog(aItem) {
         // Properties for initializing the React component/UI.
         itemProps = {
             initialTitle: aItem.title,
-            initialLocation: aItem.getProperty('LOCATION'),
+            initialLocation: aItem.getProperty("LOCATION"),
             initialStartTimezone: gStartTimezone,
             initialEndTimezone: gEndTimezone,
             initialStartTime: gStartTime,
@@ -595,7 +595,7 @@ function loadDialog(aItem) {
         itemProps.initialCategories = aItem.getCategories({});
 
         // just to demo capsules component
-        itemProps.initialCategories = ['Some', 'Demo', 'Categories'];
+        itemProps.initialCategories = ["Some", "Demo", "Categories"];
     } else {
         loadCategories(aItem);
     }
@@ -2579,14 +2579,14 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
     let repeatValue = repeatMenu.selectedItem.getAttribute("value");
     let repeatDeck = document.getElementById("repeat-deck");
 
-    if (repeatValue == 'none') {
+    if (repeatValue == "none") {
         repeatDeck.selectedIndex = -1;
         window.recurrenceInfo = null;
         let item = window.calendarItem;
         if (isToDo(item)) {
             enableElementWithLock("todo-has-entrydate", "repeat-lock");
         }
-    } else if (repeatValue == 'custom') {
+    } else if (repeatValue == "custom") {
         let lastRepeatDeck = repeatDeck.selectedIndex;
         repeatDeck.selectedIndex = 1;
         // the user selected custom repeat pattern. we now need to bring
@@ -2698,26 +2698,26 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
         let recRule = createRecurrenceRule();
         recRule.interval = 1;
         switch (repeatValue) {
-            case 'daily':
-              recRule.type = 'DAILY';
+            case "daily":
+              recRule.type = "DAILY";
               break;
-            case 'weekly':
-              recRule.type = 'WEEKLY';
+            case "weekly":
+              recRule.type = "WEEKLY";
               break;
-            case 'every.weekday':
-              recRule.type = 'DAILY';
+            case "every.weekday":
+              recRule.type = "DAILY";
               let onDays = [2, 3, 4, 5, 6];
               recRule.setComponent("BYDAY", onDays.length, onDays);
               break;
-            case 'bi.weekly':
-              recRule.type = 'WEEKLY';
+            case "bi.weekly":
+              recRule.type = "WEEKLY";
               recRule.interval = 2;
               break;
-            case 'monthly':
-              recRule.type = 'MONTHLY';
+            case "monthly":
+              recRule.type = "MONTHLY";
               break;
-            case 'yearly':
-              recRule.type = 'YEARLY';
+            case "yearly":
+              recRule.type = "YEARLY";
               break;
         }
 
@@ -3407,35 +3407,35 @@ function updateTimezone() {
         }
 
         if (aTimezone) {
-            element.removeAttribute('collapsed');
+            element.removeAttribute("collapsed");
             element.value = aTimezone.displayName || aTimezone.tzid;
             if (!aDateTime || !aDateTime.isValid || gIsReadOnly || aDateTime.isDate) {
-                if (element.hasAttribute('class')) {
-                    element.setAttribute('class-on-enabled',
-                                         element.getAttribute('class'));
-                    element.removeAttribute('class');
+                if (element.hasAttribute("class")) {
+                    element.setAttribute("class-on-enabled",
+                                         element.getAttribute("class"));
+                    element.removeAttribute("class");
                 }
-                if (element.hasAttribute('onclick')) {
-                    element.setAttribute('onclick-on-enabled',
-                                         element.getAttribute('onclick'));
-                    element.removeAttribute('onclick');
+                if (element.hasAttribute("onclick")) {
+                    element.setAttribute("onclick-on-enabled",
+                                         element.getAttribute("onclick"));
+                    element.removeAttribute("onclick");
                 }
-                element.setAttribute('disabled', 'true');
+                element.setAttribute("disabled", "true");
             } else {
-                if (element.hasAttribute('class-on-enabled')) {
-                    element.setAttribute('class',
-                                         element.getAttribute('class-on-enabled'));
-                    element.removeAttribute('class-on-enabled');
+                if (element.hasAttribute("class-on-enabled")) {
+                    element.setAttribute("class",
+                                         element.getAttribute("class-on-enabled"));
+                    element.removeAttribute("class-on-enabled");
                 }
-                if (element.hasAttribute('onclick-on-enabled')) {
-                    element.setAttribute('onclick',
-                                         element.getAttribute('onclick-on-enabled'));
-                    element.removeAttribute('onclick-on-enabled');
+                if (element.hasAttribute("onclick-on-enabled")) {
+                    element.setAttribute("onclick",
+                                         element.getAttribute("onclick-on-enabled"));
+                    element.removeAttribute("onclick-on-enabled");
                 }
-                element.removeAttribute('disabled');
+                element.removeAttribute("disabled");
             }
         } else {
-            element.setAttribute('collapsed', 'true');
+            element.setAttribute("collapsed", "true");
         }
     }
 
@@ -3444,16 +3444,16 @@ function updateTimezone() {
     // and display the labels in order to modify the timezone.
     if (gTimezonesEnabled) {
         updateTimezoneElement(gStartTimezone,
-                              'timezone-starttime',
+                              "timezone-starttime",
                               gStartTime);
         updateTimezoneElement(gEndTimezone,
-                              'timezone-endtime',
+                              "timezone-endtime",
                               gEndTime);
     } else {
-        document.getElementById('timezone-starttime')
-                .setAttribute('collapsed', 'true');
-        document.getElementById('timezone-endtime')
-                .setAttribute('collapsed', 'true');
+        document.getElementById("timezone-starttime")
+                .setAttribute("collapsed", "true");
+        document.getElementById("timezone-endtime")
+                .setAttribute("collapsed", "true");
     }
 }
 

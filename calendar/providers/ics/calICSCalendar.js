@@ -139,12 +139,12 @@ calICSCalendar.prototype = {
     },
 
     refresh: function calICSCalendar_refresh() {
-        this.queue.push({ action: 'refresh', forceRefresh: false });
+        this.queue.push({ action: "refresh", forceRefresh: false });
         this.processQueue();
     },
 
     forceRefresh: function calICSCalendar_forceRefresh() {
-        this.queue.push({ action: 'refresh', forceRefresh: true });
+        this.queue.push({ action: "refresh", forceRefresh: true });
         this.processQueue();
     },
 
@@ -463,7 +463,7 @@ calICSCalendar.prototype = {
         if (this.readOnly) {
             throw calIErrors.CAL_IS_READONLY;
         }
-        this.queue.push({ action: 'add', item: aItem, listener: aListener });
+        this.queue.push({ action: "add", item: aItem, listener: aListener });
         this.processQueue();
     },
 
@@ -471,7 +471,7 @@ calICSCalendar.prototype = {
         if (this.readOnly) {
             throw calIErrors.CAL_IS_READONLY;
         }
-        this.queue.push({ action: 'modify', oldItem: aOldItem,
+        this.queue.push({ action: "modify", oldItem: aOldItem,
                           newItem: aNewItem, listener: aListener });
         this.processQueue();
     },
@@ -480,17 +480,17 @@ calICSCalendar.prototype = {
         if (this.readOnly) {
             throw calIErrors.CAL_IS_READONLY;
         }
-        this.queue.push({ action: 'delete', item: aItem, listener: aListener });
+        this.queue.push({ action: "delete", item: aItem, listener: aListener });
         this.processQueue();
     },
 
     getItem: function(aId, aListener) {
-        this.queue.push({ action: 'get_item', id: aId, listener: aListener });
+        this.queue.push({ action: "get_item", id: aId, listener: aListener });
         this.processQueue();
     },
 
     getItems: function(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
-        this.queue.push({ action: 'get_items',
+        this.queue.push({ action: "get_items",
                           itemFilter: aItemFilter, count: aCount,
                           rangeStart: aRangeStart, rangeEnd: aRangeEnd,
                           listener: aListener });
@@ -518,30 +518,30 @@ calICSCalendar.prototype = {
         let refreshAction = null;
         while ((a = this.queue.shift())) {
             switch (a.action) {
-                case 'add':
+                case "add":
                     this.mMemoryCalendar.addItem(a.item, new modListener(a));
                     this.mModificationActions.push(a);
                     writeICS = true;
                     break;
-                case 'modify':
+                case "modify":
                     this.mMemoryCalendar.modifyItem(a.newItem, a.oldItem, new modListener(a));
                     this.mModificationActions.push(a);
                     writeICS = true;
                     break;
-                case 'delete':
+                case "delete":
                     this.mMemoryCalendar.deleteItem(a.item, new modListener(a));
                     this.mModificationActions.push(a);
                     writeICS = true;
                     break;
-                case 'get_item':
+                case "get_item":
                     this.mMemoryCalendar.getItem(a.id, a.listener);
                     break;
-                case 'get_items':
+                case "get_items":
                     this.mMemoryCalendar.getItems(a.itemFilter, a.count,
                                                   a.rangeStart, a.rangeEnd,
                                                   a.listener);
                     break;
-                case 'refresh':
+                case "refresh":
                     refreshAction = a;
                     break;
             }
@@ -640,7 +640,7 @@ calICSCalendar.prototype = {
         // re-implementing it
         function makeDailyFileName() {
             let dailyBackupFile = backupDir.clone();
-            dailyBackupFile.append(makeName('day'));
+            dailyBackupFile.append(makeName("day"));
             dailyBackupFile.createUnique(CI.nsIFile.NORMAL_FILE_TYPE,
                                          parseInt("0600", 8));
             dailyBackupFileName = dailyBackupFile.leafName;
@@ -691,9 +691,9 @@ calICSCalendar.prototype = {
             }
 
             if (doDailyBackup) {
-                purgeBackupsByType(files, 'day');
+                purgeBackupsByType(files, "day");
             } else {
-                purgeBackupsByType(files, 'edit');
+                purgeBackupsByType(files, "edit");
             }
 
             return;
@@ -750,18 +750,18 @@ calICSCalendar.prototype = {
 
         let doInitialBackup = false;
         let initialBackupFile = backupDir.clone();
-        initialBackupFile.append(makeName('initial'));
+        initialBackupFile.append(makeName("initial"));
         if (!initialBackupFile.exists()) {
             doInitialBackup = true;
         }
 
         let doDailyBackup = false;
-        let backupTime = this.getProperty('backup-time2');
+        let backupTime = this.getProperty("backup-time2");
         if (!backupTime ||
             (new Date().getTime() > backupTime + backupDays * 24 * 60 * 60 * 1000)) {
             // It's time do to a daily backup
             doDailyBackup = true;
-            this.setProperty('backup-time2', new Date().getTime());
+            this.setProperty("backup-time2", new Date().getTime());
         }
 
         let dailyBackupFileName;
@@ -770,7 +770,7 @@ calICSCalendar.prototype = {
         }
 
         let backupFile = backupDir.clone();
-        backupFile.append(makeName('edit'));
+        backupFile.append(makeName("edit"));
         backupFile.createUnique(CI.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
 
         purgeOldBackups();
@@ -792,7 +792,7 @@ calICSCalendar.prototype = {
         let listener = {
             onDownloadComplete: function(opdownloader, request, ctxt, status, result) {
                 if (doInitialBackup) {
-                    copyToOverwriting(result, backupDir, makeName('initial'));
+                    copyToOverwriting(result, backupDir, makeName("initial"));
                 }
                 if (doDailyBackup) {
                     copyToOverwriting(result, backupDir, dailyBackupFileName);
@@ -982,7 +982,7 @@ httpHooks.prototype = {
 
             // Apache doesn't work correctly with if-match on a PUT method,
             // so use the webdav header
-            httpchannel.setRequestHeader("If", '([' + this.mEtag + '])', false);
+            httpchannel.setRequestHeader("If", "([" + this.mEtag + "])", false);
         }
         return true;
     },
@@ -1023,10 +1023,10 @@ httpHooks.prototype = {
             };
             let queryXml =
                 '<D:propfind xmlns:D="DAV:">' +
-                  '<D:prop>' +
-                    '<D:getetag/>' +
-                  '</D:prop>' +
-                '</D:propfind>';
+                  "<D:prop>" +
+                    "<D:getetag/>" +
+                  "</D:prop>" +
+                "</D:propfind>";
 
             let etagChannel = cal.prepHttpChannel(aChannel.URI, queryXml,
                                                   "text/xml; charset=utf-8",

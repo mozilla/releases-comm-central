@@ -260,7 +260,7 @@ var ltnImipBar = {
         let diff = cal.itip.compare(ltnImipBar.itipItem.getItemList({})[0], ltnImipBar.foundItems[0]);
         // displaying chnages is only needed if that is enabled, an item already exists and there are
         // differences
-        if (diff != 0 && Preferences.get('calendar.itip.displayInvitationChanges', false)) {
+        if (diff != 0 && Preferences.get("calendar.itip.displayInvitationChanges", false)) {
             let foundOverlay = ltn.invitation.createInvitationOverlay(ltnImipBar.foundItems[0],
                                                                       ltnImipBar.itipItem);
             let serializedOverlay = cal.xml.serializeDOM(foundOverlay);
@@ -276,7 +276,7 @@ var ltnImipBar = {
                                                                      organizerId);
             }
         }
-        msgWindow.displayHTMLInMessagePane('', msgOverlay, false);
+        msgWindow.displayHTMLInMessagePane("", msgOverlay, false);
     },
 
     executeAction: function ltnExecAction(partStat, extendResponse) {
@@ -327,7 +327,7 @@ var ltnImipBar = {
         }
 
         if (partStat == null) {
-            partStat = '';
+            partStat = "";
         }
         if (partStat == "X-SHOWDETAILS") {
             let items = ltnImipBar.foundItems;

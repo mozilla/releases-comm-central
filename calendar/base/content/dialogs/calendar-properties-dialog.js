@@ -19,7 +19,7 @@ var gCalendar;
  */
 function onLoad() {
     gCalendar = window.arguments[0].calendar;
-    let calColor = gCalendar.getProperty('color');
+    let calColor = gCalendar.getProperty("color");
 
     document.getElementById("calendar-name").value = gCalendar.name;
     document.getElementById("calendar-color").value = calColor || "#A8C2E1";
@@ -42,7 +42,7 @@ function onLoad() {
 
     // Set up the show alarms row and checkbox
     let suppressAlarmsRow = document.getElementById("calendar-suppressAlarms-row");
-    let suppressAlarms = gCalendar.getProperty('suppressAlarms');
+    let suppressAlarms = gCalendar.getProperty("suppressAlarms");
     document.getElementById("fire-alarms").checked = !suppressAlarms;
 
     suppressAlarmsRow.hidden =

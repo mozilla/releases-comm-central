@@ -431,7 +431,7 @@
           }
 
           // Set the preference for displaying the week number
-          this.mShowWeekNumber = Preferences.get('calendar.view-minimonth.showWeekNumber', true);
+          this.mShowWeekNumber = Preferences.get("calendar.view-minimonth.showWeekNumber", true);
       ]]></constructor>
 
       <!-- fields -->
@@ -1112,7 +1112,7 @@
     <handlers>
       <handler event="wheel"><![CDATA[
         const pixelThreshold = 150;
-        let scrollEnabled = Preferences.get('calendar.view.mousescroll', true);
+        let scrollEnabled = Preferences.get("calendar.view.mousescroll", true);
         if (!event.ctrlKey && !event.shiftKey &&
             !event.altKey && !event.metaKey && scrollEnabled) {
             // In the month view, the only thing that can be scrolled

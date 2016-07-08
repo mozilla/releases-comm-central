@@ -55,19 +55,19 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
         let rule = cal.wrapInstance(rrules[0][0], Components.interfaces.calIRecurrenceRule);
         // Currently we allow only for BYDAY, BYMONTHDAY, BYMONTH rules.
         if (rule &&
-            !checkRecurrenceRule(rule, ['BYSECOND',
-                                        'BYMINUTE',
-                                        // 'BYDAY',
-                                        'BYHOUR',
-                                        // 'BYMONTHDAY',
-                                        'BYYEARDAY',
-                                        'BYWEEKNO',
-                                        // 'BYMONTH',
-                                        'BYSETPOS'])) {
+            !checkRecurrenceRule(rule, ["BYSECOND",
+                                        "BYMINUTE",
+                                        // "BYDAY",
+                                        "BYHOUR",
+                                        // "BYMONTHDAY",
+                                        "BYYEARDAY",
+                                        "BYWEEKNO",
+                                        // "BYMONTH",
+                                        "BYSETPOS"])) {
             let dateFormatter = cal.getDateFormatter();
             let ruleString;
-            if (rule.type == 'DAILY') {
-                if (checkRecurrenceRule(rule, ['BYDAY'])) {
+            if (rule.type == "DAILY") {
+                if (checkRecurrenceRule(rule, ["BYDAY"])) {
                     let days = rule.getComponent("BYDAY", {});
                     let weekdays = [2, 3, 4, 5, 6];
                     if (weekdays.length == days.length) {
@@ -88,10 +88,10 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                     ruleString = PluralForm.get(rule.interval, dailyString)
                                            .replace("#1", rule.interval);
                 }
-            } else if (rule.type == 'WEEKLY') {
+            } else if (rule.type == "WEEKLY") {
                 // weekly recurrence, currently we
                 // support a single 'BYDAY'-rule only.
-                if (checkRecurrenceRule(rule, ['BYDAY'])) {
+                if (checkRecurrenceRule(rule, ["BYDAY"])) {
                     // create a string like 'Monday, Tuesday and Wednesday'
                     let days = rule.getComponent("BYDAY", {});
                     let weekdays = "";
@@ -105,9 +105,9 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                             weekdays += getRString("repeatDetailsDay" + days[i]);
                         }
                         if (days.length > 1 && i == (days.length - 2)) {
-                            weekdays += ' ' + getRString("repeatDetailsAnd") + ' ';
+                            weekdays += " " + getRString("repeatDetailsAnd") + " ";
                         } else if (i < days.length - 1) {
-                            weekdays += ', ';
+                            weekdays += ", ";
                         }
                     }
 
@@ -119,8 +119,8 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                     ruleString = PluralForm.get(rule.interval, weeklyString)
                                            .replace("#1", rule.interval);
                 }
-            } else if (rule.type == 'MONTHLY') {
-                if (checkRecurrenceRule(rule, ['BYDAY'])) {
+            } else if (rule.type == "MONTHLY") {
+                if (checkRecurrenceRule(rule, ["BYDAY"])) {
                     let byday = rule.getComponent("BYDAY", {});
                     if (everyWeekDay(byday)) {
                         // Rule every day of the month.
@@ -169,7 +169,7 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                         let weekdaysString = weekdaysString_every + weekdaysString_position;
                         weekdaysString = weekdaysString.slice(0, -2)
                                                        .replace(/,(?= [^,]*$)/,
-                                                                ' ' + getRString("repeatDetailsAnd"));
+                                                                " " + getRString("repeatDetailsAnd"));
 
                         let monthlyString = weekdaysString_every ? "monthlyEveryOfEvery" : "monthlyRuleNthOfEvery";
                         monthlyString = nounClass("repeatDetailsDay" + day_of_week(firstDay), monthlyString);
@@ -177,7 +177,7 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                         ruleString = PluralForm.get(rule.interval, monthlyString)
                                                .replace("#2", rule.interval);
                     }
-                } else if (checkRecurrenceRule(rule, ['BYMONTHDAY'])) {
+                } else if (checkRecurrenceRule(rule, ["BYMONTHDAY"])) {
                     let component = rule.getComponent("BYMONTHDAY", {});
 
                     // First, find out if the 'BYMONTHDAY' component contains
@@ -212,7 +212,7 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                             }
                             day_string = day_string.slice(0, -2)
                                                    .replace(/,(?= [^,]*$)/,
-                                                            ' ' + getRString("repeatDetailsAnd"));
+                                                            " " + getRString("repeatDetailsAnd"));
 
                             // Add the word "day" in plural form to the list of days then
                             // compose the final string with the interval of months
@@ -228,13 +228,13 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                     ruleString = PluralForm.get(rule.interval, monthlyString)
                                            .replace("#2", rule.interval);
                 }
-            } else if (rule.type == 'YEARLY') {
+            } else if (rule.type == "YEARLY") {
                 let bymonthday = null;
                 let bymonth = null;
-                if (checkRecurrenceRule(rule, ['BYMONTHDAY'])) {
+                if (checkRecurrenceRule(rule, ["BYMONTHDAY"])) {
                     bymonthday = rule.getComponent("BYMONTHDAY", {});
                 }
-                if (checkRecurrenceRule(rule, ['BYMONTH'])) {
+                if (checkRecurrenceRule(rule, ["BYMONTH"])) {
                     bymonth = rule.getComponent("BYMONTH", {});
                 }
                 if (bymonth && bymonth.length > 1 ||
@@ -245,8 +245,8 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                     return getRString("ruleTooComplex");
                 }
 
-                if (checkRecurrenceRule(rule, ['BYMONTHDAY']) &&
-                    (checkRecurrenceRule(rule, ['BYMONTH']) || !checkRecurrenceRule(rule, ['BYDAY']))) {
+                if (checkRecurrenceRule(rule, ["BYMONTHDAY"]) &&
+                    (checkRecurrenceRule(rule, ["BYMONTH"]) || !checkRecurrenceRule(rule, ["BYDAY"]))) {
                     // RRULE:FREQ=YEARLY;BYMONTH=x;BYMONTHDAY=y.
                     // RRULE:FREQ=YEARLY;BYMONTHDAY=x (takes the month from the start date).
                     let monthNumber = bymonth ? bymonth[0] : (startDate.month + 1);
@@ -256,8 +256,8 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                     let yearlyString = getRString("yearlyNthOn", [month, monthDay]);
                     ruleString = PluralForm.get(rule.interval, yearlyString)
                                            .replace("#3", rule.interval);
-                } else if (checkRecurrenceRule(rule, ['BYMONTH']) &&
-                           checkRecurrenceRule(rule, ['BYDAY'])) {
+                } else if (checkRecurrenceRule(rule, ["BYMONTH"]) &&
+                           checkRecurrenceRule(rule, ["BYDAY"])) {
                     // RRULE:FREQ=YEARLY;BYMONTH=x;BYDAY=y1,y2,....
                     let byday = rule.getComponent("BYDAY", {});
                     let month = getRString("repeatDetailsMonth" + bymonth[0]);
@@ -298,7 +298,7 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                         // with all the weekdays (the "every day" case).
                         return getRString("ruleTooComplex");
                     }
-                } else if (checkRecurrenceRule(rule, ['BYMONTH'])) {
+                } else if (checkRecurrenceRule(rule, ["BYMONTH"])) {
                     // RRULE:FREQ=YEARLY;BYMONTH=x (takes the day from the start date).
                     let month = getRString("repeatDetailsMonth" + bymonth[0]);
                     let yearlyString = getRString("yearlyNthOn", [month, startDate.day]);

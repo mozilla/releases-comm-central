@@ -198,8 +198,8 @@
           // rather than using the real visible first row of the listbox.
           // For now we'll just put in a hack that ensures the focused attribute
           // is never copied when the node is cloned.
-          if (input.getAttribute('focused') != '') {
-              input.removeAttribute('focused');
+          if (input.getAttribute("focused") != "") {
+              input.removeAttribute("focused");
           }
 
           aParentNode.appendChild(newNode);
@@ -243,7 +243,7 @@
               if (cn.search(/[,;<>@]/) != -1) {
                   cn = '"' + cn + '"';
               }
-              inputValue = inputValue.length ? cn + ' <' + inputValue + '>' : cn;
+              inputValue = inputValue.length ? cn + " <" + inputValue + ">" : cn;
           }
 
           // trim spaces if any
@@ -352,8 +352,8 @@
               // rather than using the real visible first row of the listbox.
               // For now we'll just put in a hack that ensures the focused attribute
               // is never copied when the node is cloned.
-              if (input.getAttribute('focused') != '') {
-                  input.removeAttribute('focused');
+              if (input.getAttribute("focused") != "") {
+                  input.removeAttribute("focused");
               }
 
               // focus on new input widget
@@ -572,8 +572,8 @@
             input.value = entry;
             input.setAttribute("value", entry);
             input.setAttribute("dirty", "true");
-            if (input.getAttribute('focused') != '') {
-                input.removeAttribute('focused');
+            if (input.getAttribute("focused") != "") {
+                input.removeAttribute("focused");
             }
 
             let roleStatusIcon = document.getAnonymousElementByAttribute(listitem, "anonid", "rolestatus-icon");
@@ -654,8 +654,8 @@
               }
           }
 
-          let event = document.createEvent('Events');
-          event.initEvent('modify', true, false);
+          let event = document.createEvent("Events");
+          event.initEvent("modify", true, false);
           event.details = list;
           this.dispatchEvent(event);
         ]]></body>
@@ -722,7 +722,7 @@
           let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
-          let items = listbox.getElementsByTagNameNS('*', 'listitem');
+          let items = listbox.getElementsByTagNameNS("*", "listitem");
           this.mContentHeight = 0;
           if (items.length > 0) {
               let i = 0;
@@ -813,7 +813,7 @@
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
           if (listbox && aRow > 0) {
-              let listitems = listbox.getElementsByTagNameNS('*', 'listitem');
+              let listitems = listbox.getElementsByTagNameNS("*", "listitem");
               if (listitems && listitems.length >= aRow) {
                   return listitems[aRow - 1];
               }
@@ -884,7 +884,7 @@
           let self = this;
           let set_focus = function() {
               let node;
-              if (typeof aRow == 'number') {
+              if (typeof aRow == "number") {
                 node = self.getListItem(aRow);
               } else {
                 node = aRow;
@@ -938,7 +938,7 @@
               let listbox =
                   document.getAnonymousElementByAttribute(
                       this, "anonid", "listbox");
-              let listCols = listbox.getElementsByTagNameNS('*', 'listcol');
+              let listCols = listbox.getElementsByTagNameNS("*", "listcol");
               this.mNumColumns = listCols.length;
               if (!this.mNumColumns) {
                   this.mNumColumns = 1;
@@ -969,7 +969,7 @@
                   return (aMsgIAddressObject.name.match(/^".*"$/)
                           ? aMsgIAddressObject.name
                           : '"' + aMsgIAddressObject.name + '"'
-                         ) + ' <' + aMsgIAddressObject.email + '>';
+                         ) + " <" + aMsgIAddressObject.email + ">";
               } else {
                   return aMsgIAddressObject.toString();
               }
@@ -1015,8 +1015,8 @@
                   }
                   this.setFocus(row);
               }
-              let event = document.createEvent('Events');
-              event.initEvent('rowchange', true, false);
+              let event = document.createEvent("Events");
+              event.initEvent("rowchange", true, false);
               event.details = row;
               this.dispatchEvent(event);
           }
@@ -1039,8 +1039,8 @@
           this.setFocus(row);
           this.onModify();
 
-          let event = document.createEvent('Events');
-          event.initEvent('rowchange', true, false);
+          let event = document.createEvent("Events");
+          event.initEvent("rowchange", true, false);
           event.details = row;
           this.dispatchEvent(event);
         ]]></body>
@@ -1438,8 +1438,8 @@
                       "px; margin-top: " + this.mHeaderHeight + "px;";
           this.mSelectionbar.setAttribute("style", style);
 
-          let event = document.createEvent('Events');
-          event.initEvent('timechange', true, false);
+          let event = document.createEvent("Events");
+          event.initEvent("timechange", true, false);
           event.startDate = this.mStartDate;
           event.endDate = this.mEndDate.clone();
           if (event.endDate.isDate) {

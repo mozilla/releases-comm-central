@@ -85,15 +85,15 @@ function getPrintSettings(receiverFunc) {
     settings.printTasksWithNoDueDate = document.getElementById("tasks-with-no-due-date").checked;
     let theView = getCalendarView();
     switch (document.getElementById("view-field").selectedItem.value) {
-    case 'currentView':
-    case '': // just in case
+    case "currentView":
+    case "": // just in case
         settings.start = theView.startDay.clone();
         settings.end = theView.endDay.clone();
         settings.end.day += 1;
         settings.start.isDate = false;
         settings.end.isDate = false;
         break;
-    case 'selected': {
+    case "selected": {
         let selectedItems = theView.getSelectedItems({});
         settings.eventList = selectedItems.filter(function(item) {
             if (cal.isEvent(item) && !settings.printEvents) {
@@ -118,7 +118,7 @@ function getPrintSettings(receiverFunc) {
         requiresFetch = false;
         break;
     }
-    case 'custom':
+    case "custom":
         // We return the time from the timepickers using the selected
         // timezone, as not doing so in timezones with a positive offset
         // from UTC may cause the printout to include the wrong days.

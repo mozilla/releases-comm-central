@@ -31,7 +31,7 @@ var taskDetailsView = {
             displayElement("calendar-task-view-splitter", item != null)) {
             displayElement("calendar-task-details-title-row", true);
             document.getElementById("calendar-task-details-title").textContent =
-                (item.title ? item.title.replace(/\n/g, ' ') : "");
+                (item.title ? item.title.replace(/\n/g, " ") : "");
 
             let organizer = item.organizer;
             if (displayElement("calendar-task-details-organizer-row", organizer != null)) {
@@ -174,7 +174,7 @@ var taskDetailsView = {
             let newItem = item.clone();
             newItem.setCategories(panel.categories.length, panel.categories);
 
-            doTransaction('modify', newItem, newItem.calendar, item, null);
+            doTransaction("modify", newItem, newItem.calendar, item, null);
         }
     }
 };

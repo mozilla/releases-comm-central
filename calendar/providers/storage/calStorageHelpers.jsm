@@ -87,7 +87,7 @@ function textToDate(d) {
     let dval;
     let tz = "UTC";
 
-    if (d[0] == 'Z') {
+    if (d[0] == "Z") {
         let strs = d.substr(2).split(":");
         dval = parseInt(strs[0], 10);
         tz = strs[1].replace(/%:/g, ":").replace(/%%/g, "%");
@@ -96,14 +96,14 @@ function textToDate(d) {
     }
 
     let date;
-    if (d[0] == 'U' || d[0] == 'Z') {
+    if (d[0] == "U" || d[0] == "Z") {
         date = newDateTime(dval, tz);
-    } else if (d[0] == 'L') {
+    } else if (d[0] == "L") {
         // is local time
         date = newDateTime(dval, "floating");
     }
 
-    if (d[1] == 'D') {
+    if (d[1] == "D") {
         date.isDate = true;
     }
     return date;

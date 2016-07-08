@@ -48,11 +48,11 @@ ltnMimeConverter.prototype = {
             }
         }
         if (!event) {
-            return '';
+            return "";
         }
 
         let itipItem = null;
-        let msgOverlay = '';
+        let msgOverlay = "";
 
         try {
             itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]

@@ -12,7 +12,7 @@ var TIMEOUT_MODAL_DIALOG = 30000;
 var modalDialog;
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
-  modalDialog = collector.getModule('window-helpers');
+  modalDialog = collector.getModule("window-helpers");
 };
 
 var testSmokeTest = function() {

@@ -191,10 +191,10 @@ function onKeyPress(aEvent) {
     }
     switch (aEvent.keyCode) {
         case aEvent.DOM_VK_RETURN:
-            document.getElementById('agenda_edit_event_command').doCommand();
+            document.getElementById("agenda_edit_event_command").doCommand();
             break;
         case aEvent.DOM_VK_DELETE:
-            document.getElementById('agenda_delete_event_command').doCommand();
+            document.getElementById("agenda_delete_event_command").doCommand();
             aEvent.stopPropagation();
             aEvent.preventDefault();
             break;

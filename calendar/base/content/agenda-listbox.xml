@@ -25,7 +25,7 @@
             agendaListbox.onSelect(this);
         } else if (event.button == 0) {
             // We only care about button 0 doubleclick events
-            document.getElementById('agenda_edit_event_command').doCommand();
+            document.getElementById("agenda_edit_event_command").doCommand();
             event.stopPropagation();
             event.preventDefault();
         }

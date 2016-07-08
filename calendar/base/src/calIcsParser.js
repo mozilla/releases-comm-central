@@ -32,10 +32,10 @@ calIcsParser.prototype = {
         // If there are multiple vcalendars, it returns an xroot component, with
         // vcalendar children. We need to handle both cases.
         if (rootComp) {
-            if (rootComp.componentType == 'VCALENDAR') {
+            if (rootComp.componentType == "VCALENDAR") {
                 calComp = rootComp;
             } else {
-                calComp = rootComp.getFirstSubcomponent('VCALENDAR');
+                calComp = rootComp.getFirstSubcomponent("VCALENDAR");
             }
         }
 

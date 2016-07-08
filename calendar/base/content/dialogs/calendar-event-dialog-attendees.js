@@ -316,24 +316,24 @@ function updateTimezone() {
         let tzStart = document.getElementById("timezone-starttime");
         let tzEnd = document.getElementById("timezone-endtime");
         if (startTimezone != null) {
-            tzStart.removeAttribute('collapsed');
+            tzStart.removeAttribute("collapsed");
             tzStart.value = startTimezone.displayName || startTimezone.tzid;
         } else {
-            tzStart.setAttribute('collapsed', 'true');
+            tzStart.setAttribute("collapsed", "true");
         }
 
         // we never display the second timezone if both are equal
         if (endTimezone != null && !equalTimezones) {
-            tzEnd.removeAttribute('collapsed');
+            tzEnd.removeAttribute("collapsed");
             tzEnd.value = endTimezone.displayName || endTimezone.tzid;
         } else {
-            tzEnd.setAttribute('collapsed', 'true');
+            tzEnd.setAttribute("collapsed", "true");
         }
     } else {
         document.getElementById("timezone-starttime")
-            .setAttribute('collapsed', 'true');
+            .setAttribute("collapsed", "true");
         document.getElementById("timezone-endtime")
-            .setAttribute('collapsed', 'true');
+            .setAttribute("collapsed", "true");
     }
 
     gIgnoreUpdate = false;
@@ -631,9 +631,9 @@ function onChangeCalendar(calendar) {
 
     if (gIsReadOnly || gIsInvitation) {
         document.getElementById("next-slot")
-            .setAttribute('disabled', 'true');
+            .setAttribute("disabled", "true");
         document.getElementById("previous-slot")
-            .setAttribute('disabled', 'true');
+            .setAttribute("disabled", "true");
     }
 
     let freebusy = document.getElementById("freebusy-grid");
@@ -646,9 +646,9 @@ function onChangeCalendar(calendar) {
 function updateButtons() {
     let previousButton = document.getElementById("previous-slot");
     if (gUndoStack.length > 0) {
-        previousButton.removeAttribute('disabled');
+        previousButton.removeAttribute("disabled");
     } else {
-        previousButton.setAttribute('disabled', 'true');
+        previousButton.setAttribute("disabled", "true");
     }
 }
 

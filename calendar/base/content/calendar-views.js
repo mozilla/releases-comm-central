@@ -39,7 +39,7 @@ var calendarViewController = {
             let item = cal.createEvent();
             setDefaultItemValues(item, aCalendar, aStartTime, aEndTime);
             item.title = calGetString("calendar", "newEvent");
-            doTransaction('add', item, item.calendar, null, null);
+            doTransaction("add", item, item.calendar, null, null);
         } else {
             createEventWithDialog(aCalendar, aStartTime, null, null, null, aForceAllday);
         }
@@ -84,7 +84,7 @@ var calendarViewController = {
                 }
             }
 
-            doTransaction('modify', instance, instance.calendar, aOccurrence, null);
+            doTransaction("modify", instance, instance.calendar, aOccurrence, null);
         } else {
             modifyEventWithDialog(aOccurrence, null, true);
         }
@@ -152,7 +152,7 @@ var calendarViewController = {
                 // Dont start the transaction yet. Do so later, in case the
                 // parent item gets modified more than once.
             } else {
-                doTransaction('delete', itemToDelete, itemToDelete.calendar, null, null);
+                doTransaction("delete", itemToDelete, itemToDelete.calendar, null, null);
             }
         }
 
@@ -160,7 +160,7 @@ var calendarViewController = {
         // that have been passed are deleted.
         for (let hashVal in recurringItems) {
             let ritem = recurringItems[hashVal];
-            doTransaction('modify',
+            doTransaction("modify",
                           ritem.newItem,
                           ritem.newItem.calendar,
                           ritem.oldItem,

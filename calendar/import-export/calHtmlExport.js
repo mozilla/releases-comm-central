@@ -29,11 +29,11 @@ calHtmlExporter.prototype = {
 
     getFileTypes: function getFileTypes(aCount) {
         aCount.value = 1;
-        let wildmat = '*.html; *.htm';
-        let label = cal.calGetString("calendar", 'filterHtml', [wildmat]);
+        let wildmat = "*.html; *.htm";
+        let label = cal.calGetString("calendar", "filterHtml", [wildmat]);
         return [{
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIFileType]),
-            defaultExtension: 'html',
+            defaultExtension: "html",
             extensionFilter: wildmat,
             description: label
         }];
@@ -109,7 +109,7 @@ calHtmlExporter.prototype = {
         // Convert the javascript string to an array of bytes, using the utf8 encoder
         let convStream = Components.classes["@mozilla.org/intl/converter-output-stream;1"]
                                    .createInstance(Components.interfaces.nsIConverterOutputStream);
-        convStream.init(aStream, 'UTF-8', 0, 0x0000);
+        convStream.init(aStream, "UTF-8", 0, 0x0000);
         convStream.writeString(cal.xml.serializeDOM(document));
     }
 };

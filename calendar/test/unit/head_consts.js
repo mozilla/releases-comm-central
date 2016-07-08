@@ -235,7 +235,7 @@ function do_calendar_startup(callback) {
       }
     };
 
-    let ss = Components.classes['@mozilla.org/calendar/startup-service;1']
+    let ss = Components.classes["@mozilla.org/calendar/startup-service;1"]
                        .getService(Components.interfaces.nsISupports).wrappedJSObject;
 
     if (ss.started) {

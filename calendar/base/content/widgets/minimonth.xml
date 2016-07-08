@@ -898,7 +898,7 @@
             }
 
             if (monthChanged) {
-                this.fireEvent('monthchange');
+                this.fireEvent("monthchange");
             }
 
             if (this.getAttribute("freebusy") == "true") {
@@ -910,7 +910,7 @@
       <method name="fireEvent">
         <parameter name="aEventName"/>
         <body><![CDATA[
-            let event = document.createEvent('Events');
+            let event = document.createEvent("Events");
             event.initEvent(aEventName, true, true);
             this.dispatchEvent(event);
         ]]></body>
@@ -1035,7 +1035,7 @@
             }
             this.mSelected = aDayBox;
             this.value = aDayBox.date;
-            this.fireEvent('select');
+            this.fireEvent("select");
           ]]></body>
       </method>
 
@@ -1044,7 +1044,7 @@
         <body><![CDATA[
           this.mValue = aValue;
           if (this.mValue) {
-            this.fireEvent('change');
+            this.fireEvent("change");
           }
           this.showMonth(aValue);
         ]]></body>

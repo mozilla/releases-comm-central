@@ -88,7 +88,7 @@ function commonFinishCalendar() {
  * XXX this has nothing to do with startup, needs to go somewhere else.
  */
 function onCalendarViewResize(aEvent) {
-    let event = document.createEvent('Events');
+    let event = document.createEvent("Events");
     event.initEvent(currentView().type + "viewresized", true, false);
     document.getElementById("calendarviewBroadcaster").dispatchEvent(event);
 }

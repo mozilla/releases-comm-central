@@ -94,11 +94,11 @@ function getPreviewForTask(toDoItem) {
 
       // These cut-offs should match calendar-event-dialog.js
       if (priorityInteger >= 1 && priorityInteger <= 4) {
-           priorityString = calGetString('calendar', 'highPriority'); // high priority
+           priorityString = calGetString("calendar", "highPriority"); // high priority
       } else if (priorityInteger == 5) {
-          priorityString = calGetString('calendar', 'normalPriority'); // normal priority
+          priorityString = calGetString("calendar", "normalPriority"); // normal priority
       } else {
-          priorityString = calGetString('calendar', 'lowPriority'); // low priority
+          priorityString = calGetString("calendar", "lowPriority"); // low priority
       }
       boxAppendLabeledText(vbox, "tooltipPriority", priorityString);
       hasHeader = true;
@@ -203,11 +203,11 @@ function getEventStatusString(calendarEvent) {
   switch (calendarEvent.status) {
     // Event status value keywords are specified in RFC2445sec4.8.1.11
     case "TENTATIVE":
-      return calGetString('calendar', "statusTentative");
+      return calGetString("calendar", "statusTentative");
     case "CONFIRMED":
-      return calGetString('calendar', "statusConfirmed");
+      return calGetString("calendar", "statusConfirmed");
     case "CANCELLED":
-      return calGetString('calendar', "eventStatusCancelled");
+      return calGetString("calendar", "eventStatusCancelled");
      default:
         return "";
   }
@@ -218,13 +218,13 @@ function getToDoStatusString(iCalToDo) {
   switch (iCalToDo.status) {
     // Todo status keywords are specified in RFC2445sec4.8.1.11
     case "NEEDS-ACTION":
-      return calGetString('calendar', "statusNeedsAction");
+      return calGetString("calendar", "statusNeedsAction");
     case "IN-PROCESS":
-      return calGetString('calendar', "statusInProcess");
+      return calGetString("calendar", "statusInProcess");
     case "CANCELLED":
-      return calGetString('calendar', "todoStatusCancelled");
+      return calGetString("calendar", "todoStatusCancelled");
     case "COMPLETED":
-      return calGetString('calendar', "statusCompleted");
+      return calGetString("calendar", "statusCompleted");
      default:
         return "";
   }
@@ -310,7 +310,7 @@ function boxInitializeHeaderGrid(box) {
  * @param textString        value of header field.
  */
 function boxAppendLabeledText(box, labelProperty, textString) {
-  let labelText = calGetString('calendar', labelProperty);
+  let labelText = calGetString("calendar", labelProperty);
   let rows = box.getElementsByTagNameNS(box.namespaceURI, "rows")[0];
   {
     let row = document.createElement("row");

@@ -32,8 +32,8 @@
         <body>
           <![CDATA[
             if (aEvent.attrName == "checked") {
-                let event = document.createEvent('Events');
-                event.initEvent('select', true, true);
+                let event = document.createEvent("Events");
+                event.initEvent("select", true, true);
                 this.calendar.dispatchEvent(event);
             }
           ]]>

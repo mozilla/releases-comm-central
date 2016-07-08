@@ -21,11 +21,11 @@ var title;
 
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();
-  modalDialog = collector.getModule('window-helpers');
+  modalDialog = collector.getModule("window-helpers");
 
   // unique name needed as deleting a calendar only unsubscribes from it
   // and if same file were used on next testrun then previously created event would show up
-  let time = (new Date()).getTime() + '';
+  let time = (new Date()).getTime() + "";
   calendar = time;
   title = time;
 

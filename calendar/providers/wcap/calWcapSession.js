@@ -505,10 +505,10 @@ calWcapSession.prototype = {
                         // post register subscribed calendars:
                         let list = this_.getUserPreferences("X-NSCP-WCAP-PREF-icsSubscribed");
                         for (let item of list) {
-                            let ar = item.split(',');
+                            let ar = item.split(",");
                             // ',', '$' are not encoded. ',' can be handled here. WTF.
                             for (let a of ar) {
-                                let dollar = a.indexOf('$');
+                                let dollar = a.indexOf("$");
                                 if (dollar >= 0) {
                                     let calId = a.substring(0, dollar);
                                     if (calId != this_.defaultCalId) {
@@ -646,7 +646,7 @@ calWcapSession.prototype = {
                     }
                 };
 
-                let colon = calId.indexOf(':');
+                let colon = calId.indexOf(":");
                 if (colon >= 0) { // searching for secondary calendars doesn't work. WTF.
                     calId = calId.substring(0, colon);
                 }
@@ -1021,7 +1021,7 @@ calWcapSession.prototype = {
                                     fbType = calIFreeBusyInterval.UNKNOWN;
                                 }
                                 let str = node.textContent;
-                                let slash = str.indexOf('/');
+                                let slash = str.indexOf("/");
                                 let start = getDatetimeFromIcalString(str.substr(0, slash));
                                 let end = getDatetimeFromIcalString(str.substr(slash + 1));
 
@@ -1120,9 +1120,9 @@ function confirmInsecureLogin(uri) {
     if (!confirmInsecureLogin.m_confirmedHttpLogins) {
         confirmInsecureLogin.m_confirmedHttpLogins = {};
         let confirmedHttpLogins = getPref("calendar.wcap.confirmed_http_logins", "");
-        let tuples = confirmedHttpLogins.split(',');
+        let tuples = confirmedHttpLogins.split(",");
         for (let tuple of tuples) {
-            let ar = tuple.split(':');
+            let ar = tuple.split(":");
             confirmInsecureLogin.m_confirmedHttpLogins[ar[0]] = ar[1];
         }
     }

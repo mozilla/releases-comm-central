@@ -58,7 +58,7 @@ var testTodayPane = function() {
   controller.doubleClick(new elementslib.Lookup(controller.window.document, dayView +
     'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/' +
     '{"class":"calendar-event-column-even"}/anon({"anonid":"boxstack"})/' +
-    'anon({"anonid":"bgbox"})/[' + startHour + ']'), 1, 1);
+    'anon({"anonid":"bgbox"})/[' + startHour + "]"), 1, 1);
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;}, WAIT_FOR_WINDOW_TIMEOUT);
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
   let iframe = event.window.document.getElementById("lightning-item-panel-iframe");
@@ -242,9 +242,9 @@ var testTodayPane = function() {
 var getIsoDate = function() {
   let date = new Date();
   let year = date.getFullYear();
-  let month = (date.getMonth() < 9) ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
-  let day = (date.getDate() < 10) ? '0' + date.getDate() : date.getDate();
-  let isoDate = year + '' + month + '' + day;
+  let month = (date.getMonth() < 9) ? "0" + (date.getMonth() + 1) : (date.getMonth() + 1);
+  let day = (date.getDate() < 10) ? "0" + date.getDate() : date.getDate();
+  let isoDate = year + "" + month + "" + day;
   return isoDate;
 };
 

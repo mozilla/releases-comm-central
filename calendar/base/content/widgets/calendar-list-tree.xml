@@ -400,7 +400,7 @@
           if (this.mAddingFromComposite) {
               return;
           }
-          let event = document.createEvent('Events');
+          let event = document.createEvent("Events");
           event.initEvent("SortOrderChanged", true, false);
           event.sortOrder = this.sortOrder;
           this.dispatchEvent(event);

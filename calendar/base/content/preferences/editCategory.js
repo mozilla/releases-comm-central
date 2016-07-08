@@ -49,7 +49,7 @@ function categoryNameChanged() {
         customColorSelected = false;
     }
 
-    if (!customColorSelected && document.getElementById('useColor').checked) {
+    if (!customColorSelected && document.getElementById("useColor").checked) {
         // Color is wanted, choose the color based on the category name's hash.
         document.getElementById("categoryColor").value = cal.hashColor(newValue);
     }
@@ -59,7 +59,7 @@ function categoryNameChanged() {
  * Handler function to be called when the color picker's color has been changed.
  */
 function colorPickerChanged() {
-    document.getElementById('useColor').checked = true;
+    document.getElementById("useColor").checked = true;
     customColorSelected = true;
 }
 
@@ -67,8 +67,8 @@ function colorPickerChanged() {
  * Handler called when the use color checkbox is toggled.
  */
 function toggleColor() {
-    let useColor = document.getElementById('useColor').checked;
-    let categoryColor = document.getElementById('categoryColor');
+    let useColor = document.getElementById("useColor").checked;
+    let categoryColor = document.getElementById("categoryColor");
 
     if (useColor) {
         categoryColor.setAttribute("type", "color");
@@ -87,7 +87,7 @@ function toggleColor() {
  * when clicked.
  */
 function clickColor() {
-    let categoryColor = document.getElementById('categoryColor');
+    let categoryColor = document.getElementById("categoryColor");
     if (categoryColor.getAttribute("type") == "button") {
         colorPickerChanged();
         toggleColor();

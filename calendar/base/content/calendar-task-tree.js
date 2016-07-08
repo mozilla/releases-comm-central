@@ -147,7 +147,7 @@ function contextChangeTaskProgress(aEvent, aProgress) {
                     newTask.completedDate = null;
                     break;
             }
-            doTransaction('modify', newTask, newTask.calendar, task, null);
+            doTransaction("modify", newTask, newTask.calendar, task, null);
         }
         endBatchTransaction();
     }
@@ -166,7 +166,7 @@ function contextChangeTaskCalendar(aEvent) {
        let task = tasks[t];
        let newTask = task.clone().QueryInterface(Components.interfaces.calITodo);
        newTask.calendar = aEvent.target.calendar;
-       doTransaction('modify', newTask, newTask.calendar, task, null);
+       doTransaction("modify", newTask, newTask.calendar, task, null);
     }
     endBatchTransaction();
 }
@@ -188,7 +188,7 @@ function contextChangeTaskPriority(aEvent, aPriority) {
         for (let task of tasks) {
             let newTask = task.clone().QueryInterface(Components.interfaces.calITodo);
             newTask.priority = aPriority;
-            doTransaction('modify', newTask, newTask.calendar, task, null);
+            doTransaction("modify", newTask, newTask.calendar, task, null);
         }
         endBatchTransaction();
     }
@@ -221,7 +221,7 @@ function contextPostponeTask(aEvent, aDuration) {
             if (task.entryDate || task.dueDate) {
                 let newTask = task.clone();
                 cal.shiftItem(newTask, duration);
-                doTransaction('modify', newTask, newTask.calendar, task, null);
+                doTransaction("modify", newTask, newTask.calendar, task, null);
             }
         });
 

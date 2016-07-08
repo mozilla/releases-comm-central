@@ -136,7 +136,7 @@ var taskEdit = {
                 item.title = edit.value;
 
                 edit.value = "";
-                doTransaction('add', item, item.calendar, null, null);
+                doTransaction("add", item, item.calendar, null, null);
             }
         }
     },

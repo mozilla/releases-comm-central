@@ -231,10 +231,10 @@ function createEventWithDialog(calendar, startDate, endDate, summary, event, aFo
         if (item.id) {
             // If the item already has an id, then this is the result of
             // saving the item without closing, and then saving again.
-            doTransaction('modify', item, opcalendar, originalItem, listener);
+            doTransaction("modify", item, opcalendar, originalItem, listener);
         } else {
             // Otherwise, this is an addition
-            doTransaction('add', item, opcalendar, null, listener);
+            doTransaction("add", item, opcalendar, null, listener);
         }
     };
 
@@ -286,10 +286,10 @@ function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
         if (item.id) {
             // If the item already has an id, then this is the result of
             // saving the item without closing, and then saving again.
-            doTransaction('modify', item, opcalendar, originalItem, listener);
+            doTransaction("modify", item, opcalendar, originalItem, listener);
         } else {
             // Otherwise, this is an addition
-            doTransaction('add', item, opcalendar, null, listener);
+            doTransaction("add", item, opcalendar, null, listener);
         }
     };
 
@@ -338,7 +338,7 @@ function modifyEventWithDialog(aItem, job, aPromptOccurrence, initialDate) {
     }
 
     let onModifyItem = function(item, calendar, originalItem, listener) {
-        doTransaction('modify', item, calendar, originalItem, listener);
+        doTransaction("modify", item, calendar, originalItem, listener);
     };
 
     let item = aItem;
@@ -479,8 +479,8 @@ function openEventDialog(calendarItem, calendar, mode, callback, job, initialDat
         // open in a tab, currently the read-only summary dialog is
         // never opened in a tab
         args.url = url;
-        let tabmail = document.getElementById('tabmail');
-        let tabtype = cal.isEvent(args.calendarEvent) ? 'calendarEvent' : 'calendarTask';
+        let tabmail = document.getElementById("tabmail");
+        let tabtype = cal.isEvent(args.calendarEvent) ? "calendarEvent" : "calendarTask";
         tabmail.openTab(tabtype, args);
     } else {
         // open in a window
@@ -718,7 +718,7 @@ function setContextPartstat(value, scope, items) {
                     newItem.addAttendee(newAttendee);
                 }
 
-                doTransaction('modify', newItem, newItem.calendar, oldItem, null);
+                doTransaction("modify", newItem, newItem.calendar, oldItem, null);
             }
         }
     } catch (e) {

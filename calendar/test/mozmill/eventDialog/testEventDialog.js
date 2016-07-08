@@ -77,8 +77,8 @@ var testEventDialog = function() {
     }
   }
 
-  let startTime = startHour + ':00' + ampm;
-  let endTime = ((startHour + 1) % 24) + ':00' + ampm;
+  let startTime = startHour + ":00" + ampm;
+  let endTime = ((startHour + 1) % 24) + ":00" + ampm;
   let startTimeInput = new elementslib.Lookup(event.window.document, eventDialog +
     'id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/' +
     'id("event-starttime")/anon({"anonid":"hbox"})/anon({"anonid":"time-picker"})/' +
@@ -108,7 +108,7 @@ var testEventDialog = function() {
 
   // set category
   let categories = utils.getProperty("chrome://calendar/locale/categories.properties", "categories2");
-  let category = categories.split(',')[4]; // pick 4th value in a comma-separated list
+  let category = categories.split(",")[4]; // pick 4th value in a comma-separated list
   event.select(new elementslib.ID(event.window.document, "item-categories"), null, category);
 
   // repeat daily
@@ -258,7 +258,7 @@ function checkTooltip(monthView, row, col, date, startTime, endTime) {
   // date-time string contains strings formatted in operating system language so check numeric values only
   let dateTime = new elementslib.Lookup(controller.window.document,
     '/id("messengerWindow")/id("calendar-popupset")/id("itemTooltip")/' +
-    '{"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/[1]/[2]/[1]').getNode().textContent + '';
+    '{"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/[1]/[2]/[1]').getNode().textContent;
   controller.assertJS(dateTime.includes(date) && dateTime.includes(startTime) &&
     dateTime.includes(endTime));
 }

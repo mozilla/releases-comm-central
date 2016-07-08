@@ -494,7 +494,7 @@ var calendarController = {
 
         calendarController.updateCommands();
         calendarController2.updateCommands();
-        document.commandDispatcher.updateCommands('mail-toolbar');
+        document.commandDispatcher.updateCommands("mail-toolbar");
     },
 
     /**
@@ -684,10 +684,10 @@ var calendarController2 = {
             case "cmd_paste":
                 return canPaste();
             case "cmd_undo":
-                goSetMenuValue(aCommand, 'valueDefault');
+                goSetMenuValue(aCommand, "valueDefault");
                 return canUndo();
             case "cmd_redo":
-                goSetMenuValue(aCommand, 'valueDefault');
+                goSetMenuValue(aCommand, "valueDefault");
                 return canRedo();
             case "button_delete":
             case "cmd_delete":
@@ -749,7 +749,7 @@ var calendarController2 = {
                 currentView().zoomReset();
                 break;
             case "cmd_showQuickFilterBar":
-                document.getElementById('task-text-filter-field').select();
+                document.getElementById("task-text-filter-field").select();
                 break;
 
             case "button_delete":

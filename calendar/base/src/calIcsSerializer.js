@@ -54,7 +54,7 @@ calIcsSerializer.prototype = {
         // UTF8 encoder
         let convStream = Components.classes["@mozilla.org/intl/converter-output-stream;1"]
                                    .createInstance(Components.interfaces.nsIConverterOutputStream);
-        convStream.init(aStream, 'UTF-8', 0, 0x0000);
+        convStream.init(aStream, "UTF-8", 0, 0x0000);
 
         convStream.writeString(str);
         convStream.close();

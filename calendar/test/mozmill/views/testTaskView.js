@@ -128,11 +128,11 @@ var testTaskView = function() {
   let toolTipNode = new elementslib.Lookup(controller.window.document, toolTip).getNode();
   toolTipNode.ownerDocument.defaultView.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
 
-  let toolTipName = new elementslib.Lookup(controller.window.document, toolTipGrid + '[1]/[0]/[1]');
-  let toolTipCalendar = new elementslib.Lookup(controller.window.document, toolTipGrid + '[1]/[1]/[1]');
-  let toolTipPriority = new elementslib.Lookup(controller.window.document, toolTipGrid + '[1]/[2]/[1]');
-  let toolTipStatus = new elementslib.Lookup(controller.window.document, toolTipGrid + '[1]/[3]/[1]');
-  let toolTipComplete = new elementslib.Lookup(controller.window.document, toolTipGrid + '[1]/[4]/[1]');
+  let toolTipName = new elementslib.Lookup(controller.window.document, toolTipGrid + "[1]/[0]/[1]");
+  let toolTipCalendar = new elementslib.Lookup(controller.window.document, toolTipGrid + "[1]/[1]/[1]");
+  let toolTipPriority = new elementslib.Lookup(controller.window.document, toolTipGrid + "[1]/[2]/[1]");
+  let toolTipStatus = new elementslib.Lookup(controller.window.document, toolTipGrid + "[1]/[3]/[1]");
+  let toolTipComplete = new elementslib.Lookup(controller.window.document, toolTipGrid + "[1]/[4]/[1]");
   let priority = utils.getProperty("chrome://calendar/locale/calendar.properties",
     "highPriority");
 
@@ -140,7 +140,7 @@ var testTaskView = function() {
   controller.assertJSProperty(toolTipCalendar, "textContent", calendar);
   controller.assertJSProperty(toolTipPriority, "textContent", priority);
   controller.assertJS(toolTipStatus.getNode().textContent.toLowerCase() == status.toLowerCase());
-  controller.assertJSProperty(toolTipComplete, "textContent", percentComplete + '%');
+  controller.assertJSProperty(toolTipComplete, "textContent", percentComplete + "%");
 
   // mark completed, verify
   controller.click(new elementslib.ID(controller.window.document,

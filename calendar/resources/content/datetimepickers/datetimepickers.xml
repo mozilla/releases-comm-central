@@ -159,9 +159,9 @@
            }
 
            // Remove commas
-           val = val.replace(',', '');
+           val = val.replace(",", "");
 
-           if (!val.includes(' ')) {
+           if (!val.includes(" ")) {
              // Just a single word, or a single date.
              return getDateForDay(val);
            }
@@ -170,7 +170,7 @@
            for (let i in this.mMonthLongNames) {
              if (val.includes(this.mMonthLongNames[i])) {
                let newVal = val.replace(this.mMonthLongNames[i], Number(i) + 1);
-               newVal = newVal.replace(' ', '/');
+               newVal = newVal.replace(" ", "/");
                return this.parseDateTime(newVal);
              }
           }
@@ -179,13 +179,13 @@
            for (let i in this.mMonthShortNames) {
              if (val.includes(this.mMonthShortNames[i])) {
                let newVal = val.replace(this.mMonthShortNames[i], Number(i) + 1);
-               newVal = newVal.replace(' ', '/');
+               newVal = newVal.replace(" ", "/");
                return this.parseDateTime(newVal);
              }
           }
 
           // Now for the cool 'next' and 'last'
-          let words = val.split(' ');
+          let words = val.split(" ");
           let offset, day;
           for (let word of words) {
             for (let rel of this.mRelationWords) {
@@ -620,7 +620,7 @@
             this.kTextBox.value = this.formatTime(this.mValue);
 
             if (aValue != null && aRefresh && timeChanged) {
-              let event = document.createEvent('Events');
+              let event = document.createEvent("Events");
               event.initEvent("change", true, true);
               this.dispatchEvent(event);
             }
@@ -1325,7 +1325,7 @@
             let fiveMinuteBox = document.getAnonymousElementByAttribute(
                                 this, "anonid", "time-picker-five-minute-grid-box");
 
-            if (fiveMinuteBox.getAttribute("hidden") == 'false') {
+            if (fiveMinuteBox.getAttribute("hidden") == "false") {
               aNumber *= 5;
               idPrefix = "time-picker-five-minute-box-";
 
@@ -1582,7 +1582,7 @@
         <parameter name="aDetail"/>
         <body>
           <![CDATA[
-            let event = document.createEvent('Events');
+            let event = document.createEvent("Events");
             event.initEvent(aEventName, true, true);
             event.detail = aDetail;
             this.dispatchEvent(event);
@@ -1958,7 +1958,7 @@
             this.amRegExp = new RegExp("^(?:" + amExpr + ")$");
             this.pmRegExp = new RegExp("^(?:" + pmExpr + ")$");
             // build time display format that mimics "%x" format without seconds
-            let ampmSep = (pmProbeString.includes(' ') ? " " : "");
+            let ampmSep = (pmProbeString.includes(" ") ? " " : "");
             if (this.ampmIndex == PRE_INDEX) {
               this.kTimeFormatString = "%p" + ampmSep + "%I:%M";
             } else if (this.ampmIndex == POST_INDEX) {

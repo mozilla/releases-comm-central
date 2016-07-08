@@ -162,7 +162,7 @@ calIcalProperty.prototype = {
             let propname = this.innerObject.name.toLowerCase();
             if (propname in ICAL.design.icalendar.property) {
                 let details = ICAL.design.icalendar.property[propname];
-                if ('defaultType' in details) {
+                if ("defaultType" in details) {
                     this.setParameter("VALUE", details.defaultType);
                 }
             }

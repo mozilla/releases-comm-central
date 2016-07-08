@@ -3220,9 +3220,9 @@
               this.pixelsPerMinute = 0.6;
           }
 
-          let normalelems = ['mainbox', 'timebar'];
-          let otherelems = ['labelbox', 'labeldaybox', 'headertimespacer',
-                            'headerbox', 'headerdaybox', 'scrollbox', 'daybox'];
+          let normalelems = ["mainbox", "timebar"];
+          let otherelems = ["labelbox", "labeldaybox", "headertimespacer",
+                            "headerbox", "headerdaybox", "scrollbox", "daybox"];
 
           for (let id of normalelems) {
               document.getAnonymousElementByAttribute(this, "anonid", id).setAttribute("orient", orient);

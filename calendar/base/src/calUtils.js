@@ -715,7 +715,7 @@ function getUUID() {
                   .getService(Components.interfaces.nsIUUIDGenerator);
     // generate uuids without braces to avoid problems with
     // CalDAV servers that don't support filenames with {}
-    return uuidGen.generateUUID().toString().replace(/[{}]/g, '');
+    return uuidGen.generateUUID().toString().replace(/[{}]/g, "");
 }
 
 /**
@@ -948,12 +948,12 @@ function LOG(aArg) {
     if (!(aArg instanceof String) && !(typeof aArg == "string")) {
         string = "Logging object...\n";
         for (let prop in aArg) {
-            string += prop + ': ' + aArg[prop] + '\n';
+            string += prop + ": " + aArg[prop] + "\n";
         }
         string += "End object\n";
     }
 
-    dump(string + '\n');
+    dump(string + "\n");
     _log(string, Components.interfaces.nsIScriptError.infoFlag);
 }
 
@@ -963,7 +963,7 @@ function LOG(aArg) {
  * @param aMessage warning message
  */
 function WARN(aMessage) {
-    dump("Warning: " + aMessage + '\n');
+    dump("Warning: " + aMessage + "\n");
     _log(aMessage, Components.interfaces.nsIScriptError.warningFlag);
 }
 
@@ -973,7 +973,7 @@ function WARN(aMessage) {
  * @param aMessage error message
  */
 function ERROR(aMessage) {
-    dump("Error: " + aMessage + '\n');
+    dump("Error: " + aMessage + "\n");
     _log(aMessage, Components.interfaces.nsIScriptError.errorFlag);
 }
 
@@ -1013,7 +1013,7 @@ function ASSERT(aCondition, aMessage, aCritical) {
         return;
     }
 
-    let string = "Assert failed: " + aMessage + '\n' + STACK(0, 1);
+    let string = "Assert failed: " + aMessage + "\n" + STACK(0, 1);
     if (aCritical) {
         throw new Components.Exception(string,
                                        aCritical === true ? Components.results.NS_ERROR_UNEXPECTED : aCritical);
@@ -1871,7 +1871,7 @@ function getCompositeCalendar() {
     if (getCompositeCalendar.mObject === undefined) {
         getCompositeCalendar.mObject = Components.classes["@mozilla.org/calendar/calendar;1?type=composite"]
                                                  .createInstance(Components.interfaces.calICompositeCalendar);
-        getCompositeCalendar.mObject.prefPrefix = 'calendar-main';
+        getCompositeCalendar.mObject.prefPrefix = "calendar-main";
 
         try {
             if (gCalendarStatusFeedback) {

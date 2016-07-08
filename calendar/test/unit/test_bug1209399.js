@@ -12,31 +12,31 @@ function run_test() {
 
 function test_newAttendee() {
     let data = [{
-        input: { cn: null, id: 'mailto:user1@example.net' },
+        input: { cn: null, id: "mailto:user1@example.net" },
         expected: { cn: null }
     }, {
-        input: { cn: 'Test2', id: 'mailto:user2@example.net' },
-        expected: { cn: 'Test2' }
+        input: { cn: "Test2", id: "mailto:user2@example.net" },
+        expected: { cn: "Test2" }
     }, {
-        input: { cn: '"Test3"', id: 'mailto:user3@example.net' },
-        expected: { cn: 'Test3' }
+        input: { cn: '"Test3"', id: "mailto:user3@example.net" },
+        expected: { cn: "Test3" }
     }, {
-        input: { cn: '""Test4""', id: 'mailto:user4@example.net' },
-        expected: { cn: 'Test4' }
+        input: { cn: '""Test4""', id: "mailto:user4@example.net" },
+        expected: { cn: "Test4" }
     }, {
-        input: { cn: '""Test5"', id: 'mailto:user5@example.net' },
-        expected: { cn: 'Test5' }
+        input: { cn: '""Test5"', id: "mailto:user5@example.net" },
+        expected: { cn: "Test5" }
     }, {
-        input: { cn: '"Test6""', id: 'mailto:user6@example.net' },
-        expected: { cn: 'Test6' }
+        input: { cn: '"Test6""', id: "mailto:user6@example.net" },
+        expected: { cn: "Test6" }
     }, {
-        input: { cn: '', id: 'mailto:user7@example.net' },
-        expected: { cn: '' }
+        input: { cn: "", id: "mailto:user7@example.net" },
+        expected: { cn: "" }
     }, {
-        input: { cn: '""', id: 'mailto:user8@example.net' },
+        input: { cn: '""', id: "mailto:user8@example.net" },
         expected: { cn: null }
     }, {
-        input: { cn: '""""', id: 'mailto:user9@example.net' },
+        input: { cn: '""""', id: "mailto:user9@example.net" },
         expected: { cn: null }
     }];
 
@@ -57,36 +57,36 @@ function test_newAttendee() {
 
 function test_fromICS() {
     let ics = [
-        'BEGIN:VCALENDAR',
-        'PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN',
-        'VERSION:2.0',
-        'BEGIN:VEVENT',
-        'UID:a84c74d1-cfc6-4ddf-9d60-9e4afd8238cf',
-        'SUMMARY:New Event',
-        'DTSTART:20150729T103000Z',
-        'DTEND:20150729T113000Z',
-        'ORGANIZER;RSVP=TRUE;CN=Tester1;PARTSTAT=ACCEPTED;ROLE=CHAIR:mailto:user1@example.net',
+        "BEGIN:VCALENDAR",
+        "PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN",
+        "VERSION:2.0",
+        "BEGIN:VEVENT",
+        "UID:a84c74d1-cfc6-4ddf-9d60-9e4afd8238cf",
+        "SUMMARY:New Event",
+        "DTSTART:20150729T103000Z",
+        "DTEND:20150729T113000Z",
+        "ORGANIZER;RSVP=TRUE;CN=Tester1;PARTSTAT=ACCEPTED;ROLE=CHAIR:mailto:user1@example.net",
 
-        'ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;CN=Test2;ROLE=REQ-PARTICIPANT:mailto:user2@example.net',
+        "ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;CN=Test2;ROLE=REQ-PARTICIPANT:mailto:user2@example.net",
         'ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;CN="Test3";ROLE=REQ-PARTICIPANT:mailto:user3@example.net',
         'ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;CN=""Test4"";ROLE=REQ-PARTICIPANT:mailto:user4@example.net',
-        'ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;CN=;ROLE=REQ-PARTICIPANT:mailto:user5@example.net',
-        'ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:mailto:user6@example.net',
+        "ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;CN=;ROLE=REQ-PARTICIPANT:mailto:user5@example.net",
+        "ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:mailto:user6@example.net",
         'ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;CN="";ROLE=REQ-PARTICIPANT:mailto:user7@example.net',
         'ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;CN="""";ROLE=REQ-PARTICIPANT:mailto:user8@example.net',
 
-        'END:VEVENT',
-        'END:VCALENDAR'
+        "END:VEVENT",
+        "END:VCALENDAR"
     ].join("\n");
 
     let expected = [
-        { id: 'mailto:user2@example.net', cn: 'Test2' },
-        { id: 'mailto:user3@example.net', cn: 'Test3' },
-        { id: 'mailto:user4@example.net', cn: '' },
-        { id: 'mailto:user5@example.net', cn: '' },
-        { id: 'mailto:user6@example.net', cn: null },
-        { id: 'mailto:user7@example.net', cn: '' },
-        { id: 'mailto:user8@example.net', cn: '' }
+        { id: "mailto:user2@example.net", cn: "Test2" },
+        { id: "mailto:user3@example.net", cn: "Test3" },
+        { id: "mailto:user4@example.net", cn: "" },
+        { id: "mailto:user5@example.net", cn: "" },
+        { id: "mailto:user6@example.net", cn: null },
+        { id: "mailto:user7@example.net", cn: "" },
+        { id: "mailto:user8@example.net", cn: "" }
     ];
     let event = createEventFromIcalString(ics);
 

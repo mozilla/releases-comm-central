@@ -39,7 +39,7 @@ function verify(controller, dates, timezones, times) {
       let day = times[date][tz][2];
 
       let timeNode = (new elementslib.Lookup(controller.window.document,
-                                             timeLine + '[' + correctHour + ']')).getNode();
+                                             timeLine + "[" + correctHour + "]")).getNode();
       let timeY = timeNode.boxObject.y;
       timeY += timeNode.boxObject.height * (minutes / 60);
 

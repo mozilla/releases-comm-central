@@ -262,11 +262,11 @@ function checkMultiWeekView(view) {
   controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, path + eventPath));
   // assert exactly two
   path = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, startWeek, 3, hour);
-  controller.assertNode(new elementslib.Lookup(controller.window.document, path + '/[0]'));
+  controller.assertNode(new elementslib.Lookup(controller.window.document, path + "/[0]"));
   path = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, startWeek, 3, hour);
-  controller.assertNode(new elementslib.Lookup(controller.window.document, path + '/[1]'));
+  controller.assertNode(new elementslib.Lookup(controller.window.document, path + "/[1]"));
   path = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, startWeek, 3, hour);
-  controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, path + '/[2]'));
+  controller.assertNodeNotExist(new elementslib.Lookup(controller.window.document, path + "/[2]"));
   path = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, startWeek, 4, hour);
   controller.assertNode(new elementslib.Lookup(controller.window.document, path + eventPath));
   path = calUtils.getEventBoxPath(controller, view, calUtils.EVENT_BOX, startWeek, 5, hour);

@@ -460,8 +460,8 @@
             let template =
                 document.getAnonymousElementByAttribute(
                     this, "anonid", "template");
-            let event = document.createEvent('Events');
-            event.initEvent('timebar', true, false);
+            let event = document.createEvent("Events");
+            event.initEvent("timebar", true, false);
             event.details = this.contentWidth;
             event.height = template.dayHeight;
             this.dispatchEvent(event);
@@ -1200,8 +1200,8 @@
           // rather than using the real visible first row of the listbox.
           // For now we'll just put in a hack that ensures the focused attribute
           // is never copied when the node is cloned.
-          if (grid.getAttribute('focused') != '') {
-              grid.removeAttribute('focused');
+          if (grid.getAttribute("focused") != "") {
+              grid.removeAttribute("focused");
           }
         ]]></body>
       </method>
@@ -1423,7 +1423,7 @@
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
           if (listbox && aRow > 0) {
-              let listitems = listbox.getElementsByTagNameNS('*', 'listitem');
+              let listitems = listbox.getElementsByTagNameNS("*", "listitem");
               if (listitems && listitems.length >= aRow) {
                   return listitems[aRow - 1];
               }
@@ -1502,7 +1502,7 @@
           let listbox =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "listbox");
-          let items = listbox.getElementsByTagNameNS('*', 'listitem');
+          let items = listbox.getElementsByTagNameNS("*", "listitem");
           this.mContentHeight = 0;
           if (items.length > 0) {
               let i = 0;
@@ -1575,7 +1575,7 @@
               let listbox =
                   document.getAnonymousElementByAttribute(
                       this, "anonid", "listbox");
-              let listCols = listbox.getElementsByTagNameNS('*', 'listcol');
+              let listCols = listbox.getElementsByTagNameNS("*", "listcol");
               this.mNumColumns = listCols.length || 1;
           }
           return this.mNumColumns;

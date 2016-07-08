@@ -141,9 +141,9 @@
         // relyable way with the 'persist' feature.
         // that's why we need to store the necessary bits and
         // pieces at the element this binding is attached to.
-        let names = this.getAttribute("visible-columns").split(' ');
-        let ordinals = this.getAttribute("ordinals").split(' ');
-        let widths = this.getAttribute("widths").split(' ');
+        let names = this.getAttribute("visible-columns").split(" ");
+        let ordinals = this.getAttribute("ordinals").split(" ");
+        let widths = this.getAttribute("widths").split(" ");
         let sorted = this.getAttribute("sort-active");
         let sortDirection = this.getAttribute("sort-direction") || "ascending";
         tree = document.getAnonymousNodes(this)[0];
@@ -553,7 +553,7 @@
                   if (content == "completed") {
                       let newTask = task.clone().QueryInterface(Components.interfaces.calITodo);
                       newTask.isCompleted = !task.completedDate;
-                      doTransaction('modify', newTask, newTask.calendar, task, null);
+                      doTransaction("modify", newTask, newTask.calendar, task, null);
                   }
               }
           },
@@ -590,7 +590,7 @@
               switch (aCol.element.getAttribute("itemproperty")) {
                   case "title":
                       // return title, or "Untitled" if empty/null
-                      return (task.title ? task.title.replace(/\n/g, ' ') : calGetString("calendar", "eventUntitled"));
+                      return (task.title ? task.title.replace(/\n/g, " ") : calGetString("calendar", "eventUntitled"));
                   case "entryDate":
                       return task.recurrenceInfo ? calGetString("dateFormat", "Repeating") : this._formatDateTime(task.entryDate);
                   case "dueDate":
@@ -751,7 +751,7 @@
               switch (event.keyCode || event.which) {
                   case kKE.DOM_VK_DELETE:
                       document.popupNode = this.binding;
-                      document.getElementById('calendar_delete_todo_command').doCommand();
+                      document.getElementById("calendar_delete_todo_command").doCommand();
                       event.preventDefault();
                       event.stopPropagation();
                       break;
@@ -851,8 +851,8 @@
                                                      this.binding.mFilter.getOccurrences(aOldItem));
 
                   // we also need to notify potential listeners.
-                  let event = document.createEvent('Events');
-                  event.initEvent('select', true, false);
+                  let event = document.createEvent("Events");
+                  event.initEvent("select", true, false);
                   this.binding.dispatchEvent(event);
               }
           },

@@ -71,7 +71,7 @@ var testMultiWeekView = function() {
   // check that the start time is correct
   // next full hour except last hour hour of the day
   let nextHour = (hour == 23) ? hour : (hour + 1) % 24;
-  let startTime = nextHour + ':00';
+  let startTime = nextHour + ":00";
   let startTimeInput = new elementslib.Lookup(event.window.document, eventDialog +
     'id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/' +
     'id("event-starttime")/anon({"anonid":"hbox"})/anon({"anonid":"time-picker"})/' +

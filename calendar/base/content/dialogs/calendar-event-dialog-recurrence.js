@@ -57,7 +57,7 @@ function onLoad() {
     }
     if (!rule) {
         rule = createRecurrenceRule();
-        rule.type = 'DAILY';
+        rule.type = "DAILY";
         rule.interval = 1;
         rule.count = -1;
     }
@@ -481,7 +481,7 @@ function disableOrEnable(item) {
 function disableRecurrenceFields(aAttributeName) {
     let disableElements = document.getElementsByAttribute(aAttributeName, "true");
     for (let i = 0; i < disableElements.length; i++) {
-        disableElements[i].setAttribute('disabled', 'true');
+        disableElements[i].setAttribute("disabled", "true");
     }
 }
 
@@ -494,7 +494,7 @@ function disableRecurrenceFields(aAttributeName) {
 function enableRecurrenceFields(aAttributeName) {
     let enableElements = document.getElementsByAttribute(aAttributeName, "true");
     for (let i = 0; i < enableElements.length; i++) {
-        enableElements[i].removeAttribute('disabled');
+        enableElements[i].removeAttribute("disabled");
     }
 }
 

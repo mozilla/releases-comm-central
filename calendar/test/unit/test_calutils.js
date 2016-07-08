@@ -137,17 +137,17 @@ function resolveDelegation_test() {
         input: {
             attendee:
                 'ATTENDEE;DELEGATED-FROM="mailto:attendee2@example.net";CN="Attendee 1":mailto:at' +
-                'tendee1@example.net',
+                "tendee1@example.net",
             attendees: [
                 'ATTENDEE;DELEGATED-FROM="mailto:attendee2@example.net";CN="Attendee 1":mailto:at' +
-                'tendee1@example.net',
+                "tendee1@example.net",
                 'ATTENDEE;DELEGATED-TO="mailto:attendee1@example.net";CN="Attendee 2":mailto:atte' +
-                'ndee2@example.net'
+                "ndee2@example.net"
             ]
         },
         expected: {
-            delegatees: '',
-            delegators: 'Attendee 2 <attendee2@example.net>'
+            delegatees: "",
+            delegators: "Attendee 2 <attendee2@example.net>"
         }
     }, {
         input: {
@@ -159,24 +159,24 @@ function resolveDelegation_test() {
             ]
         },
         expected: {
-            delegatees: '',
-            delegators: 'attendee2@example.net'
+            delegatees: "",
+            delegators: "attendee2@example.net"
         }
     }, {
         input: {
             attendee:
                 'ATTENDEE;DELEGATED-TO="mailto:attendee2@example.net";CN="Attendee 1":mailto:atte' +
-                'ndee1@example.net',
+                "ndee1@example.net",
             attendees: [
                 'ATTENDEE;DELEGATED-TO="mailto:attendee2@example.net";CN="Attendee 1":mailto:atte' +
-                'ndee1@example.net',
+                "ndee1@example.net",
                 'ATTENDEE;DELEGATED-FROM="mailto:attendee1@example.net";CN="Attendee 2":mailto:at' +
-                'tendee2@example.net'
+                "tendee2@example.net"
             ]
         },
         expected: {
-            delegatees: 'Attendee 2 <attendee2@example.net>',
-            delegators: ''
+            delegatees: "Attendee 2 <attendee2@example.net>",
+            delegators: ""
         }
     }, {
         input: {
@@ -188,21 +188,21 @@ function resolveDelegation_test() {
             ]
         },
         expected: {
-            delegatees: 'attendee2@example.net',
-            delegators: ''
+            delegatees: "attendee2@example.net",
+            delegators: ""
         }
     }, {
         input: {
             attendee:
-                'ATTENDEE:mailto:attendee1@example.net',
+                "ATTENDEE:mailto:attendee1@example.net",
             attendees: [
-                'ATTENDEE:mailto:attendee1@example.net',
-                'ATTENDEE:mailto:attendee2@example.net'
+                "ATTENDEE:mailto:attendee1@example.net",
+                "ATTENDEE:mailto:attendee2@example.net"
             ]
         },
         expected: {
-            delegatees: '',
-            delegators: ''
+            delegatees: "",
+            delegators: ""
         }
     }, {
         input: {
@@ -217,8 +217,8 @@ function resolveDelegation_test() {
             ]
         },
         expected: {
-            delegatees: 'attendee3@example.net',
-            delegators: 'attendee2@example.net'
+            delegatees: "attendee3@example.net",
+            delegators: "attendee2@example.net"
         }
     }];
     let i = 0;
