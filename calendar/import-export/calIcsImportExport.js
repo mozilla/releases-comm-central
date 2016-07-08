@@ -39,7 +39,7 @@ calIcsImporter.prototype = {
 
     getFileTypes: getIcsFileTypes,
 
-    importFromStream: function importFromStream(aStream, aCount) {
+    importFromStream: function(aStream, aCount) {
         let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
                                .createInstance(Components.interfaces.calIIcsParser);
         parser.parseFromStream(aStream, null);
@@ -67,7 +67,7 @@ calIcsExporter.prototype = {
 
     getFileTypes: getIcsFileTypes,
 
-    exportToStream: function exportToStream(aStream, aCount, aItems) {
+    exportToStream: function(aStream, aCount, aItems) {
         let serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
                                    .createInstance(Components.interfaces.calIIcsSerializer);
         serializer.addItems(aItems, aItems.length);

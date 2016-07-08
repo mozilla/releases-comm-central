@@ -132,7 +132,7 @@ function calCachedCalendar(uncachedCalendar) {
     this.offlineCachedItemFlags = {};
 }
 calCachedCalendar.prototype = {
-    QueryInterface: function cCC_QueryInterface(aIID) {
+    QueryInterface: function(aIID) {
         if (aIID.equals(Components.interfaces.calISchedulingSupport) &&
             this.mUncachedCalendar.QueryInterface(aIID)) {
             // check whether uncached calendar supports it:
@@ -171,7 +171,7 @@ calCachedCalendar.prototype = {
         }
     },
 
-    setupCachedCalendar: function cCC_setupCachedCalendar() {
+    setupCachedCalendar: function() {
         try {
             if (this.mCachedCalendar) { // this is actually a resetupCachedCalendar:
                 // Although this doesn't really follow the spec, we know the
@@ -222,19 +222,19 @@ calCachedCalendar.prototype = {
         }
     },
 
-    getOfflineAddedItems: function cCC_getOfflineAddedItems(callbackFunc) {
+    getOfflineAddedItems: function(callbackFunc) {
         let self = this;
         self.offlineCachedItems = {};
         let getListener = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
-            onGetResult: function cCC_oOC_cL_onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+            onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                 for (let item of aItems) {
                     self.offlineCachedItems[item.hashId] = item;
                     self.offlineCachedItemFlags[item.hashId] = cICL.OFFLINE_FLAG_CREATED_RECORD;
                 }
             },
 
-            onOperationComplete: function cCC_oOC_cL_onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
+            onOperationComplete: function(aCalendar, aStatus, aOpType, aId, aDetail) {
                 self.getOfflineModifiedItems(callbackFunc);
             }
         };
@@ -242,18 +242,18 @@ calCachedCalendar.prototype = {
                                       0, null, null, getListener);
     },
 
-    getOfflineModifiedItems: function cCC_getOfflineModifiedItems(callbackFunc) {
+    getOfflineModifiedItems: function(callbackFunc) {
         let self = this;
         let getListener = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
-            onGetResult: function cCC_oOC_cL_onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+            onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                 for (let item of aItems) {
                     self.offlineCachedItems[item.hashId] = item;
                     self.offlineCachedItemFlags[item.hashId] = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
                 }
             },
 
-            onOperationComplete: function cCC_oOC_cL_onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
+            onOperationComplete: function(aCalendar, aStatus, aOpType, aId, aDetail) {
                 self.getOfflineDeletedItems(callbackFunc);
             }
         };
@@ -261,18 +261,18 @@ calCachedCalendar.prototype = {
                                       0, null, null, getListener);
     },
 
-    getOfflineDeletedItems: function cCC_getOfflineDeletedItems(callbackFunc) {
+    getOfflineDeletedItems: function(callbackFunc) {
         let self = this;
         let getListener = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
-            onGetResult: function cCC_oOC_cL_onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+            onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                 for (let item of aItems) {
                     self.offlineCachedItems[item.hashId] = item;
                     self.offlineCachedItemFlags[item.hashId] = cICL.OFFLINE_FLAG_DELETED_RECORD;
                 }
             },
 
-            onOperationComplete: function cCC_oOC_cL_onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
+            onOperationComplete: function(aCalendar, aStatus, aOpType, aId, aDetail) {
                 if (callbackFunc) {
                     callbackFunc();
                 }
@@ -284,7 +284,7 @@ calCachedCalendar.prototype = {
 
     mPendingSync: null,
     mSyncQueue: null,
-    synchronize: function cCC_synchronize(respFunc) {
+    synchronize: function(respFunc) {
         let self = this;
         if (this.getProperty("disabled")) {
             return emptyQueue(Components.results.NS_OK);
@@ -347,12 +347,7 @@ calCachedCalendar.prototype = {
             getsReceived: 0,
             opCompleted: false,
 
-            onGetResult: function cCC_oOC_cL_onGetResult(aCalendar,
-                                                         aStatus,
-                                                         aItemType,
-                                                         aDetail,
-                                                         aCount,
-                                                         aItems) {
+            onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                 if (Components.isSuccessCode(aStatus)) {
                     if (!this.hasRenewedCalendar) {
                         // TODO instead of deleting the calendar and creating a new
@@ -368,7 +363,7 @@ calCachedCalendar.prototype = {
                         // These may be different than what the cache has
                         completeListener.modifiedTimes[item.id] = item.lastModifiedTime;
                         self.mCachedCalendar.addItem(item, null);
-                    }, function completed() {
+                    }, function() {
                         completeListener.getsCompleted++;
                         if (completeListener.opCompleted) {
                             // onOperationComplete was called, but we were not ready yet. call it now.
@@ -379,11 +374,7 @@ calCachedCalendar.prototype = {
                 }
             },
 
-            onOperationComplete: function cCC_oOC_cL_onOperationComplete(aCalendar,
-                                                                         aStatus,
-                                                                         aOpType,
-                                                                         aId,
-                                                                         aDetail) {
+            onOperationComplete: function(aCalendar, aStatus, aOpType, aId, aDetail) {
                 if (this.getsCompleted < this.getsReceived) {
                     // If not all of our gets have been processed, then save the
                     // arguments and finish processing later.
@@ -434,8 +425,7 @@ calCachedCalendar.prototype = {
                                 }
                                 break;
                         }
-                    },
-                    function completed() {
+                    }, function() {
                         self.offlineCachedItems = {};
                         self.offlineCachedItemFlags = {};
                         self.playbackOfflineItems(() => emptyQueue(aStatus));
@@ -454,7 +444,7 @@ calCachedCalendar.prototype = {
         return this.mPendingSync;
     },
 
-    onOfflineStatusChanged: function cCC_onOfflineStatusChanged(aNewState) {
+    onOfflineStatusChanged: function(aNewState) {
         if (aNewState) {
             // Going offline: (XXX get items before going offline?) => we may ask the user to stay online a bit longer
         } else {
@@ -464,7 +454,7 @@ calCachedCalendar.prototype = {
     },
 
     // aOldItem is already in the cache
-    promptOverwrite: function cCC_promptOverwrite(aMethod, aItem, aListener, aOldItem) {
+    promptOverwrite: function(aMethod, aItem, aListener, aOldItem) {
         let overwrite = cal.promptOverwrite(aMethod, aItem, aListener, aOldItem);
         if (overwrite) {
             if (aMethod == "modify") {
@@ -485,7 +475,7 @@ calCachedCalendar.prototype = {
      *                          operation. Valid values for this parameter are defined as
      *                          OFFLINE_FLAG_XXX constants in the calIChangeLog interface.
      */
-    playbackOfflineItems: function cCC_playbackOfflineItems(aCallback, aPlaybackType) {
+    playbackOfflineItems: function(aCallback, aPlaybackType) {
         let self = this;
         let storage = this.mCachedCalendar.QueryInterface(Components.interfaces.calIOfflineStorage);
 

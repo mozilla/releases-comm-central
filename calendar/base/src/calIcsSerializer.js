@@ -23,31 +23,31 @@ calIcsSerializer.prototype = {
         interfaces: calIcsSerializerInterfaces,
     }),
 
-    addItems: function is_addItems(aItems, aCount) {
+    addItems: function(aItems, aCount) {
         if (aCount > 0) {
             this.mItems = this.mItems.concat(aItems);
         }
     },
 
-    addProperty: function is_addProperty(aProperty) {
+    addProperty: function(aProperty) {
        this.mProperties.push(aProperty);
     },
 
-    addComponent: function is_addComponent(aComponent) {
+    addComponent: function(aComponent) {
        this.mComponents.push(aComponent);
     },
 
-    serializeToString: function is_serializeToString() {
+    serializeToString: function() {
         let calComp = this.getIcalComponent();
         return calComp.serializeToICS();
     },
 
-    serializeToInputStream: function is_serializeToStream(aStream) {
+    serializeToInputStream: function(aStream) {
         let calComp = this.getIcalComponent();
         return calComp.serializeToICSStream();
     },
 
-    serializeToStream: function is_serializeToStream(aStream) {
+    serializeToStream: function(aStream) {
         let str = this.serializeToString();
 
         // Convert the javascript string to an array of bytes, using the
@@ -60,7 +60,7 @@ calIcsSerializer.prototype = {
         convStream.close();
     },
 
-    getIcalComponent: function is_getIcalComponent() {
+    getIcalComponent: function() {
         let calComp = getIcsService().createIcalComponent("VCALENDAR");
         calSetProdidVersion(calComp);
 

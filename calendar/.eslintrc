@@ -388,6 +388,9 @@
     // Require dot notation when accessing properties
     "dot-notation": 2,
 
+    // Disallow named function expressions
+    "func-names": [2, "never"],
+
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.
     "no-else-return": 0,

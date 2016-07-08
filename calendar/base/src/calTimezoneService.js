@@ -22,10 +22,10 @@ function calStringEnumerator(stringArray) {
 }
 calStringEnumerator.prototype = {
     // nsIUTF8StringEnumerator:
-    hasMore: function calStringEnumerator_hasMore() {
+    hasMore: function() {
         return (this.mIndex < this.mStringArray.length);
     },
-    getNext: function calStringEnumerator_getNext() {
+    getNext: function() {
         if (!this.hasMore()) {
             throw Components.results.NS_ERROR_UNEXPECTED;
         }
@@ -71,7 +71,7 @@ calTimezoneService.prototype = {
     register: function() {},
 
     // calIStartupService:
-    startup: function startup(aCompleteListener) {
+    startup: function(aCompleteListener) {
         function fetchJSON(aURL) {
             cal.LOG("[calTimezoneService] Loading " + aURL);
 
@@ -144,7 +144,7 @@ calTimezoneService.prototype = {
         });
     },
 
-    shutdown: function shutdown(aCompleteListener) {
+    shutdown: function(aCompleteListener) {
         Services.prefs.removeObserver("calendar.timezone.local", this);
         aCompleteListener.onResult(null, Components.results.NS_OK);
     },
@@ -181,7 +181,7 @@ calTimezoneService.prototype = {
     },
 
     // calITimezoneProvider:
-    getTimezone: function calTimezoneService_getTimezone(tzid) {
+    getTimezone: function(tzid) {
         if (!tzid) {
             cal.ERROR("Unknown timezone requested\n" + cal.STACK(10));
             return null;
@@ -270,7 +270,7 @@ calTimezoneService.prototype = {
         return this.mDefaultTimezone;
     },
 
-    setupObservers: function calTimezoneService_setupObservers() {
+    setupObservers: function() {
         if (!this.mHasSetupObservers) {
             // Now set up the observer
             Services.prefs.addObserver("calendar.timezone.local", this, false);
@@ -278,7 +278,7 @@ calTimezoneService.prototype = {
         }
     },
 
-    observe: function calTimezoneService_observe(aSubject, aTopic, aData) {
+    observe: function(aSubject, aTopic, aData) {
         if (aTopic == "nsPref:changed" && aData == "calendar.timezone.local") {
             // Unsetting the default timezone will make the next call to the
             // default timezone getter set up the correct timezone again.

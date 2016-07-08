@@ -7,7 +7,7 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 var calendarExtract = {
-    onShowLocaleMenu: function onShowLocaleMenu(target) {
+    onShowLocaleMenu: function(target) {
         let localeList = document.getElementById(target.id);
         let langs = [];
         let chrome = Components.classes["@mozilla.org/chrome/chrome-registry;1"]
@@ -59,13 +59,13 @@ var calendarExtract = {
         }
     },
 
-    extractWithLocale: function extractWithLocale(event, isEvent) {
+    extractWithLocale: function(event, isEvent) {
         event.stopPropagation();
         let locale = event.target.value;
         this.extractFromEmail(isEvent, true, locale);
     },
 
-    extractFromEmail: function extractFromEmail(isEvent, fixedLang, fixedLocale) {
+    extractFromEmail: function(isEvent, fixedLang, fixedLocale) {
         // TODO would be nice to handle multiple selected messages,
         // though old conversion functionality didn't
         let message = gFolderDisplay.selectedMessage;
@@ -209,7 +209,7 @@ var calendarExtract = {
         cal.LOG("[calExtract] Total time spent for conversion (including loading of dictionaries): " + timeSpent + "ms");
     },
 
-    addListeners: function addListeners() {
+    addListeners: function() {
         if (window.top.document.location == "chrome://messenger/content/messenger.xul") {
             // covers initial load and folder change
             let folderTree = document.getElementById("folderTree");
@@ -226,7 +226,7 @@ var calendarExtract = {
         }
     },
 
-    setState: function setState() {
+    setState: function() {
         let eventButton = document.getElementById("extractEventButton");
         let taskButton = document.getElementById("extractTaskButton");
         let hdrEventButton = document.getElementById("hdrExtractEventButton");

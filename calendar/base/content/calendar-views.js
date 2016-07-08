@@ -405,7 +405,7 @@ var categoryPrefBranch;
 var categoryManagement = {
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIObserver]),
 
-    initCategories: function cM_initCategories() {
+    initCategories: function() {
       categoryPrefBranch = Services.prefs.getBranch("calendar.category.color.");
       let categories = categoryPrefBranch.getChildList("");
 
@@ -431,12 +431,12 @@ var categoryManagement = {
       categoryPrefBranch.addObserver("", categoryManagement, false);
     },
 
-    cleanupCategories: function cM_cleanupCategories() {
+    cleanupCategories: function() {
       categoryPrefBranch = Services.prefs.getBranch("calendar.category.color.");
       categoryPrefBranch.removeObserver("", categoryManagement);
     },
 
-    observe: function cM_observe(aSubject, aTopic, aPrefName) {
+    observe: function(aSubject, aTopic, aPrefName) {
         this.updateStyleSheetForCategory(aPrefName);
         // TODO Currently, the only way to find out if categories are removed is
         // to initially grab the calendar.categories.names preference and then
@@ -447,7 +447,7 @@ var categoryManagement = {
 
     categoryStyleCache: {},
 
-    updateStyleSheetForCategory: function cM_updateStyleSheetForCategory(aCatName) {
+    updateStyleSheetForCategory: function(aCatName) {
         if (!(aCatName in this.categoryStyleCache)) {
             // We haven't created a rule for this category yet, do so now.
             let sheet = getViewStyleSheet();
@@ -642,13 +642,10 @@ function selectAllEvents() {
     let items = [];
     let listener = {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
-        onOperationComplete: function selectAll_ooc(aCalendar, aStatus,
-                                                    aOperationType, aId,
-                                                    aDetail) {
+        onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
             currentView().setSelectedItems(items.length, items, false);
         },
-        onGetResult: function selectAll_ogr(aCalendar, aStatus, aItemType,
-                                            aDetail, aCount, aItems) {
+        onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
             for (let item of aItems) {
                 items.push(item);
             }
@@ -678,7 +675,7 @@ function selectAllEvents() {
 
 var cal = cal || {};
 cal.navigationBar = {
-    setDateRange: function setDateRange(aStartDate, aEndDate) {
+    setDateRange: function(aStartDate, aEndDate) {
         let docTitle = "";
         if (aStartDate) {
             let intervalLabel = document.getElementById("intervalDescription");

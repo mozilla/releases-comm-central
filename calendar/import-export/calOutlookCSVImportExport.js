@@ -124,7 +124,7 @@ calOutlookCSVImporter.prototype = {
      * Returns: an array of parsed calendarEvents.
      *   If the parse is cancelled, a zero length array is returned.
      */
-    importFromStream: function csv_importFromStream(aStream, aCount) {
+    importFromStream: function(aStream, aCount) {
         let scriptableInputStream = Components.classes["@mozilla.org/scriptableinputstream;1"]
                                               .createInstance(Components.interfaces.nsIScriptableInputStream);
         scriptableInputStream.init(aStream);
@@ -363,7 +363,7 @@ calOutlookCSVImporter.prototype = {
         return eventArray;
     },
 
-    parseDateTime: function parseDateTime(aDate, aTime, aLocale) {
+    parseDateTime: function(aDate, aTime, aLocale) {
         let dt = cal.createDateTime();
 
         // XXX Can we do better?
@@ -400,7 +400,7 @@ calOutlookCSVImporter.prototype = {
         return dt;
     },
 
-    parseTextField: function parseTextField(aTextField) {
+    parseTextField: function(aTextField) {
         return aTextField ? aTextField.replace(/""/g, "\"") : "";
     }
 };
@@ -422,7 +422,7 @@ calOutlookCSVExporter.prototype = {
 
     getFileTypes: getOutlookCsvFileTypes,
 
-    exportToStream: function csv_exportToStream(aStream, aCount, aItems) {
+    exportToStream: function(aStream, aCount, aItems) {
         // Helper functions
         function dateString(aDateTime) { return cal.dateTimeToJsDate(aDateTime).toLocaleFormat(localeEn.dateFormat); }
         function timeString(aDateTime) { return cal.dateTimeToJsDate(aDateTime).toLocaleFormat(localeEn.timeFormat); }

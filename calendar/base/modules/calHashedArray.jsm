@@ -16,7 +16,7 @@ var EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, imp
  *  - Deleting items is O(n)
  *  - Modifying items is fast.
  */
-cal.HashedArray = function HashedArray() {
+cal.HashedArray = function() {
     this.clear();
 };
 
@@ -52,7 +52,7 @@ cal.HashedArray.prototype = {
      * @param index         The index of the item to retrieve.
      * @return              The retrieved item.
      */
-    itemByIndex: function itemByIndex(index) {
+    itemByIndex: function(index) {
         return this.mArray[index];
     },
 
@@ -62,7 +62,7 @@ cal.HashedArray.prototype = {
      * @param id            The hashId of the item to retrieve.
      * @return              The retrieved item.
      */
-    itemById: function itemById(id) {
+    itemById: function(id) {
         if (this.mBatch > 0) {
             throw "Accessing Array by ID not supported in batch mode ";
         }
@@ -76,7 +76,7 @@ cal.HashedArray.prototype = {
      * @param item          The item to search for.
      * @return              The index of the item.
      */
-    indexOf: function indexOf(item) {
+    indexOf: function(item) {
         if (this.mBatch > 0) {
             throw "Accessing Array Indexes not supported in batch mode";
         }
@@ -89,7 +89,7 @@ cal.HashedArray.prototype = {
      *
      * @param id            The id of the item to be removed
      */
-    removeById: function removeById(id) {
+    removeById: function(id) {
         if (this.mBatch > 0) {
             throw "Remvoing by ID in batch mode is not supported"; /* TODO */
         }
@@ -104,7 +104,7 @@ cal.HashedArray.prototype = {
      *
      * @param index         The index of the item to remove.
      */
-    removeByIndex: function removeByIndex(index) {
+    removeByIndex: function(index) {
         delete this.mHash[this.hashAccessor(this.mArray[index])];
         this.mArray.splice(index, 1);
         this.reindex(index);
@@ -113,7 +113,7 @@ cal.HashedArray.prototype = {
     /**
      * Clear the whole array, removing all items. This also resets batch mode.
      */
-     clear: function clear() {
+     clear: function() {
         this.mHash = {};
         this.mArray = [];
         this.mFirstDirty = -1;
@@ -126,7 +126,7 @@ cal.HashedArray.prototype = {
      * @param item          The item to add.
      * @return              The index of the added item.
      */
-    addItem: function addItem(item) {
+    addItem: function(item) {
         let index = this.mArray.length;
         this.mArray.push(item);
         this.reindex(index);
@@ -141,7 +141,7 @@ cal.HashedArray.prototype = {
      * @param item          The item to modify.
      * @return              The (new) index.
      */
-    modifyItem: function modifyItem(item) {
+    modifyItem: function(item) {
         let hashId = this.hashAccessor(item);
         if (hashId in this.mHash) {
             let index = this.mHash[this.hashAccessor(item)];
@@ -162,7 +162,7 @@ cal.HashedArray.prototype = {
      * @param to        (optional) The index to end indexing on. If left out,
      *                    defaults to the array length.
      */
-    reindex: function reindex(from, to) {
+    reindex: function(from, to) {
         if (this.mArray.length == 0) {
             return;
         }
@@ -190,11 +190,11 @@ cal.HashedArray.prototype = {
         }
     },
 
-    startBatch: function startBatch() {
+    startBatch: function() {
         this.mBatch++;
     },
 
-    endBatch: function endBatch() {
+    endBatch: function() {
         this.mBatch = Math.max(0, this.mBatch - 1);
 
         if (this.mBatch == 0 && this.mFirstDirty > -1) {
@@ -206,7 +206,7 @@ cal.HashedArray.prototype = {
     /**
      * Iterator to allow iterating the hashed array object.
      */
-    [Symbol.iterator]: function* iterator() {
+    [Symbol.iterator]: function* () {
         yield* this.mArray;
     }
 };
@@ -219,7 +219,7 @@ cal.HashedArray.prototype = {
  *  - Adding and deleting items is O(n)
  *  - Modifying items is fast.
  */
-cal.SortedHashedArray = function SortedHashedArray(comparator) {
+cal.SortedHashedArray = function(comparator) {
     cal.HashedArray.apply(this, arguments);
     if (!comparator) {
         throw "Sorted Hashed Array needs a comparator";
@@ -232,13 +232,13 @@ cal.SortedHashedArray.prototype = {
 
     mCompFunc: null,
 
-    addItem: function addItem(item) {
+    addItem: function(item) {
         let newIndex = cal.binaryInsert(this.mArray, item, this.mCompFunc, false);
         this.reindex(newIndex);
         return newIndex;
     },
 
-    modifyItem: function modifyItem(item) {
+    modifyItem: function(item) {
         let hashId = this.hashAccessor(item);
         if (hashId in this.mHash) {
             let cmp = this.mCompFunc(item, this.mArray[this.mHash[hashId]]);

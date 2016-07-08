@@ -25,17 +25,17 @@ calRecurrenceDate.prototype = {
         classDescription: "The date of an occurrence of a recurring item",
         interfaces: calRecurrenceDateInterfaces
     }),
-    makeImmutable: function makeImmutable() {
+    makeImmutable: function() {
         this.isMutable = false;
     },
 
-    ensureMutable: function ensureMutable() {
+    ensureMutable: function() {
         if (!this.isMutable) {
             throw Components.results.NS_ERROR_OBJECT_IS_MUTABLE;
         }
     },
 
-    clone: function clone() {
+    clone: function() {
         let other = new calRecurrenceDate();
         other.mDate = (this.mDate ? this.mDate.clone() : null);
         other.mIsNegative = this.mIsNegative;
@@ -56,7 +56,7 @@ calRecurrenceDate.prototype = {
         return (this.mDate = val);
     },
 
-    getNextOccurrence: function getNextOccurrence(aStartTime, aOccurrenceTime) {
+    getNextOccurrence: function(aStartTime, aOccurrenceTime) {
         if (this.mDate && this.mDate.compare(aStartTime) > 0) {
             return this.mDate;
         } else {
@@ -64,7 +64,7 @@ calRecurrenceDate.prototype = {
         }
     },
 
-    getOccurrences: function getOccurrences(aStartTime, aRangeStart, aRangeEnd, aMaxCount, aCount) {
+    getOccurrences: function(aStartTime, aRangeStart, aRangeEnd, aMaxCount, aCount) {
         if (this.mDate &&
             this.mDate.compare(aRangeStart) >= 0 &&
             (!aRangeEnd || this.mDate.compare(aRangeEnd) < 0)) {

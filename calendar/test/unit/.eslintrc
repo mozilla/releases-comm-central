@@ -14,5 +14,8 @@
     "block-scoped-var": 0,
     // Allow run_test to be unused in xpcshell
     "no-unused-vars": [2, { "vars": "all", "args": "none", "varsIgnorePattern": "run_test" }],
+
+    // Allow function names, because they are useful for add_test/add_task
+    "func-names": 0,
   }
 }

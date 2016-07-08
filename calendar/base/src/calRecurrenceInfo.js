@@ -45,17 +45,17 @@ calRecurrenceInfo.prototype = {
     /**
      * Helpers
      */
-    ensureBaseItem: function cRI_ensureBaseItem() {
+    ensureBaseItem: function() {
         if (!this.mBaseItem) {
             throw Components.results.NS_ERROR_NOT_INITIALIZED;
         }
     },
-    ensureMutable: function cRI_ensureMutable() {
+    ensureMutable: function() {
         if (this.mImmutable) {
             throw Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE;
         }
     },
-    ensureSortedRecurrenceRules: function cRI_ensureSortedRecurrenceRules() {
+    ensureSortedRecurrenceRules: function() {
         if (!this.mPositiveRules || !this.mNegativeRules) {
             this.mPositiveRules = [];
             this.mNegativeRules = [];
@@ -75,7 +75,7 @@ calRecurrenceInfo.prototype = {
     get isMutable() {
         return !this.mImmutable;
     },
-    makeImmutable: function cRI_makeImmutable() {
+    makeImmutable: function() {
         if (this.mImmutable) {
             return;
         }
@@ -96,7 +96,7 @@ calRecurrenceInfo.prototype = {
         this.mImmutable = true;
     },
 
-    clone: function cRI_clone() {
+    clone: function() {
         let cloned = new calRecurrenceInfo();
         cloned.mBaseItem = this.mBaseItem;
 
@@ -144,14 +144,14 @@ calRecurrenceInfo.prototype = {
         return true;
     },
 
-    getRecurrenceItems: function cRI_getRecurrenceItems(aCount) {
+    getRecurrenceItems: function(aCount) {
         this.ensureBaseItem();
 
         aCount.value = this.mRecurrenceItems.length;
         return this.mRecurrenceItems;
     },
 
-    setRecurrenceItems: function cRI_setRecurrenceItems(aCount, aItems) {
+    setRecurrenceItems: function(aCount, aItems) {
         this.ensureBaseItem();
         this.ensureMutable();
 
@@ -161,13 +161,13 @@ calRecurrenceInfo.prototype = {
         this.mNegativeRules = null;
     },
 
-    countRecurrenceItems: function cRI_countRecurrenceItems() {
+    countRecurrenceItems: function() {
         this.ensureBaseItem();
 
         return this.mRecurrenceItems.length;
     },
 
-    getRecurrenceItemAt: function cRI_getRecurrenceItemAt(aIndex) {
+    getRecurrenceItemAt: function(aIndex) {
         this.ensureBaseItem();
 
         if (aIndex < 0 || aIndex >= this.mRecurrenceItems.length) {
@@ -177,7 +177,7 @@ calRecurrenceInfo.prototype = {
         return this.mRecurrenceItems[aIndex];
     },
 
-    appendRecurrenceItem: function cRI_appendRecurrenceItem(aItem) {
+    appendRecurrenceItem: function(aItem) {
         this.ensureBaseItem();
         this.ensureMutable();
         this.ensureSortedRecurrenceRules();
@@ -190,7 +190,7 @@ calRecurrenceInfo.prototype = {
         }
     },
 
-    deleteRecurrenceItemAt: function cRI_deleteRecurrenceItemAt(aIndex) {
+    deleteRecurrenceItemAt: function(aIndex) {
         this.ensureBaseItem();
         this.ensureMutable();
 
@@ -207,7 +207,7 @@ calRecurrenceInfo.prototype = {
         this.mRecurrenceItems.splice(aIndex, 1);
     },
 
-    deleteRecurrenceItem: function cRI_deleteRecurrenceItem(aItem) {
+    deleteRecurrenceItem: function(aItem) {
         // Because xpcom objects can be wrapped in various ways, testing for
         // mere == sometimes returns false even when it should be true.  Use
         // the interface pointer returned by sip to avoid that problem.
@@ -224,7 +224,7 @@ calRecurrenceInfo.prototype = {
         }
     },
 
-    insertRecurrenceItemAt: function cRI_insertRecurrenceItemAt(aItem, aIndex) {
+    insertRecurrenceItemAt: function(aItem, aIndex) {
         this.ensureBaseItem();
         this.ensureMutable();
         this.ensureSortedRecurrenceRules();
@@ -242,7 +242,7 @@ calRecurrenceInfo.prototype = {
         this.mRecurrenceItems.splice(aIndex, 0, aItem);
     },
 
-    clearRecurrenceItems: function cRI_clearRecurrenceItems() {
+    clearRecurrenceItems: function() {
         this.ensureBaseItem();
         this.ensureMutable();
 
@@ -254,7 +254,7 @@ calRecurrenceInfo.prototype = {
     /*
      * calculations
      */
-    getNextOccurrence: function cRI_getNextOccurrence(aTime) {
+    getNextOccurrence: function(aTime) {
         this.ensureBaseItem();
         this.ensureSortedRecurrenceRules();
 
@@ -398,7 +398,7 @@ calRecurrenceInfo.prototype = {
         return (minOccRid ? this.getOccurrenceFor(minOccRid) : null);
     },
 
-    getPreviousOccurrence: function cRI_getPreviousOccurrence(aTime) {
+    getPreviousOccurrence: function(aTime) {
         // TODO libical currently does not provide us with easy means of
         // getting the previous occurrence. This could be fixed to improve
         // performance greatly. Filed as libical feature request 1944020.
@@ -419,9 +419,7 @@ calRecurrenceInfo.prototype = {
     },
 
     // internal helper function;
-    calculateDates: function cRI_calculateDates(aRangeStart,
-                                                aRangeEnd,
-                                                aMaxCount) {
+    calculateDates: function(aRangeStart, aRangeEnd, aMaxCount) {
         this.ensureBaseItem();
         this.ensureSortedRecurrenceRules();
 
@@ -576,20 +574,14 @@ calRecurrenceInfo.prototype = {
         return dates;
     },
 
-    getOccurrenceDates: function cRI_getOccurrenceDates(aRangeStart,
-                                                        aRangeEnd,
-                                                        aMaxCount,
-                                                        aCount) {
+    getOccurrenceDates: function(aRangeStart, aRangeEnd, aMaxCount, aCount) {
         let dates = this.calculateDates(aRangeStart, aRangeEnd, aMaxCount);
         dates = dates.map(function(d) { return d.rstart; });
         aCount.value = dates.length;
         return dates;
     },
 
-    getOccurrences: function cRI_getOccurrences(aRangeStart,
-                                                aRangeEnd,
-                                                aMaxCount,
-                                                aCount) {
+    getOccurrences: function(aRangeStart, aRangeEnd, aMaxCount, aCount) {
         let results = [];
         let dates = this.calculateDates(aRangeStart, aRangeEnd, aMaxCount);
         if (dates.length) {
@@ -609,7 +601,7 @@ calRecurrenceInfo.prototype = {
         return results;
     },
 
-    getOccurrenceFor: function cRI_getOccurrenceFor(aRecurrenceId) {
+    getOccurrenceFor: function(aRecurrenceId) {
         let proxy = this.getExceptionFor(aRecurrenceId);
         if (!proxy) {
             return this.item.createProxy(aRecurrenceId);
@@ -617,7 +609,7 @@ calRecurrenceInfo.prototype = {
         return proxy;
     },
 
-    removeOccurrenceAt: function cRI_removeOccurrenceAt(aRecurrenceId) {
+    removeOccurrenceAt: function(aRecurrenceId) {
         this.ensureBaseItem();
         this.ensureMutable();
 
@@ -631,7 +623,7 @@ calRecurrenceInfo.prototype = {
         this.appendRecurrenceItem(d);
     },
 
-    restoreOccurrenceAt: function cRI_restoreOccurrenceAt(aRecurrenceId) {
+    restoreOccurrenceAt: function(aRecurrenceId) {
         this.ensureBaseItem();
         this.ensureMutable();
         this.ensureSortedRecurrenceRules();
@@ -681,7 +673,7 @@ calRecurrenceInfo.prototype = {
     // I think is the right thing to do for CalDAV; I don't know what
     // we'll do for incoming ITIP events though.
     //
-    modifyException: function cRI_modifyException(anItem, aTakeOverOwnership) {
+    modifyException: function(anItem, aTakeOverOwnership) {
         this.ensureBaseItem();
 
         anItem = calTryWrappedJSObject(anItem);
@@ -712,7 +704,7 @@ calRecurrenceInfo.prototype = {
         this.mExceptionMap[exKey] = itemtoadd;
     },
 
-    getExceptionFor: function cRI_getExceptionFor(aRecurrenceId) {
+    getExceptionFor: function(aRecurrenceId) {
         this.ensureBaseItem();
         // Interface calIRecurrenceInfo specifies result be null if not found.
         // To avoid strict "reference to undefined property" warning, appending
@@ -721,12 +713,12 @@ calRecurrenceInfo.prototype = {
         return this.mExceptionMap[getRidKey(aRecurrenceId)] || null;
     },
 
-    removeExceptionFor: function cRI_removeExceptionFor(aRecurrenceId) {
+    removeExceptionFor: function(aRecurrenceId) {
         this.ensureBaseItem();
         delete this.mExceptionMap[getRidKey(aRecurrenceId)];
     },
 
-    getExceptionIds: function cRI_getExceptionIds(aCount) {
+    getExceptionIds: function(aCount) {
         this.ensureBaseItem();
 
         let ids = [];
@@ -742,7 +734,7 @@ calRecurrenceInfo.prototype = {
     // changing the startdate of an item needs to take exceptions into account.
     // in case we're about to modify a parentItem (aka 'folded' item), we need
     // to modify the recurrenceId's of all possibly existing exceptions as well.
-    onStartDateChange: function cRI_onStartDateChange(aNewStartTime, aOldStartTime) {
+    onStartDateChange: function(aNewStartTime, aOldStartTime) {
         // passing null for the new starttime would indicate an error condition,
         // since having a recurrence without a starttime is invalid.
         cal.ASSERT(aNewStartTime, "invalid arg!", true);
@@ -806,7 +798,7 @@ calRecurrenceInfo.prototype = {
         }
     },
 
-    onIdChange: function cRI_onIdChange(aNewId) {
+    onIdChange: function(aNewId) {
         // patch all overridden items' id:
         for (let ex in this.mExceptionMap) {
             let item = this.mExceptionMap[ex];

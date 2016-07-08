@@ -20,7 +20,7 @@ var gCategoriesPane = {
      * Initialize the categories pref pane. Sets up dialog controls to show the
      * categories saved in preferences.
      */
-    init: function gCP_init() {
+    init: function() {
         // On non-instant-apply platforms, once this pane has been loaded,
         // attach our "revert all changes" function to the parent prefwindow's
         // "ondialogcancel" event.
@@ -63,13 +63,13 @@ var gCategoriesPane = {
      * in preferences.
      */
 
-    updatePrefs: function gCP_updatePrefs() {
+    updatePrefs: function() {
         cal.sortArrayByLocaleCollator(gCategoryList);
         document.getElementById("calendar.categories.names").value =
             categoriesArrayToString(gCategoryList);
     },
 
-    updateCategoryList: function gCP_updateCategoryList() {
+    updateCategoryList: function() {
         this.updatePrefs();
         let listbox = document.getElementById("categorieslist");
 
@@ -106,7 +106,7 @@ var gCategoriesPane = {
      * Adds a category, opening the edit category dialog to prompt the user to
      * set up the category.
      */
-    addCategory: function gCP_addCategory() {
+    addCategory: function() {
         let listbox = document.getElementById("categorieslist");
         listbox.clearSelection();
         this.updateButtons();
@@ -123,7 +123,7 @@ var gCategoriesPane = {
     /**
      * Edits the currently selected category using the edit category dialog.
      */
-    editCategory: function gCP_editCategory() {
+    editCategory: function() {
         let list = document.getElementById("categorieslist");
         let categoryNameFix = formatStringForCSSRule(gCategoryList[list.selectedIndex]);
         let currentColor = null;
@@ -148,7 +148,7 @@ var gCategoriesPane = {
     /**
      * Removes the selected category.
      */
-    deleteCategory: function gCP_deleteCategory() {
+    deleteCategory: function() {
         let list = document.getElementById("categorieslist");
         if (list.selectedCount < 1) {
             return;
@@ -188,7 +188,7 @@ var gCategoriesPane = {
      * @param categoryName      The name of the category.
      * @param categoryColor     The color of the category
      */
-    saveCategory: function gCP_saveCateogry(categoryName, categoryColor) {
+    saveCategory: function(categoryName, categoryColor) {
         let list = document.getElementById("categorieslist");
         // Check to make sure another category doesn't have the same name
         let toBeDeleted = -1;
@@ -252,7 +252,7 @@ var gCategoriesPane = {
     /**
      * Enable the edit and delete category buttons.
      */
-    updateButtons: function gCP_updateButtons() {
+    updateButtons: function() {
         let categoriesList = document.getElementById("categorieslist");
         document.getElementById("deleteCButton").disabled = (categoriesList.selectedCount <= 0);
         document.getElementById("editCButton").disabled = (categoriesList.selectedCount != 1);
@@ -264,7 +264,7 @@ var gCategoriesPane = {
      * @see formatStringForCSSRule
      * @param categoryNameFix     The formatted category name.
      */
-    backupData: function gCP_backupData(categoryNameFix) {
+    backupData: function(categoryNameFix) {
         let currentColor;
         try {
             currentColor = categoryPrefBranch.getCharPref(categoryNameFix);
@@ -287,7 +287,7 @@ var gCategoriesPane = {
      * list. If the edit function is enabled and the user doubleclicked on a
      * list item, then edit the selected category.
      */
-    listOnDblClick: function gCP_listOnDblClick(event) {
+    listOnDblClick: function(event) {
         if (event.target.localName == "listitem" &&
             !document.getElementById("editCButton").disabled) {
             this.editCategory();
@@ -297,7 +297,7 @@ var gCategoriesPane = {
     /**
      * Reverts category preferences in case the cancel button is pressed.
      */
-    panelOnCancel: function gCP_panelOnCancel() {
+    panelOnCancel: function() {
         for (let i = 0; i < parent.backupPrefList.length; i++) {
             if (parent.backupPrefList[i].color == "##NEW") {
                 try {

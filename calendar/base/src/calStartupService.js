@@ -48,7 +48,7 @@ calStartupService.prototype = {
     /**
      * Sets up the needed observers for noticing startup/shutdown
      */
-    setupObservers: function ccm_setUpStartupObservers() {
+    setupObservers: function() {
         Services.obs.addObserver(this, "profile-after-change", false);
         Services.obs.addObserver(this, "profile-before-change", false);
         Services.obs.addObserver(this, "xpcom-shutdown", false);
@@ -62,7 +62,7 @@ calStartupService.prototype = {
      *
      * @return      The startup order as an array.
      */
-    getStartupOrder: function getStartupOrder() {
+    getStartupOrder: function() {
         let self = this;
         let tzService = Components.classes["@mozilla.org/calendar/timezone-service;1"]
                                   .getService(Components.interfaces.calITimezoneService);
@@ -76,7 +76,7 @@ calStartupService.prototype = {
                 Services.obs.notifyObservers(null, "calendar-startup-done", null);
                 aCompleteListener.onResult(null, Components.results.NS_OK);
             },
-            shutdown: function shutdown(aCompleteListener) {
+            shutdown: function(aCompleteListener) {
                 // Argh, it would have all been so pretty! Since we just reverse
                 // the array, the shutdown notification would happen before the
                 // other shutdown calls. For lack of pretty code, I'm
@@ -95,7 +95,7 @@ calStartupService.prototype = {
     /**
      * Observer notification callback
      */
-    observe: function observe(aSubject, aTopic, aData) {
+    observe: function(aSubject, aTopic, aData) {
         switch (aTopic) {
             case "profile-after-change":
                 callOrderedServices("startup", this.getStartupOrder());

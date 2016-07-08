@@ -61,11 +61,11 @@ calMemoryCalendar.prototype = {
         return cal.calGetString("calendar", "memoryName");
     },
 
-    createCalendar: function mem_createCal() {
+    createCalendar: function() {
         throw NS_ERROR_NOT_IMPLEMENTED;
     },
 
-    deleteCalendar: function mem_deleteCal(calendar, listener) {
+    deleteCalendar: function(calendar, listener) {
         calendar = calendar.wrappedJSObject;
         calendar.mItems = {};
         calendar.mMetaData = new cal.calPropertyBag();
@@ -89,7 +89,7 @@ calMemoryCalendar.prototype = {
     // calICalendar interface
     //
 
-    getProperty: function calMemoryCalendar_getProperty(aName) {
+    getProperty: function(aName) {
         switch (aName) {
             case "cache.supported":
             case "requiresNetwork":
@@ -489,7 +489,7 @@ calMemoryCalendar.prototype = {
     //
     // calIOfflineStorage interface
     //
-    addOfflineItem: function addOfflineItem(aItem, aListener) {
+    addOfflineItem: function(aItem, aListener) {
         this.mOfflineFlags[aItem.id] = cICL.OFFLINE_FLAG_CREATED_RECORD;
         this.notifyOperationComplete(aListener,
                                      Components.results.NS_OK,
@@ -498,7 +498,7 @@ calMemoryCalendar.prototype = {
                                      aItem);
     },
 
-    modifyOfflineItem: function modifyOfflineItem(aItem, aListener) {
+    modifyOfflineItem: function(aItem, aListener) {
         let oldFlag = this.mOfflineFlags[aItem.id];
         if (oldFlag != cICL.OFFLINE_FLAG_CREATED_RECORD &&
             oldFlag != cICL.OFFLINE_FLAG_DELETED_RECORD) {
@@ -512,7 +512,7 @@ calMemoryCalendar.prototype = {
                                      aItem);
     },
 
-    deleteOfflineItem: function deleteOfflineItem(aItem, aListener) {
+    deleteOfflineItem: function(aItem, aListener) {
         let oldFlag = this.mOfflineFlags[aItem.id];
         if (oldFlag == cICL.OFFLINE_FLAG_CREATED_RECORD) {
             delete this.mItems[aItem.id];
@@ -530,14 +530,14 @@ calMemoryCalendar.prototype = {
         this.observers.notify("onDeleteItem", [aItem]);
     },
 
-    getItemOfflineFlag: function getItemOfflineFlag(aItem, aListener) {
+    getItemOfflineFlag: function(aItem, aListener) {
         let flag = (aItem && aItem.id in this.mOfflineFlags ? this.mOfflineFlags[aItem.id] : null);
         this.notifyOperationComplete(aListener, Components.results.NS_OK,
                                      Components.interfaces.calIOperationListener.GET,
                                      null, flag);
     },
 
-    resetItemOfflineFlag: function resetItemOfflineFlag(aItem, aListener) {
+    resetItemOfflineFlag: function(aItem, aListener) {
         delete this.mOfflineFlags[aItem.id];
         this.notifyOperationComplete(aListener, Components.results.NS_OK,
                                      Components.interfaces.calIOperationListener.MODIFY,
@@ -547,18 +547,16 @@ calMemoryCalendar.prototype = {
     //
     // calISyncWriteCalendar interface
     //
-    setMetaData: function memory_setMetaData(id, value) {
+    setMetaData: function(id, value) {
         this.mMetaData.setProperty(id, value);
     },
-    deleteMetaData: function memory_deleteMetaData(id) {
+    deleteMetaData: function(id) {
         this.mMetaData.deleteProperty(id);
     },
-    getMetaData: function memory_getMetaData(id) {
+    getMetaData: function(id) {
         return this.mMetaData.getProperty(id);
     },
-    getAllMetaData: function memory_getAllMetaData(out_count,
-                                                   out_ids,
-                                                   out_values) {
+    getAllMetaData: function(out_count, out_ids, out_values) {
         this.mMetaData.getAllProperties(out_ids, out_values);
         out_count.value = out_ids.value.length;
     }

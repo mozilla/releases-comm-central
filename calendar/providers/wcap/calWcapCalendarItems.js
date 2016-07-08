@@ -6,8 +6,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
 Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
 
-calWcapCalendar.prototype.encodeAttendee =
-function calWcapCalendar_encodeAttendee(att) {
+calWcapCalendar.prototype.encodeAttendee = function(att) {
     if (LOG_LEVEL > 2) {
         log("attendee.icalProperty.icalString=" + att.icalProperty.icalString, this);
     }
@@ -33,8 +32,7 @@ function calWcapCalendar_encodeAttendee(att) {
     return encodeAttr(att.id, null, params);
 };
 
-calWcapCalendar.prototype.getRecurrenceParams =
-function calWcapCalendar_getRecurrenceParams(item, out_rrules, out_rdates, out_exrules, out_exdates) {
+calWcapCalendar.prototype.getRecurrenceParams = function(item, out_rrules, out_rdates, out_exrules, out_exdates) {
     // recurrences:
     out_rrules.value = [];
     out_rdates.value = [];
@@ -73,8 +71,7 @@ function sameStringSet(list, list_) {
            list.every(x => list_.some(y => x == y));
 }
 
-calWcapCalendar.prototype.encodeRecurrenceParams =
-    function calWcapCalendar_encodeRecurrenceParams(item, oldItem, excludeExdates) {
+calWcapCalendar.prototype.encodeRecurrenceParams = function(item, oldItem, excludeExdates) {
     let rrules = {};
     let rdates = {};
     let exrules = {};
@@ -137,8 +134,7 @@ calWcapCalendar.prototype.encodeRecurrenceParams =
     // if rchange=0 is set!
 };
 
-calWcapCalendar.prototype.getAlarmParams =
-function calWcapCalendar_getAlarmParams(item) {
+calWcapCalendar.prototype.getAlarmParams = function(item) {
     let params = null;
     // xxx TODO ALARMSUPPORT check if WCAP supports multiple alarms
     let alarms = item.getAlarms({}).filter(x => x.action == "EMAIL");
@@ -189,8 +185,7 @@ function getAttendeeByCalId(atts, calId) {
     return null;
 }
 
-calWcapCalendar.prototype.isInvitation =
-function calWcapCalendar_isInvitation(item) {
+calWcapCalendar.prototype.isInvitation = function(item) {
     if (!this.session.isLoggedIn) {
         return false; // don't know
     }
@@ -202,8 +197,7 @@ function calWcapCalendar_isInvitation(item) {
     return (this.getInvitedAttendee(item) != null);
 };
 
-calWcapCalendar.prototype.getInvitedAttendee =
-function calWcapCalendar_getInvitedAttendee(item) {
+calWcapCalendar.prototype.getInvitedAttendee = function(item) {
     let att = getAttendeeByCalId(item.getAttendees({}), this.calId);
     if (!att) { // try to find mail address
         let ar = this.session.getUserPreferences("X-NSCP-WCAP-PREF-mail");
@@ -214,8 +208,7 @@ function calWcapCalendar_getInvitedAttendee(item) {
     return att;
 };
 
-calWcapCalendar.prototype.canNotify =
-function calWcapCalendar_canNotify(method, item) {
+calWcapCalendar.prototype.canNotify = function(method, item) {
     if (!this.session.isLoggedIn) {
         return false;
     }
@@ -277,8 +270,7 @@ var METHOD_CANCEL = 8;
 var METHOD_UPDATE = 256;
 /* eslint-enable no-unused-vars */
 
-calWcapCalendar.prototype.storeItem =
-function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
+calWcapCalendar.prototype.storeItem = function(bAddItem, item, oldItem, request) {
     function getOrgId(orgItem) {
         return (orgItem && orgItem.organizer && orgItem.organizer.id ? orgItem.organizer.id : null);
     }
@@ -596,8 +588,7 @@ function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
     }
 };
 
-calWcapCalendar.prototype.tunnelXProps =
-function calWcapCalendar_tunnelXProps(destItem, srcItem) {
+calWcapCalendar.prototype.tunnelXProps = function(destItem, srcItem) {
     // xxx todo: temp workaround for bug in calItemBase.js
     if (!isParent(srcItem)) {
         return;
@@ -632,11 +623,10 @@ function calWcapCalendar_tunnelXProps(destItem, srcItem) {
     }
 };
 
-calWcapCalendar.prototype.adoptItem =
-function calWcapCalendar_adoptItem(item, listener) {
+calWcapCalendar.prototype.adoptItem = function(item, listener) {
     let self = this;
     let request = new calWcapRequest(
-        function adoptItem_resp(oprequest, err, newItem) {
+        function(oprequest, err, newItem) {
             self.notifyOperationComplete(listener,
                                          getResultCode(err),
                                          calIOperationListener.ADD,
@@ -656,16 +646,14 @@ function calWcapCalendar_adoptItem(item, listener) {
     return request;
 };
 
-calWcapCalendar.prototype.addItem =
-function calWcapCalendar_addItem(item, listener) {
+calWcapCalendar.prototype.addItem = function(item, listener) {
     this.adoptItem(item.clone(), listener);
 };
 
-calWcapCalendar.prototype.modifyItem =
-function calWcapCalendar_modifyItem(newItem, oldItem, listener) {
+calWcapCalendar.prototype.modifyItem = function(newItem, oldItem, listener) {
     let self = this;
     let request = new calWcapRequest(
-        function modifyItem_resp(oprequest, err, item) {
+        function(oprequest, err, item) {
             self.notifyOperationComplete(listener,
                                          getResultCode(err),
                                          calIOperationListener.MODIFY,
@@ -713,7 +701,7 @@ function calWcapCalendar_modifyItem(newItem, oldItem, listener) {
 
                 request.lockPending();
                 this.issueNetworkRequest(request,
-                                         function netResp(err, xml) {
+                                         function(err, xml) {
                                              try {
                                                  // ignore any error and continue storing the item:
                                                  if (LOG_LEVEL > 0) {
@@ -742,11 +730,10 @@ function calWcapCalendar_modifyItem(newItem, oldItem, listener) {
     return request;
 };
 
-calWcapCalendar.prototype.deleteItem =
-function calWcapCalendar_deleteItem(item, listener) {
+calWcapCalendar.prototype.deleteItem = function(item, listener) {
     let self = this;
     let request = new calWcapRequest(
-        function deleteItem_resp(oprequest, err) {
+        function(oprequest, err) {
             // xxx todo: need to notify about each deleted item if multiple?
             self.notifyOperationComplete(listener,
                                          getResultCode(err),
@@ -779,7 +766,7 @@ function calWcapCalendar_deleteItem(item, listener) {
         params += "&fmt-out=text%2Fxml";
 
         this.issueNetworkRequest(request,
-                                 function netResp(err, xml) {
+                                 function(err, xml) {
                                      if (err) {
                                          throw err;
                                      }
@@ -797,7 +784,7 @@ function calWcapCalendar_deleteItem(item, listener) {
     return request;
 };
 
-calWcapCalendar.prototype.patchTimezone = function calWcapCalendar_patchTimezone(subComp, attr, xpropOrTz) {
+calWcapCalendar.prototype.patchTimezone = function(subComp, attr, xpropOrTz) {
     let dt = subComp[attr];
     // if TZID parameter present (all-day items), it takes precedence:
     if (dt && (dt.timezone.isUTC || dt.timezone.isFloating)) {
@@ -826,7 +813,7 @@ calWcapCalendar.prototype.patchTimezone = function calWcapCalendar_patchTimezone
     return dt;
 };
 
-calWcapCalendar.prototype.parseItems = function calWcapCalendar_parseItems(
+calWcapCalendar.prototype.parseItems = function(
     icalRootComp, itemFilter, maxResults, rangeStart, rangeEnd, bLeaveMutable) {
     let items = [];
     let unexpandedItems = [];
@@ -1033,11 +1020,10 @@ calWcapCalendar.prototype.parseItems = function calWcapCalendar_parseItems(
     return items;
 };
 
-calWcapCalendar.prototype.getItem =
-function calWcapCalendar_getItem(id, listener) {
+calWcapCalendar.prototype.getItem = function(id, listener) {
     let self = this;
     let request = new calWcapRequest(
-        function getItem_resp(oprequest, err, item) {
+        function(oprequest, err, item) {
             if (checkErrorCode(err, calIWcapErrors.WCAP_FETCH_EVENTS_BY_ID_FAILED) ||
                 checkErrorCode(err, calIWcapErrors.WCAP_COMPONENT_NOT_FOUND)) {
                 // querying by id is a valid use case, even if no item is returned:
@@ -1062,7 +1048,7 @@ function calWcapCalendar_getItem(id, listener) {
         // most common: try events first
         this.issueNetworkRequest(
             request,
-            function fetchEventById_resp(err, eventRootComp) {
+            function(err, eventRootComp) {
                 function notifyResult(rootComp) {
                     let items = self.parseItems(rootComp, calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null);
                     if (items.length < 1) {
@@ -1087,7 +1073,7 @@ function calWcapCalendar_getItem(id, listener) {
                     // try todos:
                     self.issueNetworkRequest(
                         request,
-                        function fetchTodosById_resp(fetcherr, todoRootComp) {
+                        function(fetcherr, todoRootComp) {
                             if (fetcherr) {
                                 throw fetcherr;
                             }
@@ -1139,8 +1125,7 @@ function getItemFilterParams(itemFilter) {
     return params;
 }
 
-calWcapCalendar.prototype.getItems =
-function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, listener) {
+calWcapCalendar.prototype.getItems = function(itemFilter, maxResults, rangeStart, rangeEnd, listener) {
     rangeStart = ensureDateTime(rangeStart);
     rangeEnd = ensureDateTime(rangeEnd);
     let zRangeStart = getIcalUTC(rangeStart);
@@ -1148,7 +1133,7 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
 
     let self = this;
     let request = new calWcapRequest(
-        function getItems_resp(oprequest, err, data) {
+        function(oprequest, err, data) {
             log("getItems() complete: " + errorToString(err), self);
             self.notifyOperationComplete(listener,
                                          getResultCode(err),
@@ -1204,7 +1189,7 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
 
         this.issueNetworkRequest(
             request,
-            function netResp(err, icalRootComp) {
+            function(err, icalRootComp) {
                 if (err) {
                     if (checkErrorCode(err, calIWcapErrors.WCAP_ACCESS_DENIED_TO_CALENDAR)) {
                         // try free-busy times:
@@ -1212,7 +1197,7 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
                             (itemFilter & calICalendar.ITEM_FILTER_TYPE_EVENT) &&
                             rangeStart && rangeEnd) {
                             let freeBusyListener = { // calIGenericOperationListener:
-                                onResult: function freeBusyListener_onResult(oprequest, result) {
+                                onResult: function(oprequest, result) {
                                     if (!Components.isSuccessCode(oprequest.status)) {
                                         throw oprequest.status;
                                     }
@@ -1248,7 +1233,7 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
                         // auto invalidate after X minutes:
                         if (!self.m_cachedResultsTimer) {
                             let callback = {
-                                notify: function notify(timer) {
+                                notify: function(timer) {
                                     if (!self.m_cachedResults) {
                                         return;
                                     }
@@ -1305,20 +1290,18 @@ function calWcapCalendar_getItems(itemFilter, maxResults, rangeStart, rangeEnd, 
 
 calWcapCalendar.prototype.offlineStorage = null;
 
-calWcapCalendar.prototype.resetLog =
-function calWcapCalendar_resetLog() {
+calWcapCalendar.prototype.resetLog = function() {
     this.deleteProperty("replay.last_stamp");
 };
 
-calWcapCalendar.prototype.replayChangesOn =
-function calWcapCalendar_replayChangesOn(listener) {
+calWcapCalendar.prototype.replayChangesOn = function(listener) {
     let self = this;
     let itemFilter = calICalendar.ITEM_FILTER_ALL_ITEMS;
     let dtFrom = getDatetimeFromIcalString(this.getProperty("replay.last_stamp"));
     let now = getTime(); // new stamp for this sync
 
     let request_ = new calWcapRequest(
-        function replayChangesOn_resp(request, err) {
+        function(request, err) {
             if (err) {
                 logError("error replaying changes: " + errorToString(err));
                 self.notifyError(err);
@@ -1345,7 +1328,7 @@ function calWcapCalendar_replayChangesOn(listener) {
             }
         };
         let request = new calWcapRequest(
-            function netFinishedRespFunc(err, data) {
+            function(err, data) {
                 let modifiedIds = {};
                 for (let item of request.m_modifiedItems) {
                     let dtCreated = item.getProperty("CREATED");
@@ -1388,7 +1371,7 @@ function calWcapCalendar_replayChangesOn(listener) {
         // assure being logged in to calc server times:
         this.session.getSessionId(
             request,
-            function getSessionId_resp(err, sessionId) {
+            function(err, sessionId) {
                 try {
                     if (err) {
                         throw err;
@@ -1404,7 +1387,7 @@ function calWcapCalendar_replayChangesOn(listener) {
                     log("replayChangesOn(): getting last modifications...", self);
                     self.issueNetworkRequest(
                         request,
-                        function modifiedNetResp(fetcherr, icalRootComp) {
+                        function(fetcherr, icalRootComp) {
                             if (fetcherr) {
                                 throw fetcherr;
                             }
@@ -1419,7 +1402,7 @@ function calWcapCalendar_replayChangesOn(listener) {
                     log("replayChangesOn(): getting deleted items...", self);
                     self.issueNetworkRequest(
                         request,
-                        function modifiedNetResp(fetcherr, icalRootComp) {
+                        function(fetcherr, icalRootComp) {
                             if (fetcherr) {
                                 throw fetcherr;
                             }

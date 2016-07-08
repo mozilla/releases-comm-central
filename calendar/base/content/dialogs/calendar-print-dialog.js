@@ -139,12 +139,10 @@ function getPrintSettings(receiverFunc) {
     if (requiresFetch) {
         let listener = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
-            onOperationComplete:
-            function onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDateTime) {
+            onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDateTime) {
                 receiverFunc(settings);
             },
-            onGetResult:
-            function onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+            onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                 settings.eventList = settings.eventList.concat(aItems);
                 if (!settings.printTasksWithNoDueDate) {
                     eventWithDueDate = [];
@@ -199,7 +197,7 @@ function getFilter(settings) {
  * dialog UI element has changed, since we'll want to refresh the preview.
  */
 function refreshHtml(finishFunc) {
-    getPrintSettings(function getSettingsResponse(settings) {
+    getPrintSettings((settings) => {
             document.title = calGetString("calendar", "PrintPreviewWindowTitle", [settings.title]);
 
             let printformatter = Components.classes[settings.layoutCId]
@@ -250,7 +248,7 @@ function refreshHtml(finishFunc) {
  * sure printing works without issues
  */
 var closeOnComplete = {
-    onStateChange: function onStateChange(aProgress, aRequest, aStateFlags, aStatus) {
+    onStateChange: function(aProgress, aRequest, aStateFlags, aStatus) {
         if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP) {
             // The request is complete, close the window.
             document.documentElement.cancelDialog();
@@ -267,34 +265,33 @@ var closeOnComplete = {
  * Prints the document and then closes the window
  */
 function printAndClose() {
-    refreshHtml(
-        function finish() {
-            let webBrowserPrint = PrintUtils.getWebBrowserPrint();
-            let printSettings = PrintUtils.getPrintSettings();
+    refreshHtml(() => {
+        let webBrowserPrint = PrintUtils.getWebBrowserPrint();
+        let printSettings = PrintUtils.getPrintSettings();
 
-            // Evicts "about:blank" header
-            printSettings.docURL = " ";
+        // Evicts "about:blank" header
+        printSettings.docURL = " ";
 
-            // Start the printing, this is just what PrintUtils does, but we
-            // apply our own settings.
-            try {
-                webBrowserPrint.print(printSettings, closeOnComplete);
-                if (gPrintSettingsAreGlobal && gSavePrintSettings) {
-                    let PSSVC = Components.classes["@mozilla.org/gfx/printsettings-service;1"]
-                                          .getService(Components.interfaces.nsIPrintSettingsService);
-                    PSSVC.savePrintSettingsToPrefs(printSettings, true,
-                                                        printSettings.kInitSaveAll);
-                    PSSVC.savePrintSettingsToPrefs(printSettings, false,
-                                                   printSettings.kInitSavePrinterName);
-                }
-            } catch (e) {
-                // Pressing cancel is expressed as an NS_ERROR_ABORT return value,
-                // causing an exception to be thrown which we catch here.
-                if (e.result != Components.results.NS_ERROR_ABORT) {
-                    throw e;
-                }
+        // Start the printing, this is just what PrintUtils does, but we
+        // apply our own settings.
+        try {
+            webBrowserPrint.print(printSettings, closeOnComplete);
+            if (gPrintSettingsAreGlobal && gSavePrintSettings) {
+                let PSSVC = Components.classes["@mozilla.org/gfx/printsettings-service;1"]
+                                      .getService(Components.interfaces.nsIPrintSettingsService);
+                PSSVC.savePrintSettingsToPrefs(printSettings, true,
+                                                    printSettings.kInitSaveAll);
+                PSSVC.savePrintSettingsToPrefs(printSettings, false,
+                                               printSettings.kInitSavePrinterName);
             }
-        });
+        } catch (e) {
+            // Pressing cancel is expressed as an NS_ERROR_ABORT return value,
+            // causing an exception to be thrown which we catch here.
+            if (e.result != Components.results.NS_ERROR_ABORT) {
+                throw e;
+            }
+        }
+    });
     return false; // leave open
 }
 

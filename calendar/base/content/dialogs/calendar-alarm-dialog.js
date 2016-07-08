@@ -99,7 +99,7 @@ function setupWindow() {
     let current = new Date();
 
     let timeout = (60 - current.getSeconds()) * 1000;
-    gRelativeDateUpdateTimer = setTimeout(function wait_until_next_minute() {
+    gRelativeDateUpdateTimer = setTimeout(() => {
         updateRelativeDates();
         gRelativeDateUpdateTimer = setInterval(updateRelativeDates, 60 * 1000);
     }, timeout);

@@ -31,7 +31,7 @@ calMonthPrinter.prototype = {
 
     get name() { return cal.calGetString("calendar", "monthPrinterName"); },
 
-    formatToHtml: function monthPrint_format(aStream, aStart, aEnd, aCount, aItems, aTitle) {
+    formatToHtml: function(aStream, aStart, aEnd, aCount, aItems, aTitle) {
         let document = cal.xml.parseFile("chrome://calendar-common/skin/printing/calMonthGridPrinter.html");
         let defaultTimezone = cal.calendarDefaultTimezone();
 
@@ -107,7 +107,7 @@ calMonthPrinter.prototype = {
         convStream.writeString(html);
     },
 
-    normalizeStartDate: function monthPrint_normalizeStartDate(aStart) {
+    normalizeStartDate: function(aStart) {
         // Make sure the start date is really a date.
         let startDate = aStart.clone();
         startDate.isDate = true;
@@ -125,7 +125,7 @@ calMonthPrinter.prototype = {
         return startDate;
     },
 
-    normalizeEndDate: function monthPrint_normalizeEndDate(aEnd) {
+    normalizeEndDate: function(aEnd) {
         // Copy end date, which is exclusive. For our calculations, we will
         // only be handling dates and the formatToHtml() code is much cleaner with
         // the range being inclusive.
@@ -144,7 +144,7 @@ calMonthPrinter.prototype = {
         return endDate;
     },
 
-    setupMonth: function monthPrint_setupMonth(document, startOfMonth, dayTable) {
+    setupMonth: function(document, startOfMonth, dayTable) {
         let monthTemplate = document.getElementById("month-template");
         let monthContainer = document.getElementById("month-container");
 
@@ -185,7 +185,7 @@ calMonthPrinter.prototype = {
         cal.binaryInsertNode(monthContainer, currentMonth, currentMonth.item, compareDates);
     },
 
-    setupWeek: function monthPrint_setupWeek(document, weekContainer, startOfWeek, mainMonth, dayTable) {
+    setupWeek: function(document, weekContainer, startOfWeek, mainMonth, dayTable) {
         const weekdayMap = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
         let weekTemplate = document.getElementById("week-template");
 

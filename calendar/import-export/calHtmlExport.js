@@ -27,7 +27,7 @@ calHtmlExporter.prototype = {
         interfaces: calHtmlExporterInterfaces
     }),
 
-    getFileTypes: function getFileTypes(aCount) {
+    getFileTypes: function(aCount) {
         aCount.value = 1;
         let wildmat = "*.html; *.htm";
         let label = cal.calGetString("calendar", "filterHtml", [wildmat]);
@@ -39,7 +39,7 @@ calHtmlExporter.prototype = {
         }];
     },
 
-    exportToStream: function html_exportToStream(aStream, aCount, aItems, aTitle) {
+    exportToStream: function(aStream, aCount, aItems, aTitle) {
         let document = cal.xml.parseFile("chrome://calendar-common/skin/printing/calHtmlExport.html");
         let itemContainer = document.getElementById("item-container");
         document.getElementById("title").textContent = aTitle || cal.calGetString("calendar", "HTMLTitle");

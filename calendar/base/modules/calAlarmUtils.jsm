@@ -14,7 +14,7 @@ cal.alarms = {
      *
      * @param aItem     The item to apply the default alarm values to.
      */
-    setDefaultValues: function cal_alarm_setDefaultValues(aItem) {
+    setDefaultValues: function(aItem) {
         let type = cal.isEvent(aItem) ? "event" : "todo";
         if (Preferences.get("calendar.alarms.onfor" + type + "s", 0) == 1) {
             let alarmOffset = cal.createDuration();
@@ -54,7 +54,7 @@ cal.alarms = {
      * @param aAlarm    The alarm to calculate the date for.
      * @return          The alarm date.
      */
-    calculateAlarmDate: function cal_alarm_calculateAlarmDate(aItem, aAlarm) {
+    calculateAlarmDate: function(aItem, aAlarm) {
         if (aAlarm.related == aAlarm.ALARM_RELATED_ABSOLUTE) {
             return aAlarm.alarmDate;
         } else {
@@ -97,7 +97,7 @@ cal.alarms = {
      *                    passed, ALARM_RELATED_START will be assumed.
      * @return          The alarm offset.
      */
-    calculateAlarmOffset: function cal_alarms_calculateAlarmOffset(aItem, aAlarm, aRelated) {
+    calculateAlarmOffset: function(aItem, aAlarm, aRelated) {
         let offset = aAlarm.offset;
         if (aAlarm.related == aAlarm.ALARM_RELATED_ABSOLUTE) {
             let returnDate;
@@ -121,7 +121,7 @@ cal.alarms = {
      * @param aElement    The element to add the images to.
      * @param aReminders  The set of reminders to add images for.
      */
-    addReminderImages: function cal_alarms_addReminderImages(aElement, aReminders) {
+    addReminderImages: function(aElement, aReminders) {
         function createOwnedXULNode(el) {
             const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
             return aElement.ownerDocument.createElementNS(XUL_NS, el);

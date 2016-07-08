@@ -93,13 +93,13 @@ var calendarController = {
         "cmd_selectAll": true
     },
 
-    updateCommands: function cC_updateCommands() {
+    updateCommands: function() {
         for (let command in this.commands) {
             goUpdateCommand(command);
         }
     },
 
-    supportsCommand: function cC_supportsCommand(aCommand) {
+    supportsCommand: function(aCommand) {
         if (aCommand in this.commands) {
             return true;
         }
@@ -109,7 +109,7 @@ var calendarController = {
         return false;
     },
 
-    isCommandEnabled: function cC_isCommandEnabled(aCommand) {
+    isCommandEnabled: function(aCommand) {
         switch (aCommand) {
             case "calendar_new_event_command":
             case "calendar_new_event_context_command":
@@ -257,7 +257,7 @@ var calendarController = {
         return false;
     },
 
-    doCommand: function cC_doCommand(aCommand) {
+    doCommand: function(aCommand) {
         switch (aCommand) {
             // Common Commands
             case "calendar_new_event_command":
@@ -430,14 +430,14 @@ var calendarController = {
         return;
     },
 
-    onEvent: function cC_onEvent(aEvent) {
+    onEvent: function(aEvent) {
     },
 
-    isCalendarInForeground: function cC_isCalendarInForeground() {
+    isCalendarInForeground: function() {
         return gCurrentMode && gCurrentMode != "mail";
     },
 
-    isInMode: function cC_isInMode(mode) {
+    isInMode: function(mode) {
         switch (mode) {
             case "mail":
                 return !isCalendarInForeground();
@@ -449,7 +449,7 @@ var calendarController = {
         return false;
     },
 
-    onSelectionChanged: function cC_onSelectionChanged(aEvent) {
+    onSelectionChanged: function(aEvent) {
         let selectedItems = aEvent.detail;
 
         calendarUpdateDeleteCommand(selectedItems);
@@ -674,7 +674,7 @@ var calendarController2 = {
     supportsCommand: calendarController.supportsCommand,
     onEvent: calendarController.onEvent,
 
-    isCommandEnabled: function isCommandEnabled(aCommand) {
+    isCommandEnabled: function(aCommand) {
         switch (aCommand) {
             // Thunderbird Commands
             case "cmd_cut":
@@ -707,7 +707,7 @@ var calendarController2 = {
         }
     },
 
-    doCommand: function doCommand(aCommand) {
+    doCommand: function(aCommand) {
         switch (aCommand) {
             case "cmd_cut":
                 cutToClipboard();

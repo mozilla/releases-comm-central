@@ -56,10 +56,9 @@
         <implementation implements="calICalendarView">
             <constructor><![CDATA[
                 // add a listener for the mode change
-                let self = this;
-                this.mModeHandler = function modeHandler(event) {
+                this.mModeHandler = (event) => {
                     if (event.attrName == "mode") {
-                        self.onModeChanged(event);
+                        this.onModeChanged(event);
                     }
                 };
                 document.getElementById("modeBroadcaster").addEventListener("DOMAttrModified", this.mModeHandler, true);

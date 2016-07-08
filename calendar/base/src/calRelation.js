@@ -119,7 +119,7 @@ calRelation.prototype = {
         return this.mProperties.deleteProperty(aName);
     },
 
-    clone: function cR_clone() {
+    clone: function() {
         let newRelation = new calRelation();
         newRelation.mId = this.mId;
         newRelation.mType = this.mType;

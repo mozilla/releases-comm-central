@@ -41,7 +41,7 @@ calCalendarManager.prototype = {
     get calendarCount() { return this.mCalendarCount; },
 
     // calIStartupService:
-    startup: function ccm_startup(aCompleteListener) {
+    startup: function(aCompleteListener) {
         AddonManager.addAddonListener(gCalendarManagerAddonListener);
         this.checkAndMigrateDB();
         this.mCache = null;
@@ -63,7 +63,7 @@ calCalendarManager.prototype = {
         aCompleteListener.onResult(null, Components.results.NS_OK);
     },
 
-    shutdown: function ccm_shutdown(aCompleteListener) {
+    shutdown: function(aCompleteListener) {
         for (let id in this.mCache) {
             let calendar = this.mCache[id];
             calendar.removeObserver(this.mCalObservers[calendar.id]);
@@ -86,15 +86,15 @@ calCalendarManager.prototype = {
     },
 
 
-    setupOfflineObservers: function ccm_setupOfflineObservers() {
+    setupOfflineObservers: function() {
         Services.obs.addObserver(this, "network:offline-status-changed", false);
     },
 
-    cleanupOfflineObservers: function ccm_cleanupOfflineObservers() {
+    cleanupOfflineObservers: function() {
         Services.obs.removeObserver(this, "network:offline-status-changed");
     },
 
-    observe: function ccm_observe(aSubject, aTopic, aData) {
+    observe: function(aSubject, aTopic, aData) {
         switch (aTopic) {
             case "timer-callback":
                 // Refresh all the calendars that can be refreshed.
@@ -252,7 +252,7 @@ calCalendarManager.prototype = {
         }
     },
 
-    migrateDB: function calmgr_migrateDB(db) {
+    migrateDB: function(db) {
         let selectCalendars = db.createStatement("SELECT * FROM cal_calendars");
         let selectPrefs = db.createStatement("SELECT name, value FROM cal_calendars_prefs WHERE calendar = :calendar");
         try {
@@ -315,7 +315,7 @@ calCalendarManager.prototype = {
         }
     },
 
-    checkAndMigrateDB: function calmgr_checkAndMigrateDB() {
+    checkAndMigrateDB: function() {
         let storageSdb = Services.dirsvc.get("ProfD", Components.interfaces.nsILocalFile);
         storageSdb.append("storage.sdb");
         let db = Services.storage.openDatabase(storageSdb);
@@ -358,7 +358,7 @@ calCalendarManager.prototype = {
      * @return      db schema version
      * @exception   various, depending on error
      */
-    getSchemaVersion: function calMgrGetSchemaVersion(db) {
+    getSchemaVersion: function(db) {
         let stmt;
         let version = null;
 
@@ -397,7 +397,7 @@ calCalendarManager.prototype = {
     // / DB migration code ends here
     //
 
-    alertAndQuit: function cmgr_alertAndQuit() {
+    alertAndQuit: function() {
         // We want to include the extension name in the error message rather
         // than blaming Thunderbird.
         let hostAppName = calGetString("brand", "brandShortName", null, "branding");
@@ -423,7 +423,7 @@ calCalendarManager.prototype = {
                             { value: false }); // Unnecessary checkbox state
 
         // Disable Lightning
-        AddonManager.getAddonByID("{e2fda1a4-762b-4020-b5ad-a41df1933103}", function getLightningExt(aAddon) {
+        AddonManager.getAddonByID("{e2fda1a4-762b-4020-b5ad-a41df1933103}", function(aAddon) {
             aAddon.userDisabled = true;
             Services.startup.quit(Components.interfaces.nsIAppStartup.eRestart |
                 Components.interfaces.nsIAppStartup.eForceQuit);
@@ -433,7 +433,7 @@ calCalendarManager.prototype = {
     /**
      * calICalendarManager interface
      */
-    createCalendar: function cmgr_createCalendar(type, uri) {
+    createCalendar: function(type, uri) {
         try {
             if (!Components.classes["@mozilla.org/calendar/calendar;1?type=" + type]) {
                 // Don't notify the user with an extra dialog if the provider
@@ -513,7 +513,7 @@ calCalendarManager.prototype = {
         this.notifyObservers("onCalendarRegistered", [calendar]);
     },
 
-    setupCalendar: function cmgr_setupCalendar(calendar) {
+    setupCalendar: function(calendar) {
         this.mCache[calendar.id] = calendar;
 
         // Add an observer to track readonly-mode triggers
@@ -534,7 +534,7 @@ calCalendarManager.prototype = {
         this.setupRefreshTimer(calendar);
     },
 
-    setupRefreshTimer: function setupRefreshTimer(aCalendar) {
+    setupRefreshTimer: function(aCalendar) {
         // Add the refresh timer for this calendar
         let refreshInterval = aCalendar.getProperty("refreshInterval");
         if (refreshInterval === null) {
@@ -556,7 +556,7 @@ calCalendarManager.prototype = {
         }
     },
 
-    clearRefreshTimer: function clearRefreshTimer(aCalendar) {
+    clearRefreshTimer: function(aCalendar) {
         if (aCalendar.id in this.mRefreshTimer &&
             this.mRefreshTimer[aCalendar.id]) {
             this.mRefreshTimer[aCalendar.id].cancel();
@@ -636,7 +636,7 @@ calCalendarManager.prototype = {
         }
     },
 
-    getCalendarById: function cmgr_getCalendarById(aId) {
+    getCalendarById: function(aId) {
         if (aId in this.mCache) {
             return this.mCache[aId];
         } else {
@@ -644,7 +644,7 @@ calCalendarManager.prototype = {
         }
     },
 
-    getCalendars: function cmgr_getCalendars(count) {
+    getCalendars: function(count) {
         this.assureCache();
         let calendars = [];
         for (let id in this.mCache) {
@@ -655,7 +655,7 @@ calCalendarManager.prototype = {
         return calendars;
     },
 
-    assureCache: function cmgr_assureCache() {
+    assureCache: function() {
         if (!this.mCache) {
             this.mCache = {};
             this.mCalObservers = {};
@@ -1017,7 +1017,7 @@ function calDummyCalendar(type) {
 calDummyCalendar.prototype = {
     __proto__: cal.ProviderBase.prototype,
 
-    getProperty: function calDummyCalendar_getProperty(aName) {
+    getProperty: function(aName) {
         switch (aName) {
             case "force-disabled":
                 return true;
@@ -1047,7 +1047,7 @@ function flushPrefs() {
  * @param aCalendar     The calendar to refresh on notification
  */
 function timerCallback(aCalendar) {
-    this.notify = function refreshNotify(aTimer) {
+    this.notify = function(aTimer) {
         if (!aCalendar.getProperty("disabled") && aCalendar.canRefresh) {
             aCalendar.refresh();
         }

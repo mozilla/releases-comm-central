@@ -51,7 +51,7 @@
 
       <field name="mPrefObserver"><![CDATA[
       ({ calView: this,
-         observe: function calViewPrefChange(subj, topic, pref) {
+         observe: function(subj, topic, pref) {
              this.calView.handlePreference(subj, topic, pref);
              return;
          }
@@ -69,16 +69,16 @@
 
             calView: this,
 
-            onStartBatch: function onStartBatch() {
+            onStartBatch: function() {
             },
-            onEndBatch: function onEndBatch() {
+            onEndBatch: function() {
             },
 
-            onLoad: function onLoad() {
+            onLoad: function() {
                 this.calView.refresh();
             },
 
-            onAddItem: function onAddItem(aItem) {
+            onAddItem: function(aItem) {
                 if (cal.isToDo(aItem)) {
                     if (!aItem.entryDate && !aItem.dueDate) {
                         return;
@@ -100,7 +100,7 @@
                 return;
             },
 
-            onModifyItem: function onModifyItem(aNewItem, aOldItem) {
+            onModifyItem: function(aNewItem, aOldItem) {
                 if (cal.isToDo(aNewItem) && cal.isToDo(aOldItem) &&
                     !this.calView.mTasksInView) {
                     return;
@@ -132,7 +132,7 @@
                 }
             },
 
-            onDeleteItem: function onDeleteItem(aItem) {
+            onDeleteItem: function(aItem) {
                 if (cal.isToDo(aItem)) {
                     if (!this.calView.mTasksInView) {
                         return;
@@ -153,7 +153,7 @@
                 }
             },
 
-            onError: function onError(aCalendar, aErrNo, aMessage) { },
+            onError: function(aCalendar, aErrNo, aMessage) { },
 
             onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
                 switch (aName) {
@@ -179,16 +179,16 @@
             //
             // calIAlarmServiceObserver stuff
             //
-            onAlarm: function onAlarm(aAlarmItem) {
+            onAlarm: function(aAlarmItem) {
                 this.calView.flashAlarm(aAlarmItem, false);
             },
 
-            onRemoveAlarmsByItem: function onRemoveAlarmsByItem(aItem) {
+            onRemoveAlarmsByItem: function(aItem) {
                 // Stop the flashing for the item.
                 this.calView.flashAlarm(aItem, true);
             },
 
-            onRemoveAlarmsByCalendar: function onRemoveAlarmsByCalendar(aCalendar) {
+            onRemoveAlarmsByCalendar: function(aCalendar) {
                 // Stop the flashing for all items of this calendar
                 for (let key in this.calView.mFlashingEvents) {
                     let item = this.calView.mFlashingEvents[key];
@@ -198,26 +198,25 @@
                 }
             },
 
-            onAlarmsLoaded: function _onAlarmsLoaded(aCalendar) {},
+            onAlarmsLoaded: function(aCalendar) {},
 
             //
             // calICompositeObserver stuff
             // XXXvv we can be smarter about how we handle this stuff
             //
-            onCalendarAdded: function onCalendarAdded(aCalendar) {
+            onCalendarAdded: function(aCalendar) {
                 if (!aCalendar.getProperty("disabled")) {
                     this.calView.addItemsFromCalendar(aCalendar);
                 }
             },
 
-            onCalendarRemoved: function onCalendarRemoved(aCalendar) {
+            onCalendarRemoved: function(aCalendar) {
                 if (!aCalendar.getProperty("disabled")) {
                     this.calView.deleteItemsFromCalendar(aCalendar);
                 }
             },
 
-            onDefaultCalendarChanged:
-            function onDefaultCalendarChanged(aNewDefaultCalendar) {
+            onDefaultCalendarChanged: function(aNewDefaultCalendar) {
                 // don't care, for now
             }
         })
@@ -247,10 +246,9 @@
         let alarmService = Components.classes["@mozilla.org/calendar/alarm-service;1"]
                            .getService(Components.interfaces.calIAlarmService);
         alarmService.addObserver(this.mObserver);
-        let self = this;
         this.setAttribute("type", this.type);
-        this.mResizeHandler = function resizeHandler() {
-            self.onResize(self);
+        this.mResizeHandler = () => {
+            this.onResize(this);
         };
         this.viewBroadcaster.addEventListener(this.getAttribute("type") + "viewresized", this.mResizeHandler, true);
         // add a preference observer to monitor changes

@@ -128,7 +128,7 @@ function test_roundtrip() {
         do_test_pending();
         let thisdata = data;
         icssrv.parseICSAsync(data.ics, null, {
-            onParsingComplete: function onParsingComplete(rc, rootComp) {
+            onParsingComplete: function(rc, rootComp) {
                 try {
                     ok(Components.isSuccessCode(rc));
                     let event2 = cal.createEvent();

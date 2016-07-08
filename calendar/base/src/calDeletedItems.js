@@ -49,13 +49,13 @@ calDeletedItems.prototype = {
     // be used in real code.
     completedNotifier: null,
 
-    flush: function flush() {
+    flush: function() {
         this.ensureStatements();
         this.stmtFlush.params.stale_time = cal.now().nativeTime - this.STALE_TIME;
         this.stmtFlush.executeAsync(this.completedNotifier);
     },
 
-    getDeletedDate: function calDeletedItems_getDeleted(aId, aCalId) {
+    getDeletedDate: function(aId, aCalId) {
         this.ensureStatements();
         let stmt;
         if (aCalId) {
@@ -80,7 +80,7 @@ calDeletedItems.prototype = {
         return null;
     },
 
-    markDeleted: function calDeletedItems_markDeleted(aItem) {
+    markDeleted: function(aItem) {
         this.ensureStatements();
         this.stmtMarkDelete.params.calId = aItem.calendar.id;
         this.stmtMarkDelete.params.id = aItem.id;
@@ -89,13 +89,13 @@ calDeletedItems.prototype = {
         this.stmtMarkDelete.executeAsync(this.completedNotifier);
     },
 
-    unmarkDeleted: function calDeletedItems_unmarkDeleted(aItem) {
+    unmarkDeleted: function(aItem) {
         this.ensureStatements();
         this.stmtUnmarkDelete.params.id = aItem.id;
         this.stmtUnmarkDelete.executeAsync(this.completedNotifier);
     },
 
-    initDB: function initDB() {
+    initDB: function() {
         if (this.mDB) {
             // Looks like we've already initialized, exit early
             return;
@@ -121,7 +121,7 @@ calDeletedItems.prototype = {
         cal.addShutdownObserver(this.shutdown.bind(this));
     },
 
-    observe: function observe(aSubject, aTopic, aData) {
+    observe: function(aSubject, aTopic, aData) {
         if (aTopic == "profile-after-change") {
             // Make sure to observe calendar changes so we know when things are
             // deleted. We don't initialize the statements until first use.
@@ -129,7 +129,7 @@ calDeletedItems.prototype = {
         }
     },
 
-    ensureStatements: function ensureStatements() {
+    ensureStatements: function() {
         if (!this.mDB) {
             this.initDB();
         }
@@ -156,7 +156,7 @@ calDeletedItems.prototype = {
         }
     },
 
-    shutdown: function shutdown() {
+    shutdown: function() {
         try {
             let stmts = [
                 this.stmtMarkDelete, this.stmtUnmarkDelete, this.stmtGet,
@@ -186,11 +186,11 @@ calDeletedItems.prototype = {
         this.unmarkDeleted(aItem);
     },
 
-    onDeleteItem: function onDeleteItem(aItem) {
+    onDeleteItem: function(aItem) {
         this.markDeleted(aItem);
     },
 
-    onLoad: function onLoad() {
+    onLoad: function() {
         this.flush();
     }
 };

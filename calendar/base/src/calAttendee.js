@@ -181,7 +181,7 @@ calAttendee.prototype = {
         return (this.mId = (aId ? cal.prependMailTo(aId) : null));
     },
 
-    toString: function calAttendee_toString() {
+    toString: function() {
         const emailRE = new RegExp("^mailto:", "i");
         let stringRep = (this.id || "").replace(emailRE, "");
         let commonName = this.commonName;

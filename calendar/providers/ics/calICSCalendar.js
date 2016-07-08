@@ -88,11 +88,11 @@ calICSCalendar.prototype = {
         return calGetString("calendar", "icsName");
     },
 
-    createCalendar: function ics_createCal() {
+    createCalendar: function() {
         throw NS_ERROR_NOT_IMPLEMENTED;
     },
 
-    deleteCalendar: function ics_deleteCal(cal, listener) {
+    deleteCalendar: function(cal, listener) {
         throw NS_ERROR_NOT_IMPLEMENTED;
     },
 
@@ -130,7 +130,7 @@ calICSCalendar.prototype = {
         }
     },
 
-    getProperty: function calICSCalendar_getProperty(aName) {
+    getProperty: function(aName) {
         switch (aName) {
             case "requiresNetwork":
                 return !this.uri.schemeIs("file");
@@ -138,17 +138,17 @@ calICSCalendar.prototype = {
         return this.__proto__.__proto__.getProperty.apply(this, arguments);
     },
 
-    refresh: function calICSCalendar_refresh() {
+    refresh: function() {
         this.queue.push({ action: "refresh", forceRefresh: false });
         this.processQueue();
     },
 
-    forceRefresh: function calICSCalendar_forceRefresh() {
+    forceRefresh: function() {
         this.queue.push({ action: "refresh", forceRefresh: true });
         this.processQueue();
     },
 
-    prepareChannel: function calICSCalendar_prepareChannel(aChannel, aForceRefresh) {
+    prepareChannel: function(aChannel, aForceRefresh) {
         aChannel.loadFlags |= Components.interfaces.nsIRequest.LOAD_BYPASS_CACHE;
         aChannel.notificationCallbacks = this;
 
@@ -157,7 +157,7 @@ calICSCalendar.prototype = {
         this.mHooks.onBeforeGet(aChannel, aForceRefresh);
     },
 
-    createMemoryCalendar: function calICSCalendar_createMemoryCalendar() {
+    createMemoryCalendar: function() {
         // Create a new calendar, to get rid of all the old events
         // Don't forget to remove the observer
         if (this.mMemoryCalendar) {
@@ -169,7 +169,7 @@ calICSCalendar.prototype = {
         this.mMemoryCalendar.superCalendar = this;
     },
 
-    doRefresh: function calICSCalendar_doRefresh(aForce) {
+    doRefresh: function(aForce) {
         let prbForce = Components.classes["@mozilla.org/supports-PRBool;1"]
                                  .createInstance(Components.interfaces.nsISupportsPRBool);
         prbForce.data = aForce;
@@ -267,7 +267,7 @@ calICSCalendar.prototype = {
                                .createInstance(Components.interfaces.calIIcsParser);
         let self = this;
         let listener = { // calIIcsParsingListener
-            onParsingComplete: function ics_onParsingComplete(rc, parser_) {
+            onParsingComplete: function(rc, parser_) {
                 try {
                     for (let item of parser_.getItems({})) {
                         self.mMemoryCalendar.adoptItem(item, null);
@@ -1002,9 +1002,7 @@ httpHooks.prototype = {
             let etagListener = {};
             let self = this; // need to reference in callback
 
-            etagListener.onStreamComplete =
-                function ics_etLoSC(aLoader, aContext, aStatus, aResultLength,
-                                    aResult) {
+            etagListener.onStreamComplete = function(aLoader, aContext, aStatus, aResultLength, aResult) {
                 let resultConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
                                                 .createInstance(Components
                                                 .interfaces.nsIScriptableUnicodeConverter);
@@ -1043,8 +1041,8 @@ httpHooks.prototype = {
     },
 
     // nsIProgressEventSink
-    onProgress: function onProgress(aRequest, aContext, aProgress, aProgressMax) {},
-    onStatus: function onStatus(aRequest, aContext, aStatus, aStatusArg) {},
+    onProgress: function(aRequest, aContext, aProgress, aProgressMax) {},
+    onStatus: function(aRequest, aContext, aStatus, aStatusArg) {},
 
     getInterface: function(aIid) {
         if (aIid.equals(Components.interfaces.nsIProgressEventSink)) {
@@ -1060,7 +1058,7 @@ function fileHooks(calendar) {
 }
 
 fileHooks.prototype = {
-    onBeforeGet: function fH_onBeforeGet(aChannel, aForceRefresh) {
+    onBeforeGet: function(aChannel, aForceRefresh) {
         return true;
     },
 
@@ -1070,7 +1068,7 @@ fileHooks.prototype = {
      *     didn't change, there might be no data in this GET), true in all
      *     other cases
      */
-    onAfterGet: function fH_onAfterGet(aChannel, aForceRefresh) {
+    onAfterGet: function(aChannel, aForceRefresh) {
         let filechannel = aChannel.QueryInterface(Components.interfaces.nsIFileChannel);
         if (this.mtime) {
             let newMtime = filechannel.file.lastModifiedTime;
@@ -1086,7 +1084,7 @@ fileHooks.prototype = {
         }
     },
 
-    onBeforePut: function fH_onBeforePut(aChannel) {
+    onBeforePut: function(aChannel) {
         let filechannel = aChannel.QueryInterface(Components.interfaces.nsIFileChannel);
         if (this.mtime && this.mtime != filechannel.file.lastModifiedTime) {
             return false;
@@ -1095,7 +1093,7 @@ fileHooks.prototype = {
         }
     },
 
-    onAfterPut: function fH_onAfterPut(aChannel, aRespFunc) {
+    onAfterPut: function(aChannel, aRespFunc) {
         let filechannel = aChannel.QueryInterface(Components.interfaces.nsIFileChannel);
         this.mtime = filechannel.file.lastModifiedTime;
         aRespFunc();

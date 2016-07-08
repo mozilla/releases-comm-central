@@ -53,7 +53,7 @@ calAlarmMonitor.prototype = {
     /**
      * nsIObserver
      */
-    observe: function cAM_observe(aSubject, aTopic, aData) {
+    observe: function(aSubject, aTopic, aData) {
         let alarmService = Components.classes["@mozilla.org/calendar/alarm-service;1"]
                                      .getService(Components.interfaces.calIAlarmService);
         switch (aTopic) {
@@ -69,7 +69,7 @@ calAlarmMonitor.prototype = {
     /**
      * calIAlarmServiceObserver
      */
-    onAlarm: function cAM_onAlarm(aItem, aAlarm) {
+    onAlarm: function(aItem, aAlarm) {
         if (aAlarm.action != "DISPLAY") {
             // This monitor only looks for DISPLAY alarms.
             return;
@@ -132,7 +132,7 @@ calAlarmMonitor.prototype = {
         }
     },
 
-    window_onLoad: function cAM_window_onLoad() {
+    window_onLoad: function() {
         let calAlarmWindow = this.mWindowOpening;
         this.mWindowOpening = null;
         if (this.mAlarms.length > 0) {
@@ -146,7 +146,7 @@ calAlarmMonitor.prototype = {
         }
     },
 
-    onRemoveAlarmsByItem: function cAM_onRemoveAlarmsByItem(aItem) {
+    onRemoveAlarmsByItem: function(aItem) {
         let calAlarmWindow = peekAlarmWindow();
         this.mAlarms = this.mAlarms.filter(function(itemAlarm) {
             let [thisItem, alarm] = itemAlarm;
@@ -158,7 +158,7 @@ calAlarmMonitor.prototype = {
         });
     },
 
-    onRemoveAlarmsByCalendar: function cAM_onRemoveAlarmsByCalendar(calendar) {
+    onRemoveAlarmsByCalendar: function(calendar) {
         let calAlarmWindow = peekAlarmWindow();
         this.mAlarms = this.mAlarms.filter(function(itemAlarm) {
             let [thisItem, alarm] = itemAlarm;
@@ -171,7 +171,7 @@ calAlarmMonitor.prototype = {
         });
     },
 
-    onAlarmsLoaded: function cAM_onAlarmsLoaded(aCalendar) {
+    onAlarmsLoaded: function(aCalendar) {
         // the alarm dialog won't close while alarms are loading, check again now
         let calAlarmWindow = peekAlarmWindow();
         if (calAlarmWindow && this.mAlarms.length == 0) {

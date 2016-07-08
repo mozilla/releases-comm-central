@@ -123,7 +123,7 @@ calWcapSession.prototype = {
         interfaces: calWcapSessionInterfaces
     }),
 
-    toString: function calWcapSession_toString(msg) {
+    toString: function(msg) {
         let str = "context-id: " + this.m_contextId + ", uri: " + (this.uri ? this.uri.spec : "unknown");
         if (this.credentials.userId) {
             str += ", userId=" + this.credentials.userId;
@@ -133,7 +133,7 @@ calWcapSession.prototype = {
         }
         return str;
     },
-    notifyError: function calWcapSession_notifyError(err) {
+    notifyError: function(err) {
         if (this.defaultCalendar) {
             this.defaultCalendar.notifyError_(err, null, this);
         } else {
@@ -163,7 +163,7 @@ calWcapSession.prototype = {
             }
         };
     },
-    getTimezone: function calWcapSession_getTimezone(tzid) {
+    getTimezone: function(tzid) {
         switch (tzid) {
             case "floating":
                 return floating();
@@ -178,7 +178,7 @@ calWcapSession.prototype = {
     },
 
     m_serverTimeDiff: null,
-    getServerTime: function calWcapSession_getServerTime(localTime) {
+    getServerTime: function(localTime) {
         if (this.m_serverTimeDiff === null) {
             throw new Components.Exception("early run into getServerTime()!",
                                            Components.results.NS_ERROR_NOT_AVAILABLE);
@@ -193,7 +193,7 @@ calWcapSession.prototype = {
     m_loginLock: false,
 
     getSessionId:
-    function calWcapSession_getSessionId(request, respFunc, timedOutSessionId) {
+    function(request, respFunc, timedOutSessionId) {
         if (Services.io.offline) {
             log("in offline mode.", this);
             respFunc(new Components.Exception(errorToString(NS_ERROR_OFFLINE), NS_ERROR_OFFLINE));
@@ -223,7 +223,7 @@ calWcapSession.prototype = {
 
             let self = this;
             this.getSessionId_(null, // don't couple to parent request parent may be cancelled
-                               function getSessionId_resp_(err, sessionId) {
+                               function(err, sessionId) {
                                    log("getSessionId_resp_(): " + sessionId, self);
                                    if (!err) {
                                        self.m_sessionId = sessionId;
@@ -254,12 +254,12 @@ calWcapSession.prototype = {
     // this is a server limit for recurrencies; default is 60
     recurrenceBound: 60,
 
-    getSessionId_: function calWcapSession_getSessionId_(request, respFunc) {
+    getSessionId_: function(request, respFunc) {
         let self = this;
         this.checkServerVersion(
             request,
             // probe whether server is accessible and responds:
-            function checkServerVersion_resp(err) {
+            function(err) {
                 if (err) {
                     respFunc(err);
                     return;
@@ -313,7 +313,7 @@ calWcapSession.prototype = {
                         self.credentials.pw = outPW.value;
                         self.setupSession(sessionId,
                                           request,
-                                          function setupSession_resp(setuperr) {
+                                          function(setuperr) {
                                               respFunc(setuperr, sessionId);
                                           });
                     }
@@ -327,11 +327,11 @@ calWcapSession.prototype = {
             });
     },
 
-    login: function calWcapSession_login(request, respFunc, user, pw) {
+    login: function(request, respFunc, user, pw) {
         let self = this;
         issueNetworkRequest(
             request,
-            function netResp(err, str) {
+            function(err, str) {
                 let sessionId;
                 try {
                     if (err) {
@@ -372,10 +372,10 @@ calWcapSession.prototype = {
             false /* no logging */);
     },
 
-    logout: function calWcapSession_logout(listener) {
+    logout: function(listener) {
         let self = this;
         let request = new calWcapRequest(
-            function logout_resp(oprequest, err) {
+            function(oprequest, err) {
                 if (err) {
                     logError(err, self);
                 } else {
@@ -403,7 +403,7 @@ calWcapSession.prototype = {
 
         if (url) {
             issueNetworkRequest(request,
-                                function netResp(err, str) {
+                                function(err, str) {
                                     if (err) {
                                         throw err;
                                     }
@@ -415,13 +415,13 @@ calWcapSession.prototype = {
         return request;
     },
 
-    checkServerVersion: function calWcapSession_checkServerVersion(request, respFunc) {
+    checkServerVersion: function(request, respFunc) {
         // currently, xml parsing at an early stage during process startup
         // does not work reliably, so use libical:
         let self = this;
         issueNetworkRequest(
             request,
-            function netResp(err, str) {
+            function(err, str) {
                 try {
                     let icalRootComp;
                     if (!err) {
@@ -470,10 +470,10 @@ calWcapSession.prototype = {
             self.sessionUri.spec + "version.wcap?fmt-out=text%2Fcalendar");
     },
 
-    setupSession: function calWcapSession_setupSession(sessionId, request_, respFunc) {
+    setupSession: function(sessionId, request_, respFunc) {
         let self = this;
         let request = new calWcapRequest(
-            function setupSession_resp(oprequest, err) {
+            function(oprequest, err) {
                 log("setupSession_resp finished: " + errorToString(err), self);
                 respFunc(err);
             },
@@ -486,7 +486,7 @@ calWcapSession.prototype = {
         try {
             this.issueNetworkRequest_(
                 request,
-                function userprefs_resp(err, data) {
+                function(err, data) {
                     if (err) {
                         throw err;
                     }
@@ -555,8 +555,7 @@ calWcapSession.prototype = {
         }
     },
 
-    installCalProps_get_calprops:
-    function calWcapSession_installCalProps_get_calprops(respFunc, sessionId, cals, request) {
+    installCalProps_get_calprops: function(respFunc, sessionId, cals, request) {
         let self = this;
         function calprops_resp(err, data) {
             if (err) {
@@ -609,15 +608,14 @@ calWcapSession.prototype = {
                                   sessionId);
     },
 
-    installCalProps_search_calprops:
-    function calWcapSession_installCalProps_search_calprops(respFunc, sessionId, cals, request) {
+    installCalProps_search_calprops: function(respFunc, sessionId, cals, request) {
         let self = this;
         let retrievedCals = {};
         let issuedSearchRequests = {};
         for (let calId in cals) {
             if (!retrievedCals[calId]) {
                 let listener = {
-                    onResult: function search_onResult(oprequest, result) {
+                    onResult: function(oprequest, result) {
                         try {
                             if (!Components.isSuccessCode(oprequest.status)) {
                                 throw oprequest.status;
@@ -658,11 +656,11 @@ calWcapSession.prototype = {
         }
     },
 
-    installServerTimeDiff: function calWcapSession_installServerTimeDiff(sessionId, request) {
+    installServerTimeDiff: function(sessionId, request) {
         let self = this;
         this.issueNetworkRequest_(
             request,
-            function netResp(err, data) {
+            function(err, data) {
                 if (err) {
                     throw err;
                 }
@@ -678,12 +676,12 @@ calWcapSession.prototype = {
             sessionId);
     },
 
-    installServerTimezones: function calWcapSession_installServerTimezones(sessionId, request) {
+    installServerTimezones: function(sessionId, request) {
         this.m_serverTimezones = {};
         let self = this;
         self.issueNetworkRequest_(
             request,
-            function netResp(err, data) {
+            function(err, data) {
                 if (err) {
                     throw err;
                 }
@@ -701,7 +699,7 @@ calWcapSession.prototype = {
             sessionId);
     },
 
-    getCommandUrl: function calWcapSession_getCommandUrl(wcapCommand, params, sessionId) {
+    getCommandUrl: function(wcapCommand, params, sessionId) {
         let url = this.sessionUri.spec;
         url += wcapCommand + ".wcap?appid=mozilla-calendar&id=";
         url += sessionId;
@@ -709,8 +707,7 @@ calWcapSession.prototype = {
         return url;
     },
 
-    issueNetworkRequest: function calWcapSession_issueNetworkRequest(
-                    request, respFunc, dataConvFunc, wcapCommand, params) {
+    issueNetworkRequest: function(request, respFunc, dataConvFunc, wcapCommand, params) {
         let self = this;
         let getSessionId_resp = function(err, sessionId) {
             if (err) {
@@ -719,7 +716,7 @@ calWcapSession.prototype = {
                 // else have session uri and id:
                 self.issueNetworkRequest_(
                     request,
-                    function issueNetworkRequest_resp(loginerr, data) {
+                    function(loginerr, data) {
                         // timeout?
                         if (checkErrorCode(loginerr, calIWcapErrors.WCAP_LOGIN_FAILED)) {
                             // try again:
@@ -737,12 +734,11 @@ calWcapSession.prototype = {
         this.getSessionId(request, getSessionId_resp);
     },
 
-    issueNetworkRequest_: function calWcapSession_issueNetworkRequest_(
-                    request, respFunc, dataConvFunc, wcapCommand, params, sessionId) {
+    issueNetworkRequest_: function(request, respFunc, dataConvFunc, wcapCommand, params, sessionId) {
         let url = this.getCommandUrl(wcapCommand, params, sessionId);
         let self = this;
         issueNetworkRequest(request,
-                            function netResp(err, str) {
+                            function(err, str) {
                                 let data;
                                 if (!err) {
                                     try {
@@ -806,7 +802,7 @@ calWcapSession.prototype = {
 
     defaultCalendar: null,
 
-    belongsTo: function calWcapSession_belongsTo(calendar) {
+    belongsTo: function(calendar) {
         try {
             // xxx todo hack to get the unwrapped wcap calendar instance:
             calendar = calendar.getProperty("cache.uncachedCalendar")
@@ -821,7 +817,7 @@ calWcapSession.prototype = {
         return null;
     },
 
-    getRegisteredCalendars: function calWcapSession_getRegisteredCalendars(asAssocObj) {
+    getRegisteredCalendars: function(asAssocObj) {
         let registeredCalendars = (asAssocObj ? {} : []);
         let cals = cal.getCalendarManager().getCalendars({});
         for (let calendar of cals) {
@@ -837,7 +833,7 @@ calWcapSession.prototype = {
         return registeredCalendars;
     },
 
-    getUserPreferences: function calWcapSession_getUserPreferences(prefName) {
+    getUserPreferences: function(prefName) {
         let prefs = filterXmlNodes(prefName, this.credentials.userPrefs);
         return prefs;
     },
@@ -854,7 +850,7 @@ calWcapSession.prototype = {
         return alarmStart;
     },
 
-    getDefaultAlarmEmails: function calWcapSession_getDefaultAlarmEmails(out_count) {
+    getDefaultAlarmEmails: function(out_count) {
         let ret = [];
         let ar = this.getUserPreferences("X-NSCP-WCAP-PREF-ceDefaultAlarmEmail");
         if (ar.length > 0 && ar[0].length > 0) {
@@ -867,11 +863,10 @@ calWcapSession.prototype = {
     },
 
     // calICalendarSearchProvider:
-    searchForCalendars:
-    function calWcapSession_searchForCalendars(searchString, hints, maxResults, listener) {
+    searchForCalendars: function(searchString, hints, maxResults, listener) {
         let self = this;
         let request = new calWcapRequest(
-            function searchForCalendars_resp(oprequest, err, data) {
+            function(oprequest, err, data) {
                 if (err && !checkErrorCode(err, calIErrors.OPERATION_CANCELLED)) {
                     self.notifyError(err);
                 }
@@ -893,7 +888,7 @@ calWcapSession.prototype = {
 
             this.issueNetworkRequest(
                 request,
-                function searchForCalendars_netResp(err, data) {
+                function(err, data) {
                     if (err) {
                         throw err;
                     }
@@ -946,8 +941,7 @@ calWcapSession.prototype = {
     },
 
     // calIFreeBusyProvider:
-    getFreeBusyIntervals:
-    function calWcapCalendar_getFreeBusyIntervals(calId, rangeStart, rangeEnd, busyTypes, listener) {
+    getFreeBusyIntervals: function(calId, rangeStart, rangeEnd, busyTypes, listener) {
         rangeStart = ensureDateTime(rangeStart);
         rangeEnd = ensureDateTime(rangeEnd);
         let zRangeStart = getIcalUTC(rangeStart);
@@ -955,7 +949,7 @@ calWcapSession.prototype = {
 
         let self = this;
         let request = new calWcapRequest(
-            function _resp(oprequest, err, data) {
+            function(oprequest, err, data) {
                 let rc = getResultCode(err);
                 switch (rc) {
                     case calIWcapErrors.WCAP_NO_ERRNO: // workaround
@@ -995,7 +989,7 @@ calWcapSession.prototype = {
 
             this.issueNetworkRequest(
                 request,
-                function net_resp(err, xml) {
+                function(err, xml) {
                     if (err) {
                         throw err;
                     }
@@ -1039,7 +1033,7 @@ calWcapSession.prototype = {
     },
 
     // nsIObserver:
-    observe: function calWcapSession_observer(subject, topic, data) {
+    observe: function(subject, topic, data) {
         log("observing: " + topic + ", data: " + data, this);
         if (topic == "quit-application") {
             g_bShutdown = true;
@@ -1053,7 +1047,7 @@ calWcapSession.prototype = {
     // calICalendarManagerObserver:
 
     // called after the calendar is registered
-    onCalendarRegistered: function calWcapSession_onCalendarRegistered(aCalendar) {
+    onCalendarRegistered: function(aCalendar) {
         function assureDefault(pref, val) {
             if (aCalendar.getProperty(pref) === null) {
                 aCalendar.setProperty(pref, val);
@@ -1087,7 +1081,7 @@ calWcapSession.prototype = {
     },
 
     // called before the unregister actually takes place
-    onCalendarUnregistering: function calWcapSession_onCalendarUnregistering(aCalendar) {
+    onCalendarUnregistering: function(aCalendar) {
         try {
             // make sure the calendar belongs to this session and is the default calendar,
             // then remove all subscribed calendars:
@@ -1112,7 +1106,7 @@ calWcapSession.prototype = {
     },
 
     // called before the delete actually takes place
-    onCalendarDeleting: function calWcapSession_onCalendarDeleting(aCalendar) {
+    onCalendarDeleting: function(aCalendar) {
     }
 };
 

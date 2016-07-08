@@ -17,8 +17,7 @@
       <field name="mPopupHandler">null</field>
       <field name="mParentMenuPopup">null</field>
       <constructor><![CDATA[
-        let self = this;
-        this.mPopupHandler = function popupHandler() { self.changeMenuByPropertyName(); };
+        this.mPopupHandler = () => { this.schangeMenuByPropertyName(); };
         this.mParentMenuPopup = getParentNodeOrThis(this, "menupopup");
         this.mParentMenuPopup.addEventListener("popupshowing", this.mPopupHandler, true);
       ]]></constructor>

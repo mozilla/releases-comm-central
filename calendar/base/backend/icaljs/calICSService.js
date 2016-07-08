@@ -354,7 +354,7 @@ calIcalComponent.prototype = {
     },
 
     propertyIterator: null,
-    getFirstProperty: function getFirstProperty(kind) {
+    getFirstProperty: function(kind) {
         if (kind == "ANY") {
             kind = null;
         } else if (kind) {
@@ -387,7 +387,7 @@ calIcalComponent.prototype = {
         return this.getNextProperty(kind);
     },
 
-    getNextProperty: function getNextProperty(kind) {
+    getNextProperty: function(kind) {
         if (this.propertyIterator) {
             let next = this.propertyIterator.next();
             if (next.done) {
@@ -467,14 +467,14 @@ calICSService.prototype = {
         interfaces: [Components.interfaces.calIICSService]
     }),
 
-    parseICS: function parseICS(serialized, tzProvider) {
+    parseICS: function(serialized, tzProvider) {
         // TODO ical.js doesn't support tz providers, but this is usually null
         // or our timezone service anyway.
         let comp = ICAL.parse(serialized);
         return new calIcalComponent(new ICAL.Component(comp));
     },
 
-    parseICSAsync: function parseICSAsync(serialized, tzProvider, listener) {
+    parseICSAsync: function(serialized, tzProvider, listener) {
         // There are way too many error checking messages here, but I had so
         // much pain with this method that I don't want it to break again.
         try {
@@ -506,11 +506,11 @@ calICSService.prototype = {
         }
     },
 
-    createIcalComponent: function createIcalComponent(kind) {
+    createIcalComponent: function(kind) {
         return new calIcalComponent(new ICAL.Component(kind.toLowerCase()));
     },
 
-    createIcalProperty: function createIcalProperty(kind) {
+    createIcalProperty: function(kind) {
         return new calIcalProperty(new ICAL.Property(kind.toLowerCase()));
     },
 

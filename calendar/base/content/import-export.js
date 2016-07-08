@@ -112,7 +112,7 @@ function loadEventsFromFile(aCalendar) {
         } else {
             // Ask what calendar to import into
             let args = {};
-            args.onOk = function putItems(aCal) { putItemsIntoCal(aCal, items, filePath); };
+            args.onOk = (aCal) => { putItemsIntoCal(aCal, items, filePath); };
             args.calendars = calendars;
             args.promptText = calGetString("calendar", "importPrompt");
             openDialog("chrome://calendar/content/chooseCalendarDialog.xul",

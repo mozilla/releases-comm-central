@@ -15,7 +15,7 @@ cal.auth = {
     /**
      * Auth prompt implementation - Uses password manager if at all possible.
      */
-    Prompt: function calPrompt() {
+    Prompt: function() {
         this.mWindow = cal.getCalendarWindow();
         this.mReturnedLogins = {};
     },
@@ -32,12 +32,8 @@ cal.auth = {
      * @param   in aFixedUsername   Whether the user name is fixed or editable
      * @return  Could a password be retrieved?
      */
-    getCredentials: function calGetCredentials(aTitle,
-                                               aCalendarName,
-                                               aUsername,
-                                               aPassword,
-                                               aSavePassword,
-                                               aFixedUsername) {
+    getCredentials: function(aTitle, aCalendarName, aUsername, aPassword,
+                             aSavePassword, aFixedUsername) {
         if (typeof aUsername != "object" ||
             typeof aPassword != "object" ||
             typeof aSavePassword != "object") {
@@ -79,7 +75,7 @@ cal.auth = {
      * @param aHostName     The corresponding hostname
      * @param aRealm        The password realm (unused on branch)
      */
-    passwordManagerSave: function calPasswordManagerSave(aUsername, aPassword, aHostName, aRealm) {
+    passwordManagerSave: function(aUsername, aPassword, aHostName, aRealm) {
         cal.ASSERT(aUsername);
         cal.ASSERT(aPassword);
 
@@ -110,7 +106,7 @@ cal.auth = {
      * @param aRealm            The password realm (unused on branch)
      * @return                  Does an entry exist in the password manager
      */
-    passwordManagerGet: function calPasswordManagerGet(aUsername, aPassword, aHostName, aRealm) {
+    passwordManagerGet: function(aUsername, aPassword, aHostName, aRealm) {
         cal.ASSERT(aUsername);
 
         if (typeof aPassword != "object") {
@@ -143,7 +139,7 @@ cal.auth = {
      * @param aRealm        The password realm (unused on branch)
      * @return              Could the user be removed?
      */
-    passwordManagerRemove: function calPasswordManagerRemove(aUsername, aHostName, aRealm) {
+    passwordManagerRemove: function(aUsername, aHostName, aRealm) {
         cal.ASSERT(aUsername);
 
         try {
@@ -174,7 +170,7 @@ cal.auth = {
 cal.auth.Prompt.prototype = {
     mProvider: null,
 
-    getPasswordInfo: function capGPI(aPasswordRealm) {
+    getPasswordInfo: function(aPasswordRealm) {
         let username;
         let password;
         let found = false;
@@ -233,7 +229,7 @@ cal.auth.Prompt.prototype = {
      * @note   Exceptions thrown from this function will be treated like a
      *         return value of false.
      */
-    promptAuth: function capPA(aChannel, aLevel, aAuthInfo) {
+    promptAuth: function(aChannel, aLevel, aAuthInfo) {
         let hostRealm = {};
         hostRealm.prePath = aChannel.URI.prePath;
         hostRealm.realm = aAuthInfo.realm;
@@ -275,12 +271,11 @@ cal.auth.Prompt.prototype = {
      *        Asynchronous authentication prompts are not supported;
      *        the caller should fall back to promptUsernameAndPassword().
      */
-    asyncPromptAuth: function capAPA(aChannel,   // nsIChannel
-                                     aCallback,  // nsIAuthPromptCallback
-                                     aContext,   // nsISupports
-                                     aLevel,     // PRUint32
-                                     aAuthInfo   // nsIAuthInformation
-                                ) {
+    asyncPromptAuth: function(aChannel,     // nsIChannel
+                              aCallback,    // nsIAuthPromptCallback
+                              aContext,     // nsISupports
+                              aLevel,       // PRUint32
+                              aAuthInfo) {  // nsIAuthInformation
         let self = this;
         let promptlistener = {
             onPromptStart: function() {

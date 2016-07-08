@@ -19,7 +19,7 @@ calFreeBusyListener.prototype = {
 
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIGenericOperationListener]),
 
-    notifyResult: function calFreeBusyListener_notifyResult(result) {
+    notifyResult: function(result) {
         let listener = this.mFinalListener;
         if (listener) {
             if (!this.opGroup.isPending) {
@@ -30,7 +30,7 @@ calFreeBusyListener.prototype = {
     },
 
     // calIGenericOperationListener:
-    onResult: function calFreeBusyListener_onResult(aOperation, aResult) {
+    onResult: function(aOperation, aResult) {
         if (this.mFinalListener) {
             if (!aOperation || !aOperation.isPending) {
                 --this.mNumOperations;
@@ -72,11 +72,7 @@ calFreeBusyService.prototype = {
     }),
 
     // calIFreeBusyProvider:
-    getFreeBusyIntervals: function calFreeBusyService_getFreeBusyIntervals(aCalId,
-                                                                           aRangeStart,
-                                                                           aRangeEnd,
-                                                                           aBusyTypes,
-                                                                           aListener) {
+    getFreeBusyIntervals: function(aCalId, aRangeStart, aRangeEnd, aBusyTypes, aListener) {
         let groupListener = new calFreeBusyListener(this.mProviders.size, aListener);
         for (let provider of this.mProviders) {
             let operation = provider.getFreeBusyIntervals(aCalId, aRangeStart,
@@ -89,10 +85,10 @@ calFreeBusyService.prototype = {
     },
 
     // calIFreeBusyService:
-    addProvider: function calFreeBusyListener_addProvider(aProvider) {
+    addProvider: function(aProvider) {
         this.mProviders.add(aProvider);
     },
-    removeProvider: function calFreeBusyListener_removeProvider(aProvider) {
+    removeProvider: function(aProvider) {
         this.mProviders.remove(aProvider);
     }
 };

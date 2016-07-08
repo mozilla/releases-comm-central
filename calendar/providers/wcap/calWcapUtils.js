@@ -58,7 +58,7 @@ function initLogging() {
     }
     if (!initLogging.mLogPrefObserver) {
         initLogging.mLogPrefObserver = { // nsIObserver:
-            observe: function logPrefObserver_observe(subject, topic, data) {
+            observe: function(subject, topic, data) {
                 if (topic == "nsPref:changed") {
                     switch (data) {
                         case "calendar.wcap.log_level":
@@ -75,7 +75,7 @@ function initLogging() {
         Services.prefs.addObserver("calendar.debug.log", initLogging.mLogPrefObserver, false);
 
         let appObserver = { // nsIObserver:
-            observe: function app_observe(subject, topic, data) {
+            observe: function(subject, topic, data) {
                 if (topic == "quit-application") {
                     Services.prefs.removeObserver("calendar.", initLogging.mLogPrefObserver);
                 }

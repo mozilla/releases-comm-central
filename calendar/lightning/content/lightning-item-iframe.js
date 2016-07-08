@@ -1112,7 +1112,7 @@ function dateTimeControls2State(aStartDatepicker) {
         // warning dialog is showed.
         enableAcceptCommand(false);
         gWarning = true;
-        let callback = function func() {
+        let callback = function() {
             Services.prompt.alert(null, document.title, stringWarning);
             gWarning = false;
             updateAccept();
@@ -2113,11 +2113,11 @@ function uploadCloudAttachment(attachment, cloudProvider, listItem) {
     listItem.attachLocalFile = file;
     listItem.attachCloudProvider = cloudProvider;
     cloudProvider.uploadFile(file, {
-        onStartRequest: function onStartRequest() {
+        onStartRequest: function() {
             listItem.setAttribute("image", "chrome://messenger/skin/icons/loading.png");
         },
 
-        onStopRequest: function onStopRequest(aRequest, aContext, aStatusCode) {
+        onStopRequest: function(aRequest, aContext, aStatusCode) {
             if (Components.isSuccessCode(aStatusCode)) {
                 delete gAttachMap[attachment.hashId];
                 attachment.uri = makeURL(cloudProvider.urlForFile(file));

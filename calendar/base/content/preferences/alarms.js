@@ -15,7 +15,7 @@ var gAlarmsPane = {
      * Initialize the alarms pref pane. Sets up dialog controls to match the
      * values set in prefs.
      */
-    init: function gAP_init() {
+    init: function() {
         // Enable/disable the alarm sound URL box and buttons
         this.alarmsPlaySoundPrefChanged();
 
@@ -31,7 +31,7 @@ var gAlarmsPane = {
      * @param aFileURL    A string with a file:// url.
      * @return            The corresponding nsILocalFile.
      */
-    convertURLToLocalFile: function gAP_convertURLToLocalFile(aFileURL) {
+    convertURLToLocalFile: function(aFileURL) {
         // Convert the file url into a nsILocalFile
         if (aFileURL) {
             let fph = Services.io
@@ -47,7 +47,7 @@ var gAlarmsPane = {
      * Handler function to be called when the calendar.alarms.soundURL pref has
      * changed. Updates the label in the dialog.
      */
-    readSoundLocation: function gAP_readSoundLocation() {
+    readSoundLocation: function() {
         let soundUrl = document.getElementById("alarmSoundFileField");
         soundUrl.value = document.getElementById("calendar.alarms.soundURL").value;
         if (soundUrl.value.startsWith("file://")) {
@@ -62,7 +62,7 @@ var gAlarmsPane = {
     /**
      * Causes the default sound to be selected in the dialog controls
      */
-    useDefaultSound: function gAP_useDefaultSound() {
+    useDefaultSound: function() {
         let defaultSoundUrl = "chrome://calendar/content/sound.wav";
         document.getElementById("calendar.alarms.soundURL").value = defaultSoundUrl;
         document.getElementById("alarmSoundCheckbox").checked = true;
@@ -72,7 +72,7 @@ var gAlarmsPane = {
     /**
      * Opens a filepicker to open a local sound for the alarm.
      */
-    browseAlarm: function gAP_browseAlarm() {
+    browseAlarm: function() {
         const nsIFilePicker = Components.interfaces.nsIFilePicker;
         let fp = Components.classes["@mozilla.org/filepicker;1"]
                     .createInstance(nsIFilePicker);
@@ -98,7 +98,7 @@ var gAlarmsPane = {
     /**
      * Plays the alarm sound currently selected.
      */
-    previewAlarm: function gAP_previewAlarm() {
+    previewAlarm: function() {
         let soundUrl = document.getElementById("alarmSoundFileField").value;
         let soundIfc = Components.classes["@mozilla.org/sound;1"]
                             .createInstance(Components.interfaces.nsISound);
@@ -121,7 +121,7 @@ var gAlarmsPane = {
      * has been changed. Updates the disabled state of fields that depend on
      * playing a sound.
      */
-    alarmsPlaySoundPrefChanged: function gAP_alarmsPlaySoundPrefChanged() {
+    alarmsPlaySoundPrefChanged: function() {
         let alarmsPlaySoundPref =
             document.getElementById("calendar.alarms.playsound");
 

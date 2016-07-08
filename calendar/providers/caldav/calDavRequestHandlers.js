@@ -57,7 +57,7 @@ etagsHandler.prototype = {
     /**
      * @see nsIStreamListener
      */
-    onStartRequest: function eSL_onStartRequest(request, context) {
+    onStartRequest: function(request, context) {
         let httpchannel = request.QueryInterface(Components.interfaces.nsIHttpChannel);
 
         let responseStatus;
@@ -162,7 +162,7 @@ etagsHandler.prototype = {
         }
     }),
 
-    onDataAvailable: function eSL_onDataAvailable(request, context, inputStream, offset, count) {
+    onDataAvailable: function(request, context, inputStream, offset, count) {
         if (this._reader) {
             // No reader means request error
             this._reader.onDataAvailable(request, context, inputStream, offset, count);
@@ -173,7 +173,7 @@ etagsHandler.prototype = {
     /**
      * @see nsISAXErrorHandler
      */
-    fatalError: function eH_fatalError() {
+    fatalError: function() {
         cal.WARN("CalDAV: Fatal Error parsing etags for " + this.calendar.name);
     },
 
@@ -181,22 +181,22 @@ etagsHandler.prototype = {
     /**
      * @see nsISAXContentHandler
      */
-    characters: function eH_characters(aValue) {
+    characters: function(aValue) {
         if (this.calendar.verboseLogging()) {
             this.logXML += aValue;
         }
         this.currentResponse[this.tag] += aValue;
     },
 
-    startDocument: function eH_startDocument() {
+    startDocument: function() {
         this.hrefMap = {};
         this.currentResponse = {};
         this.tag = null;
     },
 
-    endDocument: function eH_endDocument() { },
+    endDocument: function() { },
 
-    startElement: function eH_startElement(aUri, aLocalName, aQName, aAttributes) {
+    startElement: function(aUri, aLocalName, aQName, aAttributes) {
         switch (aLocalName) {
             case "response":
                 this.currentResponse = {};
@@ -218,7 +218,7 @@ etagsHandler.prototype = {
         }
     },
 
-    endElement: function eH_endElement(aUri, aLocalName, aQName) {
+    endElement: function(aUri, aLocalName, aQName) {
         switch (aLocalName) {
             case "response":
                 this.tag = null;
@@ -264,10 +264,10 @@ etagsHandler.prototype = {
         }
     },
 
-    startPrefixMapping: function eH_startPrefixMapping(aPrefix, aUri) { },
-    endPrefixMapping: function eH_endPrefixMapping(aPrefix) { },
-    ignorableWhitespace: function eH_ignorableWhitespace(aWhiteSpace) { },
-    processingInstruction: function eH_processingInstruction(aTarget, aData) { }
+    startPrefixMapping: function(aPrefix, aUri) { },
+    endPrefixMapping: function(aPrefix) { },
+    ignorableWhitespace: function(aWhiteSpace) { },
+    processingInstruction: function(aTarget, aData) { }
 };
 
 /**
@@ -316,7 +316,7 @@ webDavSyncHandler.prototype = {
         Components.interfaces.nsIStreamListener
     ]),
 
-    doWebDAVSync: function doWebDAVSync() {
+    doWebDAVSync: function() {
         if (this.calendar.mDisabled) {
             // check if maybe our calendar has become available
             this.calendar.setupAuthentication(this.changeLogListener);
@@ -368,7 +368,7 @@ webDavSyncHandler.prototype = {
     /**
      * @see nsIStreamListener
      */
-    onStartRequest: function wSL_onStartRequest(request, context) {
+    onStartRequest: function(request, context) {
         let httpchannel = request.QueryInterface(Components.interfaces.nsIHttpChannel);
 
         let responseStatus;
@@ -404,7 +404,7 @@ webDavSyncHandler.prototype = {
         }
     },
 
-    onStopRequest: function wSL_onStopRequest(request, context, statusCode) {
+    onStopRequest: function(request, context, statusCode) {
         if (this.calendar.verboseLogging()) {
             cal.LOG("CalDAV: recv: " + this.logXML);
         }
@@ -420,7 +420,7 @@ webDavSyncHandler.prototype = {
         }
     },
 
-    onDataAvailable: function wSL_onDataAvailable(request, context, inputStream, offset, count) {
+    onDataAvailable: function(request, context, inputStream, offset, count) {
         if (this._reader) {
             // No reader means request error
             this._reader.onDataAvailable(request, context, inputStream, offset, count);
@@ -430,21 +430,21 @@ webDavSyncHandler.prototype = {
     /**
      * @see nsISAXErrorHandler
      */
-    fatalError: function wH_fatalError() {
+    fatalError: function() {
         cal.WARN("CalDAV: Fatal Error doing webdav sync for " + this.calendar.name);
     },
 
     /**
      * @see nsISAXContentHandler
      */
-    characters: function wH_characters(aValue) {
+    characters: function(aValue) {
         if (this.calendar.verboseLogging()) {
             this.logXML += aValue;
         }
         this.currentResponse[this.tag] += aValue;
     },
 
-    startDocument: function wH_startDocument() {
+    startDocument: function() {
         this.hrefMap = {};
         this.currentResponse = {};
         this.tag = null;
@@ -453,7 +453,7 @@ webDavSyncHandler.prototype = {
         }
     },
 
-    endDocument: function wH_endDocument() {
+    endDocument: function() {
         if (this.unhandledErrors) {
             this.calendar.superCalendar.endBatch();
             this.calendar.reportDavError(Components.interfaces.calIErrors.DAV_REPORT_ERROR);
@@ -498,7 +498,7 @@ webDavSyncHandler.prototype = {
         }
     },
 
-    startElement: function wH_startElement(aUri, aLocalName, aQName, aAttributes) {
+    startElement: function(aUri, aLocalName, aQName, aAttributes) {
         switch (aLocalName) {
             case "response": // WebDAV Sync draft 3
                 this.currentResponse = {};
@@ -529,7 +529,7 @@ webDavSyncHandler.prototype = {
         }
     },
 
-    endElement: function wH_endElement(aUri, aLocalName, aQName) {
+    endElement: function(aUri, aLocalName, aQName) {
         switch (aLocalName) {
             case "response": // WebDAV Sync draft 3
             case "sync-response": // WebDAV Sync draft 0,1,2
@@ -625,10 +625,10 @@ webDavSyncHandler.prototype = {
         }
     },
 
-    startPrefixMapping: function wH_startPrefixMapping(aPrefix, aUri) { },
-    endPrefixMapping: function wH_endPrefixMapping(aPrefix) { },
-    ignorableWhitespace: function wH_ignorableWhitespace(aWhiteSpace) { },
-    processingInstruction: function wH_processingInstruction(aTarget, aData) { }
+    startPrefixMapping: function(aPrefix, aUri) { },
+    endPrefixMapping: function(aPrefix) { },
+    ignorableWhitespace: function(aWhiteSpace) { },
+    processingInstruction: function(aTarget, aData) { }
 };
 
 /**
@@ -682,7 +682,7 @@ multigetSyncHandler.prototype = {
         Components.interfaces.nsIStreamListener
     ]),
 
-    doMultiGet: function doMultiGet() {
+    doMultiGet: function() {
         if (this.calendar.mDisabled) {
             // check if maybe our calendar has become available
             this.calendar.setupAuthentication(this.changeLogListener);
@@ -729,7 +729,7 @@ multigetSyncHandler.prototype = {
     /**
      * @see nsIStreamListener
      */
-    onStartRequest: function mg_onStartRequest(request, context) {
+    onStartRequest: function(request, context) {
         let httpchannel = request.QueryInterface(Components.interfaces.nsIHttpChannel);
 
         let responseStatus;
@@ -752,7 +752,7 @@ multigetSyncHandler.prototype = {
         }
     },
 
-    onStopRequest: function mg_onStopRequest(request, context, statusCode) {
+    onStopRequest: function(request, context, statusCode) {
         if (this.calendar.verboseLogging()) {
             cal.LOG("CalDAV: recv: " + this.logXML);
         }
@@ -813,7 +813,7 @@ multigetSyncHandler.prototype = {
         }
     },
 
-    onDataAvailable: function mg_onDataAvailable(request, context, inputStream, offset, count) {
+    onDataAvailable: function(request, context, inputStream, offset, count) {
         if (this._reader) {
             // No reader means request error
             this._reader.onDataAvailable(request, context, inputStream, offset, count);
@@ -823,21 +823,21 @@ multigetSyncHandler.prototype = {
     /**
      * @see nsISAXErrorHandler
      */
-    fatalError: function mg_fatalError() {
+    fatalError: function() {
         cal.WARN("CalDAV: Fatal Error doing multiget for " + this.calendar.name);
     },
 
     /**
      * @see nsISAXContentHandler
      */
-    characters: function mg_characters(aValue) {
+    characters: function(aValue) {
         if (this.calendar.verboseLogging()) {
             this.logXML += aValue;
         }
         this.currentResponse[this.tag] += aValue;
     },
 
-    startDocument: function mg_startDocument() {
+    startDocument: function() {
         this.hrefMap = {};
         this.currentResponse = {};
         this.tag = null;
@@ -847,13 +847,13 @@ multigetSyncHandler.prototype = {
         }
     },
 
-    endDocument: function mg_endDocument() {
+    endDocument: function() {
         if (this.calendar.isCached) {
             this.calendar.superCalendar.endBatch();
         }
     },
 
-    startElement: function mg_startElement(aUri, aLocalName, aQName, aAttributes) {
+    startElement: function(aUri, aLocalName, aQName, aAttributes) {
         switch (aLocalName) {
             case "response":
                 this.currentResponse = {};
@@ -883,7 +883,7 @@ multigetSyncHandler.prototype = {
         }
     },
 
-    endElement: function mg_endElement(aUri, aLocalName, aQName) {
+    endElement: function(aUri, aLocalName, aQName) {
         switch (aLocalName) {
             case "response":
                 let r = this.currentResponse;
@@ -938,8 +938,8 @@ multigetSyncHandler.prototype = {
         }
     },
 
-    startPrefixMapping: function mg_startPrefixMapping(aPrefix, aUri) { },
-    endPrefixMapping: function mg_endPrefixMapping(aPrefix) { },
-    ignorableWhitespace: function mg_ignorableWhitespace(aWhiteSpace) { },
-    processingInstruction: function mg_processingInstruction(aTarget, aData) { }
+    startPrefixMapping: function(aPrefix, aUri) { },
+    endPrefixMapping: function(aPrefix) { },
+    ignorableWhitespace: function(aWhiteSpace) { },
+    processingInstruction: function(aTarget, aData) { }
 };

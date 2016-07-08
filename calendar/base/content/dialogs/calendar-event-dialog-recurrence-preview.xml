@@ -37,10 +37,7 @@
       <field name="mDateTime">null</field>
 
       <constructor><![CDATA[
-        let self = this;
-        this.mResizeHandler = function recurrence_preview_resizeHandler() {
-            self.onResize();
-        };
+        this.mResizeHandler = this.onResize.bind(this);
         window.addEventListener("resize", this.mResizeHandler, true);
       ]]></constructor>
 

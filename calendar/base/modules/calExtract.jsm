@@ -58,7 +58,7 @@ Extractor.prototype = {
     * Removes confusing data like urls, timezones and phone numbers from email
     * Also removes standard signatures and quoted content from previous emails
     */
-    cleanup: function cleanup() {
+    cleanup: function() {
         // XXX remove earlier correspondence
         // ideally this should be considered with lower certainty to fill in
         // missing information
@@ -83,7 +83,7 @@ Extractor.prototype = {
         this.email = this.email.replace(/gmt[+-]\d{2}:\d{2}/gi, "");
     },
 
-    checkBundle: function checkBundle(locale) {
+    checkBundle: function(locale) {
         let path = this.bundleUrl.replace(/LOCALE/g, locale);
         let bundle = Services.strings.createBundle(path);
 
@@ -95,7 +95,7 @@ Extractor.prototype = {
         }
     },
 
-    avgNonAsciiCharCode: function avgNonAsciiCharCode() {
+    avgNonAsciiCharCode: function() {
         let sum = 0;
         let cnt = 0;
 
@@ -112,7 +112,7 @@ Extractor.prototype = {
         return nonAscii;
     },
 
-    setLanguage: function setLanguage() {
+    setLanguage: function() {
         let path;
 
         if (this.fixedLang == true) {
@@ -257,7 +257,7 @@ Extractor.prototype = {
     * @param title email title
     * @return      sorted list of extracted datetime objects
     */
-    extract: function extract(title, body, now, sel) {
+    extract: function(title, body, now, sel) {
         let initial = {};
         this.collected = [];
         this.email = title + "\r\n" + body;
@@ -360,7 +360,7 @@ Extractor.prototype = {
         return this.collected;
     },
 
-    extractDayMonthYear: function extractDayMonthYear(pattern, relation) {
+    extractDayMonthYear: function(pattern, relation) {
         let alts = this.getRepPatterns(pattern, ["(\\d{1,2})", "(\\d{1,2})",
                                                  "(\\d{2,4})"]);
         let res;
@@ -385,7 +385,7 @@ Extractor.prototype = {
         }
     },
 
-    extractDayMonthNameYear: function extractDayMonthNameYear(pattern, relation) {
+    extractDayMonthNameYear: function(pattern, relation) {
         let alts = this.getRepPatterns(pattern, ["(\\d{1,2})",
                                                  "(" + this.allMonths + ")",
                                                  "(\\d{2,4})"]);
@@ -416,7 +416,7 @@ Extractor.prototype = {
         }
     },
 
-    extractRelativeDay: function extractRelativeDay(pattern, relation, offset) {
+    extractRelativeDay: function(pattern, relation, offset) {
         let re = new RegExp(this.getPatterns(pattern), "ig");
         let res;
         if ((res = re.exec(this.email)) != null) {
@@ -430,7 +430,7 @@ Extractor.prototype = {
         }
     },
 
-    extractDayMonthName: function extractDayMonthName(pattern, relation) {
+    extractDayMonthName: function(pattern, relation) {
         let alts = this.getRepPatterns(pattern,
                                        ["(\\d{1,2}" + this.marker + this.dailyNumbers + ")",
                                        "(" + this.allMonths + ")"]);
@@ -475,7 +475,7 @@ Extractor.prototype = {
         }
     },
 
-    extractDayMonth: function extractDayMonth(pattern, relation) {
+    extractDayMonth: function(pattern, relation) {
         let alts = this.getRepPatterns(pattern, ["(\\d{1,2})", "(\\d{1,2})"]);
         let res;
         for (let alt in alts) {
@@ -512,7 +512,7 @@ Extractor.prototype = {
         }
     },
 
-    extractDate: function extractDate(pattern, relation) {
+    extractDate: function(pattern, relation) {
         let alts = this.getRepPatterns(pattern,
                                        ["(\\d{1,2}" + this.marker + this.dailyNumbers + ")"]);
         let res;
@@ -546,7 +546,7 @@ Extractor.prototype = {
         }
     },
 
-    extractWeekDay: function extractWeekDay(pattern, relation) {
+    extractWeekDay: function(pattern, relation) {
         let days = [];
         for (let i = 0; i < 7; i++) {
             days[i] = this.getPatterns(pattern + i);
@@ -572,7 +572,7 @@ Extractor.prototype = {
         }
     },
 
-    extractHour: function extractHour(pattern, relation, meridiem) {
+    extractHour: function(pattern, relation, meridiem) {
         let alts = this.getRepPatterns(pattern,
                                        ["(\\d{1,2}" + this.marker + this.hourlyNumbers + ")"]);
         let res;
@@ -602,7 +602,7 @@ Extractor.prototype = {
         }
     },
 
-    extractHalfHour: function extractHalfHour(pattern, relation, direction) {
+    extractHalfHour: function(pattern, relation, direction) {
         let alts = this.getRepPatterns(pattern,
                                        ["(\\d{1,2}" + this.marker + this.hourlyNumbers + ")"]);
         let res;
@@ -633,7 +633,7 @@ Extractor.prototype = {
         }
     },
 
-    extractHourMinutes: function extractHourMinutes(pattern, relation, meridiem) {
+    extractHourMinutes: function(pattern, relation, meridiem) {
         let alts = this.getRepPatterns(pattern, ["(\\d{1,2})", "(\\d{2})"]);
         let res;
         for (let alt in alts) {
@@ -663,7 +663,7 @@ Extractor.prototype = {
         }
     },
 
-    extractTime: function extractTime(pattern, relation, hour, minute) {
+    extractTime: function(pattern, relation, hour, minute) {
         let re = new RegExp(this.getPatterns(pattern), "ig");
         let res;
         if ((res = re.exec(this.email)) != null) {
@@ -675,7 +675,7 @@ Extractor.prototype = {
         }
     },
 
-    extractDuration: function extractDuration(pattern, unit) {
+    extractDuration: function(pattern, unit) {
         let alts = this.getRepPatterns(pattern,
                                        ["(\\d{1,2}" + this.marker + this.dailyNumbers + ")"]);
         let res;
@@ -700,7 +700,7 @@ Extractor.prototype = {
         }
     },
 
-    markContained: function markContained() {
+    markContained: function() {
         for (let outer = 0; outer < this.collected.length; outer++) {
             for (let inner = 0; inner < this.collected.length; inner++) {
                 // included but not exactly the same
@@ -718,7 +718,7 @@ Extractor.prototype = {
         }
     },
 
-    markSelected: function markSelected(sel, title) {
+    markSelected: function(sel, title) {
         if (sel.rangeCount > 0) {
             // mark the ones to not use
             for (let i = 0; i < sel.rangeCount; i++) {
@@ -737,7 +737,7 @@ Extractor.prototype = {
         }
     },
 
-    sort: function sort(one, two) {
+    sort: function(one, two) {
         let rc;
         // sort the guess from email date as the last one
         if (one.start == null && two.start != null) {
@@ -781,7 +781,7 @@ Extractor.prototype = {
     * @param isTask    whether start time should be guessed for task or event
     * @return          datetime object for start time
     */
-    guessStart: function guessStart(isTask) {
+    guessStart: function(isTask) {
         let startTimes = this.collected.filter(val => val.relation == "start");
         if (startTimes.length == 0) {
             return {};
@@ -856,7 +856,7 @@ Extractor.prototype = {
     * @param isTask    whether start time should be guessed for task or event
     * @return          datetime object for end time
     */
-    guessEnd: function guessEnd(start, isTask) {
+    guessEnd: function(start, isTask) {
         let guess = {};
         let endTimes = this.collected.filter(val => val.relation == "end");
         let durations = this.collected.filter(val => val.relation == "duration");
@@ -980,7 +980,7 @@ Extractor.prototype = {
         }
     },
 
-    getPatterns: function getPatterns(name) {
+    getPatterns: function(name) {
         let value;
         try {
             value = this.bundle.GetStringFromName(name);
@@ -1031,7 +1031,7 @@ Extractor.prototype = {
         }
     },
 
-    getRepPatterns: function getRepPatterns(name, replaceables) {
+    getRepPatterns: function(name, replaceables) {
         let alts = [];
         let patterns = [];
 
@@ -1098,7 +1098,7 @@ Extractor.prototype = {
         return alts;
     },
 
-    getPositionsFor: function getPositionsFor(s, name, count) {
+    getPositionsFor: function(s, name, count) {
         let positions = [];
         let re = /#(\d)/g;
         let match;
@@ -1118,34 +1118,34 @@ Extractor.prototype = {
         return positions;
     },
 
-    cleanPatterns: function cleanPatterns(pattern) {
+    cleanPatterns: function(pattern) {
         // remove whitespace around | if present
         let value = pattern.replace(/\s*\|\s*/g, "|");
         // allow matching for patterns with missing or excessive whitespace
         return this.sanitize(value).replace(/\s+/g, "\\s*");
     },
 
-    isValidYear: function isValidYear(year) {
+    isValidYear: function(year) {
         return (year >= 2000 && year <= 2050);
     },
 
-    isValidMonth: function isValidMonth(month) {
+    isValidMonth: function(month) {
         return (month >= 1 && month <= 12);
     },
 
-    isValidDay: function isValidDay(day) {
+    isValidDay: function(day) {
         return (day >= 1 && day <= 31);
     },
 
-    isValidHour: function isValidHour(hour) {
+    isValidHour: function(hour) {
         return (hour >= 0 && hour <= 23);
     },
 
-    isValidMinute: function isValidMinute(minute) {
+    isValidMinute: function(minute) {
         return (minute >= 0 && minute <= 59);
     },
 
-    isPastDate: function isPastDate(date, referenceDate) {
+    isPastDate: function(date, referenceDate) {
         // avoid changing original refDate
         let refDate = new Date(referenceDate.getTime());
         refDate.setHours(0);
@@ -1159,18 +1159,18 @@ Extractor.prototype = {
         return jsDate < refDate;
     },
 
-    normalizeHour: function normalizeHour(hour) {
+    normalizeHour: function(hour) {
         if (hour < this.dayStart && hour <= 11) {
             return hour + 12;
         }
         return hour;
     },
 
-    normalizeYear: function normalizeYear(year) {
+    normalizeYear: function(year) {
         return (year.length == 2) ? "20" + year : year;
     },
 
-    limitNums: function limitNums(res, email) {
+    limitNums: function(res, email) {
         let pattern = email.substring(res.index, res.index + res[0].length);
         let before = email.charAt(res.index - 1);
         let after = email.charAt(res.index + res[0].length);
@@ -1179,7 +1179,7 @@ Extractor.prototype = {
         return result != null;
     },
 
-    limitChars: function limitChars(res, email) {
+    limitChars: function(res, email) {
         let alphabet = this.getPatterns("alphabet");
         // for languages without regular alphabet surrounding characters are ignored
         if (alphabet == this.defPattern) {
@@ -1196,7 +1196,7 @@ Extractor.prototype = {
         return result != null;
     },
 
-    prefixSuffixStartEnd: function prefixSuffixStart(res, relation, email) {
+    prefixSuffixStartEnd: function(res, relation, email) {
         let pattern = email.substring(res.index, res.index + res[0].length);
         let prev = email.substring(0, res.index);
         let next = email.substring(res.index + res[0].length);
@@ -1247,7 +1247,7 @@ Extractor.prototype = {
         return prefixSuffix;
     },
 
-    parseNumber: function parseNumber(number, numbers) {
+    parseNumber: function(number, numbers) {
         let r = parseInt(number, 10);
         // number comes in as plain text, numbers are already adjusted for usage
         // in regular expression
@@ -1265,8 +1265,8 @@ Extractor.prototype = {
         }
     },
 
-    guess: function guess(year, month, day, hour, minute, start, end, str,
-                          relation, pattern, ambiguous) {
+    guess: function(year, month, day, hour, minute, start, end, str,
+                    relation, pattern, ambiguous) {
         let dateGuess = {
             year: year, month: month, day: day, hour: hour, minute: minute,
             start: start, end: end, str: str, relation: relation,

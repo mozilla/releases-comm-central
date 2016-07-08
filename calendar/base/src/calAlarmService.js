@@ -41,7 +41,7 @@ function calAlarmService() {
         // calIObserver:
         onStartBatch: function() { },
         onEndBatch: function() { },
-        onLoad: function co_onLoad(calendar) {
+        onLoad: function(calendar) {
             // ignore any onLoad events until initial getItems() call of startup has finished:
             if (calendar && this.alarmService.mLoadedCalendars[calendar.id]) {
                 // a refreshed calendar signals that it has been reloaded
@@ -126,7 +126,7 @@ calAlarmService.prototype = {
     /**
      * nsIObserver
      */
-    observe: function cAS_observe(aSubject, aTopic, aData) {
+    observe: function(aSubject, aTopic, aData) {
         // This will also be called on app-startup, but nothing is done yet, to
         // prevent unwanted dialogs etc. See bug 325476 and 413296
         if (aTopic == "profile-after-change" || aTopic == "wake_notification") {
@@ -151,7 +151,7 @@ calAlarmService.prototype = {
         return (this.mTimezone = aTimezone);
     },
 
-    snoozeAlarm: function cAS_snoozeAlarm(aItem, aAlarm, aDuration) {
+    snoozeAlarm: function(aItem, aAlarm, aDuration) {
         // Right now we only support snoozing all alarms for the given item for
         // aDuration.
 
@@ -181,7 +181,7 @@ calAlarmService.prototype = {
         return newEvent.calendar.modifyItem(newEvent, aItem.parentItem, null);
     },
 
-    dismissAlarm: function cAS_dismissAlarm(aItem, aAlarm) {
+    dismissAlarm: function(aItem, aAlarm) {
         let now = nowUTC();
         // We want the parent item, otherwise we're going to accidentally create an
         // exception.  We've relnoted (for 0.1) the slightly odd behavior this can
@@ -198,15 +198,15 @@ calAlarmService.prototype = {
         return newParent.calendar.modifyItem(newParent, oldParent, null);
     },
 
-    addObserver: function cAS_addObserver(aObserver) {
+    addObserver: function(aObserver) {
         this.mObservers.add(aObserver);
     },
 
-    removeObserver: function cAS_removeObserver(aObserver) {
+    removeObserver: function(aObserver) {
         this.mObservers.remove(aObserver);
     },
 
-    startup: function cAS_startup() {
+    startup: function() {
         if (this.mStarted) {
             return;
         }
@@ -230,7 +230,7 @@ calAlarmService.prototype = {
         /* set up a timer to update alarms every N hours */
         let timerCallback = {
             alarmService: this,
-            notify: function timer_notify() {
+            notify: function() {
                 let now = nowUTC();
                 let start;
                 if (!this.alarmService.mRangeEnd) {
@@ -264,7 +264,7 @@ calAlarmService.prototype = {
         this.mStarted = true;
     },
 
-    shutdown: function cAS_shutdown() {
+    shutdown: function() {
         if (!this.mStarted) {
             return;
         }
@@ -296,17 +296,17 @@ calAlarmService.prototype = {
         this.mStarted = false;
     },
 
-    observeCalendar: function cAS_observeCalendar(calendar) {
+    observeCalendar: function(calendar) {
         calendar.addObserver(this.calendarObserver);
     },
 
-    unobserveCalendar: function cAS_unobserveCalendar(calendar) {
+    unobserveCalendar: function(calendar) {
         calendar.removeObserver(this.calendarObserver);
         this.disposeCalendarTimers([calendar]);
         this.mObservers.notify("onRemoveAlarmsByCalendar", [calendar]);
     },
 
-    addAlarmsForItem: function cAS_addAlarmsForItem(aItem) {
+    addAlarmsForItem: function(aItem) {
         if (cal.isToDo(aItem) && aItem.isCompleted) {
             // If this is a task and it is completed, don't add the alarm.
             return;
@@ -384,7 +384,7 @@ calAlarmService.prototype = {
         }
     },
 
-    removeAlarmsForItem: function cAS_removeAlarmsForItem(aItem) {
+    removeAlarmsForItem: function(aItem) {
         // make sure already fired alarms are purged out of the alarm window:
         this.mObservers.notify("onRemoveAlarmsByItem", [aItem]);
         // Purge alarms specifically for this item (i.e exception)
@@ -393,7 +393,7 @@ calAlarmService.prototype = {
         }
     },
 
-    getOccurrencesInRange: function cAS_getOccurrencesInRange(aItem) {
+    getOccurrencesInRange: function(aItem) {
         // We search 1 month in each direction for alarms.  Therefore,
         // we need occurrences between initial start date and 1 month from now
         let until = nowUTC();
@@ -406,21 +406,21 @@ calAlarmService.prototype = {
         }
     },
 
-    addAlarmsForOccurrences: function cAS_addAlarmsForOccurrences(aParentItem) {
+    addAlarmsForOccurrences: function(aParentItem) {
         let occs = this.getOccurrencesInRange(aParentItem);
 
         // Add an alarm for each occurrence
         occs.forEach(this.addAlarmsForItem, this);
     },
 
-    removeAlarmsForOccurrences: function cAS_removeAlarmsForOccurrences(aParentItem) {
+    removeAlarmsForOccurrences: function(aParentItem) {
         let occs = this.getOccurrencesInRange(aParentItem);
 
         // Remove alarm for each occurrence
         occs.forEach(this.removeAlarmsForItem, this);
     },
 
-    addTimer: function cAS_addTimer(aItem, aAlarm, aTimeout) {
+    addTimer: function(aItem, aAlarm, aTimeout) {
         this.mTimerMap[aItem.calendar.id] =
             this.mTimerMap[aItem.calendar.id] || {};
         this.mTimerMap[aItem.calendar.id][aItem.hashId] =
@@ -428,7 +428,7 @@ calAlarmService.prototype = {
 
         let self = this;
         let alarmTimerCallback = {
-            notify: function aTC_notify() {
+            notify: function() {
                 self.alarmFired(aItem, aAlarm);
             }
         };
@@ -437,7 +437,7 @@ calAlarmService.prototype = {
         this.mTimerMap[aItem.calendar.id][aItem.hashId][aAlarm.icalString] = timer;
     },
 
-    removeTimer: function cAS_removeTimers(aItem, aAlarm) {
+    removeTimer: function(aItem, aAlarm) {
             /* Is the calendar in the timer map */
         if (aItem.calendar.id in this.mTimerMap &&
             /* ...and is the item in the calendar map */
@@ -463,7 +463,7 @@ calAlarmService.prototype = {
         }
     },
 
-    disposeCalendarTimers: function cAS_removeCalendarTimers(aCalendars) {
+    disposeCalendarTimers: function(aCalendars) {
         for (let calendar of aCalendars) {
             if (calendar.id in this.mTimerMap) {
                 for (let hashId in this.mTimerMap[calendar.id]) {
@@ -478,18 +478,14 @@ calAlarmService.prototype = {
         }
     },
 
-    findAlarms: function cAS_findAlarms(aCalendars, aStart, aUntil) {
+    findAlarms: function(aCalendars, aStart, aUntil) {
         let getListener = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             alarmService: this,
             addRemovePromise: PromiseUtils.defer(),
             batchCount: 0,
             results: false,
-            onOperationComplete: function cAS_fA_onOperationComplete(aCalendar,
-                                                                     aStatus,
-                                                                     aOperationType,
-                                                                     aId,
-                                                                     aDetail) {
+            onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
                 this.addRemovePromise.promise.then((aValue) => {
                     // calendar has been loaded, so until now, onLoad events can be ignored:
                     this.alarmService.mLoadedCalendars[aCalendar.id] = true;
@@ -507,12 +503,7 @@ calAlarmService.prototype = {
                     this.addRemovePromise.resolve();
                 }
             },
-            onGetResult: function cAS_fA_onGetResult(aCalendar,
-                                                     aStatus,
-                                                     aItemType,
-                                                     aDetail,
-                                                     aCount,
-                                                     aItems) {
+            onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                 let promise = this.addRemovePromise;
                 this.batchCount++;
                 this.results = true;
@@ -550,7 +541,7 @@ calAlarmService.prototype = {
         }
     },
 
-    initAlarms: function cAS_initAlarms(aCalendars) {
+    initAlarms: function(aCalendars) {
         // Purge out all alarm timers belonging to the refreshed/loaded calendars
         this.disposeCalendarTimers(aCalendars);
 
@@ -571,7 +562,7 @@ calAlarmService.prototype = {
         this.findAlarms(aCalendars, start, until);
     },
 
-    alarmFired: function cAS_alarmFired(aItem, aAlarm) {
+    alarmFired: function(aItem, aAlarm) {
         if (!aItem.calendar.getProperty("suppressAlarms") &&
             !aItem.calendar.getProperty("disabled") &&
             aItem.getProperty("STATUS") != "CANCELLED") {

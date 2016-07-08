@@ -41,7 +41,7 @@ calEvent.prototype = {
         return m;
     },
 
-    createProxy: function calEvent_createProxy(aRecurrenceId) {
+    createProxy: function(aRecurrenceId) {
         cal.ASSERT(!this.mIsProxy, "Tried to create a proxy for an existing proxy!", true);
 
         let m = new calEvent();

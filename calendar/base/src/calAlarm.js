@@ -50,7 +50,7 @@ calAlarm.prototype = {
      * calIAlarm
      */
 
-    ensureMutable: function cA_ensureMutable() {
+    ensureMutable: function() {
         if (this.mImmutable) {
             throw Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE;
         }
@@ -60,7 +60,7 @@ calAlarm.prototype = {
         return !this.mImmutable;
     },
 
-    makeImmutable: function cA_makeImmutable() {
+    makeImmutable: function() {
         if (this.mImmutable) {
             return;
         }
@@ -90,7 +90,7 @@ calAlarm.prototype = {
         this.mImmutable = true;
     },
 
-    clone: function cA_clone() {
+    clone: function() {
         let m = new calAlarm();
 
         m.mImmutable = false;
@@ -279,7 +279,7 @@ calAlarm.prototype = {
         return alarmDate;
     },
 
-    getAttendees: function getAttendees(aCount) {
+    getAttendees: function(aCount) {
         let attendees;
         if (this.action == "AUDIO" || this.action == "DISPLAY") {
             attendees = [];
@@ -290,7 +290,7 @@ calAlarm.prototype = {
         return attendees;
     },
 
-    addAttendee: function addAttendee(aAttendee) {
+    addAttendee: function(aAttendee) {
         // Make sure its not duplicate
         this.deleteAttendee(aAttendee);
 
@@ -303,7 +303,7 @@ calAlarm.prototype = {
         this.mAttendees.push(aAttendee);
     },
 
-    deleteAttendee: function deleteAttendee(aAttendee) {
+    deleteAttendee: function(aAttendee) {
         let deleteId = aAttendee.id;
         for (let i = 0; i < this.mAttendees.length; i++) {
             if (this.mAttendees[i].id == deleteId) {
@@ -313,11 +313,11 @@ calAlarm.prototype = {
         }
     },
 
-    clearAttendees: function clearAttendees() {
+    clearAttendees: function() {
         this.mAttendees = [];
     },
 
-    getAttachments: function getAttachments(aCount) {
+    getAttachments: function(aCount) {
         let attachments;
         if (this.action == "AUDIO") {
             attachments = (this.mAttachments.length ? [this.mAttachments[0]] : []);
@@ -330,7 +330,7 @@ calAlarm.prototype = {
         return attachments;
     },
 
-    addAttachment: function addAttachment(aAttachment) {
+    addAttachment: function(aAttachment) {
         // Make sure its not duplicate
         this.deleteAttachment(aAttachment);
 
@@ -345,7 +345,7 @@ calAlarm.prototype = {
         this.mAttachments.push(aAttachment);
     },
 
-    deleteAttachment: function deleteAttachment(aAttachment) {
+    deleteAttachment: function(aAttachment) {
         let deleteHash = aAttachment.hashId;
         for (let i = 0; i < this.mAttachments.length; i++) {
             if (this.mAttachments[i].hashId == deleteHash) {
@@ -355,7 +355,7 @@ calAlarm.prototype = {
         }
     },
 
-    clearAttachments: function clearAttachments() {
+    clearAttachments: function() {
         this.mAttachments = [];
     },
 
@@ -582,11 +582,11 @@ calAlarm.prototype = {
         return aComp;
     },
 
-    hasProperty: function cA_hasProperty(aName) {
+    hasProperty: function(aName) {
         return (this.getProperty(aName.toUpperCase()) != null);
     },
 
-    getProperty: function cA_getProperty(aName) {
+    getProperty: function(aName) {
         let name = aName.toUpperCase();
         if (name in this.promotedProps) {
             return this[this.promotedProps[name]];
@@ -595,7 +595,7 @@ calAlarm.prototype = {
         }
     },
 
-    setProperty: function cA_setProperty(aName, aValue) {
+    setProperty: function(aName, aValue) {
         this.ensureMutable();
         let name = aName.toUpperCase();
         if (name in this.promotedProps) {
@@ -606,7 +606,7 @@ calAlarm.prototype = {
         return aValue;
     },
 
-    deleteProperty: function cA_deleteProperty(aName) {
+    deleteProperty: function(aName) {
         this.ensureMutable();
         let name = aName.toUpperCase();
         if (name in this.promotedProps) {
@@ -620,7 +620,7 @@ calAlarm.prototype = {
         return this.mProperties.enumerator;
     },
 
-    toString: function cA_toString(aItem) {
+    toString: function(aItem) {
         function getItemBundleStringName(aPrefix) {
             if (!aItem || isEvent(aItem)) {
                 return aPrefix + "Event";

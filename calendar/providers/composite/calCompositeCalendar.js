@@ -103,11 +103,11 @@ calCompositeCalendar.prototype = {
     get prefChromeOverlay() { return null; },
     get displayName() { return cal.calGetString("calendar", "compositeName"); },
 
-    createCalendar: function comp_createCal() {
+    createCalendar: function() {
         throw NS_ERROR_NOT_IMPLEMENTED;
     },
 
-    deleteCalendar: function comp_deleteCal(calendar, listener) {
+    deleteCalendar: function(calendar, listener) {
         // You shouldn't be able to delete from the composite calendar.
         throw NS_ERROR_NOT_IMPLEMENTED;
     },
@@ -154,7 +154,7 @@ calCompositeCalendar.prototype = {
         return this.mPrefPrefix;
     },
 
-    addCalendar: function cCC_addCalendar(aCalendar) {
+    addCalendar: function(aCalendar) {
         cal.ASSERT(aCalendar.id, "calendar does not have an id!", true);
 
         // check if the calendar already exists
@@ -177,7 +177,7 @@ calCompositeCalendar.prototype = {
         }
     },
 
-    removeCalendar: function cCC_removeCalendar(aCalendar) {
+    removeCalendar: function(aCalendar) {
         let id = aCalendar.id;
         let newCalendars = this.mCalendars.filter(function(calendar) { return calendar.id != id; });
         if (newCalendars.length != this.mCalendars) {
@@ -191,7 +191,7 @@ calCompositeCalendar.prototype = {
         }
     },
 
-    getCalendarById: function cCC_getCalendarById(aId) {
+    getCalendarById: function(aId) {
         for (let calendar of this.mCalendars) {
             if (calendar.id == aId) {
                 return calendar;
@@ -200,7 +200,7 @@ calCompositeCalendar.prototype = {
         return null;
     },
 
-    getCalendars: function getCalendars(count) {
+    getCalendars: function(count) {
         count.value = this.mCalendars.length;
         return this.mCalendars;
     },
@@ -318,7 +318,7 @@ calCompositeCalendar.prototype = {
         this.mObservers.remove(aObserver);
     },
 
-    refresh: function cCC_refresh() {
+    refresh: function() {
         if (this.mStatusObserver) {
             this.mStatusObserver.startMeteors(Components.interfaces.calIStatusObserver.DETERMINED_PROGRESS, this.mCalendars.length);
         }

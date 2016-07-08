@@ -71,11 +71,7 @@
 
         this.mMaxAttendees = 0;
 
-        let self = this;
-        let load = function loadHandler() {
-            self.onLoad();
-        };
-        window.addEventListener("load", load, true);
+        window.addEventListener("load", this.onLoad.bind(this), true);
       ]]></constructor>
 
       <method name="onLoad">
@@ -708,12 +704,10 @@
 
       <method name="fitDummyRows">
         <body><![CDATA[
-          let self = this;
-          let func = function attendees_list_fitDummyRows() {
-              self.calcContentHeight();
-              self.createOrRemoveDummyRows();
-          };
-          setTimeout(func, 0);
+          setTimeout(() => {
+              this.calcContentHeight();
+              this.createOrRemoveDummyRows();
+          }, 0);
         ]]></body>
       </method>
 

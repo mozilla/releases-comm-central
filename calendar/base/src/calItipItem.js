@@ -89,7 +89,7 @@ calItipItem.prototype = {
 
     mItemList: {},
 
-    init: function ciiI(aIcalString) {
+    init: function(aIcalString) {
         let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
                                .createInstance(Components.interfaces.calIIcsParser);
         parser.parseString(aIcalString, null);
@@ -156,7 +156,7 @@ calItipItem.prototype = {
         this.mIsInitialized = true;
     },
 
-    clone: function ciiC() {
+    clone: function() {
         let newItem = new calItipItem();
         newItem.mItemList = this.mItemList.map(function(item) { return item.clone(); });
         newItem.mReceivedMethod = this.mReceivedMethod;
@@ -174,7 +174,7 @@ calItipItem.prototype = {
      * This returns both the array and the number of items. An easy way to
      * call it is: let itemArray = itipItem.getItemList({ });
      */
-    getItemList: function ciiGIL(itemCountRef) {
+    getItemList: function(itemCountRef) {
         if (!this.mIsInitialized) {
             throw Components.results.NS_ERROR_NOT_INITIALIZED;
         }
@@ -186,7 +186,7 @@ calItipItem.prototype = {
      * Note that this code forces the user to respond to all items in the same
      * way, which is a current limitation of the spec.
      */
-    setAttendeeStatus: function ciiSAS(aAttendeeId, aStatus) {
+    setAttendeeStatus: function(aAttendeeId, aStatus) {
         // Append "mailto:" to the attendee if it is missing it.
         if (!aAttendeeId.match(/^mailto:/i)) {
             aAttendeeId = "mailto:" + aAttendeeId;

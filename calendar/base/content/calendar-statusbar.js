@@ -25,7 +25,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIStatusObserver]),
 
-     initialize: function cStObs_initialize(aWindow) {
+     initialize: function(aWindow) {
         if (!this.mInitialized) {
             this.mWindow = aWindow;
             this.mStatusText = this.mWindow.document.getElementById("statusText");
@@ -36,7 +36,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
         }
      },
 
-     showStatusString: function cStObs_showStatusString(status) {
+     showStatusString: function(status) {
          this.mStatusText.setAttribute("label", status);
      },
 
@@ -44,7 +44,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
          return this.mProgressMode;
      },
 
-     startMeteors: function cStObs_startMeteors(aProgressMode, aCalendarCount) {
+     startMeteors: function(aProgressMode, aCalendarCount) {
          if (aProgressMode != Components.interfaces.calIStatusObserver.NO_PROGRESS) {
              if (!this.mInitialized) {
                 Components.utils.reportError("StatusObserver has not been initialized!");
@@ -71,7 +71,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
          }
      },
 
-     stopMeteors: function cStObs_stopMeteors() {
+     stopMeteors: function() {
          if (!this.mInitialized) {
             return;
          }
@@ -88,7 +88,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
          }
      },
 
-     calendarCompleted: function cStObs_calendarCompleted(aCalendar) {
+     calendarCompleted: function(aCalendar) {
          if (!this.mInitialized) {
             return;
          }

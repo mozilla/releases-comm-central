@@ -44,7 +44,7 @@ calItipEmailTransport.prototype = {
         return (this.mSenderAddress = aValue);
     },
 
-    sendItems: function cietSI(aCount, aRecipients, aItipItem) {
+    sendItems: function(aCount, aRecipients, aItipItem) {
         if (this.mHasXpcomMail) {
             cal.LOG("sendItems: Sending Email...");
             let items = this._prepareItems(aItipItem);
@@ -167,7 +167,7 @@ calItipEmailTransport.prototype = {
         };
     },
 
-    _initEmailTransport: function cietIES() {
+    _initEmailTransport: function() {
         this.mHasXpcomMail = true;
 
         try {
@@ -195,7 +195,7 @@ calItipEmailTransport.prototype = {
         }
     },
 
-    _sendXpcomMail: function cietSXM(aToList, aSubject, aBody, aItem) {
+    _sendXpcomMail: function(aToList, aSubject, aBody, aItem) {
         let identity = null;
         let account;
         if (aItem.targetCalendar) {

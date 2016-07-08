@@ -19,7 +19,7 @@ cal.itip = {
      * the last received one of an attendee; see
      * <http://tools.ietf.org/html/draft-desruisseaux-caldav-sched-04#section-7.1>.
      */
-     getSequence: function cal_itip_getSequence(item) {
+     getSequence: function(item) {
         let seq = null;
 
         let wrappedItem = cal.wrapInstance(item, Components.interfaces.calIAttendee);
@@ -54,7 +54,7 @@ cal.itip = {
      * the last received one of an attendee; see
      * <http://tools.ietf.org/html/draft-desruisseaux-caldav-sched-04#section-7.2>.
      */
-    getStamp: function cal_itip_getStamp(item) {
+    getStamp: function(item) {
         let dtstamp = null;
 
         let wrappedItem = cal.wrapInstance(item, Components.interfaces.calIAttendee);
@@ -82,7 +82,7 @@ cal.itip = {
     /**
      * Compares sequences and/or stamps of two parties; returns -1, 0, +1.
      */
-    compare: function cal_itip_compare(item1, item2) {
+    compare: function(item1, item2) {
         let seq1 = cal.itip.getSequence(item1);
         let seq2 = cal.itip.getSequence(item2);
         if (seq1 > seq2) {
@@ -111,7 +111,7 @@ cal.itip = {
      * @param calendar    The calendar to check
      * @return            True, if its a scheduling calendar.
      */
-    isSchedulingCalendar: function isSchedulingCalendar(calendar) {
+    isSchedulingCalendar: function(calendar) {
         return cal.isCalendarWritable(calendar) &&
                calendar.getProperty("organizerId") &&
                calendar.getProperty("itip.transport");
@@ -126,7 +126,7 @@ cal.itip = {
      * @param imipMethod  The received imip method
      * @param aMsgHdr     Information about the received email
      */
-    initItemFromMsgData: function initItemFromMsgData(itipItem, imipMethod, aMsgHdr) {
+    initItemFromMsgData: function(itipItem, imipMethod, aMsgHdr) {
         // Get the recipient identity and save it with the itip item.
         itipItem.identity = cal.itip.getMessageRecipient(aMsgHdr);
 
@@ -170,7 +170,7 @@ cal.itip = {
      * @param aOperationType  An operation type from calIOperationListener
      * @return                The suggested text.
      */
-    getCompleteText: function getCompleteText(aStatus, aOperationType) {
+    getCompleteText: function(aStatus, aOperationType) {
         function _gs(strName, param) {
             return cal.calGetString("lightning", strName, param, "lightning");
         }
@@ -198,7 +198,7 @@ cal.itip = {
      * @param method      The method to describe.
      * @return            The localized text about the method.
      */
-    getMethodText: function getMethodtext(method) {
+    getMethodText: function(method) {
         function _gs(strName) {
             return cal.calGetString("lightning", strName, null, "lightning");
         }
@@ -232,7 +232,7 @@ cal.itip = {
      * @param rc              The result of retrieving the item
      * @param actionFunc      The action function.
      */
-    getOptionsText: function getOptionsText(itipItem, rc, actionFunc, foundItems) {
+    getOptionsText: function(itipItem, rc, actionFunc, foundItems) {
         function _gs(strName) {
             return cal.calGetString("lightning", strName, null, "lightning");
         }
@@ -338,7 +338,7 @@ cal.itip = {
      * @param aMsgHdr     The message to check.
      * @return            The email of the intended recipient.
      */
-    getMessageRecipient: function getMessageRecipient(aMsgHdr) {
+    getMessageRecipient: function(aMsgHdr) {
         if (!aMsgHdr) {
             return null;
         }
@@ -414,7 +414,7 @@ cal.itip = {
      * @return              True, if a calendar was selected or no selection is
      *                        needed.
      */
-    promptCalendar: function promptCalendar(aMethod, aItipItem, aWindow) {
+    promptCalendar: function(aMethod, aItipItem, aWindow) {
         let needsCalendar = false;
         let targetCalendar = null;
         switch (aMethod) {
@@ -460,7 +460,7 @@ cal.itip = {
                 // Ask what calendar to import into
                 let args = {};
                 args.calendars = calendars;
-                args.onOk = function selectCalendar(aCal) { targetCalendar = aCal; };
+                args.onOk = (aCal) => { targetCalendar = aCal; };
                 args.promptText = cal.calGetString("calendar", "importPrompt");
                 aWindow.openDialog("chrome://calendar/content/chooseCalendarDialog.xul",
                                    "_blank", "chrome,titlebar,modal,resizable", args);
@@ -481,7 +481,7 @@ cal.itip = {
      *
      * @param itipItem      The iTIP item to clean up for.
      */
-    cleanupItipItem: function cleanupItipItem(itipItem) {
+    cleanupItipItem: function(itipItem) {
         if (itipItem) {
             let itemList = itipItem.getItemList({});
             if (itemList.length > 0) {
@@ -509,7 +509,7 @@ cal.itip = {
      *                    * REPLY -- invitation reply (sent by attendee(s))
      *                    * CANCEL -- invitation cancel (sent by organizer)
      */
-    processItipItem: function cal_itip_processItipItem(itipItem, optionsFunc) {
+    processItipItem: function(itipItem, optionsFunc) {
         switch (itipItem.receivedMethod.toUpperCase()) {
             case "REFRESH":
             case "PUBLISH":
@@ -543,7 +543,7 @@ cal.itip = {
      * Checks to see if e.g. attendees were added/removed or an item has been
      * deleted and sends out appropriate iTIP messages.
      */
-    checkAndSend: function cal_itip_checkAndSend(aOpType, aItem, aOriginalItem) {
+    checkAndSend: function(aOpType, aItem, aOriginalItem) {
         // balance out parts of the modification vs delete confusion, deletion of occurrences
         // are notified as parent modifications and modifications of occurrences are notified
         // as mixed new-occurrence, old-parent (IIRC).
@@ -778,7 +778,7 @@ cal.itip = {
     /**
      * Bumps the SEQUENCE in case of a major change; XXX todo may need more fine-tuning.
      */
-    prepareSequence: function cal_itip_prepareSequence(newItem, oldItem) {
+    prepareSequence: function(newItem, oldItem) {
         if (cal.isInvitation(newItem)) {
             return newItem; // invitation copies don't bump the SEQUENCE
         }
@@ -839,7 +839,7 @@ cal.itip = {
      * @param aItems        List of items to be contained in the new itipItem
      * @param aProps        List of properties to be different in the new itipItem
      */
-    getModifiedItipItem: function cal_getModifiedItipItem(aItipItem, aItems=[], aProps={}) {
+    getModifiedItipItem: function(aItipItem, aItems=[], aProps={}) {
         let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
                                  .createInstance(Components.interfaces.calIItipItem);
         let serializedItems = "";
@@ -1078,11 +1078,7 @@ function ItipOpListener(opListener, oldItem) {
 }
 ItipOpListener.prototype = {
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
-    onOperationComplete: function ItipOpListener_onOperationComplete(aCalendar,
-                                                                     aStatus,
-                                                                     aOperationType,
-                                                                     aId,
-                                                                     aDetail) {
+    onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
         cal.ASSERT(Components.isSuccessCode(aStatus), "error on iTIP processing");
         if (Components.isSuccessCode(aStatus)) {
             cal.itip.checkAndSend(aOperationType, aDetail, this.mOldItem);
@@ -1095,12 +1091,7 @@ ItipOpListener.prototype = {
                                                  aDetail);
         }
     },
-    onGetResult: function ItipOpListener_onGetResult(aCalendar,
-                                                     aStatus,
-                                                     aItemType,
-                                                     aDetail,
-                                                     aCount,
-                                                     aItems) {
+    onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
     }
 };
 
@@ -1132,7 +1123,7 @@ var ItipItemFinderFactory = {
      * @param aItipItem     The iTIP item used for processing
      * @param aOptionsFunc  The options function used for processing the found item
      */
-    findItem: function findItem(aId, aItipItem, aOptionsFunc) {
+    findItem: function(aId, aItipItem, aOptionsFunc) {
         this.cleanup(aId);
         let finder = new ItipItemFinder(aId, aItipItem, aOptionsFunc);
         this._findMap[aId] = finder;
@@ -1145,7 +1136,7 @@ var ItipItemFinderFactory = {
      *
      * @param aId           The item id to clean up for
      */
-    cleanup: function cleanup(aId) {
+    cleanup: function(aId) {
         if (aId in this._findMap) {
             let finder = this._findMap[aId];
             finder.destroy();
@@ -1178,13 +1169,13 @@ ItipItemFinder.prototype = {
     mOptionsFunc: null,
     mFoundItems: null,
 
-    findItem: function findItem() {
+    findItem: function() {
         this.mFoundItems = [];
         this._unobserveChanges();
         this.mItipItem.targetCalendar.getItem(this.mSearchId, this);
     },
 
-    _observeChanges: function _observeChanges(aCalendar) {
+    _observeChanges: function(aCalendar) {
         this._unobserveChanges();
         this.mObservedCalendar = aCalendar;
 
@@ -1192,7 +1183,7 @@ ItipItemFinder.prototype = {
             this.mObservedCalendar.addObserver(this);
         }
     },
-    _unobserveChanges: function _unobserveChanges() {
+    _unobserveChanges: function() {
         if (this.mObservedCalendar) {
             this.mObservedCalendar.removeObserver(this);
             this.mObservedCalendar = null;
@@ -1204,13 +1195,13 @@ ItipItemFinder.prototype = {
     onError: function() {},
     onPropertyChanged: function() {},
     onPropertyDeleting: function() {},
-    onLoad: function onLoad(aCalendar) {
+    onLoad: function(aCalendar) {
         // Its possible that the item was updated. We need to re-retrieve the
         // items now.
         this.findItem();
     },
 
-    onModifyItem: function onModifyItem(aNewItem, aOldItem) {
+    onModifyItem: function(aNewItem, aOldItem) {
         let refItem = aOldItem || aNewItem;
         if (refItem.id == this.mSearchId) {
             // Check existing found items to see if it already exists
@@ -1235,29 +1226,25 @@ ItipItemFinder.prototype = {
         }
     },
 
-    onAddItem: function onAddItem(aItem) {
+    onAddItem: function(aItem) {
         // onModifyItem is set up to also handle additions
         this.onModifyItem(aItem, null);
     },
 
-    onDeleteItem: function onDeleteItem(aItem) {
+    onDeleteItem: function(aItem) {
         // onModifyItem is set up to also handle deletions
         this.onModifyItem(null, aItem);
     },
 
-    onOperationComplete: function onOperationComplete(aCalendar,
-                                                      aStatus,
-                                                      aOperationType,
-                                                      aId,
-                                                      aDetail) {
+    onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
         this.processFoundItems();
     },
 
-    destroy: function destroy() {
+    destroy: function() {
         this._unobserveChanges();
     },
 
-    processFoundItems: function processFoundItems() {
+    processFoundItems: function() {
         let rc = Components.results.NS_OK;
         const method = this.mItipItem.receivedMethod.toUpperCase();
         let actionMethod = method;
@@ -1522,7 +1509,7 @@ ItipItemFinder.prototype = {
         cal.LOG("iTIP operations: " + operations.length);
         let actionFunc = null;
         if (operations.length > 0) {
-            actionFunc = function execOperations(opListener, partStat) {
+            actionFunc = function(opListener, partStat) {
                 for (let op of operations) {
                     try {
                         op(opListener, partStat);
@@ -1537,12 +1524,7 @@ ItipItemFinder.prototype = {
         this.mOptionsFunc(this.mItipItem, rc, actionFunc, this.mFoundItems);
     },
 
-    onGetResult: function onGetResult(aCalendar,
-                                      aStatus,
-                                      aItemType,
-                                      aDetail,
-                                      aCount,
-                                      aItems) {
+    onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
         if (Components.isSuccessCode(aStatus)) {
             this.mFoundItems = this.mFoundItems.concat(aItems);
         }

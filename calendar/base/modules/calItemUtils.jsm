@@ -44,7 +44,7 @@ itemDiff.prototype = {
      * @param aState    The state to be in
      * @param aMethod   The method name expecting the state
      */
-    _expectState: function _expectState(aState, aMethod) {
+    _expectState: function(aState, aMethod) {
         if ((this.state & aState) == 0) {
             throw new Error("itemDiff method " + aMethod +
                             " called while in unexpected state " + this.state);
@@ -56,7 +56,7 @@ itemDiff.prototype = {
      *
      * @param item      The item to load
      */
-    load1: function load1(item) {
+    load1: function(item) {
         this.load([item]);
     },
 
@@ -66,7 +66,7 @@ itemDiff.prototype = {
      *
      * @param items     The array of items to load
      */
-    load: function load(items) {
+    load: function(items) {
         this._expectState(this.STATE_INITIAL | this.STATE_LOADING, "load");
 
         for (let item of items) {
@@ -81,7 +81,7 @@ itemDiff.prototype = {
      *
      * @param item      The item to calculate difference with
      */
-    difference1: function difference1(item) {
+    difference1: function(item) {
         this.difference([item]);
     },
 
@@ -91,7 +91,7 @@ itemDiff.prototype = {
      *
      * @param items     The array of items to calculate difference with
      */
-    difference: function difference(items) {
+    difference: function(items) {
         this._expectState(this.STATE_INITIAL | this.STATE_LOADING | this.STATE_DIFFERING, "difference");
 
         this.mModifiedOldItems.startBatch();
@@ -120,7 +120,7 @@ itemDiff.prototype = {
      * Tell the engine that all load and difference calls have been made, this
      * makes sure that all item states are correctly returned.
      */
-    complete: function complete() {
+    complete: function() {
         this._expectState(this.STATE_INITIAL | this.STATE_LOADING | this.STATE_DIFFERING, "complete");
 
         this.mDeletedItems.startBatch();
@@ -168,7 +168,7 @@ itemDiff.prototype = {
     /**
      * Resets the difference engine to its initial state.
      */
-    reset: function reset() {
+    reset: function() {
         this.mInitialItems = {};
         this.mModifiedItems = new cal.HashedArray();
         this.mModifiedOldItems = new cal.HashedArray();

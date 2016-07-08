@@ -24,7 +24,7 @@ var TodayPane = {
     /**
      * Load Handler, sets up the today pane controls.
      */
-    onLoad: function onLoad() {
+    onLoad: function() {
         TodayPane.paneViews = [cal.calGetString("calendar", "eventsandtasks"),
                                cal.calGetString("calendar", "tasksonly"),
                                cal.calGetString("calendar", "eventsonly")];
@@ -43,7 +43,7 @@ var TodayPane = {
     /**
      * Unload handler, cleans up the today pane on window unload.
      */
-    onUnload: function onUnload() {
+    onUnload: function() {
         document.getElementById("modeBroadcaster").removeEventListener("DOMAttrModified", TodayPane.onModeModified, false);
         document.getElementById("today-splitter").removeEventListener("command", onCalendarViewResize, false);
     },
@@ -52,7 +52,7 @@ var TodayPane = {
      * Sets up the label for the switcher that allows switching between today pane
      * views. (event+task, task only, event only)
      */
-    setTodayHeader: function setTodayHeader() {
+    setTodayHeader: function() {
         let currentMode = document.getElementById("modeBroadcaster").getAttribute("mode");
         let agendaIsVisible = document.getElementById("agenda-panel").isVisible(currentMode);
         let todoIsVisible = document.getElementById("todo-tab-panel").isVisible(currentMode);
@@ -91,7 +91,7 @@ var TodayPane = {
     /**
      * Sets up the miniday display in the today pane.
      */
-    initializeMiniday: function initializeMiniday() {
+    initializeMiniday: function() {
         // initialize the label denoting the current month, year and calendarweek
         // with numbers that are supposed to consume the largest width
         // in order to guarantee that the text will not be cropped when modified
@@ -118,7 +118,7 @@ var TodayPane = {
     /**
      * Go to month/week/day views when double-clicking a label inside miniday
      */
-    onDoubleClick: function md_onDoubleClick(aEvent) {
+    onDoubleClick: function(aEvent) {
         if (aEvent.button == 0) {
             if (aEvent.target.id == "datevalue-label") {
                 switchCalendarView("day", true);
@@ -142,7 +142,7 @@ var TodayPane = {
      * Set conditions about start dragging on day-label or start switching
      * with time on navigation buttons.
      */
-    onMousedown: function md_onMousedown(aEvent, aDir) {
+    onMousedown: function(aEvent, aDir) {
         if (aEvent.button != 0) {
             return;
         }
@@ -168,7 +168,7 @@ var TodayPane = {
      *
      * NOTE: This function is usually called without the correct this pointer.
      */
-    onMousemove: function md_onMousemove(aEvent) {
+    onMousemove: function(aEvent) {
         const MIN_DRAG_DISTANCE_SQ = 49;
         let x = aEvent.clientX - TodayPane.minidayDrag.startX;
         let y = aEvent.clientY - TodayPane.minidayDrag.startY;
@@ -200,7 +200,7 @@ var TodayPane = {
      * Figure out the days switching speed according to the position (when
      * dragging) or time elapsed (when pressing buttons).
      */
-    updateAdvanceTimer: function md_updateAdvanceTimer(aEvent, aDir) {
+    updateAdvanceTimer: function(aEvent, aDir) {
         const INITIAL_TIME = 400;
         const REL_DISTANCE = 8;
         const MINIMUM_TIME = 100;
@@ -235,7 +235,7 @@ var TodayPane = {
      *
      * NOTE: This function is usually called without the correct this pointer.
      */
-    stopSwitching: function stopSwitching(aEvent) {
+    stopSwitching: function(aEvent) {
         let element = aEvent.target;
         if (TodayPane.minidayDrag.session &&
             aEvent.type == "mouseout" &&
@@ -275,7 +275,7 @@ var TodayPane = {
      * @param aCalWeek          The calendar week that should be shown.
      * @return                  The value set on aMonthLabel.
      */
-    setMonthDescription: function setMonthDescription(aMonthLabel, aIndex, aYear, aCalWeek) {
+    setMonthDescription: function(aMonthLabel, aIndex, aYear, aCalWeek) {
         if (this.cwlabel == null) {
             this.cwlabel = cal.calGetString("calendar", "shortcalendarweek");
         }
@@ -290,7 +290,7 @@ var TodayPane = {
      * @param aCycleForward     If true, the views are cycled in the forward
      *                            direction, otherwise in the opposite direction
      */
-    cyclePaneView: function cyclePaneView(aCycleForward) {
+    cyclePaneView: function(aCycleForward) {
         if (this.paneViews == null) {
             return;
         }
@@ -315,7 +315,7 @@ var TodayPane = {
     /**
      * Shows short weekday names in the weekdayNameContainer
      */
-    setShortWeekdays: function setShortWeekdays() {
+    setShortWeekdays: function() {
         let weekdisplaydeck = document.getElementById("weekdayNameContainer");
         let childNodes = weekdisplaydeck.childNodes;
 
@@ -334,7 +334,7 @@ var TodayPane = {
      *
      * @param aNewDate      The date to show.
      */
-    setDaywithjsDate: function setDaywithjsDate(aNewDate) {
+    setDaywithjsDate: function(aNewDate) {
         let newdatetime = cal.jsDateToDateTime(aNewDate, cal.floating());
         newdatetime = newdatetime.getInTimezone(cal.calendarDefaultTimezone());
         this.setDay(newdatetime, true);
@@ -347,7 +347,7 @@ var TodayPane = {
      * @param aDontUpdateMinimonth      If true, the minimonth will not be
      *                                    updated to show the same date.
      */
-    setDay: function setDay(aNewDate, aDontUpdateMinimonth) {
+    setDay: function(aNewDate, aDontUpdateMinimonth) {
         this.start = aNewDate.clone();
 
         let daylabel = document.getElementById("datevalue-label");
@@ -376,7 +376,7 @@ var TodayPane = {
      * @param aDir      The number of days to advance. Negative numbers advance
      *                    backwards in time.
      */
-    advance: function advance(aDir) {
+    advance: function(aDir) {
         if (aDir != 0) {
             this.start.day += aDir;
             this.setDay(this.start);
@@ -386,7 +386,7 @@ var TodayPane = {
     /**
      * Checks if the today pane is showing today's date.
      */
-    showsToday: function showsToday() {
+    showsToday: function() {
         return cal.sameDay(cal.now(), this.start);
     },
 
@@ -394,7 +394,7 @@ var TodayPane = {
      * Update the period headers in the agenda listbox using the today pane's
      * start date.
      */
-    updatePeriod: function updatePeriod() {
+    updatePeriod: function() {
         agendaListbox.refreshPeriodDates(this.start.clone());
         updateCalendarToDoUnifinder();
     },
@@ -404,7 +404,7 @@ var TodayPane = {
      *
      * @param aSection      The section to display
      */
-    displayMiniSection: function displayMiniSection(aSection) {
+    displayMiniSection: function(aSection) {
         document.getElementById("today-minimonth-box").setVisible(aSection == "minimonth");
         document.getElementById("mini-day-box").setVisible(aSection == "miniday");
         document.getElementById("today-none-box").setVisible(aSection == "none");
@@ -417,7 +417,7 @@ var TodayPane = {
      *
      * @param aEvent        The DOM event occurring on attribute modification.
      */
-    onModeModified: function onModeModified(aEvent) {
+    onModeModified: function(aEvent) {
         if (aEvent.attrName == "mode") {
             let todaypane = document.getElementById("today-pane-panel");
             // Store the previous mode panel's width.
@@ -435,7 +435,7 @@ var TodayPane = {
      *
      * @param aEvent        The DOM event occurring on activated command.
      */
-    toggleVisibility: function toggleVisbility(aEvent) {
+    toggleVisibility: function(aEvent) {
         document.getElementById("today-pane-panel").togglePane(aEvent);
         TodayPane.setTodayHeader();
         TodayPane.updateSplitterState();
@@ -445,7 +445,7 @@ var TodayPane = {
      * Update the today-splitter state and today-pane width with saved
      * mode-dependent values.
      */
-    updateSplitterState: function updateSplitterState() {
+    updateSplitterState: function() {
         let splitter = document.getElementById("today-splitter");
         let todaypaneVisible = document.getElementById("today-pane-panel").isVisible();
         setElementValue(splitter, !todaypaneVisible && "true", "hidden");
@@ -458,7 +458,7 @@ var TodayPane = {
      * Generates the todaypane toggle command when the today-splitter
      * is being collapsed or uncollapsed.
      */
-    onCommandTodaySplitter: function onCommandTodaySplitter() {
+    onCommandTodaySplitter: function() {
         let todaypane = document.getElementById("today-pane-panel");
         let splitterState = document.getElementById("today-splitter").getAttribute("state");
         if (splitterState == "collapsed" && todaypane.isVisible() ||

@@ -361,19 +361,19 @@ var compositeObserver = {
         document.commandDispatcher.updateCommands("calendar_commands");
     },
 
-    onCalendarAdded: function cO_onCalendarAdded(aCalendar) {
+    onCalendarAdded: function(aCalendar) {
         // Update the calendar commands for number of remote calendars and for
         // more than one calendar
         document.commandDispatcher.updateCommands("calendar_commands");
     },
 
-    onCalendarRemoved: function cO_onCalendarRemoved(aCalendar) {
+    onCalendarRemoved: function(aCalendar) {
         // Update commands to disallow deleting the last calendar and only
         // allowing reload remote calendars when there are remote calendars.
         document.commandDispatcher.updateCommands("calendar_commands");
     },
 
-    onDefaultCalendarChanged: function cO_onDefaultCalendarChanged(aNewCalendar) {
+    onDefaultCalendarChanged: function(aNewCalendar) {
         // A new default calendar may mean that the new calendar has different
         // ACLs. Make sure the commands are updated.
         calendarUpdateNewItemsCommand();
@@ -400,7 +400,7 @@ function openCalendarSubscriptionsDialog() {
 var calendarOfflineManager = {
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIObserver]),
 
-    init: function cOM_init() {
+    init: function() {
         if (this.initialized) {
             throw Components.results.NS_ERROR_ALREADY_INITIALIZED;
         }
@@ -410,7 +410,7 @@ var calendarOfflineManager = {
         this.initialized = true;
     },
 
-    uninit: function cOM_uninit() {
+    uninit: function() {
         if (!this.initialized) {
             throw Components.results.NS_ERROR_NOT_INITIALIZED;
         }
@@ -418,11 +418,11 @@ var calendarOfflineManager = {
         this.initialized = false;
     },
 
-    isOnline: function cOM_isOnline() {
+    isOnline: function() {
         return !Services.io.offline;
     },
 
-    updateOfflineUI: function cOM_updateOfflineUI(aIsOffline) {
+    updateOfflineUI: function(aIsOffline) {
         // Refresh the current view
         currentView().goToDay(currentView().selectedDay);
 
@@ -430,7 +430,7 @@ var calendarOfflineManager = {
         document.commandDispatcher.updateCommands("calendar_commands");
     },
 
-    observe: function cOM_observe(aSubject, aTopic, aState) {
+    observe: function(aSubject, aTopic, aState) {
         if (aTopic == "network:offline-status-changed") {
             this.updateOfflineUI(aState == "offline");
         }

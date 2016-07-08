@@ -70,7 +70,7 @@
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICalendarManagerObserver]),
 
         // calICalendarManagerObserver
-        onCalendarRegistered: function cMO_onCalendarRegistered(aCalendar) {
+        onCalendarRegistered: function(aCalendar) {
             this.listTree.addCalendar(aCalendar);
             let composite = this.listTree.compositeCalendar;
             let inComposite = aCalendar.getProperty(composite.prefPrefix +
@@ -80,11 +80,11 @@
             }
         },
 
-        onCalendarUnregistering: function cMO_onCalendarUnregistering(aCalendar) {
+        onCalendarUnregistering: function(aCalendar) {
             this.listTree.removeCalendar(aCalendar);
         },
 
-        onCalendarDeleting: function cMO_onCalendarDeleting(aCalendar) {
+        onCalendarDeleting: function(aCalendar) {
             // Now that the calendar is unregistered, update the commands to
             // make sure that New Event/Task commands are correctly
             // enabled/disabled.
@@ -99,41 +99,38 @@
                                                Components.interfaces.calIObserver]),
 
         // calICompositeObserver
-        onCalendarAdded: function onCalendarAdded(aCalendar) {
+        onCalendarAdded: function(aCalendar) {
             // Make sure the checkbox state is updated
             this.listTree.updateCalendar(aCalendar);
         },
 
-        onCalendarRemoved: function onCalendarRemoved(aCalendar) {
+        onCalendarRemoved: function(aCalendar) {
             // Make sure the checkbox state is updated
             this.listTree.updateCalendar(aCalendar);
         },
 
-        onDefaultCalendarChanged: function cMO_onDefaultCalendarChanged(aCalendar) {
+        onDefaultCalendarChanged: function(aCalendar) {
         },
 
         // calIObserver
-        onStartBatch: function cO_onStartBatch() { },
-        onEndBatch: function cO_onEndBatch() { },
-        onLoad: function cO_onLoad() { },
+        onStartBatch: function() { },
+        onEndBatch: function() { },
+        onLoad: function() { },
 
-        onAddItem: function cO_onAddItem(aItem) {
+        onAddItem: function(aItem) {
             if (aItem.calendar.type != "caldav") {
                 this.listTree.ensureCalendarVisible(aItem.calendar);
             }
         },
-        onModifyItem: function cO_onModifyItem(aNewItem, aOldItem) {
+        onModifyItem: function(aNewItem, aOldItem) {
             if (aNewItem.calendar.type != "caldav") {
                 this.listTree.ensureCalendarVisible(aNewItem.calendar);
             }
         },
-        onDeleteItem: function cO_onDeleteItem(aDeletedItem) { },
-        onError: function cO_onError(aCalendar, aErrNo, aMessage) { },
+        onDeleteItem: function(aDeletedItem) { },
+        onError: function(aCalendar, aErrNo, aMessage) { },
 
-        onPropertyChanged: function cO_onPropertyChanged(aCalendar,
-                                                         aName,
-                                                         aValue,
-                                                         aOldValue) {
+        onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
             switch (aName) {
                 case "disabled":
                 case "readOnly":
@@ -143,8 +140,7 @@
             }
         },
 
-        onPropertyDeleting: function cO_onPropertyDeleting(aCalendar,
-                                                            aName) {
+        onPropertyDeleting: function(aCalendar, aName) {
         }
       })
       ]]></field>
@@ -258,19 +254,16 @@
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIObserver]),
 
         // calIObserver. Note that each registered calendar uses this observer
-        onStartBatch: function cMO_onStartBatch() { },
-        onEndBatch: function cMO_onEndBatch() { },
-        onLoad: function cMO_onLoad() { },
+        onStartBatch: function() { },
+        onEndBatch: function() { },
+        onLoad: function() { },
 
-        onAddItem: function cMO_onAddItem(aItem) { },
-        onModifyItem: function cMO_onModifyItem(aNewItem, aOldItem) { },
-        onDeleteItem: function cMO_onDeleteItem(aDeletedItem) { },
-        onError: function cMO_onError(aCalendar, aErrNo, aMessage) { },
+        onAddItem: function(aItem) { },
+        onModifyItem: function(aNewItem, aOldItem) { },
+        onDeleteItem: function(aDeletedItem) { },
+        onError: function(aCalendar, aErrNo, aMessage) { },
 
-        onPropertyChanged: function cMO_onPropertyChanged(aCalendar,
-                                                          aName,
-                                                          aValue,
-                                                          aOldValue) {
+        onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
             switch (aName) {
                 case "color":
                     // TODO See other TODO in this file about updateStyleSheetForViews
@@ -288,8 +281,7 @@
             }
         },
 
-        onPropertyDeleting: function cMO_onPropertyDeleting(aCalendar,
-                                                            aName) {
+        onPropertyDeleting: function(aCalendar, aName) {
             // Since the old value is not used directly in onPropertyChanged,
             // but should not be the same as the value, set it to a different
             // value.
@@ -304,17 +296,17 @@
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICompositeObserver]),
 
         // calICompositeObserver
-        onCalendarAdded: function onCalendarAdded(aCalendar) {
+        onCalendarAdded: function(aCalendar) {
             // Make sure the checkbox state is updated
             this.listTree.updateCalendar(aCalendar);
         },
 
-        onCalendarRemoved: function onCalendarRemoved(aCalendar) {
+        onCalendarRemoved: function(aCalendar) {
             // Make sure the checkbox state is updated
             this.listTree.updateCalendar(aCalendar);
         },
 
-        onDefaultCalendarChanged: function cMO_onDefaultCalendarChanged(aCalendar) {
+        onDefaultCalendarChanged: function(aCalendar) {
         }
       })
       ]]></field>

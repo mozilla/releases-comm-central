@@ -7,7 +7,7 @@
 var gLightningPane = {
     mInitialized: false,
 
-    init: function lnPaneInit() {
+    init: function() {
         let preference = document.getElementById("calendar.preferences.lightning.selectedTabIndex");
         if (preference.value) {
             let ltnPrefs = document.getElementById("calPreferencesTabbox");
@@ -16,7 +16,7 @@ var gLightningPane = {
         this.mInitialized = true;
     },
 
-    tabSelectionChanged: function lnPaneTabSelectionChanged() {
+    tabSelectionChanged: function() {
         if (!this.mInitialized) {
             return;
         }

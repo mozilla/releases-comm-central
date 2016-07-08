@@ -47,7 +47,7 @@ var taskEdit = {
      * @param aDisable  A boolean if the target should be disabled.
      * @param aValue    The value that should be set on the target.
      */
-    setupTaskField: function tE_setupTaskField(aTarget, aDisable, aValue) {
+    setupTaskField: function(aTarget, aDisable, aValue) {
         aTarget.value = aValue;
         setElementValue(aTarget, aDisable && "true", "readonly");
         setElementValue(aTarget, aDisable && "true", "aria-disabled");
@@ -58,7 +58,7 @@ var taskEdit = {
      *
      * @param aEvent    The DOM focus event
      */
-    onFocus: function tE_onFocus(aEvent) {
+    onFocus: function(aEvent) {
         let edit = aEvent.target;
         if (edit.localName == "input") {
             // For some reason, we only receive an onfocus event for the textbox
@@ -88,7 +88,7 @@ var taskEdit = {
      *
      * @param aEvent    The DOM blur event
      */
-    onBlur: function tE_onBlur(aEvent) {
+    onBlur: function(aEvent) {
         let edit = aEvent.target;
         if (edit.localName == "input") {
             // For some reason, we only receive the blur event for the input
@@ -127,7 +127,7 @@ var taskEdit = {
      *
      * @param aEvent    The DOM keypress event
      */
-    onKeyPress: function tE_onKeyPress(aEvent) {
+    onKeyPress: function(aEvent) {
         if (aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN) {
             let edit = aEvent.target;
             if (edit.value && edit.value.length > 0) {
@@ -145,7 +145,7 @@ var taskEdit = {
      * Window load function to set up all quick-add textboxes. The texbox must
      * have the class "task-edit-field".
      */
-    onLoad: function tE_onLoad(aEvent) {
+    onLoad: function(aEvent) {
         window.removeEventListener("load", taskEdit.onLoad, false);
         // TODO use getElementsByClassName
         let taskEditFields = document.getElementsByAttribute("class", "task-edit-field");
@@ -160,7 +160,7 @@ var taskEdit = {
     /**
      * Window load function to clean up all quick-add fields.
      */
-    onUnload: function tE_onUnload() {
+    onUnload: function() {
         getCompositeCalendar().removeObserver(taskEdit.compositeObserver);
         taskEdit.observedCalendar = null;
     },
@@ -183,10 +183,7 @@ var taskEdit = {
         onDeleteItem: function(aDeletedItem) {},
         onError: function(aCalendar, aErrNo, aMessage) {},
 
-        onPropertyChanged: function tE_calObs_onPropertyChanged(aCalendar,
-                                                         aName,
-                                                         aValue,
-                                                         aOldValue) {
+        onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
             if (aCalendar.id != getSelectedCalendar().id) {
                 // Optimization: if the given calendar isn't the default calendar,
                 // then we don't need to change any readonly/disabled states.
@@ -202,8 +199,7 @@ var taskEdit = {
             }
         },
 
-        onPropertyDeleting: function tE_calObs_onPropertyDeleting(aCalendar,
-                                                           aName) {
+        onPropertyDeleting: function(aCalendar, aName) {
             // Since the old value is not used directly in onPropertyChanged,
             // but should not be the same as the value, set it to a different
             // value.
@@ -236,9 +232,9 @@ var taskEdit = {
         onPropertyDeleting: function(aCalendar, aName) {},
 
         // calICompositeObserver:
-        onCalendarAdded: function onCalendarAdded(aCalendar) {},
-        onCalendarRemoved: function onCalendarRemoved(aCalendar) {},
-        onDefaultCalendarChanged: function tE_compObs_onDefaultCalendarChanged(aNewDefault) {
+        onCalendarAdded: function(aCalendar) {},
+        onCalendarRemoved: function(aCalendar) {},
+        onDefaultCalendarChanged: function(aNewDefault) {
             let taskEditFields = document.getElementsByAttribute("class", "task-edit-field");
             for (let i = 0; i < taskEditFields.length; i++) {
                 taskEdit.onBlur({ target: taskEditFields[i] });

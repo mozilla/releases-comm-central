@@ -378,18 +378,18 @@
            */
 
           // Adds an array of items to the list if they match the currently applied filter.
-          addItems: function tTV_addItems(aItems, aDontSort) {
+          addItems: function(aItems, aDontSort) {
               this.modifyItems(aItems, [], aDontSort, true);
           },
 
           // Removes an array of items from the list.
-          removeItems: function tTV_removeItems(aItems) {
+          removeItems: function(aItems) {
               this.modifyItems([], aItems, true, false);
           },
 
           // Removes an array of old items from the list, and adds an array of new items if
           // they match the currently applied filter.
-          modifyItems: function tTV_modifyItems(aNewItems, aOldItems, aDontSort, aSelectNew) {
+          modifyItems: function(aNewItems, aOldItems, aDontSort, aSelectNew) {
               let selItem = this.binding.currentTask;
               let selIndex = this.tree.currentIndex;
               let firstHash = null;
@@ -466,7 +466,7 @@
               this.treebox.endUpdateBatch();
           },
 
-          clear: function tTV_clear() {
+          clear: function() {
               let count = this.binding.mTaskArray.length;
               if (count > 0) {
                   this.binding.mTaskArray = [];
@@ -476,7 +476,7 @@
               }
           },
 
-          updateItem: function tTV_updateItem(aItem) {
+          updateItem: function(aItem) {
               let index = this.binding.mHash2Index[aItem.hashId];
               if (index) {
                   this.treebox.invalidateRow(index);
@@ -495,7 +495,7 @@
           // create an itemTreeView that these tree views can inherit, that
           // contains this code, and possibly other code related to sorting and
           // storing items. See bug 432582 for more details.
-          getCellProperties: function mTV_getCellProperties(aRow, aCol) {
+          getCellProperties: function(aRow, aCol) {
               let rowProps = this.getRowProperties(aRow);
               let colProps = this.getColumnProperties(aCol);
               return rowProps + (rowProps && colProps ? " " : "") + colProps;
@@ -503,11 +503,11 @@
 
           // Called to get properties to paint a column background.
           // For shading the sort column, etc.
-          getColumnProperties: function mTV_getColumnProperties(aCol) {
+          getColumnProperties: function(aCol) {
               return aCol.element.getAttribute("anonid") || "";
           },
 
-          getRowProperties: function mTV_getRowProperties(aRow) {
+          getRowProperties: function(aRow) {
               let properties = [];
               let item = this.binding.mTaskArray[aRow];
               if (item.priority > 0 && item.priority < 5) {
@@ -540,7 +540,7 @@
 
           // Called on the view when a cell in a non-selectable cycling
           // column (e.g., unread/flag/etc.) is clicked.
-          cycleCell: function mTV_cycleCell(aRow, aCol) {
+          cycleCell: function(aRow, aCol) {
               let task = this.binding.mTaskArray[aRow];
 
               // prevent toggling completed status for parent items of
@@ -559,7 +559,7 @@
           },
 
           // Called on the view when a header is clicked.
-          cycleHeader: function mTV_cycleHeader(aCol) {
+          cycleHeader: function(aCol) {
               if (!this.selectedColumn) {
                   this.sortDirection = "ascending";
               } else if (!this.sortDirection || this.sortDirection == "descending") {
@@ -581,7 +581,7 @@
 
           // The text for a given cell. If a column consists only of an
           // image, then the empty string is returned.
-          getCellText: function mTV_getCellText(aRow, aCol) {
+          getCellText: function(aRow, aCol) {
               let task = this.binding.mTaskArray[aRow];
               if (!task) {
                   return false;
@@ -617,7 +617,7 @@
           },
 
           // This method is only called for columns of type other than text.
-          getCellValue: function mTV_getCellValue(aRow, aCol) {
+          getCellValue: function(aRow, aCol) {
               let task = this.binding.mTaskArray[aRow];
               if (!task) {
                   return null;
@@ -631,13 +631,13 @@
 
           // SetCellValue is called when the value of the cell has been set by the user.
           // This method is only called for columns of type other than text.
-          setCellValue: function mTV_setCellValue(aRow, aCol, aValue) {
+          setCellValue: function(aRow, aCol, aValue) {
               return null;
           },
 
           // The image path for a given cell. For defining an icon for a cell.
           // If the empty string is returned, the :moz-tree-image pseudoelement will be used.
-          getImageSrc: function mTV_getImageSrc(aRow, aCol) {
+          getImageSrc: function(aRow, aCol) {
              // Return the empty string in order
              // to use moz-tree-image pseudoelement :
              // it is mandatory to return "" and not false :-(
@@ -647,65 +647,65 @@
           // IsEditable is called to ask the view if the cell contents are editable.
           // A value of true will result in the tree popping up a text field when the user
           // tries to inline edit the cell.
-          isEditable: function mTV_isEditable(aRow, aCol) {
+          isEditable: function(aRow, aCol) {
               return true;
           },
 
           // Called during initialization to link the view to the front end box object.
-          setTree: function mTV_setTree(aTreeBox) {
+          setTree: function(aTreeBox) {
             this.treebox = aTreeBox;
           },
 
           // Methods that can be used to test whether or not a twisty should
           // be drawn, and if so, whether an open or closed twisty should be used.
-          isContainer: function mTV_isContainer(aRow) {
+          isContainer: function(aRow) {
               return false;
           },
-          isContainerOpen: function mTV_isContainerOpen(aRow) {
+          isContainerOpen: function(aRow) {
               return false;
           },
-          isContainerEmpty: function mTV_isContainerEmpty(aRow) {
+          isContainerEmpty: function(aRow) {
               return false;
           },
 
           // IsSeparator is used to determine if the row at index is a separator.
           // A value of true will result in the tree drawing a horizontal separator.
           // The tree uses the ::moz-tree-separator pseudoclass to draw the separator.
-          isSeparator: function mTV_isSeparator(aRow) {
+          isSeparator: function(aRow) {
               return false;
           },
 
           // Specifies if there is currently a sort on any column.
           // Used mostly by drag'n'drop to affect drop feedback.
-          isSorted: function mTV_isSorted(aRow) {
+          isSorted: function(aRow) {
               return false;
           },
 
-          canDrop: function mTV_canDrop() { return false; },
+          canDrop: function() { return false; },
 
-          drop: function mTV_drop(aRow, aOrientation) {},
+          drop: function(aRow, aOrientation) {},
 
-          getParentIndex: function mTV_getParentIndex(aRow) {
+          getParentIndex: function(aRow) {
               return -1;
           },
 
           // The level is an integer value that represents the level of indentation.
           // It is multiplied by the width specified in the :moz-tree-indentation
           // pseudoelement to compute the exact indendation.
-          getLevel: function mTV_getLevel(aRow) {
+          getLevel: function(aRow) {
               return 0;
           },
 
           // The image path for a given cell. For defining an icon for a cell.
           // If the empty string is returned, the :moz-tree-image pseudoelement
           // will be used.
-          getImgSrc: function mTV_getImgSrc(aRow, aCol) {
+          getImgSrc: function(aRow, aCol) {
               return null;
           },
 
           // The progress mode for a given cell. This method is only called for
           // columns of type |progressmeter|.
-          getProgressMode: function mTV_getProgressMode(aRow, aCol) {
+          getProgressMode: function(aRow, aCol) {
               switch (aCol.element.getAttribute("itemproperty")) {
                   case "percentComplete":
                       let task = this.binding.mTaskArray[aRow];
@@ -724,9 +724,9 @@
           /**
            * Task Tree Events
            */
-          onSelect: function tTV_onSelect(event) {},
+          onSelect: function(event) {},
 
-          onDoubleClick: function tTV_onDoubleClick(event) {
+          onDoubleClick: function(event) {
               if (event.button == 0) {
                   let initialDate = getDefaultStartDate(this.binding.getInitialDate());
                   let col = {};
@@ -746,7 +746,7 @@
               }
           },
 
-          onKeyPress: function tTV_onKeyPress(event) {
+          onKeyPress: function(event) {
               const kKE = Components.interfaces.nsIDOMKeyEvent;
               switch (event.keyCode || event.which) {
                   case kKE.DOM_VK_DELETE:
@@ -774,7 +774,7 @@
           },
 
           // Set the context menu on mousedown to change it before it is opened
-          onMouseDown: function tTV_onMouseDown(event) {
+          onMouseDown: function(event) {
               let tree = document.getAnonymousElementByAttribute(this.binding,
                                                                  "anonid",
                                                                  "calendar-task-tree");
@@ -788,7 +788,7 @@
            * Private methods and attributes
            */
 
-          _getItemFromEvent: function tTV_getItemFromEvent(event, aCol, aRow) {
+          _getItemFromEvent: function(event, aCol, aRow) {
             aRow = aRow || {};
             let childElt = {};
             this.treebox.getCellAt(event.clientX, event.clientY, aRow, aCol || {}, childElt);
@@ -799,7 +799,7 @@
           },
 
           // Helper function to display datetimes
-          _formatDateTime: function tTV_formatDateTime(aDateTime) {
+          _formatDateTime: function(aDateTime) {
               let dateFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
                                             .getService(Components.interfaces.calIDateTimeFormatter);
 
@@ -829,24 +829,24 @@
           /**
            * calIObserver methods and properties
            */
-          onStartBatch: function tTO_onStartBatch() {
+          onStartBatch: function() {
           },
 
-          onEndBatch: function tTO_onEndBatch() {
+          onEndBatch: function() {
           },
 
-          onLoad: function tTO_onLoad() {
+          onLoad: function() {
               this.binding.refresh();
           },
 
-          onAddItem: function tTO_onAddItem(aItem) {
+          onAddItem: function(aItem) {
               if (cal.isToDo(aItem)) {
                   this.binding.mTreeView.addItems(this.binding.mFilter.getOccurrences(aItem));
               }
           },
 
-          onModifyItem: function tTO_onModifyItem(aNewItem, aOldItem) {
-              if ((cal.isToDo(aNewItem) || cal.isToDo(aOldItem))) {
+          onModifyItem: function(aNewItem, aOldItem) {
+              if (cal.isToDo(aNewItem) || cal.isToDo(aOldItem)) {
                   this.binding.mTreeView.modifyItems(this.binding.mFilter.getOccurrences(aNewItem),
                                                      this.binding.mFilter.getOccurrences(aOldItem));
 
@@ -857,14 +857,14 @@
               }
           },
 
-          onDeleteItem: function tTO_onDeleteItem(aDeletedItem) {
+          onDeleteItem: function(aDeletedItem) {
               if (cal.isToDo(aDeletedItem)) {
                   this.binding.mTreeView.removeItems(this.binding.mFilter.getOccurrences(aDeletedItem));
               }
           },
 
-          onError: function tTO_onError(aCalendar, aErrNo, aMessage) {},
-          onPropertyChanged: function tTO_onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
+          onError: function(aCalendar, aErrNo, aMessage) {},
+          onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
               switch (aName) {
                   case "disabled":
                       if (aValue) {
@@ -876,24 +876,24 @@
               }
           },
 
-          onPropertyDeleting: function tTO_onPropertyDeleting(aCalendar, aName) {
+          onPropertyDeleting: function(aCalendar, aName) {
               this.onPropertyChanged(aCalendar, aName, null, null);
           },
 
           /**
            * calICompositeObserver methods and properties
            */
-          onCalendarAdded: function tTO_onCalendarAdded(aCalendar) {
+          onCalendarAdded: function(aCalendar) {
               if (!aCalendar.getProperty("disabled")) {
                   this.binding.onCalendarAdded(aCalendar);
               }
           },
 
-          onCalendarRemoved: function tTO_onCalendarRemoved(aCalendar) {
+          onCalendarRemoved: function(aCalendar) {
               this.binding.onCalendarRemoved(aCalendar);
           },
 
-          onDefaultCalendarChanged: function tTO_onDefaultCalendarChanged(aNewDefaultCalendar) {}
+          onDefaultCalendarChanged: function(aNewDefaultCalendar) {}
       })
       ]]></field>
 

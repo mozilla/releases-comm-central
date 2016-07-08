@@ -38,24 +38,24 @@ add_test(function test_registration() {
     // Register an observer to test it.
     let registered = false, unregistered = false, deleted = false, readOnly = false;
     let mgrobs = cal.createAdapter(Components.interfaces.calICalendarManagerObserver, {
-        onCalendarRegistered: function onCalendarRegistered(aCalendar) {
+        onCalendarRegistered: function(aCalendar) {
             if (aCalendar.id == memory.id) {
               registered = true;
             }
         },
-        onCalendarUnregistering: function onCalendarUnregistering(aCalendar) {
+        onCalendarUnregistering: function(aCalendar) {
             if (aCalendar.id == memory.id) {
               unregistered = true;
             }
         },
-        onCalendarDeleting: function onCalendarDeleting(aCalendar) {
+        onCalendarDeleting: function(aCalendar) {
             if (aCalendar.id == memory.id) {
               deleted = true;
             }
         }
     });
     let calobs = cal.createAdapter(Components.interfaces.calIObserver, {
-        onPropertyChanged: function onPropertyChanging(aCalendar, aName, aValue, aOldValue) {
+        onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
             equal(aCalendar.id, memory.id);
             equal(aName, "readOnly");
             readOnly = aValue;

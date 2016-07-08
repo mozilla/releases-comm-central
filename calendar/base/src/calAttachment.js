@@ -160,7 +160,7 @@ calAttachment.prototype = {
         this.mProperties.deleteProperty(aName);
     },
 
-    clone: function cA_clone() {
+    clone: function() {
         let newAttachment = new calAttachment();
         newAttachment.mData = this.mData;
         newAttachment.mHashId = this.mHashId;
@@ -170,7 +170,7 @@ calAttachment.prototype = {
         return newAttachment;
     },
 
-    setData: function setData(aData) {
+    setData: function(aData) {
         // Sets the data and invalidates the hash so it will be recalculated
         this.mHashId = null;
         this.mData = aData;

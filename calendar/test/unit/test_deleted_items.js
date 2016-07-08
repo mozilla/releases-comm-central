@@ -54,7 +54,7 @@ add_task(function* test_deleted_items() {
     let futureDate = cal.createDateTime("20380101T000000"); futureDate.timezone = cal.calendarDefaultTimezone();
     let useFutureDate = false;
     let oldNowFunction = cal.now;
-    cal.now = function test_specific_now() {
+    cal.now = function() {
         return (useFutureDate ? futureDate : referenceDate).clone();
     };
 

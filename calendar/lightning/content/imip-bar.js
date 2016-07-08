@@ -23,14 +23,14 @@ var ltnImipBar = {
     /**
      * Thunderbird Message listener interface, hide the bar before we begin
      */
-    onStartHeaders: function onImipStartHeaders() {
+    onStartHeaders: function() {
       ltnImipBar.resetBar();
     },
 
     /**
      * Thunderbird Message listener interface
      */
-    onEndHeaders: function onImipEndHeaders() {
+    onEndHeaders: function() {
 
     },
 
@@ -38,7 +38,7 @@ var ltnImipBar = {
      * Load Handler called to initialize the imip bar
      * NOTE: This function is called without a valid this-context!
      */
-    load: function ltnImipOnLoad() {
+    load: function() {
         // Add a listener to gMessageListeners defined in msgHdrViewOverlay.js
         gMessageListeners.push(ltnImipBar);
 
@@ -46,7 +46,7 @@ var ltnImipBar = {
         // message header pane. Otherwise, the imip bar will still be shown when
         // changing folders.
         ltnImipBar.tbHideMessageHeaderPane = HideMessageHeaderPane;
-        HideMessageHeaderPane = function ltnHideMessageHeaderPane() {
+        HideMessageHeaderPane = function() {
             ltnImipBar.resetBar();
             ltnImipBar.tbHideMessageHeaderPane.apply(null, arguments);
         };
@@ -59,7 +59,7 @@ var ltnImipBar = {
      * Unload handler to clean up after the imip bar
      * NOTE: This function is called without a valid this-context!
      */
-    unload: function ltnImipOnUnload() {
+    unload: function() {
         removeEventListener("messagepane-loaded", ltnImipBar.load, true);
         removeEventListener("messagepane-unloaded", ltnImipBar.unload, true);
 
@@ -67,7 +67,7 @@ var ltnImipBar = {
         Services.obs.removeObserver(ltnImipBar, "onItipItemCreation");
     },
 
-    observe: function ltnImipBar_observe(subject, topic, state) {
+    observe: function(subject, topic, state) {
         if (topic == "onItipItemCreation") {
             let itipItem = null;
             let msgOverlay = null;
@@ -105,7 +105,7 @@ var ltnImipBar = {
     /**
      * Hide the imip bar and reset the itip item.
      */
-    resetBar: function ltnResetImipBar() {
+    resetBar: function() {
         document.getElementById("imip-bar").collapsed = true;
         ltnImipBar.resetButtons();
 
@@ -117,7 +117,7 @@ var ltnImipBar = {
     /**
      * Resets all buttons and its menuitems, all buttons are hidden thereafter
      */
-    resetButtons: function ltnResetImipButtons() {
+    resetButtons: function() {
         let buttons = ltnImipBar.getButtons();
         buttons.forEach(hideElement);
         buttons.forEach(aButton => ltnImipBar.getMenuItems(aButton).forEach(showElement));
@@ -126,7 +126,7 @@ var ltnImipBar = {
     /**
      * Provides a list of all available buttons
      */
-    getButtons: function ltnGetButtons() {
+    getButtons: function() {
         let buttons = [];
         let nl = document.getElementById("imip-view-toolbar")
                          .getElementsByTagName("toolbarbutton");
@@ -143,7 +143,7 @@ var ltnImipBar = {
      *
      * @param aButton        button node
      */
-    getMenuItems: function ltnGetMenuItems(aButton) {
+    getMenuItems: function(aButton) {
         let items = [];
         let mitems = aButton.getElementsByTagName("menuitem");
         if (mitems != null && mitems.length > 0) {
@@ -159,7 +159,7 @@ var ltnImipBar = {
      * to avoid dropdowns which are empty or only replicating the default button action
      * Should be called once the buttons are set up
      */
-    conformButtonType: function ltnConformButtonType() {
+    conformButtonType: function() {
         // check only needed on visible and not simple buttons
         let buttons = ltnImipBar.getButtons()
                                 .filter(aElement => aElement.hasAttribute("type") && !aElement.hidden);
@@ -193,7 +193,7 @@ var ltnImipBar = {
      * @param foundItems    An array of items found while searching for the item
      *                      in subscribed calendars
      */
-    setupOptions: function setupOptions(itipItem, rc, actionFunc, foundItems) {
+    setupOptions: function(itipItem, rc, actionFunc, foundItems) {
         let imipBar = document.getElementById("imip-bar");
         let data = cal.itip.getOptionsText(itipItem, rc, actionFunc, foundItems);
 
@@ -279,7 +279,7 @@ var ltnImipBar = {
         msgWindow.displayHTMLInMessagePane("", msgOverlay, false);
     },
 
-    executeAction: function ltnExecAction(partStat, extendResponse) {
+    executeAction: function(partStat, extendResponse) {
         function _execAction(aActionFunc, aItipItem, aWindow, aPartStat) {
             if (cal.itip.promptCalendar(aActionFunc.method, aItipItem, aWindow)) {
                 // filter out fake partstats
@@ -293,11 +293,7 @@ var ltnImipBar = {
 
                 let opListener = {
                     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
-                    onOperationComplete: function ltnItipActionListener_onOperationComplete(aCalendar,
-                                                                                            aStatus,
-                                                                                            aOperationType,
-                                                                                            aId,
-                                                                                            aDetail) {
+                    onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
                         // For now, we just state the status for the user something very simple
                         let imipBar = document.getElementById("imip-bar");
                         let label = cal.itip.getCompleteText(aStatus, aOperationType);
@@ -307,12 +303,7 @@ var ltnImipBar = {
                             showError(label);
                         }
                     },
-                    onGetResult: function ltnItipActionListener_onGetResult(aCalendar,
-                                                                            aStatus,
-                                                                            aItemType,
-                                                                            aDetail,
-                                                                            aCount,
-                                                                            aItems) {
+                    onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
                     }
                 };
 
@@ -369,7 +360,7 @@ var ltnImipBar = {
                     // control to avoid processing _execAction on later user changes on the item
                     let isFirstProcessing = true;
                     // setup callback and trigger re-processing
-                    let storeCopy = function storeCopy(aItipItem, aRc, aActionFunc, aFoundItems) {
+                    let storeCopy = function(aItipItem, aRc, aActionFunc, aFoundItems) {
                         if (isFirstProcessing && aActionFunc && Components.isSuccessCode(aRc)) {
                             _execAction(aActionFunc, aItipItem, window, partStat);
                         }

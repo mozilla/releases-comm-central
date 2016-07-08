@@ -17,7 +17,7 @@ updateAppInfo();
 
 var { classes: Cc, interfaces: Ci, results: Cr, utils: Cu } = Components;
 
-(function load_lightning_manifest() {
+(function() {
   let bindir = Services.dirsvc.get("CurProcD", Components.interfaces.nsIFile);
   bindir.append("extensions");
   bindir.append("{e2fda1a4-762b-4020-b5ad-a41df1933103}");

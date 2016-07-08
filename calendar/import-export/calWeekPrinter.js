@@ -31,7 +31,7 @@ calWeekPrinter.prototype = {
 
     get name() { return cal.calGetString("calendar", "weekPrinterName"); },
 
-    formatToHtml: function weekPrint_format(aStream, aStart, aEnd, aCount, aItems, aTitle) {
+    formatToHtml: function(aStream, aStart, aEnd, aCount, aItems, aTitle) {
         let document = cal.xml.parseFile("chrome://calendar-common/skin/printing/calWeekPrinter.html");
         let defaultTimezone = cal.calendarDefaultTimezone();
 
@@ -94,7 +94,7 @@ calWeekPrinter.prototype = {
         convStream.writeString(html);
     },
 
-    setupWeek: function weekPrint_setupWeek(document, startOfWeek, dayTable) {
+    setupWeek: function(document, startOfWeek, dayTable) {
         const weekdayMap = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 
         let weekTemplate = document.getElementById("week-template");

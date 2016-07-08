@@ -11,7 +11,7 @@ var NS_ERROR_FAILURE = 2147500037;
 
 importScripts("resource://calendar/modules/ical.js");
 
-onmessage = function onmessage(event) {
+onmessage = function(event) {
     try {
         let comp = ICAL.parse(event.data);
         postMessage({ rc: NS_OK, data: comp });

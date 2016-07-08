@@ -15,11 +15,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 function onLoad() {
     let operationListener = {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
-        onOperationComplete: function oL_onOperationComplete(aCalendar,
-                                                             aStatus,
-                                                             aOperationType,
-                                                             aId,
-                                                             aDetail) {
+        onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
             let updatingBox = document.getElementById("updating-box");
             updatingBox.setAttribute("hidden", "true");
             let richListBox = document.getElementById("invitations-listbox");
@@ -31,12 +27,7 @@ function onLoad() {
                 noInvitationsBox.removeAttribute("hidden");
             }
         },
-        onGetResult: function oL_onGetResult(aCalendar,
-                                             aStatus,
-                                             aItemType,
-                                             aDetail,
-                                             aCount,
-                                             aItems) {
+        onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
             if (!Components.isSuccessCode(aStatus)) {
                 return;
             }

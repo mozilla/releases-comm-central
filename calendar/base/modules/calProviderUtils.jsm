@@ -29,7 +29,7 @@ this.EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, im
  * @param aNotificationCallbacks     Calendar using channel
  * @param aExisting                  An existing channel to modify (optional)
  */
-cal.prepHttpChannel = function calPrepHttpChannel(aUri, aUploadData, aContentType, aNotificationCallbacks, aExisting) {
+cal.prepHttpChannel = function(aUri, aUploadData, aContentType, aNotificationCallbacks, aExisting) {
     let channel = aExisting || Services.io.newChannelFromURI2(aUri,
                                                               null,
                                                               Services.scriptSecurityManager.getSystemPrincipal(),
@@ -71,17 +71,17 @@ cal.prepHttpChannel = function calPrepHttpChannel(aUri, aUploadData, aContentTyp
  * @param aChannel          channel for request
  * @param aListener         listener for method completion
  */
-cal.sendHttpRequest = function calSendHttpRequest(aStreamLoader, aChannel, aListener) {
+cal.sendHttpRequest = function(aStreamLoader, aChannel, aListener) {
     aStreamLoader.init(aListener);
     aChannel.asyncOpen(aStreamLoader, aChannel);
 };
 
-cal.createStreamLoader = function calCreateStreamLoader() {
+cal.createStreamLoader = function() {
     return Components.classes["@mozilla.org/network/stream-loader;1"]
                      .createInstance(Components.interfaces.nsIStreamLoader);
 };
 
-cal.convertByteArray = function calConvertByteArray(aResult, aResultLength, aCharset, aThrow) {
+cal.convertByteArray = function(aResult, aResultLength, aCharset, aThrow) {
     try {
         let resultConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
                                         .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
@@ -113,7 +113,7 @@ cal.convertByteArray = function calConvertByteArray(aResult, aResultLength, aCha
  *
  * @param aIID      The interface ID to return
  */
-cal.InterfaceRequestor_getInterface = function calInterfaceRequestor_getInterface(aIID) {
+cal.InterfaceRequestor_getInterface = function(aIID) {
     try {
         // Try to query the this object for the requested interface but don't
         // throw if it fails since that borks the network code.
@@ -144,13 +144,13 @@ cal.InterfaceRequestor_getInterface = function calInterfaceRequestor_getInterfac
  * Bad Certificate Handler for Network Requests. Shows the Network Exception
  * Dialog if a certificate Problem occurs.
  */
-cal.BadCertHandler = function calBadCertHandler(thisProvider) {
+cal.BadCertHandler = function(thisProvider) {
     this.thisProvider = thisProvider;
 };
 cal.BadCertHandler.prototype = {
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIBadCertListener2]),
 
-    notifyCertProblem: function cBCL_notifyCertProblem(socketInfo, status, targetSite) {
+    notifyCertProblem: function(socketInfo, status, targetSite) {
         // Unfortunately we can't pass js objects using the window watcher, so
         // we'll just take the first available calendar window. We also need to
         // do this on a timer so that the modal window doesn't block the
@@ -196,7 +196,7 @@ cal.BadCertHandler.prototype = {
  * @param aEnd           The end of the interval.
  * @return               The fresh calIFreeBusyInterval.
  */
-cal.FreeBusyInterval = function calFreeBusyInterval(aCalId, aFreeBusyType, aStart, aEnd) {
+cal.FreeBusyInterval = function(aCalId, aFreeBusyType, aStart, aEnd) {
     this.calId = aCalId;
     this.interval = Components.classes["@mozilla.org/calendar/period;1"]
                               .createInstance(Components.interfaces.calIPeriod);
@@ -215,7 +215,7 @@ cal.FreeBusyInterval.prototype = {
 /**
  * Gets the iTIP/iMIP transport if the passed calendar has configured email.
  */
-cal.getImipTransport = function calGetImipTransport(aCalendar) {
+cal.getImipTransport = function(aCalendar) {
     // assure an identity is configured for the calendar
     return (aCalendar.getProperty("imip.identity")
             ? Components.classes["@mozilla.org/calendar/itip-transport;1?type=email"]
@@ -230,7 +230,7 @@ cal.getImipTransport = function calGetImipTransport(aCalendar) {
  * @param outAccount    Optional out value for account
  * @return              The configured identity
  */
-cal.getEmailIdentityOfCalendar = function calGetEmailIdentityOfCalendar(aCalendar, outAccount) {
+cal.getEmailIdentityOfCalendar = function(aCalendar, outAccount) {
     cal.ASSERT(aCalendar, "no calendar!", Components.results.NS_ERROR_INVALID_ARG);
     let key = aCalendar.getProperty("imip.identity.key");
     if (key !== null) {
@@ -304,7 +304,7 @@ cal.getEmailIdentityOfCalendar = function calGetEmailIdentityOfCalendar(aCalenda
  * @param aTimezone     The timezone this date string is most likely in
  * @return              A calIDateTime object
  */
-cal.fromRFC3339 = function fromRFC3339(aStr, aTimezone) {
+cal.fromRFC3339 = function(aStr, aTimezone) {
     // XXX I have not covered leapseconds (matches[8]), this might need to
     // be done. The only reference to leap seconds I found is bug 227329.
     //
@@ -389,7 +389,7 @@ cal.fromRFC3339 = function fromRFC3339(aStr, aTimezone) {
  * @param aDateTime     The calIDateTime object
  * @return              The RFC3339 compliant date string
  */
-cal.toRFC3339 = function toRFC3339(aDateTime) {
+cal.toRFC3339 = function(aDateTime) {
     if (!aDateTime) {
         return "";
     }
@@ -425,7 +425,7 @@ cal.toRFC3339 = function toRFC3339(aDateTime) {
     return str;
 };
 
-cal.promptOverwrite = function cal_promptOverwrite(aMode, aItem) {
+cal.promptOverwrite = function(aMode, aItem) {
     let window = cal.getCalendarWindow();
     let args = { item: aItem,
                  mode: aMode,
@@ -442,14 +442,14 @@ cal.promptOverwrite = function cal_promptOverwrite(aMode, aItem) {
 /**
  * Observer bag implementation taking care to replay open batch notifications.
  */
-cal.ObserverBag = function calObserverBag(iid) {
+cal.ObserverBag = function(iid) {
     this.init(iid);
 };
 cal.ObserverBag.prototype = {
     __proto__: cal.calListenerBag.prototype,
 
     mBatchCount: 0,
-    notify: function calObserverBag_notify(func, args) {
+    notify: function(func, args) {
         switch (func) {
             case "onStartBatch":
                  ++this.mBatchCount;
@@ -461,7 +461,7 @@ cal.ObserverBag.prototype = {
         return this.__proto__.__proto__.notify.apply(this, arguments);
     },
 
-    add: function calObserverBag_add(iface) {
+    add: function(iface) {
         if (this.__proto__.__proto__.add.apply(this, arguments) && (this.mBatchCount > 0)) {
             // Replay batch notifications, because the onEndBatch notifications are yet to come.
             // We may think about doing the reverse on remove, though I currently see no need:
@@ -477,7 +477,7 @@ cal.ObserverBag.prototype = {
  *
  * @see e.g. providers/gdata
  */
-cal.ProviderBase = function calProviderBase() {
+cal.ProviderBase = function() {
     cal.ASSERT("This prototype should only be inherited!");
 };
 cal.ProviderBase.mTransientProperties = {
@@ -502,7 +502,7 @@ cal.ProviderBase.prototype = {
     mObservers: null,
     mProperties: null,
 
-    initProviderBase: function cPB_initProviderBase() {
+    initProviderBase: function() {
         this.wrappedJSObject = this;
         this.mObservers = new cal.ObserverBag(Components.interfaces.calIObserver);
         this.mProperties = {};
@@ -610,13 +610,13 @@ cal.ProviderBase.prototype = {
 
     // void startBatch();
     mBatchCount: 0,
-    startBatch: function cPB_startBatch() {
+    startBatch: function() {
         if (this.mBatchCount++ == 0) {
             this.mObservers.notify("onStartBatch");
         }
     },
 
-    endBatch: function cPB_endBatch() {
+    endBatch: function() {
         if (this.mBatchCount > 0) {
             if (--this.mBatchCount == 0) {
                 this.mObservers.notify("onEndBatch");
@@ -626,11 +626,7 @@ cal.ProviderBase.prototype = {
         }
     },
 
-    notifyPureOperationComplete: function cPB_notifyPureOperationComplete(aListener,
-                                                                          aStatus,
-                                                                          aOperationType,
-                                                                          aId,
-                                                                          aDetail) {
+    notifyPureOperationComplete: function(aListener, aStatus, aOperationType, aId, aDetail) {
         if (aListener) {
             try {
                 aListener.onOperationComplete(this.superCalendar, aStatus, aOperationType, aId, aDetail);
@@ -640,12 +636,7 @@ cal.ProviderBase.prototype = {
         }
     },
 
-    notifyOperationComplete: function cPB_notifyOperationComplete(aListener,
-                                                                  aStatus,
-                                                                  aOperationType,
-                                                                  aId,
-                                                                  aDetail,
-                                                                  aExtraMessage) {
+    notifyOperationComplete: function(aListener, aStatus, aOperationType, aId, aDetail, aExtraMessage) {
         this.notifyPureOperationComplete(aListener, aStatus, aOperationType, aId, aDetail);
 
         if (aStatus == Components.interfaces.calIErrors.OPERATION_CANCELLED) {
@@ -667,7 +658,7 @@ cal.ProviderBase.prototype = {
     },
 
     // for convenience also callable with just an exception
-    notifyError: function cPB_notifyError(aErrNo, aMessage) {
+    notifyError: function(aErrNo, aMessage) {
         if (aErrNo == Components.interfaces.calIErrors.OPERATION_CANCELLED) {
             return; // cancellation doesn't change current status, no notification
         }
@@ -690,7 +681,7 @@ cal.ProviderBase.prototype = {
     },
 
     // nsIVariant getProperty(in AUTF8String aName);
-    getProperty: function cPB_getProperty(aName) {
+    getProperty: function(aName) {
         switch (aName) {
             case "itip.transport": // iTIP/iMIP default:
                 return cal.getImipTransport(this);
@@ -754,7 +745,7 @@ cal.ProviderBase.prototype = {
     },
 
     // void setProperty(in AUTF8String aName, in nsIVariant aValue);
-    setProperty: function cPB_setProperty(aName, aValue) {
+    setProperty: function(aName, aValue) {
         let oldValue = this.getProperty(aName);
         if (oldValue != aValue) {
             this.mProperties[aName] = aValue;
@@ -778,29 +769,29 @@ cal.ProviderBase.prototype = {
     },
 
     // void deleteProperty(in AUTF8String aName);
-    deleteProperty: function cPB_deleteProperty(aName) {
+    deleteProperty: function(aName) {
         this.mObservers.notify("onPropertyDeleting", [this.superCalendar, aName]);
         delete this.mProperties[aName];
         cal.getCalendarManager().deleteCalendarPref_(this, aName);
     },
 
     // calIOperation refresh
-    refresh: function cPB_refresh() {
+    refresh: function() {
         return null;
     },
 
     // void addObserver( in calIObserver observer );
-    addObserver: function cPB_addObserver(aObserver) {
+    addObserver: function(aObserver) {
         this.mObservers.add(aObserver);
     },
 
     // void removeObserver( in calIObserver observer );
-    removeObserver: function cPB_removeObserver(aObserver) {
+    removeObserver: function(aObserver) {
         this.mObservers.remove(aObserver);
     },
 
     // calISchedulingSupport: Implementation corresponding to our iTIP/iMIP support
-    isInvitation: function cPB_isInvitation(aItem) {
+    isInvitation: function(aItem) {
         if (!this.mACLEntry || !this.mACLEntry.hasAccessControl) {
             // No ACL support - fallback to the old method
             let id = this.getProperty("organizerId");
@@ -847,7 +838,7 @@ cal.ProviderBase.prototype = {
         return false;
     },
 
-    getInvitedAttendee: function cPB_getInvitedAttendee(aItem) {
+    getInvitedAttendee: function(aItem) {
         let id = this.getProperty("organizerId");
         let attendee = (id ? aItem.getAttendeeById(id) : null);
 
@@ -865,7 +856,7 @@ cal.ProviderBase.prototype = {
         return attendee;
     },
 
-    canNotify: function cPB_canNotify(aMethod, aItem) {
+    canNotify: function(aMethod, aItem) {
         return false; // use outbound iTIP for all
     }
 };

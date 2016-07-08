@@ -14,7 +14,7 @@ this.EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, im
  *
  * @param items array of items
  */
-cal.itemIterator = function* cal_itemIterator(items) {
+cal.itemIterator = function* (items) {
     for (let item of items) {
         yield item;
         let rec = item.recurrenceInfo;
@@ -45,7 +45,7 @@ cal.itemIterator = function* cal_itemIterator(items) {
  *                          the single item from the iterator.
  * @param completed     [optional] The function called after the loop completes.
  */
-cal.forEach = function cal_forEach(iterable, body, completed) {
+cal.forEach = function(iterable, body, completed) {
     // This should be a const one day, lets keep it a pref for now though until we
     // find a sane value.
     let LATENCY = Preferences.get("calendar.threading.latency", 250);
@@ -59,7 +59,7 @@ cal.forEach = function cal_forEach(iterable, body, completed) {
 
     // This is our dispatcher, it will be used for the iterations
     let dispatcher = {
-        run: function run() {
+        run: function() {
             let startTime = (new Date()).getTime();
             while (((new Date()).getTime() - startTime) < LATENCY) {
                 let next = ourIter.next();
@@ -111,7 +111,7 @@ cal.ical = {
      *  @param aCompType        The type of item to iterate.
      *  @return                 The iterator that yields all items.
      */
-    calendarComponentIterator: function* cal_ical_calendarComponentIterator(aComponent, aCompType) {
+    calendarComponentIterator: function* (aComponent, aCompType) {
         let compType = (aCompType || "ANY");
         if (aComponent && aComponent.componentType == "VCALENDAR") {
             yield* cal.ical.subcomponentIterator(aComponent, compType);
@@ -136,7 +136,7 @@ cal.ical = {
      *                            enumerate. If not given, "ANY" will be used.
      * @return                  An iterator object to iterate the properties.
      */
-    subcomponentIterator: function* cal_ical_subcomponentIterator(aComponent, aSubcomp) {
+    subcomponentIterator: function* (aComponent, aSubcomp) {
         let subcompName = (aSubcomp || "ANY");
         for (let subcomp = aComponent.getFirstSubcomponent(subcompName);
              subcomp;
@@ -155,7 +155,7 @@ cal.ical = {
      *                            If not given, "ANY" will be used.
      * @return                  An iterator object to iterate the properties.
      */
-    propertyIterator: function* cal_ical_propertyIterator(aComponent, aProperty) {
+    propertyIterator: function* (aComponent, aProperty) {
         let propertyName = (aProperty || "ANY");
         for (let prop = aComponent.getFirstProperty(propertyName);
              prop;
@@ -174,7 +174,7 @@ cal.ical = {
      * @param aProperty         The property to iterate.
      * @return                  An iterator object to iterate the properties.
      */
-    paramIterator: function* cal_ical_paramIterator(aProperty) {
+    paramIterator: function* (aProperty) {
         let paramSet = new Set();
         for (let paramName = aProperty.getFirstParameterName();
              paramName;

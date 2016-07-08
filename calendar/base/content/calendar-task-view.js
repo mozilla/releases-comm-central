@@ -16,7 +16,7 @@ var taskDetailsView = {
      * XXXberend Please document this function, possibly also consolidate since
      * its the only function in taskDetailsView.
      */
-    onSelect: function tDV_onSelect(event) {
+    onSelect: function(event) {
         function displayElement(id, flag) {
             setBooleanAttribute(id, "hidden", !flag);
             return flag;
@@ -147,13 +147,13 @@ var taskDetailsView = {
         }
     },
 
-    loadCategories: function loadCategories(event) {
+    loadCategories: function(event) {
         let panel = event.target;
         let item = document.getElementById("calendar-task-tree").currentTask;
         panel.loadItem(item);
     },
 
-    saveCategories: function saveCategories(event) {
+    saveCategories: function(event) {
         let panel = event.target;
         let item = document.getElementById("calendar-task-tree").currentTask;
         let categoriesMap = {};

@@ -63,14 +63,14 @@ var unifinderObserver = {
     ]),
 
     // calIObserver:
-    onStartBatch: function uO_onStartBatch() {
+    onStartBatch: function() {
     },
 
-    onEndBatch: function uO_onEndBatch() {
+    onEndBatch: function() {
         refreshEventTree();
     },
 
-    onLoad: function uO_onLoad() {
+    onLoad: function() {
         if (isUnifinderHidden() && !gUnifinderNeedsRefresh) {
             // If the unifinder is hidden, all further item operations might
             // produce invalid entries in the unifinder. From now on, ignore
@@ -81,7 +81,7 @@ var unifinderObserver = {
         }
     },
 
-    onAddItem: function uO_onAddItem(aItem) {
+    onAddItem: function(aItem) {
         if (isEvent(aItem) &&
             !gUnifinderNeedsRefresh &&
             unifinderTreeView.mFilter.isItemInFilters(aItem)
@@ -90,20 +90,20 @@ var unifinderObserver = {
         }
     },
 
-    onModifyItem: function uO_onModifyItem(aNewItem, aOldItem) {
+    onModifyItem: function(aNewItem, aOldItem) {
         this.onDeleteItem(aOldItem);
         this.onAddItem(aNewItem);
     },
 
-    onDeleteItem: function uO_onDeleteItem(aDeletedItem) {
+    onDeleteItem: function(aDeletedItem) {
         if (isEvent(aDeletedItem) && !gUnifinderNeedsRefresh) {
             this.removeItemFromTree(aDeletedItem);
         }
     },
 
-    onError: function uO_onError(aCalendar, aErrNo, aMessage) {},
+    onError: function(aCalendar, aErrNo, aMessage) {},
 
-    onPropertyChanged: function uO_onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
+    onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
         switch (aName) {
             case "disabled":
                 refreshEventTree();
@@ -111,25 +111,25 @@ var unifinderObserver = {
         }
     },
 
-    onPropertyDeleting: function uO_onPropertyDeleting(aCalendar, aName) {
+    onPropertyDeleting: function(aCalendar, aName) {
       this.onPropertyChanged(aCalendar, aName, null, null);
     },
 
     // calICompositeObserver:
-    onCalendarAdded: function uO_onCalendarAdded(aAddedCalendar) {
+    onCalendarAdded: function(aAddedCalendar) {
         if (!aAddedCalendar.getProperty("disabled")) {
             addItemsFromCalendar(aAddedCalendar,
                                  addItemsFromSingleCalendarInternal);
         }
     },
 
-    onCalendarRemoved: function uO_onCalendarRemoved(aDeletedCalendar) {
+    onCalendarRemoved: function(aDeletedCalendar) {
         if (!aDeletedCalendar.getProperty("disabled")) {
             deleteItemsFromCalendar(aDeletedCalendar);
         }
     },
 
-    onDefaultCalendarChanged: function uO_onDefaultCalendarChanged(aNewDefaultCalendar) {},
+    onDefaultCalendarChanged: function(aNewDefaultCalendar) {},
 
     /**
      * Add an unifinder item to the tree. It is safe to call these for any
@@ -138,7 +138,7 @@ var unifinderObserver = {
      *
      * @return aItem        The item to add to the tree.
      */
-    addItemToTree: function uO_addItemToTree(aItem) {
+    addItemToTree: function(aItem) {
         let items;
         let filter = unifinderTreeView.mFilter;
 
@@ -157,7 +157,7 @@ var unifinderObserver = {
      *
      * @return aItem        The item to remove from the tree.
      */
-    removeItemFromTree: function uO_removeItemFromTree(aItem) {
+    removeItemFromTree: function(aItem) {
         let items;
         let filter = unifinderTreeView.mFilter;
         if (filter.startDate && filter.endDate && (aItem.parentItem == aItem)) {
@@ -169,7 +169,7 @@ var unifinderObserver = {
         unifinderTreeView.removeItems(items.filter(filter.isItemInFilters, filter));
     },
 
-    observe: function uO_observe(aSubject, aTopic, aPrefName) {
+    observe: function(aSubject, aTopic, aPrefName) {
         switch (aPrefName) {
             case "calendar.date.format":
             case "calendar.timezone.local":
@@ -444,7 +444,7 @@ var unifinderTreeView = {
      * @param aItemArray        An array of items to add.
      * @param aDontSort         If true, the items will only be appended.
      */
-    addItems: function uTV_addItems(aItemArray, aDontSort) {
+    addItems: function(aItemArray, aDontSort) {
         this.eventArray = this.eventArray.concat(aItemArray);
         let newCount = (this.eventArray.length - aItemArray.length - 1);
         this.tree.rowCountChanged(newCount, aItemArray.length);
@@ -461,7 +461,7 @@ var unifinderTreeView = {
      *
      * @param aItemArray        An array of items to remove.
      */
-    removeItems: function uTV_removeItems(aItemArray) {
+    removeItems: function(aItemArray) {
         let indexesToRemove = [];
         // Removing items is a bit tricky. Our getItemRow function takes the
         // index from a cached map, so removing an item from the array will
@@ -500,7 +500,7 @@ var unifinderTreeView = {
     /**
      * Clear all items from the unifinder.
      */
-    clearItems: function uTV_clearItems() {
+    clearItems: function() {
         let oldCount = this.eventArray.length;
         this.eventArray = [];
         this.tree.rowCountChanged(0, -oldCount);
@@ -511,7 +511,7 @@ var unifinderTreeView = {
      * Sets the items that should be in the unifinder. This removes all items
      * that were previously in the unifinder.
      */
-    setItems: function uTV_setItems(aItemArray, aDontSort) {
+    setItems: function(aItemArray, aDontSort) {
         let oldCount = this.eventArray.length;
         this.eventArray = aItemArray.slice(0);
         this.tree.rowCountChanged(oldCount - 1, this.eventArray.length - oldCount);
@@ -532,7 +532,7 @@ var unifinderTreeView = {
      *                                you correctly issued rowCountChanged
      *                                notices.
      */
-    calculateIndexMap: function uTV_calculateIndexMap(aDontInvalidate) {
+    calculateIndexMap: function(aDontInvalidate) {
         this.eventIndexMap = {};
         for (let i = 0; i < this.eventArray.length; i++) {
             this.eventIndexMap[this.eventArray[i].hashId] = i;
@@ -546,7 +546,7 @@ var unifinderTreeView = {
     /**
      * Sort the items in the unifinder by the currently selected column.
      */
-    sortItems: function uTV_sortItems() {
+    sortItems: function() {
         if (this.selectedColumn) {
             let modifier = (this.sortDirection == "descending" ? -1 : 1);
             let sortKey = unifinderTreeView.selectedColumn.getAttribute("itemproperty");
@@ -567,7 +567,7 @@ var unifinderTreeView = {
      * @param item      The item to search for.
      * @return          The row index of the passed item.
      */
-    getItemRow: function uTV_getItemRow(item) {
+    getItemRow: function(item) {
         if (this.eventIndexMap[item.hashId] === undefined) {
             return -1;
         }
@@ -580,7 +580,7 @@ var unifinderTreeView = {
      * @param item      The row index to get the item for.
      * @return          The item at the given row.
      */
-    getItemAt: function uTV_getItemAt(aRow) {
+    getItemAt: function(aRow) {
         return this.eventArray[aRow];
     },
 
@@ -590,7 +590,7 @@ var unifinderTreeView = {
      * @param event     The DOM mouse event to get the item for.
      * @return          The item under the mouse position.
      */
-    getItemFromEvent: function uTV_getItemFromEvent(event) {
+    getItemFromEvent: function(event) {
         let row = this.tree.getRowAt(event.clientX, event.clientY);
 
         if (row > -1) {
@@ -604,7 +604,7 @@ var unifinderTreeView = {
      *
      * @param aItemArray        An array of items to select.
      */
-    setSelectedItems: function uTV_setSelectedItems(aItemArray) {
+    setSelectedItems: function(aItemArray) {
         if (this.doingSelection || !this.tree || !this.tree.view) {
             return;
         }
@@ -651,7 +651,7 @@ var unifinderTreeView = {
      * Due to a selection issue described in bug 168211 this method is needed to
      * re-add the selection listeners selection listeners.
      */
-    resetAllowSelection: function uTV_resetAllowSelection() {
+    resetAllowSelection: function() {
         if (!this.tree) {
             return;
         }
@@ -678,12 +678,12 @@ var unifinderTreeView = {
     // an itemTreeView that these tree views can inherit, that contains this
     // code, and possibly other code related to sorting and storing items. See
     // bug 432582 for more details.
-    getCellProperties: function uTV_getCellProperties(aRow, aCol) {
+    getCellProperties: function(aRow, aCol) {
         let rowProps = this.getRowProperties(aRow);
         let colProps = this.getColumnProperties(aCol);
         return rowProps + (rowProps && colProps ? " " : "") + colProps;
     },
-    getRowProperties: function uTV_getRowProperties(aRow) {
+    getRowProperties: function(aRow) {
         let properties = [];
         let item = this.eventArray[aRow];
         if (item.priority > 0 && item.priority < 5) {
@@ -711,53 +711,53 @@ var unifinderTreeView = {
 
         return properties.join(" ");
     },
-    getColumnProperties: function uTV_getColumnProperties(aCol) { return ""; },
+    getColumnProperties: function(aCol) { return ""; },
 
-    isContainer: function uTV_isContainer() {
+    isContainer: function() {
         return false;
     },
 
-    isContainerOpen: function uTV_isContainerOpen(aRow) {
+    isContainerOpen: function(aRow) {
         return false;
     },
 
-    isContainerEmpty: function uTV_isContainerEmpty(aRow) {
+    isContainerEmpty: function(aRow) {
         return false;
     },
 
-    isSeparator: function uTV_isSeparator(aRow) {
+    isSeparator: function(aRow) {
         return false;
     },
 
-    isSorted: function uTV_isSorted(aRow) {
+    isSorted: function(aRow) {
         return false;
     },
 
-    canDrop: function uTV_canDrop(aRow, aOrientation) {
+    canDrop: function(aRow, aOrientation) {
         return false;
     },
 
-    drop: function uTV_drop(aRow, aOrientation) {},
+    drop: function(aRow, aOrientation) {},
 
-    getParentIndex: function uTV_getParentIndex(aRow) {
+    getParentIndex: function(aRow) {
         return -1;
     },
 
-    hasNextSibling: function uTV_hasNextSibling(aRow, aAfterIndex) {},
+    hasNextSibling: function(aRow, aAfterIndex) {},
 
-    getLevel: function uTV_getLevel(aRow) {
+    getLevel: function(aRow) {
         return 0;
     },
 
-    getImageSrc: function uTV_getImageSrc(aRow, aOrientation) {},
+    getImageSrc: function(aRow, aOrientation) {},
 
-    getProgressMode: function uTV_getProgressMode(aRow, aCol) {},
+    getProgressMode: function(aRow, aCol) {},
 
-    getCellValue: function uTV_getCellValue(aRow, aCol) {
+    getCellValue: function(aRow, aCol) {
         return null;
     },
 
-    getCellText: function uTV_getCellText(row, column) {
+    getCellText: function(row, column) {
         let calendarEvent = this.eventArray[row];
 
         switch (column.element.getAttribute("itemproperty")) {
@@ -793,13 +793,13 @@ var unifinderTreeView = {
         }
     },
 
-    setTree: function uTV_setTree(tree) {
+    setTree: function(tree) {
         this.tree = tree;
     },
 
-    toggleOpenState: function uTV_toggleOpenState(aRow) {},
+    toggleOpenState: function(aRow) {},
 
-    cycleHeader: function uTV_cycleHeader(col) {
+    cycleHeader: function(col) {
         if (!this.selectedColumn) {
             this.sortDirection = "ascending";
         } else if (!this.sortDirection || this.sortDirection == "descending") {
@@ -811,18 +811,18 @@ var unifinderTreeView = {
         this.sortItems();
     },
 
-    isEditable: function uTV_isEditable(aRow, aCol) {
+    isEditable: function(aRow, aCol) {
         return false;
     },
 
-    setCellValue: function uTV_setCellValue(aRow, aCol, aValue) {},
-    setCellText: function uTV_setCellText(aRow, aCol, aValue) {},
+    setCellValue: function(aRow, aCol, aValue) {},
+    setCellText: function(aRow, aCol, aValue) {},
 
-    performAction: function uTV_performAction(aAction) {},
+    performAction: function(aAction) {},
 
-    performActionOnRow: function uTV_performActionOnRow(aAction, aRow) {},
+    performActionOnRow: function(aAction, aRow) {},
 
-    performActionOnCell: function uTV_performActionOnCell(aAction, aRow, aCol) {},
+    performActionOnCell: function(aAction, aRow, aCol) {},
 
     outParameter: {} // used to obtain dates during sort
 };
@@ -882,23 +882,14 @@ function addItemsFromCalendar(aCalendar, aAddItemsInternalFunc) {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
         mEventArray: [],
 
-        onOperationComplete: function rET_onOperationComplete(aOpCalendar,
-                                                              aStatus,
-                                                              aOperationType,
-                                                              aId,
-                                                              aDateTime) {
+        onOperationComplete: function(aOpCalendar, aStatus, aOperationType, aId, aDateTime) {
             let refreshTreeInternalFunc = function() {
                 aAddItemsInternalFunc(refreshListener.mEventArray);
             };
             setTimeout(refreshTreeInternalFunc, 0);
         },
 
-        onGetResult: function rET_onGetResult(aOpCalendar,
-                                              aStatus,
-                                              aItemType,
-                                              aDetail,
-                                              aCount,
-                                              aItems) {
+        onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
             refreshListener.mEventArray = refreshListener.mEventArray.concat(aItems);
         }
     };

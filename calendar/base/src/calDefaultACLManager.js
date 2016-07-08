@@ -29,7 +29,7 @@ calDefaultACLManager.prototype = {
     }),
 
     /* calICalendarACLManager */
-    _getCalendarEntryCached: function cDACLM__getCalendarEntryCached(aCalendar) {
+    _getCalendarEntryCached: function(aCalendar) {
         let calUri = aCalendar.uri.spec;
         if (!(calUri in this.mCalendarEntries)) {
             this.mCalendarEntries[calUri] = new calDefaultCalendarACLEntry(this, aCalendar);
@@ -37,14 +37,14 @@ calDefaultACLManager.prototype = {
 
         return this.mCalendarEntries[calUri];
     },
-    getCalendarEntry: function cDACLM_getCalendarEntry(aCalendar, aListener) {
+    getCalendarEntry: function(aCalendar, aListener) {
         let entry = this._getCalendarEntryCached(aCalendar);
         aListener.onOperationComplete(aCalendar, Components.results.NS_OK,
                                       Components.interfaces.calIOperationListener.GET,
                                       null,
                                       entry);
     },
-    getItemEntry: function cDACLM_getItemEntry(aItem) {
+    getItemEntry: function(aItem) {
         let calEntry = this._getCalendarEntryCached(aItem.calendar);
         return new calDefaultItemACLEntry(calEntry);
     },
@@ -72,20 +72,20 @@ calDefaultCalendarACLEntry.prototype = {
     userCanAddItems: true,
     userCanDeleteItems: true,
 
-    _getIdentities: function calDefaultCalendarACLEntry_getUserAddresses(aCount) {
+    _getIdentities: function(aCount) {
         let identities = [];
         cal.calIterateEmailIdentities(function(id, ac) { identities.push(id); });
         aCount.value = identities.length;
         return identities;
     },
 
-    getUserAddresses: function calDefaultCalendarACLEntry_getUserAddresses(aCount) {
+    getUserAddresses: function(aCount) {
         let identities = this.getUserIdentities(aCount);
         let addresses = identities.map(id => id.email);
         return addresses;
     },
 
-    getUserIdentities: function calDefaultCalendarACLEntry_getUserIdentities(aCount) {
+    getUserIdentities: function(aCount) {
         let identity = cal.getEmailIdentityOfCalendar(this.mCalendar);
         if (identity) {
             aCount.value = 1;
@@ -94,11 +94,11 @@ calDefaultCalendarACLEntry.prototype = {
             return this._getIdentities(aCount);
         }
     },
-    getOwnerIdentities: function calDefaultCalendarACLEntry_getOwnerIdentities(aCount) {
+    getOwnerIdentities: function(aCount) {
         return this._getIdentities(aCount);
     },
 
-    refresh: function calDefaultCalendarACLEntry_refresh() {
+    refresh: function() {
     }
 };
 

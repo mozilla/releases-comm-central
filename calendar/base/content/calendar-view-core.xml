@@ -71,24 +71,23 @@
          Components.utils.import("resource://calendar/modules/calUtils.jsm");
          Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-         let self = this;
-         this.eventNameTextbox.onblur = function onBlur() {
-             self.stopEditing(true);
+         this.eventNameTextbox.onblur = () => {
+             this.stopEditing(true);
          };
-         this.eventNameTextbox.onkeypress = function onKeyPress(event) {
+         this.eventNameTextbox.onkeypress = (event) => {
              // save on enter
              if (event.keyCode == 13) {
-                 self.stopEditing(true);
+                 this.stopEditing(true);
              // abort on escape
              } else if (event.keyCode == 27) {
-                 self.stopEditing(false);
+                 this.stopEditing(false);
              }
          };
-         function stopPropagationIfEditing(event) {
-           if (self.mEditing) {
+         let stopPropagationIfEditing = (event) => {
+           if (this.mEditing) {
              event.stopPropagation();
            }
-         }
+         };
          // while editing, single click positions cursor, so don't propagate.
          this.eventNameTextbox.onclick = stopPropagationIfEditing;
          // while editing, double click selects words, so don't propagate.
@@ -327,11 +326,10 @@
 
         if (this.selected && !(event.ctrlKey || event.metaKey) &&
               isCalendarWritable(this.mOccurrence.calendar)) {
-            let self = this;
             if (this.editingTimer) {
                 clearTimeout(this.editingTimer);
             }
-            this.editingTimer = setTimeout(function editingTimeout() { self.startEditing(); }, 350);
+            this.editingTimer = setTimeout(() => this.startEditing(), 350);
         } else {
             this.select(event);
             event.stopPropagation();

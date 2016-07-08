@@ -12,7 +12,7 @@ var gViewsPane = {
      * Initialize the views pref pane. Sets up dialog controls to match the
      * values set in prefs.
      */
-    init: function gVP_init() {
+    init: function() {
         this.updateViewEndMenu(document.getElementById("daystarthour").value);
         this.updateViewStartMenu(document.getElementById("dayendhour").value);
         this.updateViewWorkDayCheckboxes(document.getElementById("weekstarts").value);
@@ -23,7 +23,7 @@ var gViewsPane = {
      * Initialize the strings for the  "day starts at" and "day ends at"
      * menulists. This is needed to respect locales that use AM/PM.
      */
-    initializeViewStartEndMenus: function gVP_initializeViewStartEndMenus() {
+    initializeViewStartEndMenus: function() {
         let labelIdStart;
         let labelIdEnd;
         let timeFormatter = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
@@ -53,7 +53,7 @@ var gViewsPane = {
      *
      * @param aStartValue       The value selected for view start.
      */
-    updateViewEndMenu: function gVP_updateViewEndMenu(aStartValue) {
+    updateViewEndMenu: function(aStartValue) {
         let endMenuKids = document.getElementById("dayendhourpopup")
                                   .childNodes;
         for (let i = 0; i < endMenuKids.length; i++) {
@@ -71,7 +71,7 @@ var gViewsPane = {
      *
      * @param aEndValue         The value selected for view end.
      */
-    updateViewStartMenu: function gVP_updateViewStartMenu(aEndValue) {
+    updateViewStartMenu: function(aEndValue) {
         let startMenuKids = document.getElementById("daystarthourpopup")
                                   .childNodes;
         for (let i = 0; i < startMenuKids.length; i++) {
@@ -89,7 +89,7 @@ var gViewsPane = {
      * @Param weekStart         The (0-based) index of the weekday the week
      *                            should start at.
      */
-    updateViewWorkDayCheckboxes: function gVP_updateViewWorkDayCheckboxes(weekStart) {
+    updateViewWorkDayCheckboxes: function(weekStart) {
         weekStart = Number(weekStart);
         for (let i = weekStart; i < weekStart + 7; i++) {
             let checkbox = document.getElementById("dayoff" + (i % 7));

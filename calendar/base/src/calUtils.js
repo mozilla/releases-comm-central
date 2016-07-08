@@ -1188,7 +1188,7 @@ calInterfaceBag.prototype = {
     [Symbol.iterator]: function() { return this.mInterfaces[Symbol.iterator](); },
 
     // internal:
-    init: function calInterfaceBag_init(iid) {
+    init: function(iid) {
         this.mIid = iid;
         this.mInterfaces = [];
     },
@@ -1202,7 +1202,7 @@ calInterfaceBag.prototype = {
         return this.mInterfaces;
     },
 
-    add: function calInterfaceBag_add(iface) {
+    add: function(iface) {
         if (iface) {
             let existing = this.mInterfaces.some(obj => {
                 return compareObjects(obj, iface, this.mIid);
@@ -1215,7 +1215,7 @@ calInterfaceBag.prototype = {
         return false;
     },
 
-    remove: function calInterfaceBag_remove(iface) {
+    remove: function(iface) {
         if (iface) {
             this.mInterfaces = this.mInterfaces.filter((obj) => {
                 return !compareObjects(obj, iface, this.mIid);
@@ -1223,7 +1223,7 @@ calInterfaceBag.prototype = {
         }
     },
 
-    forEach: function calInterfaceBag_forEach(func) {
+    forEach: function(func) {
         this.mInterfaces.forEach(func);
     }
 };
@@ -1234,7 +1234,7 @@ function calListenerBag(iid) {
 calListenerBag.prototype = {
     __proto__: calInterfaceBag.prototype,
 
-    notify: function calListenerBag_notify(func, args) {
+    notify: function(func, args) {
         function notifyFunc(iface) {
             try {
                 iface[func].apply(iface, args ? args : []);
@@ -1294,13 +1294,13 @@ calOperationGroup.prototype = {
     mStatus: Components.results.NS_OK,
     mSubOperations: null,
 
-    add: function calOperationGroup_add(op) {
+    add: function(op) {
         if (op && op.isPending) {
             this.mSubOperations.push(op);
         }
     },
 
-    remove: function calOperationGroup_remove(op) {
+    remove: function(op) {
         if (op) {
             this.mSubOperations = this.mSubOperations.filter(op_ => op.id != op_.id);
         }
@@ -1310,7 +1310,7 @@ calOperationGroup.prototype = {
         return (this.mSubOperations.length == 0);
     },
 
-    notifyCompleted: function calOperationGroup_notifyCompleted(status) {
+    notifyCompleted: function(status) {
         ASSERT(this.isPending, "[calOperationGroup_notifyCompleted] this.isPending");
         if (this.isPending) {
             this.mIsPending = false;
@@ -1320,7 +1320,7 @@ calOperationGroup.prototype = {
         }
     },
 
-    toString: function calOperationGroup_toString() {
+    toString: function() {
         return "[calOperationGroup] id=" + this.id;
     },
 
@@ -1337,7 +1337,7 @@ calOperationGroup.prototype = {
         return this.mStatus;
     },
 
-    cancel: function calOperationGroup_cancel(status) {
+    cancel: function(status) {
         if (this.isPending) {
             if (!status) {
                 status = Components.interfaces.calIErrors.OPERATION_CANCELLED;
@@ -1588,18 +1588,18 @@ function calPropertyBag() {
 calPropertyBag.prototype = {
     mData: null,
 
-    setProperty: function cpb_setProperty(aName, aValue) {
+    setProperty: function(aName, aValue) {
         return (this.mData[aName] = aValue);
     },
-    getProperty_: function cpb_getProperty(aName) {
+    getProperty_: function(aName) {
         // avoid strict undefined property warning
         return (aName in this.mData ? this.mData[aName] : undefined);
     },
-    getProperty: function cpb_getProperty(aName) {
+    getProperty: function(aName) {
         // avoid strict undefined property warning
         return (aName in this.mData ? this.mData[aName] : null);
     },
-    getAllProperties: function cpb_getAllProperties(aOutKeys, aOutValues) {
+    getAllProperties: function(aOutKeys, aOutValues) {
         let keys = [];
         let values = [];
         for (let key in this.mData) {
@@ -1609,13 +1609,13 @@ calPropertyBag.prototype = {
         aOutKeys.value = keys;
         aOutValues.value = values;
     },
-    deleteProperty: function cpb_deleteProperty(aName) {
+    deleteProperty: function(aName) {
         delete this.mData[aName];
     },
     get enumerator() {
         return new calPropertyBagEnumerator(this);
     },
-    [Symbol.iterator]: function* cpb_iterator() {
+    [Symbol.iterator]: function* () {
         for (let name of Object.keys(this.mData)) {
             yield [name, this.mData[name]];
         }
@@ -1633,7 +1633,7 @@ calPropertyBagEnumerator.prototype = {
     mKeys: null,
 
     // nsISimpleEnumerator:
-    getNext: function cpb_enum_getNext() {
+    getNext: function() {
         if (!this.hasMoreElements()) { // hasMoreElements is called by intention to skip yet deleted properties
             ASSERT(false, Components.results.NS_ERROR_UNEXPECTED);
             throw Components.results.NS_ERROR_UNEXPECTED;
@@ -1645,7 +1645,7 @@ calPropertyBagEnumerator.prototype = {
             value: this.mCurrentValue
         };
     },
-    hasMoreElements: function cpb_enum_hasMoreElements() {
+    hasMoreElements: function() {
         while (this.mIndex < this.mKeys.length) {
             this.mCurrentValue = this.mBag.mData[this.mKeys[this.mIndex]];
             if (this.mCurrentValue !== undefined) {
@@ -1788,7 +1788,7 @@ function binarySearch(itemArray, newItem, comptor) {
         return -1;
     }
     if (!comptor) {
-        comptor = function defaultComptor(a, b) {
+        comptor = function(a, b) {
             return (a > b) - (a < b);
         };
     }

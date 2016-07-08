@@ -77,7 +77,7 @@ calLibicalTimezone.prototype = {
         interfaces: calTimezoneInterfaces
     }),
 
-    toString: function calLibicalTimezone_toString() {
+    toString: function() {
         return (this.icalComponent ? this.icalComponent.toString() : this.tzid);
     },
 

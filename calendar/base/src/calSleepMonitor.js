@@ -50,7 +50,7 @@ calSleepMonitor.prototype = {
     },
 
     // nsIObserver:
-    observe: function observe(aSubject, aTopic, aData) {
+    observe: function(aSubject, aTopic, aData) {
         // calSleepMonitor is not used on Windows or OSX.
         if (Services.appinfo.OS == "WINNT" || Services.appinfo.OS == "Darwin") {
             return;

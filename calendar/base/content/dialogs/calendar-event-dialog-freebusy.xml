@@ -441,11 +441,7 @@
         this.endDate = endTime.getInTimezone(kDefaultTimezone);
         this.mRange = Number(this.getAttribute("range"));
 
-        let self = this;
-        let load = function loadHandler() {
-            self.onLoad();
-        };
-        window.addEventListener("load", load, true);
+        window.addEventListener("load", this.onLoad.bind(this), true);
       ]]></constructor>
 
       <method name="refresh">
@@ -1086,15 +1082,8 @@
         this.mMaxFreeBusy = 0;
         this.mPendingRequests = [];
 
-        let self = this;
-        let load = function freebusy_grid_loadHandler() {
-            self.onLoad();
-        };
-        window.addEventListener("load", load, true);
-        let unload = function freebusy_grid_unloadHandler() {
-            self.onUnload();
-        };
-        window.addEventListener("unload", unload, true);
+        window.addEventListener("load", this.onLoad.bind(this), true);
+        window.addEventListener("unload", this.onUnload.bind(this), true);
       ]]></constructor>
 
       <property name="startDate">
@@ -1502,12 +1491,10 @@
 
       <method name="fitDummyRows">
         <body><![CDATA[
-          let self = this;
-          let func = function func() {
-              self.calcContentHeight();
-              self.createOrRemoveDummyRows();
-          };
-          setTimeout(func, 0);
+          setTimeout(() => {
+              this.calcContentHeight();
+              this.createOrRemoveDummyRows();
+          }, 0);
         ]]></body>
       </method>
 

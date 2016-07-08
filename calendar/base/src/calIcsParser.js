@@ -26,7 +26,7 @@ calIcsParser.prototype = {
         flags: Components.interfaces.nsIClassInfo.THREADSAFE
     }),
 
-    processIcalComponent: function ip_processIcalComponent(rootComp, aAsyncParsing) {
+    processIcalComponent: function(rootComp, aAsyncParsing) {
         let calComp;
         // libical returns the vcalendar component if there is just one vcalendar.
         // If there are multiple vcalendars, it returns an xroot component, with
@@ -115,7 +115,7 @@ calIcsParser.prototype = {
         });
     },
 
-    parseString: function ip_parseString(aICSString, aTzProvider, aAsyncParsing) {
+    parseString: function(aICSString, aTzProvider, aAsyncParsing) {
         if (aAsyncParsing) {
             let self = this;
 
@@ -139,7 +139,7 @@ calIcsParser.prototype = {
         }
     },
 
-    parseFromStream: function ip_parseFromStream(aStream, aTzProvider, aAsyncParsing) {
+    parseFromStream: function(aStream, aTzProvider, aAsyncParsing) {
         // Read in the string. Note that it isn't a real string at this point,
         // because likely, the file is utf8. The multibyte chars show up as multiple
         // 'chars' in this string. So call it an array of octets for now.
@@ -173,22 +173,22 @@ calIcsParser.prototype = {
         this.parseString(stringData, aTzProvider, aAsyncParsing);
     },
 
-    getItems: function ip_getItems(aCount) {
+    getItems: function(aCount) {
         aCount.value = this.mItems.length;
         return this.mItems.concat([]);
     },
 
-    getParentlessItems: function ip_getParentlessItems(aCount) {
+    getParentlessItems: function(aCount) {
         aCount.value = this.mParentlessItems.length;
         return this.mParentlessItems.concat([]);
     },
 
-    getProperties: function ip_getProperties(aCount) {
+    getProperties: function(aCount) {
         aCount.value = this.mProperties.length;
         return this.mProperties.concat([]);
     },
 
-    getComponents: function ip_getComponents(aCount) {
+    getComponents: function(aCount) {
         aCount.value = this.mComponents.length;
         return this.mComponents.concat([]);
     }
@@ -229,7 +229,7 @@ parserState.prototype = {
      * @param item      The item to check for
      * @param dt        The datetime object to check with
      */
-    checkTimezone: function checkTimezone(item, dt) {
+    checkTimezone: function(item, dt) {
         if (dt && cal.isPhantomTimezone(dt.timezone)) {
             let tzid = dt.timezone.tzid;
             let hid = item.hashId + "#" + tzid;
@@ -253,10 +253,10 @@ parserState.prototype = {
      *
      * @param subComp       The component to process
      */
-    submit: function submit(subComp) {
+    submit: function(subComp) {
         let self = this;
         let runner = {
-            run: function run() {
+            run: function() {
                 let item = null;
                 switch (subComp.componentType) {
                     case "VEVENT":
@@ -328,7 +328,7 @@ parserState.prototype = {
      *
      * @param joinFunc      The join function to call
      */
-    join: function join(joinFunc) {
+    join: function(joinFunc) {
         this.joinFunc = joinFunc;
         this.checkCompletion();
     }

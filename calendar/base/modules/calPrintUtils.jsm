@@ -15,7 +15,7 @@ cal.print = {
      * @param dt    The date to translate
      * @return      YYYY-MM-DD
      */
-    getDateKey: function getDateKey(dt) {
+    getDateKey: function(dt) {
         return dt.year + "-" + dt.month + "-" + dt.day;
     },
 
@@ -28,7 +28,7 @@ cal.print = {
      * @param document      The document that contains <style id="sheet"/>.
      * @param categories    Array of categories to insert rules for.
      */
-    insertCategoryRules: function insertCategoryRules(document, categories) {
+    insertCategoryRules: function(document, categories) {
         let sheet = document.getElementById("sheet");
         sheet.insertedCategoryRules = sheet.insertedCategoryRules || {};
 
@@ -53,7 +53,7 @@ cal.print = {
      * @param document      The document that contains <style id="sheet"/>.
      * @param categories    The calendar to insert a rule for.
      */
-    insertCalendarRules: function insertCalendarRules(document, calendar) {
+    insertCalendarRules: function(document, calendar) {
         let sheet = document.getElementById("sheet");
         let color = calendar.getProperty("color") || "#A8C2E1";
         sheet.insertedCalendarRules = sheet.insertedCalendarRules || {};
@@ -83,7 +83,7 @@ cal.print = {
      * @param item              The item to serialize
      * @param dayContainer      The DOM Node to insert the container in
      */
-    addItemToDaybox: function addItemToDaybox(document, item, boxDate, dayContainer) {
+    addItemToDaybox: function(document, item, boxDate, dayContainer) {
         // Clone our template
         let itemNode = document.getElementById("item-template").cloneNode(true);
         itemNode.removeAttribute("id");
@@ -128,7 +128,7 @@ cal.print = {
      * @param document          The DOM Document to set things on
      * @param item              The item to serialize
      */
-    addItemToDayboxNodate: function addItemToDayboxNodate(document, item) {
+    addItemToDayboxNodate: function(document, item) {
         let taskContainer = document.getElementById("task-container");
         let taskNode = document.getElementById("task-template").cloneNode(true);
         taskNode.removeAttribute("id");
@@ -158,7 +158,7 @@ cal.print = {
      * @param aItem     The item providing the interval
      * @return          The string describing the interval
      */
-    getItemIntervalString: function getItemIntervalString(aItem, aBoxDate) {
+    getItemIntervalString: function(aItem, aBoxDate) {
         // omit time label for all-day items
         let startDate = aItem[cal.calGetStartDateProp(aItem)];
         let endDate = aItem[cal.calGetEndDateProp(aItem)];

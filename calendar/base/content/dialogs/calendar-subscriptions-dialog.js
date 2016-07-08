@@ -106,7 +106,7 @@ function onSearch() {
     }
 
     let opListener = {
-        onResult: function search_onResult(op, result) {
+        onResult: function(op, result) {
             if (result) {
                 for (let calendar of result) {
                     richListBox.addCalendar(calendar, registeredCals[calendar.id]);

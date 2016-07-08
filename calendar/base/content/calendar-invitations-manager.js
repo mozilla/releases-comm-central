@@ -21,7 +21,7 @@ var gInvitationsRequestManager = {
      * @param calendar    The calendar to add for.
      * @param op          The operation to add
      */
-    addRequestStatus: function IRM_addRequestStatus(calendar, op) {
+    addRequestStatus: function(calendar, op) {
         if (op) {
             this.mRequestStatusList[calendar.id] = op;
         }
@@ -30,7 +30,7 @@ var gInvitationsRequestManager = {
     /**
      * Cancel all pending requests
      */
-    cancelPendingRequests: function IRM_cancelPendingRequests() {
+    cancelPendingRequests: function() {
         for (let id in this.mRequestStatusList) {
             let request = this.mRequestStatusList[id];
             if (request && request.isPending) {
@@ -87,25 +87,23 @@ InvitationsManager.prototype = {
      * @param firstDelay          The timeout before the operation should start.
      * @param operationListener   The calIGenericOperationListener to notify.
      */
-    scheduleInvitationsUpdate: function IM_scheduleInvitationsUpdate(firstDelay,
-                                                                     operationListener) {
+    scheduleInvitationsUpdate: function(firstDelay, operationListener) {
         this.cancelInvitationsUpdate();
 
-        let self = this;
-        this.mTimer = setTimeout(function startInvitationsTimer() {
+        this.mTimer = setTimeout(() => {
             if (Preferences.get("calendar.invitations.autorefresh.enabled", true)) {
-                self.mTimer = setInterval(function repeatingInvitationsTimer() {
-                    self.getInvitations(operationListener);
+                this.mTimer = setInterval(() => {
+                    this.getInvitations(operationListener);
                     }, Preferences.get("calendar.invitations.autorefresh.timeout", 3) * 60000);
             }
-            self.getInvitations(operationListener);
+            this.getInvitations(operationListener);
         }, firstDelay);
     },
 
     /**
      * Cancel pending any pending invitations update.
      */
-    cancelInvitationsUpdate: function IM_cancelInvitationsUpdate() {
+    cancelInvitationsUpdate: function() {
         clearTimeout(this.mTimer);
     },
 
@@ -117,8 +115,7 @@ InvitationsManager.prototype = {
      * @param operationListener2    (optinal) The second operation listener to
      *                                notify.
      */
-    getInvitations: function IM_getInvitations(operationListener1,
-                                               operationListener2) {
+    getInvitations: function(operationListener1, operationListener2) {
         let listeners = [];
         if (operationListener1) {
             listeners.push(operationListener1);
@@ -239,8 +236,7 @@ InvitationsManager.prototype = {
      * @param finishedCallBack          A callback function to call when the
      *                                    dialog has completed.
      */
-    openInvitationsDialog: function IM_openInvitationsDialog(onLoadOpListener,
-                                                             finishedCallBack) {
+    openInvitationsDialog: function(onLoadOpListener, finishedCallBack) {
         let args = {};
         args.onLoadOperationListener = onLoadOpListener;
         args.queue = [];
@@ -266,8 +262,7 @@ InvitationsManager.prototype = {
      * @param jobQueueFinishedCallBack      A callback function called when
      *                                        job has finished.
      */
-    processJobQueue: function IM_processJobQueue(queue,
-                                                 jobQueueFinishedCallBack) {
+    processJobQueue: function(queue, jobQueueFinishedCallBack) {
         // TODO: undo/redo
         function operationListener(mgr, queueCallback, oldItem_) {
             this.mInvitationsManager = mgr;
@@ -332,12 +327,9 @@ InvitationsManager.prototype = {
      * @param item      The item to look for.
      * @return          A boolean value indicating if the item was found.
      */
-    hasItem: function IM_hasItem(item) {
+    hasItem: function(item) {
         let hid = item.hashId;
-        return this.mItemList.some(
-            function someFunc(item_) {
-                return hid == item_.hashId;
-            });
+        return this.mItemList.some(item_ => hid == item_.hashId);
     },
 
     /**
@@ -346,7 +338,7 @@ InvitationsManager.prototype = {
      *
      * @param item      The item to add.
      */
-    addItem: function IM_addItem(item) {
+    addItem: function(item) {
         let recInfo = item.recurrenceInfo;
         if (recInfo && !cal.isOpenInvitation(item)) {
             // scan exceptions:
@@ -368,19 +360,16 @@ InvitationsManager.prototype = {
      *
      * @param item      The item to remove.
      */
-    deleteItem: function IM_deleteItem(item) {
+    deleteItem: function(item) {
         let id = item.id;
-        this.mItemList.filter(
-            function filterFunc(item_) {
-                return id != item_.id;
-            });
+        this.mItemList.filter(item_ => id != item_.id);
     },
 
     /**
      * Remove all items from the internal item list
      * XXXdbo       Please document these correctly.
      */
-    deleteAllItems: function IM_deleteAllItems() {
+    deleteAllItems: function() {
         this.mItemList = [];
     },
 
@@ -390,7 +379,7 @@ InvitationsManager.prototype = {
      *
      * @return      Potential start date.
      */
-    getStartDate: function IM_getStartDate() {
+    getStartDate: function() {
         let date = now();
         date.second = 0;
         date.minute = 0;
@@ -403,7 +392,7 @@ InvitationsManager.prototype = {
      * from this.getStartDate(), unless the previously existing start date is
      * the same or after what getStartDate() returned.
      */
-    updateStartDate: function IM_updateStartDate() {
+    updateStartDate: function() {
         if (!this.mStartDate) {
             this.mStartDate = this.getStartDate();
         } else {
@@ -422,7 +411,7 @@ InvitationsManager.prototype = {
      * @param item      The item to check
      * @return          A boolean indicating if the item is a valid invitation.
      */
-    validateItem: function IM_validateItem(item) {
+    validateItem: function(item) {
         if (item.calendar instanceof Components.interfaces.calISchedulingSupport &&
             !item.calendar.isInvitation(item)) {
             return false; // exclude if organizer has invited himself

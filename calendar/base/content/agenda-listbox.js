@@ -23,8 +23,7 @@ var agendaListbox = {
 /**
  * Initialize the agenda listbox, used on window load.
  */
-agendaListbox.init =
-function initAgendaListbox() {
+agendaListbox.init = function() {
     this.agendaListboxControl = document.getElementById("agenda-listbox");
     this.agendaListboxControl.removeAttribute("suppressonselect");
     let showTodayHeader = (document.getElementById("today-header-hidden").getAttribute("checked") == "true");
@@ -39,7 +38,7 @@ function initAgendaListbox() {
     this.mPendingRefreshJobs = new Map();
 
     let prefObserver = {
-        observe: function aL_observe(aSubject, aTopic, aPrefName) {
+        observe: function(aSubject, aTopic, aPrefName) {
             switch (aPrefName) {
                 case "calendar.agendaListbox.soondays":
                     agendaListbox.soonDays = getSoondaysPreference();
@@ -53,7 +52,7 @@ function initAgendaListbox() {
     // Make sure the agenda listbox is unloaded
     let self = this;
     window.addEventListener("unload",
-                            function unload_agendaListbox() {
+                            function() {
                                 Services.prefs.removeObserver("calendar.agendaListbox", prefObserver);
                                 self.uninit();
                             },
@@ -63,8 +62,7 @@ function initAgendaListbox() {
 /**
  * Clean up the agenda listbox, used on window unload.
  */
-agendaListbox.uninit =
-function uninit() {
+agendaListbox.uninit = function() {
     if (this.calendar) {
         this.calendar.removeObserver(this.calendarObserver);
     }
@@ -88,8 +86,7 @@ function uninit() {
  * @param aItemId       The id of an <agenda-checkbox-richlist-item> to add to,
  *                        without the "-hidden" suffix.
  */
-agendaListbox.addPeriodListItem =
-function addPeriodListItem(aPeriod, aItemId) {
+agendaListbox.addPeriodListItem = function(aPeriod, aItemId) {
     aPeriod.listItem = document.getElementById(aItemId + "-hidden").cloneNode(true);
     agendaListbox.agendaListboxControl.appendChild(aPeriod.listItem);
     aPeriod.listItem.id = aItemId;
@@ -101,8 +98,7 @@ function addPeriodListItem(aPeriod, aItemId) {
  * Remove a period item from the agenda listbox.
  * @see agendaListbox::addPeriodListItem
  */
-agendaListbox.removePeriodListItem =
-function removePeriodListItem(aPeriod) {
+agendaListbox.removePeriodListItem = function(aPeriod) {
     if (aPeriod.listItem) {
         aPeriod.listItem.getCheckbox().removeEventListener("CheckboxStateChange", this.onCheckboxChange, true);
         if (aPeriod.listItem) {
@@ -117,8 +113,7 @@ function removePeriodListItem(aPeriod) {
  *
  * @param event     The DOM event that triggered the checkbox state change.
  */
-agendaListbox.onCheckboxChange =
-function onCheckboxChange(event) {
+agendaListbox.onCheckboxChange = function(event) {
     let periodCheckbox = event.target;
     let lopen = (periodCheckbox.getAttribute("checked") == "true");
     let listItem = getParentNodeOrThis(periodCheckbox, "agenda-checkbox-richlist-item");
@@ -153,8 +148,7 @@ function onCheckboxChange(event) {
  *
  * @param aListItem     The agenda-base-richlist-item that was selected.
  */
-agendaListbox.onSelect =
-function onSelect(aListItem) {
+agendaListbox.onSelect = function(aListItem) {
     let listbox = document.getElementById("agenda-listbox");
     let item = aListItem || listbox.selectedItem;
     if (aListItem) {
@@ -166,16 +160,14 @@ function onSelect(aListItem) {
 /**
  * Handler function called when the agenda listbox becomes focused
  */
-agendaListbox.onFocus =
-function onFocus() {
+agendaListbox.onFocus = function() {
     calendarController.onSelectionChanged({ detail: agendaListbox.getSelectedItems() });
 };
 
 /**
  * Handler function called when the agenda listbox loses focus.
  */
-agendaListbox.onBlur =
-function onBlur() {
+agendaListbox.onBlur = function() {
     calendarController.onSelectionChanged({ detail: [] });
 };
 
@@ -183,8 +175,7 @@ function onBlur() {
 /**
  * Handler function called when a key was pressed on the agenda listbox
  */
-agendaListbox.onKeyPress =
-function onKeyPress(aEvent) {
+agendaListbox.onKeyPress = function(aEvent) {
     let listItem = aEvent.target;
     if (listItem.localName == "richlistbox") {
         listItem = listItem.selectedItem;
@@ -214,8 +205,7 @@ function onKeyPress(aEvent) {
 /**
  * Calls the event dialog to edit the currently selected item
  */
-agendaListbox.editSelectedItem =
-function editSelectedItem() {
+agendaListbox.editSelectedItem = function() {
     let listItem = document.getElementById("agenda-listbox").selectedItem;
     if (listItem) {
         modifyEventWithDialog(listItem.occurrence, null, true);
@@ -228,8 +218,7 @@ function editSelectedItem() {
  *
  * @param aItem     The item to find the period for.
  */
-agendaListbox.findPeriodsForItem =
-function findPeriodsForItem(aItem) {
+agendaListbox.findPeriodsForItem = function(aItem) {
     let retPeriods = [];
     for (let i = 0; i < this.periods.length; i++) {
         if (this.periods[i].open) {
@@ -244,8 +233,7 @@ function findPeriodsForItem(aItem) {
 /**
  * Gets the start of the earliest period shown in the agenda listbox
  */
-agendaListbox.getStart =
-function getStart() {
+agendaListbox.getStart = function() {
     let retStart = null;
     for (let i = 0; i < this.periods.length; i++) {
         if (this.periods[i].open) {
@@ -259,8 +247,7 @@ function getStart() {
 /**
  * Gets the end of the latest period shown in the agenda listbox
  */
-agendaListbox.getEnd =
-function getEnd() {
+agendaListbox.getEnd = function() {
     let retEnd = null;
     for (let i = this.periods.length - 1; i >= 0; i--) {
         if (this.periods[i].open) {
@@ -280,8 +267,7 @@ function getEnd() {
  * @param visible       If true, the item should be visible.
  * @return              The newly created XUL element.
  */
-agendaListbox.addItemBefore =
-function addItemBefore(aNewItem, aAgendaItem, aPeriod, visible) {
+agendaListbox.addItemBefore = function(aNewItem, aAgendaItem, aPeriod, visible) {
     let newelement = null;
     if (aNewItem.startDate.isDate) {
         newelement = createXULElement("agenda-allday-richlist-item");
@@ -308,8 +294,7 @@ function addItemBefore(aNewItem, aAgendaItem, aPeriod, visible) {
  * @param aItem         The calIItemBase to add.
  * @return              The newly created XUL element.
  */
-agendaListbox.addItem =
-function addItem(aItem) {
+agendaListbox.addItem = function(aItem) {
     if (!isEvent(aItem)) {
         return null;
     }
@@ -363,8 +348,7 @@ function addItem(aItem) {
  * @param aPeriod       The period where the items are inserted.
  * @return              True, if the aItem happens before aCompItem.
  */
-agendaListbox.isBefore =
-function isBefore(aItem, aCompItem, aPeriod) {
+agendaListbox.isBefore = function(aItem, aCompItem, aPeriod) {
     let itemDate = this.comparisonDate(aItem, aPeriod);
     let compItemDate = this.comparisonDate(aCompItem, aPeriod);
     let itemDateEndDate = itemDate.clone();
@@ -416,8 +400,7 @@ function isBefore(aItem, aCompItem, aPeriod) {
  * @param aPeriod       The period where the item is inserted.
  * @return              The start or end date of the item showed in the agenda.
  */
-agendaListbox.comparisonDate =
-function comparisonDate(aItem, aPeriod) {
+agendaListbox.comparisonDate = function(aItem, aPeriod) {
     let periodStartDate = aPeriod.start.clone();
     periodStartDate.isDate = true;
     let periodEndDate = aPeriod.end.clone();
@@ -455,8 +438,7 @@ function comparisonDate(aItem, aPeriod) {
  * @param aPeriod       (optional) the period to search in.
  * @return              An array of list items for the given item.
  */
-agendaListbox.getListItems =
-function getListItems(aItem, aPeriod) {
+agendaListbox.getListItems = function(aItem, aPeriod) {
     let retlistItems = [];
     let periods = [aPeriod];
     if (!aPeriod) {
@@ -490,8 +472,7 @@ function getListItems(aItem, aPeriod) {
  *                            sibling that is not an period item.
  * @return                  Returns true if the removed item was selected.
  */
-agendaListbox.deleteItem =
-function deleteItem(aItem, aMoveSelection) {
+agendaListbox.deleteItem = function(aItem, aMoveSelection) {
     let isSelected = false;
     let listItems = this.getListItems(aItem);
     if (listItems.length > 0) {
@@ -515,8 +496,7 @@ function deleteItem(aItem, aMoveSelection) {
  *
  * @param aCalendar         The item to compare.
  */
-agendaListbox.deleteItemsFromCalendar =
-function deleteItemsFromCalendar(aCalendar) {
+agendaListbox.deleteItemsFromCalendar = function(aCalendar) {
     let childNodes = Array.from(this.agendaListboxControl.childNodes);
     for (let childNode of childNodes) {
         if (childNode && childNode.occurrence &&
@@ -534,8 +514,7 @@ function deleteItemsFromCalendar(aCalendar) {
  * @param aCompItem     The item to compare with.
  * @return              True, if the items match with the above noted criteria.
  */
-agendaListbox.isSameEvent =
-function isSameEvent(aItem, aCompItem) {
+agendaListbox.isSameEvent = function(aItem, aCompItem) {
     return aItem.id == aCompItem.id &&
            aItem[calGetStartDateProp(aItem)].compare(aCompItem[calGetStartDateProp(aCompItem)]) == 0;
 };
@@ -546,8 +525,7 @@ function isSameEvent(aItem, aCompItem) {
  *
  * @return              True, if the node is not a period item.
  */
-agendaListbox.isEventSelected =
-function isEventSelected() {
+agendaListbox.isEventSelected = function() {
     let listItem = this.agendaListboxControl.selectedItem;
     if (listItem) {
         return this.isEventListItem(listItem);
@@ -560,8 +538,7 @@ function isEventSelected() {
  *
  * @param aDoNotConfirm     If true, the user will not be prompted.
  */
-agendaListbox.deleteSelectedItem =
-function deleteSelectedItem(aDoNotConfirm) {
+agendaListbox.deleteSelectedItem = function(aDoNotConfirm) {
     let listItem = this.agendaListboxControl.selectedItem;
     if (this.isEventListItem(listItem)) {
         let selectedItems = [listItem.occurrence];
@@ -578,8 +555,7 @@ function deleteSelectedItem(aDoNotConfirm) {
  *
  * @param aEvent            The DOM event that targets the period.
  */
-agendaListbox.createNewEvent =
-function createNewEvent(aEvent) {
+agendaListbox.createNewEvent = function(aEvent) {
     if (!this.isEventListItem(aEvent.target)) {
         // Create new event for the date currently displayed in the agenda. Setting
         // isDate = true automatically makes the start time be the next full hour.
@@ -596,8 +572,7 @@ function createNewEvent(aEvent) {
  *
  * @param popup         The <menupopup> element to set up.
  */
-agendaListbox.setupContextMenu =
-function setupContextMenu(popup) {
+agendaListbox.setupContextMenu = function(popup) {
     let listItem = this.agendaListboxControl.selectedItem;
     let enabled = this.isEventListItem(listItem);
     let menuitems = popup.childNodes;
@@ -619,8 +594,7 @@ function setupContextMenu(popup) {
  * @param aCalendar     (optional) If specified, the single calendar from
  *                                   which the refresh will occur.
  */
-agendaListbox.refreshCalendarQuery =
-function refreshCalendarQuery(aStart, aEnd, aCalendar) {
+agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
     let refreshJob = {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
         agendaListbox: this,
@@ -709,8 +683,7 @@ function refreshCalendarQuery(aStart, aEnd, aCalendar) {
 /**
  * Sets up the calendar for the agenda listbox.
  */
-agendaListbox.setupCalendar =
-function setupCalendar() {
+agendaListbox.setupCalendar = function() {
     this.init();
     if (this.calendar == null) {
         this.calendar = getCompositeCalendar();
@@ -734,8 +707,7 @@ function setupCalendar() {
  * @param newDate       The first date to show if the agenda pane doesn't show
  *                        today.
  */
-agendaListbox.refreshPeriodDates =
-function refreshPeriodDates(newDate) {
+agendaListbox.refreshPeriodDates = function(newDate) {
      this.kDefaultTimezone = calendarDefaultTimezone();
     // Today: now until midnight of tonight
     let oldshowstoday = this.showstoday;
@@ -768,8 +740,7 @@ function refreshPeriodDates(newDate) {
  *
  * @param aListener     The listener to add.
  */
-agendaListbox.addListener =
-function addListener(aListener) {
+agendaListbox.addListener = function(aListener) {
     this.mListener = aListener;
 };
 
@@ -780,8 +751,7 @@ function addListener(aListener) {
  * @param aStartDate    (optional) The day to check if its "today".
  * @return              Returns true if today is shown.
  */
-agendaListbox.showsToday =
-function showsToday(aStartDate) {
+agendaListbox.showsToday = function(aStartDate) {
     let lstart = aStartDate;
     if (!lstart) {
         lstart = this.today.start;
@@ -799,8 +769,7 @@ function showsToday(aStartDate) {
  * Moves the selection. Moves down unless the next item is a period item, in
  * which case the selection moves up.
  */
-agendaListbox.moveSelection =
-function moveSelection() {
+agendaListbox.moveSelection = function() {
     if (!this.isEventListItem(this.agendaListboxControl.selectedItem.nextSibling)) {
         this.agendaListboxControl.goUp();
     } else {
@@ -814,8 +783,7 @@ function moveSelection() {
  *
  * @return      An array with all selected items.
  */
-agendaListbox.getSelectedItems =
-function getSelectedItems() {
+agendaListbox.getSelectedItems = function() {
     let items = [];
     if (this.isEventListItem(this.agendaListboxControl.selectedItem)) {
         // If at some point we support selecting multiple items, this array can
@@ -832,8 +800,7 @@ function getSelectedItems() {
  * @param aListItem     The node to check for.
  * @return              True, if the node is not a period item.
  */
-agendaListbox.isEventListItem =
-function isEventListItem(aListItem) {
+agendaListbox.isEventListItem = function(aListItem) {
     let isListItem = (aListItem != null);
     if (isListItem) {
         let localName = aListItem.localName;
@@ -846,8 +813,7 @@ function isEventListItem(aListItem) {
 /**
  * Removes all Event items, keeping the period items intact.
  */
-agendaListbox.removeListItems =
-function removeListItems() {
+agendaListbox.removeListItems = function() {
     let listItem = this.agendaListboxControl.lastChild;
     if (listItem) {
         let leaveloop = false;
@@ -875,8 +841,7 @@ function removeListItems() {
  *
  * @return The XUL node if successful, otherwise null.
  */
-agendaListbox.getListItemByHashId =
-function getListItemByHashId(ahashId) {
+agendaListbox.getListItemByHashId = function(ahashId) {
     let listItem = this.agendaListboxControl.firstChild;
     let leaveloop = false;
     do {
@@ -908,8 +873,7 @@ agendaListbox.calendarObserver = {
     agendaListbox: agendaListbox
 };
 
-agendaListbox.calendarObserver.QueryInterface =
-function agenda_QI(aIID) {
+agendaListbox.calendarObserver.QueryInterface = function(aIID) {
     if (!aIID.equals(Components.interfaces.calIObserver) &&
         !aIID.equals(Components.interfaces.calICompositeObserver) &&
         !aIID.equals(Components.interfaces.nsISupports)) {
@@ -919,18 +883,17 @@ function agenda_QI(aIID) {
 };
 
 // calIObserver:
-agendaListbox.calendarObserver.onStartBatch = function agenda_onBatchStart() {
+agendaListbox.calendarObserver.onStartBatch = function() {
 };
 
-agendaListbox.calendarObserver.onEndBatch =
-function() {
+agendaListbox.calendarObserver.onEndBatch = function() {
 };
 
 agendaListbox.calendarObserver.onLoad = function() {
     this.agendaListbox.refreshCalendarQuery();
 };
 
-agendaListbox.calendarObserver.onAddItem = function observer_onAddItem(item) {
+agendaListbox.calendarObserver.onAddItem = function(item) {
     if (!isEvent(item)) {
         return;
     }
@@ -940,8 +903,7 @@ agendaListbox.calendarObserver.onAddItem = function observer_onAddItem(item) {
     setCurrentEvent();
 };
 
-agendaListbox.calendarObserver.getOccurrencesBetween =
-function getOccurrencesBetween(aItem) {
+agendaListbox.calendarObserver.getOccurrencesBetween = function(aItem) {
     let occs = [];
     let start = this.agendaListbox.getStart();
     let end = this.agendaListbox.getEnd();
@@ -951,13 +913,11 @@ function getOccurrencesBetween(aItem) {
     return occs;
 };
 
-agendaListbox.calendarObserver.onDeleteItem =
-function observer_onDeleteItem(item, rebuildFlag) {
+agendaListbox.calendarObserver.onDeleteItem = function(item, rebuildFlag) {
     this.onLocalDeleteItem(item, true);
 };
 
-agendaListbox.calendarObserver.onLocalDeleteItem =
-function observer_onLocalDeleteItem(item, moveSelection) {
+agendaListbox.calendarObserver.onLocalDeleteItem = function(item, moveSelection) {
     if (!isEvent(item)) {
         return false;
     }
@@ -973,8 +933,7 @@ function observer_onLocalDeleteItem(item, moveSelection) {
     return selectedItemHashId;
 };
 
-agendaListbox.calendarObserver.onModifyItem =
-function observer_onModifyItem(newItem, oldItem) {
+agendaListbox.calendarObserver.onModifyItem = function(newItem, oldItem) {
     let selectedItemHashId = this.onLocalDeleteItem(oldItem, false);
     if (!isEvent(newItem)) {
         return;
@@ -1018,15 +977,13 @@ agendaListbox.calendarObserver.onPropertyDeleting = function(aCalendar, aName) {
 };
 
 
-agendaListbox.calendarObserver.onCalendarRemoved =
-function agenda_calRemoved(aCalendar) {
+agendaListbox.calendarObserver.onCalendarRemoved = function(aCalendar) {
     if (!aCalendar.getProperty("disabled")) {
         this.agendaListbox.deleteItemsFromCalendar(aCalendar);
     }
 };
 
-agendaListbox.calendarObserver.onCalendarAdded =
-function agenda_calAdded(aCalendar) {
+agendaListbox.calendarObserver.onCalendarAdded = function(aCalendar) {
     if (!aCalendar.getProperty("disabled")) {
         this.agendaListbox.refreshCalendarQuery(null, null, aCalendar);
     }
@@ -1038,8 +995,7 @@ agendaListbox.calendarObserver.onDefaultCalendarChanged = function(aCalendar) {
 /**
  * Updates the "Upcoming" section of today pane when preference soondays changes
  **/
-agendaListbox.updateSoonSection =
-function updateSoonSection() {
+agendaListbox.updateSoonSection = function() {
     this.soon.duration = this.soonDays;
     this.soon.open = true;
     let soonHeader = document.getElementById("nextweek-header");

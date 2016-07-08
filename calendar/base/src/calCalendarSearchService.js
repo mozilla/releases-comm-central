@@ -16,7 +16,7 @@ calCalendarSearchListener.prototype = {
     mNumOperations: 0,
     opGroup: null,
 
-    notifyResult: function calCalendarSearchListener_notifyResult(result) {
+    notifyResult: function(result) {
         let listener = this.mFinalListener;
         if (listener) {
             if (!this.opGroup.isPending) {
@@ -27,7 +27,7 @@ calCalendarSearchListener.prototype = {
     },
 
     // calIGenericOperationListener:
-    onResult: function calCalendarSearchListener_onResult(aOperation, aResult) {
+    onResult: function(aOperation, aResult) {
         if (this.mFinalListener) {
             if (!aOperation || !aOperation.isPending) {
                 --this.mNumOperations;
@@ -65,10 +65,7 @@ calCalendarSearchService.prototype = {
     }),
 
     // calICalendarSearchProvider:
-    searchForCalendars: function calCalendarSearchService_searchForCalendars(aString,
-                                                                             aHints,
-                                                                             aMaxResults,
-                                                                             aListener) {
+    searchForCalendars: function(aString, aHints, aMaxResults, aListener) {
         let groupListener = new calCalendarSearchListener(this.mProviders.size, aListener);
         function searchForCalendars_(provider) {
             try {
@@ -86,15 +83,15 @@ calCalendarSearchService.prototype = {
     },
 
     // calICalendarSearchService:
-    getProviders: function calCalendarSearchService_getProviders(out_aCount) {
+    getProviders: function(out_aCount) {
         let ret = this.mProviders.interfaceArray;
         out_aCount.value = ret.length;
         return ret;
     },
-    addProvider: function calCalendarSearchService_addProvider(aProvider) {
+    addProvider: function(aProvider) {
         this.mProviders.add(aProvider);
     },
-    removeProvider: function calCalendarSearchService_removeProvider(aProvider) {
+    removeProvider: function(aProvider) {
         this.mProviders.remove(aProvider);
     }
 };

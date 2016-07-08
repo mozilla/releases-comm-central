@@ -65,11 +65,11 @@ calStorageCalendar.prototype = {
         return cal.calGetString("calendar", "storageName");
     },
 
-    createCalendar: function cSC_createCalendar() {
+    createCalendar: function() {
         throw NS_ERROR_NOT_IMPLEMENTED;
     },
 
-    deleteCalendar: function cSC_deleteCalendar(aCalendar, listener) {
+    deleteCalendar: function(aCalendar, listener) {
         aCalendar = aCalendar.wrappedJSObject;
 
         if (this.mDeleteEventExtras) {
@@ -136,7 +136,7 @@ calStorageCalendar.prototype = {
     // calICalendar interface
     //
 
-    getProperty: function cSC_getProperty(aName) {
+    getProperty: function(aName) {
         switch (aName) {
             case "cache.supported":
                 return false;
@@ -189,7 +189,7 @@ calStorageCalendar.prototype = {
      * Initialize the Database. This should only be called from the uri or id
      * setter and requires those two attributes to be set.
      */
-    prepareInitDB: function cSC_prepareInitDB() {
+    prepareInitDB: function() {
         if (this.uri.schemeIs("file")) {
             let fileURL = this.uri.QueryInterface(Components.interfaces.nsIFileURL);
             if (!fileURL) {
@@ -360,7 +360,7 @@ calStorageCalendar.prototype = {
         Services.obs.addObserver(this, "profile-before-change", false);
     },
 
-    observe: function cSC_observe(aSubject, aTopic, aData) {
+    observe: function(aSubject, aTopic, aData) {
         if (aTopic == "profile-before-change") {
             Services.obs.removeObserver(this, "profile-before-change");
             this.shutdownDB();
@@ -372,7 +372,7 @@ calStorageCalendar.prototype = {
      *
      * @param aStmt         The statement to prepare.
      */
-    prepareStatement: function cSC_prepareStatement(aStmt) {
+    prepareStatement: function(aStmt) {
         try {
             aStmt.params.cal_id = this.id;
             this.mLastStatement = aStmt;
@@ -388,7 +388,7 @@ calStorageCalendar.prototype = {
      * @param aIdParam      The name of the parameter refering to the item id.
      * @param aId           The id of the item.
      */
-    executeItemStatement: function cSC_executeItemStatement(aStmt, aIdParam, aId) {
+    executeItemStatement: function(aStmt, aIdParam, aId) {
         try {
             aStmt.params.cal_id = this.id;
             aStmt.params[aIdParam] = aId;
@@ -401,18 +401,18 @@ calStorageCalendar.prototype = {
         }
     },
 
-    refresh: function cSC_refresh() {
+    refresh: function() {
         // no-op
     },
 
     // void addItem( in calIItemBase aItem, in calIOperationListener aListener );
-    addItem: function cSC_addItem(aItem, aListener) {
+    addItem: function(aItem, aListener) {
         let newItem = aItem.clone();
         return this.adoptItem(newItem, aListener);
     },
 
     // void adoptItem( in calIItemBase aItem, in calIOperationListener aListener );
-    adoptItem: function cSC_adoptItem(aItem, aListener) {
+    adoptItem: function(aItem, aListener) {
         if (this.readOnly) {
             this.notifyOperationComplete(aListener,
                                          Components.interfaces.calIErrors.CAL_IS_READONLY,
@@ -465,7 +465,7 @@ calStorageCalendar.prototype = {
 
     // void modifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem, in calIOperationListener aListener );
     // Actually uses doModifyItem
-    modifyItem: function cSC_modifyItem(aNewItem, aOldItem, aListener) {
+    modifyItem: function(aNewItem, aOldItem, aListener) {
         let self = this;
 
         // HACK Just modifying the item would clear the offline flag, we need to
@@ -480,7 +480,7 @@ calStorageCalendar.prototype = {
         this.getItemOfflineFlag(aOldItem, offlineJournalFlagListener);
     },
 
-    doModifyItem: function cSC_doModifyItem(aNewItem, aOldItem, aListener, offlineFlag) {
+    doModifyItem: function(aNewItem, aOldItem, aListener, offlineFlag) {
         let oldOfflineFlag = offlineFlag;
         if (this.readOnly) {
             this.notifyOperationComplete(aListener,
@@ -576,7 +576,7 @@ calStorageCalendar.prototype = {
     },
 
     // void deleteItem( in string id, in calIOperationListener aListener );
-    deleteItem: function cSC_deleteItem(aItem, aListener) {
+    deleteItem: function(aItem, aListener) {
         if (this.readOnly) {
             this.notifyOperationComplete(aListener,
                                          Components.interfaces.calIErrors.CAL_IS_READONLY,
@@ -614,7 +614,7 @@ calStorageCalendar.prototype = {
     },
 
     // void getItem( in string id, in calIOperationListener aListener );
-    getItem: function cSC_getItem(aId, aListener) {
+    getItem: function(aId, aListener) {
         if (!aListener) {
             return;
         }
@@ -659,14 +659,12 @@ calStorageCalendar.prototype = {
     // void getItems( in unsigned long aItemFilter, in unsigned long aCount,
     //                in calIDateTime aRangeStart, in calIDateTime aRangeEnd,
     //                in calIOperationListener aListener );
-    getItems: function cSC_getItems(aItemFilter, aCount,
-                                    aRangeStart, aRangeEnd, aListener) {
+    getItems: function(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
         cal.postPone(() => {
             this.getItems_(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener);
         });
     },
-    getItems_: function cSC_getItems_(aItemFilter, aCount,
-                                      aRangeStart, aRangeEnd, aListener) {
+    getItems_: function(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
         if (!aListener) {
             return;
         }
@@ -942,7 +940,7 @@ calStorageCalendar.prototype = {
                                      null);
     },
 
-    getItemOfflineFlag: function cSC_getOfflineJournalFlag(aItem, aListener) {
+    getItemOfflineFlag: function(aItem, aListener) {
         let flag = null;
         if (!aItem) {
             // It is possible that aItem can be null, flag provided should be null in this case
@@ -978,7 +976,7 @@ calStorageCalendar.prototype = {
         }
     },
 
-    setOfflineJournalFlag: function cSC_setOfflineJournalFlag(aItem, flag) {
+    setOfflineJournalFlag: function(aItem, flag) {
         let aID = aItem.id;
         if (cal.isEvent(aItem)) {
             this.prepareStatement(this.mEditEventOfflineFlag);
@@ -1088,7 +1086,7 @@ calStorageCalendar.prototype = {
     // database initialization
     // assumes mDB is valid
 
-    initDB: function cSC_initDB() {
+    initDB: function() {
         cal.ASSERT(this.mDB, "Database has not been opened!", true);
 
         try {
@@ -1429,7 +1427,7 @@ calStorageCalendar.prototype = {
         }
     },
 
-    shutdownDB: function cSC_shutdownDB() {
+    shutdownDB: function() {
         try {
             if (this.mDeleteAlarms) { this.mDeleteAlarms.finalize(); }
             if (this.mDeleteAllEvents) { this.mDeleteAllEvents.finalize(); }
@@ -1494,7 +1492,7 @@ calStorageCalendar.prototype = {
 
     // read in the common ItemBase attributes from aDBRow, and stick
     // them on item
-    getItemBaseFromRow: function cSC_getItemBaseFromRow(row, flags, item) {
+    getItemBaseFromRow: function(row, flags, item) {
         item.calendar = this.superCalendar;
         item.id = row.id;
         if (row.title) {
@@ -1537,7 +1535,7 @@ calStorageCalendar.prototype = {
         }
     },
 
-    cacheItem: function cSC_cacheItem(item) {
+    cacheItem: function(item) {
         this.mItemCache[item.id] = item;
         if (item.recurrenceInfo) {
             if (cal.isEvent(item)) {
@@ -1550,7 +1548,7 @@ calStorageCalendar.prototype = {
 
     mRecEventCacheOfflineFlags: {},
     mRecTodoCacheOfflineFlags: {},
-    assureRecurringItemCaches: function cSC_assureRecurringItemCaches() {
+    assureRecurringItemCaches: function() {
         if (this.mRecItemCacheInited) {
             return;
         }
@@ -1590,7 +1588,7 @@ calStorageCalendar.prototype = {
     },
 
     // xxx todo: consider removing flags parameter
-    getEventFromRow: function cSC_getEventFromRow(row, flags, isException) {
+    getEventFromRow: function(row, flags, isException) {
         let item;
         if (!isException) { // only parent items are cached
             item = this.mItemCache[row.id];
@@ -1626,7 +1624,7 @@ calStorageCalendar.prototype = {
         return item;
     },
 
-    getTodoFromRow: function cSC_getTodoFromRow(row, flags, isException) {
+    getTodoFromRow: function(row, flags, isException) {
         let item;
         if (!isException) { // only parent items are cached
             item = this.mItemCache[row.id];
@@ -1670,7 +1668,7 @@ calStorageCalendar.prototype = {
     // We used to use mDBTwo for this, so this can be run while a
     // select is executing but this no longer seems to be required.
 
-    getAdditionalDataForItem: function cSC_getAdditionalDataForItem(item, flags) {
+    getAdditionalDataForItem: function(item, flags) {
         // This is needed to keep the modification time intact.
         let savedLastModifiedTime = item.lastModifiedTime;
 
@@ -1880,7 +1878,7 @@ calStorageCalendar.prototype = {
         item.setProperty("LAST-MODIFIED", savedLastModifiedTime);
     },
 
-    getRecurrenceItemFromRow: function cSC_getRecurrenceItemFromRow(row, item) {
+    getRecurrenceItemFromRow: function(row, item) {
         let prop = cal.getIcsService().createIcalPropertyFromString(row.icalString);
         switch (prop.propertyName) {
             case "RDATE":
@@ -1903,7 +1901,7 @@ calStorageCalendar.prototype = {
     //
     // get item from db or from cache with given iid
     //
-    getItemById: function cSC_getItemById(aID) {
+    getItemById: function(aID) {
         this.assureRecurringItemCaches();
 
         // cached?
@@ -1950,7 +1948,7 @@ calStorageCalendar.prototype = {
     // database writing functions
     //
 
-    setDateParamHelper: function cSC_setDateParamHelper(params, entryname, cdt) {
+    setDateParamHelper: function(params, entryname, cdt) {
         if (cdt) {
             params[entryname] = cdt.nativeTime;
             let tz = cdt.timezone;
@@ -1968,7 +1966,7 @@ calStorageCalendar.prototype = {
         }
     },
 
-    flushItem: function cSC_flushItem(item, olditem) {
+    flushItem: function(item, olditem) {
         ASSERT(!item.recurrenceId, "no parent item passed!", true);
 
         try {
@@ -1991,7 +1989,7 @@ calStorageCalendar.prototype = {
     // to writeEvent/writeTodo to actually do the writing.
     //
 
-    writeItem: function cSC_writeItem(item, olditem) {
+    writeItem: function(item, olditem) {
         let flags = 0;
 
         flags |= this.writeAttendees(item, olditem);
@@ -2010,7 +2008,7 @@ calStorageCalendar.prototype = {
         }
     },
 
-    writeEvent: function cSC_writeEvent(item, olditem, flags) {
+    writeEvent: function(item, olditem, flags) {
         try {
             this.prepareStatement(this.mInsertEvent);
             let ip = this.mInsertEvent.params;
@@ -2035,7 +2033,7 @@ calStorageCalendar.prototype = {
         }
     },
 
-    writeTodo: function cSC_writeTodo(item, olditem, flags) {
+    writeTodo: function(item, olditem, flags) {
         try {
             this.prepareStatement(this.mInsertTodo);
             let ip = this.mInsertTodo.params;
@@ -2065,7 +2063,7 @@ calStorageCalendar.prototype = {
         }
     },
 
-    setupItemBaseParams: function cSC_setupItemBaseParams(item, olditem, ip) {
+    setupItemBaseParams: function(item, olditem, ip) {
         ip.id = item.id;
 
         if (item.recurrenceId) {
@@ -2091,7 +2089,7 @@ calStorageCalendar.prototype = {
         }
     },
 
-    writeAttendees: function cSC_writeAttendees(item, olditem) {
+    writeAttendees: function(item, olditem) {
         let attendees = item.getAttendees({});
         if (item.organizer) {
             attendees = attendees.concat([]);
@@ -2117,7 +2115,7 @@ calStorageCalendar.prototype = {
         return 0;
     },
 
-    writeProperty: function cSC_writeProperty(item, propName, propValue) {
+    writeProperty: function(item, propName, propValue) {
         try {
             this.prepareStatement(this.mInsertProperty);
             let pp = this.mInsertProperty.params;
@@ -2145,7 +2143,7 @@ calStorageCalendar.prototype = {
         }
     },
 
-    writeProperties: function cSC_writeProperties(item, olditem) {
+    writeProperties: function(item, olditem) {
         let ret = 0;
         let propEnumerator = item.propertyEnumerator;
         while (propEnumerator.hasMoreElements()) {
@@ -2166,7 +2164,7 @@ calStorageCalendar.prototype = {
         return ret;
     },
 
-    writeRecurrence: function cSC_writeRecurrence(item, olditem) {
+    writeRecurrence: function(item, olditem) {
         let flags = 0;
 
         let rec = item.recurrenceInfo;
@@ -2207,7 +2205,7 @@ calStorageCalendar.prototype = {
         return flags;
     },
 
-    writeAttachments: function cSC_writeAttachments(item, olditem) {
+    writeAttachments: function(item, olditem) {
         let attachments = item.getAttachments({});
         if (attachments && attachments.length > 0) {
             for (let att of attachments) {
@@ -2228,7 +2226,7 @@ calStorageCalendar.prototype = {
         return 0;
     },
 
-    writeRelations: function cSC_writeRelations(item, olditem) {
+    writeRelations: function(item, olditem) {
         let relations = item.getRelations({});
         if (relations && relations.length > 0) {
             for (let rel of relations) {
@@ -2249,7 +2247,7 @@ calStorageCalendar.prototype = {
         return 0;
     },
 
-    writeAlarms: function cSC_writeAlarms(item, olditem) {
+    writeAlarms: function(item, olditem) {
         let alarms = item.getAlarms({});
         if (alarms.length < 1) {
             return 0;
@@ -2279,7 +2277,7 @@ calStorageCalendar.prototype = {
      * @param aID           The id of the item to delete.
      * @param aIsModify     If true, then leave in metadata for the item
      */
-    deleteItemById: function cSC_deleteItemById(aID, aIsModify) {
+    deleteItemById: function(aID, aIsModify) {
         this.acquireTransaction();
         try {
             this.executeItemStatement(this.mDeleteAttendees, "item_id", aID);
@@ -2307,7 +2305,7 @@ calStorageCalendar.prototype = {
     /**
      * Acquire a transaction for this calendar.
      */
-    acquireTransaction: function cSC_acquireTransaction() {
+    acquireTransaction: function() {
         this.mDB.beginTransaction();
     },
 
@@ -2317,7 +2315,7 @@ calStorageCalendar.prototype = {
      * @param err       (optional) If set, the transaction is set to fail when
      *                    the count reaches zero.
      */
-    releaseTransaction: function cSC_releaseTransaction(err) {
+    releaseTransaction: function(err) {
         if (err) {
             cal.ERROR("[calStorageCalendar] DB error: " + this.mDB.lastErrorString + "\nexc: " + err);
             this.mDB.rollbackTransaction();
@@ -2330,7 +2328,7 @@ calStorageCalendar.prototype = {
     // calISyncWriteCalendar interface
     //
 
-    setMetaData: function cSC_setMetaData(id, value) {
+    setMetaData: function(id, value) {
         this.executeItemStatement(this.mDeleteMetaData, "item_id", id);
         try {
             this.prepareStatement(this.mInsertMetaData);
@@ -2352,11 +2350,11 @@ calStorageCalendar.prototype = {
         }
     },
 
-    deleteMetaData: function cSC_deleteMetaData(id) {
+    deleteMetaData: function(id) {
         this.executeItemStatement(this.mDeleteMetaData, "item_id", id);
     },
 
-    getMetaData: function cSC_getMetaData(id) {
+    getMetaData: function(id) {
         let query = this.mSelectMetaData;
         let value = null;
         try {
@@ -2375,9 +2373,7 @@ calStorageCalendar.prototype = {
         return value;
     },
 
-    getAllMetaData: function cSC_getAllMetaData(out_count,
-                                                 out_ids,
-                                                 out_values) {
+    getAllMetaData: function(out_count, out_ids, out_values) {
         let query = this.mSelectAllMetaData;
         try {
             this.prepareStatement(query);
@@ -2404,7 +2400,7 @@ calStorageCalendar.prototype = {
      * @param message           Error message to log.
      * @param exception         Exception that caused the error.
      */
-    logError: function cSC_logError(message, exception) {
+    logError: function(message, exception) {
         let logMessage = "Message: " + message;
         if (this.mDB) {
             if (this.mDB.connectionReady) {
@@ -2444,7 +2440,7 @@ calStorageCalendar.prototype = {
     /**
      * propagate the given sequence in exceptions. It may be needed by some calendar implementations
      */
-    _propagateSequence: function cSC__propagateSequence(aItem, newSequence) {
+    _propagateSequence: function(aItem, newSequence) {
         if (newSequence) {
             aItem.setProperty("SEQUENCE", newSequence);
         } else {

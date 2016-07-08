@@ -5,13 +5,13 @@
 var common_onLoad = onLoad;
 var common_onAcceptDialog = onAcceptDialog;
 
-onLoad = function ltn_onLoad() {
+onLoad = function() {
     gCalendar = window.arguments[0].calendar;
     ltnInitMailIdentitiesRow();
     common_onLoad();
 };
 
-onAcceptDialog = function ltn_onAcceptDialog() {
+onAcceptDialog = function() {
     ltnSaveMailIdentitySelection();
     return common_onAcceptDialog();
 };

@@ -37,7 +37,7 @@ calWcapCalendar.prototype = {
         interfaces: calWcapCalendarInterfaces
     }),
 
-    toString: function calWcapCalendar_toString() {
+    toString: function() {
         let str = this.session.toString();
         if (this.m_calId) {
             str += ", calId=" + this.calId;
@@ -47,7 +47,7 @@ calWcapCalendar.prototype = {
         return str;
     },
 
-    notifyError_: function calWcapCalendar_notifyError_(err, msg, context) {
+    notifyError_: function(err, msg, context) {
         let rc = getResultCode(err);
         switch (rc) {
             case calIWcapErrors.WCAP_COMPONENT_NOT_FOUND:
@@ -64,7 +64,7 @@ calWcapCalendar.prototype = {
             ? [err.result, err.message]
             : [isNaN(err) ? Components.results.NS_ERROR_FAILURE : err, msg]);
     },
-    notifyError: function calWcapCalendar_notifyError(err, msg) {
+    notifyError: function(err, msg) {
         this.notifyError_(err, msg, this);
     },
 
@@ -73,13 +73,13 @@ calWcapCalendar.prototype = {
         return null;
     },
     // displayName attribute already part of calIWcapCalendar
-    createCalendar: function calWcapCalendar_createCalendar(name, url, listener) {
+    createCalendar: function(name, url, listener) {
         throw NS_ERROR_NOT_IMPLEMENTED;
     },
-    deleteCalendar: function calWcapCalendar_deleteCalendar(calendar, listener) {
+    deleteCalendar: function(calendar, listener) {
         throw NS_ERROR_NOT_IMPLEMENTED;
     },
-    getCalendar: function calWcapCalendar_getCalendar(url) {
+    getCalendar: function(url) {
         throw NS_ERROR_NOT_IMPLEMENTED;
     },
 
@@ -119,7 +119,7 @@ calWcapCalendar.prototype = {
         return this.uri;
     },
 
-    getProperty: function calWcapCalendar_getProperty(aName) {
+    getProperty: function(aName) {
         switch (aName) {
             case "cache.supported":
                 return true;
@@ -165,7 +165,7 @@ calWcapCalendar.prototype = {
         return value;
     },
 
-    setProperty: function calWcapCalendar_setProperty(aName, aValue) {
+    setProperty: function(aName, aValue) {
         switch (aName) {
             case "disabled":
                 if (this.isDefaultCalendar) {
@@ -184,7 +184,7 @@ calWcapCalendar.prototype = {
         }
     },
 
-    notifyObservers: function calWcapCalendar_notifyObservers(func, args) {
+    notifyObservers: function(func, args) {
         if (g_bShutdown) {
             return;
         }
@@ -192,17 +192,17 @@ calWcapCalendar.prototype = {
     },
 
     // xxx todo: batch currently not used
-    startBatch: function calWcapCalendar_startBatch() {
+    startBatch: function() {
         this.notifyObservers("onStartBatch");
     },
-    endBatch: function calWcapCalendar_endBatch() {
+    endBatch: function() {
         this.notifyObservers("onEndBatch");
     },
 
     get canRefresh() {
         return true;
     },
-    refresh: function calWcapCalendar_refresh() {
+    refresh: function() {
         log("refresh.", this);
         // invalidate cached results:
         delete this.m_cachedResults;
@@ -210,7 +210,7 @@ calWcapCalendar.prototype = {
         this.notifyObservers("onLoad", [this]);
     },
 
-    issueNetworkRequest: function calWcapCalendar_issueNetworkRequest(
+    issueNetworkRequest: function(
               request, respFunc, dataConvFunc, wcapCommand, params, accessRights) {
         let self = this;
         // - bootstrap problem: no cal_props, no access check, no default calId
@@ -218,7 +218,7 @@ calWcapCalendar.prototype = {
         // - every subscribed calendar will come along with cal_props
         return this.session.getSessionId(
             request,
-            function getSessionId_resp(err, sessionId) {
+            function(err, sessionId) {
                 try {
                     if (err) {
                         throw err;
@@ -295,7 +295,7 @@ calWcapCalendar.prototype = {
     },
 
     m_calProps: null,
-    getCalendarProperties: function calWcapCalendar_getCalendarProperties(propName, out_count) {
+    getCalendarProperties: function(propName, out_count) {
         if (!this.m_calProps) {
             log("soft error: no calprops available, most possibly not logged in.", this);
         }
@@ -318,7 +318,7 @@ calWcapCalendar.prototype = {
         }
     },
 
-    getAlignedTzid: function calWcapCalendar_getAlignedTzid(tz) {
+    getAlignedTzid: function(tz) {
         let tzid = tz.tzid;
         // check whether it is one cs supports:
         if (tz.isFloating || !this.session.getTimezone(tzid)) {
@@ -335,7 +335,7 @@ calWcapCalendar.prototype = {
         return tzid;
     },
 
-    checkAccess: function calWcapCalendar_checkAccess(accessControlBits) {
+    checkAccess: function(accessControlBits) {
         // xxx todo: take real acl into account
         // for now, optimistically assuming that everybody has full access, server will check:
         let granted = calIWcapCalendar.AC_FULL;
@@ -347,7 +347,7 @@ calWcapCalendar.prototype = {
         return ((accessControlBits & granted) == accessControlBits);
     },
 
-    assureAccess: function calWcapCalendar_assureAccess(accessControlBits) {
+    assureAccess: function(accessControlBits) {
         if (!this.checkAccess(accessControlBits & (calIWcapCalendar.AC_COMP_WRITE |
                                                    calIWcapCalendar.AC_PROP_WRITE))) {
             // throw different error code for read-only:
@@ -362,16 +362,15 @@ calWcapCalendar.prototype = {
         }
     },
 
-    defineAccessControl: function calWcapCalendar_defineAccessControl(userId, accessControlBits) {
+    defineAccessControl: function(userId, accessControlBits) {
         throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
     },
 
-    resetAccessControl: function calWcapCalendar_resetAccessControl(userId) {
+    resetAccessControl: function(userId) {
         throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
     },
 
-    getAccessControlDefinitions: function calWcapCalendar_getAccessControlDefinitions(out_count, out_users,
-                                                                                      out_accessControlBits) {
+    getAccessControlDefinitions: function(out_count, out_users, out_accessControlBits) {
         throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
     }
 };

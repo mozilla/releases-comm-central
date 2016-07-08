@@ -27,7 +27,7 @@ var calendarTabMonitor = {
     onTabPersist: function() {},
     onTabRestored: function() {},
 
-    onTabSwitched: function onTabSwitched(aNewTab, aOldTab) {
+    onTabSwitched: function(aNewTab, aOldTab) {
         // Unfortunately, tabmail doesn't provide a hideTab function on the tab
         // type definitions. To make sure the commands are correctly disabled,
         // we want to update calendar/task commands when switching away from
@@ -651,11 +651,7 @@ var gInvitationsOperationListener = {
     mCount: 0,
 
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
-    onOperationComplete: function sBOL_onOperationComplete(aCalendar,
-                                                           aStatus,
-                                                           aOperationType,
-                                                           aId,
-                                                           aDetail) {
+    onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
         let invitationsBox = document.getElementById("calendar-invitations-panel");
         if (Components.isSuccessCode(aStatus)) {
             let value = ltnGetString("lightning", "invitationsLink.label", [this.mCount]);
@@ -667,12 +663,7 @@ var gInvitationsOperationListener = {
         this.mCount = 0;
     },
 
-    onGetResult: function sBOL_onGetResult(aCalendar,
-                                           aStatus,
-                                           aItemType,
-                                           aDetail,
-                                           aCount,
-                                           aItems) {
+    onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
         if (Components.isSuccessCode(aStatus)) {
             this.mCount += aCount;
         }
@@ -684,15 +675,15 @@ var gInvitationsCalendarManagerObserver = {
 
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICalendarManagerObserver]),
 
-    onCalendarRegistered: function cMO_onCalendarRegistered(aCalendar) {
+    onCalendarRegistered: function(aCalendar) {
         this.mSideBar.rescheduleInvitationsUpdate(FIRST_DELAY_REGISTER);
     },
 
-    onCalendarUnregistering: function cMO_onCalendarUnregistering(aCalendar) {
+    onCalendarUnregistering: function(aCalendar) {
         this.mSideBar.rescheduleInvitationsUpdate(FIRST_DELAY_UNREGISTER);
     },
 
-    onCalendarDeleting: function cMO_onCalendarDeleting(aCalendar) {
+    onCalendarDeleting: function(aCalendar) {
     }
 };
 
@@ -712,9 +703,7 @@ function openInvitationsDialog() {
     gInvitationsOperationListener.mCount = 0;
     getInvitationsManager().openInvitationsDialog(
         gInvitationsOperationListener,
-        function oiD_callback() {
-            scheduleInvitationsUpdate(FIRST_DELAY_RESCHEDULE);
-        });
+        () => scheduleInvitationsUpdate(FIRST_DELAY_RESCHEDULE));
 }
 
 /**
@@ -783,7 +772,7 @@ function ltnSwitch2Task() {
 }
 
 var gCalSetupMailContext = {
-    popup: function gCalSetupMailContext_popup() {
+    popup: function() {
         let hasSelection = (gFolderDisplay.selectedMessage != null);
         // Disable the convert menu altogether.
         setElementValue("mailContext-calendar-convert-menu",

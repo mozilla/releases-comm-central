@@ -14,7 +14,7 @@ var gCalendarGeneralPane = {
      * Initialize the general pref pane. Sets up dialog controls to match the
      * values set in prefs.
      */
-    init: function gCGP_init() {
+    init: function() {
         let df = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
                     .getService(Components.interfaces.calIDateTimeFormatter);
 
@@ -64,7 +64,7 @@ var gCalendarGeneralPane = {
         this.initializeTodaypaneMenu();
     },
 
-    updateDefaultTodoDates: function gCGP_updateDefaultTodoDates() {
+    updateDefaultTodoDates: function() {
         let defaultDue = document.getElementById("default_task_due").value;
         let defaultStart = document.getElementById("default_task_start").value;
         let offsetValues = ["offsetcurrent", "offsetnexthour"];
@@ -84,7 +84,7 @@ var gCalendarGeneralPane = {
         document.getElementById("defaults-itemtype-deck").selectedPanel = panel;
     },
 
-    initializeTodaypaneMenu: function gCGP_initializeTodaypaneMenu() {
+    initializeTodaypaneMenu: function() {
         // Assign the labels for the menuitem
         let soondaysMenu = document.getElementById("soondays-menulist");
         let items = soondaysMenu.getElementsByTagName("menuitem");
@@ -115,7 +115,7 @@ var gCalendarGeneralPane = {
         document.getElementById("soondays-menulist").value = soonpref;
     },
 
-    updateTodaypaneMenu: function gCGP_updateTodaypaneMenu() {
+    updateTodaypaneMenu: function() {
         let soonpref = Number(document.getElementById("soondays-menulist").value);
         Preferences.set("calendar.agendaListbox.soondays", soonpref);
     }

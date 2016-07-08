@@ -33,7 +33,7 @@ calBackendLoader.prototype = {
         // Nothing to do here, just need the entry so this is instanciated
     },
 
-    loadBackend: function loadBackend() {
+    loadBackend: function() {
         if (this.loaded) {
             return;
         }

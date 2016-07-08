@@ -109,7 +109,7 @@ function onLoad() {
     // attach an observer to get notified of changes
     // that are relevant to this dialog.
     let prefObserver = {
-        observe: function aD_observe(aSubject, aTopic, aPrefName) {
+        observe: function(aSubject, aTopic, aPrefName) {
             switch (aPrefName) {
                 case "calendar.view.daystarthour":
                 case "calendar.view.dayendhour":
@@ -994,7 +994,7 @@ function calFreeBusyListener(aFbElement, aBinding) {
 }
 
 calFreeBusyListener.prototype = {
-    onResult: function cFBL_onResult(aRequest, aEntries) {
+    onResult: function(aRequest, aEntries) {
         if (aRequest && !aRequest.isPending) {
             // Find request in list of pending requests and remove from queue:
             this.mBinding.mPendingRequests = this.mBinding.mPendingRequests.filter(aOp => aRequest.id != aOp.id);

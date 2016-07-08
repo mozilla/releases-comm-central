@@ -23,7 +23,7 @@ cal.xml = {} || cal.xml;
  * @param aType     (optional) Force a result type, must be an XPathResult constant
  * @return          The result, see above for details.
  */
-cal.xml.evalXPath = function evaluateXPath(aNode, aExpr, aResolver, aType) {
+cal.xml.evalXPath = function(aNode, aExpr, aResolver, aType) {
     const XPR = Components.interfaces.nsIDOMXPathResult;
     let doc = (aNode.ownerDocument ? aNode.ownerDocument : aNode);
     let resolver = aResolver || doc.createNSResolver(doc.documentElement);
@@ -98,7 +98,7 @@ cal.xml.evalXPath = function evaluateXPath(aNode, aExpr, aResolver, aType) {
  * @param aType     (optional) Force a result type, must be an XPathResult constant
  * @return          The result, see above for details.
  */
-cal.xml.evalXPathFirst = function evalXPathFirst(aNode, aExpr, aResolver, aType) {
+cal.xml.evalXPathFirst = function(aNode, aExpr, aResolver, aType) {
     let result = cal.xml.evalXPath(aNode, aExpr, aResolver, aType);
 
     if (Array.isArray(result)) {
@@ -160,7 +160,7 @@ cal.xml.serializeDOM = function(doc) {
  * @param isAttribute   If true, " and ' are also escaped
  * @return              The escaped string
  */
-cal.xml.escapeString = function escapeString(str, isAttribute) {
+cal.xml.escapeString = function(str, isAttribute) {
     return str.replace(/[&<>'"]/g, function(chr) {
         switch (chr) {
             case "&": return "&amp;";

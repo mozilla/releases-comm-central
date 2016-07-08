@@ -65,10 +65,10 @@ calWcapRequest.prototype = {
         requests; one cannot be sure that e.g. the first completes quickly
         and responds the whole parent request when detaching.
     */
-    lockPending: function calWcapRequest_lockPending() {
+    lockPending: function() {
         this.m_locked = true;
     },
-    unlockPending: function calWcapRequest_unlockPending() {
+    unlockPending: function() {
         if (this.m_locked) {
             this.m_locked = false;
             // assures that respFunc is executed:
@@ -78,7 +78,7 @@ calWcapRequest.prototype = {
         }
     },
 
-    toString: function calWcapRequest_toString() {
+    toString: function() {
         let ret = "calWcapRequest id=" + this.id +
                   ", parent-id=" + (this.parentRequest ? this.parentRequest.id : "<none>") +
                   " (" + this.m_logContext + ")";
@@ -93,7 +93,7 @@ calWcapRequest.prototype = {
         return ret;
     },
 
-    attachSubRequest: function calWcapRequest_attachSubRequest(req) {
+    attachSubRequest: function(req) {
         if (req) {
             if (!this.m_attachedRequests.some(function(req_) { return req.id == req_.id; })) {
                 if (req.isPending) {
@@ -109,7 +109,7 @@ calWcapRequest.prototype = {
         }
     },
 
-    detachSubRequest: function calWcapRequest_detachSubRequest(req, err) {
+    detachSubRequest: function(req, err) {
         this.m_attachedRequests = this.m_attachedRequests.filter(function(req_) { return req.id != req_.id; });
         if (err) {
             // first failing sub request stops parent request:
@@ -120,13 +120,13 @@ calWcapRequest.prototype = {
         }
     },
 
-    cancelAllSubRequests: function calWcapRequest_cancelAllSubRequests(status) {
+    cancelAllSubRequests: function(status) {
         let attachedRequests = this.m_attachedRequests;
         this.m_attachedRequests = [];
         attachedRequests.forEach(function(req) { req.cancel(null); });
     },
 
-    detachFromParent: function calWcapRequest_detachFromParent(err) {
+    detachFromParent: function(err) {
         let parentRequest = this.m_parentRequest;
         if (parentRequest) {
             this.m_parentRequest = null;
@@ -134,7 +134,7 @@ calWcapRequest.prototype = {
         }
     },
 
-    execRespFunc: function calWcapRequest_execRespFunc(err, data) {
+    execRespFunc: function(err, data) {
         if (this.isPending) {
             this.m_isPending = false;
             if (err) {
@@ -159,7 +159,7 @@ calWcapRequest.prototype = {
         }
     },
 
-    execSubRespFunc: function calWcapRequest_execSubRespFunc(func, err, data) {
+    execSubRespFunc: function(func, err, data) {
         try {
             func(err, data);
         } catch (exc) {
@@ -178,7 +178,7 @@ calWcapRequest.prototype = {
         return (this.m_status === null ? NS_OK : this.m_status);
     },
 
-    cancel: function calWcapRequest_cancel(status) {
+    cancel: function(status) {
         if (!status) {
             status = calIErrors.OPERATION_CANCELLED;
         }
@@ -228,7 +228,7 @@ calWcapNetworkRequest.prototype = {
      *
      * @param aChannel    The Channel to be prepared
      */
-    prepareChannel: function calWcapNetworkRequest_prepareChannel(aChannel) {
+    prepareChannel: function(aChannel) {
         // No caching
         aChannel.loadFlags |= Components.interfaces.nsIRequest.LOAD_BYPASS_CACHE;
         aChannel = aChannel.QueryInterface(Components.interfaces.nsIHttpChannel);
@@ -238,10 +238,7 @@ calWcapNetworkRequest.prototype = {
     /**
      * @see nsIChannelEventSink
      */
-    asyncOnChannelRedirect: function calWcapNetworkRequest_asyncOnChannelRedirect(aOldChannel,
-                                                                                  aNewChannel,
-                                                                                  aFlags,
-                                                                                  aCallback) {
+    asyncOnChannelRedirect: function(aOldChannel, aNewChannel, aFlags, aCallback) {
         // all we need to do to the new channel is the basic preparation
         this.prepareChannel(aNewChannel);
         aCallback.onRedirectVerifyCallback(Components.results.NS_OK);
@@ -250,10 +247,7 @@ calWcapNetworkRequest.prototype = {
     /**
      * @see nsIUnicharStreamLoaderObserver
      */
-    onDetermineCharset: function calWcapNetworkRequest_onDetermineCharset(loader,
-                                                                          context,
-                                                                          firstSegment,
-                                                                          length) {
+    onDetermineCharset: function(loader, context, firstSegment, length) {
         let channel = null;
         if (loader) {
             channel = loader.channel;
@@ -271,10 +265,7 @@ calWcapNetworkRequest.prototype = {
     /**
      * @see nsIUnicharStreamLoaderObserver
      */
-    onStreamComplete: function calWcapNetworkRequest_onStreamComplete(aLoader,
-                                                                      aContext,
-                                                                      aStatus,
-                                                                      unicharData) {
+    onStreamComplete: function(aLoader, aContext, aStatus, unicharData) {
         this.m_loader = null;
 
         if (LOG_LEVEL > 0 && this.m_bLogging) {
@@ -307,7 +298,7 @@ calWcapNetworkRequest.prototype = {
         }
     },
 
-    toString: function calWcapNetworkRequest_toString() {
+    toString: function() {
         let ret = "calWcapNetworkRequest id=" + this.id +
                    ", parent-id=" + (this.parentRequest ? this.parentRequest.id : "<none>");
         if (this.m_bLogging) {
@@ -344,7 +335,7 @@ calWcapNetworkRequest.prototype = {
         return (this.request ? this.request.status : NS_OK);
     },
 
-    detachFromParent: function calWcapNetworkRequest_detachFromParent(err) {
+    detachFromParent: function(err) {
         let parentRequest = this.m_parentRequest;
         if (parentRequest) {
             this.m_parentRequest = null;
@@ -356,7 +347,7 @@ calWcapNetworkRequest.prototype = {
         return (this.m_loader ? this.m_loader.channel : null);
     },
 
-    cancel: function calWcapNetworkRequest_cancel(status) {
+    cancel: function(status) {
         if (!status) {
             status = calIErrors.OPERATION_CANCELLED;
         }
@@ -370,7 +361,7 @@ calWcapNetworkRequest.prototype = {
         }
     },
 
-    execRespFunc: function calWcapNetworkRequest_execRespFunc(err, str) {
+    execRespFunc: function(err, str) {
         if (this.isPending) {
             this.m_isPending = false;
             let respFunc = this.m_respFunc;
@@ -392,7 +383,7 @@ calWcapNetworkRequest.prototype = {
         }
     },
 
-    execSubRespFunc: function calWcapNetworkRequest_execSubRespFunc(func, err, data) {
+    execSubRespFunc: function(func, err, data) {
         try {
             func(err, data);
         } catch (exc) {

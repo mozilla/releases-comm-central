@@ -31,7 +31,7 @@ var cal = {
      * @param scope       scope to load into
      * @param baseDir     base dir; defaults to calendar-js/
      */
-    loadScripts: function cal_loadScripts(scriptNames, scope, baseDir) {
+    loadScripts: function(scriptNames, scope, baseDir) {
         if (!baseDir) {
             baseDir = __LOCATION__.parent.parent.clone();
             baseDir.append("calendar-js");
@@ -54,7 +54,7 @@ var cal = {
     },
 
     loadingNSGetFactory: function(scriptNames, components, scope) {
-        return function NSGetFactory(cid) {
+        return function(cid) {
             if (!this.inner) {
                 let global = Components.utils.getGlobalForObject(scope);
                 cal.loadScripts(scriptNames, global);
@@ -70,7 +70,7 @@ var cal = {
     /**
      * Schedules execution of the passed function to the current thread's queue.
      */
-    postPone: function cal_postPone(func) {
+    postPone: function(func) {
         if (this.threadingEnabled) {
             Services.tm.currentThread.dispatch({ run: func },
                                                Components.interfaces.nsIEventTarget.DISPATCH_NORMAL);
@@ -95,7 +95,7 @@ var cal = {
      *  - calIOperationListener
      *  - calICompositeObserver
      */
-    createAdapter: function createAdapter(iface, template) {
+    createAdapter: function(iface, template) {
         let methods;
         let adapter = template || {};
         switch (iface.name || iface) {
@@ -142,7 +142,7 @@ var cal = {
      *
      * @param aCalendar
      */
-    isEventCalendar: function cal_isEventCalendar(aCalendar) {
+    isEventCalendar: function(aCalendar) {
         return (aCalendar.getProperty("capabilities.events.supported") !== false);
     },
 
@@ -151,14 +151,14 @@ var cal = {
      *
      * @param aCalendar
      */
-    isTaskCalendar: function cal_isTaskCalendar(aCalendar) {
+    isTaskCalendar: function(aCalendar) {
         return (aCalendar.getProperty("capabilities.tasks.supported") !== false);
     },
 
     /**
      * Checks whether a timezone lacks a definition.
      */
-    isPhantomTimezone: function cal_isPhantomTimezone(tz) {
+    isPhantomTimezone: function(tz) {
         return (!tz.icalComponent && !tz.isUTC && !tz.isFloating);
     },
 
@@ -168,7 +168,7 @@ var cal = {
      * @param item an item
      * @param offset an offset (calIDuration)
      */
-    shiftItem: function cal_shiftItem(item, offset) {
+    shiftItem: function(item, offset) {
         // When modifying dates explicitly using the setters is important
         // since those may triggers e.g. calIRecurrenceInfo::onStartDateChange
         // or invalidate other properties. Moreover don't modify the date-time objects
@@ -226,7 +226,7 @@ var cal = {
     /**
      * Shortcut function to serialize an item (including all overridden items).
      */
-    getSerializedItem: function cal_getSerializedItem(aItem) {
+    getSerializedItem: function(aItem) {
         let serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
                                    .createInstance(Components.interfaces.calIIcsSerializer);
         serializer.addItems([aItem], 1);
@@ -236,7 +236,7 @@ var cal = {
     /**
      * Shortcut function to check whether an item is an invitation copy.
      */
-    isInvitation: function cal_isInvitation(aItem) {
+    isInvitation: function(aItem) {
         let isInvitation = false;
         let calendar = cal.wrapInstance(aItem.calendar, Components.interfaces.calISchedulingSupport);
         if (calendar) {
@@ -306,7 +306,7 @@ var cal = {
      *
      * @param aItem either calIAttendee or calIItemBase
      */
-    isOpenInvitation: function cal_isOpenInvitation(aItem) {
+    isOpenInvitation: function(aItem) {
         let wrappedItem = cal.wrapInstance(aItem, Components.interfaces.calIAttendee);
         if (!wrappedItem) {
             aItem = cal.getInvitedAttendee(aItem);
@@ -382,7 +382,7 @@ var cal = {
     /**
      * Shortcut function to get the invited attendee of an item.
      */
-    getInvitedAttendee: function cal_getInvitedAttendee(aItem, aCalendar) {
+    getInvitedAttendee: function(aItem, aCalendar) {
         if (!aCalendar) {
             aCalendar = aItem.calendar;
         }
@@ -463,7 +463,7 @@ var cal = {
     // The below functions will move to some different place once the
     // unifinder tress are consolidated.
 
-    compareNativeTime: function cal_compareNativeTime(a, b) {
+    compareNativeTime: function(a, b) {
       if (a < b) {
         return -1;
       } else if (a > b) {
@@ -473,7 +473,7 @@ var cal = {
       }
     },
 
-    compareNativeTimeFilledAsc: function cal_compareNativeTimeFilledAsc(a, b) {
+    compareNativeTimeFilledAsc: function(a, b) {
       if (a == b) {
         return 0;
       }
@@ -489,7 +489,7 @@ var cal = {
       return (a < b ? -1 : 1);
     },
 
-    compareNativeTimeFilledDesc: function cal_compareNativeTimeFilledDesc(a, b) {
+    compareNativeTimeFilledDesc: function(a, b) {
       if (a == b) {
         return 0;
       }
@@ -505,7 +505,7 @@ var cal = {
       return (a < b ? 1 : -1);
     },
 
-    compareNumber: function cal_compareNumber(a, b) {
+    compareNumber: function(a, b) {
       a = Number(a);
       b = Number(b);
       if (a < b) {
@@ -517,22 +517,22 @@ var cal = {
       }
     },
 
-    sortEntryComparer: function cal_sortEntryComparer(sortType, modifier) {
+    sortEntryComparer: function(sortType, modifier) {
       switch (sortType) {
         case "number":
-          return function compareNumbers(sortEntryA, sortEntryB) {
+          return function(sortEntryA, sortEntryB) {
             let nsA = cal.sortEntryKey(sortEntryA);
             let nsB = cal.sortEntryKey(sortEntryB);
             return cal.compareNumber(nsA, nsB) * modifier;
           };
         case "date":
-          return function compareTimes(sortEntryA, sortEntryB) {
+          return function(sortEntryA, sortEntryB) {
             let nsA = cal.sortEntryKey(sortEntryA);
             let nsB = cal.sortEntryKey(sortEntryB);
             return cal.compareNativeTime(nsA, nsB) * modifier;
           };
         case "date_filled":
-          return function compareTimesFilled(sortEntryA, sortEntryB) {
+          return function(sortEntryA, sortEntryB) {
             let nsA = cal.sortEntryKey(sortEntryA);
             let nsB = cal.sortEntryKey(sortEntryB);
             if (modifier == 1) {
@@ -542,7 +542,7 @@ var cal = {
             }
           };
         case "string":
-          return function compareStrings(sortEntryA, sortEntryB) {
+          return function(sortEntryA, sortEntryB) {
             let sA = cal.sortEntryKey(sortEntryA);
             let sB = cal.sortEntryKey(sortEntryB);
             if (sA.length == 0 || sB.length == 0) {
@@ -556,13 +556,13 @@ var cal = {
             return comparison * modifier;
           };
         default:
-          return function compareOther(sortEntryA, sortEntryB) {
+          return function(sortEntryA, sortEntryB) {
             return 0;
           };
       }
     },
 
-    getItemSortKey: function cal_getItemSortKey(aItem, aKey, aStartTime) {
+    getItemSortKey: function(aItem, aKey, aStartTime) {
       switch (aKey) {
         case "priority":
           return aItem.priority || 5;
@@ -608,7 +608,7 @@ var cal = {
       }
     },
 
-    getSortTypeForSortKey: function cal_getSortTypeForSortKey(aSortKey) {
+    getSortTypeForSortKey: function(aSortKey) {
       switch (aSortKey) {
         case "title":
         case "categories":
@@ -633,7 +633,7 @@ var cal = {
       }
     },
 
-    nativeTimeOrNow: function cal_nativeTimeOrNow(calDateTime, sortStartedTime) {
+    nativeTimeOrNow: function(calDateTime, sortStartedTime) {
         // Treat null/0 as 'now' when sort started, so incomplete tasks stay current.
         // Time is computed once per sort (just before sort) so sort is stable.
         if (calDateTime == null) {
@@ -646,7 +646,7 @@ var cal = {
         return ns;
     },
 
-    nativeTime: function cal_nativeTime(calDateTime) {
+    nativeTime: function(calDateTime) {
         if (calDateTime == null) {
             return -62168601600000000; // ns value for (0000/00/00 00:00:00)
         }
@@ -665,7 +665,7 @@ var cal = {
      *           If you pass a timezone, then the passed jsDate's timezone will be ignored,
      *           but only its local time portions are be taken.
      */
-    jsDateToDateTime: function jsDateToDateTime(aDate, aTimezone) {
+    jsDateToDateTime: function(aDate, aTimezone) {
         let newDate = cal.createDateTime();
         if (aTimezone) {
             newDate.resetTo(aDate.getFullYear(),
@@ -697,20 +697,20 @@ var cal = {
         }
     },
 
-    sortEntry: function cal_sortEntry(aItem) {
+    sortEntry: function(aItem) {
         let key = cal.getItemSortKey(aItem, this.mSortKey, this.mSortStartedDate);
         return { mSortKey: key, mItem: aItem };
     },
 
-    sortEntryItem: function cal_sortEntryItem(sortEntry) {
+    sortEntryItem: function(sortEntry) {
         return sortEntry.mItem;
     },
 
-    sortEntryKey: function cal_sortEntryKey(sortEntry) {
+    sortEntryKey: function(sortEntry) {
         return sortEntry.mSortKey;
     },
 
-    createLocaleCollator: function cal_createLocaleCollator() {
+    createLocaleCollator: function() {
         return Components.classes["@mozilla.org/intl/collation-factory;1"]
                          .getService(Components.interfaces.nsICollationFactory)
                          .CreateCollation(Services.locale.getApplicationLocale());
@@ -720,7 +720,7 @@ var cal = {
      * Sort an array of strings according to the current locale.
      * Modifies aStringArray, returning it sorted.
      */
-    sortArrayByLocaleCollator: function cal_sortArrayByLocaleCollator(aStringArray) {
+    sortArrayByLocaleCollator: function(aStringArray) {
         let localeCollator = cal.createLocaleCollator();
         function compare(a, b) { return localeCollator.compareString(0, a, b); }
         aStringArray.sort(compare);
@@ -734,7 +734,7 @@ var cal = {
      * @param aBundleName   The Bundle to get the string from
      * @param aStringBase   The base string name, .monthFormat will be appended
      */
-    formatMonth: function formatMonth(aMonthNum, aBundleName, aStringBase) {
+    formatMonth: function(aMonthNum, aBundleName, aStringBase) {
         let monthForm = cal.calGetString(aBundleName, aStringBase + ".monthFormat") || "nominative";
 
         if (monthForm == "nominative") {
@@ -752,7 +752,7 @@ var cal = {
      * @param aNewDate             The date at which the new item is going to start
      * @return                     The modified item
      */
-    moveItem: function cal_moveItem(aOldItem, aNewDate) {
+    moveItem: function(aOldItem, aNewDate) {
         let newItem = aOldItem.clone();
         let start = (aOldItem[calGetStartDateProp(aOldItem)] ||
                      aOldItem[calGetEndDateProp(aOldItem)]).clone();
@@ -784,7 +784,7 @@ var cal = {
      * @param aIsDate       True or false indicating the new value of 'isDate'
      * @return              The modified item
      */
-    setItemToAllDay: function cal_setItemToAllDay(aItem, aIsDate) {
+    setItemToAllDay: function(aItem, aIsDate) {
         let start = aItem[calGetStartDateProp(aItem)];
         let end = aItem[calGetEndDateProp(aItem)];
         if (start || end) {
@@ -813,7 +813,7 @@ var cal = {
      * @return              true or false depending on whether the mouse pointer
      *                      resides over the xulelement
      */
-    isMouseOverBox: function cal_isMouseOverBox(aMouseEvent, aXULElement) {
+    isMouseOverBox: function(aMouseEvent, aXULElement) {
         let boxObject = aXULElement.boxObject;
         let boxWidth = boxObject.width;
         let boxHeight = boxObject.height;
@@ -835,7 +835,7 @@ var cal = {
      * @param aAttribute    The name of the attribute
      * @param aAttribute    The value of the attribute
      */
-    removeChildElementsByAttribute: function removeChildElementsByAttribute(aParentNode, aAttribute, aValue) {
+    removeChildElementsByAttribute: function(aParentNode, aAttribute, aValue) {
         let childNode = aParentNode.lastChild;
         while (childNode) {
             let prevChildNode = childNode.previousSibling;
@@ -854,7 +854,7 @@ var cal = {
     /**
      * Returns the most recent calendar window in an application independent way
      */
-    getCalendarWindow: function cal_getCalendarWindow() {
+    getCalendarWindow: function() {
         return Services.wm.getMostRecentWindow("calendarMainWindow") ||
                Services.wm.getMostRecentWindow("mail:3pane");
     },
@@ -866,9 +866,9 @@ var cal = {
      * @param topic topic to listen for
      * @param oneTime whether to listen only once
      */
-    addObserver: function cal_addObserver(func, topic, oneTime) {
+    addObserver: function(func, topic, oneTime) {
         let observer = { // nsIObserver:
-            observe: function cal_addObserver_observe(subject, topic_, data) {
+            observe: function(subject, topic_, data) {
                 if (topic == topic_) {
                     if (oneTime) {
                         Services.obs.removeObserver(this, topic);
@@ -900,7 +900,7 @@ var cal = {
      *   }
      *
      */
-    wrapInstance: function wrapInstance(aObj, aInterface) {
+    wrapInstance: function(aObj, aInterface) {
         if (!aObj) {
             return null;
         }
@@ -917,7 +917,7 @@ var cal = {
      *
      * @param func function to execute
      */
-    addShutdownObserver: function cal_addShutdownObserver(func) {
+    addShutdownObserver: function(func) {
         cal.addObserver(func, "xpcom-shutdown", true /* one time */);
     },
 
@@ -955,6 +955,7 @@ function shutdownCleanup(obj, prop) {
 // local to this module;
 // will be used to generate service accessor functions
 function generateServiceAccessor(id, iface) {
+    // eslint-disable-next-line func-names
     return function this_() {
         if (!("mService" in this_)) {
             this_.mService = Components.classes[id].getService(iface);
