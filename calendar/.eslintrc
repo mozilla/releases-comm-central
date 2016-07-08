@@ -39,6 +39,9 @@
     // the outer scope, to avoid confusion.
     "no-catch-shadow": 2,
 
+    // Disallow assignment in conditional expressions.
+    "no-cond-assign": 2,
+
     // Disallow deletion of variables (deleting properties is fine).
     "no-delete-var": 2,
 

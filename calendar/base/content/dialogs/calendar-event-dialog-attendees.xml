@@ -379,39 +379,44 @@
           let attendees = [];
           let inputField;
 
-          for (let i = 1; inputField = this.getInputElement(i); i++) {
-              if (inputField && inputField.value != "") {
-                  // the inputfield already has a reference to the attendee
-                  // object, we just need to fill in the name.
-                  let attendee = inputField.attendee.clone();
-                  if (attendee.isOrganizer) {
-                      continue;
-                  }
-
-                  attendee.role = this.getRoleElement(i).getAttribute("role");
-                  //attendee.participationStatus = this.getStatusElement(i).getAttribute("status");
-                  let userType = this.getUserTypeElement(i).getAttribute("cutype");
-                  attendee.userType = (userType == "INDIVIDUAL" ? null : userType) // INDIVIDUAL is the default
-
-                  // break the list of potentially many attendees back into individual names. This
-                  // is required in case the user entered comma-separated attendees in one field and
-                  // then clicked OK without switching to the next line.
-                  let parsedInput = MailServices.headerParser.makeFromDisplayAddress(inputField.value);
-                  let j = 0;
-                  let addAttendee = function(aAddress) {
-                      if (j > 0) {
-                          attendee = attendee.clone();
-                      }
-                      attendee.id = cal.prependMailTo(aAddress.email);
-                      if (aAddress.name.length > 0) {
-                          // we remove any double quotes within CN due to bug 1209399
-                          attendee.commonName = aAddress.name.replace(/(?:[\\]"|")/, "");
-                      }
-                      attendees.push(attendee);
-                      j++;
-                  };
-                  parsedInput.forEach(addAttendee);
+          for (let i = 1; true; i++) {
+              let inputField = this.getInputElement(i);
+              if (!inputField) {
+                  break;
+              } else if (inputField.value == "") {
+                  continue;
               }
+
+              // the inputfield already has a reference to the attendee
+              // object, we just need to fill in the name.
+              let attendee = inputField.attendee.clone();
+              if (attendee.isOrganizer) {
+                  continue;
+              }
+
+              attendee.role = this.getRoleElement(i).getAttribute("role");
+              //attendee.participationStatus = this.getStatusElement(i).getAttribute("status");
+              let userType = this.getUserTypeElement(i).getAttribute("cutype");
+              attendee.userType = (userType == "INDIVIDUAL" ? null : userType) // INDIVIDUAL is the default
+
+              // break the list of potentially many attendees back into individual names. This
+              // is required in case the user entered comma-separated attendees in one field and
+              // then clicked OK without switching to the next line.
+              let parsedInput = MailServices.headerParser.makeFromDisplayAddress(inputField.value);
+              let j = 0;
+              let addAttendee = function(aAddress) {
+                  if (j > 0) {
+                      attendee = attendee.clone();
+                  }
+                  attendee.id = cal.prependMailTo(aAddress.email);
+                  if (aAddress.name.length > 0) {
+                      // we remove any double quotes within CN due to bug 1209399
+                      attendee.commonName = aAddress.name.replace(/(?:[\\]"|")/, "");
+                  }
+                  attendees.push(attendee);
+                  j++;
+              };
+              parsedInput.forEach(addAttendee);
           }
 
           return attendees;
@@ -421,29 +426,34 @@
       <property name="organizer">
         <getter><![CDATA[
           let inputField;
-          for (let i = 1; inputField = this.getInputElement(i); i++) {
-              if (inputField && inputField.value != "") {
-                  // The inputfield already has a reference to the attendee
-                  // object, we just need to fill in the name.
-                  let attendee = inputField.attendee.clone();
+          for (let i = 1; true; i++) {
+              let inputField = this.getInputElement(i);
+              if (!inputField) {
+                  break;
+              } else if (inputField.value == "") {
+                  continue;
+              }
 
-                  //attendee.role = this.getRoleElement(i).getAttribute("role");
-                  attendee.participationStatus = this.getStatusElement(i).getAttribute("status");
-                  // Organizers do not have a CUTYPE
-                  attendee.userType = null;
+              // The inputfield already has a reference to the attendee
+              // object, we just need to fill in the name.
+              let attendee = inputField.attendee.clone();
 
-                  // break the list of potentially many attendees back into individual names
-                  let parsedInput = MailServices.headerParser.makeFromDisplayAddress(inputField.value);
-                  if (parsedInput[0].email > 0) {
-                      attendee.id = cal.prependMailTo(parsedInput[0].email);
-                  }
-                  if (parsedInput[0].name.length > 0) {
-                      attendee.commonName = parsedInput[0].name;
-                  }
+              //attendee.role = this.getRoleElement(i).getAttribute("role");
+              attendee.participationStatus = this.getStatusElement(i).getAttribute("status");
+              // Organizers do not have a CUTYPE
+              attendee.userType = null;
 
-                  if (attendee.isOrganizer) {
-                      return attendee;
-                  }
+              // break the list of potentially many attendees back into individual names
+              let parsedInput = MailServices.headerParser.makeFromDisplayAddress(inputField.value);
+              if (parsedInput[0].email > 0) {
+                  attendee.id = cal.prependMailTo(parsedInput[0].email);
+              }
+              if (parsedInput[0].name.length > 0) {
+                  attendee.commonName = parsedInput[0].name;
+              }
+
+              if (attendee.isOrganizer) {
+                  return attendee;
               }
           }
 
