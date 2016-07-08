@@ -2370,8 +2370,8 @@ function notifyUser(aMessage, aValue, aPriority, aImage, aButtonset, aCallback) 
     // only append, if the notification does not already exist
     if (notificationBox.getNotificationWithValue(aValue) == null) {
         const prioMap = {
-            "info": notificationBox.PRIORITY_INFO_MEDIUM,
-            "critical": notificationBox.PRIORITY_CRITICAL_MEDIUM
+            info: notificationBox.PRIORITY_INFO_MEDIUM,
+            critical: notificationBox.PRIORITY_CRITICAL_MEDIUM
         };
         let priority = prioMap[aPriority] || notificationBox.PRIORITY_WARNING_MEDIUM;
         notificationBox.appendNotification(aMessage,

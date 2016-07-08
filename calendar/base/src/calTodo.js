@@ -12,10 +12,10 @@ function calTodo() {
     this.initItemBase();
 
     this.todoPromotedProps = {
-        "DTSTART": true,
-        "DTEND": true,
-        "DUE": true,
-        "COMPLETED": true,
+        DTSTART: true,
+        DTEND: true,
+        DUE: true,
+        COMPLETED: true,
         __proto__: this.itemBasePromotedProps
     };
 }

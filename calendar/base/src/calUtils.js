@@ -1702,7 +1702,7 @@ function compareItemContent(aFirstItem, aSecondItem, aIgnoreProps, aIgnoreParams
          "LAST-MODIFIED", "X-MOZ-SEND-INVITATIONS"]);
 
     let ignoreParams = aIgnoreParams ||
-        { "ATTENDEE": ["CN"], "ORGANIZER": ["CN"] };
+        { ATTENDEE: ["CN"], ORGANIZER: ["CN"] };
     for (let x in ignoreParams) {
         ignoreParams[x] = arr2hash(ignoreParams[x]);
     }

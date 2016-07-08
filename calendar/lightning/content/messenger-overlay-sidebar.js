@@ -799,10 +799,10 @@ window.addEventListener("load", ltnOnLoad, false);
 function getToolboxIdForCurrentTabType() {
     // A mapping from calendar tab types to toolbox ids.
     const calendarToolboxIds = {
-        "calendar": "calendar-toolbox",
-        "tasks": "task-toolbox",
-        "calendarEvent": "event-toolbox",
-        "calendarTask": "event-toolbox"
+        calendar: "calendar-toolbox",
+        tasks: "task-toolbox",
+        calendarEvent: "event-toolbox",
+        calendarTask: "event-toolbox"
     };
     let tabmail = document.getElementById("tabmail");
     let tabType = tabmail.currentTabInfo.mode.type;

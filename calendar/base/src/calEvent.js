@@ -12,8 +12,8 @@ function calEvent() {
     this.initItemBase();
 
     this.eventPromotedProps = {
-        "DTSTART": true,
-        "DTEND": true,
+        DTSTART: true,
+        DTEND: true,
         __proto__: this.itemBasePromotedProps
     };
 }

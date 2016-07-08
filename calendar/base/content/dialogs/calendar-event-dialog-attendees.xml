@@ -680,10 +680,10 @@
         } else if (targetIcon.className == "usertype-icon") {
             let cutype = targetIcon.getAttribute("cutype");
             const cutypeMap = {
-                "INDIVIDUAL": "individual",
-                "GROUP": "group",
-                "RESOURCE": "resource",
-                "ROOM": "room",
+                INDIVIDUAL: "individual",
+                GROUP: "group",
+                RESOURCE: "resource",
+                ROOM: "room",
                 // I've decided UNKNOWN will not be handled.
             };
 

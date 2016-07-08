@@ -365,22 +365,22 @@ function test_dates() {
 }
 
 var propMap = {
-    "related": Ci.calIAlarm.ALARM_RELATED_START,
-    "repeat": 1,
-    "action": "X-TEST",
-    "description": "description",
-    "summary": "summary",
-    "offset": createDuration("PT4M"),
-    "repeatOffset": createDuration("PT1M")
+    related: Ci.calIAlarm.ALARM_RELATED_START,
+    repeat: 1,
+    action: "X-TEST",
+    description: "description",
+    summary: "summary",
+    offset: createDuration("PT4M"),
+    repeatOffset: createDuration("PT1M")
 };
 var clonePropMap = {
-    "related": Ci.calIAlarm.ALARM_RELATED_END,
-    "repeat": 2,
-    "action": "X-CHANGED",
-    "description": "description-changed",
-    "summary": "summary-changed",
-    "offset": createDuration("PT5M"),
-    "repeatOffset": createDuration("PT2M")
+    related: Ci.calIAlarm.ALARM_RELATED_END,
+    repeat: 2,
+    action: "X-CHANGED",
+    description: "description-changed",
+    summary: "summary-changed",
+    offset: createDuration("PT5M"),
+    repeatOffset: createDuration("PT2M")
 };
 
 function test_immutable() {

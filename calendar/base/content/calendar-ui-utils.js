@@ -432,10 +432,10 @@ function updateListboxDeleteButton(listboxId, buttonId) {
  */
 function unitPluralForm(aLength, aUnit, aIncludeLength=true) {
     let unitProp = {
-        "minutes": "unitMinutes",
-        "hours": "unitHours",
-        "days": "unitDays",
-        "weeks": "unitWeeks"
+        minutes: "unitMinutes",
+        hours: "unitHours",
+        days: "unitDays",
+        weeks: "unitWeeks"
     }[aUnit] || "unitMinutes";
 
     return PluralForm.get(aLength, cal.calGetString("calendar", unitProp))

@@ -45,7 +45,7 @@ var data = [{
     status: "tentative",
     freebusy: "free",
     timezone: true,
-    attachment: { delete: "mozilla.org" }
+    attachment: { "delete": "mozilla.org" }
 }];
 var newlines = [{ title: "title", description: "  test spaces  " },
                 { title: "title", description: "\ntest newline\n" },

@@ -426,6 +426,9 @@
     // Suggest using the spread operator instead of .apply()
     "prefer-spread": 2,
 
+    // Quoting style for property names
+    "quote-props": ["error", "consistent-as-needed", { "keywords": true }],
+
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.
     "no-else-return": 0,

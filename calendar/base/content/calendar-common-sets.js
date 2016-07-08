@@ -648,25 +648,25 @@ var calendarController2 = {
     defaultController: null,
 
     commands: {
-        "cmd_cut": true,
-        "cmd_copy": true,
-        "cmd_paste": true,
-        "cmd_undo": true,
-        "cmd_redo": true,
-        "cmd_print": true,
-        "cmd_pageSetup": true,
+        cmd_cut: true,
+        cmd_copy: true,
+        cmd_paste: true,
+        cmd_undo: true,
+        cmd_redo: true,
+        cmd_print: true,
+        cmd_pageSetup: true,
 
-        "cmd_printpreview": true,
-        "button_print": true,
-        "button_delete": true,
-        "cmd_delete": true,
-        "cmd_properties": true,
-        "cmd_goForward": true,
-        "cmd_goBack": true,
-        "cmd_fullZoomReduce": true,
-        "cmd_fullZoomEnlarge": true,
-        "cmd_fullZoomReset": true,
-        "cmd_showQuickFilterBar": true
+        cmd_printpreview: true,
+        button_print: true,
+        button_delete: true,
+        cmd_delete: true,
+        cmd_properties: true,
+        cmd_goForward: true,
+        cmd_goBack: true,
+        cmd_fullZoomReduce: true,
+        cmd_fullZoomEnlarge: true,
+        cmd_fullZoomReset: true,
+        cmd_showQuickFilterBar: true
     },
 
     // These functions can use the same from the calendar controller for now.
