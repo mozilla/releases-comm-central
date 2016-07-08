@@ -4,7 +4,11 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
-var EXPORTED_SYMBOLS = [
+/* exported CAL_ITEM_FLAG, getInUtcOrKeepFloating, dateToText, textToDate,
+ *          calStorageTimezone, getTimezone, newDateTime
+ */
+
+this.EXPORTED_SYMBOLS = [
     "CAL_ITEM_FLAG",
     "getInUtcOrKeepFloating",
     "dateToText",

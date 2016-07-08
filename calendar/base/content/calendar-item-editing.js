@@ -7,6 +7,8 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
+/* exported modifyEventWithDialog, undo, redo, setContextPartstat */
+
 /**
  * Takes a job and makes sure the dispose function on it is called. If there is
  * no dispose function or the job is null, ignore it.
@@ -225,8 +227,6 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
  *                                   allday event.
  */
 function createEventWithDialog(calendar, startDate, endDate, summary, event, aForceAllday) {
-    const kDefaultTimezone = calendarDefaultTimezone();
-
     let onNewEvent = function(item, opcalendar, originalItem, listener) {
         if (item.id) {
             // If the item already has an id, then this is the result of
@@ -282,8 +282,6 @@ function createEventWithDialog(calendar, startDate, endDate, summary, event, aFo
  * @param initialDate   (optional) The initial date for new task datepickers
  */
 function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
-    const kDefaultTimezone = calendarDefaultTimezone();
-
     let onNewItem = function(item, opcalendar, originalItem, listener) {
         if (item.id) {
             // If the item already has an id, then this is the result of
@@ -344,9 +342,9 @@ function modifyEventWithDialog(aItem, job, aPromptOccurrence, initialDate) {
     };
 
     let item = aItem;
-    let futureItem, response;
+    let response;
     if (aPromptOccurrence !== false) {
-        [item, futureItem, response] = promptOccurrenceModification(aItem, true, "edit");
+        [item, , response] = promptOccurrenceModification(aItem, true, "edit");
     }
 
     if (item && (response || response === undefined)) {

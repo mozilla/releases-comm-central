@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* exported recurrenceRule2String, splitRecurrenceRules, checkRecurrenceRule */
+
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
 this.EXPORTED_SYMBOLS = ["recurrenceRule2String", "splitRecurrenceRules", "checkRecurrenceRule"];
 
 /**

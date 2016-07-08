@@ -19,6 +19,7 @@ function really_run_test() {
     test_startdate_change();
     test_idchange();
     test_rrule_icalstring();
+    test_immutable();
 }
 
 function test_rules() {
@@ -702,7 +703,7 @@ function test_startdate_change() {
         changeItem.startDate = newDate;
     }
 
-    let dur, ritem;
+    let ritem;
 
     // Changing an existing start date for a recurring item shouldn't either
     item = makeRecEvent("RRULE:FREQ=DAILY\r\n");
@@ -802,14 +803,14 @@ function test_immutable() {
         "END:VCALENDAR\r\n"
     );
     ok(item.recurrenceInfo.isMutable);
-    let rinfo2 = item.recurrenceInfo.clone();
-    rinfo2.makeImmutable();
-    rinfo2.makeImmutable(); // Doing so twice shouldn't throw
-    throws(() => rinfo2.appendRecurrenceItem(ritem), /Can not modify immutable data container/);
-    ok(!rinfo2.isMutable);
-
+    let rinfo = item.recurrenceInfo.clone();
     let ritem = cal.createRecurrenceDate();
-    rinfo.appenRecurrenceItem(ritem);
+    rinfo.makeImmutable();
+    rinfo.makeImmutable(); // Doing so twice shouldn't throw
+    throws(() => rinfo.appendRecurrenceItem(ritem), /Can not modify immutable data container/);
+    ok(!rinfo.isMutable);
+
+    item.recurrenceInfo.appendRecurrenceItem(ritem);
 }
 
 function test_rrule_icalstring() {

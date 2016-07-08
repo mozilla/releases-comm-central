@@ -206,7 +206,7 @@ calItemBase.prototype = {
             }
         }
 
-        for (let [propKey, propValue] of this.mProperties) {
+        for (let [, propValue] of this.mProperties) {
             if (propValue instanceof Components.interfaces.calIDateTime &&
                 propValue.isMutable) {
                 propValue.makeImmutable();

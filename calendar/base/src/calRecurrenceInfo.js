@@ -259,8 +259,6 @@ calRecurrenceInfo.prototype = {
         this.ensureSortedRecurrenceRules();
 
         let startDate = this.mBaseItem.recurrenceStartDate;
-        let dates = [];
-
         let nextOccurrences = [];
         let invalidOccurrences;
         let negMap = {};

@@ -205,6 +205,11 @@
     "no-var": 0,
     "mozilla/var-only-at-top-level": 1,
 
+    // Disallow global and local variables that aren't used, but allow unused function arguments.
+    "no-unused-vars": [2, {"vars": "all", "args": "none", "varsIgnorePattern": "EXPORTED_SYMBOLS"}],
+
+    "mozilla/mark-test-function-used": 1,
+
     // Will enable these rules later
     "block-spacing": 0,
     "no-lonely-if": 0,

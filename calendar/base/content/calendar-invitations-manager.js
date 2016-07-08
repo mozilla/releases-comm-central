@@ -7,6 +7,8 @@ Components.utils.import("resource://calendar/modules/calItipUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+/* exported getInvitationsManager */
+
 /**
  * This object contains functions to take care of manipulating requests.
  */

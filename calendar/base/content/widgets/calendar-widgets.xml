@@ -495,7 +495,7 @@
               this.mBroadcaster.addEventListener("DOMAttrModified", this.mModHandler, true);
             }
           }
-          let ret = XULElement.prototype.setAttribute.call(this, aAttr, aVal);
+          return XULElement.prototype.setAttribute.call(this, aAttr, aVal);
         ]]></body>
       </method>
     </implementation>
@@ -680,14 +680,8 @@
          }
 
          session.getData(transfer, 0);
-         let flavor = {};
-         let data = {};
-         // nsITransferable sucks when it comes to trying to add extra flavors.
-         // This will throw NS_ERROR_FAILURE, so as a workaround, we use the
-         // sourceNode property and get the event that way
-         //   transfer.getAnyTransferData(flavor, data, {});
-
          item = session.sourceNode.sourceObject;
+
          let newItem = this.onDropItem(item).clone();
          let newStart = newItem.startDate || newItem.entryDate || newItem.dueDate;
          let newEnd = newItem.endDate || newItem.dueDate || newItem.entryDate;

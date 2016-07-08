@@ -808,7 +808,6 @@ Extractor.prototype = {
 
         let wMinute = startTimes.filter(val => val.minute != null && val.start !== undefined);
         let wMinuteNA = wMinute.filter(val => val.ambiguous === undefined);
-        let wMinuteInit = startTimes.filter(val => val.minute != null && val.start === undefined);
 
         if (wMinuteNA.length != 0) {
             guess.hour = wMinuteNA[0].hour;
@@ -1077,10 +1076,8 @@ Extractor.prototype = {
             vals.sort(function(one, two) {return two.length - one.length;});
             for (let val in vals) {
                 let pattern = vals[val];
-                let cnt = 1;
-                for (let replaceable in replaceables) {
+                for (let cnt = 1; cnt <= replaceables.length; cnt++) {
                     pattern = pattern.split("#" + cnt).join(replaceables[cnt - 1]);
-                    cnt++;
                 }
                 patterns.push(pattern);
             }

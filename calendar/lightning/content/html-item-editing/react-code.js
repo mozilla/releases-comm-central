@@ -4,6 +4,8 @@
 
 // This file contains code that uses react.js
 
+/* exported gTopComponent, DatePicker, TopComponent */
+
 var gTopComponent = null;
 
 var Tabstrip = React.createClass({

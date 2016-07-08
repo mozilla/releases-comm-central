@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* exported checkErrorCode, checkWcapXmlErrno, checkWcapIcalErrno,
+ *          errorToString
+ */
+
 var NS_ERROR_INVALID_ARG = Components.results.NS_ERROR_INVALID_ARG;
 
 //
@@ -50,9 +54,6 @@ function checkErrorCode(err, rcBits, maskBits) {
 // The requested action could not be completed while the networking
 // is in the offline state.
 var NS_ERROR_OFFLINE = generateNetFailure(16);
-
-// The async request completed successfully.
-var NS_BINDING_SUCCEEDED = NS_OK;
 
 var NS_BINDING_FAILED = generateNetFailure(1);
 var NS_BINDING_ABORTED = generateNetFailure(2);

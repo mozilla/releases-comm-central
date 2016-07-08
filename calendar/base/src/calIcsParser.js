@@ -119,8 +119,6 @@ calIcsParser.prototype = {
         if (aAsyncParsing) {
             let self = this;
 
-            let start = new Date();
-
             // We are using two types of very similar listeners here:
             // aAsyncParsing is a calIcsParsingListener that returns the ics
             //   parser containing the processed items.

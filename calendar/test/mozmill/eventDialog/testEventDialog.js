@@ -13,7 +13,6 @@ var location = "Location";
 var desc = "Event Decription";
 var attendee = "foo@bar.com";
 var url = "http://mozilla.org";
-var tmp;
 
 var setupModule = function(module) {
   controller = mozmill.getMail3PaneController();

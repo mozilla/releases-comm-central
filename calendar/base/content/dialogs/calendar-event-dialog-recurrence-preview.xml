@@ -62,9 +62,6 @@
       </property>
       <method name="onResize">
         <body><![CDATA[
-          let mainbox =
-              document.getAnonymousElementByAttribute(
-                  this, "anonid", "mainbox");
           let minimonth =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "minimonth");

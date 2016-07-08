@@ -102,7 +102,6 @@ calIcalProperty.prototype = {
         // Unfortuantely getting the "VALUE" parameter won't work, since in
         // jCal it has been translated to the value type id.
         if (name == "VALUE") {
-            let propname = this.innerObject.name.toLowerCase();
             let defaultType = this.innerObject.getDefaultType();
             if (this.innerObject.type != defaultType) {
                 // Default type doesn't match object type, so we have a VALUE
@@ -181,7 +180,6 @@ calIcalProperty.prototype = {
     getFirstParameterName: function() {
         let innerObject = this.innerObject;
         this.paramIterator = (function* () {
-            let propname = innerObject.name.toLowerCase();
             let defaultType = innerObject.getDefaultType();
             if (defaultType != innerObject.type) {
                 yield "VALUE";
@@ -480,7 +478,6 @@ calICSService.prototype = {
         // There are way too many error checking messages here, but I had so
         // much pain with this method that I don't want it to break again.
         try {
-            let self = this;
             let worker = new ChromeWorker("resource://calendar/calendar-js/calICSService-worker.js");
             worker.onmessage = function(event) {
                 let rc = Components.results.NS_ERROR_FAILURE;

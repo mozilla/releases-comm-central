@@ -97,8 +97,6 @@
         <body><![CDATA[
           let topbox = document.getAnonymousElementByAttribute(this, "anonid", "topbox");
           let orient = topbox.getAttribute("orient");
-          let otherorient = getOtherOrientation(orient);
-
 
           function makeTimeBox(timestr, size) {
               let box = createXULElement("box");
@@ -964,7 +962,6 @@
               // Remember that any time we're starting a new blob, colEndArray
               // will be empty, but that's ok.
               for (let ii = 0; ii < colEndArray.length; ++ii) {
-                  let colStart = colEndArray[ii].layoutStart;
                   let colEnd = colEndArray[ii].layoutEnd;
                   if (colEnd.compare(curItemInfo.layoutStart) != 1) {
                       // Yay, we can jump into this column
@@ -974,7 +971,6 @@
                       // jump into as well.
                       let lastCol = Number(ii) + 1;
                       while (lastCol < colEndArray.length) {
-                          let nextColStart = colEndArray[lastCol].layoutStart;
                           let nextColEnd = colEndArray[lastCol].layoutEnd;
                           // If the next column's item ends after we start, we
                           // can't expand any further
@@ -1072,7 +1068,6 @@
               //   the start of any possible conflicts.
               let lastColNum = colEndArray.length;
               for (let mm in currentBlob) {
-                  let mmStart = currentBlob[mm].itemInfo.layoutStart;
                   let mmEnd = currentBlob[mm].itemInfo.layoutEnd;
                   if (currentBlob[mm].startCol + currentBlob[mm].colSpan == lastColNum &&
                       mmEnd.compare(curItemInfo.layoutStart) != 1) {
@@ -2324,7 +2319,6 @@
           let ret = XULElement.prototype.setAttribute.call(this, aAttr, aVal);
 
           if (needsrelayout) {
-              let otherorient = (val == "vertical" ? "horizontal" : "vertical");
               let eventbox = document.getAnonymousElementByAttribute(this, "anonid", "eventbox");
               eventbox.setAttribute("orient", val);
               let gb1 = document.getAnonymousElementByAttribute(this, "anonid", "gripbar1");
@@ -2532,7 +2526,6 @@
         let visibleMinutes = Preferences.get("calendar.view.visiblehours", 9) * 60;
         this.setVisibleMinutes(visibleMinutes);
 
-        let self = this;
         // set the flex attribute at the scrollbox-innerbox
         // (this can be removed, after Bug 343555 is fixed)
         let scrollbox = document.getAnonymousElementByAttribute(
@@ -2975,7 +2968,6 @@
               this.mSelectedDay = val;
             }
           }
-          let headerColLabel = this.selectColumnHeader(val);
           this.fireEvent("dayselect", val);
           return val;
         ]]></setter>

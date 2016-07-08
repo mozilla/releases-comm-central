@@ -321,7 +321,6 @@ add_task(function* compareInvitationOverlay_test() {
         let item = getIcs();
         let props = ["attendee", "organizer", "dtstart", "dtend", "summary", "location"];
         for (let prop of props) {
-            let copyItem = item;
             if (Object.keys(aInput).includes(prop)) {
                 let regex = prop.toUpperCase() +
                             (["summary", "location"].includes(prop) ? ":" : ";") +
@@ -554,16 +553,15 @@ add_task(function* getHeaderSection_test() {
     for (let test of data) {
         i++;
         let identity = MailServices.accounts.createIdentity();
-        for (let attribute of Object.keys(test.input.identity)) {
-            identity.email = test.input.identity.email || null;
-            identity.fullName = test.input.identity.fullName || null;
-            identity.replyTo = test.input.identity.replyTo || null;
-            identity.organization = test.input.identity.organization || null;
-            identity.doCc = test.input.identity.doCc || (test.input.identity.cc);
-            identity.doCcList = test.input.identity.cc || null;
-            identity.doBcc = test.input.identity.doBcc || (test.input.identity.bcc);
-            identity.doBccList = test.input.identity.bcc || null;
-        }
+        identity.email = test.input.identity.email || null;
+        identity.fullName = test.input.identity.fullName || null;
+        identity.replyTo = test.input.identity.replyTo || null;
+        identity.organization = test.input.identity.organization || null;
+        identity.doCc = test.input.identity.doCc || (test.input.identity.cc);
+        identity.doCcList = test.input.identity.cc || null;
+        identity.doBcc = test.input.identity.doBcc || (test.input.identity.bcc);
+        identity.doBccList = test.input.identity.bcc || null;
+
         let composeUtils = Components.classes["@mozilla.org/messengercompose/computils;1"]
                                      .createInstance(Components.interfaces.nsIMsgCompUtils);
         let messageId = composeUtils.msgGenerateMessageId(identity);

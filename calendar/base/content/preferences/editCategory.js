@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* exported editCategoryLoad, doOK, categoryNameChanged, clickColor, delay */
+
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
 // Global variable, set to true if the user has picked a custom color.

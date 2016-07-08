@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* exported loadCalendarPublishDialog, onOKCommand, closeDialog */
+
 var gOnOkFunction;   // function to be called when user clicks OK
 var gPublishObject;
 

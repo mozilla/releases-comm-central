@@ -8,7 +8,6 @@
 
 var NS_OK = 0;
 var NS_ERROR_FAILURE = 2147500037;
-var ICS_ERROR_BASE = 2152333568;
 
 importScripts("resource://calendar/modules/ical.js");
 

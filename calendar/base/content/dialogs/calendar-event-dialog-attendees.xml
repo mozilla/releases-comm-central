@@ -80,13 +80,6 @@
 
       <method name="onLoad">
         <body><![CDATA[
-          let listbox =
-              document.getAnonymousElementByAttribute(
-                  this, "anonid", "listbox");
-          let template =
-              document.getAnonymousElementByAttribute(
-                  this, "anonid", "item");
-
           this.onInitialize();
 
           // this trigger the continous update chain, which
@@ -701,7 +694,8 @@
             let cutypeString = "event.attendee.usertype." + (cutype in cutypeMap ? cutypeMap[cutype] : "unknown");
             let tooltip = cal.calGetString("calendar-event-dialog-attendees",
                                            cutypeString,
-                                           (cutypeString in cutypeMap ? null : [cutype]));
+                                           (cutype in cutypeMap ? null : [cutype]));
+            targetIcon.setAttribute("tooltiptext", tooltip);
         }
       ]]></body>
       </method>
@@ -1074,9 +1068,6 @@
       <method name="removeRow">
         <parameter name="aRow"/>
         <body><![CDATA[
-          let listbox =
-              document.getAnonymousElementByAttribute(
-                  this, "anonid", "listbox");
           this.getListItem(aRow).remove();
           this.fitDummyRows();
           this.mMaxAttendees--;
@@ -1408,7 +1399,6 @@
 
           // Calculate the relation of startdate/basedate and enddate/startdate.
           let offset = this.mStartDate.subtractDate(this.mBaseDate);
-          let duration = this.mEndDate.subtractDate(this.mStartDate);
 
           // Calculate how much pixels a single hour and a single day take up.
           let num_hours = this.mEndHour - this.mStartHour;

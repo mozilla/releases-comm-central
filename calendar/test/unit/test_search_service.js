@@ -63,7 +63,7 @@ function test_found() {
         }
     };
 
-    let op = search.searchForCalendars("str", HINT_EXACT_MATCH, 0, listener);
+    search.searchForCalendars("str", HINT_EXACT_MATCH, 0, listener);
     ok(listener.called);
     ok(provider2.called);
 }
@@ -88,7 +88,7 @@ function test_failure() {
 
     search.addProvider(provider);
 
-    let op = search.searchForCalendars("str", HINT_EXACT_MATCH, 0, listener);
+    search.searchForCalendars("str", HINT_EXACT_MATCH, 0, listener);
     ok(listener.called);
 }
 

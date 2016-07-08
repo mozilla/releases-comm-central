@@ -5,6 +5,8 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
+/* exported cutToClipboard, pasteFromClipboard */
+
 /**
  * Test if a writable calendar is selected, and if the clipboard has items that
  * can be pasted into Calendar. The data must be of type "text/calendar" or

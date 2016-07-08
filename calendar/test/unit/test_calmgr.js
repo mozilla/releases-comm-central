@@ -133,14 +133,14 @@ add_test(function test_calobserver() {
 
     // These observers will end up counting calls which we will use later on
     let calobs = cal.createAdapter(Components.interfaces.calIObserver, {
-        onAddItem: itm => calcounter.addItem++,
-        onModifyItem: itm => calcounter.modifyItem++,
-        onDeleteItem: itm => calcounter.deleteItem++
+        onAddItem: () => calcounter.addItem++,
+        onModifyItem: () => calcounter.modifyItem++,
+        onDeleteItem: () => calcounter.deleteItem++
     });
     let allobs = cal.createAdapter(Components.interfaces.calIObserver, {
-        onAddItem: itm => allcounter.addItem++,
-        onModifyItem: itm => allcounter.modifyItem++,
-        onDeleteItem: itm => allcounter.deleteItem++
+        onAddItem: () => allcounter.addItem++,
+        onModifyItem: () => allcounter.modifyItem++,
+        onDeleteItem: () => allcounter.deleteItem++
     });
 
     // Set up counters and observers

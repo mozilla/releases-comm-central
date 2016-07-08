@@ -4,15 +4,13 @@
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+/* exported loadEventsFromFile, exportEntireCalendar */
+
 // File constants copied from file-utils.js
 var MODE_RDONLY = 0x01;
 var MODE_WRONLY = 0x02;
-var MODE_RDWR = 0x04;
 var MODE_CREATE = 0x08;
-var MODE_APPEND = 0x10;
 var MODE_TRUNCATE = 0x20;
-var MODE_SYNC = 0x40;
-var MODE_EXCL = 0x80;
 
 /**
  * Shows a file dialog, reads the selected file(s) and tries to parse events from it.
@@ -76,7 +74,6 @@ function loadEventsFromFile(aCalendar) {
                                  .getService(Components.interfaces.calIImporter);
 
         const nsIFileInputStream = Components.interfaces.nsIFileInputStream;
-        const nsIScriptableInputStream = Components.interfaces.nsIScriptableInputStream;
 
         let inputStream = Components.classes["@mozilla.org/network/file-input-stream;1"]
                                     .createInstance(nsIFileInputStream);
@@ -261,13 +258,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
     let rv = fp.show();
 
     // Now find out as what to save, convert the events and save to file.
-    if (rv != nsIFilePicker.returnCancel &&
-        fp.file && fp.file.path.length > 0) {
-        const UTF8 = "UTF-8";
-        let aDataStream;
-        let extension;
-        let charset;
-
+    if (rv != nsIFilePicker.returnCancel && fp.file && fp.file.path.length > 0) {
         let filterIndex = fp.filterIndex;
         if (fp.filterIndex < 0 || fp.filterIndex > contractids.length) {
             // For some reason the wrong filter was selected, assume default extension

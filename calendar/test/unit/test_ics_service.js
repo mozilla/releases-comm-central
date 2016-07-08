@@ -156,7 +156,6 @@ function test_icalproperty() {
 function test_icalcomponent() {
     let svc = cal.getIcsService();
     let event = svc.createIcalComponent("VEVENT");
-    let todo = svc.createIcalComponent("VTODO");
     let alarm = svc.createIcalComponent("VALARM");
     event.addSubcomponent(alarm);
 

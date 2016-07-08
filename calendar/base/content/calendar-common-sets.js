@@ -4,6 +4,11 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
+/* exported injectCalendarCommandController, removeCalendarCommandController,
+ *          setupContextItemType, minimonthPick, getSelectedItems,
+ *          deleteSelectedItems, calendarUpdateNewItemsCommand
+ */
+
 var CalendarDeleteCommandEnabled = false;
 var CalendarNewEventsCommandEnabled = false;
 var CalendarNewTasksCommandEnabled = false;

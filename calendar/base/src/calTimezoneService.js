@@ -12,6 +12,10 @@ Components.utils.import("resource://calendar/modules/ical.js");
 Components.utils.import("resource://gre/modules/NetUtil.jsm");
 Components.utils.import("resource://gre/modules/Promise.jsm");
 
+/* exported g_stringBundle */
+
+var g_stringBundle = null;
+
 function calStringEnumerator(stringArray) {
     this.mIndex = 0;
     this.mStringArray = stringArray;
@@ -28,8 +32,6 @@ calStringEnumerator.prototype = {
         return this.mStringArray[this.mIndex++];
     }
 };
-
-var g_stringBundle = null;
 
 function calTimezoneService() {
     this.wrappedJSObject = this;
@@ -814,4 +816,4 @@ function guessSystemTimezone() {
     return probableTZId;
 }
 
-var NSGetFactory = cal.loadingNSGetFactory(["calTimezone.js"], [calTimezoneService], this);
+this.NSGetFactory = cal.loadingNSGetFactory(["calTimezone.js"], [calTimezoneService], this);

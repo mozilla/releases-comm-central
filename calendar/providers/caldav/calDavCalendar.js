@@ -30,7 +30,6 @@ var calservNS = "http://calendarserver.org/ns/";
 var MIME_TEXT_CALENDAR = "text/calendar; charset=utf-8";
 var MIME_TEXT_XML = "text/xml; charset=utf-8";
 
-var cICL = Components.interfaces.calIChangeLog;
 var cIOL = Components.interfaces.calIOperationListener;
 
 function caldavNSResolver(prefix) {
@@ -1004,7 +1003,7 @@ calDavCalendar.prototype = {
                 }
 
                 // Finally, notify listener.
-                notifyListener(listenerstatus, listenerDetail, true);
+                notifyListener(listenerStatus, listenerDetail, true);
             }
         };
 
@@ -3013,4 +3012,4 @@ var scriptLoadOrder = [
     "calDavRequestHandlers.js"
 ];
 
-var NSGetFactory = cal.loadingNSGetFactory(scriptLoadOrder, [calDavCalendar], this);
+this.NSGetFactory = cal.loadingNSGetFactory(scriptLoadOrder, [calDavCalendar], this);

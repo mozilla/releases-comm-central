@@ -919,8 +919,6 @@
         <parameter name="aRow"/>
         <parameter name="aCol"/>
         <body><![CDATA[
-          let calendar = this.getCalendar(aRow);
-
           switch (aCol.element.getAttribute("anonid")) {
               case "calendarname-treecol":
                   return this.getCalendar(aRow).name;

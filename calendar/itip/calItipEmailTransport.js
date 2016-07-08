@@ -9,13 +9,6 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://calendar/modules/ltnInvitationUtils.jsm");
 
-function convertFromUnicode(aCharset, aSrc) {
-    let unicodeConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
-                                     .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-    unicodeConverter.charset = aCharset;
-    return unicodeConverter.ConvertFromUnicode(aSrc);
-}
-
 /**
  * Constructor of calItipEmailTransport object
  */
@@ -423,4 +416,4 @@ calItipEmailTransport.prototype = {
     }
 };
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([calItipEmailTransport]);
+this.NSGetFactory = XPCOMUtils.generateNSGetFactory([calItipEmailTransport]);

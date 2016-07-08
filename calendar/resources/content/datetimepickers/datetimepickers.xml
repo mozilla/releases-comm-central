@@ -1719,21 +1719,18 @@
             if (timePartsArray != null) {
               let hoursString = timePartsArray[HR_INDEX];
               let hours = Number(hoursString);
-              let hoursSuffix = timePartsArray[HR_INDEX + 1];
               if (!(hours >= 0 && hours < 24)) {
                 return null;
               }
 
               let minutesString = timePartsArray[MIN_INDEX];
               let minutes = (minutesString == null ? 0 : Number(minutesString));
-              let minutesSuffix = timePartsArray[MIN_INDEX + 1];
               if (!(minutes >= 0 && minutes < 60)) {
                 return null;
               }
 
               let secondsString = timePartsArray[SEC_INDEX];
               let seconds = (secondsString == null ? 0 : Number(secondsString));
-              let secondsSuffix = timePartsArray[SEC_INDEX + 1];
               if (!(seconds >= 0 && seconds < 60)) {
                 return null;
               }
@@ -1879,7 +1876,7 @@
             // digitsExpr has 6 captures, so index of first ampmExpr is 1, of last is 8.
             let probeTimeRegExp =
               new RegExp("^(" + anyAmPmExpr + ")?\\s?" + digitsExpr + "(" + anyAmPmExpr + ")?\\s*$");
-            const PRE_INDEX = 1, HR_INDEX = 2, MIN_INDEX = 4, SEC_INDEX = 6, POST_INDEX = 8;
+            const PRE_INDEX = 1, HR_INDEX = 2, MIN_INDEX = 4, SEC_INDEX = 6, POST_INDEX = 8; // eslint-disable-line no-unused-vars
             let amProbeTime = new Date(2000, 0, 1, 6, 12, 34);
             let amProbeString = amProbeTime.toLocaleFormat("%X");
             let pmProbeTime = new Date(2000, 0, 1, 18, 12, 34);

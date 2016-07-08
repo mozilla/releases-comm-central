@@ -474,7 +474,6 @@
           let args = window.arguments[0];
           let startTime = args.startTime;
           let endTime = args.endTime;
-          let calendar = args.calendar;
 
           let kDefaultTimezone = calendarDefaultTimezone();
           this.startDate = startTime.getInTimezone(kDefaultTimezone);
@@ -702,7 +701,6 @@
           let date = cal.jsDateToDateTime(new Date());
           date.hour = this.mStartHour;
           date.minute = 0;
-          let height = this.parentNode.parentNode.boxObject.height - 1;
           let hours =
               document.getAnonymousElementByAttribute(
                   this, "anonid", "hours");
@@ -1068,8 +1066,6 @@
       <constructor><![CDATA[
         Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-        let args = window.arguments[0];
-
         this.initTimeRange();
 
         this.mRange = Number(this.getAttribute("range"));
@@ -1144,7 +1140,6 @@
           let args = window.arguments[0];
           let startTime = args.startTime;
           let endTime = args.endTime;
-          let calendar = args.calendar;
 
           let kDefaultTimezone = calendarDefaultTimezone();
           this.startDate = startTime.getInTimezone(kDefaultTimezone);
@@ -1470,9 +1465,6 @@
       <method name="removeRow">
         <parameter name="aRow"/>
         <body><![CDATA[
-          let listbox =
-              document.getAnonymousElementByAttribute(
-                  this, "anonid", "listbox");
           this.getListItem(aRow).remove();
           this.fitDummyRows();
           this.mMaxFreeBusy--;

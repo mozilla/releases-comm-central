@@ -6,7 +6,6 @@ var calUtils = require("../shared-modules/calendar-utils");
 var prefs = require("../shared-modules/prefs");
 var timezoneUtils = require("../shared-modules/timezone-utils");
 
-var sleep = 500;
 var calendar = "Mozmill";
 var dates = [[2009, 1, 1], [2009, 4, 2], [2009, 4, 16], [2009, 4, 30],
              [2009, 7, 2], [2009, 10, 15], [2009, 10, 29], [2009, 11, 5]];
@@ -28,8 +27,6 @@ var setupModule = function(module) {
 };
 
 var testTimezones10_checkAdelaide = function() {
-  let eventPath = '/{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}';
-
   controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
   calUtils.switchToView(controller, "day");
   calUtils.goToDate(controller, 2009, 1, 1);

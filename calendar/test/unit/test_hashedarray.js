@@ -64,16 +64,6 @@ function checkConsistancy(har, testItems, itemAccessor) {
 }
 
 /**
- * Useful for debugging, in case this test fails. Dumps the array showing the
- * title identifications.
- *
- * @param ar        The array to dump
- */
-function dumpArray(ar) {
-    dump("ARR: " + ar.map(e => e.title).toSource() + "\n");
-}
-
-/**
  * Man, this function is really hard to keep general enough, I'm almost tempted
  * to duplicate the code. It checks if the remove and modify operations work for
  * the given hashed array.

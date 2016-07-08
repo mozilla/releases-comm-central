@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* exported gInTab, gMainWindow, gTabmail, intializeTabOrWindowVariables,
+ *          dispose, setDialogId, loadReminders, saveReminder,
+ *          commonUpdateReminder, updateLink, rearrangeAttendees
+ */
+
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/iteratorUtils.jsm");
@@ -137,7 +142,6 @@ function editReminder() {
                      calendarDefaultTimezone());
 
     args.calendar = getCurrentCalendar();
-    let savedWindow = window;
 
     // While these are "just" callbacks, the dialog is opened modally, so aside
     // from whats needed to set up the reminders, nothing else needs to be done.
@@ -269,7 +273,6 @@ function matchCustomReminderToMenuitem(reminder) {
 function loadReminders(reminders) {
     // select 'no reminder' by default
     let reminderList = document.getElementById("item-alarm");
-    let reminderPopup = reminderList.firstChild;
     let customItem = document.getElementById("reminder-custom-menuitem");
     reminderList.selectedIndex = 0;
     gLastAlarmSelection = 0;

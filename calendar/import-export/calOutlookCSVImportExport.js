@@ -222,7 +222,6 @@ calOutlookCSVImporter.prototype = {
         args.boolStr = localeEn.valueTrue;
         args.boolIsTrue = true;
 
-        let dateParseConfirmed = false;
         let eventArray = [];
         do {
             // At this point eventFields contains following fields. Position

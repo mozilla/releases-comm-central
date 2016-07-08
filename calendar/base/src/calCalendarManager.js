@@ -179,11 +179,6 @@ calCalendarManager.prototype = {
     //
 
     upgradeDB: function(oldVersion, db) {
-        // some common helpers
-        function addColumn(db_, tableName, colName, colType) {
-            db_.executeSimpleSQL("ALTER TABLE " + tableName + " ADD COLUMN " + colName + " " + colType);
-        }
-
         if (oldVersion < 6) {
             dump("**** Upgrading calCalendarManager schema to 6\n");
 
@@ -417,15 +412,15 @@ calCalendarManager.prototype = {
                                    promptSvc.BUTTON_TITLE_IS_STRING +
                                    promptSvc.BUTTON_POS_0_DEFAULT);
 
-        let choice = promptSvc.confirmEx(null,
-                                         errorBoxTitle,
-                                         errorBoxText,
-                                         errorBoxButtonFlags,
-                                         errorBoxButtonLabel,
-                                         null, // No second button text
-                                         null, // No third button text
-                                         null, // No checkbox
-                                         { value: false }); // Unnecessary checkbox state
+        promptSvc.confirmEx(null,
+                            errorBoxTitle,
+                            errorBoxText,
+                            errorBoxButtonFlags,
+                            errorBoxButtonLabel,
+                            null, // No second button text
+                            null, // No third button text
+                            null, // No checkbox
+                            { value: false }); // Unnecessary checkbox state
 
         // Disable Lightning
         AddonManager.getAddonByID("{e2fda1a4-762b-4020-b5ad-a41df1933103}", function getLightningExt(aAddon) {

@@ -58,4 +58,4 @@ calBackendLoader.prototype = {
     }
 };
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([calBackendLoader]);
+this.NSGetFactory = XPCOMUtils.generateNSGetFactory([calBackendLoader]);

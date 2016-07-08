@@ -79,7 +79,6 @@ calAlarm.prototype = {
         let e = this.mProperties.enumerator;
         while (e.hasMoreElements()) {
             let prop = e.getNext();
-            let val = prop.value;
 
             if (prop.value instanceof Components.interfaces.calIDateTime) {
                 if (prop.value.isMutable) {

@@ -11,6 +11,8 @@
  *   some of it duplicated.)
  */
 
+/* exported onMouseOverItem, showToolTip */
+
 /** PUBLIC
  *
  *  This changes the mouseover preview based on the start and end dates

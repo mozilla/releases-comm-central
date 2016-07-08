@@ -66,6 +66,8 @@
  * please file a bug.
  */
 
+/* exported upgradeDB */
+
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calStorageHelpers.jsm");
@@ -1410,7 +1412,6 @@ upgrade.v21 = function upgrade_v21(db, version) {
 
             // Repeat these two statements until the update affects 0 rows
             // (because the dates field on all x-datesets is empty)
-            let insertedRows = 0;
             do {
                 insertStmt.execute();
                 updateStmt.execute();
@@ -1527,6 +1528,7 @@ upgrade.v22 = function upgrade_v22(db, version) {
             onFunctionCall: function translateRecurrence(storArgs) {
                 function parseInt10(x) { return parseInt(x, 10); }
                 try {
+                    // eslint-disable-next-line no-unused-vars
                     let [aIndex, aType, aIsNegative, aDates, aCount,
                          aEndDate, aInterval, aSecond, aMinute, aHour,
                          aDay, aMonthday, aYearday, aWeekno, aMonth,

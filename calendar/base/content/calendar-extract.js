@@ -236,7 +236,6 @@ var calendarExtract = {
         let contextMenuTask = document.getElementById("mailContext-calendar-convert-task-menuitem");
         let eventDisabled = (gFolderDisplay.selectedCount == 0);
         let taskDisabled = (gFolderDisplay.selectedCount == 0);
-        let contextDisabled = false;
         let contextEventDisabled = false;
         let contextTaskDisabled = false;
         let newEvent = document.getElementById("calendar_new_event_command");

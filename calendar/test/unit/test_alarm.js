@@ -250,7 +250,6 @@ function test_custom_alarm() {
 // Check if any combination of REPEAT and DURATION work as expected.
 function test_repeat() {
     dump("Testing REPEAT and DURATION properties...");
-    let message;
     let alarm = cal.createAlarm();
 
     // Check initial value
@@ -394,7 +393,6 @@ function test_immutable() {
     alarm.setProperty("X-DATEPROP", cal.createDateTime());
     alarm.addAttendee(cal.createAttendee());
 
-    let passed = false;
     // Initial checks
     ok(alarm.isMutable);
     alarm.makeImmutable();

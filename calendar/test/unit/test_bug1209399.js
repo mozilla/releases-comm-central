@@ -89,7 +89,6 @@ function test_fromICS() {
         { id: 'mailto:user8@example.net', cn: '' }
     ];
     let event = createEventFromIcalString(ics);
-    let attendees = event.getAttendees({});
 
     equal(event.getAttendees({}).length, expected.length, "Check test consistency");
     for (let exp of expected) {

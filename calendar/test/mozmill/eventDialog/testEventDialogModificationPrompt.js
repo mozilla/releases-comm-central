@@ -8,9 +8,6 @@ var prefs = require("../shared-modules/prefs");
 
 var sleep = 500;
 var calendar = "Mozmill";
-var title = "Title";
-var location = "Location";
-var description = "Description\ncontinuing";
 var pass;
 var date1 = new Date(2009, 0, 1, 8, 0);
 var date2 = new Date(2009, 0, 2, 9, 0);

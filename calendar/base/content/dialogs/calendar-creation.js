@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* exported openLocalCalendar */
+
 /**
  * Shows the filepicker and creates a new calendar with a local file using the ICS
  * provider.

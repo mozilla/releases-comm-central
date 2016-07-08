@@ -7,6 +7,30 @@
  * that loading this file twice in the same scope will throw errors.
  */
 
+
+/* exported createEvent, createTodo, createDateTime, createDuration, createAttendee,
+ *          createAttachment, createAlarm, createRelation,
+ *          createRecurrenceDate, createRecurrenceRule, createRecurrenceInfo,
+ *          getCalendarManager, getIcsService, getCalendarSearchService,
+ *          getFreeBusyService, getWeekInfoService, getDateFormatter, UTC,
+ *          floating, saveRecentTimezone, getCalendarDirectory,
+ *          isCalendarWritable, userCanAddItemsToCalendar,
+ *          userCanDeleteItemsFromCalendar, attendeeMatchesAddresses,
+ *          userCanRespondToInvitation, openCalendarWizard,
+ *          openCalendarProperties, calPrint, makeURL, calRadioGroupSelectItem,
+ *          isItemSupported, calInstanceOf, getPrefSafe, setPref,
+ *          setLocalizedPref, getLocalizedPref, getPrefCategoriesArray,
+ *          setPrefCategoriesFromArray, compareItems, calTryWrappedJSObject,
+ *          compareArrays, doQueryInterface, setDefaultStartEndHour, LOG, WARN,
+ *          ERROR, showError, getContrastingTextColor, calGetEndDateProp,
+ *          checkIfInRange, getProgressAtom, sendMailTo, sameDay,
+ *          calSetProdidVersion, applyAttributeToMenuChildren,
+ *          isPropertyValueSame, getParentNodeOrThis,
+ *          getParentNodeOrThisByAttribute, setItemProperty,
+ *          calIterateEmailIdentities, compareItemContent, binaryInsert,
+ *          getCompositeCalendar, findItemWindow
+ */
+
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");

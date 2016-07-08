@@ -6,6 +6,8 @@ Components.utils.import("resource://gre/modules/iteratorUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 
+/* exported commonInitCalendar, commonFinishCalendar */
+
 /**
  * Common initialization steps for calendar chrome windows.
  */

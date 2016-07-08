@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* exported onLoad, onAccept, onCancel */
+
 Components.utils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
@@ -44,7 +46,6 @@ function onLoad() {
         try {
             let rrules = splitRecurrenceRules(recinfo);
             let rules = rrules[0];
-            let exceptions = rrules[1];
             // Deal with the rules
             if (rules.length > 0) {
                 // We only handle 1 rule currently
@@ -554,8 +555,6 @@ function updateRecurrenceRange() {
         document.getElementById("repeat-until-date");
     let rangeAppointmentsLabel =
         document.getElementById("repeat-appointments-label");
-
-    let deckNumber = Number(getElementValue("period-list"));
 
     radioRangeForever.removeAttribute("disabled");
     radioRangeFor.removeAttribute("disabled");

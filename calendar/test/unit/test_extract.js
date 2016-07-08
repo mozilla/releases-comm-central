@@ -27,7 +27,7 @@ function test_event_start_end() {
     let title = "Wednesday meetup";
     let content = "We'll meet at 2 pm and discuss until 3 pm.";
 
-    let collected = extractor.extract(title, content, date, undefined);
+    extractor.extract(title, content, date, undefined);
     let guessed = extractor.guessStart();
     let endGuess = extractor.guessEnd(guessed);
 
@@ -49,7 +49,7 @@ function test_event_start_duration() {
     let title = "Wednesday meetup";
     let content = "We'll meet at 2 pm and discuss for 30 minutes.";
 
-    let collected = extractor.extract(title, content, date, undefined);
+    extractor.extract(title, content, date, undefined);
     let guessed = extractor.guessStart();
     let endGuess = extractor.guessEnd(guessed);
 
@@ -71,7 +71,7 @@ function test_event_start_end_whitespace() {
     let title = "Wednesday meetup";
     let content = "We'll meet at2pm and discuss until\r\n3pm.";
 
-    let collected = extractor.extract(title, content, date, undefined);
+    extractor.extract(title, content, date, undefined);
     let guessed = extractor.guessStart();
     let endGuess = extractor.guessEnd(guessed);
 
@@ -93,7 +93,7 @@ function test_event_without_date() {
     let title = "Meetup";
     let content = "We'll meet at 2 pm and discuss until 3 pm.";
 
-    let collected = extractor.extract(title, content, date, undefined);
+    extractor.extract(title, content, date, undefined);
     let guessed = extractor.guessStart();
     let endGuess = extractor.guessEnd(guessed);
 
@@ -115,7 +115,7 @@ function test_event_next_year() {
     let title = "Open day";
     let content = "FYI: Next open day is planned for February 5th.";
 
-    let collected = extractor.extract(title, content, date, undefined);
+    extractor.extract(title, content, date, undefined);
     let guessed = extractor.guessStart();
     let endGuess = extractor.guessEnd(guessed);
 
@@ -137,7 +137,7 @@ function test_task_due() {
     let title = "Assignment deadline";
     let content = "This is a reminder that all assignments must be sent in by October 5th!.";
 
-    let collected = extractor.extract(title, content, date, undefined);
+    extractor.extract(title, content, date, undefined);
     let guessed = extractor.guessStart(true);
     let endGuess = extractor.guessEnd(guessed, true);
 
@@ -159,7 +159,7 @@ function test_overrides() {
     let title = "Event invitation";
     let content = "We'll meet 10:11 worromot";
 
-    let collected = extractor.extract(title, content, date, undefined);
+    extractor.extract(title, content, date, undefined);
     let guessed = extractor.guessStart(false);
     let endGuess = extractor.guessEnd(guessed, true);
 
@@ -204,7 +204,7 @@ function test_event_start_dollar_sign() {
     let title = "Wednesday sale";
     let content = "Sale starts at 3 pm and prices start at 2$.";
 
-    let collected = extractor.extract(title, content, date, undefined);
+    extractor.extract(title, content, date, undefined);
     let guessed = extractor.guessStart();
     let endGuess = extractor.guessEnd(guessed);
 
@@ -213,4 +213,10 @@ function test_event_start_dollar_sign() {
     equal(guessed.day, 3);
     equal(guessed.hour, 15);
     equal(guessed.minute, 0);
+
+    equal(endGuess.year, undefined);
+    equal(endGuess.month, undefined);
+    equal(endGuess.day, undefined);
+    equal(endGuess.hour, undefined);
+    equal(endGuess.minute, undefined);
 }

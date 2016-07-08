@@ -98,11 +98,11 @@ function test_failure() {
     freebusy.addProvider(provider);
 
     do_test_pending();
-    let op = freebusy.getFreeBusyIntervals("email",
-                                           cal.createDateTime("20120101T010101"),
-                                           cal.createDateTime("20120102T010101"),
-                                           cIFI.BUSY_ALL,
-                                           listener);
+    freebusy.getFreeBusyIntervals("email",
+                                  cal.createDateTime("20120101T010101"),
+                                  cal.createDateTime("20120102T010101"),
+                                  cIFI.BUSY_ALL,
+                                  listener);
 }
 
 function test_cancel() {

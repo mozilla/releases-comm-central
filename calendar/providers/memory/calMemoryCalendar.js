@@ -13,8 +13,6 @@ Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
 // calMemoryCalendar.js
 //
 
-var calCalendarManagerContractID = "@mozilla.org/calendar/manager;1";
-var calICalendarManager = Components.interfaces.calICalendarManager;
 var cICL = Components.interfaces.calIChangeLog;
 
 function calMemoryCalendar() {
@@ -366,7 +364,6 @@ calMemoryCalendar.prototype = {
         }
 
         const calICalendar = Components.interfaces.calICalendar;
-        const calIRecurrenceInfo = Components.interfaces.calIRecurrenceInfo;
 
         let itemsFound = [];
 
@@ -571,4 +568,4 @@ calMemoryCalendar.prototype = {
 };
 
 /** Module Registration */
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([calMemoryCalendar]);
+this.NSGetFactory = XPCOMUtils.generateNSGetFactory([calMemoryCalendar]);

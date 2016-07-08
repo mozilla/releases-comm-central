@@ -272,11 +272,13 @@ function diffProperty(newItem, oldItem, propName) {
     return val;
 }
 
+/* eslint-disable no-unused-vars */
 var METHOD_PUBLISH = 1;
 var METHOD_REQUEST = 2;
 var METHOD_REPLY = 4;
 var METHOD_CANCEL = 8;
 var METHOD_UPDATE = 256;
+/* eslint-enable no-unused-vars */
 
 calWcapCalendar.prototype.storeItem =
 function calWcapCalendar_storeItem(bAddItem, item, oldItem, request) {
@@ -847,7 +849,6 @@ calWcapCalendar.prototype.parseItems = function calWcapCalendar_parseItems(
 
     let recurrenceBound = this.session.recurrenceBound;
 
-    let count = 0;
     for (let subComp of cal.ical.calendarComponentIterator(icalRootComp, componentType)) {
         let organizer = subComp.getFirstProperty("ORGANIZER");
         if (organizer && organizer.getParameter("SENT-BY")) { // has SENT-BY

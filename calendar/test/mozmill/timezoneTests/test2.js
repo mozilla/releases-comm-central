@@ -7,7 +7,6 @@ var modalDialog = require("../shared-modules/modal-dialog");
 var timezoneUtils = require("../shared-modules/timezone-utils");
 
 var sleep = 500;
-var calendar = "Mozmill";
 var timezones = ["America/St_Johns", "America/Caracas", "America/Phoenix", "America/Los_Angeles",
                  "America/Argentina/Buenos_Aires", "Europe/Paris", "Asia/Kathmandu", "Australia/Adelaide"];
 var times = [[4, 30], [4, 30], [3, 0], [3, 0], [9, 0], [14, 0], [19, 45], [1, 30]];

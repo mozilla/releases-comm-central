@@ -674,7 +674,6 @@ calStorageCalendar.prototype = {
 
         let self = this;
 
-        let itemsFound = [];
         let startTime = -0x7fffffffffffffff;
         // endTime needs to be the max value a PRTime can be
         let endTime = 0x7fffffffffffffff;
@@ -1051,7 +1050,6 @@ calStorageCalendar.prototype = {
 
             },
             onOperationComplete: function(calendar, status, opType, id, oldOfflineJournalFlag) {
-                let newOfflineJournalFlag = cICL.OFFLINE_FLAG_DELETED_RECORD;
                 if (oldOfflineJournalFlag) {
                     // Delete item if flag is c
                     if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD) {
@@ -1563,7 +1561,6 @@ calStorageCalendar.prototype = {
 
         try {
             this.prepareStatement(this.mSelectEventsWithRecurrence);
-            let sp = this.mSelectEventsWithRecurrence.params;
             while (this.mSelectEventsWithRecurrence.executeStep()) {
                 let row = this.mSelectEventsWithRecurrence.row;
                 let item = this.getEventFromRow(row, {});
@@ -1578,7 +1575,6 @@ calStorageCalendar.prototype = {
 
         try {
             this.prepareStatement(this.mSelectTodosWithRecurrence);
-            let sp = this.mSelectTodosWithRecurrence.params;
             while (this.mSelectTodosWithRecurrence.executeStep()) {
                 let row = this.mSelectTodosWithRecurrence.row;
                 let item = this.getTodoFromRow(row, {});
@@ -1749,7 +1745,6 @@ calStorageCalendar.prototype = {
             }
         }
 
-        let i;
         if (flags & CAL_ITEM_FLAG.HAS_RECURRENCE) {
             if (item.recurrenceId) {
                 throw Components.results.NS_ERROR_UNEXPECTED;
@@ -2478,4 +2473,4 @@ var scriptLoadOrder = [
     "calUtils.js",
 ];
 
-var NSGetFactory = cal.loadingNSGetFactory(scriptLoadOrder, [calStorageCalendar], this);
+this.NSGetFactory = cal.loadingNSGetFactory(scriptLoadOrder, [calStorageCalendar], this);

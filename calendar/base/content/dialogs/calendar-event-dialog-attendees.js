@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* exported onLoad, onAccept, onCancel, zoomWithButtons, updateStartTime,
+ *          endWidget, updateEndTime, editStartTimezone, editEndTimezone,
+ *          changeAllDay, onNextSlot, onPreviousSlot
+ */
+
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
@@ -345,10 +350,8 @@ function updateStartTime() {
     }
 
     let startWidgetId = "event-starttime";
-    let endWidgetId = "event-endtime";
 
     let startWidget = document.getElementById(startWidgetId);
-    let endWidget = document.getElementById(endWidgetId);
 
     // jsDate is always in OS timezone, thus we create a calIDateTime
     // object from the jsDate representation and simply set the new
@@ -614,7 +617,6 @@ function onResize() {
  */
 function onChangeCalendar(calendar) {
     let args = window.arguments[0];
-    let organizer = args.organizer;
 
     // set 'mIsReadOnly' if the calendar is read-only
     if (calendar && calendar.readOnly) {
@@ -708,7 +710,6 @@ function onPreviousSlot() {
 
     gStartDate = previousSlot.startTime.clone();
     gEndDate = previousSlot.endTime.clone();
-    let endDate = gEndDate.clone();
 
     propagateDateTime();
 

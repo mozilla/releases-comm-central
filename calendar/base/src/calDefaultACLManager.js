@@ -119,4 +119,4 @@ calDefaultItemACLEntry.prototype = {
 };
 
 /** Module Registration */
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([calDefaultACLManager]);
+this.NSGetFactory = XPCOMUtils.generateNSGetFactory([calDefaultACLManager]);

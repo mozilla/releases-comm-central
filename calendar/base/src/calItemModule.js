@@ -64,4 +64,4 @@ function getComponents() {
     ];
 }
 
-var NSGetFactory = cal.loadingNSGetFactory(scriptLoadOrder, getComponents, this);
+this.NSGetFactory = cal.loadingNSGetFactory(scriptLoadOrder, getComponents, this);

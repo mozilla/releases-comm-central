@@ -54,7 +54,7 @@ function run_test() {
     });
 
     // There should still be one alarm, one relation and one attachment
-    equal(item.getAlarms({}).length, 1);
-    equal(item.getRelations({}).length, 1);
-    equal(item.getAttachments({}).length, 1);
+    equal(retrievedItem.getAlarms({}).length, 1);
+    equal(retrievedItem.getRelations({}).length, 1);
+    equal(retrievedItem.getAttachments({}).length, 1);
 }

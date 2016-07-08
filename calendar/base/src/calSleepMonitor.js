@@ -68,4 +68,4 @@ calSleepMonitor.prototype = {
     }
 };
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([calSleepMonitor]);
+this.NSGetFactory = XPCOMUtils.generateNSGetFactory([calSleepMonitor]);

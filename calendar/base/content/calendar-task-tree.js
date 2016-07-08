@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* exported addCalendarNames, calendars, changeContextMenuForTask,
+ *          contextChangeTaskCalendar, contextChangeTaskPriority,
+ *          contextPostponeTask, modifyTaskFromContext, deleteToDoCommand,
+ *          tasksToMail, tasksToEvents, toggleCompleted,
+ */
+
 /**
  * Add registered calendars to the given menupopup. Removes all previous
  * children.
@@ -13,7 +19,6 @@
  */
 function addCalendarNames(aEvent) {
     let calendarMenuPopup = aEvent.target;
-    let calendars = getCalendarManager().getCalendars({});
     while (calendarMenuPopup.hasChildNodes()) {
         calendarMenuPopup.lastChild.remove();
     }

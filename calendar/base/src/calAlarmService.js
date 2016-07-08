@@ -11,8 +11,6 @@ Components.utils.import("resource://gre/modules/Promise.jsm");
 Components.utils.import("resource://gre/modules/PromiseUtils.jsm");
 
 var kHoursBetweenUpdates = 6;
-var kSleepMonitorInterval = 60000;
-var kSleepMonitorTolerance = 1000;
 
 function nowUTC() {
     return cal.jsDateToDateTime(new Date()).getInTimezone(cal.UTC());

@@ -2,6 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* exported onEventDialogUnload, changeUndiscloseCheckboxStatus,
+ *          toggleKeepDuration, dateTimeControls2State, onUpdateAllDay,
+ *          openNewEvent, openNewTask, openNewMessage, openNewCardDialog,
+ *          deleteAllAttachments, copyAttachment, attachmentLinkKeyPress,
+ *          attachmentDblClick, attachmentClick, notifyUser,
+ *          removeNotification, chooseRecentTimezone, showTimezonePopup,
+ *          attendeeDblClick, attendeeClick, removeAttendee,
+ *          removeAllAttendees, sendMailToUndecidedAttendees, checkUntilDate
+ */
+
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
@@ -1460,8 +1470,6 @@ function saveDialog(item) {
  * @param item    The item to save to.
  */
 function saveDateTime(item) {
-    let kDefaultTimezone = calendarDefaultTimezone();
-
     // Changes to the start date don't have to change the until date.
     untilDateCompensation(item);
 

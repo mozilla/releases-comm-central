@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* exported onLoad, onUnload, onKeyPress, onTextBoxKeyPress, onAccept,
+ *          onCancel, onSubscribe, onUnsubscribe
+ */
+
 /**
  * Cancels any pending search operations.
  */

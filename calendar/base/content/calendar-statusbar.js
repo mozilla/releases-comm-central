@@ -4,6 +4,8 @@
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+/* exported gCalendarStatusFeedback */
+
 /**
  * This code might change soon if we support Thunderbird's activity manager.
  * NOTE: The naming "Meteors" is historical.

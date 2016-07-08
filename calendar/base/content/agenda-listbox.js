@@ -168,7 +168,6 @@ function onSelect(aListItem) {
  */
 agendaListbox.onFocus =
 function onFocus() {
-    let listbox = document.getElementById("agenda-listbox");
     calendarController.onSelectionChanged({detail: agendaListbox.getSelectedItems()});
 };
 
@@ -802,7 +801,6 @@ function showsToday(aStartDate) {
  */
 agendaListbox.moveSelection =
 function moveSelection() {
-    let selindex = this.agendaListboxControl.selectedIndex;
     if (!this.isEventListItem(this.agendaListboxControl.selectedItem.nextSibling)) {
         this.agendaListboxControl.goUp();
     } else {
@@ -818,7 +816,6 @@ function moveSelection() {
  */
 agendaListbox.getSelectedItems =
 function getSelectedItems() {
-    let selindex = this.agendaListboxControl.selectedIndex;
     let items = [];
     if (this.isEventListItem(this.agendaListboxControl.selectedItem)) {
         // If at some point we support selecting multiple items, this array can

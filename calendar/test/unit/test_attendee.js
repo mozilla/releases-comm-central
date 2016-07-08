@@ -47,8 +47,6 @@ function test_values() {
         }
     }
 
-    const cIA = Components.interfaces.calIAttendee;
-
     // Create Attendee
     let a1 = cal.createAttendee();
     // Testing attendee set/get.

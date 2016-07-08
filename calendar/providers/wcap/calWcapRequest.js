@@ -17,6 +17,8 @@
      indicating that there is no further continuation
 */
 
+/* exported issueNetworkRequest, getWcapRequestStatusString, stringToIcal, stringToXml */
+
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 

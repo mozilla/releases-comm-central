@@ -118,7 +118,6 @@
         Components.utils.import("resource://gre/modules/Services.jsm");
         Components.utils.import("resource://calendar/modules/calItemUtils.jsm");
         Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-        let self = this;
 
         // set up the tree filter
         this.mFilter = new calFilter();
@@ -397,7 +396,6 @@
               let remIndexes = [];
               aNewItems = aNewItems || [];
               aOldItems = aOldItems || [];
-              let _this = this;
 
               this.treebox.beginUpdateBatch();
 

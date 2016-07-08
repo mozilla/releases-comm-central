@@ -20,7 +20,6 @@ Components.utils.import("resource://calendar/modules/calProviderUtils.jsm");
 // XXX Should do locks, so that external changes are not overwritten.
 
 var CI = Components.interfaces;
-var calIOperationListener = Components.interfaces.calIOperationListener;
 var calICalendar = Components.interfaces.calICalendar;
 var calIErrors = Components.interfaces.calIErrors;
 
@@ -32,9 +31,6 @@ function icsNSResolver(prefix) {
     return ns[prefix] || null;
 }
 
-function icsXPath(aNode, aExpr, aType) {
-    return cal.xml.evalXPath(aNode, aExpr, icsNSResolver, aType);
-}
 function icsXPathFirst(aNode, aExpr, aType) {
     return cal.xml.evalXPathFirst(aNode, aExpr, icsNSResolver, aType);
 }
@@ -1115,4 +1111,4 @@ var scriptLoadOrder = [
     "calUtils.js",
 ];
 
-var NSGetFactory = cal.loadingNSGetFactory(scriptLoadOrder, [calICSCalendar], this);
+this.NSGetFactory = cal.loadingNSGetFactory(scriptLoadOrder, [calICSCalendar], this);

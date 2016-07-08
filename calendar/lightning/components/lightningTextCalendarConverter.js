@@ -91,4 +91,4 @@ ltnMimeConverter.prototype = {
     }
 };
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([ltnMimeConverter]);
+this.NSGetFactory = XPCOMUtils.generateNSGetFactory([ltnMimeConverter]);

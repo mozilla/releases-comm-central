@@ -85,9 +85,6 @@
           let dateLabel = document.getAnonymousElementByAttribute(this, "anonid", "alarm-date-label");
 
           // Dates
-          let startString = {};
-          let endString = {};
-
           if (cal.isEvent(this.mItem)) {
               dateLabel.textContent = formatter.formatItemInterval(this.mItem);
           } else if (cal.isToDo(this.mItem)) {

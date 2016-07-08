@@ -2,6 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* exported switchToView, getSelectedDay, scheduleMidnightUpdate,
+ *          updateStyleSheetForViews, observeViewDaySelect, toggleOrientation,
+ *          toggleWorkdaysOnly, toggleTasksInView, toggleShowCompletedInView,
+ *          goToDate, getLastCalendarView, deleteSelectedEvents,
+ *          editSelectedEvents, selectAllEvents
+ */
+
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
@@ -125,7 +132,7 @@ var calendarViewController = {
                 // Only give the user the selection if only one occurrence is
                 // selected. Otherwise he will get a dialog for each occurrence
                 // he deletes.
-                let [targetItem, hasFutureItem, response] = promptOccurrenceModification(itemToDelete, false, "delete");
+                let [targetItem, , response] = promptOccurrenceModification(itemToDelete, false, "delete");
                 if (!response) {
                     // The user canceled the dialog, bail out
                     break;
