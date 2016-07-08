@@ -435,7 +435,7 @@ function openEventDialog(calendarItem, calendar, mode, callback, job, initialDat
     }
 
     // Setup the window arguments
-    var args = new Object();
+    var args = {};
     args.calendarEvent = calendarItem;
     args.calendar = calendar;
     args.mode = mode;

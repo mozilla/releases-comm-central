@@ -240,7 +240,7 @@ InvitationsManager.prototype = {
      */
     openInvitationsDialog: function IM_openInvitationsDialog(onLoadOpListener,
                                                              finishedCallBack) {
-        var args = new Object();
+        var args = {};
         args.onLoadOperationListener = onLoadOpListener;
         args.queue = [];
         args.finishedCallBack = finishedCallBack;

@@ -70,7 +70,7 @@ function loadCalendarPrintDialog() {
  */
 function getPrintSettings(receiverFunc) {
     let tempTitle = document.getElementById("title-field").value;
-    let settings = new Object();
+    let settings = {};
     let requiresFetch = true;
     settings.title = (tempTitle || calGetString("calendar", "Untitled"));
     settings.layoutCId = document.getElementById("layout-field").value;

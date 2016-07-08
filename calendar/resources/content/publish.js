@@ -13,7 +13,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
  */
 function publishCalendarData()
 {
-   var args = new Object();
+   var args = {};
 
    args.onOk =  self.publishCalendarDataDialogResponse;
 
@@ -53,7 +53,7 @@ function publishEntireCalendar(aCalendar)
             // publishEntireCalendar() will be called again if OK is pressed
             // in the dialog and the selected calendar will be passed in.
             // Therefore return after openDialog().
-            let args = new Object();
+            let args = {};
             args.onOk = publishEntireCalendar;
             args.promptText = calGetString("calendar", "publishPrompt");
             openDialog("chrome://calendar/content/chooseCalendarDialog.xul",

@@ -1831,7 +1831,7 @@ function editAttendees() {
         startTime.isDate = false;
         endTime.isDate = false;
     }
-    var args = new Object();
+    var args = {};
     args.startTime = startTime;
     args.endTime = endTime;
     args.displayTimezone = gTimezonesEnabled;
@@ -2512,7 +2512,7 @@ function updateCalendar() {
  * rules.
  */
 function editRepeat() {
-    var args = new Object();
+    var args = {};
     args.calendarEvent = window.calendarItem;
     args.recurrenceInfo = window.recurrenceInfo;
     args.startTime = gStartTime;
@@ -3214,7 +3214,7 @@ function editTimezone(aElementId, aDateTime, aCallback) {
     }
 
     // prepare the arguments that will be passed to the dialog
-    var args = new Object();
+    var args = {};
     args.time = aDateTime;
     args.calendar = getCurrentCalendar();
     args.onOk = function(datetime) {

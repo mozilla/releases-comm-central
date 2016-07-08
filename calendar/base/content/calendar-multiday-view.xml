@@ -253,6 +253,7 @@
       <constructor><![CDATA[
         this.mEventInfos = [];
         this.mTimezone = UTC();
+        this.mSelectedItemIds = {};
       ]]></constructor>
 
       <!-- fields -->
@@ -289,7 +290,7 @@
         -->
       <field name="mCreatedNewEvent">false</field>
       <field name="mEventToEdit">null</field>
-      <field name="mSelectedItemIds">new Object()</field>
+      <field name="mSelectedItemIds">null</field>
 
       <!-- properties -->
       <property name="pixelsPerMinute">

@@ -822,7 +822,7 @@ var unifinderTreeView = {
 
     performActionOnCell: function uTV_performActionOnCell(aAction, aRow, aCol) {},
 
-    outParameter: new Object() // used to obtain dates during sort
+    outParameter: {} // used to obtain dates during sort
 };
 
 /**

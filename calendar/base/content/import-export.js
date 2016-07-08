@@ -115,7 +115,7 @@ function loadEventsFromFile(aCalendar) {
             putItemsIntoCal(calendars[0], items, filePath);
         } else {
             // Ask what calendar to import into
-            let args = new Object();
+            let args = {};
             args.onOk = function putItems(aCal) { putItemsIntoCal(aCal, items, filePath); };
             args.calendars = calendars;
             args.promptText = calGetString("calendar", "importPrompt");
@@ -340,7 +340,7 @@ function exportEntireCalendar(aCalendar) {
     }
 
     if (!aCalendar) {
-        var count = new Object();
+        var count = {};
         var calendars = getCalendarManager().getCalendars(count);
 
         if (count.value == 1) {
@@ -349,7 +349,7 @@ function exportEntireCalendar(aCalendar) {
             getItemsFromCal(calendars[0]);
         } else {
             // Ask what calendar to import into
-            var args = new Object();
+            var args = {};
             args.onOk = getItemsFromCal;
             args.promptText = calGetString("calendar", "exportPrompt");
             openDialog("chrome://calendar/content/chooseCalendarDialog.xul",

@@ -29,7 +29,7 @@
       <field name="mDisplayDaysOff">true</field>
       <field name="mDaysOffArray">[0, 6]</field>
       <field name="mTimezone">null</field>
-      <field name="mFlashingEvents">new Object()</field>
+      <field name="mFlashingEvents">null</field>
       <field name="mSelectedItems">[]</field>
       <field name="mLongWeekdayTotalPixels">-1</field>
       <field name="mResizeHandler">null</field>
@@ -261,6 +261,7 @@
         this.updateDaysOffPrefs();
         this.mPendingRefreshJobs = new Map();
         this.mLog = Log4Moz.getConfiguredLogger("calBaseView");
+        this.mFlashingEvents = {};
       ]]></constructor>
 
       <destructor><![CDATA[

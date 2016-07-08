@@ -512,7 +512,7 @@ function ltnIntegrationCheck() {
     if (!Preferences.get(kOptOut, true) && Preferences.get(kNotify, false)) {
         // action is only needed, if hasn't used Lightning before, so lets check whether this looks
         // like a default calendar setup
-        let cnt = new Object();
+        let cnt = {};
         let calMgr = cal.getCalendarManager();
         let cals = calMgr.getCalendars(cnt);
         let homeCalName = cal.calGetString("calendar", "homeCalendarName", null, "calendar");

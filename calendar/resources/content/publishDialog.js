@@ -34,7 +34,7 @@ function loadCalendarPublishDialog()
           document.getElementById( "publish-remotePath-textbox" ).value = args.publishObject.remotePath;
       }
    } else {
-      gPublishObject = new Object();
+      gPublishObject = {};
    }
    document.getElementById( "calendar-publishwindow" ).getButton( "accept" ).setAttribute( "label", publishButtonLabel );
 

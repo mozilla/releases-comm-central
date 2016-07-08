@@ -224,16 +224,18 @@
       <field name="mCompositeCalendar">null</field>
       <field name="tree">null</field>
       <field name="treebox">null</field>
-      <field name="ruleCache">new Object()</field>
+      <field name="ruleCache">null</field>
       <field name="mCachedSheet">null</field>
 
-      <field name="mCycleCalendarFlag">new Object()</field>
+      <field name="mCycleCalendarFlag">null</field>
       <field name="mCycleTimer">null</field>
 
       <constructor><![CDATA[
         Components.utils.import("resource://calendar/modules/calUtils.jsm");
         Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
         this.tree.view = this;
+        this.ruleCache = {};
+        this.mCycleCalendarFlag = {};
       ]]></constructor>
       <destructor><![CDATA[
         // Clean up the calendar manager observers. Do not use removeCalendar

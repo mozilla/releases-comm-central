@@ -35,6 +35,9 @@
     // Disallow use of the Array constructor.
     "no-array-constructor": 2,
 
+    // disallow use of the Object constructor
+    "no-new-object": 2,
+
     // Disallow the catch clause parameter name being the same as a variable in
     // the outer scope, to avoid confusion.
     "no-catch-shadow": 2,
