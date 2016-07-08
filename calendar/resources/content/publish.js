@@ -107,7 +107,7 @@ function publishEntireCalendarDialogResponse(CalendarPublishObject, aProgressDia
                 return;
             }
             if (aCount) {
-                for (var i=0; i<aCount; ++i) {
+                for (var i = 0; i < aCount; ++i) {
                     // Store a (short living) reference to the item.
                     var itemCopy = aItems[i].clone();
                     itemArray.push(itemCopy);

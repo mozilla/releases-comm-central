@@ -1386,7 +1386,7 @@ function calWcapCalendar_replayChangesOn(listener) {
                              // straight-forward deleteItem(). WTF.
                         var parent = item.parentItem.clone();
                         parent.recurrenceInfo.removeOccurrenceAt(item.recurrenceId);
-                        log("replayChangesOn(): modified parent "+ parent.id, this_);
+                        log("replayChangesOn(): modified parent " + parent.id, this_);
                         if (this_.offlineStorage) {
                             this_.offlineStorage.modifyItem(parent, item, writeListener);
                         }

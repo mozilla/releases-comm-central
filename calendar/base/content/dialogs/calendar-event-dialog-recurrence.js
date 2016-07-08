@@ -309,7 +309,7 @@ function onSave(item) {
         var monthInterval = Number(getElementValue("monthly-interval"));
         recRule.interval = monthInterval;
         var monthlyGroup = document.getElementById("monthly-group");
-        if (monthlyGroup.selectedIndex==0) {
+        if (monthlyGroup.selectedIndex == 0) {
             var ordinal = Number(getElementValue("monthly-ordinal"));
             var day_of_week = Number(getElementValue("monthly-weekday"));
             if (day_of_week < 0) {

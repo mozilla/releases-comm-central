@@ -31,7 +31,7 @@
         <parameter name="aEvent"/>
         <body>
           <![CDATA[
-            if (aEvent.attrName =="checked") {
+            if (aEvent.attrName == "checked") {
                 var event = document.createEvent('Events');
                 event.initEvent('select', true, true);
                 this.calendar.dispatchEvent(event);

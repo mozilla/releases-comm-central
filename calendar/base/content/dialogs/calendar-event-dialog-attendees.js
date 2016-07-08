@@ -93,12 +93,12 @@ function onLoad() {
             var timebar = document.getElementById("timebar");
             stylesheet.insertRule(
                 ".attendee-spacer-top { height: "
-                    + timebar.boxObject.height+"px; }", 0);
+                    + timebar.boxObject.height + "px; }", 0);
             // make the dummy-spacer #2 [bottom] the same height as the scrollbar
             var scrollbar = document.getElementById("horizontal-scrollbar");
             stylesheet.insertRule(
                 ".attendee-spacer-bottom { height: "
-                    + scrollbar.boxObject.height+"px; }", 0);
+                    + scrollbar.boxObject.height + "px; }", 0);
             break;
         }
     }
@@ -924,7 +924,7 @@ function onAttrModified(event) {
             } else if (scrollbar.getAttribute("id") == "horizontal-scrollbar") {
                 if (event.attrName == "curpos") {
                     let maxpos = scrollbar.getAttribute("maxpos");
-                    let ratio = event.newValue/maxpos;
+                    let ratio = event.newValue / maxpos;
                     let timebar = document.getElementById("timebar");
                     let grid = document.getElementById("freebusy-grid");
                     let selectionbar = document.getElementById("selection-bar");

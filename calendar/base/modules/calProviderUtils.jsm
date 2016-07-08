@@ -324,7 +324,7 @@ cal.fromRFC3339 = function fromRFC3339(aStr, aTimezone) {
     }
 
     // Set usual date components
-    dateTime.isDate = (matches[4]==null);
+    dateTime.isDate = (matches[4] == null);
 
     dateTime.year = matches[1];
     dateTime.month = matches[2] - 1; // Jan is 0

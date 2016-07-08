@@ -506,10 +506,10 @@ webDavSyncHandler.prototype = {
             case "response": // WebDAV Sync draft 3
                 this.currentResponse = {};
                 this.tag = null
-                this.isInPropStat=false;
+                this.isInPropStat = false;
                 break;
             case "propstat":
-                this.isInPropStat=true;
+                this.isInPropStat = true;
                 break;
             case "status":
                 if (this.isInPropStat) {
@@ -622,7 +622,7 @@ webDavSyncHandler.prototype = {
                 this.newSyncToken = this.currentResponse[this.tag];
                 break;
             case "propstat":
-                this.isInPropStat=false;
+                this.isInPropStat = false;
                 break;
         }
         this.tag = null;
@@ -864,10 +864,10 @@ multigetSyncHandler.prototype = {
             case "response":
                 this.currentResponse = {};
                 this.tag = null
-                this.isInPropStat=false;
+                this.isInPropStat = false;
                 break;
             case "propstat":
-                this.isInPropStat=true;
+                this.isInPropStat = true;
                 break;
             case "status":
                 if (this.isInPropStat) {
@@ -937,7 +937,7 @@ multigetSyncHandler.prototype = {
                 }
                 break;
             case "propstat":
-                this.isInPropStat=false;
+                this.isInPropStat = false;
                 break;
         }
         this.tag = null;

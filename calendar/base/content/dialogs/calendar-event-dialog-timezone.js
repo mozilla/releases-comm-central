@@ -72,7 +72,7 @@ function findTimezone(timezone) {
     var tzid = timezone.tzid;
     var menulist = document.getElementById("timezone-menulist");
     var numChilds = menulist.childNodes[0].childNodes.length;
-    for (var i=0; i<numChilds; i++) {
+    for (var i = 0; i < numChilds; i++) {
         var menuitem = menulist.childNodes[0].childNodes[i];
         if (menuitem.getAttribute("value") == tzid) {
             return i;

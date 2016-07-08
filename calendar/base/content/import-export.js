@@ -52,7 +52,7 @@ function loadEventsFromFile(aCalendar) {
         let types = importer.getFileTypes({});
         for (let type of types) {
             fp.appendFilter(type.description, type.extensionFilter);
-            if (type.extensionFilter=="*." + fp.defaultExtension) {
+            if (type.extensionFilter == "*." + fp.defaultExtension) {
                 fp.filterIndex = currentListLength;
                 defaultCIDIndex = currentListLength;
             }
@@ -92,7 +92,7 @@ function loadEventsFromFile(aCalendar) {
                     showError(calGetString("calendar", "timezoneError", [filePath]));
                     break;
                 default:
-                    showError(calGetString("calendar", "unableToRead") + filePath + "\n"+ ex);
+                    showError(calGetString("calendar", "unableToRead") + filePath + "\n" + ex);
             }
         } finally {
             inputStream.close();
@@ -188,7 +188,7 @@ function putItemsIntoCal(destCal, aItems, aFilePath) {
             // counter and not miss failed items. Otherwise, endBatch might
             // never be called.
             listener.onOperationComplete(null, null, null, null, null);
-            Components.utils.reportError("Import error: "+e);
+            Components.utils.reportError("Import error: " + e);
         }
     }
 
@@ -250,7 +250,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
         let types = exporter.getFileTypes({});
         for (let type of types) {
             fp.appendFilter(type.description, type.extensionFilter);
-            if (type.extensionFilter=="*." + fp.defaultExtension) {
+            if (type.extensionFilter == "*." + fp.defaultExtension) {
                 fp.filterIndex = currentListLength;
                 defaultCIDIndex = currentListLength;
             }
@@ -280,7 +280,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
 
         let filePath = fp.file.path;
         if (!filePath.includes(".")) {
-            filePath += "."+exporter.getFileTypes({})[0].defaultExtension;
+            filePath += "." + exporter.getFileTypes({})[0].defaultExtension;
         }
 
         const nsILocalFile = Components.interfaces.nsILocalFile;

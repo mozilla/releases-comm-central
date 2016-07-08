@@ -159,7 +159,7 @@ calIcsParser.prototype = {
         // characters. So the space or the newline never can be part of a multi-byte
         // char.
         for (let i = octetArray.length - 2; i >= 0; i--) {
-            if (octetArray[i] == "\n" && octetArray[i+1] == " ") {
+            if (octetArray[i] == "\n" && octetArray[i + 1] == " ") {
                 octetArray = octetArray.splice(i, 2);
             }
         }

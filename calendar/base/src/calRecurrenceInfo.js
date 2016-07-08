@@ -556,7 +556,7 @@ calRecurrenceInfo.prototype = {
                             toRemove.push(occurenceKey)
                         }
                     }
-                    for (let i=0; i < toRemove.length; i++) {
+                    for (let i = 0; i < toRemove.length; i++) {
                         delete occurrenceMap[toRemove[i]];
                     }
                 } else if (occurrenceMap[dateToRemoveKey]) {

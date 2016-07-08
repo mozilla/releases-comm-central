@@ -372,7 +372,7 @@ function ensureUpdatedTimezones(db) {
 
         let zonesToUpdate = [];
         let getZones = createStatement(db,
-            "SELECT DISTINCT(zone) FROM ("+
+            "SELECT DISTINCT(zone) FROM (" +
             "SELECT recurrence_id_tz AS zone FROM cal_attendees    WHERE recurrence_id_tz IS NOT NULL UNION " +
             "SELECT recurrence_id_tz AS zone FROM cal_events       WHERE recurrence_id_tz IS NOT NULL UNION " +
             "SELECT event_start_tz   AS zone FROM cal_events       WHERE event_start_tz   IS NOT NULL UNION " +

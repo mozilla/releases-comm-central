@@ -1115,7 +1115,7 @@
         <body><![CDATA[
           var date = new Date(aMainDate);
           var firstWeekday = (7 + aMainDate.getDay() - this.weekStart) % 7;
-          date.setDate(date.getDate()-firstWeekday);
+          date.setDate(date.getDate() - firstWeekday);
           return date;
         ]]></body>
       </method>

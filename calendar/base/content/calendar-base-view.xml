@@ -667,7 +667,7 @@
                               "false", "false", "true"];
             let daysOff = [];
             for (let i in prefNames) {
-                if (Preferences.get(weekPrefix+prefNames[i])) {
+                if (Preferences.get(weekPrefix + prefNames[i])) {
                     daysOff.push(Number(i));
                 }
             }

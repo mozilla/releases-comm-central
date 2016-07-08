@@ -438,7 +438,7 @@ calDavCalendar.prototype = {
             calUri.spec = parts.shift();
             this.mUriParams = '?' + parts.join('?');
         }
-        if (calUri.spec.charAt(calUri.spec.length-1) != '/') {
+        if (calUri.spec.charAt(calUri.spec.length - 1) != '/') {
             calUri.spec += "/";
         }
         return calUri;
@@ -449,8 +449,8 @@ calDavCalendar.prototype = {
             let calUri = this.mUri.clone();
             let split1 = calUri.spec.split('?');
             let baseUrl = split1[0];
-            if (baseUrl.charAt(baseUrl.length-1) == '/') {
-                baseUrl = baseUrl.substring(0, baseUrl.length-2);
+            if (baseUrl.charAt(baseUrl.length - 1) == '/') {
+                baseUrl = baseUrl.substring(0, baseUrl.length - 2);
             }
             let split2 = baseUrl.split('/');
             split2.pop();
@@ -1183,8 +1183,8 @@ calDavCalendar.prototype = {
      */
     finalizeUpdatedItems: function calDav_finalizeUpdatedItems(aChangeLogListener, calendarURI) {
         cal.LOG("aChangeLogListener=" + aChangeLogListener + "\n" +
-                "calendarURI=" + (calendarURI?calendarURI.spec:"undefined") + " \n" +
-                "iscached=" + this.isCached + "\n"+
+                "calendarURI=" + (calendarURI ? calendarURI.spec : "undefined") + " \n" +
+                "iscached=" + this.isCached + "\n" +
                 "this.mQueuedQueries.length=" + this.mQueuedQueries.length);
         if (this.isCached) {
             if (aChangeLogListener) {

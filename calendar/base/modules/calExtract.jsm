@@ -107,7 +107,7 @@ Extractor.prototype = {
             }
         }
 
-        let nonAscii = sum/cnt || 0;
+        let nonAscii = sum / cnt || 0;
         cal.LOG("[calExtract] Average non-ascii charcode: " + nonAscii);
         return nonAscii;
     },
@@ -197,7 +197,7 @@ Extractor.prototype = {
                     }
                 }
 
-                let percentage = correct/total * 100.0;
+                let percentage = correct / total * 100.0;
                 cal.LOG("[calExtract] " + dicts[dict] + " dictionary matches " +
                         percentage + "% of words");
 

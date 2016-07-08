@@ -94,8 +94,8 @@ var TodayPane = {
         // with numbers that are supposed to consume the largest width
         // in order to guarantee that the text will not be cropped when modified
         // during runtime
-        const kYEARINIT= "5555";
-        const kCALWEEKINIT= "55";
+        const kYEARINIT = "5555";
+        const kCALWEEKINIT = "55";
         let monthdisplaydeck = document.getElementById("monthNameContainer");
         let childNodes = monthdisplaydeck.childNodes;
 
@@ -171,8 +171,8 @@ var TodayPane = {
         let x = aEvent.clientX - TodayPane.minidayDrag.startX;
         let y = aEvent.clientY - TodayPane.minidayDrag.startY;
         if (TodayPane.minidayDrag.session) {
-            if (x*x + y*y >= MIN_DRAG_DISTANCE_SQ) {
-                let distance = Math.floor(Math.sqrt(x*x + y*y) - Math.sqrt(MIN_DRAG_DISTANCE_SQ));
+            if (x * x + y * y >= MIN_DRAG_DISTANCE_SQ) {
+                let distance = Math.floor(Math.sqrt(x * x + y * y) - Math.sqrt(MIN_DRAG_DISTANCE_SQ));
                 // Dragging on the left/right side, the day date decrease/increase
                 TodayPane.minidayDrag.distance = (x > 0) ? distance : -distance;
             } else {
@@ -180,7 +180,7 @@ var TodayPane = {
             }
         } else {
             // move the mouse a bit before starting the drag session
-            if (x*x + y*y > 9) {
+            if (x * x + y * y > 9) {
                 window.addEventListener("mouseout", TodayPane.stopSwitching, false);
                 TodayPane.minidayDrag.session = true;
                 let dragCenterImage = document.getElementById("dragCenter-image");
@@ -188,8 +188,8 @@ var TodayPane = {
                 // Move the starting point in the center so we have a fixed
                 // point where stopping the day switching while still dragging
                 let centerObj = dragCenterImage.boxObject;
-                TodayPane.minidayDrag.startX = Math.floor(centerObj.x + centerObj.width/2);
-                TodayPane.minidayDrag.startY = Math.floor(centerObj.y + centerObj.height/2);
+                TodayPane.minidayDrag.startX = Math.floor(centerObj.x + centerObj.width / 2);
+                TodayPane.minidayDrag.startY = Math.floor(centerObj.y + centerObj.height / 2);
 
                 TodayPane.updateAdvanceTimer();
             }

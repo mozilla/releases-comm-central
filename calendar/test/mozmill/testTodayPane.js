@@ -48,7 +48,7 @@ var testTodayPane = function () {
   // doubleclick only triggers new event dialog on visible boxes, so scrolling may be needed
   // by default visible time is 08:00 - 17:00, box of 17th hour is out of view
   let hour = (new Date()).getHours();
-  let startHour = (hour < 18)? hour + 6 : 23;
+  let startHour = (hour < 18) ? hour + 6 : 23;
   let view = (new elementslib.Lookup(controller.window.document, dayView)).getNode();
 
   if (startHour < 8 || startHour > 16) {
@@ -242,8 +242,8 @@ var testTodayPane = function () {
 var getIsoDate = function() {
   let date = new Date();
   let year = date.getFullYear();
-  let month = (date.getMonth() < 9)? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
-  let day = (date.getDate() < 10)? '0' + date.getDate() : date.getDate();
+  let month = (date.getMonth() < 9) ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
+  let day = (date.getDate() < 10) ? '0' + date.getDate() : date.getDate();
   let isoDate = year + '' + month + '' + day;
   return isoDate;
 }

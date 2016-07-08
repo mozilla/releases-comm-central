@@ -81,7 +81,7 @@ calWeekInfoService.prototype = {
             thisWeeksThursday -= aDateTime.endOfYear.yearday;
         }
 
-        var weekNumber = Math.ceil(thisWeeksThursday/7);
+        var weekNumber = Math.ceil(thisWeeksThursday / 7);
         return weekNumber;
     },
 

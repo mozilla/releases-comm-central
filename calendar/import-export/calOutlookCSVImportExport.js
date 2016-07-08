@@ -155,7 +155,7 @@ calOutlookCSVImporter.prototype = {
             args.titleIndex = 0;
             args.startDateIndex = 0;
             for (let i = 1; i <= header.length; ++i) {
-                switch( header[i-1] ) {
+                switch (header[i - 1]) {
                     case locale.headTitle: args.titleIndex = i; knownIndxs++; break;
                     case locale.headStartDate: args.startDateIndex = i; knownIndxs++; break;
                     case locale.headStartTime: args.startTimeIndex = i; knownIndxs++; break;
@@ -486,11 +486,11 @@ calOutlookCSVExporter.prototype = {
             line.push(txtString(cal.categoriesArrayToString(item.getCategories({})))); // xxx todo: what's the correct way to encode ',' in csv?, how are multi-values expressed?
             line.push(txtString(item.getProperty("DESCRIPTION")));
             line.push(txtString(item.getProperty("LOCATION")));
-            line.push((item.privacy=="PRIVATE") ? localeEn.valueTrue : localeEn.valueFalse);
+            line.push((item.privacy == "PRIVATE") ? localeEn.valueTrue : localeEn.valueFalse);
 
             line = line.map(function(v) {
                 v = String(v).replace(/"/g, '""');
-                return '"'+v+'"';
+                return '"' + v + '"';
             })
             str = line.join(',') + exportLineEnding;
             aStream.write(str, str.length);

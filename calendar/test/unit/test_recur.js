@@ -55,7 +55,7 @@ function test_rules() {
             let nextOcc = event.recurrenceInfo.getNextOccurrence(recdates[i]);
             if (expected.length > i + 1) {
                 notEqual(nextOcc, null);
-                dump("Checking next occurrence: " + expected[i+1]+"\n");
+                dump("Checking next occurrence: " + expected[i + 1] + "\n");
                 equal(nextOcc.startDate.icalString, expected[i + 1]);
             } else {
                 dump("Expecting no more occurrences, found " +
@@ -66,7 +66,7 @@ function test_rules() {
             // Make sure getPreviousOccurrence works correctly
             let prevOcc = event.recurrenceInfo.getPreviousOccurrence(recdates[i]);
             if (i > 0) {
-                dump("Checking previous occurrence: " + expected[i-1]+", found " + (prevOcc ? prevOcc.startDate : prevOcc) + "\n");
+                dump("Checking previous occurrence: " + expected[i - 1] + ", found " + (prevOcc ? prevOcc.startDate : prevOcc) + "\n");
                 notEqual(prevOcc, null);
                 equal(prevOcc.startDate.icalString, expected[i - 1]);
             } else {
@@ -251,7 +251,7 @@ function test_rules() {
     // Check for all the occurrences in the first year.
     let expectedDates = [];
     for (let i = 1; i < 32; i++) {
-        expectedDates.push("201401" + (i<10 ? "0"+i : i) + "T150000Z");
+        expectedDates.push("201401" + (i < 10 ? "0" + i : i) + "T150000Z");
     }
     check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
                                          "DESCRIPTION:Yearly, every day of January (one BYMONTH and more BYDAY)\n" +

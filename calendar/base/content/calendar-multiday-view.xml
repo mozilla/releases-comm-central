@@ -28,8 +28,8 @@
 
     <implementation>
       <field name="mPixPerMin">0.6</field>
-      <field name="mStartMin">0*60</field>
-      <field name="mEndMin">24*60</field>
+      <field name="mStartMin">0</field>
+      <field name="mEndMin">24 * 60</field>
       <field name="mDayStartHour">0</field>
       <field name="mDayEndHour">24</field>
 
@@ -256,10 +256,10 @@
 
       <!-- fields -->
       <field name="mPixPerMin">0.6</field>
-      <field name="mStartMin">0*60</field>
-      <field name="mEndMin">24*60</field>
-      <field name="mDayStartMin">8*60</field>
-      <field name="mDayEndMin">17*60</field>
+      <field name="mStartMin">0</field>
+      <field name="mEndMin">24 * 60</field>
+      <field name="mDayStartMin">8 * 60</field>
+      <field name="mDayEndMin">17 * 60</field>
       <!--an array of objects that contain information about the events that are to be
       displayed. The contained fields are:
       event:        The event that is to be displayed in a 'calendar-event-box'
@@ -1022,8 +1022,8 @@
               //       |      |_____________|   here, we can shrink ev2 and jump
               //       |      |      |      |   in column #3
               //
-              for (var jj=1; jj<colEndArray.length; ++jj) {
-                  if (colEndArray[jj].event.hashId == colEndArray[jj-1].event.hashId) {
+              for (var jj = 1; jj < colEndArray.length; ++jj) {
+                  if (colEndArray[jj].event.hashId == colEndArray[jj - 1].event.hashId) {
                       // Good we found a item that spanned multiple columns.
                       // Find it in the blob so we can modify its properties
                       for (var kk in currentBlob) {
@@ -2022,7 +2022,7 @@
           } else {
               pos = event.screenX - this.parentNode.boxObject.screenX;
           }
-          newStart.minute = (Math.round(pos/interval) * ROUND_INTERVAL) + this.mStartMin;
+          newStart.minute = (Math.round(pos / interval) * ROUND_INTERVAL) + this.mStartMin;
           event.stopPropagation();
           return newStart;
         ]]></body>
@@ -2088,13 +2088,13 @@
 
         if (this.getAttribute("orient") == "vertical") {
             this.mDragState.origLoc = event.screenY;
-            this.mDragState.origMin = Math.floor((event.screenY - this.parentNode.boxObject.screenY)/interval) * snapIntMin;
+            this.mDragState.origMin = Math.floor((event.screenY - this.parentNode.boxObject.screenY) / interval) * snapIntMin;
             this.mDragState.limitEndMin = this.mDragState.origMin;
             this.mDragState.limitStartMin = this.mDragState.origMin;
             this.fgboxes.dragspacer.setAttribute("height", this.mDragState.origMin * this.mPixPerMin);
         } else {
             this.mDragState.origLoc = event.screenX;
-            this.mDragState.origMin = Math.floor((event.screenX - this.parentNode.boxObject.screenX)/interval) * snapIntMin;
+            this.mDragState.origMin = Math.floor((event.screenX - this.parentNode.boxObject.screenX) / interval) * snapIntMin;
             this.fgboxes.dragspacer.setAttribute("width", this.mDragState.origMin * this.mPixPerMin);
         }
 
@@ -2409,7 +2409,7 @@
 
           var gripbar = document.getAnonymousElementByAttribute(this, "anonid", "gripbar1").boxObject.height;
           var height = document.getAnonymousElementByAttribute(this, "anonid", "eventbox").boxObject.height;
-          evl.setAttribute("style", "max-height: " + Math.max(0, height-gripbar*2) + "px");
+          evl.setAttribute("style", "max-height: " + Math.max(0, height-gripbar * 2) + "px");
         ]]></body>
       </method>
     </implementation>
@@ -2455,7 +2455,7 @@
         var dx = Math.abs(event.screenX - this.mMouseX);
         var dy = Math.abs(event.screenY - this.mMouseY);
         // more than a 3 pixel move?
-        if ((dx*dx + dy*dy) > 9) {
+        if ((dx * dx + dy * dy) > 9) {
             if (this.parentColumn) {
                 if (this.editingTimer) {
                     clearTimeout(this.editingTimer);
@@ -2748,11 +2748,11 @@
       <field name="mMinPixelsPerMinute">0.1</field>
       <field name="mSelectedDayCol">null</field>
       <field name="mSelectedDay">null</field>
-      <field name="mStartMin">0*60</field>
-      <field name="mEndMin">24*60</field>
+      <field name="mStartMin">0</field>
+      <field name="mEndMin">24 * 60</field>
       <field name="mDayStartMin">0</field>
       <field name="mDayEndMin">0</field>
-      <field name="mVisibleMinutes">9*60</field>
+      <field name="mVisibleMinutes">9 * 60</field>
       <field name="mClickedTime">null</field>
       <field name="mTimeIndicatorInterval">15</field>
       <field name="mModeHandler">null</field>
@@ -3893,9 +3893,9 @@
             let x = {}, y = {};
             scrollBoxObject.getPosition(x, y);
             if (scrollbox.getAttribute("orient") == "horizontal") {
-                this.mFirstVisibleMinute = Math.round(y.value/this.mPixPerMin);
+                this.mFirstVisibleMinute = Math.round(y.value / this.mPixPerMin);
             } else {
-                this.mFirstVisibleMinute = Math.round(x.value/this.mPixPerMin);
+                this.mFirstVisibleMinute = Math.round(x.value / this.mPixPerMin);
             }
         }
       ]]></handler>

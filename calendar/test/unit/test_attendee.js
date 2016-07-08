@@ -211,7 +211,7 @@ function test_doubleParameters() {
             let att_n = attendee.id.substr(7, 9);
             for (let parIndex in parNames) {
                 ok(aExpected[att_n].param.includes(parNames[parIndex]),
-                   "Parameter " + parNames[parIndex] + " included in "+ att_n);
+                   "Parameter " + parNames[parIndex] + " included in " + att_n);
                 ok(aExpected[att_n].values.includes(parValues[parIndex]),
                    "Value " + parValues[parIndex] + " for parameter " + parNames[parIndex]);
             }

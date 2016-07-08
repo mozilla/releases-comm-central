@@ -80,7 +80,7 @@ var gCategoriesPane = {
             listbox.lastChild.remove();
         }
 
-        for (var i=0; i < gCategoryList.length; i++) {
+        for (var i = 0; i < gCategoryList.length; i++) {
             var newListItem = document.createElement("listitem");
             var categoryName = document.createElement("listcell");
             categoryName.setAttribute("id", gCategoryList[i]);
@@ -90,7 +90,7 @@ var gCategoriesPane = {
             try {
                 var colorCode = categoryPrefBranch.getCharPref(categoryNameFix);
                 categoryColor.setAttribute("id", colorCode);
-                categoryColor.setAttribute("style", "background-color: "+colorCode+';');
+                categoryColor.setAttribute("style", "background-color: " + colorCode + ";");
             } catch (ex) {
                 categoryColor.setAttribute("label", noneLabel);
             }
@@ -189,7 +189,7 @@ var gCategoriesPane = {
         var list = document.getElementById("categorieslist");
         // Check to make sure another category doesn't have the same name
         var toBeDeleted = -1;
-        for (var i=0; i < gCategoryList.length; i++) {
+        for (var i = 0; i < gCategoryList.length; i++) {
             if (i == list.selectedIndex) {
                 continue;
             }
@@ -270,7 +270,7 @@ var gCategoriesPane = {
             currentColor = "##NEW";
         }
 
-        for (var i=0; i < parent.backupPrefList.length; i++) {
+        for (var i = 0; i < parent.backupPrefList.length; i++) {
             if (categoryNameFix == parent.backupPrefList[i].name) {
                 return;
             }
@@ -295,7 +295,7 @@ var gCategoriesPane = {
      * Reverts category preferences in case the cancel button is pressed.
      */
     panelOnCancel: function gCP_panelOnCancel() {
-        for (var i=0; i < parent.backupPrefList.length; i++) {
+        for (var i = 0; i < parent.backupPrefList.length; i++) {
             if (parent.backupPrefList[i].color == "##NEW") {
                 try {
                    categoryPrefBranch.clearUserPref(parent.backupPrefList[i].name);

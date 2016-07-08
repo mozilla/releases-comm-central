@@ -281,7 +281,7 @@ calICSCalendar.prototype = {
                     this_.unmappedProperties = parser_.getProperties({});
                     cal.LOG("[calICSCalendar] Parsing ICS succeeded for " + this_.uri.spec);
                 } catch (exc) {
-                    cal.LOG("[calICSCalendar] Parsing ICS failed for " + "\nException: "+ exc);
+                    cal.LOG("[calICSCalendar] Parsing ICS failed for \nException: " + exc);
                     this_.mObserver.onError(this_.superCalendar, exc.result, exc.toString());
                     this_.mObserver.onError(this_.superCalendar, calIErrors.READ_FAILED, "");
                 }
@@ -442,7 +442,7 @@ calICSCalendar.prototype = {
                                    ? calIErrors.DAV_PUT_ERROR
                                    : request.status,
                                    "Publishing the calendar file failed\n" +
-                                       "Status code: "+request.status.toString(16)+"\n");
+                                       "Status code: " + request.status.toString(16) + "\n");
             ctxt.mObserver.onError(this.superCalendar, calIErrors.MODIFICATION_FAILED, "");
 
             // the PUT has failed, refresh, and signal error to all modifying operations:
@@ -642,7 +642,7 @@ calICSCalendar.prototype = {
     makeBackup: function(aCallback) {
         // Uses |pseudoID|, an id of the calendar, defined below
         function makeName(type) {
-            return 'calBackupData_'+pseudoID+'_'+type+'.ics';
+            return "calBackupData_" + pseudoID + "_" + type + ".ics";
         }
 
         // This is a bit messy. createUnique creates an empty file,
@@ -671,7 +671,8 @@ calICSCalendar.prototype = {
         function purgeBackupsByType(files, type) {
             // filter out backups of the type we care about.
             var filteredFiles = files.filter(
-                v => v.name.includes("calBackupData_"+pseudoID+"_"+type));
+                v => v.name.includes("calBackupData_" + pseudoID + "_" + type)
+            );
             // Sort by lastmodifed
             filteredFiles.sort(
                 function s(a, b) {
@@ -773,7 +774,7 @@ calICSCalendar.prototype = {
         var doDailyBackup = false;
         var backupTime = this.getProperty('backup-time2');
         if (!backupTime ||
-            (new Date().getTime() > backupTime + backupDays*24*60*60*1000)) {
+            (new Date().getTime() > backupTime + backupDays * 24 * 60 * 60 * 1000)) {
             // It's time do to a daily backup
             doDailyBackup = true;
             this.setProperty('backup-time2', new Date().getTime());
@@ -997,7 +998,7 @@ httpHooks.prototype = {
 
             // Apache doesn't work correctly with if-match on a PUT method,
             // so use the webdav header
-            httpchannel.setRequestHeader("If", '(['+this.mEtag+'])', false);
+            httpchannel.setRequestHeader("If", '([' + this.mEtag + '])', false);
         }
         return true;
     },

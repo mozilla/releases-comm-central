@@ -142,6 +142,10 @@
     // much benefit.
     "no-multi-spaces": 2,
 
+    // Require spaces around operators, except for a|0.
+    // Disabled for now given eslint doesn't support default args yet
+    // "space-infix-ops": [2, {"int32Hint": true}],
+
     // Will enable these rules later
     "keyword-spacing": 0,
     "block-spacing": 0,

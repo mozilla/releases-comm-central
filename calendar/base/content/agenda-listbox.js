@@ -123,7 +123,7 @@ function onCheckboxChange(event) {
     var lopen = (periodCheckbox.getAttribute("checked") == "true");
     var listItem = getParentNodeOrThis(periodCheckbox, "agenda-checkbox-richlist-item");
     var period = listItem.getItem();
-    period.open= lopen;
+    period.open = lopen;
     // as the agenda-checkboxes are only transient we have to set the "checked"
     // attribute at their hidden origins to make that attribute persistent.
     document.getElementById(listItem.id + "-hidden").setAttribute("checked",

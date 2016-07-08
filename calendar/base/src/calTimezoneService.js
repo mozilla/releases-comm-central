@@ -313,7 +313,7 @@ function guessSystemTimezone() {
 
     var continent = "Africa|America|Antarctica|Asia|Australia|Europe";
     var ocean = "Arctic|Atlantic|Indian|Pacific";
-    var tzRegex = new RegExp(".*((?:"+continent+"|"+ocean+")"+
+    var tzRegex = new RegExp(".*((?:" + continent + "|" + ocean + ")" +
                              "(?:[/][-A-Z_a-z]+)+)");
 
     function getIcalString(component, property) {
@@ -420,10 +420,10 @@ function guessSystemTimezone() {
         const afterSpringShiftJSDate = new Date(springShiftJSDate);
         // Try with 6 HOURS fuzz in either direction, since OS and ZoneInfo
         // may disagree on the exact time of shift (midnight, 2am, 4am, etc).
-        beforeAutumnShiftJSDate.setHours(autumnShiftJSDate.getHours()-6);
-        afterAutumnShiftJSDate.setHours(autumnShiftJSDate.getHours()+6);
-        afterSpringShiftJSDate.setHours(afterSpringShiftJSDate.getHours()+6);
-        beforeSpringShiftJSDate.setHours(beforeSpringShiftJSDate.getHours()-6);
+        beforeAutumnShiftJSDate.setHours(autumnShiftJSDate.getHours() - 6);
+        afterAutumnShiftJSDate.setHours(autumnShiftJSDate.getHours() + 6);
+        afterSpringShiftJSDate.setHours(afterSpringShiftJSDate.getHours() + 6);
+        beforeSpringShiftJSDate.setHours(beforeSpringShiftJSDate.getHours() - 6);
         if ((beforeAutumnShiftJSDate.getTimezoneOffset() <
              afterAutumnShiftJSDate.getTimezoneOffset()) &&
             (beforeSpringShiftJSDate.getTimezoneOffset() >
@@ -434,10 +434,10 @@ function guessSystemTimezone() {
         // will have a nearby tz that disagrees only on the weekday of shift
         // (sunday vs. friday vs. calendar day), or off by exactly one week,
         // (e.g., needed to guess Africa/Cairo on w2k in 2006).
-        beforeAutumnShiftJSDate.setDate(autumnShiftJSDate.getDate()-7);
-        afterAutumnShiftJSDate.setDate(autumnShiftJSDate.getDate()+7);
-        afterSpringShiftJSDate.setDate(afterSpringShiftJSDate.getDate()+7);
-        beforeSpringShiftJSDate.setDate(beforeSpringShiftJSDate.getDate()-7);
+        beforeAutumnShiftJSDate.setDate(autumnShiftJSDate.getDate() - 7);
+        afterAutumnShiftJSDate.setDate(autumnShiftJSDate.getDate() + 7);
+        afterSpringShiftJSDate.setDate(afterSpringShiftJSDate.getDate() + 7);
+        beforeSpringShiftJSDate.setDate(beforeSpringShiftJSDate.getDate() - 7);
         if ((beforeAutumnShiftJSDate.getTimezoneOffset() <
              afterAutumnShiftJSDate.getTimezoneOffset()) &&
             (beforeSpringShiftJSDate.getTimezoneOffset() >
@@ -515,7 +515,7 @@ function guessSystemTimezone() {
         if (!value || !value.match(tzRegex)) {
             return "";
         }
-        return varName+"="+value;
+        return varName + "=" + value;
     }
 
     function symbolicLinkTarget(filepath) {
@@ -528,9 +528,9 @@ function guessSystemTimezone() {
                 return "";
             }
 
-            return filepath +" -> "+file.target;
+            return filepath + " -> " + file.target;
         } catch (ex) {
-            Components.utils.reportError(filepath+": "+ex);
+            Components.utils.reportError(filepath + ": " + ex);
             return "";
         }
     }
@@ -556,7 +556,7 @@ function guessSystemTimezone() {
                 for (let i = 0; hasMore && i < MAXLINES; i++) {
                     hasMore = fileInstream.readLine(line);
                     if (line.value && line.value.match(tzRegex)) {
-                        return filepath+": "+line.value;
+                        return filepath + ": " + line.value;
                     }
                 }
                 return ""; // not found
@@ -564,7 +564,7 @@ function guessSystemTimezone() {
                 fileInstream.close();
             }
         } catch (ex) {
-            Components.utils.reportError(filepath+": "+ex);
+            Components.utils.reportError(filepath + ": " + ex);
             return "";
         }
     }
@@ -729,7 +729,7 @@ function guessSystemTimezone() {
             } catch (ex) {
                 let errMsg = calProperties.formatStringFromName(
                     "SkippingLocaleTimezone", [bareTZId], 1);
-                Components.utils.reportError(errMsg+" "+ex);
+                Components.utils.reportError(errMsg + " " + ex);
             }
         }
     } catch (ex) { // Oh well, this didn't work, next option...
@@ -782,24 +782,24 @@ function guessSystemTimezone() {
                 var standardStartWeekday = weekday(standardStart, tz);
                 var standardRule = getIcalString(standard, "RRULE");
                 var standardText =
-                    ("  Standard: "+standardStart+" "+standardStartWeekday+"\n"+
-                     "            "+standardRule+"\n");
+                    ("  Standard: " + standardStart + " " + standardStartWeekday + "\n" +
+                     "            " + standardRule + "\n");
                 var daylightStart = getIcalString(daylight, "DTSTART");
                 var daylightStartWeekday = weekday(daylightStart, tz);
                 var daylightRule = getIcalString(daylight, "RRULE");
                 var daylightText =
-                    ("  Daylight: "+daylightStart+" "+daylightStartWeekday+"\n"+
-                     "            "+daylightRule+"\n");
+                    ("  Daylight: " + daylightStart + " " + daylightStartWeekday + "\n" +
+                     "            " + daylightRule + "\n");
                 warningDetail =
                     ((standardStart < daylightStart
                       ? standardText + daylightText
-                      : daylightText + standardText)+
+                      : daylightText + standardText) +
                      (calProperties.GetStringFromName(
                       "TZAlmostMatchesOSDifferAtMostAWeek")));
             } else {
                 warningDetail = calProperties.GetStringFromName("TZSeemsToMatchOS");
             }
-            var offsetString = standardTZOffset+
+            var offsetString = standardTZOffset +
                                  (!daylightTZOffset ? "" : "/" + daylightTZOffset);
             var warningMsg = calProperties.formatStringFromName("WarningUsingGuessedTZ",
                               [tzId, offsetString, warningDetail, probableTZSource], 4);

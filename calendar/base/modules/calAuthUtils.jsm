@@ -186,7 +186,7 @@ cal.auth.Prompt.prototype = {
             found = true;
         }
         if (found) {
-            let keyStr = aPasswordRealm.prePath +":" + aPasswordRealm.realm;
+            let keyStr = aPasswordRealm.prePath + ":" + aPasswordRealm.realm;
             let now = new Date();
             // Remove the saved password if it was already returned less
             // than 60 seconds ago. The reason for the timestamp check is that
@@ -195,7 +195,8 @@ cal.auth.Prompt.prototype = {
             // expires.
             if (this.mReturnedLogins[keyStr] &&
                 now.getTime() - this.mReturnedLogins[keyStr].getTime() < 60000) {
-                cal.LOG("Credentials removed for: user=" + username + ", host="+aPasswordRealm.prePath+", realm="+aPasswordRealm.realm);
+                cal.LOG("Credentials removed for: user=" + username + ", host=" + aPasswordRealm.prePath + ", realm=" + aPasswordRealm.realm)
+;
                 delete this.mReturnedLogins[keyStr];
                 cal.auth.passwordManagerRemove(username,
                                                aPasswordRealm.prePath,
@@ -284,7 +285,7 @@ cal.auth.Prompt.prototype = {
         var self = this;
         let promptlistener = {
             onPromptStart: function() {
-                res=self.promptAuth(aChannel, aLevel, aAuthInfo);
+                res = self.promptAuth(aChannel, aLevel, aAuthInfo);
 
                 if (res) {
                     gAuthCache.setAuthInfo(hostKey, aAuthInfo);

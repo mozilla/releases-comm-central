@@ -1131,15 +1131,15 @@ calStorageCalendar.prototype = {
             this.mSelectNonRecurringEventsByRange = this.mDB.createStatement(
                 "SELECT * FROM cal_events " +
                 "WHERE " +
-                " (("+floatingEventEnd+" > :range_start + :start_offset) OR " +
-                "  ("+nonFloatingEventEnd+" > :range_start) OR " +
-                "  ((("+floatingEventEnd+" = :range_start + :start_offset) OR " +
-                "    ("+nonFloatingEventEnd+" = :range_start)) AND " +
-                "   (("+floatingEventStart+" = :range_start + :start_offset) OR " +
-                "    ("+nonFloatingEventStart+" = :range_start)))) " +
+                " ((" + floatingEventEnd + " > :range_start + :start_offset) OR " +
+                "  (" + nonFloatingEventEnd + " > :range_start) OR " +
+                "  (((" + floatingEventEnd + " = :range_start + :start_offset) OR " +
+                "    (" + nonFloatingEventEnd + " = :range_start)) AND " +
+                "   ((" + floatingEventStart + " = :range_start + :start_offset) OR " +
+                "    (" + nonFloatingEventStart + " = :range_start)))) " +
                 " AND " +
-                "  (("+floatingEventStart+" < :range_end + :end_offset) OR " +
-                "   ("+nonFloatingEventStart+" < :range_end)) " +
+                "  (("+ floatingEventStart + " < :range_end + :end_offset) OR " +
+                "   ("+ nonFloatingEventStart + " < :range_end)) " +
                 " AND cal_id = :cal_id AND flags & 16 == 0 AND recurrence_id IS NULL" +
                 " AND ((:offline_journal IS NULL " +
                 " AND  (offline_journal IS NULL " +
@@ -1163,24 +1163,24 @@ calStorageCalendar.prototype = {
             this.mSelectNonRecurringTodosByRange = this.mDB.createStatement(
                 "SELECT * FROM cal_todos " +
                 "WHERE " +
-                "(((("+floatingTodoDue+" > :range_start + :start_offset) OR " +
-                "   ("+nonFloatingTodoDue+" > :range_start)) AND " +
+                "(((("+ floatingTodoDue + " > :range_start + :start_offset) OR " +
+                "   ("+ nonFloatingTodoDue + " > :range_start)) AND " +
                 "  ((todo_entry IS NULL) OR " +
-                "   (("+floatingTodoEntry+" < :range_end + :end_offset) OR " +
-                "    ("+nonFloatingTodoEntry+" < :range_end)))) OR " +
-                " ((("+floatingTodoDue+" = :range_start + :start_offset) OR " +
-                "   ("+nonFloatingTodoDue+" = :range_start)) AND " +
+                "   (("+ floatingTodoEntry + " < :range_end + :end_offset) OR " +
+                "    ("+ nonFloatingTodoEntry + " < :range_end)))) OR " +
+                " ((("+ floatingTodoDue + " = :range_start + :start_offset) OR " +
+                "   ("+ nonFloatingTodoDue + " = :range_start)) AND " +
                 "  ((todo_entry IS NULL) OR " +
-                "   (("+floatingTodoEntry+" = :range_start + :start_offset) OR " +
-                "    ("+nonFloatingTodoEntry+" = :range_start)))) OR " +
+                "   (("+ floatingTodoEntry + " = :range_start + :start_offset) OR " +
+                "    ("+ nonFloatingTodoEntry + " = :range_start)))) OR " +
                 " ((todo_due IS NULL) AND " +
-                "  ((("+floatingTodoEntry+" >= :range_start + :start_offset) OR " +
-                "    ("+nonFloatingTodoEntry+" >= :range_start)) AND " +
-                "   (("+floatingTodoEntry+" < :range_end + :end_offset) OR " +
-                "    ("+nonFloatingTodoEntry+" < :range_end)))) OR " +
+                "  ((("+ floatingTodoEntry +" >= :range_start + :start_offset) OR " +
+                "    ("+ nonFloatingTodoEntry +" >= :range_start)) AND " +
+                "   (("+ floatingTodoEntry +" < :range_end + :end_offset) OR " +
+                "    ("+ nonFloatingTodoEntry +" < :range_end)))) OR " +
                 " ((todo_entry IS NULL) AND " +
-                "  ((("+floatingCompleted+" > :range_start + :start_offset) OR " +
-                "    ("+nonFloatingCompleted+" > :range_start)) OR " +
+                "  ((("+ floatingCompleted +" > :range_start + :start_offset) OR " +
+                "    ("+ nonFloatingCompleted +" > :range_start)) OR " +
                 "   (todo_completed IS NULL)))) " +
                 " AND cal_id = :cal_id AND flags & 16 == 0 AND recurrence_id IS NULL " +
                 " AND ((:offline_journal IS NULL" +

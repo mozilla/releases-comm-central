@@ -486,7 +486,7 @@ function menuListSelectItem(menuListId, value) {
     if (index != -1) {
         menuList.selectedIndex = index;
     } else {
-        throw "menuListSelectItem: No such Element: "+value;
+        throw "menuListSelectItem: No such Element: " + value;
     }
 }
 

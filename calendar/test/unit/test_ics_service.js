@@ -228,7 +228,7 @@ function test_iterator() {
     let propNames = ["X-ONE", "X-TWO"];
     for (let i = 0; i < propNames.length; i++) {
         let prop = svc.createIcalProperty(propNames[i]);
-        prop.value = "" + (i+1);
+        prop.value = "" + (i + 1);
         comp.addProperty(prop);
     }
 
@@ -263,7 +263,7 @@ function test_iterator() {
     let prop = svc.createIcalProperty("DTSTART");
     let params = ["X-ONE", "X-TWO"];
     for (let i = 0; i < params.length; i++) {
-        prop.setParameter(params[i], "" + (i+1));
+        prop.setParameter(params[i], "" + (i + 1));
     }
 
     for (let p = prop.getFirstParameterName();

@@ -957,7 +957,7 @@
           if (this.mCycleCalendarFlag[calendar.id]) {
               delete this.mCycleCalendarFlag[calendar.id];
           } else {
-              this.mCycleCalendarFlag[calendar.id]=calendar;
+              this.mCycleCalendarFlag[calendar.id] = calendar;
           }
 
           if (this.mCycleTimer) {

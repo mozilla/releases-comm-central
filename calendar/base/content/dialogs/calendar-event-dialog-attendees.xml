@@ -613,7 +613,7 @@
                           let currentNode = template.parentNode.childNodes[currentIndex];
                           this._fillListItemWithEntry(currentNode, entries[0], currentIndex);
                           entries.shift();
-                          let nextNode = template.parentNode.childNodes[currentIndex+1];
+                          let nextNode = template.parentNode.childNodes[currentIndex + 1];
                           currentIndex++;
                           for (let entry of entries) {
                               currentNode = template.cloneNode(true);

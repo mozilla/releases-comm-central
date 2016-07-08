@@ -193,7 +193,7 @@
           for (let i = 0; i < treecols.length; i++) {
               if (treecols[i].getAttribute("hidden") != "true") {
                 let content = treecols[i].getAttribute("itemproperty");
-                visible += (visible.length > 0) ? " "+content : content;
+                visible += (visible.length > 0) ? " " + content : content;
               }
               if (ordinals.length > 0) {
                   ordinals += " ";
@@ -1036,7 +1036,7 @@
       <method name="recreateHashTable">
         <body><![CDATA[
           this.mHash2Index = {};
-          for (var i=0; i<this.mTaskArray.length; i++) {
+          for (var i=0; i < this.mTaskArray.length; i++) {
               var item = this.mTaskArray[i];
               this.mHash2Index[item.hashId] = i;
           }
@@ -1155,7 +1155,7 @@
           region.init();
           var obo = tree.treeBoxObject;
           var bo = obo.treeBody.boxObject;
-          var sel= tree.view.selection;
+          var sel = tree.view.selection;
 
           var rowX = bo.x;
           var rowY = bo.y;

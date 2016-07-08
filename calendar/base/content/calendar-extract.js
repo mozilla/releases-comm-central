@@ -88,7 +88,7 @@ var calendarExtract = {
                                                   true,
                                                   { });
         cal.LOG("[calExtract] Original email content: \n" + title + "\r\n" + content);
-        let date = new Date(message.date/1000);
+        let date = new Date(message.date / 1000);
         let time = (new Date()).getTime();
 
         let locale = Preferences.get("general.useragent.locale", "en-US");

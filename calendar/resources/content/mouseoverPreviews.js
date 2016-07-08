@@ -120,7 +120,7 @@ function getPreviewForTask( toDoItem )
 
     if (toDoItem.status != null && toDoItem.percentComplete != 0 && toDoItem.percentComplete != 100)
     {
-      boxAppendLabeledText(vbox, "tooltipPercent", String(toDoItem.percentComplete)+"%");
+      boxAppendLabeledText(vbox, "tooltipPercent", String(toDoItem.percentComplete) + "%");
       hasHeader = true;
     } else if (toDoItem.percentComplete == 100)
     {
@@ -385,7 +385,7 @@ function getCurrentNextOrPreviousRecurrence(calendarEvent)
 
     if (!occ) {
         var occs = calendarEvent.recurrenceInfo.getOccurrences(calendarEvent.startDate, probeTime, 0, {});
-        occ = occs[occs.length -1];
+        occ = occs[occs.length - 1];
     }
     return occ;
 }

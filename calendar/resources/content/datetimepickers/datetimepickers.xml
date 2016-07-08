@@ -55,12 +55,12 @@
             {word: cal.calGetString("calendar", "tomorrow").toLowerCase(), offset: 1}];
         var i;
         for (i = 1; i <= 7; i++) {
-          this.mDayNames.push(calGetString("dateFormat", "day."+i+".name").toLowerCase());
+          this.mDayNames.push(calGetString("dateFormat", "day." + i + ".name").toLowerCase());
         }
 
         for (i = 1; i <= 12; i++) {
-          this.mMonthLongNames.push(calGetString("dateFormat", "month."+i+".name").toLowerCase());
-          this.mMonthShortNames.push(calGetString("dateFormat", "month."+i+".Mmm").toLowerCase());
+          this.mMonthLongNames.push(calGetString("dateFormat", "month." + i + ".name").toLowerCase());
+          this.mMonthShortNames.push(calGetString("dateFormat", "month." + i + ".Mmm").toLowerCase());
         }
 
         // note that some languages have different conjugations of
@@ -128,7 +128,7 @@
            for (var rel of this.mRelativeDates) {
              if (val == rel.word) {
                var now = new Date();
-               now.setDate(now.getDate()+rel.offset);
+               now.setDate(now.getDate() + rel.offset);
                return now;
              }
            }
@@ -166,7 +166,7 @@
            // Replace month names with numbers
            for (let i in this.mMonthLongNames) {
              if (val.includes(this.mMonthLongNames[i])) {
-               let newVal = val.replace(this.mMonthLongNames[i], Number(i)+1);
+               let newVal = val.replace(this.mMonthLongNames[i], Number(i) + 1);
                newVal = newVal.replace(' ', '/');
                return this.parseDateTime(newVal);
              }
@@ -175,7 +175,7 @@
           // Same for short month names
            for (let i in this.mMonthShortNames) {
              if (val.includes(this.mMonthShortNames[i])) {
-               let newVal = val.replace(this.mMonthShortNames[i], Number(i)+1);
+               let newVal = val.replace(this.mMonthShortNames[i], Number(i) + 1);
                newVal = newVal.replace(' ', '/');
                return this.parseDateTime(newVal);
              }
@@ -200,7 +200,7 @@
           }
 
           if (day && offset != undefined) {
-            day.setDate(day.getDate()+(7*offset));
+            day.setDate(day.getDate() + (7 * offset));
             return day;
           }
           return null;
@@ -1181,7 +1181,7 @@
             // So that If they click more again the proper non-even-five minute
             // box will be selected
             var minutesByFive = this.calcNearestFiveMinutes(this.mSelectedTime);
-            var fiveMinuteItemId = "time-picker-five-minute-box-"+minutesByFive;
+            var fiveMinuteItemId = "time-picker-five-minute-box-" + minutesByFive;
             var fiveMinuteItem = document.getAnonymousElementByAttribute(this, "anonid", fiveMinuteItemId);
             this.selectMinuteItem(fiveMinuteItem);
           ]]>
@@ -1412,7 +1412,7 @@
                     .setAttribute("label", "12");
             for (let i = 13; i < 24; i++) {
               document.getAnonymousElementByAttribute(this, "anonid", "time-picker-hour-box-" + i)
-                      .setAttribute("label", i-12);
+                      .setAttribute("label", i - 12);
             }
             document.getAnonymousElementByAttribute(this, "anonid", "time-picker-hour-grid")
                     .setAttribute("format12hours", "true");
@@ -1710,7 +1710,7 @@
 
             var time = null;
             var timePartsArray = this.parseTimeRegExp.exec(aValue);
-            const PRE_INDEX=1, HR_INDEX=2, MIN_INDEX=4, SEC_INDEX=6, POST_INDEX=8;
+            const PRE_INDEX = 1, HR_INDEX = 2, MIN_INDEX = 4, SEC_INDEX = 6, POST_INDEX = 8;
 
             if (timePartsArray != null) {
               var hoursString = timePartsArray[HR_INDEX]
@@ -1721,14 +1721,14 @@
               }
 
               var minutesString = timePartsArray[MIN_INDEX];
-              var minutes = (minutesString == null? 0 : Number(minutesString));
+              var minutes = (minutesString == null ? 0 : Number(minutesString));
               var minutesSuffix = timePartsArray[MIN_INDEX + 1];
               if (!(minutes >= 0 && minutes < 60)) {
                 return null;
               }
 
               var secondsString = timePartsArray[SEC_INDEX];
-              var seconds = (secondsString == null? 0 : Number(secondsString));
+              var seconds = (secondsString == null ? 0 : Number(secondsString));
               var secondsSuffix = timePartsArray[SEC_INDEX + 1];
               if (!(seconds >= 0 && seconds < 60)) {
                 return null;
@@ -1790,7 +1790,7 @@
             // Made of digits & nonDigits.  (Nondigits may be unicode letters
             // which do not match \w, esp. in CJK locales.)
             this.parseShortDateRegex = /^\D*(\d+)\D+(\d+)\D+(\d+)\D?$/;
-            var probeDate = new Date(2002, 3-1, 4); // month is 0-based
+            var probeDate = new Date(2002, 2, 4); // month is 0-based
             var probeString = this.formatDate(probeDate);
             var probeArray = this.parseShortDateRegex.exec(probeString);
             if (probeArray != null) {
@@ -1843,7 +1843,7 @@
               }
             }
             if (!this.probeSucceeded) {
-              dump("\nOperating system short date format is not recognized: "+probeString+"\n");
+              dump("\nOperating system short date format is not recognized: " + probeString + "\n");
             }
           ]]>
         </body>
@@ -1874,8 +1874,8 @@
             var anyAmPmExpr = "(?:[^\\d\\W]|[. ])+";
             // digitsExpr has 6 captures, so index of first ampmExpr is 1, of last is 8.
             var probeTimeRegExp =
-              new RegExp("^("+anyAmPmExpr+")?\\s?"+digitsExpr+"("+anyAmPmExpr+")?\\s*$");
-            const PRE_INDEX=1, HR_INDEX=2, MIN_INDEX=4, SEC_INDEX=6, POST_INDEX=8;
+              new RegExp("^(" + anyAmPmExpr + ")?\\s?" + digitsExpr + "(" + anyAmPmExpr + ")?\\s*$");
+            const PRE_INDEX = 1, HR_INDEX = 2, MIN_INDEX = 4, SEC_INDEX = 6, POST_INDEX = 8;
             var amProbeTime = new Date(2000, 0, 1, 6, 12, 34);
             var amProbeString = amProbeTime.toLocaleFormat("%X");
             var pmProbeTime = new Date(2000, 0, 1, 18, 12, 34);
@@ -1919,11 +1919,11 @@
                     var regExp = string.replace(/(\W)/g, "[$1]"); // escape punctuation
                     var lowercased = string.toLowerCase();
                     if (string != lowercased) {
-                      regExp += "|"+lowercased;
+                      regExp += "|" + lowercased;
                     }
                     var uppercased = string.toUpperCase();
                     if (string != uppercased) {
-                      regExp += "|"+uppercased;
+                      regExp += "|" + uppercased;
                     }
                     return regExp;
                   };
@@ -1940,10 +1940,10 @@
             var pmExpr =
               "[Pp\u0420\u0440][. ]?[Mm\u041c\u043c][. ]?|\u0645|\u4e0b\u5348|\u5348\u5f8c";
             if (this.ampmIndex){
-              amExpr = amFormatExpr+"|"+amExpr;
-              pmExpr = pmFormatExpr+"|"+pmExpr;
+              amExpr = amFormatExpr + "|" + amExpr;
+              pmExpr = pmFormatExpr + "|" + pmExpr;
             }
-            var ampmExpr = amExpr+"|"+pmExpr;
+            var ampmExpr = amExpr + "|" + pmExpr;
             // Must build am/pm formats into parse time regexp so that it can
             // match them without mistaking the initial char for an optional divider.
             // (For example, want to be able to parse both "12:34pm" and
@@ -1954,9 +1954,9 @@
             //
             // digitsExpr has 6 captures, so index of first ampmExpr is 1, of last is 8.
             this.parseTimeRegExp =
-              new RegExp("("+ampmExpr+")?\\s?"+digitsExpr+"("+ampmExpr+")?\\s*$");
-            this.amRegExp = new RegExp("^(?:"+amExpr+")$");
-            this.pmRegExp = new RegExp("^(?:"+pmExpr+")$");
+              new RegExp("(" + ampmExpr + ")?\\s?" + digitsExpr + "(" + ampmExpr + ")?\\s*$");
+            this.amRegExp = new RegExp("^(?:" + amExpr + ")$");
+            this.pmRegExp = new RegExp("^(?:" + pmExpr + ")$");
             // build time display format that mimics "%x" format without seconds
             var ampmSep = (pmProbeString.includes(' ') ? " " : "");
             if (this.ampmIndex == PRE_INDEX) {
@@ -1984,7 +1984,7 @@
                         .getService(nsIScriptableDateFormat);
             return dateService.FormatDate("", dateService.dateFormatShort,
                                           aDate.getFullYear(),
-                                          aDate.getMonth()+1,
+                                          aDate.getMonth() + 1,
                                           aDate.getDate());
           ]]>
         </body>

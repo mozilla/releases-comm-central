@@ -68,7 +68,7 @@ var testEventDialog = function () {
   // next full hour except last hour hour of the day
   let now = new Date();
   let hour = now.getHours();
-  let startHour = (hour == 23)? hour : (hour + 1) % 24;
+  let startHour = (hour == 23) ? hour : (hour + 1) % 24;
   let ampm = "";
   if (now.toLocaleTimeString().match(/AM|PM/)) {
     ampm = (hour >= 12 ? " PM" : " AM")

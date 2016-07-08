@@ -46,10 +46,10 @@ function really_run_test() {
                getMozTimezone("/mozilla.org/20050126_1/Europe/Amsterdam"));
 
     equal(cd.weekday, 0);
-    equal(cd.timezoneOffset, 1*3600);
+    equal(cd.timezoneOffset, 1 * 3600);
 
     cd.day += 1;
-    equal(cd.timezoneOffset, 2*3600);
+    equal(cd.timezoneOffset, 2 * 3600);
 
     // Bug 398724 - Problems with floating all-day items
     let event = cal.createEvent("BEGIN:VEVENT\nUID:45674d53-229f-48c6-9f3b-f2b601e7ae4d\nSUMMARY:New Event\nDTSTART;VALUE=DATE:20071003\nDTEND;VALUE=DATE:20071004\nEND:VEVENT");

@@ -930,7 +930,7 @@ calMgrCalendarObserver.prototype = {
 
         // When possible, change the error number into its name, to
         // make it slightly more readable.
-        var errCode = "0x"+aErrNo.toString(16);
+        var errCode = "0x" + aErrNo.toString(16);
         const calIErrors = Components.interfaces.calIErrors;
         // Check if it is worth enumerating all the error codes.
         if (aErrNo & calIErrors.ERROR_BASE) {

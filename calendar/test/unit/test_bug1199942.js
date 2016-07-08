@@ -26,25 +26,25 @@ function createAttendee_test() {
 }
 
 function serializeEvent_test() {
-    let ics= "BEGIN:VCALENDAR\n" +
-             "PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN\n" +
-             "VERSION:2.0\n" +
-             "BEGIN:VEVENT\n" +
-             "CREATED:20150801T213509Z\n" +
-             "LAST-MODIFIED:20150830T164104Z\n" +
-             "DTSTAMP:20150830T164104Z\n" +
-             "UID:a84c74d1-cfc6-4ddf-9d60-9e4afd8238cf\n" +
-             "SUMMARY:New Event\n" +
-             "ORGANIZER;RSVP=TRUE;CN=Tester1;PARTSTAT=ACCEPTED;ROLE=CHAIR:mailto:user1@example.net\n" +
-             "ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:MAILTO:user2@example.net\n" +
-             "ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:mailto:user3@example.net\n" +
-             "ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:user4@example.net\n" +
-             "ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:urn:uuid:user5\n" +
-             "DTSTART:20150729T103000Z\n" +
-             "DTEND:20150729T113000Z\n" +
-             "TRANSP:OPAQUE\n" +
-             "END:VEVENT\n" +
-             "END:VCALENDAR\n";
+    let ics = "BEGIN:VCALENDAR\n" +
+              "PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN\n" +
+              "VERSION:2.0\n" +
+              "BEGIN:VEVENT\n" +
+              "CREATED:20150801T213509Z\n" +
+              "LAST-MODIFIED:20150830T164104Z\n" +
+              "DTSTAMP:20150830T164104Z\n" +
+              "UID:a84c74d1-cfc6-4ddf-9d60-9e4afd8238cf\n" +
+              "SUMMARY:New Event\n" +
+              "ORGANIZER;RSVP=TRUE;CN=Tester1;PARTSTAT=ACCEPTED;ROLE=CHAIR:mailto:user1@example.net\n" +
+              "ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:MAILTO:user2@example.net\n" +
+              "ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:mailto:user3@example.net\n" +
+              "ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:user4@example.net\n" +
+              "ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:urn:uuid:user5\n" +
+              "DTSTART:20150729T103000Z\n" +
+              "DTEND:20150729T113000Z\n" +
+              "TRANSP:OPAQUE\n" +
+              "END:VEVENT\n" +
+              "END:VCALENDAR\n";
 
     let expectedIds = ["mailto:user2@example.net",
                        "mailto:user3@example.net",
