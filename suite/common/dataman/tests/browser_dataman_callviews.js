@@ -13,10 +13,10 @@ var testIndex = 0;
 
 function test() {
   // Add cookies.
-  Services.cookies.add("getpersonas.com", "", "name0", "value0",
-                       false, false, true, parseInt(Date.now() / 1000) + 600);
-  Services.cookies.add("drumbeat.org", "", "name1", "value1",
-                       false, false, true, parseInt(Date.now() / 1000) + 600);
+  Services.cookies.add("getpersonas.com", "", "name0", "value0", false, false,
+                       true, parseInt(Date.now() / 1000) + 600, {});
+  Services.cookies.add("drumbeat.org", "", "name1", "value1", false, false,
+                       true, parseInt(Date.now() / 1000) + 600, {});
 
   //Services.prefs.setBoolPref("data_manager.debug", true);
 

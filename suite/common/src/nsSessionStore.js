@@ -2009,7 +2009,7 @@ SessionStoreService.prototype = {
 
       for (var [host, isPinned] in Iterator(hosts)) {
         try {
-          var list = Services.cookies.getCookiesFromHost(host);
+          var list = Services.cookies.getCookiesFromHost(host, {});
           while (list.hasMoreElements()) {
             var cookie = list.getNext().QueryInterface(Components.interfaces.nsICookie2);
             // window._hosts will only have hosts with the right privacy rules,
@@ -2029,11 +2029,18 @@ SessionStoreService.prototype = {
               if (!jscookies[cookie.host][cookie.path][cookie.name]) {
                 var jscookie = { "host": cookie.host, "value": cookie.value };
                 // only add attributes with non-default values (saving a few bits)
-                if (cookie.path) jscookie.path = cookie.path;
-                if (cookie.name) jscookie.name = cookie.name;
-                if (cookie.isSecure) jscookie.secure = true;
-                if (cookie.isHttpOnly) jscookie.httponly = true;
-                if (cookie.expiry < MAX_EXPIRY) jscookie.expiry = cookie.expiry;
+                if (cookie.path)
+                  jscookie.path = cookie.path;
+                if (cookie.name)
+                  jscookie.name = cookie.name;
+                if (cookie.isSecure)
+                  jscookie.secure = true;
+                if (cookie.isHttpOnly)
+                  jscookie.httponly = true;
+                if (cookie.expiry < MAX_EXPIRY)
+                  jscookie.expiry = cookie.expiry;
+                if (cookie.originAttributes)
+                  jscookie.originAttributes = cookie.originAttributes;
 
                 jscookies[cookie.host][cookie.path][cookie.name] = jscookie;
               }
@@ -3143,7 +3150,8 @@ SessionStoreService.prototype = {
         Services.cookies.add(cookie.host, cookie.path || "", cookie.name || "",
                              cookie.value, !!cookie.secure, !!cookie.httponly,
                              true,
-                             "expiry" in cookie ? cookie.expiry : MAX_EXPIRY);
+                             "expiry" in cookie ? cookie.expiry : MAX_EXPIRY,
+                             "originAttributes" in cookie ? cookie.originAttributes : {});
       }
       catch (ex) { Components.utils.reportError(ex); } // don't let a single cookie stop recovering
     }
